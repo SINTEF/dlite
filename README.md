@@ -12,17 +12,17 @@ with SOFT can be read with dlite and vice verse.
 See [src/dlite.h](src/dlite.h) for a description of the current
 api. So far only reading and writing HDF5 files is implemented.
 
-*dlite* also includes a small library for generating UUIDs, see
-[uuid/README.md](uuid/README.md).
+*dlite* also includes [uuid][2] -- a small library for generating UUIDs.
 
 
 Dependencies
 ------------
 *dlite* has the following dependencies:
-  - [hdf5][2], required
   - [cmake][3], required for building
-  - [doxygen][4], optional, used for documentation generation
-  - [valgrind][5], optional, used for memory checking (Linux only)
+  - [hdf5][4], required (cmake will automatically downloaded and built hdf5
+    if it is not found)
+  - [doxygen][5], optional, used for documentation generation
+  - [valgrind][6], optional, used for memory checking (Linux only)
 
 
 Building
@@ -58,7 +58,7 @@ Depending on the adoption of SOFT, dlite may either be merged into
 SOFT or remain as a lightweight portable alternative.  In the latter
 case, possible new features could include:
   - code generator
-  - plugin-system, e.g. based on [c-pluff][6]
+  - plugin-system, e.g. based on [c-pluff][7]
   - more drivers, like JSON
 
 ---
@@ -66,8 +66,9 @@ case, possible new features could include:
 *dlite* is developed with the hope that it will be a delight to work with.
 
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
-[2]: https://support.hdfgroup.org/HDF5/
+[2]: https://stash.code.sintef.no/projects/PRECIMS/repos/uuid/
 [3]: https://cmake.org/
-[4]: http://www.doxygen.org/
-[5]: http://valgrind.org/
-[6]: https://github.com/jlehtine/c-pluff
+[4]: https://support.hdfgroup.org/HDF5/
+[5]: http://www.doxygen.org/
+[6]: http://valgrind.org/
+[7]: https://github.com/jlehtine/c-pluff

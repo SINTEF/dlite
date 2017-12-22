@@ -10,6 +10,7 @@ project(dlite
 
 
 # Options
+option(BUILD_HDF5      "If not installed, download and compile HDF5"  ON)
 option(WITH_LIB        "Compile dynamic libraries"                    ON)
 option(WITH_STATIC_LIB "Compile static libraries"                     OFF)
 
@@ -46,7 +47,7 @@ include(ExternalProject)
 # hdf5
 # ====
 find_package(HDF5 COMPONENTS C)
-if(NOT HDF5_FOUND)
+if((NOT HDF5_FOUND) AND BUILD_HDF5)
   message(STATUS "Download and build HDF5 as external package")
 
   set(hdf5_VERSION     "1.10.1")
