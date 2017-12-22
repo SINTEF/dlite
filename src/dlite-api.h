@@ -11,16 +11,7 @@
   struct _API *api; /*!< Pointer to backend api */                           \
   char uuid[37];    /*!< stored reference to uuid */                         \
   char *uri;        /*!< stored reference to uri, allocated at creation */   \
-                                                                             \
-  /** Fields managed by both dlite and backends - bad design                 \
-   *  TODO: remove or move all management to dlite                           \
-   */                                                                        \
-  char *metadata;   /*!< stored reference to metadata, allocated lazily */   \
-  int ndims;        /*!< number of dimensions, initialised to -1 */          \
-  int *dims;        /*!< dimension sizes, length: ndims, allocated lazily */ \
-  char **dimnames;  /*!< dimension names, length: ndims, allocated lazily */ \
-  int nprops;       /*!< number of properties, initialised to -1 */          \
-  char **propnames; /*!< property names, length: nprops, allocated lazily */
+  char *metadata;   /*!< stored reference to metadata, allocated lazily */
 
 
 /* Minimum api */
@@ -33,28 +24,17 @@ typedef int (*GetProperty)(const DLite *d, const char *name, void *ptr,
                            DLiteType type, size_t size,
                            int ndims, const int *dims);
 
+/* Optional api */
 typedef int (*SetMetadata)(DLite *d, const char *metadata);
 typedef int (*SetDimensionSize)(DLite *d, const char *name, int size);
 typedef int (*SetProperty)(DLite *d, const char *name, const void *ptr,
                            DLiteType type, size_t size,
                            int ndims, const int *dims);
 
-/* Optional api */
 typedef char **(*GetInstanceNames)(const char *uri, const char *options);
 
 typedef char *(*GetDataName)(DLite *d);
 typedef int (*SetDataName)(DLite *d, const char *name);
-
-/* consider remove the functions below... */
-typedef int (*GetNDimensions)(const DLite *d);
-typedef const char *(*GetDimensionName)(const DLite *d, int n);
-typedef int (*GetDimensionSizeByIndex)(const DLite *d, int n);
-typedef int (*GetNProperties)(const DLite *d);
-typedef const char *(*GetPropertyName)(const DLite *d, int n);
-typedef int (*GetPropertyByIndex)(const DLite *d, int n, void *ptr,
-                                  DLiteType type, size_t size,
-                                  int ndims, const int *dims);
-
 
 
 /** Struct with the name and pointers to function for a backend. All
@@ -70,22 +50,15 @@ typedef struct _API {
   GetDimensionSize         getDimensionSize;
   GetProperty              getProperty;
 
+  /* Optional api */
   SetMetadata              setMetadata;
   SetDimensionSize         setDimensionSize;
   SetProperty              setProperty;
 
-  /* Optional api*/
   GetInstanceNames         getInstanceNames;
 
   GetDataName              getDataName;
   SetDataName              setDataName;
-
-  GetNDimensions           getNDimensions;
-  GetDimensionName         getDimensionName;
-  GetDimensionSizeByIndex  getDimensionSizeByIndex;
-  GetNProperties           getNProperties;
-  GetPropertyName          getPropertyName;
-  GetPropertyByIndex       getPropertyByIndex;
 } API;
 
 

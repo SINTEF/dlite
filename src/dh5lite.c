@@ -392,73 +392,6 @@ static void entrylist_free(EntryList *e)
 }
 
 
-/* Read dimension sizes */
-/* TODO: consider remove */
-static void read_dims(DH5 *d)
-{
-  hid_t dimgroup=0;
-  herr_t stat;
-  EntryList *entries=NULL, *e;
-  int i;
-
-  if (d->dims) return;
-
-  if ((dimgroup = H5Gopen(d->instance, "dimensions", H5P_DEFAULT)) < 0) {
-    err(1, "no 'dimensions' group: %s", h5err(d, dimgroup)); goto fail; }
-
-  if ((stat = H5Literate(dimgroup, H5_INDEX_NAME, H5_ITER_NATIVE, NULL,
-                         find_entries, &entries)) < 0) {
-    err(1, "error finding dimensions: %s", h5err(d, stat)); goto fail; }
-
-  d->ndims = 0;
-  for (e=entries; e; e=e->next) d->ndims++;
-
-  if (!(d->dims = malloc(d->ndims * sizeof(size_t)))) {
-    err(1, NULL); goto fail; }
-  if (!(d->dimnames = malloc(d->ndims * sizeof(char *)))) {
-    err(1, NULL); goto fail; }
-  for (i=0, e=entries; e; e=e->next, i++) {
-    if (get_data(d, dimgroup, e->name, d->dims + i, DTInt, sizeof(int),
-                 1, NULL) < 0)
-      err(1, "cannot determine size of dimension %d '%s'", i, e->name);
-    if (!(d->dimnames[i] = strdup(e->name))) FAIL0("Allocation failure");
-  }
- fail:
-  entrylist_free(entries);
-  if (dimgroup >= 0) H5Gclose(dimgroup);
-}
-
-
-/* Read properties */
-/* TODO: consider remove */
-static void read_properties(DH5 *d)
-{
-  herr_t stat;
-  EntryList *entries=NULL, *e;
-  int i;
-
-  if (d->propnames) return;
-
-  if ((stat = H5Literate(d->properties, H5_INDEX_NAME, H5_ITER_NATIVE, NULL,
-                         find_entries, &entries)) < 0) {
-    err(1, "error finding properties: %s", h5err(d, stat)); goto fail; }
-
-  d->nprops = 0;
-  for (e=entries; e; e=e->next) d->nprops++;
-
-  if (!(d->propnames = malloc(d->nprops * sizeof(char *)))) {
-    err(1, NULL); goto fail; }
-  for (i=0, e=entries; e; e=e->next, i++) {
-    int n = strlen(e->name) + 1;
-    if (!(d->propnames[i] = malloc(n))) {
-      err(1, NULL); goto fail; }
-    memcpy(d->propnames[i], e->name, n);
-  }
-
- fail:
-  entrylist_free(entries);
-}
-
 
 /********************************************************************
  * Required api
@@ -764,85 +697,6 @@ int dh5_set_dataname(DLite *dh5, const char *name)
 }
 
 
-/**
-  Returns the number of dimensions or -1 on error.
- */
-int dh5_get_ndimensions(const DLite *dh5)
-{
-  DH5 *d = (DH5 *)dh5;
-  err_clear();
-  if (d->ndims < 0) read_dims(d);
-  if (err_getcode()) return -1;
-  return d->ndims;
-}
-
-
-/**
-  Returns the name of dimension `n` or NULL on error.
- */
-const char *dh5_get_dimension_name(const DLite *dh5, int n)
-{
-  DH5 *d = (DH5 *)dh5;
-  err_clear();
-  if (d->ndims < 0) read_dims(d);
-  if (err_getcode()) return NULL;
-  return d->dimnames[n];
-}
-
-
-/**
-  Returns the size of dimension `n` or -1 on error.
- */
-int dh5_get_dimension_size_by_index(const DLite *dh5, int n)
-{
-  DH5 *d = (DH5 *)dh5;
-  err_clear();
-  if (d->ndims < 0) read_dims(d);
-  if (err_getcode()) return -1;
-  return d->dims[n];
-}
-
-
-/**
-  Returns the number of properties or -1 on error.
- */
-int dh5_get_nproperties(const DLite *dh5)
-{
-  DH5 *d = (DH5 *)dh5;
-  err_clear();
-  if (d->nprops < 0) read_properties(d);
-  if (err_getcode()) return -1;
-  return d->nprops;
-}
-
-
-/**
-  Returns a pointer to property name or NULL on error.  Do not free.
- */
-const char *dh5_get_property_name(const DLite *dh5, int n)
-{
-  DH5 *d = (DH5 *)dh5;
-  err_clear();
-  if (d->nprops < 0) read_properties(d);
-  if (err_getcode()) return NULL;
-  return d->propnames[n];
-}
-
-
-/**
-  Like dh5_get_property(), except that the property is
-  specified by index \a n instead of name.
- */
-int dh5_get_property_by_index(const DLite *dh5, int n, void *ptr,
-                              DLiteType type, size_t size,
-                              int ndims, const int *dims)
-{
-  DH5 *d = (DH5 *)dh5;
-  const char *name;
-  if (!(name = dh5_get_property_name(dh5, n))) return -1;
-  return get_data(d, d->properties, name, ptr, type, size, ndims, dims);
-}
-
 
 API h5_api = {
   "hdf5",
@@ -854,20 +708,13 @@ API h5_api = {
   dh5_get_dimension_size,
   dh5_get_property,
 
+  /* optional */
   dh5_set_metadata,
   dh5_set_dimension_size,
   dh5_set_property,
 
-  /* optional */
   dh5_get_instance_names,
 
   dh5_get_dataname,
   dh5_set_dataname,
-
-  dh5_get_ndimensions,
-  dh5_get_dimension_name,
-  dh5_get_dimension_size_by_index,
-  dh5_get_nproperties,
-  dh5_get_property_name,
-  dh5_get_property_by_index
 };

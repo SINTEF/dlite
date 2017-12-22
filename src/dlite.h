@@ -67,19 +67,9 @@ int dclose(DLite *d);
 const char *dget_metadata(const DLite *d);
 
 /**
-  Sets metadata.  Returns non-zero on error.
- */
-int dset_metadata(DLite *d, const char *metadata);
-
-/**
   Returns the size of dimension \a name or -1 on error.
  */
 int dget_dimension_size(const DLite *d, const char *name);
-
-/**
-  Sets size of dimension \a name.  Returns non-zero on error.
-*/
-int dset_dimension_size(DLite *d, const char *name, int size);
 
 /**
   Copies property \a name to memory pointed to by \a ptr.
@@ -98,6 +88,17 @@ int dset_dimension_size(DLite *d, const char *name, int size);
 int dget_property(const DLite *d, const char *name, void *ptr,
                   DLiteType type, size_t size, int ndims, const int *dims);
 
+/** @} */
+
+
+/**
+  @name Optional API
+
+  Optional API that backends are free leave unimplemented.
+  All functions below are supported by the HDF5 backend.
+  @{
+*/
+
 
 /**
   Sets property \a name to the memory (of \a size bytes) pointed to by
@@ -110,16 +111,16 @@ int dset_property(DLite *d, const char *name, const void *ptr,
                   DLiteType type, size_t size, int ndims, const int *dims);
 
 
-/** @} */
-
+/**
+  Sets metadata.  Returns non-zero on error.
+ */
+int dset_metadata(DLite *d, const char *metadata);
 
 /**
-  @name Optional API
-
-  Optional API that backends are free leave unimplemented.
-  All functions below are supported by the HDF5 backend.
-  @{
+  Sets size of dimension \a name.  Returns non-zero on error.
 */
+int dset_dimension_size(DLite *d, const char *name, int size);
+
 
 /**
   Returns a NULL-terminated array of string pointers to instance UUID's.
@@ -140,41 +141,6 @@ void dfree_instance_names(char **names);
 */
 char *dget_dataname(DLite *d);
 
-
-/* TODO: consider removing the functions below... */
-
-/**
-  Returns the number of dimensions or -1 on error.
- */
-int dget_ndimensions(const DLite *d);
-
-/**
-  Returns the name of dimension `n` or NULL on error.  Do not free.
- */
-const char*dget_dimension_name(const DLite *d, int n);
-
-/**
-  Returns the size of dimension `n` or -1 on error.
- */
-int dget_dimension_size_by_index(const DLite *d, int n);
-
-/**
-  Returns the number of properties or -1 on error.
- */
-int dget_nproperties(const DLite *d);
-
-/**
-  Returns a pointer to property name or NULL on error.  Do not free.
- */
-const char *dget_property_name(const DLite *d, int n);
-
-/**
-  Like dh5_get_property_by_name(), except that the property is
-  specified by index \a n instead of name.
- */
-int dget_property_by_index(const DLite *d, int n, void *ptr,
-                           DLiteType type, size_t size, int ndims,
-                           const int *dims);
 
 /** @} */
 

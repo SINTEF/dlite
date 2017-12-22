@@ -287,65 +287,6 @@ int test_stringptr_arr_property()
 }
 
 
-
-
-
-/*
-int test_get_ndimensions()
-{
-  DLite *d;
-  int retval = 1;
-  if (!(d = dopen("hdf5", datafile, NULL, id))) goto fail;
-  if (dget_ndimensions(d) != 6) goto fail;
-  retval = 0;
- fail:
-  dclose(d);
-  return retval;
-}
-
-int test_get_dimension_size_by_index()
-{
-  DLite *d;
-  int retval = 1;
-  int i, sizes[] = {3, 150, 4, 5, 4, 28};
-  if (!(d = dopen("hdf5", datafile, NULL, id))) goto fail;
-  for (i=0; i<6; i++)
-    if (dget_dimension_size_by_index(d, i) != sizes[i]) goto fail;
-  retval = 0;
- fail:
-  dclose(d);
-  return retval;
-}
-
-int test_get_nproperties()
-{
-  DLite *d;
-  int retval = 1;
-  if (!(d = dopen("hdf5", datafile, NULL, id))) goto fail;
-  if (dget_nproperties(d) != 42) goto fail;
-  retval = 0;
- fail:
-  dclose(d);
-  return retval;
-}
-
-int test_get_property_name()
-{
-  DLite *d;
-  int retval = 1;
-  int i;
-  char *names[] = {"varranges", "varnames", "values", "spline9", "spline8"};
-  if (!(d = dopen("hdf5", datafile, NULL, id))) goto fail;
-  for (i=0; i<5; i++)
-    if (strcmp(dget_property_name(d, i), names[i])) goto fail;
-  retval = 0;
- fail:
-  dclose(d);
-  return retval;
-}
-*/
-
-
 /***********************************************************************/
 
 int nerr = 0;  /* global error count */
@@ -388,12 +329,6 @@ int main(int argc, char *argv[]) {
   Assert("uint64_arr_property",    test_uint64_arr_property() == 0);
   Assert("string_arr_property",    test_string_arr_property() == 0);
   Assert("stringptr_arr_property", test_stringptr_arr_property() == 0);
-  /*
-  Assert("get_ndimensions", test_get_ndimensions() == 0);
-  Assert("get_dimension_size_by_index", test_get_dimension_size_by_index() ==0);
-  Assert("get_nproperties", test_get_nproperties() == 0);
-  Assert("get_property_name", test_get_property_name() == 0);
-  */
 
   dfree_instance_names(names);
   return nerr;

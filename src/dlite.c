@@ -103,23 +103,12 @@ DLite *dopen(const char *driver, const char *uri, const char *options,
 */
 int dclose(DLite *d)
 {
-  int i, stat;
+  int stat;
   assert(d);
   stat = d->api->close(d);
-
   free(d->uri);
   if (d->metadata) free(d->metadata);
-  if (d->dims) free(d->dims);
-  if (d->dimnames) {
-    for (i=0; i<(int)d->ndims; i++) free(d->dimnames[i]);
-    free(d->dimnames);
-  }
-  if (d->propnames) {
-    for (i=0; i<(int)d->nprops; i++) free(d->propnames[i]);
-    free(d->propnames);
-  }
   free(d);
-
   return stat;
 }
 
@@ -140,10 +129,6 @@ const char *dget_metadata(const DLite *d)
  */
 int dget_dimension_size(const DLite *d, const char *name)
 {
-  int i;
-  if (d->ndims >= 0 && d->dimnames && d->dims)
-    for (i=0; i<d->ndims; i++)
-      if (strcmp(d->dimnames[i], name) == 0) return d->dims[i];
   return d->api->getDimensionSize(d, name);
 }
 
@@ -153,8 +138,7 @@ int dget_dimension_size(const DLite *d, const char *name)
   bytes are written.  If `size` is too small (or `ptr` is NULL),
   nothing is copied to `ptr`.
 
-  Returns the size of data to write to `ptr`.  On error, -1 is
-  returned.
+  Returns non-zero on error.
  */
 int dget_property(const DLite *d, const char *name, void *ptr,
                   DLiteType type, size_t size, int ndims, const int *dims)
@@ -163,6 +147,10 @@ int dget_property(const DLite *d, const char *name, void *ptr,
 }
 
 
+/********************************************************************
+ * Optional api
+ ********************************************************************/
+
 /*
   Sets property `name` to the memory (of `size` bytes) pointed to by `value`.
   Returns non-zero on error.
@@ -170,6 +158,8 @@ int dget_property(const DLite *d, const char *name, void *ptr,
 int dset_property(DLite *d, const char *name, const void *ptr,
                   DLiteType type, size_t size, int ndims, const int *dims)
 {
+  if (!d->api->setProperty)
+    return errx(1, "driver '%s' does not support set_property", d->api->name);
   return d->api->setProperty(d, name, ptr, type, size, ndims, dims);
 }
 
@@ -179,10 +169,13 @@ int dset_property(DLite *d, const char *name, const void *ptr,
  */
 int dset_metadata(DLite *d, const char *metadata)
 {
-  if (d->api->setMetadata) d->api->setMetadata(d, metadata);
+  int stat;
+  if (!d->api->setMetadata)
+    return errx(1, "driver '%s' does not support set_metadata", d->api->name);
+  stat = d->api->setMetadata(d, metadata);
   if (d->metadata) free(d->metadata);
   if (!(d->metadata = strdup(metadata))) return err(1, NULL);
-  return 0;
+  return stat;
 }
 
 
@@ -191,23 +184,11 @@ int dset_metadata(DLite *d, const char *metadata)
 */
 int dset_dimension_size(DLite *d, const char *name, int size)
 {
-  int i, stat;
-  if (d->api->setDimensionSize &&
-      (stat = d->api->setDimensionSize(d, name, size))) return stat;
-  if (d->ndims >= 0 && d->dimnames && d->dims) {
-    for (i=0; i<d->ndims; i++)
-      if (strcmp(d->dimnames[i], name) == 0) {
-        d->dims[i] = size;
-        return 0;
-      }
-    return errx(1, "invalid dimension name: '%s'", name);
-  }
-  return 0;
+  if (!d->api->setDimensionSize)
+    return errx(1, "driver '%s' does not support set_dimension_size",
+                d->api->name);
+  return d->api->setDimensionSize(d, name, size);
 }
-
-/********************************************************************
- * Optional api
- ********************************************************************/
 
 
 /*
@@ -250,103 +231,6 @@ char *dget_dataname(DLite *d)
 }
 
 
-/*
-  Returns the number of dimensions or -1 on error.
- */
-int dget_ndimensions(const DLite *d)
-{
-  if (d->ndims >= 0) return d->ndims;
-  if (!d->api->getNDimensions)
-    return errx(-1, "driver '%s' does not support getNDimensions()",
-                d->api->name);
-  if (d->api->getNDimensions) return d->api->getNDimensions(d);
-  return -1;
-}
-
-
-/*
-  Returns the name of dimension `n` or NULL on error.  Do not free.
- */
-const char *dget_dimension_name(const DLite *d, int n)
-{
-  if (d->ndims >= 0) {
-    if (n < 0 || n >= d->ndims)
-      return errx(-1, "dimension index out of range: %d", n), NULL;
-    if (d->dimnames) return d->dimnames[n];
-  }
-  if (!d->api->getDimensionName)
-    return errx(-1, "driver '%s' does not support getDimensionName()",
-                d->api->name), NULL;
-  return d->api->getDimensionName(d, n);
-}
-
-
-/*
-  Returns the size of dimension `n` or -1 on error.
- */
-int dget_dimension_size_by_index(const DLite *d, int n)
-{
-  if (d->ndims >= 0) {
-    if (n < 0 || n >= d->ndims)
-      return errx(-1, "dimension index out of range: %d", n);
-    if (d->dims) return d->dims[n];
-  }
-  if (!d->api->getDimensionSizeByIndex)
-    return errx(-1, "driver '%s' does not support getDimensionSizeByIndex()",
-                d->api->name);
-  return d->api->getDimensionSizeByIndex(d, n);
-}
-
-
-/*
-  Returns the number of properties or -1 on error.
- */
-int dget_nproperties(const DLite *d)
-{
-  if (d->nprops >= 0) return d->nprops;
-  if (!d->api->getNProperties)
-    return errx(-1, "Driver '%s' does not support getNProperties()",
-                d->api->name);
-  return d->api->getNProperties(d);
-}
-
-
-/*
-  Returns a pointer to property name or NULL on error.  Do not free.
- */
-const char *dget_property_name(const DLite *d, int n)
-{
-  if (d->nprops >= 0) {
-    if (n < 0 || n >= d->nprops)
-      return errx(-1, "property index out of range: %d", n), NULL;
-    if (d->propnames) return d->propnames[n];
-  }
-  if (!d->api->getPropertyName)
-    return errx(-1, "Driver '%s' does not support getPropertyName()",
-                d->api->name), NULL;
-  return d->api->getPropertyName(d, n);
-}
-
-
-/*
-  Copies property \a n to memory pointed to by \a ptr.  Max \a size
-  bytes are written.  If \a size is too small (or \a ptr is NULL),
-  nothing is copied to \a ptr.
-
-  Returns the size of data to write to \a ptr.  On error, -1 is
-  returned.
- */
-int dget_property_by_index(const DLite *d, int n, void *ptr,
-                           DLiteType type, size_t size, int ndims,
-                           const int *dims)
-{
-  if (!d->api->getPropertyByIndex)
-    return dget_property(d, dget_property_name(d, n), ptr,
-                         type, size, ndims, dims);
-  return d->api->getPropertyByIndex(d, n, ptr, type, size, ndims, dims);
-}
-
-
 
 /********************************************************************
  * Utility functions intended to be used by teh backends
@@ -356,8 +240,6 @@ int dget_property_by_index(const DLite *d, int n, void *ptr,
 void dlite_init(DLite *d)
 {
   memset(d, 0, sizeof(DLite));
-  d->ndims = -1;
-  d->nprops = -1;
 }
 
 
