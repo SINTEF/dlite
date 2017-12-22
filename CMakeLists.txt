@@ -23,8 +23,17 @@ enable_c_compiler_flag_if_supported("-Wextra")
 enable_c_compiler_flag_if_supported("-Wpedantic")
 
 # Testing
-enable_testing()
+include(CTest)
+
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
+
+if(CTEST_MEMORYCHECK_COMMAND)
+  add_custom_target(memcheck
+    COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --output-on-failure -T memcheck
+    COMMENT "Runs memory check with valgrind"
+    )
+endif()
+
 
 ####################################################################
 # Use ExternalProject_add instead of add_subdirectory for packages.

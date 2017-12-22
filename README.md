@@ -12,6 +12,18 @@ with SOFT can be read with dlite and vice verse.
 See [src/dlite.h](src/dlite.h) for a description of the current
 api. So far only reading and writing HDF5 files is implemented.
 
+*dlite* also includes a small library for generating UUIDs, see
+[uuid/README.md](uuid/README.md).
+
+
+Dependencies
+------------
+*dlite* has the following dependencies:
+  - [hdf5][2], required
+  - [cmake][3], required for building
+  - [doxygen][4], optional, used for documentation generation
+  - [valgrind][5], optional, used for memory checking (Linux only)
+
 
 Building
 --------
@@ -22,6 +34,23 @@ Build with:
     cmake ..
     make
 
+Before running make, you may wish to configure some options with
+`ccmake ..`.
+
+To run the tests, do
+
+    make test  # synonym for running `ctest`
+
+To generate code documentation, do
+
+    make doc  # direct your browser to doc/html/index.html
+
+To install dlite locally, do
+
+    make install
+
+TODO: add instructions for building with Visual Studio on Windows.
+
 
 Further plans
 -------------
@@ -29,7 +58,7 @@ Depending on the adoption of SOFT, dlite may either be merged into
 SOFT or remain as a lightweight portable alternative.  In the latter
 case, possible new features could include:
   - code generator
-  - plugin-system, e.g. based on [c-pluff][2]
+  - plugin-system, e.g. based on [c-pluff][6]
   - more drivers, like JSON
 
 ---
@@ -37,4 +66,8 @@ case, possible new features could include:
 *dlite* is developed with the hope that it will be a delight to work with.
 
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
-[2]: https://github.com/jlehtine/c-pluff
+[2]: https://support.hdfgroup.org/HDF5/
+[3]: https://cmake.org/
+[4]: http://www.doxygen.org/
+[5]: http://valgrind.org/
+[6]: https://github.com/jlehtine/c-pluff
