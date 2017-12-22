@@ -35,15 +35,16 @@ Build with:
     make
 
 Before running make, you may wish to configure some options with
-`ccmake ..`.
+`ccmake ..`
 
 To run the tests, do
 
-    make test  # synonym for running `ctest`
+    make test        # same as running `ctest`
+    make memcheck    # runs all tests with memory checking (requires valgrind)
 
 To generate code documentation, do
 
-    make doc  # direct your browser to doc/html/index.html
+    make doc         # direct your browser to doc/html/index.html
 
 To install dlite locally, do
 
