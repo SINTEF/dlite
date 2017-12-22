@@ -6,11 +6,11 @@ is strongly inspired by [SOFT][1], with the aim to be a lightweight
 replacement in cases where Windows portability is a showstopper for
 using SOFT.
 
-dlite shares the metadata model of SOFT and generic data stored
+*dlite* shares the metadata model of SOFT and generic data stored
 with SOFT can be read with dlite and vice verse.
 
-See src/dlite.h for a description of the current api. So far only
-reading and writing HDF5 files is implemented.
+See [src/dlite.h](src/dlite.h) for a description of the current
+api. So far only reading and writing HDF5 files is implemented.
 
 
 Building
