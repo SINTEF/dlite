@@ -1,0 +1,31 @@
+/* -*- Mode: C -*- */
+
+#ifndef _CONFIG_H
+#define _CONFIG_H
+
+
+/* dlite version */
+#ifndef dlite_VERSION
+#define dlite_VERSION "@dlite_VERSION@"
+#endif
+
+
+/* Thread local storage */
+#cmakedefine HAVE_GCC_THREAD_LOCAL_STORAGE
+#cmakedefine HAVE_WIN32_THREAD_LOCAL_STORAGE
+
+#ifdef HAVE_GCC_THREAD_LOCAL_STORAGE
+# define _thread_local __thread
+#elif HAVE_WIN32_THREAD_LOCAL_STORAGE
+# define _thread_local __declspec(thread)
+#else
+# define _thread_local
+#endif
+
+
+/* Whether functions exists. If not, they are defined in compat.c */
+#cmakedefine HAVE_STRDUP
+#cmakedefine HAVE__STRDUP
+
+
+#endif /* _CONFIG_H */

@@ -1,0 +1,131 @@
+# -*- Mode: cmake -*-
+#
+cmake_minimum_required(VERSION 3.4)
+include(CPack)
+
+
+project(dlite
+  VERSION 0.1
+  LANGUAGES C)
+
+
+# Options
+option(WITH_LIB        "Compile dynamic libraries"                    ON)
+option(WITH_STATIC_LIB "Compile static libraries"                     OFF)
+
+# Append our cmake-modules to CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
+
+# Enable compiler warnings
+include(SetCompilerFlags)
+enable_c_compiler_flag_if_supported("-Wall")
+enable_c_compiler_flag_if_supported("-Wextra")
+enable_c_compiler_flag_if_supported("-Wpedantic")
+
+# Testing
+enable_testing()
+find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
+
+####################################################################
+# Use ExternalProject_add instead of add_subdirectory for packages.
+# For explanation of the approach, see
+# https://coderwall.com/p/y3zzbq/use-cmake-enabled-libraries-in-your-cmake-project
+####################################################################
+include(ExternalProject)
+
+#
+# hdf5
+# ====
+find_package(HDF5 COMPONENTS C)
+if(NOT HDF5_FOUND)
+  message(STATUS "Download and build HDF5 as external package")
+
+  set(hdf5_VERSION     "1.10.1")
+  set(hdf5_NAME        "hdf5-${hdf5_VERSION}")
+  set(hdf5_PREFIX      "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
+  set(hdf5_SOURCE_DIR  "${hdf5_PREFIX}/src/${hdf5_NAME}")
+  #set(hdf5_SOURCE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/hdf5-1.10.1)
+
+  #if(CMAKE_GENERATOR MATCHES "Makefiles")
+  #
+  #  # configure
+  #  find_program(BASH bash)
+  #  set(configure_command
+  #    ${BASH}
+  #    ${hdf5_SOURCE_DIR}/configure
+  #    --prefix=${CMAKE_INSTALL_PREFIX}
+  #    --disable-hl
+  #    )
+  #  if(CMAKE_TOOLCHAIN_FILE)
+  #    get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+  #    list(APPEND configure_command "--host=${COMPILER_NAME}")
+  #    list(APPEND configure_command "--build=${COMPILER_NAME}")
+  #    #list(APPEND configure_command "--enable-shared=no")
+  #    #list(APPEND configure_command "--enable-static=yes")
+  #  endif()
+  #
+  #  # build
+  #  find_program(MAKE make)
+  #  set(build_command ${MAKE})
+  #  if(COMPILER_NAME MATCHES mingw)
+  #    list(APPEND build_command "CPPFLAGS+='-DH5_HAVE_WIN32_API -D_ISOC99_SOURCE -include pthread-h'")
+  #    #list(APPEND build_command "CFLAGS+='-no-undefined'")
+  #    list(APPEND build_command "LDFLAGS+=-no-undefined -pthread")
+  #  endif()
+  #endif()
+
+  set(cmake_args
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DHDF5_BUILD_CXX=OFF
+    -DHDF5_BUILD_FORTRAN=OFF
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
+    )
+  if(CMAKE_TOOLCHAIN_FILE)
+    get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+    list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
+  endif()
+
+  ExternalProject_Add(
+    ${hdf5_NAME}
+    PREFIX            ${hdf5_PREFIX}
+    URL               https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
+    URL_MD5           43a2f9466702fb1db31df98ae6677f15
+    SOURCE_DIR        ${hdf5_SOURCE_DIR}
+
+    UPDATE_COMMAND    ""
+
+    CMAKE_ARGS        ${cmake_args}
+    #CONFIGURE_COMMAND  ${configure_command}
+
+    BUILD_COMMAND     "${build_command}"
+
+    INSTALL_COMMAND   ""
+    )
+endif()
+
+
+
+#
+# uuid
+# ====
+set(uuid_SOURCE_DIR  ${dlite_SOURCE_DIR}/uuid)
+ExternalProject_Add(
+  uuid-0.1
+  PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid-0.1
+  SOURCE_DIR      ${uuid_SOURCE_DIR}
+  UPDATE_COMMAND  ""
+  TEST_COMMAND    ctest
+  INSTALL_COMMAND ""
+)
+ExternalProject_Get_Property(uuid-0.1 BINARY_DIR)
+set(uuid_BINARY_DIR ${BINARY_DIR})
+
+#################################################################
+
+
+# Subdirectories
+#add_subdirectory(uuid)
+add_subdirectory(src)
+add_subdirectory(doc)
