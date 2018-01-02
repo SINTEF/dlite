@@ -25,6 +25,17 @@ Dependencies
   - [valgrind][6], optional, used for memory checking (Linux only)
 
 
+Download
+--------
+Download dlite with git, using
+
+    git clone ssh://git@git.code.sintef.no/precims/dlite.git
+
+To initialize the uuid submodule, you may also have to run
+
+    git submodule init
+
+
 Building
 --------
 Build with:
