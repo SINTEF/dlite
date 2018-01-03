@@ -33,6 +33,9 @@ typedef int (*SetProperty)(DLite *d, const char *name, const void *ptr,
 
 typedef char **(*GetInstanceNames)(const char *uri, const char *options);
 
+typedef int (*HasDimension)(DLite *d, const char *name);
+typedef int (*HasProperty)(DLite *d, const char *name);
+
 typedef char *(*GetDataName)(DLite *d);
 typedef int (*SetDataName)(DLite *d, const char *name);
 
@@ -56,6 +59,9 @@ typedef struct _API {
   SetProperty              setProperty;
 
   GetInstanceNames         getInstanceNames;
+
+  HasDimension             hasDimension;
+  HasProperty              hasProperty;
 
   GetDataName              getDataName;
   SetDataName              setDataName;

@@ -27,9 +27,25 @@ typedef enum _DLiteType {
  */
 
 /**
-    Returns descriptive name for \a type or NULL on error.
+  Returns descriptive name for \a type or NULL on error.
 */
 char *dget_typename(DLiteType type);
+
+/**
+  Writes an UUID to \a buff based on \a id.
+
+  If \a id is NULL or empty, a new random version 4 UUID is generated.
+  If \a id is an invalid UUID string, a new version 5 sha1-based UUID
+  is generated from \a id using the DNS namespace.
+  Otherwise \a id is copied to \a buff.
+
+  Length of \a buff must at least 37 bytes (36 for UUID + NUL termination).
+
+  Returns a pointer to \a buff, or NULL on error.
+ */
+char *dget_uuid(char *buff, const char *id);
+
+
 
 /** @} */
 
@@ -95,6 +111,11 @@ int dget_property(const DLite *d, const char *name, void *ptr,
   @name Optional API
 
   Optional API that backends are free leave unimplemented.
+
+  The backend must provide dset_property(), dset_metadata() and
+  dset_dimension_size() to support writing, otherwise only read is
+  supported.
+
   All functions below are supported by the HDF5 backend.
   @{
 */
@@ -124,7 +145,8 @@ int dset_dimension_size(DLite *d, const char *name, int size);
 
 /**
   Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array.
+  The caller is responsible to free the returned array with
+  dfree_instance_names().
  */
 char **dget_instance_names(const char *driver, const char *uri,
                            const char *options);
@@ -134,6 +156,16 @@ char **dget_instance_names(const char *driver, const char *uri,
   dget_instance_names().
 */
 void dfree_instance_names(char **names);
+
+/**
+   Returns non-zero if dimension \a name exists.
+ */
+int dhas_dimension(DLite *d, const char *name);
+
+/**
+   Returns non-zero if property \a name exists.
+ */
+int dhas_property(DLite *d, const char *name);
 
 /**
    If the uuid was generated from a unique name, return a pointer to a

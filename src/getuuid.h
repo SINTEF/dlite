@@ -7,7 +7,7 @@
  *
  * If \a id is NULL or empty, a new random version 4 UUID is generated.
  * If \a id is an invalid UUID string, a new version 5 sha1-based UUID
- * is generated from \id using the DNS namespace.
+ * is generated from \a id using the DNS namespace.
  * Otherwise \a id is copied to \a buff.
  *
  * Length of \a buff must at least 37 bytes (36 for UUID + NUL termination).

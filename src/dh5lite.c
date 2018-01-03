@@ -561,6 +561,9 @@ int dh5_get_property(const DLite *dh5, const char *name, void *ptr,
 }
 
 
+/********************************************************************
+ * Optional api
+ ********************************************************************/
 
 /**
   Sets metadata.  Returns non-zero on error.
@@ -627,11 +630,6 @@ int dh5_set_property(DLite *dh5, const char *name, const void *ptr,
 }
 
 
-
-/********************************************************************
- * Optional api
- ********************************************************************/
-
 /**
   Returns a NULL-terminated array of string pointers to instance UUID's.
   The caller is responsible to free the returned array.
@@ -668,6 +666,43 @@ char **dh5_get_instance_names(const char *uri, const char *options)
   if (entries) entrylist_free(entries);
   if (root >= 0) H5Fclose(root);
   return names;
+}
+
+
+/**
+   Returns non-zero if dimension `name` exists.
+ */
+int dh5_has_dimension(DLite *dh5, const char *name)
+{
+  DH5 *d = (DH5 *)dh5;
+  hid_t dimensions=0;
+  htri_t exists;
+  int retval=0;
+  if ((dimensions = H5Gopen(d->instance, "dimensions", H5P_DEFAULT)) < 0)
+    DFAIL2(d, "no '/%s/dimensions' group in %s", d->uuid, d->uri);
+  if ((exists = H5Lexists(dimensions, name, H5P_DEFAULT)) < 0)
+    FAIL3("cannot determine if '%s' has dimension '%s' in %s",
+	  d->uuid, name, d->uri);
+  retval = exists;
+ fail:
+  if (dimensions > 0) H5Gclose(dimensions);
+  return retval;
+}
+
+/**
+   Returns non-zero if property `name` exists.
+ */
+int dh5_has_property(DLite *dh5, const char *name)
+{
+  DH5 *d = (DH5 *)dh5;
+  htri_t exists;
+  int retval=0;
+  if ((exists = H5Lexists(d->properties, name, H5P_DEFAULT)) < 0)
+    FAIL3("cannot determine if '%s' has property '%s' in %s",
+	  d->uuid, name, d->uri);
+  retval = exists;
+ fail:
+  return retval;
 }
 
 
@@ -714,6 +749,9 @@ API h5_api = {
   dh5_set_property,
 
   dh5_get_instance_names,
+
+  dh5_has_dimension,
+  dh5_has_property,
 
   dh5_get_dataname,
   dh5_set_dataname,

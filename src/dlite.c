@@ -64,6 +64,25 @@ char *dget_typename(DLiteType type)
 }
 
 
+/*
+  Writes an UUID to `buff` based on `id`.
+
+  If `id` is NULL or empty, a new random version 4 UUID is generated.
+  If `id` is an invalid UUID string, a new version 5 sha1-based UUID
+  is generated from `id` using the DNS namespace.
+  Otherwise `id` is copied to `buff`.
+
+  Length of `buff` must at least 37 bytes (36 for UUID + NUL termination).
+
+  Returns a pointer to `buff`, or NULL on error.
+ */
+char *dget_uuid(char *buff, const char *id)
+{
+  return (getuuid(buff, id)) ? NULL : buff;
+}
+
+
+
 /********************************************************************
  * Required api
  ********************************************************************/
@@ -221,12 +240,33 @@ void dfree_instance_names(char **names)
 
 
 /*
+   Returns non-zero if dimension `name` exists.
+ */
+int dhas_dimension(DLite *d, const char *name)
+{
+  if (d->api->hasDimension) return d->api->hasDimension(d, name);
+  return errx(1, "driver '%s' does not support hasDimension()", d->api->name);
+}
+
+
+/*
+  Returns non-zero if property `name` exists.
+ */
+int dhas_property(DLite *d, const char *name)
+{
+  if (d->api->hasProperty) return d->api->hasProperty(d, name);
+  return errx(1, "driver '%s' does not support hasProperty()", d->api->name);
+}
+
+
+/*
   If the uuid was generated from a unique name, return a pointer to a
   newly malloc'ed string with this name.  Otherwise NULL is returned.
 */
 char *dget_dataname(DLite *d)
 {
   if (d->api->getDataName) return d->api->getDataName(d);
+  errx(1, "driver '%s' does not support getDataName()", d->api->name);
   return NULL;
 }
 

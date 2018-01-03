@@ -57,6 +57,7 @@ if(WITH_LIB)
     ${CMAKE_CURRENT_BINARY_DIR}
     ${uuid_SOURCE_DIR}
     ${uuid_BINARY_DIR})
+  add_dependencies(dlite uuidProj ${hdf5_NAME})
 
   install(
     TARGETS dlite
@@ -71,6 +72,7 @@ if(WITH_STATIC_LIB)
     ${CMAKE_CURRENT_BINARY_DIR}
     ${uuid_SOURCE_DIR}
     ${uuid_BINARY_DIR})
+  add_dependencies(dlite-static uuidProj ${hdf5_NAME})
 
   install(
     TARGETS dlite-static

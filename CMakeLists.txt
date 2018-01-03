@@ -122,14 +122,14 @@ endif()
 # ====
 set(uuid_SOURCE_DIR  ${dlite_SOURCE_DIR}/uuid)
 ExternalProject_Add(
-  uuid-0.1
-  PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid-0.1
+  uuidProj
+  PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid
   SOURCE_DIR      ${uuid_SOURCE_DIR}
   UPDATE_COMMAND  ""
   TEST_COMMAND    ctest
   INSTALL_COMMAND ""
 )
-ExternalProject_Get_Property(uuid-0.1 BINARY_DIR)
+ExternalProject_Get_Property(uuidProj BINARY_DIR)
 set(uuid_BINARY_DIR ${BINARY_DIR})
 
 #################################################################

@@ -14,7 +14,20 @@ char *id = "testdata";
 #define abs(x) (((x) < 0) ? -(x) : (x))
 
 
-int test_open_truncate()
+static int test_get_uuid()
+{
+  char buff[37];
+  if (!dget_uuid(buff, NULL)) return 1;
+  if (!dget_uuid(buff, "abc")) return 1;
+  if (strcmp(buff, "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8")) return 1;
+  if (!dget_uuid(buff, id)) return 1;
+  if (strcmp(buff, "a839938d-1d30-5b2a-af5c-2a23d436abdc")) return 1;
+  if (!dget_uuid(buff, "a839938d-1d30-5b2a-af5c-2a23d436abdc")) return 1;
+  if (strcmp(buff,     "a839938d-1d30-5b2a-af5c-2a23d436abdc")) return 1;
+  return 0;
+}
+
+static int test_open_truncate()
 {
   DLite *d;
   int retval = 1;
@@ -25,7 +38,7 @@ int test_open_truncate()
   return retval;
 }
 
-int test_metadata()
+static int test_metadata()
 {
   DLite *d;
   const char *p=NULL, *metadata="http://www.sintef.no/meta/dlite/testdata/0.1";
@@ -40,7 +53,7 @@ int test_metadata()
   return retval;
 }
 
-int test_dataname()
+static int test_dataname()
 {
   DLite *d;
   int retval = 1;
@@ -54,7 +67,7 @@ int test_dataname()
   if (dataname) free(dataname);
   return retval;
 }
-int test_dimension_size()
+static int test_dimension_size()
 {
   DLite *d;
   int N, M, retval = 1;
@@ -69,7 +82,7 @@ int test_dimension_size()
   return retval;
 }
 
-int test_blob_property()
+static int test_blob_property()
 {
   DLite *d;
   int i, retval = 1;
@@ -86,7 +99,7 @@ int test_blob_property()
   return retval;
 }
 
-int test_bool_property()
+static int test_bool_property()
 {
   DLite *d;
   int retval = 1;
@@ -101,7 +114,7 @@ int test_bool_property()
   return retval;
 }
 
-int test_int_property()
+static int test_int_property()
 {
   DLite *d;
   int retval = 1;
@@ -116,7 +129,7 @@ int test_int_property()
   return retval;
 }
 
-int test_uint16_property()
+static int test_uint16_property()
 {
   DLite *d;
   int retval = 1;
@@ -131,7 +144,7 @@ int test_uint16_property()
   return retval;
 }
 
-int test_float_property()
+static int test_float_property()
 {
   DLite *d;
   int retval = 1;
@@ -146,7 +159,7 @@ int test_float_property()
   return retval;
 }
 
-int test_double_property()
+static int test_double_property()
 {
   DLite *d;
   int retval = 1;
@@ -161,7 +174,7 @@ int test_double_property()
   return retval;
 }
 
-int test_string_property()
+static int test_string_property()
 {
   DLite *d;
   int retval = 1;
@@ -182,7 +195,7 @@ int test_string_property()
   return retval;
 }
 
-int test_stringptr_property()
+static int test_stringptr_property()
 {
   DLite *d;
   int retval = 1;
@@ -203,7 +216,7 @@ int test_stringptr_property()
   return retval;
 }
 
-int test_uint64_arr_property()
+static int test_uint64_arr_property()
 {
   DLite *d;
   int retval = 1;
@@ -223,7 +236,7 @@ int test_uint64_arr_property()
   return retval;
 }
 
-int test_string_arr_property()
+static int test_string_arr_property()
 {
   DLite *d;
   int retval = 1;
@@ -254,7 +267,7 @@ int test_string_arr_property()
   return retval;
 }
 
-int test_stringptr_arr_property()
+static int test_stringptr_arr_property()
 {
   DLite *d;
   int retval = 1;
@@ -286,6 +299,47 @@ int test_stringptr_arr_property()
   return retval;
 }
 
+static int test_has_dimension()
+{
+  DLite *d;
+  int retval = 1;
+  if (!(d = dopen("hdf5", datafile, NULL, id))) goto fail;
+  if (!dhas_dimension(d, "N")) goto fail;
+  if (dhas_dimension(d, "xxx")) goto fail;
+  retval = 0;
+ fail:
+  dclose(d);
+  return retval;
+}
+
+static int test_has_property()
+{
+  DLite *d;
+  int retval = 1;
+  if (!(d = dopen("hdf5", datafile, NULL, id))) goto fail;
+  if (!dhas_property(d, "mydouble")) goto fail;
+  if (dhas_property(d, "xxx")) goto fail;
+  retval = 0;
+ fail:
+  dclose(d);
+  return retval;
+}
+
+static int test_get_instance_names()
+{
+  int retval = 1;
+  char uuid[37];
+  char **names = dget_instance_names("hdf5", datafile, NULL);
+  if (!names || !names[0] || names[1]) goto fail;
+  if (!dget_uuid(uuid, id)) goto fail;
+  if (strcmp(names[0], uuid)) goto fail;
+  retval = 0;
+ fail:
+  dfree_instance_names(names);
+  return retval;
+}
+
+
 
 /***********************************************************************/
 
@@ -314,6 +368,8 @@ int main(int argc, char *argv[]) {
   printf("datafile: '%s'\n", datafile);
   printf("id:       '%s'\n", id);
 
+  Assert("get_uuid",               test_get_uuid() == 0);
+
   Assert("open_truncate",          test_open_truncate() == 0);
   Assert("dataname",               test_dataname() == 0);
   Assert("metadata",               test_metadata() == 0);
@@ -329,6 +385,10 @@ int main(int argc, char *argv[]) {
   Assert("uint64_arr_property",    test_uint64_arr_property() == 0);
   Assert("string_arr_property",    test_string_arr_property() == 0);
   Assert("stringptr_arr_property", test_stringptr_arr_property() == 0);
+  Assert("has_dimension",          test_has_dimension() == 0);
+  Assert("has_property",           test_has_property() == 0);
+
+  Assert("get_instance_names",     test_get_instance_names() == 0);
 
   dfree_instance_names(names);
   return nerr;
