@@ -240,22 +240,26 @@ void dfree_instance_names(char **names)
 
 
 /*
-   Returns non-zero if dimension `name` exists.
+  Returns a positive value if dimension `name` is defined, zero if it
+  isn't and a negative value on error (e.g. if this function isn't
+  supported by the backend).
  */
 int dhas_dimension(DLite *d, const char *name)
 {
   if (d->api->hasDimension) return d->api->hasDimension(d, name);
-  return errx(1, "driver '%s' does not support hasDimension()", d->api->name);
+  return errx(-1, "driver '%s' does not support hasDimension()", d->api->name);
 }
 
 
 /*
-  Returns non-zero if property `name` exists.
+  Returns a positive value if property `name` is defined, zero if it
+  isn't and a negative value on error (e.g. if this function isn't
+  supported by the backend).
  */
 int dhas_property(DLite *d, const char *name)
 {
   if (d->api->hasProperty) return d->api->hasProperty(d, name);
-  return errx(1, "driver '%s' does not support hasProperty()", d->api->name);
+  return errx(-1, "driver '%s' does not support hasProperty()", d->api->name);
 }
 
 

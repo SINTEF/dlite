@@ -670,14 +670,15 @@ char **dh5_get_instance_names(const char *uri, const char *options)
 
 
 /**
-   Returns non-zero if dimension `name` exists.
+  Returns a positive value if dimension `name` is defined, zero if it
+  isn't and a negative value on error.
  */
 int dh5_has_dimension(DLite *dh5, const char *name)
 {
   DH5 *d = (DH5 *)dh5;
   hid_t dimensions=0;
   htri_t exists;
-  int retval=0;
+  int retval=-1;
   if ((dimensions = H5Gopen(d->instance, "dimensions", H5P_DEFAULT)) < 0)
     DFAIL2(d, "no '/%s/dimensions' group in %s", d->uuid, d->uri);
   if ((exists = H5Lexists(dimensions, name, H5P_DEFAULT)) < 0)
@@ -690,19 +691,18 @@ int dh5_has_dimension(DLite *dh5, const char *name)
 }
 
 /**
-   Returns non-zero if property `name` exists.
+  Returns a positive value if property `name` is defined, zero if it
+  isn't and a negative value on error.
  */
 int dh5_has_property(DLite *dh5, const char *name)
 {
   DH5 *d = (DH5 *)dh5;
   htri_t exists;
-  int retval=0;
   if ((exists = H5Lexists(d->properties, name, H5P_DEFAULT)) < 0)
     FAIL3("cannot determine if '%s' has property '%s' in %s",
 	  d->uuid, name, d->uri);
-  retval = exists;
  fail:
-  return retval;
+  return exists;
 }
 
 

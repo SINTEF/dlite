@@ -158,12 +158,16 @@ char **dget_instance_names(const char *driver, const char *uri,
 void dfree_instance_names(char **names);
 
 /**
-   Returns non-zero if dimension \a name exists.
+   Returns a positive value if dimension \a name is defined, zero if
+   it isn't and a negative value on error (e.g. if this function isn't
+   supported by the backend).
  */
 int dhas_dimension(DLite *d, const char *name);
 
 /**
-   Returns non-zero if property \a name exists.
+   Returns a positive value if property \a name is defined, zero if it
+   isn't and a negative value on error (e.g. if this function isn't
+   supported by the backend).
  */
 int dhas_property(DLite *d, const char *name);
 
