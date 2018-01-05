@@ -33,11 +33,28 @@ Download dlite with git, using
 
 To initialize the uuid submodule, you may also have to run
 
-    git submodule init
+    git submodule update --init
 
 
 Building
 --------
+
+## Windows with Visual Studio
+
+Create a "build" subfolder and run cmake:
+
+    mkdir build
+    cd build
+    cmake ..
+
+It is possible that you have to run cmake as
+`cmake  -G "Visual Studio 11 2012 Win64" ..`.
+
+Run or double-click on `dlite.sln`, which will open Visual Studio.
+
+
+## Linux
+
 Build with:
 
     mkdir build
@@ -60,8 +77,6 @@ To generate code documentation, do
 To install dlite locally, do
 
     make install
-
-TODO: add instructions for building with Visual Studio on Windows.
 
 
 Future

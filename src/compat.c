@@ -10,6 +10,7 @@ typedef int make_iso_compilers_happy;
 
 
 /* strdup */
+/* FIXME - use _strdup() if it exists */
 #ifndef HAVE_STRDUP
 # ifdef HAVE__STRDUP
 #  define strdup _strdup
@@ -23,3 +24,13 @@ char *strdup(const char *s)
 }
 # endif
 #endif
+
+
+/* FIXME: strncpy -- use strncpy_s on Windows */
+
+
+/* FIXME: strerror -- use _dupenv_s on Windows */
+
+/* FIXME: getenv -- use _dupenv_s on Windows */
+
+/* FIXME: fopen -- use fopen_s on Windows */

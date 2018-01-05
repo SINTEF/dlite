@@ -1,7 +1,6 @@
 # -*- Mode: cmake -*-
 #
 
-
 #-----------------------------------------------------
 # System tests
 #-----------------------------------------------------
@@ -47,6 +46,8 @@ set(sources
   err.c
   compat.c
   )
+
+add_definitions(-DHAVE_CONFIG_H)
 
 link_directories(${uuid_BINARY_DIR})
 

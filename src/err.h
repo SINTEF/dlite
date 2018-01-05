@@ -9,6 +9,10 @@
  * @brief Simple error reporting
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 
 /** @brief Reports a system error and returns `eval`.
  *

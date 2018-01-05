@@ -19,9 +19,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 
 # Enable compiler warnings
 include(SetCompilerFlags)
-enable_c_compiler_flag_if_supported("-Wall")
-enable_c_compiler_flag_if_supported("-Wextra")
-enable_c_compiler_flag_if_supported("-Wpedantic")
+if(CMAKE_COMPILER_IS_GNUCC)
+  enable_c_compiler_flag_if_supported("-Wall")
+  enable_c_compiler_flag_if_supported("-Wextra")
+  enable_c_compiler_flag_if_supported("-Wpedantic")
+endif()
 
 # Testing
 include(CTest)

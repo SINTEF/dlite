@@ -23,6 +23,11 @@
 #endif
 
 
+/* Remove __attribute__ when we are not compiling with gcc */
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
+
 /* Whether functions exists. If not, they are defined in compat.c */
 #cmakedefine HAVE_STRDUP
 #cmakedefine HAVE__STRDUP
