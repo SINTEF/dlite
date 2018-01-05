@@ -4,6 +4,11 @@
 
 #include "dlite.h"
 
+/*
+  FIXME: Use https://github.com/petervaro/sodyll to support for dynamic
+  loadable plugins in a simple and portable way.
+ */
+
 
 /** Initial segment of all DLite backend data structures */
 #define DLite_HEAD                                                           \

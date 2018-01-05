@@ -56,7 +56,6 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
   set(hdf5_NAME        "hdf5-${hdf5_VERSION}")
   set(hdf5_PREFIX      "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
   set(hdf5_SOURCE_DIR  "${hdf5_PREFIX}/src/${hdf5_NAME}")
-  #set(hdf5_SOURCE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/hdf5-1.10.1)
 
   #if(CMAKE_GENERATOR MATCHES "Makefiles")
   #
@@ -105,16 +104,38 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
     URL               https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
     URL_MD5           43a2f9466702fb1db31df98ae6677f15
     SOURCE_DIR        ${hdf5_SOURCE_DIR}
-
     UPDATE_COMMAND    ""
-
     CMAKE_ARGS        ${cmake_args}
     #CONFIGURE_COMMAND  ${configure_command}
-
-    BUILD_COMMAND     "${build_command}"
-
+    #BUILD_COMMAND     "${build_command}"
     INSTALL_COMMAND   ""
     )
+
+  # Define the following variables:
+  #
+  #   hdf5_BINARY_DIR   - root of hdf5 binary dir
+  #   hdf5_INCLUDE_DIRS - location of the hdf5 include dirs
+  #   hdf5_LIBRARY_DIRS - location of the hdf5 library dirs
+  #   hdf5_LIBRARIES    - required libraries (for static linking)
+  #
+  ExternalProject_Get_Property(${hdf5_NAME} BINARY_DIR)
+  set(hdf5_BINARY_DIR ${BINARY_DIR})
+  set(hdf5_INCLUDE_DIRS
+    ${hdf5_SOURCE_DIR}/src
+    ${hdf5_BINARY_DIR}
+    )
+  set(hdf5_LIBRARY_DIRS ${hdf5_BINARY_DIR}/bin)
+  set(hdf5_LIBRARIES
+    ${hdf5_BINARY_DIR}/bin/${CMAKE_STATIC_LIBRARY_PREFIX}hdf5${CMAKE_STATIC_LIBRARY_SUFFIX}
+    m
+    )
+  if(WIN32)
+    list(APPEND hdf5_LIBRARIES Kernel32)
+  else()
+    list(APPEND hdf5_LIBRARIES dl)
+  endif()
+else()
+  set(hdf5_LIBRARIES hdf5)
 endif()
 
 

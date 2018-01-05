@@ -35,7 +35,7 @@ char *dget_typename(DLiteType type);
   Writes an UUID to \a buff based on \a id.
 
   If \a id is NULL or empty, a new random version 4 UUID is generated.
-  If \a id is an invalid UUID string, a new version 5 sha1-based UUID
+  If \a id is not a valid UUID string, a new version 5 sha1-based UUID
   is generated from \a id using the DNS namespace.
   Otherwise \a id is copied to \a buff.
 
@@ -63,6 +63,7 @@ char *dget_uuid(char *buff, const char *id);
 
   The \a options are passed to the driver.  Options for known
   drivers are:
+
     * hdf5
         - rw   Read and write: open existing file or create new file (default)
         - r    Read-only: open existing file for read-only

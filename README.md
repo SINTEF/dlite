@@ -6,23 +6,25 @@ is strongly inspired by [SOFT][1], with the aim to be a lightweight
 replacement in cases where Windows portability is a showstopper for
 using SOFT.
 
-*dlite* shares the metadata model of SOFT and generic data stored
-with SOFT can be read with dlite and vice verse.
+*dlite* shares the [metadata model of SOFT][2] and generic data stored
+with SOFT can be read with dlite and vice verse.  However, apart from
+*dlite* being much less complete, there are also some notable
+differences.  See [doc/concepts.md](doc/concepts.md) for details.
 
 See [src/dlite.h](src/dlite.h) for a description of the current
 api. So far only reading and writing HDF5 files is implemented.
 
-*dlite* also includes [uuid][2] -- a small library for generating UUIDs.
+*dlite* also includes [uuid][3] -- a small library for generating UUIDs.
 
 
 Dependencies
 ------------
 *dlite* has the following dependencies:
-  - [cmake][3], required for building
-  - [hdf5][4], required (cmake will automatically downloaded and built hdf5
+  - [cmake][4], required for building
+  - [hdf5][5], required (cmake will automatically downloaded and built hdf5
     if it is not found)
-  - [doxygen][5], optional, used for documentation generation
-  - [valgrind][6], optional, used for memory checking (Linux only)
+  - [doxygen][6], optional, used for documentation generation
+  - [valgrind][7], optional, used for memory checking (Linux only)
 
 
 Download
@@ -79,19 +81,26 @@ To install dlite locally, do
     make install
 
 
-Future
-------
+The future of dlite
+-------------------
 Ideally dlite will be merged into SOFT when SOFT compiles well on Windows.
 Until then, it will remain as a simple and mostly compatible alternative.
+
+
+License
+-------
+For compatibility with SOFT, *dlite* is dual licensed under a
+commercial and open source LGPL v2.1 license.
 
 ---
 
 *dlite* is developed with the hope that it will be a delight to work with.
 
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
-[2]: https://stash.code.sintef.no/projects/PRECIMS/repos/uuid/
-[3]: https://cmake.org/
-[4]: https://support.hdfgroup.org/HDF5/
-[5]: http://www.doxygen.org/
-[6]: http://valgrind.org/
-[7]: https://github.com/jlehtine/c-pluff
+[2]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
+[3]: https://stash.code.sintef.no/projects/PRECIMS/repos/uuid/
+[4]: https://cmake.org/
+[5]: https://support.hdfgroup.org/HDF5/
+[6]: http://www.doxygen.org/
+[7]: http://valgrind.org/
+[8]: https://github.com/petervaro/sodyll
