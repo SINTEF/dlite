@@ -64,14 +64,10 @@ To install dlite locally, do
 TODO: add instructions for building with Visual Studio on Windows.
 
 
-Further plans
--------------
-Depending on the adoption of SOFT, dlite may either be merged into
-SOFT or remain as a lightweight portable alternative.  In the latter
-case, possible new features could include:
-  - code generator
-  - plugin-system, e.g. based on [c-pluff][7]
-  - more drivers, like JSON
+Future
+------
+Ideally dlite will be merged into SOFT when SOFT compiles well on Windows.
+Until then, it will remain as a simple and mostly compatible alternative.
 
 ---
 
