@@ -25,6 +25,7 @@ typedef struct {
   hid_t root;       /* h5 file identifier to root */
   hid_t instance;   /* h5 group identifier to instance */
   hid_t properties; /* h5 group identifier to properties */
+  int is_readonly;  /* whether hdf5 file has been opened in read-only mode */
 } DH5;
 
 
@@ -419,17 +420,22 @@ DLite *dh5_open(const char *uri, const char *options, const char *uuid)
 
   if (!(d = calloc(1, sizeof(DH5)))) FAIL0("allocation failure");
   dlite_init((DLite *)d);
-  if (!options || !options[0] || strcmp(options, "rw") == 0)  /* default */
+  if (!options || !options[0] || strcmp(options, "rw") == 0) { /* default */
     d->root = H5Fopen(uri, H5F_ACC_RDWR | H5F_ACC_CREAT, H5P_DEFAULT);
-  else if (strcmp(options, "r") == 0)
+    d->is_readonly = 0;
+  } else if (strcmp(options, "r") == 0) {
     d->root = H5Fopen(uri, H5F_ACC_RDONLY, H5P_DEFAULT);
-  else if (strcmp(options, "a") == 0)
+    d->is_readonly = 1;
+  } else if (strcmp(options, "a") == 0) {
     d->root = H5Fopen(uri, H5F_ACC_RDWR, H5P_DEFAULT);
-  else if (strcmp(options, "w") == 0)
+    d->is_readonly = 0;
+  } else if (strcmp(options, "w") == 0) {
     d->root = H5Fcreate(uri, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  else
+    d->is_readonly = 0;
+  } else {
     FAIL1("invalid options '%s', must be 'rw' (read and write), "
           "'r' (read-only), 'w' (write) or 'a' (append", options);
+  }
   if (d->root < 0)
     FAIL2("cannot open: '%s' with mode '%s'", uri, options);
 
@@ -732,6 +738,15 @@ int dh5_set_dataname(DLite *dh5, const char *name)
 }
 
 
+/**
+  Returns non-zero if DLite object has been opened for writing.
+ */
+int dh5_is_readonly(DLite *dh5)
+{
+  DH5 *d = (DH5 *)dh5;
+  return d->is_readonly;
+}
+
 
 API h5_api = {
   "hdf5",
@@ -755,4 +770,6 @@ API h5_api = {
 
   dh5_get_dataname,
   dh5_set_dataname,
+
+  dh5_is_readonly,
 };

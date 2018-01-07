@@ -107,8 +107,8 @@ DLite *dopen(const char *driver, const char *uri, const char *options,
   d->api = api;
   strncpy(d->uuid, uuid, sizeof(d->uuid));
   if (!(d->uri = strdup(uri))) FAIL(NULL);
-  if (id && strcmp(uuid, id) && api->setDataName && api->setDataName(d, id))
-    goto fail;
+  if (id && strcmp(uuid, id) && !dis_readonly(d) && api->setDataName &&
+      api->setDataName(d, id)) goto fail;
 
   return d;
  fail:
@@ -274,6 +274,17 @@ char *dget_dataname(DLite *d)
   return NULL;
 }
 
+
+/*
+  Returns 1 if DLite object has been opened in read-only mode, 0 if it
+  allows writing and -1 if this function isn't supported by the backend.
+ */
+int dis_readonly(DLite *d)
+{
+  if (d->api->isReadOnly) return d->api->isReadOnly(d);
+  errx(1, "driver '%s' does not support isReadOnly()", d->api->name);
+  return -1;
+}
 
 
 /********************************************************************

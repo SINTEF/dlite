@@ -44,6 +44,7 @@ typedef int (*HasProperty)(DLite *d, const char *name);
 typedef char *(*GetDataName)(DLite *d);
 typedef int (*SetDataName)(DLite *d, const char *name);
 
+typedef int (*IsReadOnly)(DLite *d);
 
 /** Struct with the name and pointers to function for a backend. All
     backends should define themselves by defining an intance of API. */
@@ -70,6 +71,8 @@ typedef struct _API {
 
   GetDataName              getDataName;
   SetDataName              setDataName;
+
+  IsReadOnly               isReadOnly;
 } API;
 
 

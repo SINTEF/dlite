@@ -178,6 +178,11 @@ int dhas_property(DLite *d, const char *name);
 */
 char *dget_dataname(DLite *d);
 
+/**
+   Returns 1 if DLite object has been opened in read-only mode, 0 if it
+   allows writing and -1 if this function isn't supported by the backend.
+ */
+int dis_readonly(DLite *d);
 
 /** @} */
 

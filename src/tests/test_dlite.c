@@ -339,6 +339,22 @@ static int test_get_instance_names()
   return retval;
 }
 
+static int test_is_readonly()
+{
+  DLite *d=NULL, *dd;
+  int retval = 1;
+  if (!(d = dopen("hdf5", datafile, NULL, id))) goto fail;
+  if (dis_readonly(d)) goto fail;
+  dd = d; d = NULL;
+  if (dclose(dd)) goto fail;
+  if (!(d = dopen("hdf5", datafile, "r", id))) goto fail;
+  if (!dis_readonly(d)) goto fail;
+  retval = 0;
+ fail:
+  if (d) dclose(d);
+  return retval;
+}
+
 
 
 /***********************************************************************/
@@ -389,6 +405,7 @@ int main(int argc, char *argv[]) {
   Assert("has_property",           test_has_property() == 0);
 
   Assert("get_instance_names",     test_get_instance_names() == 0);
+  Assert("is_readonly",            test_is_readonly() == 0);
 
   dfree_instance_names(names);
   return nerr;
