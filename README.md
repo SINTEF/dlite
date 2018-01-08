@@ -31,7 +31,7 @@ Download
 --------
 Download dlite with git, using
 
-    git clone ssh://git@git.code.sintef.no/precims/dlite.git
+    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
 
 To initialize the uuid submodule, you may also have to run
 
@@ -98,7 +98,7 @@ commercial and open source LGPL v2.1 license.
 
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
 [2]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
-[3]: https://stash.code.sintef.no/projects/PRECIMS/repos/uuid/
+[3]: https://stash.code.sintef.no/projects/sidase/repos/uuid/
 [4]: https://cmake.org/
 [5]: https://support.hdfgroup.org/HDF5/
 [6]: http://www.doxygen.org/
