@@ -282,6 +282,10 @@ char *dget_dataname(DLite *d)
 int dis_readonly(DLite *d)
 {
   if (d->api->isReadOnly) return d->api->isReadOnly(d);
+
+  /* Assume read-only if backend does not support setting properties */
+  if (!d->api->setProperty) return 1;
+
   errx(1, "driver '%s' does not support isReadOnly()", d->api->name);
   return -1;
 }

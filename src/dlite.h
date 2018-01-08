@@ -101,6 +101,17 @@ int dget_dimension_size(const DLite *d, const char *name);
   \param  dims   Array of dimension sizes of length \p ndims.
 
   Returns non-zero on error.
+
+  @note
+  The memory pointed to by \a ptr must be at least of size
+
+      size * dims[0] * ... * dims[ndim-1]
+
+  In contrast to the other data types, getting data of DTStringPtr
+  type only writes (char *) pointers to the actual strings in memory
+  pointed to \a ptr.  The strings themself are allocated on the heap
+  (using malloc()).  Hence, the user is responsible to free this
+  memory herselves.
  */
 int dget_property(const DLite *d, const char *name, void *ptr,
                   DLiteType type, size_t size, int ndims, const int *dims);
