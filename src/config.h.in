@@ -9,6 +9,11 @@
 #define dlite_VERSION "@dlite_VERSION@"
 #endif
 
+/* Get rid of warnings from MSVS about insecure standard library functions */
+#ifdef _WIN32
+# define _CRT_SECURE_NO_WARNINGS
+#endif
+
 
 /* Thread local storage */
 #cmakedefine HAVE_GCC_THREAD_LOCAL_STORAGE
