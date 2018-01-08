@@ -14,9 +14,9 @@
 #cmakedefine HAVE_GCC_THREAD_LOCAL_STORAGE
 #cmakedefine HAVE_WIN32_THREAD_LOCAL_STORAGE
 
-#ifdef HAVE_GCC_THREAD_LOCAL_STORAGE
+#if defined(HAVE_GCC_THREAD_LOCAL_STORAGE)
 # define _thread_local __thread
-#elif HAVE_WIN32_THREAD_LOCAL_STORAGE
+#elif defined(HAVE_WIN32_THREAD_LOCAL_STORAGE)
 # define _thread_local __declspec(thread)
 #else
 # define _thread_local

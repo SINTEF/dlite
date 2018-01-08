@@ -8,13 +8,14 @@ using SOFT.
 
 *dlite* shares the [metadata model of SOFT][2] and generic data stored
 with SOFT can be read with dlite and vice verse.  However, apart from
-*dlite* being much less complete, there are also some notable
-differences.  See [doc/concepts.md](doc/concepts.md) for details.
+*dlite* being much less complete, there are also some differences.
+See [doc/concepts.md](doc/concepts.md) for details.
 
-See [src/dlite.h](src/dlite.h) for a description of the current
-api. So far only reading and writing HDF5 files is implemented.
+See [src/dlite.h](src/dlite.h) for an overview of the current api. So
+far only reading and writing HDF5 files is implemented.
 
-*dlite* also includes [uuid][3] -- a small library for generating UUIDs.
+*dlite* also includes [uuid][3] (a small library for generating UUIDs)
+as a git submodule.
 
 
 Dependencies
