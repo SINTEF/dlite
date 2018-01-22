@@ -37,5 +37,7 @@
 #cmakedefine HAVE_STRDUP
 #cmakedefine HAVE__STRDUP
 
+#cmakedefine HAVE_QSORT
+
 
 #endif /* _CONFIG_H */

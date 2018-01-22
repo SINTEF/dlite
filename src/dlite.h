@@ -3,198 +3,68 @@
 
 /**
   @file
+  @brief Main header file for dlite
 */
 
-/** Opaque struct/handle for data items. */
-typedef struct _DLite DLite;
+#include "dlite-types.h"
+#include "dlite-storage.h"
 
-/** Basic data types */
-typedef enum _DLiteType {
-  DTBlob,           /*!< Binary blob */
-  DTBool,           /*!< Boolean */
-  DTInt,            /*!< Signed integer */
-  DTUInt,           /*!< Unigned integer */
-  DTFloat,          /*!< Floating point */
-  DTString,         /*!< Fix-sized string */
-  DTStringPtr       /*!< Pointer to NUL-terminated string */
-} DLiteType;
-
+#define DLITE_UUID_LENGTH 36
 
 
 /**
-  @name Utility functions
+  @name General dlite utility functions
   @{
  */
 
 /**
   Returns descriptive name for \a type or NULL on error.
 */
-char *dget_typename(DLiteType type);
+char *dlite_get_typename(DLiteType type);
+
 
 /**
   Writes an UUID to \a buff based on \a id.
 
-  If \a id is NULL or empty, a new random version 4 UUID is generated.
-  If \a id is not a valid UUID string, a new version 5 sha1-based UUID
-  is generated from \a id using the DNS namespace.
-  Otherwise \a id is copied to \a buff.
+  Whether and what kind of UUID that is generated depends on \a id:
+    - If \a id is NULL or empty, a new random version 4 UUID is generated.
+    - If \a id is not a valid UUID string, a new version 5 sha1-based UUID
+      is generated from \a id using the DNS namespace.
+    - Otherwise is \a id already a valid UUID and it is simply copied to
+      \a buff.
 
-  Length of \a buff must at least 37 bytes (36 for UUID + NUL termination).
+  Length of \a buff must at least (DLITE_UUID_LENGTH + 1) bytes (36 bytes
+  for UUID + NUL termination).
 
-  Returns a pointer to \a buff, or NULL on error.
+  Returns the UUID version if a new UUID is generated or zero if \a id
+  is already a valid UUID.  On error, -1 is returned.
  */
-char *dget_uuid(char *buff, const char *id);
-
-
-
-/** @} */
+int dlite_get_uuid(char *buff, const char *id);
 
 
 /**
-  @name Minimum API
+  Returns an unique url for metadata defined by \a name, \a version
+  and \a namespace as a newly malloc()'ed string or NULL on error.
 
-  Minimum API that all backends should implement.
-  @{
+  The returned url is constructed as follows:
+
+      namespace/version/name
  */
+char *dlite_join_metadata(const char *name, const char *version,
+                          const char *namespace);
 
 /**
-  Opens data item \a id from \a uri using \a driver.
-  Returns a opaque pointer to a data handle or NULL on error.
-
-  The \a options are passed to the driver.  Options for known
-  drivers are:
-
-    * hdf5
-        - rw   Read and write: open existing file or create new file (default)
-        - r    Read-only: open existing file for read-only
-        - w    Write: truncate existing file or create new file
-        - a    Append: open existing file for read and write
-*/
-DLite *dopen(const char *driver, const char *uri, const char *options,
-              const char *id);
-
-/**
-  Closes data handle \a d. Returns non-zero on error.
-*/
-int dclose(DLite *d);
-
-/**
-  Returns url to metadata or NULL on error. Do not free.
- */
-const char *dget_metadata(const DLite *d);
-
-/**
-  Returns the size of dimension \a name or -1 on error.
- */
-int dget_dimension_size(const DLite *d, const char *name);
-
-/**
-  Copies property \a name to memory pointed to by \a ptr.
-  Multi-dimensional arrays are supported.
-
-  \param  d      DLite data handle.
-  \param  name   Name of the property.
-  \param  ptr    Pointer to memory to write to.
-  \param  type   Type of data elements.
-  \param  size   Size of each data element.
-  \param  ndims  Number of dimensions.
-  \param  dims   Array of dimension sizes of length \p ndims.
-
-  Returns non-zero on error.
-
-  @note
-  The memory pointed to by \a ptr must be at least of size
-
-      size * dims[0] * ... * dims[ndim-1]
-
-  In contrast to the other data types, getting data of DTStringPtr
-  type only writes (char *) pointers to the actual strings in memory
-  pointed to \a ptr.  The strings themself are allocated on the heap
-  (using malloc()).  Hence, the user is responsible to free this
-  memory herselves.
- */
-int dget_property(const DLite *d, const char *name, void *ptr,
-                  DLiteType type, size_t size, int ndims, const int *dims);
-
-/** @} */
-
-
-/**
-  @name Optional API
-
-  Optional API that backends are free leave unimplemented.
-
-  The backend must provide dset_property(), dset_metadata() and
-  dset_dimension_size() to support writing, otherwise only read is
-  supported.
-
-  All functions below are supported by the HDF5 backend.
-  @{
-*/
-
-
-/**
-  Sets property \a name to the memory (of \a size bytes) pointed to by
-  \a value.
-  The argument \a string_pointers has the same meaning as for dget_property().
+  Splits \a metadata url into its components.  If \a name, \a version and/or
+  \a namespace are not NULL, the memory they points to will be set to a
+  pointer to a newly malloc()'ed string with the corresponding value.
 
   Returns non-zero on error.
 */
-int dset_property(DLite *d, const char *name, const void *ptr,
-                  DLiteType type, size_t size, int ndims, const int *dims);
+int dlite_split_metadata(const char *metadata, char **name, char **version,
+                         char **namespace);
 
-
-/**
-  Sets metadata.  Returns non-zero on error.
- */
-int dset_metadata(DLite *d, const char *metadata);
-
-/**
-  Sets size of dimension \a name.  Returns non-zero on error.
-*/
-int dset_dimension_size(DLite *d, const char *name, int size);
-
-
-/**
-  Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array with
-  dfree_instance_names().
- */
-char **dget_instance_names(const char *driver, const char *uri,
-                           const char *options);
-
-/**
-  Frees NULL-terminated array of instance names returned by
-  dget_instance_names().
-*/
-void dfree_instance_names(char **names);
-
-/**
-   Returns a positive value if dimension \a name is defined, zero if
-   it isn't and a negative value on error (e.g. if this function isn't
-   supported by the backend).
- */
-int dhas_dimension(DLite *d, const char *name);
-
-/**
-   Returns a positive value if property \a name is defined, zero if it
-   isn't and a negative value on error (e.g. if this function isn't
-   supported by the backend).
- */
-int dhas_property(DLite *d, const char *name);
-
-/**
-   If the uuid was generated from a unique name, return a pointer to a
-   newly malloc'ed string with this name.  Otherwise NULL is returned.
-*/
-char *dget_dataname(DLite *d);
-
-/**
-   Returns 1 if DLite object has been opened in read-only mode, 0 if it
-   allows writing and -1 if this function isn't supported by the backend.
- */
-int dis_readonly(DLite *d);
 
 /** @} */
+
 
 #endif /* _DLITE_H */

@@ -18,9 +18,10 @@ configure_file(boolean.h.in boolean.h)
 
 # Generate config.h
 # -----------------
-include(CheckFunctionExists)
-check_function_exists(strdup HAVE_STRDUP)
-check_function_exists(_strdup _HAVE_STRDUP)
+include(CheckSymbolExists)
+check_symbol_exists(strdup   string.h   HAVE_STRDUP)
+check_symbol_exists(_strdup  string.h   HAVE__STRDUP)
+check_symbol_exists(qsort    stdlib.h   HAVE_QSORT)
 
 include(CheckCSourceCompiles)
 
@@ -40,8 +41,10 @@ configure_file(config.h.in config.h)
 # Compile library
 #-----------------------------------------------------
 set(sources
-  dlite.c
+  dlite-datamodel.c
+  dlite-storage.c
   dh5lite.c
+  dlite.c
   getuuid.c
   err.c
   compat.c
@@ -83,19 +86,6 @@ if(WITH_STATIC_LIB)
     TARGETS dlite-static
     DESTINATION lib)
 endif()
-
-
-# dgetuuid
-add_executable(dgetuuid dgetuuid.c)
-target_link_libraries(dgetuuid dlite uuid)
-target_include_directories(dgetuuid PRIVATE
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${uuid_SOURCE_DIR}
-  ${uuid_BINARY_DIR}
-  )
-install(
-  TARGETS dgetuuid
-  DESTINATION bin)
 
 
 # Tests

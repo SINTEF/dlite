@@ -12,6 +12,7 @@
  *
  * Length of \a buff must at least 37 bytes (36 for UUID + NUL termination).
  *
- * Returns nonzero on error.
+ * Returns the UUID version if a new UUID is generated or zero if \a
+ * id is simply copied.  On error, -1 is returned.
  */
 int getuuid(char *buff, const char *id);

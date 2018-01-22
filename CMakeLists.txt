@@ -159,6 +159,6 @@ set(uuid_BINARY_DIR ${BINARY_DIR})
 
 
 # Subdirectories
-#add_subdirectory(uuid)
 add_subdirectory(src)
+add_subdirectory(tools)
 add_subdirectory(doc)

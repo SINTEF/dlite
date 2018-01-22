@@ -10,9 +10,18 @@ add_executable(test_dlite test_dlite)
 target_link_libraries(test_dlite dlite uuid)
 target_include_directories(test_dlite PRIVATE ${dlite_SOURCE_DIR}/src)
 
+add_executable(test_datamodel test_datamodel)
+target_link_libraries(test_datamodel dlite uuid)
+target_include_directories(test_datamodel PRIVATE ${dlite_SOURCE_DIR}/src)
+
 add_test(
   NAME test_dlite
-  COMMAND test_dlite "${CMAKE_CURRENT_SOURCE_DIR}/db-AlMgSiFeCu.h5"
+  COMMAND test_dlite
+  )
+
+add_test(
+  NAME test_datamodel
+  COMMAND test_datamodel
   )
 
 #add_executable(h5ex_t_vlstring h5ex_t_vlstring.c)

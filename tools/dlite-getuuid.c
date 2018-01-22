@@ -14,13 +14,14 @@ void help()
     "Generates an UUID.",
     "  -h, --help     Prints this help and exit.",
     "",
-    "If STRING is not given, a random (version 3) UUID is printed to stdout.",
+    "If STRING is not given, a random (version 4) UUID is printed to stdout.",
     "",
-    "If STRING is is a valid UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx) ",
-    "it is printed to stdout.",
+    "If STRING is is a valid UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx),",
+    "it is printed unmodified to stdout.",
     "",
-    "Otherwise, STRING is converted to a version 5 UUID (using its SHA-1 ",
+    "Otherwise, STRING is converted to a version 5 UUID (using its SHA-1",
     "hash and the DNS namespace) and printed to stdout.",
+    "",
     NULL
   };
   for (p=msg; *p; p++) printf("%s\n", *p);
