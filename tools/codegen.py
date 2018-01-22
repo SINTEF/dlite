@@ -58,6 +58,24 @@ def toIdentifier(s):
     return re.sub('[^a-zA-Z0-9_]', '', s)
 
 
+def typeconv_dlite(metatype):
+    """Returns the DLite type corresponding to given metadata type."""
+    if metatype == 'blob':
+        return 'dliteBlob'
+    if metatype == 'bool':
+        return 'dliteBool'
+    elif metatype.startswith('int'):
+        return 'dliteInt'
+    elif metatype.startswith('uint'):
+        return 'dliteUInt'
+    elif metatype in ('float', 'double'):
+        return 'dliteFloat'
+    elif metatype == 'string':
+        return 'dliteStringPtr'
+    else:
+        raise ValueError('unknown metadata type: %s' % metatype)
+
+
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
@@ -88,6 +106,12 @@ class Metadata(object):
         self.propnames = [p['name'] for p in d['properties']]
         self.ndims = len(d['dimensions'])
         self.nprops = len(d['properties'])
+        self.prop_dtypes = AttrDict(
+            {prop: typeconv_dlite(self.props[prop].type)
+             for prop in self.propnames})
+        self.prop_ndims = AttrDict({prop: len(self.props[prop].dims)
+                                    if 'dims' in self.props[prop] else 1
+                                    for prop in self.propnames})
         #self.dimdescr = [p.get('description', '') for p in d['dimensions']]
         #self.types = [p['type'] for p in d['properties']]
         #self.descr = [p.get('description', '') for p in d['properties']]

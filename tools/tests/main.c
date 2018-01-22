@@ -65,9 +65,6 @@ int main()
 
   chemistry_save(chem, s);
 
-  free(p->alloy);
-  for (i=0; i<nelements; i++) free(p->elements[i]);
-  for (j=0; j<nphases; j++) free(p->phases[j]);
   chemistry_free(chem);
   dlite_storage_close(s);
 

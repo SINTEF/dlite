@@ -18,23 +18,6 @@ typeconv_C = {
     'string': 'char *',
 }
 
-def typeconv_dlite(metatype):
-    """Returns the DLite type corresponding to given metadata type."""
-    if metatype == 'blob':
-        return 'dliteBlob'
-    if metatype == 'bool':
-        return 'dliteBool'
-    elif metatype.startswith('int'):
-        return 'dliteInt'
-    elif metatype.startswith('uint'):
-        return 'dliteUInt'
-    elif metatype in ('float', 'double'):
-        return 'dliteFloat'
-    elif metatype == 'string':
-        return 'dliteStringPtr'
-    else:
-        raise ValueError('unknown metadata type: %s' % metatype)
-
 
 
 
@@ -54,9 +37,11 @@ class HeaderMetadata(codegen.Metadata):
         self.setter_declarations = self.get_setter_declarations()
         self.getter2_declarations = self.get_getter2_declarations()
 
+        self.create_assign_proptypes = self.get_create_assign_proptypes()
         self.create_dims = self.get_create_dims()
         self.create_props = self.get_create_props()
 
+        self.free_stringptr = self.get_free_stringptr()
         self.free_props = self.get_free_props()
 
         self.load_define_dimensions = self.get_load_define_dimensions()
@@ -76,7 +61,7 @@ class HeaderMetadata(codegen.Metadata):
         return template_c.format(**self.__dict__)
 
     def _get_type(self, prop, npointers=0, dimref=True):
-        """Returns type of property `prop` (incl. final space).
+        """Returns C type of property `prop` (incl. final space).
 
         If `npointers` is larger than zero, additional `npointers`
         stars (*) will be appended to the type.
@@ -134,7 +119,7 @@ class HeaderMetadata(codegen.Metadata):
                 else:
                     c = p['description']
                 comments.append('  /* %s */' % ('\n     ' + ' ' * n).join(
-                    textwrap.wrap(c, 72 - n)))
+                    textwrap.wrap(c, 70 - n)))
             else:
                 comments.append('')
         return '\n'.join('%-*s%s' % (n, t, c) for t, c in zip(ptypes, comments))
@@ -171,6 +156,11 @@ class HeaderMetadata(codegen.Metadata):
                    for prop in self.propnames]
         return '\n'.join(getter for getter in getters)
 
+    def get_create_assign_proptypes(self):
+        """Returns string with DLite property types."""
+        return '\n'.join('  self->proptypes[%d] = %s;' % (
+            i, self.prop_dtypes[prop]) for i, prop in enumerate(self.propnames))
+
     def get_create_dims(self):
         """Returns assignment of dimensions in {name}_create()."""
         lines = ['  self->dims.%s = %s;' % (dim, dim) for dim in self.dimnames]
@@ -185,6 +175,23 @@ class HeaderMetadata(codegen.Metadata):
                 lines.append('  self->props.%s = calloc(%s, sizeof(%s));' % (
                     prop, nmemb, self._get_type(prop)))
         return '\n'.join(line for line in lines)
+
+    def get_free_stringptr(self):
+        """Returns free strings in {name}_free()."""
+        lines = []
+        for prop in self.propnames:
+            if self.prop_dtypes[prop] == 'dliteStringPtr':
+                p = self.props[prop]
+                if 'dims' in p:
+                    lines.append('  n = %s;' % '*'.join(
+                        'self->dims.%s' % dim for dim in p.dims))
+                    lines.append('  for (i=0; i<n; i++)')
+                    lines.append('    if (self->props.%s[i])' % prop)
+                    lines.append('      free(self->props.%s[i]);' % prop)
+                else:
+                    lines.append('  if (self->props.%s) free(self->props.%s);'
+                                 % (prop, prop))
+        return '\n'.join(lines)
 
     def get_free_props(self):
         """Returns free statements in {name}_free()."""
@@ -226,7 +233,7 @@ class HeaderMetadata(codegen.Metadata):
                 dims = '1, NULL'
             ref = '&' if 'dims' not in p else ''
             ctype = self._get_type(prop, dimref=False)
-            dtype = typeconv_dlite(p.type)
+            dtype = self.prop_dtypes[prop]
             if dtype == 'dliteString':
                 size = 'strlen(self->props.%s)' % prop
             else:
@@ -260,12 +267,18 @@ template_h = """\
 
 typedef struct _{name}_s {name}_s;
 
-/* Dimensions */
+/* {Name} dimensions */
 typedef struct {{
 {struct_dims}
 }} {name}_dimensions_s;
 
-/* Properties */
+/* {Name} properties
+
+   NOTE about strings:
+   All strings are initialised to NULL and should be allocated with
+   malloc() before use.  All strings that are not NULL will be free'ed
+   by {name}_free().  Hence, if you free a string yourself, you must
+   set the corresponding pointer to NULL to avoid calling free() twice. */
 typedef struct {{
 {struct_props}
 }} {name}_properties_s;
@@ -298,7 +311,7 @@ void {name}_free({name}_s *self);
 const {name}_properties_s *{name}_const_props({name}_s *self);
 const {name}_dimensions_s *{name}_dims({name}_s *self);
 
-/* Getter functions, that returns the property value */
+/* Getter functions that returns the property value */
 /*
 {getter2_declarations}
 */
@@ -325,16 +338,19 @@ template_c = """\
 #include "dlite-datamodel.h"
 #include "{name}.h"
 
+/*
 static const char {NAME}_META_TYPE[] = "{type}";
 static const char {NAME}_META_NAME[] = "{name}";
 static const char {NAME}_META_VERSION[] = "{version}";
 static const char {NAME}_META_NAMESPACE[] = "{namespace}";
-/* static const char *static_dims[] = {{{names_dims}}}; */
+static const char *static_dims[] = {{{names_dims}}};
+*/
 
 struct _{name}_s {{
-  const char *id;         /* Instance UUID */
-  {name}_dimensions_s dims;   /* Dimensions */
-  {name}_properties_s props;  /* Properties */
+  const char *id;                  /* Instance UUID */
+  DLiteType proptypes[{nprops}];          /* Property types */
+  {name}_dimensions_s dims;     /* Dimensions */
+  {name}_properties_s props;    /* Properties */
 }};
 
 
@@ -356,6 +372,8 @@ struct _{name}_s {{
   dlite_get_uuid(uuid, id);
   self->id = strdup(uuid);
 
+{create_assign_proptypes}
+
 {create_dims}
 {create_props}
 
@@ -365,8 +383,17 @@ struct _{name}_s {{
 /* Free's a {name}_s instance. */
 void {name}_free({name}_s *self)
 {{
+  int n, i;
+  (void)n;  /* get rid of compiler warnings about unused variable */
+  (void)i;  /* get rid of compiler warnings about unused variable */
   free((char *)self->id);
+
+  /* free strings allocated on heap */
+{free_stringptr}
+
+  /* free arrays */
 {free_props}
+
   free(self);
 }}
 
