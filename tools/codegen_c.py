@@ -3,6 +3,9 @@
 
 Usage: codegen_c entity.json
 """
+from __future__ import print_function
+from __future__ import division
+
 import textwrap
 
 import codegen
@@ -28,7 +31,7 @@ def typeconv_dlite(metatype):
     elif metatype in ('float', 'double'):
         return 'dliteFloat'
     elif metatype == 'string':
-        return 'dliteString'
+        return 'dliteStringPtr'
     else:
         raise ValueError('unknown metadata type: %s' % metatype)
 
@@ -63,7 +66,7 @@ class HeaderMetadata(codegen.Metadata):
         self.load_get_properties = self.get_load_get_properties()
 
         self.save_set_properties = self.get_save_set_properties()
-
+        self.save_set_dimensions = self.get_save_set_dimensions()
     def get_header(self):
         """Returns content of C header file."""
         return template_h.format(**self.__dict__)
@@ -72,18 +75,22 @@ class HeaderMetadata(codegen.Metadata):
         """Returns content of C source file."""
         return template_c.format(**self.__dict__)
 
-    def _get_type(self, prop, npointers=0):
+    def _get_type(self, prop, npointers=0, dimref=True):
         """Returns type of property `prop` (incl. final space).
 
         If `npointers` is larger than zero, additional `npointers`
-        stars (*) will be appended to the type."""
+        stars (*) will be appended to the type.
+
+        If `dimref` is true, an additional star (*) will be added if
+        `prop` has dimensions.
+        """
         ptype = typeconv_C.get(self.props[prop].type, self.props[prop].type)
         if not ptype.endswith('*'):
             ptype += ' '
-        if 'dims' in self.props[prop]:
-            ptype += '*'
-        if npointers:
+        if npointers > 0:
             ptype += '*' * npointers
+        if dimref and 'dims' in self.props[prop]:
+            ptype += '*'
         return ptype
 
     def _get_multidim_props(self):
@@ -104,7 +111,7 @@ class HeaderMetadata(codegen.Metadata):
         """Returns definition of variable holding dimension of `prop`."""
         if not 'dims' in self.props[prop]:
             return ''
-        return '\n'.join('  %s_dims[%d] = %s;' % (prop, i, dim)
+        return '\n'.join('  %s_dims[%d] = self->dims.%s;' % (prop, i, dim)
                          for i, dim in enumerate(self.props[prop]['dims']))
 
     def get_free_prop_dims(self, prop):
@@ -135,7 +142,7 @@ class HeaderMetadata(codegen.Metadata):
     def get_struct_dims(self):
         """Returns elements of dimensions struct."""
         dims = self._dict['dimensions']
-        types = ['  size_t %s;' % ident(d['name']) for d in dims]
+        types = ['  int %s;' % ident(d['name']) for d in dims]
         comments = ['  /* %s */' % d['description']
                     if 'description' in d else '' for d in dims]
         n = max(len(t) for t in types)
@@ -212,19 +219,32 @@ class HeaderMetadata(codegen.Metadata):
         for prop in self.propnames:
             p = self.props[prop]
             if 'dims' in p and len(p.dims) > 1:
-                s = '%d, %s_dims' % (len(p.dims), prop)
-            elif 'dims' in self.props[prop]:
-                s = '1, &self->dims.%s' % p.dims[0]
+                dims = '%d, %s_dims' % (len(p.dims), prop)
+            elif 'dims' in p:
+                dims = '1, &self->dims.%s' % p.dims[0]
             else:
-                s = '1, NULL'
+                dims = '1, NULL'
+            ref = '&' if 'dims' not in p else ''
+            ctype = self._get_type(prop, dimref=False)
+            dtype = typeconv_dlite(p.type)
+            if dtype == 'dliteString':
+                size = 'strlen(self->props.%s)' % prop
+            else:
+                size = 'sizeof(%s)' % ctype
             lines.append('  dlite_datamodel_%s_property(d, "%s", '
-                         '&self->%s, %s, sizeof(%s), %s);' % (
-                             action, prop, prop, typeconv_dlite(p.type),
-                             self._get_type(prop), s))
+                         '%sself->props.%s, %s, sizeof(%s), %s);' % (
+                             action, prop, ref, prop, dtype, ctype, dims))
+
         return '\n'.join(lines)
 
     def get_save_set_properties(self):
         return self.get_load_get_properties(action='set')
+
+    def get_save_set_dimensions(self):
+        return '\n'.join(
+            '  dlite_datamodel_set_dimension_size(d, "%s", self->dims.%s);' % (
+                dim, dim) for dim in self.dimnames)
+
 
 
 
@@ -235,7 +255,7 @@ template_h = """\
 #ifndef _{NAME}_H
 #define _{NAME}_H
 
-#include "integer.h"
+#include "integers.h"
 #include "boolean.h"
 
 typedef struct _{name}_s {name}_s;
@@ -268,24 +288,27 @@ typedef struct {{
 {name}_s *{name}_load(DLiteStorage *s, const char *id);
 
 /* Saves a {name}_s instance to storage. */
-int {name}_save(const {name}_s *s, DLiteStorage *s, const char *id);
+int {name}_save(const {name}_s *self, DLiteStorage *s);
 
 /* Frees a {name}_s instance. */
 void {name}_free({name}_s *self);
 
-/* Get pointers for direct access to properties and dimensions.  Do not free. */
+/* Get pointers for direct access to properties and dimensions. Do not free. */
 {name}_properties_s *{name}_props({name}_s *self);
-{name}_properties_s * const {name}_const_props({name}_s *self);
-{name}_dimensions_s * const {name}_dims({name}_s *self);
+const {name}_properties_s *{name}_const_props({name}_s *self);
+const {name}_dimensions_s *{name}_dims({name}_s *self);
 
 /* Getter functions, that returns the property value */
+/*
 {getter2_declarations}
+*/
 
 /* Setter and getter functions */
+/*
 {setter_declarations}
 
 {getter_declarations}
-
+*/
 #endif /* _{NAME}_H */
 """
 
@@ -295,7 +318,8 @@ template_c = """\
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <bool.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include "dlite.h"
 #include "dlite-datamodel.h"
@@ -305,7 +329,7 @@ static const char {NAME}_META_TYPE[] = "{type}";
 static const char {NAME}_META_NAME[] = "{name}";
 static const char {NAME}_META_VERSION[] = "{version}";
 static const char {NAME}_META_NAMESPACE[] = "{namespace}";
-static const char *static_dims[] = {{{names_dims}}};
+/* static const char *static_dims[] = {{{names_dims}}}; */
 
 struct _{name}_s {{
   const char *id;         /* Instance UUID */
@@ -319,7 +343,7 @@ struct _{name}_s {{
    All fields are initialised with zeros. */
 {name}_s *{name}_create({args_dims})
 {{
-  return *{name}_create_with_id({args2_dims}, NULL);
+  return {name}_create_with_id({args2_dims}, NULL);
 }}
 
 /* Returns a pointer to a new allocated {name}_s instance or NULL on error.
@@ -339,9 +363,9 @@ struct _{name}_s {{
 }}
 
 /* Free's a {name}_s instance. */
-void {name}_free(const {name}_s *self)
+void {name}_free({name}_s *self)
 {{
-  free(self->id);
+  free((char *)self->id);
 {free_props}
   free(self);
 }}
@@ -359,6 +383,7 @@ void {name}_free(const {name}_s *self)
 
 {load_get_properties}
 
+  dlite_datamodel_free(d);
 {load_free_prop_dims}
 
   return self;
@@ -368,13 +393,16 @@ void {name}_free(const {name}_s *self)
 int {name}_save(const {name}_s *self, DLiteStorage *s)
 {{
   DLiteDataModel *d = dlite_datamodel(s, self->id);
-{load_define_dimensions}
 
 {load_define_prop_dims}
 {load_assign_prop_dims}
 
+  dlite_datamodel_set_metadata(d, "{url}");
+{save_set_dimensions}
+
 {save_set_properties}
 
+  dlite_datamodel_free(d);
 {load_free_prop_dims}
 
   return 0;
@@ -384,27 +412,70 @@ int {name}_save(const {name}_s *self, DLiteStorage *s)
 /* Returns a pointer for direct access to properties.  Do not free. */
 {name}_properties_s *{name}_props({name}_s *self)
 {{
-  return self->props;
+  return &self->props;
 }}
 
 /* Returns a const pointer for direct access to properties.  Do not free. */
-{name}_properties_s * const {name}_const_props({name}_s *self)
+const {name}_properties_s *{name}_const_props({name}_s *self)
 {{
-  return ({name}_properties_s * const)self->props;
+  return (const {name}_properties_s *)&self->props;
 }}
 
 /* Returns a pointer for direct access to dimensions.  Do not free. */
-{name}_dimensions_s * const {name}_dims({name}_s *self)
+const {name}_dimensions_s *{name}_dims({name}_s *self)
 {{
-  return ({name}_dimensions_s * const)self->dims;
+  return (const {name}_dimensions_s *)&self->dims;
 }}
 
 """
 
 
+def main():
+    import os
+    import argparse
+    import re
+
+    parser = argparse.ArgumentParser(
+        description='Generates '
+        'interpolation parameters and store them in a hdf5 file.')
+    parser.add_argument(
+        'infile', metavar='JSONFILE',
+        help='Name of input json metadata file.')
+    parser.add_argument(
+        '--destination', '-d', metavar='DIR',
+        help='Default destination directory.')
+    parser.add_argument(
+        '--header', '-H',
+        help='Name of output header file. Defaults to JSONFILE with (version '
+        'and) extension replaced with ".h".')
+    parser.add_argument(
+        '--source', '-c',
+        help='Name of output source file. Defaults to JSONFILE with (version '
+        'and) extension replaced with ".c".')
+    args = parser.parse_args()
+
+    basename = os.path.splitext(args.infile)[0].lower()
+    m = re.match(r'(.*)-[0-9._]+$', basename)
+    if m:
+        basename = m.groups(0)[0]
+    if args.destination:
+        basename = os.path.join(args.destination, os.path.basename(basename))
+
+    meta = HeaderMetadata.fromfile(args.infile)
+
+    hfile = args.header if args.header else basename + '.h'
+    with open(hfile, 'w') as f:
+        f.write(meta.get_header())
+
+    cfile = args.source if args.source else basename + '.c'
+    with open(cfile, 'w') as f:
+        f.write(meta.get_source())
+
+
 
 if __name__ == '__main__':
-    meta = HeaderMetadata.fromfile(
-        '../../../calm/entities/Chemistry-0.1.json')
-    print(meta.get_header())
+    main()
+    #meta = HeaderMetadata.fromfile(
+    #    '../../../calm/entities/Chemistry-0.1.json')
+    #print(meta.get_header())
     #print(meta.get_source())
