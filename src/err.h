@@ -13,6 +13,11 @@
 # include "config.h"
 #endif
 
+/* Remove __attribute__ when we are not compiling with gcc */
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
+
 
 /** @brief Reports a system error and returns `eval`.
  *
