@@ -54,38 +54,21 @@ add_definitions(-DHAVE_CONFIG_H)
 
 link_directories(${hdf5_LIBRARY_DIRS} ${uuid_BINARY_DIR})
 
-if(WITH_LIB)
-  add_library(dlite SHARED ${sources})
-  target_link_libraries(dlite uuid ${hdf5_LIBRARIES})
-  target_include_directories(dlite PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${uuid_SOURCE_DIR}
-    ${uuid_BINARY_DIR}
-    ${hdf5_INCLUDE_DIRS}
-    )
-  add_dependencies(dlite uuidProj ${hdf5_NAME})
+add_library(dlite ${sources})
+target_link_libraries(dlite uuid ${hdf5_LIBRARIES})
+target_include_directories(dlite PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${uuid_SOURCE_DIR}
+  ${uuid_BINARY_DIR}
+  ${hdf5_INCLUDE_DIRS}
+  )
+add_dependencies(dlite uuidProj ${hdf5_NAME})
 
-  install(
-    TARGETS dlite
-    DESTINATION lib)
-endif()
+install(
+  TARGETS dlite
+  DESTINATION lib
+)
 
-
-if(WITH_STATIC_LIB)
-  add_library(dlite-static STATIC ${sources})
-  target_link_libraries(dlite-static uuid ${hdf5_LIBRARIES})
-  target_include_directories(dlite-static PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${uuid_SOURCE_DIR}
-    ${uuid_BINARY_DIR}
-    ${hdf5_INCLUDE_DIRS}
-    )
-  add_dependencies(dlite-static uuidProj ${hdf5_NAME})
-
-  install(
-    TARGETS dlite-static
-    DESTINATION lib)
-endif()
 
 
 # Tests

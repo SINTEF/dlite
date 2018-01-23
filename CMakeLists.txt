@@ -11,8 +11,6 @@ project(dlite
 
 # Options
 option(BUILD_HDF5      "If not installed, download and compile HDF5"  ON)
-option(WITH_LIB        "Compile dynamic libraries"                    ON)
-option(WITH_STATIC_LIB "Compile static libraries"                     OFF)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
