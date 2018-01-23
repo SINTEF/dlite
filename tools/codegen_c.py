@@ -348,7 +348,7 @@ static const char *static_dims[] = {{{names_dims}}};
 
 struct _{name}_s {{
   const char *id;                  /* Instance UUID */
-  DLiteType proptypes[{nprops}];          /* Property types */
+  /* DLiteType proptypes[{nprops}]; */         /* Property types */
   {name}_dimensions_s dims;     /* Dimensions */
   {name}_properties_s props;    /* Properties */
 }};
@@ -372,7 +372,7 @@ struct _{name}_s {{
   dlite_get_uuid(uuid, id);
   self->id = strdup(uuid);
 
-{create_assign_proptypes}
+  /* {{create_assign_proptypes}} -- not used, removed for now... */
 
 {create_dims}
 {create_props}

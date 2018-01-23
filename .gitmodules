@@ -3,4 +3,4 @@
 	url = ssh://git@git.code.sintef.no/sidase/uuid.git
 [submodule "src/tests/minunit"]
 	path = src/tests/minunit
-	url = https://github.com/siu/minunit.git
+	url = ssh://git@git.code.sintef.no/sidase/minunit.git
