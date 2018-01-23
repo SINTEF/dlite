@@ -16,3 +16,7 @@ target_include_directories(dlite-getuuid PRIVATE
 install(
   TARGETS dlite-getuuid
   DESTINATION bin)
+
+
+# Subdirectories
+add_subdirectory(tests)

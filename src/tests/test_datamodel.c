@@ -172,11 +172,20 @@ MU_TEST(test_double_property)
 MU_TEST(test_string_property)
 {
   char v[]="A test string", w[256], *p;
-  mu_check(dlite_datamodel_set_property(d, "mystring", &v, dliteString,
+  mu_check(dlite_datamodel_set_property(d, "mystring", v, dliteString,
                                         sizeof(v), 1, NULL) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystring", &w, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystring", w, dliteString,
                                         sizeof(w), 1, NULL) == 0);
   mu_assert_string_eq(v, w);
+  /*
+   * Check with dereferencing */
+  /*
+  mu_check(dlite_datamodel_set_property(d, "mystring2", &v, dliteString,
+                                        sizeof(v), 1, NULL) == 0);
+  mu_check(dlite_datamodel_get_property(d, "mystring2", &w, dliteString,
+                                        sizeof(w), 1, NULL) == 0);
+  mu_assert_string_eq(v, w);
+  */
   /*
    * Also test implicit DTString to DTStringPtr */
   mu_check(dlite_datamodel_get_property(d, "mystring", &p, dliteStringPtr,
