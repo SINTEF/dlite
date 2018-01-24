@@ -11,10 +11,10 @@
 
 #include "config.h"
 
-char *datafile = "db.json";
+char *datafile = "testdata.json";
 char *id = "testdata";
 DLiteStorage *s=NULL;
-DLiteDataModel *d=NULL, *d2=NULL, *d3=NULL;
+DLiteDataModel *d1=NULL, *d2=NULL, *d3=NULL;
 
 
 /***************************************************************
@@ -25,14 +25,23 @@ MU_TEST(test_open)
 {
   double v=45.3;
 
-  mu_check((s = dlite_storage_open("json", datafile, "r")));
-  mu_check((d = dlite_datamodel(s, id)));
+  mu_check((s = dlite_storage_open("json", datafile, "w")));
+  mu_check((d1 = dlite_datamodel(s, id)));
+
+  mu_check((d2 = dlite_datamodel(s, "4781deed-966b-528b-be3d-2ca7ab77aab0")));
+  mu_check(dlite_datamodel_set_dimension_size(d2, "mydim", 10) == 0);
+  mu_check(dlite_datamodel_set_property(d2, "x", &v, dliteFloat,
+                                        sizeof(v), 1, NULL) == 0);
+
+  mu_check((d3 = dlite_datamodel(s, "y")));
+  mu_check(dlite_datamodel_set_property(d3, "y", &v, dliteFloat,
+                                        sizeof(v), 1, NULL) == 0);
 
 }
 
 MU_TEST(test_close)
 {
-  mu_check(dlite_datamodel_free(d) == 0);
+  mu_check(dlite_datamodel_free(d1) == 0);
   mu_check(dlite_datamodel_free(d2) == 0);
   mu_check(dlite_datamodel_free(d3) == 0);
   mu_check(dlite_storage_close(s) == 0);
