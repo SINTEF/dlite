@@ -14,6 +14,10 @@ add_executable(test_datamodel test_datamodel)
 target_link_libraries(test_datamodel dlite uuid)
 target_include_directories(test_datamodel PRIVATE ${dlite_SOURCE_DIR}/src)
 
+add_executable(test_json_storage test_json_storage)
+target_link_libraries(test_json_storage dlite uuid)
+target_include_directories(test_json_storage PRIVATE ${dlite_SOURCE_DIR}/src)
+
 add_test(
   NAME test_dlite
   COMMAND test_dlite
@@ -22,6 +26,11 @@ add_test(
 add_test(
   NAME test_datamodel
   COMMAND test_datamodel
+  )
+
+add_test(
+  NAME test_json_storage
+  COMMAND test_json_storage
   )
 
 #add_executable(h5ex_t_vlstring h5ex_t_vlstring.c)

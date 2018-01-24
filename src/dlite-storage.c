@@ -17,8 +17,10 @@
 
 /* NULL-terminated array of all backends */
 extern DLitePlugin h5_plugin;
+extern DLitePlugin dlite_json_plugin;
 DLitePlugin *plugin_list[] = {
   &h5_plugin,
+  &dlite_json_plugin,
   NULL
 };
 

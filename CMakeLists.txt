@@ -40,6 +40,9 @@ if(CTEST_MEMORYCHECK_COMMAND)
     )
 endif()
 
+include(Findjansson)
+find_package(jansson)
+
 
 
 ####################################################################

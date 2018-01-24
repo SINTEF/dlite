@@ -44,6 +44,7 @@ set(sources
   dlite-datamodel.c
   dlite-storage.c
   dh5lite.c
+  dlite-json-storage.c
   dlite.c
   getuuid.c
   err.c
@@ -55,12 +56,13 @@ add_definitions(-DHAVE_CONFIG_H)
 link_directories(${hdf5_LIBRARY_DIRS} ${uuid_BINARY_DIR})
 
 add_library(dlite ${sources})
-target_link_libraries(dlite uuid ${hdf5_LIBRARIES})
+target_link_libraries(dlite uuid ${hdf5_LIBRARIES} ${JANSSON_LIBRARIES})
 target_include_directories(dlite PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${uuid_SOURCE_DIR}
   ${uuid_BINARY_DIR}
   ${hdf5_INCLUDE_DIRS}
+  ${JANSSON_INCLUDE_DIRS}
   )
 add_dependencies(dlite uuidProj ${hdf5_NAME})
 
