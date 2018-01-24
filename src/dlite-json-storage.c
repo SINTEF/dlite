@@ -165,13 +165,13 @@ const char *dlite_json_get_metadata(const DLiteDataModel *d)
   char *metadata=NULL;
   int size=0;
 
-  name = json_string_value(json_object_get(data->meta, "name");
+  name = json_string_value(json_object_get(data->meta, "name"));
   if (name)
     size += strlen(name);
-  version = json_string_value(json_object_get(data->meta, "version");
+  version = json_string_value(json_object_get(data->meta, "version"));
   if (version)
     size += strlen(version);
-  namespace = json_string_value(json_object_get(data->meta, "namespace");
+  namespace = json_string_value(json_object_get(data->meta, "namespace"));
   if (namespace)
     size += strlen(namespace);
 
