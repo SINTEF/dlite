@@ -135,6 +135,33 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *uuid)
 {
   DLiteJsonDataModel *d;
   DLiteDataModel *retval=NULL;
+  DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
+  json_t *data = json_object_get(storage->root, uuid);
+
+  if (!(d = calloc(1, sizeof(DLiteJsonDataModel)))) FAIL0("allocation failure");
+
+  if (data == NULL) {
+    d->instance = json_object();
+    json_object_set(storage->root, uuid, d->instance);
+    d->meta = json_object();
+    json_object_set(d->instance, "meta", d->meta);
+    d->dimensions = json_object();
+    json_object_set(d->instance, "dimensions", d->dimensions);
+    d->properties = json_object();
+    json_object_set(d->instance, "properties", d->properties);    
+  }
+  else if (json_is_object(data)) {
+    d->instance = data;
+    d->meta = json_object_get(data, "meta");
+    d->dimensions = json_object_get(data, "dimensions");
+    d->properties = json_object_get(data, "properties");
+  }
+  else
+    FAIL2("expected a json object for instance '%s' in '%s'", uuid, storage->uri);
+
+  retval = (DLiteDataModel *)d;
+ fail:
+  if (!retval && d) free(d);
   return retval;
 }
 
@@ -193,8 +220,13 @@ const char *dlite_json_get_metadata(const DLiteDataModel *d)
  */
 int dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
-  //DH5DataModel *dh5 = (DH5DataModel *)d;
-  int dimsize;
+  DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
+  int dimsize=0;
+  json_t *value = json_object_get(data->dimensions, name);
+
+  if (json_is_integer(value))
+     dimsize = json_integer_value(value);
+  
   return dimsize;
 }
 
@@ -205,8 +237,8 @@ int dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
 int dlite_json_get_property(const DLiteDataModel *d, const char *name, void *ptr,
                             DLiteType type, size_t size, int ndims, const int *dims)
 {
-  //DH5DataModel *dh5 = (DH5DataModel *)d;
-  //return get_data(d, dh5->properties, name, ptr, type, size, ndims, dims);
+  DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
+  json_t *value = json_object_get(data->properties, name);
   return 0;
 }
 
