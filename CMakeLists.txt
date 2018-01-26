@@ -46,6 +46,27 @@ endif()
 # Use ExternalProject_add instead of add_subdirectory for packages.
 # For explanation of the approach, see
 # https://coderwall.com/p/y3zzbq/use-cmake-enabled-libraries-in-your-cmake-project
+#
+# In short, main reasons for using ExternalProject:
+#   - Avoids problems with multible definitions of standard targets like
+#     doc, memcheck, etc...
+#   - External dependencies are transparently downloaded, configured
+#     and compiled as a part of the build process.
+#
+# Since External download and configure steps of ExternalProject
+# happens at compile time, find_package(), which operate at configure
+# time, cannot be used with ExternalProject.  For this reason some
+# people configures everything as ExternalProject (even the main
+# project) and creates a super project that calls
+# ExternalProject_Add() in the correct order such all dependencies are
+# build when the ExternalProject of the main project is configured,
+# allowing them to use configure project.
+#
+# Here we take another approach. Instead of relying on find_package()
+# we manually sets the path of the resources (headers, libraries)
+# provided by the dependency after ExternalProject_Add() is called.
+# This way, the main project can follow the standard cmake structure.
+#
 ####################################################################
 include(ExternalProject)
 
@@ -56,45 +77,18 @@ find_package(HDF5 COMPONENTS C)
 if((NOT HDF5_FOUND) AND BUILD_HDF5)
   message(STATUS "Download and build HDF5 as external package")
 
-  set(hdf5_VERSION     "1.10.1")
-  set(hdf5_NAME        "hdf5-${hdf5_VERSION}")
-  set(hdf5_PREFIX      "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
-  set(hdf5_SOURCE_DIR  "${hdf5_PREFIX}/src/${hdf5_NAME}")
-
-  #if(CMAKE_GENERATOR MATCHES "Makefiles")
-  #
-  #  # configure
-  #  find_program(BASH bash)
-  #  set(configure_command
-  #    ${BASH}
-  #    ${hdf5_SOURCE_DIR}/configure
-  #    --prefix=${CMAKE_INSTALL_PREFIX}
-  #    --disable-hl
-  #    )
-  #  if(CMAKE_TOOLCHAIN_FILE)
-  #    get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
-  #    list(APPEND configure_command "--host=${COMPILER_NAME}")
-  #    list(APPEND configure_command "--build=${COMPILER_NAME}")
-  #    #list(APPEND configure_command "--enable-shared=no")
-  #    #list(APPEND configure_command "--enable-static=yes")
-  #  endif()
-  #
-  #  # build
-  #  find_program(MAKE make)
-  #  set(build_command ${MAKE})
-  #  if(COMPILER_NAME MATCHES mingw)
-  #    list(APPEND build_command "CPPFLAGS+='-DH5_HAVE_WIN32_API -D_ISOC99_SOURCE -include pthread-h'")
-  #    #list(APPEND build_command "CFLAGS+='-no-undefined'")
-  #    list(APPEND build_command "LDFLAGS+=-no-undefined -pthread")
-  #  endif()
-  #endif()
+  set(hdf5_VERSION        "1.10.1")
+  set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
+  set(hdf5_PREFIX         "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
+  set(hdf5_SOURCE_DIR     "${hdf5_PREFIX}/src/${hdf5_NAME}")
+  set(hdf5_INSTALL_PREFIX "${hdf5_PREFIX}/local")
 
   set(cmake_args
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     -DHDF5_BUILD_CXX=OFF
     -DHDF5_BUILD_FORTRAN=OFF
     -DCMAKE_BUILD_TYPE=Release
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
     -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
     )
   if(CMAKE_TOOLCHAIN_FILE)
@@ -112,7 +106,7 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
     CMAKE_ARGS        ${cmake_args}
     #CONFIGURE_COMMAND  ${configure_command}
     #BUILD_COMMAND     "${build_command}"
-    INSTALL_COMMAND   ""
+    #INSTALL_COMMAND   ""
     )
 
   # Define the following variables:
@@ -122,22 +116,19 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
   #   hdf5_LIBRARY_DIRS - location of the hdf5 library dirs
   #   hdf5_LIBRARIES    - required libraries (for static linking)
   #
-  ExternalProject_Get_Property(${hdf5_NAME} BINARY_DIR)
-  set(hdf5_BINARY_DIR ${BINARY_DIR})
-  set(hdf5_INCLUDE_DIRS
-    ${hdf5_SOURCE_DIR}/src
-    ${hdf5_BINARY_DIR}
-    )
-  set(hdf5_LIBRARY_DIRS ${hdf5_BINARY_DIR}/bin)
+  set(hdf5_BINARY_DIR ${hdf5_INSTALL_PREFIX}/bin)
+  set(hdf5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
+  set(hdf5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
   set(hdf5_LIBRARIES
-    ${hdf5_BINARY_DIR}/bin/${CMAKE_STATIC_LIBRARY_PREFIX}hdf5${CMAKE_STATIC_LIBRARY_SUFFIX}
     m
+    ${hdf5_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}hdf5${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
   if(WIN32)
     list(APPEND hdf5_LIBRARIES Kernel32)
   else()
     list(APPEND hdf5_LIBRARIES dl)
   endif()
+
 else()
   set(hdf5_LIBRARIES hdf5)
 endif()
