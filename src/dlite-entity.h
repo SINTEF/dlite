@@ -17,10 +17,35 @@ typedef struct _DLiteTriplet DLiteTriplet;
 
 /** Initial segments of all DLite instances.
 
-    For standard data instances, this reader is simply followed by the
-    property values.  Padding should be added between the properties,
-    such that a pointer to the memory following `dims` can be cast to
-    a pointer to a struct for the property values.
+    For standard data instances, this header is simply followed by an
+    array of dimension sizes (type: size_t) followed by property
+    values.  Padding should be added between the properties, such that
+    a pointer to `uuid` can be cast to a struct realising the
+    instance.
+
+    For example, lets say we have an instance named with two
+    dimensions and two properties of type int and double,
+    respectively.  We should then be able to access the members of
+    this instance only from knowing the metadata:
+
+        typedef struct {
+          DLiteInstance_HEAD
+          size_t N;   // first dimension
+          size_t M;   // second dimension
+          int n;      // first property
+          double x;   // second property
+        } MyInstance;
+
+        MyInstance inst;
+        DLiteInstance *instptr = &inst;
+        pad0 = 4;     // typical padding on a x86_64 archecture
+        double *xp;
+
+        // Create a pointer to `inst.x` from `instptr`.  Note the
+        // the added padding.
+        xp = (double *)(instptr + sizeof(DLiteInstance) +
+                        2*sizeof(size_t) + sizeof(int) + pad0);
+        assert(*xp == inst.x);
 */
 #define DLiteInstance_HEAD                                                \
   const char *uuid; /*!< UUID for this data instance. If `url` is not */  \
@@ -30,8 +55,8 @@ typedef struct _DLiteTriplet DLiteTriplet;
   const char *url;  /*!< Unique name or url to the data instance.  */     \
                     /*!< Can be NULL. */                                  \
   struct DLiteMeta *meta;  /*!< Pointer to the metadata describing this */\
-                           /*!< instance. */                              \
-  size_t *dims;     /*!< Array of dimension sizes. */
+                           /*!< instance. */
+
 
 
 /** Initial segments of all DLite metadata.
@@ -93,6 +118,8 @@ typedef struct _DLiteMeta {
     relations should always be zero. */
 typedef struct _DLiteEntity {
   DLiteInstance_HEAD
+  size_t ndimensions;
+  size_t nproperties;
   const char **propunits;   /*!< Unit of each property. */
 } DLiteEntity;
 
@@ -124,14 +151,14 @@ typedef struct _DLiteEntity {
 typedef struct _DLiteCollection {
   DLiteInstance_HEAD
   size_t ninstances;          /*!< Number of instances. */
-  DLiteInstance *instsances;  /*!< Array of instances. */
-
-  int ndims;                  /*!< Number of (common) dimensions. */
-  const char **dimnames;      /*!< Name of each (common) dimension. */
-  int *dims;                  /*!< Size of each (common) dimension. */
-
   size_t ntriplets;           /*!< Number of relations. */
+  size_t ndimmaps;            /*!< Number of (common) dimensions. */
+
+  DLiteInstance *instsances;  /*!< Array of instances. */
   DLiteTriplet *triplets;     /*!< Array of relation triplets. */
+  const char **dimnames;      /*!< Name of each (common) dimension. */
+  int *disizes;               /*!< Size of each (common) dimension. */
+
 } DLiteCollection;
 
 
