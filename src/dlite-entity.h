@@ -1,0 +1,137 @@
+#ifndef _DLITE_ENTITY_H
+#define _DLITE_ENTITY_H
+
+/**
+  @file
+  @brief API for instances and entities.
+
+*/
+
+
+/** Opaque type for a DLiteTriplet.
+
+    Just a placeholder - not yet implemented... */
+typedef struct _DLiteTriplet DLiteTriplet;
+
+
+
+/** Initial segments of all DLite instances.
+
+    For standard data instances, this reader is simply followed by the
+    property values.  Padding should be added between the properties,
+    such that a pointer to the memory following `dims` can be cast to
+    a pointer to a struct for the property values.
+*/
+#define DLiteInstance_HEAD                                                \
+  const char *uuid; /*!< UUID for this data instance. If `url` is not */  \
+                    /*!< NULL, it is generated from `url` (version 5, */  \
+                    /*!< SHA-1 based UUID using the DNS namespace), */    \
+                    /*!< otherwise it is a random (version 4) UUID. */    \
+  const char *url;  /*!< Unique name or url to the data instance.  */     \
+                    /*!< Can be NULL. */                                  \
+  struct DLiteMeta *meta;  /*!< Pointer to the metadata describing this */\
+                           /*!< instance. */                              \
+  size_t *dims;     /*!< Array of dimension sizes. */
+
+
+/** Initial segments of all DLite metadata.
+
+    Since all metadata is an instance of its meta-metadata, it is also
+    an instance.  It therefore starts with DLiteInstance_HEAD.
+
+    It can be shown that DLiteMeta_HEAD can describe itself.  In
+    principle we can therefore follow the `meta` to higher and higher
+    levels of abstraction, until we reach the basic metadata schema,
+    which has its `meta` field set to NULL.  However, at least
+    initially, we will allow to set the `meta` field of any DLiteMeta
+    to NULL, indicating that we are not interested in the next level
+    of abstraction.
+*/
+#define DLiteMeta_HEAD                                                  \
+  DLiteInstance_HEAD                                                    \
+  const char *name;         /*!< Metadata name. */                      \
+  const char *version;      /*!< Metadata version. */                   \
+  const char *namespace;    /*!< Metadata namespace. */                 \
+  const char *description;  /*!< Human description of this metadata. */ \
+                                                                        \
+  int ndims;                /*!< Number of dimensions. */               \
+  const char **dimnames;    /*!< Dimension names.*/                     \
+  const char **dimdescr;    /*!< Dimension descriptions. */             \
+                                                                        \
+  int nprops;               /*!< Number of properties. */               \
+  const char **propnames;   /*!< Name of each property. */              \
+  DLiteType *proptypes;     /*!< Type of each property. */              \
+  int *proptypesizes;       /*!< Type size of each property. */         \
+  int *propndims;           /*!< Number of dimensions for each property. */ \
+  size_t **propdims;        /*!< Dimensions of each property. */        \
+  const char *propdescr;    /*!< Description of each property. */       \
+                                                                        \
+  int ntriplets;            /*!< Number of relations. */                \
+  DLiteTriplet *triplets;   /*!< Array of relation triplets. */
+
+
+/** Base definition of a DLite instance, that all instance (and
+    metadata) objects can be cast to.  Is never actually
+    instansiated. */
+typedef struct _DLiteInstance {
+  DLiteInstance_HEAD
+} DLiteInstance;
+
+
+/** Base definition of a DLite metadata, that all metadata objects can
+    be cast to.
+
+    It may be instansiated, e.g. by the basic metadata schema. */
+typedef struct _DLiteMeta {
+  DLiteMeta_HEAD
+} DLiteMeta;
+
+
+/** A DLite entity.
+
+    It will have number of relations set to zero. */
+typedef struct _DLiteEntity {
+  DLiteInstance_HEAD
+  const char **propunits;   /*!< Unit of each property. */
+} DLiteEntity;
+
+
+/** A DLite Collection.
+
+    Collections are a special type of instances that hold a set of
+    instances and relations between them.
+
+    In the current implementation, we allow the `meta` field to be NULL.
+
+    A set of pre-defined relations are used to manage the collection itself.
+    In order to not distinguish these relations from user-defined relations,
+    their predicate are prefixed with a single underscore.  The pre-defined
+    relations are:
+
+        subject   predicate     object
+        -------   -----------   ----------
+        label     "_is-a"       "Instance"
+        label     "_has-uuid"   uuid
+        label     "_has-meta"   url
+        label     "_dim-map"    instdim:colldim
+
+    The "_dim-map" relation maps the name of a dimension in an
+    instance (`instdim`) to a common dimension in the collection
+    (`colldim`).  The object is the concatenation of `instdim`
+    and `colldim` separated by a semicolon.
+*/
+typedef struct _DLiteCollection {
+  DLiteInstance_HEAD
+  size_t ninstances;          /*!< Number of instances. */
+  DLiteInstance *instsances;  /*!< Array of instances. */
+
+  int ndims;                  /*!< Number of (common) dimensions. */
+  const char **dimnames;      /*!< Name of each (common) dimension. */
+  int *dims;                  /*!< Size of each (common) dimension. */
+
+  size_t ntriplets;           /*!< Number of relations. */
+  DLiteTriplet *triplets;     /*!< Array of relation triplets. */
+} DLiteCollection;
+
+
+#endif /* _DLITE_ENTITY_H */
