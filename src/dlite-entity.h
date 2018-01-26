@@ -26,7 +26,8 @@ typedef struct _DLiteTriplet DLiteTriplet;
     For example, lets say we have an instance named with two
     dimensions and two properties of type int and double,
     respectively.  We should then be able to access the members of
-    this instance only from knowing the metadata:
+    this instance only from knowing the metadata (and the architecture
+    and compiler-dependent padding):
 
         typedef struct {
           DLiteInstance_HEAD
@@ -46,6 +47,9 @@ typedef struct _DLiteTriplet DLiteTriplet;
         xp = (double *)(instptr + sizeof(DLiteInstance) +
                         2*sizeof(size_t) + sizeof(int) + pad0);
         assert(*xp == inst.x);
+
+    For this to work we need a portable and robust way to determine the
+    padding.  TODO - check out that this is possible.
 */
 #define DLiteInstance_HEAD                                                \
   const char *uuid; /*!< UUID for this data instance. If `url` is not */  \
@@ -74,16 +78,21 @@ typedef struct _DLiteTriplet DLiteTriplet;
 */
 #define DLiteMeta_HEAD                                                  \
   DLiteInstance_HEAD                                                    \
+  /* Dimensions */                                                      \
+  size_t ndims;             /*!< Number of dimensions. */               \
+  size_t nprops;            /*!< Number of properties. */               \
+  size_t ntriplets;         /*!< Number of relations.  Is always */     \
+                            /*!< zero for Entities. */                  \
+                                                                        \
+  /* Properties */                                                      \
   const char *name;         /*!< Metadata name. */                      \
   const char *version;      /*!< Metadata version. */                   \
   const char *namespace;    /*!< Metadata namespace. */                 \
   const char *description;  /*!< Human description of this metadata. */ \
                                                                         \
-  int ndims;                /*!< Number of dimensions. */               \
   const char **dimnames;    /*!< Dimension names.*/                     \
   const char **dimdescr;    /*!< Dimension descriptions. */             \
                                                                         \
-  int nprops;               /*!< Number of properties. */               \
   const char **propnames;   /*!< Name of each property. */              \
   DLiteType *proptypes;     /*!< Type of each property. */              \
   int *proptypesizes;       /*!< Type size of each property. */         \
@@ -91,7 +100,6 @@ typedef struct _DLiteTriplet DLiteTriplet;
   size_t **propdims;        /*!< Dimensions of each property. */        \
   const char *propdescr;    /*!< Description of each property. */       \
                                                                         \
-  int ntriplets;            /*!< Number of relations. */                \
   DLiteTriplet *triplets;   /*!< Array of relation triplets. */
 
 
@@ -118,8 +126,6 @@ typedef struct _DLiteMeta {
     relations should always be zero. */
 typedef struct _DLiteEntity {
   DLiteInstance_HEAD
-  size_t ndimensions;
-  size_t nproperties;
   const char **propunits;   /*!< Unit of each property. */
 } DLiteEntity;
 
@@ -160,6 +166,15 @@ typedef struct _DLiteCollection {
   int *disizes;               /*!< Size of each (common) dimension. */
 
 } DLiteCollection;
+
+
+
+DLiteInstance *dlite_instance_create(DLiteEntity *meta, size_t, *dims);
+
+
+DLiteInstance *dlite_instance_createv(DLiteEntity *meta, ...);
+
+void dlite_instance_free(DLiteInstance *inst);
 
 
 #endif /* _DLITE_ENTITY_H */
