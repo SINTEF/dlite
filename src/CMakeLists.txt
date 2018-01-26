@@ -19,9 +19,13 @@ configure_file(boolean.h.in boolean.h)
 # Generate config.h
 # -----------------
 include(CheckSymbolExists)
-check_symbol_exists(strdup   string.h   HAVE_STRDUP)
-check_symbol_exists(_strdup  string.h   HAVE__STRDUP)
-check_symbol_exists(qsort    stdlib.h   HAVE_QSORT)
+check_symbol_exists(strdup       string.h   HAVE_STRDUP)
+check_symbol_exists(_strdup      string.h   HAVE__STRDUP)
+check_symbol_exists(strcasecmp   string.h   HAVE_STRCASECMP)
+check_symbol_exists(strncasecmp  string.h   HAVE_STRNCASECMP)
+check_symbol_exists(_stricmp     string.h   HAVE__STRICMP)
+check_symbol_exists(_strnicmp    string.h   HAVE__STRNICMP)
+check_symbol_exists(qsort        stdlib.h   HAVE_QSORT)
 
 include(CheckCSourceCompiles)
 

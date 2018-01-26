@@ -84,10 +84,6 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
   set(hdf5_SOURCE_DIR     "${hdf5_PREFIX}/src/${hdf5_NAME}")
   set(hdf5_INSTALL_PREFIX "${hdf5_PREFIX}/local")
 
-  # Find the build type postfix added by MSVS
-  string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
-  set(postfix ${CMAKE_${build_type}_POSTFIX})
-
   set(cmake_args
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     -DHDF5_BUILD_CXX=OFF
@@ -95,6 +91,10 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
     -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
+    -DCMAKE_DEBUG_POSTFIX=""
+    -DCMAKE_RELEASE_POSTFIX=""
+    -DCMAKE_RELWITHDEBINFO_POSTFIX=""
+    -DCMAKE_MINSIZEREL_POSTFIX=""
     )
   if(CMAKE_TOOLCHAIN_FILE)
     get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
@@ -109,9 +109,6 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
     SOURCE_DIR        ${hdf5_SOURCE_DIR}
     UPDATE_COMMAND    ""
     CMAKE_ARGS        ${cmake_args}
-    #CONFIGURE_COMMAND  ${configure_command}
-    #BUILD_COMMAND     "${build_command}"
-    #INSTALL_COMMAND   ""
     )
 
   # Define the following variables:
