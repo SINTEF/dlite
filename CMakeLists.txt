@@ -70,6 +70,7 @@ endif()
 ####################################################################
 include(ExternalProject)
 
+
 #
 # hdf5
 # ====
@@ -82,6 +83,10 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
   set(hdf5_PREFIX         "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
   set(hdf5_SOURCE_DIR     "${hdf5_PREFIX}/src/${hdf5_NAME}")
   set(hdf5_INSTALL_PREFIX "${hdf5_PREFIX}/local")
+
+  # Find the build type postfix added by MSVS
+  string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
+  set(postfix ${CMAKE_${build_type}_POSTFIX})
 
   set(cmake_args
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -120,13 +125,12 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
   set(hdf5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
   set(hdf5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
   set(hdf5_LIBRARIES
-    m
-    ${hdf5_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}hdf5${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${hdf5_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}hdf5${postfix}{CMAKE_STATIC_LIBRARY_SUFFIX}
     )
   if(WIN32)
     list(APPEND hdf5_LIBRARIES Kernel32)
   else()
-    list(APPEND hdf5_LIBRARIES dl)
+    list(APPEND hdf5_LIBRARIES m dl)
   endif()
 
 else()
