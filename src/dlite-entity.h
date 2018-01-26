@@ -89,7 +89,8 @@ typedef struct _DLiteMeta {
 
 /** A DLite entity.
 
-    It will have number of relations set to zero. */
+    This is the metadata for standard data objects.  Number of
+    relations should always be zero. */
 typedef struct _DLiteEntity {
   DLiteInstance_HEAD
   const char **propunits;   /*!< Unit of each property. */
