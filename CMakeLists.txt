@@ -70,6 +70,7 @@ endif()
 ####################################################################
 include(ExternalProject)
 
+
 #
 # hdf5
 # ====
@@ -90,11 +91,17 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
     -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
+    -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
     )
+  if(BUILD_SHARED_LIBS)
+    list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
+  endif()
   if(CMAKE_TOOLCHAIN_FILE)
     get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
     list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
   endif()
+
+
 
   ExternalProject_Add(
     ${hdf5_NAME}
@@ -104,9 +111,6 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
     SOURCE_DIR        ${hdf5_SOURCE_DIR}
     UPDATE_COMMAND    ""
     CMAKE_ARGS        ${cmake_args}
-    #CONFIGURE_COMMAND  ${configure_command}
-    #BUILD_COMMAND     "${build_command}"
-    #INSTALL_COMMAND   ""
     )
 
   # Define the following variables:
@@ -120,13 +124,12 @@ if((NOT HDF5_FOUND) AND BUILD_HDF5)
   set(hdf5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
   set(hdf5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
   set(hdf5_LIBRARIES
-    m
     ${hdf5_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}hdf5${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
   if(WIN32)
     list(APPEND hdf5_LIBRARIES Kernel32)
   else()
-    list(APPEND hdf5_LIBRARIES dl)
+    list(APPEND hdf5_LIBRARIES m dl)
   endif()
 
 else()
@@ -139,10 +142,12 @@ endif()
 # uuid
 # ====
 set(uuid_SOURCE_DIR  ${dlite_SOURCE_DIR}/uuid)
+set(cmake_args -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS})
 ExternalProject_Add(
   uuidProj
   PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid
   SOURCE_DIR      ${uuid_SOURCE_DIR}
+  CMAKE_ARGS      ${cmake_args}
   UPDATE_COMMAND  ""
   TEST_COMMAND    ctest
   INSTALL_COMMAND ""
