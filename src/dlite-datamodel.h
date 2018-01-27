@@ -59,7 +59,8 @@ const char *dlite_datamodel_get_metadata(const DLiteDataModel *d);
 /**
   Returns the size of dimension \a name or -1 on error.
  */
-int dlite_datamodel_get_dimension_size(const DLiteDataModel *d, const char *name);
+size_t dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
+                                          const char *name);
 
 /**
   Copies property \a name to memory pointed to by \a ptr.
@@ -88,7 +89,7 @@ int dlite_datamodel_get_dimension_size(const DLiteDataModel *d, const char *name
  */
 int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
                                  void *ptr, DLiteType type, size_t size,
-                                 int ndims, const int *dims);
+                                 size_t ndims, const size_t *dims);
 
 /** @} */
 
@@ -116,7 +117,7 @@ int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
 */
 int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,
                                  const void *ptr, DLiteType type, size_t size,
-                                 int ndims, const int *dims);
+                                 size_t ndims, const size_t *dims);
 
 
 /**
@@ -128,7 +129,7 @@ int dlite_datamodel_set_metadata(DLiteDataModel *d, const char *metadata);
   Sets size of dimension \a name.  Returns non-zero on error.
 */
 int dlite_datamodel_set_dimension_size(DLiteDataModel *d, const char *name,
-                                       int size);
+                                       size_t size);
 
 
 /**
@@ -166,13 +167,13 @@ char *dlite_datamodel_get_dataname(DLiteDataModel *d);
     flat continuous C-ordered array \a dst. The size of dest must be
     sufficient large.  Returns non-zero on error. */
 int dlite_copy_to_flat(void *dst, const void *src, size_t size,
-                       int ndims, const int *dims);
+                       size_t ndims, const size_t *dims);
 
 /** Copies data from flat continuous C-ordered array \a dst to nested
     pointer to pointers array \a src. The size of dest must be
     sufficient large.  Returns non-zero on error. */
 int dlite_copy_to_nested(void *dst, const void *src, size_t size,
-                         int ndims, const int *dims);
+                         size_t ndims, const size_t *dims);
 
 /** @} */
 

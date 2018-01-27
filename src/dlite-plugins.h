@@ -54,19 +54,20 @@ typedef DLiteDataModel *(*DataModel)(const DLiteStorage *s, const char *uuid);
 typedef int (*DataModelFree)(DLiteDataModel *d);
 
 typedef const char *(*GetMetadata)(const DLiteDataModel *d);
-typedef int (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
-typedef int (*GetProperty)(const DLiteDataModel *d, const char *name, void *ptr,
-                           DLiteType type, size_t size,
-                           int ndims, const int *dims);
+typedef size_t (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
+typedef int (*GetProperty)(const DLiteDataModel *d, const char *name,
+                           void *ptr, DLiteType type, size_t size,
+                           size_t ndims, const size_t *dims);
 
 /* Optional api */
 typedef char **(*GetUUIDs)(const DLiteStorage *s);
 
 typedef int (*SetMetadata)(DLiteDataModel *d, const char *metadata);
-typedef int (*SetDimensionSize)(DLiteDataModel *d, const char *name, int size);
-typedef int (*SetProperty)(DLiteDataModel *d, const char *name, const void *ptr,
-                           DLiteType type, size_t size,
-                           int ndims, const int *dims);
+typedef int (*SetDimensionSize)(DLiteDataModel *d, const char *name,
+                                size_t size);
+typedef int (*SetProperty)(DLiteDataModel *d, const char *name,
+                           const void *ptr, DLiteType type, size_t size,
+                           size_t ndims, const size_t *dims);
 
 
 typedef int (*HasDimension)(const DLiteDataModel *d, const char *name);

@@ -116,7 +116,8 @@ MU_TEST(test_blob_property)
 
 MU_TEST(test_bool_vec_property)
 {
-  int i, n=4;
+  int i;
+  size_t n=4;
   bool v[4]={1, 0, 0, 1}, w[4];
   mu_check(dlite_datamodel_set_property(d, "mybool", v, dliteBool,
                                         sizeof(bool), 1, &n) == 0);
@@ -128,8 +129,8 @@ MU_TEST(test_bool_vec_property)
 
 MU_TEST(test_int_arr_property)
 {
-  int i, j, v[2][3] = {{-4, 5, 7}, {42, 0, -13}}, w[2][3];
-  int dims[] = {2, 3};
+  int v[2][3] = {{-4, 5, 7}, {42, 0, -13}}, w[2][3];
+  size_t i, j, dims[] = {2, 3};
   mu_check(dlite_datamodel_set_property(d, "myint", v, dliteInt,
                                         sizeof(int), 2, dims) == 0);
   mu_check(dlite_datamodel_get_property(d, "myint", w, dliteInt,
@@ -197,7 +198,7 @@ MU_TEST(test_string_property)
 MU_TEST(test_stringptr_vec_property)
 {
   char *v[]={"Another test string", "next"}, *w[2], u[2][256];
-  int i, dims[]={2};
+  size_t i, dims[]={2};
   mu_check(dlite_datamodel_set_property(d, "mystringptr", v, dliteStringPtr,
                                         sizeof(char *), 1, dims) == 0);
   mu_check(dlite_datamodel_get_property(d, "mystringptr", w, dliteStringPtr,
@@ -216,7 +217,7 @@ MU_TEST(test_stringptr_vec_property)
 
 MU_TEST(test_string_arr_property)
 {
-  int i, j, dims[] = {2, 2};
+  size_t i, j, dims[] = {2, 2};
   char v[2][2][6]={{"this", "is"}, {"some", "words"}}, w[2][2][6];
   mu_check(dlite_datamodel_set_property(d, "mystring_arr", v, dliteString,
                                         6, 2, dims) == 0);
@@ -229,7 +230,7 @@ MU_TEST(test_string_arr_property)
 
 MU_TEST(test_uint64_arr_property)
 {
-  int i, j, k, dims[] = {1, 2, 3};
+  size_t i, j, k, dims[] = {1, 2, 3};
   uint64_t v[1][2][3]={{{10, 12, 9}, {3, 0, 100}}}, w[6];
   mu_check(dlite_datamodel_set_property(d, "myuint64", v, dliteUInt,
                                         sizeof(uint64_t), 3, dims) == 0);

@@ -133,11 +133,11 @@ static hid_t get_memtype(DLiteType type, size_t size)
    Returns -1 on error.
 
    On success, the returned identifier should be closed with H5Sclose(). */
-static hid_t get_space(int ndims, const int *dims)
+static hid_t get_space(size_t ndims, const size_t *dims)
 {
   hid_t space=-1;
   hsize_t *hdims=NULL;
-  int i;
+  size_t i;
   if (!(hdims = calloc(ndims, sizeof(hsize_t))))
     return err(-1, "allocation failure");
   for (i=0; i<ndims; i++) hdims[i] = (dims) ? dims[i] : 1;
@@ -190,15 +190,16 @@ static DLiteType get_type(hid_t dtype)
  */
 static int get_data(const DLiteDataModel *d, hid_t group,
                     const char *name, void *ptr,
-                    DLiteType type, size_t size, int ndims, const int *dims)
+                    DLiteType type, size_t size,
+                    size_t ndims, const size_t *dims)
 {
   hid_t memtype=0, space=0, dspace=0, dset=0, dtype=0;
   htri_t isvariable;
   herr_t stat;
   hsize_t *ddims=NULL;
   DLiteType savedtype;
-  size_t dsize;
-  int i, dndims, nmemb=1, retval=-1;
+  size_t i, nmemb=1;
+  int dsize, dndims, retval=-1;
   void *buff=ptr;
 
   errno=0;
@@ -224,12 +225,12 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   /* Check that dimensions matches */
   if (dndims == 0 && ndims == 1)
     dndims++;
-  else if (dndims != ndims) {
-    DFAIL3(d, "trying to read '%s' with ndims=%d, but ndims=%d",
+  else if (dndims != (int)ndims) {
+    DFAIL3(d, "trying to read '%s' with ndims=%lu, but ndims=%d",
            name, ndims, dndims);
     for (i=0; i<ndims; i++)
       if (ddims[i] != (hsize_t)((dims) ? dims[i] : 1))
-        DFAIL4(d, "dimension %d of '%s': expected %d, got %d",
+        DFAIL4(d, "dimension %lu of '%s': expected %lu, got %d",
                i, name, (dims) ? dims[i] : 1, (int)ddims[i]);
   }
   for (i=0; i<ndims; i++) nmemb *= (dims) ? dims[i] : 1;
@@ -300,7 +301,8 @@ static int get_data(const DLiteDataModel *d, hid_t group,
  */
 static int set_data(DLiteDataModel *d, hid_t group,
                     const char *name, const void *ptr,
-                    DLiteType type, size_t size, int ndims, const int *dims)
+                    DLiteType type, size_t size,
+                    size_t ndims, const size_t *dims)
 {
   hid_t memtype=0, space=0, dset=0;
   herr_t stat;
@@ -561,7 +563,7 @@ const char *dh5_get_metadata(const DLiteDataModel *d)
 /**
   Returns the size of dimension `name` or -1 on error.
  */
-int dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
+size_t dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   int dimsize;
@@ -577,7 +579,8 @@ int dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
   Returns non-zero on error.
  */
 int dh5_get_property(const DLiteDataModel *d, const char *name, void *ptr,
-                     DLiteType type, size_t size, int ndims, const int *dims)
+                     DLiteType type, size_t size,
+                     size_t ndims, const size_t *dims)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   return get_data(d, dh5->properties, name, ptr, type, size, ndims, dims);
@@ -594,7 +597,7 @@ int dh5_get_property(const DLiteDataModel *d, const char *name, void *ptr,
 int dh5_set_metadata(DLiteDataModel *d, const char *metadata)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
-  int dims[1]={1};
+  size_t dims[1]={1};
   char *name, *version, *namespace;
 
   if (dlite_split_metadata(metadata, &name, &version, &namespace))
@@ -617,10 +620,10 @@ int dh5_set_metadata(DLiteDataModel *d, const char *metadata)
 /**
   Sets size of dimension `name`.  Returns non-zero on error.
 */
-int dh5_set_dimension_size(DLiteDataModel *d, const char *name, int size)
+int dh5_set_dimension_size(DLiteDataModel *d, const char *name, size_t size)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
-  int dims[1]={1};
+  size_t dims[1]={1};
   int64_t dsize=size;
 
   return set_data(d, dh5->dimensions, name, &dsize, dliteInt,
@@ -633,7 +636,8 @@ int dh5_set_dimension_size(DLiteDataModel *d, const char *name, int size)
   Returns non-zero on error.
 */
 int dh5_set_property(DLiteDataModel *d, const char *name, const void *ptr,
-                     DLiteType type, size_t size, int ndims, const int *dims)
+                     DLiteType type, size_t size,
+                     size_t ndims, const size_t *dims)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   return set_data(d, dh5->properties, name, ptr, type, size, ndims, dims);
