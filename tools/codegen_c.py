@@ -29,7 +29,8 @@ class HeaderMetadata(codegen.Metadata):
         self.struct_props = self.get_struct_props()
         self.struct_dims = self.get_struct_dims()
         self.description = '\n * '.join(textwrap.wrap(self.description))
-        self.args_dims = ', '.join(['int %s' % ident(d) for d in self.dimnames])
+        self.args_dims = ', '.join(['size_t %s' % ident(d)
+                                    for d in self.dimnames])
         self.args2_dims = ', '.join(['%s' % ident(d) for d in self.dimnames])
         self.names_dims = ', '.join(['"%s"' % ident(d) for d in self.dimnames])
 
@@ -90,7 +91,7 @@ class HeaderMetadata(codegen.Metadata):
         if not 'dims' in self.props[prop]:
             return ''
         ndims = len(self.props[prop]['dims'])
-        return 'int *%s_dims = malloc(%d*sizeof(int));' % (prop, ndims)
+        return 'size_t *%s_dims = malloc(%d*sizeof(size_t));' % (prop, ndims)
 
     def get_assign_prop_dims(self, prop):
         """Returns definition of variable holding dimension of `prop`."""
@@ -127,7 +128,7 @@ class HeaderMetadata(codegen.Metadata):
     def get_struct_dims(self):
         """Returns elements of dimensions struct."""
         dims = self._dict['dimensions']
-        types = ['  int %s;' % ident(d['name']) for d in dims]
+        types = ['  size_t %s;' % ident(d['name']) for d in dims]
         comments = ['  /* %s */' % d['description']
                     if 'description' in d else '' for d in dims]
         n = max(len(t) for t in types)
