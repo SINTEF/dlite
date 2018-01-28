@@ -90,7 +90,7 @@ int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
  */
 int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
                                  void *ptr, DLiteType type, size_t size,
-                                 int ndims, const int *dims)
+                                 size_t ndims, const size_t *dims)
 {
   return d->api->getProperty(d, name, ptr, type, size, ndims, dims);
 }
@@ -106,7 +106,7 @@ int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
 */
 int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,
                                  const void *ptr, DLiteType type, size_t size,
-                                 int ndims, const int *dims)
+                                 size_t ndims, const size_t *dims)
 {
   if (!d->api->setProperty)
     return errx(1, "driver '%s' does not support set_property", d->api->name);

@@ -19,24 +19,6 @@
  * Utility functions
  ********************************************************************/
 
-/* Returns descriptive name for `type` or NULL on error. */
-char *dlite_get_typename(DLiteType type)
-{
-  char *types[] = {
-    "blob",
-    "boolean",
-    "integer",
-    "unsigned_integer",
-    "float",
-    "string",
-    "string_pointer"
-  };
-  if (type < 0 || type >= sizeof(types) / sizeof(char *))
-    return errx(1, "invalid type number: %d", type), NULL;
-  return types[type];
-}
-
-
 /*
   Writes an UUID to `buff` based on `id`.
 

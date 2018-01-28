@@ -172,17 +172,17 @@ MU_TEST(test_double_property)
 MU_TEST(test_string_property)
 {
   char v[]="A test string", w[256], *p;
-  mu_check(dlite_datamodel_set_property(d, "mystring", v, dliteString,
+  mu_check(dlite_datamodel_set_property(d, "mystring", v, dliteFixString,
                                         sizeof(v), 1, NULL) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystring", w, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystring", w, dliteFixString,
                                         sizeof(w), 1, NULL) == 0);
   mu_assert_string_eq(v, w);
   /*
    * Check with dereferencing */
   /*
-  mu_check(dlite_datamodel_set_property(d, "mystring2", &v, dliteString,
+  mu_check(dlite_datamodel_set_property(d, "mystring2", &v, dliteFixString,
                                         sizeof(v), 1, NULL) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystring2", &w, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystring2", &w, dliteFixString,
                                         sizeof(w), 1, NULL) == 0);
   mu_assert_string_eq(v, w);
   */
@@ -208,7 +208,7 @@ MU_TEST(test_stringptr_vec_property)
   }
   /*
    * Also test implicit DTStringPtr to DTString */
-  mu_check(dlite_datamodel_get_property(d, "mystringptr", u, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystringptr", u, dliteFixString,
                                         256, 1, dims) == 0);
   for (i=0; i<dims[0]; i++)
     mu_assert_string_eq(v[i], u[i]);
@@ -218,9 +218,9 @@ MU_TEST(test_string_arr_property)
 {
   int i, j, dims[] = {2, 2};
   char v[2][2][6]={{"this", "is"}, {"some", "words"}}, w[2][2][6];
-  mu_check(dlite_datamodel_set_property(d, "mystring_arr", v, dliteString,
+  mu_check(dlite_datamodel_set_property(d, "mystring_arr", v, dliteFixString,
                                         6, 2, dims) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystring_arr", w, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystring_arr", w, dliteFixString,
                                         6, 2, dims) == 0);
   for (i=0; i<dims[0]; i++)
     for (j=0; j<dims[1]; j++)

@@ -108,7 +108,7 @@ static hid_t get_memtype(DLiteType type, size_t size)
     case sizeof(double): return H5Tcopy(H5T_NATIVE_DOUBLE);
     default:             return errx(-1, "no native float with size %lu", size);
     }
-  case dliteString:
+  case dliteFixString:
     memtype = H5Tcopy(H5T_C_S1);
     if ((stat = H5Tset_size(memtype, size)) < 0)
       return err(-1, "cannot set string memtype size to %lu", size);
@@ -173,7 +173,7 @@ static DLiteType get_type(hid_t dtype)
   case H5T_STRING:
     if ((isvariable = H5Tis_variable_str(dtype)) < 0)
       return err(-1,"cannot dtermine wheter hdf5 string is of variable length");
-    return (isvariable) ? dliteStringPtr : dliteString;
+    return (isvariable) ? dliteStringPtr : dliteFixString;
   default:
     return err(-1, "hdf5 data class is not opaque, integer, float or string");
   }
@@ -239,7 +239,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
     DFAIL1(d, "cannot get type of '%s'", name);
 
   /* Add space for NUL-termination for non-variable strings */
-  if (savedtype == dliteString) {
+  if (savedtype == dliteFixString) {
     if((isvariable = H5Tis_variable_str(dtype)) < 0)
       DFAIL1(d, "cannot determine if '%s' is stored as variable length string",
              name);
@@ -247,11 +247,11 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   }
 
   /* Allocate temporary buffer for data type convertion */
-  if (type == dliteStringPtr && savedtype == dliteString) {
+  if (type == dliteStringPtr && savedtype == dliteFixString) {
     if (!(buff = calloc(nmemb, dsize))) FAIL0("allocation failure");
     if (memtype > 0) H5Tclose(memtype);
-    if ((memtype = get_memtype(dliteString, dsize)) < 0) goto fail;
-  } else if (type == dliteString && savedtype == dliteStringPtr) {
+    if ((memtype = get_memtype(dliteFixString, dsize)) < 0) goto fail;
+  } else if (type == dliteFixString && savedtype == dliteStringPtr) {
     if (!(buff = calloc(nmemb, sizeof(void *)))) FAIL0("allocation failure");
     if (memtype > 0) H5Tclose(memtype);
     if ((memtype = get_memtype(dliteStringPtr, sizeof(void *))) < 0) goto fail;
@@ -259,18 +259,19 @@ static int get_data(const DLiteDataModel *d, hid_t group,
     ;  /* pass, bool is saved as uint */
   } else if (savedtype != type) {
     DFAIL3(d, "trying to read '%s' as %s, but it is %s",
-           name, dlite_get_typename(type), dlite_get_typename(savedtype));
+           name, dlite_type_get_dtypename(type),
+           dlite_type_get_dtypename(savedtype));
   }
 
   if ((stat = H5Dread(dset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff)) < 0)
     DFAIL1(d, "cannot read dataset '%s'", name);
 
   /* Convert data type */
-  if (type == dliteStringPtr && savedtype == dliteString) {
+  if (type == dliteStringPtr && savedtype == dliteFixString) {
     for (i=0; i<nmemb; i++)
       if (!(((char **)ptr)[i] = strdup((char *)buff + i*dsize)))
         FAIL0("allocation failure");
-  } else if (type == dliteString && savedtype == dliteStringPtr) {
+  } else if (type == dliteFixString && savedtype == dliteStringPtr) {
     for (i=0; i<nmemb; i++) {
       strncpy((char *)ptr + i*size, ((char **)buff)[i], size);
       free(((char **)buff)[i]);
@@ -600,11 +601,11 @@ int dh5_set_metadata(DLiteDataModel *d, const char *metadata)
   if (dlite_split_metadata(metadata, &name, &version, &namespace))
     return 1;
 
-  set_data(d, dh5->meta, "name", name, dliteString,
+  set_data(d, dh5->meta, "name", name, dliteFixString,
            strlen(name), 1, dims);
-  set_data(d, dh5->meta, "version", version, dliteString,
+  set_data(d, dh5->meta, "version", version, dliteFixString,
            strlen(version), 1, dims);
-  set_data(d, dh5->meta, "namespace", namespace, dliteString,
+  set_data(d, dh5->meta, "namespace", namespace, dliteFixString,
            strlen(namespace), 1, dims);
 
   free(name);
@@ -723,7 +724,7 @@ int dh5_set_dataname(DLiteDataModel *d, const char *name)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   return set_data(d, dh5->instance, "dataname", name,
-                  dliteString, strlen(name), 1, NULL);
+                  dliteFixString, strlen(name), 1, NULL);
 }
 
 

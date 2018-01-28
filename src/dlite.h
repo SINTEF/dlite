@@ -6,7 +6,7 @@
   @brief Main header file for dlite
 */
 
-#include "dlite-types.h"
+#include "dlite-type.h"
 #include "dlite-storage.h"
 
 #define DLITE_UUID_LENGTH 36
@@ -16,12 +16,6 @@
   @name General dlite utility functions
   @{
  */
-
-/**
-  Returns descriptive name for \a type or NULL on error.
-*/
-char *dlite_get_typename(DLiteType type);
-
 
 /**
   Writes an UUID to \a buff based on \a id.

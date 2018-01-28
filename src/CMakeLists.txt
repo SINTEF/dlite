@@ -16,6 +16,15 @@ check_type_size(_Bool _BOOL)
 configure_file(boolean.h.in boolean.h)
 
 
+# Generate floats.h
+# ------------------
+check_type_size(float         SIZEOF_FLOAT)
+check_type_size(double        SIZEOF_DOUBLE)
+check_type_size("long double" SIZEOF_LONG_DOUBLE)
+
+configure_file(floats.h.in floats.h)
+
+
 # Generate config.h
 # -----------------
 include(CheckSymbolExists)
@@ -45,10 +54,12 @@ configure_file(config.h.in config.h)
 # Compile library
 #-----------------------------------------------------
 set(sources
-  dlite-datamodel.c
-  dlite-storage.c
-  dh5lite.c
   dlite.c
+  dlite-type.c
+  dlite-storage.c
+  dlite-entity.c
+  dlite-datamodel.c
+  dh5lite.c
   getuuid.c
   err.c
   compat.c

@@ -5,154 +5,159 @@
   @file
   @brief API for instances and entities.
 
+  There is only data and transformations.  All data are instances of
+  their metadata and metadata are instances of their meta-metadata,
+  etc...
+
+  Instances
+  ---------
+  Instances are uniquely defined by their UUID.  In addition they may
+  have a unique name, which we here refers to as their URL.  For
+  instance, for an Entiry, the concatenated "namespace/name/version"
+  string is its URL.  If an instance has an URL, the UUID is generated
+  from it (as a version 5 SHA1-based UUID using the DNS namespace),
+  otherwise a random UUID is generated (as a version 4 UUID).
+
+  The memory allocated for each instance, may be casted to a struct
+  starting with the members defined by the DLiteInstance_HEAD macro
+  (containing the UUID, URL and pointer to the metadata).  This header
+  is followed by:
+    - the size of each dimension (size_t)
+    - the value of each property
+
+  Note, for the casting to work, the members must be correctly
+  alligned.  This is taken care about by dlite_instance_create().
+
+  Metadata
+  --------
+  Since all metadata is an instance of its meta-metadata, it is also
+  an instance.  The DLiteMeta_HEAD, which is common to all metadata,
+  therefore starts with DLiteInstance_HEAD.
+
+  It can be shown that DLiteMeta_HEAD can describe itself.  In
+  principle we can therefore follow the `meta` to higher and higher
+  levels of abstraction, until we reach the basic metadata schema,
+  which has its `meta` field set to NULL.  However, at least
+  initially, we will allow to set the `meta` field of any DLiteMeta
+  to NULL, indicating that we are not interested in the next level
+  of abstraction.
+
+  The metadata for normal data instances are called Entities and are
+  represented by DLiteEntity.
 */
 
-
-/** Opaque type for a DLiteTriplet.
-
-    Just a placeholder - not yet implemented... */
-typedef struct _DLiteTriplet DLiteTriplet;
+#include "dlite-type.h"
+#include "dlite-storage.h"
 
 
 
-/** Initial segments of all DLite instances.
 
-    For standard data instances, this header is simply followed by an
-    array of dimension sizes (type: size_t) followed by property
-    values.  Padding should be added between the properties, such that
-    a pointer to `uuid` can be cast to a struct realising the
-    instance.
-
-    For example, lets say we have an instance named with two
-    dimensions and two properties of type int and double,
-    respectively.  We should then be able to access the members of
-    this instance only from knowing the metadata (and the architecture
-    and compiler-dependent padding):
-
-        typedef struct {
-          DLiteInstance_HEAD
-          size_t N;   // first dimension
-          size_t M;   // second dimension
-          int n;      // first property
-          double x;   // second property
-        } MyInstance;
-
-        MyInstance inst;
-        DLiteInstance *instptr = &inst;
-        pad0 = 4;     // typical padding on a x86_64 archecture
-        double *xp;
-
-        // Create a pointer to `inst.x` from `instptr`.  Note the
-        // the added padding.
-        xp = (double *)(instptr + sizeof(DLiteInstance) +
-                        2*sizeof(size_t) + sizeof(int) + pad0);
-        assert(*xp == inst.x);
-
-    For this to work we need a portable and robust way to determine the
-    padding.  TODO - check out that this is possible.
+/**
+  Initial segments of all DLite instances.
 */
 #define DLiteInstance_HEAD                                                \
-  const char *uuid; /*!< UUID for this data instance. If `url` is not */  \
-                    /*!< NULL, it is generated from `url` (version 5, */  \
-                    /*!< SHA-1 based UUID using the DNS namespace), */    \
-                    /*!< otherwise it is a random (version 4) UUID. */    \
-  const char *url;  /*!< Unique name or url to the data instance.  */     \
-                    /*!< Can be NULL. */                                  \
-  struct DLiteMeta *meta;  /*!< Pointer to the metadata describing this */\
-                           /*!< instance. */
+  char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID for this data instance. */    \
+  const char *url;                /*!< Unique name or url to the data */  \
+                                  /*!< instance.  Can be NULL. */         \
+  struct _DLiteMeta *meta;        /*!< Pointer to the metadata descri- */ \
+                                  /*!< bing this instance. */
 
 
-
-/** Initial segments of all DLite metadata.
-
-    Since all metadata is an instance of its meta-metadata, it is also
-    an instance.  It therefore starts with DLiteInstance_HEAD.
-
-    It can be shown that DLiteMeta_HEAD can describe itself.  In
-    principle we can therefore follow the `meta` to higher and higher
-    levels of abstraction, until we reach the basic metadata schema,
-    which has its `meta` field set to NULL.  However, at least
-    initially, we will allow to set the `meta` field of any DLiteMeta
-    to NULL, indicating that we are not interested in the next level
-    of abstraction.
+/**
+  Initial segments of all DLite metadata.
 */
-#define DLiteMeta_HEAD                                                  \
-  DLiteInstance_HEAD                                                    \
-  /* Dimensions */                                                      \
-  size_t ndims;             /*!< Number of dimensions. */               \
-  size_t nprops;            /*!< Number of properties. */               \
-  size_t ntriplets;         /*!< Number of relations.  Is always */     \
-                            /*!< zero for Entities. */                  \
-                                                                        \
-  /* Properties */                                                      \
-  const char *name;         /*!< Metadata name. */                      \
-  const char *version;      /*!< Metadata version. */                   \
-  const char *namespace;    /*!< Metadata namespace. */                 \
-  const char *description;  /*!< Human description of this metadata. */ \
-                                                                        \
-  const char **dimnames;    /*!< Dimension names.*/                     \
-  const char **dimdescr;    /*!< Dimension descriptions. */             \
-                                                                        \
-  const char **propnames;   /*!< Name of each property. */              \
-  DLiteType *proptypes;     /*!< Type of each property. */              \
-  int *proptypesizes;       /*!< Type size of each property. */         \
-  int *propndims;           /*!< Number of dimensions for each property. */ \
-  size_t **propdims;        /*!< Dimensions of each property. */        \
-  const char *propdescr;    /*!< Description of each property. */       \
-                                                                        \
-  DLiteTriplet *triplets;   /*!< Array of relation triplets. */
+#define DLiteMeta_HEAD                                                      \
+  DLiteInstance_HEAD                                                        \
+                                                                            \
+  /* Dimensions */                                                          \
+  size_t ndims;             /*!< Number of dimensions. */                   \
+  size_t nprops;            /*!< Number of properties. */                   \
+  size_t npropdims_max;     /*!< Max number of dimensions in properties. */ \
+  size_t nrelations;        /*!< Number of relations. */                    \
+                                                                            \
+  /* Properties */                                                          \
+  const char *name;         /*!< Metadata name. */                          \
+  const char *version;      /*!< Metadata version. */                       \
+  const char *namespace;    /*!< Metadata namespace. */                     \
+  const char *description;  /*!< Human description of this metadata. */     \
+                                                                            \
+  const char **dimnames;    /*!< Dimension names.*/                         \
+  const char **dimdescr;    /*!< Dimension descriptions. */                 \
+                                                                            \
+  const char **propnames;   /*!< Name of each property. */                  \
+  DLiteType *proptypes;     /*!< Type of each property. */                  \
+  size_t *propsizes;        /*!< Type size of each property. */             \
+  size_t *propndims;        /*!< Number of dimensions for each property. */ \
+  size_t **propdims;        /*!< Dimensions of each property. */            \
+  const char *propdescr;    /*!< Description of each property. */           \
+                                                                            \
+  /* Internal properties calculated from the properties above. */           \
+  int refcount;             /*!< Reference count for instances. */          \
+  size_t size;              /*!< Size of instance memory. */                \
+  size_t *dimoffsets;       /*!< Memory offset of dimension lengths. */     \
+  size_t *propoffsets;      /*!< Memory offset of property values. */       \
+                                                                            \
+  /* Relations */                                                           \
+  DLiteTriplet *relations;  /*!< Relations between properties. */
 
 
-/** Base definition of a DLite instance, that all instance (and
-    metadata) objects can be cast to.  Is never actually
-    instansiated. */
+/**
+  Base definition of a DLite instance, that all instance (and
+  metadata) objects can be cast to.  Is never actually
+  instansiated.
+*/
 typedef struct _DLiteInstance {
   DLiteInstance_HEAD
 } DLiteInstance;
 
 
-/** Base definition of a DLite metadata, that all metadata objects can
-    be cast to.
+/**
+  Base definition of a DLite metadata, that all metadata objects can
+  be cast to.
 
-    It may be instansiated, e.g. by the basic metadata schema. */
+  It may be instansiated, e.g. by the basic metadata schema.
+*/
 typedef struct _DLiteMeta {
   DLiteMeta_HEAD
 } DLiteMeta;
 
 
-/** A DLite entity.
+/**
+  A DLite entity.
 
-    This is the metadata for standard data objects.  Number of
-    relations should always be zero. */
+  This is the metadata for standard data objects.  Number of
+  relations should always be zero.
+*/
 typedef struct _DLiteEntity {
-  DLiteInstance_HEAD
+  DLiteMeta_HEAD
   const char **propunits;   /*!< Unit of each property. */
 } DLiteEntity;
 
 
-/** A DLite Collection.
+/**
+  A DLite Collection.
 
-    Collections are a special type of instances that hold a set of
-    instances and relations between them.
+  Collections are a special type of instances that hold a set of
+  instances and relations between them.
 
-    In the current implementation, we allow the `meta` field to be NULL.
+  In the current implementation, we allow the `meta` field to be NULL.
 
-    A set of pre-defined relations are used to manage the collection itself.
-    In order to not distinguish these relations from user-defined relations,
-    their predicate are prefixed with a single underscore.  The pre-defined
-    relations are:
+  A set of pre-defined relations are used to manage the collection itself.
+  In order to not distinguish these relations from user-defined relations,
+  their predicate are prefixed with a single underscore.  The pre-defined
+  relations are:
 
-        subject   predicate     object
-        -------   -----------   ----------
-        label     "_is-a"       "Instance"
-        label     "_has-uuid"   uuid
-        label     "_has-meta"   url
-        label     "_dim-map"    instdim:colldim
+      subject | predicate   | object
+      ------- | ----------- | ----------
+      label   | "_is-a"     | "Instance"
+      label   | "_has-uuid" | uuid
+      label   | "_has-meta" | url
+      label   | "_dim-map"  | instdim:colldim
 
-    The "_dim-map" relation maps the name of a dimension in an
-    instance (`instdim`) to a common dimension in the collection
-    (`colldim`).  The object is the concatenation of `instdim`
-    and `colldim` separated by a semicolon.
+  The "_dim-map" relation maps the name of a dimension in an
+  instance (`instdim`) to a common dimension in the collection
+  (`colldim`).  The object is the concatenation of `instdim`
+  and `colldim` separated by a semicolon.
 */
 typedef struct _DLiteCollection {
   DLiteInstance_HEAD
@@ -160,21 +165,73 @@ typedef struct _DLiteCollection {
   size_t ntriplets;           /*!< Number of relations. */
   size_t ndimmaps;            /*!< Number of (common) dimensions. */
 
-  DLiteInstance *instsances;  /*!< Array of instances. */
+  char **labels;              /*!< Array of instances. */
   DLiteTriplet *triplets;     /*!< Array of relation triplets. */
-  const char **dimnames;      /*!< Name of each (common) dimension. */
-  int *disizes;               /*!< Size of each (common) dimension. */
-
+  char **dimnames;            /*!< Name of each (common) dimension. */
+  int *dimsizes;              /*!< Size of each (common) dimension. */
 } DLiteCollection;
 
 
+/**
+  Returns a new uninitialised dlite instance of Entiry \a meta with
+  dimensions \a dims.  Memory for all properties is allocated and set
+  to zero.  The lengths of \a dims is found in `meta->ndims`.
 
-DLiteInstance *dlite_instance_create(DLiteEntity *meta, size_t, *dims);
+  Increases the reference count of \a meta.
 
+  On error, NULL is returned.
+ */
+DLiteInstance *dlite_instance_create(DLiteEntity *meta, size_t *dims,
+                                     const char *id);
 
-DLiteInstance *dlite_instance_createv(DLiteEntity *meta, ...);
+/**
+  Loads instance identified by \a id from storage \a s and returns a
+  new and fully initialised dlite instance.
 
+  On error, NULL is returned.
+ */
+DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id);
+
+/**
+  Saves instance \a inst to storage \a s.  Returns non-zero on error.
+ */
+int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
+
+/**
+  Free's an instance and all arrays associated with dimensional properties.
+  Decreases the reference count of the associated metadata.
+ */
 void dlite_instance_free(DLiteInstance *inst);
+
+
+/**
+  Loads Entity identified by \a id from storage \a s and returns a
+  new and fully initialised DLiteEntity object.
+
+  Its `meta` member will be NULL, so it will not refer to any
+  meta-metadata.
+
+  On error, NULL is returned.
+ */
+DLiteEntity *dlite_entity_load(DLiteStorage *s, const char *id);
+
+/**
+  Saves Entity to storage \a s.  Returns non-zero on error.
+ */
+int dlite_entity_save(DLiteStorage *s, const DLiteEntity *entity);
+
+/**
+  Increase reference count to Entity.
+ */
+void dlite_entity_incref(DLiteEntity *entity);
+
+/**
+  Decrease reference count to Entity.  If the reference count reaches
+  zero, the Entity is free'ed.
+ */
+void dlite_entity_decref(DLiteEntity *entity);
+
+
 
 
 #endif /* _DLITE_ENTITY_H */
