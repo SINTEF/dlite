@@ -45,6 +45,7 @@ set(sources
   dlite-storage.c
   dh5lite.c
   dlite-json-storage.c
+  json-utils.c
   dlite.c
   getuuid.c
   err.c

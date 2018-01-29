@@ -117,7 +117,6 @@ void object_set_real(json_t *obj, const char *key, const double val)
   json_object_set(obj, key, value);
 }
 
-
 /**
   Returns an url to the metadata.
 

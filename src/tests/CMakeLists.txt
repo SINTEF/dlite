@@ -18,6 +18,10 @@ add_executable(test_json_storage test_json_storage)
 target_link_libraries(test_json_storage dlite uuid)
 target_include_directories(test_json_storage PRIVATE ${dlite_SOURCE_DIR}/src)
 
+add_executable(test_json_utils test_json_utils)
+target_link_libraries(test_json_utils dlite uuid)
+target_include_directories(test_json_utils PRIVATE ${dlite_SOURCE_DIR}/src)
+
 add_test(
   NAME test_dlite
   COMMAND test_dlite
@@ -29,8 +33,8 @@ add_test(
   )
 
 add_test(
-  NAME test_json_storage
-  COMMAND test_json_storage
+  NAME test_json_utils
+  COMMAND test_json_utils
   )
 
 #add_executable(h5ex_t_vlstring h5ex_t_vlstring.c)
