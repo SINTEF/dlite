@@ -6,28 +6,38 @@ include_directories(
   ${uuid_BINARY_DIR}
   )
 
-add_executable(test_dlite test_dlite)
-target_link_libraries(test_dlite dlite uuid)
-target_include_directories(test_dlite PRIVATE ${dlite_SOURCE_DIR}/src)
-
-add_executable(test_datamodel test_datamodel)
-target_link_libraries(test_datamodel dlite uuid)
-target_include_directories(test_datamodel PRIVATE ${dlite_SOURCE_DIR}/src)
-
-add_test(
-  NAME test_dlite
-  COMMAND test_dlite
+set(tests
+  test_dlite
+  test_datamodel
+  test_entity
   )
 
-add_test(
-  NAME test_datamodel
-  COMMAND test_datamodel
-  )
+foreach(test ${tests})
+  add_executable(${test} ${test}.c)
+  target_link_libraries(${test} dlite uuid)
+  target_include_directories(${test} PRIVATE ${dlite_SOURCE_DIR}/src)
 
-#add_executable(h5ex_t_vlstring h5ex_t_vlstring.c)
-#target_link_libraries(h5ex_t_vlstring hdf5)
-#add_test(NAME h5ex_t_vlstring COMMAND h5ex_t_vlstring)
+  add_test(
+    NAME ${test}
+    COMMAND ${test}
+    )
+endforeach()
+
+#add_executable(test_dlite test_dlite)
+#target_link_libraries(test_dlite dlite uuid)
+#target_include_directories(test_dlite PRIVATE ${dlite_SOURCE_DIR}/src)
 #
-#add_executable(h5ex_t_string h5ex_t_string.c)
-#target_link_libraries(h5ex_t_string hdf5)
-#add_test(NAME h5ex_t_string COMMAND h5ex_t_string)
+#add_executable(test_datamodel test_datamodel)
+#target_link_libraries(test_datamodel dlite uuid)
+#target_include_directories(test_datamodel PRIVATE ${dlite_SOURCE_DIR}/src)
+#
+#add_test(
+#  NAME test_dlite
+#  COMMAND test_dlite
+#  )
+#
+#add_test(
+#  NAME test_datamodel
+#  COMMAND test_datamodel
+#  )
+#

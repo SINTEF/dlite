@@ -12,6 +12,7 @@
 #define DLITE_UUID_LENGTH 36
 
 
+
 /**
   @name General dlite utility functions
   @{

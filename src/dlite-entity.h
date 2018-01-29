@@ -24,6 +24,8 @@
   is followed by:
     - the size of each dimension (size_t)
     - the value of each property
+    - pointer to array of DLiteTriplet for each set of relations
+      (entities has no set of relations)
 
   Note, for the casting to work, the members must be correctly
   alligned.  This is taken care about by dlite_instance_create().
@@ -72,8 +74,7 @@
   /* Dimensions */                                                          \
   size_t ndims;             /*!< Number of dimensions. */                   \
   size_t nprops;            /*!< Number of properties. */                   \
-  size_t npropdims_max;     /*!< Max number of dimensions in properties. */ \
-  size_t nrelations;        /*!< Number of relations. */                    \
+  size_t nrelsets;          /*!< Number of relation sets. */                \
                                                                             \
   /* Properties */                                                          \
   const char *name;         /*!< Metadata name. */                          \
@@ -88,17 +89,20 @@
   DLiteType *proptypes;     /*!< Type of each property. */                  \
   size_t *propsizes;        /*!< Type size of each property. */             \
   size_t *propndims;        /*!< Number of dimensions for each property. */ \
-  size_t **propdims;        /*!< Dimensions of each property. */            \
-  const char *propdescr;    /*!< Description of each property. */           \
+  size_t **propdims;           /*!< Array of dimension indices for each */  \
+                            /*!< property. Shape: [nprops, npropdims_max] */\
+  const char **propdescr;   /*!< Description of each property. */           \
                                                                             \
   /* Internal properties calculated from the properties above. */           \
   int refcount;             /*!< Reference count for instances. */          \
   size_t size;              /*!< Size of instance memory. */                \
   size_t *dimoffsets;       /*!< Memory offset of dimension lengths. */     \
   size_t *propoffsets;      /*!< Memory offset of property values. */       \
+  size_t *reloffsets;       /*!< Memory offset of relation sets. */         \
                                                                             \
   /* Relations */                                                           \
-  DLiteTriplet *relations;  /*!< Relations between properties. */
+  size_t *relcounts;        /*!< Number of relations in each set. */        \
+  const char **reldescr;    /*!< Description of each relation set. */
 
 
 /**
@@ -147,23 +151,22 @@ typedef struct _DLiteEntity {
   their predicate are prefixed with a single underscore.  The pre-defined
   relations are:
 
-      subject | predicate   | object
-      ------- | ----------- | ----------
-      label   | "_is-a"     | "Instance"
-      label   | "_has-uuid" | uuid
-      label   | "_has-meta" | url
-      label   | "_dim-map"  | instdim:colldim
+  subject | predicate   | object
+  ------- | ----------- | ----------
+  label   | "_is-a"     | "Instance"
+  label   | "_has-uuid" | uuid
+  label   | "_has-meta" | url
+  label   | "_dim-map"  | instdim:colldim
 
   The "_dim-map" relation maps the name of a dimension in an
   instance (`instdim`) to a common dimension in the collection
   (`colldim`).  The object is the concatenation of `instdim`
-  and `colldim` separated by a semicolon.
+  and `colldim` separated by a colon.
 */
 typedef struct _DLiteCollection {
   DLiteInstance_HEAD
   size_t ninstances;          /*!< Number of instances. */
   size_t ntriplets;           /*!< Number of relations. */
-  size_t ndimmaps;            /*!< Number of (common) dimensions. */
 
   char **labels;              /*!< Array of instances. */
   DLiteTriplet *triplets;     /*!< Array of relation triplets. */
@@ -231,7 +234,31 @@ void dlite_entity_incref(DLiteEntity *entity);
  */
 void dlite_entity_decref(DLiteEntity *entity);
 
+/**
+  Free's all memory used by \a entity and clear all data.
+ */
+void dlite_entity_clear(DLiteEntity *entity);
 
+
+/********************************************************************
+ *  Meta data
+ *
+ *  These functions are mainly used internally or by code generators.
+ *  Do not waist time on them...
+ ********************************************************************/
+
+/**
+  Initialises internal properties of \a meta.  This function should
+  not be called before the non-internal properties has been initialised.
+
+  Returns non-zero on error.
+ */
+int dlite_meta_postinit(DLiteMeta *meta);
+
+/**
+  Free's all memory used by \a meta and clear all data.
+ */
+void dlite_meta_clear(DLiteMeta *meta);
 
 
 #endif /* _DLITE_ENTITY_H */

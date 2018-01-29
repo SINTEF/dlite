@@ -472,34 +472,34 @@ DLiteDataModel *dh5_datamodel(const DLiteStorage *s, const char *uuid)
   if (exists) {
     /* Instance `uuid` already exists: assigh groups */
     if ((d->instance = H5Gopen(sh5->root, uuid, H5P_DEFAULT)) < 0)
-      FAIL2("cannot open instance /%s in %s", uuid, sh5->uri);
+      FAIL2("cannot open instance '/%s' in '%s'", uuid, sh5->uri);
 
     if ((d->meta = H5Gopen(d->instance, "meta", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open /%s/meta in %s", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/meta' in '%s'", uuid, sh5->uri);
 
     if ((d->dimensions = H5Gopen(d->instance, "dimensions", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open /%s/dimensions in %s", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/dimensions' in '%s'", uuid, sh5->uri);
 
     if ((d->properties = H5Gopen(d->instance, "properties", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open /%s/properties in %s", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/properties' in '%s'", uuid, sh5->uri);
 
   } else {
     /* Instance `uuid` does not exists: create new group structure */
     if ((d->instance = H5Gcreate(sh5->root, uuid, H5P_DEFAULT, H5P_DEFAULT,
                                  H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s in %s", uuid, sh5->uri);
+      FAIL2("cannot open/create group '/%s' in '%s'", uuid, sh5->uri);
 
     if ((d->meta = H5Gcreate(d->instance, "meta", H5P_DEFAULT, H5P_DEFAULT,
                              H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s/meta in %s", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/meta' in '%s'", uuid, sh5->uri);
 
     if ((d->dimensions = H5Gcreate(d->instance, "dimensions", H5P_DEFAULT,
                                    H5P_DEFAULT, H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s/dimensions in %s", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/dimensions' in '%s'", uuid, sh5->uri);
 
     if ((d->properties = H5Gcreate(d->instance, "properties", H5P_DEFAULT,
                                    H5P_DEFAULT, H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s/properties in %s", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/properties' in '%s'", uuid, sh5->uri);
   }
 
   retval = (DLiteDataModel *)d;
@@ -562,7 +562,7 @@ const char *dh5_get_metadata(const DLiteDataModel *d)
 
 
 /**
-  Returns the size of dimension `name` or -1 on error.
+  Returns the size of dimension `name` or 0 on error.
  */
 size_t dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
@@ -570,7 +570,7 @@ size_t dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
   int dimsize;
   if (get_data(d, dh5->dimensions, name, &dimsize, dliteInt,
                sizeof(dimsize), 1, NULL) < 0)
-    return err(-1, "cannot get size of dimension '%s'", name);
+    return err(0, "cannot get size of dimension '%s'", name);
   return dimsize;
 }
 

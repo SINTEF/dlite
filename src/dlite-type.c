@@ -178,6 +178,25 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
 }
 
 
+/**
+  Returns the offset the current struct member with dtype \a dtype and
+  size \a size.  The offset of the previous struct member is \a prev_offset
+  and its size is \a prev_size.
+
+  Returns -1 on error.
+ */
+int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
+                                 DLiteType dtype, size_t size)
+{
+  size_t align, offset, padding;
+  if ((align = dlite_type_get_alignment(dtype, size)) == 0) return -1;
+  offset = prev_offset + prev_size;
+  padding = (align - (offset & (align - 1))) & (align - 1);
+  return offset + padding;
+}
+
+
+#if 0
 /*
   Returns the offset the next struct member with dtype `dtype` and
   size `size`.  `ptr` should point to the current member which has
@@ -196,3 +215,4 @@ int dlite_type_get_member_offset(const void *cur, size_t cursize,
   else
     return cursize + padding;
 }
+#endif
