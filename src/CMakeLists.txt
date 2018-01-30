@@ -50,6 +50,7 @@ set(sources
   getuuid.c
   err.c
   compat.c
+  vector.c
   )
 
 add_definitions(-DHAVE_CONFIG_H)
