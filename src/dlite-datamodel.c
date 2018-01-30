@@ -74,8 +74,8 @@ const char *dlite_datamodel_get_metadata(const DLiteDataModel *d)
 /*
   Returns the size of dimension `name` or -1 on error.
  */
-int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
-                                       const char *name)
+size_t dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
+                                          const char *name)
 {
   return d->api->getDimensionSize(d, name);
 }
@@ -90,7 +90,7 @@ int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
  */
 int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
                                  void *ptr, DLiteType type, size_t size,
-                                 int ndims, const int *dims)
+                                 size_t ndims, const size_t *dims)
 {
   return d->api->getProperty(d, name, ptr, type, size, ndims, dims);
 }
@@ -106,7 +106,7 @@ int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
 */
 int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,
                                  const void *ptr, DLiteType type, size_t size,
-                                 int ndims, const int *dims)
+                                 size_t ndims, const size_t *dims)
 {
   if (!d->api->setProperty)
     return errx(1, "driver '%s' does not support set_property", d->api->name);
@@ -129,7 +129,7 @@ int dlite_datamodel_set_metadata(DLiteDataModel *d, const char *metadata)
   Sets size of dimension `name`.  Returns non-zero on error.
 */
 int dlite_datamodel_set_dimension_size(DLiteDataModel *d, const char *name,
-                                       int size)
+                                       size_t size)
 {
   if (!d->api->setDimensionSize)
     return errx(1, "driver '%s' does not support set_dimension_size",
@@ -183,31 +183,31 @@ char *dlite_datamodel_get_dataname(DLiteDataModel *d)
 /* Copies data from nested pointer to pointers array \a src to the
    flat continuous C-ordered array \a dst. The size of dest must be
    sufficient large.  Returns non-zero on error. */
-int dlite_copy_to_flat(void *dst, const void *src, size_t size, int ndims,
-                       const int *dims)
+int dlite_copy_to_flat(void *dst, const void *src, size_t size,
+                       size_t ndims, const size_t *dims)
 {
-  int i, n=0, ntot=1, *ind=NULL, retval=1;
+  int i, n=0, ntot=1, retval=1, *ind=NULL;
   char *q=dst;
   void **p=(void **)src;
 
   if (!(ind = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
 
-  for (i=0; i<ndims-1; i++) p = p[ind[i]];
-  for (i=0; i<ndims; i++) ntot *= (dims) ? dims[i] : 1;
+  for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];
+  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? dims[i] : 1;
 
   while (n++ < ntot) {
     memcpy(q, *p, size);
     p++;
     q += size;
-    if (++ind[ndims-1] >= ((dims) ? dims[ndims-1] : 1)) {
+    if (++ind[ndims-1] >= ((dims) ? (int)dims[ndims-1] : 1)) {
       ind[ndims-1] = 0;
       for (i=ndims-2; i>=0; i--) {
-        if (++ind[i] < ((dims) ? dims[i] : i))
+        if (++ind[i] < ((dims) ? (int)dims[i] : i))
           break;
         else
           ind[i] = 0;
       }
-      for (i=0, p=(void **)src; i<ndims-1; i++) p = p[ind[i]];
+      for (i=0, p=(void **)src; i<(int)ndims-1; i++) p = p[ind[i]];
     }
   }
   retval = 0;
@@ -220,8 +220,8 @@ int dlite_copy_to_flat(void *dst, const void *src, size_t size, int ndims,
 /* Copies data from flat continuous C-ordered array \a dst to nested
    pointer to pointers array \a src. The size of dest must be
    sufficient large.  Returns non-zero on error. */
-int dlite_copy_to_nested(void *dst, const void *src, size_t size, int ndims,
-                         const int *dims)
+int dlite_copy_to_nested(void *dst, const void *src, size_t size,
+                         size_t ndims, const size_t *dims)
 {
   int i, n=0, ntot=1, *ind=NULL, retval=1;
   const char *q=src;
@@ -229,22 +229,22 @@ int dlite_copy_to_nested(void *dst, const void *src, size_t size, int ndims,
 
   if (!(ind = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
 
-  for (i=0; i<ndims-1; i++) p = p[ind[i]];
-  for (i=0; i<ndims; i++) ntot *= (dims) ? dims[i] : 1;
+  for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];
+  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? dims[i] : 1;
 
   while (n++ < ntot) {
     memcpy(*p, q, size);
     p++;
     q += size;
-    if (++ind[ndims-1] >= ((dims) ? dims[ndims-1] : 1)) {
+    if (++ind[ndims-1] >= ((dims) ? (int)dims[ndims-1] : 1)) {
       ind[ndims-1] = 0;
       for (i=ndims-2; i>=0; i--) {
-        if (++ind[i] < ((dims) ? dims[i] : i))
+        if (++ind[i] < ((dims) ? (int)dims[i] : i))
           break;
         else
           ind[i] = 0;
       }
-      for (i=0, p=(void **)src; i<ndims-1; i++) p = p[ind[i]];
+      for (i=0, p=(void **)src; i<(int)ndims-1; i++) p = p[ind[i]];
     }
   }
   retval = 0;
