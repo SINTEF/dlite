@@ -6,6 +6,7 @@
 #include <errno.h>
 
 #include <jansson.h>
+#include "json-utils.h"
 
 #include "config.h"
 
@@ -281,6 +282,18 @@ int dlite_json_get_property(const DLiteDataModel *d, const char *name, void *ptr
 {
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   json_t *value = json_object_get(data->properties, name);
+  json_data_t *jd = json_get_data(value);
+  if (jd) {
+    if ((type == dliteInt) && (jd->dtype == 'i')) {
+
+    }
+    else if ((type == dliteFloat) && (jd->dtype == 'r')) {
+
+    }
+    else if ((type == dliteBool) && (jd->dtype == 'b')) {
+
+    }
+  }
   return 0;
 }
 

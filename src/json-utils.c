@@ -47,6 +47,8 @@ char json_merge_type(char t1, char t2) {
     else
       return 'm';
   }
+  else
+    return 'x';
 }
 
 char json_array_type(json_t *obj)
@@ -90,7 +92,7 @@ void _array_size(json_t *arr, int ndim, int *dims)
     return;
 
   if (json_is_array(arr)) {
-    //printf("array_size, dim:%i (%i, %i, %i)\n", ndim, dims[0], dims[1], dims[2]);
+    /*printf("array_size, dim:%i (%i, %i, %i)\n", ndim, dims[0], dims[1], dims[2]);*/
     size = (int)(json_array_size(arr));
     dims[ndim] = _merge_size(dims[ndim], size);
     for(i=0; i < size; i++) {
@@ -141,8 +143,10 @@ int json_to_int(json_t *obj) {
     return 0;
   else if (json_is_real(obj))
     return (int)(json_real_value(obj));
-  //else if (json_is_null(obj))
-  //  return (int)(nan);
+  /*
+  else if (json_is_null(obj))
+    return (int)(nan);
+  */
   else
     return 0;
 }
@@ -241,9 +245,14 @@ void json_data_free(json_data_t *d)
 
 json_data_t *json_get_data(json_t *obj)
 {
-  json_data_t *data = json_data();
+  int ok;
+  json_data_t *data;
+
+  ok = 1;
+
+  data = json_data();
   data->dtype = json_char_type(obj);
-  int ok = 1;
+
   switch(data->dtype) {
   case 'a':
     data->dtype = json_array_type(obj);
