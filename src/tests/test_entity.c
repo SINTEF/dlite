@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -7,118 +8,143 @@
 #include "boolean.h"
 #include "dlite.h"
 #include "dlite-entity.h"
+#include "dlite-storage.h"
 
 
 #include "config.h"
 
 char *datafile = "myentity.h5";
-char *id = "myentity";
-char *uuid = "71c579d8-7567-51d4-a992-7a8c7a0ea47e";
-
-DLiteEntity entity;
+char *datafile2 = "myentity2.h5";
+char *uri = "http://www.sintef.no/meta/dlite/0.1/MyEntity";
+char *id = "mydata";
+DLiteEntity *entity=NULL;
+DLiteInstance *mydata=NULL, *mydata2=NULL;
 
 
 /***************************************************************
  * Test entity
  ***************************************************************/
 
-MU_TEST(test_entity_init)
+MU_TEST(test_entity_create)
 {
-  size_t i;
+  int dims0[] = {1, 0};  /* [N, M] */
+  int dims1[] = {1};     /* [N] */
+  int dims2[] = {0};     /* [M] */
+  DLiteDimension dimensions[] = {
+    {"M", "Length of dimension M."},
+    {"N", "Length of dimension N."}
+  };
+  DLiteProperty properties[] = {
+    {"a-string",        dliteStringPtr, sizeof(char *), 0, NULL,  "",  "a"},
+    {"a-float",         dliteFloat,     sizeof(double), 0, NULL,  "m", "b"},
+    {"an-int-arr",      dliteInt,       sizeof(int),    2, dims0, "#", "c"},
+    {"a-string-arr",    dliteStringPtr, sizeof(char *), 1, dims1, "",  "d"},
+    {"a-string3-arr",   dliteFixString, 3,              1, dims2, "",  "e"}
+  };
 
-  /* Assign an entity the hard way... */
-  memset(&entity, 0, sizeof(entity));
-  memcpy(entity.uuid, uuid, sizeof(entity.uuid));
-  entity.url = strdup("http://www.sintef.no/meta/dlite/0.1/EntitySchema");
-  entity.meta = NULL;
-
-  entity.ndims = 2;
-  entity.nprops = 4;
-
-  entity.name = strdup("EntitySchema");
-  entity.version = strdup("0.1");
-  entity.namespace = strdup("http://www.sintef.no/meta/dlite");
-  entity.description = NULL;
-
-  entity.dimnames = calloc(entity.ndims, sizeof(char **));
-  entity.dimnames[0] = strdup("M");
-  entity.dimnames[1] = strdup("N");
-  entity.dimdescr = calloc(entity.ndims, sizeof(char **));
-  entity.dimdescr[0] = strdup("dim M");
-  entity.dimdescr[1] = strdup("dim N");
-
-  entity.propnames = calloc(entity.nprops, sizeof(char **));
-  entity.propnames[0] = strdup("a-string");
-  entity.propnames[1] = strdup("a-float");
-  entity.propnames[2] = strdup("an-int-array");
-  entity.propnames[3] = strdup("a-string-array");
-  entity.proptypes = calloc(entity.nprops, sizeof(DLiteType));
-  entity.proptypes[0] = dliteStringPtr;
-  entity.proptypes[1] = dliteFloat;
-  entity.proptypes[2] = dliteInt;
-  entity.proptypes[3] = dliteStringPtr;
-  entity.propsizes = calloc(entity.nprops, sizeof(size_t));
-  entity.propsizes[0] = sizeof(char *);
-  entity.propsizes[1] = sizeof(double);
-  entity.propsizes[2] = sizeof(int *);
-  entity.propsizes[3] = sizeof(char **);
-  entity.propndims = calloc(entity.nprops, sizeof(size_t));
-  entity.propndims[0] = 0;
-  entity.propndims[1] = 0;
-  entity.propndims[2] = 2;
-  entity.propndims[3] = 1;
-  entity.propdims = calloc(entity.nprops, sizeof(int *));
-  for (i=0; i<entity.nprops; i++)
-    if (entity.propndims[i])
-      entity.propdims[i] = calloc(entity.propndims[i], sizeof(size_t));
-  entity.propdims[2][0] = 1;  /* N */
-  entity.propdims[2][1] = 0;  /* M */
-  entity.propdims[3][0] = 1;  /* N */
-  entity.propdescr = calloc(entity.nprops, sizeof(char *));
-  entity.propdescr[0] = strdup("A string.");
-  entity.propdescr[1] = strdup("A double.");
-  entity.propdescr[2] = strdup("An 2D int array.");
-  entity.propdescr[3] = strdup("A string array.");
-  entity.propunits = calloc(entity.nprops, sizeof(char *));
-  entity.propunits[0] = NULL;
-  entity.propunits[1] = strdup("m");
-  entity.propunits[2] = strdup("numbers");
-  entity.propunits[3] = NULL;
+  mu_check((entity = dlite_entity_create(uri, "My test entity.",
+					 2, dimensions,
+					 5, properties)));
+  mu_assert_int_eq(2, entity->ndimensions);
+  mu_assert_int_eq(5, entity->nproperties);
+  mu_assert_int_eq(1, entity->properties[2]->dims[0]);
+  mu_assert_int_eq(0, entity->properties[2]->dims[1]);
+  mu_assert_int_eq(56, sizeof(DLiteInstance));
+  mu_assert_int_eq(56, entity->dimoffset);
+  mu_assert_int_eq(72, entity->propoffsets[0]);
+  mu_assert_int_eq(80, entity->propoffsets[1]);
+  mu_assert_int_eq(88, entity->propoffsets[2]);
+  mu_assert_int_eq(96, entity->propoffsets[3]);
+  mu_assert_int_eq(104, entity->propoffsets[4]);
+  mu_assert_int_eq(104, entity->reloffset);
+  mu_assert_int_eq(112, entity->size);
 }
 
-
-MU_TEST(test_entity_postinit)
+MU_TEST(test_instance_create)
 {
-  mu_check(dlite_meta_postinit((DLiteMeta *)&entity) == 0);
+  size_t dims[]={3, 2};
+  mu_check((mydata = dlite_instance_create(entity, dims, id)));
 }
 
+MU_TEST(test_instance_set_property)
+{
+  char *astring="string value";
+  double afloat=3.14;
+  int intarr[2][3] = {{0, 1, 2}, {3, 4, 5}};
+  char *strarr[] = {"first string", "second string"};
+  char str3arr[3][3] = {"Al", "Mg", "Si"};
+  mu_check(dlite_instance_set_property(mydata, "a-string", &astring) == 0);
+  mu_check(dlite_instance_set_property(mydata, "a-float", &afloat) == 0);
+  mu_check(dlite_instance_set_property(mydata, "an-int-arr", intarr) == 0);
+  mu_check(dlite_instance_set_property(mydata, "a-string-arr", strarr) == 0);
+  mu_check(dlite_instance_set_property(mydata, "a-string3-arr", str3arr) == 0);
+}
 
-MU_TEST(test_entity_save)
+MU_TEST(test_instance_get_dimension_size)
+{
+  mu_assert_int_eq(3, dlite_instance_get_dimension_size_by_index(mydata, 0));
+  mu_assert_int_eq(2, dlite_instance_get_dimension_size_by_index(mydata, 1));
+
+  mu_assert_int_eq(3, dlite_instance_get_dimension_size(mydata, "M"));
+  mu_assert_int_eq(2, dlite_instance_get_dimension_size(mydata, "N"));
+}
+
+MU_TEST(test_instance_save)
 {
   DLiteStorage *s;
   mu_check((s = dlite_storage_open("hdf5", datafile, "w")));
-  mu_check(dlite_entity_save(s, &entity) == 0);
+  mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 }
 
+MU_TEST(test_instance_load)
+{
+  DLiteStorage *s;
+  mu_check((s = dlite_storage_open("hdf5", datafile, "r")));
+  mu_check((mydata2 = dlite_instance_load(s, id, entity)));
+  mu_check(dlite_storage_close(s) == 0);
+}
+
+MU_TEST(test_instance_save2)
+{
+  DLiteStorage *s;
+  mu_check((s = dlite_storage_open("hdf5", datafile2, "w")));
+  mu_check(dlite_instance_save(s, mydata2) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+}
+
+MU_TEST(test_instance_free)
+{
+  dlite_instance_free(mydata);
+  dlite_instance_free(mydata2);
+}
+
+/*
+MU_TEST(test_storage_save_entity)
+{
+  DLiteStorage *s;
+  mu_check((s = dlite_storage_open("hdf5", datafile, "w")));
+  mu_check(dlite_storage_entity_save(s, entity) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+}
 
 MU_TEST(test_entity_load)
 {
   DLiteStorage *s;
   DLiteEntity *e;
   mu_check((s = dlite_storage_open("hdf5", datafile, "r")));
-  mu_check((e = dlite_entity_load(s, id)));
+  mu_check((e = dlite_storage_load_entity(s, id)));
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("hdf5", "myentity2.h5", "w")));
-  mu_check(dlite_entity_save(s, &entity) == 0);
+  mu_check(dlite_entity_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 }
+*/
 
-
-MU_TEST(test_entity_clear)
+MU_TEST(test_entity_free)
 {
-  dlite_entity_clear(&entity);
+  dlite_entity_decref(entity);
 }
 
 
@@ -126,12 +152,20 @@ MU_TEST(test_entity_clear)
 
 MU_TEST_SUITE(test_suite)
 {
-  MU_RUN_TEST(test_entity_init);      /* setup */
-  MU_RUN_TEST(test_entity_postinit);  /* setup */
+  MU_RUN_TEST(test_entity_create);    /* setup */
+  MU_RUN_TEST(test_instance_create);
+  MU_RUN_TEST(test_instance_get_dimension_size);
+  MU_RUN_TEST(test_instance_set_property);
+  MU_RUN_TEST(test_instance_save);
+  MU_RUN_TEST(test_instance_load);
+  MU_RUN_TEST(test_instance_save2);
+  MU_RUN_TEST(test_instance_free);
+
+  /*
   MU_RUN_TEST(test_entity_save);
   MU_RUN_TEST(test_entity_load);
-
-  MU_RUN_TEST(test_entity_clear);     /* tear down */
+  */
+  MU_RUN_TEST(test_entity_free);     /* tear down */
 }
 
 

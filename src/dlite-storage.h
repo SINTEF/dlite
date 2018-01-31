@@ -1,11 +1,9 @@
 #ifndef _DLITE_STORAGE_H
 #define _DLITE_STORAGE_H
 
-
 /**
   @file
 */
-
 
 /** Opaque type for a DLiteStorage.
 
@@ -13,11 +11,17 @@
     data structures can be cast to DLiteStorage. */
 typedef struct _DLiteStorage DLiteStorage;
 
+/** Opaque type for an instance. */
+typedef struct _DLiteInstance DLiteInstance;
+
+/** Opaque type for an Entity. */
+typedef struct _DLiteEntity DLiteEntity;
+
 
 
 /**
-  Opens data item \a id from \a uri using \a driver.
-  Returns a opaque pointer to a data handle or NULL on error.
+  Opens a storage located at \a uri using \a driver.
+  Returns a opaque pointer or NULL on error.
 
   The \a options are passed to the driver.  Options for known
   drivers are:
@@ -59,6 +63,7 @@ void dlite_storage_uuids_free(char **uuids);
    Returns non-zero if storage \a s is writable.
  */
 int dlite_storage_is_writable(const DLiteStorage *s);
+
 
 
 #endif /* _DLITE_STORAGE_H */

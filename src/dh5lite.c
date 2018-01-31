@@ -398,7 +398,7 @@ static void entrylist_free(EntryList *e)
  ********************************************************************/
 
 /**
-  Returns an url to the metadata.
+  Returns a pointer to storage located at uri.
 
   Valid \a options are:
 
@@ -529,15 +529,13 @@ int dh5_datamodel_free(DLiteDataModel *d)
 
 
 /**
-  Returns pointer to (malloc'ed) metadata or NULL on error.
+  Returns pointer to (malloc'ed) metadata uri or NULL on error.
  */
-const char *dh5_get_metadata(const DLiteDataModel *d)
+const char *dh5_get_meta_uri(const DLiteDataModel *d)
 {
   const DH5DataModel *dh5 = (DH5DataModel *)d;
-  char *name=NULL, *version=NULL, *namespace=NULL, *metadata=NULL;
+  char *name=NULL, *version=NULL, *namespace=NULL, *uri=NULL;
   int size;
-
-  err_clear();
 
   if (get_data(d, dh5->meta, "name", &name, dliteStringPtr,
                sizeof(char *), 1, NULL) < 0) goto fail;
@@ -546,18 +544,14 @@ const char *dh5_get_metadata(const DLiteDataModel *d)
   if (get_data(d, dh5->meta, "namespace", &namespace, dliteStringPtr,
                sizeof(char *), 1,NULL) < 0) goto fail;
 
-  /* combine to metadata */
-  if (err_getcode() == 0) {
-    size = strlen(name) + strlen(version) + strlen(namespace) + 3;
-    metadata = malloc(size);
-    snprintf(metadata, size, "%s/%s/%s", namespace, version, name);
-  }
+  /* combine to name, version and namespace to an uri */
+  uri = dlite_join_meta_uri(name, version, namespace);
 
  fail:
   if (name) free(name);
   if (version) free(version);
   if (namespace) free(namespace);
-  return metadata;
+  return uri;
 }
 
 
@@ -593,15 +587,15 @@ int dh5_get_property(const DLiteDataModel *d, const char *name, void *ptr,
  ********************************************************************/
 
 /**
-  Sets metadata.  Returns non-zero on error.
+  Sets metadata uri.  Returns non-zero on error.
 */
-int dh5_set_metadata(DLiteDataModel *d, const char *metadata)
+int dh5_set_meta_uri(DLiteDataModel *d, const char *uri)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   size_t dims[1]={1};
   char *name, *version, *namespace;
 
-  if (dlite_split_metadata(metadata, &name, &version, &namespace))
+  if (dlite_split_meta_uri(uri, &name, &version, &namespace))
     return 1;
 
   set_data(d, dh5->meta, "name", name, dliteFixString,
@@ -742,14 +736,14 @@ DLitePlugin h5_plugin = {
   dh5_datamodel,
   dh5_datamodel_free,
 
-  dh5_get_metadata,
+  dh5_get_meta_uri,
   dh5_get_dimension_size,
   dh5_get_property,
 
   /* optional */
   dh5_get_uuids,
 
-  dh5_set_metadata,
+  dh5_set_meta_uri,
   dh5_set_dimension_size,
   dh5_set_property,
 
@@ -758,4 +752,7 @@ DLitePlugin h5_plugin = {
 
   dh5_get_dataname,
   dh5_set_dataname,
+
+  NULL,
+  NULL
 };

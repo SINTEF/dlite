@@ -52,9 +52,9 @@ int dlite_datamodel_free(DLiteDataModel *d);
 
 
 /**
-  Returns url to metadata or NULL on error. Do not free.
+  Returns newly malloc()'ed string with the metadata uri or NULL on error.
  */
-const char *dlite_datamodel_get_metadata(const DLiteDataModel *d);
+const char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d);
 
 /**
   Returns the size of dimension \a name or 0 on error.
@@ -100,7 +100,7 @@ int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
   Optional API that plugins are free leave unimplemented.
 
   The plugin must provide dlite_datamodel_set_property(),
-  dlite_datamodel_set_metadata() and dlite_datamodel_set_dimension_size()
+  dlite_datamodel_set_meta_uri() and dlite_datamodel_set_dimension_size()
   to support writing, otherwise only read is supported.
 
   All functions below are supported by the HDF5 plugin.
@@ -121,9 +121,9 @@ int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,
 
 
 /**
-  Sets metadata.  Returns non-zero on error.
+  Sets metadata uri.  Returns non-zero on error.
  */
-int dlite_datamodel_set_metadata(DLiteDataModel *d, const char *metadata);
+int dlite_datamodel_set_meta_uri(DLiteDataModel *d, const char *uri);
 
 /**
   Sets size of dimension \a name.  Returns non-zero on error.

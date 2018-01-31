@@ -425,7 +425,7 @@ int {name}_save(const {name}_s *self, DLiteStorage *s)
 {load_define_prop_dims}
 {load_assign_prop_dims}
 
-  dlite_datamodel_set_metadata(d, "{url}");
+  dlite_datamodel_set_meta_uri(d, "{uri}");
 {save_set_dimensions}
 
 {save_set_properties}

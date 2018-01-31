@@ -63,11 +63,11 @@ int dlite_datamodel_free(DLiteDataModel *d)
 
 
 /*
-  Returns pointer to metadata or NULL on error. Do not free.
+  Returns newly malloc()'ed string with the metadata uri or NULL on error.
  */
-const char *dlite_datamodel_get_metadata(const DLiteDataModel *d)
+const char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d)
 {
-  return d->api->getMetadata(d);
+  return d->api->getMetaURI(d);
 }
 
 
@@ -115,13 +115,13 @@ int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,
 
 
 /*
-  Sets metadata.  Returns non-zero on error.
+  Sets metadata uri.  Returns non-zero on error.
  */
-int dlite_datamodel_set_metadata(DLiteDataModel *d, const char *metadata)
+int dlite_datamodel_set_meta_uri(DLiteDataModel *d, const char *uri)
 {
-  if (!d->api->setMetadata)
-    return errx(1, "driver '%s' does not support set_metadata", d->api->name);
-  return d->api->setMetadata(d, metadata);
+  if (!d->api->setMetaURI)
+    return errx(1, "driver '%s' does not support set_meta_uri", d->api->name);
+  return d->api->setMetaURI(d, uri);
 }
 
 

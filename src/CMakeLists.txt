@@ -54,7 +54,7 @@ configure_file(config.h.in config.h)
 # Compile library
 #-----------------------------------------------------
 set(sources
-  dlite.c
+  dlite-utils.c
   dlite-type.c
   dlite-storage.c
   dlite-entity.c
