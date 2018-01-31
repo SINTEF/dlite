@@ -535,7 +535,6 @@ const char *dh5_get_meta_uri(const DLiteDataModel *d)
 {
   const DH5DataModel *dh5 = (DH5DataModel *)d;
   char *name=NULL, *version=NULL, *namespace=NULL, *uri=NULL;
-  int size;
 
   if (get_data(d, dh5->meta, "name", &name, dliteStringPtr,
                sizeof(char *), 1, NULL) < 0) goto fail;
