@@ -83,7 +83,7 @@ include(ExternalProject)
 #set (LINK_LIBS ${LINK_LIBS} ${HDF5_C_${LIB_TYPE}_LIBRARY})
 
 find_package(HDF5 COMPONENTS C)
-set(HDF5_LIBRARIES "${CMAKE_INSTALL_PREFIX}/lib/libhdf5.lib")
+set(HDF5_LIBRARIES "${HDF5_ROOT}/lib/libhdf5.lib")
 
 message("HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
 message("HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
