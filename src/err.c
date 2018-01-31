@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "compat.h"
 
 /* Thread local storate */
 #ifdef USE_THREAD_LOCAL_STORAGE

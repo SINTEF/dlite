@@ -1,5 +1,10 @@
+#ifndef ERR_H
+#define ERR_H
+
 /* err.h -- simple error reporting
  */
+
+
 
 /**
  * @file
@@ -125,3 +130,6 @@ void err_set_fail_mode(int mode);
  *           - if set to "2" or larger : abort
  *           - otherwise               : return normally
  */
+
+#endif /* ERR_H */
+
