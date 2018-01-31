@@ -101,7 +101,7 @@ class Metadata(object):
         self.namespace = d['namespace']
         self.description = d.get('description', '')
         self.type = '%s:%s:%s' % (self.Name, self.version, self.namespace)
-        self.url = '%s/%s/%s' % (self.namespace, self.version, self.Name)
+        self.uri = '%s/%s/%s' % (self.namespace, self.version, self.Name)
         self.dimnames = [p['name'] for p in d['dimensions']]
         self.propnames = [p['name'] for p in d['properties']]
         self.ndims = len(d['dimensions'])

@@ -23,15 +23,15 @@ MU_TEST(test_get_uuid)
 
 MU_TEST(join_split_metadata)
 {
-  char *metadata = "http://www.sintef.no/meta/dlite/0.1/testdata";
+  char *uri = "http://www.sintef.no/meta/dlite/0.1/testdata";
   char *name, *version, *namespace, *meta;
-  mu_check(dlite_split_metadata(metadata, &name, &version, &namespace) == 0);
+  mu_check(dlite_split_meta_uri(uri, &name, &version, &namespace) == 0);
   mu_assert_string_eq("http://www.sintef.no/meta/dlite", namespace);
   mu_assert_string_eq("0.1", version);
   mu_assert_string_eq("testdata", name);
 
-  mu_check((meta = dlite_join_metadata(name, version, namespace)));
-  mu_assert_string_eq(metadata, meta);
+  mu_check((meta = dlite_join_meta_uri(name, version, namespace)));
+  mu_assert_string_eq(uri, meta);
 
   free(name);
   free(version);

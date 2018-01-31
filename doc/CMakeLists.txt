@@ -1,7 +1,18 @@
 find_package(Doxygen)
 
 if (DOXYGEN_FOUND)
-  set(dependencies "")
+  set(dependencies
+    ${dlite_SOURCE_DIR}/README.md
+    ${dlite_SOURCE_DIR}/doc/concepts.md
+    ${dlite_SOURCE_DIR}/src/dlite.h
+    ${dlite_SOURCE_DIR}/src/dlite-type.h
+    ${dlite_SOURCE_DIR}/src/dlite-storage.h
+    ${dlite_SOURCE_DIR}/src/dlite-entity.h
+    ${dlite_SOURCE_DIR}/src/dlite-datamodel.h
+    ${dlite_SOURCE_DIR}/src/dlite-plugins.h
+    ${uuid_SOURCE_DIR}/README.md
+    ${uuid_SOURCE_DIR}/uuid.h
+    )
 
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
     ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)

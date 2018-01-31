@@ -6,6 +6,8 @@
   @brief Common API for all plugins.
 */
 
+#include "dlite-storage.h"
+
 
 /** Initial segment of all DLiteStorage plugin data structures. */
 #define DLiteStorage_HEAD                                               \
@@ -53,7 +55,7 @@ typedef int (*Close)(DLiteStorage *s);
 typedef DLiteDataModel *(*DataModel)(const DLiteStorage *s, const char *uuid);
 typedef int (*DataModelFree)(DLiteDataModel *d);
 
-typedef const char *(*GetMetadata)(const DLiteDataModel *d);
+typedef const char *(*GetMetaURI)(const DLiteDataModel *d);
 typedef size_t (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
 typedef int (*GetProperty)(const DLiteDataModel *d, const char *name,
                            void *ptr, DLiteType type, size_t size,
@@ -62,7 +64,7 @@ typedef int (*GetProperty)(const DLiteDataModel *d, const char *name,
 /* Optional api */
 typedef char **(*GetUUIDs)(const DLiteStorage *s);
 
-typedef int (*SetMetadata)(DLiteDataModel *d, const char *metadata);
+typedef int (*SetMetaURI)(DLiteDataModel *d, const char *uri);
 typedef int (*SetDimensionSize)(DLiteDataModel *d, const char *name,
                                 size_t size);
 typedef int (*SetProperty)(DLiteDataModel *d, const char *name,
@@ -75,6 +77,9 @@ typedef int (*HasProperty)(const DLiteDataModel *d, const char *name);
 
 typedef char *(*GetDataName)(const DLiteDataModel *d);
 typedef int (*SetDataName)(DLiteDataModel *d, const char *name);
+
+typedef DLiteEntity *(*GetEntity)(const DLiteStorage *s, const char *uuid);
+typedef int (*SetEntity)(DLiteStorage *s, const DLiteEntity *e);
 
 
 /** Struct with the name and pointers to function for a plugin. All
@@ -90,14 +95,14 @@ typedef struct _DLitePlugin {
   DataModel          dataModel;        /* Creates new data model */
   DataModelFree      dataModelFree;    /* Frees a data model */
 
-  GetMetadata        getMetadata;      /* Returns url to metadata */
+  GetMetaURI         getMetaURI;       /* Returns uri to metadata */
   GetDimensionSize   getDimensionSize; /* Returns size of dimension */
   GetProperty        getProperty;      /* Gets value of property */
 
   /* Optional api */
   GetUUIDs           getUUIDs;         /* Returns all UUIDs in storage */
 
-  SetMetadata        setMetadata;      /* Sets metadata url */
+  SetMetaURI         setMetaURI;       /* Sets metadata uri */
   SetDimensionSize   setDimensionSize; /* Sets size of dimension */
   SetProperty        setProperty;      /* Sets value of property */
 
@@ -106,6 +111,9 @@ typedef struct _DLitePlugin {
 
   GetDataName        getDataName;      /* Returns name of instance */
   SetDataName        setDataName;      /* Assigns name to instance */
+
+  GetEntity          getEntity;        /* Returns a new Entity from storage */
+  SetEntity          setEntity;        /* Stores an Entity */
 } DLitePlugin;
 
 

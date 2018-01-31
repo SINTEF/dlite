@@ -19,24 +19,6 @@
  * Utility functions
  ********************************************************************/
 
-/* Returns descriptive name for `type` or NULL on error. */
-char *dlite_get_typename(DLiteType type)
-{
-  char *types[] = {
-    "blob",
-    "boolean",
-    "integer",
-    "unsigned_integer",
-    "float",
-    "string",
-    "string_pointer"
-  };
-  if (type < 0 || type >= sizeof(types) / sizeof(char *))
-    return errx(1, "invalid type number: %d", type), NULL;
-  return types[type];
-}
-
-
 /*
   Writes an UUID to `buff` based on `id`.
 
@@ -60,42 +42,42 @@ int dlite_get_uuid(char *buff, const char *id)
 
 
 /**
-  Returns an unique url for metadata defined by `name`, `version`
+  Returns an unique uri for metadata defined by `name`, `version`
   and `namespace` as a newly malloc()'ed string or NULL on error.
 
   The returned url is constructed as follows:
 
       namespace/version/name
  */
-char *dlite_join_metadata(const char *name, const char *version,
+char *dlite_join_meta_uri(const char *name, const char *version,
                           const char *namespace)
 {
-  char *metadata;
+  char *uri;
   int size = strlen(name) + strlen(version) + strlen(namespace) + 3;
 
-  if (!(metadata = malloc(size))) return err(1, "allocation failure"), NULL;
-  snprintf(metadata, size, "%s/%s/%s", namespace, version, name);
-  return metadata;
+  if (!(uri = malloc(size))) return err(1, "allocation failure"), NULL;
+  snprintf(uri, size, "%s/%s/%s", namespace, version, name);
+  return uri;
 }
 
 /**
-  Splits `metadata` url into its components.  If `name`, `version` and/or
+  Splits `metadata` uri into its components.  If `name`, `version` and/or
   `namespace` are not NULL, the memory they points to will be set to a
   pointer to a newly malloc()'ed string with the corresponding value.
 
   Returns non-zero on error.
  */
-int dlite_split_metadata(const char *metadata, char **name, char **version,
+int dlite_split_meta_uri(const char *uri, char **name, char **version,
                          char **namespace)
 {
   char *p, *q, *namep=NULL, *versionp=NULL, *namespacep=NULL;
 
-  if (!(p = strrchr(metadata, '/')))
-    FAIL1("invalid metadata url: '%s'", metadata);
+  if (!(p = strrchr(uri, '/')))
+    FAIL1("invalid metadata uri: '%s'", uri);
   q = p-1;
-  while (*q != '/' && q > metadata) q--;
-  if (q == metadata)
-    FAIL1("invalid metadata url: '%s'", metadata);
+  while (*q != '/' && q > uri) q--;
+  if (q == uri)
+    FAIL1("invalid metadata uri: '%s'", uri);
 
   if (name) {
     if (!(namep = strdup(p + 1))) FAIL("allocation failure");
@@ -107,9 +89,9 @@ int dlite_split_metadata(const char *metadata, char **name, char **version,
     versionp[size - 1] = '\0';
   }
   if (namespace) {
-    int size = q - metadata + 1;
+    int size = q - uri + 1;
     if (!(namespacep = malloc(size))) FAIL("allocation failure");
-    memcpy(namespacep, metadata, size - 1);
+    memcpy(namespacep, uri, size - 1);
     namespacep[size - 1] = '\0';
   }
 

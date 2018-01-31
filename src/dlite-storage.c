@@ -40,8 +40,8 @@ static DLitePlugin *get_plugin(const char *driver)
  ********************************************************************/
 
 /*
-  Opens data item `id` from `uri` using `driver`.
-  Returns a opaque pointer to a data handle or NULL on error.
+  Opens a storage located at `uri` using `driver`.
+  Returns a opaque pointer or NULL on error.
 
   The `options` are passed to the driver.
  */
