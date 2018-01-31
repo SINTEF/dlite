@@ -3,6 +3,32 @@
 import re
 import json
 
+
+# DLite type table -- should be consistent with the one in src/dlite-types.c
+# In addition fix-sized blobs and strings are supported. Examples: blob256,
+# string3, string1024, etc...
+dlite_types = [
+    # typename    dtype             size
+    ("bool",     'dliteBool',      'sizeof(bool)'),
+    ("int",      'dliteInt',       'sizeof(int)'),
+    ("int8",     'dliteInt',       '1'),
+    ("int16",    'dliteInt',       '2'),
+    ("int32",    'dliteInt',       '4'),
+    ("int64",    'dliteInt',       '8'),
+    ("uint",     'dliteUInt',      'sizeof(unsigned int)'),
+    ("uint8",    'dliteUInt',      '1'),
+    ("uint16",   'dliteUInt',      '2'),
+    ("uint32",   'dliteUInt',      '4'),
+    ("uint64",   'dliteUInt',      '8'),
+    ("float",    'dliteFloat',     'sizeof(float)'),
+    ("double",   'dliteFloat',     'sizeof(double)'),
+    ("float32",  'dliteFloat',     '4'),
+    ("float64",  'dliteFloat',     '8'),
+    ("string",   'dliteStringPtr', 'sizeof(char *)'),
+    ("triplet",  'dliteTriplet',   'sizeof(DLiteTriplet)'),
+]
+
+
 #-------------------------
 # Case conversions
 #-------------------------
@@ -56,6 +82,17 @@ def toIdentifier(s):
     if s[0].isdigit():
         s = '_' + s
     return re.sub('[^a-zA-Z0-9_]', '', s)
+
+
+def gettype(typename):
+    """Returns (dtype, size) pair correspoinging to `typename`."""
+    if typename.startswith('blob') and len(typename) > 4:
+        return 'dliteBlob', int(typename[4:])
+    elif timename.startswith('string') and len(typename) > 6:
+        return 'dliteFixString', int(typename[6:])
+    else:
+        pass
+
 
 
 def typeconv_dlite(metatype):
