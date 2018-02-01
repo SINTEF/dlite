@@ -76,12 +76,12 @@ MU_TEST(test_is_writable)
  * Test data model
  ***************************************************************/
 
-MU_TEST(test_metadata)
+MU_TEST(test_meta_uri)
 {
-  const char *p, *metadata="http://www.sintef.no/meta/dlite/0.1/testdata";
-  mu_check(dlite_datamodel_set_metadata(d, metadata) == 0);
-  mu_check((p = dlite_datamodel_get_metadata(d)));
-  mu_assert_string_eq(metadata, p);
+  const char *p, *uri="http://www.sintef.no/meta/dlite/0.1/testdata";
+  mu_check(dlite_datamodel_set_meta_uri(d, uri) == 0);
+  mu_check((p = dlite_datamodel_get_meta_uri(d)));
+  mu_assert_string_eq(uri, p);
   free((char *)p);
 }
 
@@ -173,20 +173,11 @@ MU_TEST(test_double_property)
 MU_TEST(test_string_property)
 {
   char v[]="A test string", w[256], *p;
-  mu_check(dlite_datamodel_set_property(d, "mystring", v, dliteString,
+  mu_check(dlite_datamodel_set_property(d, "mystring", v, dliteFixString,
                                         sizeof(v), 1, NULL) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystring", w, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystring", w, dliteFixString,
                                         sizeof(w), 1, NULL) == 0);
   mu_assert_string_eq(v, w);
-  /*
-   * Check with dereferencing */
-  /*
-  mu_check(dlite_datamodel_set_property(d, "mystring2", &v, dliteString,
-                                        sizeof(v), 1, NULL) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystring2", &w, dliteString,
-                                        sizeof(w), 1, NULL) == 0);
-  mu_assert_string_eq(v, w);
-  */
   /*
    * Also test implicit DTString to DTStringPtr */
   mu_check(dlite_datamodel_get_property(d, "mystring", &p, dliteStringPtr,
@@ -195,13 +186,29 @@ MU_TEST(test_string_property)
   free(p);
 }
 
+MU_TEST(test_stringptr_property)
+{
+  char *v="Another test string", *w, u[256];
+  mu_check(dlite_datamodel_set_property(d, "mystringptr", &v, dliteStringPtr,
+                                        sizeof(char *), 1, NULL) == 0);
+  mu_check(dlite_datamodel_get_property(d, "mystringptr", &w, dliteStringPtr,
+                                        sizeof(char *), 1, NULL) == 0);
+  mu_assert_string_eq(v, w);
+  free(w);
+  /*
+   * Also test implicit DTStringPtr to DTString */
+  mu_check(dlite_datamodel_get_property(d, "mystringptr", &u, dliteFixString,
+                                        256, 1, NULL) == 0);
+  mu_assert_string_eq(v, u);
+}
+
 MU_TEST(test_stringptr_vec_property)
 {
   char *v[]={"Another test string", "next"}, *w[2], u[2][256];
   size_t i, dims[]={2};
-  mu_check(dlite_datamodel_set_property(d, "mystringptr", v, dliteStringPtr,
+  mu_check(dlite_datamodel_set_property(d, "mystringptr_vec", v, dliteStringPtr,
                                         sizeof(char *), 1, dims) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystringptr", w, dliteStringPtr,
+  mu_check(dlite_datamodel_get_property(d, "mystringptr_vec", w, dliteStringPtr,
                                         sizeof(char *), 1, dims) == 0);
   for (i=0; i<dims[0]; i++) {
     mu_assert_string_eq(v[i], w[i]);
@@ -209,7 +216,7 @@ MU_TEST(test_stringptr_vec_property)
   }
   /*
    * Also test implicit DTStringPtr to DTString */
-  mu_check(dlite_datamodel_get_property(d, "mystringptr", u, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystringptr_vec", u, dliteFixString,
                                         256, 1, dims) == 0);
   for (i=0; i<dims[0]; i++)
     mu_assert_string_eq(v[i], u[i]);
@@ -219,9 +226,9 @@ MU_TEST(test_string_arr_property)
 {
   size_t i, j, dims[] = {2, 2};
   char v[2][2][6]={{"this", "is"}, {"some", "words"}}, w[2][2][6];
-  mu_check(dlite_datamodel_set_property(d, "mystring_arr", v, dliteString,
+  mu_check(dlite_datamodel_set_property(d, "mystring_arr", v, dliteFixString,
                                         6, 2, dims) == 0);
-  mu_check(dlite_datamodel_get_property(d, "mystring_arr", w, dliteString,
+  mu_check(dlite_datamodel_get_property(d, "mystring_arr", w, dliteFixString,
                                         6, 2, dims) == 0);
   for (i=0; i<dims[0]; i++)
     for (j=0; j<dims[1]; j++)
@@ -265,7 +272,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_is_writable);
 
   /* data model tests */
-  MU_RUN_TEST(test_metadata);
+  MU_RUN_TEST(test_meta_uri);
   MU_RUN_TEST(test_get_dataname);
   MU_RUN_TEST(test_dimension_size);
   MU_RUN_TEST(test_blob_property);
@@ -275,6 +282,7 @@ MU_RUN_TEST(test_uint16_property);
   MU_RUN_TEST(test_float_property);
   MU_RUN_TEST(test_double_property);
   MU_RUN_TEST(test_string_property);
+  MU_RUN_TEST(test_stringptr_property);
   MU_RUN_TEST(test_stringptr_vec_property);
   MU_RUN_TEST(test_string_arr_property);
   MU_RUN_TEST(test_uint64_arr_property);

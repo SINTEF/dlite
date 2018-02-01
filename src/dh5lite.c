@@ -108,7 +108,7 @@ static hid_t get_memtype(DLiteType type, size_t size)
     case sizeof(double): return H5Tcopy(H5T_NATIVE_DOUBLE);
     default:             return errx(-1, "no native float with size %lu", size);
     }
-  case dliteString:
+  case dliteFixString:
     memtype = H5Tcopy(H5T_C_S1);
     if ((stat = H5Tset_size(memtype, size)) < 0)
       return err(-1, "cannot set string memtype size to %lu", size);
@@ -173,7 +173,7 @@ static DLiteType get_type(hid_t dtype)
   case H5T_STRING:
     if ((isvariable = H5Tis_variable_str(dtype)) < 0)
       return err(-1,"cannot dtermine wheter hdf5 string is of variable length");
-    return (isvariable) ? dliteStringPtr : dliteString;
+    return (isvariable) ? dliteStringPtr : dliteFixString;
   default:
     return err(-1, "hdf5 data class is not opaque, integer, float or string");
   }
@@ -240,7 +240,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
     DFAIL1(d, "cannot get type of '%s'", name);
 
   /* Add space for NUL-termination for non-variable strings */
-  if (savedtype == dliteString) {
+  if (savedtype == dliteFixString) {
     if((isvariable = H5Tis_variable_str(dtype)) < 0)
       DFAIL1(d, "cannot determine if '%s' is stored as variable length string",
              name);
@@ -248,11 +248,11 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   }
 
   /* Allocate temporary buffer for data type convertion */
-  if (type == dliteStringPtr && savedtype == dliteString) {
+  if (type == dliteStringPtr && savedtype == dliteFixString) {
     if (!(buff = calloc(nmemb, dsize))) FAIL0("allocation failure");
     if (memtype > 0) H5Tclose(memtype);
-    if ((memtype = get_memtype(dliteString, dsize)) < 0) goto fail;
-  } else if (type == dliteString && savedtype == dliteStringPtr) {
+    if ((memtype = get_memtype(dliteFixString, dsize)) < 0) goto fail;
+  } else if (type == dliteFixString && savedtype == dliteStringPtr) {
     if (!(buff = calloc(nmemb, sizeof(void *)))) FAIL0("allocation failure");
     if (memtype > 0) H5Tclose(memtype);
     if ((memtype = get_memtype(dliteStringPtr, sizeof(void *))) < 0) goto fail;
@@ -260,18 +260,19 @@ static int get_data(const DLiteDataModel *d, hid_t group,
     ;  /* pass, bool is saved as uint */
   } else if (savedtype != type) {
     DFAIL3(d, "trying to read '%s' as %s, but it is %s",
-           name, dlite_get_typename(type), dlite_get_typename(savedtype));
+           name, dlite_type_get_dtypename(type),
+           dlite_type_get_dtypename(savedtype));
   }
 
   if ((stat = H5Dread(dset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff)) < 0)
     DFAIL1(d, "cannot read dataset '%s'", name);
 
   /* Convert data type */
-  if (type == dliteStringPtr && savedtype == dliteString) {
+  if (type == dliteStringPtr && savedtype == dliteFixString) {
     for (i=0; i<nmemb; i++)
       if (!(((char **)ptr)[i] = strdup((char *)buff + i*dsize)))
         FAIL0("allocation failure");
-  } else if (type == dliteString && savedtype == dliteStringPtr) {
+  } else if (type == dliteFixString && savedtype == dliteStringPtr) {
     for (i=0; i<nmemb; i++) {
       strncpy((char *)ptr + i*size, ((char **)buff)[i], size);
       free(((char **)buff)[i]);
@@ -397,7 +398,7 @@ static void entrylist_free(EntryList *e)
  ********************************************************************/
 
 /**
-  Returns an url to the metadata.
+  Returns a pointer to storage located at uri.
 
   Valid \a options are:
 
@@ -471,34 +472,34 @@ DLiteDataModel *dh5_datamodel(const DLiteStorage *s, const char *uuid)
   if (exists) {
     /* Instance `uuid` already exists: assigh groups */
     if ((d->instance = H5Gopen(sh5->root, uuid, H5P_DEFAULT)) < 0)
-      FAIL2("cannot open instance /%s in %s", uuid, sh5->uri);
+      FAIL2("cannot open instance '/%s' in '%s'", uuid, sh5->uri);
 
     if ((d->meta = H5Gopen(d->instance, "meta", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open /%s/meta in %s", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/meta' in '%s'", uuid, sh5->uri);
 
     if ((d->dimensions = H5Gopen(d->instance, "dimensions", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open /%s/dimensions in %s", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/dimensions' in '%s'", uuid, sh5->uri);
 
     if ((d->properties = H5Gopen(d->instance, "properties", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open /%s/properties in %s", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/properties' in '%s'", uuid, sh5->uri);
 
   } else {
     /* Instance `uuid` does not exists: create new group structure */
     if ((d->instance = H5Gcreate(sh5->root, uuid, H5P_DEFAULT, H5P_DEFAULT,
                                  H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s in %s", uuid, sh5->uri);
+      FAIL2("cannot open/create group '/%s' in '%s'", uuid, sh5->uri);
 
     if ((d->meta = H5Gcreate(d->instance, "meta", H5P_DEFAULT, H5P_DEFAULT,
                              H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s/meta in %s", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/meta' in '%s'", uuid, sh5->uri);
 
     if ((d->dimensions = H5Gcreate(d->instance, "dimensions", H5P_DEFAULT,
                                    H5P_DEFAULT, H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s/dimensions in %s", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/dimensions' in '%s'", uuid, sh5->uri);
 
     if ((d->properties = H5Gcreate(d->instance, "properties", H5P_DEFAULT,
                                    H5P_DEFAULT, H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group /%s/properties in %s", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/properties' in '%s'", uuid, sh5->uri);
   }
 
   retval = (DLiteDataModel *)d;
@@ -528,15 +529,12 @@ int dh5_datamodel_free(DLiteDataModel *d)
 
 
 /**
-  Returns pointer to (malloc'ed) metadata or NULL on error.
+  Returns pointer to (malloc'ed) metadata uri or NULL on error.
  */
-const char *dh5_get_metadata(const DLiteDataModel *d)
+const char *dh5_get_meta_uri(const DLiteDataModel *d)
 {
   const DH5DataModel *dh5 = (DH5DataModel *)d;
-  char *name=NULL, *version=NULL, *namespace=NULL, *metadata=NULL;
-  int size;
-
-  err_clear();
+  char *name=NULL, *version=NULL, *namespace=NULL, *uri=NULL;
 
   if (get_data(d, dh5->meta, "name", &name, dliteStringPtr,
                sizeof(char *), 1, NULL) < 0) goto fail;
@@ -545,23 +543,19 @@ const char *dh5_get_metadata(const DLiteDataModel *d)
   if (get_data(d, dh5->meta, "namespace", &namespace, dliteStringPtr,
                sizeof(char *), 1,NULL) < 0) goto fail;
 
-  /* combine to metadata */
-  if (err_getcode() == 0) {
-    size = strlen(name) + strlen(version) + strlen(namespace) + 3;
-    metadata = malloc(size);
-    snprintf(metadata, size, "%s/%s/%s", namespace, version, name);
-  }
+  /* combine to name, version and namespace to an uri */
+  uri = dlite_join_meta_uri(name, version, namespace);
 
  fail:
   if (name) free(name);
   if (version) free(version);
   if (namespace) free(namespace);
-  return metadata;
+  return uri;
 }
 
 
 /**
-  Returns the size of dimension `name` or -1 on error.
+  Returns the size of dimension `name` or 0 on error.
  */
 size_t dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
@@ -569,7 +563,7 @@ size_t dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
   int dimsize;
   if (get_data(d, dh5->dimensions, name, &dimsize, dliteInt,
                sizeof(dimsize), 1, NULL) < 0)
-    return err(-1, "cannot get size of dimension '%s'", name);
+    return err(0, "cannot get size of dimension '%s'", name);
   return dimsize;
 }
 
@@ -592,22 +586,22 @@ int dh5_get_property(const DLiteDataModel *d, const char *name, void *ptr,
  ********************************************************************/
 
 /**
-  Sets metadata.  Returns non-zero on error.
+  Sets metadata uri.  Returns non-zero on error.
 */
-int dh5_set_metadata(DLiteDataModel *d, const char *metadata)
+int dh5_set_meta_uri(DLiteDataModel *d, const char *uri)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   size_t dims[1]={1};
   char *name, *version, *namespace;
 
-  if (dlite_split_metadata(metadata, &name, &version, &namespace))
+  if (dlite_split_meta_uri(uri, &name, &version, &namespace))
     return 1;
 
-  set_data(d, dh5->meta, "name", name, dliteString,
+  set_data(d, dh5->meta, "name", name, dliteFixString,
            strlen(name), 1, dims);
-  set_data(d, dh5->meta, "version", version, dliteString,
+  set_data(d, dh5->meta, "version", version, dliteFixString,
            strlen(version), 1, dims);
-  set_data(d, dh5->meta, "namespace", namespace, dliteString,
+  set_data(d, dh5->meta, "namespace", namespace, dliteFixString,
            strlen(namespace), 1, dims);
 
   free(name);
@@ -727,7 +721,7 @@ int dh5_set_dataname(DLiteDataModel *d, const char *name)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   return set_data(d, dh5->instance, "dataname", name,
-                  dliteString, strlen(name), 1, NULL);
+                  dliteFixString, strlen(name), 1, NULL);
 }
 
 
@@ -741,14 +735,14 @@ DLitePlugin h5_plugin = {
   dh5_datamodel,
   dh5_datamodel_free,
 
-  dh5_get_metadata,
+  dh5_get_meta_uri,
   dh5_get_dimension_size,
   dh5_get_property,
 
   /* optional */
   dh5_get_uuids,
 
-  dh5_set_metadata,
+  dh5_set_meta_uri,
   dh5_set_dimension_size,
   dh5_set_property,
 
@@ -757,4 +751,7 @@ DLitePlugin h5_plugin = {
 
   dh5_get_dataname,
   dh5_set_dataname,
+
+  NULL,
+  NULL
 };
