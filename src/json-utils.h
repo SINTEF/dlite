@@ -36,3 +36,20 @@ json_data_t *json_data();
 json_data_t *json_get_data(json_t *obj);
 void json_data_free();
 
+/* Return true (=1) if each dimension of the property is 
+   defined in the list of dimension of the entity
+ */
+int check_dimensions(char *prop_name, json_t *prop_dims, json_t *entity_dims);
+
+/* Count the number of valid dimensions in the json object.
+ * a dimension must have a name (not null, not empty, not only white space)
+ */
+int dlite_json_entity_dim_count(json_t *obj);
+
+/* Count the number of valid properties in the json object.
+ * a property must have a name and a valid type.
+ */
+int dlite_json_entity_prop_count(json_t *obj);
+
+
+

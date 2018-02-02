@@ -1,4 +1,8 @@
+
 /* vector.h */
+
+#ifndef VECTOR_H
+#define VECTOR_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,3 +38,6 @@ void vec_resize(vec_t *v, size_t size);
 void vec_reserve(vec_t *v, size_t capacity);
 void vec_free(vec_t *v);
 void vec_print(vec_t *v, char* name);
+
+
+#endif /* VECTOR_H */

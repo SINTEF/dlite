@@ -122,6 +122,11 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   return 0;
 }
 
+int dlite_is_type(const char *name)
+{
+  return 1;
+}
+
 /*
   Assigns `dtype` and `size` from `typename`.  Returns non-zero on error.
 */

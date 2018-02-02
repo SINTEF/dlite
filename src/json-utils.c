@@ -293,3 +293,102 @@ json_data_t *json_get_data(json_t *obj)
   return data;
 }
 
+
+int check_dimensions(char *prop_name, json_t *prop_dims, json_t *entity_dims)
+{
+  size_t i, j, sp, se, k, found;
+  json_t *e;
+  json_t *p;
+  json_t *dname;
+
+  k = 0;
+  sp = json_array_size(prop_dims);
+  se = json_array_size(entity_dims);
+  for(i = 0; i < sp; i++) {
+    p = json_array_get(prop_dims, i);
+    found = 0;
+    for(j = 0; j < se; j++) {
+      e = json_array_get(entity_dims, j);
+      dname = json_object_get(e, "name");
+      printf("%s =? %s\n", json_string_value(p), json_string_value(dname));
+      if (str_equal(json_string_value(p), json_string_value(dname))) {
+        k++;
+        found++;
+      }
+    }
+    if (found == 0)
+      printf("error: the dimension \"%s\" of the property \"%s\" is not defined.\n", json_string_value(p), prop_name);
+  }
+  return (int)(k == sp);
+}
+
+
+int dlite_json_entity_dim_count(json_t *obj)
+{
+  int count = 0;
+  int nerr = 0;
+  size_t i, size;
+  json_t *dims;
+  json_t *item;
+  json_t *name;
+
+  if (json_is_object(obj)) {
+    dims = json_object_get(obj, "dimensions");
+    if (json_is_array(dims)) {
+      size = json_array_size(dims);
+      for (i = 0; i < size; i++) {
+        item = json_array_get(dims, i);
+        name = json_object_get(item, "name");
+        if (str_is_whitespace(json_string_value(name))) {
+          printf("error: the dimension [%d] has not a valid name.\n", i + 1);
+          nerr++;
+        }
+        else
+          count++;
+      }
+    }
+  }
+  return nerr > 0 ? -1 : count;
+}
+
+
+int dlite_json_entity_prop_count(json_t *obj)
+{
+  int count = 0;
+  int nerr = 0;
+  size_t i, size;
+  json_t *dims;
+  json_t *props;
+  json_t *item;
+  json_t *name;
+  json_t *ptype;
+
+  if (json_is_object(obj)) {
+    dims = json_object_get(obj, "dimensions");
+    props = json_object_get(obj, "properties");
+    if (json_is_array(props)) {
+      size = json_array_size(props);
+      for (i = 0; i < size; i++) {
+        item = json_array_get(props, i);
+        name = json_object_get(item, "name");
+        ptype = json_object_get(item, "type");
+        if (str_is_whitespace(json_string_value(name))) {
+          printf("error: the property [%d] has not a valid name.\n", i + 1);
+          nerr++;
+        }
+        else if (!dlite_is_type(json_string_value(ptype))) {
+          printf("error: the property [%d] \"%s\" has not a valid type.\n", i + 1, json_string_value(name));
+          nerr++;
+        }
+        else if (!check_dimensions(json_string_value(name), json_object_get(item, "dims"), dims)) {
+          printf("error: the dimension of the property \"%s\" are not well defined.\n", json_string_value(name));
+          nerr++;
+        }
+        else 
+          count++;
+      }
+    }
+  }
+  return nerr > 0 ? -1 : count;
+}
+

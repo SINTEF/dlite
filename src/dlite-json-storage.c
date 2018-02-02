@@ -7,6 +7,7 @@
 
 #include <jansson.h>
 #include "json-utils.h"
+#include "str.h"
 
 #include "config.h"
 
@@ -238,30 +239,12 @@ const char *dlite_json_get_metadata(const DLiteDataModel *d)
   char *name=NULL;
   char *version=NULL;
   char *namespace=NULL;
-  char *metadata=NULL;
-  int size=0;
 
   name = object_get_string(data->meta, "name");
-  if (name)
-    size += strlen(name);
   version = object_get_string(data->meta, "version");
-  if (version)
-    size += strlen(version);
   namespace = object_get_string(data->meta, "namespace");
-  if (namespace)
-    size += strlen(namespace);
 
-  /* combine to metadata */
-  if (size > 0) {
-    metadata = malloc(size);
-    snprintf(metadata, size, "%s/%s/%s", namespace, version, name);
-  }
-
-  if (name) free(name);
-  if (version) free(version);
-  if (namespace) free(namespace);
-
-  return metadata;
+  return dlite_join_meta_uri(name, version, namespace);
 }
 
 /**
@@ -305,7 +288,7 @@ int dlite_json_set_metadata(DLiteDataModel *d, const char *metadata)
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   char *name, *version, *namespace;
 
-  if (dlite_split_metadata(metadata, &name, &version, &namespace))
+  if (dlite_split_meta_uri(metadata, &name, &version, &namespace))
     return 1;
 
   object_set_string(data->meta, "name", name);
@@ -360,7 +343,7 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name, const void *ptr
     object_set_real(data->properties, name, *r);
     return 0;
 
-  case dliteString:
+  case dliteFixString:
     return 1;
 
   case dliteStringPtr:
@@ -461,6 +444,191 @@ int dlite_json_set_dataname(DLiteDataModel *d, const char *name)
   return 0;
 }
 
+
+char *dlite_json_uri(json_t * obj)
+{
+  char *uri;
+  char *name=NULL;
+  char *version=NULL;
+  char *namespace=NULL;
+  int n = 0; 
+
+  if (json_is_object(obj)) {
+    name = object_get_string(obj, "name");
+    version = object_get_string(obj, "version");
+    namespace = object_get_string(obj, "namespace");
+
+    name = json_object_get(obj, "name");
+    if (!str_is_whitespace(json_string_value(name)))
+      n++;
+    version = json_object_get(obj, "version");
+    if (!str_is_whitespace(json_string_value(version)))
+      n++;
+    namespace = json_object_get(obj, "namesapce");
+    if (!str_is_whitespace(json_string_value(namespace)))
+      n++;
+
+    if (n == 3)
+      return dlite_join_meta_uri(name, version, namespace);
+  }
+  return NULL;
+}
+
+/* Create DLiteProperty from a json object */
+DLiteDimension *dlite_json_entity_dim(json_t *obj)
+{
+  DLiteDimension *dim = NULL;
+  if (json_is_object(obj)) {
+    dim = malloc(sizeof(DLiteDimension));
+    dim->name = str_copy(json_string_value(json_object_get(obj, "name")));
+    dim->description = str_copy(json_string_value(json_object_get(obj, "description")));
+  }
+  return dim;
+}
+
+/* Create DLiteProperty from a json object */
+DLiteProperty *dlite_json_entity_prop(json_t *obj, size_t ndim, DLiteDimension **d)
+{
+  DLiteProperty *prop = NULL;
+  char *ptype;
+  json_t *dims;
+  json_t *item;
+  size_t i, j, size;
+
+  if (json_is_object(obj)) {
+    prop = malloc(sizeof(DLiteProperty));
+    prop->name = str_copy(json_string_value(json_object_get(obj, "name")));
+    prop->description = str_copy(json_string_value(json_object_get(obj, "description")));
+    ptype = json_string_value(json_object_get(obj, "type"));    
+    dlite_type_set_dtype_and_size(ptype, &(prop->type), &(prop->size));
+    dims = json_object_get(obj, "dims");
+    size = json_array_size(dims);
+    prop->ndims = (int)size;
+    if (prop->ndims > 0) {
+      prop->dims = malloc(sizeof(int) * prop->ndims);
+      for(i = 0; i < size; i++) {
+        item = json_array_get(dims, i);
+        for(j = 0; j < ndim; j++) {
+          if (str_equal(json_string_value(item), d[j]->name)) {
+            prop->dims[i] = j;
+            break;
+          }
+        }
+      }
+    }
+  }
+  return prop;
+}
+
+/* Create DLiteEntity from a json object */
+DLiteEntity *dlite_json_entity(json_t *obj)
+{
+  DLiteEntity *entity = NULL;
+  char *uri;
+  char *desc;
+  int nprop, ndim;
+  size_t i, size;
+  json_t *jd;
+  json_t *jp;
+  DLiteDimension **dims;
+  DLiteProperty **props;
+
+  if (json_is_object(obj)) {
+      uri = dlite_json_uri(obj);
+      if (uri) {
+        ndim = dlite_json_entity_dim_count(obj);
+        nprop = dlite_json_entity_prop_count(obj);
+
+        if ((nprop < 0) || (ndim < 0)) {
+          err(0, "errors in the definition of the entity %s", uri);
+        }
+        else if (nprop == 0) {
+          err(0, "no property for the entity %s", uri);
+        }
+        else if ((nprop > 0) && (ndim >= 0)) {
+          desc = str_copy(json_string_value(json_object_get(obj, "description")));
+
+          if (ndim > 0) {
+            dims = malloc(ndim * sizeof(DLiteDimension *));
+            jd = json_object_get(obj, "dimensions");
+            size = json_array_size(jd);
+            for (i = 0; i < size; i++)
+              dims[i] = dlite_json_entity_dim(json_array_get(dims, i));            
+          }
+
+          props = malloc(nprop * sizeof(DLiteProperty *));
+          jp = json_object_get(obj, "properties");
+          size = json_array_size(jp);
+          for (i = 0; i < size; i++)
+            props[i] = dlite_json_entity_prop(json_array_get(props, i), ndim, dims);
+
+          //entity = dlite_entity_create(uri, desc, ndim, dims, nprop, props);
+        }
+      }
+      else
+        err(0, "name, version, and namespace must be given.");
+  }
+  return entity;
+}
+
+/* Create an entity from a json storage and the given entity ID */
+DLiteEntity *dlite_json_get_entity(const DLiteStorage *s, const char *uuid)
+{
+  DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
+  json_t *obj = NULL;
+  json_t *item = NULL;
+  size_t i, size;
+  char *uri=NULL;
+
+  // Find the uuid in the json storage
+  if (uuid) {
+    if (json_is_object(storage->root)) {
+      uri = dlite_json_uri(storage->root);
+      if (uri) {
+        if (str_equal(uuid, uri))
+          obj = storage->root;
+        //?str_free(uri);
+      }
+      else
+        obj = json_object_get(storage->root, uuid);
+    }
+    else if (json_is_array(storage->root)) {
+      size = json_array_size(storage->root);
+      for(i = 0; i < size; i++) {
+        item = json_array_get(storage->root, i);
+        uri = dlite_json_uri(item);
+        if (str_equal(uuid, uri))
+          obj = item;
+        //?str_free(uri);
+        if (obj)
+          break;
+      }
+    }
+  }
+  // No uuid given, check if only one entity is defined in the json storage
+  else {
+    uri = dlite_json_uri(storage->root);
+    if (uri)
+      obj = storage->root;
+    else if (json_is_array(storage->root)) {
+      size = json_array_size(storage->root);
+      if (size > 0) {
+        item = json_array_get(storage->root, 0);
+        uri = dlite_json_uri(item);
+        if (uri)
+          obj = item;
+      }
+    }
+  }
+
+  return dlite_json_entity(obj);
+}
+
+int dlite_json_set_entity(DLiteStorage *s, const DLiteEntity *e)
+{
+  DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
+}
+
 DLitePlugin dlite_json_plugin = {
   "json",
 
@@ -485,6 +653,9 @@ DLitePlugin dlite_json_plugin = {
   dlite_json_has_property,
 
   dlite_json_get_dataname,
-  dlite_json_set_dataname
+  dlite_json_set_dataname,
+
+  dlite_json_get_entity,
+  dlite_json_set_entity
 };
 

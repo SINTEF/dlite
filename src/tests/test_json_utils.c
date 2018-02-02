@@ -117,7 +117,24 @@ MU_TEST(test_json_array)
   json_data_free(data);
 }
 
+MU_TEST(test_json_entity)
+{
+  json_error_t error;
+  json_t *dims;
+  json_t *prop;
 
+  json_t *root = json_load_file("/home/tco/Documents/precims/dlite/tools/tests/Chemistry-0.1.json", 0, &error);
+  mu_check(json_is_object(root));
+
+  dims = json_object_get(root, "dimensions");
+  prop = json_object_get(root, "properties");
+
+  mu_check(check_dimensions("alloy", json_array_get(prop, 0), dims) == 1);
+  mu_check(check_dimensions("elements", json_array_get(prop, 1), dims) == 1);
+
+  mu_check(dlite_json_entity_dim_count(root) == 2);
+  mu_check(dlite_json_entity_prop_count(root) == 8);
+}
 
 /***********************************************************************/
 
@@ -125,6 +142,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_vector);
   MU_RUN_TEST(test_json_array);
+  MU_RUN_TEST(test_json_entity);
 }
 
 

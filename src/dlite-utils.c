@@ -52,11 +52,26 @@ int dlite_get_uuid(char *buff, const char *id)
 char *dlite_join_meta_uri(const char *name, const char *version,
                           const char *namespace)
 {
-  char *uri;
-  int size = strlen(name) + strlen(version) + strlen(namespace) + 3;
-
-  if (!(uri = malloc(size))) return err(1, "allocation failure"), NULL;
-  snprintf(uri, size, "%s/%s/%s", namespace, version, name);
+  char *uri = NULL;
+  int size = 0;
+  int n = 0;
+  if (name) {
+    size += strlen(name);
+    n++;
+  }
+  if (version) {
+    size += strlen(version);
+    n++;
+  }
+  if (namespace) {
+    size += strlen(namespace);
+    n++;
+  }
+  if ((n == 3) && (size > 0)) {
+    size += 3;
+    if (!(uri = malloc(size))) return err(1, "allocation failure"), NULL;
+    snprintf(uri, size, "%s/%s/%s", namespace, version, name);
+  }
   return uri;
 }
 

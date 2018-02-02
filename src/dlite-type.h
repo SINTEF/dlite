@@ -101,6 +101,8 @@ DLiteType dlite_type_get_dtype(const char *dtypename);
 int dlite_type_set_typename(DLiteType dtype, size_t size,
                             char *typename, size_t n);
 
+int dlite_is_type(const char *name);
+
 /**
   Assigns \a dtype and \a size from \a typename.  Returns non-zero on error.
 */

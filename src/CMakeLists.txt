@@ -62,9 +62,9 @@ set(sources
   dh5lite.c
   dlite-json-storage.c
   json-utils.c
-  dlite.c
   getuuid.c
   err.c
+  str.c
   compat.c
   vector.c
   )
