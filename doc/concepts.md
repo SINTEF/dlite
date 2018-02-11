@@ -73,8 +73,8 @@ only:
 
   - An UUID.
   - An optional reference to an URI uniquely identifying the instance. If
-    given, the UUID is derived from it.  For metadata this URI is combination
-    of its namespace, version and name.
+    given, the UUID is derived from it.  For metadata this URI is of the
+    form `namespace/version/name`.
   - A reference to its metadata.
 
 This header is then followed by then followed by content, i.e. the
