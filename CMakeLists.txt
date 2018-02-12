@@ -77,67 +77,83 @@ include(ExternalProject)
 #
 # hdf5
 # ====
+#set (LIB_TYPE STATIC) # or SHARED
+#string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+
+#find_package (HDF5 NAMES hdf5 COMPONENTS C ${SEARCH_TYPE})
+# find_package (HDF5) # Find non-cmake built HDF5
+#INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIR})
+#set (LINK_LIBS ${LINK_LIBS} ${HDF5_C_${LIB_TYPE}_LIBRARY})
+
 find_package(HDF5 COMPONENTS C)
-if((NOT HDF5_FOUND) AND BUILD_HDF5)
-  message(STATUS "Download and build HDF5 as external package")
+set(HDF5_LIBRARIES "${HDF5_ROOT}/lib/libhdf5.lib")
 
-  set(hdf5_VERSION        "1.10.1")
-  set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
-  set(hdf5_PREFIX         "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
-  set(hdf5_SOURCE_DIR     "${hdf5_PREFIX}/src/${hdf5_NAME}")
-  set(hdf5_INSTALL_PREFIX "${hdf5_PREFIX}/local")
-
-  set(cmake_args
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    -DHDF5_BUILD_CXX=OFF
-    -DHDF5_BUILD_FORTRAN=OFF
-    -DCMAKE_BUILD_TYPE=Release
-    -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
-    -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
-    -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-    )
-  if(BUILD_SHARED_LIBS)
-    list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
-  endif()
-  if(CMAKE_TOOLCHAIN_FILE)
-    get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
-    list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
-  endif()
+message("HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
+message("HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
+message("HDF5_LIBRARY_DIR: ${HDF5_LIBRARY_DIR}")
+message("HDF5_INCLUDE_DIR: ${HDF5_INCLUDE_DIR}")
 
 
+# if((NOT HDF5_FOUND) AND BUILD_HDF5)
+  # message(STATUS "Download and build HDF5 as external package")
 
-  ExternalProject_Add(
-    ${hdf5_NAME}
-    PREFIX            ${hdf5_PREFIX}
-    URL               https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
-    URL_MD5           43a2f9466702fb1db31df98ae6677f15
-    SOURCE_DIR        ${hdf5_SOURCE_DIR}
-    UPDATE_COMMAND    ""
-    CMAKE_ARGS        ${cmake_args}
-    )
+  # set(hdf5_VERSION        "1.10.1")
+  # set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
+  # set(hdf5_PREFIX         "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
+  # set(hdf5_SOURCE_DIR     "${hdf5_PREFIX}/src/${hdf5_NAME}")
+  # set(hdf5_INSTALL_PREFIX "${hdf5_PREFIX}/local")
 
-  # Define the following variables:
-  #
-  #   hdf5_BINARY_DIR   - root of hdf5 binary dir
-  #   hdf5_INCLUDE_DIRS - location of the hdf5 include dirs
-  #   hdf5_LIBRARY_DIRS - location of the hdf5 library dirs
-  #   hdf5_LIBRARIES    - required libraries (for static linking)
-  #
-  set(hdf5_BINARY_DIR ${hdf5_INSTALL_PREFIX}/bin)
-  set(hdf5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
-  set(hdf5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
-  set(hdf5_LIBRARIES
-    ${hdf5_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}hdf5${CMAKE_STATIC_LIBRARY_SUFFIX}
-    )
-  if(WIN32)
-    list(APPEND hdf5_LIBRARIES Kernel32)
-  else()
-    list(APPEND hdf5_LIBRARIES m dl)
-  endif()
+  # set(cmake_args
+    # -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    # -DHDF5_BUILD_CXX=OFF
+    # -DHDF5_BUILD_FORTRAN=OFF
+    # -DCMAKE_BUILD_TYPE=Release
+    # -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
+    # -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
+    # -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+    # )
+  # if(BUILD_SHARED_LIBS)
+    # list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
+  # endif()
+  # if(CMAKE_TOOLCHAIN_FILE)
+    # get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+    # list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
+  # endif()
 
-else()
-  set(hdf5_LIBRARIES hdf5)
-endif()
+
+
+  # ExternalProject_Add(
+    # ${hdf5_NAME}
+    # PREFIX            ${hdf5_PREFIX}
+    # URL               https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
+    # URL_MD5           43a2f9466702fb1db31df98ae6677f15
+    # SOURCE_DIR        ${hdf5_SOURCE_DIR}
+    # UPDATE_COMMAND    ""
+    # CMAKE_ARGS        ${cmake_args}
+    # )
+
+  # # Define the following variables:
+  # #
+  # #   hdf5_BINARY_DIR   - root of hdf5 binary dir
+  # #   hdf5_INCLUDE_DIRS - location of the hdf5 include dirs
+  # #   hdf5_LIBRARY_DIRS - location of the hdf5 library dirs
+  # #   hdf5_LIBRARIES    - required libraries (for static linking)
+  # #
+  # set(hdf5_BINARY_DIR ${hdf5_INSTALL_PREFIX}/bin)
+  # set(hdf5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
+  # set(hdf5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
+  # set(hdf5_LIBRARIES
+    # ${hdf5_INSTALL_PREFIX}/lib/libhdf5_D.lib
+    # )
+  # if(WIN32)
+    # list(APPEND hdf5_LIBRARIES Kernel32)
+  # else()
+    # list(APPEND hdf5_LIBRARIES m dl)
+  # endif()
+
+# else()
+  # set(hdf5_LIBRARIES hdf5)
+# endif()
 
 
 
