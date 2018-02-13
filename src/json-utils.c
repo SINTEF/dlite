@@ -2,6 +2,7 @@
 
 
 #include "json-utils.h"
+#include "str.h"
 
 
 char json_char_type(json_t *obj)
@@ -187,8 +188,8 @@ double json_to_real(json_t *obj) {
     return 1.0;
   else if (json_is_false(obj))
     return 0.0;
-  //else if (json_is_null(obj))
-  //  return (int)(nan);
+  /*else if (json_is_null(obj))
+      return (int)(nan);*/
   else
     return 0;
 }
@@ -280,7 +281,7 @@ json_data_t *json_get_data(json_t *obj)
     data->scalar_i = json_is_true(obj) ? 1 : 0;
     break;
   case 's':
-    data->scalar_s = json_string_value(obj);
+    data->scalar_s = str_copy(json_string_value(obj));
     break;
   case 'x':
     ok = 0;
@@ -310,7 +311,6 @@ int check_dimensions(char *prop_name, json_t *prop_dims, json_t *entity_dims)
     for(j = 0; j < se; j++) {
       e = json_array_get(entity_dims, j);
       dname = json_object_get(e, "name");
-      printf("%s =? %s\n", json_string_value(p), json_string_value(dname));
       if (str_equal(json_string_value(p), json_string_value(dname))) {
         k++;
         found++;
