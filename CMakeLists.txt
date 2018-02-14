@@ -86,12 +86,15 @@ include(ExternalProject)
 #set (LINK_LIBS ${LINK_LIBS} ${HDF5_C_${LIB_TYPE}_LIBRARY})
 
 find_package(HDF5 COMPONENTS C)
-set(HDF5_LIBRARIES "${HDF5_ROOT}/lib/libhdf5.lib")
 
-message("HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
-message("HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
-message("HDF5_LIBRARY_DIR: ${HDF5_LIBRARY_DIR}")
-message("HDF5_INCLUDE_DIR: ${HDF5_INCLUDE_DIR}")
+if(WIN32)
+  set(HDF5_LIBRARIES "${HDF5_ROOT}/lib/libhdf5.lib")
+
+  message("HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
+  message("HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
+  message("HDF5_LIBRARY_DIR: ${HDF5_LIBRARY_DIR}")
+  message("HDF5_INCLUDE_DIR: ${HDF5_INCLUDE_DIR}")
+endif()
 
 
 # if((NOT HDF5_FOUND) AND BUILD_HDF5)

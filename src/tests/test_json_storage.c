@@ -25,7 +25,6 @@ DLiteDataModel *d1=NULL, *d2=NULL, *d3=NULL;
 MU_TEST(test_open)
 {
   double v=45.3;
-  printf("Open storage: %s\n", datafile);
   mu_check((s = dlite_storage_open("json", datafile, "w")));
   /*
   mu_check((d1 = dlite_datamodel(s, id)));
@@ -39,7 +38,6 @@ MU_TEST(test_open)
   mu_check(dlite_datamodel_set_property(d3, "y", &v, dliteFloat,
                                         sizeof(v), 1, NULL) == 0);
   */
-  printf("Open storage: %s\n", "test-read-data.json");
   mu_check((db = dlite_storage_open("json", "test-read-data.json", "r")));
 
 }
@@ -48,21 +46,24 @@ MU_TEST(test_uuids)
 {
   char **ids = dlite_storage_uuids(db);
   size_t i, n;
-  i = 0;
   n = 0;
-  while(ids[i] != NULL) {
+  for(i=0; ids[i]; i++) {
+    /*printf("%d: %s\n", i, ids[i]);*/
     n++;
-    i++;
   }
+  /*printf("n=%d\n", n);*/
   mu_check(n == 4);
 }
 
 MU_TEST(test_close)
 {
+  /*
   mu_check(dlite_datamodel_free(d1) == 0);
   mu_check(dlite_datamodel_free(d2) == 0);
   mu_check(dlite_datamodel_free(d3) == 0);
+  */
   mu_check(dlite_storage_close(s) == 0);
+  mu_check(dlite_storage_close(db) == 0);
 }
 
 

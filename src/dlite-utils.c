@@ -53,8 +53,8 @@ char *dlite_join_meta_uri(const char *name, const char *version,
                           const char *namespace)
 {
   char *uri = NULL;
-  int size = 0;
-  int n = 0;
+  size_t size = 0;
+  size_t n = 0;
   if (name) {
     size += strlen(name);
     n++;

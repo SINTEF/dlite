@@ -18,6 +18,7 @@
 /* NULL-terminated array of all backends */
 extern DLitePlugin h5_plugin;
 extern DLitePlugin dlite_json_plugin;
+
 DLitePlugin *plugin_list[] = {
   &h5_plugin,
   &dlite_json_plugin,
@@ -28,11 +29,14 @@ DLitePlugin *plugin_list[] = {
 /* Returns a pointer to API for driver or NULL on error. */
 static DLitePlugin *get_plugin(const char *driver)
 {
-  DLitePlugin *plugin;
-  printf("get plugin %s", driver);
-  for (plugin=plugin_list[0]; plugin; plugin++)
-    if (strcmp(plugin->name, driver) == 0)
+  DLitePlugin *plugin=NULL;
+  int i;
+  for(i=0; plugin_list[i]; i++) {
+    if (strcmp(plugin_list[i]->name, driver) == 0) {
+      plugin = plugin_list[i];
       break;
+    }
+  }
   if (!plugin) errx(1, "invalid driver: '%s'", driver);
   return plugin;
 }
@@ -53,8 +57,6 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
 {
   DLitePlugin *api;
   DLiteStorage *storage=NULL;
-
-  printf("dlite_storage_open %s %s %s\n", driver, uri, options);
 
   if (!(api = get_plugin(driver))) goto fail;
   if (!(storage = api->open(uri, options))) goto fail;
