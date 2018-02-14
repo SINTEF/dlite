@@ -24,6 +24,7 @@ else (JANSSON_LIBRARIES AND JANSSON_INCLUDE_DIRS)
       /usr/local/include
       /opt/local/include
       /sw/include
+	  ${JANSSON_ROOT}/include
   )
 
 find_library(JANSSON_LIBRARY
@@ -34,6 +35,7 @@ find_library(JANSSON_LIBRARY
       /usr/local/lib
       /opt/local/lib
       /sw/lib
+	  ${JANSSON_ROOT}/lib
   )
 
 set(JANSSON_INCLUDE_DIRS

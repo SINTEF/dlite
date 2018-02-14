@@ -17,7 +17,7 @@ set(tests
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test} dlite uuid)
-  target_include_directories(${test} PRIVATE ${dlite_SOURCE_DIR}/src)
+  target_include_directories(${test} PRIVATE ${dlite_SOURCE_DIR}/src ${JANSSON_INCLUDE_DIRS})
 
   add_test(
     NAME ${test}

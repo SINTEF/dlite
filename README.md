@@ -57,7 +57,7 @@ Run or double-click on `dlite.sln`, which will open Visual Studio.
 
 ## Windows with git bash
 
-Install wget on Windows, needed to download hdf5 library from git bash (from the command line):
+Install `wget` on Windows, needed to download hdf5 library from git bash (from the command line):
 
 - Download wget from the URL: https://eternallybored.org/misc/wget/
 - Download latest version and copy wget.exe in the git folder:
@@ -67,16 +67,16 @@ Install wget on Windows, needed to download hdf5 library from git bash (from the
 
 Launch git bash (from the windows menu search "git bash"), and change your directory to your working directory:
 
-´´´sh
+```sh
 # goto your working directory
 cd /C/Users/tco/Documents/Programs/PRECIMS/
 # create a folder to install the libraries
 mkdir local
-´´´
+```
 
 Download, build, and install HDF5 library:
 
-´´´sh
+```sh
 cd /C/Users/tco/Documents/Programs/PRECIMS/
 wget https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
 tar -xzvf hdf5-1.10.1.tar.gz
@@ -85,11 +85,11 @@ mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/C/Users/tco/Documents/Programs/PRECIMS/local/ ..
 cmake --build . --config Debug --target install
 cmake --build . --config Release --target install
-´´´
+```
 
 Download, build, and install jansson library (json file reader/writer):
 
-´´´sh
+```sh
 cd /C/Users/tco/Documents/Programs/PRECIMS/
 git clone https://github.com/akheron/jansson.git
 cd jansson
@@ -97,11 +97,11 @@ mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/C/Users/tco/Documents/Programs/PRECIMS/local/ ..
 cmake --build . --config Debug --target install
 cmake --build . --config Release --target install
-´´´
+```
 
 Download and build dlite:
 
-´´´sh
+```sh
 cd /C/Users/tco/Documents/Programs/PRECIMS/
 git clone ssh://git@git.code.sintef.no/sidase/dlite.git
 git submodule update --init 
@@ -110,7 +110,7 @@ mkdir build && cd build
 cmake -DHDF5_ROOT:PATH=/C/Users/tco/Documents/Programs/PRECIMS/local/ ..
 cmake --build . --config Debug --target install
 cmake --build . --config Release --target install
-´´´
+```
 
 
 ## Linux
