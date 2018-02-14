@@ -29,6 +29,7 @@ DLitePlugin *plugin_list[] = {
 static DLitePlugin *get_plugin(const char *driver)
 {
   DLitePlugin *plugin;
+  printf("get plugin %s", driver);
   for (plugin=plugin_list[0]; plugin; plugin++)
     if (strcmp(plugin->name, driver) == 0)
       break;
@@ -52,6 +53,8 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
 {
   DLitePlugin *api;
   DLiteStorage *storage=NULL;
+
+  printf("dlite_storage_open %s %s %s\n", driver, uri, options);
 
   if (!(api = get_plugin(driver))) goto fail;
   if (!(storage = api->open(uri, options))) goto fail;

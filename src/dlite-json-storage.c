@@ -61,7 +61,7 @@ typedef struct {
 } DLiteJsonStorage;
 
 
-/* Data model for hdf5 backend. */
+/* Data model for json backend. */
 typedef struct {
   DLiteDataModel_HEAD
   json_t *instance;     /* json object to instance */
@@ -135,6 +135,8 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   DLiteJsonStorage *s;
   DLiteStorage *retval=NULL;
   json_error_t error;
+
+  printf("dlite_json_open %s %s", uri, options);
 
   if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL0("allocation failure");
 
@@ -371,20 +373,22 @@ char **dlite_json_get_uuids(const DLiteStorage *s)
   size_t len;
 
   n = json_object_size(storage->root);
-  names = malloc((n + 1)*sizeof(char*));
-  if (!(names = malloc((n + 1)*sizeof(char *)))) FAIL0("allocation failure");
+  if (n > 0) {
+    names = malloc((n + 1)*sizeof(char*));
+    if (!(names = malloc((n + 1)*sizeof(char *)))) FAIL0("allocation failure");
 
-  iter = json_object_iter(storage->root);
-  i = 0;
-  while(iter)
-  {
-    key = json_object_iter_key(iter);
-    len = strlen(key) + 1;
-    if (!(names[i] = malloc(len))) FAIL0("allocation failure");
-    memcpy(names[i], key, len);
-    i++;
+    iter = json_object_iter(storage->root);
+    i = 0;
+    while(iter)
+    {
+      key = json_object_iter_key(iter);
+      len = strlen(key) + 1;
+      if (!(names[i] = malloc(len))) FAIL0("allocation failure");
+      memcpy(names[i], key, len);
+      i++;
+    }
+    names[n] = NULL;
   }
-  names[n] = NULL;
 
 fail:
   if (names) {

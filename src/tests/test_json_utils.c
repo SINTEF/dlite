@@ -12,7 +12,8 @@
 
 
 /* Default path to json input file. */
-char *jsonfile = "../../../tools/tests/Chemistry-0.1.json";
+char *jsonfile1 = "../../../src/tests/array.json";
+char *jsonfile2 = "../../../tools/tests/Chemistry-0.1.json";
 
 MU_TEST(test_vector)
 {
@@ -39,7 +40,7 @@ MU_TEST(test_json_array)
   ivec_t *dims = NULL;
   json_data_t *data = NULL;
 
-  json_t *root = json_load_file(jsonfile, 0, &error);
+  json_t *root = json_load_file(jsonfile1, 0, &error);
   mu_check(json_char_type(root) == 'o');
   mu_check(json_array_type(json_object_get(root, "i1")) == 'i');
   mu_check(json_array_type(json_object_get(root, "i2")) == 'i');
@@ -126,7 +127,7 @@ MU_TEST(test_json_entity)
   json_t *dims;
   json_t *prop;
 
-  json_t *root = json_load_file(jsonfile, 0, &error);
+  json_t *root = json_load_file(jsonfile2, 0, &error);
   mu_check(json_is_object(root));
 
   dims = json_object_get(root, "dimensions");
@@ -152,7 +153,7 @@ MU_TEST_SUITE(test_suite)
 
 int main(int argc, char *argv[])
 {
-  if (argc > 1) jsonfile = argv[1];
+  if (argc > 1) jsonfile2 = argv[1];
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

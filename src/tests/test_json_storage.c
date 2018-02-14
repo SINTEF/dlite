@@ -14,6 +14,7 @@
 char *datafile = "testdata.json";
 char *id = "testdata";
 DLiteStorage *s=NULL;
+DLiteStorage *db=NULL;
 DLiteDataModel *d1=NULL, *d2=NULL, *d3=NULL;
 
 
@@ -24,8 +25,9 @@ DLiteDataModel *d1=NULL, *d2=NULL, *d3=NULL;
 MU_TEST(test_open)
 {
   double v=45.3;
-
+  printf("Open storage: %s\n", datafile);
   mu_check((s = dlite_storage_open("json", datafile, "w")));
+  /*
   mu_check((d1 = dlite_datamodel(s, id)));
 
   mu_check((d2 = dlite_datamodel(s, "4781deed-966b-528b-be3d-2ca7ab77aab0")));
@@ -36,7 +38,23 @@ MU_TEST(test_open)
   mu_check((d3 = dlite_datamodel(s, "y")));
   mu_check(dlite_datamodel_set_property(d3, "y", &v, dliteFloat,
                                         sizeof(v), 1, NULL) == 0);
+  */
+  printf("Open storage: %s\n", "test-read-data.json");
+  mu_check((db = dlite_storage_open("json", "test-read-data.json", "r")));
 
+}
+
+MU_TEST(test_uuids)
+{
+  char **ids = dlite_storage_uuids(db);
+  size_t i, n;
+  i = 0;
+  n = 0;
+  while(ids[i] != NULL) {
+    n++;
+    i++;
+  }
+  mu_check(n == 4);
 }
 
 MU_TEST(test_close)
@@ -54,6 +72,8 @@ MU_TEST(test_close)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_open);  /* setup */
+
+  MU_RUN_TEST(test_uuids);
 
   MU_RUN_TEST(test_close);  /* tear down */
 }
