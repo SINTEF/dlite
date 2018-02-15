@@ -27,6 +27,7 @@ ivec_t *ivec();
 ivec_t *ivec1(int x);
 ivec_t *ivec2(int x, int y);
 ivec_t *ivec3(int x, int y, int z);
+ivec_t *ivecn(size_t n, int init);
 
 size_t ivec_size(ivec_t *v);
 void ivec_fill(ivec_t *v, int value);

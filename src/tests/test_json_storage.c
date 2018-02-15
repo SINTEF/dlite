@@ -29,12 +29,13 @@ MU_TEST(test_read)
   int p1;
   int8_t p1_i8;
   vec_t *p2;
+  char **ids;
+  size_t i, n;
 
   db = dlite_storage_open("json", dbname, "r");
   mu_check(db);
 
-  char **ids = dlite_storage_uuids(db);
-  size_t i, n;
+  ids = dlite_storage_uuids(db);
   n = 0;
   for(i=0; ids[i]; i++) {
     printf("%d: %s\n", i, ids[i]);
