@@ -16,10 +16,6 @@ typedef struct {
   char dtype;
   /* Dimensions of the data (=NULL if data is a scalar) */
   ivec_t *dims;
-  /* Scalar data for integer (dtype=i) and boolean (dtype=b) */
-  int scalar_i;
-  /* Scalar data for real (dtype=r) */
-  double scalar_r;
   /* Scalar data for string (dtype=s) */
   char* scalar_s;
   /* Array data for integer (dtype=i and dims!=NULL) */
@@ -34,6 +30,7 @@ ivec_t *json_array_dimensions(json_t *obj);
 
 json_data_t *json_data();
 json_data_t *json_get_data(json_t *obj);
+int json_set_data(json_t *obj, char *name, json_data_t *data);
 void json_data_free();
 
 /* Return true (=1) if each dimension of the property is 

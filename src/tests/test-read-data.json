@@ -1,0 +1,35 @@
+{
+	"empty": {
+		"dataname": "",
+		"meta": {},
+		"dimensions": {},
+		"properties": {}
+	},
+	"4781deed-966b-528b-be3d-2ca7ab77aab0": {
+		"dataname": "test-a",
+		"meta": {
+			"name": "A",
+			"version": "1",
+			"namespace": "dlite"
+		},
+		"dimensions": {
+			"N": 5
+		},
+		"properties": {
+			"P1": 24,
+			"P2": [1.0, 2.0, 3.0, 4.0, 5.5]
+		}
+	},
+	"b": {
+		"dataname": "test-b",
+		"meta": "dlite/1.0/B",
+		"dimensions": {},
+		"properties": {}
+	},
+	"c": {
+		"dataname": "test-c",
+		"meta": {},
+		"dimensions": {},
+		"properties": {}
+	}
+}

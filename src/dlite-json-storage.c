@@ -190,24 +190,26 @@ int dlite_json_close(DLiteStorage *s)
 
 DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *uuid)
 {
-  DLiteJsonDataModel *d;
+  DLiteJsonDataModel *d=NULL;
   DLiteDataModel *retval=NULL;
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   json_t *data = json_object_get(storage->root, uuid);
 
-  if (!(d = calloc(1, sizeof(DLiteJsonDataModel)))) FAIL0("allocation failure");
-
   if (data == NULL) {
-    d->instance = json_object();
-    json_object_set(storage->root, uuid, d->instance);
-    d->meta = json_object();
-    json_object_set(d->instance, "meta", d->meta);
-    d->dimensions = json_object();
-    json_object_set(d->instance, "dimensions", d->dimensions);
-    d->properties = json_object();
-    json_object_set(d->instance, "properties", d->properties);    
+    if (storage->writable) {
+      if (!(d = calloc(1, sizeof(DLiteJsonDataModel)))) FAIL0("allocation failure");
+      d->instance = json_object();
+      json_object_set(storage->root, uuid, d->instance);
+      d->meta = json_object();
+      json_object_set(d->instance, "meta", d->meta);
+      d->dimensions = json_object();
+      json_object_set(d->instance, "dimensions", d->dimensions);
+      d->properties = json_object();
+      json_object_set(d->instance, "properties", d->properties);
+    }
   }
   else if (json_is_object(data)) {
+    if (!(d = calloc(1, sizeof(DLiteJsonDataModel)))) FAIL0("allocation failure");
     d->instance = data;
     d->meta = json_object_get(data, "meta");
     d->dimensions = json_object_get(data, "dimensions");
@@ -275,14 +277,17 @@ int dlite_json_get_property(const DLiteDataModel *d, const char *name,
   json_t *value = json_object_get(data->properties, name);
   json_data_t *jd = json_get_data(value);
   if (jd) {
-    if ((type == dliteInt) && (jd->dtype == 'i')) {
-
-    }
-    else if ((type == dliteFloat) && (jd->dtype == 'r')) {
-
-    }
-    else if ((type == dliteBool) && (jd->dtype == 'b')) {
-
+    if (ndims == ivec_size(jd->dims)) {
+      if (((type == dliteInt) || (type == dliteUInt))
+          && (jd->dtype == 'i')) {
+        ivec_copy_cast(jd->array_i, type, size, ptr);
+      }
+      else if ((type == dliteFloat) && (jd->dtype == 'r')) {
+        vec_copy_cast(jd->array_r, type, size, ptr);
+      }
+      else if ((type == dliteBool) && (jd->dtype == 'b')) {
+        ivec_copy_cast(jd->array_i, type, size, ptr);
+      }
     }
   }
   return 0;
@@ -329,29 +334,39 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
                             size_t ndims, const size_t *dims)
 {
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
-  int *i;
-  double *r;
-
+  json_data_t *jd = json_data();
+  size_t num = 1; /* Number of element in array */
+  size_t i;
+  if (dims) {
+    jd->dims = ivec();
+    ivec_resize(jd->dims, ndims);
+    for(i=0; i<ndims; i++) {
+      num *= dims[i];
+      jd->dims->data[i] = dims[i];
+    }
+  }
   switch (type) {
 
   case dliteBlob:
     return 1;
 
   case dliteInt:
-    i = (int*)(ptr);
-    object_set_integer(data->properties, name, *i);
-    return 0;
-
-  case dliteBool:
-    return 1;
-
+    jd->dtype = 'i';
+    jd->array_i = ivec_create(type, size, num, ptr);
+    break;
   case dliteUInt:
-    return 1;
+    jd->dtype = 'i';
+    jd->array_i = ivec_create(type, size, num, ptr);
+    break;
+  case dliteBool:
+    jd->dtype = 'b';
+    jd->array_i = ivec_create(type, size, num, ptr);
+    break;
 
   case dliteFloat:
-    r = (double*)(ptr);
-    object_set_real(data->properties, name, *r);
-    return 0;
+    jd->dtype = 'r';
+    jd->array_r = vec_create(type, size, num, ptr);
+    break;
 
   case dliteFixString:
     return 1;
@@ -363,6 +378,7 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
     return errx(-1, "Invalid type number: %d", type);
   }
 
+  return json_set_data(data->properties, name, jd);
 }
 
 

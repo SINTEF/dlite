@@ -99,25 +99,25 @@ MU_TEST(test_json_array)
   data = json_get_data(json_object_get(root, "v-int"));
   mu_check(data->dtype == 'i');
   mu_check(data->dims == NULL);
-  mu_check(data->scalar_i == 1);
+  mu_check(data->array_i->data[0] == 1);
   json_data_free(data);
 
   data = json_get_data(json_object_get(root, "v-real"));
   mu_check(data->dtype == 'r');
   mu_check(data->dims == NULL);
-  mu_check(data->scalar_r == 2.0);
+  mu_check(data->array_r->data[0] == 2.0);
   json_data_free(data);
 
   data = json_get_data(json_object_get(root, "v-true"));
   mu_check(data->dtype == 'b');
   mu_check(data->dims == NULL);
-  mu_check(data->scalar_i == 1);
+  mu_check(data->array_i->data[0] == 1);
   json_data_free(data);
 
   data = json_get_data(json_object_get(root, "v-false"));
   mu_check(data->dtype == 'b');
   mu_check(data->dims == NULL);
-  mu_check(data->scalar_i == 0);
+  mu_check(data->array_i->data[0] == 0);
   json_data_free(data);
 }
 

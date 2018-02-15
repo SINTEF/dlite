@@ -112,7 +112,7 @@ ivec_t *json_array_dimensions(json_t *obj)
   for(i = 0; i < NDIM_MAX; i++)
     dims[i] = -2;
 
-  _array_size(obj, 0, &dims);
+  _array_size(obj, 0, &dims[0]);
 
   d = 0;
   for(i = 0; i < NDIM_MAX; i++) {
@@ -228,8 +228,6 @@ json_data_t *json_data()
   d = (json_data_t*) malloc(sizeof(json_data_t));
   d->dtype = 'x';
   d->dims = NULL;
-  d->scalar_i = 0;
-  d->scalar_r = 0.0;
   d->scalar_s = NULL;
   d->array_i = NULL;
   d->array_r = NULL;
@@ -272,13 +270,16 @@ json_data_t *json_get_data(json_t *obj)
     }
     break;
   case 'i':
-    data->scalar_i = json_integer_value(obj);
+    data->array_i = ivec();
+    ivec_add(data->array_i, json_integer_value(obj));
     break;
   case 'r':
-    data->scalar_r = json_real_value(obj);
+    data->array_r = vec();
+    vec_add(data->array_r, json_real_value(obj));
     break;
   case 'b':
-    data->scalar_i = json_is_true(obj) ? 1 : 0;
+    data->array_i = ivec();
+    ivec_add(data->array_i, json_is_true(obj) ? 1 : 0);
     break;
   case 's':
     data->scalar_s = str_copy(json_string_value(obj));
@@ -294,6 +295,68 @@ json_data_t *json_get_data(json_t *obj)
   return data;
 }
 
+json_t *json_array_int(ivec_t *data)
+{
+  json_t *arr = json_array();
+  size_t i, size;
+  size = ivec_size(data);
+  for(i=0; i<size; i++)
+    json_array_append(arr, json_integer(data->data[i]));
+  return arr;
+}
+
+json_t *json_array_real(vec_t *data)
+{
+  json_t *arr = json_array();
+  size_t i, size;
+  size = vec_size(data);
+  for(i=0; i<size; i++)
+    json_array_append(arr, json_real(data->data[i]));
+  return arr;
+}
+
+json_t *json_array_bool(ivec_t *data)
+{
+  json_t *arr = json_array();
+  size_t i, size;
+  size = ivec_size(data);
+  for(i=0; i<size; i++)
+    json_array_append(arr, data->data[i] ? json_true() : json_false());
+  return arr;
+}
+
+int json_set_data(json_t *obj, char *name, json_data_t *data)
+{
+  json_t *value;
+  if (json_is_object(obj) && data && (!str_is_whitespace(name))) {
+    switch (data->dtype) {
+    case 'i':
+      if (ivec_size(data->dims) > 0)
+        value = json_array_int(data->array_i);
+      else if (ivec_size(data->array_i) > 0)
+        value = json_integer(data->array_i->data[0]);
+      break;
+    case 'r':
+      if (ivec_size(data->dims) > 0)
+        value = json_array_real(data->array_r);
+      else if (vec_size(data->array_r) > 0)
+        value = json_real(data->array_r->data[0]);
+      break;
+    case 'b':
+      if (ivec_size(data->dims) > 0)
+        value = json_array_bool(data->array_i);
+      else if (ivec_size(data->array_i) > 0)
+        value = data->array_i->data[0] ? json_true() : json_false();
+      break;
+    default:
+      value = json_null();
+      break;
+    }
+    json_object_set(obj, name, value);
+    return 0;
+  }
+  return 1;
+}
 
 int check_dimensions(char *prop_name, json_t *prop_dims, json_t *entity_dims)
 {
@@ -340,7 +403,7 @@ int dlite_json_entity_dim_count(json_t *obj)
         item = json_array_get(dims, i);
         name = json_object_get(item, "name");
         if (str_is_whitespace(json_string_value(name))) {
-          printf("error: the dimension [%d] has not a valid name.\n", i + 1);
+          printf("error: the dimension [%d] has not a valid name.\n", (int)(i + 1));
           nerr++;
         }
         else
@@ -373,11 +436,11 @@ int dlite_json_entity_prop_count(json_t *obj)
         name = json_object_get(item, "name");
         ptype = json_object_get(item, "type");
         if (str_is_whitespace(json_string_value(name))) {
-          printf("error: the property [%d] has not a valid name.\n", i + 1);
+          printf("error: the property [%d] has not a valid name.\n", (int)(i + 1));
           nerr++;
         }
         else if (!dlite_is_type(json_string_value(ptype))) {
-          printf("error: the property [%d] \"%s\" has not a valid type.\n", i + 1, json_string_value(name));
+          printf("error: the property [%d] \"%s\" has not a valid type.\n", (int)(i + 1), json_string_value(name));
           nerr++;
         }
         else if (!check_dimensions(json_string_value(name), json_object_get(item, "dims"), dims)) {
