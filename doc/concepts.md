@@ -62,31 +62,45 @@ fixstring | dliteFixString | any            | fix-sized NUL-terminated string  |
 string    | dliteStringPtr | sizeof(char *) | pointer to NUL-terminated string | string
 
 
-Everything is an instanse
--------------------------
+Instances, entities, metadata, meta-metadata, etc...
+--------------------------------------------------
 An experimental metadata structure following the concepts of SOFT and
-API to work with it, is implemented in dlite-entity.h / dlite-entity.c.
-A basic `DLiteInstance` type is defined that all data instances or
-metadata can be cast into (since metadata are instances of their
-meta-metadata, etc...).  Instances are minimal, with a header containing
-only:
+API to work with it, is implemented in dlite-entity.h / dlite-entity.c
+and shown graphically in Figure 1.
 
-  - An UUID.
-  - An optional reference to an URI uniquely identifying the instance. If
-    given, the UUID is derived from it.  For metadata this URI is of the
-    form `namespace/version/name`.
-  - A reference to its metadata.
+![Metadata structure][fig1]
 
-This header is then followed by then followed by content, i.e. the
-size of each dimension and the value of each property (and possibly a
-set of relations).
+The actual data or *Data instances* are instances of the *Entity*
+describing them.  The *Entities* are instances of the *Entity schema*
+which describes an *Entity*.  The *Entity schema* is an instance of
+the *Basic metadata schema* describing it, which can describe itself
+(and can be considered as an instance of itself).  Hence, **everything
+is an instance**.  Instances can be subdivided into:
 
-A basic `DLiteMetadata` type is also defined, that all metadata can be
-cast into.  Since metadata also are instances, they header starts with the
-same header as DLiteInstance, but includes more fields needed to describe
-their instances.  Entities are a special case of metadata, whos instances
-are the actual data.
+  - Data instances.  These represents the actual data and are minimal.
+    Serialised, they contain a header with:
+      - The UUID identifying the instance.
+      - An optional reference to an URI uniquely identifying the instance.
+        If given, the UUID is derived from it.
+      - A reference to its metadata.
+    This header is then followed by then followed by the content,
+    i.e. the size of each dimension and the values of each property.
 
+    A basic `DLiteInstance` type is defined that all data instances
+    (including metadata) can be cast into.
 
+  - Metadata.  Entities, Entity schema, Basic metadata schema, etc are
+    all examples of metadata.  Metadata is typically identified by an
+    URI of the form `namespace/version/name`.  When storing entities
+    (as instances) an UUID will be derived from this URI.
+
+    A basic `DLiteMetadata` type is defined, that all metadata can be
+    cast into.  Since metadata also are instances, they header starts
+    with the same header as DLiteInstance, but includes more fields
+    needed to describe their instances.  Entities are a special case
+    of metadata, whos instances are the actual data.
+
+---
 
 [1]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
+[fig1]: SOFT-metadata-structure.png "Figure 1. Metadata structure."
