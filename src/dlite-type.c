@@ -122,9 +122,12 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   return 0;
 }
 
+/* Return 1 (true) if name is a DLiteType else returns 0 (false) */
 int dlite_is_type(const char *name)
 {
-  return 1;
+  DLiteType dtype;
+  size_t size;
+  return dlite_type_set_dtype_and_size(name, &dtype, &size) == 0 ? 1 : 0;
 }
 
 /*

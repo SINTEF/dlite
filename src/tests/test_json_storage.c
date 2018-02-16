@@ -95,6 +95,7 @@ MU_TEST(test_write)
 
   double v = 45.3;
   int i = 11;
+  char *fix = "ab\0cd\0ef\0";
   vec_t *ar;
   ivec_t *ai, *dim1, *dim2;
   size_t dims[3] = {0, 0, 0};
@@ -130,6 +131,12 @@ MU_TEST(test_write)
   mu_check(dlite_datamodel_set_dimension_size(d, "c", dims[1]) == 0);
   mu_check(dlite_datamodel_set_property(d, "y", ai->data, dliteInt,
                                         sizeof(int), 2, &dims[0]) == 0);
+
+
+  dims[0] = 3;
+  mu_check(dlite_datamodel_set_property(d, "z", fix, dliteFixString,
+                                        2, 1, &dims[0]) == 0);
+
   mu_check(dlite_datamodel_free(d) == 0);
 
   vec_free(ar);

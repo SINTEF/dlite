@@ -7,6 +7,7 @@
 #include "integers.h"
 #include "boolean.h"
 #include "json-utils.h"
+#include "str.h"
 
 #include "config.h"
 
@@ -118,6 +119,39 @@ MU_TEST(test_json_array)
   mu_check(data->dtype == 'b');
   mu_check(data->dims == NULL);
   mu_check(data->array_i->data[0] == 0);
+  json_data_free(data);
+
+  data = json_get_data(json_object_get(root, "v-str"));
+  mu_check(data->dtype == 's');
+  mu_check(data->dims == NULL);
+  mu_check(str_equal(data->array_s->data[0], "Hello"));
+  str_list_free(data->array_s, true);
+  data->array_s = NULL;
+  json_data_free(data);
+
+  data = json_get_data(json_object_get(root, "s1"));
+  /*str_list_print(data->array_s, "s1");*/
+  mu_check(data->dtype == 's');
+  mu_check(str_list_size(data->array_s) == 3);
+  mu_check(str_equal(data->array_s->data[0], "a"));
+  mu_check(str_equal(data->array_s->data[1], "ab"));
+  mu_check(str_equal(data->array_s->data[2], "abc"));
+  str_list_free(data->array_s, true);
+  data->array_s = NULL;
+  json_data_free(data);
+
+  data = json_get_data(json_object_get(root, "s2"));
+  /*str_list_print(data->array_s, "s2");*/
+  mu_check(data->dtype == 's');
+  mu_check(str_list_size(data->array_s) == 6);
+  mu_check(str_equal(data->array_s->data[0], "a"));
+  mu_check(str_equal(data->array_s->data[1], "ab"));
+  mu_check(str_equal(data->array_s->data[2], "abc"));
+  mu_check(str_equal(data->array_s->data[3], "d"));
+  mu_check(str_equal(data->array_s->data[4], "de"));
+  mu_check(str_equal(data->array_s->data[5], "def"));
+  str_list_free(data->array_s, true);
+  data->array_s = NULL;
   json_data_free(data);
 }
 

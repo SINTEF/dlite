@@ -5,6 +5,16 @@
 #include "str.h"
 
 
+/* Returns the type of the json object as character:
+ * x: undefined type
+ * o: object
+ * a: array
+ * i: integer
+ * r: real
+ * s: string
+ * b: boolean
+ * n: null
+ */
 char json_char_type(json_t *obj)
 {
   json_type typ;
@@ -35,6 +45,11 @@ char json_char_type(json_t *obj)
   }
 }
 
+/* Combine the type an item (t1) with the next
+ * item (t2) of a json array
+ * return 'm' if the array contains different types
+ * (e.g. the array contains a real and a string)
+ */
 char json_merge_type(char t1, char t2) {
   if (t1 == 'x')
     return t2;
@@ -52,6 +67,13 @@ char json_merge_type(char t1, char t2) {
     return 'x';
 }
 
+/* Scan each item of the array and returns the type of the items:
+ * i: the array contains only integer values
+ * r: the array contains real values and/or integer values
+ * s: the array contains only string values
+ * m: the array contains different types (e.g. the array contains a real and a string)
+ * x: undefined type
+ */
 char json_array_type(json_t *obj)
 {
   size_t i, size;
@@ -103,6 +125,10 @@ void _array_size(json_t *arr, int ndim, int *dims)
   }
 }
 
+/* Return the shape (dimensions) of the json value:
+ *  - NULL: the json value is a scalar (real, integer, string, or object)
+ *  - valid pointer of vec_t: the json value is an array
+ */
 ivec_t *json_array_dimensions(json_t *obj)
 {
   int dims[NDIM_MAX];
@@ -135,6 +161,7 @@ ivec_t *json_array_dimensions(json_t *obj)
   return ans;
 }
 
+/* Convert the JSON value to a integer */
 int json_to_int(json_t *obj) {
   if (json_is_integer(obj))
     return json_integer_value(obj);
@@ -152,6 +179,7 @@ int json_to_int(json_t *obj) {
     return 0;
 }
 
+/* Recursive function to collapse an array of integer */
 void flatten_i(json_t *obj, ivec_t *arr)
 {
   int i, size;
@@ -169,6 +197,9 @@ void flatten_i(json_t *obj, ivec_t *arr)
   }
 }
 
+/* Return a copy of the json array collapsed
+ * into one dimension (array of integer)
+ */
 ivec_t *json_array_flatten_i(json_t *obj)
 {
   ivec_t *arr = NULL;
@@ -179,6 +210,7 @@ ivec_t *json_array_flatten_i(json_t *obj)
   return arr;
 }
 
+/* Convert the JSON value to a real */
 double json_to_real(json_t *obj) {
   if (json_is_real(obj))
     return json_real_value(obj);
@@ -194,6 +226,7 @@ double json_to_real(json_t *obj) {
     return 0;
 }
 
+/* Recursive function to collapse an array of real */
 void flatten_r(json_t *obj, vec_t *arr)
 {
   int i, size;
@@ -211,12 +244,46 @@ void flatten_r(json_t *obj, vec_t *arr)
   }
 }
 
+/* Return a copy of the json array collapsed
+ * into one dimension (array of real)
+ */
 vec_t *json_array_flatten_r(json_t *obj)
 {
   vec_t *arr = NULL;
   if (json_is_array(obj)) {
     arr = vec();
     flatten_r(obj, arr);
+  }
+  return arr;
+}
+
+/* Recursive function to collapse an array of string */
+void flatten_s(json_t *obj, str_list_t *arr)
+{
+  int i, size;
+  json_t *item;
+
+  if (json_is_array(obj)) {
+    size = (int)(json_array_size(obj));
+    for(i=0; i < size; i++) {
+      item = json_array_get(obj, i);
+      flatten_s(item, arr);
+    }
+  }
+  else {
+    str_list_add(arr, json_string_value(obj), true);
+  }
+}
+
+/* Return a copy of the json array collapsed
+ * into one dimension (array of string)
+ */
+str_list_t *json_array_flatten_s(json_t *obj)
+{
+  str_list_t *arr = NULL;
+  if (json_is_array(obj)) {
+    arr = str_list();
+    flatten_s(obj, arr);
   }
   return arr;
 }
@@ -228,9 +295,9 @@ json_data_t *json_data()
   d = (json_data_t*) malloc(sizeof(json_data_t));
   d->dtype = 'x';
   d->dims = NULL;
-  d->scalar_s = NULL;
   d->array_i = NULL;
   d->array_r = NULL;
+  d->array_s = NULL;
   return d;
 }
 
@@ -239,8 +306,10 @@ void json_data_free(json_data_t *d)
   ivec_free(d->dims);
   ivec_free(d->array_i);
   vec_free(d->array_r);
+  str_list_free(d->array_s, false);
   free(d);
 }
+
 
 json_data_t *json_get_data(json_t *obj)
 {
@@ -261,8 +330,8 @@ json_data_t *json_get_data(json_t *obj)
         data->array_i = json_array_flatten_i(obj);
       else if (data->dtype == 'r')
         data->array_r = json_array_flatten_r(obj);
-      //else if (data->dtype == 's')
-      //  data->array_s = json_array_flatten_s(obj);
+      else if (data->dtype == 's')
+        data->array_s = json_array_flatten_s(obj);
       else {
         /* mixed data type */
         ok = 0;
@@ -282,7 +351,8 @@ json_data_t *json_get_data(json_t *obj)
     ivec_add(data->array_i, json_is_true(obj) ? 1 : 0);
     break;
   case 's':
-    data->scalar_s = str_copy(json_string_value(obj));
+    data->array_s = str_list();
+    str_list_add(data->array_s, json_string_value(obj), true);
     break;
   case 'x':
     ok = 0;
@@ -295,6 +365,7 @@ json_data_t *json_get_data(json_t *obj)
   return data;
 }
 
+/* Create a json array from an array of integer */
 json_t *json_array_int(ivec_t *data)
 {
   json_t *arr = json_array();
@@ -305,6 +376,7 @@ json_t *json_array_int(ivec_t *data)
   return arr;
 }
 
+/* Create a json array from an array of real */
 json_t *json_array_real(vec_t *data)
 {
   json_t *arr = json_array();
@@ -315,6 +387,7 @@ json_t *json_array_real(vec_t *data)
   return arr;
 }
 
+/* Create a json array from an array of boolean */
 json_t *json_array_bool(ivec_t *data)
 {
   json_t *arr = json_array();
@@ -322,6 +395,17 @@ json_t *json_array_bool(ivec_t *data)
   size = ivec_size(data);
   for(i=0; i<size; i++)
     json_array_append(arr, data->data[i] ? json_true() : json_false());
+  return arr;
+}
+
+/* Create a json array from an array of string */
+json_t *json_array_string(str_list_t *data)
+{
+  json_t *arr = json_array();
+  size_t i, size;
+  size = str_list_size(data);
+  for(i=0; i < size; i++)
+    json_array_append(arr, json_string(data->data[i]));
   return arr;
 }
 
@@ -347,6 +431,12 @@ int json_set_data(json_t *obj, char *name, json_data_t *data)
         value = json_array_bool(data->array_i);
       else if (ivec_size(data->array_i) > 0)
         value = data->array_i->data[0] ? json_true() : json_false();
+      break;
+    case 's':
+      if (ivec_size(data->dims) > 0)
+        value = json_array_string(data->array_s);
+      else if (str_list_size(data->array_s) > 0)
+        value = json_string(data->array_s->data[0]);
       break;
     default:
       value = json_null();

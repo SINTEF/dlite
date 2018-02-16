@@ -337,18 +337,26 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
   json_data_t *jd = json_data();
   size_t num = 1; /* Number of element in array */
   size_t i;
+  char *fix_str_data;
+  char **str_ptr_data;
+  size_t fix_str_data_size;
+  json_t *arr;
+  int retval = 0;
+
   if (dims) {
     jd->dims = ivec();
     ivec_resize(jd->dims, ndims);
-    for(i=0; i<ndims; i++) {
+    for(i=0; i < ndims; i++) {
       num *= dims[i];
       jd->dims->data[i] = dims[i];
     }
   }
+
   switch (type) {
 
   case dliteBlob:
-    return 1;
+    retval = errx(-2, "JSON storage, unsupported type number: %d", type);
+    break;
 
   case dliteInt:
     jd->dtype = 'i';
@@ -369,16 +377,43 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
     break;
 
   case dliteFixString:
-    return 1;
+    jd->dtype = 's';
+    fix_str_data = (char*)(ptr);
+    if (dims) {
+      fix_str_data_size = (size + 1) * num;
+      arr = json_array();
+      for(i=0; i < fix_str_data_size; i += (size + 1))
+        json_array_append_new(arr, json_stringn(&fix_str_data[i], size));
+      json_object_set(data->properties, name, arr);
+    }
+    else {
+      json_object_set(data->properties, name, json_string(fix_str_data_size));
+    }
+    retval = 1; /* Do not use the json_data_t */
+    break;
 
   case dliteStringPtr:
-    return 1;
+    jd->dtype = 's';
+    str_ptr_data = (char**)ptr;
+    if (dims) {
+      arr = json_array();
+      for(i=0; i < num; i++)
+        json_array_append_new(arr, json_string(str_ptr_data[i]));
+      json_object_set(data->properties, name, arr);
+    }
+    else {
+      json_object_set(data->properties, name, json_string(str_ptr_data[0]));
+    }
+    retval = 1; /* Do not use the json_data_t */
+    break;
 
   default:
-    return errx(-1, "Invalid type number: %d", type);
+    retval = errx(-1, "Invalid type number: %d", type);
   }
-
-  return json_set_data(data->properties, name, jd);
+  if (retval == 0)
+    retval = json_set_data(data->properties, name, jd);
+  json_data_free(jd);
+  return retval >= 0 ? 0 : retval;
 }
 
 

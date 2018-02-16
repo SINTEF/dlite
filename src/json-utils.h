@@ -8,6 +8,7 @@
 
 #include <jansson.h>
 #include "vector.h"
+#include "str.h"
 
 #define NDIM_MAX 50
 
@@ -16,12 +17,12 @@ typedef struct {
   char dtype;
   /* Dimensions of the data (=NULL if data is a scalar) */
   ivec_t *dims;
-  /* Scalar data for string (dtype=s) */
-  char* scalar_s;
-  /* Array data for integer (dtype=i and dims!=NULL) */
+  /* Array data for integer (dtype==i and dtype==b) */
   ivec_t *array_i;
-  /* Array data for real (dtype=r and dims!=NULL) */
+  /* Array data for real (dtype==r) */
   vec_t *array_r;
+  /* Array data for real (dtype==s) */
+  str_list_t *array_s;
 } json_data_t;
 
 char json_char_type(json_t *obj);
@@ -31,7 +32,7 @@ ivec_t *json_array_dimensions(json_t *obj);
 json_data_t *json_data();
 json_data_t *json_get_data(json_t *obj);
 int json_set_data(json_t *obj, char *name, json_data_t *data);
-void json_data_free();
+void json_data_free(json_data_t *d);
 
 /* Return true (=1) if each dimension of the property is 
    defined in the list of dimension of the entity
