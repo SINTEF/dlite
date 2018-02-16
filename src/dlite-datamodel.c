@@ -30,8 +30,13 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
   int uuidver;
 
-  if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
-    return err(1, "failed generating UUID from id \"%s\"", id), NULL;
+  if (!id || !*id || s->idflag == dliteIDTranlateToUUID ||
+      s->idflag == dliteIDRequireUUID) {
+    if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
+      return err(1, "failed generating UUID from id \"%s\"", id), NULL;
+    if (uuidver != 0 && s->idflag == dliteIDRequireUUID)
+      return err(1, "id is not a valid UUID: \"%s\"", id), NULL;
+  }
 
   if (!(d = s->api->dataModel(s, uuid)))
     return err(1, "cannot create datamodel id='%s' for storage '%s'",

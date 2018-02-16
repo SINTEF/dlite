@@ -63,6 +63,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
 
   storage->api = api;
   if (!(storage->uri = strdup(uri))) FAIL(NULL);
+  storage->idflag = dliteIDTranlateToUUID;
 
   return storage;
  fail:
@@ -82,6 +83,23 @@ int dlite_storage_close(DLiteStorage *storage)
   free(storage->uri);
   free(storage);
   return stat;
+}
+
+
+/*
+  Returns the current mode of how to handle instance IDs.
+ */
+DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s)
+{
+  return s->idflag;
+}
+
+/*
+  Sets how instance IDs are handled.
+ */
+void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
+{
+  s->idflag = idflag;
 }
 
 

@@ -14,7 +14,9 @@
   struct _DLitePlugin *api; /*!< Pointer to plugin api */               \
   char *uri;                /*!< URI passed to dlite_storage_open() */  \
   char *options;            /*!< Options passed to dlite_storage_open() */ \
-  int writable;             /*!< Whether storage is writable */
+  int writable;             /*!< Whether storage is writable */ \
+  DLiteIDFlag idflag;       /*!< How to handle instance id's */
+
 
 /** Initial segment of all DLiteDataModel plugin data structures. */
 #define DLiteDataModel_HEAD                                     \

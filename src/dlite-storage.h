@@ -17,6 +17,16 @@ typedef struct _DLiteInstance DLiteInstance;
 /** Opaque type for an Entity. */
 typedef struct _DLiteEntity DLiteEntity;
 
+/** Flags for how to handle instance IDs. */
+typedef enum {
+  dliteIDTranlateToUUID=0,  /*!< Translate id's that are not a valid UUID to
+                                 a (version 5) UUID (default). */
+  dliteIDRequireUUID=1,     /*!< Require that `id` is a valid UUID. */
+  dliteIDKeepID=2           /*!< Store data under the given id, even if it
+                                 is not a valid UUID.  Not SOFT compatible,
+                                 but may be useful for input files. */
+} DLiteIDFlag;
+
 
 
 /**
@@ -39,6 +49,18 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
   Closes data handle \a d. Returns non-zero on error.
 */
 int dlite_storage_close(DLiteStorage *s);
+
+
+
+/**
+  Returns the current mode of how to handle instance IDs.
+ */
+DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s);
+
+/**
+  Sets how instance IDs are handled.
+ */
+void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
 
 
 /**
