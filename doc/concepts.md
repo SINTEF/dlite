@@ -12,9 +12,10 @@ Named data instances
 In SOFT all Entity instances are referred to by their UUID.  However,
 in some cases when you have unique and immutable data, e.g. default
 input parameters to a given version of a software model, it may be
-more convenient to refer to a human understandable name, like
+more convenient to refer to a human understandable name (URI), like
 "mymodel-1.2.3_default_input", rather than a UUID on the form
-"8290318f-258e-54e2-9838-bb187881f996".  *dlite* supports this.
+"8290318f-258e-54e2-9838-bb187881f996".  *dlite* supports this.  The
+tool `dlite-getuuid` can be used to manually convert URIs to UUIDs.
 
 If the `id` provided to dlite_datamodel() or dlite_instance_create()
 is not `NULL` or a valid UUID, it is interpreted as an unique uri
@@ -31,7 +32,7 @@ Simple unified access to all data types
 ---------------------------------------
 The datamodel API for accessing properties of an instance in SOFT, has
 separate getters and setters for each type and number of dimensions.
-*DLite* generalize and simplifies this by describing types and
+*dlite* generalize and simplifies this by describing types and
 dimensionality of properties with 4 parameters:
 
   - `dtype`: an enum defining the type of the data item (or items if
@@ -45,10 +46,10 @@ By taking these parameters as arguments, the functions
 dlite_datamodel_get_property() and dlite_datamodel_set_property() can handle
 all supported property types.  No storage strategy is needed.
 
-The table below summarises the different dtypes defined in DLite.  For
+The table below summarises the different dtypes defined in *dlite*.  For
 more details, see dlite-type.h.  Also note that this supports arbitrary
 dimensional arrays.  All arrays are assumed to be continuous in memory
-in C-order.  *DLite* has currently no api for working with arrays as
+in C-order.  *dlite* has currently no api for working with arrays as
 pointers to pointers.
 
 type      | dtype          | sizes          | description                      | examples
@@ -75,10 +76,16 @@ describing them.  The *Entities* are instances of the *Entity schema*
 which describes an *Entity*.  The *Entity schema* is an instance of
 the *Basic metadata schema* describing it, which can describe itself
 (and can be considered as an instance of itself).  Hence, **everything
-is an instance**.  Instances can be subdivided into:
+is an instance**.
 
-  - Data instances.  These represents the actual data and are minimal.
-    Serialised, they contain a header with:
+*Collections* are a special type of instances containing references to a
+set of set of instances and relationships between them.  Collections
+are not yet implemented in *dlite*.
+
+Instances can be subdivided into:
+
+  - *Pure instances* containing actual data.  These are serialised with a
+    minimal header, only containing:
       - The UUID identifying the instance.
       - An optional reference to an URI uniquely identifying the instance.
         If given, the UUID is derived from it.
@@ -88,6 +95,9 @@ is an instance**.  Instances can be subdivided into:
 
     A basic `DLiteInstance` type is defined that all data instances
     (including metadata) can be cast into.
+
+    In the figure above, the *Data instances* and the *Collections* are
+    both examples of *pure instances*.
 
   - Metadata.  Entities, Entity schema, Basic metadata schema, etc are
     all examples of metadata.  Metadata is typically identified by an
@@ -99,6 +109,7 @@ is an instance**.  Instances can be subdivided into:
     with the same header as DLiteInstance, but includes more fields
     needed to describe their instances.  Entities are a special case
     of metadata, whos instances are the actual data.
+
 
 ---
 

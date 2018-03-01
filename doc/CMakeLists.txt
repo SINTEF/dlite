@@ -4,6 +4,7 @@ if (DOXYGEN_FOUND)
   set(dependencies
     ${dlite_SOURCE_DIR}/README.md
     ${dlite_SOURCE_DIR}/doc/concepts.md
+    ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
     ${dlite_SOURCE_DIR}/src/dlite.h
     ${dlite_SOURCE_DIR}/src/dlite-type.h
     ${dlite_SOURCE_DIR}/src/dlite-storage.h
@@ -21,6 +22,7 @@ if (DOXYGEN_FOUND)
     COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
     COMMAND ${CMAKE_COMMAND} -E make_directory html/src
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite.h html/src/dlite.h
+    COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png html/SOFT-metadata-structure.png
     DEPENDS ${dependencies}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating API documentation with Doxygen" VERBATIM
