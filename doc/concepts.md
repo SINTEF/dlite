@@ -57,8 +57,16 @@ bool      | dliteBool      | sizeof(bool)   | boolean                          |
 int       | dliteInt       | 1, 2, 4, {8}   | signed integer                   | (int), int8, int16, int32, {int64}
 uint      | dliteUInt      | 1, 2, 4, {8}   | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
 float     | dliteFloat     | 4, 8, {10, 16} | floating point                   | (float), (double), float32, float64, {float80, float128}
-fixstring | dliteFixString | any            | fix-sized NUL-terminated string  | string20
+fixstring | dliteFixString | any            | fix-sized NUL-terminated string  | string20, string4000
 string    | dliteStringPtr | sizeof(char *) | pointer to NUL-terminated string | string
+
+The examples shown in curly parenthesis may not be supported on all
+platforms.  The size int, uint, float and double is
+platform-dependent.  For portable applications you should to provide
+the number of bits, like int32, uint32, float32, float64, etc...  Note
+that the size specification of *blob* and *fixstring* are in bytes
+(not bits) and that the terminating NUL-character is included in the
+specified size of the *fixstring* types.
 
 
 Instances, entities, metadata, meta-metadata, etc...
@@ -76,9 +84,9 @@ the *Basic metadata schema* describing it, which can describe itself
 (and can be considered as an instance of itself).  Hence, **everything
 is an instance**.
 
-*Collections* are a special type of instances containing references to a
-set of set of instances and relationships between them.  Collections
-are not yet implemented in *dlite*.
+*Collections* are a special type of instances containing references to
+a set of set of instances and relationships between them.  They are
+currently not yet implemented in *dlite*.
 
 Instances can be subdivided into:
 
@@ -87,7 +95,8 @@ Instances can be subdivided into:
       - The UUID identifying the instance.
       - An optional reference to an URI uniquely identifying the instance.
         If given, the UUID is derived from it.
-      - A reference to its metadata.
+      - A reference (URI) to its metadata.
+
     This header is then followed by then followed by the content,
     i.e. the size of each dimension and the values of each property.
 
