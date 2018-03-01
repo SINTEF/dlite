@@ -15,7 +15,8 @@ input parameters to a given version of a software model, it may be
 more convenient to refer to a human understandable name (URI), like
 "mymodel-1.2.3_default_input", rather than a UUID on the form
 "8290318f-258e-54e2-9838-bb187881f996".  *dlite* supports this.  The
-tool `dlite-getuuid` can be used to manually convert URIs to UUIDs.
+tool `dlite-getuuid` can be used to manually convert URIs to their
+corresponding UUIDs.
 
 If the `id` provided to dlite_datamodel() or dlite_instance_create()
 is not `NULL` or a valid UUID, it is interpreted as an unique uri
@@ -23,9 +24,6 @@ referring to the instance.  *dlite* will then generate a version 5
 UUID from the `id` (from the SHA-1 hash of `id` and the DNS namespace)
 that the instance will be stored under.  The original `id` will also be
 stored and can be retrieved with dlite_datamodel_get_meta_uri().
-
-The `dlite-getuuid` tool can be used to manually convert instance names to
-their corresponding UUIDs.
 
 
 Simple unified access to all data types
