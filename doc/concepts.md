@@ -12,8 +12,8 @@ Named data instances
 In SOFT all Entity instances are referred to by their UUID.  However,
 in some cases when you have unique and immutable data, e.g. default
 input parameters to a given version of a software model, it may be
-more convenient to refer to a human understandable name (URI), like
-"mymodel-1.2.3_default_input", rather than a UUID on the form
+more convenient to refer to an unique human understandable name (URI),
+like "mymodel-1.2.3_default_input", rather than a UUID on the form
 "8290318f-258e-54e2-9838-bb187881f996".  *dlite* supports this.  The
 tool `dlite-getuuid` can be used to manually convert URIs to their
 corresponding UUIDs.
