@@ -464,8 +464,7 @@ def main():
     import re
 
     parser = argparse.ArgumentParser(
-        description='Generates '
-        'interpolation parameters and store them in a hdf5 file.')
+        description='Generates C code (SOFT-like) from json entity.')
     parser.add_argument(
         'infile', metavar='JSONFILE',
         help='Name of input json metadata file.')

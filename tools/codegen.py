@@ -129,11 +129,12 @@ class Metadata(object):
             {p['name']: AttrDict(p) for p in d['properties']})
         self.dims = AttrDict(
             {p['name']: AttrDict(p) for p in d['dimensions']})
-        self.Name = d['name']                     # original
-        self.name = toLowerCase(d['name'])        # lower_case
-        self.NAME = toUpperCase(d['name'])        # UPPER_CASE
-        self.nameCamel = toLowerCamel(d['name'])  # lowerCamelCase
-        self.NameCamel = toUpperCamel(d['name'])  # UpperCamelCase
+        name = d['name'].replace('-', '_')
+        self.Name = d['name']                # original
+        self.name = toLowerCase(name)        # lower_case
+        self.NAME = toUpperCase(name)        # UPPER_CASE
+        self.nameCamel = toLowerCamel(name)  # lowerCamelCase
+        self.NameCamel = toUpperCamel(name)  # UpperCamelCase
         self.version = d['version']
         self.namespace = d['namespace']
         self.description = d.get('description', '')
