@@ -11,8 +11,12 @@ with SOFT can be read with dlite and vice verse.  However, apart from
 *dlite* being much less complete, there are also some differences.
 See [doc/concepts.md](doc/concepts.md) for details.
 
-See [src/dlite.h](src/dlite.h) for an overview of the current api. So
-far only reading and writing HDF5 files is implemented.
+The main components of *dlite* are:
+  - [dlite-storage](src/dlite-storage.h): a generic handle
+    encapsulating actual storage formats.  So far only reading and
+    writing HDF5 files is implemented.
+  - [dlite-entity](src/dlite-entity.h): API for instances (actual data) and
+    entities (description of data).
 
 *dlite* also includes [uuid][3] (a small library for generating UUIDs)
 as a git submodule.
@@ -22,7 +26,7 @@ Dependencies
 ------------
 *dlite* has the following dependencies:
   - [cmake][4], required for building
-  - [hdf5][5], required (cmake will automatically downloaded and built hdf5
+  - [hdf5][5], required (cmake will automatically download and built hdf5
     if it is not found)
   - [doxygen][6], optional, used for documentation generation
   - [valgrind][7], optional, used for memory checking (Linux only)

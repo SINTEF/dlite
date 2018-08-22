@@ -52,20 +52,20 @@ pointers to pointers.
 
 type      | dtype          | sizes          | description                      | examples
 ----      | -----          | -----          | -----------                      | --------
-blob      | dliteBlob      | any            | binary blob, sequence of bytes   | blob32, blob128
+blob      | dliteBlob      | any            | binary blob, sequence of bytes   | blob32, blob128, ...
 bool      | dliteBool      | sizeof(bool)   | boolean                          | bool
 int       | dliteInt       | 1, 2, 4, {8}   | signed integer                   | (int), int8, int16, int32, {int64}
 uint      | dliteUInt      | 1, 2, 4, {8}   | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
 float     | dliteFloat     | 4, 8, {10, 16} | floating point                   | (float), (double), float32, float64, {float80, float128}
-fixstring | dliteFixString | any            | fix-sized NUL-terminated string  | string20, string4000
+fixstring | dliteFixString | any            | fix-sized NUL-terminated string  | string20, string4000, ...
 string    | dliteStringPtr | sizeof(char *) | pointer to NUL-terminated string | string
 
 The examples shown in curly parenthesis may not be supported on all
-platforms.  The size int, uint, float and double is
+platforms.  The size int, uint, float and double are
 platform-dependent.  For portable applications you should to provide
 the number of bits, like int32, uint32, float32, float64, etc...  Note
 that the size specification of *blob* and *fixstring* are in bytes
-(not bits) and that the terminating NUL-character is included in the
+(not bits) and that the terminating NUL-character __is__ included in the
 specified size of the *fixstring* types.
 
 
