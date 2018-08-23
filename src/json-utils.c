@@ -127,7 +127,7 @@ void _array_size(json_t *arr, int ndim, int *dims)
 
 /* Return the shape (dimensions) of the json value:
  *  - NULL: the json value is a scalar (real, integer, string, or object)
- *  - valid pointer of vec_t: the json value is an array
+ *  - valid pointer of ivec_t: the json value is an array
  */
 ivec_t *json_array_dimensions(json_t *obj)
 {
@@ -409,7 +409,7 @@ json_t *json_array_string(str_list_t *data)
   return arr;
 }
 
-int json_set_data(json_t *obj, char *name, json_data_t *data)
+int json_set_data(json_t *obj, const char *name, const json_data_t *data)
 {
   json_t *value;
   if (json_is_object(obj) && data && (!str_is_whitespace(name))) {
@@ -537,11 +537,10 @@ int dlite_json_entity_prop_count(json_t *obj)
           printf("error: the dimension of the property \"%s\" are not well defined.\n", json_string_value(name));
           nerr++;
         }
-        else 
+        else
           count++;
       }
     }
   }
   return nerr > 0 ? -1 : count;
 }
-

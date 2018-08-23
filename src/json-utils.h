@@ -31,10 +31,10 @@ ivec_t *json_array_dimensions(json_t *obj);
 
 json_data_t *json_data();
 json_data_t *json_get_data(json_t *obj);
-int json_set_data(json_t *obj, char *name, json_data_t *data);
+int json_set_data(json_t *obj, const char *name, const json_data_t *data);
 void json_data_free(json_data_t *d);
 
-/* Return true (=1) if each dimension of the property is 
+/* Return true (=1) if each dimension of the property is
    defined in the list of dimension of the entity
  */
 int check_dimensions(char *prop_name, json_t *prop_dims, json_t *entity_dims);
@@ -48,6 +48,3 @@ int dlite_json_entity_dim_count(json_t *obj);
  * a property must have a name and a valid type.
  */
 int dlite_json_entity_prop_count(json_t *obj);
-
-
-

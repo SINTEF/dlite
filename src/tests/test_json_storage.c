@@ -24,7 +24,7 @@ MU_TEST(test_read)
   char *dbname = "../../../src/tests/test-read-data.json";
   DLiteStorage *db = NULL;
   DLiteDataModel *d = NULL;
-  char *s;
+  const char *s;
   size_t dim;
   int p1;
   int8_t p1_i8;
@@ -38,7 +38,7 @@ MU_TEST(test_read)
   ids = dlite_storage_uuids(db);
   n = 0;
   for(i=0; ids[i]; i++) {
-    printf("%d: %s\n", i, ids[i]);
+    printf("%lu: %s\n", i, ids[i]);
     n++;
   }
   /*printf("n=%d\n", n);*/
@@ -158,7 +158,7 @@ MU_TEST_SUITE(test_suite)
 
 
 
-int main(int argc, char *argv[])
+int main()
 {
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
