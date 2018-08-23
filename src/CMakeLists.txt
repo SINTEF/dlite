@@ -71,7 +71,6 @@ set(sources
 
 add_definitions(-DHAVE_CONFIG_H)
 
-#link_directories(${HDF5_LIBRARY_DIRS} ${uuid_BINARY_DIR})
 link_directories(${uuid_BINARY_DIR})
 
 add_library(dlite ${sources})
@@ -80,11 +79,10 @@ target_include_directories(dlite PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${uuid_SOURCE_DIR}
   ${uuid_BINARY_DIR}
-  ${HDF5_INCLUDE_DIR}
+  ${HDF5_INCLUDE_DIRS}
   ${JANSSON_INCLUDE_DIRS}
   )
-#add_dependencies(dlite uuidProj ${hdf5_NAME})
-add_dependencies(dlite uuidProj)
+add_dependencies(dlite uuidProj ${HDF5_DEPENDENCIES} ${JANSSON_DEPENDENCIES})
 
 install(
   TARGETS dlite

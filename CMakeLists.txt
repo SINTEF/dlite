@@ -10,7 +10,12 @@ project(dlite
 
 
 # Options
-option(BUILD_HDF5      "If not installed, download and compile HDF5"  ON)
+option(BUILD_HDF5      "If not installed, download and compile HDF5"    OFF)
+option(BUILD_JANSSON   "If not installed, download and compile jansson" OFF)
+
+option(WIDTH_HDF5      "Whether to build with HDF5 support"             ON)
+option(WIDTH_JANSSON   "Whether to build with JSON support"             ON)
+
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
@@ -40,9 +45,6 @@ if(CTEST_MEMORYCHECK_COMMAND)
     )
 endif()
 
-include(Findjansson)
-find_package(jansson)
-
 
 
 ####################################################################
@@ -56,7 +58,7 @@ find_package(jansson)
 #   - External dependencies are transparently downloaded, configured
 #     and compiled as a part of the build process.
 #
-# Since External download and configure steps of ExternalProject
+# Since external download and configure steps of ExternalProject
 # happens at compile time, find_package(), which operate at configure
 # time, cannot be used with ExternalProject.  For this reason some
 # people configures everything as ExternalProject (even the main
@@ -73,97 +75,126 @@ find_package(jansson)
 ####################################################################
 include(ExternalProject)
 
+if(BUILD_SHARED_LIBS)
+  set(LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
+  set(LIBRARY_SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX})
+else()
+  set(LIBRARY_PREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})
+  set(LIBRARY_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
+
 
 #
 # hdf5
 # ====
-#set (LIB_TYPE STATIC) # or SHARED
-#string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+if(WIDTH_HDF5)
+  find_package(HDF5 COMPONENTS C)
 
-#find_package (HDF5 NAMES hdf5 COMPONENTS C ${SEARCH_TYPE})
-# find_package (HDF5) # Find non-cmake built HDF5
-#INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIR})
-#set (LINK_LIBS ${LINK_LIBS} ${HDF5_C_${LIB_TYPE}_LIBRARY})
+  if(NOT HDF5_FOUND)
+    if(NOT BUILD_HDF5)
+      message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
+    endif()
+    message(STATUS "Download and build HDF5 as external package")
 
-find_package(HDF5 COMPONENTS C)
+    set(hdf5_VERSION        "1.10.1")
+    set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
+    set(hdf5_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/${hdf5_NAME}")
+    set(hdf5_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
 
-if(WIN32)
-  set(HDF5_LIBRARIES "${HDF5_ROOT}/lib/libhdf5.lib")
+    set(cmake_args
+      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -DHDF5_BUILD_CXX=OFF
+      -DHDF5_BUILD_FORTRAN=OFF
+      -DCMAKE_BUILD_TYPE=Release
+      -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
+      -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
+      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+    )
+    if(BUILD_SHARED_LIBS)
+      list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
+    endif()
+    if(CMAKE_TOOLCHAIN_FILE)
+      get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+      list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
+    endif()
 
-  message("HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
-  message("HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
-  message("HDF5_LIBRARY_DIR: ${HDF5_LIBRARY_DIR}")
-  message("HDF5_INCLUDE_DIR: ${HDF5_INCLUDE_DIR}")
+    ExternalProject_Add(
+      hdf5Proj
+      PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/external/${hdf5_NAME}
+      URL               https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
+      URL_MD5           43a2f9466702fb1db31df98ae6677f15
+      SOURCE_DIR        ${hdf5_SOURCE_DIR}
+      UPDATE_COMMAND    ""
+      CMAKE_ARGS        ${cmake_args}
+    )
+    set(HDF5_DEPENDENCIES hdf5Proj)
+
+    # Define the following variables:
+    #
+    #   HDF5_INCLUDE_DIRS - location of the HDF5 include dirs
+    #   HDF5_LIBRARY_DIRS - location of the HDF5 library dirs
+    #   HDF5_LIBRARIES    - required libraries (for static linking)
+    #
+    set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
+    set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
+    set(HDF5_LIBRARIES ${hdf5_INSTALL_PREFIX}/lib/${LIBRARY_PREFIX}hdf5${LIBRARY_SUFFIX})
+
+    if(WIN32)
+      list(APPEND HDF5_LIBRARIES Kernel32)
+    else()
+      list(APPEND HDF5_LIBRARIES m dl)
+    endif()
+
+  endif()
 endif()
 
 
-# if((NOT HDF5_FOUND) AND BUILD_HDF5)
-  # message(STATUS "Download and build HDF5 as external package")
+#
+# jansson
+# =======
+if(WIDTH_JANSSON)
+  include(Findjansson)
+  find_package(jansson)
 
-  # set(hdf5_VERSION        "1.10.1")
-  # set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
-  # set(hdf5_PREFIX         "${CMAKE_CURRENT_BINARY_DIR}/${hdf5_NAME}")
-  # set(hdf5_SOURCE_DIR     "${hdf5_PREFIX}/src/${hdf5_NAME}")
-  # set(hdf5_INSTALL_PREFIX "${hdf5_PREFIX}/local")
-
-  # set(cmake_args
-    # -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    # -DHDF5_BUILD_CXX=OFF
-    # -DHDF5_BUILD_FORTRAN=OFF
-    # -DCMAKE_BUILD_TYPE=Release
-    # -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
-    # -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
-    # -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-    # )
-  # if(BUILD_SHARED_LIBS)
-    # list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
-  # endif()
-  # if(CMAKE_TOOLCHAIN_FILE)
-    # get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
-    # list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
-  # endif()
-
-
-
-  # ExternalProject_Add(
-    # ${hdf5_NAME}
-    # PREFIX            ${hdf5_PREFIX}
-    # URL               https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
-    # URL_MD5           43a2f9466702fb1db31df98ae6677f15
-    # SOURCE_DIR        ${hdf5_SOURCE_DIR}
-    # UPDATE_COMMAND    ""
-    # CMAKE_ARGS        ${cmake_args}
-    # )
-
-  # # Define the following variables:
-  # #
-  # #   hdf5_BINARY_DIR   - root of hdf5 binary dir
-  # #   hdf5_INCLUDE_DIRS - location of the hdf5 include dirs
-  # #   hdf5_LIBRARY_DIRS - location of the hdf5 library dirs
-  # #   hdf5_LIBRARIES    - required libraries (for static linking)
-  # #
-  # set(hdf5_BINARY_DIR ${hdf5_INSTALL_PREFIX}/bin)
-  # set(hdf5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
-  # set(hdf5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
-  # set(hdf5_LIBRARIES
-    # ${hdf5_INSTALL_PREFIX}/lib/libhdf5_D.lib
-    # )
-  # if(WIN32)
-    # list(APPEND hdf5_LIBRARIES Kernel32)
-  # else()
-    # list(APPEND hdf5_LIBRARIES m dl)
-  # endif()
-
-# else()
-  # set(hdf5_LIBRARIES hdf5)
-# endif()
-
+  if(NOT JANSSON_FOUND)
+    if(NOT BUILD_JANSSON)
+      message(FATAL_ERROR "Jansson not found.  Try to set BUILD_JANSSON to ON")
+    endif()
+    message(STATUS "Download and build jansson as external package")
+    set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
+    set(jansson_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
+    set(cmake_args
+      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -DCMAKE_BUILD_TYPE=Release
+      -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
+      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      )
+    if(CMAKE_TOOLCHAIN_FILE)
+      get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+      list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
+    endif()
+    ExternalProject_Add(
+      janssonProj
+      PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/external/jansson
+      SOURCE_DIR      ${jansson_SOURCE_DIR}
+      GIT_REPOSITORY  "https://github.com/akheron/jansson.git"
+      GIT_TAG         v2.9
+      CMAKE_ARGS      ${cmake_args}
+      UPDATE_COMMAND  ""
+      INSTALL_COMMAND make install
+      TEST_COMMAND    make check
+      )
+    set(JANSSON_DEPENDENCIES janssonProj)
+    set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
+    set(JANSSON_LIBRARIES ${hdf5_INSTALL_PREFIX}/lib/${LIBRARY_PREFIX}jansson${LIBRARY_SUFFIX})
+  endif()
+endif()
 
 
 #
 # uuid
 # ====
-set(uuid_SOURCE_DIR  ${dlite_SOURCE_DIR}/uuid)
+set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
 set(cmake_args -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS})
 ExternalProject_Add(
   uuidProj
