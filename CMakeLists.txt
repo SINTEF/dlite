@@ -212,6 +212,14 @@ set(uuid_BINARY_DIR ${BINARY_DIR})
 
 
 # Subdirectories
+if(WIDTH_HDF5)
+  add_subdirectory(plugins/hdf5)
+endif()
+
+if(WIDTH_JANSSON)
+  add_subdirectory(plugins/json)
+endif()
+
 add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(doc)

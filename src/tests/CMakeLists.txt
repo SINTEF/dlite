@@ -16,12 +16,16 @@ set(tests
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite uuid)
-  target_include_directories(${test} PRIVATE ${dlite_SOURCE_DIR}/src ${JANSSON_INCLUDE_DIRS})
+  target_link_libraries(${test} dlite dlite-hdf5 dlite-json uuid)
+  target_include_directories(${test} PRIVATE
+    ${dlite_SOURCE_DIR}/src
+    ${dlite_SOURCE_DIR}/plugins/json  # FIXME - remove this dependency
+    ${JANSSON_INCLUDE_DIRS}
+    )
+  add_dependencies(${test} dlite)
 
   add_test(
     NAME ${test}
     COMMAND ${test}
     )
 endforeach()
-

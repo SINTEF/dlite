@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /* Ensure non-empty translation unit */
 typedef int make_iso_compilers_happy;
