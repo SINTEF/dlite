@@ -28,8 +28,9 @@ Dependencies
   - [cmake][4], required for building
   - [hdf5][5], required (cmake will automatically download and built hdf5
     if it is not found)
-  - [doxygen][6], optional, used for documentation generation
-  - [valgrind][7], optional, used for memory checking (Linux only)
+    [jansson][6], required, provides json
+  - [doxygen][7], optional, used for documentation generation
+  - [valgrind][8], optional, used for memory checking (Linux only)
 
 
 Download
@@ -108,7 +109,7 @@ Download and build dlite:
 ```sh
 cd /C/Users/tco/Documents/Programs/PRECIMS/
 git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-git submodule update --init 
+git submodule update --init
 cd dlite
 mkdir build && cd build
 cmake -DHDF5_ROOT:PATH=/C/Users/tco/Documents/Programs/PRECIMS/local/ ..
@@ -163,6 +164,6 @@ commercial and open source LGPL v2.1 license.
 [3]: https://stash.code.sintef.no/projects/sidase/repos/uuid/
 [4]: https://cmake.org/
 [5]: https://support.hdfgroup.org/HDF5/
-[6]: http://www.doxygen.org/
-[7]: http://valgrind.org/
-[8]: https://github.com/petervaro/sodyll
+[7]: http://www.doxygen.org/
+[8]: http://valgrind.org/
+[9]: https://github.com/petervaro/sodyll
