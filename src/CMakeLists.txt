@@ -70,8 +70,8 @@ link_directories(${uuid_BINARY_DIR})
 
 add_library(dlite ${sources})
 target_link_libraries(dlite
-  dlite-hdf5
-  dlite-json
+  plugins-hdf5
+  plugins-json
   uuid
   ${HDF5_LIBRARIES}
   ${JANSSON_LIBRARIES})
