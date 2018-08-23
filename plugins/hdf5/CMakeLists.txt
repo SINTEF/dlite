@@ -1,0 +1,28 @@
+# -*- Mode: cmake -*-
+#
+
+set(sources
+  ${dlite_SOURCE_DIR}/src/err.c
+  ${dlite_BINARY_DIR}/src/boolean.h
+  dh5lite.c
+  )
+
+add_definitions(-DHAVE_CONFIG_H)
+
+add_library(dlite-hdf5 ${sources})
+target_link_libraries(dlite-hdf5 ${HDF5_LIBRARIES})
+target_include_directories(dlite-hdf5 PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${dlite_SOURCE_DIR}/src
+  ${dlite_BINARY_DIR}/src
+  ${HDF5_INCLUDE_DIRS}
+  )
+
+if(${HDF5_DEPENDENCIES})
+  add_dependencies(dlite-hdf5 ${HDF5_DEPENDENCIES})
+endif()
+
+install(
+  TARGETS dlite-hdf5
+  DESTINATION lib
+)
