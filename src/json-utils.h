@@ -37,7 +37,8 @@ void json_data_free(json_data_t *d);
 /* Return true (=1) if each dimension of the property is
    defined in the list of dimension of the entity
  */
-int check_dimensions(char *prop_name, json_t *prop_dims, json_t *entity_dims);
+int check_dimensions(const char *prop_name, json_t *prop_dims,
+                     json_t *entity_dims);
 
 /* Count the number of valid dimensions in the json object.
  * a dimension must have a name (not null, not empty, not only white space)

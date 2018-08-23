@@ -271,7 +271,7 @@ void flatten_s(json_t *obj, str_list_t *arr)
     }
   }
   else {
-    str_list_add(arr, json_string_value(obj), true);
+    str_list_add(arr, (char *)json_string_value(obj), true);
   }
 }
 
@@ -352,7 +352,7 @@ json_data_t *json_get_data(json_t *obj)
     break;
   case 's':
     data->array_s = str_list();
-    str_list_add(data->array_s, json_string_value(obj), true);
+    str_list_add(data->array_s, (char *)json_string_value(obj), true);
     break;
   case 'x':
     ok = 0;
@@ -448,7 +448,8 @@ int json_set_data(json_t *obj, const char *name, const json_data_t *data)
   return 1;
 }
 
-int check_dimensions(char *prop_name, json_t *prop_dims, json_t *entity_dims)
+int check_dimensions(const char *prop_name, json_t *prop_dims,
+                     json_t *entity_dims)
 {
   size_t i, j, sp, se, k, found;
   json_t *e;
@@ -526,15 +527,19 @@ int dlite_json_entity_prop_count(json_t *obj)
         name = json_object_get(item, "name");
         ptype = json_object_get(item, "type");
         if (str_is_whitespace(json_string_value(name))) {
-          printf("error: the property [%d] has not a valid name.\n", (int)(i + 1));
+          printf("error: the property [%d] has not a valid name.\n",
+                 (int)(i + 1));
           nerr++;
         }
         else if (!dlite_is_type(json_string_value(ptype))) {
-          printf("error: the property [%d] \"%s\" has not a valid type.\n", (int)(i + 1), json_string_value(name));
+          printf("error: the property [%d] \"%s\" has not a valid type.\n",
+                 (int)(i + 1), json_string_value(name));
           nerr++;
         }
-        else if (!check_dimensions(json_string_value(name), json_object_get(item, "dims"), dims)) {
-          printf("error: the dimension of the property \"%s\" are not well defined.\n", json_string_value(name));
+        else if (!check_dimensions(json_string_value(name),
+                                   json_object_get(item, "dims"), dims)) {
+          printf("error: the dimension of the property \"%s\" are not well "
+                 "defined.\n", json_string_value(name));
           nerr++;
         }
         else
