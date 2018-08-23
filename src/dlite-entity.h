@@ -65,7 +65,7 @@
 */
 #define DLiteInstance_HEAD                                                \
   char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID for this data instance. */    \
-  const char *uri;                /*!< Unique name or uri to the data */  \
+  const char *uri;                /*!< Unique name or uri of the data */  \
                                   /*   instance.  Can be NULL. */         \
   struct _DLiteMeta *meta;        /*!< Pointer to the metadata descri- */ \
                                   /*!< bing this instance. */
@@ -136,7 +136,7 @@ struct _DLiteInstance {
 
 
 /** Dimension */
-typedef struct {
+typedef struct _DLiteDimension {
   char *name;         /*!< Name of this dimension. */
   char *description;  /*!< Description of this dimension. */
 } DLiteDimension;
@@ -145,7 +145,7 @@ typedef struct {
 /**
   Base definition of a DLite property that all properties can be cast to.
 */
-typedef struct _DLiteBaseProperty{
+typedef struct _DLiteBaseProperty {
   DLiteProperty_HEAD
 } DLiteBaseProperty;
 
@@ -174,8 +174,8 @@ typedef struct _DLiteMeta {
   A DLite entity.
 
   This is the metadata for standard data objects.  Entities will
-  typically have it `meta` member set to NULL.  This works, since
-  entities have their own API which know about their structure.
+  typically have its `meta` member set to NULL.  This works, since
+  entities have their own API that know about their structure.
 */
 struct _DLiteEntity {
   DLiteMeta_HEAD
@@ -352,7 +352,7 @@ void dlite_entity_decref(DLiteEntity *entity);
 void dlite_entity_clear(DLiteEntity *entity);
 
 /**
-  Returns a new Entity loaded from storage \a s.  The \a s may be either
+  Returns a new Entity loaded from storage \a s.  The \a id may be either
   an URI to the Entity (typically of the form "namespace/version/name")
   or an UUID.
 
