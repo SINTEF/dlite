@@ -6,7 +6,7 @@
   @brief Main header file for dlite
 */
 
-#define DLITE_UUID_LENGTH 36
+#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
 
 #include "dlite-type.h"
 

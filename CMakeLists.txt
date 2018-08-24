@@ -83,6 +83,11 @@ else()
   set(LIBRARY_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
+# This should hopefully provide correct prefix and postfix for
+# generated libraries
+set(LIB_PREFIX ${LIBRARY_SUFFIX})
+set(LIB_POSTFIX ${CMAKE_${CMAKE_BUILD_TYPE}_POSTFIX}${LIBRARY_SUFFIX})
+
 
 #
 # hdf5
@@ -137,7 +142,8 @@ if(WIDTH_HDF5)
     #
     set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
     set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
-    set(HDF5_LIBRARIES ${hdf5_INSTALL_PREFIX}/lib/${LIBRARY_PREFIX}hdf5${LIBRARY_SUFFIX})
+    set(HDF5_LIBRARIES
+      ${hdf5_INSTALL_PREFIX}/lib/${LIB_PREFIX}hdf5${LIB_POSTFIX})
 
     if(WIN32)
       list(APPEND HDF5_LIBRARIES Kernel32)
@@ -186,7 +192,8 @@ if(WIDTH_JANSSON)
       )
     set(JANSSON_DEPENDENCIES janssonProj)
     set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
-    set(JANSSON_LIBRARIES ${hdf5_INSTALL_PREFIX}/lib/${LIBRARY_PREFIX}jansson${LIBRARY_SUFFIX})
+    set(JANSSON_LIBRARIES
+      ${jansson_INSTALL_PREFIX}/lib/${LIB_PREFIX}jansson${LIB_POSTFIX})
   endif()
 endif()
 

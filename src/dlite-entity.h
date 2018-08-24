@@ -91,7 +91,7 @@
   size_t dimoffset;    /*!< Memory offset of dimensions in instance. */ \
   size_t *propoffsets; /*!< Memory offset of each property value. */    \
                        /*   NULL if instance is metadata. */            \
-  size_t reloffset;    /*!< Memory offset of relations  in instance. */ \
+  size_t reloffset;    /*!< Memory offset of relations in instance. */	\
   int refcount;        /*!< Number of instances referring to this */    \
                        /*   metadata. */                                \
                                                                         \
@@ -367,13 +367,13 @@ DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id);
 int dlite_entity_save(DLiteStorage *s, const DLiteEntity *entity);
 
 
-/*
+/**
   Returns a pointer to property with index \a i or NULL on error.
  */
 const DLiteProperty *
 dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i);
 
-/*
+/**
   Returns a pointer to property named \a name or NULL on error.
  */
 const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,

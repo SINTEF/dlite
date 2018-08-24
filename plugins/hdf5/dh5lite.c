@@ -470,7 +470,7 @@ DLiteDataModel *dh5_datamodel(const DLiteStorage *s, const char *uuid)
     FAIL2("cannot determine if '%s' exists in %s", uuid, sh5->uri);
 
   if (exists) {
-    /* Instance `uuid` already exists: assigh groups */
+    /* Instance `uuid` already exists: assign groups */
     if ((d->instance = H5Gopen(sh5->root, uuid, H5P_DEFAULT)) < 0)
       FAIL2("cannot open instance '/%s' in '%s'", uuid, sh5->uri);
 
@@ -641,7 +641,8 @@ int dh5_set_property(DLiteDataModel *d, const char *name, const void *ptr,
 /**
   Returns a NULL-terminated array of string pointers to instance UUID's.
   The caller is responsible to free the returned array.
-  Options is ignored.
+
+  Returns NULL (or a partly  on error.
 */
 char **dh5_get_uuids(const DLiteStorage *s)
 {
@@ -656,13 +657,12 @@ char **dh5_get_uuids(const DLiteStorage *s)
     FAIL0("error finding instances");
 
   for (n=0, e=entries; e; e=e->next) n++;
-  if (!(names = malloc((n + 1)*sizeof(char *)))) FAIL0("allocation failure");
+  if (!(names = calloc((n + 1), sizeof(char *)))) FAIL0("allocation failure");
   for (i=0, e=entries; e; i++, e=e->next) {
     size_t len = strlen(e->name) + 1;
     if (!(names[i] = malloc(len))) FAIL0("allocation failure");
     memcpy(names[i], e->name, len);
   }
-  names[n] = NULL;
 
  fail:
   if (entries) entrylist_free(entries);
