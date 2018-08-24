@@ -197,6 +197,7 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *uuid)
   DLiteDataModel *retval=NULL;
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   json_t *data = json_object_get(storage->root, uuid);
+  json_t *data2 = json_object_get(storage->root, "name");
 
   if (data == NULL) {
     if (storage->writable) {

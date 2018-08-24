@@ -11,6 +11,8 @@
 
 
 /* schema_entity */
+/* FIXME - set UUID, dimensions and properties correctly
+         - add basic_metadata_schema */
 static DLiteMeta schema_entity = {
   "00000000-0000-0000-0000-000000000000",     /* uuid */
   "http://meta.sintef.no/0.1/schema-entity",  /* uri  */
@@ -409,7 +411,13 @@ dlite_entity_create(const char *uri, const char *description,
   if ((uuid_version = dlite_get_uuid(uuid, uri)) < 0) goto fail;
   memcpy(entity->uuid, uuid, sizeof(uuid));
   if (uuid_version == 5) entity->uri = strdup(uri);
+
+  /* FIXME - hmm, not really ready for this yet... but almost */
+  /*
   entity->meta = &schema_entity;
+  dlite_meta_incref(entity->meta);
+  */
+
   if (description) entity->description = strdup(description);
 
   if (ndimensions) {
@@ -514,14 +522,38 @@ DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id)
 {
   char uuid[DLITE_UUID_LENGTH+1];
   int uuidver;
+  DLiteDataModel *d;
+  DLiteEntity *e=NULL;
+  /*
+  DLiteDimension *dims;
+  DLiteProperty *props;
+  size_t ndims, nprops;
+  char *uri, *namespace, *version, *name, *description;
+  */
+  char *name;
 
+  /*
   if (!s->api->getEntity)
     return errx(1, "driver '%s' does not support getEntity()",
                 s->api->name), NULL;
+  */
 
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 || uuidver != 5)
-    return errx(1, "id '%s' is not an UUID or a string that we can generate an uuid from", id), NULL;
-  return s->api->getEntity(s, uuid);
+  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+    return errx(1, "id '%s' is not an UUID or a string that we can generate "
+		"an uuid from", id), NULL;
+
+  if (!(d = s->api->dataModel(s, id))) goto fail;
+  if (!s->api->getProperty(d, "name", &name,
+			   dliteStringPtr, sizeof(char *), 0, NULL))
+    return errx(1, "'%s' is not an entity; missing \"name\" property",
+		s->uri), NULL;
+  /*
+  entity = dlite_entity_create("");
+  */
+  /* return s->api->getEntity(s, uuid); */
+  return e;
+ fail:
+  return NULL;
 }
 
 /*
