@@ -12,7 +12,10 @@ set(tests
   test_entity
   test_json_storage
   test_json_utils
+  test_json_entity
   )
+
+add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)

@@ -30,7 +30,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
   int uuidver;
 
-  if (!id || !*id || s->idflag == dliteIDTranlateToUUID ||
+  if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
       s->idflag == dliteIDRequireUUID) {
     if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
       return err(1, "failed generating UUID from id \"%s\"", id), NULL;

@@ -3,6 +3,7 @@ find_package(Doxygen)
 if (DOXYGEN_FOUND)
   set(dependencies
     ${dlite_SOURCE_DIR}/README.md
+    ${dlite_SOURCE_DIR}/doc/Doxyfile.in
     ${dlite_SOURCE_DIR}/doc/concepts.md
     ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
     ${dlite_SOURCE_DIR}/src/dlite.h
@@ -11,6 +12,7 @@ if (DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/dlite-entity.h
     ${dlite_SOURCE_DIR}/src/dlite-datamodel.h
     ${dlite_SOURCE_DIR}/src/dlite-plugins.h
+    ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
     ${uuid_SOURCE_DIR}/README.md
     ${uuid_SOURCE_DIR}/uuid.h
     )

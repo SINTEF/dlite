@@ -485,6 +485,9 @@ DLiteDataModel *dh5_datamodel(const DLiteStorage *s, const char *uuid)
 
   } else {
     /* Instance `uuid` does not exists: create new group structure */
+    if (!s->writable)
+      FAIL2("cannot create new instance '%s' in read-only storage %s",
+            uuid, sh5->uri);
     if ((d->instance = H5Gcreate(sh5->root, uuid, H5P_DEFAULT, H5P_DEFAULT,
                                  H5P_DEFAULT)) < 0)
       FAIL2("cannot open/create group '/%s' in '%s'", uuid, sh5->uri);
