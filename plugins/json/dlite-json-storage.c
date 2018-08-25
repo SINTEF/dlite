@@ -228,22 +228,6 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->dimensions = json_object_get(data, "dimensions");
     d->properties = json_object_get(data, "properties");
 
-  //} else if ((name = object_get_string(storage->root, "name")) &&
-  //           (version = object_get_string(storage->root, "version")) &&
-  //           (namespace = object_get_string(storage->root, "namespace")) &&
-  //           (d->dimensions = json_object_get(storage->root, "dimensions")) &&
-  //           (d->properties = json_object_get(storage->root, "properties"))) {
-  //  /* This is an entity definition - assign datamodel according to that... */
-  //  char *uri, uuid2[DLITE_UUID_LENGTH + 1];
-  //  if (!(uri = dlite_join_meta_uri(name, version, namespace))) goto fail;
-  //  if (dlite_get_uuid(uuid2, uri) != 5) goto fail;
-  //  if (id && strcmp(uuid, uuid2) != 0)
-  //    FAIL3("expected id '%s' does not correspond to metadata uri '%s' "
-  //          "in storage '%s'", id, uri, storage->uri);
-  //  d->meta = storage->root;
-  //  assert(!d->uuid[0]);
-  //  strncmp(d->uuid, sizeof(d->uuid), uuid2);
-
   } else {
     /* Instance `uuid` does not exists - create new instance and
        assign the datamodel... */
@@ -375,14 +359,13 @@ int dlite_json_set_dimension_size(DLiteDataModel *d, const char *name, size_t si
 
 /* A recursive help function to handle n-dimensional arrays. Args:
      d : current dimension
-     inds : current index (length: ndims)
      arr : json array to fil out
      pptr : pointer to pointer to current data point
      size : size of each data point
      ndims : number of dimensions
      dims : length of each dimension (length: ndims)
 */
-static json_t *setdim(size_t d, size_t *inds, void **pptr,
+static json_t *setdim(size_t d, void **pptr,
                       DLiteType type, size_t size,
                       size_t ndims, const size_t *dims)
 {
@@ -391,14 +374,12 @@ static json_t *setdim(size_t d, size_t *inds, void **pptr,
   if (d < ndims) {
     json_t *arr = json_array();
     for (i=0; i<(int)dims[d]; i++) {
-      inds[d] = i;
-      if (!(item = setdim(d + 1, inds, pptr, type, size, ndims, dims)))
-        return NULL;
-      json_array_append(arr, item);
+      if (!(item = setdim(d + 1, pptr, type, size, ndims, dims))) return NULL;
+      json_array_append_new(arr, item);
     }
     return arr;
   }  else {
-    json_t *item = dlite_json_value(*pptr, type, size);
+    item = dlite_json_value(*pptr, type, size);
     *((char **)pptr) += size;
     return item;
   }
@@ -416,23 +397,15 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
                             size_t ndims, const size_t *dims)
 {
   DLiteJsonDataModel *datamodel = (DLiteJsonDataModel *)d;
-  size_t *inds=NULL;
   json_t *item;
-  int retval=1;
-
   if (ndims) {
-    inds = calloc(ndims, sizeof(size_t));
-    if (!(item = setdim(0, inds, (void **)&ptr, type, size, ndims, dims)))
-      goto fail;
+    if (!(item = setdim(0, (void **)&ptr, type, size, ndims, dims))) return 1;
     json_object_set_new(datamodel->properties, name, item);
   } else {
-    if (!(item = dlite_json_value(ptr, type, size))) goto fail;
+    if (!(item = dlite_json_value(ptr, type, size))) return 1;
     json_object_set_new(datamodel->properties, name, item);
   }
-  retval = 0;
- fail:
-  if (inds) free(inds);
-  return retval;
+  return 0;
 }
 
 
