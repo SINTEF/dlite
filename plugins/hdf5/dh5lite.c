@@ -52,7 +52,7 @@ typedef struct {
   do {err(-1, msg, a1, a2, a3); goto fail;} while (0)
 
 
-/* Error macros for when DLiteDataModel instance d in available */
+/* Error macros for when DLiteDataModel instance d is available */
 #define DFAIL0(d, msg) \
   do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid); goto fail;} while (0)
 
