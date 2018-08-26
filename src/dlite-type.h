@@ -57,6 +57,7 @@
 #include <stdlib.h>
 
 #include "boolean.h"
+#include "triplestore.h"
 
 
 /**
@@ -66,11 +67,7 @@
   Collections sane.  Normal Entity instances are supposed to be
   independent and should not define relations.
 */
-typedef struct {
-  char *s;     /*!< subject */
-  char *p;     /*!< object */
-  char *o;     /*!< predicate */
-} DLiteTriplet;
+typedef struct _Triplet DLiteTriplet;
 
 
 /** Basic data types */

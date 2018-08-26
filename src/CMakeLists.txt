@@ -62,6 +62,7 @@ set(sources
   getuuid.c
   err.c
   compat.c
+  triplestore.c
   )
 
 add_definitions(-DHAVE_CONFIG_H)
