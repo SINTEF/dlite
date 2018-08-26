@@ -69,10 +69,10 @@ typedef struct {
 /* Data model for json backend. */
 typedef struct {
   DLiteDataModel_HEAD
-  json_t *instance;     /* json object to instance */
-  json_t *meta;         /* json object to metadata */
-  json_t *dimensions;   /* json object to dimensions */
-  json_t *properties;   /* json object to properties */
+  json_t *instance;     /* json object to instance, borrowed reference */
+  json_t *meta;         /* json object to metadata, borrowed reference */
+  json_t *dimensions;   /* json object to dimensions, borrowed reference */
+  json_t *properties;   /* json object to properties, borrowed reference */
 } DLiteJsonDataModel;
 
 
@@ -184,7 +184,10 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   retval = (DLiteStorage *)s;
 
  fail:
-  if (!retval && s) free(s);
+  if (!retval && s) {
+    if (s->root) json_decref(s->root);
+    free(s);
+  }
   return retval;
 }
 
@@ -276,13 +279,14 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
  */
 int dlite_json_datamodel_free(DLiteDataModel *d)
 {
-  DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
-  int nerr=0;
-  if (data->meta) json_decref(data->meta);
-  json_decref(data->dimensions);
-  json_decref(data->properties);
-  json_decref(data->instance);
-  return nerr;
+  UNUSED(d);
+  /* be carefull to not free memory owned by root... */
+  //DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
+  //if (data->meta) json_decref(data->meta);
+  //if (data->dimensions) json_decref(data->dimensions);
+  //if (data->properties) json_decref(data->properties);
+  //if (data->instance) json_decref(data->instance);
+  return 0;
 }
 
 
@@ -312,6 +316,29 @@ size_t dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
   return (size_t)object_get_integer(data->dimensions, name);
 }
 
+
+/* Recursive help function for handling n-dimensioal arrays */
+static int getdim(size_t d, const json_t *arr, void **pptr,
+                  DLiteType type, size_t size,
+                  size_t ndims, const size_t *dims)
+{
+  size_t i;
+  if (d < ndims) {
+    if (json_array_size(arr) != dims[d])
+      return errx(1, "length of dimension %lu is %lu, expected %lu",
+                  d, json_array_size(arr), dims[d]);
+    for (i=0; i<dims[d]; i++) {
+      const json_t *a = json_array_get(arr, i);
+      if (getdim(d+1, a, pptr, type, size, ndims, dims)) return 1;
+    }
+  } else {
+    if (dlite_json_get_value(*pptr, arr, type, size)) return 1;
+    *((char **)pptr) += size;
+  }
+  return 0;
+}
+
+
 /**
   Copies property `name` to memory pointed to by `ptr`.
   Returns non-zero on error.
@@ -322,29 +349,19 @@ int dlite_json_get_property(const DLiteDataModel *d, const char *name,
 {
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   json_t *value;
-  json_data_t *jd;
-
-  UNUSED(dims);
 
   if (!(value = json_object_get(data->properties, name)))
-    return err(1, "no such key in json data: %s", name);
-  if (!(jd = json_get_data(value)))
-    return err(1, "not able to get json data for key %s", name);
-  if (ndims != ivec_size(jd->dims))
-    return err(1, "json data '%s' has %lu dimensions, but we expected %lu",
-               name, ivec_size(jd->dims), ndims);
+    return errx(1, "no such key in json data: %s", name);
 
-  if (((type == dliteInt) || (type == dliteUInt)) && (jd->dtype == 'i')) {
-    ivec_copy_cast(jd->array_i, type, size, ptr);
-  } else if ((type == dliteFloat) && (jd->dtype == 'r')) {
-    vec_copy_cast(jd->array_r, type, size, ptr);
-  } else if ((type == dliteBool) && (jd->dtype == 'b')) {
-    ivec_copy_cast(jd->array_i, type, size, ptr);
+  if (ndims) {
+    if (getdim(0, value, &ptr, type, size, ndims, dims)) return 1;
   } else {
-    return err(1, "unexpected type of json data '%s'", name);
+    if (dlite_json_get_value(ptr, value, type, size)) return 1;
   }
+
   return 0;
 }
+
 
 /**
   Sets metadata.  Returns non-zero on error.
@@ -400,7 +417,7 @@ static json_t *setdim(size_t d, void **pptr,
     }
     return arr;
   }  else {
-    item = dlite_json_value(*pptr, type, size);
+    item = dlite_json_set_value(*pptr, type, size);
     *((char **)pptr) += size;
     return item;
   }
@@ -423,7 +440,7 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
     if (!(item = setdim(0, (void **)&ptr, type, size, ndims, dims))) return 1;
     json_object_set_new(datamodel->properties, name, item);
   } else {
-    if (!(item = dlite_json_value(ptr, type, size))) return 1;
+    if (!(item = dlite_json_set_value(ptr, type, size))) return 1;
     json_object_set_new(datamodel->properties, name, item);
   }
   return 0;

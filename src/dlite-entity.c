@@ -136,9 +136,15 @@ DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
  */
 void dlite_instance_free(DLiteInstance *inst)
 {
-  DLiteMeta *meta = inst->meta;
-  size_t i, nprops = meta->nproperties;
+  DLiteMeta *meta;
+  size_t i, nprops;
 
+  if (!(meta = inst->meta)) {
+    free(inst);
+    errx(-1, "no metadata available");
+    return;
+  }
+  nprops = meta->nproperties;
   if (inst->uri) free((char *)inst->uri);
   if (meta->properties) {
     for (i=0; i<nprops; i++) {
@@ -177,7 +183,7 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
 				   DLiteEntity *entity)
 {
   DLiteMeta *meta = (DLiteMeta *)entity;
-  DLiteInstance *inst, *instance=NULL;
+  DLiteInstance *inst=NULL, *instance=NULL;
   DLiteDataModel *d=NULL;
   size_t i, *dims=NULL, *pdims=NULL;
   int j, max_pndims=0;

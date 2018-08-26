@@ -50,7 +50,14 @@ int dlite_json_entity_dim_count(json_t *obj);
  */
 int dlite_json_entity_prop_count(json_t *obj);
 
+/* Copies the value of JSON item `item` to memory pointed to by `ptr`
+ * (which should be large enough to hold `size` bytes).  `type` and
+ * `size` is the destination type and size.  Returns non-zero on error.
+ */
+int dlite_json_get_value(void *ptr, const json_t *item,
+                         DLiteType type, size_t size);
+
 /* Returns a new json item with the data at `ptr` (which has type `type` and
  * size `size`).  Returns NULL on error.
-*/
-json_t *dlite_json_value(const void *ptr, DLiteType type, size_t size);
+ */
+json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size);

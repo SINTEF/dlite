@@ -2,12 +2,13 @@
 
 #include <assert.h>
 
-#include "json-utils.h"
 #include "err.h"
 #include "str.h"
 #include "boolean.h"
 #include "integers.h"
 #include "floats.h"
+#include "json-utils.h"
+#include "dlite-type.h"
 
 
 /* Returns the type of the json object as character:
@@ -297,7 +298,7 @@ str_list_t *json_array_flatten_s(json_t *obj)
 json_data_t *json_data()
 {
   json_data_t *d;
-  d = (json_data_t*) malloc(sizeof(json_data_t));
+  d = (json_data_t*) calloc(1, sizeof(json_data_t));
   d->dtype = 'x';
   d->dims = NULL;
   d->array_i = NULL;
@@ -560,7 +561,7 @@ int dlite_json_entity_prop_count(json_t *obj)
 /* Returns a new json item with the data at `ptr` (which has type `type` and
  * size `size`).  Returns NULL on error.
 */
-json_t *dlite_json_value(const void *ptr, DLiteType type, size_t size)
+json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size)
 {
   bool bval;
   json_int_t ival;
@@ -623,4 +624,81 @@ json_t *dlite_json_value(const void *ptr, DLiteType type, size_t size)
     return errx(-1, "JSON storage, unsupported type number: %d", type), NULL;
   }
   assert(0);  /* should never be reached */
+}
+
+
+/* Copies the value of JSON item `item` to memory pointed to by `ptr`
+   (which should be large enough to hold `size` bytes).  `type` and
+   `size` is the destination type and size.  Returns non-zero on error. */
+int dlite_json_get_value(void *ptr, const json_t *item,
+                         DLiteType type, size_t size)
+{
+  switch (type) {
+  case dliteBlob:
+    return errx(1, "JSON does not support binary blobs");
+
+  case dliteBool:
+    if (!json_is_boolean(item)) return errx(1, "expected json boolean");
+    *((bool *)ptr) = json_boolean_value(item);
+    break;
+
+  case dliteInt:
+    if (!json_is_integer(item)) return errx(1, "expected json integer");
+    switch (size) {
+    case 1:  *((int8_t *)ptr)  = json_integer_value(item);  break;
+    case 2:  *((int16_t *)ptr) = json_integer_value(item);  break;
+    case 4:  *((int32_t *)ptr) = json_integer_value(item);  break;
+    case 8:  *((int64_t *)ptr) = json_integer_value(item);  break;
+    default: return errx(1, "invalid int size: %lu", size);
+    }
+    break;
+
+  case dliteUInt:
+    if (!json_is_integer(item)) return errx(1, "expected json integer");
+    if (json_integer_value(item) < 0) return errx(1, "expected unsigned int");
+    switch (size) {
+    case 1:  *((uint8_t *)ptr)  = json_integer_value(item);  break;
+    case 2:  *((uint16_t *)ptr) = json_integer_value(item);  break;
+    case 4:  *((uint32_t *)ptr) = json_integer_value(item);  break;
+    case 8:  *((uint64_t *)ptr) = json_integer_value(item);  break;
+    default: return errx(1, "invalid uint size: %lu", size);
+    }
+    break;
+
+  case dliteFloat:
+    if (!json_is_real(item)) return errx(1, "expected json real");
+    if (json_integer_value(item) < 0) return errx(1, "expected unsigned int");
+    switch (size) {
+    case  4: *((float32_t *)ptr)  = json_integer_value(item);  break;
+    case  8: *((float64_t *)ptr)  = json_integer_value(item);  break;
+#ifdef HAVE_FLOAT80
+    case 10: *((float80_t *)ptr)  = json_integer_value(item);  break;
+#endif
+#ifdef HAVE_FLOAT128
+    case 16: *((float128_t *)ptr) = json_integer_value(item);  break;
+#endif
+    default: return errx(1, "invalid float size: %lu", size);
+    }
+    break;
+
+  case dliteFixString:
+    if (!json_is_string(item)) return errx(1, "expected json string");
+    if (json_string_length(item) > size)
+      return errx(1, "length of JSON string (%lu), exceeds buffer size (%lu)",
+                  json_string_length(item), size);
+    strncpy(ptr, json_string_value(item), size);
+    ((char *)ptr)[size] = '\0';
+    break;
+
+  case dliteStringPtr:
+    if (!json_is_string(item)) return errx(1, "expected json string");
+    if (!(*((char **)ptr) = strdup(json_string_value(item))))
+      return errx(1, "allocation error");
+    break;
+
+  default:
+    return errx(1, "reading JSON data of type '%s' is not yet supported",
+                dlite_type_get_dtypename(type));
+  }
+  return 0;
 }
