@@ -1,8 +1,13 @@
 /* json-utils.c */
 
+#include <assert.h>
 
 #include "json-utils.h"
+#include "err.h"
 #include "str.h"
+#include "boolean.h"
+#include "integers.h"
+#include "floats.h"
 
 
 /* Returns the type of the json object as character:
@@ -548,4 +553,74 @@ int dlite_json_entity_prop_count(json_t *obj)
     }
   }
   return nerr > 0 ? -1 : count;
+}
+
+
+
+/* Returns a new json item with the data at `ptr` (which has type `type` and
+ * size `size`).  Returns NULL on error.
+*/
+json_t *dlite_json_value(const void *ptr, DLiteType type, size_t size)
+{
+  bool bval;
+  json_int_t ival;
+  double fval;
+  char *sval;
+
+  switch (type) {
+
+  case dliteBlob:
+    return errx(-1, "JSON storage does not support binary blobs"), NULL;
+
+  case dliteBool:
+    assert(size == sizeof(bool));
+    bval = *((bool *)ptr);
+    return json_boolean(bval);
+
+  case dliteInt:
+    switch (size) {
+    case 1:  ival = *((int8_t *)ptr);  break;
+    case 2:  ival = *((int16_t *)ptr); break;
+    case 4:  ival = *((int32_t *)ptr); break;
+    case 8:  ival = *((int64_t *)ptr); break;
+    default: return errx(-1, "invalid int size: %lu", size), NULL;
+    }
+    return json_integer(ival);
+
+  case dliteUInt:
+    switch (size) {
+    case 1:  ival = *((uint8_t *)ptr);  break;
+    case 2:  ival = *((uint16_t *)ptr); break;
+    case 4:  ival = *((uint32_t *)ptr); break;
+    case 8:  ival = *((uint64_t *)ptr); break;
+    default: return errx(-1, "invalid uint size: %lu", size), NULL;
+    }
+    return json_integer(ival);
+
+  case dliteFloat:
+    switch (size) {
+    case  4: fval = *((float32_t *)ptr);  break;
+    case  8: fval = *((float64_t *)ptr);  break;
+#ifdef HAVE_FLOAT80
+    case 10: fval = *((float80_t *)ptr);  break;
+#endif
+#ifdef HAVE_FLOAT128
+    case 16: fval = *((float128_t *)ptr); break;
+#endif
+    default: return errx(-1, "invalid float size: %lu", size), NULL;
+    }
+    return json_real(fval);
+
+  case dliteFixString:
+    sval = (char *)ptr;
+    return json_string(sval);
+
+  case dliteStringPtr:
+    sval = *((char **)ptr);
+    return json_string(sval);
+
+  default:
+    return errx(-1, "JSON storage, unsupported type number: %d", type), NULL;
+  }
+  assert(0);  /* should never be reached */
 }

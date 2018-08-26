@@ -749,7 +749,12 @@ INPUT                  = @dlite_SOURCE_DIR@/doc \
                          @dlite_SOURCE_DIR@/doc/concepts.md \
                          @dlite_SOURCE_DIR@/src \
                          @dlite_SOURCE_DIR@/uuid \
-                         @dlite_BINARY_DIR@/uuid
+                         @dlite_BINARY_DIR@/uuid \
+                         @dlite_SOURCE_DIR@/src/tests/minunit/README.md
+
+#                         @dlite_SOURCE_DIR@/plugins/json \
+#                         @dlite_SOURCE_DIR@/plugins/hdf5 \
+#                         @dlite_SOURCE_DIR@/src/tests/minunit
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

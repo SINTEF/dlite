@@ -14,6 +14,10 @@
 #include "boolean.h"
 #include "err.h"
 
+#include "dlite-utils.h"
+
+/*
+*/
 #include "dlite.h"
 #include "dlite-datamodel.h"
 
@@ -58,6 +62,7 @@
 typedef struct {
   DLiteStorage_HEAD
   json_t *root;       /* json root object */
+  int compact;        /* whether to write output in compact format */
 } DLiteJsonStorage;
 
 
@@ -88,9 +93,10 @@ void object_set_string(json_t *obj, const char *key, const char *val)
   json_t *value = json_object_get(obj, key);
   if (json_is_string(value))
     json_string_set(value, val);
-  else
+  else {
     value = json_string(val);
-  json_object_set(obj, key, value);
+    json_object_set_new(obj, key, value);
+  }
 }
 
 int object_get_integer(json_t *obj, const char *key)
@@ -107,9 +113,10 @@ void object_set_integer(json_t *obj, const char *key, const int val)
   json_t *value = json_object_get(obj, key);
   if (json_is_integer(value))
     json_integer_set(value, val);
-  else
+  else {
     value = json_integer(val);
-  json_object_set(obj, key, value);
+    json_object_set_new(obj, key, value);
+  }
 }
 
 void object_set_real(json_t *obj, const char *key, const double val)
@@ -117,9 +124,10 @@ void object_set_real(json_t *obj, const char *key, const double val)
   json_t *value = json_object_get(obj, key);
   if (json_is_real(value))
     json_real_set(value, val);
-  else
+  else {
     value = json_real(val);
-  json_object_set(obj, key, value);
+    json_object_set_new(obj, key, value);
+  }
 }
 
 /**
@@ -127,10 +135,11 @@ void object_set_real(json_t *obj, const char *key, const double val)
 
   Valid \a options are:
 
-    rw   Read and write: open existing file or create new file (default)
-    r    Read-only: open existing file for read-only
-    a    Append: open existing file for read and write
-    w    Write: truncate existing file or create new file
+    - rw   Read and write: open existing file or create new file (default)
+    - r    Read-only: open existing file for read-only
+    - a    Append: open existing file for read and write
+    - w    Write: truncate existing file or create new file
+    - c    Whether to write output in compact format
 
  */
 DLiteStorage *dlite_json_open(const char *uri, const char *options)
@@ -154,6 +163,8 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   } else if (strcmp(options, "w") == 0) {
     s->root = json_object();
     s->writable = 1;
+  } else if (strchr(options, 'c')) {
+    s->compact = 1;
   } else {
     FAIL1("invalid options '%s', must be 'rw' (read and write), "
           "'r' (read-only), 'w' (write) or 'a' (append)", options);
@@ -185,17 +196,20 @@ int dlite_json_close(DLiteStorage *s)
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   int nerr=0;
   if (storage->writable == 1) {
-    json_dump_file(storage->root, storage->uri, 0);
+    size_t flags=0;
+    flags |= (storage->compact) ? JSON_COMPACT : JSON_INDENT(2);
+    json_dump_file(storage->root, storage->uri, flags);
   }
   json_decref(storage->root);
   return nerr;
 }
 
-DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *uuid)
+DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
 {
   DLiteJsonDataModel *d=NULL;
   DLiteDataModel *retval=NULL;
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
+<<<<<<< HEAD
   json_t *data = json_object_get(storage->root, uuid);
   json_t *data2 = json_object_get(storage->root, "name");
 
@@ -214,13 +228,42 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *uuid)
   }
   else if (json_is_object(data)) {
     if (!(d = calloc(1, sizeof(DLiteJsonDataModel)))) FAIL0("allocation failure");
+=======
+  //const char *name, *version, *namespace;
+  char uuid[DLITE_UUID_LENGTH + 1];
+  json_t *data;
+
+  if (!(d = calloc(1, sizeof(DLiteJsonDataModel))))
+    FAIL0("allocation failure");
+
+  if (id && dlite_get_uuid(uuid, id) < 0) goto fail;
+
+  if (id && (data = json_object_get(storage->root, uuid))) {
+    /* Instance `id` exists - assign datamodel... */
+    if (!json_is_object(data))
+      FAIL2("expected a json object for instance '%s' in '%s'",
+            id, storage->uri);
+>>>>>>> fix_entity
     d->instance = data;
     d->meta = json_object_get(data, "meta");
     d->dimensions = json_object_get(data, "dimensions");
     d->properties = json_object_get(data, "properties");
+
+  } else {
+    /* Instance `uuid` does not exists - create new instance and
+       assign the datamodel... */
+    if (!storage->writable)
+      FAIL2("cannot create new instance '%s' in read-only storage %s",
+            uuid, storage->uri);
+    d->instance = json_object();
+    json_object_set(storage->root, uuid, d->instance);
+    d->meta = json_object();
+    json_object_set(d->instance, "meta", d->meta);
+    d->dimensions = json_object();
+    json_object_set(d->instance, "dimensions", d->dimensions);
+    d->properties = json_object();
+    json_object_set(d->instance, "properties", d->properties);
   }
-  else
-    FAIL2("expected a json object for instance '%s' in '%s'", uuid, storage->uri);
 
   retval = (DLiteDataModel *)d;
  fail:
@@ -235,7 +278,7 @@ int dlite_json_datamodel_free(DLiteDataModel *d)
 {
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   int nerr=0;
-  json_decref(data->meta);
+  if (data->meta) json_decref(data->meta);
   json_decref(data->dimensions);
   json_decref(data->properties);
   json_decref(data->instance);
@@ -334,6 +377,37 @@ int dlite_json_set_dimension_size(DLiteDataModel *d, const char *name, size_t si
   return 0;
 }
 
+
+/* A recursive help function to handle n-dimensional arrays. Args:
+     d : current dimension
+     arr : json array to fil out
+     pptr : pointer to pointer to current data point
+     size : size of each data point
+     ndims : number of dimensions
+     dims : length of each dimension (length: ndims)
+*/
+static json_t *setdim(size_t d, void **pptr,
+                      DLiteType type, size_t size,
+                      size_t ndims, const size_t *dims)
+{
+  int i;
+  json_t *item;
+  if (d < ndims) {
+    json_t *arr = json_array();
+    for (i=0; i<(int)dims[d]; i++) {
+      if (!(item = setdim(d + 1, pptr, type, size, ndims, dims))) return NULL;
+      json_array_append_new(arr, item);
+    }
+    return arr;
+  }  else {
+    item = dlite_json_value(*pptr, type, size);
+    *((char **)pptr) += size;
+    return item;
+  }
+  assert(0);
+}
+
+
 /**
   Sets property `name` to the memory (of `size` bytes) pointed to by `ptr`.
   Returns non-zero on error.
@@ -343,87 +417,16 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
                             DLiteType type, size_t size,
                             size_t ndims, const size_t *dims)
 {
-  DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
-  json_data_t *jd = json_data();
-  size_t num = 1; /* Number of element in array */
-  size_t i;
-  char *fix_str_data;
-  char **str_ptr_data;
-  size_t fix_str_data_size;
-  json_t *arr;
-  int retval = 0;
-
-  if (dims) {
-    jd->dims = ivec();
-    ivec_resize(jd->dims, ndims);
-    for(i=0; i < ndims; i++) {
-      num *= dims[i];
-      jd->dims->data[i] = dims[i];
-    }
+  DLiteJsonDataModel *datamodel = (DLiteJsonDataModel *)d;
+  json_t *item;
+  if (ndims) {
+    if (!(item = setdim(0, (void **)&ptr, type, size, ndims, dims))) return 1;
+    json_object_set_new(datamodel->properties, name, item);
+  } else {
+    if (!(item = dlite_json_value(ptr, type, size))) return 1;
+    json_object_set_new(datamodel->properties, name, item);
   }
-
-  switch (type) {
-
-  case dliteBlob:
-    retval = errx(-2, "JSON storage does not support binary blobs");
-    break;
-
-  case dliteInt:
-    jd->dtype = 'i';
-    jd->array_i = ivec_create(type, size, num, ptr);
-    break;
-  case dliteUInt:
-    jd->dtype = 'i';
-    jd->array_i = ivec_create(type, size, num, ptr);
-    break;
-  case dliteBool:
-    jd->dtype = 'b';
-    jd->array_i = ivec_create(type, size, num, ptr);
-    break;
-
-  case dliteFloat:
-    jd->dtype = 'r';
-    jd->array_r = vec_create(type, size, num, ptr);
-    break;
-
-  case dliteFixString:
-    jd->dtype = 's';
-    fix_str_data = (char*)(ptr);
-    if (dims) {
-      fix_str_data_size = (size + 1) * num;
-      arr = json_array();
-      for(i=0; i < fix_str_data_size; i += (size + 1))
-        json_array_append_new(arr, json_stringn(&fix_str_data[i], size));
-      json_object_set(data->properties, name, arr);
-    }
-    else {
-      json_object_set(data->properties, name, json_string(fix_str_data));
-    }
-    retval = 1; /* Do not use the json_data_t */
-    break;
-
-  case dliteStringPtr:
-    jd->dtype = 's';
-    str_ptr_data = (char**)ptr;
-    if (dims) {
-      arr = json_array();
-      for(i=0; i < num; i++)
-        json_array_append_new(arr, json_string(str_ptr_data[i]));
-      json_object_set(data->properties, name, arr);
-    }
-    else {
-      json_object_set(data->properties, name, json_string(str_ptr_data[0]));
-    }
-    retval = 1; /* Do not use the json_data_t */
-    break;
-
-  default:
-    retval = errx(-1, "JSON storage, unsupported type number: %d", type);
-  }
-  if (retval == 0)
-    retval = json_set_data(data->properties, name, jd);
-  json_data_free(jd);
-  return retval >= 0 ? 0 : retval;
+  return 0;
 }
 
 
@@ -597,14 +600,14 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
 DLiteEntity *dlite_json_entity(json_t *obj)
 {
   DLiteEntity *entity = NULL;
-  char *uri;
-  char *desc;
+  char *uri=NULL;
+  char *desc=NULL;
   int i, nprop, ndim;
   json_t *jd;
   json_t *jp;
   json_t *item;
-  DLiteDimension *dims;
-  DLiteProperty *props;
+  DLiteDimension *dims=NULL;
+  DLiteProperty *props=NULL;
 
   if (json_is_object(obj)) {
       uri = dlite_json_uri(obj);
@@ -620,7 +623,7 @@ DLiteEntity *dlite_json_entity(json_t *obj)
         }
         else if ((nprop > 0) && (ndim >= 0)) {
           item = json_object_get(obj, "description");
-          desc = str_copy(json_string_value(item));
+          if (item) desc = str_copy(json_string_value(item));
 
           if (ndim > 0) {
             dims = calloc(ndim, sizeof(DLiteDimension));
@@ -646,61 +649,89 @@ DLiteEntity *dlite_json_entity(json_t *obj)
       else
         err(0, "name, version, and namespace must be given.");
   }
+  if (uri) free(uri);
+  if (desc) free(desc);
+  if (dims) {
+    for (i=0; i<ndim; i++) {
+      free(dims[i].name);
+      free(dims[i].description);
+    }
+    free(dims);
+  }
+  if (props) {
+    for (i=0; i<nprop; i++) {
+      if (props[i].name) free(props[i].name);
+      if (props[i].dims) free(props[i].dims);
+      if (props[i].description) free(props[i].description);
+    }
+    free(props);
+  }
   return entity;
 }
 
 /* Create an entity from a json storage and the given entity ID */
-DLiteEntity *dlite_json_get_entity(const DLiteStorage *s, const char *uuid)
+DLiteEntity *dlite_json_get_entity(const DLiteStorage *s, const char *id)
 {
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
-  json_t *obj = NULL;
-  json_t *item = NULL;
-  size_t i, size;
   char *uri=NULL;
+  json_t *obj=NULL;
 
-  /* Find the uuid in the json storage */
-  if (uuid) {
-    if (json_is_object(storage->root)) {
-      uri = dlite_json_uri(storage->root);
-      if (uri) {
-        if (str_equal(uuid, uri))
-          obj = storage->root;
-        /*?str_free(uri);*/
-      }
-      else
-        obj = json_object_get(storage->root, uuid);
-    }
-    else if (json_is_array(storage->root)) {
+  if (id && *id) {
+    /* id given - find it in the json storage */
+    char uuid[DLITE_UUID_LENGTH+1], suuid[DLITE_UUID_LENGTH+1];
+    if (dlite_get_uuid(uuid, id) < 0) goto fail;
+
+    /* If root is an array, we set the root to the matching item */
+    if (json_is_array(storage->root)) {
+      size_t i, size;
       size = json_array_size(storage->root);
-      for(i = 0; i < size; i++) {
-        item = json_array_get(storage->root, i);
+      for(i=0; i < size; i++) {
+        json_t *item = json_array_get(storage->root, i);
         uri = dlite_json_uri(item);
-        if (str_equal(uuid, uri))
+        if (dlite_get_uuid(suuid, uri) < 0) goto fail;
+        if (str_equal(suuid, uuid)) {
           obj = item;
-        /*?str_free(uri);*/
-        if (obj)
           break;
+        }
       }
+    } else if (json_is_object(storage->root)) {
+      if (!(uri = dlite_json_uri(storage->root)))
+        FAIL1("cannot find valid entiry in storage '%s'", s->uri);
+      if (dlite_get_uuid(suuid, uri) < 0)
+        goto fail;
+      if (str_equal(suuid, uuid))
+        obj = storage->root;
+
+      if (!obj)
+        FAIL2("cannot find entity with id '%s' in storage '%s'", id, s->uri);
     }
-  }
-  /* No uuid given, check if only one entity is defined in the json storage */
-  else {
-    uri = dlite_json_uri(storage->root);
-    if (uri)
-      obj = storage->root;
-    else if (json_is_array(storage->root)) {
-      size = json_array_size(storage->root);
-      if (size > 0) {
-        item = json_array_get(storage->root, 0);
-        uri = dlite_json_uri(item);
-        if (uri)
+
+  } else {
+    /* no id - check if only one entity is defined in the json storage */
+    if (json_is_array(storage->root)) {
+      size_t size = json_array_size(storage->root);
+      if (size == 1) {
+        json_t *item = json_array_get(storage->root, 0);
+        if ((uri = dlite_json_uri(item)))
           obj = item;
+      } else {
+        FAIL2("storage '%s' is an array of %lu items, but only one entity "
+              "is expected when no id is provided", s->uri, size);
       }
+    } else if (json_is_object(storage->root)) {
+      if ((uri = dlite_json_uri(storage->root)))
+        obj = storage->root;
     }
+
+    if (!obj)
+      FAIL1("cannot find valid entity in storage '%s'", s->uri);
   }
 
-  return dlite_json_entity(obj);
+ fail:
+  if (uri) free(uri);
+  return (obj) ? dlite_json_entity(obj) : NULL;
 }
+
 
 int dlite_json_set_entity(DLiteStorage *s, const DLiteEntity *e)
 {

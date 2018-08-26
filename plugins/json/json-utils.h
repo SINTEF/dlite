@@ -49,3 +49,8 @@ int dlite_json_entity_dim_count(json_t *obj);
  * a property must have a name and a valid type.
  */
 int dlite_json_entity_prop_count(json_t *obj);
+
+/* Returns a new json item with the data at `ptr` (which has type `type` and
+ * size `size`).  Returns NULL on error.
+*/
+json_t *dlite_json_value(const void *ptr, DLiteType type, size_t size);

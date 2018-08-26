@@ -119,7 +119,7 @@
   DLiteType type;     /*!< Type of the described data. */               \
   size_t size;        /*!< Size of one data element. */                 \
   int ndims;          /*!< Number of dimension of the described */      \
-                      /*   data. */                                     \
+                      /*   data.  Zero if scalar. */                    \
   int *dims;          /*!< Array of dimension indices. */               \
   char *description;  /*!< Human described of the described data. */
 
@@ -219,9 +219,12 @@ typedef struct _DLiteCollection {
 } DLiteCollection;
 
 
-/********************************************************************
- *  Instances
-********************************************************************/
+/* ================================================================= */
+/**
+ * @name Instances
+ */
+/* ================================================================= */
+/** @{ */
 
 /**
   Returns a new uninitialised dlite instance of Entiry \a meta with
@@ -241,22 +244,47 @@ DLiteInstance *dlite_instance_create(DLiteEntity *meta, size_t *dims,
  */
 void dlite_instance_free(DLiteInstance *inst);
 
-
 /**
   Loads instance identified by \a id from storage \a s and returns a
   new and fully initialised dlite instance.
 
   On error, NULL is returned.
+
+  @todo
+  The current implementation requires `entity` to be provided and to
+  describe the instance identified by `id`.  Improvements:
+    - Allow `entity` to be NULL.  In this case, read instance and
+      check its uri (namespace/version/name).  Use this to load the
+      corresponding metadata from a metadata database and assign the
+      instance `meta` field to it.
+    - Allow `entity` to be of another type than the uri of the instance.
+      In this case, check if we have a translator that can translate
+      the instance from its current type to `entity`.  If so, do it
+      and return the new translated instance.
+
+  Requires:
+    - implementation of a metadata database
+    - implementation of translators
+    - implementation of a database of translator plugins
  */
 DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
 				   DLiteEntity *entity);
-
 
 /**
   Saves instance \a inst to storage \a s.  Returns non-zero on error.
  */
 int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 
+
+/**
+  Returns number of dimensions or -1 on error.
+ */
+int dlite_instance_get_ndimensions(const DLiteInstance *inst);
+
+/**
+  Returns number of properties or -1 on error.
+ */
+int dlite_instance_get_nproperties(const DLiteInstance *inst);
 
 /**
   Returns size of dimension \a i or -1 on error.
@@ -322,9 +350,17 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
 					    const char *name, size_t j);
 
 
-/********************************************************************
- *  Entities
-********************************************************************/
+/** @} */
+/* ================================================================= */
+/**
+ * @name Entities
+ *
+ * The entity api is currently very limited, however, it is possible
+ * to use the instance api on entities too, by casting them to a
+ * DLiteInstance.
+ */
+/* ================================================================= */
+/** @{ */
 
 /**
   Returns a new Entity created from the given arguments.
@@ -333,7 +369,6 @@ DLiteEntity *
 dlite_entity_create(const char *uri, const char *description,
 		    size_t ndimensions, const DLiteDimension *dimensions,
 		    size_t nproperties, const DLiteProperty *properties);
-
 
 /**
   Increase reference count to Entity.
@@ -360,12 +395,10 @@ void dlite_entity_clear(DLiteEntity *entity);
  */
 DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id);
 
-
 /**
   Saves an Entity to storage \a s.  Returns non-zero on error.
  */
 int dlite_entity_save(DLiteStorage *s, const DLiteEntity *entity);
-
 
 /**
   Returns a pointer to property with index \a i or NULL on error.
@@ -380,12 +413,15 @@ const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
 					       const char *name);
 
 
-/********************************************************************
- *  Generic metadata
- *
- *  These functions are mainly used internally or by code generators.
- *  Do not waist time on them...
- ********************************************************************/
+/** @} */
+/* ================================================================= */
+/**
+ * @name Generic metadata
+ * These functions are mainly used internally or by code generators.
+ * Do not waist time on them...
+ */
+/* ================================================================= */
+/** @{ */
 
 /**
   Initialises internal properties of \a meta.  This function should
@@ -427,9 +463,17 @@ int dlite_meta_get_dimension_index(const DLiteMeta *meta, const char *name);
 int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name);
 
 /**
+  Returns a pointer to property with index \a i or NULL on error.
+ */
+const DLiteBaseProperty *
+dlite_meta_get_property_by_index(const DLiteMeta *meta, size_t i);
+
+/**
   Returns a pointer to property named \a name or NULL on error.
  */
 const DLiteBaseProperty *dlite_meta_get_property(const DLiteMeta *meta,
 						 const char *name);
+
+/** @} */
 
 #endif /* _DLITE_ENTITY_H */

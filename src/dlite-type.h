@@ -82,7 +82,11 @@ typedef enum _DLiteType {
   dliteFloat,          /*!< Floating point */
   dliteFixString,      /*!< Fix-sized NUL-terminated string */
   dliteStringPtr,      /*!< Pointer to NUL-terminated string */
-  dliteTriplet         /*!< Subject-predicate-object triplet */
+  dliteTriplet,        /*!< Subject-predicate-object triplet */
+
+  dliteDimension,      /*!< Dimension, only needed for metadata */
+  dliteBaseProperty,   /*!< Base property, only needed for metadata */
+  dliteProperty        /*!< Property, only needed for metadata */
 } DLiteType;
 
 

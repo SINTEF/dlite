@@ -21,7 +21,10 @@ static char *dtype_names[] = {
   "float",
   "fixstring",
   "string",
-  "triplet"
+  "triplet",
+  "dimension",
+  "baseproperty",
+  "property",
 };
 
 /* Name of fix-sized types (does not include dliteBlob and dliteFixString) */
