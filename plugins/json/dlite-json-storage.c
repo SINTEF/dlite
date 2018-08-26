@@ -212,26 +212,6 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
   DLiteJsonDataModel *d=NULL;
   DLiteDataModel *retval=NULL;
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
-<<<<<<< HEAD
-  json_t *data = json_object_get(storage->root, uuid);
-  json_t *data2 = json_object_get(storage->root, "name");
-
-  if (data == NULL) {
-    if (storage->writable) {
-      if (!(d = calloc(1, sizeof(DLiteJsonDataModel)))) FAIL0("allocation failure");
-      d->instance = json_object();
-      json_object_set(storage->root, uuid, d->instance);
-      d->meta = json_object();
-      json_object_set(d->instance, "meta", d->meta);
-      d->dimensions = json_object();
-      json_object_set(d->instance, "dimensions", d->dimensions);
-      d->properties = json_object();
-      json_object_set(d->instance, "properties", d->properties);
-    }
-  }
-  else if (json_is_object(data)) {
-    if (!(d = calloc(1, sizeof(DLiteJsonDataModel)))) FAIL0("allocation failure");
-=======
   //const char *name, *version, *namespace;
   char uuid[DLITE_UUID_LENGTH + 1];
   json_t *data;
@@ -246,7 +226,6 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     if (!json_is_object(data))
       FAIL2("expected a json object for instance '%s' in '%s'",
             id, storage->uri);
->>>>>>> fix_entity
     d->instance = data;
     d->meta = json_object_get(data, "meta");
     d->dimensions = json_object_get(data, "dimensions");

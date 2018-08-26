@@ -15,13 +15,17 @@
 #include "config.h"
 
 
+#define STRINGIFY(s) _STRINGIFY(s)
+#define _STRINGIFY(s) # s
+
+
 /***************************************************************
  * Test JSON storage
  ***************************************************************/
 
 MU_TEST(test_read)
 {
-  char *dbname = "../../../src/tests/test-read-data.json";
+  char *dbname = STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json";
   DLiteStorage *db = NULL;
   DLiteDataModel *d = NULL;
   const char *s;
@@ -51,7 +55,7 @@ MU_TEST(test_read)
   mu_check(d);
   mu_check(dlite_datamodel_free(d) == 0);
 */
-  d = dlite_datamodel(db, "4781deed-966b-528b-be3d-2ca7ab77aab0");
+  d = dlite_datamodel(db, "dbd9d597-16b4-58f5-b10f-7e49cf85084b");
   mu_check(d);
   s = dlite_datamodel_get_meta_uri(d);
   mu_check(str_equal(s, "dlite/1/A"));

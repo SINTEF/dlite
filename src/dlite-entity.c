@@ -604,27 +604,6 @@ void dlite_entity_clear(DLiteEntity *entity)
  */
 DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id)
 {
-  char uuid[DLITE_UUID_LENGTH+1];
-  int uuidver;
-  DLiteDataModel *d;
-  DLiteEntity *e=NULL;
-  /*
-  DLiteDimension *dims;
-  DLiteProperty *props;
-  size_t ndims, nprops;
-  char *uri, *namespace, *version, *name, *description;
-  */
-  char *name;
-
-  /*
-  if (!s->api->getEntity)
-    return errx(1, "driver '%s' does not support getEntity()",
-                s->api->name), NULL;
-
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
-    return errx(1, "id '%s' is not an UUID or a string that we can "
-                "generate an uuid from", id), NULL;
-
   return s->api->getEntity(s, id);
 }
 
