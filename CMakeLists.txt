@@ -85,8 +85,9 @@ endif()
 
 # This should hopefully provide correct prefix and postfix for
 # generated libraries
-set(LIB_PREFIX ${LIBRARY_SUFFIX})
-set(LIB_POSTFIX ${CMAKE_${CMAKE_BUILD_TYPE}_POSTFIX}${LIBRARY_SUFFIX})
+set(LIB_PREFIX ${LIBRARY_PREFIX})
+#set(LIB_POSTFIX ${CMAKE_${CMAKE_BUILD_TYPE}_POSTFIX}${LIBRARY_SUFFIX})
+set(LIB_POSTFIX ${LIBRARY_SUFFIX})
 
 
 #
