@@ -66,7 +66,7 @@ void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
 /**
   Returns a NULL-terminated array of string pointers to instance UUID's.
   The caller is responsible to free the returned array with
-  dlite_storage_free_uuids().
+  dlite_storage_uuids_free().
 
   Not all plugins may implement this function.  In that case, NULL is
   returned.

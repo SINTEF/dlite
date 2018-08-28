@@ -59,10 +59,13 @@ set(sources
   dlite-storage.c
   dlite-entity.c
   dlite-datamodel.c
+  dlite-store.c
+  dlite-collection.c
   getuuid.c
   err.c
   compat.c
   triplestore.c
+  map.c
   )
 
 add_definitions(-DHAVE_CONFIG_H)
