@@ -43,13 +43,13 @@ static DLiteBaseProperty *schema_entity_properties[] = {
 static DLiteMeta schema_entity = {
   "d1ce1dc7-e2b1-51a1-8957-3277815aed18",     /* uuid (corresponds to uri) */
   "http://meta.sintef.no/0.1/schema-entity",  /* uri  */
+  1,                                          /* refcount, never free */
   NULL,                                       /* meta */
   "Schema for Entities",                      /* description */
   sizeof(DLiteEntity),                        /* size */
   offsetof(DLiteEntity, ndimensions),         /* dimoffset */
   schema_entity_propoffsets,                  /* propoffsets */
   0,                                          /* reloffset */
-  1,                                          /* refcount, never free */
   schema_entity_dimensions,                   /* dimensions */
   schema_entity_properties,                   /* properties */
   NULL,                                       /* relations */
@@ -68,6 +68,8 @@ static DLiteMeta schema_entity = {
 /********************************************************************
  *  Instances
  ********************************************************************/
+
+static void dlite_instance_free(DLiteInstance *inst);
 
 /*
   Returns a new dlite instance from Entiry `meta` and dimensions
@@ -122,11 +124,11 @@ DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
     }
   }
 
-  dlite_meta_incref(meta);  /* increase metadata refcount */
-
+  dlite_meta_incref(meta);      /* increase refcount of metadata */
+  dlite_instance_incref(inst);  /* increase refcount of the new instance */
   return inst;
  fail:
-  if (inst) dlite_instance_free(inst);
+  if (inst) dlite_instance_decref(inst);
   return NULL;
 }
 
@@ -134,7 +136,7 @@ DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
 /*
   Free's an instance and all arrays associated with dimensional properties.
  */
-void dlite_instance_free(DLiteInstance *inst)
+static void dlite_instance_free(DLiteInstance *inst)
 {
   DLiteMeta *meta;
   size_t i, nprops;
@@ -170,6 +172,25 @@ void dlite_instance_free(DLiteInstance *inst)
   free(inst);
 
   dlite_meta_decref(meta);  /* decrease metadata refcount */
+}
+
+
+/*
+  Increases reference count on `inst`.
+ */
+void dlite_instance_incref(DLiteInstance *inst)
+{
+  inst->refcount++;
+}
+
+
+/*
+  Decrease reference count to `inst`.  If the reference count reaches
+  zero, the instance is free'ed.
+ */
+void dlite_instance_decref(DLiteInstance *inst)
+{
+  if (--inst->refcount <= 0) dlite_instance_free(inst);
 }
 
 
@@ -226,7 +247,7 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
   instance = inst;
  fail:
   if (!instance) {
-    if (inst) dlite_instance_free(inst);
+    if (inst) dlite_instance_decref(inst);
   }
   if (d) dlite_datamodel_free(d);
   if (uri) free((char *)uri);
@@ -783,7 +804,7 @@ void dlite_meta_clear(DLiteMeta *meta)
 }
 
 /*
-  Increase reference count to meta-metadata.
+  Increase reference count to metadata.
  */
 void dlite_meta_incref(DLiteMeta *meta)
 {
@@ -791,8 +812,8 @@ void dlite_meta_incref(DLiteMeta *meta)
 }
 
 /*
-  Decrease reference count to meta-metadata.  If the reference count reaches
-  zero, the meta-metadata is free'ed.
+  Decrease reference count to metadata.  If the reference count reaches
+  zero, the metadata is free'ed.
  */
 void dlite_meta_decref(DLiteMeta *meta)
 {

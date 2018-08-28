@@ -47,7 +47,7 @@ void dlite_store_free(DLiteStore *store)
   while ((uuid = map_next(&store->map, &iter))) {
     // XXX FIXME - call dlite_store_remove()
     item = (item_t *)map_get(&store->map, uuid);
-    if (item->own) dlite_instance_free(item->inst);
+    if (item->own) dlite_instance_decref(item->inst);
   }
   map_deinit(&store->map);
 }
@@ -143,7 +143,7 @@ int dlite_store_remove(DLiteStore *store, const char *id)
   if (!(item = (item_t *)map_get(&store->map, uuid)))
     FAIL1("id '%s' not in store", id);
   if (item->own)
-    dlite_instance_free(item->inst);
+    dlite_instance_decref(item->inst);
   map_remove(&store->map, uuid);
 
   retval = 0;
@@ -155,9 +155,11 @@ int dlite_store_remove(DLiteStore *store, const char *id)
   Returns a borrowed reference to instance, or NULL if `id` is not
   in the store.
 */
+/*
 DLiteInstance *dlite_store_get(const DLiteStore *store, const char *id)
 {
   DLiteInstance *inst;
 
   return inst;
 }
+*/

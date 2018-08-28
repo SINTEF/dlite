@@ -67,6 +67,8 @@
   char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID for this data instance. */    \
   const char *uri;                /*!< Unique name or uri of the data */  \
                                   /*   instance.  Can be NULL. */         \
+  int refcount;                   /*!< Number of references to this */    \
+                                  /*   instance. */                       \
   struct _DLiteMeta *meta;        /*!< Pointer to the metadata descri- */ \
                                   /*!< bing this instance. */
 
@@ -92,8 +94,6 @@
   size_t *propoffsets; /*!< Memory offset of each property value. */    \
                        /*   NULL if instance is metadata. */            \
   size_t reloffset;    /*!< Memory offset of relations in instance. */	\
-  int refcount;        /*!< Number of instances referring to this */    \
-                       /*   metadata. */                                \
                                                                         \
   /* schema_properties */                                               \
   DLiteDimension *dimensions;     /*!< Array of dimensions. */          \
@@ -203,11 +203,19 @@ struct _DLiteEntity {
 DLiteInstance *dlite_instance_create(DLiteEntity *meta, size_t *dims,
                                      const char *id);
 
+
 /**
-  Free's an instance and all arrays associated with dimensional properties.
-  Decreases the reference count of the associated metadata.
+  Increases reference count on `inst`.
  */
-void dlite_instance_free(DLiteInstance *inst);
+void dlite_instance_incref(DLiteInstance *inst);
+
+
+/**
+  Decrease reference count to `inst`.  If the reference count reaches
+  zero, the instance is free'ed.
+ */
+void dlite_instance_decref(DLiteInstance *inst);
+
 
 /**
   Loads instance identified by \a id from storage \a s and returns a

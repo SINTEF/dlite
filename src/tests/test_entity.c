@@ -50,15 +50,17 @@ MU_TEST(test_entity_create)
   mu_assert_int_eq(5, entity->nproperties);
   mu_assert_int_eq(1, entity->properties[2]->dims[0]);
   mu_assert_int_eq(0, entity->properties[2]->dims[1]);
-  mu_assert_int_eq(56, sizeof(DLiteInstance));
-  mu_assert_int_eq(56, entity->dimoffset);
-  mu_assert_int_eq(72, entity->propoffsets[0]);
-  mu_assert_int_eq(80, entity->propoffsets[1]);
-  mu_assert_int_eq(88, entity->propoffsets[2]);
-  mu_assert_int_eq(96, entity->propoffsets[3]);
-  mu_assert_int_eq(104, entity->propoffsets[4]);
-  mu_assert_int_eq(104, entity->reloffset);
-  mu_assert_int_eq(112, entity->size);
+  /* be careful here.. the expected values are for a memory-aligned 64 bit
+     system */
+  mu_assert_int_eq(64, sizeof(DLiteInstance));
+  mu_assert_int_eq(64, entity->dimoffset);
+  mu_assert_int_eq(80, entity->propoffsets[0]);
+  mu_assert_int_eq(88, entity->propoffsets[1]);
+  mu_assert_int_eq(96, entity->propoffsets[2]);
+  mu_assert_int_eq(104, entity->propoffsets[3]);
+  mu_assert_int_eq(112, entity->propoffsets[4]);
+  mu_assert_int_eq(112, entity->reloffset);
+  mu_assert_int_eq(120, entity->size);
 }
 
 MU_TEST(test_instance_create)
@@ -116,8 +118,8 @@ MU_TEST(test_instance_save2)
 
 MU_TEST(test_instance_free)
 {
-  dlite_instance_free(mydata);
-  dlite_instance_free(mydata2);
+  dlite_instance_decref(mydata);
+  dlite_instance_decref(mydata2);
 }
 
 /*

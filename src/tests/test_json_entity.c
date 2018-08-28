@@ -122,14 +122,14 @@ MU_TEST(test_instance_load)
   mu_check(!dlite_instance_save(s, inst2));
   mu_check(!dlite_storage_close(s));
 
-  dlite_instance_free(inst2);
+  dlite_instance_decref(inst2);
   free(dims);
 }
 
 
 MU_TEST(test_instance_free)
 {
-  dlite_instance_free(inst);
+  dlite_instance_decref(inst);
 }
 
 
