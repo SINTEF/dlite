@@ -14,15 +14,6 @@ struct _DLiteStore {
   map_void_t map;  /* maps uuid to pointer to instance */
 };
 
-/* Item stored in the map */
-/* FIXME - remove this struct and add reference counting to instances
-   instead */
-typedef struct {
-  DLiteInstance *inst;  /* pointer to stored instance */
-  int own;              /* flag marking whether we own the instance and
-                           should free it when the store is free'ed */
-} item_t;
-
 
 /*
   Returns a new store.
@@ -42,12 +33,11 @@ DLiteStore *dlite_store_create()
 void dlite_store_free(DLiteStore *store)
 {
   const char *uuid;
-  item_t *item;
+  DLiteInstance *inst;
   map_iter_t iter = map_iter(&store->map);
   while ((uuid = map_next(&store->map, &iter))) {
-    // XXX FIXME - call dlite_store_remove()
-    item = (item_t *)map_get(&store->map, uuid);
-    if (item->own) dlite_instance_decref(item->inst);
+    inst = (DLiteInstance *)map_get(&store->map, uuid);
+    dlite_instance_decref(inst);
   }
   map_deinit(&store->map);
 }
@@ -82,9 +72,8 @@ int dlite_store_save(DLiteStorage *s, DLiteStore *store)
   const char *uuid;
   map_iter_t iter = map_iter(&store->map);
   while ((uuid = map_next(&store->map, &iter))) {
-    item_t *item = (item_t *)map_get(&store->map, uuid);
-    assert(item);
-    if (dlite_instance_save(s, item->inst)) goto fail;
+    DLiteInstance *inst = (DLiteInstance *)map_get(&store->map, uuid);
+    if (dlite_instance_save(s, inst)) goto fail;
   }
   retval = 0;
  fail:
@@ -99,17 +88,12 @@ int dlite_store_save(DLiteStorage *s, DLiteStore *store)
 static int add(DLiteStore *store, DLiteInstance *inst, int steel)
 {
   int retval=1;
-  item_t *item;
-  if (!(item = calloc(1, sizeof(item_t))))
-    FAIL("allocation error");
-  item->inst = inst;
-  item->own = steel;
-  if (map_set(&store->map, inst->uuid, item))
+  if (map_set(&store->map, inst->uuid, inst))
     FAIL1("failing inserting instance %s into store", inst->uuid);
-
+  if (!steel)
+    dlite_instance_incref(inst);
   retval = 0;
  fail:
-  if (retval && item) free(item);
   return retval;
 }
 
@@ -135,31 +119,28 @@ int dlite_store_add_new(DLiteStore *store, DLiteInstance *inst)
  */
 int dlite_store_remove(DLiteStore *store, const char *id)
 {
-  item_t *item;
-  int uuidver, retval=1;
-  char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
-    FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
-  if (!(item = (item_t *)map_get(&store->map, uuid)))
-    FAIL1("id '%s' not in store", id);
-  if (item->own)
-    dlite_instance_decref(item->inst);
-  map_remove(&store->map, uuid);
-
-  retval = 0;
- fail:
-  return retval;
+  DLiteInstance *inst;
+  if (!(inst = dlite_store_get(store, id))) return 1;
+  map_remove(&store->map, inst->uuid);
+  dlite_instance_decref(inst);
+  return 0;
 }
+
 
 /*
   Returns a borrowed reference to instance, or NULL if `id` is not
   in the store.
 */
-/*
 DLiteInstance *dlite_store_get(const DLiteStore *store, const char *id)
 {
   DLiteInstance *inst;
-
+  int uuidver;
+  char uuid[DLITE_UUID_LENGTH+1];
+  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+    FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
+  if (!(inst = (DLiteInstance *)map_get((map_void_t *)&store->map, uuid)))
+    FAIL1("id '%s' not in store", id);
   return inst;
+ fail:
+  return NULL;
 }
-*/
