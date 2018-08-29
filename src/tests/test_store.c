@@ -20,6 +20,16 @@ char *entity_uri = "http://www.sintef.no/calm/0.1/Chemistry";
 char *inst_id = "8411a72c-c7a3-5a6a-b126-1e90b8a55ae2";
 
 
+/* Counts number of uuid's in store */
+int count_uuids(DLiteStore *store) {
+  int n=0;
+  const char *uuid;
+  DLiteStoreIter iter = dlite_store_iter(store);
+  while ((uuid = dlite_store_next(store, &iter))) n++;
+  return n;
+}
+
+
 MU_TEST(test_entity_load)
 {
   DLiteStorage *s;
@@ -27,17 +37,17 @@ MU_TEST(test_entity_load)
 
   mu_check((s = dlite_storage_open("json", path, "r")));
   mu_check((entity = dlite_entity_load(s, entity_uri)));
-  mu_check(!dlite_storage_close(s));
+  mu_assert_int_eq(0, dlite_storage_close(s));
 }
 
 MU_TEST(test_instance_load)
 {
   DLiteStorage *s;
-  char *path = STRINGIFY(DLITE_ROOT) "/src/tests/test_store.json";
+  char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
 
   mu_check((s = dlite_storage_open("json", path, "r")));
   mu_check((inst = dlite_instance_load(s, inst_id, entity)));
-  mu_check(!dlite_storage_close(s));
+  mu_assert_int_eq(0, dlite_storage_close(s));
 }
 
 MU_TEST(test_store_create)
@@ -46,10 +56,40 @@ MU_TEST(test_store_create)
 }
 
 
-MU_TEST(test_store_add)
+/* tests add, get, remove */
+MU_TEST(test_store)
 {
-  mu_assert_int_eq(0, dlite_store_add(store, (DLiteInstance *)entity));
+  //mu_assert_int_eq(0, dlite_store_add(store, (DLiteInstance *)entity));
   mu_assert_int_eq(0, dlite_store_add(store, inst));
+  //mu_assert_int_eq(2, count_uuids(store));
+  //
+  //mu_check(dlite_store_remove(store, "invalid_uuid"));
+  //mu_assert_int_eq(2, count_uuids(store));
+  //
+  //mu_assert_int_eq(0, dlite_store_remove(store, entity->uuid));
+  mu_assert_int_eq(1, count_uuids(store));
+}
+
+
+MU_TEST(test_save_and_load)
+{
+  DLiteStorage *s;
+  //DLiteStore *store2;
+  //DLiteInstance *inst2;
+
+  char *path = "test_store.json";
+
+  mu_check((s = dlite_storage_open("json", path, "w")));
+  mu_assert_int_eq(0, dlite_store_save(s, store));
+  mu_assert_int_eq(0, dlite_storage_close(s));
+
+  /*
+  mu_check((s = dlite_storage_open("json", path, "r")));
+  mu_check((store2 = dlite_store_load(s)));
+  mu_check(!dlite_storage_close(s));
+  */
+
+
 }
 
 
@@ -81,7 +121,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_load);
   MU_RUN_TEST(test_store_create);
 
-  MU_RUN_TEST(test_store_add);
+  MU_RUN_TEST(test_store);
+  MU_RUN_TEST(test_save_and_load);
 
   MU_RUN_TEST(test_store_free);      /* tear down */
   MU_RUN_TEST(test_instance_free);

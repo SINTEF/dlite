@@ -100,7 +100,7 @@ typedef int (*DataModelFree)(DLiteDataModel *d);
   Returns a pointer to newly malloc'ed metadata uri for datamodel `d`
   or NULL on error.
  */
-typedef const char *(*GetMetaURI)(const DLiteDataModel *d);
+typedef char *(*GetMetaURI)(const DLiteDataModel *d);
 
 
 /**

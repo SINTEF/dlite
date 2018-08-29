@@ -28,7 +28,7 @@ MU_TEST(test_read)
   char *dbname = STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json";
   DLiteStorage *db = NULL;
   DLiteDataModel *d = NULL;
-  const char *s;
+  char *s;
   size_t dim;
   int p1;
   int8_t p1_i8;
@@ -47,6 +47,7 @@ MU_TEST(test_read)
   }
   /*printf("n=%d\n", n);*/
   mu_check(n == 4);
+  dlite_storage_uuids_free(ids);
 
   d = dlite_datamodel(db, "unknown");
   mu_check(d == NULL);
@@ -59,6 +60,7 @@ MU_TEST(test_read)
   mu_check(d);
   s = dlite_datamodel_get_meta_uri(d);
   mu_check(str_equal(s, "dlite/1/A"));
+  free(s);
 
   mu_check(dlite_datamodel_has_dimension(d, "N"));
   dim = dlite_datamodel_get_dimension_size(d, "N");

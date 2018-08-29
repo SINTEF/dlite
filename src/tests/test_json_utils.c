@@ -11,10 +11,12 @@
 
 #include "config.h"
 
+#define STRINGIFY(s) _STRINGIFY(s)
+#define _STRINGIFY(s) # s
 
 /* Default path to json input file. */
-char *jsonfile1 = "../../../src/tests/array.json";
-char *jsonfile2 = "../../../tools/tests/Chemistry-0.1.json";
+char *jsonfile1 = STRINGIFY(DLITE_ROOT) "/src/tests/array.json";
+char *jsonfile2 = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
 
 MU_TEST(test_vector)
 {
@@ -153,6 +155,8 @@ MU_TEST(test_json_array)
   str_list_free(data->array_s, true);
   data->array_s = NULL;
   json_data_free(data);
+
+  json_decref(root);
 }
 
 MU_TEST(test_json_entity)
@@ -172,6 +176,8 @@ MU_TEST(test_json_entity)
 
   mu_check(dlite_json_entity_dim_count(root) == 2);
   mu_check(dlite_json_entity_prop_count(root) == 8);
+
+  json_decref(root);
 }
 
 /***********************************************************************/

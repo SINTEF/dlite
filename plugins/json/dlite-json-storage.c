@@ -238,13 +238,13 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
       FAIL2("cannot create new instance '%s' in read-only storage %s",
             uuid, storage->uri);
     d->instance = json_object();
-    json_object_set(storage->root, uuid, d->instance);
+    json_object_set_new(storage->root, uuid, d->instance);
     d->meta = json_object();
-    json_object_set(d->instance, "meta", d->meta);
+    json_object_set_new(d->instance, "meta", d->meta);
     d->dimensions = json_object();
-    json_object_set(d->instance, "dimensions", d->dimensions);
+    json_object_set_new(d->instance, "dimensions", d->dimensions);
     d->properties = json_object();
-    json_object_set(d->instance, "properties", d->properties);
+    json_object_set_new(d->instance, "properties", d->properties);
   }
 
   retval = (DLiteDataModel *)d;
@@ -272,7 +272,7 @@ int dlite_json_datamodel_free(DLiteDataModel *d)
 /**
   Returns pointer to (malloc'ed) metadata or NULL on error.
  */
-const char *dlite_json_get_metadata(const DLiteDataModel *d)
+char *dlite_json_get_metadata(const DLiteDataModel *d)
 {
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   const char *name=NULL;

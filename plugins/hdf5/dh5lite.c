@@ -534,7 +534,7 @@ int dh5_datamodel_free(DLiteDataModel *d)
 /**
   Returns pointer to (malloc'ed) metadata uri or NULL on error.
  */
-const char *dh5_get_meta_uri(const DLiteDataModel *d)
+char *dh5_get_meta_uri(const DLiteDataModel *d)
 {
   const DH5DataModel *dh5 = (DH5DataModel *)d;
   char *name=NULL, *version=NULL, *namespace=NULL, *uri=NULL;

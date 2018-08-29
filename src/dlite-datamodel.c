@@ -70,7 +70,7 @@ int dlite_datamodel_free(DLiteDataModel *d)
 /*
   Returns newly malloc()'ed string with the metadata uri or NULL on error.
  */
-const char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d)
+char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d)
 {
   return d->api->getMetaURI(d);
 }

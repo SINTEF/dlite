@@ -5,11 +5,19 @@
   An in-memory store for instances.
  */
 
+#include "map.h"
 #include "dlite-storage.h"
 #include "dlite-entity.h"
 
 
+/** Store type. */
 typedef struct _DLiteStore DLiteStore;
+
+/** Iteraror type returned by dlite_store_iter(). */
+typedef struct {
+  map_iter_t iter;
+} DLiteStoreIter;
+
 
 
 /**
@@ -23,7 +31,7 @@ DLiteStore *dlite_store_create();
 void dlite_store_free(DLiteStore *store);
 
 /**
-  Returns new store loaded from storage `s`.
+  Returns a new store populated with all instances in storage `s`.
 */
 DLiteStore *dlite_store_load(DLiteStorage *s);
 
@@ -55,6 +63,27 @@ int dlite_store_remove(DLiteStore *store, const char *id);
   in the store.
 */
 DLiteInstance *dlite_store_get(const DLiteStore *store, const char *id);
+
+/**
+  Returns an initiated iterator for use with dlite_store_next().
+ */
+DLiteStoreIter dlite_store_iter(const DLiteStore *store);
+
+/**
+  Returns the next uuid in `store` using iterator `iter` returned by
+  dlite_store_iter().  Returns NULL when there are no more uuid's.
+
+  Example:
+
+        const char *uuid;
+        DLiteStore *store = dlite_store_load(storage);
+        DLiteStoreIter iter = dlite_store_iter(store);
+
+        while ((uuid = dlite_store_next(store, &iter))) {
+           printf("uuid=%s\n", uuid);
+        }
+ */
+const char *dlite_store_next(const DLiteStore *store, DLiteStoreIter *iter);
 
 
 #endif /* _DLITE_STORE_H */
