@@ -1,9 +1,11 @@
-/** 
+/**
  * Copyright (c) 2014 rxi
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the MIT license. See LICENSE for details.
  */
+
+/** See https://github.com/rxi/map */
 
 #ifndef MAP_H
 #define MAP_H

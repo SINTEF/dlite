@@ -22,12 +22,13 @@
   The memory allocated for each instance, may be casted to a struct
   starting with the members defined by the DLiteInstance_HEAD macro,
   which contains the UUID and (optionally) URI identifying the
-  instance as well as a pointer th the metadata describing the
-  instance.  This header is followed by:
+  instance as well as a reference count and a pointer th the metadata
+  describing the instance.  This header is followed by:
 
+    - some internal data (optional, no for ordinary data instances)
     - the size of each dimension (size_t)
     - the value of each property
-    - relations (optional, data instances and entities have no relations)
+    - relations (data instances and entities have no relations)
 
   The memory offset from a pointer to the instance to the first
   element in the arrays of dimension sizes and properties are given by
@@ -56,8 +57,18 @@
 
 #include "boolean.h"
 #include "dlite.h"
-//#include "dlite-type.h"
 #include "dlite-storage.h"
+
+/** Function for additional initialisation of a metadata instance */
+typedef int (*DLiteInit)(struct _DLiteInstance *inst);
+
+/** Function for additional de-initialisation of a metadata instance */
+typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
+
+/** Flags are an or'ed sum of the below values */
+typedef enum _DLiteMetaFlags {
+  dliteIsMeta=1    /*!< Whether instance is metadata */
+} DLiteMetaFlags;
 
 
 /**
@@ -67,10 +78,10 @@
   char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID for this data instance. */    \
   const char *uri;                /*!< Unique name or uri of the data */  \
                                   /*   instance.  Can be NULL. */         \
-  int refcount;                   /*!< Number of references to this */    \
+  size_t refcount;                /*!< Number of references to this */    \
                                   /*   instance. */                       \
   struct _DLiteMeta *meta;        /*!< Pointer to the metadata descri- */ \
-                                  /*!< bing this instance. */
+                                  /*   bing this instance. */
 
 
 /**
@@ -86,14 +97,17 @@
 */
 #define DLiteMeta_HEAD                                                  \
   DLiteInstance_HEAD                                                    \
-  const char *description;  /*!< Description of this metadata. */	\
-									\
-  /* internal data */							\
+  const char *description;  /*!< Description of this metadata. */       \
+                                                                        \
+  /* internal data */                                                   \
   size_t size;         /*!< Size of instance memory. */                 \
   size_t dimoffset;    /*!< Memory offset of dimensions in instance. */ \
   size_t *propoffsets; /*!< Memory offset of each property value. */    \
                        /*   NULL if instance is metadata. */            \
-  size_t reloffset;    /*!< Memory offset of relations in instance. */	\
+  size_t reloffset;    /*!< Memory offset of relations in instance. */  \
+  DLiteInit init;      /*!< Function initialising an instance. */       \
+  DLiteDeInit deinit;  /*!< Function deinitialising an instance. */     \
+  DLiteMetaFlags flags;/*!< Or'ed sum of flags. */                      \
                                                                         \
   /* schema_properties */                                               \
   DLiteSchemaDimension *dimensions;  /*!< Array of dimensions. */       \
@@ -110,16 +124,16 @@
 /**
   Initial segment of all DLite dimensions.
  */
-#define DLiteDimension_HEAD					        \
-  char *name;         /*!< Name of this dimension. */			\
+#define DLiteDimension_HEAD                                             \
+  char *name;         /*!< Name of this dimension. */                   \
   char *description;  /*!< Description of this dimension. */
 
 /**
   Initial segment of all DLite properties.
 
   E.g. if we have dimensions ["M", "N"] and dims is [1, 1, 0], it
-  means that the data described by this property has dimensions ["N",
-  "N", "M"].
+  means that the data described by this property has dimensions
+  ["N", "N", "M"].
  */
 #define DLiteProperty_HEAD                                              \
   char *name;         /*!< Name of this property. */                    \
@@ -251,7 +265,7 @@ void dlite_instance_decref(DLiteInstance *inst);
     - implementation of a database of translator plugins
  */
 DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
-				   DLiteEntity *entity);
+                                   DLiteEntity *entity);
 
 /**
   Saves instance \a inst to storage \a s.  Returns non-zero on error.
@@ -280,26 +294,26 @@ int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
   or NULL on error.
  */
 const void *dlite_instance_get_property_by_index(const DLiteInstance *inst,
-						 size_t i);
+                                                 size_t i);
 
 /**
   Sets property \a i to the value pointed to by \a ptr.
   Returns non-zero on error.
 */
 int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
-					 const void *ptr);
+                                         const void *ptr);
 
 /**
   Returns number of dimensions of property with index \a i or -1 on error.
  */
 int dlite_instance_get_property_ndims_by_index(const DLiteInstance *inst,
-					       size_t i);
+                                               size_t i);
 
 /**
   Returns size of dimension \a j in property \a i or -1 on error.
  */
 int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
-						 size_t i, size_t j);
+                                                 size_t i, size_t j);
 
 /**
   Returns size of dimension \a i or -1 on error.
@@ -311,26 +325,26 @@ int dlite_instance_get_dimension_size(const DLiteInstance *inst,
   Returns a pointer to data corresponding to \a name or NULL on error.
  */
 const void *dlite_instance_get_property(const DLiteInstance *inst,
-					const char *name);
+                                        const char *name);
 
 /**
   Copies memory pointed to by \a ptr to property \a name.
   Returns non-zero on error.
 */
 int dlite_instance_set_property(DLiteInstance *inst, const char *name,
-				const void *ptr);
+                                const void *ptr);
 
 /**
   Returns number of dimensions of property  \a name or -1 on error.
 */
 int dlite_instance_get_property_ndims(const DLiteInstance *inst,
-				      const char *name);
+                                      const char *name);
 
 /**
   Returns size of dimension \a j of property \a name or NULL on error.
 */
 size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
-					    const char *name, size_t j);
+                                            const char *name, size_t j);
 
 
 /** @} */
@@ -350,8 +364,8 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
  */
 DLiteEntity *
 dlite_entity_create(const char *uri, const char *description,
-		    size_t ndimensions, const DLiteDimension *dimensions,
-		    size_t nproperties, const DLiteProperty *properties);
+                    size_t ndimensions, const DLiteDimension *dimensions,
+                    size_t nproperties, const DLiteProperty *properties);
 
 /**
   Increase reference count to Entity.
@@ -393,7 +407,7 @@ dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i);
   Returns a pointer to property named \a name or NULL on error.
  */
 const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
-					       const char *name);
+                                               const char *name);
 
 
 /** @} */
@@ -455,7 +469,7 @@ dlite_meta_get_property_by_index(const DLiteMeta *meta, size_t i);
   Returns a pointer to property named \a name or NULL on error.
  */
 const DLiteSchemaProperty *dlite_meta_get_property(const DLiteMeta *meta,
-						   const char *name);
+                                                   const char *name);
 
 /** @} */
 

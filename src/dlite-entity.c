@@ -52,6 +52,9 @@ static DLiteMeta schema_entity = {
   offsetof(DLiteEntity, ndimensions),         /* dimoffset */
   schema_entity_propoffsets,                  /* propoffsets */
   0,                                          /* reloffset */
+  NULL,                                       /* init */
+  NULL,                                       /* deinit */
+  0,                                          /* flags */
   schema_entity_dimensions,                   /* dimensions */
   schema_entity_properties,                   /* properties */
   NULL,                                       /* relations */

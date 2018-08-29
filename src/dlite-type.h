@@ -57,8 +57,6 @@
 #include <stdlib.h>
 
 #include "boolean.h"
-//#include "triplestore.h"
-//#include "triplestore-private.h"
 
 
 /**

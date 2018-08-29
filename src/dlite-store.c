@@ -36,10 +36,11 @@ void dlite_store_free(DLiteStore *store)
   DLiteInstance *inst;
   map_iter_t iter = map_iter(&store->map);
   while ((uuid = map_next(&store->map, &iter))) {
-    inst = (DLiteInstance *)map_get(&store->map, uuid);
+    inst = *(DLiteInstance **)map_get(&store->map, uuid);
     dlite_instance_decref(inst);
   }
   map_deinit(&store->map);
+  free(store);
 }
 
 /*
@@ -138,7 +139,7 @@ DLiteInstance *dlite_store_get(const DLiteStore *store, const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
   if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
-  if (!(inst = (DLiteInstance *)map_get((map_void_t *)&store->map, uuid)))
+  if (!(inst = *(DLiteInstance **)map_get((map_void_t *)&store->map, uuid)))
     FAIL1("id '%s' not in store", id);
   return inst;
  fail:

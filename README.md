@@ -28,7 +28,7 @@ Dependencies
   - [cmake][4], required for building
   - [hdf5][5], required (cmake will automatically download and built hdf5
     if it is not found)
-    [jansson][6], required, provides json
+  - [jansson][6], required, provides json
   - [doxygen][7], optional, used for documentation generation
   - [valgrind][8], optional, used for memory checking (Linux only)
 
@@ -150,11 +150,6 @@ Ideally dlite will be merged into SOFT when SOFT compiles well on Windows.
 Until then, it will remain as a simple and mostly compatible alternative.
 
 
-License
--------
-For compatibility with SOFT, *dlite* is dual licensed under a
-commercial and open source LGPL v2.1 license.
-
 ---
 
 *dlite* is developed with the hope that it will be a delight to work with.
@@ -164,6 +159,7 @@ commercial and open source LGPL v2.1 license.
 [3]: https://stash.code.sintef.no/projects/sidase/repos/uuid/
 [4]: https://cmake.org/
 [5]: https://support.hdfgroup.org/HDF5/
+[6]: http://www.digip.org/jansson/
 [7]: http://www.doxygen.org/
 [8]: http://valgrind.org/
 [9]: https://github.com/petervaro/sodyll
