@@ -59,14 +59,14 @@ MU_TEST(test_store_create)
 /* tests add, get, remove */
 MU_TEST(test_store)
 {
-  //mu_assert_int_eq(0, dlite_store_add(store, (DLiteInstance *)entity));
+  mu_assert_int_eq(0, dlite_store_add(store, (DLiteInstance *)entity));
   mu_assert_int_eq(0, dlite_store_add(store, inst));
-  //mu_assert_int_eq(2, count_uuids(store));
-  //
-  //mu_check(dlite_store_remove(store, "invalid_uuid"));
-  //mu_assert_int_eq(2, count_uuids(store));
-  //
-  //mu_assert_int_eq(0, dlite_store_remove(store, entity->uuid));
+  mu_assert_int_eq(2, count_uuids(store));
+
+  mu_check(dlite_store_remove(store, "invalid_uuid"));
+  mu_assert_int_eq(2, count_uuids(store));
+
+  mu_assert_int_eq(0, dlite_store_remove(store, entity->uuid));
   mu_assert_int_eq(1, count_uuids(store));
 }
 
@@ -83,13 +83,11 @@ MU_TEST(test_save_and_load)
   mu_assert_int_eq(0, dlite_store_save(s, store));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
-  /*
-  mu_check((s = dlite_storage_open("json", path, "r")));
-  mu_check((store2 = dlite_store_load(s)));
-  mu_check(!dlite_storage_close(s));
-  */
-
-
+  //mu_check((s = dlite_storage_open("json", path, "r")));
+  //mu_check((store2 = dlite_store_load(s)));
+  //mu_check(!dlite_storage_close(s));
+  //
+  //dlite_store_free(store2);
 }
 
 

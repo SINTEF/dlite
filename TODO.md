@@ -91,7 +91,7 @@ Lower priprity
 Design questions
 ================
 
-  [ ] Except for reference counting, is it correct to consider all
+  [x] Except for reference counting, is it correct to consider all
       metadata as immutable?  Are there any exceptions (Python allows
       dynamic classes, but do we need such flexibility)?
 
