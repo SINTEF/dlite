@@ -35,7 +35,7 @@ DLiteCollection *dlite_collection_create(const char *id)
 
   /* Initialise tripletstore
 
-     Note that DLiteTriplet corresponds to XTriplet (including id),
+     Note that DLiteRelation corresponds to XTriplet (including id),
      which is used internally be triplestore. This allows us to
      expose the triplets, while they are managed by the tripletstore.
 
@@ -135,7 +135,7 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
 {
   if (dlite_collection_remove_relations(coll, label, "_is-a", "Instance") > 0) {
     DLiteCollectionState state;
-    const DLiteTriplet *t;
+    const DLiteRelation *t;
     dlite_collection_init_state(coll, &state);
     while ((t=dlite_collection_find(coll,&state, label, "_has-dimmap", NULL)))
       triplestore_remove_by_id(coll->store, t->o);
@@ -174,14 +174,14 @@ void dlite_collection_init_state(const DLiteCollection *coll,
   No other calls to dlite_collection_add(), dlite_collection_find() or
   dlite_collection_add_relation() should be done while searching.
  */
-const DLiteTriplet *dlite_collection_find(const DLiteCollection *coll,
+const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
                                      DLiteCollectionState *state,
                                      const char *s, const char *p,
                                      const char *o)
 {
   if (state)
-    return (DLiteTriplet *)triplestore_find(coll->store, (TripleState *)state,
+    return (DLiteRelation *)triplestore_find(coll->store, (TripleState *)state,
                                             s, p, o);
   else
-    return (DLiteTriplet *)triplestore_find_first(coll->store, s, p, o);
+    return (DLiteRelation *)triplestore_find_first(coll->store, s, p, o);
 }

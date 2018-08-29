@@ -57,8 +57,8 @@
 #include <stdlib.h>
 
 #include "boolean.h"
-#include "triplestore.h"
-#include "triplestore-private.h"
+//#include "triplestore.h"
+//#include "triplestore-private.h"
 
 
 /**
@@ -68,23 +68,31 @@
   Collections sane.  Normal Entity instances are supposed to be
   independent and should not define relations.
 */
-typedef struct _XTriplet DLiteTriplet;
+typedef struct _XTriplet DLiteRelation;
+
+typedef struct _DLiteProperty  DLiteProperty;
+typedef struct _DLiteDimension DLiteDimension;
+
 
 
 /** Basic data types */
 typedef enum _DLiteType {
-  dliteBlob,           /*!< Binary blob, sequence of bytes */
-  dliteBool,           /*!< Boolean */
-  dliteInt,            /*!< Signed integer */
-  dliteUInt,           /*!< Unigned integer */
-  dliteFloat,          /*!< Floating point */
-  dliteFixString,      /*!< Fix-sized NUL-terminated string */
-  dliteStringPtr,      /*!< Pointer to NUL-terminated string */
-  dliteTriplet,        /*!< Subject-predicate-object triplet */
+  dliteBlob,             /*!< Binary blob, sequence of bytes */
+  dliteBool,             /*!< Boolean */
+  dliteInt,              /*!< Signed integer */
+  dliteUInt,             /*!< Unigned integer */
+  dliteFloat,            /*!< Floating point */
+  dliteFixString,        /*!< Fix-sized NUL-terminated string */
+  dliteStringPtr,        /*!< Pointer to NUL-terminated string */
 
-  dliteDimension,      /*!< Dimension, only needed for metadata */
-  dliteBaseProperty,   /*!< Base property, only needed for metadata */
-  dliteProperty        /*!< Property, only needed for metadata */
+  dliteDimension,        /*!< Dimension, for entities */
+  dliteProperty,         /*!< Property, for entities */
+  dliteRelation,         /*!< Subject-predicate-object relation,
+			      for collections */
+
+  dliteSchemaDimension,  /*!< Schema dimension, for generic metadata */
+  dliteSchemaProperty,   /*!< Schema property, for generic metadata */
+  dliteSchemaRelation    /*!< Schema relation, for generic metadata */
 } DLiteType;
 
 

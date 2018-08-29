@@ -56,7 +56,7 @@
 
 #include "boolean.h"
 #include "dlite.h"
-#include "dlite-type.h"
+//#include "dlite-type.h"
 #include "dlite-storage.h"
 
 
@@ -96,9 +96,9 @@
   size_t reloffset;    /*!< Memory offset of relations in instance. */	\
                                                                         \
   /* schema_properties */                                               \
-  DLiteDimension *dimensions;     /*!< Array of dimensions. */          \
-  DLiteBaseProperty **properties; /*!< Array of property pointers. */	\
-  DLiteTriplet *relations;        /*!< Array of relations. */           \
+  DLiteSchemaDimension *dimensions;  /*!< Array of dimensions. */       \
+  DLiteSchemaProperty **properties;  /*!< Array of property pointers. */\
+  DLiteSchemaRelation *relations;    /*!< Array of relations. */        \
                                                                         \
   /* schema_dimensions */                                               \
   /* We place the dimensions at the end, in case more are needed */     \
@@ -108,7 +108,14 @@
 
 
 /**
-  Initial segment of all DLite Properties.
+  Initial segment of all DLite dimensions.
+ */
+#define DLiteDimension_HEAD					        \
+  char *name;         /*!< Name of this dimension. */			\
+  char *description;  /*!< Description of this dimension. */
+
+/**
+  Initial segment of all DLite properties.
 
   E.g. if we have dimensions ["M", "N"] and dims is [1, 1, 0], it
   means that the data described by this property has dimensions ["N",
@@ -135,28 +142,31 @@ struct _DLiteInstance {
 };
 
 
-/** Dimension */
+/** Schema dimension (which all dimensions can be cast to). */
+typedef struct _DLiteSchemaDimension {
+  DLiteDimension_HEAD
+} DLiteSchemaDimension;
+
+/** Schema property (which all properties can be cast to). */
+typedef struct _DLiteSchemaProperty {
+  DLiteProperty_HEAD
+} DLiteSchemaProperty;
+
+/** Schema relation (which all relations can be cast to). */
+typedef struct _XTriplet DLiteSchemaRelation;
+
+
+/** Entity dimension */
 typedef struct _DLiteDimension {
-  char *name;         /*!< Name of this dimension. */
-  char *description;  /*!< Description of this dimension. */
+  DLiteDimension_HEAD
 } DLiteDimension;
 
-
-/**
-  Base definition of a DLite property that all properties can be cast to.
-*/
-typedef struct _DLiteBaseProperty {
-  DLiteProperty_HEAD
-} DLiteBaseProperty;
-
-
-/**
-  Entity property
-*/
+/** Entity property */
 typedef struct _DLiteProperty {
   DLiteProperty_HEAD
   char *unit;         /*!< Unit of the described data. */
 } DLiteProperty;
+
 
 
 /**
@@ -438,14 +448,14 @@ int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name);
 /**
   Returns a pointer to property with index \a i or NULL on error.
  */
-const DLiteBaseProperty *
+const DLiteSchemaProperty *
 dlite_meta_get_property_by_index(const DLiteMeta *meta, size_t i);
 
 /**
   Returns a pointer to property named \a name or NULL on error.
  */
-const DLiteBaseProperty *dlite_meta_get_property(const DLiteMeta *meta,
-						 const char *name);
+const DLiteSchemaProperty *dlite_meta_get_property(const DLiteMeta *meta,
+						   const char *name);
 
 /** @} */
 

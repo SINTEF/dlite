@@ -5,6 +5,8 @@
 #include "err.h"
 #include "integers.h"
 #include "floats.h"
+#include "triplestore-private.h"
+#include "dlite-entity.h"
 #include "dlite-type.h"
 
 
@@ -34,30 +36,30 @@ static struct _TypeDescr {
   size_t size;
   size_t alignment;
 } type_table[] = {
-  {"bool",     dliteBool,      sizeof(bool),         alignof(bool)},
-  {"int",      dliteInt,       sizeof(int),          alignof(int)},
-  {"int8",     dliteInt,       1,                    alignof(int8_t)},
-  {"int16",    dliteInt,       2,                    alignof(int16_t)},
-  {"int32",    dliteInt,       4,                    alignof(int32_t)},
-  {"int64",    dliteInt,       8,                    alignof(int64_t)},
-  {"uint",     dliteUInt,      sizeof(unsigned int), alignof(unsigned int)},
-  {"uint8",    dliteUInt,      1,                    alignof(uint8_t)},
-  {"uint16",   dliteUInt,      2,                    alignof(uint16_t)},
-  {"uint32",   dliteUInt,      4,                    alignof(uint32_t)},
-  {"uint64",   dliteUInt,      8,                    alignof(uint64_t)},
-  {"float",    dliteFloat,     sizeof(float),        alignof(float)},
-  {"double",   dliteFloat,     sizeof(double),       alignof(double)},
-  {"float32",  dliteFloat,     4,                    alignof(float32_t)},
-  {"float64",  dliteFloat,     8,                    alignof(float64_t)},
+  {"bool",     dliteBool,      sizeof(bool),          alignof(bool)},
+  {"int",      dliteInt,       sizeof(int),           alignof(int)},
+  {"int8",     dliteInt,       1,                     alignof(int8_t)},
+  {"int16",    dliteInt,       2,                     alignof(int16_t)},
+  {"int32",    dliteInt,       4,                     alignof(int32_t)},
+  {"int64",    dliteInt,       8,                     alignof(int64_t)},
+  {"uint",     dliteUInt,      sizeof(unsigned int),  alignof(unsigned int)},
+  {"uint8",    dliteUInt,      1,                     alignof(uint8_t)},
+  {"uint16",   dliteUInt,      2,                     alignof(uint16_t)},
+  {"uint32",   dliteUInt,      4,                     alignof(uint32_t)},
+  {"uint64",   dliteUInt,      8,                     alignof(uint64_t)},
+  {"float",    dliteFloat,     sizeof(float),         alignof(float)},
+  {"double",   dliteFloat,     sizeof(double),        alignof(double)},
+  {"float32",  dliteFloat,     4,                     alignof(float32_t)},
+  {"float64",  dliteFloat,     8,                     alignof(float64_t)},
 #ifdef HAVE_FLOAT80
-  {"float80",  dliteFloat,     10,                   alignof(float80_t)},
+  {"float80",  dliteFloat,     10,                    alignof(float80_t)},
 #endif
 #ifdef HAVE_FLOAT128
-  {"float128", dliteFloat,     16,                   alignof(float128_t)},
+  {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
-  {"string",   dliteStringPtr, sizeof(char *),       alignof(char *)},
-  {"triplet",  dliteTriplet,   sizeof(DLiteTriplet), alignof(DLiteTriplet)},
-  {NULL,       0,              0,                    0}
+  {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
+  {"relation", dliteRelation,  sizeof(DLiteRelation), alignof(DLiteRelation)},
+  {NULL,       0,              0,                     0}
 };
 
 

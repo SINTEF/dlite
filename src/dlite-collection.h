@@ -41,7 +41,7 @@ typedef struct _DLiteCollection {
   Triplestore *store;         /*!< Triplestore managing the relations. */
 
   DLiteInstance **instances;  /*!< Array of instances. */
-  DLiteTriplet *triplets;     /*!< Array of relation. */
+  DLiteRelation *triplets;     /*!< Array of relation. */
   char **dimnames;            /*!< Name of each (common) dimension. */
   int *dimsizes;              /*!< Size of each (common) dimension. */
 } DLiteCollection;
@@ -121,10 +121,10 @@ void dlite_collection_init_state(const DLiteCollection *coll,
   No other calls to dlite_collection_add(), dlite_collection_find() or
   dlite_collection_add_relation() should be done while searching.
  */
-const DLiteTriplet *dlite_collection_find(const DLiteCollection *coll,
-                                     DLiteCollectionState *state,
-                                     const char *s, const char *p,
-                                     const char *o);
+const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
+					   DLiteCollectionState *state,
+					   const char *s, const char *p,
+					   const char *o);
 
 
 #endif /* _DLITE_COLLECTION_H */
