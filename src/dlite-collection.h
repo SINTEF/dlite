@@ -34,14 +34,13 @@
 */
 typedef struct _DLiteCollection {
   DLiteInstance_HEAD
-  size_t ndims;               /*!< Number of (common) dimensions. */
+  size_t ndimensions;         /*!< Number of (common) dimensions. */
   size_t ninstances;          /*!< Number of instances. */
-  size_t ntriplets;           /*!< Number of relations. */
+  size_t nrelations;          /*!< Number of relations. */
 
-  Triplestore *store;         /*!< Triplestore managing the relations. */
+  Triplestore *rstore;        /*!< Triplestore managing the relations. */
 
-  DLiteInstance **instances;  /*!< Array of instances. */
-  DLiteRelation *triplets;     /*!< Array of relation. */
+  DLiteRelation *relations;   /*!< Array of relation. */
   char **dimnames;            /*!< Name of each (common) dimension. */
   int *dimsizes;              /*!< Size of each (common) dimension. */
 } DLiteCollection;

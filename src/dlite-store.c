@@ -8,6 +8,11 @@
 #include "dlite-macros.h"
 #include "dlite-store.h"
 
+/* TODO
+   - add read and write locks for tread safety
+     they should be local to the store
+ */
+
 
 /* Item to add in the store */
 typedef struct {

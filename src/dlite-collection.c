@@ -4,15 +4,53 @@
 #include <string.h>
 
 #include "err.h"
+#include "dlite-macros.h"
+#include "dlite-store.h"
 #include "dlite-entity.h"
 #include "dlite-collection.h"
 
 
-/* Convenient macros for failing */
-#define FAIL(msg) do { err(1, msg); goto fail; } while (0)
-#define FAIL1(msg, a1) do { err(1, msg, a1); goto fail; } while (0)
-#define FAIL2(msg, a1, a2) do { err(1, msg, a1, a2); goto fail; } while (0)
+/**************************************************************
+ * Instance store
+ **************************************************************/
 
+/* Global store for all instances added to any collection
+
+   Instances are uniquely identified by their uuid.  Hence, if
+   instances added to collections have the same uuid, they are exactly
+   the same instances regardless of whether they are added to
+   different collections.  That implies:
+     - it is an error to add instances with the same uuid pointing to
+       different memory locations
+     - all collections will return a pointer to the same memory region
+       when queried for the same uuid
+   We implement this by a global store shared by all collections.
+
+   It is initialised at the first call to dlite_collection_create()
+   and is automatically released at stop time.
+ */
+static DLiteStore *_istore = NULL;
+
+/* Frees up a global instance store */
+static void _istore_free()
+{
+  dlite_store_free(_istore);
+  _istore = NULL;
+}
+
+/* Returns a new initializes instance store */
+static DLiteStore *_istore_init()
+{
+  DLiteStore *store = dlite_store_create();
+  atexit(_istore_free);
+  return store;
+}
+
+
+
+/**************************************************************
+ * Collection
+ **************************************************************/
 
 /*
   Returns a new collection with given id.  If `id` is NULL, a new
@@ -24,6 +62,10 @@ DLiteCollection *dlite_collection_create(const char *id)
 {
   DLiteCollection *coll=NULL;
   int uuid_version;
+
+  /* Initialise global store */
+  if (!_istore) _istore = _istore_init();
+  assert(_istore);
 
   /* Allocate instance */
   if (!(coll = calloc(1, sizeof(DLiteCollection)))) FAIL("allocation failure");

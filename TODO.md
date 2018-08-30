@@ -28,7 +28,7 @@ High priority
       also can create metadata and reconsider DLiteProperty.  Based on
       this, correct the definition of schema_entity.
 
-  [ ] Implement an in-memory database, e.g. for storing instances that
+  [x] Implement an in-memory database, e.g. for storing instances that
       are added to collections or to cache metadata such that we only
       need to load it once.
 
