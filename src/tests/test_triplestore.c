@@ -5,7 +5,7 @@
 #include "triplestore.h"
 
 
-Triplestore *ts;
+TripleStore *ts;
 
 
 MU_TEST(test_create)
@@ -16,23 +16,23 @@ MU_TEST(test_create)
 MU_TEST(test_triplet)
 {
   Triplet t;
-  char *id;
-  triplet_set(&t, "book", "is-a", "thing");
-  id = triplet_get_id(&t);
-  mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", id);
+  char *uri;
+  triplet_set(&t, "book", "is-a", "thing", NULL);
+  uri = triplet_get_uri(NULL, t.s, t.p, t.o);
+  mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", uri);
   triplet_clean(&t);
-  free(id);
+  free(uri);
 }
 
 MU_TEST(test_add)
 {
   Triplet t[] = {
-    {"book", "is-a", "thing"},
-    {"table", "is-a", "thing"},
-    {"book", "is-ontop-of", "table"},
-    {"write", "is-a", "action"},
-    {"walk", "is-a", "action"},
-    {"write", "is-a", "action"}  /* dublicate */
+    {"book", "is-a", "thing", NULL},
+    {"table", "is-a", "thing", NULL},
+    {"book", "is-ontop-of", "table", NULL},
+    {"write", "is-a", "action", NULL},
+    {"walk", "is-a", "action", NULL},
+    {"write", "is-a", "action", NULL}  /* dublicate */
   };
   size_t n = sizeof(t) / sizeof(t[0]);
 

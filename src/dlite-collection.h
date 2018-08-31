@@ -52,7 +52,7 @@ typedef struct _DLiteCollection {
   DLiteRelation *relations;
 
   /* internal data */
-  Triplestore *rstore;       /*!< Triplestore managing the relations. */
+  TripleStore *rstore;       /*!< TripleStore managing the relations. */
 } DLiteCollection;
 
 

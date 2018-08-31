@@ -10,26 +10,43 @@
 #ifndef _TRIPLESTORE_H
 #define _TRIPLESTORE_H
 
-#include "triplestore-private.h"
+//#include "triplestore-private.h"
 
 /**
   A subject-predicate-object triplet used to represent a relation.
   The s-p-o strings are assumed to be allocated with malloc.
+
+  The uri uniquely identifies a triplet and allows the subject or
+  object to refer to another triplet.
+  See https://en.wikipedia.org/wiki/Semantic_triple.
 */
 typedef struct _Triplet {
   char *s;     /*!< subject */
   char *p;     /*!< predicate */
   char *o;     /*!< object */
+  char *uri;   /*!< unique URI identifying this triplet */
 } Triplet;
 
 /** Triplet store. */
-typedef struct _Triplestore Triplestore;
+typedef struct _TripleStore {
+  Triplet *triplets;       /*!< array of triplets */
+  size_t length;           /*!< number of triplets */
+  size_t size;             /*!< allocated size */
+} TripleStore;
 
-/** State used by triplestore_find. */
-typedef struct _TripleState TripleState;
+/** State used by triplestore_find.
+    Don't rely on current definition, it may be optimised later. */
+typedef struct _TripleState {
+  size_t pos;              /*!< current position */
+} TripleState;
 
 
 
+
+/**
+    Sets default namespace to be prepended to triplet uri's.
+*/
+void triplet_set_default_namespace(const char *namespace);
 
 /**
   Frees up memory used by the s-p-o strings, but not the triplet itself.
@@ -38,46 +55,49 @@ void triplet_clean(Triplet *t);
 
 /**
   Convinient function to assign a triplet. This allocates new memory
-  for the internal s-p-o pointers.
+  for the internal s, p, o and uri pointers.  If `uri` is
+  NULL, a new uri will be generated bases on `s`, `p` and `o`.
  */
-int triplet_set(Triplet *t, const char *s, const char *p, const char *o);
+int triplet_set(Triplet *t, const char *s, const char *p, const char *o,
+                const char *uri);
 
 /**
-  Returns an newly malloc'ed hash string calculated from triplet.
+  Returns an newly malloc'ed unique uri calculated from triplet.
 */
-char *triplet_get_id(const Triplet *t);
+char *triplet_get_uri(const char *namespace, const char *s, const char *p,
+                      const char *o);
 
 
 
 /**
   Returns a new empty triplestore or NULL on error.
  */
-Triplestore *triplestore_create();
+TripleStore *triplestore_create();
 
 
 /**
   Frees triplestore `ts`.
  */
-void triplestore_free(Triplestore *store);
+void triplestore_free(TripleStore *store);
 
 
 /**
   Returns the number of triplets in the store.
 */
-size_t triplestore_length(Triplestore *store);
+size_t triplestore_length(TripleStore *store);
 
 
 /**
   Adds a single triplet to store.  Returns non-zero on error.
  */
-int triplestore_add(Triplestore *store, const char *s, const char *p,
+int triplestore_add(TripleStore *store, const char *s, const char *p,
                     const char *o);
 
 
 /**
   Adds `n` triplets to store.  Returns non-zero on error.
  */
-int triplestore_add_triplets(Triplestore *store, const Triplet *triplets,
+int triplestore_add_triplets(TripleStore *store, const Triplet *triplets,
                              size_t n);
 
 
@@ -85,7 +105,7 @@ int triplestore_add_triplets(Triplestore *store, const Triplet *triplets,
   Removes a triplet identified by it's id.  Returns non-zero if no such
   triplet can be found.
 */
-int triplestore_remove_by_id(Triplestore *store, const char *id);
+int triplestore_remove_by_id(TripleStore *store, const char *id);
 
 
 /**
@@ -93,28 +113,28 @@ int triplestore_remove_by_id(Triplestore *store, const char *id);
   be NULL, allowing for multiple matches.  Returns the number of
   triplets removed.
 */
-int triplestore_remove(Triplestore *store, const char *s,
+int triplestore_remove(TripleStore *store, const char *s,
                        const char *p, const char *o);
 
 
 /**
   Returns a pointer to triplet with given id or NULL if no match can be found.
 */
-const Triplet *triplestore_get_id(const Triplestore *store, const char *id);
+const Triplet *triplestore_get_id(const TripleStore *store, const char *id);
 
 
 /**
   Returns a pointer to first triplet matching `s`, `p` and `o` or NULL
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
-const Triplet *triplestore_find_first(const Triplestore *store, const char *s,
+const Triplet *triplestore_find_first(const TripleStore *store, const char *s,
                              const char *p, const char *o);
 
 
 /**
   Initiates a TripleState for triplestore_find().
 */
-void triplestore_init_state(const Triplestore *store, TripleState *state);
+void triplestore_init_state(const TripleStore *store, TripleState *state);
 
 
 /**
@@ -128,7 +148,7 @@ void triplestore_init_state(const Triplestore *store, TripleState *state);
   No other calls to triplestore_add() or triplestore_find() should be
   done while searching.
  */
-const Triplet *triplestore_find(const Triplestore *store, TripleState *state,
+const Triplet *triplestore_find(const TripleStore *store, TripleState *state,
                        const char *s, const char *p, const char *o);
 
 

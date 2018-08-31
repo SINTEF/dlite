@@ -25,7 +25,7 @@ static DLiteSchemaDimension schema_collection_dimensions[] = {
   {"n-relations",  "Number of relations."},
   {"n-rel-items",  "Number of items in a relation - always 4 (s,p,o,id)."}
 };
-static int schema_collection_prop0_dims[] = {0, 4};
+static int schema_collection_prop0_dims[] = {0, 1};
 static DLiteSchemaProperty schema_collection_prop0 = {
   "relations",                               /* name */
   dliteStringPtr,                            /* type */
@@ -204,7 +204,7 @@ int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
                                   const char *p, const char *o)
 {
   triplestore_add(coll->rstore, s, p, o);
-  //coll->triplets = coll->rstore->triplets;
+  coll->relations = coll->rstore->triplets;
   return 0;
 }
 
@@ -217,7 +217,7 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
                                       const char *p, const char *o)
 {
   int retval = triplestore_remove(coll->rstore, s, p, o);
-  //coll->triplets = coll->rstore->triplets;
+  coll->relations = coll->rstore->triplets;
   return retval;
 }
 

@@ -21,20 +21,29 @@
 
 
 
-/* ==============================================================
- * Private functions
- * ============================================================== */
+/* Default namespace */
+char *default_namespace = NULL;
 
-static void xtriplet_clean(XTriplet *t)
+/* Free's default_namespace. Called by atexit(). */
+static void free_default_namespace()
 {
-  triplet_clean((Triplet *)t);
-  free(t->id);
+  if (default_namespace) free(default_namespace);
+  default_namespace = NULL;
 }
 
+/* Sets default namespace to be prepended to triplet uri's. */
+void triplet_set_default_namespace(const char *namespace)
+{
+  if (default_namespace) {
+    free(default_namespace);
+    atexit(free_default_namespace);
+  }
+  if (namespace)
+    default_namespace = strdup(namespace);
+  else
+    default_namespace = NULL;
+}
 
-/* ==============================================================
- * Functions defined in the header
- * ============================================================== */
 
 /*
   Frees up memory used by the s-p-o strings, but not the triplet itself.
@@ -44,45 +53,59 @@ void triplet_clean(Triplet *t)
   free(t->s);
   free(t->p);
   free(t->o);
+  free(t->uri);
 }
 
 /*
-  Convinient function to assign a triplet.
+  Convinient function to assign a triplet. This allocates new memory
+  for the internal s, p, o and uri pointers.  If `uri` is
+  NULL, a new uri will be generated bases on `s`, `p` and `o`.
  */
-int triplet_set(Triplet *t, const char *s, const char *p, const char *o)
+int triplet_set(Triplet *t, const char *s, const char *p, const char *o,
+                const char *uri)
 {
   t->s = strdup(s);
   t->p = strdup(p);
   t->o = strdup(o);
+  if (uri) {
+    if (t->uri) free(t->uri);
+    t->uri = strdup(uri);
+  } else {
+    t->uri = triplet_get_uri(NULL, s, p, o);
+  }
   return 0;
 }
 
 /*
   Returns an newly malloc'ed hash string calculated from triplet.
 */
-char *triplet_get_id(const Triplet *t)
+char *triplet_get_uri(const char *namespace, const char *s, const char *p,
+                      const char *o)
 {
   SHA1_CTX context;
   unsigned char digest[20];
-  char *id;
-  int i;
+  char *uri;
+  int i, n=0, size=41;
   SHA1Init(&context);
-  SHA1Update(&context, (unsigned char *)t->s, strlen(t->s));
-  SHA1Update(&context, (unsigned char *)t->p, strlen(t->p));
-  SHA1Update(&context, (unsigned char *)t->o, strlen(t->o));
+  SHA1Update(&context, (unsigned char *)s, strlen(s));
+  SHA1Update(&context, (unsigned char *)p, strlen(p));
+  SHA1Update(&context, (unsigned char *)o, strlen(o));
   SHA1Final(digest, &context);
-  if (!(id = malloc(41))) return NULL;
+  if (!namespace) namespace = default_namespace;
+  if (namespace) size += strlen(namespace);
+  if (!(uri = malloc(size))) return NULL;
+  if (namespace) n += snprintf(uri+n, size-n, "%s", namespace);
   for (i=0; i<20; i++)
-    sprintf(id + 2*i, "%02x", digest[i]);
-  return id;
+    n += snprintf(uri+n, size-n, "%02x", digest[i]);
+  return uri;
 }
 
 /*
   Returns a new empty triplestore or NULL on error.
  */
-Triplestore *triplestore_create()
+TripleStore *triplestore_create()
 {
-  Triplestore *store = calloc(1, sizeof(Triplestore));
+  TripleStore *store = calloc(1, sizeof(TripleStore));
   return store;
 }
 
@@ -90,11 +113,11 @@ Triplestore *triplestore_create()
 /*
   Frees triplestore `ts`.
  */
-void triplestore_free(Triplestore *store)
+void triplestore_free(TripleStore *store)
 {
   size_t i;
   for (i=0; i<store->length; i++)
-    xtriplet_clean(store->triplets + i);
+    triplet_clean(store->triplets + i);
   if (store->triplets) free(store->triplets);
   free(store);
 }
@@ -103,7 +126,7 @@ void triplestore_free(Triplestore *store)
 /*
   Returns the number of triplets in the store.
 */
-size_t triplestore_length(Triplestore *store)
+size_t triplestore_length(TripleStore *store)
 {
   return store->length;
 }
@@ -124,7 +147,7 @@ static int compar(const void *p1, const void *p2)
 /*
   Adds a single triplet to store.  Returns non-zero on error.
  */
-int triplestore_add(Triplestore *store, const char *s, const char *p,
+int triplestore_add(TripleStore *store, const char *s, const char *p,
                     const char *o)
 {
   Triplet t;
@@ -138,42 +161,38 @@ int triplestore_add(Triplestore *store, const char *s, const char *p,
 /*
   Adds `n` triplets to store.  Returns non-zero on error.
  */
-int triplestore_add_triplets(Triplestore *store, const Triplet *triplets,
+int triplestore_add_triplets(TripleStore *store, const Triplet *triplets,
                              size_t n)
 {
   size_t i;
-  XTriplet *t;
+  Triplet *t;
 
   if (store->size < store->length + n) {
     size_t m = (store->length + n - store->size) / TRIPLESTORE_BUFFSIZE;
     store->size += (m + 1) * TRIPLESTORE_BUFFSIZE;
     assert(store->size >= store->length + n);
-    store->triplets = realloc(store->triplets, store->size * sizeof(XTriplet));
+    store->triplets = realloc(store->triplets, store->size * sizeof(Triplet));
     memset(store->triplets + store->length, 0,
-           (store->size - store->length)*sizeof(XTriplet));
+           (store->size - store->length)*sizeof(Triplet));
   }
 
   /* append triplets */
   t = store->triplets + store->length;
-  for (i=0; i<n; i++, t++) {
-    t->s = strdup(triplets[i].s);
-    t->p = strdup(triplets[i].p);
-    t->o = strdup(triplets[i].o);
-    t->id = triplet_get_id(triplets + i);
-  }
+  for (i=0; i<n; i++, t++)
+    triplet_set(t, triplets[i].s, triplets[i].p, triplets[i].o, NULL);
   store->length += n;
 
   /* sort */
   t = store->triplets;
-  qsort(t, store->length, sizeof(XTriplet), compar);
+  qsort(t, store->length, sizeof(Triplet), compar);
 
   /* remove dublicates */
   for (i=1; i<store->length; i++) {
     if (compar(&t[i], &t[i-1]) == 0) {
       while (i < store->length && compar(&t[store->length - 1], &t[i-1]) == 0)
-        xtriplet_clean(t + --store->length);
+        triplet_clean(t + --store->length);
       if (i < store->length) {
-        xtriplet_clean(t + i);
+        triplet_clean(t + i);
         t[i] = t[--store->length];
       }
     }
@@ -184,13 +203,13 @@ int triplestore_add_triplets(Triplestore *store, const Triplet *triplets,
 
 
 /* Removes triplet number n. */
-static int _remove(Triplestore *store, size_t n)
+static int _remove(TripleStore *store, size_t n)
 {
-  XTriplet *t = store->triplets;
+  Triplet *t = store->triplets;
   if (n >= store->length)
     return err(1, "invalid triplet index: %lu", n);
-  xtriplet_clean(t + n);
-  memcpy(t + n, t + --store->length, sizeof(XTriplet));
+  triplet_clean(t + n);
+  memcpy(t + n, t + --store->length, sizeof(Triplet));
   return 0;
 }
 
@@ -198,11 +217,11 @@ static int _remove(Triplestore *store, size_t n)
   Removes a triplet identified by it's id.  Returns non-zero if no such
   triplet can be found.
 */
-int triplestore_remove_by_id(Triplestore *store, const char *id)
+int triplestore_remove_by_uri(TripleStore *store, const char *uri)
 {
   size_t i;
   for (i=0; i<store->length; i++)
-    if (strcmp(store->triplets[i].id, id) == 0)
+    if (strcmp(store->triplets[i].uri, uri) == 0)
       return _remove(store, i);
   return 1;
 }
@@ -212,12 +231,12 @@ int triplestore_remove_by_id(Triplestore *store, const char *id)
   be NULL, allowing for multiple matches.  Returns the number of
   triplets removed.
 */
-int triplestore_remove(Triplestore *store, const char *s,
+int triplestore_remove(TripleStore *store, const char *s,
                        const char *p, const char *o)
 {
   size_t i=0, n=0;
   while (i < store->length) {
-    const XTriplet *t = store->triplets + i;
+    const Triplet *t = store->triplets + i;
     if ((!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
         (!o || strcmp(o, t->o) == 0)) {
@@ -230,13 +249,13 @@ int triplestore_remove(Triplestore *store, const char *s,
 
 
 /*
-  Returns a pointer to triplet with given id or NULL if no match can be found.
+  Returns a pointer to triplet with given uri or NULL if no match can be found.
 */
-const Triplet *triplestore_get_id(const Triplestore *store, const char *id)
+const Triplet *triplestore_get_uri(const TripleStore *store, const char *uri)
 {
   size_t i;
   for (i=0; i<store->length; i++)
-    if (strcmp(store->triplets[i].id, id) == 0)
+    if (strcmp(store->triplets[i].uri, uri) == 0)
       return (Triplet *)&store->triplets[i];
   return NULL;
 }
@@ -246,16 +265,16 @@ const Triplet *triplestore_get_id(const Triplestore *store, const char *id)
   Returns a pointer to first triplet matching `s`, `p` and `o` or NULL
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
-const Triplet *triplestore_find_first(const Triplestore *store, const char *s,
+const Triplet *triplestore_find_first(const TripleStore *store, const char *s,
                                       const char *p, const char *o)
 {
   size_t i;
   for (i=0; i<store->length; i++) {
-    const XTriplet *t = store->triplets + i;
+    const Triplet *t = store->triplets + i;
     if ((!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
         (!o || strcmp(o, t->o) == 0))
-      return (Triplet *)t;
+      return t;
   }
   return NULL;
 }
@@ -264,7 +283,7 @@ const Triplet *triplestore_find_first(const Triplestore *store, const char *s,
 /*
   Initiates a TripleState for triplestore_find().
 */
-void triplestore_init_state(const Triplestore *store, TripleState *state)
+void triplestore_init_state(const TripleStore *store, TripleState *state)
 {
   (void)store;  /* unused */
   state->pos = 0;
@@ -279,15 +298,15 @@ void triplestore_init_state(const Triplestore *store, TripleState *state)
   and `o`.  Any of `s`, `p` or `o` may be NULL.  When no more matches
   can be found, NULL is returned.
  */
-const Triplet *triplestore_find(const Triplestore *store, TripleState *state,
+const Triplet *triplestore_find(const TripleStore *store, TripleState *state,
                        const char *s, const char *p, const char *o)
 {
   while (state->pos < store->length) {
-    const XTriplet *t = store->triplets + state->pos++;
+    const Triplet *t = store->triplets + state->pos++;
     if ((!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
         (!o || strcmp(o, t->o) == 0))
-      return (Triplet *)t;
+      return t;
   }
   return NULL;
 }
