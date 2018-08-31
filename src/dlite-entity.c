@@ -20,8 +20,8 @@ static size_t schema_entity_propoffsets[] = {
   offsetof(DLiteEntity, properties)
 };
 static DLiteSchemaDimension schema_entity_dimensions[] = {
-  {"ndimensions", "Number of dimensions."},  /* name */
-  {"nproperties", "Number of properties."}   /* description */
+  {"ndimensions", "Number of dimensions."},
+  {"nproperties", "Number of properties."}
 };
 static DLiteSchemaProperty schema_entity_prop0 = {
   "dimensions",                              /* name */

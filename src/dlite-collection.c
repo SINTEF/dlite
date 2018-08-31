@@ -10,6 +10,61 @@
 #include "dlite-collection.h"
 
 
+
+/**************************************************************
+ * schema_collection
+ **************************************************************/
+
+static int collection_init(DLiteInstance *inst);
+static int collection_deinit(DLiteInstance *inst);
+
+static DLiteSchemaDimension schema_collection_dimensions[] = {
+  //{"n-dimensions", "Number of common dimmensions."},
+  //{"n-instances",  "Number of instances added to the collection."},
+  //{"n-dim-maps",   "Number of dimension maps."},
+  {"n-relations",  "Number of relations."},
+  {"n-rel-items",  "Number of items in a relation - always 4 (s,p,o,id)."}
+};
+static int schema_collection_prop0_dims[] = {0, 4};
+static DLiteSchemaProperty schema_collection_prop0 = {
+  "relations",                               /* name */
+  dliteStringPtr,                            /* type */
+  sizeof(char *),                            /* size */
+  2,                                         /* ndims */
+  schema_collection_prop0_dims,              /* dims */
+  "Array of relations (subject, predicate, "
+  "object, relation-id)."                    /* description */
+};
+static DLiteSchemaProperty *schema_collection_properties[] = {
+  &schema_collection_prop0
+};
+static size_t schema_collection_propoffsets[] = {
+  offsetof(DLiteCollection, relations)
+};
+static DLiteMeta schema_collection = {
+  "e632d4c1-d0da-592e-8f95-b5f347acdb73",        /* uuid (corresponds to uri) */
+  "http://meta.sintef.no/0.6/schema-collection", /* uri  */
+  1,                                             /* refcount, never free */
+  NULL,                                          /* meta */
+  "Schema for Collections",                      /* description */
+  sizeof(DLiteCollection),                       /* size */
+  offsetof(DLiteCollection, nrelations),         /* dimoffset */
+  schema_collection_propoffsets,                 /* propoffsets */
+  0,                                             /* reloffset */
+  collection_init,                               /* init */
+  collection_deinit,                             /* deinit */
+  //NULL,                                          /* loadprop */
+  //NULL,                                          /* saveprop */
+  0,                                             /* flags */
+  schema_collection_dimensions,                  /* dimensions */
+  schema_collection_properties,                  /* properties */
+  NULL,                                          /* relations */
+  2,                                             /* ndimensions */
+  1,                                             /* nproperties */
+  0,                                             /* nrelations */
+};
+
+
 /**************************************************************
  * Instance store
  **************************************************************/
@@ -52,6 +107,31 @@ static DLiteStore *_istore_init()
  * Collection
  **************************************************************/
 
+/* Initialise additional data in a collection */
+static int collection_init(DLiteInstance *inst)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+
+  /* Initialise global store */
+  if (!_istore) _istore = _istore_init();
+  assert(_istore);
+
+  /* Initialise tripletstore */
+  coll->rstore = triplestore_create();
+  coll->relations = coll->rstore->triplets;
+
+  return 0;
+}
+
+
+/* De-initialise additional data in a collection */
+static int collection_deinit(DLiteInstance *inst)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  triplestore_free(coll->rstore);
+  return 0;
+}
+
 /*
   Returns a new collection with given id.  If `id` is NULL, a new
   random uuid is generated.
@@ -73,7 +153,7 @@ DLiteCollection *dlite_collection_create(const char *id)
   /* Initialise header */
   if ((uuid_version = dlite_get_uuid(coll->uuid, id)) < 0) goto fail;
   if (uuid_version == 5) coll->uri = strdup(id);
-  coll->meta = NULL;  /* FIXME */
+  coll->meta = &schema_collection;
 
   /* Initialise tripletstore
 
@@ -87,7 +167,7 @@ DLiteCollection *dlite_collection_create(const char *id)
      Is this really a good idea?
   */
   coll->rstore = triplestore_create();
-  //coll->relations = coll->rstore->triplets;
+  coll->relations = coll->rstore->triplets;
 
   return coll;
  fail:

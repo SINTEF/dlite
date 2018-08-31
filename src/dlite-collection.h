@@ -6,13 +6,12 @@
 #include "dlite-type.h"
 
 
+
 /**
   A DLite Collection.
 
   Collections are a special type of instances that hold a set of
   instances and relations between them.
-
-  In the current implementation, we allow the `meta` field to be NULL.
 
   A set of pre-defined relations are used to manage the collection itself.
   In order to not distinguish these relations from user-defined relations,
@@ -32,16 +31,28 @@
   relation that maps a dimension in the instance (`instdim`) to a
   common dimension in the collection (`colldim`).
 
+  Note that we compared to SOFT, have added "n-rel-items" as a dimension
+  such that the relations can be treated as an ordinary 2D array of
+  strings.
 */
 typedef struct _DLiteCollection {
   DLiteInstance_HEAD
-  //size_t ndimensions;         /*!< Number of (common) dimensions. */
+  /* dimensions */
+  //size_t ndimensions;         /*!< Number of dimensions. */
   //size_t ninstances;          /*!< Number of instances. */
-  //size_t nrelations;          /*!< Number of relations. */
+  //size_t ndimmaps;            /*!< Number of dimension maps. */
+  size_t nrelations;          /*!< Number of relations. */
+  size_t nrelitems;           /*!< Number of items in a relation, always 4. */
 
-  Triplestore *rstore;        /*!< Triplestore managing the relations. */
+  /* properties */
 
-  //DLiteRelation *relations;   /*!< Array of relation. */
+  /** Pointer to array of relations.  This can safely be cast to
+      ``char *relations[4]``, which is an 2D array of strings.
+      Note that this pointer may change if `relations` is reallocated. */
+  DLiteRelation *relations;
+
+  /* internal data */
+  Triplestore *rstore;       /*!< Triplestore managing the relations. */
 } DLiteCollection;
 
 

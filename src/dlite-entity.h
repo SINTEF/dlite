@@ -67,8 +67,9 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
 
 /** Function for additional de-initialisation of a metadata instance.
     If defined, this function is called at beginning of
-    dlite_instance_free(). */
-typedef void (*DLiteDeInit)(struct _DLiteInstance *inst);
+    dlite_instance_free().
+    Returns non-zero on error. */
+typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
 ///** Function for loading special properties.
 //    Returns 1 if property `name` is loaded, 0 if `name` should be
