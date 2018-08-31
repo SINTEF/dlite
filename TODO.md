@@ -25,7 +25,7 @@ High priority
       DLiteSchemaDimension (equivalent to DLiteDimension).
 
   [ ] Improve the definition of metadata such that dlite_instance_create()
-      also can create metadata and reconsider DLiteProperty.  Based on
+      also can create metadata.  Reconsider DLiteProperty.  Based on
       this, correct the definition of schema_entity.
 
   [x] Implement an in-memory database, e.g. for storing instances that

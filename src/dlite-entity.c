@@ -57,7 +57,7 @@ static DLiteMeta schema_entity = {
   NULL,                                       /* deinit */
   //NULL,                                       /* loadprop */
   //NULL,                                       /* saveprop */
-  0,                                          /* flags */
+  dliteIsMeta,                                /* flags */
   schema_entity_dimensions,                   /* dimensions */
   schema_entity_properties,                   /* properties */
   NULL,                                       /* relations */
