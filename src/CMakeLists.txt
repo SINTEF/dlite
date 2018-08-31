@@ -55,11 +55,11 @@ configure_file(config.h.in config.h)
 #-----------------------------------------------------
 set(sources
   dlite-utils.c
+  dlite-store.c
   dlite-type.c
   dlite-storage.c
-  dlite-entity.c
   dlite-datamodel.c
-  dlite-store.c
+  dlite-entity.c
   dlite-collection.c
   getuuid.c
   err.c

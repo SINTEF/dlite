@@ -59,11 +59,32 @@
 #include "dlite.h"
 #include "dlite-storage.h"
 
-/** Function for additional initialisation of a metadata instance */
+
+/** Function for additional initialisation of an instance.
+    If defined, this function is called at end of dlite_instance_create().
+    Returns non-zero on error. */
 typedef int (*DLiteInit)(struct _DLiteInstance *inst);
 
-/** Function for additional de-initialisation of a metadata instance */
-typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
+/** Function for additional de-initialisation of a metadata instance.
+    If defined, this function is called at beginning of
+    dlite_instance_free(). */
+typedef void (*DLiteDeInit)(struct _DLiteInstance *inst);
+
+///** Function for loading special properties.
+//    Returns 1 if property `name` is loaded, 0 if `name` should be
+//    loaded the normal way or -1 on error. */
+//typedef int (*DLiteLoadProp(DLiteDataModel *d,
+//                            const struct _DLiteInstance *inst,
+//                            const char *name);
+//
+///** Function for saving special properties.
+//    Returns 1 if property `name` is saved, 0 if `name` should be
+//    saved the normal way or -1 on error. */
+//typedef int (*DLiteSaveProp)(DLiteDataModel *d,
+//                             const struct _DLiteInstance *inst,
+//                             const char *name);
+
+
 
 /** Flags are an or'ed sum of the below values */
 typedef enum _DLiteMetaFlags {
@@ -95,29 +116,29 @@ typedef enum _DLiteMetaFlags {
   first 3 dimensions, regardless of whether they actually are used (as
   in the case for Entity, which don't have relations).
 */
-#define DLiteMeta_HEAD                                                  \
-  DLiteInstance_HEAD                                                    \
-  const char *description;  /*!< Description of this metadata. */       \
-                                                                        \
-  /* internal data */                                                   \
-  size_t size;         /*!< Size of instance memory. */                 \
-  size_t dimoffset;    /*!< Memory offset of dimensions in instance. */ \
-  size_t *propoffsets; /*!< Memory offset of each property value. */    \
-                       /*   NULL if instance is metadata. */            \
-  size_t reloffset;    /*!< Memory offset of relations in instance. */  \
-  DLiteInit init;      /*!< Function initialising an instance. */       \
-  DLiteDeInit deinit;  /*!< Function deinitialising an instance. */     \
-  DLiteMetaFlags flags;/*!< Or'ed sum of flags. */                      \
-                                                                        \
-  /* schema_properties */                                               \
-  DLiteSchemaDimension *dimensions;  /*!< Array of dimensions. */       \
-  DLiteSchemaProperty **properties;  /*!< Array of property pointers. */\
-  DLiteSchemaRelation *relations;    /*!< Array of relations. */        \
-                                                                        \
-  /* schema_dimensions */                                               \
-  /* We place the dimensions at the end, in case more are needed */     \
-  size_t ndimensions;  /*!< Number of dimensions in instance. */        \
-  size_t nproperties;  /*!< Number of properties in instance. */        \
+#define DLiteMeta_HEAD                                                     \
+  DLiteInstance_HEAD                                                       \
+  const char *description;  /*!< Description of this metadata. */          \
+                                                                           \
+  /* internal data */                                                      \
+  size_t size;            /*!< Size of instance memory. */                 \
+  size_t dimoffset;       /*!< Memory offset of dimensions in instance. */ \
+  size_t *propoffsets;    /*!< Memory offset of each property value. */    \
+                          /*   NULL if instance is metadata. */            \
+  size_t reloffset;       /*!< Memory offset of relations in instance. */  \
+  DLiteInit init;         /*!< Function initialising an instance. */       \
+  DLiteDeInit deinit;     /*!< Function deinitialising an instance. */     \
+  DLiteMetaFlags flags;   /*!< Or'ed sum of flags. */                      \
+                                                                           \
+  /* schema_properties */                                                  \
+  DLiteSchemaDimension *dimensions;  /*!< Array of dimensions. */          \
+  DLiteSchemaProperty **properties;  /*!< Array of property pointers. */   \
+  DLiteSchemaRelation *relations;    /*!< Array of relations. */           \
+                                                                           \
+  /* schema_dimensions */                                                  \
+  /* We place the dimensions at the end, in case more are needed */        \
+  size_t ndimensions;  /*!< Number of dimensions in instance. */           \
+  size_t nproperties;  /*!< Number of properties in instance. */           \
   size_t nrelations;   /*!< Number of relations in instance. */
 
 

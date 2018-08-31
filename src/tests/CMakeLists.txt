@@ -21,7 +21,7 @@ add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite plugins-hdf5 plugins-json uuid)
+  target_link_libraries(${test} dlite uuid)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_SOURCE_DIR}/plugins/json  # FIXME - remove this dependency

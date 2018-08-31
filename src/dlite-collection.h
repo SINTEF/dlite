@@ -24,8 +24,9 @@
   label   | "_is-a"         | "Instance"
   label   | "_has-uuid"     | uuid
   label   | "_has-meta"     | uri
-  label   | "_has-dimmap"   | relation-id
+  label   | "_has-dimmap"   | relation-id  -> (instdim, "_maps-to", coldim)
   instdim | "_maps-to"      | colldim
+  coldim  | "_has-size"     | size
 
   The "_has-dimmap" relations links an instance label to a "_maps-to"
   relation that maps a dimension in the instance (`instdim`) to a
@@ -34,15 +35,13 @@
 */
 typedef struct _DLiteCollection {
   DLiteInstance_HEAD
-  size_t ndimensions;         /*!< Number of (common) dimensions. */
-  size_t ninstances;          /*!< Number of instances. */
-  size_t nrelations;          /*!< Number of relations. */
+  //size_t ndimensions;         /*!< Number of (common) dimensions. */
+  //size_t ninstances;          /*!< Number of instances. */
+  //size_t nrelations;          /*!< Number of relations. */
 
   Triplestore *rstore;        /*!< Triplestore managing the relations. */
 
-  DLiteRelation *relations;   /*!< Array of relation. */
-  char **dimnames;            /*!< Name of each (common) dimension. */
-  int *dimsizes;              /*!< Size of each (common) dimension. */
+  //DLiteRelation *relations;   /*!< Array of relation. */
 } DLiteCollection;
 
 
@@ -83,21 +82,6 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
 
 
 /**
-  Adds (reference to) instance `inst` to collection.  Returns non-zero on
-  error.
- */
-int dlite_collection_add(DLiteCollection *coll, const char *label,
-                         const DLiteInstance *inst);
-
-
-/**
-  Removes instance with given label from collection.  Returns non-zero on
-  error.
- */
-int dlite_collection_remove(DLiteCollection *coll, const char *label);
-
-
-/**
   Initiates a DLiteCollectionState for dlite_collection_find().
 */
 void dlite_collection_init_state(const DLiteCollection *coll,
@@ -124,6 +108,29 @@ const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
 					   DLiteCollectionState *state,
 					   const char *s, const char *p,
 					   const char *o);
+
+
+/**
+  Adds (reference to) instance `inst` to collection.  Returns non-zero on
+  error.
+ */
+int dlite_collection_add(DLiteCollection *coll, const char *label,
+                         DLiteInstance *inst);
+
+
+/**
+  Removes instance with given label from collection.  Returns non-zero on
+  error.
+ */
+int dlite_collection_remove(DLiteCollection *coll, const char *label);
+
+
+/**
+  Returns borrowed reference to instance with given label or NULL on error.
+ */
+DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
+                                    const char *label);
+
 
 
 #endif /* _DLITE_COLLECTION_H */

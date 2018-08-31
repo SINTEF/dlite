@@ -1,3 +1,10 @@
+/* This is a very naiv implementation of a triplestore with O(n)
+   lookup time and a full sorting of the entire table for each insert
+   to avoid dublicates.
+
+   Optimasations are definitely possible, but it might be better use
+   of time to look for high-quality alternative.
+ */
 #include <assert.h>
 #include <stdlib.h>
 #include <stddef.h>

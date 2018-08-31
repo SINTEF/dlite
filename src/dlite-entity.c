@@ -6,6 +6,7 @@
 #include "err.h"
 #include "dlite.h"
 #include "dlite-type.h"
+#include "dlite-store.h"
 #include "dlite-entity.h"
 #include "dlite-datamodel.h"
 
@@ -54,6 +55,8 @@ static DLiteMeta schema_entity = {
   0,                                          /* reloffset */
   NULL,                                       /* init */
   NULL,                                       /* deinit */
+  //NULL,                                       /* loadprop */
+  //NULL,                                       /* saveprop */
   0,                                          /* flags */
   schema_entity_dimensions,                   /* dimensions */
   schema_entity_properties,                   /* properties */
@@ -71,10 +74,30 @@ static DLiteMeta schema_entity = {
 
 
 /********************************************************************
- *  Instances
+ *  Metadata cache
  ********************************************************************/
 
-static void dlite_instance_free(DLiteInstance *inst);
+static DLiteStore *_metastore = NULL;
+
+/* Frees up a global instance store */
+static void _metastore_free()
+{
+  dlite_store_free(_metastore);
+  _metastore = NULL;
+}
+
+/* Returns a new initializes instance store */
+static DLiteStore *_metastore_init()
+{
+  DLiteStore *store = dlite_store_create();
+  atexit(_metastore_free);
+  return store;
+}
+
+
+/********************************************************************
+ *  Instances
+ ********************************************************************/
 
 /*
   Returns a new dlite instance from Entiry `meta` and dimensions
@@ -131,6 +154,9 @@ DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
 
   dlite_meta_incref(meta);      /* increase refcount of metadata */
   dlite_instance_incref(inst);  /* increase refcount of the new instance */
+
+  /* Additional initialisation */
+  if (meta->init && meta->init(inst)) goto fail;
   return inst;
  fail:
   if (inst) dlite_instance_decref(inst);
@@ -151,6 +177,11 @@ static void dlite_instance_free(DLiteInstance *inst)
     errx(-1, "no metadata available");
     return;
   }
+
+  /* Additional deinitialisation */
+  if (meta->deinit) meta->deinit(inst);
+
+  /* Standard free */
   nprops = meta->nproperties;
   if (inst->uri) free((char *)inst->uri);
   if (meta->properties) {
@@ -215,10 +246,27 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
   int j, max_pndims=0;
   const char *uri=NULL;
 
+  /* create datamodel and get metadata uri */
   if (!(d = dlite_datamodel(s, id))) goto fail;
+  if (!(uri = dlite_datamodel_get_meta_uri(d))) goto fail;
+
+  /* if metadata is not given, try to load it from cache... */
+  if (!meta) {
+    if (!_metastore) _metastore_init();
+    meta = (DLiteMeta *)dlite_store_get(_metastore, uri);
+  }
+
+  /* ...otherwise try to load it from storage */
+  if (!meta) {
+    char uuid[DLITE_UUID_LENGTH];
+    dlite_get_uuid(uuid, uri);
+    meta = (DLiteMeta *)dlite_instance_load(s, uuid, NULL);
+  }
+
+  /* ...otherwise give up */
+  if (!meta) FAIL1("cannot load metadata: %s", uri);
 
   /* check metadata uri */
-  if (!(uri = dlite_datamodel_get_meta_uri(d))) goto fail;
   if (strcmp(uri, meta->uri) != 0)
     FAIL2("metadata (%s) does not correspond to metadata in storage (%s)",
 	  meta->uri, uri);
@@ -241,8 +289,15 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
   }
   pdims = malloc(max_pndims * sizeof(size_t));
   for (i=0; i<meta->nproperties; i++) {
+    void *ptr;
     DLiteProperty *p = (DLiteProperty *)meta->properties[i];
-    void *ptr = (void *)dlite_instance_get_property_by_index(inst, i);
+    //if (meta->loadprop) {
+    //  int stat = meta->loadprop(d, inst, p->name);
+    //  if (stat < 0) FAIL2("error loading special property %s of metadata %s",
+    //                      p->name, meta->uri);
+    //  if (stat == 1) continue;
+    //}
+    ptr = (void *)dlite_instance_get_property_by_index(inst, i);
     for (j=0; j<p->ndims; j++) pdims[j] = dims[p->dims[j]];
     if (p->ndims > 0 && p->dims) ptr = *((void **)ptr);
     if (dlite_datamodel_get_property(d, p->name, ptr, p->type, p->size,
@@ -289,8 +344,15 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   pdims = malloc(max_pndims * sizeof(size_t));
 
   for (i=0; i<meta->nproperties; i++) {
+    const void *ptr;
     DLiteProperty *p = (DLiteProperty *)inst->meta->properties[i];
-    const void *ptr = dlite_instance_get_property_by_index(inst, i);
+    //if (meta->saveprop) {
+    //  int stat = meta->saveprop(d, inst, p->name);
+    //  if (stat < 0) FAIL2("error saving special property %s of metadata %s",
+    //                      p->name, meta->uri);
+    //  if (stat == 1) continue;
+    //}
+    ptr = dlite_instance_get_property_by_index(inst, i);
     for (j=0; j<p->ndims; j++) pdims[j] = dims[p->dims[j]];
     if (p->ndims > 0 && p->dims) ptr = *((void **)ptr);
 
