@@ -11,6 +11,8 @@
     err(1, msg, a1, a2); goto fail; } while (0)
 #define FAIL3(msg, a1, a2, a3) do { \
     err(1, msg, a1, a2, a3); goto fail; } while (0)
+#define FAIL4(msg, a1, a2, a3, a4) do { \
+    err(1, msg, a1, a2, a3, a4); goto fail; } while (0)
 
 
 #endif /* _MACROS_H */

@@ -92,24 +92,59 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 //                             const char *name);
 
 
+/** Expands to number of dimensions --> (size_t) */
+#define DLITE_NDIM(inst) (((DLiteInstance *)(inst))->meta->ndimensions)
 
-/** Flags are an or'ed sum of the below values */
-typedef enum _DLiteMetaFlags {
-  dliteIsMeta=1    /*!< Whether instance is metadata */
-} DLiteMetaFlags;
+/** Expands to pointer to array of dimension values --> (size_t *) */
+#define DLITE_DIMS(inst) (((DLiteInstance *)(inst))->dims)
+
+/** Expands to length of dimension `n` --> (size_t) */
+#define DLITE_DIM(inst, n) (((DLiteInstance *)(inst))->dims[n])
+
+/** Expands to array of dimension descriptions --> (DLiteDimension *) */
+#define DLITE_DIMS_DESCR(inst) (((DLiteInstance *)(inst))->meta->dimensions)
+
+/** Expands to description of dimensions `n` --> (DLiteDimension *) */
+#define DLITE_DIM_DESCR(inst, n) \
+  (((DLiteInstance *)(inst))->meta->dimensions + n)
+
+/** Expands to number of dimensions (size_t). */
+#define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
+
+/** Expands to pointer to array of pointers to property values --> (void **) */
+#define DLITE_PROPS(inst) (((DLiteInstance *)(inst))->props)
+
+/** Expands to pointer to property `n` --> (void *) */
+#define DLITE_PROP(inst, n) (((DLiteInstance *)(inst))->props[n])
+
+/** Expands to array of property descriptions --> (DLiteProperty *) */
+#define DLITE_PROPS_DESCR(inst) (((DLiteInstance *)(inst))->meta->properties)
+
+/** Expands to pointer to description of property `n` --> (DLiteProperty *) */
+#define DLITE_PROP_DESCR(inst, n) \
+  (((DLiteInstance *)(inst))->meta->properties + n)
+
+/** Expands to number of relations --> (size_t) */
+#define DLITE_NRELS(inst) (((DLiteInstance *)(inst))->meta->nrelations)
+
+/** Expands to pointer to array of relations --> (DLiteRelation *) */
+#define DLITE_RELS(inst) (((DLiteInstance *)(inst))->rels)
+
+/** Expands to pointer to relation `n` --> (DLiteRelation *) */
+#define DLITE_REL(inst, n) (((DLiteInstance *)(inst))->rels + n)
 
 
 /**
   Initial segment of all DLite instances.
 */
-#define DLiteInstance_HEAD                                                \
-  char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID for this data instance. */    \
-  const char *uri;                /*!< Unique name or uri of the data */  \
-                                  /*   instance.  Can be NULL. */         \
-  size_t refcount;                /*!< Number of references to this */    \
-                                  /*   instance. */                       \
-  struct _DLiteMeta *meta;        /*!< Pointer to the metadata descri- */ \
-                                  /*   bing this instance. */
+#define DLiteInstance_HEAD                                              \
+  char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this data instance. */    \
+  const char *uri;                /* Unique name or uri of the data */  \
+                                  /* instance.  Can be NULL. */         \
+  size_t refcount;                /* Number of references to this */    \
+                                  /* instance. */                       \
+  struct _DLiteMeta *meta;        /* Pointer to the metadata descri- */ \
+                                  /* bing this instance. */
 
 
 /**
@@ -123,30 +158,31 @@ typedef enum _DLiteMetaFlags {
   first 3 dimensions, regardless of whether they actually are used (as
   in the case for Entity, which don't have relations).
 */
-#define DLiteMeta_HEAD                                                     \
-  DLiteInstance_HEAD                                                       \
-  const char *description;  /*!< Description of this metadata. */          \
-                                                                           \
-  /* internal data */                                                      \
-  size_t size;            /*!< Size of instance memory. */                 \
-  size_t dimoffset;       /*!< Memory offset of dimensions in instance. */ \
-  size_t *propoffsets;    /*!< Memory offset of each property value. */    \
-                          /*   NULL if instance is metadata. */            \
-  size_t reloffset;       /*!< Memory offset of relations in instance. */  \
-  DLiteInit init;         /*!< Function initialising an instance. */       \
-  DLiteDeInit deinit;     /*!< Function deinitialising an instance. */     \
-  DLiteMetaFlags flags;   /*!< Or'ed sum of flags. */                      \
-                                                                           \
-  /* schema_properties */                                                  \
-  DLiteSchemaDimension *dimensions;  /*!< Array of dimensions. */          \
-  DLiteSchemaProperty **properties;  /*!< Array of property pointers. */   \
-  DLiteSchemaRelation *relations;    /*!< Array of relations. */           \
-                                                                           \
-  /* schema_dimensions */                                                  \
-  /* We place the dimensions at the end, in case more are needed */        \
-  size_t ndimensions;  /*!< Number of dimensions in instance. */           \
-  size_t nproperties;  /*!< Number of properties in instance. */           \
-  size_t nrelations;   /*!< Number of relations in instance. */
+#define DLiteMeta_HEAD                                                  \
+  DLiteInstance_HEAD                                                    \
+  const char *description;  /* Description of this metadata. */         \
+                                                                        \
+  /* Memory layout of instances */                                      \
+  size_t size;           /* Size of instance memory. */                 \
+  size_t dimoffset;      /* Memory offset of dimensions in instance. */ \
+  size_t *propoffsets;   /* Memory offset of each property value. */    \
+                         /* NULL if instance is metadata. */            \
+  size_t reloffset;      /* Memory offset of relations in instance. */  \
+                                                                        \
+  /*  Function pointers used by instances */				\
+  DLiteInit init;        /* Function initialising an instance. */       \
+  DLiteDeInit deinit;    /* Function deinitialising an instance. */     \
+                                                                        \
+  /* Convinient pointers to current data */                             \
+  DLiteDimension *dimensions;  /* Array of dimensions. */               \
+  DLiteProperty **properties;  /* Array of property pointers. */        \
+  DLiteRelation *relations;    /* Array of relations. */                \
+                                                                        \
+  /* schema_dimensions */                                               \
+  /* We place the dimensions at the end, in case more are needed */     \
+  size_t ndimensions;  /* Number of dimensions in instance. */          \
+  size_t nproperties;  /* Number of properties in instance. */          \
+  size_t nrelations;   /* Number of relations in instance. */
 
 
 /**
@@ -180,33 +216,35 @@ typedef enum _DLiteMetaFlags {
   instansiated.
 */
 struct _DLiteInstance {
-  DLiteInstance_HEAD
+  DLiteInstance_HEAD  /*!< Common header for all instances. */
 };
 
 
-/** Schema dimension (which all dimensions can be cast to). */
-typedef struct _DLiteSchemaDimension {
-  DLiteDimension_HEAD
-} DLiteSchemaDimension;
-
-/** Schema property (which all properties can be cast to). */
-typedef struct _DLiteSchemaProperty {
-  DLiteProperty_HEAD
-} DLiteSchemaProperty;
-
-/** Schema relation (which all relations can be cast to). */
-typedef struct _XTriplet DLiteSchemaRelation;
-
-
-/** Entity dimension */
+/**
+  DLite dimension
+*/
 typedef struct _DLiteDimension {
-  DLiteDimension_HEAD
+  char *name;         /*!< Name of this dimension. */
+  char *description;  /*!< Description of this dimension. */
 } DLiteDimension;
 
-/** Entity property */
+
+/**
+  DLite property
+
+  E.g. if we have dimensions ["M", "N"] and dims is [1, 1, 0], it
+  means that the data described by this property has dimensions
+  ["N", "N", "M"].
+*/
 typedef struct _DLiteProperty {
-  DLiteProperty_HEAD
-  char *unit;         /*!< Unit of the described data. */
+  char *name;         /*!< Name of this property. */
+  DLiteType type;     /*!< Type of the described data. */
+  size_t size;        /*!< Size of one data element. */
+  int ndims;          /*!< Number of dimension of the described */
+                      /*   data.  Zero if scalar. */
+  int *dims;          /*!< Array of dimension indices. May be NULL. */
+  char *unit;         /*!< Unit of the described data. May be NULL. */
+  char *description;  /*!< Human described of the described data. */
 } DLiteProperty;
 
 
@@ -491,14 +529,55 @@ int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name);
 /**
   Returns a pointer to property with index \a i or NULL on error.
  */
-const DLiteSchemaProperty *
+const DLiteProperty *
 dlite_meta_get_property_by_index(const DLiteMeta *meta, size_t i);
 
 /**
-  Returns a pointer to property named \a name or NULL on error.
+  Returns a pointer to property named `name` or NULL on error.
  */
-const DLiteSchemaProperty *dlite_meta_get_property(const DLiteMeta *meta,
-                                                   const char *name);
+const DLiteProperty *dlite_meta_get_property(const DLiteMeta *meta,
+                                             const char *name);
+
+
+/**
+  Returns non-zero if `meta` is meta-metadata (i.e. its instances are
+  metadata).
+*/
+int dlite_meta_is_metameta(const DLiteMeta *meta);
+
+
+/** @} */
+/* ================================================================= */
+/**
+ * @name Metadata cache
+ * Global metadata cache to avoid reloading entities for each time an
+ * instance is created.
+ */
+/* ================================================================= */
+/** @{ */
+
+/**
+  Frees up a global metadata store.  Will be called at program exit,
+  but can be called at any time.
+*/
+void dlite_metastore_free();
+
+/**
+  Returns pointer to metadata for id `id` or NULL if `id` cannot be found.
+*/
+DLiteMeta *dlite_metastore_get(const char *id);
+
+/**
+  Adds metadata to global metadata store, giving away the ownership
+  of `meta` to the store.  Returns non-zero on error.
+*/
+int dlite_metastore_add_new(DLiteMeta *meta);
+
+/**
+  Adds metadata to global metadata store.  The caller keeps ownership
+  of `meta`.  Returns non-zero on error.
+*/
+int dlite_metastore_add(DLiteMeta *meta);
 
 /** @} */
 

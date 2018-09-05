@@ -5,14 +5,11 @@
 
 #include "compat.h"
 #include "dlite.h"
+#include "dlite-macros.h"
 #include "dlite-datamodel.h"
 #include "getuuid.h"
 #include "err.h"
 
-
-/* Convenient macros for failing */
-#define FAIL(msg) do { err(1, msg); goto fail; } while (0)
-#define FAIL1(msg, a1) do { err(1, msg, a1); goto fail; } while (0)
 
 
 /* NULL-terminated array of all backends */

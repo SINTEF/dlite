@@ -10,9 +10,6 @@
 #include "dlite-type.h"
 
 
-/* Expands to the struct alignment of type */
-#define alignof(type) ((size_t)&((struct { char c; type d; } *)0)->d)
-
 
 /* Name DLite types */
 static char *dtype_names[] = {
@@ -58,7 +55,11 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
+
+  {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
+  {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
   {"relation", dliteRelation,  sizeof(DLiteRelation), alignof(DLiteRelation)},
+
   {NULL,       0,              0,                     0}
 };
 

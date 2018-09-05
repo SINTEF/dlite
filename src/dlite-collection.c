@@ -18,7 +18,7 @@
 static int collection_init(DLiteInstance *inst);
 static int collection_deinit(DLiteInstance *inst);
 
-static DLiteSchemaDimension schema_collection_dimensions[] = {
+static DLiteDimension schema_collection_dimensions[] = {
   //{"n-dimensions", "Number of common dimmensions."},
   //{"n-instances",  "Number of instances added to the collection."},
   //{"n-dim-maps",   "Number of dimension maps."},
@@ -26,16 +26,17 @@ static DLiteSchemaDimension schema_collection_dimensions[] = {
   {"n-rel-items",  "Number of items in a relation - always 4 (s,p,o,id)."}
 };
 static int schema_collection_prop0_dims[] = {0, 1};
-static DLiteSchemaProperty schema_collection_prop0 = {
+static DLiteProperty schema_collection_prop0 = {
   "relations",                               /* name */
   dliteStringPtr,                            /* type */
   sizeof(char *),                            /* size */
   2,                                         /* ndims */
   schema_collection_prop0_dims,              /* dims */
+  NULL,                                      /* unit */
   "Array of relations (subject, predicate, "
   "object, relation-id)."                    /* description */
 };
-static DLiteSchemaProperty *schema_collection_properties[] = {
+static DLiteProperty *schema_collection_properties[] = {
   &schema_collection_prop0
 };
 static size_t schema_collection_propoffsets[] = {
@@ -55,7 +56,7 @@ static DLiteMeta schema_collection = {
   collection_deinit,                             /* deinit */
   //NULL,                                          /* loadprop */
   //NULL,                                          /* saveprop */
-  0,                                             /* flags */
+  //0,                                             /* flags */
   schema_collection_dimensions,                  /* dimensions */
   schema_collection_properties,                  /* properties */
   NULL,                                          /* relations */

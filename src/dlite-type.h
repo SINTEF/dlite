@@ -59,18 +59,18 @@
 #include "boolean.h"
 #include "triplestore.h"
 
+/* Expands to the struct alignment of type */
+#define alignof(type) ((size_t)&((struct { char c; type d; } *)0)->d)
 
-/**
-  A subject-predicate-object triplet used to represent a relation.
+/* Expands to the amount of padding that should be added before `type`
+   if `type` is to be added to a struct at offset `offset`. */
+#define padding_at(type, offset)                                        \
+  ((alignof(type) - ((offset) & (alignof(type) - 1))) & (alignof(type) - 1))
 
-  Triplets are only exposed as a type to make the implementation of
-  Collections sane.  Normal Entity instances are supposed to be
-  independent and should not define relations.
-*/
-typedef struct _Triplet DLiteRelation;
 
 typedef struct _DLiteProperty  DLiteProperty;
 typedef struct _DLiteDimension DLiteDimension;
+typedef struct _Triplet        DLiteRelation;
 
 
 
@@ -86,12 +86,7 @@ typedef enum _DLiteType {
 
   dliteDimension,        /*!< Dimension, for entities */
   dliteProperty,         /*!< Property, for entities */
-  dliteRelation,         /*!< Subject-predicate-object relation,
-			      for collections */
-
-  dliteSchemaDimension,  /*!< Schema dimension, for generic metadata */
-  dliteSchemaProperty,   /*!< Schema property, for generic metadata */
-  dliteSchemaRelation    /*!< Schema relation, for generic metadata */
+  dliteRelation,         /*!< Subject-predicate-object relation */
 } DLiteType;
 
 
