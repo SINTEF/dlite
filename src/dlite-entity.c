@@ -5,11 +5,15 @@
 
 #include "err.h"
 #include "dlite.h"
+#include "dlite-macros.h"
 #include "dlite-type.h"
 #include "dlite-store.h"
 #include "dlite-entity.h"
 #include "dlite-datamodel.h"
+#include "dlite-schemas.h"
 
+#define min(x, y) (((x) < (y)) ? (x) : (y))
+#define max(x, y) (((x) >= (y)) ? (x) : (y))
 
 /* FIXME - add basic_metadata_schema */
 
@@ -67,10 +71,6 @@ static DLiteMeta schema_entity = {
 };
 
 
-/* Convenient macros for failing */
-#define FAIL(msg) do { err(1, msg); goto fail; } while (0)
-#define FAIL1(msg, a1) do { err(1, msg, a1); goto fail; } while (0)
-#define FAIL2(msg, a1, a2) do { err(1, msg, a1, a2); goto fail; } while (0)
 
 
 /********************************************************************
@@ -114,8 +114,9 @@ static DLiteStore *_metastore_init()
   properties are allocated and initialised to zero.
 
   On error, NULL is returned.
- */
-DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
+*/
+DLiteInstance *dlite_instance_create(const DLiteEntity *entity,
+                                     const size_t *dims,
                                      const char *id)
 {
   DLiteMeta *meta = (DLiteMeta *)entity;
@@ -236,7 +237,7 @@ void dlite_instance_decref(DLiteInstance *inst)
 
   On error, NULL is returned.
  */
-DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
+DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
 				   DLiteEntity *entity)
 {
   DLiteMeta *meta = (DLiteMeta *)entity;

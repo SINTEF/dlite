@@ -108,7 +108,7 @@ typedef char *(*GetMetaURI)(const DLiteDataModel *d);
  */
 /* FIXME - zero may be a valid dimension size.  Change from size_t to a
    signed integer and return -1 on error. */
-typedef size_t (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
+typedef int (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
 
 
 /**

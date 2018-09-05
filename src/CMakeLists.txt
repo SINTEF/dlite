@@ -59,6 +59,7 @@ set(sources
   dlite-type.c
   dlite-storage.c
   dlite-datamodel.c
+  #dlite-schemas.c
   dlite-entity.c
   dlite-collection.c
   getuuid.c

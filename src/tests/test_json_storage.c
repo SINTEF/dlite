@@ -65,9 +65,9 @@ MU_TEST(test_read)
   mu_check(dlite_datamodel_has_dimension(d, "N"));
   dim = dlite_datamodel_get_dimension_size(d, "N");
   mu_check(dim == 5);
-  mu_check(!dlite_datamodel_has_dimension(d, "M"));
+  mu_assert_int_eq(0, dlite_datamodel_has_dimension(d, "M"));
   dim = dlite_datamodel_get_dimension_size(d, "M");
-  mu_check(dim == 0);
+  mu_assert_int_eq(-1, dim);
 
   mu_check(dlite_datamodel_has_property(d, "P1"));
   mu_check(dlite_datamodel_has_property(d, "P2"));

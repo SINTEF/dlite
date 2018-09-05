@@ -98,30 +98,101 @@ Design questions
       Answer: All metadata should be immutable. That why we have versioning.
       This is one of the key concepts of SOFT that we should stick to.
 
-  [ ] Since metadata are instances of their meta-metadata, it should in
-      theory be possible to instantiate them with dlite_instance_create().
 
-      This will e.g. allow adding metadata to a collection, store the
-      collection the to disk, load the collection and finally retrieve
-      the metadata by calling dlite_collection_get().
+  [x] Should we remove DLiteSchemaDimension and DLiteSchemaProperty
+      and instead use DLiteDimension and DLiteProperty for all metadata?
 
-      This could e.g. be realised by adding two function pointers to
-      DLiteMeta_HEAD
+      Implications:
+        - Simplify the implementation.
+        - Properties of meta-metadata will have units.
+        - Disallow to define custom properties containing with new fields,
+          essentially restricting the semantics.
+
+      Thoughts: Seems to be a good idea.  But think through whether a
+      restriction of the semantics may make interoperabililty between
+      dlite and other semantic systems more difficult?
+
+      Answer: Yes. Keep it stupid, simple!  Our metadata semantics
+      contains only dimensions, properties and relations.  These basic
+      building blocks should be well-defined, without any variations.
+
+
+  [ ] Is it ok to require that the two first properties defined by
+      meta-metadata always must be "dimensions" and "properties"?
+      If so, should we also require that "relations" must be the third
+      property if the instances of the meta-metadata has relations?
+
+      This would simplify the implementation of e.g.
+      dlite_instance_get_dimension_name_by_index() and
+      dlite_instance_get_property_name_by_index().
+
+      An argument for treating dimensions, properties and relations
+      specially, is that they are a the building blocks of the semantics
+      we use to define all data and metadata.
+
+      Thoughts: Is currently implemented for simplicity.  But it is a
+      constraint that might be nice to release, though.  If one want
+      to define a new metadata with e.g. "comment" property, it will
+      be unnatural and bug-prone to require to also define
+      "relations".
+
+
+  [ ] The current implementation duplicates the values of "ndimensions",
+      "nproperties" and "nrelations" in all metadata ("nrelations" is
+      only duplicated if the metadata has relations).
+
+      Should we get rid of this duplication?
+
+      Thoughts: Not sure, duplication seems to be the easiest
+      solution.  It is very handy to have the dimension values defined
+      in the metadata header such that we can refer to them directly.
+      For simplicity we also want to store the dimension values after
+      the header, such that metadata can be treated similar to data
+      instances.  Since metadata are immutable, there are no risk for
+      introducing inconsistencies.
+
+
+  [ ] Would it be useful to add a boolean flag to DLiteMeta_HEAD that
+      tells whether its instances are metadata?  This would e.g. allow
+      an instance to check whether it itself is metadata.
+
+      This will make it possible for dlite_instance_create() to know
+      whether additional initialisation for metadata should be
+      performed.
+
+      Thoughts: Probably not.  The definition of metadata does not
+      contain such a flag, so how should dlite_instance_create() know
+      how to set this on a new instance?
+
+      However, given we agree to require "dimensions" to be the first
+      property of meta-metadata and to remove DLiteSchemaDimension, an
+      alternative would be to check the type of the first property of
+      the metadata.  If that is dliteDimension, we know that the
+      current instance is metadata.  Would this be robust enough?
+
+
+  [ ] Is it a good idea to add some hooks to DLiteMeta_HEAD?
 
           int (*init)(DLiteInstance *inst);
           int (*deinit)(DLiteInstance *inst);
 
-      that initiates and deinitiates the instances of the (meta)metadata.
+          int (*load)(const DLiteDataModel *d, DLiteInstance *inst);
+          int (*save)(DLiteDataModel *d, const DLiteInstance *inst);
 
-      Pointers to the actual implementations of these functions, should
-      be available via a lookup-table (use map) using the metadata uri
-      as key.  This would even allow possible future plugins to define
-      new types of (meta)metadata.  Might turn out to be very useful for
-      interoperabililty between dlite and other semantic systems.
+      where init()/deinit() will be called as the last/first thing
+      in dlite_instance_create()/dlite_instance_free() and
+      load()/save() would, if defined, replacing the default
+      interaction with the datamodel.
 
-  [ ] Would it be useful to add a boolean flag to DLiteMeta_HEAD that
-      tells whether its instances are metadata?  This would e.g. allow
-      an instance to check whether it itself is metadata.  Any use cases?
+      These hooks should not be used for initialisation of metadata,
+      since they are not described by the metadata semantics, but may
+      provide very useful for specialised entities that needs
+      additional initialisation, like creation of a triplestore in
+      collections.
+
+      Thoughts: Only add them if we see a need, e.g. for implementing
+      collections.
+
 
   [ ] Would it be smarter to change dlite_storage_uuids() to an iterator?
 
@@ -131,6 +202,6 @@ Design questions
             ...
           }
 
-      Maybe not, since this would interact with the storage for each
-      iteration, which potentially could be very slow if the storage
-      is a database on a slow network...
+      Thoughts: Maybe not, since this would interact with the storage
+      for each iteration, which potentially could be very slow if the
+      storage is a database on a slow network...

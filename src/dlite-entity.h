@@ -25,10 +25,11 @@
   instance as well as a reference count and a pointer th the metadata
   describing the instance.  This header is followed by:
 
-    - some internal data (optional, no for ordinary data instances)
-    - the size of each dimension (size_t)
+    - header
+    - the length of each dimension
     - the value of each property
-    - relations (data instances and entities have no relations)
+    - the value of each relation
+    - array of memory offsets to each instance property (only metadata)
 
   The memory offset from a pointer to the instance to the first
   element in the arrays of dimension sizes and properties are given by
@@ -58,6 +59,11 @@
 #include "boolean.h"
 #include "dlite.h"
 #include "dlite-storage.h"
+
+/* Hardcoded metadata */
+#define DLITE_SCHEMA_ENTITY     "http://meta.sintef.no/0.1/entity_schema"
+#define DLITE_SCHEMA_COLLECTION "http://meta.sintef.no/0.1/collection_schema"
+#define DLITE_SCHEMA_FORM       "http://meta.sintef.no/0.1/schema_form"
 
 
 /** Function for additional initialisation of an instance.
@@ -212,7 +218,7 @@ typedef struct _DLiteProperty {
   It may be instansiated, e.g. by the basic metadata schema.
 */
 typedef struct _DLiteMeta {
-  DLiteMeta_HEAD
+  DLiteMeta_HEAD      /*!< Common header for all metadata. */
 } DLiteMeta;
 
 
@@ -224,7 +230,7 @@ typedef struct _DLiteMeta {
   entities have their own API that know about their structure.
 */
 struct _DLiteEntity {
-  DLiteMeta_HEAD
+  DLiteMeta_HEAD        /*!< Common header for all metadata. */
 };
 
 
@@ -238,15 +244,16 @@ struct _DLiteEntity {
 /** @{ */
 
 /**
-  Returns a new uninitialised dlite instance of Entiry \a meta with
-  dimensions \a dims.  Memory for all properties is allocated and set
-  to zero.  The lengths of \a dims is found in `meta->ndims`.
+  Returns a new uninitialised dlite instance of Entiry `meta` with
+  dimensions `dims`.  Memory for all properties is allocated and set
+  to zero.  The lengths of `dims` is found in `meta->ndims`.
 
-  Increases the reference count of \a meta.
+  Increases the reference count of `meta`.
 
   On error, NULL is returned.
  */
-DLiteInstance *dlite_instance_create(DLiteEntity *meta, size_t *dims,
+DLiteInstance *dlite_instance_create(const DLiteEntity *meta,
+                                     const size_t *dims,
                                      const char *id);
 
 
@@ -264,7 +271,7 @@ void dlite_instance_decref(DLiteInstance *inst);
 
 
 /**
-  Loads instance identified by \a id from storage \a s and returns a
+  Loads instance identified by `id` from storage `s` and returns a
   new and fully initialised dlite instance.
 
   On error, NULL is returned.
@@ -286,7 +293,7 @@ void dlite_instance_decref(DLiteInstance *inst);
     - implementation of translators
     - implementation of a database of translator plugins
  */
-DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
+DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
                                    DLiteEntity *entity);
 
 /**

@@ -66,6 +66,13 @@ typedef struct {
 } DLiteJsonStorage;
 
 
+/* How the json-data is organised */
+typedef enum {
+  fmtNormal,  /* normal data */
+  fmtEntity,  /* entitity */
+  fmtSchema   /* entity_schema */
+} DataFormat;
+
 /* Data model for json backend. */
 typedef struct {
   DLiteDataModel_HEAD
@@ -73,6 +80,7 @@ typedef struct {
   json_t *meta;         /* json object to metadata, borrowed reference */
   json_t *dimensions;   /* json object to dimensions, borrowed reference */
   json_t *properties;   /* json object to properties, borrowed reference */
+  DataFormat fmt;       /* */
 } DLiteJsonDataModel;
 
 
@@ -231,6 +239,26 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->dimensions = json_object_get(data, "dimensions");
     d->properties = json_object_get(data, "properties");
 
+  } else if (json_object_get(storage->root, "namespace") &&
+             json_object_get(storage->root, "version") &&
+             json_object_get(storage->root, "name")) {
+    /* Instance is a metadata definition */
+    data = storage->root;
+    d->instance = data;
+    if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtEntity;
+    d->dimensions = json_object_get(data, "dimensions");
+    d->properties = json_object_get(data, "properties");
+
+  } else if (json_object_get(storage->root, "schema_namespace") &&
+             json_object_get(storage->root, "schema_version") &&
+             json_object_get(storage->root, "schema_name")) {
+    /* Instance is a meta-metadata definition (schema) */
+    data = storage->root;
+    d->instance = data;
+    if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtSchema;
+    d->dimensions = json_object_get(data, "schema_dimensions");
+    d->properties = json_object_get(data, "schema_properties");
+
   } else {
     /* Instance `uuid` does not exists - create new instance and
        assign the datamodel... */
@@ -279,6 +307,15 @@ char *dlite_json_get_metadata(const DLiteDataModel *d)
   const char *version=NULL;
   const char *space=NULL;
 
+  if (!data->meta) {
+    if (data->fmt == fmtEntity)
+      return strdup(DLITE_SCHEMA_ENTITY);
+    else if (data->fmt == fmtEntity)
+      return strdup(DLITE_SCHEMA_ENTITY);
+    else
+      return err(1, "unexpected json format number %d", data->fmt), NULL;
+  }
+
   name = object_get_string(data->meta, "name");
   version = object_get_string(data->meta, "version");
   space = object_get_string(data->meta, "namespace");
@@ -289,10 +326,31 @@ char *dlite_json_get_metadata(const DLiteDataModel *d)
 /**
   Returns the size of dimension `name` or -1 on error.
  */
-size_t dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
+int dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
-  return (size_t)object_get_integer(data->dimensions, name);
+  json_t *value;
+  switch (data->fmt) {
+  case fmtNormal:
+    if (!(value = json_object_get(data->dimensions, name)))
+      return err(-1, "no dimension named '%s'", name);
+    if (!json_is_integer(value))
+      return err(-1, "value of dimension '%s' is not an integer", name);
+    return json_integer_value(value);
+
+  case fmtEntity:
+  case fmtSchema:
+    if (strcmp(name, "ndimensions") == 0)
+      return json_array_size(data->dimensions);
+    else if (strcmp(name, "nproperties") == 0)
+      return json_array_size(data->properties);
+    //else if (strcmp(name, "nrelations") == 0)
+    //  return json_array_size(data->relations);
+    else
+      return err(-1, "expedted metadata dimension names are 'ndimensions', "
+                 "'nproperties' or 'nrelations'; got '%s'", name);
+  }
+  assert(0);  /* never reached */
 }
 
 
@@ -329,8 +387,17 @@ int dlite_json_get_property(const DLiteDataModel *d, const char *name,
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   json_t *value;
 
-  if (!(value = json_object_get(data->properties, name)))
-    return errx(1, "no such key in json data: %s", name);
+  switch (data->fmt) {
+  case fmtNormal:
+    if (!(value = json_object_get(data->properties, name)))
+      return errx(1, "no such key in json data: %s", name);
+    break;
+  case fmtEntity:
+  case fmtSchema:
+    if (!(value = json_object_get(data->instance, name)))
+      return errx(1, "no such key in json data: %s", name);
+    break;
+  }
 
   if (ndims) {
     if (getdim(0, value, &ptr, type, size, ndims, dims)) return 1;

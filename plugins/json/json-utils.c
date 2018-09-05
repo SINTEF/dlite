@@ -8,7 +8,9 @@
 #include "integers.h"
 #include "floats.h"
 #include "json-utils.h"
+#include "dlite-macros.h"
 #include "dlite-type.h"
+#include "dlite-entity.h"
 
 
 /* Returns the type of the json object as character:
@@ -633,6 +635,11 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size)
 int dlite_json_get_value(void *ptr, const json_t *item,
                          DLiteType type, size_t size)
 {
+  DLiteDimension dimension;
+  DLiteProperty property;
+  json_t *obj, *str;
+  const char *s;
+
   switch (type) {
   case dliteBlob:
     return errx(1, "JSON does not support binary blobs");
@@ -695,9 +702,66 @@ int dlite_json_get_value(void *ptr, const json_t *item,
       return errx(1, "allocation error");
     break;
 
+  case dliteDimension:
+    if (!json_is_object(item))
+      FAIL("expected json dimension object");
+
+    if (!(str = json_object_get(item, "name")) ||
+        !(s = json_string_value(str)))
+      FAIL("expected json object with dimension name");
+    if (!(dimension.name = strdup(s))) FAIL("allocation failure");
+
+    if (!(str = json_object_get(item, "description")) ||
+        !(s = json_string_value(str)))
+      FAIL("expected json object with dimension description");
+    if (!(dimension.description = strdup(s))) FAIL("allocation failure");
+
+    memcpy(*(void **)ptr, &dimension, sizeof(dimension));
+    break;
+
+  case dliteProperty:
+    if (!json_is_array(item))
+      FAIL("expected json array");
+
+    if (!(obj = json_array_get(item, 0)) ||
+        !(str = json_object_get(obj, "name")) ||
+        !(s = json_string_value(str)))
+      FAIL("expected json object with property name");
+    if (!(property.name = strdup(s))) FAIL("allocation failure");
+
+    //if (!(obj = json_array_get(item, 0)) ||
+    //    !(str = json_object_get(obj, "type")) ||
+    //    !(s = json_string_value(str)))
+    //  FAIL("expected json object with property type");
+    //if (!(property->type = strdup(s))) FAIL("allocation failure");
+
+    //if (!(obj = json_array_get(item, 0)) ||
+    //    !(str = json_object_get(obj, "name")) ||
+    //    !(s = json_string_value(str)))
+    //  FAIL("expected json object with property name");
+    //if (!(p->name = strdup(s))) FAIL("allocation failure");
+    //
+    //if (!(obj = json_array_get(item, 0)) ||
+    //    !(str = json_object_get(obj, "name")) ||
+    //    !(s = json_string_value(str)))
+    //  FAIL("expected json object with property name");
+    //if (!(p->name = strdup(s))) FAIL("allocation failure");
+    //
+    //if (!(obj = json_array_get(item, 1)) ||
+    //    !(str = json_object_get(obj, "description")) ||
+    //    !(s = json_string_value(str)))
+    //  FAIL("expected json object with dimension description");
+    //if (!(p->description = strdup(s))) FAIL("allocation failure");
+
+    memcpy(*(void **)ptr, &property, sizeof(property));
+    break;
+
   default:
     return errx(1, "reading JSON data of type '%s' is not yet supported",
                 dlite_type_get_dtypename(type));
   }
   return 0;
+
+ fail:
+  return 1;
 }

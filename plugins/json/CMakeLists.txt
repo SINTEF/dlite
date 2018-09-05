@@ -7,7 +7,7 @@ set(sources
   ${dlite_SOURCE_DIR}/src/dlite-type.c    # FIXME - remove this dependency
   ${dlite_SOURCE_DIR}/src/dlite-store.c   # FIXME - remove this dependency
   ${dlite_SOURCE_DIR}/src/dlite-entity.c  # FIXME - remove this dependency
-  ${uuid_BINARY_DIR}/integers.h
+  #${uuid_BINARY_DIR}/integers.h
   json-utils.c
   dlite-json-storage.c
   str.c

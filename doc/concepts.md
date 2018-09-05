@@ -70,7 +70,7 @@ specified size of the *fixstring* types.
 
 
 Instances, entities, metadata, meta-metadata, etc...
---------------------------------------------------
+----------------------------------------------------
 An experimental metadata structure following the concepts of SOFT and
 API to work with it, is implemented in dlite-entity.h / dlite-entity.c
 and shown graphically in Figure 1.
@@ -78,7 +78,7 @@ and shown graphically in Figure 1.
 ![Metadata structure][fig1]
 
 The actual data or *Data instances* are instances of the *Entity*
-describing them.  The *Entities* are instances of the *Entity schema*
+describing them.  *Entities* are instances of the *Entity schema*
 which describes an *Entity*.  The *Entity schema* is an instance of
 the *Basic metadata schema* describing it, which can describe itself
 (and can be considered as an instance of itself).  Hence, **everything
@@ -90,7 +90,7 @@ currently not yet implemented in *dlite*.
 
 Instances can be subdivided into:
 
-  - *Pure instances* containing actual data.  These are serialised with a
+  - *Data instances* containing actual data.  These are serialised with a
     minimal header, only containing:
       - The UUID identifying the instance.
       - An optional reference to an URI uniquely identifying the instance.
@@ -116,6 +116,21 @@ Instances can be subdivided into:
     with the same header as DLiteInstance, but includes more fields
     needed to describe their instances.  Entities are a special case
     of metadata, whos instances are the actual data.
+
+
+Metadata semantics
+------------------
+The semantics used to by any type of metadata to describe its instances
+contains three elements:
+
+  - dimensions
+  - properties
+  - relations
+
+The three first properties of all metadata schemas (metadata who's
+instances are metadata) must be "dimensions", "properties" and
+"relations" in this order.  However, it is possible to omit
+"relations" if the metadata instance has no other properties.
 
 
 ---
