@@ -50,6 +50,7 @@ MU_TEST(test_entity_create)
   mu_assert_int_eq(5, entity->nproperties);
   mu_assert_int_eq(1, entity->properties[2]->dims[0]);
   mu_assert_int_eq(0, entity->properties[2]->dims[1]);
+
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
   mu_assert_int_eq(64, sizeof(DLiteInstance));

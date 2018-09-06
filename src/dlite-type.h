@@ -126,6 +126,13 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size);
 
 
 /**
+  Returns the amount of padding that should be added before `type`,
+  if `type` (of size `size`) is to be added to a struct at offset `offset`.
+*/
+size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset);
+
+
+/**
   Returns the offset the current struct member with dtype \a dtype and
   size \a size.  The offset of the previous struct member is \a prev_offset
   and its size is \a prev_size.

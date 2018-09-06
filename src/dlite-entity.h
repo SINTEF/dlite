@@ -185,30 +185,6 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   size_t nrelations;   /* Number of relations in instance. */
 
 
-/**
-  Initial segment of all DLite dimensions.
- */
-#define DLiteDimension_HEAD                                             \
-  char *name;         /*!< Name of this dimension. */                   \
-  char *description;  /*!< Description of this dimension. */
-
-/**
-  Initial segment of all DLite properties.
-
-  E.g. if we have dimensions ["M", "N"] and dims is [1, 1, 0], it
-  means that the data described by this property has dimensions
-  ["N", "N", "M"].
- */
-#define DLiteProperty_HEAD                                              \
-  char *name;         /*!< Name of this property. */                    \
-  DLiteType type;     /*!< Type of the described data. */               \
-  size_t size;        /*!< Size of one data element. */                 \
-  int ndims;          /*!< Number of dimension of the described */      \
-                      /*   data.  Zero if scalar. */                    \
-  int *dims;          /*!< Array of dimension indices. */               \
-  char *description;  /*!< Human described of the described data. */
-
-
 
 /**
   Base definition of a DLite instance, that all instance (and
@@ -517,7 +493,7 @@ void dlite_meta_decref(DLiteMeta *meta);
 
 
 /**
-  Returns index of dimension named \a name or -1 on error.
+  Returns index of dimension named `name` or -1 on error.
  */
 int dlite_meta_get_dimension_index(const DLiteMeta *meta, const char *name);
 

@@ -381,9 +381,9 @@ int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
   size_t *dimensions;
   if (!inst->meta)
     return errx(-1, "no metadata available");
-  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   if (i >= inst->meta->nproperties)
     return errx(-1, "no property with index %lu in %s", i, inst->meta->uri);
+  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   return dimensions[i];
 }
 
@@ -482,10 +482,10 @@ int dlite_instance_get_dimension_size(const DLiteInstance *inst,
   size_t *dimensions;
   if (!inst->meta)
     return errx(-1, "no metadata available");
-  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   if ((i = dlite_meta_get_dimension_index(inst->meta, name)) < 0) return -1;
   if (i >= (int)inst->meta->nproperties)
     return errx(-1, "no property with index %d in %s", i, inst->meta->uri);
+  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   return dimensions[i];
 }
 

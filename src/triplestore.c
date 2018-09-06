@@ -2,9 +2,22 @@
    lookup time and a full sorting of the entire table for each insert
    to avoid dublicates.
 
-   Optimasations are definitely possible, but it might be better use
-   of time to look for high-quality alternative.
- */
+   Optimasations are definitely possible.  Possible routes:
+     - use a third-party library
+     - smart use of hashtables, e.g. with map.h (?)
+     - use another datastructure (?)
+*/
+
+/* TODO
+   - add locks to ensure that a triplestore is not reallocated or
+     sorted while one works with pointers to the stored triplets.
+     Example:
+
+         TRIPLET_ACQUIRE_LOCK(triplestore)
+         triplet = triplestore_find_first(triplestore, s, p, o)
+         TRIPLET_RELEASE_LOCK(triplestore)
+*/
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stddef.h>

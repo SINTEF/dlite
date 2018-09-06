@@ -20,10 +20,10 @@ static char *dtype_names[] = {
   "float",
   "fixstring",
   "string",
-  "triplet",
+
   "dimension",
-  "baseproperty",
   "property",
+  "relation",
 };
 
 /* Name of fix-sized types (does not include dliteBlob and dliteFixString) */
@@ -186,12 +186,25 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
   default:              return err(0, "cannot determine alignment of "
-                                   "dtype=%d, size=%lu", dtype, size);
+                                   "dtype='%s' (%d), size=%lu",
+                                   dlite_type_get_dtypename(dtype), dtype,
+                                   size);
   }
 }
 
+/*
+  Returns the amount of padding that should be added before `type`,
+  if `type` (of size `size`) is to be added to a struct at offset `offset`.
+*/
+size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset)
+{
+  size_t align = dlite_type_get_alignment(dtype, size);
+  assert(align);
+  return (align - (offset & (align - 1))) & (align - 1);
+}
 
-/**
+
+/*
   Returns the offset the current struct member with dtype \a dtype and
   size \a size.  The offset of the previous struct member is \a prev_offset
   and its size is \a prev_size.
@@ -207,25 +220,3 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
   padding = (align - (offset & (align - 1))) & (align - 1);
   return offset + padding;
 }
-
-
-#if 0
-/*
-  Returns the offset the next struct member with dtype `dtype` and
-  size `size`.  `ptr` should point to the current member which has
-  size `cursize`.
-
-  Returns -1 on error.
- */
-int dlite_type_get_member_offset(const void *cur, size_t cursize,
-                                 DLiteType dtype, size_t size)
-{
-  size_t align = dlite_type_get_alignment(dtype, size);
-  const unsigned char *p = (unsigned char *)cur + cursize;
-  size_t padding = (align - ((size_t)p & (align - 1))) & (align - 1);
-  if (align == 0)
-    return -1;
-  else
-    return cursize + padding;
-}
-#endif
