@@ -629,15 +629,23 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size)
 }
 
 
+int parse_property(void *ptr, const json_t *item, const json_t *root);
+
+
+
 /* Copies the value of JSON item `item` to memory pointed to by `ptr`
    (which should be large enough to hold `size` bytes).  `type` and
-   `size` is the destination type and size.  Returns non-zero on error. */
+   `size` is the destination type and size.  Returns non-zero on error.
+
+   The `jdims` should be the json root for dimensions.  It allow properties
+   to inspect dimension names.
+*/
 int dlite_json_get_value(void *ptr, const json_t *item,
-                         DLiteType type, size_t size)
+                         DLiteType type, size_t size,
+                         const json_t *root)
 {
   DLiteDimension dimension;
-  DLiteProperty property;
-  json_t *obj, *str;
+  json_t *str;
   const char *s;
 
   switch (type) {
@@ -703,6 +711,8 @@ int dlite_json_get_value(void *ptr, const json_t *item,
     break;
 
   case dliteDimension:
+    memset(&dimension, 0, sizeof(DLiteDimension));
+
     if (!json_is_object(item))
       FAIL("expected json dimension object");
 
@@ -716,44 +726,11 @@ int dlite_json_get_value(void *ptr, const json_t *item,
       FAIL("expected json object with dimension description");
     if (!(dimension.description = strdup(s))) FAIL("allocation failure");
 
-    memcpy(*(void **)ptr, &dimension, sizeof(dimension));
+    memcpy(ptr, &dimension, sizeof(dimension));
     break;
 
   case dliteProperty:
-    if (!json_is_array(item))
-      FAIL("expected json array");
-
-    if (!(obj = json_array_get(item, 0)) ||
-        !(str = json_object_get(obj, "name")) ||
-        !(s = json_string_value(str)))
-      FAIL("expected json object with property name");
-    if (!(property.name = strdup(s))) FAIL("allocation failure");
-
-    //if (!(obj = json_array_get(item, 0)) ||
-    //    !(str = json_object_get(obj, "type")) ||
-    //    !(s = json_string_value(str)))
-    //  FAIL("expected json object with property type");
-    //if (!(property->type = strdup(s))) FAIL("allocation failure");
-
-    //if (!(obj = json_array_get(item, 0)) ||
-    //    !(str = json_object_get(obj, "name")) ||
-    //    !(s = json_string_value(str)))
-    //  FAIL("expected json object with property name");
-    //if (!(p->name = strdup(s))) FAIL("allocation failure");
-    //
-    //if (!(obj = json_array_get(item, 0)) ||
-    //    !(str = json_object_get(obj, "name")) ||
-    //    !(s = json_string_value(str)))
-    //  FAIL("expected json object with property name");
-    //if (!(p->name = strdup(s))) FAIL("allocation failure");
-    //
-    //if (!(obj = json_array_get(item, 1)) ||
-    //    !(str = json_object_get(obj, "description")) ||
-    //    !(s = json_string_value(str)))
-    //  FAIL("expected json object with dimension description");
-    //if (!(p->description = strdup(s))) FAIL("allocation failure");
-
-    memcpy(*(void **)ptr, &property, sizeof(property));
+    if (parse_property(ptr, item, root)) goto fail;
     break;
 
   default:
@@ -764,4 +741,98 @@ int dlite_json_get_value(void *ptr, const json_t *item,
 
  fail:
   return 1;
+}
+
+
+/* help function */
+int parse_property(void *ptr, const json_t *item, const json_t *root)
+{
+  DLiteProperty property;
+  json_t *str, *arr, *jdims;
+  char **dimension_names=NULL;
+  const char *s;
+  int i, j, retval=1, *dims=NULL;
+  int ndims=0, ndimensions;
+
+  memset(&property, 0, sizeof(DLiteProperty));
+
+  if (!json_is_object(item)) FAIL("expected json property object");
+
+  if (!(str = json_object_get(item, "name")) || !(s = json_string_value(str)))
+    FAIL("expected property name");
+  if (!(property.name = strdup(s))) FAIL("allocation failure");
+
+  if (!(str = json_object_get(item, "type")) || !(s = json_string_value(str)))
+    FAIL("expected property type");
+  if (dlite_type_set_dtype_and_size(s, &property.type, &property.size))
+    goto fail;
+
+  if ((arr = json_object_get(item, "dims"))) {
+    if (!json_is_array(arr)) FAIL("expected 'dims' to be a json array");
+    ndims = json_array_size(arr);
+    if (!(dims = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+
+    /* Read dimension names to get the order correct */
+    if (!json_is_object(root) ||
+        !((jdims = json_object_get(root, "dimensions")) ||
+          (jdims = json_object_get(root, "schema_dimensions"))))
+      FAIL("no dimensions in json root");
+    if (!json_is_array(jdims)) FAIL("dimensions should a json array");
+    ndimensions = json_array_size(jdims);
+    if (!(dimension_names = calloc(ndimensions, sizeof(char *))))
+      FAIL("allocation failure");
+
+    for (i=0; i<ndimensions; i++) {
+      json_t *js, *obj = json_array_get(jdims, i);
+      if (!json_is_object(obj)) FAIL("property items should be json objects");
+      if (!(js = json_object_get(obj, "name")))
+        FAIL("dimension must have name");
+      if (!(dimension_names[i] = strdup(json_string_value(js))))
+        FAIL("allocation failure");
+    }
+    /* Assign dims */
+    for (j=0; j<ndims; j++) {
+      if (!(str = json_array_get(arr, j)) ||
+          !json_is_string(str) ||
+          !(s = json_string_value(str))) FAIL("cannot read property dims");
+      for (i=0; i<ndimensions; i++) {
+        if (strcmp(s, dimension_names[i]) == 0) {
+          dims[j] = i;
+          break;
+        }
+      }
+      if (i == ndimensions) FAIL1("no such dimension name: %s", s);
+    }
+    property.ndims = ndims;
+    property.dims = dims;
+  }
+
+  if ((str = json_object_get(item, "unit"))) {
+    if (!(s = json_string_value(str))) FAIL("unit must be a string");
+    if (!(property.unit = strdup(s))) FAIL("allocation failure");
+  }
+
+  if ((str = json_object_get(item, "description"))) {
+    if (!(s = json_string_value(str))) FAIL("unit must be a string");
+    if (!(property.description = strdup(s))) FAIL("allocation failure");
+  }
+
+  /*
+  printf("\n");
+  printf("--- name: '%s'\n", property.name);
+  printf("--- type: %d\n", property.type);
+  printf("--- size: %lu\n", property.size);
+  printf("--- ndims: %d\n", property.ndims);
+  printf("--- dims: ");
+  for (i=0; i<ndims; i++) printf("  %d", dims[i]);
+  printf("\n");
+  printf("--- unit: '%s'\n", property.unit);
+  printf("--- description: '%s'\n", property.description);
+  */
+
+  memcpy(ptr, &property, sizeof(property));
+  retval = 0;
+ fail:
+  if (dimension_names) free(dimension_names);
+  return retval;
 }

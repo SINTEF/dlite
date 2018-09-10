@@ -19,22 +19,6 @@
   from it (as a version 5 SHA1-based UUID using the DNS namespace),
   otherwise a random UUID is generated (as a version 4 UUID).
 
-  The memory allocated for each instance, may be casted to a struct
-  starting with the members defined by the DLiteInstance_HEAD macro,
-  which contains the UUID and (optionally) URI identifying the
-  instance as well as a reference count and a pointer th the metadata
-  describing the instance.  This header is followed by:
-
-    - header
-    - the length of each dimension
-    - the value of each property
-    - the value of each relation
-    - array of memory offsets to each instance property (only metadata)
-
-  The memory offset from a pointer to the instance to the first
-  element in the arrays of dimension sizes and properties are given by
-  the `dimoffset` and `propoffset` members of the metadata, respectively.
-
 
   Metadata
   --------
@@ -54,6 +38,67 @@
 
   The metadata for normal data instances are called Entities and are
   represented by DLiteEntity.
+
+
+  Memory model
+  ------------
+  All instances, including metadata, uses the same memory model.  They
+  are allocated in one chunk of memory holding both header, dimensions
+  and property values.  The only exception are dimensional properties,
+  whos values are allocated on the heap.  Care is taken to use the
+  system padding rules when the memory is layed out, such that it can
+  be mapped to a (possible generated) struct.  Allocating dimensional
+  properties seperately has two benefits:
+    - the size of the memory chunk for an instance can be described by
+      its metadata, since it doesn't depends on the length of its
+      dimensions
+    - it allows to change the length of the dimensions of an and data
+      instance (but not for metadata, since they are immutable)
+
+  The following table summarises the memory layout of an instance:
+
+  | segment                   | nmemb             | size                  | offset               |
+  | ------------------------- | ----------------- | --------------------- | -------------------- |
+  | header                    | 1                 | meta->headersize      | 0                    |
+  | dimension values          | meta->ndimensions | sizeof(size_t)        | meta->dimoffset      |
+  | property values           | meta->nproperties | [a]                   | meta->propoffset     |
+  | relation values           | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset      |
+  | instance property offsets | nproperties       | sizeof(size_t)        | meta->pooffset       |
+
+    [a]: The size of properties depends on their `size` and whether
+         they are dimensional.
+
+  ### Header
+  The header for all instances must start with `DLiteInstance_HEAD`.
+  This is a bare minimal, but sufficient for most data instances.  It
+  contains the UUID and (optionally) URI identifying the instance as
+  well as a reference count and a pointer th the metadata describing
+  the instance.  Metadata and special data instances like collections,
+  extends this.
+
+  The header of all metadata must start with `DLiteMeta_HEAD` (which
+  itself starts with `DLiteInstance_HEAD`.
+
+  ### Dimension values
+  The length of each dimension of the current instance.
+
+  ### Property values
+  The value of each property of the current instance.  The metadata
+  for this instance defines the type and size for all properties.  The
+  size that the `i`th property occupies in an instance is given by
+  `meta->properties[i].size`, except if the property has dimensions,
+  in which case it is a pointer (of size `sizeof(void *)`) to a
+  continuous allocated array with the property values.
+
+  Some property types, like `dliteStringPtr` and `dliteProperty` may
+  allocate additional memory.
+
+  ### Relation values
+  Array of relations for the current instance.
+
+  ### Instance property offsets
+  Memory offset of each property of its instances.  Don't access this
+  array directly, use the `DLITE_PROP()` macro instead.
 */
 
 #include "boolean.h"
@@ -96,10 +141,11 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_NDIM(inst) (((DLiteInstance *)(inst))->meta->ndimensions)
 
 /** Expands to pointer to array of dimension values --> (size_t *) */
-#define DLITE_DIMS(inst) (((DLiteInstance *)(inst))->dims)
+#define DLITE_DIMS(inst) \
+  ((size_t *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->dimoffset))
 
 /** Expands to length of dimension `n` --> (size_t) */
-#define DLITE_DIM(inst, n) (((DLiteInstance *)(inst))->dims[n])
+#define DLITE_DIM(inst, n) (DLITE_DIMS(inst)[n])
 
 /** Expands to array of dimension descriptions --> (DLiteDimension *) */
 #define DLITE_DIMS_DESCR(inst) (((DLiteInstance *)(inst))->meta->dimensions)
@@ -111,11 +157,19 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 /** Expands to number of dimensions (size_t). */
 #define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
 
-/** Expands to pointer to array of pointers to property values --> (void **) */
-#define DLITE_PROPS(inst) (((DLiteInstance *)(inst))->props)
+///** Expands to pointer to array of pointers to property values --> (void **) */
+//#define DLITE_PROPS(inst)
+//  ((void **)((char *)(inst) + ((DLiteInstance *)(inst))->meta->propptroffset))
 
-/** Expands to pointer to property `n` --> (void *) */
-#define DLITE_PROP(inst, n) (((DLiteInstance *)(inst))->props[n])
+///** Expands to pointer to property `n` --> (void *) */
+//#define DLITE_PROP(inst, n) (DLITE_PROPS(inst)[n])
+
+/** Expands to pointer to the value of property `n` --> (void *)
+
+    Note: for arrays this pointer must be dereferred (since all arrays
+    are allocated on the heap). */
+#define DLITE_PROP(inst, n) \
+  ((void *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->propoffsets[n]))
 
 /** Expands to array of property descriptions --> (DLiteProperty *) */
 #define DLITE_PROPS_DESCR(inst) (((DLiteInstance *)(inst))->meta->properties)
@@ -128,10 +182,12 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_NRELS(inst) (((DLiteInstance *)(inst))->meta->nrelations)
 
 /** Expands to pointer to array of relations --> (DLiteRelation *) */
-#define DLITE_RELS(inst) (((DLiteInstance *)(inst))->rels)
+#define DLITE_RELS(inst)						\
+  ((DLiteRelation *)((char *)(inst) +					\
+		     ((DLiteInstance *)(inst))->meta->reloffset))
 
 /** Expands to pointer to relation `n` --> (DLiteRelation *) */
-#define DLITE_REL(inst, n) (((DLiteInstance *)(inst))->rels + n)
+#define DLITE_REL(inst, n) (DLITE_RELS(inst)[n])
 
 
 /**
@@ -160,29 +216,37 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 */
 #define DLiteMeta_HEAD                                                  \
   DLiteInstance_HEAD                                                    \
-  const char *description;  /* Description of this metadata. */         \
                                                                         \
-  /* Memory layout of instances */                                      \
-  size_t size;           /* Size of instance memory. */                 \
-  size_t dimoffset;      /* Memory offset of dimensions in instance. */ \
-  size_t *propoffsets;   /* Memory offset of each property value. */    \
-                         /* NULL if instance is metadata. */            \
-  size_t reloffset;      /* Memory offset of relations in instance. */  \
+  /* Convenient access to dimensions describing the instance */         \
+  size_t ndimensions;  /* Number of dimensions in instance. */          \
+  size_t nproperties;  /* Number of properties in instance. */          \
+  size_t nrelations;   /* Number of relations in instance. */		\
+                                                                        \
+  /* Convenient access to description of instance */                    \
+  DLiteDimension *dimensions;  /* Array of dimensions. */               \
+  DLiteProperty *properties;   /* Array of property pointers. */        \
+  DLiteRelation *relations;    /* Array of relations. */                \
                                                                         \
   /*  Function pointers used by instances */				\
+  size_t headersize;     /* Size of instance header.  If zero, */	\
+                         /* it defaults to sizeof(DLiteInstance) or */  \
+                         /* sizeof(DLiteMeta). */                       \
   DLiteInit init;        /* Function initialising an instance. */       \
   DLiteDeInit deinit;    /* Function deinitialising an instance. */     \
                                                                         \
-  /* Convinient pointers to current data */                             \
-  DLiteDimension *dimensions;  /* Array of dimensions. */               \
-  DLiteProperty **properties;  /* Array of property pointers. */        \
-  DLiteRelation *relations;    /* Array of relations. */                \
-                                                                        \
-  /* schema_dimensions */                                               \
-  /* We place the dimensions at the end, in case more are needed */     \
-  size_t ndimensions;  /* Number of dimensions in instance. */          \
-  size_t nproperties;  /* Number of properties in instance. */          \
-  size_t nrelations;   /* Number of relations in instance. */
+  /* Memory layout of instances */                                      \
+  /* If `size` is zero, these values will automatically be */           \
+  /* calculated. */                                                     \
+  size_t dimoffset;      /* Offset of first dimension value. */         \
+  size_t propoffset;     /* Offset of first property value. */          \
+  size_t reloffset;      /* Offset of first relation value. */          \
+  size_t pooffset;       /* Offset to array of property offsets */
+
+//  size_t *propoffsets;   /* Pointer to array (in this metadata) of */
+//                         /* offsets to property values in instance. */
+//  size_t size;           /* Size of instance memory. */
+
+
 
 
 
@@ -336,8 +400,7 @@ int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
   Returns a pointer to data corresponding to property with index \a i
   or NULL on error.
  */
-const void *dlite_instance_get_property_by_index(const DLiteInstance *inst,
-                                                 size_t i);
+void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i);
 
 /**
   Sets property \a i to the value pointed to by \a ptr.
@@ -463,21 +526,21 @@ const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
 /* ================================================================= */
 /** @{ */
 
-/**
-  Initialises internal properties of \a meta.  This function should
-  not be called before the non-internal properties has been initialised.
+///**
+//  Initialises internal properties of \a meta.  This function should
+//  not be called before the non-internal properties has been initialised.
+//
+//  The \a ismeta argument indicates whether the instance described by
+//  `meta` is metadata itself.
+//
+//  Returns non-zero on error.
+// */
+//int dlite_meta_postinit(DLiteMeta *meta, bool ismeta);
 
-  The \a ismeta argument indicates whether the instance described by
-  `meta` is metadata itself.
-
-  Returns non-zero on error.
- */
-int dlite_meta_postinit(DLiteMeta *meta, bool ismeta);
-
-/**
-  Free's all memory used by \a meta and clear all data.
- */
-void dlite_meta_clear(DLiteMeta *meta);
+///**
+//  Free's all memory used by \a meta and clear all data.
+// */
+//void dlite_meta_clear(DLiteMeta *meta);
 
 
 /**

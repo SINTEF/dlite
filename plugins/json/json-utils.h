@@ -55,7 +55,7 @@ int dlite_json_entity_prop_count(json_t *obj);
  * `size` is the destination type and size.  Returns non-zero on error.
  */
 int dlite_json_get_value(void *ptr, const json_t *item,
-                         DLiteType type, size_t size);
+                         DLiteType type, size_t size, const json_t *jprops);
 
 /* Returns a new json item with the data at `ptr` (which has type `type` and
  * size `size`).  Returns NULL on error.

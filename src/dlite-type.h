@@ -126,6 +126,24 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size);
 
 
 /**
+  Copies value of given dtype from `src` to `dest`.  If the dtype contains
+  allocated data, new memory will be allocated for `dest`.
+
+  Returns a pointer to the memory area `dest` or NULL on error.
+*/
+void *dlite_type_copy(void *dest, const void *src,
+                      DLiteType dtype, size_t size);
+
+/**
+  Clears the memory pointed to by `p`.  Its type is gived by `dtype`
+  and `size`.
+
+  Returns a pointer to the memory area `p` or NULL on error.
+*/
+void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
+
+
+/**
   Returns the amount of padding that should be added before `type`,
   if `type` (of size `size`) is to be added to a struct at offset `offset`.
 */

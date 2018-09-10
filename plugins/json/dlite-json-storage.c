@@ -357,7 +357,8 @@ int dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
 /* Recursive help function for handling n-dimensioal arrays */
 static int getdim(size_t d, const json_t *arr, void **pptr,
                   DLiteType type, size_t size,
-                  size_t ndims, const size_t *dims)
+                  size_t ndims, const size_t *dims,
+                  json_t *jroot)
 {
   size_t i;
   if (d < ndims) {
@@ -366,10 +367,10 @@ static int getdim(size_t d, const json_t *arr, void **pptr,
                   d, json_array_size(arr), dims[d]);
     for (i=0; i<dims[d]; i++) {
       const json_t *a = json_array_get(arr, i);
-      if (getdim(d+1, a, pptr, type, size, ndims, dims)) return 1;
+      if (getdim(d+1, a, pptr, type, size, ndims, dims, jroot)) return 1;
     }
   } else {
-    if (dlite_json_get_value(*pptr, arr, type, size)) return 1;
+    if (dlite_json_get_value(*pptr, arr, type, size, jroot)) return 1;
     *((char **)pptr) += size;
   }
   return 0;
@@ -400,9 +401,11 @@ int dlite_json_get_property(const DLiteDataModel *d, const char *name,
   }
 
   if (ndims) {
-    if (getdim(0, value, &ptr, type, size, ndims, dims)) return 1;
+    if (getdim(0, value, &ptr, type, size, ndims, dims, data->instance))
+      return 1;
   } else {
-    if (dlite_json_get_value(ptr, value, type, size)) return 1;
+    if (dlite_json_get_value(ptr, value, type, size, data->instance))
+      return 1;
   }
 
   return 0;

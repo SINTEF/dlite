@@ -47,6 +47,15 @@ check_c_source_compiles("
 __declspec(thread) int tls;
 int main(void) { return 0; }" HAVE_WIN32_THREAD_LOCAL_STORAGE)
 
+check_c_source_compiles("
+#include <stdio.h>
+#define f(msg, ...) printf(msg, __VA_ARGS__)
+int main(void) {
+  f(\"x=%g, y=%d\", 3.14, 42);
+  return 0;
+}" HAVE_VA_ARGS)
+
+
 configure_file(config.h.in config.h)
 
 
@@ -59,9 +68,9 @@ set(sources
   dlite-type.c
   dlite-storage.c
   dlite-datamodel.c
-  #dlite-schemas.c
+  dlite-schemas.c
   dlite-entity.c
-  dlite-collection.c
+  #dlite-collection.c
   getuuid.c
   err.c
   compat.c
@@ -69,7 +78,10 @@ set(sources
   map.c
   )
 
-add_definitions(-DHAVE_CONFIG_H)
+add_definitions(
+  -DHAVE_CONFIG_H
+  -DWITH_DEBUG
+  )
 
 link_directories(${uuid_BINARY_DIR})
 

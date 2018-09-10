@@ -171,6 +171,109 @@ int dlite_type_set_dtype_and_size(const char *typename,
   return 0;
 }
 
+/*
+  Copies value of given dtype from `src` to `dest`.  If the dtype contains
+  allocated data, new memory will be allocated for `dest`.
+
+  Returns a pointer to the memory area `dest` or NULL on error.
+*/
+void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
+{
+  switch (dtype) {
+  case dliteBlob:
+  case dliteBool:
+  case dliteInt:
+  case dliteUInt:
+  case dliteFloat:
+  case dliteFixString:
+    memcpy(dest, src, size);
+    break;
+  case dliteStringPtr:
+    //{
+    //  size_t len = strlen(src) + 1;
+    //  dest = realloc(dest, len);
+    //  memcpy(dest, src, len);
+    //}
+    *((char **)dest) = strdup(src);
+    break;
+  case dliteDimension:
+    {
+      DLiteDimension *d=dest;
+      const DLiteDimension *s=src;
+      d->name = strdup(s->name);
+      d->description = strdup(s->description);
+    }
+    break;
+  case dliteProperty:
+    {
+      DLiteProperty *d=dest;
+      const DLiteProperty *s=src;
+      d->name = strdup(s->name);
+      d->type = s->type;
+      d->size = s->size;
+      d->ndims = s->ndims;
+      if (d->ndims) {
+        d->dims = malloc(d->ndims*sizeof(int));
+        memcpy(d->dims, s->dims, d->ndims*sizeof(int));
+      } else
+        d->dims = NULL;
+      d->unit = (s->unit) ? strdup(s->unit) : NULL;
+      d->description = (s->description) ? strdup(s->description) : NULL;
+    }
+    break;
+  case dliteRelation:
+    {
+      DLiteRelation *d=dest;
+      const DLiteRelation *s=src;
+      d->s = strdup(s->s);
+      d->p = strdup(s->p);
+      d->o = strdup(s->o);
+      d->uri = (s->uri) ? strdup(s->uri) : NULL;
+    }
+    break;
+  }
+  return dest;
+}
+
+/*
+  Clears the memory pointed to by `p`.  Its type is gived by `dtype` and `size`.
+
+  Returns a pointer to the memory area `p` or NULL on error.
+*/
+void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
+{
+  switch (dtype) {
+  case dliteBlob:
+  case dliteBool:
+  case dliteInt:
+  case dliteUInt:
+  case dliteFloat:
+  case dliteFixString:
+    break;
+  case dliteStringPtr:
+    free(*((char **)p));
+    break;
+  case dliteDimension:
+    free(((DLiteDimension *)p)->name);
+    free(((DLiteDimension *)p)->description);
+    break;
+  case dliteProperty:
+    free(((DLiteProperty *)p)->name);
+    if (((DLiteProperty *)p)->dims) free(((DLiteProperty *)p)->dims);
+    if (((DLiteProperty *)p)->unit) free(((DLiteProperty *)p)->unit);
+    if (((DLiteProperty *)p)->description)
+      free(((DLiteProperty *)p)->description);
+    break;
+  case dliteRelation:
+    free(((DLiteRelation *)p)->s);
+    free(((DLiteRelation *)p)->p);
+    free(((DLiteRelation *)p)->o);
+    if (((DLiteRelation *)p)->uri) free(((DLiteRelation *)p)->uri);
+    break;
+  }
+  return memset(p, 0, size);
+}
+
 
 /*
   Returns the struct alignment of the given type or 0 on error.

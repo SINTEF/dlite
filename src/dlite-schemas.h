@@ -9,7 +9,7 @@
 //extern DLiteMeta *dlite_BasicMetadataSchema;
 
 /** Pointer to hardcoded entity schema. */
-extern const DLiteMeta *dlite_EntitySchema;
+extern DLiteMeta *dlite_EntitySchema;
 
 //extern DLiteMeta *dlite_CollectionSchema;
 

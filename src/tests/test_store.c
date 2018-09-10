@@ -59,7 +59,8 @@ MU_TEST(test_instance_load)
   char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
 
   mu_check((s = dlite_storage_open("json", path, "r")));
-  mu_check((inst = dlite_instance_load(s, inst_id, entity)));
+  //mu_check((inst = dlite_instance_load(s, inst_id, entity)));
+  mu_check((inst = dlite_instance_load(s, inst_id, NULL)));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
   mu_assert_int_eq(1, inst->refcount);

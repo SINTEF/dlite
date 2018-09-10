@@ -87,6 +87,14 @@ Lower priprity
   [ ] Make shared resources (e.g. the metadata database) tread-safe,
       by adding locks.  To ensure cross-platform,
 
+  [ ] Add api for working with the actual data (both on individual
+      elements and nd arrays), like:
+        - compare
+        - copy
+        - free
+        - array slicing (using strides)
+        - pretty printing
+
 
 Design questions
 ================

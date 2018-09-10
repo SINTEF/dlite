@@ -15,55 +15,75 @@
  * schema_collection
  **************************************************************/
 
-static int collection_init(DLiteInstance *inst);
-static int collection_deinit(DLiteInstance *inst);
-
-static DLiteDimension schema_collection_dimensions[] = {
-  //{"n-dimensions", "Number of common dimmensions."},
-  //{"n-instances",  "Number of instances added to the collection."},
-  //{"n-dim-maps",   "Number of dimension maps."},
-  {"n-relations",  "Number of relations."},
-  {"n-rel-items",  "Number of items in a relation - always 4 (s,p,o,id)."}
-};
-static int schema_collection_prop0_dims[] = {0, 1};
-static DLiteProperty schema_collection_prop0 = {
-  "relations",                               /* name */
-  dliteStringPtr,                            /* type */
-  sizeof(char *),                            /* size */
-  2,                                         /* ndims */
-  schema_collection_prop0_dims,              /* dims */
-  NULL,                                      /* unit */
-  "Array of relations (subject, predicate, "
-  "object, relation-id)."                    /* description */
-};
-static DLiteProperty *schema_collection_properties[] = {
-  &schema_collection_prop0
-};
-static size_t schema_collection_propoffsets[] = {
-  offsetof(DLiteCollection, relations)
-};
-static DLiteMeta schema_collection = {
-  "e632d4c1-d0da-592e-8f95-b5f347acdb73",        /* uuid (corresponds to uri) */
-  "http://meta.sintef.no/0.6/schema-collection", /* uri  */
-  1,                                             /* refcount, never free */
-  NULL,                                          /* meta */
-  "Schema for Collections",                      /* description */
-  sizeof(DLiteCollection),                       /* size */
-  offsetof(DLiteCollection, nrelations),         /* dimoffset */
-  schema_collection_propoffsets,                 /* propoffsets */
-  0,                                             /* reloffset */
-  collection_init,                               /* init */
-  collection_deinit,                             /* deinit */
-  //NULL,                                          /* loadprop */
-  //NULL,                                          /* saveprop */
-  //0,                                             /* flags */
-  schema_collection_dimensions,                  /* dimensions */
-  schema_collection_properties,                  /* properties */
-  NULL,                                          /* relations */
-  2,                                             /* ndimensions */
-  1,                                             /* nproperties */
-  0,                                             /* nrelations */
-};
+//static int collection_init(DLiteInstance *inst);
+//static int collection_deinit(DLiteInstance *inst);
+//
+//static DLiteDimension schema_collection_dimensions[] = {
+//  //{"n-dimensions", "Number of common dimmensions."},
+//  //{"n-instances",  "Number of instances added to the collection."},
+//  //{"n-dim-maps",   "Number of dimension maps."},
+//  {"n-relations",  "Number of relations."},
+//  {"n-rel-items",  "Number of items in a relation - always 4 (s,p,o,id)."}
+//};
+//static int schema_collection_prop0_dims[] = {0, 1};
+//static DLiteProperty schema_collection_properties[] = {
+//  {
+//  "relations",                               /* name */
+//  dliteStringPtr,                            /* type */
+//  sizeof(char *),                            /* size */
+//  2,                                         /* ndims */
+//  schema_collection_prop0_dims,              /* dims */
+//  NULL,                                      /* unit */
+//  "Array of relations (subject, predicate, "
+//  "object, relation-id)."                    /* description */
+//  }
+//};
+//static size_t schema_collection_propoffsets[] = {
+//  offsetof(DLiteCollection, relations)
+//};
+//static struct _CollectionSchema {
+//  /* -- header */
+//  DLiteMeta_HEAD
+//  /* -- length of each dimension */
+//  size_t ndims;
+//  size_t nprops;
+//  size_t nrels;
+//  /* -- value of each property */
+//  char *schema_name;
+//  char *schema_version;
+//  char *schema_namespace;
+//  char *schema_description;
+//  DLiteDimension *schema_dimensions;
+//  DLiteProperty  *schema_properties;
+//  DLiteRelation  *schema_relations;
+//  /* -- value of each relation */
+//  /* -- array of memory offsets to each instance property */
+//  size_t offsets[7];
+//} schema_collection = {
+//  "e632d4c1-d0da-592e-8f95-b5f347acdb73",        /* uuid (corresponds to uri) */
+//  "http://meta.sintef.no/0.6/schema-collection", /* uri  */
+//  1,                                             /* refcount, never free */
+//  NULL,                                          /* meta */
+//
+//  2,                                             /* ndimensions */
+//  1,                                             /* nproperties */
+//  0,                                             /* nrelations */
+//
+//  schema_collection_dimensions,                  /* dimensions */
+//  schema_collection_properties,                  /* properties */
+//  NULL,                                          /* relations */
+//
+//  0,                                             /* headersize */
+//  collection_init,                               /* init */
+//  collection_deinit,                             /* deinit */
+//  //NULL,                                          /* loadprop */
+//  //NULL,                                          /* saveprop */
+//
+//  sizeof(DLiteCollection),                       /* size */
+//  offsetof(DLiteCollection, nrelations),         /* dimoffset */
+//  schema_collection_propoffsets,                 /* propoffsets */
+//  0,                                             /* reloffset */
+//};
 
 
 /**************************************************************
