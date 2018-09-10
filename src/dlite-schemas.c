@@ -121,11 +121,10 @@ static struct _BasicMetadataSchema {
   NULL,                                          /* init */
   NULL,                                          /* deinit */
 
-  offsetof(struct _BasicMetadataSchema, ndims),      /* dimoffset */
-  offsetof(struct _BasicMetadataSchema, schema_name),/* propoffset */
-  offsetof(struct _BasicMetadataSchema, offsets),    /* reloffset */
-  offsetof(struct _BasicMetadataSchema, offsets),    /* poofset */
-  //(size_t *)basic_metadata_schema.offsets,         /* propoffsets */
+  offsetof(struct _BasicMetadataSchema, ndims),  /* dimoffset */
+  (size_t *)basic_metadata_schema.offsets,       /* propoffsets */
+  offsetof(struct _BasicMetadataSchema, offsets),/* reloffset */
+  offsetof(struct _BasicMetadataSchema, offsets),/* poofset */
   /* -- length of each dimention */
   3,                                             /* ndims */
   7,                                             /* nprops */
@@ -256,10 +255,9 @@ static struct _EntitySchema {
   NULL,                                       /* deinit */
 
   0,                                          /* dimoffset */
-  0,                                          /* propoffset */
+  NULL,                                       /* propoffsets */
   0,                                          /* reloffset */
   0,                                          /* pooffset */
-  //NULL,                                       /* propoffsets */
   /* -- length of each dimention */
   2,                                          /* ndims */
   6,                                          /* nprops */

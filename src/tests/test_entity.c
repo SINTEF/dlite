@@ -57,14 +57,13 @@ MU_TEST(test_entity_create)
      system */
   mu_assert_int_eq(64, sizeof(DLiteInstance));
   mu_assert_int_eq(64, entity->dimoffset);
-  mu_assert_int_eq(80, entity->propoffset);
-  mu_assert_int_eq(160, entity->reloffset);
-  mu_assert_int_eq(160, entity->pooffset);
   mu_assert_int_eq(80, entity->propoffsets[0]);
   mu_assert_int_eq(88, entity->propoffsets[1]);
   mu_assert_int_eq(96, entity->propoffsets[2]);
   mu_assert_int_eq(104, entity->propoffsets[3]);
   mu_assert_int_eq(112, entity->propoffsets[4]);
+  mu_assert_int_eq(120, entity->reloffset);
+  mu_assert_int_eq(120, entity->pooffset);
   //mu_assert_int_eq(160, entity->size);
 }
 
@@ -81,10 +80,11 @@ MU_TEST(test_instance_set_property)
   int intarr[2][3] = {{0, 1, 2}, {3, 4, 5}};
   char *strarr[] = {"first string", "second string"};
   char str3arr[3][3] = {"Al", "Mg", "Si"};
-  mu_check(dlite_instance_set_property(mydata, "a-string", &astring) == 0);
+  mu_check(dlite_instance_set_property(mydata, "a-string", astring) == 0);
   mu_check(dlite_instance_set_property(mydata, "a-float", &afloat) == 0);
   mu_check(dlite_instance_set_property(mydata, "an-int-arr", intarr) == 0);
-  mu_check(dlite_instance_set_property(mydata, "a-string-arr", strarr) == 0);
+  mu_check(dlite_instance_set_property(mydata, "a-string-arr", *strarr) == 0);
+  //mu_check(dlite_instance_set_property(mydata, "a-string-arr", strarr) == 0);
   mu_check(dlite_instance_set_property(mydata, "a-string3-arr", str3arr) == 0);
 }
 

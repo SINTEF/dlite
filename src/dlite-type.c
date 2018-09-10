@@ -172,6 +172,28 @@ int dlite_type_set_dtype_and_size(const char *typename,
 }
 
 /*
+  Returns non-zero id `dtype` contains allocated data, like dliteStringPtr.
+ */
+int dlite_type_is_allocated(DLiteType dtype)
+{
+  switch (dtype) {
+  case dliteBlob:
+  case dliteBool:
+  case dliteInt:
+  case dliteUInt:
+  case dliteFloat:
+  case dliteFixString:
+    return 0;
+  case dliteStringPtr:
+  case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
+    return 1;
+  }
+  abort();  /* should never be reached */
+}
+
+/*
   Copies value of given dtype from `src` to `dest`.  If the dtype contains
   allocated data, new memory will be allocated for `dest`.
 

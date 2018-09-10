@@ -80,7 +80,7 @@ set(sources
 
 add_definitions(
   -DHAVE_CONFIG_H
-  -DWITH_DEBUG
+  #-DWITH_DEBUG
   )
 
 link_directories(${uuid_BINARY_DIR})

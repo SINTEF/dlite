@@ -238,12 +238,12 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   /* If `size` is zero, these values will automatically be */           \
   /* calculated. */                                                     \
   size_t dimoffset;      /* Offset of first dimension value. */         \
-  size_t propoffset;     /* Offset of first property value. */          \
+  size_t *propoffsets;   /* Pointer to array (in this metadata) of */	\
+                         /* offsets to property values in instance. */  \
   size_t reloffset;      /* Offset of first relation value. */          \
   size_t pooffset;       /* Offset to array of property offsets */
 
-//  size_t *propoffsets;   /* Pointer to array (in this metadata) of */
-//                         /* offsets to property values in instance. */
+//  size_t propoffset;     /* Offset of first property value. */
 //  size_t size;           /* Size of instance memory. */
 
 

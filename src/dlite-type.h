@@ -120,10 +120,9 @@ int dlite_type_set_dtype_and_size(const char *typename,
 
 
 /**
-  Returns the struct alignment of the given type or 0 on error.
+  Returns non-zero id `dtype` contains allocated data, like dliteStringPtr.
  */
-size_t dlite_type_get_alignment(DLiteType dtype, size_t size);
-
+int dlite_type_is_allocated(DLiteType dtype);
 
 /**
   Copies value of given dtype from `src` to `dest`.  If the dtype contains
@@ -142,6 +141,11 @@ void *dlite_type_copy(void *dest, const void *src,
 */
 void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
 
+
+/**
+  Returns the struct alignment of the given type or 0 on error.
+ */
+size_t dlite_type_get_alignment(DLiteType dtype, size_t size);
 
 /**
   Returns the amount of padding that should be added before `type`,
