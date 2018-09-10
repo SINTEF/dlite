@@ -224,6 +224,9 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       const DLiteDimension *s=src;
       d->name = strdup(s->name);
       d->description = strdup(s->description);
+
+      printf("+++ alloc d=%p : d->name=%p, d->description=%p\n",
+             (void *)d, (void *)d->name, (void *)d->description);
     }
     break;
   case dliteProperty:
@@ -276,6 +279,11 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     free(*((char **)p));
     break;
   case dliteDimension:
+    printf("--- free d=%p : d->name=%p, d->description=%p\n",
+           (void *)p,
+           (void *)(((DLiteDimension *)p)->name),
+           (void *)(((DLiteDimension *)p)->description));
+
     free(((DLiteDimension *)p)->name);
     free(((DLiteDimension *)p)->description);
     break;

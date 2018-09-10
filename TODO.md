@@ -72,6 +72,12 @@ High priority
       easiest would to let the root node in the storage own everything.
       Then we only need to call json_decref() once.
 
+  [ ] Change handling of dliteFixString such that its size includes
+      the therminating NUL.  This is different from how string lengths
+      are normally treated, but will make fix strings consistent with
+      the rest of the dlite data model.  It will for certain remove
+      some existing bugs.
+
 
 Lower priprity
 

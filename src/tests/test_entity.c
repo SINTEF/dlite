@@ -48,6 +48,7 @@ MU_TEST(test_entity_create)
   mu_check((entity = dlite_entity_create(uri, "My test entity.",
 					 2, dimensions,
 					 5, properties)));
+  printf("*** alloc entity=%p\n", (void *)entity);
   mu_assert_int_eq(2, entity->ndimensions);
   mu_assert_int_eq(5, entity->nproperties);
   mu_assert_int_eq(1, entity->properties[2].dims[0]);

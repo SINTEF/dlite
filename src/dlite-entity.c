@@ -112,6 +112,8 @@ static void dlite_instance_free(DLiteInstance *inst)
   DLiteMeta *meta;
   size_t i, nprops;
 
+  printf("*** dlite_instance_free(%p)\n", (void *)inst);
+
   if (!(meta = inst->meta)) {
     free(inst);
     errx(-1, "no metadata available");
@@ -134,24 +136,12 @@ static void dlite_instance_free(DLiteInstance *inst)
         size_t n, nmemb=1, *dims=(size_t *)((char *)inst + meta->dimoffset);
         if (p->ndims > 0 && p->dims) ptr = *((char ***)ptr);
         for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
-        for (n=0; n<nmemb; n++) dlite_type_clear(ptr, p->type, p->size);
+        for (n=0; n<nmemb; n++)
+          dlite_type_clear((char *)ptr + n*p->size, p->type, p->size);
         if (p->ndims > 0 && p->dims) free(ptr);
       } else if (p->ndims > 0 && p->dims) {
         free(*ptr);
       }
-      //if (p->type == dliteStringPtr) {
-      //  int j;
-      //  size_t n, nmemb=1, *dims=(size_t *)((char *)inst + meta->dimoffset);
-      //  if (p->ndims > 0 && p->dims) ptr = *((char ***)ptr);
-      //  if (p->dims)
-      //    for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
-      //  for (n=0; n<nmemb; n++)
-      //    free((ptr)[n]);
-      //  if (p->ndims > 0 && p->dims)
-      //    free(ptr);
-      //} else if (p->ndims > 0 && p->dims) {
-      //  free(*ptr);
-      //}
     }
   }
   free(inst);
@@ -403,49 +393,10 @@ int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
     } else if (nmemb) {
       memcpy(dest, ptr, nmemb*p->size);
     }
-    //switch (p->type) {
-    //case dliteBlob:
-    //case dliteBool:
-    //case dliteInt:
-    //case dliteUInt:
-    //case dliteFloat:
-    //case dliteFixString:
-    //  if (nmemb) memcpy(dest, ptr, nmemb*p->size);
-    //  break;
-    //case dliteStringPtr:
-    //case dliteDimension:
-    //case dliteProperty:
-    //case dliteRelation:
-    //  for (n=0; n<nmemb; n++)
-    //    if (!dlite_type_copy((char *)dest + n*p->size,
-    //                         (char *)ptr + n*p->size,
-    //                         p->type, p->size))
-    //      return -1;
-    //  break;
-    //}
   } else {
     void *dest = DLITE_PROP(inst, i);
     if (!dlite_type_copy(dest, ptr, p->type, p->size)) return -1;
   }
-
-  //dims = DLITE_DIMS(inst);
-  //dest = DLITE_PROP(inst, i);
-  //
-  //if (p->ndims > 0 && p->dims) dest = *((void **)dest);
-  //
-  //if (p->dims)
-  //  for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
-  //
-  //if (p->type == dliteStringPtr) {
-  //  char **q=(char **)dest, **src = (char **)ptr;
-  //  for (n=0; n<nmemb; n++) {
-  //    size_t len = strlen(src[n]) + 1;
-  //    q[n] = realloc(q[n], len);
-  //    memcpy(q[n], src[n], len);
-  //  }
-  //} else {
-  //  memcpy(dest, ptr, nmemb*p->size);
-  //}
   return 0;
 }
 
@@ -574,20 +525,21 @@ dlite_entity_create(const char *uri, const char *description,
   if (!(e=dlite_instance_create((DLiteEntity *)dlite_EntitySchema, dims, uri)))
     goto fail;
 
+  if (dlite_instance_set_property(e, "name", name)) goto fail;
+  if (dlite_instance_set_property(e, "version", version)) goto fail;
+  if (dlite_instance_set_property(e, "namespace", namespace)) goto fail;
+  if (dlite_instance_set_property(e, "description", description)) goto fail;
+  if (dlite_instance_set_property(e, "dimensions", dimensions)) goto fail;
+  if (dlite_instance_set_property(e, "properties", properties)) goto fail;
+
+  if (dlite_meta_init((DLiteMeta *)e)) goto fail;
+
   entity = (DLiteEntity *)e;
-  dlite_instance_set_property(e, "name", name);
-  dlite_instance_set_property(e, "version", version);
-  dlite_instance_set_property(e, "namespace", namespace);
-  dlite_instance_set_property(e, "description", description);
-  dlite_instance_set_property(e, "dimensions", dimensions);
-  dlite_instance_set_property(e, "properties", properties);
-
-  dlite_meta_init((DLiteMeta *)entity);
-
  fail:
   if (name) free(name);
   if (version) free(version);
   if (namespace) free(namespace);
+  if (!entity) dlite_instance_decref(e);
   return entity;
 }
 
@@ -682,54 +634,6 @@ int dlite_meta_init(DLiteMeta *meta)
   if (!meta->meta->pooffset && dlite_meta_init(meta->meta))goto fail;
 
   DEBUG("*** dlite_meta_init(%s)\n", meta->uri);
-
-  /* Assign propoffsets for `meta` */
-  //offset = meta->meta->reloffset + meta->meta->nrelations*sizeof(size_t);
-  //offset += padding_at(size_t, offset);
-  //propoffsets = (size_t *)((char *)meta + offset);
-  //DEBUG("    offset=%lu\n", offset);
-
-//  /* Calculate pointer to array of property offsets in instance.
-//
-//     Note that this array is stored within `meta`, but to determine
-//     it, we must examine the meta-metadata dimensions and properties.
-//
-//     It would be tempting to just call `dlite_meta_init(meta->meta)`,
-//     but that would result in an infinite loop for the basic metadata
-//     schema. */
-//  offset = (meta->meta->headersize) ?
-//    meta->meta->headersize : sizeof(DLiteMeta);
-//  offset += padding_at(size_t, offset);
-//  offset += meta->meta->ndimensions * sizeof(size_t);
-//  for (i=0; i<meta->meta->nproperties; i++) {
-//    DLiteProperty *p = meta->meta->properties + i;
-//    if (p->ndims) {
-//      offset += padding_at(void *, offset);
-//      offset += sizeof(void *);
-//    } else {
-//      offset += dlite_type_padding_at(p->type, p->size, offset);
-//      offset += p->size;
-//    }
-//  }
-//  if (meta->meta->nrelations) {
-//    offset += padding_at(size_t, offset);
-//    offset += meta->meta->nrelations * sizeof(size_t);
-//  }
-//  offset += padding_at(size_t, offset);
-//  propoffsets = (size_t *)((char *)meta + offset);
-//#ifndef NDEBUG
-//  if (meta->meta->size)
-//    assert(offset + meta->meta->nproperties * sizeof(size_t) <=
-//           meta->meta->size);
-//#endif
-//
-//  DEBUG("*** dlite_meta_init(%s)\n", meta->uri);
-//  DEBUG("    offset=%lu\n", offset);
-//  if (meta->meta->propoffsets) {
-//    DEBUG("    meta offset=%lu\n",
-//          (char *)meta->meta->propoffsets - (char *)meta->meta);
-//  }
-//  DEBUG("    propoffsets=%p\n", (void *)propoffsets);
 
   /* Assign: ndimensions, nproperties and nrelations */
   for (i=0; i<meta->meta->ndimensions; i++) {
