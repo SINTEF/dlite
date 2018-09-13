@@ -16,26 +16,30 @@
   The properties can have most of the basic types found in C, with
   some additions, as summarised in the table below:
 
-  type      | dtype          | sizes          | description                      | examples
-  ----      | -----          | -----          | -----------                      | --------
-  blob      | dliteBlob      | any            | binary blob, sequence of bytes   | blob32, blob128
-  bool      | dliteBool      | sizeof(bool)   | boolean                          | bool
-  int       | dliteInt       | 1, 2, 4, {8}   | signed integer                   | (int), int8, int16, int32, {int64}
-  uint      | dliteUInt      | 1, 2, 4, {8}   | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
-  float     | dliteFloat     | 4, 8, {10, 16} | floating point                   | (float), (double), float32, float64, {float80, float128}
-  fixstring | dliteFixString | any            | fix-sized NUL-terminated string  | string20
-  string    | dliteStringPtr | sizeof(char *) | pointer to NUL-terminated string | string
+  type      | dtype          | sizes          | pointer                       | description                      | examples names
+  ----      | -----          | -----          | -------                       | -----------                      | --------------
+  blob      | dliteBlob      | any            | uint8_t *                     | binary blob, sequence of bytes   | blob32, blob128
+  bool      | dliteBool      | sizeof(bool)   | bool *                        | boolean                          | bool
+  int       | dliteInt       | 1, 2, 4, {8}   | int8_t *, int16_t *, ...      | signed integer                   | (int), int8, int16, int32, {int64}
+  uint      | dliteUInt      | 1, 2, 4, {8}   | uint8_t *, uint16_t *, ...    | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
+  float     | dliteFloat     | 4, 8, {10, 16} | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
+  fixstring | dliteFixString | any            | char *                        | fix-sized NUL-terminated string  | string20
+  string    | dliteStringPtr | sizeof(char *) | char **                       | pointer to NUL-terminated string | string
 
-  The column "examples" shows examples of how these types whould be
-  written when specifying the type of a property.
+  The column "pointer" shows the C type of the `ptr` argument for
+  functions like dlite_instance_get_property() and
+  dlite_instance_set_property().  Note that this pointer type is the
+  same regardless we are referring to a scalar or an array.  For arrays
+  the pointer points to the first element.
 
-  The types in parenthesis are included for portability with SOFT5,
-  but not encouraged because their may vary between platforms.
-
-  The types in curly brackets may not be defined on all platforms.
-  The headers "integers.h" and "floats.h" provides macros like
-  `HAVE_INT64_T`, `HAVE_FLOAT128_T`... that can be used to check for
-  availability.
+  The column "examples names" shows examples of how these types whould
+  be written when specifying the type of a property.
+    - The type names in parenthesis are included for portability with
+      SOFT5, but not encouraged because their may vary between platforms.
+    - The type names in curly brackets may not be defined on all
+      platforms.  The headers "integers.h" and "floats.h" provides
+      macros like `HAVE_INT64_T`, `HAVE_FLOAT128_T`... that can be
+      used to check for availability.
 
   Some additional notes:
     - *blob*: is a sequence of bytes of length `size`.  When writing
@@ -44,8 +48,6 @@
     - *bool*: corresponds to the bool type as defined in <stdbool.h>.
       To support systems lacking <stdbool.h> you can use "boolean.h"
       provided by dlite.
-    - *float*: currently `long double` in C is not supported.  If
-      needed, it can easily be added.
     - *fixstring*: corresponds to `char fixstring[size]` in C. The
       size includes the terminating NUL.
     - *string*: corresponds to `char *string` in C, pointing to memory

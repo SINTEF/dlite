@@ -72,11 +72,13 @@ High priority
       easiest would to let the root node in the storage own everything.
       Then we only need to call json_decref() once.
 
-  [ ] Change handling of dliteFixString such that its size includes
-      the therminating NUL.  This is different from how string lengths
-      are normally treated, but will make fix strings consistent with
-      the rest of the dlite data model.  It will for certain remove
-      some existing bugs.
+  [ ] Make handling of dliteStringPtr consistent.  Pointers to it should
+      always be a (char **) regardless on it is a scalar or an array.
+
+  [ ] Fix bug in handling of dliteFixString that course that an additional
+      byte must be allocated for the therminating NUL in
+      dlite_instance_create().
+
 
 
 Lower priprity
