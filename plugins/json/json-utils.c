@@ -833,6 +833,9 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
   memcpy(ptr, &property, sizeof(property));
   retval = 0;
  fail:
-  if (dimension_names) free(dimension_names);
+  if (dimension_names) {
+    for (i=0; i<ndimensions; i++) free(dimension_names[i]);
+    free(dimension_names);
+  }
   return retval;
 }
