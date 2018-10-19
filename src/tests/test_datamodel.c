@@ -189,6 +189,7 @@ MU_TEST(test_string_property)
 MU_TEST(test_stringptr_property)
 {
   char *v="Another test string", *w, u[256];
+  printf("\n+++ %p (%p) '%s'\n", (void *)&v, (void *)v, v);
   mu_check(dlite_datamodel_set_property(d, "mystringptr", &v, dliteStringPtr,
                                         sizeof(char *), 1, NULL) == 0);
   mu_check(dlite_datamodel_get_property(d, "mystringptr", &w, dliteStringPtr,

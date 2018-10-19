@@ -37,18 +37,17 @@ MU_TEST(test_entity_create)
     {"N", "Length of dimension N."}
   };
   DLiteProperty properties[] = {
-    /* name           type            size         ndims dims  descr unit */
-    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "a", ""},
-    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "b", "m"},
-    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "c", "#"},
-    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "d", ""},
-    {"a-string3-arr", dliteFixString, 3,              1, dims2, "e", ""}
+    /* name           type            size         ndims dims   unit descr */
+    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  "a"},
+    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", "b"},
+    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", "c"},
+    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  "d"},
+    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "e"}
   };
 
   mu_check((entity = dlite_entity_create(uri, "My test entity.",
 					 2, dimensions,
 					 5, properties)));
-  printf("*** alloc entity=%p\n", (void *)entity);
   mu_assert_int_eq(2, entity->ndimensions);
   mu_assert_int_eq(5, entity->nproperties);
   mu_assert_int_eq(1, entity->properties[2].dims[0]);
@@ -81,11 +80,10 @@ MU_TEST(test_instance_set_property)
   int intarr[2][3] = {{0, 1, 2}, {3, 4, 5}};
   char *strarr[] = {"first string", "second string"};
   char str3arr[3][3] = {"Al", "Mg", "Si"};
-  mu_check(dlite_instance_set_property(mydata, "a-string", astring) == 0);
+  mu_check(dlite_instance_set_property(mydata, "a-string", &astring) == 0);
   mu_check(dlite_instance_set_property(mydata, "a-float", &afloat) == 0);
   mu_check(dlite_instance_set_property(mydata, "an-int-arr", intarr) == 0);
-  mu_check(dlite_instance_set_property(mydata, "a-string-arr", *strarr) == 0);
-  //mu_check(dlite_instance_set_property(mydata, "a-string-arr", strarr) == 0);
+  mu_check(dlite_instance_set_property(mydata, "a-string-arr", strarr) == 0);
   mu_check(dlite_instance_set_property(mydata, "a-string3-arr", str3arr) == 0);
 }
 

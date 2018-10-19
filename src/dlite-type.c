@@ -46,6 +46,7 @@ static struct _TypeDescr {
   {"uint64",   dliteUInt,      8,                     alignof(uint64_t)},
   {"float",    dliteFloat,     sizeof(float),         alignof(float)},
   {"double",   dliteFloat,     sizeof(double),        alignof(double)},
+  {"longdouble",dliteFloat,    sizeof(long double),   alignof(long double)},
   {"float32",  dliteFloat,     4,                     alignof(float32_t)},
   {"float64",  dliteFloat,     8,                     alignof(float64_t)},
 #ifdef HAVE_FLOAT80
@@ -211,12 +212,12 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
     memcpy(dest, src, size);
     break;
   case dliteStringPtr:
-    //{
-    //  size_t len = strlen(src) + 1;
-    //  dest = realloc(dest, len);
-    //  memcpy(dest, src, len);
-    //}
-    *((char **)dest) = strdup(src);
+    {
+      char *s = *((char **)src);
+      size_t len = strlen(s) + 1;
+      *((void **)dest) = realloc(*((void **)dest), len);
+      memcpy(*((void **)dest), s, len);
+    }
     break;
   case dliteDimension:
     {
@@ -224,9 +225,6 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       const DLiteDimension *s=src;
       d->name = strdup(s->name);
       d->description = strdup(s->description);
-
-      printf("+++ alloc d=%p : d->name=%p, d->description=%p\n",
-             (void *)d, (void *)d->name, (void *)d->description);
     }
     break;
   case dliteProperty:
@@ -279,11 +277,6 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     free(*((char **)p));
     break;
   case dliteDimension:
-    printf("--- free d=%p : d->name=%p, d->description=%p\n",
-           (void *)p,
-           (void *)(((DLiteDimension *)p)->name),
-           (void *)(((DLiteDimension *)p)->description));
-
     free(((DLiteDimension *)p)->name);
     free(((DLiteDimension *)p)->description);
     break;

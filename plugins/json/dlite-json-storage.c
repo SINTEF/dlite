@@ -460,6 +460,8 @@ static json_t *setdim(size_t d, void **pptr,
   json_t *item;
   if (d < ndims) {
     json_t *arr = json_array();
+    //printf("*** setdim(d=%d, type=%d, size=%lu, ndims=%lu)\n",
+    //       d, type, size, ndims);
     for (i=0; i<(int)dims[d]; i++) {
       if (!(item = setdim(d + 1, pptr, type, size, ndims, dims))) return NULL;
       json_array_append_new(arr, item);
@@ -486,10 +488,14 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
   DLiteJsonDataModel *datamodel = (DLiteJsonDataModel *)d;
   json_t *item;
   if (ndims) {
-    if (!(item = setdim(0, (void **)&ptr, type, size, ndims, dims))) return 1;
+    if (!(item = setdim(0, (void **)&ptr, type, size, ndims, dims))) {
+      return 1;
+    }
     json_object_set_new(datamodel->properties, name, item);
   } else {
-    if (!(item = dlite_json_set_value(ptr, type, size))) return 1;
+    if (!(item = dlite_json_set_value(ptr, type, size))) {
+      return 1;
+    }
     json_object_set_new(datamodel->properties, name, item);
   }
   return 0;

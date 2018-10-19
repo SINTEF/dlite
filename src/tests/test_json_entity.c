@@ -75,6 +75,10 @@ MU_TEST(test_instance_create)
 
   inst = dlite_instance_create(entity, dims, "myinst");
 
+  // FIXME - Strange bug!
+  // Commenting out this printf() statement triggers a failure on line 90
+  printf("aa");
+
   mu_check(!dlite_instance_set_property(inst, "alloy", &alloy));
   mu_check(!dlite_instance_set_property(inst, "elements", elements));
   mu_check(!dlite_instance_set_property(inst, "phases", phases));
@@ -92,6 +96,7 @@ MU_TEST(test_instance_create)
 
 MU_TEST(test_instance_load)
 {
+  char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
   int i;
   DLiteStorage *s;
   DLiteInstance *inst2, *e=(DLiteInstance *)entity;
@@ -101,7 +106,7 @@ MU_TEST(test_instance_load)
   char *id = "8411a72c-c7a3-5a6a-b126-1e90b8a55ae2";
   //char *id = "http://www.sintef.no/calm/0.1/Chemistry";
 
-  mu_check((s = dlite_storage_open("json", "alloys.json", "r")));
+  mu_check((s = dlite_storage_open("json", path, "r")));
   mu_check((inst2 = dlite_instance_load(s, id, entity)));
   mu_check(!dlite_storage_close(s));
 

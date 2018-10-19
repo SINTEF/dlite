@@ -112,8 +112,6 @@ static void dlite_instance_free(DLiteInstance *inst)
   DLiteMeta *meta;
   size_t i, nprops;
 
-  printf("*** dlite_instance_free(%p)\n", (void *)inst);
-
   if (!(meta = inst->meta)) {
     free(inst);
     errx(-1, "no metadata available");
@@ -296,9 +294,8 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
     //                      p->name, meta->uri);
     //  if (stat == 1) continue;
     //}
-    ptr = dlite_instance_get_property_by_index(inst, i);
     for (j=0; j<p->ndims; j++) pdims[j] = dims[p->dims[j]];
-
+    ptr = dlite_instance_get_property_by_index(inst, i);
     if (dlite_datamodel_set_property(d, p->name, ptr, p->type, p->size,
 				     p->ndims, pdims)) goto fail;
   }
@@ -378,23 +375,25 @@ int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
 {
   DLiteMeta *meta = inst->meta;
   DLiteProperty *p = meta->properties + i;
+  void *dest;
 
   if (p->ndims > 0) {
     int j;
     size_t n, nmemb=1;
-    void *dest = *((void **)DLITE_PROP(inst, i));
     size_t *dims = DLITE_DIMS(inst);
+    dest = *((void **)DLITE_PROP(inst, i));
     for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
     if (dlite_type_is_allocated(p->type)) {
-      for (n=0; n<nmemb; n++)
+      for (n=0; n<nmemb; n++) {
+        void *v = (char *)ptr + n*p->size;
         if (!dlite_type_copy((char *)dest + n*p->size,
-                             (char *)ptr + n*p->size,
-                             p->type, p->size)) return -1;
+                             v, p->type, p->size)) return -1;
+      }
     } else if (nmemb) {
       memcpy(dest, ptr, nmemb*p->size);
     }
   } else {
-    void *dest = DLITE_PROP(inst, i);
+    dest = DLITE_PROP(inst, i);
     if (!dlite_type_copy(dest, ptr, p->type, p->size)) return -1;
   }
   return 0;
@@ -525,10 +524,10 @@ dlite_entity_create(const char *uri, const char *description,
   if (!(e=dlite_instance_create((DLiteEntity *)dlite_EntitySchema, dims, uri)))
     goto fail;
 
-  if (dlite_instance_set_property(e, "name", name)) goto fail;
-  if (dlite_instance_set_property(e, "version", version)) goto fail;
-  if (dlite_instance_set_property(e, "namespace", namespace)) goto fail;
-  if (dlite_instance_set_property(e, "description", description)) goto fail;
+  if (dlite_instance_set_property(e, "name", &name)) goto fail;
+  if (dlite_instance_set_property(e, "version", &version)) goto fail;
+  if (dlite_instance_set_property(e, "namespace", &namespace)) goto fail;
+  if (dlite_instance_set_property(e, "description", &description)) goto fail;
   if (dlite_instance_set_property(e, "dimensions", dimensions)) goto fail;
   if (dlite_instance_set_property(e, "properties", properties)) goto fail;
 
