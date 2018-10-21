@@ -643,6 +643,10 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
       int i;
       json_t *arr = json_array();
       json_t *dimensions = json_object_get(root, "dimensions");
+      if (!json_is_array(dimensions)) {
+        json_t *properties = json_object_get(root, "properties");
+        dimensions = json_object_get(properties, "dimensions");
+      }
       if (!dimensions)
         return errx(-1, "JSON storage: dimensions must be set before "
                     "properties"), NULL;
@@ -819,8 +823,15 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
     if (!json_is_object(root) ||
         !((jdims = json_object_get(root, "dimensions")) ||
           (jdims = json_object_get(root, "schema_dimensions"))))
-      FAIL("no dimensions in json root");
-    if (!json_is_array(jdims)) FAIL("dimensions should a json array");
+      FAIL("no \"dimensions\" in JSON root");
+    if (!json_is_array(jdims)) {
+      json_t *jprop;
+      if (!(jprop = json_object_get(root, "properties")))
+        FAIL("no \"properties\" in JSON root");
+      if (!(jdims = json_object_get(jprop, "dimensions")))
+        FAIL("no \"dimensions\" in JSON \"properties\" object");
+    }
+    if (!json_is_array(jdims)) FAIL("dimensions should be a json array");
     ndimensions = json_array_size(jdims);
     if (!(dimension_names = calloc(ndimensions, sizeof(char *))))
       FAIL("allocation failure");

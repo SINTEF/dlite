@@ -105,13 +105,13 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     snprintf(typename, n, "bool");
     break;
   case dliteInt:
-    snprintf(typename, n, "int%lu", size);
+    snprintf(typename, n, "int%lu", size * 8);
     break;
   case dliteUInt:
-    snprintf(typename, n, "uint%lu", size);
+    snprintf(typename, n, "uint%lu", size * 8);
     break;
   case dliteFloat:
-    snprintf(typename, n, "float%lu", size);
+    snprintf(typename, n, "float%lu", size * 8);
     break;
   case dliteFixString:
     snprintf(typename, n, "string%lu", size);

@@ -119,12 +119,21 @@ Lower priprity
       is swapped with the last triplet.  Finally the triplet list may be
       reallocated.
 
-  [ ] Formalise the options passed to dlite_storage_open(). Require that
+  [x] Formalise the options passed to dlite_storage_open(). Require that
       it should be a valid url query string, of the form:
 
           key1=value1;key2=value2...
 
       The semicolon may be replaced by an ampersand (&).
+
+  [ ] Update dh5open() to use dlite_option_parse().
+
+  [ ] Add way to encode/decode DLiteDimension, DLiteProperty and
+      DLiteRelation as string arrays.  This would allow all plugins to
+      transparently support these types without each plugin having to
+      explicit implement it.
+
+  [ ] Remove or use fmtSchema in the json plugin.
 
 
 

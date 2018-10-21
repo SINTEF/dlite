@@ -58,12 +58,20 @@ struct _DLiteDataModel {
 /**
   Opens `uri` and returns a newly created storage for it.
 
-  The `options` may vary between plugins.  Typical values includes:
+  The `options` argument provies additional input to the driver.
+  Which options that are supported varies between the plugins.  It
+  should be a valid URL query string of the form:
 
-    - rw : read and write: open existing storage or create new (default)
-    - r  : read-only: open existing storage for read-only
-    - a  : append: open existing storage for read and write
-    - w  : write: truncate existing storage or create new
+      key1=value1;key2=value2...
+
+  An ampersand (&) may be used instead of the semicolon (;).
+
+  Typical options supported by most drivers include:
+  - mode : append | r | w
+      Valid values are:
+      - append   Append to existing file or create new file (default)
+      - r        Open existing file for read-only
+      - w        Truncate existing file or create new file
 
   Returns NULL on error.
  */
