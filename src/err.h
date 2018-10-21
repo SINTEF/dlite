@@ -147,22 +147,28 @@ char *err_getmsg();
 void err_clear();
 
 /** Set prefix to prepend to all errors in this application.
- *  Typically this is the program name. */
-void err_set_prefix(const char *prefix);
+ *  Typically this is the program name.
+ *
+ *  Returns the current prefix. */
+const char *err_set_prefix(const char *prefix);
 
 /** Set stream that error messages are printed to.  The default is stderr.
  *  Set to NULL for silence.
  *
- *  The error stream can also be set with the ERR_STREAM environment
- *  variable. */
-void err_set_stream(FILE *stream);
+ *  By default, the error stream can also be set with the ERR_STREAM
+ *  environment variable.
+ *
+ *  Returns the current error stream. */
+FILE *err_set_stream(FILE *stream);
 
 /* Indicate wheter the error functions should return normally, exit or about.
  *   - mode >= 2: abort
  *   - mode == 1: exit (with error code)
  *   - mode == 0: normal return
- *   - mode < 0:  check ERR_FAIL_MODE environment variable (default) */
-void err_set_fail_mode(int mode);
+ *   - mode < 0:  check ERR_FAIL_MODE environment variable (default)
+ *
+ * Returns the current fail mode. */
+int err_set_fail_mode(int mode);
 
 
 /** @} */

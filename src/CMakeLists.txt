@@ -70,12 +70,13 @@ set(sources
   dlite-datamodel.c
   dlite-schemas.c
   dlite-entity.c
-  #dlite-collection.c
+  dlite-collection.c
   getuuid.c
   err.c
   compat.c
   triplestore.c
   map.c
+  strtob.c
   )
 
 add_definitions(

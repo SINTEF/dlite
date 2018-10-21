@@ -59,6 +59,21 @@ typedef struct _DLiteCollection {
 /** State used by dlite_collection_find(). */
 typedef struct _TripleState DLiteCollectionState;
 
+/**
+  Initiates a collection instance.
+
+  Returns non-zero on error.
+ */
+int dlite_collection_init(DLiteInstance *inst);
+
+
+/**
+  Deinitiates a collection instance.
+
+  Returns non-zero on error.
+ */
+int dlite_collection_deinit(DLiteInstance *inst);
+
 
 /**
   Returns a new collection with given id.  If `id` is NULL, a new

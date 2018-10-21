@@ -24,13 +24,15 @@ High priority
   [x] Rename DLiteBaseProperty to DLiteSchemaProperty and add a
       DLiteSchemaDimension (equivalent to DLiteDimension).
 
-  [ ] Improve the definition of metadata such that dlite_instance_create()
+  [x] Improve the definition of metadata such that dlite_instance_create()
       also can create metadata.  Reconsider DLiteProperty.  Based on
       this, correct the definition of schema_entity.
 
   [x] Implement an in-memory database, e.g. for storing instances that
       are added to collections or to cache metadata such that we only
       need to load it once.
+
+  [ ] Fix the json plugin such that we can load and save metadata.
 
   [ ] Implement Collections
 
@@ -39,7 +41,7 @@ High priority
       type (entity) a priori.  Add functions to register a set of storages
       that should be checked.
 
-  [ ] Automatically lookup the metadata when dlite_instance_load() is
+  [x] Automatically lookup the metadata when dlite_instance_load() is
       called with NULL as metadata.
 
   [ ] Add variants of dlite_instance_create() and dlite_instance_load()
@@ -72,13 +74,12 @@ High priority
       easiest would to let the root node in the storage own everything.
       Then we only need to call json_decref() once.
 
-  [ ] Make handling of dliteStringPtr consistent.  Pointers to it should
+  [x] Make handling of dliteStringPtr consistent.  Pointers to it should
       always be a (char **) regardless on it is a scalar or an array.
 
-  [ ] Fix bug in handling of dliteFixString that course that an additional
+  [x] Fix bug in handling of dliteFixString that course that an additional
       byte must be allocated for the therminating NUL in
       dlite_instance_create().
-
 
 
 Lower priprity
@@ -102,6 +103,29 @@ Lower priprity
         - free
         - array slicing (using strides)
         - pretty printing
+
+  [ ] Improve the implementation of triplestore.c.  By adding a map
+      to the TripleStore struct that maps the triplet uri's to the
+      corresponding triplet, triplestore_add() can be implemented without
+      sorting reducing it from O(n*log(n)) to O(1).  A
+      triplestore_find_by_uri() can also be added with O(1) search time.
+
+      To allow removing triplets during iteration, we should add an
+      iteration counter to the TripleStore struct and iterate backwards.
+      Deleted triplets should only be marked as deleted by setting their
+      uri to NULL while any iteration is running.  When the last iteration
+      is finished (the iteration counter reaches zero), a single sweep
+      through the list of triplets is performed and any deleted triplet
+      is swapped with the last triplet.  Finally the triplet list may be
+      reallocated.
+
+  [ ] Formalise the options passed to dlite_storage_open(). Require that
+      it should be a valid url query string, of the form:
+
+          key1=value1;key2=value2...
+
+      The semicolon may be replaced by an ampersand (&).
+
 
 
 Design questions
@@ -221,3 +245,16 @@ Design questions
       Thoughts: Maybe not, since this would interact with the storage
       for each iteration, which potentially could be very slow if the
       storage is a database on a slow network...
+
+
+  [ ] Should we change the type of metadata arguments from
+      DLiteEntity to DLiteMeta in the dlite_instance_*() functions?
+      Are there any reasons to keep the DLiteEntity type as a
+      special case of DLiteMeta?
+
+  [ ] Do we need we distinguish between metadata whos instances are normal
+      data and meta-metadata in the json plugin?  The alternative would
+      be to drop the "schema_" prefix in "schema_dimensions",
+      "schema_properties", etc. for meta-metadata.  Instead we could
+      identify meta-metadata by checking if it has any property called
+      "dimensions" and "properties".

@@ -102,10 +102,10 @@ int triplestore_add_triplets(TripleStore *store, const Triplet *triplets,
 
 
 /**
-  Removes a triplet identified by it's id.  Returns non-zero if no such
+  Removes a triplet identified by it's `uri`.  Returns non-zero if no such
   triplet can be found.
 */
-int triplestore_remove_by_id(TripleStore *store, const char *id);
+int triplestore_remove_by_uri(TripleStore *store, const char *uri);
 
 
 /**
@@ -118,9 +118,9 @@ int triplestore_remove(TripleStore *store, const char *s,
 
 
 /**
-  Returns a pointer to triplet with given id or NULL if no match can be found.
+  Returns a pointer to triplet with given uri or NULL if no match can be found.
 */
-const Triplet *triplestore_get_id(const TripleStore *store, const char *id);
+const Triplet *triplestore_get_uri(const TripleStore *store, const char *uri);
 
 
 /**

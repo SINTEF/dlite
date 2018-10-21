@@ -36,7 +36,7 @@ MU_TEST(test_read)
   char **ids;
   size_t i, n;
 
-  db = dlite_storage_open("json", dbname, "r");
+  db = dlite_storage_open("json", dbname, "mode=r");
   mu_check(db);
 
   ids = dlite_storage_uuids(db);
@@ -106,7 +106,7 @@ MU_TEST(test_write)
   ivec_t *ai, *dim1, *dim2;
   size_t dims[3] = {0, 0, 0};
 
-  mu_check((s = dlite_storage_open("json", "test-json-write.json", "w")));
+  mu_check((s = dlite_storage_open("json", "test-json-write.json", "mode=w")));
 
   mu_check((d = dlite_datamodel(s, NULL)));
   mu_check(dlite_datamodel_set_meta_uri(d, "dlite/1.0/xx") == 0);

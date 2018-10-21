@@ -563,7 +563,8 @@ int dlite_json_entity_prop_count(json_t *obj)
 /* Returns a new json item with the data at `ptr` (which has type `type` and
  * size `size`).  Returns NULL on error.
 */
-json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size)
+json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
+                             const json_t *root)
 {
   bool bval;
   json_int_t ival;
@@ -621,6 +622,48 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size)
   case dliteStringPtr:
     sval = *((char **)ptr);
     return json_string(sval);
+
+  case dliteDimension: {
+    const DLiteDimension *d = ptr;
+    json_t *obj = json_object();
+    json_object_set_new(obj, "name", json_string(d->name));
+    json_object_set_new(obj, "description", json_string(d->description));
+    return obj;
+  }
+
+  case dliteProperty: {
+    const DLiteProperty *p = ptr;
+    char typename[30];
+    json_t *obj = json_object();
+    dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
+
+    json_object_set_new(obj, "name", json_string(p->name));
+    json_object_set_new(obj, "type", json_string(typename));
+    if (p->ndims) {
+      int i;
+      json_t *arr = json_array();
+      json_t *dimensions = json_object_get(root, "dimensions");
+      if (!dimensions)
+        return errx(-1, "JSON storage: dimensions must be set before "
+                    "properties"), NULL;
+      if (!json_is_array(dimensions))
+        return errx(-1, "JSON storage: dimensions should be an array"), NULL;
+      for (i=0; i<p->ndims; i++) {
+        json_t *dim, *dimname;
+        dim = json_array_get(dimensions, p->dims[i]);
+        assert(dim);
+        dimname = json_object_get(dim, "name");
+        assert(dimname);
+        json_array_append(arr, dimname);  /* borrowed reference */
+      }
+      json_object_set_new(obj, "dims", arr);
+    }
+    if (p->unit && *p->unit)
+      json_object_set_new(obj, "unit", json_string(p->unit));
+    if (p->description)
+      json_object_set_new(obj, "description", json_string(p->description));
+    return obj;
+  }
 
   default:
     return errx(-1, "JSON storage, unsupported type number: %d", type), NULL;

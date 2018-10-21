@@ -8,7 +8,7 @@ include_directories(
 
 set(tests
   test_triplestore
-  test_dlite
+  test_utils
   test_datamodel
   test_entity
   test_json_storage

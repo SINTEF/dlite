@@ -1,6 +1,9 @@
 #include <stdlib.h>
 
 #include "minunit/minunit.h"
+#include "err.h"
+#include "strtob.h"
+#include "boolean.h"
 #include "dlite.h"
 
 
@@ -21,7 +24,7 @@ MU_TEST(test_get_uuid)
 }
 
 
-MU_TEST(join_split_metadata)
+MU_TEST(test_join_split_metadata)
 {
   char *uri = "http://www.sintef.no/meta/dlite/0.1/testdata";
   char *name, *version, *namespace, *meta;
@@ -40,6 +43,41 @@ MU_TEST(join_split_metadata)
 }
 
 
+MU_TEST(test_option_parse)
+{
+  char *options = strdup("name=a;n=3;f=3.14&b=yes#fragment");
+  int i;
+  DLiteOpt opts[] = {
+    {'N', "name", "default-name"},
+    {'n', "n", "0"},
+    {'f', "f", "0.0"},
+    {'b', "b", "no"},
+    {'x', "x", "0"},
+    {0, NULL, NULL}
+  };
+  mu_assert_int_eq(0, dlite_option_parse(options, opts, 1));
+  for (i=0; opts[i].key; i++) {
+    switch (opts[i].c) {
+    case 'N':
+      mu_assert_string_eq("a", opts[i].value);
+      break;
+    case 'n':
+      mu_assert_int_eq(3, atoi(opts[i].value));
+      break;
+    case 'f':
+      mu_assert_double_eq(3.14, atof(opts[i].value));
+      break;
+    case 'b':
+      mu_assert_int_eq(1, atob(opts[i].value));
+      break;
+    }
+  }
+  free(options);
+
+  mu_assert_int_eq(1, dlite_option_parse("name=C;mode=append", opts, 0));
+}
+
+
 
 /***********************************************************************/
 
@@ -47,7 +85,8 @@ MU_TEST(join_split_metadata)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_get_uuid);
-  MU_RUN_TEST(join_split_metadata);
+  MU_RUN_TEST(test_join_split_metadata);
+  MU_RUN_TEST(test_option_parse);
 }
 
 int main()

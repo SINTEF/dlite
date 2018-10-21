@@ -38,11 +38,11 @@ MU_TEST(test_entity_create)
   };
   DLiteProperty properties[] = {
     /* name           type            size         ndims dims   unit descr */
-    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  "a"},
-    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", "b"},
-    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", "c"},
-    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  "d"},
-    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "e"}
+    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  "..."},
+    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", ""},
+    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", "descr.."},
+    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  "descr.."},
+    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "descr.."}
   };
 
   mu_check((entity = dlite_entity_create(uri, "My test entity.",
@@ -103,7 +103,7 @@ MU_TEST(test_instance_save)
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
-  mu_check((s = dlite_storage_open("json", jsonfile, "w")));
+  mu_check((s = dlite_storage_open("json", jsonfile, "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 }
@@ -115,7 +115,7 @@ MU_TEST(test_instance_load)
   mu_check((mydata2 = dlite_instance_load(s, id, entity)));
   mu_check(dlite_storage_close(s) == 0);
 
-  mu_check((s = dlite_storage_open("json", jsonfile, "r")));
+  mu_check((s = dlite_storage_open("json", jsonfile, "mode=r")));
   mu_check((mydata3 = dlite_instance_load(s, id, entity)));
   mu_check(dlite_storage_close(s) == 0);
 
@@ -129,7 +129,7 @@ MU_TEST(test_instance_save2)
   mu_check(dlite_instance_save(s, mydata2) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
-  mu_check((s = dlite_storage_open("json", jsonfile2, "w")));
+  mu_check((s = dlite_storage_open("json", jsonfile2, "mode=w")));
   mu_check(dlite_instance_save(s, mydata3) == 0);
   mu_check(dlite_storage_close(s) == 0);
 }
@@ -141,15 +141,15 @@ MU_TEST(test_instance_free)
   dlite_instance_decref(mydata3);
 }
 
-/*
-MU_TEST(test_storage_save_entity)
+MU_TEST(test_entity_save)
 {
   DLiteStorage *s;
-  mu_check((s = dlite_storage_open("hdf5", datafile, "w")));
-  mu_check(dlite_storage_entity_save(s, entity) == 0);
+  mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=w;meta=1")));
+  mu_check(dlite_entity_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 }
 
+/*
 MU_TEST(test_entity_load)
 {
   DLiteStorage *s;
@@ -183,8 +183,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_save2);
   MU_RUN_TEST(test_instance_free);
 
-  /*
   MU_RUN_TEST(test_entity_save);
+  /*
   MU_RUN_TEST(test_entity_load);
   */
   MU_RUN_TEST(test_entity_free);     /* tear down */

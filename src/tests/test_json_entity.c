@@ -27,7 +27,7 @@ MU_TEST(test_entity_load)
   char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
   char *uri = "http://www.sintef.no/calm/0.1/Chemistry";
 
-  mu_check((s = dlite_storage_open("json", path, "r")));
+  mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((entity = dlite_entity_load(s, uri)));
   mu_check(!dlite_storage_close(s));
 
@@ -75,10 +75,6 @@ MU_TEST(test_instance_create)
 
   inst = dlite_instance_create(entity, dims, "myinst");
 
-  // FIXME - Strange bug!
-  // Commenting out this printf() statement triggers a failure on line 90
-  printf("aa");
-
   mu_check(!dlite_instance_set_property(inst, "alloy", &alloy));
   mu_check(!dlite_instance_set_property(inst, "elements", elements));
   mu_check(!dlite_instance_set_property(inst, "phases", phases));
@@ -88,7 +84,7 @@ MU_TEST(test_instance_create)
   mu_check(!dlite_instance_set_property(inst, "rpart", rpart));
   mu_check(!dlite_instance_set_property(inst, "atvol", atvol));
 
-  mu_check((s = dlite_storage_open("json", "alloys.json", "w")));
+  mu_check((s = dlite_storage_open("json", "alloys.json", "mode=w")));
   mu_check(!dlite_instance_save(s, inst));
   mu_check(!dlite_storage_close(s));
 }
@@ -106,7 +102,7 @@ MU_TEST(test_instance_load)
   char *id = "8411a72c-c7a3-5a6a-b126-1e90b8a55ae2";
   //char *id = "http://www.sintef.no/calm/0.1/Chemistry";
 
-  mu_check((s = dlite_storage_open("json", path, "r")));
+  mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((inst2 = dlite_instance_load(s, id, entity)));
   mu_check(!dlite_storage_close(s));
 
@@ -123,7 +119,7 @@ MU_TEST(test_instance_load)
     }
   }
 
-  mu_check((s = dlite_storage_open("json", "alloys2.json", "w")));
+  mu_check((s = dlite_storage_open("json", "alloys2.json", "mode=w")));
   mu_check(!dlite_instance_save(s, inst2));
   mu_check(!dlite_storage_close(s));
 

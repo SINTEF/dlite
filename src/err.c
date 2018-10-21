@@ -174,12 +174,23 @@ void err_clear()
   errcode = 0;
 }
 
-void err_set_prefix(const char *prefix)
+const char *err_set_prefix(const char *prefix)
 {
+  const char *current = err_prefix;
   err_prefix = prefix;
+  return current;
 }
 
-void err_set_fail_mode(int mode)
+FILE *err_set_stream(FILE *stream)
 {
+  FILE *current = err_stream;
+  err_stream = stream;
+  return current;
+}
+
+int err_set_fail_mode(int mode)
+{
+  int current = err_fail_mode;
   err_fail_mode = mode;
+  return current;
 }

@@ -227,7 +227,7 @@ static int _remove(TripleStore *store, size_t n)
 }
 
 /*
-  Removes a triplet identified by it's id.  Returns non-zero if no such
+  Removes a triplet identified by it's `uri`.  Returns non-zero if no such
   triplet can be found.
 */
 int triplestore_remove_by_uri(TripleStore *store, const char *uri)

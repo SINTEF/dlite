@@ -109,7 +109,7 @@ DLiteInstance *dlite_instance_create(const DLiteEntity *entity,
  */
 static void dlite_instance_free(DLiteInstance *inst)
 {
-  DLiteMeta *meta;
+  const DLiteMeta *meta;
   size_t i, nprops;
 
   if (!(meta = inst->meta)) {
@@ -144,7 +144,7 @@ static void dlite_instance_free(DLiteInstance *inst)
   }
   free(inst);
 
-  dlite_meta_decref(meta);  /* decrease metadata refcount */
+  dlite_meta_decref((DLiteMeta *)meta);  /* decrease metadata refcount */
 }
 
 
@@ -265,7 +265,7 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
 int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
 {
   DLiteDataModel *d=NULL;
-  DLiteMeta *meta;
+  const DLiteMeta *meta;
   int j, max_pndims=0, retval=1;
   size_t i, *pdims, *dims;
 
@@ -373,7 +373,7 @@ void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i)
 int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
 					 const void *ptr)
 {
-  DLiteMeta *meta = inst->meta;
+  const DLiteMeta *meta = inst->meta;
   DLiteProperty *p = meta->properties + i;
   void *dest;
 
@@ -630,7 +630,8 @@ int dlite_meta_init(DLiteMeta *meta)
   //size_t offset, *propoffsets;
 
   /* Initiate meta-metadata */
-  if (!meta->meta->pooffset && dlite_meta_init(meta->meta))goto fail;
+  if (!meta->meta->pooffset && dlite_meta_init((DLiteMeta *)meta->meta))
+    goto fail;
 
   DEBUG("*** dlite_meta_init(%s)\n", meta->uri);
 
@@ -746,7 +747,7 @@ void dlite_meta_decref(DLiteMeta *meta)
 {
   if (meta) {
     if (--meta->refcount <= 0) {
-      if (meta->meta) dlite_meta_decref(meta->meta);  /* decrease refcount */
+      if (meta->meta) dlite_meta_decref((DLiteMeta *)meta->meta);
       dlite_instance_free((DLiteInstance *)meta);
     }
   }

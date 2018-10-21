@@ -5,6 +5,7 @@
 
 #include "compat.h"
 #include "err.h"
+#include "strtob.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -37,7 +38,7 @@ int dlite_get_uuid(char *buff, const char *id)
 }
 
 
-/**
+/*
   Returns an unique uri for metadata defined by `name`, `version`
   and `namespace` as a newly malloc()'ed string or NULL on error.
 
@@ -71,7 +72,7 @@ char *dlite_join_meta_uri(const char *name, const char *version,
   return uri;
 }
 
-/**
+/*
   Splits `metadata` uri into its components.  If `name`, `version` and/or
   `namespace` are not NULL, the memory they points to will be set to a
   pointer to a newly malloc()'ed string with the corresponding value.
@@ -115,4 +116,54 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
   if (versionp) free(versionp);
   if (namespacep) free(namespacep);
   return 1;
+}
+
+
+/*
+  Parses the options string `options` and assign corresponding values
+  of the array `opts`.  The options string should be a valid url query
+  string of the form
+
+      key1=value1;key2=value2...
+
+  where the values are terminated by NUL or any of the characters in ";&#".
+  A hash (#) terminates the options.
+
+  `opts` should be a NULL-terminated DLiteOpt array initialised with
+  default values.  At return, the values of the provided options are
+  updated.
+
+  If `modify` is non-zero, `options` is modifies such that all values in
+  `opts` are NUL-terminated.  Otherwise they may be terminated by any of
+  the characters in ";&#".
+
+  Returns non-zero on error.
+*/
+int dlite_option_parse(char *options, DLiteOpt *opts, int modify)
+{
+  char *q, *p = options;
+  if (!options) return 0;
+  while (*p && *p != '#') {
+    size_t i, len = strcspn(p, "=;&#");
+    if (p[len] != '=')
+      return errx(1, "no value for key '%.*s' in option string '%s'",
+                  (int)len, p, options);
+    for (i=0; opts[i].key; i++) {
+      if (strncmp(opts[i].key, p, len) == 0 && strlen(opts[i].key) == len) {
+        p += len;
+        if (*p == '=') p++;
+        opts[i].value = p;
+        p += strcspn(p, ";&#");
+        q = p;
+        if (*p && strchr(";&", *p)) p++;
+        if (modify) q[0] = '\0';
+        break;
+      }
+    }
+    if (!opts[i].key) {
+      int len = strcspn(p, "=;&#");
+      return errx(1, "unknown option key: '%.*s'", len, p);
+    }
+  }
+  return 0;
 }

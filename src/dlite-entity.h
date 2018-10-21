@@ -105,11 +105,6 @@
 #include "dlite.h"
 #include "dlite-storage.h"
 
-/* Hardcoded metadata */
-#define DLITE_SCHEMA_ENTITY     "http://meta.sintef.no/0.1/entity_schema"
-#define DLITE_SCHEMA_COLLECTION "http://meta.sintef.no/0.1/collection_schema"
-#define DLITE_SCHEMA_FORM       "http://meta.sintef.no/0.1/schema_form"
-
 
 /** Function for additional initialisation of an instance.
     If defined, this function is called at end of dlite_instance_create().
@@ -199,7 +194,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
                                   /* instance.  Can be NULL. */         \
   size_t refcount;                /* Number of references to this */    \
                                   /* instance. */                       \
-  struct _DLiteMeta *meta;        /* Pointer to the metadata descri- */ \
+  const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
                                   /* bing this instance. */
 
 
@@ -581,6 +576,12 @@ const DLiteProperty *dlite_meta_get_property(const DLiteMeta *meta,
 /**
   Returns non-zero if `meta` is meta-metadata (i.e. its instances are
   metadata).
+
+  @note If `meta` contains either a "properties" property (of type
+  DLiteProperty) or a "relations" property (of type DLiteRelation) in
+  addition to a "dimensions" property (of type DLiteDimension), then
+  it is able to describe metadata and is considered to be meta-metadata.
+  Otherwise it is not.
 */
 int dlite_meta_is_metameta(const DLiteMeta *meta);
 
