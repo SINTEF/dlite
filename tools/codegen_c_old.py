@@ -8,9 +8,9 @@ from __future__ import division
 
 import textwrap
 
-import codegen
+import codegen_old
 
-ident = codegen.toIdentifier
+ident = codegen_old.toIdentifier
 
 
 # Maps metadata types to C types
@@ -21,7 +21,7 @@ typeconv_C = {
 
 
 
-class HeaderMetadata(codegen.Metadata):
+class HeaderMetadata(codegen_old.Metadata):
     """Metadata subclass for C."""
 
     def __init__(self, jsondoc):
@@ -337,7 +337,7 @@ template_c = """\
 
 #include "dlite.h"
 #include "dlite-datamodel.h"
-#include "{name}.h"
+#include "{headerfile}"
 
 /*
 static const char {NAME}_META_TYPE[] = "{type}";
@@ -488,13 +488,15 @@ def main():
     if args.destination:
         basename = os.path.join(args.destination, os.path.basename(basename))
 
-    meta = HeaderMetadata.fromfile(args.infile)
+    headerfile = args.header if args.header else basename + '.h'
+    cfile = args.source if args.source else basename + '.c'
 
-    hfile = args.header if args.header else basename + '.h'
-    with open(hfile, 'w') as f:
+    meta = HeaderMetadata.fromfile(args.infile)
+    meta.headerfile = headerfile
+
+    with open(headerfile, 'w') as f:
         f.write(meta.get_header())
 
-    cfile = args.source if args.source else basename + '.c'
     with open(cfile, 'w') as f:
         f.write(meta.get_source())
 

@@ -127,7 +127,7 @@ if(WIDTH_HDF5)
     ExternalProject_Add(
       hdf5Proj
       PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/external/${hdf5_NAME}
-      URL               https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
+      URL               https://support.hdfgroup.org/ftp/HDF5/current/src/${hdf5_NAME}.tar.gz
       URL_MD5           43a2f9466702fb1db31df98ae6677f15
       SOURCE_DIR        ${hdf5_SOURCE_DIR}
       UPDATE_COMMAND    ""
