@@ -93,16 +93,18 @@ set(LIB_POSTFIX ${LIBRARY_SUFFIX})
 #
 # hdf5
 # ====
-if(WIDTH_HDF5)
+if(WITH_HDF5)
   find_package(HDF5 COMPONENTS C)
-
   if(NOT HDF5_FOUND)
     if(NOT BUILD_HDF5)
       message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
     endif()
     message(STATUS "Download and build HDF5 as external package")
 
-    set(hdf5_VERSION        "1.10.1")
+    set(hdf5_MAJOR_VERSION  "1.10")
+    set(hdf5_MINOR_VERSION  "4")
+    set(hdf5_MD5            cdf02e61f0d9920a7e7183aa0fb35429)
+    set(hdf5_VERSION        "${hdf5_MAJOR_VERSION}.${hdf5_MINOR_VERSION}")
     set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
     set(hdf5_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/${hdf5_NAME}")
     set(hdf5_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
@@ -127,11 +129,13 @@ if(WIDTH_HDF5)
     ExternalProject_Add(
       hdf5Proj
       PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/external/${hdf5_NAME}
-      URL               https://support.hdfgroup.org/ftp/HDF5/current/src/${hdf5_NAME}.tar.gz
-      URL_MD5           43a2f9466702fb1db31df98ae6677f15
+      URL               https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${hdf5_MAJOR_VERSION}/${hdf5_NAME}/src/${hdf5_NAME}.tar.gz
+      URL_MD5           ${hdf5_MD5}
       SOURCE_DIR        ${hdf5_SOURCE_DIR}
       UPDATE_COMMAND    ""
       CMAKE_ARGS        ${cmake_args}
+      TEST_COMMAND      ctest
+      INSTALL_COMMAND   cmake --build . --target install
     )
     set(HDF5_DEPENDENCIES hdf5Proj)
 
@@ -159,7 +163,7 @@ endif()
 #
 # jansson
 # =======
-if(WIDTH_JANSSON)
+if(WITH_JANSSON)
   include(Findjansson)
   find_package(jansson)
 
@@ -188,8 +192,8 @@ if(WIDTH_JANSSON)
       GIT_TAG         v2.9
       CMAKE_ARGS      ${cmake_args}
       UPDATE_COMMAND  ""
-      INSTALL_COMMAND make install
-      TEST_COMMAND    make check
+      TEST_COMMAND    ctest
+      INSTALL_COMMAND cmake --build . --target install
       )
     set(JANSSON_DEPENDENCIES janssonProj)
     set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)

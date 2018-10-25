@@ -107,5 +107,20 @@ install(
   DESTINATION lib
 )
 
+install(
+  DIRECTORY .
+  DESTINATION include/dlite
+  FILES_MATCHING PATTERN "dlite-*.h"
+  PATTERN tests EXCLUDE
+  PATTERN dlite-macros.h EXCLUDE
+)
+
+install(FILES
+  ${uuid_BINARY_DIR}/integers.h
+  ${uuid_BINARY_DIR}/byteorder.h
+  ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
+  ${CMAKE_CURRENT_BINARY_DIR}/floats.h
+  DESTINATION include/dlite
+)
 # Tests
 add_subdirectory(tests)

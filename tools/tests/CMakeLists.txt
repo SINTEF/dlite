@@ -7,7 +7,7 @@ add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
 
 add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h
+  OUTPUT chemistry.h
   COMMAND ${dlite_BINARY_DIR}/tools/dlite-codegen -o chemistry.h -u ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
   MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
   DEPENDS ${dlite_BINARY_DIR}/tools/dlite-codegen

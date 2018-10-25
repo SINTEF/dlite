@@ -19,9 +19,6 @@ target_include_directories(dlite-getuuid PRIVATE
   ${uuid_SOURCE_DIR}
   ${uuid_BINARY_DIR}
   )
-install(
-  TARGETS dlite-getuuid
-  DESTINATION bin)
 
 
 # dlite-codegen
@@ -36,3 +33,9 @@ target_include_directories(dlite-codegen PRIVATE
 
 # Subdirectories
 add_subdirectory(tests)
+
+
+# Install
+install(
+  TARGETS dlite-getuuid dlite-codegen
+  DESTINATION bin)
