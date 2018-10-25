@@ -168,7 +168,7 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
     {'M', "meta", "false"},
     {0, NULL, NULL}
   };
-  char *optcopy = strdup(options);
+  char *optcopy = (options) ? strdup(options) : NULL;
   const char **mode = &opts[0].value;
   int meta;
 
@@ -177,7 +177,13 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   /* parse options */
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
   if (strcmp(*mode, "append") == 0) {  /* default */
-    s->root = json_load_file(uri, 0, &error);
+    FILE *fp;
+    if ((fp = fopen(uri, "r"))) {  /* `uri` exists */
+      fclose(fp);
+      s->root = json_load_file(uri, 0, &error);
+    } else {  /* `uri` doesn't exists */
+      s->root = json_object();
+    }
     s->writable = 1;
   } else if (strcmp(*mode, "r") == 0) {
     s->root = json_load_file(uri, 0, &error);
@@ -215,7 +221,7 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   retval = (DLiteStorage *)s;
 
  fail:
-  free(optcopy);
+  if (optcopy) free(optcopy);
   if (!retval && s) {
     if (s->root) json_decref(s->root);
     free(s);

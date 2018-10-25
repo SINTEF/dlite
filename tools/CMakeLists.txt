@@ -1,9 +1,15 @@
 # -*- Mode: cmake -*-
 #
 
+# System tests
+include(CheckSymbolExists)
+check_symbol_exists(getopt getopt.h HAVE_GETOPT)
+if (HAVE_GETOPT)
+  add_definitions(-DHAVE_GETOPT)
+endif()
+
 
 link_directories(${uuid_BINARY_DIR})
-
 
 # dlite-getuuid
 add_executable(dlite-getuuid dlite-getuuid.c)
@@ -16,6 +22,16 @@ target_include_directories(dlite-getuuid PRIVATE
 install(
   TARGETS dlite-getuuid
   DESTINATION bin)
+
+
+# dlite-codegen
+add_executable(dlite-codegen dlite-codegen.c)
+target_link_libraries(dlite-codegen dlite)
+target_include_directories(dlite-codegen PRIVATE
+  ${dlite_SOURCE_DIR}/src
+  ${dlite_BINARY_DIR}/src
+  ${uuid_BINARY_DIR}
+  )
 
 
 # Subdirectories

@@ -60,6 +60,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
 
   storage->api = api;
   if (!(storage->uri = strdup(uri))) FAIL(NULL);
+  if (options && !(storage->options = strdup(options))) FAIL(NULL);
   storage->idflag = dliteIDTranslateToUUID;
 
   return storage;
@@ -78,6 +79,7 @@ int dlite_storage_close(DLiteStorage *storage)
   assert(storage);
   stat = storage->api->close(storage);
   free(storage->uri);
+  if (storage->options) free(storage->options);
   free(storage);
   return stat;
 }

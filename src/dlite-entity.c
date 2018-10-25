@@ -201,7 +201,7 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
   /* ...otherwise give up */
   if (!meta) FAIL1("cannot load metadata: %s", uri);
 
-  /* Make sure that metadata is initialised */
+  /* make sure that metadata is initialised */
   if (!meta->pooffset && dlite_meta_init(meta)) goto fail;
 
   /* check metadata uri */
@@ -451,8 +451,7 @@ int dlite_instance_get_dimension_size(const DLiteInstance *inst,
 /*
   Returns a pointer to data corresponding to `name` or NULL on error.
  */
-const void *dlite_instance_get_property(const DLiteInstance *inst,
-					const char *name)
+void *dlite_instance_get_property(const DLiteInstance *inst, const char *name)
 {
   int i;
   if (!inst->meta)
@@ -840,6 +839,17 @@ int dlite_meta_is_metameta(const DLiteMeta *meta)
 
 static DLiteStore *_metastore = NULL;
 
+static void metastore_create()
+{
+  if (!_metastore) {
+    _metastore = dlite_store_create();
+    atexit(dlite_metastore_free);
+  dlite_metastore_add(dlite_BasicMetadataSchema);
+  dlite_metastore_add(dlite_EntitySchema);
+  dlite_metastore_add(dlite_CollectionSchema);
+  }
+}
+
 /* Frees up a global metadata store.  Will be called at program exit,
    but can be called at any time. */
 void dlite_metastore_free()
@@ -851,25 +861,23 @@ void dlite_metastore_free()
 /* Returns pointer to metadata for id `id` or NULL if `id` cannot be found. */
 DLiteMeta *dlite_metastore_get(const char *id)
 {
-  if (!_metastore) return NULL;
+  if (!_metastore) metastore_create();
+  assert(_metastore);
   return (DLiteMeta *)dlite_store_get(_metastore, id);
 }
 
 /* Adds metadata to global metadata store, giving away the ownership
    of `meta` to the store.  Returns non-zero on error. */
-int dlite_metastore_add_new(DLiteMeta *meta)
+int dlite_metastore_add_new(const DLiteMeta *meta)
 {
-  if (!_metastore) {
-    _metastore = dlite_store_create();
-    atexit(dlite_metastore_free);
-  }
+  if (!_metastore) metastore_create();
   assert(_metastore);
   return dlite_store_add_new(_metastore, (DLiteInstance *)meta);
 }
 
 /* Adds metadata to global metadata store.  The caller keeps ownership
    of `meta`.  Returns non-zero on error. */
-int dlite_metastore_add(DLiteMeta *meta)
+int dlite_metastore_add(const DLiteMeta *meta)
 {
   dlite_instance_incref((DLiteInstance *)meta);
   return dlite_metastore_add_new(meta);

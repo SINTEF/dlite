@@ -100,33 +100,109 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return err(1, "bool should have size %lu, but %lu was provided",
+      return errx(1, "bool should have size %lu, but %lu was provided",
                  sizeof(bool), size);
     snprintf(typename, n, "bool");
     break;
   case dliteInt:
-    snprintf(typename, n, "int%lu", size * 8);
+    snprintf(typename, n, "int%lu", size*8);
     break;
   case dliteUInt:
-    snprintf(typename, n, "uint%lu", size * 8);
+    snprintf(typename, n, "uint%lu", size*8);
     break;
   case dliteFloat:
-    snprintf(typename, n, "float%lu", size * 8);
+    snprintf(typename, n, "float%lu", size*8);
     break;
   case dliteFixString:
     snprintf(typename, n, "string%lu", size);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return err(1, "string should have size %lu, but %lu was provided",
+      return errx(1, "string should have size %lu, but %lu was provided",
                  sizeof(char *), size);
     snprintf(typename, n, "string");
     break;
   default:
-    return err(1, "unknown dtype number: %d", dtype);
+    return errx(1, "unknown dtype number: %d", dtype);
   }
   return 0;
 }
+
+/*
+  Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
+  The size of the memory pointed to by `cdecl` must be at least `n` bytes.
+
+  `name` is the name of the C variable.
+
+  `nref` is the number of extra * to add in front of `name`.
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
+                         size_t nref, char *cdecl, size_t n)
+{
+  int m;
+  char ref[32];
+
+  if (nref >= sizeof(ref))
+    return errx(-1, "too many dereferences to write: %lu", nref);
+  memset(ref, '*', sizeof(ref));
+  ref[nref] = '\0';
+
+  switch (dtype) {
+  case dliteBlob:
+    m = snprintf(cdecl, n, "uint8_t %s%s[%lu]", ref, name, size);
+    break;
+  case dliteBool:
+    if (size != sizeof(bool))
+      return errx(-1, "bool should have size %lu, but %lu was provided",
+                 sizeof(bool), size);
+    m = snprintf(cdecl, n, "bool %s%s", ref, name);
+    break;
+  case dliteInt:
+    m = snprintf(cdecl, n, "int%lu_t %s%s", size*8, ref, name);
+    break;
+  case dliteUInt:
+    m = snprintf(cdecl, n, "uint%lu_t %s%s", size*8, ref, name);
+    break;
+  case dliteFloat:
+    m = snprintf(cdecl, n, "float%lu_t %s%s", size*8, ref, name);
+    break;
+  case dliteFixString:
+    m = snprintf(cdecl, n, "char %s%s[%lu]", ref, name, size);
+    break;
+  case dliteStringPtr:
+    if (size != sizeof(char *))
+      return errx(-1, "string should have size %lu, but %lu was provided",
+                 sizeof(char *), size);
+    m = snprintf(cdecl, n, "char *%s%s", ref, name);
+    break;
+  case dliteDimension:
+    if (size != sizeof(DLiteDimension))
+      return errx(-1, "DLiteDimension must have size %lu, got %lu",
+                  sizeof(DLiteDimension), size);
+    m = snprintf(cdecl, n, "DLiteDimension %s%s", ref, name);
+    break;
+  case dliteProperty:
+    if (size != sizeof(DLiteProperty))
+      return errx(-1, "DLiteProperty must have size %lu, got %lu",
+                  sizeof(DLiteProperty), size);
+    m = snprintf(cdecl, n, "DLiteProperty %s%s", ref, name);
+    break;
+  case dliteRelation:
+    if (size != sizeof(DLiteRelation))
+      return errx(-1, "DLiteRelation must have size %lu, got %lu",
+                  sizeof(DLiteRelation), size);
+    m = snprintf(cdecl, n, "DLiteRelation %s%s", ref, name);
+    break;
+  default:
+    return errx(-1, "unknown dtype number: %d", dtype);
+  }
+  if (m < 0)
+    return err(-1, "error writing C declaration for dtype %d", dtype);
+  return m;
+}
+
 
 /* Return true if name is a DLiteType, otherwise false. */
 bool dlite_is_type(const char *name)

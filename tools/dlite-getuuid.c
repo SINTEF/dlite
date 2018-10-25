@@ -1,4 +1,4 @@
-/* dgetuuid.c -- simple tool for generating UUIDs */
+/* dlite-getuuid.c -- simple tool for generating UUIDs */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,7 +10,7 @@
 void help()
 {
   char **p, *msg[] = {
-    "Usage: dgetuuid [-h] [STRING]",
+    "Usage: dlite-getuuid [-h] [STRING]",
     "Generates an UUID.",
     "  -h, --help     Prints this help and exit.",
     "",
