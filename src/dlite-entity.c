@@ -782,6 +782,27 @@ int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name)
 
 
 /*
+  Returns a pointer to dimension with index `i` or NULL on error.
+ */
+const DLiteDimension *
+dlite_meta_get_dimension_by_index(const DLiteMeta *meta, size_t i)
+{
+  return meta->dimensions + i;
+}
+
+/*
+  Returns a pointer to dimension named `name` or NULL on error.
+ */
+const DLiteDimension *dlite_meta_get_dimension(const DLiteMeta *meta,
+                                              const char *name)
+{
+  int i;
+  if ((i = dlite_meta_get_dimension_index(meta, name)) < 0) return NULL;
+  return meta->dimensions + i;
+}
+
+
+/*
   Returns a pointer to property with index \a i or NULL on error.
  */
 const DLiteProperty *
@@ -789,7 +810,6 @@ dlite_meta_get_property_by_index(const DLiteMeta *meta, size_t i)
 {
   return meta->properties + i;
 }
-
 
 /*
   Returns a pointer to property named `name` or NULL on error.
