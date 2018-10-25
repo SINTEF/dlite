@@ -32,7 +32,7 @@ High priority
       are added to collections or to cache metadata such that we only
       need to load it once.
 
-  [ ] Fix the json plugin such that we can load and save metadata.
+  [x] Fix the json plugin such that we can load and save metadata.
 
   [ ] Implement Collections
 
@@ -201,7 +201,7 @@ Design questions
       introducing inconsistencies.
 
 
-  [ ] Would it be useful to add a boolean flag to DLiteMeta_HEAD that
+  [x] Would it be useful to add a boolean flag to DLiteMeta_HEAD that
       tells whether its instances are metadata?  This would e.g. allow
       an instance to check whether it itself is metadata.
 
@@ -218,6 +218,9 @@ Design questions
       alternative would be to check the type of the first property of
       the metadata.  If that is dliteDimension, we know that the
       current instance is metadata.  Would this be robust enough?
+
+      Answer: No need to add such a flag.  The dlite_meta_ismetameta()
+      functions determines this by investigating the meta-metadata.
 
 
   [ ] Is it a good idea to add some hooks to DLiteMeta_HEAD?

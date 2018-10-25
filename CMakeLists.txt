@@ -13,8 +13,8 @@ project(dlite
 option(BUILD_HDF5      "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JANSSON   "If not installed, download and compile jansson" OFF)
 
-option(WIDTH_HDF5      "Whether to build with HDF5 support"             ON)
-option(WIDTH_JANSSON   "Whether to build with JSON support"             ON)
+option(WITH_HDF5       "Whether to build with HDF5 support"             ON)
+option(WITH_JANSSON    "Whether to build with JSON support"             ON)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -224,11 +224,11 @@ set(uuid_BINARY_DIR ${BINARY_DIR})
 
 
 # Subdirectories
-if(WIDTH_HDF5)
+if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
 endif()
 
-if(WIDTH_JANSSON)
+if(WITH_JANSSON)
   add_subdirectory(plugins/json)
 endif()
 
