@@ -350,7 +350,7 @@ int dlite_json_datamodel_free(DLiteDataModel *d)
 
 
 /**
-  Returns pointer to (malloc'ed) metadata or NULL on error.
+  Returns pointer to (malloc'ed) metadata uri or NULL on error.
  */
 char *dlite_json_get_metadata(const DLiteDataModel *d)
 {
@@ -364,16 +364,20 @@ char *dlite_json_get_metadata(const DLiteDataModel *d)
     case fmtMeta:     return strdup(DLITE_ENTITY_SCHEMA);
     case fmtSchema:   return strdup(DLITE_BASIC_METADATA_SCHEMA);
     default:
-      return err(1, "unexpected json format number %d", data->fmt), NULL;
+      return err(1, "unexpected json format: %d", data->fmt), NULL;
     }
+  } else if (json_is_string(data->meta)) {
+    return strdup(json_string_value(data->meta));
+  } else if (json_is_object(data->meta)) {
+    name = object_get_string(data->meta, "name");
+    version = object_get_string(data->meta, "version");
+    space = object_get_string(data->meta, "namespace");
+    return dlite_join_meta_uri(name, version, space);
+  } else {
+    return errx(1, "invalid \"meta\" value"), NULL;
   }
-
-  name = object_get_string(data->meta, "name");
-  version = object_get_string(data->meta, "version");
-  space = object_get_string(data->meta, "namespace");
-
-  return dlite_join_meta_uri(name, version, space);
 }
+
 
 /**
   Returns the size of dimension `name` or -1 on error.
