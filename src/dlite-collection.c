@@ -7,62 +7,11 @@
 #include "dlite-macros.h"
 #include "dlite-store.h"
 #include "dlite-entity.h"
+#include "dlite-schemas.h"
 #include "dlite-collection.h"
 
 
 
-/**************************************************************
- * schema_collection
- **************************************************************/
-
-static int collection_init(DLiteInstance *inst);
-static int collection_deinit(DLiteInstance *inst);
-
-static DLiteSchemaDimension schema_collection_dimensions[] = {
-  //{"n-dimensions", "Number of common dimmensions."},
-  //{"n-instances",  "Number of instances added to the collection."},
-  //{"n-dim-maps",   "Number of dimension maps."},
-  {"n-relations",  "Number of relations."},
-  {"n-rel-items",  "Number of items in a relation - always 4 (s,p,o,id)."}
-};
-static int schema_collection_prop0_dims[] = {0, 4};
-static DLiteSchemaProperty schema_collection_prop0 = {
-  "relations",                               /* name */
-  dliteStringPtr,                            /* type */
-  sizeof(char *),                            /* size */
-  2,                                         /* ndims */
-  schema_collection_prop0_dims,              /* dims */
-  "Array of relations (subject, predicate, "
-  "object, relation-id)."                    /* description */
-};
-static DLiteSchemaProperty *schema_collection_properties[] = {
-  &schema_collection_prop0
-};
-static size_t schema_collection_propoffsets[] = {
-  offsetof(DLiteCollection, relations)
-};
-static DLiteMeta schema_collection = {
-  "e632d4c1-d0da-592e-8f95-b5f347acdb73",        /* uuid (corresponds to uri) */
-  "http://meta.sintef.no/0.6/schema-collection", /* uri  */
-  1,                                             /* refcount, never free */
-  NULL,                                          /* meta */
-  "Schema for Collections",                      /* description */
-  sizeof(DLiteCollection),                       /* size */
-  offsetof(DLiteCollection, nrelations),         /* dimoffset */
-  schema_collection_propoffsets,                 /* propoffsets */
-  0,                                             /* reloffset */
-  collection_init,                               /* init */
-  collection_deinit,                             /* deinit */
-  //NULL,                                          /* loadprop */
-  //NULL,                                          /* saveprop */
-  0,                                             /* flags */
-  schema_collection_dimensions,                  /* dimensions */
-  schema_collection_properties,                  /* properties */
-  NULL,                                          /* relations */
-  2,                                             /* ndimensions */
-  1,                                             /* nproperties */
-  0,                                             /* nrelations */
-};
 
 
 /**************************************************************
@@ -108,7 +57,7 @@ static DLiteStore *_istore_init()
  **************************************************************/
 
 /* Initialise additional data in a collection */
-static int collection_init(DLiteInstance *inst)
+int dlite_collection_init(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
 
@@ -125,7 +74,7 @@ static int collection_init(DLiteInstance *inst)
 
 
 /* De-initialise additional data in a collection */
-static int collection_deinit(DLiteInstance *inst)
+int dlite_collection_deinit(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
   triplestore_free(coll->rstore);
@@ -153,7 +102,7 @@ DLiteCollection *dlite_collection_create(const char *id)
   /* Initialise header */
   if ((uuid_version = dlite_get_uuid(coll->uuid, id)) < 0) goto fail;
   if (uuid_version == 5) coll->uri = strdup(id);
-  coll->meta = &schema_collection;
+  coll->meta = dlite_CollectionSchema;
 
   /* Initialise tripletstore
 
@@ -191,7 +140,7 @@ void dlite_collection_free(DLiteCollection *coll)
   //  free(coll->dimnames);
   //  free(coll->dimsizes);
   //}
-  if (coll->meta) dlite_meta_decref(coll->meta);
+  if (coll->meta) dlite_meta_decref((DLiteMeta *)coll->meta);
   free(coll);
 }
 
@@ -204,7 +153,7 @@ int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
                                   const char *p, const char *o)
 {
   triplestore_add(coll->rstore, s, p, o);
-  //coll->triplets = coll->rstore->triplets;
+  coll->relations = coll->rstore->triplets;
   return 0;
 }
 
@@ -217,7 +166,7 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
                                       const char *p, const char *o)
 {
   int retval = triplestore_remove(coll->rstore, s, p, o);
-  //coll->triplets = coll->rstore->triplets;
+  coll->relations = coll->rstore->triplets;
   return retval;
 }
 
@@ -297,7 +246,7 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
 
     dlite_collection_init_state(coll, &state);
     while ((r=dlite_collection_find(coll,&state, label, "_has-dimmap", NULL)))
-      triplestore_remove_by_id(coll->rstore, r->o);
+      triplestore_remove_by_uri(coll->rstore, r->o);
 
     dlite_collection_remove_relations(coll, label, "_has-uuid", NULL);
     dlite_collection_remove_relations(coll, label, "_has-meta", NULL);

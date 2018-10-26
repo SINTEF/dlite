@@ -16,26 +16,30 @@
   The properties can have most of the basic types found in C, with
   some additions, as summarised in the table below:
 
-  type      | dtype          | sizes          | description                      | examples
-  ----      | -----          | -----          | -----------                      | --------
-  blob      | dliteBlob      | any            | binary blob, sequence of bytes   | blob32, blob128
-  bool      | dliteBool      | sizeof(bool)   | boolean                          | bool
-  int       | dliteInt       | 1, 2, 4, {8}   | signed integer                   | (int), int8, int16, int32, {int64}
-  uint      | dliteUInt      | 1, 2, 4, {8}   | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
-  float     | dliteFloat     | 4, 8, {10, 16} | floating point                   | (float), (double), float32, float64, {float80, float128}
-  fixstring | dliteFixString | any            | fix-sized NUL-terminated string  | string20
-  string    | dliteStringPtr | sizeof(char *) | pointer to NUL-terminated string | string
+  type      | dtype          | sizes          | pointer                       | description                      | examples names
+  ----      | -----          | -----          | -------                       | -----------                      | --------------
+  blob      | dliteBlob      | any            | uint8_t *                     | binary blob, sequence of bytes   | blob32, blob128
+  bool      | dliteBool      | sizeof(bool)   | bool *                        | boolean                          | bool
+  int       | dliteInt       | 1, 2, 4, {8}   | int8_t *, int16_t *, ...      | signed integer                   | (int), int8, int16, int32, {int64}
+  uint      | dliteUInt      | 1, 2, 4, {8}   | uint8_t *, uint16_t *, ...    | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
+  float     | dliteFloat     | 4, 8, {10, 16} | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
+  fixstring | dliteFixString | any            | char *                        | fix-sized NUL-terminated string  | string20
+  string    | dliteStringPtr | sizeof(char *) | char **                       | pointer to NUL-terminated string | string
 
-  The column "examples" shows examples of how these types whould be
-  written when specifying the type of a property.
+  The column "pointer" shows the C type of the `ptr` argument for
+  functions like dlite_instance_get_property() and
+  dlite_instance_set_property().  Note that this pointer type is the
+  same regardless we are referring to a scalar or an array.  For arrays
+  the pointer points to the first element.
 
-  The types in parenthesis are included for portability with SOFT5,
-  but not encouraged because their may vary between platforms.
-
-  The types in curly brackets may not be defined on all platforms.
-  The headers "integers.h" and "floats.h" provides macros like
-  `HAVE_INT64_T`, `HAVE_FLOAT128_T`... that can be used to check for
-  availability.
+  The column "examples names" shows examples of how these types whould
+  be written when specifying the type of a property.
+    - The type names in parenthesis are included for portability with
+      SOFT5, but not encouraged because their may vary between platforms.
+    - The type names in curly brackets may not be defined on all
+      platforms.  The headers "integers.h" and "floats.h" provides
+      macros like `HAVE_INT64_T`, `HAVE_FLOAT128_T`... that can be
+      used to check for availability.
 
   Some additional notes:
     - *blob*: is a sequence of bytes of length `size`.  When writing
@@ -44,8 +48,6 @@
     - *bool*: corresponds to the bool type as defined in <stdbool.h>.
       To support systems lacking <stdbool.h> you can use "boolean.h"
       provided by dlite.
-    - *float*: currently `long double` in C is not supported.  If
-      needed, it can easily be added.
     - *fixstring*: corresponds to `char fixstring[size]` in C. The
       size includes the terminating NUL.
     - *string*: corresponds to `char *string` in C, pointing to memory
@@ -57,19 +59,20 @@
 #include <stdlib.h>
 
 #include "boolean.h"
+#include "triplestore.h"
 
+/* Expands to the struct alignment of type */
+#define alignof(type) ((size_t)&((struct { char c; type d; } *)0)->d)
 
-/**
-  A subject-predicate-object triplet used to represent a relation.
+/* Expands to the amount of padding that should be added before `type`
+   if `type` is to be added to a struct at offset `offset`. */
+#define padding_at(type, offset)                                        \
+  ((alignof(type) - ((offset) & (alignof(type) - 1))) & (alignof(type) - 1))
 
-  Triplets are only exposed as a type to make the implementation of
-  Collections sane.  Normal Entity instances are supposed to be
-  independent and should not define relations.
-*/
-typedef struct _XTriplet DLiteRelation;
 
 typedef struct _DLiteProperty  DLiteProperty;
 typedef struct _DLiteDimension DLiteDimension;
+typedef struct _Triplet        DLiteRelation;
 
 
 
@@ -85,12 +88,7 @@ typedef enum _DLiteType {
 
   dliteDimension,        /*!< Dimension, for entities */
   dliteProperty,         /*!< Property, for entities */
-  dliteRelation,         /*!< Subject-predicate-object relation,
-			      for collections */
-
-  dliteSchemaDimension,  /*!< Schema dimension, for generic metadata */
-  dliteSchemaProperty,   /*!< Schema property, for generic metadata */
-  dliteSchemaRelation    /*!< Schema relation, for generic metadata */
+  dliteRelation,         /*!< Subject-predicate-object relation */
 } DLiteType;
 
 
@@ -112,6 +110,19 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
                             char *typename, size_t n);
 
 /**
+  Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
+  The size of the memory pointed to by `cdecl` must be at least `n` bytes.
+
+  `name` is the name of the C variable.
+
+  `nref` is the number of extra * to add in front of `name`.
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
+                         size_t nref, char *cdecl, size_t n);
+
+/**
   Returns true if name is a DLiteType, otherwise false.
  */
 bool dlite_is_type(const char *name);
@@ -124,9 +135,38 @@ int dlite_type_set_dtype_and_size(const char *typename,
 
 
 /**
+  Returns non-zero id `dtype` contains allocated data, like dliteStringPtr.
+ */
+int dlite_type_is_allocated(DLiteType dtype);
+
+/**
+  Copies value of given dtype from `src` to `dest`.  If the dtype contains
+  allocated data, new memory will be allocated for `dest`.
+
+  Returns a pointer to the memory area `dest` or NULL on error.
+*/
+void *dlite_type_copy(void *dest, const void *src,
+                      DLiteType dtype, size_t size);
+
+/**
+  Clears the memory pointed to by `p`.  Its type is gived by `dtype`
+  and `size`.
+
+  Returns a pointer to the memory area `p` or NULL on error.
+*/
+void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
+
+
+/**
   Returns the struct alignment of the given type or 0 on error.
  */
 size_t dlite_type_get_alignment(DLiteType dtype, size_t size);
+
+/**
+  Returns the amount of padding that should be added before `type`,
+  if `type` (of size `size`) is to be added to a struct at offset `offset`.
+*/
+size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset);
 
 
 /**

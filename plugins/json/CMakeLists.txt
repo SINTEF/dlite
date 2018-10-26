@@ -3,11 +3,14 @@
 
 set(sources
   ${dlite_SOURCE_DIR}/src/err.c
-  ${dlite_SOURCE_DIR}/src/map.c           # FIXME - remove this dependency
-  ${dlite_SOURCE_DIR}/src/dlite-type.c    # FIXME - remove this dependency
-  ${dlite_SOURCE_DIR}/src/dlite-store.c   # FIXME - remove this dependency
-  ${dlite_SOURCE_DIR}/src/dlite-entity.c  # FIXME - remove this dependency
-  ${uuid_BINARY_DIR}/integers.h
+  ${dlite_SOURCE_DIR}/src/strtob.c
+  ${dlite_SOURCE_DIR}/src/map.c               # FIXME - remove this dependency
+  ${dlite_SOURCE_DIR}/src/dlite-type.c        # FIXME - remove this dependency
+  ${dlite_SOURCE_DIR}/src/dlite-store.c       # FIXME - remove this dependency
+  ${dlite_SOURCE_DIR}/src/dlite-entity.c      # FIXME - remove this dependency
+  ${dlite_SOURCE_DIR}/src/dlite-collection.c  # FIXME - remove this dependency
+  ${dlite_SOURCE_DIR}/src/triplestore.c       # FIXME - remove this dependency
+  #${uuid_BINARY_DIR}/integers.h
   json-utils.c
   dlite-json-storage.c
   str.c
@@ -23,6 +26,7 @@ target_include_directories(plugins-json PRIVATE
   ${dlite_SOURCE_DIR}/src
   ${dlite_BINARY_DIR}/src
   ${uuid_BINARY_DIR}
+  ${uuid_SOURCE_DIR}                          # FIXME - remove this dependency
   ${JANSSON_INCLUDE_DIRS}
   )
 if(${JANSSON_DEPENDENCIES})

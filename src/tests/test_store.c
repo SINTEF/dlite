@@ -48,7 +48,7 @@ MU_TEST(test_entity_load)
   DLiteStorage *s;
   char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
 
-  mu_check((s = dlite_storage_open("json", path, "r")));
+  mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((entity = dlite_entity_load(s, entity_uri)));
   mu_assert_int_eq(0, dlite_storage_close(s));
 }
@@ -58,8 +58,9 @@ MU_TEST(test_instance_load)
   DLiteStorage *s;
   char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
 
-  mu_check((s = dlite_storage_open("json", path, "r")));
+  mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((inst = dlite_instance_load(s, inst_id, entity)));
+  //mu_check((inst = dlite_instance_load(s, inst_id, NULL)));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
   mu_assert_int_eq(1, inst->refcount);
@@ -118,7 +119,7 @@ MU_TEST(test_save_and_load)
 
   char *path = "test_store.json";
 
-  mu_check((s = dlite_storage_open("json", path, "w")));
+  mu_check((s = dlite_storage_open("json", path, "mode=w")));
   mu_assert_int_eq(0, dlite_store_save(s, store));
   mu_assert_int_eq(0, dlite_storage_close(s));
 

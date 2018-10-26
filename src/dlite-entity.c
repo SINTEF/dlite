@@ -5,94 +5,20 @@
 
 #include "err.h"
 #include "dlite.h"
+#include "dlite-macros.h"
 #include "dlite-type.h"
 #include "dlite-store.h"
 #include "dlite-entity.h"
 #include "dlite-datamodel.h"
+#include "dlite-schemas.c"
+
+#define min(x, y) (((x) < (y)) ? (x) : (y))
+#define max(x, y) (((x) >= (y)) ? (x) : (y))
 
 
-/* FIXME - add basic_metadata_schema */
+/* Prototypes */
+int dlite_meta_init(DLiteMeta *meta);
 
-
-/* schema_entity */
-static size_t schema_entity_propoffsets[] = {
-  offsetof(DLiteEntity, dimensions),
-  offsetof(DLiteEntity, properties)
-};
-static DLiteSchemaDimension schema_entity_dimensions[] = {
-  {"ndimensions", "Number of dimensions."},
-  {"nproperties", "Number of properties."}
-};
-static DLiteSchemaProperty schema_entity_prop0 = {
-  "dimensions",                              /* name */
-  dliteSchemaDimension,                      /* type */
-  sizeof(dliteSchemaDimension),              /* size */
-  0,                                         /* ndims */
-  NULL,                                      /* dims */
-  "Name and description of each dimension."  /* description */
-};
-static DLiteSchemaProperty schema_entity_prop1 = {
-  "properties",                              /* name */
-  dliteSchemaProperty,                       /* type */
-  sizeof(dliteSchemaProperty),               /* size */
-  0,                                         /* ndims */
-  NULL,                                      /* dims */
-  "Name and description of each dimension."  /* description */
-};
-static DLiteSchemaProperty *schema_entity_properties[] = {
-  &schema_entity_prop0,
-  &schema_entity_prop1
-};
-static DLiteMeta schema_entity = {
-  "d1ce1dc7-e2b1-51a1-8957-3277815aed18",     /* uuid (corresponds to uri) */
-  "http://meta.sintef.no/0.1/schema-entity",  /* uri  */
-  1,                                          /* refcount, never free */
-  NULL,                                       /* meta */
-  "Schema for Entities",                      /* description */
-  sizeof(DLiteEntity),                        /* size */
-  offsetof(DLiteEntity, ndimensions),         /* dimoffset */
-  schema_entity_propoffsets,                  /* propoffsets */
-  0,                                          /* reloffset */
-  NULL,                                       /* init */
-  NULL,                                       /* deinit */
-  //NULL,                                       /* loadprop */
-  //NULL,                                       /* saveprop */
-  dliteIsMeta,                                /* flags */
-  schema_entity_dimensions,                   /* dimensions */
-  schema_entity_properties,                   /* properties */
-  NULL,                                       /* relations */
-  2,                                          /* ndimensions */
-  2,                                          /* nproperties */
-  0,                                          /* nrelations */
-};
-
-
-/* Convenient macros for failing */
-#define FAIL(msg) do { err(1, msg); goto fail; } while (0)
-#define FAIL1(msg, a1) do { err(1, msg, a1); goto fail; } while (0)
-#define FAIL2(msg, a1, a2) do { err(1, msg, a1, a2); goto fail; } while (0)
-
-
-/********************************************************************
- *  Metadata cache
- ********************************************************************/
-
-static DLiteStore *_metastore = NULL;
-
-/* Frees up a global instance store */
-static void _metastore_free()
-{
-  dlite_store_free(_metastore);
-  _metastore = NULL;
-}
-
-/* Returns a new initializes instance store */
-static DLiteStore *_metastore_init()
-{
-  DLiteStore *store = dlite_store_create();
-  atexit(_metastore_free);
-  return store;
-}
 
 
 /********************************************************************
@@ -114,18 +40,31 @@ static DLiteStore *_metastore_init()
   properties are allocated and initialised to zero.
 
   On error, NULL is returned.
- */
-DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
+*/
+DLiteInstance *dlite_instance_create(const DLiteEntity *entity,
+                                     const size_t *dims,
                                      const char *id)
 {
   DLiteMeta *meta = (DLiteMeta *)entity;
   char uuid[DLITE_UUID_LENGTH+1];
-  size_t i;
+  size_t i, size;
   DLiteInstance *inst=NULL;
   int j, uuid_version;
 
+  /* Make sure that metadata is initialised */
+  if (!meta->propoffsets && dlite_meta_init(meta)) goto fail;
+
   /* Allocate instance */
-  if (!(inst = calloc(1, meta->size))) FAIL("allocation failure");
+  size = meta->pooffset;
+  if (dlite_meta_is_metameta(meta)) {
+    size_t nproperties;
+    if ((j = dlite_meta_get_dimension_index(meta, "nproperties")) < 0)
+      goto fail;
+    nproperties = dims[j];
+    size += nproperties*sizeof(size_t);
+  }
+  size += padding_at(DLiteInstance, size);  /* add final padding */
+  if (!(inst = calloc(1, size))) FAIL("allocation failure");
 
   /* Initialise header */
   if ((uuid_version = dlite_get_uuid(uuid, id)) < 0) goto fail;
@@ -141,22 +80,23 @@ DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
 
   /* Allocate arrays for dimensional properties */
   for (i=0; i<meta->nproperties; i++) {
-    DLiteSchemaProperty *p = meta->properties[i];
-    void **ptr = (void **)((char *)inst + meta->propoffsets[i]);
-
+    DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
+    void **ptr = DLITE_PROP(inst, i);
     if (p->ndims > 0 && p->dims) {
-      size_t nmemb=1;
-      for (j=0; j<p->ndims; j++)
-        nmemb *= dims[p->dims[j]];
-      if (!(*ptr = calloc(nmemb, p->size))) goto fail;
+      size_t nmemb=1, size=p->size;
+      for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
+      if (p->type == dliteFixString) size += 1;
+      if (!(*ptr = calloc(nmemb, size))) goto fail;
     }
   }
 
+  /* Additional initialisation */
+  if (meta->init && meta->init(inst)) goto fail;
+
+  /* Increase reference counts */
   dlite_meta_incref(meta);      /* increase refcount of metadata */
   dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
-  /* Additional initialisation */
-  if (meta->init && meta->init(inst)) goto fail;
   return inst;
  fail:
   if (inst) dlite_instance_decref(inst);
@@ -169,7 +109,7 @@ DLiteInstance *dlite_instance_create(DLiteEntity *entity, size_t *dims,
  */
 static void dlite_instance_free(DLiteInstance *inst)
 {
-  DLiteMeta *meta;
+  const DLiteMeta *meta;
   size_t i, nprops;
 
   if (!(meta = inst->meta)) {
@@ -186,28 +126,25 @@ static void dlite_instance_free(DLiteInstance *inst)
   if (inst->uri) free((char *)inst->uri);
   if (meta->properties) {
     for (i=0; i<nprops; i++) {
-      DLiteProperty *p = (DLiteProperty *)meta->properties[i];
+      DLiteProperty *p = (DLiteProperty *)meta->properties + i;
+      char **ptr = (char **)DLITE_PROP(inst, i);
 
-      if (p->type == dliteStringPtr) {
-          int j;
-          size_t n, nmemb=1, *dims=(size_t *)((char *)inst + meta->dimoffset);
-          char **ptr = (char **)((char *)inst + meta->propoffsets[i]);
-          if (p->ndims > 0 && p->dims) ptr = *((char ***)ptr);
-          if (p->dims)
-            for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
-          for (n=0; n<nmemb; n++)
-            free((ptr)[n]);
-          if (p->ndims > 0 && p->dims)
-            free(ptr);
+      if (dlite_type_is_allocated(p->type)) {
+        int j;
+        size_t n, nmemb=1, *dims=(size_t *)((char *)inst + meta->dimoffset);
+        if (p->ndims > 0 && p->dims) ptr = *((char ***)ptr);
+        for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
+        for (n=0; n<nmemb; n++)
+          dlite_type_clear((char *)ptr + n*p->size, p->type, p->size);
+        if (p->ndims > 0 && p->dims) free(ptr);
       } else if (p->ndims > 0 && p->dims) {
-	void **ptr = (void *)((char *)inst + meta->propoffsets[i]);
         free(*ptr);
       }
     }
   }
   free(inst);
 
-  dlite_meta_decref(meta);  /* decrease metadata refcount */
+  dlite_meta_decref((DLiteMeta *)meta);  /* decrease metadata refcount */
 }
 
 
@@ -236,7 +173,7 @@ void dlite_instance_decref(DLiteInstance *inst)
 
   On error, NULL is returned.
  */
-DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
+DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
 				   DLiteEntity *entity)
 {
   DLiteMeta *meta = (DLiteMeta *)entity;
@@ -251,10 +188,8 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
   if (!(uri = dlite_datamodel_get_meta_uri(d))) goto fail;
 
   /* if metadata is not given, try to load it from cache... */
-  if (!meta) {
-    if (!_metastore) _metastore_init();
-    meta = (DLiteMeta *)dlite_store_get(_metastore, uri);
-  }
+  if (!meta)
+    meta = dlite_metastore_get(uri);
 
   /* ...otherwise try to load it from storage */
   if (!meta) {
@@ -266,17 +201,20 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
   /* ...otherwise give up */
   if (!meta) FAIL1("cannot load metadata: %s", uri);
 
+  /* make sure that metadata is initialised */
+  if (!meta->pooffset && dlite_meta_init(meta)) goto fail;
+
   /* check metadata uri */
   if (strcmp(uri, meta->uri) != 0)
-    FAIL2("metadata (%s) does not correspond to metadata in storage (%s)",
-	  meta->uri, uri);
+    FAIL3("metadata uri (%s) does not correspond to that in storage (%s): %s",
+	  meta->uri, uri, s->uri);
 
   /* read dimensions */
   if (!(dims = calloc(meta->ndimensions, sizeof(size_t))))
     FAIL("allocation failure");
   for (i=0; i<meta->ndimensions; i++)
     if (!(dims[i] =
-	  dlite_datamodel_get_dimension_size(d, meta->dimensions[i].name)))
+          dlite_datamodel_get_dimension_size(d, meta->dimensions[i].name)))
       goto fail;
 
   /* create instance */
@@ -284,13 +222,13 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
 
   /* assign properties */
   for (i=0; i<meta->nproperties; i++) {
-    DLiteProperty *p = (DLiteProperty *)meta->properties[i];
+    DLiteProperty *p = (DLiteProperty *)meta->properties + i;
     if (p->ndims > max_pndims) max_pndims = p->ndims;
   }
   pdims = malloc(max_pndims * sizeof(size_t));
   for (i=0; i<meta->nproperties; i++) {
     void *ptr;
-    DLiteProperty *p = (DLiteProperty *)meta->properties[i];
+    DLiteProperty *p = (DLiteProperty *)meta->properties + i;
     //if (meta->loadprop) {
     //  int stat = meta->loadprop(d, inst, p->name);
     //  if (stat < 0) FAIL2("error loading special property %s of metadata %s",
@@ -298,11 +236,15 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
     //  if (stat == 1) continue;
     //}
     ptr = (void *)dlite_instance_get_property_by_index(inst, i);
+    //ptr = DLITE_PROP(inst, i);
     for (j=0; j<p->ndims; j++) pdims[j] = dims[p->dims[j]];
-    if (p->ndims > 0 && p->dims) ptr = *((void **)ptr);
     if (dlite_datamodel_get_property(d, p->name, ptr, p->type, p->size,
 				     p->ndims, pdims)) goto fail;
   }
+
+  /* initiates metadata if the new instance is metadata */
+  if (dlite_meta_is_metameta(inst->meta) && dlite_meta_init((DLiteMeta *)inst))
+    goto fail;
 
   instance = inst;
  fail:
@@ -323,7 +265,7 @@ DLiteInstance *dlite_instance_load(DLiteStorage *s, const char *id,
 int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
 {
   DLiteDataModel *d=NULL;
-  DLiteMeta *meta;
+  const DLiteMeta *meta;
   int j, max_pndims=0, retval=1;
   size_t i, *pdims, *dims;
 
@@ -338,24 +280,22 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   }
 
   for (i=0; i<meta->nproperties; i++) {
-    DLiteProperty *p = (DLiteProperty *)meta->properties[i];
+    DLiteProperty *p = (DLiteProperty *)meta->properties + i;
     if (p->ndims > max_pndims) max_pndims = p->ndims;
   }
   pdims = malloc(max_pndims * sizeof(size_t));
 
   for (i=0; i<meta->nproperties; i++) {
     const void *ptr;
-    DLiteProperty *p = (DLiteProperty *)inst->meta->properties[i];
+    DLiteProperty *p = (DLiteProperty *)inst->meta->properties + i;
     //if (meta->saveprop) {
     //  int stat = meta->saveprop(d, inst, p->name);
     //  if (stat < 0) FAIL2("error saving special property %s of metadata %s",
     //                      p->name, meta->uri);
     //  if (stat == 1) continue;
     //}
-    ptr = dlite_instance_get_property_by_index(inst, i);
     for (j=0; j<p->ndims; j++) pdims[j] = dims[p->dims[j]];
-    if (p->ndims > 0 && p->dims) ptr = *((void **)ptr);
-
+    ptr = dlite_instance_get_property_by_index(inst, i);
     if (dlite_datamodel_set_property(d, p->name, ptr, p->type, p->size,
 				     p->ndims, pdims)) goto fail;
   }
@@ -398,25 +338,31 @@ int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
   size_t *dimensions;
   if (!inst->meta)
     return errx(-1, "no metadata available");
-  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   if (i >= inst->meta->nproperties)
     return errx(-1, "no property with index %lu in %s", i, inst->meta->uri);
+  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   return dimensions[i];
 }
 
 
 /*
   Returns a pointer to data for property `i` or NULL on error.
+
+  The returned pointer points to the actual data and should not be
+  dereferred for arrays.
  */
-const void *dlite_instance_get_property_by_index(const DLiteInstance *inst,
-						 size_t i)
+void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i)
 {
+  void *ptr;
   if (!inst->meta)
     return errx(-1, "no metadata available"), NULL;
   if (i >= inst->meta->nproperties)
-    return errx(1, "no property with index %lu in %s",
-		i, inst->meta->uri), NULL;
-  return (char *)inst + inst->meta->propoffsets[i];
+    return errx(1, "index %lu exceeds number of properties (%lu) in %s",
+		i, inst->meta->nproperties, inst->meta->uri), NULL;
+  ptr = DLITE_PROP(inst, i);
+  if (inst->meta->properties[i].ndims > 0)
+    ptr = *(void **)ptr;
+  return ptr;
 }
 
 
@@ -427,32 +373,28 @@ const void *dlite_instance_get_property_by_index(const DLiteInstance *inst,
 int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
 					 const void *ptr)
 {
-  DLiteMeta *meta;
-  DLiteSchemaProperty *p;
-  size_t n, nmemb=1, *dims;
-  int j;
+  const DLiteMeta *meta = inst->meta;
+  DLiteProperty *p = meta->properties + i;
   void *dest;
-  if (!(meta =inst->meta))
-    return errx(-1, "no metadata available");
 
-  p = meta->properties[i];
-  dims = (size_t *)((char *)inst + meta->dimoffset);
-  dest = (void *)((char *)inst + meta->propoffsets[i]);
-
-  if (p->ndims > 0 && p->dims) dest = *((void **)dest);
-
-  if (p->dims)
+  if (p->ndims > 0) {
+    int j;
+    size_t n, nmemb=1;
+    size_t *dims = DLITE_DIMS(inst);
+    dest = *((void **)DLITE_PROP(inst, i));
     for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
-
-  if (p->type == dliteStringPtr) {
-    char **q=(char **)dest, **src = (char **)ptr;
-    for (n=0; n<nmemb; n++) {
-      size_t len = strlen(src[n]) + 1;
-      q[n] = realloc(q[n], len);
-      memcpy(q[n], src[n], len);
+    if (dlite_type_is_allocated(p->type)) {
+      for (n=0; n<nmemb; n++) {
+        void *v = (char *)ptr + n*p->size;
+        if (!dlite_type_copy((char *)dest + n*p->size,
+                             v, p->type, p->size)) return -1;
+      }
+    } else if (nmemb) {
+      memcpy(dest, ptr, nmemb*p->size);
     }
   } else {
-    memcpy(dest, ptr, nmemb*p->size);
+    dest = DLITE_PROP(inst, i);
+    if (!dlite_type_copy(dest, ptr, p->type, p->size)) return -1;
   }
   return 0;
 }
@@ -463,7 +405,7 @@ int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
 int dlite_instance_get_property_ndims_by_index(const DLiteInstance *inst,
 					       size_t i)
 {
-  const DLiteSchemaProperty *p;
+  const DLiteProperty *p;
   if (!inst->meta)
     return errx(-1, "no metadata available");
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
@@ -477,11 +419,11 @@ int dlite_instance_get_property_ndims_by_index(const DLiteInstance *inst,
 int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
 						 size_t i, size_t j)
 {
-  const DLiteSchemaProperty *p;
+  const DLiteProperty *p;
   size_t *dims;
   if (!inst->meta)
     return errx(-1, "no metadata available");
-  dims = (size_t *)((char *)inst + inst->meta->dimoffset);
+  dims = DLITE_DIMS(inst);
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
     return -1;
   if (j >= (size_t)p->ndims)
@@ -499,24 +441,23 @@ int dlite_instance_get_dimension_size(const DLiteInstance *inst,
   size_t *dimensions;
   if (!inst->meta)
     return errx(-1, "no metadata available");
-  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   if ((i = dlite_meta_get_dimension_index(inst->meta, name)) < 0) return -1;
   if (i >= (int)inst->meta->nproperties)
     return errx(-1, "no property with index %d in %s", i, inst->meta->uri);
+  dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   return dimensions[i];
 }
 
 /*
   Returns a pointer to data corresponding to `name` or NULL on error.
  */
-const void *dlite_instance_get_property(const DLiteInstance *inst,
-					const char *name)
+void *dlite_instance_get_property(const DLiteInstance *inst, const char *name)
 {
   int i;
   if (!inst->meta)
     return errx(-1, "no metadata available"), NULL;
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return NULL;
-  return (char *)inst + inst->meta->propoffsets[i];
+  return dlite_instance_get_property_by_index(inst, i);
 }
 
 /*
@@ -539,7 +480,7 @@ int dlite_instance_set_property(DLiteInstance *inst, const char *name,
 int dlite_instance_get_property_ndims(const DLiteInstance *inst,
 				      const char *name)
 {
-  const DLiteSchemaProperty *p;
+  const DLiteProperty *p;
   if (!inst->meta)
     return errx(-1, "no metadata available");
   if (!(p = dlite_meta_get_property(inst->meta, name)))
@@ -574,73 +515,30 @@ dlite_entity_create(const char *uri, const char *description,
 		    size_t nproperties, const DLiteProperty *properties)
 {
   DLiteEntity *entity=NULL;
-  char uuid[DLITE_UUID_LENGTH+1];
-  int uuid_version;
+  DLiteInstance *e;
+  char *name=NULL, *version=NULL, *namespace=NULL;
+  size_t dims[] = {ndimensions, nproperties};
 
-  if (!(entity = calloc(1, sizeof(DLiteEntity)))) FAIL("allocation error");
+  if (dlite_split_meta_uri(uri, &name, &version, &namespace)) goto fail;
+  if (!(e=dlite_instance_create((DLiteEntity *)dlite_EntitySchema, dims, uri)))
+    goto fail;
 
-  if ((uuid_version = dlite_get_uuid(uuid, uri)) < 0) goto fail;
-  memcpy(entity->uuid, uuid, sizeof(uuid));
-  if (uuid_version == 5) entity->uri = strdup(uri);
+  if (dlite_instance_set_property(e, "name", &name)) goto fail;
+  if (dlite_instance_set_property(e, "version", &version)) goto fail;
+  if (dlite_instance_set_property(e, "namespace", &namespace)) goto fail;
+  if (dlite_instance_set_property(e, "description", &description)) goto fail;
+  if (dlite_instance_set_property(e, "dimensions", dimensions)) goto fail;
+  if (dlite_instance_set_property(e, "properties", properties)) goto fail;
 
-  entity->meta = &schema_entity;
-  dlite_meta_incref(entity->meta);
+  if (dlite_meta_init((DLiteMeta *)e)) goto fail;
 
-  if (description) entity->description = strdup(description);
-
-  if (ndimensions) {
-    size_t i;
-    if (!(entity->dimensions = calloc(ndimensions, sizeof(DLiteDimension))))
-      FAIL("allocation error");
-    for (i=0; i<ndimensions; i++) {
-      entity->dimensions[i].name = strdup(dimensions[i].name);
-      entity->dimensions[i].description = strdup(dimensions[i].description);
-    }
-  }
-
-  if (nproperties) {
-    size_t i, propsize = nproperties * sizeof(DLiteProperty *);
-    if (!(entity->properties = malloc(propsize)))
-      FAIL("allocation error");
-    for (i=0; i<nproperties; i++) {
-      DLiteProperty *p;
-      const DLiteProperty *q = properties + i;
-      if (!(p = calloc(1, sizeof(DLiteProperty))))
-        FAIL("allocation error");
-      memcpy(p, q, sizeof(DLiteProperty));
-      if (!(p->name = strdup(q->name)))
-        FAIL("allocation error");
-      if (p->ndims) {
-        if (!(p->dims = malloc(p->ndims*sizeof(int))))
-          FAIL("allocation error");
-        memcpy(p->dims, properties[i].dims, p->ndims*sizeof(int));
-      } else {
-        p->dims = NULL;
-      }
-      if (q->description && !(p->description = strdup(q->description)))
-        FAIL("allocation error");
-      if (q->unit && !(p->unit = strdup(q->unit)))
-        FAIL("allocation error");
-      entity->properties[i] = (DLiteSchemaProperty *)p;
-    }
-  }
-  entity->ndimensions = ndimensions;
-  entity->nproperties = nproperties;
-
-  if (dlite_meta_postinit((DLiteMeta *)entity, 0)) goto fail;
-
-  /* Set refcount to 1, since we return a reference to `entity`.
-     Also increase the reference count to the meta-metadata. */
-  entity->refcount = 1;
-  dlite_meta_incref(entity->meta);
-
-  return entity;
+  entity = (DLiteEntity *)e;
  fail:
-  if (entity) {
-    dlite_entity_clear(entity);
-    free(entity);
-  }
-  return NULL;
+  if (name) free(name);
+  if (version) free(version);
+  if (namespace) free(namespace);
+  if (!entity) dlite_instance_decref(e);
+  return entity;
 }
 
 /*
@@ -657,29 +555,8 @@ void dlite_entity_incref(DLiteEntity *entity)
  */
 void dlite_entity_decref(DLiteEntity *entity)
 {
-  if (entity) {
-    if (--entity->refcount <= 0) {
-      if (entity->meta) dlite_meta_decref(entity->meta);
-      dlite_entity_clear(entity);
-      free(entity);
-    }
-  }
-}
-
-/*
-  Free's all memory used by `entity` and clear all data.
- */
-void dlite_entity_clear(DLiteEntity *entity)
-{
-  size_t i;
-  for (i=0; i<entity->nproperties; i++) {
-    DLiteProperty *p = (DLiteProperty *)entity->properties[i];
-    if (p->unit) {
-      free(p->unit);
-      p->unit = NULL;
-    }
-  }
-  dlite_meta_clear((DLiteMeta *)entity);
+  if (entity && --entity->refcount <= 0)
+    dlite_instance_free((DLiteInstance *)entity);
 }
 
 
@@ -692,7 +569,8 @@ void dlite_entity_clear(DLiteEntity *entity)
  */
 DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id)
 {
-  return s->api->getEntity(s, id);
+  return (DLiteEntity *)
+    dlite_instance_load(s, id, (DLiteEntity *)dlite_EntitySchema);
 }
 
 
@@ -701,11 +579,7 @@ DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id)
  */
 int dlite_entity_save(DLiteStorage *s, const DLiteEntity *e)
 {
-  if (!s->api->setEntity)
-    return errx(1, "driver '%s' does not support setEntity()",
-                s->api->name);
-
-  return s->api->setEntity(s, e);
+  return dlite_instance_save(s, (DLiteInstance *)e);
 }
 
 
@@ -718,7 +592,7 @@ dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i)
   if (i >= entity->nproperties)
     return errx(1, "no property with index %lu in %s", i , entity->meta->uri),
       NULL;
-  return (const DLiteProperty *)entity->properties[i];
+  return (const DLiteProperty *)entity->properties + i;
 }
 
 /*
@@ -730,7 +604,7 @@ const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
   int i;
   if ((i = dlite_meta_get_property_index((DLiteMeta *)entity, name)) < 0)
     return NULL;
-  return (const DLiteProperty *)entity->properties[i];
+  return (const DLiteProperty *)entity->properties + i;
 }
 
 
@@ -738,137 +612,123 @@ const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
  *  Meta data
  *
  *  These functions are mainly used internally or by code generators.
- *  Do not waist time on them...
+ *
  ********************************************************************/
 
 /*
-  Initialises internal data of `meta`.  This function should not be
-  called before the non-internal properties has been initialised.
-
-  The `ismeta` argument indicates whether the instance described by
-  `meta` is metadata itself.
+  Initialises internal data of `meta` describing its instances.
 
   Returns non-zero on error.
  */
-int dlite_meta_postinit(DLiteMeta *meta, bool ismeta)
+int dlite_meta_init(DLiteMeta *meta)
 {
-  size_t maxalign;     /* max alignment of any member */
-  int retval=1;
+  size_t i, size;
+  int idim_dim=-1, idim_prop=-1, idim_rel=-1;
+  int iprop_dim=-1, iprop_prop=-1, iprop_rel=-1;
+  int ismeta = dlite_meta_is_metameta(meta);
+  //size_t offset, *propoffsets;
 
-  assert(meta->meta);
+  /* Initiate meta-metadata */
+  if (!meta->meta->pooffset && dlite_meta_init((DLiteMeta *)meta->meta))
+    goto fail;
 
-  if (ismeta) {
-    /* Metadata
+  DEBUG("*** dlite_meta_init(%s)\n", meta->uri);
 
-       Since we hardcode `ndimensions`, `nproperties` and `nrelations` in
-       DLiteMeta_HEAD, there will allways be at least 3 dimensions... */
-    assert(meta->meta->ndimensions >= 3);
-    meta->size = sizeof(DLiteMeta) +
-      (meta->meta->ndimensions - 3)*sizeof(size_t);
-    meta->dimoffset = offsetof(DLiteMeta, dimensions);
-    meta->propoffsets = NULL;
-    meta->reloffset = offsetof(DLiteMeta, relations);
+  /* Assign: ndimensions, nproperties and nrelations */
+  for (i=0; i<meta->meta->ndimensions; i++) {
+    if (strcmp(meta->meta->dimensions[i].name, "ndimensions") == 0 ||
+	strcmp(meta->meta->dimensions[i].name, "n-dimensions") == 0)
+      idim_dim = i;
+    if (strcmp(meta->meta->dimensions[i].name, "nproperties") == 0 ||
+	strcmp(meta->meta->dimensions[i].name, "n-properties") == 0)
+      idim_prop = i;
+    if (strcmp(meta->meta->dimensions[i].name, "nrelations") == 0 ||
+	strcmp(meta->meta->dimensions[i].name, "n-relations") == 0)
+      idim_rel = i;
+  }
+  if (idim_dim < 0) return err(1, "dimensions are expected in metadata");
+  if (!meta->ndimensions && idim_dim >= 0)
+    meta->ndimensions = DLITE_DIM(meta, idim_dim);
+  if (!meta->nproperties && idim_prop >= 0)
+    meta->nproperties = DLITE_DIM(meta, idim_prop);
+  if (meta->nrelations && idim_rel >= 0)
+    meta->nrelations = DLITE_DIM(meta, idim_rel);
+
+  /* Assign pointers: dimensions, properties and relations */
+  for (i=0; i<meta->meta->nproperties; i++) {
+    if (strcmp(meta->meta->properties[i].name, "dimensions") == 0)
+      iprop_dim = i;
+    if (strcmp(meta->meta->properties[i].name, "properties") == 0)
+      iprop_prop = i;
+    if (strcmp(meta->meta->properties[i].name, "relations") == 0)
+      iprop_rel = i;
+  }
+  if (!meta->dimensions && meta->ndimensions && idim_dim >= 0)
+    meta->dimensions = *(void **)DLITE_PROP(meta, iprop_dim);
+  if (!meta->properties && meta->nproperties && idim_prop >= 0)
+    meta->properties = *(void **)DLITE_PROP(meta, iprop_prop);
+  if (!meta->relations && meta->nrelations && idim_rel >= 0)
+    meta->relations = *(void **)DLITE_PROP(meta, iprop_rel);
+
+  /* Assign headersize */
+  if (!meta->headersize)
+    meta->headersize = (ismeta) ? sizeof(DLiteMeta) : sizeof(DLiteInstance);
+  DEBUG("    headersize=%lu\n", meta->headersize);
+
+  /* Assign memory layout of instances */
+  size = meta->headersize;
+
+  /* -- dimension values (dimoffset) */
+  if (meta->ndimensions) {
+    size += padding_at(size_t, size);
+    meta->dimoffset = size;
+    size += meta->ndimensions * sizeof(size_t);
+  }
+  DEBUG("    dimoffset=%lu (+ %lu * %lu)\n",
+         meta->dimoffset, meta->ndimensions, sizeof(size_t));
+
+  /* -- property values (propoffsets[]) */
+  meta->propoffsets = (size_t *)((char *)meta + meta->meta->pooffset);
+  for (i=0; i<meta->nproperties; i++) {
+    DLiteProperty *p = meta->properties + i;
+    int padding;
+    if (p->ndims) {
+      padding = padding_at(void *, size);
+      size += padding;
+      meta->propoffsets[i] = size;
+      size += sizeof(void *);
+    } else {
+      padding = dlite_type_padding_at(p->type, p->size, size);
+      size += padding;
+      meta->propoffsets[i] = size;
+      size += p->size;
+    }
+    DEBUG("    propoffset[%lu]=%lu (pad=%d, type=%d size=%-2lu ndims=%d)"
+          " + %lu\n",
+          i, meta->propoffsets[i], padding, p->type, p->size, p->ndims,
+          (p->ndims) ? sizeof(size_t *) : p->size);
+  }
+  /* -- relation values (reloffset) */
+  if (meta->nrelations) {
+    size += padding_at(void *, size);
+    meta->reloffset = size;
+    size += meta->nrelations * sizeof(void *);
   } else {
-    /* Instance */
-    DLiteType proptype;
-    size_t i, align, propsize, padding, offset, size;
-
-    if (!(meta->propoffsets = calloc(meta->nproperties, sizeof(size_t))))
-      FAIL("allocation failure");
-
-    /* -- header */
-    offset = offsetof(DLiteInstance, meta);
-    size = sizeof(DLiteMeta *);
-    if (!(maxalign = dlite_type_get_alignment(dliteStringPtr, sizeof(char *))))
-      goto fail;
-
-    /* -- dimensions */
-    for (i=0; i<meta->ndimensions; i++) {
-      offset = dlite_type_get_member_offset(offset, size,
-					    dliteInt, sizeof(size_t));
-      size = sizeof(int);
-      if (i == 0) meta->dimoffset = offset;
-    }
-    if (meta->ndimensions &&
-	(align = dlite_type_get_alignment(dliteUInt,
-					  sizeof(size_t))) > maxalign)
-      maxalign = align;
-
-    /* -- properties */
-    for (i=0; i<meta->nproperties; i++) {
-      DLiteSchemaProperty *p = *(meta->properties + i);
-      if (p->ndims > 0 && p->dims) {
-	proptype = dliteBlob;       /* pointer */
-	propsize = sizeof(void *);
-      } else {
-	proptype = p->type;
-	propsize = p->size;
-      }
-      offset = dlite_type_get_member_offset(offset, size, proptype, propsize);
-      size = propsize;
-      meta->propoffsets[i] = offset;
-
-      if ((align = dlite_type_get_alignment(proptype, propsize)) > maxalign)
-	maxalign = align;
-    }
-
-    /* -- relations */
-    for (i=0; i<meta->nrelations; i++) {
-      offset = dlite_type_get_member_offset(offset, size, dliteStringPtr,
-					    sizeof(DLiteRelation *));
-      size = sizeof(DLiteRelation *);
-    }
-    meta->reloffset = offset;
-
-    offset += size;
-    padding = (maxalign - (offset & (maxalign - 1))) & (maxalign - 1);
-    meta->size = offset + padding;
+    meta->reloffset = size;
   }
+  DEBUG("    reloffset=%lu (+ %lu * %lu)\n",
+        meta->reloffset, meta->nrelations, sizeof(size_t));
 
-  retval = 0;
+  /* -- array of property offsets (pooffset) */
+  size += padding_at(size_t, size);
+  meta->pooffset = size;
+  DEBUG("    pooffset=%lu\n", meta->pooffset);
+
+  return 0;
  fail:
-  return retval;
+  return 1;
 }
 
-
-/*
-  Free's all memory used by `meta` and clear all data.
- */
-void dlite_meta_clear(DLiteMeta *meta)
-{
-  size_t i;
-  if (meta->uri) free((char *)meta->uri);
-  if (meta->description) free((char *)meta->description);
-
-  if (meta->propoffsets) free(meta->propoffsets);
-
-  if (meta->dimensions) {
-    for (i=0; i<meta->ndimensions; i++) {
-      DLiteSchemaDimension *d = meta->dimensions + i;
-      if (d) {
-        if (d->name) free(d->name);
-        if (d->description) free(d->description);
-      }
-    }
-    free(meta->dimensions);
-  }
-
-  if (meta->properties) {
-    for (i=0; i<meta->nproperties; i++) {
-      DLiteSchemaProperty *p = meta->properties[i];
-      if (p) {
-        if (p->name) free(p->name);
-        if (p->dims) free(p->dims);
-        if (p->description) free(p->description);
-        free(p);
-      }
-    }
-    free(meta->properties);
-  }
-  if (meta->relations) free(meta->relations);
-
-  memset(meta, 0, sizeof(DLiteMeta));
-}
 
 /*
   Increase reference count to metadata.
@@ -886,9 +746,8 @@ void dlite_meta_decref(DLiteMeta *meta)
 {
   if (meta) {
     if (--meta->refcount <= 0) {
-      if (meta->meta) dlite_meta_decref(meta->meta);  /* decrease refcount */
-      dlite_meta_clear(meta);
-      free(meta);
+      if (meta->meta) dlite_meta_decref((DLiteMeta *)meta->meta);
+      dlite_instance_free((DLiteInstance *)meta);
     }
   }
 }
@@ -901,8 +760,8 @@ int dlite_meta_get_dimension_index(const DLiteMeta *meta, const char *name)
 {
   size_t i;
   for (i=0; i<meta->ndimensions; i++) {
-    DLiteSchemaDimension *p = meta->dimensions + i;
-    if (strcmp(name, p->name) == 0) return i;
+    DLiteDimension *d = meta->dimensions + i;
+    if (strcmp(name, d->name) == 0) return i;
   }
   return err(-1, "%s has no such dimension: '%s'", meta->uri, name);
 }
@@ -915,7 +774,7 @@ int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name)
 {
   size_t i;
   for (i=0; i<meta->nproperties; i++) {
-    DLiteSchemaProperty *p = meta->properties[i];
+    DLiteProperty *p = meta->properties + i;
     if (strcmp(name, p->name) == 0) return i;
   }
   return err(-1, "%s has no such property: '%s'", meta->uri, name);
@@ -923,22 +782,123 @@ int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name)
 
 
 /*
-  Returns a pointer to property with index \a i or NULL on error.
+  Returns a pointer to dimension with index `i` or NULL on error.
  */
-const DLiteSchemaProperty *
-dlite_meta_get_property_by_index(const DLiteMeta *meta, size_t i)
+const DLiteDimension *
+dlite_meta_get_dimension_by_index(const DLiteMeta *meta, size_t i)
 {
-  return meta->properties[i];
+  return meta->dimensions + i;
+}
+
+/*
+  Returns a pointer to dimension named `name` or NULL on error.
+ */
+const DLiteDimension *dlite_meta_get_dimension(const DLiteMeta *meta,
+                                              const char *name)
+{
+  int i;
+  if ((i = dlite_meta_get_dimension_index(meta, name)) < 0) return NULL;
+  return meta->dimensions + i;
 }
 
 
 /*
+  Returns a pointer to property with index \a i or NULL on error.
+ */
+const DLiteProperty *
+dlite_meta_get_property_by_index(const DLiteMeta *meta, size_t i)
+{
+  return meta->properties + i;
+}
+
+/*
   Returns a pointer to property named `name` or NULL on error.
  */
-const DLiteSchemaProperty *dlite_meta_get_property(const DLiteMeta *meta,
+const DLiteProperty *dlite_meta_get_property(const DLiteMeta *meta,
 						   const char *name)
 {
   int i;
   if ((i = dlite_meta_get_property_index(meta, name)) < 0) return NULL;
-  return meta->properties[i];
+  return meta->properties + i;
+}
+
+
+/*
+  Returns non-zero if `meta` is meta-metadata (i.e. its instances are
+  metadata).
+
+  @note If `meta` contains either a "properties" property (of type
+  DLiteProperty) or a "relations" property (of type DLiteRelation) in
+  addition to a "dimensions" property (of type DLiteDimension), then
+  it is able to describe metadata and is considered to be meta-metadata.
+  Otherwise it is not.
+*/
+int dlite_meta_is_metameta(const DLiteMeta *meta)
+{
+  int has_dimensions=0, has_properties=0;
+  size_t i;
+  for (i=0; i<meta->nproperties; i++) {
+    DLiteProperty *p = meta->properties + i;
+    if (p->type == dliteDimension &&
+        (strcmp(p->name, "schema_dimensions") == 0 ||
+         strcmp(p->name, "dimensions") == 0)) has_dimensions = 1;
+    if (p->type == dliteProperty &&
+        (strcmp(p->name, "schema_properties") == 0 ||
+         strcmp(p->name, "properties") == 0)) has_properties = 1;
+  }
+  if (has_dimensions && has_properties) return 1;
+  return 0;
+}
+
+
+
+
+/********************************************************************
+ *  Metadata cache
+ ********************************************************************/
+
+static DLiteStore *_metastore = NULL;
+
+static void metastore_create()
+{
+  if (!_metastore) {
+    _metastore = dlite_store_create();
+    atexit(dlite_metastore_free);
+  dlite_metastore_add(dlite_BasicMetadataSchema);
+  dlite_metastore_add(dlite_EntitySchema);
+  dlite_metastore_add(dlite_CollectionSchema);
+  }
+}
+
+/* Frees up a global metadata store.  Will be called at program exit,
+   but can be called at any time. */
+void dlite_metastore_free()
+{
+  if (_metastore) dlite_store_free(_metastore);
+  _metastore = NULL;
+}
+
+/* Returns pointer to metadata for id `id` or NULL if `id` cannot be found. */
+DLiteMeta *dlite_metastore_get(const char *id)
+{
+  if (!_metastore) metastore_create();
+  assert(_metastore);
+  return (DLiteMeta *)dlite_store_get(_metastore, id);
+}
+
+/* Adds metadata to global metadata store, giving away the ownership
+   of `meta` to the store.  Returns non-zero on error. */
+int dlite_metastore_add_new(const DLiteMeta *meta)
+{
+  if (!_metastore) metastore_create();
+  assert(_metastore);
+  return dlite_store_add_new(_metastore, (DLiteInstance *)meta);
+}
+
+/* Adds metadata to global metadata store.  The caller keeps ownership
+   of `meta`.  Returns non-zero on error. */
+int dlite_metastore_add(const DLiteMeta *meta)
+{
+  dlite_instance_incref((DLiteInstance *)meta);
+  return dlite_metastore_add_new(meta);
 }

@@ -560,7 +560,7 @@ char *dh5_get_meta_uri(const DLiteDataModel *d)
 /**
   Returns the size of dimension `name` or 0 on error.
  */
-size_t dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
+int dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   int dimsize;

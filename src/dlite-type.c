@@ -5,13 +5,10 @@
 #include "err.h"
 #include "integers.h"
 #include "floats.h"
-#include "triplestore-private.h"
+#include "triplestore.h"
 #include "dlite-entity.h"
 #include "dlite-type.h"
 
-
-/* Expands to the struct alignment of type */
-#define alignof(type) ((size_t)&((struct { char c; type d; } *)0)->d)
 
 
 /* Name DLite types */
@@ -23,10 +20,10 @@ static char *dtype_names[] = {
   "float",
   "fixstring",
   "string",
-  "triplet",
+
   "dimension",
-  "baseproperty",
   "property",
+  "relation",
 };
 
 /* Name of fix-sized types (does not include dliteBlob and dliteFixString) */
@@ -49,6 +46,7 @@ static struct _TypeDescr {
   {"uint64",   dliteUInt,      8,                     alignof(uint64_t)},
   {"float",    dliteFloat,     sizeof(float),         alignof(float)},
   {"double",   dliteFloat,     sizeof(double),        alignof(double)},
+  {"longdouble",dliteFloat,    sizeof(long double),   alignof(long double)},
   {"float32",  dliteFloat,     4,                     alignof(float32_t)},
   {"float64",  dliteFloat,     8,                     alignof(float64_t)},
 #ifdef HAVE_FLOAT80
@@ -58,7 +56,11 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
+
+  {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
+  {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
   {"relation", dliteRelation,  sizeof(DLiteRelation), alignof(DLiteRelation)},
+
   {NULL,       0,              0,                     0}
 };
 
@@ -98,33 +100,109 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return err(1, "bool should have size %lu, but %lu was provided",
+      return errx(1, "bool should have size %lu, but %lu was provided",
                  sizeof(bool), size);
     snprintf(typename, n, "bool");
     break;
   case dliteInt:
-    snprintf(typename, n, "int%lu", size);
+    snprintf(typename, n, "int%lu", size*8);
     break;
   case dliteUInt:
-    snprintf(typename, n, "uint%lu", size);
+    snprintf(typename, n, "uint%lu", size*8);
     break;
   case dliteFloat:
-    snprintf(typename, n, "float%lu", size);
+    snprintf(typename, n, "float%lu", size*8);
     break;
   case dliteFixString:
     snprintf(typename, n, "string%lu", size);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return err(1, "string should have size %lu, but %lu was provided",
+      return errx(1, "string should have size %lu, but %lu was provided",
                  sizeof(char *), size);
     snprintf(typename, n, "string");
     break;
   default:
-    return err(1, "unknown dtype number: %d", dtype);
+    return errx(1, "unknown dtype number: %d", dtype);
   }
   return 0;
 }
+
+/*
+  Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
+  The size of the memory pointed to by `cdecl` must be at least `n` bytes.
+
+  `name` is the name of the C variable.
+
+  `nref` is the number of extra * to add in front of `name`.
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
+                         size_t nref, char *cdecl, size_t n)
+{
+  int m;
+  char ref[32];
+
+  if (nref >= sizeof(ref))
+    return errx(-1, "too many dereferences to write: %lu", nref);
+  memset(ref, '*', sizeof(ref));
+  ref[nref] = '\0';
+
+  switch (dtype) {
+  case dliteBlob:
+    m = snprintf(cdecl, n, "uint8_t %s%s[%lu]", ref, name, size);
+    break;
+  case dliteBool:
+    if (size != sizeof(bool))
+      return errx(-1, "bool should have size %lu, but %lu was provided",
+                 sizeof(bool), size);
+    m = snprintf(cdecl, n, "bool %s%s", ref, name);
+    break;
+  case dliteInt:
+    m = snprintf(cdecl, n, "int%lu_t %s%s", size*8, ref, name);
+    break;
+  case dliteUInt:
+    m = snprintf(cdecl, n, "uint%lu_t %s%s", size*8, ref, name);
+    break;
+  case dliteFloat:
+    m = snprintf(cdecl, n, "float%lu_t %s%s", size*8, ref, name);
+    break;
+  case dliteFixString:
+    m = snprintf(cdecl, n, "char %s%s[%lu]", ref, name, size);
+    break;
+  case dliteStringPtr:
+    if (size != sizeof(char *))
+      return errx(-1, "string should have size %lu, but %lu was provided",
+                 sizeof(char *), size);
+    m = snprintf(cdecl, n, "char *%s%s", ref, name);
+    break;
+  case dliteDimension:
+    if (size != sizeof(DLiteDimension))
+      return errx(-1, "DLiteDimension must have size %lu, got %lu",
+                  sizeof(DLiteDimension), size);
+    m = snprintf(cdecl, n, "DLiteDimension %s%s", ref, name);
+    break;
+  case dliteProperty:
+    if (size != sizeof(DLiteProperty))
+      return errx(-1, "DLiteProperty must have size %lu, got %lu",
+                  sizeof(DLiteProperty), size);
+    m = snprintf(cdecl, n, "DLiteProperty %s%s", ref, name);
+    break;
+  case dliteRelation:
+    if (size != sizeof(DLiteRelation))
+      return errx(-1, "DLiteRelation must have size %lu, got %lu",
+                  sizeof(DLiteRelation), size);
+    m = snprintf(cdecl, n, "DLiteRelation %s%s", ref, name);
+    break;
+  default:
+    return errx(-1, "unknown dtype number: %d", dtype);
+  }
+  if (m < 0)
+    return err(-1, "error writing C declaration for dtype %d", dtype);
+  return m;
+}
+
 
 /* Return true if name is a DLiteType, otherwise false. */
 bool dlite_is_type(const char *name)
@@ -170,6 +248,131 @@ int dlite_type_set_dtype_and_size(const char *typename,
   return 0;
 }
 
+/*
+  Returns non-zero id `dtype` contains allocated data, like dliteStringPtr.
+ */
+int dlite_type_is_allocated(DLiteType dtype)
+{
+  switch (dtype) {
+  case dliteBlob:
+  case dliteBool:
+  case dliteInt:
+  case dliteUInt:
+  case dliteFloat:
+  case dliteFixString:
+    return 0;
+  case dliteStringPtr:
+  case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
+    return 1;
+  }
+  abort();  /* should never be reached */
+}
+
+/*
+  Copies value of given dtype from `src` to `dest`.  If the dtype contains
+  allocated data, new memory will be allocated for `dest`.
+
+  Returns a pointer to the memory area `dest` or NULL on error.
+*/
+void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
+{
+  switch (dtype) {
+  case dliteBlob:
+  case dliteBool:
+  case dliteInt:
+  case dliteUInt:
+  case dliteFloat:
+  case dliteFixString:
+    memcpy(dest, src, size);
+    break;
+  case dliteStringPtr:
+    {
+      char *s = *((char **)src);
+      size_t len = strlen(s) + 1;
+      *((void **)dest) = realloc(*((void **)dest), len);
+      memcpy(*((void **)dest), s, len);
+    }
+    break;
+  case dliteDimension:
+    {
+      DLiteDimension *d=dest;
+      const DLiteDimension *s=src;
+      d->name = strdup(s->name);
+      d->description = strdup(s->description);
+    }
+    break;
+  case dliteProperty:
+    {
+      DLiteProperty *d=dest;
+      const DLiteProperty *s=src;
+      d->name = strdup(s->name);
+      d->type = s->type;
+      d->size = s->size;
+      d->ndims = s->ndims;
+      if (d->ndims) {
+        d->dims = malloc(d->ndims*sizeof(int));
+        memcpy(d->dims, s->dims, d->ndims*sizeof(int));
+      } else
+        d->dims = NULL;
+      d->unit = (s->unit) ? strdup(s->unit) : NULL;
+      d->description = (s->description) ? strdup(s->description) : NULL;
+    }
+    break;
+  case dliteRelation:
+    {
+      DLiteRelation *d=dest;
+      const DLiteRelation *s=src;
+      d->s = strdup(s->s);
+      d->p = strdup(s->p);
+      d->o = strdup(s->o);
+      d->uri = (s->uri) ? strdup(s->uri) : NULL;
+    }
+    break;
+  }
+  return dest;
+}
+
+/*
+  Clears the memory pointed to by `p`.  Its type is gived by `dtype` and `size`.
+
+  Returns a pointer to the memory area `p` or NULL on error.
+*/
+void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
+{
+  switch (dtype) {
+  case dliteBlob:
+  case dliteBool:
+  case dliteInt:
+  case dliteUInt:
+  case dliteFloat:
+  case dliteFixString:
+    break;
+  case dliteStringPtr:
+    free(*((char **)p));
+    break;
+  case dliteDimension:
+    free(((DLiteDimension *)p)->name);
+    free(((DLiteDimension *)p)->description);
+    break;
+  case dliteProperty:
+    free(((DLiteProperty *)p)->name);
+    if (((DLiteProperty *)p)->dims) free(((DLiteProperty *)p)->dims);
+    if (((DLiteProperty *)p)->unit) free(((DLiteProperty *)p)->unit);
+    if (((DLiteProperty *)p)->description)
+      free(((DLiteProperty *)p)->description);
+    break;
+  case dliteRelation:
+    free(((DLiteRelation *)p)->s);
+    free(((DLiteRelation *)p)->p);
+    free(((DLiteRelation *)p)->o);
+    if (((DLiteRelation *)p)->uri) free(((DLiteRelation *)p)->uri);
+    break;
+  }
+  return memset(p, 0, size);
+}
+
 
 /*
   Returns the struct alignment of the given type or 0 on error.
@@ -185,12 +388,25 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
   default:              return err(0, "cannot determine alignment of "
-                                   "dtype=%d, size=%lu", dtype, size);
+                                   "dtype='%s' (%d), size=%lu",
+                                   dlite_type_get_dtypename(dtype), dtype,
+                                   size);
   }
 }
 
+/*
+  Returns the amount of padding that should be added before `type`,
+  if `type` (of size `size`) is to be added to a struct at offset `offset`.
+*/
+size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset)
+{
+  size_t align = dlite_type_get_alignment(dtype, size);
+  assert(align);
+  return (align - (offset & (align - 1))) & (align - 1);
+}
 
-/**
+
+/*
   Returns the offset the current struct member with dtype \a dtype and
   size \a size.  The offset of the previous struct member is \a prev_offset
   and its size is \a prev_size.
@@ -206,25 +422,3 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
   padding = (align - (offset & (align - 1))) & (align - 1);
   return offset + padding;
 }
-
-
-#if 0
-/*
-  Returns the offset the next struct member with dtype `dtype` and
-  size `size`.  `ptr` should point to the current member which has
-  size `cursize`.
-
-  Returns -1 on error.
- */
-int dlite_type_get_member_offset(const void *cur, size_t cursize,
-                                 DLiteType dtype, size_t size)
-{
-  size_t align = dlite_type_get_alignment(dtype, size);
-  const unsigned char *p = (unsigned char *)cur + cursize;
-  size_t padding = (align - ((size_t)p & (align - 1))) & (align - 1);
-  if (align == 0)
-    return -1;
-  else
-    return cursize + padding;
-}
-#endif

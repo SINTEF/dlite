@@ -33,6 +33,11 @@
 # define __attribute__(x)
 #endif
 
+
+/* Language/preprocessor features */
+#cmakedefine HAVE_VA_ARGS
+
+
 /* Whether functions exists. If not, they are defined in compat.c */
 #cmakedefine HAVE_STRDUP
 #cmakedefine HAVE__STRDUP
@@ -44,6 +49,7 @@
 #cmakedefine HAVE__STRNICMP
 
 #cmakedefine HAVE_QSORT
+
 
 
 #endif /* _CONFIG_H */

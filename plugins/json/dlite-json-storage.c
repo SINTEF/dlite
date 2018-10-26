@@ -12,9 +12,11 @@
 #include "config.h"
 
 #include "boolean.h"
+#include "strtob.h"
 #include "err.h"
 
 #include "dlite-utils.h"
+#include "dlite-schemas.h"
 
 /*
 */
@@ -58,13 +60,20 @@
 
 
 
+/* How the json-data is organised */
+typedef enum {
+  fmtNormal,      /* normal data */
+  fmtMeta,        /* metadata who's instances are normal data */
+  fmtSchema       /* schemas or meta-metadata */
+} DataFormat;
+
 /* Storage for json backend. */
 typedef struct {
   DLiteStorage_HEAD
   json_t *root;       /* json root object */
   int compact;        /* whether to write output in compact format */
+  DataFormat fmt;     /* layout of json-data */
 } DLiteJsonStorage;
-
 
 /* Data model for json backend. */
 typedef struct {
@@ -73,6 +82,8 @@ typedef struct {
   json_t *meta;         /* json object to metadata, borrowed reference */
   json_t *dimensions;   /* json object to dimensions, borrowed reference */
   json_t *properties;   /* json object to properties, borrowed reference */
+  json_t *relations;    /* json object to relations, borrowed reference */
+  DataFormat fmt;       /* layout of json-data */
 } DLiteJsonDataModel;
 
 
@@ -133,14 +144,17 @@ void object_set_real(json_t *obj, const char *key, const double val)
 /**
   Returns an url to the metadata.
 
-  Valid \a options are:
+  Valid `options` are:
 
-    - rw   Read and write: open existing file or create new file (default)
-    - r    Read-only: open existing file for read-only
-    - a    Append: open existing file for read and write
-    - w    Write: truncate existing file or create new file
-    - c    Whether to write output in compact format
-
+  - mode : append | r | w
+      Valid values are:
+      - append   Append to existing file or create new file (default)
+      - r        Open existing file for read-only
+      - w        Truncate existing file or create new file
+  - compact : yes | no
+      Whether to write output in compact format
+  - meta : yes | no
+      Whether to format output as metadata
  */
 DLiteStorage *dlite_json_open(const char *uri, const char *options)
 {
@@ -148,26 +162,49 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   DLiteStorage *retval=NULL;
   json_error_t error;
   size_t n;
+  DLiteOpt opts[] = {
+    {'m', "mode", "append"},
+    {'c', "compact", "false"},
+    {'M', "meta", "false"},
+    {0, NULL, NULL}
+  };
+  char *optcopy = (options) ? strdup(options) : NULL;
+  const char **mode = &opts[0].value;
+  int meta;
 
   if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL0("allocation failure");
 
-  if (!options || !options[0] || strcmp(options, "rw") == 0) { /* default */
-    s->root = json_load_file(uri, 0, &error);
+  /* parse options */
+  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
+  if (strcmp(*mode, "append") == 0) {  /* default */
+    FILE *fp;
+    if ((fp = fopen(uri, "r"))) {  /* `uri` exists */
+      fclose(fp);
+      s->root = json_load_file(uri, 0, &error);
+    } else {  /* `uri` doesn't exists */
+      s->root = json_object();
+    }
     s->writable = 1;
-  } else if (strcmp(options, "r") == 0) {
+  } else if (strcmp(*mode, "r") == 0) {
     s->root = json_load_file(uri, 0, &error);
     s->writable = 0;
-  } else if (strcmp(options, "a") == 0) {
-    s->root = json_load_file(uri, 0, &error);
-    s->writable = 1;
-  } else if (strcmp(options, "w") == 0) {
+  } else if (strcmp(*mode, "w") == 0) {
     s->root = json_object();
     s->writable = 1;
-  } else if (strchr(options, 'c')) {
-    s->compact = 1;
   } else {
-    FAIL1("invalid options '%s', must be 'rw' (read and write), "
-          "'r' (read-only), 'w' (write) or 'a' (append)", options);
+    FAIL1("invalid \"mode\" value: '%s'. Must be \"append\", \"r\" "
+          "(read-only) or \"w\" (write)", *mode);
+  }
+
+  if ((s->compact = atob(opts[1].value)) == -1)
+    errx(1, "invalid boolean value: '%s'.  Assuming true.", opts[1].value);
+
+  if ((meta = atob(opts[2].value)) == 0)
+    s->fmt = fmtNormal;
+  else {
+    s->fmt = fmtMeta;
+    if (meta < 0)
+      errx(1, "invalid boolean value: '%s'.  Assuming true.", opts[2].value);
   }
 
   if (s->root == NULL) {
@@ -184,6 +221,7 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   retval = (DLiteStorage *)s;
 
  fail:
+  if (optcopy) free(optcopy);
   if (!retval && s) {
     if (s->root) json_decref(s->root);
     free(s);
@@ -207,6 +245,14 @@ int dlite_json_close(DLiteStorage *s)
   return nerr;
 }
 
+/**
+  Creates a new datamodel for json storage `s`.
+
+  If `id` exists in the root of `s`, the datamodel should describe the
+  corresponding instance.
+
+  Returns the new datamodel or NULL on error.
+*/
 DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
 {
   DLiteJsonDataModel *d=NULL;
@@ -230,6 +276,29 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->meta = json_object_get(data, "meta");
     d->dimensions = json_object_get(data, "dimensions");
     d->properties = json_object_get(data, "properties");
+    d->relations = json_object_get(data, "relations");
+
+  } else if (json_object_get(storage->root, "namespace") &&
+             json_object_get(storage->root, "version") &&
+             json_object_get(storage->root, "name")) {
+    /* Instance is a metadata definition */
+    data = storage->root;
+    d->instance = data;
+    if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtMeta;
+    d->dimensions = json_object_get(data, "dimensions");
+    d->properties = json_object_get(data, "properties");
+    d->relations = json_object_get(data, "relations");
+
+  } else if (json_object_get(storage->root, "schema_namespace") &&
+             json_object_get(storage->root, "schema_version") &&
+             json_object_get(storage->root, "schema_name")) {
+    /* Instance is a meta-metadata definition (schema) */
+    data = storage->root;
+    d->instance = data;
+    if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtSchema;
+    d->dimensions = json_object_get(data, "schema_dimensions");
+    d->properties = json_object_get(data, "schema_properties");
+    d->relations = json_object_get(data, "schema_relations");
 
   } else {
     /* Instance `uuid` does not exists - create new instance and
@@ -237,14 +306,25 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     if (!storage->writable)
       FAIL2("cannot create new instance '%s' in read-only storage %s",
             uuid, storage->uri);
-    d->instance = json_object();
-    json_object_set_new(storage->root, uuid, d->instance);
-    d->meta = json_object();
-    json_object_set_new(d->instance, "meta", d->meta);
-    d->dimensions = json_object();
-    json_object_set_new(d->instance, "dimensions", d->dimensions);
-    d->properties = json_object();
-    json_object_set_new(d->instance, "properties", d->properties);
+    d->fmt = storage->fmt;
+    switch (d->fmt) {
+    case fmtNormal:
+      d->instance = json_object();
+      json_object_set_new(storage->root, uuid, d->instance);
+      d->meta = json_object();
+      json_object_set_new(d->instance, "meta", d->meta);
+      d->dimensions = json_object();
+      json_object_set_new(d->instance, "dimensions", d->dimensions);
+      d->properties = json_object();
+      json_object_set_new(d->instance, "properties", d->properties);
+      //d->relations = json_object();
+      //json_object_set_new(d->instance, "relations", d->properties);
+      break;
+    case fmtMeta:
+    case fmtSchema:
+      d->instance = d->properties = storage->root;
+      break;
+    }
   }
 
   retval = (DLiteDataModel *)d;
@@ -279,6 +359,15 @@ char *dlite_json_get_metadata(const DLiteDataModel *d)
   const char *version=NULL;
   const char *space=NULL;
 
+  if (!data->meta) {
+    switch (data->fmt) {
+    case fmtMeta:     return strdup(DLITE_ENTITY_SCHEMA);
+    case fmtSchema:   return strdup(DLITE_BASIC_METADATA_SCHEMA);
+    default:
+      return err(1, "unexpected json format number %d", data->fmt), NULL;
+    }
+  }
+
   name = object_get_string(data->meta, "name");
   version = object_get_string(data->meta, "version");
   space = object_get_string(data->meta, "namespace");
@@ -289,17 +378,39 @@ char *dlite_json_get_metadata(const DLiteDataModel *d)
 /**
   Returns the size of dimension `name` or -1 on error.
  */
-size_t dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
+int dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
-  return (size_t)object_get_integer(data->dimensions, name);
+  json_t *value;
+  switch (data->fmt) {
+  case fmtNormal:
+    if (!(value = json_object_get(data->dimensions, name)))
+      return err(-1, "no dimension named '%s'", name);
+    if (!json_is_integer(value))
+      return err(-1, "value of dimension '%s' is not an integer", name);
+    return json_integer_value(value);
+
+  case fmtMeta:
+  case fmtSchema:
+    if (strcmp(name, "ndimensions") == 0)
+      return json_array_size(data->dimensions);
+    else if (strcmp(name, "nproperties") == 0)
+      return json_array_size(data->properties);
+    else if (strcmp(name, "nrelations") == 0)
+      return json_array_size(data->relations);
+    else
+      return err(-1, "expedted metadata dimension names are 'ndimensions', "
+                 "'nproperties' or 'nrelations'; got '%s'", name);
+  }
+  assert(0);  /* never reached */
 }
 
 
 /* Recursive help function for handling n-dimensioal arrays */
 static int getdim(size_t d, const json_t *arr, void **pptr,
                   DLiteType type, size_t size,
-                  size_t ndims, const size_t *dims)
+                  size_t ndims, const size_t *dims,
+                  json_t *root)
 {
   size_t i;
   if (d < ndims) {
@@ -308,10 +419,10 @@ static int getdim(size_t d, const json_t *arr, void **pptr,
                   d, json_array_size(arr), dims[d]);
     for (i=0; i<dims[d]; i++) {
       const json_t *a = json_array_get(arr, i);
-      if (getdim(d+1, a, pptr, type, size, ndims, dims)) return 1;
+      if (getdim(d+1, a, pptr, type, size, ndims, dims, root)) return 1;
     }
   } else {
-    if (dlite_json_get_value(*pptr, arr, type, size)) return 1;
+    if (dlite_json_get_value(*pptr, arr, type, size, root)) return 1;
     *((char **)pptr) += size;
   }
   return 0;
@@ -329,13 +440,24 @@ int dlite_json_get_property(const DLiteDataModel *d, const char *name,
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   json_t *value;
 
-  if (!(value = json_object_get(data->properties, name)))
-    return errx(1, "no such key in json data: %s", name);
+  switch (data->fmt) {
+  case fmtNormal:
+    if (!(value = json_object_get(data->properties, name)))
+      return errx(1, "no such key in json data: %s", name);
+    break;
+  case fmtMeta:
+  case fmtSchema:
+    if (!(value = json_object_get(data->instance, name)))
+      return errx(1, "no such key in json data: %s", name);
+    break;
+  }
 
   if (ndims) {
-    if (getdim(0, value, &ptr, type, size, ndims, dims)) return 1;
+    if (getdim(0, value, &ptr, type, size, ndims, dims, data->instance))
+      return 1;
   } else {
-    if (dlite_json_get_value(ptr, value, type, size)) return 1;
+    if (dlite_json_get_value(ptr, value, type, size, data->instance))
+      return 1;
   }
 
   return 0;
@@ -384,19 +506,23 @@ int dlite_json_set_dimension_size(DLiteDataModel *d, const char *name, size_t si
 */
 static json_t *setdim(size_t d, void **pptr,
                       DLiteType type, size_t size,
-                      size_t ndims, const size_t *dims)
+                      size_t ndims, const size_t *dims,
+                      json_t *root)
 {
   int i;
   json_t *item;
   if (d < ndims) {
     json_t *arr = json_array();
+    //printf("*** setdim(d=%d, type=%d, size=%lu, ndims=%lu)\n",
+    //       d, type, size, ndims);
     for (i=0; i<(int)dims[d]; i++) {
-      if (!(item = setdim(d + 1, pptr, type, size, ndims, dims))) return NULL;
+      if (!(item = setdim(d + 1, pptr, type, size, ndims, dims, root)))
+        return NULL;
       json_array_append_new(arr, item);
     }
     return arr;
   }  else {
-    item = dlite_json_set_value(*pptr, type, size);
+    item = dlite_json_set_value(*pptr, type, size, root);
     *((char **)pptr) += size;
     return item;
   }
@@ -416,10 +542,15 @@ int dlite_json_set_property(DLiteDataModel *d, const char *name,
   DLiteJsonDataModel *datamodel = (DLiteJsonDataModel *)d;
   json_t *item;
   if (ndims) {
-    if (!(item = setdim(0, (void **)&ptr, type, size, ndims, dims))) return 1;
+    if (!(item = setdim(0, (void **)&ptr, type, size, ndims, dims,
+                        datamodel->instance))) {
+      return 1;
+    }
     json_object_set_new(datamodel->properties, name, item);
   } else {
-    if (!(item = dlite_json_set_value(ptr, type, size))) return 1;
+    if (!(item = dlite_json_set_value(ptr, type, size, datamodel->instance))) {
+      return 1;
+    }
     json_object_set_new(datamodel->properties, name, item);
   }
   return 0;

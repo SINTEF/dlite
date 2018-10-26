@@ -5,13 +5,10 @@
 
 #include "compat.h"
 #include "dlite.h"
+#include "dlite-macros.h"
 #include "dlite-datamodel.h"
 #include "err.h"
 
-
-/* Convenient macros for failing */
-#define FAIL(msg) do { err(1, msg); goto fail; } while (0)
-#define FAIL1(msg, a1) do { err(1, msg, a1); goto fail; } while (0)
 
 
 
@@ -106,7 +103,7 @@ int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
  ********************************************************************/
 
 /*
-  Sets property `name` to the memory (of `size` bytes) pointed to by `value`.
+  Sets property `name` from the memory (of `size` bytes) pointed to by `ptr`.
   Returns non-zero on error.
 */
 int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,

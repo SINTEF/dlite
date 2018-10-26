@@ -3,19 +3,31 @@
 #include "dlite.h"
 #include "chemistry.h"
 
+#define STRINGIFY(s) _STRINGIFY(s)
+#define _STRINGIFY(s) # s
+
 
 int main()
 {
-  int nelements=4, nphases=3;
-  chemistry_s *chem = chemistry_create_with_id(nelements, nphases,
-					       "example-6xxx");
-  chemistry_properties_s *p = chemistry_props(chem);
-  DLiteStorage *s = dlite_storage_open("hdf5", "example-6xxx.h5", "w");
-
+  size_t nelements=4, nphases=3;
   char *elements[] = {"Al", "Mg", "Si", "Fe"};
   char *phases[] = {"FCC_A1", "MG2SI", "ALFESI_ALPHA"};
-  int i, j;
+  size_t i, j;
   double tmp, atvol0;
+
+  size_t dims[] = {nelements, nphases};
+  char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
+  DLiteStorage *s;
+  DLiteEntity *chem;
+  Chemistry *p;
+
+  /* Load Chemistry entity */
+  s = dlite_storage_open("json", path, "mode=r");
+  chem = dlite_entity_load(s, "http://www.sintef.no/calm/0.1/Chemistry");
+  dlite_storage_close(s);
+
+  /* Create instance */
+  p = (Chemistry *)dlite_instance_create(chem, dims, "example-6xxx");
 
   p->alloy = strdup("Sample alloy...");
 
@@ -63,24 +75,15 @@ int main()
     for (i=0; i<nelements; i++)
       p->Xp[i] -= atvol0/p->atvol[j] * p->volfrac[j] * p->Xp[j*nelements + i];
 
-  chemistry_save(chem, s);
 
-  chemistry_free(chem);
+  /* Save instance */
+  s = dlite_storage_open("json", "example-6xxx.json", "mode=w");
+  dlite_instance_save(s, (DLiteInstance *)p);
   dlite_storage_close(s);
 
-  /********************************************************/
-
-  s = dlite_storage_open("hdf5", "example-6xxx.h5", "r");
-  chem = chemistry_load(s, "example-6xxx");
-  dlite_storage_close(s);
-
-
-  s = dlite_storage_open("hdf5", "example2-6xxx.h5", "w");
-  chemistry_save(chem, s);
-  dlite_storage_close(s);
-
-  chemistry_free(chem);
-
+  /* Free instance and its entity */
+  dlite_instance_decref((DLiteInstance *)p);
+  dlite_entity_decref(chem);
 
   return 0;
 }

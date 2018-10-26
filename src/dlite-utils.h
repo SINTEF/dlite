@@ -56,6 +56,68 @@ char *dlite_join_meta_uri(const char *name, const char *version,
 int dlite_split_meta_uri(const char *uri, char **name, char **version,
                          char **namespace);
 
+/** @} */
+
+
+/**
+  @name Parsing options
+  @{
+ */
+
+/** Struct used by dlite_getopt() */
+typedef struct _DLiteOpt {
+  int c;              /*!< Integer identifier for this option */
+  const char *key;    /*!< Option key */
+  const char *value;  /*!< Option value, initialised with default value */
+} DLiteOpt;
+
+/**
+  Parses the options string `options` and assign corresponding values
+  of the array `opts`.  The options string should be a valid url query
+  string of the form:
+
+      key1=value1;key2=value2...
+
+  where the values are terminated by NUL or any of the characters in ";&#".
+  A hash (#) terminates the options.
+
+  `opts` should be a NULL-terminated DLiteOpt array initialised with
+  default values.  At return, the values of the provided options are
+  updated.
+
+  If `modify` is non-zero, `options` is modifies such that all values in
+  `opts` are NUL-terminated.  Otherwise they may be terminated by any of
+  the characters in ";&#".
+
+  Returns non-zero on error.
+
+  Example
+  -------
+  If the `opts` array only contains a few elements, accessing it by index
+  is probably the most convinient.  However, if it contains many elements,
+  switch might be a better option using the following pattern:
+
+      int i;
+      DLiteOpt opts[] = {
+        {"key1", "default1", '1'},
+        {"key2", "default2", 'b'},
+        {NULL, NULL}
+      };
+      dlite_getopt(options, opts, 0);
+      for (i=0; opts[i].key; i++) {
+        switch (opts[i].c) {
+        case '1':
+          // process option key1
+          break;
+        case 'b':
+          // process option key2
+          break;
+        }
+      }
+ */
+int dlite_option_parse(char *options, DLiteOpt *opts, int modify);
+
+
 
 /** @} */
 

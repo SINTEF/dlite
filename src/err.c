@@ -32,7 +32,7 @@ static const char *err_prefix = "";
  *   - err_fail_mode >= 2: abort
  *   - err_fail_mode == 1: exit (with error code)
  *   - err_fail_mode == 0: normal return
- *   - err_fail_mode < 0:  check ERR_FAIL_MODE environment variable */
+ *   - err_fail_mode < 0:  check ERR_FAIL_MODE environment variable (default) */
 static int err_fail_mode = -1;
 
 /* Tread-local variables */
@@ -40,11 +40,21 @@ static _tls int errcode = 0;       /* Error value of the latest error. */
 static _tls char errmsg[256]= "";  /* Error message of the latest error. */
 
 
-
+/* Reports the error and returns `eval`.  Args:
+ *  errname : name of error, e.g. "Fatal" or "Error"
+ *  eval    : error value that is returned or passed exit()
+ *  errnum  : error number for system errors
+ *  pos     : position in source file where the error occured
+ *  msg     : error message
+ *  ap      : printf()-like argument list for error message
+ */
 static int format_error(const char *errname, int eval, int errnum,
-                        const char *msg, va_list ap)
+                        const char *pos, const char *msg, va_list ap)
 {
   int n=0;
+
+  (void)(pos);
+
   errcode = eval;
   if (err_prefix && *err_prefix)
     n += snprintf(errmsg + n, sizeof(errmsg) - n, "%s: ", err_prefix);
@@ -93,58 +103,58 @@ static int format_error(const char *errname, int eval, int errnum,
 }
 
 
-#define BODY(errname, errnum)                           \
-  do {                                                  \
-    va_list ap;                                         \
-    va_start(ap, msg);                                  \
-    format_error(errname, eval, errnum, msg, ap);       \
-    va_end(ap);                                         \
+#define BODY(errname, errnum, pos)                       \
+  do {                                                   \
+    va_list ap;                                          \
+    va_start(ap, msg);                                   \
+    format_error(errname, eval, errnum, pos, msg, ap);   \
+    va_end(ap);                                          \
   } while (0)
 
 
-void fatal(int eval, const char *msg, ...)
+void fatal(int eval, const char *msg,...)
 {
-  BODY("Fatal", errno);
+  BODY("Fatal", errno, NULL);
   exit(eval);
 }
 
 void fatalx(int eval, const char *msg, ...)
 {
-  BODY("Fatal", 0);
+  BODY("Fatal", 0, NULL);
   exit(eval);
 }
 
 int err(int eval, const char *msg, ...)
 {
-  BODY("Error", errno);
+  BODY("Error", errno, NULL);
   return eval;
 }
 
 int errx(int eval, const char *msg, ...)
 {
-  BODY("Error", 0);
+  BODY("Error", 0, NULL);
   return eval;
 }
 
 
-void vfatal(int eval, const char *msg, va_list ap)
+void vfatal(int eval, const char *pos, const char *msg, va_list ap)
 {
-  exit(format_error("Fatal", eval, errno, msg, ap));
+  exit(format_error("Fatal", eval, errno, pos, msg, ap));
 }
 
-void vfatalx(int eval, const char *msg, va_list ap)
+void vfatalx(int eval, const char *pos, const char *msg, va_list ap)
 {
-  exit(format_error("Fatal", eval, 0, msg, ap));
+  exit(format_error("Fatal", eval, 0, pos, msg, ap));
 }
 
-int verr(int eval, const char *msg, va_list ap)
+int verr(int eval, const char *pos, const char *msg, va_list ap)
 {
-  return format_error("Error", eval, errno, msg, ap);
+  return format_error("Error", eval, errno, pos, msg, ap);
 }
 
-int verrx(int eval, const char *msg, va_list ap)
+int verrx(int eval, const char *pos, const char *msg, va_list ap)
 {
-  return format_error("Error", eval, 0, msg, ap);
+  return format_error("Error", eval, 0, pos, msg, ap);
 }
 
 
@@ -164,12 +174,23 @@ void err_clear()
   errcode = 0;
 }
 
-void err_set_prefix(const char *prefix)
+const char *err_set_prefix(const char *prefix)
 {
+  const char *current = err_prefix;
   err_prefix = prefix;
+  return current;
 }
 
-void err_set_fail_mode(int mode)
+FILE *err_set_stream(FILE *stream)
 {
+  FILE *current = err_stream;
+  err_stream = stream;
+  return current;
+}
+
+int err_set_fail_mode(int mode)
+{
+  int current = err_fail_mode;
   err_fail_mode = mode;
+  return current;
 }
