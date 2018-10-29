@@ -339,7 +339,7 @@ static struct _CollectionSchema {
   collection_schema_properties,                  /* properties */
   NULL,                                          /* relations */
 
-  0,                                             /* headersize */
+  offsetof(DLiteCollection, nrelations),         /* headersize */
   dlite_collection_init,                         /* init */
   dlite_collection_deinit,                       /* deinit */
 

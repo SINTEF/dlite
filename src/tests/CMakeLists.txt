@@ -7,14 +7,15 @@ include_directories(
   )
 
 set(tests
-  test_triplestore
   test_utils
   test_datamodel
   test_entity
+  test_store
+  test_triplestore
+  test_collection
   test_json_storage
   test_json_utils
   test_json_entity
-  test_store
   )
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})

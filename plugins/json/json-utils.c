@@ -5,7 +5,6 @@
 #include "err.h"
 #include "str.h"
 #include "boolean.h"
-#include "integers.h"
 #include "floats.h"
 #include "json-utils.h"
 #include "dlite-macros.h"
@@ -559,6 +558,40 @@ int dlite_json_entity_prop_count(json_t *obj)
 }
 
 
+/* Returns a json string containing the encoded binary blob `src` of
+   length `n`.  Returns NULL on error. */
+json_t *hex_encode(const uint8_t *src, size_t n)
+{
+  size_t i;
+  char *dest = malloc(2*n+1);
+  json_t *v=NULL;
+  for (i=0; i<n; i++)
+    if (snprintf(dest + 2*i, 3, "%02hhx", src[i]) != 2)
+      FAIL1("invalid hex string: '%s'", src);
+  v = json_string(dest);
+ fail:
+  free(dest);
+  return v;
+}
+
+
+/* Decode hex string `src` and write the result to `dest`.  `n` is the
+   length of `dest`.  Returns non-zero on error. */
+int hex_decode(uint8_t *dest, const json_t *src, size_t n)
+{
+  size_t i;
+  const char *s;
+  if (!json_is_string(src)) return errx(1, "expected json string");
+  if (json_string_length(src) != 2*n)
+    return errx(1, "expected encoded blob length: %lu, got %lu",
+                2*n, json_string_length(src));
+  s = json_string_value(src);
+  for (i=0; i<n; i++)
+    if (sscanf(s + 2*i, "%2hhx", dest + i) != 1)
+      return err(-1, "invalid hex string: '%s'", s);
+  return 0;
+}
+
 
 /* Returns a new json item with the data at `ptr` (which has type `type` and
  * size `size`).  Returns NULL on error.
@@ -574,7 +607,8 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
   switch (type) {
 
   case dliteBlob:
-    return errx(-1, "JSON storage does not support binary blobs"), NULL;
+    return hex_encode(ptr, size);
+    //return errx(-1, "JSON storage does not support binary blobs"), NULL;
 
   case dliteBool:
     assert(size == sizeof(bool));
@@ -680,6 +714,7 @@ int parse_property(void *ptr, const json_t *item, const json_t *root);
 
 
 
+
 /* Copies the value of JSON item `item` to memory pointed to by `ptr`
    (which should be large enough to hold `size` bytes).  `type` and
    `size` is the destination type and size.  Returns non-zero on error.
@@ -697,7 +732,8 @@ int dlite_json_get_value(void *ptr, const json_t *item,
 
   switch (type) {
   case dliteBlob:
-    return errx(1, "JSON does not support binary blobs");
+    if (hex_decode(ptr, item, size)) return 1;
+    break;
 
   case dliteBool:
     if (!json_is_boolean(item)) return errx(1, "expected json boolean");

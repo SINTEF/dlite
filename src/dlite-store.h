@@ -2,7 +2,8 @@
 #define _DLITE_STORE_H
 
 /**
-  An in-memory store for instances.
+  @file
+  @brief An in-memory store for instances.
  */
 
 #include "map.h"

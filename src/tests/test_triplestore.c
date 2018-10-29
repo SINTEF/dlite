@@ -16,12 +16,12 @@ MU_TEST(test_create)
 MU_TEST(test_triplet)
 {
   Triplet t;
-  char *uri;
+  char *id;
   triplet_set(&t, "book", "is-a", "thing", NULL);
-  uri = triplet_get_uri(NULL, t.s, t.p, t.o);
-  mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", uri);
+  id = triplet_get_id(NULL, t.s, t.p, t.o);
+  mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", id);
   triplet_clean(&t);
-  free(uri);
+  free(id);
 }
 
 MU_TEST(test_add)
@@ -46,6 +46,20 @@ MU_TEST(test_add)
 }
 
 
+MU_TEST(test_next)
+{
+  TripleState state;
+  const Triplet *t;
+
+  triplestore_init_state(ts, &state);
+  printf("\n");
+  while ((t = triplestore_next(&state)))
+    printf("  %-11s %-11s %-11s %s\n", t->s, t->p, t->o, t->id);
+  triplestore_deinit_state(&state);
+}
+
+
+
 MU_TEST(test_find)
 {
   int n;
@@ -63,13 +77,15 @@ MU_TEST(test_find)
 
   triplestore_init_state(ts, &state);
   n = 0;
-  while (triplestore_find(ts, &state, NULL, "is-a", "thing")) n++;
+  while (triplestore_find(&state, NULL, "is-a", "thing")) n++;
   mu_assert_int_eq(2, n);
+  triplestore_deinit_state(&state);
 
   triplestore_init_state(ts, &state);
   n = 0;
-  while (triplestore_find(ts, &state, NULL, "is-a", NULL)) n++;
+  while (triplestore_find(&state, NULL, "is-a", NULL)) n++;
   mu_assert_int_eq(5, n);
+  triplestore_deinit_state(&state);
 }
 
 
@@ -100,6 +116,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_create);
   MU_RUN_TEST(test_triplet);
   MU_RUN_TEST(test_add);
+  MU_RUN_TEST(test_next);
   MU_RUN_TEST(test_find);
   MU_RUN_TEST(test_remove);
   MU_RUN_TEST(test_free);

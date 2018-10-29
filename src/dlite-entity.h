@@ -49,24 +49,27 @@
   system padding rules when the memory is layed out, such that it can
   be mapped to a (possible generated) struct.  Allocating dimensional
   properties seperately has two benefits:
-    - the size of the memory chunk for an instance can be described by
-      its metadata, since it doesn't depends on the length of its
-      dimensions
-    - it allows to change the length of the dimensions of an and data
+    - the size of the memory chunk for an instance is described by
+      its metadata (it is independent on the length of the dimensions
+      of the instance itself)
+    - it allows to change the length of the dimensions of a data
       instance (but not for metadata, since they are immutable)
 
   The following table summarises the memory layout of an instance:
 
-  | segment                   | nmemb             | size                  | offset               |
-  | ------------------------- | ----------------- | --------------------- | -------------------- |
-  | header                    | 1                 | meta->headersize      | 0                    |
-  | dimension values          | meta->ndimensions | sizeof(size_t)        | meta->dimoffset      |
-  | property values           | meta->nproperties | [a]                   | meta->propoffsets    |
-  | relation values           | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset      |
-  | instance property offsets | nproperties       | sizeof(size_t)        | meta->pooffset       |
+  | segment                       | nmemb             | size                  | offset               |
+  | ----------------------------- | ----------------- | --------------------- | -------------------- |
+  | header                        | 1                 | meta->headersize      | 0                    |
+  | dimension values              | meta->ndimensions | sizeof(size_t)        | meta->dimoffset      |
+  | property values               | meta->nproperties | [a]                   | meta->propoffsets    |
+  | relation values               | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset      |
+  | instance property offsets [b] | nproperties       | sizeof(size_t)        | meta->pooffset       |
 
     [a]: The size of properties depends on their `size` and whether
          they are dimensional.
+
+    [b]: Only metadata instances has the last segment with instance
+         property offsets.
 
   ### Header
   The header for all instances must start with `DLiteInstance_HEAD`.
@@ -98,7 +101,8 @@
 
   ### Instance property offsets
   Memory offset of each property of its instances.  Don't access this
-  array directly, use the `DLITE_PROP()` macro instead.
+  array directly, use the `DLITE_PROP()` macro instead.  Note that
+  only metadata instances has this segment.
 */
 
 #include "boolean.h"

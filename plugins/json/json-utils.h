@@ -7,6 +7,8 @@
 #include <errno.h>
 
 #include <jansson.h>
+#include "integers.h"
+
 #include "vector.h"
 #include "str.h"
 
@@ -39,6 +41,16 @@ void json_data_free(json_data_t *d);
  */
 int check_dimensions(const char *prop_name, json_t *prop_dims,
                      json_t *entity_dims);
+
+
+/* Returns a json string containing the encoded binary blob `src` of
+   length `n`.  Returns NULL on error. */
+json_t *hex_encode(const uint8_t *src, size_t n);
+
+/* Decode hex string `src` and write the result to `dest`.  `n` is the
+   length of `dest`.  Returns non-zero on error. */
+int hex_decode(uint8_t *dest, const json_t *src, size_t n);
+
 
 /* Count the number of valid dimensions in the json object.
  * a dimension must have a name (not null, not empty, not only white space)

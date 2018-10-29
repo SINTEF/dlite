@@ -94,9 +94,9 @@ static int format_error(const char *errname, int eval, int errnum,
     else
       err_fail_mode = atoi(errmode);
   }
-  if (err_fail_mode == 1)
+  if (err_fail_mode == 1 && err_stream)
     exit(eval);
-  else if (err_fail_mode > 1)
+  else if (err_fail_mode > 1 && err_stream)
     abort();
 
   return eval;

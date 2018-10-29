@@ -153,7 +153,9 @@ void err_clear();
 const char *err_set_prefix(const char *prefix);
 
 /** Set stream that error messages are printed to.  The default is stderr.
- *  Set to NULL for silence.
+ *
+ *  If NULL, no output will be written and abort() and exit() will not
+ *  be called for positive `mode`.
  *
  *  By default, the error stream can also be set with the ERR_STREAM
  *  environment variable.

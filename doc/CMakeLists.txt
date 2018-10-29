@@ -7,11 +7,21 @@ if (DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/doc/concepts.md
     ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
     ${dlite_SOURCE_DIR}/src/dlite.h
+    ${dlite_SOURCE_DIR}/src/dlite-utils.h
     ${dlite_SOURCE_DIR}/src/dlite-type.h
     ${dlite_SOURCE_DIR}/src/dlite-storage.h
     ${dlite_SOURCE_DIR}/src/dlite-entity.h
     ${dlite_SOURCE_DIR}/src/dlite-datamodel.h
     ${dlite_SOURCE_DIR}/src/dlite-plugins.h
+    ${dlite_SOURCE_DIR}/src/dlite-schemas.h
+    ${dlite_SOURCE_DIR}/src/dlite-store.h
+    ${dlite_SOURCE_DIR}/src/dlite-collection.h
+    ${dlite_SOURCE_DIR}/src/err.h
+    ${dlite_SOURCE_DIR}/src/map.h
+    ${dlite_SOURCE_DIR}/src/getuuid.h
+    ${dlite_SOURCE_DIR}/src/strtob.h
+    ${dlite_SOURCE_DIR}/src/compat.h
+    ${dlite_SOURCE_DIR}/src/triplestore.h
     ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
     ${uuid_SOURCE_DIR}/README.md
     ${uuid_SOURCE_DIR}/uuid.h

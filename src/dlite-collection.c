@@ -66,8 +66,8 @@ int dlite_collection_init(DLiteInstance *inst)
   assert(_istore);
 
   /* Initialise tripletstore */
-  coll->rstore = triplestore_create();
-  coll->relations = coll->rstore->triplets;
+  coll->rstore =
+    triplestore_create_external(&coll->relations, &coll->nrelations);
 
   return 0;
 }
@@ -78,6 +78,7 @@ int dlite_collection_deinit(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
   triplestore_free(coll->rstore);
+
   return 0;
 }
 
@@ -86,62 +87,25 @@ int dlite_collection_deinit(DLiteInstance *inst)
   random uuid is generated.
 
   Returns NULL on error.
+
+  Note:
+  This is just a simple wrapper around dlite_instance_create().
  */
 DLiteCollection *dlite_collection_create(const char *id)
 {
-  DLiteCollection *coll=NULL;
-  int uuid_version;
-
-  /* Initialise global store */
-  if (!_istore) _istore = _istore_init();
-  assert(_istore);
-
-  /* Allocate instance */
-  if (!(coll = calloc(1, sizeof(DLiteCollection)))) FAIL("allocation failure");
-
-  /* Initialise header */
-  if ((uuid_version = dlite_get_uuid(coll->uuid, id)) < 0) goto fail;
-  if (uuid_version == 5) coll->uri = strdup(id);
-  coll->meta = dlite_CollectionSchema;
-
-  /* Initialise tripletstore
-
-     Note that DLiteRelation corresponds to XTriplet (including id),
-     which is used internally be triplestore. This allows us to
-     expose the triplets, while they are managed by the tripletstore.
-
-     However, since rstore->triplets may be reallocated when new
-     relations are added or removed, we have to update triplets.
-
-     Is this really a good idea?
-  */
-  coll->rstore = triplestore_create();
-  coll->relations = coll->rstore->triplets;
-
-  return coll;
- fail:
-  if (coll) dlite_collection_free(coll);
-  return NULL;
+  DLiteEntity *meta =
+    (DLiteEntity *)dlite_metastore_get(DLITE_COLLECTION_SCHEMA);
+  size_t dims[] = {0, 4};
+  return (DLiteCollection *)dlite_instance_create(meta, dims, id);
 }
 
 
 /*
-  Free's a collection and decreases the reference count of the
-  associated metadata.
+  Decreases reference count of collection `coll`.
  */
-void dlite_collection_free(DLiteCollection *coll)
+void dlite_collection_decref(DLiteCollection *coll)
 {
-  //size_t i;
-  if (coll->uri) free((char *)coll->uri);
-  triplestore_free(coll->rstore);
-  //if (coll->ndims) {
-  //  for (i=0; i<coll->ndims; i++)
-  //    free(coll->dimnames[i]);
-  //  free(coll->dimnames);
-  //  free(coll->dimsizes);
-  //}
-  if (coll->meta) dlite_meta_decref((DLiteMeta *)coll->meta);
-  free(coll);
+  dlite_instance_decref((DLiteInstance *)coll);
 }
 
 
@@ -153,7 +117,6 @@ int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
                                   const char *p, const char *o)
 {
   triplestore_add(coll->rstore, s, p, o);
-  coll->relations = coll->rstore->triplets;
   return 0;
 }
 
@@ -166,7 +129,6 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
                                       const char *p, const char *o)
 {
   int retval = triplestore_remove(coll->rstore, s, p, o);
-  coll->relations = coll->rstore->triplets;
   return retval;
 }
 
@@ -203,19 +165,19 @@ const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
                                            const char *o)
 {
   if (state)
-    return (DLiteRelation *)triplestore_find(coll->rstore, (TripleState *)state,
-                                            s, p, o);
+    return (DLiteRelation *)triplestore_find((TripleState *)state, s, p, o);
   else
     return (DLiteRelation *)triplestore_find_first(coll->rstore, s, p, o);
 }
 
 
 /*
-  Adds (reference to) instance `inst` to collection.  Returns non-zero on
-  error.
+  Adds instance `inst` to collection, making `coll` the owner of the instance.
+
+  Returns non-zero on error.
  */
-int dlite_collection_add(DLiteCollection *coll, const char *label,
-                         DLiteInstance *inst)
+int dlite_collection_add_new(DLiteCollection *coll, const char *label,
+                             DLiteInstance *inst)
 {
   if (!inst->meta)
     return err(1, "instance must have associated metadata to be added "
@@ -232,6 +194,18 @@ int dlite_collection_add(DLiteCollection *coll, const char *label,
 
 
 /*
+  Adds (reference to) instance `inst` to collection.  Returns non-zero on
+  error.
+ */
+int dlite_collection_add(DLiteCollection *coll, const char *label,
+                         DLiteInstance *inst)
+{
+  if (dlite_collection_add_new(coll, label, inst)) return 1;
+  dlite_instance_incref(inst);
+  return 0;
+}
+
+/*
   Removes instance with given label from collection.  Returns non-zero on
   error.
  */
@@ -246,7 +220,7 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
 
     dlite_collection_init_state(coll, &state);
     while ((r=dlite_collection_find(coll,&state, label, "_has-dimmap", NULL)))
-      triplestore_remove_by_uri(coll->rstore, r->o);
+      triplestore_remove_by_id(coll->rstore, r->o);
 
     dlite_collection_remove_relations(coll, label, "_has-uuid", NULL);
     dlite_collection_remove_relations(coll, label, "_has-meta", NULL);
@@ -260,8 +234,8 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
 /*
   Returns borrowed reference to instance with given label or NULL on error.
  */
-DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
-                                    const char *label)
+const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
+                                          const char *label)
 {
   const DLiteRelation *r;
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL)))

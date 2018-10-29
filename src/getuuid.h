@@ -1,8 +1,15 @@
+#ifndef _GETUUID_H
+#define _GETUUID_H
+/**
+ * @file
+ * @brief Generates an UUID from string
+ */
 
-/*! Length of UUID, excluding terminating NUL. */
+
+/** Length of UUID, excluding terminating NUL. */
 #define UUID_LEN 36
 
-/*!
+/**
  * Writes an UUID to \a buff based on \a id.
  *
  * If \a id is NULL or empty, a new random version 4 UUID is generated.
@@ -16,3 +23,5 @@
  * id is simply copied.  On error, -1 is returned.
  */
 int getuuid(char *buff, const char *id);
+
+#endif /* _GETUUID_H */

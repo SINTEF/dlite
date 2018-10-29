@@ -6,9 +6,9 @@
 #include "dlite-type.h"
 
 
-
 /**
-  A DLite Collection.
+  @file
+  @brief A DLite Collection.
 
   Collections are a special type of instances that hold a set of
   instances and relations between them.
@@ -36,23 +36,21 @@
   strings.
 */
 typedef struct _DLiteCollection {
+  /* -- extended header */
   DLiteInstance_HEAD
-  /* dimensions */
-  //size_t ndimensions;         /*!< Number of dimensions. */
-  //size_t ninstances;          /*!< Number of instances. */
-  //size_t ndimmaps;            /*!< Number of dimension maps. */
+  TripleStore *rstore;       /*!< TripleStore managing the relations. */
+
+  /* -- dimensions */
   size_t nrelations;          /*!< Number of relations. */
   size_t nrelitems;           /*!< Number of items in a relation, always 4. */
 
-  /* properties */
+  /* -- properties */
 
   /** Pointer to array of relations.  This can safely be cast to
       ``char *relations[4]``, which is an 2D array of strings.
       Note that this pointer may change if `relations` is reallocated. */
   DLiteRelation *relations;
 
-  /* internal data */
-  TripleStore *rstore;       /*!< TripleStore managing the relations. */
 } DLiteCollection;
 
 
@@ -80,15 +78,17 @@ int dlite_collection_deinit(DLiteInstance *inst);
   random uuid is generated.
 
   Returns NULL on error.
+
+  @note
+  This is just a simple wrapper around dlite_instance_create().
  */
 DLiteCollection *dlite_collection_create(const char *id);
 
 
 /**
-  Free's a collection and decreases the reference count of the
-  associated metadata.
+  Decreases reference count of collection `coll`.
  */
-void dlite_collection_free(DLiteCollection *coll);
+void dlite_collection_decref(DLiteCollection *coll);
 
 
 /**
@@ -137,6 +137,14 @@ const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
 
 
 /**
+  Adds instance `inst` to collection, making `coll` the owner of the instance.
+
+  Returns non-zero on error.
+ */
+int dlite_collection_add_new(DLiteCollection *coll, const char *label,
+                             DLiteInstance *inst);
+
+/**
   Adds (reference to) instance `inst` to collection.  Returns non-zero on
   error.
  */
@@ -154,8 +162,8 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label);
 /**
   Returns borrowed reference to instance with given label or NULL on error.
  */
-DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
-                                    const char *label);
+const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
+                                          const char *label);
 
 
 

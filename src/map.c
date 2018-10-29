@@ -1,4 +1,4 @@
-/** 
+/**
  * Copyright (c) 2014 rxi
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -41,7 +41,7 @@ static map_node_t *map_newnode(const char *key, void *value, int vsize) {
 }
 
 
-static int map_bucketidx(map_base_t *m, unsigned hash) {
+static int map_bucketidx(const map_base_t *m, unsigned hash) {
   /* If the implementation is changed to allow a non-power-of-2 bucket count,
    * the line below should be changed to use mod instead of AND */
   return hash & (m->nbuckets - 1);
@@ -58,7 +58,7 @@ static void map_addnode(map_base_t *m, map_node_t *node) {
 static int map_resize(map_base_t *m, int nbuckets) {
   map_node_t *nodes, *node, *next;
   map_node_t **buckets;
-  int i; 
+  int i;
   /* Chain all nodes together */
   nodes = NULL;
   i = m->nbuckets;
@@ -92,7 +92,7 @@ static int map_resize(map_base_t *m, int nbuckets) {
 }
 
 
-static map_node_t **map_getref(map_base_t *m, const char *key) {
+static map_node_t **map_getref(const map_base_t *m, const char *key) {
   unsigned hash = map_hash(key);
   map_node_t **next;
   if (m->nbuckets > 0) {
@@ -124,7 +124,7 @@ void map_deinit_(map_base_t *m) {
 }
 
 
-void *map_get_(map_base_t *m, const char *key) {
+void *map_get_(const map_base_t *m, const char *key) {
   map_node_t **next = map_getref(m, key);
   return next ? (*next)->value : NULL;
 }

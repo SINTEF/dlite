@@ -1,0 +1,53 @@
+{
+    "name": "test-entity",
+    "version": "0.1",
+    "namespace": "http://meta.sintef.no",
+    "description": "test entity",
+    "dimensions": [
+        {
+            "name": "L",
+            "description": "first dim"
+        },
+        {
+            "name": "M",
+            "description": "second dim"
+        },
+        {
+            "name": "N",
+            "description": "third dim"
+        }
+    ],
+    "properties": [
+        {
+            "name": "myblob",
+            "type": "blob3"
+        },
+        {
+            "name": "mydouble",
+            "type": "double",
+            "unit": "m",
+            "description": "A double following a single character..."
+        },
+        {
+            "name": "myfixstring",
+            "type": "string3",
+            "description": "A fix string."
+        },
+        {
+            "name": "mystring",
+            "type": "string",
+            "description": "A string pointer."
+        },
+        {
+            "name": "myshort",
+            "type": "uint16",
+            "description": "An unsigned short integer."
+        },
+        {
+            "name": "myarray",
+            "type": "int",
+            "dims": ["L", "M", "N"],
+            "description": "An array string pointer."
+        }
+    ]
+}

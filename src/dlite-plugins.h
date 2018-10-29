@@ -3,7 +3,7 @@
 
 /**
   @file
-  @brief Common API for all plugins.
+  @brief Common API for all plugins (internal).
 */
 
 #include "dlite-storage.h"

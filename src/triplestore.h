@@ -1,50 +1,49 @@
 /**
-  A very simple triplestore for strings
-  =====================================
-  Triplets can be referred to as objects, using their id.
-  This is supported by the triplet_get_id() and ts_get_id() functions.
+  @file
+  @brief A simple triplestore for strings
 
-  Should probably be replaced with more advanced libraries like
-  [libraptor2](http://librdf.org/raptor/libraptor2.html).
+  This library defines triplets as subject-predicate-object tuplets
+  with an id.  This allow a allows the subject or object to refer to
+  another triplet via its id, as one would expect for RDF triplets
+  (see https://en.wikipedia.org/wiki/Semantic_triple).
+
+
  */
 #ifndef _TRIPLESTORE_H
 #define _TRIPLESTORE_H
 
-//#include "triplestore-private.h"
+#include "map.h"
 
 /**
   A subject-predicate-object triplet used to represent a relation.
-  The s-p-o strings are assumed to be allocated with malloc.
-
-  The uri uniquely identifies a triplet and allows the subject or
-  object to refer to another triplet.
-  See https://en.wikipedia.org/wiki/Semantic_triple.
+  The s-p-o-id strings should be allocated with malloc.
 */
 typedef struct _Triplet {
   char *s;     /*!< subject */
   char *p;     /*!< predicate */
   char *o;     /*!< object */
-  char *uri;   /*!< unique URI identifying this triplet */
+  char *id;    /*!< unique ID identifying this triplet */
 } Triplet;
 
+
 /** Triplet store. */
-typedef struct _TripleStore {
-  Triplet *triplets;       /*!< array of triplets */
-  size_t length;           /*!< number of triplets */
-  size_t size;             /*!< allocated size */
-} TripleStore;
+typedef struct _TripleStore TripleStore;
+
 
 /** State used by triplestore_find.
     Don't rely on current definition, it may be optimised later. */
 typedef struct _TripleState {
-  size_t pos;              /*!< current position */
+  TripleStore *ts;    /*!< reference to corresponding TripleStore */
+  size_t pos;         /*!< current position */
 } TripleState;
 
 
 
 
 /**
-    Sets default namespace to be prepended to triplet uri's.
+    Sets default namespace to be prepended to triplet id's.
+
+    Use this function to convert the id's to proper URI's.
 */
 void triplet_set_default_namespace(const char *namespace);
 
@@ -55,18 +54,31 @@ void triplet_clean(Triplet *t);
 
 /**
   Convinient function to assign a triplet. This allocates new memory
-  for the internal s, p, o and uri pointers.  If `uri` is
-  NULL, a new uri will be generated bases on `s`, `p` and `o`.
+  for the internal s, p, o and id pointers.  If `id` is
+  NULL, a new id will be generated bases on `s`, `p` and `o`.
  */
 int triplet_set(Triplet *t, const char *s, const char *p, const char *o,
-                const char *uri);
+                const char *id);
 
 /**
-  Returns an newly malloc'ed unique uri calculated from triplet.
+  Returns an newly malloc'ed unique id calculated from triplet.
+
+  If `namespace` is NULL, the default namespace set with
+  triplet_set_default_namespace() will be used.
+
+  Returns NULL on error.
 */
-char *triplet_get_uri(const char *namespace, const char *s, const char *p,
+char *triplet_get_id(const char *namespace, const char *s, const char *p,
                       const char *o);
 
+
+/**
+  Returns a new empty triplestore that stores its triplets and the number of
+  triplets in the external memory pointed to by `*p` and `*lenp`, respectively.
+
+  Returns NULL on error.
+ */
+TripleStore *triplestore_create_external(Triplet **p, size_t *lenp);
 
 
 /**
@@ -76,21 +88,21 @@ TripleStore *triplestore_create();
 
 
 /**
-  Frees triplestore `ts`.
+  Frees triplestore.
  */
-void triplestore_free(TripleStore *store);
+void triplestore_free(TripleStore *ts);
 
 
 /**
   Returns the number of triplets in the store.
 */
-size_t triplestore_length(TripleStore *store);
+size_t triplestore_length(TripleStore *ts);
 
 
 /**
   Adds a single triplet to store.  Returns non-zero on error.
  */
-int triplestore_add(TripleStore *store, const char *s, const char *p,
+int triplestore_add(TripleStore *ts, const char *s, const char *p,
                     const char *o);
 
 
@@ -102,10 +114,10 @@ int triplestore_add_triplets(TripleStore *store, const Triplet *triplets,
 
 
 /**
-  Removes a triplet identified by it's `uri`.  Returns non-zero if no such
+  Removes a triplet identified by it's `id`.  Returns non-zero if no such
   triplet can be found.
 */
-int triplestore_remove_by_uri(TripleStore *store, const char *uri);
+int triplestore_remove_by_id(TripleStore *ts, const char *id);
 
 
 /**
@@ -113,29 +125,40 @@ int triplestore_remove_by_uri(TripleStore *store, const char *uri);
   be NULL, allowing for multiple matches.  Returns the number of
   triplets removed.
 */
-int triplestore_remove(TripleStore *store, const char *s,
+int triplestore_remove(TripleStore *ts, const char *s,
                        const char *p, const char *o);
 
 
 /**
-  Returns a pointer to triplet with given uri or NULL if no match can be found.
+  Returns a pointer to triplet with given id or NULL if no match can be found.
 */
-const Triplet *triplestore_get_uri(const TripleStore *store, const char *uri);
+const Triplet *triplestore_get(const TripleStore *ts, const char *id);
 
 
 /**
   Returns a pointer to first triplet matching `s`, `p` and `o` or NULL
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
-const Triplet *triplestore_find_first(const TripleStore *store, const char *s,
+const Triplet *triplestore_find_first(const TripleStore *ts, const char *s,
                              const char *p, const char *o);
 
 
 /**
   Initiates a TripleState for triplestore_find().
 */
-void triplestore_init_state(const TripleStore *store, TripleState *state);
+void triplestore_init_state(TripleStore *ts, TripleState *state);
 
+/**
+  Deinitiates a TripleState initialised with triplestore_init_state().
+*/
+void triplestore_deinit_state(TripleState *state);
+
+
+/**
+  Returns a pointer to the next triplet in the store or NULL if there
+  are no more triplets in the store.
+ */
+const Triplet *triplestore_next(TripleState *state);
 
 /**
   This function should be called iteratively.  Before the first call
@@ -148,8 +171,8 @@ void triplestore_init_state(const TripleStore *store, TripleState *state);
   No other calls to triplestore_add() or triplestore_find() should be
   done while searching.
  */
-const Triplet *triplestore_find(const TripleStore *store, TripleState *state,
-                       const char *s, const char *p, const char *o);
+const Triplet *triplestore_find(TripleState *state,
+                                const char *s, const char *p, const char *o);
 
 
 #endif /* _TRIPLESTORE_H */

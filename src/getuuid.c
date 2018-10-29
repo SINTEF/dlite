@@ -8,7 +8,7 @@
 #include "getuuid.h"
 
 
-/*!
+/*
  * Writes an UUID to `buff` based on `id`.
  *
  * If `id` is NULL or empty, a new random version 4 UUID is generated.

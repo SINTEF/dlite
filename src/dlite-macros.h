@@ -1,6 +1,9 @@
-/* A simple colledtion of convinient macros */
 #ifndef _MACROS_H
 #define _MACROS_H
+/**
+  @file
+  @brief A simple colledtion of convinient macros (internal use)
+*/
 
 #include "config.h"
 

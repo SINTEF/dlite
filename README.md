@@ -67,8 +67,10 @@ Install `wget` on Windows, needed to download hdf5 library from git bash (from t
 - Download wget from the URL: https://eternallybored.org/misc/wget/
 - Download latest version and copy wget.exe in the git folder:
 
-   - C:\Program Files (x86)\Git\bin (for wget in 32-bit version)
-   - C:\Program Files\Git\bin (for wget in 64-bit version)
+```
+    C:\Program Files (x86)\Git\bin (for wget in 32-bit version)
+    C:\Program Files\Git\bin (for wget in 64-bit version)
+```
 
 Launch git bash (from the windows menu search "git bash"), and change your directory to your working directory:
 

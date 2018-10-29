@@ -33,6 +33,10 @@
 #ifndef _STRTOB_H
 #define _STRTOB_H
 
+/**
+  @file
+  @brief Converts string to boolean.
+*/
 
 /**
   Converts the initial part of the string `ptr` to a boolean.

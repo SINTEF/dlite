@@ -327,7 +327,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->s = strdup(s->s);
       d->p = strdup(s->p);
       d->o = strdup(s->o);
-      d->uri = (s->uri) ? strdup(s->uri) : NULL;
+      d->id = (s->id) ? strdup(s->id) : NULL;
     }
     break;
   }
@@ -367,7 +367,7 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     free(((DLiteRelation *)p)->s);
     free(((DLiteRelation *)p)->p);
     free(((DLiteRelation *)p)->o);
-    if (((DLiteRelation *)p)->uri) free(((DLiteRelation *)p)->uri);
+    if (((DLiteRelation *)p)->id) free(((DLiteRelation *)p)->id);
     break;
   }
   return memset(p, 0, size);

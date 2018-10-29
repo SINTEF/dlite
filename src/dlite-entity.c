@@ -53,6 +53,7 @@ DLiteInstance *dlite_instance_create(const DLiteEntity *entity,
 
   /* Make sure that metadata is initialised */
   if (!meta->propoffsets && dlite_meta_init(meta)) goto fail;
+  if (dlite_metastore_add(meta)) goto fail;
 
   /* Allocate instance */
   size = meta->pooffset;
@@ -229,14 +230,7 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
   for (i=0; i<meta->nproperties; i++) {
     void *ptr;
     DLiteProperty *p = (DLiteProperty *)meta->properties + i;
-    //if (meta->loadprop) {
-    //  int stat = meta->loadprop(d, inst, p->name);
-    //  if (stat < 0) FAIL2("error loading special property %s of metadata %s",
-    //                      p->name, meta->uri);
-    //  if (stat == 1) continue;
-    //}
     ptr = (void *)dlite_instance_get_property_by_index(inst, i);
-    //ptr = DLITE_PROP(inst, i);
     for (j=0; j<p->ndims; j++) pdims[j] = dims[p->dims[j]];
     if (dlite_datamodel_get_property(d, p->name, ptr, p->type, p->size,
 				     p->ndims, pdims)) goto fail;
@@ -245,6 +239,24 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
   /* initiates metadata if the new instance is metadata */
   if (dlite_meta_is_metameta(inst->meta) && dlite_meta_init((DLiteMeta *)inst))
     goto fail;
+
+  if (!inst->uri) {
+    if (dlite_meta_is_metameta(inst->meta)) {
+      char **name = dlite_instance_get_property(inst, "name");
+      char **version = dlite_instance_get_property(inst, "version");
+      char **namespace = dlite_instance_get_property(inst, "namespace");
+      if (name && version && namespace)
+        inst->uri = dlite_join_meta_uri(*name, *version, *namespace);
+      else
+        FAIL2("metadata %s loaded from %s has no name, version and namespace",
+             id, s->uri);
+    } else {
+      FILE *old = err_set_stream(NULL);
+      char **dataname = dlite_instance_get_property(inst, "dataname");
+      err_set_stream(old);
+      if (dataname) inst->uri = strdup(*dataname);
+    }
+  }
 
   instance = inst;
  fail:
@@ -632,7 +644,7 @@ int dlite_meta_init(DLiteMeta *meta)
   if (!meta->meta->pooffset && dlite_meta_init((DLiteMeta *)meta->meta))
     goto fail;
 
-  DEBUG("*** dlite_meta_init(%s)\n", meta->uri);
+  DEBUG("\n*** dlite_meta_init(\"%s\")\n", meta->uri);
 
   /* Assign: ndimensions, nproperties and nrelations */
   for (i=0; i<meta->meta->ndimensions; i++) {

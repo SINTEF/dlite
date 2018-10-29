@@ -3,6 +3,7 @@
 
 /**
   @file
+  @brief Opens and closes storages.
 */
 
 /** Opaque type for a DLiteStorage.
@@ -30,10 +31,10 @@ typedef enum {
 
 
 /**
-  Opens a storage located at \a uri using \a driver.
+  Opens a storage located at `uri` using `driver`.
   Returns a opaque pointer or NULL on error.
 
-  The \a options are passed to the driver.  Options for known
+  The `options` are passed to the driver.  Options for known
   drivers are:
 
     * hdf5
@@ -46,7 +47,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
                                  const char *options);
 
 /**
-  Closes data handle \a d. Returns non-zero on error.
+  Closes data handle `d`. Returns non-zero on error.
 */
 int dlite_storage_close(DLiteStorage *s);
 
@@ -82,7 +83,7 @@ void dlite_storage_uuids_free(char **uuids);
 
 
 /**
-   Returns non-zero if storage \a s is writable.
+   Returns non-zero if storage `s` is writable.
  */
 int dlite_storage_is_writable(const DLiteStorage *s);
 

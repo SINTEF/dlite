@@ -228,19 +228,32 @@ Design questions
           int (*init)(DLiteInstance *inst);
           int (*deinit)(DLiteInstance *inst);
 
-          int (*load)(const DLiteDataModel *d, DLiteInstance *inst);
-          int (*save)(DLiteDataModel *d, const DLiteInstance *inst);
+          /* Hook called by dlite_instance_get_property().  `i` is the
+             index of the property to be retrieved and `ptr` is a
+             pointer to its memory.  This hook may be used to prepare
+             the memory returned by dlite_instance_get_property().  It
+             is also called implicitly for each property by
+             dlite_instance_load(). */
+          int (*getprop)(DLiteInstance *inst, size_t i, void *ptr);
+
+          /* Hook called by dlite_instance_set_property() after the
+             memory pointed to by `ptr` is assigned.  `i` is the
+             index of the property to be set and `ptr` is a
+             pointer to its memory.  This hook may be used to update
+             private data of instance when a property is set.  It
+             is also called for each property by dlite_instance_load(). */
+          int (*setprop)(DLiteInstance *inst, size_t i, void *ptr);
 
       where init()/deinit() will be called as the last/first thing
-      in dlite_instance_create()/dlite_instance_free() and
-      load()/save() would, if defined, replacing the default
-      interaction with the datamodel.
+      in dlite_instance_create()/dlite_instance_free(). The
+      getprop()/setprop() will , if defined, be called before
+      retrieving or after setting memory corresponding to a property.
 
-      These hooks should not be used for initialisation of metadata,
-      since they are not described by the metadata semantics, but may
-      provide very useful for specialised entities that needs
-      additional initialisation, like creation of a triplestore in
-      collections.
+      These hooks should probably not be used for initialisation of
+      metadata, since they are not described by the metadata
+      semantics, but may provide very useful for specialised entities
+      that needs additional initialisation, like creation of a
+      triplestore in collections.
 
       Thoughts: Only add them if we see a need, e.g. for implementing
       collections.

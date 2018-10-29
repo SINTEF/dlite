@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2014 rxi
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -23,11 +23,87 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-/** See https://github.com/rxi/map */
-
 #ifndef MAP_H
 #define MAP_H
+
+/**
+  @file
+  @brief A type-safe hash map implementation for C
+
+  See https://github.com/rxi/map for the official documentation.
+
+
+  Prototypes for provided macros:
+
+  ```C
+  // Creates a map struct for containing values of type T.
+  typedef map_t(T) MAP_T;
+
+  // Initialises the map, this must be called before the map can be used.
+  void map_init(MAP_T *m);
+
+  // Deinitialises the map, freeing the memory the map allocated
+  // during use; this should be called when we're finished with a
+  // map.
+  void map_deinit(MAP_T *m);
+
+  // Returns a pointer to the value of the given key. If no
+  // mapping for the key exists then NULL will be returned.
+  void *map_get(MAP_T *m, const char *key);
+
+  // Sets the given key to the given value. Returns 0 on success,
+  // otherwise -1 is returned and the map remains unchanged.
+  int map_set(MAP_T *m, const char *key, T value);
+
+  // Removes the mapping of the given key from the map. If the key
+  // does not exist in the map then the function has no effect.
+  void map_remove(MAP_T *m, const char *key);
+
+  // Returns a map_iter_t which can be used with map_next() to
+  // iterate all the keys in the map.
+  map_iter_t map_iter(MAP_T *m);
+
+  // Uses the map_iter_t returned by map_iter() to iterate all the
+  // keys in the map. map_next() returns a key with each call and
+  // returns NULL when there are no more keys.
+  const char *map_next(MAP_T *m, map_iter_t *iter);
+  ```
+
+  Predefined map types:
+
+  ```C
+  typedef map_t(void*) map_void_t;
+  typedef map_t(char*) map_str_t;
+  typedef map_t(int) map_int_t;
+  typedef map_t(char) map_char_t;
+  typedef map_t(float) map_float_t;
+  typedef map_t(double) map_double_t;
+  ```
+
+  Example:
+
+  ```C
+      typedef map_t(unsigned int) map_uint_t;
+
+      map_uint_t m;
+      unsigned int *p;
+      const char *key;
+      map_iter_t iter;
+
+      map_init(&m);
+      map_set(&m, "testkey", 123);
+      p = map_get(&m, "testkey");
+
+      iter = map_iter(&m);
+      while ((key = map_next(&m, &iter))) {
+        printf("%s -> %u\n", key, *map_get(&m, key));
+      }
+
+      map_deinit(&m);
+  ```
+*/
+
+/** @cond IGNORE */
 
 #include <string.h>
 
@@ -47,6 +123,7 @@ typedef struct {
 } map_iter_t;
 
 
+/** Defines a new map type.*/
 #define map_t(T)\
   struct { map_base_t base; T *ref; T tmp; }
 
@@ -81,7 +158,7 @@ typedef struct {
 
 
 void map_deinit_(map_base_t *m);
-void *map_get_(map_base_t *m, const char *key);
+void *map_get_(const map_base_t *m, const char *key);
 int map_set_(map_base_t *m, const char *key, void *value, int vsize);
 void map_remove_(map_base_t *m, const char *key);
 map_iter_t map_iter_(void);
@@ -94,5 +171,8 @@ typedef map_t(int) map_int_t;
 typedef map_t(char) map_char_t;
 typedef map_t(float) map_float_t;
 typedef map_t(double) map_double_t;
+
+/** @endcond */
+
 
 #endif

@@ -1,0 +1,22 @@
+{
+    "e076a856-e36e-5335-967e-2f2fd153c17d": {
+        "meta": "http://meta.sintef.no/0.1/test-entity",
+        "dataname": "my_test_instance",
+        "dimensions": {
+            "L": 2,
+            "M": 1,
+            "N": 3
+        },
+        "properties": {
+            "myblob": "0a0010",
+            "mydouble": 3.14,
+            "myfixstring": "Al",
+            "mystring": "allocated string...",
+            "myshort": 17,
+            "myarray": [
+                [[1, 2, 3]],
+                [[4, 5, 6]]
+            ]
+        }
+    }
+}
