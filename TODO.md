@@ -21,8 +21,11 @@ High priority
       handling. Will be important for collections.  Metadata is already
       reference-counted, so this should be easy to do.
 
-  [x] Rename DLiteBaseProperty to DLiteSchemaProperty and add a
-      DLiteSchemaDimension (equivalent to DLiteDimension).
+  [x] Make DLiteDimension, DLiteProperty and DLiteRelation the basic
+      building blocks for describing all metadata and data.  Hence,
+      there will be no need for the schema_form that Thomas Hagelien
+      introduced but never implemented for the basic metadata schema.
+      Merge DLiteBaseProperty with DLiteProperty.
 
   [x] Improve the definition of metadata such that dlite_instance_create()
       also can create metadata.  Reconsider DLiteProperty.  Based on
@@ -147,7 +150,6 @@ Design questions
       Answer: All metadata should be immutable. That why we have versioning.
       This is one of the key concepts of SOFT that we should stick to.
 
-
   [x] Should we remove DLiteSchemaDimension and DLiteSchemaProperty
       and instead use DLiteDimension and DLiteProperty for all metadata?
 
@@ -164,7 +166,6 @@ Design questions
       Answer: Yes. Keep it stupid, simple!  Our metadata semantics
       contains only dimensions, properties and relations.  These basic
       building blocks should be well-defined, without any variations.
-
 
   [ ] Is it ok to require that the two first properties defined by
       meta-metadata always must be "dimensions" and "properties"?
@@ -184,7 +185,6 @@ Design questions
       to define a new metadata with e.g. "comment" property, it will
       be unnatural and bug-prone to require to also define
       "relations".
-
 
   [ ] The current implementation duplicates the values of "ndimensions",
       "nproperties" and "nrelations" in all metadata ("nrelations" is
@@ -222,7 +222,6 @@ Design questions
       Answer: No need to add such a flag.  The dlite_meta_ismetameta()
       functions determines this by investigating the meta-metadata.
 
-
   [ ] Is it a good idea to add some hooks to DLiteMeta_HEAD?
 
           int (*init)(DLiteInstance *inst);
@@ -258,6 +257,14 @@ Design questions
       Thoughts: Only add them if we see a need, e.g. for implementing
       collections.
 
+  [x] Should we add a boolean flag to DLiteMeta_HEAD that tells
+      whether its instances are metadata?  This would e.g. allow an
+      instance to check whether it itself is metadata.  Any use cases?
+
+      Answer: No, a flag is not needed and will just bloat the DLiteMeta_HEAD.
+      By inspecting the meta-metadata, it is easy to determine whether
+      instances of a metadata are themselves metadata. See
+      dlite_meta_is_metameta().
 
   [ ] Would it be smarter to change dlite_storage_uuids() to an iterator?
 
@@ -270,7 +277,6 @@ Design questions
       Thoughts: Maybe not, since this would interact with the storage
       for each iteration, which potentially could be very slow if the
       storage is a database on a slow network...
-
 
   [ ] Should we change the type of metadata arguments from
       DLiteEntity to DLiteMeta in the dlite_instance_*() functions?
