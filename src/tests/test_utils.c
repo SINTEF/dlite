@@ -47,6 +47,7 @@ MU_TEST(test_option_parse)
 {
   char *options = strdup("name=a;n=3;f=3.14&b=yes#fragment");
   int i;
+  FILE *old;
   DLiteOpt opts[] = {
     {'N', "name", "default-name"},
     {'n', "n", "0"},
@@ -74,7 +75,9 @@ MU_TEST(test_option_parse)
   }
   free(options);
 
+  old = err_set_stream(NULL);
   mu_assert_int_eq(1, dlite_option_parse("name=C;mode=append", opts, 0));
+  err_set_stream(old);
 }
 
 

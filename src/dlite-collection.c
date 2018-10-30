@@ -188,7 +188,7 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
   dlite_collection_add_relation(coll, label, "_is-a", "Instance");
   dlite_collection_add_relation(coll, label, "_has-uuid", inst->uuid);
   dlite_collection_add_relation(coll, label, "_has-meta", inst->meta->uri);
-  dlite_store_add(_istore, inst);
+  dlite_store_add_new(_istore, inst);
   return 0;
 }
 
@@ -200,8 +200,8 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
 int dlite_collection_add(DLiteCollection *coll, const char *label,
                          DLiteInstance *inst)
 {
-  if (dlite_collection_add_new(coll, label, inst)) return 1;
   dlite_instance_incref(inst);
+  if (dlite_collection_add_new(coll, label, inst)) return 1;
   return 0;
 }
 

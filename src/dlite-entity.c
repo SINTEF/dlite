@@ -567,8 +567,7 @@ void dlite_entity_incref(DLiteEntity *entity)
  */
 void dlite_entity_decref(DLiteEntity *entity)
 {
-  if (entity && --entity->refcount <= 0)
-    dlite_instance_free((DLiteInstance *)entity);
+  dlite_meta_decref((DLiteMeta *)entity);
 }
 
 
@@ -747,7 +746,7 @@ int dlite_meta_init(DLiteMeta *meta)
  */
 void dlite_meta_incref(DLiteMeta *meta)
 {
-  if (meta) meta->refcount++;
+  dlite_instance_incref((DLiteInstance *)meta);
 }
 
 /*
@@ -756,12 +755,7 @@ void dlite_meta_incref(DLiteMeta *meta)
  */
 void dlite_meta_decref(DLiteMeta *meta)
 {
-  if (meta) {
-    if (--meta->refcount <= 0) {
-      if (meta->meta) dlite_meta_decref((DLiteMeta *)meta->meta);
-      dlite_instance_free((DLiteInstance *)meta);
-    }
-  }
+  dlite_instance_decref((DLiteInstance *)meta);
 }
 
 
@@ -902,9 +896,20 @@ DLiteMeta *dlite_metastore_get(const char *id)
    of `meta` to the store.  Returns non-zero on error. */
 int dlite_metastore_add_new(const DLiteMeta *meta)
 {
+  DLiteInstance *inst;
+  FILE *old;
   if (!_metastore) metastore_create();
   assert(_metastore);
-  return dlite_store_add_new(_metastore, (DLiteInstance *)meta);
+
+  old = err_set_stream(NULL);
+  inst = dlite_store_get(_metastore, meta->uuid);
+  err_set_stream(old);
+
+  if (inst)
+    dlite_meta_decref((DLiteMeta *)meta);  // give away ownership
+  else
+    return dlite_store_add_new(_metastore, (DLiteInstance *)meta);
+  return 0;
 }
 
 /* Adds metadata to global metadata store.  The caller keeps ownership

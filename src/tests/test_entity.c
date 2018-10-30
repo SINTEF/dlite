@@ -118,8 +118,6 @@ MU_TEST(test_instance_load)
   mu_check((s = dlite_storage_open("json", jsonfile, "mode=r")));
   mu_check((mydata3 = dlite_instance_load(s, id, entity)));
   mu_check(dlite_storage_close(s) == 0);
-
-
 }
 
 MU_TEST(test_instance_save2)

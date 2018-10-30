@@ -46,7 +46,7 @@ MU_TEST(test_collection_add)
   //uri = "my_test_instance";
   uri = "e076a856-e36e-5335-967e-2f2fd153c17d";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((inst = dlite_instance_load(s, uri, e)));
+  mu_check((inst = dlite_instance_load(s, uri, (DLiteEntity *)e)));
   mu_check(!dlite_storage_close(s));
 
   mu_check(!dlite_collection_add_new(coll, "e", e));
