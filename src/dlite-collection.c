@@ -78,7 +78,6 @@ int dlite_collection_deinit(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
   triplestore_free(coll->rstore);
-
   return 0;
 }
 
@@ -134,12 +133,23 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
 
 
 /*
-  Initiates a DLiteCollectionState for dlite_collection_find().
+  Initiates a DLiteCollectionState for dlite_collection_find() and
+  dlite_collection_next().  The state must be deinitialised with
+  dlite_collection_deinit_state().
 */
 void dlite_collection_init_state(const DLiteCollection *coll,
                                  DLiteCollectionState *state)
 {
   triplestore_init_state(coll->rstore, (TripleState *)state);
+}
+
+
+/*
+  Deinitiates a TripleState initialised with dlite_collection_init_state().
+*/
+void dlite_collection_deinit_state(DLiteCollectionState *state)
+{
+  triplestore_deinit_state((TripleState *)state);
 }
 
 
@@ -241,4 +251,35 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL)))
     return dlite_store_get(_istore, r->o);
   return NULL;
+}
+
+
+/*
+  Iterates over a collection.
+
+  Returns the next instance or NULL if there are no more instances.
+*/
+DLiteInstance *dlite_collection_next(DLiteCollection *coll,
+				     DLiteCollectionState *state)
+{
+  UNUSED(coll);
+  const Triplet *t;
+  while ((t = triplestore_find(state, NULL, "_has-uuid", NULL)))
+    return dlite_store_get(_istore, t->o);
+  return NULL;
+}
+
+
+/*
+  Returns the number of instances that are stored in the collection or
+  -1 on error.
+*/
+int dlite_collection_count(DLiteCollection *coll)
+{
+  int count=0;
+  TripleState state;
+  triplestore_init_state(coll->rstore, &state);
+  while (triplestore_find(&state, NULL, "_is-a", "Instance")) count++;
+  triplestore_deinit_state(&state);
+  return count;
 }

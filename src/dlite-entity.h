@@ -196,7 +196,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this data instance. */    \
   const char *uri;                /* Unique name or uri of the data */  \
                                   /* instance.  Can be NULL. */         \
-  size_t refcount;                /* Number of references to this */    \
+  int refcount;                   /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
                                   /* bing this instance. */
@@ -334,14 +334,14 @@ DLiteInstance *dlite_instance_create(const DLiteEntity *meta,
 /**
   Increases reference count on `inst`.
  */
-void dlite_instance_incref(DLiteInstance *inst);
+int dlite_instance_incref(DLiteInstance *inst);
 
 
 /**
   Decrease reference count to `inst`.  If the reference count reaches
   zero, the instance is free'ed.
  */
-void dlite_instance_decref(DLiteInstance *inst);
+int dlite_instance_decref(DLiteInstance *inst);
 
 
 /**

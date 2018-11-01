@@ -151,20 +151,27 @@ static void dlite_instance_free(DLiteInstance *inst)
 
 /*
   Increases reference count on `inst`.
+
+  Returns the new reference count.
  */
-void dlite_instance_incref(DLiteInstance *inst)
+int dlite_instance_incref(DLiteInstance *inst)
 {
-  inst->refcount++;
+  return ++inst->refcount;
 }
 
 
 /*
   Decrease reference count to `inst`.  If the reference count reaches
   zero, the instance is free'ed.
+
+  Returns the new reference count.
  */
-void dlite_instance_decref(DLiteInstance *inst)
+int dlite_instance_decref(DLiteInstance *inst)
 {
-  if (--inst->refcount <= 0) dlite_instance_free(inst);
+  int count;
+  assert(inst->refcount > 0);
+  if ((count = --inst->refcount <= 0)) dlite_instance_free(inst);
+  return count;
 }
 
 

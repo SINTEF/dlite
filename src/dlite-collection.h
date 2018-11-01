@@ -108,11 +108,17 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
 
 
 /**
-  Initiates a DLiteCollectionState for dlite_collection_find().
+  Initiates a DLiteCollectionState for dlite_collection_find() and
+  dlite_collection_next().  The state must be deinitialised with
+  dlite_collection_deinit_state().
 */
 void dlite_collection_init_state(const DLiteCollection *coll,
                                  DLiteCollectionState *state);
 
+/**
+  Deinitiates a TripleState initialised with dlite_collection_init_state().
+*/
+void dlite_collection_deinit_state(DLiteCollectionState *state);
 
 /**
   Finds matching relations.
@@ -165,6 +171,19 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label);
 const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
                                           const char *label);
 
+/**
+  Iterates over a collection.
+
+  Returns the next instance or NULL if there are no more instances.
+*/
+DLiteInstance *dlite_collection_next(DLiteCollection *coll,
+				     DLiteCollectionState *state);
+
+/**
+  Returns the number of instances that are stored in the collection or
+  -1 on error.
+*/
+int dlite_collection_count(DLiteCollection *coll);
 
 
 #endif /* _DLITE_COLLECTION_H */

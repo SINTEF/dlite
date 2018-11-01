@@ -287,8 +287,8 @@ static DLiteDimension collection_schema_dimensions[] = {
   //{"n-dimensions", "Number of common dimmensions."},
   //{"n-instances",  "Number of instances added to the collection."},
   //{"n-dim-maps",   "Number of dimension maps."},
-  {"n-relations",  "Number of relations."},
-  {"n-rel-items",  "Number of items in a relation - always 4 (s,p,o,id)."}
+  {"nrelations",  "Number of relations."},
+  {"nrelitems",   "Number of items in a relation - always 4 (s,p,o,id)."}
 };
 static int collection_schema_prop_relations_dims[] = {0, 1};
 static DLiteProperty collection_schema_properties[] = {

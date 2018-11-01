@@ -9,15 +9,15 @@
 #include "dlite-store.h"
 
 /* TODO
-   - add read and write locks for tread safety
-     they should be local to the store
+   - Add read and write locks for tread safety they should be local to
+     the store.
  */
 
 
 /* Item to add in the store */
 typedef struct {
   DLiteInstance *inst;  /* pointer to instance */
-  size_t refcount;      /* number of times this instance has been added */
+  int refcount;         /* number of times this instance has been added */
 } item_t;
 
 /* New map type */
@@ -144,8 +144,9 @@ int dlite_store_remove(DLiteStore *store, const char *id)
   if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&store->map, uuid))) return 1;
+
   dlite_instance_decref(item->inst);
-  if (--(item->refcount) <= 0)
+  if (--item->refcount <= 0)
     map_remove(&store->map, uuid);
   return 0;
  fail:

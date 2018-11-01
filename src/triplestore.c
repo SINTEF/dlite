@@ -35,7 +35,7 @@ struct _TripleStore {
   size_t length;      /*!< logically number of triplets (excluding pending
                            removes */
   size_t true_length; /*!< number of triplets (including pending removes) */
-  size_t size;        /*!< allocated size */
+  size_t size;        /*!< allocated number of triplets */
 
   Triplet **p;        /*!< pointer to external memory pointing to triplets */
   size_t *lenp;       /*!< pointer to external memory pointing to length */
@@ -174,7 +174,7 @@ void triplestore_free(TripleStore *ts)
 {
   size_t i;
   assert(!ts->p || *ts->p == ts->triplets);
-  for (i=0; i<ts->length; i++)
+  for (i=0; i<ts->true_length; i++)
     triplet_clean(ts->triplets + i);
   if (ts->triplets) free(ts->triplets);
   if (ts->p) *ts->p = NULL;
@@ -289,6 +289,7 @@ static int _remove_by_index(TripleStore *ts, size_t n)
     triplet_clean(t);
     memcpy(t, &ts->triplets[--ts->length], sizeof(Triplet));
     ts->true_length = ts->length;
+    if (ts->lenp) *ts->lenp = ts->length;
     assert(t->id);
     map_set(&ts->map, t->id, n);
   }
@@ -382,12 +383,21 @@ void triplestore_deinit_state(TripleState *state)
 {
   TripleStore *ts = state->ts;
   int i;
+  assert(ts->niter > 0 /* must match triplestore_init_state() */);
+
   ts->niter--;
   if (ts->niter == 0 && ts->true_length > ts->length) {
-    for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--)
-      ts->true_length--;
     for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--) {
+      printf("*** %d: %lu %lu: %s-%s-%s %d\n", i, ts->true_length, ts->length,
+	     ts->triplets[i].s, ts->triplets[i].p, ts->triplets[i].o,
+	     (ts->triplets[i].id) ? 1 : 0);
+      ts->true_length--;
+    }
+    for (i=ts->true_length-1; i>=0; i--) {
       Triplet *t = ts->triplets + i;
+      printf("*** %d: %lu %lu: %s-%s-%s %d\n", i, ts->true_length, ts->length,
+	     ts->triplets[i].s, ts->triplets[i].p, ts->triplets[i].o,
+	     (ts->triplets[i].id) ? 1 : 0);
       if (!t->id) {
         Triplet *tt = ts->triplets + (--ts->true_length);
         assert(t < tt);
@@ -395,8 +405,14 @@ void triplestore_deinit_state(TripleState *state)
         memcpy(t, tt, sizeof(Triplet));
       }
     }
+    assert(ts->true_length == ts->length);
+    if (ts->size > ts->length + TRIPLESTORE_BUFFSIZE) {
+      ts->size = ts->length + ts->length % TRIPLESTORE_BUFFSIZE;
+      ts->triplets = realloc(ts->triplets, ts->size*sizeof(Triplet));
+      if (ts->p) *ts->p = ts->triplets;
+    }
+    if (ts->lenp) *ts->lenp = ts->length;
   }
-  assert(ts->true_length == ts->length);
 }
 
 
