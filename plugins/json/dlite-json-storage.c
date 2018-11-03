@@ -258,7 +258,6 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
   DLiteJsonDataModel *d=NULL;
   DLiteDataModel *retval=NULL;
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
-  //const char *name, *version, *namespace;
   char uuid[DLITE_UUID_LENGTH + 1];
   json_t *data;
 
@@ -284,7 +283,9 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     /* Instance is a metadata definition */
     data = storage->root;
     d->instance = data;
-    if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtMeta;
+    //if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtMeta;
+    d->fmt = fmtMeta;
+    d->meta = json_object_get(data, "meta");
     d->dimensions = json_object_get(data, "dimensions");
     d->properties = json_object_get(data, "properties");
     d->relations = json_object_get(data, "relations");
@@ -295,7 +296,9 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     /* Instance is a meta-metadata definition (schema) */
     data = storage->root;
     d->instance = data;
-    if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtSchema;
+    //if (!(d->meta = json_object_get(data, "meta"))) d->fmt = fmtSchema;
+    d->fmt = fmtSchema;
+    d->meta = json_object_get(data, "meta");
     d->dimensions = json_object_get(data, "schema_dimensions");
     d->properties = json_object_get(data, "schema_properties");
     d->relations = json_object_get(data, "schema_relations");
@@ -334,17 +337,13 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
 }
 
 /**
-  Closes data handle dh5. Returns non-zero on error.
+  Closes data handle. Returns non-zero on error.
  */
 int dlite_json_datamodel_free(DLiteDataModel *d)
 {
   UNUSED(d);
-  /* be carefull to not free memory owned by root... */
-  //DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
-  //if (data->meta) json_decref(data->meta);
-  //if (data->dimensions) json_decref(data->dimensions);
-  //if (data->properties) json_decref(data->properties);
-  //if (data->instance) json_decref(data->instance);
+  /* All json data is owned by the root node, which is released in
+     dlite_json_close(). Nothing to free here... */
   return 0;
 }
 

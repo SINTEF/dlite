@@ -13,8 +13,6 @@
 #define _STRINGIFY(s) # s
 
 
-//DLiteEntity *entity = NULL;
-//DLiteInstance *inst = NULL;
 DLiteCollection *coll = NULL;
 
 
@@ -84,16 +82,13 @@ MU_TEST(test_collection_add)
   DLiteInstance *e, *inst;
 
   path = STRINGIFY(DLITE_ROOT) "/src/tests/test-entity.json";
-  //uri = "http://meta.sintef.no/0.1/test_entity";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((e = dlite_instance_load(s, NULL, NULL)));
   mu_check(!dlite_storage_close(s));
-  //dlite_metastore_add((DLiteMeta *)e);
-
 
   path = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
-  //uri = "my_test_instance";
-  uri = "e076a856-e36e-5335-967e-2f2fd153c17d";
+  uri = "my_test_instance";
+  //uri = "e076a856-e36e-5335-967e-2f2fd153c17d";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((inst = dlite_instance_load(s, uri, (DLiteEntity *)e)));
   mu_check(!dlite_storage_close(s));
@@ -103,8 +98,6 @@ MU_TEST(test_collection_add)
   mu_check(!dlite_collection_add(coll, "inst", inst));
   mu_check(!dlite_collection_add_new(coll, "inst2", inst));
   mu_assert_int_eq(3, dlite_collection_count(coll));
-
-  printf("\n*** refcount=%d\n", inst->refcount);
 }
 
 
@@ -137,7 +130,7 @@ MU_TEST(test_collection_remove)
 {
   mu_assert_int_eq(3, dlite_collection_count(coll));
 
-  mu_check(dlite_collection_remove(coll, "nonexisting"));
+  mu_check(dlite_collection_remove(coll, "nonexisting"));  // fail
   mu_assert_int_eq(3, dlite_collection_count(coll));
 
   mu_check(!dlite_collection_remove(coll, "e"));
@@ -146,7 +139,7 @@ MU_TEST(test_collection_remove)
   mu_check(!dlite_collection_remove(coll, "inst2"));
   mu_assert_int_eq(1, dlite_collection_count(coll));
 
-  mu_check(dlite_collection_remove(coll, "inst2"));
+  mu_check(dlite_collection_remove(coll, "inst2"));  // fail, already removed
   mu_assert_int_eq(1, dlite_collection_count(coll));
 
   mu_check(!dlite_collection_remove(coll, "inst"));
