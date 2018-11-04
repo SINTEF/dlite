@@ -4,6 +4,7 @@
 set(tests
   test_dsl
   test_fileutils
+  test_tmpfileplus
   )
 
 add_definitions(
