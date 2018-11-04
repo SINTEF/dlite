@@ -24,6 +24,7 @@ if (DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/utils/dsl.h
     ${dlite_SOURCE_DIR}/src/utils/strtob.h
     ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
+    ${dlite_SOURCE_DIR}/src/utils/globmatch.h
     ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
     ${uuid_SOURCE_DIR}/README.md
     ${uuid_SOURCE_DIR}/uuid.h

@@ -48,6 +48,7 @@ set(sources
   strtob.c
   fileutils.c
   tmpfileplus.c
+  globmatch.c
   )
 
 add_definitions(

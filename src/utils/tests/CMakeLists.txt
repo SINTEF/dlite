@@ -5,6 +5,7 @@ set(tests
   test_dsl
   test_fileutils
   test_tmpfileplus
+  test_globmatch
   )
 
 add_definitions(
