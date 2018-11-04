@@ -2,9 +2,9 @@
 #
 
 set(sources
-  ${dlite_SOURCE_DIR}/src/err.c
-  ${dlite_SOURCE_DIR}/src/strtob.c
-  ${dlite_SOURCE_DIR}/src/map.c               # FIXME - remove this dependency
+  ${dlite_SOURCE_DIR}/src/utils/err.c
+  ${dlite_SOURCE_DIR}/src/utils/strtob.c
+  ${dlite_SOURCE_DIR}/src/utils/map.c         # FIXME - remove this dependency
   ${dlite_SOURCE_DIR}/src/dlite-type.c        # FIXME - remove this dependency
   ${dlite_SOURCE_DIR}/src/dlite-store.c       # FIXME - remove this dependency
   ${dlite_SOURCE_DIR}/src/dlite-entity.c      # FIXME - remove this dependency
@@ -20,10 +20,13 @@ set(sources
 add_definitions(-DHAVE_CONFIG_H)
 
 add_library(plugins-json ${sources})
-target_link_libraries(plugins-json ${JANSSON_LIBRARIES})
+target_link_libraries(plugins-json
+  ${JANSSON_LIBRARIES}
+  )
 target_include_directories(plugins-json PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
+  ${dlite_SOURCE_DIR}/src/utils
   ${dlite_BINARY_DIR}/src
   ${uuid_BINARY_DIR}
   ${uuid_SOURCE_DIR}                          # FIXME - remove this dependency

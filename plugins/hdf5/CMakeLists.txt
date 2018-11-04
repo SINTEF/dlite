@@ -2,7 +2,7 @@
 #
 
 set(sources
-  ${dlite_SOURCE_DIR}/src/err.c
+  ${dlite_SOURCE_DIR}/src/utils/err.c
   ${dlite_BINARY_DIR}/src/boolean.h
   dh5lite.c
   )
@@ -10,10 +10,13 @@ set(sources
 add_definitions(-DHAVE_CONFIG_H)
 
 add_library(plugins-hdf5 ${sources})
-target_link_libraries(plugins-hdf5 ${HDF5_LIBRARIES})
+target_link_libraries(plugins-hdf5
+  ${HDF5_LIBRARIES}
+  )
 target_include_directories(plugins-hdf5 PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
+  ${dlite_SOURCE_DIR}/src/utils
   ${dlite_BINARY_DIR}/src
   ${HDF5_INCLUDE_DIRS}
   )

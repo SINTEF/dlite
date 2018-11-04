@@ -7,6 +7,7 @@
 */
 
 #include "dlite-storage.h"
+#include "dsl.h"
 
 
 /** Initial segment of all DLiteStorage plugin data structures. */

@@ -16,12 +16,14 @@ if (DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/dlite-schemas.h
     ${dlite_SOURCE_DIR}/src/dlite-store.h
     ${dlite_SOURCE_DIR}/src/dlite-collection.h
-    ${dlite_SOURCE_DIR}/src/err.h
-    ${dlite_SOURCE_DIR}/src/map.h
     ${dlite_SOURCE_DIR}/src/getuuid.h
-    ${dlite_SOURCE_DIR}/src/strtob.h
-    ${dlite_SOURCE_DIR}/src/compat.h
     ${dlite_SOURCE_DIR}/src/triplestore.h
+    ${dlite_SOURCE_DIR}/src/utils/compat.h
+    ${dlite_SOURCE_DIR}/src/utils/err.h
+    ${dlite_SOURCE_DIR}/src/utils/map.h
+    ${dlite_SOURCE_DIR}/src/utils/dsl.h
+    ${dlite_SOURCE_DIR}/src/utils/strtob.h
+    ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
     ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
     ${uuid_SOURCE_DIR}/README.md
     ${uuid_SOURCE_DIR}/uuid.h
