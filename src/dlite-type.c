@@ -139,7 +139,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Returns the number of bytes written or -1 on error.
 */
 int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
-                         size_t nref, char *cdecl, size_t n)
+                         size_t nref, char *pcdecl, size_t n)
 {
   int m;
   char ref[32];
@@ -151,49 +151,49 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
 
   switch (dtype) {
   case dliteBlob:
-    m = snprintf(cdecl, n, "uint8_t %s%s[%lu]", ref, name, size);
+    m = snprintf(pcdecl, n, "uint8_t %s%s[%lu]", ref, name, size);
     break;
   case dliteBool:
     if (size != sizeof(bool))
       return errx(-1, "bool should have size %lu, but %lu was provided",
                  sizeof(bool), size);
-    m = snprintf(cdecl, n, "bool %s%s", ref, name);
+    m = snprintf(pcdecl, n, "bool %s%s", ref, name);
     break;
   case dliteInt:
-    m = snprintf(cdecl, n, "int%lu_t %s%s", size*8, ref, name);
+    m = snprintf(pcdecl, n, "int%lu_t %s%s", size*8, ref, name);
     break;
   case dliteUInt:
-    m = snprintf(cdecl, n, "uint%lu_t %s%s", size*8, ref, name);
+    m = snprintf(pcdecl, n, "uint%lu_t %s%s", size*8, ref, name);
     break;
   case dliteFloat:
-    m = snprintf(cdecl, n, "float%lu_t %s%s", size*8, ref, name);
+    m = snprintf(pcdecl, n, "float%lu_t %s%s", size*8, ref, name);
     break;
   case dliteFixString:
-    m = snprintf(cdecl, n, "char %s%s[%lu]", ref, name, size);
+    m = snprintf(pcdecl, n, "char %s%s[%lu]", ref, name, size);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
       return errx(-1, "string should have size %lu, but %lu was provided",
                  sizeof(char *), size);
-    m = snprintf(cdecl, n, "char *%s%s", ref, name);
+    m = snprintf(pcdecl, n, "char *%s%s", ref, name);
     break;
   case dliteDimension:
     if (size != sizeof(DLiteDimension))
       return errx(-1, "DLiteDimension must have size %lu, got %lu",
                   sizeof(DLiteDimension), size);
-    m = snprintf(cdecl, n, "DLiteDimension %s%s", ref, name);
+    m = snprintf(pcdecl, n, "DLiteDimension %s%s", ref, name);
     break;
   case dliteProperty:
     if (size != sizeof(DLiteProperty))
       return errx(-1, "DLiteProperty must have size %lu, got %lu",
                   sizeof(DLiteProperty), size);
-    m = snprintf(cdecl, n, "DLiteProperty %s%s", ref, name);
+    m = snprintf(pcdecl, n, "DLiteProperty %s%s", ref, name);
     break;
   case dliteRelation:
     if (size != sizeof(DLiteRelation))
       return errx(-1, "DLiteRelation must have size %lu, got %lu",
                   sizeof(DLiteRelation), size);
-    m = snprintf(cdecl, n, "DLiteRelation %s%s", ref, name);
+    m = snprintf(pcdecl, n, "DLiteRelation %s%s", ref, name);
     break;
   default:
     return errx(-1, "unknown dtype number: %d", dtype);
