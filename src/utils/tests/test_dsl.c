@@ -19,7 +19,7 @@ MU_TEST(test_dsl_open)
   char *path = STRINGIFY(LIBDIR) "/" DSL_PREFIX "test_dsl_lib" DSL_EXT;
   printf("\n*** path='%s'\n", path);
 
-  handle = dsl_open(path, RTLD_NOW);
+  handle = dsl_open(path);
   mu_check(handle);
   mu_check(!dsl_error());
 }

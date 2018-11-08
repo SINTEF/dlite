@@ -12,11 +12,10 @@
 
   ### Macro prototypes
 
-      dsl_handle dsl_open(const char *filename, int flags);
+      dsl_handle dsl_open(const char *filename);
 
-  Opens shared library `filename`.  The flags corresponds to those of
-  dlopen() (only POSIX systems, ignored on Windows).  Returns a new
-  handle or NULL on error.
+  Opens shared library `filename` and returns a new handle or NULL on
+  error.
 
       void *dsl_sym(dsl_handle handle, const char *symbol);
 
@@ -69,7 +68,7 @@
 
 typedef void * dsl_handle;
 
-#define dsl_open(filename, flags)  ((dsl_handle)dlopen(filename, flags))
+#define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY))
 #define dsl_sym(handle, symbol)    ((void *)dlsym((void *)(handle), symbol))
 #define dsl_error()                ((const char *)dlerror())
 #define dsl_close(handle)          ((int)dlclose((void *)(handle)))
@@ -83,7 +82,7 @@ typedef void * dsl_handle;
 
 typedef HMODULE dsl_handle;
 
-#define dsl_open(filename, flags) \
+#define dsl_open(filename) \
   (dsl_handle)LoadLibrary((LPCTSTR)(filename))
 #define dsl_sym(handle, symbol) \
   (void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol))
