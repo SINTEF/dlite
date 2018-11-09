@@ -2,7 +2,8 @@
     "name": "test-entity",
     "version": "0.1",
     "namespace": "http://meta.sintef.no",
-    "description": "test entity",
+    "meta": "http://meta.sintef.no/0.3/entity_schema",
+    "description": "test entity with explicit meta",
     "dimensions": [
         {
             "name": "L",

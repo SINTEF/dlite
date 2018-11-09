@@ -203,7 +203,8 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
   if (!meta) {
     char uuid[DLITE_UUID_LENGTH];
     dlite_get_uuid(uuid, uri);
-    meta = (DLiteMeta *)dlite_instance_load(s, uuid, NULL);
+    if (!id || strcmp(uuid, id))
+      meta = (DLiteMeta *)dlite_instance_load(s, uuid, NULL);
   }
 
   /* ...otherwise give up */
