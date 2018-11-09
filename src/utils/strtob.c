@@ -5,6 +5,7 @@
  *
  * Licensed under BSD v2.0. See the corresponding header for details.
  */
+#include "compat.h"
 #include <stdlib.h>
 #include <string.h>
 
