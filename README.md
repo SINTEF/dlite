@@ -47,80 +47,30 @@ To initialize the uuid submodule, you may also have to run
 Building
 --------
 
-## Windows with Visual Studio
+## Build on Microsoft Windows
 
-Create a "build" subfolder and run cmake:
+1. Install a recent version of cmake https://cmake.org/download/
+2. Install Visual Studio 2015 or 2017 with the C/C++ components
+3. Prepare a directory structure for dlite and 3rd party libraries:
+    1. Select a root folder to create the directory structure (e.g. "C:\" or "C:\Users\{username}\Documents\")
+	2. Create the following directory: {root}\local
+	3. Clone the dlite repository in the root folder, folder {root}\dlite will be created.
+4. Download hdf5 library archive from https://support.hdfgroup.org/ftp/HDF5/current/src/
+5. Make a copy of the file {root}\dlite\bootstrap-win.sh into the root folder
+6. Edit the copy of bootstrap-win.sh in the root folder:
+	1. Modify the variable CMAKE_PATH to the path of cmake directory
+	2. Modify the variable ROOT_PATH to your root folder
+	3. Modify the variable PYTHON_EXECUTABLE to Python version 3.x executable
+	4. Check the version number of hdf5 library
+7. Open a git-bash window:
+	1. Change the directory to your root folder
+	2. Type `sh bootstrap-win.sh` and press enter
+8. Open the file {root}\dlite\build\dlite.sln in Visual Studio
+9. In Visual Studio:
+    1. Select the solution configuration "Debug", then build the solution (Menu Build -> Build solution)
+	2. Select the solution configuration "Release", then build the solution (Menu Build -> Build solution)
 
-    mkdir build
-    cd build
-    cmake ..
-
-It is possible that you have to run cmake as
-`cmake  -G "Visual Studio 11 2012 Win64" ..`.
-
-Run or double-click on `dlite.sln`, which will open Visual Studio.
-
-## Windows with git bash
-
-Install `wget` on Windows, needed to download hdf5 library from git bash (from the command line):
-
-- Download wget from the URL: https://eternallybored.org/misc/wget/
-- Download latest version and copy wget.exe in the git folder:
-
-```
-    C:\Program Files (x86)\Git\bin (for wget in 32-bit version)
-    C:\Program Files\Git\bin (for wget in 64-bit version)
-```
-
-Launch git bash (from the windows menu search "git bash"), and change your directory to your working directory:
-
-```sh
-# goto your working directory
-cd /C/Users/tco/Documents/Programs/PRECIMS/
-# create a folder to install the libraries
-mkdir local
-```
-
-Download, build, and install HDF5 library:
-
-```sh
-cd /C/Users/tco/Documents/Programs/PRECIMS/
-wget https://support.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.1.tar.gz
-tar -xzvf hdf5-1.10.1.tar.gz
-cd hdf5-1.10.1
-mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/C/Users/tco/Documents/Programs/PRECIMS/local/ ..
-cmake --build . --config Debug --target install
-cmake --build . --config Release --target install
-```
-
-Download, build, and install jansson library (json file reader/writer):
-
-```sh
-cd /C/Users/tco/Documents/Programs/PRECIMS/
-git clone https://github.com/akheron/jansson.git
-cd jansson
-mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/C/Users/tco/Documents/Programs/PRECIMS/local/ ..
-cmake --build . --config Debug --target install
-cmake --build . --config Release --target install
-```
-
-Download and build dlite:
-
-```sh
-cd /C/Users/tco/Documents/Programs/PRECIMS/
-git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-git submodule update --init
-cd dlite
-mkdir build && cd build
-cmake -DHDF5_ROOT:PATH=/C/Users/tco/Documents/Programs/PRECIMS/local/ ..
-cmake --build . --config Debug --target install
-cmake --build . --config Release --target install
-```
-
-
-## Linux
+## Build on Linux
 
 Build with:
 
