@@ -4,8 +4,9 @@
 set(tests
   test_dsl
   test_fileutils
-  test_tmpfileplus
   test_globmatch
+  test_tgen
+  test_tmpfileplus
   )
 
 add_definitions(

@@ -75,12 +75,6 @@ set(sources
   dlite-collection.c
   getuuid.c
   triplestore.c
-  #compat.c
-  #err.c
-  #map.c
-  #strtob.c
-  #fileutils.c
-  #tmpfileplus.c
   )
 
 add_definitions(

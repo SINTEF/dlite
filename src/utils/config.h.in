@@ -3,12 +3,99 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+/* Language/preprocessor features */
+#cmakedefine HAVE_VA_ARGS
+
+/* Whether headers exists */
+#cmakedefine HAVE_STDARG_H
+#cmakedefine HAVE_STDDEF_H
+#cmakedefine HAVE_STDINT_H
+#cmakedefine HAVE_STDLIB_H
+#cmakedefine HAVE_FLOAT_H
+#cmakedefine HAVE_INTTYPES_H
+#cmakedefine HAVE_LOCALE_H
+
+/* Whether symbols exists. If not, they are defined in compat.c or compat/ */
+#cmakedefine HAVE_STRDUP
+#cmakedefine HAVE__STRDUP
+#cmakedefine HAVE_STRCASECMP
+#cmakedefine HAVE__STRICMP
+#cmakedefine HAVE_STRNCASECMP
+#cmakedefine HAVE__STRNICMP
+
+#cmakedefine HAVE_GETOPT
+#cmakedefine HAVE_GETOPT_LONG
+
+#cmakedefine HAVE_SNPRINTF
+#cmakedefine HAVE__SNPRINTF
+#cmakedefine HAVE_VSNPRINTF
+#cmakedefine HAVE__VSNPRINTF
+#cmakedefine HAVE_VASPRINTF
+#cmakedefine HAVE__VASPRINTF
+#cmakedefine HAVE_ASPRINTF
+#cmakedefine HAVE__ASPRINTF
+#cmakedefine HAVE_LOCALECONV
+#cmakedefine HAVE_VA_COPY
+#cmakedefine HAVE___VA_COPY
+
+/* Whether types exists */
+#cmakedefine HAVE_LONG_DOUBLE
+#cmakedefine HAVE_LONG_LONG_INT
+#cmakedefine HAVE_UNSIGNED_LONG_LONG_INT
+#cmakedefine HAVE_INTMAX_T
+#cmakedefine HAVE_UINTMAX_T
+#cmakedefine HAVE_UINTPTR_T
+#cmakedefine HAVE_PTRDIFF_T
+
+/* Whether structure members exists */
+#cmakedefine HAVE_LCONV_DECIMAL_POINT
+#cmakedefine HAVE_LCONV_THOUSANDS_SEP
+
+
+/* ================================== */
+/* Compatibility-functions in compat/ */
+/* ================================== */
+
+/* snprintf() */
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+
+#ifndef HAVE_SNPRINTF
+# define snprintf rpl_snprintf
+int rpl_snprintf(char *, size_t, const char *, ...);
+#endif
+
+#ifndef HAVE_VSNPRINTF
+# define vsnprintf rpl_vsnprintf
+int rpl_vsnprintf(char *, size_t, const char *, va_list);
+#endif
+
+#ifndef HAVE_ASPRINTF
+# define asprintf rpl_asprintf
+int rpl_asprintf(char **, const char *, ...);
+#endif
+
+#ifndef HAVE_VASPRINTF
+# define vasprintf rpl_vasprintf
+int rpl_vasprintf(char **, const char *, va_list);
+#endif
+
+/* getopt() */
+#if !defined(HAVE_GETOPT) || !defined(HAVE_GETOPT_LONG)
+#include "compat/getopt.h"
+#endif
+
+
+
+/* ================================== */
+/* Other stuff...                     */
+/* ================================== */
 
 /* Get rid of warnings from MSVS about insecure standard library functions */
 #ifdef _WIN32
 # define _CRT_SECURE_NO_WARNINGS
 #endif
-
 
 /* Thread local storage */
 #cmakedefine HAVE_GCC_THREAD_LOCAL_STORAGE
@@ -22,29 +109,9 @@
 # define _thread_local
 #endif
 
-
 /* Remove __attribute__ when we are not compiling with gcc */
 #ifndef __GNUC__
 # define __attribute__(x)
 #endif
-
-
-/* Language/preprocessor features */
-#cmakedefine HAVE_VA_ARGS
-
-
-/* Whether functions exists. If not, they are defined in compat.c */
-#cmakedefine HAVE_STRDUP
-#cmakedefine HAVE__STRDUP
-
-#cmakedefine HAVE_STRCASECMP
-#cmakedefine HAVE__STRICMP
-
-#cmakedefine HAVE_STRNCASECMP
-#cmakedefine HAVE__STRNICMP
-
-#cmakedefine HAVE_QSORT
-
-
 
 #endif /* _CONFIG_H */

@@ -5,6 +5,7 @@
 #ifndef _COMPAT_H
 #define _COMPAT_H
 
+#include <stdlib.h>
 #include "config.h"
 
 /** strdup */
