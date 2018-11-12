@@ -7,6 +7,8 @@ set(tests
   test_globmatch
   test_tgen
   test_tmpfileplus
+
+  tgen_example
   )
 
 add_definitions(

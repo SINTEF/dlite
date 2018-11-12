@@ -16,10 +16,27 @@ char *strdup(const char *s)
 {
   size_t n = strlen(s) + 1;
   char *p = malloc(n);
+  if (!p) return NULL;
   if (p) memcpy(p, s, n);
   return p;
 }
 #endif
+
+/* strndup() - duplicates a string, copying at most n bytes and adds a
+   terminating NUL */
+#if !defined(HAVE_STRNDUP) && !defined(HAVE__STRNDUP)
+char *strndup(const char s, size_t n)
+{
+  size_t slen = strlen(s);
+  size_t len = (slen > n) ? n : slen;
+  char *p = malloc(len + 1);
+  if (!p) return NULL;
+  memcpy(p, s, len);
+  p[len] = '\0';
+  return p;
+}
+#endif
+
 
 /* strcasecmp() - case insensitive, string comparison */
 #if !defined(HAVE_STRCASECMP) && !defined(HAVE__STRICMP)

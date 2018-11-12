@@ -17,6 +17,15 @@ char *strdup(const char *s);
 # endif
 #endif
 
+/** strdup */
+#ifndef HAVE_STRNDUP
+# ifdef HAVE__STRNDUP
+#  define strndup(s, n) _strndup(s, n)
+# else
+char *strndup(const char *s, size_t n);
+# endif
+#endif
+
 /** strcasecmp */
 #ifndef HAVE_STRCASECMP
 # ifdef HAVE__STRICMP
