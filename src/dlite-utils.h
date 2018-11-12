@@ -69,6 +69,7 @@ typedef struct _DLiteOpt {
   int c;              /*!< Integer identifier for this option */
   const char *key;    /*!< Option key */
   const char *value;  /*!< Option value, initialised with default value */
+  const char *descr;  /*!< Description of this option */
 } DLiteOpt;
 
 /**

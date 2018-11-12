@@ -8,10 +8,18 @@
 #include "config.h"
 
 
-/* Macro for getting rid of unused parameter warnings... */
+/** Macro for getting rid of unused parameter warnings... */
 #define UNUSED(x) (void)(x)
 
-/* Convenient macros for failing */
+/* Turns macro literal `s` into a C string */
+#define STRINGIFY(s) _STRINGIFY(s)
+#define _STRINGIFY(s) # s
+
+/** Expands to number of elements of array `arr` */
+#define countof(arr) (sizeof(arr) / sizeof(arr[0]))
+
+
+/** Convenient macros for failing */
 #define FAIL(msg) do { \
     err(1, msg); goto fail; } while (0)
 #define FAIL1(msg, a1) do { \
@@ -24,6 +32,7 @@
     err(1, msg, a1, a2, a3, a4); goto fail; } while (0)
 
 
+/** Debugging messages.  Printed if compiled with WITH_DEBUG */
 #if defined(WITH_DEBUG) && defined(HAVE_VA_ARGS)
 # define DEBUG(msg, ...) fprintf(stderr, msg, __VA_ARGS__)
 #else

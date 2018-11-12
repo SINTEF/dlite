@@ -162,11 +162,15 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   DLiteStorage *retval=NULL;
   json_error_t error;
   size_t n;
+  char *mode_descr = "How to open storage.  Valid values are: "
+    "\"append\" (appends to existing storage of creates a new one); "
+    "\"r\" (read-only); "
+    "\"w\" (truncate existing storage or create a new one)";
   DLiteOpt opts[] = {
-    {'m', "mode", "append"},
-    {'c', "compact", "false"},
-    {'M', "meta", "false"},
-    {0, NULL, NULL}
+    {'m', "mode",    "append", mode_descr},
+    {'c', "compact", "false",  "Whether to write output in compact format"},
+    {'M', "meta",    "false",  "Whether to format output as metadata"},
+    {0, NULL, NULL, NULL}
   };
   char *optcopy = (options) ? strdup(options) : NULL;
   const char **mode = &opts[0].value;
