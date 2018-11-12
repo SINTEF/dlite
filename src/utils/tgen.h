@@ -35,10 +35,14 @@
   where the parts "%FMT" and ":TEMPL" are optional:
 
     - `VAR` identifies the tag in the substitutions.
-    - `FMT` is an optional format specifier.
+    - `FMT` is an optional printf() format specifier for printing a
+       string.  This is a security risk (since the current
+       implementation passes it unverified to snprintf()), this
+       feature can be disabled by setting the global variable
+       `tgen_allow_formatting` to zero.
     - `TEMPL` is an optional template that may be used in
-      nested calls.  It may contain embedded tags, as long
-      as the opening and closing braces exactly match.
+       nested calls.  It may contain embedded tags, as long
+       as the opening and closing braces exactly match.
 
   Literal braces may be included in the template and the `TEMPL`
   section, if they are escaped according the following table:
@@ -50,7 +54,8 @@
   `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
 
   In addition can the normal C escape sequences (`\a`, `\b`, `\f`,
-  `\n`, `\r`, `\t`, `\v` and `\\`) be used.
+  `\n`, `\r`, `\t`, `\v` and `\\`) be used (if the global variable
+  `tgen_convert_escape_sequences` is non-zero).
 
   There are two types of substitutions, variable substitutions
   and function substitutions:
@@ -146,6 +151,14 @@ typedef struct _TGenSub {
   TGenFun func;   /*!< Generator function, may be NULL */
 } TGenSub;
 
+
+/** Whether to convert standard escape sequences. */
+extern int tgen_convert_escape_sequences;
+
+/** Whether to allow interpreating FMT-part of tags (may be a security
+    risk if the template come from an untrusted source). */
+extern int tgen_allow_formatting;
+
 /**
   @name Utility functions
   @{
@@ -160,6 +173,17 @@ typedef struct _TGenSub {
   Returns non-zero on error.
  */
 int tgen_buf_append(TGenBuf *s, const char *src, int n);
+
+/**
+  Like tgen_buf_append() but allows frintf() formatting of the input.
+ */
+int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
+
+/**
+  Like tgen_buf_append_fmt(), but takes a `va_list` instead of a
+  variable number of arguments.
+ */
+int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
 
 /**
   Returns the line number of position `t` in `template`.

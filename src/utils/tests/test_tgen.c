@@ -16,8 +16,11 @@ MU_TEST(test_tgen_buf_append)
   mu_check(!tgen_buf_append(&buf, "abcdef", 3));
   mu_check(!tgen_buf_append(&buf, "ABCDEF", -1));
   mu_check(!tgen_buf_append(&buf, "123456", 0));
-
   mu_assert_string_eq("abcABCDEF", buf.buf);
+
+  mu_check(!tgen_buf_append_fmt(&buf, "%03d%.2s", 42, "abcdef"));
+  mu_assert_string_eq("abcABCDEF042ab", buf.buf);
+
   free(buf.buf);
 }
 

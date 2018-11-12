@@ -23,8 +23,12 @@
     retval = err(1, msg, a1, a2); goto fail; } while (0)
 
 
-/* Whether to convert standard escape sequences */
-int convert_escape_sequences = 1;
+/* Whether to convert standard escape sequences. */
+int tgen_convert_escape_sequences = 1;
+
+/* Whether to allow interpreating FMT-part of tags (may be a security
+   risk if the template come from an untrusted source). */
+int tgen_allow_formatting = 1;
 
 
 /***************************************************************
@@ -91,7 +95,7 @@ int tgen_buf_append(TGenBuf *s, const char *src, int n)
       return err(TGenAllocationError, "allocation failure");
   }
 
-  if (convert_escape_sequences) {
+  if (tgen_convert_escape_sequences) {
     s->pos += tgen_escaped_copy(s->buf + s->pos, src, len);
   } else {
     memcpy(s->buf + s->pos, src, len);
@@ -99,6 +103,47 @@ int tgen_buf_append(TGenBuf *s, const char *src, int n)
   }
   s->buf[s->pos] = '\0';
   return 0;
+}
+
+/*
+  Like tgen_buf_append() but allows frintf() formatting of the input.
+ */
+int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...)
+{
+  int retval;
+  va_list ap;
+  va_start(ap, fmt);
+  retval = tgen_buf_append_vfmt(s, fmt, ap);
+  va_end(ap);
+  return retval;
+}
+
+/*
+  Like tgen_buf_append_fmt(), but takes a `va_list` instead of a
+  variable number of arguments.
+ */
+int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap)
+{
+  int n, retval=0;
+  char buf[128], *src=buf;
+  va_list ap2;
+  va_copy(ap2, ap);
+
+  /* First try to write to a stack-allocated buffer instead of allocating
+     with malloc().  Resort to malloc if this fails... */
+  if ((n = vsnprintf(buf, sizeof(buf), fmt, ap)) < 1)
+    FAIL1(TGenFormatError, "invalid format string \"%s\"", fmt);
+  if (n <= (int)sizeof(buf)) {
+    src = malloc(n + 1);
+    if ((vsnprintf(src, n+1, fmt, ap2)) != n)
+      FAIL1(TGenFormatError, "invalid format string \"%s\"", fmt);
+  }
+  retval = tgen_buf_append(s, src, n);
+
+ fail:
+  if (src != buf) free(src);
+  va_end(ap2);
+  return retval;
 }
 
 
@@ -387,10 +432,6 @@ char *tgen(const char *template, const TGenSubs *subs, void *context)
 }
 
 
-
-
-
-
 /*
   Like tgen(), but appends to `s` instead of returning the substituted
   template.  `tlen` is the length of `template`.  If it is negative, the
@@ -408,6 +449,7 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
 
   while (*t && t < template + tlen) {
     int len = strcspn(t, "{}");
+    char *fmt = NULL;
     tgen_buf_append(s, t, len);
     t += len;
     if (t - template == (long)tlen) return 0;
@@ -430,17 +472,36 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
       case '}':
         break;
       default:  /* substitution */
-        len = strcspn(t, ":{}");
+        len = strcspn(t, "%:{}");
         if (t[len] == '\0')
           return err(TGenSyntaxError, "line %d: template ends with "
                      "unmatched '{'", tgen_lineno(template, t));
         if (t[len] == '{')
           return err(TGenSyntaxError, "line %d: unexpected '{' within a "
                      "substitution", tgen_lineno(template, t));
+
+        /* parse VAR */
         if (!(sub = tgen_subs_getn(subs, t, len)))
           return err(TGenVariableError, "line %d: unknown var '%.*s'",
                      tgen_lineno(template, t), len, t);
 
+        /* parse FMT */
+        if (t[len] == '%') {
+          char buf[64];
+          const char *tt = t + len + 1;
+          size_t m = strcspn(tt, ":}");
+          len += m + 1;
+          if (tt[m] == '\0')
+            return err(TGenSyntaxError, "line %d: template ends with "
+                       "unmatched '{'", tgen_lineno(template, t));
+          if (m < sizeof(buf)) {
+            strncpy(buf, tt, m);
+            buf[m] = '\0';
+            fmt = buf;
+          }
+        }
+
+        /* parse TEMPL */
         templ = sub->repl;
         templ_len = -1;
         if (t[len] == ':') {
@@ -483,6 +544,9 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
                        "be provided for var '%s'", tgen_lineno(template, t),
                        sub->var);
           if ((stat = sub->func(s, templ, templ_len, subs, context)))
+            return stat;
+        } else if (fmt && tgen_allow_formatting) {
+          if ((stat = tgen_buf_append_fmt(s, fmt, sub->repl)))
             return stat;
         } else {
           if ((stat = tgen_buf_append(s, sub->repl, -1)))
