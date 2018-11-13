@@ -75,8 +75,9 @@ int main()
   char *str = tgen(template, &subs, catalogue);
   printf("%s", str);
 
-  /* Clean up */
+  /* Clean up (to make valgrind happy...) */
   free(str);
+  free(template);
   tgen_subs_deinit(&subs);
   return 0;
 }

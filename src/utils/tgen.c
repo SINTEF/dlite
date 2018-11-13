@@ -1,3 +1,22 @@
+/* tgen.h -- simple templated text generator */
+
+/*
+  TODO:
+  * Fix formatting.  The current implementation that unverified uses
+    text from the template as format string in snprintf() is an
+    unasseptable security risk.
+
+    We only need text formatting, so it might not be too difficult to
+    write our own.  Features we would like are:
+
+      - padding with spaces to a given width
+      - left and right adjustment (+ center asjustment?)
+      - truncation of input to a given width (precision)
+      - conversion to lower/UPPER/Title case
+      - (array indexing) - probably not possible, except if we access the
+        data "on the fly"
+
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -12,6 +31,7 @@
 #include "tgen.h"
 
 
+/* Chunk size when allocating output buffer */
 #define CHUNKSIZE  512
 
 /** Convenient macros for failing */
