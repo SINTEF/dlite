@@ -9,19 +9,64 @@
 #include "minunit/minunit.h"
 
 
+MU_TEST(test_tgen_escaped_copy)
+{
+  char dest[32], *src="a\\nbb\\tcc\\\n-d";
+
+  mu_assert_int_eq(2, tgen_escaped_copy(dest, src, 2));
+  dest[2] = '\0';
+  mu_assert_string_eq("a\\", dest);
+
+  mu_assert_int_eq(2, tgen_escaped_copy(dest, src, 3));
+  dest[2] = '\0';
+  mu_assert_string_eq("a\n", dest);
+
+  mu_assert_int_eq(3, tgen_escaped_copy(dest, src, 4));
+  dest[3] = '\0';
+  mu_assert_string_eq("a\nb", dest);
+
+  mu_assert_int_eq(9, tgen_escaped_copy(dest, src, -1));
+  dest[9] = '\0';
+  mu_assert_string_eq("a\nbb\tcc-d", dest);
+
+}
+
+MU_TEST(test_tgen_setcase)
+{
+  char s[] = "A String - To Test!";
+
+  mu_check(!tgen_setcase(s, -1, 's'));
+  mu_assert_string_eq("A String - To Test!", s);
+
+  mu_check(!tgen_setcase(s, -1, 'l'));
+  mu_assert_string_eq("a string - to test!", s);
+
+  mu_check(!tgen_setcase(s, -1, 'U'));
+  mu_assert_string_eq("A STRING - TO TEST!", s);
+
+  mu_check(!tgen_setcase(s, -1, 'T'));
+  mu_assert_string_eq("A string - to test!", s);
+
+  mu_check(!tgen_setcase(s, 4, 'U'));
+  mu_assert_string_eq("A STring - to test!", s);
+
+  mu_check(tgen_setcase(s, -1, 'S'));
+  mu_check(tgen_setcase(s, -1, '\0'));
+}
+
 MU_TEST(test_tgen_buf_append)
 {
   TGenBuf buf;
-  memset(&buf, 0, sizeof(buf));
-  mu_check(!tgen_buf_append(&buf, "abcdef", 3));
-  mu_check(!tgen_buf_append(&buf, "ABCDEF", -1));
-  mu_check(!tgen_buf_append(&buf, "123456", 0));
+  tgen_buf_init(&buf);
+  mu_assert_int_eq(3, tgen_buf_append(&buf, "abcdef", 3));
+  mu_assert_int_eq(6, tgen_buf_append(&buf, "ABCDEF", -1));
+  mu_assert_int_eq(0, tgen_buf_append(&buf, "123456", 0));
   mu_assert_string_eq("abcABCDEF", buf.buf);
 
-  mu_check(!tgen_buf_append_fmt(&buf, "%03d%.2s", 42, "abcdef"));
+  mu_assert_int_eq(5, tgen_buf_append_fmt(&buf, "%03d%.2s", 42, "abcdef"));
   mu_assert_string_eq("abcABCDEF042ab", buf.buf);
 
-  free(buf.buf);
+  tgen_buf_deinit(&buf);
 }
 
 MU_TEST(test_tgen_lineno)
@@ -47,14 +92,18 @@ MU_TEST(test_tgen_subs)
   tgen_subs_set(&subs, "n",    "42",   NULL);
   tgen_subs_set(&subs, "pi",   "3.14", NULL);
   tgen_subs_set(&subs, "name", "Adam", NULL);
+  tgen_subs_setn(&subs, "key+trash", 3, "<newkey>", NULL);
+  tgen_subs_set_fmt(&subs, "temp", NULL, "%.1fC", 37.1234);
 
   sub = tgen_subs_get(&subs, "n");
   mu_check(sub);
   mu_assert_string_eq("n", sub->var);
+  mu_assert_string_eq("42", sub->repl);
 
   sub = tgen_subs_getn(&subs, "name", -1);
   mu_check(sub);
   mu_assert_string_eq("name", sub->var);
+  mu_assert_string_eq("Adam", sub->repl);
 
   sub = tgen_subs_getn(&subs, "name", 0);
   mu_check(!sub);
@@ -62,12 +111,23 @@ MU_TEST(test_tgen_subs)
   sub = tgen_subs_getn(&subs, "name", 1);
   mu_check(sub);
   mu_assert_string_eq("n", sub->var);
+  mu_assert_string_eq("42", sub->repl);
 
   sub = tgen_subs_getn(&subs, "name", 2);
   mu_check(!sub);
 
   sub = tgen_subs_get(&subs, "x");
   mu_check(!sub);
+
+  sub = tgen_subs_get(&subs, "key");
+  mu_check(sub);
+  mu_assert_string_eq("key", sub->var);
+  mu_assert_string_eq("<newkey>", sub->repl);
+
+  sub = tgen_subs_get(&subs, "temp");
+  mu_check(sub);
+  mu_assert_string_eq("temp", sub->var);
+  mu_assert_string_eq("37.1C", sub->repl);
 
   tgen_subs_deinit(&subs);
 }
@@ -150,6 +210,18 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("pi is 3.14...", str);
   free(str);
 
+  str = tgen("pi is {pi%.3s}", &subs, NULL);
+  mu_assert_string_eq("pi is 3.1", str);
+  free(str);
+
+  str = tgen("pi is {pi%-6.3T}...", &subs, NULL);
+  mu_assert_string_eq("pi is 3.1   ...", str);
+  free(str);
+
+  str = tgen("The name is {name%U}...", &subs, NULL);
+  mu_assert_string_eq("The name is ADAM...", str);
+  free(str);
+
   str = tgen("func subst {f:YY}", &subs, NULL);
   mu_assert_string_eq("func subst YY", str);
   free(str);
@@ -206,6 +278,8 @@ MU_TEST(test_tgen)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_tgen_escaped_copy);
+  MU_RUN_TEST(test_tgen_setcase);
   MU_RUN_TEST(test_tgen_buf_append);
   MU_RUN_TEST(test_tgen_lineno);
   MU_RUN_TEST(test_tgen_subs);

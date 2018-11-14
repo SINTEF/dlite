@@ -33,13 +33,24 @@
       {VAR%FMT:TEMPL}
 
   where the parts "%FMT" and ":TEMPL" are optional:
-
     - `VAR` identifies the tag in the substitutions.
-    - `FMT` is an optional printf() format specifier for printing a
-       string.  This is a security risk (since the current
-       implementation passes it unverified to snprintf()), this
-       feature can be disabled by setting the global variable
-       `tgen_allow_formatting` to zero.
+    - `FMT` is an optional format specifier of the form:
+
+          [ALIGN][WIDTH][.PREC][CASE]
+
+       where the brackets stands for optional fields.  The meaning of the
+       fields are:
+         - ALIGN is either "-" for left-aligned or empty for right-aligned.
+         - WIDTH is a positive integer denoting the width, possible padded
+           with spaces.
+         - PREC is a positive integer denoting the maximum number of
+           characters to write (not including padding).
+         - CASE is a single character, with the following meaning:
+           - "s": no change in case
+           - "l": convert to lower case
+           - "U": convert to upper case
+           - "T": convert to title case (convert first character to
+                  upper case and the rest to lower case)
     - `TEMPL` is an optional template that may be used in
        nested calls.  It may contain embedded tags, as long
        as the opening and closing braces exactly match.
@@ -53,9 +64,10 @@
   `}}`            | `}`    | literal end brace
   `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
 
-  In addition can the normal C escape sequences (`\a`, `\b`, `\f`,
-  `\n`, `\r`, `\t`, `\v` and `\\`) be used (if the global variable
-  `tgen_convert_escape_sequences` is non-zero).
+  In addition are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
+  `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by
+  ending a line with a backslash.  These escapes can be turned off
+  by setting the global variable `tgen_convert_escape_sequences` to zero.
 
   There are two types of substitutions, variable substitutions
   and function substitutions:
@@ -133,6 +145,8 @@ typedef struct _TGenSubs {
   - `subs`: substitutions
   - `context`: pointer to user-defined context passed on to generator
     functions
+
+  Returns non-zero on error.
 */
 typedef int (*TGenFun)(TGenBuf *s, const char *template, int len,
                        const TGenSubs *subs, void *context);
@@ -155,14 +169,55 @@ typedef struct _TGenSub {
 /** Whether to convert standard escape sequences. */
 extern int tgen_convert_escape_sequences;
 
-/** Whether to allow interpreating FMT-part of tags (may be a security
-    risk if the template come from an untrusted source). */
-extern int tgen_allow_formatting;
-
 /**
   @name Utility functions
   @{
  */
+
+/**
+  Copies at most `n` bytes from `src` and writing them to `dest`.
+  If `n` is negative, all of `src` is copied.
+
+  The following standard escape sequences are converted:
+
+      \a, \b, \f, \n, \r, \t, \v \\
+
+  in addition to escaped newlines.
+
+  Returns the number of characters written to `dest`.
+ */
+int tgen_escaped_copy(char *dest, const char *src, int n);
+
+/**
+  Sets the case of the (sub)string `s` according to `casemode`.  `len`
+  is the of length of the substring.  If `len` is negative, the case
+  is applied to the whole string.
+
+  Valid values for `casemode` are:
+    - "s": no change in case
+    - "l": convert to lower case
+    - "U": convert to upper case
+    - "T": convert to title case (convert first character to
+
+  Returns non-zero on error.
+ */
+int tgen_setcase(char *s, int len, int casemode);
+
+
+/**
+  Initiates output buffer.
+ */
+void tgen_buf_init(TGenBuf *s);
+
+/**
+  Clears output buffer and free's up all memory.
+ */
+void tgen_buf_deinit(TGenBuf *s);
+
+/**
+  Returns a pointer to the content of the output buffer.
+ */
+const char *tgen_buf_get(const TGenBuf *s);
 
 /**
   Appends `n` bytes from string `src` to end of output buffer `s`.
@@ -170,12 +225,12 @@ extern int tgen_allow_formatting;
   If `n` is negative, all of `str` (which must be NUL-terminated) is
   appended.
 
-  Returns non-zero on error.
+  Returns number of characters appended or -1 on error.
  */
 int tgen_buf_append(TGenBuf *s, const char *src, int n);
 
 /**
-  Like tgen_buf_append() but allows frintf() formatting of the input.
+  Like tgen_buf_append() but allows printf() formatting of the input.
  */
 int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
 
@@ -184,6 +239,7 @@ int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
   variable number of arguments.
  */
 int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
+
 
 /**
   Returns the line number of position `t` in `template`.

@@ -1,30 +1,14 @@
 /* tgen.h -- simple templated text generator */
 
-/*
-  TODO:
-  * Fix formatting.  The current implementation that unverified uses
-    text from the template as format string in snprintf() is an
-    unasseptable security risk.
-
-    We only need text formatting, so it might not be too difficult to
-    write our own.  Features we would like are:
-
-      - padding with spaces to a given width
-      - left and right adjustment (+ center asjustment?)
-      - truncation of input to a given width (precision)
-      - conversion to lower/UPPER/Title case
-      - (array indexing) - probably not possible, except if we access the
-        data "on the fly"
-
- */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
+#include <string.h>
+#include <ctype.h>
 
 #include "compat.h"
 #include "err.h"
@@ -46,27 +30,50 @@
 /* Whether to convert standard escape sequences. */
 int tgen_convert_escape_sequences = 1;
 
-/* Whether to allow interpreating FMT-part of tags (may be a security
-   risk if the template come from an untrusted source). */
-int tgen_allow_formatting = 1;
 
 
 /***************************************************************
  * Utility functions
  ***************************************************************/
 
+/* Returns non-zero if the format specifier `fmt` is valid.  It should
+   have length `len`. */
+static int validate_fmt(const char *fmt, int len)
+{
+  const char *p=fmt;
+  if (*(p++) != '%') return 0;
+  if (*p == '-') p++;           /* ALIGN */
+  while (isdigit(*p)) p++;      /* WIDTH */
+  if (*p == '.') {              /* PREC */
+    p++;
+    if (!isdigit(*(p++))) return 0;
+    while (isdigit(*p)) p++;
+  }
+  if (!strchr("slUT", *(p++)))  /* CASE */
+      return 0;
+  if (p != fmt + len)           /* check length */
+    return 0;
+  return 1;
+}
+
 /*
   Copies at most `n` bytes from `src` and writing them to `dest`.
+  If `n` is negative, all of `src` is copied.
+
   The following standard escape sequences are converted:
 
       \a, \b, \f, \n, \r, \t, \v \\
 
-  Returns number of characters written to `dest`.
+  in addition to escaped newlines.
+
+  Returns the number of characters written to `dest`.
  */
-int tgen_escaped_copy(char *dest, const char *src, size_t n)
+int tgen_escaped_copy(char *dest, const char *src, int n)
 {
   char *q=dest;
   const char *p=src, *pend=src+n;
+  if (n < 0) n = strlen(src);
+  pend = src + n;
   while(p < pend) {
     if (*p == '\\') {
       if (p+1 < pend) {
@@ -79,6 +86,7 @@ int tgen_escaped_copy(char *dest, const char *src, size_t n)
         case 't':  *(q++) = '\t'; break;
         case 'v':  *(q++) = '\v'; break;
         case '\\': *(q++) = '\\'; break;
+        case '\n': break;                 /* escaped newline, just consume */
         default:   *(q++) = *p;   break;
         }
       } else {
@@ -92,6 +100,65 @@ int tgen_escaped_copy(char *dest, const char *src, size_t n)
   return q - dest;
 }
 
+/*
+  Sets the case of the (sub)string `s` according to `casemode`.  `len`
+  is the of length of the substring.  If `len` is negative, the case
+  is applied to the whole string.
+
+  Valid values for `casemode` are:
+    - "s": no change in case
+    - "l": convert to lower case
+    - "U": convert to upper case
+    - "T": convert to title case (convert first character to
+
+  Returns non-zero on error.
+ */
+int tgen_setcase(char *s, int len, int casemode)
+{
+  int i;
+  if (len < 0)
+    len = strlen(s);
+  switch (casemode) {
+  case 's':
+    return 0;
+  case 'l':
+    for (i=0; i<len; i++) s[i] = tolower(s[i]);
+    return 0;
+  case 'U':
+    for (i=0; i<len; i++) s[i] = toupper(s[i]);
+    return 0;
+  case 'T':
+    s[0] = toupper(s[0]);
+    for (i=1; i<len; i++) s[i] = tolower(s[i]);
+    return 0;
+  }
+  return 1;
+}
+
+/*
+  Initiates output buffer.
+ */
+void tgen_buf_init(TGenBuf *s)
+{
+  memset(s, 0, sizeof(TGenBuf));
+}
+
+/*
+  Clears output buffer and free's up all memory.
+ */
+void tgen_buf_deinit(TGenBuf *s)
+{
+  if (s->buf) free(s->buf);
+  memset(s, 0, sizeof(TGenBuf));
+}
+
+/*
+  Returns a pointer to the content of the output buffer.
+ */
+const char *tgen_buf_get(const TGenBuf *s)
+{
+  return s->buf;
+}
 
 /*
   Appends `n` bytes from string `src` to end of `s`.  If `n` is
@@ -101,7 +168,7 @@ int tgen_escaped_copy(char *dest, const char *src, size_t n)
   (default), then standard escape sequences are converted during
   copying.
 
-  Returns non-zero on error.
+  Returns number of characters appended or -1 on error.
  */
 int tgen_buf_append(TGenBuf *s, const char *src, int n)
 {
@@ -122,11 +189,11 @@ int tgen_buf_append(TGenBuf *s, const char *src, int n)
     s->pos += len;
   }
   s->buf[s->pos] = '\0';
-  return 0;
+  return len;
 }
 
 /*
-  Like tgen_buf_append() but allows frintf() formatting of the input.
+  Like tgen_buf_append() but allows printf() formatting of the input.
  */
 int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...)
 {
@@ -144,7 +211,7 @@ int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...)
  */
 int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap)
 {
-  int n, retval=0;
+  int n, retval;
   char buf[128], *src=buf;
   va_list ap2;
   va_copy(ap2, ap);
@@ -464,12 +531,13 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
 {
   const TGenSub *sub;
   const char *templ, *t = template;
-  int templ_len, stat;
+  int templ_len, nchars, stat;
   if (tlen < 0) tlen = strlen(template);
 
   while (*t && t < template + tlen) {
     int len = strcspn(t, "{}");
     char *fmt = NULL;
+    int casemode = 's';
     tgen_buf_append(s, t, len);
     t += len;
     if (t - template == (long)tlen) return 0;
@@ -507,18 +575,25 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
 
         /* parse FMT */
         if (t[len] == '%') {
-          char buf[64];
-          const char *tt = t + len + 1;
-          size_t m = strcspn(tt, ":}");
-          len += m + 1;
+          char buf[10];
+          const char *tt = t + len;
+          int m = strcspn(tt, ":}");
+          if (m >= (int)sizeof(buf))
+            return err(TGenSyntaxError, "line %d: format specifier \"%.*s\" "
+                       "must not exceed %lu characters",
+                       tgen_lineno(template, t), m, tt, sizeof(buf)-1);
           if (tt[m] == '\0')
             return err(TGenSyntaxError, "line %d: template ends with "
                        "unmatched '{'", tgen_lineno(template, t));
-          if (m < sizeof(buf)) {
-            strncpy(buf, tt, m);
-            buf[m] = '\0';
-            fmt = buf;
-          }
+          if (!validate_fmt(tt, m))
+            return err(TGenSyntaxError, "line %d: invalid format specifier "
+                       "\"%.*s\"", tgen_lineno(template, t), m, tt);
+          len += m;
+          casemode = tt[m-1];
+          strncpy(buf, tt, m);
+          buf[m-1] = 's';
+          buf[m] = '\0';
+          fmt = buf;
         }
 
         /* parse TEMPL */
@@ -565,12 +640,14 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
                        sub->var);
           if ((stat = sub->func(s, templ, templ_len, subs, context)))
             return stat;
-        } else if (fmt && tgen_allow_formatting) {
-          if ((stat = tgen_buf_append_fmt(s, fmt, sub->repl)))
-            return stat;
+        } else if (fmt) {
+          char *p = s->buf + s->pos;
+          if ((nchars = tgen_buf_append_fmt(s, fmt, sub->repl)) < 0)
+            return nchars;
+          tgen_setcase(p, nchars, casemode);
         } else {
-          if ((stat = tgen_buf_append(s, sub->repl, -1)))
-            return stat;
+          if ((nchars = tgen_buf_append(s, sub->repl, -1)) < 0)
+            return -1;
         }
         len = strcspn(t, "}");
         assert(t[len]);
