@@ -86,6 +86,8 @@ int rpl_vasprintf(char **, const char *, va_list);
 /* getopt() */
 #if !defined(HAVE_GETOPT) || !defined(HAVE_GETOPT_LONG)
 #include "compat/getopt.h"
+#else
+#include <getopt.h>
 #endif
 
 

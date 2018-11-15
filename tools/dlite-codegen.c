@@ -5,248 +5,148 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+
 #ifdef HAVE_GETOPT
 # include <getopt.h>
 #else
 # include "getopt.h"
 #endif
 
+/*
+#include "config.h"
+#include "compat.h"
+*/
 #include "err.h"
+#include "tgen.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 
 
-/*
-  Writes instance `inst` as JSON to file `filename`.
- */
-static int write_json(const char *filename, DLiteInstance *inst)
+static int list_dimensions(TGenBuf *s, const char *template, int len,
+                           const TGenSubs *subs, void *context)
 {
-  DLiteStorage *s;
-  if (!(s = dlite_storage_open("json", filename, "mode=w;meta=true")))
-    return errx(1, "cannot open storage: '%s'", filename);
-  if (dlite_instance_save(s, inst))
-    return errx(1, "cannot save instance to storage: '%s'", filename);
-  if (dlite_storage_close(s))
-    return errx(1, "cannot close storage: '%s'", filename);
-  return 0;
-}
-
-
-/*
-  Writes instance `inst` as C header to `fp`.
-*/
-static int write_c_header(FILE *fp, DLiteInstance *inst)
-{
-  int retval=1;
-  char **q, *name=NULL, *version=NULL, *namespace=NULL, *NAME=NULL, **descr;
-  DLiteMeta *meta = (DLiteMeta *)inst;
-  int ismetameta = dlite_meta_is_metameta(meta);
-  size_t i, j, len, maxlen;
-  char buf[256];
-
-  if (!dlite_meta_is_metameta(inst->meta))
-    FAIL("writing data instances as C header is not supported");
-
-  if (inst->uri) {
-    dlite_split_meta_uri(inst->uri, &name, &version, &namespace);
-  } else if ((q = dlite_instance_get_property(inst, "name")) &&
-             (name = strdup(*q)) &&
-             (q = dlite_instance_get_property(inst, "version")) &&
-             (version = strdup(*q)) &&
-             (q = dlite_instance_get_property(inst, "namespace")) &&
-             (namespace = strdup(*q))) {
-    inst->uri = dlite_join_meta_uri(name, version, namespace);
-  } else {
-    FAIL("cannot determine meta uri");
+  int retval = 1;
+  DLiteInstance *inst = (DLiteInstance *)context;
+  TGenSubs dsubs;
+  size_t i;
+  if (tgen_subs_copy(&dsubs, subs)) goto fail;
+  for (i=0; i < inst->meta->ndimensions; i++) {
+    tgen_subs_set(&dsubs, "dim_name", inst->meta->dimensions[i].name, NULL);
+    tgen_subs_set(&dsubs, "dim_descr", inst->meta->dimensions[i].description, NULL);
+    tgen_subs_set_fmt(&dsubs, "dim_value", NULL, "%lu", DLITE_DIM(inst, i));
+    tgen_append(s, template, len, &dsubs, inst);
   }
-
-  NAME = strdup(name);
-  for (i=0; NAME[i]; i++) NAME[i] = toupper(NAME[i]);
-
-  descr = dlite_instance_get_property(inst, "description");
-
-  fprintf(fp, "/* This file is generated with dlite-codegen -- "
-          "do not edit! */\n");
-  fprintf(fp, "\n");
-  if (descr && *descr) fprintf(fp, "/* %s */\n", *descr);
-  fprintf(fp, "#ifndef _%s_H\n", NAME);
-  fprintf(fp, "#define _%s_H\n", NAME);
-  fprintf(fp, "\n");
-  fprintf(fp, "#include \"boolean.h\"\n");
-  fprintf(fp, "#include \"integers.h\"\n");
-  fprintf(fp, "#include \"floats.h\"\n");
-  fprintf(fp, "\n");
-  fprintf(fp, "typedef struct _%s {\n", name);
-  fprintf(fp, "  /* -- header */\n");
-  fprintf(fp, "  char uuid[%d+1];   "
-              "/*!< UUID for this data instance. */\n", DLITE_UUID_LENGTH);
-  fprintf(fp, "  const char *uri;   "
-              "/*!< Unique name or uri of the data instance.\n");
-  fprintf(fp, "                          Can be NULL. */\n");
-  fprintf(fp, "\n");
-  fprintf(fp, "  size_t refcount;   "
-              "/*!< Number of references to this instance. */\n");
-  fprintf(fp, "\n");
-  fprintf(fp, "  const void *meta;  "
-              "/*!< Pointer to the metadata describing this instance. */\n");
-  fprintf(fp, "\n");
-
-  if (ismetameta) {
-    fprintf(fp, "  size_t ndimensions;    "
-                "/*!< Number of dimensions of instance. */\n");
-
-    fprintf(fp, "  size_t nproperties;    "
-                "/*!< Number of dimensions of properties. */\n");
-
-    fprintf(fp, "  size_t nrelations;     "
-                "/*!< Number of dimensions of relations. */\n");
-    fprintf(fp, "\n");
-    fprintf(fp, "  DLiteDimension *dimensions;  "
-                "/*!< Array of dimensions. */\n");
-    fprintf(fp, "  DLiteProperty *properties;   "
-                "/*!< Array of properties. */\n");
-    fprintf(fp, "  DLiteRelation *relations;    "
-                "/*!< Array of relations. */\n");
-    fprintf(fp, "\n");
-    fprintf(fp, "  size_t headersize;   "
-                "/*!< Size of instance header. */\n");
-    fprintf(fp, "  DLiteInit init;      "
-                "/*!< Function initialising an instance. */\n");
-    fprintf(fp, "  DLiteDeInit deinit;  "
-                "/*!< Function deinitialising an instance. */\n");
-    fprintf(fp, "\n");
-    fprintf(fp, "  size_t dimoffset;     "
-                "/*!< Offset of first dimension value. */\n");
-    fprintf(fp, "  size_t *propoffsets;  "
-                "/*!< Pointer to array (in this metadata) of offsets\n"
-                "                             to property values in "
-                "instance. */\n");
-    fprintf(fp, "  size_t reloffset;     "
-                "/*!< Offset of first relation value. */\n");
-    fprintf(fp, "  size_t pooffset;      "
-                "/*!< Offset to array of property offsets. */\n");
-    fprintf(fp, "\n");
-  }
-
-  fprintf(fp, "  /* -- dimension values */\n");
-  for (i=maxlen=0; i < meta->ndimensions; i++)
-    if ((len = strlen(meta->dimensions[i].name)) > maxlen) maxlen = len;
-  for (i=0; i < meta->ndimensions; i++) {
-    fprintf(fp, "  size_t %s;  ", meta->dimensions[i].name);
-    for (j=0; j < maxlen - strlen(meta->dimensions[i].name); j++)
-      fprintf(fp, " ");
-    fprintf(fp, "/*!< %s */\n", meta->dimensions[i].description);
-  }
-  fprintf(fp, "\n");
-
-  fprintf(fp, "  /* -- property values */\n");
-  for (i=maxlen=0; i < meta->nproperties; i++) {
-    DLiteProperty *p = meta->properties + i;
-    size_t nref = (p->ndims) ? 1 : 0;
-    dlite_type_set_cdecl(p->type, p->size, p->name, nref, buf, sizeof(buf));
-    if ((len = strlen(buf)) > maxlen) maxlen = len;
-  }
-  for (i=0; i < meta->nproperties; i++) {
-    DLiteProperty *p = meta->properties + i;
-    size_t nref = (p->ndims) ? 1 : 0;
-    int n;
-    dlite_type_set_cdecl(p->type, p->size, p->name, nref, buf, sizeof(buf));
-    n = fprintf(fp, "  %s;  ", buf);
-    assert(0 <= n && n <= (int)maxlen + 5);
-    for (j=0; j < maxlen + 5 - n; j++) fprintf(fp, " ");
-    fprintf(fp, "/*!< %s ", p->description);
-    if (p->unit) fprintf(fp, "(%s) ", p->unit);
-    if (p->ndims) {
-      char *sep = "";
-      fprintf(fp, "[");
-      for (j=0; j < (size_t)p->ndims; j++) {
-        fprintf(fp, "%s%s", sep, meta->dimensions[p->dims[j]].name);
-        sep = ", ";
-      }
-      fprintf(fp, "] ");
-    }
-    fprintf(fp, "*/\n");
-  }
-
-  if (meta->nrelations) {
-    fprintf(fp, "\n");
-    fprintf(fp, "  /* -- relation values*/\n");
-    // FIXME - write relations
-  }
-
-  if (ismetameta) {
-    fprintf(fp, "\n");
-    fprintf(fp, "  /* -- instance property offsets*/\n");
-    fprintf(fp, "  size_t offsets[%lu];  /*!< Property offsets. */\n",
-            meta->nproperties);
-  }
-  fprintf(fp, "} %s;\n", name);
-  fprintf(fp, "\n");
-  fprintf(fp, "#endif /* _%s_H */\n", NAME);
-
   retval = 0;
-
  fail:
-  if (NAME) free(NAME);
-  if (name) free(name);
-  if (version) free(version);
-  if (namespace) free(namespace);
+  tgen_subs_deinit(&dsubs);
   return retval;
 }
 
 
+
 /*
-   Writes instance `inst` to file `output` in the given format.
-   If `output` is NULL or "-", the instance is written to stdout.
-   Currently supported formats are "h" (C header) and "json".
+  Assign substitutions based on the instance `inst`.
 
-   Returns non-zero on error.
+  Returns non-zero on error.
 */
-int dlite_codegen(const char *output, const char *format, DLiteInstance *inst)
+int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
 {
-  FILE *fp;
-  int stat;
+  char *name, *version, *namespace, **descr;
+  const DLiteMeta *meta = inst->meta;
 
-  if (!output || strcmp(output, "-") == 0)
-    fp = stdout;
-  else if (!(fp = fopen(output, "w")))
-    return err(1, "cannot open output file: '%s'", output);
+  /* General (all types of instances) */
+  tgen_subs_set_fmt(subs, "uuid", NULL, "\"%s\"", inst->uuid);
+  if (inst->uri)
+    tgen_subs_set(subs, "uri",        inst->uri,  NULL);
 
-  if (strcmp(format, "json") == 0) {  /* -- json */
-    if (fp == stdout)
-      return errx(1, "json output to stdout is not supported");
-    if ((stat = write_json(output, inst))) return stat;
-  } else if (strcmp(format, "h") == 0) {  /* -- h (C header) */
-    if ((stat = write_c_header(fp, inst))) return stat;
-  } else {
-    return errx(1, "not a supported output format: %s", format);
+  /* About metadata */
+  dlite_split_meta_uri(meta->uri, &name, &version, &namespace);
+  descr = dlite_instance_get_property((DLiteInstance *)meta, "description");
+  tgen_subs_set(subs, "meta_uri",        meta->uri,  NULL);
+  tgen_subs_set(subs, "meta_name",       name,       NULL);
+  tgen_subs_set(subs, "meta_version",    version,    NULL);
+  tgen_subs_set(subs, "meta_namespace",  namespace,  NULL);
+  tgen_subs_set(subs, "meta_descr",      *descr,     NULL);
+
+  /* DLiteInstance_HEAD */
+  tgen_subs_set_fmt(subs, "_uuid",     NULL, "\"%s\"", inst->uuid);
+  if (inst->uri)
+    tgen_subs_set_fmt(subs, "_uri",      NULL, "\"%s\"", inst->uri);
+  else
+    tgen_subs_set_fmt(subs, "_uri",      NULL, "NULL");
+  tgen_subs_set_fmt(subs, "_refcount", NULL, "0");
+  tgen_subs_set_fmt(subs, "_meta",     NULL, "NULL");
+
+  /* For all metadata  */
+  if (dlite_meta_is_metameta(inst->meta)) {
+    DLiteMeta *meta = (DLiteMeta *)inst;
+    dlite_split_meta_uri(inst->uri, &name, &version, &namespace);
+    descr = dlite_instance_get_property((DLiteInstance *)meta, "description");
+    tgen_subs_set(subs, "name",       name,       NULL);
+    tgen_subs_set(subs, "version",    version,    NULL);
+    tgen_subs_set(subs, "namespace",  namespace,  NULL);
+    tgen_subs_set(subs, "descr",      *descr,     NULL);
+
+  /* DLiteMeta_HEAD */
+    tgen_subs_set_fmt(subs, "_ndimensions", NULL, "%lu", meta->ndimensions);
+    tgen_subs_set_fmt(subs, "_nproperties", NULL, "%lu", meta->nproperties);
+    tgen_subs_set_fmt(subs, "_nrelations",  NULL, "%lu", meta->nrelations);
+
+    tgen_subs_set_fmt(subs, "_headersize",  NULL, "0");
+    tgen_subs_set_fmt(subs, "_init",        NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_deinit",      NULL, "NULL");
+
+    tgen_subs_set_fmt(subs, "_dimoffset",   NULL, "0");
+    tgen_subs_set_fmt(subs, "_propoffsets", NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_reloffset",   NULL, "0");
+    tgen_subs_set_fmt(subs, "_pooffset",    NULL, "0");
   }
 
-  if (fp != stdout) fclose(fp);
+  /* Lists */
+  tgen_subs_set(subs, "list_dimensions", NULL, list_dimensions);
+
   return 0;
 }
 
-char *header[] = {
-  "/* This is a generated with DLite codegen -- do not edit! */",
-  "",
-  "/* Philib interpolator */",
-  "#ifndef _INTERPOLATOR_H",
-  "#define _INTERPOLATOR_H",
-  "",
-  "#include \"integers.h\"",
-  "#include \"boolean.h\"",
-  "",
-  "",
-  "typedef struct _Interpolator {",
-  NULL
-};
-char *footer[] = {
-  "} Interpolator;",
-  "",
-  "#endif /* _INTERPOLATOR_H */",
-  NULL
-};
 
+/*
+  Assign/update substitutions based on `options`.
+
+  Returns non-zero on error.
+*/
+int option_subs(TGenSubs *subs, const char *options)
+{
+  const char *v, *k = options;
+  while (*k && *k != '#') {
+    size_t vlen, klen = strcspn(k, "=;&#");
+    if (k[klen] != '=')
+      return errx(1, "no value for key '%.*s' in option string '%s'",
+                  (int)klen, k, options);
+    v = k + klen + 1;
+    vlen = strcspn(v, ";&#");
+    tgen_subs_setn_fmt(subs, k, klen, NULL, "%.*s", vlen, v);
+    k = v + vlen;
+    if (*k) k++;
+  }
+  return 0;
+}
+
+
+/*
+  Returns a newly malloc'ed string with a generated document based on
+  `template` and instanse `inst`.  `options` is a semicolon (;) separated
+  string with additional options.
+
+  Returns NULL on error.
+ */
+char *dlite_codegen(const char *template, const DLiteInstance *inst,
+                    const char *options)
+{
+  TGenSubs subs;
+  if (instance_subs(&subs, inst)) return NULL;
+  if (option_subs(&subs, options)) return NULL;
+  return tgen(template, &subs, (void *)inst);
+}
 
 
 void help()
@@ -254,13 +154,17 @@ void help()
   char **p, *msg[] = {
     "Usage: dlite-codegen [OPTIONS] [ID]",
     "Generates code for DLite instance.",
-    "  -d, --driver=STRING   Input driver.  Defaults to \"json\".",
-    "  -f, --format=STRING   Output format.  Currently supported formats: ",
-    "                        \"h\" (C header, default), \"json\"",
-    "  -h, --help            Prints this help and exit.",
-    "  -o, --output=PATH     Output file.  Default is to write to stdout.",
-    "  -O, --options=STRING  Input options.",
-    "  -u, --uri=URI         Input uri.",
+    "  -d, --driver=STRING          Driver for loading input instance.",
+    "                               Default is \"json\".",
+    "  -D, --driver-options=STRING  Options for loading input instance.",
+    "                               Default is \"mode=r\".",
+    "  -f, --format=STRING          Output format (that is emplate name)",
+    "                               if -t is not given.",
+    "  -h, --help                   Prints this help and exit.",
+    "  -o, --output=PATH            Output file.  Default is stdout.",
+    "  -O, --options=STRING         Options for updating substitutions.",
+    "  -t, --template=PATH          Template file to load.",
+    "  -u, --uri=URI                Input uri.",
     "",
     "Reads the instance (typically an entity) identified by ID from storage",
     "using the --driver, --uri and --options options.  ID may be omitted if",
@@ -279,37 +183,49 @@ void help()
 
 int main(int argc, char *argv[])
 {
-  DLiteInstance * inst;
+  int retval = 1;
+  DLiteInstance *inst;
+  TGenBuf opts;
+  char *text, *template;
 
   /* Command line arguments */
   char *driver = "json";
-  char *format = "h";
+  char *driver_options = "mode=r";
+  char *format = NULL;
   char *output = NULL;
-  char *options = "mode=r";
+  char *options = "";
+  char *template_file = NULL;
   char *uri = NULL;
   char *id = NULL;
 
   err_set_prefix("dlite-codegen");
 
+  tgen_buf_init(&opts);
+
+  /* Parse options and arguments */
   while (1) {
     int longindex = 0;
     struct option longopts[] = {
-        {"driver",  1, NULL, 'd'},
-        {"format",  1, NULL, 'f'},
-        {"help",    0, NULL, 'h'},
-        {"output",  1, NULL, 'o'},
-        {"options", 1, NULL, 'O'},
-        {"uri",     1, NULL, 'u'},
-        {NULL, 0, NULL, 0}
+      {"driver",         1, NULL, 'd'},
+      {"driver-options", 1, NULL, 'D'},
+      {"format",         1, NULL, 'f'},
+      {"help",           0, NULL, 'h'},
+      {"output",         1, NULL, 'o'},
+      {"options",        1, NULL, 'O'},
+      {"template",       1, NULL, 't'},
+      {"uri",            1, NULL, 'u'},
+      {NULL, 0, NULL, 0}
     };
     int c = getopt_long(argc, argv, "d:f:ho:O:u:", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
     case 'd':  driver = optarg; break;
+    case 'D':  driver_options = optarg; break;
     case 'f':  format = optarg; break;
     case 'h':  help(stdout); exit(0);
     case 'o':  output = optarg; break;
     case 'O':  options = optarg; break;
+    case 't':  template_file = optarg; break;
     case 'u':  uri = optarg; break;
     case '?':  exit(1);
     default:   abort();
@@ -321,22 +237,40 @@ int main(int argc, char *argv[])
 
   /* Load instance */
   if (uri) {
-    DLiteStorage *s = dlite_storage_open(driver, uri, options);
+    DLiteStorage *s = dlite_storage_open(driver, uri, driver_options);
     if (!(inst = dlite_instance_load(s, id, NULL)))
-      return errx(1, "cannot read id '%s' from uri '%s'", id, uri);
+      FAIL2("cannot read id '%s' from uri '%s'", id, uri);
     dlite_storage_close(s);
   } else if (id) {
     if (!(inst = (DLiteInstance *)dlite_metastore_get(id)))
-      return errx(1, "not a built-in id: %s", id);
+      FAIL1("not a built-in id: %s", id);
   } else {
-    return errx(1, "Either ID or --uri must be provided.\n"
-                "Try: \"dlite-codegen --help\"");
+    FAIL("Either ID or --uri must be provided.\n"
+         "Try: \"dlite-codegen --help\"");
   }
 
+  /* Load template */
+  template = tgen_readfile(template_file);
+
   /* Generate */
-  dlite_codegen(output, format, inst);
+  text = dlite_codegen(template, inst, options);
+
+  /* Write output */
+  if (output) {
+    FILE *fp = fopen(output, "wb");
+    if (!fp) FAIL1("cannot open \"%s\" for writing", output);
+    fwrite(text, 1, strlen(output), fp);
+    fclose(fp);
+  } else {
+    fwrite(text, 1, strlen(text), stdout);
+  }
 
   /* Cleanup */
+  retval = 0;
+ fail:
   dlite_instance_decref(inst);
-  return 0;
+  tgen_buf_deinit(&opts);
+  if (template) free(template);
+  if (text) free(text);
+  return retval;
 }

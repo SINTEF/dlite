@@ -251,17 +251,19 @@ int tgen_lineno(const char *template, const char *t)
 
 
 /*
-  Reads a file and returns a newly allocated buffer with its content or
-  NULL on error.
+  Reads a file and returns a newly allocated buffer with its content.
+  If `filename` is NULL, read from stdin.
+
+  Returns NULL on error.
  */
 char *tgen_readfile(const char *filename)
 {
   int retval=0;
   char buf[4096], *p=NULL;
   size_t n, pos, size=0;
-  FILE *fp=NULL;
+  FILE *fp=stdin;
 
-  if (!(fp = fopen(filename, "rb")))
+  if (filename && !(fp = fopen(filename, "rb")))
     FAIL1(TGenIOError, "cannot open file \"%s\"", filename);
 
   /* read in chunks of sizeof(buf) and copy to allocated memory... */
@@ -281,7 +283,7 @@ char *tgen_readfile(const char *filename)
   p[size-1] = '\0';
 
  fail:
-  if (fp) fclose(fp);
+  if (fp && fp != stdin) fclose(fp);
   if (retval && p) free(p);
   return p;
 }
