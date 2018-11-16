@@ -54,23 +54,14 @@
 #cmakedefine HAVE_LCONV_THOUSANDS_SEP
 
 
-/* ================================== */
-/* Compatibility-functions in compat/ */
-/* ================================== */
+/* =================================================== */
+/* Compatibility-functions in the compat/ subdirectory */
+/* =================================================== */
 
-/* snprintf() */
-#ifdef HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-
+/* compat/snprintf.c */
 #ifndef HAVE_SNPRINTF
 # define snprintf rpl_snprintf
 int rpl_snprintf(char *, size_t, const char *, ...);
-#endif
-
-#ifndef HAVE_VSNPRINTF
-# define vsnprintf rpl_vsnprintf
-int rpl_vsnprintf(char *, size_t, const char *, va_list);
 #endif
 
 #ifndef HAVE_ASPRINTF
@@ -78,16 +69,28 @@ int rpl_vsnprintf(char *, size_t, const char *, va_list);
 int rpl_asprintf(char **, const char *, ...);
 #endif
 
+
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+
+#ifndef HAVE_VSNPRINTF
+# define vsnprintf rpl_vsnprintf
+int rpl_vsnprintf(char *, size_t, const char *, va_list);
+#endif
+
 #ifndef HAVE_VASPRINTF
 # define vasprintf rpl_vasprintf
 int rpl_vasprintf(char **, const char *, va_list);
 #endif
 
-/* getopt() */
-#if !defined(HAVE_GETOPT) || !defined(HAVE_GETOPT_LONG)
-#include "compat/getopt.h"
-#else
+#endif  /* HAVE_STDARG_H */
+
+
+/* compat/getopt.h */
+#if defined(HAVE_GETOPT) && defined(HAVE_GETOPT_LONG)
 #include <getopt.h>
+#else
+#include "compat/getopt.h"
 #endif
 
 

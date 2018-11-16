@@ -73,6 +73,7 @@ set(sources
   dlite-schemas.c
   dlite-entity.c
   dlite-collection.c
+  dlite-codegen.c
   getuuid.c
   triplestore.c
   )

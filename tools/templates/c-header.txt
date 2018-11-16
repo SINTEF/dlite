@@ -1,0 +1,27 @@
+/* This file is generated with dlite-codegen -- do not edit! */
+
+/* {descr} */
+#ifndef _{name%U}_H
+#define _{name%U}_H
+
+#include "boolean.h"
+#include "integers.h"
+#include "floats.h"
+
+typedef struct _{name} {{
+  /* -- header */
+  char uuid[36+1];   /*!< UUID for this data instance. */
+  const char *uri;   /*!< Unique name or uri of the data instance.
+                          Can be NULL. */
+
+  size_t refcount;   /*!< Number of references to this instance. */
+
+  const void *meta;  /*!< Pointer to the metadata describing this instance. */
+
+  /* -- dimension values */
+{list_dimensions:  size_t {dim_name};  /*!< {dim_descr} */\n}
+  /* -- property values */
+{list_properties:  {prop_cdecl};  /*!< {prop_descr} */\n}
+}} {name};
+
+#endif /* _{name%U}_H */

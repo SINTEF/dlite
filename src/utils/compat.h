@@ -1,6 +1,9 @@
 /**
   @file
   @brief auxiliary compatibility functions
+
+  Note that the declarations for the functions found in the compat/
+  subdirectory are provided in config.h.in.
 */
 #ifndef _COMPAT_H
 #define _COMPAT_H
@@ -43,5 +46,6 @@ int strcasecmp(const char *s1, const char *s2);
 int strncasecmp(const char *s1, const char *s2, size_t n);
 # endif
 #endif
+
 
 #endif /* _COMPAT_H */
