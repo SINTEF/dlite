@@ -10,6 +10,17 @@
 #include "dlite.h"
 
 
+/* Generator function that simply copies the template.
+
+   This might be useful to e.g. apply formatting. Should it be a part of
+   tgen?
+*/
+static int copy(TGenBuf *s, const char *template, int len,
+		const TGenSubs *subs, void *context)
+{
+  return tgen_append(s, template, len, subs, context);
+}
+
 /* Generator function for listing dimensions. */
 static int list_dimensions(TGenBuf *s, const char *template, int len,
                            const TGenSubs *subs, void *context)
@@ -97,7 +108,6 @@ static int list_properties(TGenBuf *s, const char *template, int len,
 static int list_relations(TGenBuf *s, const char *template, int len,
                           const TGenSubs *subs, void *context)
 {
-
 }
 */
 
@@ -210,256 +220,3 @@ char *dlite_codegen(const char *template, const DLiteInstance *inst,
   tgen_subs_deinit(&subs);
   return text;
 }
-
-
-
-#if 0
-static DLiteOpt option_list[] = {
-  {'h', "header", NULL, "Name of C header file to produce."},
-  {'c', "source", NULL, "Name of C source file to produce."},
-  {'j', "json",   NULL, "Name of JSON file to produce."},
-  {'i', "init",   NULL, "Name of init() function."},
-  {'d', "deinit", NULL, "Name of deinit() function."},
-  {'n', "name",   NULL, "Name of generated structure."},
-  {0, NULL, NULL, NULL}
-};
-
-
-typedef struct {
-  TGenSubstitution *subs;
-  int size;
-  int nsubs;
-  map_int_t map;
-} DLiteSubs;
-
-/*
-struct DLiteProperty instance_header[] = {
-  {"_uuid", dliteFixString, 36+1, 0, NULL, NULL,
-   "UUID for this data instance."},
-  {"_uri", dliteStringPtr, sizeof(char *), 0, NULL, NULL,
-   "Unique name or uri of the data instance.  May be NULL."},
-  {"_refcount", dliteInt, sizeof(int), 0, NULL, NULL,
-   "Unique name or uri of the data instance.  May be NULL."},
-};
-*/
-
-
-
-static char *template_header[] = {
-  "/* This file is generated with dlite-codegen -- do not edit! */",
-  "",
-  "/** {descr} */",
-  "#ifndef _{NAME}_H",
-  "#define _{NAME}_H",
-  "",
-  "#include \"boolean.h\"",
-  "#include \"integers.h\"",
-  "#include \"floats.h\"",
-  "",
-  "enum {{",
-  "{enum_dimensions}",
-  "}};",
-  "",
-  "enum {{",
-  "{enum_properties}",
-  "}};",
-  "",
-  "",
-  "typedef struct _{Name} {{",
-  "  /* -- header */",
-  "  char uuid[36+1];   /*!< UUID for this data instance. */",
-  "  const char *uri;   /*!< Unique name or uri of the data instance.",
-  "                          Can be NULL. */",
-  "  size_t refcount;   /*!< Number of references to this instance. */",
-  "  const void *meta;  /*!< Pointer to the metadata describing this ",
-  "                          instance. */",
-  "",
-  "  /* -- dimension values */",
-  "{cdecl_dimensions:  {cdecl};  /*!< {descr} */\n}",
-  "",
-  "  /* -- property values */",
-  "{cdecl_properties:  {cdecl};  /*!< {descr} */\n}",
-  "}} {Name};",
-  "",
-  "#endif /* _{NAME}_H */",
-  NULL
-};
-
-
-/* Initiates memory used by `s`. */
-static int init_subs(DLiteSubs *s)
-{
-  memset(s, 0, sizeof(DLiteSubs));
-  map_init(&s->map);
-}
-
-/* Cleans up memory used by `s`, but not the memory pointed to by `s`. */
-static int clear_subs(DLiteSubs *s)
-{
-  map_deinit(&s->map);
-  if (s->subs) free(s->subs);
-  memset(s, 0, sizeof(DLiteSubs));
-}
-
-
-
-/* Adds substitution to array `s`. Returns non-zero on error. */
-static int set_sub(DLiteSubs *s, const char *var, const char *repl, TGenSub fn)
-{
-  int *p;
-  if (!s->subs) init_subs(s);
-
-  if ((p = map_get(&s->map, var))) {
-    int i = *p;
-    assert(s->subs[i].var == var);
-    s->subs[i].repl = repl;
-    s->subs[i].sub = fn;
-  } else {
-    TGenSubstitution sub;
-    if (s->nsubs >= s->size) {
-      s->size += 64;
-      if (!(s->subs = realloc(s->subs, s->size*sizeof(TGenSubstitution))))
-        return err(1, "allocation failure");
-    }
-    sub.var = (char *)var;
-    sub.repl = (char *)repl;
-    sub.sub = fn;
-    map_set(&s->map, var, &s->nsubs);
-
-    memcpy(s->subs + s->nsubs++, &sub, sizeof(TGenSubstitution));
-    memset(s->subs + s->nsubs, 0, sizeof(TGenSubstitution));
-  }
-  return 0;
-}
-
-
-/* Add substitutions from instance inst. */
-int dlite_instance_substitutions(DLiteSubs *s, const DLiteInstance *inst)
-{
-  const char *uri;
-  char *Name=NULL, *version=NULL, *namespace=NULL;
-  char **q, *name=NULL, *NAME=NULL, **descr;
-  int i, retval=1;
-
-  uri = inst->uri;
-  if (uri) {
-    dlite_split_meta_uri(inst->uri, &name, &version, &namespace);
-  } else if ((q = dlite_instance_get_property(inst, "name")) &&
-             (name = strdup(*q)) &&
-             (q = dlite_instance_get_property(inst, "version")) &&
-             (version = strdup(*q)) &&
-             (q = dlite_instance_get_property(inst, "namespace")) &&
-             (namespace = strdup(*q))) {
-    uri = dlite_join_meta_uri(name, version, namespace);
-  }
-  if (Name) {
-    name = strdup(Name);
-    NAME = strdup(Name);
-    for (i=0; name[i]; i++) name[i] = tolower(name[i]);
-    for (i=0; NAME[i]; i++) NAME[i] = toupper(NAME[i]);
-  }
-
-  set_sub(s, "uuid", inst->uuid, NULL);
-  set_sub(s, "uri", uri, NULL);
-
-  set_sub(s, "Name", Name, NULL);
-  set_sub(s, "name", name, NULL);
-  set_sub(s, "NAME", NAME, NULL);
-
-  set_sub(s, "version", version, NULL);
-  set_sub(s, "namespace", namespace, NULL);
-
-  if ((descr = dlite_instance_get_property(inst, "description")))
-    set_sub(s, "descr", *descr, NULL);
-  else
-    set_sub(s, "descr", "", NULL);
-
-  set_sub(s, "enum_dimensions", "xx", NULL);
-  set_sub(s, "enum_properties", "xx", NULL);
-
-  set_sub(s, "cdecl_dimensions", "xx", NULL);
-  set_sub(s, "cdecl_properties", "xx", NULL);
-
-  retval = 0;
-  //fail:
-  if (NAME) free(NAME);
-  if (name) free(name);
-  if (version) free(version);
-  if (namespace) free(namespace);
-  return retval;
-}
-
-
-/*
-  Returns a newly malloc'ed NULL-terminated array of substitutions.
- */
-DLiteSubs *dlite_codegen_substitutions(const DLiteInstance *inst,
-                                             DLiteOpt *opts)
-{
-
-
-  int size=64, nsubs=0;
-  TGenSubstitution *subs = malloc(size*sizeof(TGenSubstitution));
-
-
-
-
-
-  DLiteMeta *meta = (DLiteMeta *)inst;
-
-
-
-  UNUSED(inst);
-  UNUSED(opts);
-
-  if (!(subs = malloc(size*sizeof(TGenSubstitution))))
-    return err(1, "allocation failure"), NULL;
-
-  return subs;
-}
-
-/*
-
- */
-char *dlite_codegen_header(const TGenSubstitution *subs)
-{
-  UNUSED(subs);
-  return NULL;
-}
-
-
-/*
-  Returns non-zero on error.
- */
-int dlite_codegen(const DLiteInstance *inst, const char *options)
-{
-  DLiteOpt opts[countof(option_list)];
-  char *optcopy = strdup(options);;
-  char *code = NULL;
-  const TGenSubstitution *subs, *sub;
-  int retval=-1;
-  FILE *fp;
-
-  memcpy(opts, option_list, sizeof(option_list));
-  dlite_option_parse(optcopy, opts, 1);
-  subs = dlite_codegen_substitutions(inst, opts);
-
-  /* write C header */
-  sub = tgen_get_substitution(subs, -1, "header", -1);
-  assert(sub);
-  if (sub->repl) {
-    if (!(fp = fopen(sub->repl, "w")))
-      FAIL1("cannot open output header file: %s", sub->repl);
-    if (!(code = dlite_codegen_header(subs))) goto fail;
-    fprintf(fp, "%s\n", code);
-    fclose(fp);
-  }
-
-  /* write C source */
-
-  retval = 0;
- fail:
-  free(optcopy);
-  return retval;
-}
-#endif
