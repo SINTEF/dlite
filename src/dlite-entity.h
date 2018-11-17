@@ -153,7 +153,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_DIM_DESCR(inst, n) \
   (((DLiteInstance *)(inst))->meta->dimensions + n)
 
-/** Expands to number of dimensions (size_t). */
+/** Expands to number of properties (size_t). */
 #define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
 
 ///** Expands to pointer to array of pointers to property values --> (void **) */

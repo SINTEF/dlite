@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "utils/config.h"
+#include "compat.h"
 
 #include "err.h"
 #include "tgen.h"

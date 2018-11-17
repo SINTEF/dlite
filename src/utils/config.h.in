@@ -1,7 +1,7 @@
 /* -*- Mode: C -*- */
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef _UTILS_CONFIG_H
+#define _UTILS_CONFIG_H
 
 /* Language/preprocessor features */
 #cmakedefine HAVE_VA_ARGS
@@ -121,4 +121,4 @@ int rpl_vasprintf(char **, const char *, va_list);
 # define __attribute__(x)
 #endif
 
-#endif /* _CONFIG_H */
+#endif /* _UTILS_CONFIG_H */

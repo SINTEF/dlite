@@ -1,14 +1,6 @@
 # -*- Mode: cmake -*-
 #
 
-# System tests
-include(CheckSymbolExists)
-check_symbol_exists(getopt getopt.h HAVE_GETOPT)
-if (HAVE_GETOPT)
-  add_definitions(-DHAVE_GETOPT)
-endif()
-
-
 link_directories(${uuid_BINARY_DIR})
 
 # dlite-getuuid
