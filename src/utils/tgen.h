@@ -197,7 +197,8 @@ int tgen_escaped_copy(char *dest, const char *src, int n);
     - "s": no change in case
     - "l": convert to lower case
     - "U": convert to upper case
-    - "T": convert to title case (convert first character to
+    - "T": convert to title case (convert first character to upper case
+           and the rest to lower case)
 
   Returns non-zero on error.
  */

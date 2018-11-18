@@ -33,7 +33,7 @@ int tgen_convert_escape_sequences = 1;
 
 
 /***************************************************************
- * Utility functions
+ * Help functions
  ***************************************************************/
 
 /* Returns non-zero if the format specifier `fmt` is valid.  It should
@@ -55,6 +55,173 @@ static int validate_fmt(const char *fmt, int len)
     return 0;
   return 1;
 }
+
+/* Returns the number of bytes from the position in a template that is
+   pointed to by `p` to the first unpaired end brace.  Returns -1 if
+   no unpaired end brace can be found. */
+static int length_to_endbrace(const char *p)
+{
+  const char *q = p;
+  int depth = 0;
+  while (*q && *q != '}') {
+    int n = strcspn(q, "{}");
+    q += n;
+    switch (*(q++)) {
+    case '\0':
+      return -1;
+    case '{':
+      if (*q == '{')
+        q++;
+      else if (*q != '}')
+        depth++;
+      break;
+    case '}':
+      if (*q == '}')
+        q++;
+      else if (depth-- <= 0)
+        q--;
+      break;
+    default:
+      abort();  /* should never be reached */
+    }
+  }
+  return q - p;
+}
+
+/* Returns the number of bytes from the position in a template that is
+   pointed to by `p` to variable `var`.  Only the number of bytes
+   until the starting brace are counted.  If `maxlen` is equal or larger
+   than zero, at most `maxlen` bytes are considered.
+
+   Returns -1 if variable `var` was not found. */
+static int length_to_var(const char *p, const char *var, int maxlen)
+{
+  const char *q = p;
+  while (1) {
+    size_t n = strcspn(q, "{");
+    if (!q[n]) return -1;
+    q += n + 1;
+    if (maxlen >= 0 && q > p + maxlen) {
+      return -1;
+    } else if (*q == '{') {
+      q++;
+    } else {
+      size_t m = strcspn(q, "%:}");
+      if (strncmp(q, var, m) == 0)
+        return q - p - 1;
+      else
+        q += length_to_endbrace(q);
+    }
+  }
+}
+
+
+/* Evaluates condition `cond`.
+
+   Returns 1 if conds evaluates to true, 0 if cond is false or -1 on error. */
+static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
+                         void *context)
+{
+  int retval=-1;
+  char *p, *endp;
+  TGenBuf s;
+  tgen_buf_init(&s);
+  if (tgen_append(&s, cond, len, subs, context)) goto fail;
+  if (!s.buf || !*s.buf) {
+    retval = 0;
+  } else if ((p = strstr(s.buf, "=="))) {
+    *p = '\0';
+    retval = (strcmp(s.buf, p+2) == 0) ? 1 : 0;
+  } else if ((p = strstr(s.buf, "!="))) {
+    *p = '\0';
+    retval = (strcmp(s.buf, p+2) != 0) ? 1 : 0;
+  } else {
+    retval = (strtol(s.buf, &endp, 0) == 0 && !*endp) ? 0 : 1;
+  }
+ fail:
+  tgen_buf_deinit(&s);
+  return retval;
+}
+
+
+/* Implements template conditional:
+
+       {@if:COND}...{@elif:COND}...{@else}...{@endif}
+
+   Returns the number of bytes consumed or -1 on error.
+*/
+static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
+                      void *context)
+{
+  const char *endp, *t = template;
+  int cond, m, n = strcspn(t, ":");
+  if (strncmp(t, "@if", n) || !t[n]) return -1;
+  t += n + 1;
+  if ((n = length_to_endbrace(t)) < 0 || !t[n]) return -1;
+  if ((cond = evaluate_cond(t, n, subs, context)) < 0) return -1;
+  t += n + 1;
+  if ((n = length_to_var(t, "@endif", -1)) < 0) return -1;
+  if ((m = length_to_endbrace(t+n+1)) < 0) return -1;
+  endp = t + n + m + 2;
+
+  while ((n = length_to_var(t, "@elif", endp - t)) >= 0) {
+    if (cond) {
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    }
+    if ((t += n + strcspn(t+n, ":")) && !*t) return -1;
+    if (!*(t++)) return -1;
+    if ((n = length_to_endbrace(t)) < 0) return -1;
+    if ((cond = evaluate_cond(t, n, subs, context)) < 0) return -1;
+    t += n + 1;
+  }
+  if ((n = length_to_var(t, "@else", endp - t)) >= 0) {
+    if (cond) {
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    } else {
+      if ((m = length_to_endbrace(t+n+1)) < 0) return -1;
+      t += n + m + 2;
+      if ((n = length_to_var(t, "@endif", -1)) < 0) return -1;
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    }
+  }
+  if ((n = length_to_var(t, "@endif", endp - t)) >= 0) {
+    if (cond) {
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    }
+  }
+  return endp - template;
+}
+//t += builtin_if(s, t, subs, content);
+
+
+///* Global variable holding built-in substitutions */
+//static TGenSubs _builtin_subs = {NULL};
+//
+///* Deinits built-in substitutions.  Called at exit. */
+//static void deinit_builtin_subs(void)
+//{
+//  tgen_subs_deinit(&_builtin_subs);
+//}
+//
+///* Returns a pointer to built-in substitutions. */
+//static TGenSubs *get_builtin_subs()
+//{
+//  if (!_builtin_subs.subs) {
+//    tgen_subs_init(&_builtin_subs);
+//    tgen_subs_set(&_builtin_subs, "@if", handle_if);
+//  }
+//  return &_builtin_subs;
+//}
+
+
+
+/***************************************************************
+ * Utility functions
+ ***************************************************************/
 
 /*
   Copies at most `n` bytes from `src` and writing them to `dest`.
@@ -86,6 +253,7 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
         case 't':  *(q++) = '\t'; break;
         case 'v':  *(q++) = '\v'; break;
         case '\\': *(q++) = '\\'; break;
+        case '.':  break;                 /* escaped ".", just consume */
         case '\n': break;                 /* escaped newline, just consume */
         default:   *(q++) = *p;   break;
         }
@@ -109,7 +277,8 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
     - "s": no change in case
     - "l": convert to lower case
     - "U": convert to upper case
-    - "T": convert to title case (convert first character to
+    - "T": convert to title case (convert first character to upper case
+           and the rest to lower case)
 
   Returns non-zero on error.
  */
@@ -534,8 +703,8 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
   const TGenSub *sub;
   const char *templ, *t = template;
   int templ_len, nchars, stat;
-  if (tlen < 0) tlen = strlen(template);
 
+  if (tlen < 0) tlen = strlen(template);
   while (*t && t < template + tlen) {
     int len = strcspn(t, "{}");
     char *fmt = NULL;
@@ -569,6 +738,15 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
         if (t[len] == '{')
           return err(TGenSyntaxError, "line %d: unexpected '{' within a "
                      "substitution", tgen_lineno(template, t));
+
+        /* parse special constructs */
+        if (strncmp(t, "@if", len) == 0) {
+          if ((len = builtin_if(s, t, subs, context)) < 0)
+            return err(TGenSyntaxError, "line %d: invalid @if conditional",
+                       tgen_lineno(template, t));
+          t += len;
+          continue;
+        }
 
         /* parse VAR */
         if (!(sub = tgen_subs_getn(subs, t, len)))

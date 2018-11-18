@@ -25,6 +25,9 @@
 #define {name%U}_NAMESPACE "{namespace}"
 #define {name%U}_URI       "{_uri}"
 #define {name%U}_UUID      "{_uuid}"
+#define {name%U}_META_URI  "{meta.uri}"
+#define {name%U}_META_UUID "{meta.uuid}"
+
 
 typedef struct _{name} {{
   /* -- header */
@@ -41,5 +44,8 @@ typedef struct _{name} {{
   /* -- property values */
 {list_properties:  {prop.cdecl};  /*!< {prop.descr} */\n}
 }} {name};
+
+
+
 
 #endif /* _{name%U}_H */

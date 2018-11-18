@@ -98,6 +98,11 @@ typedef enum _DLiteType {
 const char *dlite_type_get_dtypename(DLiteType dtype);
 
 /**
+  Returns enum name for `dtype` or NULL on error.
+ */
+const char *dlite_type_get_enum_name(DLiteType dtype);
+
+/**
   Returns the dtype corresponding to \a dtypename or -1 on error.
 */
 DLiteType dlite_type_get_dtype(const char *dtypename);

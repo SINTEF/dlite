@@ -26,6 +26,22 @@ static char *dtype_names[] = {
   "relation",
 };
 
+/* Type enum names */
+static char *dtype_enum_names[] = {
+  "dliteBlob",
+  "dliteBool",
+  "dliteInt",
+  "dliteUInt",
+  "dliteFloat",
+  "dliteFixString",
+  "dliteStringPtr",
+
+  "dliteDimension",
+  "dliteProperty",
+  "dliteRelation",
+};
+
+
 /* Name of fix-sized types (does not include dliteBlob and dliteFixString) */
 static struct _TypeDescr {
   char *typename;
@@ -67,13 +83,23 @@ static struct _TypeDescr {
 
 
 /*
-   Returns descriptive name for `dtype` or NULL on error.
+  Returns descriptive name for `dtype` or NULL on error.
 */
 const char *dlite_type_get_dtypename(DLiteType dtype)
 {
   if (dtype < 0 || dtype >= sizeof(dtype_names) / sizeof(char *))
     return err(1, "invalid dtype number: %d", dtype), NULL;
   return dtype_names[dtype];
+}
+
+/*
+  Returns enum name for `dtype` or NULL on error.
+ */
+const char *dlite_type_get_enum_name(DLiteType dtype)
+{
+  if (dtype < 0 || dtype >= sizeof(dtype_names) / sizeof(char *))
+    return err(1, "invalid dtype number: %d", dtype), NULL;
+  return dtype_enum_names[dtype];
 }
 
 /*
@@ -121,6 +147,15 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
       return errx(1, "string should have size %lu, but %lu was provided",
                  sizeof(char *), size);
     snprintf(typename, n, "string");
+    break;
+  case dliteDimension:
+    snprintf(typename, n, "dimension");
+    break;
+  case dliteProperty:
+    snprintf(typename, n, "property");
+    break;
+  case dliteRelation:
+    snprintf(typename, n, "relation");
     break;
   default:
     return errx(1, "unknown dtype number: %d", dtype);
