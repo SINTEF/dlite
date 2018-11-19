@@ -55,20 +55,6 @@
        nested calls.  It may contain embedded tags, as long
        as the opening and closing braces exactly match.
 
-  Literal braces may be included in the template and the `TEMPL`
-  section, if they are escaped according the following table:
-
-  escape sequence | result | comment
-  --------------- | ------ | -------
-  `{{`            | `{`    | literal start brace
-  `}}`            | `}`    | literal end brace
-  `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
-
-  In addition are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
-  `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by
-  ending a line with a backslash.  These escapes can be turned off
-  by setting the global variable `tgen_convert_escape_sequences` to zero.
-
   There are two types of substitutions, variable substitutions
   and function substitutions:
 
@@ -80,6 +66,44 @@
       the template is processed, the function is called replacing the
       tag with its output.  The function uses `TEMPL` as a
       (sub)template.
+
+  Conditionals are a special form of tags with the following syntax:
+  @code
+
+      {@if:COND}
+        <code...>
+      {@elif:COND}
+        <code...>
+      {@else}
+        <code...>
+      {@endif}
+
+  @endcode
+  The `elif` and `else` tags are optional and there may be
+  multiple `elif` tags.  COND is the condition and is currently
+  very simple, only including the three forms:
+    - "str1==str2": true if `str1` equals `str2`
+    - "str1!=str2": true if `str1` does not equals `str2`
+    - "str": true if `str` is non-empty
+  Variable expansion is performed before COND is evaluated.
+
+  Literal braces may be included in the template and the `TEMPL`
+  section, if they are escaped according the following table:
+
+  escape sequence | result | comment
+  --------------- | ------ | -------
+  `{{`            | `{`    | literal start brace
+  `}}`            | `}`    | literal end brace
+  `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
+
+  Furthermore are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
+  `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by
+  ending a line with a backslash.  In addition includes tgen the
+  special noop escape sequence `\.` that expands to the empty string.
+  It may be used as an alternative to `{}` for separating end braces
+  following each other, such that they are not interpreated as a
+  literal end brace.  These escapes can be turned off by setting the
+  global variable `tgen_convert_escape_sequences` to zero.
 
   The strength of templating is that you can produce the same information
   in a completely different format just by changing the template, without

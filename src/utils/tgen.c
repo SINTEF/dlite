@@ -195,27 +195,6 @@ static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
   }
   return endp - template;
 }
-//t += builtin_if(s, t, subs, content);
-
-
-///* Global variable holding built-in substitutions */
-//static TGenSubs _builtin_subs = {NULL};
-//
-///* Deinits built-in substitutions.  Called at exit. */
-//static void deinit_builtin_subs(void)
-//{
-//  tgen_subs_deinit(&_builtin_subs);
-//}
-//
-///* Returns a pointer to built-in substitutions. */
-//static TGenSubs *get_builtin_subs()
-//{
-//  if (!_builtin_subs.subs) {
-//    tgen_subs_init(&_builtin_subs);
-//    tgen_subs_set(&_builtin_subs, "@if", handle_if);
-//  }
-//  return &_builtin_subs;
-//}
 
 
 
