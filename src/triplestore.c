@@ -3,8 +3,10 @@
 /*
   TODO
 
-  - Consider use a more advanced library like
-    [libraptor2](http://librdf.org/raptor/libraptor2.html).
+  - Consider use a more advanced library like the [Redland RDF
+    library](http://librdf.org/) (which depends on the sublibraries
+    [rasqal](http://librdf.org/rasqal/) and
+    [libraptor2](http://librdf.org/raptor/libraptor2.html)).
 
   - add locks to ensure that a triplestore is not reallocated or
     sorted while one works with pointers to the stored triplets.
