@@ -234,6 +234,7 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
         case '\\': *(q++) = '\\'; break;
         case '.':  break;                 /* escaped ".", just consume */
         case '\n': break;                 /* escaped newline, just consume */
+        case '\r': break;                 /* escaped newline, Mac */
         default:   *(q++) = *p;   break;
         }
       } else {
@@ -379,6 +380,31 @@ int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap)
   if (src != buf) free(src);
   va_end(ap2);
   return retval;
+}
+
+/*
+  Pad buffer with character `c` until `n` characters has been written since
+  the last newline.  If more than `n` characters has already been written
+  since the last newline, nothing is added.
+
+  Returns number of padding added or -1 on error.
+*/
+int tgen_buf_calign(TGenBuf *s, int c, int n)
+{
+  char str[] = {c, '\0'};
+  int retval, i = 0;
+  while (i<n && i <= (int)s->pos && s->buf[s->pos-i] != '\n') i++;
+  retval = n - i + 1;
+  while (i++ <= n) tgen_buf_append(s, str, 1);
+  return retval;
+}
+
+/*
+  Like tgen_buf_calign() but pads with space.
+*/
+int tgen_buf_align(TGenBuf *s, int n)
+{
+  return tgen_buf_calign(s, ' ', n);
 }
 
 
@@ -719,11 +745,21 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
                      "substitution", tgen_lineno(template, t));
 
         /* parse special constructs */
-        if (strncmp(t, "@if", len) == 0) {
+        if (strncmp(t, "@if", len) == 0) {  /* conditional */
           if ((len = builtin_if(s, t, subs, context)) < 0)
             return err(TGenSyntaxError, "line %d: invalid @if conditional",
                        tgen_lineno(template, t));
           t += len;
+          continue;
+        } else if (t[0] == '@' && isdigit(t[1])) {  /* alignment */
+          char *endp;
+          long n = strtol(t+1, &endp, 0);
+          //printf("\n*** var='%.*s', len=%d, n=%ld\n", len, t, len, n);
+          if (endp != t+len)
+            return err(TGenSyntaxError, "line %d: invalid alignment tag {%.*s",
+                       tgen_lineno(template, t), len, t);
+          tgen_buf_align(s, n);
+          t += len+1;
           continue;
         }
 

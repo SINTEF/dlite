@@ -5,6 +5,7 @@
   @file
   @brief Simple templated text generator
 
+  ### Introduction
   The main function in this library is tgen(). It takes a template and
   a list of substitutions and produces a new document.
 
@@ -25,6 +26,7 @@
         - Jack Daniel lives in USA
         - Fritjof Nansen lives in Norway
 
+  ### Variable tags
   A pair of braces, "{" and "}", that encloses a string is a *tag*.
   When the template is processed, the tags are replaced with new
   content according to the substitutions.  The general form for a tag
@@ -67,6 +69,7 @@
       tag with its output.  The function uses `TEMPL` as a
       (sub)template.
 
+  ### Conditional tags
   Conditionals are a special form of tags with the following syntax:
   @code
 
@@ -87,6 +90,19 @@
     - "str": true if `str` is non-empty
   Variable expansion is performed before COND is evaluated.
 
+  ### Alignment tags
+  Alignment are tags of the form
+  @code
+
+      {@N}
+
+  @endcode
+  where `N` may be any positive integer.  It will be replaced with
+  spaces such that the text following it will start on column `N`
+  (that is `N` characters after the last newline).  If the alignment
+  tag it placed after column `N`, no output will be produced.
+
+  ### Literal braces and escapes
   Literal braces may be included in the template and the `TEMPL`
   section, if they are escaped according the following table:
 
@@ -264,6 +280,20 @@ int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
   variable number of arguments.
  */
 int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
+
+/**
+  Pad buffer with character `c` until `n` characters has been written since
+  the last newline.  If more than `n` characters has already been written
+  since the last newline, nothing is added.
+
+  Returns number of padding added or -1 on error.
+*/
+int tgen_buf_calign(TGenBuf *s, int c, int n);
+
+/**
+  Like tgen_buf_calign() but pads with space.
+*/
+int tgen_buf_align(TGenBuf *s, int n);
 
 
 /**
