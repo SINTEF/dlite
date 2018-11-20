@@ -1,8 +1,8 @@
 Concepts
 ========
-*dlite* shares the [metadata model of SOFT][1] and generic data stored
+dlite shares the [metadata model of SOFT][1] and generic data stored
 with SOFT can be read with dlite and vice verse.  However, apart from
-*dlite* being much smaller and less complete, there are also a few
+dlite being much smaller and less complete, there are also a few
 notable differences in the API and even conceptual, which are detailed
 below.
 
@@ -14,13 +14,13 @@ in some cases when you have unique and immutable data, e.g. default
 input parameters to a given version of a software model, it may be
 more convenient to refer to an unique human understandable name (URI),
 like "mymodel-1.2.3_default_input", rather than a UUID on the form
-"8290318f-258e-54e2-9838-bb187881f996".  *dlite* supports this.  The
+"8290318f-258e-54e2-9838-bb187881f996".  dlite supports this.  The
 tool `dlite-getuuid` can be used to manually convert URIs to their
 corresponding UUIDs.
 
 If the `id` provided to dlite_datamodel() or dlite_instance_create()
 is not `NULL` or a valid UUID, it is interpreted as an unique uri
-referring to the instance.  *dlite* will then generate a version 5
+referring to the instance.  dlite will then generate a version 5
 UUID from the `id` (from the SHA-1 hash of `id` and the DNS namespace)
 that the instance will be stored under.  The original `id` will also be
 stored and can be retrieved with dlite_datamodel_get_meta_uri().
@@ -30,24 +30,24 @@ Simple unified access to all data types
 ---------------------------------------
 The datamodel API for accessing properties of an instance in SOFT, has
 separate getters and setters for each type and number of dimensions.
-*dlite* generalize and simplifies this by describing types and
+dlite generalize and simplifies this by describing types and
 dimensionality of properties with 4 parameters:
 
-  - `dtype`: an enum defining the type of the data item (or items if
+  - `type`: an enum defining the type of the data item (or items if
     it has dimensions), e.g. whether it is an integer, float or string...
     The table below summarises the implemented dtype's.
   - `size`: the size of a data item in bytes.
-  - `ndims`: number of dimensions.  Scalars has ``ndim=0``.
-  - `dims`: array of length `ndim` with the length of each dimension.
+  - `ndims`: number of dimensions.  Scalars has ``ndims=0``.
+  - `dims`: array of length `ndims` with the length of each dimension.
 
 By taking these parameters as arguments, the functions
 dlite_datamodel_get_property() and dlite_datamodel_set_property() can handle
 all supported property types.  No storage strategy is needed.
 
-The table below summarises the different dtypes defined in *dlite*.  For
+The table below summarises the different dtypes defined in dlite.  For
 more details, see dlite-type.h.  Also note that this supports arbitrary
 dimensional arrays.  All arrays are assumed to be continuous in memory
-in C-order.  *dlite* has currently no api for working with arrays as
+in C-order.  dlite has currently no api for working with arrays as
 pointers to pointers.
 
 type      | dtype          | sizes          | description                      | examples
@@ -86,7 +86,7 @@ is an instance**.
 
 *Collections* are a special type of instances containing references to
 a set of set of instances and relationships between them.  They are
-currently not yet implemented in *dlite*.
+currently not yet implemented in dlite.
 
 Instances can be subdivided into:
 
