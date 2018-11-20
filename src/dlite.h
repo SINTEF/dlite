@@ -10,7 +10,7 @@
 #include "dlite-utils.h"
 #include "dlite-entity.h"
 #include "dlite-storage.h"
-#include "dlite-collection.h"
+//#include "dlite-collection.h"
 
 
 #endif /* _DLITE_H */

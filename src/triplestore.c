@@ -47,13 +47,6 @@ struct _TripleStore {
   size_t niter;       /*!< counter for number of running iterators */
 };
 
-/* State used by triplestore_find.
-   Don't rely on current definition, it may be optimised later. */
-//struct _TripleState {
-//  size_t pos;         /*!< current position */
-//};
-
-
 
 /* Default namespace */
 char *default_namespace = NULL;
