@@ -53,6 +53,8 @@
 #cmakedefine HAVE_LCONV_DECIMAL_POINT
 #cmakedefine HAVE_LCONV_THOUSANDS_SEP
 
+/* Size of (void *) */
+#define SIZEOF_VOID_P @CMAKE_SIZEOF_VOID_P@
 
 /* =================================================== */
 /* Compatibility-functions in the compat/ subdirectory */

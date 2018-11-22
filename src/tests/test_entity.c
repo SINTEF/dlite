@@ -55,6 +55,7 @@ MU_TEST(test_entity_create)
 
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
+#if (__GNUC__ && SIZEOF_VOID_P == 8)
   mu_assert_int_eq(64, sizeof(DLiteInstance));
   mu_assert_int_eq(64, entity->dimoffset);
   mu_assert_int_eq(80, entity->propoffsets[0]);
@@ -65,6 +66,7 @@ MU_TEST(test_entity_create)
   mu_assert_int_eq(120, entity->reloffset);
   mu_assert_int_eq(120, entity->pooffset);
   //mu_assert_int_eq(160, entity->size);
+#endif
 }
 
 MU_TEST(test_instance_create)
