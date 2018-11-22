@@ -50,7 +50,7 @@ Building
 ## Build on Microsoft Windows
 
 1. Install a recent version of cmake https://cmake.org/download/
-2. Install Visual Studio 2015 or 2017 with the C/C++ components
+2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the C/C++ components
 3. Prepare a directory structure for dlite and 3rd party libraries:
     1. Select a root folder to create the directory structure (e.g. "C:\" or "C:\Users\{username}\Documents\")
 	2. Create the following directory: {root}\local
@@ -62,6 +62,7 @@ Building
 	2. Modify the variable ROOT_PATH to your root folder
 	3. Modify the variable PYTHON_EXECUTABLE to Python version 3.x executable
 	4. Check the version number of hdf5 library
+    5. To build in Win64 mode, add '-G "Visual Studio 15 Win64"' after cmake command when generating the solution (not building)
 7. Open a git-bash window:
 	1. Change the directory to your root folder
 	2. Type `sh bootstrap-win.sh` and press enter
