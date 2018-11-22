@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "err.h"
-#include "tgen.h"
+#include "utils/err.h"
+#include "utils/tgen.h"
 
 #include "dlite-macros.h"
 #include "dlite.h"

@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "utils/err.h"
 #include "getuuid.h"
-#include "err.h"
 
 
 void help()

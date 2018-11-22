@@ -23,7 +23,6 @@ add_executable(test_codegen
 target_link_libraries(test_codegen dlite uuid)
 target_include_directories(test_codegen PRIVATE
   ${dlite_SOURCE_DIR}/src
-  ${dlite_SOURCE_DIR}/src/utils
   ${dlite_BINARY_DIR}/src
   ${uuid_BINARY_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}

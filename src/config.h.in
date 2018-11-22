@@ -1,7 +1,7 @@
 /* -*- Mode: C -*- */
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef _DLITE_CONFIG_H
+#define _DLITE_CONFIG_H
 
 #include "utils/config.h"
 
@@ -11,4 +11,4 @@
 #endif
 
 
-#endif /* _CONFIG_H */
+#endif /* _DLITE_CONFIG_H */

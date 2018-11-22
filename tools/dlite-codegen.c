@@ -6,10 +6,9 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "compat.h"
-
-#include "err.h"
-#include "tgen.h"
+#include "utils/compat.h"
+#include "utils/err.h"
+#include "utils/tgen.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-codegen.h"

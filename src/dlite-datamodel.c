@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "compat.h"
+#include "utils/compat.h"
+#include "utils/err.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
-#include "err.h"
 
 
 

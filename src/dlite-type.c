@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "err.h"
+#include "utils/err.h"
 #include "integers.h"
 #include "floats.h"
 #include "triplestore.h"
