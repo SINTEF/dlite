@@ -47,14 +47,14 @@ int fu_closedir(fu_dir *dir)
 
 #elif defined WINDOWS
 
-typedef struct {
+struct fu_dir {
   HANDLE handle;
   WIN32_FIND_DATA ffd;
-} fu_dir;
+};
 
 fu_dir *fu_opendir(const char *path)
 {
-  fu_dir *dir = calloc(sizeof(1, fu_dir));
+  fu_dir *dir = calloc(1, sizeof(fu_dir));
   dir->handle = FindFirstFile(path, &dir->ffd);
   if (dir->handle == INVALID_HANDLE_VALUE) {
     free(dir);
