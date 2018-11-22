@@ -31,6 +31,8 @@
 #include "integers.h"
 #include "floats.h"
 
+
+
 #define {name%U}_NAME      "{name}"
 #define {name%U}_VERSION   "{version}"
 #define {name%U}_NAMESPACE "{namespace}"
@@ -39,23 +41,13 @@
 #define {name%U}_META_URI  "{meta.uri}"
 #define {name%U}_META_UUID "{meta.uuid}"
 
-{@if:{name}==Chemistryx}
-aaa
-{@elif:{name}==def}
-bbb
-{@elif:{name}\.}
-ccc
-{@else}
-ddd
-{@endif}
 
-
-#define {name}_HEAD                   \\
+#define {name}_HEAD{@38}\\
   /* -- header */                     \\
-  char uuid[DLITE_UUID_LENGTH+1];     \\
-  const char *uri;                    \\
-  int refcount;                       \\
-  const struct _DLiteMeta *meta;      \\
+  char _uuid[DLITE_UUID_LENGTH+1];    \\
+  const char *_uri;                   \\
+  int _refcount;                      \\
+  const struct _DLiteMeta *_meta;     \\
 {@if:{ismetameta}==1}\
                                       \\
   size_t ndimensions;                 \\
@@ -105,7 +97,7 @@ static inline {name} *{name%l}_load(const DLiteStorage *s)
   static {name} *_{name%l} = NULL;
   if (!_{name%l}) {{
     if (!(_{name%l} = dlite_metastore_get({name%U}_UUID)) &&
-        !(_{name%l} = ({name} *)dlite_instance_load(s, {name%U}_UUID, NULL))
+        !(_{name%l} = ({name} *)dlite_instance_load(s, {name%U}_UUID, NULL)))
       return NULL;
 {@if:{_headersize}!=0}\
     _{name%l}->headersize = {_headersize};

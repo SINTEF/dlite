@@ -273,12 +273,12 @@ MU_TEST(test_tgen)
   free(str);
 
   /* test padding */
-  str = tgen("pi{@4}is {@10}{pi:templ string}...", &subs, NULL);
-  mu_assert_string_eq("pi  is    3.14...", str);
+  str = tgen("pi{@4}is {@12}{pi:templ string}...", &subs, NULL);
+  mu_assert_string_eq("pi  is      3.14...", str);
   free(str);
 
-  str = tgen("pi{@4}is\n {@4}{pi:templ string}...", &subs, NULL);
-  mu_assert_string_eq("pi  is\n    3.14...", str);
+  str = tgen("pi{@4}is\n {@6}{pi:templ string}...", &subs, NULL);
+  mu_assert_string_eq("pi  is\n      3.14...", str);
   free(str);
 
 

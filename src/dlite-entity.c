@@ -253,16 +253,21 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
       char **name = dlite_instance_get_property(inst, "name");
       char **version = dlite_instance_get_property(inst, "version");
       char **namespace = dlite_instance_get_property(inst, "namespace");
-      if (name && version && namespace)
+      if (name && version && namespace) {
         inst->uri = dlite_join_meta_uri(*name, *version, *namespace);
-      else
+        dlite_get_uuid(inst->uuid, inst->uri);
+      } else {
         FAIL2("metadata %s loaded from %s has no name, version and namespace",
              id, s->uri);
+      }
     } else {
       FILE *old = err_set_stream(NULL);
       char **dataname = dlite_instance_get_property(inst, "dataname");
       err_set_stream(old);
-      if (dataname) inst->uri = strdup(*dataname);
+      if (dataname) {
+        inst->uri = strdup(*dataname);
+        dlite_get_uuid(inst->uuid, inst->uri);
+      }
     }
   }
 
