@@ -71,6 +71,10 @@ Building
     1. Select the solution configuration "Debug", then build the solution (Menu Build -> Build solution)
 	2. Select the solution configuration "Release", then build the solution (Menu Build -> Build solution)
 
+To run the tests, do
+
+    ctest -C Debug
+    
 ## Build on Linux
 
 Build with:
