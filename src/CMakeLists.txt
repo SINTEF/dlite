@@ -73,6 +73,7 @@ set(sources
   dlite-schemas.c
   dlite-entity.c
   dlite-collection.c
+  dlite-codegen.c
   getuuid.c
   triplestore.c
   )
@@ -95,7 +96,6 @@ target_link_libraries(dlite
   )
 target_include_directories(dlite PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/utils
   ${uuid_SOURCE_DIR}
   ${uuid_BINARY_DIR}
   ${HDF5_INCLUDE_DIRS}

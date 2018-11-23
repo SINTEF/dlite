@@ -153,7 +153,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_DIM_DESCR(inst, n) \
   (((DLiteInstance *)(inst))->meta->dimensions + n)
 
-/** Expands to number of dimensions (size_t). */
+/** Expands to number of properties (size_t). */
 #define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
 
 ///** Expands to pointer to array of pointers to property values --> (void **) */
@@ -193,9 +193,9 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   Initial segment of all DLite instances.
 */
 #define DLiteInstance_HEAD                                              \
-  char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this data instance. */    \
-  const char *uri;                /* Unique name or uri of the data */  \
-                                  /* instance.  Can be NULL. */         \
+  char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
+  const char *uri;                /* Unique uri for this instance. */   \
+                                  /*  May be NULL. */                   \
   int refcount;                   /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \

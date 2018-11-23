@@ -33,7 +33,7 @@ int tgen_convert_escape_sequences = 1;
 
 
 /***************************************************************
- * Utility functions
+ * Help functions
  ***************************************************************/
 
 /* Returns non-zero if the format specifier `fmt` is valid.  It should
@@ -55,6 +55,152 @@ static int validate_fmt(const char *fmt, int len)
     return 0;
   return 1;
 }
+
+/* Returns the number of bytes from the position in a template that is
+   pointed to by `p` to the first unpaired end brace.  Returns -1 if
+   no unpaired end brace can be found. */
+static int length_to_endbrace(const char *p)
+{
+  const char *q = p;
+  int depth = 0;
+  while (*q && *q != '}') {
+    int n = strcspn(q, "{}");
+    q += n;
+    switch (*(q++)) {
+    case '\0':
+      return -1;
+    case '{':
+      if (*q == '{')
+        q++;
+      else if (*q != '}')
+        depth++;
+      break;
+    case '}':
+      if (*q == '}')
+        q++;
+      else if (depth-- <= 0)
+        q--;
+      break;
+    default:
+      abort();  /* should never be reached */
+    }
+  }
+  return q - p;
+}
+
+/* Returns the number of bytes from the position in a template that is
+   pointed to by `p` to variable `var`.  Only the number of bytes
+   until the starting brace are counted.  If `maxlen` is equal or larger
+   than zero, at most `maxlen` bytes are considered.
+
+   Returns -1 if variable `var` was not found. */
+static int length_to_var(const char *p, const char *var, int maxlen)
+{
+  const char *q = p;
+  while (1) {
+    size_t n = strcspn(q, "{");
+    if (!q[n]) return -1;
+    q += n + 1;
+    if (maxlen >= 0 && q > p + maxlen) {
+      return -1;
+    } else if (*q == '{') {
+      q++;
+    } else {
+      size_t m = strcspn(q, "%:}");
+      if (strncmp(q, var, m) == 0)
+        return q - p - 1;
+      else
+        q += length_to_endbrace(q);
+    }
+  }
+}
+
+
+/* Evaluates condition `cond`.
+
+   Returns 1 if conds evaluates to true, 0 if cond is false or -1 on error. */
+static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
+                         void *context)
+{
+  int retval=-1;
+  char *p, *endp;
+  TGenBuf s;
+  tgen_buf_init(&s);
+  if (tgen_append(&s, cond, len, subs, context)) goto fail;
+  if (!s.buf || !*s.buf) {
+    retval = 0;
+  } else if ((p = strstr(s.buf, "=="))) {
+    *p = '\0';
+    retval = (strcmp(s.buf, p+2) == 0) ? 1 : 0;
+  } else if ((p = strstr(s.buf, "!="))) {
+    *p = '\0';
+    retval = (strcmp(s.buf, p+2) != 0) ? 1 : 0;
+  } else {
+    retval = (strtol(s.buf, &endp, 0) == 0 && !*endp) ? 0 : 1;
+  }
+ fail:
+  tgen_buf_deinit(&s);
+  return retval;
+}
+
+
+/* Implements template conditional:
+
+       {@if:COND}...{@elif:COND}...{@else}...{@endif}
+
+   Returns the number of bytes consumed or -1 on error.
+*/
+static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
+                      void *context)
+{
+  const char *endp, *t = template;
+  int cond, m, n = strcspn(t, ":");
+  if (strncmp(t, "@if", n) || !t[n]) return -1;
+  t += n + 1;
+  if ((n = length_to_endbrace(t)) < 0 || !t[n]) return -1;
+  if ((cond = evaluate_cond(t, n, subs, context)) < 0) return -1;
+  t += n + 1;
+  if ((n = length_to_var(t, "@endif", -1)) < 0) return -1;
+  if ((m = length_to_endbrace(t+n+1)) < 0) return -1;
+  endp = t + n + m + 2;
+
+  while ((n = length_to_var(t, "@elif", endp - t)) >= 0) {
+    if (cond) {
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    }
+    if ((t += n + strcspn(t+n, ":")) && !*t) return -1;
+    if (!*(t++)) return -1;
+    if ((n = length_to_endbrace(t)) < 0) return -1;
+    if ((cond = evaluate_cond(t, n, subs, context)) < 0) return -1;
+    t += n + 1;
+  }
+  if ((n = length_to_var(t, "@else", endp - t)) >= 0) {
+    if (cond) {
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    } else {
+      if ((m = length_to_endbrace(t+n+1)) < 0) return -1;
+      t += n + m + 2;
+      if ((n = length_to_var(t, "@endif", -1)) < 0) return -1;
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    }
+  }
+  if ((n = length_to_var(t, "@endif", endp - t)) >= 0) {
+    if (cond) {
+      if (tgen_append(s, t, n, subs, context)) return -1;
+      return endp - template;
+    }
+  }
+  return endp - template;
+}
+
+
+
+/***************************************************************
+ * Utility functions
+ ***************************************************************/
 
 /*
   Copies at most `n` bytes from `src` and writing them to `dest`.
@@ -86,7 +232,9 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
         case 't':  *(q++) = '\t'; break;
         case 'v':  *(q++) = '\v'; break;
         case '\\': *(q++) = '\\'; break;
+        case '.':  break;                 /* escaped ".", just consume */
         case '\n': break;                 /* escaped newline, just consume */
+        case '\r': break;                 /* escaped newline, Mac */
         default:   *(q++) = *p;   break;
         }
       } else {
@@ -109,7 +257,8 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
     - "s": no change in case
     - "l": convert to lower case
     - "U": convert to upper case
-    - "T": convert to title case (convert first character to
+    - "T": convert to title case (convert first character to upper case
+           and the rest to lower case)
 
   Returns non-zero on error.
  */
@@ -231,6 +380,31 @@ int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap)
   if (src != buf) free(src);
   va_end(ap2);
   return retval;
+}
+
+/*
+  Pad buffer with character `c` until `n` characters has been written since
+  the last newline.  If more than `n` characters has already been written
+  since the last newline, nothing is added.
+
+  Returns number of padding added or -1 on error.
+*/
+int tgen_buf_calign(TGenBuf *s, int c, int n)
+{
+  char str[] = {c, '\0'};
+  int retval, i = 0;
+  while (i<n && i <= (int)s->pos && s->buf[s->pos-i] != '\n') i++;
+  retval = n - i + 1;
+  while (i++ <= n) tgen_buf_append(s, str, 1);
+  return retval;
+}
+
+/*
+  Like tgen_buf_calign() but pads with space.
+*/
+int tgen_buf_align(TGenBuf *s, int n)
+{
+  return tgen_buf_calign(s, ' ', n);
 }
 
 
@@ -534,8 +708,8 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
   const TGenSub *sub;
   const char *templ, *t = template;
   int templ_len, nchars, stat;
-  if (tlen < 0) tlen = strlen(template);
 
+  if (tlen < 0) tlen = strlen(template);
   while (*t && t < template + tlen) {
     int len = strcspn(t, "{}");
     char *fmt = NULL;
@@ -570,6 +744,25 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
           return err(TGenSyntaxError, "line %d: unexpected '{' within a "
                      "substitution", tgen_lineno(template, t));
 
+        /* parse special constructs */
+        if (strncmp(t, "@if", len) == 0) {  /* conditional */
+          if ((len = builtin_if(s, t, subs, context)) < 0)
+            return err(TGenSyntaxError, "line %d: invalid @if conditional",
+                       tgen_lineno(template, t));
+          t += len;
+          continue;
+        } else if (t[0] == '@' && isdigit(t[1])) {  /* alignment */
+          char *endp;
+          long n = strtol(t+1, &endp, 0);
+          //printf("\n*** var='%.*s', len=%d, n=%ld\n", len, t, len, n);
+          if (endp != t+len)
+            return err(TGenSyntaxError, "line %d: invalid alignment tag {%.*s",
+                       tgen_lineno(template, t), len, t);
+          tgen_buf_align(s, n);
+          t += len+1;
+          continue;
+        }
+
         /* parse VAR */
         if (!(sub = tgen_subs_getn(subs, t, len)))
           return err(TGenVariableError, "line %d: unknown var '%.*s'",
@@ -582,7 +775,7 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
           int m = strcspn(tt, ":}");
           if (m >= (int)sizeof(buf))
             return err(TGenSyntaxError, "line %d: format specifier \"%.*s\" "
-                       "must not exceed %lu characters",
+                       "must not exceed %zd characters",
                        tgen_lineno(template, t), m, tt, sizeof(buf)-1);
           if (tt[m] == '\0')
             return err(TGenSyntaxError, "line %d: template ends with "

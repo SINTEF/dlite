@@ -25,7 +25,7 @@ char *strdup(const char *s)
 /* strndup() - duplicates a string, copying at most n bytes and adds a
    terminating NUL */
 #if !defined(HAVE_STRNDUP) && !defined(HAVE__STRNDUP)
-char *strndup(const char s, size_t n)
+char *strndup(const char *s, size_t n)
 {
   size_t slen = strlen(s);
   size_t len = (slen > n) ? n : slen;

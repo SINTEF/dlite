@@ -369,9 +369,25 @@ static struct _CollectionSchema {
 /**************************************************************
  * Exposed pointers to schemas
  **************************************************************/
-const DLiteMeta * const dlite_BasicMetadataSchema =
-  (DLiteMeta *)&basic_metadata_schema;
-const DLiteMeta * const dlite_EntitySchema =
-  (DLiteMeta *)&entity_schema;
-const DLiteMeta * const dlite_CollectionSchema =
-  (DLiteMeta *)&collection_schema;
+//const DLiteMeta * const dlite_BasicMetadataSchema =
+//  (DLiteMeta *)&basic_metadata_schema;
+//const DLiteMeta * const dlite_EntitySchema =
+//  (DLiteMeta *)&entity_schema;
+//const DLiteMeta * const dlite_CollectionSchema =
+//  (DLiteMeta *)&collection_schema;
+
+
+const DLiteMeta *dlite_get_basic_metadata_schema()
+{
+  return (DLiteMeta *)&basic_metadata_schema;
+}
+
+const DLiteMeta *dlite_get_entity_schema()
+{
+  return (DLiteMeta *)&entity_schema;
+}
+
+const DLiteMeta *dlite_get_collection_schema()
+{
+  return (DLiteMeta *)&collection_schema;
+}

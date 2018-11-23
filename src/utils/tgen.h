@@ -5,6 +5,7 @@
   @file
   @brief Simple templated text generator
 
+  ### Introduction
   The main function in this library is tgen(). It takes a template and
   a list of substitutions and produces a new document.
 
@@ -25,6 +26,7 @@
         - Jack Daniel lives in USA
         - Fritjof Nansen lives in Norway
 
+  ### Variable tags
   A pair of braces, "{" and "}", that encloses a string is a *tag*.
   When the template is processed, the tags are replaced with new
   content according to the substitutions.  The general form for a tag
@@ -55,20 +57,6 @@
        nested calls.  It may contain embedded tags, as long
        as the opening and closing braces exactly match.
 
-  Literal braces may be included in the template and the `TEMPL`
-  section, if they are escaped according the following table:
-
-  escape sequence | result | comment
-  --------------- | ------ | -------
-  `{{`            | `{`    | literal start brace
-  `}}`            | `}`    | literal end brace
-  `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
-
-  In addition are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
-  `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by
-  ending a line with a backslash.  These escapes can be turned off
-  by setting the global variable `tgen_convert_escape_sequences` to zero.
-
   There are two types of substitutions, variable substitutions
   and function substitutions:
 
@@ -80,6 +68,58 @@
       the template is processed, the function is called replacing the
       tag with its output.  The function uses `TEMPL` as a
       (sub)template.
+
+  ### Conditional tags
+  Conditionals are a special form of tags with the following syntax:
+  @code
+
+      {@if:COND}
+        <code...>
+      {@elif:COND}
+        <code...>
+      {@else}
+        <code...>
+      {@endif}
+
+  @endcode
+  The `elif` and `else` tags are optional and there may be
+  multiple `elif` tags.  COND is the condition and is currently
+  very simple, only including the three forms:
+    - "str1==str2": true if `str1` equals `str2`
+    - "str1!=str2": true if `str1` does not equals `str2`
+    - "str": true if `str` is non-empty
+  Variable expansion is performed before COND is evaluated.
+
+  ### Alignment tags
+  Alignment are tags of the form
+  @code
+
+      {@N}
+
+  @endcode
+  where `N` may be any positive integer.  It will be replaced with
+  spaces such that the text following it will start on column `N`
+  (that is `N` characters after the last newline).  If the alignment
+  tag it placed after column `N`, no output will be produced.
+
+  ### Literal braces and escapes
+  Literal braces may be included in the template and the `TEMPL`
+  section, if they are escaped according the following table:
+
+  escape sequence | result | comment
+  --------------- | ------ | -------
+  `{{`            | `{`    | literal start brace
+  `}}`            | `}`    | literal end brace
+  `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
+
+  Furthermore are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
+  `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by
+  ending a line with a backslash.  In addition includes tgen the
+  special noop escape sequence `\.` that expands to the empty string.
+  It may be used as an alternative to `{}` for separating end braces
+  following each other, such that they are not interpreated as a
+  literal end brace.  These escapes can be turned off by setting the
+  global variable `tgen_convert_escape_sequences` to zero.
 
   The strength of templating is that you can produce the same information
   in a completely different format just by changing the template, without
@@ -197,7 +237,8 @@ int tgen_escaped_copy(char *dest, const char *src, int n);
     - "s": no change in case
     - "l": convert to lower case
     - "U": convert to upper case
-    - "T": convert to title case (convert first character to
+    - "T": convert to title case (convert first character to upper case
+           and the rest to lower case)
 
   Returns non-zero on error.
  */
@@ -239,6 +280,20 @@ int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
   variable number of arguments.
  */
 int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
+
+/**
+  Pad buffer with character `c` until `n` characters has been written since
+  the last newline.  If more than `n` characters has already been written
+  since the last newline, nothing is added.
+
+  Returns number of padding added or -1 on error.
+*/
+int tgen_buf_calign(TGenBuf *s, int c, int n);
+
+/**
+  Like tgen_buf_calign() but pads with space.
+*/
+int tgen_buf_align(TGenBuf *s, int n);
 
 
 /**

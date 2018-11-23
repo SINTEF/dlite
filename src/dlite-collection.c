@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "err.h"
+#include "utils/err.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
 #include "dlite-entity.h"

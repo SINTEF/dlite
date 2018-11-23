@@ -24,7 +24,6 @@ foreach(test ${tests})
   target_link_libraries(${test} dlite uuid utils)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src
-    ${dlite_SOURCE_DIR}/src/utils
     ${dlite_BINARY_DIR}/src
     ${uuid_BINARY_DIR}
     ${dlite_SOURCE_DIR}/plugins/json  # FIXME - remove this dependency

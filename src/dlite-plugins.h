@@ -6,8 +6,8 @@
   @brief Common API for all plugins (internal).
 */
 
+#include "utils/dsl.h"
 #include "dlite-storage.h"
-#include "dsl.h"
 
 
 /** Initial segment of all DLiteStorage plugin data structures. */

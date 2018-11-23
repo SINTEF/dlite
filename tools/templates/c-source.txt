@@ -1,0 +1,82 @@
+/* This file is generated with dlite-codegen -- do not edit!
+ *
+ * Template: c-source.txt
+ * Metadata: {_uri}
+ *
+ */
+
+#include "dlite.h"
+#include "{basename}.h"
+
+{@if:{ismeta}==1}
+static DLiteDimension {name%l}_dimensions[] = {{
+{list_dimensions:  {{"{dim.name}", "{dim.descr}"}}{,}\n}\
+}};
+{list_properties:\
+{@if:{prop.ndims}!=0}\
+static int {name%l}_prop_{prop.name}_dims[] = {{\
+{prop.dims:{dim.n}{, }\.}\
+}};
+{@endif}\.}\
+static DLiteProperty {name%l}_properties[] = {{
+{list_properties:  {{
+    "{prop.name}", /* name */
+    {prop.dtype}, /* type */
+    {prop.size}, /* size */
+    {prop.ndims}, /* ndims */
+{@if:{prop.ndims}==0}\
+    NULL, /* dims */
+{@else}\
+    {name%l}_prop_{prop.name}_dims, /* dims */
+{@endif}\
+{@if:{prop.unit}\.}\
+    "{prop.unit}", /* unit */
+{@else}\
+    NULL, /* unit */
+{@endif}\
+{@if:{prop.descr}\.}\
+    "{prop.descr}" /* description */
+{@else}\
+    NULL /* description */
+{@endif}\
+  }}{,}
+}\
+}};
+{@endif}
+
+
+{name} {name%l}[] = {{
+  /* -- header */
+  "{_uuid}", /* uuid */
+  "{_uri}", /* uri */
+  1, /* refcount, never free */
+  NULL, /* meta */
+{@if:{ismetameta}==1}
+  {_ndimensions}, /* ndimensions */
+  {_nproperties}, /* nproperties */
+  {_nrelations}, /* nrelations */
+
+  {name%l}_dimensions,  /* dimensions */
+  {name%l}_properties,  /* properties */
+  NULL,                 /* relations */
+
+  0,       /* headersize */
+  NULL,    /* init */
+  NULL,    /* deinit */
+
+  0,    /* dimoffset */
+  NULL, /* propoffsets */
+  0,    /* reloffset */
+  0,    /* pooffset */
+{@endif}\
+  /* -- length of each dimension */
+{list_dimensions:  {dim.value},  /* {dim.name} */\n}\
+  /* -- value of each property */
+{list_meta_properties:  {prop.cvalue},  /* {prop.name} */\n}\
+  /* -- value of each relation */
+  {list_relations:  {{"{rel.s}", "{rel.p}", "{rel.o}", "{rel.id}"}}{,}\n}\
+  /* -- memory offsets for each property in instances */
+  {{
+{list_properties:    offsetof({name}, {prop.name}){,}\n}\
+  }}
+}};

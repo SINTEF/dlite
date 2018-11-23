@@ -88,7 +88,7 @@ typedef HMODULE dsl_handle;
 #define dsl_sym(handle, symbol) \
   (void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol))
 #define dsl_error() \
-  (const char *)GetLastError()
+  (const char *)strerror(GetLastError());
 #define dsl_close(handle) \
   (int)FreeLibrary((HMODULE)(handle))
 

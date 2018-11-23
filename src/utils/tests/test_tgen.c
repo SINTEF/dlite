@@ -241,6 +241,7 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("func subst XX", str);
   free(str);
 
+  /* test loop function */
   str = tgen("show loop:\n{loop:  i={i} - data={data}\n}", &subs, NULL);
   mu_assert_string_eq("show loop:\n"
                       "  i=0 - data=1\n"
@@ -265,6 +266,21 @@ MU_TEST(test_tgen)
                         "  i=2 - data=5\n", str);
     free(str);
   }
+
+  /* test condition */
+  str = tgen("{@if:0}aa{@elif:}bbb{@else}pi = {pi}{@endif}...", &subs, NULL);
+  mu_assert_string_eq("pi = 3.14...", str);
+  free(str);
+
+  /* test padding */
+  str = tgen("pi{@4}is {@12}{pi:templ string}...", &subs, NULL);
+  mu_assert_string_eq("pi  is      3.14...", str);
+  free(str);
+
+  str = tgen("pi{@4}is\n {@6}{pi:templ string}...", &subs, NULL);
+  mu_assert_string_eq("pi  is\n      3.14...", str);
+  free(str);
+
 
   tgen_subs_deinit(&subs);
 }

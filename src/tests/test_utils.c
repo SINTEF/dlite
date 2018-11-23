@@ -1,8 +1,8 @@
 #include <stdlib.h>
 
 #include "minunit/minunit.h"
-#include "err.h"
-#include "strtob.h"
+#include "utils/err.h"
+#include "utils/strtob.h"
 #include "boolean.h"
 #include "dlite.h"
 

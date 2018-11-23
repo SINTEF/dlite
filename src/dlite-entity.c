@@ -3,14 +3,14 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "err.h"
+#include "utils/err.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"
 #include "dlite-store.h"
 #include "dlite-entity.h"
 #include "dlite-datamodel.h"
-#include "dlite-schemas.c"
+#include "dlite-schemas.h"
 
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 #define max(x, y) (((x) >= (y)) ? (x) : (y))
@@ -253,16 +253,21 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
       char **name = dlite_instance_get_property(inst, "name");
       char **version = dlite_instance_get_property(inst, "version");
       char **namespace = dlite_instance_get_property(inst, "namespace");
-      if (name && version && namespace)
+      if (name && version && namespace) {
         inst->uri = dlite_join_meta_uri(*name, *version, *namespace);
-      else
+        dlite_get_uuid(inst->uuid, inst->uri);
+      } else {
         FAIL2("metadata %s loaded from %s has no name, version and namespace",
              id, s->uri);
+      }
     } else {
       FILE *old = err_set_stream(NULL);
       char **dataname = dlite_instance_get_property(inst, "dataname");
       err_set_stream(old);
-      if (dataname) inst->uri = strdup(*dataname);
+      if (dataname) {
+        inst->uri = strdup(*dataname);
+        dlite_get_uuid(inst->uuid, inst->uri);
+      }
     }
   }
 
@@ -359,7 +364,7 @@ int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
   if (!inst->meta)
     return errx(-1, "no metadata available");
   if (i >= inst->meta->nproperties)
-    return errx(-1, "no property with index %lu in %s", i, inst->meta->uri);
+    return errx(-1, "no property with index %zu in %s", i, inst->meta->uri);
   dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   return dimensions[i];
 }
@@ -377,7 +382,7 @@ void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i)
   if (!inst->meta)
     return errx(-1, "no metadata available"), NULL;
   if (i >= inst->meta->nproperties)
-    return errx(1, "index %lu exceeds number of properties (%lu) in %s",
+    return errx(1, "index %zu exceeds number of properties (%zu) in %s",
 		i, inst->meta->nproperties, inst->meta->uri), NULL;
   ptr = DLITE_PROP(inst, i);
   if (inst->meta->properties[i].ndims > 0)
@@ -447,7 +452,7 @@ int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
     return -1;
   if (j >= (size_t)p->ndims)
-    return errx(-1, "dimension index j=%lu is our of range", j);
+    return errx(-1, "dimension index j=%zu is our of range", j);
   return dims[p->dims[j]];
 }
 
@@ -540,7 +545,8 @@ dlite_entity_create(const char *uri, const char *description,
   size_t dims[] = {ndimensions, nproperties};
 
   if (dlite_split_meta_uri(uri, &name, &version, &namespace)) goto fail;
-  if (!(e=dlite_instance_create((DLiteEntity *)dlite_EntitySchema, dims, uri)))
+  if (!(e=dlite_instance_create((DLiteEntity *)dlite_get_entity_schema(),
+                                dims, uri)))
     goto fail;
 
   if (dlite_instance_set_property(e, "name", &name)) goto fail;
@@ -589,7 +595,7 @@ void dlite_entity_decref(DLiteEntity *entity)
 DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id)
 {
   return (DLiteEntity *)
-    dlite_instance_load(s, id, (DLiteEntity *)dlite_EntitySchema);
+    dlite_instance_load(s, id, (DLiteEntity *)dlite_get_entity_schema());
 }
 
 
@@ -609,7 +615,7 @@ const DLiteProperty *
 dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i)
 {
   if (i >= entity->nproperties)
-    return errx(1, "no property with index %lu in %s", i , entity->meta->uri),
+    return errx(1, "no property with index %zu in %s", i , entity->meta->uri),
       NULL;
   return (const DLiteProperty *)entity->properties + i;
 }
@@ -651,7 +657,7 @@ int dlite_meta_init(DLiteMeta *meta)
   if (!meta->meta->pooffset && dlite_meta_init((DLiteMeta *)meta->meta))
     goto fail;
 
-  DEBUG("\n*** dlite_meta_init(\"%s\")\n", meta->uri);
+  DEBUG_LOG("\n*** dlite_meta_init(\"%s\")\n", meta->uri);
 
   /* Assign: ndimensions, nproperties and nrelations */
   for (i=0; i<meta->meta->ndimensions; i++) {
@@ -692,7 +698,7 @@ int dlite_meta_init(DLiteMeta *meta)
   /* Assign headersize */
   if (!meta->headersize)
     meta->headersize = (ismeta) ? sizeof(DLiteMeta) : sizeof(DLiteInstance);
-  DEBUG("    headersize=%lu\n", meta->headersize);
+  DEBUG_LOG("    headersize=%zu\n", meta->headersize);
 
   /* Assign memory layout of instances */
   size = meta->headersize;
@@ -703,7 +709,7 @@ int dlite_meta_init(DLiteMeta *meta)
     meta->dimoffset = size;
     size += meta->ndimensions * sizeof(size_t);
   }
-  DEBUG("    dimoffset=%lu (+ %lu * %lu)\n",
+  DEBUG_LOG("    dimoffset=%zu (+ %zu * %zu)\n",
          meta->dimoffset, meta->ndimensions, sizeof(size_t));
 
   /* -- property values (propoffsets[]) */
@@ -722,8 +728,8 @@ int dlite_meta_init(DLiteMeta *meta)
       meta->propoffsets[i] = size;
       size += p->size;
     }
-    DEBUG("    propoffset[%lu]=%lu (pad=%d, type=%d size=%-2lu ndims=%d)"
-          " + %lu\n",
+    DEBUG_LOG("    propoffset[%zu]=%zu (pad=%d, type=%d size=%-2lu ndims=%d)"
+          " + %zu\n",
           i, meta->propoffsets[i], padding, p->type, p->size, p->ndims,
           (p->ndims) ? sizeof(size_t *) : p->size);
   }
@@ -735,13 +741,13 @@ int dlite_meta_init(DLiteMeta *meta)
   } else {
     meta->reloffset = size;
   }
-  DEBUG("    reloffset=%lu (+ %lu * %lu)\n",
+  DEBUG_LOG("    reloffset=%zu (+ %zu * %zu)\n",
         meta->reloffset, meta->nrelations, sizeof(size_t));
 
   /* -- array of property offsets (pooffset) */
   size += padding_at(size_t, size);
   meta->pooffset = size;
-  DEBUG("    pooffset=%lu\n", meta->pooffset);
+  DEBUG_LOG("    pooffset=%zu\n", meta->pooffset);
 
   return 0;
  fail:
@@ -878,9 +884,9 @@ static void metastore_create()
   if (!_metastore) {
     _metastore = dlite_store_create();
     atexit(dlite_metastore_free);
-  dlite_metastore_add(dlite_BasicMetadataSchema);
-  dlite_metastore_add(dlite_EntitySchema);
-  dlite_metastore_add(dlite_CollectionSchema);
+    dlite_metastore_add(dlite_get_basic_metadata_schema());
+    dlite_metastore_add(dlite_get_entity_schema());
+    dlite_metastore_add(dlite_get_collection_schema());
   }
 }
 
