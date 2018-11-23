@@ -54,6 +54,7 @@
       defined _WIN32    ||                              \
       defined __WIN32__
   #define DSL_PLATFORM DSL_Windows
+  #define DSL_PREFIX ""
   #define DSL_EXT ".dll"
 #else
   #error "Unsupported platform"
@@ -87,9 +88,9 @@ typedef HMODULE dsl_handle;
 #define dsl_sym(handle, symbol) \
   (void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol))
 #define dsl_error() \
-  (const char *)GetLastError();
+  (const char *)GetLastError()
 #define dsl_close(handle) \
-  (int)FreeLibrary((HMODULE)(handle));
+  (int)FreeLibrary((HMODULE)(handle))
 
 #endif  /* DSL_PLATFORM */
 

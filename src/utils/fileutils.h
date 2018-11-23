@@ -29,7 +29,7 @@ typedef DIR fu_dir;
 
 #include <Windows.h>
 
-typedir HANDLE fu_dir;
+typedef struct fu_dir fu_dir;
 
 
 #else
