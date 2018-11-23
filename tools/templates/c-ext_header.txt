@@ -72,9 +72,12 @@
 
 #define {name}_TAIL \\
   /* -- dimension lengths */ \\
-{list_dimensions:  size_t {dim.name}; \\\n}\
+{list_dimensions:  size_t {dim.name};\
+ {@30}/* {dim.descr} */{@78}\\\n}\
   /* -- property values */ \\
-{list_properties:  {prop.cdecl}; \\\n}\
+{list_properties:  {prop.cdecl};\
+ {@30}/* {prop.descr}\
+{@if:{prop.ndims}!=0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */{@78}\\\n}\
   /* -- relation values */ \\
 {@if:{_nrelations}!=0}\
   DLiteRelation _rels[{_nrelations}]; \\\n}\
