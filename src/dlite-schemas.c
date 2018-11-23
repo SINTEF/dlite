@@ -106,7 +106,8 @@ static struct _BasicMetadataSchema {
   size_t offsets[7];
 } basic_metadata_schema = {
   /* -- header */
-  "c25c3bb4-2835-5b30-9046-a0fb971e86c2",        /* uuid (corresponds to uri) */
+  //"c25c3bb4-2835-5b30-9046-a0fb971e86c2",      /* uuid (corresponds to uri) */
+  "89cc72b5-1ced-54eb-815b-8fffc16c42d1",        /* uuid (corresponds to uri) */
   DLITE_BASIC_METADATA_SCHEMA,                   /* uri */
   1,                                             /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
@@ -132,7 +133,7 @@ static struct _BasicMetadataSchema {
   7,                                             /* nprops */
   0,                                             /* nrels */
   /* -- value of each property */
-  "basic_metadata_schema",                       /* schema_name */
+  "BasicMetadataSchema",                         /* schema_name */
   "0.1",                                         /* schema_version */
   "http://meta.sintef.no",                       /* schema_namespace */
   "Meta-metadata description an entity.",        /* schema_description */
@@ -239,7 +240,8 @@ static struct _EntitySchema {
   size_t offsets[6];
 } entity_schema = {
   /* -- header */
-  "477a5277-b33b-58eb-ad35-6f2e4ac1e64a",     /* uuid (corresponds to uri) */
+  //"477a5277-b33b-58eb-ad35-6f2e4ac1e64a",     /* uuid (corresponds to uri) */
+  "57742a73-ba65-5797-aebf-c1a270c4d02b",     /* uuid (corresponds to uri) */
   DLITE_ENTITY_SCHEMA,                        /* uri */
   1,                                          /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,        /* meta */
@@ -265,7 +267,7 @@ static struct _EntitySchema {
   6,                                          /* nprops */
   0,                                          /* nrels */
   /* -- value of each property */
-  "entity_schema",                            /* schema_name */
+  "EntitySchema",                             /* schema_name */
   "0.3",                                      /* schema_version */
   "http://meta.sintef.no",                    /* schema_namespace */
   "Meta-metadata description an entity.",     /* schema_description */
@@ -326,7 +328,8 @@ static struct _CollectionSchema {
   size_t offsets[1];
 } collection_schema = {
   /* -- header */
-  "b5f55af0-123d-5ce4-95c0-28d068c23c44",        /* uuid (corresponds to uri) */
+  //"b5f55af0-123d-5ce4-95c0-28d068c23c44",      /* uuid (corresponds to uri) */
+  "a2e66e0e-d733-5067-b987-6b5e5d54fb12",        /* uuid (corresponds to uri) */
   DLITE_COLLECTION_SCHEMA,                       /* uri */
   1,                                             /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
@@ -352,7 +355,7 @@ static struct _CollectionSchema {
   1,                                             /* nprops */
   0,                                             /* nrels */
   /* -- value of each property */
-  "collection_schema",                           /* schema_name */
+  "CollectionSchema",                            /* schema_name */
   "0.1",                                         /* schema_version */
   "http://meta.sintef.no",                       /* schema_namespace */
   "Meta-metadata description a collection.",     /* schema_description */
