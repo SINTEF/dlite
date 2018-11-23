@@ -122,29 +122,29 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
 {
   switch (dtype) {
   case dliteBlob:
-    snprintf(typename, n, "blob%zd", size);
+    snprintf(typename, n, "blob%zu", size);
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(1, "bool should have size %zd, but %zd was provided",
+      return errx(1, "bool should have size %zu, but %zu was provided",
                  sizeof(bool), size);
     snprintf(typename, n, "bool");
     break;
   case dliteInt:
-    snprintf(typename, n, "int%zd", size*8);
+    snprintf(typename, n, "int%zu", size*8);
     break;
   case dliteUInt:
-    snprintf(typename, n, "uint%zd", size*8);
+    snprintf(typename, n, "uint%zu", size*8);
     break;
   case dliteFloat:
-    snprintf(typename, n, "float%zd", size*8);
+    snprintf(typename, n, "float%zu", size*8);
     break;
   case dliteFixString:
-    snprintf(typename, n, "string%zd", size);
+    snprintf(typename, n, "string%zu", size);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return errx(1, "string should have size %zd, but %zd was provided",
+      return errx(1, "string should have size %zu, but %zu was provided",
                  sizeof(char *), size);
     snprintf(typename, n, "string");
     break;
@@ -180,53 +180,53 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
   char ref[32];
 
   if (nref >= sizeof(ref))
-    return errx(-1, "too many dereferences to write: %zd", nref);
+    return errx(-1, "too many dereferences to write: %zu", nref);
   memset(ref, '*', sizeof(ref));
   ref[nref] = '\0';
 
   switch (dtype) {
   case dliteBlob:
-    m = snprintf(pcdecl, n, "uint8_t %s%s[%zd]", ref, name, size);
+    m = snprintf(pcdecl, n, "uint8_t %s%s[%zu]", ref, name, size);
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(-1, "bool should have size %zd, but %zd was provided",
+      return errx(-1, "bool should have size %zu, but %zu was provided",
                  sizeof(bool), size);
     m = snprintf(pcdecl, n, "bool %s%s", ref, name);
     break;
   case dliteInt:
-    m = snprintf(pcdecl, n, "int%zd_t %s%s", size*8, ref, name);
+    m = snprintf(pcdecl, n, "int%zu_t %s%s", size*8, ref, name);
     break;
   case dliteUInt:
-    m = snprintf(pcdecl, n, "uint%zd_t %s%s", size*8, ref, name);
+    m = snprintf(pcdecl, n, "uint%zu_t %s%s", size*8, ref, name);
     break;
   case dliteFloat:
-    m = snprintf(pcdecl, n, "float%zd_t %s%s", size*8, ref, name);
+    m = snprintf(pcdecl, n, "float%zu_t %s%s", size*8, ref, name);
     break;
   case dliteFixString:
-    m = snprintf(pcdecl, n, "char %s%s[%zd]", ref, name, size);
+    m = snprintf(pcdecl, n, "char %s%s[%zu]", ref, name, size);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return errx(-1, "string should have size %zd, but %zd was provided",
+      return errx(-1, "string should have size %zu, but %zu was provided",
                  sizeof(char *), size);
     m = snprintf(pcdecl, n, "char *%s%s", ref, name);
     break;
   case dliteDimension:
     if (size != sizeof(DLiteDimension))
-      return errx(-1, "DLiteDimension must have size %zd, got %zd",
+      return errx(-1, "DLiteDimension must have size %zu, got %zu",
                   sizeof(DLiteDimension), size);
     m = snprintf(pcdecl, n, "DLiteDimension %s%s", ref, name);
     break;
   case dliteProperty:
     if (size != sizeof(DLiteProperty))
-      return errx(-1, "DLiteProperty must have size %zd, got %zd",
+      return errx(-1, "DLiteProperty must have size %zu, got %zu",
                   sizeof(DLiteProperty), size);
     m = snprintf(pcdecl, n, "DLiteProperty %s%s", ref, name);
     break;
   case dliteRelation:
     if (size != sizeof(DLiteRelation))
-      return errx(-1, "DLiteRelation must have size %zd, got %zd",
+      return errx(-1, "DLiteRelation must have size %zu, got %zu",
                   sizeof(DLiteRelation), size);
     m = snprintf(pcdecl, n, "DLiteRelation %s%s", ref, name);
     break;
@@ -423,7 +423,7 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
   default:              return err(0, "cannot determine alignment of "
-                                   "dtype='%s' (%d), size=%zd",
+                                   "dtype='%s' (%d), size=%zu",
                                    dlite_type_get_dtypename(dtype), dtype,
                                    size);
   }

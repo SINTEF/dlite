@@ -364,7 +364,7 @@ int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
   if (!inst->meta)
     return errx(-1, "no metadata available");
   if (i >= inst->meta->nproperties)
-    return errx(-1, "no property with index %zd in %s", i, inst->meta->uri);
+    return errx(-1, "no property with index %zu in %s", i, inst->meta->uri);
   dimensions = (size_t *)((char *)inst + inst->meta->dimoffset);
   return dimensions[i];
 }
@@ -382,7 +382,7 @@ void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i)
   if (!inst->meta)
     return errx(-1, "no metadata available"), NULL;
   if (i >= inst->meta->nproperties)
-    return errx(1, "index %zd exceeds number of properties (%zd) in %s",
+    return errx(1, "index %zu exceeds number of properties (%zu) in %s",
 		i, inst->meta->nproperties, inst->meta->uri), NULL;
   ptr = DLITE_PROP(inst, i);
   if (inst->meta->properties[i].ndims > 0)
@@ -452,7 +452,7 @@ int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
     return -1;
   if (j >= (size_t)p->ndims)
-    return errx(-1, "dimension index j=%zd is our of range", j);
+    return errx(-1, "dimension index j=%zu is our of range", j);
   return dims[p->dims[j]];
 }
 
@@ -615,7 +615,7 @@ const DLiteProperty *
 dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i)
 {
   if (i >= entity->nproperties)
-    return errx(1, "no property with index %zd in %s", i , entity->meta->uri),
+    return errx(1, "no property with index %zu in %s", i , entity->meta->uri),
       NULL;
   return (const DLiteProperty *)entity->properties + i;
 }
@@ -698,7 +698,7 @@ int dlite_meta_init(DLiteMeta *meta)
   /* Assign headersize */
   if (!meta->headersize)
     meta->headersize = (ismeta) ? sizeof(DLiteMeta) : sizeof(DLiteInstance);
-  DEBUG_LOG("    headersize=%zd\n", meta->headersize);
+  DEBUG_LOG("    headersize=%zu\n", meta->headersize);
 
   /* Assign memory layout of instances */
   size = meta->headersize;
@@ -709,7 +709,7 @@ int dlite_meta_init(DLiteMeta *meta)
     meta->dimoffset = size;
     size += meta->ndimensions * sizeof(size_t);
   }
-  DEBUG_LOG("    dimoffset=%zd (+ %zd * %zd)\n",
+  DEBUG_LOG("    dimoffset=%zu (+ %zu * %zu)\n",
          meta->dimoffset, meta->ndimensions, sizeof(size_t));
 
   /* -- property values (propoffsets[]) */
@@ -728,8 +728,8 @@ int dlite_meta_init(DLiteMeta *meta)
       meta->propoffsets[i] = size;
       size += p->size;
     }
-    DEBUG_LOG("    propoffset[%zd]=%zd (pad=%d, type=%d size=%-2lu ndims=%d)"
-          " + %zd\n",
+    DEBUG_LOG("    propoffset[%zu]=%zu (pad=%d, type=%d size=%-2lu ndims=%d)"
+          " + %zu\n",
           i, meta->propoffsets[i], padding, p->type, p->size, p->ndims,
           (p->ndims) ? sizeof(size_t *) : p->size);
   }
@@ -741,13 +741,13 @@ int dlite_meta_init(DLiteMeta *meta)
   } else {
     meta->reloffset = size;
   }
-  DEBUG_LOG("    reloffset=%zd (+ %zd * %zd)\n",
+  DEBUG_LOG("    reloffset=%zu (+ %zu * %zu)\n",
         meta->reloffset, meta->nrelations, sizeof(size_t));
 
   /* -- array of property offsets (pooffset) */
   size += padding_at(size_t, size);
   meta->pooffset = size;
-  DEBUG_LOG("    pooffset=%zd\n", meta->pooffset);
+  DEBUG_LOG("    pooffset=%zu\n", meta->pooffset);
 
   return 0;
  fail:

@@ -269,9 +269,9 @@ static int _remove_by_index(TripleStore *ts, size_t n)
 {
   Triplet *t = ts->triplets + n;
   if (n >= ts->true_length)
-    return err(1, "triplet index out of range: %zd", n);
+    return err(1, "triplet index out of range: %zu", n);
   if (!t->id)
-    return err(1, "triplet %zd is already removed", n);
+    return err(1, "triplet %zu is already removed", n);
   map_remove(&ts->map, t->id);
 
   if (ts->niter) {
@@ -383,17 +383,10 @@ void triplestore_deinit_state(TripleState *state)
 
   ts->niter--;
   if (ts->niter == 0 && ts->true_length > ts->length) {
-    for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--) {
-      printf("*** %d: %zd %zd: %s-%s-%s %d\n", i, ts->true_length, ts->length,
-	     ts->triplets[i].s, ts->triplets[i].p, ts->triplets[i].o,
-	     (ts->triplets[i].id) ? 1 : 0);
+    for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--)
       ts->true_length--;
-    }
     for (i=ts->true_length-1; i>=0; i--) {
       Triplet *t = ts->triplets + i;
-      printf("*** %d: %zd %zd: %s-%s-%s %d\n", i, ts->true_length, ts->length,
-	     ts->triplets[i].s, ts->triplets[i].p, ts->triplets[i].o,
-	     (ts->triplets[i].id) ? 1 : 0);
       if (!t->id) {
         Triplet *tt = ts->triplets + (--ts->true_length);
         assert(t < tt);

@@ -46,8 +46,8 @@ static int list_dimensions(TGenBuf *s, const char *template, int len,
     DLiteDimension *d = meta->dimensions + i;
     tgen_subs_set(&dsubs, "dim.name", d->name, NULL);
     tgen_subs_set(&dsubs, "dim.descr", d->description, NULL);
-    tgen_subs_set_fmt(&dsubs, "dim.value", NULL, "%zd", DLITE_DIM(meta, i));
-    tgen_subs_set_fmt(&dsubs, "dim.i",     NULL, "%zd", i);
+    tgen_subs_set_fmt(&dsubs, "dim.value", NULL, "%zu", DLITE_DIM(meta, i));
+    tgen_subs_set_fmt(&dsubs, "dim.i",     NULL, "%zu", i);
     tgen_subs_set(&dsubs, ",",  (i < meta->ndimensions-1) ? ","  : "", NULL);
     tgen_subs_set(&dsubs, ", ", (i < meta->ndimensions-1) ? ", " : "", NULL);
     if ((retval = tgen_append(s, template, len, &dsubs, context))) goto fail;
@@ -76,7 +76,7 @@ static int list_relations(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&rsubs, "rel.p",  r->p, NULL);
     tgen_subs_set(&rsubs, "rel.o",  r->o, NULL);
     tgen_subs_set(&rsubs, "rel.id", r->id, NULL);
-    tgen_subs_set_fmt(&rsubs, "rel.i", NULL, "%zd", i);
+    tgen_subs_set_fmt(&rsubs, "rel.i", NULL, "%zu", i);
     tgen_subs_set(&rsubs, ",",  (i < meta->nrelations-1) ? ","  : "", NULL);
     tgen_subs_set(&rsubs, ", ", (i < meta->nrelations-1) ? ", " : "", NULL);
     if ((retval = tgen_append(s, template, len, &rsubs, context))) goto fail;
@@ -107,7 +107,7 @@ static int list_dims(TGenBuf *s, const char *template, int len,
     int dim = p->dims[i];
     tgen_subs_set(&psubs, "dim.name",  dims[dim].name,        NULL);
     tgen_subs_set(&psubs, "dim.descr", dims[dim].description, NULL);
-    tgen_subs_set_fmt(&psubs, "dim.value", NULL, "%zd", DLITE_DIM(meta, dim));
+    tgen_subs_set_fmt(&psubs, "dim.value", NULL, "%zu", DLITE_DIM(meta, dim));
     tgen_subs_set_fmt(&psubs, "dim.n",     NULL, "%d",  dim);
     tgen_subs_set_fmt(&psubs, "dim.i",     NULL, "%d",  i);
     tgen_subs_set(&psubs, ",",  (i < p->ndims-1) ? ","  : "", NULL);
@@ -166,10 +166,10 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&psubs, "prop.descr",    descr,    NULL);
     tgen_subs_set(&psubs, "prop.dims",     NULL,     list_dims);
     tgen_subs_set_fmt(&psubs, "prop.typeno",      NULL, "%d",  p->type);
-    tgen_subs_set_fmt(&psubs, "prop.size",        NULL, "%zd", p->size);
+    tgen_subs_set_fmt(&psubs, "prop.size",        NULL, "%zu", p->size);
     tgen_subs_set_fmt(&psubs, "prop.ndims",       NULL, "%d",  p->ndims);
     tgen_subs_set_fmt(&psubs, "prop.isallocated", NULL, "%d",  isallocated);
-    tgen_subs_set_fmt(&psubs, "prop.i",           NULL, "%zd", i);
+    tgen_subs_set_fmt(&psubs, "prop.i",           NULL, "%zu", i);
     tgen_subs_set(&psubs, ",",  (i < m->nproperties-1) ? ","  : "", NULL);
     tgen_subs_set(&psubs, ", ", (i < m->nproperties-1) ? ", " : "", NULL);
 
@@ -292,9 +292,9 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
     tgen_subs_set(subs, "descr",      *descr,     NULL);
 
   /* DLiteMeta_HEAD */
-    tgen_subs_set_fmt(subs, "_ndimensions", NULL, "%zd", meta->ndimensions);
-    tgen_subs_set_fmt(subs, "_nproperties", NULL, "%zd", meta->nproperties);
-    tgen_subs_set_fmt(subs, "_nrelations",  NULL, "%zd", meta->nrelations);
+    tgen_subs_set_fmt(subs, "_ndimensions", NULL, "%zu", meta->ndimensions);
+    tgen_subs_set_fmt(subs, "_nproperties", NULL, "%zu", meta->nproperties);
+    tgen_subs_set_fmt(subs, "_nrelations",  NULL, "%zu", meta->nrelations);
 
     tgen_subs_set_fmt(subs, "_headersize",  NULL, "0");
     tgen_subs_set_fmt(subs, "_init",        NULL, "NULL");
