@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
+
 #include "minunit/minunit.h"
 #include "integers.h"
 #include "boolean.h"
 #include "dlite.h"
 #include "dlite-datamodel.h"
-
-#include "config.h"
 
 char *datafile = "testdata.h5";
 char *id = "testdata";

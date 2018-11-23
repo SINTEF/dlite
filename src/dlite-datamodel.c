@@ -195,7 +195,7 @@ int dlite_copy_to_flat(void *dst, const void *src, size_t size,
   if (!(ind = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
 
   for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];
-  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? dims[i] : 1;
+  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? (int)dims[i] : 1;
 
   while (n++ < ntot) {
     memcpy(q, *p, size);
@@ -232,7 +232,7 @@ int dlite_copy_to_nested(void *dst, const void *src, size_t size,
   if (!(ind = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
 
   for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];
-  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? dims[i] : 1;
+  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? (int)dims[i] : 1;
 
   while (n++ < ntot) {
     memcpy(*p, q, size);

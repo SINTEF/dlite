@@ -107,7 +107,7 @@ add_definitions(
   -DHAVE_CONFIG_H
   )
 
-add_library(utils SHARED ${sources})
+add_library(utils ${sources})
 target_include_directories(utils PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}

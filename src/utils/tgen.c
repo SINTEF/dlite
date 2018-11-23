@@ -775,7 +775,7 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
           int m = strcspn(tt, ":}");
           if (m >= (int)sizeof(buf))
             return err(TGenSyntaxError, "line %d: format specifier \"%.*s\" "
-                       "must not exceed %lu characters",
+                       "must not exceed %zd characters",
                        tgen_lineno(template, t), m, tt, sizeof(buf)-1);
           if (tt[m] == '\0')
             return err(TGenSyntaxError, "line %d: template ends with "

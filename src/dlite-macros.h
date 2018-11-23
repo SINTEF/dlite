@@ -34,9 +34,9 @@
 
 /** Debugging messages.  Printed if compiled with WITH_DEBUG */
 #if defined(WITH_DEBUG) && defined(HAVE_VA_ARGS)
-# define DEBUG(msg, ...) fprintf(stderr, msg, __VA_ARGS__)
+# define DEBUG_LOG(msg, ...) fprintf(stderr, msg, __VA_ARGS__)
 #else
-# define DEBUG(msg, ...)
+# define DEBUG_LOG(msg, ...)
 #endif
 
 
