@@ -101,10 +101,16 @@ int rpl_vasprintf(char **, const char *, va_list);
 /* Other stuff...                     */
 /* ================================== */
 
-/* Get rid of warnings from MSVS about insecure standard library functions */
 #ifdef _WIN32
+/* Get rid of warnings from MSVS about insecure standard library functions */
 # define _CRT_SECURE_NO_WARNINGS
+
+/* Get rid of warnings about possible loss of data in conversions
+   between integers or floats of different size */
+#pragma warning( disable: 4267 4244 )
+
 #endif
+
 
 /* Thread local storage */
 #cmakedefine HAVE_GCC_THREAD_LOCAL_STORAGE
