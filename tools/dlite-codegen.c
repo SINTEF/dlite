@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   /* Command line arguments */
   char *driver = "json";
   char *driver_options = "mode=r";
-  char *format = NULL;
+  //char *format = NULL;
   char *output = NULL;
   char *options = "";
   char *template_file = NULL;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     switch (c) {
     case 'd':  driver = optarg; break;
     case 'D':  driver_options = optarg; break;
-    case 'f':  format = optarg; break;
+      //case 'f':  format = optarg; break;
     case 'h':  help(stdout); exit(0);
     case 'o':  output = optarg; break;
     case 'O':  options = optarg; break;

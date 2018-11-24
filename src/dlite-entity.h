@@ -326,7 +326,7 @@ struct _DLiteEntity {
 
   On error, NULL is returned.
  */
-DLiteInstance *dlite_instance_create(const DLiteEntity *meta,
+DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
                                      const size_t *dims,
                                      const char *id);
 
@@ -549,6 +549,16 @@ void dlite_meta_incref(DLiteMeta *meta);
  */
 void dlite_meta_decref(DLiteMeta *meta);
 
+/**
+  Loads metadata identified by `id` from storage `s` and returns a new
+  fully initialised meta instance.
+*/
+DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id);
+
+/**
+  Saves metadata `meta` to storage `s`.  Returns non-zero on error.
+ */
+int dlite_meta_save(DLiteStorage *s, const DLiteMeta *meta);
 
 /**
   Returns index of dimension named `name` or -1 on error.

@@ -19,7 +19,7 @@ char *jsonfile = "myentity.json";
 char *jsonfile2 = "myentity2.json";
 char *uri = "http://www.sintef.no/meta/dlite/0.1/MyEntity";
 char *id = "mydata";
-DLiteEntity *entity=NULL;
+DLiteMeta *entity=NULL;
 DLiteInstance *mydata=NULL, *mydata2=NULL, *mydata3=NULL;
 
 
@@ -45,9 +45,9 @@ MU_TEST(test_entity_create)
     {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "descr.."}
   };
 
-  mu_check((entity = dlite_entity_create(uri, "My test entity.",
-					 2, dimensions,
-					 5, properties)));
+  mu_check((entity = (DLiteMeta *)dlite_entity_create(uri, "My test entity.",
+                                                      2, dimensions,
+                                                      5, properties)));
   mu_assert_int_eq(2, entity->ndimensions);
   mu_assert_int_eq(5, entity->nproperties);
   mu_assert_int_eq(1, entity->properties[2].dims[0]);
@@ -114,11 +114,11 @@ MU_TEST(test_instance_load)
 {
   DLiteStorage *s;
   mu_check((s = dlite_storage_open("hdf5", datafile, "r")));
-  mu_check((mydata2 = dlite_instance_load(s, id, entity)));
+  mu_check((mydata2 = dlite_instance_load(s, id, (DLiteEntity *)entity)));
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", jsonfile, "mode=r")));
-  mu_check((mydata3 = dlite_instance_load(s, id, entity)));
+  mu_check((mydata3 = dlite_instance_load(s, id, (DLiteEntity *)entity)));
   mu_check(dlite_storage_close(s) == 0);
 }
 
@@ -145,11 +145,11 @@ MU_TEST(test_entity_save)
 {
   DLiteStorage *s;
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=w;meta=1")));
-  mu_check(dlite_entity_save(s, entity) == 0);
+  mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", "MyEntity2.json", "mode=w;meta=0")));
-  mu_check(dlite_entity_save(s, entity) == 0);
+  mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
   //mu_check((s = dlite_storage_open("hdf5", "MyEntity.h5", "w")));
@@ -184,7 +184,7 @@ MU_TEST(test_entity_load)
 
 MU_TEST(test_entity_free)
 {
-  dlite_entity_decref(entity);
+  dlite_meta_decref(entity);
 }
 
 

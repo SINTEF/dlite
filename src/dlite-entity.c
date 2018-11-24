@@ -41,18 +41,17 @@ int dlite_meta_init(DLiteMeta *meta);
 
   On error, NULL is returned.
 */
-DLiteInstance *dlite_instance_create(const DLiteEntity *entity,
+DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
                                      const size_t *dims,
                                      const char *id)
 {
-  DLiteMeta *meta = (DLiteMeta *)entity;
   char uuid[DLITE_UUID_LENGTH+1];
   size_t i, size;
   DLiteInstance *inst=NULL;
   int j, uuid_version;
 
   /* Make sure that metadata is initialised */
-  if (!meta->propoffsets && dlite_meta_init(meta)) goto fail;
+  if (!meta->propoffsets && dlite_meta_init((DLiteMeta *)meta)) goto fail;
   if (dlite_metastore_add(meta)) goto fail;
 
   /* Allocate instance */
@@ -95,7 +94,7 @@ DLiteInstance *dlite_instance_create(const DLiteEntity *entity,
   if (meta->init && meta->init(inst)) goto fail;
 
   /* Increase reference counts */
-  dlite_meta_incref(meta);      /* increase refcount of metadata */
+  dlite_meta_incref((DLiteMeta *)meta);  /* increase refcount of metadata */
   dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
   return inst;
@@ -227,7 +226,7 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
       goto fail;
 
   /* create instance */
-  if (!(inst = dlite_instance_create((DLiteEntity *)meta, dims, id))) goto fail;
+  if (!(inst = dlite_instance_create(meta, dims, id))) goto fail;
 
   /* assign properties */
   for (i=0; i<meta->nproperties; i++) {
@@ -545,8 +544,7 @@ dlite_entity_create(const char *uri, const char *description,
   size_t dims[] = {ndimensions, nproperties};
 
   if (dlite_split_meta_uri(uri, &name, &version, &namespace)) goto fail;
-  if (!(e=dlite_instance_create((DLiteEntity *)dlite_get_entity_schema(),
-                                dims, uri)))
+  if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))
     goto fail;
 
   if (dlite_instance_set_property(e, "name", &name)) goto fail;
@@ -772,6 +770,23 @@ void dlite_meta_decref(DLiteMeta *meta)
   dlite_instance_decref((DLiteInstance *)meta);
 }
 
+
+/*
+  Loads metadata identified by `id` from storage `s` and returns a new
+  fully initialised meta instance.
+*/
+DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id)
+{
+  return (DLiteMeta *)dlite_instance_load(s, id, NULL);
+}
+
+/*
+  Saves metadata `meta` to storage `s`.  Returns non-zero on error.
+ */
+int dlite_meta_save(DLiteStorage *s, const DLiteMeta *meta)
+{
+  return dlite_instance_save(s, (const DLiteInstance *)meta);
+}
 
 /*
   Returns index of dimension named `name` or -1 on error.
