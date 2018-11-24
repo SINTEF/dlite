@@ -13,7 +13,7 @@
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) # s
 
-DLiteEntity *entity = NULL;
+DLiteMeta *entity = NULL;
 DLiteInstance *inst = NULL;
 DLiteStore *store = NULL;
 char *entity_uri = "http://www.sintef.no/calm/0.1/Chemistry";
@@ -49,7 +49,7 @@ MU_TEST(test_entity_load)
   char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((entity = dlite_entity_load(s, entity_uri)));
+  mu_check((entity = dlite_meta_load(s, entity_uri)));
   mu_assert_int_eq(0, dlite_storage_close(s));
 }
 
@@ -59,8 +59,7 @@ MU_TEST(test_instance_load)
   char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((inst = dlite_instance_load(s, inst_id, entity)));
-  //mu_check((inst = dlite_instance_load(s, inst_id, NULL)));
+  mu_check((inst = dlite_instance_load(s, inst_id)));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
   mu_assert_int_eq(1, inst->refcount);
@@ -154,7 +153,7 @@ MU_TEST(test_entity_free)
   dlite_metastore_free();
   mu_assert_int_eq(1, entity->refcount);  /* global */
 
-  dlite_entity_decref(entity);
+  dlite_meta_decref(entity);
 }
 
 

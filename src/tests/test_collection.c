@@ -83,14 +83,14 @@ MU_TEST(test_collection_add)
 
   path = STRINGIFY(DLITE_ROOT) "/src/tests/test-entity.json";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((e = dlite_instance_load(s, NULL, NULL)));
+  mu_check((e = dlite_instance_load(s, NULL)));
   mu_check(!dlite_storage_close(s));
 
   path = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
   uri = "my_test_instance";
   //uri = "e076a856-e36e-5335-967e-2f2fd153c17d";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((inst = dlite_instance_load(s, uri, (DLiteEntity *)e)));
+  mu_check((inst = dlite_instance_load(s, uri)));
   mu_check(!dlite_storage_close(s));
 
   mu_assert_int_eq(0, dlite_collection_count(coll));

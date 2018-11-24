@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
   /* Load instance */
   if (uri) {
     DLiteStorage *s = dlite_storage_open(driver, uri, driver_options);
-    if (!(inst = dlite_instance_load(s, id, NULL)))
+    if (!(inst = dlite_instance_load(s, id)))
       FAIL2("cannot read id '%s' from uri '%s'", id, uri);
     dlite_storage_close(s);
   } else if (id) {

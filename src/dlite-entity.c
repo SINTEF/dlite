@@ -180,10 +180,31 @@ int dlite_instance_decref(DLiteInstance *inst)
 
   On error, NULL is returned.
  */
-DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
-				   DLiteEntity *entity)
+DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id)
 {
-  DLiteMeta *meta = (DLiteMeta *)entity;
+  return dlite_instance_load_casted(s, id, NULL);
+}
+
+/*
+  Like dlite_instance_load(), but allows casting the loaded instance
+  into an instance of metadata identified by `metaid`.  If `metaid` is
+  NULL, no casting is performed.
+
+  For the cast to be successful requires that the correct translators
+  have been registered.
+
+  Returns NULL of error or if no translator can be found.
+
+  @todo
+    - implementation of metadata lookup
+    - implementation of translators
+    - implementation of a database of translator plugins
+ */
+DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
+                                          const char *id,
+                                          const char *metaid)
+{
+  DLiteMeta *meta;
   DLiteInstance *inst=NULL, *instance=NULL;
   DLiteDataModel *d=NULL;
   size_t i, *dims=NULL, *pdims=NULL;
@@ -195,16 +216,17 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
   if (!(uri = dlite_datamodel_get_meta_uri(d))) goto fail;
 
   /* if metadata is not given, try to load it from cache... */
-  if (!meta)
-    meta = dlite_metastore_get(uri);
+  meta = dlite_metastore_get(uri);
 
   /* ...otherwise try to load it from storage */
   if (!meta) {
     char uuid[DLITE_UUID_LENGTH];
     dlite_get_uuid(uuid, uri);
     if (!id || strcmp(uuid, id))
-      meta = (DLiteMeta *)dlite_instance_load(s, uuid, NULL);
+      meta = (DLiteMeta *)dlite_instance_load(s, uuid);
   }
+
+  /* FIXME - look for meta in predefined locations */
 
   /* ...otherwise give up */
   if (!meta) FAIL1("cannot load metadata: %s", uri);
@@ -216,6 +238,11 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
   if (strcmp(uri, meta->uri) != 0)
     FAIL3("metadata uri (%s) does not correspond to that in storage (%s): %s",
 	  meta->uri, uri, s->uri);
+
+  /* FIXME - call translators */
+  if (metaid)
+    FAIL2("cannot cast %s to %s; translators are not yet implemented...",
+          metaid, meta->uri);
 
   /* read dimensions */
   if (!(dims = calloc(meta->ndimensions, sizeof(size_t))))
@@ -270,7 +297,11 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
     }
   }
 
+  /* if `inst` is metadata, add it to metastore */
+  if (!dlite_instance_is_datainstance(inst) &&
+      dlite_metastore_add((DLiteMeta *)inst)) goto fail;
   instance = inst;
+
  fail:
   if (!instance) {
     if (inst) dlite_instance_decref(inst);
@@ -525,6 +556,16 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
   return dlite_instance_get_property_dimsize_by_index(inst, i, j);
 }
 
+/*
+  Returns non-zero if `inst` is a data instance.
+ */
+int dlite_instance_is_datainstance(const DLiteInstance *inst)
+{
+  if (!dlite_meta_is_metameta(inst->meta)) return 1;
+  return 0;
+}
+
+
 
 /********************************************************************
  *  Entities
@@ -592,8 +633,7 @@ void dlite_entity_decref(DLiteEntity *entity)
  */
 DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id)
 {
-  return (DLiteEntity *)
-    dlite_instance_load(s, id, (DLiteEntity *)dlite_get_entity_schema());
+  return (DLiteEntity *)dlite_instance_load(s, id);
 }
 
 
@@ -777,7 +817,7 @@ void dlite_meta_decref(DLiteMeta *meta)
 */
 DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id)
 {
-  return (DLiteMeta *)dlite_instance_load(s, id, NULL);
+  return (DLiteMeta *)dlite_instance_load(s, id);
 }
 
 /*

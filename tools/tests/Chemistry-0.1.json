@@ -2,6 +2,7 @@
   "name": "Chemistry",
   "version": "0.1",
   "namespace": "http://www.sintef.no/calm",
+  "meta": "http://meta.sintef.no/0.3/EntitySchema",
   "description": "Simple entity with alloy and particle compositions.",
   "dimensions": [
     {

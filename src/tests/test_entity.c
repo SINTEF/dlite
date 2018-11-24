@@ -114,11 +114,11 @@ MU_TEST(test_instance_load)
 {
   DLiteStorage *s;
   mu_check((s = dlite_storage_open("hdf5", datafile, "r")));
-  mu_check((mydata2 = dlite_instance_load(s, id, (DLiteEntity *)entity)));
+  mu_check((mydata2 = dlite_instance_load(s, id)));
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", jsonfile, "mode=r")));
-  mu_check((mydata3 = dlite_instance_load(s, id, (DLiteEntity *)entity)));
+  mu_check((mydata3 = dlite_instance_load(s, id)));
   mu_check(dlite_storage_close(s) == 0);
 }
 

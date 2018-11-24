@@ -103,7 +103,7 @@ MU_TEST(test_instance_load)
   //char *id = "http://www.sintef.no/calm/0.1/Chemistry";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((inst2 = dlite_instance_load(s, id, (DLiteEntity *)entity)));
+  mu_check((inst2 = dlite_instance_load(s, id)));
   mu_check(!dlite_storage_close(s));
 
   for (i=0; i<ndims; i++) {

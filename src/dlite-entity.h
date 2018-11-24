@@ -349,26 +349,27 @@ int dlite_instance_decref(DLiteInstance *inst);
   new and fully initialised dlite instance.
 
   On error, NULL is returned.
+ */
+DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id);
+
+/**
+  Like dlite_instance_load(), but allows casting the loaded instance
+  into an instance of metadata identified by `metaid`.  If `metaid` is
+  NULL, no casting is performed.
+
+  For the cast to be successful requires that the correct translators
+  have been registered.
+
+  Returns NULL of error or if no translator can be found.
 
   @todo
-  The current implementation requires `entity` to be provided and to
-  describe the instance identified by `id`.  Improvements:
-    - Allow `entity` to be NULL.  In this case, read instance and
-      check its uri (namespace/version/name).  Use this to load the
-      corresponding metadata from a metadata database and assign the
-      instance `meta` field to it.
-    - Allow `entity` to be of another type than the uri of the instance.
-      In this case, check if we have a translator that can translate
-      the instance from its current type to `entity`.  If so, do it
-      and return the new translated instance.
-
-  Requires:
-    - implementation of a metadata database
+    - implementation of metadata lookup
     - implementation of translators
     - implementation of a database of translator plugins
  */
-DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
-                                   DLiteEntity *entity);
+DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
+                                          const char *id,
+                                          const char *metaid);
 
 /**
   Saves instance \a inst to storage \a s.  Returns non-zero on error.
@@ -446,6 +447,11 @@ int dlite_instance_get_property_ndims(const DLiteInstance *inst,
 */
 size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
                                             const char *name, size_t j);
+
+/**
+  Returns non-zero if `inst` is a data instance.
+ */
+int dlite_instance_is_datainstance(const DLiteInstance *inst);
 
 
 /** @} */
