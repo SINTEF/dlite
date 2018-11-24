@@ -296,19 +296,6 @@ typedef struct _DLiteMeta {
 } DLiteMeta;
 
 
-/**
-  A DLite entity.
-
-  This is the metadata for standard data objects.  Entities will
-  typically have its `meta` member set to NULL.  This works, since
-  entities have their own API that know about their structure.
-*/
-struct _DLiteEntity {
-  DLiteMeta_HEAD        /*!< Common header for all metadata. */
-};
-
-
-
 
 /* ================================================================= */
 /**
@@ -457,11 +444,7 @@ int dlite_instance_is_datainstance(const DLiteInstance *inst);
 /** @} */
 /* ================================================================= */
 /**
- * @name Entities
- *
- * The entity api is currently very limited, however, it is possible
- * to use the instance api on entities too, by casting them to a
- * DLiteInstance.
+ * @name Metadata
  */
 /* ================================================================= */
 /** @{ */
@@ -469,80 +452,10 @@ int dlite_instance_is_datainstance(const DLiteInstance *inst);
 /**
   Returns a new Entity created from the given arguments.
  */
-DLiteEntity *
+DLiteMeta *
 dlite_entity_create(const char *uri, const char *description,
                     size_t ndimensions, const DLiteDimension *dimensions,
                     size_t nproperties, const DLiteProperty *properties);
-
-/**
-  Increase reference count to Entity.
- */
-void dlite_entity_incref(DLiteEntity *entity);
-
-/**
-  Decrease reference count to Entity.  If the reference count reaches
-  zero, the Entity is free'ed.
- */
-void dlite_entity_decref(DLiteEntity *entity);
-
-/**
-  Free's all memory used by \a entity and clear all data.
- */
-void dlite_entity_clear(DLiteEntity *entity);
-
-/**
-  Returns a new Entity loaded from storage \a s.  The \a id may be either
-  an URI to the Entity (typically of the form "namespace/version/name")
-  or an UUID.
-
-  Returns NULL on error.
- */
-DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id);
-
-/**
-  Saves an Entity to storage \a s.  Returns non-zero on error.
- */
-int dlite_entity_save(DLiteStorage *s, const DLiteEntity *entity);
-
-/**
-  Returns a pointer to property with index \a i or NULL on error.
- */
-const DLiteProperty *
-dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i);
-
-/**
-  Returns a pointer to property named \a name or NULL on error.
- */
-const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
-                                               const char *name);
-
-
-/** @} */
-/* ================================================================= */
-/**
- * @name Generic metadata
- * These functions are mainly used internally or by code generators.
- * Do not waist time on them...
- */
-/* ================================================================= */
-/** @{ */
-
-///**
-//  Initialises internal properties of \a meta.  This function should
-//  not be called before the non-internal properties has been initialised.
-//
-//  The \a ismeta argument indicates whether the instance described by
-//  `meta` is metadata itself.
-//
-//  Returns non-zero on error.
-// */
-//int dlite_meta_postinit(DLiteMeta *meta, bool ismeta);
-
-///**
-//  Free's all memory used by \a meta and clear all data.
-// */
-//void dlite_meta_clear(DLiteMeta *meta);
-
 
 /**
   Increase reference count to meta-metadata.

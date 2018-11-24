@@ -141,7 +141,7 @@ MU_TEST(test_instance_free)
   dlite_instance_decref(mydata3);
 }
 
-MU_TEST(test_entity_save)
+MU_TEST(test_meta_save)
 {
   DLiteStorage *s;
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=w;meta=1")));
@@ -157,32 +157,32 @@ MU_TEST(test_entity_save)
   //mu_check(dlite_storage_close(s) == 0);
 }
 
-MU_TEST(test_entity_load)
+MU_TEST(test_meta_load)
 {
   DLiteStorage *s;
-  DLiteEntity *e, *e2;
+  DLiteMeta *e, *e2;
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=r")));
-  mu_check((e = dlite_entity_load(s, uri)));
+  mu_check((e = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", "MyEntity2.json", "mode=r")));
-  mu_check((e2 = dlite_entity_load(s, uri)));
+  mu_check((e2 = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", "MyEntity3.json", "mode=w;meta=1")));
-  mu_check(dlite_entity_save(s, e) == 0);
+  mu_check(dlite_meta_save(s, e) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", "MyEntity4.json", "mode=w;meta=1")));
-  mu_check(dlite_entity_save(s, e2) == 0);
+  mu_check(dlite_meta_save(s, e2) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
-  dlite_entity_decref(e);
-  dlite_entity_decref(e2);
+  dlite_meta_decref(e);
+  dlite_meta_decref(e2);
 }
 
 
-MU_TEST(test_entity_free)
+MU_TEST(test_meta_free)
 {
   dlite_meta_decref(entity);
 }
@@ -201,9 +201,9 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_save2);
   MU_RUN_TEST(test_instance_free);
 
-  MU_RUN_TEST(test_entity_save);
-  MU_RUN_TEST(test_entity_load);
-  MU_RUN_TEST(test_entity_free);     /* tear down */
+  MU_RUN_TEST(test_meta_save);
+  MU_RUN_TEST(test_meta_load);
+  MU_RUN_TEST(test_meta_free);     /* tear down */
 }
 
 

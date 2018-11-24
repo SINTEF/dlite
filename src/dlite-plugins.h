@@ -225,12 +225,12 @@ typedef int (*SetDataName)(DLiteDataModel *d, const char *name);
   Returns a new entity loaded from storage `s` with single-entity layout.
  */
 /* FIXME - remove uuid argument, since it is not needed */
-typedef DLiteEntity *(*GetEntity)(const DLiteStorage *s, const char *uuid);
+typedef DLiteMeta *(*GetEntity)(const DLiteStorage *s, const char *uuid);
 
 /**
   Stores entity `e` to storage `s`, using the single-entity layout.
  */
-typedef int (*SetEntity)(DLiteStorage *s, const DLiteEntity *e);
+typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
 
 /** @} */
 

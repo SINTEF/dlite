@@ -568,18 +568,18 @@ int dlite_instance_is_datainstance(const DLiteInstance *inst)
 
 
 /********************************************************************
- *  Entities
+ *  Metadata
  ********************************************************************/
 
 /*
   Returns a new Entity created from the given arguments.
  */
-DLiteEntity *
+DLiteMeta *
 dlite_entity_create(const char *uri, const char *description,
 		    size_t ndimensions, const DLiteDimension *dimensions,
 		    size_t nproperties, const DLiteProperty *properties)
 {
-  DLiteEntity *entity=NULL;
+  DLiteMeta *entity=NULL;
   DLiteInstance *e;
   char *name=NULL, *version=NULL, *namespace=NULL;
   size_t dims[] = {ndimensions, nproperties};
@@ -597,7 +597,7 @@ dlite_entity_create(const char *uri, const char *description,
 
   if (dlite_meta_init((DLiteMeta *)e)) goto fail;
 
-  entity = (DLiteEntity *)e;
+  entity = (DLiteMeta *)e;
  fail:
   if (name) free(name);
   if (version) free(version);
@@ -605,78 +605,6 @@ dlite_entity_create(const char *uri, const char *description,
   if (!entity) dlite_instance_decref(e);
   return entity;
 }
-
-/*
-  Increase reference count to Entity.
- */
-void dlite_entity_incref(DLiteEntity *entity)
-{
-  dlite_meta_incref((DLiteMeta *)entity);
-}
-
-/*
-  Decrease reference count to Entity.  If the reference count reaches
-  zero, the Entity is free'ed.
- */
-void dlite_entity_decref(DLiteEntity *entity)
-{
-  dlite_meta_decref((DLiteMeta *)entity);
-}
-
-
-/*
-  Returns a new Entity loaded from storage `s`.  The `id` may be either
-  an URI to the Entity (typically of the form "namespace/version/name")
-  or an UUID.
-
-  Returns NULL on error.
- */
-DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id)
-{
-  return (DLiteEntity *)dlite_instance_load(s, id);
-}
-
-
-/*
-  Saves an Entity to storage `s`.  Returns non-zero on error.
- */
-int dlite_entity_save(DLiteStorage *s, const DLiteEntity *e)
-{
-  return dlite_instance_save(s, (DLiteInstance *)e);
-}
-
-
-/*
-  Returns a pointer to property with index `i` or NULL on error.
- */
-const DLiteProperty *
-dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i)
-{
-  if (i >= entity->nproperties)
-    return errx(1, "no property with index %zu in %s", i , entity->meta->uri),
-      NULL;
-  return (const DLiteProperty *)entity->properties + i;
-}
-
-/*
-  Returns a pointer to property named `name` or NULL on error.
- */
-const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
-					       const char *name)
-{
-  int i;
-  if ((i = dlite_meta_get_property_index((DLiteMeta *)entity, name)) < 0)
-    return NULL;
-  return (const DLiteProperty *)entity->properties + i;
-}
-
-
-/********************************************************************
- *  Meta data
- *
- *  These functions are mainly used internally or by code generators.
- *
- ********************************************************************/
 
 /*
   Initialises internal data of `meta` describing its instances.

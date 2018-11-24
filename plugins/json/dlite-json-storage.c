@@ -731,9 +731,9 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
 }
 
 /* Creates a DLiteEntity from a json object */
-DLiteEntity *dlite_json_entity(json_t *obj)
+DLiteMeta *dlite_json_entity(json_t *obj)
 {
-  DLiteEntity *entity = NULL;
+  DLiteMeta *entity = NULL;
   char *uri=NULL;
   char *desc=NULL;
   int i, nprop, ndim;
@@ -804,7 +804,7 @@ DLiteEntity *dlite_json_entity(json_t *obj)
 }
 
 /* Create an entity from a json storage and the given entity ID */
-DLiteEntity *dlite_json_get_entity(const DLiteStorage *s, const char *id)
+DLiteMeta *dlite_json_get_entity(const DLiteStorage *s, const char *id)
 {
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   char *uri=NULL;
@@ -867,9 +867,9 @@ DLiteEntity *dlite_json_get_entity(const DLiteStorage *s, const char *id)
 }
 
 
-int dlite_json_set_entity(DLiteStorage *s, const DLiteEntity *e)
+int dlite_json_set_entity(DLiteStorage *s, const DLiteMeta *e)
 {
-  return dlite_entity_save(s, e);
+  return dlite_meta_save(s, e);
 }
 
 
