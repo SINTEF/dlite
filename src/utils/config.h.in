@@ -88,14 +88,6 @@ int rpl_vasprintf(char **, const char *, va_list);
 #endif  /* HAVE_STDARG_H */
 
 
-/* compat/getopt.h */
-#if defined(HAVE_GETOPT) && defined(HAVE_GETOPT_LONG)
-#include <getopt.h>
-#else
-#include "compat/getopt.h"
-#endif
-
-
 
 /* ================================== */
 /* Other stuff...                     */
