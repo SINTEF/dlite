@@ -325,9 +325,14 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
   case dliteStringPtr:
     {
       char *s = *((char **)src);
-      size_t len = strlen(s) + 1;
-      *((void **)dest) = realloc(*((void **)dest), len);
-      memcpy(*((void **)dest), s, len);
+      if (s) {
+        size_t len = strlen(s) + 1;
+        *((void **)dest) = realloc(*((void **)dest), len);
+        memcpy(*((void **)dest), s, len);
+      } else if (*((void **)dest)) {
+        free(*((void **)dest));
+        *((void **)dest) = NULL;
+      }
     }
     break;
   case dliteDimension:

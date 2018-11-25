@@ -134,6 +134,35 @@ MU_TEST(test_instance_save2)
   mu_check(dlite_storage_close(s) == 0);
 }
 
+MU_TEST(test_instance_copy)
+{
+  DLiteStorage *s;
+  DLiteInstance *inst;
+  mu_check((inst = dlite_instance_copy(mydata, NULL)));
+  mu_check((s = dlite_storage_open("json", "myentity_copy.json", "mode=w")));
+  mu_check(dlite_instance_save(s, inst) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+  dlite_instance_decref(inst);
+
+}
+
+MU_TEST(test_instance_set_dimension_sizes)
+{
+  DLiteStorage *s;
+  int newdims1[] = {-1, 4};
+  int newdims2[] = {2, 1};
+
+  mu_check(dlite_instance_set_dimension_sizes(mydata, newdims1) == 0);
+  mu_check((s = dlite_storage_open("json", "myentity4.json", "mode=w")));
+  mu_check(dlite_instance_save(s, mydata) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+
+  mu_check(dlite_instance_set_dimension_sizes(mydata, newdims2) == 0);
+  mu_check((s = dlite_storage_open("json", "myentity5.json", "mode=w")));
+  mu_check(dlite_instance_save(s, mydata) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+}
+
 MU_TEST(test_instance_free)
 {
   dlite_instance_decref(mydata);
@@ -199,6 +228,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_save);
   MU_RUN_TEST(test_instance_load);
   MU_RUN_TEST(test_instance_save2);
+  MU_RUN_TEST(test_instance_copy);
+  MU_RUN_TEST(test_instance_set_dimension_sizes);
   MU_RUN_TEST(test_instance_free);
 
   MU_RUN_TEST(test_meta_save);

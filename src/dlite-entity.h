@@ -320,6 +320,8 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
 /**
   Increases reference count on `inst`.
+
+  Returns the new reference count.
  */
 int dlite_instance_incref(DLiteInstance *inst);
 
@@ -327,6 +329,8 @@ int dlite_instance_incref(DLiteInstance *inst);
 /**
   Decrease reference count to `inst`.  If the reference count reaches
   zero, the instance is free'ed.
+
+  Returns the new reference count.
  */
 int dlite_instance_decref(DLiteInstance *inst);
 
@@ -438,8 +442,50 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
 /**
   Returns non-zero if `inst` is a data instance.
  */
-int dlite_instance_is_datainstance(const DLiteInstance *inst);
+int dlite_instance_is_data(const DLiteInstance *inst);
 
+
+/**
+  Updates the size of all dimensions from.  The new dimension sizes are
+  provided in `dims`, that must have length `inst->ndims`.  Dimensions
+  corresponding to negative elements in `dims` will remain unchanged.
+
+  All properties whos dimension are changed will be reallocated and
+  new memory will be zeroed.  The values of properties with two or
+  more dimensions, where any but the first dimension is updated,
+  should be considered invalidated.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_sizes(DLiteInstance *inst, int *dims);
+
+/**
+  Like dlite_instance_set_dimension_sizes(), but only updates the size of
+  dimension `i` to size `size`.  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_size_by_index(DLiteInstance *inst,
+                                               size_t i, size_t size);
+
+/**
+  Like dlite_instance_set_dimension_sizes(), but only updates the size of
+  dimension `name` to size `size`.  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_size(DLiteInstance *inst, const char *name,
+                                      size_t size);
+
+/**
+  Copies instance `inst` to a newly created instance.
+
+  If `newid` is NULL, the new instance will have no URI and a random UUID.
+  If `newid` is a valid UUID, the new instance will have the given
+  UUID and no URI.
+  Otherwise, the URI of the new instance will be `newid` and the UUID
+  assigned accordingly.
+
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_copy(const DLiteInstance *inst,
+                                   const char *newid);
 
 /** @} */
 /* ================================================================= */

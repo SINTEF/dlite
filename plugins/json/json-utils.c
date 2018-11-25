@@ -655,7 +655,7 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
 
   case dliteStringPtr:
     sval = *((char **)ptr);
-    return json_string(sval);
+    return (sval) ? json_string(sval) : json_null();
 
   case dliteDimension: {
     const DLiteDimension *d = ptr;
@@ -788,9 +788,14 @@ int dlite_json_get_value(void *ptr, const json_t *item,
     break;
 
   case dliteStringPtr:
-    if (!json_is_string(item)) return errx(1, "expected json string");
-    if (!(*((char **)ptr) = strdup(json_string_value(item))))
-      return errx(1, "allocation error");
+    if (json_is_null(item)) {
+      *((void **)ptr) = NULL;
+    } else if (json_is_string(item)) {
+      if (!(*((char **)ptr) = strdup(json_string_value(item))))
+        return errx(1, "allocation error");
+    } else {
+      return errx(1, "expected json string");
+    }
     break;
 
   case dliteDimension:

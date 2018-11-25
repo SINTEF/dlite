@@ -298,7 +298,7 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
   }
 
   /* if `inst` is metadata, add it to metastore */
-  if (!dlite_instance_is_datainstance(inst) &&
+  if (!dlite_instance_is_data(inst) &&
       dlite_metastore_add((DLiteMeta *)inst)) goto fail;
   instance = inst;
 
@@ -559,12 +559,140 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
 /*
   Returns non-zero if `inst` is a data instance.
  */
-int dlite_instance_is_datainstance(const DLiteInstance *inst)
+int dlite_instance_is_data(const DLiteInstance *inst)
 {
   if (!dlite_meta_is_metameta(inst->meta)) return 1;
   return 0;
 }
 
+
+/*
+  Updates the size of all dimensions from.  The new dimension sizes are
+  provided in `dims`, that must have length `inst->ndims`.  Dimensions
+  corresponding to negative elements in `dims` will remain unchanged.
+
+  All properties whos dimension are changed will be reallocated and
+  new memory will be zeroed.  The values of properties with two or
+  more dimensions, where any but the first dimension is updated,
+  should be considered invalidated.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_sizes(DLiteInstance *inst, int *dims)
+{
+  size_t n;
+  int i;
+
+  if (!dlite_instance_is_data(inst))
+    return err(1, "it is not possible to change dimensions of metadata");
+
+  /* reallocate properties */
+  for (n=0; n < inst->meta->nproperties; n++) {
+    DLiteProperty *p = inst->meta->properties + n;
+    int oldmembs=1, newmembs=1, oldsize, newsize;
+    void **ptr = DLITE_PROP(inst, n);
+    if (p->ndims <= 0) continue;
+    for (i=0; i < p->ndims; i++) {
+      int oldlen = DLITE_DIM(inst, p->dims[i]);
+      oldmembs *= oldlen;
+      newmembs *= (dims[p->dims[i]] >= 0) ? dims[p->dims[i]] : oldlen;
+    }
+    oldsize = oldmembs * p->size;
+    newsize = newmembs * p->size;
+    if (newmembs == oldmembs) {
+      continue;
+    } else if (newmembs > 0) {
+      if (newmembs < oldmembs)
+        for (i=newmembs; i < oldmembs; i++)
+          dlite_type_clear((char *)(*ptr) + i*p->size, p->type, p->size);
+      *ptr = realloc(*ptr, newsize);
+      if (newmembs > oldmembs)
+        memset((char *)(*ptr) + oldsize, 0, newsize - oldsize);
+    } else if (*ptr) {
+      for (i=0; i < oldmembs; i++)
+        dlite_type_clear((char *)(*ptr) + i*p->size, p->type, p->size);
+      free(*ptr);
+      *ptr = NULL;
+    } else {
+      assert(oldsize == 0);
+    }
+  }
+
+  /* update dimensions */
+  for (n=0; n < inst->meta->ndimensions; n++)
+    if (dims[n] >= 0) DLITE_DIM(inst, n) = dims[n];
+
+  return 0;
+}
+
+/*
+  Like dlite_instance_set_dimension_sizes(), but only updates the size of
+  dimension `i` to size `size`.  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_size_by_index(DLiteInstance *inst,
+                                               size_t i, size_t size)
+{
+  size_t j;
+  int retval;
+  int *dims = malloc(inst->meta->ndimensions * sizeof(int));
+  for (j=0; j < inst->meta->ndimensions; j++) dims[j] = -1;
+  dims[i] = size;
+  retval = dlite_instance_set_dimension_sizes(inst, dims);
+  free(dims);
+  return retval;
+}
+
+/*
+  Like dlite_instance_set_dimension_sizes(), but only updates the size of
+  dimension `name` to size `size`.  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_size(DLiteInstance *inst, const char *name,
+                                      size_t size)
+{
+  int i;
+  if ((i = dlite_meta_get_dimension_index(inst->meta, name)) < 0) return -1;
+  return dlite_instance_set_dimension_size_by_index(inst, i, size);
+}
+
+
+/*
+  Copies instance `inst` to a newly created instance.
+
+  If `newid` is NULL, the new instance will have no URI and a random UUID.
+  If `newid` is a valid UUID, the new instance will have the given
+  UUID and no URI.
+  Otherwise, the URI of the new instance will be `newid` and the UUID
+  assigned accordingly.
+
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
+{
+  DLiteInstance *new=NULL;
+  size_t n;
+  int i;
+  if (!(new = dlite_instance_create(inst->meta, DLITE_DIMS(inst), newid)))
+    return NULL;
+  for (n=0; n < inst->meta->nproperties; n++) {
+    DLiteProperty *p = inst->meta->properties + n;
+    void *src = dlite_instance_get_property_by_index(inst, n);
+    void *dst = dlite_instance_get_property_by_index(new, n);
+   if (p->ndims > 0) {
+      int nmembs=1;
+      for (i=0; i < p->ndims; i++) nmembs *= DLITE_DIM(inst, p->dims[i]);
+      for (i=0; i < nmembs; i++)
+        if (!dlite_type_copy((char *)dst + i*p->size,
+                             (char *)src + i*p->size,
+                             p->type, p->size)) goto fail;
+    } else {
+      if (!dlite_type_copy(dst, src, p->type, p->size)) goto fail;
+    }
+  }
+  return new;
+ fail:
+  if (new) dlite_instance_decref(new);
+  return NULL;
+}
 
 
 /********************************************************************
