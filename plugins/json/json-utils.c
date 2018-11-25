@@ -608,7 +608,6 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
 
   case dliteBlob:
     return hex_encode(ptr, size);
-    //return errx(-1, "JSON storage does not support binary blobs"), NULL;
 
   case dliteBool:
     assert(size == sizeof(bool));
@@ -703,6 +702,16 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
     return obj;
   }
 
+  case dliteRelation: {
+    const DLiteRelation *r = ptr;
+    json_t *obj = json_object();
+    json_object_set_new(obj, "s", json_string(r->s));
+    json_object_set_new(obj, "p", json_string(r->p));
+    json_object_set_new(obj, "o", json_string(r->o));
+    if (r->id) json_object_set_new(obj, "id", json_string(r->id));
+    return obj;
+  }
+
   default:
     return errx(-1, "JSON storage, unsupported type number: %d", type), NULL;
   }
@@ -727,6 +736,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
                          const json_t *root)
 {
   DLiteDimension dimension;
+  DLiteRelation relation;
   json_t *str;
   const char *s;
 
@@ -819,6 +829,32 @@ int dlite_json_get_value(void *ptr, const json_t *item,
 
   case dliteProperty:
     if (parse_property(ptr, item, root)) goto fail;
+    break;
+
+  case dliteRelation:
+    memset(&relation, 0, sizeof(relation));
+    if (!json_is_object(item)) FAIL("expected json relation object");
+
+    if (!(str = json_object_get(item, "s")) ||
+        !(s = json_string_value(str)))
+      FAIL("expected relation subject (s)");
+    if (!(relation.s = strdup(s))) FAIL("allocation failure");
+
+    if (!(str = json_object_get(item, "p")) ||
+        !(s = json_string_value(str)))
+      FAIL("expected relation predicate (p)");
+    if (!(relation.p = strdup(s))) FAIL("allocation failure");
+
+    if (!(str = json_object_get(item, "o")) ||
+        !(s = json_string_value(str)))
+      FAIL("expected relation object (o)");
+    if (!(relation.o = strdup(s))) FAIL("allocation failure");
+
+    if ((str = json_object_get(item, "id")) &&
+        (s = json_string_value(str)) &&
+        !(relation.id = strdup(s))) FAIL("allocation failure");
+
+    memcpy(ptr, &relation, sizeof(relation));
     break;
 
   default:

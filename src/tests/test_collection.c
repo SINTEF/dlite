@@ -30,6 +30,7 @@ MU_TEST(test_collection_add_relation)
 {
   mu_assert_int_eq(0, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
+
   mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal"));
   mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal"));
   mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
@@ -147,6 +148,30 @@ MU_TEST(test_collection_remove)
 }
 
 
+MU_TEST(test_collection_save)
+{
+  DLiteStorage *s;
+  mu_check((s = dlite_storage_open("json", "coll.json", "mode=w")));
+  mu_check(dlite_instance_save(s, (DLiteInstance *)coll) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+}
+
+MU_TEST(test_collection_load)
+{
+  DLiteStorage *s;
+  DLiteCollection *coll2;
+  mu_check((s = dlite_storage_open("json", "coll.json", "mode=r")));
+  mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, coll->uuid)));
+  mu_check(dlite_storage_close(s) == 0);
+
+  mu_check((s = dlite_storage_open("json", "coll2.json", "mode=w")));
+  mu_check(dlite_instance_save(s, (DLiteInstance *)coll2) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+
+  dlite_collection_decref(coll2);
+}
+
+
 MU_TEST(test_collection_free)
 {
   dlite_collection_decref(coll);
@@ -170,6 +195,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_collection_get);
   MU_RUN_TEST(test_collection_next);
   MU_RUN_TEST(test_collection_remove);
+  MU_RUN_TEST(test_collection_save);
+  MU_RUN_TEST(test_collection_load);
 #endif
 
   MU_RUN_TEST(test_collection_free);       /* tear down */

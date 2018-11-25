@@ -85,8 +85,14 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
     if (p->ndims > 0 && p->dims) {
       size_t nmemb=1, size=p->size;
       for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
+      /* FIXME - this should not be nessesary, the NUL-termination should be
+                 included in size */
       if (p->type == dliteFixString) size += 1;
-      if (!(*ptr = calloc(nmemb, size))) goto fail;
+      if (nmemb > 0) {
+        if (!(*ptr = calloc(nmemb, size))) goto fail;
+      } else {
+        *ptr = NULL;
+      }
     }
   }
 
