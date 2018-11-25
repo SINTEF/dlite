@@ -42,12 +42,13 @@ int count_adds(DLiteStore *store) {
 }
 */
 
+/* All tests depends on JSON since it is used to read data */
+#ifdef WITH_JSON
 
 MU_TEST(test_entity_load)
 {
   DLiteStorage *s;
   char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
-
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((entity = dlite_meta_load(s, entity_uri)));
   mu_assert_int_eq(0, dlite_storage_close(s));
@@ -57,7 +58,6 @@ MU_TEST(test_instance_load)
 {
   DLiteStorage *s;
   char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
-
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((inst = dlite_instance_load(s, inst_id)));
   mu_assert_int_eq(0, dlite_storage_close(s));
@@ -156,12 +156,14 @@ MU_TEST(test_entity_free)
   dlite_meta_decref(entity);
 }
 
+#endif
 
 
 /***********************************************************************/
 
 MU_TEST_SUITE(test_suite)
 {
+#ifdef WITH_JSON
   MU_RUN_TEST(test_entity_load);     /* setup */
   MU_RUN_TEST(test_instance_load);
   MU_RUN_TEST(test_store_create);
@@ -172,6 +174,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_store_free);      /* tear down */
   MU_RUN_TEST(test_instance_free);
   MU_RUN_TEST(test_entity_free);
+#endif
 }
 
 

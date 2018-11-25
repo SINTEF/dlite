@@ -85,13 +85,22 @@ add_definitions(
 
 link_directories(${uuid_BINARY_DIR})
 
+if(WITH_JSON)
+  set(json_link_libraries plugins-json ${JSON_LIBRARIES})
+endif()
+if(WITH_HDF5)
+  set(hdf5_link_libraries plugins-hdf5 ${HDF5_LIBRARIES})
+endif()
+
 add_library(dlite ${sources})
 target_link_libraries(dlite
-  plugins-hdf5
-  plugins-json
+  #plugins-hdf5
+  #plugins-json
+  ${json_link_libraries}
+  ${hdf5_link_libraries}
   uuid
-  ${HDF5_LIBRARIES}
-  ${JANSSON_LIBRARIES}
+  #${HDF5_LIBRARIES}
+  #${JANSSON_LIBRARIES}
   utils
   )
 target_include_directories(dlite PRIVATE

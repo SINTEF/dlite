@@ -165,10 +165,12 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_collection_find);
 
+#ifdef WITH_JSON
   MU_RUN_TEST(test_collection_add);
   MU_RUN_TEST(test_collection_get);
   MU_RUN_TEST(test_collection_next);
   MU_RUN_TEST(test_collection_remove);
+#endif
 
   MU_RUN_TEST(test_collection_free);       /* tear down */
 }

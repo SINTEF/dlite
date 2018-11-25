@@ -40,7 +40,9 @@ MU_TEST(test_write_schemas)
 
 MU_TEST_SUITE(test_suite)
 {
+#ifdef WITH_JSON
   MU_RUN_TEST(test_write_schemas);
+#endif
 }
 
 

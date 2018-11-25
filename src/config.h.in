@@ -10,5 +10,8 @@
 #define dlite_VERSION "@dlite_VERSION@"
 #endif
 
+#cmakedefine WITH_JSON
+#cmakedefine WITH_HDF5
+
 
 #endif /* _DLITE_CONFIG_H */
