@@ -13,6 +13,10 @@
 extern "C" {
 #endif // __cplusplus
 
+#ifdef HAVE_GETOPT
+#include <getopt.h>
+#else
+
     int getopt(int argc, char* const argv[],
             const char* optstring);
 
@@ -38,6 +42,9 @@ extern "C" {
             const char* optstring,
             const struct option* longopts, int* longindex);
 ****************************************************************************/
+
+#endif  /* HAVE_GETOPT */
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

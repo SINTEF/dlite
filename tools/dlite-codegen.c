@@ -7,6 +7,7 @@
 #include <ctype.h>
 
 #include "utils/compat.h"
+#include "utils/compat/getopt.h"
 #include "utils/err.h"
 #include "utils/tgen.h"
 #include "dlite.h"
