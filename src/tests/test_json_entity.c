@@ -12,7 +12,7 @@
 #define _STRINGIFY(s) # s
 
 
-DLiteEntity *entity = NULL;
+DLiteMeta *entity = NULL;
 DLiteInstance *inst = NULL;
 
 
@@ -28,7 +28,7 @@ MU_TEST(test_entity_load)
   char *uri = "http://www.sintef.no/calm/0.1/Chemistry";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((entity = dlite_entity_load(s, uri)));
+  mu_check((entity = dlite_meta_load(s, uri)));
   mu_check(!dlite_storage_close(s));
 
   e = (DLiteInstance *)entity;
@@ -46,7 +46,7 @@ MU_TEST(test_entity_property)
 
   descr = "Chemical symbol of each chemical element.  By convension the "
     "dependent element (e.g. Al) is listed first.";
-  mu_check((prop = dlite_entity_get_property(entity, "elements")));
+  mu_check((prop = dlite_meta_get_property(entity, "elements")));
   mu_assert_string_eq("elements", prop->name);
   mu_assert_int_eq(dliteStringPtr, prop->type);
   mu_assert_int_eq(sizeof(char *), prop->size);
@@ -103,7 +103,7 @@ MU_TEST(test_instance_load)
   //char *id = "http://www.sintef.no/calm/0.1/Chemistry";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((inst2 = dlite_instance_load(s, id, entity)));
+  mu_check((inst2 = dlite_instance_load(s, id)));
   mu_check(!dlite_storage_close(s));
 
   for (i=0; i<ndims; i++) {
@@ -113,7 +113,7 @@ MU_TEST(test_instance_load)
   }
 
   for (i=0; i<nprops; i++) {
-    const DLiteProperty *p = dlite_entity_get_property_by_index(entity, i);
+    const DLiteProperty *p = dlite_meta_get_property_by_index(entity, i);
     if (p->ndims) {
     } else {
     }
@@ -136,7 +136,7 @@ MU_TEST(test_instance_free)
 
 MU_TEST(test_entity_free)
 {
-  dlite_entity_decref(entity);
+  dlite_meta_decref(entity);
 }
 
 

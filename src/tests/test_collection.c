@@ -30,6 +30,7 @@ MU_TEST(test_collection_add_relation)
 {
   mu_assert_int_eq(0, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
+
   mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal"));
   mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal"));
   mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
@@ -83,14 +84,14 @@ MU_TEST(test_collection_add)
 
   path = STRINGIFY(DLITE_ROOT) "/src/tests/test-entity.json";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((e = dlite_instance_load(s, NULL, NULL)));
+  mu_check((e = dlite_instance_load(s, NULL)));
   mu_check(!dlite_storage_close(s));
 
   path = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
   uri = "my_test_instance";
   //uri = "e076a856-e36e-5335-967e-2f2fd153c17d";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
-  mu_check((inst = dlite_instance_load(s, uri, (DLiteEntity *)e)));
+  mu_check((inst = dlite_instance_load(s, uri)));
   mu_check(!dlite_storage_close(s));
 
   mu_assert_int_eq(0, dlite_collection_count(coll));
@@ -147,6 +148,30 @@ MU_TEST(test_collection_remove)
 }
 
 
+MU_TEST(test_collection_save)
+{
+  DLiteStorage *s;
+  mu_check((s = dlite_storage_open("json", "coll.json", "mode=w")));
+  mu_check(dlite_instance_save(s, (DLiteInstance *)coll) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+}
+
+MU_TEST(test_collection_load)
+{
+  DLiteStorage *s;
+  DLiteCollection *coll2;
+  mu_check((s = dlite_storage_open("json", "coll.json", "mode=r")));
+  mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, coll->uuid)));
+  mu_check(dlite_storage_close(s) == 0);
+
+  mu_check((s = dlite_storage_open("json", "coll2.json", "mode=w")));
+  mu_check(dlite_instance_save(s, (DLiteInstance *)coll2) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+
+  dlite_collection_decref(coll2);
+}
+
+
 MU_TEST(test_collection_free)
 {
   dlite_collection_decref(coll);
@@ -165,10 +190,14 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_collection_find);
 
+#ifdef WITH_JSON
   MU_RUN_TEST(test_collection_add);
   MU_RUN_TEST(test_collection_get);
   MU_RUN_TEST(test_collection_next);
   MU_RUN_TEST(test_collection_remove);
+  MU_RUN_TEST(test_collection_save);
+  MU_RUN_TEST(test_collection_load);
+#endif
 
   MU_RUN_TEST(test_collection_free);       /* tear down */
 }

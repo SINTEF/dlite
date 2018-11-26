@@ -1,8 +1,8 @@
 #include <stdlib.h>
 
 #include "minunit/minunit.h"
-#include "err.h"
-#include "strtob.h"
+#include "utils/err.h"
+#include "utils/strtob.h"
 #include "boolean.h"
 #include "dlite.h"
 
@@ -49,12 +49,12 @@ MU_TEST(test_option_parse)
   int i;
   FILE *old;
   DLiteOpt opts[] = {
-    {'N', "name", "default-name"},
-    {'n', "n", "0"},
-    {'f', "f", "0.0"},
-    {'b', "b", "no"},
-    {'x', "x", "0"},
-    {0, NULL, NULL}
+    {'N', "name", "default-name", NULL},
+    {'n', "n", "0", NULL},
+    {'f', "f", "0.0", NULL},
+    {'b', "b", "no", NULL},
+    {'x', "x", "0", NULL},
+    {0, NULL, NULL, NULL}
   };
   mu_assert_int_eq(0, dlite_option_parse(options, opts, 1));
   for (i=0; opts[i].key; i++) {

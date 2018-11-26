@@ -162,11 +162,15 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   DLiteStorage *retval=NULL;
   json_error_t error;
   size_t n;
+  char *mode_descr = "How to open storage.  Valid values are: "
+    "\"append\" (appends to existing storage or creates a new one); "
+    "\"r\" (read-only); "
+    "\"w\" (truncate existing storage or create a new one)";
   DLiteOpt opts[] = {
-    {'m', "mode", "append"},
-    {'c', "compact", "false"},
-    {'M', "meta", "false"},
-    {0, NULL, NULL}
+    {'m', "mode",    "append", mode_descr},
+    {'c', "compact", "false",  "Whether to write output in compact format"},
+    {'M', "meta",    "false",  "Whether to format output as metadata"},
+    {0, NULL, NULL, NULL}
   };
   char *optcopy = (options) ? strdup(options) : NULL;
   const char **mode = &opts[0].value;
@@ -727,9 +731,9 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
 }
 
 /* Creates a DLiteEntity from a json object */
-DLiteEntity *dlite_json_entity(json_t *obj)
+DLiteMeta *dlite_json_entity(json_t *obj)
 {
-  DLiteEntity *entity = NULL;
+  DLiteMeta *entity = NULL;
   char *uri=NULL;
   char *desc=NULL;
   int i, nprop, ndim;
@@ -800,7 +804,7 @@ DLiteEntity *dlite_json_entity(json_t *obj)
 }
 
 /* Create an entity from a json storage and the given entity ID */
-DLiteEntity *dlite_json_get_entity(const DLiteStorage *s, const char *id)
+DLiteMeta *dlite_json_get_entity(const DLiteStorage *s, const char *id)
 {
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   char *uri=NULL;
@@ -863,9 +867,9 @@ DLiteEntity *dlite_json_get_entity(const DLiteStorage *s, const char *id)
 }
 
 
-int dlite_json_set_entity(DLiteStorage *s, const DLiteEntity *e)
+int dlite_json_set_entity(DLiteStorage *s, const DLiteMeta *e)
 {
-  return dlite_entity_save(s, e);
+  return dlite_meta_save(s, e);
 }
 
 

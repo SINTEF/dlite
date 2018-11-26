@@ -153,7 +153,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_DIM_DESCR(inst, n) \
   (((DLiteInstance *)(inst))->meta->dimensions + n)
 
-/** Expands to number of dimensions (size_t). */
+/** Expands to number of properties (size_t). */
 #define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
 
 ///** Expands to pointer to array of pointers to property values --> (void **) */
@@ -193,9 +193,9 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   Initial segment of all DLite instances.
 */
 #define DLiteInstance_HEAD                                              \
-  char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this data instance. */    \
-  const char *uri;                /* Unique name or uri of the data */  \
-                                  /* instance.  Can be NULL. */         \
+  char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
+  const char *uri;                /* Unique uri for this instance. */   \
+                                  /*  May be NULL. */                   \
   int refcount;                   /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
@@ -296,19 +296,6 @@ typedef struct _DLiteMeta {
 } DLiteMeta;
 
 
-/**
-  A DLite entity.
-
-  This is the metadata for standard data objects.  Entities will
-  typically have its `meta` member set to NULL.  This works, since
-  entities have their own API that know about their structure.
-*/
-struct _DLiteEntity {
-  DLiteMeta_HEAD        /*!< Common header for all metadata. */
-};
-
-
-
 
 /* ================================================================= */
 /**
@@ -326,13 +313,25 @@ struct _DLiteEntity {
 
   On error, NULL is returned.
  */
-DLiteInstance *dlite_instance_create(const DLiteEntity *meta,
+DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
                                      const size_t *dims,
                                      const char *id);
 
+/**
+  Like dlite_instance_create() but takes the uri or uuid if the
+  metadata as the first argument.  `dims`.  The lengths of `dims` is
+  found in `meta->ndims`.
+
+  Returns NULL on error.
+*/
+DLiteInstance *dlite_instance_create_from_id(const char *metaid,
+                                             const size_t *dims,
+                                             const char *id);
 
 /**
   Increases reference count on `inst`.
+
+  Returns the new reference count.
  */
 int dlite_instance_incref(DLiteInstance *inst);
 
@@ -340,6 +339,8 @@ int dlite_instance_incref(DLiteInstance *inst);
 /**
   Decrease reference count to `inst`.  If the reference count reaches
   zero, the instance is free'ed.
+
+  Returns the new reference count.
  */
 int dlite_instance_decref(DLiteInstance *inst);
 
@@ -349,26 +350,27 @@ int dlite_instance_decref(DLiteInstance *inst);
   new and fully initialised dlite instance.
 
   On error, NULL is returned.
+ */
+DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id);
+
+/**
+  Like dlite_instance_load(), but allows casting the loaded instance
+  into an instance of metadata identified by `metaid`.  If `metaid` is
+  NULL, no casting is performed.
+
+  For the cast to be successful requires that the correct translators
+  have been registered.
+
+  Returns NULL of error or if no translator can be found.
 
   @todo
-  The current implementation requires `entity` to be provided and to
-  describe the instance identified by `id`.  Improvements:
-    - Allow `entity` to be NULL.  In this case, read instance and
-      check its uri (namespace/version/name).  Use this to load the
-      corresponding metadata from a metadata database and assign the
-      instance `meta` field to it.
-    - Allow `entity` to be of another type than the uri of the instance.
-      In this case, check if we have a translator that can translate
-      the instance from its current type to `entity`.  If so, do it
-      and return the new translated instance.
-
-  Requires:
-    - implementation of a metadata database
+    - implementation of metadata lookup
     - implementation of translators
     - implementation of a database of translator plugins
  */
-DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id,
-                                   DLiteEntity *entity);
+DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
+                                          const char *id,
+                                          const char *metaid);
 
 /**
   Saves instance \a inst to storage \a s.  Returns non-zero on error.
@@ -447,15 +449,58 @@ int dlite_instance_get_property_ndims(const DLiteInstance *inst,
 size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
                                             const char *name, size_t j);
 
+/**
+  Returns non-zero if `inst` is a data instance.
+ */
+int dlite_instance_is_data(const DLiteInstance *inst);
+
+
+/**
+  Updates the size of all dimensions from.  The new dimension sizes are
+  provided in `dims`, that must have length `inst->ndims`.  Dimensions
+  corresponding to negative elements in `dims` will remain unchanged.
+
+  All properties whos dimension are changed will be reallocated and
+  new memory will be zeroed.  The values of properties with two or
+  more dimensions, where any but the first dimension is updated,
+  should be considered invalidated.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_sizes(DLiteInstance *inst, int *dims);
+
+/**
+  Like dlite_instance_set_dimension_sizes(), but only updates the size of
+  dimension `i` to size `size`.  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_size_by_index(DLiteInstance *inst,
+                                               size_t i, size_t size);
+
+/**
+  Like dlite_instance_set_dimension_sizes(), but only updates the size of
+  dimension `name` to size `size`.  Returns non-zero on error.
+ */
+int dlite_instance_set_dimension_size(DLiteInstance *inst, const char *name,
+                                      size_t size);
+
+/**
+  Copies instance `inst` to a newly created instance.
+
+  If `newid` is NULL, the new instance will have no URI and a random UUID.
+  If `newid` is a valid UUID, the new instance will have the given
+  UUID and no URI.
+  Otherwise, the URI of the new instance will be `newid` and the UUID
+  assigned accordingly.
+
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_copy(const DLiteInstance *inst,
+                                   const char *newid);
 
 /** @} */
 /* ================================================================= */
 /**
- * @name Entities
- *
- * The entity api is currently very limited, however, it is possible
- * to use the instance api on entities too, by casting them to a
- * DLiteInstance.
+ * @name Metadata
  */
 /* ================================================================= */
 /** @{ */
@@ -463,80 +508,10 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
 /**
   Returns a new Entity created from the given arguments.
  */
-DLiteEntity *
+DLiteMeta *
 dlite_entity_create(const char *uri, const char *description,
                     size_t ndimensions, const DLiteDimension *dimensions,
                     size_t nproperties, const DLiteProperty *properties);
-
-/**
-  Increase reference count to Entity.
- */
-void dlite_entity_incref(DLiteEntity *entity);
-
-/**
-  Decrease reference count to Entity.  If the reference count reaches
-  zero, the Entity is free'ed.
- */
-void dlite_entity_decref(DLiteEntity *entity);
-
-/**
-  Free's all memory used by \a entity and clear all data.
- */
-void dlite_entity_clear(DLiteEntity *entity);
-
-/**
-  Returns a new Entity loaded from storage \a s.  The \a id may be either
-  an URI to the Entity (typically of the form "namespace/version/name")
-  or an UUID.
-
-  Returns NULL on error.
- */
-DLiteEntity *dlite_entity_load(const DLiteStorage *s, const char *id);
-
-/**
-  Saves an Entity to storage \a s.  Returns non-zero on error.
- */
-int dlite_entity_save(DLiteStorage *s, const DLiteEntity *entity);
-
-/**
-  Returns a pointer to property with index \a i or NULL on error.
- */
-const DLiteProperty *
-dlite_entity_get_property_by_index(const DLiteEntity *entity, size_t i);
-
-/**
-  Returns a pointer to property named \a name or NULL on error.
- */
-const DLiteProperty *dlite_entity_get_property(const DLiteEntity *entity,
-                                               const char *name);
-
-
-/** @} */
-/* ================================================================= */
-/**
- * @name Generic metadata
- * These functions are mainly used internally or by code generators.
- * Do not waist time on them...
- */
-/* ================================================================= */
-/** @{ */
-
-///**
-//  Initialises internal properties of \a meta.  This function should
-//  not be called before the non-internal properties has been initialised.
-//
-//  The \a ismeta argument indicates whether the instance described by
-//  `meta` is metadata itself.
-//
-//  Returns non-zero on error.
-// */
-//int dlite_meta_postinit(DLiteMeta *meta, bool ismeta);
-
-///**
-//  Free's all memory used by \a meta and clear all data.
-// */
-//void dlite_meta_clear(DLiteMeta *meta);
-
 
 /**
   Increase reference count to meta-metadata.
@@ -549,6 +524,16 @@ void dlite_meta_incref(DLiteMeta *meta);
  */
 void dlite_meta_decref(DLiteMeta *meta);
 
+/**
+  Loads metadata identified by `id` from storage `s` and returns a new
+  fully initialised meta instance.
+*/
+DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id);
+
+/**
+  Saves metadata `meta` to storage `s`.  Returns non-zero on error.
+ */
+int dlite_meta_save(DLiteStorage *s, const DLiteMeta *meta);
 
 /**
   Returns index of dimension named `name` or -1 on error.
