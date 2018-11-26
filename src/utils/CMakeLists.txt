@@ -89,7 +89,6 @@ configure_file(config.h.in config.h)
 # Compile library
 #-----------------------------------------------------
 set(sources
-  compat/snprintf.c
   compat.c
   err.c
   fileutils.c
@@ -100,6 +99,10 @@ set(sources
   tmpfileplus.c
   )
 if(NOT HAVE_GETOPT)
+  list(APPEND sources compat/getopt.c)
+endif()
+if(NOT (HAVE_SNPRINTF OR HAVE__SNPRINTF) OR
+   NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF))
   list(APPEND sources compat/getopt.c)
 endif()
 
