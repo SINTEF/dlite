@@ -25,7 +25,7 @@ MU_TEST(test_open)
 {
   double v=45.3;
 
-  mu_check((s = dlite_storage_open("hdf5", datafile, "w")));
+  mu_check((s = dlite_storage_open("hdf5", datafile, "mode=w")));
   mu_check((d = dlite_datamodel(s, id)));
 
   mu_check((d2 = dlite_datamodel(s, "4781deed-966b-528b-be3d-2ca7ab77aab0")));

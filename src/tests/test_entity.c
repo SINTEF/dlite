@@ -102,7 +102,7 @@ MU_TEST(test_instance_save)
 {
   DLiteStorage *s;
 #ifdef WITH_HDF5
-  mu_check((s = dlite_storage_open("hdf5", datafile, "w")));
+  mu_check((s = dlite_storage_open("hdf5", datafile, "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
@@ -117,7 +117,7 @@ MU_TEST(test_instance_load)
 {
   DLiteStorage *s;
 #ifdef WITH_HDF5
-  mu_check((s = dlite_storage_open("hdf5", datafile, "r")));
+  mu_check((s = dlite_storage_open("hdf5", datafile, "mode=r")));
   mu_check((mydata2 = dlite_instance_load(s, id)));
   mu_check(dlite_storage_close(s) == 0);
 #endif
@@ -132,7 +132,7 @@ MU_TEST(test_instance_save2)
 {
   DLiteStorage *s;
 #ifdef WITH_HDF5
-  mu_check((s = dlite_storage_open("hdf5", datafile2, "w")));
+  mu_check((s = dlite_storage_open("hdf5", datafile2, "mode=w")));
   mu_check(dlite_instance_save(s, mydata2) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
@@ -199,7 +199,7 @@ MU_TEST(test_meta_save)
   mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
-  //mu_check((s = dlite_storage_open("hdf5", "MyEntity.h5", "w")));
+  //mu_check((s = dlite_storage_open("hdf5", "MyEntity.h5", "mode=w")));
   //mu_check(dlite_entity_save(s, entity) == 0);
   //mu_check(dlite_storage_close(s) == 0);
 }

@@ -163,7 +163,7 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   json_error_t error;
   size_t n;
   char *mode_descr = "How to open storage.  Valid values are: "
-    "\"append\" (appends to existing storage of creates a new one); "
+    "\"append\" (appends to existing storage or creates a new one); "
     "\"r\" (read-only); "
     "\"w\" (truncate existing storage or create a new one)";
   DLiteOpt opts[] = {
