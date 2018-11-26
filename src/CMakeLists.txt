@@ -1,5 +1,5 @@
 # -*- Mode: cmake -*-
-#
+project(dlite-src C)
 
 #-----------------------------------------------------
 # System tests
