@@ -61,15 +61,17 @@
 /* =================================================== */
 
 /* compat/snprintf.c */
-#ifdef HAVE__SNPRINTF
-# define snprintf _snprintf
-#else
-# ifndef HAVE_SNPRINTF
-#  ifdef HAVE_STDLIB_H
-#   include <stdlib.h>
-#  endif
-#  define snprintf rpl_snprintf
+#ifndef HAVE_SNPRINTF
+# ifdef HAVE__SNPRINTF
+#  define snprintf _snprintf
+# else
+#  ifndef HAVE_SNPRINTF
+#   ifdef HAVE_STDLIB_H
+#    include <stdlib.h>
+#   endif
+#   define snprintf rpl_snprintf
 int rpl_snprintf(char *, size_t, const char *, ...);
+#  endif
 # endif
 #endif
 
