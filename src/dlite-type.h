@@ -125,7 +125,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Returns the number of bytes written or -1 on error.
 */
 int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
-                         size_t nref, char *cdecl, size_t n);
+                         size_t nref, char *pcdecl, size_t n);
 
 /**
   Returns true if name is a DLiteType, otherwise false.
