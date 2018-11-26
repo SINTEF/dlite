@@ -103,7 +103,7 @@ if(NOT HAVE_GETOPT)
 endif()
 if(NOT (HAVE_SNPRINTF OR HAVE__SNPRINTF) OR
    NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF))
-  list(APPEND sources compat/getopt.c)
+  list(APPEND sources compat/snprintf.c)
 endif()
 
 add_definitions(
