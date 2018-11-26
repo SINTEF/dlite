@@ -121,7 +121,7 @@ DLiteInstance *dlite_instance_create_from_id(const char *metaid,
                                              const size_t *dims,
                                              const char *id)
 {
-  DLiteMeta meta;
+  DLiteMeta *meta;
   /* FIXME - lookup metadata at predefined locations */
   if (!(meta = dlite_metastore_get(metaid)))
     return err(1, "cannot find metadata '%s'", metaid), NULL;
