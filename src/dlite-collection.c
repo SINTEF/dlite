@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "err.h"
+#include "utils/err.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
 #include "dlite-entity.h"
@@ -92,8 +92,7 @@ int dlite_collection_deinit(DLiteInstance *inst)
  */
 DLiteCollection *dlite_collection_create(const char *id)
 {
-  DLiteEntity *meta =
-    (DLiteEntity *)dlite_metastore_get(DLITE_COLLECTION_SCHEMA);
+  DLiteMeta *meta = dlite_metastore_get(DLITE_COLLECTION_SCHEMA);
   size_t dims[] = {0, 4};
   return (DLiteCollection *)dlite_instance_create(meta, dims, id);
 }

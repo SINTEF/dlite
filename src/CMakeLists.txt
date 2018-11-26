@@ -34,7 +34,6 @@ check_symbol_exists(strcasecmp   string.h   HAVE_STRCASECMP)
 check_symbol_exists(_stricmp     string.h   HAVE__STRICMP)
 check_symbol_exists(strncasecmp  string.h   HAVE_STRNCASECMP)
 check_symbol_exists(_strnicmp    string.h   HAVE__STRNICMP)
-check_symbol_exists(qsort        stdlib.h   HAVE_QSORT)
 
 include(CheckCSourceCompiles)
 
@@ -62,6 +61,9 @@ configure_file(config.h.in config.h)
 #-----------------------------------------------------
 # Compile library
 #-----------------------------------------------------
+
+add_subdirectory(utils)
+
 set(sources
   dlite-utils.c
   dlite-store.c
@@ -71,12 +73,9 @@ set(sources
   dlite-schemas.c
   dlite-entity.c
   dlite-collection.c
+  dlite-codegen.c
   getuuid.c
-  err.c
-  compat.c
   triplestore.c
-  map.c
-  strtob.c
   )
 
 add_definitions(
@@ -86,13 +85,24 @@ add_definitions(
 
 link_directories(${uuid_BINARY_DIR})
 
+if(WITH_JSON)
+  set(json_link_libraries plugins-json ${JSON_LIBRARIES})
+endif()
+if(WITH_HDF5)
+  set(hdf5_link_libraries plugins-hdf5 ${HDF5_LIBRARIES})
+endif()
+
 add_library(dlite ${sources})
 target_link_libraries(dlite
-  plugins-hdf5
-  plugins-json
+  #plugins-hdf5
+  #plugins-json
+  ${json_link_libraries}
+  ${hdf5_link_libraries}
   uuid
-  ${HDF5_LIBRARIES}
-  ${JANSSON_LIBRARIES})
+  #${HDF5_LIBRARIES}
+  #${JANSSON_LIBRARIES}
+  utils
+  )
 target_include_directories(dlite PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${uuid_SOURCE_DIR}
@@ -100,7 +110,11 @@ target_include_directories(dlite PRIVATE
   ${HDF5_INCLUDE_DIRS}
   ${JANSSON_INCLUDE_DIRS}
   )
-add_dependencies(dlite uuidProj ${HDF5_DEPENDENCIES} ${JANSSON_DEPENDENCIES})
+add_dependencies(dlite
+  uuidProj
+  ${HDF5_DEPENDENCIES}
+  ${JANSSON_DEPENDENCIES}
+  )
 
 install(
   TARGETS dlite

@@ -1,0 +1,120 @@
+/* This file is generated with dlite-codegen -- do not edit!
+ *
+ * Template: c-header.txt
+ * Metadata: {_uri}
+ *
+ * This file defines two macros {name}_HEAD and {name}_TAIL with which
+ * can declare a struct for metadata {name} like
+ *
+ *     typedef struct _{name} {{
+ *       {name}_HEAD
+ *       <my fields>...
+ *       {name}_TAIL
+ *     }} {name};
+ *
+ * where <my fields> are any additional fields for internal data you
+ * for {name}.
+ *
+ * This file can be included and used in your project without any
+ * dependencies (except for the header files boolean.h, integers.h and
+ * floats.h that are provided with dlite).
+ */
+
+/**
+  @file
+  @brief {descr}
+*/
+#ifndef _{name%U}_H
+#define _{name%U}_H
+
+#include "boolean.h"
+#include "integers.h"
+#include "floats.h"
+
+
+
+#define {name%U}_NAME      "{name}"
+#define {name%U}_VERSION   "{version}"
+#define {name%U}_NAMESPACE "{namespace}"
+#define {name%U}_URI       "{_uri}"
+#define {name%U}_UUID      "{_uuid}"
+#define {name%U}_META_URI  "{meta.uri}"
+#define {name%U}_META_UUID "{meta.uuid}"
+
+
+#define {name}_HEAD{@38}\\
+  /* -- header */                     \\
+  char _uuid[DLITE_UUID_LENGTH+1];    \\
+  const char *_uri;                   \\
+  int _refcount;                      \\
+  const struct _DLiteMeta *_meta;     \\
+{@if:{ismetameta}==1}\
+                                      \\
+  size_t ndimensions;                 \\
+  size_t nproperties;                 \\
+  size_t nrelations;                  \\
+                                      \\
+  DLiteDimension *dimensions;         \\
+  DLiteProperty *properties;          \\
+  DLiteRelation *relations;           \\
+                                      \\
+  size_t headersize;                  \\
+  DLiteInit init;                     \\
+  DLiteDeInit deinit;                 \\
+                                      \\
+  size_t dimoffset;                   \\
+  size_t *propoffsets;                \\
+  size_t reloffset;                   \\
+  size_t pooffset;                    \\
+{@endif}\
+  /* -- done */
+
+
+#define {name}_TAIL \\
+  /* -- dimension lengths */ \\
+{list_dimensions:  size_t {dim.name};\
+ {@30}/* {dim.descr} */{@78}\\\n}\
+  /* -- property values */ \\
+{list_properties:  {prop.cdecl};\
+ {@30}/* {prop.descr}\
+{@if:{prop.ndims}!=0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */{@78}\\\n}\
+  /* -- relation values */ \\
+{@if:{_nrelations}!=0}\
+  DLiteRelation _rels[{_nrelations}]; \\\n}\
+{@endif}\
+  /* -- offsets */ \\
+  size_t _offsets[{_nproperties}]; \\
+  /* -- done */
+
+
+#ifdef HAVE_DLITE
+#include "dlite.h"
+#include "err.h"
+
+/**
+  Loads {name} from storage `s` and set the `headersize`, `init` and `deinit`
+  fields correctly.  Returns NULL on error.
+ */
+static inline {name} *{name%l}_load(const DLiteStorage *s)
+{{
+  static {name} *_{name%l} = NULL;
+  if (!_{name%l}) {{
+    if (!(_{name%l} = dlite_metastore_get({name%U}_UUID)) &&
+        !(_{name%l} = ({name} *)dlite_instance_load(s, {name%U}_UUID, NULL)))
+      return NULL;
+{@if:{_headersize}!=0}\
+    _{name%l}->headersize = {_headersize};
+{@endif}\
+{@if:{_init}\.}\
+    _{name%l}->init = {_init};
+{@endif}\
+{@if:{_deinit}\.}\
+    _{name%l}->deinit = {_deinit};
+{@endif}\
+  }}
+  return _{name%l};
+}}
+#endif
+
+
+#endif /* _{name%U}_H */

@@ -3,8 +3,10 @@
 /*
   TODO
 
-  - Consider use a more advanced library like
-    [libraptor2](http://librdf.org/raptor/libraptor2.html).
+  - Consider use a more advanced library like the [Redland RDF
+    library](http://librdf.org/) (which depends on the sublibraries
+    [rasqal](http://librdf.org/rasqal/) and
+    [libraptor2](http://librdf.org/raptor/libraptor2.html)).
 
   - add locks to ensure that a triplestore is not reallocated or
     sorted while one works with pointers to the stored triplets.
@@ -20,7 +22,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "err.h"
+#include "utils/err.h"
 #include "sha1.h"
 #include "triplestore.h"
 
@@ -44,13 +46,6 @@ struct _TripleStore {
                            index in `triplets` */
   size_t niter;       /*!< counter for number of running iterators */
 };
-
-/* State used by triplestore_find.
-   Don't rely on current definition, it may be optimised later. */
-//struct _TripleState {
-//  size_t pos;         /*!< current position */
-//};
-
 
 
 /* Default namespace */
@@ -117,7 +112,8 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   SHA1_CTX context;
   unsigned char digest[20];
   char *id;
-  int i, n=0, size=41;
+  int i, n=0;
+  size_t size=41;
   SHA1Init(&context);
   SHA1Update(&context, (unsigned char *)s, strlen(s));
   SHA1Update(&context, (unsigned char *)p, strlen(p));
@@ -273,9 +269,9 @@ static int _remove_by_index(TripleStore *ts, size_t n)
 {
   Triplet *t = ts->triplets + n;
   if (n >= ts->true_length)
-    return err(1, "triplet index out of range: %lu", n);
+    return err(1, "triplet index out of range: %zu", n);
   if (!t->id)
-    return err(1, "triplet %lu is already removed", n);
+    return err(1, "triplet %zu is already removed", n);
   map_remove(&ts->map, t->id);
 
   if (ts->niter) {
@@ -387,17 +383,10 @@ void triplestore_deinit_state(TripleState *state)
 
   ts->niter--;
   if (ts->niter == 0 && ts->true_length > ts->length) {
-    for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--) {
-      printf("*** %d: %lu %lu: %s-%s-%s %d\n", i, ts->true_length, ts->length,
-	     ts->triplets[i].s, ts->triplets[i].p, ts->triplets[i].o,
-	     (ts->triplets[i].id) ? 1 : 0);
+    for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--)
       ts->true_length--;
-    }
     for (i=ts->true_length-1; i>=0; i--) {
       Triplet *t = ts->triplets + i;
-      printf("*** %d: %lu %lu: %s-%s-%s %d\n", i, ts->true_length, ts->length,
-	     ts->triplets[i].s, ts->triplets[i].p, ts->triplets[i].o,
-	     (ts->triplets[i].id) ? 1 : 0);
       if (!t->id) {
         Triplet *tt = ts->triplets + (--ts->true_length);
         assert(t < tt);

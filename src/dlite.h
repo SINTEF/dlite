@@ -13,7 +13,4 @@
 //#include "dlite-collection.h"
 
 
-/** @} */
-
-
 #endif /* _DLITE_H */

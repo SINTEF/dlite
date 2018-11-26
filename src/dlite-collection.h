@@ -42,7 +42,6 @@ typedef struct _DLiteCollection {
 
   /* -- dimensions */
   size_t nrelations;          /*!< Number of relations. */
-  size_t nrelitems;           /*!< Number of items in a relation, always 4. */
 
   /* -- properties */
 

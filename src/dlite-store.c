@@ -3,8 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "err.h"
-#include "map.h"
+#include "utils/err.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
 
@@ -69,7 +68,7 @@ DLiteStore *dlite_store_load(DLiteStorage *s)
   if (!(uuids = dlite_storage_uuids(s))) goto fail;
   if (!(store = dlite_store_create())) goto fail;
   for (p=uuids; *p; p++) {
-    if (!(inst = dlite_instance_load(s, *p, NULL))) goto fail;
+    if (!(inst = dlite_instance_load(s, *p))) goto fail;
     if (!dlite_store_add_new(store, inst)) goto fail;
   }
   retval = store;

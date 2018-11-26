@@ -1,0 +1,51 @@
+/* This file is generated with dlite-codegen -- do not edit!
+ *
+ * Template: c-header.txt
+ * Metadata: {_uri}
+ *
+ * This file declares a struct for metadata {name} that can be included
+ * and used in your project without any dependencies (except for the
+ * header files boolean.h, integers.h and floats.h that are provided with
+ * dlite).
+ */
+
+/**
+  @file
+  @brief {descr}
+*/
+#ifndef _{name%U}_H
+#define _{name%U}_H
+
+#include "boolean.h"
+#include "integers.h"
+#include "floats.h"
+
+#define {name%U}_NAME      "{name}"
+#define {name%U}_VERSION   "{version}"
+#define {name%U}_NAMESPACE "{namespace}"
+#define {name%U}_URI       "{_uri}"
+#define {name%U}_UUID      "{_uuid}"
+#define {name%U}_META_URI  "{meta.uri}"
+#define {name%U}_META_UUID "{meta.uuid}"
+
+
+typedef struct _{name} {{
+  /* -- header */
+  char uuid[36+1];   /*!< UUID for this data instance. */
+  const char *uri;   /*!< Unique name or uri of the data instance.
+                          Can be NULL. */
+
+  size_t refcount;   /*!< Number of references to this instance. */
+
+  const void *meta;  /*!< Pointer to the metadata describing this instance. */
+
+  /* -- dimension values */
+{list_dimensions:  size_t {dim.name};  /*!< {dim.descr} */\n}
+  /* -- property values */
+{list_properties:  {prop.cdecl};  /*!< {prop.descr} */\n}
+}} {name};
+
+
+
+
+#endif /* _{name%U}_H */

@@ -12,7 +12,7 @@
 #ifndef _TRIPLESTORE_H
 #define _TRIPLESTORE_H
 
-#include "map.h"
+#include "utils/map.h"
 
 /**
   A subject-predicate-object triplet used to represent a relation.

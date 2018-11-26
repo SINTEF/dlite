@@ -32,57 +32,51 @@
 
   See https://github.com/rxi/map for the official documentation.
 
+  ### Prototypes for provided macros
 
-  Prototypes for provided macros:
+      typedef map_t(T) MAP_T;
+  Creates a map struct for containing values of type T.
 
-  ```C
-  // Creates a map struct for containing values of type T.
-  typedef map_t(T) MAP_T;
+      void map_init(MAP_T *m);
+  Initialises the map, this must be called before the map can be used.
 
-  // Initialises the map, this must be called before the map can be used.
-  void map_init(MAP_T *m);
+      void map_deinit(MAP_T *m);
+  Deinitialises the map, freeing the memory the map allocated
+  during use; this should be called when we're finished with a
+  map.
 
-  // Deinitialises the map, freeing the memory the map allocated
-  // during use; this should be called when we're finished with a
-  // map.
-  void map_deinit(MAP_T *m);
+      void *map_get(MAP_T *m, const char *key);
+  Returns a pointer to the value of the given key. If no
+  mapping for the key exists then NULL will be returned.
 
-  // Returns a pointer to the value of the given key. If no
-  // mapping for the key exists then NULL will be returned.
-  void *map_get(MAP_T *m, const char *key);
+      int map_set(MAP_T *m, const char *key, T value);
+  Sets the given key to the given value. Returns 0 on success,
+  otherwise -1 is returned and the map remains unchanged.
 
-  // Sets the given key to the given value. Returns 0 on success,
-  // otherwise -1 is returned and the map remains unchanged.
-  int map_set(MAP_T *m, const char *key, T value);
+      void map_remove(MAP_T *m, const char *key);
+  Removes the mapping of the given key from the map. If the key
+  does not exist in the map then the function has no effect.
 
-  // Removes the mapping of the given key from the map. If the key
-  // does not exist in the map then the function has no effect.
-  void map_remove(MAP_T *m, const char *key);
+      map_iter_t map_iter(MAP_T *m);
+  Returns a map_iter_t which can be used with map_next() to
+  iterate all the keys in the map.
 
-  // Returns a map_iter_t which can be used with map_next() to
-  // iterate all the keys in the map.
-  map_iter_t map_iter(MAP_T *m);
+      const char *map_next(MAP_T *m, map_iter_t *iter);
+  Uses the map_iter_t returned by map_iter() to iterate all the
+  keys in the map. map_next() returns a key with each call and
+  returns NULL when there are no more keys.
 
-  // Uses the map_iter_t returned by map_iter() to iterate all the
-  // keys in the map. map_next() returns a key with each call and
-  // returns NULL when there are no more keys.
-  const char *map_next(MAP_T *m, map_iter_t *iter);
-  ```
+  ### Predefined map types
 
-  Predefined map types:
+      typedef map_t(void*) map_void_t;
+      typedef map_t(char*) map_str_t;
+      typedef map_t(int) map_int_t;
+      typedef map_t(char) map_char_t;
+      typedef map_t(float) map_float_t;
+      typedef map_t(double) map_double_t;
 
-  ```C
-  typedef map_t(void*) map_void_t;
-  typedef map_t(char*) map_str_t;
-  typedef map_t(int) map_int_t;
-  typedef map_t(char) map_char_t;
-  typedef map_t(float) map_float_t;
-  typedef map_t(double) map_double_t;
-  ```
+  ### Example
 
-  Example:
-
-  ```C
       typedef map_t(unsigned int) map_uint_t;
 
       map_uint_t m;
@@ -100,7 +94,6 @@
       }
 
       map_deinit(&m);
-  ```
 */
 
 /** @cond IGNORE */
