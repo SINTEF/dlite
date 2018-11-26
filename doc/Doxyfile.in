@@ -748,6 +748,7 @@ INPUT                  = @dlite_SOURCE_DIR@/doc \
                          @dlite_SOURCE_DIR@/README.md \
                          @dlite_SOURCE_DIR@/doc/concepts.md \
                          @dlite_SOURCE_DIR@/src \
+                         @dlite_SOURCE_DIR@/src/utils \
                          @dlite_SOURCE_DIR@/uuid \
                          @dlite_BINARY_DIR@/uuid \
                          @dlite_SOURCE_DIR@/src/tests/minunit/README.md
@@ -822,7 +823,7 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           =
+EXAMPLE_PATH           = @dlite_SOURCE_DIR@/src/utils/tests
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and

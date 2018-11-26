@@ -6,7 +6,7 @@
   @brief An in-memory store for instances.
  */
 
-#include "map.h"
+#include "utils/map.h"
 #include "dlite-storage.h"
 #include "dlite-entity.h"
 

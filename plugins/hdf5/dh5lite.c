@@ -402,6 +402,15 @@ static void entrylist_free(EntryList *e)
 
   Valid \a options are:
 
+  - mode : append | r | w
+      Valid values are:
+      - append   Append to existing file or create new file (default)
+      - r        Open existing file for read-only
+      - rw       Open existing file for read and write
+      - w        Truncate existing file or create new file
+
+
+
     rw   Read and write: open existing file or create new file (default)
     r    Read-only: open existing file for read-only
     a    Append: open existing file for read and write
@@ -410,28 +419,39 @@ static void entrylist_free(EntryList *e)
  */
 DLiteStorage *dh5_open(const char *uri, const char *options)
 {
-  DH5Storage *s;
+  DH5Storage *s=NULL;
   DLiteStorage *retval=NULL;
+  char *mode_descr = "How to open storage.  Valid values are: "
+    "\"append\" (appends to existing storage or creates a new one); "
+    "\"r\" (read-only); "
+    "\"w\" (truncate existing storage or create a new one)";
+  DLiteOpt opts[] = {
+    {'m', "mode",    "append", mode_descr},
+    {0, NULL, NULL, NULL}
+  };
+  char *optcopy = (options) ? strdup(options) : NULL;
+  const char **mode = &opts[0].value;
+  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
 
   H5open();  /* Opens hdf5 library */
 
   if (!(s = calloc(1, sizeof(DH5Storage)))) FAIL0("allocation failure");
 
-  if (!options || !options[0] || strcmp(options, "rw") == 0) { /* default */
+  if (strcmp(*mode, "append") == 0) {  /* default */
     s->root = H5Fopen(uri, H5F_ACC_RDWR | H5F_ACC_CREAT, H5P_DEFAULT);
     s->writable = 1;
-  } else if (strcmp(options, "r") == 0) {
+  } else if (strcmp(*mode, "r") == 0) {
     s->root = H5Fopen(uri, H5F_ACC_RDONLY, H5P_DEFAULT);
     s->writable = 0;
-  } else if (strcmp(options, "a") == 0) {
+  } else if (strcmp(*mode, "rw") == 0) {
     s->root = H5Fopen(uri, H5F_ACC_RDWR, H5P_DEFAULT);
-    s->writable = 1;
-  } else if (strcmp(options, "w") == 0) {
+    s->writable = 0;
+  } else if (strcmp(*mode, "w") == 0) {
     s->root = H5Fcreate(uri, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     s->writable = 1;
   } else {
-    FAIL1("invalid options '%s', must be 'rw' (read and write), "
-          "'r' (read-only), 'w' (write) or 'a' (append)", options);
+    FAIL1("invalid \"mode\" value: '%s'. Must be \"append\", \"r\" "
+          "(read-only) or \"w\" (write)", *mode);
   }
 
   if (s->root < 0)
@@ -439,6 +459,7 @@ DLiteStorage *dh5_open(const char *uri, const char *options)
 
   retval = (DLiteStorage *)s;
  fail:
+  if (optcopy) free(optcopy);
   if (!retval && s) free(s);
   return retval;
 }

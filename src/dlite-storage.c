@@ -3,22 +3,30 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "compat.h"
+#include "utils/compat.h"
+#include "utils/err.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
 #include "getuuid.h"
-#include "err.h"
 
 
+#ifdef WITH_JSON
+extern DLitePlugin dlite_json_plugin;
+#endif
+
+#ifdef WITH_HDF5
+extern DLitePlugin h5_plugin;
+#endif
 
 /* NULL-terminated array of all backends */
-extern DLitePlugin h5_plugin;
-extern DLitePlugin dlite_json_plugin;
-
 DLitePlugin *plugin_list[] = {
-  &h5_plugin,
+#ifdef WITH_JSON
   &dlite_json_plugin,
+#endif
+#ifdef WITH_HDF5
+  &h5_plugin,
+#endif
   NULL
 };
 

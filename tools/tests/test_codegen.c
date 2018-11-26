@@ -18,12 +18,13 @@ int main()
   size_t dims[] = {nelements, nphases};
   char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
   DLiteStorage *s;
-  DLiteEntity *chem;
+  DLiteMeta *chem;
   Chemistry *p;
 
   /* Load Chemistry entity */
   s = dlite_storage_open("json", path, "mode=r");
-  chem = dlite_entity_load(s, "http://www.sintef.no/calm/0.1/Chemistry");
+  chem = (DLiteMeta *)
+    dlite_meta_load(s, "http://www.sintef.no/calm/0.1/Chemistry");
   dlite_storage_close(s);
 
   /* Create instance */
@@ -83,7 +84,7 @@ int main()
 
   /* Free instance and its entity */
   dlite_instance_decref((DLiteInstance *)p);
-  dlite_entity_decref(chem);
+  dlite_meta_decref(chem);
 
   return 0;
 }

@@ -10,11 +10,11 @@ project(dlite
 
 
 # Options
-option(BUILD_HDF5      "If not installed, download and compile HDF5"    OFF)
-option(BUILD_JANSSON   "If not installed, download and compile jansson" OFF)
+option(BUILD_HDF5   "If not installed, download and compile HDF5"    OFF)
+option(BUILD_JSON   "If not installed, download and compile jansson" OFF)
 
-option(WITH_HDF5       "Whether to build with HDF5 support"             ON)
-option(WITH_JANSSON    "Whether to build with JSON support"             ON)
+option(WITH_HDF5    "Whether to build with HDF5 support"             ON)
+option(WITH_JSON    "Whether to build with JSON support"             ON)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -163,13 +163,13 @@ endif()
 #
 # jansson
 # =======
-if(WITH_JANSSON)
+if(WITH_JSON)
   include(Findjansson)
   find_package(jansson)
 
   if(NOT JANSSON_FOUND)
-    if(NOT BUILD_JANSSON)
-      message(FATAL_ERROR "Jansson not found.  Try to set BUILD_JANSSON to ON")
+    if(NOT BUILD_JSON)
+      message(FATAL_ERROR "Jansson not found.  Try to set BUILD_JSON to ON")
     endif()
     message(STATUS "Download and build jansson as external package")
     set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
@@ -228,7 +228,7 @@ if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
 endif()
 
-if(WITH_JANSSON)
+if(WITH_JSON)
   add_subdirectory(plugins/json)
 endif()
 

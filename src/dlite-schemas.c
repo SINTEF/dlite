@@ -83,9 +83,6 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "Defines schema relations."                /* description */
   }
 };
-//static DLiteRelation basic_metadata_schema_relations[] = {
-//  {NULL, NULL, NULL, NULL}
-//};
 static struct _BasicMetadataSchema {
   /* -- header */
   DLiteMeta_HEAD
@@ -106,7 +103,7 @@ static struct _BasicMetadataSchema {
   size_t offsets[7];
 } basic_metadata_schema = {
   /* -- header */
-  "c25c3bb4-2835-5b30-9046-a0fb971e86c2",        /* uuid (corresponds to uri) */
+  "89cc72b5-1ced-54eb-815b-8fffc16c42d1",        /* uuid (corresponds to uri) */
   DLITE_BASIC_METADATA_SCHEMA,                   /* uri */
   1,                                             /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
@@ -132,7 +129,7 @@ static struct _BasicMetadataSchema {
   7,                                             /* nprops */
   0,                                             /* nrels */
   /* -- value of each property */
-  "basic_metadata_schema",                       /* schema_name */
+  "BasicMetadataSchema",                         /* schema_name */
   "0.1",                                         /* schema_version */
   "http://meta.sintef.no",                       /* schema_namespace */
   "Meta-metadata description an entity.",        /* schema_description */
@@ -239,7 +236,7 @@ static struct _EntitySchema {
   size_t offsets[6];
 } entity_schema = {
   /* -- header */
-  "477a5277-b33b-58eb-ad35-6f2e4ac1e64a",     /* uuid (corresponds to uri) */
+  "57742a73-ba65-5797-aebf-c1a270c4d02b",     /* uuid (corresponds to uri) */
   DLITE_ENTITY_SCHEMA,                        /* uri */
   1,                                          /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,        /* meta */
@@ -265,7 +262,7 @@ static struct _EntitySchema {
   6,                                          /* nprops */
   0,                                          /* nrels */
   /* -- value of each property */
-  "entity_schema",                            /* schema_name */
+  "EntitySchema",                             /* schema_name */
   "0.3",                                      /* schema_version */
   "http://meta.sintef.no",                    /* schema_namespace */
   "Meta-metadata description an entity.",     /* schema_description */
@@ -288,24 +285,20 @@ static DLiteDimension collection_schema_dimensions[] = {
   //{"n-instances",  "Number of instances added to the collection."},
   //{"n-dim-maps",   "Number of dimension maps."},
   {"nrelations",  "Number of relations."},
-  {"nrelitems",   "Number of items in a relation - always 4 (s,p,o,id)."}
 };
-static int collection_schema_prop_relations_dims[] = {0, 1};
+static int collection_schema_prop_relations_dims[] = {0};
 static DLiteProperty collection_schema_properties[] = {
   {
   "relations",                               /* name */
-  dliteStringPtr,                            /* type */
-  sizeof(char *),                            /* size */
-  2,                                         /* ndims */
+  dliteRelation,                             /* type */
+  sizeof(DLiteRelation),                     /* size */
+  1,                                         /* ndims */
   collection_schema_prop_relations_dims,     /* dims */
   NULL,                                      /* unit */
   "Array of relations (subject, predicate, "
   "object, relation-id)."                    /* description */
   }
 };
-//static size_t collection_schema_propoffsets[] = {
-//  offsetof(DLiteCollection, relations)
-//};
 static struct _CollectionSchema {
   /* -- header */
   DLiteMeta_HEAD
@@ -326,12 +319,12 @@ static struct _CollectionSchema {
   size_t offsets[1];
 } collection_schema = {
   /* -- header */
-  "b5f55af0-123d-5ce4-95c0-28d068c23c44",        /* uuid (corresponds to uri) */
+  "a2e66e0e-d733-5067-b987-6b5e5d54fb12",        /* uuid (corresponds to uri) */
   DLITE_COLLECTION_SCHEMA,                       /* uri */
   1,                                             /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
 
-  2,                                             /* ndimensions */
+  1,                                             /* ndimensions */
   1,                                             /* nproperties */
   0,                                             /* nrelations */
 
@@ -348,11 +341,11 @@ static struct _CollectionSchema {
   0,                                             /* reloffset */
   0,                                             /* pooffset */
   /* -- length of each dimention */
-  2,                                             /* ndims */
+  1,                                             /* ndims */
   1,                                             /* nprops */
   0,                                             /* nrels */
   /* -- value of each property */
-  "collection_schema",                           /* schema_name */
+  "CollectionSchema",                            /* schema_name */
   "0.1",                                         /* schema_version */
   "http://meta.sintef.no",                       /* schema_namespace */
   "Meta-metadata description a collection.",     /* schema_description */
@@ -369,9 +362,25 @@ static struct _CollectionSchema {
 /**************************************************************
  * Exposed pointers to schemas
  **************************************************************/
-const DLiteMeta * const dlite_BasicMetadataSchema =
-  (DLiteMeta *)&basic_metadata_schema;
-const DLiteMeta * const dlite_EntitySchema =
-  (DLiteMeta *)&entity_schema;
-const DLiteMeta * const dlite_CollectionSchema =
-  (DLiteMeta *)&collection_schema;
+//const DLiteMeta * const dlite_BasicMetadataSchema =
+//  (DLiteMeta *)&basic_metadata_schema;
+//const DLiteMeta * const dlite_EntitySchema =
+//  (DLiteMeta *)&entity_schema;
+//const DLiteMeta * const dlite_CollectionSchema =
+//  (DLiteMeta *)&collection_schema;
+
+
+const DLiteMeta *dlite_get_basic_metadata_schema()
+{
+  return (DLiteMeta *)&basic_metadata_schema;
+}
+
+const DLiteMeta *dlite_get_entity_schema()
+{
+  return (DLiteMeta *)&entity_schema;
+}
+
+const DLiteMeta *dlite_get_collection_schema()
+{
+  return (DLiteMeta *)&collection_schema;
+}

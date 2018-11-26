@@ -19,7 +19,7 @@ char *jsonfile = "myentity.json";
 char *jsonfile2 = "myentity2.json";
 char *uri = "http://www.sintef.no/meta/dlite/0.1/MyEntity";
 char *id = "mydata";
-DLiteEntity *entity=NULL;
+DLiteMeta *entity=NULL;
 DLiteInstance *mydata=NULL, *mydata2=NULL, *mydata3=NULL;
 
 
@@ -45,9 +45,9 @@ MU_TEST(test_entity_create)
     {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "descr.."}
   };
 
-  mu_check((entity = dlite_entity_create(uri, "My test entity.",
-					 2, dimensions,
-					 5, properties)));
+  mu_check((entity = (DLiteMeta *)dlite_entity_create(uri, "My test entity.",
+                                                      2, dimensions,
+                                                      5, properties)));
   mu_assert_int_eq(2, entity->ndimensions);
   mu_assert_int_eq(5, entity->nproperties);
   mu_assert_int_eq(1, entity->properties[2].dims[0]);
@@ -55,6 +55,7 @@ MU_TEST(test_entity_create)
 
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
+#if (__GNUC__ && SIZEOF_VOID_P == 8)
   mu_assert_int_eq(64, sizeof(DLiteInstance));
   mu_assert_int_eq(64, entity->dimoffset);
   mu_assert_int_eq(80, entity->propoffsets[0]);
@@ -65,6 +66,7 @@ MU_TEST(test_entity_create)
   mu_assert_int_eq(120, entity->reloffset);
   mu_assert_int_eq(120, entity->pooffset);
   //mu_assert_int_eq(160, entity->size);
+#endif
 }
 
 MU_TEST(test_instance_create)
@@ -99,90 +101,139 @@ MU_TEST(test_instance_get_dimension_size)
 MU_TEST(test_instance_save)
 {
   DLiteStorage *s;
-  mu_check((s = dlite_storage_open("hdf5", datafile, "w")));
+#ifdef WITH_HDF5
+  mu_check((s = dlite_storage_open("hdf5", datafile, "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
-
+#endif
+#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", jsonfile, "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
+#endif
 }
 
 MU_TEST(test_instance_load)
 {
   DLiteStorage *s;
-  mu_check((s = dlite_storage_open("hdf5", datafile, "r")));
-  mu_check((mydata2 = dlite_instance_load(s, id, entity)));
+#ifdef WITH_HDF5
+  mu_check((s = dlite_storage_open("hdf5", datafile, "mode=r")));
+  mu_check((mydata2 = dlite_instance_load(s, id)));
   mu_check(dlite_storage_close(s) == 0);
-
+#endif
+#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", jsonfile, "mode=r")));
-  mu_check((mydata3 = dlite_instance_load(s, id, entity)));
+  mu_check((mydata3 = dlite_instance_load(s, id)));
   mu_check(dlite_storage_close(s) == 0);
+#endif
 }
 
 MU_TEST(test_instance_save2)
 {
   DLiteStorage *s;
-  mu_check((s = dlite_storage_open("hdf5", datafile2, "w")));
+#ifdef WITH_HDF5
+  mu_check((s = dlite_storage_open("hdf5", datafile2, "mode=w")));
   mu_check(dlite_instance_save(s, mydata2) == 0);
   mu_check(dlite_storage_close(s) == 0);
-
+#endif
+#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", jsonfile2, "mode=w")));
   mu_check(dlite_instance_save(s, mydata3) == 0);
   mu_check(dlite_storage_close(s) == 0);
+#endif
+}
+
+MU_TEST(test_instance_copy)
+{
+  DLiteStorage *s;
+  DLiteInstance *inst;
+  mu_check((inst = dlite_instance_copy(mydata, NULL)));
+#ifdef WITH_JSON
+  mu_check((s = dlite_storage_open("json", "myentity_copy.json", "mode=w")));
+  mu_check(dlite_instance_save(s, inst) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+#endif
+  dlite_instance_decref(inst);
+
+}
+
+MU_TEST(test_instance_set_dimension_sizes)
+{
+  DLiteStorage *s;
+  int newdims1[] = {-1, 4};
+  int newdims2[] = {2, 1};
+
+  mu_check(dlite_instance_set_dimension_sizes(mydata, newdims1) == 0);
+#ifdef WITH_JSON
+  mu_check((s = dlite_storage_open("json", "myentity4.json", "mode=w")));
+  mu_check(dlite_instance_save(s, mydata) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+#endif
+
+  mu_check(dlite_instance_set_dimension_sizes(mydata, newdims2) == 0);
+#ifdef WITH_JSON
+  mu_check((s = dlite_storage_open("json", "myentity5.json", "mode=w")));
+  mu_check(dlite_instance_save(s, mydata) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+#endif
 }
 
 MU_TEST(test_instance_free)
 {
-  dlite_instance_decref(mydata);
-  dlite_instance_decref(mydata2);
-  dlite_instance_decref(mydata3);
+  if (mydata)  dlite_instance_decref(mydata);
+  if (mydata2) dlite_instance_decref(mydata2);
+  if (mydata3) dlite_instance_decref(mydata3);
 }
 
-MU_TEST(test_entity_save)
+MU_TEST(test_meta_save)
 {
   DLiteStorage *s;
+#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=w;meta=1")));
-  mu_check(dlite_entity_save(s, entity) == 0);
+  mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
+#endif
 
+#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", "MyEntity2.json", "mode=w;meta=0")));
-  mu_check(dlite_entity_save(s, entity) == 0);
+  mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
-
-  //mu_check((s = dlite_storage_open("hdf5", "MyEntity.h5", "w")));
+#endif
+  //mu_check((s = dlite_storage_open("hdf5", "MyEntity.h5", "mode=w")));
   //mu_check(dlite_entity_save(s, entity) == 0);
   //mu_check(dlite_storage_close(s) == 0);
 }
 
-MU_TEST(test_entity_load)
+MU_TEST(test_meta_load)
 {
   DLiteStorage *s;
-  DLiteEntity *e, *e2;
+  DLiteMeta *e, *e2;
+#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=r")));
-  mu_check((e = dlite_entity_load(s, uri)));
+  mu_check((e = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", "MyEntity2.json", "mode=r")));
-  mu_check((e2 = dlite_entity_load(s, uri)));
+  mu_check((e2 = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", "MyEntity3.json", "mode=w;meta=1")));
-  mu_check(dlite_entity_save(s, e) == 0);
+  mu_check(dlite_meta_save(s, e) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
   mu_check((s = dlite_storage_open("json", "MyEntity4.json", "mode=w;meta=1")));
-  mu_check(dlite_entity_save(s, e2) == 0);
+  mu_check(dlite_meta_save(s, e2) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
-  dlite_entity_decref(e);
-  dlite_entity_decref(e2);
+  dlite_meta_decref(e);
+  dlite_meta_decref(e2);
+#endif
 }
 
 
-MU_TEST(test_entity_free)
+MU_TEST(test_meta_free)
 {
-  dlite_entity_decref(entity);
+  dlite_meta_decref(entity);
 }
 
 
@@ -197,11 +248,13 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_save);
   MU_RUN_TEST(test_instance_load);
   MU_RUN_TEST(test_instance_save2);
+  MU_RUN_TEST(test_instance_copy);
+  MU_RUN_TEST(test_instance_set_dimension_sizes);
   MU_RUN_TEST(test_instance_free);
 
-  MU_RUN_TEST(test_entity_save);
-  MU_RUN_TEST(test_entity_load);
-  MU_RUN_TEST(test_entity_free);     /* tear down */
+  MU_RUN_TEST(test_meta_save);
+  MU_RUN_TEST(test_meta_load);
+  MU_RUN_TEST(test_meta_free);     /* tear down */
 }
 
 
