@@ -317,6 +317,16 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
                                      const size_t *dims,
                                      const char *id);
 
+/**
+  Like dlite_instance_create() but takes the uri or uuid if the
+  metadata as the first argument.  `dims`.  The lengths of `dims` is
+  found in `meta->ndims`.
+
+  Returns NULL on error.
+*/
+DLiteInstance *dlite_instance_create_from_id(const char *metaid,
+                                             const size_t *dims,
+                                             const char *id);
 
 /**
   Increases reference count on `inst`.

@@ -111,6 +111,25 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
 
 /*
+  Like dlite_instance_create() but takes the uri or uuid if the
+  metadata as the first argument.  `dims`.  The lengths of `dims` is
+  found in `meta->ndims`.
+
+  On error, NULL is returned.
+*/
+DLiteInstance *dlite_instance_create_from_id(const char *metaid,
+                                             const size_t *dims,
+                                             const char *id)
+{
+  DLiteMeta meta;
+  /* FIXME - lookup metadata at predefined locations */
+  if (!(meta = dlite_metastore_get(metaid)))
+    return err(1, "cannot find metadata '%s'", metaid), NULL;
+  return dlite_instance_create(meta, dims, id);
+}
+
+
+/*
   Free's an instance and all arrays associated with dimensional properties.
  */
 static void dlite_instance_free(DLiteInstance *inst)
