@@ -161,6 +161,18 @@ void *dlite_type_copy(void *dest, const void *src,
 */
 void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
 
+/**
+  Serialises data of type `dtype` and size `size` pointed to by `p`.
+  The string representation is written to `dest`.  No more than
+  `n` bytes are written (incl. the terminating NUL).
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+ */
+int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
+			char *dest, size_t n);
 
 /**
   Returns the struct alignment of the given type or 0 on error.
