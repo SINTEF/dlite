@@ -106,7 +106,8 @@
 */
 
 #include "boolean.h"
-#include "dlite.h"
+#include "dlite-utils.h"
+#include "dlite-type.h"
 #include "dlite-storage.h"
 
 
