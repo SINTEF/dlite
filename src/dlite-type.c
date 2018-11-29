@@ -463,7 +463,7 @@ int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
     break;
   case dliteFloat:
     if (w == -1) w = 12;
-    if (p == -1) p = 6;
+    if (r == -1) r = 6;
     switch (size) {
     case 4:  m = snprintf(dest, n, "%*.*g",  w, r, *((float32_t *)p)); break;
     case 8:  m = snprintf(dest, n, "%*.*g",  w, r, *((float64_t *)p)); break;

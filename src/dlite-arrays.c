@@ -142,13 +142,16 @@ void *dlite_array_iter_next(DLiteArrayIter *iter)
 {
   int n;
   DLiteArray *arr = (DLiteArray *)iter->arr;
-  if (iter->ind[0] < 0) return NULL;
+  if (iter->ind[0] < 0) return NULL;  /* check stop indicator */
+  for (n=arr->ndims-1; n>=0; n--)
+    if (arr->dims[n] <= 0) return NULL;  /* check that all dimensions has
+					    positive length */
   for (n=arr->ndims-1; n>=0; n--) {
     if (++iter->ind[n] < arr->dims[n]) break;
     iter->ind[n] = 0;
   }
   if (n < 0) {
-    iter->ind[0] = -1;
+    iter->ind[0] = -1;  /* stop indicator */
     return NULL;
   }
   return dlite_array_index(arr, iter->ind);
@@ -175,45 +178,73 @@ int dlite_array_compare(const DLiteArray *a, const DLiteArray *b)
 }
 
 
+#define abs(x) (((x) > 0) ? (x) : -(x))
+
 /*
   Returns a new array object representing a slice of `arr`.  `start`,
   `stop` and `step` has the same meaning as in Python and should be
   either NULL or arrays of length `arr->ndims`.
 
-  If `start` is NULL, it will default to zero for dimensions with
-  positive `step` and `arr->ndims-1` for dimensions with negative
+  For `step[n] > 0` the range for dimension `n` is increasing:
+
+      start[n], start[n]+1, ... stop[n]-2, stop[n]-1
+
+  For `step[n] < 0` the range for dimension `n` is decreasing:
+
+      start[n]-1, start[n]-2, ... stop[n]+1, stop[n]
+
+  Like Python, negative values of `start` or `stop` from the back.
+  Hence index `-k` is equivalent to `arr->dims[n]-k`.
+
+  If `start` is NULL, it will default to zero for dimensions `n` with
+  positive `step` and `arr->dims[n]` for dimensions with negative
   `step`.
 
-  If `stop` is NULL, it will default to `arr->ndims-1` for dimensions
+  If `stop` is NULL, it will default to `arr->dims[n]` for dimensions `n`
   with positive `step` and zero for dimensions with negative `step`.
 
   If `step` is NULL, it defaults to one.
 
   Returns NULL on error.
+
+  Note
+  The above behavior is not fully consistent with Python for negative
+  step sizes. While the range for negative steps in dlite is given
+  above, Python returns the following range:
+
+      start[n], start[n]-1, ... stop[n]+2, stop[n]+1
+
+  In Python, you can get the full reversed range by specifying `None`
+  as the stop value.  But `None` is not a valid C integer.  If dlite
+  you can get the full reversed range by setting `stop[n]` to zero.
  */
 DLiteArray *dlite_array_slice(const DLiteArray *arr,
 			      int *start, int *stop, int *step)
 {
   int n, offset=0;
   DLiteArray *new;
-  printf("\n*** slice()\n");
-
   if (!(new = dlite_array_create(arr->data, arr->type, arr->size,
 				 arr->ndims, arr->dims))) return NULL;
   for (n = arr->ndims-1; n >= 0; n--) {
     int s1, s2, m;
     int d = (step) ? step[n] : 1;
     if (d == 0) return err(1, "dim %d: slice step cannot be zero", n), NULL;
-    s1 = (start) ? start[n] % arr->dims[n] : (d > 0) ? 0 : arr->dims[n];
-    s2 = (stop) ? (stop[n]-1) % arr->dims[n] + 1: (d > 0) ? arr->dims[n] : -1;
-    if (s1 < 0) s1 += arr->dims[n];
-    if (s2 < 0) s2 += arr->dims[n];
-    offset += s1 * arr->strides[n];
-    m = (s2 - s1) / d;
-    new->dims[n] = (m >= 0) ? m : -m;
+    if (d > 0) {
+      s1 = (start) ? start[n] % arr->dims[n] : 0;
+      s2 = (stop) ? (stop[n]-1) % arr->dims[n] + 1 : arr->dims[n];
+      if (s1 < 0) s1 += arr->dims[n];
+      if (s2 < 0) s2 += arr->dims[n];
+      offset += s1 * arr->strides[n];
+    } else {
+      s1 = (start) ? (start[n]-1) % arr->dims[n] + 1 : arr->dims[n];
+      s2 = (stop) ? (stop[n]-1) % arr->dims[n] + 1 : 0;
+      if (s1 < 0) s1 += arr->dims[n];
+      if (s2 < 0) s2 += arr->dims[n];
+      offset += (s1 - 1) * arr->strides[n];
+    }
+    m = (abs(s2 - s1) + d/2) / abs(d);
+    new->dims[n] = m;
     new->strides[n] *= d;
-    printf("   n=%d, dim=%d, stride=%d, s1=%d, s2=%d, m=%d, d=%d, offset=%d\n",
-           n, arr->dims[n], arr->strides[n], s1, s2, m, d, offset);
   }
   new->data = ((char *)arr->data) + offset;
   return new;
@@ -238,6 +269,62 @@ DLiteArray *dlite_array_reshape(const DLiteArray *arr,
   if (prod1 != prod2)
     return err(1, "cannot reshape to an incompatible shape"), NULL;
   return dlite_array_create(arr->data, arr->type, arr->size, ndims, dims);
+}
+
+
+/*
+  Returns a new array object corresponding to the transpose of `arr`
+  (that is, an array with reversed order of dimensions).
+
+  Returns NULL on error.
+ */
+DLiteArray *dlite_array_transpose(DLiteArray *arr)
+{
+  int i;
+  DLiteArray *new;
+  if (!(new = dlite_array_create(arr->data, arr->type, arr->size,
+				 arr->ndims, arr->dims))) return NULL;
+  for (i=0; i < arr->ndims; i++) {
+    int j = arr->ndims - 1 - i;
+    new->dims[i] = arr->dims[j];
+    new->strides[i] = arr->strides[j];
+  }
+  return new;
+}
+
+
+/*
+  Creates a continuous copy of the data for `arr` (using malloc()) and
+  updates `arr`.
+
+  Returns a the new copy of the data or NULL on error.
+ */
+void *dlite_array_make_continuous(DLiteArray *arr)
+{
+  int n, size=arr->size;
+  void *data, *p;
+  char *q;
+  DLiteArrayIter iter;
+  for (n=0; n < arr->ndims; n++) size *= arr->dims[n];
+  if (!(data = malloc(size))) return err(1, "allocation failure"), NULL;
+  if (dlite_array_is_continuous(arr)) return memcpy(data, arr->data, size);
+
+  q = data;
+  dlite_array_iter_init(&iter, arr);
+  while ((p = dlite_array_iter_next(&iter))) {
+    memcpy(q, p, arr->size);
+    q += arr->size;
+  }
+  dlite_array_iter_deinit(&iter);
+
+  /* Update `arr` */
+  arr->data = data;
+  size = arr->size;
+  for (n=arr->ndims-1; n>=0; n--) {
+    arr->strides[n] = size;
+    size *= arr->dims[n];
+  }
+  return data;
 }
 
 

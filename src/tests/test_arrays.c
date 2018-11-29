@@ -63,19 +63,6 @@ MU_TEST(test_array_iter)
 }
 
 
-MU_TEST(test_array_reshape)
-{
-  int ndims = 4;
-  int dims[] = {2, 1, 3, 2};
-  DLiteArray *a;
-  mu_check((a = dlite_array_reshape(arr, ndims, dims)));
-  mu_check(0 != dlite_array_is_continuous(a));
-  //printf("\nreshaped:\n");
-  //dlite_array_printf(stdout, a, -1, -1);
-  dlite_array_free(a);
-}
-
-
 MU_TEST(test_array_slice)
 {
   int start[]={0, 1};
@@ -83,39 +70,12 @@ MU_TEST(test_array_slice)
   int step[]={1, 2};
   DLiteArray *a;
 
-  printf("\n");
-  printf(" 4 %% 3 = %2d\n", 4 % 3);
-  printf(" 3 %% 3 = %2d\n", 3 % 3);
-  printf(" 1 %% 3 = %2d\n", 1 % 3);
-  printf(" 0 %% 3 = %2d\n", 0 % 3);
-  printf("-1 %% 3 = %2d\n", -1 % 3);
-  printf("-3 %% 3 = %2d\n", -3 % 3);
-  printf("-4 %% 3 = %2d\n", -4 % 3);
-
-
-  printf("\narr:\n");
-  dlite_array_printf(stdout, arr, -1, -1);
-  {
-    int i;
-    printf("ndims=%d\n", arr->ndims);
-    printf("dims=[");
-    for (i=0; i<arr->ndims; i++) printf("%d ", arr->dims[i]);
-    printf("]\n");
-    printf("strides=[");
-    for (i=0; i<arr->ndims; i++) printf("%d ", arr->strides[i]);
-    printf("]\n");
-    printf("size=%zu\n", dlite_array_size(arr));
-    printf("continuous=%d\n", dlite_array_is_continuous(arr));
-  }
-
   a = dlite_array_slice(arr, NULL, NULL, NULL);
-  //dlite_array_printf(stdout, a, -1, -1);
   mu_assert_int_eq(1, dlite_array_compare(a, arr));
   mu_check(dlite_array_is_continuous(a));
   dlite_array_free(a);
 
   a = dlite_array_slice(arr, start, stop, NULL);
-  //dlite_array_printf(stdout, a, -1, -1);
   mu_assert_int_eq(3, a->dims[0]);
   mu_assert_int_eq(2, a->dims[1]);
   mu_assert_int_eq(16, a->strides[0]);
@@ -134,30 +94,100 @@ MU_TEST(test_array_slice)
   dlite_array_free(a);
 
   a = dlite_array_slice(arr, start, NULL, step);
-  //mu_assert_int_eq(3, a->dims[0]);
-  //mu_assert_int_eq(2, a->dims[1]);
-  //mu_assert_int_eq(16, a->strides[0]);
-  //mu_assert_int_eq(8, a->strides[1]);
-  //mu_assert_int_eq(1, *((int *)dlite_array_vindex(a, 0, 0)));
-  //mu_check(!dlite_array_is_continuous(a));
+  mu_assert_int_eq(3, a->dims[0]);
+  mu_assert_int_eq(2, a->dims[1]);
+  mu_assert_int_eq(16, a->strides[0]);
+  mu_assert_int_eq(8, a->strides[1]);
+  mu_assert_int_eq(1, *((int *)dlite_array_vindex(a, 0, 0)));
+  mu_check(!dlite_array_is_continuous(a));
+  dlite_array_free(a);
 
-  printf("\n\na:\n");
-  dlite_array_printf(stdout, a, -1, -1);
-  printf("\n");
-  {
-    int i;
-    printf("ndims=%d\n", a->ndims);
-    printf("dims=[");
-    for (i=0; i<a->ndims; i++) printf("%d ", a->dims[i]);
-    printf("]\n");
-    printf("strides=[");
-    for (i=0; i<a->ndims; i++) printf("%d ", a->strides[i]);
-    printf("]\n");
-    printf("size=%zu\n", dlite_array_size(a));
-    printf("continuous=%d\n", dlite_array_is_continuous(a));
-  }
+  a = dlite_array_slice(arr, NULL, stop, step);
+  mu_assert_int_eq(3, a->dims[0]);
+  mu_assert_int_eq(2, a->dims[1]);
+  mu_assert_int_eq(16, a->strides[0]);
+  mu_assert_int_eq(8, a->strides[1]);
+  mu_assert_int_eq(0, *((int *)dlite_array_vindex(a, 0, 0)));
+  mu_check(!dlite_array_is_continuous(a));
+  dlite_array_free(a);
+
+  step[1] = -1;
+
+  a = dlite_array_slice(arr, NULL, NULL, step);
+  mu_assert_int_eq(3, a->dims[0]);
+  mu_assert_int_eq(4, a->dims[1]);
+  mu_assert_int_eq(16, a->strides[0]);
+  mu_assert_int_eq(-4, a->strides[1]);
+  mu_assert_int_eq(3, *((int *)dlite_array_vindex(a, 0, 0)));
+  mu_check(!dlite_array_is_continuous(a));
+  dlite_array_free(a);
+
+  start[1] = 4;
+
+  a = dlite_array_slice(arr, start, NULL, step);
+  mu_assert_int_eq(3, a->dims[0]);
+  mu_assert_int_eq(4, a->dims[1]);
+  mu_assert_int_eq(16, a->strides[0]);
+  mu_assert_int_eq(-4, a->strides[1]);
+  mu_assert_int_eq(3, *((int *)dlite_array_vindex(a, 0, 0)));
+  mu_check(!dlite_array_is_continuous(a));
+  dlite_array_free(a);
+
+  start[1] = -1;
+  stop[1] = 0;
+  step[0] = 2;
+
+  a = dlite_array_slice(arr, start, stop, step);
+  mu_assert_int_eq(2, a->dims[0]);
+  mu_assert_int_eq(3, a->dims[1]);
+  mu_assert_int_eq(32, a->strides[0]);
+  mu_assert_int_eq(-4, a->strides[1]);
+  mu_assert_int_eq(2, *((int *)dlite_array_vindex(a, 0, 0)));
+  mu_check(!dlite_array_is_continuous(a));
+  dlite_array_free(a);
+}
 
 
+MU_TEST(test_array_reshape)
+{
+  int ndims = 4;
+  int dims[] = {2, 1, 3, 2};
+  DLiteArray *a;
+  mu_check((a = dlite_array_reshape(arr, ndims, dims)));
+  mu_check(0 != dlite_array_is_continuous(a));
+  //printf("\nreshaped:\n");
+  //dlite_array_printf(stdout, a, -1, -1);
+  dlite_array_free(a);
+}
+
+
+MU_TEST(test_array_transpose)
+{
+  DLiteArray *a;
+  void *p;
+  mu_check((a = dlite_array_transpose(arr)));
+  mu_check(0 == dlite_array_is_continuous(a));
+  //printf("\narr:\n");
+  //dlite_array_printf(stdout, arr, -1, -1);
+  //printf("\ntransposed:\n");
+  //dlite_array_printf(stdout, a, -1, -1);
+  mu_assert_int_eq(0, *((int *)dlite_array_vindex(a, 0, 0)));
+  mu_assert_int_eq(1, *((int *)dlite_array_vindex(a, 1, 0)));
+  mu_assert_int_eq(4, *((int *)dlite_array_vindex(a, 0, 1)));
+  mu_assert_int_eq(9, *((int *)dlite_array_vindex(a, 1, 2)));
+
+  mu_check((p = dlite_array_make_continuous(a)));
+  mu_check(0 != dlite_array_is_continuous(a));
+  //printf("\narr:\n");
+  //dlite_array_printf(stdout, arr, -1, -1);
+  //printf("\ntransposed:\n");
+  //dlite_array_printf(stdout, a, -1, -1);
+  mu_assert_int_eq(0, *((int *)dlite_array_vindex(a, 0, 0)));
+  mu_assert_int_eq(1, *((int *)dlite_array_vindex(a, 1, 0)));
+  mu_assert_int_eq(4, *((int *)dlite_array_vindex(a, 0, 1)));
+  mu_assert_int_eq(9, *((int *)dlite_array_vindex(a, 1, 2)));
+
+  free(p);
   dlite_array_free(a);
 }
 
@@ -177,8 +207,9 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_array_size);
   MU_RUN_TEST(test_array_index);
   MU_RUN_TEST(test_array_iter);
-  MU_RUN_TEST(test_array_reshape);
   MU_RUN_TEST(test_array_slice);
+  MU_RUN_TEST(test_array_reshape);
+  MU_RUN_TEST(test_array_transpose);
   MU_RUN_TEST(test_array_free);      /* tear down */
 }
 

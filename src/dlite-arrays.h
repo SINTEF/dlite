@@ -14,14 +14,21 @@
     - indexing
     - iteration
     - comparisons
+    - reshaping
     - slicing
-
-  Planned features:
     - transpose
+    - make_continuous
     - pretty printing
  */
 
 #include "dlite-type.h"
+
+#define CHAR_BIT 8
+#define INT_MIN (int)(1U << (sizeof(int)*CHAR_BIT-1))
+#define INT_MAX (-(INT_MIN+1))
+
+
+#define DLITE_EMPTY_SLICE INT_MIN
 
 
 /** DLite n-dimensional arrays */
@@ -112,15 +119,48 @@ void *dlite_array_iter_next(DLiteArrayIter *iter);
  */
 int dlite_array_compare(const DLiteArray *a, const DLiteArray *b);
 
+
 /**
   Returns a new array object representing a slice of `arr`.  `start`,
-  `stop` and `step` should be NULL or arrays of length `arr->ndims`.
+  `stop` and `step` has the same meaning as in Python and should be
+  either NULL or arrays of length `arr->ndims`.
 
-  If `start` is NULL
+  For `step[n] > 0` the range for dimension `n` is increasing:
 
+      start[n], start[n]+1, ... stop[n]-2, stop[n]-1
+
+  For `step[n] < 0` the range for dimension `n` is decreasing:
+
+      start[n]-1, start[n]-2, ... stop[n]+1, stop[n]
+
+  Like Python, negative values of `start` or `stop` from the back.
+  Hence index `-k` is equivalent to `arr->dims[n]-k`.
+
+  If `start` is NULL, it will default to zero for dimensions `n` with
+  positive `step` and `arr->dims[n]` for dimensions with negative
+  `step`.
+
+  If `stop` is NULL, it will default to `arr->dims[n]` for dimensions `n`
+  with positive `step` and zero for dimensions with negative `step`.
+
+  If `step` is NULL, it defaults to one.
+
+  Returns NULL on error.
+
+  @note
+  The above behavior is not fully consistent with Python for negative
+  step sizes. While the range for negative steps in dlite is given
+  above, Python returns the following range:
+
+      start[n], start[n]-1, ... stop[n]+2, stop[n]+1
+
+  In Python, you can get the full reversed range by specifying `None`
+  as the stop value.  But `None` is not a valid C integer.  If dlite
+  you can get the full reversed range by setting `stop[n]` to zero.
  */
 DLiteArray *dlite_array_slice(const DLiteArray *arr,
 			      int *start, int *stop, int *step);
+
 
 /**
   Returns a new array object representing `arr` with a new shape specified
@@ -131,6 +171,29 @@ DLiteArray *dlite_array_slice(const DLiteArray *arr,
  */
 DLiteArray *dlite_array_reshape(const DLiteArray *arr,
                                 int ndims, const int *dims);
+
+
+/**
+  Returns a new array object corresponding to the transpose of `arr`
+  (that is, an array with reversed order of dimensions).
+
+  Returns NULL on error.
+
+  @note
+  This function does not change the underlying data.  If you want to
+  convert between C and Fortran array layout, you should call
+  dlite_make_continuous() on the array object returned by this
+  function.
+ */
+DLiteArray *dlite_array_transpose(DLiteArray *arr);
+
+/**
+  Creates a continuous copy of the data for `arr` (using malloc()) and
+  updates `arr`.
+
+  Returns a the new copy of the data or NULL on error.
+ */
+void *dlite_array_make_continuous(DLiteArray *arr);
 
 /**
   Print array `arr` to stream `fp`.  Returns non-zero on error.
