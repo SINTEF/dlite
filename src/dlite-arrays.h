@@ -21,14 +21,9 @@
     - pretty printing
  */
 
+#include <stdio.h>
+
 #include "dlite-type.h"
-
-#define CHAR_BIT 8
-#define INT_MIN (int)(1U << (sizeof(int)*CHAR_BIT-1))
-#define INT_MAX (-(INT_MIN+1))
-
-
-#define DLITE_EMPTY_SLICE INT_MIN
 
 
 /** DLite n-dimensional arrays */
