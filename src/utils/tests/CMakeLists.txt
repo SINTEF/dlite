@@ -37,8 +37,16 @@ foreach(test ${tests})
 endforeach()
 
 
-# create shared library for test_dsl
-add_library(test_dsl_lib SHARED test_dsl_lib.c)
+# Create shared library for test_dsl
+#
+# We use a trick from Bjørn Tore and Olav.  Instead of poluting the C
+# header with windows export declarations, we put them in a separate
+# .def file which we, for Windows builds, simply pass to add_library()
+# togheter with the sources.
+if(WIN32)
+  set(defs test_dsl_lib.def)
+endif()
+add_library(test_dsl_lib SHARED test_dsl_lib.c ${defs})
 if(UNIX)
   target_link_libraries(test_dsl -ldl)
 endif()
