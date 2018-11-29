@@ -166,13 +166,18 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
   The string representation is written to `dest`.  No more than
   `n` bytes are written (incl. the terminating NUL).
 
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
   Returns number of bytes written to `dest`.  If the output is
   truncated because it exceeds `n`, the number of bytes that would
   have been written if `n` was large enough is returned.  On error, a
   negative value is returned.
  */
 int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
-			char *dest, size_t n);
+			int width, int prec, char *dest, size_t n);
 
 /**
   Returns the struct alignment of the given type or 0 on error.

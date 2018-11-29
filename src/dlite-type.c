@@ -420,63 +420,74 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
   The string representation is written to `dest`.  No more than
   `n` bytes are written (incl. the terminating NUL).
 
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
   Returns number of bytes written to `dest`.  If the output is
   truncated because it exceeds `n`, the number of bytes that would
   have been written if `n` was large enough is returned.  On error, a
   negative value is returned.
  */
 int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
-			char *dest, size_t n)
+			int width, int prec, char *dest, size_t n)
 {
-  int retval;
+  int m, w=width, r=prec;
   switch (dtype) {
   case dliteBlob:
     return err(-1, "serialising binary blobs is not yet supported");
   case dliteBool:
-    retval = snprintf(dest, n, (*((bool *)p)) ? "true" : "false");
+    m = snprintf(dest, n, "%*.*s", w, r,
+                      (*((bool *)p)) ? "true" : "false");
     break;
   case dliteInt:
+    if (w == -1) w = 8;
     switch (size) {
-    case 1: retval = snprintf(dest, n, "%hhd", *((int8_t *)p));  break;
-    case 2: retval = snprintf(dest, n, "%hd",  *((int16_t *)p)); break;
-    case 4: retval = snprintf(dest, n, "%d",   *((int32_t *)p)); break;
-    case 8: retval = snprintf(dest, n, "%ld",  *((int64_t *)p)); break;
+    case 1: m = snprintf(dest, n, "%*.*hhd", w, r, *((int8_t *)p));  break;
+    case 2: m = snprintf(dest, n, "%*.*hd",  w, r, *((int16_t *)p)); break;
+    case 4: m = snprintf(dest, n, "%*.*d",   w, r, *((int32_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*ld",  w, r, *((int64_t *)p)); break;
     default: return err(-1, "invalid int size: %zu", size);
     }
     break;
   case dliteUInt:
+    if (w == -1) w = 8;
     switch (size) {
-    case 1: retval = snprintf(dest, n, "%hhu", *((uint8_t *)p));  break;
-    case 2: retval = snprintf(dest, n, "%hu",  *((uint16_t *)p)); break;
-    case 4: retval = snprintf(dest, n, "%u",   *((uint32_t *)p)); break;
-    case 8: retval = snprintf(dest, n, "%lu",  *((uint64_t *)p)); break;
+    case 1: m = snprintf(dest, n, "%*.*hhu", w, r, *((uint8_t *)p));  break;
+    case 2: m = snprintf(dest, n, "%*.*hu",  w, r, *((uint16_t *)p)); break;
+    case 4: m = snprintf(dest, n, "%*.*u",   w, r, *((uint32_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*lu",  w, r, *((uint64_t *)p)); break;
     default: return err(-1, "invalid int size: %zu", size);
     }
     break;
   case dliteFloat:
+    if (w == -1) w = 12;
+    if (p == -1) p = 6;
     switch (size) {
-    case 4:  retval = snprintf(dest, n, "%g",  *((float32_t *)p)); break;
-    case 8:  retval = snprintf(dest, n, "%g",  *((float64_t *)p)); break;
+    case 4:  m = snprintf(dest, n, "%*.*g",  w, r, *((float32_t *)p)); break;
+    case 8:  m = snprintf(dest, n, "%*.*g",  w, r, *((float64_t *)p)); break;
 #ifdef HAVE_FLOAT80
-    case 10: retval = snprintf(dest, n, "%Lg", *((float80_t *)p)); break;
+    case 10: m = snprintf(dest, n, "%*.*Lg", w, r, *((float80_t *)p)); break;
 #endif
 #ifdef HAVE_FLOAT128
-    case 16: retval = snprintf(dest, n, "%Lg", *((float128_t *)p)); break;
+    case 16: m = snprintf(dest, n, "%*.*Lg", w, r, *((float128_t *)p)); break;
 #endif
     default: return err(-1, "invalid int size: %zu", size);
     }
     break;
   case dliteFixString:
-    retval = snprintf(dest, n, "%.*s", (int)size, (char *)p);
+    if (r > (int)size) r = size;
+    m = snprintf(dest, n, "%*.*s", w, r, (char *)p);
     break;
   case dliteStringPtr:
-    retval = snprintf(dest, n, "%s", *((char **)p));
+    m = snprintf(dest, n, "%*.*s", w, r, *((char **)p));
     break;
   default:
     return err(-1, "serialising dtype \"%s\" is not supported",
 	       dtype_enum_names[dtype]);
   }
-  return retval;
+  return m;
 }
 
 

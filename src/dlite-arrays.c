@@ -7,6 +7,7 @@
 #endif
 
 #include "utils/err.h"
+#include "utils/tgen.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-arrays.h"
@@ -32,8 +33,8 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
 
   /* allocate the array object (except the data) in one chunk */
   if (!(arr = calloc(1, asize))) return err(1, "allocation failure"), NULL;
-  arr->dims = (char *)arr + sizeof(DLiteArray);
-  arr->strides = (char *)arr->dims + ndims*sizeof(int);
+  arr->dims = (int *)((char *)arr + sizeof(DLiteArray));
+  arr->strides = (int *)((char *)arr->dims + ndims*sizeof(int));
 
   arr->data = data;
   arr->type = type;
@@ -41,7 +42,7 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
   arr->ndims = ndims;
   memcpy(arr->dims, dims, ndims*sizeof(int));
   for (i=ndims-1; i>=0; i--) {
-    strides[i] = size;
+    arr->strides[i] = size;
     size *= dims[i];
   }
   return arr;
@@ -58,10 +59,34 @@ void dlite_array_free(DLiteArray *arr)
 
 
 /*
+  Returns the memory size in bytes of array `arr`.
+ */
+size_t dlite_array_size(const DLiteArray *arr)
+{
+  int n, size, maxsize=0;
+  for (n=0; n < arr->ndims; n++)
+    if ((size = arr->strides[n]*arr->dims[n]) > maxsize) maxsize = size;
+  return maxsize;
+}
+
+/*
+  Returns non-zero if array `arr` describes a C-continuous memory layout.
+ */
+int dlite_array_is_continuous(const DLiteArray *arr)
+{
+  int n, size = arr->size;
+  for (n=arr->ndims-1; n >= 0; n--) {
+    if (arr->strides[n] != size) return 0;
+    size *= arr->dims[n];
+  }
+  return 1;
+}
+
+/*
   Returns a pointer to data at index `ind`, where `ind` is an array
   of length `arr->ndims`.
 */
-void *dlite_array_index(DLiteArray *arr, int *ind)
+void *dlite_array_index(const DLiteArray *arr, int *ind)
 {
   int i, offset=0;
   for (i=0; i<arr->ndims; i++) offset += ind[i] * arr->strides[i];
@@ -74,7 +99,7 @@ void *dlite_array_index(DLiteArray *arr, int *ind)
   Like dlite_array_index(), but the index is provided as `arr->ndims`
   number of variable arguments of type int.
 */
-void *dlite_array_vindex(DLiteArray *arr, ...)
+void *dlite_array_vindex(const DLiteArray *arr, ...)
 {
   int i, offset=0;
   va_list ap;
@@ -91,21 +116,20 @@ void *dlite_array_vindex(DLiteArray *arr, ...)
 
   Returns non-zero on error.
 */
-int dlite_array_iter_init(DLiteArrayIter *iter, DLiteArray *arr)
+int dlite_array_iter_init(DLiteArrayIter *iter, const DLiteArray *arr)
 {
   memset(iter, 0, sizeof(DLiteArrayIter));
   iter->arr = arr;
   if (!(iter->ind = calloc(arr->ndims, sizeof(int))))
     return err(1, "allocation failure");
+  iter->ind[arr->ndims-1]--;
   return 0;
 }
 
 /*
   Deinitialise array iterator object `iter`.
-
-  Returns non-zero on error.
 */
-int dlite_array_iter_deinit(DLiteArrayIter *iter)
+void dlite_array_iter_deinit(DLiteArrayIter *iter)
 {
   free(iter->ind);
 }
@@ -116,8 +140,8 @@ int dlite_array_iter_deinit(DLiteArrayIter *iter)
 */
 void *dlite_array_iter_next(DLiteArrayIter *iter)
 {
-  int i, n;
-  DLiteArray *arr = iter->arr;
+  int n;
+  DLiteArray *arr = (DLiteArray *)iter->arr;
   if (iter->ind[0] < 0) return NULL;
   for (n=arr->ndims-1; n>=0; n--) {
     if (++iter->ind[n] < arr->dims[n]) break;
@@ -130,11 +154,115 @@ void *dlite_array_iter_next(DLiteArrayIter *iter)
   return dlite_array_index(arr, iter->ind);
 }
 
+
 /*
-  Returns a new array object representing a slice of `arr`.
+  Returns 1 is arrays `a` and `b` are equal, zero otherwise.
  */
-DLiteArray *dlite_array_slice(DLiteArray *arr, int *start, int *stop, int *step)
+int dlite_array_compare(const DLiteArray *a, const DLiteArray *b)
 {
+  int i;
+  /* check whether the array structures are equal */
+  if (a->type != b->type) return 0;
+  if (a->size != b->size) return 0;
+  if (a->ndims != b->ndims) return 0;
+  for (i=0; i < a->ndims; i++) {
+    if (a->dims[i] != b->dims[i]) return 0;
+    if (a->strides[i] != b->strides[i]) return 0;
+  }
+  /* check whether the array data are equal */
+  if (memcmp(a->data, b->data, dlite_array_size(a))) return 0;
+  return 1;
+}
 
 
+/*
+  Returns a new array object representing a slice of `arr`.  `start`,
+  `stop` and `step` has the same meaning as in Python and should be
+  either NULL or arrays of length `arr->ndims`.
+
+  If `start` is NULL, it will default to zero for dimensions with
+  positive `step` and `arr->ndims-1` for dimensions with negative
+  `step`.
+
+  If `stop` is NULL, it will default to `arr->ndims-1` for dimensions
+  with positive `step` and zero for dimensions with negative `step`.
+
+  If `step` is NULL, it defaults to one.
+
+  Returns NULL on error.
+ */
+DLiteArray *dlite_array_slice(const DLiteArray *arr,
+			      int *start, int *stop, int *step)
+{
+  int n, offset=0;
+  DLiteArray *new;
+  printf("\n*** slice()\n");
+
+  if (!(new = dlite_array_create(arr->data, arr->type, arr->size,
+				 arr->ndims, arr->dims))) return NULL;
+  for (n = arr->ndims-1; n >= 0; n--) {
+    int s1, s2, m;
+    int d = (step) ? step[n] : 1;
+    if (d == 0) return err(1, "dim %d: slice step cannot be zero", n), NULL;
+    s1 = (start) ? start[n] % arr->dims[n] : (d > 0) ? 0 : arr->dims[n];
+    s2 = (stop) ? (stop[n]-1) % arr->dims[n] + 1: (d > 0) ? arr->dims[n] : -1;
+    if (s1 < 0) s1 += arr->dims[n];
+    if (s2 < 0) s2 += arr->dims[n];
+    offset += s1 * arr->strides[n];
+    m = (s2 - s1) / d;
+    new->dims[n] = (m >= 0) ? m : -m;
+    new->strides[n] *= d;
+    printf("   n=%d, dim=%d, stride=%d, s1=%d, s2=%d, m=%d, d=%d, offset=%d\n",
+           n, arr->dims[n], arr->strides[n], s1, s2, m, d, offset);
+  }
+  new->data = ((char *)arr->data) + offset;
+  return new;
+}
+
+
+/*
+  Returns a new array object representing `arr` with a new shape specified
+  with `ndims` and `dims`.  `dims` should be compatible with the old shape.
+  The current implementation also requires that `arr` is C-continuous.
+
+  Returns NULL on error.
+ */
+DLiteArray *dlite_array_reshape(const DLiteArray *arr,
+                                int ndims, const int *dims)
+{
+  int i, prod1=1, prod2=1;;
+  if (!dlite_array_is_continuous(arr))
+    return err(1, "can only reshape C-continuous arrays"), NULL;
+  for (i=0; i < arr->ndims; i++) prod1 *= arr->dims[i];
+  for (i=0; i < ndims; i++) prod2 *= dims[i];
+  if (prod1 != prod2)
+    return err(1, "cannot reshape to an incompatible shape"), NULL;
+  return dlite_array_create(arr->data, arr->type, arr->size, ndims, dims);
+}
+
+
+/*
+  Print array `arr` to stream `fp`.  Returns non-zero on error.
+ */
+int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec)
+{
+  void *p;
+  int i, N=arr->ndims-1, NN=arr->dims[N]-1;
+  DLiteArrayIter iter;
+  char buf[80];
+  dlite_array_iter_init(&iter, arr);
+  while ((p = dlite_array_iter_next(&iter))) {
+    char *sep = (iter.ind[N] < NN) ? " " : "";
+    int m=0;
+    for (i=arr->ndims-1; i >= 0 && iter.ind[i] == 0; i--) m++;
+    if (iter.ind[N] == 0)
+      for (; i >= 0; i--) fprintf(fp, " ");
+    for (i=0; i<m; i++) fprintf(fp, "[");
+    dlite_type_snprintf(p, arr->type, arr->size, width, prec, buf, sizeof(buf));
+    fprintf(fp, "%s%s", buf, sep);
+    for (i=N; i >= 0 && iter.ind[i] == arr->dims[i]-1; i--) fprintf(fp, "]");
+    if (iter.ind[N] == NN) fprintf(fp, "\n");
+  }
+  dlite_array_iter_deinit(&iter);
+  return 0;
 }
