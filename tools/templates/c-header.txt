@@ -40,9 +40,11 @@ typedef struct _{name} {{
   const void *meta;  /*!< Pointer to the metadata describing this instance. */
 
   /* -- dimension values */
-{list_dimensions:  size_t {dim.name};  /*!< {dim.descr} */\n}
+{list_dimensions:  size_t {dim.name};  {@30}/*!< {dim.descr} */\n}
   /* -- property values */
-{list_properties:  {prop.cdecl};  /*!< {prop.descr} */\n}
+{list_properties:  {prop.cdecl};  {@30}/*!< {prop.descr}\
+{@if:{prop.ndims}!=0} [{prop.dims:{dim.name}{,}\.}]{@endif} */\n}
+
 }} {name};
 
 
