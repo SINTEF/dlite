@@ -12,8 +12,8 @@
 #include "config.h"
 
 #include "boolean.h"
-#include "strtob.h"
-#include "err.h"
+#include "utils/strtob.h"
+#include "utils/err.h"
 
 #include "dlite-utils.h"
 #include "dlite-schemas.h"

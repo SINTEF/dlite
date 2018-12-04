@@ -19,7 +19,6 @@ target_link_libraries(plugins-json
 target_include_directories(plugins-json PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
-  ${dlite_SOURCE_DIR}/src/utils
   ${dlite_BINARY_DIR}/src
   ${uuid_BINARY_DIR}
   ${uuid_SOURCE_DIR}
