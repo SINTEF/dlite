@@ -163,9 +163,63 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   return 0;
 }
 
+
 /*
-  Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
-  The size of the memory pointed to by `cdecl` must be at least `n` bytes.
+  If the type specified with `dtype` and `size` has a native type name
+  (like "short" and "double"), return a pointer to this typename.  Otherwise
+  NULL is returned.
+*/
+const char *dlite_type_get_native_typename(DLiteType dtype, size_t size)
+{
+  switch (dtype) {
+  case dliteInt:
+    switch (size) {
+    case sizeof(char):      return "char";
+    case sizeof(short):     return "short";
+    case sizeof(int):       return "int";
+#if SIZEOF_LONG != SIZEOF_INT
+    case sizeof(long):      return "long";
+#endif
+#if defined(HAVE_LONG_LONG) && SIZEOF_LONG_LONG != SIZEOF_LONG
+    case sizeof(long long): return "long long";
+#endif
+    }
+    break;
+  case dliteUInt:
+    switch (size) {
+    case sizeof(unsigned char):      return "unsigned char";
+    case sizeof(unsigned short):     return "unsigned short";
+    case sizeof(unsigned int):       return "unsigned int";
+#if SIZEOF_LONG != SIZEOF_INT
+    case sizeof(unsigned long):      return "unsigned long";
+#endif
+#if defined(HAVE_LONG_LONG) && SIZEOF_LONG_LONG != SIZEOF_LONG
+    case sizeof(unsigned long long): return "unsigned long long";
+#endif
+    }
+    break;
+  case dliteFloat:
+    switch (size) {
+    case sizeof(float):        return "float";
+    case sizeof(double):       return "double";
+#if defined(HAVE_LONG_DOUBLE) && SIZEOF_LONG_DOUBLE != SIZEOF_DOUBLE
+    case sizeof(long double):  return "long double";
+#endif
+    }
+    break;
+  default:
+    break;
+  }
+  return NULL;
+}
+
+/*
+  Writes C declaration to `pcdecl` of a C variable with given `dtype`
+  and `size`.  The size of the memory pointed to by `pcdecl` must be
+  at least `n` bytes.
+
+  If `native` is non-zero, the native typename will be written to `pcdecl`
+  (e.g. "double") instead of the portable typename (e.g. "float64_t").
 
   `name` is the name of the C variable.
 
@@ -174,10 +228,11 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Returns the number of bytes written or -1 on error.
 */
 int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
-                         size_t nref, char *pcdecl, size_t n)
+                         size_t nref, char *pcdecl, size_t n, int native)
 {
   int m;
   char ref[32];
+  const char *native_type;
 
   if (nref >= sizeof(ref))
     return errx(-1, "too many dereferences to write: %zu", nref);
@@ -195,13 +250,22 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
     m = snprintf(pcdecl, n, "bool %s%s", ref, name);
     break;
   case dliteInt:
-    m = snprintf(pcdecl, n, "int%zu_t %s%s", size*8, ref, name);
+    if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
+      m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
+    else
+      m = snprintf(pcdecl, n, "int%zu_t %s%s", size*8, ref, name);
     break;
   case dliteUInt:
-    m = snprintf(pcdecl, n, "uint%zu_t %s%s", size*8, ref, name);
+    if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
+      m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
+    else
+      m = snprintf(pcdecl, n, "uint%zu_t %s%s", size*8, ref, name);
     break;
   case dliteFloat:
-    m = snprintf(pcdecl, n, "float%zu_t %s%s", size*8, ref, name);
+    if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
+      m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
+    else
+      m = snprintf(pcdecl, n, "float%zu_t %s%s", size*8, ref, name);
     break;
   case dliteFixString:
     m = snprintf(pcdecl, n, "char %s%s[%zu]", ref, name, size);

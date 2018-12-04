@@ -17,6 +17,13 @@ typedef struct {
 }  Context;
 
 
+/*
+  Global variable indicating whether native typenames should be used.
+  The default is to use portable type names.
+*/
+int dlite_codegen_use_native_typenames = 0;
+
+
 /* Generator function that simply copies the template.
 
    This might be useful to e.g. apply formatting. Should it be a part of
@@ -151,10 +158,10 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     char *descr = (p->description) ? p->description : "";
     size_t nref = (p->ndims > 0) ? 1 : 0;
     int isallocated = dlite_type_is_allocated(p->type);
-    char typename[32], pcdecl[32];
+    char typename[32], pcdecl[64];
     dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
-    dlite_type_set_cdecl(p->type, p->size, p->name, nref,
-                         pcdecl, sizeof(pcdecl));
+    dlite_type_set_cdecl(p->type, p->size, p->name, nref, pcdecl,
+			 sizeof(pcdecl), dlite_codegen_use_native_typenames);
 
     ((Context *)context)->iprop = i;
     tgen_subs_set(&psubs, "prop.name",     p->name,  NULL);

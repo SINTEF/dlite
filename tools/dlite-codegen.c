@@ -28,6 +28,9 @@ void help()
     "  -f, --format=STRING          Output format (that is emplate name)",
     "                               if -t is not given.",
     "  -h, --help                   Prints this help and exit.",
+    "  -n, --native-typenames       Whether to use native typenames.  The",
+    "                               default is to use portable typenames.",
+    "                               Ex. \"double\" instead of \"float64_t\".",
     "  -o, --output=PATH            Output file.  Default is stdout.",
     "  -O, --options=STRING         Options for updating substitutions.",
     "  -t, --template=PATH          Template file to load.",
@@ -75,23 +78,25 @@ int main(int argc, char *argv[])
   while (1) {
     int longindex = 0;
     struct option longopts[] = {
-      {"driver",         1, NULL, 'd'},
-      {"driver-options", 1, NULL, 'D'},
-      {"format",         1, NULL, 'f'},
-      {"help",           0, NULL, 'h'},
-      {"output",         1, NULL, 'o'},
-      {"options",        1, NULL, 'O'},
-      {"template",       1, NULL, 't'},
-      {"uri",            1, NULL, 'u'},
+      {"driver",           1, NULL, 'd'},
+      {"driver-options",   1, NULL, 'D'},
+      {"format",           1, NULL, 'f'},
+      {"help",             0, NULL, 'h'},
+      {"native-typenames", 0, NULL, 'n'},
+      {"output",           1, NULL, 'o'},
+      {"options",          1, NULL, 'O'},
+      {"template",         1, NULL, 't'},
+      {"uri",              1, NULL, 'u'},
       {NULL, 0, NULL, 0}
     };
-    int c = getopt_long(argc, argv, "d:D:f:ho:O:t:u:", longopts, &longindex);
+    int c = getopt_long(argc, argv, "d:D:f:hno:O:t:u:", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
     case 'd':  driver = optarg; break;
     case 'D':  driver_options = optarg; break;
       //case 'f':  format = optarg; break;
     case 'h':  help(stdout); exit(0);
+    case 'n':  dlite_codegen_use_native_typenames = 1; break;
     case 'o':  output = optarg; break;
     case 'O':  options = optarg; break;
     case 't':  template_file = optarg; break;

@@ -118,6 +118,9 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
   The size of the memory pointed to by `cdecl` must be at least `n` bytes.
 
+  If `native` is non-zero, the native typename will be written to `pcdecl`
+  (e.g. "double") instead of the portable typename (e.g. "float64_t").
+
   `name` is the name of the C variable.
 
   `nref` is the number of extra * to add in front of `name`.
@@ -125,7 +128,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Returns the number of bytes written or -1 on error.
 */
 int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
-                         size_t nref, char *pcdecl, size_t n);
+                         size_t nref, char *pcdecl, size_t n, int native);
 
 /**
   Returns true if name is a DLiteType, otherwise false.
