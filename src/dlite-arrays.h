@@ -192,6 +192,11 @@ void *dlite_array_make_continuous(DLiteArray *arr);
 
 /**
   Print array `arr` to stream `fp`.  Returns non-zero on error.
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
  */
 int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec);
 

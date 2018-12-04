@@ -736,12 +736,18 @@ dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i)
   void *ptr;
   int ndims=1, dim=1, *dims=&dim;
   DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
-  if (!(ptr = dlite_instance_get_property_by_index(inst, i))) return NULL;
+  DLiteArray *arr = NULL;
+  if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
   if (p->ndims > 0) {
+    int i;
+    if (!(dims = malloc(p->ndims*sizeof(size_t)))) goto fail;
     ndims = p->ndims;
-    dims = p->dims;
+    for (i=0; i < p->ndims; i++) dims[i] = DLITE_DIM(inst, p->dims[i]);
   }
-  return dlite_array_create(ptr, p->type, p->size, ndims, dims);
+  arr = dlite_array_create(ptr, p->type, p->size, ndims, dims);
+ fail:
+  if (dims && dims != &dim) free(dims);
+  return arr;
 }
 
 
