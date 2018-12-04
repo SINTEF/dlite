@@ -10,6 +10,13 @@
   typically is code that will be written to file and compiled.
 */
 
+
+/**
+  Global variable indicating whether native typenames should be used.
+  The default is to use portable type names.
+*/
+extern int dlite_codegen_use_native_typenames;
+
 /**
   Assign/update substitutions based on the instance `inst`.
 
