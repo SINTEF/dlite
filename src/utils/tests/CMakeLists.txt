@@ -11,9 +11,15 @@ set(tests
   tgen_example
   )
 
+if(MSVC)
+  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+else()
+  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 add_definitions(
   -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
-  -DLIBDIR=${CMAKE_CURRENT_BINARY_DIR}
+  -DLIBDIR=${LIBDIR}
   )
 
 link_directories(

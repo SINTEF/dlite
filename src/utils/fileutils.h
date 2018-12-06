@@ -27,9 +27,10 @@ typedef DIR fu_dir;
 # define WINDOWS
 # endif
 
-#include <Windows.h>
-
-typedef struct fu_dir fu_dir;
+#include "compat/dirent.h"
+typedef DIR fu_dir;
+//#include <Windows.h>
+//typedef struct fu_dir fu_dir;
 
 
 #else

@@ -5,7 +5,7 @@
 #include "fileutils.h"
 
 
-#if defined POSIX
+//#if defined POSIX
 
 fu_dir *fu_opendir(const char *path)
 {
@@ -44,7 +44,7 @@ int fu_closedir(fu_dir *dir)
 
 
 
-
+/*
 #elif defined WINDOWS
 
 struct fu_dir {
@@ -93,3 +93,4 @@ int fu_closedir(fu_dir *dir)
 
 
 #endif
+*/
