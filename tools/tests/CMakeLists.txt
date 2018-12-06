@@ -8,7 +8,7 @@ add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 if(WITH_JSON)
   add_custom_command(
     OUTPUT chemistry.h
-    COMMAND ${dlite-tools_BINARY_DIR}/$<CONFIG>/dlite-codegen
+    COMMAND ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
       --uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
       --output chemistry.h
