@@ -1,5 +1,11 @@
 # -*- Mode: cmake -*-
-#
+project(dlite-src C)
+
+# Workaround for CMake not setting the correct binary path for MSVC
+if(MSVC)
+  set(dlite-src_BINARY_DIR ${dlite-src_BINARY_DIR}/$<CONFIG>)
+endif()
+
 
 #-----------------------------------------------------
 # System tests

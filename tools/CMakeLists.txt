@@ -1,5 +1,11 @@
 # -*- Mode: cmake -*-
-#
+project(dlite-tools C)
+
+# Workaround for CMake not setting the correct binary path for MSVC
+if(MSVC)
+  set(dlite-tools_BINARY_DIR ${dlite-tools_BINARY_DIR}/$<CONFIG>)
+endif()
+
 
 link_directories(${uuid_BINARY_DIR})
 
