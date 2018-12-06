@@ -3,7 +3,7 @@
 #
 CMAKE_PATH=/C/DREAM3D/SDK/cmake-3.11.2-win64-x64/bin
 PYTHON_EXECUTABLE=/C/Users/tco/AppData/Local/Continuum/Anaconda3/python.exe
-ROOT_PATH=/C/Users/tco/Documents/Programs/philib/test-bootstrap
+ROOT_PATH=/C/Users/tco/Documents/Programs/philib
 #
 # Check and modify the version of HDF5
 #
@@ -20,7 +20,7 @@ cd $ROOT_PATH
 git clone https://github.com/akheron/jansson.git
 cd jansson
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$LIB_INSTALL_PATH ..
+cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX:PATH=$LIB_INSTALL_PATH ..
 cmake --build . --config Debug --target install
 cmake --build . --config Release --target install
 #
@@ -30,7 +30,7 @@ cd $ROOT_PATH
 tar -xzvf hdf5-$HDF5_VERSION_STRING.tar.gz
 cd hdf5-$HDF5_VERSION_STRING
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$LIB_INSTALL_PATH ..
+cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX:PATH=$LIB_INSTALL_PATH ..
 cmake --build . --config Debug --target install
 cmake --build . --config Release --target install
 #

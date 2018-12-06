@@ -83,6 +83,13 @@ else()
   set(LIBRARY_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
+# Give the debug version a different postfix for windows,
+# so both the debug and release version can be built in the
+# same build-tree on Windows (MSVC).
+if (WIN32 AND NOT CMAKE_DEBUG_POSTFIX)
+   set(CMAKE_DEBUG_POSTFIX "_d")
+endif()
+
 # This should hopefully provide correct prefix and postfix for
 # generated libraries
 set(LIB_PREFIX ${LIBRARY_PREFIX})
@@ -214,7 +221,7 @@ ExternalProject_Add(
   SOURCE_DIR      ${uuid_SOURCE_DIR}
   CMAKE_ARGS      ${cmake_args}
   UPDATE_COMMAND  ""
-  TEST_COMMAND    ctest
+#  TEST_COMMAND    ctest
   INSTALL_COMMAND ""
 )
 ExternalProject_Get_Property(uuidProj BINARY_DIR)

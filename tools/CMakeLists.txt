@@ -1,5 +1,5 @@
 # -*- Mode: cmake -*-
-#
+project(dlite-tools C)
 
 link_directories(${uuid_BINARY_DIR})
 
