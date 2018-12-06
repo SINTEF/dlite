@@ -12,8 +12,8 @@
 #include "config.h"
 
 #include "boolean.h"
-#include "strtob.h"
-#include "err.h"
+#include "utils/strtob.h"
+#include "utils/err.h"
 
 #include "dlite-utils.h"
 #include "dlite-schemas.h"
@@ -214,9 +214,9 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   if (s->root == NULL) {
     n = strlen(error.text);
     if (n > 0)
-      printf("JSON parse error on line %d: %s\n", error.line, error.text);
+      err(1, "JSON parse error on line %d: %s\n", error.line, error.text);
     else
-      printf("JSON parse error on line %d\n", error.line);
+      err(1, "JSON parse error on line %d\n", error.line);
     FAIL2("cannot open: '%s' with options '%s'", uri, options);
   }
   if (!json_is_object(s->root))
