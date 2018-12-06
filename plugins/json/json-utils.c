@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-#include "err.h"
+#include "utils/err.h"
 #include "str.h"
 #include "boolean.h"
 #include "floats.h"
