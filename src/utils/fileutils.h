@@ -34,7 +34,7 @@ typedef DIR fu_dir;
 
 
 #else
-# warning "Neither POSIX or "
+# warning "Neither POSIX or Windows"
 #endif
 
 

@@ -27,14 +27,11 @@ MU_TEST(test_fu_getfile)
   int found_self=0;
   int found_xyz=0;
 
-  printf("\n");
-  fname = fu_nextfile(dir);
-  printf("***    %s\n", fname);
-  while (fname) {
-    printf("***    %s\n", fname);
+  printf("\ndir list:\n");
+  while ((fname = fu_nextfile(dir))) {
+    printf("  %s\n", fname);
     if (strcmp(fname, "test_fileutils.c") == 0) found_self=1;
     if (strcmp(fname, "xyz") == 0) found_xyz=1;
-    fname = fu_nextfile(dir);
   }
 
   mu_assert_int_eq(1, found_self);
