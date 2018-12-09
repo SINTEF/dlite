@@ -155,7 +155,16 @@ enum {
 
 
 /**
-  Buffer for generated output.
+  Buffer for generated output.  Example use that prints "Hello world!" to
+  stdout:
+
+      TGenBuf s;
+      tgen_buf_init(&s);
+      tgen_buf_append(&s, "Hello", -1);
+      tgen_buf_append_fmt(&s, " %s!", "world");
+      printf("%s\n", tgen_buf_get(&s));
+      tgen_buf_deinit(&s);
+
 */
 typedef struct _TGenBuf {
   char *buf;    /*!< buffer */
@@ -254,6 +263,13 @@ void tgen_buf_init(TGenBuf *s);
   Clears output buffer and free's up all memory.
  */
 void tgen_buf_deinit(TGenBuf *s);
+
+/**
+  Like tgen_buf_deinit(), but instead of free up the internal buffer, it
+  is returned.  The returned string is owned by the caller and should be
+  free'ed with free().
+ */
+char *tgen_buf_steal(TGenBuf *s);
 
 /**
   Returns a pointer to the content of the output buffer.

@@ -302,6 +302,18 @@ void tgen_buf_deinit(TGenBuf *s)
 }
 
 /*
+  Like tgen_buf_deinit(), but instead of free up the internal buffer, it
+  is returned.  The returned string is owned by the caller and should be
+  free'ed with free().
+ */
+char *tgen_buf_steal(TGenBuf *s)
+{
+  char *p = s->buf;
+  memset(s, 0, sizeof(TGenBuf));
+  return p;
+}
+
+/*
   Returns a pointer to the content of the output buffer.
  */
 const char *tgen_buf_get(const TGenBuf *s)
@@ -686,7 +698,7 @@ int tgen_subs_copy(TGenSubs *dest, const TGenSubs *src)
 char *tgen(const char *template, const TGenSubs *subs, void *context)
 {
   TGenBuf s;
-  memset(&s, 0, sizeof(s));
+  tgen_buf_init(&s);
   if (tgen_append(&s, template, -1, subs, context)) {
     if (s.buf) free(s.buf);
     return NULL;
