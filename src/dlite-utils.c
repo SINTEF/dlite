@@ -4,8 +4,9 @@
 #include <string.h>
 
 #include "utils/compat.h"
-#include "utils/strtob.h"
 #include "utils/err.h"
+#include "utils/strtob.h"
+#include "utils/tgen.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -165,5 +166,79 @@ int dlite_option_parse(char *options, DLiteOpt *opts, int modify)
       return errx(1, "unknown option key: '%.*s'", len, p);
     }
   }
+  return 0;
+}
+
+
+/*
+  Returns a newly allocated string to an url created by joining
+  `driver`, `uri` and `options`.  `driver` and `options` may be NULL.
+  Returns NULL on error.
+ */
+char *dlite_join_url(const char *driver, const char *uri, const char *options)
+{
+  TGenBuf s;
+  tgen_buf_init(&s);
+  if (driver) tgen_buf_append_fmt(&s, "%s://", driver);
+  tgen_buf_append(&s, uri, -1);
+  if (options) tgen_buf_append_fmt(&s, "?%s", options);
+  return tgen_buf_steal(&s);
+}
+
+
+/*
+  Splits `url` into three parts: `driver`, `uri` and `options`.  If
+  `driver`, `uri` and/or `options` are not NULL, the pointers they
+  points will be assigned to point within `url`.
+
+  `url` will be modified.
+
+  Returns non-zero on error.
+
+  Note:
+  URLs are assumed to have the following syntax (ref. [wikipedia]):
+
+      URL = scheme:[//authority]path[?query][#fragment]
+
+  where the authority component divides into three subcomponents:
+
+      authority = [userinfo@]host[:port]
+
+  This function maps `scheme` to `driver`, `[authority]path` to `uri` and
+  `query` to `options`.
+
+  [wikipedia]: https://en.wikipedia.org/wiki/URL
+ */
+int dlite_split_url(char *url, char **driver, char **uri, char **options)
+{
+  size_t i;
+  char *p;
+
+  /* strip off fragment */
+  if ((p = strchr(url, '#'))) *p = '\0';
+
+  /* strip off query and assign options */
+  if ((p = strchr(url, '?'))) {
+    *p = '\0';
+    if (options) *options = (p[1]) ? p+1 : NULL;
+  } else {
+    if (options) *options = NULL;
+  }
+
+  /* assign driver and uri */
+  i = strcspn(url, ":/");
+  if (url[i] == ':') {
+    url[i] = '\0';
+    if (driver) *driver = url;
+    if (url[i+1] == '/' && url[i+2] == '/')
+      p = url + i + 3;
+    else
+      p = url + i + 1;
+    if (uri) *uri = (p[0]) ? p : NULL;
+  } else {
+    if (driver) *driver = NULL;
+    if (uri) *uri = (url[0]) ? url : NULL;
+  }
+
   return 0;
 }

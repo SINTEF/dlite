@@ -81,6 +81,36 @@ MU_TEST(test_option_parse)
 }
 
 
+MU_TEST(test_join_url)
+{
+  char *url;
+  mu_check((url = dlite_join_url("mongodb", "example.com/db", "mode=append")));
+  mu_assert_string_eq("mongodb://example.com/db?mode=append", url);
+  free(url);
+
+  mu_check((url = dlite_join_url("json", "/home/john/file.json", NULL)));
+  mu_assert_string_eq("json:///home/john/file.json", url);
+  free(url);
+}
+
+
+MU_TEST(test_split_url)
+{
+  char *driver, *uri, *options;
+  char url1[] = "mongodb://example.com/db?mode=append";
+  char url2[] = "json:///home/john/file.json";
+
+  mu_check(0 == dlite_split_url(url1, &driver, &uri, &options));
+  mu_assert_string_eq("mongodb", driver);
+  mu_assert_string_eq("example.com/db", uri);
+  mu_assert_string_eq("mode=append", options);
+
+  mu_check(0 == dlite_split_url(url2, &driver, &uri, &options));
+  mu_assert_string_eq("json", driver);
+  mu_assert_string_eq("/home/john/file.json", uri);
+  mu_assert_string_eq(NULL, options);
+}
+
 
 /***********************************************************************/
 
@@ -90,6 +120,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_get_uuid);
   MU_RUN_TEST(test_join_split_metadata);
   MU_RUN_TEST(test_option_parse);
+  MU_RUN_TEST(test_join_url);
+  MU_RUN_TEST(test_split_url);
 }
 
 int main()
