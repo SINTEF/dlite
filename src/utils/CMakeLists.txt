@@ -1,5 +1,5 @@
 # -*- Mode: cmake -*-
-#
+project(dlite-src-utils C)
 
 #-----------------------------------------------------
 # System tests
@@ -82,8 +82,12 @@ int main(void) {
 }" HAVE_VA_ARGS)
 
 
-configure_file(config.h.in config.h)
+# -- override default dynamic shared library extension in debug config on MSVS
+if(MSVS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(DSL_EXT "_d.dll")
+endif()
 
+configure_file(config.h.in config.h)
 
 #-----------------------------------------------------
 # Compile library

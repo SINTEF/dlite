@@ -116,6 +116,9 @@ int rpl_vasprintf(char **, const char *, va_list);
 
 #endif
 
+/* Allow overriding default dynamic shared library prefix and extension  */
+#cmakedefine DSL_PREFIX @DSL_PREFIX@
+#cmakedefine DSL_EXT    @DSL_EXT@
 
 /* Thread local storage */
 #cmakedefine HAVE_GCC_THREAD_LOCAL_STORAGE
