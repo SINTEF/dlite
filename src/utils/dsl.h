@@ -89,11 +89,6 @@
 #  define DSL_IMPORT __declspec(dllimport)
 # endif
 #else
-//#if defined(__cplusplus)
-//#define DSL_EXPORT extern "C" __attribute__((visibility("default")))
-//#else
-//#define DSL_EXPORT __attribute__((visibility("default")))
-//#endif
 # define DSL_EXPORT
 # define DSL_IMPORT
 #endif
