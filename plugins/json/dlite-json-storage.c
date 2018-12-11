@@ -578,16 +578,27 @@ char **dlite_json_get_uuids(const DLiteStorage *s)
   void *iter;
   size_t len;
   int ok = 1;
+  const char *namespace, *version, *name;
+  json_t *json;
+
+  if ((json = json_object_get(storage->root, "name")) &&
+      (name = json_string_value(json)) &&
+      (json = json_object_get(storage->root, "version")) &&
+      (version = json_string_value(json)) &&
+      (json = json_object_get(storage->root, "namespace")) &&
+      (namespace = json_string_value(json)) &&
+      (names = calloc(2, sizeof(char *))) &&
+      (names[0] = dlite_join_meta_uri(name, version, namespace)))
+    return names;
 
   n = json_object_size(storage->root);
   if (n > 0) {
-    if (!(names = malloc((n + 1)*sizeof(char *))))
+    if (!(names = malloc((n + 1)*sizeof(char *)))) {
       ok = 0;
-    else {
+    } else {
       iter = json_object_iter(storage->root);
       i = 0;
-      while(iter)
-      {
+      while(iter) {
         key = json_object_iter_key(iter);
         len = strlen(key) + 1;
         if (!(names[i] = malloc(len))) {
