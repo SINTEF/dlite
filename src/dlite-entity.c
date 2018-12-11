@@ -203,6 +203,10 @@ int dlite_instance_decref(DLiteInstance *inst)
   Loads instance identified by `id` from storage `s` and returns a
   new and fully initialised dlite instance.
 
+  In case the storage only contains one instance, it is possible to
+  set `id` to NULL.  However, it is an error to set `id` to NULL if the
+  storage contains more than one instance.
+
   On error, NULL is returned.
  */
 DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id)
