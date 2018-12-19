@@ -37,3 +37,8 @@ add_subdirectory(tests)
 install(
   TARGETS dlite-getuuid dlite-codegen
   DESTINATION bin)
+
+install(
+  DIRECTORY templates
+  DESTINATION .
+  )

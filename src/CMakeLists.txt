@@ -130,7 +130,7 @@ install(
 install(
   DIRECTORY .
   DESTINATION include/dlite
-  FILES_MATCHING PATTERN "dlite-*.h"
+  FILES_MATCHING PATTERN "*.h"
   PATTERN tests EXCLUDE
   PATTERN dlite-macros.h EXCLUDE
 )
