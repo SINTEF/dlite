@@ -40,5 +40,6 @@ install(
 
 install(
   DIRECTORY templates
-  DESTINATION .
+  DESTINATION share/dlite
+  PATTERN "*~" EXCLUDE
   )

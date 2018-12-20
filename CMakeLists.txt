@@ -214,18 +214,21 @@ endif()
 # uuid
 # ====
 set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
-set(cmake_args -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS})
+set(cmake_args
+  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
 ExternalProject_Add(
   uuidProj
   PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid
   SOURCE_DIR      ${uuid_SOURCE_DIR}
   CMAKE_ARGS      ${cmake_args}
   UPDATE_COMMAND  ""
-#  TEST_COMMAND    ctest
-  INSTALL_COMMAND ""
+  #TEST_COMMAND    ctest
+  #INSTALL_COMMAND ""
 )
 ExternalProject_Get_Property(uuidProj BINARY_DIR)
 set(uuid_BINARY_DIR ${BINARY_DIR})
+
 
 #################################################################
 
