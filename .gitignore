@@ -1,3 +1,7 @@
 external
 build
 build-win64
+
+# For Visual Studio
+.vs
+CMakeSettings.json
