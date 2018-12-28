@@ -161,9 +161,6 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 //#define DLITE_PROPS(inst)
 //  ((void **)((char *)(inst) + ((DLiteInstance *)(inst))->meta->propptroffset))
 
-///** Expands to pointer to property `n` --> (void *) */
-//#define DLITE_PROP(inst, n) (DLITE_PROPS(inst)[n])
-
 /** Expands to pointer to the value of property `n` --> (void *)
 
     Note: for arrays this pointer must be dereferred (since all arrays
