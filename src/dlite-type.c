@@ -3,7 +3,6 @@
 #include <stddef.h>
 
 #include "utils/err.h"
-#include "utils/compat.h"
 #include "integers.h"
 #include "floats.h"
 #include "triplestore.h"

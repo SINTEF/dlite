@@ -5,3 +5,6 @@ build-win64
 # For Visual Studio
 .vs
 CMakeSettings.json
+
+# A convenient directory to place temporary stuff
+old
