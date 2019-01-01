@@ -12,32 +12,38 @@
 
   Instances
   ---------
-  Instances are uniquely defined by their UUID.  In addition they may
-  have a unique name, which we here refers to as their URI.  For
-  instance, for an Entiry, the concatenated "namespace/name/version"
-  string is its URI.  If an instance has an URI, the UUID is generated
-  from it (as a version 5 SHA1-based UUID using the DNS namespace),
-  otherwise a random UUID is generated (as a version 4 UUID).
+  In DLite, instances are struct's starting with DLiteInstance_HEAD,
+  which is a macro defining a few key fields that all instances has:
+    - **uuid**: Instances are uniquely identified by their UUID.  If
+      an instance has an URI, its UUID is generated from it (as a
+      version 5 SHA1-based UUID using the DNS namespace).  Otherwise
+      the UUID is random (generated as a version 4 UUID).
+    - **uri**: An optional unique name identifying the instance (related
+      to its UUID as described above).  For metadata the URI is mandantory
+      and should be of the form "namespace/version/name".
+    - **refcount**: Reference count.  Do not access this directly.
+    - **meta**: Pointer to the metadata describing the instance.
+  All instances may be cast to an DLiteInstance, which is a minimal
+  struct representing all instances.
 
 
   Metadata
   --------
-  Since all metadata is an instance of its meta-metadata, it is also
-  an instance.  The DLiteMeta_HEAD, which is common to all metadata,
-  therefore starts with DLiteInstance_HEAD.
+  In DLite, instances are described by specialised instances called
+  metadata.  Metadata are struct's starting with the fields provided
+  by the DLiteMeta_HEAD macro.  Since metadata themselves are
+  instances, you can always cast a DLiteMeta (a struct representing
+  any metadata) to a DLiteInstance.  This also means that metadata is
+  described by their meta-metadata, and so forth.  To break this (in
+  principle infinite) chain of abstractions, dlite provides a root
+  abstraction, called BasicMetadataSchema, that all instances in DLite
+  are instances of.  The BasicMetadataSchema, has itself as metadata
+  and must therefore be able to describe itself.
 
-  It can be shown that DLite metadata can describe itself.  In
-  principle we can therefore follow the `meta` to higher and higher
-  levels of abstraction, until we reach the basic metadata schema,
-  which has its `meta` member set to NULL.  However, at least
-  initially, we will allow to set the `meta` member of any DLiteMeta
-  to NULL, indicating that we are not interested in the next level of
-  abstraction.  The concequence of setting the `meta` member to NULL
-  for a metadata object, is that we can not access it via the instance
-  API.
-
-  The metadata for normal data instances are called Entities and are
-  represented by DLiteEntity.
+  Most of the fields provided by the DLiteMeta_HEAD macro are not
+  intended to be accessed by the user, except maybe for `ndimensions`,
+  `nproperties`, `nrelations`, `dimensions`, `properties` and
+  `relations`, which may be handy.
 
 
   Memory model
