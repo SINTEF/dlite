@@ -122,8 +122,6 @@ typedef HMODULE dsl_handle;
   ((dsl_handle)LoadLibrary((LPCTSTR)(filename)))
 #define dsl_sym(handle, symbol) \
   ((void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol)))
-//#define dsl_error()                           \
-//  (const char *)strerror(GetLastError())
 #define dsl_close(handle) \
   ((int)!FreeLibrary((HMODULE)(handle)))
 
