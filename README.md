@@ -74,7 +74,7 @@ Building
 To run the tests, do
 
     ctest -C Debug
-    
+
 ## Build on Linux
 
 Build with:

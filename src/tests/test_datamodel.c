@@ -152,7 +152,7 @@ MU_TEST(test_uint16_property)
 
 MU_TEST(test_float_property)
 {
-  float v=3.1415, w;
+  float v=3.1415f, w;
   mu_check(dlite_datamodel_set_property(d, "myfloat", &v, dliteFloat,
                                         sizeof(float), 1, NULL) == 0);
   mu_check(dlite_datamodel_get_property(d, "myfloat", &w, dliteFloat,

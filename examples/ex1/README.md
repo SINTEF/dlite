@@ -10,7 +10,7 @@ Build an example to use dlite with C language.
 	1. Change the directory to the `ex1` folder
 	2. Set environment variable LIB_PATH to the installation directory of hdf5, jansson and dlite.
 	3. Run the commands below
-	
+
 ```sh
 LIB_PATH=/C/Users/tco/Documents/Programs/philib/local
 PATH=$PATH:$LIB_PATH/bin
