@@ -74,6 +74,7 @@ set(sources
   dlite-utils.c
   dlite-store.c
   dlite-type.c
+  dlite-arrays.c
   dlite-storage.c
   dlite-datamodel.c
   dlite-schemas.c

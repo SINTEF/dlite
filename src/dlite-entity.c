@@ -725,6 +725,58 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
 }
 
 
+/*
+  Returns a new DLiteArray object for property number `i` in instance `inst`.
+
+  The returned array object only describes, but does not own the
+  underlying array data, which remains owned by the instance.
+
+  Scalars are treated as a one-dimensional array or length one.
+
+  Returns NULL on error.
+ */
+DLiteArray *
+dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i)
+{
+  void *ptr;
+  int ndims=1, dim=1, *dims=&dim;
+  DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
+  DLiteArray *arr = NULL;
+  if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
+  if (p->ndims > 0) {
+    int i;
+    if (!(dims = malloc(p->ndims*sizeof(size_t)))) goto fail;
+    ndims = p->ndims;
+    for (i=0; i < p->ndims; i++) dims[i] = DLITE_DIM(inst, p->dims[i]);
+  }
+  arr = dlite_array_create(ptr, p->type, p->size, ndims, dims);
+ fail:
+  if (dims && dims != &dim) free(dims);
+  return arr;
+}
+
+
+/*
+  Returns a new DLiteArray object for property `name` in instance `inst`.
+
+  The returned array object only describes, but does not own the
+  underlying array data, which remains owned by the instance.
+
+  Scalars are treated as a one-dimensional array or length one.
+
+  Returns NULL on error.
+ */
+DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
+                                              const char *name)
+{
+  int i;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return NULL;
+  return dlite_instance_get_property_array_by_index(inst, i);
+}
+
+
+
+
 /********************************************************************
  *  Metadata
  ********************************************************************/

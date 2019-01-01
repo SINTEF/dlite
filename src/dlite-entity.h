@@ -109,6 +109,7 @@
 #include "dlite-utils.h"
 #include "dlite-type.h"
 #include "dlite-storage.h"
+#include "dlite-arrays.h"
 
 
 /** Function for additional initialisation of an instance.
@@ -498,6 +499,35 @@ int dlite_instance_set_dimension_size(DLiteInstance *inst, const char *name,
  */
 DLiteInstance *dlite_instance_copy(const DLiteInstance *inst,
                                    const char *newid);
+
+
+/**
+  Returns a new DLiteArray object for property number `i` in instance `inst`.
+
+  The returned array object only describes, but does not own the
+  underlying array data, which remains owned by the instance.
+
+  Scalars are treated as a one-dimensional array or length one.
+
+  Returns NULL on error.
+ */
+DLiteArray *
+dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i);
+
+
+/**
+  Returns a new DLiteArray object for property `name` in instance `inst`.
+
+  The returned array object only describes, but does not own the
+  underlying array data, which remains owned by the instance.
+
+  Scalars are treated as a one-dimensional array or length one.
+
+  Returns NULL on error.
+ */
+DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
+                                              const char *name);
+
 
 /** @} */
 /* ================================================================= */
