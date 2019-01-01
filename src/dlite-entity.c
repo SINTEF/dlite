@@ -1033,7 +1033,7 @@ static void metastore_create()
 
 /* Frees up a global metadata store.  Will be called at program exit,
    but can be called at any time. */
-void dlite_metastore_free()
+void dlite_metastore_free(void)
 {
   if (_metastore) dlite_store_free(_metastore);
   _metastore = NULL;

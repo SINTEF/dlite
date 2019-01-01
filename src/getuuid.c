@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "config.h"
 #include "uuid.h"
 #include "uuid4.h"
 

@@ -112,7 +112,11 @@ int rpl_vasprintf(char **, const char *, va_list);
 
 /* Get rid of warnings about possible loss of data in conversions
    between integers or floats of different size */
-#pragma warning( disable: 4267 4244 )
+# pragma warning(disable: 4267 4244)
+
+ /* do not warn about that fully confirming standard library functions are
+    depricated */
+# pragma warning(disable: 4996)
 
 #endif
 

@@ -41,7 +41,6 @@ static char *dtype_enum_names[] = {
   "dliteRelation",
 };
 
-
 /* Name of fix-sized types (does not include dliteBlob and dliteFixString) */
 static struct _TypeDescr {
   char *typename;

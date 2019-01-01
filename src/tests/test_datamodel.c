@@ -189,7 +189,6 @@ MU_TEST(test_string_property)
 MU_TEST(test_stringptr_property)
 {
   char *v="Another test string", *w, u[256];
-  printf("\n+++ %p (%p) '%s'\n", (void *)&v, (void *)v, v);
   mu_check(dlite_datamodel_set_property(d, "mystringptr", &v, dliteStringPtr,
                                         sizeof(char *), 1, NULL) == 0);
   mu_check(dlite_datamodel_get_property(d, "mystringptr", &w, dliteStringPtr,
@@ -279,7 +278,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_blob_property);
   MU_RUN_TEST(test_bool_vec_property);
   MU_RUN_TEST(test_int_arr_property);
-MU_RUN_TEST(test_uint16_property);
+  MU_RUN_TEST(test_uint16_property);
   MU_RUN_TEST(test_float_property);
   MU_RUN_TEST(test_double_property);
   MU_RUN_TEST(test_string_property);

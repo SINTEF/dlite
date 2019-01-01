@@ -599,7 +599,7 @@ int dlite_meta_is_metameta(const DLiteMeta *meta);
   Frees up a global metadata store.  Will be called at program exit,
   but can be called at any time.
 */
-void dlite_metastore_free();
+void dlite_metastore_free(void);
 
 /**
   Returns pointer to metadata for id `id` or NULL if `id` cannot be found.

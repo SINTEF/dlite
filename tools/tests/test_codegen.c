@@ -6,6 +6,9 @@
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) # s
 
+#ifdef _MSC_VER
+# pragma warning(disable: 4996)
+#endif
 
 int main()
 {

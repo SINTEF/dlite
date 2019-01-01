@@ -267,6 +267,27 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   if ((stat = H5Dread(dset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff)) < 0)
     DFAIL1(d, "cannot read dataset '%s'", name);
 
+#if _WIN32
+  /* On Windows it seems that free() cannot be used to release memory
+     allocated by H5Dread() for variable length strings...
+
+     As a work around we allocate new strings with malloc() and reclaim
+     the memory allocated by H5Dread().
+  */
+  if (savedtype == dliteStringPtr) {
+    char **tmp;
+    if (!(tmp = malloc(nmemb*sizeof(char *)))) FAIL0("allocation failure");
+    for (i=0; i<nmemb; i++)
+      if (!(tmp[i] = strdup(((char **)buff)[i])))
+        FAIL0("allocation failure");
+    if (H5Dvlen_reclaim(memtype, space, H5P_DEFAULT, buff) < 0)
+      DFAIL1(d, "cannot reclaim memory for dataset '%s'", name);
+    for (i=0; i<nmemb; i++)
+      ((char **)buff)[i] = tmp[i];
+    free(tmp);
+  }
+#endif
+
   /* Convert data type */
   if (type == dliteStringPtr && savedtype == dliteFixString) {
     for (i=0; i<nmemb; i++)
@@ -390,7 +411,6 @@ static void entrylist_free(EntryList *e)
     e = next;
   }
 }
-
 
 
 /********************************************************************

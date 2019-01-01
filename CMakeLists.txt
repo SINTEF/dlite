@@ -1,7 +1,8 @@
 # -*- Mode: cmake -*-
 #
 cmake_minimum_required(VERSION 3.4)
-cmake_policy(VERSION 3.11)
+#cmake_policy(VERSION 3.11)
+#cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 
@@ -40,8 +41,12 @@ include(CTest)
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 
 if(CTEST_MEMORYCHECK_COMMAND)
+  #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
+  #  ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt)
+  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --trace-chrildren=yes --leak-check=full --track-origins=yes --suppressions=${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt")
   add_custom_target(memcheck
-    COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --output-on-failure -T memcheck
+    COMMAND ${CMAKE_CTEST_COMMAND}
+              --force-new-ctest-process --output-on-failure -T memcheck
     COMMENT "Runs memory check with valgrind"
     )
 endif()
