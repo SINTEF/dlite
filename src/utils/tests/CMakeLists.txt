@@ -30,13 +30,13 @@ link_directories(
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} utils)
+  target_link_libraries(${test} dlite-utils)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src/tests
     ${dlite-src-utils_SOURCE_DIR}
     ${dlite-src-utils_BINARY_DIR}
     )
-  add_dependencies(${test} utils)
+  add_dependencies(${test} dlite-utils)
 
   add_test(
     NAME ${test}

@@ -29,8 +29,6 @@ typedef DIR fu_dir;
 
 #include "compat/dirent.h"
 typedef DIR fu_dir;
-//#include <Windows.h>
-//typedef struct fu_dir fu_dir;
 
 
 #else
@@ -55,21 +53,6 @@ const char *fu_nextfile(fu_dir *dir);
 */
 int fu_closedir(fu_dir *dir);
 
-
-///**
-//  Creates a new temporary directory.
-// */
-//char *fu_mkdtemp(char *template);
-//
-//
-///**
-//  Creates a temporary file. The last six characters of `template` must be
-//  "XXXXXX".  At return these are replaced forming a unique filename.
-//
-//  Returns a file pointer to the new file, or NULL on error.
-// */
-//fu_file fu_mkstemp(char *template);
-//
 
 
 

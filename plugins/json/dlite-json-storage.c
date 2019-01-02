@@ -15,7 +15,7 @@
 #include "utils/strtob.h"
 #include "utils/err.h"
 
-#include "dlite-utils.h"
+#include "dlite-misc.h"
 #include "dlite-schemas.h"
 
 /*

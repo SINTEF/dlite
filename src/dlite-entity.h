@@ -112,7 +112,7 @@
 */
 
 #include "boolean.h"
-#include "dlite-utils.h"
+#include "dlite-misc.h"
 #include "dlite-type.h"
 #include "dlite-storage.h"
 #include "dlite-arrays.h"
