@@ -36,12 +36,12 @@ MU_TEST(test_add)
   };
   size_t n = sizeof(t) / sizeof(t[0]);
 
-  mu_assert_int_eq(0, triplestore_length(ts));
+  mu_check(0 == triplestore_length(ts));
   mu_assert_int_eq(0, triplestore_add_triplets(ts, t, n));
-  mu_assert_int_eq(5, triplestore_length(ts));
+  mu_check(5 == triplestore_length(ts));
 
   mu_assert_int_eq(0, triplestore_add(ts, "read", "is-a", "action"));
-  mu_assert_int_eq(6, triplestore_length(ts));
+  mu_check(6 == triplestore_length(ts));
 
 }
 
@@ -91,13 +91,13 @@ MU_TEST(test_find)
 
 MU_TEST(test_remove)
 {
-  mu_assert_int_eq(6, triplestore_length(ts));
+  mu_check(6 == triplestore_length(ts));
 
   mu_check(!triplestore_remove(ts, NULL, "is-something", NULL));
-  mu_assert_int_eq(6, triplestore_length(ts));
+  mu_check(6 == triplestore_length(ts));
 
   mu_assert_int_eq(2, triplestore_remove(ts, "book", NULL, NULL));
-  mu_assert_int_eq(4, triplestore_length(ts));
+  mu_check(4 == triplestore_length(ts));
 }
 
 

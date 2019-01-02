@@ -13,5 +13,11 @@
 #cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
 
+/* Get rid of some annoying MSVC warnings */
+#ifdef _MSC_VER
+ /* do not warn about fully valid use of alingof() */
+ #pragma warning(disable:4116)
+#endif
+
 
 #endif /* _DLITE_CONFIG_H */

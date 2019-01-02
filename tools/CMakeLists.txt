@@ -1,8 +1,8 @@
 # -*- Mode: cmake -*-
 project(dlite-tools C)
 
-# Workaround for CMake not setting the correct binary path for MSVC
-if(MSVC)
+# Workaround for old CMake not setting the correct binary path for MSVC
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.20")
   set(dlite-tools_BINARY_DIR ${dlite-tools_BINARY_DIR}/$<CONFIG>)
 endif()
 

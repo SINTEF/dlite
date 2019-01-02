@@ -73,7 +73,11 @@
 #  define DSL_PREFIX ""
 # endif
 # ifndef DSL_EXT
-#  define DSL_EXT ".dll"
+#  ifdef _DEBUG
+#   define DSL_EXT "_d.dll"
+#  else
+#   define DSL_EXT ".dll"
+#  endif
 # endif
 #else
 # error "Unsupported platform"
@@ -115,13 +119,18 @@ typedef void * dsl_handle;
 typedef HMODULE dsl_handle;
 
 #define dsl_open(filename) \
-  (dsl_handle)LoadLibrary((LPCTSTR)(filename))
+  ((dsl_handle)LoadLibrary((LPCTSTR)(filename)))
 #define dsl_sym(handle, symbol) \
-  (void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol))
-#define dsl_error() \
-  (const char *)strerror(GetLastError())
+  ((void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol)))
 #define dsl_close(handle) \
-  (int)FreeLibrary((HMODULE)(handle))
+  ((int)!FreeLibrary((HMODULE)(handle)))
+
+inline static const char *dsl_error(void)
+{
+  DWORD lasterr = GetLastError();
+  SetLastError(0);
+  return (lasterr) ? strerror(lasterr) : NULL;
+}
 
 #endif  /* DSL_PLATFORM */
 

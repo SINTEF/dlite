@@ -410,6 +410,7 @@ int dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
                  "'nproperties' or 'nrelations'; got '%s'", name);
   }
   assert(0);  /* never reached */
+  return -1;
 }
 
 

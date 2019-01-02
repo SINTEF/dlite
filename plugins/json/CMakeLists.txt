@@ -16,7 +16,7 @@ target_link_libraries(plugins-json
   dlite
   utils
   )
-target_include_directories(plugins-json PRIVATE
+target_include_directories(plugins-json PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
   ${dlite_BINARY_DIR}/src
