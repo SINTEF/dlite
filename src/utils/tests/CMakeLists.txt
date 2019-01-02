@@ -11,12 +11,12 @@ set(tests
   tgen_example
   )
 
-#if(MSVC)
-#  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-#else()
-#  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
-#endif()
-set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
+# Workaround for old CMake adding CONFIG to binary path for MSVC
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.20")
+  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+else()
+  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
 add_definitions(
   -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
