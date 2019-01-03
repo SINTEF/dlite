@@ -10,7 +10,7 @@ if(WITH_JSON)
     OUTPUT chemistry.h
     COMMAND ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
-      --uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+      --driver-uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
       --output chemistry.h
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt

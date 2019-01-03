@@ -4,21 +4,24 @@
  * Metadata: {_uri}
  *
  */
+#include <stddef.h>
 
 #include "dlite.h"
-#include "{basename}.h"
+#include "{header}"
+#include "{meta.header}"
+
 
 {@if:{ismeta}==1}
-static DLiteDimension {name%l}_dimensions[] = {{
+static DLiteDimension {name}_dimensions[] = {{
 {list_dimensions:  {{"{dim.name}", "{dim.descr}"}}{,}\n}\
 }};
 {list_properties:\
 {@if:{prop.ndims}!=0}\
-static int {name%l}_prop_{prop.name}_dims[] = {{\
+static int {basename}_prop_{prop.name}_dims[] = {{\
 {prop.dims:{dim.n}{, }\.}\
 }};
 {@endif}\.}\
-static DLiteProperty {name%l}_properties[] = {{
+static DLiteProperty {name}_properties[] = {{
 {list_properties:  {{
     "{prop.name}", /* name */
     {prop.dtype}, /* type */
@@ -27,7 +30,7 @@ static DLiteProperty {name%l}_properties[] = {{
 {@if:{prop.ndims}==0}\
     NULL, /* dims */
 {@else}\
-    {name%l}_prop_{prop.name}_dims, /* dims */
+    {basename}_prop_{prop.name}_dims, /* dims */
 {@endif}\
 {@if:{prop.unit}\.}\
     "{prop.unit}", /* unit */
@@ -45,34 +48,34 @@ static DLiteProperty {name%l}_properties[] = {{
 {@endif}
 
 
-{name} {name%l}[] = {{
+{meta.name} {basename}_schema = {{
   /* -- header */
-  "{_uuid}", /* uuid */
-  "{_uri}", /* uri */
-  1, /* refcount, never free */
-  NULL, /* meta */
-{@if:{ismetameta}==1}
-  {_ndimensions}, /* ndimensions */
-  {_nproperties}, /* nproperties */
-  {_nrelations}, /* nrelations */
+  "{_uuid}", {@60}/* uuid */
+  "{_uri}", {@60}/* uri */
+  1, {@60}/* refcount */
+  NULL, {@60}/* meta */
+{@if:{ismeta}==1}
+  {_ndimensions}, {@60}/* ndimensions */
+  {_nproperties}, {@60}/* nproperties */
+  {_nrelations},  {@60}/* nrelations */
 
-  {name%l}_dimensions,  /* dimensions */
-  {name%l}_properties,  /* properties */
-  NULL,                 /* relations */
+  {name}_dimensions, {@60}/* dimensions */
+  {name}_properties, {@60}/* properties */
+  NULL,              {@60}/* relations */
 
-  0,       /* headersize */
-  NULL,    /* init */
-  NULL,    /* deinit */
+  {_headersize}, {@60}/* headersize */
+  {_init}, {@60}/* init */
+  {_deinit}, {@60}/* deinit */
 
-  0,    /* dimoffset */
-  NULL, /* propoffsets */
-  0,    /* reloffset */
-  0,    /* pooffset */
+  0,    {@60}/* dimoffset */
+  NULL, {@60}/* propoffsets */
+  0,    {@60}/* reloffset */
+  0,    {@60}/* pooffset */
 {@endif}\
   /* -- length of each dimension */
-{list_dimensions:  {dim.value},  /* {dim.name} */\n}\
+{list_meta_dimensions:  {dim.value}, {@60}/* {dim.name} */\n}\
   /* -- value of each property */
-{list_meta_properties:  {prop.cvalue},  /* {prop.name} */\n}\
+{list_meta_properties:  {prop.cvalue}, {@60}/* {prop.name} */\n}\
   /* -- value of each relation */
   {list_relations:  {{"{rel.s}", "{rel.p}", "{rel.o}", "{rel.id}"}}{,}\n}\
   /* -- memory offsets for each property in instances */
@@ -80,3 +83,13 @@ static DLiteProperty {name%l}_properties[] = {{
 {list_properties:    offsetof({name}, {prop.name}){,}\n}\
   }}
 }};
+
+
+const DLiteMeta *get_{basename}_schema()
+{{
+  DLiteMeta *schema = &{basename}_schema;
+  if (!schema->meta) {{
+    schema->meta = dlite_metastore_get("{meta.uri}");
+  }}
+  return (const DLiteMeta *)schema;
+}}
