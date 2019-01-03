@@ -128,8 +128,10 @@ install(
 install(
   DIRECTORY .
   DESTINATION include/dlite/utils
-  FILES_MATCHING PATTERN "*.h"
+  FILES_MATCHING
+  PATTERN "*.h"
   PATTERN tests EXCLUDE
+  PATTERN old EXCLUDE
 )
 
 # Tests

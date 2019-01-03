@@ -56,4 +56,9 @@ if (DOXYGEN_FOUND)
     DEPENDS html/index.html
     )
 
+  install(
+    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
+    DESTINATION share/dlite
+    )
+
 endif (DOXYGEN_FOUND)
