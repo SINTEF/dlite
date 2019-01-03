@@ -37,6 +37,7 @@ static int copy(TGenBuf *s, const char *template, int len,
 
 
 /* Generator function for listing dimensions. */
+/*
 static int list_dimensions(TGenBuf *s, const char *template, int len,
                            const TGenSubs *subs, void *context)
 {
@@ -46,7 +47,7 @@ static int list_dimensions(TGenBuf *s, const char *template, int len,
   size_t i;
   if (!dlite_meta_is_metameta(meta->meta))
     return err(TGenSyntaxError,
-               "\"list_dimensions\" is only works for metadata");
+               "\"list_dimensions\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&dsubs, subs))) goto fail;
   for (i=0; i < meta->ndimensions; i++) {
@@ -63,6 +64,41 @@ static int list_dimensions(TGenBuf *s, const char *template, int len,
   tgen_subs_deinit(&dsubs);
   return retval;
 }
+*/
+
+
+/* Help function for list_dimensions.  If `metameta` is non-zero,
+   `subs` is assigned the dimensions of `meta->meta`, otherwise it is
+   assigned the dimensions of `meta`. Returns non-zero on error. */
+static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
+                                  const TGenSubs *subs, void *context,
+                                  int metameta)
+{
+  int retval = 0;
+  DLiteMeta *meta = (DLiteMeta *)((Context *)context)->inst;
+  const DLiteMeta *m = (metameta) ? meta->meta : meta;
+  TGenSubs dsubs;
+  size_t i;
+  if (!dlite_meta_is_metameta(meta->meta))
+    return err(TGenSyntaxError,
+               "\"list_dimensions\" only works for metadata");
+
+  if ((retval = tgen_subs_copy(&dsubs, subs))) goto fail;
+  for (i=0; i < m->ndimensions; i++) {
+    DLiteDimension *d = m->dimensions + i;
+    tgen_subs_set(&dsubs, "dim.name", d->name, NULL);
+    tgen_subs_set(&dsubs, "dim.descr", d->description, NULL);
+    tgen_subs_set_fmt(&dsubs, "dim.value", NULL, "%zu", DLITE_DIM(meta, i));
+    tgen_subs_set_fmt(&dsubs, "dim.i",     NULL, "%zu", i);
+    tgen_subs_set(&dsubs, ",",  (i < m->ndimensions-1) ? ","  : "", NULL);
+    tgen_subs_set(&dsubs, ", ", (i < m->ndimensions-1) ? ", " : "", NULL);
+    if ((retval = tgen_append(s, template, len, &dsubs, context))) goto fail;
+  }
+ fail:
+  tgen_subs_deinit(&dsubs);
+  return retval;
+}
+
 
 /* Generator function for listing relations. */
 static int list_relations(TGenBuf *s, const char *template, int len,
@@ -74,7 +110,7 @@ static int list_relations(TGenBuf *s, const char *template, int len,
   size_t i;
   if (!dlite_meta_is_metameta(meta->meta))
     return err(TGenSyntaxError,
-               "\"list_relations\" is only works for metadata");
+               "\"list_relations\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&rsubs, subs))) goto fail;
   for (i=0; i < meta->nrelations; i++) {
@@ -143,7 +179,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
   size_t i;
   if (!dlite_meta_is_metameta(meta->meta))
     return err(TGenSyntaxError,
-               "\"list_properties\" is only works for metadata");
+               "\"list_properties\" only works for metadata");
 
   if (metameta)
     dlite_split_meta_uri(meta->uri, &meta_name, NULL, NULL);
@@ -208,6 +244,20 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
 }
 
 /* Generator function for listing properties. */
+static int list_dimensions(TGenBuf *s, const char *template, int len,
+                           const TGenSubs *subs, void *context)
+{
+  return list_dimensions_helper(s, template, len, subs, context, 0);
+}
+
+/* Generator function for listing properties. */
+static int list_meta_dimensions(TGenBuf *s, const char *template, int len,
+                                const TGenSubs *subs, void *context)
+{
+  return list_dimensions_helper(s, template, len, subs, context, 1);
+}
+
+/* Generator function for listing properties. */
 static int list_properties(TGenBuf *s, const char *template, int len,
                            const TGenSubs *subs, void *context)
 {
@@ -215,6 +265,7 @@ static int list_properties(TGenBuf *s, const char *template, int len,
 }
 
 /* Generator function for listing metadata properties. */
+/*
 static int list_meta_dimensions(TGenBuf *s, const char *template, int len,
                                 const TGenSubs *subs, void *context)
 {
@@ -223,6 +274,7 @@ static int list_meta_dimensions(TGenBuf *s, const char *template, int len,
   c.iprop = ((Context *)context)->iprop;
   return list_dimensions(s, template, len, subs, &c);
 }
+*/
 
 /* Generator function for listing metadata properties. */
 static int list_meta_properties(TGenBuf *s, const char *template, int len,
@@ -242,7 +294,6 @@ static int list_meta_relations(TGenBuf *s, const char *template, int len,
 }
 
 
-
 /*
   Assign/update substitutions based on the instance `inst`.
 
@@ -253,8 +304,9 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   char *name, *version, *namespace, **descr;
   const DLiteMeta *meta = inst->meta;
   int isdata=0, ismeta=0, ismetameta=0;
-  size_t i;
-  char basename[256];
+  //size_t i;
+  //char basename[256], *header=NULL;
+  char *basename, *header=NULL;
 
   /* Determine what this data is */
   if (dlite_meta_is_metameta(meta)) {
@@ -275,12 +327,15 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   /* About metadata */
   dlite_split_meta_uri(meta->uri, &name, &version, &namespace);
   descr = dlite_instance_get_property((DLiteInstance *)meta, "description");
+  asprintf(&header, "%s.h", tgen_camel_to_underscore(name, -1));
   tgen_subs_set(subs, "meta.uuid",       meta->uuid, NULL);
   tgen_subs_set(subs, "meta.uri",        meta->uri,  NULL);
   tgen_subs_set(subs, "meta.name",       name,       NULL);
   tgen_subs_set(subs, "meta.version",    version,    NULL);
   tgen_subs_set(subs, "meta.namespace",  namespace,  NULL);
   tgen_subs_set(subs, "meta.descr",      *descr,     NULL);
+  tgen_subs_set(subs, "meta.header",     header,     NULL);
+  free(header);
 
   /* DLiteInstance_HEAD */
   tgen_subs_set(subs, "_uuid", inst->uuid, NULL);
@@ -293,10 +348,13 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
     DLiteMeta *meta = (DLiteMeta *)inst;
     dlite_split_meta_uri(inst->uri, &name, &version, &namespace);
     descr = dlite_instance_get_property((DLiteInstance *)meta, "description");
+    asprintf(&header, "%s.h", tgen_camel_to_underscore(name, -1));
     tgen_subs_set(subs, "name",       name,       NULL);
     tgen_subs_set(subs, "version",    version,    NULL);
     tgen_subs_set(subs, "namespace",  namespace,  NULL);
     tgen_subs_set(subs, "descr",      *descr,     NULL);
+    tgen_subs_set(subs, "header",     header,     NULL);
+    free(header);
 
   /* DLiteMeta_HEAD */
     tgen_subs_set_fmt(subs, "_ndimensions", NULL, "%zu", meta->ndimensions);
@@ -323,12 +381,16 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   tgen_subs_set(subs, ".copy", NULL, copy);
 
   /* General */
+  basename = tgen_camel_to_underscore(name, -1);
+  tgen_subs_set(subs, "basename", basename, NULL);
+  free(basename);
+  /*
   basename[0] = '\0';
   snprintf(basename, sizeof(basename), "%s", name);
   for (i=0; i < strlen(basename); i++)
     basename[i] = tolower(basename[i]);
   tgen_subs_set(subs, "basename", basename, NULL);
-
+  */
   return 0;
 }
 
@@ -341,7 +403,7 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
 int option_subs(TGenSubs *subs, const char *options)
 {
   const char *v, *k = options;
-  while (*k && *k != '#') {
+  while (k && *k && *k != '#') {
     size_t vlen, klen = strcspn(k, "=;&#");
     if (k[klen] != '=')
       return errx(1, "no value for key '%.*s' in option string '%s'",
