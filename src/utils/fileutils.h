@@ -17,8 +17,16 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-typedef DIR fu_dir;
-//typedef int fu_file;
+#ifndef PATHSEP
+#define PATHSEP ':'
+#endif
+
+
+/** Directory state. */
+typedef DIR FUDir;
+
+/** File matching iterator. */
+typedef struct _FUPaths FUPaths;
 
 
 #elif defined WIN32 || defined _WIN32 || defined __WIN32__
@@ -28,10 +36,11 @@ typedef DIR fu_dir;
 # endif
 
 #include "compat/dirent.h"
-typedef DIR fu_dir;
-//#include <Windows.h>
-//typedef struct fu_dir fu_dir;
+typedef DIR FUDir;
 
+#ifndef PATHSEP
+#define PATHSEP ';'
+#endif
 
 #else
 # warning "Neither POSIX or Windows"
@@ -41,36 +50,41 @@ typedef DIR fu_dir;
 /**
   Opens a directory and returns a handle to it.  Returns NULL on error.
 */
-fu_dir *fu_opendir(const char *path);
+FUDir *fu_opendir(const char *path);
 
 /**
   Iterates over all files in a directory.
 
   Returns the name of next file or NULL if there are no more files.
 */
-const char *fu_nextfile(fu_dir *dir);
+const char *fu_nextfile(FUDir *dir);
 
 /**
   Closes directory handle.
 */
-int fu_closedir(fu_dir *dir);
+int fu_closedir(FUDir *dir);
 
 
-///**
-//  Creates a new temporary directory.
-// */
-//char *fu_mkdtemp(char *template);
-//
-//
-///**
-//  Creates a temporary file. The last six characters of `template` must be
-//  "XXXXXX".  At return these are replaced forming a unique filename.
-//
-//  Returns a file pointer to the new file, or NULL on error.
-// */
-//fu_file fu_mkstemp(char *template);
-//
 
+/**
+  Returns a new iterator for finding files matching `pattern`.
+  `paths` is a PATHSEP-separated list of directory paths to search.
+  If `envvar` is not NULL, it should be the name of an environment
+  variable containing additional paths to search.
+ */
+FUPaths *fu_startmatch(const char *pattern, const char *paths,
+                       const char *envvar);
+
+/**
+  Returns name of the next file matching the pattern provided to
+  fu_startmatch() or NULL if there are no more matches.
+ */
+const char *fu_nextmatch(FUPaths *iter);
+
+/**
+  Ends pattern matching iteration.
+ */
+int fu_endmatch(FUPaths *iter);
 
 
 #endif  /*  _FILEUTILS_H */
