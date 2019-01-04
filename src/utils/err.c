@@ -4,13 +4,13 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
+#include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include <errno.h>
 
 #include "compat.h"
+#include "err.h"
 
 /* Thread local storate */
 #ifdef USE_THREAD_LOCAL_STORAGE
@@ -39,35 +39,55 @@ static const char *err_prefix = "";
  *   - err_fail_mode < 0:  check ERR_FAIL_MODE environment variable (default) */
 static int err_fail_mode = -1;
 
+/* Indicates whether error messages should include debugging info.
+ *   - err_debug_mode >= 2: include file and line number and function
+ *   - err_debug_mode == 1: include file and line number
+ *   - err_debug_mode == 0: no debugging info
+ *   - err_debug_mode < 0:  check ERR_DEBUG_MODE environment variable */
+static int err_debug_mode = -1;
+
 /* Tread-local variables */
-static _tls int errcode = 0;       /* Error value of the latest error. */
-static _tls char errmsg[256]= "";  /* Error message of the latest error. */
+static _tls ErrRecord base_errrecord = {0, 0, "", NULL, NULL, NULL};
+static _tls ErrRecord *errrecord_ptr = &base_errrecord;
 
 
 /* Reports the error and returns `eval`.  Args:
  *  errname : name of error, e.g. "Fatal" or "Error"
  *  eval    : error value that is returned or passed exit()
  *  errnum  : error number for system errors
- *  pos     : position in source file where the error occured
+ *  file    : file and line number in source file where the error occured
+ *  func    : name of function in which the error occured
  *  msg     : error message
  *  ap      : printf()-like argument list for error message
  */
-static int format_error(const char *errname, int eval, int errnum,
-                        const char *pos, const char *msg, va_list ap)
+int _err_vformat(const char *errname, int eval, int errnum, const char *file,
+		 const char *func, const char *msg, va_list ap)
 {
   int n=0;
+  char *errmsg = errrecord_ptr->msg;
+  size_t errsize = sizeof(errrecord_ptr->msg);
+  int debug_mode = err_debug_mode;
 
-  (void)(pos);
+  errrecord_ptr->code = eval;
+  if (debug_mode < 0) {
+    char *mode = getenv("ERR_DEBUG_MODE");
+    debug_mode = (mode) ? atoi(mode) : 0;
+  }
 
-  errcode = eval;
   if (err_prefix && *err_prefix)
-    n += snprintf(errmsg + n, sizeof(errmsg) - n, "%s: ", err_prefix);
+    n += snprintf(errmsg + n, errsize - n, "%s: ", err_prefix);
+
+  if (debug_mode >= 1)
+    n += snprintf(errmsg + n, errsize - n, "%s: ", file);
+  if (debug_mode >= 2)
+    n += snprintf(errmsg + n, errsize - n, "in %s(): ", func);
+
   if (errname && *errname)
-    n += snprintf(errmsg + n, sizeof(errmsg) - n, "%s: ", errname);
+    n += snprintf(errmsg + n, errsize - n, "%s: ", errname);
   if (msg && *msg)
-    n += vsnprintf(errmsg + n, sizeof(errmsg) - n, msg, ap);
+    n += vsnprintf(errmsg + n, errsize - n, msg, ap);
   if (errnum)
-    n += snprintf(errmsg + n, sizeof(errmsg) - n, ": %s", strerror(errnum));
+    n += snprintf(errmsg + n, errsize - n, ": %s", strerror(errnum));
 
   /* write to err_stream */
   if (err_stream == &err_dummy_stream) {
@@ -83,7 +103,8 @@ static int format_error(const char *errname, int eval, int errnum,
     else
       err_stream = fopen(errfile, "a");
   }
-  if (err_stream)
+
+  if (err_stream && !errrecord_ptr->prev)
     fprintf(err_stream, "%s\n", errmsg);
 
   /* check err_fail_mode */
@@ -106,76 +127,90 @@ static int format_error(const char *errname, int eval, int errnum,
   return eval;
 }
 
+int _err_format(const char *errname, int eval, int errnum, const char *file,
+                const char *func, const char *msg, ...)
+{
+  va_list ap;
+  va_start(ap, msg);
+  _err_vformat(errname, eval, errnum, file, func, msg, ap);
+  va_end(ap);
+  return eval;
+}
 
-#define BODY(errname, errnum, pos)                       \
-  do {                                                   \
-    va_list ap;                                          \
-    va_start(ap, msg);                                   \
-    format_error(errname, eval, errnum, pos, msg, ap);   \
-    va_end(ap);                                          \
+#ifndef HAVE___VA_ARGS__
+
+#define BODY(errname, errnum)					\
+  do {								\
+    va_list ap;							\
+    va_start(ap, msg);						\
+    _err_vformat(errname, eval, errnum, NULL, NULL,, msg, ap);	\
+    va_end(ap);							\
   } while (0)
 
 
 void fatal(int eval, const char *msg,...)
 {
-  BODY("Fatal", errno, NULL);
+  BODY("Fatal", errno);
   exit(eval);
 }
 
 void fatalx(int eval, const char *msg, ...)
 {
-  BODY("Fatal", 0, NULL);
+  BODY("Fatal", 0);
   exit(eval);
 }
 
 int err(int eval, const char *msg, ...)
 {
-  BODY("Error", errno, NULL);
+  BODY("Error", errno);
   return eval;
 }
 
 int errx(int eval, const char *msg, ...)
 {
-  BODY("Error", 0, NULL);
+  BODY("Error", 0);
   return eval;
 }
 
 
-void vfatal(int eval, const char *pos, const char *msg, va_list ap)
+void vfatal(int eval, const char *msg, va_list ap)
 {
-  exit(format_error("Fatal", eval, errno, pos, msg, ap));
+  exit(_err_format("Fatal", eval, errno, NULL, NULL, msg, ap));
 }
 
-void vfatalx(int eval, const char *pos, const char *msg, va_list ap)
+void vfatalx(int eval, const char *msg, va_list ap)
 {
-  exit(format_error("Fatal", eval, 0, pos, msg, ap));
+  exit(format_error("Fatal", eval, 0, NULL, NULL, msg, ap));
 }
 
-int verr(int eval, const char *pos, const char *msg, va_list ap)
+int verr(int eval, const char *msg, va_list ap)
 {
-  return format_error("Error", eval, errno, pos, msg, ap);
+  return format_error("Error", eval, errno, NULL, NULL, msg, ap);
 }
 
-int verrx(int eval, const char *pos, const char *msg, va_list ap)
+int verrx(int eval, const char *msg, va_list ap)
 {
-  return format_error("Error", eval, 0, pos, msg, ap);
+  return format_error("Error", eval, 0, NULL, NULL, msg, ap);
 }
+
+#endif /* HAVE___VA_ARGS__ */
+
 
 
 /* Associated functions */
 int err_getcode()
 {
-  return errcode;
+  return errrecord_ptr->code;
 }
 
 char *err_getmsg()
 {
-  return (errcode) ? errmsg : "";
+  return (errrecord_ptr->code) ? errrecord_ptr->msg : "";
 }
 
 void err_clear()
 {
-  errcode = 0;
+  errrecord_ptr->code = 0;
 }
 
 const char *err_set_prefix(const char *prefix)
@@ -197,4 +232,52 @@ int err_set_fail_mode(int mode)
   int current = err_fail_mode;
   err_fail_mode = mode;
   return current;
+}
+
+int err_set_debug_mode(int mode)
+{
+  int current = err_debug_mode;
+  err_debug_mode = mode;
+  return current;
+}
+
+
+/* ---------------------
+ * ErrTry/ErrCatch block
+ * ---------------------*/
+
+void _err_link_record(ErrRecord *errrecord)
+{
+  memset(errrecord, 0, sizeof(ErrRecord));
+  errrecord->prev = errrecord_ptr;
+  errrecord_ptr = errrecord;
+}
+
+void _err_unlink_record(ErrRecord *errrecord)
+{
+  assert(errrecord == errrecord_ptr);
+  assert(errrecord_ptr->prev);
+  errrecord_ptr = errrecord->prev;
+  if (!errrecord->handled) {
+
+    if (errrecord->code) {
+      int debug_mode = err_debug_mode;
+      if (debug_mode < 0) {
+	char *mode = getenv("ERR_DEBUG_MODE");
+	debug_mode = (mode) ? atoi(mode) : 0;
+      }
+      if (debug_mode > 0)
+	fprintf(err_stream, "Warning: overriding unhandled error: %s",
+		errrecord->msg);
+    }
+
+    /* reemit the error */
+    errrecord_ptr->code = errrecord->code;
+    strcpy(errrecord_ptr->msg, errrecord->msg);
+    errrecord_ptr->func = errrecord->func;
+    errrecord_ptr->file = errrecord->file;
+
+    if (err_stream && !errrecord_ptr->prev)
+      fprintf(err_stream, "%s\n", errrecord_ptr->msg);
+  }
 }
