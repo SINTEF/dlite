@@ -1,0 +1,22 @@
+{
+   H5open-still_reachable
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:H5TS_cancel_count_inc
+   fun:H5open
+   fun:dh5_open
+   fun:dlite_storage_open
+}
+
+{
+   H5Fcreate-still_reachable
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:H5E_get_stack
+   fun:H5E_clear_stack
+   fun:H5Fcreate
+   fun:dh5_open
+   fun:dlite_storage_open
+}

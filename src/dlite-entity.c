@@ -152,18 +152,19 @@ static void dlite_instance_free(DLiteInstance *inst)
   if (meta->properties) {
     for (i=0; i<nprops; i++) {
       DLiteProperty *p = (DLiteProperty *)meta->properties + i;
-      char **ptr = (char **)DLITE_PROP(inst, i);
-
-      if (dlite_type_is_allocated(p->type)) {
-        int j;
-        size_t n, nmemb=1, *dims=(size_t *)((char *)inst + meta->dimoffset);
-        if (p->ndims > 0 && p->dims) ptr = *((char ***)ptr);
-        for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
-        for (n=0; n<nmemb; n++)
-          dlite_type_clear((char *)ptr + n*p->size, p->type, p->size);
-        if (p->ndims > 0 && p->dims) free(ptr);
-      } else if (p->ndims > 0 && p->dims) {
-        free(*ptr);
+      void *ptr = DLITE_PROP(inst, i);
+      if (p->ndims > 0 && p->dims) {
+        size_t *dims=(size_t *)((char *)inst + meta->dimoffset);
+        if (dlite_type_is_allocated(p->type)) {
+          int j;
+          size_t n, nmemb=1;
+          for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
+          for (n=0; n<nmemb; n++)
+            dlite_type_clear(*(char **)ptr + n*p->size, p->type, p->size);
+        }
+        free(*(void **)ptr);
+      } else {
+        dlite_type_clear(ptr, p->type, p->size);
       }
     }
   }
@@ -1084,7 +1085,7 @@ static void metastore_create()
 
 /* Frees up a global metadata store.  Will be called at program exit,
    but can be called at any time. */
-void dlite_metastore_free()
+void dlite_metastore_free(void)
 {
   if (_metastore) dlite_store_free(_metastore);
   _metastore = NULL;

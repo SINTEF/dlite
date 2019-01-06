@@ -3,7 +3,6 @@
 #include <stddef.h>
 
 #include "utils/err.h"
-#include "utils/compat.h"
 #include "integers.h"
 #include "floats.h"
 #include "triplestore.h"
@@ -41,7 +40,6 @@ static char *dtype_enum_names[] = {
   "dliteProperty",
   "dliteRelation",
 };
-
 
 /* Name of fix-sized types (does not include dliteBlob and dliteFixString) */
 static struct _TypeDescr {

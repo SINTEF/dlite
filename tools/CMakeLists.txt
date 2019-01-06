@@ -1,8 +1,8 @@
 # -*- Mode: cmake -*-
 project(dlite-tools C)
 
-# Workaround for CMake not setting the correct binary path for MSVC
-if(MSVC)
+# Workaround for old CMake not setting the correct binary path for MSVC
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12")
   set(dlite-tools_BINARY_DIR ${dlite-tools_BINARY_DIR}/$<CONFIG>)
 endif()
 
@@ -37,3 +37,9 @@ add_subdirectory(tests)
 install(
   TARGETS dlite-getuuid dlite-codegen
   DESTINATION bin)
+
+install(
+  DIRECTORY templates
+  DESTINATION share/dlite
+  PATTERN "*~" EXCLUDE
+  )
