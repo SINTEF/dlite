@@ -68,18 +68,41 @@ check_c_source_compiles("
 __thread int tls;
 int main(void) { return 0; }" HAVE_GCC_THREAD_LOCAL_STORAGE)
 
-
 check_c_source_compiles("
 __declspec(thread) int tls;
 int main(void) { return 0; }" HAVE_WIN32_THREAD_LOCAL_STORAGE)
 
 check_c_source_compiles("
-#include <stdio.h>
-#define f(msg, ...) printf(msg, __VA_ARGS__)
-int main(void) {
-  f(\"x=%g, y=%d\", 3.14, 42);
-  return 0;
-}" HAVE_VA_ARGS)
+#define F(x, ...) f(x, __VA_ARGS__)
+void f(int a, ...) { }
+int main(void) { F(1, 2); return 0; }
+" HAVE___VA_ARGS__)
+
+check_c_source_compiles("
+#define F(x, ...) f(x, __VA_ARGS__)
+void f(int a, ...) { }
+int main(void) { F(1); return 0; }
+" HAVE_EXT__VA_ARGS__)
+
+check_c_source_compiles("
+#define F(x, ...) f(x, ##__VA_ARGS__)
+void f(int a, ...) { }
+int main(void) { F(1); return 0; }
+" HAVE_EXT2__VA_ARGS__)
+
+check_c_source_compiles("
+#define F(x, ...) f(x __VA_OPT__(,) __VA_ARGS__)
+void f(int a, ...) { }
+int main(void) { F(1); return 0; }
+" HAVE___VA_OPT__)
+
+check_c_source_compiles("
+int main(void) { char *f = __func__; return 0; }
+" HAVE___FUNC__)
+
+check_c_source_compiles("
+int main(void) { char *f = __FUNCTION__; return 0; }
+" HAVE___FUNCTION__)
 
 
 # -- override default dynamic shared library extension in debug config on MSVS

@@ -4,7 +4,12 @@
 #define _UTILS_CONFIG_H
 
 /* Language/preprocessor features */
-#cmakedefine HAVE_VA_ARGS
+#cmakedefine HAVE___VA_ARGS__
+#cmakedefine HAVE_EXT__VA_ARGS__   /* __VA_ARGS__ swallows comma (MSVS) */
+#cmakedefine HAVE_EXT2__VA_ARGS__  /* ##__VA_ARGS__ swallows comma (gcc) */
+#cmakedefine HAVE___VA_OPT__
+#cmakedefine HAVE___FUNC__         /* __func__ */
+#cmakedefine HAVE___FUNCTION__
 
 /* Whether headers exists */
 #cmakedefine HAVE_STDARG_H

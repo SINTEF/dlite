@@ -85,7 +85,7 @@ static DLiteProperty {name}_properties[] = {{
 }};
 
 
-const DLiteMeta *get_{basename}_schema()
+const DLiteMeta *{basename}_get_schema()
 {{
   DLiteMeta *schema = &{basename}_schema;
   if (!schema->meta) {{
