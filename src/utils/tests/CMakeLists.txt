@@ -2,6 +2,7 @@
 #
 
 set(tests
+  test_err
   test_dsl
   test_fileutils
   test_globmatch

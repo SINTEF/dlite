@@ -79,10 +79,16 @@ int main(void) { F(1, 2); return 0; }
 " HAVE___VA_ARGS__)
 
 check_c_source_compiles("
-#define F(x, ...) f(x, ##__VA_ARGS__)
+#define F(x, ...) f(x, __VA_ARGS__)
 void f(int a, ...) { }
 int main(void) { F(1); return 0; }
 " HAVE_EXT__VA_ARGS__)
+
+check_c_source_compiles("
+#define F(x, ...) f(x, ##__VA_ARGS__)
+void f(int a, ...) { }
+int main(void) { F(1); return 0; }
+" HAVE_EXT2__VA_ARGS__)
 
 check_c_source_compiles("
 #define F(x, ...) f(x __VA_OPT__(,) __VA_ARGS__)

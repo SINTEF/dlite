@@ -1,6 +1,6 @@
 /* fileutils.c -- cross-platform file utility functions */
 
-#ifdef HAVE_CONFIG
+#ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
