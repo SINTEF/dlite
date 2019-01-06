@@ -1,5 +1,6 @@
+#include "dsl.h"
 
-int func(int x, int y)
+DSL_EXPORT int func(int x, int y)
 {
   return x + y;
 }

@@ -8,6 +8,7 @@ set(tests
   test_triplestore
   test_collection
   test_schemas
+  test_arrays
   )
 if(WITH_JSON)
   list(APPEND tests

@@ -12,8 +12,8 @@
 #include "config.h"
 
 #include "boolean.h"
-#include "strtob.h"
-#include "err.h"
+#include "utils/strtob.h"
+#include "utils/err.h"
 
 #include "dlite-utils.h"
 #include "dlite-schemas.h"
@@ -214,9 +214,9 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   if (s->root == NULL) {
     n = strlen(error.text);
     if (n > 0)
-      printf("JSON parse error on line %d: %s\n", error.line, error.text);
+      err(1, "JSON parse error on line %d: %s\n", error.line, error.text);
     else
-      printf("JSON parse error on line %d\n", error.line);
+      err(1, "JSON parse error on line %d\n", error.line);
     FAIL2("cannot open: '%s' with options '%s'", uri, options);
   }
   if (!json_is_object(s->root))
@@ -410,6 +410,7 @@ int dlite_json_get_dimension_size(const DLiteDataModel *d, const char *name)
                  "'nproperties' or 'nrelations'; got '%s'", name);
   }
   assert(0);  /* never reached */
+  return -1;
 }
 
 
@@ -578,16 +579,27 @@ char **dlite_json_get_uuids(const DLiteStorage *s)
   void *iter;
   size_t len;
   int ok = 1;
+  const char *namespace, *version, *name;
+  json_t *json;
+
+  if ((json = json_object_get(storage->root, "name")) &&
+      (name = json_string_value(json)) &&
+      (json = json_object_get(storage->root, "version")) &&
+      (version = json_string_value(json)) &&
+      (json = json_object_get(storage->root, "namespace")) &&
+      (namespace = json_string_value(json)) &&
+      (names = calloc(2, sizeof(char *))) &&
+      (names[0] = dlite_join_meta_uri(name, version, namespace)))
+    return names;
 
   n = json_object_size(storage->root);
   if (n > 0) {
-    if (!(names = malloc((n + 1)*sizeof(char *))))
+    if (!(names = malloc((n + 1)*sizeof(char *)))) {
       ok = 0;
-    else {
+    } else {
       iter = json_object_iter(storage->root);
       i = 0;
-      while(iter)
-      {
+      while(iter) {
         key = json_object_iter_key(iter);
         len = strlen(key) + 1;
         if (!(names[i] = malloc(len))) {

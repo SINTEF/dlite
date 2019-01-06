@@ -1,5 +1,11 @@
 # -*- Mode: cmake -*-
-#
+project(dlite-src C)
+
+# Workaround for CMake not setting the correct binary path for MSVC
+if(MSVC)
+  set(dlite-src_BINARY_DIR ${dlite-src_BINARY_DIR}/$<CONFIG>)
+endif()
+
 
 #-----------------------------------------------------
 # System tests
@@ -68,6 +74,7 @@ set(sources
   dlite-utils.c
   dlite-store.c
   dlite-type.c
+  dlite-arrays.c
   dlite-storage.c
   dlite-datamodel.c
   dlite-schemas.c
@@ -121,15 +128,17 @@ install(
   DESTINATION lib
 )
 
-install(
-  DIRECTORY .
-  DESTINATION include/dlite
-  FILES_MATCHING PATTERN "dlite-*.h"
-  PATTERN tests EXCLUDE
-  PATTERN dlite-macros.h EXCLUDE
-)
+# create list of headers to install from ${sources}
+set(headers "")
+foreach(source ${sources})
+  string(REPLACE ".c" ".h" header ${source})
+  list(APPEND headers ${header})
+endforeach()
 
 install(FILES
+  dlite.h
+  ${headers}
+  ${uuid_SOURCE_DIR}/uuid.h
   ${uuid_BINARY_DIR}/integers.h
   ${uuid_BINARY_DIR}/byteorder.h
   ${CMAKE_CURRENT_BINARY_DIR}/boolean.h

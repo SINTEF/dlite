@@ -152,18 +152,19 @@ static void dlite_instance_free(DLiteInstance *inst)
   if (meta->properties) {
     for (i=0; i<nprops; i++) {
       DLiteProperty *p = (DLiteProperty *)meta->properties + i;
-      char **ptr = (char **)DLITE_PROP(inst, i);
-
-      if (dlite_type_is_allocated(p->type)) {
-        int j;
-        size_t n, nmemb=1, *dims=(size_t *)((char *)inst + meta->dimoffset);
-        if (p->ndims > 0 && p->dims) ptr = *((char ***)ptr);
-        for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
-        for (n=0; n<nmemb; n++)
-          dlite_type_clear((char *)ptr + n*p->size, p->type, p->size);
-        if (p->ndims > 0 && p->dims) free(ptr);
-      } else if (p->ndims > 0 && p->dims) {
-        free(*ptr);
+      void *ptr = DLITE_PROP(inst, i);
+      if (p->ndims > 0 && p->dims) {
+        size_t *dims=(size_t *)((char *)inst + meta->dimoffset);
+        if (dlite_type_is_allocated(p->type)) {
+          int j;
+          size_t n, nmemb=1;
+          for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
+          for (n=0; n<nmemb; n++)
+            dlite_type_clear(*(char **)ptr + n*p->size, p->type, p->size);
+        }
+        free(*(void **)ptr);
+      } else {
+        dlite_type_clear(ptr, p->type, p->size);
       }
     }
   }
@@ -202,6 +203,10 @@ int dlite_instance_decref(DLiteInstance *inst)
 /*
   Loads instance identified by `id` from storage `s` and returns a
   new and fully initialised dlite instance.
+
+  In case the storage only contains one instance, it is possible to
+  set `id` to NULL.  However, it is an error to set `id` to NULL if the
+  storage contains more than one instance.
 
   On error, NULL is returned.
  */
@@ -720,6 +725,58 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
 }
 
 
+/*
+  Returns a new DLiteArray object for property number `i` in instance `inst`.
+
+  The returned array object only describes, but does not own the
+  underlying array data, which remains owned by the instance.
+
+  Scalars are treated as a one-dimensional array or length one.
+
+  Returns NULL on error.
+ */
+DLiteArray *
+dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i)
+{
+  void *ptr;
+  int ndims=1, dim=1, *dims=&dim;
+  DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
+  DLiteArray *arr = NULL;
+  if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
+  if (p->ndims > 0) {
+    int i;
+    if (!(dims = malloc(p->ndims*sizeof(size_t)))) goto fail;
+    ndims = p->ndims;
+    for (i=0; i < p->ndims; i++) dims[i] = DLITE_DIM(inst, p->dims[i]);
+  }
+  arr = dlite_array_create(ptr, p->type, p->size, ndims, dims);
+ fail:
+  if (dims && dims != &dim) free(dims);
+  return arr;
+}
+
+
+/*
+  Returns a new DLiteArray object for property `name` in instance `inst`.
+
+  The returned array object only describes, but does not own the
+  underlying array data, which remains owned by the instance.
+
+  Scalars are treated as a one-dimensional array or length one.
+
+  Returns NULL on error.
+ */
+DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
+                                              const char *name)
+{
+  int i;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return NULL;
+  return dlite_instance_get_property_array_by_index(inst, i);
+}
+
+
+
+
 /********************************************************************
  *  Metadata
  ********************************************************************/
@@ -1028,7 +1085,7 @@ static void metastore_create()
 
 /* Frees up a global metadata store.  Will be called at program exit,
    but can be called at any time. */
-void dlite_metastore_free()
+void dlite_metastore_free(void)
 {
   if (_metastore) dlite_store_free(_metastore);
   _metastore = NULL;

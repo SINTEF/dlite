@@ -118,6 +118,9 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
   The size of the memory pointed to by `cdecl` must be at least `n` bytes.
 
+  If `native` is non-zero, the native typename will be written to `pcdecl`
+  (e.g. "double") instead of the portable typename (e.g. "float64_t").
+
   `name` is the name of the C variable.
 
   `nref` is the number of extra * to add in front of `name`.
@@ -125,7 +128,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Returns the number of bytes written or -1 on error.
 */
 int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
-                         size_t nref, char *cdecl, size_t n);
+                         size_t nref, char *pcdecl, size_t n, int native);
 
 /**
   Returns true if name is a DLiteType, otherwise false.
@@ -161,6 +164,23 @@ void *dlite_type_copy(void *dest, const void *src,
 */
 void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
 
+/**
+  Serialises data of type `dtype` and size `size` pointed to by `p`.
+  The string representation is written to `dest`.  No more than
+  `n` bytes are written (incl. the terminating NUL).
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+ */
+int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
+			int width, int prec, char *dest, size_t n);
 
 /**
   Returns the struct alignment of the given type or 0 on error.

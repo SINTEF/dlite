@@ -27,19 +27,21 @@ MU_TEST(test_dsl_open)
 
 MU_TEST(test_dsl_sym)
 {
-  const char *s;
+  const char *msg;
   void *f;
   Sum sum;
 
   f = dsl_sym(handle, "non_existent");
   mu_check(!f);
-  s = dsl_error();
-  mu_check(s);
-  printf("\n    msg: '%s'\n", s);
+  msg = dsl_error();
+  mu_check(msg);
+  printf("\n    load symbol \"non_existent\": '%s'\n", msg);
 
   f = dsl_sym(handle, "func");
   mu_check(f);
-  mu_check(!dsl_error());
+  msg = dsl_error();
+  printf("\n    load symbol \"func\": '%s'\n", (msg) ? msg : "success");
+  mu_check(!msg);
 
   // the cast is to scilence gcc warning about that ISO C forbids
   // conversion of object pointer to function pointer type
@@ -48,7 +50,6 @@ MU_TEST(test_dsl_sym)
   mu_assert_int_eq(0, sum(0, 0));
   mu_assert_int_eq(5, sum(2, 3));
   mu_assert_int_eq(-1, sum(2, -3));
-
 }
 
 

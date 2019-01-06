@@ -31,21 +31,41 @@
 
 typedef struct _{name} {{
   /* -- header */
-  char uuid[36+1];   /*!< UUID for this data instance. */
-  const char *uri;   /*!< Unique name or uri of the data instance.
-                          Can be NULL. */
+  char _uuid[36+1];   /*!< UUID for this data instance. */
+  const char *_uri;   /*!< Unique name or uri of the data instance.
+                           Can be NULL. */
 
-  size_t refcount;   /*!< Number of references to this instance. */
+  size_t _refcount;   /*!< Number of references to this instance. */
 
-  const void *meta;  /*!< Pointer to the metadata describing this instance. */
+  const void *_meta;  /*!< Pointer to the metadata describing this instance. */
+{@if:{ismetameta}==1}\
 
+  size_t _ndimensions;           /*!< Number of dimensions in instance. */
+  size_t _nproperties;           /*!< Number of properties in instance. */
+  size_t _nrelations;            /*!< Number of relations in instance. */
+
+  DLiteDimension *_dimensions;   /*!< Array of dimensions. */
+  DLiteProperty *_properties;    /*!< Array of properties. */
+  DLiteRelation *_relations;     /*!< Array of relations. */
+
+  size_t _headersize;            /*!< Size of instance header. */
+  DLiteInit _init;               /*!< Function initialising instance. */
+  DLiteDeInit _deinit;           /*!< Function deinitialising instance. */
+
+  size_t _dimoffset;             /*!< Offset of first dimension value. */
+  size_t *_propoffsets;          /*!< Array of offsets of property values. */
+  size_t _reloffset;             /*!< Offset of first relation value. */
+  size_t _pooffset;              /*!< Offset to array of property offsets. */
+{@endif}\
   /* -- dimension values */
-{list_dimensions:  size_t {dim.name};  /*!< {dim.descr} */\n}
+{list_dimensions:  size_t {dim.name};  {@33}/*!< {dim.descr} */\n}
   /* -- property values */
-{list_properties:  {prop.cdecl};  /*!< {prop.descr} */\n}
+{list_properties:  {prop.cdecl};  {@33}/*!< {prop.descr}\
+{@if:{prop.ndims}!=0} [{prop.dims:{dim.name}{,}\.}]{@endif} */\n}
+{@if:{ismetameta}=1}\
+  size_t offsets[{_nproperties}];
+{@endif}\
 }} {name};
-
-
 
 
 #endif /* _{name%U}_H */

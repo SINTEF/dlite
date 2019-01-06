@@ -41,7 +41,6 @@ static char *dtype_enum_names[] = {
   "dliteRelation",
 };
 
-
 /* Name of fix-sized types (does not include dliteBlob and dliteFixString) */
 static struct _TypeDescr {
   char *typename;
@@ -163,9 +162,63 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   return 0;
 }
 
+
 /*
-  Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
-  The size of the memory pointed to by `cdecl` must be at least `n` bytes.
+  If the type specified with `dtype` and `size` has a native type name
+  (like "short" and "double"), return a pointer to this typename.  Otherwise
+  NULL is returned.
+*/
+const char *dlite_type_get_native_typename(DLiteType dtype, size_t size)
+{
+  switch (dtype) {
+  case dliteInt:
+    switch (size) {
+    case sizeof(char):      return "char";
+    case sizeof(short):     return "short";
+    case sizeof(int):       return "int";
+#if SIZEOF_LONG != SIZEOF_INT
+    case sizeof(long):      return "long";
+#endif
+#if defined(HAVE_LONG_LONG) && SIZEOF_LONG_LONG != SIZEOF_LONG
+    case sizeof(long long): return "long long";
+#endif
+    }
+    break;
+  case dliteUInt:
+    switch (size) {
+    case sizeof(unsigned char):      return "unsigned char";
+    case sizeof(unsigned short):     return "unsigned short";
+    case sizeof(unsigned int):       return "unsigned int";
+#if SIZEOF_LONG != SIZEOF_INT
+    case sizeof(unsigned long):      return "unsigned long";
+#endif
+#if defined(HAVE_LONG_LONG) && SIZEOF_LONG_LONG != SIZEOF_LONG
+    case sizeof(unsigned long long): return "unsigned long long";
+#endif
+    }
+    break;
+  case dliteFloat:
+    switch (size) {
+    case sizeof(float):        return "float";
+    case sizeof(double):       return "double";
+#if defined(HAVE_LONG_DOUBLE) && SIZEOF_LONG_DOUBLE != SIZEOF_DOUBLE
+    case sizeof(long double):  return "long double";
+#endif
+    }
+    break;
+  default:
+    break;
+  }
+  return NULL;
+}
+
+/*
+  Writes C declaration to `pcdecl` of a C variable with given `dtype`
+  and `size`.  The size of the memory pointed to by `pcdecl` must be
+  at least `n` bytes.
+
+  If `native` is non-zero, the native typename will be written to `pcdecl`
+  (e.g. "double") instead of the portable typename (e.g. "float64_t").
 
   `name` is the name of the C variable.
 
@@ -174,10 +227,11 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   Returns the number of bytes written or -1 on error.
 */
 int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
-                         size_t nref, char *pcdecl, size_t n)
+                         size_t nref, char *pcdecl, size_t n, int native)
 {
   int m;
   char ref[32];
+  const char *native_type;
 
   if (nref >= sizeof(ref))
     return errx(-1, "too many dereferences to write: %zu", nref);
@@ -195,13 +249,22 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
     m = snprintf(pcdecl, n, "bool %s%s", ref, name);
     break;
   case dliteInt:
-    m = snprintf(pcdecl, n, "int%zu_t %s%s", size*8, ref, name);
+    if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
+      m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
+    else
+      m = snprintf(pcdecl, n, "int%zu_t %s%s", size*8, ref, name);
     break;
   case dliteUInt:
-    m = snprintf(pcdecl, n, "uint%zu_t %s%s", size*8, ref, name);
+    if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
+      m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
+    else
+      m = snprintf(pcdecl, n, "uint%zu_t %s%s", size*8, ref, name);
     break;
   case dliteFloat:
-    m = snprintf(pcdecl, n, "float%zu_t %s%s", size*8, ref, name);
+    if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
+      m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
+    else
+      m = snprintf(pcdecl, n, "float%zu_t %s%s", size*8, ref, name);
     break;
   case dliteFixString:
     m = snprintf(pcdecl, n, "char %s%s[%zu]", ref, name, size);
@@ -411,6 +474,82 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     break;
   }
   return memset(p, 0, size);
+}
+
+
+/*
+  Serialises data of type `dtype` and size `size` pointed to by `p`.
+  The string representation is written to `dest`.  No more than
+  `n` bytes are written (incl. the terminating NUL).
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+ */
+int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
+			int width, int prec, char *dest, size_t n)
+{
+  int m, w=width, r=prec;
+  switch (dtype) {
+  case dliteBlob:
+    return err(-1, "serialising binary blobs is not yet supported");
+  case dliteBool:
+    m = snprintf(dest, n, "%*.*s", w, r,
+                      (*((bool *)p)) ? "true" : "false");
+    break;
+  case dliteInt:
+    if (w == -1) w = 8;
+    switch (size) {
+    case 1: m = snprintf(dest, n, "%*.*hhd", w, r, *((int8_t *)p));  break;
+    case 2: m = snprintf(dest, n, "%*.*hd",  w, r, *((int16_t *)p)); break;
+    case 4: m = snprintf(dest, n, "%*.*d",   w, r, *((int32_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*ld",  w, r, *((int64_t *)p)); break;
+    default: return err(-1, "invalid int size: %zu", size);
+    }
+    break;
+  case dliteUInt:
+    if (w == -1) w = 8;
+    switch (size) {
+    case 1: m = snprintf(dest, n, "%*.*hhu", w, r, *((uint8_t *)p));  break;
+    case 2: m = snprintf(dest, n, "%*.*hu",  w, r, *((uint16_t *)p)); break;
+    case 4: m = snprintf(dest, n, "%*.*u",   w, r, *((uint32_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*lu",  w, r, *((uint64_t *)p)); break;
+    default: return err(-1, "invalid int size: %zu", size);
+    }
+    break;
+  case dliteFloat:
+    if (w == -1) w = 12;
+    if (r == -1) r = 6;
+    switch (size) {
+    case 4:  m = snprintf(dest, n, "%*.*g",  w, r, *((float32_t *)p)); break;
+    case 8:  m = snprintf(dest, n, "%*.*g",  w, r, *((float64_t *)p)); break;
+#ifdef HAVE_FLOAT80
+    case 10: m = snprintf(dest, n, "%*.*Lg", w, r, *((float80_t *)p)); break;
+#endif
+#ifdef HAVE_FLOAT128
+    case 16: m = snprintf(dest, n, "%*.*Lg", w, r, *((float128_t *)p)); break;
+#endif
+    default: return err(-1, "invalid int size: %zu", size);
+    }
+    break;
+  case dliteFixString:
+    if (r > (int)size) r = size;
+    m = snprintf(dest, n, "%*.*s", w, r, (char *)p);
+    break;
+  case dliteStringPtr:
+    m = snprintf(dest, n, "%*.*s", w, r, *((char **)p));
+    break;
+  default:
+    return err(-1, "serialising dtype \"%s\" is not supported",
+	       dtype_enum_names[dtype]);
+  }
+  return m;
 }
 
 

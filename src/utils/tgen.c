@@ -285,6 +285,33 @@ int tgen_setcase(char *s, int len, int casemode)
 }
 
 /*
+  Converts camel case to lower case and underscores.
+
+  Returns a newly allocated string based on the substring of `s` with
+  length `len`. Camel case in `s` is in the returned string converted
+  to lower case and underscores.  On error, NULL is returned.
+
+  If `len` is negative, all of `s` is used.
+
+  Examples:
+    "CamelCaseWord" -> "camel_case_word"
+    "A sentence with CamelCase" -> "a sentence with camel_case"
+ */
+char *tgen_camel_to_underscore(const char *s, int len)
+{
+  TGenBuf buf;
+  int i, n=0;
+  tgen_buf_init(&buf);
+  if (len < 0) len = strlen(s);
+  for (i=0; i<len; i++) {
+    if (isupper(s[i]) && n++) tgen_buf_append(&buf, "_", -1);
+    tgen_buf_append_fmt(&buf, "%c", tolower(s[i]));
+    if (isspace(s[i])) n = 0;
+  }
+  return tgen_buf_steal(&buf);
+}
+
+/*
   Initiates output buffer.
  */
 void tgen_buf_init(TGenBuf *s)
@@ -299,6 +326,26 @@ void tgen_buf_deinit(TGenBuf *s)
 {
   if (s->buf) free(s->buf);
   memset(s, 0, sizeof(TGenBuf));
+}
+
+/*
+  Like tgen_buf_deinit(), but instead of free up the internal buffer, it
+  is returned.  The returned string is owned by the caller and should be
+  free'ed with free().
+ */
+char *tgen_buf_steal(TGenBuf *s)
+{
+  char *p = s->buf;
+  memset(s, 0, sizeof(TGenBuf));
+  return p;
+}
+
+/*
+  Returns the length of buffer `s`.
+ */
+size_t tgen_buf_length(const TGenBuf *s)
+{
+  return s->pos;
 }
 
 /*
@@ -380,6 +427,20 @@ int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap)
   if (src != buf) free(src);
   va_end(ap2);
   return retval;
+}
+
+/*
+  Removes the last `n` characters appended to buffer `s`.  If `n` is larger
+  than the buffer length, it is truncated.
+
+  Returns the number of characters removed.
+ */
+int tgen_buf_unappend(TGenBuf *s, size_t n)
+{
+  int removed = (n < s->pos) ? n : s->pos;
+  s->pos -= removed;
+  s->buf[s->pos] = '\0';
+  return removed;
 }
 
 /*
@@ -686,7 +747,7 @@ int tgen_subs_copy(TGenSubs *dest, const TGenSubs *src)
 char *tgen(const char *template, const TGenSubs *subs, void *context)
 {
   TGenBuf s;
-  memset(&s, 0, sizeof(s));
+  tgen_buf_init(&s);
   if (tgen_append(&s, template, -1, subs, context)) {
     if (s.buf) free(s.buf);
     return NULL;

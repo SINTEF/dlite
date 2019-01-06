@@ -52,7 +52,7 @@ struct _TripleStore {
 char *default_namespace = NULL;
 
 /* Free's default_namespace. Called by atexit(). */
-static void free_default_namespace()
+static void free_default_namespace(void)
 {
   if (default_namespace) free(default_namespace);
   default_namespace = NULL;

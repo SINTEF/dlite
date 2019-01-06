@@ -78,7 +78,7 @@ MU_TEST(test_instance_create)
 MU_TEST(test_instance_set_property)
 {
   char *astring="string value";
-  float afloat=3.14;
+  float afloat=3.14f;
   int intarr[2][3] = {{0, 1, 2}, {3, 4, 5}};
   char *strarr[] = {"first string", "second string"};
   char str3arr[3][3] = {"Al", "Mg", "Si"};

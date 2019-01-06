@@ -1,6 +1,8 @@
 # -*- Mode: cmake -*-
 #
 cmake_minimum_required(VERSION 3.4)
+#cmake_policy(VERSION 3.11)
+#cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 
@@ -39,8 +41,12 @@ include(CTest)
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 
 if(CTEST_MEMORYCHECK_COMMAND)
+  #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
+  #  ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt)
+  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --trace-chrildren=yes --leak-check=full --track-origins=yes --suppressions=${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt")
   add_custom_target(memcheck
-    COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --output-on-failure -T memcheck
+    COMMAND ${CMAKE_CTEST_COMMAND}
+              --force-new-ctest-process --output-on-failure -T memcheck
     COMMENT "Runs memory check with valgrind"
     )
 endif()
@@ -81,6 +87,13 @@ if(BUILD_SHARED_LIBS)
 else()
   set(LIBRARY_PREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})
   set(LIBRARY_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
+
+# Give the debug version a different postfix for windows,
+# so both the debug and release version can be built in the
+# same build-tree on Windows (MSVC).
+if (WIN32 AND NOT CMAKE_DEBUG_POSTFIX)
+   set(CMAKE_DEBUG_POSTFIX "_d")
 endif()
 
 # This should hopefully provide correct prefix and postfix for
@@ -207,18 +220,21 @@ endif()
 # uuid
 # ====
 set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
-set(cmake_args -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS})
+set(cmake_args
+  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
 ExternalProject_Add(
   uuidProj
   PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid
   SOURCE_DIR      ${uuid_SOURCE_DIR}
   CMAKE_ARGS      ${cmake_args}
   UPDATE_COMMAND  ""
-  TEST_COMMAND    ctest
-  INSTALL_COMMAND ""
+  #TEST_COMMAND    ctest
+  #INSTALL_COMMAND ""
 )
 ExternalProject_Get_Property(uuidProj BINARY_DIR)
 set(uuid_BINARY_DIR ${BINARY_DIR})
+
 
 #################################################################
 
@@ -235,3 +251,14 @@ endif()
 add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(doc)
+
+
+#################################################################
+
+
+# Install
+install(FILES
+  README.md
+  #LICENSE.txt
+  DESTINATION share/dlite
+  )

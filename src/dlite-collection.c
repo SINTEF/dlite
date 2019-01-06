@@ -36,7 +36,7 @@
 static DLiteStore *_istore = NULL;
 
 /* Frees up a global instance store */
-static void _istore_free()
+static void _istore_free(void)
 {
   dlite_store_free(_istore);
   _istore = NULL;

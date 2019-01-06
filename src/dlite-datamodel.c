@@ -23,21 +23,33 @@
  */
 DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
 {
-  DLiteDataModel *d;
+  DLiteDataModel *d=NULL;
+  char **uuids=NULL;
   char uuid[DLITE_UUID_LENGTH+1];
   int uuidver;
+
+  /* allow id to be NULL if the storage only contains one instance */
+  if (!s->writable && !id) {
+    int n=0;
+    if (!(uuids = dlite_storage_uuids(s))) goto fail;
+    while (uuids[n]) n++;
+    if (n == 1)
+      id = uuids[0];
+    else
+      FAIL2("`id` required to load from storage \"%s\" with %d instances",
+            s->uri, n);
+  }
 
   if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
       s->idflag == dliteIDRequireUUID) {
     if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
-      return err(1, "failed generating UUID from id \"%s\"", id), NULL;
+      FAIL1("failed generating UUID from id \"%s\"", id);
     if (uuidver != 0 && s->idflag == dliteIDRequireUUID)
-      return err(1, "id is not a valid UUID: \"%s\"", id), NULL;
+      FAIL1("id is not a valid UUID: \"%s\"", id);
   }
 
   if (!(d = s->api->dataModel(s, uuid)))
-    return err(1, "cannot create datamodel id='%s' for storage '%s'",
-               id, s->api->name), NULL;
+    FAIL2("cannot create datamodel id='%s' for storage '%s'", id, s->api->name);
 
   /* Initialise common fields */
   d->api = s->api;  /* remove this field? */
@@ -47,6 +59,8 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   if (uuidver == 5 && s->writable && s->api->setDataName)
     s->api->setDataName(d, id);
 
+ fail:
+  if (uuids) dlite_storage_uuids_free(uuids);
   return d;
 }
 
