@@ -386,6 +386,26 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
  */
 int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 
+/**
+  A convinient function that loads an instance given an URL of the form
+
+      driver://loc?options#id
+
+  where `loc` corresponds to the `uri` argument of dlite_storage_open().
+
+  Returns the instance or NULL on error.
+ */
+DLiteInstance *dlite_instance_load_url(const char *url);
+
+/**
+  A convinient function that saves instance `inst` to the storage specified
+  by `url`, which should be of the form
+
+      driver://loc?options
+
+  Returns non-zero on error.
+ */
+int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
 
 /**
   Returns number of dimensions or -1 on error.

@@ -143,6 +143,16 @@ MU_TEST(test_instance_save2)
 #endif
 }
 
+MU_TEST(test_instance_load_url)
+{
+  DLiteInstance *inst;
+#ifdef WITH_JSON
+  mu_check((inst = dlite_instance_load_url("json://myentity.json#mydata")));
+  mu_check(0 == dlite_instance_save_url("json://myentity6.json?mode=w", inst));
+  mu_check(dlite_instance_decref(inst));
+#endif
+}
+
 MU_TEST(test_instance_copy)
 {
   DLiteStorage *s;
@@ -248,6 +258,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_save);
   MU_RUN_TEST(test_instance_load);
   MU_RUN_TEST(test_instance_save2);
+  MU_RUN_TEST(test_instance_load_url);
   MU_RUN_TEST(test_instance_copy);
   MU_RUN_TEST(test_instance_set_dimension_sizes);
   MU_RUN_TEST(test_instance_free);
