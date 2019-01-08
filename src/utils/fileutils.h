@@ -21,14 +21,6 @@
 #define PATHSEP ':'
 #endif
 
-
-/** Directory state. */
-typedef DIR FUDir;
-
-/** File matching iterator. */
-typedef struct _FUPaths FUPaths;
-
-
 #elif defined WIN32 || defined _WIN32 || defined __WIN32__
 /* WINDOWS */
 # ifndef WINDOWS
@@ -36,7 +28,6 @@ typedef struct _FUPaths FUPaths;
 # endif
 
 #include "compat/dirent.h"
-typedef DIR FUDir;
 
 #ifndef PATHSEP
 #define PATHSEP ';'
@@ -45,6 +36,12 @@ typedef DIR FUDir;
 #else
 # warning "Neither POSIX or Windows"
 #endif
+
+/** Directory state. */
+typedef DIR FUDir;
+
+/** File matching iterator. */
+typedef struct _FUPaths FUPaths;
 
 
 /**

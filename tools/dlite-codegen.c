@@ -1,10 +1,11 @@
 /* dlite-codegen.c -- tool for generating code for a DLite instance */
-
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+
+#include "config.h"
 
 #include "utils/compat.h"
 #include "utils/compat/getopt.h"
