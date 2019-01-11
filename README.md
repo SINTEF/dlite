@@ -95,6 +95,8 @@ Build with:
 Before running make, you may wish to configure some options with
 `ccmake ..`
 
+For example, you might need to change (using e.g. cmake-gui) CMAKE_INSTALL_PREFIX to a location accessible for writing. Default option to /usr/local/ is not accessible in some cases, you can then create a /local folder under dlite.
+
 To run the tests, do
 
     make test        # same as running `ctest`
