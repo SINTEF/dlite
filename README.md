@@ -77,6 +77,14 @@ To run the tests, do
 
 ## Build on Linux
 
+If hdf5 is not installed (does not include the parallel component):
+
+    sudo apt-get install libhdf5-serial-dev
+
+If JANSSON is not installed:
+
+    sudo apt-get install libjansson-dev
+
 Build with:
 
     mkdir build
