@@ -54,6 +54,19 @@ MU_TEST(test_tgen_setcase)
   mu_check(tgen_setcase(s, -1, '\0'));
 }
 
+MU_TEST(test_tgen_camel_to_underscore)
+{
+  char *s;
+  s = tgen_camel_to_underscore("CamelCaseWord", -1);
+  mu_assert_string_eq("camel_case_word", s);
+  free(s);
+
+  s = tgen_camel_to_underscore("A sentence with CamelCase", -1);
+  mu_assert_string_eq("a sentence with camel_case", s);
+  free(s);
+}
+
+
 MU_TEST(test_tgen_buf_append)
 {
   TGenBuf buf;
@@ -296,6 +309,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_tgen_escaped_copy);
   MU_RUN_TEST(test_tgen_setcase);
+  MU_RUN_TEST(test_tgen_camel_to_underscore);
   MU_RUN_TEST(test_tgen_buf_append);
   MU_RUN_TEST(test_tgen_lineno);
   MU_RUN_TEST(test_tgen_subs);

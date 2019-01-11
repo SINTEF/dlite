@@ -253,6 +253,21 @@ int tgen_escaped_copy(char *dest, const char *src, int n);
  */
 int tgen_setcase(char *s, int len, int casemode);
 
+/**
+  Converts camel case to lower case and underscores.
+
+  Returns a newly allocated string based on the substring of `s` with
+  length `len`. Camel case in `s` is in the returned string converted
+  to lower case and underscores.  On error, NULL is returned.
+
+  If `len` is negative, all of `s` is used.
+
+  Examples:
+    "CamelCaseWord" -> "camel_case_word"
+    "A sentence with CamelCase" -> "a sentence with camel_case"
+ */
+char *tgen_camel_to_underscore(const char *s, int len);
+
 
 /**
   Initiates output buffer.
@@ -270,6 +285,11 @@ void tgen_buf_deinit(TGenBuf *s);
   free'ed with free().
  */
 char *tgen_buf_steal(TGenBuf *s);
+
+/**
+  Returns the length of buffer `s`.
+ */
+size_t tgen_buf_length(const TGenBuf *s);
 
 /**
   Returns a pointer to the content of the output buffer.
@@ -296,6 +316,14 @@ int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
   variable number of arguments.
  */
 int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
+
+/**
+  Removes the last `n` characters appended to buffer `s`.  If `n` is larger
+  than the buffer length, it is truncated.
+
+  Returns the number of characters removed.
+ */
+int tgen_buf_unappend(TGenBuf *s, size_t n);
 
 /**
   Pad buffer with character `c` until `n` characters has been written since

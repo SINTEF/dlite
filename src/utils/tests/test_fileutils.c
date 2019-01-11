@@ -9,7 +9,7 @@
 #include "minunit/minunit.h"
 
 
-fu_dir *dir;
+FUDir *dir;
 
 MU_TEST(test_fu_opendir)
 {
@@ -44,6 +44,16 @@ MU_TEST(test_fu_closedir)
   mu_assert_int_eq(0, fu_closedir(dir));
 }
 
+MU_TEST(test_fu_match)
+{
+  const char *filename;
+  FUPaths *iter = fu_startmatch("*.h", "..", "XXX");
+  printf("\nHeaders:\n");
+  while ((filename = fu_nextmatch(iter))) printf("  %s\n", filename);
+  fu_endmatch(iter);
+}
+
+
 /***********************************************************************/
 
 MU_TEST_SUITE(test_suite)
@@ -51,6 +61,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_opendir);       /* setup */
   MU_RUN_TEST(test_fu_getfile);
   MU_RUN_TEST(test_fu_closedir);      /* tear down */
+  MU_RUN_TEST(test_fu_match);
 }
 
 

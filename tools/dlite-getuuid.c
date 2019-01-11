@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
+
 #include "utils/compat/getopt.h"
 #include "utils/err.h"
 #include "getuuid.h"

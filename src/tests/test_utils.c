@@ -84,30 +84,34 @@ MU_TEST(test_option_parse)
 MU_TEST(test_join_url)
 {
   char *url;
-  mu_check((url = dlite_join_url("mongodb", "example.com/db", "mode=append")));
+  mu_check((url = dlite_join_url("mongodb", "example.com/db",
+                                 "mode=append", NULL)));
   mu_assert_string_eq("mongodb://example.com/db?mode=append", url);
   free(url);
 
-  mu_check((url = dlite_join_url("json", "/home/john/file.json", NULL)));
-  mu_assert_string_eq("json:///home/john/file.json", url);
+  mu_check((url = dlite_join_url("json", "/home/john/file.json", NULL,
+                                 "namespace/version/name")));
+  mu_assert_string_eq("json:///home/john/file.json#namespace/version/name",
+                      url);
   free(url);
 }
 
 
 MU_TEST(test_split_url)
 {
-  char *driver, *uri, *options;
+  char *driver, *loc, *options, *fragment;
   char url1[] = "mongodb://example.com/db?mode=append";
-  char url2[] = "json:///home/john/file.json";
+  char url2[] = "json:///home/john/file.json#ns/ver/name";
 
-  mu_check(0 == dlite_split_url(url1, &driver, &uri, &options));
+  mu_check(0 == dlite_split_url(url1, &driver, &loc, &options, NULL));
   mu_assert_string_eq("mongodb", driver);
-  mu_assert_string_eq("example.com/db", uri);
+  mu_assert_string_eq("example.com/db", loc);
   mu_assert_string_eq("mode=append", options);
 
-  mu_check(0 == dlite_split_url(url2, &driver, &uri, &options));
+  mu_check(0 == dlite_split_url(url2, &driver, &loc, &options, &fragment));
   mu_assert_string_eq("json", driver);
-  mu_assert_string_eq("/home/john/file.json", uri);
+  mu_assert_string_eq("/home/john/file.json", loc);
+  mu_assert_string_eq("ns/ver/name", fragment);
   mu_assert_string_eq(NULL, options);
 }
 

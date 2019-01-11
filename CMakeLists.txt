@@ -251,3 +251,14 @@ endif()
 add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(doc)
+
+
+#################################################################
+
+
+# Install
+install(FILES
+  README.md
+  #LICENSE.txt
+  DESTINATION share/dlite
+  )
