@@ -28,6 +28,10 @@
 # endif
 
 #include "compat/dirent.h"
+<<<<<<< HEAD
+=======
+typedef DIR FUDir;
+>>>>>>> 0078310964011ea87eef93b75a26e1d4475c6048
 
 #ifndef PATHSEP
 #define PATHSEP ';'
