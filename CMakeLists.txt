@@ -22,6 +22,9 @@ option(WITH_JSON    "Whether to build with JSON support"             ON)
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 
+# Set defaults
+include(SetDefaults)
+
 # Enable compiler warnings
 include(SetCompilerFlags)
 if(CMAKE_COMPILER_IS_GNUCC)
