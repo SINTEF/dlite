@@ -171,25 +171,34 @@ int dlite_option_parse(char *options, DLiteOpt *opts, int modify)
 
 
 /*
-  Returns a newly allocated string to an url created by joining
-  `driver`, `uri` and `options`.  `driver` and `options` may be NULL.
+  Returns a newly allocated url constructed from the arguments of the form
+
+      driver://location?options#fragment
+
+  The `driver`, `options` and `fragment` arguments may be NULL.
   Returns NULL on error.
  */
-char *dlite_join_url(const char *driver, const char *uri, const char *options)
+char *dlite_join_url(const char *driver, const char *location,
+                     const char *options, const char *fragment)
 {
   TGenBuf s;
   tgen_buf_init(&s);
   if (driver) tgen_buf_append_fmt(&s, "%s://", driver);
-  tgen_buf_append(&s, uri, -1);
+  tgen_buf_append(&s, location, -1);
   if (options) tgen_buf_append_fmt(&s, "?%s", options);
+  if (fragment) tgen_buf_append_fmt(&s, "#%s", fragment);
   return tgen_buf_steal(&s);
 }
 
 
 /*
-  Splits `url` into three parts: `driver`, `uri` and `options`.  If
-  `driver`, `uri` and/or `options` are not NULL, the pointers they
-  points will be assigned to point within `url`.
+  Splits an `url` of the form
+
+      driver://location?options#fragment
+
+  into four parts: `driver`, `location`, `options` and `fragment`.
+  For the arguments that are not NULL, the pointers they points to
+  will be assigned to point to the corresponding section within `url`.
 
   `url` will be modified.
 
@@ -204,18 +213,22 @@ char *dlite_join_url(const char *driver, const char *uri, const char *options)
 
       authority = [userinfo@]host[:port]
 
-  This function maps `scheme` to `driver`, `[authority]path` to `uri` and
-  `query` to `options`.
+  This function maps `scheme` to `driver`, `[authority]path` to `location`
+  `query` to `options` and fragment to fragment.
 
   [wikipedia]: https://en.wikipedia.org/wiki/URL
  */
-int dlite_split_url(char *url, char **driver, char **uri, char **options)
+int dlite_split_url(char *url, char **driver, char **location, char **options,
+                    char **fragment)
 {
   size_t i;
   char *p;
 
-  /* strip off fragment */
-  if ((p = strchr(url, '#'))) *p = '\0';
+  /* strip off and assign fragment */
+  if ((p = strchr(url, '#'))) {
+    if (fragment) *fragment = p+1;
+    *p = '\0';
+  }
 
   /* strip off query and assign options */
   if ((p = strchr(url, '?'))) {
@@ -234,10 +247,10 @@ int dlite_split_url(char *url, char **driver, char **uri, char **options)
       p = url + i + 3;
     else
       p = url + i + 1;
-    if (uri) *uri = (p[0]) ? p : NULL;
+    if (location) *location = (p[0]) ? p : NULL;
   } else {
     if (driver) *driver = NULL;
-    if (uri) *uri = (url[0]) ? url : NULL;
+    if (location) *location = (url[0]) ? url : NULL;
   }
 
   return 0;

@@ -55,6 +55,13 @@
 #include <errno.h>
 #include <setjmp.h>
 
+/* FIXME - temporary workaround for MSVC */
+#ifdef _MSC_VER
+# ifdef HAVE___VA_ARGS__
+#  undef HAVE___VA_ARGS__
+# endif
+#endif
+
 /* Remove __attribute__ when we are not compiling with gcc */
 #ifndef __GNUC__
 # define __attribute__(x)

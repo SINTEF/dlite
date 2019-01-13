@@ -393,6 +393,55 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
 
 
 /*
+  A convinient function that loads an instance given an URL of the form
+
+      driver://loc?options#id
+
+  where `loc` corresponds to the `uri` argument of dlite_storage_open().
+
+  Returns the instance or NULL on error.
+ */
+DLiteInstance *dlite_instance_load_url(const char *url)
+{
+  char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL, *id=NULL;
+  DLiteStorage *s=NULL;
+  DLiteInstance *inst=NULL;
+  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (dlite_split_url(str, &driver, &loc, &options, &id)) goto fail;
+  if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
+  inst = dlite_instance_load(s, id);
+ fail:
+  if (s) dlite_storage_close(s);
+  if (str) free(str);
+  return inst;
+}
+
+
+/*
+  A convinient function that saves instance `inst` to the storage specified
+  by `url`, which should be of the form
+
+      driver://loc?options
+
+  Returns non-zero on error.
+ */
+int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
+{
+  int retval;
+  char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
+  DLiteStorage *s=NULL;
+  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (dlite_split_url(str, &driver, &loc, &options, NULL)) goto fail;
+  if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
+  retval = dlite_instance_save(s, inst);
+ fail:
+  if (s) dlite_storage_close(s);
+  if (str) free(str);
+  return retval;
+}
+
+
+/*
   Returns number of dimensions or -1 on error.
  */
 int dlite_instance_get_ndimensions(const DLiteInstance *inst)
