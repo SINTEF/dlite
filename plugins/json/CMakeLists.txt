@@ -10,13 +10,13 @@ set(sources
 
 add_definitions(-DHAVE_CONFIG_H)
 
-add_library(plugins-json ${sources})
-target_link_libraries(plugins-json
+add_library(dlite-plugins-json ${sources})
+target_link_libraries(dlite-plugins-json
   ${JANSSON_LIBRARIES}
   dlite
-  utils
+  dlite-utils
   )
-target_include_directories(plugins-json PUBLIC
+target_include_directories(dlite-plugins-json PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
   ${dlite_BINARY_DIR}/src
@@ -29,6 +29,6 @@ if(${JANSSON_DEPENDENCIES})
 endif()
 
 install(
-  TARGETS plugins-json
+  TARGETS dlite-plugins-json
   DESTINATION lib
 )

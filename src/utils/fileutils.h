@@ -28,6 +28,7 @@
 # endif
 
 #include "compat/dirent.h"
+typedef DIR FUDir;
 
 #ifndef PATHSEP
 #define PATHSEP ';'
@@ -60,7 +61,6 @@ const char *fu_nextfile(FUDir *dir);
   Closes directory handle.
 */
 int fu_closedir(FUDir *dir);
-
 
 
 /**
