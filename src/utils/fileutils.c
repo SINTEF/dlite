@@ -59,7 +59,9 @@ static FUDir *opendir_sep(const char *path)
   FUDir *dir;
   char sep[2] = {PATHSEP, '\0'}, *p;
   size_t len = strcspn(path, sep);
-  if (!(p = strndup(path, len))) return err(1, "allocation failure"), NULL;
+  if (!(p = malloc(len + 1))) return err(1, "allocation failure"), NULL;
+  strncpy(p, path, len);
+  p[len] = '\0';
   dir = opendir(p);  /* do not call err() if dir cannot be opened */
   free(p);
   return dir;
