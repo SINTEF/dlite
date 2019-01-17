@@ -10,7 +10,7 @@
 #include "config.h"
 
 #include "boolean.h"
-#include "err.h"
+#include "utils/err.h"
 
 #include "dlite.h"
 #include "dlite-datamodel.h"

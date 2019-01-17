@@ -1,0 +1,4 @@
+LIBRARY @LIBRARY@
+EXPORTS
+strtob
+atob

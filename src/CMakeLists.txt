@@ -99,7 +99,11 @@ if(WITH_HDF5)
   set(hdf5_link_libraries dlite-plugins-hdf5 ${HDF5_LIBRARIES})
 endif()
 
-add_library(dlite SHARED ${sources})
+include(GenerateDefs)
+generate_defs(dlite "${sources}" defs)
+message("*** defs=${defs} ***")
+
+add_library(dlite SHARED ${sources} ${defs})
 add_library(dlite-static STATIC ${sources})
 
 target_link_libraries(dlite
