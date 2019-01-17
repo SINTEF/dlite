@@ -8,7 +8,9 @@ include(CPack)
 
 project(dlite
   VERSION 0.2
-  LANGUAGES C)
+  #DESCRIPTION "Lightweight library for working with scientific data"
+  LANGUAGES C
+  )
 
 
 # Options

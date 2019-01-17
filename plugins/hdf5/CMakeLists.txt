@@ -10,6 +10,7 @@ add_definitions(-DHAVE_CONFIG_H)
 
 add_library(dlite-plugins-hdf5 SHARED ${sources})
 target_link_libraries(dlite-plugins-hdf5
+  dlite-utils
   ${HDF5_LIBRARIES}
   )
 target_include_directories(dlite-plugins-hdf5 PUBLIC
