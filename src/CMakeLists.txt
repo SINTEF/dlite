@@ -2,7 +2,7 @@
 project(dlite-src C)
 
 # Workaround for CMake not setting the correct binary path for MSVC
-if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.13")
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(dlite-src_BINARY_DIR ${dlite-src_BINARY_DIR}/$<CONFIG>)
 endif()
 

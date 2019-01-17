@@ -13,7 +13,7 @@ set(tests
   )
 
 # Workaround for old CMake adding CONFIG to binary path for MSVC
-if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.13")
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
   set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
