@@ -225,20 +225,35 @@ endif()
 # uuid
 # ====
 set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
+set(uuid_BINARY_DIR ${dlite_BINARY_DIR}/uuid)
+set(UUID_LIBRARIES ${uuid_BINARY_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
 set(cmake_args
   -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+  -DCMAKE_BUILD_TYPE=Release
   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
 ExternalProject_Add(
   uuidProj
-  PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid
-  SOURCE_DIR      ${uuid_SOURCE_DIR}
-  CMAKE_ARGS      ${cmake_args}
-  UPDATE_COMMAND  ""
-  #TEST_COMMAND    ctest
-  #INSTALL_COMMAND ""
+  PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/uuid
+  SOURCE_DIR        ${uuid_SOURCE_DIR}
+  BINARY_DIR        ${uuid_BINARY_DIR}
+  CMAKE_ARGS        ${cmake_args}
+  UPDATE_COMMAND    ""
+  BUILD_BYPRODUCTS  ${UUID_LIBRARIES} ${uuid_BINARY_DIR}/integers.h
+  #TEST_COMMAND      ctest
+  #INSTALL_COMMAND   ""
 )
-ExternalProject_Get_Property(uuidProj BINARY_DIR)
-set(uuid_BINARY_DIR ${BINARY_DIR})
+#ExternalProject_Get_Property(uuidProj BINARY_DIR)
+#set(uuid_BINARY_DIR ${BINARY_DIR})
+#set(UUID_LIBRARIES ${uuid_BINARY_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
+#add_custom_target(buildUuidProj ALL DEPENDS uuidProj)
+#add_dependencies(${UUID_LIBRARIES} uuidProj)
+#set_property(SOURCE ${UUID_LIBRARIES} PROPERTY GENERATED uuidProj)
+set_source_files_properties(
+    ${UUID_LIBRARIES}
+    ${uuid_BINARY_DIR}/integers.h
+  PROPERTIES
+    GENERATED uuidProj
+  )
 
 
 #################################################################

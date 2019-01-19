@@ -447,16 +447,21 @@ ErrHandler err_get_handler(void);
  * @{
  */
 
-/** @cond priate */
 
 
-/* Declarations */
+/** Adds link to new exception handler. Called internally by the
+    ErrTry macro. Don't call this function directly. */
 void _err_link_record(ErrRecord *errrecord);
+
+/** Unlinks exception handler. Called internally by the ErrEnd
+    macro. Don't call this function directly. */
 void _err_unlink_record(ErrRecord *errrecord);
+
+/** Returns pointer to current error record.  Called internally by
+    the raise() macro.  Don't call this function directly. */
 ErrRecord *_err_get_record();
 
 
-/** @endcond */
 
 
 /**

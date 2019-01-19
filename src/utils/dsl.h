@@ -125,6 +125,11 @@ typedef HMODULE dsl_handle;
 #define dsl_close(handle) \
   ((int)!FreeLibrary((HMODULE)(handle)))
 
+/**
+  Returns a pointer to a human-readable string describing the most
+  recent error or NULL if no errors have occurred since the last call
+  to dsl_error().
+*/
 inline static const char *dsl_error(void)
 {
   DWORD lasterr = GetLastError();

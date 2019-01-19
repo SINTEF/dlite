@@ -107,6 +107,11 @@ generate_def(dlite "${sources}" deffile)
 add_library(dlite SHARED ${sources} ${deffile})
 add_library(dlite-static STATIC ${sources})
 
+# This target creates a static library build with position-
+# independent code. It is used internally by the plugins and is not
+# installed
+add_library(dlite-static-pic STATIC ${sources})
+
 target_link_libraries(dlite
   ${json_link_libraries}
   ${hdf5_link_libraries}
@@ -114,6 +119,12 @@ target_link_libraries(dlite
   dlite-utils
   )
 target_link_libraries(dlite-static
+  ${json_link_libraries}
+  ${hdf5_link_libraries}
+  uuid
+  dlite-utils
+  )
+target_link_libraries(dlite-static-pic
   ${json_link_libraries}
   ${hdf5_link_libraries}
   uuid
@@ -129,12 +140,21 @@ set(dlite_INCLUDE_DIRS
   )
 target_include_directories(dlite PUBLIC ${dlite_INCLUDE_DIRS})
 target_include_directories(dlite-static PUBLIC ${dlite_INCLUDE_DIRS})
+target_include_directories(dlite-static-pic PUBLIC ${dlite_INCLUDE_DIRS})
 
+add_dependencies(dlite
+  uuidProj
+)
 add_dependencies(dlite-static
   uuidProj
   ${HDF5_DEPENDENCIES}
   ${JANSSON_DEPENDENCIES}
   )
+add_dependencies(dlite-static-pic
+  uuidProj
+  )
+
+set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 install(
   TARGETS dlite dlite-static

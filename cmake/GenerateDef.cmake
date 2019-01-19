@@ -21,12 +21,11 @@ function(generate_def target sources defFile)
   if(MSVC)
     set(output ${CMAKE_CURRENT_BINARY_DIR}/${target}.def)
     set(xmlfile ${dlite_BINARY_DIR}/doc/xml/index.xml)
-    set(output ${CMAKE_CURRENT_BINARY_DIR}/${target}.def)
     add_custom_command(
       OUTPUT ${output}
       COMMAND
         ${PYTHON_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/GenerateDef.py
-        --output ${output} ${target} ${xmlfile} ${sources}
+        --output ${output} $<TARGET_FILE:${target}> ${xmlfile} ${sources}
       MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/cmake/GenerateDef.py
       DEPENDS
         ${xmlfile}
