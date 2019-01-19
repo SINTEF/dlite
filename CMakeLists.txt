@@ -245,6 +245,7 @@ set(uuid_BINARY_DIR ${BINARY_DIR})
 
 
 # Subdirectories
+add_subdirectory(doc)
 add_subdirectory(src)
 if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
@@ -255,7 +256,6 @@ if(WITH_JSON)
 endif()
 
 add_subdirectory(tools)
-add_subdirectory(doc)
 
 
 #################################################################

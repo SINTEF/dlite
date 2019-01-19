@@ -33,6 +33,8 @@ configure_file(floats.h.in floats.h)
 
 # Generate config.h
 # -----------------
+check_include_file(inttypes.h HAVE_INTTYPES_H)
+
 include(CheckSymbolExists)
 check_symbol_exists(strdup       string.h   HAVE_STRDUP)
 check_symbol_exists(_strdup      string.h   HAVE__STRDUP)
@@ -99,11 +101,10 @@ if(WITH_HDF5)
   set(hdf5_link_libraries dlite-plugins-hdf5 ${HDF5_LIBRARIES})
 endif()
 
-include(GenerateDefs)
-generate_defs(dlite "${sources}" defs)
-message("*** defs=${defs} ***")
+include(GenerateDef)
+generate_def(dlite "${sources}" deffile)
 
-add_library(dlite SHARED ${sources} ${defs})
+add_library(dlite SHARED ${sources} ${deffile})
 add_library(dlite-static STATIC ${sources})
 
 target_link_libraries(dlite

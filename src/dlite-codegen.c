@@ -36,37 +36,6 @@ static int copy(TGenBuf *s, const char *template, int len,
 }
 
 
-/* Generator function for listing dimensions. */
-/*
-static int list_dimensions(TGenBuf *s, const char *template, int len,
-                           const TGenSubs *subs, void *context)
-{
-  int retval = 0;
-  DLiteMeta *meta = (DLiteMeta *)((Context *)context)->inst;
-  TGenSubs dsubs;
-  size_t i;
-  if (!dlite_meta_is_metameta(meta->meta))
-    return err(TGenSyntaxError,
-               "\"list_dimensions\" only works for metadata");
-
-  if ((retval = tgen_subs_copy(&dsubs, subs))) goto fail;
-  for (i=0; i < meta->ndimensions; i++) {
-    DLiteDimension *d = meta->dimensions + i;
-    tgen_subs_set(&dsubs, "dim.name", d->name, NULL);
-    tgen_subs_set(&dsubs, "dim.descr", d->description, NULL);
-    tgen_subs_set_fmt(&dsubs, "dim.value", NULL, "%zu", DLITE_DIM(meta, i));
-    tgen_subs_set_fmt(&dsubs, "dim.i",     NULL, "%zu", i);
-    tgen_subs_set(&dsubs, ",",  (i < meta->ndimensions-1) ? ","  : "", NULL);
-    tgen_subs_set(&dsubs, ", ", (i < meta->ndimensions-1) ? ", " : "", NULL);
-    if ((retval = tgen_append(s, template, len, &dsubs, context))) goto fail;
-  }
- fail:
-  tgen_subs_deinit(&dsubs);
-  return retval;
-}
-*/
-
-
 /* Help function for list_dimensions.  If `metameta` is non-zero,
    `subs` is assigned the dimensions of `meta->meta`, otherwise it is
    assigned the dimensions of `meta`. Returns non-zero on error. */
@@ -250,7 +219,7 @@ static int list_dimensions(TGenBuf *s, const char *template, int len,
   return list_dimensions_helper(s, template, len, subs, context, 0);
 }
 
-/* Generator function for listing properties. */
+/* Generator function for listing dimensions. */
 static int list_meta_dimensions(TGenBuf *s, const char *template, int len,
                                 const TGenSubs *subs, void *context)
 {
@@ -263,18 +232,6 @@ static int list_properties(TGenBuf *s, const char *template, int len,
 {
   return list_properties_helper(s, template, len, subs, context, 0);
 }
-
-/* Generator function for listing metadata properties. */
-/*
-static int list_meta_dimensions(TGenBuf *s, const char *template, int len,
-                                const TGenSubs *subs, void *context)
-{
-  Context c;
-  c.inst = (DLiteInstance *)((Context *)context)->inst->meta;
-  c.iprop = ((Context *)context)->iprop;
-  return list_dimensions(s, template, len, subs, &c);
-}
-*/
 
 /* Generator function for listing metadata properties. */
 static int list_meta_properties(TGenBuf *s, const char *template, int len,
@@ -299,13 +256,11 @@ static int list_meta_relations(TGenBuf *s, const char *template, int len,
 
   Returns non-zero on error.
 */
-int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
+int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
 {
   char *name, *version, *namespace, **descr;
   const DLiteMeta *meta = inst->meta;
   int isdata=0, ismeta=0, ismetameta=0;
-  //size_t i;
-  //char basename[256], *header=NULL;
   char *basename, *header=NULL;
 
   /* Determine what this data is */
@@ -384,13 +339,7 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   basename = tgen_camel_to_underscore(name, -1);
   tgen_subs_set(subs, "basename", basename, NULL);
   free(basename);
-  /*
-  basename[0] = '\0';
-  snprintf(basename, sizeof(basename), "%s", name);
-  for (i=0; i < strlen(basename); i++)
-    basename[i] = tolower(basename[i]);
-  tgen_subs_set(subs, "basename", basename, NULL);
-  */
+
   return 0;
 }
 
@@ -400,7 +349,7 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst)
 
   Returns non-zero on error.
 */
-int option_subs(TGenSubs *subs, const char *options)
+int dlite_option_subs(TGenSubs *subs, const char *options)
 {
   const char *v, *k = options;
   while (k && *k && *k != '#') {
@@ -436,8 +385,8 @@ char *dlite_codegen(const char *template, const DLiteInstance *inst,
   context.iprop = -1;
 
   tgen_subs_init(&subs);
-  if (instance_subs(&subs, inst)) return NULL;
-  if (option_subs(&subs, options)) return NULL;
+  if (dlite_instance_subs(&subs, inst)) return NULL;
+  if (dlite_option_subs(&subs, options)) return NULL;
   text = tgen(template, &subs, &context);
   tgen_subs_deinit(&subs);
   return text;

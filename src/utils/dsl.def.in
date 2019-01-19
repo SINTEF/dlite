@@ -1,6 +1,0 @@
-LIBRARY @LIBRARY@
-EXPORTS
-dsl_open
-dsl_sym
-dsl_error
-dsl_close

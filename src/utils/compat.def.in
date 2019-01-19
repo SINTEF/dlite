@@ -1,4 +1,0 @@
-LIBRARY @LIBRARY@
-EXPORTS
-strdup
-strndup

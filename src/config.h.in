@@ -13,6 +13,9 @@
 #cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
 
+/* Whether header inttypes.h is available */
+#cmakedefine HAVE_INTTYPES_H
+
 /* Get rid of some annoying MSVC warnings */
 #ifdef _MSC_VER
  /* do not warn about fully valid use of alingof() */

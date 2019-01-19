@@ -1,6 +1,6 @@
-find_package(Doxygen)
+find_package(Doxygen REQUIRED)
 
-if (DOXYGEN_FOUND)
+#if(DOXYGEN_FOUND)
   set(dependencies
     ${dlite_SOURCE_DIR}/README.md
     ${dlite_SOURCE_DIR}/doc/Doxyfile.in
@@ -26,7 +26,6 @@ if (DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/utils/fileutils.h
     ${dlite_SOURCE_DIR}/src/utils/globmatch.h
     ${dlite_SOURCE_DIR}/src/utils/map.h
-    #${dlite_SOURCE_DIR}/src/utils/plugins.h
     ${dlite_SOURCE_DIR}/src/utils/strtob.h
     ${dlite_SOURCE_DIR}/src/utils/tgen.h
     ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
@@ -48,11 +47,12 @@ if (DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite-type.h html/src/dlite-type.h
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png html/SOFT-metadata-structure.png
     DEPENDS ${dependencies}
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating API documentation with Doxygen" VERBATIM
     )
 
-  add_custom_target(doc
+  add_custom_target(doc ALL
     DEPENDS html/index.html
     )
 
@@ -61,4 +61,4 @@ if (DOXYGEN_FOUND)
     DESTINATION share/dlite
     )
 
-endif (DOXYGEN_FOUND)
+#endif(DOXYGEN_FOUND)

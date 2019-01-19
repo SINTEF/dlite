@@ -1,8 +1,0 @@
-LIBRARY @LIBRARY@
-EXPORTS
-fu_opendir
-fu_nextfile
-fu_closedir
-fu_startmatch
-fu_nextmatch
-fu_endmatch
