@@ -1,0 +1,8 @@
+LIBRARY @LIBRARY@
+EXPORTS
+dlite_get_uuid
+dlite_join_meta_uri
+dlite_split_meta_uri
+dlite_option_parse
+dlite_join_uri
+dlite_split_uri

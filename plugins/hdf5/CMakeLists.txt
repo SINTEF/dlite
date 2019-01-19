@@ -3,6 +3,9 @@
 
 set(sources
   dh5lite.c
+  # Can we remove these dependencies?
+  ${dlite-src_SOURCE_DIR}/dlite-misc.c
+  ${dlite-src_SOURCE_DIR}/dlite-type.c
   )
 
 add_definitions(-DHAVE_CONFIG_H)
@@ -15,9 +18,9 @@ target_link_libraries(dlite-plugins-hdf5
   )
 target_include_directories(dlite-plugins-hdf5 PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${dlite_SOURCE_DIR}/src
-  ${dlite_SOURCE_DIR}/src/utils
-  ${dlite_BINARY_DIR}/src
+  ${dlite-src_SOURCE_DIR}
+  ${dlite-src_BINARY_DIR}
+  ${uuid_BINARY_DIR}
   ${HDF5_INCLUDE_DIRS}
   )
 

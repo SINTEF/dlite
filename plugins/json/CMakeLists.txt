@@ -6,6 +6,9 @@ set(sources
   dlite-json-storage.c
   str.c
   vector.c
+  # Can we remove these dependencies?
+  ${dlite-src_SOURCE_DIR}/dlite-misc.c
+  ${dlite-src_SOURCE_DIR}/dlite-type.c
   )
 
 add_definitions(-DHAVE_CONFIG_H)
@@ -17,8 +20,8 @@ target_link_libraries(dlite-plugins-json
   )
 target_include_directories(dlite-plugins-json PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${dlite_SOURCE_DIR}/src
-  ${dlite_BINARY_DIR}/src
+  ${dlite-src_SOURCE_DIR}
+  ${dlite-src_BINARY_DIR}
   ${uuid_BINARY_DIR}
   ${uuid_SOURCE_DIR}
   ${JANSSON_INCLUDE_DIRS}

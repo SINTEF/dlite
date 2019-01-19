@@ -509,7 +509,7 @@ int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
     case 1: m = snprintf(dest, n, "%*.*hhd", w, r, *((int8_t *)p));  break;
     case 2: m = snprintf(dest, n, "%*.*hd",  w, r, *((int16_t *)p)); break;
     case 4: m = snprintf(dest, n, "%*.*d",   w, r, *((int32_t *)p)); break;
-    case 8: m = snprintf(dest, n, "%*.*ld",  w, r, *((int64_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*lld", w, r, *((int64_t *)p)); break;
     default: return err(-1, "invalid int size: %zu", size);
     }
     break;
@@ -519,7 +519,7 @@ int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
     case 1: m = snprintf(dest, n, "%*.*hhu", w, r, *((uint8_t *)p));  break;
     case 2: m = snprintf(dest, n, "%*.*hu",  w, r, *((uint16_t *)p)); break;
     case 4: m = snprintf(dest, n, "%*.*u",   w, r, *((uint32_t *)p)); break;
-    case 8: m = snprintf(dest, n, "%*.*lu",  w, r, *((uint64_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*llu", w, r, *((uint64_t *)p)); break;
     default: return err(-1, "invalid int size: %zu", size);
     }
     break;
