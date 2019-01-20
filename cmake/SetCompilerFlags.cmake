@@ -1,3 +1,10 @@
+# -- Functions for enabling additional compiler flag if it is supported
+#
+# Provided functions
+#   enable_c_compiler_flag_if_supported(flag)
+#   enable_cxx_compiler_flag_if_supported(flag)
+#   enable_fortran_compiler_flag_if_supported(flag)
+#
 if(SetCompilerFlagsIncluded)
   return()
 endif()

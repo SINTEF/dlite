@@ -14,7 +14,6 @@ target_link_libraries(dlite-plugins-hdf5
 target_include_directories(dlite-plugins-hdf5 PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
-  ${dlite_SOURCE_DIR}/src/utils
   ${dlite_BINARY_DIR}/src
   ${HDF5_INCLUDE_DIRS}
   )

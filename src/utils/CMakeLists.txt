@@ -138,7 +138,7 @@ add_definitions(
   )
 
 add_library(dlite-utils STATIC ${sources})
-target_include_directories(dlite-utils PRIVATE
+target_include_directories(dlite-utils PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   )

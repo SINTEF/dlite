@@ -5,10 +5,11 @@ cmake_minimum_required(VERSION 3.4)
 #cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
-
 project(dlite
   VERSION 0.2
-  LANGUAGES C)
+  #DESCRIPTION "Lightweight library for working with scientific data"
+  LANGUAGES C
+  )
 
 
 # Options
@@ -21,6 +22,9 @@ option(WITH_JSON    "Whether to build with JSON support"             ON)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
+
+# Set defaults
+include(SetDefaults)
 
 # Enable compiler warnings
 include(SetCompilerFlags)
@@ -220,20 +224,29 @@ endif()
 # uuid
 # ====
 set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
+set(uuid_BINARY_DIR ${dlite_BINARY_DIR}/uuid)
+set(UUID_LIBRARIES ${uuid_BINARY_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
 set(cmake_args
   -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+  -DCMAKE_BUILD_TYPE=Release
   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
 ExternalProject_Add(
   uuidProj
-  PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid
-  SOURCE_DIR      ${uuid_SOURCE_DIR}
-  CMAKE_ARGS      ${cmake_args}
-  UPDATE_COMMAND  ""
-  #TEST_COMMAND    ctest
-  #INSTALL_COMMAND ""
+  PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/uuid
+  SOURCE_DIR        ${uuid_SOURCE_DIR}
+  BINARY_DIR        ${uuid_BINARY_DIR}
+  CMAKE_ARGS        ${cmake_args}
+  UPDATE_COMMAND    ""
+  BUILD_BYPRODUCTS  ${UUID_LIBRARIES} ${uuid_BINARY_DIR}/integers.h
+  #TEST_COMMAND      ctest
+  #INSTALL_COMMAND   ""
 )
-ExternalProject_Get_Property(uuidProj BINARY_DIR)
-set(uuid_BINARY_DIR ${BINARY_DIR})
+set_source_files_properties(
+    ${UUID_LIBRARIES}
+    ${uuid_BINARY_DIR}/integers.h
+  PROPERTIES
+    GENERATED uuidProj
+  )
 
 
 #################################################################
