@@ -32,18 +32,25 @@ link_directories(
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite uuid dlite-utils)
+  target_link_libraries(${test} dlite-static uuid-static dlite-utils-static)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_BINARY_DIR}/src
     ${uuid_BINARY_DIR}
     )
-  add_dependencies(${test} dlite)
+  add_dependencies(${test} dlite-static)
 
   add_test(
     NAME ${test}
     COMMAND ${test}
     )
+  # Hmm, for some reason the tests seems to link the shared uuid library...
+  # On Windows we must therefore add uuid.dll to PATH.
+  if(MSVC)
+    set_tests_properties(${test} PROPERTIES
+      ENVIRONMENT "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
+      )
+  endif()
 endforeach()
 
 # Add extra include dir for json tests

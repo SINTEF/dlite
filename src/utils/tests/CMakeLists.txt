@@ -31,7 +31,7 @@ link_directories(
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite-utils)
+  target_link_libraries(${test} dlite-utils-static)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src/tests
     ${dlite-src-utils_SOURCE_DIR}
@@ -43,6 +43,9 @@ foreach(test ${tests})
     NAME ${test}
     COMMAND ${test}
     )
+  #set_tests_properties(${test} PROPERTIES
+  #  ENVIRONMENT "PATH=$<TARGET_FILE_DIR:dlite-utils>;$ENV{PATH}"
+  #  )
 endforeach()
 
 

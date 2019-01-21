@@ -8,7 +8,9 @@ add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 if(WITH_JSON)
   add_custom_command(
     OUTPUT chemistry.h
-    COMMAND ${dlite-tools_BINARY_DIR}/dlite-codegen
+    COMMAND
+      ${CMAKE_COMMAND} -E env "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
+      ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
       --driver-uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
       --output chemistry.h
@@ -20,14 +22,14 @@ if(WITH_JSON)
 
   add_executable(test_codegen
     test_codegen.c ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h)
-  target_link_libraries(test_codegen dlite uuid)
+  target_link_libraries(test_codegen dlite-static uuid-static)
   target_include_directories(test_codegen PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_BINARY_DIR}/src
     ${uuid_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
-  add_dependencies(test_codegen dlite uuidProj)
+  add_dependencies(test_codegen dlite-static uuidProj)
 
   add_test(
     NAME test-codegen
@@ -35,4 +37,13 @@ if(WITH_JSON)
   )
   set_tests_properties(test-codegen PROPERTIES
     DEPENDS test_codegen)
+
+  # Hmm, for some reason the tests seems to link the shared uuid library...
+  # On Windows we must therefore add uuid.dll to PATH.
+  if(MSVC)
+    set_tests_properties(test-codegen PROPERTIES
+      ENVIRONMENT "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
+      )
+  endif()
+
 endif()
