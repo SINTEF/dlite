@@ -2,7 +2,7 @@
 project(dlite-src C)
 
 # Workaround for CMake not setting the correct binary path for MSVC
-if(MSVC)
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(dlite-src_BINARY_DIR ${dlite-src_BINARY_DIR}/$<CONFIG>)
 endif()
 
@@ -71,7 +71,7 @@ configure_file(config.h.in config.h)
 add_subdirectory(utils)
 
 set(sources
-  dlite-utils.c
+  dlite-misc.c
   dlite-store.c
   dlite-type.c
   dlite-arrays.c
@@ -93,22 +93,18 @@ add_definitions(
 link_directories(${uuid_BINARY_DIR})
 
 if(WITH_JSON)
-  set(json_link_libraries plugins-json ${JSON_LIBRARIES})
+  set(json_link_libraries dlite-plugins-json ${JSON_LIBRARIES})
 endif()
 if(WITH_HDF5)
-  set(hdf5_link_libraries plugins-hdf5 ${HDF5_LIBRARIES})
+  set(hdf5_link_libraries dlite-plugins-hdf5 ${HDF5_LIBRARIES})
 endif()
 
 add_library(dlite ${sources})
 target_link_libraries(dlite
-  #plugins-hdf5
-  #plugins-json
   ${json_link_libraries}
   ${hdf5_link_libraries}
   uuid
-  #${HDF5_LIBRARIES}
-  #${JANSSON_LIBRARIES}
-  utils
+  dlite-utils
   )
 target_include_directories(dlite PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
