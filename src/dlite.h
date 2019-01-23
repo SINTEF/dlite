@@ -7,7 +7,7 @@
 */
 
 #include "dlite-type.h"
-#include "dlite-utils.h"
+#include "dlite-misc.h"
 #include "dlite-entity.h"
 #include "dlite-storage.h"
 #include "dlite-collection.h"

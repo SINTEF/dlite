@@ -8,7 +8,7 @@ if (DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
 
     ${dlite_SOURCE_DIR}/src/dlite.h
-    ${dlite_SOURCE_DIR}/src/dlite-utils.h
+    ${dlite_SOURCE_DIR}/src/dlite-misc.h
     ${dlite_SOURCE_DIR}/src/dlite-type.h
     ${dlite_SOURCE_DIR}/src/dlite-storage.h
     ${dlite_SOURCE_DIR}/src/dlite-entity.h
