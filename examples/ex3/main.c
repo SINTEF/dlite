@@ -47,8 +47,8 @@ int main()
   p->phaseselementdep[1]=1;	// MG2SI depends on element Mg
 
   p->varnames[0]=strdup("T");
-//  p->varranges[0][0]=500.;	// in K
-//  p->varranges[0][1]=800.;	// in K
+  p->varranges[0*ncalc+0]=500.;	// in K
+  p->varranges[0*ncalc+1]=800.;	// in K
 
   p->condnames[0]=strdup("X0(Mg)");
   p->condvalues[0]=0.1;		// in at%
@@ -58,11 +58,11 @@ int main()
   p->calcnames[0]=strdup("fv(MG2SI)");
   p->calcnames[1]=strdup("X(MG2SI,Si)");
 
-//  p->calcvalues[0,0]=0.2;		// "fv(MG2SI)" at 500 K
-//  p->calcvalues[0,1]=0.1;		// "fv(MG2SI)" at 800 K
+  p->calcvalues[0*ncalc+0]=0.2;		// "fv(MG2SI)" at 500 K
+  p->calcvalues[0*ncalc+1]=0.1;		// "fv(MG2SI)" at 800 K
   
-//  p->calcvalues[1,0]=0.33;		// "X(MG2SI,Si)" at 500 K
-//  p->calcvalues[1,1]=0.38;		// "X(MG2SI,Si)" at 800 K
+  p->calcvalues[1*ncalc+0]=0.33;	// "X(MG2SI,Si)" at 500 K
+  p->calcvalues[1*ncalc+1]=0.38;	// "X(MG2SI,Si)" at 800 K
 
 
   /* Save instance */
@@ -87,7 +87,7 @@ int main()
 	list_fv[i]=value // add the value to the list
   */
   // compute fv for the first phase (dependent)
-  //	list_fv[0]=1. - sum (list_fv[1:nphases])
+  //	list_fv[0]=check(1. - sum (list_fv[1:nphases])) raise error
 
 /*
   // list of composition
