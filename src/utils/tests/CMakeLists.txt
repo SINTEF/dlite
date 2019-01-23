@@ -13,7 +13,7 @@ set(tests
   )
 
 # Workaround for old CMake adding CONFIG to binary path for MSVC
-if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12")
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
   set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
@@ -31,13 +31,13 @@ link_directories(
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} utils)
+  target_link_libraries(${test} dlite-utils)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src/tests
     ${dlite-src-utils_SOURCE_DIR}
     ${dlite-src-utils_BINARY_DIR}
     )
-  add_dependencies(${test} utils)
+  add_dependencies(${test} dlite-utils)
 
   add_test(
     NAME ${test}

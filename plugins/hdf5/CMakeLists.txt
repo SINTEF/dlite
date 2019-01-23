@@ -7,11 +7,11 @@ set(sources
 
 add_definitions(-DHAVE_CONFIG_H)
 
-add_library(plugins-hdf5 ${sources})
-target_link_libraries(plugins-hdf5
+add_library(dlite-plugins-hdf5 ${sources})
+target_link_libraries(dlite-plugins-hdf5
   ${HDF5_LIBRARIES}
   )
-target_include_directories(plugins-hdf5 PRIVATE
+target_include_directories(dlite-plugins-hdf5 PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
   ${dlite_SOURCE_DIR}/src/utils
@@ -20,10 +20,10 @@ target_include_directories(plugins-hdf5 PRIVATE
   )
 
 if(${HDF5_DEPENDENCIES})
-  add_dependencies(plugins-hdf5 ${HDF5_DEPENDENCIES})
+  add_dependencies(dlite-plugins-hdf5 ${HDF5_DEPENDENCIES})
 endif()
 
 install(
-  TARGETS plugins-hdf5
+  TARGETS dlite-plugins-hdf5
   DESTINATION lib
 )
