@@ -9,21 +9,15 @@
 
 int main()
 {
-<<<<<<< HEAD
+
   size_t nelements=3, nphases=2, nvars=1, nbounds=2 , nconds=2 , ncalc=2, npoints=2;
-=======
-  size_t nelements=3, nphases=2;
->>>>>>> a2bd815d5b07fda9e01b4269583711857a94ef3b
   char *elements[] = {"Al", "Mg", "Si"};
   char *phases[] = {"FCC_A1", "MG2SI"};
   size_t i, j;
   double tmp, atvol0;
 
-<<<<<<< HEAD
   size_t dims[] = {nelements, nphases, nvars, nbounds , nconds , ncalc, npoints};
-=======
-  size_t dims[] = {nelements, nphases, 0, 0, 0, 0, 0};
->>>>>>> a2bd815d5b07fda9e01b4269583711857a94ef3b
+
   char *path = "PhilibTable.json";
   DLiteStorage *s;
   DLiteMeta *table;
@@ -76,6 +70,50 @@ int main()
   dlite_instance_save(s, (DLiteInstance *)p);
   dlite_storage_close(s);
 
+  /* What we expect from philib */
+  /* Get the material state  	*/
+  /* output:			*/
+  /*	    - list_fv[nphases]			*/
+  /*	    - list_comp[nphases,nelements]	*/
+  
+  // List of volume fractions
+  /* Make the list of all calculated volume fraction
+   list of values of all the fv for all phases (except first phase that is the dependent one) ordered
+  for (i=1,nphases)
+	phaseloc=phases[i]
+  	// find the corresponding calcnames if not raise error
+	iloc=find(..)
+	value=filter(calcvalues[iloc,0])	// add a filter to ensure realistic value
+	list_fv[i]=value // add the value to the list
+  */
+  // compute fv for the first phase (dependent)
+  //	list_fv[0]=1. - sum (list_fv[1:nphases])
+
+/*
+  // list of composition
+  go through all the phases except first
+  for i=1,nphases
+	phaseloc=phases[i]
+	for elt=0,nelt	
+	name=X(phaseloc, element[elt])
+	// find the corresponding calcnames else iloc=-1
+	if(iloc>0)
+		value=filter(calcvalues[iloc,0]
+		list_comp[i,elt]=value
+	else
+		list_comp[i,elt]=0.0
+	endif
+
+	// compute the dependent element
+	list_comp[i,phaseselementdep[i]]=1. - sum( list_comp)
+   end for loop
+
+   // deal with the matrix composition
+   list_comp[0, elt] = X0 (elt) - sum ( list_fv[phase] * list_comp(phase,elt) )
+
+   // final check that all these values are not outside bounds
+
+*/
 
   /* Free instance and its entity */
   dlite_instance_decref((DLiteInstance *)p);
