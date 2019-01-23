@@ -9,13 +9,13 @@
 
 int main()
 {
-  size_t nelements=4, nphases=3;
+  size_t nelements=3, nphases=2;
   char *elements[] = {"Al", "Mg", "Si"};
   char *phases[] = {"FCC_A1", "MG2SI"};
   size_t i, j;
   double tmp, atvol0;
 
-  size_t dims[] = {nelements, nphases};
+  size_t dims[] = {nelements, nphases, 0, 0, 0, 0, 0};
   char *path = "PhilibTable.json";
   DLiteStorage *s;
   DLiteMeta *table;
@@ -27,8 +27,9 @@ int main()
 
   /* Load PhilibTable entity */
   s = dlite_storage_open("json", path, "mode=r");
-  table = (DLiteMeta *)
-    dlite_meta_load(s, "http://meta.sintef.no/philib/0.1/PhilibTable");
+  char *uri = "http://meta.sintef.no/philib/0.1/PhilibTable";
+  table = (DLiteMeta *)dlite_meta_load(s, uri);
+  size_t ndims = table->ndimensions;
   dlite_storage_close(s);
 
   /* Create instance */
