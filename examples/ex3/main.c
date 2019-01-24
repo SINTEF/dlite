@@ -51,6 +51,20 @@ int searchstring(char** arraystr,char* key, int size){
    return iloc;
 }
 
+double bounding(double value, double vmin,double vmax){
+   double val=value;
+   if(val>vmax) val=vmax;
+   if(val<vmin) val=vmin;
+   return val;
+}
+
+int checkInBounds(double value, double vmin,double vmax){
+   int test=0;
+   if(value>vmax) test=1;
+   if(value<vmin) test=-1;
+   return test;
+}
+
 int main()
 {
 
@@ -142,7 +156,7 @@ int main()
   	// find the corresponding calcnames if not raise error
 	iloc=searchstring(p->calcnames,str1,ncalc);
 	if(iloc!=-1){
-           value=p->calcvalues[iloc*ncalc+0];	// add a filter to ensure realistic value
+           value=bounding(p->calcvalues[iloc*ncalc+0],0.0,1.0);	// add a filter to ensure realistic value
         }
 	else{
 	   printf("Error: volume fraction for phase %s not found\n",p->phases[i]); // raise an error
@@ -154,6 +168,8 @@ int main()
   
   // compute fv for the first phase (dependent)
   list_fv[0] =1. - sum;
+  // check if the dependent value is in bounds
+  if(checkInBounds(list_fv[0],0.0,1.0)!=0) printf("Error: volume fraction for phase 0 out of bounds\n");
   
   printf("------ list_fv ------\n");
   for(int i=0;i<nphases;i++){
