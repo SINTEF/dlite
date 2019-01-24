@@ -84,6 +84,7 @@ int main()
   char* str1,str2;
   int iloc;
   double list_fv[nphases];
+  double list_comp[nphases][nelements];
   double value;
   double sum;
 
@@ -176,31 +177,41 @@ int main()
 	printf("%s =%f\n",fvname(p->phases[i]),list_fv[i]);
   }
 
-/*
-  // list of composition
-  go through all the phases except first
-  for i=1,nphases
-	phaseloc=phases[i]
-	for elt=0,nelt	
-	name=X(phaseloc, element[elt])
-	// find the corresponding calcnames else iloc=-1
-	if(iloc>0)
-		value=filter(calcvalues[iloc,0]
-		list_comp[i,elt]=value
-	else
-		list_comp[i,elt]=0.0
-	endif
 
+  // list of composition
+  //go through all the phases except first
+  for(int i=1;i<nphases;i++){
+	sum=0.0;
+	for( int ielt=0;ielt<nelements;ielt++){	
+	   str1=xname(p->phases[i],p->elements[ielt]);
+	// find the corresponding calcnames else iloc=-1
+	   iloc=searchstring(p->calcnames,str1,ncalc);	
+	   if(iloc>0){
+		value=bounding(p->calcvalues[iloc*ncalc+0],0.0,1.0);
+		list_comp[i][ielt]=value;
+	   }
+	   else{
+		list_comp[i][ielt]=0.0;
+	   }
+	   sum +=list_comp[i][ielt];
+	}
 	// compute the dependent element
-	list_comp[i,phaseselementdep[i]]=1. - sum( list_comp)
-   end for loop
+	list_comp[i][p->phaseselementdep[i]]=1. - sum;
+   }
 
    // deal with the matrix composition
-   list_comp[0, elt] = X0 (elt) - sum ( list_fv[phase] * list_comp(phase,elt) )
+   //for( int ielt=0;ielt<nelements;ielt++){
+   //	list_comp[0][ielt] = X0 (elt) - sum ( list_fv[phase] * list_comp(phase,elt) )
 
+  printf("------ list_comp ------\n");
+  for(int i=1;i<nphases;i++){
+    for( int ielt=0;ielt<nelements;ielt++){
+	printf("%s =%f\n",xname(p->phases[i],p->elements[ielt]),list_comp[i][ielt]);
+    }
+  }
    // final check that all these values are not outside bounds
 
-*/
+
 
   /* Free instance and its entity */
   dlite_instance_decref((DLiteInstance *)p);
