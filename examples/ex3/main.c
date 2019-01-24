@@ -6,6 +6,50 @@
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) # s
 
+char* fvname(char* phase){
+   char* head="fv(";
+   char* tail=")";
+   char* string=(char*) malloc(1+strlen(head)+strlen(phase)+strlen(tail));
+
+   strcpy(string,head);
+   strcat(string,phase);
+   strcat(string,tail);
+
+   printf("%s\n",string);
+
+   return string;
+}
+
+char* xname(char* phase,char* element){
+   char* head="X(";
+   char* middle=",";
+   char* tail=")";
+   char* string=(char*) malloc(1+strlen(head)+strlen(phase)+strlen(middle)+strlen(element)+strlen(tail));
+
+   strcpy(string,head);
+   strcat(string,phase);
+   strcat(string,middle);
+   strcat(string,element);
+   strcat(string,tail);
+
+   printf("%s\n",string);
+
+   return string;
+}
+
+int searchstring(char** arraystr,char* key, int size){
+
+   int iloc=-1;
+   
+   for (int i=0; i<size;i++){
+      if(strcmp(arraystr[i],key)==0){
+         iloc=i;
+         break;
+      }
+   }
+
+   return iloc;
+}
 
 int main()
 {
@@ -22,6 +66,9 @@ int main()
   DLiteStorage *s;
   DLiteMeta *table;
   PhilibTable *p;
+
+  char* str1,str2;
+  int iloc;
 
   // new variables
   char *id ="mydata";
@@ -64,6 +111,13 @@ int main()
   p->calcvalues[1*ncalc+0]=0.33;	// "X(MG2SI,Si)" at 500 K
   p->calcvalues[1*ncalc+1]=0.38;	// "X(MG2SI,Si)" at 800 K
 
+
+  str1=fvname(p->phases[1]);
+  str2=xname(p->phases[1],p->elements[2]);
+
+  iloc=searchstring(p->calcnames,str1,ncalc);
+  //iloc=searchstring(p->phases,p->phases[1],nphases);
+  printf("position: %d\n",iloc);
 
   /* Save instance */
   s = dlite_storage_open("json", "example-AlMgSi.json", "mode=w");
@@ -121,3 +175,5 @@ int main()
 
   return 0;
 }
+
+
