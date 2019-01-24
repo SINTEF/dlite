@@ -15,7 +15,7 @@ char* fvname(char* phase){
    strcat(string,phase);
    strcat(string,tail);
 
-   printf("%s\n",string);
+   //printf("%s\n",string);
 
    return string;
 }
@@ -32,7 +32,7 @@ char* xname(char* phase,char* element){
    strcat(string,element);
    strcat(string,tail);
 
-   printf("%s\n",string);
+   //printf("%s\n",string);
 
    return string;
 }
@@ -69,6 +69,9 @@ int main()
 
   char* str1,str2;
   int iloc;
+  double list_fv[nphases];
+  double value;
+  double sum;
 
   // new variables
   char *id ="mydata";
@@ -132,16 +135,30 @@ int main()
   
   // List of volume fractions
   /* Make the list of all calculated volume fraction
-   list of values of all the fv for all phases (except first phase that is the dependent one) ordered
-  for (i=1,nphases)
-	phaseloc=phases[i]
+   list of values of all the fv for all phases (except first phase that is the dependent one) ordered*/
+  sum=0.0;
+  for (int i=1;i<nphases;i++){
+	str1=fvname(p->phases[i]);	
   	// find the corresponding calcnames if not raise error
-	iloc=find(..)
-	value=filter(calcvalues[iloc,0])	// add a filter to ensure realistic value
-	list_fv[i]=value // add the value to the list
-  */
+	iloc=searchstring(p->calcnames,str1,ncalc);
+	if(iloc!=-1){
+           value=p->calcvalues[iloc*ncalc+0];	// add a filter to ensure realistic value
+        }
+	else{
+	   printf("Error: volume fraction for phase %s not found\n",p->phases[i]); // raise an error
+           value=0.0;
+	}
+	list_fv[i]=value; // add the value to the list
+	sum += value;
+  }
+  
   // compute fv for the first phase (dependent)
-  //	list_fv[0]=check(1. - sum (list_fv[1:nphases])) raise error
+  list_fv[0] =1. - sum;
+  
+  printf("------ list_fv ------\n");
+  for(int i=0;i<nphases;i++){
+	printf("%s =%f\n",fvname(p->phases[i]),list_fv[i]);
+  }
 
 /*
   // list of composition
