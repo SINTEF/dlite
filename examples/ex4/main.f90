@@ -10,7 +10,7 @@ program FTest
   !type(TChemistryDims) :: dims
 
   ! load a chemistry instance
-  storage = dlite_storage_open("json", "example-AlMgSi.json", "r")
+  storage = dlite_storage_open("json", "example-AlMgSi.json", "mode=r")
   sta = dlite_storage_is_writable(storage)
   write(*,*) "ftest.f90 is_writable answer:", sta
 
