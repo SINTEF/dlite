@@ -1,36 +1,33 @@
-#include <string.h>
+program FTest
+  use iso_c_binding, only : c_ptr
+  use DLite
+  !use Chemistry
 
-#include "dlite.h"
-#include "chemistry.h"
+  implicit none
 
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
+  type(c_ptr) :: storage, chem_c
+  integer :: sta
+  !type(TChemistryDims) :: dims
 
-dlite_storage_open
-dlite_instance_load
-dlite_storage_close
-dlite_instance_save
-dlite_instance_decref
+  ! load a chemistry instance
+  storage = dlite_storage_open("json", "example-AlMgSi.json", "r")
+  sta = dlite_storage_is_writable(storage)
+  write(*,*) "ftest.f90 is_writable answer:", sta
 
+  !chem_c = chemistry_load(storage, "0dcd4925-4844-53ea-ae3d-a5f1cc0270ff")
 
-program main
+  sta = dlite_storage_close(storage)
+  write(*,*) "ftest.f90 close status:", sta
 
-  Pointer s !! DLiteStorage *s;
-  Pointer p !! Chemistry *p;
+  !dims = chemistry_get_dims(chem_c)
+  !write(*,*) "nelements =", dims%nelements
+  !write(*,*) "nphases =", dims%nphases
 
-  /* Load a json file containing the instance of an entity */
-  s = dlite_storage_open("json", "example-6xxx.json", "mode=r");
-  p = dlite_instance_load(s,id);
-  call dlite_storage_close(s);
-  
-  
-  /* Store the modified data in a new file */
-  s = dlite_storage_open("json", "output.json", "mode=w");
-  call dlite_instance_save(s, (DLiteInstance *)p);
-  call dlite_storage_close(s);
-  
-  /* Free instance and its entity */
-  call dlite_instance_decref((DLiteInstance *)p);
+  ! save the same chemistry instance in a new file
+  !storage = dlite_storage_open("hdf5", "example2-6xxx.h5", "w")
+  !sta = chemistry_save(chem_c, storage)
+  !write(*,*) "ftest.f90 chemistry_save status:", sta
+  !sta = dlite_storage_close(storage)
+  !call chemistry_free(chem_c)
 
-stop
-end
+end program FTest
