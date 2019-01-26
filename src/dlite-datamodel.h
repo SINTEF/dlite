@@ -22,7 +22,7 @@ typedef struct _DLiteDataModel DLiteDataModel;
 
 #include "dlite-type.h"
 #include "dlite-storage.h"
-#include "dlite-plugins.h"
+#include "dlite-storage-plugins.h"
 
 
 /**

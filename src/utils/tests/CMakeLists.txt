@@ -3,11 +3,12 @@
 
 set(tests
   test_err
-  test_dsl
+  test_tmpfileplus
   test_fileutils
   test_globmatch
+  test_dsl
+  test_plugin
   test_tgen
-  test_tmpfileplus
 
   tgen_example
   )
@@ -65,4 +66,14 @@ target_include_directories(test_dsl_lib PRIVATE
   )
 if(UNIX)
   target_link_libraries(test_dsl -ldl)
+endif()
+
+
+add_library(test_plugin_lib SHARED test_plugin_lib.c)
+target_include_directories(test_plugin_lib PRIVATE
+    ${dlite-src-utils_SOURCE_DIR}
+    ${dlite-src-utils_BINARY_DIR}
+  )
+if(UNIX)
+  target_link_libraries(test_plugin -ldl)
 endif()

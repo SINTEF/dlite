@@ -29,6 +29,9 @@ check_symbol_exists(_stricmp     string.h   HAVE__STRICMP)
 check_symbol_exists(strncasecmp  string.h   HAVE_STRNCASECMP)
 check_symbol_exists(_strnicmp    string.h   HAVE__STRNICMP)
 
+check_symbol_exists(setenv       stdlib.h   HAVE_SETENV)
+check_symbol_exists(unsetenv     stdlib.h   HAVE_UNSETENV)
+
 check_symbol_exists(getopt       unistd.h   HAVE_GETOPT)
 check_symbol_exists(getopt_long  getopt.h   HAVE_GETOPT_LONG)
 
@@ -120,6 +123,7 @@ set(sources
   err.c
   fileutils.c
   globmatch.c
+  plugin.c
   map.c
   strtob.c
   tgen.c

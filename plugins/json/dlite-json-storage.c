@@ -885,7 +885,7 @@ int dlite_json_set_entity(DLiteStorage *s, const DLiteMeta *e)
 }
 
 
-DLitePlugin dlite_json_plugin = {
+DLiteStoragePlugin dlite_json_plugin = {
   "json",
 
   dlite_json_open,
@@ -914,3 +914,10 @@ DLitePlugin dlite_json_plugin = {
   dlite_json_get_entity,
   dlite_json_set_entity
 };
+
+
+const DLiteStoragePlugin *get_dlite_storage_api(const char *name)
+{
+  UNUSED(name);
+  return &dlite_json_plugin;
+}

@@ -47,6 +47,15 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
                                  const char *options);
 
 /**
+  Like dlite_storage_open(), but takes as input an url of the form
+  ``driver://uri?options``.  The question mark and options may be left out.
+
+  Returns a new storage, or NULL on error.
+*/
+DLiteStorage *dlite_storage_open_url(const char *url);
+
+
+/**
   Closes data handle `d`. Returns non-zero on error.
 */
 int dlite_storage_close(DLiteStorage *s);
