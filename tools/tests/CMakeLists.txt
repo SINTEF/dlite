@@ -22,11 +22,16 @@ if(WITH_JSON)
 
   add_executable(test_codegen
     test_codegen.c ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h)
-  target_link_libraries(test_codegen dlite-static uuid-static)
+  target_link_libraries(test_codegen
+    dlite-static
+    #uuid-static
+    ${UUID_STATIC_LIBRARIES}
+    )
   target_include_directories(test_codegen PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_BINARY_DIR}/src
-    ${uuid_BINARY_DIR}
+    #${uuid_BINARY_DIR}
+    ${UUID_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
   add_dependencies(test_codegen dlite-static uuidProj)

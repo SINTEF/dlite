@@ -85,6 +85,10 @@ endif()
 ####################################################################
 include(ExternalProject)
 
+# A directory that external projects install into
+set(external_INSTALL_DIR ${dlite_BINARY_DIR}/external)
+
+
 if(BUILD_SHARED_LIBS)
   set(LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
   set(LIBRARY_SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX})
@@ -124,7 +128,7 @@ if(WITH_HDF5)
     set(hdf5_VERSION        "${hdf5_MAJOR_VERSION}.${hdf5_MINOR_VERSION}")
     set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
     set(hdf5_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/${hdf5_NAME}")
-    set(hdf5_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
+    set(hdf5_INSTALL_PREFIX "${external_INSTALL_DIR}")
 
     set(cmake_args
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -190,7 +194,7 @@ if(WITH_JSON)
     endif()
     message(STATUS "Download and build jansson as external package")
     set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
-    set(jansson_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
+    set(jansson_INSTALL_PREFIX "${external_INSTALL_DIR}")
     set(cmake_args
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
       -DCMAKE_BUILD_TYPE=Release
@@ -225,11 +229,16 @@ endif()
 # ====
 set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
 set(uuid_BINARY_DIR ${dlite_BINARY_DIR}/uuid)
-set(UUID_LIBRARIES ${uuid_BINARY_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
+set(UUID_LIBRARIES
+  ${external_INSTALL_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
+set(UUID_STATIC_LIBRARIES
+  ${external_INSTALL_DIR}/${LIB_PREFIX}uuid-static${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(UUID_INCLUDE_DIRS ${external_INSTALL_DIR}/include)
 set(cmake_args
   -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
   -DCMAKE_BUILD_TYPE=Release
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
+  -DCMAKE_INSTALL_PREFIX=${external_INSTALL_DIR}
+  )
 ExternalProject_Add(
   uuidProj
   PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/uuid
@@ -238,11 +247,12 @@ ExternalProject_Add(
   CMAKE_ARGS        ${cmake_args}
   UPDATE_COMMAND    ""
   BUILD_BYPRODUCTS  ${UUID_LIBRARIES} ${uuid_BINARY_DIR}/integers.h
-  #TEST_COMMAND      ctest
-  #INSTALL_COMMAND   ""
+  TEST_COMMAND      ctest
+  INSTALL_COMMAND   cmake --build . --target install
 )
 set_source_files_properties(
     ${UUID_LIBRARIES}
+    ${UUID_STATIC_LIBRARIES}
     ${uuid_BINARY_DIR}/integers.h
   PROPERTIES
     GENERATED uuidProj
@@ -274,4 +284,9 @@ install(FILES
   README.md
   #LICENSE.txt
   DESTINATION share/dlite
+  )
+
+install(DIRECTORY
+    ${dlite_BINARY_DIR}/install
+  DESTINATION ${CMAKE_INSTALL_PREFIX}
   )

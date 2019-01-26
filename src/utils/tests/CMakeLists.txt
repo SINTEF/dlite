@@ -38,7 +38,7 @@ foreach(test ${tests})
     ${dlite-src-utils_SOURCE_DIR}
     ${dlite-src-utils_BINARY_DIR}
     )
-  add_dependencies(${test} dlite-utils)
+  add_dependencies(${test} dlite-utils-static)
 
   add_test(
     NAME ${test}

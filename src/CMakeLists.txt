@@ -91,7 +91,7 @@ add_definitions(
   #-DWITH_DEBUG
   )
 
-link_directories(${uuid_BINARY_DIR})
+#link_directories(${uuid_BINARY_DIR})
 
 if(WITH_JSON)
   set(json_link_libraries dlite-plugins-json ${JSON_LIBRARIES})
@@ -106,27 +106,29 @@ add_library(dlite-static STATIC ${sources})
 target_link_libraries(dlite
   ${json_link_libraries}
   ${hdf5_link_libraries}
-  uuid
+  ${UUID_LIBRARIES}
   dlite-utils
   )
 target_link_libraries(dlite-static
   ${json_link_libraries}
   ${hdf5_link_libraries}
-  uuid-static
+  ${UUID_STATIC_LIBRARIES}
   dlite-utils-static
   )
 
 target_include_directories(dlite PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${uuid_SOURCE_DIR}
-  ${uuid_BINARY_DIR}
+  #${uuid_SOURCE_DIR}
+  #${uuid_BINARY_DIR}
+  ${UUID_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${JANSSON_INCLUDE_DIRS}
   )
 target_include_directories(dlite-static PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${uuid_SOURCE_DIR}
-  ${uuid_BINARY_DIR}
+  #${uuid_SOURCE_DIR}
+  #${uuid_BINARY_DIR}
+  ${UUID_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${JANSSON_INCLUDE_DIRS}
   )
@@ -157,9 +159,9 @@ endforeach()
 install(FILES
   dlite.h
   ${headers}
-  ${uuid_SOURCE_DIR}/uuid.h
-  ${uuid_BINARY_DIR}/integers.h
-  ${uuid_BINARY_DIR}/byteorder.h
+  #${uuid_SOURCE_DIR}/uuid.h
+  #${uuid_BINARY_DIR}/integers.h
+  #${uuid_BINARY_DIR}/byteorder.h
   ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
   ${CMAKE_CURRENT_BINARY_DIR}/floats.h
   DESTINATION include/dlite

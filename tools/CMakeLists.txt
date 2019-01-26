@@ -7,15 +7,20 @@ if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
 endif()
 
 
-link_directories(${uuid_BINARY_DIR})
+#link_directories(${uuid_BINARY_DIR})
 
 # dlite-getuuid
 add_executable(dlite-getuuid dlite-getuuid.c)
-target_link_libraries(dlite-getuuid dlite-static uuid-static)
+target_link_libraries(dlite-getuuid
+  dlite-static
+  #uuid-static
+  ${UUID_STATIC_LIBRARIES}
+  )
 target_include_directories(dlite-getuuid PRIVATE
   ${dlite_SOURCE_DIR}/src
-  ${uuid_SOURCE_DIR}
-  ${uuid_BINARY_DIR}
+  #${uuid_SOURCE_DIR}
+  #${uuid_BINARY_DIR}
+  ${UUID_INCLUDE_DIRS}
   )
 
 
@@ -25,7 +30,8 @@ target_link_libraries(dlite-codegen dlite-static)
 target_include_directories(dlite-codegen PRIVATE
   ${dlite_SOURCE_DIR}/src
   ${dlite_BINARY_DIR}/src
-  ${uuid_BINARY_DIR}
+  ${UUID_INCLUDE_DIRS}
+  #${uuid_BINARY_DIR}
   )
 
 

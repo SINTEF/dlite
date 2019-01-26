@@ -27,16 +27,22 @@ endif()
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
 link_directories(
-    ${dlite_BINARY_DIR}/src/utils
+  ${dlite_BINARY_DIR}/src/utils
     )
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite-static uuid-static dlite-utils-static)
+  target_link_libraries(${test}
+    ${UUID_STATIC_LIBRARIES}
+    dlite-static
+    #uuid-static
+    dlite-utils-static
+    )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_BINARY_DIR}/src
-    ${uuid_BINARY_DIR}
+    #${uuid_BINARY_DIR}
+    ${UUID_INCLUDE_DIRS}
     )
   add_dependencies(${test} dlite-static)
 
