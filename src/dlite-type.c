@@ -8,7 +8,7 @@
 #endif
 
 #include "utils/err.h"
-#include "integers.h"
+#include "uuid/integers.h"
 #include "floats.h"
 #include "triplestore.h"
 #include "dlite-entity.h"

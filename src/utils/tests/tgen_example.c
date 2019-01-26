@@ -19,7 +19,7 @@ typedef struct {
 static TGenSubs *loopsubs=NULL;
 
 /* Called at program exit to free up allocated resources (valgrind-friendly) */
-static void deinit()
+static void deinit(void)
 {
   tgen_subs_deinit(loopsubs);
 }

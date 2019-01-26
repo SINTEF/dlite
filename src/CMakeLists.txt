@@ -91,7 +91,7 @@ add_definitions(
   #-DWITH_DEBUG
   )
 
-link_directories(${uuid_BINARY_DIR})
+#link_directories(${uuid_BINARY_DIR})
 
 if(WITH_JSON)
   set(json_link_libraries dlite-plugins-json ${JSON_LIBRARIES})
@@ -100,28 +100,42 @@ if(WITH_HDF5)
   set(hdf5_link_libraries dlite-plugins-hdf5 ${HDF5_LIBRARIES})
 endif()
 
-add_library(dlite ${sources})
+add_library(dlite SHARED ${sources})
+add_library(dlite-static STATIC ${sources})
+
 target_link_libraries(dlite
-  ${json_link_libraries}
-  ${hdf5_link_libraries}
-  uuid
+  ${UUID_LIBRARIES}
   dlite-utils
+  ${CMAKE_DL_LIBS}
   )
-target_include_directories(dlite PRIVATE
+target_link_libraries(dlite-static
+  ${UUID_STATIC_LIBRARIES}
+  dlite-utils-static
+  ${CMAKE_DL_LIBS}
+  )
+
+target_include_directories(dlite PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${uuid_SOURCE_DIR}
-  ${uuid_BINARY_DIR}
-  ${HDF5_INCLUDE_DIRS}
-  ${JANSSON_INCLUDE_DIRS}
+  ${UUID_INCLUDE_DIRS}
   )
+target_include_directories(dlite-static PUBLIC
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${UUID_INCLUDE_DIRS}
+  )
+
 add_dependencies(dlite
   uuidProj
-  ${HDF5_DEPENDENCIES}
-  ${JANSSON_DEPENDENCIES}
+  #${HDF5_DEPENDENCIES}
+  #${JANSSON_DEPENDENCIES}
+  )
+add_dependencies(dlite-static
+  uuidProj
+  #${HDF5_DEPENDENCIES}
+  #${JANSSON_DEPENDENCIES}
   )
 
 install(
-  TARGETS dlite
+  TARGETS dlite dlite-static
   DESTINATION lib
 )
 
@@ -135,9 +149,9 @@ endforeach()
 install(FILES
   dlite.h
   ${headers}
-  ${uuid_SOURCE_DIR}/uuid.h
-  ${uuid_BINARY_DIR}/integers.h
-  ${uuid_BINARY_DIR}/byteorder.h
+  #${uuid_SOURCE_DIR}/uuid.h
+  #${uuid_BINARY_DIR}/integers.h
+  #${uuid_BINARY_DIR}/byteorder.h
   ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
   ${CMAKE_CURRENT_BINARY_DIR}/floats.h
   DESTINATION include/dlite

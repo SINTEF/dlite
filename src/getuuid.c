@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 #include "config.h"
-#include "uuid.h"
-#include "uuid4.h"
+#include "uuid/uuid.h"
+#include "uuid/uuid4.h"
 
 #include "getuuid.h"
 

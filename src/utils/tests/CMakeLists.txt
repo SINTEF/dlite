@@ -32,18 +32,21 @@ link_directories(
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite-utils)
+  target_link_libraries(${test} dlite-utils-static)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src/tests
     ${dlite-src-utils_SOURCE_DIR}
     ${dlite-src-utils_BINARY_DIR}
     )
-  add_dependencies(${test} dlite-utils)
+  add_dependencies(${test} dlite-utils-static)
 
   add_test(
     NAME ${test}
     COMMAND ${test}
     )
+  #set_tests_properties(${test} PROPERTIES
+  #  ENVIRONMENT "PATH=$<TARGET_FILE_DIR:dlite-utils>;$ENV{PATH}"
+  #  )
 endforeach()
 
 
@@ -58,19 +61,15 @@ if(WIN32)
 endif()
 add_library(test_dsl_lib SHARED test_dsl_lib.c ${defs})
 target_include_directories(test_dsl_lib PRIVATE
-    ${dlite-src-utils_SOURCE_DIR}
-    ${dlite-src-utils_BINARY_DIR}
+  ${dlite-src-utils_SOURCE_DIR}
+  ${dlite-src-utils_BINARY_DIR}
   )
-if(UNIX)
-  target_link_libraries(test_dsl -ldl)
-endif()
+target_link_libraries(test_dsl ${CMAKE_DL_LIBS})
 
 
 add_library(test_plugin_lib SHARED test_plugin_lib.c)
 target_include_directories(test_plugin_lib PRIVATE
-    ${dlite-src-utils_SOURCE_DIR}
-    ${dlite-src-utils_BINARY_DIR}
+  ${dlite-src-utils_SOURCE_DIR}
+  ${dlite-src-utils_BINARY_DIR}
   )
-if(UNIX)
-  target_link_libraries(test_plugin -ldl)
-endif()
+target_link_libraries(test_plugin ${CMAKE_DL_LIBS})

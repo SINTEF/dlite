@@ -11,45 +11,52 @@
 #include "utils/compat/getopt.h"
 #include "utils/err.h"
 #include "utils/tgen.h"
+#include "utils/fileutils.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-codegen.h"
 
 
-
 void help()
 {
   char **p, *msg[] = {
-    "Usage: dlite-codegen [OPTIONS] [ID]",
+    "Usage: dlite-codegen [OPTIONS] URL",
     "Generates code from a template and a DLite instance.",
-    "  -d, --driver=STRING          Driver for loading input instance.",
-    "                               Default is \"json\".",
-    "  -O, --driver-options=STRING  Options for loading input instance.",
-    "                               Default is \"mode=r\".",
-    "  -u, --driver-uri=URI         Input uri.",
-    "  -f, --format=STRING          Output format (that is emplate name)",
-    "                               if -t is not given.",
+    "  -f, --format=STRING          Output format if -t is not given.",
+    "                               It should correspond to a template name.",
+    "                               Defaults to \"c-header\"",
     "  -h, --help                   Prints this help and exit.",
     "  -n, --native-typenames       Whether to use native typenames.  The",
     "                               default is to use portable typenames.",
     "                               Ex. \"double\" instead of \"float64_t\".",
     "  -o, --output=PATH            Output file.  Default is stdout.",
+    "  -s, --storage-plugins=PATH   Additional paths to look for storage ",
+    "                               plugins.  May be provided multiple times."
+    "  -t, --template=PATH          Template file to load.",
     "  -v, --variables=STRING       Assignment of additional variable(s).",
     "                               STRING is a semicolon-separated string of",
     "                               VAR=VALUE pairs.  This option may be ",
     "                               provided more than once.",
-    "  -t, --template=PATH          Template file to load.",
     "",
     "The template is either provided via the --template option, or (if",
     "--template is not given) read from stdin.",
     "",
-    "The instance (typically an entity) identified by ID is read from a",
-    "storate using the --driver, --driver-uri and --driver-options options.",
-    "ID may be omitted if the storage only contains one entity.  If --uri is",
-    "not provided, ID should refer to a built-in metadata.",
+    "The URL identifies the instance and should be of the general form:",
     "",
-    "ID should either be an UUID or (more convinient) a namespace/version/name",
-    "uri.",
+    "    driver://loc?options#id",
+    "",
+    "Parts:",
+    "  - `driver` is the driver used for loading the instance (default: json).",
+    "  - `loc` is the file or network path. If omitted, `id` should refer ",
+    "    to a built-in metadata.",
+    "  - `options` is a set of semicolon-separated options of the form ",
+    "    KEY=VAL.  Defaults to \"mode=r\"",
+    "  - `id` identifies the instance.  It should either be an UUID or ",
+    "    (more convinient) a namespace/version/name uri.  It may be omitted",
+    "    the storage only contains one entry."
+    "",
+    "The DLITE_TEMPLATE environment variable will be searched for additional",
+    "templates.",
     "",
     NULL
   };
@@ -65,14 +72,11 @@ int main(int argc, char *argv[])
   char *text=NULL, *template=NULL;
 
   /* Command line arguments */
-  char *driver = "json";
-  char *driver_options = "mode=r";
-  char *driver_uri = NULL;
-  //char *format = NULL;
+  char *url;
+  char *format = NULL;
   char *output = NULL;
-  char *template_file = NULL;
+  const char *template_file = NULL;
   TGenBuf variables;
-  char *id = NULL;
 
   err_set_prefix("dlite-codegen");
 
@@ -82,34 +86,30 @@ int main(int argc, char *argv[])
   while (1) {
     int longindex = 0;
     struct option longopts[] = {
-      {"driver",           1, NULL, 'd'},
-      {"driver-options",   1, NULL, 'O'},
-      {"driver-uri",       1, NULL, 'u'},
       {"format",           1, NULL, 'f'},
       {"help",             0, NULL, 'h'},
       {"native-typenames", 0, NULL, 'n'},
       {"output",           1, NULL, 'o'},
+      {"storage-plugins",  1, NULL, 's'},
       {"template",         1, NULL, 't'},
       {"variables",        1, NULL, 'v'},
       {NULL, 0, NULL, 0}
     };
-    int c = getopt_long(argc, argv, "d:O:u:f:hno:t:v:", longopts, &longindex);
+    int c = getopt_long(argc, argv, "f:hno:s:t:v:", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
-    case 'd':  driver = optarg; break;
-    case 'O':  driver_options = optarg; break;
-    case 'u':  driver_uri = optarg; break;
-      //case 'f':  format = optarg; break;
+    case 'f':  format = optarg; break;
     case 'h':  help(stdout); exit(0);
     case 'n':  dlite_codegen_use_native_typenames = 1; break;
     case 'o':  output = optarg; break;
+    case 's':  dlite_storage_plugin_path_append(optarg); break;
     case 't':  template_file = optarg; break;
     case 'v':  tgen_buf_append_fmt(&variables, "%s;",optarg); break;
     case '?':  exit(1);
     default:   abort();
     }
   }
-  if (optind < argc) id = argv[optind++];
+  if (optind < argc) url = argv[optind++];
   if (optind != argc)
     return errx(1, "Too many arguments");
 
@@ -119,22 +119,28 @@ int main(int argc, char *argv[])
     tgen_buf_unappend(&variables, 1);
 
   /* Load instance */
-  if (driver_uri) {
-    DLiteStorage *s = dlite_storage_open(driver, driver_uri, driver_options);
-    if (!(inst = dlite_instance_load(s, id)))
-      FAIL2("cannot read id '%s' from uri '%s'", id, driver_uri);
-    dlite_storage_close(s);
-  } else if (id) {
-    if (!(inst = (DLiteInstance *)dlite_metastore_get(id)))
-      FAIL1("not a built-in id: %s", id);
-    dlite_instance_incref(inst);
-  } else {
-    FAIL("Either ID or --uri must be provided.\n"
-         "Try: \"dlite-codegen --help\"");
-  }
+  if (!(inst = dlite_instance_load_url(url))) goto fail;
 
   /* Load template */
-  if (!(template = tgen_readfile(template_file))) goto fail;
+  if (template_file) {
+    if (!(template = tgen_readfile(template_file))) goto fail;
+  } else if (format) {
+    FUPaths paths;
+    char *pattern=NULL;
+    FUIter *iter=NULL;
+    if (fu_paths_init(&paths, "DLITE_TEMPLATES") >= 0 &&
+        fu_paths_append(&paths, DLITE_TEMPLATES_PATH) >= 0 &&
+        asprintf(&pattern, "%s.txt", format) > 0 &&
+        (iter = fu_startmatch(pattern, &paths)) &&
+        (template_file = fu_nextmatch(iter)))
+      template = tgen_readfile(template_file);
+    fu_paths_deinit(&paths);
+    if (pattern) free(pattern);
+    if (iter) fu_endmatch(iter);
+    if (!template) goto fail;
+  } else {
+    FAIL("either --template or --format must be given");
+  }
 
   /* Generate */
   if (!(text = dlite_codegen(template, inst, tgen_buf_get(&variables))))

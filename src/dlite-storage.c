@@ -8,43 +8,9 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
+#include "dlite-storage-plugins.h"
 #include "getuuid.h"
 
-
-#ifdef WITH_JSON
-extern DLiteStoragePlugin dlite_json_plugin;
-#endif
-
-#ifdef WITH_HDF5
-extern DLiteStoragePlugin h5_plugin;
-#endif
-
-/* NULL-terminated array of all backends */
-DLiteStoragePlugin *plugin_list[] = {
-#ifdef WITH_JSON
-  &dlite_json_plugin,
-#endif
-#ifdef WITH_HDF5
-  &h5_plugin,
-#endif
-  NULL
-};
-
-
-/* Returns a pointer to API for driver or NULL on error. */
-static DLiteStoragePlugin *get_plugin(const char *driver)
-{
-  DLiteStoragePlugin *plugin=NULL;
-  int i;
-  for(i=0; plugin_list[i]; i++) {
-    if (strcmp(plugin_list[i]->name, driver) == 0) {
-      plugin = plugin_list[i];
-      break;
-    }
-  }
-  if (!plugin) errx(1, "invalid driver: '%s'", driver);
-  return plugin;
-}
 
 
 /********************************************************************
@@ -60,10 +26,10 @@ static DLiteStoragePlugin *get_plugin(const char *driver)
 DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
                                  const char *options)
 {
-  DLiteStoragePlugin *api;
+  const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
-  if (!(api = get_plugin(driver))) goto fail;
+  if (!(api = dlite_storage_plugin_get(driver))) goto fail;
   if (!(storage = api->open(uri, options))) goto fail;
 
   storage->api = api;

@@ -141,14 +141,24 @@ add_definitions(
   -DHAVE_CONFIG_H
   )
 
-add_library(dlite-utils STATIC ${sources})
+add_library(dlite-utils SHARED ${sources})
+add_library(dlite-utils-static STATIC ${sources})
+
+set_target_properties(dlite-utils PROPERTIES
+  WINDOWS_EXPORT_ALL_SYMBOLS ON
+  )
+
 target_include_directories(dlite-utils PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
+target_include_directories(dlite-utils-static PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 
 install(
-  TARGETS dlite-utils
+  TARGETS dlite-utils dlite-utils-static
   DESTINATION lib
 )
 

@@ -10,7 +10,7 @@ set(sources
 
 add_definitions(-DHAVE_CONFIG_H)
 
-add_library(dlite-plugins-json ${sources})
+add_library(dlite-plugins-json SHARED ${sources})
 target_link_libraries(dlite-plugins-json
   ${JANSSON_LIBRARIES}
   dlite
@@ -30,5 +30,5 @@ endif()
 
 install(
   TARGETS dlite-plugins-json
-  DESTINATION lib
+  DESTINATION ${DLITE_STORAGE_PLUGINS_PATH}
 )
