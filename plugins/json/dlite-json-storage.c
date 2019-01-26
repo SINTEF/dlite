@@ -916,7 +916,7 @@ DLiteStoragePlugin dlite_json_plugin = {
 };
 
 
-const DLiteStoragePlugin *get_dlite_storage_api(const char *name)
+DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(const char *name)
 {
   UNUSED(name);
   return &dlite_json_plugin;
