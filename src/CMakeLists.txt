@@ -104,44 +104,34 @@ add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
 target_link_libraries(dlite
-  ${json_link_libraries}
-  ${hdf5_link_libraries}
   ${UUID_LIBRARIES}
   dlite-utils
+  ${CMAKE_DL_LIBS}
   )
 target_link_libraries(dlite-static
-  ${json_link_libraries}
-  ${hdf5_link_libraries}
   ${UUID_STATIC_LIBRARIES}
   dlite-utils-static
+  ${CMAKE_DL_LIBS}
   )
 
 target_include_directories(dlite PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  #${uuid_SOURCE_DIR}
-  #${uuid_BINARY_DIR}
   ${UUID_INCLUDE_DIRS}
-  ${HDF5_INCLUDE_DIRS}
-  ${JANSSON_INCLUDE_DIRS}
   )
 target_include_directories(dlite-static PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  #${uuid_SOURCE_DIR}
-  #${uuid_BINARY_DIR}
   ${UUID_INCLUDE_DIRS}
-  ${HDF5_INCLUDE_DIRS}
-  ${JANSSON_INCLUDE_DIRS}
   )
 
 add_dependencies(dlite
   uuidProj
-  ${HDF5_DEPENDENCIES}
-  ${JANSSON_DEPENDENCIES}
+  #${HDF5_DEPENDENCIES}
+  #${JANSSON_DEPENDENCIES}
   )
 add_dependencies(dlite-static
   uuidProj
-  ${HDF5_DEPENDENCIES}
-  ${JANSSON_DEPENDENCIES}
+  #${HDF5_DEPENDENCIES}
+  #${JANSSON_DEPENDENCIES}
   )
 
 install(

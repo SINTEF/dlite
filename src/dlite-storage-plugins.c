@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "utils/err.h"
+#include "utils/tgen.h"
 #include "utils/plugin.h"
 
 #include "dlite-datamodel.h"
@@ -20,16 +21,18 @@ static PluginInfo *storage_plugin_info=NULL;
 static void storage_plugin_info_free(void)
 {
   if (storage_plugin_info) plugin_info_free(storage_plugin_info);
+  storage_plugin_info = NULL;
 }
 
 /* Returns a pointer to `storage_plugin_info`. */
 static PluginInfo *get_storage_plugin_info(void)
 {
-  if (!storage_plugin_info) {
-    if ((storage_plugin_info = plugin_info_create("storage-plugin",
-                                                  "get_storage_plugin_api",
-                                                  "DLITE_STORAGE_PLUGINS")))
-      atexit(storage_plugin_info_free);
+  if (!storage_plugin_info &&
+      (storage_plugin_info = plugin_info_create("storage-plugin",
+                                                "get_dlite_storage_plugin_api",
+                                                "DLITE_STORAGE_PLUGINS"))) {
+    atexit(storage_plugin_info_free);
+    dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGINS_PATH);
   }
   return storage_plugin_info;
 }
@@ -53,11 +56,24 @@ static PluginInfo *get_storage_plugin_info(void)
 
   Otherwise NULL is returned.
  */
-DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
+const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 {
+  const DLiteStoragePlugin *api;
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return NULL;
-  return (DLiteStoragePlugin *)plugin_get_api(info, name);
+  if (!(api = (const DLiteStoragePlugin *)plugin_get_api(info, name))) {
+    TGenBuf buf;
+    const char *p, **paths = dlite_storage_plugin_paths();
+    tgen_buf_init(&buf);
+    tgen_buf_append_fmt(&buf, "cannot find storage plugin for driver \"%s\" "
+                        "in search path:\n", name);
+    while ((p = *(paths++))) tgen_buf_append_fmt(&buf, "    %s\n", p);
+    tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGINS enveronment "
+                        "variable set?");
+    err(1, tgen_buf_get(&buf));
+    tgen_buf_deinit(&buf);
+  }
+  return api;
 }
 
 /*
@@ -85,14 +101,14 @@ int dlite_storage_plugin_unload(const char *name)
   Returns a NULL-terminated array of pointers to search paths or NULL
   if no search path is defined.
 */
-const char **dlite_storage_plugin_path_get()
+const char **dlite_storage_plugin_paths()
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return NULL;
   return plugin_path_get(info);
 }
 
-/**
+/*
   Inserts `path` into the current search path at index `n`.  If `n` is
   negative, it counts from the end of the search path (like Python).
 
@@ -107,7 +123,7 @@ int dlite_storage_plugin_path_insert(int n, const char *path)
   return plugin_path_insert(info, path, n);
 }
 
-/**
+/*
   Appends `path` into the current search path.
 
   Returns non-zero on error.

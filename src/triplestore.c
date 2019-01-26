@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include "utils/err.h"
-#include "sha1.h"
+#include "uuid/sha1.h"
 #include "triplestore.h"
 
 

@@ -6,7 +6,7 @@
 #include "config.h"
 
 #include "minunit/minunit.h"
-#include "integers.h"
+#include "uuid/integers.h"
 #include "boolean.h"
 #include "dlite.h"
 #include "dlite-datamodel.h"

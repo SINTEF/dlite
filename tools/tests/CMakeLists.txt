@@ -9,11 +9,12 @@ if(WITH_JSON)
   add_custom_command(
     OUTPUT chemistry.h
     COMMAND
-      ${CMAKE_COMMAND} -E env "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
+      ${CMAKE_COMMAND} -E env "PATH=${uuid_BINARY_DIR}:$ENV{PATH}"
       ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
-      --driver-uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
       --output chemistry.h
+      --storage-plugins=${dlite_BINARY_DIR}/plugins/json
+      json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
     DEPENDS ${dlite_BINARY_DIR}/tools/dlite-codegen
@@ -41,14 +42,8 @@ if(WITH_JSON)
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_codegen
   )
   set_tests_properties(test-codegen PROPERTIES
-    DEPENDS test_codegen)
-
-  # Hmm, for some reason the tests seems to link the shared uuid library...
-  # On Windows we must therefore add uuid.dll to PATH.
-  if(MSVC)
-    set_tests_properties(test-codegen PROPERTIES
-      ENVIRONMENT "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
-      )
-  endif()
+    DEPENDS test_codegen
+    ENVIRONMENT "${test_ENVIRONMENT}"
+    )
 
 endif()

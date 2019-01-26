@@ -27,8 +27,8 @@
 #ifndef _{name%U}_H
 #define _{name%U}_H
 
+#include "uuid/integers.h"
 #include "boolean.h"
-#include "integers.h"
 #include "floats.h"
 
 
