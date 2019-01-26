@@ -30,6 +30,9 @@
 #cmakedefine HAVE_STRNCASECMP
 #cmakedefine HAVE__STRNICMP
 
+#cmakedefine HAVE_SETENV
+#cmakedefine HAVE_UNSETENV
+
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG
 

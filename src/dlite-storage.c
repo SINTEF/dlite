@@ -12,15 +12,15 @@
 
 
 #ifdef WITH_JSON
-extern DLitePlugin dlite_json_plugin;
+extern DLiteStoragePlugin dlite_json_plugin;
 #endif
 
 #ifdef WITH_HDF5
-extern DLitePlugin h5_plugin;
+extern DLiteStoragePlugin h5_plugin;
 #endif
 
 /* NULL-terminated array of all backends */
-DLitePlugin *plugin_list[] = {
+DLiteStoragePlugin *plugin_list[] = {
 #ifdef WITH_JSON
   &dlite_json_plugin,
 #endif
@@ -32,9 +32,9 @@ DLitePlugin *plugin_list[] = {
 
 
 /* Returns a pointer to API for driver or NULL on error. */
-static DLitePlugin *get_plugin(const char *driver)
+static DLiteStoragePlugin *get_plugin(const char *driver)
 {
-  DLitePlugin *plugin=NULL;
+  DLiteStoragePlugin *plugin=NULL;
   int i;
   for(i=0; plugin_list[i]; i++) {
     if (strcmp(plugin_list[i]->name, driver) == 0) {
@@ -60,7 +60,7 @@ static DLitePlugin *get_plugin(const char *driver)
 DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
                                  const char *options)
 {
-  DLitePlugin *api;
+  DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
   if (!(api = get_plugin(driver))) goto fail;
