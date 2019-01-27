@@ -5,10 +5,6 @@ set(sources
   dh5lite.c
   )
 
-message("*** HDF5_INCLUDE_DIRS=${HDF5_INCLUDE_DIRS}")
-message("*** HDF5_LIBRARY_DIRS=${HDF5_LIBRARY_DIRS}")
-message("*** HDF5_DEPENDENCIES=${HDF5_DEPENDENCIES}")
-
 add_definitions(-DHAVE_CONFIG_H)
 
 add_library(dlite-plugins-hdf5 ${sources})

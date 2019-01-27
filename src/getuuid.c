@@ -3,13 +3,8 @@
 #include <stdio.h>
 
 #include "config.h"
-<<<<<<< ALP-42-tmp
-#include "uuid.h"
-#include "uuid4.h"
-=======
 #include "utils/uuid.h"
 #include "utils/uuid4.h"
->>>>>>> local
 
 #include "getuuid.h"
 

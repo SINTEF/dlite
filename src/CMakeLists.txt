@@ -75,66 +75,22 @@ add_definitions(
 
 #link_directories(${uuid_BINARY_DIR})
 
-if(WITH_JSON)
-  set(json_link_libraries dlite-plugins-json ${JSON_LIBRARIES})
-endif()
-if(WITH_HDF5)
-  set(hdf5_link_libraries dlite-plugins-hdf5 ${HDF5_LIBRARIES})
-endif()
-
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
-target_link_libraries(dlite
-  ${json_link_libraries}
-  ${hdf5_link_libraries}
-  ${UUID_LIBRARIES}
-  dlite-utils
-  )
-target_link_libraries(dlite-static
-  ${json_link_libraries}
-  ${hdf5_link_libraries}
-  ${UUID_STATIC_LIBRARIES}
-  dlite-utils-static
-  )
+target_link_libraries(dlite dlite-utils)
+target_link_libraries(dlite-static dlite-utils-static)
 
 target_include_directories(dlite PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  #${uuid_SOURCE_DIR}
-  #${uuid_BINARY_DIR}
-  ${UUID_INCLUDE_DIRS}
-  ${HDF5_INCLUDE_DIRS}
-  ${JANSSON_INCLUDE_DIRS}
   )
 target_include_directories(dlite-static PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  #${uuid_SOURCE_DIR}
-  #${uuid_BINARY_DIR}
-  ${UUID_INCLUDE_DIRS}
-  ${HDF5_INCLUDE_DIRS}
-  ${JANSSON_INCLUDE_DIRS}
   )
 
-<<<<<<< ALP-42-tmp
-add_dependencies(dlite
-  uuidProj
-  ${HDF5_DEPENDENCIES}
-  ${JANSSON_DEPENDENCIES}
-  )
-add_dependencies(dlite-static
-  uuidProj
-  ${HDF5_DEPENDENCIES}
-  ${JANSSON_DEPENDENCIES}
-=======
 set_target_properties(dlite PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
->>>>>>> local
   )
-
-if(uuidProj)
-  add_dependencies(dlite ${uuidProj})
-  add_dependencies(dlite-static ${uuidProj})
-endif()
 
 install(
   TARGETS dlite dlite-static

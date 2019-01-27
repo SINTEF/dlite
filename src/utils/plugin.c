@@ -133,11 +133,7 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
       continue;
     }
     if (!(sym = dsl_sym(handle, info->symbol))) {
-<<<<<<< ALP-42-tmp
-      //warn("%s", dsl_error());
-=======
-      warn("dsl_sym: %s", dsl_error());
->>>>>>> local
+      //warn("dsl_sym: %s", dsl_error());
       dsl_close(handle);
       continue;
     }

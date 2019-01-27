@@ -115,7 +115,7 @@ set(LIB_POSTFIX ${LIBRARY_SUFFIX})
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 NAMES hdf5 COMPONENTS C shared)
+  find_package(HDF5 COMPONENTS C)
   if(NOT HDF5_FOUND)
     if(NOT BUILD_HDF5)
       message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
@@ -225,39 +225,6 @@ endif()
 #
 # uuid
 # ====
-<<<<<<< ALP-42-tmp
-set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
-set(uuid_BINARY_DIR ${dlite_BINARY_DIR}/uuid)
-set(UUID_LIBRARIES
-  ${external_INSTALL_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
-set(UUID_STATIC_LIBRARIES
-  ${external_INSTALL_DIR}/${LIB_PREFIX}uuid-static${CMAKE_STATIC_LIBRARY_SUFFIX})
-set(UUID_INCLUDE_DIRS ${external_INSTALL_DIR}/include)
-set(cmake_args
-  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-  -DCMAKE_BUILD_TYPE=Release
-  -DCMAKE_INSTALL_PREFIX=${external_INSTALL_DIR}
-  )
-ExternalProject_Add(
-  uuidProj
-  PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/uuid
-  SOURCE_DIR        ${uuid_SOURCE_DIR}
-  BINARY_DIR        ${uuid_BINARY_DIR}
-  CMAKE_ARGS        ${cmake_args}
-  UPDATE_COMMAND    ""
-  BUILD_BYPRODUCTS  ${UUID_LIBRARIES} ${uuid_BINARY_DIR}/integers.h
-  TEST_COMMAND      ctest
-  INSTALL_COMMAND   cmake --build . --target install
-)
-set_source_files_properties(
-    ${UUID_LIBRARIES}
-    ${UUID_STATIC_LIBRARIES}
-    ${uuid_BINARY_DIR}/integers.h
-  PROPERTIES
-    GENERATED uuidProj
-  )
-
-=======
 #include(Finduuid)
 #find_package(uuid)
 #
@@ -331,6 +298,8 @@ else()
   set(dlite_STORAGE_PLUGINS "${storage_plugins}")
 endif()
 
+#################################################################
+
 # Report current settings
 message("========== Test environment =========")
 message("PATH: ${dlite_PATH}")
@@ -344,12 +313,11 @@ message("JANSSON_LIBRARY_DIR:  ${JANSSON_LIBRARY_DIR}")
 message("JANSSON_RUNTIME_DIR:  ${JANSSON_RUNTIME_DIR}")
 message("")
 message("========== HDF5 =====================")
-message("HDF5_INCLUDE_DIRs:    ${HDF5_INCLUDE_DIRS}")
+message("HDF5_INCLUDE_DIRS:    ${HDF5_INCLUDE_DIRS}")
 message("HDF5_LIBRARIES:       ${HDF5_LIBRARIES}")
-message("HDF5_LIBRARY_DIR:     ${HDF5_LIBRARY_DIR}")
 message("HDF5_RUNTIME_DIR:     ${HDF5_RUNTIME_DIR}")
+message("HDF5_DEPENDENCIES:    ${HDF5_DEPENDENCIES}")
 message("=====================================")
->>>>>>> local
 
 #################################################################
 

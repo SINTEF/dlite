@@ -23,11 +23,7 @@
 #include <string.h>
 
 #include "utils/err.h"
-<<<<<<< ALP-42-tmp
-#include "sha1.h"
-=======
 #include "utils/sha1.h"
->>>>>>> local
 #include "triplestore.h"
 
 

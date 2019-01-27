@@ -39,24 +39,11 @@ if(WITH_JSON)
     NAME test-codegen
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_codegen
   )
-<<<<<<< ALP-42-tmp
-  set_tests_properties(test-codegen PROPERTIES
-    DEPENDS test_codegen)
-
-  # Hmm, for some reason the tests seems to link the shared uuid library...
-  # On Windows we must therefore add uuid.dll to PATH.
-  if(MSVC)
-    set_tests_properties(test-codegen PROPERTIES
-      ENVIRONMENT "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
-      )
-  endif()
-=======
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
->>>>>>> local
 
 endif()
