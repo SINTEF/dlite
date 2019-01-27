@@ -33,14 +33,6 @@ static PluginInfo *get_storage_plugin_info(void)
                                                 "DLITE_STORAGE_PLUGINS"))) {
     atexit(storage_plugin_info_free);
     dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGINS_PATH);
-
-    {
-      int n=0;
-      const char *p, **paths = dlite_storage_plugin_paths();
-      printf("\n=== paths ===\n");
-      while ((p = *(paths++))) printf("   %d: %s\n", n++, p);
-    }
-
   }
   return storage_plugin_info;
 }
