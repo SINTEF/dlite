@@ -63,13 +63,16 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   if (!(info = get_storage_plugin_info())) return NULL;
   if (!(api = (const DLiteStoragePlugin *)plugin_get_api(info, name))) {
     TGenBuf buf;
+    int n=0;
     const char *p, **paths = dlite_storage_plugin_paths();
     tgen_buf_init(&buf);
     tgen_buf_append_fmt(&buf, "cannot find storage plugin for driver \"%s\" "
                         "in search path:\n", name);
-    while ((p = *(paths++))) tgen_buf_append_fmt(&buf, "    %s\n", p);
-    tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGINS enveronment "
-                        "variable set?");
+    while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
+    tgen_buf_append_fmt(&buf, "\n");
+    if (n <= 1)
+      tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGINS enveronment "
+                          "variable set?");
     err(1, tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);
   }
