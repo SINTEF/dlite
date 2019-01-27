@@ -304,8 +304,8 @@ message("")
 message("========== HDF5 =====================")
 message("HDF5_INCLUDE_DIRS:    ${HDF5_INCLUDE_DIRS}")
 message("HDF5_LIBRARIES:       ${HDF5_LIBRARIES}")
+message("HDF5_LIBRARY_DIR:     ${HDF5_LIBRARY_DIR}")
 message("HDF5_RUNTIME_DIR:     ${HDF5_RUNTIME_DIR}")
-message("HDF5_DEPENDENCIES:    ${HDF5_DEPENDENCIES}")
 message("=====================================")
 
 #################################################################
