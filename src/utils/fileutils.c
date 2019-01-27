@@ -125,10 +125,10 @@ int fu_paths_init(FUPaths *paths, const char *envvar)
     size_t n = strcspn(p, PATHSEP);
     if (p[n]) {
       p[n] = '\0';
-      fu_paths_append(paths, p);
+      if (n) fu_paths_append(paths, p);
       p += n+1;
     } else {
-      fu_paths_append(paths, p);
+      if (n) fu_paths_append(paths, p);
       break;
     }
   }
