@@ -1,6 +1,3 @@
-[submodule "uuid"]
-	path = uuid
-	url = ssh://git@git.code.sintef.no/sidase/uuid.git
 [submodule "src/tests/minunit"]
 	path = src/tests/minunit
 	url = ssh://git@git.code.sintef.no/sidase/minunit.git
