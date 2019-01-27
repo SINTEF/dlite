@@ -7,7 +7,10 @@ if(WITH_JSON)
   add_custom_command(
     OUTPUT chemistry.h
     COMMAND
-      ${CMAKE_COMMAND} -E env "PATH=${uuid_BINARY_DIR}:$ENV{PATH}"
+      ${CMAKE_COMMAND} -E env
+      PATH="${dlite_PATH}"
+      LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH}"
+      DLITE_STORAGE_PLUGINS="${dlite_STORAGE_PLUGINS}"
       ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
       --output chemistry.h
