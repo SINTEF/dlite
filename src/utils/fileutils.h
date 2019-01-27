@@ -150,6 +150,11 @@ FUIter *fu_startmatch(const char *pattern, const FUPaths *paths);
 /**
   Returns name of the next file matching the pattern provided to
   fu_startmatch() or NULL if there are no more matches.
+
+  @note
+  The returned string is owned by the iterator. It will be overwritten
+  by the next call to fu_nextmatch() and should not be changed.  Use
+  strdup() or strncpy() if a copy is needed.
  */
 const char *fu_nextmatch(FUIter *iter);
 

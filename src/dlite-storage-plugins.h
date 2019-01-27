@@ -29,7 +29,7 @@ typedef struct _DLiteStoragePlugin  DLiteStoragePlugin;
 
 /** Initial segment of all DLiteStorage plugin data structures. */
 #define DLiteStorage_HEAD                                                  \
-  DLiteStoragePlugin *api;  /*!< Pointer to plugin api */                  \
+  const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */            \
   char *uri;                /*!< URI passed to dlite_storage_open() */     \
   char *options;            /*!< Options passed to dlite_storage_open() */ \
   int writable;             /*!< Whether storage is writable */            \
@@ -38,7 +38,7 @@ typedef struct _DLiteStoragePlugin  DLiteStoragePlugin;
 
 /** Initial segment of all DLiteDataModel plugin data structures. */
 #define DLiteDataModel_HEAD                                        \
-  DLiteStoragePlugin *api;     /*!< Pointer to plugin api */       \
+  const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */    \
   DLiteStorage *s;             /*!< Pointer to storage */          \
   char uuid[37];               /*!< UUID for the stored data */
 
@@ -93,7 +93,7 @@ typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(const char *name);
 
   Otherwise NULL is returned.
  */
-DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
+const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
 
 /**
   Registers `api` for a storage plugin.  Returns non-zero on error.
@@ -110,7 +110,7 @@ int dlite_storage_plugin_unload(const char *name);
   Returns a pointer to the current storage plugin search path.  It is
   initialised from the environment variable `DLITE_STORAGE_PLUGINS`.
 */
-const char **dlite_storage_plugin_path_get();
+const char **dlite_storage_plugin_paths(void);
 
 /**
   Inserts `path` into the current search path at index `n`.  If `n` is

@@ -770,7 +770,7 @@ int dh5_set_dataname(DLiteDataModel *d, const char *name)
 
 
 
-DLiteStoragePlugin h5_plugin = {
+static DLiteStoragePlugin h5_plugin = {
   "hdf5",
 
   dh5_open,
@@ -801,10 +801,9 @@ DLiteStoragePlugin h5_plugin = {
 };
 
 
-/*
-const DLiteStoragePlugin *get_dlite_storage_api(const char *name)
+DSL_EXPORT const DLiteStoragePlugin *
+get_dlite_storage_plugin_api(const char *name)
 {
   UNUSED(name);
   return &h5_plugin;
 }
-*/

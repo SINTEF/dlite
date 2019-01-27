@@ -1,19 +1,18 @@
 # -*- Mode: cmake -*-
 #
 
-find_package(PythonInterp)
-
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
 if(WITH_JSON)
   add_custom_command(
     OUTPUT chemistry.h
     COMMAND
-      ${CMAKE_COMMAND} -E env "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
+      ${CMAKE_COMMAND} -E env "PATH=${uuid_BINARY_DIR}:$ENV{PATH}"
       ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
-      --driver-uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
       --output chemistry.h
+      --storage-plugins=${dlite_BINARY_DIR}/plugins/json
+      json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
     DEPENDS ${dlite_BINARY_DIR}/tools/dlite-codegen
@@ -35,8 +34,9 @@ if(WITH_JSON)
     )
   add_dependencies(test_codegen dlite-static ${uuidProj})
 
+  set(test test_codegen)
   add_test(
-    NAME test-codegen
+    NAME ${test}
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_codegen
   )
   set_property(TEST ${test} PROPERTY

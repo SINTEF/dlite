@@ -26,6 +26,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 # Set defaults
 include(SetDefaults)
 
+# Install paths (CMAKE_INSTALL_PREFIX) is prepended to these
+set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
+set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
+set(DLITE_TRANSLATOR_PLUGINS_PATH "share/dlite/translator-plugins")
+
 # Enable compiler warnings
 include(SetCompilerFlags)
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -40,20 +45,21 @@ endif()
 
 
 # Testing
-include(CTest)
+find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 
-find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
-
-if(CTEST_MEMORYCHECK_COMMAND)
-  #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
-  #  ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt)
-  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --trace-chrildren=yes --leak-check=full --track-origins=yes --suppressions=${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt")
+if(MEMORYCHECK_COMMAND)
+  set(MEMORYCHECK_SUPPRESSIONS_FILE
+    ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
+    CACHE FILEPATH "File that contains suppressions for the memory checker"
+    )
   add_custom_target(memcheck
     COMMAND ${CMAKE_CTEST_COMMAND}
               --force-new-ctest-process --output-on-failure -T memcheck
     COMMENT "Runs memory check with valgrind"
     )
 endif()
+
+include(CTest)
 
 
 
@@ -88,28 +94,11 @@ include(ExternalProject)
 # A directory that external projects install into
 set(external_INSTALL_DIR ${dlite_BINARY_DIR}/local)
 
-
-if(BUILD_SHARED_LIBS)
-  set(LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
-  set(LIBRARY_SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX})
-else()
-  set(LIBRARY_PREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})
-  set(LIBRARY_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
-endif()
-
-# Give the debug version a different postfix for windows,
-# so both the debug and release version can be built in the
-# same build-tree on Windows (MSVC).
-if (WIN32 AND NOT CMAKE_DEBUG_POSTFIX)
-   set(CMAKE_DEBUG_POSTFIX "_d")
-endif()
-
-# This should hopefully provide correct prefix and postfix for
-# generated libraries
-set(LIB_PREFIX ${LIBRARY_PREFIX})
-#set(LIB_POSTFIX ${CMAKE_${CMAKE_BUILD_TYPE}_POSTFIX}${LIBRARY_SUFFIX})
-set(LIB_POSTFIX ${LIBRARY_SUFFIX})
-
+# Short names
+set(LIB_PRE ${CMAKE_STATIC_LIBRARY_PREFIX})
+set(LIB_EXT ${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(SH_PRE  ${CMAKE_SHARED_LIBRARY_PREFIX})
+set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 #
 # hdf5
@@ -167,7 +156,7 @@ if(WITH_HDF5)
     set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
     set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
     set(HDF5_LIBRARIES
-      ${hdf5_INSTALL_PREFIX}/lib/${LIB_PREFIX}hdf5${LIB_POSTFIX})
+      ${hdf5_INSTALL_PREFIX}/lib/${SH_PRE}hdf5${SH_EXT})
 
     if(WIN32)
       list(APPEND HDF5_LIBRARIES Kernel32)
@@ -217,7 +206,7 @@ if(WITH_JSON)
     set(JANSSON_DEPENDENCIES janssonProj)
     set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
     set(JANSSON_LIBRARIES
-      ${jansson_INSTALL_PREFIX}/lib/${LIB_PREFIX}jansson${LIB_POSTFIX})
+      ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
   endif()
 endif()
 
@@ -290,7 +279,7 @@ if(UNIX)
     set(storage_plugins2 "${storage_plugins2}${plugin}:")
   endforeach()
   set(dlite_PATH "$ENV{PATH}")
-  set(dlite_LD_LIBRARY_PATH "${libdirs2}$ENV{LD_LIBRARY_PATH}")
+  set(dlite_LD_LIBRARY_PATH "${libdirs2}${JANSSON_LIBRARY_DIR};${HDF5_LIBRARY_DIR}$ENV{LD_LIBRARY_PATH}")
   set(dlite_STORAGE_PLUGINS "${storage_plugins2}")
 else()
   set(dlite_PATH "${libdirs};${JANSSON_RUNTIME_DIR};${HDF5_RUNTIME_DIR};$ENV{PATH}")
@@ -346,6 +335,8 @@ install(FILES
   )
 
 install(DIRECTORY
-    ${dlite_BINARY_DIR}/install
-  DESTINATION ${CMAKE_INSTALL_PREFIX}
+  ${dlite_BINARY_DIR}/external/include
+  ${dlite_BINARY_DIR}/external/lib
+  ${dlite_BINARY_DIR}/external/share
+  DESTINATION .
   )

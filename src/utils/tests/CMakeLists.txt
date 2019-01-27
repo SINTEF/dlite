@@ -66,19 +66,15 @@ if(WIN32)
 endif()
 add_library(test_dsl_lib SHARED test_dsl_lib.c ${defs})
 target_include_directories(test_dsl_lib PRIVATE
-    ${dlite-src-utils_SOURCE_DIR}
-    ${dlite-src-utils_BINARY_DIR}
+  ${dlite-src-utils_SOURCE_DIR}
+  ${dlite-src-utils_BINARY_DIR}
   )
-if(UNIX)
-  target_link_libraries(test_dsl -ldl)
-endif()
+target_link_libraries(test_dsl ${CMAKE_DL_LIBS})
 
 
 add_library(test_plugin_lib SHARED test_plugin_lib.c)
 target_include_directories(test_plugin_lib PRIVATE
-    ${dlite-src-utils_SOURCE_DIR}
-    ${dlite-src-utils_BINARY_DIR}
+  ${dlite-src-utils_SOURCE_DIR}
+  ${dlite-src-utils_BINARY_DIR}
   )
-if(UNIX)
-  target_link_libraries(test_plugin -ldl)
-endif()
+target_link_libraries(test_plugin ${CMAKE_DL_LIBS})

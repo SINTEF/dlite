@@ -10,7 +10,6 @@
 #include "utils/err.h"
 #include "utils/integers.h"
 #include "utils/floats.h"
-#include "triplestore.h"
 #include "dlite-entity.h"
 #include "dlite-type.h"
 

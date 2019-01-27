@@ -237,6 +237,11 @@ FUIter *fu_startmatch(const char *pattern, const FUPaths *paths)
 /*
   Returns name of the next file matching the pattern provided to
   fu_startmatch() or NULL if there are no more matches.
+
+  Note:
+  The returned string is owned by the iterator. It will be overwritten
+  by the next call to fu_nextmatch() and should not be changed.  Use
+  strdup() or strncpy() if a copy is needed.
  */
 const char *fu_nextmatch(FUIter *iter)
 {
@@ -248,7 +253,10 @@ const char *fu_nextmatch(FUIter *iter)
     const char *path = p->paths[iter->i];
     if (!iter->dir) {
       if (iter->i >= p->n) return NULL;
-      if (!(iter->dir = opendir(path))) continue;
+      if (!(iter->dir = opendir(path))) {
+        iter->i++;
+        continue;
+      }
     }
 
     if ((filename = fu_nextfile(iter->dir))) {

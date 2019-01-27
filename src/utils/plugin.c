@@ -54,10 +54,10 @@ void plugin_info_free(PluginInfo *info)
   if (info->envvar) free((char *)info->envvar);
   fu_paths_deinit(&info->paths);
   for (i=0; i<info->nplugins; i++) {
-    dsl_close(info->plugins[i]->handle);
+    if (info->plugins[i]->handle) dsl_close(info->plugins[i]->handle);
     free(info->plugins[i]);
-    free(info->plugins);
   }
+  if (info->plugins) free(info->plugins);
   free(info);
 }
 
@@ -217,7 +217,10 @@ int plugin_unload(PluginInfo *info, const char *name)
   dsl_close(info->plugins[n]->handle);
   free(info->plugins[n]);
   info->plugins[n] = info->plugins[--info->nplugins];
-  if (info->nplugins == 0) free(info->plugins);
+  if (info->nplugins == 0) {
+    free(info->plugins);
+    info->plugins = NULL;
+  }
   return 0;
 }
 

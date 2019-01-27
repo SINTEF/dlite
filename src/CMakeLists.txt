@@ -78,8 +78,14 @@ add_definitions(
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
-target_link_libraries(dlite dlite-utils)
-target_link_libraries(dlite-static dlite-utils-static)
+target_link_libraries(dlite
+  dlite-utils
+  ${CMAKE_DL_LIBS}
+  )
+target_link_libraries(dlite-static
+  dlite-utils-static
+  ${CMAKE_DL_LIBS}
+  )
 
 target_include_directories(dlite PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}

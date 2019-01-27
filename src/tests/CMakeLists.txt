@@ -41,6 +41,7 @@ foreach(test ${tests})
     NAME ${test}
     COMMAND ${test}
     )
+
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
@@ -56,5 +57,6 @@ if(WITH_JSON)
     target_include_directories(${test} PRIVATE
       ${dlite_SOURCE_DIR}/plugins/json
       )
+    target_link_libraries(${test} dlite-plugins-json)
   endforeach()
 endif()
