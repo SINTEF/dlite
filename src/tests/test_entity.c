@@ -4,8 +4,13 @@
 #include <string.h>
 
 #include "minunit/minunit.h"
+<<<<<<< ALP-42-tmp
 #include "integers.h"
 #include "boolean.h"
+=======
+#include "utils/integers.h"
+#include "utils/boolean.h"
+>>>>>>> local
 #include "dlite.h"
 #include "dlite-entity.h"
 #include "dlite-storage.h"

@@ -5,6 +5,10 @@ set(sources
   dh5lite.c
   )
 
+message("*** HDF5_INCLUDE_DIRS=${HDF5_INCLUDE_DIRS}")
+message("*** HDF5_LIBRARY_DIRS=${HDF5_LIBRARY_DIRS}")
+message("*** HDF5_DEPENDENCIES=${HDF5_DEPENDENCIES}")
+
 add_definitions(-DHAVE_CONFIG_H)
 
 add_library(dlite-plugins-hdf5 ${sources})
@@ -21,6 +25,10 @@ target_include_directories(dlite-plugins-hdf5 PRIVATE
 if(${HDF5_DEPENDENCIES})
   add_dependencies(dlite-plugins-hdf5 ${HDF5_DEPENDENCIES})
 endif()
+
+set_target_properties(dlite-plugins-hdf5 PROPERTIES
+  WINDOWS_EXPORT_ALL_SYMBOLS ON
+  )
 
 install(
   TARGETS dlite-plugins-hdf5

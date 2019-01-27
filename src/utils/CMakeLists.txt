@@ -10,13 +10,13 @@ project(dlite-src-utils C)
 
 # -- check for headers
 include(CheckIncludeFile)
-check_include_file(stdarg.h HAVE_STDARG_H)
-check_include_file(stddef.h HAVE_STDDEF_H)
-check_include_file(stdint.h HAVE_STDINT_H)
-check_include_file(stdlib.h HAVE_STDLIB_H)
-check_include_file(float.h HAVE_FLOAT_H)
-check_include_file(inttypes.h HAVE_INTTYPES_H)
-check_include_file(locale.h HAVE_LOCALE_H)
+check_include_file(stdarg.h     HAVE_STDARG_H)
+check_include_file(stddef.h     HAVE_STDDEF_H)
+check_include_file(stdint.h     HAVE_STDINT_H)
+check_include_file(stdlib.h     HAVE_STDLIB_H)
+check_include_file(float.h      HAVE_FLOAT_H)
+check_include_file(inttypes.h   HAVE_INTTYPES_H)
+check_include_file(locale.h     HAVE_LOCALE_H)
 
 # -- check for symbols
 include(CheckSymbolExists)
@@ -46,16 +46,6 @@ check_symbol_exists(_asprintf    stdio.h    HAVE__ASPRINTF)
 check_symbol_exists(localeconv   locale.h   HAVE__LOCALECONV)
 check_symbol_exists(va_copy      stdarg.h   HAVE_VA_COPY)
 check_symbol_exists(__va_copy    stdarg.h   HAVE___VA_COPY)
-
-# -- check for types
-include(CheckTypeSize)
-check_type_size("long double"             HAVE_LONG_DOUBLE)
-check_type_size("long long int"           HAVE_LONG_LONG_INT)
-check_type_size("unsigned long long int"  HAVE_UNSIGNED_LONG_LONG_INT)
-check_type_size(intmax_t                  HAVE_INTMAX_T)
-check_type_size(uintmax_t                 HAVE_UINTMAX_T)
-check_type_size(uintptr_t                 HAVE_UINTPTR_T)
-check_type_size(ptrdiff_t                 HAVE_PTRDIFF_T)
 
 # -- check for structure members
 include(CheckStructHasMember)
@@ -109,11 +99,81 @@ int main(void) { char *f = __FUNCTION__; return 0; }
 
 
 # -- override default dynamic shared library extension in debug config on MSVS
-if(MSVS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DSL_EXT "_d.dll")
-endif()
+#if(MSVS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+#  set(DSL_EXT "_d.dll")
+#endif()
 
+# .. generate config.h
 configure_file(config.h.in config.h)
+
+
+# Generate byteorder.h
+# --------------------
+include(TestBigEndian)
+test_big_endian(IS_BIG_ENDIAN)
+
+check_include_file(byteswap.h   HAVE_BYTESWAP_H)
+check_include_file(endian.h     HAVE_ENDIAN_H)
+
+check_symbol_exists(bswap_16 byteswap.h HAVE_BSWAP_16)
+check_symbol_exists(bswap_32 byteswap.h HAVE_BSWAP_32)
+check_symbol_exists(bswap_64 byteswap.h HAVE_BSWAP_64)
+
+check_symbol_exists(_byteswap_ushort stdlib.h HAVE__BYTESWAP_USHORT)
+check_symbol_exists(_byteswap_ulong  stdlib.h HAVE__BYTESWAP_ULONG)
+check_symbol_exists(_byteswap_uint64 stdlib.h HAVE__BYTESWAP_UINT64)
+
+check_symbol_exists(htobe16 endian.h HAVE_HTOBE16)
+check_symbol_exists(htobe32 endian.h HAVE_HTOBE32)
+check_symbol_exists(htobe64 endian.h HAVE_HTOBE64)
+
+configure_file(byteorder.h.in byteorder.h)
+
+
+# Generate boolean.h
+# ------------------
+include(CheckIncludeFile)
+check_include_file(stdbool.h HAVE_STDBOOL_H)
+
+include(CheckTypeSize)
+check_type_size(_Bool _BOOL)
+
+configure_file(boolean.h.in boolean.h)
+
+
+# Generate integers.h
+# -------------------
+include(CheckTypeSize)
+
+check_type_size("long double"             HAVE_LONG_DOUBLE)
+check_type_size("long long int"           HAVE_LONG_LONG_INT)
+check_type_size("unsigned long long int"  HAVE_UNSIGNED_LONG_LONG_INT)
+check_type_size(uint8_t                   HAVE_UINT8_T)
+check_type_size(uint16_t                  HAVE_UINT16_T)
+check_type_size(uint32_t                  HAVE_UINT32_T)
+check_type_size(uint64_t                  HAVE_UINT64_T)
+check_type_size(intmax_t                  HAVE_INTMAX_T)
+check_type_size(uintmax_t                 HAVE_UINTMAX_T)
+check_type_size(uintptr_t                 HAVE_UINTPTR_T)
+check_type_size(ptrdiff_t                 HAVE_PTRDIFF_T)
+
+check_type_size(char                      SIZEOF_CHAR)
+check_type_size(short                     SIZEOF_SHORT)
+check_type_size(int                       SIZEOF_INT)
+check_type_size(long                      SIZEOF_LONG)
+check_type_size("long long"               SIZEOF_LONG_LONG)
+
+configure_file(integers.h.in integers.h)
+
+
+# Generate floats.h
+# ------------------
+check_type_size(float         SIZEOF_FLOAT)
+check_type_size(double        SIZEOF_DOUBLE)
+check_type_size("long double" SIZEOF_LONG_DOUBLE)
+
+configure_file(floats.h.in floats.h)
+
 
 #-----------------------------------------------------
 # Compile library
@@ -128,6 +188,11 @@ set(sources
   strtob.c
   tgen.c
   tmpfileplus.c
+
+  md5.c
+  sha1.c
+  uuid.c
+  uuid4.c
   )
 if(NOT HAVE_GETOPT)
   list(APPEND sources compat/getopt.c)

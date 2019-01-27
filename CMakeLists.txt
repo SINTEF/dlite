@@ -86,7 +86,7 @@ endif()
 include(ExternalProject)
 
 # A directory that external projects install into
-set(external_INSTALL_DIR ${dlite_BINARY_DIR}/external)
+set(external_INSTALL_DIR ${dlite_BINARY_DIR}/local)
 
 
 if(BUILD_SHARED_LIBS)
@@ -115,7 +115,7 @@ set(LIB_POSTFIX ${LIBRARY_SUFFIX})
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 COMPONENTS C)
+  find_package(HDF5 NAMES hdf5 COMPONENTS C shared)
   if(NOT HDF5_FOUND)
     if(NOT BUILD_HDF5)
       message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
@@ -137,11 +137,9 @@ if(WITH_HDF5)
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
       -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -DBUILD_SHARED_LIBS=ON
+      -DH5_BUILT_AS_DYNAMIC_LIB
     )
-    if(BUILD_SHARED_LIBS)
-      list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
-    endif()
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
       list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
@@ -155,7 +153,7 @@ if(WITH_HDF5)
       SOURCE_DIR        ${hdf5_SOURCE_DIR}
       UPDATE_COMMAND    ""
       CMAKE_ARGS        ${cmake_args}
-      TEST_COMMAND      ctest
+      TEST_COMMAND      ctest -C Release
       INSTALL_COMMAND   cmake --build . --target install
     )
     set(HDF5_DEPENDENCIES hdf5Proj)
@@ -164,7 +162,7 @@ if(WITH_HDF5)
     #
     #   HDF5_INCLUDE_DIRS - location of the HDF5 include dirs
     #   HDF5_LIBRARY_DIRS - location of the HDF5 library dirs
-    #   HDF5_LIBRARIES    - required libraries (for static linking)
+    #   HDF5_LIBRARIES    - required libraries
     #
     set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
     set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
@@ -199,7 +197,7 @@ if(WITH_JSON)
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -DBUILD_SHARED_LIBS=ON
       )
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
@@ -227,6 +225,7 @@ endif()
 #
 # uuid
 # ====
+<<<<<<< ALP-42-tmp
 set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
 set(uuid_BINARY_DIR ${dlite_BINARY_DIR}/uuid)
 set(UUID_LIBRARIES
@@ -258,23 +257,115 @@ set_source_files_properties(
     GENERATED uuidProj
   )
 
+=======
+#include(Finduuid)
+#find_package(uuid)
+#
+#if(NOT UUID_FOUND)
+#  set(uuidProj uuidProj)
+#  set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
+#  set(uuid_BINARY_DIR ${dlite_BINARY_DIR}/uuid)
+#  set(UUID_LIBRARIES
+#    ${external_INSTALL_DIR}/lib/${SH_PRE}uuid${SH_EXT})
+#  set(UUID_STATIC_LIBRARIES
+#    ${external_INSTALL_DIR}/lib/${LIB_PRE}uuid-static${LIB_EXT})
+#  set(UUID_INCLUDE_DIRS ${external_INSTALL_DIR}/include)
+#  set(cmake_args
+#    -DCMAKE_BUILD_TYPE=Release
+#    -DCMAKE_INSTALL_PREFIX=${external_INSTALL_DIR}
+#    )
+#  ExternalProject_Add(
+#    uuidProj
+#    PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/uuid
+#    SOURCE_DIR        ${uuid_SOURCE_DIR}
+#    BINARY_DIR        ${uuid_BINARY_DIR}
+#    CMAKE_ARGS        ${cmake_args}
+#    UPDATE_COMMAND    ""
+#    BUILD_BYPRODUCTS  ${UUID_LIBRARIES} ${uuid_BINARY_DIR}/integers.h
+#    TEST_COMMAND      ctest
+#    INSTALL_COMMAND   cmake --build . --target install
+#    )
+#  set_source_files_properties(
+#      ${UUID_LIBRARIES}
+#      ${UUID_STATIC_LIBRARIES}
+#      ${uuid_BINARY_DIR}/integers.h
+#    PROPERTIES
+#    GENERATED uuidProj
+#    )
+#endif()
+
+
+# ----------------
+# test environment
+# ----------------
+# Set up environment variables that must be set to run the tests on
+# the current platform.
+
+# Storage plugins in DLITE_STORAGE_PLUGINS environment variable
+set(storage_plugins
+  ${dlite_BINARY_DIR}/plugins/json
+  ${dlite_BINARY_DIR}/plugins/hdf5
+  )
+
+# Libraries that must be in PATH/LD_LIBRARY_PATH
+set(libdirs
+  ${dlite_BINARY_DIR}/src
+  ${dlite_BINARY_DIR}/src/utils
+  ${uuid_BINARY_DIR}
+  )
+
+# Set up platform-specific test environment
+if(UNIX)
+  foreach(libdir ${libdirs})
+    set(libdirs2 "${libdirs2}${libdir}:")
+  endforeach()
+  foreach(plugin ${storage_plugins})
+    set(storage_plugins2 "${storage_plugins2}${plugin}:")
+  endforeach()
+  set(dlite_PATH "$ENV{PATH}")
+  set(dlite_LD_LIBRARY_PATH "${libdirs2}$ENV{LD_LIBRARY_PATH}")
+  set(dlite_STORAGE_PLUGINS "${storage_plugins2}")
+else()
+  set(dlite_PATH "${libdirs};${JANSSON_RUNTIME_DIR};${HDF5_RUNTIME_DIR};$ENV{PATH}")
+  set(dlite_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+  set(dlite_STORAGE_PLUGINS "${storage_plugins}")
+endif()
+
+# Report current settings
+message("========== Test environment =========")
+message("PATH: ${dlite_PATH}")
+message("LD_LIBRARY_PATH: ${dlite_LD_LIBRARY_PATH}")
+message("DLITE_STORAGE_PLUGINS: ${dlite_STORAGE_PLUGINS}")
+message("")
+message("========== Jansson ==================")
+message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
+message("JANSSON_LIBRARIES:    ${JANSSON_LIBRARIES}")
+message("JANSSON_LIBRARY_DIR:  ${JANSSON_LIBRARY_DIR}")
+message("JANSSON_RUNTIME_DIR:  ${JANSSON_RUNTIME_DIR}")
+message("")
+message("========== HDF5 =====================")
+message("HDF5_INCLUDE_DIRs:    ${HDF5_INCLUDE_DIRS}")
+message("HDF5_LIBRARIES:       ${HDF5_LIBRARIES}")
+message("HDF5_LIBRARY_DIR:     ${HDF5_LIBRARY_DIR}")
+message("HDF5_RUNTIME_DIR:     ${HDF5_RUNTIME_DIR}")
+message("=====================================")
+>>>>>>> local
 
 #################################################################
 
 
 # Subdirectories
+add_subdirectory(src)
+
 if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
 endif()
-
 if(WITH_JSON)
   add_subdirectory(plugins/json)
 endif()
 
-add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(doc)
-
 
 #################################################################
 

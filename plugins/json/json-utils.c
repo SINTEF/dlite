@@ -3,9 +3,9 @@
 #include <assert.h>
 
 #include "utils/err.h"
+#include "utils/boolean.h"
+#include "utils/floats.h"
 #include "str.h"
-#include "boolean.h"
-#include "floats.h"
 #include "json-utils.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"

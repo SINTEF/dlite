@@ -61,6 +61,21 @@ typedef struct _FUIter FUIter;
 
 
 /**
+  Updates `path` to use more "user-friendly" directory separators.
+
+  On Unix-like systems this function does nothing.
+
+  On Windows, the following logic is applied:
+    - path starts with "//" or "\\":                      '/' -> '\'
+    - path starts with "C:" (where C is any character):   '\' -> '/'
+    - otherwise                                           '\' -> '/'
+
+  Returns a pointer to `path`.
+ */
+char *fu_friendly_dirsep(char *path);
+
+
+/**
   Opens a directory and returns a handle to it.  Returns NULL on error.
 */
 FUDir *fu_opendir(const char *path);

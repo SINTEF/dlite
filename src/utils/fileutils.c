@@ -26,6 +26,42 @@ struct _FUIter {
 };
 
 
+/*
+  Updates `path` to use more "user-friendly" directory separators.
+
+  On Unix-like systems this function does nothing.
+
+  On Windows, the following logic is applied:
+    - path starts with "//" or "\\":                      '/' -> '\'
+    - path starts with "C:" (where C is any character):   '\' -> '/'
+    - otherwise                                           '\' -> '/'
+
+  Returns a pointer to `path`.
+ */
+char *fu_friendly_dirsep(char *path)
+{
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+  int from, to;
+  char *c, *p=path;
+  if (strlen(path) >= 2 &&
+      (path[0] == path[1] == '/' || path[0] == path[1] == '\\'))
+    to='\\';
+  else if (strlen(path) >= 2 && path[1] == ':' &&
+           (('a' <= path[0] && path[0] <= 'z') ||
+            ('A' <= path[0] && path[0] <= 'Z')))
+    to='/';
+  else
+    to='/';
+
+  from = (to == '/') ? '\\' : '/';
+  while ((c = strchr(p, from))) {
+    *c = to;
+    p = c+1;
+  }
+#endif
+  return path;
+}
+
 
 /*
   Opens a directory and returns a FUDir handle to it.  Returns NULL on error.
@@ -227,6 +263,7 @@ const char *fu_nextmatch(FUIter *iter)
         strcpy(iter->path, path);
         strcat(iter->path, DIRSEP);
         strcat(iter->path, filename);
+        fu_friendly_dirsep(iter->path);
         return iter->path;
       }
     } else {

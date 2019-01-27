@@ -11,24 +11,6 @@ endif()
 # System tests
 #-----------------------------------------------------
 
-# Generate boolean.h
-# ------------------
-include(CheckIncludeFile)
-check_include_file(stdbool.h HAVE_STDBOOL_H)
-
-include(CheckTypeSize)
-check_type_size(_Bool _BOOL)
-
-configure_file(boolean.h.in boolean.h)
-
-
-# Generate floats.h
-# ------------------
-check_type_size(float         SIZEOF_FLOAT)
-check_type_size(double        SIZEOF_DOUBLE)
-check_type_size("long double" SIZEOF_LONG_DOUBLE)
-
-configure_file(floats.h.in floats.h)
 
 
 # Generate config.h
@@ -133,6 +115,7 @@ target_include_directories(dlite-static PUBLIC
   ${JANSSON_INCLUDE_DIRS}
   )
 
+<<<<<<< ALP-42-tmp
 add_dependencies(dlite
   uuidProj
   ${HDF5_DEPENDENCIES}
@@ -142,7 +125,16 @@ add_dependencies(dlite-static
   uuidProj
   ${HDF5_DEPENDENCIES}
   ${JANSSON_DEPENDENCIES}
+=======
+set_target_properties(dlite PROPERTIES
+  WINDOWS_EXPORT_ALL_SYMBOLS ON
+>>>>>>> local
   )
+
+if(uuidProj)
+  add_dependencies(dlite ${uuidProj})
+  add_dependencies(dlite-static ${uuidProj})
+endif()
 
 install(
   TARGETS dlite dlite-static

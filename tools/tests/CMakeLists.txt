@@ -30,16 +30,16 @@ if(WITH_JSON)
   target_include_directories(test_codegen PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_BINARY_DIR}/src
-    #${uuid_BINARY_DIR}
     ${UUID_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
-  add_dependencies(test_codegen dlite-static uuidProj)
+  add_dependencies(test_codegen dlite-static ${uuidProj})
 
   add_test(
     NAME test-codegen
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_codegen
   )
+<<<<<<< ALP-42-tmp
   set_tests_properties(test-codegen PROPERTIES
     DEPENDS test_codegen)
 
@@ -50,5 +50,13 @@ if(WITH_JSON)
       ENVIRONMENT "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
       )
   endif()
+=======
+  set_property(TEST ${test} PROPERTY
+    ENVIRONMENT "PATH=${dlite_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+>>>>>>> local
 
 endif()

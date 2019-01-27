@@ -1,8 +1,8 @@
 
+#include "utils/boolean.h"
+#include "utils/floats.h"
+#include "utils/integers.h"
 #include "vector.h"
-#include "boolean.h"
-#include "integers.h"
-#include "floats.h"
 
 ivec_t *ivec()
 {

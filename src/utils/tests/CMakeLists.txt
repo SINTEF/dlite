@@ -9,6 +9,8 @@ set(tests
   test_dsl
   test_plugin
   test_tgen
+  test_uuid
+  test_uuid2
 
   tgen_example
   )
@@ -44,9 +46,12 @@ foreach(test ${tests})
     NAME ${test}
     COMMAND ${test}
     )
-  #set_tests_properties(${test} PROPERTIES
-  #  ENVIRONMENT "PATH=$<TARGET_FILE_DIR:dlite-utils>;$ENV{PATH}"
-  #  )
+  set_property(TEST ${test} PROPERTY
+    ENVIRONMENT "PATH=${dlite_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 endforeach()
 
 

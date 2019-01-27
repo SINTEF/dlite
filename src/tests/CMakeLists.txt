@@ -26,17 +26,18 @@ endif()
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
-link_directories(
-  ${dlite_BINARY_DIR}/src/utils
-    )
+#link_directories(
+#  ${dlite_BINARY_DIR}/src/utils
+#    )
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
+  add_dependencies(${test} dlite-static ${uuidProj})
   target_link_libraries(${test}
-    ${UUID_STATIC_LIBRARIES}
     dlite-static
     #uuid-static
     dlite-utils-static
+    ${UUID_STATIC_LIBRARIES}
     )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src
@@ -44,12 +45,15 @@ foreach(test ${tests})
     #${uuid_BINARY_DIR}
     ${UUID_INCLUDE_DIRS}
     )
-  add_dependencies(${test} dlite-static)
+  #set_target_properties(${test} PROPERTIES
+  #  IMPORTED_LOCATION ${UUID_STATIC_LIBRARIES}
+  #  )
 
   add_test(
     NAME ${test}
     COMMAND ${test}
     )
+<<<<<<< ALP-42-tmp
   # Hmm, for some reason the tests seems to link the shared uuid library...
   # On Windows we must therefore add uuid.dll to PATH.
   if(MSVC)
@@ -57,6 +61,15 @@ foreach(test ${tests})
       ENVIRONMENT "PATH=${uuid_BINARY_DIR};$ENV{PATH}"
       )
   endif()
+=======
+  set_property(TEST ${test} PROPERTY
+    ENVIRONMENT "PATH=${dlite_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+
+>>>>>>> local
 endforeach()
 
 # Add extra include dir for json tests

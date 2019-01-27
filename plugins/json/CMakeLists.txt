@@ -18,15 +18,17 @@ target_link_libraries(dlite-plugins-json
   )
 target_include_directories(dlite-plugins-json PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${dlite_SOURCE_DIR}/src
-  ${dlite_BINARY_DIR}/src
-  ${uuid_BINARY_DIR}
-  ${uuid_SOURCE_DIR}
+  ${dlite-src_SOURCE_DIR}
+  ${dlite-src_BINARY_DIR}
+  ${UUID_INCLUDE_DIRS}
   ${JANSSON_INCLUDE_DIRS}
   )
 if(${JANSSON_DEPENDENCIES})
   add_dependencies(plugins-json ${JANSSON_DEPENDENCIES})
 endif()
+set_target_properties(dlite-plugins-json PROPERTIES
+  WINDOWS_EXPORT_ALL_SYMBOLS ON
+  )
 
 install(
   TARGETS dlite-plugins-json

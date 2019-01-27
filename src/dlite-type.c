@@ -8,8 +8,13 @@
 #endif
 
 #include "utils/err.h"
+<<<<<<< ALP-42-tmp
 #include "integers.h"
 #include "floats.h"
+=======
+#include "utils/integers.h"
+#include "utils/floats.h"
+>>>>>>> local
 #include "triplestore.h"
 #include "dlite-entity.h"
 #include "dlite-type.h"

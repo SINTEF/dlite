@@ -73,11 +73,14 @@
 #  define DSL_PREFIX ""
 # endif
 # ifndef DSL_EXT
+#  define DSL_EXT ".dll"
+/*
 #  ifdef _DEBUG
 #   define DSL_EXT "_d.dll"
 #  else
 #   define DSL_EXT ".dll"
 #  endif
+*/
 # endif
 #else
 # error "Unsupported platform"
