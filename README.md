@@ -77,6 +77,14 @@ To run the tests, do
 
 ## Build on Linux
 
+If hdf5 is not installed (does not include the parallel component):
+
+    sudo apt-get install libhdf5-serial-dev
+
+If JANSSON is not installed:
+
+    sudo apt-get install libjansson-dev
+
 Build with:
 
     mkdir build
@@ -86,6 +94,8 @@ Build with:
 
 Before running make, you may wish to configure some options with
 `ccmake ..`
+
+For example, you might need to change (using e.g. cmake-gui) CMAKE_INSTALL_PREFIX to a location accessible for writing. Default option to /usr/local/ is not accessible in some cases, you can then create a /local folder under dlite.
 
 To run the tests, do
 

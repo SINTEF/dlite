@@ -14,7 +14,7 @@ add_custom_command(
 OUTPUT chemistry.h
 COMMAND ${DLITE_ROOT}/bin/dlite-codegen
   --template ${DLITE_TEMPLATE_DIR}/c-header.txt
-  --uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+  --driver-uri ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
   --output chemistry.h
 MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
 COMMENT "Generating C header for Chemistry-0.1.json"
