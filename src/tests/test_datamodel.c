@@ -6,8 +6,8 @@
 #include "config.h"
 
 #include "minunit/minunit.h"
-#include "integers.h"
-#include "boolean.h"
+#include "utils/integers.h"
+#include "utils/boolean.h"
 #include "dlite.h"
 #include "dlite-datamodel.h"
 

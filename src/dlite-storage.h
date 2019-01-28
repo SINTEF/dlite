@@ -97,5 +97,10 @@ void dlite_storage_uuids_free(char **uuids);
 int dlite_storage_is_writable(const DLiteStorage *s);
 
 
+/* Dublicated declarations from dlite-storage-plugins.h */
+int dlite_storage_plugin_unload(const char *name);
+const char **dlite_storage_plugin_paths(void);
+int dlite_storage_plugin_path_insert(int n, const char *path);
+int dlite_storage_plugin_path_append(const char *path);
 
 #endif /* _DLITE_STORAGE_H */

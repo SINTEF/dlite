@@ -8,12 +8,10 @@
 #endif
 
 #include "utils/err.h"
-#include "integers.h"
-#include "floats.h"
-#include "triplestore.h"
+#include "utils/integers.h"
+#include "utils/floats.h"
 #include "dlite-entity.h"
 #include "dlite-type.h"
-
 
 
 /* Name DLite types */
@@ -512,10 +510,10 @@ int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
     if (w == -1) w = 8;
     switch (size) {
 #ifdef HAVE_INTTYPES_H
-    case 1: m = snprintf(dest, n, "%*.*" PRId8,  w, r, *((int8_t *)p));  break;
-    case 2: m = snprintf(dest, n, "%*.*" PRId16, w, r, *((int16_t *)p)); break;
-    case 4: m = snprintf(dest, n, "%*.*" PRId32, w, r, *((int32_t *)p)); break;
-    case 8: m = snprintf(dest, n, "%*.*" PRId64, w, r, *((int64_t *)p)); break;
+    case 1: m = snprintf(dest, n, "%*.*"PRId8,  w, r, *((int8_t *)p));  break;
+    case 2: m = snprintf(dest, n, "%*.*"PRId16, w, r, *((int16_t *)p)); break;
+    case 4: m = snprintf(dest, n, "%*.*"PRId32, w, r, *((int32_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*"PRId64, w, r, *((int64_t *)p)); break;
 #else
     case 1: m = snprintf(dest, n, "%*.*hhd", w, r, *((int8_t *)p));  break;
     case 2: m = snprintf(dest, n, "%*.*hd",  w, r, *((int16_t *)p)); break;
@@ -529,10 +527,10 @@ int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
     if (w == -1) w = 8;
     switch (size) {
 #ifdef HAVE_INTTYPES_H
-    case 1: m = snprintf(dest, n, "%*.*" PRIu8,  w, r, *((uint8_t *)p));  break;
-    case 2: m = snprintf(dest, n, "%*.*" PRIu16, w, r, *((uint16_t *)p)); break;
-    case 4: m = snprintf(dest, n, "%*.*" PRIu32, w, r, *((uint32_t *)p)); break;
-    case 8: m = snprintf(dest, n, "%*.*" PRIu64, w, r, *((uint64_t *)p)); break;
+    case 1: m = snprintf(dest, n, "%*.*"PRIu8,  w, r, *((uint8_t *)p));  break;
+    case 2: m = snprintf(dest, n, "%*.*"PRIu16, w, r, *((uint16_t *)p)); break;
+    case 4: m = snprintf(dest, n, "%*.*"PRIu32, w, r, *((uint32_t *)p)); break;
+    case 8: m = snprintf(dest, n, "%*.*"PRIu64, w, r, *((uint64_t *)p)); break;
 #else
     case 1: m = snprintf(dest, n, "%*.*hhu", w, r, *((uint8_t *)p));  break;
     case 2: m = snprintf(dest, n, "%*.*hu",  w, r, *((uint16_t *)p)); break;

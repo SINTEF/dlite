@@ -11,7 +11,7 @@ HDF5_VERSION_STRING="1.10.4"
 #
 # Init environment variables
 #
-PATH=$PATH:$CMAKE_PATH
+PATH=$PATH:$CMAKE_PATH:$ROOT_PATH/local/bin
 LIB_INSTALL_PATH=$ROOT_PATH/local
 #
 # Build and install jansson
@@ -39,4 +39,10 @@ cmake --build . --config Release --target install
 cd $ROOT_PATH/dlite
 git submodule update --init
 mkdir build && cd build
-cmake -DHDF5_DIR=$LIB_INSTALL_PATH/cmake/hdf5 -DJANSSON_ROOT=$LIB_INSTALL_PATH ..
+cmake -G "Visual Studio 14 2015 Win64" \
+ -DHDF5_DIR=$LIB_INSTALL_PATH/cmake/hdf5 \
+ -DJANSSON_ROOT=$LIB_INSTALL_PATH \
+ -DCMAKE_INSTALL_PREFIX:PATH=$LIB_INSTALL_PATH ..
+cmake --build . --config Debug
+cmake --build . --config Release
+

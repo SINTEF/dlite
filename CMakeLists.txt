@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.4)
 #cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
-
 project(dlite
   VERSION 0.2
   #DESCRIPTION "Lightweight library for working with scientific data"
@@ -27,6 +26,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 # Set defaults
 include(SetDefaults)
 
+# Install paths (CMAKE_INSTALL_PREFIX) is prepended to these
+set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
+set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
+set(DLITE_TRANSLATOR_PLUGINS_PATH "share/dlite/translator-plugins")
+
 # Enable compiler warnings
 include(SetCompilerFlags)
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -41,20 +45,21 @@ endif()
 
 
 # Testing
-include(CTest)
+find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 
-find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
-
-if(CTEST_MEMORYCHECK_COMMAND)
-  #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
-  #  ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt)
-  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --trace-chrildren=yes --leak-check=full --track-origins=yes --suppressions=${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt")
+if(MEMORYCHECK_COMMAND)
+  set(MEMORYCHECK_SUPPRESSIONS_FILE
+    ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
+    CACHE FILEPATH "File that contains suppressions for the memory checker"
+    )
   add_custom_target(memcheck
     COMMAND ${CMAKE_CTEST_COMMAND}
               --force-new-ctest-process --output-on-failure -T memcheck
     COMMENT "Runs memory check with valgrind"
     )
 endif()
+
+include(CTest)
 
 
 
@@ -86,27 +91,14 @@ endif()
 ####################################################################
 include(ExternalProject)
 
-if(BUILD_SHARED_LIBS)
-  set(LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
-  set(LIBRARY_SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX})
-else()
-  set(LIBRARY_PREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})
-  set(LIBRARY_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
-endif()
+# A directory that external projects install into
+set(external_INSTALL_DIR ${dlite_BINARY_DIR}/local)
 
-# Give the debug version a different postfix for windows,
-# so both the debug and release version can be built in the
-# same build-tree on Windows (MSVC).
-if (WIN32 AND NOT CMAKE_DEBUG_POSTFIX)
-   set(CMAKE_DEBUG_POSTFIX "_d")
-endif()
-
-# This should hopefully provide correct prefix and postfix for
-# generated libraries
-set(LIB_PREFIX ${LIBRARY_PREFIX})
-#set(LIB_POSTFIX ${CMAKE_${CMAKE_BUILD_TYPE}_POSTFIX}${LIBRARY_SUFFIX})
-set(LIB_POSTFIX ${LIBRARY_SUFFIX})
-
+# Short names
+set(LIB_PRE ${CMAKE_STATIC_LIBRARY_PREFIX})
+set(LIB_EXT ${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(SH_PRE  ${CMAKE_SHARED_LIBRARY_PREFIX})
+set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 #
 # hdf5
@@ -125,7 +117,7 @@ if(WITH_HDF5)
     set(hdf5_VERSION        "${hdf5_MAJOR_VERSION}.${hdf5_MINOR_VERSION}")
     set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
     set(hdf5_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/${hdf5_NAME}")
-    set(hdf5_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
+    set(hdf5_INSTALL_PREFIX "${external_INSTALL_DIR}")
 
     set(cmake_args
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -134,11 +126,9 @@ if(WITH_HDF5)
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
       -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -DBUILD_SHARED_LIBS=ON
+      -DH5_BUILT_AS_DYNAMIC_LIB
     )
-    if(BUILD_SHARED_LIBS)
-      list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
-    endif()
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
       list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
@@ -152,7 +142,7 @@ if(WITH_HDF5)
       SOURCE_DIR        ${hdf5_SOURCE_DIR}
       UPDATE_COMMAND    ""
       CMAKE_ARGS        ${cmake_args}
-      TEST_COMMAND      ctest
+      TEST_COMMAND      ctest -C Release
       INSTALL_COMMAND   cmake --build . --target install
     )
     set(HDF5_DEPENDENCIES hdf5Proj)
@@ -161,12 +151,12 @@ if(WITH_HDF5)
     #
     #   HDF5_INCLUDE_DIRS - location of the HDF5 include dirs
     #   HDF5_LIBRARY_DIRS - location of the HDF5 library dirs
-    #   HDF5_LIBRARIES    - required libraries (for static linking)
+    #   HDF5_LIBRARIES    - required libraries
     #
     set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
     set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
     set(HDF5_LIBRARIES
-      ${hdf5_INSTALL_PREFIX}/lib/${LIB_PREFIX}hdf5${LIB_POSTFIX})
+      ${hdf5_INSTALL_PREFIX}/lib/${SH_PRE}hdf5${SH_EXT})
 
     if(WIN32)
       list(APPEND HDF5_LIBRARIES Kernel32)
@@ -191,12 +181,12 @@ if(WITH_JSON)
     endif()
     message(STATUS "Download and build jansson as external package")
     set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
-    set(jansson_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
+    set(jansson_INSTALL_PREFIX "${external_INSTALL_DIR}")
     set(cmake_args
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -DBUILD_SHARED_LIBS=ON
       )
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
@@ -216,62 +206,84 @@ if(WITH_JSON)
     set(JANSSON_DEPENDENCIES janssonProj)
     set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
     set(JANSSON_LIBRARIES
-      ${jansson_INSTALL_PREFIX}/lib/${LIB_PREFIX}jansson${LIB_POSTFIX})
+      ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
   endif()
 endif()
 
 
-#
-# uuid
-# ====
-set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
-set(uuid_BINARY_DIR ${dlite_BINARY_DIR}/uuid)
-set(UUID_LIBRARIES ${uuid_BINARY_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
-set(cmake_args
-  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-  -DCMAKE_BUILD_TYPE=Release
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
-ExternalProject_Add(
-  uuidProj
-  PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/uuid
-  SOURCE_DIR        ${uuid_SOURCE_DIR}
-  BINARY_DIR        ${uuid_BINARY_DIR}
-  CMAKE_ARGS        ${cmake_args}
-  UPDATE_COMMAND    ""
-  BUILD_BYPRODUCTS  ${UUID_LIBRARIES} ${uuid_BINARY_DIR}/integers.h
-  #TEST_COMMAND      ctest
-  #INSTALL_COMMAND   ""
-)
-#ExternalProject_Get_Property(uuidProj BINARY_DIR)
-#set(uuid_BINARY_DIR ${BINARY_DIR})
-#set(UUID_LIBRARIES ${uuid_BINARY_DIR}/${LIB_PREFIX}uuid${LIB_POSTFIX})
-#add_custom_target(buildUuidProj ALL DEPENDS uuidProj)
-#add_dependencies(${UUID_LIBRARIES} uuidProj)
-#set_property(SOURCE ${UUID_LIBRARIES} PROPERTY GENERATED uuidProj)
-set_source_files_properties(
-    ${UUID_LIBRARIES}
-    ${uuid_BINARY_DIR}/integers.h
-  PROPERTIES
-    GENERATED uuidProj
+
+# ----------------
+# test environment
+# ----------------
+# Set up environment variables that must be set to run the tests on
+# the current platform.
+
+# Storage plugins in DLITE_STORAGE_PLUGINS environment variable
+set(storage_plugins
+  ${dlite_BINARY_DIR}/plugins/json
+  ${dlite_BINARY_DIR}/plugins/hdf5
   )
 
+# Libraries that must be in PATH/LD_LIBRARY_PATH
+set(libdirs
+  ${dlite_BINARY_DIR}/src
+  ${dlite_BINARY_DIR}/src/utils
+  ${uuid_BINARY_DIR}
+  )
+
+# Set up platform-specific test environment
+if(UNIX)
+  foreach(libdir ${libdirs})
+    set(libdirs2 "${libdirs2}${libdir}:")
+  endforeach()
+  foreach(plugin ${storage_plugins})
+    set(storage_plugins2 "${storage_plugins2}${plugin}:")
+  endforeach()
+  set(dlite_PATH "$ENV{PATH}")
+  set(dlite_LD_LIBRARY_PATH "${libdirs2}${JANSSON_LIBRARY_DIR};${HDF5_LIBRARY_DIR}$ENV{LD_LIBRARY_PATH}")
+  set(dlite_STORAGE_PLUGINS "${storage_plugins2}")
+else()
+  set(dlite_PATH "${libdirs};${JANSSON_RUNTIME_DIR};${HDF5_RUNTIME_DIR};$ENV{PATH}")
+  set(dlite_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+  set(dlite_STORAGE_PLUGINS "${storage_plugins}")
+endif()
+
+#################################################################
+
+# Report current settings
+message("========== Test environment =========")
+message("PATH: ${dlite_PATH}")
+message("LD_LIBRARY_PATH: ${dlite_LD_LIBRARY_PATH}")
+message("DLITE_STORAGE_PLUGINS: ${dlite_STORAGE_PLUGINS}")
+message("")
+message("========== Jansson ==================")
+message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
+message("JANSSON_LIBRARIES:    ${JANSSON_LIBRARIES}")
+message("JANSSON_LIBRARY_DIR:  ${JANSSON_LIBRARY_DIR}")
+message("JANSSON_RUNTIME_DIR:  ${JANSSON_RUNTIME_DIR}")
+message("")
+message("========== HDF5 =====================")
+message("HDF5_INCLUDE_DIRS:    ${HDF5_INCLUDE_DIRS}")
+message("HDF5_LIBRARIES:       ${HDF5_LIBRARIES}")
+message("HDF5_LIBRARY_DIR:     ${HDF5_LIBRARY_DIR}")
+message("HDF5_RUNTIME_DIR:     ${HDF5_RUNTIME_DIR}")
+message("=====================================")
 
 #################################################################
 
 
 # Subdirectories
-add_subdirectory(doc)
 add_subdirectory(src)
+add_subdirectory(doc)
+
 if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
 endif()
-
 if(WITH_JSON)
   add_subdirectory(plugins/json)
 endif()
 
 add_subdirectory(tools)
-
 
 #################################################################
 

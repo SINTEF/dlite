@@ -10,11 +10,16 @@
 #define dlite_VERSION "@dlite_VERSION@"
 #endif
 
+/* hardcoded paths hints */
+#define DLITE_TEMPLATES_PATH \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_TEMPLATES_PATH@"
+#define DLITE_STORAGE_PLUGINS_PATH \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_STORAGE_PLUGINS_PATH@"
+#define DLITE_TRANSLATOR_PLUGINS_PATH \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_TRANSLATOR_PLUGINS_PATH@"
+
 #cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
-
-/* Whether header inttypes.h is available */
-#cmakedefine HAVE_INTTYPES_H
 
 /* Get rid of some annoying MSVC warnings */
 #ifdef _MSC_VER

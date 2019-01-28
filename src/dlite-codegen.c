@@ -212,7 +212,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
   return retval;
 }
 
-/* Generator function for listing properties. */
+/* Generator function for listing dimensions. */
 static int list_dimensions(TGenBuf *s, const char *template, int len,
                            const TGenSubs *subs, void *context)
 {
@@ -240,7 +240,7 @@ static int list_meta_properties(TGenBuf *s, const char *template, int len,
   return list_properties_helper(s, template, len, subs, context, 1);
 }
 
-/* Generator function for listing metadata properties. */
+/* Generator function for listing metadata relations. */
 static int list_meta_relations(TGenBuf *s, const char *template, int len,
                                 const TGenSubs *subs, void *context)
 {
