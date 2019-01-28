@@ -18,7 +18,7 @@ option(BUILD_JSON   "If not installed, download and compile jansson" OFF)
 
 option(WITH_HDF5    "Whether to build with HDF5 support"             ON)
 option(WITH_JSON    "Whether to build with JSON support"             ON)
-
+option(WITH_PYTHON  "Whether to build Python 3 bindings"             ON)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
@@ -251,6 +251,7 @@ endif()
 #################################################################
 
 # Report current settings
+message("")
 message("========== Test environment =========")
 message("PATH: ${dlite_PATH}")
 message("LD_LIBRARY_PATH: ${dlite_LD_LIBRARY_PATH}")
@@ -271,7 +272,6 @@ message("=====================================")
 
 #################################################################
 
-
 # Subdirectories
 add_subdirectory(src)
 add_subdirectory(doc)
@@ -282,11 +282,13 @@ endif()
 if(WITH_JSON)
   add_subdirectory(plugins/json)
 endif()
+if(WITH_PYTHON)
+  add_subdirectory(bindings/python)
+endif()
 
 add_subdirectory(tools)
 
 #################################################################
-
 
 # Install
 install(FILES
