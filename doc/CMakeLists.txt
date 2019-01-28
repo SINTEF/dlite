@@ -30,11 +30,10 @@ if (DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/utils/strtob.h
     ${dlite_SOURCE_DIR}/src/utils/tgen.h
     ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
+    ${dlite_SOURCE_DIR}/src/utils/uuid.h
     ${dlite_SOURCE_DIR}/src/utils/tests/tgen_example.c
 
     ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
-    ${uuid_SOURCE_DIR}/README.md
-    ${uuid_SOURCE_DIR}/uuid.h
     )
 
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
@@ -55,7 +54,7 @@ if (DOXYGEN_FOUND)
     VERBATIM
     )
 
-  add_custom_target(doc
+  add_custom_target(doc ALL
     DEPENDS html/index.html
     )
 

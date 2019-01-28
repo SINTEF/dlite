@@ -50,3 +50,9 @@ if(WITH_JSON)
     ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 
 endif()
+
+
+install(
+  FILES Chemistry-0.1.json
+  DESTINATION share/dlite/examples
+  )

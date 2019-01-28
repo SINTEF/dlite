@@ -225,7 +225,7 @@ target_include_directories(dlite-utils-static PUBLIC
 install(
   TARGETS dlite-utils dlite-utils-static
   DESTINATION lib
-)
+  )
 
 install(
   DIRECTORY .
@@ -234,7 +234,16 @@ install(
   PATTERN "*.h"
   PATTERN tests EXCLUDE
   PATTERN old EXCLUDE
-)
+  )
+
+install(
+  FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/byteorder.h
+  ${CMAKE_CURRENT_BINARY_DIR}/integers.h
+  ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
+  ${CMAKE_CURRENT_BINARY_DIR}/floats.h
+  DESTINATION include/dlite/utils
+  )
 
 # Tests
 add_subdirectory(tests)

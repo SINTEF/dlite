@@ -113,11 +113,6 @@ endforeach()
 install(FILES
   dlite.h
   ${headers}
-  #${uuid_SOURCE_DIR}/uuid.h
-  #${uuid_BINARY_DIR}/integers.h
-  #${uuid_BINARY_DIR}/byteorder.h
-  ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
-  ${CMAKE_CURRENT_BINARY_DIR}/floats.h
   DESTINATION include/dlite
 )
 # Tests

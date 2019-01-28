@@ -31,7 +31,7 @@ void help()
     "                               Ex. \"double\" instead of \"float64_t\".",
     "  -o, --output=PATH            Output file.  Default is stdout.",
     "  -s, --storage-plugins=PATH   Additional paths to look for storage ",
-    "                               plugins.  May be provided multiple times."
+    "                               plugins.  May be provided multiple times.",
     "  -t, --template=PATH          Template file to load.",
     "  -v, --variables=STRING       Assignment of additional variable(s).",
     "                               STRING is a semicolon-separated string of",
