@@ -86,9 +86,9 @@ else (DLITE_LIBRARIES AND DLITE_INCLUDE_DIRS)
   endif (JANSSON_LIBRARY)
 
   set(DLITE_LIBRARIES ${DLITE_LIBRARIES}
-    plugins-json  # FIXME - remove when plugins are implemented
-    plugins-hdf5  # FIXME - remove when plugins are implemented
-    utils
+    dlite-plugins-json  # FIXME - remove when plugins are implemented
+    dlite-plugins-hdf5  # FIXME - remove when plugins are implemented
+    dlite-utils
     uuid
     ${JANSSON_LIBRARIES}
     ${HDF5_LIBRARIES}
