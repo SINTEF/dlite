@@ -29,11 +29,10 @@ include_directories(
   ${dlite-src-utils_BINARY_DIR}
   )
 
-set_source_files_properties(pydlite.i PROPERTIES SWIG_FLAGS "-py3;-Wall")
+set_source_files_properties(dlite.i PROPERTIES SWIG_FLAGS "-py3;-Wall")
 
-# Creates target _pydlite
-swig_add_library(pydlite LANGUAGE python SOURCES pydlite.i)
-swig_link_libraries(pydlite dlite ${PYTHON_LIBRARIES})
+swig_add_library(dlite LANGUAGE python SOURCES dlite.i)
+swig_link_libraries(dlite dlite ${PYTHON_LIBRARIES})
 
 
 # Install, Python module, follow the solution at
@@ -59,10 +58,10 @@ set(PYTHON_MODULE_PATH
 )
 
 install(
-  TARGETS _pydlite
-  DESTINATION ${PYTHON_MODULE_PATH}/pydlite
+  TARGETS _dlite
+  DESTINATION ${PYTHON_MODULE_PATH}/dlite
 )
 #install(
 #  FILES ${py_sources}
-#  DESTINATION ${PYTHON_MODULE_PATH}/pydlite
+#  DESTINATION ${PYTHON_MODULE_PATH}/dlite
 #)

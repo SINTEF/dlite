@@ -12,17 +12,24 @@
  */
 
 %define DOCSTRING
-"""pydlite -- Python bindings to DLite
+"""Python bindings to DLite
 
 """
 %enddef
 
-%module(docstring=DOCSTRING) pydlite
+%module(docstring=DOCSTRING) dlite
 
 
 /**********************************************
  ** C code included in the wrapper
  **********************************************/
+
+%begin %{
+  /* Disable some selected warnings in generated code */
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+%}
+
 %{
 #include <stdint.h>
 #include <stdbool.h>
@@ -31,7 +38,8 @@
 
 #define SWIG_FILE_WITH_INIT  // tell numpy that we initialize it in %init
 
-  /* Initialize pydlite */
+
+  /* Initialize dlite */
   void init(void) {
   }
 
@@ -53,11 +61,12 @@
  ** Typemaps
  **********************************************/
 /* Generic typemaps */
-%include <typemaps.i>
 %include <exception.i>
+%include <typemaps.i>
+%include <cstring.i>
 %include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
 
-%include "pydlite-typemaps.i"
+%include "dlite-typemaps.i"
 
 
 /**********************************************
@@ -67,6 +76,7 @@
 /* Remove the softc_ prefix from the python bindings */
 %feature("autodoc","2");
 %feature("keyword");
-%rename("%(strip:[softc_])s") "";
+%rename("%(strip:[dlite_])s") "";
 
+%include "dlite-misc.i"
 %include "dlite-storage.i"

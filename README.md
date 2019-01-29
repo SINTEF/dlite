@@ -11,26 +11,31 @@ with SOFT can be read with dlite and vice verse.  However, apart from
 *dlite* being much less complete, there are also some differences.
 See [doc/concepts.md](doc/concepts.md) for details.
 
-The main components of *dlite* are:
-  - [dlite-storage](src/dlite-storage.h): a generic handle
-    encapsulating actual storage formats.  So far only reading and
-    writing HDF5 files is implemented.
-  - [dlite-entity](src/dlite-entity.h): API for instances (actual data) and
-    entities (description of data).
-
-*dlite* also includes [uuid][3] (a small library for generating UUIDs)
-as a git submodule.
+The main concepts and components of *dlite* are:
+  - Instance: a formal representation of data
+  - Metadata: describes an instance (metadata are instances themselves)
+  - Storage: a generic handle encapsulating actual storage formats via plugins
+  - Collection: a set of instances and relations between them
 
 
-Dependencies
-------------
-*dlite* has the following dependencies:
-  - [cmake][4], required for building
-  - [hdf5][5], required (cmake will automatically download and built hdf5
-    if it is not found)
-  - [jansson][6], required, provides json
-  - [doxygen][7], optional, used for documentation generation
-  - [valgrind][8], optional, used for memory checking (Linux only)
+Runtime dependencies
+--------------------
+  - [HDF5][3], optional (needed by HDF5 storage plugin)
+  - [Jansson][4], optional (needed by JSON storage plugin)
+  - [Python][5], optional (needed by Python bindings)
+  - [NumPy][6], optional (needed by Python bindings)
+
+
+Build dependencies
+------------------
+  - [cmake][7], required for building
+  - hdf5 development libraries, optional (needed by HDF5 storage plugin)
+  - Jansson development libraries, optional (needed by JSON storage plugin)
+  - python development libraries, optional (needed by Python bindings)
+  - NumPy development libraries][8], optional (needed by Python bindings)
+  - SWIG[8], optional (needed by building Python bindings)
+  - Doxygen][9], optional, used for documentation generation
+  - [valgrind][10], optional, used for memory checking (Linux only)
 
 
 Download
@@ -123,10 +128,11 @@ Until then, it will remain as a simple and mostly compatible alternative.
 
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
 [2]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
-[3]: https://stash.code.sintef.no/projects/sidase/repos/uuid/
-[4]: https://cmake.org/
-[5]: https://support.hdfgroup.org/HDF5/
-[6]: http://www.digip.org/jansson/
-[7]: http://www.doxygen.org/
-[8]: http://valgrind.org/
-[9]: https://github.com/petervaro/sodyll
+[3]: https://support.hdfgroup.org/HDF5/
+[4]: http://www.digip.org/jansson/
+[5]: https://www.python.org/
+[6]: http://www.numpy.org/
+[7]: https://cmake.org/
+[8]: http://www.swig.org/
+[9]: http://www.doxygen.org/
+[10]: http://valgrind.org/

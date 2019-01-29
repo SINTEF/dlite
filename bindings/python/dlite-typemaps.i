@@ -120,7 +120,8 @@
  ** Out typemaps
  **********************************************/
 %{
-  typedef bool status_t;
+  typedef int status_t;     // error if non-zero
+  typedef int posstatus_t;  // error if negative
   typedef char const_char;
   typedef int * INT_LIST;
 %}
@@ -149,14 +150,22 @@
   }
 }
 
-/* Convert false return value to RuntimeError exception
- * Consider to replace a general bool with a ``typedef bool status_t;`` */
-%typemap(out) bool {
-  if (!$1) SWIG_exception(SWIG_RuntimeError,
-                          "false return value in softc_$symname()");
+/* Convert non-zero return value to RuntimeError exception */
+%typemap(out) status_t {
+  if ($1) SWIG_exception_fail(SWIG_RuntimeError,
+			      "non-zero return value in $symname()");
   $result = Py_None;
   Py_INCREF(Py_None); // Py_None is a singleton so increment its reference if used.
 }
+
+/* Convert non-zero return value to RuntimeError exception */
+%typemap(out) posstatus_t {
+  if ($1 < 0) SWIG_exception_fail(SWIG_RuntimeError,
+				  "negative return value in $symname()");
+  $result = Py_None;
+  Py_INCREF(Py_None); // Py_None is a singleton so increment its reference if used.
+}
+
 
 /* Converts a return integer array (with size given by first element)
  * to a python list of ints */
