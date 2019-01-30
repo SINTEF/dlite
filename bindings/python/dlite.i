@@ -75,7 +75,13 @@
 /* Generic typemaps */
 %include <typemaps.i>
 %include <cstring.i>
+
 %include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
+/* Create numpy typemaps */
+%numpy_typemaps(unsigned char, NPY_UBYTE,  size_t)
+%numpy_typemaps(int32_t,       NPY_INT32,  size_t)
+%numpy_typemaps(double,        NPY_DOUBLE, size_t)
+%numpy_typemaps(size_t,        NPY_SIZE_T, size_t)
 
 %include "dlite-typemaps.i"
 
