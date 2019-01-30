@@ -100,8 +100,8 @@ typedef struct _DLiteOpt {
 
       int i;
       DLiteOpt opts[] = {
-        {"key1", "default1", '1'},
-        {"key2", "default2", 'b'},
+        {'1', "key1", "default1", "description of key1..."},
+        {'b', "key2", "default2", "description of key2..."},
         {NULL, NULL}
       };
       dlite_getopt(options, opts, 0);
@@ -159,6 +159,27 @@ char *dlite_join_url(const char *driver, const char *location,
  */
 int dlite_split_url(char *url, char **driver, char **location, char **options,
                     char **fragment);
+
+
+/**
+  @name Wrappers around error functions
+*/
+void dlite_fatal(int eval, const char *msg, ...)
+  __attribute__ ((__noreturn__, __format__ (__printf__, 2, 3)));
+void dlite_fatalx(int eval, const char *msg, ...)
+  __attribute__ ((__noreturn__, __format__ (__printf__, 2, 3)));
+int dlite_err(int eval, const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 2, 3)));
+int dlite_errx(int eval, const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 2, 3)));
+int dlite_warn(const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
+int dlite_warnx(const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
+int dlite_errval(void);
+const char *dlite_errmsg(void);
+void dlite_errclr(void);
+
 
 
 /** @} */

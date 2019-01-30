@@ -27,13 +27,13 @@
 %begin %{
   /* Disable some selected warnings in generated code */
 #pragma GCC diagnostic ignored "-Wpedantic"
+
+#if defined __GNUC__ && __GNUC__ >= 8
 #pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 %}
 
 %{
-#include <stdint.h>
-#include <stdbool.h>
-
 #include "dlite.h"
 
 #define SWIG_FILE_WITH_INIT  // tell numpy that we initialize it in %init
@@ -58,10 +58,21 @@
 
 
 /**********************************************
+ ** Error handling
+ **********************************************/
+%include <exception.i>
+%exception {
+  dlite_errclr();
+  $action
+  if (dlite_errval())
+    SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
+}
+
+
+/**********************************************
  ** Typemaps
  **********************************************/
 /* Generic typemaps */
-%include <exception.i>
 %include <typemaps.i>
 %include <cstring.i>
 %include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
@@ -80,3 +91,4 @@
 
 %include "dlite-misc.i"
 %include "dlite-storage.i"
+%include "dlite-entity.i"

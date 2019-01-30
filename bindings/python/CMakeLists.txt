@@ -30,13 +30,14 @@ include_directories(
   )
 
 set_source_files_properties(dlite.i PROPERTIES SWIG_FLAGS "-py3;-Wall")
-
 swig_add_library(dlite LANGUAGE python SOURCES dlite.i)
-swig_link_libraries(dlite dlite ${PYTHON_LIBRARIES})
+swig_link_libraries(dlite dlite dlite-utils ${PYTHON_LIBRARIES})
 
 
-# Install, Python module, follow the solution at
-# http://developer.intra2net.com/git/?p=libftdi;a=blob;f=python/CMakeLists.txt;h=93410544fac2a45eec51cb8dd344708b3bbdfe67;hb=HEAD
+
+# Install
+# -------
+# Based on: http://developer.intra2net.com/git/?p=libftdi;a=blob;f=python/CMakeLists.txt;h=93410544fac2a45eec51cb8dd344708b3bbdfe67;hb=HEAD
 if(UNIX)
   set(pyext_ext ".so")
 else()
@@ -58,7 +59,7 @@ set(PYTHON_MODULE_PATH
 )
 
 install(
-  TARGETS _dlite
+  TARGETS ${SWIG_MODULE_dlite_REAL_NAME}
   DESTINATION ${PYTHON_MODULE_PATH}/dlite
 )
 #install(

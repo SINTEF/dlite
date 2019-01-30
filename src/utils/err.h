@@ -139,6 +139,16 @@ int _err_vformat(const char *errname, int eval, int errnum, const char *file,
 
 #ifndef HAVE___VA_ARGS__
 
+/** @cond private */
+/* Rename to avoid intermixing with BSD error functions */
+#define fatal  err_fatal
+#define fatalx err_fatalx
+#define err    err_err
+#define errx   err_errx
+#define warn   err_warn
+#define warnx  err_warnx
+/** @} */
+
 /**
  * @brief Reports fatal error and exit the program with error value `eval`.
  */
@@ -244,17 +254,17 @@ int vwarnx(const char *msg, va_list ap)
 /**
  * @brief Returns the error value of the last error.
  */
-int err_geteval();
+int err_geteval(void);
 
 /**
  * @brief Returns the error message of the last error.
  */
-char *err_getmsg();
+char *err_getmsg(void);
 
 /**
  * @brief Clear the last error (setting error value to zero).
  */
-void err_clear();
+void err_clear(void);
 
 /**
  * @brief Set prefix to prepend to all errors in this application.
@@ -538,7 +548,7 @@ ErrRecord *_err_get_record();
  * This transfers the execution to the nearest enclosing ErrTry/ErrCatch block.
  * If no such block exists, fatal() is called.
  */
-#define raise(eval, ...)                                  \
+#define err_raise(eval, ...)                              \
   do {                                                    \
     ErrRecord *record = _err_get_record();                \
     record->exception = 1;                                \
@@ -552,7 +562,7 @@ ErrRecord *_err_get_record();
  * @brief Like raise(), but does not append a system error message to the
  * exception message.
  */
-#define raisex(eval, ...)                                 \
+#define err_raisex(eval, ...)                             \
   do {                                                    \
     ErrRecord *record = _err_get_record();                \
     record->exception = 1;                                \

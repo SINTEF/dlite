@@ -120,7 +120,7 @@
  ** Out typemaps
  **********************************************/
 %{
-  typedef int status_t;     // error if non-zero
+  typedef int status_t;     // error if non-zero, no output
   typedef int posstatus_t;  // error if negative
   typedef char const_char;
   typedef int * INT_LIST;
@@ -150,20 +150,21 @@
   }
 }
 
+
+
 /* Convert non-zero return value to RuntimeError exception */
 %typemap(out) status_t {
   if ($1) SWIG_exception_fail(SWIG_RuntimeError,
 			      "non-zero return value in $symname()");
   $result = Py_None;
-  Py_INCREF(Py_None); // Py_None is a singleton so increment its reference if used.
+  Py_INCREF(Py_None); // Py_None is a singleton so increment its refcount
 }
 
-/* Convert non-zero return value to RuntimeError exception */
+/* Raise RuntimeError exception on negative return, otherwise return int */
 %typemap(out) posstatus_t {
   if ($1 < 0) SWIG_exception_fail(SWIG_RuntimeError,
 				  "negative return value in $symname()");
-  $result = Py_None;
-  Py_INCREF(Py_None); // Py_None is a singleton so increment its reference if used.
+  $result = PyLong_FromLong($1);
 }
 
 

@@ -53,9 +53,10 @@ find_package(Doxygen REQUIRED)
     VERBATIM
     )
 
-  add_custom_target(doc ALL
+  add_custom_target(doc
     DEPENDS html/index.html
     )
+  add_dependencies(doc install)
 
   install(
     DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
