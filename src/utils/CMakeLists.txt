@@ -226,7 +226,9 @@ target_include_directories(dlite-utils-static PUBLIC ${dlite-utils_INCLUDE_DIRS}
 
 install(
   TARGETS dlite-utils dlite-utils-static
-  DESTINATION lib
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
   )
 
 install(

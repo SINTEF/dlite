@@ -68,7 +68,9 @@ set_target_properties(dlite PROPERTIES
 
 install(
   TARGETS dlite dlite-static
-  DESTINATION lib
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 # create list of headers to install from ${sources}

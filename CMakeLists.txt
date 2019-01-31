@@ -212,40 +212,50 @@ endif()
 
 
 
-# ----------------
-# test environment
-# ----------------
-# Set up environment variables that must be set to run the tests on
-# the current platform.
+# -------------------------------------------
+# Environment for running tests in build tree
+# -------------------------------------------
 
-# Storage plugins in DLITE_STORAGE_PLUGINS environment variable
-set(storage_plugins
+# For PATH and LD_LIBRARY_PATH, which are handled different on POSIX/Windows
+set(bindirs
+  ${dlite-tools_BINARY_DIR}
+  ${JANSSON_RUNTIME_DIR}
+  ${HDF5_RUNTIME_DIR}
+  )
+set(libdirs
+  ${dlite-src_BINARY_DIR}
+  ${dlite-src-utils_BINARY_DIR}
+  ${JANSSON_LIBRARY_DIR}
+  ${HDF5_LIBRARY_DIR}
+  )
+# Common paths (except for path separator)
+set(dlite_PYTHONPATH
+  ${dlite-python_BINARY_DIR}
+  $ENV{PYTHONPATH}
+  )
+set(dlite_STORAGE_PLUGINS
   ${dlite_BINARY_DIR}/plugins/json
   ${dlite_BINARY_DIR}/plugins/hdf5
+  $ENV{DLITE_STORAGE_PLUGINS}
+  )
+set(dlite_TRANSLATOR_PLUGINS
+  $ENV{DLITE_TRANSLATOR_PLUGINS}
+  )
+set(dlite_TEMPLATES
+  ${dlite-tools_SOURCE_DIR}/templates
+  $ENV{DLITE_TEMPLATES}
   )
 
-# Libraries that must be in PATH/LD_LIBRARY_PATH
-set(libdirs
-  ${dlite_BINARY_DIR}/src
-  ${dlite_BINARY_DIR}/src/utils
-  ${uuid_BINARY_DIR}
-  )
-
-# Set up platform-specific test environment
 if(UNIX)
-  foreach(libdir ${libdirs})
-    set(libdirs2 "${libdirs2}${libdir}:")
-  endforeach()
-  foreach(plugin ${storage_plugins})
-    set(storage_plugins2 "${storage_plugins2}${plugin}:")
-  endforeach()
-  set(dlite_PATH "$ENV{PATH}")
-  set(dlite_LD_LIBRARY_PATH "${libdirs2}${JANSSON_LIBRARY_DIR};${HDF5_LIBRARY_DIR}$ENV{LD_LIBRARY_PATH}")
-  set(dlite_STORAGE_PLUGINS "${storage_plugins2}")
+  string(REPLACE ";" ":" dlite_PATH               "${bindirs};$ENV{PATH}")
+  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH
+    "${libdirs};$ENV{LD_LIBRARY_PATH}")
+  string(REPLACE ";" ":" dlite_PYTHONPATH         "${dlite_PYTHONPATH}")
+  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS    "${dlite_STORAGE_PLUGINS}")
+  string(REPLACE ";" ":" dlite_TRANSLATOR_PLUGINS "${dlite_TRANSLATOR_PLUGINS}")
+  string(REPLACE ";" ":" dlite_TEMPLATES          "${dlite_TEMPLATES}")
 else()
-  set(dlite_PATH "${libdirs};${JANSSON_RUNTIME_DIR};${HDF5_RUNTIME_DIR};$ENV{PATH}")
-  set(dlite_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(dlite_STORAGE_PLUGINS "${storage_plugins}")
+  set(dlite_PATH "${bindirs};$ENV{PATH}")
 endif()
 
 #################################################################
@@ -253,9 +263,12 @@ endif()
 # Report current settings
 message("")
 message("========== Test environment =========")
-message("PATH: ${dlite_PATH}")
-message("LD_LIBRARY_PATH: ${dlite_LD_LIBRARY_PATH}")
-message("DLITE_STORAGE_PLUGINS: ${dlite_STORAGE_PLUGINS}")
+message("export PATH=${dlite_PATH}")
+message("export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+message("export PYTHONPATH=${dlite_PYTHONPATH}")
+message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+message("export DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
+message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")

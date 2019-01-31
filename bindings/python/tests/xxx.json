@@ -1,0 +1,51 @@
+{
+  "ea34bc5e-de88-544d-bcba-150b7292873d": {
+    "meta": {
+      "name": "EntitySchema",
+      "version": "0.3",
+      "namespace": "http://meta.sintef.no"
+    },
+    "dimensions": {
+      "ndimensions": 2,
+      "nproperties": 3
+    },
+    "properties": {
+      "name": "MyEntity",
+      "version": "0.1",
+      "namespace": "http://meta.sintef.no",
+      "description": "Just some tests..",
+      "dimensions": [
+        {
+          "name": "N",
+          "description": "first dim"
+        },
+        {
+          "name": "M",
+          "description": "second dim"
+        }
+      ],
+      "properties": [
+        {
+          "name": "a-string",
+          "type": "string",
+          "description": "A string."
+        },
+        {
+          "name": "a-length",
+          "type": "float64",
+          "unit": "m",
+          "description": "Length of something."
+        },
+        {
+          "name": "a-string-arr",
+          "type": "string",
+          "dims": [
+            "N",
+            "M"
+          ],
+          "description": "A string array."
+        }
+      ]
+    }
+  }
+}

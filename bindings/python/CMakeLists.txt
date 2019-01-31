@@ -17,6 +17,10 @@ else()
   find_package(SWIG REQUIRED 3.0.8)
 endif()
 
+set(py_sources
+  __init__.py
+  )
+
 # Add macros for use with swig
 include(${SWIG_USE_FILE})
 
@@ -29,10 +33,37 @@ include_directories(
   ${dlite-src-utils_BINARY_DIR}
   )
 
-set_source_files_properties(dlite.i PROPERTIES SWIG_FLAGS "-py3;-Wall")
-swig_add_library(dlite LANGUAGE python SOURCES dlite.i)
-swig_link_libraries(dlite dlite dlite-utils ${PYTHON_LIBRARIES})
+set_source_files_properties(dlite.i PROPERTIES
+  SWIG_FLAGS "-py3;-Wall"
+  )
 
+swig_add_library(dlite
+  LANGUAGE python
+  #OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite   # new in CMake 3.12
+  SOURCES dlite.i
+  )
+
+swig_link_libraries(dlite
+  dlite
+  dlite-utils
+  ${PYTHON_LIBRARIES}
+  )
+
+# Create a working Python package in binary dir
+ADD_CUSTOM_COMMAND(
+  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
+    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+  )
+
+foreach(source ${py_sources})
+  configure_file(${source} dlite/${source} COPYONLY)
+endforeach()
 
 
 # Install
@@ -48,21 +79,19 @@ execute_process(COMMAND
   ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
   OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
   OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 get_filename_component(_ABS_PYTHON_MODULE_PATH
   ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
 file(RELATIVE_PATH _REL_PYTHON_MODULE_PATH
   ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
-
 set(PYTHON_MODULE_PATH
   ${_REL_PYTHON_MODULE_PATH}
 )
 
 install(
-  TARGETS ${SWIG_MODULE_dlite_REAL_NAME}
-  DESTINATION ${PYTHON_MODULE_PATH}/dlite
-)
-#install(
-#  FILES ${py_sources}
-#  DESTINATION ${PYTHON_MODULE_PATH}/dlite
-#)
+  DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
+  DESTINATION ${PYTHON_MODULE_PATH}
+  )
+
+
+# Tests
+add_subdirectory(tests)

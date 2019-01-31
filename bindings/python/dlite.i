@@ -38,11 +38,6 @@
 
 #define SWIG_FILE_WITH_INIT  // tell numpy that we initialize it in %init
 
-
-  /* Initialize dlite */
-  void init(void) {
-  }
-
 %}
 
 /**********************************************
@@ -51,9 +46,6 @@
 %init %{
   /* Initialize numpy */
   import_array();
-
-  /* Initialize softc */
-  init();
 %}
 
 
@@ -84,6 +76,7 @@
 %numpy_typemaps(size_t,        NPY_SIZE_T, size_t)
 
 %include "dlite-typemaps.i"
+
 
 
 /**********************************************

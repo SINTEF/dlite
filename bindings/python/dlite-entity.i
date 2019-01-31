@@ -1,10 +1,15 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
-//%numpy_typemaps(size_t, NPY_UINT, size_t)
+%numpy_typemaps(size_t, NPY_UINT, size_t)
+%apply (int *IN_ARRAY1, int DIM1) { (int *dims, int ndims) };
+%apply (size_t *IN_ARRAY1, size_t DIM1) { (size_t *dims, size_t ndims) };
+%apply (size_t **ARGOUTVIEWM_ARRAY1, size_t *DIM1) {
+  (size_t **dims, size_t *ndims) };
 
 
 %rename(Instance) _DLiteInstance;
 struct _DLiteInstance {
+  %immutable;
   char uuid[DLITE_UUID_LENGTH+1];
   char *uri;
   int refcount;
@@ -12,11 +17,13 @@ struct _DLiteInstance {
 };
 
 
+
+
 //%apply (size_t IN_ARRAY1, size_t DIM1) { (size_t *dims, size_t ndims) };
-%apply (int IN_ARRAY1, int DIM1) { (int *dims, int ndims) };
 %extend _DLiteInstance {
   //_DLiteInstance(const char *metaid, size_t *dims, size_t ndims,
   //		 const char *id=NULL) {
+
   _DLiteInstance(const char *metaid, int *dims, int ndims,
 		 const char *id=NULL) {
     DLiteInstance *inst;
@@ -33,19 +40,40 @@ struct _DLiteInstance {
     free(d);
     return inst;
   }
+
   _DLiteInstance(const char *url) {
-    DLiteInstance *inst;
-    printf("*** inst\n");
-    inst = dlite_instance_load_url(url);
-    printf("*** inst=%p\n", (void *)inst);
-    if (!inst) dlite_err(1, "XXX");
-    printf("    inst=%p\n", (void *)inst);
+    DLiteInstance *inst = dlite_instance_load_url(url);
+    if (inst) dlite_errclr();
     return inst;
   }
+
   ~_DLiteInstance() {
     dlite_instance_decref($self);
   }
+
+  %newobject __repr__;
+  char * __repr__(void) {
+    int n=0;
+    char buff[64];
+    n += snprintf(buff+n, sizeof(buff)-n, "<Instance:");
+    if ($self->uri && $self->uri[0])
+      n += snprintf(buff+n, sizeof(buff)-n, " uri='%s'", $self->uri);
+    else
+      n += snprintf(buff+n, sizeof(buff)-n, " uuid='%s'", $self->uuid);
+    n += snprintf(buff+n, sizeof(buff)-n, ">");
+    return strdup(buff);
+  }
+
   void save_url(const char *url) {
     dlite_instance_save_url(url, $self);
   }
+
+  void _get_dimensions(size_t **dims, size_t *ndims) {
+    *ndims = DLITE_NDIM($self);
+    *dims = DLITE_DIMS($self);
+  }
+  %pythoncode %{
+    dimensions = property(_get_dimensions, doc='Array of dimension sizes.')
+  %}
+
 };
