@@ -57,7 +57,7 @@ void get_fv(TC_INT iph, TC_INT icomp, TC_INT* iwsg, TC_INT* iwse, double fv[] , 
 	phname = malloc(TC_STRLEN_PHASES);
 	sname = malloc(TC_STRLEN_MAX);
 
-	fprintf(stdout, "phase name    composition, Wt percent Cu     amount\n");
+	fprintf(stdout, "phase name    XMg, XSi, fv     amount\n");
 	for (i = 0; i < iph; i++) {
 		tq_get1("DG", i + 1, -1, &val, iwsg, iwse);
 		if (val == 0.0) {
@@ -72,7 +72,7 @@ void get_fv(TC_INT iph, TC_INT icomp, TC_INT* iwsg, TC_INT* iwse, double fv[] , 
 			}
 
 			if (valnp < TC_EPS) { valnp = 0.0; }
-			fprintf(stdout, "%8s          %16g %16g %16g\n", phname, valw[0], valw[1], valnp);
+			fprintf(stdout, "%8s          %16g %16g %16g\n", phname, valw[1], valw[2], valnp);
 		}
 		else
 		{
@@ -149,7 +149,7 @@ main(int argc, char *argv)
 
   /* read the thermodynamic data file which was created by using */
   /* the GES module inside the Thermo-Calc software package */
-  tq_rfil("TQEX01",iwsg,iwse);
+  tq_rfil("AlMgSi",iwsg,iwse); //tq_rfil("TQEX01", iwsg, iwse);
   if(tq_sg1err(&ierr))return;
 
   /* get component names in the system */
@@ -185,18 +185,21 @@ main(int argc, char *argv)
   dims[0] = ncomp;
   dims[1] = iph;
   size_t nvars = 2;
-  dims[2] = nvars;		// nvars, the temperature and composition will vary
+  dims[2] = nvars;		// nvars, the temperature and composition of Si will vary
   dims[3] = 2 ; //nbounds
   dims[4] = 1; // nconds
-  size_t ncalc = 2;
-  size_t npoints = 12; // this variable is related to ticks so strange to define it before
+  size_t ncalc = 9;
+  size_t ticks[] = { 50,40 } ;
+  size_t npoints;
+  npoints = ticks[0]*ticks[1]; // this variable is related to ticks so strange to define it before
   dims[5] = ncalc;
   dims[6] = npoints;
 
-  //TQ_main();
-
   /* Create instance */
   p = (PhilibTable *)dlite_instance_create(table, dims, "example-AlMgSi");
+
+  /* */
+  p->database = "TTAL7";
 
   /* transfer the name of the elements (already read) */
   for (i = 0; i < ncomp; i++)
@@ -210,16 +213,16 @@ main(int argc, char *argv)
   }
 
   p->varnames[0] = strdup("T");
-  p->varranges[0 * nvars + 0] = 530.;	// in deg C
-  p->varranges[0 * nvars + 1] = 630.;	// in deg C
+  p->varranges[0 * nvars + 0] = 500.;	// in deg C
+  p->varranges[0 * nvars + 1] = 950.;	// in deg C
 
-  p->varnames[1] = strdup("W%(Cu)");
-  p->varranges[1 * nvars + 0] = 6.0;	// in W%
-  p->varranges[1 * nvars + 1] = 8.0;	// in W%
+  p->varnames[1] = strdup("W%(Si)");
+  p->varranges[1 * nvars + 0] = 0.3;	// in W%
+  p->varranges[1 * nvars + 1] = 0.7;	// in W%
 
   /* define the discretization for all variables */
-  p->ticks[0] = 4;	// for the temperature
-  p->ticks[1] = 3;	// for the concentration
+  p->ticks[0] = ticks[0];	// for the temperature
+  p->ticks[1] = ticks[1];	// for the concentration
 
 
   /* Save instance */
@@ -233,12 +236,13 @@ main(int argc, char *argv)
   /* set the units of some properties. */
   tq_ssu((TC_STRING)"ENERGY",(TC_STRING)"CAL",iwsg,iwse);
   if(tq_sg1err(&ierr))return;
-  tq_ssu((TC_STRING)"T",(TC_STRING)"C",iwsg,iwse);
+  tq_ssu((TC_STRING)"T",(TC_STRING)"K",iwsg,iwse);
   if(tq_sg1err(&ierr))return;
 
   /* set the condition for a sigle equilibrium calculation */
   tq_setc("N", -1, -1, 1.00, &iconn, iwsg,iwse);
   tq_setc("P",-1,-1,101325.0,&iconp,iwsg,iwse);
+  tq_setc("W%", -1, 2, 0.5, &iconw, iwsg, iwse);	// 0.5 wt% Mg
 
   /* ----------------------------------------------------------*/
   /*                                                           */
@@ -253,8 +257,15 @@ main(int argc, char *argv)
   double temp;
   double conc;
 
-  p->calcnames[0] = strdup("fv(LIQUID)");
-  p->calcnames[1] = strdup("X(LIQUID,Cu)");
+  p->calcnames[0] = strdup("fv(FCC_A1)");
+  p->calcnames[1] = strdup("X(FCC_A1,Si)");
+  p->calcnames[2] = strdup("X(FCC_A1,Mg)");
+  p->calcnames[3] = strdup("fv(LIQUID)");
+  p->calcnames[4] = strdup("X(LIQUID,Si)");
+  p->calcnames[5] = strdup("X(LIQUID,Mg)");
+  p->calcnames[6] = strdup("fv(MG2SI)");
+  p->calcnames[7] = strdup("X(MG2SI,Mg)");
+  p->calcnames[8] = strdup("X(MG2SI,Si)");
 
   for (size_t iTemp = 0; iTemp < p->ticks[0]; iTemp++) {
 	  for (size_t iConc = 0; iConc < p->ticks[1]; iConc++) {
@@ -267,21 +278,22 @@ main(int argc, char *argv)
 
 		  /* set the conditions */
 		  tq_setc("T", -1, -1, temp, &icont, iwsg, iwse);
-		  tq_setc("W%", -1, 2, conc, &iconw, iwsg, iwse);
+		  tq_setc("W%", -1, 3, conc, &iconw, iwsg, iwse);	// the concentration of Si
+		  
+		  fprintf(stdout, "Case %4d, temp= %16g, concSi= %16g\n", ipos, temp, conc);
 		  /* calculate equilibrium */
 		  tq_ce(" ", 0, 0, 0.0, iwsg, iwse);
 		  if (tq_sg1err(&ierr))return;
 
 		  get_fv(iph, ncomp, iwsg, iwse, fv, comp);
-		  p->calcvalues[ipos*nvars + 0 ] = fv[16];		// "fv(LIQUID)" at 630 K
-		  p->calcvalues[ipos*nvars + 1 ] = comp[16 * ncomp + 1];	// "X(LIQUID,Cu)" at 630 K
+		  for (int k = 0; k < iph; k++) {
+			  p->calcvalues[ipos*ncalc + 0 + 3*k] = fv[k];		// "fv(LIQUID)" 
+			  p->calcvalues[ipos*ncalc + 1 + 3*k] = comp[k * ncomp + 1];	// "X(LIQUID,Mg)"
+			  p->calcvalues[ipos*ncalc + 2 + 3*k] = comp[k * ncomp + 2];	// "X(LIQUID,Si)"
+		  }
 
 	  }
   }
-
-
-
-
 
 
 
