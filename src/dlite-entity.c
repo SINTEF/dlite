@@ -65,6 +65,7 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
   }
   size += padding_at(DLiteInstance, size);  /* add final padding */
   if (!(inst = calloc(1, size))) FAIL("allocation failure");
+  dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
   /* Initialise header */
   if ((uuid_version = dlite_get_uuid(uuid, id)) < 0) goto fail;
@@ -101,7 +102,6 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
   /* Increase reference counts */
   dlite_meta_incref((DLiteMeta *)meta);  /* increase refcount of metadata */
-  dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
   return inst;
  fail:
