@@ -258,11 +258,11 @@ main(int argc, char *argv)
   double conc;
 
   p->calcnames[0] = strdup("fv(FCC_A1)");
-  p->calcnames[1] = strdup("X(FCC_A1,Si)");
-  p->calcnames[2] = strdup("X(FCC_A1,Mg)");
+  p->calcnames[1] = strdup("X(FCC_A1,Mg)");
+  p->calcnames[2] = strdup("X(FCC_A1,Si)");
   p->calcnames[3] = strdup("fv(LIQUID)");
-  p->calcnames[4] = strdup("X(LIQUID,Si)");
-  p->calcnames[5] = strdup("X(LIQUID,Mg)");
+  p->calcnames[4] = strdup("X(LIQUID,Mg)");
+  p->calcnames[5] = strdup("X(LIQUID,Si)");
   p->calcnames[6] = strdup("fv(MG2SI)");
   p->calcnames[7] = strdup("X(MG2SI,Mg)");
   p->calcnames[8] = strdup("X(MG2SI,Si)");
