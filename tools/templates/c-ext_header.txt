@@ -1,6 +1,6 @@
 /* This file is generated with dlite-codegen -- do not edit!
  *
- * Template: c-header.txt
+ * Template: c-ext_header.txt
  * Metadata: {_uri}
  *
  * This file defines two macros {name}_HEAD and {name}_TAIL with which
