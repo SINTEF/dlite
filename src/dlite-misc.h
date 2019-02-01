@@ -164,6 +164,9 @@ int dlite_split_url(char *url, char **driver, char **location, char **options,
 /**
   @name Wrappers around error functions
 */
+#ifdef _WIN32
+#define __attribute__(x)
+#endif
 void dlite_fatal(int eval, const char *msg, ...)
   __attribute__ ((__noreturn__, __format__ (__printf__, 2, 3)));
 void dlite_fatalx(int eval, const char *msg, ...)
