@@ -77,10 +77,10 @@ static DLiteProperty {name}_properties[] = {{
   /* -- value of each property */
 {list_meta_properties:  {prop.cvalue}, {@60}/* {prop.name} */\n}\
   /* -- value of each relation */
-  {list_relations:  {{"{rel.s}", "{rel.p}", "{rel.o}", "{rel.id}"}}{,}\n}\
+{list_meta_relations:  {{"{rel.s}", "{rel.p}", "{rel.o}", "{rel.id}"}}{,}\n}\
   /* -- memory offsets for each property in instances */
   {{
-{list_properties:    offsetof({name}, {prop.name}){,}\n}\
+{list_meta_properties:    offsetof({name}, {prop.name}){,}\n}\
   }}
 }};
 
