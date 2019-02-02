@@ -157,5 +157,14 @@ install(
   PATTERN old EXCLUDE
 )
 
+install(
+  DIRECTORY .
+  DESTINATION include/dlite/utils/compat
+  FILES_MATCHING
+  PATTERN "compat/*.h"
+  PATTERN tests EXCLUDE
+  PATTERN old EXCLUDE
+)
+
 # Tests
 add_subdirectory(tests)
