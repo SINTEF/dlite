@@ -29,6 +29,17 @@ set_target_properties(dlite-plugins-json PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
   )
 
+# Simplify plugin search path for testing in build tree, copy target
+# to ${dlite_BINARY_DIR}/plugins
+ADD_CUSTOM_COMMAND(
+  TARGET dlite-plugins-json
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:dlite-plugins-json>
+    ${dlite_BINARY_DIR}/plugins
+  )
+
+
 install(
   TARGETS dlite-plugins-json
   DESTINATION ${DLITE_STORAGE_PLUGINS_PATH}

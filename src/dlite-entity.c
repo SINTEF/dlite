@@ -278,7 +278,7 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
   if (!(dims = calloc(meta->ndimensions, sizeof(size_t))))
     FAIL("allocation failure");
   for (i=0; i<meta->ndimensions; i++)
-    if ((dims[i] =
+    if ((int)(dims[i] =
          dlite_datamodel_get_dimension_size(d,
                                             meta->dimensions[i].name)) < 0)
       goto fail;

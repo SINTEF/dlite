@@ -3,11 +3,6 @@
 
 set(sources
   dh5lite.c
-  # Can we remove these dependencies?
-  #${dlite-src_SOURCE_DIR}/getuuid.c
-  #${dlite-src_SOURCE_DIR}/dlite-misc.c
-  #${dlite-src_SOURCE_DIR}/dlite-type.c
-  #${uuid_SOURCE_DIR}/uuid-static.c
   )
 
 add_definitions(-DHAVE_CONFIG_H)
@@ -31,6 +26,16 @@ endif()
 
 set_target_properties(dlite-plugins-hdf5 PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
+  )
+
+# Simplify plugin search path for testing in build tree, copy target
+# to ${dlite_BINARY_DIR}/plugins
+ADD_CUSTOM_COMMAND(
+  TARGET dlite-plugins-hdf5
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:dlite-plugins-hdf5>
+    ${dlite_BINARY_DIR}/plugins
   )
 
 install(
