@@ -247,7 +247,9 @@ set(dlite_PYTHONPATH
   ${dlite-python_BINARY_DIR}
   $ENV{PYTHONPATH}
   )
-list(REMOVE_DUPLICATES dlite_PYTHONPATH)
+if(dlite_PYTHONPATH)
+  list(REMOVE_DUPLICATES dlite_PYTHONPATH)
+endif()
 
 # DLITE_STORAGE_PLUGINS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS
