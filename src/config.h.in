@@ -10,7 +10,7 @@
 #define dlite_VERSION "@dlite_VERSION@"
 #endif
 
-/* hardcoded paths hints */
+/* hardcoded default paths */
 #define DLITE_TEMPLATES_PATH \
   "@CMAKE_INSTALL_PREFIX@/@DLITE_TEMPLATES_PATH@"
 #define DLITE_STORAGE_PLUGINS_PATH \
@@ -18,8 +18,13 @@
 #define DLITE_TRANSLATOR_PLUGINS_PATH \
   "@CMAKE_INSTALL_PREFIX@/@DLITE_TRANSLATOR_PLUGINS_PATH@"
 
+/* built-in storage plugins */
 #cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
+#cmakedefine WITH_POSTGRESQL
+
+/* available bindings */
+#cmakedefine WITH_PYTHON
 
 /* Get rid of some annoying MSVC warnings */
 #ifdef _MSC_VER

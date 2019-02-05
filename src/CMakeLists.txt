@@ -39,8 +39,6 @@ add_definitions(
   #-DWITH_DEBUG
   )
 
-#link_directories(${uuid_BINARY_DIR})
-
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
@@ -63,6 +61,9 @@ target_include_directories(dlite-static PUBLIC
 set_target_properties(dlite PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
   )
+set_target_properties(dlite-static PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+  )
 
 #set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
 
@@ -84,6 +85,16 @@ install(FILES
   dlite.h
   ${headers}
   DESTINATION include/dlite
-)
+  )
+
+# install .pdb files - seems to be needed on Windows if we are
+# installing dlite compiled in debug mode
+install(DIRECTORY
+  $<TARGET_FILE_DIR:dlite>
+  DESTINATION bin
+  FILES_MATCHING
+  PATTERN *.pdb
+  )
+
 # Tests
 add_subdirectory(tests)

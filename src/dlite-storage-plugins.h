@@ -109,6 +109,9 @@ int dlite_storage_plugin_unload(const char *name);
 /**
   Returns a pointer to the current storage plugin search path.  It is
   initialised from the environment variable `DLITE_STORAGE_PLUGINS`.
+
+  Use dlite_storage_plugin_path_insert(), dlite_storage_plugin_path_append()
+  and dlite_storage_plugin_path_remove() to modify it.
 */
 const char **dlite_storage_plugin_paths(void);
 
@@ -128,6 +131,13 @@ int dlite_storage_plugin_path_insert(int n, const char *path);
   Returns non-zero on error.
 */
 int dlite_storage_plugin_path_append(const char *path);
+
+/**
+  Removes path number `n` from current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_remove(int n);
 
 
 /** @} */
@@ -196,10 +206,8 @@ typedef char *(*GetMetaURI)(const DLiteDataModel *d);
 
 
 /**
-  Returns the size of dimension `name` or 0 on error.
+  Returns the size of dimension `name` or -1 on error.
  */
-/* FIXME - zero may be a valid dimension size.  Change from size_t to a
-   signed integer and return -1 on error. */
 typedef int (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
 
 

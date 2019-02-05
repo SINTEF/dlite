@@ -599,7 +599,7 @@ char *dh5_get_meta_uri(const DLiteDataModel *d)
 
 
 /**
-  Returns the size of dimension `name` or 0 on error.
+  Returns the size of dimension `name` or -1 on error.
  */
 int dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
@@ -607,7 +607,7 @@ int dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
   int dimsize;
   if (get_data(d, dh5->dimensions, name, &dimsize, dliteInt,
                sizeof(dimsize), 1, NULL) < 0)
-    return err(0, "cannot get size of dimension '%s'", name);
+    return err(-1, "cannot get size of dimension '%s'", name);
   return dimsize;
 }
 

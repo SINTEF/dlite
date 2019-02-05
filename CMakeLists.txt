@@ -18,7 +18,8 @@ option(BUILD_JSON   "If not installed, download and compile jansson" OFF)
 
 option(WITH_HDF5    "Whether to build with HDF5 support"             ON)
 option(WITH_JSON    "Whether to build with JSON support"             ON)
-option(WITH_PYTHON  "Whether to build Python 3 bindings"             ON)
+option(WITH_POSTGRESQL  "Whether to build with PostgreSQL support"   OFF)
+option(WITH_PYTHON  "Whether to build Python 3 bindings"             OFF)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
@@ -216,46 +217,68 @@ endif()
 # Environment for running tests in build tree
 # -------------------------------------------
 
-# For PATH and LD_LIBRARY_PATH, which are handled different on POSIX/Windows
-set(bindirs
-  ${dlite-tools_BINARY_DIR}
+# PATH - path to runtime directories (.exe and .dll)
+set(dlite_PATH ${dlite-tools_BINARY_DIR})
+if(WIN32)
+  list(APPEND dlite_PATH
+    ${dlite-src_BINARY_DIR}
+    ${dlite-src-utils_BINARY_DIR}
+    )
+endif()
+list(APPEND dlite_PATH
   ${JANSSON_RUNTIME_DIR}
   ${HDF5_RUNTIME_DIR}
+  $ENV{PATH}
   )
-set(libdirs
+list(REMOVE_DUPLICATES dlite_PATH)
+
+# LD_LIBRARY_PATH - path to shared library directories (Linux only)
+set(dlite_LD_LIBRARY_PATH
   ${dlite-src_BINARY_DIR}
   ${dlite-src-utils_BINARY_DIR}
   ${JANSSON_LIBRARY_DIR}
   ${HDF5_LIBRARY_DIR}
+  $ENV{LD_LIBRARY_PATH}
   )
-# Common paths (except for path separator)
+list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
+
+# PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
   ${dlite-python_BINARY_DIR}
   $ENV{PYTHONPATH}
   )
+list(REMOVE_DUPLICATES dlite_PYTHONPATH)
+
+# DLITE_STORAGE_PLUGINS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS
-  ${dlite_BINARY_DIR}/plugins/json
-  ${dlite_BINARY_DIR}/plugins/hdf5
+  ${dlite_BINARY_DIR}/plugins
+  ${dlite_BINARY_DIR}/plugins/json   # remove
+  ${dlite_BINARY_DIR}/plugins/hdf5   # remove
   $ENV{DLITE_STORAGE_PLUGINS}
   )
+list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
+
+# DLITE_TRANSLATOR_PLUGINS - search path for DLite translator plugins
 set(dlite_TRANSLATOR_PLUGINS
+  ${dlite_BINARY_DIR}/translators
   $ENV{DLITE_TRANSLATOR_PLUGINS}
   )
+list(REMOVE_DUPLICATES dlite_TRANSLATOR_PLUGINS)
+
+# DLITE_TEMPLATES - search path for DLite templates
 set(dlite_TEMPLATES
   ${dlite-tools_SOURCE_DIR}/templates
   $ENV{DLITE_TEMPLATES}
   )
+list(REMOVE_DUPLICATES dlite_TEMPLATES)
 
 if(UNIX)
-  string(REPLACE ";" ":" dlite_PATH               "${bindirs};$ENV{PATH}")
-  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH
-    "${libdirs};$ENV{LD_LIBRARY_PATH}")
+  string(REPLACE ";" ":" dlite_PATH               "${dlite_PATH}")
+  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH    "${dlite_LD_LIBRARY_PATH}")
   string(REPLACE ";" ":" dlite_PYTHONPATH         "${dlite_PYTHONPATH}")
   string(REPLACE ";" ":" dlite_STORAGE_PLUGINS    "${dlite_STORAGE_PLUGINS}")
   string(REPLACE ";" ":" dlite_TRANSLATOR_PLUGINS "${dlite_TRANSLATOR_PLUGINS}")
   string(REPLACE ";" ":" dlite_TEMPLATES          "${dlite_TEMPLATES}")
-else()
-  set(dlite_PATH "${bindirs};$ENV{PATH}")
 endif()
 
 #################################################################
@@ -287,19 +310,24 @@ message("=====================================")
 
 # Subdirectories
 add_subdirectory(src)
+add_subdirectory(tools)
 add_subdirectory(doc)
 
+# Storage plugins
 if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
 endif()
 if(WITH_JSON)
   add_subdirectory(plugins/json)
 endif()
+if(WITH_POSTGRESQL)
+  add_subdirectory(plugins/postgresql)
+endif()
+
+# Bindings
 if(WITH_PYTHON)
   add_subdirectory(bindings/python)
 endif()
-
-add_subdirectory(tools)
 
 #################################################################
 

@@ -815,7 +815,6 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
         } else if (t[0] == '@' && isdigit(t[1])) {  /* alignment */
           char *endp;
           long n = strtol(t+1, &endp, 0);
-          //printf("\n*** var='%.*s', len=%d, n=%ld\n", len, t, len, n);
           if (endp != t+len)
             return err(TGenSyntaxError, "line %d: invalid alignment tag {%.*s",
                        tgen_lineno(template, t), len, t);

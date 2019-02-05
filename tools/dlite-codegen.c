@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   char *text=NULL, *template=NULL;
 
   /* Command line arguments */
-  char *url;
+  char *url = NULL;
   char *format = NULL;
   char *output = NULL;
   const char *template_file = NULL;

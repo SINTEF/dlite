@@ -212,6 +212,9 @@ add_library(dlite-utils-static STATIC ${sources})
 set_target_properties(dlite-utils PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
   )
+set_target_properties(dlite-utils-static PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+  )
 
 target_include_directories(dlite-utils PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}

@@ -164,27 +164,4 @@ const char *fu_nextmatch(FUIter *iter);
 int fu_endmatch(FUIter *iter);
 
 
-
-#if 0
-/**
-  Returns a new iterator for finding files matching `pattern`.
-  `paths` is a PATHSEP-separated list of directory paths to search.
-  If `envvar` is not NULL, it should be the name of an environment
-  variable containing additional paths to search.
- */
-FUIter *fu_startmatch(const char *pattern, const char *paths,
-                       const char *envvar);
-
-/**
-  Returns name of the next file matching the pattern provided to
-  fu_startmatch() or NULL if there are no more matches.
- */
-const char *fu_nextmatch(FUIter *iter);
-
-/**
-  Ends pattern matching iteration.
- */
-int fu_endmatch(FUIter *iter);
-#endif
-
 #endif  /*  _FILEUTILS_H */

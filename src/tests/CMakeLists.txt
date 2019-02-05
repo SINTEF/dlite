@@ -18,9 +18,10 @@ if(WITH_JSON)
     )
 endif()
 if(WITH_HDF5)
-  list(APPEND tests
-    test_datamodel
-    )
+  list(APPEND tests test_datamodel)
+endif()
+if(WITH_POSTGRESQL)
+  list(APPEND tests test_postgresql_storage)
 endif()
 
 
@@ -48,6 +49,8 @@ foreach(test ${tests})
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
 
 endforeach()
 

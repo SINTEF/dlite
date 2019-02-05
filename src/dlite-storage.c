@@ -31,7 +31,6 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
 
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
   if (!(storage = api->open(uri, options))) goto fail;
-
   storage->api = api;
   if (!(storage->uri = strdup(uri))) FAIL(NULL);
   if (options && !(storage->options = strdup(options))) FAIL(NULL);

@@ -60,7 +60,9 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 {
   const DLiteStoragePlugin *api;
   PluginInfo *info;
+
   if (!(info = get_storage_plugin_info())) return NULL;
+
   if (!(api = (const DLiteStoragePlugin *)plugin_get_api(info, name))) {
     TGenBuf buf;
     int n=0;
@@ -102,6 +104,9 @@ int dlite_storage_plugin_unload(const char *name)
 /*
   Returns a NULL-terminated array of pointers to search paths or NULL
   if no search path is defined.
+
+  Use dlite_storage_plugin_path_insert(), dlite_storage_plugin_path_append()
+  and dlite_storage_plugin_path_remove() to modify it.
 */
 const char **dlite_storage_plugin_paths()
 {
@@ -135,4 +140,16 @@ int dlite_storage_plugin_path_append(const char *path)
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
   return plugin_path_append(info, path);
+}
+
+/*
+  Removes path number `n` from current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_remove(int n)
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return 1;
+  return plugin_path_remove(info, n);
 }

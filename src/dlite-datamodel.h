@@ -51,10 +51,10 @@ int dlite_datamodel_free(DLiteDataModel *d);
 char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d);
 
 /**
-  Returns the size of dimension \a name or 0 on error.
+  Returns the size of dimension \a name or -1 on error.
  */
-size_t dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
-                                          const char *name);
+int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
+                                       const char *name);
 
 /**
   Copies property \a name to memory pointed to by \a ptr.

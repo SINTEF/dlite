@@ -11,6 +11,8 @@ if(WITH_JSON)
       PATH="${dlite_PATH}"
       LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH}"
       DLITE_STORAGE_PLUGINS="${dlite_STORAGE_PLUGINS}"
+      DLITE_TRANSLATOR_PLUGINS="${dlite_TRANSLATOR_PLUGINS}"
+      DLITE_TEMPLATES="${dlite_TEMPLATES}"
       ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
       --output chemistry.h
@@ -26,16 +28,12 @@ if(WITH_JSON)
     test_codegen.c ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h)
   target_link_libraries(test_codegen
     dlite-static
-    #uuid-static
-    ${UUID_STATIC_LIBRARIES}
     )
   target_include_directories(test_codegen PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_BINARY_DIR}/src
-    ${UUID_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
-  add_dependencies(test_codegen dlite-static ${uuidProj})
 
   set(test test_codegen)
   add_test(
@@ -48,6 +46,10 @@ if(WITH_JSON)
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_TEMPLATES=${dlite_TEMPLATES}")
 
 endif()
 
