@@ -33,3 +33,6 @@ install(
   TARGETS dlite-plugins-json
   DESTINATION ${DLITE_STORAGE_PLUGINS_PATH}
 )
+
+# tests
+add_subdirectory(tests)

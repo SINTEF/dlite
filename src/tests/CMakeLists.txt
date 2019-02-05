@@ -11,11 +11,7 @@ set(tests
   test_arrays
   )
 if(WITH_JSON)
-  list(APPEND tests
-    test_json_storage
-    test_json_utils
-    test_json_entity
-    )
+  list(APPEND tests test_json_entity)
 endif()
 if(WITH_HDF5)
   list(APPEND tests test_datamodel)
@@ -53,13 +49,3 @@ foreach(test ${tests})
     ENVIRONMENT "DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
 
 endforeach()
-
-# Add extra include dir for json tests
-if(WITH_JSON)
-  foreach(test test_json_storage test_json_utils)
-    target_include_directories(${test} PRIVATE
-      ${dlite_SOURCE_DIR}/plugins/json
-      )
-    target_link_libraries(${test} dlite-plugins-json)
-  endforeach()
-endif()

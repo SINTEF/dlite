@@ -50,10 +50,6 @@ typedef struct {
 static DLiteStorage *open(const char *uri, const char *options)
 {
   PGStorage *s;
-
-  printf("*** open('%s', '%s')\n", uri, options);
-  fflush(stdout);
-
   if (!( s= calloc(1, sizeof(PGStorage)))) return NULL;
   s->uri = strdup(uri);
   s->options = strdup(options);

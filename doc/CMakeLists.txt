@@ -53,10 +53,12 @@ find_package(Doxygen REQUIRED)
     VERBATIM
     )
 
-  add_custom_target(doc
+  add_custom_target(doc ALL
     DEPENDS html/index.html
     )
-  add_dependencies(doc install)
+
+  # dependencies for build-in target "install" is not yet supported
+  #add_dependencies(install doc)
 
   install(
     DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
