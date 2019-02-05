@@ -51,6 +51,8 @@ static DLiteStorage *open(const char *uri, const char *options)
 {
   PGStorage *s;
   if (!( s= calloc(1, sizeof(PGStorage)))) return NULL;
+  UNUSED(uri);
+  UNUSED(options);
   return (DLiteStorage *)s;
 }
 
