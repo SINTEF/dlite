@@ -55,8 +55,6 @@ static DLiteStorage *open(const char *uri, const char *options)
   fflush(stdout);
 
   if (!( s= calloc(1, sizeof(PGStorage)))) return NULL;
-  s->uri = strdup(uri);
-  s->options = strdup(options);
   return (DLiteStorage *)s;
 }
 
@@ -66,6 +64,7 @@ static DLiteStorage *open(const char *uri, const char *options)
  */
 static int close(DLiteStorage *storage)
 {
+  UNUSED(storage);
   return 0;
 }
 
@@ -81,17 +80,18 @@ static int close(DLiteStorage *storage)
 
   Returns the new datamodel or NULL on error.
  */
-static DLiteDataModel *datamodel(DLiteStorage *storage, const char *uuid)
+static DLiteDataModel *datamodel(const DLiteStorage *storage, const char *uuid)
 {
   PGDataModel *d;
 
+  UNUSED(storage);
   printf("*** datamodel(uuid='%s')\n", uuid);
   fflush(stdout);
 
   //if (!(d = calloc(1, sizeof(PGDataModel)))) return NULL;
   if (!(d = calloc(1, sizeof(PGDataModel)))) FAIL("allocation failure");
  fail:
-  return d;
+  return (DLiteDataModel *)d;
 }
 
 
@@ -111,6 +111,7 @@ static int datamodel_free(DLiteDataModel *d)
  */
 static char *get_meta_uri(const DLiteDataModel *d)
 {
+  UNUSED(d);
   return strdup("meta.sintef.no/0.1/FakeEntity");
 }
 
@@ -120,6 +121,8 @@ static char *get_meta_uri(const DLiteDataModel *d)
  */
 static int get_dimension_size(const DLiteDataModel *d, const char *name)
 {
+  UNUSED(d);
+  UNUSED(name);
   return 0;
 }
 
@@ -137,7 +140,14 @@ static int get_property(const DLiteDataModel *d, const char *name,
                         void *ptr, DLiteType type, size_t size,
                         size_t ndims, const size_t *dims)
 {
-  return NULL;
+  UNUSED(d);
+  UNUSED(name);
+  UNUSED(ptr);
+  UNUSED(type);
+  UNUSED(size);
+  UNUSED(ndims);
+  UNUSED(dims);
+  return 1;
 }
 
 
