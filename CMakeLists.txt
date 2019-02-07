@@ -5,10 +5,11 @@ cmake_minimum_required(VERSION 3.4)
 #cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
-
 project(dlite
   VERSION 0.2
-  LANGUAGES C)
+  #DESCRIPTION "Lightweight library for working with scientific data"
+  LANGUAGES C
+  )
 
 
 # Options
@@ -17,10 +18,19 @@ option(BUILD_JSON   "If not installed, download and compile jansson" OFF)
 
 option(WITH_HDF5    "Whether to build with HDF5 support"             ON)
 option(WITH_JSON    "Whether to build with JSON support"             ON)
-
+option(WITH_POSTGRESQL  "Whether to build with PostgreSQL support"   OFF)
+option(WITH_PYTHON  "Whether to build Python 3 bindings"             OFF)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
+
+# Set defaults
+include(SetDefaults)
+
+# Install paths (CMAKE_INSTALL_PREFIX) is prepended to these
+set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
+set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
+set(DLITE_TRANSLATOR_PLUGINS_PATH "share/dlite/translator-plugins")
 
 # Enable compiler warnings
 include(SetCompilerFlags)
@@ -36,20 +46,21 @@ endif()
 
 
 # Testing
-include(CTest)
+find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 
-find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
-
-if(CTEST_MEMORYCHECK_COMMAND)
-  #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
-  #  ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt)
-  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --trace-chrildren=yes --leak-check=full --track-origins=yes --suppressions=${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt")
+if(MEMORYCHECK_COMMAND)
+  set(MEMORYCHECK_SUPPRESSIONS_FILE
+    ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
+    CACHE FILEPATH "File that contains suppressions for the memory checker"
+    )
   add_custom_target(memcheck
     COMMAND ${CMAKE_CTEST_COMMAND}
               --force-new-ctest-process --output-on-failure -T memcheck
     COMMENT "Runs memory check with valgrind"
     )
 endif()
+
+include(CTest)
 
 
 
@@ -81,27 +92,14 @@ endif()
 ####################################################################
 include(ExternalProject)
 
-if(BUILD_SHARED_LIBS)
-  set(LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
-  set(LIBRARY_SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX})
-else()
-  set(LIBRARY_PREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})
-  set(LIBRARY_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
-endif()
+# A directory that external projects install into
+set(external_INSTALL_DIR ${dlite_BINARY_DIR}/local)
 
-# Give the debug version a different postfix for windows,
-# so both the debug and release version can be built in the
-# same build-tree on Windows (MSVC).
-if (WIN32 AND NOT CMAKE_DEBUG_POSTFIX)
-   set(CMAKE_DEBUG_POSTFIX "_d")
-endif()
-
-# This should hopefully provide correct prefix and postfix for
-# generated libraries
-set(LIB_PREFIX ${LIBRARY_PREFIX})
-#set(LIB_POSTFIX ${CMAKE_${CMAKE_BUILD_TYPE}_POSTFIX}${LIBRARY_SUFFIX})
-set(LIB_POSTFIX ${LIBRARY_SUFFIX})
-
+# Short names
+set(LIB_PRE ${CMAKE_STATIC_LIBRARY_PREFIX})
+set(LIB_EXT ${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(SH_PRE  ${CMAKE_SHARED_LIBRARY_PREFIX})
+set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 #
 # hdf5
@@ -120,7 +118,7 @@ if(WITH_HDF5)
     set(hdf5_VERSION        "${hdf5_MAJOR_VERSION}.${hdf5_MINOR_VERSION}")
     set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
     set(hdf5_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/${hdf5_NAME}")
-    set(hdf5_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
+    set(hdf5_INSTALL_PREFIX "${external_INSTALL_DIR}")
 
     set(cmake_args
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -129,11 +127,9 @@ if(WITH_HDF5)
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
       -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -DBUILD_SHARED_LIBS=ON
+      -DH5_BUILT_AS_DYNAMIC_LIB
     )
-    if(BUILD_SHARED_LIBS)
-      list(APPEND cmake_args "-DH5_BUILT_AS_DYNAMIC_LIB")
-    endif()
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
       list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
@@ -147,7 +143,7 @@ if(WITH_HDF5)
       SOURCE_DIR        ${hdf5_SOURCE_DIR}
       UPDATE_COMMAND    ""
       CMAKE_ARGS        ${cmake_args}
-      TEST_COMMAND      ctest
+      TEST_COMMAND      ctest -C Release
       INSTALL_COMMAND   cmake --build . --target install
     )
     set(HDF5_DEPENDENCIES hdf5Proj)
@@ -156,12 +152,12 @@ if(WITH_HDF5)
     #
     #   HDF5_INCLUDE_DIRS - location of the HDF5 include dirs
     #   HDF5_LIBRARY_DIRS - location of the HDF5 library dirs
-    #   HDF5_LIBRARIES    - required libraries (for static linking)
+    #   HDF5_LIBRARIES    - required libraries
     #
     set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
     set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
     set(HDF5_LIBRARIES
-      ${hdf5_INSTALL_PREFIX}/lib/${LIB_PREFIX}hdf5${LIB_POSTFIX})
+      ${hdf5_INSTALL_PREFIX}/lib/${SH_PRE}hdf5${SH_EXT})
 
     if(WIN32)
       list(APPEND HDF5_LIBRARIES Kernel32)
@@ -186,12 +182,12 @@ if(WITH_JSON)
     endif()
     message(STATUS "Download and build jansson as external package")
     set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
-    set(jansson_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/local")
+    set(jansson_INSTALL_PREFIX "${external_INSTALL_DIR}")
     set(cmake_args
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -DBUILD_SHARED_LIBS=ON
       )
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
@@ -211,50 +207,131 @@ if(WITH_JSON)
     set(JANSSON_DEPENDENCIES janssonProj)
     set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
     set(JANSSON_LIBRARIES
-      ${jansson_INSTALL_PREFIX}/lib/${LIB_PREFIX}jansson${LIB_POSTFIX})
+      ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
   endif()
 endif()
 
 
-#
-# uuid
-# ====
-set(uuid_SOURCE_DIR ${dlite_SOURCE_DIR}/uuid)
-set(cmake_args
-  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
-ExternalProject_Add(
-  uuidProj
-  PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/uuid
-  SOURCE_DIR      ${uuid_SOURCE_DIR}
-  CMAKE_ARGS      ${cmake_args}
-  UPDATE_COMMAND  ""
-  #TEST_COMMAND    ctest
-  #INSTALL_COMMAND ""
-)
-ExternalProject_Get_Property(uuidProj BINARY_DIR)
-set(uuid_BINARY_DIR ${BINARY_DIR})
 
+# -------------------------------------------
+# Environment for running tests in build tree
+# -------------------------------------------
+
+# PATH - path to runtime directories (.exe and .dll)
+set(dlite_PATH ${dlite-tools_BINARY_DIR})
+if(WIN32)
+  list(APPEND dlite_PATH
+    ${dlite-src_BINARY_DIR}
+    ${dlite-src-utils_BINARY_DIR}
+    )
+endif()
+list(APPEND dlite_PATH
+  ${JANSSON_RUNTIME_DIR}
+  ${HDF5_RUNTIME_DIR}
+  $ENV{PATH}
+  )
+list(REMOVE_DUPLICATES dlite_PATH)
+
+# LD_LIBRARY_PATH - path to shared library directories (Linux only)
+set(dlite_LD_LIBRARY_PATH
+  ${dlite-src_BINARY_DIR}
+  ${dlite-src-utils_BINARY_DIR}
+  ${JANSSON_LIBRARY_DIR}
+  ${HDF5_LIBRARY_DIR}
+  $ENV{LD_LIBRARY_PATH}
+  )
+list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
+
+# PYTHONPATH - Python search path for modules and packages
+set(dlite_PYTHONPATH
+  ${dlite-python_BINARY_DIR}
+  $ENV{PYTHONPATH}
+  )
+if(dlite_PYTHONPATH)
+  list(REMOVE_DUPLICATES dlite_PYTHONPATH)
+endif()
+
+# DLITE_STORAGE_PLUGINS - search path for DLite storage plugins
+set(dlite_STORAGE_PLUGINS
+  ${dlite_BINARY_DIR}/plugins
+  ${dlite_BINARY_DIR}/plugins/json   # remove
+  ${dlite_BINARY_DIR}/plugins/hdf5   # remove
+  $ENV{DLITE_STORAGE_PLUGINS}
+  )
+list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
+
+# DLITE_TRANSLATOR_PLUGINS - search path for DLite translator plugins
+set(dlite_TRANSLATOR_PLUGINS
+  ${dlite_BINARY_DIR}/translators
+  $ENV{DLITE_TRANSLATOR_PLUGINS}
+  )
+list(REMOVE_DUPLICATES dlite_TRANSLATOR_PLUGINS)
+
+# DLITE_TEMPLATES - search path for DLite templates
+set(dlite_TEMPLATES
+  ${dlite-tools_SOURCE_DIR}/templates
+  $ENV{DLITE_TEMPLATES}
+  )
+list(REMOVE_DUPLICATES dlite_TEMPLATES)
+
+if(UNIX)
+  string(REPLACE ";" ":" dlite_PATH               "${dlite_PATH}")
+  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH    "${dlite_LD_LIBRARY_PATH}")
+  string(REPLACE ";" ":" dlite_PYTHONPATH         "${dlite_PYTHONPATH}")
+  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS    "${dlite_STORAGE_PLUGINS}")
+  string(REPLACE ";" ":" dlite_TRANSLATOR_PLUGINS "${dlite_TRANSLATOR_PLUGINS}")
+  string(REPLACE ";" ":" dlite_TEMPLATES          "${dlite_TEMPLATES}")
+endif()
 
 #################################################################
 
+# Report current settings
+message("")
+message("========== Test environment =========")
+message("export PATH=${dlite_PATH}")
+message("export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+message("export PYTHONPATH=${dlite_PYTHONPATH}")
+message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+message("export DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
+message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
+message("")
+message("========== Jansson ==================")
+message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
+message("JANSSON_LIBRARIES:    ${JANSSON_LIBRARIES}")
+message("JANSSON_LIBRARY_DIR:  ${JANSSON_LIBRARY_DIR}")
+message("JANSSON_RUNTIME_DIR:  ${JANSSON_RUNTIME_DIR}")
+message("")
+message("========== HDF5 =====================")
+message("HDF5_INCLUDE_DIRS:    ${HDF5_INCLUDE_DIRS}")
+message("HDF5_LIBRARIES:       ${HDF5_LIBRARIES}")
+message("HDF5_LIBRARY_DIR:     ${HDF5_LIBRARY_DIR}")
+message("HDF5_RUNTIME_DIR:     ${HDF5_RUNTIME_DIR}")
+message("=====================================")
+
+#################################################################
 
 # Subdirectories
-if(WITH_HDF5)
-  add_subdirectory(plugins/hdf5)
-endif()
-
-if(WITH_JSON)
-  add_subdirectory(plugins/json)
-endif()
-
 add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(doc)
 
+# Storage plugins
+if(WITH_HDF5)
+  add_subdirectory(plugins/hdf5)
+endif()
+if(WITH_JSON)
+  add_subdirectory(plugins/json)
+endif()
+if(WITH_POSTGRESQL)
+  add_subdirectory(plugins/postgresql)
+endif()
+
+# Bindings
+if(WITH_PYTHON)
+  add_subdirectory(bindings/python)
+endif()
 
 #################################################################
-
 
 # Install
 install(FILES

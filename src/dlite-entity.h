@@ -392,6 +392,8 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
       driver://loc?options#id
 
   where `loc` corresponds to the `uri` argument of dlite_storage_open().
+  If `loc` is not given, the instance is loaded from the metastore using
+  `id`.
 
   Returns the instance or NULL on error.
  */

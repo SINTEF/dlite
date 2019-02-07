@@ -1,0 +1,29 @@
+{
+  "46a67765-3d8b-5764-9583-3aec59a17983": {
+    "meta": {
+      "name": "MyEntity",
+      "version": "0.1",
+      "namespace": "http://meta.sintef.no"
+    },
+    "dimensions": {
+      "N": 2,
+      "M": 3
+    },
+    "properties": {
+      "a-string": null,
+      "a-length": 0.0,
+      "a-string-arr": [
+        [
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null
+        ]
+      ]
+    }
+  }
+}

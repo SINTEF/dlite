@@ -234,7 +234,9 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
         case '\\': *(q++) = '\\'; break;
         case '.':  break;                 /* escaped ".", just consume */
         case '\n': break;                 /* escaped newline, just consume */
-        case '\r': break;                 /* escaped newline, Mac */
+        case '\r':
+	  if (p[1] == '\n') p++;          /* escaped newline, Windows or Mac */
+	  break;
         default:   *(q++) = *p;   break;
         }
       } else {
@@ -815,7 +817,6 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
         } else if (t[0] == '@' && isdigit(t[1])) {  /* alignment */
           char *endp;
           long n = strtol(t+1, &endp, 0);
-          //printf("\n*** var='%.*s', len=%d, n=%ld\n", len, t, len, n);
           if (endp != t+len)
             return err(TGenSyntaxError, "line %d: invalid alignment tag {%.*s",
                        tgen_lineno(template, t), len, t);

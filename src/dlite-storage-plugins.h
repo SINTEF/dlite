@@ -1,29 +1,46 @@
-#ifndef _DLITE_PLUGINS_H
-#define _DLITE_PLUGINS_H
+#ifndef _DLITE_STORAGE_PLUGINS_H
+#define _DLITE_STORAGE_PLUGINS_H
 
 /**
   @file
-  @brief Common API for all plugins (internal).
+  @brief Common API for all storage plugins (internal).
+
+  A DPite storage plugin should be a shared library that defines the
+  function
+
+      const DLiteStoragePlugin *get_dlite_storage_api(const char *name);
+
+  that returns a pointer to a struct with pointers to all functions
+  provided by the plugin.  The `name` is just a hint that plugins are
+  free to ignore.  It is used by storage plugins that supports several
+  different drivers, to select which api that should be returned.
+
+  The storage plugin search path is initialised from the environment
+  variable `DLITE_STORAGE_PLUGINS`.
 */
-
 #include "utils/dsl.h"
-#include "dlite-storage.h"
+#include "utils/fileutils.h"
 
+#include "dlite-storage.h"
+#include "dlite-entity.h"
+
+/** A struct with function pointers to all functions provided by a plugin. */
+typedef struct _DLiteStoragePlugin  DLiteStoragePlugin;
 
 /** Initial segment of all DLiteStorage plugin data structures. */
-#define DLiteStorage_HEAD                                               \
-  struct _DLitePlugin *api; /*!< Pointer to plugin api */               \
-  char *uri;                /*!< URI passed to dlite_storage_open() */  \
+#define DLiteStorage_HEAD                                                  \
+  const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */            \
+  char *uri;                /*!< URI passed to dlite_storage_open() */     \
   char *options;            /*!< Options passed to dlite_storage_open() */ \
-  int writable;             /*!< Whether storage is writable */ \
+  int writable;             /*!< Whether storage is writable */            \
   DLiteIDFlag idflag;       /*!< How to handle instance id's */
 
 
 /** Initial segment of all DLiteDataModel plugin data structures. */
-#define DLiteDataModel_HEAD                                     \
-  struct _DLitePlugin *api; /*!< Pointer to plugin api */       \
-  DLiteStorage *s;          /*!< Pointer to storage */          \
-  char uuid[37];            /*!< UUID for the stored data */
+#define DLiteDataModel_HEAD                                        \
+  const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */    \
+  DLiteStorage *s;             /*!< Pointer to storage */          \
+  char uuid[37];               /*!< UUID for the stored data */
 
 
 /** Base definition of a DLite storage, that all plugin storage
@@ -40,14 +57,90 @@ struct _DLiteDataModel {
 
 
 /*
-  FIXME - plugins should be dynamically loadable
-
   See http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
-
-  (sodyll)[https://github.com/petervaro/sodyll] provides a nice
-  portable header.  Unfortunately it is GPL. Can we find something
-  similar?
  */
+
+/**
+  @name Plugin frontend
+  @{
+ */
+
+/**
+  Returns a pointer to a DLiteStoragePlugin or NULL on error.
+
+  The `name` is just a hint that plugins are free to ignore.  It is
+  used by storage plugins that supports several different drivers to
+  select which api that should be returned.
+ */
+typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(const char *name);
+
+
+/**
+  Returns a storage plugin with the given name, or NULL if it cannot
+  be found.
+
+  If a plugin with the given name is registered, it is returned.
+
+  Otherwise the plugin search path is checked for shared libraries
+  matching `name.EXT` where `EXT` is the extension for shared library
+  on the current platform ("dll" on Windows and "so" on Unix/Linux).
+  If a plugin with the provided name is fount, it is loaded,
+  registered and returned.
+
+  Otherwise the plugin search path is checked again, but this time for
+  any shared library.  If a plugin with the provided name is found, it
+  is loaded, registered and returned.
+
+  Otherwise NULL is returned.
+ */
+const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
+
+/**
+  Registers `api` for a storage plugin.  Returns non-zero on error.
+*/
+int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api);
+
+/**
+  Unloads and unregisters storage plugin with the given name.
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_unload(const char *name);
+
+/**
+  Returns a pointer to the current storage plugin search path.  It is
+  initialised from the environment variable `DLITE_STORAGE_PLUGINS`.
+
+  Use dlite_storage_plugin_path_insert(), dlite_storage_plugin_path_append()
+  and dlite_storage_plugin_path_remove() to modify it.
+*/
+const char **dlite_storage_plugin_paths(void);
+
+/**
+  Inserts `path` into the current search path at index `n`.  If `n` is
+  negative, it counts from the end of the search path (like Python).
+
+  If `n` is out of range, it is clipped.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_insert(int n, const char *path);
+
+/**
+  Appends `path` into the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_append(const char *path);
+
+/**
+  Removes path number `n` from current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_remove(int n);
+
+
+/** @} */
 
 
 /**
@@ -113,10 +206,8 @@ typedef char *(*GetMetaURI)(const DLiteDataModel *d);
 
 
 /**
-  Returns the size of dimension `name` or 0 on error.
+  Returns the size of dimension `name` or -1 on error.
  */
-/* FIXME - zero may be a valid dimension size.  Change from size_t to a
-   signed integer and return -1 on error. */
 typedef int (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
 
 
@@ -235,9 +326,12 @@ typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
 /** @} */
 
 
-/** Struct with the name and pointers to function for a plugin. All
-    plugins should define themselves by defining an intance of DLitePlugin. */
-typedef struct _DLitePlugin {
+/**
+  Struct with the name and pointers to function for a plugin. All
+  plugins should define themselves by defining an intance of
+  DLiteStoragePlugin.
+*/
+struct _DLiteStoragePlugin {
   /* Name of plugin */
   const char *       name;             /*!< Name of plugin */
 
@@ -268,7 +362,7 @@ typedef struct _DLitePlugin {
   /* Specialised api */
   GetEntity          getEntity;        /*!< Returns a new Entity from storage */
   SetEntity          setEntity;        /*!< Stores an Entity */
-} DLitePlugin;
+};
 
 
-#endif /* _DLITE_PLUGINS_H */
+#endif /* _DLITE_STORAGE_PLUGINS_H */

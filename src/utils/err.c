@@ -239,12 +239,12 @@ int vwarnx(const char *msg, va_list ap)
 
 
 /* Associated functions */
-int err_geteval()
+int err_geteval(void)
 {
   return err_record->eval;
 }
 
-char *err_getmsg()
+char *err_getmsg(void)
 {
   return err_record->msg;
 }

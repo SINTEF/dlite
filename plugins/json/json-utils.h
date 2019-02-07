@@ -7,7 +7,7 @@
 #include <errno.h>
 
 #include <jansson.h>
-#include "integers.h"
+#include "utils/integers.h"
 
 #include "vector.h"
 #include "str.h"

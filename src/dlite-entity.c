@@ -65,6 +65,7 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
   }
   size += padding_at(DLiteInstance, size);  /* add final padding */
   if (!(inst = calloc(1, size))) FAIL("allocation failure");
+  dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
   /* Initialise header */
   if ((uuid_version = dlite_get_uuid(uuid, id)) < 0) goto fail;
@@ -101,7 +102,6 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
   /* Increase reference counts */
   dlite_meta_incref((DLiteMeta *)meta);  /* increase refcount of metadata */
-  dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
   return inst;
  fail:
@@ -278,8 +278,9 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
   if (!(dims = calloc(meta->ndimensions, sizeof(size_t))))
     FAIL("allocation failure");
   for (i=0; i<meta->ndimensions; i++)
-    if (!(dims[i] =
-          dlite_datamodel_get_dimension_size(d, meta->dimensions[i].name)))
+    if ((int)(dims[i] =
+         dlite_datamodel_get_dimension_size(d,
+                                            meta->dimensions[i].name)) < 0)
       goto fail;
 
   /* create instance */
@@ -398,6 +399,8 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
       driver://loc?options#id
 
   where `loc` corresponds to the `uri` argument of dlite_storage_open().
+  If `loc` is not given, the instance is loaded from the metastore  using
+  `id`.
 
   Returns the instance or NULL on error.
  */
@@ -408,8 +411,15 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   DLiteInstance *inst=NULL;
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &loc, &options, &id)) goto fail;
-  if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
-  inst = dlite_instance_load(s, id);
+  if (loc) {
+    if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
+    inst = dlite_instance_load(s, id);
+  } else if (id) {
+    if (!(inst = (DLiteInstance *)dlite_metastore_get(id))) goto fail;
+    dlite_instance_incref(inst);
+  } else {
+    FAIL("`url` must contain at least a `loc` or `id` part");
+  }
  fail:
   if (s) dlite_storage_close(s);
   if (str) free(str);
