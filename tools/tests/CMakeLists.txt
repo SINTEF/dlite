@@ -10,7 +10,7 @@ endif()
 if(WITH_JSON)
   add_custom_command(
     OUTPUT chemistry.h
-    COMMAND ${dlite-tools_BINARY_DIR}/dlite-codegen${exeext}
+    COMMAND $<TARGET_FILE:dlite-codegen>
     COMMAND
       ${CMAKE_COMMAND} -E env
       PATH="${dlite_PATH}"
@@ -25,7 +25,7 @@ if(WITH_JSON)
       json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
-    DEPENDS ${dlite_BINARY_DIR}/tools/dlite-codegen${exeext}
+    DEPENDS dlite-codegen
     COMMENT "Generating C header for Chemistry-0.1.json"
   )
 

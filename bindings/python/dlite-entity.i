@@ -1,5 +1,23 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
+<<<<<<< HEAD
+=======
+%{
+
+/* Returns a pointer to a new target language object for property `i`. */
+void *dlite_swig_get_property(const DLiteInstance *inst, const char *name)
+{
+  int i;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return NULL;
+  return dlite_swig_get_property_by_index(inst, i);
+}
+%}
+
+/* ----------------------------------------------------------------- */
+/*  */
+/* ----------------------------------------------------------------- */
+
+>>>>>>> ALP-39-python_bindings
 %numpy_typemaps(size_t, NPY_UINT, size_t)
 %apply (int *IN_ARRAY1, int DIM1) { (int *dims, int ndims) };
 %apply (size_t *IN_ARRAY1, size_t DIM1) { (size_t *dims, size_t ndims) };
@@ -71,6 +89,15 @@ struct _DLiteInstance {
   void _get_dimensions(size_t **dims, size_t *ndims) {
     *ndims = DLITE_NDIM($self);
     *dims = DLITE_DIMS($self);
+    printf("*** _get_dimensions()\n");
+    printf("    -> ndims=%zu\n", *ndims);
+    printf("    -> dims=[");
+    {
+      size_t i;
+      for (i=0; i<*ndims; i++) printf("%zu, ", *dims[i]);
+      printf("]\n");
+    }
+
   }
   %pythoncode %{
     dimensions = property(_get_dimensions, doc='Array of dimension sizes.')

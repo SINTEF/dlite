@@ -224,6 +224,7 @@ target_include_directories(dlite-utils-static PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   )
+
 target_include_directories(dlite-utils PUBLIC ${dlite-utils_INCLUDE_DIRS})
 target_include_directories(dlite-utils-static PUBLIC ${dlite-utils_INCLUDE_DIRS})
 
@@ -251,6 +252,7 @@ install(
   ${CMAKE_CURRENT_BINARY_DIR}/floats.h
   DESTINATION include/dlite/utils
   )
+<<<<<<< HEAD
 
 install(
   DIRECTORY .
@@ -260,6 +262,8 @@ install(
   PATTERN tests EXCLUDE
   PATTERN old EXCLUDE
 )
+=======
+>>>>>>> ALP-39-python_bindings
 
 # Tests
 add_subdirectory(tests)

@@ -11,19 +11,21 @@ with SOFT can be read with dlite and vice verse.  However, apart from
 *dlite* being much less complete, there are also some differences.
 See [doc/concepts.md](doc/concepts.md) for details.
 
-The main concepts and components of *dlite* are:
+The main concepts and components of *dlite* includes:
   - Instance: a formal representation of data
   - Metadata: describes an instance (metadata are instances themselves)
-  - Storage: a generic handle encapsulating actual storage formats via plugins
-  - Collection: a set of instances and relations between them
+  - Collection: a specialised instance that contains references to set
+    of instances and relations between them
+  - Storage: a generic handle encapsulating actual storage formats via
+    plugins
 
 
 Runtime dependencies
 --------------------
   - [HDF5][3], optional (needed by HDF5 storage plugin)
   - [Jansson][4], optional (needed by JSON storage plugin)
-  - [Python][5], optional (needed by Python bindings)
-  - [NumPy][6], optional (needed by Python bindings)
+  - [Python][5], optional (needed by Python bindings and some plugins)
+  - [NumPy][6], optional (needed by Python bindings and some plugins)
 
 
 Build dependencies
@@ -55,31 +57,41 @@ Building
 ## Build on Microsoft Windows
 
 1. Install a recent version of cmake https://cmake.org/download/
-2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the C/C++ components
+2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the
+   C/C++ components
+
 3. Prepare a directory structure for dlite and 3rd party libraries:
-    1. Select a root folder to create the directory structure (e.g. "C:\" or "C:\Users\{username}\Documents\")
+   1. Select a root folder to create the directory structure
+      (e.g. "C:\" or "C:\Users\{username}\Documents\")
 	2. Create the following directory: {root}\local
-	3. Clone the dlite repository in the root folder, folder {root}\dlite will be created.
-4. Download hdf5 library archive from https://support.hdfgroup.org/ftp/HDF5/current/src/
-5. Make a copy of the file {root}\dlite\bootstrap-win.sh into the root folder
+	3. Clone the dlite repository in the root folder, folder
+           {root}\dlite will be created.
+4. Download hdf5 library archive from
+   https://support.hdfgroup.org/ftp/HDF5/current/src/
+5. Make a copy of the file {root}\dlite\bootstrap-win.sh into the root
+   folder
 6. Edit the copy of bootstrap-win.sh in the root folder:
 	1. Modify the variable CMAKE_PATH to the path of cmake directory
 	2. Modify the variable ROOT_PATH to your root folder
-	3. Modify the variable PYTHON_EXECUTABLE to Python version 3.x executable
+	3. Modify the variable PYTHON_EXECUTABLE to Python version 3.x
+	   executable
 	4. Check the version number of hdf5 library
-    5. To build in Win64 mode, add '-G "Visual Studio 15 Win64"' after cmake command when generating the solution (not building)
+    5. To build in Win64 mode, add '-G "Visual Studio 15 Win64"' after
+       cmake command when generating the solution (not building)
 7. Open a git-bash window:
 	1. Change the directory to your root folder
 	2. Type `sh bootstrap-win.sh` and press enter
 8. Open the file {root}\dlite\build\dlite.sln in Visual Studio
 9. In Visual Studio:
-    1. Select the solution configuration "Debug", then build the solution (Menu Build -> Build solution)
-	2. Select the solution configuration "Release", then build the solution (Menu Build -> Build solution)
+    1. Select the solution configuration "Debug", then build the
+       solution (Menu Build -> Build solution)
+    2. Select the solution configuration "Release", then build the
+       solution (Menu Build -> Build solution)
 
 To run the tests, do
 
     ctest -C Debug
-	
+
 
 Summary to build and install dlite when hdf5 and jansson lib are installed
 in the given path LOCAL_DIR
@@ -116,16 +128,20 @@ Build with:
 Before running make, you may wish to configure some options with
 `ccmake ..`
 
-For example, you might need to change (using e.g. cmake-gui) CMAKE_INSTALL_PREFIX to a location accessible for writing. Default option to /usr/local/ is not accessible in some cases, you can then create a /local folder under dlite.
+For example, you might need to change (using e.g. cmake-gui)
+CMAKE_INSTALL_PREFIX to a location accessible for writing. Default
+is ~/.local
+
 
 To run the tests, do
 
     make test        # same as running `ctest`
-    make memcheck    # runs all tests with memory checking (requires valgrind)
+    make memcheck    # runs all tests with memory checking (requires
+                     # valgrind)
 
 To generate code documentation, do
 
-    make doc         # direct your browser to doc/html/index.html
+    make doc         # direct your browser to build/doc/html/index.html
 
 To install dlite locally, do
 
