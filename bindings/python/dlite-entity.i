@@ -1,7 +1,5 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
-<<<<<<< HEAD
-=======
 %{
 
 /* Returns a pointer to a new target language object for property `i`. */
@@ -17,7 +15,6 @@ void *dlite_swig_get_property(const DLiteInstance *inst, const char *name)
 /*  */
 /* ----------------------------------------------------------------- */
 
->>>>>>> ALP-39-python_bindings
 %numpy_typemaps(size_t, NPY_UINT, size_t)
 %apply (int *IN_ARRAY1, int DIM1) { (int *dims, int ndims) };
 %apply (size_t *IN_ARRAY1, size_t DIM1) { (size_t *dims, size_t ndims) };
