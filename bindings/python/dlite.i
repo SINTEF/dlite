@@ -35,18 +35,17 @@
 
 %{
 #include "dlite.h"
-
-#define SWIG_FILE_WITH_INIT  // tell numpy that we initialize it in %init
-
 %}
+
 
 /**********************************************
- ** Module initialisation
+ ** Load target language-specific module
  **********************************************/
-%init %{
-  /* Initialize numpy */
-  import_array();
-%}
+%include "dlite-macros.i"
+
+#ifdef SWIGPYTHON
+%include "dlite-python.i"
+#endif
 
 
 /**********************************************
@@ -68,7 +67,6 @@
 %include <typemaps.i>
 %include <cstring.i>
 
-%include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
 /* Create numpy typemaps */
 %numpy_typemaps(unsigned char, NPY_UBYTE,  size_t)
 %numpy_typemaps(int32_t,       NPY_INT32,  size_t)
