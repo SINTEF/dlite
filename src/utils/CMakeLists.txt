@@ -252,7 +252,6 @@ install(
   ${CMAKE_CURRENT_BINARY_DIR}/floats.h
   DESTINATION include/dlite/utils
   )
-<<<<<<< HEAD
 
 install(
   DIRECTORY .
@@ -262,8 +261,6 @@ install(
   PATTERN tests EXCLUDE
   PATTERN old EXCLUDE
 )
-=======
->>>>>>> ALP-39-python_bindings
 
 # Tests
 add_subdirectory(tests)
