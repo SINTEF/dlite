@@ -1,4 +1,4 @@
-# -*- Mode: cmake -*-
+﻿# -*- Mode: cmake -*-
 #
 
 set(tests
@@ -16,16 +16,11 @@ set(tests
   )
 
 # Workaround for old CMake adding CONFIG to binary path for MSVC
-if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
-  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-else()
-  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-add_definitions(
-  -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
-  -DLIBDIR=${LIBDIR}
-  )
+#if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
+#  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+#else()
+#  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
+#endif()
 
 link_directories(
   ${dlite_BINARY_DIR}/src/utils
@@ -40,6 +35,10 @@ foreach(test ${tests})
     ${dlite-src-utils_SOURCE_DIR}
     ${dlite-src-utils_BINARY_DIR}
     )
+  target_compile_definitions(${test} PUBLIC
+     -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
+     -DLIBDIR=$<TARGET_FILE_DIR:${test}>
+     )
   add_dependencies(${test} dlite-utils-static)
 
   add_test(
