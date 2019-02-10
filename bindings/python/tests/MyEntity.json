@@ -27,7 +27,15 @@
       "description": "Length of something."
     },
     {
-      "name": "a-string-arr",
+      "name": "an-int-array",
+      "type": "int",
+      "dims": [
+        "M"
+      ],
+      "description": "An int array."
+    },
+    {
+      "name": "a-string-array",
       "type": "string",
       "dims": [
         "N",

@@ -251,6 +251,7 @@ char *err_getmsg(void)
 
 void err_clear(void)
 {
+  errno = 0;
   err_record->eval = 0;
   err_record->msg[0] = '\0';
 }

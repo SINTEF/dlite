@@ -21,6 +21,19 @@ set(py_sources
   __init__.py
   )
 
+
+# Determine size of size_t
+include(CheckTypeSize)
+check_type_size(size_t SIZEOF_SIZE_T)
+if(${SIZEOF_SIZE_T} EQUAL 4)
+  set(NPY_SIZE_T NPY_UINT32)
+elseif(${SIZEOF_SIZE_T} EQUAL 8)
+  set(NPY_SIZE_T NPY_UINT64)
+else()
+  message(FATAL "Unexpected size of size_t: ${SIZEOF_SIZE_T}")
+endif()
+
+
 # Add macros for use with swig
 include(${SWIG_USE_FILE})
 
@@ -34,7 +47,7 @@ include_directories(
   )
 
 set_source_files_properties(dlite.i PROPERTIES
-  SWIG_FLAGS "-py3;-Wall"
+  SWIG_FLAGS "-py3;-Wall;-DNPY_SIZE_T=${NPY_SIZE_T}"
   )
 
 swig_add_library(dlite

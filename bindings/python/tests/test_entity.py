@@ -3,8 +3,10 @@
 import os
 import sys
 
+import numpy as np
+
 import dlite
-from dlite import Instance
+from dlite import Instance, Dimension, Property
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,7 +19,7 @@ myentity = Instance(url)
 # Check some properties of the entity
 assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
 assert myentity.uri == 'http://meta.sintef.no/0.1/MyEntity'
-#assert myentity.dimensions == 2, 6  # ndimensions, nproperties
+assert np.all(myentity.dimensions == [2, 4])  # ndimensions, nproperties
 
 # Store the entity to a new file
 myentity.save_url('json://xxx.json')
@@ -26,7 +28,24 @@ myentity.save_url('json://xxx.json')
 # For convinience, we give it an unique label "myid" that can be used
 # interchangable with its uuid
 inst = Instance(myentity.uri, [2, 3], 'myid')
-#assert inst.dimensions == 2, 3
+assert np.all(inst.dimensions == [2, 3])
+
+# Assign properties
+inst['a-string'] = 'Hello!'
+inst['a-length'] = 42.3
+inst['a-string-array'] = [['a', 'b', 'c'], ['dd', 'eee', 'ffff']]
+inst['an-int-array'] = [1, 2, 3]
+
+for i in range(4):
+    print('prop%d:' % i, inst[i])
+
 
 # Store the instance
 inst.save_url('json://inst.json')
+
+
+dim = Dimension('N')
+
+prop = Property("a", type=dlite.FloatType, size=4)
+prop2 = Property("b", type=dlite.FixStringType, size=10, dims=[2, 3, 4],
+                 description='something enlightening...')

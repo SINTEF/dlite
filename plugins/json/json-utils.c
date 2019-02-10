@@ -794,7 +794,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
       return errx(1, "length of JSON string (%lu), exceeds buffer size (%lu)",
                   json_string_length(item), size);
     strncpy(ptr, json_string_value(item), size);
-    ((char *)ptr)[size] = '\0';
+    if (size > 0) ((char *)ptr)[size-1] = '\0';
     break;
 
   case dliteStringPtr:

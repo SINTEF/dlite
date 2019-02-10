@@ -230,17 +230,17 @@ int vwarnx(const char *msg, va_list ap)
   _err_format("Warning", 0, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
 
 #define vfatal(eval, msg, ap) \
-  exit(_err_vformat("Fatal", eval, errno, ERR_FILEPOS, msg, _err_func, ap))
+  exit(_err_vformat("Fatal", eval, errno, ERR_FILEPOS, _err_func, msg, ap))
 #define vfatalx(eval, msg, ap) \
-  exit(_err_vformat("Fatal", eval, 0, ERR_FILEPOS, msg, _err_func, ap))
+  exit(_err_vformat("Fatal", eval, 0, ERR_FILEPOS, _err_func, msg, ap))
 #define verr(eval, msg, ap) \
-  _err_vformat("Error", eval, errno, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", eval, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define verrx(eval, msg, ap) \
-  _err_vformat("Error", eval, 0, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", eval, 0, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarn(msg, ap) \
-  _err_vformat("Error", 0, errno, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", 0, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarnx(msg, ap) \
-  _err_vformat("Error", 0, 0, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", 0, 0, ERR_FILEPOS, _err_func, msg, ap)
 
 /** @endcond */
 #endif /* HAVE___VA_ARGS__ */

@@ -53,10 +53,11 @@
  **********************************************/
 %include <exception.i>
 %exception {
-  dlite_errclr();
+  dlite_swig_errclr();
   $action
-  if (dlite_errval())
+  if (dlite_errval()) {
     SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
+  }
 }
 
 
