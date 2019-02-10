@@ -73,6 +73,21 @@ struct _DLiteDimension {
 }
 
 
+%inline %{
+
+struct _DLiteDimension *newdim(const char *name, const char *descr)
+{
+  DLiteDimension *d = calloc(1, sizeof(DLiteDimension));
+  d->name = strdup(name);
+  if (descr) d->description = strdup(descr);
+  return d;
+}
+
+%}
+
+
+
+
 /* --------
  * Property
  * -------- */
@@ -136,6 +151,20 @@ struct _DLiteProperty {
     dims = property(get_dims, doc='Array of dimension indices.')
   %}
 }
+
+/* --------
+ * Relation
+ * -------- */
+
+%rename(Relation) _Triplet;
+struct _Triplet {
+  char *s;     /*!< subject */
+  char *p;     /*!< predicate */
+  char *o;     /*!< object */
+  char *id;    /*!< unique ID identifying this triplet */
+};
+
+
 
 /* --------
  * Instance

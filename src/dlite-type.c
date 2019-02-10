@@ -333,9 +333,14 @@ int dlite_type_set_dtype_and_size(const char *typename,
   }
 
   /* Type is not in the type table - extract its size from `typename` */
-  namelen = strcspn(typename, "123456789");
+  namelen = strcspn(typename, "0123456789");
   typesize = strtol(typename + namelen, &endptr, 10);
-  assert(endptr > typename + namelen);
+  if (endptr <= typename + namelen) {
+    if (strcmp(typename, "blob") == 0 ||
+        strcmp(typename, "string") == 0)
+      return err(1, "explicit length is expected for type name: %s", typename);
+    return err(1, "unexpected type name: %s", typename);
+  }
   if (*endptr) return err(1, "invalid length of type name: %s", typename);
   if (strncmp(typename, "blob", namelen) == 0) {
     *dtype = dliteBlob;

@@ -19,7 +19,7 @@ myentity = Instance(url)
 # Check some properties of the entity
 assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
 assert myentity.uri == 'http://meta.sintef.no/0.1/MyEntity'
-assert np.all(myentity.dimensions == [2, 4])  # ndimensions, nproperties
+assert np.all(myentity.dimensions == [2, 12])  # ndimensions, nproperties
 
 # Store the entity to a new file
 myentity.save_url('json://xxx.json')
@@ -31,12 +31,24 @@ inst = Instance(myentity.uri, [2, 3], 'myid')
 assert np.all(inst.dimensions == [2, 3])
 
 # Assign properties
-inst['a-string'] = 'Hello!'
-inst['a-length'] = 42.3
-inst['a-string-array'] = [['a', 'b', 'c'], ['dd', 'eee', 'ffff']]
-inst['an-int-array'] = [1, 2, 3]
+inst['a-blob'] = bytearray(b'0123456789abcdef')
+inst['a-blob-array'] = [[b'0123', b'4567'], [b'89ab', b'cdef']]
+inst['a-bool'] = False
+inst['a-bool-array'] = True, False
+inst['an-int'] = 42
+inst['an-int-array'] = 1, 2, 3
+inst['a-float'] = 42.3
+inst['a-float64-array'] = 3.14, 5.0, 42.3
+inst['a-fixstring'] = 'something'
 
-for i in range(4):
+# FIXME - problems with fixstring arrays
+#inst['a-fixstring-array'] = [['Al', 'X'], ['Mg', 'Si']]
+
+inst['a-string'] = 'Hello!'
+inst['a-string-array'] = [['a', 'b', 'c'], ['dd', 'eee', 'ffff']]
+
+# Print the value of all properties
+for i in range(len(inst)):
     print('prop%d:' % i, inst[i])
 
 

@@ -88,10 +88,6 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
       for (j=0; j<p->ndims; j++) nmemb *= dims[p->dims[j]];
       if (nmemb > 0) {
         if (!(*ptr = calloc(nmemb, size))) goto fail;
-
-        printf("+++ alloc %zu: nmemb=%zu, type=%d, size=%zu: %p\n",
-               i, nmemb, p->type, size, *ptr);
-
       } else {
         *ptr = NULL;
       }

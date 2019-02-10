@@ -136,7 +136,7 @@ include(CheckIncludeFile)
 check_include_file(stdbool.h HAVE_STDBOOL_H)
 
 include(CheckTypeSize)
-check_type_size(_Bool _BOOL)
+check_type_size(_Bool SIZEOF_BOOL)
 
 configure_file(boolean.h.in boolean.h)
 

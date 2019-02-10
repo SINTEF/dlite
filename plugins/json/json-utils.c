@@ -648,9 +648,11 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
     }
     return json_real(fval);
 
-  case dliteFixString:
+  case dliteFixString: {
+    size_t len = strlen((char *)ptr);
     sval = (char *)ptr;
-    return json_string(sval);
+    return json_stringn(sval, (len < size) ? len : size);
+  }
 
   case dliteStringPtr:
     sval = *((char **)ptr);

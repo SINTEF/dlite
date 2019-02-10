@@ -16,15 +16,36 @@
   ],
   "properties": [
     {
-      "name": "a-string",
-      "type": "string",
-      "description": "A string."
+      "name": "a-blob",
+      "type": "blob16",
+      "description": "A blob."
     },
     {
-      "name": "a-length",
-      "type": "double",
-      "unit": "m",
-      "description": "Length of something."
+      "name": "a-blob-array",
+      "type": "blob4",
+      "dims": [
+        "N",
+        "N"
+      ],
+      "description": "A blob array."
+    },
+    {
+      "name": "a-bool",
+      "type": "bool",
+      "description": "A bool."
+    },
+    {
+      "name": "a-bool-array",
+      "type": "bool",
+      "dims": [
+        "N"
+      ],
+      "description": "A bool array."
+    },
+    {
+      "name": "an-int",
+      "type": "int",
+      "description": "An int."
     },
     {
       "name": "an-int-array",
@@ -33,6 +54,40 @@
         "M"
       ],
       "description": "An int array."
+    },
+    {
+      "name": "a-float",
+      "type": "float",
+      "unit": "m",
+      "description": "Length of something."
+    },
+    {
+      "name": "a-float64-array",
+      "type": "float64",
+      "unit": "K",
+      "dims": [
+        "M"
+      ],
+      "description": "The temperature."
+    },
+    {
+      "name": "a-fixstring",
+      "type": "string10",
+      "description": "A fixstring."
+    },
+    {
+      "name": "a-fixstring-array",
+      "type": "string3",
+      "dims": [
+        "N",
+        "N"
+      ],
+      "description": "A fixstring array."
+    },
+    {
+      "name": "a-string",
+      "type": "string",
+      "description": "A string."
     },
     {
       "name": "a-string-array",

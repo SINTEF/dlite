@@ -56,6 +56,17 @@ typedef PyObject obj_t;
 int npy_type(DLiteType type, size_t size)
 {
   switch (type) {
+  case dliteBlob:
+    return NPY_VOID;
+  case dliteBool:
+    assert(size == sizeof(bool));
+    switch(size) {
+    case 1: return NPY_BOOL;  /* numpy bool is always 1 byte */
+    case 2: return NPY_UINT16;
+    case 4: return NPY_UINT32;
+    default: return dlite_err(-1, "no numpy type code for bool of size %zu",
+                              size);
+    }
   case dliteInt:
     switch (size) {
     case 1: return NPY_INT8;
@@ -82,19 +93,17 @@ int npy_type(DLiteType type, size_t size)
                               size);
     }
   case dliteFixString:
+    /* It would have been nicer to use NPY_UNICODE, but unfortunately is
+       it based 4 byte data points (UCS4), while the lengths of dlite
+       fixed strings may have any lengths.
+
+       We therefore fall back to NPY_STRING, which is simple ASCII. */
     return NPY_STRING;
   case dliteStringPtr:
-    return NPY_OBJECT;
-
-  case dliteBlob:
-  case dliteBool:
-
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    //return NPY_OBJECT;
-    return dlite_err(-1, "numpy type code not implemented for %s",
-                     dlite_type_get_dtypename(type));
+    return NPY_OBJECT;
   }
   abort();  /* should never be reached */
 }
@@ -121,15 +130,14 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
     assert(dtype->elsize == (int)size);
     break;
   case dliteFixString:
-    dtype->elsize = size;
+    /* Make space to NUL-termination */
+    dtype->elsize = size - 1;
     break;
   case dliteStringPtr:
-    assert(dtype->elsize == 0);
-
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    //assert(dtype->elsize == 0);
+    assert(dtype->elsize == 0);
     break;
   }
   return dtype;
@@ -182,52 +190,77 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
   PyObject *obj, *cap, *retval=NULL;
   int typecode = npy_type(type, size);
 
-  int m=1;
-  for (i=0; i<ndims; i++) m *= dims[i];
-
-  printf("*** dlite_swig_get_array(%d, %zu : data=%p), *data=%p\n",
-         m, size, data, *(void **)data);
-
   if (typecode < 0) goto fail;
   if (!(d = malloc(ndims*sizeof(npy_intp)))) FAIL("allocation failure");
   for (i=0; i<ndims; i++) d[i] = dims[i];
 
-  if (type == dliteStringPtr) {
-    /* Special case: handle dliteStringPtr as array of python strings */
-    int n=1;
-    npy_intp itemsize;
-    char *itemptr;
-    PyObject *s;
-    PyArrayObject *arr;
-    for (i=0; i<ndims; i++) n *= dims[i];
-    if (!(obj = PyArray_EMPTY(ndims, d, typecode, 0)))
-      FAIL("not able to create numpy array");
-    arr = (PyArrayObject *)obj;
-    itemsize = PyArray_ITEMSIZE(arr);
-    itemptr = PyArray_DATA(arr);
-    for (i=0; i<n; i++, itemptr+=itemsize) {
-      char *str = *((char **)data + i);
-      if (str) {
-        s = PyUnicode_FromString(str);
-      } else {
-        s = Py_None;
-        Py_INCREF(s);
+  switch (type) {
+
+  case dliteStringPtr:
+  case dliteDimension:
+    { /* Special handling of object types */
+      int n=1;
+      npy_intp itemsize;
+      char *itemptr;
+      PyObject *item;
+      PyArrayObject *arr;
+      for (i=0; i<ndims; i++) n *= dims[i];
+      if (!(obj = PyArray_EMPTY(ndims, d, typecode, 0)))
+        FAIL("not able to create numpy array");
+      arr = (PyArrayObject *)obj;
+      itemsize = PyArray_ITEMSIZE(arr);
+      itemptr = PyArray_DATA(arr);
+      for (i=0; i<n; i++, itemptr+=itemsize) {
+
+        if (type == dliteStringPtr) {
+          char *str = *((char **)data + i);
+          if (str) {
+            item = PyUnicode_FromString(str);
+          } else {
+            item = Py_None;
+            Py_INCREF(item);
+          }
+
+        } else if (type == dliteDimension) {
+          DLiteDimension *dim = (DLiteDimension *)data + i;
+          item = SWIG_NewPointerObj(SWIG_as_voidptr(dim),
+                                    SWIGTYPE_p__DLiteDimension, 0 |  0 );
+
+        } else if (type == dliteProperty) {
+          DLiteProperty *p = (DLiteProperty *)data + i;
+          item = SWIG_NewPointerObj(SWIG_as_voidptr(p),
+                                    SWIGTYPE_p__DLiteProperty, 0 |  0 );
+
+        } else if (type == dliteRelation) {
+          DLiteRelation *r = (DLiteRelation *)data + i;
+          item = SWIG_NewPointerObj(SWIG_as_voidptr(r),
+                                    SWIGTYPE_p__Triplet, 0 |  0 );
+
+        } else {
+          assert(0);  /* should never be reached */
+        }
+
+        if (PyArray_SETITEM(arr, itemptr, item))
+          FAIL1("cannot set item of type %s", dlite_type_get_dtypename(type));
       }
-      if (PyArray_SETITEM(arr, itemptr, s))
-        FAIL("cannot set ");
+      break;
     }
-  } else {
-    /* All other types */
-    if (!(obj = PyArray_SimpleNewFromData(ndims, d, typecode, data)))
-      FAIL("not able to create numpy array");
-    //PyArray_Descr *dtype = npy_dtype(type, size);
-    //int flags = NPY_ARRAY_CARRAY | NPY_ARRAY_OWNDATA;
-    //if (!(obj = PyArray_NewFromDescr(&PyArray_Type, dtype, ndims, d,
-    //                                 NULL, data, flags, NULL)))
-    //  FAIL("not able to create numpy array");
+
+  default:
+    { /* All other types */
+      //if (!(obj = PyArray_SimpleNewFromData(ndims, d, typecode, data)))
+      //  FAIL("not able to create numpy array");
+      PyArray_Descr *dtype = npy_dtype(type, size);
+      int flags = NPY_ARRAY_CARRAY;
+      if (inst) flags |= NPY_ARRAY_OWNDATA;
+      if (!(obj = PyArray_NewFromDescr(&PyArray_Type, dtype, ndims, d,
+                                       NULL, data, flags, NULL)))
+        FAIL("not able to create numpy array");
+      break;
+    }
   }
 
-  if (inst) {
+  if (inst && type != dliteStringPtr) {
     cap = PyCapsule_New(inst, DLITE_INSTANCE_CAPSULA_NAME,
                         dlite_swig_capsula_instance_decref);
     if (!cap)
@@ -235,50 +268,11 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
     if (PyArray_SetBaseObject((PyArrayObject *)obj, cap) < 0)
       FAIL("error setting numpy array base");
     dlite_instance_incref(inst);
-  } else {
-    //printf("*** flags = %d (%d)\n", arr->flags,
-    //       arr->flags & NPY_ARRAY_OWNDATA);
-    //arr->flags |= NPY_ARRAY_OWNDATA;
   }
   retval = obj;
  fail:
   if (d) free(d);
   return retval;
-}
-
-/* Copies array object from target language to newly allocated memory.
-   Returns a pointer to the new allocated memory or NULL on error.
-
-   `ndims` : Number of dimensions in `obj`.
-   `dims`  : Length of each dimension will be written to this array.
-             Must have at least length ndims.
-   `type`  : The required type of the array.
-   `size`  : The required element size for the array.
-   `obj`   : Target language array object.
- */
-void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
-                            size_t size, obj_t *obj)
-{
-  int i;
-  //int typecode = npy_type(type, size);
-  PyArray_Descr *dtype = npy_dtype(type, size);
-  PyArrayObject *arr = NULL;
-  void *ptr=NULL;
-
-  if (!dtype) goto fail;
-  if (!(arr = (PyArrayObject *)PyArray_FromAny(obj, dtype, ndims, ndims,
-                                               NPY_ARRAY_IN_ARRAY, NULL)))
-    FAIL("cannot create C-contiguous array");
-  assert(PyArray_ITEMSIZE(arr) == (int)size);
-  assert(ndims == PyArray_NDIM(arr));
-  if (!(ptr = malloc(PyArray_SIZE(arr)*size)))
-    FAIL("allocation failure");
-  memcpy(ptr, PyArray_DATA(arr), PyArray_SIZE(arr)*size);
-  for (i=0; i<ndims; i++)
-    dims[i] = PyArray_DIM(arr, i);
- fail:
-  if (arr) Py_DECREF(arr);
-  return ptr;
 }
 
 
@@ -300,11 +294,6 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
   int i, n=1, m, retval=-1;
   int typecode = npy_type(type, size);
   PyArrayObject *arr = NULL;
-
-
-  printf("*** dlite_swig_set_array(ptr=%p), *ptr=%p\n",
-         ptr, *(void **)ptr);
-
 
   if (typecode < 0) goto fail;
   for (i=0; i<ndims; i++) n *= dims[i];
@@ -349,6 +338,50 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
 }
 
 
+/* Copies array object from target language to newly allocated memory.
+   Returns a pointer to the new allocated memory or NULL on error.
+
+   `ndims` : Number of dimensions in `obj`.
+   `dims`  : Length of each dimension will be written to this array.
+             Must have at least length ndims.
+   `type`  : The required type of the array.
+   `size`  : The required element size for the array.
+   `obj`   : Target language array object.
+ */
+void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
+                            size_t size, obj_t *obj)
+{
+  int i;
+  //int typecode = npy_type(type, size);
+  PyArray_Descr *dtype = npy_dtype(type, size);
+  PyArrayObject *arr = NULL;
+  void *ptr=NULL;
+
+  if (!dtype) goto fail;
+  if (!(arr = (PyArrayObject *)PyArray_FromAny(obj, dtype, ndims, ndims,
+                                               NPY_ARRAY_IN_ARRAY, NULL)))
+    FAIL("cannot create C-contiguous array");
+
+  switch (type) {
+  case dliteFixString:
+    assert(PyArray_ITEMSIZE(arr) == (int)size - 1);
+    break;
+  default:
+    assert(PyArray_ITEMSIZE(arr) == (int)size);
+  }
+
+  assert(ndims == PyArray_NDIM(arr));
+  if (!(ptr = malloc(PyArray_SIZE(arr)*size)))
+    FAIL("allocation failure");
+  memcpy(ptr, PyArray_DATA(arr), PyArray_SIZE(arr)*size);
+  for (i=0; i<ndims; i++)
+    dims[i] = PyArray_DIM(arr, i);
+ fail:
+  if (arr) Py_DECREF(arr);
+  return ptr;
+}
+
+
 /* Returns a new scalar object for the target language or NULL on error.
 
    `type` : Type of the data.
@@ -358,9 +391,6 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
 obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 {
   PyObject *obj;
-
-  printf("*** dlite_swig_get_scalar(data=%p), *data=%p\n",
-         data, *(void **)data);
 
   switch (type) {
 
@@ -446,12 +476,6 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
  */
 int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 {
-
-
-  printf("*** dlite_swig_set_scalar(ptr=%p), *ptr=%p\n",
-         ptr, *(void **)ptr);
-
-
   switch (type) {
 
   case dliteBlob: {
