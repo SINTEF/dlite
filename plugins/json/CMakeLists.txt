@@ -31,7 +31,7 @@ set_target_properties(dlite-plugins-json PROPERTIES
 
 # Simplify plugin search path for testing in build tree, copy target
 # to ${dlite_BINARY_DIR}/plugins
-ADD_CUSTOM_COMMAND(
+add_custom_command(
   TARGET dlite-plugins-json
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
