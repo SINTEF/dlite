@@ -3,6 +3,26 @@
  * Template: c-source.txt
  * Metadata: {_uri}
  *
+ * This file instantiate a hardcoded instance of metadata {meta.name}.
+ *
+ * This allows you to use instances of {name} without first loading
+ * the corresponding json file defining {name}.  For specialised instances
+ * who's header is generated with the c-ext_header.txt template, one
+ * should instantiate the corresponding metadata using the c-source.txt
+ * template.
+ *
+ * Common variables that should be set when using this template:
+ *
+ *     header
+ *         Name of corresponding header file generated with c-header.txt
+ *         or c-ext_header.txt
+ *     _headersize (optional)
+ *         Header size for extended header.  Typically specified using
+ *         offsetof().
+ *     _init (optional)
+ *         Name of init() function
+ *     _deinit (optional)
+ *         Name of deinit() function
  */
 #include <stddef.h>
 
@@ -13,34 +33,34 @@
 
 {@if:{ismeta}==1}
 static DLiteDimension {name}_dimensions[] = {{
-{list_dimensions:  {{"{dim.name}", "{dim.descr}"}}{,}\n}\
+{list_meta_dimensions:  {{"{dim.name}", "{dim.descr}"}}{,}\n}\
 }};
-{list_properties:\
+{list_meta_properties:\
 {@if:{prop.ndims}!=0}\
 static int {basename}_prop_{prop.name}_dims[] = {{\
 {prop.dims:{dim.n}{, }\.}\
 }};
 {@endif}\.}\
 static DLiteProperty {name}_properties[] = {{
-{list_properties:  {{
-    "{prop.name}", /* name */
-    {prop.dtype}, /* type */
-    {prop.size}, /* size */
-    {prop.ndims}, /* ndims */
+{list_meta_properties:  {{
+    "{prop.name}", {@40}/* name */
+    {prop.dtype},  {@40}/* type */
+    {prop.size},   {@40}/* size */
+    {prop.ndims},  {@40}/* ndims */
 {@if:{prop.ndims}==0}\
-    NULL, /* dims */
+    NULL,          {@40}/* dims */
 {@else}\
-    {basename}_prop_{prop.name}_dims, /* dims */
+    {basename}_prop_{prop.name}_dims, {@40}/* dims */
 {@endif}\
 {@if:{prop.unit}\.}\
-    "{prop.unit}", /* unit */
+    "{prop.unit}", {@40}/* unit */
 {@else}\
-    NULL, /* unit */
+    NULL,          {@40}/* unit */
 {@endif}\
 {@if:{prop.descr}\.}\
-    "{prop.descr}" /* description */
+    "{prop.descr}" {@40}/* description */
 {@else}\
-    NULL /* description */
+    NULL           {@40}/* description */
 {@endif}\
   }}{,}
 }\
@@ -77,17 +97,17 @@ static DLiteProperty {name}_properties[] = {{
   /* -- value of each property */
 {list_meta_properties:  {prop.cvalue}, {@60}/* {prop.name} */\n}\
   /* -- value of each relation */
-  {list_relations:  {{"{rel.s}", "{rel.p}", "{rel.o}", "{rel.id}"}}{,}\n}\
+{list_meta_relations:  {{"{rel.s}", "{rel.p}", "{rel.o}", "{rel.id}"}}{,}\n}\
   /* -- memory offsets for each property in instances */
   {{
-{list_properties:    offsetof({name}, {prop.name}){,}\n}\
+{list_meta_properties:    offsetof({meta.name}, {prop.name}){,}\n}\
   }}
 }};
 
 
 const DLiteMeta *{basename}_get_schema()
 {{
-  DLiteMeta *schema = &{basename}_schema;
+  DLiteMeta *schema = (DLiteMeta *)&{basename}_schema;
   if (!schema->meta) {{
     schema->meta = dlite_metastore_get("{meta.uri}");
   }}

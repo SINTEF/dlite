@@ -88,10 +88,10 @@ char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d)
 
 
 /*
-  Returns the size of dimension `name` or 0 on error.
+  Returns the size of dimension `name` or -1 on error.
  */
-size_t dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
-                                          const char *name)
+int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
+                                       const char *name)
 {
   return d->api->getDimensionSize(d, name);
 }

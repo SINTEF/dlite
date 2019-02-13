@@ -1,8 +1,7 @@
 *~
 
 external
-build
-build-win64
+build*
 
 # For Visual Studio
 .vs

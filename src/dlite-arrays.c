@@ -7,7 +7,6 @@
 #endif
 
 #include "utils/err.h"
-/* #include "utils/tgen.h" */
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-arrays.h"

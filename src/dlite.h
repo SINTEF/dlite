@@ -6,8 +6,8 @@
   @brief Main header file for dlite which import main headers
 */
 
-#include "dlite-type.h"
 #include "dlite-misc.h"
+#include "dlite-type.h"
 #include "dlite-entity.h"
 #include "dlite-storage.h"
 #include "dlite-collection.h"

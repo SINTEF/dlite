@@ -1,3 +1,6 @@
+# ------------------------------------
+# hdf5
+# ------------------------------------
 {
    H5open-still_reachable
    Memcheck:Leak
@@ -19,4 +22,76 @@
    fun:H5Fcreate
    fun:dh5_open
    fun:dlite_storage_open
+}
+
+# ------------------------------------
+# dlopen
+# ------------------------------------
+
+{
+   dlopen-still_reachable1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:decompose_rpath
+   fun:_dl_map_object
+}
+
+{
+   dlopen-still_reachable2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:_dl_map_object
+}
+
+{
+   dlopen-still_reachable3
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:open_path
+   fun:_dl_map_object
+}
+
+{
+   dlopen-still_reachable4
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_dl_new_object
+}
+
+{
+   dlopen-still_reachable5
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_new_object
+}
+
+{
+   dlopen-still_reachable6
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:_dl_load_cache_lookup
+}
+
+{
+   dlopen-still_reachable7
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_dl_close_worker.part.0
+}
+
+{
+   dlopen-still_reachable8
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_check_map_versions
 }

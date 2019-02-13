@@ -255,3 +255,31 @@ int dlite_split_url(char *url, char **driver, char **location, char **options,
 
   return 0;
 }
+
+
+/* Wrappers around error functions */
+#define BODY(fun, eval, msg)                            \
+  va_list ap;                                           \
+  va_start(ap, msg);                                    \
+  v ## fun(eval, msg, ap);                              \
+  va_end(ap)
+#define BODY2(fun, msg)                                 \
+  va_list ap;                                           \
+  va_start(ap, msg);                                    \
+  v ## fun(msg, ap);                                    \
+  va_end(ap)
+void dlite_fatal(int eval, const char *msg, ...) {
+  BODY(fatal, eval, msg); }
+void dlite_fatalx(int eval, const char *msg, ...) {
+  BODY(fatalx, eval, msg); }
+int dlite_err(int eval, const char *msg, ...) {
+  BODY(err, eval, msg); return eval; }
+int dlite_errx(int eval, const char *msg, ...) {
+  BODY(errx, eval, msg); return eval; }
+int dlite_warn(const char *msg, ...) {
+  BODY2(warn, msg); return 0; }
+int dlite_warnx(const char *msg, ...) {
+  BODY2(warnx, msg); return 0; }
+int dlite_errval(void) { return err_geteval(); }
+const char *dlite_errmsg(void) { return err_getmsg(); }
+void dlite_errclr(void) { err_clear(); }

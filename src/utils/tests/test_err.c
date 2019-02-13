@@ -76,7 +76,7 @@ MU_TEST(test_err_functions)
 void nested_func()
 {
   err(2, "nested error");  /* swallowed error... */
-  raise(6, "new exception");
+  err_raise(6, "new exception");
   printf("\nprocessing...\n");
 }
 

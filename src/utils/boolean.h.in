@@ -9,7 +9,7 @@
 #ifdef HAVE_STDBOOL_H
 # include <stdbool.h>
 #else
-# ifndef HAVE__BOOL
+# ifndef HAVE_SIZEOF_BOOL
 #  typedef _Bool unsigned char
 # endif
 # define bool _Bool
@@ -17,5 +17,7 @@
 # define false   0
 # define __bool_true_false_are_defined 1
 #endif
+
+#define SIZEOF_BOOL @SIZEOF_BOOL@
 
 #endif /* _BOOLEAN_H */

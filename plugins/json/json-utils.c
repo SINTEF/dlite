@@ -3,9 +3,9 @@
 #include <assert.h>
 
 #include "utils/err.h"
+#include "utils/boolean.h"
+#include "utils/floats.h"
 #include "str.h"
-#include "boolean.h"
-#include "floats.h"
 #include "json-utils.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"
@@ -648,9 +648,11 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
     }
     return json_real(fval);
 
-  case dliteFixString:
+  case dliteFixString: {
+    size_t len = strlen((char *)ptr);
     sval = (char *)ptr;
-    return json_string(sval);
+    return json_stringn(sval, (len < size) ? len : size);
+  }
 
   case dliteStringPtr:
     sval = *((char **)ptr);
@@ -794,7 +796,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
       return errx(1, "length of JSON string (%lu), exceeds buffer size (%lu)",
                   json_string_length(item), size);
     strncpy(ptr, json_string_value(item), size);
-    ((char *)ptr)[size] = '\0';
+    if (size > 0) ((char *)ptr)[size-1] = '\0';
     break;
 
   case dliteStringPtr:
