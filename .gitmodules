@@ -1,6 +1,3 @@
 [submodule "src/tests/minunit"]
 	path = src/tests/minunit
 	url = ssh://git@git.code.sintef.no/sidase/minunit.git
-[submodule "bindings/doxy2swig"]
-	path = bindings/doxy2swig
-	url = git@github.com:m7thon/doxy2swig.git
