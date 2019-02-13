@@ -40,7 +40,7 @@ char* xname(char* phase,char* element){
 int searchstring(char** arraystr,char* key, int size){
 
    int iloc=-1;
-   
+
    for (int i=0; i<size;i++){
       if(strcmp(arraystr[i],key)==0){
          iloc=i;
@@ -81,7 +81,7 @@ int main()
   DLiteMeta *table;
   PhilibTable *p;
 
-  char* str1,str2;
+  char* str1, *str2;
   int iloc;
   double list_fv[nphases];
   double list_comp[nphases][nelements];
@@ -125,7 +125,7 @@ int main()
 
   p->calcvalues[0*ncalc+0]=0.2;		// "fv(MG2SI)" at 500 K
   p->calcvalues[0*ncalc+1]=0.1;		// "fv(MG2SI)" at 800 K
-  
+
   p->calcvalues[1*ncalc+0]=0.33;	// "X(MG2SI,Si)" at 500 K
   p->calcvalues[1*ncalc+1]=0.38;	// "X(MG2SI,Si)" at 800 K
 
@@ -147,13 +147,13 @@ int main()
   /* output:			*/
   /*	    - list_fv[nphases]			*/
   /*	    - list_comp[nphases,nelements]	*/
-  
+
   // List of volume fractions
   /* Make the list of all calculated volume fraction
    list of values of all the fv for all phases (except first phase that is the dependent one) ordered*/
   sum=0.0;
   for (int i=1;i<nphases;i++){
-	str1=fvname(p->phases[i]);	
+	str1=fvname(p->phases[i]);
   	// find the corresponding calcnames if not raise error
 	iloc=searchstring(p->calcnames,str1,ncalc);
 	if(iloc!=-1){
@@ -166,12 +166,12 @@ int main()
 	list_fv[i]=value; // add the value to the list
 	sum += value;
   }
-  
+
   // compute fv for the first phase (dependent)
   list_fv[0] =1. - sum;
   // check if the dependent value is in bounds
   if(checkInBounds(list_fv[0],0.0,1.0)!=0) printf("Error: volume fraction for phase 0 out of bounds\n");
-  
+
   printf("------ list_fv ------\n");
   for(int i=0;i<nphases;i++){
 	printf("%s =%f\n",fvname(p->phases[i]),list_fv[i]);
@@ -182,10 +182,10 @@ int main()
   //go through all the phases except first
   for(int i=1;i<nphases;i++){
 	sum=0.0;
-	for( int ielt=0;ielt<nelements;ielt++){	
+	for( int ielt=0;ielt<nelements;ielt++){
 	   str1=xname(p->phases[i],p->elements[ielt]);
 	// find the corresponding calcnames else iloc=-1
-	   iloc=searchstring(p->calcnames,str1,ncalc);	
+	   iloc=searchstring(p->calcnames,str1,ncalc);
 	   if(iloc>0){
 		value=bounding(p->calcvalues[iloc*ncalc+0],0.0,1.0);
 		list_comp[i][ielt]=value;
@@ -219,5 +219,3 @@ int main()
 
   return 0;
 }
-
-
