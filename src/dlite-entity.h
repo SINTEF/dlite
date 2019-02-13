@@ -661,6 +661,8 @@ void dlite_metastore_free(void);
 
 /**
   Returns pointer to metadata for id `id` or NULL if `id` cannot be found.
+
+  Returns a borrowed reference.
 */
 DLiteMeta *dlite_metastore_get(const char *id);
 
