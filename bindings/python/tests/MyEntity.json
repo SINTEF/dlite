@@ -98,5 +98,6 @@
       ],
       "description": "A string array."
     }
-  ]
+  ],
+  "dataname": "http://meta.sintef.no/0.1/MyEntity"
 }

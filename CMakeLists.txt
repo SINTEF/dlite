@@ -274,6 +274,13 @@ set(dlite_TEMPLATES
   )
 list(REMOVE_DUPLICATES dlite_TEMPLATES)
 
+# DLITE_METADATA - search path for DLite metadata
+set(dlite_METADATA
+  ${dlite-tools_SOURCE_DIR}/metadata
+  $ENV{DLITE_METADATA}
+  )
+list(REMOVE_DUPLICATES dlite_METADATA)
+
 if(UNIX)
   string(REPLACE ";" ":" dlite_PATH               "${dlite_PATH}")
   string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH    "${dlite_LD_LIBRARY_PATH}")
@@ -281,6 +288,7 @@ if(UNIX)
   string(REPLACE ";" ":" dlite_STORAGE_PLUGINS    "${dlite_STORAGE_PLUGINS}")
   string(REPLACE ";" ":" dlite_TRANSLATOR_PLUGINS "${dlite_TRANSLATOR_PLUGINS}")
   string(REPLACE ";" ":" dlite_TEMPLATES          "${dlite_TEMPLATES}")
+  string(REPLACE ";" ":" dlite_METADATA           "${dlite_METADATA}")
 endif()
 
 #################################################################
@@ -294,6 +302,7 @@ message("export PYTHONPATH=${dlite_PYTHONPATH}")
 message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 message("export DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
+message("export DLITE_METADATA=${dlite_METADATA}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")

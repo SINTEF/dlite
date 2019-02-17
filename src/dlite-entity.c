@@ -651,6 +651,31 @@ int dlite_instance_is_data(const DLiteInstance *inst)
   return 0;
 }
 
+/*
+  Returns non-zero if `inst` is metadata.
+
+  This is simply the inverse of dlite_instance_is_data().
+ */
+int dlite_instance_is_meta(const DLiteInstance *inst)
+{
+  if (dlite_meta_is_metameta(inst->meta)) return 1;
+  return 0;
+}
+
+/**
+  Returns non-zero if `inst` is meta-metadata.
+
+  Meta-metadata contains either a "properties" property (of type
+  DLiteProperty) or a "relations" property (of type DLiteRelation) in
+  addition to a "dimensions" property (of type DLiteDimension).
+ */
+int dlite_instance_is_metameta(const DLiteInstance *inst)
+{
+  if (dlite_meta_is_metameta(inst->meta) &&
+      dlite_meta_is_metameta((DLiteMeta *)inst)) return 1;
+  return 0;
+}
+
 
 /*
   Updates the size of all dimensions from.  The new dimension sizes are

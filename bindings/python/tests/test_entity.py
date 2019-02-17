@@ -6,7 +6,7 @@ import sys
 import numpy as np
 
 import dlite
-from dlite import Instance, Dimension, Property
+from dlite import Instance, Dimension, Property, Relation
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
@@ -20,6 +20,9 @@ myentity = Instance(url)
 assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
 assert myentity.uri == 'http://meta.sintef.no/0.1/MyEntity'
 assert np.all(myentity.dimensions == [2, 12])  # ndimensions, nproperties
+assert not myentity.is_data
+assert myentity.is_meta
+assert not myentity.is_metameta
 
 # Store the entity to a new file
 myentity.save_url('json://xxx.json')
@@ -29,6 +32,9 @@ myentity.save_url('json://xxx.json')
 # interchangable with its uuid
 inst = Instance(myentity.uri, [2, 3], 'myid')
 assert np.all(inst.dimensions == [2, 3])
+assert inst.is_data
+assert not inst.is_meta
+assert not inst.is_metameta
 
 # Assign properties
 inst['a-blob'] = bytearray(b'0123456789abcdef')
@@ -40,10 +46,7 @@ inst['an-int-array'] = 1, 2, 3
 inst['a-float'] = 42.3
 inst['a-float64-array'] = 3.14, 5.0, 42.3
 inst['a-fixstring'] = 'something'
-
-# FIXME - problems with fixstring arrays
-#inst['a-fixstring-array'] = [['Al', 'X'], ['Mg', 'Si']]
-
+inst['a-fixstring-array'] = [['Al', 'X'], ['Mg', 'Si']]
 inst['a-string'] = 'Hello!'
 inst['a-string-array'] = [['a', 'b', 'c'], ['dd', 'eee', 'ffff']]
 
@@ -51,13 +54,15 @@ inst['a-string-array'] = [['a', 'b', 'c'], ['dd', 'eee', 'ffff']]
 for i in range(len(inst)):
     print('prop%d:' % i, inst[i])
 
-
 # Store the instance
 inst.save_url('json://inst.json')
-
 
 dim = Dimension('N')
 
 prop = Property("a", type=dlite.FloatType, size=4)
+
 prop2 = Property("b", type=dlite.FixStringType, size=10, dims=[2, 3, 4],
                  description='something enlightening...')
+
+props = myentity['properties']
+props[0]

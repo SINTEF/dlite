@@ -19,7 +19,7 @@ typedef struct _DLiteInstance DLiteInstance;
 typedef struct _DLiteEntity DLiteEntity;
 
 /** Flags for how to handle instance IDs. */
-typedef enum {
+typedef enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
                                  a (version 5) UUID (default). */
   dliteIDRequireUUID=1,     /*!< Require that `id` is a valid UUID. */
