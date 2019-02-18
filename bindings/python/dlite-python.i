@@ -130,14 +130,14 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
     assert(dtype->elsize == (int)size);
     break;
   case dliteFixString:
-    /* Make space to NUL-termination */
-    dtype->elsize = size - 1;
+    dtype->elsize = size;
     break;
   case dliteStringPtr:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    assert(dtype->elsize == 0 || sizeof(void *));
+    assert(dtype->elsize == 0);
+    //assert(dtype->elsize == 0 || sizeof(void *));
     break;
   }
   return dtype;
@@ -250,8 +250,6 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 
   default:
     { /* All other types */
-      //if (!(obj = PyArray_SimpleNewFromData(ndims, d, typecode, data)))
-      //  FAIL("not able to create numpy array");
       PyArray_Descr *dtype = npy_dtype(type, size);
       int flags = NPY_ARRAY_CARRAY;
       if (inst) flags |= NPY_ARRAY_OWNDATA;
@@ -303,11 +301,12 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     FAIL("cannot create contiguous array");
   if ((m = PyArray_SIZE(arr)) != n)
     FAIL2("expected array with total number of elements %d, got %d", n, m);
+
   if (type == dliteStringPtr) {
     /* Special case: handle dliteStringPtr as array of python strings */
     npy_intp itemsize = PyArray_ITEMSIZE(arr);
     char *itemptr = PyArray_DATA(arr);
-    for (i=0; i<m; i++, itemptr+=itemsize) {
+    for (i=0; i<n; i++, itemptr+=itemsize) {
       char **p = *((char ***)ptr);
       PyObject *s = PyArray_GETITEM(arr, itemptr);
       assert(s);
@@ -328,6 +327,17 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
       }
       if (s) Py_DECREF(s);
     }
+
+  } else if (type == dliteFixString) {
+    /* Special case: dliteFixString must be NUL-terminated */
+    char *itemptr = PyArray_DATA(arr);
+    char *p = *((char **)ptr);
+    memset(p, 0, n*size);
+    for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
+      strncpy(p, itemptr, size);
+      p[size-1] = '\0';  /* ensure NUL-termination */
+    }
+
   } else {
     /* All other types */
     memcpy(*((void **)ptr), PyArray_DATA(arr), n*size);
@@ -451,15 +461,21 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     switch (size) {
     case 4: value = *((float32_t *)data); break;
     case 8: value = *((float64_t *)data); break;
-    //case 10: value = *((float80_t *)data); break;
-    //case 16: value = *((float128_t *)data); break;
+#ifdef HAVE_FLOAT80_T
+    case 10: value = *((float80_t *)data); break;
+#endif
+#ifdef HAVE_FLOAT128_T
+    case 16: value = *((float128_t *)data); break;
+#endif
     default: FAIL1("invalid float size: %zu", size);
     }
     obj = PyFloat_FromDouble(value);
     break;
   }
   case dliteFixString: {
-    obj = PyUnicode_FromStringAndSize(data, size);
+    size_t len = strlen(data);
+    if (len >= size) len = size-1;
+    obj = PyUnicode_FromStringAndSize(data, len);
     break;
   }
   case dliteStringPtr: {
@@ -724,7 +740,11 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 
 /* Output typemaps
  * --------------- */
+%inline %{
+
 typedef char const_char;
+
+%}
 
 %typemap("doc") bool "Boolean"
 %typemap(out) bool {

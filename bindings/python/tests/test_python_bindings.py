@@ -23,6 +23,9 @@ class TestDLite(unittest.TestCase):
     def test_entity(self):
         self.assertEqual(runfile('test_entity.py'), 0)
 
+    def test_entity(self):
+        self.assertEqual(runfile('test_storage.py'), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

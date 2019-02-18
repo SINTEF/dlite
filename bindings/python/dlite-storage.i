@@ -19,7 +19,7 @@ enum _DLiteIDFlag {
 
 
 %rename(Storage) _DLiteStorage;
-%inline %{
+%{
   struct _DLiteStorage {
     void *api;                /*!< Pointer to plugin api */
     char *uri;                /*!< URI passed to dlite_storage_open() */
@@ -27,7 +27,16 @@ enum _DLiteIDFlag {
     int writable;             /*!< Whether storage is writable */
     DLiteIDFlag idflag;       /*!< How to handle instance id's */
   };
- %}
+%}
+
+struct _DLiteStorage {
+  %immutable;
+  char *uri;                /*!< URI passed to dlite_storage_open() */
+  char *options;            /*!< Options passed to dlite_storage_open() */
+  int writable;             /*!< Whether storage is writable */
+  int idflag;               /*!< How to handle instance id's */
+};
+
 
 %extend _DLiteStorage {
   _DLiteStorage(const char *driver, const char *uri, const char *options) {
@@ -38,6 +47,9 @@ enum _DLiteIDFlag {
   }
   ~_DLiteStorage(void) {
     dlite_storage_close($self);
+  }
+  const char *get_driver(void) {
+    return dlite_storage_get_driver($self);
   }
 
   //void set_idflag(enum _DLiteIDFlags idflag) {
@@ -51,6 +63,14 @@ enum _DLiteIDFlag {
 
 /* Dublicated declarations from dlite-storage-plugins.h */
 int dlite_storage_plugin_unload(const char *name);
-//const_char **dlite_storage_plugin_paths(void);
+const_char **dlite_storage_plugin_paths(void);
 int dlite_storage_plugin_path_insert(int n, const char *path);
 int dlite_storage_plugin_path_append(const char *path);
+
+
+/* -----------------------------------
+ * Target language-spesific extensions
+ * ----------------------------------- */
+#ifdef SWIGPYTHON
+%include "dlite-storage-python.i"
+#endif

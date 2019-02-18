@@ -92,9 +92,14 @@ void dlite_storage_uuids_free(char **uuids);
 
 
 /**
-   Returns non-zero if storage `s` is writable.
+  Returns non-zero if storage `s` is writable.
  */
 int dlite_storage_is_writable(const DLiteStorage *s);
+
+/**
+  Returns name of driver associated with storage `s`.
+ */
+const char *dlite_storage_get_driver(const DLiteStorage *s);
 
 
 /* Dublicated declarations from dlite-storage-plugins.h */

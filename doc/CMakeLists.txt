@@ -30,6 +30,7 @@ if(DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/utils/strtob.h
     ${dlite_SOURCE_DIR}/src/utils/tgen.h
     ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
+    ${dlite_SOURCE_DIR}/src/utils/infixcalc.h
     ${dlite_SOURCE_DIR}/src/utils/uuid.h
     ${dlite_SOURCE_DIR}/src/utils/tests/tgen_example.c
 

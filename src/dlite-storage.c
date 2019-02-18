@@ -125,3 +125,12 @@ int dlite_storage_is_writable(const DLiteStorage *s)
 {
   return s->writable;
 }
+
+
+/*
+  Returns name of driver associated with storage `s`.
+ */
+const char *dlite_storage_get_driver(const DLiteStorage *s)
+{
+  return s->api->name;
+}

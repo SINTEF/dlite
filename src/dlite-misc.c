@@ -200,7 +200,7 @@ char *dlite_join_url(const char *driver, const char *location,
   For the arguments that are not NULL, the pointers they points to
   will be assigned to point to the corresponding section within `url`.
 
-  `url` will be modified.
+  This function modifies `url`.  Make a copy if you don't want that.
 
   Returns non-zero on error.
 
@@ -214,7 +214,7 @@ char *dlite_join_url(const char *driver, const char *location,
       authority = [userinfo@]host[:port]
 
   This function maps `scheme` to `driver`, `[authority]path` to `location`
-  `query` to `options` and fragment to fragment.
+  `query` to `options` and `fragment` to `fragment`.
 
   [wikipedia]: https://en.wikipedia.org/wiki/URL
  */
@@ -223,6 +223,14 @@ int dlite_split_url(char *url, char **driver, char **location, char **options,
 {
   size_t i;
   char *p;
+
+  /* default to NUL */
+  p = url + strlen(url);
+  assert(*p == '\0');
+  if (driver)   *driver   = p;
+  if (location) *location = p;
+  if (options)  *options  = p;
+  if (fragment) *fragment = p;
 
   /* strip off and assign fragment */
   if ((p = strchr(url, '#'))) {
