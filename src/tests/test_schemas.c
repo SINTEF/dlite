@@ -10,7 +10,8 @@ MU_TEST(test_write_schemas)
   DLiteMeta *meta;
 
 
-  meta = dlite_metastore_get("http://meta.sintef.no/0.1/BasicMetadataSchema");
+  meta = (DLiteMeta *)
+    dlite_instance_get("http://meta.sintef.no/0.1/BasicMetadataSchema");
   s = dlite_storage_open("json", "BasicMetadataSchema.json", "mode=w;meta=yes");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
@@ -18,7 +19,8 @@ MU_TEST(test_write_schemas)
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
 
-  meta = dlite_metastore_get("http://meta.sintef.no/0.3/EntitySchema");
+  meta = (DLiteMeta *)
+    dlite_instance_get("http://meta.sintef.no/0.3/EntitySchema");
   s = dlite_storage_open("json", "EntitySchema.json", "mode=w;meta=true");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
@@ -26,7 +28,8 @@ MU_TEST(test_write_schemas)
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
 
-  meta = dlite_metastore_get("http://meta.sintef.no/0.6/CollectionSchema");
+  meta = (DLiteMeta *)
+    dlite_instance_get("http://meta.sintef.no/0.6/CollectionSchema");
   s = dlite_storage_open("json", "CollectionSchema.json", "mode=w;meta=true");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);

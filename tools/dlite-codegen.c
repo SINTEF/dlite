@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   if (builtin) {
     /* FIXME - this should be updated when default paths for entity lookup
        has been implemented... */
-    if (!(inst = (DLiteInstance *)dlite_metastore_get(url))) goto fail;
+    if (!(inst = dlite_instance_get(url))) goto fail;
     dlite_instance_incref(inst);
   } else {
     if (!(inst = dlite_instance_load_url(url))) goto fail;

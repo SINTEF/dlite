@@ -175,7 +175,7 @@ struct _DLiteInstance {
     DLiteInstance *inst;
     DLiteMeta *meta;
     size_t i, *d, n=ndims;
-    if (!(meta = dlite_metastore_get(metaid)))
+    if (!(meta = dlite_meta_get(metaid)))
       return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
     if (n != meta->ndimensions)
       return dlite_err(1, "%s has %zu dimensions",

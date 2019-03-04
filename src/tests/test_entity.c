@@ -48,6 +48,8 @@ MU_TEST(test_entity_create)
   mu_check((entity = (DLiteMeta *)dlite_entity_create(uri, "My test entity.",
                                                       2, dimensions,
                                                       5, properties)));
+  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+
   mu_assert_int_eq(2, entity->ndimensions);
   mu_assert_int_eq(5, entity->nproperties);
   mu_assert_int_eq(1, entity->properties[2].dims[0]);
@@ -74,6 +76,7 @@ MU_TEST(test_instance_create)
   size_t dims[]={3, 2};
   mu_check((mydata = dlite_instance_create(entity, dims, id)));
   mu_assert_int_eq(1, mydata->refcount);
+  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_set_property)
@@ -89,6 +92,7 @@ MU_TEST(test_instance_set_property)
   mu_check(dlite_instance_set_property(mydata, "a-string-arr", strarr) == 0);
   mu_check(dlite_instance_set_property(mydata, "a-string3-arr", str3arr) == 0);
   mu_assert_int_eq(1, mydata->refcount);
+  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_get_dimension_size)
@@ -99,6 +103,7 @@ MU_TEST(test_instance_get_dimension_size)
   mu_assert_int_eq(3, dlite_instance_get_dimension_size(mydata, "M"));
   mu_assert_int_eq(2, dlite_instance_get_dimension_size(mydata, "N"));
   mu_assert_int_eq(1, mydata->refcount);
+  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_set_dimension_sizes)
@@ -121,6 +126,7 @@ MU_TEST(test_instance_set_dimension_sizes)
   mu_check(dlite_storage_close(s) == 0);
 #endif
   mu_assert_int_eq(1, mydata->refcount);
+  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_copy)
@@ -138,6 +144,7 @@ MU_TEST(test_instance_copy)
   mu_assert_int_eq(1, mydata->refcount);
   mu_assert_int_eq(1, inst->refcount);
   dlite_instance_decref(inst);
+  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_save)
@@ -155,6 +162,7 @@ MU_TEST(test_instance_save)
 #endif
   mu_assert_int_eq(1, mydata->refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata));
+  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_instance_hdf5)
@@ -172,6 +180,7 @@ MU_TEST(test_instance_hdf5)
   mu_assert_int_eq(1, mydata2->refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata2));
 #endif
+  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_instance_json)
@@ -189,6 +198,7 @@ MU_TEST(test_instance_json)
   mu_assert_int_eq(1, mydata3->refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata3));
 #endif
+  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_instance_load_url)
@@ -199,6 +209,7 @@ MU_TEST(test_instance_load_url)
   mu_check(0 == dlite_instance_save_url("json://myentity6.json?mode=w", inst));
   mu_assert_int_eq(0, dlite_instance_decref(inst));
 #endif
+  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_meta_save)
@@ -215,6 +226,7 @@ MU_TEST(test_meta_save)
   mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
+  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_meta_load)
@@ -225,27 +237,33 @@ MU_TEST(test_meta_load)
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=r")));
   mu_check((e = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
+  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+e */
 
   mu_check((s = dlite_storage_open("json", "MyEntity2.json", "mode=r")));
   mu_check((e2 = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
+  mu_assert_int_eq(4, entity->refcount);  /* refs: global+store+e+e2 */
 
   mu_check((s = dlite_storage_open("json", "MyEntity3.json", "mode=w;meta=1")));
   mu_check(dlite_meta_save(s, e) == 0);
   mu_check(dlite_storage_close(s) == 0);
+  mu_assert_int_eq(4, entity->refcount);  /* refs: global+store+e+e2 */
 
   mu_check((s = dlite_storage_open("json", "MyEntity4.json", "mode=w;meta=1")));
   mu_check(dlite_meta_save(s, e2) == 0);
   mu_check(dlite_storage_close(s) == 0);
+  mu_assert_int_eq(4, entity->refcount);  /* refs: global+store+e+e2 */
 
   dlite_meta_decref(e);
   dlite_meta_decref(e2);
 #endif
+  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
 }
 
 
 MU_TEST(test_meta_free)
 {
+  dlite_meta_decref(entity);  /* refs: store */
   dlite_meta_decref(entity);
 }
 

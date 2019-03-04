@@ -94,12 +94,15 @@ static void _instance_store_free(void)
   if (del) free(del);
 }
 
-/* Adds instance to global instance store.  Returns non-zero on error. */
+/* Adds instance to global instance store.  Returns zero on success, 1
+   if instance is already in the store and a negative number of other errors.
+*/
 static int _instance_store_add(const DLiteInstance *inst)
 {
   if (!_instance_store) _instance_store_create();
   assert(_instance_store);
   assert(inst);
+  if (map_get(_instance_store, inst->uuid)) return 1;
   map_set(_instance_store, inst->uuid, (DLiteInstance *)inst);
 
   /* Increase reference  count for metadata that is kept in the store */
@@ -175,7 +178,7 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
   /* Check if we are trying to create an instance with an already
      existing id. */
-  if (id && (inst = _instance_store_get(id))) {
+  if (id && (inst = dlite_instance_get(id))) {
     //if (dlite_instance_is_data(inst))
     err(1, "cannot create new instance with id '%s' - returns a new "
         "reference (%d)", id, inst->refcount);
@@ -185,7 +188,7 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
   /* Make sure that metadata is initialised */
   if (!meta->propoffsets && dlite_meta_init((DLiteMeta *)meta)) goto fail;
-  if (dlite_metastore_add(meta)) goto fail;
+  if (_instance_store_add((DLiteInstance *)meta) < 0) goto fail;
 
   /* Allocate instance */
   size = meta->pooffset;
@@ -261,8 +264,7 @@ DLiteInstance *dlite_instance_create_from_id(const char *metaid,
                                              const char *id)
 {
   DLiteMeta *meta;
-  /* FIXME - lookup metadata at predefined locations */
-  if (!(meta = dlite_metastore_get(metaid)))
+  if (!(meta = (DLiteMeta *)dlite_instance_get(metaid)))
     return err(1, "cannot find metadata '%s'", metaid), NULL;
   return dlite_instance_create(meta, dims, id);
 }
@@ -395,18 +397,17 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
   if (!id) id = d->uuid;
 
   /* check if id is already loaded */
-  if (id && (inst = _instance_store_get(id))) {
+  if (id && (inst = dlite_instance_get(id))) {
     warn("trying to load existing instance from storage \"%s\": %s"
-         " - creates a new reference to existing instance", s->uri, id);
+         " - creates a new reference", s->uri, id);
     dlite_datamodel_free(d);
-    dlite_instance_incref(inst);
     return inst;
   }
 
   if (!(uri = dlite_datamodel_get_meta_uri(d))) goto fail;
 
   /* if metadata is not given, try to load it from cache... */
-  meta = dlite_metastore_get(uri);
+  meta = (DLiteMeta *)dlite_instance_get(uri);
 
   /* ...otherwise try to load it from storage */
   if (!meta) {
@@ -578,7 +579,7 @@ DLiteInstance *dlite_instance_load_url(const char *url)
     if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
     inst = dlite_instance_load(s, id);
   } else if (id) {
-    if (!(inst = (DLiteInstance *)dlite_metastore_get(id))) goto fail;
+    if (!(inst = dlite_instance_get(id))) goto fail;
     dlite_instance_incref(inst);
   } else {
     FAIL("`url` must contain at least a `loc` or `id` part");
@@ -1197,6 +1198,16 @@ void dlite_meta_decref(DLiteMeta *meta)
 
 
 /*
+  Returns a new reference to metadata with given `id` or NULL if no such
+  instance can be found.
+*/
+DLiteMeta *dlite_meta_get(const char *id)
+{
+  return (DLiteMeta *)dlite_instance_get(id);
+}
+
+
+/*
   Loads metadata identified by `id` from storage `s` and returns a new
   fully initialised meta instance.
 */
@@ -1308,83 +1319,4 @@ int dlite_meta_is_metameta(const DLiteMeta *meta)
   }
   if (has_dimensions && has_properties) return 1;
   return 0;
-}
-
-
-
-
-
-
-/********************************************************************
- *  Metadata cache
- ********************************************************************/
-
-#if 0
-static DLiteStore *_metastore = NULL;
-
-static void metastore_create()
-{
-  if (!_metastore) {
-    _metastore = dlite_store_create();
-    //atexit(dlite_metastore_free);
-    dlite_metastore_add(dlite_get_basic_metadata_schema());
-    dlite_metastore_add(dlite_get_entity_schema());
-    dlite_metastore_add(dlite_get_collection_schema());
-  }
-}
-
-/* Frees up a global metadata store.  Will be called at program exit,
-   but can be called at any time. */
-void dlite_metastore_free(void)
-{
-  if (_metastore) dlite_store_free(_metastore);
-  _metastore = NULL;
-}
-#endif
-
-/* Returns pointer to metadata for id `id` or NULL if `id` cannot be found. */
-DLiteMeta *dlite_metastore_get(const char *id)
-{
-  return (DLiteMeta *)dlite_instance_get(id);
-  /*
-  if (!_metastore) metastore_create();
-  assert(_metastore);
-  return (DLiteMeta *)dlite_store_get(_metastore, id);
-  */
-}
-
-/* Adds metadata to global metadata store, giving away the ownership
-   of `meta` to the store.  Returns non-zero on error. */
-int dlite_metastore_add_new(const DLiteMeta *meta)
-{
-  dlite_instance_decref((DLiteInstance *)meta);
-  return 0;
-  /*
-  DLiteInstance *inst;
-  FILE *old;
-  if (!_metastore) metastore_create();
-  assert(_metastore);
-
-  old = err_set_stream(NULL);
-  inst = dlite_store_get(_metastore, meta->uuid);
-  err_set_stream(old);
-
-  if (inst)
-    dlite_meta_decref((DLiteMeta *)meta);  // give away ownership
-  else
-    return dlite_store_add_new(_metastore, (DLiteInstance *)meta);
-  return 0;
-  */
-}
-
-/* Adds metadata to global metadata store.  The caller keeps ownership
-   of `meta`.  Returns non-zero on error. */
-int dlite_metastore_add(const DLiteMeta *meta)
-{
-  UNUSED(meta);
-  return 0;
-  /*
-  dlite_instance_incref((DLiteInstance *)meta);
-  return dlite_metastore_add_new(meta);
-  */
 }
