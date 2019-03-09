@@ -1,6 +1,6 @@
 find_package(Doxygen REQUIRED)
 
-#if(DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
   set(dependencies
     ${dlite_SOURCE_DIR}/README.md
     ${dlite_SOURCE_DIR}/doc/Doxyfile.in
@@ -30,6 +30,7 @@ find_package(Doxygen REQUIRED)
     ${dlite_SOURCE_DIR}/src/utils/strtob.h
     ${dlite_SOURCE_DIR}/src/utils/tgen.h
     ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
+    ${dlite_SOURCE_DIR}/src/utils/infixcalc.h
     ${dlite_SOURCE_DIR}/src/utils/uuid.h
     ${dlite_SOURCE_DIR}/src/utils/tests/tgen_example.c
 
@@ -53,11 +54,13 @@ find_package(Doxygen REQUIRED)
     VERBATIM
     )
 
+  # Unfortunately dependencies for build-in target "install" is not
+  # yet supported.  When that is supported, we can remove ALL from
+  # add_custom_target() and uncommend add_dependencies().
   add_custom_target(doc ALL
     DEPENDS html/index.html
     )
 
-  # dependencies for build-in target "install" is not yet supported
   #add_dependencies(install doc)
 
   install(
@@ -65,4 +68,4 @@ find_package(Doxygen REQUIRED)
     DESTINATION share/dlite
     )
 
-#endif(DOXYGEN_FOUND)
+endif(DOXYGEN_FOUND)

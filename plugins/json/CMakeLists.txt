@@ -23,7 +23,7 @@ target_include_directories(dlite-plugins-json PUBLIC
   ${JANSSON_INCLUDE_DIRS}
   )
 if(${JANSSON_DEPENDENCIES})
-  add_dependencies(plugins-json ${JANSSON_DEPENDENCIES})
+  add_dependencies(dlite-plugins-json ${JANSSON_DEPENDENCIES})
 endif()
 set_target_properties(dlite-plugins-json PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON

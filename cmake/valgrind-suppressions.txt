@@ -95,3 +95,45 @@
    fun:calloc
    fun:_dl_check_map_versions
 }
+
+# For gcc 7.3.1 (@tyr)
+{
+   dlopen-tyr1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:_dl_load_cache_lookup
+}
+
+{
+   dlopen-tyr2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_dl_new_object
+}
+
+{
+   dlopen-tyr3
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_new_object
+}
+{
+   dlopen-tyr4
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:_dl_map_object
+}
+
+{
+   dlopen-tyr5
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_check_map_versions
+}

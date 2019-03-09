@@ -351,6 +351,13 @@ int dlite_instance_decref(DLiteInstance *inst);
 
 
 /**
+  Returns a new reference to instance with given `id` or NULL if no such
+  instance can be found.
+*/
+DLiteInstance *dlite_instance_get(const char *id);
+
+
+/**
   Loads instance identified by `id` from storage `s` and returns a
   new and fully initialised dlite instance.
 
@@ -485,6 +492,22 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
  */
 int dlite_instance_is_data(const DLiteInstance *inst);
 
+/**
+  Returns non-zero if `inst` is metadata.
+
+  This is simply the inverse of dlite_instance_is_data().
+ */
+int dlite_instance_is_meta(const DLiteInstance *inst);
+
+/**
+  Returns non-zero if `inst` is meta-metadata.
+
+  Meta-metadata contains either a "properties" property (of type
+  DLiteProperty) or a "relations" property (of type DLiteRelation) in
+  addition to a "dimensions" property (of type DLiteDimension).
+ */
+int dlite_instance_is_metameta(const DLiteInstance *inst);
+
 
 /**
   Updates the size of all dimensions from.  The new dimension sizes are
@@ -585,6 +608,12 @@ void dlite_meta_incref(DLiteMeta *meta);
 void dlite_meta_decref(DLiteMeta *meta);
 
 /**
+  Returns a new reference to metadata with given `id` or NULL if no such
+  instance can be found.
+*/
+DLiteMeta *dlite_meta_get(const char *id);
+
+/**
   Loads metadata identified by `id` from storage `s` and returns a new
   fully initialised meta instance.
 */
@@ -642,40 +671,5 @@ const DLiteProperty *dlite_meta_get_property(const DLiteMeta *meta,
 */
 int dlite_meta_is_metameta(const DLiteMeta *meta);
 
-
-/** @} */
-/* ================================================================= */
-/**
- * @name Metadata cache
- * Global metadata cache to avoid reloading entities for each time an
- * instance is created.
- */
-/* ================================================================= */
-/** @{ */
-
-/**
-  Frees up a global metadata store.  Will be called at program exit,
-  but can be called at any time.
-*/
-void dlite_metastore_free(void);
-
-/**
-  Returns pointer to metadata for id `id` or NULL if `id` cannot be found.
-*/
-DLiteMeta *dlite_metastore_get(const char *id);
-
-/**
-  Adds metadata to global metadata store, giving away the ownership
-  of `meta` to the store.  Returns non-zero on error.
-*/
-int dlite_metastore_add_new(const DLiteMeta *meta);
-
-/**
-  Adds metadata to global metadata store.  The caller keeps ownership
-  of `meta`.  Returns non-zero on error.
-*/
-int dlite_metastore_add(const DLiteMeta *meta);
-
-/** @} */
 
 #endif /* _DLITE_ENTITY_H */

@@ -105,6 +105,12 @@ install(
   DESTINATION ${PYTHON_MODULE_PATH}
   )
 
+install(
+  DIRECTORY python-plugins
+  DESTINATION share/dlite
+  PATTERN "*~" EXCLUDE
+  )
+
 
 # Tests
 add_subdirectory(tests)

@@ -130,14 +130,14 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
     assert(dtype->elsize == (int)size);
     break;
   case dliteFixString:
-    /* Make space to NUL-termination */
-    dtype->elsize = size - 1;
+    dtype->elsize = size;
     break;
   case dliteStringPtr:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
     assert(dtype->elsize == 0);
+    //assert(dtype->elsize == 0 || sizeof(void *));
     break;
   }
   return dtype;
@@ -198,6 +198,8 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 
   case dliteStringPtr:
   case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
     { /* Special handling of object types */
       int n=1;
       npy_intp itemsize;
@@ -248,8 +250,6 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 
   default:
     { /* All other types */
-      //if (!(obj = PyArray_SimpleNewFromData(ndims, d, typecode, data)))
-      //  FAIL("not able to create numpy array");
       PyArray_Descr *dtype = npy_dtype(type, size);
       int flags = NPY_ARRAY_CARRAY;
       if (inst) flags |= NPY_ARRAY_OWNDATA;
@@ -301,11 +301,12 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     FAIL("cannot create contiguous array");
   if ((m = PyArray_SIZE(arr)) != n)
     FAIL2("expected array with total number of elements %d, got %d", n, m);
+
   if (type == dliteStringPtr) {
     /* Special case: handle dliteStringPtr as array of python strings */
     npy_intp itemsize = PyArray_ITEMSIZE(arr);
     char *itemptr = PyArray_DATA(arr);
-    for (i=0; i<m; i++, itemptr+=itemsize) {
+    for (i=0; i<n; i++, itemptr+=itemsize) {
       char **p = *((char ***)ptr);
       PyObject *s = PyArray_GETITEM(arr, itemptr);
       assert(s);
@@ -326,6 +327,17 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
       }
       if (s) Py_DECREF(s);
     }
+
+  } else if (type == dliteFixString) {
+    /* Special case: dliteFixString must be NUL-terminated */
+    char *itemptr = PyArray_DATA(arr);
+    char *p = *((char **)ptr);
+    memset(p, 0, n*size);
+    for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
+      strncpy(p, itemptr, size);
+      p[size-1] = '\0';  /* ensure NUL-termination */
+    }
+
   } else {
     /* All other types */
     memcpy(*((void **)ptr), PyArray_DATA(arr), n*size);
@@ -352,10 +364,9 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
                             size_t size, obj_t *obj)
 {
   int i;
-  //int typecode = npy_type(type, size);
   PyArray_Descr *dtype = npy_dtype(type, size);
   PyArrayObject *arr = NULL;
-  void *ptr=NULL;
+  void *ptr, *retptr=NULL;
 
   if (!dtype) goto fail;
   if (!(arr = (PyArrayObject *)PyArray_FromAny(obj, dtype, ndims, ndims,
@@ -371,14 +382,32 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
   }
 
   assert(ndims == PyArray_NDIM(arr));
-  if (!(ptr = malloc(PyArray_SIZE(arr)*size)))
+  if (!(ptr = calloc(PyArray_SIZE(arr), size)))
     FAIL("allocation failure");
-  memcpy(ptr, PyArray_DATA(arr), PyArray_SIZE(arr)*size);
+
+  switch (type) {
+  case dliteFixString:
+    for (i=0; i<PyArray_SIZE(arr); i++)
+      strncpy((char *)ptr + i*size,
+              (char *)(PyArray_DATA(arr)) + i*dtype->elsize,
+              size);
+    break;
+  case dliteStringPtr:
+    for (i=0; i<PyArray_SIZE(arr); i++)
+      ((char **)ptr)[i] = strdup((char *)(PyArray_DATA(arr)) + i*dtype->elsize);
+    break;
+  default:
+    memcpy(ptr, PyArray_DATA(arr), PyArray_SIZE(arr)*size);
+    break;
+  }
+
   for (i=0; i<ndims; i++)
     dims[i] = PyArray_DIM(arr, i);
+
+  retptr = ptr; /* success! */
  fail:
   if (arr) Py_DECREF(arr);
-  return ptr;
+  return retptr;
 }
 
 
@@ -432,15 +461,21 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     switch (size) {
     case 4: value = *((float32_t *)data); break;
     case 8: value = *((float64_t *)data); break;
-    //case 10: value = *((float80_t *)data); break;
-    //case 16: value = *((float128_t *)data); break;
+#ifdef HAVE_FLOAT80_T
+    case 10: value = *((float80_t *)data); break;
+#endif
+#ifdef HAVE_FLOAT128_T
+    case 16: value = *((float128_t *)data); break;
+#endif
     default: FAIL1("invalid float size: %zu", size);
     }
     obj = PyFloat_FromDouble(value);
     break;
   }
   case dliteFixString: {
-    obj = PyUnicode_FromStringAndSize(data, size);
+    size_t len = strlen(data);
+    if (len >= size) len = size-1;
+    obj = PyUnicode_FromStringAndSize(data, len);
     break;
   }
   case dliteStringPtr: {
@@ -452,15 +487,10 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       Py_RETURN_NONE;
     break;
   }
-  case dliteDimension: {
+  default:
+    FAIL1("converting type %s to scalar is not yet implemented",
+         dlite_type_get_dtypename(type));
     break;
-  }
-  case dliteProperty: {
-    break;
-  }
-  case dliteRelation: {
-    break;
-  }
   }
   if (!obj) goto fail;
   return obj;
@@ -682,7 +712,65 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   return status;
 }
 
+%}
 
 
+/**********************************************
+ ** Typemaps
+ **********************************************/
+/*
+ * Input typemaps
+ * --------------
+ *
+ *
+ * Argout typemaps
+ * ---------------
+ *
+ *
+ * Out typemaps
+ * ------------
+ * bool -> bool
+ * char ** -> list of strings
+ *     Newly allocated NULL-terminated array of string pointers.
+ * const_char ** -> list of strings
+ *     NULL-terminated array of string pointers (will not be free'ed).
+ *
+ **********************************************/
+
+
+/* Output typemaps
+ * --------------- */
+%inline %{
+
+typedef char const_char;
 
 %}
+
+%typemap("doc") bool "Boolean"
+%typemap(out) bool {
+  $result = PyBool_FromLong($1);
+}
+
+/* Newly allocated NULL-terminated array of string pointers. */
+%typemap("doc") bool "List of strings."
+%typemap(out) char ** {
+  char **p;
+  if (!$1) SWIG_fail;
+  $result = PyList_New(0);
+  for (p=$1; *p; p++) {
+    PyList_Append($result, PyString_FromString(*p));
+    free(*p);
+  }
+  free($1);
+}
+
+/* Converts (const char **) return value to a python list of strings */
+%typemap("doc") const_char ** "List of strings."
+%typemap(out) const_char ** {
+  char **p;
+  if (!$1) SWIG_fail;
+  $result = PyList_New(0);
+  for (p=$1; *p; p++) {
+    PyList_Append($result, PyString_FromString(*p));
+  }
+}

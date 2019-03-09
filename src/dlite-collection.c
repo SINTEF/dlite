@@ -92,7 +92,7 @@ int dlite_collection_deinit(DLiteInstance *inst)
  */
 DLiteCollection *dlite_collection_create(const char *id)
 {
-  DLiteMeta *meta = dlite_metastore_get(DLITE_COLLECTION_SCHEMA);
+  DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_SCHEMA);
   size_t dims[] = {0, 4};
   return (DLiteCollection *)dlite_instance_create(meta, dims, id);
 }

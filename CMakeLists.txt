@@ -31,6 +31,7 @@ include(SetDefaults)
 set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
 set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
 set(DLITE_TRANSLATOR_PLUGINS_PATH "share/dlite/translator-plugins")
+set(DLITE_PYTHON_PLUGINS_PATH     "share/dlite/python-plugins")
 
 # Enable compiler warnings
 include(SetCompilerFlags)
@@ -274,6 +275,20 @@ set(dlite_TEMPLATES
   )
 list(REMOVE_DUPLICATES dlite_TEMPLATES)
 
+# DLITE_METADATA - search path for DLite metadata
+set(dlite_METADATA
+  ${dlite-tools_SOURCE_DIR}/metadata
+  $ENV{DLITE_METADATA}
+  )
+list(REMOVE_DUPLICATES dlite_METADATA)
+
+# DLITE_PYTHON_PLUGINS - search path for Python storage and translator plugins
+set(dlite_PYTHON_PLUGINS
+  ${dlite-python_SOURCE_DIR}/plugins
+  $ENV{DLITE_PYTHON_PLUGINS}
+  )
+list(REMOVE_DUPLICATES dlite_METADATA)
+
 if(UNIX)
   string(REPLACE ";" ":" dlite_PATH               "${dlite_PATH}")
   string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH    "${dlite_LD_LIBRARY_PATH}")
@@ -281,6 +296,8 @@ if(UNIX)
   string(REPLACE ";" ":" dlite_STORAGE_PLUGINS    "${dlite_STORAGE_PLUGINS}")
   string(REPLACE ";" ":" dlite_TRANSLATOR_PLUGINS "${dlite_TRANSLATOR_PLUGINS}")
   string(REPLACE ";" ":" dlite_TEMPLATES          "${dlite_TEMPLATES}")
+  string(REPLACE ";" ":" dlite_METADATA           "${dlite_METADATA}")
+  string(REPLACE ";" ":" dlite_PYTHON_PLUGINS     "${dlite_PYTHON_PLUGINS}")
 endif()
 
 #################################################################
@@ -294,6 +311,8 @@ message("export PYTHONPATH=${dlite_PYTHONPATH}")
 message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 message("export DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
+message("export DLITE_METADATA=${dlite_METADATA}")
+message("export DLITE_PYTHON_PLUGINS=${dlite_PYTHON_PLUGINS}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
@@ -315,6 +334,11 @@ add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(doc)
 
+# Bindings
+if(WITH_PYTHON)
+  add_subdirectory(bindings/python)
+endif()
+
 # Storage plugins
 if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
@@ -325,10 +349,8 @@ endif()
 if(WITH_POSTGRESQL)
   add_subdirectory(plugins/postgresql)
 endif()
-
-# Bindings
 if(WITH_PYTHON)
-  add_subdirectory(bindings/python)
+  add_subdirectory(plugins/python)
 endif()
 
 #################################################################

@@ -188,6 +188,7 @@ set(sources
   strtob.c
   tgen.c
   tmpfileplus.c
+  infixcalc.c
 
   md5.c
   sha1.c

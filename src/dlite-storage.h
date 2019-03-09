@@ -19,7 +19,7 @@ typedef struct _DLiteInstance DLiteInstance;
 typedef struct _DLiteEntity DLiteEntity;
 
 /** Flags for how to handle instance IDs. */
-typedef enum {
+typedef enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
                                  a (version 5) UUID (default). */
   dliteIDRequireUUID=1,     /*!< Require that `id` is a valid UUID. */
@@ -92,9 +92,14 @@ void dlite_storage_uuids_free(char **uuids);
 
 
 /**
-   Returns non-zero if storage `s` is writable.
+  Returns non-zero if storage `s` is writable.
  */
 int dlite_storage_is_writable(const DLiteStorage *s);
+
+/**
+  Returns name of driver associated with storage `s`.
+ */
+const char *dlite_storage_get_driver(const DLiteStorage *s);
 
 
 /* Dublicated declarations from dlite-storage-plugins.h */

@@ -55,6 +55,18 @@ int dlite_store_add(DLiteStore *store, DLiteInstance *inst);
 int dlite_store_add_new(DLiteStore *store, DLiteInstance *inst);
 
 /**
+  Removes instance with given id from store and return it.  Returns
+  NULL on error.
+ */
+DLiteInstance *dlite_store_pop(DLiteStore *store, const char *id);
+
+/**
+  Like dlite_store_pop(), but removes all occurences of the instance in
+  `store`. Returns NULL on error.
+ */
+DLiteInstance *dlite_store_pop_all(DLiteStore *store, const char *id);
+
+/**
   Removes instance with given id from store.  Returns non-zero on error.
  */
 int dlite_store_remove(DLiteStore *store, const char *id);

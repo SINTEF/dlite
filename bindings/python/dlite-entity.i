@@ -64,28 +64,7 @@ struct _DLiteDimension {
   ~_DLiteDimension() {
     free($self);
   }
-
-  %pythoncode %{
-    def __repr__(self): return 'Dimension(name=%r, description=%r)' % (
-        self.name, self.description)
-  %}
-
 }
-
-
-%inline %{
-
-struct _DLiteDimension *newdim(const char *name, const char *descr)
-{
-  DLiteDimension *d = calloc(1, sizeof(DLiteDimension));
-  d->name = strdup(name);
-  if (descr) d->description = strdup(descr);
-  return d;
-}
-
-%}
-
-
 
 
 /* --------
@@ -106,7 +85,6 @@ struct _DLiteProperty {
 };
 
 %extend _DLiteProperty {
-
   _DLiteProperty(const char *name, enum _DLiteType type, int size,
                  obj_t *dims=NULL,
                  const char *unit=NULL, const char *description=NULL) {
@@ -115,8 +93,10 @@ struct _DLiteProperty {
     p->type = type;
     p->size = size;
     if (dims && dims != DLiteSwigNone) {
-      if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, type, size, dims))) {
+      if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteInt,
+                                            sizeof(int), dims))) {
         free(p->name);
+        free(p);
         return NULL;
       }
     } else {
@@ -133,29 +113,18 @@ struct _DLiteProperty {
   }
 
   obj_t *get_dims(void) {
-    obj_t *arr;
-    int *dims = malloc($self->ndims*sizeof(int));
-    memcpy(dims, $self->dims, $self->ndims*sizeof(int));
-    if (!(arr = dlite_swig_get_array(NULL, $self->ndims, dims,
-                                     dliteInt, sizeof(int), dims)))
-      free(dims);
-    return arr;
+    return dlite_swig_get_array(NULL, 1, &$self->ndims,
+                                dliteInt, sizeof(int), $self->dims);
   }
   /*
-  obj_t set_dims(obj_t *arr) {
+  void set_dims(obj_t *arr) {
   }
   */
-  %pythoncode %{
-    def __repr__(self): return 'Property(name=%r,\n        type=%d,\n        size=%d,\n        ndims=%d,\n        dims=%r,\n        unit=%r,\n        description=%r)' % (self.name, self.type, self.size, self.ndims, self.dims if self.ndims else None, self.unit, self.description)
-
-    dims = property(get_dims, doc='Array of dimension indices.')
-  %}
 }
 
 /* --------
  * Relation
  * -------- */
-
 %rename(Relation) _Triplet;
 struct _Triplet {
   char *s;     /*!< subject */
@@ -164,6 +133,25 @@ struct _Triplet {
   char *id;    /*!< unique ID identifying this triplet */
 };
 
+%extend _Triplet {
+  _Triplet(const char *s, const char *p, const char *o) {
+    Triplet *t;
+    if (!(t =  malloc(sizeof(Triplet)))) FAIL("allocation failure");
+    if (triplet_set(t, s, p, o, NULL)) FAIL("cannot set relation");
+    return t;
+  fail:
+    if (t) {
+      triplet_clean(t);
+      free(t);
+    }
+    return NULL;
+  }
+
+  ~_Triplet() {
+    triplet_clean($self);
+    free($self);
+  }
+}
 
 
 /* --------
@@ -178,18 +166,16 @@ struct _DLiteInstance {
   char uuid[DLITE_UUID_LENGTH+1];
   char *uri;
   int refcount;
-  const struct _DLiteMeta *meta;
+  /* const struct _DLiteMeta *meta; */
 };
 
-
 %extend _DLiteInstance {
-
   _DLiteInstance(const char *metaid, int ndims, int *dims,
 		 const char *id=NULL) {
     DLiteInstance *inst;
     DLiteMeta *meta;
     size_t i, *d, n=ndims;
-    if (!(meta = dlite_metastore_get(metaid)))
+    if (!(meta = dlite_meta_get(metaid)))
       return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
     if (n != meta->ndimensions)
       return dlite_err(1, "%s has %zu dimensions",
@@ -200,9 +186,13 @@ struct _DLiteInstance {
     free(d);
     return inst;
   }
-
   _DLiteInstance(const char *url) {
     DLiteInstance *inst = dlite_instance_load_url(url);
+    if (inst) dlite_errclr();
+    return inst;
+  }
+  _DLiteInstance(struct _DLiteStorage *storage, const char *id) {
+    DLiteInstance *inst = dlite_instance_load(storage, id);
     if (inst) dlite_errclr();
     return inst;
   }
@@ -211,47 +201,28 @@ struct _DLiteInstance {
     dlite_instance_decref($self);
   }
 
-  %newobject __repr__;
-  char *__repr__(void) {
-    int n=0;
-    char buff[64];
-    n += snprintf(buff+n, sizeof(buff)-n, "<Instance:");
-    if ($self->uri && $self->uri[0])
-      n += snprintf(buff+n, sizeof(buff)-n, " uri='%s'", $self->uri);
-    else
-      n += snprintf(buff+n, sizeof(buff)-n, " uuid='%s'", $self->uuid);
-    n += snprintf(buff+n, sizeof(buff)-n, ">");
-    return strdup(buff);
-  }
-
-  int __len__(void) {
-    return $self->meta->nproperties;
+  const struct _DLiteInstance *get_meta() {
+    return (const DLiteInstance *)$self->meta;
   }
 
   void save_url(const char *url) {
     dlite_instance_save_url(url, $self);
   }
 
-  %newobject __get_dimensions__;
+  %newobject get_dimensions;
   obj_t *get_dimensions() {
     int dims[1] = { DLITE_NDIM($self) };
     return dlite_swig_get_array($self, 1, dims, dliteUInt, sizeof(size_t),
                                 DLITE_DIMS($self));
   }
-  %pythoncode %{
-    dimensions = property(get_dimensions, doc='Array of dimension sizes.')
-  %}
 
-  %newobject __get_property__;
+  %newobject get_property;
   obj_t *get_property(const char *name) {
     return dlite_swig_get_property($self, name);
   }
   obj_t *get_property(int i) {
     return dlite_swig_get_property_by_index($self, i);
   }
-  %pythoncode %{
-    def __getitem__(self, ind): return self.get_property(ind)
-  %}
 
   void set_property(const char *name, obj_t *obj) {
     dlite_swig_set_property($self, name, obj);
@@ -259,9 +230,25 @@ struct _DLiteInstance {
   void set_property(int i, obj_t *obj) {
     dlite_swig_set_property_by_index($self, i, obj);
   }
-  %pythoncode %{
-    def __setitem__(self, ind, val): self.set_property(ind, val)
-  %}
 
+  bool _is_data() {
+    return (bool)dlite_instance_is_data($self);
+  }
 
+  bool _is_meta() {
+    return (bool)dlite_instance_is_meta($self);
+  }
+
+  bool _is_metameta() {
+    return (bool)dlite_instance_is_metameta($self);
+  }
 };
+
+
+
+/* -----------------------------------
+ * Target language-spesific extensions
+ * ----------------------------------- */
+#ifdef SWIGPYTHON
+%include "dlite-entity-python.i"
+#endif
