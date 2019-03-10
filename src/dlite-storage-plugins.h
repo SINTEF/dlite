@@ -84,7 +84,7 @@ typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(const char *name);
   Otherwise the plugin search path is checked for shared libraries
   matching `name.EXT` where `EXT` is the extension for shared library
   on the current platform ("dll" on Windows and "so" on Unix/Linux).
-  If a plugin with the provided name is fount, it is loaded,
+  If a plugin with the provided name is found, it is loaded,
   registered and returned.
 
   Otherwise the plugin search path is checked again, but this time for
@@ -145,7 +145,7 @@ int dlite_storage_plugin_path_remove(int n);
 
 /**
  * @name Required api
- * Signatures of function that must be defined by all plugins.
+ * Signatures of functions that must be defined by all plugins.
  * @{
  */
 

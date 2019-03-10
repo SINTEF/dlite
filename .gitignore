@@ -3,6 +3,9 @@
 external
 build*
 
+# Ignore personal modified bootstrap files
+bootstrap-win-*.sh
+
 # For Visual Studio
 .vs
 CMakeSettings.json
