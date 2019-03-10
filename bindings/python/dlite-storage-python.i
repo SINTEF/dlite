@@ -4,16 +4,14 @@
 
 %extend _DLiteStorage {
 
-  void _close(void) {
-    dlite_storage_close($self);
-  }
-
   %pythoncode %{
       def __enter__(self):
           return self
 
       def __exit__(self, *exc):
-          self._close()
+          # The storage is closed when the corresponding Python object
+          # is garbage collected - hence, no need to do anything here
+          pass
 
       def __repr__(self):
           options = '?%s' % self.options if self.options else ''

@@ -155,10 +155,21 @@ void triplestore_deinit_state(TripleState *state);
 
 
 /**
-  Returns a pointer to the next triplet in the store or NULL if there
-  are no more triplets in the store.
+  Returns a pointer to the next triplet in the store or NULL if all
+  triplets have been visited.
  */
 const Triplet *triplestore_next(TripleState *state);
+
+/**
+  Returns a pointer to the current triplet in the store or NULL if all
+  triplets have been visited.
+ */
+const Triplet *triplestore_poll(TripleState *state);
+
+/**
+  Resets iterator.
+*/
+void triplestore_reset(TripleState *state);
 
 /**
   This function should be called iteratively.  Before the first call

@@ -72,3 +72,7 @@ s1 = str(inst)
 s2 = str(inst.meta)
 
 assert str(inst.meta) == str(myentity)
+
+e = dlite.get_instance('http://meta.sintef.no/0.1/MyEntity')
+assert e == myentity
+assert e != inst

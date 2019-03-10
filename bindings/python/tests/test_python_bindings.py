@@ -11,7 +11,9 @@ thisdir = os.path.dirname(__file__)
 
 
 def runfile(filename):
-    return subprocess.call([sys.executable, os.path.join(thisdir, filename)])
+    stat = subprocess.call([sys.executable, os.path.join(thisdir, filename)])
+    #print('  %s: %s' % (filename, 'Failed' if stat else 'OK'))
+    return stat
 
 
 # Wrap tests into a unittest TestCase
@@ -23,8 +25,11 @@ class TestDLite(unittest.TestCase):
     def test_entity(self):
         self.assertEqual(runfile('test_entity.py'), 0)
 
-    def test_entity(self):
+    def test_storage(self):
         self.assertEqual(runfile('test_storage.py'), 0)
+
+    def test_collection(self):
+        self.assertEqual(runfile('test_collection.py'), 0)
 
 
 if __name__ == "__main__":

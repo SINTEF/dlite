@@ -1,7 +1,10 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
-%{
 
+/* --------
+ * Wrappers
+ * -------- */
+%{
 /* Returns a pointer to a new target language object for property `name`.
    Returns NULL on error. */
 obj_t *dlite_swig_get_property(DLiteInstance *inst, const char *name)
@@ -19,7 +22,6 @@ int dlite_swig_set_property(DLiteInstance *inst, const char *name, obj_t *obj)
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return -1;
   return dlite_swig_set_property_by_index(inst, i, obj);
 }
-
 %}
 
 
@@ -62,6 +64,8 @@ struct _DLiteDimension {
   }
 
   ~_DLiteDimension() {
+    free($self->name);
+    if ($self->description) free($self->description);
     free($self);
   }
 }
@@ -109,6 +113,10 @@ struct _DLiteProperty {
   }
 
   ~_DLiteProperty() {
+    free($self->name);
+    if ($self->dims) free($self->dims);
+    if ($self->unit) free($self->unit);
+    if ($self->description) free($self->description);
     free($self);
   }
 
@@ -184,6 +192,7 @@ struct _DLiteInstance {
     for (i=0; i<n; i++) d[i] = dims[i];
     inst = dlite_instance_create(meta, d, id);
     free(d);
+    if (inst) dlite_errclr();
     return inst;
   }
   _DLiteInstance(const char *url) {
@@ -231,6 +240,15 @@ struct _DLiteInstance {
     dlite_swig_set_property_by_index($self, i, obj);
   }
 
+  bool has_property(const char *name) {
+    return dlite_instance_has_property($self, name);
+  }
+  bool has_property(int i) {
+    if (i < 0) i += $self->meta->nproperties;
+    if (0 <= i && i < (int)$self->meta->nproperties) return true;
+    return false;
+  }
+
   bool _is_data() {
     return (bool)dlite_instance_is_data($self);
   }
@@ -244,6 +262,20 @@ struct _DLiteInstance {
   }
 };
 
+
+/* ----------------
+ * Module functions
+ * ---------------- */
+%rename(get_instance) dlite_instance_get;
+struct _DLiteInstance *dlite_instance_get(const char *id);
+
+%rename(_get_property) dlite_swig_get_property;
+%rename(_set_property) dlite_swig_set_property;
+%rename(_has_property) dlite_instance_has_property;
+obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
+void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
+                             obj_t *obj);
+bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
 
 /* -----------------------------------

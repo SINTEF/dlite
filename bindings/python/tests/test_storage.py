@@ -13,7 +13,11 @@ thisdir = os.path.abspath(os.path.dirname(__file__))
 url = 'json://' + thisdir + '/MyEntity.json' #+ "?mode=r"
 
 
-s = Storage(url)
 
 # Load metadata (i.e. an instance of meta-metadata) from url
+s = Storage(url)
 myentity = Instance(s, 'http://meta.sintef.no/0.1/MyEntity')
+del s
+
+with Storage(url) as s2:
+    myentity2 = Instance(s2, 'http://meta.sintef.no/0.1/MyEntity')
