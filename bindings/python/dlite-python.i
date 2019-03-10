@@ -244,6 +244,7 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 
         if (PyArray_SETITEM(arr, itemptr, item))
           FAIL1("cannot set item of type %s", dlite_type_get_dtypename(type));
+        Py_DECREF(item);
       }
       break;
     }
@@ -334,7 +335,7 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     char *p = *((char **)ptr);
     memset(p, 0, n*size);
     for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
-      strncpy(p, itemptr, size);
+      strncpy(p, itemptr, PyArray_ITEMSIZE(arr));
       p[size-1] = '\0';  /* ensure NUL-termination */
     }
 

@@ -90,3 +90,4 @@
 %include "dlite-misc.i"
 %include "dlite-storage.i"
 %include "dlite-entity.i"
+%include "dlite-collection.i"

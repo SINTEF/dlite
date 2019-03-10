@@ -370,30 +370,6 @@ DLiteInstance *dlite_instance_get(const char *id);
 DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id);
 
 /**
-  Like dlite_instance_load(), but allows casting the loaded instance
-  into an instance of metadata identified by `metaid`.  If `metaid` is
-  NULL, no casting is performed.
-
-  For the cast to be successful requires that the correct translators
-  have been registered.
-
-  Returns NULL of error or if no translator can be found.
-
-  @todo
-    - implementation of metadata lookup
-    - implementation of translators
-    - implementation of a database of translator plugins
- */
-DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
-                                          const char *id,
-                                          const char *metaid);
-
-/**
-  Saves instance \a inst to storage \a s.  Returns non-zero on error.
- */
-int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
-
-/**
   A convinient function that loads an instance given an URL of the form
 
       driver://loc?options#id
@@ -407,6 +383,27 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 DLiteInstance *dlite_instance_load_url(const char *url);
 
 /**
+  Like dlite_instance_load(), but allows casting the loaded instance
+  into an instance of metadata identified by `metaid`.  If `metaid` is
+  NULL, no casting is performed.
+
+  For the cast to be successful requires that the correct translators
+  have been registered.
+
+  Returns NULL of error or if no translator can be found.
+ */
+DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
+                                          const char *id,
+                                          const char *metaid);
+
+
+/**
+  Saves instance \a inst to storage \a s.  Returns non-zero on error.
+ */
+int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
+
+
+/**
   A convinient function that saves instance `inst` to the storage specified
   by `url`, which should be of the form
 
@@ -415,6 +412,7 @@ DLiteInstance *dlite_instance_load_url(const char *url);
   Returns non-zero on error.
  */
 int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
+
 
 /**
   Returns number of dimensions or -1 on error.
@@ -474,6 +472,11 @@ void *dlite_instance_get_property(const DLiteInstance *inst, const char *name);
 */
 int dlite_instance_set_property(DLiteInstance *inst, const char *name,
                                 const void *ptr);
+
+/**
+  Returns true if instance has a property with the given name.
+ */
+bool dlite_instance_has_property(DLiteInstance *inst, const char *name);
 
 /**
   Returns number of dimensions of property  \a name or -1 on error.
