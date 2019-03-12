@@ -47,7 +47,7 @@ Short vocabulary
   - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
   - **Collection**: A specialised instance that contains references to set
     of instances and relations between them.  Within a collection instances
-    are labeled.
+    are labeled.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
   - **Data instance**: A "leaf" instance that is not metadata.
   - **Entity**: A special type of metadata that describes standard data
     instances.  This is different from SOFT5 where entities are the
@@ -67,7 +67,8 @@ Short vocabulary
   - **Storage**: A generic handle encapsulating actual storage backends.
   - **Transaction**: A not yet implemented feature, that enables to
     represent the evolution of the state of a software as a series of
-    immutable instances.  See also [SOFT5 nomenclauture][SOFT5_nomenclauture].
+    immutable instances.  See also the
+    [SOFT5 nomenclauture][SOFT5_nomenclauture].
 
 
 
