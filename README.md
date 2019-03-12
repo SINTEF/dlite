@@ -6,18 +6,47 @@ is strongly inspired by [SOFT][1], with the aim to be a lightweight
 replacement in cases where Windows portability is a showstopper for
 using SOFT.
 
-*dlite* shares the [metadata model of SOFT][2] and generic data stored
-with SOFT can be read with dlite and vice verse.  However, apart from
-*dlite* being much less complete, there are also some differences.
+*dlite* shares the [metadata model of SOFT5][2] and is compatible with
+SOFT5 in many respects.  However, it has also some notable
+differences, mainly with respect to the type system and that it fully
+implements the metadata model envisioned in SOFT5.
 See [doc/concepts.md](doc/concepts.md) for details.
 
-The main concepts and components of *dlite* includes:
-  - Instance: a formal representation of data
-  - Metadata: describes an instance (metadata are instances themselves)
-  - Collection: a specialised instance that contains references to set
-    of instances and relations between them
-  - Storage: a generic handle encapsulating actual storage formats via
-    plugins
+
+Main features
+-------------
+  - Type system
+  - N-dimensional arrays
+  - Fully implemented metadata model presented by Thomas Hagelien
+  - HDF5 and JSON storage plugins
+  - Python bindings
+  - Fortran bindings (in development)
+  - Mappings (in development)
+  - Storage and mapping plugins written in Python (planned)
+
+
+Short vocabulary
+----------------
+  - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
+  - **Collection**: A specialised instance that contains references to set
+    of instances and relations between them.
+  - **Data instance**: A "leaf" instance that is not metadata.
+  - **Entity**: A special type of metadata that describes standard data
+    instances.  This is different from SOFT5 where entities are the
+    fundamental metadata.
+  - **Instance**: The basic data object in DLite.  All instances are described
+    by their metadata which itself are instances.  Instances are identified
+    by an UUID.
+  - **Mapping**: A function that maps one or more input instances to an
+    output instance.  They are an important mechanism for interoperability.
+    Mappings are called translators in SOFT5.
+  - **Metadata**: a special type of instances that describe other instances.
+    All metadata are immutable and has an unique URI in addition to their
+    UUID.
+  - **Meta-metadata**: metadata that describes metadata.
+  - **Storage**: a generic handle encapsulating actual storage backends.
+  - **Transaction**: a not yet implemented
+
 
 
 Runtime dependencies
