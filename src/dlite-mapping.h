@@ -1,6 +1,9 @@
 #ifndef _DLITE_MAPPING_H
 #define _DLITE_MAPPING_H
 
+#include "dlite-mapping-plugins.h"
+
+
 /**
   @file
   @brief Map instances of one metadata to another.
@@ -29,8 +32,8 @@ typedef struct _DLiteMapping {
   const struct _DLiteMapping **input_maps;
                            /*!< Array of input sub-trees. Length: ninput */
   const char **input_uris; /*!< Array of input metadata URIs. Length: ninput */
-  int cost;                /*!< The cost of this mapping.  The default cost
-                                is 10. Must be equal or larger than 1. */
+  DLiteMappingPlugin *api; /*!< Mapping that performs this mapping. */
+  int cost;                /*!< The total cost of this mapping.  */
 } DLiteMapping;
 
 

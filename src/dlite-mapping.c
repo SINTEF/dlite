@@ -66,7 +66,7 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
   /* Find cheapest mapping to output_api */
   while ((api = dlite_mapping_plugin_next(&iter))) {
     int ignore = 0;
-    int cost = 0;
+    int cost = api->cost;
     if (strcmp(output_uri, api->output_uri) != 0) continue;
 
     /* avoid infinite cyclic loops and known dead ends */
@@ -111,6 +111,10 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
   m->name = api->name;
   m->output_uri = api->output_uri;
   m->ninput = api->ninput;
+  if (!(m->input_maps = calloc(m->ninput, sizeof(DLiteMapping))))
+    FAIL("allocation failure");
+  if (!(m->input_uris = calloc(m->ninput, sizeof(char *))))
+    FAIL("allocation failure");
   for (i=0; i < api->ninput; i++) {
     if (!map_get(inputs, api->input_uris[i])) {
       DLiteMapping **p = map_get(created, api->input_uris[i]);
@@ -120,6 +124,7 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
     } else
       m->input_uris[i] = api->input_uris[i];
   }
+  m->api = api;
   m->cost = lowest_cost;
 
   retval = m;
@@ -131,48 +136,38 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
 
 
 /*
-  Returns a new nested mapping structure describing how `n` input
-  instances of metadata `input_uris` can be mapped to `output_uri`.
+  Returns a new nested mapping structure describing how the set of
+  input URIs in `inputs` can be mapped to `output_uri`.
  */
-DLiteMapping *mapping_create(const char *output_uri, const char **input_uris,
-                             int n)
+DLiteMapping *mapping_create_base(const char *output_uri, Ints *inputs)
 {
-  int i, *p;
-  Ints inputs;
+  int *p;
   Mappings visited, created, dead_ends;
   DLiteMapping *m=NULL, *retval=NULL;
   map_iter_t iter;
   const char *key;
 
-  map_init(&inputs);
   map_init(&visited);
   map_init(&created);
   map_init(&dead_ends);
 
-  /* Check that all input_uris are unique */
-  for (i=0; i<n; i++) {
-    if (map_get(&inputs, input_uris[i]))
-      FAIL1("more than one mapping input of the same metadata: %s",
-            input_uris[i]);
-    map_set(&inputs, input_uris[i], i);
-  }
-
-  if ((p = map_get(&inputs, output_uri))) {
+  if ((p = map_get(inputs, output_uri))) {
     /* The trivial case - one of the input URIs equals output URI. */
     if (!(m = calloc(1, sizeof(DLiteMapping))))
       FAIL("allocation failure");
     m->name = NULL;
-    m->output_uri = strdup(output_uri);
+    m->output_uri = strdup(output_uri);  // FIXME - memory leak
     m->ninput = 1;
     if (!(m->input_maps = calloc(1, sizeof(DLiteMapping))))
       FAIL("allocation failure");
     if (!(m->input_uris = calloc(1, sizeof(char *))))
       FAIL("allocation failure");
-    m->input_uris[0] = strdup(output_uri);
+    m->input_uris[0] = strdup(output_uri);  // FIXME - memory leak
+    m->api = NULL;  // FIXME
 
   } else {
     //map_set(&outputs, output_uri, 0);
-    m = mapping_create_rec(output_uri, &inputs, &visited, &created, &dead_ends);
+    m = mapping_create_rec(output_uri, inputs, &visited, &created, &dead_ends);
   }
 
   retval = m;
@@ -187,7 +182,6 @@ DLiteMapping *mapping_create(const char *output_uri, const char **input_uris,
     free(*mp);
   }
 
-  map_deinit(&inputs);
   map_deinit(&visited);
   map_deinit(&created);
   map_deinit(&dead_ends);
@@ -195,6 +189,135 @@ DLiteMapping *mapping_create(const char *output_uri, const char **input_uris,
   return retval;
 }
 
+
+/*
+  Returns a new nested mapping structure describing how `n` input
+  instances of metadata `input_uris` can be mapped to `output_uri`.
+ */
+DLiteMapping *mapping_create(const char *output_uri,
+                             const char **input_uris, int n)
+{
+  int i;
+  Ints inputs;
+  DLiteMapping *m=NULL;
+
+  map_init(&inputs);
+
+  /* Check that all input_uris are unique */
+  for (i=0; i<n; i++) {
+    if (map_get(&inputs, input_uris[i]))
+      FAIL1("more than one mapping input of the same metadata: %s",
+            input_uris[i]);
+    map_set(&inputs, input_uris[i], i);
+  }
+
+  m = mapping_create_base(output_uri, &inputs);
+ fail:
+  map_deinit(&inputs);
+  return m;
+}
+
+
+/*
+  Recursive help function that performs the actual mapping and returns
+  a new instance (with metadata `m->output_uri`).
+
+  `m` mapping tree that descripes how the instance can be created.
+  `instances` maps metadata URI to an instance with this metadata.  The
+      instance should be either an input instance or created by a
+      mapping.
+ */
+DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
+{
+  int i;
+  DLiteInstance *inst=NULL, **insts=NULL, **instp;
+
+  /* Trivial case - we already have an instance with metadata `m->output_uri` */
+  if ((instp = map_get(instances, m->output_uri)))
+    return *instp;
+
+  /* Create `insts` array */
+  if (!(insts = calloc(m->ninput, sizeof(DLiteInstance))))
+    FAIL("allocation failure");
+  for (i=0; i < m->ninput; i++) {
+    if (m->input_maps[i]) {
+      insts[i] = mapping_map_rec(m->input_maps[i], instances);
+    } else {
+      instp = map_get(instances, m->input_uris[i]);
+      assert(instp);
+      insts[i] = *instp;
+    }
+  }
+
+  /* Call the mapper function from plugin */
+  if (!(inst = m->api->mapper(insts, m->ninput))) goto fail;
+
+  /* Add new instance to `instances` */
+  assert(strcmp(inst->meta->uri, m->output_uri) == 0);
+  map_set(instances, inst->meta->uri, inst);
+
+ fail:
+  if (insts) free(insts);
+  return inst;
+}
+
+
+/*
+  Returns a new instance of metadata `output_uri` by mapping the `n` input
+  instances in the array `instances`.
+ */
+DLiteInstance *mapping_map(const char *output_uri,
+                           const DLiteInstance **instances, int n)
+{
+  int i;
+  const char *key;
+  Ints inputs;
+  Instances insts;
+  map_iter_t iter;
+  DLiteMapping *m=NULL;
+  DLiteInstance *inst=NULL, **instp;
+
+  map_init(&inputs);
+
+  /* Check that the metadata of all instances are unique */
+  for (i=0; i<n; i++) {
+    const char *uri = instances[i]->meta->uri;
+    if (map_get(&inputs, uri))
+      FAIL1("more than one instance of the same metadata: %s", uri);
+    map_set(&inputs, uri, i);
+
+    dlite_instance_incref((DLiteInstance *)instances[i]);
+    map_set(&insts, uri, (DLiteInstance *)instances[i]);
+  }
+
+  if ((instp = map_get(&insts, output_uri))) {
+    /* The trivial case - one of the inputs has metadata output URI */
+    inst = *instp;
+    assert(inst);
+    dlite_instance_incref(inst);
+  } else {
+
+    /* Create mapping */
+    if (!(m = mapping_create_base(output_uri, &inputs))) goto fail;
+
+    /* Perform mapping */
+    inst = mapping_map_rec(m, &insts);
+  }
+
+ fail:
+  /* Remove temporary created instances */
+  iter = map_iter(&insts);
+  while ((key = map_next(&insts, &iter))) {
+    DLiteInstance **ip = map_get(&insts, key);
+    assert(ip && *ip);
+    dlite_instance_decref(*ip);
+  }
+
+  map_deinit(&inputs);
+  map_deinit(&insts);
+  if (m) mapping_free(m);
+  return inst;
+}
 
 
 /*
@@ -208,5 +331,7 @@ void mapping_free(DLiteMapping *m)
     assert(!(m->input_maps[i] && m->input_uris[i]));
     if (m->input_maps[i]) mapping_free((DLiteMapping *)m->input_maps[i]);
   }
+  free(m->input_maps);
+  free(m->input_uris);
   free(m);
 }

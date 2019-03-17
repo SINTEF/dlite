@@ -24,7 +24,7 @@
 #include "utils/fileutils.h"
 #include "utils/plugin.h"
 
-#include "dlite-mapping.h"
+/* #include "dlite-mapping.h" */
 #include "dlite-entity.h"
 
 /**
@@ -151,7 +151,7 @@ int dlite_mapping_plugin_path_remove(int n);
   Returns a new instance obtained by mapping `instances`.
   Returns NULL on error.
  */
-typedef DLiteInstance *(*Mapper)(DLiteInstance **instances);
+typedef DLiteInstance *(*Mapper)(DLiteInstance **instances, int n);
 
 
 /** @} */
@@ -162,6 +162,11 @@ typedef DLiteInstance *(*Mapper)(DLiteInstance **instances);
   Struct with the name and pointers to function for a plugin. All
   plugins should define themselves by defining an intance of
   DLiteMappingPlugin.
+
+  The cost of a mapping is an integer greater than (or equal to) zero.
+  Mappings with low costs are preferred in front of mappings with high
+  costs.  The default cost for a mapping is 20, while the cost for the
+  trivial mapping to an existing input is zero.
 */
 struct _DLiteMappingPlugin {
   const char *   name;       /*!< Name of plugin */
@@ -169,6 +174,7 @@ struct _DLiteMappingPlugin {
   int            ninput;     /*!< Number of inputs */
   const char **  input_uris; /*!< Array of input metedata URIs */
   Mapper         mapper;     /*!< Pointer to mapping function */
+  int            cost;       /*!< Cost of this mapping. Default: 20 */
 };
 
 
