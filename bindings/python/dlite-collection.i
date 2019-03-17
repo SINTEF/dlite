@@ -30,7 +30,7 @@
   }
 
   void reset(void) {
-    triplestore_reset(&$self->state);
+    triplestore_reset_state(&$self->state);
   }
 }
 

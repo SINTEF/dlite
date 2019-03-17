@@ -6,6 +6,7 @@
 */
 
 #include "config.h"
+#include "utils/err.h"
 
 
 /** Macro for getting rid of unused parameter warnings... */

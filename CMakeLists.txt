@@ -30,7 +30,7 @@ include(SetDefaults)
 # Install paths (CMAKE_INSTALL_PREFIX) is prepended to these
 set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
 set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
-set(DLITE_TRANSLATOR_PLUGINS_PATH "share/dlite/translator-plugins")
+set(DLITE_MAPPING_PLUGINS_PATH    "share/dlite/mapping-plugins")
 set(DLITE_PYTHON_PLUGINS_PATH     "share/dlite/python-plugins")
 
 # Enable compiler warnings
@@ -261,12 +261,12 @@ set(dlite_STORAGE_PLUGINS
   )
 list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 
-# DLITE_TRANSLATOR_PLUGINS - search path for DLite translator plugins
-set(dlite_TRANSLATOR_PLUGINS
-  ${dlite_BINARY_DIR}/translators
-  $ENV{DLITE_TRANSLATOR_PLUGINS}
+# DLITE_MAPPING_PLUGINS - search path for DLite mapping plugins
+set(dlite_MAPPING_PLUGINS
+  ${dlite_BINARY_DIR}/mappings
+  $ENV{DLITE_MAPPING_PLUGINS}
   )
-list(REMOVE_DUPLICATES dlite_TRANSLATOR_PLUGINS)
+list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
 
 # DLITE_TEMPLATES - search path for DLite templates
 set(dlite_TEMPLATES
@@ -282,7 +282,7 @@ set(dlite_METADATA
   )
 list(REMOVE_DUPLICATES dlite_METADATA)
 
-# DLITE_PYTHON_PLUGINS - search path for Python storage and translator plugins
+# DLITE_PYTHON_PLUGINS - search path for Python storage and mapping plugins
 set(dlite_PYTHON_PLUGINS
   ${dlite-python_SOURCE_DIR}/plugins
   $ENV{DLITE_PYTHON_PLUGINS}
@@ -290,14 +290,14 @@ set(dlite_PYTHON_PLUGINS
 list(REMOVE_DUPLICATES dlite_METADATA)
 
 if(UNIX)
-  string(REPLACE ";" ":" dlite_PATH               "${dlite_PATH}")
-  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH    "${dlite_LD_LIBRARY_PATH}")
-  string(REPLACE ";" ":" dlite_PYTHONPATH         "${dlite_PYTHONPATH}")
-  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS    "${dlite_STORAGE_PLUGINS}")
-  string(REPLACE ";" ":" dlite_TRANSLATOR_PLUGINS "${dlite_TRANSLATOR_PLUGINS}")
-  string(REPLACE ";" ":" dlite_TEMPLATES          "${dlite_TEMPLATES}")
-  string(REPLACE ";" ":" dlite_METADATA           "${dlite_METADATA}")
-  string(REPLACE ";" ":" dlite_PYTHON_PLUGINS     "${dlite_PYTHON_PLUGINS}")
+  string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
+  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH  "${dlite_LD_LIBRARY_PATH}")
+  string(REPLACE ";" ":" dlite_PYTHONPATH       "${dlite_PYTHONPATH}")
+  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
+  string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
+  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
+  string(REPLACE ";" ":" dlite_METADATA         "${dlite_METADATA}")
+  string(REPLACE ";" ":" dlite_PYTHON_PLUGINS   "${dlite_PYTHON_PLUGINS}")
 endif()
 
 #################################################################
@@ -309,7 +309,7 @@ message("export PATH=${dlite_PATH}")
 message("export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
 message("export PYTHONPATH=${dlite_PYTHONPATH}")
 message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
-message("export DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
+message("export DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
 message("export DLITE_METADATA=${dlite_METADATA}")
 message("export DLITE_PYTHON_PLUGINS=${dlite_PYTHON_PLUGINS}")

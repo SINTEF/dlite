@@ -51,6 +51,14 @@ typedef struct {
 } PluginInfo;
 
 
+/** Struct for iterating over registered plugins */
+typedef struct _PluginIter {
+  const PluginInfo *info;
+  size_t pos;
+} PluginIter;
+
+
+
 /**
   Creates a new plugin kind and returns a pointer to information about it.
 
@@ -93,6 +101,21 @@ int plugin_register(PluginInfo *info, const void *api);
   Otherwise NULL is returned.
  */
 const void *plugin_get_api(PluginInfo *info, const char *name);
+
+/**
+  Initiates a plugin iterator.
+*/
+void plugin_init_iter(PluginIter *iter, const PluginInfo *info);
+
+/**
+  Returns pointer to api for the next registered plugin or NULL if all
+  plugins has been visited.
+
+  Used for iterating over plugins.  Plugins should not be registered
+  or removed while iterating.
+ */
+const void *plugin_next(PluginIter *iter);
+
 
 
 /**

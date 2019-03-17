@@ -406,6 +406,15 @@ void triplestore_deinit_state(TripleState *state)
 
 
 /*
+  Resets iterator.
+*/
+void triplestore_reset_state(TripleState *state)
+{
+  state->pos = 0;
+}
+
+
+/*
   Returns a pointer to the next triplet in the store or NULL if all
   triplets have been visited.
  */
@@ -432,14 +441,6 @@ const Triplet *triplestore_poll(TripleState *state)
     state->pos++;
   }
   return NULL;
-}
-
-/*
-  Resets iterator.
-*/
-void triplestore_reset(TripleState *state)
-{
-  state->pos = 0;
 }
 
 

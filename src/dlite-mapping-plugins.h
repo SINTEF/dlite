@@ -1,47 +1,53 @@
-#ifndef _DLITE_TRANSLATOR_PLUGINS_H
-#define _DLITE_TRANSLATOR_PLUGINS_H
+#ifndef _DLITE_MAPPING_PLUGINS_H
+#define _DLITE_MAPPING_PLUGINS_H
 
 /**
   @file
-  @brief Common API for all translator plugins (internal).
+  @brief Common API for all mapping plugins (internal).
 
-  A DPite translator plugin should be a shared library that defines the
+  A DPite mapping plugin should be a shared library that defines the
   function
 
-      const DLiteTranslatorPlugin *
-      get_dlite_translator_api(const char *name);
+      const DLiteMappingPlugin *
+      get_dlite_mapping_api(const char *name);
 
   that returns a pointer to a struct with pointers to all functions
   provided by the plugin.  The `name` is just a hint that plugins are
-  free to ignore.  It is used by translator plugins that supports
+  free to ignore.  It is used by mapping plugins that supports
   several different drivers, to select which api that should be
   returned.
 
-  The translator plugin search path is initialised from the environment
-  variable `DLITE_TRANSLATOR_PLUGINS`.
+  The mapping plugin search path is initialised from the environment
+  variable `DLITE_MAPPING_PLUGINS`.
 */
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
+#include "utils/plugin.h"
 
-//#include "dlite-translator.h"
+#include "dlite-mapping.h"
 #include "dlite-entity.h"
 
 /**
   A struct with data and function pointers provided by a plugin.
  */
-typedef struct _DLiteTranslatorPlugin  DLiteTranslatorPlugin;
+typedef struct _DLiteMappingPlugin DLiteMappingPlugin;
+
+/**
+ An iterator over all registered mapping plugins.
+ */
+typedef PluginIter DLiteMappingPluginIter;
 
 
 /**
   Prototype for function returning a pointer to a
-  DLiteTranslatorPlugin or NULL on error.
+  DLiteMappingPlugin or NULL on error.
 
   The `name` is just a hint that plugins are free to ignore.  It is
-  used by translator plugins that supports several different
-  translators to select which api that should be returned.
+  used by mapping plugins that supports several different
+  mappings to select which api that should be returned.
  */
-typedef const DLiteTranslatorPlugin *
-(*GetDLiteTranslatorAPI)(const char *name);
+typedef const DLiteMappingPlugin *
+(*GetDLiteMappingAPI)(const char *name);
 
 
 /**
@@ -50,7 +56,7 @@ typedef const DLiteTranslatorPlugin *
  */
 
 /**
-  Returns a translator plugin with the given name, or NULL if it
+  Returns a mapping plugin with the given name, or NULL if it
   cannot be found.
 
   If a plugin with the given name is registered, it is returned.
@@ -67,28 +73,45 @@ typedef const DLiteTranslatorPlugin *
 
   Otherwise NULL is returned.
  */
-const DLiteTranslatorPlugin *dlite_translator_plugin_get(const char *name);
+const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name);
 
 /**
-  Registers `api` for a translator plugin.  Returns non-zero on error.
+  Registers `api` for a mapping plugin.  Returns non-zero on error.
 */
-int dlite_translator_plugin_register_api(const DLiteTranslatorPlugin *api);
+int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api);
 
 /**
-  Unloads and unregisters translator plugin with the given name.
+  Initiates a mapping plugin iterator.
+*/
+void dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter);
+
+/**
+  Returns the next registered mapping plugin or NULL if all plugins
+  has been visited.
+
+  Used for iterating over plugins.  Plugins should not be registered
+  or removed while iterating.
+ */
+DLiteMappingPlugin *dlite_mapping_plugin_next(DLiteMappingPluginIter *iter);
+
+
+
+
+/**
+  Unloads and unregisters mapping plugin with the given name.
   Returns non-zero on error.
 */
-int dlite_translator_plugin_unload(const char *name);
+int dlite_mapping_plugin_unload(const char *name);
 
 /**
-  Returns a pointer to the current translator plugin search path.  It is
-  initialised from the environment variable `DLITE_TRANSLATOR_PLUGINS`.
+  Returns a pointer to the current mapping plugin search path.  It is
+  initialised from the environment variable `DLITE_MAPPING_PLUGINS`.
 
-  Use dlite_translator_plugin_path_insert(),
-  dlite_translator_plugin_path_append()
-  and dlite_translator_plugin_path_remove() to modify it.
+  Use dlite_mapping_plugin_path_insert(),
+  dlite_mapping_plugin_path_append()
+  and dlite_mapping_plugin_path_remove() to modify it.
 */
-const char **dlite_translator_plugin_paths(void);
+const char **dlite_mapping_plugin_paths(void);
 
 /**
   Inserts `path` into the current search path at index `n`.  If `n` is
@@ -98,21 +121,21 @@ const char **dlite_translator_plugin_paths(void);
 
   Returns non-zero on error.
 */
-int dlite_translator_plugin_path_insert(int n, const char *path);
+int dlite_mapping_plugin_path_insert(int n, const char *path);
 
 /**
   Appends `path` into the current search path.
 
   Returns non-zero on error.
 */
-int dlite_translator_plugin_path_append(const char *path);
+int dlite_mapping_plugin_path_append(const char *path);
 
 /**
   Removes path number `n` from current search path.
 
   Returns non-zero on error.
 */
-int dlite_translator_plugin_path_remove(int n);
+int dlite_mapping_plugin_path_remove(int n);
 
 
 /** @} */
@@ -125,11 +148,11 @@ int dlite_translator_plugin_path_remove(int n);
 
 
 /**
-  Returns a new instance obtained by translating `instances` using the
-  translator `t`.  Returns NULL on error.
+  Returns a new instance obtained by mapping `instances`.
+  Returns NULL on error.
  */
-typedef DLiteInstance *(Translate)(DLiteTranslator *t,
-                                   DLiteInstance **instances);
+typedef DLiteInstance *(*Mapper)(DLiteInstance **instances);
+
 
 /** @} */
 
@@ -138,16 +161,15 @@ typedef DLiteInstance *(Translate)(DLiteTranslator *t,
 /**
   Struct with the name and pointers to function for a plugin. All
   plugins should define themselves by defining an intance of
-  DLiteTranslatorPlugin.
+  DLiteMappingPlugin.
 */
-struct _DLiteTranslatorPlugin {
-  /* Name of plugin */
+struct _DLiteMappingPlugin {
   const char *   name;       /*!< Name of plugin */
   const char *   output_uri; /*!< Output metedata URI */
   int            ninput;     /*!< Number of inputs */
   const char **  input_uris; /*!< Array of input metedata URIs */
-  Translate      translate;  /*!< Pointer to translator function */
- };
+  Mapper         mapper;     /*!< Pointer to mapping function */
+};
 
 
-#endif /* _DLITE_TRANSLATOR_PLUGINS_H */
+#endif /* _DLITE_MAPPING_PLUGINS_H */

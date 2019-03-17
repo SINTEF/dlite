@@ -153,6 +153,11 @@ void triplestore_init_state(TripleStore *ts, TripleState *state);
 */
 void triplestore_deinit_state(TripleState *state);
 
+/**
+  Resets iterator.
+*/
+void triplestore_reset_state(TripleState *state);
+
 
 /**
   Returns a pointer to the next triplet in the store or NULL if all
@@ -165,11 +170,6 @@ const Triplet *triplestore_next(TripleState *state);
   triplets have been visited.
  */
 const Triplet *triplestore_poll(TripleState *state);
-
-/**
-  Resets iterator.
-*/
-void triplestore_reset(TripleState *state);
 
 /**
   This function should be called iteratively.  Before the first call

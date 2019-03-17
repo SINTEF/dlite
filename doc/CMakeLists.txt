@@ -9,14 +9,17 @@ if(DOXYGEN_FOUND)
 
     ${dlite_SOURCE_DIR}/src/dlite.h
     ${dlite_SOURCE_DIR}/src/dlite-misc.h
+    ${dlite_SOURCE_DIR}/src/dlite-store.h
     ${dlite_SOURCE_DIR}/src/dlite-type.h
-    ${dlite_SOURCE_DIR}/src/dlite-storage.h
-    ${dlite_SOURCE_DIR}/src/dlite-storage-plugins.h
-    ${dlite_SOURCE_DIR}/src/dlite-entity.h
+    ${dlite_SOURCE_DIR}/src/dlite-arrays.h
     ${dlite_SOURCE_DIR}/src/dlite-datamodel.h
     ${dlite_SOURCE_DIR}/src/dlite-schemas.h
-    ${dlite_SOURCE_DIR}/src/dlite-store.h
+    ${dlite_SOURCE_DIR}/src/dlite-entity.h
     ${dlite_SOURCE_DIR}/src/dlite-collection.h
+    ${dlite_SOURCE_DIR}/src/dlite-storage.h
+    ${dlite_SOURCE_DIR}/src/dlite-storage-plugins.h
+    ${dlite_SOURCE_DIR}/src/dlite-mapping.h
+    ${dlite_SOURCE_DIR}/src/dlite-mapping-plugins.h
     ${dlite_SOURCE_DIR}/src/getuuid.h
     ${dlite_SOURCE_DIR}/src/triplestore.h
 

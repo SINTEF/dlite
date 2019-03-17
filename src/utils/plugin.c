@@ -12,6 +12,8 @@ struct _Plugin {
   dsl_handle handle;
 };
 
+
+
 /* Prototype for function that is looked up in shared library */
 typedef const void *(*PluginFunc)(const char *name);
 
@@ -203,6 +205,29 @@ const void *plugin_get_api(PluginInfo *info, const char *name)
 
   if (pattern) free(pattern);
   return api;
+}
+
+
+/*
+  Initiates a plugin iterator.
+*/
+void plugin_init_iter(PluginIter *iter, const PluginInfo *info)
+{
+  memset(iter, 0, sizeof(PluginIter));
+  iter->info = info;
+}
+
+/*
+  Returns pointer to the next registered plugin or NULL if all plugins
+  has been visited.
+
+  Used for iterating over plugins.  Plugins should not be registered
+  or removed while iterating.
+ */
+const void *plugin_next(PluginIter *iter)
+{
+  if (iter->pos >= iter->info->nplugins) return NULL;
+  return iter->info->plugins[iter->pos++]->api;
 }
 
 
