@@ -41,6 +41,11 @@ typedef struct _DLiteMapping {
 /**
   Returns a new nested mapping structure describing how `n` input
   instances of metadata `input_uris` can be mapped to `output_uri`.
+
+  @note
+  In the trivial case where one of the input URIs equals `output_uri`,
+  will the "output_uri" field in the returned mapping point to `output_uri`.
+  Hence, do not free `output_uri` as long as the returned mapping is in use.
  */
 DLiteMapping *mapping_create(const char *ouput_uri, const char **input_uris,
                              int n);
@@ -50,6 +55,15 @@ DLiteMapping *mapping_create(const char *ouput_uri, const char **input_uris,
 */
 void mapping_free(DLiteMapping *m);
 
+
+/**
+  Returns a new instance of metadata `output_uri` by mapping the `n` input
+  instances in the array `instances`.
+
+  This is the main function in the mapping api.
+ */
+DLiteInstance *mapping_map(const char *output_uri,
+                           const DLiteInstance **instances, int n);
 
 
 #endif /* _DLITE_MAPPING_H */

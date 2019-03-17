@@ -11,10 +11,8 @@
 
 
 /*
-  The main use of the following map types are as an effictive set, but
-  the mapping feature may also become handy.
+  Custom map types.  Are also used as sets (unused map value).
  */
-typedef map_int_t Ints;
 typedef map_t(DLiteInstance *) Instances;
 typedef map_t(DLiteMapping *) Mappings;
 
@@ -36,13 +34,12 @@ void mapping_remove_rec(DLiteMapping *m, Mappings *created)
 /*
   Recursive help function returning a mapping.
 
-  `inputs` maps input URIs to their corresponding index in the array of
-      input URIs.
-  `visited` maps so far visited output URIs to corresponding mapping.
-  `created` maps all created output URIs to corresponding mapping.
-  `dead_ends` maps URIs that we cannot create a mapping to, to NULL.
+  `inputs` set of input URIs (unused map value)
+  `visited` set of so far visited output URIs (unused map value)
+  `created` maps all created output URIs to corresponding mapping
+  `dead_ends` set of URIs that we cannot create a mapping to (unused map value)
  */
-DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
+DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
                                  Mappings *visited, Mappings *created,
                                  Mappings *dead_ends)
 {
@@ -61,7 +58,7 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
 
   /* Add output_uri to visited */
   assert(!map_get(visited, output_uri));
-  map_set(visited, output_uri, 0);
+  map_set(visited, output_uri, NULL);
 
   /* Find cheapest mapping to output_api */
   while ((api = dlite_mapping_plugin_next(&iter))) {
@@ -111,7 +108,7 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
   m->name = api->name;
   m->output_uri = api->output_uri;
   m->ninput = api->ninput;
-  if (!(m->input_maps = calloc(m->ninput, sizeof(DLiteMapping))))
+  if (!(m->input_maps = calloc(m->ninput, sizeof(DLiteMapping *))))
     FAIL("allocation failure");
   if (!(m->input_uris = calloc(m->ninput, sizeof(char *))))
     FAIL("allocation failure");
@@ -127,6 +124,8 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
   m->api = api;
   m->cost = lowest_cost;
 
+  map_set(created, output_uri, m);
+
   retval = m;
  fail:
   map_remove(visited, output_uri);
@@ -139,9 +138,8 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Ints *inputs,
   Returns a new nested mapping structure describing how the set of
   input URIs in `inputs` can be mapped to `output_uri`.
  */
-DLiteMapping *mapping_create_base(const char *output_uri, Ints *inputs)
+DLiteMapping *mapping_create_base(const char *output_uri, Instances *inputs)
 {
-  int *p;
   Mappings visited, created, dead_ends;
   DLiteMapping *m=NULL, *retval=NULL;
   map_iter_t iter;
@@ -151,22 +149,22 @@ DLiteMapping *mapping_create_base(const char *output_uri, Ints *inputs)
   map_init(&created);
   map_init(&dead_ends);
 
-  if ((p = map_get(inputs, output_uri))) {
+  if ((map_get(inputs, output_uri))) {
     /* The trivial case - one of the input URIs equals output URI. */
     if (!(m = calloc(1, sizeof(DLiteMapping))))
       FAIL("allocation failure");
     m->name = NULL;
-    m->output_uri = strdup(output_uri);  // FIXME - memory leak
+    m->output_uri = output_uri;
     m->ninput = 1;
-    if (!(m->input_maps = calloc(1, sizeof(DLiteMapping))))
+    if (!(m->input_maps = calloc(1, sizeof(DLiteMapping *))))
       FAIL("allocation failure");
     if (!(m->input_uris = calloc(1, sizeof(char *))))
       FAIL("allocation failure");
-    m->input_uris[0] = strdup(output_uri);  // FIXME - memory leak
-    m->api = NULL;  // FIXME
+    m->input_uris[0] = output_uri;
+    m->api = NULL;
+    m->cost = 0;
 
   } else {
-    //map_set(&outputs, output_uri, 0);
     m = mapping_create_rec(output_uri, inputs, &visited, &created, &dead_ends);
   }
 
@@ -193,12 +191,16 @@ DLiteMapping *mapping_create_base(const char *output_uri, Ints *inputs)
 /*
   Returns a new nested mapping structure describing how `n` input
   instances of metadata `input_uris` can be mapped to `output_uri`.
+
+  Note, in the trivial case where one of the input URIs equals `output_uri`,
+  will the "output_uri" field in the returned mapping point to `output_uri`.
+  Hence, do not free `output_uri` as long as the returned mapping is in use.
  */
 DLiteMapping *mapping_create(const char *output_uri,
                              const char **input_uris, int n)
 {
   int i;
-  Ints inputs;
+  Instances inputs;
   DLiteMapping *m=NULL;
 
   map_init(&inputs);
@@ -208,7 +210,7 @@ DLiteMapping *mapping_create(const char *output_uri,
     if (map_get(&inputs, input_uris[i]))
       FAIL1("more than one mapping input of the same metadata: %s",
             input_uris[i]);
-    map_set(&inputs, input_uris[i], i);
+    map_set(&inputs, input_uris[i], NULL);
   }
 
   m = mapping_create_base(output_uri, &inputs);
@@ -265,14 +267,15 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
 /*
   Returns a new instance of metadata `output_uri` by mapping the `n` input
   instances in the array `instances`.
+
+  This is the main function in the mapping api.
  */
 DLiteInstance *mapping_map(const char *output_uri,
                            const DLiteInstance **instances, int n)
 {
   int i;
   const char *key;
-  Ints inputs;
-  Instances insts;
+  Instances inputs;
   map_iter_t iter;
   DLiteMapping *m=NULL;
   DLiteInstance *inst=NULL, **instp;
@@ -284,13 +287,11 @@ DLiteInstance *mapping_map(const char *output_uri,
     const char *uri = instances[i]->meta->uri;
     if (map_get(&inputs, uri))
       FAIL1("more than one instance of the same metadata: %s", uri);
-    map_set(&inputs, uri, i);
-
     dlite_instance_incref((DLiteInstance *)instances[i]);
-    map_set(&insts, uri, (DLiteInstance *)instances[i]);
+    map_set(&inputs, uri, (DLiteInstance *)instances[i]);
   }
 
-  if ((instp = map_get(&insts, output_uri))) {
+  if ((instp = map_get(&inputs, output_uri))) {
     /* The trivial case - one of the inputs has metadata output URI */
     inst = *instp;
     assert(inst);
@@ -301,20 +302,19 @@ DLiteInstance *mapping_map(const char *output_uri,
     if (!(m = mapping_create_base(output_uri, &inputs))) goto fail;
 
     /* Perform mapping */
-    inst = mapping_map_rec(m, &insts);
+    inst = mapping_map_rec(m, &inputs);
   }
 
  fail:
   /* Remove temporary created instances */
-  iter = map_iter(&insts);
-  while ((key = map_next(&insts, &iter))) {
-    DLiteInstance **ip = map_get(&insts, key);
+  iter = map_iter(&inputs);
+  while ((key = map_next(&inputs, &iter))) {
+    DLiteInstance **ip = map_get(&inputs, key);
     assert(ip && *ip);
     dlite_instance_decref(*ip);
   }
 
   map_deinit(&inputs);
-  map_deinit(&insts);
   if (m) mapping_free(m);
   return inst;
 }

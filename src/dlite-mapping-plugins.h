@@ -24,7 +24,6 @@
 #include "utils/fileutils.h"
 #include "utils/plugin.h"
 
-/* #include "dlite-mapping.h" */
 #include "dlite-entity.h"
 
 /**
