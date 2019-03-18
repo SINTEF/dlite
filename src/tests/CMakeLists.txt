@@ -23,6 +23,8 @@ endif()
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
+add_subdirectory(mappings)
+
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}

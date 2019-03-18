@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 
 #include "compat.h"
@@ -24,6 +25,72 @@ struct _FUIter {
   size_t pathsize;       /* Allocated size of `path` */
   FUDir *dir;            /* Currend directory corresponding to `p`. */
 };
+
+
+
+/* Returns non-zero if `path` is an absolute path. */
+int fu_isabs(const char *path)
+{
+  if (!path) return 0;
+  if (strlen(path) >= 1 && (path[0] == '/' || path[0] == '\\')) return 1;
+  if (strlen(path) >= 2 && path[1] == ':' &&
+      (('a' <= path[0] && path[0] <= 'z') ||
+       ('A' <= path[0] && path[0] <= 'Z'))) return 1;
+  return 0;
+}
+
+
+/*
+  Joins a set of pathname components, inserting '/' as needed.  The
+  last argument must be NULL.
+
+  If any component is an absolute path, all previous path components
+  will be discarded.  An empty last part will result in a path that
+  ends with a separator.
+ */
+char *fu_join(const char *a, ...)
+{
+  va_list ap, aq;
+  char *p, *path;
+  int i, n, pos=0, nargs=1, arg0=0, len=strlen(a)+1;
+  va_start(ap, a);
+  va_copy(aq, ap);
+
+  while ((p = va_arg(ap, char *))) {
+    int n = strlen(p);
+    if (fu_isabs(p)) {
+      arg0 = nargs;
+      len = n+1;
+    } else {
+      len += n+1;
+    }
+    nargs++;
+  }
+
+  if (!(path = malloc(len))) return err(1, "allocation failure"), NULL;
+
+  if (arg0 == 0) {
+    n = strlen(a);
+    strncpy(path, a, n);
+    pos += n;
+    path[pos++] = '/';
+    arg0++;
+  }
+  for (i=0; i<arg0-1; i++)
+    va_arg(aq, char *);
+  for (i=arg0; i<nargs; i++) {
+    p = va_arg(aq, char *);
+    n = strlen(p);
+    strncpy(path+pos, p, n);
+    pos += n;
+    path[pos++] = '/';
+  }
+  path[len-1] = '\0';
+
+  va_end(ap);
+  va_end(aq);
+  return path;
+}
 
 
 /*

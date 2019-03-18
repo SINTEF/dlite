@@ -11,6 +11,33 @@
 
 FUDir *dir;
 
+MU_TEST(test_fu_isabs)
+{
+  mu_assert_int_eq(1, fu_isabs("/"));
+  mu_assert_int_eq(1, fu_isabs("/usr/bin/ls"));
+  mu_assert_int_eq(1, fu_isabs("C:\\users\\file"));
+  mu_assert_int_eq(0, fu_isabs("ls"));
+  mu_assert_int_eq(0, fu_isabs(""));
+}
+
+MU_TEST(test_fu_join)
+{
+  char *s;
+
+  s = fu_join("a", "bb", "ccc", NULL);
+  mu_assert_string_eq("a/bb/ccc", s);
+  free(s);
+
+  s = fu_join("a", "/bb", "ccc", NULL);
+  mu_assert_string_eq("/bb/ccc", s);
+  free(s);
+
+  s = fu_join("a", "bb", "/ccc", NULL);
+  mu_assert_string_eq("/ccc", s);
+  free(s);
+}
+
+
 MU_TEST(test_fu_opendir)
 {
   char *path = STRINGIFY(TESTDIR);
@@ -140,9 +167,13 @@ MU_TEST(test_fu_match)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_fu_isabs);
+  MU_RUN_TEST(test_fu_join);
+
   MU_RUN_TEST(test_fu_opendir);       /* setup */
   MU_RUN_TEST(test_fu_getfile);
   MU_RUN_TEST(test_fu_closedir);      /* tear down */
+
   MU_RUN_TEST(test_fu_paths);
   MU_RUN_TEST(test_fu_match);
 }

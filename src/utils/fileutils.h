@@ -61,6 +61,22 @@ typedef struct _FUIter FUIter;
 
 
 /**
+  Returns non-zero if `path` is an absolute path.
+*/
+int fu_isabs(const char *path);
+
+/**
+  Joins a set of pathname components, inserting '/' as needed.  The
+  last argument must be NULL.
+
+  If any component is an absolute path, all previous path components
+  will be discarded.  An empty last part will result in a path that
+  ends with a separator.
+ */
+char *fu_join(const char *a, ...);
+
+
+/**
   Updates `path` to use more "user-friendly" directory separators.
 
   On Unix-like systems this function does nothing.

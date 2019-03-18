@@ -39,6 +39,17 @@ typedef struct _DLiteMapping {
 
 
 /**
+  Returns a new instance of metadata `output_uri` by mapping the `n` input
+  instances in the array `instances`.
+
+  This is the main function in the mapping api.
+ */
+DLiteInstance *dlite_mapping(const char *output_uri,
+                             const DLiteInstance **instances, int n);
+
+
+
+/**
   Returns a new nested mapping structure describing how `n` input
   instances of metadata `input_uris` can be mapped to `output_uri`.
 
@@ -47,23 +58,25 @@ typedef struct _DLiteMapping {
   will the "output_uri" field in the returned mapping point to `output_uri`.
   Hence, do not free `output_uri` as long as the returned mapping is in use.
  */
-DLiteMapping *mapping_create(const char *ouput_uri, const char **input_uris,
-                             int n);
+DLiteMapping *dlite_mapping_create(const char *ouput_uri,
+                                   const char **input_uris, int n);
 
 /**
   Free's a mapping created with mapping_create().
 */
-void mapping_free(DLiteMapping *m);
-
+void dlite_mapping_free(DLiteMapping *m);
 
 /**
-  Returns a new instance of metadata `output_uri` by mapping the `n` input
-  instances in the array `instances`.
-
-  This is the main function in the mapping api.
+  Returns a nicely formatted string displaying mapping `m`.
  */
-DLiteInstance *mapping_map(const char *output_uri,
-                           const DLiteInstance **instances, int n);
+char *dlite_mapping_string(const DLiteMapping *m);
+
+/**
+  Applies the mapping `m` on `instances` (array of length `n` of
+  instance pointers) and returns a new instance.
+ */
+DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
+                                 const DLiteInstance **instances, int n);
 
 
 #endif /* _DLITE_MAPPING_H */

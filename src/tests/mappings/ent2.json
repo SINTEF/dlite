@@ -1,0 +1,13 @@
+{
+    "name": "ent2",
+    "version": "0.1",
+    "namespace": "http://meta.sintef.no",
+    "description": "test entity",
+    "dimensions": [],
+    "properties": [
+        {
+            "name": "b",
+            "type": "int"
+        }
+    ]
+}

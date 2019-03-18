@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "utils/map.h"
+#include "utils/tgen.h"
 
 #include "dlite-macros.h"
 #include "dlite-store.h"
@@ -95,7 +96,7 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
     }
     if (ignore) continue;
 
-    if (lowest_cost < 0 || cost < lowest_cost) {
+    if (!cheapest || cost < lowest_cost) {
       cheapest = api;
       lowest_cost = cost;
     }
@@ -183,7 +184,7 @@ DLiteMapping *mapping_create_base(const char *output_uri, Instances *inputs)
   map_deinit(&visited);
   map_deinit(&created);
   map_deinit(&dead_ends);
-  if (!retval && m) mapping_free(m);
+  if (!retval && m) dlite_mapping_free(m);
   return retval;
 }
 
@@ -196,8 +197,8 @@ DLiteMapping *mapping_create_base(const char *output_uri, Instances *inputs)
   will the "output_uri" field in the returned mapping point to `output_uri`.
   Hence, do not free `output_uri` as long as the returned mapping is in use.
  */
-DLiteMapping *mapping_create(const char *output_uri,
-                             const char **input_uris, int n)
+DLiteMapping *dlite_mapping_create(const char *output_uri,
+                                   const char **input_uris, int n)
 {
   int i;
   Instances inputs;
@@ -217,6 +218,23 @@ DLiteMapping *mapping_create(const char *output_uri,
  fail:
   map_deinit(&inputs);
   return m;
+}
+
+
+/*
+  Frees a nested mapping tree.
+*/
+void dlite_mapping_free(DLiteMapping *m)
+{
+  int i;
+  for (i=0; i < m->ninput; i++) {
+    assert(m->input_maps[i] || m->input_uris[i]);
+    assert(!(m->input_maps[i] && m->input_uris[i]));
+    if (m->input_maps[i]) dlite_mapping_free((DLiteMapping *)m->input_maps[i]);
+  }
+  free(m->input_maps);
+  free(m->input_uris);
+  free(m);
 }
 
 
@@ -265,43 +283,85 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
 
 
 /*
-  Returns a new instance of metadata `output_uri` by mapping the `n` input
-  instances in the array `instances`.
-
-  This is the main function in the mapping api.
+  Recursive help function that appends to `s`.
  */
-DLiteInstance *mapping_map(const char *output_uri,
-                           const DLiteInstance **instances, int n)
+void mapping_string_rec(const DLiteMapping *m, TGenBuf *s, int indent)
+{
+  int i, j;
+  for (j=0; j<indent-1; j++) tgen_buf_append_fmt(s, "|   ");
+  if (indent) tgen_buf_append_fmt(s, "+-- ");
+  tgen_buf_append_fmt(s, "%s\n", m->output_uri);
+
+  if (!m->name) return;
+
+  for (i=0; i < m->ninput; i++) {
+    if (m->input_maps[i]) {
+      mapping_string_rec(m->input_maps[i], s, indent+1);
+    } else {
+      for (j=0; j<indent-1; j++) tgen_buf_append_fmt(s, "|   ");
+      if (indent) tgen_buf_append_fmt(s, "+-- ");
+      tgen_buf_append_fmt(s, "%s\n", m->input_uris[i]);
+    }
+  }
+}
+
+
+/*
+  Returns a nicely formatted string displaying mapping `m`.
+ */
+char *dlite_mapping_string(const DLiteMapping *m)
+{
+  TGenBuf s;
+  char *str=NULL;
+  tgen_buf_init(&s);
+  mapping_string_rec(m, &s, 0);
+  str = strdup(tgen_buf_get(&s));
+  tgen_buf_deinit(&s);
+  return str;
+}
+
+
+/* Assign `inputs` from `instances`.  Returns non-zero on error. */
+int set_inputs(Instances *inputs, const DLiteInstance **instances, int n)
 {
   int i;
+  for (i=0; i<n; i++) {
+    const char *uri = instances[i]->meta->uri;
+    if (map_get(inputs, uri))
+      return err(1, "more than one instance of the same metadata: %s", uri);
+    dlite_instance_incref((DLiteInstance *)instances[i]);
+    map_set(inputs, uri, (DLiteInstance *)instances[i]);
+  }
+  return 0;
+}
+
+
+/*
+  Applies the mapping `m` on `instances` (array of length `n` of
+  instance pointers) and returns a new instance.
+ */
+DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
+                                 const DLiteInstance **instances, int n)
+{
   const char *key;
   Instances inputs;
   map_iter_t iter;
-  DLiteMapping *m=NULL;
   DLiteInstance *inst=NULL, **instp;
 
   map_init(&inputs);
 
-  /* Check that the metadata of all instances are unique */
-  for (i=0; i<n; i++) {
-    const char *uri = instances[i]->meta->uri;
-    if (map_get(&inputs, uri))
-      FAIL1("more than one instance of the same metadata: %s", uri);
-    dlite_instance_incref((DLiteInstance *)instances[i]);
-    map_set(&inputs, uri, (DLiteInstance *)instances[i]);
-  }
+  /* Assign instances and check that the metadata of all instances are unique */
+  if (set_inputs(&inputs, instances, n)) goto fail;
 
-  if ((instp = map_get(&inputs, output_uri))) {
+  if ((instp = map_get(&inputs, m->output_uri))) {
     /* The trivial case - one of the inputs has metadata output URI */
+    assert(!m->name);
     inst = *instp;
     assert(inst);
     dlite_instance_incref(inst);
   } else {
-
-    /* Create mapping */
-    if (!(m = mapping_create_base(output_uri, &inputs))) goto fail;
-
-    /* Perform mapping */
+    /* Apply mapping */
+    assert(m->name);  /* trivial case is already handled */
     inst = mapping_map_rec(m, &inputs);
   }
 
@@ -315,23 +375,31 @@ DLiteInstance *mapping_map(const char *output_uri,
   }
 
   map_deinit(&inputs);
-  if (m) mapping_free(m);
   return inst;
 }
 
 
 /*
-  Frees a nested mapping tree.
-*/
-void mapping_free(DLiteMapping *m)
+  Returns a new instance of metadata `output_uri` by mapping the `n` input
+  instances in the array `instances`.
+
+  This is the main function in the mapping api.
+ */
+DLiteInstance *dlite_mapping(const char *output_uri,
+                             const DLiteInstance **instances, int n)
 {
-  int i;
-  for (i=0; i < m->ninput; i++) {
-    assert(m->input_maps[i] || m->input_uris[i]);
-    assert(!(m->input_maps[i] && m->input_uris[i]));
-    if (m->input_maps[i]) mapping_free((DLiteMapping *)m->input_maps[i]);
-  }
-  free(m->input_maps);
-  free(m->input_uris);
-  free(m);
+  DLiteInstance *inst=NULL;
+  DLiteMapping *m=NULL;
+  Instances inputs;
+
+  map_init(&inputs);
+
+  if (set_inputs(&inputs, instances, n)) goto fail;
+  if ((m = mapping_create_base(output_uri, &inputs))) goto fail;
+  inst = dlite_mapping_map(m, instances, n);
+
+ fail:
+  map_deinit(&inputs);
+  if (m) dlite_mapping_free(m);
+  return inst;
 }
