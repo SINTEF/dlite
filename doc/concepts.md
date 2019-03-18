@@ -82,7 +82,8 @@ describing them.  *Entities* are instances of the *Entity schema*
 which describes an *Entity*.  The *Entity schema* is an instance of
 the *Basic metadata schema* describing it, which can describe itself
 (and can be considered as an instance of itself).  Hence, **everything
-is an instance**.
+is an instance**.  So in contrast to SOFT, *entities* in DLite are just
+a special type of *metadata*.
 
 *Collections* are a special type of instances containing references to
 a set of set of instances and relationships between them.  They are
@@ -116,6 +117,8 @@ Instances can be subdivided into:
     with the same header as DLiteInstance, but includes more fields
     needed to describe their instances.  Entities are a special case
     of metadata, whos instances are the actual data.
+
+    All metadata must be immutable.
 
 
 Metadata semantics

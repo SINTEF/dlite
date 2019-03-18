@@ -6,18 +6,70 @@ is strongly inspired by [SOFT][1], with the aim to be a lightweight
 replacement in cases where Windows portability is a showstopper for
 using SOFT.
 
-*dlite* shares the [metadata model of SOFT][2] and generic data stored
-with SOFT can be read with dlite and vice verse.  However, apart from
-*dlite* being much less complete, there are also some differences.
+*dlite* shares the [metadata model of SOFT5][2] and is compatible with
+SOFT5 in many respects.  However, it has also some notable
+differences, mainly with respect to the type system and that it fully
+implements the metadata model envisioned in SOFT5.
 See [doc/concepts.md](doc/concepts.md) for details.
 
-The main concepts and components of *dlite* includes:
-  - Instance: a formal representation of data
-  - Metadata: describes an instance (metadata are instances themselves)
-  - Collection: a specialised instance that contains references to set
-    of instances and relations between them
-  - Storage: a generic handle encapsulating actual storage formats via
-    plugins
+
+Main features
+-------------
+  - Simple and structured way to represent data as a set of named properties
+    within and between software
+  - Simple type system where data type are specified as a basic type and size.
+    Supported basic types includes:
+      - binary blob (any size)
+      - boolean
+      - integer (8, 16, 32, 64 bits)
+      - unsigned integer (8, 16, 32, 64 bits)
+      - float (32, 64, [80, 128] bits)
+      - fixed string (any size, always NUL-terminated)
+      - string pointer
+      - relation
+      - dimension (only intended for metadata)
+      - property (only intended for metadata)
+  - Supports units and multi-dimensional arrays
+  - Fully implemented metadata model as presented by Thomas Hagelien
+  - Builtin HDF5 and JSON storage plugins
+  - Plugin system for user-provided storage drivers
+  - Template-based code generation (includes templates for C, Fortran
+    templates are planned)
+  - Mappings (in development)
+  - Plugin system for mappings (in development)
+  - Python bindings
+  - Fortran bindings (planned)
+  - Storage and mapping plugins written in Python (planned)
+
+
+Short vocabulary
+----------------
+  - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
+  - **Collection**: A specialised instance that contains references to set
+    of instances and relations between them.  Within a collection instances
+    are labeled.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
+  - **Data instance**: A "leaf" instance that is not metadata.
+  - **Entity**: A special type of metadata that describes standard data
+    instances.  This is different from SOFT5 where entities are the
+    fundamental metadata.
+  - **Instance**: The basic data object in DLite.  All instances are described
+    by their metadata which itself are instances.  Instances are identified
+    by an UUID.
+  - **Mapping**: A function that maps one or more input instances to an
+    output instance.  They are an important mechanism for interoperability.
+    Mappings are called translators in SOFT5.
+  - **Metadata**: a special type of instances that describe other instances.
+    All metadata are immutable and has an unique URI in addition to their
+    UUID.
+  - **Meta-metadata**: metadata that describes metadata.
+  - **Relation**: A subject-predicate-object triplet with an id. Relations
+    are immutable.
+  - **Storage**: A generic handle encapsulating actual storage backends.
+  - **Transaction**: A not yet implemented feature, that enables to
+    represent the evolution of the state of a software as a series of
+    immutable instances.  See also the
+    [SOFT5 nomenclauture][SOFT5_nomenclauture].
+
 
 
 Runtime dependencies
@@ -168,3 +220,4 @@ Until then, it will remain as a simple and mostly compatible alternative.
 [8]: http://www.swig.org/
 [9]: http://www.doxygen.org/
 [10]: http://valgrind.org/
+[SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
