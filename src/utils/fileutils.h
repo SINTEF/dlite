@@ -45,6 +45,10 @@ typedef DIR FUDir;
 # define FU_PATHS_CHUNKSIZE 16  /*!< Chunk size for path allocation */
 #endif
 
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
+
 
 /** Directory state. */
 typedef DIR FUDir;
@@ -73,12 +77,14 @@ int fu_isabs(const char *path);
   will be discarded.  An empty last part will result in a path that
   ends with a separator.
  */
-char *fu_join(const char *a, ...);
+char *fu_join(const char *a, ...)
+  __attribute__((sentinel));
 
 /**
   Like fu_join(), but takes path separator as first argument.
 */
-char *fu_join_sep(int sep, const char *a, ...);
+char *fu_join_sep(int sep, const char *a, ...)
+  __attribute__((sentinel));
 
 /**
   Like fu_join_sep(), but takes a va_list instead of a variable number
