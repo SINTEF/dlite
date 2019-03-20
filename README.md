@@ -17,7 +17,7 @@ Main features
 -------------
   - Simple and structured way to represent data as a set of named properties
     within and between software
-  - Simple type system where data type are specified as a basic type and size.
+  - Simple type system where data type are specified as a basic type and size
     Supported basic types includes:
       - binary blob (any size)
       - boolean
@@ -33,6 +33,9 @@ Main features
   - Fully implemented metadata model as presented by Thomas Hagelien
   - Builtin HDF5 and JSON storage plugins
   - Plugin system for user-provided storage drivers
+  - Memory for metadata and instances is reference counted
+  - Lookup of metadata and instances via global paths (initiated from the
+    DLITE_STORAGES environment variable)
   - Template-based code generation (includes templates for C, Fortran
     templates are planned)
   - Mappings (in development)

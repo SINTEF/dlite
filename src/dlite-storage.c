@@ -5,6 +5,8 @@
 
 #include "utils/compat.h"
 #include "utils/err.h"
+#include "utils/fileutils.h"
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
@@ -29,6 +31,8 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
   const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
+  if (!driver) FAIL("missing driver");
+  if (!uri) FAIL("missing uri");
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
   if (!(storage = api->open(uri, options))) goto fail;
   storage->api = api;
@@ -45,16 +49,25 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
 
 /*
   Like dlite_storage_open(), but takes as input an url of the form
-  ``driver://uri?options``.  The question mark and options may be left out.
+
+      driver://location?options
+
+  The question mark and options may be omitted.  If `location` refers
+  to a file who's extension matches `driver`, the `driver://` part may
+  also be omitted.
 
   Returns a new storage, or NULL on error.
 */
 DLiteStorage *dlite_storage_open_url(const char *url)
 {
-  char *url2=strdup(url), *driver=NULL, *location=NULL, *options=NULL;
-  DLiteStorage *s;
-  if (dlite_split_url(url2, &driver, &location, &options, NULL)) return NULL;
+  char *driver=NULL, *location=NULL, *options=NULL;
+  DLiteStorage *s=NULL;
+  char *p, *url2=strdup(url);
+  if (dlite_split_url(url2, &driver, &location, &options, NULL)) goto fail;
+  if (!driver && (p = strrchr(location, '.'))) driver = p+1;
+  if (!driver) FAIL1("missing driver: %s", url);
   s = dlite_storage_open(driver, location, options);
+ fail:
   free(url2);
   return s;
 }
@@ -133,4 +146,82 @@ int dlite_storage_is_writable(const DLiteStorage *s)
 const char *dlite_storage_get_driver(const DLiteStorage *s)
 {
   return s->api->name;
+}
+
+
+
+/*******************************************************************
+ *  Storage paths and URLs
+ *******************************************************************/
+static FUPaths *_storage_paths = NULL;
+
+/* Free's up and reset storage paths */
+void storage_paths_free(void)
+{
+  if (_storage_paths) {
+    fu_paths_deinit(_storage_paths);
+    free(_storage_paths);
+  }
+  _storage_paths = NULL;
+}
+
+/* Returns referance to storage paths */
+FUPaths *storage_paths_get(void)
+{
+  if (!_storage_paths) {
+    if (!(_storage_paths = calloc(1, sizeof(FUPaths))))
+      return err(1, "allocation failure"), NULL;
+    fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
+    atexit(storage_paths_free);
+  }
+  return _storage_paths;
+}
+
+/*
+  Inserts `path` into storage paths before position `n`.  If `n` is
+  negative, it counts from the end (like Python).
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_insert(int n, const char *path)
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_insert(paths, path, n);
+}
+
+/*
+  Appends `path` to storage paths.
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_append(const char *path)
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_append(paths, path);
+}
+
+/*
+  Removes path with index `n` from storage paths.  If `n` is negative, it
+  counts from the end (like Python).
+
+  Returns non-zero on error.
+ */
+int dlite_storage_paths_remove(int n)
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_remove(paths, n);
+}
+
+/*
+  Returns a NULL-terminated array of pointers to paths/urls or NULL if
+  no storage paths have been assigned.
+
+  The returned array is owned by DLite and should not be free'ed. It
+  may be invalidated by further calls to dlite_storage_paths_insert()
+  and dlite_storage_paths_append().
+ */
+const char **dlite_storage_paths_get()
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_get(paths);
 }

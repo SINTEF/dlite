@@ -275,19 +275,19 @@ set(dlite_TEMPLATES
   )
 list(REMOVE_DUPLICATES dlite_TEMPLATES)
 
-# DLITE_METADATA - search path for DLite metadata
-set(dlite_METADATA
-  ${dlite-tools_SOURCE_DIR}/metadata
-  $ENV{DLITE_METADATA}
+# DLITE_STORAGES - search path for DLite metadata
+set(dlite_STORAGES
+  ${dlite-tools_SOURCE_DIR}/metadata/*.json
+  $ENV{DLITE_STORAGES}
   )
-list(REMOVE_DUPLICATES dlite_METADATA)
+list(REMOVE_DUPLICATES dlite_STORAGES)
 
 # DLITE_PYTHON_PLUGINS - search path for Python storage and mapping plugins
 set(dlite_PYTHON_PLUGINS
   ${dlite-python_SOURCE_DIR}/plugins
   $ENV{DLITE_PYTHON_PLUGINS}
   )
-list(REMOVE_DUPLICATES dlite_METADATA)
+list(REMOVE_DUPLICATES dlite_STORAGES)
 
 if(UNIX)
   string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
@@ -296,7 +296,7 @@ if(UNIX)
   string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
   string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
   string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
-  string(REPLACE ";" ":" dlite_METADATA         "${dlite_METADATA}")
+  string(REPLACE ";" ":" dlite_STORAGES         "${dlite_STORAGES}")
   string(REPLACE ";" ":" dlite_PYTHON_PLUGINS   "${dlite_PYTHON_PLUGINS}")
 endif()
 
@@ -311,7 +311,7 @@ message("export PYTHONPATH=${dlite_PYTHONPATH}")
 message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 message("export DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
-message("export DLITE_METADATA=${dlite_METADATA}")
+message("export DLITE_STORAGES=${dlite_STORAGES}")
 message("export DLITE_PYTHON_PLUGINS=${dlite_PYTHON_PLUGINS}")
 message("")
 message("========== Jansson ==================")

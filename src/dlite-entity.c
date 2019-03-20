@@ -5,6 +5,8 @@
 
 #include "utils/err.h"
 #include "utils/map.h"
+#include "utils/fileutils.h"
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"
@@ -17,8 +19,10 @@
 #define max(x, y) (((x) >= (y)) ? (x) : (y))
 
 
-/* Prototypes */
+/* Forward declerations */
 int dlite_meta_init(DLiteMeta *meta);
+DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
+                                     const char *metaid, int lookup);
 
 
 
@@ -131,7 +135,6 @@ static int _instance_store_remove(const char *uuid)
 }
 
 /* Returns pointer to instance for id `id` or NULL if `id` cannot be found. */
-/* FIXME - add storage search paths */
 static DLiteInstance *_instance_store_get(const char *id)
 {
   int uuidver;
@@ -153,24 +156,11 @@ static DLiteInstance *_instance_store_get(const char *id)
  ********************************************************************/
 
 /*
-  Returns a new dlite instance from Entiry `meta` and dimensions
-  `dims`.  The lengths of `dims` is found in `meta->ndims`.
-
-  The `id` argment may be NULL, a valid UUID or an unique identifier
-  to this instance (e.g. an uri).  In the first case, a random UUID
-  will be generated. In the second case, the instance will get the
-  provided UUID.  In the third case, an UUID will be generated from
-  `id`.  In addition, the instanc's uri member will be assigned to
-  `id`.
-
-  All properties are initialised to zero and arrays for all dimensional
-  properties are allocated and initialised to zero.
-
-  On error, NULL is returned.
-*/
-DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
-                                     const size_t *dims,
-                                     const char *id)
+  Help function for dlite_instance_create().  If `lookup` is true,
+  a check will be done to see if the instance already exists.
+ */
+DLiteInstance *_instance_create(const DLiteMeta *meta, const size_t *dims,
+                                const char *id, int lookup)
 {
   char uuid[DLITE_UUID_LENGTH+1];
   size_t i, size;
@@ -179,7 +169,7 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
   /* Check if we are trying to create an instance with an already
      existing id. */
-  if (id && (inst = dlite_instance_get(id))) {
+  if (lookup && id && (inst = dlite_instance_get(id))) {
     //if (dlite_instance_is_data(inst))
     err(1, "cannot create new instance with id '%s' - returns a new "
         "reference (%d)", id, inst->refcount);
@@ -249,6 +239,29 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
     dlite_instance_decref(inst);
   }
   return NULL;
+}
+
+/*
+  Returns a new dlite instance from Entiry `meta` and dimensions
+  `dims`.  The lengths of `dims` is found in `meta->ndims`.
+
+  The `id` argment may be NULL, a valid UUID or an unique identifier
+  to this instance (e.g. an uri).  In the first case, a random UUID
+  will be generated. In the second case, the instance will get the
+  provided UUID.  In the third case, an UUID will be generated from
+  `id`.  In addition, the instanc's uri member will be assigned to
+  `id`.
+
+  All properties are initialised to zero and arrays for all dimensional
+  properties are allocated and initialised to zero.
+
+  On error, NULL is returned.
+*/
+DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
+                                     const size_t *dims,
+                                     const char *id)
+{
+  return _instance_create(meta, dims, id, 1);
 }
 
 
@@ -345,10 +358,48 @@ int dlite_instance_decref(DLiteInstance *inst)
 */
 DLiteInstance *dlite_instance_get(const char *id)
 {
-  /* FIXME - if `id` is not instansiated, look it up in storages... */
-  DLiteInstance *inst = _instance_store_get(id);
-  if (inst) dlite_instance_incref(inst);
-  return inst;
+  DLiteInstance *inst=NULL;
+  const char **urls;
+
+  /* check if instance `id` is already instansiated... */
+  if ((inst = _instance_store_get(id))) {
+    dlite_instance_incref(inst);
+    return inst;
+  }
+
+  /* ...otherwise look it up in storages */
+  if (!(urls = dlite_storage_paths_get())) return NULL;
+
+  while (*urls) {
+    const char *url = *(urls++);
+    DLiteStorage *s;
+    char *copy, *driver, *location, *options;
+    if (!(copy = strdup(url))) return err(1, "allocation failure"), NULL;
+    dlite_split_url(copy, &driver, &location, &options, NULL);
+    if (driver) {
+      /* check if url is a storage we can open... */
+      if ((s = dlite_storage_open(driver, location, options))) {
+        inst = _instance_load_casted(s, id, NULL, 0);
+        dlite_storage_close(s);
+      }
+    } else {
+      /* ...otherwise it may be glob pattern */
+      FUIter *iter;
+      if ((iter = fu_glob(location))) {
+        const char *path;
+        while (!inst && (path = fu_globnext(iter))) {
+          if ((s = dlite_storage_open_url(path))) {
+            inst = _instance_load_casted(s, id, NULL, 0);
+            dlite_storage_close(s);
+          }
+        }
+        fu_globend(iter);
+      }
+      free(copy);
+    }
+    if (inst) return inst;
+  }
+  return NULL;
 }
 
 /*
@@ -400,18 +451,12 @@ DLiteInstance *dlite_instance_load_url(const char *url)
 }
 
 /*
-  Like dlite_instance_load(), but allows casting the loaded instance
-  into an instance of metadata identified by `metaid`.  If `metaid` is
-  NULL, no casting is performed.
+  Help function for dlite_instance_load_casted().
 
-  For the cast to be successful requires that the correct translators
-  have been registered.
-
-  Returns NULL of error or if no translator can be found.
+  If `lookup` is zero, no
  */
-DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
-                                          const char *id,
-                                          const char *metaid)
+DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
+                                     const char *metaid, int lookup)
 {
   DLiteMeta *meta;
   DLiteInstance *inst=NULL, *instance=NULL;
@@ -425,7 +470,7 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
   if (!id || !*id) id = d->uuid;
 
   /* check if id is already loaded */
-  if (id && (inst = dlite_instance_get(id))) {
+  if (lookup && id && (inst = dlite_instance_get(id))) {
     warn("trying to load existing instance from storage \"%s\": %s"
          " - creates a new reference", s->uri, id);
     dlite_datamodel_free(d);
@@ -457,9 +502,9 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
     FAIL3("metadata uri (%s) does not correspond to that in storage (%s): %s",
 	  meta->uri, uri, s->uri);
 
-  /* FIXME - call translators */
+  /* FIXME - call mappings */
   if (metaid)
-    FAIL2("cannot cast %s to %s; translators are not yet implemented...",
+    FAIL2("cannot cast %s to %s; mappings are not yet implemented...",
           metaid, meta->uri);
 
   /* read dimensions */
@@ -475,7 +520,7 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
      to meta that we want to hand over to `inst`.  Therefore, decrease
      the additional refcount after calling dlite_instance_create()...
    */
-  if (!(inst = dlite_instance_create(meta, dims, id))) goto fail;
+  if (!(inst = _instance_create(meta, dims, id, 0))) goto fail;
   dlite_meta_decref(meta);
 
   /* assign properties */
@@ -536,6 +581,22 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
   return instance;
 }
 
+/*
+  Like dlite_instance_load(), but allows casting the loaded instance
+  into an instance of metadata identified by `metaid`.  If `metaid` is
+  NULL, no casting is performed.
+
+  For the cast to be successful requires that the correct mappings
+  have been registered.
+
+  Returns NULL of error or if no mapping can be found.
+ */
+DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
+                                          const char *id,
+                                          const char *metaid)
+{
+  return _instance_load_casted(s, id, metaid, 1);
+}
 
 /*
   Saves instance `inst` to storage `s`.  Returns non-zero on error.

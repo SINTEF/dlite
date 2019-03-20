@@ -16,7 +16,7 @@ if(WITH_JSON)
       PATH="${dlite_PATH}"
       LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH}"
       DLITE_STORAGE_PLUGINS="${dlite_STORAGE_PLUGINS}"
-      DLITE_TRANSLATOR_PLUGINS="${dlite_TRANSLATOR_PLUGINS}"
+      DLITE_MAPPING_PLUGINS="${dlite_MAPPING_PLUGINS}"
       DLITE_TEMPLATES="${dlite_TEMPLATES}"
       ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
@@ -52,11 +52,11 @@ if(WITH_JSON)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
+    ENVIRONMENT "DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_TEMPLATES=${dlite_TEMPLATES}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_METADATA=${dlite_METADATA}")
+    ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
 
 endif()
 

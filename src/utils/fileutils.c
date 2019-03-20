@@ -15,7 +15,15 @@
 #include "fileutils.h"
 
 
-/* Iterator for */
+/** Convenient macros for failing */
+#define FAIL(msg) do { \
+    err(1, msg); goto fail; } while (0)
+#define FAIL1(msg, a1) do { \
+    err(1, msg, a1); goto fail; } while (0)
+
+
+
+/* Paths iterator */
 struct _FUIter {
   const char *pattern;   /* File name glob pattern to match against. */
   size_t i;              /* Index of current position in `paths`. */
@@ -24,6 +32,7 @@ struct _FUIter {
   char *path;            /* Full path to current file */
   size_t pathsize;       /* Allocated size of `path` */
   FUDir *dir;            /* Currend directory corresponding to `p`. */
+  int dirsep;            /* Directory separator */
 };
 
 
@@ -42,7 +51,7 @@ int fu_isabs(const char *path)
 
 /*
   Joins a set of pathname components, inserting '/' as needed.  The
-  last argument must be NULL.
+  first path component is `a`.  The last argument must be NULL.
 
   If any component is an absolute path, all previous path components
   will be discarded.  An empty last part will result in a path that
@@ -50,10 +59,36 @@ int fu_isabs(const char *path)
  */
 char *fu_join(const char *a, ...)
 {
-  va_list ap, aq;
+  va_list ap;
+  char *path;
+  va_start(ap, a);
+  path = fu_vjoin_sep('/', a, ap);
+  va_end(ap);
+  return path;
+}
+
+/*
+  Like fu_join(), but takes path separator as first argument.
+*/
+char *fu_join_sep(int sep, const char *a, ...)
+{
+  va_list ap;
+  char *path;
+  va_start(ap, a);
+  path = fu_vjoin_sep(sep, a, ap);
+  va_end(ap);
+  return path;
+}
+
+/*
+  Like fu_join_sep(), but takes a va_list instead of a variable number
+  of arguments.
+*/
+char *fu_vjoin_sep(int sep, const char *a, va_list ap)
+{
+  va_list aq;
   char *p, *path;
   int i, n, pos=0, nargs=1, arg0=0, len=strlen(a)+1;
-  va_start(ap, a);
   va_copy(aq, ap);
 
   while ((p = va_arg(ap, char *))) {
@@ -73,7 +108,7 @@ char *fu_join(const char *a, ...)
     n = strlen(a);
     strncpy(path, a, n);
     pos += n;
-    path[pos++] = '/';
+    path[pos++] = sep;
     arg0++;
   }
   for (i=0; i<arg0-1; i++)
@@ -83,13 +118,61 @@ char *fu_join(const char *a, ...)
     n = strlen(p);
     strncpy(path+pos, p, n);
     pos += n;
-    path[pos++] = '/';
+    path[pos++] = sep;
   }
   path[len-1] = '\0';
 
-  va_end(ap);
   va_end(aq);
   return path;
+}
+
+
+/*
+  Returns a pointer to the last directory separator in `path`.
+ */
+char *fu_lastsep(const char *path)
+{
+#ifdef WINDOWS
+  char *p = strrchr(path, '/');
+  char *q = strrchr(path, '\\');
+  return (p > q) ? p : q;
+#else
+  return strrchr(path, DIRSEP[0]);
+#endif
+}
+
+/*
+  Returns the directory component of `path` as a newly allocated string.
+*/
+char *fu_dirname(const char *path)
+{
+  char *p, *q;
+  assert(path);
+  if (!(p = strdup(path))) return err(1, "allocation failure"), NULL;
+  if ((q = fu_lastsep(p)) && q > p) *q = '\0';
+  if (!q) *p = '\0';
+  return p;
+}
+
+/*
+  Returns the final component of `path` as a newly allocated string.
+*/
+char *fu_basename(const char *path)
+{
+  char *p;
+  if ((p = fu_lastsep(path))) return strdup(p+1);
+  return strdup(path);
+}
+
+/*
+  Returns a pointer to file extension of `path` (what follows after
+  the last ".").
+*/
+const char *fu_fileext(const char *path)
+{
+  char *q, *p = strrchr(path, '.');
+  if (!p || (q = fu_lastsep(path)) > p) return path + strlen(path);
+  return p+1;
 }
 
 
@@ -176,6 +259,7 @@ static FUDir *opendir_sep(const char *path)
 #endif
 
 
+
 /*
   Initiates `paths`.  If `envvar` is not NULL, it should be the name
   of an environment variable with initial search paths separated by
@@ -185,11 +269,21 @@ static FUDir *opendir_sep(const char *path)
  */
 int fu_paths_init(FUPaths *paths, const char *envvar)
 {
+  return fu_paths_init_sep(paths, envvar, PATHSEP);
+}
+
+/*
+  Like fu_paths_init(), but allow custom path separator `pathsep`.
+
+  Note that any character in `pathsep` works as a path separator.
+ */
+int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep)
+{
   char *p=NULL, *edup=NULL, *epath = (envvar) ? getenv(envvar) : NULL;
   memset(paths, 0, sizeof(FUPaths));
   if (epath) p = edup = strdup(epath);
   while (p) {
-    size_t n = strcspn(p, PATHSEP);
+    size_t n = strcspn(p, pathsep);
     if (p[n]) {
       p[n] = '\0';
       if (n) fu_paths_append(paths, p);
@@ -284,6 +378,9 @@ int fu_paths_remove(FUPaths *paths, int n)
   Returns a new iterator for finding files matching `pattern` in
   directories included in `paths`.
 
+  Use fu_nextmatch() and fu_endmatch() to iterate over matching files
+  and end iteration, respectively.
+
   Returns NULL on error.
  */
 FUIter *fu_startmatch(const char *pattern, const FUPaths *paths)
@@ -298,6 +395,7 @@ FUIter *fu_startmatch(const char *pattern, const FUPaths *paths)
   iter->path = NULL;
   iter->pathsize = 0;
   iter->dir = NULL;
+  iter->dirsep = DIRSEP[0];
   return iter;
 }
 
@@ -314,12 +412,14 @@ const char *fu_nextmatch(FUIter *iter)
 {
   const char *filename;
   const FUPaths *p = iter->paths;
+  char dirsep[2] = { iter->dirsep, 0 };
   if (iter->i >= p->n) return NULL;
 
   while (iter->i < p->n) {
     const char *path = p->paths[iter->i];
     if (!iter->dir) {
       if (iter->i >= p->n) return NULL;
+      if (!path[0]) path = ".";
       if (!(iter->dir = opendir(path))) {
         iter->i++;
         continue;
@@ -328,7 +428,7 @@ const char *fu_nextmatch(FUIter *iter)
 
     if ((filename = fu_nextfile(iter->dir))) {
       if (globmatch(iter->pattern, filename) == 0) {
-        size_t n = strlen(path) + strlen(PATHSEP) + strlen(filename) + 1;
+        size_t n = strlen(path) + strlen(filename) + 2;
         if (n > iter->pathsize) {
           iter->pathsize = n;
           if (!(iter->path = realloc(iter->path, iter->pathsize)))
@@ -336,10 +436,13 @@ const char *fu_nextmatch(FUIter *iter)
         }
         iter->filename = filename;
         strcpy(iter->path, path);
-        strcat(iter->path, DIRSEP);
+        strcat(iter->path, dirsep);
         strcat(iter->path, filename);
         fu_friendly_dirsep(iter->path);
-        return iter->path;
+        if (iter->path[0] == '.' && iter->path[1] == iter->dirsep)
+          return iter->path+2;
+        else
+          return iter->path;
       }
     } else {
       fu_closedir(iter->dir);
@@ -359,4 +462,63 @@ int fu_endmatch(FUIter *iter)
   if (iter->dir) fu_closedir(iter->dir);
   free(iter);
   return 0;
+}
+
+
+/*
+  Returns a new iterator over files matching `pattern`.
+  Only the last component of `pattern` may contain wildcards.
+
+  Use fu_globnext() and fu_globend() to iterate over matching files
+  and end iteration, respectively.
+ */
+FUIter *fu_glob(const char *pattern)
+{
+  FUIter *iter=NULL;
+  FUPaths *paths=NULL;
+  char *dirname=NULL, *basename=NULL;
+  if (!(paths = malloc(sizeof(FUPaths)))) FAIL("allocation failure");
+  if (!(dirname = fu_dirname(pattern))) goto fail;
+  if (!(basename = fu_basename(pattern))) goto fail;
+  if (!*dirname) {
+    free(dirname);
+    dirname = strdup(".");
+  }
+  fu_paths_init(paths, NULL);
+  fu_paths_append(paths, dirname);
+  iter = fu_startmatch(basename, paths);
+ fail:
+  if (dirname) free(dirname);
+  return iter;
+}
+
+/*
+  Returns path to the next matching file.
+ */
+const char *fu_globnext(FUIter *iter)
+{
+  return fu_nextmatch(iter);
+}
+
+/*
+  Ends glob pattern iteration.  Returns non-zero on error.
+ */
+int fu_globend(FUIter *iter)
+{
+  FUPaths *paths = (FUPaths *)iter->paths;
+  char *pattern = (char *)iter->pattern;
+  int stat = fu_endmatch(iter);
+  fu_paths_deinit(paths);
+  free(paths);
+  free(pattern);
+  return stat;
+}
+
+/*
+  Sets the directory separator in returned by fu_nextmatch() and
+  fu_globnext().  Defaults to DIRSEP.
+*/
+void fu_iter_set_dirsep(FUIter *iter, int dirsep)
+{
+  iter->dirsep = dirsep;
 }

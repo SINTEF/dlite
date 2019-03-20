@@ -387,10 +387,10 @@ DLiteInstance *dlite_instance_load_url(const char *url);
   into an instance of metadata identified by `metaid`.  If `metaid` is
   NULL, no casting is performed.
 
-  For the cast to be successful requires that the correct translators
+  For the cast to be successful requires that the correct mappings
   have been registered.
 
-  Returns NULL of error or if no translator can be found.
+  Returns NULL on error or if no mapping can be found.
  */
 DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
                                           const char *id,

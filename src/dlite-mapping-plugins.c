@@ -30,7 +30,7 @@ static PluginInfo *get_mapping_plugin_info(void)
   if (!mapping_plugin_info &&
       (mapping_plugin_info =
        plugin_info_create("mapping-plugin",
-                          "get_dlite_mapping_plugin_api",
+                          "get_dlite_mapping_api",
                           "DLITE_MAPPING_PLUGINS"))) {
     atexit(mapping_plugin_info_free);
     dlite_mapping_plugin_path_append(DLITE_MAPPING_PLUGINS_PATH);

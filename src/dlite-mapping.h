@@ -67,7 +67,7 @@ DLiteMapping *dlite_mapping_create(const char *ouput_uri,
 void dlite_mapping_free(DLiteMapping *m);
 
 /**
-  Returns a nicely formatted string displaying mapping `m`.
+  Returns a malloc'ed string displaying mapping `m`.
  */
 char *dlite_mapping_string(const DLiteMapping *m);
 

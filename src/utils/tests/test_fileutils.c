@@ -28,6 +28,10 @@ MU_TEST(test_fu_join)
   mu_assert_string_eq("a/bb/ccc", s);
   free(s);
 
+  s = fu_join_sep('/', "a", "bb", "ccc", NULL);
+  mu_assert_string_eq("a/bb/ccc", s);
+  free(s);
+
   s = fu_join("a", "/bb", "ccc", NULL);
   mu_assert_string_eq("/bb/ccc", s);
   free(s);
@@ -35,6 +39,63 @@ MU_TEST(test_fu_join)
   s = fu_join("a", "bb", "/ccc", NULL);
   mu_assert_string_eq("/ccc", s);
   free(s);
+
+  s = fu_join("a", "bb", "ccc", "", NULL);
+  mu_assert_string_eq("a/bb/ccc/", s);
+  free(s);
+}
+
+
+MU_TEST(test_fu_lastsep)
+{
+  mu_assert_string_eq("/ccc.txt", fu_lastsep("a/bb/ccc.txt"));
+  mu_assert_string_eq("/ccc.txt", fu_lastsep("/a/bb/ccc.txt"));
+  mu_assert_string_eq(NULL, fu_lastsep("ccc.txt"));
+}
+
+MU_TEST(test_fu_dirname)
+{
+  char *s;
+  s = fu_dirname("a/bb/ccc.txt");
+  mu_assert_string_eq("a/bb", s);
+  free(s);
+
+  s = fu_dirname("a" DIRSEP "bb" DIRSEP "ccc.txt");
+  mu_assert_string_eq("a/bb", s);
+  free(s);
+
+  s = fu_dirname("a/bb/ccc/");
+  mu_assert_string_eq("a/bb/ccc", s);
+  free(s);
+
+  s = fu_dirname("/");
+  mu_assert_string_eq("/", s);
+  free(s);
+
+  s = fu_dirname("ccc.txt");
+  mu_assert_string_eq("", s);
+  free(s);
+}
+
+MU_TEST(test_fu_basename)
+{
+  char *s;
+  s = fu_basename("a/bb/ccc.txt");
+  mu_assert_string_eq("ccc.txt", s);
+  free(s);
+
+  s = fu_basename("a/bb/ccc/");
+  mu_assert_string_eq("", s);
+  free(s);
+}
+
+MU_TEST(test_fu_fileext)
+{
+  mu_assert_string_eq("txt", fu_fileext("a/bb/ccc.txt"));
+  mu_assert_string_eq("txt", fu_fileext("cc.c.txt"));
+  mu_assert_string_eq("", fu_fileext("a/bb/ccc"));
+  mu_assert_string_eq("", fu_fileext("a/b.b/ccc"));
+  mu_assert_string_eq("", fu_fileext("a/bb/ccc."));
 }
 
 
@@ -162,6 +223,16 @@ MU_TEST(test_fu_match)
   fu_paths_deinit(&paths);
 }
 
+MU_TEST(test_fu_glob)
+{
+  const char *p;
+  FUIter *iter = fu_glob("*");
+  printf("\nFiles:\n");
+  while ((p = fu_globnext(iter)))
+    printf("  %s\n", p);
+  fu_globend(iter);
+}
+
 
 /***********************************************************************/
 
@@ -169,6 +240,10 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_fu_isabs);
   MU_RUN_TEST(test_fu_join);
+  MU_RUN_TEST(test_fu_lastsep);
+  MU_RUN_TEST(test_fu_dirname);
+  MU_RUN_TEST(test_fu_basename);
+  MU_RUN_TEST(test_fu_fileext);
 
   MU_RUN_TEST(test_fu_opendir);       /* setup */
   MU_RUN_TEST(test_fu_getfile);
@@ -176,6 +251,7 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_fu_paths);
   MU_RUN_TEST(test_fu_match);
+  MU_RUN_TEST(test_fu_glob);
 }
 
 

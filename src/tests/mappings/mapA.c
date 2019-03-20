@@ -23,7 +23,7 @@ DLiteInstance *mapper(DLiteInstance **instances, int n)
 const DLiteMappingPlugin *get_dlite_mapping_api(const char *name)
 {
   static DLiteMappingPlugin api;
-  const char *input_uris[] = { "http://meta.sintef.no/0.1/ent1" };
+  static const char *input_uris[] = { "http://meta.sintef.no/0.1/ent1" };
   UNUSED(name);
 
   api.name = "mapA";

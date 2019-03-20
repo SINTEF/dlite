@@ -67,8 +67,13 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
     int cost = api->cost;
     if (strcmp(output_uri, api->output_uri) != 0) continue;
 
+    printf("*** -> %s\n", output_uri);
+
     /* avoid infinite cyclic loops and known dead ends */
     for (i=0; i < api->ninput; i++) {
+
+      printf("    : input_uris[%d]='%s'\n", i, api->input_uris[i]);
+
       if (map_get(visited, api->input_uris[i]) ||
           map_get(dead_ends, api->input_uris[i])) {
         ignore = 1;
@@ -264,6 +269,9 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
       insts[i] = mapping_map_rec(m->input_maps[i], instances);
     } else {
       instp = map_get(instances, m->input_uris[i]);
+
+      printf("*** input_uris[%d]='%s'\n", i, m->input_uris[i]);
+
       assert(instp);
       insts[i] = *instp;
     }
@@ -298,8 +306,8 @@ void mapping_string_rec(const DLiteMapping *m, TGenBuf *s, int indent)
     if (m->input_maps[i]) {
       mapping_string_rec(m->input_maps[i], s, indent+1);
     } else {
-      for (j=0; j<indent-1; j++) tgen_buf_append_fmt(s, "|   ");
-      if (indent) tgen_buf_append_fmt(s, "+-- ");
+      for (j=0; j<indent; j++) tgen_buf_append_fmt(s, "|   ");
+      tgen_buf_append_fmt(s, "+-- ");
       tgen_buf_append_fmt(s, "%s\n", m->input_uris[i]);
     }
   }
@@ -307,7 +315,7 @@ void mapping_string_rec(const DLiteMapping *m, TGenBuf *s, int indent)
 
 
 /*
-  Returns a nicely formatted string displaying mapping `m`.
+  Returns a malloc'ed string displaying mapping `m`.
  */
 char *dlite_mapping_string(const DLiteMapping *m)
 {

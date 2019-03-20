@@ -1,14 +1,15 @@
 {
-    "name": "ent3",
-    "version": "0.1",
-    "namespace": "http://meta.sintef.no",
-    "description": "test entity",
-    "dimensions": [],
-    "properties": [
-        {
-            "name": "c",
-            "type": "float",
-            "unit": "hundreds"
-        }
-    ]
+  "name": "ent3",
+  "version": "0.1",
+  "namespace": "http://meta.sintef.no",
+  "description": "test entity",
+  "dimensions": [],
+  "properties": [
+    {
+      "name": "c",
+      "type": "float",
+      "unit": "hundreds"
+    }
+  ],
+  "dataname": "http://meta.sintef.no/0.1/ent1"
 }

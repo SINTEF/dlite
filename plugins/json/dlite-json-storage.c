@@ -742,7 +742,7 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
   return 0;
 }
 
-/* Creates a DLiteEntity from a json object */
+/* Creates a DLiteMeta from a json object */
 DLiteMeta *dlite_json_entity(json_t *obj)
 {
   DLiteMeta *entity = NULL;

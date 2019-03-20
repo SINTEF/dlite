@@ -1,0 +1,9 @@
+{
+    "2daa6967-8ecd-4248-97b2-9ad6fefeac14": {
+        "meta": "http://meta.sintef.no/0.1/ent1",
+        "dimensions": {},
+        "properties": {
+            "a": 42
+        }
+    }
+}
