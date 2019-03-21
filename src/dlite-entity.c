@@ -520,7 +520,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
      to meta that we want to hand over to `inst`.  Therefore, decrease
      the additional refcount after calling dlite_instance_create()...
    */
-  if (!(inst = _instance_create(meta, dims, id, 0))) goto fail;
+  if (!(inst = _instance_create(meta, dims, id, lookup))) goto fail;
   dlite_meta_decref(meta);
 
   /* assign properties */
