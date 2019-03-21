@@ -15,7 +15,7 @@
   pointers to all functions provided by the plugin (data member are
   also allowed).  Below we refer to this struct as the plugin API.
   The first element in the API must be a pointer to a string containg
-  the name of the plugin.
+  the name of the plugin.  Plugin names should be unique.
 
   The `name` argument is a hint that plugins are free to ignore.  It
   is used by plugins that supports several different drivers, to
@@ -32,10 +32,14 @@
 #include "dsl.h"
 #include "fileutils.h"
 #include "globmatch.h"
+#include "map.h"
 
 
 /** Opaque struct for list of plugins */
 typedef struct _Plugin Plugin;
+
+/** Maps plugin file names to plugins */
+typedef map_t(Plugin *) Plugins;
 
 
 /** Info about a plugin kind */
@@ -45,9 +49,13 @@ typedef struct {
   const char *envvar;  /*!< Name of environment variable initialising the
                             plugin search path */
   FUPaths paths;       /*!< Current plugin search paths */
+
+  // FIXME -- replace with Plugins
   size_t nplugins;     /*!< Number of loaded plugins */
   size_t nalloc;       /*!< Allocated size of `loaded_plugins` */
   Plugin **plugins;    /*!< Array of pointers to loaded plugins */
+
+  //Plugins plugins;     /*!< Maps plugin names to loaded plugins */
 } PluginInfo;
 
 

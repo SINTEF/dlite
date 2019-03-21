@@ -65,6 +65,9 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
   while ((api = dlite_mapping_plugin_next(&iter))) {
     int ignore = 0;
     int cost = api->cost;
+
+    printf("*** api=%s, output_uri=%s\n", api->name, api->output_uri);
+
     if (strcmp(output_uri, api->output_uri) != 0) continue;
 
     printf("*** -> %s\n", output_uri);

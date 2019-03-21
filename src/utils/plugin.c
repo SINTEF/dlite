@@ -130,6 +130,9 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
   while ((filepath = fu_nextmatch(iter))) {
+
+    /* XXX FIXME - call continue if filepath is already loaded */
+
     if (!(handle = dsl_open(filepath))) {
       warn("cannot open plugin: \"%s\": %s", filepath, dsl_error());
       continue;
@@ -166,8 +169,7 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
 
 
 /*
-  Returns a storage plugin with the given name, or NULL if it cannot
-  be found.
+  Returns a plugin with the given name, or NULL if it cannot be found.
 
   If a plugin with the given name is registered, it is returned.
 
@@ -206,6 +208,15 @@ const void *plugin_get_api(PluginInfo *info, const char *name)
   if (pattern) free(pattern);
   return api;
 }
+
+
+/*
+  Load all plugins that can be found in the plugin search path.
+ */
+//void plugin_load_all(PluginInfo *info)
+//{
+//
+//}
 
 
 /*

@@ -10,8 +10,6 @@
 
 MU_TEST(test_mapping_path)
 {
-  DLiteMeta *e;
-  const DLiteMappingPlugin *mp;
   char *mpath = STRINGIFY(DLITE_BINARY_ROOT) "/src/tests/mappings";
   char *spath = STRINGIFY(DLITE_ROOT) "/src/tests/mappings/*.json";
 
