@@ -57,7 +57,7 @@ MU_TEST(test_mapping)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_mapping_path);
-  //MU_RUN_TEST(test_mapping);
+  MU_RUN_TEST(test_mapping);
 }
 
 

@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <string.h>
 
 #include "err.h"
@@ -40,6 +41,7 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
   info->envvar = (envvar) ? strdup(envvar) : NULL;
 
   fu_paths_init(&info->paths, envvar);
+  map_init(&info->plugins);
 
   return info;
 }
@@ -50,16 +52,22 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
  */
 void plugin_info_free(PluginInfo *info)
 {
-  size_t i;
+  map_iter_t iter;
+  const char *path;
+
   free((char *)info->kind);
   free((char *)info->symbol);
   if (info->envvar) free((char *)info->envvar);
   fu_paths_deinit(&info->paths);
-  for (i=0; i<info->nplugins; i++) {
-    if (info->plugins[i]->handle) dsl_close(info->plugins[i]->handle);
-    free(info->plugins[i]);
+
+  iter = map_iter(&info->plugins);
+  while ((path = map_next(&info->plugins, &iter))) {
+    Plugin **p = map_get(&info->plugins, path);
+    assert(p);
+    if ((*p)->handle) dsl_close((*p)->handle);
+    free(*p);
   }
-  if (info->plugins) free(info->plugins);
+  map_deinit(&info->plugins);
   free(info);
 }
 
@@ -68,47 +76,49 @@ void plugin_info_free(PluginInfo *info)
   Returns index of plugin with given name, or -1 if no such plugin
   can be found.
  */
-int plugin_get_index(const PluginInfo *info, const char *name)
-{
-  size_t i;
-  for (i=0; i<info->nplugins; i++)
-    if (strcmp(*((char **)info->plugins[i]->api), name) == 0)
-      return i;
-  return -1;
-}
+//int plugin_get_index(const PluginInfo *info, const char *name)
+//{
+//  size_t i;
+//  for (i=0; i<info->nplugins; i++)
+//    if (strcmp(*((char **)info->plugins[i]->api), name) == 0)
+//      return i;
+//  return -1;
+//}
 
 
 /*
-  Registers a plugin with given `api` and dsl `handle` into `info`.
+  Registers a plugin with given `path`,  `api` and dsl `handle` into `info`.
   Returns non-zero on error.
  */
-static int register_plugin(PluginInfo *info, const void *api, dsl_handle handle)
+static int register_plugin(PluginInfo *info, const char *path,
+			   const void *api, dsl_handle handle)
 {
   Plugin *plugin;
 
-  if (info->nplugins >= info->nalloc) {
-    info->nalloc = info->nplugins + 32;
-    if (!(info->plugins = realloc(info->plugins,
-                                  info->nalloc*sizeof(Plugin *))))
-      return err(1, "allocation failure");
-  }
+  if (map_get(&info->plugins, path))
+    return errx(2, "plugin %s is already registered", path);
 
   if (!(plugin = calloc(1, sizeof(Plugin))))
     return err(1, "allocation failure");
   plugin->api = api;
   plugin->handle = handle;
 
-  info->plugins[info->nplugins++] = plugin;
+  if (map_set(&info->plugins, path, plugin)) {
+    free(plugin);
+    return errx(1, "failure to register plugin: %s", path);
+  }
+
   return 0;
 }
 
 
 /*
-  Registers plugin with given api into `info`.  Returns non-zero on error.
+  Registers plugin loaded from `path` with given api into `info`.
+  Returns non-zero on error.
  */
-int plugin_register(PluginInfo *info, const void *api)
+int plugin_register(PluginInfo *info, const char *path, const void *api)
 {
-  return register_plugin(info, api, NULL);
+  return register_plugin(info, path, api, NULL);
 }
 
 
@@ -131,8 +141,10 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
 
   while ((filepath = fu_nextmatch(iter))) {
 
-    /* XXX FIXME - call continue if filepath is already loaded */
+    /* check that plugin is not already loaded */
+    if (map_get(&info->plugins, filepath)) continue;
 
+    /* load plugin */
     if (!(handle = dsl_open(filepath))) {
       warn("cannot open plugin: \"%s\": %s", filepath, dsl_error());
       continue;
@@ -156,7 +168,7 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
 
     if (strcmp(*((char **)api), name) == 0) {
       fu_endmatch(iter);
-      if (register_plugin(info, api, handle)) goto fail;
+      if (register_plugin(info, filepath, api, handle)) goto fail;
       return api;
     }
   }
@@ -187,14 +199,19 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
  */
 const void *plugin_get_api(PluginInfo *info, const char *name)
 {
-  size_t i;
   const void *api=NULL;
   char *pattern=NULL;
+  const char *path;
+  map_iter_t iter;
 
   /* Check already registered plugins */
-  for (i=0; i < info->nplugins; i++)
-    if (strcmp(*((char **)info->plugins[i]->api), name) == 0)
-      return info->plugins[i]->api;
+  iter = map_iter(&info->plugins);
+  while((path = map_next(&info->plugins, &iter))) {
+    Plugin **p = map_get(&info->plugins, path);
+    assert(p);
+    if (strcmp(*((char **)((*p)->api)), name) == 0)
+      return (*p)->api;
+  }
 
   /* Load plugin from search path */
   if (!(pattern = malloc(strlen(name) + strlen(DSL_EXT) + 1)))
@@ -212,11 +229,24 @@ const void *plugin_get_api(PluginInfo *info, const char *name)
 
 /*
   Load all plugins that can be found in the plugin search path.
+  Returns non-zero on error.
  */
-//void plugin_load_all(PluginInfo *info)
-//{
-//
-//}
+int plugin_load_all(PluginInfo *info)
+{
+  FUIter *iter;
+  char *pattern = malloc(strlen(DSL_EXT) + 2);
+  const char *path;
+  pattern[0] = '*';
+  strcpy(pattern+1, DSL_EXT);
+  if (!(iter = fu_startmatch(pattern, &info->paths))) return 1;
+  while ((path = fu_nextmatch(iter))) {
+    Plugin **p;
+    if (!(p = map_get(&info->plugins, path)))
+      plugin_register(info, path, (*p)->api);
+  }
+  fu_endmatch(iter);
+  return 0;
+}
 
 
 /*
@@ -226,6 +256,7 @@ void plugin_init_iter(PluginIter *iter, const PluginInfo *info)
 {
   memset(iter, 0, sizeof(PluginIter));
   iter->info = info;
+  iter->miter = map_iter(&info->plugins);
 }
 
 /*
@@ -237,8 +268,10 @@ void plugin_init_iter(PluginIter *iter, const PluginInfo *info)
  */
 const void *plugin_next(PluginIter *iter)
 {
-  if (iter->pos >= iter->info->nplugins) return NULL;
-  return iter->info->plugins[iter->pos++]->api;
+  const char *path = map_next((Plugins *)&iter->info->plugins, &iter->miter);
+  Plugin **p = map_get((Plugins *)&iter->info->plugins, path);
+  assert(p);
+  return (*p)->api;
 }
 
 
@@ -248,15 +281,22 @@ const void *plugin_next(PluginIter *iter)
 */
 int plugin_unload(PluginInfo *info, const char *name)
 {
-  int n = plugin_get_index(info, name);
-  if (n < 0) return errx(1, "no such plugin: \"%s\"", name);
-  dsl_close(info->plugins[n]->handle);
-  free(info->plugins[n]);
-  info->plugins[n] = info->plugins[--info->nplugins];
-  if (info->nplugins == 0) {
-    free(info->plugins);
-    info->plugins = NULL;
+  const char *path, *delpath=NULL;
+  map_iter_t miter = map_iter(&info-plugins);
+  while ((path = map_next(&info->plugins, &miter))) {
+    Plugin *plugin, **p = map_get(&info->plugins, path);
+    assert(p);
+    plugin = *p;
+    if (strcmp(*(char **)(plugin->api), name) == 0) {
+      delpath = path;
+      dsl_close(plugin->handle);
+      free(plugin);
+      break;
+    }
   }
+  if (!delpath)
+    return err(1, "no such plugin: \"%s\"", name);
+  map_remove(&info->plugins, delpath);
   return 0;
 }
 

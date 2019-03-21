@@ -51,18 +51,18 @@ typedef struct {
   FUPaths paths;       /*!< Current plugin search paths */
 
   // FIXME -- replace with Plugins
-  size_t nplugins;     /*!< Number of loaded plugins */
-  size_t nalloc;       /*!< Allocated size of `loaded_plugins` */
-  Plugin **plugins;    /*!< Array of pointers to loaded plugins */
+  //size_t nplugins;     /*!< Number of loaded plugins */
+  //size_t nalloc;       /*!< Allocated size of `loaded_plugins` */
+  //Plugin **plugins;    /*!< Array of pointers to loaded plugins */
 
-  //Plugins plugins;     /*!< Maps plugin names to loaded plugins */
+  Plugins plugins;     /*!< Maps plugin path to loaded plugins */
 } PluginInfo;
 
 
 /** Struct for iterating over registered plugins */
 typedef struct _PluginIter {
   const PluginInfo *info;
-  size_t pos;
+  map_iter_t miter;
 } PluginIter;
 
 
@@ -86,9 +86,10 @@ void plugin_info_free(PluginInfo *info);
 
 
 /**
-  Registers plugin with given api into `info`.  Returns non-zero on error.
+  Registers plugin loaded from `path` with given api into `info`.
+  Returns non-zero on error.
  */
-int plugin_register(PluginInfo *info, const void *api);
+int plugin_register(PluginInfo *info, const char *path, const void *api);
 
 
 /**
