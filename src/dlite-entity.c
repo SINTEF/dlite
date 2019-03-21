@@ -376,6 +376,7 @@ DLiteInstance *dlite_instance_get(const char *id)
     char *copy, *driver, *location, *options;
     if (!(copy = strdup(url))) return err(1, "allocation failure"), NULL;
     dlite_split_url(copy, &driver, &location, &options, NULL);
+    if (!options) options = "mode=r";
     if (driver) {
       /* check if url is a storage we can open... */
       if ((s = dlite_storage_open(driver, location, options))) {
@@ -388,10 +389,11 @@ DLiteInstance *dlite_instance_get(const char *id)
       if ((iter = fu_glob(location))) {
         const char *path;
         while (!inst && (path = fu_globnext(iter))) {
-          if ((s = dlite_storage_open_url(path))) {
-            inst = _instance_load_casted(s, id, NULL, 0);
-            dlite_storage_close(s);
-          }
+	  driver = (char *)fu_fileext(path);
+	  if ((s = dlite_storage_open(driver, path, options))) {
+	    inst = _instance_load_casted(s, id, NULL, 0);
+	    dlite_storage_close(s);
+	  }
         }
         fu_globend(iter);
       }

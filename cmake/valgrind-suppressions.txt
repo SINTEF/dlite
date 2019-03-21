@@ -147,3 +147,14 @@
    fun:calloc
    fun:_dl_check_map_versions
 }
+
+# For gcc 4.8.5 (sintefutv006)
+
+{
+   dlopen-sintefutv006-1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+}
