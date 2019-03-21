@@ -129,20 +129,6 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
     Returns non-zero on error. */
 typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
-///** Function for loading special properties.
-//    Returns 1 if property `name` is loaded, 0 if `name` should be
-//    loaded the normal way or -1 on error. */
-//typedef int (*DLiteLoadProp(DLiteDataModel *d,
-//                            const struct _DLiteInstance *inst,
-//                            const char *name);
-//
-///** Function for saving special properties.
-//    Returns 1 if property `name` is saved, 0 if `name` should be
-//    saved the normal way or -1 on error. */
-//typedef int (*DLiteSaveProp)(DLiteDataModel *d,
-//                             const struct _DLiteInstance *inst,
-//                             const char *name);
-
 
 /** Expands to number of dimensions --> (size_t) */
 #define DLITE_NDIM(inst) (((DLiteInstance *)(inst))->meta->ndimensions)
@@ -163,10 +149,6 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
 /** Expands to number of properties (size_t). */
 #define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
-
-///** Expands to pointer to array of pointers to property values --> (void **) */
-//#define DLITE_PROPS(inst)
-//  ((void **)((char *)(inst) + ((DLiteInstance *)(inst))->meta->propptroffset))
 
 /** Expands to pointer to the value of property `n` --> (void *)
 
@@ -264,10 +246,10 @@ struct _DLiteInstance {
 /**
   DLite dimension
 */
-typedef struct _DLiteDimension {
+struct _DLiteDimension {
   char *name;         /*!< Name of this dimension. */
   char *description;  /*!< Description of this dimension. */
-} DLiteDimension;
+};
 
 
 /**
@@ -277,7 +259,7 @@ typedef struct _DLiteDimension {
   means that the data described by this property has dimensions
   ["N", "N", "M"].
 */
-typedef struct _DLiteProperty {
+struct _DLiteProperty {
   char *name;         /*!< Name of this property. */
   DLiteType type;     /*!< Type of the described data. */
   size_t size;        /*!< Size of one data element. */
@@ -286,7 +268,7 @@ typedef struct _DLiteProperty {
   int *dims;          /*!< Array of dimension indices. May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
   char *description;  /*!< Human described of the described data. */
-} DLiteProperty;
+};
 
 
 

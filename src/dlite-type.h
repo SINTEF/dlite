@@ -88,7 +88,7 @@ typedef enum _DLiteType {
 
   dliteDimension,        /*!< Dimension, for entities */
   dliteProperty,         /*!< Property, for entities */
-  dliteRelation,         /*!< Subject-predicate-object relation */
+  dliteRelation          /*!< Subject-predicate-object relation */
 } DLiteType;
 
 
