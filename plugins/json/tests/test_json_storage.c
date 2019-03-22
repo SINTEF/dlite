@@ -47,7 +47,7 @@ MU_TEST(test_read)
     n++;
   }
   /*printf("n=%d\n", n);*/
-  mu_assert_int_eq(6, n);
+  mu_assert_int_eq(4, n);
   dlite_storage_uuids_free(ids);
 
   d = dlite_datamodel(db, "unknown");

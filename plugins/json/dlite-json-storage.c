@@ -264,6 +264,7 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   char uuid[DLITE_UUID_LENGTH + 1];
   json_t *data;
+  json_t *jname, *jver, *jns;
 
   if (!(d = calloc(1, sizeof(DLiteJsonDataModel))))
     FAIL0("allocation failure");
@@ -281,9 +282,22 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->properties = json_object_get(data, "properties");
     d->relations = json_object_get(data, "relations");
 
-  } else if (json_object_get(storage->root, "namespace") &&
-             json_object_get(storage->root, "version") &&
-             json_object_get(storage->root, "name")) {
+  } else if ((jns = json_object_get(storage->root, "namespace")) &&
+             (jver = json_object_get(storage->root, "version")) &&
+             (jname = json_object_get(storage->root, "name"))) {
+
+    if (id && !storage->writable) {
+      char uuid2[DLITE_UUID_LENGTH + 1];
+      const char *name = json_string_value(jname);
+      const char *version = json_string_value(jver);
+      const char *namespace = json_string_value(jns);
+      char *uri2 = dlite_join_meta_uri(name, version, namespace);
+      if (dlite_get_uuid(uuid2, uri2) < 0) goto fail;
+      if (strcmp(uuid2, uuid) != 0)
+	FAIL3("uri '%s' in %s doesn't match id: %s",
+	      uri2, storage->uri, id);
+    }
+
     /* Instance is a metadata definition */
     data = storage->root;
     d->instance = data;
