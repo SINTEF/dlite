@@ -71,11 +71,5 @@
         ]
       ]
     }
-  },
-  "8adc5d91-1a29-5114-b289-2453f3b671a4": {
-    "meta": {},
-    "dimensions": {},
-    "properties": {},
-    "dataname": "http://meta.sintef.no/0.1/test-entity"
   }
 }
