@@ -160,6 +160,16 @@ char *dlite_join_url(const char *driver, const char *location,
 int dlite_split_url(char *url, char **driver, char **location, char **options,
                     char **fragment);
 
+/**
+  Like dlite_split_url(), but with one additional argument.
+
+  If `winpath` is non-zero and `url` starts with "C:\" or "C:/", then
+  the initial "C" is not treated as a driver, but rather as a part of
+  the location.
+ */
+int dlite_split_url_winpath(char *url, char **driver, char **location,
+                            char **options, char **fragment, int winpath);
+
 
 /**
   @name Wrappers around error functions

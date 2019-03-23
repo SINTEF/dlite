@@ -376,7 +376,17 @@ DLiteInstance *dlite_instance_get(const char *id)
     DLiteStorage *s;
     char *copy, *driver, *location, *options;
     if (!(copy = strdup(url))) return err(1, "allocation failure"), NULL;
+#ifdef _WIN32
+    /* Hack: on Window, don't interpreat the "C" in urls starting with
+       "C:\" or "C:/" as a driver, but rather as a part of the location...
+
+       The concequence of this is that we cannot have a driver named
+       "C" on Windows.
+    */
+    dlite_split_url_winpath(copy, &driver, &location, &options, NULL, 1);
+#else
     dlite_split_url(copy, &driver, &location, &options, NULL);
+#endif
     if (!options) options = "mode=r";
     if (driver) {
       /* check if url is a storage we can open... */

@@ -221,6 +221,19 @@ char *dlite_join_url(const char *driver, const char *location,
 int dlite_split_url(char *url, char **driver, char **location, char **options,
                     char **fragment)
 {
+  return dlite_split_url_winpath(url, driver, location, options, fragment, 0);
+}
+
+/*
+  Like dlite_split_url(), but with one additional argument.
+
+  If `winpath` is non-zero and `url` starts with "C:\" or "C:/", then
+  the initial "C" is not treated as a driver, but rather as a part of
+  the location.
+ */
+int dlite_split_url_winpath(char *url, char **driver, char **location,
+                            char **options, char **fragment, int winpath)
+{
   size_t i;
   char *p;
 
@@ -246,9 +259,14 @@ int dlite_split_url(char *url, char **driver, char **location, char **options,
     if (options) *options = NULL;
   }
 
-  /* assign driver and uri */
+  /* assign driver and location */
   i = strcspn(url, ":/");
-  if (url[i] == ':') {
+  if (winpath && strlen(url) > 3 && (url[0] == 'C' || url[0] == 'c') &&
+      url[1] == ':' && (url[2] == '\\' || url[2] == '/')) {
+    /* special case: url is a windows path */
+    if (driver) *driver = NULL;
+    if (location) *location = url;
+  } else if (url[i] == ':') {
     url[i] = '\0';
     if (driver) *driver = url;
     if (url[i+1] == '/' && url[i+2] == '/')
