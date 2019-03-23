@@ -61,7 +61,7 @@ MU_TEST(test_fu_dirname)
   free(s);
 
   s = fu_dirname("a" DIRSEP "bb" DIRSEP "ccc.txt");
-  mu_assert_string_eq("a/bb", s);
+  mu_assert_string_eq("a" DIRSEP "bb", s);
   free(s);
 
   s = fu_dirname("a/bb/ccc/");

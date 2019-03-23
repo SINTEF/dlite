@@ -224,11 +224,12 @@ if(WIN32)
   list(APPEND dlite_PATH
     ${dlite-src_BINARY_DIR}
     ${dlite-src-utils_BINARY_DIR}
+    ${JANSSON_RUNTIME_DIR}
+    ${HDF5_RUNTIME_DIR}
     )
+  string(REPLACE "/" "\\" dlite_PATH "${dlite_PATH}")
 endif()
 list(APPEND dlite_PATH
-  ${JANSSON_RUNTIME_DIR}
-  ${HDF5_RUNTIME_DIR}
   $ENV{PATH}
   )
 list(REMOVE_DUPLICATES dlite_PATH)
