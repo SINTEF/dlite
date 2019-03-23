@@ -391,7 +391,9 @@ DLiteInstance *dlite_instance_get(const char *id)
         while (!inst && (path = fu_globnext(iter))) {
 	  driver = (char *)fu_fileext(path);
 	  if ((s = dlite_storage_open(driver, path, options))) {
+	    FILE *save = err_set_stream(NULL);
 	    inst = _instance_load_casted(s, id, NULL, 0);
+	    err_set_stream(save);
 	    dlite_storage_close(s);
 	  }
         }
@@ -481,7 +483,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 
   if (!(uri = dlite_datamodel_get_meta_uri(d))) goto fail;
 
-  /* if metadata is not given, try to load it from cache... */
+  /* If metadata is not given, try to load it from cache... */
   meta = (DLiteMeta *)dlite_instance_get(uri);
 
   /* ...otherwise try to load it from storage */
@@ -491,12 +493,10 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
     meta = (DLiteMeta *)dlite_instance_load(s, uuid);
   }
 
-  /* FIXME - look for meta in predefined locations */
-
   /* ...otherwise give up */
   if (!meta) FAIL1("cannot load metadata: %s", uri);
 
-  /* make sure that metadata is initialised */
+  /* Make sure that metadata is initialised */
   if (!meta->pooffset && dlite_meta_init(meta)) goto fail;
 
   /* check metadata uri */
@@ -567,11 +567,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
     }
   }
 
-  /* if `inst` is metadata, add it to metastore */
-  //if (!dlite_instance_is_data(inst) &&
-  //    dlite_metastore_add((DLiteMeta *)inst)) goto fail;
   instance = inst;
-
  fail:
   if (!instance) {
     if (inst) dlite_instance_decref(inst);

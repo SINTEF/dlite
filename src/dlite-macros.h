@@ -31,6 +31,8 @@
     err(1, msg, a1, a2, a3); goto fail; } while (0)
 #define FAIL4(msg, a1, a2, a3, a4) do { \
     err(1, msg, a1, a2, a3, a4); goto fail; } while (0)
+#define FAIL5(msg, a1, a2, a3, a4, a5) do {		\
+    err(1, msg, a1, a2, a3, a4, a5); goto fail; } while (0)
 
 
 /** Debugging messages.  Printed if compiled with WITH_DEBUG */
