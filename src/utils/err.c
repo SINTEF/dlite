@@ -287,7 +287,6 @@ FILE *err_set_stream(FILE *stream)
   FILE *prev = err_stream;
   err_close_stream();
   err_stream = stream;
-  printf("err_set_stream(%p) -> %p\n", (void *)stream, (void*)err_stream);
   return prev;
 }
 
@@ -316,7 +315,6 @@ FILE *err_get_stream(void)
       }
     }
   }
-  printf("err_get_stream() -> %p\n", (void*)err_stream);
   return err_stream;
 }
 

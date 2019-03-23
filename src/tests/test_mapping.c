@@ -7,6 +7,9 @@
 #include "dlite-mapping.h"
 #include "dlite-mapping-plugins.h"
 
+typedef DLiteInstance *
+(*Creater)(const char *metaid, const size_t *dims, const char *id);
+
 
 MU_TEST(test_mapping_path)
 {
@@ -15,6 +18,22 @@ MU_TEST(test_mapping_path)
 
   dlite_mapping_plugin_path_insert(0, mpath);
   dlite_storage_paths_insert(0, spath);
+
+  {
+    int b=-13, *p;
+    Creater creater = dlite_instance_create_from_id;
+    DLiteInstance *inst =
+      dlite_instance_create_from_id("http://meta.sintef.no/0.1/ent2",
+                                    NULL, NULL);
+    printf("*** inst = %p\n", (void *)inst);
+    printf("*** inst.uuid = %s\n", inst->uuid);
+    printf("*** inst.uri = %s\n", inst->uri);
+    dlite_instance_set_property(inst, "b", &b);
+    p = dlite_instance_get_property(inst, "b");
+    printf("*** inst.b = %d\n", *p);
+    printf("*** creater: %p\n", *(void **)&creater);
+    dlite_instance_decref(inst);
+  }
 }
 
 
@@ -42,6 +61,7 @@ MU_TEST(test_mapping)
 
   inst2 = dlite_mapping_map(m, instances, 1);
   mu_check(inst2);
+  printf("*** inst2: %s\n", inst2->uuid);
 
 
   //inst2 = dlite_mapping("http://meta.sintef.no/0.1/ent2", instances, 1);

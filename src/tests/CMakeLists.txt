@@ -34,8 +34,10 @@ add_subdirectory(mappings)
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
-    dlite-static
-    dlite-utils-static
+    #dlite-static
+    #dlite-utils-static
+    dlite
+    dlite-utils
     )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src

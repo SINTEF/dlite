@@ -5,8 +5,9 @@
 #include "utils/err.h"
 #include "utils/tgen.h"
 
-#include "dlite-macros.h"
 #include "dlite.h"
+#include "dlite-macros.h"
+#include "dlite-codegen.h"
 
 
 
@@ -359,7 +360,7 @@ int dlite_option_subs(TGenSubs *subs, const char *options)
                   (int)klen, k, options);
     v = k + klen + 1;
     vlen = strcspn(v, ";&#");
-    tgen_subs_setn_fmt(subs, k, klen, NULL, "%.*s", vlen, v);
+    tgen_subs_setn_fmt(subs, k, klen, NULL, "%.*s", (int)vlen, v);
     k = v + vlen;
     if (*k) k++;
   }

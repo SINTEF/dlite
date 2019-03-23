@@ -12,7 +12,7 @@
 /** Macro for getting rid of unused parameter warnings... */
 #define UNUSED(x) (void)(x)
 
-/* Turns macro literal `s` into a C string */
+/** Turns macro literal `s` into a C string */
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) # s
 

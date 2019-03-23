@@ -80,9 +80,9 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name);
 int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api);
 
 /**
-  Initiates a mapping plugin iterator.
+  Initiates a mapping plugin iterator.  Returns non-zero on error.
 */
-void dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter);
+int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter);
 
 /**
   Returns the next registered mapping plugin or NULL if all plugins

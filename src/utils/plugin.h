@@ -117,6 +117,12 @@ int plugin_register(PluginInfo *info, const char *path, const void *api);
 const void *plugin_get_api(PluginInfo *info, const char *name);
 
 /**
+  Load all plugins that can be found in the plugin search path.
+  Returns non-zero on error.
+ */
+void plugin_load_all(PluginInfo *info);
+
+/**
   Initiates a plugin iterator.
 */
 void plugin_init_iter(PluginIter *iter, const PluginInfo *info);

@@ -27,7 +27,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 
 
 /********************************************************************
- *  Global instance store
+ *  Global in-memory instance store
  *
  *  This store holds (weak) references to all instances that have been
  *  instansiated in DLite.  The current implementation treats data
@@ -49,7 +49,8 @@ static DLiteInstance *_instance_store_get(const char *id);
 
 typedef map_t(DLiteInstance *) instance_map_t;
 
-/* Global store with references to all instansiated instances in DLite */
+/* Global store (hash table) with references to all instansiated
+   instances in DLite. */
 static instance_map_t *_instance_store = NULL;
 
 
@@ -391,9 +392,14 @@ DLiteInstance *dlite_instance_get(const char *id)
         while (!inst && (path = fu_globnext(iter))) {
 	  driver = (char *)fu_fileext(path);
 	  if ((s = dlite_storage_open(driver, path, options))) {
-	    FILE *save = err_set_stream(NULL);
-	    inst = _instance_load_casted(s, id, NULL, 0);
-	    err_set_stream(save);
+            ErrTry:
+              inst = _instance_load_casted(s, id, NULL, 0);
+              break;
+            ErrCatch(1):
+              /* Ignore errors about that the instance cannot be loaded... */
+              /* TODO: make error codes more specific. */
+              break;
+            ErrEnd;
 	    dlite_storage_close(s);
 	  }
         }

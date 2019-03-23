@@ -46,7 +46,7 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
 {
   int i, lowest_cost=-1;
   DLiteMapping *m=NULL, *retval=NULL;
-  DLiteMappingPlugin *api, *cheapest=NULL;
+  const DLiteMappingPlugin *api, *cheapest=NULL;
   DLiteMappingPluginIter iter;
 
   dlite_mapping_plugin_init_iter(&iter);
@@ -65,18 +65,10 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
   while ((api = dlite_mapping_plugin_next(&iter))) {
     int ignore = 0;
     int cost = api->cost;
-
-    printf("*** api=%s, output_uri=%s\n", api->name, api->output_uri);
-
     if (strcmp(output_uri, api->output_uri) != 0) continue;
-
-    printf("*** -> %s\n", output_uri);
 
     /* avoid infinite cyclic loops and known dead ends */
     for (i=0; i < api->ninput; i++) {
-
-      printf("    : input_uris[%d]='%s'\n", i, api->input_uris[i]);
-
       if (map_get(visited, api->input_uris[i]) ||
           map_get(dead_ends, api->input_uris[i])) {
         ignore = 1;
@@ -130,7 +122,7 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
     } else
       m->input_uris[i] = api->input_uris[i];
   }
-  m->api = api;
+  m->api = (DLiteMappingPlugin *)api;
   m->cost = lowest_cost;
 
   map_set(created, output_uri, m);
@@ -272,9 +264,6 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
       insts[i] = mapping_map_rec(m->input_maps[i], instances);
     } else {
       instp = map_get(instances, m->input_uris[i]);
-
-      printf("*** input_uris[%d]='%s'\n", i, m->input_uris[i]);
-
       assert(instp);
       insts[i] = *instp;
     }
@@ -346,6 +335,20 @@ int set_inputs(Instances *inputs, const DLiteInstance **instances, int n)
   return 0;
 }
 
+/* Recursive help function that removes all references to input instances
+   found in `m`, from `inputs`. */
+void remove_inputs_rec(const DLiteMapping *m, Instances *inputs)
+{
+  int i;
+  for (i=0; i < m->ninput; i++) {
+    if (m->input_maps[i])
+      remove_inputs_rec(m->input_maps[i], inputs);
+    else {
+      map_remove(inputs, m->input_uris[i]);
+    }
+  }
+  map_remove(inputs, m->output_uri);
+}
 
 /*
   Applies the mapping `m` on `instances` (array of length `n` of
@@ -378,6 +381,7 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
 
  fail:
   /* Remove temporary created instances */
+  remove_inputs_rec(m, &inputs);
   iter = map_iter(&inputs);
   while ((key = map_next(&inputs, &iter))) {
     DLiteInstance **ip = map_get(&inputs, key);

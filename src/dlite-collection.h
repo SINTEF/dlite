@@ -35,6 +35,8 @@
   such that the relations can be treated as an ordinary 2D array of
   strings.
 */
+
+/** A specialised instance for collections */
 typedef struct _DLiteCollection {
   /* -- extended header */
   DLiteInstance_HEAD

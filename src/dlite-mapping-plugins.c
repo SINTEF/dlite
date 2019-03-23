@@ -38,6 +38,17 @@ static PluginInfo *get_mapping_plugin_info(void)
   return mapping_plugin_info;
 }
 
+/* Loads all plugins (if we haven't done that before) */
+static void load_mapping_plugins(void)
+{
+  static int mapping_plugins_loaded = 0;
+  PluginInfo *info;
+  if (!mapping_plugins_loaded && (info = get_mapping_plugin_info())) {
+    plugin_load_all(info);
+    mapping_plugins_loaded = 1;
+  }
+}
+
 
 /*
   Returns a mapping plugin with the given name, or NULL if it cannot
@@ -75,7 +86,7 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
     if (n <= 1)
       tgen_buf_append_fmt(&buf, "Is the DLITE_MAPPING_PLUGINS enveronment "
                           "variable set?");
-    errx(1, tgen_buf_get(&buf));
+    errx(1, "%s", tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);
   }
   return api;
@@ -92,11 +103,15 @@ int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api)
 }
 
 /*
-  Initiates a mapping plugin iterator.
+  Initiates a mapping plugin iterator.  Returns non-zero on error.
 */
-void dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
+int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
 {
-  plugin_init_iter((PluginIter *)iter, get_mapping_plugin_info());
+  PluginInfo *info;
+  load_mapping_plugins();
+  if (!(info = get_mapping_plugin_info())) return 1;
+  plugin_init_iter((PluginIter *)iter, info);
+  return 0;
 }
 
 /*
@@ -109,12 +124,8 @@ void dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
 const DLiteMappingPlugin *
 dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
 {
-  const DLiteMappingPlugin *api = plugin_next((PluginIter *)iter);
-  printf("*** api: name=%s, output_uri=%s\n", api->name, api->output_uri);
-  /* return (DLiteMappingPlugin *)plugin_next((PluginIter *)iter); */
-  return api;
+  return plugin_next((PluginIter *)iter);
 }
-
 
 
 

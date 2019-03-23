@@ -130,10 +130,15 @@ int plugin_register(PluginInfo *info, const char *path, const void *api)
 
 
 /*
-  Returns a pointer to a struct specific to the plugin-type that describes
-  the api provided by the plugin.
+  Loops up all file names matching `pattern` in the plugin search
+  paths in `info` and try to load it as a plugin.  If it succeeds and
+  `name` matches the plugin name, the plugin is registered and a
+  pointer to the plugin API is returned.
 
-  Returns NULL on error.
+  If `name` is NULL, a pointer to the API of the first successfully
+  loaded plugin (that is not already registered) is returned.
+
+  Returns a pointer to the plugin API or NULL on error.
  */
 const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
 {
@@ -173,7 +178,11 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
       continue;
     }
 
-    if (strcmp(*((char **)api), name) == 0) {
+    if (!name) {
+      if (register_plugin(info, filepath, api, handle)) continue;
+      fu_endmatch(iter);
+      return api;
+    } else if (strcmp(*((char **)api), name) == 0) {
       if (register_plugin(info, filepath, api, handle)) goto fail;
       fu_endmatch(iter);
       return api;
@@ -238,21 +247,13 @@ const void *plugin_get_api(PluginInfo *info, const char *name)
   Load all plugins that can be found in the plugin search path.
   Returns non-zero on error.
  */
-int plugin_load_all(PluginInfo *info)
+void plugin_load_all(PluginInfo *info)
 {
-  FUIter *iter;
   char *pattern = malloc(strlen(DSL_EXT) + 2);
-  const char *path;
   pattern[0] = '*';
   strcpy(pattern+1, DSL_EXT);
-  if (!(iter = fu_startmatch(pattern, &info->paths))) return 1;
-  while ((path = fu_nextmatch(iter))) {
-    Plugin **p;
-    if (!(p = map_get(&info->plugins, path)))
-      plugin_register(info, path, (*p)->api);
-  }
-  fu_endmatch(iter);
-  return 0;
+  while (1)
+    if (!plugin_load(info, NULL, pattern)) break;
 }
 
 
@@ -276,6 +277,7 @@ void plugin_init_iter(PluginIter *iter, const PluginInfo *info)
 const void *plugin_next(PluginIter *iter)
 {
   const char *path = map_next((Plugins *)&iter->info->plugins, &iter->miter);
+  if (!path) return NULL;
   Plugin **p = map_get((Plugins *)&iter->info->plugins, path);
   assert(p);
   return (*p)->api;
