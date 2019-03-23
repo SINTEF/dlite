@@ -20,7 +20,7 @@ MU_TEST(test_storage_lookup)
   DLiteStorage *s;
   char *path = STRINGIFY(DLITE_ROOT) "/src/tests/*.json";
   dlite_storage_paths_append(path);
-  //mu_check((e = dlite_meta_get("http://meta.sintef.no/0.1/test-entity")));
+  mu_check((e = dlite_meta_get("http://meta.sintef.no/0.1/test-entity")));
   mu_check((inst = dlite_instance_get("204b05b2-4c89-43f4-93db-fd1cb70f54ef")));
 
   mu_check((s = dlite_storage_open("json", "storage_lookup.json", "mode=w")));

@@ -91,7 +91,8 @@ void dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter);
   Used for iterating over plugins.  Plugins should not be registered
   or removed while iterating.
  */
-DLiteMappingPlugin *dlite_mapping_plugin_next(DLiteMappingPluginIter *iter);
+const DLiteMappingPlugin *
+dlite_mapping_plugin_next(DLiteMappingPluginIter *iter);
 
 
 

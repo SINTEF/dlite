@@ -4,6 +4,7 @@
 #include "err.h"
 #include "fileutils.h"
 #include "dsl.h"
+#include "uuid4.h"
 #include "plugin.h"
 
 
@@ -73,27 +74,28 @@ void plugin_info_free(PluginInfo *info)
 
 
 /*
-  Returns index of plugin with given name, or -1 if no such plugin
-  can be found.
- */
-//int plugin_get_index(const PluginInfo *info, const char *name)
-//{
-//  size_t i;
-//  for (i=0; i<info->nplugins; i++)
-//    if (strcmp(*((char **)info->plugins[i]->api), name) == 0)
-//      return i;
-//  return -1;
-//}
+  Help function for plugin_register().  Registers a plugin with given
+  `path`, `api` and dsl `handle` into `info`.
 
-
-/*
-  Registers a plugin with given `path`,  `api` and dsl `handle` into `info`.
   Returns non-zero on error.
  */
 static int register_plugin(PluginInfo *info, const char *path,
 			   const void *api, dsl_handle handle)
 {
   Plugin *plugin;
+
+  assert(path);
+  //if (!path) {
+  //  char *p;
+  //  if (!(p = malloc(36+1))) return err(1, "allocation failure");
+  //  if (uuid4_generate(p)) return err(1, "error generating UUID");
+  //  path = (const char *)p;
+  //  /*
+  //  char uuid[36+1];
+  //  if (uuid4_generate(uuid)) return err(1, "error generating UUID");
+  //  path = uuid;
+  //  */
+  //}
 
   if (map_get(&info->plugins, path))
     return errx(2, "plugin %s is already registered", path);
@@ -114,6 +116,11 @@ static int register_plugin(PluginInfo *info, const char *path,
 
 /*
   Registers plugin loaded from `path` with given api into `info`.
+
+  The `path` argument should normally be the path to the shared
+  library implementing the plugin, but may be any unique string
+  (preferrable a name or hash generated from `api`).
+
   Returns non-zero on error.
  */
 int plugin_register(PluginInfo *info, const char *path, const void *api)
@@ -167,8 +174,8 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
     }
 
     if (strcmp(*((char **)api), name) == 0) {
-      fu_endmatch(iter);
       if (register_plugin(info, filepath, api, handle)) goto fail;
+      fu_endmatch(iter);
       return api;
     }
   }

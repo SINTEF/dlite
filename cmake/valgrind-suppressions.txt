@@ -148,6 +148,7 @@
    fun:_dl_check_map_versions
 }
 
+
 # For gcc 4.8.5 (sintefutv006)
 
 {

@@ -87,6 +87,11 @@ void plugin_info_free(PluginInfo *info);
 
 /**
   Registers plugin loaded from `path` with given api into `info`.
+
+  The `path` argument should normally be the path to the shared
+  library implementing the plugin, but may be any unique string
+  (preferrable a name or hash generated from `api`).
+
   Returns non-zero on error.
  */
 int plugin_register(PluginInfo *info, const char *path, const void *api);

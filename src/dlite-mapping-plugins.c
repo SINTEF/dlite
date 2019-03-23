@@ -59,12 +59,12 @@ static PluginInfo *get_mapping_plugin_info(void)
  */
 const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
 {
-  const DLiteMappingPlugin *api;
+  DLiteMappingPlugin *api;
   PluginInfo *info;
 
   if (!(info = get_mapping_plugin_info())) return NULL;
 
-  if (!(api = (const DLiteMappingPlugin *)plugin_get_api(info, name))) {
+  if (!(api = (DLiteMappingPlugin *)plugin_get_api(info, name))) {
     TGenBuf buf;
     int n=0;
     const char *p, **paths = dlite_mapping_plugin_paths();
@@ -88,7 +88,7 @@ int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
-  return plugin_register(info, api);
+  return plugin_register(info, api->name, api);
 }
 
 /*
@@ -106,9 +106,13 @@ void dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
   Used for iterating over plugins.  Plugins should not be registered
   or removed while iterating.
  */
-DLiteMappingPlugin *dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
+const DLiteMappingPlugin *
+dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
 {
-  return (DLiteMappingPlugin *)plugin_next((PluginIter *)iter);
+  const DLiteMappingPlugin *api = plugin_next((PluginIter *)iter);
+  printf("*** api: name=%s, output_uri=%s\n", api->name, api->output_uri);
+  /* return (DLiteMappingPlugin *)plugin_next((PluginIter *)iter); */
+  return api;
 }
 
 
