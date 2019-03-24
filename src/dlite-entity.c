@@ -573,9 +573,13 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
              id, s->uri);
       }
     } else {
-      FILE *old = err_set_stream(NULL);
-      char **dataname = dlite_instance_get_property(inst, "dataname");
-      err_set_stream(old);
+      char **dataname;
+      ErrTry:
+        dataname = dlite_instance_get_property(inst, "dataname");
+        break;
+      ErrOther:
+        break;
+      ErrEnd;
       if (dataname) {
         inst->uri = strdup(*dataname);
         dlite_get_uuid(inst->uuid, inst->uri);
