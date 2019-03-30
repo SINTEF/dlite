@@ -150,13 +150,20 @@ class BytearrayEncoder(json.JSONEncoder):
         return item in self.properties.keys()
 
     def __getattr__(self, name):
-        if _has_property(self, name):
-           return _get_property(self, name)
+        if name == 'this':
+            return object.__getattribute__(self, name)
+        d = object.__getattribute__(self, '__dict__')
+        if name in d:
+            return d[name]
+        elif _has_property(self, name):
+            return _get_property(self, name)
         else:
-           object.__getattr__(self, name)
+            raise AttributeError('Instance object has no attribute %r' % name)
 
     def __setattr__(self, name, value):
-        if _has_property(self, name):
+        if name == 'this':
+            object.__setattr__(self, name, value)
+        elif _has_property(self, name):
             _set_property(self, name, value)
         else:
             object.__setattr__(self, name, value)
