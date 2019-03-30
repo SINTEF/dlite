@@ -3,6 +3,7 @@
 /* --------
  * Iterator
  * -------- */
+%rename(CollectionIter) _CollectionIter;
 %inline %{
   struct _CollectionIter {
     DLiteCollection *coll;
@@ -69,6 +70,7 @@ struct _DLiteCollection {
     dlite_collection_remove_relations($self, s, p, o);
   }
 
+  %newobject get_iter;
   struct _CollectionIter *get_iter(void) {
     struct _CollectionIter *iter = malloc(sizeof(struct _CollectionIter));
     iter->coll = $self;
@@ -86,6 +88,11 @@ struct _DLiteCollection {
 
   const struct _DLiteInstance *get(const char *label) {
     return dlite_collection_get($self, label);
+  }
+
+  const struct _DLiteInstance *get_new(const char *label,
+                                       const char *metaid=NULL) {
+    return dlite_collection_get_new($self, label, metaid);
   }
 
   int count(void) {

@@ -59,10 +59,10 @@ inst.save_url('json://inst.json')
 
 dim = Dimension('N')
 
-prop = Property("a", type=dlite.FloatType, size=4)
+prop = Property("a", type='float')
 
 # FIXME - property dimensions should be strings!
-prop2 = Property("b", type=dlite.FixStringType, size=10, dims=[2, 3, 4],
+prop2 = Property("b", type='string10', dims=[2, 3, 4],
                  description='something enlightening...')
 
 props = myentity['properties']

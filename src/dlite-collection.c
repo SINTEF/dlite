@@ -6,6 +6,7 @@
 #include "utils/err.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
+#include "dlite-mapping.h"
 #include "dlite-entity.h"
 #include "dlite-schemas.h"
 #include "dlite-collection.h"
@@ -250,6 +251,25 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL)))
     return dlite_store_get(_istore, r->o);
   return NULL;
+}
+
+/*
+  Returns a new reference to instance with given label.  If `metaid` is
+  given, the returned instance is casted to this metadata.
+
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
+                                              const char *label,
+                                              const char *metaid)
+{
+  const DLiteInstance *inst;
+  if (!(inst = dlite_collection_get(coll, label))) return NULL;
+  if (metaid)
+    inst = dlite_mapping(metaid, &inst, 1);
+  else
+    dlite_instance_incref((DLiteInstance *)inst);
+  return inst;
 }
 
 

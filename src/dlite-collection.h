@@ -173,6 +173,16 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
                                           const char *label);
 
 /**
+  Returns a new reference to instance with given label.  If `metaid` is
+  given, the returned instance is casted to this metadata.
+
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
+                                              const char *label,
+                                              const char *metaid);
+
+/**
   Iterates over a collection.
 
   Returns the next instance or NULL if there are no more instances.

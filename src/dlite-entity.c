@@ -11,6 +11,7 @@
 #include "dlite-macros.h"
 #include "dlite-type.h"
 #include "dlite-store.h"
+#include "dlite-mapping.h"
 #include "dlite-entity.h"
 #include "dlite-datamodel.h"
 #include "dlite-schemas.h"
@@ -520,11 +521,6 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
     FAIL3("metadata uri (%s) does not correspond to that in storage (%s): %s",
 	  meta->uri, uri, s->uri);
 
-  /* FIXME - call mappings */
-  if (metaid)
-    FAIL2("cannot cast %s to %s; mappings are not yet implemented...",
-          metaid, meta->uri);
-
   /* read dimensions */
   if (!(dims = calloc(meta->ndimensions, sizeof(size_t))))
     FAIL("allocation failure");
@@ -556,7 +552,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 				     p->ndims, pdims)) goto fail;
   }
 
-  /* initiates metadata if the new instance is metadata */
+  /* initiates metadata of the new instance is metadata */
   if (dlite_meta_is_metameta(inst->meta) && dlite_meta_init((DLiteMeta *)inst))
     goto fail;
 
@@ -587,11 +583,14 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
     }
   }
 
-  instance = inst;
+  /* cast if `metaid` is not NULL */
+  if (metaid)
+    instance = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+  else
+    instance = inst;
+
  fail:
-  if (!instance) {
-    if (inst) dlite_instance_decref(inst);
-  }
+  if (!instance && inst) dlite_instance_decref(inst);
   if (d) dlite_datamodel_free(d);
   if (uri) free((char *)uri);
   if (dims) free(dims);

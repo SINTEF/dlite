@@ -7,9 +7,9 @@ import json
 import base64
 from uuid import UUID
 if sys.version_info >= (3, 7):
-    from collections import OrderedDict
-else:
     OrderedDict = dict
+else:
+    from collections import OrderedDict
 
 import numpy as np
 
@@ -61,14 +61,14 @@ class BytearrayEncoder(json.JSONEncoder):
         dims = ', dims=%r' % self.dims.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
         descr = ', description=%r' %self.description if self.description else ''
-        return 'Property(%r, type=%d, size=%d%s%s%s)' % (
-            self.name, self.type, self.size, dims, unit, descr)
+        return 'Property(%r, type=%r%s%s%s)' % (
+            self.name, self.type, dims, unit, descr)
 
     def asdict(self):
         """Returns a dict representation of self."""
         d = OrderedDict([('name', self.name),
-                         ('type', self.type),
-                         ('size', self.size)])
+                         ('type', self.get_type()),
+                         ])
         if self.ndims:
             d['dims'] = self.dims.tolist()
         if self.unit:
@@ -77,6 +77,8 @@ class BytearrayEncoder(json.JSONEncoder):
             d['description'] = self.description
         return d
 
+    type = property(get_type, doc='Type name.')
+    dtype = property(get_dtype, doc='Type number.')
     dims = property(get_dims, doc='Array of dimension indices.')
   %}
 }
@@ -97,6 +99,7 @@ class BytearrayEncoder(json.JSONEncoder):
 /* --------
  * Instance
  * -------- */
+
 %extend _DLiteInstance {
 
   int __len__(void) {
@@ -146,20 +149,17 @@ class BytearrayEncoder(json.JSONEncoder):
     def __contains__(self, item):
         return item in self.properties.keys()
 
-    # TODO - fix __getattr__() and __setattr__() to allow us to work with
-    #        properties as attributes...
+    def __getattr__(self, name):
+        if _has_property(self, name):
+           return _get_property(self, name)
+        else:
+           object.__getattr__(self, name)
 
-    #def __getattr__(self, name):
-    #    if _has_property(self, name):
-    #        return _get_property(self, name)
-    #    else:
-    #        return _swig_getattr(self, Instance, name)
-    #
-    #def __setattr__(self, name, value):
-    #    if _has_property(self, name):
-    #        _set_property(self, name, value)
-    #    else:
-    #        _swig_setattr(self, Instance, name, value)
+    def __setattr__(self, name, value):
+        if _has_property(self, name):
+            _set_property(self, name, value)
+        else:
+            object.__setattr__(self, name, value)
 
     def __hash__(self):
         return UUID(self.uuid).int
@@ -171,6 +171,7 @@ class BytearrayEncoder(json.JSONEncoder):
         return self.asjson(indent=2)
 
     def asdict(self):
+        """Returns a dict representation of self."""
         d = OrderedDict()
         if self.is_meta:
             d['name'] = self['name']

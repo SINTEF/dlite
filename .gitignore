@@ -10,5 +10,8 @@ bootstrap-win-*.sh
 .vs
 CMakeSettings.json
 
+# For qtcreator
+CMakeLists.txt.user
+
 # A convenient directory to place temporary stuff
 old

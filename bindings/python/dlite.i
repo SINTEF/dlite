@@ -82,12 +82,15 @@
  ** Declare functions to wrap
  **********************************************/
 
-/* Remove the softc_ prefix from the python bindings */
-%feature("autodoc","2");
+/* Special features */
+%feature("autodoc", "0");
 %feature("keyword");
+
+/* Remove "dlite_" prefix from bindings */
 %rename("%(strip:[dlite_])s") "";
 
 %include "dlite-misc.i"
+%include "dlite-type.i"
 %include "dlite-storage.i"
 %include "dlite-entity.i"
 %include "dlite-collection.i"

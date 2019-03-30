@@ -5,6 +5,32 @@
  * Wrappers
  * -------- */
 %{
+/* Returns a new property. */
+DLiteProperty *
+dlite_swig_create_property(const char *name, enum _DLiteType type,
+                           int size, obj_t *dims, const char *unit,
+                           const char *description)
+{
+  DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
+  p->name = strdup(name);
+  p->type = type;
+  p->size = size;
+  if (dims && dims != DLiteSwigNone) {
+    if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteInt,
+                                          sizeof(int), dims))) {
+      free(p->name);
+      free(p);
+      return NULL;
+    }
+  } else {
+    p->ndims = 0;
+    p->dims = NULL;
+  }
+  if (unit) p->unit = strdup(unit);
+  if (description) p->description = strdup(description);
+  return p;
+}
+
 /* Returns a pointer to a new target language object for property `name`.
    Returns NULL on error. */
 obj_t *dlite_swig_get_property(DLiteInstance *inst, const char *name)
@@ -25,30 +51,10 @@ int dlite_swig_set_property(DLiteInstance *inst, const char *name, obj_t *obj)
 %}
 
 
-/* -----
- * Types
- * ----- */
-%rename(Type) DLiteType;
-%rename("%(regex:/dlite(.*)/\\1Type/)s", %$isenumitem) "";
-enum _DLiteType {
-  dliteBlob,             /*!< Binary blob, sequence of bytes */
-  dliteBool,             /*!< Boolean */
-  dliteInt,              /*!< Signed integer */
-  dliteUInt,             /*!< Unigned integer */
-  dliteFloat,            /*!< Floating point */
-  dliteFixString,        /*!< Fix-sized NUL-terminated string */
-  dliteStringPtr,        /*!< Pointer to NUL-terminated string */
-
-  dliteDimension,        /*!< Dimension, for entities */
-  dliteProperty,         /*!< Property, for entities */
-  dliteRelation,         /*!< Subject-predicate-object relation */
-};
-
 
 /* ---------
  * Dimension
  * --------- */
-
 %rename(Dimension) _DLiteDimension;
 struct _DLiteDimension {
   char *name;
@@ -74,13 +80,10 @@ struct _DLiteDimension {
 /* --------
  * Property
  * -------- */
-//%apply(int DIM1, char **IN_ARRAY1) {(int ndims, char **dimnames)};
-%apply(int DIM1, int *IN_ARRAY1) {(int ndims, int *dims)};
-
 %rename(Property) _DLiteProperty;
 struct _DLiteProperty {
   char *name;
-  enum _DLiteType type;
+  /* enum _DLiteType type; */
   size_t size;
   int ndims;
   /* int *dims; */
@@ -89,29 +92,15 @@ struct _DLiteProperty {
 };
 
 %extend _DLiteProperty {
-  _DLiteProperty(const char *name, enum _DLiteType type, int size,
-                 obj_t *dims=NULL,
-                 const char *unit=NULL, const char *description=NULL) {
-    DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
-    p->name = strdup(name);
-    p->type = type;
-    p->size = size;
-    if (dims && dims != DLiteSwigNone) {
-      if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteInt,
-                                            sizeof(int), dims))) {
-        free(p->name);
-        free(p);
-        return NULL;
-      }
-    } else {
-      p->ndims = 0;
-      p->dims = NULL;
-    }
-    if (unit) p->unit = strdup(unit);
-    if (description) p->description = strdup(description);
-    return p;
+  _DLiteProperty(const char *name, const char *type,
+                 obj_t *dims=NULL, const char *unit=NULL,
+                 const char *description=NULL) {
+    DLiteType dtype;
+    size_t size;
+    if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
+    return dlite_swig_create_property(name, dtype, size, dims, unit,
+                                      description);
   }
-
   ~_DLiteProperty() {
     free($self->name);
     if ($self->dims) free($self->dims);
@@ -120,6 +109,13 @@ struct _DLiteProperty {
     free($self);
   }
 
+  %newobject get_typename;
+  char *get_type(void) {
+    return to_typename($self->type, $self->size);
+  }
+  int get_dtype(void) {
+    return $self->type;
+  }
   obj_t *get_dims(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
                                 dliteInt, sizeof(int), $self->dims);
@@ -165,9 +161,21 @@ struct _Triplet {
 /* --------
  * Instance
  * -------- */
+%feature("docstring", "
+Returns a new instance.
 
-//%apply(int DIM1, int *IN_ARRAY1) {(int ndims, int *dims)};
+In the first form, a new instance of metadata `metaid` is created.
+`dims` must be a sequence with the size of each dimension. All values
+initialized to zero.  If `id` is None, a random UUID is generated.
+Otherwise the UUID is derived from `id`.
 
+In the second form the instance is loaded from `url`.  The URL should
+be of the form ``driver://location?options#id``.
+
+In the third form the instance is loaded from `storage`. `id` is not
+required if the storage only contains more than one instance.
+") _DLiteInstance;
+%apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
 %rename(Instance) _DLiteInstance;
 struct _DLiteInstance {
   %immutable;
@@ -178,7 +186,7 @@ struct _DLiteInstance {
 };
 
 %extend _DLiteInstance {
-  _DLiteInstance(const char *metaid, int ndims, int *dims,
+  _DLiteInstance(const char *metaid, int *dims, int ndims,
 		 const char *id=NULL) {
     DLiteInstance *inst;
     DLiteMeta *meta;
@@ -200,7 +208,7 @@ struct _DLiteInstance {
     if (inst) dlite_errclr();
     return inst;
   }
-  _DLiteInstance(struct _DLiteStorage *storage, const char *id) {
+  _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL) {
     DLiteInstance *inst = dlite_instance_load(storage, id);
     if (inst) dlite_errclr();
     return inst;
@@ -210,14 +218,17 @@ struct _DLiteInstance {
     dlite_instance_decref($self);
   }
 
+  %feature("docstring", "Returns reference to metadata.") get_meta;
   const struct _DLiteInstance *get_meta() {
     return (const DLiteInstance *)$self->meta;
   }
 
+  %feature("docstring", "Saves this instance to `url`.") save_url;
   void save_url(const char *url) {
     dlite_instance_save_url(url, $self);
   }
 
+  %feature("docstring", "Returns array with dimension sizes.") get_dimensions;
   %newobject get_dimensions;
   obj_t *get_dimensions() {
     int dims[1] = { DLITE_NDIM($self) };
@@ -225,6 +236,8 @@ struct _DLiteInstance {
                                 DLITE_DIMS($self));
   }
 
+  %feature("docstring", "Returns property with given name or index.")
+     get_property;
   %newobject get_property;
   obj_t *get_property(const char *name) {
     return dlite_swig_get_property($self, name);
@@ -233,6 +246,8 @@ struct _DLiteInstance {
     return dlite_swig_get_property_by_index($self, i);
   }
 
+  %feature("docstring", "Sets property with given name or index to `obj`.")
+     set_property;
   void set_property(const char *name, obj_t *obj) {
     dlite_swig_set_property($self, name, obj);
   }
@@ -240,6 +255,8 @@ struct _DLiteInstance {
     dlite_swig_set_property_by_index($self, i, obj);
   }
 
+  %feature("docstring", "Returns true if this instance has a property with "
+           "given name or index.") has_property;
   bool has_property(const char *name) {
     return dlite_instance_has_property($self, name);
   }
