@@ -5,8 +5,9 @@
   @brief A simple colledtion of convinient macros (internal use)
 */
 
-#include "config.h"
-#include "utils/err.h"
+//#include "config.h"
+//#include "utils/err.h"
+#include "dlite-misc.h"
 
 
 /** Macro for getting rid of unused parameter warnings... */
@@ -22,17 +23,32 @@
 
 /** Convenient macros for failing */
 #define FAIL(msg) do { \
-    err(1, msg); goto fail; } while (0)
+    dlite_err(1, msg); goto fail; } while (0)
 #define FAIL1(msg, a1) do { \
-    err(1, msg, a1); goto fail; } while (0)
+    dlite_err(1, msg, a1); goto fail; } while (0)
 #define FAIL2(msg, a1, a2) do { \
-    err(1, msg, a1, a2); goto fail; } while (0)
+    dlite_err(1, msg, a1, a2); goto fail; } while (0)
 #define FAIL3(msg, a1, a2, a3) do { \
-    err(1, msg, a1, a2, a3); goto fail; } while (0)
+    dlite_err(1, msg, a1, a2, a3); goto fail; } while (0)
 #define FAIL4(msg, a1, a2, a3, a4) do { \
-    err(1, msg, a1, a2, a3, a4); goto fail; } while (0)
+    dlite_err(1, msg, a1, a2, a3, a4); goto fail; } while (0)
 #define FAIL5(msg, a1, a2, a3, a4, a5) do {		\
-    err(1, msg, a1, a2, a3, a4, a5); goto fail; } while (0)
+    dlite_err(1, msg, a1, a2, a3, a4, a5); goto fail; } while (0)
+
+/** Convinient macros for warnings */
+#define WARN(msg) do { \
+    dlite_warn(1, msg); goto fail; } while (0)
+#define WARN1(msg, a1) do { \
+    dlite_warn(1, msg, a1); goto fail; } while (0)
+#define WARN2(msg, a1, a2) do { \
+    dlite_warn(1, msg, a1, a2); goto fail; } while (0)
+#define WARN3(msg, a1, a2, a3) do { \
+    dlite_warn(1, msg, a1, a2, a3); goto fail; } while (0)
+#define WARN4(msg, a1, a2, a3, a4) do { \
+    dlite_warn(1, msg, a1, a2, a3, a4); goto fail; } while (0)
+#define WARN5(msg, a1, a2, a3, a4, a5) do {		\
+    dlite_warn(1, msg, a1, a2, a3, a4, a5); goto fail; } while (0)
+
 
 
 /** Debugging messages.  Printed if compiled with WITH_DEBUG */

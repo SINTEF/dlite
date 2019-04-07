@@ -31,7 +31,8 @@ include(SetDefaults)
 set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
 set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
 set(DLITE_MAPPING_PLUGINS_PATH    "share/dlite/mapping-plugins")
-set(DLITE_PYTHON_PLUGINS_PATH     "share/dlite/python-plugins")
+set(DLITE_PYTHON_MAPPINGS_PATH    "share/dlite/python-mappings")
+set(DLITE_PYTHON_STORAGES_PATH    "share/dlite/python-storages")
 
 # Enable compiler warnings
 include(SetCompilerFlags)
@@ -264,6 +265,7 @@ list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 
 # DLITE_MAPPING_PLUGINS - search path for DLite mapping plugins
 set(dlite_MAPPING_PLUGINS
+  ${dlite-src-pyembed_BINARY_DIR}
   ${dlite_BINARY_DIR}/mappings
   $ENV{DLITE_MAPPING_PLUGINS}
   )
@@ -283,12 +285,19 @@ set(dlite_STORAGES
   )
 list(REMOVE_DUPLICATES dlite_STORAGES)
 
-# DLITE_PYTHON_PLUGINS - search path for Python storage and mapping plugins
-set(dlite_PYTHON_PLUGINS
+# DLITE_PYTHON_STORAGES - search path for Python storage plugins
+set(dlite_PYTHON_STORAGES
   ${dlite-python_SOURCE_DIR}/plugins
-  $ENV{DLITE_PYTHON_PLUGINS}
+  $ENV{DLITE_PYTHON_STORAGES}
   )
-list(REMOVE_DUPLICATES dlite_STORAGES)
+list(REMOVE_DUPLICATES dlite_PYTHON_STORAGES)
+
+# DLITE_PYTHON_MAPPINGS - search path for Python mapping plugins
+set(dlite_PYTHON_MAPPINGS
+  ${dlite-python_SOURCE_DIR}/plugins
+  $ENV{DLITE_PYTHON_MAPPINGS}
+  )
+list(REMOVE_DUPLICATES dlite_PYTHON_MAPPINGS)
 
 if(UNIX)
   string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
@@ -298,7 +307,8 @@ if(UNIX)
   string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
   string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
   string(REPLACE ";" ":" dlite_STORAGES         "${dlite_STORAGES}")
-  string(REPLACE ";" ":" dlite_PYTHON_PLUGINS   "${dlite_PYTHON_PLUGINS}")
+  string(REPLACE ";" ":" dlite_PYTHON_STORAGES  "${dlite_PYTHON_STORAGES}")
+  string(REPLACE ";" ":" dlite_PYTHON_MAPPINGS  "${dlite_PYTHON_MAPPINGS}")
 endif()
 
 #################################################################
@@ -313,7 +323,7 @@ message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 message("export DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
 message("export DLITE_STORAGES=${dlite_STORAGES}")
-message("export DLITE_PYTHON_PLUGINS=${dlite_PYTHON_PLUGINS}")
+message("export DLITE_PYTHON_MAPPINGS=${dlite_PYTHON_PLUGINS}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")

@@ -152,6 +152,7 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
   while ((filepath = fu_nextmatch(iter))) {
+    err_clear();
 
     /* check that plugin is not already loaded */
     if (map_get(&info->plugins, filepath)) continue;
@@ -166,6 +167,7 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
       dsl_close(handle);
       continue;
     }
+    err_clear();
 
     /* Silence gcc warning about that ISO C forbids conversion of object
        pointer to function pointer */
@@ -252,8 +254,10 @@ void plugin_load_all(PluginInfo *info)
   char *pattern = malloc(strlen(DSL_EXT) + 2);
   pattern[0] = '*';
   strcpy(pattern+1, DSL_EXT);
-  while (1)
+  while (1) {
     if (!plugin_load(info, NULL, pattern)) break;
+  }
+  free(pattern);
 }
 
 

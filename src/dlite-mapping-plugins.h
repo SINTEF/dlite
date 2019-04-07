@@ -20,9 +20,6 @@
   The mapping plugin search path is initialised from the environment
   variable `DLITE_MAPPING_PLUGINS`.
 */
-#include "utils/dsl.h"
-#include "utils/fileutils.h"
-#include "utils/plugin.h"
 
 #include "dlite-entity.h"
 
@@ -34,7 +31,7 @@ typedef struct _DLiteMappingPlugin DLiteMappingPlugin;
 /**
  An iterator over all registered mapping plugins.
  */
-typedef PluginIter DLiteMappingPluginIter;
+typedef struct _PluginIter DLiteMappingPluginIter;
 
 
 /**
@@ -151,8 +148,13 @@ int dlite_mapping_plugin_path_remove(int n);
   Returns a new instance obtained by mapping `instances`.
   Returns NULL on error.
  */
-typedef DLiteInstance *(*Mapper)(DLiteInstance **instances, int n);
+typedef DLiteInstance *(*Mapper)(const DLiteMappingPlugin *api,
+                                 const DLiteInstance **instances, int n);
 
+/**
+  Releases internal resources associated with `api`.
+ */
+typedef void (*Freer)(DLiteMappingPlugin *api);
 
 /** @} */
 
@@ -174,7 +176,9 @@ struct _DLiteMappingPlugin {
   int            ninput;     /*!< Number of inputs */
   const char **  input_uris; /*!< Array of input metedata URIs */
   Mapper         mapper;     /*!< Pointer to mapping function */
+  Freer          freer;      /*!< Pointer to function releasing internal data */
   int            cost;       /*!< Cost of this mapping. Default: 20 */
+  void *         data;       /*!< Internal data used by the mapper */
 };
 
 

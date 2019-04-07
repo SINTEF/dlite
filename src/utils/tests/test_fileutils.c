@@ -53,6 +53,20 @@ MU_TEST(test_fu_lastsep)
   mu_assert_string_eq(NULL, fu_lastsep("ccc.txt"));
 }
 
+MU_TEST(test_fu_canonical_path)
+{
+  char *path1, path2[PATH_MAX];
+
+  path1 = fu_canonical_path("/dev/../etc", NULL);
+  mu_assert_string_eq("/etc", path1);
+  free(path1);
+
+  path1 = fu_canonical_path("/dev/../etc", path2);
+  mu_assert_string_eq("/etc", path1);
+  mu_assert_string_eq("/etc", path2);
+}
+
+
 MU_TEST(test_fu_dirname)
 {
   char *s;
@@ -241,6 +255,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_isabs);
   MU_RUN_TEST(test_fu_join);
   MU_RUN_TEST(test_fu_lastsep);
+  MU_RUN_TEST(test_fu_canonical_path);
   MU_RUN_TEST(test_fu_dirname);
   MU_RUN_TEST(test_fu_basename);
   MU_RUN_TEST(test_fu_fileext);

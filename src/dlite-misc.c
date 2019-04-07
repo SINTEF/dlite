@@ -306,6 +306,20 @@ int dlite_warn(const char *msg, ...) {
   BODY2(warn, msg); return 0; }
 int dlite_warnx(const char *msg, ...) {
   BODY2(warnx, msg); return 0; }
+
+void dlite_vfatal(int eval, const char *msg, va_list ap) {
+  vfatal(eval, msg, ap); }
+void dlite_vfatalx(int eval, const char *msg, va_list ap) {
+  vfatalx(eval, msg, ap); }
+int dlite_verr(int eval, const char *msg, va_list ap) {
+  return verr(eval, msg, ap); }
+int dlite_verrx(int eval, const char *msg, va_list ap) {
+  return verrx(eval, msg, ap); }
+int dlite_vwarn(const char *msg, va_list ap) {
+  return vwarn(msg, ap); }
+int dlite_vwarnx(const char *msg, va_list ap) {
+  return vwarnx(msg, ap); }
+
 int dlite_errval(void) { return err_geteval(); }
 const char *dlite_errmsg(void) { return err_getmsg(); }
 void dlite_errclr(void) { err_clear(); }

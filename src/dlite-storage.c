@@ -31,8 +31,9 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
   const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
-  if (!driver) FAIL("missing driver");
   if (!uri) FAIL("missing uri");
+  if (!driver || !*driver) driver = fu_fileext(uri);
+  if (!driver || !*driver) FAIL("missing driver");
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
   if (!(storage = api->open(uri, options))) goto fail;
   storage->api = api;

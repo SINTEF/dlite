@@ -98,5 +98,11 @@ install(DIRECTORY
   PATTERN *.pdb
   )
 
+
+# Support driver and mapping plugins written in Python
+if(WITH_PYTHON)
+  add_subdirectory(pyembed)
+endif()
+
 # Tests
 add_subdirectory(tests)

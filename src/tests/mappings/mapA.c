@@ -8,14 +8,17 @@ typedef DLiteInstance *
 (*Creater)(const char *metaid, const size_t *dims, const char *id);
 
 
-DLiteInstance *mapper(DLiteInstance **instances, int n)
+DLiteInstance *mapper(const DLiteMappingPlugin *api,
+                      const DLiteInstance **instances, int n)
 {
-  DLiteInstance *inst1, *inst2;
+  const DLiteInstance *inst1;
+  DLiteInstance *inst2;
   int *p, a, b;
 
   Creater creater = dlite_instance_create_from_id;
   printf("*** creater: %p\n", *(void **)&creater);
 
+  UNUSED(api);
   UNUSED(n);
 
   inst1 = instances[0];

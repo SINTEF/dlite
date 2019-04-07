@@ -1,8 +1,12 @@
+#include "config.h"
+
 #include <assert.h>
 #include <string.h>
 
+#include "utils/err.h"
 #include "utils/map.h"
 #include "utils/tgen.h"
+#include "utils/plugin.h"
 
 #include "dlite-macros.h"
 #include "dlite-store.h"
@@ -250,7 +254,8 @@ void dlite_mapping_free(DLiteMapping *m)
 DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
 {
   int i;
-  DLiteInstance *inst=NULL, **insts=NULL, **instp;
+  const DLiteInstance **insts=NULL;
+  DLiteInstance *inst=NULL, **instp;
 
   /* Trivial case - we already have an instance with metadata `m->output_uri` */
   if ((instp = map_get(instances, m->output_uri)))
@@ -270,7 +275,7 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
   }
 
   /* Call the mapper function from plugin */
-  if (!(inst = m->api->mapper(insts, m->ninput))) goto fail;
+  if (!(inst = m->api->mapper(m->api, insts, m->ninput))) goto fail;
 
   /* Add new instance to `instances` */
   assert(strcmp(inst->meta->uri, m->output_uri) == 0);
@@ -357,6 +362,7 @@ void remove_inputs_rec(const DLiteMapping *m, Instances *inputs)
 DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
                                  const DLiteInstance **instances, int n)
 {
+  int i;
   const char *key;
   Instances inputs;
   map_iter_t iter;
@@ -390,6 +396,7 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
   }
 
   map_deinit(&inputs);
+  for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
   return inst;
 }
 
@@ -403,6 +410,7 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
 DLiteInstance *dlite_mapping(const char *output_uri,
                              const DLiteInstance **instances, int n)
 {
+  int i;
   DLiteInstance *inst=NULL;
   DLiteMapping *m=NULL;
   Instances inputs;
@@ -410,11 +418,12 @@ DLiteInstance *dlite_mapping(const char *output_uri,
   map_init(&inputs);
 
   if (set_inputs(&inputs, instances, n)) goto fail;
-  if ((m = mapping_create_base(output_uri, &inputs))) goto fail;
+  if (!(m = mapping_create_base(output_uri, &inputs))) goto fail;
   inst = dlite_mapping_map(m, instances, n);
 
  fail:
   map_deinit(&inputs);
   if (m) dlite_mapping_free(m);
+  for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
   return inst;
 }

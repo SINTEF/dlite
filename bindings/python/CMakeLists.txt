@@ -1,6 +1,6 @@
 project(dlite-python C)
 
-# We don't bother to support Python 2, support for it ends 2019
+# We don't bother to support Python 2, since support for it ends 2019
 # Is there any point to support any version below, say Python 3.5?
 find_package(PythonInterp 3 REQUIRED)
 find_package(PythonLibs REQUIRED)

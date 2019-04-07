@@ -43,7 +43,7 @@ typedef map_t(Plugin *) Plugins;
 
 
 /** Info about a plugin kind */
-typedef struct {
+typedef struct _PluginInfo {
   const char *kind;    /*!< Name of this plugin kind */
   const char *symbol;  /*!< Name of function in plugin returning the api */
   const char *envvar;  /*!< Name of environment variable initialising the

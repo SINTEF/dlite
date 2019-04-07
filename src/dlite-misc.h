@@ -174,9 +174,10 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 /**
   @name Wrappers around error functions
 */
-#ifdef _WIN32
+#ifndef __GNUC__
 #define __attribute__(x)
 #endif
+#include <stdarg.h>
 void dlite_fatal(int eval, const char *msg, ...)
   __attribute__ ((__noreturn__, __format__ (__printf__, 2, 3)));
 void dlite_fatalx(int eval, const char *msg, ...)
@@ -189,6 +190,20 @@ int dlite_warn(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
 int dlite_warnx(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
+
+void dlite_vfatal(int eval, const char *msg, va_list ap)
+  __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
+void dlite_vfatalx(int eval, const char *msg, va_list ap)
+  __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
+int dlite_verr(int eval, const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 2, 0)));
+int dlite_verrx(int eval, const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 2, 0)));
+int dlite_vwarn(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
+int dlite_vwarnx(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
+
 int dlite_errval(void);
 const char *dlite_errmsg(void);
 void dlite_errclr(void);

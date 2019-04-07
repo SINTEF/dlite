@@ -279,9 +279,13 @@ DLiteInstance *dlite_instance_create_from_id(const char *metaid,
                                              const char *id)
 {
   DLiteMeta *meta;
+  DLiteInstance *inst=NULL;
   if (!(meta = (DLiteMeta *)dlite_instance_get(metaid)))
-    return err(1, "cannot find metadata '%s'", metaid), NULL;
-  return dlite_instance_create(meta, dims, id);
+    FAIL1("cannot find metadata '%s'", metaid);
+  inst = dlite_instance_create(meta, dims, id);
+ fail:
+  if (meta) dlite_meta_decref(meta);
+  return inst;
 }
 
 

@@ -6,8 +6,10 @@
 #include <string.h>
 
 #include "utils/err.h"
-#include "utils/tgen.h"
+#include "utils/dsl.h"
+#include "utils/fileutils.h"
 #include "utils/plugin.h"
+#include "utils/tgen.h"
 
 #include "dlite-datamodel.h"
 #include "dlite-mapping-plugins.h"
@@ -135,9 +137,14 @@ dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
 */
 int dlite_mapping_plugin_unload(const char *name)
 {
+  int stat;
   PluginInfo *info;
+  DLiteMappingPlugin *api;
   if (!(info = get_mapping_plugin_info())) return 1;
-  return plugin_unload(info, name);
+  api = (DLiteMappingPlugin *)plugin_get_api(info, name);
+  stat = plugin_unload(info, name);
+  if (api && api->freer) api->freer(api);
+  return stat;
 }
 
 /*
