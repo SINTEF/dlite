@@ -68,11 +68,11 @@ struct _DLiteDataModel {
 /**
   Returns a pointer to a DLiteStoragePlugin or NULL on error.
 
-  The `name` is just a hint that plugins are free to ignore.  It is
-  used by storage plugins that supports several different drivers to
-  select which api that should be returned.
+  The `iter` argument is normally ignored.  It is provided to support
+  plugins exposing several APIs.  If the plugin has more APIs to
+  expose, it should increase the integer pointed to by `iter` by one.
  */
-typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(const char *name);
+typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(int *iter);
 
 
 /**

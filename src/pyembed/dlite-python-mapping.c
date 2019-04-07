@@ -184,65 +184,63 @@ static void freer(DLiteMappingPlugin *api)
 
   Default cost is 25.
 */
-const DLiteMappingPlugin *get_dlite_mapping_api(const char *name)
+const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
 {
-  int i, cost=25;
+  int i, n, cost=25;
   DLiteMappingPlugin *api=NULL, *retval=NULL;
-  PyObject *mappings=NULL, *plugin=NULL;
-  PyObject *out_uri=NULL, *in_uris=NULL, *map=NULL, *pcost=NULL;
+  PyObject *mappings=NULL, *cls=NULL;
+  PyObject *name=NULL, *out_uri=NULL, *in_uris=NULL, *map=NULL, *pcost=NULL;
   const char **input_uris=NULL, *classname=NULL;
 
   if (!(mappings = dlite_python_mapping_load())) goto fail;
   assert(PyList_Check(mappings));
+  n = PyList_Size(mappings);
 
-  /* Look up mapping with given name */
-  for (i=0; i < (int)PyList_Size(mappings); i++) {
-    PyObject *pname=NULL;
-    plugin = PyList_GetItem(mappings, i);
-    assert(plugin);
-    if (!(classname = dlite_pyembed_classname(plugin)))
-      dlite_warnx("cannot get class name for plugin %p", (void *)plugin);
+  /* get class implementing the plugin API */
+  if (*iter < 0 || *iter >= n)
+    FAIL1("API iterator index is out of range: %d", *iter);
+  cls = PyList_GetItem(mappings, (*iter)++);
+  assert(cls);
 
-    else if (!(pname = PyObject_GetAttrString(plugin, "name")))
-      dlite_warnx("plugin '%s' has no attribute: 'name'", classname);
-    else if (!PyUnicode_Check(pname))
-      dlite_warnx("attribute 'name' of plugin '%s' is not a string", classname);
-    else if (strcmp(name, PyUnicode_DATA(pname)) == 0) {
-      Py_DECREF(pname);
-      break;
-    }
-    Py_XDECREF(pname);
-  }
-  if (i >= PyList_Size(mappings)) goto fail;
+  /* get classname for error messages */
+  if (!(classname = dlite_pyembed_classname(cls)))
+    dlite_warnx("cannot get class name for API %s", *((char **)api));
 
-  if (!(out_uri = PyObject_GetAttrString(plugin, "output_uri")))
-    FAIL1("plugin '%s' has no attribute: 'output_uri'", classname);
+  /* get attributes to fill into the api */
+  if (!(name = PyObject_GetAttrString(cls, "name")))
+    FAIL1("'%s' has no attribute: 'name'", classname);
+  if (!PyUnicode_Check(name))
+    FAIL1("attribute 'name' of '%s' is not a string", classname);
+
+  if (!(out_uri = PyObject_GetAttrString(cls, "output_uri")))
+    FAIL1("'%s' has no attribute: 'output_uri'", classname);
   if (!PyUnicode_Check(out_uri))
-    FAIL1("attribute 'output_uri' of plugin '%s' is not a string", classname);
+    FAIL1("attribute 'output_uri' of '%s' is not a string", classname);
 
-  if (!(in_uris = PyObject_GetAttrString(plugin, "input_uris")))
-    FAIL1("plugin '%s' has no attribute: 'input_uris'", classname);
+  if (!(in_uris = PyObject_GetAttrString(cls, "input_uris")))
+    FAIL1("'%s' has no attribute: 'input_uris'", classname);
   if (!PySequence_Check(in_uris))
-    FAIL1("attribute 'input_uris' of plugin '%s' is not a sequence", classname);
+    FAIL1("attribute 'input_uris' of '%s' is not a sequence", classname);
+
   if (!(input_uris = calloc(PySequence_Length(in_uris), sizeof(char *))))
     FAIL("allocation failure");
   for (i=0; i < PySequence_Length(in_uris); i++) {
     PyObject *in_uri = PySequence_GetItem(in_uris, i);
     if (!in_uri || !PyUnicode_Check(in_uri)) {
       Py_XDECREF(in_uri);
-      FAIL2("item %d of attribute 'input_uris' of plugin '%s' is not a string",
+      FAIL2("item %d of attribute 'input_uris' of '%s' is not a string",
             i, classname);
     }
     input_uris[i] = PyUnicode_DATA(in_uri);
     Py_DECREF(in_uri);
   }
 
-  if (!(map = PyObject_GetAttrString(plugin, "map")))
-    FAIL1("plugin '%s' has no method: 'map'", classname);
+  if (!(map = PyObject_GetAttrString(cls, "map")))
+    FAIL1("'%s' has no method: 'map'", classname);
   if (!PyCallable_Check(map))
-    FAIL1("attribute 'map' of plugin '%s' is not callable", classname);
+    FAIL1("attribute 'map' of '%s' is not callable", classname);
 
-  if ((pcost = PyObject_GetAttrString(plugin, "cost")) && PyLong_Check(pcost))
+  if ((pcost = PyObject_GetAttrString(cls, "cost")) && PyLong_Check(pcost))
     cost = PyLong_AsLong(pcost);
 
   if (!(api = calloc(1, sizeof(DLiteMappingPlugin))))
@@ -255,8 +253,8 @@ const DLiteMappingPlugin *get_dlite_mapping_api(const char *name)
   api->mapper = mapper;
   api->freer = freer;
   api->cost = cost;
-  api->data = (void *)plugin;
-  Py_INCREF(plugin);
+  api->data = (void *)cls;
+  Py_INCREF(cls);
 
   retval = api;
  fail:

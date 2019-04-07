@@ -7,17 +7,15 @@
 #include "uuid4.h"
 #include "plugin.h"
 
+/* A small integer value */
+#define SMALLINT 2147483647
+
 
 /* Struct holding data for a loaded plugin */
 struct _Plugin {
   const void *api;
   dsl_handle handle;
 };
-
-
-
-/* Prototype for function that is looked up in shared library */
-typedef const void *(*PluginFunc)(const char *name);
 
 
 /*
@@ -135,8 +133,8 @@ int plugin_register(PluginInfo *info, const char *path, const void *api)
   `name` matches the plugin name, the plugin is registered and a
   pointer to the plugin API is returned.
 
-  If `name` is NULL, a pointer to the API of the first successfully
-  loaded plugin (that is not already registered) is returned.
+  If `name` is NULL, all plugins matching `pattern` are registered and a
+  pointer to latest successfully loaded API is returned.
 
   Returns a pointer to the plugin API or NULL on error.
  */
@@ -147,11 +145,12 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
   dsl_handle handle=NULL;
   void *sym=NULL;
   PluginFunc func;
-  const void *api=NULL;
+  const void *api=NULL, *loaded_api=NULL, *retval=NULL;
 
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
   while ((filepath = fu_nextmatch(iter))) {
+    int iter1=0, iter2=SMALLINT;
     err_clear();
 
     /* check that plugin is not already loaded */
@@ -173,28 +172,28 @@ const void *plugin_load(PluginInfo *info, const char *name, const char *pattern)
        pointer to function pointer */
     *(void **)(&func) = sym;
 
-    if (!(api = func(name))) {
+    while (iter2 != iter1 && (api = func(&iter1))) {
+      loaded_api = api;
+      if (!name) {
+        register_plugin(info, filepath, api, handle);
+      } else if (strcmp(*((char **)api), name) == 0) {
+        if (register_plugin(info, filepath, api, handle)) goto fail;
+        fu_endmatch(iter);
+        return api;
+      }
+      iter2 = iter1;
+    }
+    if (name || iter2 == SMALLINT)
       warn("failure calling \"%s\" in plugin \"%s\": %s",
            info->symbol, filepath, dsl_error());
-      dsl_close(handle);
-      continue;
-    }
 
-    if (!name) {
-      if (register_plugin(info, filepath, api, handle)) continue;
-      fu_endmatch(iter);
-      return api;
-    } else if (strcmp(*((char **)api), name) == 0) {
-      if (register_plugin(info, filepath, api, handle)) goto fail;
-      fu_endmatch(iter);
-      return api;
-    }
   }
 
+  retval = loaded_api;
  fail:
+  if (!retval && handle) dsl_close(handle);
   if (iter) fu_endmatch(iter);
-  if (handle) dsl_close(handle);
-  return NULL;
+  return retval;
 }
 
 

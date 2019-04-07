@@ -23,3 +23,19 @@ class plugin1(DLiteMappingBase):
         inst3 = dlite.Instance(self.output_uri, [])
         inst3.c = inst1.a + 12
         return inst3
+
+
+
+
+class plugin2(DLiteMappingBase):
+    name = "plugin2"
+    output_uri = "http://meta.sintef.no/0.1/ent1"
+    input_uris = ["http://meta.sintef.no/0.1/ent3"]
+    cost = 25
+
+    def map(self, instances):
+        print('*** map(%r)' % (instances, ))
+        inst3 = instances[0]
+        inst1 = dlite.Instance(self.output_uri, [])
+        inst1.a = inst3.c - 12
+        return inst1

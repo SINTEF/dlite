@@ -9,7 +9,7 @@
   Plugins accessed with this library, are dynamic shared libraries
   exposing a single function with prototype
 
-      const void *symbol(const char *name);
+      const void *symbol(int *iter);
 
   This function should return a pointer to a struct with function
   pointers to all functions provided by the plugin (data member are
@@ -17,9 +17,9 @@
   The first element in the API must be a pointer to a string containg
   the name of the plugin.  Plugin names should be unique.
 
-  The `name` argument is a hint that plugins are free to ignore.  It
-  is used by plugins that supports several different drivers, to
-  select which api that should be returned.
+  The `iter` argument is normally ignored.  It is provided to support
+  plugins exposing several APIs.  If the plugin has more APIs to
+  expose, it should increase the integer pointed to by `iter` by one.
 
   A new plugin kind, with its own API, can be created with
   plugin_info_create().
@@ -34,6 +34,8 @@
 #include "globmatch.h"
 #include "map.h"
 
+/** Prototype for function that is looked up in shared library */
+typedef const void *(*PluginFunc)(int *iter);
 
 /** Opaque struct for list of plugins */
 typedef struct _Plugin Plugin;
