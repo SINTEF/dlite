@@ -214,6 +214,43 @@ char *fu_friendly_dirsep(char *path)
 
 
 /*
+  Returns canonicalized absolute pathname for `path`.
+
+  If `resolved_path` is NULL, the returned path is malloc()'ed.
+  Otherwise, it must be a buffer of at least size PATH_MAX (on POSIX)
+  or MAX_PATH (on Windows).
+
+  Returns NULL on error.
+ */
+char *fu_canonical_path(const char *path, char *resolved_path)
+{
+#if defined(HAVE_REALPATH)
+  return realpath(path, resolved_path);
+#elif defined(HAVE_GetFullPathNameW)
+  int n, size=MAX_PATH;
+  if (!resolved_path) size=0;
+  if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
+    return err(1, "cannot resolve canonical path for '%s'", path), NULL;
+  if (!resolved_path) {
+    size = n + 1;
+    if (!(resolved_path = malloc(size)))
+      return err(1, "allocation failure"), NULL;
+    if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
+      return err(1, "cannot resolve canonical path for '%s'", path), NULL;
+  }
+  if (n > size)
+    return err(1, "cannot create large enough buffer for canonicalize '%s' "
+               "(limited to MAX_PATH=%d)", path, MAX_PATH);
+  return resolved_path;
+#else
+#pragma message ( "Neither realpath() nor GetFullPathNameW() exists" )
+  if (!resolved_path) return strdup(path);
+  return strcpy(resolved_path, path);  /* buffer owerflow... (?) */
+#endif
+}
+
+
+/*
   Opens a directory and returns a FUDir handle to it.  Returns NULL on error.
  */
 FUDir *fu_opendir(const char *path)
