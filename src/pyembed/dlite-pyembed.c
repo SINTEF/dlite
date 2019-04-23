@@ -132,6 +132,117 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
 
 
 /*
+  Loads the Python C extension module "_dlite" and returns the address
+  of `symbol`, within this module.  Returns NULL on error or if
+  `symbol` cannot be found.
+*/
+void *dlite_pyembed_get_address(const char *symbol)
+{
+  PyObject *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
+  PyObject *_dlite_module=NULL, *_dlite_dict=NULL, *_dlite_file=NULL;
+  PyObject *ctypes_name=NULL, *ctypes_module=NULL, *ctypes_dict=NULL;
+  PyObject *PyDLL=NULL, *addressof=NULL;
+  PyObject *so=NULL, *sym=NULL, *addr=NULL;
+  const char *filename=NULL;
+  void *ptr=NULL;
+
+  /* Import dlite */
+  if (!(dlite_name = PyUnicode_FromString("dlite")) ||
+      !(dlite_module = PyImport_Import(dlite_name)))
+    FAIL("cannot import Python package: dlite");
+
+  /* Get path to _dlite */
+  if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
+      !(_dlite_module = PyDict_GetItemString(dlite_dict, "_dlite")) ||
+      !(_dlite_dict = PyModule_GetDict(_dlite_module)) ||
+      !(_dlite_file = PyDict_GetItemString(_dlite_dict, "__file__")))
+    FAIL("cannot get path to dlite extension module");
+
+  /* Get C path to _dlite */
+  if (!PyUnicode_Check(_dlite_file) ||
+      !(filename = PyUnicode_DATA(_dlite_file)))
+    FAIL("cannot get C path to dlite extension module");
+
+  /* Get PyDLL() from ctypes */
+  if (!(ctypes_name = PyUnicode_FromString("ctypes")) ||
+      !(ctypes_module = PyImport_Import(ctypes_name)) ||
+      !(ctypes_dict = PyModule_GetDict(ctypes_module)) ||
+      !(PyDLL = PyDict_GetItemString(ctypes_dict, "PyDLL")))
+    FAIL("cannot find PyDLL() in ctypes");
+
+  /* Get addressof() from ctypes */
+  if (!(addressof = PyDict_GetItemString(ctypes_dict, "addressof")))
+    FAIL("cannot find addressof() in ctypes");
+
+  /* Locate `symbol` in _dlite using ctypes */
+  if (!(so = PyObject_CallFunctionObjArgs(PyDLL, _dlite_file, NULL)))
+    FAIL1("error calling PyDLL(\"%s\")", (char *)filename);
+  if (!(sym = PyObject_GetAttrString(so, symbol)))
+    FAIL2("no such symbol in shared object \"%s\": %s", filename, symbol);
+  if (!(addr = PyObject_CallFunctionObjArgs(addressof, sym, NULL)))
+    FAIL1("error calling ctypes.addressof(\"%s\")", symbol);
+  if (!PyLong_Check(addr))
+    FAIL2("address of \"%s\" in %s is not a long", symbol, filename);
+  ptr = (void *)PyLong_AsLong(addr);
+
+  /* Seems that ctypes.addressof() returns the address where the pointer to
+     `symbol` is stored, so we need an extra dereference... */
+  if (ptr) ptr = *((void **)ptr);
+
+ fail:
+  Py_XDECREF(addr);
+  Py_XDECREF(sym);
+  Py_XDECREF(so);
+  //Py_XDECREF(addressof);      // borrowed reference
+  //Py_XDECREF(PyDLL);          // borrowed reference
+  //Py_XDECREF(ctypes_dict);    // borrowed reference
+  Py_XDECREF(ctypes_module);
+  Py_XDECREF(ctypes_name);
+  //Py_XDECREF(_dlite_file);    // borrowed reference
+  //Py_XDECREF(_dlite_dict);    // borrowed reference
+  //Py_XDECREF(_dlite_module);  // borrowed reference
+  //Py_XDECREF(dlite_dict);     // borrowed reference
+  Py_XDECREF(dlite_module);
+  Py_XDECREF(dlite_name);
+  return ptr;
+}
+
+
+/*
+  Returns a Python representation of dlite instance with given id or NULL
+  on error.
+*/
+PyObject *dlite_pyembed_get_instance(const char *id)
+{
+  PyObject *pyid=NULL, *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
+  PyObject *get_instance=NULL, *instance=NULL;
+
+  if (!(pyid = PyUnicode_FromString(id)))
+    FAIL("cannot create python string");
+
+  /* Import dlite */
+  if (!(dlite_name = PyUnicode_FromString("dlite")) ||
+      !(dlite_module = PyImport_Import(dlite_name)))
+    FAIL("cannot import Python package: dlite");
+
+  /* Get reference to Python function get_instance() */
+  if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
+      !(get_instance = PyDict_GetItemString(dlite_dict, "get_instance")))
+    FAIL("no such Python function: dlite.get_instance()");
+
+  /* Call get_instance() */
+  if (!(instance = PyObject_CallFunctionObjArgs(get_instance, pyid, NULL)))
+    FAIL("failure calling dlite.get_instance()");
+
+ fail:
+  Py_XDECREF(pyid);
+  Py_XDECREF(dlite_module);
+  Py_XDECREF(dlite_name);
+  return instance;
+}
+
+
+/*
   This function loads all Python modules found in `paths` and returns
   a list of plugin objects.
 

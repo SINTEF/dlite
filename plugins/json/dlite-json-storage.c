@@ -946,8 +946,14 @@ static DLiteStoragePlugin dlite_json_plugin = {
   dlite_json_get_dataname,
   dlite_json_set_dataname,
 
+  /* specialised api */
   dlite_json_get_entity,
-  dlite_json_set_entity
+  dlite_json_set_entity,
+
+
+  /* internal data */
+  NULL,
+  NULL
 };
 
 

@@ -21,6 +21,7 @@
   variable `DLITE_MAPPING_PLUGINS`.
 */
 
+#include "utils/dsl.h"
 #include "dlite-entity.h"
 
 /**
@@ -91,13 +92,18 @@ const DLiteMappingPlugin *
 dlite_mapping_plugin_next(DLiteMappingPluginIter *iter);
 
 
-
-
 /**
   Unloads and unregisters mapping plugin with the given name.
   Returns non-zero on error.
 */
 int dlite_mapping_plugin_unload(const char *name);
+
+/**
+  Unloads and unregisters all mappings.  Returns non-zero on error.
+*/
+int dlite_mapping_plugin_unload_all(void);
+
+
 
 /**
   Returns a pointer to the current mapping plugin search path.  It is

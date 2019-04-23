@@ -22,9 +22,17 @@ static PluginInfo *mapping_plugin_info=NULL;
 /* Frees up `mapping_plugin_info`. */
 static void mapping_plugin_info_free(void)
 {
-  if (mapping_plugin_info) plugin_info_free(mapping_plugin_info);
+  if (mapping_plugin_info) {
+    PluginIter iter;
+    DLiteMappingPlugin *api;
+    plugin_api_iter_init(&iter, mapping_plugin_info);
+    while ((api = (DLiteMappingPlugin *)plugin_api_iter_next(&iter)))
+      if (api && api->freer) api->freer(api);
+    plugin_info_free(mapping_plugin_info);
+  }
   mapping_plugin_info = NULL;
 }
+
 
 /* Returns a pointer to `mapping_plugin_info`. */
 static PluginInfo *get_mapping_plugin_info(void)
@@ -101,7 +109,7 @@ int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
-  return plugin_register(info, api->name, api);
+  return plugin_register_api(info, api);
 }
 
 /*
@@ -112,7 +120,7 @@ int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
   PluginInfo *info;
   load_mapping_plugins();
   if (!(info = get_mapping_plugin_info())) return 1;
-  plugin_init_iter((PluginIter *)iter, info);
+  plugin_api_iter_init((PluginIter *)iter, info);
   return 0;
 }
 
@@ -126,7 +134,7 @@ int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
 const DLiteMappingPlugin *
 dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
 {
-  return plugin_next((PluginIter *)iter);
+  return plugin_api_iter_next((PluginIter *)iter);
 }
 
 
@@ -146,6 +154,32 @@ int dlite_mapping_plugin_unload(const char *name)
   if (api && api->freer) api->freer(api);
   return stat;
 }
+
+/*
+  Unloads and unregisters all mappings.  Returns non-zero on error.
+*/
+int dlite_mapping_plugin_unload_all(void)
+{
+  mapping_plugin_info_free();
+  return 0;
+}
+/*
+  // xxx
+  PluginInfo *info;
+  PluginIter iter;
+  DLiteMappingPlugin *api;
+  if (!(info = get_mapping_plugin_info())) return 1;
+  plugin_api_iter_init(&iter, info);
+  while ((api = (DLiteMappingPlugin *)plugin_api_iter_next(&iter))) {
+    //plugin_unload(info, api->name);
+    if (api && api->freer) api->freer(api);
+  }
+  plugin_info_free(info);
+
+  //plugin_deinit_iter(&iter);
+  return 0;
+}
+*/
 
 /*
   Returns a NULL-terminated array of pointers to search paths or NULL

@@ -87,13 +87,8 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
 {
   PluginInfo *info;
-  char uuid[DLITE_UUID_LENGTH+1];
-
   if (!(info = get_storage_plugin_info())) return 1;
-
-  /* We don't have any path for api, so we simply use a random uuid */
-  dlite_get_uuid(uuid, NULL);
-  return plugin_register(info, uuid, api);
+  return plugin_register_api(info, api);
 }
 
 /*

@@ -23,8 +23,8 @@
 
   A new plugin kind, with its own API, can be created with
   plugin_info_create().
-
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -46,18 +46,14 @@ typedef map_t(Plugin *) Plugins;
 
 /** Info about a plugin kind */
 typedef struct _PluginInfo {
-  const char *kind;    /*!< Name of this plugin kind */
-  const char *symbol;  /*!< Name of function in plugin returning the api */
-  const char *envvar;  /*!< Name of environment variable initialising the
-                            plugin search path */
-  FUPaths paths;       /*!< Current plugin search paths */
-
-  // FIXME -- replace with Plugins
-  //size_t nplugins;     /*!< Number of loaded plugins */
-  //size_t nalloc;       /*!< Allocated size of `loaded_plugins` */
-  //Plugin **plugins;    /*!< Array of pointers to loaded plugins */
-
-  Plugins plugins;     /*!< Maps plugin path to loaded plugins */
+  const char *kind;      /*!< Name of this plugin kind */
+  const char *symbol;    /*!< Name of function in plugin returning the api */
+  const char *envvar;    /*!< Name of environment variable initialising the
+                              plugin search path */
+  FUPaths paths;         /*!< Current plugin search paths */
+  Plugins plugins;       /*!< Maps plugin paths to loaded plugins */
+  map_str_t pluginpaths; /*!< Maps api names to plugin paths */
+  map_void_t apis;       /*!< Maps api names to apis (void pointers) */
 } PluginInfo;
 
 
@@ -87,16 +83,10 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
 void plugin_info_free(PluginInfo *info);
 
 
-/**
-  Registers plugin loaded from `path` with given api into `info`.
-
-  The `path` argument should normally be the path to the shared
-  library implementing the plugin, but may be any unique string
-  (preferrable a name or hash generated from `api`).
-
-  Returns non-zero on error.
+/*
+  Registers `api` into `info`.  Returns non-zero on error.
  */
-int plugin_register(PluginInfo *info, const char *path, const void *api);
+int plugin_register_api(PluginInfo *info, const void *api);
 
 
 /**
@@ -124,19 +114,21 @@ const void *plugin_get_api(PluginInfo *info, const char *name);
  */
 void plugin_load_all(PluginInfo *info);
 
+
+
 /**
   Initiates a plugin iterator.
 */
-void plugin_init_iter(PluginIter *iter, const PluginInfo *info);
+void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info);
 
 /**
-  Returns pointer to api for the next registered plugin or NULL if all
-  plugins has been visited.
+  Returns pointer to the next registered API or NULL if all APIs
+  have been visited.
 
   Used for iterating over plugins.  Plugins should not be registered
   or removed while iterating.
  */
-const void *plugin_next(PluginIter *iter);
+const void *plugin_api_iter_next(PluginIter *iter);
 
 
 

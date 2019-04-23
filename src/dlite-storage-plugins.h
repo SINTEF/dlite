@@ -21,6 +21,7 @@
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
 
+#include "dlite-datamodel.h"
 #include "dlite-storage.h"
 #include "dlite-entity.h"
 
@@ -327,6 +328,20 @@ typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
 
 
 /**
+ * @name Internal data
+ * Internal data used by the driver.  Optional.
+ * @{
+ */
+
+/**
+  Releases internal resources associated with `api`.
+*/
+typedef void (*DriverFreer)(DLiteStoragePlugin *api);
+
+/** @} */
+
+
+/**
   Struct with the name and pointers to function for a plugin. All
   plugins should define themselves by defining an intance of
   DLiteStoragePlugin.
@@ -362,6 +377,10 @@ struct _DLiteStoragePlugin {
   /* Specialised api */
   GetEntity          getEntity;        /*!< Returns a new Entity from storage */
   SetEntity          setEntity;        /*!< Stores an Entity */
+
+  /* Internal data */
+  DriverFreer        freer;            /*!< Releases internal data */
+  void *             data;             /*!< Internal data used by the driver */
 };
 
 

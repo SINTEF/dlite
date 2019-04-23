@@ -109,7 +109,7 @@ struct _DLiteProperty {
     free($self);
   }
 
-  %newobject get_typename;
+  %newobject get_type;
   char *get_type(void) {
     return to_typename($self->type, $self->size);
   }
@@ -164,16 +164,19 @@ struct _Triplet {
 %feature("docstring", "
 Returns a new instance.
 
-In the first form, a new instance of metadata `metaid` is created.
-`dims` must be a sequence with the size of each dimension. All values
-initialized to zero.  If `id` is None, a random UUID is generated.
-Otherwise the UUID is derived from `id`.
+Instance(metaid, dims, id=None)
+    Creates a new instance of metadata `metaid`.  `dims` must be a
+    sequence with the size of each dimension. All values initialized
+    to zero.  If `id` is None, a random UUID is generated.  Otherwise
+    the UUID is derived from `id`.
 
-In the second form the instance is loaded from `url`.  The URL should
-be of the form ``driver://location?options#id``.
+Instance(url)
+    Loads the instance from `url`.  The URL should be of the form
+    ``driver://location?options#id``.
 
-In the third form the instance is loaded from `storage`. `id` is not
-required if the storage only contains more than one instance.
+Instance(storage, id=None)
+    Loads the instance from `storage`. `id` is not required if the
+    storage only contains more one instance.
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
 %rename(Instance) _DLiteInstance;
@@ -278,6 +281,7 @@ struct _DLiteInstance {
     return (bool)dlite_instance_is_metameta($self);
   }
 };
+
 
 
 /* ----------------

@@ -6,10 +6,6 @@ import dlite
 #    os.path.dirname(__file__), '..', '..', 'tests', 'mappings'))
 #dlite.storage_plugin_path_append(path)
 
-print("*** plugin1")
-#for k, v in list(globals().items()):
-#    print("%16s : %s" % (k, v))
-
 
 class plugin1(DLiteMappingBase):
     name = "plugin1"
@@ -18,13 +14,10 @@ class plugin1(DLiteMappingBase):
     cost = 25
 
     def map(self, instances):
-        print('*** map(%r)' % (instances, ))
         inst1 = instances[0]
         inst3 = dlite.Instance(self.output_uri, [])
-        inst3.c = inst1.a + 12
+        inst3.c = inst1.a + 12.0
         return inst3
-
-
 
 
 class plugin2(DLiteMappingBase):
@@ -34,8 +27,8 @@ class plugin2(DLiteMappingBase):
     cost = 25
 
     def map(self, instances):
-        print('*** map(%r)' % (instances, ))
         inst3 = instances[0]
+        print(inst3)
         inst1 = dlite.Instance(self.output_uri, [])
-        inst1.a = inst3.c - 12
+        inst1.a = int(inst3.c - 12.0 + 0.5)
         return inst1

@@ -33,6 +33,14 @@ typedef PyObject obj_t;
  ** Module initialisation
  **********************************************/
 
+/*
+ * We use numpy for interfacing arrays.  See
+ * http://docs.scipy.org/doc/numpy-1.10.0/reference/swig.interface-file.html
+ * for how to use numpy.i.
+ *
+ * The numpy.i file itself is downloaded from
+ * https://github.com/numpy/numpy/blame/master/tools/swig/numpy.i
+ */
 
 %include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
 
@@ -40,9 +48,11 @@ typedef PyObject obj_t;
   import_array();  /* Initialize numpy */
 %}
 
-
-%numpy_typemaps(size_t, NPY_SIZE_T, size_t);
-%numpy_typemaps(char *, NPY_STRING, int);
+%numpy_typemaps(unsigned char, NPY_UBYTE,  size_t)
+%numpy_typemaps(int32_t,       NPY_INT32,  size_t)
+%numpy_typemaps(double,        NPY_DOUBLE, size_t)
+%numpy_typemaps(size_t,        NPY_SIZE_T, size_t)
+%numpy_typemaps(char *,        NPY_STRING, int);
 
 
 
@@ -726,52 +736,100 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  *
  * Argout typemaps
  * ---------------
- *
+ * unsigned char **ARGOUT_BYTES, size_t *LEN
+ *     Bytes.
  *
  * Out typemaps
  * ------------
  * bool -> bool
+ *     Returns boolean.
+ * status_t -> int
+ *     Raise RuntimeError exception on non-zero return.
+ * posstatus_t -> int
+ *     Raise RuntimeError exception on negative return.
  * char ** -> list of strings
- *     Newly allocated NULL-terminated array of string pointers.
+ *     Returns newly allocated NULL-terminated array of string pointers.
  * const_char ** -> list of strings
- *     NULL-terminated array of string pointers (will not be free'ed).
+ *     Returns NULL-terminated array of string pointers (will not be free'ed).
  *
  **********************************************/
 
-
-/* Output typemaps
+/* ---------------
+ * Argout typemaps
  * --------------- */
-%inline %{
 
-typedef char const_char;
+/* Argout bytes */
+%typemap("doc") (unsigned char **ARGOUT_BYTES, size_t *LEN) "Bytes"
+%typemap(in,numinputs=0) (unsigned char **ARGOUT_BYTES, size_t *LEN)
+  (unsigned char *tmp, size_t n)
+{
+  $1 = &tmp;
+  $2 = &n;
+}
+%typemap(argout) (unsigned char **ARGOUT_BYTES, size_t *LEN)
+{
+  $result = PyByteArray_FromStringAndSize((char *)tmp$argnum, n$argnum);
+}
 
-%}
 
+
+/* ---------------
+ * Output typemaps
+ * --------------- */
+
+/* Boolean return. */
 %typemap("doc") bool "Boolean"
 %typemap(out) bool {
   $result = PyBool_FromLong($1);
 }
 
-/* Newly allocated NULL-terminated array of string pointers. */
-%typemap("doc") bool "List of strings."
+%{
+  typedef int status_t;     // error if non-zero, no output
+  typedef int posstatus_t;  // error if negative
+%}
+
+/* Convert non-zero return value to RuntimeError exception */
+%typemap("doc") status_t "Returns non-zero on error"
+%typemap(out) status_t {
+  if ($1) SWIG_exception_fail(SWIG_RuntimeError,
+			      "non-zero return value in $symname()");
+  $result = Py_None;
+  Py_INCREF(Py_None); // Py_None is a singleton so increment its refcount
+}
+
+/* Raise RuntimeError exception on negative return, otherwise return int */
+%typemap("doc") posstatus_t "Returns less than zero on error"
+%typemap(out) posstatus_t {
+  if ($1 < 0) SWIG_exception_fail(SWIG_RuntimeError,
+				  "negative return value in $symname()");
+  $result = PyLong_FromLong($1);
+}
+
+
+/* Return of newly allocated NULL-terminated array of string pointers. */
+%typemap("doc") char ** "List of strings"
 %typemap(out) char ** {
-  char **p;
-  if (!$1) SWIG_fail;
   $result = PyList_New(0);
-  for (p=$1; *p; p++) {
-    PyList_Append($result, PyString_FromString(*p));
-    free(*p);
+  if ($1) {
+    char **p;
+    for (p=$1; *p; p++) {
+      PyList_Append($result, PyString_FromString(*p));
+      free(*p);
+    }
+    free($1);
   }
-  free($1);
 }
 
 /* Converts (const char **) return value to a python list of strings */
-%typemap("doc") const_char ** "List of strings."
+%inline %{
+  typedef char const_char;
+%}
+%typemap("doc") const_char ** "List of strings"
 %typemap(out) const_char ** {
-  char **p;
-  if (!$1) SWIG_fail;
   $result = PyList_New(0);
-  for (p=$1; *p; p++) {
-    PyList_Append($result, PyString_FromString(*p));
+  if ($1) {
+    char **p;
+    for (p=$1; *p; p++)
+      PyList_Append($result, PyString_FromString(*p));
   }
 }

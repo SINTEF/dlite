@@ -1,7 +1,12 @@
-project(dlite-python C)
+project(dlite-bindings-python C)
+
+# We are not ready to support cmake-3.12 yet
+cmake_policy(SET CMP0078 OLD)
+cmake_policy(SET CMP0086 OLD)
+
 
 # We don't bother to support Python 2, since support for it ends 2019
-# Is there any point to support any version below, say Python 3.5?
+# Is there any point in trying to support any version below, say Python 3.5?
 find_package(PythonInterp 3 REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Numpy REQUIRED)
@@ -17,6 +22,7 @@ else()
   find_package(SWIG REQUIRED 3.0.8)
 endif()
 
+# Python sources
 set(py_sources
   __init__.py
   )
@@ -36,6 +42,12 @@ endif()
 
 # Add macros for use with swig
 include(${SWIG_USE_FILE})
+
+
+#
+# Create Python library
+# ---------------------
+set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
   ${PYTHON_INCLUDE_DIRS}
@@ -62,7 +74,10 @@ swig_link_libraries(dlite
   ${PYTHON_LIBRARIES}
   )
 
+
+#
 # Create a working Python package in binary dir
+# ---------------------------------------------
 ADD_CUSTOM_COMMAND(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
   POST_BUILD
@@ -79,6 +94,7 @@ foreach(source ${py_sources})
 endforeach()
 
 
+#
 # Install
 # -------
 # Based on: http://developer.intra2net.com/git/?p=libftdi;a=blob;f=python/CMakeLists.txt;h=93410544fac2a45eec51cb8dd344708b3bbdfe67;hb=HEAD
@@ -106,5 +122,7 @@ install(
   )
 
 
+#
 # Tests
+# -----
 add_subdirectory(tests)

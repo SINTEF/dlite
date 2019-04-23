@@ -1,23 +1,18 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
 /*
- * SWIG interface file for the python bindings.
+ * SWIG interface file for dlite bindings.
  *
- * We use numpy for interfacing arrays.  See
- * http://docs.scipy.org/doc/numpy-1.10.0/reference/swig.interface-file.html
- * for how to use numpy.i.
- *
- * The numpy.i file itself is downloaded from
- * https://github.com/numpy/numpy/blame/master/tools/swig/numpy.i
+ * So far only Python bindings are implemented.
  */
 
-%define DOCSTRING
-"""Python bindings to DLite
-
-"""
-%enddef
-
+/* Define target-language specific docstring */
+#ifdef SWIGPYTHON
+%include "dlite-python-docstring.i"
 %module(docstring=DOCSTRING) dlite
+#else
+%module dlite
+#endif
 
 
 /**********************************************
@@ -41,10 +36,25 @@
 /**********************************************
  ** Load target language-specific module
  **********************************************/
+
+/*
+ * In addition to typemaps (see end of dlite-python.i), the target
+ * language-specific interface files are expected to define:
+ *   - obj_t: typedef for target-language objects.
+ *   - DLiteSwigNone: target-language representation for None.
+ */
+
 %include "dlite-macros.i"
 
+/* Python
+ * ------ */
 #ifdef SWIGPYTHON
 %include "dlite-python.i"
+
+/* Special features */
+%feature("autodoc", "0");
+%feature("keyword");
+
 #endif
 
 
@@ -62,29 +72,15 @@
 
 
 /**********************************************
- ** Typemaps
+ ** Generic typemaps
  **********************************************/
-/* Generic typemaps */
 %include <typemaps.i>
 %include <cstring.i>
-
-/* Create numpy typemaps */
-%numpy_typemaps(unsigned char, NPY_UBYTE,  size_t)
-%numpy_typemaps(int32_t,       NPY_INT32,  size_t)
-%numpy_typemaps(double,        NPY_DOUBLE, size_t)
-%numpy_typemaps(size_t,        NPY_SIZE_T, size_t)
-
-%include "dlite-typemaps.i"
-
 
 
 /**********************************************
  ** Declare functions to wrap
  **********************************************/
-
-/* Special features */
-%feature("autodoc", "0");
-%feature("keyword");
 
 /* Remove "dlite_" prefix from bindings */
 %rename("%(strip:[dlite_])s") "";

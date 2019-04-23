@@ -61,6 +61,21 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap);
 
 
 /**
+  Loads the Python C extension module "_dlite" and returns the address
+  of `symbol`, within this module.  Returns NULL on error or if
+  `symbol` cannot be found.
+*/
+void *dlite_pyembed_get_address(const char *symbol);
+
+
+/**
+  Returns a Python representation of dlite instance with given id or NULL
+  on error.
+*/
+PyObject *dlite_pyembed_get_instance(const char *id);
+
+
+/**
   This function loads all Python modules found in `paths` and returns
   a list of plugin objects.
 

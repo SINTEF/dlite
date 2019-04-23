@@ -4,6 +4,10 @@
 #include <Python.h>
 #include <assert.h>
 
+#ifdef HAVE_CONFIG_H
+#undef HAVE_CONFIG_H
+#endif
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
@@ -20,6 +24,10 @@ static int mapping_paths_modified = 0;
 /* A cache with all loaded plugins */
 static PyObject *loaded_mappings = NULL;
 
+/* Prototype for function converting `inst` to a Python object.
+   Returns a new reference or NULL on error. */
+typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
+
 
 /*
   Returns a pointer to Python mapping paths
@@ -27,8 +35,8 @@ static PyObject *loaded_mappings = NULL;
 const FUPaths *dlite_python_mapping_paths(void)
 {
   if (!mapping_paths_initialised) {
-    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_PATHS") < 0)
-      return dlite_err(1, "cannot load initialise DLITE_PYTHON_PATHS"), NULL;
+    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPINGS") < 0)
+      return dlite_err(1, "cannot initialise DLITE_PYTHON_MAPPINGS"), NULL;
     mapping_paths_initialised = 1;
     mapping_paths_modified = 0;
   }
@@ -137,36 +145,52 @@ void dlite_python_mapping_unload(void)
 static DLiteInstance *mapper(const DLiteMappingPlugin *api,
                              const DLiteInstance **instances, int n)
 {
-  const char *classname;
-  PyObject *map=NULL, *ret=NULL;
+  int i;
+  const char *classname, *uuid;
+  DLiteInstance *inst=NULL;
+  PyObject *map=NULL, *insts=NULL, *outinst=NULL, *pyuuid=NULL;
   PyObject *plugin = (PyObject *)api->data;
   assert(plugin);
-
   dlite_errclr();
-  UNUSED(instances);
-  UNUSED(n);
 
-  printf("\n*** python_mapper(n=%d)\n", n);
+  /* Creates Python list of input instances */
+  if (!(insts = PyList_New(n)))
+    FAIL("failed to create list");
+  for (i=0; i<n; i++) {
+    PyObject *pyinst;
+    if (!(pyinst = dlite_pyembed_get_instance(instances[i]->uuid))) goto fail;
+    PyList_SetItem(insts, i, pyinst);
+  }
 
+  /* Call Python map() method */
   if (!(classname = dlite_pyembed_classname(plugin)))
     dlite_warnx("cannot get class name for plugin %p", (void *)plugin);
-
   if (!(map = PyObject_GetAttrString(plugin, "map")))
     FAIL1("plugin '%s' has no method: 'map'", classname);
   if (!PyCallable_Check(map))
     FAIL1("attribute 'map' of plugin '%s' is not callable", classname);
-  if (!(ret = PyObject_CallFunctionObjArgs(map, NULL))) {
+  if (!(outinst = PyObject_CallFunctionObjArgs(map, plugin, insts, NULL))) {
     dlite_pyembed_err(1, "error calling %s.map()", classname);
     goto fail;
   }
 
-
+  /* Extract uuid from returned `outinst` object and get corresponding
+     C instance */
+  if (!(pyuuid = PyObject_GetAttrString(outinst, "uuid")))
+    FAIL("output instance has no such attribute: uuid");
+  if (!PyUnicode_Check(pyuuid) || !(uuid = PyUnicode_DATA(pyuuid)))
+    FAIL("cannot convert uuid");
+  if (!(inst = dlite_instance_get(uuid)))
+    FAIL1("no such instance: %s", uuid);
 
  fail:
-  Py_XDECREF(ret);
+  Py_XDECREF(pyuuid);
+  Py_XDECREF(outinst);
+  Py_XDECREF(insts);
   Py_XDECREF(map);
-
-  return NULL;
+  for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
+  dlite_meta_decref((DLiteMeta *)inst->meta);  // XXX - is this correct?
+  return inst;
 }
 
 /*
@@ -174,6 +198,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
 */
 static void freer(DLiteMappingPlugin *api)
 {
+  free(api->input_uris);
   Py_XDECREF(api->data);
   free(api);
 }
@@ -199,8 +224,9 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
     FAIL1("API iterator index is out of range: %d", *iter);
-  cls = PyList_GetItem(mappings, (*iter)++);
+  cls = PyList_GetItem(mappings, *iter);
   assert(cls);
+  if (*iter < n - 1) (*iter)++;
 
   /* get classname for error messages */
   if (!(classname = dlite_pyembed_classname(cls)))
@@ -264,6 +290,6 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   Py_XDECREF(in_uris);
   Py_XDECREF(map);
   Py_XDECREF(pcost);
-  if (input_uris) free(input_uris);
+  if (!retval && input_uris) free(input_uris);
   return retval;
 }

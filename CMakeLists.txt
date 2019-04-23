@@ -247,7 +247,7 @@ list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
-  ${dlite-python_BINARY_DIR}
+  ${dlite-bindings-python_BINARY_DIR}
   $ENV{PYTHONPATH}
   )
 if(dlite_PYTHONPATH)
@@ -287,14 +287,14 @@ list(REMOVE_DUPLICATES dlite_STORAGES)
 
 # DLITE_PYTHON_STORAGES - search path for Python storage plugins
 set(dlite_PYTHON_STORAGES
-  ${dlite-python_SOURCE_DIR}/plugins
+  ${dlite-src-pyembed_SOURCE_DIR}/storages
   $ENV{DLITE_PYTHON_STORAGES}
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_STORAGES)
 
 # DLITE_PYTHON_MAPPINGS - search path for Python mapping plugins
 set(dlite_PYTHON_MAPPINGS
-  ${dlite-python_SOURCE_DIR}/plugins
+  ${dlite-src-pyembed_SOURCE_DIR}/mappings
   $ENV{DLITE_PYTHON_MAPPINGS}
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_MAPPINGS)
@@ -323,7 +323,8 @@ message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 message("export DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
 message("export DLITE_STORAGES=${dlite_STORAGES}")
-message("export DLITE_PYTHON_MAPPINGS=${dlite_PYTHON_PLUGINS}")
+message("export DLITE_PYTHON_STORAGES=${dlite_PYTHON_STORAGES}")
+message("export DLITE_PYTHON_MAPPINGS=${dlite_PYTHON_MAPPINGS}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
