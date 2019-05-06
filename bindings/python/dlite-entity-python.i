@@ -1,4 +1,4 @@
-/* -*- c -*-  (not really, but good for syntax highlighting) */
+/* -*- Python -*-  (not really, but good for syntax highlighting) */
 
 /* Python-spesific extensions to dlite-entity.i */
 %pythoncode %{
@@ -13,7 +13,7 @@ else:
 
 import numpy as np
 
-class BytearrayEncoder(json.JSONEncoder):
+class InstanceEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, bytearray):
             return base64.b16encode(obj).decode()
@@ -27,6 +27,8 @@ class BytearrayEncoder(json.JSONEncoder):
                 return conv(obj.tolist())
             else:
                 return obj.tolist()
+        elif hasattr(obj, 'asdict'):
+            return obj.asdict()
         else:
             return json.JSONEncoder.default(self, obj)
 
@@ -92,6 +94,11 @@ class BytearrayEncoder(json.JSONEncoder):
     def __repr__(self):
         return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
             self.s, self.p, self.o, self.id)
+
+    def asdict(self):
+        """Returns a dict representation of self."""
+        d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
+        return d
   %}
 }
 
@@ -200,7 +207,7 @@ class BytearrayEncoder(json.JSONEncoder):
     def asjson(self, **kwargs):
         """Returns a JSON representation of self.  Arguments are passed to
         json.dumps()."""
-        return json.dumps(self.asdict(), cls=BytearrayEncoder, **kwargs)
+        return json.dumps(self.asdict(), cls=InstanceEncoder, **kwargs)
 
   %}
 
