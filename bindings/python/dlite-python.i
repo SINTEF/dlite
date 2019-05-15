@@ -313,9 +313,27 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
   for (i=0; i<ndims; i++) n *= dims[i];
   if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj, typecode, 0, 0)))
     FAIL("cannot create contiguous array");
-  if ((m = PyArray_SIZE(arr)) != n)
-    FAIL2("expected array with total number of elements %d, got %d", n, m);
 
+  /* Check dimensions */
+  switch (type) {
+  case dliteStringPtr:
+  case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
+    if (ndims > PyArray_NDIM(arr))
+      FAIL2("expected array with %d dimensions, got %d",
+            ndims, PyArray_NDIM(arr));
+    for (i=0; i<ndims; i++)
+      if (dims[i] != PyArray_DIM(arr, i))
+        FAIL3("expected size of dimension %d to be %d, got %ld",
+              i, dims[i], PyArray_DIM(arr, i));
+    break;
+  default:
+    if ((m = PyArray_SIZE(arr)) != n)
+      FAIL2("expected array with total number of elements: %d, got %d", n, m);
+  }
+
+  /* Assign memory */
   if (type == dliteStringPtr) {
     /* Special case: handle dliteStringPtr as array of python strings */
     npy_intp itemsize = PyArray_ITEMSIZE(arr);
@@ -433,76 +451,151 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
  */
 obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 {
-  PyObject *obj;
+  PyObject *obj=NULL;
+
+  //printf("*** get_scalar(type=%d, size=%zu)\n", type, size);
 
   switch (type) {
-
-  case dliteBlob: {
+  case dliteBlob:
     obj = PyByteArray_FromStringAndSize((const char *)data, size);
     break;
-  }
-  case dliteBool: {
-    long value = *((bool *)data);
-    obj = PyBool_FromLong(value);
-    break;
-  }
-  case dliteInt: {
-    long value;
-    switch (size) {
-    case 1: value = *((int8_t *)data);  break;
-    case 2: value = *((int16_t *)data); break;
-    case 4: value = *((int32_t *)data); break;
-    case 8: value = *((int64_t *)data); break;
-    default: FAIL1("invalid integer size: %zu", size);
+  case dliteBool:
+    {
+      long value = *((bool *)data);
+      obj = PyBool_FromLong(value);
     }
-    obj = PyLong_FromLong(value);
     break;
-  }
-  case dliteUInt: {
-    unsigned long value;
-    switch (size) {
-    case 1: value = *((uint8_t *)data);  break;
-    case 2: value = *((uint16_t *)data); break;
-    case 4: value = *((uint32_t *)data); break;
-    case 8: value = *((uint64_t *)data); break;
-    default: FAIL1("invalid unsigned integer size: %zu", size);
+  case dliteInt:
+    {
+      long value;
+      switch (size) {
+      case 1: value = *((int8_t *)data);  break;
+      case 2: value = *((int16_t *)data); break;
+      case 4: value = *((int32_t *)data); break;
+      case 8: value = *((int64_t *)data); break;
+      default: FAIL1("invalid integer size: %zu", size);
+      }
+      obj = PyLong_FromLong(value);
     }
-    obj = PyLong_FromUnsignedLong(value);
     break;
-  }
-  case dliteFloat: {
-    double value;
-    switch (size) {
-    case 4: value = *((float32_t *)data); break;
-    case 8: value = *((float64_t *)data); break;
+  case dliteUInt:
+    {
+      unsigned long value;
+      switch (size) {
+      case 1: value = *((uint8_t *)data);  break;
+      case 2: value = *((uint16_t *)data); break;
+      case 4: value = *((uint32_t *)data); break;
+      case 8: value = *((uint64_t *)data); break;
+      default: FAIL1("invalid unsigned integer size: %zu", size);
+      }
+      obj = PyLong_FromUnsignedLong(value);
+    }
+    break;
+  case dliteFloat:
+    {
+      double value;
+      switch (size) {
+      case 4: value = *((float32_t *)data); break;
+      case 8: value = *((float64_t *)data); break;
 #ifdef HAVE_FLOAT80_T
-    case 10: value = *((float80_t *)data); break;
+      case 10: value = *((float80_t *)data); break;
 #endif
 #ifdef HAVE_FLOAT128_T
-    case 16: value = *((float128_t *)data); break;
+      case 16: value = *((float128_t *)data); break;
 #endif
-    default: FAIL1("invalid float size: %zu", size);
+      default: FAIL1("invalid float size: %zu", size);
+      }
+      obj = PyFloat_FromDouble(value);
     }
-    obj = PyFloat_FromDouble(value);
     break;
-  }
-  case dliteFixString: {
-    size_t len = strlen(data);
-    if (len >= size) len = size-1;
-    obj = PyUnicode_FromStringAndSize(data, len);
+  case dliteFixString:
+    {
+      size_t len = strlen(data);
+      if (len >= size) len = size-1;
+      obj = PyUnicode_FromStringAndSize(data, len);
+    }
     break;
-  }
-  case dliteStringPtr: {
-    char *s;
-    assert(data);
-    if ((s = *(char **)data))
-      obj = PyUnicode_FromString(s);
-    else
-      Py_RETURN_NONE;
+  case dliteStringPtr:
+    {
+      char *s;
+      assert(data);
+      if ((s = *(char **)data))
+        obj = PyUnicode_FromString(s);
+      else
+        Py_RETURN_NONE;
+    }
     break;
-  }
+  case dliteRelation:
+    {
+      DLiteRelation *r = (DLiteRelation *)data;
+      PyObject *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
+      PyObject *rel_class=NULL;
+      char *msg=NULL;
+      if (!(dlite_name = PyUnicode_FromString("dlite")) ||
+          !(dlite_module = PyImport_Import(dlite_name)))
+        msg = "cannot import Python package: dlite";
+      if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
+          !(rel_class = PyDict_GetItemString(dlite_dict, "Relation")) ||
+          !(obj = PyObject_CallFunction(rel_class, "sss", r->s, r->p, r->o)))
+        msg = "cannot create relation";
+      Py_XDECREF(dlite_module);
+      Py_XDECREF(dlite_name);
+      if (msg) FAIL(msg);
+    }
+    break;
+  case dliteDimension:
+    {
+      DLiteDimension *d = (DLiteDimension *)data;
+      PyObject *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
+      PyObject *dim_class=NULL;
+      char *msg=NULL;
+
+      break;  // xxx
+
+      if (!(dlite_name = PyUnicode_FromString("dlite")) ||
+          !(dlite_module = PyImport_Import(dlite_name)))
+        msg = "cannot import Python package: dlite";
+      if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
+          !(dim_class = PyDict_GetItemString(dlite_dict, "Dimension")) ||
+          !(obj = PyObject_CallFunction(dim_class, "ss",
+                                        d->name, d->description)))
+        msg = "cannot create dimension";
+      Py_XDECREF(dlite_module);
+      Py_XDECREF(dlite_name);
+      if (msg) FAIL(msg);
+    }
+    break;
+  case dliteProperty:
+    {
+      DLiteProperty *p = (DLiteProperty *)data;
+      PyObject *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
+      PyObject *dims=NULL, *prop_class=NULL;
+      char *msg=NULL;
+      int i;
+
+      break;  // xxx
+
+      if (!(dlite_name = PyUnicode_FromString("dlite")) ||
+          !(dlite_module = PyImport_Import(dlite_name)))
+        msg = "cannot import Python package: dlite";
+      if (!(dims = PyList_New(p->ndims))) msg = "cannot create list";
+      for (i=0; i < p->ndims; i++)
+        PyList_SetItem(dims, i, PyLong_FromLong(p->dims[i]));
+      if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
+          !(prop_class = PyDict_GetItemString(dlite_dict, "Property")) ||
+          !(obj = PyObject_CallFunction(prop_class, "ssOss",
+                                        p->name,
+                                        dlite_type_get_dtypename(p->type),
+                                        dims, p->unit, p->description)))
+        msg = "cannot create property";
+      Py_XDECREF(dims);
+      Py_XDECREF(dlite_module);
+      Py_XDECREF(dlite_name);
+      if (msg) FAIL(msg);
+    }
+    break;
   default:
-    FAIL1("converting type %s to scalar is not yet implemented",
+    FAIL1("converting type \"%s\" to scalar is not yet implemented",
          dlite_type_get_dtypename(type));
     break;
   }
@@ -515,70 +608,77 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
   return NULL;
 }
 
-/* Sets memory pointed to by `ptr` or described by `type` and `size`
-   from target language object `obj`.  Returns non-zero on error.
+
+/* Sets memory pointed to by `ptr` from target language object `obj`.
+   The type and size of the updated memory is described by `type` and `size`.
+
+.  Returns non-zero on error.
  */
 int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 {
   switch (type) {
 
-  case dliteBlob: {
-    size_t n;
-    PyObject *bytes = PyObject_Bytes(obj);
-    if (!bytes) FAIL("cannot convert object to bytes");
-    n = PyByteArray_Size(bytes);
-    if (n > size) {
+  case dliteBlob:
+    {
+      size_t n;
+      PyObject *bytes = PyObject_Bytes(obj);
+      if (!bytes) FAIL("cannot convert object to bytes");
+      n = PyByteArray_Size(bytes);
+      if (n > size) {
+        Py_DECREF(bytes);
+        FAIL2("Length of bytearray is %zu. Exceeds size of blob: %zu", n, size);
+      }
+      memset(ptr, 0, size);
+      memcpy(ptr, PyByteArray_AsString(obj), n);
       Py_DECREF(bytes);
-      FAIL2("Length of bytearray is %zu. Exceeds size of blob: %zu", n, size);
     }
-    memset(ptr, 0, size);
-    memcpy(ptr, PyByteArray_AsString(obj), n);
-    Py_DECREF(bytes);
     break;
-  }
 
-  case dliteBool: {
-    int value = PyObject_IsTrue(obj);
-    if (value < 0) FAIL("cannot convert to boolean");
-    *((bool *)ptr) = value;
+  case dliteBool:
+    {
+      int value = PyObject_IsTrue(obj);
+      if (value < 0) FAIL("cannot convert to boolean");
+      *((bool *)ptr) = value;
+    }
     break;
-  }
 
-  case dliteInt: {
-    int overflow;
+  case dliteInt:
+    {
+      int overflow;
 #ifdef HAVE_LONG_LONG
-    long long value = PyLong_AsLongLongAndOverflow(obj, &overflow);
+      long long value = PyLong_AsLongLongAndOverflow(obj, &overflow);
 #else
-    long value = PyLong_AsLongAndOverflow(obj, &overflow);
+      long value = PyLong_AsLongAndOverflow(obj, &overflow);
 #endif
-    if (overflow) FAIL("overflow when converting to int");
-    if (PyErr_Occurred()) FAIL("cannot convert to int");
-    switch (size) {
-    case 1: *((int8_t *)ptr) = value;  break;
-    case 2: *((int16_t *)ptr) = value; break;
-    case 4: *((int32_t *)ptr) = value; break;
-    case 8: *((int64_t *)ptr) = value; break;
-    default: FAIL1("invalid integer size: %zu", size);
+      if (overflow) FAIL("overflow when converting to int");
+      if (PyErr_Occurred()) FAIL("cannot convert to int");
+      switch (size) {
+      case 1: *((int8_t *)ptr) = value;  break;
+      case 2: *((int16_t *)ptr) = value; break;
+      case 4: *((int32_t *)ptr) = value; break;
+      case 8: *((int64_t *)ptr) = value; break;
+      default: FAIL1("invalid integer size: %zu", size);
+      }
     }
     break;
-  }
 
-  case dliteUInt: {
+  case dliteUInt:
+    {
 #ifdef HAVE_LONG_LONG
-    unsigned long long value = PyLong_AsUnsignedLongLong(obj);
+      unsigned long long value = PyLong_AsUnsignedLongLong(obj);
 #else
-    unsigned long value = PyLong_AsUnsignedLong(obj);
+      unsigned long value = PyLong_AsUnsignedLong(obj);
 #endif
-    if (PyErr_Occurred()) FAIL("cannot convert to unsigned int");
-    switch (size) {
-    case 1: *((uint8_t *)ptr) = value;  break;
-    case 2: *((uint16_t *)ptr) = value; break;
-    case 4: *((uint32_t *)ptr) = value; break;
-    case 8: *((uint64_t *)ptr) = value; break;
-    default: FAIL1("invalid unsigned integer size: %zu", size);
+      if (PyErr_Occurred()) FAIL("cannot convert to unsigned int");
+      switch (size) {
+      case 1: *((uint8_t *)ptr) = value;  break;
+      case 2: *((uint16_t *)ptr) = value; break;
+      case 4: *((uint32_t *)ptr) = value; break;
+      case 8: *((uint64_t *)ptr) = value; break;
+      default: FAIL1("invalid unsigned integer size: %zu", size);
+      }
+      break;
     }
-    break;
-  }
 
   case dliteFloat: {
     double value = PyFloat_AsDouble(obj);
@@ -590,62 +690,119 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
     //case 16: *((float128_t *)ptr) = value; break;
     default: FAIL1("invalid float size: %zu", size);
     }
-    break;
   }
+    break;
 
-  case dliteFixString: {
-    size_t n;
-    Py_UCS1 *s;
-    PyObject *str = PyObject_Str(obj);
-    if (!str) FAIL("cannot convert to string");
-    if (PyUnicode_READY(str)) {
+  case dliteFixString:
+    {
+      size_t n;
+      Py_UCS1 *s;
+      PyObject *str = PyObject_Str(obj);
+      if (!str) FAIL("cannot convert to string");
+      if (PyUnicode_READY(str)) {
+        Py_DECREF(str);
+        FAIL("failed preparing string");
+      }
+      n = PyUnicode_GET_LENGTH(str);
+      if (n > size) {
+        Py_DECREF(str);
+        FAIL2("Length of string is %zu. Exceeds available size: %zu", n, size);
+      }
+      s = PyUnicode_1BYTE_DATA(str);
+      memset(ptr, 0, size);
+      memcpy(ptr, s, n);
       Py_DECREF(str);
-      FAIL("failed preparing string");
     }
-    n = PyUnicode_GET_LENGTH(str);
-    if (n > size) {
+    break;
+
+  case dliteStringPtr:
+    {
+      size_t n;
+      unsigned char *s;
+      char *p;
+      PyObject *str = PyObject_Str(obj);
+      if (!str) FAIL("cannot convert to string");
+      if (PyUnicode_READY(str)) {
+        Py_DECREF(str);
+        FAIL("failed preparing string");
+      }
+      n = PyUnicode_GET_LENGTH(str);
+      s = PyUnicode_1BYTE_DATA(str);
+      *(void **)ptr = realloc(*(void **)ptr, n+1);
+      p = *((char **)ptr);
+      memcpy(p, s, n);
+      p[n] = '\0';
       Py_DECREF(str);
-      FAIL2("Length of string is %zu. Exceeds available size: %zu", n, size);
     }
-    s = PyUnicode_1BYTE_DATA(str);
-    memset(ptr, 0, size);
-    memcpy(ptr, s, n);
-    Py_DECREF(str);
     break;
-  }
 
-  case dliteStringPtr: {
-    size_t n;
-    unsigned char *s;
-    char *p;
-    PyObject *str = PyObject_Str(obj);
-    if (!str) FAIL("cannot convert to string");
-    if (PyUnicode_READY(str)) {
-      Py_DECREF(str);
-      FAIL("failed preparing string");
+  case dliteDimension:
+    {
+      FAIL("setting dimension is not yet supported");
     }
-    n = PyUnicode_GET_LENGTH(str);
-    s = PyUnicode_1BYTE_DATA(str);
-    *(void **)ptr = realloc(*(void **)ptr, n+1);
-    p = *((char **)ptr);
-    memcpy(p, s, n);
-    p[n] = '\0';
-    Py_DECREF(str);
     break;
-  }
 
-  case dliteDimension: {
+  case dliteProperty:
+    {
+      FAIL("setting property is not yet supported");
+    }
     break;
-  }
 
-  case dliteProperty: {
+  case dliteRelation:
+    {
+      void *p;
+      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__Triplet, 0))) {
+        DLiteRelation *src = (DLiteRelation *)p;
+        DLiteRelation *dest = ptr;
+        if (dest->s)  free(dest->s);
+        if (dest->p)  free(dest->p);
+        if (dest->o)  free(dest->o);
+        if (dest->id) free(dest->id);
+        dest->s  = strdup(src->s);
+        dest->p  = strdup(src->p);
+        dest->o  = strdup(src->o);
+        dest->id = strdup(src->id);
+
+      } else if (PySequence_Check(obj) || PyIter_Check(obj)) {
+        int i, n;
+        PyObject *lst;
+        char **s = ptr;  /* cast DLiteRelation to 4 string pointers */
+        assert(sizeof(DLiteRelation) == 4*sizeof(char *));
+
+        /* Check that `obj` is a sequence of 3 or 4 strings */
+        if (!(lst = PySequence_Fast(obj, "not a sequence or iterable")))
+          FAIL("expected relation to be represented by a sequence or iterable");
+
+        if ((n = PySequence_Fast_GET_SIZE(lst)) < 3 || n > 4) {
+          Py_DECREF(lst);
+          FAIL1("relations must be 3 or 4 strings, got %d", n);
+        }
+        for (i=0; i<n; i++) {
+          PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
+
+          if (!PyUnicode_Check(item)) {
+            Py_DECREF(lst);
+            FAIL("relation subject, predicate and object must be strings");
+          }
+        }
+
+        /* Free old values stored in the relation */
+        for (i=0; i<4; i++) if (s[i]) free(s[i]);
+
+        /* Assign new values */
+        for (i=0; i<n; i++)
+          s[i] = strdup(PyUnicode_AS_DATA(PySequence_Fast_GET_ITEM(lst, i)));
+
+        /* Assign id if not already provided */
+        if (n < 4)
+          s[3] = triplet_get_id(NULL, s[0], s[1], s[2]);
+        Py_DECREF(lst);
+
+      } else {
+        FAIL("unexpected Python type");
+      }
+    }
     break;
-  }
-
-  case dliteRelation: {
-    break;
-  }
-
   }
 
   return 0;
