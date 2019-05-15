@@ -18,15 +18,18 @@
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
 %}
 
-
 /* Some cross-target language typedef's and definitions */
 %inline %{
 typedef PyObject obj_t;
 
 #define DLiteSwigNone Py_None
-
 %}
 
+/* Forward declarations */
+%{
+obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data);
+int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
+%}
 
 
 /**********************************************

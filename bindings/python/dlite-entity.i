@@ -138,10 +138,10 @@ struct _Triplet {
 };
 
 %extend _Triplet {
-  _Triplet(const char *s, const char *p, const char *o) {
+  _Triplet(const char *s, const char *p, const char *o, const char *id=NULL) {
     Triplet *t;
-    if (!(t =  malloc(sizeof(Triplet)))) FAIL("allocation failure");
-    if (triplet_set(t, s, p, o, NULL)) FAIL("cannot set relation");
+    if (!(t =  calloc(1, sizeof(Triplet)))) FAIL("allocation failure");
+    if (triplet_set(t, s, p, o, id)) FAIL("cannot set relation");
     return t;
   fail:
     if (t) {
@@ -156,6 +156,19 @@ struct _Triplet {
     free($self);
   }
 }
+
+%{
+char *triplet_get_id2(const char *s, const char *p, const char *o,
+                      const char *namespace) {
+  return triplet_get_id(namespace, s, p, o);
+}
+%}
+ %rename(triplet_get_id) triplet_get_id2;
+%newobject triplet_get_id;
+char *triplet_get_id(const char *s, const char *p, const char *o,
+                     const char *namespace=NULL);
+
+void triplet_set_default_namespace(const char *namespace);
 
 
 /* --------
@@ -298,6 +311,10 @@ void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
+/* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
+#define BASIC_METADATA_SCHEMA  "http://meta.sintef.no/0.1/BasicMetadataSchema"
+#define ENTITY_SCHEMA          "http://meta.sintef.no/0.3/EntitySchema"
+#define COLLECTION_SCHEMA      "http://meta.sintef.no/0.6/CollectionSchema"
 
 /* -----------------------------------
  * Target language-spesific extensions

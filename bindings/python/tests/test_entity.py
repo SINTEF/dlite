@@ -57,6 +57,9 @@ for i in range(len(inst)):
 # Store the instance
 inst.save_url('json://inst.json')
 
+
+print(inst)
+
 dim = Dimension('N')
 
 prop = Property("a", type='float')

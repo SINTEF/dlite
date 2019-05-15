@@ -41,11 +41,16 @@ typedef struct _TripleState {
 
 
 /**
-    Sets default namespace to be prepended to triplet id's.
+  Sets default namespace to be prepended to triplet id's.
 
-    Use this function to convert the id's to proper URI's.
+  Use this function to convert the id's to proper URI's.
 */
 void triplet_set_default_namespace(const char *namespace);
+
+/**
+  Returns default namespace.
+*/
+const char *triplet_get_default_namespace(void);
 
 /**
   Frees up memory used by the s-p-o strings, but not the triplet itself.
@@ -59,6 +64,13 @@ void triplet_clean(Triplet *t);
  */
 int triplet_set(Triplet *t, const char *s, const char *p, const char *o,
                 const char *id);
+
+/**
+  Like triplet_set(), but free's allocated memory in `t` before re-assigning
+  it.  Don't use this function if `t` has not been initiated.
+ */
+int triplet_reset(Triplet *t, const char *s, const char *p, const char *o,
+                  const char *id);
 
 /**
   Returns an newly malloc'ed unique id calculated from triplet.

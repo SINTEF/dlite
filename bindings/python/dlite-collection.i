@@ -48,8 +48,6 @@ struct _DLiteCollection {
   int refcount;
 };
 
-
-
 %extend struct _DLiteCollection {
   _DLiteCollection(const char *id=NULL) {
     return dlite_collection_create(id);

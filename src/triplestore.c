@@ -49,7 +49,8 @@ struct _TripleStore {
 
 
 /* Default namespace */
-char *default_namespace = NULL;
+static char *default_namespace = NULL;
+static int atexit_registered = 0;
 
 /* Free's default_namespace. Called by atexit(). */
 static void free_default_namespace(void)
@@ -61,14 +62,20 @@ static void free_default_namespace(void)
 /* Sets default namespace to be prepended to triplet id's. */
 void triplet_set_default_namespace(const char *namespace)
 {
-  if (default_namespace) {
-    free(default_namespace);
+  if (!atexit_registered)
     atexit(free_default_namespace);
-  }
+  if (default_namespace)
+    free(default_namespace);
   if (namespace)
     default_namespace = strdup(namespace);
   else
     default_namespace = NULL;
+}
+
+/* Returns default namespace. */
+const char *triplet_get_default_namespace(void)
+{
+  return (const char *)default_namespace;
 }
 
 
@@ -81,6 +88,7 @@ void triplet_clean(Triplet *t)
   free(t->p);
   free(t->o);
   if (t->id) free(t->id);
+  memset(t, 0, sizeof(Triplet));
 }
 
 /*
@@ -91,20 +99,31 @@ void triplet_clean(Triplet *t)
 int triplet_set(Triplet *t, const char *s, const char *p, const char *o,
                 const char *id)
 {
-  t->s = strdup(s);
-  t->p = strdup(p);
-  t->o = strdup(o);
-  if (id) {
-    if (t->id) free(t->id);
-    t->id = strdup(id);
-  } else {
-    t->id = triplet_get_id(NULL, s, p, o);
-  }
+  t->s = strdup((s) ? s : "");
+  t->p = strdup((p) ? p : "");
+  t->o = strdup((o) ? o : "");
+  t->id = (id) ? strdup(id) : triplet_get_id(NULL, s, p, o);
   return 0;
 }
 
 /*
+  Like triplet_set(), but free's allocated memory in `t` before re-assigning
+  it.  Don't use this function if `t` has not been initiated.
+ */
+int triplet_reset(Triplet *t, const char *s, const char *p, const char *o,
+                const char *id)
+{
+  if (t->s)  free(t->s);
+  if (t->p)  free(t->p);
+  if (t->o)  free(t->o);
+  if (t->id) free(t->id);
+  return triplet_set(t, s, p, o, id);
+}
+
+
+/*
   Returns an newly malloc'ed hash string calculated from triplet.
+  Returns NULL on error, for instance if any of `s`, `p` or `o` are NULL.
 */
 char *triplet_get_id(const char *namespace, const char *s, const char *p,
                       const char *o)
@@ -114,6 +133,7 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   char *id;
   int i, n=0;
   size_t size=41;
+  if (!s || !p || !o) return NULL;
   SHA1Init(&context);
   SHA1Update(&context, (unsigned char *)s, strlen(s));
   SHA1Update(&context, (unsigned char *)p, strlen(p));
