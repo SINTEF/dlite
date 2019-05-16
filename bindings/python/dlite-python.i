@@ -290,6 +290,39 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 }
 
 
+/* Recursive help function for setting memory from nd-array of objects. Args:
+     obj : source object (array)
+     ndims : number of destination dimensions
+     dims : size of each destination dimension (length: ndims)
+     type : type of destination data
+     size : size of destination data element
+     d : current dimension
+     ptr : pointer to pointer to current destination memory (NB: updated!)
+*/
+static int dlite_swig_setitem(PyObject *obj, int ndims, int *dims,
+                              DLiteType type, size_t size, int d, void **ptr)
+{
+  int i;
+  if (d < ndims) {
+    PyArrayObject *arr = (PyArrayObject *)obj;
+    assert(PyArray_Check(obj));
+    assert(PyArray_DIM(arr, d) == dims[d]);
+    for (i=0; i<dims[d]; i++) {
+      PyObject *key = PyLong_FromLong(i);
+      PyObject *item = PyObject_GetItem(obj, key);
+      int stat = dlite_swig_setitem(item, ndims, dims, type, size, d+1, ptr);
+      Py_DECREF(item);
+      Py_DECREF(key);
+      if (stat) return stat;
+    }
+  } else {
+    if (dlite_swig_set_scalar(*ptr, type, size, obj)) return 1;
+    *((char **)ptr) += size;
+  }
+  return 0;
+}
+
+
 /* Sets memory pointed to by `ptr` to data from array object `obj` in the
    target language.  Returns non-zero on error.
 
@@ -305,9 +338,10 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 int dlite_swig_set_array(void *ptr, int ndims, int *dims,
                          DLiteType type, size_t size, obj_t *obj)
 {
-  int i, n=1, m, retval=-1;
+  int i, n=1, retval=-1;
   int typecode = npy_type(type, size);
   PyArrayObject *arr = NULL;
+  int ndim_max=ndims;
 
   if (typecode < 0) goto fail;
   for (i=0; i<ndims; i++) n *= dims[i];
@@ -315,63 +349,69 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     FAIL("cannot create contiguous array");
 
   /* Check dimensions */
-  switch (type) {
-  case dliteStringPtr:
+  if (PyArray_TYPE(arr) == NPY_OBJECT || PyArray_TYPE(arr) == NPY_VOID)
+    ndim_max = ndims+1;
+  if (PyArray_NDIM(arr) < ndims || PyArray_NDIM(arr) > ndim_max)
+    FAIL2("expected array with %d dimensions, got %d",
+          ndims, PyArray_NDIM(arr));
+  for (i=0; i<ndims; i++)
+    if (PyArray_DIM(arr, i) != dims[i])
+      FAIL3("expected length of dimension %d to be %d, got %ld",
+            i, dims[i], PyArray_DIM(arr, i));
+
+  /* Assign memory */
+  switch(type) {
+  case dliteFixString:  /* must be NUL-terminated */
+    {
+      char *itemptr = PyArray_DATA(arr);
+      char *p = *((char **)ptr);
+      memset(p, 0, n*size);
+      for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
+        strncpy(p, itemptr, PyArray_ITEMSIZE(arr));
+        p[size-1] = '\0';  /* ensure NUL-termination */
+      }
+    }
+    break;
+
+  case dliteStringPtr:  /* array of python strings */
+    {
+      npy_intp itemsize = PyArray_ITEMSIZE(arr);
+      char *itemptr = PyArray_DATA(arr);
+      for (i=0; i<n; i++, itemptr+=itemsize) {
+        char **p = *((char ***)ptr);
+        PyObject *s = PyArray_GETITEM(arr, itemptr);
+        assert(s);
+        if (PyUnicode_READY(s)) {
+          FAIL("failed preparing string");
+          Py_DECREF(s);
+        }
+        if (s == Py_None) {
+          if (p[i]) free(p[i]);
+        } else if (PyUnicode_Check(s)) {
+          int len = PyUnicode_GET_LENGTH(s);
+          p[i] = realloc(p[i], len+1);
+          memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
+          p[i][len] = '\0';
+        } else {
+          FAIL("expected None or unicode elements");
+          Py_DECREF(s);
+        }
+        if (s) Py_DECREF(s);
+      }
+    }
+    break;
+
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    if (ndims > PyArray_NDIM(arr))
-      FAIL2("expected array with %d dimensions, got %d",
-            ndims, PyArray_NDIM(arr));
-    for (i=0; i<ndims; i++)
-      if (dims[i] != PyArray_DIM(arr, i))
-        FAIL3("expected size of dimension %d to be %d, got %ld",
-              i, dims[i], PyArray_DIM(arr, i));
+    {
+      void *p = *(void **)ptr;
+      if (dlite_swig_setitem((PyObject *)arr, ndims, dims,
+                             type, size, 0, &p)) goto fail;
+    }
     break;
+
   default:
-    if ((m = PyArray_SIZE(arr)) != n)
-      FAIL2("expected array with total number of elements: %d, got %d", n, m);
-  }
-
-  /* Assign memory */
-  if (type == dliteStringPtr) {
-    /* Special case: handle dliteStringPtr as array of python strings */
-    npy_intp itemsize = PyArray_ITEMSIZE(arr);
-    char *itemptr = PyArray_DATA(arr);
-    for (i=0; i<n; i++, itemptr+=itemsize) {
-      char **p = *((char ***)ptr);
-      PyObject *s = PyArray_GETITEM(arr, itemptr);
-      assert(s);
-      if (PyUnicode_READY(s)) {
-        FAIL("failed preparing string");
-        Py_DECREF(s);
-      }
-      if (s == Py_None) {
-        if (p[i]) free(p[i]);
-      } else if (PyUnicode_Check(s)) {
-        int len = PyUnicode_GET_LENGTH(s);
-        p[i] = realloc(p[i], len+1);
-        memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
-        p[i][len] = '\0';
-      } else {
-        FAIL("expected None or unicode elements");
-        Py_DECREF(s);
-      }
-      if (s) Py_DECREF(s);
-    }
-
-  } else if (type == dliteFixString) {
-    /* Special case: dliteFixString must be NUL-terminated */
-    char *itemptr = PyArray_DATA(arr);
-    char *p = *((char **)ptr);
-    memset(p, 0, n*size);
-    for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
-      strncpy(p, itemptr, PyArray_ITEMSIZE(arr));
-      p[size-1] = '\0';  /* ensure NUL-termination */
-    }
-
-  } else {
-    /* All other types */
     memcpy(*((void **)ptr), PyArray_DATA(arr), n*size);
   }
 
@@ -452,8 +492,6 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
 obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 {
   PyObject *obj=NULL;
-
-  //printf("*** get_scalar(type=%d, size=%zu)\n", type, size);
 
   switch (type) {
   case dliteBlob:
@@ -779,7 +817,6 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         }
         for (i=0; i<n; i++) {
           PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
-
           if (!PyUnicode_Check(item)) {
             Py_DECREF(lst);
             FAIL("relation subject, predicate and object must be strings");
@@ -790,8 +827,12 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         for (i=0; i<4; i++) if (s[i]) free(s[i]);
 
         /* Assign new values */
-        for (i=0; i<n; i++)
-          s[i] = strdup(PyUnicode_AS_DATA(PySequence_Fast_GET_ITEM(lst, i)));
+        for (i=0; i<n; i++) {
+          PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
+          assert(PyUnicode_Check(item));
+          PyUnicode_READY(item);
+          s[i] = strdup(PyUnicode_DATA(item));
+        }
 
         /* Assign id if not already provided */
         if (n < 4)

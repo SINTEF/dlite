@@ -19,7 +19,7 @@ myentity = Instance(url)
 # Check some properties of the entity
 assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
 assert myentity.uri == 'http://meta.sintef.no/0.1/MyEntity'
-assert np.all(myentity.dimensions == [2, 12])  # ndimensions, nproperties
+assert np.all(myentity.dimensions == [2, 14])  # ndimensions, nproperties
 assert not myentity.is_data
 assert myentity.is_meta
 assert not myentity.is_metameta
@@ -49,6 +49,15 @@ inst['a-fixstring'] = 'something'
 inst['a-fixstring-array'] = [['Al', 'X'], ['Mg', 'Si']]
 inst['a-string'] = 'Hello!'
 inst['a-string-array'] = [['a', 'b', 'c'], ['dd', 'eee', 'ffff']]
+inst['a-relation'] = dlite.Relation('dog', 'is_a', 'mammal')
+#inst['a-relation'] = ['dog', 'is_a', 'mammal']
+inst['a-relation-array'] = [
+    #('cheep', 'is_a', 'mammal'),
+    #('cat', 'is_a', 'mammal'),
+    dlite.Relation('cheep', 'is_a', 'mammal'),
+    dlite.Relation('cat', 'is_a', 'mammal'),
+    ]
+
 
 # Print the value of all properties
 for i in range(len(inst)):
