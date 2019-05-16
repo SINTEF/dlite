@@ -25,6 +25,7 @@ endif()
 # Python sources
 set(py_sources
   __init__.py
+  classproxy.py
   )
 
 
