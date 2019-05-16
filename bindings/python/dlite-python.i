@@ -217,7 +217,6 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
       int n=1;
       npy_intp itemsize;
       char *itemptr;
-      PyObject *item;
       PyArrayObject *arr;
       for (i=0; i<ndims; i++) n *= dims[i];
       if (!(obj = PyArray_EMPTY(ndims, d, typecode, 0)))
@@ -225,36 +224,11 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
       arr = (PyArrayObject *)obj;
       itemsize = PyArray_ITEMSIZE(arr);
       itemptr = PyArray_DATA(arr);
-      for (i=0; i<n; i++, itemptr+=itemsize) {
-
-        if (type == dliteStringPtr) {
-          char *str = *((char **)data + i);
-          if (str) {
-            item = PyUnicode_FromString(str);
-          } else {
-            item = Py_None;
-            Py_INCREF(item);
-          }
-
-        } else if (type == dliteDimension) {
-          DLiteDimension *dim = (DLiteDimension *)data + i;
-          item = SWIG_NewPointerObj(SWIG_as_voidptr(dim),
-                                    SWIGTYPE_p__DLiteDimension, 0 |  0 );
-
-        } else if (type == dliteProperty) {
-          DLiteProperty *p = (DLiteProperty *)data + i;
-          item = SWIG_NewPointerObj(SWIG_as_voidptr(p),
-                                    SWIGTYPE_p__DLiteProperty, 0 |  0 );
-
-        } else if (type == dliteRelation) {
-          DLiteRelation *r = (DLiteRelation *)data + i;
-          item = SWIG_NewPointerObj(SWIG_as_voidptr(r),
-                                    SWIGTYPE_p__Triplet, 0 |  0 );
-
-        } else {
-          assert(0);  /* should never be reached */
-        }
-
+      char *ptr = data;
+      for (i=0; i<n; i++, itemptr+=itemsize, ptr+=size) {
+        PyObject *item;
+        if (!(item = dlite_swig_get_scalar(type, size, ptr)))
+          goto fail;
         if (PyArray_SETITEM(arr, itemptr, item))
           FAIL1("cannot set item of type %s", dlite_type_get_dtypename(type));
         Py_DECREF(item);
@@ -497,12 +471,14 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
   case dliteBlob:
     obj = PyByteArray_FromStringAndSize((const char *)data, size);
     break;
+
   case dliteBool:
     {
       long value = *((bool *)data);
       obj = PyBool_FromLong(value);
     }
     break;
+
   case dliteInt:
     {
       long value;
@@ -516,6 +492,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       obj = PyLong_FromLong(value);
     }
     break;
+
   case dliteUInt:
     {
       unsigned long value;
@@ -529,6 +506,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       obj = PyLong_FromUnsignedLong(value);
     }
     break;
+
   case dliteFloat:
     {
       double value;
@@ -546,6 +524,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       obj = PyFloat_FromDouble(value);
     }
     break;
+
   case dliteFixString:
     {
       size_t len = strlen(data);
@@ -553,6 +532,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       obj = PyUnicode_FromStringAndSize(data, len);
     }
     break;
+
   case dliteStringPtr:
     {
       char *s;
@@ -563,79 +543,30 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
         Py_RETURN_NONE;
     }
     break;
+
   case dliteRelation:
-    {
-      DLiteRelation *r = (DLiteRelation *)data;
-      PyObject *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
-      PyObject *rel_class=NULL;
-      char *msg=NULL;
-      if (!(dlite_name = PyUnicode_FromString("dlite")) ||
-          !(dlite_module = PyImport_Import(dlite_name)))
-        msg = "cannot import Python package: dlite";
-      if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
-          !(rel_class = PyDict_GetItemString(dlite_dict, "Relation")) ||
-          !(obj = PyObject_CallFunction(rel_class, "sss", r->s, r->p, r->o)))
-        msg = "cannot create relation";
-      Py_XDECREF(dlite_module);
-      Py_XDECREF(dlite_name);
-      if (msg) FAIL(msg);
-    }
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__Triplet, 0)))
+      FAIL("cannot create relation");
     break;
+
   case dliteDimension:
-    {
-      DLiteDimension *d = (DLiteDimension *)data;
-      PyObject *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
-      PyObject *dim_class=NULL;
-      char *msg=NULL;
-
-      break;  // xxx
-
-      if (!(dlite_name = PyUnicode_FromString("dlite")) ||
-          !(dlite_module = PyImport_Import(dlite_name)))
-        msg = "cannot import Python package: dlite";
-      if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
-          !(dim_class = PyDict_GetItemString(dlite_dict, "Dimension")) ||
-          !(obj = PyObject_CallFunction(dim_class, "ss",
-                                        d->name, d->description)))
-        msg = "cannot create dimension";
-      Py_XDECREF(dlite_module);
-      Py_XDECREF(dlite_name);
-      if (msg) FAIL(msg);
-    }
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__DLiteDimension, 0)))
+      FAIL("cannot create dimension");
     break;
+
   case dliteProperty:
-    {
-      DLiteProperty *p = (DLiteProperty *)data;
-      PyObject *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
-      PyObject *dims=NULL, *prop_class=NULL;
-      char *msg=NULL;
-      int i;
-
-      break;  // xxx
-
-      if (!(dlite_name = PyUnicode_FromString("dlite")) ||
-          !(dlite_module = PyImport_Import(dlite_name)))
-        msg = "cannot import Python package: dlite";
-      if (!(dims = PyList_New(p->ndims))) msg = "cannot create list";
-      for (i=0; i < p->ndims; i++)
-        PyList_SetItem(dims, i, PyLong_FromLong(p->dims[i]));
-      if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
-          !(prop_class = PyDict_GetItemString(dlite_dict, "Property")) ||
-          !(obj = PyObject_CallFunction(prop_class, "ssOss",
-                                        p->name,
-                                        dlite_type_get_dtypename(p->type),
-                                        dims, p->unit, p->description)))
-        msg = "cannot create property";
-      Py_XDECREF(dims);
-      Py_XDECREF(dlite_module);
-      Py_XDECREF(dlite_name);
-      if (msg) FAIL(msg);
-    }
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__DLiteProperty, 0)))
+      FAIL("cannot create property");
     break;
+
   default:
     FAIL1("converting type \"%s\" to scalar is not yet implemented",
          dlite_type_get_dtypename(type));
     break;
+
   }
   if (!obj) goto fail;
   return obj;
@@ -776,13 +707,42 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
   case dliteDimension:
     {
-      FAIL("setting dimension is not yet supported");
+      void *p;
+      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteDimension, 0))) {
+        DLiteDimension *src = (DLiteDimension *)p;
+        DLiteDimension *dest = ptr;
+        if (dest->name)        free(dest->name);
+        if (dest->description) free(dest->description);
+        dest->name        = strdup(src->name);
+        dest->description = strdup(src->description);
+      } else {
+        FAIL("cannot convert Python object to dimension");
+      }
     }
     break;
 
   case dliteProperty:
     {
-      FAIL("setting property is not yet supported");
+      void *p;
+      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
+        DLiteProperty *src = (DLiteProperty *)p;
+        DLiteProperty *dest = ptr;
+        if (dest->name)        free(dest->name);
+        if (dest->dims)        free(dest->dims);
+        if (dest->unit)        free(dest->unit);
+        if (dest->description) free(dest->description);
+        dest->name        = strdup(src->name);
+        dest->type        = src->type;
+        dest->size        = src->size;
+        dest->ndims       = src->ndims;
+        dest->dims        = malloc(src->ndims*sizeof(int));
+        memcpy(dest->dims, src->dims, src->ndims*sizeof(int));
+        dest->unit        = strdup(src->unit);
+        dest->description = strdup(src->description);
+
+      } else {
+        FAIL("cannot convert Python object to dimension");
+      }
     }
     break;
 
@@ -791,15 +751,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       void *p;
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__Triplet, 0))) {
         DLiteRelation *src = (DLiteRelation *)p;
-        DLiteRelation *dest = ptr;
-        if (dest->s)  free(dest->s);
-        if (dest->p)  free(dest->p);
-        if (dest->o)  free(dest->o);
-        if (dest->id) free(dest->id);
-        dest->s  = strdup(src->s);
-        dest->p  = strdup(src->p);
-        dest->o  = strdup(src->o);
-        dest->id = strdup(src->id);
+        triplet_reset(ptr, src->s, src->p, src->o, src->id);
 
       } else if (PySequence_Check(obj) || PyIter_Check(obj)) {
         int i, n;
@@ -839,8 +791,32 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           s[3] = triplet_get_id(NULL, s[0], s[1], s[2]);
         Py_DECREF(lst);
 
+      } else if (PyMapping_Check(obj)) {
+        char *msg=NULL;
+        PyObject *s=NULL, *p=NULL, *o=NULL, *id=NULL;
+        if (!(s = PyMapping_GetItemString(obj, "s")) ||
+            !(p = PyMapping_GetItemString(obj, "p")) ||
+            !(o = PyMapping_GetItemString(obj, "o")))
+          msg = "Relations must have 's', 'p' and 'o' items";
+        if (!msg && !(PyUnicode_Check(s) && PyUnicode_READY(s) == 0 &&
+                      PyUnicode_Check(p) && PyUnicode_READY(p) == 0 &&
+                      PyUnicode_Check(o) && PyUnicode_READY(o) == 0))
+          msg = "Relation 's', 'p', 'o' items must be strings";
+        if (!msg && PyMapping_HasKeyString(obj, "id") &&
+            (!(id = PyMapping_GetItemString(obj, "id")) ||
+             !PyUnicode_Check(id) || PyUnicode_READY(id)))
+          msg = "If given, relation id must be a string";
+        if (!msg)
+          triplet_reset(ptr, PyUnicode_DATA(s), PyUnicode_DATA(p),
+                        PyUnicode_DATA(o), (id) ? PyUnicode_DATA(id) : NULL);
+        Py_XDECREF(s);
+        Py_XDECREF(p);
+        Py_XDECREF(o);
+        Py_XDECREF(id);
+        if (msg) FAIL(msg);
+
       } else {
-        FAIL("unexpected Python type");
+        FAIL("cannot convert Python object to relation");
       }
     }
     break;

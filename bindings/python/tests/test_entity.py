@@ -50,7 +50,8 @@ inst['a-fixstring-array'] = [['Al', 'X'], ['Mg', 'Si']]
 inst['a-string'] = 'Hello!'
 inst['a-string-array'] = [['a', 'b', 'c'], ['dd', 'eee', 'ffff']]
 inst['a-relation'] = dlite.Relation('dog', 'is_a', 'mammal')
-#inst['a-relation'] = ['dog', 'is_a', 'mammal']
+inst['a-relation'] = ['dog', 'is_a', 'mammal']
+inst['a-relation'] = dict(s='dog', p='is_a', o='mammal')
 inst['a-relation-array'] = [
     #('cheep', 'is_a', 'mammal'),
     #('cat', 'is_a', 'mammal'),
