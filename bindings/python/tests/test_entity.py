@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import pickle
 
 import numpy as np
 
@@ -53,22 +54,26 @@ inst['a-relation'] = dlite.Relation('dog', 'is_a', 'mammal')
 inst['a-relation'] = ['dog', 'is_a', 'mammal']
 inst['a-relation'] = dict(s='dog', p='is_a', o='mammal')
 inst['a-relation-array'] = [
-    #('cheep', 'is_a', 'mammal'),
+    ('cheep', 'is_a', 'mammal'),
     #('cat', 'is_a', 'mammal'),
-    dlite.Relation('cheep', 'is_a', 'mammal'),
+    #dlite.Relation('cheep', 'is_a', 'mammal'),
     dlite.Relation('cat', 'is_a', 'mammal'),
     ]
-
 
 # Print the value of all properties
 for i in range(len(inst)):
     print('prop%d:' % i, inst[i])
 
-# Store the instance
-inst.save_url('json://inst.json')
-
-
+# Strin representation (as json)
 print(inst)
+
+# Check save and load
+inst.save_url('json://inst.json')
+inst2 = Instance('json://inst.json')
+
+# Check pickling
+s = pickle.dumps(inst)
+inst3 = pickle.loads(s)
 
 dim = Dimension('N')
 
@@ -81,10 +86,7 @@ prop2 = Property("b", type='string10', dims=[2, 3, 4],
 props = myentity['properties']
 props[0]
 
-s1 = str(inst)
-s2 = str(inst.meta)
-
-assert str(inst.meta) == str(myentity)
+assert inst.meta == myentity
 
 e = dlite.get_instance('http://meta.sintef.no/0.1/MyEntity')
 assert e == myentity

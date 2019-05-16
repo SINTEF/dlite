@@ -173,8 +173,8 @@ DLiteInstance *_instance_create(const DLiteMeta *meta, const size_t *dims,
      existing id. */
   if (lookup && id && (inst = dlite_instance_get(id))) {
     //if (dlite_instance_is_data(inst))
-    err(1, "cannot create new instance with id '%s' - returns a new "
-        "reference (%d)", id, inst->refcount);
+    warn("trying to create new instance with id '%s' - creates a new "
+        "reference instead (refcount=%d)", id, inst->refcount);
     return inst;
   }
 

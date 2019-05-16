@@ -5,6 +5,7 @@
 import sys
 import json
 import base64
+
 from uuid import UUID
 if sys.version_info >= (3, 7):
     OrderedDict = dict
@@ -27,6 +28,8 @@ class InstanceEncoder(json.JSONEncoder):
                 return conv(obj.tolist())
             else:
                 return obj.tolist()
+        elif hasattr(obj, 'astuple'):
+            return obj.astuple()
         elif hasattr(obj, 'asdict'):
             return obj.asdict()
         else:
@@ -94,6 +97,10 @@ class InstanceEncoder(json.JSONEncoder):
     def __repr__(self):
         return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
             self.s, self.p, self.o, self.id)
+
+    def astuple(self):
+        """Returns a tuple representation of self."""
+        return (self.s, self.p, self.o)
 
     def asdict(self):
         """Returns a dict representation of self."""
@@ -184,6 +191,25 @@ class InstanceEncoder(json.JSONEncoder):
     def __str__(self):
         return self.asjson(indent=2)
 
+    def __reduce__(self):
+        # ensures that instances can be pickled
+        def iterfun(inst):
+           for i, prop in enumerate(inst.properties.values()):
+               if isinstance(prop, np.ndarray):
+                   p = np.zeros_like(prop)
+                   p.flat = [p.asdict() if hasattr(p, 'asdict') else p
+                             for p in prop]
+               else:
+                   p = prop.asdict() if hasattr(prop, 'asdict') else prop
+               yield i, p
+        return (
+            Instance,
+            (self.meta.uri, self.dimensions.tolist(), self.uuid),
+            None,
+            None,
+            iterfun(self),
+        )
+
     def asdict(self):
         """Returns a dict representation of self."""
         d = OrderedDict()
@@ -208,7 +234,6 @@ class InstanceEncoder(json.JSONEncoder):
         """Returns a JSON representation of self.  Arguments are passed to
         json.dumps()."""
         return json.dumps(self.asdict(), cls=InstanceEncoder, **kwargs)
-
   %}
 
 }
