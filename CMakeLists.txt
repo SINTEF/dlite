@@ -55,6 +55,12 @@ if(MEMORYCHECK_COMMAND)
     ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
     CACHE FILEPATH "File that contains suppressions for the memory checker"
     )
+  set(MEMORYCHECK_COMMAND_OPTIONS
+    "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=50")
+  #set(MEMORYCHECK_COMMAND_OPTIONS
+  #  "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite
+  #   --gen-suppressions=all")
+
   add_custom_target(memcheck
     COMMAND ${CMAKE_CTEST_COMMAND}
               --force-new-ctest-process --output-on-failure -T memcheck

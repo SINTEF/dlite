@@ -205,3 +205,20 @@
    fun:_PyMethodDef_RawFastCallKeywords
    fun:_PyCFunction_FastCallKeywords
 }
+
+# ------------------------------------
+# Python bindings
+# ------------------------------------
+
+{
+   python-bindings-tyr
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:_PyMem_RawWcsdup
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   fun:_Py_InitializeCore
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   fun:_Py_UnixMain
+}

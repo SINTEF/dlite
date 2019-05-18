@@ -14,6 +14,7 @@
 
 #include "utils/map.h"
 
+
 /**
   A subject-predicate-object triplet used to represent a relation.
   The s-p-o-id strings should be allocated with malloc.
@@ -142,6 +143,12 @@ int triplestore_remove_by_id(TripleStore *ts, const char *id);
 int triplestore_remove(TripleStore *ts, const char *s,
                        const char *p, const char *o);
 
+
+/**
+  Removes all relations in triplestore and releases all references to
+  external memory.  Only references to running iterators is kept.
+ */
+void triplestore_clear(TripleStore *ts);
 
 /**
   Returns a pointer to triplet with given id or NULL if no match can be found.

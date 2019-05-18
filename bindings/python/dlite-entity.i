@@ -209,14 +209,17 @@ struct _DLiteInstance {
     size_t i, *d, n=ndims;
     if (!(meta = dlite_meta_get(metaid)))
       return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
-    if (n != meta->ndimensions)
+    if (n != meta->ndimensions) {
+      dlite_meta_decref(meta);
       return dlite_err(1, "%s has %zu dimensions",
-		       metaid, meta->ndimensions), NULL;
+                       metaid, meta->ndimensions), NULL;
+    }
     d = malloc(n * sizeof(size_t));
     for (i=0; i<n; i++) d[i] = dims[i];
     inst = dlite_instance_create(meta, d, id);
     free(d);
     if (inst) dlite_errclr();
+    dlite_meta_decref(meta);
     return inst;
   }
   _DLiteInstance(const char *url) {
@@ -301,6 +304,7 @@ struct _DLiteInstance {
  * Module functions
  * ---------------- */
 %rename(get_instance) dlite_instance_get;
+%newobject dlite_instance_get;
 struct _DLiteInstance *dlite_instance_get(const char *id);
 
 %rename(_get_property) dlite_swig_get_property;

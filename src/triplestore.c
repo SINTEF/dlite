@@ -30,6 +30,7 @@
 /* Allocate triplestore memory in chunks of TRIPLESTORE_BUFFSIZE */
 #define TRIPLESTORE_BUFFSIZE 1024
 
+
 /* Prototype for cleanup-function */
 typedef void (*Freer)(void *ptr);
 
@@ -158,6 +159,8 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   Returns a new empty triplestore that stores its triplets and the number of
   triplets in the external memory pointed to by `*p` and `*lenp`, respectively.
 
+  If `p` and `lenp` are NULL, internal memory is allocated.
+
   `freer` is a cleanup-function.  If not NULL, it is called by
   triplestore_free() with `freedata` as argument.
 
@@ -200,26 +203,12 @@ TripleStore *triplestore_create()
  */
 void triplestore_free(TripleStore *ts)
 {
-  size_t i;
-  //printf("*** triplestore_free: freed=%d, niter=%d\n", ts->freed, ts->niter);
-
   assert(ts->freed == 0 || ts->niter == 0);
-  if (ts->niter > 0) {
-    /* alive iterator(s), don't free yet... */
+  triplestore_clear(ts);
+  if (ts->niter > 0)
     ts->freed = 1;
-  } else {
-    /* cleanup of external data */
-    if (ts->freer) ts->freer(ts->freedata);
-
-    assert(!ts->p || *ts->p == ts->triplets);
-    for (i=0; i<ts->true_length; i++)
-      triplet_clean(ts->triplets + i);
-    if (ts->triplets) free(ts->triplets);
-    if (ts->p) *ts->p = NULL;
-    if (ts->lenp) *ts->lenp = 0;
-    map_deinit(&ts->map);
+  else
     free(ts);
-  }
 }
 
 
@@ -326,11 +315,10 @@ static int _remove_by_index(TripleStore *ts, size_t n)
     /* no running iterators, remove triplet */
     assert(ts->length == ts->true_length);
     triplet_clean(t);
-    memcpy(t, &ts->triplets[--ts->length], sizeof(Triplet));
+    if (t < ts->triplets + (ts->length - 1))
+      memcpy(t, &ts->triplets[--ts->length], sizeof(Triplet));
     ts->true_length = ts->length;
     if (ts->lenp) *ts->lenp = ts->length;
-    assert(t->id);
-    map_set(&ts->map, t->id, n);
   }
   return 0;
 }
@@ -366,6 +354,24 @@ int triplestore_remove(TripleStore *ts, const char *s,
     }
   }
   return n;
+}
+
+
+/*
+  Removes all relations in triplestore and releases all references to
+  external memory.  Only references to running iterators is kept.
+ */
+void triplestore_clear(TripleStore *ts)
+{
+  int n=ts->true_length;
+  int niter=ts->niter;
+  while (--n >= 0)
+    if (ts->triplets[n].id) _remove_by_index(ts, n);
+  if (!ts->p && ts->triplets)
+    free(ts->triplets);
+  map_deinit(&ts->map);
+  memset(ts, 0, sizeof(TripleStore));
+  ts->niter = niter;
 }
 
 
@@ -425,6 +431,12 @@ void triplestore_deinit_state(TripleState *state)
   assert(ts->niter > 0 /* must match triplestore_init_state() */);
   ts->niter--;
 
+  /* Number of pending iterators has reased zero - free the triplestore  */
+  if (ts->freed && ts->niter <= 0) {
+    triplestore_free(ts);
+    return;
+  }
+
   if (ts->niter == 0 && ts->true_length > ts->length) {
     for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--)
       ts->true_length--;
@@ -445,9 +457,6 @@ void triplestore_deinit_state(TripleState *state)
     }
     if (ts->lenp) *ts->lenp = ts->length;
   }
-
-  /* */
-  if (ts->freed && ts->niter <= 0) triplestore_free(ts);
 }
 
 

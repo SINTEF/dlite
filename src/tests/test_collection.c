@@ -73,6 +73,7 @@ MU_TEST(test_collection_find)
     nanimals++;
   }
   mu_assert_int_eq(2, nanimals);
+  dlite_collection_deinit_state(&state);
 }
 
 

@@ -55,14 +55,6 @@ static DLiteStore *_istore_init()
  * Collection
  **************************************************************/
 
-static void freer(void *freedata)
-{
-  DLiteCollection *coll = (DLiteCollection *)freedata;
-  //printf("*** freer: %p\n", (void *)coll);
-  assert(freedata);
-  dlite_collection_decref(coll);
-}
-
 /* Initialise additional data in a collection */
 int dlite_collection_init(DLiteInstance *inst)
 {
@@ -73,13 +65,9 @@ int dlite_collection_init(DLiteInstance *inst)
   assert(_istore);
 
   /* Initialise tripletstore */
-  /* FIXME - increasing the refcount to coll creates a cyclic
-     reference to the tripletstore which will prohibit the collection
-     from be deallocated.  We should do this in a smarter way... */
-  dlite_collection_incref(coll);
   coll->rstore =
     triplestore_create_external(&coll->relations, &coll->nrelations,
-                                freer, coll);
+                                NULL, NULL);
 
   return 0;
 }
@@ -251,6 +239,7 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
     dlite_collection_init_state(coll, &state);
     while ((r=dlite_collection_find(coll,&state, label, "_has-dimmap", NULL)))
       triplestore_remove_by_id(coll->rstore, r->o);
+    dlite_collection_deinit_state(&state);
 
     dlite_collection_remove_relations(coll, label, "_has-uuid", NULL);
     dlite_collection_remove_relations(coll, label, "_has-meta", NULL);

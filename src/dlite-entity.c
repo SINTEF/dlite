@@ -339,6 +339,9 @@ static void dlite_instance_free(DLiteInstance *inst)
  */
 int dlite_instance_incref(DLiteInstance *inst)
 {
+  DEBUG_LOG("+++ incref: %2d -> %2d : %s\n",
+            inst->refcount, inst->refcount+1,
+            (inst->uri) ? inst->uri : inst->uuid);
   return ++inst->refcount;
 }
 
@@ -352,6 +355,9 @@ int dlite_instance_incref(DLiteInstance *inst)
 int dlite_instance_decref(DLiteInstance *inst)
 {
   int count;
+  DEBUG_LOG("--- decref: %2d -> %2d : %s\n",
+            inst->refcount, inst->refcount-1,
+            (inst->uri) ? inst->uri : inst->uuid);
   assert(inst->refcount > 0);
   if ((count = --inst->refcount) <= 0) dlite_instance_free(inst);
   return count;

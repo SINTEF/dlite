@@ -20,7 +20,6 @@ itr = coll.get_iter()
 while itr.poll():
     print(itr.find())
 
-
 url = 'json://' + thisdir + '/MyEntity.json' + "?mode=r"
 
 # Load metadata (i.e. an instance of meta-metadata) from url
