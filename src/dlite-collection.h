@@ -87,6 +87,12 @@ DLiteCollection *dlite_collection_create(const char *id);
 
 
 /**
+  Increases reference count of collection `coll`.
+ */
+void dlite_collection_incref(DLiteCollection *coll);
+
+
+/**
   Decreases reference count of collection `coll`.
  */
 void dlite_collection_decref(DLiteCollection *coll);

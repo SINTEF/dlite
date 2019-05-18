@@ -13,8 +13,6 @@
 
 
 
-
-
 /**************************************************************
  * Instance store
  **************************************************************/
@@ -57,6 +55,14 @@ static DLiteStore *_istore_init()
  * Collection
  **************************************************************/
 
+static void freer(void *freedata)
+{
+  DLiteCollection *coll = (DLiteCollection *)freedata;
+  //printf("*** freer: %p\n", (void *)coll);
+  assert(freedata);
+  dlite_collection_decref(coll);
+}
+
 /* Initialise additional data in a collection */
 int dlite_collection_init(DLiteInstance *inst)
 {
@@ -67,8 +73,13 @@ int dlite_collection_init(DLiteInstance *inst)
   assert(_istore);
 
   /* Initialise tripletstore */
+  /* FIXME - increasing the refcount to coll creates a cyclic
+     reference to the tripletstore which will prohibit the collection
+     from be deallocated.  We should do this in a smarter way... */
+  dlite_collection_incref(coll);
   coll->rstore =
-    triplestore_create_external(&coll->relations, &coll->nrelations);
+    triplestore_create_external(&coll->relations, &coll->nrelations,
+                                freer, coll);
 
   return 0;
 }
@@ -96,6 +107,15 @@ DLiteCollection *dlite_collection_create(const char *id)
   DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_SCHEMA);
   size_t dims[] = {0, 4};
   return (DLiteCollection *)dlite_instance_create(meta, dims, id);
+}
+
+
+/*
+  Increases reference count of collection `coll`.
+ */
+void dlite_collection_incref(DLiteCollection *coll)
+{
+  dlite_instance_incref((DLiteInstance *)coll);
 }
 
 

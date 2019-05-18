@@ -38,8 +38,6 @@ typedef struct _TripleState {
 } TripleState;
 
 
-
-
 /**
   Sets default namespace to be prepended to triplet id's.
 
@@ -88,9 +86,13 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   Returns a new empty triplestore that stores its triplets and the number of
   triplets in the external memory pointed to by `*p` and `*lenp`, respectively.
 
+  `freer` is a cleanup-function.  If not NULL, it is called by
+  triplestore_free() with `freedata` as argument.
+
   Returns NULL on error.
  */
-TripleStore *triplestore_create_external(Triplet **p, size_t *lenp);
+TripleStore *triplestore_create_external(Triplet **p, size_t *lenp,
+                                         void (*freer)(void *), void *freedata);
 
 
 /**

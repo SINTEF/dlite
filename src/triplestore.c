@@ -30,6 +30,8 @@
 /* Allocate triplestore memory in chunks of TRIPLESTORE_BUFFSIZE */
 #define TRIPLESTORE_BUFFSIZE 1024
 
+/* Prototype for cleanup-function */
+typedef void (*Freer)(void *ptr);
 
 /* Triplet store. */
 struct _TripleStore {
@@ -41,10 +43,14 @@ struct _TripleStore {
 
   Triplet **p;        /*!< pointer to external memory pointing to triplets */
   size_t *lenp;       /*!< pointer to external memory pointing to length */
+  Freer freer;        /*!< cleanup-function called by tripletstore_free() */
+  void *freedata;     /*!< data passed to `freer` */
 
   map_int_t map;      /*!< a mapping from triplet id to its corresponding
                            index in `triplets` */
   size_t niter;       /*!< counter for number of running iterators */
+  int freed;          /*!< set to non-zero when this store is supposed to
+                           be freed, but kept alive due to existing iterators */
 };
 
 
@@ -152,9 +158,13 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   Returns a new empty triplestore that stores its triplets and the number of
   triplets in the external memory pointed to by `*p` and `*lenp`, respectively.
 
+  `freer` is a cleanup-function.  If not NULL, it is called by
+  triplestore_free() with `freedata` as argument.
+
   Returns NULL on error.
  */
-TripleStore *triplestore_create_external(Triplet **p, size_t *lenp)
+TripleStore *triplestore_create_external(Triplet **p, size_t *lenp,
+                                         void (*freer)(void *), void *freedata)
 {
   TripleStore *ts = calloc(1, sizeof(TripleStore));
   if (p) {
@@ -169,6 +179,8 @@ TripleStore *triplestore_create_external(Triplet **p, size_t *lenp)
   }
   ts->p = p;
   ts->lenp = lenp;
+  ts->freer = freer;
+  ts->freedata = freedata;
   map_init(&ts->map);
   return ts;
 }
@@ -179,7 +191,7 @@ TripleStore *triplestore_create_external(Triplet **p, size_t *lenp)
  */
 TripleStore *triplestore_create()
 {
-  return triplestore_create_external(NULL, NULL);
+  return triplestore_create_external(NULL, NULL, NULL, NULL);
 }
 
 
@@ -189,14 +201,25 @@ TripleStore *triplestore_create()
 void triplestore_free(TripleStore *ts)
 {
   size_t i;
-  assert(!ts->p || *ts->p == ts->triplets);
-  for (i=0; i<ts->true_length; i++)
-    triplet_clean(ts->triplets + i);
-  if (ts->triplets) free(ts->triplets);
-  if (ts->p) *ts->p = NULL;
-  if (ts->lenp) *ts->lenp = 0;
-  map_deinit(&ts->map);
-  free(ts);
+  //printf("*** triplestore_free: freed=%d, niter=%d\n", ts->freed, ts->niter);
+
+  assert(ts->freed == 0 || ts->niter == 0);
+  if (ts->niter > 0) {
+    /* alive iterator(s), don't free yet... */
+    ts->freed = 1;
+  } else {
+    /* cleanup of external data */
+    if (ts->freer) ts->freer(ts->freedata);
+
+    assert(!ts->p || *ts->p == ts->triplets);
+    for (i=0; i<ts->true_length; i++)
+      triplet_clean(ts->triplets + i);
+    if (ts->triplets) free(ts->triplets);
+    if (ts->p) *ts->p = NULL;
+    if (ts->lenp) *ts->lenp = 0;
+    map_deinit(&ts->map);
+    free(ts);
+  }
 }
 
 
@@ -400,8 +423,8 @@ void triplestore_deinit_state(TripleState *state)
   TripleStore *ts = state->ts;
   int i;
   assert(ts->niter > 0 /* must match triplestore_init_state() */);
-
   ts->niter--;
+
   if (ts->niter == 0 && ts->true_length > ts->length) {
     for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--)
       ts->true_length--;
@@ -422,6 +445,9 @@ void triplestore_deinit_state(TripleState *state)
     }
     if (ts->lenp) *ts->lenp = ts->length;
   }
+
+  /* */
+  if (ts->freed && ts->niter <= 0) triplestore_free(ts);
 }
 
 
