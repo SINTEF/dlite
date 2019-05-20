@@ -451,29 +451,25 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id)
 /*
   A convinient function that loads an instance given an URL of the form
 
-      driver://loc?options#id
+      driver://location?options#id
 
-  where `loc` corresponds to the `uri` argument of dlite_storage_open().
-  If `loc` is not given, the instance is loaded from the metastore  using
-  `id`.
+  where `location` corresponds to the `uri` argument of
+  dlite_storage_open().  If `location` is not given, the instance is
+  loaded from the metastore using `id`.
 
   Returns the instance or NULL on error.
  */
 DLiteInstance *dlite_instance_load_url(const char *url)
 {
-  char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL, *id=NULL;
+  char *str=NULL, *driver=NULL, *location=NULL, *options=NULL, *id=NULL;
   DLiteStorage *s=NULL;
   DLiteInstance *inst=NULL;
   if (!(str = strdup(url))) FAIL("allocation failure");
-  if (dlite_split_url(str, &driver, &loc, &options, &id)) goto fail;
-  if (loc) {
-    if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
-    inst = dlite_instance_load(s, id);
-  } else if (id) {
-    if (!(inst = dlite_instance_get(id))) goto fail;
-    dlite_instance_incref(inst);
-  } else {
-    FAIL("`url` must contain at least a `loc` or `id` part");
+  if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
+  if (!id || !(inst = dlite_instance_get(id))) {
+    err_clear();
+    if (!(s = dlite_storage_open(driver, location, options))) goto fail;
+    if (!(inst = dlite_instance_load(s, id))) goto fail;
   }
  fail:
   if (s) dlite_storage_close(s);
@@ -676,7 +672,7 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   A convinient function that saves instance `inst` to the storage specified
   by `url`, which should be of the form
 
-      driver://loc?options
+      driver://location?options
 
   Returns non-zero on error.
  */

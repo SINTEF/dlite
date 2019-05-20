@@ -99,6 +99,23 @@ void dlite_collection_decref(DLiteCollection *coll);
 
 
 /**
+  Loads collection with given id from storage `s`.  If `lazy` is zero,
+  all its instances are loaded immediately.  Otherwise, instances are
+  first loaded on demand.  Returns non-zero on error.
+ */
+DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
+                                       int lazy);
+
+/**
+  Convinient function that loads a collection from `url`, which should
+  be of the form "driver://location?options#id".
+  The `lazy` argument has the same meaning as for dlite_collection_load().
+  Returns non-zero on error.
+ */
+DLiteCollection *dlite_collection_load_url(const char *url, int lazy);
+
+
+/**
   Saves collection and all its instances to storage `s`.
   Returns non-zero on error.
  */

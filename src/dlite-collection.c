@@ -117,6 +117,71 @@ void dlite_collection_decref(DLiteCollection *coll)
 
 
 /*
+  Loads collection with given id from storage `s`.  If `lazy` is zero,
+  all its instances are also loaded.  Otherwise, instances are loaded
+  on demand.  Returns non-zero on error.
+ */
+DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
+                                       int lazy)
+{
+  DLiteCollection *coll;
+  DLiteCollectionState state;
+  const Triplet *t, *t2;
+
+  if (!(coll = (DLiteCollection *)dlite_instance_load(s, id)))
+    return NULL;
+
+  if (lazy) {
+    //dlite_storage_paths_append(s->uri);
+    return err(1, "lazy loading of collections from storage is not yet "
+               "implemented..."), NULL;
+  }
+
+  dlite_collection_init_state(coll, &state);
+  while ((t = dlite_collection_find(coll, &state, NULL, "_has-uuid", NULL))) {
+    if (!(t2 = dlite_collection_find_first(coll, t->s, "_has-meta", NULL)))
+      FAIL1("collection inconsistency - no \"_has-meta\" relation for "
+           "instance: %s", t->s);
+    if (strcmp(t2->o, DLITE_COLLECTION_SCHEMA) == 0) {
+      if (!dlite_collection_load(s, t->o, 0)) goto fail;
+    } else {
+      if (!dlite_instance_load(s, t->o)) goto fail;
+    }
+  }
+  dlite_collection_deinit_state(&state);
+  return coll;
+ fail:
+  dlite_collection_deinit_state(&state);
+  if (coll) dlite_collection_decref(coll);
+  return NULL;
+}
+
+/*
+  Convinient function that loads a collection from `url`, which should
+  be of the form "driver://location?options#id".
+  The `lazy` argument has the same meaning as for dlite_collection_load().
+  Returns non-zero on error.
+ */
+DLiteCollection *dlite_collection_load_url(const char *url, int lazy)
+{
+  char *str=NULL, *driver=NULL, *location=NULL, *options=NULL, *id=NULL;
+  DLiteStorage *s=NULL;
+  DLiteCollection *coll=NULL;
+  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
+  if (!id || !(coll = (DLiteCollection *)dlite_instance_get(id))) {
+    err_clear();
+    if (!(s = dlite_storage_open(driver, location, options))) goto fail;
+    if (!(coll = dlite_collection_load(s, id, lazy))) goto fail;
+  }
+ fail:
+  if (s) dlite_storage_close(s);
+  if (str) free(str);
+  return coll;
+}
+
+
+/*
   Saves collection and all its instances to storage `s`.
   Returns non-zero on error.
  */
