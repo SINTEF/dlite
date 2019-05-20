@@ -100,6 +100,9 @@ MU_TEST(test_collection_add)
   mu_check(!dlite_collection_add(coll, "inst", inst));
   mu_check(!dlite_collection_add_new(coll, "inst2", inst));
   mu_assert_int_eq(3, dlite_collection_count(coll));
+
+  /* inst goes out of scope here (but is kept in collection...) */
+  dlite_instance_decref(inst);
 }
 
 
