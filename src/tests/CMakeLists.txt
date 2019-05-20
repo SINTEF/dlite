@@ -2,7 +2,8 @@
 #
 
 set(tests
-  test_utils
+  test_misc
+  test_storage
   test_entity
   test_store
   test_triplestore
@@ -12,6 +13,8 @@ set(tests
   )
 if(WITH_JSON)
   list(APPEND tests test_json_entity)
+  list(APPEND tests test_storage_lookup)
+  list(APPEND tests test_mapping)
 endif()
 if(WITH_HDF5)
   list(APPEND tests test_datamodel)
@@ -21,13 +24,20 @@ if(WITH_POSTGRESQL)
 endif()
 
 
-add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
+add_definitions(
+  -DDLITE_ROOT=${dlite_SOURCE_DIR}
+  -DDLITE_BINARY_ROOT=${dlite_BINARY_DIR}
+  )
+
+add_subdirectory(mappings)
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
-    dlite-static
-    dlite-utils-static
+    #dlite-static
+    #dlite-utils-static
+    dlite
+    dlite-utils
     )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src
@@ -46,6 +56,8 @@ foreach(test ${tests})
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
+    ENVIRONMENT "DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
 
 endforeach()

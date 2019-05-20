@@ -16,8 +16,8 @@ add_custom_command(
 OUTPUT philibtable.h
 COMMAND ${DLITE_ROOT}/bin/dlite-codegen
   --template ${DLITE_TEMPLATE_DIR}/c-header.txt
-  --driver-uri ${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json
   --output philibtable.h
+  json:${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json
 MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json
 COMMENT "Generating C header for PhilibTable.json"
 )

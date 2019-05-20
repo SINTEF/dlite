@@ -396,10 +396,9 @@ ErrHandler err_get_handler(void);
 
 
 /**
- * @name ErrTry/ErrCatch block
-
- * ErrTry/ErrCatch blocks allows to selectively handel errors based on
- * their error value.  They are of the form:
+ * @name ErrTry block
+ * ErrTry blocks allows to selectively handel errors based on their
+ * error value.  They are of the form:
  *
  *     ErrTry:
  *       statements...;
@@ -475,7 +474,7 @@ ErrRecord *_err_get_record();
 
 
 /**
- * @brief Starts a ErrTry/ErrCatch block.
+ * @brief Starts a ErrTry block.
 */
 #define ErrTry                                       \
   do {                                               \
@@ -522,7 +521,7 @@ ErrRecord *_err_get_record();
     case 0
 
 /**
- * @brief Ends an ErrTry/ErrCatch block.
+ * @brief Ends an ErrTry block.
  */
 #define ErrEnd                               \
     }                                        \
@@ -545,7 +544,7 @@ ErrRecord *_err_get_record();
 
 /**
  * @brief Raises an exception
- * This transfers the execution to the nearest enclosing ErrTry/ErrCatch block.
+ * This transfers the execution to the nearest enclosing ErrTry block.
  * If no such block exists, fatal() is called.
  */
 #define err_raise(eval, ...)                              \

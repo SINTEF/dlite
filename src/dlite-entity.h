@@ -129,20 +129,6 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
     Returns non-zero on error. */
 typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
-///** Function for loading special properties.
-//    Returns 1 if property `name` is loaded, 0 if `name` should be
-//    loaded the normal way or -1 on error. */
-//typedef int (*DLiteLoadProp(DLiteDataModel *d,
-//                            const struct _DLiteInstance *inst,
-//                            const char *name);
-//
-///** Function for saving special properties.
-//    Returns 1 if property `name` is saved, 0 if `name` should be
-//    saved the normal way or -1 on error. */
-//typedef int (*DLiteSaveProp)(DLiteDataModel *d,
-//                             const struct _DLiteInstance *inst,
-//                             const char *name);
-
 
 /** Expands to number of dimensions --> (size_t) */
 #define DLITE_NDIM(inst) (((DLiteInstance *)(inst))->meta->ndimensions)
@@ -163,10 +149,6 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
 /** Expands to number of properties (size_t). */
 #define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
-
-///** Expands to pointer to array of pointers to property values --> (void **) */
-//#define DLITE_PROPS(inst)
-//  ((void **)((char *)(inst) + ((DLiteInstance *)(inst))->meta->propptroffset))
 
 /** Expands to pointer to the value of property `n` --> (void *)
 
@@ -264,10 +246,10 @@ struct _DLiteInstance {
 /**
   DLite dimension
 */
-typedef struct _DLiteDimension {
+struct _DLiteDimension {
   char *name;         /*!< Name of this dimension. */
   char *description;  /*!< Description of this dimension. */
-} DLiteDimension;
+};
 
 
 /**
@@ -277,7 +259,7 @@ typedef struct _DLiteDimension {
   means that the data described by this property has dimensions
   ["N", "N", "M"].
 */
-typedef struct _DLiteProperty {
+struct _DLiteProperty {
   char *name;         /*!< Name of this property. */
   DLiteType type;     /*!< Type of the described data. */
   size_t size;        /*!< Size of one data element. */
@@ -286,7 +268,7 @@ typedef struct _DLiteProperty {
   int *dims;          /*!< Array of dimension indices. May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
   char *description;  /*!< Human described of the described data. */
-} DLiteProperty;
+};
 
 
 
@@ -351,6 +333,13 @@ int dlite_instance_decref(DLiteInstance *inst);
 
 
 /**
+  Returns a new reference to instance with given `id` or NULL if no such
+  instance can be found.
+*/
+DLiteInstance *dlite_instance_get(const char *id);
+
+
+/**
   Loads instance identified by `id` from storage `s` and returns a
   new and fully initialised dlite instance.
 
@@ -361,30 +350,6 @@ int dlite_instance_decref(DLiteInstance *inst);
   On error, NULL is returned.
  */
 DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id);
-
-/**
-  Like dlite_instance_load(), but allows casting the loaded instance
-  into an instance of metadata identified by `metaid`.  If `metaid` is
-  NULL, no casting is performed.
-
-  For the cast to be successful requires that the correct translators
-  have been registered.
-
-  Returns NULL of error or if no translator can be found.
-
-  @todo
-    - implementation of metadata lookup
-    - implementation of translators
-    - implementation of a database of translator plugins
- */
-DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
-                                          const char *id,
-                                          const char *metaid);
-
-/**
-  Saves instance \a inst to storage \a s.  Returns non-zero on error.
- */
-int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 
 /**
   A convinient function that loads an instance given an URL of the form
@@ -400,6 +365,27 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 DLiteInstance *dlite_instance_load_url(const char *url);
 
 /**
+  Like dlite_instance_load(), but allows casting the loaded instance
+  into an instance of metadata identified by `metaid`.  If `metaid` is
+  NULL, no casting is performed.
+
+  For the cast to be successful requires that the correct mappings
+  have been registered.
+
+  Returns NULL on error or if no mapping can be found.
+ */
+DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
+                                          const char *id,
+                                          const char *metaid);
+
+
+/**
+  Saves instance \a inst to storage \a s.  Returns non-zero on error.
+ */
+int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
+
+
+/**
   A convinient function that saves instance `inst` to the storage specified
   by `url`, which should be of the form
 
@@ -408,6 +394,7 @@ DLiteInstance *dlite_instance_load_url(const char *url);
   Returns non-zero on error.
  */
 int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
+
 
 /**
   Returns number of dimensions or -1 on error.
@@ -469,6 +456,11 @@ int dlite_instance_set_property(DLiteInstance *inst, const char *name,
                                 const void *ptr);
 
 /**
+  Returns true if instance has a property with the given name.
+ */
+bool dlite_instance_has_property(DLiteInstance *inst, const char *name);
+
+/**
   Returns number of dimensions of property  \a name or -1 on error.
 */
 int dlite_instance_get_property_ndims(const DLiteInstance *inst,
@@ -484,6 +476,22 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
   Returns non-zero if `inst` is a data instance.
  */
 int dlite_instance_is_data(const DLiteInstance *inst);
+
+/**
+  Returns non-zero if `inst` is metadata.
+
+  This is simply the inverse of dlite_instance_is_data().
+ */
+int dlite_instance_is_meta(const DLiteInstance *inst);
+
+/**
+  Returns non-zero if `inst` is meta-metadata.
+
+  Meta-metadata contains either a "properties" property (of type
+  DLiteProperty) or a "relations" property (of type DLiteRelation) in
+  addition to a "dimensions" property (of type DLiteDimension).
+ */
+int dlite_instance_is_metameta(const DLiteInstance *inst);
 
 
 /**
@@ -585,6 +593,12 @@ void dlite_meta_incref(DLiteMeta *meta);
 void dlite_meta_decref(DLiteMeta *meta);
 
 /**
+  Returns a new reference to metadata with given `id` or NULL if no such
+  instance can be found.
+*/
+DLiteMeta *dlite_meta_get(const char *id);
+
+/**
   Loads metadata identified by `id` from storage `s` and returns a new
   fully initialised meta instance.
 */
@@ -642,40 +656,5 @@ const DLiteProperty *dlite_meta_get_property(const DLiteMeta *meta,
 */
 int dlite_meta_is_metameta(const DLiteMeta *meta);
 
-
-/** @} */
-/* ================================================================= */
-/**
- * @name Metadata cache
- * Global metadata cache to avoid reloading entities for each time an
- * instance is created.
- */
-/* ================================================================= */
-/** @{ */
-
-/**
-  Frees up a global metadata store.  Will be called at program exit,
-  but can be called at any time.
-*/
-void dlite_metastore_free(void);
-
-/**
-  Returns pointer to metadata for id `id` or NULL if `id` cannot be found.
-*/
-DLiteMeta *dlite_metastore_get(const char *id);
-
-/**
-  Adds metadata to global metadata store, giving away the ownership
-  of `meta` to the store.  Returns non-zero on error.
-*/
-int dlite_metastore_add_new(const DLiteMeta *meta);
-
-/**
-  Adds metadata to global metadata store.  The caller keeps ownership
-  of `meta`.  Returns non-zero on error.
-*/
-int dlite_metastore_add(const DLiteMeta *meta);
-
-/** @} */
 
 #endif /* _DLITE_ENTITY_H */

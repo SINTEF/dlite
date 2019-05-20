@@ -30,7 +30,9 @@ include(SetDefaults)
 # Install paths (CMAKE_INSTALL_PREFIX) is prepended to these
 set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
 set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
-set(DLITE_TRANSLATOR_PLUGINS_PATH "share/dlite/translator-plugins")
+set(DLITE_MAPPING_PLUGINS_PATH    "share/dlite/mapping-plugins")
+set(DLITE_PYTHON_MAPPINGS_PATH    "share/dlite/python-mappings")
+set(DLITE_PYTHON_STORAGES_PATH    "share/dlite/python-storages")
 
 # Enable compiler warnings
 include(SetCompilerFlags)
@@ -53,6 +55,12 @@ if(MEMORYCHECK_COMMAND)
     ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
     CACHE FILEPATH "File that contains suppressions for the memory checker"
     )
+  set(MEMORYCHECK_COMMAND_OPTIONS
+    "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=50")
+  #set(MEMORYCHECK_COMMAND_OPTIONS
+  #  "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite
+  #   --gen-suppressions=all")
+
   add_custom_target(memcheck
     COMMAND ${CMAKE_CTEST_COMMAND}
               --force-new-ctest-process --output-on-failure -T memcheck
@@ -223,11 +231,12 @@ if(WIN32)
   list(APPEND dlite_PATH
     ${dlite-src_BINARY_DIR}
     ${dlite-src-utils_BINARY_DIR}
+    ${JANSSON_RUNTIME_DIR}
+    ${HDF5_RUNTIME_DIR}
     )
+  string(REPLACE "/" "\\" dlite_PATH "${dlite_PATH}")
 endif()
 list(APPEND dlite_PATH
-  ${JANSSON_RUNTIME_DIR}
-  ${HDF5_RUNTIME_DIR}
   $ENV{PATH}
   )
 list(REMOVE_DUPLICATES dlite_PATH)
@@ -244,7 +253,7 @@ list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
-  ${dlite-python_BINARY_DIR}
+  ${dlite-bindings-python_BINARY_DIR}
   $ENV{PYTHONPATH}
   )
 if(dlite_PYTHONPATH)
@@ -260,12 +269,13 @@ set(dlite_STORAGE_PLUGINS
   )
 list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 
-# DLITE_TRANSLATOR_PLUGINS - search path for DLite translator plugins
-set(dlite_TRANSLATOR_PLUGINS
-  ${dlite_BINARY_DIR}/translators
-  $ENV{DLITE_TRANSLATOR_PLUGINS}
+# DLITE_MAPPING_PLUGINS - search path for DLite mapping plugins
+set(dlite_MAPPING_PLUGINS
+  ${dlite-src-pyembed_BINARY_DIR}
+  ${dlite_BINARY_DIR}/mappings
+  $ENV{DLITE_MAPPING_PLUGINS}
   )
-list(REMOVE_DUPLICATES dlite_TRANSLATOR_PLUGINS)
+list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
 
 # DLITE_TEMPLATES - search path for DLite templates
 set(dlite_TEMPLATES
@@ -274,13 +284,37 @@ set(dlite_TEMPLATES
   )
 list(REMOVE_DUPLICATES dlite_TEMPLATES)
 
+# DLITE_STORAGES - search path for DLite metadata
+set(dlite_STORAGES
+  ${dlite-tools_SOURCE_DIR}/metadata/*.json
+  $ENV{DLITE_STORAGES}
+  )
+list(REMOVE_DUPLICATES dlite_STORAGES)
+
+# DLITE_PYTHON_STORAGES - search path for Python storage plugins
+set(dlite_PYTHON_STORAGES
+  ${dlite-src-pyembed_SOURCE_DIR}/storages
+  $ENV{DLITE_PYTHON_STORAGES}
+  )
+list(REMOVE_DUPLICATES dlite_PYTHON_STORAGES)
+
+# DLITE_PYTHON_MAPPINGS - search path for Python mapping plugins
+set(dlite_PYTHON_MAPPINGS
+  ${dlite-src-pyembed_SOURCE_DIR}/mappings
+  $ENV{DLITE_PYTHON_MAPPINGS}
+  )
+list(REMOVE_DUPLICATES dlite_PYTHON_MAPPINGS)
+
 if(UNIX)
-  string(REPLACE ";" ":" dlite_PATH               "${dlite_PATH}")
-  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH    "${dlite_LD_LIBRARY_PATH}")
-  string(REPLACE ";" ":" dlite_PYTHONPATH         "${dlite_PYTHONPATH}")
-  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS    "${dlite_STORAGE_PLUGINS}")
-  string(REPLACE ";" ":" dlite_TRANSLATOR_PLUGINS "${dlite_TRANSLATOR_PLUGINS}")
-  string(REPLACE ";" ":" dlite_TEMPLATES          "${dlite_TEMPLATES}")
+  string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
+  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH  "${dlite_LD_LIBRARY_PATH}")
+  string(REPLACE ";" ":" dlite_PYTHONPATH       "${dlite_PYTHONPATH}")
+  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
+  string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
+  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
+  string(REPLACE ";" ":" dlite_STORAGES         "${dlite_STORAGES}")
+  string(REPLACE ";" ":" dlite_PYTHON_STORAGES  "${dlite_PYTHON_STORAGES}")
+  string(REPLACE ";" ":" dlite_PYTHON_MAPPINGS  "${dlite_PYTHON_MAPPINGS}")
 endif()
 
 #################################################################
@@ -292,8 +326,11 @@ message("export PATH=${dlite_PATH}")
 message("export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
 message("export PYTHONPATH=${dlite_PYTHONPATH}")
 message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
-message("export DLITE_TRANSLATOR_PLUGINS=${dlite_TRANSLATOR_PLUGINS}")
+message("export DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
+message("export DLITE_STORAGES=${dlite_STORAGES}")
+message("export DLITE_PYTHON_STORAGES=${dlite_PYTHON_STORAGES}")
+message("export DLITE_PYTHON_MAPPINGS=${dlite_PYTHON_MAPPINGS}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
@@ -315,6 +352,11 @@ add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(doc)
 
+# Bindings
+if(WITH_PYTHON)
+  add_subdirectory(bindings/python)
+endif()
+
 # Storage plugins
 if(WITH_HDF5)
   add_subdirectory(plugins/hdf5)
@@ -325,10 +367,8 @@ endif()
 if(WITH_POSTGRESQL)
   add_subdirectory(plugins/postgresql)
 endif()
-
-# Bindings
 if(WITH_PYTHON)
-  add_subdirectory(bindings/python)
+  add_subdirectory(plugins/python)
 endif()
 
 #################################################################

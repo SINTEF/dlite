@@ -39,6 +39,7 @@ MU_TEST(test_read)
   db = dlite_storage_open("json", dbname, "mode=r");
   mu_check(db);
 
+  printf("\n");
   ids = dlite_storage_uuids(db);
   n = 0;
   for(i=0; ids[i]; i++) {
@@ -46,7 +47,7 @@ MU_TEST(test_read)
     n++;
   }
   /*printf("n=%d\n", n);*/
-  mu_check(n == 4);
+  mu_assert_int_eq(4, n);
   dlite_storage_uuids_free(ids);
 
   d = dlite_datamodel(db, "unknown");

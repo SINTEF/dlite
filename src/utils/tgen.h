@@ -138,6 +138,10 @@
 
 #include "map.h"
 
+/* Det rid of gcc __attribute__ on non-gcc systems */
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
 
 /**
    Error codes used by this library
@@ -409,7 +413,8 @@ int tgen_subs_setn(TGenSubs *subs, const char *var, int len,
   Returns non-zero on error.
 */
 int tgen_subs_set_fmt(TGenSubs *subs, const char *var, TGenFun func,
-                      const char *repl_fmt, ...);
+                      const char *repl_fmt, ...)
+  __attribute__((__format__ (__printf__, 4, 5)));
 
 /**
   Like tgen_subs_setn(), but allows printf() formatting of the
@@ -418,7 +423,8 @@ int tgen_subs_set_fmt(TGenSubs *subs, const char *var, TGenFun func,
   Returns non-zero on error.
 */
 int tgen_subs_setn_fmt(TGenSubs *subs, const char *var, int len,
-                       TGenFun func, const char *repl_fmt, ...);
+                       TGenFun func, const char *repl_fmt, ...)
+  __attribute__((__format__ (__printf__, 5, 6)));
 
 /**
   Like tgen_subs_setn(), but allows printf() formatting of the

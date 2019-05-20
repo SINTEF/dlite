@@ -1,35 +1,41 @@
 {
-	"empty": {
-		"dataname": "",
-		"meta": {},
-		"dimensions": {},
-		"properties": {}
-	},
-	"dbd9d597-16b4-58f5-b10f-7e49cf85084b": {
-		"dataname": "test-a",
-		"meta": {
-			"name": "A",
-			"version": "1",
-			"namespace": "dlite"
-		},
-		"dimensions": {
-			"N": 5
-		},
-		"properties": {
-			"P1": 24,
-			"P2": [1.0, 2.0, 3.0, 4.0, 5.5]
-		}
-	},
-	"b": {
-		"dataname": "test-b",
-		"meta": "dlite/1.0/B",
-		"dimensions": {},
-		"properties": {}
-	},
-	"c": {
-		"dataname": "test-c",
-		"meta": {},
-		"dimensions": {},
-		"properties": {}
-	}
+  "empty": {
+    "dataname": "",
+    "meta": {},
+    "dimensions": {},
+    "properties": {}
+  },
+  "dbd9d597-16b4-58f5-b10f-7e49cf85084b": {
+    "dataname": "test-a",
+    "meta": {
+      "name": "A",
+      "version": "1",
+      "namespace": "dlite"
+    },
+    "dimensions": {
+      "N": 5
+    },
+    "properties": {
+      "P1": 24,
+      "P2": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.5
+      ]
+    }
+  },
+  "b": {
+    "dataname": "test-b",
+    "meta": "dlite/1.0/B",
+    "dimensions": {},
+    "properties": {}
+  },
+  "c": {
+    "dataname": "test-c",
+    "meta": {},
+    "dimensions": {},
+    "properties": {}
+  }
 }

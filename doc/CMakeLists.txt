@@ -1,6 +1,6 @@
 find_package(Doxygen REQUIRED)
 
-#if(DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
   set(dependencies
     ${dlite_SOURCE_DIR}/README.md
     ${dlite_SOURCE_DIR}/doc/Doxyfile.in
@@ -9,14 +9,17 @@ find_package(Doxygen REQUIRED)
 
     ${dlite_SOURCE_DIR}/src/dlite.h
     ${dlite_SOURCE_DIR}/src/dlite-misc.h
+    ${dlite_SOURCE_DIR}/src/dlite-store.h
     ${dlite_SOURCE_DIR}/src/dlite-type.h
-    ${dlite_SOURCE_DIR}/src/dlite-storage.h
-    ${dlite_SOURCE_DIR}/src/dlite-storage-plugins.h
-    ${dlite_SOURCE_DIR}/src/dlite-entity.h
+    ${dlite_SOURCE_DIR}/src/dlite-arrays.h
     ${dlite_SOURCE_DIR}/src/dlite-datamodel.h
     ${dlite_SOURCE_DIR}/src/dlite-schemas.h
-    ${dlite_SOURCE_DIR}/src/dlite-store.h
+    ${dlite_SOURCE_DIR}/src/dlite-entity.h
     ${dlite_SOURCE_DIR}/src/dlite-collection.h
+    ${dlite_SOURCE_DIR}/src/dlite-storage.h
+    ${dlite_SOURCE_DIR}/src/dlite-storage-plugins.h
+    ${dlite_SOURCE_DIR}/src/dlite-mapping.h
+    ${dlite_SOURCE_DIR}/src/dlite-mapping-plugins.h
     ${dlite_SOURCE_DIR}/src/getuuid.h
     ${dlite_SOURCE_DIR}/src/triplestore.h
 
@@ -30,6 +33,7 @@ find_package(Doxygen REQUIRED)
     ${dlite_SOURCE_DIR}/src/utils/strtob.h
     ${dlite_SOURCE_DIR}/src/utils/tgen.h
     ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
+    ${dlite_SOURCE_DIR}/src/utils/infixcalc.h
     ${dlite_SOURCE_DIR}/src/utils/uuid.h
     ${dlite_SOURCE_DIR}/src/utils/tests/tgen_example.c
 
@@ -53,11 +57,13 @@ find_package(Doxygen REQUIRED)
     VERBATIM
     )
 
+  # Unfortunately dependencies for build-in target "install" is not
+  # yet supported.  When that is supported, we can remove ALL from
+  # add_custom_target() and uncommend add_dependencies().
   add_custom_target(doc ALL
     DEPENDS html/index.html
     )
 
-  # dependencies for build-in target "install" is not yet supported
   #add_dependencies(install doc)
 
   install(
@@ -65,4 +71,4 @@ find_package(Doxygen REQUIRED)
     DESTINATION share/dlite
     )
 
-#endif(DOXYGEN_FOUND)
+endif(DOXYGEN_FOUND)

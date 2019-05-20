@@ -3,9 +3,15 @@
 external
 build*
 
+# Ignore personal modified bootstrap files
+bootstrap-win-*.sh
+
 # For Visual Studio
 .vs
 CMakeSettings.json
+
+# For qtcreator
+CMakeLists.txt.user
 
 # A convenient directory to place temporary stuff
 old

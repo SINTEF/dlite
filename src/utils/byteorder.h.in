@@ -37,7 +37,7 @@
 #ifndef _BYTEORDER_H
 #define _BYTEORDER_H
 
-/** @cond 0 */
+/** @cond SKIP */
 
 /* The following macros should be defined in CMakeLists.txt: */
 #cmakedefine HAVE_STDINT_H        /* Whether stdint.h exists */

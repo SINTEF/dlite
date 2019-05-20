@@ -133,8 +133,59 @@ int dlite_store_add_new(DLiteStore *store, DLiteInstance *inst)
 }
 
 /*
+  Removes instance with given id from store and return it.  Returns
+  NULL on error.
+ */
+DLiteInstance *dlite_store_pop(DLiteStore *store, const char *id)
+{
+  item_t *item;
+  DLiteInstance *inst;
+  int uuidver;
+  char uuid[DLITE_UUID_LENGTH+1];
+  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+    FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
+  if (!(item = (item_t *)map_get(&store->map, uuid)))
+    FAIL1("id '%s' is not in store", id);
+  inst = item->inst;
+  if (--item->refcount <= 0)
+    map_remove(&store->map, uuid);
+  return inst;
+ fail:
+  return NULL;
+}
+
+/*
+  Like dlite_store_pop(), but removes all occurences of the instance in
+  `store`. Returns NULL on error.
+ */
+DLiteInstance *dlite_store_pop_all(DLiteStore *store, const char *id)
+{
+  item_t *item;
+  DLiteInstance *inst;
+  int uuidver;
+  char uuid[DLITE_UUID_LENGTH+1];
+  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+    FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
+  if (!(item = (item_t *)map_get(&store->map, uuid)))
+    FAIL1("id '%s' is not in store", id);
+  inst = item->inst;
+  map_remove(&store->map, uuid);
+  return inst;
+ fail:
+  return NULL;
+}
+
+/*
   Removes instance with given id from store.  Returns non-zero on error.
  */
+int dlite_store_remove(DLiteStore *store, const char *id)
+{
+  DLiteInstance *inst = dlite_store_pop(store, id);
+  if (!inst) return 1;
+  dlite_instance_decref(inst);
+  return 0;
+}
+/*
 int dlite_store_remove(DLiteStore *store, const char *id)
 {
   item_t *item;
@@ -151,7 +202,7 @@ int dlite_store_remove(DLiteStore *store, const char *id)
  fail:
   return 1;
 }
-
+*/
 
 /*
   Returns a borrowed reference to instance, or NULL if `id` is not

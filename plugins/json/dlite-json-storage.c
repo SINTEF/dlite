@@ -40,6 +40,12 @@
 #define FAIL3(msg, a1, a2, a3) \
   do {err(-1, msg, a1, a2, a3); goto fail;} while (0)
 
+#define FAIL4(msg, a1, a2, a3, a4) \
+  do {err(1, msg, a1, a2, a3, a4); goto fail; } while (0)
+
+#define FAIL5(msg, a1, a2, a3, a4, a5) \
+  do {err(1, msg, a1, a2, a3, a4, a5); goto fail; } while (0)
+
 
 /* Error macros for when DLiteDataModel instance d in available */
 #define DFAIL0(d, msg) \
@@ -264,6 +270,7 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   char uuid[DLITE_UUID_LENGTH + 1];
   json_t *data;
+  json_t *jname, *jver, *jns;
 
   if (!(d = calloc(1, sizeof(DLiteJsonDataModel))))
     FAIL0("allocation failure");
@@ -281,9 +288,23 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->properties = json_object_get(data, "properties");
     d->relations = json_object_get(data, "relations");
 
-  } else if (json_object_get(storage->root, "namespace") &&
-             json_object_get(storage->root, "version") &&
-             json_object_get(storage->root, "name")) {
+  } else if ((jns = json_object_get(storage->root, "namespace")) &&
+             (jver = json_object_get(storage->root, "version")) &&
+             (jname = json_object_get(storage->root, "name"))) {
+
+    if (id && !storage->writable) {
+      char uuid2[DLITE_UUID_LENGTH + 1];
+      const char *name = json_string_value(jname);
+      const char *version = json_string_value(jver);
+      const char *namespace = json_string_value(jns);
+      char *uri2 = dlite_join_meta_uri(name, version, namespace);
+      if (dlite_get_uuid(uuid2, uri2) < 0) goto fail;
+      free(uri2);
+      if (strcmp(uuid2, uuid) != 0)
+	FAIL5("uri %s/%s/%s in storage %s doesn't match id: %s",
+	      namespace, version, name, storage->uri, id);
+    }
+
     /* Instance is a metadata definition */
     data = storage->root;
     d->instance = data;
@@ -294,9 +315,23 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->properties = json_object_get(data, "properties");
     d->relations = json_object_get(data, "relations");
 
-  } else if (json_object_get(storage->root, "schema_namespace") &&
-             json_object_get(storage->root, "schema_version") &&
-             json_object_get(storage->root, "schema_name")) {
+  } else if ((jns = json_object_get(storage->root, "schema_namespace")) &&
+	     (jver = json_object_get(storage->root, "schema_version")) &&
+             (jname = json_object_get(storage->root, "schema_name"))) {
+
+    if (id && !storage->writable) {
+      char uuid2[DLITE_UUID_LENGTH + 1];
+      const char *name = json_string_value(jname);
+      const char *version = json_string_value(jver);
+      const char *namespace = json_string_value(jns);
+      char *uri2 = dlite_join_meta_uri(name, version, namespace);
+      if (dlite_get_uuid(uuid2, uri2) < 0) goto fail;
+      free(uri2);
+      if (strcmp(uuid2, uuid) != 0)
+	FAIL5("uri %s/%s/%s in storage %s doesn't match id: %s",
+	      namespace, version, name, storage->uri, id);
+    }
+
     /* Instance is a meta-metadata definition (schema) */
     data = storage->root;
     d->instance = data;
@@ -742,7 +777,7 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
   return 0;
 }
 
-/* Creates a DLiteEntity from a json object */
+/* Creates a DLiteMeta from a json object */
 DLiteMeta *dlite_json_entity(json_t *obj)
 {
   DLiteMeta *entity = NULL;
@@ -911,14 +946,20 @@ static DLiteStoragePlugin dlite_json_plugin = {
   dlite_json_get_dataname,
   dlite_json_set_dataname,
 
+  /* specialised api */
   dlite_json_get_entity,
-  dlite_json_set_entity
+  dlite_json_set_entity,
+
+
+  /* internal data */
+  NULL,
+  NULL
 };
 
 
 DSL_EXPORT const DLiteStoragePlugin *
-get_dlite_storage_plugin_api(const char *name)
+get_dlite_storage_plugin_api(int *iter)
 {
-  UNUSED(name);
+  UNUSED(iter);
   return &dlite_json_plugin;
 }

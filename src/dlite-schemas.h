@@ -9,7 +9,7 @@
 #include "dlite-entity.h"
 
 
-/* URIs for hardcoded metadata */
+/** URIs for hardcoded metadata */
 #define DLITE_BASIC_METADATA_SCHEMA \
   "http://meta.sintef.no/0.1/BasicMetadataSchema"
 
@@ -20,20 +20,9 @@
   "http://meta.sintef.no/0.6/CollectionSchema"
 
 
-
-///** Pointer to hardcoded basic metadata schema. */
-//extern const DLiteMeta * const dlite_BasicMetadataSchema;
-//
-///** Pointer to hardcoded entity schema. */
-//extern const DLiteMeta * const dlite_EntitySchema;
-//
-///** Pointer to hardcoded collection schema. */
-//extern const DLiteMeta * const dlite_CollectionSchema;
-
+/** Functions returning a pointer to static definitions of basic schemas. */
 const DLiteMeta *dlite_get_basic_metadata_schema();
 const DLiteMeta *dlite_get_entity_schema();
 const DLiteMeta *dlite_get_collection_schema();
-
-
 
 #endif /* _DLITE_SCHEMAS_H */

@@ -23,12 +23,14 @@ set(sources
   dlite-store.c
   dlite-type.c
   dlite-arrays.c
-  dlite-storage.c
-  dlite-storage-plugins.c
   dlite-datamodel.c
   dlite-schemas.c
   dlite-entity.c
   dlite-collection.c
+  dlite-storage.c
+  dlite-storage-plugins.c
+  dlite-mapping.c
+  dlite-mapping-plugins.c
   dlite-codegen.c
   getuuid.c
   triplestore.c
@@ -95,6 +97,12 @@ install(DIRECTORY
   FILES_MATCHING
   PATTERN *.pdb
   )
+
+
+# Support driver and mapping plugins written in Python
+if(WITH_PYTHON)
+  add_subdirectory(pyembed)
+endif()
 
 # Tests
 add_subdirectory(tests)

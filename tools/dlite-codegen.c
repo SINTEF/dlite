@@ -22,6 +22,9 @@ void help()
   char **p, *msg[] = {
     "Usage: dlite-codegen [OPTIONS] URL",
     "Generates code from a template and a DLite instance.",
+    "  -b, --built-in               Whether the URL refers to an built-in",
+    "                               instance, rather than an instance located",
+    "                               in a storage.",
     "  -f, --format=STRING          Output format if -t is not given.",
     "                               It should correspond to a template name.",
     "                               Defaults to \"c-header\"",
@@ -68,6 +71,7 @@ int main(int argc, char *argv[])
 {
   int retval = 1;
   size_t n;
+  int builtin = 0;
   DLiteInstance *inst = NULL;
   char *text=NULL, *template=NULL;
 
@@ -86,6 +90,7 @@ int main(int argc, char *argv[])
   while (1) {
     int longindex = 0;
     struct option longopts[] = {
+      {"built-in",         0, NULL, 'b'},
       {"format",           1, NULL, 'f'},
       {"help",             0, NULL, 'h'},
       {"native-typenames", 0, NULL, 'n'},
@@ -95,9 +100,10 @@ int main(int argc, char *argv[])
       {"variables",        1, NULL, 'v'},
       {NULL, 0, NULL, 0}
     };
-    int c = getopt_long(argc, argv, "f:hno:s:t:v:", longopts, &longindex);
+    int c = getopt_long(argc, argv, "bf:hno:s:t:v:", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
+    case 'b':  builtin = 1; break;
     case 'f':  format = optarg; break;
     case 'h':  help(stdout); exit(0);
     case 'n':  dlite_codegen_use_native_typenames = 1; break;
@@ -119,7 +125,14 @@ int main(int argc, char *argv[])
     tgen_buf_unappend(&variables, 1);
 
   /* Load instance */
-  if (!(inst = dlite_instance_load_url(url))) goto fail;
+  if (builtin) {
+    /* FIXME - this should be updated when default paths for entity lookup
+       has been implemented... */
+    if (!(inst = dlite_instance_get(url))) goto fail;
+    dlite_instance_incref(inst);
+  } else {
+    if (!(inst = dlite_instance_load_url(url))) goto fail;
+  }
 
   /* Load template */
   if (template_file) {

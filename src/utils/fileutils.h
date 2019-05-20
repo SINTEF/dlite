@@ -45,6 +45,10 @@ typedef DIR FUDir;
 # define FU_PATHS_CHUNKSIZE 16  /*!< Chunk size for path allocation */
 #endif
 
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
+
 
 /** Directory state. */
 typedef DIR FUDir;
@@ -58,6 +62,57 @@ typedef struct _FUPaths {
 
 /** File matching iterator. */
 typedef struct _FUIter FUIter;
+
+
+/**
+  Returns non-zero if `path` is an absolute path.
+*/
+int fu_isabs(const char *path);
+
+/**
+  Joins a set of pathname components, inserting '/' as needed.  The
+  first path component is `a`.  The last argument must be NULL.
+
+  If any component is an absolute path, all previous path components
+  will be discarded.  An empty last part will result in a path that
+  ends with a separator.
+ */
+char *fu_join(const char *a, ...)
+  __attribute__((sentinel));
+
+/**
+  Like fu_join(), but takes path separator as first argument.
+*/
+char *fu_join_sep(int sep, const char *a, ...)
+  __attribute__((sentinel));
+
+/**
+  Like fu_join_sep(), but takes a va_list instead of a variable number
+  of arguments.
+*/
+char *fu_vjoin_sep(int sep, const char *a, va_list ap);
+
+
+/**
+  Returns a pointer to the last directory separator in `path`.
+ */
+char *fu_lastsep(const char *path);
+
+/**
+  Returns the directory component of `path` as a newly allocated string.
+*/
+char *fu_dirname(const char *path);
+
+/**
+  Returns the final component of `path` as a newly allocated string.
+*/
+char *fu_basename(const char *path);
+
+/**
+  Returns a pointer to file extension of `path` (what follows after
+  the last ".").
+*/
+const char *fu_fileext(const char *path);
 
 
 /**
@@ -101,6 +156,13 @@ int fu_closedir(FUDir *dir);
   Returns the initial number of paths or -1 on error.
  */
 int fu_paths_init(FUPaths *paths, const char *envvar);
+
+/**
+  Like fu_paths_init(), but allow custom path separator `pathsep`.
+
+  Note that any character in `pathsep` works as a path separator.
+ */
+int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep);
 
 /**
   Frees all memory allocated in `paths`.
@@ -163,5 +225,31 @@ const char *fu_nextmatch(FUIter *iter);
  */
 int fu_endmatch(FUIter *iter);
 
+
+
+/**
+  Returns a new iterator over files matching `pattern`.
+  Only the last component of `pattern` may contain wildcards.
+
+  Use fu_globnext() and fu_globend() to iterate over matching files
+  and end iteration, respectively.
+ */
+FUIter *fu_glob(const char *pattern);
+
+/**
+  Returns path to the next matching file.
+ */
+const char *fu_globnext(FUIter *iter);
+
+/**
+  Ends glob pattern iteration.  Returns non-zero on error.
+ */
+int fu_globend(FUIter *iter);
+
+/**
+  Sets the directory separator in returned by fu_nextmatch() and
+  fu_globnext().  Defaults to DIRSEP.
+*/
+void fu_iter_set_dirsep(FUIter *iter, int dirsep);
 
 #endif  /*  _FILEUTILS_H */

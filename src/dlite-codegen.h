@@ -33,7 +33,7 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst);
 int dlite_option_subs(TGenSubs *subs, const char *options);
 
 
-/*
+/**
   Returns a newly malloc'ed string with a generated document based on
   `template` and instanse `inst`.  `options` is a semicolon (;) separated
   string with additional options.

@@ -9,6 +9,7 @@
 #include "utils/tgen.h"
 #include "utils/plugin.h"
 
+#include "dlite-misc.h"
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
 
@@ -87,7 +88,7 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_register(info, api);
+  return plugin_register_api(info, api);
 }
 
 /*

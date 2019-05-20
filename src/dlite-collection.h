@@ -22,7 +22,7 @@
   ------- | --------------- | ----------
   label   | "_is-a"         | "Instance"
   label   | "_has-uuid"     | uuid
-  label   | "_has-meta"     | uri
+  label   | "_has-meta"     | metadata uri
   label   | "_has-dimmap"   | relation-id  -> (instdim, "_maps-to", coldim)
   instdim | "_maps-to"      | colldim
   coldim  | "_has-size"     | size
@@ -35,6 +35,8 @@
   such that the relations can be treated as an ordinary 2D array of
   strings.
 */
+
+/** A specialised instance for collections */
 typedef struct _DLiteCollection {
   /* -- extended header */
   DLiteInstance_HEAD
@@ -85,9 +87,29 @@ DLiteCollection *dlite_collection_create(const char *id);
 
 
 /**
+  Increases reference count of collection `coll`.
+ */
+void dlite_collection_incref(DLiteCollection *coll);
+
+
+/**
   Decreases reference count of collection `coll`.
  */
 void dlite_collection_decref(DLiteCollection *coll);
+
+
+/**
+  Saves collection and all its instances to storage `s`.
+  Returns non-zero on error.
+ */
+int dlite_collection_save(DLiteCollection *coll, DLiteStorage *s);
+
+/**
+  A convinient function that saves instance `inst` to the storage specified
+  by `url`, which should be of the form "driver://path?options".
+  Returns non-zero on error.
+ */
+int dlite_collection_save_url(DLiteCollection *coll, const char *url);
 
 
 /**
@@ -140,6 +162,14 @@ const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
 					   const char *s, const char *p,
 					   const char *o);
 
+/**
+  Like dlite_collection_find(), but returns only a pointer to the
+  first matching relation, or NULL if there are no matching relations.
+ */
+const DLiteRelation *dlite_collection_find_first(const DLiteCollection *coll,
+                                                 const char *s, const char *p,
+                                                 const char *o);
+
 
 /**
   Adds instance `inst` to collection, making `coll` the owner of the instance.
@@ -169,6 +199,35 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label);
  */
 const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
                                           const char *label);
+
+/**
+  Returns borrowed reference to instance with given id or NULL on error.
+ */
+const DLiteInstance *dlite_collection_get_id(const DLiteCollection *coll,
+                                             const char *id);
+
+/**
+  Returns a new reference to instance with given label.  If `metaid` is
+  given, the returned instance is casted to this metadata.
+
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
+                                              const char *label,
+                                              const char *metaid);
+
+/**
+  Returns non-zero if collection `coll` contains an instance with the
+  given label.
+ */
+int dlite_collection_has(const DLiteCollection *coll, const char *label);
+
+/**
+  Returns non-zero if collection `coll` contains a reference to an
+  instance with UUID or uri that matches `id`.
+ */
+int dlite_collection_has_id(const DLiteCollection *coll, const char *id);
+
 
 /**
   Iterates over a collection.

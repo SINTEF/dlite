@@ -33,6 +33,9 @@
 #cmakedefine HAVE_SETENV
 #cmakedefine HAVE_UNSETENV
 
+#cmakedefine HAVE_REALPATH
+#cmakedefine HAVE_GetFullPathNameW
+
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG
 

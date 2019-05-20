@@ -200,7 +200,7 @@ char *dlite_join_url(const char *driver, const char *location,
   For the arguments that are not NULL, the pointers they points to
   will be assigned to point to the corresponding section within `url`.
 
-  `url` will be modified.
+  This function modifies `url`.  Make a copy if you don't want that.
 
   Returns non-zero on error.
 
@@ -214,15 +214,36 @@ char *dlite_join_url(const char *driver, const char *location,
       authority = [userinfo@]host[:port]
 
   This function maps `scheme` to `driver`, `[authority]path` to `location`
-  `query` to `options` and fragment to fragment.
+  `query` to `options` and `fragment` to `fragment`.
 
   [wikipedia]: https://en.wikipedia.org/wiki/URL
  */
 int dlite_split_url(char *url, char **driver, char **location, char **options,
                     char **fragment)
 {
+  return dlite_split_url_winpath(url, driver, location, options, fragment, 0);
+}
+
+/*
+  Like dlite_split_url(), but with one additional argument.
+
+  If `winpath` is non-zero and `url` starts with "C:\" or "C:/", then
+  the initial "C" is not treated as a driver, but rather as a part of
+  the location.
+ */
+int dlite_split_url_winpath(char *url, char **driver, char **location,
+                            char **options, char **fragment, int winpath)
+{
   size_t i;
   char *p;
+
+  /* default to NUL */
+  p = url + strlen(url);
+  assert(*p == '\0');
+  if (driver)   *driver   = p;
+  if (location) *location = p;
+  if (options)  *options  = p;
+  if (fragment) *fragment = p;
 
   /* strip off and assign fragment */
   if ((p = strchr(url, '#'))) {
@@ -238,9 +259,14 @@ int dlite_split_url(char *url, char **driver, char **location, char **options,
     if (options) *options = NULL;
   }
 
-  /* assign driver and uri */
+  /* assign driver and location */
   i = strcspn(url, ":/");
-  if (url[i] == ':') {
+  if (winpath && strlen(url) > 3 && (url[0] == 'C' || url[0] == 'c') &&
+      url[1] == ':' && (url[2] == '\\' || url[2] == '/')) {
+    /* special case: url is a windows path */
+    if (driver) *driver = NULL;
+    if (location) *location = url;
+  } else if (url[i] == ':') {
     url[i] = '\0';
     if (driver) *driver = url;
     if (url[i+1] == '/' && url[i+2] == '/')
@@ -280,6 +306,20 @@ int dlite_warn(const char *msg, ...) {
   BODY2(warn, msg); return 0; }
 int dlite_warnx(const char *msg, ...) {
   BODY2(warnx, msg); return 0; }
+
+void dlite_vfatal(int eval, const char *msg, va_list ap) {
+  vfatal(eval, msg, ap); }
+void dlite_vfatalx(int eval, const char *msg, va_list ap) {
+  vfatalx(eval, msg, ap); }
+int dlite_verr(int eval, const char *msg, va_list ap) {
+  return verr(eval, msg, ap); }
+int dlite_verrx(int eval, const char *msg, va_list ap) {
+  return verrx(eval, msg, ap); }
+int dlite_vwarn(const char *msg, va_list ap) {
+  return vwarn(msg, ap); }
+int dlite_vwarnx(const char *msg, va_list ap) {
+  return vwarnx(msg, ap); }
+
 int dlite_errval(void) { return err_geteval(); }
 const char *dlite_errmsg(void) { return err_getmsg(); }
 void dlite_errclr(void) { err_clear(); }

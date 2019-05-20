@@ -20,32 +20,35 @@ check_include_file(locale.h     HAVE_LOCALE_H)
 
 # -- check for symbols
 include(CheckSymbolExists)
-check_symbol_exists(strdup       string.h   HAVE_STRDUP)
-check_symbol_exists(_strdup      string.h   HAVE__STRDUP)
-check_symbol_exists(strndup      string.h   HAVE_STRNDUP)
-check_symbol_exists(_strndup     string.h   HAVE__STRNDUP)
-check_symbol_exists(strcasecmp   string.h   HAVE_STRCASECMP)
-check_symbol_exists(_stricmp     string.h   HAVE__STRICMP)
-check_symbol_exists(strncasecmp  string.h   HAVE_STRNCASECMP)
-check_symbol_exists(_strnicmp    string.h   HAVE__STRNICMP)
+check_symbol_exists(strdup            string.h   HAVE_STRDUP)
+check_symbol_exists(_strdup           string.h   HAVE__STRDUP)
+check_symbol_exists(strndup           string.h   HAVE_STRNDUP)
+check_symbol_exists(_strndup          string.h   HAVE__STRNDUP)
+check_symbol_exists(strcasecmp        string.h   HAVE_STRCASECMP)
+check_symbol_exists(_stricmp          string.h   HAVE__STRICMP)
+check_symbol_exists(strncasecmp       string.h   HAVE_STRNCASECMP)
+check_symbol_exists(_strnicmp         string.h   HAVE__STRNICMP)
 
-check_symbol_exists(setenv       stdlib.h   HAVE_SETENV)
-check_symbol_exists(unsetenv     stdlib.h   HAVE_UNSETENV)
+check_symbol_exists(setenv            stdlib.h   HAVE_SETENV)
+check_symbol_exists(unsetenv          stdlib.h   HAVE_UNSETENV)
 
-check_symbol_exists(getopt       unistd.h   HAVE_GETOPT)
-check_symbol_exists(getopt_long  getopt.h   HAVE_GETOPT_LONG)
+check_symbol_exists(realpath          stdlib.h   HAVE_REALPATH)
+check_symbol_exists(GetFullPathNameW  Windows.h  HAVE_GetFullPathNameW)
 
-check_symbol_exists(snprintf     stdio.h    HAVE_SNPRINTF)
-check_symbol_exists(_snprintf    stdio.h    HAVE__SNPRINTF)
-check_symbol_exists(vsnprintf    stdio.h    HAVE_VSNPRINTF)
-check_symbol_exists(_vsnprintf   stdio.h    HAVE__VSNPRINTF)
-check_symbol_exists(vasprintf    stdio.h    HAVE_VASPRINTF)
-check_symbol_exists(_vasprintf   stdio.h    HAVE__VASPRINTF)
-check_symbol_exists(asprintf     stdio.h    HAVE_ASPRINTF)
-check_symbol_exists(_asprintf    stdio.h    HAVE__ASPRINTF)
-check_symbol_exists(localeconv   locale.h   HAVE__LOCALECONV)
-check_symbol_exists(va_copy      stdarg.h   HAVE_VA_COPY)
-check_symbol_exists(__va_copy    stdarg.h   HAVE___VA_COPY)
+check_symbol_exists(getopt            unistd.h   HAVE_GETOPT)
+check_symbol_exists(getopt_long       getopt.h   HAVE_GETOPT_LONG)
+
+check_symbol_exists(snprintf          stdio.h    HAVE_SNPRINTF)
+check_symbol_exists(_snprintf         stdio.h    HAVE__SNPRINTF)
+check_symbol_exists(vsnprintf         stdio.h    HAVE_VSNPRINTF)
+check_symbol_exists(_vsnprintf        stdio.h    HAVE__VSNPRINTF)
+check_symbol_exists(vasprintf         stdio.h    HAVE_VASPRINTF)
+check_symbol_exists(_vasprintf        stdio.h    HAVE__VASPRINTF)
+check_symbol_exists(asprintf          stdio.h    HAVE_ASPRINTF)
+check_symbol_exists(_asprintf         stdio.h    HAVE__ASPRINTF)
+check_symbol_exists(localeconv        locale.h   HAVE__LOCALECONV)
+check_symbol_exists(va_copy           stdarg.h   HAVE_VA_COPY)
+check_symbol_exists(__va_copy         stdarg.h   HAVE___VA_COPY)
 
 # -- check for structure members
 include(CheckStructHasMember)
@@ -188,6 +191,7 @@ set(sources
   strtob.c
   tgen.c
   tmpfileplus.c
+  infixcalc.c
 
   md5.c
   sha1.c

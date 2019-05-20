@@ -15,11 +15,8 @@ typedef struct _DLiteStorage DLiteStorage;
 /** Opaque type for an instance. */
 typedef struct _DLiteInstance DLiteInstance;
 
-/** Opaque type for an Entity. */
-typedef struct _DLiteEntity DLiteEntity;
-
 /** Flags for how to handle instance IDs. */
-typedef enum {
+typedef enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
                                  a (version 5) UUID (default). */
   dliteIDRequireUUID=1,     /*!< Require that `id` is a valid UUID. */
@@ -27,7 +24,6 @@ typedef enum {
                                  is not a valid UUID.  Not SOFT compatible,
                                  but may be useful for input files. */
 } DLiteIDFlag;
-
 
 
 /**
@@ -92,9 +88,14 @@ void dlite_storage_uuids_free(char **uuids);
 
 
 /**
-   Returns non-zero if storage `s` is writable.
+  Returns non-zero if storage `s` is writable.
  */
 int dlite_storage_is_writable(const DLiteStorage *s);
+
+/**
+  Returns name of driver associated with storage `s`.
+ */
+const char *dlite_storage_get_driver(const DLiteStorage *s);
 
 
 /* Dublicated declarations from dlite-storage-plugins.h */
@@ -102,5 +103,46 @@ int dlite_storage_plugin_unload(const char *name);
 const char **dlite_storage_plugin_paths(void);
 int dlite_storage_plugin_path_insert(int n, const char *path);
 int dlite_storage_plugin_path_append(const char *path);
+
+
+/**
+ * @name Storage paths
+ * @{
+ */
+
+/**
+  Inserts `path` into storage paths before position `n`.  If `n` is
+  negative, it counts from the end (like Python).
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_insert(int n, const char *path);
+
+/**
+  Appends `path` to storage paths.
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_append(const char *path);
+
+/**
+  Removes path with index `n` from storage paths.  If `n` is negative, it
+  counts from the end (like Python).
+
+  Returns non-zero on error.
+ */
+int dlite_storage_paths_remove(int n);
+
+/**
+  Returns a NULL-terminated array of pointers to paths/urls or NULL if
+  no storage paths have been assigned.
+
+  The returned array is owned by DLite and should not be free'ed. It
+  may be invalidated by further calls to dlite_storage_paths_insert()
+  and dlite_storage_paths_append().
+ */
+const char **dlite_storage_paths_get();
+
+/** @} */
 
 #endif /* _DLITE_STORAGE_H */

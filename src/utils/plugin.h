@@ -9,22 +9,22 @@
   Plugins accessed with this library, are dynamic shared libraries
   exposing a single function with prototype
 
-      const void *symbol(const char *name);
+      const void *symbol(int *iter);
 
   This function should return a pointer to a struct with function
   pointers to all functions provided by the plugin (data member are
   also allowed).  Below we refer to this struct as the plugin API.
   The first element in the API must be a pointer to a string containg
-  the name of the plugin.
+  the name of the plugin.  Plugin names should be unique.
 
-  The `name` argument is a hint that plugins are free to ignore.  It
-  is used by plugins that supports several different drivers, to
-  select which api that should be returned.
+  The `iter` argument is normally ignored.  It is provided to support
+  plugins exposing several APIs.  If the plugin has more APIs to
+  expose, it should increase the integer pointed to by `iter` by one.
 
   A new plugin kind, with its own API, can be created with
   plugin_info_create().
-
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -32,23 +32,37 @@
 #include "dsl.h"
 #include "fileutils.h"
 #include "globmatch.h"
+#include "map.h"
 
+/** Prototype for function that is looked up in shared library */
+typedef const void *(*PluginFunc)(int *iter);
 
 /** Opaque struct for list of plugins */
 typedef struct _Plugin Plugin;
 
+/** Maps plugin file names to plugins */
+typedef map_t(Plugin *) Plugins;
+
 
 /** Info about a plugin kind */
-typedef struct {
-  const char *kind;    /*!< Name of this plugin kind */
-  const char *symbol;  /*!< Name of function in plugin returning the api */
-  const char *envvar;  /*!< Name of environment variable initialising the
-                            plugin search path */
-  FUPaths paths;       /*!< Current plugin search paths */
-  size_t nplugins;     /*!< Number of loaded plugins */
-  size_t nalloc;       /*!< Allocated size of `loaded_plugins` */
-  Plugin **plugins;    /*!< Array of pointers to loaded plugins */
+typedef struct _PluginInfo {
+  const char *kind;      /*!< Name of this plugin kind */
+  const char *symbol;    /*!< Name of function in plugin returning the api */
+  const char *envvar;    /*!< Name of environment variable initialising the
+                              plugin search path */
+  FUPaths paths;         /*!< Current plugin search paths */
+  Plugins plugins;       /*!< Maps plugin paths to loaded plugins */
+  map_str_t pluginpaths; /*!< Maps api names to plugin paths */
+  map_void_t apis;       /*!< Maps api names to apis (void pointers) */
 } PluginInfo;
+
+
+/** Struct for iterating over registered plugins */
+typedef struct _PluginIter {
+  const PluginInfo *info;
+  map_iter_t miter;
+} PluginIter;
+
 
 
 /**
@@ -69,10 +83,10 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
 void plugin_info_free(PluginInfo *info);
 
 
-/**
-  Registers plugin with given api into `info`.  Returns non-zero on error.
+/*
+  Registers `api` into `info`.  Returns non-zero on error.
  */
-int plugin_register(PluginInfo *info, const void *api);
+int plugin_register_api(PluginInfo *info, const void *api);
 
 
 /**
@@ -93,6 +107,29 @@ int plugin_register(PluginInfo *info, const void *api);
   Otherwise NULL is returned.
  */
 const void *plugin_get_api(PluginInfo *info, const char *name);
+
+/**
+  Load all plugins that can be found in the plugin search path.
+  Returns non-zero on error.
+ */
+void plugin_load_all(PluginInfo *info);
+
+
+
+/**
+  Initiates a plugin iterator.
+*/
+void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info);
+
+/**
+  Returns pointer to the next registered API or NULL if all APIs
+  have been visited.
+
+  Used for iterating over plugins.  Plugins should not be registered
+  or removed while iterating.
+ */
+const void *plugin_api_iter_next(PluginIter *iter);
+
 
 
 /**

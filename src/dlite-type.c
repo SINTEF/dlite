@@ -63,6 +63,7 @@ static struct _TypeDescr {
   {"uint32",   dliteUInt,      4,                     alignof(uint32_t)},
   {"uint64",   dliteUInt,      8,                     alignof(uint64_t)},
   {"float",    dliteFloat,     sizeof(float),         alignof(float)},
+  {"single",   dliteFloat,     sizeof(float),         alignof(float)},
   {"double",   dliteFloat,     sizeof(double),        alignof(double)},
   {"longdouble",dliteFloat,    sizeof(long double),   alignof(long double)},
   {"float32",  dliteFloat,     4,                     alignof(float32_t)},

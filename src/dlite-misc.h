@@ -139,7 +139,7 @@ char *dlite_join_url(const char *driver, const char *location,
   For the arguments that are not NULL, the pointers they points to
   will be assigned to point to the corresponding section within `url`.
 
-  `url` will be modified.
+  This function modifies `url`.  Make a copy if you don't want that.
 
   Returns non-zero on error.
 
@@ -153,20 +153,31 @@ char *dlite_join_url(const char *driver, const char *location,
       authority = [userinfo@]host[:port]
 
   This function maps `scheme` to `driver`, `[authority]path` to `location`
-  `query` to `options` and fragment to fragment.
+  `query` to `options` and `fragment` to `fragment`.
 
   [wikipedia]: https://en.wikipedia.org/wiki/URL
  */
 int dlite_split_url(char *url, char **driver, char **location, char **options,
                     char **fragment);
 
+/**
+  Like dlite_split_url(), but with one additional argument.
+
+  If `winpath` is non-zero and `url` starts with "C:\" or "C:/", then
+  the initial "C" is not treated as a driver, but rather as a part of
+  the location.
+ */
+int dlite_split_url_winpath(char *url, char **driver, char **location,
+                            char **options, char **fragment, int winpath);
+
 
 /**
   @name Wrappers around error functions
 */
-#ifdef _WIN32
+#ifndef __GNUC__
 #define __attribute__(x)
 #endif
+#include <stdarg.h>
 void dlite_fatal(int eval, const char *msg, ...)
   __attribute__ ((__noreturn__, __format__ (__printf__, 2, 3)));
 void dlite_fatalx(int eval, const char *msg, ...)
@@ -179,6 +190,20 @@ int dlite_warn(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
 int dlite_warnx(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
+
+void dlite_vfatal(int eval, const char *msg, va_list ap)
+  __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
+void dlite_vfatalx(int eval, const char *msg, va_list ap)
+  __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
+int dlite_verr(int eval, const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 2, 0)));
+int dlite_verrx(int eval, const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 2, 0)));
+int dlite_vwarn(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
+int dlite_vwarnx(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
+
 int dlite_errval(void);
 const char *dlite_errmsg(void);
 void dlite_errclr(void);

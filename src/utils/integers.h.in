@@ -29,7 +29,7 @@
 #ifndef _INTEGERS_H
 #define _INTEGERS_H
 
-/** @cond 0 */
+/** @cond SKIP */
 
 #cmakedefine HAVE_STDINT_H
 
