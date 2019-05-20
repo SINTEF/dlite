@@ -32,3 +32,6 @@ coll.add('inst1', inst1)
 coll.add('inst2', inst2)
 
 assert coll.count() == 2
+#assert coll.has
+
+print(list(coll))

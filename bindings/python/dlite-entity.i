@@ -190,8 +190,17 @@ Instance(url)
 Instance(storage, id=None)
     Loads the instance from `storage`. `id` is not required if the
     storage only contains more one instance.
+
+Instance(uri, dimensions, properties, description)
+    Creates a new metadata entity casted to an instance.
+
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
+%apply(int ndimensions, struct _DLiteDimension *dimensions) {
+  (int ndimensions, struct _DLiteDimension *dimensions)};
+%apply(int nproperties, struct _DLiteProperty *properties) {
+  (int nproperties, struct _DLiteProperty *properties)};
+
 %rename(Instance) _DLiteInstance;
 struct _DLiteInstance {
   %immutable;
@@ -232,6 +241,16 @@ struct _DLiteInstance {
     if (inst) dlite_errclr();
     return inst;
   }
+  _DLiteInstance(const char *uri,
+                 int ndimensions, struct _DLiteDimension *dimensions,
+                 int nproperties, struct _DLiteProperty *properties,
+                 const char *description=NULL) {
+    DLiteMeta *inst = dlite_entity_create(uri, description,
+                                          ndimensions, dimensions,
+                                          nproperties, properties);
+    if (inst) dlite_errclr();
+    return (DLiteInstance *)inst;
+  }
 
   ~_DLiteInstance() {
     dlite_instance_decref($self);
@@ -242,9 +261,19 @@ struct _DLiteInstance {
     return (const DLiteInstance *)$self->meta;
   }
 
-  %feature("docstring", "Saves this instance to `url`.") save_url;
-  void save_url(const char *url) {
+  %feature("docstring", "Saves this instance to url or storage.") save;
+  void save(const char *url) {
     dlite_instance_save_url(url, $self);
+  }
+  void save(struct _DLiteStorage *storage) {
+    dlite_instance_save(storage, $self);
+  }
+  void save(const char *driver, const char *path, const char *options=NULL) {
+    DLiteStorage *s;
+    if ((s = dlite_storage_open(driver, path, options))) {
+      dlite_instance_save(s, $self);
+      dlite_storage_close(s);
+    }
   }
 
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;

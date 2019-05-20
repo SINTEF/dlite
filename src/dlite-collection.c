@@ -117,6 +117,48 @@ void dlite_collection_decref(DLiteCollection *coll)
 
 
 /*
+  Saves collection and all its instances to storage `s`.
+  Returns non-zero on error.
+ */
+int dlite_collection_save(DLiteCollection *coll, DLiteStorage *s)
+{
+  DLiteCollectionState state;
+  DLiteInstance *inst;
+  const DLiteMeta *schema = dlite_get_collection_schema();
+  int stat=0;
+  if ((stat = dlite_instance_save(s, (DLiteInstance *)coll))) return stat;
+  dlite_collection_init_state(coll, &state);
+  while ((inst = dlite_collection_next(coll, &state))) {
+    if (inst->meta == schema)
+      stat |= dlite_collection_save((DLiteCollection *)inst, s);
+    else
+      stat |= dlite_instance_save(s, inst);
+  }
+  dlite_collection_deinit_state(&state);
+  return stat;
+}
+
+/*
+  A convinient function that saves instance `inst` to the storage specified
+  by `url`, which should be of the form "driver://path?options".
+  Returns non-zero on error.
+ */
+int dlite_collection_save_url(DLiteCollection *coll, const char *url)
+{
+  int retval;
+  char *str=NULL, *driver=NULL, *path=NULL, *options=NULL;
+  DLiteStorage *s=NULL;
+  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (dlite_split_url(str, &driver, &path, &options, NULL)) goto fail;
+  if (!(s = dlite_storage_open(driver, path, options))) goto fail;
+  retval = dlite_collection_save(coll, s);
+ fail:
+  if (s) dlite_storage_close(s);
+  if (str) free(str);
+  return retval;
+}
+
+/*
   Adds subject-predicate-object relation to collection.  Returns non-zero
   on error.
  */
@@ -188,6 +230,21 @@ const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
     return (DLiteRelation *)triplestore_find_first(coll->rstore, s, p, o);
 }
 
+/*
+  Like dlite_collection_find(), but returns only a pointer to the
+  first matching relation, or NULL if there are no matching relations.
+ */
+const DLiteRelation *dlite_collection_find_first(const DLiteCollection *coll,
+                                                 const char *s, const char *p,
+                                                 const char *o)
+{
+  DLiteCollectionState state;
+  const DLiteRelation *r;
+  dlite_collection_init_state(coll, &state);
+  r = dlite_collection_find(coll, &state, s, p, o);
+  dlite_collection_deinit_state(&state);
+  return r;
+}
 
 /*
   Adds instance `inst` to collection, making `coll` the owner of the instance.
@@ -263,6 +320,20 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
 }
 
 /*
+  Returns borrowed reference to instance with given id or NULL on error.
+ */
+const DLiteInstance *dlite_collection_get_id(const DLiteCollection *coll,
+                                             const char *id)
+{
+  const DLiteRelation *r;
+  char uuid[DLITE_UUID_LENGTH+1];
+  if (dlite_get_uuid(uuid, id) < 0) return NULL;
+  if ((r = dlite_collection_find(coll, NULL, NULL, "_has-uuid", uuid)))
+    return dlite_store_get(_istore, uuid);
+  return NULL;
+}
+
+/*
   Returns a new reference to instance with given label.  If `metaid` is
   given, the returned instance is casted to this metadata.
 
@@ -279,6 +350,26 @@ const DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
   else
     dlite_instance_incref((DLiteInstance *)inst);
   return inst;
+}
+
+/*
+  Returns non-zero if collection `coll` contains an instance with the
+  given label.
+ */
+int dlite_collection_has(const DLiteCollection *coll, const char *label)
+{
+  return (dlite_collection_find_first(coll, label, "_has-uuid", NULL)) ? 1 : 0;
+}
+
+/*
+  Returns non-zero if collection `coll` contains a reference to an
+  instance with UUID or uri that matches `id`.
+ */
+int dlite_collection_has_id(const DLiteCollection *coll, const char *id)
+{
+  char uuid[DLITE_UUID_LENGTH+1];
+  if (dlite_get_uuid(uuid, id) < 0) return 0;
+  return (dlite_collection_find_first(coll, NULL, "_has-uuid", uuid)) ? 1 : 0;
 }
 
 

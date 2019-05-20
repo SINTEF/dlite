@@ -26,7 +26,12 @@
     def __iter__(self):
         return self.get_iter()
 
+    def __getitem__(self, label):
+        return self.get(label)
+
     def relations(self, s=None, p=None, o=None):
+        """Returns a generator over all relations matching the given
+        values of `s`, `p` and `o`."""
         itr = self.get_iter()
         while itr.poll():
             yield itr.find(s, p, o)

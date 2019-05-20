@@ -26,7 +26,7 @@ assert myentity.is_meta
 assert not myentity.is_metameta
 
 # Store the entity to a new file
-myentity.save_url('json://xxx.json')
+myentity.save('json://xxx.json')
 
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
@@ -68,7 +68,7 @@ for i in range(len(inst)):
 print(inst)
 
 # Check save and load
-inst.save_url('json://inst.json')
+inst.save('json://inst.json')
 inst2 = Instance('json://inst.json')
 
 # Check pickling
@@ -91,3 +91,19 @@ assert inst.meta == myentity
 e = dlite.get_instance('http://meta.sintef.no/0.1/MyEntity')
 assert e == myentity
 assert e != inst
+
+e2 = Instance(
+    'http://meta.sintef.no/0.1/NewEntity',
+    [Dimension('N', 'Number of something')],
+    [Property('name', type='string', description='Name of something.'),
+     Property('arr', type='int', dims=[0], description='An array.'),
+     Property('v', type='double', unit='m/s', description='Velocity')],
+    'Something new...')
+
+e3 = Instance(
+    'http://meta.sintef.no/0.1/NewEntity2',
+    [],
+    [Property('name', type='string', description='Name of something.'),
+     Property('arr', type='int', description='An array.'),
+     Property('v', type='double', unit='m/s', description='Velocity')],
+    'Something new...')

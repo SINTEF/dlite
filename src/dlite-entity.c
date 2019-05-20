@@ -1130,7 +1130,7 @@ dlite_entity_create(const char *uri, const char *description,
 		    size_t nproperties, const DLiteProperty *properties)
 {
   DLiteMeta *entity=NULL;
-  DLiteInstance *e;
+  DLiteInstance *e=NULL;
   char *name=NULL, *version=NULL, *namespace=NULL;
   size_t dims[] = {ndimensions, nproperties};
 
@@ -1152,7 +1152,7 @@ dlite_entity_create(const char *uri, const char *description,
   if (name) free(name);
   if (version) free(version);
   if (namespace) free(namespace);
-  if (!entity) dlite_instance_decref(e);
+  if (!entity && e) dlite_instance_decref(e);
   return entity;
 }
 
