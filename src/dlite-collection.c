@@ -46,7 +46,12 @@ int dlite_collection_deinit(DLiteInstance *inst)
   while ((r=dlite_collection_find(coll,&state, NULL, "_has-uuid", NULL))) {
     if ((inst2 = dlite_instance_get(r->o))) {
       dlite_instance_decref(inst2);
-      // FIXME - the below should not be commented out...
+      /* FIXME - the below should not be commented out since it leads
+	 to memory leaks...
+	 However, doing that leads to assertion error in
+	 dlite_instance_decref().  Maybe related to adding the same instance
+	 to the collection with different labels?
+      */
       //dlite_instance_decref(inst2);
     } else {
       warn("cannot remove missing instance: %s", r->o);
