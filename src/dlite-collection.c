@@ -46,7 +46,8 @@ int dlite_collection_deinit(DLiteInstance *inst)
   while ((r=dlite_collection_find(coll,&state, NULL, "_has-uuid", NULL))) {
     if ((inst2 = dlite_instance_get(r->o))) {
       dlite_instance_decref(inst2);
-      dlite_instance_decref(inst2);
+      // FIXME - the below should not be commented out...
+      //dlite_instance_decref(inst2);
     } else {
       warn("cannot remove missing instance: %s", r->o);
     }

@@ -1,8 +1,10 @@
 project(dlite-bindings-python C)
 
 # We are not ready to support cmake-3.12 yet
-cmake_policy(SET CMP0078 OLD)
-cmake_policy(SET CMP0086 OLD)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+  cmake_policy(SET CMP0078 OLD)
+  cmake_policy(SET CMP0086 OLD)
+endif()
 
 
 # We don't bother to support Python 2, since support for it ends 2019
