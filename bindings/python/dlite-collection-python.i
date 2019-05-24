@@ -1,7 +1,5 @@
 /* -*- c -*-  (not really, but good for syntax highlighting) */
 
-/* Python-spesific extensions to dlite-collection.i */
-
 %extend struct _CollectionIter {
 
   %pythoncode %{
@@ -23,11 +21,25 @@
     def __repr__(self):
         return "Collection(%r)" % (self.uri if self.uri else self.uuid)
 
+    def __str__(self):
+        return str(self.asinstance())
+
     def __iter__(self):
         return self.get_iter()
 
     def __getitem__(self, label):
         return self.get(label)
+
+    meta = property(get_meta, doc='Reference to metadata of this collection.')
+
+    def asdict(self):
+        """Returns a dict representation of self."""
+        return self.asinstance().asdict()
+
+    def asjson(self, **kwargs):
+        """Returns a JSON-representation of self. Arguments are passed to
+        json.dumps()."""
+        return self.asinstance().asjson()
 
     def relations(self, s=None, p=None, o=None):
         """Returns a generator over all relations matching the given

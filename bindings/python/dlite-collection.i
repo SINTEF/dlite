@@ -103,6 +103,16 @@ Collection(url, lazy)
     triplestore_add_triplets($self->rstore, t, 1);
   }
 
+  %feature("docstring", "Returns reference to metadata.") get_meta;
+  const struct _DLiteInstance *get_meta() {
+    return (const DLiteInstance *)$self->meta;
+  }
+
+  %feature("docstring", "Returns self as an instance.") as_instance;
+  struct _DLiteInstance *asinstance() {
+    return (DLiteInstance *)$self;
+  }
+
   void remove_relations(const char *s=NULL, const char *p=NULL,
                         const char *o=NULL) {
     dlite_collection_remove_relations($self, s, p, o);
