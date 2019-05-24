@@ -108,9 +108,13 @@ Collection(url, lazy)
     return (const DLiteInstance *)$self->meta;
   }
 
-  %feature("docstring", "Returns self as an instance.") as_instance;
+  %newobject asinstance;
+  %feature("docstring",
+           "Returns a new view of self as an instance.") as_instance;
   struct _DLiteInstance *asinstance() {
-    return (DLiteInstance *)$self;
+    DLiteInstance *inst = (DLiteInstance *)$self;
+    dlite_instance_incref(inst);
+    return inst;
   }
 
   void remove_relations(const char *s=NULL, const char *p=NULL,

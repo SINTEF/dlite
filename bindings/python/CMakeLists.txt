@@ -1,7 +1,7 @@
 project(dlite-bindings-python C)
 
-# We are not ready to support cmake-3.12 yet
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+# We are not ready to support new policies in cmake-3.13 yet...
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
   cmake_policy(SET CMP0078 OLD)
   cmake_policy(SET CMP0086 OLD)
 endif()
