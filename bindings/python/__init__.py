@@ -1,2 +1,2 @@
 from .dlite import *
-from .classproxy import classproxy, instanceproxy, loadproxy
+from .factory import classfactory, objectfactory, loadfactory

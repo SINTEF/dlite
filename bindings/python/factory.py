@@ -5,39 +5,45 @@
 Class customisations
 
 In order to handle special cases, the following methods may be
-defined/overridden in the class that is to be wrapped or a proxyclass
-subclass:
+defined/overridden in the class that is to be extended:
 
     _dlite_get_<name>(self, name)
     _dlite_set_<name>(self, name, value)
     _dlite__new__(cls, inst)
 
 """
+import copy
+
 import numpy as np
 
 from .dlite import Instance, Storage
 
 
-class DLiteProxyError(Exception):
-    """Base exception for dlite class proxies."""
+class FactoryError(Exception):
+    """Base exception for factory errors."""
     pass
 
-class IncompatibleClassError(DLiteProxyError):
-    """DLite proxy cannot be created around a class."""
+class IncompatibleClassError(FactoryError):
+    """Raised if an extended class is not compatible with its dlite
+    metadata."""
     pass
 
 
-class MetaProxy(type):
-    """Metaclass for BaseProxy."""
+class MetaExtension(type):
+    """Metaclass for BaseExtension."""
     def __init__(cls, name, bases, attr):
         super().__init__(name, bases, attr)
 
 
-class BaseProxy(object, metaclass=MetaProxy):
-    """Base class for class proxies.  Arguments are passed further to the
-    __init__() function of the class we are creating a proxy around."""
+class BaseExtension(object, metaclass=MetaExtension):
+    """Base class for extension.  Arguments are passed further to the
+    __init__() function of the class we are inheriting from."""
     def __init__(self, *args, **kw):
-        self._proxy_cls.__init__(self, *args, **kw)
+        self._theclass.__init__(self, *args, **kw)
+        self._dlite_init()
+
+    def _dlite_init(self):
+        """Initialise the underlying dlite instance."""
         dims = self._dlite_infer_dimensions()
         self.dlite_inst = Instance(self.dlite_meta.uri, dims)
         self._dlite_assign_properties()
@@ -97,7 +103,7 @@ class BaseProxy(object, metaclass=MetaProxy):
         return dims
 
     def _dlite_assign_properties(self):
-        """Assigns all dlite properties from wrapped object."""
+        """Assigns all dlite properties from extended object."""
         for prop in self.dlite_meta.properties['properties']:
             name = prop.name
             self.dlite_inst[name] = self._dlite_get(name)
@@ -105,16 +111,16 @@ class BaseProxy(object, metaclass=MetaProxy):
     @classmethod
     def _dlite__new__(cls, inst=None):
         """Class method returning a new uninitialised instance of the class
-        that is proxied.
+        that is extended.
 
         This method simply returns ``cls.__new__(cls)``.  Override
-        this method if the class that is proxied already defines a
-        __new__() method.
+        this method if the extended class already defines a __new__()
+        method.
         """
         return cls.__new__(cls)
 
     def dlite_assign(self, inst):
-        """Assigns the object that is proxied from dlite instance `inst`."""
+        """Assigns self from dlite instance `inst`."""
         if self.dlite_meta.uri != inst.meta.uri:
             raise TypeError('Expected instance of metadata "%s", got "%s"' % (
                 self.dlite_meta.uri, inst.meta.uri))
@@ -129,15 +135,15 @@ class BaseProxy(object, metaclass=MetaProxy):
         self._dlite_assign(inst)
 
 
-def loadproxy(theclass, *args):
-    """Returns a proxy for an instance of Python class `theclass`
-    initiated from dlite instance or storage.
+def loadfactory(theclass, *args):
+    """Returns an extended instance of `theclass` initiated from dlite
+    instance or storage.
 
     If `*args` is a dlite instance, the returned object is initiated form
     it.  Otherwise `*args` is passed to dlite.Instance()
     """
     inst = args[0] if isinstance(args[0], Instance) else Instance(*args)
-    cls = classproxy(theclass, meta=inst.meta)
+    cls = classfactory(theclass, meta=inst.meta)
     obj = cls._dlite__new__(inst)
     obj.dlite_assign(inst)
     obj.dlite_meta = inst.meta
@@ -145,27 +151,29 @@ def loadproxy(theclass, *args):
     return obj
 
 
-def instanceproxy(obj, meta=None, url=None, storage=None, id=None):
-    """Returns a proxy for Python object `obj`.  See classproxy() for
-    documentation of the remaining arguments.
+def objectfactory(obj, meta=None, url=None, storage=None, id=None,
+                  deepcopy=False):
+    """Returns an extended copy of `obj`.  If `deepcopy` is true, a deep
+    copy is returned, otherwise a shallow copy is returned.
+
+    The `url`, `storage` and `id` arguments are passed to classfactory().
     """
-    cls = classproxy(obj.__class__, meta=meta, url=url, storage=storage, id=id)
-    meta = cls.dlite_meta
-    getter = lambda name: cls._dlite_get(obj, name)
-    dims = cls._dlite_infer_dimensions(obj, meta=meta, getter=getter)
-    inst = Instance(meta.uri, dims)
-    for prop in meta.properties['properties']:
-        inst[prop.name] = cls._dlite_get(obj, prop.name)
-    return loadproxy(obj.__class__, inst)
+    cls = classfactory(obj.__class__, meta=meta, url=url, storage=storage,
+                       id=id)
+    new = copy.deepcopy(obj) if deepcopy else copy.copy(obj)
+    new.__class__ = cls
+    new._dlite_init()
+    return new
 
 
-def classproxy(theclass, meta=None, url=None, storage=None, id=None):
-    """Factory function that returns a proxy class for metadata.
+def classfactory(theclass, meta=None, url=None, storage=None, id=None):
+    """Factory function that returns a new class that inherits from both
+    `theclass` and BaseInstance.
 
     Parameters
     ----------
     theclass : class instance
-        The class to create a proxy around.
+        The class to extend.
     meta : Instance
         Metadata instance.
     url : string
@@ -192,8 +200,8 @@ def classproxy(theclass, meta=None, url=None, storage=None, id=None):
 
     attr = dict(
         dlite_meta=meta,
-        _proxy_cls=theclass,
-        __init__=BaseProxy.__init__
+        _theclass=theclass,
+        __init__=BaseExtension.__init__
     )
 
-    return type(meta.name, (theclass, BaseProxy), attr)
+    return type(meta.name, (theclass, BaseExtension), attr)
