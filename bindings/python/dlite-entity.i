@@ -188,8 +188,14 @@ Instance(url)
     ``driver://location?options#id``.
 
 Instance(storage, id=None)
-    Loads the instance from `storage`. `id` is not required if the
-    storage only contains more one instance.
+    Loads the instance from `storage`. `id` is the id of the instance
+    in the storage (not required if the storage only contains more one
+    instance).
+
+Instance(driver, location, options, id=None)
+    Loads the instance from storage specified by `driver`, `location`
+    and `options`. `id` is the id of the instance in the storage (not
+    required if the storage only contains more one instance).
 
 Instance(uri, dimensions, properties, description)
     Creates a new metadata entity casted to an instance.
@@ -238,6 +244,16 @@ struct _DLiteInstance {
   }
   _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL) {
     DLiteInstance *inst = dlite_instance_load(storage, id);
+    if (inst) dlite_errclr();
+    return inst;
+  }
+  _DLiteInstance(const char *driver, const char *location, const char *options,
+                 const char *id=NULL) {
+    DLiteStorage *s;
+    DLiteInstance *inst;
+    if (!(s = dlite_storage_open(driver, location, options))) return NULL;
+    inst = dlite_instance_load(s, id);
+    dlite_storage_close(s);
     if (inst) dlite_errclr();
     return inst;
   }

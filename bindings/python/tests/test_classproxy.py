@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+
+import dlite
+
+thisdir = os.path.abspath(os.path.dirname(__file__))
+
+
+class Person:
+    def __init__(self, name, age, skills):
+        self.name = name
+        self.age = age
+        self.skills = skills
+
+    def __repr__(self):
+        return 'Person(%r, %r, %r)' % (self.name, self.age, list(self.skills))
+
+
+url = 'json://' + thisdir + '/Person.json' #+ "?mode=r"
+
+print('-- create: PersonProxy')
+PersonProxy = dlite.classproxy(Person, url=url)
+
+print('-- create: person1')
+person1 = Person('Jack Daniel', 42, ['distilling', 'tasting'])
+
+print('-- create: person2')
+person2 = PersonProxy('Jack Daniel', 42, ['distilling', 'tasting'])
+person2.dlite_inst.save('json', 'persons.json', 'mode=w')
+
+# Print json-representation of person2 using dlite
+print(person2.dlite_inst.asjson(indent=2))
+
+person3 = dlite.loadproxy(Person, 'json://persons.json')
+
+person4 = dlite.instanceproxy(person1, meta=person2.dlite_meta)
+
+
+#Person3 = dlite.ClassProxy(Person, url)
+#person3 = Person3('Jack Daniel', 42, ['drinking', 'dansing'])
