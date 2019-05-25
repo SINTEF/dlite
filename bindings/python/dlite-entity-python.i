@@ -123,7 +123,7 @@ class InstanceEncoder(json.JSONEncoder):
   %newobject __repr__;
   char *__repr__(void) {
     int n=0;
-    char buff[64];
+    char buff[256];
     n += snprintf(buff+n, sizeof(buff)-n, "<Instance:");
     if ($self->uri && $self->uri[0])
       n += snprintf(buff+n, sizeof(buff)-n, " uri='%s'", $self->uri);
@@ -209,6 +209,12 @@ class InstanceEncoder(json.JSONEncoder):
             None,
             iterfun(self),
         )
+
+    def __call__(self, dims=(), id=None):
+        """Returns an uninitiated instance of this metadata."""
+        if not self.is_meta:
+            raise TypeError('data instances are not callable')
+        return Instance(self.uri, dims, id)
 
     def asdict(self):
         """Returns a dict representation of self."""

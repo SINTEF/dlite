@@ -14,6 +14,7 @@
 
 #include "utils/map.h"
 
+
 /**
   A subject-predicate-object triplet used to represent a relation.
   The s-p-o-id strings should be allocated with malloc.
@@ -36,8 +37,6 @@ typedef struct _TripleState {
   TripleStore *ts;    /*!< reference to corresponding TripleStore */
   size_t pos;         /*!< current position */
 } TripleState;
-
-
 
 
 /**
@@ -88,9 +87,13 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   Returns a new empty triplestore that stores its triplets and the number of
   triplets in the external memory pointed to by `*p` and `*lenp`, respectively.
 
+  `freer` is a cleanup-function.  If not NULL, it is called by
+  triplestore_free() with `freedata` as argument.
+
   Returns NULL on error.
  */
-TripleStore *triplestore_create_external(Triplet **p, size_t *lenp);
+TripleStore *triplestore_create_external(Triplet **p, size_t *lenp,
+                                         void (*freer)(void *), void *freedata);
 
 
 /**
@@ -140,6 +143,12 @@ int triplestore_remove_by_id(TripleStore *ts, const char *id);
 int triplestore_remove(TripleStore *ts, const char *s,
                        const char *p, const char *o);
 
+
+/**
+  Removes all relations in triplestore and releases all references to
+  external memory.  Only references to running iterators is kept.
+ */
+void triplestore_clear(TripleStore *ts);
 
 /**
   Returns a pointer to triplet with given id or NULL if no match can be found.

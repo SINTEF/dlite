@@ -31,6 +31,9 @@
 #define TRIPLESTORE_BUFFSIZE 1024
 
 
+/* Prototype for cleanup-function */
+typedef void (*Freer)(void *ptr);
+
 /* Triplet store. */
 struct _TripleStore {
   Triplet *triplets;  /*!< array of triplets */
@@ -41,10 +44,14 @@ struct _TripleStore {
 
   Triplet **p;        /*!< pointer to external memory pointing to triplets */
   size_t *lenp;       /*!< pointer to external memory pointing to length */
+  Freer freer;        /*!< cleanup-function called by tripletstore_free() */
+  void *freedata;     /*!< data passed to `freer` */
 
   map_int_t map;      /*!< a mapping from triplet id to its corresponding
                            index in `triplets` */
   size_t niter;       /*!< counter for number of running iterators */
+  int freed;          /*!< set to non-zero when this store is supposed to
+                           be freed, but kept alive due to existing iterators */
 };
 
 
@@ -152,9 +159,15 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   Returns a new empty triplestore that stores its triplets and the number of
   triplets in the external memory pointed to by `*p` and `*lenp`, respectively.
 
+  If `p` and `lenp` are NULL, internal memory is allocated.
+
+  `freer` is a cleanup-function.  If not NULL, it is called by
+  triplestore_free() with `freedata` as argument.
+
   Returns NULL on error.
  */
-TripleStore *triplestore_create_external(Triplet **p, size_t *lenp)
+TripleStore *triplestore_create_external(Triplet **p, size_t *lenp,
+                                         void (*freer)(void *), void *freedata)
 {
   TripleStore *ts = calloc(1, sizeof(TripleStore));
   if (p) {
@@ -169,6 +182,8 @@ TripleStore *triplestore_create_external(Triplet **p, size_t *lenp)
   }
   ts->p = p;
   ts->lenp = lenp;
+  ts->freer = freer;
+  ts->freedata = freedata;
   map_init(&ts->map);
   return ts;
 }
@@ -179,7 +194,7 @@ TripleStore *triplestore_create_external(Triplet **p, size_t *lenp)
  */
 TripleStore *triplestore_create()
 {
-  return triplestore_create_external(NULL, NULL);
+  return triplestore_create_external(NULL, NULL, NULL, NULL);
 }
 
 
@@ -188,15 +203,12 @@ TripleStore *triplestore_create()
  */
 void triplestore_free(TripleStore *ts)
 {
-  size_t i;
-  assert(!ts->p || *ts->p == ts->triplets);
-  for (i=0; i<ts->true_length; i++)
-    triplet_clean(ts->triplets + i);
-  if (ts->triplets) free(ts->triplets);
-  if (ts->p) *ts->p = NULL;
-  if (ts->lenp) *ts->lenp = 0;
-  map_deinit(&ts->map);
-  free(ts);
+  assert(ts->freed == 0 || ts->niter == 0);
+  triplestore_clear(ts);
+  if (ts->niter > 0)
+    ts->freed = 1;
+  else
+    free(ts);
 }
 
 
@@ -303,11 +315,10 @@ static int _remove_by_index(TripleStore *ts, size_t n)
     /* no running iterators, remove triplet */
     assert(ts->length == ts->true_length);
     triplet_clean(t);
-    memcpy(t, &ts->triplets[--ts->length], sizeof(Triplet));
+    if (t < ts->triplets + (ts->length - 1))
+      memcpy(t, &ts->triplets[--ts->length], sizeof(Triplet));
     ts->true_length = ts->length;
     if (ts->lenp) *ts->lenp = ts->length;
-    assert(t->id);
-    map_set(&ts->map, t->id, n);
   }
   return 0;
 }
@@ -343,6 +354,24 @@ int triplestore_remove(TripleStore *ts, const char *s,
     }
   }
   return n;
+}
+
+
+/*
+  Removes all relations in triplestore and releases all references to
+  external memory.  Only references to running iterators is kept.
+ */
+void triplestore_clear(TripleStore *ts)
+{
+  int n=ts->true_length;
+  int niter=ts->niter;
+  while (--n >= 0)
+    if (ts->triplets[n].id) _remove_by_index(ts, n);
+  if (!ts->p && ts->triplets)
+    free(ts->triplets);
+  map_deinit(&ts->map);
+  memset(ts, 0, sizeof(TripleStore));
+  ts->niter = niter;
 }
 
 
@@ -400,8 +429,14 @@ void triplestore_deinit_state(TripleState *state)
   TripleStore *ts = state->ts;
   int i;
   assert(ts->niter > 0 /* must match triplestore_init_state() */);
-
   ts->niter--;
+
+  /* Number of pending iterators has reased zero - free the triplestore  */
+  if (ts->freed && ts->niter <= 0) {
+    triplestore_free(ts);
+    return;
+  }
+
   if (ts->niter == 0 && ts->true_length > ts->length) {
     for (i=ts->true_length-1; i>=0 && !ts->triplets[i].id; i--)
       ts->true_length--;

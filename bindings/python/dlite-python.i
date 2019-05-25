@@ -714,7 +714,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         if (dest->name)        free(dest->name);
         if (dest->description) free(dest->description);
         dest->name        = strdup(src->name);
-        dest->description = strdup(src->description);
+        dest->description = (src->description) ? strdup(src->description) :NULL;
       } else {
         FAIL("cannot convert Python object to dimension");
       }
@@ -731,14 +731,17 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         if (dest->dims)        free(dest->dims);
         if (dest->unit)        free(dest->unit);
         if (dest->description) free(dest->description);
-        dest->name        = strdup(src->name);
-        dest->type        = src->type;
-        dest->size        = src->size;
-        dest->ndims       = src->ndims;
-        dest->dims        = malloc(src->ndims*sizeof(int));
-        memcpy(dest->dims, src->dims, src->ndims*sizeof(int));
-        dest->unit        = strdup(src->unit);
-        dest->description = strdup(src->description);
+        dest->name  = strdup(src->name);
+        dest->type  = src->type;
+        dest->size  = src->size;
+        dest->ndims = src->ndims;
+        if (src->ndims > 0) {
+          dest->dims = malloc(src->ndims*sizeof(int));
+          memcpy(dest->dims, src->dims, src->ndims*sizeof(int));
+        } else
+          dest->dims = NULL;
+        dest->unit        = (src->unit) ? strdup(src->unit) : NULL;
+        dest->description = (src->description) ? strdup(src->description) :NULL;
 
       } else {
         FAIL("cannot convert Python object to dimension");
@@ -903,13 +906,17 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 %}
 
 
+
 /**********************************************
  ** Typemaps
  **********************************************/
 /*
  * Input typemaps
  * --------------
- *
+ * int, struct _DLiteDimension * -> numpy array
+ *     Array of dimensions.
+ * int, struct _DLiteProperty * -> numpy array
+ *     Array of properties.
  *
  * Argout typemaps
  * ---------------
@@ -930,6 +937,87 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  *     Returns NULL-terminated array of string pointers (will not be free'ed).
  *
  **********************************************/
+
+/* --------------
+ * Input typemaps
+ * -------------- */
+
+/* Array of input dimensions */
+%typemap("doc") (int ndimensions, struct _DLiteDimension *dimensions)
+  "Array of input dimensions"
+%typemap(in) (int ndimensions, struct _DLiteDimension *dimensions) {
+  $2 = NULL;
+  if (!PySequence_Check($input))
+    SWIG_exception(SWIG_TypeError, "Expected a sequence");
+  $1 = PySequence_Length($input);
+  if (!($2 = calloc($1, sizeof(DLiteDimension))))
+    SWIG_exception(SWIG_MemoryError, "Allocation failure");
+  if (dlite_swig_set_array(&$2, 1, &$1, dliteDimension,
+                           sizeof(DLiteDimension), $input)) SWIG_fail;
+}
+%typemap(freearg) (int ndimensions, struct _DLiteDimension *dimensions) {
+  if ($2) {
+    int i;
+    for (i=0; i<$1; i++) {
+      DLiteDimension *d = $2 + i;
+      free(d->name);
+      if (d->description) free(d->description);
+    }
+    free($2);
+  }
+}
+%typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
+  (int ndimensions, struct _DLiteDimension *dimensions) {
+  PyObject *item0=NULL;
+  void *vptr;
+  $1 = 0;
+  if (PySequence_Check($input) &&
+      (PySequence_Length($input) == 0 ||
+       ((item0 = PySequence_GetItem($input, 0)) &&
+        SWIG_IsOK(SWIG_ConvertPtr(item0, &vptr, $2_descriptor, 0)))))
+    $1 = 1;
+  Py_XDECREF(item0);
+ }
+
+/* Array of input properties */
+%typemap("doc") (int nproperties, struct _DLiteProperty *properties)
+  "Array of input properties"
+%typemap(in) (int nproperties, struct _DLiteProperty *properties) {
+  $2 = NULL;
+  if (!PySequence_Check($input))
+    SWIG_exception(SWIG_TypeError, "Expected a sequence");
+  $1 = PySequence_Length($input);
+  if (!($2 = calloc($1, sizeof(DLiteProperty))))
+    SWIG_exception(SWIG_MemoryError, "Allocation failure");
+  if (dlite_swig_set_array(&$2, 1, &$1, dliteProperty,
+                           sizeof(DLiteProperty), $input)) SWIG_fail;
+}
+%typemap(freearg) (int nproperties, struct _DLiteProperty *properties) {
+  if ($2) {
+    int i;
+    for (i=0; i<$1; i++) {
+      DLiteProperty *p = $2 + i;
+      free(p->name);
+      if (p->dims) free(p->dims);
+      if (p->unit) free(p->unit);
+      if (p->description) free(p->description);
+    }
+    free($2);
+  }
+}
+%typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
+  (int nproperties, struct _DLiteProperty *properties) {
+  PyObject *item0=NULL;
+  void *vptr;
+  $1 = 0;
+  if (PySequence_Check($input) &&
+      (PySequence_Length($input) == 0 ||
+       ((item0 = PySequence_GetItem($input, 0)) &&
+        SWIG_IsOK(SWIG_ConvertPtr(item0, &vptr, $2_descriptor, 0)))))
+    $1 = 1;
+  Py_XDECREF(item0);
+ }
+
 
 /* ---------------
  * Argout typemaps
