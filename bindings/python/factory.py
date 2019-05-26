@@ -36,16 +36,22 @@ class MetaExtension(type):
 
 
 class BaseExtension(object, metaclass=MetaExtension):
-    """Base class for extension.  Arguments are passed further to the
-    __init__() function of the class we are inheriting from."""
-    def __init__(self, *args, **kw):
-        self._theclass.__init__(self, *args, **kw)
-        self._dlite_init()
+    """Base class for extension.  Except for `dlite_id`, all
+    arguments are passed further to the __init__() function of the
+    class we are inheriting from.
 
-    def _dlite_init(self):
-        """Initialise the underlying dlite instance."""
+    If `instanceid` is given, the id of the underlying dlite instance
+    will be set to it.
+    """
+    def __init__(self, *args, instanceid=None, **kw):
+        self._theclass.__init__(self, *args, **kw)
+        self._dlite_init(instanceid=instanceid)
+
+    def _dlite_init(self, instanceid=None):
+        """Initialise the underlying dlite instance.  If `id` is given,
+        the id of the underlying dlite instance will be set to it."""
         dims = self._dlite_infer_dimensions()
-        self.dlite_inst = Instance(self.dlite_meta.uri, dims)
+        self.dlite_inst = Instance(self.dlite_meta.uri, dims, instanceid)
         self._dlite_assign_properties()
 
     def _dlite_get(self, name):
@@ -56,11 +62,8 @@ class BaseExtension(object, metaclass=MetaExtension):
         elif hasattr(self, 'get_' + name):
             getter = getattr(self, 'get_' + name)
             value = getter()
-        elif name in self.__dict__:
-            value = self.__dict__[name]
         else:
-            raise IncompatibleClassError('cannot get value of property: %s' %
-                                         name)
+            value = getattr(self, name)
         return value
 
     def _dlite_set(self, name, value):
@@ -80,24 +83,27 @@ class BaseExtension(object, metaclass=MetaExtension):
             meta = self.dlite_meta
         if not getter:
             getter = self._dlite_get
-        #meta = self.dlite_meta
-        dims = [-1] * len(meta.properties['dimensions'])
+        dims = [0] * len(meta.properties['dimensions'])
         for prop in meta.properties['properties']:
             if prop.ndims:
-                #value = self._dlite_get(prop.name)
                 value = getter(prop.name)
-                arr = np.array(value, copy=False)
+                if len(value) > 0:
+                    arr = np.array(value, copy=False)
+                else:
+                    arr = np.zeros([0] * prop.ndims)
                 if arr.ndim < prop.ndims:
                     raise ValueError('expected %d dimensions for array '
                                      'property "%s"; got %d' % (
-                                         prop.ndims, key, arr.ndim))
-                for i in prop.dims:
-                    if dims[i] == -1:
-                        dims[i] = arr.shape[i]
-                    elif dims[i] != arr.shape[i]:
+                                         prop.ndims, prop.name, arr.ndim))
+                for i, n in enumerate(prop.dims):
+                    if dims[n] == 0:
+                        dims[n] = arr.shape[i]
+                    elif arr.shape[i] and dims[n] != arr.shape[i]:
                         raise ValueError(
-                            'inconsistent length of dimension "%s"' %
-                            meta.properties['dimensions'][i].name)
+                            'inconsistent length of dimension "%s"; was %d '
+                            'but got %d for property %r' % (
+                            meta.properties['dimensions'][n].name, dims[n],
+                            arr.shape[i], prop.name))
         if min(dims) < 0:
             raise ValueError('cannot infer all dimensions')
         return dims
@@ -151,18 +157,23 @@ def loadfactory(theclass, *args):
     return obj
 
 
-def objectfactory(obj, meta=None, url=None, storage=None, id=None,
-                  deepcopy=False):
+def objectfactory(obj, meta=None, deepcopy=False, cls=None,
+                  url=None, storage=None, id=None, instanceid=None):
     """Returns an extended copy of `obj`.  If `deepcopy` is true, a deep
     copy is returned, otherwise a shallow copy is returned.
 
+    By default, the returned object will have the same class as `obj`.  If
+    `cls` is provided, the class of the returned object will be set to `cls`
+    (typically a subclass of ``obj.__class__``).
+
     The `url`, `storage` and `id` arguments are passed to classfactory().
     """
-    cls = classfactory(obj.__class__, meta=meta, url=url, storage=storage,
-                       id=id)
+    if cls is None:
+        cls = classfactory(obj.__class__, meta=meta, url=url,
+                           storage=storage, id=id)
     new = copy.deepcopy(obj) if deepcopy else copy.copy(obj)
     new.__class__ = cls
-    new._dlite_init()
+    new._dlite_init(instanceid=instanceid)
     return new
 
 
