@@ -48,5 +48,11 @@
         while itr.poll():
             yield itr.find(s, p, o)
 
+    def instances(self):
+        """Returns a generator over all instances in this collection."""
+        itr = self.get_iter()
+        while itr.poll():
+            yield itr.next()
+
   %}
 }
