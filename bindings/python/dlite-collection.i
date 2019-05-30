@@ -11,25 +11,44 @@
   };
 %}
 
+%feature("docstring", "\
+  Iterator over instances in a collection.
+") _CollectionIter;
 %extend struct _CollectionIter {
   ~_CollectionIter(void) {
     dlite_collection_deinit_state(&$self->state);
     free($self);
   }
 
+  %feature("docstring", "\
+    Returns a reference to next instance.
+  ") next;
   struct _DLiteInstance *next(void) {
     return dlite_collection_next($self->coll, &$self->state);
   }
 
+  %feature("docstring", "\
+    Returns a reference to next instance matching the provided subject `s`,
+    predicate `p` and object `o`.  If any of `s`, `p` or `o` are None, it
+    works as a wildcard matching everything.
+  ") next;
   const struct _Triplet *find(const char *s=NULL, const char *p=NULL,
                               const char *o=NULL) {
     return dlite_collection_find($self->coll, &$self->state, s, p, o);
   }
 
+  %feature("docstring", "\
+    Returns reference to the current instance or None if all instances have
+    been visited.
+  ") poll;
   const struct _Triplet *poll(void) {
     return triplestore_poll(&$self->state);
   }
 
+  %feature("docstring", "\
+    Resets the iterator.  The next call to next() will return the first
+    instance.
+  ") reset;
   void reset(void) {
     triplestore_reset_state(&$self->state);
   }
@@ -48,7 +67,7 @@ struct _DLiteCollection {
   int refcount;
 };
 
-%feature("docstring", "
+%feature("docstring", "\
 Returns a collection instance.
 
 Collection(id=None)
@@ -96,6 +115,9 @@ Collection(url, lazy)
     }
   }
 
+  %feature("docstring",
+           "Adds (subject, predicate, object) relation to the collection."
+           ) add_relation;
   void add_relation(const char *s, const char *p, const char *o) {
     dlite_collection_add_relation($self, s, p, o);
   }
@@ -117,17 +139,30 @@ Collection(url, lazy)
     return inst;
   }
 
+  %feature("docstring", "\
+  Removes all relations matching the provided subject `s`, predicate `p`
+  and object `o`.  If any of `s`, `p` and/or `o` are None, they works as
+  a wildcard.
+  ") remove_relations;
   void remove_relations(const char *s=NULL, const char *p=NULL,
                         const char *o=NULL) {
     dlite_collection_remove_relations($self, s, p, o);
   }
 
+  %feature("docstring", "\
+  Returns the first relation matching the provided subject `s`, predicate
+  `p` and object `o`.  If any of `s`, `p` and/or `o` are None, they works
+  as a wildcard.
+  ") find_first;
   const struct _Triplet *find_first(const char *s=NULL, const char *p=NULL,
                                     const char *o=NULL) {
     return dlite_collection_find_first($self, s, p, o);
   }
 
   %newobject get_iter;
+  %feature("docstring", "\
+  Returns an iterator for iterating over instances.
+  ") get_iter;
   struct _CollectionIter *get_iter(void) {
     struct _CollectionIter *iter = malloc(sizeof(struct _CollectionIter));
     iter->coll = $self;
@@ -135,35 +170,61 @@ Collection(url, lazy)
     return iter;
   }
 
+  %feature("docstring", "Adds instance `inst` to the collection.") add;
   void add(const char *label, struct _DLiteInstance *inst) {
     dlite_collection_add($self, label, inst);
   }
 
+  %feature("docstring",
+           "Removes instance with given label from collection.") remove;
   void remove(const char *label) {
     dlite_collection_remove($self, label);
   }
 
+  %feature("docstring", "\
+  Returns a reference to instance with given label or None on error.
+  ") get;
   const struct _DLiteInstance *get(const char *label) {
     return dlite_collection_get($self, label);
   }
 
+  %feature("docstring", "\
+  Returns a reference to instance with given id or None on error.
+  ") get_id;
   const struct _DLiteInstance *get_id(const char *id) {
     return dlite_collection_get_id($self, id);
   }
 
+  %newobject get_new;
+  %feature("docstring", "\
+  Returns a new instance with given label.  If `metaid` is given, the
+  returned instance is casted to this metadata.
+
+  Returns None on error.
+  ") get_new;
   const struct _DLiteInstance *get_new(const char *label,
                                        const char *metaid=NULL) {
     return dlite_collection_get_new($self, label, metaid);
   }
 
+  %feature("docstring", "\
+  Returns true if the collection contains a reference with the given label.
+  ") has;
   bool has(const char *label) {
     return dlite_collection_has($self, label);
   }
 
+  %feature("docstring", "\
+  Returns true if the collection contains a reference with the given id
+  (URI or UUID).
+  ") has_id;
   bool has_id(const char *id) {
     return dlite_collection_has_id($self, id);
   }
 
+  %feature("docstring", "\
+  Returns number of instances in the collection.
+  ") count;
   int count(void) {
     return dlite_collection_count($self);
   }
