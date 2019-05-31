@@ -48,9 +48,33 @@ struct _DLiteCollection {
   int refcount;
 };
 
+%feature("docstring", "
+Returns a collection instance.
+
+Collection(id=None)
+    Creates a new empty collection with the given `id`.  The id may be any
+    string uniquely identifying this collection.
+
+Collection(storage, id, lazy=0)
+    Loads collection with given `id` from `storage`.  If `lazy` is zero,
+    all its instances are loaded immediately.  Otherwise, instances are
+    first loaded on demand.
+
+Collection(url, lazy)
+    Loads collection from `url`, which should be of the form
+    ``driver://location?options#id``.  The `lazy` argument has the same
+    meaning as above.
+
+") _DLiteCollection;
 %extend struct _DLiteCollection {
   _DLiteCollection(const char *id=NULL) {
     return dlite_collection_create(id);
+  }
+  _DLiteCollection(struct _DLiteStorage *storage, const char *id, int lazy=0) {
+    return dlite_collection_load(storage, id, lazy);
+  }
+  _DLiteCollection(const char *url, int lazy) {
+    return dlite_collection_load_url(url, lazy);
   }
 
   ~_DLiteCollection(void) {
@@ -77,6 +101,20 @@ struct _DLiteCollection {
   }
   void add_relation(const Triplet *t) {
     triplestore_add_triplets($self->rstore, t, 1);
+  }
+
+  %feature("docstring", "Returns reference to metadata.") get_meta;
+  const struct _DLiteInstance *get_meta() {
+    return (const DLiteInstance *)$self->meta;
+  }
+
+  %newobject asinstance;
+  %feature("docstring",
+           "Returns a new view of self as an instance.") as_instance;
+  struct _DLiteInstance *asinstance() {
+    DLiteInstance *inst = (DLiteInstance *)$self;
+    dlite_instance_incref(inst);
+    return inst;
   }
 
   void remove_relations(const char *s=NULL, const char *p=NULL,

@@ -9,45 +9,8 @@
 #include "dlite-mapping.h"
 #include "dlite-entity.h"
 #include "dlite-schemas.h"
+#include "dlite-storage-plugins.h"
 #include "dlite-collection.h"
-
-
-
-/**************************************************************
- * Instance store
- **************************************************************/
-
-/* Global store for all instances added to any collection
-
-   Instances are uniquely identified by their uuid.  Hence, if
-   instances added to collections have the same uuid, they are exactly
-   the same instances regardless of whether they are added to
-   different collections.  That implies:
-     - it is an error to add instances with the same uuid pointing to
-       different memory locations
-     - all collections will return a pointer to the same memory region
-       when queried for the same uuid
-   We implement this by a global store shared by all collections.
-
-   It is initialised at the first call to dlite_collection_create()
-   and is automatically released at stop time.
- */
-static DLiteStore *_istore = NULL;
-
-/* Frees up a global instance store */
-static void _istore_free(void)
-{
-  dlite_store_free(_istore);
-  _istore = NULL;
-}
-
-/* Returns a new initializes instance store */
-static DLiteStore *_istore_init()
-{
-  DLiteStore *store = dlite_store_create();
-  atexit(_istore_free);
-  return store;
-}
 
 
 
@@ -60,15 +23,10 @@ int dlite_collection_init(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
 
-  /* Initialise global store */
-  if (!_istore) _istore = _istore_init();
-  assert(_istore);
-
   /* Initialise tripletstore */
   coll->rstore =
     triplestore_create_external(&coll->relations, &coll->nrelations,
                                 NULL, NULL);
-
   return 0;
 }
 
@@ -77,6 +35,30 @@ int dlite_collection_init(DLiteInstance *inst)
 int dlite_collection_deinit(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
+  DLiteCollectionState state;
+  DLiteInstance *inst2;
+  const DLiteRelation *r;
+
+  /* Release references to all instances.  We have to call
+     dlite_instance_decref() twice, since dlite_instance_get() returns
+     a new reference. */
+  dlite_collection_init_state(coll, &state);
+  while ((r=dlite_collection_find(coll,&state, NULL, "_has-uuid", NULL))) {
+    if ((inst2 = dlite_instance_get(r->o))) {
+      dlite_instance_decref(inst2);
+      /* FIXME - the below should not be commented out since it leads
+	 to memory leaks...
+	 However, doing that leads to assertion error in
+	 dlite_instance_decref().  Maybe related to adding the same instance
+	 to the collection with different labels?
+      */
+      //dlite_instance_decref(inst2);
+    } else {
+      warn("cannot remove missing instance: %s", r->o);
+    }
+  }
+  dlite_collection_deinit_state(&state);
+
   triplestore_free(coll->rstore);
   return 0;
 }
@@ -113,6 +95,73 @@ void dlite_collection_incref(DLiteCollection *coll)
 void dlite_collection_decref(DLiteCollection *coll)
 {
   dlite_instance_decref((DLiteInstance *)coll);
+}
+
+
+/*
+  Loads collection with given id from storage `s`.  If `lazy` is zero,
+  all its instances are also loaded.  Otherwise, instances are loaded
+  on demand.
+
+  Returns a new reference to the collection or NULL on error.
+ */
+DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
+                                       int lazy)
+{
+  DLiteCollection *coll;
+  DLiteCollectionState state;
+  const Triplet *t, *t2;
+
+  if (!(coll = (DLiteCollection *)dlite_instance_load(s, id)))
+    return NULL;
+
+  if (lazy) {
+    dlite_storage_paths_append(s->uri);
+    return coll;
+  }
+
+  dlite_collection_init_state(coll, &state);
+  while ((t = dlite_collection_find(coll, &state, NULL, "_has-uuid", NULL))) {
+    if (!(t2 = dlite_collection_find_first(coll, t->s, "_has-meta", NULL)))
+      FAIL1("collection inconsistency - no \"_has-meta\" relation for "
+           "instance: %s", t->s);
+    if (strcmp(t2->o, DLITE_COLLECTION_SCHEMA) == 0) {
+      if (!dlite_collection_load(s, t->o, 0)) goto fail;
+    } else {
+      if (!dlite_instance_load(s, t->o)) goto fail;
+    }
+  }
+  dlite_collection_deinit_state(&state);
+  return coll;
+ fail:
+  dlite_collection_deinit_state(&state);
+  if (coll) dlite_collection_decref(coll);
+  return NULL;
+}
+
+/*
+  Convinient function that loads a collection from `url`, which should
+  be of the form "driver://location?options#id".
+  The `lazy` argument has the same meaning as for dlite_collection_load().
+
+  Returns a new reference to the collection or NULL on error.
+ */
+DLiteCollection *dlite_collection_load_url(const char *url, int lazy)
+{
+  char *str=NULL, *driver=NULL, *location=NULL, *options=NULL, *id=NULL;
+  DLiteStorage *s=NULL;
+  DLiteCollection *coll=NULL;
+  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
+  if (!id || !(coll = (DLiteCollection *)dlite_instance_get(id))) {
+    err_clear();
+    if (!(s = dlite_storage_open(driver, location, options))) goto fail;
+    if (!(coll = dlite_collection_load(s, id, lazy))) goto fail;
+  }
+ fail:
+  if (s) dlite_storage_close(s);
+  if (str) free(str);
+  return coll;
 }
 
 
@@ -263,7 +312,6 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
   dlite_collection_add_relation(coll, label, "_is-a", "Instance");
   dlite_collection_add_relation(coll, label, "_has-uuid", inst->uuid);
   dlite_collection_add_relation(coll, label, "_has-meta", inst->meta->uri);
-  dlite_store_add_new(_istore, inst);
   return 0;
 }
 
@@ -275,8 +323,8 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
 int dlite_collection_add(DLiteCollection *coll, const char *label,
                          DLiteInstance *inst)
 {
-  dlite_instance_incref(inst);
   if (dlite_collection_add_new(coll, label, inst)) return 1;
+  dlite_instance_incref(inst);
   return 0;
 }
 
@@ -287,11 +335,21 @@ int dlite_collection_add(DLiteCollection *coll, const char *label,
 int dlite_collection_remove(DLiteCollection *coll, const char *label)
 {
   DLiteCollectionState state;
+  DLiteInstance *inst;
   const DLiteRelation *r;
   if (dlite_collection_remove_relations(coll, label, "_is-a", "Instance") > 0) {
     r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL);
     assert(r);
-    dlite_store_remove(_istore, r->o);
+
+    /* Removes reference hold by collection to the instance. We have
+     to call dlite_instance_decref() twice, since dlite_instance_get()
+     returns a new reference. */
+    if ((inst = dlite_instance_get(r->o))) {
+      dlite_instance_decref(inst);
+      dlite_instance_decref(inst);
+    } else {
+      warn("cannot remove missing instance: %s", r->o);
+    }
 
     dlite_collection_init_state(coll, &state);
     while ((r=dlite_collection_find(coll,&state, label, "_has-dimmap", NULL)))
@@ -315,7 +373,7 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
 {
   const DLiteRelation *r;
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL)))
-    return dlite_store_get(_istore, r->o);
+    return dlite_instance_get(r->o);
   return NULL;
 }
 
@@ -329,7 +387,7 @@ const DLiteInstance *dlite_collection_get_id(const DLiteCollection *coll,
   char uuid[DLITE_UUID_LENGTH+1];
   if (dlite_get_uuid(uuid, id) < 0) return NULL;
   if ((r = dlite_collection_find(coll, NULL, NULL, "_has-uuid", uuid)))
-    return dlite_store_get(_istore, uuid);
+    return dlite_instance_get(id);
   return NULL;
 }
 
@@ -384,7 +442,7 @@ DLiteInstance *dlite_collection_next(DLiteCollection *coll,
   UNUSED(coll);
   const Triplet *t;
   while ((t = triplestore_find(state, NULL, "_has-uuid", NULL)))
-    return dlite_store_get(_istore, t->o);
+    return dlite_instance_get(t->o);
   return NULL;
 }
 
