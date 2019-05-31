@@ -314,6 +314,16 @@ struct _DLiteInstance {
                                 DLITE_DIMS($self));
   }
 
+  %feature("docstring",
+           "Returns the size of dimension with given name or index.")
+     get_dimension_size;
+  int get_dimension_size(const char *name) {
+    return dlite_instance_get_dimension_size($self, name);
+  }
+  int get_dimension_size(int i) {
+    return dlite_instance_get_dimension_size_by_index($self, i);
+  }
+
   %feature("docstring", "Returns property with given name or index.")
      get_property;
   %newobject get_property;
@@ -341,6 +351,17 @@ struct _DLiteInstance {
   bool has_property(int i) {
     if (i < 0) i += $self->meta->nproperties;
     if (0 <= i && i < (int)$self->meta->nproperties) return true;
+    return false;
+  }
+
+  %feature("docstring", "Returns true if this instance has a dimension with "
+           "given name or index.") has_dimension;
+  bool has_dimension(const char *name) {
+    return dlite_instance_has_dimension($self, name);
+  }
+  bool has_dimension(int i) {
+    if (i < 0) i += $self->meta->ndimensions;
+    if (0 <= i && i < (int)$self->meta->ndimensions) return true;
     return false;
   }
 

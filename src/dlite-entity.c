@@ -711,6 +711,18 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 
 
 /*
+  Returns true if instance has a dimension with the given name.
+ */
+bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name)
+{
+  size_t i;
+  for (i=0; i < inst->meta->ndimensions; i++)
+    if (strcmp(inst->meta->dimensions[i].name, name) == 0) return true;
+  return false;
+}
+
+
+/*
   Returns number of dimensions or -1 on error.
  */
 int dlite_instance_get_ndimensions(const DLiteInstance *inst)

@@ -402,6 +402,10 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
  */
 int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
 
+/**
+  Returns true if instance has a dimension with the given name.
+ */
+bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name);
 
 /**
   Returns number of dimensions or -1 on error.

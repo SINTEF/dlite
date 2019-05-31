@@ -169,8 +169,10 @@ class InstanceEncoder(json.JSONEncoder):
         d = object.__getattribute__(self, '__dict__')
         if name in d:
             return d[name]
-        elif _has_property(self, name):
+        elif self.has_property(name):
             return _get_property(self, name)
+        elif self.has_dimension(name):
+            return self.get_dimension_size(name)
         else:
             raise AttributeError('Instance object has no attribute %r' % name)
 
@@ -181,6 +183,11 @@ class InstanceEncoder(json.JSONEncoder):
             _set_property(self, name, value)
         else:
             object.__setattr__(self, name, value)
+
+    def __dir__(self):
+        return (object.__dir__(self) +
+                [name for name in self.properties] +
+                [d.name for d in self.meta.properties['dimensions']])
 
     def __hash__(self):
         return UUID(self.uuid).int
