@@ -132,7 +132,7 @@ Collection(url, lazy)
 
   %newobject asinstance;
   %feature("docstring",
-           "Returns a new view of self as an instance.") as_instance;
+           "Returns a new view of self as an instance.") asinstance;
   struct _DLiteInstance *asinstance() {
     DLiteInstance *inst = (DLiteInstance *)$self;
     dlite_instance_incref(inst);
@@ -186,10 +186,12 @@ Collection(url, lazy)
     Returns instance corresponding to `label`.  If `metaid` is provided,
     the returned instance will be mapped to an instance of this metadata.
     Returns NULL on error.
-  ") as_instance;
-  struct _DLiteInstance *get(const char *label,
-                                   const char *metaid=NULL) {
-    return dlite_collection_get_new($self, label, metaid);
+  ") get;
+  struct _DLiteInstance *get(const char *label, const char *metaid=NULL) {
+    DLiteInstance *inst;
+    if (!(inst = dlite_collection_get_new($self, label, metaid)))
+      return dlite_err(1, "cannot load \"%s\" from collection", label), NULL;
+    return inst;
   }
 
   %newobject get_id;

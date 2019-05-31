@@ -30,6 +30,15 @@
     def __getitem__(self, label):
         return self.get(label)
 
+    def __setitem__(self, label, inst):
+        self.add(label, inst)
+
+    def __len__(self):
+        return self.count()
+
+    def __contains__(self, item):
+        return self.has(item)
+
     meta = property(get_meta, doc='Reference to metadata of this collection.')
 
     def asdict(self):
