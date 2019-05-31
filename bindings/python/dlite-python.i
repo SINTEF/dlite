@@ -1007,16 +1007,16 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 }
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
   (int nproperties, struct _DLiteProperty *properties) {
-  PyObject *item0=NULL;
+  PyObject *item=NULL;
   void *vptr;
   $1 = 0;
   if (PySequence_Check($input) &&
       (PySequence_Length($input) == 0 ||
-       ((item0 = PySequence_GetItem($input, 0)) &&
-        SWIG_IsOK(SWIG_ConvertPtr(item0, &vptr, $2_descriptor, 0)))))
+       ((item = PySequence_GetItem($input, 0)) &&
+        SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $2_descriptor, 0)))))
     $1 = 1;
-  Py_XDECREF(item0);
- }
+  Py_XDECREF(item);
+}
 
 
 /* ---------------

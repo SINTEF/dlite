@@ -1,5 +1,9 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
+%{
+#include "dlite-mapping.h"
+%}
+
 
 /* --------
  * Wrappers
@@ -183,14 +187,18 @@ Instance(metaid, dims, id=None)
     to zero.  If `id` is None, a random UUID is generated.  Otherwise
     the UUID is derived from `id`.
 
-Instance(url)
+Instance(url, metaid=NULL)
     Loads the instance from `url`.  The URL should be of the form
     ``driver://location?options#id``.
+    If `metaid` is provided, the instance is tried mapped to this
+    metadata before it is returned.
 
-Instance(storage, id=None)
+Instance(storage, id=None, metaid=NULL)
     Loads the instance from `storage`. `id` is the id of the instance
     in the storage (not required if the storage only contains more one
     instance).
+    If `metaid` is provided, the instance is tried mapped to this
+    metadata before it is returned.
 
 Instance(driver, location, options, id=None)
     Loads the instance from storage specified by `driver`, `location`
@@ -237,13 +245,19 @@ struct _DLiteInstance {
     dlite_meta_decref(meta);
     return inst;
   }
-  _DLiteInstance(const char *url) {
-    DLiteInstance *inst = dlite_instance_load_url(url);
+  _DLiteInstance(const char *url, const char *metaid=NULL) {
+    DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
     if (inst) dlite_errclr();
+    if (metaid) {
+      inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+      dlite_instance_decref(inst);
+      inst = inst2;
+    }
     return inst;
   }
-  _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL) {
-    DLiteInstance *inst = dlite_instance_load(storage, id);
+  _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL,
+                 const char *metaid=NULL) {
+    DLiteInstance *inst = dlite_instance_load_casted(storage, id, metaid);
     if (inst) dlite_errclr();
     return inst;
   }
