@@ -434,6 +434,24 @@ DLiteInstance *dlite_instance_get(const char *id)
 }
 
 /*
+  Like dlite_instance_get(), but maps the instance with the given id
+  to an instance of `metaid`.  If `metaid` is NULL, it falls back to
+  dlite_instance_get().  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_get_casted(const char *id, const char *metaid)
+{
+  DLiteInstance *inst, *instances;
+  if (!(inst = dlite_instance_get(id))) return NULL;
+  if (metaid) {
+    instances = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+    dlite_instance_decref(inst);
+  } else {
+    instances = inst;
+  }
+  return instances;
+}
+
+/*
   Loads instance identified by `id` from storage `s` and returns a
   new and fully initialised dlite instance.
 

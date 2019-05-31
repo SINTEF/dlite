@@ -229,9 +229,9 @@ const DLiteInstance *dlite_collection_get_id(const DLiteCollection *coll,
 
   Returns NULL on error.
  */
-const DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
-                                              const char *label,
-                                              const char *metaid);
+DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
+                                        const char *label,
+                                        const char *metaid);
 
 /**
   Returns non-zero if collection `coll` contains an instance with the

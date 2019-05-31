@@ -397,16 +397,16 @@ const DLiteInstance *dlite_collection_get_id(const DLiteCollection *coll,
 
   Returns NULL on error.
  */
-const DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
-                                              const char *label,
-                                              const char *metaid)
+DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
+                                        const char *label,
+                                        const char *metaid)
 {
-  const DLiteInstance *inst;
-  if (!(inst = dlite_collection_get(coll, label))) return NULL;
+  DLiteInstance *inst = (DLiteInstance *)dlite_collection_get(coll, label);
+  if (!inst) return NULL;
   if (metaid)
-    inst = dlite_mapping(metaid, &inst, 1);
+    inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
   else
-    dlite_instance_incref((DLiteInstance *)inst);
+    dlite_instance_incref(inst);
   return inst;
 }
 

@@ -143,17 +143,22 @@ Collection(url, lazy)
     dlite_collection_remove($self, label);
   }
 
-  const struct _DLiteInstance *get(const char *label) {
-    return dlite_collection_get($self, label);
-  }
-
-  const struct _DLiteInstance *get_id(const char *id) {
-    return dlite_collection_get_id($self, id);
-  }
-
-  const struct _DLiteInstance *get_new(const char *label,
-                                       const char *metaid=NULL) {
+  %newobject get;
+  %feature("docstring", "\
+    Returns instance corresponding to `label`.  If `metaid` is provided,
+    the returned instance will be mapped to an instance of this metadata.
+    Returns NULL on error.
+  ") as_instance;
+  struct _DLiteInstance *get(const char *label,
+                                   const char *metaid=NULL) {
     return dlite_collection_get_new($self, label, metaid);
+  }
+
+  %newobject get_id;
+  struct _DLiteInstance *get_id(const char *id) {
+    DLiteInstance *inst = (DLiteInstance *)dlite_collection_get_id($self, id);
+    if (inst) dlite_instance_incref(inst);
+    return inst;
   }
 
   bool has(const char *label) {
