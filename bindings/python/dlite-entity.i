@@ -348,9 +348,10 @@ struct _DLiteInstance {
 /* ----------------
  * Module functions
  * ---------------- */
-%rename(get_instance) dlite_instance_get;
-%newobject dlite_instance_get;
-struct _DLiteInstance *dlite_instance_get(const char *id);
+%rename(get_instance) dlite_instance_get_casted;
+%newobject dlite_instance_get_casted;
+struct _DLiteInstance *dlite_instance_get_casted(const char *id,
+                                                 const char *metaid=NULL);
 
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;

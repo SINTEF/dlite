@@ -181,30 +181,25 @@ Collection(url, lazy)
     dlite_collection_remove($self, label);
   }
 
+  %newobject get;
   %feature("docstring", "\
-  Returns a reference to instance with given label or None on error.
-  ") get;
-  const struct _DLiteInstance *get(const char *label) {
-    return dlite_collection_get($self, label);
+    Returns instance corresponding to `label`.  If `metaid` is provided,
+    the returned instance will be mapped to an instance of this metadata.
+    Returns NULL on error.
+  ") as_instance;
+  struct _DLiteInstance *get(const char *label,
+                                   const char *metaid=NULL) {
+    return dlite_collection_get_new($self, label, metaid);
   }
 
+  %newobject get_id;
   %feature("docstring", "\
   Returns a reference to instance with given id or None on error.
   ") get_id;
-  const struct _DLiteInstance *get_id(const char *id) {
-    return dlite_collection_get_id($self, id);
-  }
-
-  %newobject get_new;
-  %feature("docstring", "\
-  Returns a new instance with given label.  If `metaid` is given, the
-  returned instance is casted to this metadata.
-
-  Returns None on error.
-  ") get_new;
-  const struct _DLiteInstance *get_new(const char *label,
-                                       const char *metaid=NULL) {
-    return dlite_collection_get_new($self, label, metaid);
+  struct _DLiteInstance *get_id(const char *id) {
+    DLiteInstance *inst = (DLiteInstance *)dlite_collection_get_id($self, id);
+    if (inst) dlite_instance_incref(inst);
+    return inst;
   }
 
   %feature("docstring", "\
