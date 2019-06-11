@@ -47,6 +47,12 @@ typedef struct _DLiteCollection {
 
   /* -- properties */
 
+  /** An experimental URI identifying a (currently informal) schema
+      that this collection is expected to ahead to.  May be used
+      instead of a metadata URI when a collection is provided as input
+      to a mapping. */
+  //char *schema;
+
   /** Pointer to array of relations.  This can safely be cast to
       ``char *relations[4]``, which is an 2D array of strings.
       Note that this pointer may change if `relations` is reallocated. */

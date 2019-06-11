@@ -1,4 +1,4 @@
-/* -*- c -*-  (not really, but good for syntax highlighting) */
+/* -*- Python -*-  (not really, but good for syntax highlighting) */
 
 %extend struct _CollectionIter {
 
@@ -32,6 +32,9 @@
 
     def __setitem__(self, label, inst):
         self.add(label, inst)
+
+    def __delitem__(self, label):
+        self.remove(label)
 
     def __len__(self):
         return self.count()
