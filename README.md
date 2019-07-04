@@ -1,16 +1,18 @@
-dlite -- lightweight library for working with scientific data
+DLite -- lightweight library for working with scientific data
 =============================================================
-*dlite* is a small cross-platform C library under development, for
+DLite is a small cross-platform C library under development, for
 working with and sharing scientific data in an interoperable way.  It
 is strongly inspired by [SOFT][1], with the aim to be a lightweight
 replacement in cases where Windows portability is a showstopper for
 using SOFT.
 
-*dlite* shares the [metadata model of SOFT5][2] and is compatible with
+DLite shares the [metadata model of SOFT5][2] and is compatible with
 SOFT5 in many respects.  However, it has also some notable
 differences, mainly with respect to the type system and that it fully
 implements the metadata model envisioned in SOFT5.
 See [doc/concepts.md](doc/concepts.md) for details.
+
+DLite is licensed under the MIT license.
 
 
 Main features
@@ -38,8 +40,8 @@ Main features
     DLITE_STORAGES environment variable)
   - Template-based code generation (includes templates for C, Fortran
     templates are planned)
-  - Mappings (in development)
-  - Plugin system for mappings (in development)
+  - Plugin system for mappings that maps instances of a set of input metadata
+    to an output instance
   - Python bindings
   - Fortran bindings (planned)
   - Storage and mapping plugins written in Python (planned)
@@ -97,7 +99,7 @@ Build dependencies
 
 Download
 --------
-Download dlite with git, using
+Download DLite with git, using
 
     git clone ssh://git@git.code.sintef.no/sidase/dlite.git
 
@@ -115,11 +117,11 @@ Building
 2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the
    C/C++ components
 
-3. Prepare a directory structure for dlite and 3rd party libraries:
+3. Prepare a directory structure for DLite and 3rd party libraries:
    1. Select a root folder to create the directory structure
       (e.g. "C:\" or "C:\Users\{username}\Documents\")
 	2. Create the following directory: {root}\local
-	3. Clone the dlite repository in the root folder, folder
+	3. Clone the DLite repository in the root folder, folder
            {root}\dlite will be created.
 4. Download hdf5 library archive from
    https://support.hdfgroup.org/ftp/HDF5/current/src/
@@ -148,7 +150,7 @@ To run the tests, do
     ctest -C Debug
 
 
-Summary to build and install dlite when hdf5 and jansson lib are installed
+Summary to build and install DLite when hdf5 and jansson lib are installed
 in the given path LOCAL_DIR
 
 	LOCAL_DIR=/C/Users/tco/Documents/Programs/philib/local
@@ -203,15 +205,15 @@ To install dlite locally, do
     make install
 
 
-The future of dlite
+The future of DLite
 -------------------
-Ideally dlite will be merged into SOFT when SOFT compiles well on Windows.
+Ideally DLite will be merged into SOFT when SOFT compiles well on Windows.
 Until then, it will remain as a simple and mostly compatible alternative.
 
 
 ---
 
-*dlite* is developed with the hope that it will be a delight to work with.
+DLite is developed with the hope that it will be a delight to work with.
 
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
 [2]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
