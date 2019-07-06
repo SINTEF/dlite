@@ -76,7 +76,6 @@ Short vocabulary
     [SOFT5 nomenclauture][SOFT5_nomenclauture].
 
 
-
 Runtime dependencies
 --------------------
   - [HDF5][3], optional (needed by HDF5 storage plugin)
@@ -203,12 +202,6 @@ To generate code documentation, do
 To install dlite locally, do
 
     make install
-
-
-The future of DLite
--------------------
-Ideally DLite will be merged into SOFT when SOFT compiles well on Windows.
-Until then, it will remain as a simple and mostly compatible alternative.
 
 
 ---
