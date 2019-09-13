@@ -22,13 +22,13 @@ Main features
   - Simple type system where data type are specified as a basic type and size
     Supported basic types includes:
       - binary blob (any size)
-      - boolean
+      - boolean (system-dependent size, typically 8 bits)
       - integer (8, 16, 32, 64 bits)
       - unsigned integer (8, 16, 32, 64 bits)
       - float (32, 64, [80, 128] bits)
       - fixed string (any size, always NUL-terminated)
-      - string pointer
-      - relation
+      - string pointer (any size, malloc'ed and NUL-terminated)
+      - relation (subject-predicate-object triplet)
       - dimension (only intended for metadata)
       - property (only intended for metadata)
   - Supports units and multi-dimensional arrays
@@ -38,7 +38,7 @@ Main features
   - Memory for metadata and instances is reference counted
   - Lookup of metadata and instances via global paths (initiated from the
     DLITE_STORAGES environment variable)
-  - Template-based code generation (includes templates for C, Fortran
+  - Template-based code generation (includes templates for C. Fortran
     templates are planned)
   - Plugin system for mappings that maps instances of a set of input metadata
     to an output instance
@@ -90,9 +90,9 @@ Build dependencies
   - hdf5 development libraries, optional (needed by HDF5 storage plugin)
   - Jansson development libraries, optional (needed by JSON storage plugin)
   - python development libraries, optional (needed by Python bindings)
-  - NumPy development libraries][8], optional (needed by Python bindings)
-  - SWIG[8], optional (needed by building Python bindings)
-  - Doxygen][9], optional, used for documentation generation
+  - NumPy development libraries, optional (needed by Python bindings)
+  - [SWIG][8], optional (needed by building Python bindings)
+  - [Doxygen][9], optional, used for documentation generation
   - [valgrind][10], optional, used for memory checking (Linux only)
 
 
@@ -213,7 +213,7 @@ DLite is developed with the hope that it will be a delight to work with.
 [3]: https://support.hdfgroup.org/HDF5/
 [4]: http://www.digip.org/jansson/
 [5]: https://www.python.org/
-[6]: http://www.numpy.org/
+[6]: https://pypi.org/project/numpy/
 [7]: https://cmake.org/
 [8]: http://www.swig.org/
 [9]: http://www.doxygen.org/
