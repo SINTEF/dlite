@@ -50,15 +50,18 @@ dimensional arrays.  All arrays are assumed to be continuous in memory
 in C-order.  *dlite* has currently no api for working with arrays as
 pointers to pointers.
 
-type      | dtype          | sizes          | description                      | examples
-----      | -----          | -----          | -----------                      | --------
-blob      | dliteBlob      | any            | binary blob, sequence of bytes   | blob32, blob128, ...
-bool      | dliteBool      | sizeof(bool)   | boolean                          | bool
-int       | dliteInt       | 1, 2, 4, {8}   | signed integer                   | (int), int8, int16, int32, {int64}
-uint      | dliteUInt      | 1, 2, 4, {8}   | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
-float     | dliteFloat     | 4, 8, {10, 16} | floating point                   | (float), (double), float32, float64, {float80, float128}
-fixstring | dliteFixString | any            | fix-sized NUL-terminated string  | string20, string4000, ...
-string    | dliteStringPtr | sizeof(char *) | pointer to NUL-terminated string | string
+type      | dtype          | sizes                  | description                      | examples
+----      | -----          | -----                  | -----------                      | --------
+blob      | dliteBlob      | any                    | binary blob, sequence of bytes   | blob32, blob128, ...
+bool      | dliteBool      | sizeof(bool)           | boolean                          | bool
+int       | dliteInt       | 1, 2, 4, {8}           | signed integer                   | (int), int8, int16, int32, {int64}
+uint      | dliteUInt      | 1, 2, 4, {8}           | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
+float     | dliteFloat     | 4, 8, {10, 16}         | floating point                   | (float), (double), float32, float64, {float80, float128}
+fixstring | dliteFixString | any                    | fix-sized NUL-terminated string  | string20, string4000, ...
+string    | dliteStringPtr | sizeof(char *)         | pointer to NUL-terminated string | string
+relation  | dliteRelation  | sizeof(DLiteRelation)  | subject-predicate-object triplet | relation
+dimension | dliteDimension | sizeof(DLiteDimension) | only intended for metadata       | dimension
+property  | dliteProperty  | sizeof(DLiteProperty)  | only intended for metadata       | property
 
 The examples shown in curly parenthesis may not be supported on all
 platforms.  The size int, uint, float and double are
@@ -71,9 +74,9 @@ specified size of the *fixstring* types.
 
 Instances, entities, metadata, meta-metadata, etc...
 ----------------------------------------------------
-An experimental metadata structure following the concepts of SOFT and
-API to work with it, is implemented in dlite-entity.h / dlite-entity.c
-and shown graphically in Figure 1.
+A metadata structure following the concepts of SOFT and an API to work
+with it, is implemented in dlite-entity.h / dlite-entity.c and shown
+graphically in Figure 1.
 
 ![Metadata structure][fig1]
 
@@ -118,7 +121,7 @@ Instances can be subdivided into:
     needed to describe their instances.  Entities are a special case
     of metadata, whos instances are the actual data.
 
-    All metadata must be immutable.
+    All metadata is immutable.
 
 
 Metadata semantics
