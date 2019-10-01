@@ -9,9 +9,11 @@
 
 #include <Python.h>
 
+/* Python pulls in a lot of defines that conflicts with utils/config.h */
 #ifdef HAVE_CONFIG_H
 #undef HAVE_CONFIG_H
 #endif
+
 #include "utils/fileutils.h"
 #include "utils/plugin.h"
 

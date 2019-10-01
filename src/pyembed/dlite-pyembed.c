@@ -4,25 +4,33 @@
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
 
-static int initialized = 0;
+static int python_initialized = 0;
 
 /* Initialises the embedded Python environment. */
 void dlite_pyembed_initialise(void)
 {
-  if (!initialized) {
+  wchar_t *progname;
+  if (!python_initialized) {
+    if (!(progname = Py_DecodeLocale("dlite", NULL))) {
+      dlite_err(1, "allocation/decoding failure");
+      return;
+    }
+    Py_SetProgramName(progname);
+    PyMem_RawFree(progname);
     Py_Initialize();
-    initialized = 1;
+    python_initialized = 1;
   }
 }
 
-/* Finalises the embedded Python environment. */
+/* Finalises the embedded Python environment.  Returns non-zero on error. */
 int dlite_pyembed_finalise(void)
 {
-  if (initialized) {
-    Py_Finalize();
-    initialized = 0;
+  int status=0;
+  if (python_initialized) {
+    status = Py_FinalizeEx();
+    python_initialized = 0;
   }
-  return 0;
+  return status;
 }
 
 

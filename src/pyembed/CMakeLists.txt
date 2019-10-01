@@ -3,7 +3,7 @@ project(dlite-src-pyembed C)
 
 set(sources
   dlite-pyembed.c
-  #dlite-python-storage.c
+  dlite-python-storage.c
   dlite-python-mapping.c
   )
 
