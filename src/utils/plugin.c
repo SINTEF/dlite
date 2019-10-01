@@ -247,21 +247,11 @@ const void *plugin_get_api(PluginInfo *info, const char *name)
 {
   const void *api=NULL;
   char *pattern=NULL;
-  //const char *path;
-  //map_iter_t iter;
   void **p;
 
   /* Check already registered apis */
   if ((p = map_get(&info->apis, name)))
     return (const void *)*p;
-
-  //iter = map_iter(&info->plugins);
-  //while((path = map_next(&info->plugins, &iter))) {
-  //  Plugin **p = map_get(&info->plugins, path);
-  //  assert(p);
-  //  if (strcmp(*((char **)((*p)->api)), name) == 0)
-  //    return (*p)->api;
-  //}
 
   /* Load plugin from search path */
   if (!(pattern = malloc(strlen(name) + strlen(DSL_EXT) + 1)))

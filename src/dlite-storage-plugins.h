@@ -5,7 +5,7 @@
   @file
   @brief Common API for all storage plugins (internal).
 
-  A DPite storage plugin should be a shared library that defines the
+  A DLite storage plugin should be a shared library that defines the
   function
 
       const DLiteStoragePlugin *get_dlite_storage_api(const char *name);
