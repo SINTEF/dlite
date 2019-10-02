@@ -1376,6 +1376,12 @@ int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name)
 const DLiteDimension *
 dlite_meta_get_dimension_by_index(const DLiteMeta *meta, size_t i)
 {
+  /*
+  if (i < 0) i += meta->ndimensions;
+  if (i < 0 || i >= meta->ndimensions)
+  */
+  if (i >= meta->ndimensions)
+    return err(-1, "invalid dimension index %lu", i), NULL;
   return meta->dimensions + i;
 }
 

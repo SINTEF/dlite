@@ -36,7 +36,7 @@ static void freer(DLiteStoragePlugin *api)
 DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
 {
   int n;
-  DLiteStoragePlugin *api=NULL;
+  DLiteStoragePlugin *api=NULL, *retval=NULL;
   PyObject *storages=NULL, *cls=NULL;
   const char *classname=NULL;
 
@@ -54,6 +54,8 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
   /* get classname for error messages */
   if (!(classname = dlite_pyembed_classname(cls)))
     dlite_warnx("cannot get class name for API %s", *((char **)api));
+
+#if 0
 
   /* get attributes to fill into the api */
   if (!(name = PyObject_GetAttrString(cls, "name")))
@@ -91,6 +93,7 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
 
   if ((pcost = PyObject_GetAttrString(cls, "cost")) && PyLong_Check(pcost))
     cost = PyLong_AsLong(pcost);
+#endif
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
     FAIL("allocation failure");
@@ -110,11 +113,16 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
 
   retval = api;
  fail:
-  if (!retval && api) free(api);
+  if (!retval && api) {
+    free(api);
+    api = NULL;
+  }
+  /*
   Py_XDECREF(name);
   Py_XDECREF(out_uri);
   Py_XDECREF(in_uris);
   Py_XDECREF(map);
   Py_XDECREF(pcost);
+  */
   return api;
 }

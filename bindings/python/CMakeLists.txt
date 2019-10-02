@@ -28,6 +28,7 @@ endif()
 set(py_sources
   __init__.py
   factory.py
+  datamodel
   )
 
 
@@ -93,9 +94,12 @@ ADD_CUSTOM_COMMAND(
     ${CMAKE_CURRENT_BINARY_DIR}/dlite
   )
 
-foreach(source ${py_sources})
-  configure_file(${source} dlite/${source} COPYONLY)
-endforeach()
+#foreach(source ${py_sources})
+#  configure_file(${source} dlite/${source} COPYONLY)
+#endforeach()
+file(COPY ${py_sources} DESTINATION dlite)
+
+
 
 
 #

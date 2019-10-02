@@ -91,12 +91,10 @@ install(FILES
 
 # install .pdb files - seems to be needed on Windows if we are
 # installing dlite compiled in debug mode
-install(DIRECTORY
-  $<TARGET_FILE_DIR:dlite>
-  DESTINATION bin
-  FILES_MATCHING
-  PATTERN *.pdb
-  )
+if(WIN32 AND MSVC AND (NOT MSVC_VERSION LESS 1600) AND
+    (NOT CMAKE_VERSION VERSION_LESS "3.1"))
+  install(FILES $<TARGET_PDB_FILE:dlite> DESTINATION bin OPTIONAL)
+endif()
 
 
 # Support driver and mapping plugins written in Python
