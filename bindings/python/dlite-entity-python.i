@@ -135,10 +135,14 @@ class InstanceEncoder(json.JSONEncoder):
 
   %pythoncode %{
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
-    dimensions = property(get_dimensions, doc='Array of dimension sizes.')
+    dimensions = property(
+        lambda self: OrderedDict((d.name, int(v))
+                                 for d, v in zip(self.meta['dimensions'],
+                                                 self.get_dimensions())),
+        doc='Dictionary with dimensions name-value pairs.')
     properties = property(lambda self:
         {p.name: self[p.name] for p in self.meta['properties']},
-        doc='Dictionary with all properties.')
+        doc='Dictionary with property name-value pairs.')
     is_data = property(_is_data, doc='Whether this is a data instance.')
     is_meta = property(_is_meta, doc='Whether this is a metadata instance.')
     is_metameta = property(_is_metameta,
@@ -211,7 +215,7 @@ class InstanceEncoder(json.JSONEncoder):
                yield i, p
         return (
             Instance,
-            (self.meta.uri, self.dimensions.tolist(), self.uuid),
+            (self.meta.uri, list(self.dimensions.values()), self.uuid),
             None,
             None,
             iterfun(self),
@@ -236,8 +240,7 @@ class InstanceEncoder(json.JSONEncoder):
             d['properties'] = [p.asdict() for p in self['properties']]
         else:
             d['meta'] = self.meta.uri
-            d['dimensions'] = {dim.name: int(val) for dim, val in
-                zip(self.meta['dimensions'], self.dimensions)}
+            d['dimensions'] = self.dimensions
             d['properties'] = self.properties
         if 'relations' in self:
             d['relations'] = self['relations']
