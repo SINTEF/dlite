@@ -1,5 +1,4 @@
 # -*- Mode: cmake -*-
-#
 
 #
 # Add test to build the individual examples
