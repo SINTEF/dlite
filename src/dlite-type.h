@@ -68,7 +68,7 @@
 
 #include <stdlib.h>
 
-#include "boolean.h"
+#include "utils/boolean.h"
 #include "triplestore.h"
 
 /** Expands to the struct alignment of type */

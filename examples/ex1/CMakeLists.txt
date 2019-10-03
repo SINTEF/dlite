@@ -43,6 +43,9 @@ install(
   DESTINATION share/dlite/examples/entities
   )
 
+enable_testing()
 
-#
-# Add test to build
+add_test(
+  NAME dlite-example-1
+  COMMAND dlite-example-1
+  )
