@@ -36,3 +36,13 @@ target_include_directories(dlite-example-1 PUBLIC
   ${DLITE_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   )
+
+
+install(
+  FILES Chemistry-0.1.json
+  DESTINATION share/dlite/examples/entities
+  )
+
+
+#
+# Add test to build

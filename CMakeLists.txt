@@ -20,6 +20,7 @@ option(WITH_HDF5    "Whether to build with HDF5 support"             ON)
 option(WITH_JSON    "Whether to build with JSON support"             ON)
 option(WITH_POSTGRESQL  "Whether to build with PostgreSQL support"   OFF)
 option(WITH_PYTHON  "Whether to build Python 3 bindings"             OFF)
+option(WITH_EXAMPLES "Whether to build examples"                     ON)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
@@ -174,6 +175,14 @@ if(WITH_HDF5)
     endif()
 
   endif()
+endif()
+
+
+#
+# Examples
+# ========
+if(WITH_EXAMPLES)
+  add_subdirectory(examples)
 endif()
 
 
