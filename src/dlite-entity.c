@@ -498,7 +498,8 @@ DLiteInstance *dlite_instance_load_url(const char *url)
 /*
   Help function for dlite_instance_load_casted().
 
-  If `lookup` is zero, no
+  If `lookup` is non-zero, a check will be done to see if the instance
+  already exists.  This is the normal case.
  */
 DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
                                      const char *metaid, int lookup)
@@ -509,6 +510,15 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   size_t i, *dims=NULL, *pdims=NULL;
   int j, max_pndims=0;
   const char *uri=NULL;
+
+  /* check if storage implements the direct api */
+  if (s->api->getInstance) {
+    inst = s->api->getInstance(s, id);
+    if (metaid)
+      return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+    else
+      return inst;
+  }
 
   /* create datamodel and get metadata uri */
   if (!(d = dlite_datamodel(s, id))) goto fail;
@@ -650,6 +660,12 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   size_t i, *pdims, *dims;
 
   if (!(meta = inst->meta)) return errx(-1, "no metadata available");
+
+  /* check if storage implements the direct api */
+  if (s->api->setInstance)
+    return s->api->setInstance(s, inst);
+
+  /* proceede with the datamodel api... */
   if (!(d = dlite_datamodel(s, inst->uuid))) goto fail;
   if (dlite_datamodel_set_meta_uri(d, meta->uri)) goto fail;
 

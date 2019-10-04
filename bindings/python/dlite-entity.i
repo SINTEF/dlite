@@ -52,6 +52,16 @@ int dlite_swig_set_property(DLiteInstance *inst, const char *name, obj_t *obj)
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return -1;
   return dlite_swig_set_property_by_index(inst, i, obj);
 }
+
+/* Returns instance corresponding to `id`. */
+struct _DLiteInstance *
+  dlite_swig_get_instance(const char *id, const char *metaid)
+{
+  struct _DLiteInstance *inst = dlite_instance_get_casted(id, metaid);
+  if (!inst) return dlite_err(1, "no instance with this id: %s", id), NULL;
+  return inst;
+}
+
 %}
 
 
@@ -178,7 +188,7 @@ void triplet_set_default_namespace(const char *namespace);
 /* --------
  * Instance
  * -------- */
-%feature("docstring", "
+%feature("docstring", "\
 Returns a new instance.
 
 Instance(metaid, dims, id=None)
@@ -383,14 +393,17 @@ struct _DLiteInstance {
 /* ----------------
  * Module functions
  * ---------------- */
-%rename(get_instance) dlite_instance_get_casted;
-%newobject dlite_instance_get_casted;
-struct _DLiteInstance *dlite_instance_get_casted(const char *id,
-                                                 const char *metaid=NULL);
+//%rename(get_instance) dlite_instance_get_casted;
+//%newobject dlite_instance_get_casted;
+//struct _DLiteInstance *dlite_instance_get_casted(const char *id,
+//                                                 const char *metaid=NULL);
 
+%rename(get_instance) dlite_swig_get_instance;
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;
 %rename(_has_property) dlite_instance_has_property;
+struct _DLiteInstance *
+dlite_swig_get_instance(const char *id, const char *metaid=NULL);
 obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
 void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);

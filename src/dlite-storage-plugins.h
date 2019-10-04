@@ -17,6 +17,21 @@
 
   The storage plugin search path is initialised from the environment
   variable `DLITE_STORAGE_PLUGINS`.
+
+  Two APIs
+  --------
+  Storage plugins may choose to implement either the datamodel API
+  or the direct API.
+
+  The datamodel API is the original API resembling SOFT5. It provides a
+  generic abstract layer between the data representation in the storage
+  and the DLite instances.
+
+  Since DLite now offers an abstract datamodel-like API for all
+  instances, the need for the datamodel layer seems to be gone.  DLite
+  therefore offers an alternative and simpler API for storage plugins
+  that works directly on DLite instances and only contains two
+  functions; GetInstance() and SetInstance().
 */
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
@@ -304,27 +319,48 @@ typedef int (*SetDataName)(DLiteDataModel *d, const char *name);
 
 
 /**
- * @name Specialised api for single-entity storage
- * Signatures of specialised functions for loading/saving a storage
- * containing only a single entity.
- *
- * These functions are probably only relevant for the JSON plugin to
- * define for loading/storing standard entity json-files.
+ * @name Direct API
+ * API for plugins that works direct on instances instead of a generic
+ * datastorage.
  * @{
  */
 
 /**
-  Returns a new entity loaded from storage `s` with single-entity layout.
+  Returns a new entity instance from `uuid` in storage `s`.  NULL is
+  returned on error.
  */
-/* FIXME - remove uuid argument, since it is not needed */
-typedef DLiteMeta *(*GetEntity)(const DLiteStorage *s, const char *uuid);
+typedef DLiteInstance *(*GetInstance)(const DLiteStorage *s, const char *uuid);
 
 /**
-  Stores entity `e` to storage `s`, using the single-entity layout.
+  Stores instance `inst` to storage `s`.  Returns non-zero on error.
  */
-typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
+typedef int (*SetInstance)(DLiteStorage *s, const DLiteInstance *inst);
 
 /** @} */
+
+
+// /**
+//  * @name Specialised api for single-entity storage
+//  * Signatures of specialised functions for loading/saving a storage
+//  * containing only a single entity.
+//  *
+//  * These functions are probably only relevant for the JSON plugin to
+//  * define for loading/storing standard entity json-files.
+//  * @{
+//  */
+//
+// /**
+//   Returns a new entity loaded from storage `s` with single-entity layout.
+//  */
+// /* FIXME - remove uuid argument, since it is not needed */
+// typedef DLiteMeta *(*GetEntity)(const DLiteStorage *s, const char *uuid);
+//
+// /**
+//   Stores entity `e` to storage `s`, using the single-entity layout.
+//  */
+// typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
+//
+// /** @} */
 
 
 /**
@@ -347,13 +383,16 @@ typedef void (*DriverFreer)(DLiteStoragePlugin *api);
   DLiteStoragePlugin.
 */
 struct _DLiteStoragePlugin {
-  /* Name of plugin */
   const char *       name;             /*!< Name of plugin */
 
-  /* Minimum api */
+  /* Basic api */
   Open               open;             /*!< Open storage */
   Close              close;            /*!< Close storage */
 
+  /* -- Basic api (optional) */
+  GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
+
+  /* DataModel api */
   DataModel          dataModel;        /*!< Creates new data model */
   DataModelFree      dataModelFree;    /*!< Frees a data model */
 
@@ -361,9 +400,7 @@ struct _DLiteStoragePlugin {
   GetDimensionSize   getDimensionSize; /*!< Returns size of dimension */
   GetProperty        getProperty;      /*!< Gets value of property */
 
-  /* Optional api */
-  GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
-
+  /* -- DataModel api (optional) */
   SetMetaURI         setMetaURI;       /*!< Sets metadata uri */
   SetDimensionSize   setDimensionSize; /*!< Sets size of dimension */
   SetProperty        setProperty;      /*!< Sets value of property */
@@ -374,9 +411,13 @@ struct _DLiteStoragePlugin {
   GetDataName        getDataName;      /*!< Returns name of instance */
   SetDataName        setDataName;      /*!< Assigns name to instance */
 
+  /* Direct api */
+  GetInstance        getInstance;      /*!< Returns new instance from storage */
+  SetInstance        setInstance;      /*!< Stores an instance */
+
   /* Specialised api */
-  GetEntity          getEntity;        /*!< Returns a new Entity from storage */
-  SetEntity          setEntity;        /*!< Stores an Entity */
+  //GetEntity          getEntity;        /*!< Returns a new Entity from storage */
+  //SetEntity          setEntity;        /*!< Stores an Entity */
 
   /* Internal data */
   DriverFreer        freer;            /*!< Releases internal data */

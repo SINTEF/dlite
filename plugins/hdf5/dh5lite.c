@@ -773,9 +773,13 @@ int dh5_set_dataname(DLiteDataModel *d, const char *name)
 static DLiteStoragePlugin h5_plugin = {
   "hdf5",
 
+  /* basic api */
   dh5_open,
   dh5_close,
 
+  dh5_get_uuids,
+
+  /* datamodel api */
   dh5_datamodel,
   dh5_datamodel_free,
 
@@ -783,9 +787,7 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_get_dimension_size,
   dh5_get_property,
 
-  /* optional */
-  dh5_get_uuids,
-
+  /* -- datamodel api (optional) */
   dh5_set_meta_uri,
   dh5_set_dimension_size,
   dh5_set_property,
@@ -796,7 +798,7 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_get_dataname,
   dh5_set_dataname,
 
-  /* specialised api */
+  /* direct api */
   NULL,
   NULL,
 
