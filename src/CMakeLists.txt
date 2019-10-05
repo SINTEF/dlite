@@ -82,7 +82,7 @@ set_target_properties(dlite PROPERTIES PUBLIC_HEADER "${headers}")
 
 install(
   TARGETS dlite dlite-static
-  EXPORT  dliteConfig
+  EXPORT  dliteTargets
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
