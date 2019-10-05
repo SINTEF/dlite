@@ -119,6 +119,8 @@ int main(int argc, char *argv[])
   if (optind != argc)
     return errx(1, "Too many arguments");
 
+  if (!url) errx(1, "Missing url argument");
+
   /* Remove trailing semicolon or ampersand from variables */
   if ((n = tgen_buf_length(&variables)) &&
       strchr(";&", tgen_buf_get(&variables)[n-1]))

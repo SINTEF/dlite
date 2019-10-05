@@ -11,7 +11,6 @@ project(dlite
   LANGUAGES C
   )
 
-
 # Options
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
@@ -25,17 +24,12 @@ option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 
-# Set defaults
+# Set default cmake configurations
 include(SetDefaults)
 
-# Install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storages")
-set(DLITE_MAPPING_PLUGINS_PATH    "share/dlite/mappings")
-set(DLITE_PYTHON_MAPPINGS_PATH    "share/dlite/python-mappings")
-set(DLITE_PYTHON_STORAGES_PATH    "share/dlite/python-storages")
-set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
-set(DLITE_METADATA_PATH           "share/dlite/metadata")
 
+# Compiler options
+# ----------------
 # Enable compiler warnings
 include(SetCompilerFlags)
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -49,7 +43,38 @@ endif()
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 
+# Install paths
+# -------------
+# DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
+set(DLITE_TEMPLATES_DIR         "share/dlite/templates")
+set(DLITE_STORAGES_DIR          "share/dlite/storages")
+set(DLITE_MAPPINGS_DIR          "share/dlite/mappings")
+set(DLITE_PYTHON_MAPPINGS_DIR   "share/dlite/python-mappings")
+set(DLITE_PYTHON_STORAGES_DIR   "share/dlite/python-storages")
+
+# Install path for CMake files
+get_property(USE_LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
+if(USE_LIB64)
+    set(LIBSUFFIX 64)
+else()
+    set(LIBSUFFIX "")
+endif()
+
+if(WIN32 AND NOT CYGWIN)
+  set(DEF_INSTALL_CMAKE_DIR cmake)
+else()
+  set(DEF_INSTALL_CMAKE_DIR lib${LIBSUFFIX}/cmake/dlite)
+endif()
+
+set(DLITE_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
+  "Installation directory for CMake files")
+
+# Destination of the installed config files (relative path):
+#set(CMAKE_CONFIG_DEST "share/cmake/Modules")
+
+
 # Testing
+# -------
 find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 
 if(MEMORYCHECK_COMMAND)
@@ -222,6 +247,15 @@ if(WITH_JSON)
 endif()
 
 
+#
+# Python
+# ======
+if(WITH_PYTHON)
+  find_package(PythonInterp 3 REQUIRED)
+  find_package(PythonLibs REQUIRED)
+  find_package(Numpy REQUIRED)
+endif()
+
 
 # -------------------------------------------
 # Environment for running tests in build tree
@@ -380,9 +414,66 @@ endif()
 
 #################################################################
 
+## Generate the config file for the installation tree.
+include(CMakePackageConfigHelpers)
+
+export(
+  TARGETS dlite-utils dlite-utils-static dlite dlite-static
+  #NAMESPACE dlite::
+  #FILE "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigExport.cmake"
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/dliteTargets.cmake"
+  )
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
+  VERSION ${dlite_VERSION}
+  COMPATIBILITY SameMajorVersion
+  )
+
+set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
+set(DLITE_INCLUDE_DIRS include/dlite)
+set(DLITE_LIBRARY_DIR  lib)
+set(DLITE_RUNTIME_DIR  bin)
+set(python_LIBRARIES $<$<BOOL:${PYTHON_LIBRARIES}>:PYTHON_LIBRARIES>)
+set(jansson_LIBRARIES $<$<BOOL:${JANSSON_LIBRARIES}>:JANSSON_LIBRARIES>)
+set(hdf5_LIBRARIES $<$<BOOL:${HDF5_LIBRARIES}>:HDF5_LIBRARIES>)
+
+configure_package_config_file(
+  cmake/dliteConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
+  INSTALL_DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
+  PATH_VARS
+    DLITE_INCLUDE_DIRS
+    DLITE_LIBRARY_DIR
+    DLITE_RUNTIME_DIR
+    DLITE_TEMPLATES_DIR
+    DLITE_STORAGES_DIR
+    DLITE_MAPPINGS_DIR
+    DLITE_PYTHON_STORAGES_DIR
+    DLITE_PYTHON_MAPPINGS_DIR
+    python_LIBRARIES
+    JANSSON_LIBRARIES
+    HDF5_LIBRARIES
+  )
+
+#################################################################
+
 # Install
-install(FILES
-  README.md
-  #LICENSE.txt
+install(
+  FILES
+    README.md
+    LICENSE.txt
   DESTINATION share/dlite
+  )
+
+install(
+  EXPORT dliteConfig
+  DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
+  #NAMESPACE dlite::
+  )
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
+  DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   )
