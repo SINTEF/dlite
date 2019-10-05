@@ -38,8 +38,12 @@ add_custom_command(
 
 install(
   TARGETS dlite-plugins-python
-  DESTINATION ${DLITE_STORAGE_PLUGINS_PATH}
+  DESTINATION ${DLITE_STORAGES_DIR}
 )
 
+install(
+  DIRECTORY python-storages
+  DESTINATION ${DLITE_PYTHON_STORAGES_DIR}
+)
 # tests
 #add_subdirectory(tests)

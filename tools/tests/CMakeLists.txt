@@ -21,7 +21,7 @@ if(WITH_JSON)
       ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
       --output chemistry.h
-      --storage-plugins=${dlite_BINARY_DIR}/plugins/json
+      --storage-plugins=${dlite_BINARY_DIR}/storages/json
       json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt

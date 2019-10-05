@@ -221,50 +221,45 @@ set_target_properties(dlite-utils-static PROPERTIES
   )
 
 target_include_directories(dlite-utils PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
+  #${CMAKE_CURRENT_BINARY_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite/utils>
   )
 target_include_directories(dlite-utils-static PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
+  #${CMAKE_CURRENT_BINARY_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite/utils>
   )
 
-target_include_directories(dlite-utils PUBLIC ${dlite-utils_INCLUDE_DIRS})
-target_include_directories(dlite-utils-static PUBLIC ${dlite-utils_INCLUDE_DIRS})
+
+## create list of headers to install from ${sources}
+set(headers "")
+foreach(source ${sources})
+  string(REPLACE ".c" ".h" header ${source})
+  if(EXISTS ${header})
+    list(APPEND headers ${header})
+  endif()
+endforeach()
+set_target_properties(dlite-utils PROPERTIES PUBLIC_HEADER "${headers}")
+
 
 install(
   TARGETS dlite-utils dlite-utils-static
+  EXPORT  dliteConfig
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  )
-
-install(
-  DIRECTORY .
-  DESTINATION include/dlite/utils
-  FILES_MATCHING
-  PATTERN "*.h"
-  PATTERN tests EXCLUDE
-  PATTERN old EXCLUDE
+  PUBLIC_HEADER DESTINATION include/dlite/utils
+  INCLUDES DESTINATION include/dlite/utils
   )
 
 install(
   FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/byteorder.h
-  ${CMAKE_CURRENT_BINARY_DIR}/integers.h
-  ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
-  ${CMAKE_CURRENT_BINARY_DIR}/floats.h
-  DESTINATION include/dlite/utils
+    compat/dirent.h
+    compat/getopt.h
+  DESTINATION include/dlite/utils/compat
   )
 
-install(
-  DIRECTORY .
-  DESTINATION include/dlite/utils/compat
-  FILES_MATCHING
-  PATTERN "compat/*.h"
-  PATTERN tests EXCLUDE
-  PATTERN old EXCLUDE
-)
 
 # Tests
 add_subdirectory(tests)

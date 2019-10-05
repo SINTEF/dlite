@@ -54,10 +54,12 @@ target_link_libraries(dlite-static
   )
 
 target_include_directories(dlite PUBLIC
-  ${CMAKE_CURRENT_BINARY_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
   )
 target_include_directories(dlite-static PUBLIC
-  ${CMAKE_CURRENT_BINARY_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
   )
 
 set_target_properties(dlite PROPERTIES
@@ -69,25 +71,25 @@ set_target_properties(dlite-static PROPERTIES
 
 #set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-install(
-  TARGETS dlite dlite-static
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-# create list of headers to install from ${sources}
-set(headers "")
+## create list of headers to install from ${sources}
+set(headers dlite.h)
 foreach(source ${sources})
   string(REPLACE ".c" ".h" header ${source})
   list(APPEND headers ${header})
 endforeach()
+set_target_properties(dlite PROPERTIES PUBLIC_HEADER "${headers}")
 
-install(FILES
-  dlite.h
-  ${headers}
-  DESTINATION include/dlite
-  )
+
+install(
+  TARGETS dlite dlite-static
+  EXPORT  dliteConfig
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  PUBLIC_HEADER DESTINATION include/dlite
+  INCLUDES DESTINATION include/dlite
+)
+
 
 # install .pdb files - seems to be needed on Windows if we are
 # installing dlite compiled in debug mode

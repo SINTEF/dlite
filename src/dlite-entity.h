@@ -111,7 +111,7 @@
   only metadata instances has this segment.
 */
 
-#include "boolean.h"
+#include "utils/boolean.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
 #include "dlite-storage.h"

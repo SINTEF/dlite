@@ -482,6 +482,7 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   char *str=NULL, *driver=NULL, *location=NULL, *options=NULL, *id=NULL;
   DLiteStorage *s=NULL;
   DLiteInstance *inst=NULL;
+  assert(url);
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
   if (!id || !(inst = dlite_instance_get(id))) {

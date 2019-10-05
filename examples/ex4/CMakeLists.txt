@@ -26,3 +26,12 @@ target_include_directories(dlite-example-4 PUBLIC
   ${DLITE_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   )
+
+
+enable_testing()
+
+add_test(
+  NAME dlite-example-4
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/dlite-example-4
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
