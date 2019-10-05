@@ -17,7 +17,7 @@ int main()
 
   size_t dims[] = {nelements, nphases};
   char *path = STRINGIFY(DLITE_ROOT)
-    "/share/dlite/examples/entities/Chemistry-0.1.json";
+    "/share/dlite/examples/ex1/Chemistry-0.1.json";
   DLiteStorage *s;
   DLiteMeta *chem;
   Chemistry *p;

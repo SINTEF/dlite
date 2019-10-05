@@ -13,14 +13,14 @@ project(dlite
 
 
 # Options
-option(BUILD_HDF5   "If not installed, download and compile HDF5"    OFF)
-option(BUILD_JSON   "If not installed, download and compile jansson" OFF)
+option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
+option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
 
-option(WITH_HDF5    "Whether to build with HDF5 support"             ON)
-option(WITH_JSON    "Whether to build with JSON support"             ON)
-option(WITH_POSTGRESQL  "Whether to build with PostgreSQL support"   OFF)
-option(WITH_PYTHON  "Whether to build Python 3 bindings"             OFF)
-option(WITH_EXAMPLES "Whether to build examples"                     ON)
+option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
+option(WITH_JSON        "Whether to build with JSON support"             ON)
+option(WITH_POSTGRESQL  "Whether to build with PostgreSQL support"       OFF)
+option(WITH_PYTHON      "Whether to build Python 3 bindings"             OFF)
+option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
@@ -29,11 +29,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 include(SetDefaults)
 
 # Install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
-set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storage-plugins")
-set(DLITE_MAPPING_PLUGINS_PATH    "share/dlite/mapping-plugins")
+set(DLITE_STORAGE_PLUGINS_PATH    "share/dlite/storages")
+set(DLITE_MAPPING_PLUGINS_PATH    "share/dlite/mappings")
 set(DLITE_PYTHON_MAPPINGS_PATH    "share/dlite/python-mappings")
 set(DLITE_PYTHON_STORAGES_PATH    "share/dlite/python-storages")
+set(DLITE_TEMPLATES_PATH          "share/dlite/templates")
+set(DLITE_METADATA_PATH           "share/dlite/metadata")
 
 # Enable compiler warnings
 include(SetCompilerFlags)
@@ -179,14 +180,6 @@ endif()
 
 
 #
-# Examples
-# ========
-if(WITH_EXAMPLES)
-  add_subdirectory(examples)
-endif()
-
-
-#
 # jansson
 # =======
 if(WITH_JSON)
@@ -271,9 +264,9 @@ endif()
 
 # DLITE_STORAGE_PLUGINS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS
-  ${dlite_BINARY_DIR}/plugins
-  ${dlite_BINARY_DIR}/plugins/json   # remove
-  ${dlite_BINARY_DIR}/plugins/hdf5   # remove
+  ${dlite_BINARY_DIR}/storages
+  ${dlite_BINARY_DIR}/storages/json   # remove
+  ${dlite_BINARY_DIR}/storages/hdf5   # remove
   $ENV{DLITE_STORAGE_PLUGINS}
   )
 list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
@@ -285,20 +278,6 @@ set(dlite_MAPPING_PLUGINS
   $ENV{DLITE_MAPPING_PLUGINS}
   )
 list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
-
-# DLITE_TEMPLATES - search path for DLite templates
-set(dlite_TEMPLATES
-  ${dlite-tools_SOURCE_DIR}/templates
-  $ENV{DLITE_TEMPLATES}
-  )
-list(REMOVE_DUPLICATES dlite_TEMPLATES)
-
-# DLITE_STORAGES - search path for DLite metadata
-set(dlite_STORAGES
-  ${dlite-tools_SOURCE_DIR}/metadata/*.json
-  $ENV{DLITE_STORAGES}
-  )
-list(REMOVE_DUPLICATES dlite_STORAGES)
 
 # DLITE_PYTHON_STORAGES - search path for Python storage plugins
 set(dlite_PYTHON_STORAGES
@@ -314,16 +293,30 @@ set(dlite_PYTHON_MAPPINGS
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_MAPPINGS)
 
+# DLITE_TEMPLATES - search path for DLite templates
+set(dlite_TEMPLATES
+  ${dlite-tools_SOURCE_DIR}/templates
+  $ENV{DLITE_TEMPLATES}
+  )
+list(REMOVE_DUPLICATES dlite_TEMPLATES)
+
+# DLITE_METADATA - search path for DLite metadata
+set(dlite_METADATA
+  ${dlite-tools_SOURCE_DIR}/metadata/*.json
+  $ENV{DLITE_METADATA}
+  )
+list(REMOVE_DUPLICATES dlite_STORAGES)
+
 if(UNIX)
   string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
   string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH  "${dlite_LD_LIBRARY_PATH}")
   string(REPLACE ";" ":" dlite_PYTHONPATH       "${dlite_PYTHONPATH}")
   string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
   string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
-  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
-  string(REPLACE ";" ":" dlite_STORAGES         "${dlite_STORAGES}")
   string(REPLACE ";" ":" dlite_PYTHON_STORAGES  "${dlite_PYTHON_STORAGES}")
   string(REPLACE ";" ":" dlite_PYTHON_MAPPINGS  "${dlite_PYTHON_MAPPINGS}")
+  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
+  string(REPLACE ";" ":" dlite_METADATA         "${dlite_METADATA}")
 endif()
 
 #################################################################
@@ -336,10 +329,10 @@ message("export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
 message("export PYTHONPATH=${dlite_PYTHONPATH}")
 message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 message("export DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
-message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
-message("export DLITE_STORAGES=${dlite_STORAGES}")
 message("export DLITE_PYTHON_STORAGES=${dlite_PYTHON_STORAGES}")
 message("export DLITE_PYTHON_MAPPINGS=${dlite_PYTHON_MAPPINGS}")
+message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
+message("export DLITE_METADATA=${dlite_METADATA}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
@@ -368,16 +361,21 @@ endif()
 
 # Storage plugins
 if(WITH_HDF5)
-  add_subdirectory(plugins/hdf5)
+  add_subdirectory(storages/hdf5)
 endif()
 if(WITH_JSON)
-  add_subdirectory(plugins/json)
+  add_subdirectory(storages/json)
 endif()
 if(WITH_POSTGRESQL)
-  add_subdirectory(plugins/postgresql)
+  add_subdirectory(storages/postgresql)
 endif()
 if(WITH_PYTHON)
-  add_subdirectory(plugins/python)
+  add_subdirectory(storages/python)
+endif()
+
+# Examples
+if(WITH_EXAMPLES)
+  add_subdirectory(examples)
 endif()
 
 #################################################################

@@ -38,11 +38,6 @@ target_include_directories(dlite-example-1 PUBLIC
   )
 
 
-install(
-  FILES Chemistry-0.1.json
-  DESTINATION share/dlite/examples/entities
-  )
-
 enable_testing()
 
 add_test(

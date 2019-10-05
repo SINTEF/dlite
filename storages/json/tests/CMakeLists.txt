@@ -15,14 +15,14 @@ add_custom_target(
   copy-dlite-plugins-json
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:dlite-plugins-json>
-    ${dlite_BINARY_DIR}/plugins/json/tests
+    ${dlite_BINARY_DIR}/storages/json/tests
   )
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test} dlite-plugins-json)
   target_include_directories(${test} PRIVATE
-    ${dlite_SOURCE_DIR}/plugins/json
+    ${dlite_SOURCE_DIR}/storages/json
     ${dlite-src_SOURCE_DIR}/tests
     )
   add_dependencies(${test} copy-dlite-plugins-json)
@@ -33,7 +33,7 @@ foreach(test ${tests})
     )
 
 
-  #set(dlite_PATH ${dlite_PATH} ${dlite_BINARY_DIR}/plugins/json)
+  #set(dlite_PATH ${dlite_PATH} ${dlite_BINARY_DIR}/storages/json)
   #if(UNIX)
   #  string(REPLACE ";" ":" dlite_PATH ${dlite_PATH})
   #endif()
