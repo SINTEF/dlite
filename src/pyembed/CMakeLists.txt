@@ -48,7 +48,7 @@ set_target_properties(dlite-pyembed PROPERTIES
 
 install(
   TARGETS dlite-pyembed
-  EXPORT  dliteConfig
+  EXPORT  dliteTargets
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin

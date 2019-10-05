@@ -456,7 +456,7 @@ install(
   )
 
 install(
-  EXPORT dliteConfig
+  EXPORT dliteTargets
   DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   #NAMESPACE dlite::
   )
