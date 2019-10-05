@@ -53,24 +53,13 @@ set(DLITE_PYTHON_MAPPINGS_DIR   "share/dlite/python-mappings")
 set(DLITE_PYTHON_STORAGES_DIR   "share/dlite/python-storages")
 
 # Install path for CMake files
-get_property(USE_LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
-if(USE_LIB64)
-    set(LIBSUFFIX 64)
-else()
-    set(LIBSUFFIX "")
-endif()
-
 if(WIN32 AND NOT CYGWIN)
   set(DEF_INSTALL_CMAKE_DIR cmake)
 else()
-  set(DEF_INSTALL_CMAKE_DIR lib${LIBSUFFIX}/cmake/dlite)
+  set(DEF_INSTALL_CMAKE_DIR lib/cmake/dlite)
 endif()
-
 set(DLITE_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
   "Installation directory for CMake files")
-
-# Destination of the installed config files (relative path):
-#set(CMAKE_CONFIG_DEST "share/cmake/Modules")
 
 
 # Testing
