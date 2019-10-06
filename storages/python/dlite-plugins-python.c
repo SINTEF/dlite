@@ -18,6 +18,38 @@
 #include "pyembed/dlite-python-storage.h"
 
 
+
+DLiteStorage *opener(const char *uri, const char *options)
+{
+  //PyObject *open;
+  UNUSED(uri);
+  UNUSED(options);
+
+  return NULL;
+}
+
+int closer(DLiteStorage *s)
+{
+  UNUSED(s);
+  return 0;
+}
+
+DLiteInstance *instance_getter(const DLiteStorage *s, const char *uuid)
+{
+  UNUSED(s);
+  UNUSED(uuid);
+  return NULL;
+}
+
+int instance_setter(DLiteStorage *s, const DLiteInstance *inst)
+{
+  UNUSED(s);
+  UNUSED(inst);
+  return 0;
+}
+
+
+
 /*
   Free's internal resources in `api`.
 */
@@ -29,28 +61,27 @@ static void freer(DLiteStoragePlugin *api)
 
 
 /*
-  Loads all Python storages (if needed).
-
-/*
   Returns API provided by storage plugin `name` implemented in Python.
 */
-DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
+DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
 {
   int n;
   DLiteStoragePlugin *api=NULL, *retval=NULL;
-  PyObject *storages=NULL, *cls=NULL;
+  PyObject *storages=NULL, *cls=NULL, *name=NULL;
+  PyObject *open=NULL, *close=NULL, *get_instance=NULL, *set_instance=NULL;
   const char *classname=NULL;
 
-  printf("\n=== PythonStoragePlugin\n");
+  printf("\n=== PythonStoragePlugin (iter=%d)\n", *iter);
 
   if (!(storages = dlite_python_storage_load())) goto fail;
 
-  printf("\n=== storages:\n");
+  printf("\n=== storages: ");
   PyObject_Print(storages, stdout, 0);
-  printf("===\n");
 
   assert(PyList_Check(storages));
   n = PyList_Size(storages);
+
+  printf("\n=== n=%d\n", n);
 
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
@@ -63,61 +94,42 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
   if (!(classname = dlite_pyembed_classname(cls)))
     dlite_warnx("cannot get class name for API %s", *((char **)api));
 
-#if 0
-
   /* get attributes to fill into the api */
   if (!(name = PyObject_GetAttrString(cls, "name")))
     FAIL1("'%s' has no attribute: 'name'", classname);
   if (!PyUnicode_Check(name))
     FAIL1("attribute 'name' of '%s' is not a string", classname);
 
-  if (!(out_uri = PyObject_GetAttrString(cls, "output_uri")))
-    FAIL1("'%s' has no attribute: 'output_uri'", classname);
-  if (!PyUnicode_Check(out_uri))
-    FAIL1("attribute 'output_uri' of '%s' is not a string", classname);
+  if (!(open = PyObject_GetAttrString(cls, "open")))
+    FAIL1("'%s' has no method: 'open'", classname);
+  if (!PyCallable_Check(open))
+    FAIL1("attribute 'open' of '%s' is not callable", classname);
 
-  if (!(in_uris = PyObject_GetAttrString(cls, "input_uris")))
-    FAIL1("'%s' has no attribute: 'input_uris'", classname);
-  if (!PySequence_Check(in_uris))
-    FAIL1("attribute 'input_uris' of '%s' is not a sequence", classname);
+  if (!(close = PyObject_GetAttrString(cls, "close")))
+    FAIL1("'%s' has no method: 'close'", classname);
+  if (!PyCallable_Check(close))
+    FAIL1("attribute 'close' of '%s' is not callable", classname);
 
-  if (!(input_uris = calloc(PySequence_Length(in_uris), sizeof(char *))))
-    FAIL("allocation failure");
-  for (i=0; i < PySequence_Length(in_uris); i++) {
-    PyObject *in_uri = PySequence_GetItem(in_uris, i);
-    if (!in_uri || !PyUnicode_Check(in_uri)) {
-      Py_XDECREF(in_uri);
-      FAIL2("item %d of attribute 'input_uris' of '%s' is not a string",
-            i, classname);
-    }
-    input_uris[i] = PyUnicode_DATA(in_uri);
-    Py_DECREF(in_uri);
-  }
+  if (!(get_instance = PyObject_GetAttrString(cls, "get_instance")))
+    FAIL1("'%s' has no method: 'get_instance'", classname);
+  if (!PyCallable_Check(get_instance))
+    FAIL1("attribute 'get_instance' of '%s' is not callable", classname);
 
-  if (!(map = PyObject_GetAttrString(cls, "map")))
-    FAIL1("'%s' has no method: 'map'", classname);
-  if (!PyCallable_Check(map))
-    FAIL1("attribute 'map' of '%s' is not callable", classname);
-
-  if ((pcost = PyObject_GetAttrString(cls, "cost")) && PyLong_Check(pcost))
-    cost = PyLong_AsLong(pcost);
-#endif
+  if ((set_instance = PyObject_GetAttrString(cls, "set_instance")) &&
+      !PyCallable_Check(set_instance))
+    FAIL1("attribute 'set_instance' of '%s' is not callable", classname);
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
     FAIL("allocation failure");
 
-  /*
   api->name = PyUnicode_DATA(name);
-  api->output_uri = PyUnicode_DATA(out_uri);
-  api->ninput = PySequence_Length(in_uris);
-  api->input_uris = input_uris;
-  api->mapper = mapper;
+  api->open = opener;
+  api->close = closer;
+  api->getInstance = instance_getter;
+  api->setInstance = instance_setter;
   api->freer = freer;
-  api->cost = cost;
   api->data = (void *)cls;
   Py_INCREF(cls);
-  */
-  api->freer = freer;
 
   retval = api;
  fail:
@@ -125,12 +137,10 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
     free(api);
     api = NULL;
   }
-  /*
   Py_XDECREF(name);
-  Py_XDECREF(out_uri);
-  Py_XDECREF(in_uris);
-  Py_XDECREF(map);
-  Py_XDECREF(pcost);
-  */
+  Py_XDECREF(open);
+  Py_XDECREF(close);
+  Py_XDECREF(get_instance);
+  Py_XDECREF(set_instance);
   return api;
 }

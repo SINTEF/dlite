@@ -3,8 +3,9 @@
 
 #include "minunit/minunit.h"
 
-#include "dlite-macros.h"
 #include "dlite.h"
+#include "dlite-macros.h"
+#include "dlite-storage-plugins.h"
 
 DLiteStorage *s=NULL;
 
@@ -48,6 +49,35 @@ MU_TEST(test_get_driver)
   mu_assert_string_eq("json", driver);
 }
 
+MU_TEST(test_plugin_iter)
+{
+  int n=0;
+  const DLiteStoragePlugin *api;
+  DLiteStoragePluginIter *iter = dlite_storage_plugin_iter_create();
+  printf("\nStorage plugins:\n");
+  while ((api = dlite_storage_plugin_iter_next(iter))) {
+    printf("  - api %d: '%s'\n", n, api->name);
+    n++;
+  }
+  dlite_storage_plugin_iter_free(iter);
+}
+
+MU_TEST(test_load_all)
+{
+  int n=0;
+  const DLiteStoragePlugin *api;
+  DLiteStoragePluginIter *iter;
+  mu_assert_int_eq(0, dlite_storage_plugin_load_all());
+  iter = dlite_storage_plugin_iter_create();
+  printf("\n\nStorage plugins (after calling load_all):\n");
+  while ((api = dlite_storage_plugin_iter_next(iter))) {
+    printf("  - api %d: '%s'\n", n, api->name);
+    n++;
+  }
+  dlite_storage_plugin_iter_free(iter);
+}
+
+
 MU_TEST(test_close)
 {
   mu_assert_int_eq(0, dlite_storage_close(s));
@@ -67,6 +97,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_idflag);
   MU_RUN_TEST(test_uuids);
   MU_RUN_TEST(test_get_driver);
+  MU_RUN_TEST(test_plugin_iter);
+  MU_RUN_TEST(test_load_all);
 
   MU_RUN_TEST(test_close);  /* teardown */
 }

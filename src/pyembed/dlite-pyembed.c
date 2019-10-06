@@ -290,6 +290,10 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
   if (!(baseclass = PyDict_GetItemString(main_dict, baseclassname)))
     FAIL1("cannot get base class '%s' from the main dict", baseclassname);
 
+  printf("*** paths: n=%lu\n", paths->n);
+
+
+
   /* Load all modules in `paths` */
   if (!(iter = fu_startmatch("*.py", paths))) goto fail;
   while ((path = fu_nextmatch(iter))) {
@@ -297,6 +301,8 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     FILE *fp=NULL;
     char *basename=NULL;
     PyObject *ret;
+
+    printf("*** path: '%s'\n", path);
 
     /* Set __main__.__dict__['__file__'] = path */
     if (!(ppath = PyUnicode_FromString(path)))

@@ -117,6 +117,10 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
 */
 int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api);
 
+/**
+  Load all plugins that can be found in the plugin search path.
+ */
+int dlite_storage_plugin_load_all();
 
 /**
   Returns a pointer to a new plugin iterator or NULL on error.  It
@@ -360,29 +364,6 @@ typedef int (*SetInstance)(DLiteStorage *s, const DLiteInstance *inst);
 
 /** @} */
 
-
-// /**
-//  * @name Specialised api for single-entity storage
-//  * Signatures of specialised functions for loading/saving a storage
-//  * containing only a single entity.
-//  *
-//  * These functions are probably only relevant for the JSON plugin to
-//  * define for loading/storing standard entity json-files.
-//  * @{
-//  */
-//
-// /**
-//   Returns a new entity loaded from storage `s` with single-entity layout.
-//  */
-// /* FIXME - remove uuid argument, since it is not needed */
-// typedef DLiteMeta *(*GetEntity)(const DLiteStorage *s, const char *uuid);
-//
-// /**
-//   Stores entity `e` to storage `s`, using the single-entity layout.
-//  */
-// typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
-//
-// /** @} */
 
 
 /**

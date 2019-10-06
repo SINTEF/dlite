@@ -21,3 +21,16 @@
                         doc='Name of driver associated with this storage')
   %}
 }
+
+
+%extend StoragePluginIter {
+
+  %pythoncode %{
+      def __next__(self):
+          name = self.next()
+          if not name:
+              raise StopIteration()
+          return name
+  %}
+
+}

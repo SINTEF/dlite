@@ -41,6 +41,12 @@ add_definitions(
   #-DWITH_DEBUG
   )
 
+
+# We are building both shared and static libraries.  User software will
+# normally link to the shared libraries.  However, to simplify the
+# library search (especially on Windows), the storage plugins will use
+# the static libraries.  For this to work, the static libraries will be
+# build position independent.
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
@@ -89,6 +95,10 @@ install(
   PUBLIC_HEADER DESTINATION include/dlite
   INCLUDES DESTINATION include/dlite
 )
+
+# Install empty directories
+install(DIRECTORY DESTINATION share/dlite/storages)
+install(DIRECTORY DESTINATION share/dlite/mapping-plugins)
 
 
 # install .pdb files - seems to be needed on Windows if we are

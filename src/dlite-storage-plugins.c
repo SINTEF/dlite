@@ -96,6 +96,17 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
   return plugin_register_api(info, api);
 }
 
+/*
+  Load all plugins that can be found in the plugin search path.
+  Returns non-zero on error.
+ */
+int dlite_storage_plugin_load_all()
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return 1;
+  plugin_load_all(info);
+  return 0;
+}
 
 /*
   Returns a pointer to a new plugin iterator or NULL on error.  It

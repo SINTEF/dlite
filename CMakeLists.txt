@@ -46,11 +46,11 @@ endif()
 # Install paths
 # -------------
 # DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_TEMPLATES_DIR         "share/dlite/templates")
-set(DLITE_STORAGES_DIR          "share/dlite/storages")
-set(DLITE_MAPPINGS_DIR          "share/dlite/mappings")
-set(DLITE_PYTHON_MAPPINGS_DIR   "share/dlite/python-mappings")
-set(DLITE_PYTHON_STORAGES_DIR   "share/dlite/python-storages")
+set(DLITE_TEMPLATES_DIR              "share/dlite/templates")
+set(DLITE_STORAGE_PLUGINS_DIR        "share/dlite/storage-plugins")
+set(DLITE_MAPPING_PLUGINS_DIR        "share/dlite/mapping-plugins")
+set(DLITE_PYTHON_MAPPING_PLUGINS_DIR "share/dlite/python-mapping-plugins")
+set(DLITE_PYTHON_STORAGE_PLUGINS_DIR "share/dlite/python-storage-plugins")
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
@@ -287,9 +287,9 @@ endif()
 
 # DLITE_STORAGE_PLUGINS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS
-  ${dlite_BINARY_DIR}/storages
-  ${dlite_BINARY_DIR}/storages/json   # remove
-  ${dlite_BINARY_DIR}/storages/hdf5   # remove
+  ${dlite_BINARY_DIR}/storages/json
+  ${dlite_BINARY_DIR}/storages/hdf5
+  ${dlite_BINARY_DIR}/storages/python
   $ENV{DLITE_STORAGE_PLUGINS}
   )
 list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
@@ -297,24 +297,23 @@ list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 # DLITE_MAPPING_PLUGINS - search path for DLite mapping plugins
 set(dlite_MAPPING_PLUGINS
   ${dlite-src-pyembed_BINARY_DIR}
-  ${dlite_BINARY_DIR}/mappings
   $ENV{DLITE_MAPPING_PLUGINS}
   )
 list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
 
-# DLITE_PYTHON_STORAGES - search path for Python storage plugins
-set(dlite_PYTHON_STORAGES
-  ${dlite-src-pyembed_SOURCE_DIR}/storages
-  $ENV{DLITE_PYTHON_STORAGES}
+# DLITE_PYTHON_STORAGE_PLUGINS - search path for Python storage plugins
+set(dlite_PYTHON_STORAGE_PLUGINS
+  ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+  $ENV{DLITE_PYTHON_STORAGE_PLUGINS}
   )
-list(REMOVE_DUPLICATES dlite_PYTHON_STORAGES)
+list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
 
-# DLITE_PYTHON_MAPPINGS - search path for Python mapping plugins
-set(dlite_PYTHON_MAPPINGS
-  ${dlite-src-pyembed_SOURCE_DIR}/mappings
-  $ENV{DLITE_PYTHON_MAPPINGS}
+# DLITE_PYTHON_MAPPING_PLUGINS - search path for Python mapping plugins
+set(dlite_PYTHON_MAPPING_PLUGINS
+  ${dlite-src-pyembed_SOURCE_DIR}/mapping-plugins
+  $ENV{DLITE_PYTHON_MAPPING_PLUGINS}
   )
-list(REMOVE_DUPLICATES dlite_PYTHON_MAPPINGS)
+list(REMOVE_DUPLICATES dlite_PYTHON_MAPPING_PLUGINS)
 
 # DLITE_TEMPLATES - search path for DLite templates
 set(dlite_TEMPLATES
@@ -328,7 +327,7 @@ set(dlite_METADATA
   ${dlite-tools_SOURCE_DIR}/metadata/*.json
   $ENV{DLITE_METADATA}
   )
-list(REMOVE_DUPLICATES dlite_STORAGES)
+list(REMOVE_DUPLICATES dlite_METADATA)
 
 if(UNIX)
   string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
@@ -336,8 +335,8 @@ if(UNIX)
   string(REPLACE ";" ":" dlite_PYTHONPATH       "${dlite_PYTHONPATH}")
   string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
   string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
-  string(REPLACE ";" ":" dlite_PYTHON_STORAGES  "${dlite_PYTHON_STORAGES}")
-  string(REPLACE ";" ":" dlite_PYTHON_MAPPINGS  "${dlite_PYTHON_MAPPINGS}")
+  string(REPLACE ";" ":" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
+  string(REPLACE ";" ":" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
   string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
   string(REPLACE ";" ":" dlite_METADATA         "${dlite_METADATA}")
 endif()
@@ -352,8 +351,8 @@ message("export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
 message("export PYTHONPATH=${dlite_PYTHONPATH}")
 message("export DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
 message("export DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
-message("export DLITE_PYTHON_STORAGES=${dlite_PYTHON_STORAGES}")
-message("export DLITE_PYTHON_MAPPINGS=${dlite_PYTHON_MAPPINGS}")
+message("export DLITE_PYTHON_STORAGE_PLUGINS=${dlite_PYTHON_STORAGE_PLUGINS}")
+message("export DLITE_PYTHON_MAPPING_PLUGINS=${dlite_PYTHON_MAPPING_PLUGINS}")
 message("export DLITE_TEMPLATES=${dlite_TEMPLATES}")
 message("export DLITE_METADATA=${dlite_METADATA}")
 message("")
@@ -436,10 +435,10 @@ configure_package_config_file(
     DLITE_LIBRARY_DIR
     DLITE_RUNTIME_DIR
     DLITE_TEMPLATES_DIR
-    DLITE_STORAGES_DIR
-    DLITE_MAPPINGS_DIR
-    DLITE_PYTHON_STORAGES_DIR
-    DLITE_PYTHON_MAPPINGS_DIR
+    DLITE_STORAGE_PLUGINS_DIR
+    DLITE_MAPPING_PLUGINS_DIR
+    DLITE_PYTHON_STORAGE_PLUGINS_DIR
+    DLITE_PYTHON_MAPPING_PLUGINS_DIR
     python_LIBRARIES
     JANSSON_LIBRARIES
     HDF5_LIBRARIES

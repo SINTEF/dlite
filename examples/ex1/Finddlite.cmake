@@ -10,8 +10,8 @@
 #   DLITE_TEMPLATE_DIR - Directory where templates are stored
 #   DLITE_STORAGE_PLUGINS - Directory path for storage plugins
 #   DLITE_MAPPINGS_PLUGINS - Directory path for mappings plugins
-#   DLITE_PYTHON_STORAGES - Directory path for Python storage plugins
-#   DLITE_PYTHON_MAPPINGS - Directory path for Python mapping plugins
+#   DLITE_PYTHON_STORAGE_PLUGINS - Directory path for Python storage plugins
+#   DLITE_PYTHON_MAPPING_PLUGINS - Directory path for Python mapping plugins
 #   DLITE_ROOT - Root of install directory
 #
 # Additionally the following variables will be defined, used for setting
@@ -75,11 +75,11 @@ else()
   # DLITE_MAPPINGS_PLUGINS
   set(DLITE_MAPPINGS_PLUGINS ${DLITE_ROOT}/share/dlite/mappings)
 
-  # DLITE_PYTHON_STORAGES
-  set(DLITE_PYTHON_STORAGES ${DLITE_ROOT}/share/dlite/python-storages)
+  # DLITE_PYTHON_STORAGE_PLUGINS
+  set(DLITE_PYTHON_STORAGE_PLUGINS ${DLITE_ROOT}/share/dlite/python-storages)
 
-  # DLITE_PYTHON_MAPPINGS
-  set(DLITE_PYTHON_MAPPINGS ${DLITE_ROOT}/share/dlite/python-mappings)
+  # DLITE_PYTHON_MAPPING_PLUGINS
+  set(DLITE_PYTHON_MAPPING_PLUGINS ${DLITE_ROOT}/share/dlite/python-mappings)
 
   # DLITE_LIBRARIES
   find_library(DLITE_LIBRARY

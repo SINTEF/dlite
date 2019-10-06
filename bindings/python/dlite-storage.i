@@ -1,9 +1,10 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
-//%{
-//#include "dlite.h"
-//#include "dlite-storage-plugins.h"
-//%}
+%{
+#include "dlite.h"
+#include "dlite-storage.h"
+#include "dlite-storage-plugins.h"
+%}
 
 /* Flags for how to handle instance IDs. */
 %rename(IDFlags) _DLiteIDFlags;
@@ -18,16 +19,45 @@ enum _DLiteIDFlag {
 };
 
 
+/* Storage */
+%feature("docstring", "\
+Represents a data storage.
+
+Call signatures
+---------------
+Storage(driver, uri, options)
+Storage(url)
+
+Parameters
+----------
+driver : string
+    Name of driver used to connect to the storage.
+uri : string
+    The location to the storage.  For file storages, this is the file name.
+    For web-based storages this is the location-part of the url.
+options : string
+    Additional options passed to the driver as a list of semicolon-separated
+    ``key=value`` pairs.  Each driver may have their own options.  Some
+    common options are:
+      - mode={'append','r','w'}: 'append': append to existing storage or
+        create a new one (hdf5,json).
+      - compact={'yes','no'}: Whether to store in a compact format (json).
+      - meta={'yes','no'}: Whether to format output as metadata (json).
+url : string
+    A combination of `driver`, `uri` and `options` in the form
+
+        driver://uri?options
+") _DLiteStorage;
 %rename(Storage) _DLiteStorage;
-%{
-  struct _DLiteStorage {
-    void *api;                /*!< Pointer to plugin api */
-    char *uri;                /*!< URI passed to dlite_storage_open() */
-    char *options;            /*!< Options passed to dlite_storage_open() */
-    int writable;             /*!< Whether storage is writable */
-    DLiteIDFlag idflag;       /*!< How to handle instance id's */
-  };
-%}
+//%{
+//  struct _DLiteStorage {
+//    void *api;                /*!< Pointer to plugin api */
+//    char *uri;                /*!< URI passed to dlite_storage_open() */
+//    char *options;            /*!< Options passed to dlite_storage_open() */
+//    int writable;             /*!< Whether storage is writable */
+//    DLiteIDFlag idflag;       /*!< How to handle instance id's */
+//  };
+//%}
 
 struct _DLiteStorage {
   %immutable;
@@ -37,8 +67,8 @@ struct _DLiteStorage {
   int idflag;               /*!< How to handle instance id's */
 };
 
-
 %extend _DLiteStorage {
+  %feature("docstring", "") __init__;
   _DLiteStorage(const char *driver, const char *uri, const char *options) {
     return dlite_storage_open(driver, uri, options);
   }
@@ -48,6 +78,7 @@ struct _DLiteStorage {
   ~_DLiteStorage(void) {
     dlite_storage_close($self);
   }
+  %feature("docstring", "Returns name of driver for this storage.") get_driver;
   const char *get_driver(void) {
     return dlite_storage_get_driver($self);
   }
@@ -58,6 +89,38 @@ struct _DLiteStorage {
 
   char **get_uuids(void) {
     return dlite_storage_uuids($self);
+  }
+}
+
+
+/* Plugin iterator */
+%feature("docstring", "\
+Iterates over loaded storage plugins.
+") StoragePluginIter;
+%inline %{
+  struct StoragePluginIter {
+    DLiteStoragePluginIter *iter;
+  };
+%}
+%feature("docstring", "") new_StoragePluginIter;
+%extend StoragePluginIter {
+  StoragePluginIter(void) {
+    DLiteStoragePluginIter *iter = dlite_storage_plugin_iter_create();
+    return (struct StoragePluginIter *)iter;
+  }
+  ~StoragePluginIter(void) {
+    DLiteStoragePluginIter *iter = (DLiteStoragePluginIter *)$self;
+    dlite_storage_plugin_iter_free(iter);
+  }
+  %feature("docstring", "Returns name of next plugin or None if exhausted.
+  ") next;
+  const char *next(void) {
+    DLiteStoragePluginIter *iter = (DLiteStoragePluginIter *)$self;
+    const DLiteStoragePlugin *api = dlite_storage_plugin_iter_next(iter);
+    return (api) ? api->name : NULL;
+  }
+  struct StoragePluginIter *__iter__(void) {
+    return $self;
   }
 }
 
@@ -85,7 +148,6 @@ int dlite_storage_plugin_path_insert(int n, const char *path);
 int dlite_storage_plugin_path_append(const char *path);
 int dlite_storage_plugin_path_remove(int n);
 const_char **dlite_storage_plugin_paths(void);
-
 
 %rename(storage_plugin_unload) dlite_storage_plugin_unload;
 int dlite_storage_plugin_unload(const char *name);
