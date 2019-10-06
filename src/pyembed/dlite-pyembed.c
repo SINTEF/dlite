@@ -4,6 +4,7 @@
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
 
+
 static int python_initialized = 0;
 
 /* Initialises the embedded Python environment. */
@@ -29,6 +30,8 @@ int dlite_pyembed_finalise(void)
   if (python_initialized) {
     status = Py_FinalizeEx();
     python_initialized = 0;
+  } else {
+    return dlite_errx(1, "cannot finalize Python before it is initialized");
   }
   return status;
 }

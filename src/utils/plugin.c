@@ -152,7 +152,7 @@ int plugin_register_api(PluginInfo *info, const void *api)
 
 
 /*
-  Loops up all file names matching `pattern` in the plugin search
+  Looks up all file names matching `pattern` in the plugin search
   paths in `info` and try to load it as a plugin.  If it succeeds and
   `name` matches the plugin name, the plugin is registered and a
   pointer to the plugin API is returned.

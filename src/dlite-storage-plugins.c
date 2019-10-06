@@ -14,6 +14,10 @@
 #include "dlite-storage-plugins.h"
 
 
+struct _DLiteStoragePluginIter {
+  PluginIter iter;
+};
+
 /* Global reference to storage plugin info */
 static PluginInfo *storage_plugin_info=NULL;
 
@@ -92,6 +96,42 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
   return plugin_register_api(info, api);
 }
 
+
+/*
+  Returns a pointer to a new plugin iterator or NULL on error.  It
+  should be free'ed with dlite_storage_plugin_iter_free().
+ */
+DLiteStoragePluginIter *dlite_storage_plugin_iter_create()
+{
+  PluginInfo *info;
+  DLiteStoragePluginIter *iter;
+  if (!(info = get_storage_plugin_info())) return NULL;
+  if (!(iter = calloc(1, sizeof(DLiteStoragePluginIter))))
+    return err(1, "allocation failure"), NULL;
+  plugin_api_iter_init(&iter->iter, info);
+  return iter;
+}
+
+/*
+  Returns pointer the next plugin or NULL if there a re no more plugins.
+  `iter` is the iterator returned by dlite_storage_plugin_iter_create().
+ */
+const DLiteStoragePlugin *
+dlite_storage_plugin_iter_next(DLiteStoragePluginIter *iter)
+{
+  return (const DLiteStoragePlugin *)plugin_api_iter_next(&iter->iter);
+}
+
+/*
+  Frees plugin iterator `iter` created with
+  dlite_storage_plugin_iter_create().
+ */
+void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter)
+{
+  free(iter);
+}
+
+
 /*
   Unloads and unregisters storage plugin with the given name.
   Returns non-zero on error.
@@ -102,6 +142,7 @@ int dlite_storage_plugin_unload(const char *name)
   if (!(info = get_storage_plugin_info())) return 1;
   return plugin_unload(info, name);
 }
+
 
 /*
   Returns a NULL-terminated array of pointers to search paths or NULL

@@ -41,7 +41,8 @@
 #include "dlite-entity.h"
 
 /** A struct with function pointers to all functions provided by a plugin. */
-typedef struct _DLiteStoragePlugin  DLiteStoragePlugin;
+typedef struct _DLiteStoragePlugin     DLiteStoragePlugin;
+typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
 
 /** Initial segment of all DLiteStorage plugin data structures. */
 #define DLiteStorage_HEAD                                                  \
@@ -115,6 +116,27 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
   Registers `api` for a storage plugin.  Returns non-zero on error.
 */
 int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api);
+
+
+/**
+  Returns a pointer to a new plugin iterator or NULL on error.  It
+  should be free'ed with dlite_storage_plugin_iter_free().
+ */
+DLiteStoragePluginIter *dlite_storage_plugin_iter_create();
+
+/**
+  Returns pointer the next plugin or NULL if there a re no more plugins.
+  `iter` is the iterator returned by dlite_storage_plugin_iter_create().
+ */
+const DLiteStoragePlugin *
+dlite_storage_plugin_iter_next(DLiteStoragePluginIter *iter);
+
+/**
+  Frees plugin iterator `iter` created with
+  dlite_storage_plugin_iter_create().
+ */
+void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter);
+
 
 /**
   Unloads and unregisters storage plugin with the given name.
@@ -326,8 +348,8 @@ typedef int (*SetDataName)(DLiteDataModel *d, const char *name);
  */
 
 /**
-  Returns a new entity instance from `uuid` in storage `s`.  NULL is
-  returned on error.
+  Returns a new instance from `uuid` in storage `s`.  NULL is returned
+  on error.
  */
 typedef DLiteInstance *(*GetInstance)(const DLiteStorage *s, const char *uuid);
 

@@ -13,29 +13,9 @@
 
 #include "dlite.h"
 #include "dlite-macros.h"
-#include "dlite-datamodel.h"
+#include "dlite-storage-plugins.h"
 #include "pyembed/dlite-pyembed.h"
 #include "pyembed/dlite-python-storage.h"
-
-
-
-/*
-  Loads all Python storages (if needed).
-
-  Returns a borrowed reference to a list of storage plugins (casted to
-  void *) or NULL on error.
-*/
-void *dlite_python_storage_load(void)
-{
-  if (!loaded_storages || storage_paths_modified) {
-    const FUPaths *paths;
-    if (loaded_storages) dlite_python_storage_unload();
-    if (!(paths = dlite_python_storage_paths())) return NULL;
-    loaded_storages = dlite_pyembed_load_plugins((FUPaths *)paths,
-                                                 "DLiteStorageBase");
-  }
-  return (void *)loaded_storages;
-}
 
 
 /*
@@ -48,8 +28,8 @@ static void freer(DLiteStoragePlugin *api)
 }
 
 
-
-
+/*
+  Loads all Python storages (if needed).
 
 /*
   Returns API provided by storage plugin `name` implemented in Python.
@@ -61,7 +41,14 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_api(int *iter)
   PyObject *storages=NULL, *cls=NULL;
   const char *classname=NULL;
 
+  printf("\n=== PythonStoragePlugin\n");
+
   if (!(storages = dlite_python_storage_load())) goto fail;
+
+  printf("\n=== storages:\n");
+  PyObject_Print(storages, stdout, 0);
+  printf("===\n");
+
   assert(PyList_Check(storages));
   n = PyList_Size(storages);
 
