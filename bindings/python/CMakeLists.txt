@@ -28,8 +28,6 @@ endif()
 set(py_sources
   __init__.py
   factory.py
-  datamodel/dict_datamodel.py
-  datamodel
   )
 
 
