@@ -95,14 +95,12 @@ MU_TEST(test_collection_add)
   mu_check((inst = dlite_instance_load(s, uri)));
   mu_check(!dlite_storage_close(s));
 
+  /* Add `e` and `inst` to collection and "steal" the references. */
   mu_assert_int_eq(0, dlite_collection_count(coll));
   mu_check(!dlite_collection_add_new(coll, "e", e));
   mu_check(!dlite_collection_add(coll, "inst", inst));
   mu_check(!dlite_collection_add_new(coll, "inst2", inst));
   mu_assert_int_eq(3, dlite_collection_count(coll));
-
-  /* inst goes out of scope here (but is kept in collection...) */
-  dlite_instance_decref(inst);
 }
 
 
@@ -110,7 +108,7 @@ MU_TEST(test_collection_get)
 {
   const DLiteInstance *inst;
   mu_check((inst = dlite_collection_get(coll, "inst")));
-  mu_check(!dlite_collection_get(coll,"XXX"));
+  mu_check(!dlite_collection_get(coll, "XXX"));
 }
 
 
@@ -123,7 +121,8 @@ MU_TEST(test_collection_next)
   dlite_collection_init_state(coll, &state);
   printf("\nInstances:\n");
   while ((inst = dlite_collection_next(coll, &state))) {
-    printf("  %s\n", (inst->uri) ? inst->uri : inst->uuid);
+    printf("  %s (refcount=%d)\n", (inst->uri) ? inst->uri : inst->uuid,
+           inst->refcount);
     ninst++;
   }
   dlite_collection_deinit_state(&state);
