@@ -194,6 +194,9 @@ int dlite_storage_plugin_path_remove(int n);
 /**
   Opens `uri` and returns a newly created storage for it.
 
+  The `api` argument can normally be ignored (it is needed for the
+  Python storage backend).
+
   The `options` argument provies additional input to the driver.
   Which options that are supported varies between the plugins.  It
   should be a valid URL query string of the form:
@@ -211,7 +214,8 @@ int dlite_storage_plugin_path_remove(int n);
 
   Returns NULL on error.
  */
-typedef DLiteStorage *(*Open)(const char *uri, const char *options);
+typedef DLiteStorage *
+(*Open)(const DLiteStoragePlugin *api, const char *uri, const char *options);
 
 
 /**

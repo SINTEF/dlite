@@ -437,7 +437,8 @@ static void entrylist_free(EntryList *e)
     w    Write: truncate existing file or create new file
 
  */
-DLiteStorage *dh5_open(const char *uri, const char *options)
+DLiteStorage *
+dh5_open(const DLiteStoragePlugin *api, const char *uri, const char *options)
 {
   DH5Storage *s=NULL;
   DLiteStorage *retval=NULL;
@@ -451,6 +452,8 @@ DLiteStorage *dh5_open(const char *uri, const char *options)
   };
   char *optcopy = (options) ? strdup(options) : NULL;
   const char **mode = &opts[0].value;
+  UNUSED(api);
+
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
 
   H5open();  /* Opens hdf5 library */

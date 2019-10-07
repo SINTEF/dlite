@@ -19,11 +19,16 @@
 
 
 
-DLiteStorage *opener(const char *uri, const char *options)
+DLiteStorage *
+opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
 {
-  //PyObject *open;
-  UNUSED(uri);
-  UNUSED(options);
+  PyObject *cls = (PyObject *)api->data;
+  PyObject *pyuri = PyUnicode_FromString(uri);
+  PyObject *pyoptions = PyUnicode_FromString(options);
+  PyObject *open = PyObject_GetAttrString(cls, "open");
+  assert(open);
+  assert(PyCallable_Check(open));
+  PyObject_CallFunctionObjArgs(open, uri, options, NULL);
 
   return NULL;
 }

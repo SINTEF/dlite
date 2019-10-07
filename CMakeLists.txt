@@ -18,7 +18,7 @@ option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
 option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
 option(WITH_POSTGRESQL  "Whether to build with PostgreSQL support"       OFF)
-option(WITH_PYTHON      "Whether to build Python 3 bindings"             OFF)
+option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
