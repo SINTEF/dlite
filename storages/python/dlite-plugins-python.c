@@ -34,6 +34,9 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
   PyObject *cls = (PyObject *)api->data;
   const char *classname;
 
+  printf("*** opener()\n");
+  printf("*** opener(%s, %s, %s)\n", api->name, uri, options);
+
   if (!(classname = dlite_pyembed_classname(cls)))
     dlite_warnx("cannot get class name for storage plugin %s", *((char **)api));
 
@@ -44,9 +47,6 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
   /* Check if the open() method has set attribute `writable` */
   if (PyObject_HasAttrString(obj, "writable"))
     writable = PyObject_GetAttrString(obj, "writable");
-
-
-
 
   if (!(s = calloc(1, sizeof(DLiteJsonStorage))))
     FAIL("Allocation failure");
@@ -147,7 +147,9 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
     dlite_warnx("cannot get class name for storage plugin %s", *((char **)api));
 
   /* get attributes to fill into the api */
-  if (!(name = PyObject_GetAttrString(cls, "name")))
+  if (PyObject_HasAttrString(cls, "name"))
+    name = PyObject_GetAttrString(cls, "name");
+  else
     name = PyUnicode_FromString(classname);
   if (!PyUnicode_Check(name))
     FAIL1("attribute 'name' (or '__name__') of '%s' is not a string",
@@ -163,14 +165,21 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   if (!PyCallable_Check(close))
     FAIL1("attribute 'close' of '%s' is not callable", classname);
 
-  if (!(get_instance = PyObject_GetAttrString(cls, "get_instance")))
-    FAIL1("'%s' has no method: 'get_instance'", classname);
-  if (!PyCallable_Check(get_instance))
-    FAIL1("attribute 'get_instance' of '%s' is not callable", classname);
+  if (PyObject_HasAttrString(cls, "get_instance")) {
+    get_instance = PyObject_GetAttrString(cls, "get_instance");
+    if (!PyCallable_Check(get_instance))
+      FAIL1("attribute 'get_instance' of '%s' is not callable", classname);
+  }
 
-  if ((set_instance = PyObject_GetAttrString(cls, "set_instance")) &&
-      !PyCallable_Check(set_instance))
-    FAIL1("attribute 'set_instance' of '%s' is not callable", classname);
+  if (PyObject_HasAttrString(cls, "set_instance")) {
+    set_instance = PyObject_GetAttrString(cls, "set_instance");
+    if (!PyCallable_Check(set_instance))
+      FAIL1("attribute 'set_instance' of '%s' is not callable", classname);
+  }
+
+  if (!get_instance && !set_instance)
+    FAIL1("expect either method 'get_instance()' or 'set_instance()' to be "
+          "defined in '%s' is not callable", classname);
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
     FAIL("allocation failure");
