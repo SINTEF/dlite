@@ -51,12 +51,12 @@ target_include_directories(dlite-pyembed-static PUBLIC
 
 set_target_properties(dlite-pyembed PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
-  BUILD_RPATH ${dlite-bindings-python_BINARY_DIR}
+  BUILD_RPATH "${dlite-bindings-python_BINARY_DIR}"
   PUBLIC_HEADER "dlite-pyembed.h;dlite-python-mapping.h"
   )
 set_target_properties(dlite-pyembed-static PROPERTIES
   POSITION_INDEPENDENT_CODE ON
-  BUILD_RPATH ${dlite-bindings-python_BINARY_DIR}
+  BUILD_RPATH "${dlite-bindings-python_BINARY_DIR}"
   PUBLIC_HEADER "dlite-pyembed.h;dlite-python-mapping.h"
   )
 
