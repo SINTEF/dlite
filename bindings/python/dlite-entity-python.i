@@ -237,7 +237,15 @@ class InstanceEncoder(json.JSONEncoder):
             d['meta'] = self.meta.uri
             d['description'] = self['description']
             d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
-            d['properties'] = [p.asdict() for p in self['properties']]
+            #d['properties'] = [p.asdict() for p in self['properties']]
+            dimnames = list(self.dimensions.keys())
+            props = []
+            for prop in self['properties']:
+                 p = prop.asdict()
+                 if 'dims' in p:
+                     p['dims'] = [dimnames[i] for i in p['dims']]
+                 props.append(p)
+            d['properties'] = props
         else:
             d['meta'] = self.meta.uri
             d['dimensions'] = self.dimensions
