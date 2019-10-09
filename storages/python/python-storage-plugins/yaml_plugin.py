@@ -1,5 +1,9 @@
 import os
+
+import yaml
+
 import dlite
+from dlite.options import Options
 
 print("=== loading yaml_plugin...")
 
@@ -7,7 +11,7 @@ print("=== loading yaml_plugin...")
 class yaml(DLiteStorageBase):
     """
     """
-    name = None
+    #name = 'yaml'
 
     def open(self, uri, options=None):
         """Opens `uri`.
@@ -26,17 +30,31 @@ class yaml(DLiteStorageBase):
             - append   Append to existing file or create new file (default)
             - r        Open existing file for read-only
             - w        Truncate existing file or create new file
+
+        After the options are passed, this method may set attribute
+        `writable` to true if it is writable and to false otherwise.
+        If `writable` is not set, it is assumed to be true.
         """
-        pass
+        print("*** calling open(%r, %r)" % (uri, options))
+        self.options = Options(options, default='mode=append')
+        mode = dict(r='r', w='w', append='a')[self.options.mode]
+        self.writable = False if mode == 'r' else True
+        self.f = open(uri, mode)
 
     def close(self):
         """Closes this storage."""
-        pass
+        print('*** close()')
+        self.f.close()
 
     def get_instance(self, uuid):
         """Loads `uuid` from current storage and return it as a new instance."""
+        print('*** load')
         pass
 
     def set_instance(self, inst):
         """Stores `inst` in current storage."""
-        pass
+        print('*** write')
+        if self.options.mode in ('w', 'append'):
+            raise
+            d = inst.todict()
+            yaml.dump(d, self.f)

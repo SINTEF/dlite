@@ -28,6 +28,7 @@ endif()
 set(py_sources
   __init__.py
   factory.py
+  options.py
   )
 
 

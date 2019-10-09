@@ -18,20 +18,66 @@
 #include "pyembed/dlite-python-storage.h"
 
 
+typedef struct {
+  DLiteStorage_HEAD
+  PyObject *obj;      /* Python instance of storage class */
+} DLiteJsonStorage;
+
+
 
 DLiteStorage *
 opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
 {
+  DLiteJsonStorage *s=NULL;
+  DLiteStorage *retval=NULL;
+  PyObject *obj=NULL, *v=NULL, *writable=NULL;
   PyObject *cls = (PyObject *)api->data;
-  PyObject *pyuri = PyUnicode_FromString(uri);
-  PyObject *pyoptions = PyUnicode_FromString(options);
-  PyObject *open = PyObject_GetAttrString(cls, "open");
-  assert(open);
-  assert(PyCallable_Check(open));
-  PyObject_CallFunctionObjArgs(open, uri, options, NULL);
+  const char *classname;
 
-  return NULL;
+  if (!(classname = dlite_pyembed_classname(cls)))
+    dlite_warnx("cannot get class name for storage plugin %s", *((char **)api));
+
+  if (!(obj = PyObject_CallObject(cls, NULL)))
+    FAIL1("error instantiating %s", classname);
+  v = PyObject_CallMethod(obj, "open", "ss", uri, options);
+
+  /* Check if the open() method has set attribute `writable` */
+  if (PyObject_HasAttrString(obj, "writable"))
+    writable = PyObject_GetAttrString(obj, "writable");
+
+
+
+
+  if (!(s = calloc(1, sizeof(DLiteJsonStorage))))
+    FAIL("Allocation failure");
+  s->api = api;
+  s->uri = strdup(uri);
+  s->options = strdup(options);
+  s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
+  s->obj = obj;
+
+  //PyObject *cls = (PyObject *)api->data;
+  //PyObject *pyuri = PyUnicode_FromString(uri);
+  //PyObject *pyoptions = PyUnicode_FromString(options);
+  //PyObject *open = PyObject_GetAttrString(cls, "open");
+  //assert(open);
+  //assert(PyCallable_Check(open));
+  //
+  //PyObject_CallFunctionObjArgs(open, uri, options, NULL);
+
+  retval = (DLiteStorage *)s;
+ fail:
+  if (s && !retval) {
+    free(s->uri);
+    free(s->options);
+    Py_DECREF(s->obj);
+    free(s);
+  }
+  Py_XDECREF(v);
+  Py_XDECREF(writable);
+  return retval;
 }
+
 
 int closer(DLiteStorage *s)
 {
@@ -89,6 +135,7 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   printf("\n=== n=%d\n", n);
 
   /* get class implementing the plugin API */
+  dlite_errclr();
   if (*iter < 0 || *iter >= n)
     FAIL1("API iterator index is out of range: %d", *iter);
   cls = PyList_GetItem(storages, *iter);
@@ -97,13 +144,14 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
 
   /* get classname for error messages */
   if (!(classname = dlite_pyembed_classname(cls)))
-    dlite_warnx("cannot get class name for API %s", *((char **)api));
+    dlite_warnx("cannot get class name for storage plugin %s", *((char **)api));
 
   /* get attributes to fill into the api */
   if (!(name = PyObject_GetAttrString(cls, "name")))
-    FAIL1("'%s' has no attribute: 'name'", classname);
+    name = PyUnicode_FromString(classname);
   if (!PyUnicode_Check(name))
-    FAIL1("attribute 'name' of '%s' is not a string", classname);
+    FAIL1("attribute 'name' (or '__name__') of '%s' is not a string",
+          (char *)PyUnicode_DATA(name));
 
   if (!(open = PyObject_GetAttrString(cls, "open")))
     FAIL1("'%s' has no method: 'open'", classname);
@@ -147,5 +195,7 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   Py_XDECREF(close);
   Py_XDECREF(get_instance);
   Py_XDECREF(set_instance);
+
+  printf("--> api=%p\n", (void *)api);
   return api;
 }
