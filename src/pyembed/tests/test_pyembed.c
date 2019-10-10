@@ -69,7 +69,7 @@ MU_TEST(test_get_address)
 MU_TEST(test_get_instance)
 {
   const char *id = "http://meta.sintef.no/0.3/EntitySchema";
-  PyObject *instance = dlite_pyembed_get_instance(id);
+  PyObject *instance = dlite_pyembed_from_instance(id);
   mu_check(instance);
   printf("\nPython instance: ");
   PyObject_Print(instance, stdout, 0);

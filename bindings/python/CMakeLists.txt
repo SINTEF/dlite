@@ -29,6 +29,7 @@ set(py_sources
   __init__.py
   factory.py
   options.py
+  utils.py
   )
 
 
@@ -83,7 +84,12 @@ swig_link_libraries(dlite
 #
 # Create a working Python package in binary dir
 # ---------------------------------------------
-ADD_CUSTOM_COMMAND(
+set(abs_sources)
+foreach(source ${py_sources})
+  list(APPEND abs_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
+endforeach()
+
+add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -91,12 +97,15 @@ ADD_CUSTOM_COMMAND(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
     ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
+    ${abs_sources}
     ${CMAKE_CURRENT_BINARY_DIR}/dlite
+  DEPENDS
+    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
+    ${abs_sources}
   )
 
-#foreach(source ${py_sources})
-#  configure_file(${source} dlite/${source} COPYONLY)
-#endforeach()
+# Copy to binary dir again...
 file(COPY ${py_sources} DESTINATION dlite)
 
 
@@ -128,6 +137,11 @@ install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
   DESTINATION ${PYTHON_MODULE_PATH}
   )
+
+install(
+  FILES ${py_sources}
+  DESTINATION ${PYTHON_MODULE_PATH}
+)
 
 
 #

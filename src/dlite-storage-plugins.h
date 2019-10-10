@@ -359,12 +359,12 @@ typedef int (*SetDataName)(DLiteDataModel *d, const char *name);
   Returns a new instance from `uuid` in storage `s`.  NULL is returned
   on error.
  */
-typedef DLiteInstance *(*GetInstance)(const DLiteStorage *s, const char *uuid);
+typedef DLiteInstance *(*LoadInstance)(const DLiteStorage *s, const char *uuid);
 
 /**
   Stores instance `inst` to storage `s`.  Returns non-zero on error.
  */
-typedef int (*SetInstance)(DLiteStorage *s, const DLiteInstance *inst);
+typedef int (*SaveInstance)(DLiteStorage *s, const DLiteInstance *inst);
 
 /** @} */
 
@@ -419,8 +419,8 @@ struct _DLiteStoragePlugin {
   SetDataName        setDataName;      /*!< Assigns name to instance */
 
   /* Direct api */
-  GetInstance        getInstance;      /*!< Returns new instance from storage */
-  SetInstance        setInstance;      /*!< Stores an instance */
+  LoadInstance       loadInstance;     /*!< Returns new instance from storage */
+  SaveInstance       saveInstance;     /*!< Stores an instance */
 
   /* Specialised api */
   //GetEntity          getEntity;        /*!< Returns a new Entity from storage */

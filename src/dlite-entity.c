@@ -345,7 +345,6 @@ int dlite_instance_incref(DLiteInstance *inst)
   return ++inst->refcount;
 }
 
-
 /*
   Decrease reference count to `inst`.  If the reference count reaches
   zero, the instance is free'ed.
@@ -513,8 +512,8 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   const char *uri=NULL;
 
   /* check if storage implements the direct api */
-  if (s->api->getInstance) {
-    inst = s->api->getInstance(s, id);
+  if (s->api->loadInstance) {
+    inst = s->api->loadInstance(s, id);
     if (metaid)
       return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
     else
@@ -663,8 +662,8 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   if (!(meta = inst->meta)) return errx(-1, "no metadata available");
 
   /* check if storage implements the direct api */
-  if (s->api->setInstance)
-    return s->api->setInstance(s, inst);
+  if (s->api->saveInstance)
+    return s->api->saveInstance(s, inst);
 
   /* proceede with the datamodel api... */
   if (!(d = dlite_datamodel(s, inst->uuid))) goto fail;

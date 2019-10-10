@@ -1,16 +1,28 @@
+import os
+
 import dlite
 
-iter = dlite.StoragePluginIter()
 
-s1 = dlite.Storage('json', 'test.json', 'mode=w')
-s2 = dlite.Storage('hdf5', 'test.h5', 'mode=w')
-s3 = dlite.Storage('yaml', 'test.yaml', 'mode=w')
+thisdir = os.path.dirname(__file__)
 
-inst = dlite.get_instance(dlite.ENTITY_SCHEMA)
-inst.save(s3)
+url = 'json://' + os.path.join(thisdir, 'Person.json')  #+ "?mode=r"
+Person = dlite.Instance(url)
+
+person = Person(dims=[2])
+person.name = 'Ada'
+person.age = 12.5
+person.skills = ['skiing', 'jumping']
 
 
-#name = iter.__next__()
-#print(name)
+with dlite.Storage('yaml', 'test.yaml', 'mode=w') as s:
+    #s.save(person)
+    person.save(s)
 
-#s = dlite.Storage('yaml', 'test.yaml', 'mode=w')
+
+
+print('=== loading...')
+with dlite.Storage('yaml', 'test.yaml', 'mode=r') as s:
+    #inst = s.load(id=person.uuid)
+    inst = dlite.Instance(s, person.uuid)
+
+print(inst)

@@ -11,9 +11,12 @@ find_package(PythonLibs REQUIRED)
 
 add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
-  dlite-static
-  dlite-pyembed-static
-  dlite-utils-static
+  #dlite-static
+  #dlite-pyembed-static
+  #dlite-utils-static
+  dlite
+  dlite-pyembed
+  dlite-utils
   ${PYTHON_LIBRARIES}
   )
 target_include_directories(dlite-plugins-python PUBLIC
@@ -48,4 +51,4 @@ install(
   PATTERN "*~" EXCLUDE
 )
 # tests
-#add_subdirectory(tests)
+add_subdirectory(tests)

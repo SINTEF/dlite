@@ -16,6 +16,7 @@
 
 #include "utils/fileutils.h"
 #include "utils/plugin.h"
+#include "dlite.h"
 
 /* Declarations from utils/fileutils.h - this file cannot be included because
    of conflicts with Python.h */
@@ -46,6 +47,7 @@ int dlite_pyembed_finalise(void);
 */
 const char *dlite_pyembed_classname(PyObject *cls);
 
+
 /**
   Reports and restes Python error.
 
@@ -61,6 +63,18 @@ int dlite_pyembed_err(int eval, const char *msg, ...);
  */
 int dlite_pyembed_verr(int eval, const char *msg, va_list ap);
 
+/**
+  Checks if an Python error has occured.  Returns zero if no error has
+  occured.  Otherwise dlite_pyembed_err() is called and non-zero is
+  returned.
+ */
+int dlite_pyembed_err_check(const char *msg, ...);
+
+/**
+  Like dlite_pyembed_err_check() but takes a `va_list` as input.
+ */
+int dlite_pyembed_verr_check(const char *msg, va_list ap);
+
 
 /**
   Loads the Python C extension module "_dlite" and returns the address
@@ -74,7 +88,12 @@ void *dlite_pyembed_get_address(const char *symbol);
   Returns a Python representation of dlite instance with given id or NULL
   on error.
 */
-PyObject *dlite_pyembed_get_instance(const char *id);
+PyObject *dlite_pyembed_from_instance(const char *id);
+
+/**
+  Returns a DLite instance from Python representation or NULL on error.
+*/
+DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst);
 
 
 /**

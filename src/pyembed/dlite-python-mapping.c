@@ -158,7 +158,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
     FAIL("failed to create list");
   for (i=0; i<n; i++) {
     PyObject *pyinst;
-    if (!(pyinst = dlite_pyembed_get_instance(instances[i]->uuid))) goto fail;
+    if (!(pyinst = dlite_pyembed_from_instance(instances[i]->uuid))) goto fail;
     PyList_SetItem(insts, i, pyinst);
   }
 
@@ -178,7 +178,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
      C instance */
   if (!(pyuuid = PyObject_GetAttrString(outinst, "uuid")))
     FAIL("output instance has no such attribute: uuid");
-  if (!PyUnicode_Check(pyuuid) || !(uuid = PyUnicode_DATA(pyuuid)))
+  if (!PyUnicode_Check(pyuuid) || !(uuid = PyUnicode_AsUTF8(pyuuid)))
     FAIL("cannot convert uuid");
   if (!(inst = dlite_instance_get(uuid)))
     FAIL1("no such instance: %s", uuid);
@@ -257,7 +257,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
       FAIL2("item %d of attribute 'input_uris' of '%s' is not a string",
             i, classname);
     }
-    input_uris[i] = PyUnicode_DATA(in_uri);
+    input_uris[i] = PyUnicode_AsUTF8(in_uri);
     Py_DECREF(in_uri);
   }
 
@@ -272,8 +272,8 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   if (!(api = calloc(1, sizeof(DLiteMappingPlugin))))
     FAIL("allocation failure");
 
-  api->name = PyUnicode_DATA(name);
-  api->output_uri = PyUnicode_DATA(out_uri);
+  api->name = PyUnicode_AsUTF8(name);
+  api->output_uri = PyUnicode_AsUTF8(out_uri);
   api->ninput = PySequence_Length(in_uris);
   api->input_uris = input_uris;
   api->mapper = mapper;

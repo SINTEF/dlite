@@ -133,6 +133,11 @@ class InstanceEncoder(json.JSONEncoder):
     return strdup(buff);
   }
 
+  %newobject _c_ptr;
+  PyObject *_c_ptr(void) {
+    return PyCapsule_New($self, NULL, NULL);
+  }
+
   %pythoncode %{
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
     dimensions = property(
@@ -230,11 +235,14 @@ class InstanceEncoder(json.JSONEncoder):
     def asdict(self):
         """Returns a dict representation of self."""
         d = OrderedDict()
+        d['uuid'] = self.uuid
+        d['meta'] = self.meta.uri
+        if self.uri:
+            d['uri'] = self.uri
         if self.is_meta:
             d['name'] = self['name']
             d['version'] = self['version']
             d['namespace'] = self['namespace']
-            d['meta'] = self.meta.uri
             d['description'] = self['description']
             d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
             #d['properties'] = [p.asdict() for p in self['properties']]
@@ -247,7 +255,6 @@ class InstanceEncoder(json.JSONEncoder):
                  props.append(p)
             d['properties'] = props
         else:
-            d['meta'] = self.meta.uri
             d['dimensions'] = self.dimensions
             d['properties'] = self.properties
         if 'relations' in self:
