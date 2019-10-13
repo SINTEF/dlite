@@ -31,12 +31,6 @@ foreach(test ${tests})
     COMMAND ${test}
     )
 
-
-  #set(dlite_PATH ${dlite_PATH} ${dlite_BINARY_DIR}/storages/json)
-  #if(UNIX)
-  #  string(REPLACE ";" ":" dlite_PATH ${dlite_PATH})
-  #endif()
-
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
@@ -45,5 +39,9 @@ foreach(test ${tests})
     ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_PYTHON_STORAGE_PLUGINS=${dlite_PYTHON_STORAGE_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_PYTHON_MAPPING_PLUGINS=${dlite_PYTHON_MAPPING_PLUGINS}")
 
 endforeach()

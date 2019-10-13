@@ -29,7 +29,7 @@ typedef struct {
   Checks whether a Python error has occured.  If so, it calls dlite_err(),
   cleans the Python error and returns non-zero.  Otherwise zero is returned.
 */
-
+/*
 int check_error(void)
 {
   int retval = 0;
@@ -66,33 +66,12 @@ int check_error(void)
   Py_XDECREF(type);
   return retval;
 }
-
-
-/*
-    printf("*** Error:\n  type (%d): ", PyUnicode_Check(stype));
-    PyObject_Print(type, stdout, 1);
-    printf("\n  value (%d): ", PyUnicode_Check(svalue));
-    PyObject_Print(value, stdout, 1);
-    printf("\n  traceback (%d): ", PyUnicode_Check(straceback));
-    PyObject_Print(traceback, stdout, 1);
-    printf("\n");
-    retval = dlite_err(1, "%s: %s\n\n%s",
-		       PyUnicode_AsUTF8(stype),
-		       PyUnicode_AsUTF8(svalue),
-		       PyUnicode_AsUTF8(straceback));
-    PyErr_Clear();
-    Py_XDECREF(stype);
-    Py_XDECREF(svalue);
-    Py_XDECREF(straceback);
-  }
-  Py_XDECREF(type);
-  Py_XDECREF(value);
-  Py_XDECREF(traceback);
-  return retval;
-}
 */
 
 
+/*
+  Opens `uri` and returns a newly created storage for it.
+ */
 DLiteStorage *
 opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
 {
@@ -137,6 +116,9 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
 }
 
 
+/*
+  Closes storage `s`.  Returns non-zero on error.
+ */
 int closer(DLiteStorage *s)
 {
   int retval=0;
@@ -156,6 +138,7 @@ int closer(DLiteStorage *s)
   return retval;
 }
 
+
 /*
   Returns a new instance from `uuid` in storage `s`.  NULL is returned
   on error.
@@ -172,33 +155,17 @@ DLiteInstance *loader(const DLiteStorage *s, const char *uuid)
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
-  printf("instance_getter(%s)\n", uuid);
   PyObject *v = PyObject_CallMethod(sp->obj, "load", "O", pyuuid);
   if (dlite_pyembed_err_check("error calling %s.load()", classname))
     goto fail;
   assert(v);
-  /* Here we have an issue with storage plugins being statically linked */
-  printf("--- v = ");
-  PyObject_Print(v, stdout, 0);
-  printf("\n");
-
-  printf("inst: %p\n", (void *)dlite_instance_get(uuid));
-
-  printf("calling dlite_pyembed_get_instance(%p)\n", (void *)v);
   if (!(inst = dlite_pyembed_get_instance(v))) goto fail;
-
-  {
-    DLiteInstance *inst2 = dlite_instance_get(inst->uuid);
-    printf("*** inst=%p, inst2=%p\n", (void *)inst, (void *)inst2);
-    if (inst2) dlite_instance_decref(inst2);
-  }
-
-  printf("done\n");
  fail:
   Py_XDECREF(pyuuid);
   Py_XDECREF(v);
   return inst;
 }
+
 
 /*
   Stores instance `inst` to storage `s`.  Returns non-zero on error.
@@ -225,7 +192,6 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
 }
 
 
-
 /*
   Free's internal resources in `api`.
 */
@@ -247,17 +213,9 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   PyObject *open=NULL, *close=NULL, *load=NULL, *save=NULL;
   const char *classname=NULL;
 
-  printf("\n=== PythonStoragePlugin (iter=%d)\n", *iter);
-
   if (!(storages = dlite_python_storage_load())) goto fail;
-
-  printf("\n=== storages: ");
-  PyObject_Print(storages, stdout, 0);
-
   assert(PyList_Check(storages));
   n = PyList_Size(storages);
-
-  printf("\n=== n=%d\n", n);
 
   /* get class implementing the plugin API */
   dlite_errclr();
@@ -330,6 +288,5 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   Py_XDECREF(load);
   Py_XDECREF(save);
 
-  printf("--> api=%p\n", (void *)api);
   return api;
 }

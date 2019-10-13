@@ -84,29 +84,70 @@ swig_link_libraries(dlite
 #
 # Create a working Python package in binary dir
 # ---------------------------------------------
+set(pkgdir ${CMAKE_CURRENT_BINARY_DIR}/dlite)
 set(abs_sources)
 foreach(source ${py_sources})
   list(APPEND abs_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
 endforeach()
 
+set(abs_targets)
+foreach(source ${py_sources})
+  list(APPEND abs_targets ${pkgdir}/${source})
+endforeach()
+
+add_custom_target(python_package ALL
+  DEPENDS
+    ${pkgdir}/dlite.py
+    ${abs_targets}
+  )
+
 add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory
-    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+    ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
     ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
-    ${abs_sources}
-    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+    ${pkgdir}
+  BYPRODUCTS
+    ${pkgdir}
+    ${pkgdir}/dlite.py
   DEPENDS
     $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
     ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
     ${abs_sources}
   )
 
+add_custom_command(
+  OUTPUT
+    ${abs_targets}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${abs_sources}
+    ${pkgdir}
+  DEPENDS
+    ${pkgdir}
+    ${abs_sources}
+  )
+
+#add_custom_command(
+#  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+#  POST_BUILD
+#  COMMAND ${CMAKE_COMMAND} -E make_directory
+#    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+#    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
+#    ${abs_sources}
+#    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+#  DEPENDS
+#    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+#    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
+#    ${abs_sources}
+#  )
+
 # Copy to binary dir again...
-file(COPY ${py_sources} DESTINATION dlite)
+#file(COPY ${py_sources} DESTINATION dlite)
 
 
 

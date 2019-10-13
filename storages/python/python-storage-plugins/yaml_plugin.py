@@ -11,7 +11,6 @@ from dlite.utils import instance_from_dict
 class yaml(DLiteStorageBase):
     """
     """
-
     def open(self, uri, options=None):
         """Opens `uri`.
 
@@ -48,14 +47,10 @@ class yaml(DLiteStorageBase):
         uuid = dlite.get_uuid(uuid)
         d = pyyaml.load(self.f)
         inst = instance_from_dict(d[uuid])
-        print('--- loaded inst', id(inst))
-        print(inst)
-        print()
         return inst
 
     def save(self, inst):
         """Stores `inst` in current storage."""
-        print('*** storing inst:', inst.uuid)
         d = {}
         if self.options.mode == 'append':
             d = pyyaml.load(self.f)

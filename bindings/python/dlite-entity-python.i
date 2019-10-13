@@ -245,6 +245,9 @@ class InstanceEncoder(json.JSONEncoder):
             d['namespace'] = self['namespace']
             d['description'] = self['description']
             d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
+            #
+            # FIXME: property dimensions should be strings, and not indices
+            # into the dimension values.
             #d['properties'] = [p.asdict() for p in self['properties']]
             dimnames = list(self.dimensions.keys())
             props = []
@@ -256,9 +259,10 @@ class InstanceEncoder(json.JSONEncoder):
             d['properties'] = props
         else:
             d['dimensions'] = self.dimensions
-            d['properties'] = self.properties
+            d['properties'] = {k: v.tolist() if hasattr(v, 'tolist') else v
+                               for k, v in self.properties.items()}
         if 'relations' in self:
-            d['relations'] = self['relations']
+            d['relations'] = self['relations'].tolist()
         return d
 
     def asjson(self, **kwargs):

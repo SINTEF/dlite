@@ -281,31 +281,24 @@ PyObject *dlite_pyembed_from_instance(const char *id)
 
 /*
   Returns a DLite instance from Python representation or NULL on error.
+
+  Since plugins that statically links to dlite will have their own
+  global state, dlite_instance_get() will not work.  Instead, this
+  function uses the capsule returned by the Python method Instance._c_ptr().
 */
 DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
 {
   DLiteInstance *inst=NULL;
-  PyObject *uuid=NULL;
-  if (!(uuid = PyObject_GetAttrString(pyinst, "uuid")))
-    FAIL("Python instance has no attribute: 'uuid'");
-  if (!PyUnicode_Check(uuid))
-    FAIL("Python uuid is not a unicode object");
-  if (!(inst = dlite_instance_get(PyUnicode_AsUTF8(uuid))))
-    FAIL1("error getting instance: %s", PyUnicode_AsUTF8(uuid));
-  //PyObject *fcn=NULL, *cap=NULL;
-  //printf("--- dlite_pyembed_get_instance()\n");
-  //PyObject_Print(pyinst, stdout, 0);
-  //printf("\n---\n");
-  //if (!(fcn = PyObject_GetAttrString(pyinst, "_c_ptr")))
-  //  FAIL("Python instance has no attribute: '_c_ptr'");
-  //if (!(cap = PyObject_CallObject(fcn, NULL)))
-  //  FAIL("error calling: '_c_ptr'");
-  //if (!(inst = PyCapsule_GetPointer(cap, NULL)))
-  //  FAIL("cannot get instance pointer from capsule");
+  PyObject *fcn=NULL, *cap=NULL;
+  if (!(fcn = PyObject_GetAttrString(pyinst, "_c_ptr")))
+    FAIL("Python instance has no attribute: '_c_ptr'");
+  if (!(cap = PyObject_CallObject(fcn, NULL)))
+    FAIL("error calling: '_c_ptr'");
+  if (!(inst = PyCapsule_GetPointer(cap, NULL)))
+    FAIL("cannot get instance pointer from capsule");
  fail:
-  Py_XDECREF(uuid);
-  //Py_XDECREF(cap);
-  //Py_XDECREF(fcn);
+  Py_XDECREF(cap);
+  Py_XDECREF(fcn);
   return inst;
 }
 

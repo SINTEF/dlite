@@ -93,18 +93,6 @@ Returns a list of UUIDs of all instances in the storage.") get_uuids;
   char **get_uuids(void) {
     return dlite_storage_uuids($self);
   }
-
-  %feature("docstring", "\
-Returns instance in this storage with given id.  If `metaid` is given,
-the returned instance will be mapped to an instance of this type (if appropriate mappings are available).") load;
-  DLiteInstance *load(const char *id, const char *metaid=NULL) {
-    return dlite_instance_load_casted($self, id, metaid);
-  }
-  %feature("docstring", "\
-Stores instance `inst` in current storage.") save;
-  void save(DLiteInstance *inst) {
-    dlite_instance_save($self, inst);
-  }
 }
 
 

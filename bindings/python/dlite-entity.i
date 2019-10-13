@@ -216,7 +216,8 @@ Instance(driver, location, options, id=None)
     required if the storage only contains more one instance).
 
 Instance(uri, dimensions, properties, description)
-    Creates a new metadata entity casted to an instance.
+    Creates a new metadata entity (instance of entity schema) casted
+    to an instance.
 
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
