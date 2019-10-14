@@ -71,7 +71,7 @@ typedef struct {
   union {
     int val;       /* Value for numbers and variables */
     int op;        /* Operator */
-  };
+  } u;
 } TokenValue;
 
 /* Stack */
@@ -199,17 +199,17 @@ static int parse_token(const char *str, TokenValue *val,
   if (isdigit(str[0])) {
     char *endptr;
     val->type = typeVal;
-    val->val = strtol(str, &endptr, 0);
+    val->u.val = strtol(str, &endptr, 0);
     return endptr - str;
 
   } else if ((opinfo = get_opinfo(str[0]))) {
     val->type = typeOp;
-    val->op = str[0];
+    val->u.op = str[0];
     return 1;
 
   } else if ((var = get_variable(str, vars, nvars))) {
     val->type = typeVal;
-    val->val = var->value;
+    val->u.val = var->value;
     return strlen(var->name);
   }
 
@@ -277,27 +277,27 @@ int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
     }
     switch (token.type) {
     case typeVal:
-      push(&vstack, token.val);
+      push(&vstack, token.u.val);
       break;
 
     case typeOp:
-      switch (token.op) {
+      switch (token.u.op) {
       case '(':
-        push(&ostack, token.op);
+        push(&ostack, token.u.op);
         break;
       case ')':
         while ((op = pop(&ostack)) != '(')
           if (eval(op, &vstack, err, errlen)) goto fail;
         break;
       default:
-        opinfo = get_opinfo(token.op);
+        opinfo = get_opinfo(token.u.op);
         while (ostack.len) {
           const OpInfo *opinfo2 = get_opinfo(poll(&ostack));
           if (opinfo2->precedence < opinfo->precedence) break;
           op = pop(&ostack);
           if (eval(op, &vstack, err, errlen)) goto fail;
         }
-        push(&ostack, token.op);
+        push(&ostack, token.u.op);
         break;
       }
     }
