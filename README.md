@@ -33,7 +33,7 @@ Main features
       - property (only intended for metadata)
   - Supports units and multi-dimensional arrays
   - Fully implemented metadata model as presented by Thomas Hagelien
-  - Builtin HDF5 and JSON storage plugins
+  - Builtin HDF5, JSON, YAML and PostgreSQL storage plugins
   - Plugin system for user-provided storage drivers
   - Memory for metadata and instances is reference counted
   - Lookup of metadata and instances at pre-defined locations (initiated
@@ -43,8 +43,8 @@ Main features
   - Plugin system for mappings that maps instances of a set of input metadata
     to an output instance
   - Python bindings
-  - Fortran bindings (planned)
-  - Storage and mapping plugins written in Python (planned)
+  - Storage and mapping plugins written in Python
+  - Fortran bindings (work in progress...)
 
 
 Short vocabulary
@@ -81,19 +81,21 @@ Runtime dependencies
   - [HDF5][3], optional (needed by HDF5 storage plugin)
   - [Jansson][4], optional (needed by JSON storage plugin)
   - [Python][5], optional (needed by Python bindings and some plugins)
-  - [NumPy][6], optional (needed by Python bindings and some plugins)
+    - [NumPy][6], required if Python is enabled
+    - [PyYAML][7], optional (used for generic YAML storage plugin)
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
 
 
 Build dependencies
 ------------------
-  - [cmake][7], required for building
+  - [cmake][9], required for building
   - hdf5 development libraries, optional (needed by HDF5 storage plugin)
   - Jansson development libraries, optional (needed by JSON storage plugin)
   - python development libraries, optional (needed by Python bindings)
   - NumPy development libraries, optional (needed by Python bindings)
-  - [SWIG][8], optional (needed by building Python bindings)
-  - [Doxygen][9], optional, used for documentation generation
-  - [valgrind][10], optional, used for memory checking (Linux only)
+  - [SWIG][10], optional (needed by building Python bindings)
+  - [Doxygen][11], optional, used for documentation generation
+  - [valgrind][12], optional, used for memory checking (Linux only)
 
 
 Download
@@ -214,8 +216,10 @@ DLite is developed with the hope that it will be a delight to work with.
 [4]: http://www.digip.org/jansson/
 [5]: https://www.python.org/
 [6]: https://pypi.org/project/numpy/
-[7]: https://cmake.org/
-[8]: http://www.swig.org/
-[9]: http://www.doxygen.org/
-[10]: http://valgrind.org/
+[7]: https://pypi.org/project/PyYAML/
+[8]: https://pypi.org/project/psycopg2/
+[9]: https://cmake.org/
+[10]: http://www.swig.org/
+[11]: http://www.doxygen.org/
+[12]: http://valgrind.org/
 [SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
