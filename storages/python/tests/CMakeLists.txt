@@ -2,7 +2,7 @@
 #
 
 set(tests
-  test_python_storage
+  test_yaml_storage
   test_postgresql_storage
   )
 
@@ -51,6 +51,20 @@ foreach(test ${tests})
 endforeach()
 
 
+# Disable tests with dependencies
+include(FindPythonModule)
+
+find_python_module(yaml)
+if(NOT PY_YAML)
+  set_property(TEST test_yaml_storage APPEND PROPERTY DISABLED True)
+endif()
+
+find_python_module(psycopg2)
+if(NOT PY_PSYCOPG2)
+  set_property(TEST test_postgresql_storage APPEND PROPERTY DISABLED True)
+endif()
+
+
 # The test_postgresql_storage test require local configurations of the
 # PostgreSQL server.  The test is only enabled if a file pgconf.h can be
 # found in the source directory with the following content:
@@ -63,6 +77,5 @@ endforeach()
 # Depending on how the server is set up, or if you have a ~/.pgpass
 # file, PASSWORD can be left undefined.
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
-  set_property(TEST test_postgresql_storage APPEND
-    PROPERTY DISABLED True)
+  set_property(TEST test_postgresql_storage APPEND PROPERTY DISABLED True)
 endif()
