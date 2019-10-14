@@ -6,18 +6,19 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 
-
-//#define HOST "localhost"
-#define HOST "sintefutv006.sintef.no"
-#define USER "jesperf_user"
-#define DATABASE "jesperf_test"
+/* This header should define HOST, DATABASE, USER and PASSWORD */
+#include "pgconf.h"
 
 DLiteStorage *db=NULL;
 
 
 MU_TEST(test_open_db)
 {
+#ifdef PASSWORD
+  const char *options = "database=" DATABASE ";user=" USER ";password=" PASSWORD;
+#else
   const char *options = "database=" DATABASE ";user=" USER;
+#endif
   mu_check((db = dlite_storage_open("postgresql", HOST, options)));
   mu_assert_int_eq(1, dlite_storage_is_writable(db));
 }
