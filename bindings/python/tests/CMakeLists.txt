@@ -30,12 +30,3 @@ foreach(test ${tests})
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
 endforeach()
-
-
-# Disable tests with dependencies
-include(FindPythonModule)
-
-find_python_module(yaml)
-if(NOT PY_YAML)
-  set_property(TEST test_python_storage APPEND PROPERTY DISABLED True)
-endif()
