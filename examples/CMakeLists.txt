@@ -14,13 +14,6 @@
 #
 # Here <conf> is the configurations that dlite is build with.
 macro(test_example example)
-  set(conf
-    -G ${CMAKE_GENERATOR}
-    -DDLITE_ROOT=${CMAKE_INSTALL_PREFIX}
-    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-    $<$<BOOL:${CMAKE_TOOLCHAIN_FILE}>:${CMAKE_TOOLCHAIN_FILE}>
-    )
   add_test(
     NAME ${example}-mkdir
     COMMAND ${CMAKE_COMMAND} -E make_directory ${example}
@@ -28,9 +21,14 @@ macro(test_example example)
     )
   add_test(
     NAME ${example}-config
-    COMMAND ${CMAKE_COMMAND} ${conf} ${CMAKE_CURRENT_SOURCE_DIR}/${example}
-      -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    COMMAND ${CMAKE_COMMAND}
+      -G ${CMAKE_GENERATOR}
+      -DDLITE_ROOT=${CMAKE_INSTALL_PREFIX}
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+      $<$<BOOL:${CMAKE_TOOLCHAIN_FILE}>:${CMAKE_TOOLCHAIN_FILE}>
+      ${CMAKE_CURRENT_SOURCE_DIR}/${example}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${example}
     )
   add_test(

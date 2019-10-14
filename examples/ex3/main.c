@@ -39,13 +39,13 @@ char* xname(char* phase,char* element){
 
 int searchstring(char** arraystr,char* key, int size){
 
-   int iloc=-1;
+  int i, iloc=-1;
 
-   for (int i=0; i<size;i++){
-      if(strcmp(arraystr[i],key)==0){
-         iloc=i;
-         break;
-      }
+   for (i=0; i<size; i++) {
+     if(strcmp(arraystr[i],key)==0){
+       iloc=i;
+       break;
+     }
    }
 
    return iloc;
@@ -71,32 +71,27 @@ int main()
   size_t nelements=3, nphases=2, nvars=1, nbounds=2 , nconds=2 , ncalc=2, npoints=2;
   char *elements[] = {"Al", "Mg", "Si"};
   char *phases[] = {"FCC_A1", "MG2SI"};
-  size_t i, j;
-  double tmp, atvol0;
+  size_t i, j, ielt;
+  size_t dims[] =
+    {nelements, nphases, nvars, nbounds , nconds , ncalc, npoints};
 
-  size_t dims[] = {nelements, nphases, nvars, nbounds , nconds , ncalc, npoints};
 
   char *path = "PhilibTable.json";
   DLiteStorage *s;
   DLiteMeta *table;
   PhilibTable *p;
 
-  char* str1, *str2;
+  char* str1;
   int iloc;
   double list_fv[nphases];
   double list_comp[nphases][nelements];
   double value;
   double sum;
 
-  // new variables
-  char *id ="mydata";
-  PhilibTable *pload;
-
   /* Load PhilibTable entity */
   s = dlite_storage_open("json", path, "mode=r");
   char *uri = "http://meta.sintef.no/philib/0.1/PhilibTable";
   table = (DLiteMeta *)dlite_meta_load(s, uri);
-  size_t ndims = table->ndimensions;
   dlite_storage_close(s);
 
   /* Create instance */
@@ -131,7 +126,7 @@ int main()
 
 
   str1=fvname(p->phases[1]);
-  str2=xname(p->phases[1],p->elements[2]);
+  xname(p->phases[1],p->elements[2]);
 
   iloc=searchstring(p->calcnames,str1,ncalc);
   //iloc=searchstring(p->phases,p->phases[1],nphases);
@@ -152,7 +147,7 @@ int main()
   /* Make the list of all calculated volume fraction
    list of values of all the fv for all phases (except first phase that is the dependent one) ordered*/
   sum=0.0;
-  for (int i=1;i<nphases;i++){
+  for (i=1; i<nphases; i++){
 	str1=fvname(p->phases[i]);
   	// find the corresponding calcnames if not raise error
 	iloc=searchstring(p->calcnames,str1,ncalc);
@@ -173,16 +168,16 @@ int main()
   if(checkInBounds(list_fv[0],0.0,1.0)!=0) printf("Error: volume fraction for phase 0 out of bounds\n");
 
   printf("------ list_fv ------\n");
-  for(int i=0;i<nphases;i++){
+  for(i=0; i<nphases; i++){
 	printf("%s =%f\n",fvname(p->phases[i]),list_fv[i]);
   }
 
 
   // list of composition
   //go through all the phases except first
-  for(int i=1;i<nphases;i++){
+  for(i=1; i<nphases; i++){
 	sum=0.0;
-	for( int ielt=0;ielt<nelements;ielt++){
+	for(ielt=0; ielt<nelements; ielt++){
 	   str1=xname(p->phases[i],p->elements[ielt]);
 	// find the corresponding calcnames else iloc=-1
 	   iloc=searchstring(p->calcnames,str1,ncalc);
@@ -204,8 +199,8 @@ int main()
    //	list_comp[0][ielt] = X0 (elt) - sum ( list_fv[phase] * list_comp(phase,elt) )
 
   printf("------ list_comp ------\n");
-  for(int i=1;i<nphases;i++){
-    for( int ielt=0;ielt<nelements;ielt++){
+  for(i=1; i<nphases; i++){
+    for(ielt=0; ielt<nelements; ielt++){
 	printf("%s =%f\n",xname(p->phases[i],p->elements[ielt]),list_comp[i][ielt]);
     }
   }

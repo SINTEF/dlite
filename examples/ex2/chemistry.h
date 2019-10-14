@@ -16,9 +16,9 @@
 #ifndef _CHEMISTRY_H
 #define _CHEMISTRY_H
 
-#include "boolean.h"
-#include "integers.h"
-#include "floats.h"
+#include "utils/boolean.h"
+#include "utils/integers.h"
+#include "utils/floats.h"
 
 #define CHEMISTRY_NAME      "Chemistry"
 #define CHEMISTRY_VERSION   "0.1"
