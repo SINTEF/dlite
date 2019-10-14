@@ -31,7 +31,6 @@ pgtypes = {
 }
 
 
-
 class postgresql(DLiteStorageBase):
     """DLite storage plugin for PostgreSQL."""
     def open(self, uri, options=None):
@@ -68,10 +67,9 @@ class postgresql(DLiteStorageBase):
         print('  host:', uri)
         print('  user:', opts.user)
         print('  database:', opts.database)
-        print('  password:', opts.password)
+        #print('  password:', opts.password)
         self.conn = psycopg2.connect(host=uri, database=opts.database,
                                      user=opts.user, password=opts.password)
-        print('---')
 
         # Open a cursor to perform database operations
         self.cur = self.conn.cursor()
@@ -84,23 +82,46 @@ class postgresql(DLiteStorageBase):
     def load(self, uuid):
         """Loads `uuid` from current storage and return it as a new instance."""
         uuid = dlite.get_uuid(uuid)
-        raise NotImplementedError()
-        #d = pyyaml.load(self.f)
-        #inst = instance_from_dict(d[uuid])
-        #return inst
+        q = sql.SQL('SELECT meta FROM uuidtable WHERE uuid = %s')
+        self.cur.execute(q, [uuid])
+        metaid, = self.cur.fetchone()
+        q = sql.SQL('SELECT * FROM {} WHERE uuid = %s').format(
+            sql.Identifier(metaid))
+        self.cur.execute(q, [uuid])
+        tokens = self.cur.fetchone()
+        uuid_, uri, metaid_, dims = tokens[:4]
+        values = tokens[4:]
+        assert uuid_ == uuid
+        assert metaid_ == metaid
+        inst = dlite.Instance(metaid, dims, uri)
+        for i, p in enumerate(inst.meta['properties']):
+            inst.set_property(p.name, values[i])
+        return inst
 
     def save(self, inst):
         """Stores `inst` in current storage."""
+        # Save to metadata table
         if not self.table_exists(inst.meta.uri):
             self.table_create(inst.meta, inst.dimensions.values())
-        colnames = [p.name for p in inst.meta['properties']]
-        q = sql.SQL('INSERT INTO {0} ({1}) VALUES ({2})').format(
+        colnames = ['uuid', 'uri', 'meta', 'dims'] +  [
+            p.name for p in inst.meta['properties']]
+        q = sql.SQL('INSERT INTO {0} ({1}) VALUES ({2});').format(
             sql.Identifier(inst.meta.uri),
             sql.SQL(', ').join(map(sql.Identifier, colnames)),
-            (sql.Placeholder() * inst.meta.nproperties).join(', '))
-        values = [v.tolist() if hasattr(v, 'tolist') else v
-                  for v in inst.properties.values()]
+            (sql.Placeholder() * len(colnames)).join(', '))
+        values = [inst.uuid,
+                  inst.uri,
+                  inst.meta.uri,
+                  list(inst.dimensions.values()),
+        ] + [v.tolist() if hasattr(v, 'tolist') else v
+             for v in inst.properties.values()]
         self.cur.execute(q, values)
+
+        # Save to uuidtable
+        if not self.table_exists('uuidtable'):
+            self.uuidtable_create()
+        q = sql.SQL('INSERT INTO uuidtable (uuid, meta) VALUES (%s, %s);')
+        self.cur.execute(q, [inst.uuid, inst.meta.uri])
 
     def table_exists(self, table_name):
         """Returns true if a table named `table_name` exists."""
@@ -116,13 +137,27 @@ class postgresql(DLiteStorageBase):
             raise ValueError('Table already exists: %r' % table_name)
         if dims:
             dims = list(dims)
-        cols = []
+        cols = [
+            'uuid char(36) PRIMARY KEY',
+            'uri varchar',
+            'meta varchar',
+            'dims integer[%d]' % meta.ndimensions
+        ]
         for p in meta['properties']:
             if len(p.dims):
                 sdims = ''.join(f'[{dims[d]}]' for d in p.dims)
                 cols.append(f'{p.name} {pgtypes[p.type]}{sdims}')
             else:
                 cols.append(f'{p.name} {pgtypes[p.type]}')
-        q = sql.SQL('CREATE TABLE {} (id serial PRIMARY KEY, %s);' %
+        q = sql.SQL('CREATE TABLE {} (%s);' %
                     ', '.join(cols)).format(sql.Identifier(meta.uri))
+        self.cur.execute(q)
+
+    def uuidtable_create(self):
+        """Creates the uuidtable - a table mapping all uuid's to their
+        metadata uri."""
+        q = sql.SQL('CREATE TABLE uuidtable ('
+                    'uuid char(36) PRIMARY KEY, '
+                    'meta varchar'
+                    ');')
         self.cur.execute(q)

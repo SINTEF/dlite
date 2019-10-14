@@ -280,7 +280,8 @@ PyObject *dlite_pyembed_from_instance(const char *id)
 
 
 /*
-  Returns a DLite instance from Python representation or NULL on error.
+  Returns a new reference to DLite instance from Python representation
+  or NULL on error.
 
   Since plugins that statically links to dlite will have their own
   global state, dlite_instance_get() will not work.  Instead, this
@@ -296,6 +297,7 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
     FAIL("error calling: '_c_ptr'");
   if (!(inst = PyCapsule_GetPointer(cap, NULL)))
     FAIL("cannot get instance pointer from capsule");
+  dlite_instance_incref(inst);
  fail:
   Py_XDECREF(cap);
   Py_XDECREF(fcn);

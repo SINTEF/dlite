@@ -7,7 +7,8 @@
 #include "dlite-macros.h"
 
 
-#define HOST "localhost"
+//#define HOST "localhost"
+#define HOST "sintefutv006.sintef.no"
 #define USER "jesperf_user"
 #define DATABASE "jesperf_test"
 
@@ -41,11 +42,10 @@ MU_TEST(test_save)
   mu_assert_int_eq(0, dlite_instance_save_url("json://persons.json?mode=w",
                                               inst));
   if (db)
-    mu_check((dlite_instance_save(db, inst)));
+    mu_assert_int_eq(0, dlite_instance_save(db, inst));
 
-  printf("\n*** refcount=%d\n", inst->refcount);
   n = inst->refcount;
-  mu_assert_int_eq(1, n);
+  mu_assert_int_eq(2, n);
   for (i=0; i<n; i++) dlite_instance_decref(inst);
 }
 
@@ -55,7 +55,7 @@ MU_TEST(test_load)
   DLiteInstance *inst;
   if (db) {
     mu_check((inst = dlite_instance_load(db, "ada")));
-    mu_check((dlite_instance_save_url("json:persons2.json?mode=w", inst)));
+    mu_assert_int_eq(0, dlite_instance_save_url("json:persons2.json?mode=w", inst));
   }
 }
 

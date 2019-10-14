@@ -91,7 +91,8 @@ void *dlite_pyembed_get_address(const char *symbol);
 PyObject *dlite_pyembed_from_instance(const char *id);
 
 /**
-  Returns a DLite instance from Python representation or NULL on error.
+  Returns a new reference to DLite instance from Python representation
+  or NULL on error.
 */
 DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst);
 

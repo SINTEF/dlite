@@ -18,6 +18,8 @@ add_custom_target(
     ${dlite_BINARY_DIR}/storages/python/tests
   )
 
+file(COPY Person.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test} dlite-plugins-python)
