@@ -4,15 +4,13 @@ import getpass
 import warnings
 
 import psycopg2
-#from psycopg2.sql import SQL, Identifier
 from psycopg2 import sql
 
 import dlite
 from dlite.options import Options
-#from dlite.utils import instance_from_dict
 
 
-# Translation table from dlite type to postgresql type
+# Translation table from dlite types to postgresql types
 pgtypes = {
     'blob': 'bytea',
     'bool': 'bool',
@@ -25,7 +23,6 @@ pgtypes = {
     'double': 'double',
     'float32': 'real',
     'float64': 'double',
-    #'string': 'text',
     'string': 'varchar',
     'fixstring': 'text',
 }
@@ -61,7 +58,6 @@ class postgresql(DLiteStorageBase):
         opts = self.options
         opts.setdefault('password', None)
         self.writable = False if opts.mode == 'r' else True
-        #password = 'test' if 'password' in opts else None
 
         # Connect to existing database
         print('  host:', uri)
