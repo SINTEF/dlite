@@ -1,0 +1,128 @@
+import os
+import sys
+import getpass
+import warnings
+
+import psycopg2
+#from psycopg2.sql import SQL, Identifier
+from psycopg2 import sql
+
+import dlite
+from dlite.options import Options
+#from dlite.utils import instance_from_dict
+
+
+# Translation table from dlite type to postgresql type
+pgtypes = {
+    'blob': 'bytea',
+    'bool': 'bool',
+    'int': 'integer',
+    'int8': 'bytea',
+    'int16': 'smallint',
+    'int32': 'integer',
+    'int64': 'bigint',
+    'float': 'real',
+    'double': 'double',
+    'float32': 'real',
+    'float64': 'double',
+    #'string': 'text',
+    'string': 'varchar',
+    'fixstring': 'text',
+}
+
+
+
+class postgresql(DLiteStorageBase):
+    """DLite storage plugin for PostgreSQL."""
+    def open(self, uri, options=None):
+        """Opens `uri`.
+
+        The `options` argument provies additional input to the driver.
+        Which options that are supported varies between the plugins.  It
+        should be a valid URL query string of the form:
+
+            key1=value1;key2=value2...
+
+        An ampersand (&) may be used instead of the semicolon (;).
+
+        Typical options supported by most drivers include:
+        - database : Name of database to connect to (default: dlite)
+        - user : User name.
+        - password : Password.
+        - mode : append | r
+            Valid values are:
+            - append   Append to existing file or create new file (default)
+            - r        Open existing file for read-only
+
+        After the options are passed, this method may set attribute
+        `writable` to true if it is writable and to false otherwise.
+        If `writable` is not set, it is assumed to be true.
+        """
+        self.options = Options(options, defaults='database=dlite;mode=append')
+        opts = self.options
+        opts.setdefault('password', None)
+        self.writable = False if opts.mode == 'r' else True
+        #password = 'test' if 'password' in opts else None
+
+        # Connect to existing database
+        print('  host:', uri)
+        print('  user:', opts.user)
+        print('  database:', opts.database)
+        print('  password:', opts.password)
+        self.conn = psycopg2.connect(host=uri, database=opts.database,
+                                     user=opts.user, password=opts.password)
+        print('---')
+
+        # Open a cursor to perform database operations
+        self.cur = self.conn.cursor()
+
+    def close(self):
+        """Closes this storage."""
+        self.cur.close()
+        self.conn.close()
+
+    def load(self, uuid):
+        """Loads `uuid` from current storage and return it as a new instance."""
+        uuid = dlite.get_uuid(uuid)
+        raise NotImplementedError()
+        #d = pyyaml.load(self.f)
+        #inst = instance_from_dict(d[uuid])
+        #return inst
+
+    def save(self, inst):
+        """Stores `inst` in current storage."""
+        if not self.table_exists(inst.meta.uri):
+            self.table_create(inst.meta, inst.dimensions.values())
+        colnames = [p.name for p in inst.meta['properties']]
+        q = sql.SQL('INSERT INTO {0} ({1}) VALUES ({2})').format(
+            sql.Identifier(inst.meta.uri),
+            sql.SQL(', ').join(map(sql.Identifier, colnames)),
+            (sql.Placeholder() * inst.meta.nproperties).join(', '))
+        values = [v.tolist() if hasattr(v, 'tolist') else v
+                  for v in inst.properties.values()]
+        self.cur.execute(q, values)
+
+    def table_exists(self, table_name):
+        """Returns true if a table named `table_name` exists."""
+        self.cur.execute(
+            'select exists(select * from information_schema.tables '
+            'where table_name=%s)', (table_name, ))
+        return self.cur.fetchone()[0]
+
+    def table_create(self, meta, dims=None):
+        """Creates a table for storing instances of `meta`."""
+        table_name = meta.uri
+        if self.table_exists(table_name):
+            raise ValueError('Table already exists: %r' % table_name)
+        if dims:
+            dims = list(dims)
+        cols = []
+        for p in meta['properties']:
+            if len(p.dims):
+                sdims = ''.join(f'[{dims[d]}]' for d in p.dims)
+                cols.append(f'{p.name} {pgtypes[p.type]}{sdims}')
+            else:
+                cols.append(f'{p.name} {pgtypes[p.type]}')
+        q = sql.SQL('CREATE TABLE {} (id serial PRIMARY KEY, %s);' %
+                    ', '.join(cols)).format(sql.Identifier(meta.uri))
+        self.cur.execute(q)
