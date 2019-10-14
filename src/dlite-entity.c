@@ -1177,7 +1177,7 @@ dlite_entity_create(const char *uri, const char *description,
   size_t dims[] = {ndimensions, nproperties};
 
   if ((e = dlite_instance_get(uri)))
-    return e;
+    return (DLiteMeta *)e;
   if (dlite_split_meta_uri(uri, &name, &version, &namespace)) goto fail;
   if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))
     goto fail;

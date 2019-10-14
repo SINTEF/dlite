@@ -8,10 +8,7 @@
 
 #include "Python.h"
 
-/* #include "config.h" */
-
-#include "boolean.h"
-
+#include "utils/boolean.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-storage-plugins.h"
@@ -24,49 +21,6 @@ typedef struct {
   PyObject *obj;      /* Python instance of storage class */
 } DLitePythonStorage;
 
-
-/*
-  Checks whether a Python error has occured.  If so, it calls dlite_err(),
-  cleans the Python error and returns non-zero.  Otherwise zero is returned.
-*/
-/*
-int check_error(void)
-{
-  int retval = 0;
-  PyObject *type, *value, *traceback;
-  PyErr_Fetch(&type, &value, &traceback);
-  if (type) {
-    PyObject *stype = PyObject_Str(type);
-    PyObject *svalue = PyObject_Str(value);
-    PyObject *straceback = PyObject_Str(traceback);
-    PyObject *module = PyImport_ImportModule("traceback");
-    retval = 1;
-    if (module) {
-      PyObject *format_exc = PyObject_GetAttrString(module, "format_exc");
-      if (format_exc) {
-	PyObject *msg=NULL;
-	PyErr_Restore(type, value, traceback);
-	msg = PyObject_CallObject(format_exc, NULL);
-	if (msg && PyUnicode_Check(msg))
-	  retval = dlite_err(1, PyUnicode_AsUTF8(msg));
-	Py_XDECREF(msg);
-      }
-      Py_XDECREF(format_exc);
-    }
-    Py_XDECREF(module);
-    Py_XDECREF(straceback);
-    Py_XDECREF(svalue);
-    Py_XDECREF(stype);
-    if (!retval)
-      retval = dlite_err(1, "unknown Python error");
-    PyErr_Clear();
-  }
-  Py_XDECREF(traceback);
-  Py_XDECREF(value);
-  Py_XDECREF(type);
-  return retval;
-}
-*/
 
 
 /*

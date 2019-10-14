@@ -1,3 +1,4 @@
+"""A simple demonstrage of a DLite storage plugin written in Python."""
 import os
 import sys
 
@@ -9,8 +10,8 @@ from dlite.utils import instance_from_dict
 
 
 class yaml(DLiteStorageBase):
-    """
-    """
+    """DLite storage plugin for YAML."""
+
     def open(self, uri, options=None):
         """Opens `uri`.
 

@@ -860,8 +860,11 @@ static DLiteStoragePlugin dlite_json_plugin = {
   /* basic api */
   dlite_json_open,
   dlite_json_close,
-
   dlite_json_get_uuids,
+
+  /* direct api */
+  NULL,
+  NULL,
 
   /* datamodel api */
   dlite_json_datamodel,
@@ -881,10 +884,6 @@ static DLiteStoragePlugin dlite_json_plugin = {
 
   dlite_json_get_dataname,
   dlite_json_set_dataname,
-
-  /* direct api */
-  NULL,
-  NULL,
 
   /* specialised api */
   //dlite_json_get_entity,

@@ -3,6 +3,7 @@
 
 set(tests
   test_python_storage
+  test_postgresql_storage
   )
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})

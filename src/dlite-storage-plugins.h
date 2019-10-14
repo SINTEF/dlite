@@ -396,8 +396,12 @@ struct _DLiteStoragePlugin {
   Open               open;             /*!< Open storage */
   Close              close;            /*!< Close storage */
 
-  /* -- Basic api (optional) */
+  /* ...basic api (optional) */
   GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
+
+  /* Direct api */
+  LoadInstance       loadInstance;     /*!< Returns new instance from storage */
+  SaveInstance       saveInstance;     /*!< Stores an instance */
 
   /* DataModel api */
   DataModel          dataModel;        /*!< Creates new data model */
@@ -407,7 +411,7 @@ struct _DLiteStoragePlugin {
   GetDimensionSize   getDimensionSize; /*!< Returns size of dimension */
   GetProperty        getProperty;      /*!< Gets value of property */
 
-  /* -- DataModel api (optional) */
+  /* ...DataModel api (optional) */
   SetMetaURI         setMetaURI;       /*!< Sets metadata uri */
   SetDimensionSize   setDimensionSize; /*!< Sets size of dimension */
   SetProperty        setProperty;      /*!< Sets value of property */
@@ -417,14 +421,6 @@ struct _DLiteStoragePlugin {
 
   GetDataName        getDataName;      /*!< Returns name of instance */
   SetDataName        setDataName;      /*!< Assigns name to instance */
-
-  /* Direct api */
-  LoadInstance       loadInstance;     /*!< Returns new instance from storage */
-  SaveInstance       saveInstance;     /*!< Stores an instance */
-
-  /* Specialised api */
-  //GetEntity          getEntity;        /*!< Returns a new Entity from storage */
-  //SetEntity          setEntity;        /*!< Stores an Entity */
 
   /* Internal data */
   DriverFreer        freer;            /*!< Releases internal data */

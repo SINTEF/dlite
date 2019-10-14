@@ -779,8 +779,11 @@ static DLiteStoragePlugin h5_plugin = {
   /* basic api */
   dh5_open,
   dh5_close,
-
   dh5_get_uuids,
+
+  /* direct api */
+  NULL,
+  NULL,
 
   /* datamodel api */
   dh5_datamodel,
@@ -800,10 +803,6 @@ static DLiteStoragePlugin h5_plugin = {
 
   dh5_get_dataname,
   dh5_set_dataname,
-
-  /* direct api */
-  NULL,
-  NULL,
 
   /* internal data */
   NULL,
