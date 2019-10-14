@@ -37,6 +37,9 @@ if(CMAKE_COMPILER_IS_GNUCC)
   enable_c_compiler_flag_if_supported("-Wpedantic")
 endif()
 
+# Enable C99
+set(CMAKE_C_STANDARD 99)
+
 # Uncomment the lines below to compile with AddressSanitizer
 #set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
