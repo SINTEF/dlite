@@ -242,9 +242,17 @@ endif()
 # Python
 # ======
 if(WITH_PYTHON)
+  # Older version of cmake seems to pick Python 2, even though we ask explicitly
+  # for Python 3.  Add additional logics to work around that.
+  set(Python_ADDITIONAL_VERSIONS 3.8 3.7 3.6 3.5)
   find_package(PythonInterp 3 REQUIRED)
-  find_package(PythonLibs REQUIRED)
-  find_package(Numpy REQUIRED)
+  if(PYTHON_VERSION_MAJOR EQUAL 3)
+    find_package(PythonLibs REQUIRED)
+    find_package(Numpy REQUIRED)
+  else()
+    message(WARNING "DLite requires Python 3 - disabling Python...")
+    set(WITH_PYTHON OFF CACHE BOOL "whether to build Python 3 bindings" FORCE)
+  endif()
 endif()
 
 

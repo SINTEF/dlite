@@ -7,12 +7,6 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
 endif()
 
 
-# We don't bother to support Python 2, since support for it ends 2019
-# Is there any point in trying to support any version below, say Python 3.5?
-#find_package(PythonInterp 3 REQUIRED)
-#find_package(PythonLibs REQUIRED)
-#find_package(Numpy REQUIRED)
-
 # Try to require correct version of swig depending on Python version
 if(${PYTHON_VERSION_STRING} VERSION_LESS 3.2)
   find_package(SWIG REQUIRED 1.3.37)
