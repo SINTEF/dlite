@@ -46,7 +46,6 @@ set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
   ${PYTHON_INCLUDE_DIRS}
   ${NUMPY_INCLUDE_DIR}
-  #${CMAKE_CURRENT_SOURCE_DIR}
   ${dlite-src_SOURCE_DIR}
   ${dlite-src_BINARY_DIR}
   ${dlite-src-utils_BINARY_DIR}
@@ -58,7 +57,7 @@ set_source_files_properties(dlite.i PROPERTIES
 
 swig_add_library(dlite
   LANGUAGE python
-  OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite   # new in CMake 3.12
+  #OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite   # new in CMake 3.12
   SOURCES dlite.i
   )
 
@@ -84,17 +83,10 @@ foreach(source ${py_sources})
   list(APPEND abs_targets ${pkgdir}/${source})
 endforeach()
 
-add_custom_target(python_package ALL
-  DEPENDS
-    ${pkgdir}/dlite.py
-    ${abs_targets}
-  )
-
 add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory
-    ${pkgdir}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
     ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
@@ -102,12 +94,9 @@ add_custom_command(
   BYPRODUCTS
     ${pkgdir}
     ${pkgdir}/dlite.py
-  DEPENDS
-    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
-    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
-    ${abs_sources}
   )
 
+add_custom_target(python_package ALL DEPENDS ${abs_targets})
 add_custom_command(
   OUTPUT
     ${abs_targets}
@@ -118,27 +107,6 @@ add_custom_command(
     ${pkgdir}
     ${abs_sources}
   )
-
-#add_custom_command(
-#  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
-#  POST_BUILD
-#  COMMAND ${CMAKE_COMMAND} -E make_directory
-#    ${CMAKE_CURRENT_BINARY_DIR}/dlite
-#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
-#    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
-#    ${abs_sources}
-#    ${CMAKE_CURRENT_BINARY_DIR}/dlite
-#  DEPENDS
-#    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
-#    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
-#    ${abs_sources}
-#  )
-
-# Copy to binary dir again...
-#file(COPY ${py_sources} DESTINATION dlite)
-
-
 
 
 #
