@@ -114,6 +114,7 @@ Building
 
 ## Build on Microsoft Windows
 
+@verbatim
 1. Install a recent version of cmake https://cmake.org/download/
 2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the
    C/C++ components
@@ -164,6 +165,8 @@ in the given path LOCAL_DIR
 	cmake --build . --config Release --target install
 	ctest -C Debug
 	ctest -C Release
+
+@endverbatim
 
 
 ## Build on Linux
