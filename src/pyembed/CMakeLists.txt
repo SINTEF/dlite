@@ -7,9 +7,6 @@ set(sources
   dlite-python-mapping.c
   )
 
-find_package(PythonInterp 3 REQUIRED)
-find_package(PythonLibs REQUIRED)
-
 add_definitions(
   -DHAVE_CONFIG_H
   )

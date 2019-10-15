@@ -46,7 +46,6 @@ endif()
 # Add macros for use with swig
 include(${SWIG_USE_FILE})
 
-
 #
 # Create Python library
 # ---------------------
@@ -67,7 +66,7 @@ set_source_files_properties(dlite.i PROPERTIES
 
 swig_add_library(dlite
   LANGUAGE python
-  #OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite   # new in CMake 3.12
+  OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite   # new in CMake 3.12
   SOURCES dlite.i
   )
 
