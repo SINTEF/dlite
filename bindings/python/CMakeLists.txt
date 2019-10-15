@@ -8,14 +8,10 @@ endif()
 
 
 # Try to require correct version of swig depending on Python version
-if(${PYTHON_VERSION_STRING} VERSION_LESS 3.2)
-  find_package(SWIG REQUIRED 1.3.37)
-elseif(${PYTHON_VERSION_STRING} VERSION_LESS 3.3)
-  find_package(SWIG REQUIRED 2.0.4)
-elseif(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
-  find_package(SWIG REQUIRED 3.0.0)
+if(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
+  find_package(SWIG 3.0.0 REQUIRED)
 else()
-  find_package(SWIG REQUIRED 3.0.8)
+  find_package(SWIG 3.0.8 REQUIRED)
 endif()
 
 # Python sources

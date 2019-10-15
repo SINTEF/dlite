@@ -80,7 +80,7 @@ Runtime dependencies
 --------------------
   - [HDF5][3], optional (needed by HDF5 storage plugin)
   - [Jansson][4], optional (needed by JSON storage plugin)
-  - [Python][5], optional (needed by Python bindings and some plugins)
+  - [Python 3][5], optional (needed by Python bindings and some plugins)
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
     - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
@@ -91,9 +91,9 @@ Build dependencies
   - [cmake][9], required for building
   - hdf5 development libraries, optional (needed by HDF5 storage plugin)
   - Jansson development libraries, optional (needed by JSON storage plugin)
-  - python development libraries, optional (needed by Python bindings)
+  - Python 3 development libraries, optional (needed by Python bindings)
   - NumPy development libraries, optional (needed by Python bindings)
-  - [SWIG][10], optional (needed by building Python bindings)
+  - [SWIG v3][10], optional (needed by building Python bindings)
   - [Doxygen][11], optional, used for documentation generation
   - [valgrind][12], optional, used for memory checking (Linux only)
 
