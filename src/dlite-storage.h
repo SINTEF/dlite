@@ -52,7 +52,7 @@ DLiteStorage *dlite_storage_open_url(const char *url);
 
 
 /**
-  Closes data handle `d`. Returns non-zero on error.
+  Closes storage `s`. Returns non-zero on error.
 */
 int dlite_storage_close(DLiteStorage *s);
 
@@ -67,6 +67,32 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s);
   Sets how instance IDs are handled.
  */
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
+
+
+
+/**
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
+ */
+void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern);
+
+/**
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with
+  dlite_storage_iter_create().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf);
+
+/**
+  Free's iterator created with dlite_storage_iter_create().
+ */
+void dlite_storage_iter_free(DLiteStorage *s, void *iter);
+
 
 
 /**

@@ -1,7 +1,7 @@
 import os
 import sys
-import getpass
 import warnings
+import fnmatch
 
 import psycopg2
 from psycopg2 import sql
@@ -123,7 +123,7 @@ class postgresql(DLiteStorageBase):
         """Returns true if a table named `table_name` exists."""
         self.cur.execute(
             'select exists(select * from information_schema.tables '
-            'where table_name=%s)', (table_name, ))
+            'where table_name=%s);', (table_name, ))
         return self.cur.fetchone()[0]
 
     def table_create(self, meta, dims=None):
@@ -157,3 +157,22 @@ class postgresql(DLiteStorageBase):
                     'meta varchar'
                     ');')
         self.cur.execute(q)
+
+    def queue(self, pattern):
+        """Generator method that iterates over all UUIDs in the storage
+        who's metadata URI matches glob pattern `pattern`.
+        """
+        if pattern:
+            # Convert glob patter to PostgreSQL regular expression
+            regex = '^{}'.format(fnmatch.translate(globex).replace(
+                '\\Z(?ms)', '$'))
+            q = sql.SQL('SELECT uuid from uuidtable WHERE uuid ~ %s;')
+            self.cur.execute(q, (regex, ))
+        else:
+            q = sql.SQL('SELECT uuid from uuidtable;')
+            self.cur.execute(q)
+        tokens = self.cur.fetchone()
+        while tokens:
+            uuid, = tokens
+            yield uuid
+            tokens = self.cur.fetchone()

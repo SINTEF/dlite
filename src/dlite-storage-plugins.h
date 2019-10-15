@@ -21,7 +21,7 @@
   Two APIs
   --------
   Storage plugins may choose to implement either the datamodel API
-  or the direct API.
+  or the instance API.
 
   The datamodel API is the original API resembling SOFT5. It provides a
   generic abstract layer between the data representation in the storage
@@ -31,7 +31,7 @@
   instances, the need for the datamodel layer seems to be gone.  DLite
   therefore offers an alternative and simpler API for storage plugins
   that works directly on DLite instances and only contains two
-  functions; GetInstance() and SetInstance().
+  functions; LoadInstance() and SaveInstance().
 */
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
@@ -72,10 +72,6 @@ struct _DLiteDataModel {
   DLiteDataModel_HEAD
 };
 
-
-/*
-  See http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
- */
 
 /**
   @name Plugin frontend
@@ -186,7 +182,7 @@ int dlite_storage_plugin_path_remove(int n);
 
 
 /**
- * @name Required api
+ * @name Basic API
  * Signatures of functions that must be defined by all plugins.
  * @{
  */
@@ -217,12 +213,104 @@ int dlite_storage_plugin_path_remove(int n);
 typedef DLiteStorage *
 (*Open)(const DLiteStoragePlugin *api, const char *uri, const char *options);
 
-
 /**
   Closes storage `s`.  Returns non-zero on error.
  */
 typedef int (*Close)(DLiteStorage *s);
 
+/** @} */
+
+
+/**
+ * @name Queue API
+ * Function for querying the content of a plugin.  The new IterCreate(),
+ * IterNext() and IterFree() are preferred in front of the old GetUUIDs()
+ * function.
+ *
+ * Any of these functions are fully optional for the storage plugin to
+ * implement.
+ * @{
+ */
+
+/**
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
+ */
+typedef void *(*IterCreate)(const DLiteStorage *s, const char *pattern);
+
+/**
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with IterCreate().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+typedef int (*IterNext)(void *iter, char *buf);
+
+/**
+  Free's iterator created with IterCreate().
+ */
+typedef void (*IterFree)(void *iter);
+
+
+/**
+  Returns a newly malloc'ed NULL-terminated array of (malloc'ed)
+  string pointers to the UUID's of all instances in storage `s`.
+
+  The caller is responsible to free the returned array.
+
+  Returns NULL on error.
+
+  @deprecated Will most likely be deprecated in favour for
+  IterCreate(), IterNext() and IterFree().
+ */
+typedef char **(*GetUUIDs)(const DLiteStorage *s);
+
+/** @} */
+
+
+
+/**
+ * @name Instance API
+ * New API for loading and saving instances that works direct on
+ * instances themselves.
+ *
+ * Both LoadInstance() and SaveInstance() are optional for the plugin
+ * to implement.  If one is not implemented, the old datamodel API will
+ * be attempted.
+ * @{
+ */
+
+/**
+  Returns a new instance from `uuid` in storage `s`.  NULL is returned
+  on error.
+ */
+typedef DLiteInstance *(*LoadInstance)(const DLiteStorage *s, const char *uuid);
+
+/**
+  Stores instance `inst` to storage `s`.  Returns non-zero on error.
+ */
+typedef int (*SaveInstance)(DLiteStorage *s, const DLiteInstance *inst);
+
+/** @} */
+
+
+
+/**
+ * @name Datamodel API
+
+ * Old datamodel-based API for loading instances from and saving them
+ * to a storage.
+ *
+ * The functions in the datamodel API may be omitted if the corresponding
+ * functions in the instance API are implemented.
+ *
+ * @deprecated Will most likely be deprecated in favour for the new
+ * and simpler Instance API.
+ * @{
+ */
 
 /**
   Creates a new datamodel for storage `s`.
@@ -274,20 +362,10 @@ typedef int (*GetProperty)(const DLiteDataModel *d, const char *name,
 /** @} */
 
 /**
- * @name Optional api
+ * @name Optional part of the DataModel API
  * Signatures of function that are optional for the plugins to define.
  * @{
  */
-
-/**
-  Returns a newly malloc'ed NULL-terminated array of (malloc'ed)
-  string pointers to the UUID's of all instances in storage `s`.
-
-  The caller is responsible to free the returned array.
-
-  Returns NULL on error.
- */
-typedef char **(*GetUUIDs)(const DLiteStorage *s);
 
 
 /**
@@ -349,28 +427,6 @@ typedef int (*SetDataName)(DLiteDataModel *d, const char *name);
 
 
 /**
- * @name Direct API
- * API for plugins that works direct on instances instead of a generic
- * datastorage.
- * @{
- */
-
-/**
-  Returns a new instance from `uuid` in storage `s`.  NULL is returned
-  on error.
- */
-typedef DLiteInstance *(*LoadInstance)(const DLiteStorage *s, const char *uuid);
-
-/**
-  Stores instance `inst` to storage `s`.  Returns non-zero on error.
- */
-typedef int (*SaveInstance)(DLiteStorage *s, const DLiteInstance *inst);
-
-/** @} */
-
-
-
-/**
  * @name Internal data
  * Internal data used by the driver.  Optional.
  * @{
@@ -392,18 +448,22 @@ typedef void (*DriverFreer)(DLiteStoragePlugin *api);
 struct _DLiteStoragePlugin {
   const char *       name;             /*!< Name of plugin */
 
-  /* Basic api */
+  /* Basic API (required) */
   Open               open;             /*!< Open storage */
   Close              close;            /*!< Close storage */
 
-  /* ...basic api (optional) */
+  /* Queue API */
+  IterCreate         iterCreate;       /*!< Creates iterator over storage */
+  IterNext           iterNext;         /*!< Returns next UUID */
+  IterFree           iterFree;         /*!< Free's iterator */
+
   GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
 
-  /* Direct api */
+  /* Instance API */
   LoadInstance       loadInstance;     /*!< Returns new instance from storage */
   SaveInstance       saveInstance;     /*!< Stores an instance */
 
-  /* DataModel api */
+  /* DataModel API */
   DataModel          dataModel;        /*!< Creates new data model */
   DataModelFree      dataModelFree;    /*!< Frees a data model */
 
@@ -411,7 +471,7 @@ struct _DLiteStoragePlugin {
   GetDimensionSize   getDimensionSize; /*!< Returns size of dimension */
   GetProperty        getProperty;      /*!< Gets value of property */
 
-  /* ...DataModel api (optional) */
+  /* ... (optional) */
   SetMetaURI         setMetaURI;       /*!< Sets metadata uri */
   SetDimensionSize   setDimensionSize; /*!< Sets size of dimension */
   SetProperty        setProperty;      /*!< Sets value of property */

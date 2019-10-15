@@ -36,7 +36,7 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
   const char *classname;
 
   if (!(classname = dlite_pyembed_classname(cls)))
-    dlite_warnx("cannot get class name for storage plugin %s", *((char **)api));
+    dlite_warnx("cannot get class name for storage plugin %s", api->name);
 
   /* Call method: open() */
   if (!(obj = PyObject_CallObject(cls, NULL)))
@@ -66,6 +66,7 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
   }
   Py_XDECREF(v);
   Py_XDECREF(writable);
+
   return retval;
 }
 
@@ -89,6 +90,8 @@ int closer(DLiteStorage *s)
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
     retval = 1;
   Py_XDECREF(v);
+
+  Py_DECREF(sp->obj);
   return retval;
 }
 
@@ -151,9 +154,97 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
 */
 static void freer(DLiteStoragePlugin *api)
 {
+  free((char *)api->name);
   Py_XDECREF(api->data);
   free(api);
 }
+
+
+/* Struct returned by iterCreate(). */
+typedef struct {
+  PyObject *v;           /* iterator returned by Python method queue() */
+  //const char *pattern;   /* pattern */
+  const char *classname; /* class name */
+} Iter;
+
+/*
+  Free's iterator created with IterCreate().
+*/
+void iterFree(void *iter)
+{
+  Iter *i = (Iter *)iter;
+  Py_XDECREF(i->v);
+  //if (i->pattern) free((char *)i->pattern);
+  free(i);
+}
+
+/*
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+ */
+void *iterCreate(const DLiteStorage *s, const char *pattern)
+{
+  DLitePythonStorage *sp = (DLitePythonStorage *)s;
+  void *retval=NULL;
+  Iter *iter = NULL;
+  PyObject *class = (PyObject *)s->api->data;
+  PyObject *patt = NULL;
+  const char *classname;
+  dlite_errclr();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		*((char **)s->api));
+
+  if (!(iter = calloc(1, sizeof(Iter)))) FAIL("allocation failure");
+
+  iter->v = PyObject_CallMethod(sp->obj, "queue", "s", pattern);
+  if (dlite_pyembed_err_check("error calling %s.queue()", classname)) goto fail;
+  if (!PyIter_Check(iter->v))
+    FAIL1("method %s.queue() does not return a iterator object", classname);
+
+  if (pattern) {
+    patt = PyUnicode_FromString(pattern);
+    PyObject_SetAttrString(iter->v, "pattern", patt);
+  }
+  //iter->pattern = pattern;
+  iter->classname = classname;
+
+  retval = (void *)iter;
+ fail:
+  if (!retval && iter) iterFree(iter);
+  return retval;
+}
+
+/*
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with IterCreate().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int iterNext(void *iter, char *buf)
+{
+  const char *uuid;
+  int retval = -1;
+  Iter *i = (Iter *)iter;
+  PyObject *next = PyIter_Next((PyObject *)i->v);
+  if (dlite_pyembed_err_check("error iteratine over %s.queue()",
+                              i->classname)) goto fail;
+  if (next) {
+    if (!PyUnicode_Check(next))
+      FAIL1("generator method %s.queue() should return a string", i->classname);
+    if (!(uuid = PyUnicode_AsUTF8(next)) || strlen(uuid) != 36)
+      FAIL1("generator method %s.queue() should return a uuid", i->classname);
+    memcpy(buf, uuid, 37);
+    retval = 0;
+  } else {
+    retval = 1;
+  }
+ fail:
+  Py_XDECREF(next);
+  return retval;
+}
+
 
 
 /*
@@ -164,7 +255,7 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   int n;
   DLiteStoragePlugin *api=NULL, *retval=NULL;
   PyObject *storages=NULL, *cls=NULL, *name=NULL;
-  PyObject *open=NULL, *close=NULL, *load=NULL, *save=NULL;
+  PyObject *open=NULL, *close=NULL, *queue=NULL, *load=NULL, *save=NULL;
   const char *classname=NULL;
 
   if (!(storages = dlite_python_storage_load())) goto fail;
@@ -202,6 +293,12 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   if (!PyCallable_Check(close))
     FAIL1("attribute 'close' of '%s' is not callable", classname);
 
+  if (PyObject_HasAttrString(cls, "queue")) {
+    queue = PyObject_GetAttrString(cls, "queue");
+    if (!PyCallable_Check(queue))
+      FAIL1("attribute 'queue' of '%s' is not callable", classname);
+  }
+
   if (PyObject_HasAttrString(cls, "load")) {
     load = PyObject_GetAttrString(cls, "load");
     if (!PyCallable_Check(load))
@@ -221,9 +318,14 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
     FAIL("allocation failure");
 
-  api->name = PyUnicode_AsUTF8(name);
+  api->name = strdup(PyUnicode_AsUTF8(name));
   api->open = opener;
   api->close = closer;
+  if (queue) {
+    api->iterCreate = iterCreate;
+    api->iterNext = iterNext;
+    api->iterFree = iterFree;
+  }
   api->loadInstance = loader;
   api->saveInstance = saver;
   api->freer = freer;

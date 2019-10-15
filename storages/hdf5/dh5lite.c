@@ -779,6 +779,11 @@ static DLiteStoragePlugin h5_plugin = {
   /* basic api */
   dh5_open,
   dh5_close,
+
+  /* queue api */
+  NULL,
+  NULL,
+  NULL,
   dh5_get_uuids,
 
   /* direct api */

@@ -75,16 +75,16 @@ DLiteStorage *dlite_storage_open_url(const char *url)
 
 
 /*
-   Closes data handle `d`. Returns non-zero on error.
+   Closes storage `s`. Returns non-zero on error.
 */
-int dlite_storage_close(DLiteStorage *storage)
+int dlite_storage_close(DLiteStorage *s)
 {
   int stat;
-  assert(storage);
-  stat = storage->api->close(storage);
-  free(storage->uri);
-  if (storage->options) free(storage->options);
-  free(storage);
+  assert(s);
+  stat = s->api->close(s);
+  free(s->uri);
+  if (s->options) free(s->options);
+  free(s);
   return stat;
 }
 
@@ -103,6 +103,47 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s)
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
 {
   s->idflag = idflag;
+}
+
+
+/*
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
+ */
+void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern)
+{
+  if (!s->api->iterCreate)
+    return errx(1, "driver '%s' does not support iterCreate()",
+                s->api->name), NULL;
+  return s->api->iterCreate(s, pattern);
+}
+
+/*
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with
+  dlite_storage_iter_create().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf)
+{
+  if (!s->api->iterNext)
+    return errx(-1, "driver '%s' does not support iterNext()", s->api->name);
+  return s->api->iterNext(iter, buf);
+}
+
+/**
+  Free's iterator created with dlite_storage_iter_create().
+ */
+void dlite_storage_iter_free(DLiteStorage *s, void *iter)
+{
+  if (!s->api->iterFree)
+    errx(1, "driver '%s' does not support iterFree()", s->api->name);
+  else
+    s->api->iterFree(iter);
 }
 
 

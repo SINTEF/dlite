@@ -860,6 +860,11 @@ static DLiteStoragePlugin dlite_json_plugin = {
   /* basic api */
   dlite_json_open,
   dlite_json_close,
+
+  /* queue api */
+  NULL,
+  NULL,
+  NULL,
   dlite_json_get_uuids,
 
   /* direct api */
