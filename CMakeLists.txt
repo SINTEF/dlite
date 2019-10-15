@@ -1,7 +1,7 @@
 # -*- Mode: cmake -*-
 #
 cmake_minimum_required(VERSION 3.11)
-cmake_policy(VERSION 3.11)
+#cmake_policy(VERSION 3.11)
 #cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
@@ -242,16 +242,27 @@ endif()
 # Python
 # ======
 if(WITH_PYTHON)
-  set(Python_ADDITIONAL_VERSIONS 3.8 3.7 3.6 3.5)
-  find_package(PythonInterp 3 REQUIRED)
-  find_package(PythonLibs 3 REQUIRED)
-  # Older version of cmake seems to pick Python 2, even though we ask explicitly
-  # for Python 3.  Add additional logics to work around that.
-  if(PYTHON_VERSION_MAJOR EQUAL 3)
-    find_package(Numpy REQUIRED)
+  if(CMAKE_VERSION VERSION_LESS_EQUAL 3.11)
+    set(Python_ADDITIONAL_VERSIONS 3.8 3.7 3.6 3.5)
+    find_package(PythonInterp 3 REQUIRED)
+    find_package(PythonLibs 3 REQUIRED)
   else()
-    message(WARNING "DLite requires Python 3 - disabling Python...")
-    set(WITH_PYTHON OFF CACHE BOOL "whether to build Python 3 bindings" FORCE)
+    find_package(Python3 COMPONENTS Interpreter Development NumPy)
+
+    # Set backward compatible Python variables
+    set(PYTHONINTERP_FOUND    ${Python3_Interpreter_FOUND})
+    set(PYTHON_EXECUTABLE     ${Python3_EXECUTABLE})
+
+    set(PYTHON_VERSION_STRING ${Python3_VERSION})
+    set(PYTHON_VERSION_MAJOR  ${Python3_VERSION_MAJOR})
+    set(PYTHON_VERSION_MINOR  ${Python3_VERSION_MINOR})
+    set(PYTHON_VERSION_PATCH  ${Python3_VERSION_PATCH})
+
+    set(PYTHONLIBS_FOUND      ${Python3_Development_FOUND})
+    set(PYTHON_LIBRARIES      ${Python3_LIBRARIES})
+    set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
+    set(PYTHON_LIBRARY_DIRS   ${Python3_LIBRARY_DIRS})
+    set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
   endif()
 endif()
 
@@ -384,7 +395,6 @@ message("=====================================")
 # Subdirectories
 add_subdirectory(src)
 add_subdirectory(tools)
-add_subdirectory(doc)
 
 # Bindings
 if(WITH_PYTHON)
@@ -406,6 +416,9 @@ endif()
 if(WITH_EXAMPLES)
   add_subdirectory(examples)
 endif()
+
+# Documentations
+add_subdirectory(doc)
 
 #################################################################
 

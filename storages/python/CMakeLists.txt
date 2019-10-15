@@ -5,7 +5,7 @@ set(sources
   dlite-plugins-python.c
   )
 
-find_package(PythonLibs REQUIRED)
+#find_package(PythonLibs REQUIRED)
 
 #add_definitions(-DHAVE_CONFIG_H)
 
