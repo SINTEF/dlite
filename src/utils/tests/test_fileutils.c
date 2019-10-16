@@ -99,6 +99,43 @@ MU_TEST(test_fu_fileext)
   mu_assert_string_eq("", fu_fileext("a/bb/ccc."));
 }
 
+MU_TEST(test_fu_friendly_dirsep)
+{
+  char path[256];
+  strcpy(path, "/etc/fstab");
+#if WINDOWS
+  mu_assert_string_eq("\\etc\\fstab", fu_friendly_dirsep(path));
+#else
+  mu_assert_string_eq("/etc/fstab", fu_friendly_dirsep(path));
+#endif
+}
+
+MU_TEST(test_fu_canonical_path)
+{
+  char *path, *p;
+#if WINDOWS
+  char buff[MAX_PATH];
+#else
+  char buff[PATH_MAX];
+#endif
+  printf("\ncanonical_path()\n");
+  path = "/etc/fstab";
+  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
+  path = "C:\\Users\\myuser\\myfile.txt";
+  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
+  path = "myfile.txt";
+  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
+  path = "mydir/myfile.txt";
+  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
+  path = "mydir\\myfile.txt";
+  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
+
+  p = fu_canonical_path(path, NULL);
+  mu_assert_string_eq(buff, p);
+  free(p);
+}
+
+
 
 MU_TEST(test_fu_opendir)
 {
@@ -245,6 +282,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_dirname);
   MU_RUN_TEST(test_fu_basename);
   MU_RUN_TEST(test_fu_fileext);
+  MU_RUN_TEST(test_fu_friendly_dirsep);
+  MU_RUN_TEST(test_fu_canonical_path);
 
   MU_RUN_TEST(test_fu_opendir);       /* setup */
   MU_RUN_TEST(test_fu_getfile);
