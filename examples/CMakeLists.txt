@@ -24,9 +24,10 @@ macro(test_example example)
     COMMAND ${CMAKE_COMMAND}
       -G ${CMAKE_GENERATOR}
       -DDLITE_ROOT=${CMAKE_INSTALL_PREFIX}
-      -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-      #$<$<BOOL:${CMAKE_TOOLCHAIN_FILE}>:${CMAKE_TOOLCHAIN_FILE}>
+      -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+      $<$<BOOL:${CMAKE_TOOLCHAIN_FILE}>:${CMAKE_TOOLCHAIN_FILE}>
       ${CMAKE_CURRENT_SOURCE_DIR}/${example}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${example}
     )
@@ -57,7 +58,6 @@ if(EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
   test_example(ex4)
   #test_example(ex5d)
 endif()
-
 
 install(
   DIRECTORY ex1 ex2 ex3 ex4 ex5d

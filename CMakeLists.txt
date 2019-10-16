@@ -328,7 +328,7 @@ set(dlite_METADATA
   ${dlite-tools_SOURCE_DIR}/metadata/*.json
   $ENV{DLITE_METADATA}
   )
-list(REMOVE_DUPLICATES dlite_STORAGES)
+list(REMOVE_DUPLICATES dlite_METADATA)
 
 if(UNIX)
   string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
