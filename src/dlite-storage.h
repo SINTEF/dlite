@@ -68,7 +68,27 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s);
  */
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
 
+/**
+  Returns non-zero if storage `s` is writable.
+ */
+int dlite_storage_is_writable(const DLiteStorage *s);
 
+/**
+  Returns name of driver associated with storage `s`.
+ */
+const char *dlite_storage_get_driver(const DLiteStorage *s);
+
+
+/* Dublicated declarations from dlite-storage-plugins.h */
+int dlite_storage_plugin_unload(const char *name);
+const char **dlite_storage_plugin_paths(void);
+int dlite_storage_plugin_path_insert(int n, const char *path);
+int dlite_storage_plugin_path_append(const char *path);
+
+/**
+ * @name Querying content of a storage
+ * @{
+ */
 
 /**
   Returns a new iterator over all instances in storage `s` who's metadata
@@ -96,14 +116,18 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter);
 
 
 /**
-  Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array with
+  Returns the UUIDs off all instances in storage `s` whos metadata URI
+  matches the glob pattern `pattern`.  If `pattern` is NULL, it matches
+  all instances.
+
+  The UUIDs are returned as a NULL-terminated array of string
+  pointers.  The caller is responsible to free the returned array with
   dlite_storage_uuids_free().
 
   Not all plugins may implement this function.  In that case, NULL is
   returned.
  */
-char **dlite_storage_uuids(const DLiteStorage *s);
+char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern);
 
 
 /**
@@ -112,23 +136,8 @@ char **dlite_storage_uuids(const DLiteStorage *s);
  */
 void dlite_storage_uuids_free(char **uuids);
 
+/** @} */
 
-/**
-  Returns non-zero if storage `s` is writable.
- */
-int dlite_storage_is_writable(const DLiteStorage *s);
-
-/**
-  Returns name of driver associated with storage `s`.
- */
-const char *dlite_storage_get_driver(const DLiteStorage *s);
-
-
-/* Dublicated declarations from dlite-storage-plugins.h */
-int dlite_storage_plugin_unload(const char *name);
-const char **dlite_storage_plugin_paths(void);
-int dlite_storage_plugin_path_insert(int n, const char *path);
-int dlite_storage_plugin_path_append(const char *path);
 
 
 /**

@@ -35,25 +35,35 @@ class yaml(DLiteStorageBase):
         If `writable` is not set, it is assumed to be true.
         """
         self.options = Options(options, defaults='mode=append')
-        mode = dict(r='r', w='w', append='w+')[self.options.mode]
-        self.writable = False if mode == 'r' else True
-        self.f = open(uri, mode)
+        self.mode = dict(r='r', w='w', append='r+')[self.options.mode]
+        self.writable = False if self.mode == 'r' else True
+        self.uri = uri
+        self.d = {}
+        if self.mode in ('r', 'r+') and os.path.exists(uri):
+            with open(uri, self.mode) as f:
+                d = pyyaml.load(f)
+            if d:
+                self.d = d
 
     def close(self):
         """Closes this storage."""
-        self.f.close()
+        if self.writable:
+            with open(self.uri, self.mode) as f:
+                pyyaml.dump(self.d, f)
 
     def load(self, uuid):
         """Loads `uuid` from current storage and return it as a new instance."""
         uuid = dlite.get_uuid(uuid)
-        d = pyyaml.load(self.f)
-        inst = instance_from_dict(d[uuid])
-        return inst
+        return instance_from_dict(self.d[uuid])
 
     def save(self, inst):
         """Stores `inst` in current storage."""
-        d = {}
-        if self.options.mode == 'append':
-            d = pyyaml.load(self.f)
-        d[inst.uuid] = inst.asdict()
-        pyyaml.dump(d, self.f)
+        self.d[inst.uuid] = inst.asdict()
+
+    def queue(self, pattern=None):
+        """Generator method that iterates over all UUIDs in the storage
+        who's metadata URI matches glob pattern `pattern`."""
+        for uuid, d in self.d.items():
+            if pattern and dlite.globmatch(pattern, d['meta']):
+                continue
+            yield uuid

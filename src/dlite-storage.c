@@ -135,7 +135,7 @@ int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf)
   return s->api->iterNext(iter, buf);
 }
 
-/**
+/*
   Free's iterator created with dlite_storage_iter_create().
  */
 void dlite_storage_iter_free(DLiteStorage *s, void *iter)
@@ -148,15 +148,42 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 
 
 /*
-  Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array.
+  Returns the UUIDs off all instances in storage `s` whos metadata URI
+  matches the glob pattern `pattern`.  If `pattern` is NULL, it matches
+  all instances.
+
+  The UUIDs are returned as a NULL-terminated array of string
+  pointers.  The caller is responsible to free the returned array with
+  dlite_storage_uuids_free().
+
+  Not all plugins may implement this function.  In that case, NULL is
+  returned.
  */
-char **dlite_storage_uuids(const DLiteStorage *s)
+char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
 {
-  if (!s->api->getUUIDs)
-    return errx(1, "driver '%s' does not support getUUIDs()",
-                s->api->name), NULL;
-  return s->api->getUUIDs(s);
+  char **p = NULL;
+  if (s->api->iterCreate && s->api->iterCreate && s->api->iterCreate) {
+    char buf[DLITE_UUID_LENGTH+1];
+    void *iter = s->api->iterCreate(s, pattern);
+    int n=0, len=0;
+    while (s->api->iterNext(iter, buf) == 0) {
+      if (n >= len) {
+        len += 32;
+        if (!(p = realloc(p, len*sizeof(char *))))
+          return err(1, "allocation failure"), NULL;
+      }
+      p[n++] = strdup(buf);
+    }
+    s->api->iterFree(iter);
+    if (p) {
+      p = realloc(p, (n+1)*sizeof(char *));
+      p[n] = NULL;
+    }
+  } else if (s->api->getUUIDs)
+    p = s->api->getUUIDs(s);
+  else
+    errx(1, "driver '%s' does not support getUUIDs()", s->api->name);
+  return p;
 }
 
 

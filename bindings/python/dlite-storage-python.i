@@ -9,13 +9,19 @@
           return self
 
       def __exit__(self, *exc):
-          # The storage is closed when the corresponding Python object
-          # is garbage collected - hence, no need to do anything here
-          pass
+          del self.this
 
       def __repr__(self):
           options = '?%s' % self.options if self.options else ''
           return "Storage('%s://%s%s')" % (self.driver, self.uri, options)
+
+      def __iter__(self):
+          return StorageIterator(self)
+
+      def instances(self, pattern=None):
+          """Returns an iterator over all instances in storage whos
+          metadata URI matches `pattern`."""
+          return StorageIterator(pattern)
 
       def load(self, id, metaid=None):
           """Loads instance `id` from this storage and return it.
@@ -34,9 +40,18 @@
   %}
 }
 
+%extend StorageIterator {
+  %pythoncode %{
+      def __next__(self):
+          inst = self.next()
+          if not inst:
+              raise StopIteration()
+          return inst
+  %}
+}
+
 
 %extend StoragePluginIter {
-
   %pythoncode %{
       def __next__(self):
           name = self.next()
@@ -44,5 +59,4 @@
               raise StopIteration()
           return name
   %}
-
 }

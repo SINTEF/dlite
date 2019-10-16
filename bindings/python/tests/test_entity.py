@@ -107,3 +107,6 @@ e3 = Instance(
      Property('arr', type='int', description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
+
+inst.save('json://yyy.json')
+inst.save('yaml://yyy.yaml')

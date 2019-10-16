@@ -109,6 +109,44 @@ int dlite_storage_plugin_load_all()
 }
 
 /*
+  Unloads and unregisters all storage plugins.
+*/
+void dlite_storage_plugin_unload_all()
+{
+  PluginInfo *info;
+  DLiteStoragePluginIter *iter;
+  const DLiteStoragePlugin *api;
+  //char **names=NULL;
+  //int i, n=0, N=0;
+  if (!(info = get_storage_plugin_info())) return;
+  if (!(iter = dlite_storage_plugin_iter_create())) return;
+
+  while ((api = dlite_storage_plugin_iter_next(iter))) {
+    plugin_unload(info, api->name);
+    if (api->freer) api->freer((DLiteStoragePlugin *)api);
+    //free((DLiteStoragePlugin *)api);
+  }
+
+  /* make a list with all plugin names */
+    /*
+  while ((api = dlite_storage_plugin_iter_next(iter))) {
+    if (n >= N) {
+      N += 64;
+      names = realloc(names, N*sizeof(char *));
+    }
+    names[n++] = strdup(api->name);
+  }
+  dlite_storage_plugin_iter_free(iter);
+
+  for (i=0; i<n; i++) {
+    plugin_unload(info, names[i]);
+    free(names[i]);
+  }
+  if (names) free(names);
+    */
+}
+
+/*
   Returns a pointer to a new plugin iterator or NULL on error.  It
   should be free'ed with dlite_storage_plugin_iter_free().
  */

@@ -119,6 +119,11 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api);
 int dlite_storage_plugin_load_all();
 
 /**
+  Unloads and unregisters all storage plugins.
+*/
+void dlite_storage_plugin_unload_all();
+
+/**
   Returns a pointer to a new plugin iterator or NULL on error.  It
   should be free'ed with dlite_storage_plugin_iter_free().
  */

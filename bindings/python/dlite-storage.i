@@ -6,6 +6,49 @@
 #include "dlite-storage-plugins.h"
 %}
 
+
+/* Storage iterator */
+%feature("docstring", "\
+Iterates over instances in storage `s`.  If `pattern` is given, only
+instances whos metadata URI matches `pattern` are returned.
+") StorageIterator;
+%inline %{
+  struct StorageIterator {
+    DLiteStorage *s;  /*!< Reference to storage. */
+    void *state;      /*!< Internal state managed by the storage plugin. */
+  };
+%}
+%extend StorageIterator {
+  StorageIterator(struct _DLiteStorage *s, const char *pattern=NULL) {
+    struct StorageIterator *iter;
+    if (!(iter = calloc(1, sizeof(struct StorageIterator))))
+      return dlite_err(1, "allocation failure"), NULL;
+    iter->s = s;
+    if (!(iter->state = dlite_storage_iter_create(s, pattern))) {
+      free(iter);
+      return NULL;
+    }
+    return iter;
+  }
+  ~StorageIterator(void) {
+    dlite_storage_iter_free($self->s, $self->state);
+    free($self);
+  }
+  %feature("docstring", "\
+Returns UUID of next instance or None if exhausted.") next;
+  %newobject next;
+  struct _DLiteInstance *next(void) {
+    char uuid[DLITE_UUID_LENGTH+1];
+    if (dlite_storage_iter_next($self->s, $self->state, uuid) == 0)
+      return dlite_instance_load($self->s, uuid);
+    return NULL;
+  }
+  struct StorageIterator *__iter__(void) {
+    return $self;
+  }
+}
+
+
 /* Flags for how to handle instance IDs. */
 %rename(IDFlags) _DLiteIDFlags;
 %rename("%(strip:[dlite])s") "";
@@ -49,15 +92,6 @@ url : string
         driver://uri?options
 ") _DLiteStorage;
 %rename(Storage) _DLiteStorage;
-//%{
-//  struct _DLiteStorage {
-//    void *api;                /*!< Pointer to plugin api */
-//    char *uri;                /*!< URI passed to dlite_storage_open() */
-//    char *options;            /*!< Options passed to dlite_storage_open() */
-//    int writable;             /*!< Whether storage is writable */
-//    DLiteIDFlag idflag;       /*!< How to handle instance id's */
-//  };
-//%}
 
 struct _DLiteStorage {
   %immutable;
@@ -89,10 +123,16 @@ Returns name of driver for this storage.") get_driver;
   //}
 
   %feature("docstring", "\
-Returns a list of UUIDs of all instances in the storage.") get_uuids;
-  char **get_uuids(void) {
-    return dlite_storage_uuids($self);
+Returns a list of UUIDs of all instances in the storage whos metadata
+matches `pattern`.  If `pattern` is None, all UUIDs will be returned.
+") get_uuids;
+  char **get_uuids(const char *pattern=NULL) {
+    return dlite_storage_uuids($self, pattern);
   }
+
+  //StorageIterator *instances(const char *pattern=NULL) {
+  //  return StorageIterator
+  //}
 }
 
 

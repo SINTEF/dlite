@@ -52,7 +52,7 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
     FAIL("Allocation failure");
   s->api = api;
   s->uri = strdup(uri);
-  s->options = strdup(options);
+  s->options = (options) ? strdup(options) : NULL;
   s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
   s->obj = obj;
 
@@ -60,7 +60,7 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
  fail:
   if (s && !retval) {
     free(s->uri);
-    free(s->options);
+    if (s->options) free(s->options);
     Py_DECREF(s->obj);
     free(s);
   }
@@ -233,9 +233,9 @@ int iterNext(void *iter, char *buf)
   if (next) {
     if (!PyUnicode_Check(next))
       FAIL1("generator method %s.queue() should return a string", i->classname);
-    if (!(uuid = PyUnicode_AsUTF8(next)) || strlen(uuid) != 36)
+    if (!(uuid = PyUnicode_AsUTF8(next)) || strlen(uuid) != DLITE_UUID_LENGTH)
       FAIL1("generator method %s.queue() should return a uuid", i->classname);
-    memcpy(buf, uuid, 37);
+    memcpy(buf, uuid, DLITE_UUID_LENGTH+1);
     retval = 0;
   } else {
     retval = 1;

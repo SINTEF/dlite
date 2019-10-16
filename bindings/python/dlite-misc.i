@@ -1,6 +1,8 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
 %{
+  #include "utils/globmatch.h"
+
   posstatus_t get_uuid_version(const char *id) {
     char buff[DLITE_UUID_LENGTH+1];
     return dlite_get_uuid(buff, id);
@@ -85,3 +87,17 @@ into four parts.
 %cstring_output_allocate(char **fragment, if (*$1) free(*$1));
 status_t split_url(char *url, char **driver, char **location,
                    char **options, char **fragment);
+
+
+%feature("docstring", "\
+Match string 's' against glob pattern 'pattern' and return zero on
+match.
+
+Understands the following patterns:
+     *       any number of characters
+     ?       any single character
+     [a-z]   any single character in the range a-z
+     [^a-z]  any single character not in the range a-z
+     \x      match x
+") globmatch;
+int globmatch(const char *pattern, const char *s);
