@@ -276,8 +276,8 @@ endif()
 set(dlite_PATH ${dlite-tools_BINARY_DIR})
 if(WIN32)
   list(APPEND dlite_PATH
-    ${dlite-src_BINARY_DIR}
-    ${dlite-src-utils_BINARY_DIR}
+    ${dlite_BINARY_DIR}/src
+    ${dlite_BINARY_DIR}/src/utils
     ${JANSSON_RUNTIME_DIR}
     ${HDF5_RUNTIME_DIR}
     )
@@ -290,8 +290,8 @@ list(REMOVE_DUPLICATES dlite_PATH)
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH
-  ${dlite-src_BINARY_DIR}
-  ${dlite-src-utils_BINARY_DIR}
+  ${dlite_BINARY_DIR}/src
+  ${dlite_BINARY_DIR}/src/utils
   ${JANSSON_LIBRARY_DIR}
   ${HDF5_LIBRARY_DIR}
   $ENV{LD_LIBRARY_PATH}
@@ -300,7 +300,7 @@ list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
-  ${dlite-bindings-python_BINARY_DIR}
+  ${dlite_BINARY_DIR}/bindings/python
   $ENV{PYTHONPATH}
   )
 if(dlite_PYTHONPATH)
@@ -318,7 +318,7 @@ list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 
 # DLITE_MAPPING_PLUGIN_DIRS - search path for DLite mapping plugins
 set(dlite_MAPPING_PLUGINS
-  ${dlite-src-pyembed_BINARY_DIR}
+  ${dlite_BINARY_DIR}/src/pyembed
   $ENV{DLITE_MAPPING_PLUGIN_DIRS}
   )
 list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
@@ -332,21 +332,21 @@ list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
 
 # DLITE_PYTHON_MAPPING_PLUGIN_DIRS - search path for Python mapping plugins
 set(dlite_PYTHON_MAPPING_PLUGINS
-  ${dlite-src-pyembed_SOURCE_DIR}/mapping-plugins
+  ${dlite_SOURCE_DIR}/mapping-plugins/src/pyembed
   $ENV{DLITE_PYTHON_MAPPING_PLUGIN_DIRS}
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_MAPPING_PLUGINS)
 
 # DLITE_TEMPLATE_DIRS - search path for DLite templates
 set(dlite_TEMPLATES
-  ${dlite-tools_SOURCE_DIR}/templates
+  ${dlite_SOURCE_DIR}/tools/templates
   $ENV{DLITE_TEMPLATE_DIRS}
   )
 list(REMOVE_DUPLICATES dlite_TEMPLATES)
 
 # DLITE_STORAGES - DLite storages (inc. metadata)
 set(dlite_STORAGES
-  ${dlite-examples_SOURCE_DIR}/storages/*.json
+  ${dlite_SOURCE_DIR}/examples/storages/*.json
   $ENV{DLITE_STORAGES}
   )
 list(REMOVE_DUPLICATES dlite_STORAGES)
