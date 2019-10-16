@@ -1,10 +1,11 @@
-/* -*- c -*-  (not really, but good for syntax highlighting) */
+/* -*- Python -*-  (not really, but good for syntax highlighting) */
 
 /* Python-spesific extensions to dlite-entity.i */
 %pythoncode %{
 import sys
 import json
 import base64
+
 from uuid import UUID
 if sys.version_info >= (3, 7):
     OrderedDict = dict
@@ -13,7 +14,7 @@ else:
 
 import numpy as np
 
-class BytearrayEncoder(json.JSONEncoder):
+class InstanceEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, bytearray):
             return base64.b16encode(obj).decode()
@@ -27,6 +28,10 @@ class BytearrayEncoder(json.JSONEncoder):
                 return conv(obj.tolist())
             else:
                 return obj.tolist()
+        elif hasattr(obj, 'astuple'):
+            return obj.astuple()
+        elif hasattr(obj, 'asdict'):
+            return obj.asdict()
         else:
             return json.JSONEncoder.default(self, obj)
 
@@ -92,6 +97,15 @@ class BytearrayEncoder(json.JSONEncoder):
     def __repr__(self):
         return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
             self.s, self.p, self.o, self.id)
+
+    def astuple(self):
+        """Returns a tuple representation of self."""
+        return (self.s, self.p, self.o)
+
+    def asdict(self):
+        """Returns a dict representation of self."""
+        d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
+        return d
   %}
 }
 
@@ -109,7 +123,7 @@ class BytearrayEncoder(json.JSONEncoder):
   %newobject __repr__;
   char *__repr__(void) {
     int n=0;
-    char buff[64];
+    char buff[256];
     n += snprintf(buff+n, sizeof(buff)-n, "<Instance:");
     if ($self->uri && $self->uri[0])
       n += snprintf(buff+n, sizeof(buff)-n, " uri='%s'", $self->uri);
@@ -155,8 +169,10 @@ class BytearrayEncoder(json.JSONEncoder):
         d = object.__getattribute__(self, '__dict__')
         if name in d:
             return d[name]
-        elif _has_property(self, name):
+        elif self.has_property(name):
             return _get_property(self, name)
+        elif self.has_dimension(name):
+            return self.get_dimension_size(name)
         else:
             raise AttributeError('Instance object has no attribute %r' % name)
 
@@ -168,6 +184,11 @@ class BytearrayEncoder(json.JSONEncoder):
         else:
             object.__setattr__(self, name, value)
 
+    def __dir__(self):
+        return (object.__dir__(self) +
+                [name for name in self.properties] +
+                [d.name for d in self.meta.properties['dimensions']])
+
     def __hash__(self):
         return UUID(self.uuid).int
 
@@ -176,6 +197,31 @@ class BytearrayEncoder(json.JSONEncoder):
 
     def __str__(self):
         return self.asjson(indent=2)
+
+    def __reduce__(self):
+        # ensures that instances can be pickled
+        def iterfun(inst):
+           for i, prop in enumerate(inst.properties.values()):
+               if isinstance(prop, np.ndarray):
+                   p = np.zeros_like(prop)
+                   p.flat = [p.asdict() if hasattr(p, 'asdict') else p
+                             for p in prop]
+               else:
+                   p = prop.asdict() if hasattr(prop, 'asdict') else prop
+               yield i, p
+        return (
+            Instance,
+            (self.meta.uri, self.dimensions.tolist(), self.uuid),
+            None,
+            None,
+            iterfun(self),
+        )
+
+    def __call__(self, dims=(), id=None):
+        """Returns an uninitiated instance of this metadata."""
+        if not self.is_meta:
+            raise TypeError('data instances are not callable')
+        return Instance(self.uri, dims, id)
 
     def asdict(self):
         """Returns a dict representation of self."""
@@ -200,8 +246,7 @@ class BytearrayEncoder(json.JSONEncoder):
     def asjson(self, **kwargs):
         """Returns a JSON representation of self.  Arguments are passed to
         json.dumps()."""
-        return json.dumps(self.asdict(), cls=BytearrayEncoder, **kwargs)
-
+        return json.dumps(self.asdict(), cls=InstanceEncoder, **kwargs)
   %}
 
 }

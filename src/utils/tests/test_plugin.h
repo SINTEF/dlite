@@ -12,6 +12,6 @@ typedef struct _TestAPI {
   Fun2 fun2;
 } TestAPI;
 
-DSL_EXPORT const TestAPI *get_testapi(const char *name);
+DSL_EXPORT const TestAPI *get_testapi(int *iter);
 
 #endif /* TEST_PLUGIN_H */

@@ -796,14 +796,19 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_get_dataname,
   dh5_set_dataname,
 
+  /* specialised api */
+  NULL,
+  NULL,
+
+  /* internal data */
   NULL,
   NULL
 };
 
 
 DSL_EXPORT const DLiteStoragePlugin *
-get_dlite_storage_plugin_api(const char *name)
+get_dlite_storage_plugin_api(int *iter)
 {
-  UNUSED(name);
+  UNUSED(iter);
   return &h5_plugin;
 }

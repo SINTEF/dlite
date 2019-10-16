@@ -21,6 +21,7 @@
   variable `DLITE_MAPPING_PLUGINS`.
 */
 
+#include "utils/dsl.h"
 #include "dlite-entity.h"
 
 /**
@@ -38,12 +39,11 @@ typedef struct _PluginIter DLiteMappingPluginIter;
   Prototype for function returning a pointer to a
   DLiteMappingPlugin or NULL on error.
 
-  The `name` is just a hint that plugins are free to ignore.  It is
-  used by mapping plugins that supports several different
-  mappings to select which api that should be returned.
+  The `iter` argument is normally ignored.  It is provided to support
+  plugins exposing several APIs.  If the plugin has more APIs to
+  expose, it should increase the integer pointed to by `iter` by one.
  */
-typedef const DLiteMappingPlugin *
-(*GetDLiteMappingAPI)(const char *name);
+typedef const DLiteMappingPlugin *(*GetDLiteMappingAPI)(int *iter);
 
 
 /**
@@ -92,13 +92,18 @@ const DLiteMappingPlugin *
 dlite_mapping_plugin_next(DLiteMappingPluginIter *iter);
 
 
-
-
 /**
   Unloads and unregisters mapping plugin with the given name.
   Returns non-zero on error.
 */
 int dlite_mapping_plugin_unload(const char *name);
+
+/**
+  Unloads and unregisters all mappings.  Returns non-zero on error.
+*/
+int dlite_mapping_plugin_unload_all(void);
+
+
 
 /**
   Returns a pointer to the current mapping plugin search path.  It is

@@ -5,7 +5,7 @@
   @file
   @brief Common API for all storage plugins (internal).
 
-  A DPite storage plugin should be a shared library that defines the
+  A DLite storage plugin should be a shared library that defines the
   function
 
       const DLiteStoragePlugin *get_dlite_storage_api(const char *name);
@@ -21,6 +21,7 @@
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
 
+#include "dlite-datamodel.h"
 #include "dlite-storage.h"
 #include "dlite-entity.h"
 
@@ -68,11 +69,11 @@ struct _DLiteDataModel {
 /**
   Returns a pointer to a DLiteStoragePlugin or NULL on error.
 
-  The `name` is just a hint that plugins are free to ignore.  It is
-  used by storage plugins that supports several different drivers to
-  select which api that should be returned.
+  The `iter` argument is normally ignored.  It is provided to support
+  plugins exposing several APIs.  If the plugin has more APIs to
+  expose, it should increase the integer pointed to by `iter` by one.
  */
-typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(const char *name);
+typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(int *iter);
 
 
 /**
@@ -327,6 +328,20 @@ typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
 
 
 /**
+ * @name Internal data
+ * Internal data used by the driver.  Optional.
+ * @{
+ */
+
+/**
+  Releases internal resources associated with `api`.
+*/
+typedef void (*DriverFreer)(DLiteStoragePlugin *api);
+
+/** @} */
+
+
+/**
   Struct with the name and pointers to function for a plugin. All
   plugins should define themselves by defining an intance of
   DLiteStoragePlugin.
@@ -362,6 +377,10 @@ struct _DLiteStoragePlugin {
   /* Specialised api */
   GetEntity          getEntity;        /*!< Returns a new Entity from storage */
   SetEntity          setEntity;        /*!< Stores an Entity */
+
+  /* Internal data */
+  DriverFreer        freer;            /*!< Releases internal data */
+  void *             data;             /*!< Internal data used by the driver */
 };
 
 

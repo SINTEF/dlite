@@ -159,3 +159,66 @@
    fun:expand_dynamic_string_token
    fun:_dl_map_object
 }
+
+
+# ------------------------------------
+# Embedding Python
+# ------------------------------------
+
+{
+   pyembed-import_module1
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyTuple_New
+   fun:PyTuple_Pack
+   fun:PyInit_mtrand
+   fun:_PyImport_LoadDynamicModuleWithSpec
+}
+
+{
+   pyembed-import_module2
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyCode_New
+   fun:PyInit_mtrand
+   fun:_PyImport_LoadDynamicModuleWithSpec
+}
+
+{
+   pyembed-function_call-tyr
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyTuple_New
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyCFunction_FastCallKeywords
+}
+
+# ------------------------------------
+# Python bindings
+# ------------------------------------
+
+{
+   python-bindings-tyr
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:_PyMem_RawWcsdup
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   fun:_Py_InitializeCore
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   obj:/usr/lib64/libpython3.7m.so.1.0
+   fun:_Py_UnixMain
+}

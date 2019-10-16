@@ -48,7 +48,7 @@ static PluginInfo *get_storage_plugin_info(void)
   Otherwise the plugin search path is checked for shared libraries
   matching `name.EXT` where `EXT` is the extension for shared library
   on the current platform ("dll" on Windows and "so" on Unix/Linux).
-  If a plugin with the provided name is fount, it is loaded,
+  If a plugin with the provided name is found, it is loaded,
   registered and returned.
 
   Otherwise the plugin search path is checked again, but this time for
@@ -65,6 +65,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   if (!(info = get_storage_plugin_info())) return NULL;
 
   if (!(api = (const DLiteStoragePlugin *)plugin_get_api(info, name))) {
+    /* create informative error message... */
     TGenBuf buf;
     int n=0;
     const char *p, **paths = dlite_storage_plugin_paths();
@@ -87,13 +88,8 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
 {
   PluginInfo *info;
-  char uuid[DLITE_UUID_LENGTH+1];
-
   if (!(info = get_storage_plugin_info())) return 1;
-
-  /* We don't have any path for api, so we simply use a random uuid */
-  dlite_get_uuid(uuid, NULL);
-  return plugin_register(info, uuid, api);
+  return plugin_register_api(info, api);
 }
 
 /*

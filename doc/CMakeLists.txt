@@ -51,7 +51,7 @@ if(DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite-type.h html/src/dlite-type.h
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png html/SOFT-metadata-structure.png
     DEPENDS ${dependencies}
-    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml
+    #BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM

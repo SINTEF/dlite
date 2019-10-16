@@ -16,15 +16,18 @@
   The properties can have most of the basic types found in C, with
   some additions, as summarised in the table below:
 
-  type      | dtype          | sizes          | pointer                       | description                      | examples names
-  ----      | -----          | -----          | -------                       | -----------                      | --------------
-  blob      | dliteBlob      | any            | uint8_t *                     | binary blob, sequence of bytes   | blob32, blob128
-  bool      | dliteBool      | sizeof(bool)   | bool *                        | boolean                          | bool
-  int       | dliteInt       | 1, 2, 4, {8}   | int8_t *, int16_t *, ...      | signed integer                   | (int), int8, int16, int32, {int64}
-  uint      | dliteUInt      | 1, 2, 4, {8}   | uint8_t *, uint16_t *, ...    | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
-  float     | dliteFloat     | 4, 8, {10, 16} | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
-  fixstring | dliteFixString | any            | char *                        | fix-sized NUL-terminated string  | string20
-  string    | dliteStringPtr | sizeof(char *) | char **                       | pointer to NUL-terminated string | string
+  type      | dtype          | sizes                  | pointer                       | description                      | examples names
+  ----      | -----          | -----                  | -------                       | -----------                      | --------------
+  blob      | dliteBlob      | any                    | uint8_t *                     | binary blob, sequence of bytes   | blob32, blob128
+  bool      | dliteBool      | sizeof(bool)           | bool *                        | boolean                          | bool
+  int       | dliteInt       | 1, 2, 4, {8}           | int8_t *, int16_t *, ...      | signed integer                   | (int), int8, int16, int32, {int64}
+  uint      | dliteUInt      | 1, 2, 4, {8}           | uint8_t *, uint16_t *, ...    | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
+  float     | dliteFloat     | 4, 8, {10, 16}         | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
+  fixstring | dliteFixString | any                    | char *                        | fix-sized NUL-terminated string  | string20
+  string    | dliteStringPtr | sizeof(char *)         | char **                       | pointer to NUL-terminated string | string
+  relation  | dliteRelation  | sizeof(DLiteRelation)  | DLiteRelation *               | subject-predicate-object triplet | relation
+  dimension | dliteDimension | sizeof(DLiteDimension) | DLiteDimension *              | only intended for metadata       | dimension
+  property  | dliteProperty  | sizeof(DLiteProperty)  | DLiteProperty *               | only intended for metadata       | property
 
   The column "pointer" shows the C type of the `ptr` argument for
   functions like dlite_instance_get_property() and
@@ -54,11 +57,18 @@
       allocated with malloc().  If you free a string, you should always
       set the pointer to NULL, since functions like dlite_entity_free()
       otherwise will try to free it again, causing memory corruption.
+    - *relation*: a subject-predicate-object triplet defined in
+      `triplestore.h`.  In addition have all triplets an id, allowing
+      a relation to refer to another relation.
+    - *dimension*: Name and description of a dimension.  Only intended
+      for metadata.
+    - *property*: Name and full description of a property.  Only intended
+      for metadata.
 */
 
 #include <stdlib.h>
 
-#include "boolean.h"
+#include "utils/boolean.h"
 #include "triplestore.h"
 
 /** Expands to the struct alignment of type */

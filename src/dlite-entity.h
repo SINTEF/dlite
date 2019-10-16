@@ -111,7 +111,7 @@
   only metadata instances has this segment.
 */
 
-#include "boolean.h"
+#include "utils/boolean.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
 #include "dlite-storage.h"
@@ -338,6 +338,13 @@ int dlite_instance_decref(DLiteInstance *inst);
 */
 DLiteInstance *dlite_instance_get(const char *id);
 
+/**
+  Like dlite_instance_get(), but maps the instance with the given id
+  to an instance of `metaid`.  If `metaid` is NULL, it falls back to
+  dlite_instance_get().  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_get_casted(const char *id, const char *metaid);
+
 
 /**
   Loads instance identified by `id` from storage `s` and returns a
@@ -395,6 +402,10 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
  */
 int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
 
+/**
+  Returns true if instance has a dimension with the given name.
+ */
+bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name);
 
 /**
   Returns number of dimensions or -1 on error.

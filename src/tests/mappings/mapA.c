@@ -36,11 +36,11 @@ DLiteInstance *mapper(const DLiteMappingPlugin *api,
 }
 
 
-const DLiteMappingPlugin *get_dlite_mapping_api(const char *name)
+DSL_EXPORT const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
 {
   static DLiteMappingPlugin api;
   static const char *input_uris[] = { "http://meta.sintef.no/0.1/ent1" };
-  UNUSED(name);
+  UNUSED(iter);
 
   api.name = "mapA";
   api.output_uri = "http://meta.sintef.no/0.1/ent2";

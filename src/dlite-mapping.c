@@ -326,14 +326,20 @@ char *dlite_mapping_string(const DLiteMapping *m)
 }
 
 
-/* Assign `inputs` from `instances`.  Returns non-zero on error. */
+/* Assign `inputs` from `instances` and increases refcount of each
+   instance.  Returns non-zero on error. */
 int set_inputs(Instances *inputs, const DLiteInstance **instances, int n)
 {
   int i;
   for (i=0; i<n; i++) {
     const char *uri = instances[i]->meta->uri;
-    if (map_get(inputs, uri))
+    if (map_get(inputs, uri)) {
+      while (--i >= 0) {
+        dlite_instance_decref((DLiteInstance *)instances[i]);
+        map_remove(inputs, instances[i]->meta->uri);
+      }
       return err(1, "more than one instance of the same metadata: %s", uri);
+    }
     dlite_instance_incref((DLiteInstance *)instances[i]);
     map_set(inputs, uri, (DLiteInstance *)instances[i]);
   }
@@ -371,7 +377,10 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
   map_init(&inputs);
 
   /* Assign instances and check that the metadata of all instances are unique */
-  if (set_inputs(&inputs, instances, n)) goto fail;
+  if (set_inputs(&inputs, instances, n)) {
+    map_deinit(&inputs);
+    return NULL;
+  }
 
   if ((instp = map_get(&inputs, m->output_uri))) {
     /* The trivial case - one of the inputs has metadata output URI */
@@ -385,8 +394,7 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
     inst = mapping_map_rec(m, &inputs);
   }
 
- fail:
-  /* Remove temporary created instances */
+  /* Done - remove temporary created instances */
   remove_inputs_rec(m, &inputs);
   iter = map_iter(&inputs);
   while ((key = map_next(&inputs, &iter))) {
@@ -417,6 +425,7 @@ DLiteInstance *dlite_mapping(const char *output_uri,
 
   map_init(&inputs);
 
+  /* Increases refcount on each input instance */
   if (set_inputs(&inputs, instances, n)) goto fail;
   if (!(m = mapping_create_base(output_uri, &inputs))) goto fail;
   inst = dlite_mapping_map(m, instances, n);
@@ -424,6 +433,7 @@ DLiteInstance *dlite_mapping(const char *output_uri,
  fail:
   map_deinit(&inputs);
   if (m) dlite_mapping_free(m);
+  /* Decrease refcount */
   for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
   return inst;
 }

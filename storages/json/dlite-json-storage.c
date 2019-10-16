@@ -946,14 +946,20 @@ static DLiteStoragePlugin dlite_json_plugin = {
   dlite_json_get_dataname,
   dlite_json_set_dataname,
 
+  /* specialised api */
   dlite_json_get_entity,
-  dlite_json_set_entity
+  dlite_json_set_entity,
+
+
+  /* internal data */
+  NULL,
+  NULL
 };
 
 
 DSL_EXPORT const DLiteStoragePlugin *
-get_dlite_storage_plugin_api(const char *name)
+get_dlite_storage_plugin_api(int *iter)
 {
-  UNUSED(name);
+  UNUSED(iter);
   return &dlite_json_plugin;
 }

@@ -20,8 +20,8 @@ static TestAPI testapi = {
 };
 
 
-DSL_EXPORT const TestAPI *get_testapi(const char *name)
+DSL_EXPORT const TestAPI *get_testapi(int *iter)
 {
-  (void)(name);  /* unused */
+  (void)(iter);  /* unused */
   return &testapi;
 }
