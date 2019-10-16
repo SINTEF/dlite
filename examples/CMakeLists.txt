@@ -59,7 +59,6 @@ if(EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
   #test_example(ex5d)
 endif()
 
-
 install(
   DIRECTORY ex1 ex2 ex3 ex4 ex5d
   DESTINATION share/dlite/examples
