@@ -50,11 +50,7 @@ else()
 
   # DLITE_ROOT
   get_filename_component(INCLUDES ${DLITE_INCLUDE_DIR} DIRECTORY)
-  get_filename_component(DLITE_ROOT ${INCLUDES} DIRECTORY)
-
-  message("DLITE_INCLUDE_DIR=${DLITE_INCLUDE_DIR}")
-  message("INCLUDES=${INCLUDES}")
-  message("DLITE_ROOT=${DLITE_ROOT}")
+  get_filename_component(DLITE_ROOT "${INCLUDES}" DIRECTORY)
 
   if(DLITE_ROOT)
     message(STATUS "Found DLite: ${DLITE_ROOT}")
