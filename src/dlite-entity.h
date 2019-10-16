@@ -382,6 +382,9 @@ DLiteInstance *dlite_instance_load_url(const char *url);
   into an instance of metadata identified by `metaid`.  If `metaid` is
   NULL, no casting is performed.
 
+  Some storages accept that `id` is NULL if the storage only contain
+  one instance.  In that case that instance is returned.
+
   For the cast to be successful requires that the correct mappings
   have been registered.
 

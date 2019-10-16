@@ -35,8 +35,8 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 const FUPaths *dlite_python_mapping_paths(void)
 {
   if (!mapping_paths_initialised) {
-    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPINGS") < 0)
-      return dlite_err(1, "cannot initialise DLITE_PYTHON_MAPPINGS"), NULL;
+    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_DIRS") < 0)
+      return dlite_err(1, "cannot initialise DLITE_PYTHON_MAPPING_DIRS"), NULL;
     mapping_paths_initialised = 1;
     mapping_paths_modified = 0;
   }

@@ -34,7 +34,6 @@ MU_TEST(test_save)
   int n, i;
 
   mu_check((meta = dlite_instance_load_url("json://Person.json?mode=r")));
-
   mu_check((inst = dlite_instance_create((DLiteMeta *)meta, dims, "ada")));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "name", &name));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "age", &age));

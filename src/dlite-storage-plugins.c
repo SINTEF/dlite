@@ -33,11 +33,12 @@ static void storage_plugin_info_free(void)
 static PluginInfo *get_storage_plugin_info(void)
 {
   if (!storage_plugin_info &&
-      (storage_plugin_info = plugin_info_create("storage-plugin",
-                                                "get_dlite_storage_plugin_api",
-                                                "DLITE_STORAGE_PLUGINS"))) {
+      (storage_plugin_info =
+       plugin_info_create("storage-plugin",
+			  "get_dlite_storage_plugin_api",
+			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
     atexit(storage_plugin_info_free);
-    dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGINS_PATH);
+    dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGIN_DIRS);
   }
   return storage_plugin_info;
 }
@@ -78,7 +79,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
                         "in search path:\n", name);
     while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
     if (n <= 1)
-      tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGINS enveronment "
+      tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGIN_DIRS enveronment "
                           "variable set?");
     errx(1, tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);

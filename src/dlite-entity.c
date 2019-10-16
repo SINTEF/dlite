@@ -171,7 +171,8 @@ DLiteInstance *_instance_create(const DLiteMeta *meta, const size_t *dims,
 
   /* Check if we are trying to create an instance with an already
      existing id. */
-  if (lookup && id && (inst = dlite_instance_get(id))) {
+  if (lookup && id && (inst = _instance_store_get(id))) {
+    dlite_instance_incref(inst);
     //if (dlite_instance_is_data(inst))
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->refcount);
@@ -371,6 +372,7 @@ DLiteInstance *dlite_instance_get(const char *id)
 {
   DLiteInstance *inst=NULL;
   const char **urls;
+  FILE *errstream = err_get_stream();
 
   /* check if instance `id` is already instansiated... */
   if ((inst = _instance_store_get(id))) {
@@ -397,16 +399,23 @@ DLiteInstance *dlite_instance_get(const char *id)
 #else
     dlite_split_url(copy, &driver, &location, &options, NULL);
 #endif
+
+    /* If driver is not given, infer it from file extension */
+    if (!driver) driver = (char *)fu_fileext(location);
+
+    /* Set read-only as default mode (all drivers should support this) */
     if (!options) options = "mode=r";
-    if (driver) {
-      /* check if url is a storage we can open... */
-      if ((s = dlite_storage_open(driver, location, options))) {
-        inst = _instance_load_casted(s, id, NULL, 0);
-        dlite_storage_close(s);
-      }
+
+    err_set_stream(NULL);         /* silence errors */
+    if ((s = dlite_storage_open(driver, location, options))) {
+      err_set_stream(errstream);  /* restore error stream */
+      /* url is a storage we can open... */
+      inst = _instance_load_casted(s, id, NULL, 0);
+      dlite_storage_close(s);
     } else {
-      /* ...otherwise it may be glob pattern */
+      /* ...otherwise it may be a glob pattern */
       FUIter *iter;
+      err_set_stream(errstream);  /* restore error stream */
       if ((iter = fu_glob(location))) {
         const char *path;
         while (!inst && (path = fu_globnext(iter))) {
@@ -484,7 +493,9 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   assert(url);
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
-  if (!id || !(inst = dlite_instance_get(id))) {
+  if (id && (inst = _instance_store_get(id))) {
+    dlite_instance_incref(inst);
+  } else {
     err_clear();
     if (!(s = dlite_storage_open(driver, location, options))) goto fail;
     if (!(inst = dlite_instance_load(s, id))) goto fail;
@@ -497,6 +508,9 @@ DLiteInstance *dlite_instance_load_url(const char *url)
 
 /*
   Help function for dlite_instance_load_casted().
+
+  Some storages accept that `id` is NULL if the storage only contain
+  one instance.  In that case that instance is returned.
 
   If `lookup` is non-zero, a check will be done to see if the instance
   already exists.  This is the normal case.
@@ -511,7 +525,15 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   int j, max_pndims=0;
   const char *uri=NULL;
 
-  /* check if storage implements the direct api */
+  /* check if id is already loaded */
+  if (lookup && id && (inst = _instance_store_get(id))) {
+    dlite_instance_incref(inst);
+    warn("trying to load existing instance from storage \"%s\": %s"
+         " - creates a new reference", s->uri, id);
+    return inst;
+  }
+
+  /* check if storage implements the instance api */
   if (s->api->loadInstance) {
     inst = s->api->loadInstance(s, id);
     if (metaid)
@@ -523,14 +545,6 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   /* create datamodel and get metadata uri */
   if (!(d = dlite_datamodel(s, id))) goto fail;
   if (!id || !*id) id = d->uuid;
-
-  /* check if id is already loaded */
-  if (lookup && id && (inst = dlite_instance_get(id))) {
-    warn("trying to load existing instance from storage \"%s\": %s"
-         " - creates a new reference", s->uri, id);
-    dlite_datamodel_free(d);
-    return inst;
-  }
 
   if (!(uri = dlite_datamodel_get_meta_uri(d))) goto fail;
 
@@ -661,7 +675,7 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
 
   if (!(meta = inst->meta)) return errx(-1, "no metadata available");
 
-  /* check if storage implements the direct api */
+  /* check if storage implements the instance api */
   if (s->api->saveInstance)
     return s->api->saveInstance(s, inst);
 

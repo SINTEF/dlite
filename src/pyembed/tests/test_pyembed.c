@@ -17,7 +17,7 @@ MU_TEST(test_load_modules)
   FUPaths paths;
   PyObject *plugins;
 
-  fu_paths_init(&paths, "DLITE_PYTHON_MAPPING_PLUGINS");
+  fu_paths_init(&paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS");
   fu_paths_insert(&paths, STRINGIFY(TESTDIR), 0);
 
   plugins = dlite_pyembed_load_plugins(&paths, "DLiteMappingBase");

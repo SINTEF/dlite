@@ -16,7 +16,7 @@
   different drivers, to select which api that should be returned.
 
   The storage plugin search path is initialised from the environment
-  variable `DLITE_STORAGE_PLUGINS`.
+  variable `DLITE_STORAGE_PLUGIN_DIRS`.
 
   Two APIs
   --------
@@ -151,7 +151,7 @@ int dlite_storage_plugin_unload(const char *name);
 
 /**
   Returns a pointer to the current storage plugin search path.  It is
-  initialised from the environment variable `DLITE_STORAGE_PLUGINS`.
+  initialised from the environment variable `DLITE_STORAGE_PLUGIN_DIRS`.
 
   Use dlite_storage_plugin_path_insert(), dlite_storage_plugin_path_append()
   and dlite_storage_plugin_path_remove() to modify it.

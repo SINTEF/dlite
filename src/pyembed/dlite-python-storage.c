@@ -36,9 +36,10 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 const FUPaths *dlite_python_storage_paths(void)
 {
   if (!storage_paths_initialised) {
-    if (fu_paths_init(&storage_paths, "DLITE_PYTHON_STORAGE_PLUGINS") < 0)
+    if (fu_paths_init(&storage_paths, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS") < 0)
       return
-        dlite_err(1, "cannot initialise DLITE_PYTHON_STORAGE_PLUGINS"), NULL;
+        dlite_err(1,
+		  "cannot initialise DLITE_PYTHON_STORAGE_PLUGIN_DIRS"), NULL;
     storage_paths_initialised = 1;
     storage_paths_modified = 0;
   }
