@@ -55,7 +55,7 @@ MU_TEST(test_storage_uuids)
 {
   char **uuids;
   int n=0;
-  mu_check((uuids = dlite_storage_uuids(s)));
+  mu_check((uuids = dlite_storage_uuids(s, NULL)));
   while (uuids[n]) n++;
   mu_assert_int_eq(3, n);
 #ifdef HAVE_QSORT

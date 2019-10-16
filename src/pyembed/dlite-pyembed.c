@@ -4,25 +4,36 @@
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
 
-static int initialized = 0;
+
+static int python_initialized = 0;
 
 /* Initialises the embedded Python environment. */
 void dlite_pyembed_initialise(void)
 {
-  if (!initialized) {
+  wchar_t *progname;
+  if (!python_initialized) {
+    if (!(progname = Py_DecodeLocale("dlite", NULL))) {
+      dlite_err(1, "allocation/decoding failure");
+      return;
+    }
+    Py_SetProgramName(progname);
+    PyMem_RawFree(progname);
     Py_Initialize();
-    initialized = 1;
+    python_initialized = 1;
   }
 }
 
-/* Finalises the embedded Python environment. */
+/* Finalises the embedded Python environment.  Returns non-zero on error. */
 int dlite_pyembed_finalise(void)
 {
-  if (initialized) {
-    Py_Finalize();
-    initialized = 0;
+  int status=0;
+  if (python_initialized) {
+    status = Py_FinalizeEx();
+    python_initialized = 0;
+  } else {
+    return dlite_errx(1, "cannot finalize Python before it is initialized");
   }
-  return 0;
+  return status;
 }
 
 
@@ -36,7 +47,7 @@ const char *dlite_pyembed_classname(PyObject *cls)
   PyObject *name=NULL, *sname=NULL;
   if ((name = PyObject_GetAttrString(cls, "__name__")) &&
       (sname = PyObject_Str(name)))
-    classname = PyUnicode_DATA(sname);
+    classname = PyUnicode_AsUTF8(sname);
   Py_XDECREF(name);
   Py_XDECREF(sname);
   return classname;
@@ -90,7 +101,7 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
           PyUnicode_Check(str) &&
           PyUnicode_GET_LENGTH(str) > 0)
         PyOS_snprintf(errmsg, sizeof(errmsg), "%s\n%s",
-                      msg, (char *)PyUnicode_DATA(str));
+                      msg, (char *)PyUnicode_AsUTF8(str));
       Py_XDECREF(str);
       Py_XDECREF(sep);
       Py_XDECREF(val);
@@ -108,8 +119,8 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
           (svalue = PyObject_Str(value)) &&
           PyUnicode_Check(svalue))
         PyOS_snprintf(errmsg, sizeof(errmsg), "%s: %s: %s",
-                      msg, (char *)PyUnicode_DATA(sname),
-                      (char *)PyUnicode_DATA(svalue));
+                      msg, (char *)PyUnicode_AsUTF8(sname),
+                      (char *)PyUnicode_AsUTF8(svalue));
       Py_XDECREF(svalue);
       Py_XDECREF(sname);
       Py_XDECREF(name);
@@ -127,6 +138,32 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
     Py_XDECREF(tb);
   }
   return dlite_verrx(eval, msg, ap);
+}
+
+/*
+  Checks if an Python error has occured.  Returns zero if no error has
+  occured.  Otherwise dlite_pyembed_err() is called and non-zero is
+  returned.
+ */
+int dlite_pyembed_err_check(const char *msg, ...)
+{
+  int stat;
+  va_list ap;
+  va_start(ap, msg);
+  stat = dlite_pyembed_verr_check(msg, ap);
+  va_end(ap);
+  return stat;
+}
+
+/*
+  Like dlite_pyembed_err_check() but takes a `va_list` as input.
+ */
+int dlite_pyembed_verr_check(const char *msg, va_list ap)
+{
+  /* TODO: can we correlate the return value to Python error type? */
+  if (PyErr_Occurred())
+    return dlite_pyembed_verr(1, msg, ap);
+  return 0;
 }
 
 
@@ -160,7 +197,7 @@ void *dlite_pyembed_get_address(const char *symbol)
 
   /* Get C path to _dlite */
   if (!PyUnicode_Check(_dlite_file) ||
-      !(filename = PyUnicode_DATA(_dlite_file)))
+      !(filename = PyUnicode_AsUTF8(_dlite_file)))
     FAIL("cannot get C path to dlite extension module");
 
   /* Get PyDLL() from ctypes */
@@ -212,7 +249,7 @@ void *dlite_pyembed_get_address(const char *symbol)
   Returns a Python representation of dlite instance with given id or NULL
   on error.
 */
-PyObject *dlite_pyembed_get_instance(const char *id)
+PyObject *dlite_pyembed_from_instance(const char *id)
 {
   PyObject *pyid=NULL, *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
   PyObject *get_instance=NULL, *instance=NULL;
@@ -239,6 +276,32 @@ PyObject *dlite_pyembed_get_instance(const char *id)
   Py_XDECREF(dlite_module);
   Py_XDECREF(dlite_name);
   return instance;
+}
+
+
+/*
+  Returns a new reference to DLite instance from Python representation
+  or NULL on error.
+
+  Since plugins that statically links to dlite will have their own
+  global state, dlite_instance_get() will not work.  Instead, this
+  function uses the capsule returned by the Python method Instance._c_ptr().
+*/
+DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
+{
+  DLiteInstance *inst=NULL;
+  PyObject *fcn=NULL, *cap=NULL;
+  if (!(fcn = PyObject_GetAttrString(pyinst, "_c_ptr")))
+    FAIL("Python instance has no attribute: '_c_ptr'");
+  if (!(cap = PyObject_CallObject(fcn, NULL)))
+    FAIL("error calling: '_c_ptr'");
+  if (!(inst = PyCapsule_GetPointer(cap, NULL)))
+    FAIL("cannot get instance pointer from capsule");
+  dlite_instance_incref(inst);
+ fail:
+  Py_XDECREF(cap);
+  Py_XDECREF(fcn);
+  return inst;
 }
 
 
@@ -278,6 +341,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     FAIL("cannot access __dict__ of the embedded Python __main__ module");
   if (!(baseclass = PyDict_GetItemString(main_dict, baseclassname)))
     FAIL1("cannot get base class '%s' from the main dict", baseclassname);
+
 
   /* Load all modules in `paths` */
   if (!(iter = fu_startmatch("*.py", paths))) goto fail;

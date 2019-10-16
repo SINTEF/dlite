@@ -18,7 +18,7 @@
   returned.
 
   The mapping plugin search path is initialised from the environment
-  variable `DLITE_MAPPING_PLUGINS`.
+  variable `DLITE_MAPPING_PLUGIN_DIRS`.
 */
 
 #include "utils/dsl.h"
@@ -107,7 +107,7 @@ int dlite_mapping_plugin_unload_all(void);
 
 /**
   Returns a pointer to the current mapping plugin search path.  It is
-  initialised from the environment variable `DLITE_MAPPING_PLUGINS`.
+  initialised from the environment variable `DLITE_MAPPING_PLUGIN_DIRS`.
 
   Use dlite_mapping_plugin_path_insert(),
   dlite_mapping_plugin_path_append()

@@ -41,6 +41,12 @@ add_definitions(
   #-DWITH_DEBUG
   )
 
+
+# We are building both shared and static libraries.  User software will
+# normally link to the shared libraries.  However, to simplify the
+# library search (especially on Windows), the storage plugins will use
+# the static libraries.  For this to work, the static libraries will be
+# build position independent.
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
@@ -90,15 +96,17 @@ install(
   INCLUDES DESTINATION include/dlite
 )
 
+# Install empty directories
+install(DIRECTORY DESTINATION share/dlite/storages)
+install(DIRECTORY DESTINATION share/dlite/mapping-plugins)
+
 
 # install .pdb files - seems to be needed on Windows if we are
 # installing dlite compiled in debug mode
-install(DIRECTORY
-  $<TARGET_FILE_DIR:dlite>
-  DESTINATION bin
-  FILES_MATCHING
-  PATTERN *.pdb
-  )
+if(WIN32 AND MSVC AND (NOT MSVC_VERSION LESS 1600) AND
+    (NOT CMAKE_VERSION VERSION_LESS "3.1"))
+  install(FILES $<TARGET_PDB_FILE:dlite> DESTINATION bin OPTIONAL)
+endif()
 
 
 # Support driver and mapping plugins written in Python

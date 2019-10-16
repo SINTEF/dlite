@@ -17,11 +17,11 @@ add_custom_command(
   COMMAND
     ${CMAKE_COMMAND} -E env
     LD_LIBRARY_PATH="${DLITE_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-    DLITE_STORAGE_PLUGINS="${DLITE_STORAGES_DIR}"
+    DLITE_STORAGE_PLUGIN_DIRS="${DLITE_STORAGE_PLUGIN_DIRS}"
     ${DLITE_ROOT}/bin/dlite-codegen
-    --template "${DLITE_TEMPLATES_DIR}/c-header.txt"
+    --template "${DLITE_TEMPLATE_DIRS}/c-header.txt"
     --output chemistry.h
-    --storage-plugins "${DLITE_STORAGES_DIR}"
+    --storage-plugins "${DLITE_STORAGE_PLUGIN_DIRS}"
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json?mode=r
   MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
   COMMENT "Generating C header for Chemistry-0.1.json"

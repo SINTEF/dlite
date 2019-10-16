@@ -1,0 +1,20 @@
+{
+  "21495524-a02f-5695-82e2-b117addc0b1e": {
+    "meta": {
+      "name": "Person",
+      "version": "0.1",
+      "namespace": "http://meta.sintef.no"
+    },
+    "dimensions": {
+      "N": 2
+    },
+    "properties": {
+      "name": "Ada",
+      "age": 42.0,
+      "skills": [
+        "jumping",
+        "hopping"
+      ]
+    }
+  }
+}

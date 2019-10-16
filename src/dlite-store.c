@@ -65,7 +65,7 @@ DLiteStore *dlite_store_load(DLiteStorage *s)
   char **p, **uuids=NULL;
   DLiteStore *store=NULL, *retval=NULL;
   DLiteInstance *inst;
-  if (!(uuids = dlite_storage_uuids(s))) goto fail;
+  if (!(uuids = dlite_storage_uuids(s, NULL))) goto fail;
   if (!(store = dlite_store_create())) goto fail;
   for (p=uuids; *p; p++) {
     if (!(inst = dlite_instance_load(s, *p))) goto fail;

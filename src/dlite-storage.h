@@ -52,7 +52,7 @@ DLiteStorage *dlite_storage_open_url(const char *url);
 
 
 /**
-  Closes data handle `d`. Returns non-zero on error.
+  Closes storage `s`. Returns non-zero on error.
 */
 int dlite_storage_close(DLiteStorage *s);
 
@@ -67,25 +67,6 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s);
   Sets how instance IDs are handled.
  */
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
-
-
-/**
-  Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array with
-  dlite_storage_uuids_free().
-
-  Not all plugins may implement this function.  In that case, NULL is
-  returned.
- */
-char **dlite_storage_uuids(const DLiteStorage *s);
-
-
-/**
-  Frees NULL-terminated array of instance names returned by
-  dlite_storage_uuids().
- */
-void dlite_storage_uuids_free(char **uuids);
-
 
 /**
   Returns non-zero if storage `s` is writable.
@@ -103,6 +84,60 @@ int dlite_storage_plugin_unload(const char *name);
 const char **dlite_storage_plugin_paths(void);
 int dlite_storage_plugin_path_insert(int n, const char *path);
 int dlite_storage_plugin_path_append(const char *path);
+
+/**
+ * @name Querying content of a storage
+ * @{
+ */
+
+/**
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
+ */
+void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern);
+
+/**
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with
+  dlite_storage_iter_create().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf);
+
+/**
+  Free's iterator created with dlite_storage_iter_create().
+ */
+void dlite_storage_iter_free(DLiteStorage *s, void *iter);
+
+
+
+/**
+  Returns the UUIDs off all instances in storage `s` whos metadata URI
+  matches the glob pattern `pattern`.  If `pattern` is NULL, it matches
+  all instances.
+
+  The UUIDs are returned as a NULL-terminated array of string
+  pointers.  The caller is responsible to free the returned array with
+  dlite_storage_uuids_free().
+
+  Not all plugins may implement this function.  In that case, NULL is
+  returned.
+ */
+char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern);
+
+
+/**
+  Frees NULL-terminated array of instance names returned by
+  dlite_storage_uuids().
+ */
+void dlite_storage_uuids_free(char **uuids);
+
+/** @} */
+
 
 
 /**

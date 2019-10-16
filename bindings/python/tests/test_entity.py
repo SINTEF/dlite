@@ -16,6 +16,7 @@ url = 'json://' + thisdir + '/MyEntity.json' #+ "?mode=r"
 
 # Load metadata (i.e. an instance of meta-metadata) from url
 myentity = Instance(url)
+print(myentity.uuid)
 
 # Check some properties of the entity
 assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
@@ -107,3 +108,6 @@ e3 = Instance(
      Property('arr', type='int', description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
+
+inst.save('json://yyy.json')
+inst.save('yaml://yyy.yaml')

@@ -41,9 +41,9 @@ static PluginInfo *get_mapping_plugin_info(void)
       (mapping_plugin_info =
        plugin_info_create("mapping-plugin",
                           "get_dlite_mapping_api",
-                          "DLITE_MAPPING_PLUGINS"))) {
+                          "DLITE_MAPPING_PLUGIN_DIRS"))) {
     atexit(mapping_plugin_info_free);
-    dlite_mapping_plugin_path_append(DLITE_MAPPING_PLUGINS_PATH);
+    dlite_mapping_plugin_path_append(DLITE_MAPPING_PLUGIN_DIRS);
   }
   return mapping_plugin_info;
 }
@@ -94,7 +94,7 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
                         "in search path:\n", name);
     while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
     if (n <= 1)
-      tgen_buf_append_fmt(&buf, "Is the DLITE_MAPPING_PLUGINS enveronment "
+      tgen_buf_append_fmt(&buf, "Is the DLITE_MAPPING_PLUGIN_DIRS enveronment "
                           "variable set?");
     errx(1, "%s", tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);

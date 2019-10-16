@@ -35,7 +35,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
   if (!driver || !*driver) driver = fu_fileext(uri);
   if (!driver || !*driver) FAIL("missing driver");
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
-  if (!(storage = api->open(uri, options))) goto fail;
+  if (!(storage = api->open(api, uri, options))) goto fail;
   storage->api = api;
   if (!(storage->uri = strdup(uri))) FAIL(NULL);
   if (options && !(storage->options = strdup(options))) FAIL(NULL);
@@ -75,16 +75,16 @@ DLiteStorage *dlite_storage_open_url(const char *url)
 
 
 /*
-   Closes data handle `d`. Returns non-zero on error.
+   Closes storage `s`. Returns non-zero on error.
 */
-int dlite_storage_close(DLiteStorage *storage)
+int dlite_storage_close(DLiteStorage *s)
 {
   int stat;
-  assert(storage);
-  stat = storage->api->close(storage);
-  free(storage->uri);
-  if (storage->options) free(storage->options);
-  free(storage);
+  assert(s);
+  stat = s->api->close(s);
+  free(s->uri);
+  if (s->options) free(s->options);
+  free(s);
   return stat;
 }
 
@@ -107,15 +107,83 @@ void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
 
 
 /*
-  Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array.
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
  */
-char **dlite_storage_uuids(const DLiteStorage *s)
+void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern)
 {
-  if (!s->api->getUUIDs)
-    return errx(1, "driver '%s' does not support getUUIDs()",
+  if (!s->api->iterCreate)
+    return errx(1, "driver '%s' does not support iterCreate()",
                 s->api->name), NULL;
-  return s->api->getUUIDs(s);
+  return s->api->iterCreate(s, pattern);
+}
+
+/*
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with
+  dlite_storage_iter_create().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf)
+{
+  if (!s->api->iterNext)
+    return errx(-1, "driver '%s' does not support iterNext()", s->api->name);
+  return s->api->iterNext(iter, buf);
+}
+
+/*
+  Free's iterator created with dlite_storage_iter_create().
+ */
+void dlite_storage_iter_free(DLiteStorage *s, void *iter)
+{
+  if (!s->api->iterFree)
+    errx(1, "driver '%s' does not support iterFree()", s->api->name);
+  else
+    s->api->iterFree(iter);
+}
+
+
+/*
+  Returns the UUIDs off all instances in storage `s` whos metadata URI
+  matches the glob pattern `pattern`.  If `pattern` is NULL, it matches
+  all instances.
+
+  The UUIDs are returned as a NULL-terminated array of string
+  pointers.  The caller is responsible to free the returned array with
+  dlite_storage_uuids_free().
+
+  Not all plugins may implement this function.  In that case, NULL is
+  returned.
+ */
+char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
+{
+  char **p = NULL;
+  if (s->api->iterCreate && s->api->iterCreate && s->api->iterCreate) {
+    char buf[DLITE_UUID_LENGTH+1];
+    void *iter = s->api->iterCreate(s, pattern);
+    int n=0, len=0;
+    while (s->api->iterNext(iter, buf) == 0) {
+      if (n >= len) {
+        len += 32;
+        if (!(p = realloc(p, len*sizeof(char *))))
+          return err(1, "allocation failure"), NULL;
+      }
+      p[n++] = strdup(buf);
+    }
+    s->api->iterFree(iter);
+    if (p) {
+      p = realloc(p, (n+1)*sizeof(char *));
+      p[n] = NULL;
+    }
+  } else if (s->api->getUUIDs)
+    p = s->api->getUUIDs(s);
+  else
+    errx(1, "driver '%s' does not support getUUIDs()", s->api->name);
+  return p;
 }
 
 

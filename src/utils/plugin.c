@@ -152,7 +152,7 @@ int plugin_register_api(PluginInfo *info, const void *api)
 
 
 /*
-  Loops up all file names matching `pattern` in the plugin search
+  Looks up all file names matching `pattern` in the plugin search
   paths in `info` and try to load it as a plugin.  If it succeeds and
   `name` matches the plugin name, the plugin is registered and a
   pointer to the plugin API is returned.
@@ -160,7 +160,7 @@ int plugin_register_api(PluginInfo *info, const void *api)
   If `name` is NULL, all plugins matching `pattern` are registered and a
   pointer to latest successfully loaded API is returned.
 
-  If `emit_err` is non-zero, an error message will be emitted in case
+  If `emit_err` is non-zero, an error message will be emitted in case a
   named plugin cannot be loaded.
 
   Returns a pointer to the plugin API or NULL on error.
@@ -190,7 +190,7 @@ const void *plugin_load(PluginInfo *info, const char *name,
       continue;
     }
     if (!(sym = dsl_sym(handle, info->symbol))) {
-      //warn("dsl_sym: %s", dsl_error());
+      warn("dsl_sym: %s", dsl_error());
       dsl_close(handle);
       continue;
     }
@@ -201,13 +201,16 @@ const void *plugin_load(PluginInfo *info, const char *name,
     *(void **)(&func) = sym;
 
     while ((api = func(&iter1))) {
-      loaded_api = api;
-      if (!name) {
-        register_api(info, api, filepath, handle);
-      } else if (strcmp(*((char **)api), name) == 0) {
-        if (register_api(info, api, filepath, handle)) goto fail;
-        fu_endmatch(iter);
-        return api;
+      char *apiname = *((char **)api);
+      if (!map_get(&info->apis, apiname)) {  /* not plugin with this name */
+        loaded_api = api;
+        if (!name) {
+          register_api(info, api, filepath, handle);
+        } else if (strcmp(apiname, name) == 0) {
+          if (register_api(info, api, filepath, handle)) goto fail;
+          fu_endmatch(iter);
+          return api;
+        }
       }
       if (iter1 == iter2) break;
       iter2 = iter1;
@@ -222,6 +225,7 @@ const void *plugin_load(PluginInfo *info, const char *name,
  fail:
   if (!retval && handle) dsl_close(handle);
   if (iter) fu_endmatch(iter);
+
   return retval;
 }
 
@@ -269,16 +273,14 @@ const void *plugin_get_api(PluginInfo *info, const char *name)
 
 /*
   Load all plugins that can be found in the plugin search path.
-  Returns non-zero on error.
  */
 void plugin_load_all(PluginInfo *info)
 {
   char *pattern = malloc(strlen(DSL_EXT) + 2);
   pattern[0] = '*';
   strcpy(pattern+1, DSL_EXT);
-  while (1) {
+  while (1)
     if (!plugin_load(info, NULL, pattern, 0)) break;
-  }
   free(pattern);
 }
 
