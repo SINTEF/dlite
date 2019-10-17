@@ -360,8 +360,10 @@ if(UNIX)
   string(REPLACE ";" ":" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
   string(REPLACE ";" ":" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
   string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
-  string(REPLACE ";" ":" dlite_STORAGES         "${dlite_STORAGES}")
 endif()
+
+# Note, DLITE_STORAGES uses "|" as separator on all systems
+string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
 
 #################################################################
 
@@ -376,7 +378,7 @@ message("export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
 message("export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}")
 message("export DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}")
 message("export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
-message("export DLITE_STORAGES=${dlite_STORAGES}")
+message("export DLITE_STORAGES='${dlite_STORAGES}'")
 message("")
 message("========== Python ==================")
 message("PYTHON_INCLUDE_DIRS:  ${PYTHON_INCLUDE_DIRS}")

@@ -372,7 +372,7 @@ DLiteInstance *dlite_instance_get(const char *id)
 {
   DLiteInstance *inst=NULL;
   const char **urls;
-  FILE *errstream = err_get_stream();
+  FILE *errstream;
 
   /* check if instance `id` is already instansiated... */
   if ((inst = _instance_store_get(id))) {
@@ -405,12 +405,11 @@ DLiteInstance *dlite_instance_get(const char *id)
 
     /* Set read-only as default mode (all drivers should support this) */
     if (!options) options = "mode=r";
-
-    err_set_stream(NULL);         /* silence errors */
+    errstream = err_set_stream(NULL);         /* silence errors */
     if ((s = dlite_storage_open(driver, location, options))) {
-      err_set_stream(errstream);  /* restore error stream */
       /* url is a storage we can open... */
       inst = _instance_load_casted(s, id, NULL, 0);
+      err_set_stream(errstream);  /* restore error stream */
       dlite_storage_close(s);
     } else {
       /* ...otherwise it may be a glob pattern */

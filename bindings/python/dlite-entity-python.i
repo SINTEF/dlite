@@ -28,12 +28,27 @@ class InstanceEncoder(json.JSONEncoder):
                 return conv(obj.tolist())
             else:
                 return obj.tolist()
-        elif hasattr(obj, 'astuple'):
-            return obj.astuple()
         elif hasattr(obj, 'asdict'):
             return obj.asdict()
+        elif hasattr(obj, 'asstrings'):
+            return obj.asstrings()
         else:
             return json.JSONEncoder.default(self, obj)
+
+
+def standardise(v, asdict=True):
+    """Represent property value `v` as a standard python type.
+    If `asdict` is true, dimensions, properties and relations will be
+    represented with a dict, otherwise as a list of strings."""
+    if asdict:
+        conv = lambda x: x.asdict() if hasattr(x, 'asdict') else x
+    else:
+        conv = lambda x: list(x.asstrings()) if hasattr(x, 'asstrings') else x
+
+    if hasattr(v, 'tolist'):
+        return [conv(x) for x in v.tolist()]
+    else:
+        return conv(v)
 
 %}
 
@@ -53,6 +68,11 @@ class InstanceEncoder(json.JSONEncoder):
         if self.description:
             d['description'] = self.description
         return d
+
+    def asstrings(self):
+        """Returns a representation of self as a tuple of strings."""
+        return (self.name,
+                '' if self.description is None else self.description)
   %}
 }
 
@@ -82,6 +102,12 @@ class InstanceEncoder(json.JSONEncoder):
             d['description'] = self.description
         return d
 
+    def asstrings(self):
+        """Returns a representation of self as a tuple of strings."""
+        return (self.name, self.type, ','.join(str(d) for d in self.dims),
+                '' if self.unit is None else self.unit,
+                '' if self.description is None else self.description)
+
     type = property(get_type, doc='Type name.')
     dtype = property(get_dtype, doc='Type number.')
     dims = property(get_dims, doc='Array of dimension indices.')
@@ -98,14 +124,14 @@ class InstanceEncoder(json.JSONEncoder):
         return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
             self.s, self.p, self.o, self.id)
 
-    def astuple(self):
-        """Returns a tuple representation of self."""
-        return (self.s, self.p, self.o)
-
     def asdict(self):
         """Returns a dict representation of self."""
         d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
         return d
+
+    def asstrings(self):
+        """Returns a representation of self as a tuple of strings."""
+        return (self.s, self.p, self.o)
   %}
 }
 
@@ -259,7 +285,7 @@ class InstanceEncoder(json.JSONEncoder):
             d['properties'] = props
         else:
             d['dimensions'] = self.dimensions
-            d['properties'] = {k: v.tolist() if hasattr(v, 'tolist') else v
+            d['properties'] = {k: standardise(v)
                                for k, v in self.properties.items()}
         if 'relations' in self:
             d['relations'] = self['relations'].tolist()

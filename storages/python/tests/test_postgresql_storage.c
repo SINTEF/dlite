@@ -10,15 +10,15 @@
 #include "pgconf.h"
 
 DLiteStorage *db=NULL;
+#ifdef PASSWORD
+char *options = "database=" DATABASE ";user=" USER ";password=" PASSWORD;
+#else
+char *options = "database=" DATABASE ";user=" USER;
+#endif
 
 
 MU_TEST(test_open_db)
 {
-#ifdef PASSWORD
-  const char *options = "database=" DATABASE ";user=" USER ";password=" PASSWORD;
-#else
-  const char *options = "database=" DATABASE ";user=" USER;
-#endif
   mu_check((db = dlite_storage_open("postgresql", HOST, options)));
   mu_assert_int_eq(1, dlite_storage_is_writable(db));
 }
@@ -41,8 +41,13 @@ MU_TEST(test_save)
 
   mu_assert_int_eq(0, dlite_instance_save_url("json://persons.json?mode=w",
                                               inst));
-  if (db)
+  if (db) {
+    char url[256];
     mu_assert_int_eq(0, dlite_instance_save(db, inst));
+    snprintf(url, sizeof(url), "postgresql://%s?%s", HOST, options);
+    mu_assert_int_eq(0, dlite_instance_save_url(url,
+                                                (DLiteInstance *)inst->meta));
+  }
 
   n = inst->refcount;
   mu_assert_int_eq(2, n);

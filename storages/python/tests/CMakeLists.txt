@@ -4,6 +4,7 @@
 set(tests
   test_yaml_storage
   test_postgresql_storage
+  test_postgresql_storage2
   )
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
@@ -77,6 +78,9 @@ foreach(test ${tests})
     ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
 
 endforeach()
+
+set_property(TEST test_postgresql_storage2 APPEND PROPERTY
+  DEPEND test_postgresql_storage)
 
 
 # Disable tests with dependencies

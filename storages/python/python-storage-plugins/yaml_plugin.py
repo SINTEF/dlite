@@ -41,14 +41,16 @@ class yaml(DLiteStorageBase):
         self.d = {}
         if self.mode in ('r', 'r+') and os.path.exists(uri):
             with open(uri, self.mode) as f:
-                d = pyyaml.load(f)
+                d = pyyaml.load(f, Loader=pyyaml.BaseLoader)
             if d:
                 self.d = d
 
     def close(self):
         """Closes this storage."""
         if self.writable:
-            with open(self.uri, self.mode) as f:
+            mode = ('w' if self.mode == 'r+' and not os.path.exists(self.uri)
+                    else self.mode)
+            with open(self.uri, mode) as f:
                 pyyaml.dump(self.d, f)
 
     def load(self, uuid):

@@ -20,12 +20,22 @@ pgtypes = {
     'int32': 'integer',
     'int64': 'bigint',
     'float': 'real',
-    'double': 'double',
+    'double': 'float8',
     'float32': 'real',
-    'float64': 'double',
+    'float64': 'float8',
     'string': 'varchar',
-    'fixstring': 'text',
+    'dimension': 'varchar[2]',
+    'property': 'varchar[5]',
+    'relation': 'varchar[3]',
 }
+
+def to_pgtype(typename):
+    """Returns PostGreSQL type corresponding to dlite typename."""
+    if typename in pgtypes:
+        return pgtypes[typename]
+    else:
+        t = typename.rstrip('0123456789')
+        return pgtypes[t]
 
 
 class postgresql(DLiteStorageBase):
@@ -96,6 +106,7 @@ class postgresql(DLiteStorageBase):
 
     def save(self, inst):
         """Stores `inst` in current storage."""
+
         # Save to metadata table
         if not self.table_exists(inst.meta.uri):
             self.table_create(inst.meta, inst.dimensions.values())
@@ -109,15 +120,20 @@ class postgresql(DLiteStorageBase):
                   inst.uri,
                   inst.meta.uri,
                   list(inst.dimensions.values()),
-        ] + [v.tolist() if hasattr(v, 'tolist') else v
+        ] + [dlite.standardise(v, asdict=False)
              for v in inst.properties.values()]
-        self.cur.execute(q, values)
+        try:
+            self.cur.execute(q, values)
+        except psycopg2.IntegrityError:
+            self.conn.rollback()  # Instance already in database
+            return
 
         # Save to uuidtable
         if not self.table_exists('uuidtable'):
             self.uuidtable_create()
         q = sql.SQL('INSERT INTO uuidtable (uuid, meta) VALUES (%s, %s);')
         self.cur.execute(q, [inst.uuid, inst.meta.uri])
+        self.conn.commit()
 
     def table_exists(self, table_name):
         """Returns true if a table named `table_name` exists."""
@@ -142,12 +158,13 @@ class postgresql(DLiteStorageBase):
         for p in meta['properties']:
             if len(p.dims):
                 sdims = ''.join(f'[{dims[d]}]' for d in p.dims)
-                cols.append(f'{p.name} {pgtypes[p.type]}{sdims}')
+                cols.append(f'"{p.name}" {to_pgtype(p.type)}{sdims}')
             else:
-                cols.append(f'{p.name} {pgtypes[p.type]}')
+                cols.append(f'"{p.name}" {to_pgtype(p.type)}')
         q = sql.SQL('CREATE TABLE {} (%s);' %
                     ', '.join(cols)).format(sql.Identifier(meta.uri))
         self.cur.execute(q)
+        self.conn.commit()
 
     def uuidtable_create(self):
         """Creates the uuidtable - a table mapping all uuid's to their
@@ -157,11 +174,11 @@ class postgresql(DLiteStorageBase):
                     'meta varchar'
                     ');')
         self.cur.execute(q)
+        self.conn.commit()
 
     def queue(self, pattern):
         """Generator method that iterates over all UUIDs in the storage
-        who's metadata URI matches glob pattern `pattern`.
-        """
+        who's metadata URI matches glob pattern `pattern`."""
         if pattern:
             # Convert glob patter to PostgreSQL regular expression
             regex = '^{}'.format(fnmatch.translate(globex).replace(
