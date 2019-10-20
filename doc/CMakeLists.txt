@@ -6,9 +6,10 @@ if(DOXYGEN_FOUND)
   # Fix links in README.md such that doxygen understand them.
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/README.md
-    COMMAND ${CMAKE_COMMAND} -P fix_readme.cmake
+    COMMAND ${CMAKE_COMMAND}
       -Dinfile=${dlite_SOURCE_DIR}/README.md
       -Doutfile=${CMAKE_CURRENT_BINARY_DIR}/README.md
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/fix_readme.cmake
     MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/README.md
     )
 
