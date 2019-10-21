@@ -52,7 +52,10 @@ endmacro()
 #
 # This is not perfect, since the if-statement below is evaluated at
 # configure time.  However, in practice this should be fine...
-if(EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
+#
+# The FORCE_EXAMPLES option gives us the option to bypass testing whether
+# dlite has been installed.  This may be useful in CI frameworks
+if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
   test_example(ex1)
   test_example(ex2)
   test_example(ex3)
