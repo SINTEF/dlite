@@ -136,11 +136,6 @@ install(
   DESTINATION ${PYTHON_MODULE_PATH}
   )
 
-install(
-  FILES ${py_sources}
-  DESTINATION ${PYTHON_MODULE_PATH}
-)
-
 
 #
 # Tests
