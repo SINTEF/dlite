@@ -43,9 +43,15 @@ RUN apt-get install -y \
     python3 \
     python3-dev \
     python3-numpy \
-    python3-yaml \
     python3-psycopg2 \
+    python3-yaml \
     swig3.0
+
+# Install IPython
+#RUN apt-get install -y ipython3
+RUN apt-get install -y python3-pip
+RUN pip3 install ipython
+
 
 #RUN git clone https://github.com/SINTEF/dlite.git
 #cd dlite
@@ -53,16 +59,24 @@ RUN apt-get install -y \
 #RUN git submodule update
 
 RUN useradd -ms /bin/bash user
-COPY . /home/user/dlite
-RUN chown user:user -R /home/user/dlite
+COPY . /home/user/sw/dlite
+RUN chown user:user -R /home/user/sw/dlite
 USER user
 WORKDIR /home/user/
 ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
 
-RUN mkdir /home/user/dlite/build
-RUN cd /home/user/dlite/build && cmake ..
-RUN cd /home/user/dlite/build && make
-RUN cd /home/user/dlite/build && make test
-RUN cd /home/user/dlite/build && make install
+RUN mkdir /home/user/sw/dlite/build
+RUN cd /home/user/sw/dlite/build && cmake ..
+RUN cd /home/user/sw/dlite/build && make
+RUN cd /home/user/sw/dlite/build && make install
+RUN cd /home/user/sw/dlite/build && make test
 
-ENTRYPOINT ["ctest"]
+
+ENTRYPOINT ipython3 \
+    --colors=LightBG \
+    --autocall=1 \
+    --no-confirm-exit \
+    --TerminalInteractiveShell.display_completions=readlinelike \
+    -i \
+    -c 'import dlite' \
+    --
