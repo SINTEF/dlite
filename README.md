@@ -1,5 +1,9 @@
-DLite -- lightweight library for working with scientific data
+DLite - lightweight library for working with scientific data
 =============================================================
+
+![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
+
+
 DLite is a small cross-platform C library under development, for
 working with and sharing scientific data in an interoperable way.  It
 is strongly inspired by [SOFT][1], with the aim to be a lightweight
