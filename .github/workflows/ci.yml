@@ -32,9 +32,14 @@ jobs:
         mkdir build
         cd build
         cmake ..
+        cd -
     - name: make
       run: |
+        cd build
         make
+        cd -
     - name: make test
       run: |
+        cd build
         make test
+        cd -
