@@ -15,6 +15,7 @@ project(dlite
 option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
 option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
+option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
@@ -426,7 +427,9 @@ if(WITH_EXAMPLES)
 endif()
 
 # Documentations
-add_subdirectory(doc)
+if(WITH_DOC)
+  add_subdirectory(doc)
+endif()
 
 #################################################################
 
