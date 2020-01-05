@@ -10,5 +10,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Get docker version
+      run: docker --version
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag dlite-ci$(date +%s)
