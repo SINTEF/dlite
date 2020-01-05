@@ -18,6 +18,8 @@ option(WITH_JSON        "Whether to build with JSON support"             ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 
+option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
+
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
 
