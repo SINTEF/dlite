@@ -2,65 +2,13 @@
 project(dlite-src C)
 
 # Workaround for CMake not setting the correct binary path for MSVC
-if(MSVC)
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(dlite-src_BINARY_DIR ${dlite-src_BINARY_DIR}/$<CONFIG>)
 endif()
 
 
-#-----------------------------------------------------
-# System tests
-#-----------------------------------------------------
-
-# Generate boolean.h
-# ------------------
-include(CheckIncludeFile)
-check_include_file(stdbool.h HAVE_STDBOOL_H)
-
-include(CheckTypeSize)
-check_type_size(_Bool _BOOL)
-
-configure_file(boolean.h.in boolean.h)
-
-
-# Generate floats.h
-# ------------------
-check_type_size(float         SIZEOF_FLOAT)
-check_type_size(double        SIZEOF_DOUBLE)
-check_type_size("long double" SIZEOF_LONG_DOUBLE)
-
-configure_file(floats.h.in floats.h)
-
-
 # Generate config.h
 # -----------------
-include(CheckSymbolExists)
-check_symbol_exists(strdup       string.h   HAVE_STRDUP)
-check_symbol_exists(_strdup      string.h   HAVE__STRDUP)
-check_symbol_exists(strcasecmp   string.h   HAVE_STRCASECMP)
-check_symbol_exists(_stricmp     string.h   HAVE__STRICMP)
-check_symbol_exists(strncasecmp  string.h   HAVE_STRNCASECMP)
-check_symbol_exists(_strnicmp    string.h   HAVE__STRNICMP)
-
-include(CheckCSourceCompiles)
-
-check_c_source_compiles("
-__thread int tls;
-int main(void) { return 0; }" HAVE_GCC_THREAD_LOCAL_STORAGE)
-
-
-check_c_source_compiles("
-__declspec(thread) int tls;
-int main(void) { return 0; }" HAVE_WIN32_THREAD_LOCAL_STORAGE)
-
-check_c_source_compiles("
-#include <stdio.h>
-#define f(msg, ...) printf(msg, __VA_ARGS__)
-int main(void) {
-  f(\"x=%g, y=%d\", 3.14, 42);
-  return 0;
-}" HAVE_VA_ARGS)
-
-
 configure_file(config.h.in config.h)
 
 
@@ -71,15 +19,18 @@ configure_file(config.h.in config.h)
 add_subdirectory(utils)
 
 set(sources
-  dlite-utils.c
+  dlite-misc.c
   dlite-store.c
   dlite-type.c
   dlite-arrays.c
-  dlite-storage.c
   dlite-datamodel.c
   dlite-schemas.c
   dlite-entity.c
   dlite-collection.c
+  dlite-storage.c
+  dlite-storage-plugins.c
+  dlite-mapping.c
+  dlite-mapping-plugins.c
   dlite-codegen.c
   getuuid.c
   triplestore.c
@@ -90,60 +41,78 @@ add_definitions(
   #-DWITH_DEBUG
   )
 
-link_directories(${uuid_BINARY_DIR})
 
-if(WITH_JSON)
-  set(json_link_libraries plugins-json ${JSON_LIBRARIES})
-endif()
-if(WITH_HDF5)
-  set(hdf5_link_libraries plugins-hdf5 ${HDF5_LIBRARIES})
-endif()
+# We are building both shared and static libraries.  User software will
+# normally link to the shared libraries.  However, to simplify the
+# library search (especially on Windows), the storage plugins will use
+# the static libraries.  For this to work, the static libraries will be
+# build position independent.
+add_library(dlite SHARED ${sources})
+add_library(dlite-static STATIC ${sources})
 
-add_library(dlite ${sources})
 target_link_libraries(dlite
-  #plugins-hdf5
-  #plugins-json
-  ${json_link_libraries}
-  ${hdf5_link_libraries}
-  uuid
-  #${HDF5_LIBRARIES}
-  #${JANSSON_LIBRARIES}
-  utils
+  dlite-utils
+  ${CMAKE_DL_LIBS}
   )
-target_include_directories(dlite PRIVATE
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${uuid_SOURCE_DIR}
-  ${uuid_BINARY_DIR}
-  ${HDF5_INCLUDE_DIRS}
-  ${JANSSON_INCLUDE_DIRS}
-  )
-add_dependencies(dlite
-  uuidProj
-  ${HDF5_DEPENDENCIES}
-  ${JANSSON_DEPENDENCIES}
+target_link_libraries(dlite-static
+  dlite-utils-static
+  ${CMAKE_DL_LIBS}
   )
 
-install(
-  TARGETS dlite
-  DESTINATION lib
-)
+target_include_directories(dlite PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
+  )
+target_include_directories(dlite-static PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
+  )
 
-# create list of headers to install from ${sources}
-set(headers "")
+set_target_properties(dlite PROPERTIES
+  WINDOWS_EXPORT_ALL_SYMBOLS ON
+  )
+set_target_properties(dlite-static PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+  )
+
+#set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+## create list of headers to install from ${sources}
+set(headers dlite.h)
 foreach(source ${sources})
   string(REPLACE ".c" ".h" header ${source})
   list(APPEND headers ${header})
 endforeach()
+set_target_properties(dlite PROPERTIES PUBLIC_HEADER "${headers}")
 
-install(FILES
-  dlite.h
-  ${headers}
-  ${uuid_SOURCE_DIR}/uuid.h
-  ${uuid_BINARY_DIR}/integers.h
-  ${uuid_BINARY_DIR}/byteorder.h
-  ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
-  ${CMAKE_CURRENT_BINARY_DIR}/floats.h
-  DESTINATION include/dlite
+
+install(
+  TARGETS dlite dlite-static
+  EXPORT  dliteTargets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  PUBLIC_HEADER DESTINATION include/dlite
+  INCLUDES DESTINATION include/dlite
 )
+
+# Install empty directories
+install(DIRECTORY DESTINATION share/dlite/storages)
+install(DIRECTORY DESTINATION share/dlite/mapping-plugins)
+
+
+# install .pdb files - seems to be needed on Windows if we are
+# installing dlite compiled in debug mode
+if(WIN32 AND MSVC AND (NOT MSVC_VERSION LESS 1600) AND
+    (NOT CMAKE_VERSION VERSION_LESS "3.1"))
+  install(FILES $<TARGET_PDB_FILE:dlite> DESTINATION bin OPTIONAL)
+endif()
+
+
+# Support driver and mapping plugins written in Python
+if(WITH_PYTHON)
+  add_subdirectory(pyembed)
+endif()
+
 # Tests
 add_subdirectory(tests)

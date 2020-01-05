@@ -10,8 +10,27 @@
 #define dlite_VERSION "@dlite_VERSION@"
 #endif
 
+/* hardcoded default paths */
+#define DLITE_TEMPLATE_DIRS \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_TEMPLATE_DIRS@"
+#define DLITE_STORAGE_PLUGIN_DIRS \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_STORAGE_PLUGIN_DIRS@"
+#define DLITE_MAPPING_PLUGIN_DIRS \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_MAPPING_PLUGIN_DIRS@"
+#define DLITE_PYTHON_STORAGE_PLUGIN_DIRS \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_PYTHON_STORAGE_PLUGIN_DIRS@"
+#define DLITE_PYTHON_MAPPING_PLUGIN_DIRS \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_PYTHON_MAPPING_PLUGIN_DIRS@"
+#define DLITE_STORAGES \
+  "@CMAKE_INSTALL_PREFIX@/@DLITE_STORAGES@"
+
+/* built-in storage plugins */
 #cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
+#cmakedefine WITH_POSTGRESQL
+
+/* available bindings */
+#cmakedefine WITH_PYTHON
 
 /* Get rid of some annoying MSVC warnings */
 #ifdef _MSC_VER

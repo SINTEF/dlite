@@ -3,9 +3,9 @@
 #include <stdio.h>
 
 #include "config.h"
-#include "uuid.h"
-#include "uuid4.h"
 
+#include "utils/uuid.h"
+#include "utils/uuid4.h"
 #include "getuuid.h"
 
 

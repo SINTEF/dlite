@@ -1,0 +1,6 @@
+.gdb_history
+__pycache__
+
+inst.json
+persons.json
+test.yaml

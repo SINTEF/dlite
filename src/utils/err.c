@@ -239,18 +239,19 @@ int vwarnx(const char *msg, va_list ap)
 
 
 /* Associated functions */
-int err_geteval()
+int err_geteval(void)
 {
   return err_record->eval;
 }
 
-char *err_getmsg()
+char *err_getmsg(void)
 {
   return err_record->msg;
 }
 
 void err_clear(void)
 {
+  errno = 0;
   err_record->eval = 0;
   err_record->msg[0] = '\0';
 }
@@ -268,10 +269,10 @@ const char *err_get_prefix(void)
 }
 
 /* whether the error stream has been opened with fopen() */
-static int err_stream_opened;
+static int err_stream_opened = 0;
 
 /* whether `atexit(err_close_stream)` has been called */
-static int err_stream_atexit_called;
+static int err_stream_atexit_called = 0;
 
 static void err_close_stream(void)
 {

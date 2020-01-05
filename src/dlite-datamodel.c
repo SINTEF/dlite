@@ -29,15 +29,18 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   int uuidver;
 
   /* allow id to be NULL if the storage only contains one instance */
-  if (!s->writable && !id) {
+  if (!id || !*id) {
     int n=0;
-    if (!(uuids = dlite_storage_uuids(s))) goto fail;
-    while (uuids[n]) n++;
-    if (n == 1)
-      id = uuids[0];
-    else
-      FAIL2("`id` required to load from storage \"%s\" with %d instances",
-            s->uri, n);
+    if ((uuids = dlite_storage_uuids(s, NULL))) {
+      while (uuids[n]) n++;
+      if (n == 1)
+        id = uuids[0];
+      else
+        FAIL2("`id` required to load from storage \"%s\" with %d instances",
+              s->uri, n);
+    } else if (!s->writable) {
+      FAIL1("`id` required to load from storage \"%s\"", s->uri);
+    }
   }
 
   if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
@@ -88,10 +91,10 @@ char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d)
 
 
 /*
-  Returns the size of dimension `name` or 0 on error.
+  Returns the size of dimension `name` or -1 on error.
  */
-size_t dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
-                                          const char *name)
+int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
+                                       const char *name)
 {
   return d->api->getDimensionSize(d, name);
 }

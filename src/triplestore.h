@@ -14,6 +14,7 @@
 
 #include "utils/map.h"
 
+
 /**
   A subject-predicate-object triplet used to represent a relation.
   The s-p-o-id strings should be allocated with malloc.
@@ -38,14 +39,17 @@ typedef struct _TripleState {
 } TripleState;
 
 
-
-
 /**
-    Sets default namespace to be prepended to triplet id's.
+  Sets default namespace to be prepended to triplet id's.
 
-    Use this function to convert the id's to proper URI's.
+  Use this function to convert the id's to proper URI's.
 */
 void triplet_set_default_namespace(const char *namespace);
+
+/**
+  Returns default namespace.
+*/
+const char *triplet_get_default_namespace(void);
 
 /**
   Frees up memory used by the s-p-o strings, but not the triplet itself.
@@ -59,6 +63,13 @@ void triplet_clean(Triplet *t);
  */
 int triplet_set(Triplet *t, const char *s, const char *p, const char *o,
                 const char *id);
+
+/**
+  Like triplet_set(), but free's allocated memory in `t` before re-assigning
+  it.  Don't use this function if `t` has not been initiated.
+ */
+int triplet_reset(Triplet *t, const char *s, const char *p, const char *o,
+                  const char *id);
 
 /**
   Returns an newly malloc'ed unique id calculated from triplet.
@@ -76,9 +87,13 @@ char *triplet_get_id(const char *namespace, const char *s, const char *p,
   Returns a new empty triplestore that stores its triplets and the number of
   triplets in the external memory pointed to by `*p` and `*lenp`, respectively.
 
+  `freer` is a cleanup-function.  If not NULL, it is called by
+  triplestore_free() with `freedata` as argument.
+
   Returns NULL on error.
  */
-TripleStore *triplestore_create_external(Triplet **p, size_t *lenp);
+TripleStore *triplestore_create_external(Triplet **p, size_t *lenp,
+                                         void (*freer)(void *), void *freedata);
 
 
 /**
@@ -130,6 +145,12 @@ int triplestore_remove(TripleStore *ts, const char *s,
 
 
 /**
+  Removes all relations in triplestore and releases all references to
+  external memory.  Only references to running iterators is kept.
+ */
+void triplestore_clear(TripleStore *ts);
+
+/**
   Returns a pointer to triplet with given id or NULL if no match can be found.
 */
 const Triplet *triplestore_get(const TripleStore *ts, const char *id);
@@ -153,12 +174,23 @@ void triplestore_init_state(TripleStore *ts, TripleState *state);
 */
 void triplestore_deinit_state(TripleState *state);
 
+/**
+  Resets iterator.
+*/
+void triplestore_reset_state(TripleState *state);
+
 
 /**
-  Returns a pointer to the next triplet in the store or NULL if there
-  are no more triplets in the store.
+  Returns a pointer to the next triplet in the store or NULL if all
+  triplets have been visited.
  */
 const Triplet *triplestore_next(TripleState *state);
+
+/**
+  Returns a pointer to the current triplet in the store or NULL if all
+  triplets have been visited.
+ */
+const Triplet *triplestore_poll(TripleState *state);
 
 /**
   This function should be called iteratively.  Before the first call

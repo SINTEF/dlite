@@ -22,7 +22,7 @@ extern int dlite_codegen_use_native_typenames;
 
   Returns non-zero on error.
 */
-int instance_subs(TGenSubs *subs, const DLiteInstance *inst);
+int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst);
 
 
 /**
@@ -30,10 +30,10 @@ int instance_subs(TGenSubs *subs, const DLiteInstance *inst);
 
   Returns non-zero on error.
 */
-int option_subs(TGenSubs *subs, const char *options);
+int dlite_option_subs(TGenSubs *subs, const char *options);
 
 
-/*
+/**
   Returns a newly malloc'ed string with a generated document based on
   `template` and instanse `inst`.  `options` is a semicolon (;) separated
   string with additional options.

@@ -5,46 +5,14 @@
 
 #include "utils/compat.h"
 #include "utils/err.h"
+#include "utils/fileutils.h"
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
+#include "dlite-storage-plugins.h"
 #include "getuuid.h"
 
-
-#ifdef WITH_JSON
-extern DLitePlugin dlite_json_plugin;
-#endif
-
-#ifdef WITH_HDF5
-extern DLitePlugin h5_plugin;
-#endif
-
-/* NULL-terminated array of all backends */
-DLitePlugin *plugin_list[] = {
-#ifdef WITH_JSON
-  &dlite_json_plugin,
-#endif
-#ifdef WITH_HDF5
-  &h5_plugin,
-#endif
-  NULL
-};
-
-
-/* Returns a pointer to API for driver or NULL on error. */
-static DLitePlugin *get_plugin(const char *driver)
-{
-  DLitePlugin *plugin=NULL;
-  int i;
-  for(i=0; plugin_list[i]; i++) {
-    if (strcmp(plugin_list[i]->name, driver) == 0) {
-      plugin = plugin_list[i];
-      break;
-    }
-  }
-  if (!plugin) errx(1, "invalid driver: '%s'", driver);
-  return plugin;
-}
 
 
 /********************************************************************
@@ -60,12 +28,14 @@ static DLitePlugin *get_plugin(const char *driver)
 DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
                                  const char *options)
 {
-  DLitePlugin *api;
+  const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
-  if (!(api = get_plugin(driver))) goto fail;
-  if (!(storage = api->open(uri, options))) goto fail;
-
+  if (!uri) FAIL("missing uri");
+  if (!driver || !*driver) driver = fu_fileext(uri);
+  if (!driver || !*driver) FAIL("missing driver");
+  if (!(api = dlite_storage_plugin_get(driver))) goto fail;
+  if (!(storage = api->open(api, uri, options))) goto fail;
   storage->api = api;
   if (!(storage->uri = strdup(uri))) FAIL(NULL);
   if (options && !(storage->options = strdup(options))) FAIL(NULL);
@@ -79,16 +49,42 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
 
 
 /*
-   Closes data handle `d`. Returns non-zero on error.
+  Like dlite_storage_open(), but takes as input an url of the form
+
+      driver://location?options
+
+  The question mark and options may be omitted.  If `location` refers
+  to a file who's extension matches `driver`, the `driver://` part may
+  also be omitted.
+
+  Returns a new storage, or NULL on error.
 */
-int dlite_storage_close(DLiteStorage *storage)
+DLiteStorage *dlite_storage_open_url(const char *url)
+{
+  char *driver=NULL, *location=NULL, *options=NULL;
+  DLiteStorage *s=NULL;
+  char *p, *url2=strdup(url);
+  if (dlite_split_url(url2, &driver, &location, &options, NULL)) goto fail;
+  if (!driver && (p = strrchr(location, '.'))) driver = p+1;
+  if (!driver) FAIL1("missing driver: %s", url);
+  s = dlite_storage_open(driver, location, options);
+ fail:
+  free(url2);
+  return s;
+}
+
+
+/*
+   Closes storage `s`. Returns non-zero on error.
+*/
+int dlite_storage_close(DLiteStorage *s)
 {
   int stat;
-  assert(storage);
-  stat = storage->api->close(storage);
-  free(storage->uri);
-  if (storage->options) free(storage->options);
-  free(storage);
+  assert(s);
+  stat = s->api->close(s);
+  free(s->uri);
+  if (s->options) free(s->options);
+  free(s);
   return stat;
 }
 
@@ -111,15 +107,83 @@ void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
 
 
 /*
-  Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array.
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
  */
-char **dlite_storage_uuids(const DLiteStorage *s)
+void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern)
 {
-  if (!s->api->getUUIDs)
-    return errx(1, "driver '%s' does not support getUUIDs()",
+  if (!s->api->iterCreate)
+    return errx(1, "driver '%s' does not support iterCreate()",
                 s->api->name), NULL;
-  return s->api->getUUIDs(s);
+  return s->api->iterCreate(s, pattern);
+}
+
+/*
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with
+  dlite_storage_iter_create().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf)
+{
+  if (!s->api->iterNext)
+    return errx(-1, "driver '%s' does not support iterNext()", s->api->name);
+  return s->api->iterNext(iter, buf);
+}
+
+/*
+  Free's iterator created with dlite_storage_iter_create().
+ */
+void dlite_storage_iter_free(DLiteStorage *s, void *iter)
+{
+  if (!s->api->iterFree)
+    errx(1, "driver '%s' does not support iterFree()", s->api->name);
+  else
+    s->api->iterFree(iter);
+}
+
+
+/*
+  Returns the UUIDs off all instances in storage `s` whos metadata URI
+  matches the glob pattern `pattern`.  If `pattern` is NULL, it matches
+  all instances.
+
+  The UUIDs are returned as a NULL-terminated array of string
+  pointers.  The caller is responsible to free the returned array with
+  dlite_storage_uuids_free().
+
+  Not all plugins may implement this function.  In that case, NULL is
+  returned.
+ */
+char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
+{
+  char **p = NULL;
+  if (s->api->iterCreate && s->api->iterCreate && s->api->iterCreate) {
+    char buf[DLITE_UUID_LENGTH+1];
+    void *iter = s->api->iterCreate(s, pattern);
+    int n=0, len=0;
+    while (s->api->iterNext(iter, buf) == 0) {
+      if (n >= len) {
+        len += 32;
+        if (!(p = realloc(p, len*sizeof(char *))))
+          return err(1, "allocation failure"), NULL;
+      }
+      p[n++] = strdup(buf);
+    }
+    s->api->iterFree(iter);
+    if (p) {
+      p = realloc(p, (n+1)*sizeof(char *));
+      p[n] = NULL;
+    }
+  } else if (s->api->getUUIDs)
+    p = s->api->getUUIDs(s);
+  else
+    errx(1, "driver '%s' does not support getUUIDs()", s->api->name);
+  return p;
 }
 
 
@@ -142,4 +206,91 @@ void dlite_storage_uuids_free(char **names)
 int dlite_storage_is_writable(const DLiteStorage *s)
 {
   return s->writable;
+}
+
+
+/*
+  Returns name of driver associated with storage `s`.
+ */
+const char *dlite_storage_get_driver(const DLiteStorage *s)
+{
+  return s->api->name;
+}
+
+
+
+/*******************************************************************
+ *  Storage paths and URLs
+ *******************************************************************/
+static FUPaths *_storage_paths = NULL;
+
+/* Free's up and reset storage paths */
+void storage_paths_free(void)
+{
+  if (_storage_paths) {
+    fu_paths_deinit(_storage_paths);
+    free(_storage_paths);
+  }
+  _storage_paths = NULL;
+}
+
+/* Returns referance to storage paths */
+FUPaths *storage_paths_get(void)
+{
+  if (!_storage_paths) {
+    if (!(_storage_paths = calloc(1, sizeof(FUPaths))))
+      return err(1, "allocation failure"), NULL;
+    fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
+    atexit(storage_paths_free);
+  }
+  return _storage_paths;
+}
+
+/*
+  Inserts `path` into storage paths before position `n`.  If `n` is
+  negative, it counts from the end (like Python).
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_insert(int n, const char *path)
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_insert(paths, path, n);
+}
+
+/*
+  Appends `path` to storage paths.
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_append(const char *path)
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_append(paths, path);
+}
+
+/*
+  Removes path with index `n` from storage paths.  If `n` is negative, it
+  counts from the end (like Python).
+
+  Returns non-zero on error.
+ */
+int dlite_storage_paths_remove(int n)
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_remove(paths, n);
+}
+
+/*
+  Returns a NULL-terminated array of pointers to paths/urls or NULL if
+  no storage paths have been assigned.
+
+  The returned array is owned by DLite and should not be free'ed. It
+  may be invalidated by further calls to dlite_storage_paths_insert()
+  and dlite_storage_paths_append().
+ */
+const char **dlite_storage_paths_get()
+{
+  FUPaths *paths = storage_paths_get();
+  return fu_paths_get(paths);
 }

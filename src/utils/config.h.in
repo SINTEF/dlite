@@ -30,6 +30,12 @@
 #cmakedefine HAVE_STRNCASECMP
 #cmakedefine HAVE__STRNICMP
 
+#cmakedefine HAVE_SETENV
+#cmakedefine HAVE_UNSETENV
+
+#cmakedefine HAVE_REALPATH
+#cmakedefine HAVE_GetFullPathNameW
+
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG
 
@@ -53,6 +59,7 @@
 #cmakedefine HAVE_UINTMAX_T
 #cmakedefine HAVE_UINTPTR_T
 #cmakedefine HAVE_PTRDIFF_T
+
 
 /* Whether structure members exists */
 #cmakedefine HAVE_LCONV_DECIMAL_POINT

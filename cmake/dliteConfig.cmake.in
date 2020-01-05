@@ -1,0 +1,81 @@
+set(DLITE_VERSION @dlite_VERSION@)
+
+@PACKAGE_INIT@
+
+#include(configVersion.cmake)
+#include(configExport.cmake)
+
+set(DLITE_ROOT "@CMAKE_INSTALL_PREFIX@")
+
+set_and_check(DLITE_INCLUDE_DIRS  "@DLITE_ROOT@/@DLITE_INCLUDE_DIRS@")
+set_and_check(DLITE_LIBRARY_DIR   "@DLITE_ROOT@/@DLITE_LIBRARY_DIR@")
+set_and_check(DLITE_RUNTIME_DIR   "@DLITE_ROOT@/@DLITE_RUNTIME_DIR@")
+
+set_and_check(DLITE_TEMPLATE_DIRS "@DLITE_ROOT@/@DLITE_TEMPLATE_DIRS@")
+set_and_check(DLITE_STORAGE_PLUGIN_DIRS
+  "@DLITE_ROOT@/@DLITE_STORAGE_PLUGIN_DIRS@")
+set_and_check(DLITE_MAPPING_PLUGIN_DIRS
+  "@DLITE_ROOT@/@DLITE_MAPPING_PLUGIN_DIRS@")
+set_and_check(DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+  "@DLITE_ROOT@/@DLITE_PYTHON_STORAGE_PLUGIN_DIRS@")
+set_and_check(DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+  "@DLITE_ROOT@/@DLITE_PYTHON_MAPPING_PLUGIN_DIRS@")
+set_and_check(DLITE_STORAGES      "@DLITE_ROOT@/@DLITE_STORAGES@")
+
+set(WITH_PYTHON    @WITH_PYTHON@)
+set(WITH_JSON      @WITH_JSON@)
+set(WITH_HDF5      @WITH_HDF5@)
+
+if(NOT DLITE_LIBRARIES)
+  # Set LITE_LIBRARIES by progressively appending to it
+
+  find_library(dlite_LIBRARY
+    NAMES dlite
+    PATHS ${DLITE_ROOT}/lib
+    )
+  list(APPEND dlite_LIBRARIES "${dlite_LIBRARY}")
+
+  find_library(dlite_UTILS_LIBRARY
+    NAMES dlite-utils
+    PATHS ${DLITE_ROOT}/lib
+    )
+  list(APPEND dlite_LIBRARIES "${dlite_UTILS_LIBRARY}")
+
+  # Python
+  if(WITH_PYTHON)
+    find_library(dlite_PYEMBED_LIBRARY
+      NAMES dlite-pyembed
+      PATHS ${DLITE_ROOT}/lib
+      )
+    list(APPEND dlite_LIBRARIES "${dlite_PYEMBED_LIBRARY}")
+
+    set_and_check(DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+      "@DLITE_ROOT@/@DLITE_PYTHON_STORAGE_PLUGIN_DIRS@")
+    set_and_check(DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+      "@DLITE_ROOT@/@DLITE_PYTHON_MAPPING_PLUGIN_DIRS@")
+    set(PYTHON_LIBRARIES "@PYTHON_LIBRARIES@" CACHE STRING
+      "Python libraries")
+    set(PYTHON_INCLUDE_DIRS "@PYTHON_INCLUDE_DIRS@" CACHE STRING
+      "Python include  directories")
+    list(APPEND dlite_LIBRARIES "${PYTHON_LIBRARIES}")
+  endif()
+
+  # Jansson
+  if(WITH_JSON)
+    set(JANSON_LIBRARIES "@JANSSON_LIBRARIES@" CACHE STRING
+      "Jansson libraries")
+    list(APPEND dlite_LIBRARIES "${JANSSON_LIBRARIES}")
+  endif()
+
+  # HDF5
+  if(WITH_HDF5)
+    set(HDF5_LIBRARIES "@HDF5_LIBRARIES@" CACHE STRING "HDF5 libraries")
+    list(APPEND dlite_LIBRARIES "${HDF5_LIBRARIES}")
+  endif()
+
+  set(DLITE_LIBRARIES "${dlite_LIBRARIES}" CACHE STRING "DLite libraries")
+endif()
+
+
+
+check_required_components(dlite)

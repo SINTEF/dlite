@@ -2,7 +2,8 @@
 #
 
 set(tests
-  test_utils
+  test_misc
+  test_storage
   test_entity
   test_store
   test_triplestore
@@ -11,46 +12,60 @@ set(tests
   test_arrays
   )
 if(WITH_JSON)
-  list(APPEND tests
-    test_json_storage
-    test_json_utils
-    test_json_entity
-    )
+  list(APPEND tests test_json_entity)
+  list(APPEND tests test_storage_lookup)
+  list(APPEND tests test_mapping)
 endif()
 if(WITH_HDF5)
-  list(APPEND tests
-    test_datamodel
-    )
+  list(APPEND tests test_datamodel)
+endif()
+if(WITH_POSTGRESQL)
+  list(APPEND tests test_postgresql_storage)
 endif()
 
 
-add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
+add_definitions(
+  -DDLITE_ROOT=${dlite_SOURCE_DIR}
+  -DDLITE_BINARY_ROOT=${dlite_BINARY_DIR}
+  )
 
-link_directories(
-    ${dlite_BINARY_DIR}/src/utils
-    )
+add_subdirectory(mappings)
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite uuid utils)
+  target_link_libraries(${test}
+    #dlite-static
+    #dlite-utils-static
+    dlite
+    dlite-utils
+    )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src
     ${dlite_BINARY_DIR}/src
-    ${uuid_BINARY_DIR}
     )
-  add_dependencies(${test} dlite)
 
   add_test(
     NAME ${test}
     COMMAND ${test}
     )
-endforeach()
 
-# Add extra include dir for json tests
-if(WITH_JSON)
-  foreach(test test_json_storage test_json_utils)
-    target_include_directories(${test} PRIVATE
-      ${dlite_SOURCE_DIR}/plugins/json
-      )
-  endforeach()
-endif()
+  set_property(TEST ${test} PROPERTY
+    ENVIRONMENT "PATH=${dlite_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
+    "DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
+     "DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
+
+endforeach()

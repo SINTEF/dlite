@@ -15,11 +15,8 @@ typedef struct _DLiteStorage DLiteStorage;
 /** Opaque type for an instance. */
 typedef struct _DLiteInstance DLiteInstance;
 
-/** Opaque type for an Entity. */
-typedef struct _DLiteEntity DLiteEntity;
-
 /** Flags for how to handle instance IDs. */
-typedef enum {
+typedef enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
                                  a (version 5) UUID (default). */
   dliteIDRequireUUID=1,     /*!< Require that `id` is a valid UUID. */
@@ -27,7 +24,6 @@ typedef enum {
                                  is not a valid UUID.  Not SOFT compatible,
                                  but may be useful for input files. */
 } DLiteIDFlag;
-
 
 
 /**
@@ -47,7 +43,16 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
                                  const char *options);
 
 /**
-  Closes data handle `d`. Returns non-zero on error.
+  Like dlite_storage_open(), but takes as input an url of the form
+  ``driver://uri?options``.  The question mark and options may be left out.
+
+  Returns a new storage, or NULL on error.
+*/
+DLiteStorage *dlite_storage_open_url(const char *url);
+
+
+/**
+  Closes storage `s`. Returns non-zero on error.
 */
 int dlite_storage_close(DLiteStorage *s);
 
@@ -63,16 +68,66 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s);
  */
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
 
+/**
+  Returns non-zero if storage `s` is writable.
+ */
+int dlite_storage_is_writable(const DLiteStorage *s);
 
 /**
-  Returns a NULL-terminated array of string pointers to instance UUID's.
-  The caller is responsible to free the returned array with
+  Returns name of driver associated with storage `s`.
+ */
+const char *dlite_storage_get_driver(const DLiteStorage *s);
+
+
+/* Dublicated declarations from dlite-storage-plugins.h */
+int dlite_storage_plugin_unload(const char *name);
+const char **dlite_storage_plugin_paths(void);
+int dlite_storage_plugin_path_insert(int n, const char *path);
+int dlite_storage_plugin_path_append(const char *path);
+
+/**
+ * @name Querying content of a storage
+ * @{
+ */
+
+/**
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
+ */
+void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern);
+
+/**
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with
+  dlite_storage_iter_create().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf);
+
+/**
+  Free's iterator created with dlite_storage_iter_create().
+ */
+void dlite_storage_iter_free(DLiteStorage *s, void *iter);
+
+
+
+/**
+  Returns the UUIDs off all instances in storage `s` whos metadata URI
+  matches the glob pattern `pattern`.  If `pattern` is NULL, it matches
+  all instances.
+
+  The UUIDs are returned as a NULL-terminated array of string
+  pointers.  The caller is responsible to free the returned array with
   dlite_storage_uuids_free().
 
   Not all plugins may implement this function.  In that case, NULL is
   returned.
  */
-char **dlite_storage_uuids(const DLiteStorage *s);
+char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern);
 
 
 /**
@@ -81,12 +136,48 @@ char **dlite_storage_uuids(const DLiteStorage *s);
  */
 void dlite_storage_uuids_free(char **uuids);
 
+/** @} */
+
+
 
 /**
-   Returns non-zero if storage `s` is writable.
+ * @name Storage paths
+ * @{
  */
-int dlite_storage_is_writable(const DLiteStorage *s);
 
+/**
+  Inserts `path` into storage paths before position `n`.  If `n` is
+  negative, it counts from the end (like Python).
 
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_insert(int n, const char *path);
+
+/**
+  Appends `path` to storage paths.
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int dlite_storage_paths_append(const char *path);
+
+/**
+  Removes path with index `n` from storage paths.  If `n` is negative, it
+  counts from the end (like Python).
+
+  Returns non-zero on error.
+ */
+int dlite_storage_paths_remove(int n);
+
+/**
+  Returns a NULL-terminated array of pointers to paths/urls or NULL if
+  no storage paths have been assigned.
+
+  The returned array is owned by DLite and should not be free'ed. It
+  may be invalidated by further calls to dlite_storage_paths_insert()
+  and dlite_storage_paths_append().
+ */
+const char **dlite_storage_paths_get();
+
+/** @} */
 
 #endif /* _DLITE_STORAGE_H */

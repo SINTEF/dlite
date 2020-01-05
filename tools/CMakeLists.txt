@@ -2,35 +2,32 @@
 project(dlite-tools C)
 
 # Workaround for old CMake not setting the correct binary path for MSVC
-if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12")
+if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(dlite-tools_BINARY_DIR ${dlite-tools_BINARY_DIR}/$<CONFIG>)
 endif()
 
 
-link_directories(${uuid_BINARY_DIR})
-
 # dlite-getuuid
 add_executable(dlite-getuuid dlite-getuuid.c)
-target_link_libraries(dlite-getuuid dlite uuid)
+target_link_libraries(dlite-getuuid
+  dlite-static
+  )
 target_include_directories(dlite-getuuid PRIVATE
   ${dlite_SOURCE_DIR}/src
-  ${uuid_SOURCE_DIR}
-  ${uuid_BINARY_DIR}
   )
 
 
 # dlite-codegen
 add_executable(dlite-codegen dlite-codegen.c)
-target_link_libraries(dlite-codegen dlite)
+target_link_libraries(dlite-codegen dlite-static)
 target_include_directories(dlite-codegen PRIVATE
   ${dlite_SOURCE_DIR}/src
   ${dlite_BINARY_DIR}/src
-  ${uuid_BINARY_DIR}
   )
 
 
 # Subdirectories
-add_subdirectory(tests)
+#add_subdirectory(tests)
 
 
 # Install

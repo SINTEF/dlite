@@ -96,7 +96,6 @@
       map_deinit(&m);
 */
 
-/** @cond IGNORE */
 
 #include <string.h>
 
@@ -116,56 +115,87 @@ typedef struct {
 } map_iter_t;
 
 
-/** Defines a new map type.*/
+/**
+  Defines a new map type.
+*/
 #define map_t(T)\
   struct { map_base_t base; T *ref; T tmp; }
 
-
+/**
+  Initialises the map, this must be called before the map can be used.
+ */
 #define map_init(m)\
   memset(m, 0, sizeof(*(m)))
 
-
+/**
+  Deinitialises the map, freeing the memory the map allocated
+  during use; this should be called when we're finished with a
+  map.
+ */
 #define map_deinit(m)\
   map_deinit_(&(m)->base)
 
-
+/**
+  Returns a pointer to the value of the given key. If no
+  mapping for the key exists then NULL will be returned.
+*/
 #define map_get(m, key)\
   ( (m)->ref = map_get_(&(m)->base, key) )
 
-
+/**
+  Sets the given key to the given value. Returns 0 on success,
+  otherwise -1 is returned and the map remains unchanged.
+*/
 #define map_set(m, key, value)\
   ( (m)->tmp = (value),\
     map_set_(&(m)->base, key, &(m)->tmp, sizeof((m)->tmp)) )
 
-
+/**
+  Removes the mapping of the given key from the map. If the key
+  does not exist in the map then the function has no effect.
+*/
 #define map_remove(m, key)\
   map_remove_(&(m)->base, key)
 
-
+/**
+  Returns a map_iter_t which can be used with map_next() to
+  iterate all the keys in the map.
+*/
 #define map_iter(m)\
   map_iter_()
 
-
+/**
+  Uses the map_iter_t returned by map_iter() to iterate all the
+  keys in the map. map_next() returns a key with each call and
+  returns NULL when there are no more keys.
+ */
 #define map_next(m, iter)\
   map_next_(&(m)->base, iter)
 
 
+/**
+  @name Internal functions
+  These functions are called via the macros.  Don't call them directly.
+  @{
+ */
 void map_deinit_(map_base_t *m);
 void *map_get_(const map_base_t *m, const char *key);
 int map_set_(map_base_t *m, const char *key, void *value, int vsize);
 void map_remove_(map_base_t *m, const char *key);
 map_iter_t map_iter_(void);
 const char *map_next_(map_base_t *m, map_iter_t *iter);
+/** @} */
 
 
+/** @cond private */
 typedef map_t(void*) map_void_t;
 typedef map_t(char*) map_str_t;
 typedef map_t(int) map_int_t;
 typedef map_t(char) map_char_t;
 typedef map_t(float) map_float_t;
 typedef map_t(double) map_double_t;
-
 /** @endcond */
+
 
 
 #endif

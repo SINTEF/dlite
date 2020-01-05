@@ -55,6 +55,13 @@
 #include <errno.h>
 #include <setjmp.h>
 
+/* FIXME - temporary workaround for MSVC */
+#ifdef _MSC_VER
+# ifdef HAVE___VA_ARGS__
+#  undef HAVE___VA_ARGS__
+# endif
+#endif
+
 /* Remove __attribute__ when we are not compiling with gcc */
 #ifndef __GNUC__
 # define __attribute__(x)
@@ -131,6 +138,16 @@ int _err_vformat(const char *errname, int eval, int errnum, const char *file,
  */
 
 #ifndef HAVE___VA_ARGS__
+
+/** @cond private */
+/* Rename to avoid intermixing with BSD error functions */
+#define fatal  err_fatal
+#define fatalx err_fatalx
+#define err    err_err
+#define errx   err_errx
+#define warn   err_warn
+#define warnx  err_warnx
+/** @} */
 
 /**
  * @brief Reports fatal error and exit the program with error value `eval`.
@@ -213,17 +230,17 @@ int vwarnx(const char *msg, va_list ap)
   _err_format("Warning", 0, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
 
 #define vfatal(eval, msg, ap) \
-  exit(_err_vformat("Fatal", eval, errno, ERR_FILEPOS, msg, _err_func, ap))
+  exit(_err_vformat("Fatal", eval, errno, ERR_FILEPOS, _err_func, msg, ap))
 #define vfatalx(eval, msg, ap) \
-  exit(_err_vformat("Fatal", eval, 0, ERR_FILEPOS, msg, _err_func, ap))
+  exit(_err_vformat("Fatal", eval, 0, ERR_FILEPOS, _err_func, msg, ap))
 #define verr(eval, msg, ap) \
-  _err_vformat("Error", eval, errno, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", eval, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define verrx(eval, msg, ap) \
-  _err_vformat("Error", eval, 0, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", eval, 0, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarn(msg, ap) \
-  _err_vformat("Error", 0, errno, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", 0, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarnx(msg, ap) \
-  _err_vformat("Error", 0, 0, ERR_FILEPOS, msg, _err_func, ap)
+  _err_vformat("Error", 0, 0, ERR_FILEPOS, _err_func, msg, ap)
 
 /** @endcond */
 #endif /* HAVE___VA_ARGS__ */
@@ -237,17 +254,17 @@ int vwarnx(const char *msg, va_list ap)
 /**
  * @brief Returns the error value of the last error.
  */
-int err_geteval();
+int err_geteval(void);
 
 /**
  * @brief Returns the error message of the last error.
  */
-char *err_getmsg();
+char *err_getmsg(void);
 
 /**
  * @brief Clear the last error (setting error value to zero).
  */
-void err_clear();
+void err_clear(void);
 
 /**
  * @brief Set prefix to prepend to all errors in this application.
@@ -379,10 +396,9 @@ ErrHandler err_get_handler(void);
 
 
 /**
- * @name ErrTry/ErrCatch block
-
- * ErrTry/ErrCatch blocks allows to selectively handel errors based on
- * their error value.  They are of the form:
+ * @name ErrTry block
+ * ErrTry blocks allows to selectively handel errors based on their
+ * error value.  They are of the form:
  *
  *     ErrTry:
  *       statements...;
@@ -440,20 +456,25 @@ ErrHandler err_get_handler(void);
  * @{
  */
 
-/** @cond priate */
 
 
-/* Declarations */
+/** Adds link to new exception handler. Called internally by the
+    ErrTry macro. Don't call this function directly. */
 void _err_link_record(ErrRecord *errrecord);
+
+/** Unlinks exception handler. Called internally by the ErrEnd
+    macro. Don't call this function directly. */
 void _err_unlink_record(ErrRecord *errrecord);
+
+/** Returns pointer to current error record.  Called internally by
+    the raise() macro.  Don't call this function directly. */
 ErrRecord *_err_get_record();
 
 
-/** @endcond */
 
 
 /**
- * @brief Starts a ErrTry/ErrCatch block.
+ * @brief Starts a ErrTry block.
 */
 #define ErrTry                                       \
   do {                                               \
@@ -500,7 +521,7 @@ ErrRecord *_err_get_record();
     case 0
 
 /**
- * @brief Ends an ErrTry/ErrCatch block.
+ * @brief Ends an ErrTry block.
  */
 #define ErrEnd                               \
     }                                        \
@@ -523,10 +544,10 @@ ErrRecord *_err_get_record();
 
 /**
  * @brief Raises an exception
- * This transfers the execution to the nearest enclosing ErrTry/ErrCatch block.
+ * This transfers the execution to the nearest enclosing ErrTry block.
  * If no such block exists, fatal() is called.
  */
-#define raise(eval, ...)                                  \
+#define err_raise(eval, ...)                              \
   do {                                                    \
     ErrRecord *record = _err_get_record();                \
     record->exception = 1;                                \
@@ -540,7 +561,7 @@ ErrRecord *_err_get_record();
  * @brief Like raise(), but does not append a system error message to the
  * exception message.
  */
-#define raisex(eval, ...)                                 \
+#define err_raisex(eval, ...)                             \
   do {                                                    \
     ErrRecord *record = _err_get_record();                \
     record->exception = 1;                                \
