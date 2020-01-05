@@ -22,6 +22,13 @@
     err(1, msg, a1); goto fail; } while (0)
 
 
+/* Whether we are on Windows */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# ifndef WINDOWS
+#  define WINDOWS
+# endif
+#endif
+
 
 /* Paths iterator */
 struct _FUIter {
@@ -190,7 +197,7 @@ const char *fu_fileext(const char *path)
  */
 char *fu_friendly_dirsep(char *path)
 {
-#if defined WIN32 || defined _WIN32 || defined __WIN32__
+#ifdef WINDOWS
   int from, to;
   char *c, *p=path;
   if (strlen(path) >= 2 &&
@@ -210,6 +217,49 @@ char *fu_friendly_dirsep(char *path)
   }
 #endif
   return path;
+}
+
+
+/*
+  Returns the canonicalized absolute pathname for `path`.  Resolves
+  symbolic links and references to '/./', '/../' and extra '/'.  Note
+  that `path` must exists.
+
+  If `resolved_path` is NULL, the returned path is malloc()'ed.
+  Otherwise, it must be a buffer of at least size PATH_MAX (on POSIX)
+  or MAX_PATH (on Windows).
+
+  Returns NULL on error.
+ */
+char *fu_realpath(const char *path, char *resolved_path)
+{
+#if defined(HAVE_REALPATH)
+  return realpath(path, resolved_path);
+#elif defined(HAVE_GetFullPathNameW)
+  int n, size=MAX_PATH;
+  if (!resolved_path) size=0;
+  if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
+    return err(1, "cannot resolve canonical path for '%s'", path), NULL;
+  if (!resolved_path) {
+    size = n + 1;
+    if (!(resolved_path = malloc(size)))
+      return err(1, "allocation failure"), NULL;
+    if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
+      return err(1, "cannot resolve canonical path for '%s'", path), NULL;
+  }
+  if (n > size)
+    return err(1, "cannot create large enough buffer for canonicalize '%s' "
+               "(limited to MAX_PATH=%d)", path, MAX_PATH);
+  return resolved_path;
+#else
+#pragma message ( "Neither realpath() nor GetFullPathNameW() exists" )
+  if (!resolved_path) return strdup(path);
+# ifdef WINDOWS
+  return strncpy(resolved_path, MAX_PATH, path);
+# else
+  return strncpy(resolved_path, PATH_MAX, path);
+# endif
+#endif
 }
 
 
