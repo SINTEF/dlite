@@ -1,5 +1,16 @@
 # -*- Mode: cmake -*-
 #
+# The postgresql tests require local configurations of the PostgreSQL
+# server.  The tests are only enabled if a file pgconf.h can be found
+# in the source directory with the following content:
+#
+#     #define HOST "pg_server_host"
+#     #define USER "my_username"
+#     #define DATABASE "my_database"
+#     #define PASSWORD "my_password"
+#
+# Depending on how the server is set up, or if you have a ~/.pgpass
+# file, PASSWORD may be left undefined.
 
 set(tests
   test_yaml_storage
@@ -8,29 +19,6 @@ set(tests
   )
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
-
-
-# The test_postgresql_storage test require local configurations of the
-# PostgreSQL server.  The test is only enabled if a file pgconf.h can be
-# found in the source directory with the following content:
-#
-#     #define HOST "pg_server_host"
-#     #define USER "my_username"
-#     #define DATABASE "my_database"
-#     #define PASSWORD "my_password"
-#
-# Depending on how the server is set up, or if you have a ~/.pgpass
-# file, PASSWORD can be left undefined.
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
-  list(REMOVE_ITEM tests test_postgresql_storage test_postgresql_storage2)
-  add_test(
-    NAME test_postgresql_storage
-    COMMAND ${CMAKE_COMMAND} -E echo "disabled")
-  set_property(TEST test_postgresql_storage APPEND PROPERTY DISABLED True)
-else()
-  set_property(TEST test_postgresql_storage2 APPEND PROPERTY
-    DEPEND test_postgresql_storage)
-endif()
 
 
 # We are linking to dlite-plugins-python DLL - this require that this
@@ -82,8 +70,12 @@ foreach(test ${tests})
 
 endforeach()
 
+# Add inter-dependencies between tests
+set_property(TEST test_postgresql_storage2 APPEND PROPERTY
+  DEPEND test_postgresql_storage)
 
-# Disable tests with dependencies
+
+# Disable tests with unsatisfied dependencies
 include(FindPythonModule)
 
 find_python_module(yaml)
@@ -92,6 +84,7 @@ if(NOT PY_YAML)
 endif()
 
 find_python_module(psycopg2)
-if(NOT PY_PSYCOPG2)
-  set_property(TEST test_postgresql_storage APPEND PROPERTY DISABLED True)
+if(NOT PY_PSYCOPG2 OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
+  set_property(TEST test_postgresql_storage  APPEND PROPERTY DISABLED True)
+  set_property(TEST test_postgresql_storage2 APPEND PROPERTY DISABLED True)
 endif()
