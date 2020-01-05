@@ -118,7 +118,14 @@ int rpl_vasprintf(char **, const char *, va_list);
 /* Other stuff...                     */
 /* ================================== */
 
-#ifdef _WIN32
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# ifndef WINDOWS
+#  define WINDOWS
+# endif
+#endif
+
+
+#ifdef WINDOWS
 /* Get rid of warnings from MSVS about insecure standard library functions */
 # define _CRT_SECURE_NO_WARNINGS
 

@@ -22,6 +22,13 @@
     err(1, msg, a1); goto fail; } while (0)
 
 
+/* Whether we are on Windows */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# ifndef WINDOWS
+#  define WINDOWS
+# endif
+#endif
+
 
 /* Paths iterator */
 struct _FUIter {
@@ -190,7 +197,7 @@ const char *fu_fileext(const char *path)
  */
 char *fu_friendly_dirsep(char *path)
 {
-#if defined WIN32 || defined _WIN32 || defined __WIN32__
+#ifdef WINDOWS
   int from, to;
   char *c, *p=path;
   if (strlen(path) >= 2 &&
@@ -214,7 +221,9 @@ char *fu_friendly_dirsep(char *path)
 
 
 /*
-  Returns canonicalized absolute pathname for `path`.
+  Returns the canonicalized absolute pathname for `path`.  Resolves
+  symbolic links and references to '/./', '/../' and extra '/'.  Note
+  that `path` must exists.
 
   If `resolved_path` is NULL, the returned path is malloc()'ed.
   Otherwise, it must be a buffer of at least size PATH_MAX (on POSIX)
@@ -222,7 +231,7 @@ char *fu_friendly_dirsep(char *path)
 
   Returns NULL on error.
  */
-char *fu_canonical_path(const char *path, char *resolved_path)
+char *fu_realpath(const char *path, char *resolved_path)
 {
 #if defined(HAVE_REALPATH)
   return realpath(path, resolved_path);
@@ -245,7 +254,11 @@ char *fu_canonical_path(const char *path, char *resolved_path)
 #else
 #pragma message ( "Neither realpath() nor GetFullPathNameW() exists" )
   if (!resolved_path) return strdup(path);
-  return strcpy(resolved_path, path);  /* buffer owerflow... (?) */
+# ifdef WINDOWS
+  return strncpy(resolved_path, MAX_PATH, path);
+# else
+  return strncpy(resolved_path, PATH_MAX, path);
+# endif
 #endif
 }
 

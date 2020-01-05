@@ -110,31 +110,37 @@ MU_TEST(test_fu_friendly_dirsep)
 #endif
 }
 
-MU_TEST(test_fu_canonical_path)
+MU_TEST(test_fu_realpath)
 {
-  char *path, *p;
+  char *testdir, *path, *realpath;
 #if WINDOWS
   char buff[MAX_PATH];
 #else
   char buff[PATH_MAX];
 #endif
-  printf("\ncanonical_path()\n");
-  path = "/etc/fstab";
-  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
-  path = "C:\\Users\\myuser\\myfile.txt";
-  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
-  path = "myfile.txt";
-  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
-  path = "mydir/myfile.txt";
-  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
-  path = "mydir\\myfile.txt";
-  printf("  %-20s -> %s\n", path, fu_canonical_path(path, buff));
+  printf("\nfu_realpath()\n");
 
-  p = fu_canonical_path(path, NULL);
-  mu_assert_string_eq(buff, p);
-  free(p);
+  testdir = fu_realpath(STRINGIFY(TESTDIR), NULL);
+  printf("  %s ->\n  %s\n", STRINGIFY(TESTDIR), testdir);
+
+  realpath = fu_join(testdir, "test_fileutils.c", NULL);
+  mu_assert_string_eq(realpath, fu_realpath(realpath, buff));
+
+  path = fu_join(testdir, "..", ".", "tests", "test_fileutils.c", NULL);
+  printf("\n  %s ->\n  %s\n", path, fu_realpath(path, buff));
+  mu_assert_string_eq(realpath, fu_realpath(path, buff));
+  free(path);
+
+  path = fu_join(testdir, "..", "", "tests", "test_fileutils.c", NULL);
+  printf("\n  %s ->\n  %s\n", path, fu_realpath(path, buff));
+  mu_assert_string_eq(realpath, fu_realpath(path, buff));
+  free(path);
+
+  mu_check(fu_realpath("a_strange-non-existing_path...", buff) == NULL);
+  printf("\n");
+  free(realpath);
+  free(testdir);
 }
-
 
 
 MU_TEST(test_fu_opendir)
@@ -283,7 +289,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_basename);
   MU_RUN_TEST(test_fu_fileext);
   MU_RUN_TEST(test_fu_friendly_dirsep);
-  MU_RUN_TEST(test_fu_canonical_path);
+  MU_RUN_TEST(test_fu_realpath);
 
   MU_RUN_TEST(test_fu_opendir);       /* setup */
   MU_RUN_TEST(test_fu_getfile);
