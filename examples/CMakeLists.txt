@@ -1,4 +1,5 @@
 # -*- Mode: cmake -*-
+project(dlite-examples)
 
 #
 # Macro for testing examples

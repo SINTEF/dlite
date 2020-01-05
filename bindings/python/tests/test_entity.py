@@ -16,11 +16,12 @@ url = 'json://' + thisdir + '/MyEntity.json' #+ "?mode=r"
 
 # Load metadata (i.e. an instance of meta-metadata) from url
 myentity = Instance(url)
+print(myentity.uuid)
 
 # Check some properties of the entity
 assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
 assert myentity.uri == 'http://meta.sintef.no/0.1/MyEntity'
-assert np.all(myentity.dimensions == [2, 14])  # ndimensions, nproperties
+assert myentity.dimensions == {'ndimensions': 2, 'nproperties': 14}
 assert not myentity.is_data
 assert myentity.is_meta
 assert not myentity.is_metameta
@@ -32,7 +33,7 @@ myentity.save('json://xxx.json')
 # For convinience, we give it an unique label "myid" that can be used
 # interchangable with its uuid
 inst = Instance(myentity.uri, [2, 3], 'myid')
-assert np.all(inst.dimensions == [2, 3])
+assert inst.dimensions == {'N': 2, 'M': 3}
 assert inst.is_data
 assert not inst.is_meta
 assert not inst.is_metameta
@@ -107,3 +108,6 @@ e3 = Instance(
      Property('arr', type='int', description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
+
+inst.save('json://yyy.json')
+inst.save('yaml://yyy.yaml')

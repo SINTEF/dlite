@@ -592,13 +592,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       size_t n;
       PyObject *bytes = PyObject_Bytes(obj);
       if (!bytes) FAIL("cannot convert object to bytes");
-      n = PyByteArray_Size(bytes);
+      assert(PyBytes_Check(bytes));
+      n = PyBytes_Size(bytes);
       if (n > size) {
         Py_DECREF(bytes);
         FAIL2("Length of bytearray is %zu. Exceeds size of blob: %zu", n, size);
       }
       memset(ptr, 0, size);
-      memcpy(ptr, PyByteArray_AsString(obj), n);
+      memcpy(ptr, PyBytes_AsString(bytes), n);
       Py_DECREF(bytes);
     }
     break;
@@ -707,14 +708,28 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
   case dliteDimension:
     {
+      DLiteDimension *dest = ptr;
       void *p;
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteDimension, 0))) {
         DLiteDimension *src = (DLiteDimension *)p;
-        DLiteDimension *dest = ptr;
         if (dest->name)        free(dest->name);
         if (dest->description) free(dest->description);
         dest->name        = strdup(src->name);
         dest->description = (src->description) ? strdup(src->description) :NULL;
+      } else if (PySequence_Check(obj) && PySequence_Length(obj) == 2) {
+        PyObject *name = PySequence_GetItem(obj, 0);
+        PyObject *descr = PySequence_GetItem(obj, 1);
+        if (name && PyUnicode_Check(name)) {
+          if (dest->name)        free(dest->name);
+          if (dest->description) free(dest->description);
+          dest->name = strdup(PyUnicode_AsUTF8(name));
+          dest->description = (descr && PyUnicode_Check(descr)) ?
+            strdup(PyUnicode_AsUTF8(descr)) : NULL;
+        } else {
+          dlite_err(1, "cannot convert Python sequence to dimension");
+        }
+        Py_XDECREF(name);
+        Py_XDECREF(descr);
       } else {
         FAIL("cannot convert Python object to dimension");
       }
@@ -723,10 +738,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
   case dliteProperty:
     {
+      DLiteProperty *dest = ptr;
       void *p;
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
         DLiteProperty *src = (DLiteProperty *)p;
-        DLiteProperty *dest = ptr;
         if (dest->name)        free(dest->name);
         if (dest->dims)        free(dest->dims);
         if (dest->unit)        free(dest->unit);
@@ -742,6 +757,49 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           dest->dims = NULL;
         dest->unit        = (src->unit) ? strdup(src->unit) : NULL;
         dest->description = (src->description) ? strdup(src->description) :NULL;
+
+      } else if (PySequence_Check(obj) && PySequence_Length(obj) == 5) {
+        PyObject *name = PySequence_GetItem(obj, 0);
+        PyObject *type = PySequence_GetItem(obj, 1);
+        PyObject *dims = PySequence_GetItem(obj, 2);
+        PyObject *unit = PySequence_GetItem(obj, 3);
+        PyObject *descr = PySequence_GetItem(obj, 4);
+        DLiteType t;
+        size_t size;
+        if (name && PyUnicode_Check(name) &&
+            type && PyUnicode_Check(type) &&
+            dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
+                                          &t, &size) == 0) {
+          if (dest->name)        free(dest->name);
+          if (dest->dims)        free(dest->dims);
+          if (dest->unit)        free(dest->unit);
+          if (dest->description) free(dest->description);
+          dest->name = strdup(PyUnicode_AsUTF8(name));
+          dest->type = t;
+          dest->size = size;
+          if (dims && PyUnicode_Check(dims)) {
+            const char *s = PyUnicode_AsUTF8(dims);
+            const char *q = s;
+            int i=0, ndims=(s && *s) ? 1 : 0;
+            while (s[i]) if (s[i++] == ',') ndims++;
+            dest->ndims = ndims;
+            dest->dims = malloc(ndims*sizeof(int));
+            for (i=0; i<ndims; i++) {
+              dest->dims[i] = atoi(s);
+              s += strcspn(q, ",") + 1;
+            }
+          }
+          dest->unit = (unit && PyUnicode_Check(unit)) ?
+            strdup(PyUnicode_AsUTF8(unit)) : NULL;
+          dest->description = (descr && PyUnicode_Check(descr)) ?
+            strdup(PyUnicode_AsUTF8(descr)) : NULL;
+        } else
+          dlite_err(1, "cannot convert Python sequence to dimension");
+        Py_XDECREF(name);
+        Py_XDECREF(type);
+        Py_XDECREF(dims);
+        Py_XDECREF(unit);
+        Py_XDECREF(descr);
 
       } else {
         FAIL("cannot convert Python object to dimension");

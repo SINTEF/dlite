@@ -292,11 +292,18 @@ typedef struct _DLiteMeta {
 /** @{ */
 
 /**
-  Returns a new uninitialised dlite instance of Entiry `meta` with
-  dimensions `dims`.  Memory for all properties is allocated and set
-  to zero.  The lengths of `dims` is found in `meta->ndims`.
+  Returns a new dlite instance from Entiry `meta` and dimensions
+  `dims`.  The lengths of `dims` is found in `meta->ndims`.
 
-  Increases the reference count of `meta`.
+  The `id` argment may be NULL, a valid UUID or an unique identifier
+  to this instance (e.g. an uri).  In the first case, a random UUID
+  will be generated. In the second case, the instance will get the
+  provided UUID.  In the third case, an UUID will be generated from
+  `id`.  In addition, the instanc's uri member will be assigned to
+  `id`.
+
+  All properties are initialised to zero and arrays for all dimensional
+  properties are allocated and initialised to zero.
 
   On error, NULL is returned.
  */
@@ -305,9 +312,8 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
                                      const char *id);
 
 /**
-  Like dlite_instance_create() but takes the uri or uuid if the
-  metadata as the first argument.  `dims`.  The lengths of `dims` is
-  found in `meta->ndims`.
+  Like dlite_instance_create() but takes the uri or uuid of the
+  metadata as the first argument.
 
   Returns NULL on error.
 */
@@ -375,6 +381,9 @@ DLiteInstance *dlite_instance_load_url(const char *url);
   Like dlite_instance_load(), but allows casting the loaded instance
   into an instance of metadata identified by `metaid`.  If `metaid` is
   NULL, no casting is performed.
+
+  Some storages accept that `id` is NULL if the storage only contain
+  one instance.  In that case that instance is returned.
 
   For the cast to be successful requires that the correct mappings
   have been registered.

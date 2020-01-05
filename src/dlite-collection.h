@@ -255,10 +255,20 @@ int dlite_collection_has_id(const DLiteCollection *coll, const char *id);
 /**
   Iterates over a collection.
 
-  Returns the next instance or NULL if there are no more instances.
+  Returns a borrowed reference to the next instance or NULL if all
+  instances have been visited.
 */
 DLiteInstance *dlite_collection_next(DLiteCollection *coll,
 				     DLiteCollectionState *state);
+
+/**
+  Iterates over a collection.
+
+  Returns a new reference to the next instance or NULL if all
+  instances have been visited.
+*/
+DLiteInstance *dlite_collection_next_new(DLiteCollection *coll,
+                                         DLiteCollectionState *state);
 
 /**
   Returns the number of instances that are stored in the collection or

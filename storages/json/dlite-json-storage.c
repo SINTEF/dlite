@@ -162,7 +162,9 @@ void object_set_real(json_t *obj, const char *key, const double val)
   - meta : yes | no
       Whether to format output as metadata
  */
-DLiteStorage *dlite_json_open(const char *uri, const char *options)
+DLiteStorage *
+dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
+                const char *options)
 {
   DLiteJsonStorage *s;
   DLiteStorage *retval=NULL;
@@ -181,6 +183,7 @@ DLiteStorage *dlite_json_open(const char *uri, const char *options)
   char *optcopy = (options) ? strdup(options) : NULL;
   const char **mode = &opts[0].value;
   int meta;
+  UNUSED(api);
 
   if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL0("allocation failure");
 
@@ -850,82 +853,25 @@ DLiteMeta *dlite_json_entity(json_t *obj)
   return entity;
 }
 
-/* Create an entity from a json storage and the given entity ID */
-DLiteMeta *dlite_json_get_entity(const DLiteStorage *s, const char *id)
-{
-  DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
-  char *uri=NULL;
-  json_t *obj=NULL;
-
-  if (id && *id) {
-    /* id given - find it in the json storage */
-    char uuid[DLITE_UUID_LENGTH+1], suuid[DLITE_UUID_LENGTH+1];
-    if (dlite_get_uuid(uuid, id) < 0) goto fail;
-
-    /* If root is an array, we set the root to the matching item */
-    if (json_is_array(storage->root)) {
-      size_t i, size;
-      size = json_array_size(storage->root);
-      for(i=0; i < size; i++) {
-        json_t *item = json_array_get(storage->root, i);
-        uri = dlite_json_uri(item);
-        if (dlite_get_uuid(suuid, uri) < 0) goto fail;
-        if (str_equal(suuid, uuid)) {
-          obj = item;
-          break;
-        }
-      }
-    } else if (json_is_object(storage->root)) {
-      if (!(uri = dlite_json_uri(storage->root)))
-        FAIL1("cannot find valid entiry in storage '%s'", s->uri);
-      if (dlite_get_uuid(suuid, uri) < 0)
-        goto fail;
-      if (str_equal(suuid, uuid))
-        obj = storage->root;
-
-      if (!obj)
-        FAIL2("cannot find entity with id '%s' in storage '%s'", id, s->uri);
-    }
-
-  } else {
-    /* no id - check if only one entity is defined in the json storage */
-    if (json_is_array(storage->root)) {
-      size_t size = json_array_size(storage->root);
-      if (size == 1) {
-        json_t *item = json_array_get(storage->root, 0);
-        if ((uri = dlite_json_uri(item)))
-          obj = item;
-      } else {
-        FAIL2("storage '%s' is an array of %lu items, but only one entity "
-              "is expected when no id is provided", s->uri, size);
-      }
-    } else if (json_is_object(storage->root)) {
-      if ((uri = dlite_json_uri(storage->root)))
-        obj = storage->root;
-    }
-
-    if (!obj)
-      FAIL1("cannot find valid entity in storage '%s'", s->uri);
-  }
-
- fail:
-  if (uri) free(uri);
-  return (obj) ? dlite_json_entity(obj) : NULL;
-}
-
-
-int dlite_json_set_entity(DLiteStorage *s, const DLiteMeta *e)
-{
-  return dlite_meta_save(s, e);
-}
-
 
 static DLiteStoragePlugin dlite_json_plugin = {
   "json",
 
+  /* basic api */
   dlite_json_open,
   dlite_json_close,
 
+  /* queue api */
+  NULL,
+  NULL,
+  NULL,
+  dlite_json_get_uuids,
+
+  /* direct api */
+  NULL,
+  NULL,
+
+  /* datamodel api */
   dlite_json_datamodel,
   dlite_json_datamodel_free,
 
@@ -933,9 +879,7 @@ static DLiteStoragePlugin dlite_json_plugin = {
   dlite_json_get_dimension_size,
   dlite_json_get_property,
 
-  /* optional */
-  dlite_json_get_uuids,
-
+  /* -- datamodel api (optional) */
   dlite_json_set_metadata,
   dlite_json_set_dimension_size,
   dlite_json_set_property,
@@ -947,9 +891,8 @@ static DLiteStoragePlugin dlite_json_plugin = {
   dlite_json_set_dataname,
 
   /* specialised api */
-  dlite_json_get_entity,
-  dlite_json_set_entity,
-
+  //dlite_json_get_entity,
+  //dlite_json_set_entity,
 
   /* internal data */
   NULL,

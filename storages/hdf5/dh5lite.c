@@ -437,7 +437,8 @@ static void entrylist_free(EntryList *e)
     w    Write: truncate existing file or create new file
 
  */
-DLiteStorage *dh5_open(const char *uri, const char *options)
+DLiteStorage *
+dh5_open(const DLiteStoragePlugin *api, const char *uri, const char *options)
 {
   DH5Storage *s=NULL;
   DLiteStorage *retval=NULL;
@@ -451,6 +452,8 @@ DLiteStorage *dh5_open(const char *uri, const char *options)
   };
   char *optcopy = (options) ? strdup(options) : NULL;
   const char **mode = &opts[0].value;
+  UNUSED(api);
+
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
 
   H5open();  /* Opens hdf5 library */
@@ -773,9 +776,21 @@ int dh5_set_dataname(DLiteDataModel *d, const char *name)
 static DLiteStoragePlugin h5_plugin = {
   "hdf5",
 
+  /* basic api */
   dh5_open,
   dh5_close,
 
+  /* queue api */
+  NULL,
+  NULL,
+  NULL,
+  dh5_get_uuids,
+
+  /* direct api */
+  NULL,
+  NULL,
+
+  /* datamodel api */
   dh5_datamodel,
   dh5_datamodel_free,
 
@@ -783,9 +798,7 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_get_dimension_size,
   dh5_get_property,
 
-  /* optional */
-  dh5_get_uuids,
-
+  /* -- datamodel api (optional) */
   dh5_set_meta_uri,
   dh5_set_dimension_size,
   dh5_set_property,
@@ -795,10 +808,6 @@ static DLiteStoragePlugin h5_plugin = {
 
   dh5_get_dataname,
   dh5_set_dataname,
-
-  /* specialised api */
-  NULL,
-  NULL,
 
   /* internal data */
   NULL,

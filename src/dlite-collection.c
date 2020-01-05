@@ -39,20 +39,11 @@ int dlite_collection_deinit(DLiteInstance *inst)
   DLiteInstance *inst2;
   const DLiteRelation *r;
 
-  /* Release references to all instances.  We have to call
-     dlite_instance_decref() twice, since dlite_instance_get() returns
-     a new reference. */
+  /* Release references to all instances. */
   dlite_collection_init_state(coll, &state);
   while ((r=dlite_collection_find(coll,&state, NULL, "_has-uuid", NULL))) {
     if ((inst2 = dlite_instance_get(r->o))) {
       dlite_instance_decref(inst2);
-      /* FIXME - the below should not be commented out since it leads
-	 to memory leaks...
-	 However, doing that leads to assertion error in
-	 dlite_instance_decref().  Maybe related to adding the same instance
-	 to the collection with different labels?
-      */
-      //dlite_instance_decref(inst2);
     } else {
       warn("cannot remove missing instance: %s", r->o);
     }
@@ -297,6 +288,7 @@ const DLiteRelation *dlite_collection_find_first(const DLiteCollection *coll,
 
 /*
   Adds instance `inst` to collection, making `coll` the owner of the instance.
+  Hence `coll` "steals" the reference to `inst`.
 
   Returns non-zero on error.
  */
@@ -372,8 +364,12 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
                                           const char *label)
 {
   const DLiteRelation *r;
-  if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL)))
-    return dlite_instance_get(r->o);
+  if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL))) {
+    DLiteInstance *inst = dlite_instance_get(r->o);
+    assert(inst->refcount >= 2);
+    dlite_instance_decref(inst);
+    return inst;
+  }
   return NULL;
 }
 
@@ -404,7 +400,7 @@ DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
   DLiteInstance *inst = (DLiteInstance *)dlite_collection_get(coll, label);
   if (!inst) return NULL;
   if (metaid)
-    inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+    return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
   else
     dlite_instance_incref(inst);
   return inst;
@@ -434,10 +430,28 @@ int dlite_collection_has_id(const DLiteCollection *coll, const char *id)
 /*
   Iterates over a collection.
 
-  Returns the next instance or NULL if there are no more instances.
+  Returns a borrowed reference to the next instance or NULL if all
+  instances have been visited.
 */
 DLiteInstance *dlite_collection_next(DLiteCollection *coll,
 				     DLiteCollectionState *state)
+{
+  DLiteInstance *inst = dlite_collection_next_new(coll, state);
+  if (inst) {
+    assert(inst->refcount >= 2);
+    dlite_instance_decref(inst);
+  }
+  return inst;
+}
+
+/*
+  Iterates over a collection.
+
+  Returns a new reference to the next instance or NULL if all
+  instances have been visited.
+*/
+DLiteInstance *dlite_collection_next_new(DLiteCollection *coll,
+                                         DLiteCollectionState *state)
 {
   UNUSED(coll);
   const Triplet *t;

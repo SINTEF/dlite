@@ -7,27 +7,19 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
 endif()
 
 
-# We don't bother to support Python 2, since support for it ends 2019
-# Is there any point in trying to support any version below, say Python 3.5?
-#find_package(PythonInterp 3 REQUIRED)
-#find_package(PythonLibs REQUIRED)
-#find_package(Numpy REQUIRED)
-
 # Try to require correct version of swig depending on Python version
-if(${PYTHON_VERSION_STRING} VERSION_LESS 3.2)
-  find_package(SWIG REQUIRED 1.3.37)
-elseif(${PYTHON_VERSION_STRING} VERSION_LESS 3.3)
-  find_package(SWIG REQUIRED 2.0.4)
-elseif(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
-  find_package(SWIG REQUIRED 3.0.0)
+if(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
+  find_package(SWIG 3.0.0 REQUIRED)
 else()
-  find_package(SWIG REQUIRED 3.0.8)
+  find_package(SWIG 3.0.8 REQUIRED)
 endif()
 
 # Python sources
 set(py_sources
   __init__.py
   factory.py
+  options.py
+  utils.py
   )
 
 
@@ -46,7 +38,6 @@ endif()
 # Add macros for use with swig
 include(${SWIG_USE_FILE})
 
-
 #
 # Create Python library
 # ---------------------
@@ -55,7 +46,6 @@ set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
   ${PYTHON_INCLUDE_DIRS}
   ${NUMPY_INCLUDE_DIR}
-  #${CMAKE_CURRENT_SOURCE_DIR}
   ${dlite-src_SOURCE_DIR}
   ${dlite-src_BINARY_DIR}
   ${dlite-src-utils_BINARY_DIR}
@@ -82,20 +72,41 @@ swig_link_libraries(dlite
 #
 # Create a working Python package in binary dir
 # ---------------------------------------------
-ADD_CUSTOM_COMMAND(
+set(pkgdir ${CMAKE_CURRENT_BINARY_DIR}/dlite)
+set(abs_sources)
+foreach(source ${py_sources})
+  list(APPEND abs_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
+endforeach()
+
+set(abs_targets)
+foreach(source ${py_sources})
+  list(APPEND abs_targets ${pkgdir}/${source})
+endforeach()
+
+add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory
-    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
     ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
-    ${CMAKE_CURRENT_BINARY_DIR}/dlite
+    ${pkgdir}
+  BYPRODUCTS
+    ${pkgdir}
+    ${pkgdir}/dlite.py
   )
 
-foreach(source ${py_sources})
-  configure_file(${source} dlite/${source} COPYONLY)
-endforeach()
+add_custom_target(python_package ALL DEPENDS ${abs_targets})
+add_custom_command(
+  OUTPUT
+    ${abs_targets}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${abs_sources}
+    ${pkgdir}
+  DEPENDS
+    ${pkgdir}
+    ${abs_sources}
+  )
 
 
 #

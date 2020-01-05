@@ -13,7 +13,7 @@
 
   Mappings can be registered as plugins and invoked transparently
   by DLite.  For this to work, DLite search all paths listed in the
-  DLITE_MAPPING_PLUGINS environment variable for plugins.
+  DLITE_MAPPING_PLUGIN_DIRS environment variable for plugins.
  */
 
 /**

@@ -14,6 +14,10 @@
 #include "dlite-storage-plugins.h"
 
 
+struct _DLiteStoragePluginIter {
+  PluginIter iter;
+};
+
 /* Global reference to storage plugin info */
 static PluginInfo *storage_plugin_info=NULL;
 
@@ -29,11 +33,12 @@ static void storage_plugin_info_free(void)
 static PluginInfo *get_storage_plugin_info(void)
 {
   if (!storage_plugin_info &&
-      (storage_plugin_info = plugin_info_create("storage-plugin",
-                                                "get_dlite_storage_plugin_api",
-                                                "DLITE_STORAGE_PLUGINS"))) {
+      (storage_plugin_info =
+       plugin_info_create("storage-plugin",
+			  "get_dlite_storage_plugin_api",
+			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
     atexit(storage_plugin_info_free);
-    dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGINS_PATH);
+    dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGIN_DIRS);
   }
   return storage_plugin_info;
 }
@@ -74,9 +79,14 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
                         "in search path:\n", name);
     while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
     if (n <= 1)
-      tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGINS enveronment "
+      tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGIN_DIRS enveronment "
                           "variable set?");
-    errx(1, tgen_buf_get(&buf));
+#ifdef WITH_PYTHON
+    else
+      tgen_buf_append_fmt(&buf, "Is the DLITE_PYTHON_STORAGE_PLUGIN_DIRS "
+                          "enveronment variable set?");
+#endif
+    errx(1, "%s", tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);
   }
   return api;
@@ -93,6 +103,91 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
 }
 
 /*
+  Load all plugins that can be found in the plugin search path.
+  Returns non-zero on error.
+ */
+int dlite_storage_plugin_load_all()
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return 1;
+  plugin_load_all(info);
+  return 0;
+}
+
+/*
+  Unloads and unregisters all storage plugins.
+*/
+void dlite_storage_plugin_unload_all()
+{
+  PluginInfo *info;
+  DLiteStoragePluginIter *iter;
+  const DLiteStoragePlugin *api;
+  //char **names=NULL;
+  //int i, n=0, N=0;
+  if (!(info = get_storage_plugin_info())) return;
+  if (!(iter = dlite_storage_plugin_iter_create())) return;
+
+  while ((api = dlite_storage_plugin_iter_next(iter))) {
+    plugin_unload(info, api->name);
+    if (api->freer) api->freer((DLiteStoragePlugin *)api);
+    //free((DLiteStoragePlugin *)api);
+  }
+
+  /* make a list with all plugin names */
+    /*
+  while ((api = dlite_storage_plugin_iter_next(iter))) {
+    if (n >= N) {
+      N += 64;
+      names = realloc(names, N*sizeof(char *));
+    }
+    names[n++] = strdup(api->name);
+  }
+  dlite_storage_plugin_iter_free(iter);
+
+  for (i=0; i<n; i++) {
+    plugin_unload(info, names[i]);
+    free(names[i]);
+  }
+  if (names) free(names);
+    */
+}
+
+/*
+  Returns a pointer to a new plugin iterator or NULL on error.  It
+  should be free'ed with dlite_storage_plugin_iter_free().
+ */
+DLiteStoragePluginIter *dlite_storage_plugin_iter_create()
+{
+  PluginInfo *info;
+  DLiteStoragePluginIter *iter;
+  if (!(info = get_storage_plugin_info())) return NULL;
+  if (!(iter = calloc(1, sizeof(DLiteStoragePluginIter))))
+    return err(1, "allocation failure"), NULL;
+  plugin_api_iter_init(&iter->iter, info);
+  return iter;
+}
+
+/*
+  Returns pointer the next plugin or NULL if there a re no more plugins.
+  `iter` is the iterator returned by dlite_storage_plugin_iter_create().
+ */
+const DLiteStoragePlugin *
+dlite_storage_plugin_iter_next(DLiteStoragePluginIter *iter)
+{
+  return (const DLiteStoragePlugin *)plugin_api_iter_next(&iter->iter);
+}
+
+/*
+  Frees plugin iterator `iter` created with
+  dlite_storage_plugin_iter_create().
+ */
+void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter)
+{
+  free(iter);
+}
+
+
+/*
   Unloads and unregisters storage plugin with the given name.
   Returns non-zero on error.
 */
@@ -102,6 +197,7 @@ int dlite_storage_plugin_unload(const char *name)
   if (!(info = get_storage_plugin_info())) return 1;
   return plugin_unload(info, name);
 }
+
 
 /*
   Returns a NULL-terminated array of pointers to search paths or NULL

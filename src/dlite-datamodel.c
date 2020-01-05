@@ -31,7 +31,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   /* allow id to be NULL if the storage only contains one instance */
   if (!id || !*id) {
     int n=0;
-    if ((uuids = dlite_storage_uuids(s))) {
+    if ((uuids = dlite_storage_uuids(s, NULL))) {
       while (uuids[n]) n++;
       if (n == 1)
         id = uuids[0];
