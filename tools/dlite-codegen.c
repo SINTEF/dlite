@@ -119,6 +119,8 @@ int main(int argc, char *argv[])
   if (optind != argc)
     return errx(1, "Too many arguments");
 
+  if (!url) errx(1, "Missing url argument");
+
   /* Remove trailing semicolon or ampersand from variables */
   if ((n = tgen_buf_length(&variables)) &&
       strchr(";&", tgen_buf_get(&variables)[n-1]))
@@ -141,8 +143,8 @@ int main(int argc, char *argv[])
     FUPaths paths;
     char *pattern=NULL;
     FUIter *iter=NULL;
-    if (fu_paths_init(&paths, "DLITE_TEMPLATES") >= 0 &&
-        fu_paths_append(&paths, DLITE_TEMPLATES_PATH) >= 0 &&
+    if (fu_paths_init(&paths, "DLITE_TEMPLATE_DIRS") >= 0 &&
+        fu_paths_append(&paths, DLITE_TEMPLATE_DIRS) >= 0 &&
         asprintf(&pattern, "%s.txt", format) > 0 &&
         (iter = fu_startmatch(pattern, &paths)) &&
         (template_file = fu_nextmatch(iter)))

@@ -17,7 +17,7 @@ MU_TEST(test_load_modules)
   FUPaths paths;
   PyObject *plugins;
 
-  fu_paths_init(&paths, "DLITE_PYTHON_MAPPINGS");
+  fu_paths_init(&paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS");
   fu_paths_insert(&paths, STRINGIFY(TESTDIR), 0);
 
   plugins = dlite_pyembed_load_plugins(&paths, "DLiteMappingBase");
@@ -69,7 +69,7 @@ MU_TEST(test_get_address)
 MU_TEST(test_get_instance)
 {
   const char *id = "http://meta.sintef.no/0.3/EntitySchema";
-  PyObject *instance = dlite_pyembed_get_instance(id);
+  PyObject *instance = dlite_pyembed_from_instance(id);
   mu_check(instance);
   printf("\nPython instance: ");
   PyObject_Print(instance, stdout, 0);

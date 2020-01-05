@@ -15,13 +15,13 @@ if(WITH_JSON)
       ${CMAKE_COMMAND} -E env
       PATH="${dlite_PATH}"
       LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH}"
-      DLITE_STORAGE_PLUGINS="${dlite_STORAGE_PLUGINS}"
-      DLITE_MAPPING_PLUGINS="${dlite_MAPPING_PLUGINS}"
-      DLITE_TEMPLATES="${dlite_TEMPLATES}"
+      DLITE_STORAGE_PLUGIN_DIRS="${dlite_STORAGE_PLUGINS}"
+      DLITE_MAPPING_PLUGIN_DIRS="${dlite_MAPPING_PLUGINS}"
+      DLITE_TEMPLATE_DIRS="${dlite_TEMPLATES}"
       ${dlite-tools_BINARY_DIR}/dlite-codegen
       --template ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
       --output chemistry.h
-      --storage-plugins=${dlite_BINARY_DIR}/plugins/json
+      --storage-plugins=${dlite_BINARY_DIR}/storages/json
       json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
@@ -50,11 +50,11 @@ if(WITH_JSON)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
+    ENVIRONMENT "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_TEMPLATES=${dlite_TEMPLATES}")
+    ENVIRONMENT "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
 

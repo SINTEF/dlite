@@ -15,14 +15,14 @@ add_custom_target(
   copy-dlite-plugins-json
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:dlite-plugins-json>
-    ${dlite_BINARY_DIR}/plugins/json/tests
+    ${dlite_BINARY_DIR}/storages/json/tests
   )
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test} dlite-plugins-json)
   target_include_directories(${test} PRIVATE
-    ${dlite_SOURCE_DIR}/plugins/json
+    ${dlite_SOURCE_DIR}/storages/json
     ${dlite-src_SOURCE_DIR}/tests
     )
   add_dependencies(${test} copy-dlite-plugins-json)
@@ -33,7 +33,7 @@ foreach(test ${tests})
     )
 
 
-  #set(dlite_PATH ${dlite_PATH} ${dlite_BINARY_DIR}/plugins/json)
+  #set(dlite_PATH ${dlite_PATH} ${dlite_BINARY_DIR}/storages/json)
   #if(UNIX)
   #  string(REPLACE ";" ":" dlite_PATH ${dlite_PATH})
   #endif()
@@ -41,10 +41,20 @@ foreach(test ${tests})
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH}")
+  set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGE_PLUGINS=${dlite_STORAGE_PLUGINS}")
+    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_MAPPING_PLUGINS=${dlite_MAPPING_PLUGINS}")
+    ENVIRONMENT "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
+    "DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
+     "DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
 
 endforeach()

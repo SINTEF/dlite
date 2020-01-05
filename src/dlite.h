@@ -8,6 +8,7 @@
 
 #include "dlite-misc.h"
 #include "dlite-type.h"
+#include "dlite-schemas.h"
 #include "dlite-entity.h"
 #include "dlite-storage.h"
 #include "dlite-collection.h"

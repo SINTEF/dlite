@@ -1,8 +1,21 @@
 find_package(Doxygen REQUIRED)
+project(dlite-doc)
 
 if(DOXYGEN_FOUND)
+
+  # Fix links in README.md such that doxygen understand them.
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/README.md
+    COMMAND ${CMAKE_COMMAND}
+      -Dinfile=${dlite_SOURCE_DIR}/README.md
+      -Doutfile=${CMAKE_CURRENT_BINARY_DIR}/README.md
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/fix_readme.cmake
+    MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/README.md
+    )
+
   set(dependencies
-    ${dlite_SOURCE_DIR}/README.md
+    ${CMAKE_CURRENT_BINARY_DIR}/README.md
+    #${dlite_SOURCE_DIR}/README.md
     ${dlite_SOURCE_DIR}/doc/Doxyfile.in
     ${dlite_SOURCE_DIR}/doc/concepts.md
     ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
@@ -51,7 +64,7 @@ if(DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite-type.h html/src/dlite-type.h
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png html/SOFT-metadata-structure.png
     DEPENDS ${dependencies}
-    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml
+    #BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM

@@ -136,5 +136,6 @@
       ],
       "description": "The values of the free variables for which the calculated variables are calculated."
     }
-  ]
+  ],
+  "dataname": "http://meta.sintef.no/philib/0.1/PhilibTable"
 }

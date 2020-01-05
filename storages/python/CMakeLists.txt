@@ -5,14 +5,18 @@ set(sources
   dlite-plugins-python.c
   )
 
-find_package(PythonLibs REQUIRED)
+#find_package(PythonLibs REQUIRED)
 
 #add_definitions(-DHAVE_CONFIG_H)
 
 add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
   dlite-static
+  dlite-pyembed-static
   dlite-utils-static
+  #dlite
+  #dlite-pyembed
+  #dlite-utils
   ${PYTHON_LIBRARIES}
   )
 target_include_directories(dlite-plugins-python PUBLIC
@@ -38,8 +42,13 @@ add_custom_command(
 
 install(
   TARGETS dlite-plugins-python
-  DESTINATION ${DLITE_STORAGE_PLUGINS_PATH}
+  DESTINATION ${DLITE_STORAGE_PLUGIN_DIRS}
 )
 
+install(
+  DIRECTORY python-storage-plugins
+  DESTINATION share/dlite
+  PATTERN "*~" EXCLUDE
+)
 # tests
-#add_subdirectory(tests)
+add_subdirectory(tests)

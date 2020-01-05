@@ -1,16 +1,18 @@
-dlite -- lightweight library for working with scientific data
+DLite -- lightweight library for working with scientific data
 =============================================================
-*dlite* is a small cross-platform C library under development, for
+DLite is a small cross-platform C library under development, for
 working with and sharing scientific data in an interoperable way.  It
 is strongly inspired by [SOFT][1], with the aim to be a lightweight
 replacement in cases where Windows portability is a showstopper for
 using SOFT.
 
-*dlite* shares the [metadata model of SOFT5][2] and is compatible with
+DLite shares the [metadata model of SOFT5][2] and is compatible with
 SOFT5 in many respects.  However, it has also some notable
 differences, mainly with respect to the type system and that it fully
 implements the metadata model envisioned in SOFT5.
 See [doc/concepts.md](doc/concepts.md) for details.
+
+DLite is licensed under the MIT license.
 
 
 Main features
@@ -20,29 +22,29 @@ Main features
   - Simple type system where data type are specified as a basic type and size
     Supported basic types includes:
       - binary blob (any size)
-      - boolean
+      - boolean (system-dependent size, typically 8 bits)
       - integer (8, 16, 32, 64 bits)
       - unsigned integer (8, 16, 32, 64 bits)
       - float (32, 64, [80, 128] bits)
       - fixed string (any size, always NUL-terminated)
-      - string pointer
-      - relation
+      - string pointer (pointer to malloc'ed string, NUL-terminated)
+      - relation (subject-predicate-object triplet)
       - dimension (only intended for metadata)
       - property (only intended for metadata)
   - Supports units and multi-dimensional arrays
   - Fully implemented metadata model as presented by Thomas Hagelien
-  - Builtin HDF5 and JSON storage plugins
+  - Builtin HDF5, JSON, YAML and PostgreSQL storage plugins
   - Plugin system for user-provided storage drivers
   - Memory for metadata and instances is reference counted
-  - Lookup of metadata and instances via global paths (initiated from the
-    DLITE_STORAGES environment variable)
+  - Lookup of metadata and instances at pre-defined locations (initiated
+    from the DLITE_STORAGES environment variable)
   - Template-based code generation (includes templates for C, Fortran
     templates are planned)
-  - Mappings (in development)
-  - Plugin system for mappings (in development)
+  - Plugin system for mappings that maps instances of a set of input metadata
+    to an output instance
   - Python bindings
-  - Fortran bindings (planned)
-  - Storage and mapping plugins written in Python (planned)
+  - Storage and mapping plugins written in Python
+  - Fortran bindings (work in progress...)
 
 
 Short vocabulary
@@ -74,30 +76,31 @@ Short vocabulary
     [SOFT5 nomenclauture][SOFT5_nomenclauture].
 
 
-
 Runtime dependencies
 --------------------
   - [HDF5][3], optional (needed by HDF5 storage plugin)
   - [Jansson][4], optional (needed by JSON storage plugin)
-  - [Python][5], optional (needed by Python bindings and some plugins)
-  - [NumPy][6], optional (needed by Python bindings and some plugins)
+  - [Python 3][5], optional (needed by Python bindings and some plugins)
+    - [NumPy][6], required if Python is enabled
+    - [PyYAML][7], optional (used for generic YAML storage plugin)
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
 
 
 Build dependencies
 ------------------
-  - [cmake][7], required for building
+  - [cmake][9], required for building
   - hdf5 development libraries, optional (needed by HDF5 storage plugin)
   - Jansson development libraries, optional (needed by JSON storage plugin)
-  - python development libraries, optional (needed by Python bindings)
-  - NumPy development libraries][8], optional (needed by Python bindings)
-  - SWIG[8], optional (needed by building Python bindings)
-  - Doxygen][9], optional, used for documentation generation
-  - [valgrind][10], optional, used for memory checking (Linux only)
+  - Python 3 development libraries, optional (needed by Python bindings)
+  - NumPy development libraries, optional (needed by Python bindings)
+  - [SWIG v3][10], optional (needed by building Python bindings)
+  - [Doxygen][11], optional, used for documentation generation
+  - [valgrind][12], optional, used for memory checking (Linux only)
 
 
 Download
 --------
-Download dlite with git, using
+Download DLite with git, using
 
     git clone ssh://git@git.code.sintef.no/sidase/dlite.git
 
@@ -111,15 +114,16 @@ Building
 
 ## Build on Microsoft Windows
 
+@verbatim
 1. Install a recent version of cmake https://cmake.org/download/
 2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the
    C/C++ components
 
-3. Prepare a directory structure for dlite and 3rd party libraries:
+3. Prepare a directory structure for DLite and 3rd party libraries:
    1. Select a root folder to create the directory structure
       (e.g. "C:\" or "C:\Users\{username}\Documents\")
 	2. Create the following directory: {root}\local
-	3. Clone the dlite repository in the root folder, folder
+	3. Clone the DLite repository in the root folder, folder
            {root}\dlite will be created.
 4. Download hdf5 library archive from
    https://support.hdfgroup.org/ftp/HDF5/current/src/
@@ -148,7 +152,7 @@ To run the tests, do
     ctest -C Debug
 
 
-Summary to build and install dlite when hdf5 and jansson lib are installed
+Summary to build and install DLite when hdf5 and jansson lib are installed
 in the given path LOCAL_DIR
 
 	LOCAL_DIR=/C/Users/tco/Documents/Programs/philib/local
@@ -161,6 +165,8 @@ in the given path LOCAL_DIR
 	cmake --build . --config Release --target install
 	ctest -C Debug
 	ctest -C Release
+
+@endverbatim
 
 
 ## Build on Linux
@@ -203,24 +209,20 @@ To install dlite locally, do
     make install
 
 
-The future of dlite
--------------------
-Ideally dlite will be merged into SOFT when SOFT compiles well on Windows.
-Until then, it will remain as a simple and mostly compatible alternative.
-
-
 ---
 
-*dlite* is developed with the hope that it will be a delight to work with.
+DLite is developed with the hope that it will be a delight to work with.
 
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
 [2]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
 [3]: https://support.hdfgroup.org/HDF5/
 [4]: http://www.digip.org/jansson/
 [5]: https://www.python.org/
-[6]: http://www.numpy.org/
-[7]: https://cmake.org/
-[8]: http://www.swig.org/
-[9]: http://www.doxygen.org/
-[10]: http://valgrind.org/
+[6]: https://pypi.org/project/numpy/
+[7]: https://pypi.org/project/PyYAML/
+[8]: https://pypi.org/project/psycopg2/
+[9]: https://cmake.org/
+[10]: http://www.swig.org/
+[11]: http://www.doxygen.org/
+[12]: http://valgrind.org/
 [SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature

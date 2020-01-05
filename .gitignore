@@ -1,7 +1,9 @@
 *~
+.gdb_history
 
 external
 build*
+.gdb_history
 
 # Ignore personal modified bootstrap files
 bootstrap-win-*.sh

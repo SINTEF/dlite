@@ -23,6 +23,8 @@
 
   A new plugin kind, with its own API, can be created with
   plugin_info_create().
+
+  @see http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
  */
 
 #ifdef HAVE_CONFIG_H

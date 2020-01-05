@@ -18,15 +18,18 @@
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
 %}
 
-
 /* Some cross-target language typedef's and definitions */
 %inline %{
 typedef PyObject obj_t;
 
 #define DLiteSwigNone Py_None
-
 %}
 
+/* Forward declarations */
+%{
+obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data);
+int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
+%}
 
 
 /**********************************************
@@ -214,7 +217,6 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
       int n=1;
       npy_intp itemsize;
       char *itemptr;
-      PyObject *item;
       PyArrayObject *arr;
       for (i=0; i<ndims; i++) n *= dims[i];
       if (!(obj = PyArray_EMPTY(ndims, d, typecode, 0)))
@@ -222,36 +224,11 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
       arr = (PyArrayObject *)obj;
       itemsize = PyArray_ITEMSIZE(arr);
       itemptr = PyArray_DATA(arr);
-      for (i=0; i<n; i++, itemptr+=itemsize) {
-
-        if (type == dliteStringPtr) {
-          char *str = *((char **)data + i);
-          if (str) {
-            item = PyUnicode_FromString(str);
-          } else {
-            item = Py_None;
-            Py_INCREF(item);
-          }
-
-        } else if (type == dliteDimension) {
-          DLiteDimension *dim = (DLiteDimension *)data + i;
-          item = SWIG_NewPointerObj(SWIG_as_voidptr(dim),
-                                    SWIGTYPE_p__DLiteDimension, 0 |  0 );
-
-        } else if (type == dliteProperty) {
-          DLiteProperty *p = (DLiteProperty *)data + i;
-          item = SWIG_NewPointerObj(SWIG_as_voidptr(p),
-                                    SWIGTYPE_p__DLiteProperty, 0 |  0 );
-
-        } else if (type == dliteRelation) {
-          DLiteRelation *r = (DLiteRelation *)data + i;
-          item = SWIG_NewPointerObj(SWIG_as_voidptr(r),
-                                    SWIGTYPE_p__Triplet, 0 |  0 );
-
-        } else {
-          assert(0);  /* should never be reached */
-        }
-
+      char *ptr = data;
+      for (i=0; i<n; i++, itemptr+=itemsize, ptr+=size) {
+        PyObject *item;
+        if (!(item = dlite_swig_get_scalar(type, size, ptr)))
+          goto fail;
         if (PyArray_SETITEM(arr, itemptr, item))
           FAIL1("cannot set item of type %s", dlite_type_get_dtypename(type));
         Py_DECREF(item);
@@ -287,6 +264,39 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 }
 
 
+/* Recursive help function for setting memory from nd-array of objects. Args:
+     obj : source object (array)
+     ndims : number of destination dimensions
+     dims : size of each destination dimension (length: ndims)
+     type : type of destination data
+     size : size of destination data element
+     d : current dimension
+     ptr : pointer to pointer to current destination memory (NB: updated!)
+*/
+static int dlite_swig_setitem(PyObject *obj, int ndims, int *dims,
+                              DLiteType type, size_t size, int d, void **ptr)
+{
+  int i;
+  if (d < ndims) {
+    PyArrayObject *arr = (PyArrayObject *)obj;
+    assert(PyArray_Check(obj));
+    assert(PyArray_DIM(arr, d) == dims[d]);
+    for (i=0; i<dims[d]; i++) {
+      PyObject *key = PyLong_FromLong(i);
+      PyObject *item = PyObject_GetItem(obj, key);
+      int stat = dlite_swig_setitem(item, ndims, dims, type, size, d+1, ptr);
+      Py_DECREF(item);
+      Py_DECREF(key);
+      if (stat) return stat;
+    }
+  } else {
+    if (dlite_swig_set_scalar(*ptr, type, size, obj)) return 1;
+    *((char **)ptr) += size;
+  }
+  return 0;
+}
+
+
 /* Sets memory pointed to by `ptr` to data from array object `obj` in the
    target language.  Returns non-zero on error.
 
@@ -302,55 +312,80 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
 int dlite_swig_set_array(void *ptr, int ndims, int *dims,
                          DLiteType type, size_t size, obj_t *obj)
 {
-  int i, n=1, m, retval=-1;
+  int i, n=1, retval=-1;
   int typecode = npy_type(type, size);
   PyArrayObject *arr = NULL;
+  int ndim_max=ndims;
 
   if (typecode < 0) goto fail;
   for (i=0; i<ndims; i++) n *= dims[i];
   if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj, typecode, 0, 0)))
     FAIL("cannot create contiguous array");
-  if ((m = PyArray_SIZE(arr)) != n)
-    FAIL2("expected array with total number of elements %d, got %d", n, m);
 
-  if (type == dliteStringPtr) {
-    /* Special case: handle dliteStringPtr as array of python strings */
-    npy_intp itemsize = PyArray_ITEMSIZE(arr);
-    char *itemptr = PyArray_DATA(arr);
-    for (i=0; i<n; i++, itemptr+=itemsize) {
-      char **p = *((char ***)ptr);
-      PyObject *s = PyArray_GETITEM(arr, itemptr);
-      assert(s);
-      if (PyUnicode_READY(s)) {
-        FAIL("failed preparing string");
-        Py_DECREF(s);
+  /* Check dimensions */
+  if (PyArray_TYPE(arr) == NPY_OBJECT || PyArray_TYPE(arr) == NPY_VOID)
+    ndim_max = ndims+1;
+  if (PyArray_NDIM(arr) < ndims || PyArray_NDIM(arr) > ndim_max)
+    FAIL2("expected array with %d dimensions, got %d",
+          ndims, PyArray_NDIM(arr));
+  for (i=0; i<ndims; i++)
+    if (PyArray_DIM(arr, i) != dims[i])
+      FAIL3("expected length of dimension %d to be %d, got %ld",
+            i, dims[i], PyArray_DIM(arr, i));
+
+  /* Assign memory */
+  switch(type) {
+  case dliteFixString:  /* must be NUL-terminated */
+    {
+      char *itemptr = PyArray_DATA(arr);
+      char *p = *((char **)ptr);
+      memset(p, 0, n*size);
+      for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
+        strncpy(p, itemptr, PyArray_ITEMSIZE(arr));
+        p[size-1] = '\0';  /* ensure NUL-termination */
       }
-      if (s == Py_None) {
-        if (p[i]) free(p[i]);
-      } else if (PyUnicode_Check(s)) {
-        int len = PyUnicode_GET_LENGTH(s);
-        p[i] = realloc(p[i], len+1);
-        memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
-        p[i][len] = '\0';
-      } else {
-        FAIL("expected None or unicode elements");
-        Py_DECREF(s);
+    }
+    break;
+
+  case dliteStringPtr:  /* array of python strings */
+    {
+      npy_intp itemsize = PyArray_ITEMSIZE(arr);
+      char *itemptr = PyArray_DATA(arr);
+      for (i=0; i<n; i++, itemptr+=itemsize) {
+        char **p = *((char ***)ptr);
+        PyObject *s = PyArray_GETITEM(arr, itemptr);
+        assert(s);
+        if (PyUnicode_READY(s)) {
+          FAIL("failed preparing string");
+          Py_DECREF(s);
+        }
+        if (s == Py_None) {
+          if (p[i]) free(p[i]);
+        } else if (PyUnicode_Check(s)) {
+          int len = PyUnicode_GET_LENGTH(s);
+          p[i] = realloc(p[i], len+1);
+          memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
+          p[i][len] = '\0';
+        } else {
+          FAIL("expected None or unicode elements");
+          Py_DECREF(s);
+        }
+        if (s) Py_DECREF(s);
       }
-      if (s) Py_DECREF(s);
     }
+    break;
 
-  } else if (type == dliteFixString) {
-    /* Special case: dliteFixString must be NUL-terminated */
-    char *itemptr = PyArray_DATA(arr);
-    char *p = *((char **)ptr);
-    memset(p, 0, n*size);
-    for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
-      strncpy(p, itemptr, PyArray_ITEMSIZE(arr));
-      p[size-1] = '\0';  /* ensure NUL-termination */
+  case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
+    {
+      void *p = *(void **)ptr;
+      if (dlite_swig_setitem((PyObject *)arr, ndims, dims,
+                             type, size, 0, &p)) goto fail;
     }
+    break;
 
-  } else {
-    /* All other types */
+  default:
     memcpy(*((void **)ptr), PyArray_DATA(arr), n*size);
   }
 
@@ -430,78 +465,108 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
  */
 obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 {
-  PyObject *obj;
+  PyObject *obj=NULL;
 
   switch (type) {
-
-  case dliteBlob: {
+  case dliteBlob:
     obj = PyByteArray_FromStringAndSize((const char *)data, size);
     break;
-  }
-  case dliteBool: {
-    long value = *((bool *)data);
-    obj = PyBool_FromLong(value);
-    break;
-  }
-  case dliteInt: {
-    long value;
-    switch (size) {
-    case 1: value = *((int8_t *)data);  break;
-    case 2: value = *((int16_t *)data); break;
-    case 4: value = *((int32_t *)data); break;
-    case 8: value = *((int64_t *)data); break;
-    default: FAIL1("invalid integer size: %zu", size);
+
+  case dliteBool:
+    {
+      long value = *((bool *)data);
+      obj = PyBool_FromLong(value);
     }
-    obj = PyLong_FromLong(value);
     break;
-  }
-  case dliteUInt: {
-    unsigned long value;
-    switch (size) {
-    case 1: value = *((uint8_t *)data);  break;
-    case 2: value = *((uint16_t *)data); break;
-    case 4: value = *((uint32_t *)data); break;
-    case 8: value = *((uint64_t *)data); break;
-    default: FAIL1("invalid unsigned integer size: %zu", size);
+
+  case dliteInt:
+    {
+      long value;
+      switch (size) {
+      case 1: value = *((int8_t *)data);  break;
+      case 2: value = *((int16_t *)data); break;
+      case 4: value = *((int32_t *)data); break;
+      case 8: value = *((int64_t *)data); break;
+      default: FAIL1("invalid integer size: %zu", size);
+      }
+      obj = PyLong_FromLong(value);
     }
-    obj = PyLong_FromUnsignedLong(value);
     break;
-  }
-  case dliteFloat: {
-    double value;
-    switch (size) {
-    case 4: value = *((float32_t *)data); break;
-    case 8: value = *((float64_t *)data); break;
+
+  case dliteUInt:
+    {
+      unsigned long value;
+      switch (size) {
+      case 1: value = *((uint8_t *)data);  break;
+      case 2: value = *((uint16_t *)data); break;
+      case 4: value = *((uint32_t *)data); break;
+      case 8: value = *((uint64_t *)data); break;
+      default: FAIL1("invalid unsigned integer size: %zu", size);
+      }
+      obj = PyLong_FromUnsignedLong(value);
+    }
+    break;
+
+  case dliteFloat:
+    {
+      double value;
+      switch (size) {
+      case 4: value = *((float32_t *)data); break;
+      case 8: value = *((float64_t *)data); break;
 #ifdef HAVE_FLOAT80_T
-    case 10: value = *((float80_t *)data); break;
+      case 10: value = *((float80_t *)data); break;
 #endif
 #ifdef HAVE_FLOAT128_T
-    case 16: value = *((float128_t *)data); break;
+      case 16: value = *((float128_t *)data); break;
 #endif
-    default: FAIL1("invalid float size: %zu", size);
+      default: FAIL1("invalid float size: %zu", size);
+      }
+      obj = PyFloat_FromDouble(value);
     }
-    obj = PyFloat_FromDouble(value);
     break;
-  }
-  case dliteFixString: {
-    size_t len = strlen(data);
-    if (len >= size) len = size-1;
-    obj = PyUnicode_FromStringAndSize(data, len);
+
+  case dliteFixString:
+    {
+      size_t len = strlen(data);
+      if (len >= size) len = size-1;
+      obj = PyUnicode_FromStringAndSize(data, len);
+    }
     break;
-  }
-  case dliteStringPtr: {
-    char *s;
-    assert(data);
-    if ((s = *(char **)data))
-      obj = PyUnicode_FromString(s);
-    else
-      Py_RETURN_NONE;
+
+  case dliteStringPtr:
+    {
+      char *s;
+      assert(data);
+      if ((s = *(char **)data))
+        obj = PyUnicode_FromString(s);
+      else
+        Py_RETURN_NONE;
+    }
     break;
-  }
+
+  case dliteRelation:
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__Triplet, 0)))
+      FAIL("cannot create relation");
+    break;
+
+  case dliteDimension:
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__DLiteDimension, 0)))
+      FAIL("cannot create dimension");
+    break;
+
+  case dliteProperty:
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__DLiteProperty, 0)))
+      FAIL("cannot create property");
+    break;
+
   default:
-    FAIL1("converting type %s to scalar is not yet implemented",
+    FAIL1("converting type \"%s\" to scalar is not yet implemented",
          dlite_type_get_dtypename(type));
     break;
+
   }
   if (!obj) goto fail;
   return obj;
@@ -512,70 +577,78 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
   return NULL;
 }
 
-/* Sets memory pointed to by `ptr` or described by `type` and `size`
-   from target language object `obj`.  Returns non-zero on error.
+
+/* Sets memory pointed to by `ptr` from target language object `obj`.
+   The type and size of the updated memory is described by `type` and `size`.
+
+.  Returns non-zero on error.
  */
 int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 {
   switch (type) {
 
-  case dliteBlob: {
-    size_t n;
-    PyObject *bytes = PyObject_Bytes(obj);
-    if (!bytes) FAIL("cannot convert object to bytes");
-    n = PyByteArray_Size(bytes);
-    if (n > size) {
+  case dliteBlob:
+    {
+      size_t n;
+      PyObject *bytes = PyObject_Bytes(obj);
+      if (!bytes) FAIL("cannot convert object to bytes");
+      assert(PyBytes_Check(bytes));
+      n = PyBytes_Size(bytes);
+      if (n > size) {
+        Py_DECREF(bytes);
+        FAIL2("Length of bytearray is %zu. Exceeds size of blob: %zu", n, size);
+      }
+      memset(ptr, 0, size);
+      memcpy(ptr, PyBytes_AsString(bytes), n);
       Py_DECREF(bytes);
-      FAIL2("Length of bytearray is %zu. Exceeds size of blob: %zu", n, size);
     }
-    memset(ptr, 0, size);
-    memcpy(ptr, PyByteArray_AsString(obj), n);
-    Py_DECREF(bytes);
     break;
-  }
 
-  case dliteBool: {
-    int value = PyObject_IsTrue(obj);
-    if (value < 0) FAIL("cannot convert to boolean");
-    *((bool *)ptr) = value;
+  case dliteBool:
+    {
+      int value = PyObject_IsTrue(obj);
+      if (value < 0) FAIL("cannot convert to boolean");
+      *((bool *)ptr) = value;
+    }
     break;
-  }
 
-  case dliteInt: {
-    int overflow;
+  case dliteInt:
+    {
+      int overflow;
 #ifdef HAVE_LONG_LONG
-    long long value = PyLong_AsLongLongAndOverflow(obj, &overflow);
+      long long value = PyLong_AsLongLongAndOverflow(obj, &overflow);
 #else
-    long value = PyLong_AsLongAndOverflow(obj, &overflow);
+      long value = PyLong_AsLongAndOverflow(obj, &overflow);
 #endif
-    if (overflow) FAIL("overflow when converting to int");
-    if (PyErr_Occurred()) FAIL("cannot convert to int");
-    switch (size) {
-    case 1: *((int8_t *)ptr) = value;  break;
-    case 2: *((int16_t *)ptr) = value; break;
-    case 4: *((int32_t *)ptr) = value; break;
-    case 8: *((int64_t *)ptr) = value; break;
-    default: FAIL1("invalid integer size: %zu", size);
+      if (overflow) FAIL("overflow when converting to int");
+      if (PyErr_Occurred()) FAIL("cannot convert to int");
+      switch (size) {
+      case 1: *((int8_t *)ptr) = value;  break;
+      case 2: *((int16_t *)ptr) = value; break;
+      case 4: *((int32_t *)ptr) = value; break;
+      case 8: *((int64_t *)ptr) = value; break;
+      default: FAIL1("invalid integer size: %zu", size);
+      }
     }
     break;
-  }
 
-  case dliteUInt: {
+  case dliteUInt:
+    {
 #ifdef HAVE_LONG_LONG
-    unsigned long long value = PyLong_AsUnsignedLongLong(obj);
+      unsigned long long value = PyLong_AsUnsignedLongLong(obj);
 #else
-    unsigned long value = PyLong_AsUnsignedLong(obj);
+      unsigned long value = PyLong_AsUnsignedLong(obj);
 #endif
-    if (PyErr_Occurred()) FAIL("cannot convert to unsigned int");
-    switch (size) {
-    case 1: *((uint8_t *)ptr) = value;  break;
-    case 2: *((uint16_t *)ptr) = value; break;
-    case 4: *((uint32_t *)ptr) = value; break;
-    case 8: *((uint64_t *)ptr) = value; break;
-    default: FAIL1("invalid unsigned integer size: %zu", size);
+      if (PyErr_Occurred()) FAIL("cannot convert to unsigned int");
+      switch (size) {
+      case 1: *((uint8_t *)ptr) = value;  break;
+      case 2: *((uint16_t *)ptr) = value; break;
+      case 4: *((uint32_t *)ptr) = value; break;
+      case 8: *((uint64_t *)ptr) = value; break;
+      default: FAIL1("invalid unsigned integer size: %zu", size);
+      }
+      break;
     }
-    break;
-  }
 
   case dliteFloat: {
     double value = PyFloat_AsDouble(obj);
@@ -587,62 +660,227 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
     //case 16: *((float128_t *)ptr) = value; break;
     default: FAIL1("invalid float size: %zu", size);
     }
-    break;
   }
+    break;
 
-  case dliteFixString: {
-    size_t n;
-    Py_UCS1 *s;
-    PyObject *str = PyObject_Str(obj);
-    if (!str) FAIL("cannot convert to string");
-    if (PyUnicode_READY(str)) {
+  case dliteFixString:
+    {
+      size_t n;
+      Py_UCS1 *s;
+      PyObject *str = PyObject_Str(obj);
+      if (!str) FAIL("cannot convert to string");
+      if (PyUnicode_READY(str)) {
+        Py_DECREF(str);
+        FAIL("failed preparing string");
+      }
+      n = PyUnicode_GET_LENGTH(str);
+      if (n > size) {
+        Py_DECREF(str);
+        FAIL2("Length of string is %zu. Exceeds available size: %zu", n, size);
+      }
+      s = PyUnicode_1BYTE_DATA(str);
+      memset(ptr, 0, size);
+      memcpy(ptr, s, n);
       Py_DECREF(str);
-      FAIL("failed preparing string");
     }
-    n = PyUnicode_GET_LENGTH(str);
-    if (n > size) {
+    break;
+
+  case dliteStringPtr:
+    {
+      size_t n;
+      unsigned char *s;
+      char *p;
+      PyObject *str = PyObject_Str(obj);
+      if (!str) FAIL("cannot convert to string");
+      if (PyUnicode_READY(str)) {
+        Py_DECREF(str);
+        FAIL("failed preparing string");
+      }
+      n = PyUnicode_GET_LENGTH(str);
+      s = PyUnicode_1BYTE_DATA(str);
+      *(void **)ptr = realloc(*(void **)ptr, n+1);
+      p = *((char **)ptr);
+      memcpy(p, s, n);
+      p[n] = '\0';
       Py_DECREF(str);
-      FAIL2("Length of string is %zu. Exceeds available size: %zu", n, size);
     }
-    s = PyUnicode_1BYTE_DATA(str);
-    memset(ptr, 0, size);
-    memcpy(ptr, s, n);
-    Py_DECREF(str);
     break;
-  }
 
-  case dliteStringPtr: {
-    size_t n;
-    unsigned char *s;
-    char *p;
-    PyObject *str = PyObject_Str(obj);
-    if (!str) FAIL("cannot convert to string");
-    if (PyUnicode_READY(str)) {
-      Py_DECREF(str);
-      FAIL("failed preparing string");
+  case dliteDimension:
+    {
+      DLiteDimension *dest = ptr;
+      void *p;
+      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteDimension, 0))) {
+        DLiteDimension *src = (DLiteDimension *)p;
+        if (dest->name)        free(dest->name);
+        if (dest->description) free(dest->description);
+        dest->name        = strdup(src->name);
+        dest->description = (src->description) ? strdup(src->description) :NULL;
+      } else if (PySequence_Check(obj) && PySequence_Length(obj) == 2) {
+        PyObject *name = PySequence_GetItem(obj, 0);
+        PyObject *descr = PySequence_GetItem(obj, 1);
+        if (name && PyUnicode_Check(name)) {
+          if (dest->name)        free(dest->name);
+          if (dest->description) free(dest->description);
+          dest->name = strdup(PyUnicode_AsUTF8(name));
+          dest->description = (descr && PyUnicode_Check(descr)) ?
+            strdup(PyUnicode_AsUTF8(descr)) : NULL;
+        } else {
+          dlite_err(1, "cannot convert Python sequence to dimension");
+        }
+        Py_XDECREF(name);
+        Py_XDECREF(descr);
+      } else {
+        FAIL("cannot convert Python object to dimension");
+      }
     }
-    n = PyUnicode_GET_LENGTH(str);
-    s = PyUnicode_1BYTE_DATA(str);
-    *(void **)ptr = realloc(*(void **)ptr, n+1);
-    p = *((char **)ptr);
-    memcpy(p, s, n);
-    p[n] = '\0';
-    Py_DECREF(str);
     break;
-  }
 
-  case dliteDimension: {
+  case dliteProperty:
+    {
+      DLiteProperty *dest = ptr;
+      void *p;
+      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
+        DLiteProperty *src = (DLiteProperty *)p;
+        if (dest->name)        free(dest->name);
+        if (dest->dims)        free(dest->dims);
+        if (dest->unit)        free(dest->unit);
+        if (dest->description) free(dest->description);
+        dest->name  = strdup(src->name);
+        dest->type  = src->type;
+        dest->size  = src->size;
+        dest->ndims = src->ndims;
+        if (src->ndims > 0) {
+          dest->dims = malloc(src->ndims*sizeof(int));
+          memcpy(dest->dims, src->dims, src->ndims*sizeof(int));
+        } else
+          dest->dims = NULL;
+        dest->unit        = (src->unit) ? strdup(src->unit) : NULL;
+        dest->description = (src->description) ? strdup(src->description) :NULL;
+
+      } else if (PySequence_Check(obj) && PySequence_Length(obj) == 5) {
+        PyObject *name = PySequence_GetItem(obj, 0);
+        PyObject *type = PySequence_GetItem(obj, 1);
+        PyObject *dims = PySequence_GetItem(obj, 2);
+        PyObject *unit = PySequence_GetItem(obj, 3);
+        PyObject *descr = PySequence_GetItem(obj, 4);
+        DLiteType t;
+        size_t size;
+        if (name && PyUnicode_Check(name) &&
+            type && PyUnicode_Check(type) &&
+            dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
+                                          &t, &size) == 0) {
+          if (dest->name)        free(dest->name);
+          if (dest->dims)        free(dest->dims);
+          if (dest->unit)        free(dest->unit);
+          if (dest->description) free(dest->description);
+          dest->name = strdup(PyUnicode_AsUTF8(name));
+          dest->type = t;
+          dest->size = size;
+          if (dims && PyUnicode_Check(dims)) {
+            const char *s = PyUnicode_AsUTF8(dims);
+            const char *q = s;
+            int i=0, ndims=(s && *s) ? 1 : 0;
+            while (s[i]) if (s[i++] == ',') ndims++;
+            dest->ndims = ndims;
+            dest->dims = malloc(ndims*sizeof(int));
+            for (i=0; i<ndims; i++) {
+              dest->dims[i] = atoi(s);
+              s += strcspn(q, ",") + 1;
+            }
+          }
+          dest->unit = (unit && PyUnicode_Check(unit)) ?
+            strdup(PyUnicode_AsUTF8(unit)) : NULL;
+          dest->description = (descr && PyUnicode_Check(descr)) ?
+            strdup(PyUnicode_AsUTF8(descr)) : NULL;
+        } else
+          dlite_err(1, "cannot convert Python sequence to dimension");
+        Py_XDECREF(name);
+        Py_XDECREF(type);
+        Py_XDECREF(dims);
+        Py_XDECREF(unit);
+        Py_XDECREF(descr);
+
+      } else {
+        FAIL("cannot convert Python object to dimension");
+      }
+    }
     break;
-  }
 
-  case dliteProperty: {
+  case dliteRelation:
+    {
+      void *p;
+      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__Triplet, 0))) {
+        DLiteRelation *src = (DLiteRelation *)p;
+        triplet_reset(ptr, src->s, src->p, src->o, src->id);
+
+      } else if (PySequence_Check(obj) || PyIter_Check(obj)) {
+        int i, n;
+        PyObject *lst;
+        char **s = ptr;  /* cast DLiteRelation to 4 string pointers */
+        assert(sizeof(DLiteRelation) == 4*sizeof(char *));
+
+        /* Check that `obj` is a sequence of 3 or 4 strings */
+        if (!(lst = PySequence_Fast(obj, "not a sequence or iterable")))
+          FAIL("expected relation to be represented by a sequence or iterable");
+
+        if ((n = PySequence_Fast_GET_SIZE(lst)) < 3 || n > 4) {
+          Py_DECREF(lst);
+          FAIL1("relations must be 3 or 4 strings, got %d", n);
+        }
+        for (i=0; i<n; i++) {
+          PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
+          if (!PyUnicode_Check(item)) {
+            Py_DECREF(lst);
+            FAIL("relation subject, predicate and object must be strings");
+          }
+        }
+
+        /* Free old values stored in the relation */
+        for (i=0; i<4; i++) if (s[i]) free(s[i]);
+
+        /* Assign new values */
+        for (i=0; i<n; i++) {
+          PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
+          assert(PyUnicode_Check(item));
+          PyUnicode_READY(item);
+          s[i] = strdup(PyUnicode_DATA(item));
+        }
+
+        /* Assign id if not already provided */
+        if (n < 4)
+          s[3] = triplet_get_id(NULL, s[0], s[1], s[2]);
+        Py_DECREF(lst);
+
+      } else if (PyMapping_Check(obj)) {
+        char *msg=NULL;
+        PyObject *s=NULL, *p=NULL, *o=NULL, *id=NULL;
+        if (!(s = PyMapping_GetItemString(obj, "s")) ||
+            !(p = PyMapping_GetItemString(obj, "p")) ||
+            !(o = PyMapping_GetItemString(obj, "o")))
+          msg = "Relations must have 's', 'p' and 'o' items";
+        if (!msg && !(PyUnicode_Check(s) && PyUnicode_READY(s) == 0 &&
+                      PyUnicode_Check(p) && PyUnicode_READY(p) == 0 &&
+                      PyUnicode_Check(o) && PyUnicode_READY(o) == 0))
+          msg = "Relation 's', 'p', 'o' items must be strings";
+        if (!msg && PyMapping_HasKeyString(obj, "id") &&
+            (!(id = PyMapping_GetItemString(obj, "id")) ||
+             !PyUnicode_Check(id) || PyUnicode_READY(id)))
+          msg = "If given, relation id must be a string";
+        if (!msg)
+          triplet_reset(ptr, PyUnicode_DATA(s), PyUnicode_DATA(p),
+                        PyUnicode_DATA(o), (id) ? PyUnicode_DATA(id) : NULL);
+        Py_XDECREF(s);
+        Py_XDECREF(p);
+        Py_XDECREF(o);
+        Py_XDECREF(id);
+        if (msg) FAIL(msg);
+
+      } else {
+        FAIL("cannot convert Python object to relation");
+      }
+    }
     break;
-  }
-
-  case dliteRelation: {
-    break;
-  }
-
   }
 
   return 0;
@@ -726,13 +964,17 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 %}
 
 
+
 /**********************************************
  ** Typemaps
  **********************************************/
 /*
  * Input typemaps
  * --------------
- *
+ * int, struct _DLiteDimension * -> numpy array
+ *     Array of dimensions.
+ * int, struct _DLiteProperty * -> numpy array
+ *     Array of properties.
  *
  * Argout typemaps
  * ---------------
@@ -753,6 +995,87 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  *     Returns NULL-terminated array of string pointers (will not be free'ed).
  *
  **********************************************/
+
+/* --------------
+ * Input typemaps
+ * -------------- */
+
+/* Array of input dimensions */
+%typemap("doc") (int ndimensions, struct _DLiteDimension *dimensions)
+  "Array of input dimensions"
+%typemap(in) (int ndimensions, struct _DLiteDimension *dimensions) {
+  $2 = NULL;
+  if (!PySequence_Check($input))
+    SWIG_exception(SWIG_TypeError, "Expected a sequence");
+  $1 = PySequence_Length($input);
+  if (!($2 = calloc($1, sizeof(DLiteDimension))))
+    SWIG_exception(SWIG_MemoryError, "Allocation failure");
+  if (dlite_swig_set_array(&$2, 1, &$1, dliteDimension,
+                           sizeof(DLiteDimension), $input)) SWIG_fail;
+}
+%typemap(freearg) (int ndimensions, struct _DLiteDimension *dimensions) {
+  if ($2) {
+    int i;
+    for (i=0; i<$1; i++) {
+      DLiteDimension *d = $2 + i;
+      free(d->name);
+      if (d->description) free(d->description);
+    }
+    free($2);
+  }
+}
+%typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
+  (int ndimensions, struct _DLiteDimension *dimensions) {
+  PyObject *item0=NULL;
+  void *vptr;
+  $1 = 0;
+  if (PySequence_Check($input) &&
+      (PySequence_Length($input) == 0 ||
+       ((item0 = PySequence_GetItem($input, 0)) &&
+        SWIG_IsOK(SWIG_ConvertPtr(item0, &vptr, $2_descriptor, 0)))))
+    $1 = 1;
+  Py_XDECREF(item0);
+ }
+
+/* Array of input properties */
+%typemap("doc") (int nproperties, struct _DLiteProperty *properties)
+  "Array of input properties"
+%typemap(in) (int nproperties, struct _DLiteProperty *properties) {
+  $2 = NULL;
+  if (!PySequence_Check($input))
+    SWIG_exception(SWIG_TypeError, "Expected a sequence");
+  $1 = PySequence_Length($input);
+  if (!($2 = calloc($1, sizeof(DLiteProperty))))
+    SWIG_exception(SWIG_MemoryError, "Allocation failure");
+  if (dlite_swig_set_array(&$2, 1, &$1, dliteProperty,
+                           sizeof(DLiteProperty), $input)) SWIG_fail;
+}
+%typemap(freearg) (int nproperties, struct _DLiteProperty *properties) {
+  if ($2) {
+    int i;
+    for (i=0; i<$1; i++) {
+      DLiteProperty *p = $2 + i;
+      free(p->name);
+      if (p->dims) free(p->dims);
+      if (p->unit) free(p->unit);
+      if (p->description) free(p->description);
+    }
+    free($2);
+  }
+}
+%typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
+  (int nproperties, struct _DLiteProperty *properties) {
+  PyObject *item=NULL;
+  void *vptr;
+  $1 = 0;
+  if (PySequence_Check($input) &&
+      (PySequence_Length($input) == 0 ||
+       ((item = PySequence_GetItem($input, 0)) &&
+        SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $2_descriptor, 0)))))
+    $1 = 1;
+  Py_XDECREF(item);
+}
+
 
 /* ---------------
  * Argout typemaps

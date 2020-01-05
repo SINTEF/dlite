@@ -43,8 +43,6 @@ MU_TEST(test_mapping)
   const char *input_uris[] = { "http://meta.sintef.no/0.1/ent1" };
   char *str;
 
-  UNUSED(inst2);
-
   mu_check((inst = dlite_instance_get("2daa6967-8ecd-4248-97b2-9ad6fefeac14")));
   instances[0] = inst;
 
@@ -66,6 +64,17 @@ MU_TEST(test_mapping)
 }
 
 
+MU_TEST(test_get_casted)
+{
+  DLiteInstance *inst;
+  const char *output_uri = "http://meta.sintef.no/0.1/ent2";
+  mu_check((inst =
+            dlite_instance_get_casted("2daa6967-8ecd-4248-97b2-9ad6fefeac14",
+                                      output_uri)));
+  dlite_instance_decref(inst);
+}
+
+
 /***********************************************************************/
 
 MU_TEST_SUITE(test_suite)
@@ -73,6 +82,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_mapping_path);
   MU_RUN_TEST(test_create_from_id);
   MU_RUN_TEST(test_mapping);
+  MU_RUN_TEST(test_get_casted);
 }
 
 

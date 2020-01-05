@@ -39,7 +39,7 @@ int dlite_get_uuid(char *buff, const char *id);
   Returns an unique uri for metadata defined by \a name, \a version
   and \a namespace as a newly malloc()'ed string or NULL on error.
 
-  The returned url is constructed as follows:
+  The returned uri is constructed as follows:
 
       namespace/version/name
  */

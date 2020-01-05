@@ -41,6 +41,12 @@ add_definitions(
   #-DWITH_DEBUG
   )
 
+
+# We are building both shared and static libraries.  User software will
+# normally link to the shared libraries.  However, to simplify the
+# library search (especially on Windows), the storage plugins will use
+# the static libraries.  For this to work, the static libraries will be
+# build position independent.
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
@@ -54,10 +60,12 @@ target_link_libraries(dlite-static
   )
 
 target_include_directories(dlite PUBLIC
-  ${CMAKE_CURRENT_BINARY_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
   )
 target_include_directories(dlite-static PUBLIC
-  ${CMAKE_CURRENT_BINARY_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
   )
 
 set_target_properties(dlite PROPERTIES
@@ -69,34 +77,36 @@ set_target_properties(dlite-static PROPERTIES
 
 #set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-install(
-  TARGETS dlite dlite-static
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-# create list of headers to install from ${sources}
-set(headers "")
+## create list of headers to install from ${sources}
+set(headers dlite.h)
 foreach(source ${sources})
   string(REPLACE ".c" ".h" header ${source})
   list(APPEND headers ${header})
 endforeach()
+set_target_properties(dlite PROPERTIES PUBLIC_HEADER "${headers}")
 
-install(FILES
-  dlite.h
-  ${headers}
-  DESTINATION include/dlite
-  )
+
+install(
+  TARGETS dlite dlite-static
+  EXPORT  dliteTargets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  PUBLIC_HEADER DESTINATION include/dlite
+  INCLUDES DESTINATION include/dlite
+)
+
+# Install empty directories
+install(DIRECTORY DESTINATION share/dlite/storages)
+install(DIRECTORY DESTINATION share/dlite/mapping-plugins)
+
 
 # install .pdb files - seems to be needed on Windows if we are
 # installing dlite compiled in debug mode
-install(DIRECTORY
-  $<TARGET_FILE_DIR:dlite>
-  DESTINATION bin
-  FILES_MATCHING
-  PATTERN *.pdb
-  )
+if(WIN32 AND MSVC AND (NOT MSVC_VERSION LESS 1600) AND
+    (NOT CMAKE_VERSION VERSION_LESS "3.1"))
+  install(FILES $<TARGET_PDB_FILE:dlite> DESTINATION bin OPTIONAL)
+endif()
 
 
 # Support driver and mapping plugins written in Python

@@ -5,7 +5,7 @@
   @file
   @brief Common API for all storage plugins (internal).
 
-  A DPite storage plugin should be a shared library that defines the
+  A DLite storage plugin should be a shared library that defines the
   function
 
       const DLiteStoragePlugin *get_dlite_storage_api(const char *name);
@@ -16,7 +16,22 @@
   different drivers, to select which api that should be returned.
 
   The storage plugin search path is initialised from the environment
-  variable `DLITE_STORAGE_PLUGINS`.
+  variable `DLITE_STORAGE_PLUGIN_DIRS`.
+
+  Two APIs
+  --------
+  Storage plugins may choose to implement either the datamodel API
+  or the instance API.
+
+  The datamodel API is the original API resembling SOFT5. It provides a
+  generic abstract layer between the data representation in the storage
+  and the DLite instances.
+
+  Since DLite now offers an abstract datamodel-like API for all
+  instances, the need for the datamodel layer seems to be gone.  DLite
+  therefore offers an alternative and simpler API for storage plugins
+  that works directly on DLite instances and only contains two
+  functions; LoadInstance() and SaveInstance().
 */
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
@@ -26,7 +41,8 @@
 #include "dlite-entity.h"
 
 /** A struct with function pointers to all functions provided by a plugin. */
-typedef struct _DLiteStoragePlugin  DLiteStoragePlugin;
+typedef struct _DLiteStoragePlugin     DLiteStoragePlugin;
+typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
 
 /** Initial segment of all DLiteStorage plugin data structures. */
 #define DLiteStorage_HEAD                                                  \
@@ -56,10 +72,6 @@ struct _DLiteDataModel {
   DLiteDataModel_HEAD
 };
 
-
-/*
-  See http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
- */
 
 /**
   @name Plugin frontend
@@ -102,6 +114,36 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
 int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api);
 
 /**
+  Load all plugins that can be found in the plugin search path.
+ */
+int dlite_storage_plugin_load_all();
+
+/**
+  Unloads and unregisters all storage plugins.
+*/
+void dlite_storage_plugin_unload_all();
+
+/**
+  Returns a pointer to a new plugin iterator or NULL on error.  It
+  should be free'ed with dlite_storage_plugin_iter_free().
+ */
+DLiteStoragePluginIter *dlite_storage_plugin_iter_create();
+
+/**
+  Returns pointer the next plugin or NULL if there a re no more plugins.
+  `iter` is the iterator returned by dlite_storage_plugin_iter_create().
+ */
+const DLiteStoragePlugin *
+dlite_storage_plugin_iter_next(DLiteStoragePluginIter *iter);
+
+/**
+  Frees plugin iterator `iter` created with
+  dlite_storage_plugin_iter_create().
+ */
+void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter);
+
+
+/**
   Unloads and unregisters storage plugin with the given name.
   Returns non-zero on error.
 */
@@ -109,7 +151,7 @@ int dlite_storage_plugin_unload(const char *name);
 
 /**
   Returns a pointer to the current storage plugin search path.  It is
-  initialised from the environment variable `DLITE_STORAGE_PLUGINS`.
+  initialised from the environment variable `DLITE_STORAGE_PLUGIN_DIRS`.
 
   Use dlite_storage_plugin_path_insert(), dlite_storage_plugin_path_append()
   and dlite_storage_plugin_path_remove() to modify it.
@@ -145,13 +187,16 @@ int dlite_storage_plugin_path_remove(int n);
 
 
 /**
- * @name Required api
+ * @name Basic API
  * Signatures of functions that must be defined by all plugins.
  * @{
  */
 
 /**
   Opens `uri` and returns a newly created storage for it.
+
+  The `api` argument can normally be ignored (it is needed for the
+  Python storage backend).
 
   The `options` argument provies additional input to the driver.
   Which options that are supported varies between the plugins.  It
@@ -170,14 +215,107 @@ int dlite_storage_plugin_path_remove(int n);
 
   Returns NULL on error.
  */
-typedef DLiteStorage *(*Open)(const char *uri, const char *options);
-
+typedef DLiteStorage *
+(*Open)(const DLiteStoragePlugin *api, const char *uri, const char *options);
 
 /**
   Closes storage `s`.  Returns non-zero on error.
  */
 typedef int (*Close)(DLiteStorage *s);
 
+/** @} */
+
+
+/**
+ * @name Queue API
+ * Function for querying the content of a plugin.  The new IterCreate(),
+ * IterNext() and IterFree() are preferred in front of the old GetUUIDs()
+ * function.
+ *
+ * Any of these functions are fully optional for the storage plugin to
+ * implement.
+ * @{
+ */
+
+/**
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
+ */
+typedef void *(*IterCreate)(const DLiteStorage *s, const char *pattern);
+
+/**
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with IterCreate().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+typedef int (*IterNext)(void *iter, char *buf);
+
+/**
+  Free's iterator created with IterCreate().
+ */
+typedef void (*IterFree)(void *iter);
+
+
+/**
+  Returns a newly malloc'ed NULL-terminated array of (malloc'ed)
+  string pointers to the UUID's of all instances in storage `s`.
+
+  The caller is responsible to free the returned array.
+
+  Returns NULL on error.
+
+  @deprecated Will most likely be deprecated in favour for
+  IterCreate(), IterNext() and IterFree().
+ */
+typedef char **(*GetUUIDs)(const DLiteStorage *s);
+
+/** @} */
+
+
+
+/**
+ * @name Instance API
+ * New API for loading and saving instances that works direct on
+ * instances themselves.
+ *
+ * Both LoadInstance() and SaveInstance() are optional for the plugin
+ * to implement.  If one is not implemented, the old datamodel API will
+ * be attempted.
+ * @{
+ */
+
+/**
+  Returns a new instance from `uuid` in storage `s`.  NULL is returned
+  on error.
+ */
+typedef DLiteInstance *(*LoadInstance)(const DLiteStorage *s, const char *uuid);
+
+/**
+  Stores instance `inst` to storage `s`.  Returns non-zero on error.
+ */
+typedef int (*SaveInstance)(DLiteStorage *s, const DLiteInstance *inst);
+
+/** @} */
+
+
+
+/**
+ * @name Datamodel API
+
+ * Old datamodel-based API for loading instances from and saving them
+ * to a storage.
+ *
+ * The functions in the datamodel API may be omitted if the corresponding
+ * functions in the instance API are implemented.
+ *
+ * @deprecated Will most likely be deprecated in favour for the new
+ * and simpler Instance API.
+ * @{
+ */
 
 /**
   Creates a new datamodel for storage `s`.
@@ -229,20 +367,10 @@ typedef int (*GetProperty)(const DLiteDataModel *d, const char *name,
 /** @} */
 
 /**
- * @name Optional api
+ * @name Optional part of the DataModel API
  * Signatures of function that are optional for the plugins to define.
  * @{
  */
-
-/**
-  Returns a newly malloc'ed NULL-terminated array of (malloc'ed)
-  string pointers to the UUID's of all instances in storage `s`.
-
-  The caller is responsible to free the returned array.
-
-  Returns NULL on error.
- */
-typedef char **(*GetUUIDs)(const DLiteStorage *s);
 
 
 /**
@@ -304,30 +432,6 @@ typedef int (*SetDataName)(DLiteDataModel *d, const char *name);
 
 
 /**
- * @name Specialised api for single-entity storage
- * Signatures of specialised functions for loading/saving a storage
- * containing only a single entity.
- *
- * These functions are probably only relevant for the JSON plugin to
- * define for loading/storing standard entity json-files.
- * @{
- */
-
-/**
-  Returns a new entity loaded from storage `s` with single-entity layout.
- */
-/* FIXME - remove uuid argument, since it is not needed */
-typedef DLiteMeta *(*GetEntity)(const DLiteStorage *s, const char *uuid);
-
-/**
-  Stores entity `e` to storage `s`, using the single-entity layout.
- */
-typedef int (*SetEntity)(DLiteStorage *s, const DLiteMeta *e);
-
-/** @} */
-
-
-/**
  * @name Internal data
  * Internal data used by the driver.  Optional.
  * @{
@@ -347,13 +451,24 @@ typedef void (*DriverFreer)(DLiteStoragePlugin *api);
   DLiteStoragePlugin.
 */
 struct _DLiteStoragePlugin {
-  /* Name of plugin */
   const char *       name;             /*!< Name of plugin */
 
-  /* Minimum api */
+  /* Basic API (required) */
   Open               open;             /*!< Open storage */
   Close              close;            /*!< Close storage */
 
+  /* Queue API */
+  IterCreate         iterCreate;       /*!< Creates iterator over storage */
+  IterNext           iterNext;         /*!< Returns next UUID */
+  IterFree           iterFree;         /*!< Free's iterator */
+
+  GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
+
+  /* Instance API */
+  LoadInstance       loadInstance;     /*!< Returns new instance from storage */
+  SaveInstance       saveInstance;     /*!< Stores an instance */
+
+  /* DataModel API */
   DataModel          dataModel;        /*!< Creates new data model */
   DataModelFree      dataModelFree;    /*!< Frees a data model */
 
@@ -361,9 +476,7 @@ struct _DLiteStoragePlugin {
   GetDimensionSize   getDimensionSize; /*!< Returns size of dimension */
   GetProperty        getProperty;      /*!< Gets value of property */
 
-  /* Optional api */
-  GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
-
+  /* ... (optional) */
   SetMetaURI         setMetaURI;       /*!< Sets metadata uri */
   SetDimensionSize   setDimensionSize; /*!< Sets size of dimension */
   SetProperty        setProperty;      /*!< Sets value of property */
@@ -373,10 +486,6 @@ struct _DLiteStoragePlugin {
 
   GetDataName        getDataName;      /*!< Returns name of instance */
   SetDataName        setDataName;      /*!< Assigns name to instance */
-
-  /* Specialised api */
-  GetEntity          getEntity;        /*!< Returns a new Entity from storage */
-  SetEntity          setEntity;        /*!< Stores an Entity */
 
   /* Internal data */
   DriverFreer        freer;            /*!< Releases internal data */

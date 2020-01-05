@@ -11,7 +11,7 @@
 
   char *to_typename(int type, int size) {
     char *s;
-    if (size <= 0) return dlite_err(1, "size must be positive"), NULL;
+    if (size < 0) return dlite_err(1, "size must be non-negative"), NULL;
     if (!(s = malloc(16))) return NULL;
     if (dlite_type_set_typename(type, size, s, 16)) {
       free(s);

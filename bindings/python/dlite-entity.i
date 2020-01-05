@@ -1,5 +1,9 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
+%{
+#include "dlite-mapping.h"
+%}
+
 
 /* --------
  * Wrappers
@@ -48,6 +52,16 @@ int dlite_swig_set_property(DLiteInstance *inst, const char *name, obj_t *obj)
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return -1;
   return dlite_swig_set_property_by_index(inst, i, obj);
 }
+
+/* Returns instance corresponding to `id`. */
+struct _DLiteInstance *
+  dlite_swig_get_instance(const char *id, const char *metaid)
+{
+  struct _DLiteInstance *inst = dlite_instance_get_casted(id, metaid);
+  if (!inst) return dlite_err(1, "no instance with this id: %s", id), NULL;
+  return inst;
+}
+
 %}
 
 
@@ -138,10 +152,10 @@ struct _Triplet {
 };
 
 %extend _Triplet {
-  _Triplet(const char *s, const char *p, const char *o) {
+  _Triplet(const char *s, const char *p, const char *o, const char *id=NULL) {
     Triplet *t;
-    if (!(t =  malloc(sizeof(Triplet)))) FAIL("allocation failure");
-    if (triplet_set(t, s, p, o, NULL)) FAIL("cannot set relation");
+    if (!(t =  calloc(1, sizeof(Triplet)))) FAIL("allocation failure");
+    if (triplet_set(t, s, p, o, id)) FAIL("cannot set relation");
     return t;
   fail:
     if (t) {
@@ -157,11 +171,24 @@ struct _Triplet {
   }
 }
 
+%{
+char *triplet_get_id2(const char *s, const char *p, const char *o,
+                      const char *namespace) {
+  return triplet_get_id(namespace, s, p, o);
+}
+%}
+ %rename(triplet_get_id) triplet_get_id2;
+%newobject triplet_get_id;
+char *triplet_get_id(const char *s, const char *p, const char *o,
+                     const char *namespace=NULL);
+
+void triplet_set_default_namespace(const char *namespace);
+
 
 /* --------
  * Instance
  * -------- */
-%feature("docstring", "
+%feature("docstring", "\
 Returns a new instance.
 
 Instance(metaid, dims, id=None)
@@ -170,15 +197,35 @@ Instance(metaid, dims, id=None)
     to zero.  If `id` is None, a random UUID is generated.  Otherwise
     the UUID is derived from `id`.
 
-Instance(url)
+Instance(url, metaid=NULL)
     Loads the instance from `url`.  The URL should be of the form
     ``driver://location?options#id``.
+    If `metaid` is provided, the instance is tried mapped to this
+    metadata before it is returned.
 
-Instance(storage, id=None)
-    Loads the instance from `storage`. `id` is not required if the
-    storage only contains more one instance.
+Instance(storage, id=None, metaid=NULL)
+    Loads the instance from `storage`. `id` is the id of the instance
+    in the storage (not required if the storage only contains more one
+    instance).
+    If `metaid` is provided, the instance is tried mapped to this
+    metadata before it is returned.
+
+Instance(driver, location, options, id=None)
+    Loads the instance from storage specified by `driver`, `location`
+    and `options`. `id` is the id of the instance in the storage (not
+    required if the storage only contains more one instance).
+
+Instance(uri, dimensions, properties, description)
+    Creates a new metadata entity (instance of entity schema) casted
+    to an instance.
+
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
+%apply(int ndimensions, struct _DLiteDimension *dimensions) {
+  (int ndimensions, struct _DLiteDimension *dimensions)};
+%apply(int nproperties, struct _DLiteProperty *properties) {
+  (int nproperties, struct _DLiteProperty *properties)};
+
 %rename(Instance) _DLiteInstance;
 struct _DLiteInstance {
   %immutable;
@@ -196,25 +243,54 @@ struct _DLiteInstance {
     size_t i, *d, n=ndims;
     if (!(meta = dlite_meta_get(metaid)))
       return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
-    if (n != meta->ndimensions)
+    if (n != meta->ndimensions) {
+      dlite_meta_decref(meta);
       return dlite_err(1, "%s has %zu dimensions",
-		       metaid, meta->ndimensions), NULL;
+                       metaid, meta->ndimensions), NULL;
+    }
     d = malloc(n * sizeof(size_t));
     for (i=0; i<n; i++) d[i] = dims[i];
     inst = dlite_instance_create(meta, d, id);
     free(d);
     if (inst) dlite_errclr();
+    dlite_meta_decref(meta);
     return inst;
   }
-  _DLiteInstance(const char *url) {
-    DLiteInstance *inst = dlite_instance_load_url(url);
+  _DLiteInstance(const char *url, const char *metaid=NULL) {
+    DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
+    if (inst) dlite_errclr();
+    if (metaid) {
+      inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+      dlite_instance_decref(inst);
+      inst = inst2;
+    }
+    return inst;
+  }
+  _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL,
+                 const char *metaid=NULL) {
+    DLiteInstance *inst = dlite_instance_load_casted(storage, id, metaid);
     if (inst) dlite_errclr();
     return inst;
   }
-  _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL) {
-    DLiteInstance *inst = dlite_instance_load(storage, id);
+  _DLiteInstance(const char *driver, const char *location, const char *options,
+                 const char *id=NULL) {
+    DLiteStorage *s;
+    DLiteInstance *inst;
+    if (!(s = dlite_storage_open(driver, location, options))) return NULL;
+    inst = dlite_instance_load(s, id);
+    dlite_storage_close(s);
     if (inst) dlite_errclr();
     return inst;
+  }
+  _DLiteInstance(const char *uri,
+                 int ndimensions, struct _DLiteDimension *dimensions,
+                 int nproperties, struct _DLiteProperty *properties,
+                 const char *description=NULL) {
+    DLiteMeta *inst = dlite_entity_create(uri, description,
+                                          ndimensions, dimensions,
+                                          nproperties, properties);
+    if (inst) dlite_errclr();
+    return (DLiteInstance *)inst;
   }
 
   ~_DLiteInstance() {
@@ -226,9 +302,19 @@ struct _DLiteInstance {
     return (const DLiteInstance *)$self->meta;
   }
 
-  %feature("docstring", "Saves this instance to `url`.") save_url;
-  void save_url(const char *url) {
+  %feature("docstring", "Saves this instance to url or storage.") save;
+  void save(const char *url) {
     dlite_instance_save_url(url, $self);
+  }
+  void save(struct _DLiteStorage *storage) {
+    dlite_instance_save(storage, $self);
+  }
+  void save(const char *driver, const char *path, const char *options=NULL) {
+    DLiteStorage *s;
+    if ((s = dlite_storage_open(driver, path, options))) {
+      dlite_instance_save(s, $self);
+      dlite_storage_close(s);
+    }
   }
 
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;
@@ -237,6 +323,16 @@ struct _DLiteInstance {
     int dims[1] = { DLITE_NDIM($self) };
     return dlite_swig_get_array($self, 1, dims, dliteUInt, sizeof(size_t),
                                 DLITE_DIMS($self));
+  }
+
+  %feature("docstring",
+           "Returns the size of dimension with given name or index.")
+     get_dimension_size;
+  int get_dimension_size(const char *name) {
+    return dlite_instance_get_dimension_size($self, name);
+  }
+  int get_dimension_size(int i) {
+    return dlite_instance_get_dimension_size_by_index($self, i);
   }
 
   %feature("docstring", "Returns property with given name or index.")
@@ -269,6 +365,17 @@ struct _DLiteInstance {
     return false;
   }
 
+  %feature("docstring", "Returns true if this instance has a dimension with "
+           "given name or index.") has_dimension;
+  bool has_dimension(const char *name) {
+    return dlite_instance_has_dimension($self, name);
+  }
+  bool has_dimension(int i) {
+    if (i < 0) i += $self->meta->ndimensions;
+    if (0 <= i && i < (int)$self->meta->ndimensions) return true;
+    return false;
+  }
+
   bool _is_data() {
     return (bool)dlite_instance_is_data($self);
   }
@@ -287,17 +394,26 @@ struct _DLiteInstance {
 /* ----------------
  * Module functions
  * ---------------- */
-%rename(get_instance) dlite_instance_get;
-struct _DLiteInstance *dlite_instance_get(const char *id);
+//%rename(get_instance) dlite_instance_get_casted;
+//%newobject dlite_instance_get_casted;
+//struct _DLiteInstance *dlite_instance_get_casted(const char *id,
+//                                                 const char *metaid=NULL);
 
+%rename(get_instance) dlite_swig_get_instance;
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;
 %rename(_has_property) dlite_instance_has_property;
+struct _DLiteInstance *
+dlite_swig_get_instance(const char *id, const char *metaid=NULL);
 obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
 void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
+/* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
+#define BASIC_METADATA_SCHEMA  "http://meta.sintef.no/0.1/BasicMetadataSchema"
+#define ENTITY_SCHEMA          "http://meta.sintef.no/0.3/EntitySchema"
+#define COLLECTION_SCHEMA      "http://meta.sintef.no/0.6/CollectionSchema"
 
 /* -----------------------------------
  * Target language-spesific extensions

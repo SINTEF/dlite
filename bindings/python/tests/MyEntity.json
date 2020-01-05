@@ -97,6 +97,19 @@
         "M"
       ],
       "description": "A string array."
+    },
+    {
+      "name": "a-relation",
+      "type": "relation",
+      "description": "A relation"
+    },
+    {
+      "name": "a-relation-array",
+      "type": "relation",
+      "dims": [
+        "N"
+      ],
+      "description": "A relation array"
     }
   ],
   "dataname": "http://meta.sintef.no/0.1/MyEntity"

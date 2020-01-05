@@ -42,7 +42,7 @@ add_custom_command(
 
 install(
   TARGETS dlite-plugins-json
-  DESTINATION ${DLITE_STORAGE_PLUGINS_PATH}
+  DESTINATION ${DLITE_STORAGE_PLUGIN_DIRS}
 )
 
 # tests

@@ -269,10 +269,10 @@ const char *err_get_prefix(void)
 }
 
 /* whether the error stream has been opened with fopen() */
-static int err_stream_opened;
+static int err_stream_opened = 0;
 
 /* whether `atexit(err_close_stream)` has been called */
-static int err_stream_atexit_called;
+static int err_stream_atexit_called = 0;
 
 static void err_close_stream(void)
 {
