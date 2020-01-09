@@ -11,6 +11,8 @@ endif()
 # dlite instead.
 if(CMAKE_VERSION VERSION_LESS 3.14)
   set(SWIGNAME "SWIG314")
+  # SWIG_MODULE_dlite_REAL_NAME is not defined before cmake 3.14
+  set(SWIG_MODULE_dlite_REAL_NAME "_dlite")
 else()
   set(SWIGNAME "SWIG")
 endif()
