@@ -12,6 +12,8 @@ endif()
 # dlite instead.
 if(CMAKE_VERSION VERSION_LESS 3.14)
   set(SWIGNAME "SWIG314")
+  # SWIG_MODULE_dlite_REAL_NAME is not defined before cmake 3.14
+  set(SWIG_MODULE_dlite_REAL_NAME "_dlite")
 else()
   set(SWIGNAME "SWIG")
 endif()
@@ -93,8 +95,6 @@ set(abs_targets)
 foreach(source ${py_sources})
   list(APPEND abs_targets ${pkgdir}/${source})
 endforeach()
-
-message("*** SWIG_MODULE_dlite_REAL_NAME: ${SWIG_MODULE_dlite_REAL_NAME}")
 
 add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
