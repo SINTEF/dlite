@@ -44,7 +44,7 @@ if(SWIG_EXECUTABLE)
     string(REGEX REPLACE "[\n\r]+" ";" SWIG_swiglib_output ${SWIG_swiglib_output})
     find_path(SWIG_DIR swig.swg PATHS ${SWIG_swiglib_output} NO_CMAKE_FIND_ROOT_PATH)
     if(SWIG_DIR)
-      set(SWIG_USE_FILE ${CMAKE_CURRENT_LIST_DIR}/UseSWIG.cmake)
+      set(SWIG_USE_FILE ${CMAKE_CURRENT_LIST_DIR}/UseSWIG314.cmake)
       execute_process(COMMAND ${SWIG_EXECUTABLE} -version
         OUTPUT_VARIABLE SWIG_version_output
         ERROR_VARIABLE SWIG_version_output
@@ -60,7 +60,7 @@ if(SWIG_EXECUTABLE)
   endif()
 endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs314.cmake)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SWIG  REQUIRED_VARS SWIG_EXECUTABLE SWIG_DIR
                                         VERSION_VAR SWIG_VERSION )
 
