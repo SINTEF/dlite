@@ -7,23 +7,22 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
   #cmake_policy(SET CMP0079 NEW)
 endif()
 
+# Try to require correct version of swig depending on Python version
+if(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
+  set(REQUIRED_SWIG_VERSION 3.0.0)
+else()
+  set(REQUIRED_SWIG_VERSION 3.0.8)
+endif()
+
 # There is a bug in UseSWIG for cmake less than 3.14.  If our version of
 # swig is less than 3.14, we use FindSWIG from cmake 3.14 included with
 # dlite instead.
 if(CMAKE_VERSION VERSION_LESS 3.14)
-  set(SWIGNAME "SWIG314")
+  find_package(SWIG314 ${REQUIRED_SWIG_VERSION} REQUIRED)
   # SWIG_MODULE_dlite_REAL_NAME is not defined before cmake 3.14
   set(SWIG_MODULE_dlite_REAL_NAME "_dlite")
 else()
-  set(SWIGNAME "SWIG")
-endif()
-
-# Try to require correct version of swig depending on Python version
-if(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
-  find_package(${SWIGNAME} 3.0.0 REQUIRED)
-else()
-  #find_package(${SWIGNAME} 3.0.8 REQUIRED)
-  find_package(SWIG314 3.0.8 REQUIRED)
+  find_package(SWIG ${REQUIRED_SWIG_VERSION} REQUIRED)
 endif()
 
 # Python sources
@@ -120,6 +119,15 @@ add_custom_command(
     ${pkgdir}
     ${abs_sources}
   )
+
+
+# Again a workaround for cmake < 3.14...
+if(CMAKE_VERSION VERSION_LESS 3.14)
+  add_custom_command(
+    OUTPUT ${pkgdir}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
+    )
+endif()
 
 
 #
