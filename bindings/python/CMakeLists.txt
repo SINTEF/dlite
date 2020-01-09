@@ -4,6 +4,7 @@ project(dlite-bindings-python C)
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
   cmake_policy(SET CMP0078 OLD)
   cmake_policy(SET CMP0086 OLD)
+  #cmake_policy(SET CMP0079 NEW)
 endif()
 
 # There is a bug in UseSWIG for cmake less than 3.14.  If our version of
@@ -69,6 +70,7 @@ swig_add_library(dlite
   SOURCES dlite.i
   )
 
+#target_link_libraries(dlite
 swig_link_libraries(dlite
   dlite
   dlite-utils
@@ -90,6 +92,8 @@ set(abs_targets)
 foreach(source ${py_sources})
   list(APPEND abs_targets ${pkgdir}/${source})
 endforeach()
+
+message("*** SWIG_MODULE_dlite_REAL_NAME: ${SWIG_MODULE_dlite_REAL_NAME}")
 
 add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
