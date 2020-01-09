@@ -39,6 +39,7 @@ foreach(test ${tests})
   target_compile_definitions(${test} PUBLIC
      -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
      -DLIBDIR=$<TARGET_FILE_DIR:${test}>
+     -DABS_WORKDIR=${CMAKE_CURRENT_BINARY_DIR}
      )
   add_dependencies(${test} dlite-utils-static)
 

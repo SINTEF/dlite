@@ -15,7 +15,10 @@ project(dlite
 option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
 option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
+option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
+
+option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
 
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
@@ -248,7 +251,13 @@ if(WITH_PYTHON)
     find_package(PythonInterp 3.5 REQUIRED)
     find_package(PythonLibs 3.5 REQUIRED)
   else()
-    find_package(Python3 COMPONENTS Interpreter Development NumPy)
+    if(CMAKE_VERSION VERSION_LESS_EQUAL 3.13)
+      find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+      set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+      find_package(Numpy REQUIRED)
+    else()
+      find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+    endif()
 
     # Set backward compatible Python variables
     set(PYTHONINTERP_FOUND    ${Python3_Interpreter_FOUND})
@@ -426,7 +435,9 @@ if(WITH_EXAMPLES)
 endif()
 
 # Documentations
-add_subdirectory(doc)
+if(WITH_DOC)
+  add_subdirectory(doc)
+endif()
 
 #################################################################
 
