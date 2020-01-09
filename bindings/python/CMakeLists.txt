@@ -6,12 +6,20 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
   cmake_policy(SET CMP0086 OLD)
 endif()
 
+# There is a bug in UseSWIG for cmake less than 3.14.  If our version of
+# swig is less than 3.14, we use FindSWIG from cmake 3.14 included with
+# dlite instead.
+if(CMAKE_VERSION VERSION_LESS 3.14)
+  set(SWIGNAME "SWIG314")
+else()
+  set(SWIGNAME "SWIG")
+endif()
 
 # Try to require correct version of swig depending on Python version
 if(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
-  find_package(SWIG 3.0.0 REQUIRED)
+  find_package(${SWIGNAME} 3.0.0 REQUIRED)
 else()
-  find_package(SWIG 3.0.8 REQUIRED)
+  find_package(${SWIGNAME} 3.0.8 REQUIRED)
 endif()
 
 # Python sources
