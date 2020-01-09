@@ -123,6 +123,7 @@ add_custom_command(
 
 # Again a workaround for cmake < 3.14...
 if(CMAKE_VERSION VERSION_LESS 3.14)
+  message("*** adding rule for ${pkgdir}")
   add_custom_command(
     OUTPUT ${pkgdir}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
