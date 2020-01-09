@@ -36,6 +36,7 @@ RUN apt-get install -y \
     cmake \
     doxygen \
     gcc \
+    git \
     g++ \
     libhdf5-dev \
     libjansson-dev \
@@ -52,24 +53,25 @@ RUN apt-get install -y \
 RUN apt-get install -y python3-pip
 RUN pip3 install ipython
 
-
-#RUN git clone https://github.com/SINTEF/dlite.git
-#cd dlite
-#RUN git submodule init
-#RUN git submodule update
-
+# Create and become a normal user
 RUN useradd -ms /bin/bash user
-COPY . /home/user/sw/dlite
-RUN chown user:user -R /home/user/sw/dlite
 USER user
-WORKDIR /home/user/
 ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
 
-RUN mkdir /home/user/sw/dlite/build
-RUN cd /home/user/sw/dlite/build && cmake ..
-RUN cd /home/user/sw/dlite/build && make
-RUN cd /home/user/sw/dlite/build && make install
-RUN cd /home/user/sw/dlite/build && make test
+RUN mkdir /home/user/sw
+
+WORKDIR /home/user/sw
+RUN git clone https://github.com/SINTEF/dlite.git
+
+WORKDIR /home/user/sw/dlite
+RUN git submodule update --init
+RUN mkdir build
+
+WORKDIR /home/user/sw/dlite/build
+RUN cmake ..
+RUN make
+RUN make install
+RUN make test
 
 
 ENTRYPOINT ipython3 \

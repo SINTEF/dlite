@@ -20,7 +20,8 @@ endif()
 if(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
   find_package(${SWIGNAME} 3.0.0 REQUIRED)
 else()
-  find_package(${SWIGNAME} 3.0.8 REQUIRED)
+  #find_package(${SWIGNAME} 3.0.8 REQUIRED)
+  find_package(SWIG314 3.0.8 REQUIRED)
 endif()
 
 # Python sources
