@@ -8,17 +8,16 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      IMAGE_ID: dlite-ci$(date +%s)
+      IMAGE_NAME: dlite
+      VERSION: $(sed -n 's/^ *VERSION *\([0-9a-zA-Z.-]*\) *$/\1/p' <CMakeLists.txt)
+
     steps:
     - uses: actions/checkout@v1
 
     - name: Get docker version
       run: docker --version
-
-    - name: Define docker tag
-      run: |
-        export IMAGE_ID=dlite-ci$(date +%s)
-        export IMAGE_NAME=dlite
-        export VERSION=$(sed -n 's/^ *VERSION *\([0-9a-zA-Z.-]*\) *$/\1/p' <CMakeLists.txt)
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag $IMAGE_ID
