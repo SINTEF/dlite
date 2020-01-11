@@ -37,6 +37,7 @@ RUN apt-get install -y \
     doxygen \
     gcc \
     git \
+    graphviz \
     g++ \
     libhdf5-dev \
     libjansson-dev \
