@@ -9,9 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_ID: dlite-ci$(date +%s)
       IMAGE_NAME: dlite
-      VERSION: $(sed -n 's/^ *VERSION *\([0-9a-zA-Z.-]*\) *$/\1/p' <CMakeLists.txt)
 
     steps:
     - uses: actions/checkout@v1
@@ -19,14 +17,19 @@ jobs:
     - name: Get docker version
       run: docker --version
 
+    - name: Save IMAGE_ID and VERSION to file
+      run: |
+        echo dlite-ci$(date +%s) >IMAGE_ID
+        echo $(sed -n 's/^ *VERSION *\([0-9a-zA-Z.-]*\) *$/\1/p' <CMakeLists.txt) >VERSION
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag $IMAGE_ID
+      run: docker build . --file Dockerfile --tag $(<IMAGE_ID)
 
     - name: Create github docker package
       run: |
         # Authenticate
         docker login docker.pkg.github.com --username jesper-friis
         # Tag
-        docker tag $IMAGE_ID docker.pkg.github.com/SINTEF/dlite/$IMAGE_NAME:$VERSION
+        docker tag $(<IMAGE_ID) docker.pkg.github.com/SINTEF/dlite/$IMAGE_NAME:$(<VERSION)
         # Step 3: Publish
-        $ docker push docker.pkg.github.com/SINTEF/dlite/$IMAGE_NAME:$VERSION
+        $ docker push docker.pkg.github.com/SINTEF/dlite/$IMAGE_NAME:$(<VERSION)
