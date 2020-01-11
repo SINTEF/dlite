@@ -30,11 +30,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
       run: |
         # Authenticate
-        echo "IMAGE_ID=$(<IMAGE_ID)"
         #docker login -u jesper-friis -p $GITHUB_TOKEN docker.pkg.github.com
         echo $GITHUB_TOKEN | docker login -u jesper-friis --password-stdin docker.pkg.github.com
-        echo "VERSION=$(<VERSION)"
         # Tag
+        echo "Tag docker image: $(<IMAGE_ID) as $IMAGE_NAME:$(<VERSION)"
         docker tag $(<IMAGE_ID) docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
         # Publish
+        echo "Publish docker image"
         $ docker push docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
