@@ -92,7 +92,6 @@ char *fu_join_sep(int sep, const char *a, ...)
 */
 char *fu_vjoin_sep(int sep, const char *a, va_list ap);
 
-
 /**
   Returns a pointer to the last directory separator in `path`.
  */
@@ -114,7 +113,6 @@ char *fu_basename(const char *path);
 */
 const char *fu_fileext(const char *path);
 
-
 /**
   Updates `path` to use more "user-friendly" directory separators.
 
@@ -128,6 +126,19 @@ const char *fu_fileext(const char *path);
   Returns a pointer to `path`.
  */
 char *fu_friendly_dirsep(char *path);
+
+/**
+  Returns the canonicalized absolute pathname for `path`.  Resolves
+  symbolic links and references to '/./', '/../' and extra '/'.  Note
+  that `path` must exists.
+
+  If `resolved_path` is NULL, the returned path is malloc()'ed.
+  Otherwise, it must be a buffer of at least size PATH_MAX (on POSIX)
+  or MAX_PATH (on Windows).
+
+  Returns NULL on error.
+ */
+char *fu_realpath(const char *path, char *resolved_path);
 
 
 /**

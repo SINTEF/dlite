@@ -236,12 +236,17 @@ target_include_directories(dlite-utils-static PUBLIC
 set(headers "")
 foreach(source ${sources})
   string(REPLACE ".c" ".h" header ${source})
-  if(EXISTS ${header})
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${header})
     list(APPEND headers ${header})
   endif()
 endforeach()
+list(APPEND headers
+  ${CMAKE_CURRENT_BINARY_DIR}/boolean.h
+  ${CMAKE_CURRENT_BINARY_DIR}/byteorder.h
+  ${CMAKE_CURRENT_BINARY_DIR}/integers.h
+  ${CMAKE_CURRENT_BINARY_DIR}/floats.h
+  )
 set_target_properties(dlite-utils PROPERTIES PUBLIC_HEADER "${headers}")
-
 
 install(
   TARGETS dlite-utils dlite-utils-static

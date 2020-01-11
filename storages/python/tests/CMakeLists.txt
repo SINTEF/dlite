@@ -21,15 +21,17 @@ add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 #
 # Depending on how the server is set up, or if you have a ~/.pgpass
 # file, PASSWORD can be left undefined.
+
+
+# Add disabled tests if pgconf.h cannot be found
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
   list(REMOVE_ITEM tests test_postgresql_storage test_postgresql_storage2)
-  add_test(
-    NAME test_postgresql_storage
+  add_test(NAME test_postgresql_storage
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled")
+  add_test(NAME test_postgresql_storage2
     COMMAND ${CMAKE_COMMAND} -E echo "disabled")
   set_property(TEST test_postgresql_storage APPEND PROPERTY DISABLED True)
-else()
-  set_property(TEST test_postgresql_storage2 APPEND PROPERTY
-    DEPEND test_postgresql_storage)
+  set_property(TEST test_postgresql_storage2 APPEND PROPERTY DISABLED True)
 endif()
 
 
@@ -81,6 +83,13 @@ foreach(test ${tests})
     ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
 
 endforeach()
+
+
+# Add dependencies between postgresql tests
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
+  set_property(TEST test_postgresql_storage2 APPEND PROPERTY
+    DEPEND test_postgresql_storage)
+endif()
 
 
 # Disable tests with dependencies

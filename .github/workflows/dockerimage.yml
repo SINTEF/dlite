@@ -1,0 +1,46 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: dlite
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Get docker version
+      run: docker --version
+
+    - name: Save IMAGE_ID and VERSION to file
+      run: |
+        echo dlite-ci$(date +%s) >IMAGE_ID
+        echo $(sed -n 's/^ *VERSION *\([0-9a-zA-Z.-]*\) *$/\1/p' <CMakeLists.txt) >VERSION
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $(<IMAGE_ID)
+
+    - name: Create github docker package
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
+      run: |
+        # Authenticate
+        echo "Authenticate with GITHUB_TOKEN"
+        #docker login -u jesper-friis -p $GITHUB_TOKEN docker.pkg.github.com
+        echo $GITHUB_TOKEN | docker login -u jesper-friis --password-stdin docker.pkg.github.com
+        # Tag
+        echo "Tag docker image: $(<IMAGE_ID) as $IMAGE_NAME:$(<VERSION)"
+        docker tag $(<IMAGE_ID) docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
+        # Publish
+        echo "Publish docker image"
+        docker push docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
