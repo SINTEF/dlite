@@ -26,10 +26,12 @@ jobs:
       run: docker build . --file Dockerfile --tag $(<IMAGE_ID)
 
     - name: Create github docker package
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
       run: |
         # Authenticate
-        docker login docker.pkg.github.com --username jesper-friis
+        docker login -u jesper-friis -p $GITHUB_TOKEN docker.pkg.github.com
         # Tag
         docker tag $(<IMAGE_ID) docker.pkg.github.com/SINTEF/dlite/$IMAGE_NAME:$(<VERSION)
-        # Step 3: Publish
+        # Publish
         $ docker push docker.pkg.github.com/SINTEF/dlite/$IMAGE_NAME:$(<VERSION)
