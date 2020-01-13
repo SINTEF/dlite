@@ -874,7 +874,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         Py_XDECREF(p);
         Py_XDECREF(o);
         Py_XDECREF(id);
-        if (msg) FAIL(msg);
+        if (msg) FAIL1("%s", msg);
 
       } else {
         FAIL("cannot convert Python object to relation");
