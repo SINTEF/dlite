@@ -215,8 +215,10 @@ const void *plugin_load(PluginInfo *info, const char *name,
       if (iter1 == iter2) break;
       iter2 = iter1;
     }
-    if (!api) warn("failure calling \"%s\" in plugin \"%s\": %s",
-                   info->symbol, filepath, dsl_error());
+    //if (!api && (iter1 || iter2))
+    if (!api)
+      warn("failure calling \"%s\" in plugin \"%s\": %s",
+           info->symbol, filepath, dsl_error());
   }
   if (name && emit_err)
     errx(1, "no such api: \"%s\"", name);

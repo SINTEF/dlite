@@ -176,7 +176,6 @@ MU_TEST(test_fu_closedir)
   mu_assert_int_eq(0, fu_closedir(dir));
 }
 
-
 int count_paths(FUPaths *paths)
 {
   int n=0;
@@ -189,6 +188,7 @@ int count_paths(FUPaths *paths)
 MU_TEST(test_fu_paths)
 {
   FUPaths paths;
+  char *s;
   fu_paths_init(&paths, NULL);
   mu_assert_int_eq(0, paths.n);
 
@@ -232,6 +232,10 @@ MU_TEST(test_fu_paths)
   mu_assert_int_eq(6, count_paths(&paths));
   mu_assert_string_eq("path2", paths.paths[4]);
   mu_assert_string_eq("new3",  paths.paths[5]);
+
+  s = fu_paths_string(&paths, ":");
+  mu_assert_string_eq("new2:path0:new:path1:path2:new3", s);
+  free(s);
 
   fu_paths_deinit(&paths);
 

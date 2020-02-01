@@ -181,6 +181,12 @@ int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep);
 void fu_paths_deinit(FUPaths *paths);
 
 /**
+  Returns an allocated string with all paths in `paths` separated by `pathsep`.
+  If `pathsep` is NULL, the system path separator is used.
+ */
+char *fu_paths_string(const FUPaths *paths, const char *pathsep);
+
+/**
   Returns a NULL-terminated array of pointers to paths or NULL if
   `paths` is empty.
  */

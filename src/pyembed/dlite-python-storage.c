@@ -5,9 +5,7 @@
 #include <assert.h>
 
 /* Python pulls in a lot of defines that conflicts with utils/config.h */
-#ifdef HAVE_CONFIG_H
-#undef HAVE_CONFIG_H
-#endif
+#define SKIP_UTILS_CONFIG_H
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -37,9 +35,11 @@ const FUPaths *dlite_python_storage_paths(void)
 {
   if (!storage_paths_initialised) {
     if (fu_paths_init(&storage_paths, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS") < 0)
-      return
-        dlite_err(1,
-		  "cannot initialise DLITE_PYTHON_STORAGE_PLUGIN_DIRS"), NULL;
+      return dlite_err(1, "cannot initialise DLITE_PYTHON_STORAGE_PLUGIN_DIRS"
+                       ), NULL;
+    if (fu_paths_append(&storage_paths, DLITE_PYTHON_STORAGE_PLUGIN_DIRS) < 0)
+      return dlite_err(1, "error initialising dlite python storage plugin "
+                       "dirs"), NULL;
     storage_paths_initialised = 1;
     storage_paths_modified = 0;
   }
