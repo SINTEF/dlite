@@ -15,7 +15,7 @@ message("CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
 add_custom_command(
 OUTPUT philibtable.h
 COMMAND ${DLITE_ROOT}/bin/dlite-codegen
-  --template ${DLITE_TEMPLATE_DIR}/c-header.txt
+  --format c-header
   --output philibtable.h
   json:${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json
 MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json

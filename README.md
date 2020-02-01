@@ -80,6 +80,15 @@ Short vocabulary
     [SOFT5 nomenclauture][SOFT5_nomenclauture].
 
 
+Download and build
+==================
+
+Docker container
+----------------
+A docker containiner can be found on
+[https://github.com/SINTEF/dlite/packages](https://github.com/SINTEF/dlite/packages).
+
+
 Runtime dependencies
 --------------------
   - [HDF5][3], optional (needed by HDF5 storage plugin)

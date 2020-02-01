@@ -42,5 +42,5 @@ jobs:
         echo "Tag docker image: $(<IMAGE_ID) as $IMAGE_NAME:$(<VERSION)"
         docker tag $(<IMAGE_ID) docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
         # Publish
-        echo "Publish docker image"
+        echo "Publish docker image: docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)"
         docker push docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
