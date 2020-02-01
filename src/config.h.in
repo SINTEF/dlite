@@ -3,7 +3,9 @@
 #ifndef _DLITE_CONFIG_H
 #define _DLITE_CONFIG_H
 
+#ifndef SKIP_UTILS_CONFIG_H
 #include "utils/config.h"
+#endif
 
 /* dlite version */
 #ifndef dlite_VERSION

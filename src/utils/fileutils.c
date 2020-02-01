@@ -361,6 +361,35 @@ void fu_paths_deinit(FUPaths *paths)
 }
 
 /*
+  Returns an allocated string with all paths in `paths` separated by `pathsep`.
+
+  If `pathsep` is NULL, the system path separator is used.  Note that unlike
+  fu_paths_init_sep(), if `pathsep` is more than one character (in addition to
+  the terminating NUL), the full string is inserted as path separator.
+ */
+char *fu_paths_string(const FUPaths *paths, const char *pathsep)
+{
+  size_t i, seplen, size=0;
+  char *s, *string;
+  if (!pathsep) pathsep = PATHSEP;
+  seplen = strlen(pathsep);
+  for (i=0; i<paths->n; i++) size += strlen(paths->paths[i]);
+  size += (paths->n - 1) * seplen;
+  s = string = malloc(size + 1);
+  for (i=0; i < paths->n; i++) {
+    int n = strlen(paths->paths[i]);
+    strncpy(s, paths->paths[i], n);
+    s += n;
+    if (i < paths->n - 1) {
+      strncpy(s, pathsep, seplen);
+      s += seplen;
+    }
+  }
+  *s = '\0';
+  return string;
+}
+
+/*
   Returns a NULL-terminated array of pointers to paths or NULL if
   `paths` is empty.
  */

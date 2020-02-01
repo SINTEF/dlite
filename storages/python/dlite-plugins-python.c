@@ -334,15 +334,12 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
 
   retval = api;
  fail:
-  if (!retval && api) {
-    free(api);
-    api = NULL;
-  }
+  if (!retval && api) free(api);
   Py_XDECREF(name);
   Py_XDECREF(open);
   Py_XDECREF(close);
   Py_XDECREF(load);
   Py_XDECREF(save);
 
-  return api;
+  return retval;
 }
