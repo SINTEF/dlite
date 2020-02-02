@@ -1461,17 +1461,17 @@ const DLiteProperty *dlite_meta_get_property(const DLiteMeta *meta,
 */
 int dlite_meta_is_metameta(const DLiteMeta *meta)
 {
-  int has_dimensions=0, has_properties=0;
+  int has_dimensions=0, has_properties=0, has_relations=0;
   size_t i;
   for (i=0; i<meta->nproperties; i++) {
     DLiteProperty *p = meta->properties + i;
-    if (p->type == dliteDimension &&
-        (strcmp(p->name, "schema_dimensions") == 0 ||
-         strcmp(p->name, "dimensions") == 0)) has_dimensions = 1;
-    if (p->type == dliteProperty &&
-        (strcmp(p->name, "schema_properties") == 0 ||
-         strcmp(p->name, "properties") == 0)) has_properties = 1;
+    if (p->type == dliteDimension && strcmp(p->name, "dimensions") == 0)
+      has_dimensions = 1;
+    if (p->type == dliteProperty && strcmp(p->name, "properties") == 0)
+      has_properties = 1;
+    if (p->type == dliteRelation && strcmp(p->name, "relations") == 0)
+      has_relations = 1;
   }
-  if (has_dimensions && has_properties) return 1;
+  if (has_dimensions && (has_properties || has_relations)) return 1;
   return 0;
 }
