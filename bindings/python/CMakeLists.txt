@@ -4,6 +4,7 @@ project(dlite-bindings-python C)
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
   cmake_policy(SET CMP0078 OLD)
   cmake_policy(SET CMP0086 OLD)
+  #cmake_policy(SET CMP0079 NEW)
 endif()
 
 # Try to require correct version of swig depending on Python version
@@ -71,6 +72,7 @@ swig_add_library(dlite
   SOURCES dlite.i
   )
 
+#target_link_libraries(dlite
 swig_link_libraries(dlite
   dlite
   dlite-utils
