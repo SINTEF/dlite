@@ -5,6 +5,7 @@
 
 #include "utils/err.h"
 #include "utils/map.h"
+#include "utils/sha1.h"
 #include "utils/fileutils.h"
 
 #include "dlite.h"
@@ -1120,6 +1121,99 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
 }
 
 
+/* Help function. Updates context `ctx` for data pointed to by `ptr` and
+   described by `p`. */
+void _update_sha1_context(SHA1_CTX *ctx, const DLiteProperty *p, void *ptr)
+{
+  switch (p->type) {
+  case dliteBlob:
+  case dliteBool:
+  case dliteInt:
+  case dliteUInt:
+  case dliteFloat:
+  case dliteFixString:
+    SHA1Update(ctx, (unsigned char *)ptr, p->size);
+    break;
+  case dliteStringPtr:
+    {
+      char *s = *((char **)ptr);
+      SHA1Update(ctx, (unsigned char *)s, strlen(s));
+    }
+    break;
+  case dliteDimension:
+    {
+      DLiteDimension *dim = ptr;
+      SHA1Update(ctx, (unsigned char *)dim->name, strlen(dim->name));
+      if (dim->description)
+        SHA1Update(ctx, (unsigned char *)dim->description,
+                   strlen(dim->description));
+    }
+    break;
+  case dliteProperty:
+    {
+      DLiteProperty *prop = ptr;
+      SHA1Update(ctx, (unsigned char *)prop->name, strlen(prop->name));
+      SHA1Update(ctx, (unsigned char *)&prop->type, sizeof(DLiteType));
+      SHA1Update(ctx, (unsigned char *)&prop->size, sizeof(size_t));
+      SHA1Update(ctx, (unsigned char *)&prop->ndims, sizeof(int));
+      if (prop->ndims) SHA1Update(ctx, (unsigned char *)prop->dims,
+                                  prop->ndims*sizeof(int));
+      if (prop->unit) SHA1Update(ctx, (unsigned char *)prop->unit,
+                                 strlen(prop->unit));
+      if (prop->description)
+        SHA1Update(ctx, (unsigned char *)prop->description,
+                   strlen(prop->description));
+    }
+    break;
+  case dliteRelation:
+    {
+      DLiteRelation *rel = ptr;
+      SHA1Update(ctx, (unsigned char *)rel->s, strlen(rel->s));
+      SHA1Update(ctx, (unsigned char *)rel->p, strlen(rel->p));
+      SHA1Update(ctx, (unsigned char *)rel->o, strlen(rel->o));
+    }
+    break;
+  }
+}
+
+/*
+  Returns a malloc'ed SHA-1 hash string for instance `inst` or NULL on error.
+ */
+char *dlite_instance_get_hash(const DLiteInstance *inst)
+{
+  size_t i;
+  SHA1_CTX ctx;
+  char *hash;
+  SHA1Init(&ctx);
+  SHA1Update(&ctx, (unsigned char *)inst->uuid, DLITE_UUID_LENGTH);
+  if (inst->uri)
+    SHA1Update(&ctx, (unsigned char *)inst->uri, strlen(inst->uri));
+  SHA1Update(&ctx, (unsigned char *)inst->meta->uuid, DLITE_UUID_LENGTH);
+  for (i=0; i<inst->meta->ndimensions; i++) {
+    int size = dlite_instance_get_dimension_size_by_index(inst, i);
+    SHA1Update(&ctx, (unsigned char *)&size, sizeof(int));
+  }
+  for (i=0; i<inst->meta->nproperties; i++) {
+    DLiteProperty *p = inst->meta->properties + i;
+    char *ptr = dlite_instance_get_property_by_index(inst, i);
+    if (p->ndims > 0) {
+      int j, nmembs=1;
+      for (j=0; j< p->ndims; j++) nmembs *= DLITE_DIM(inst, p->dims[j]);
+      if (dlite_type_is_allocated(p->type)) {
+        for (j=0; j<nmembs; j++, ptr+=p->size)
+          _update_sha1_context(&ctx, p, ptr);
+      } else {
+        SHA1Update(&ctx, (unsigned char *)ptr, p->size*nmembs);
+      }
+    } else {
+      _update_sha1_context(&ctx, p, ptr);
+    }
+  }
+  if (!(hash = SHA1String(&ctx))) err(1, "Allocation failure");
+  return hash;
+}
+
+
 /*
   Returns a new DLiteArray object for property number `i` in instance `inst`.
 
@@ -1407,10 +1501,6 @@ int dlite_meta_get_property_index(const DLiteMeta *meta, const char *name)
 const DLiteDimension *
 dlite_meta_get_dimension_by_index(const DLiteMeta *meta, size_t i)
 {
-  /*
-  if (i < 0) i += meta->ndimensions;
-  if (i < 0 || i >= meta->ndimensions)
-  */
   if (i >= meta->ndimensions)
     return err(-1, "invalid dimension index %lu", i), NULL;
   return meta->dimensions + i;

@@ -3,6 +3,7 @@
 
 #include "dlite.h"
 #include "dlite-collection.h"
+#include "dlite-transaction.h"
 #include "dlite-schemas.h"
 
 
@@ -359,16 +360,152 @@ static struct _CollectionSchema {
 
 
 
-/**************************************************************
- * Exposed pointers to schemas
- **************************************************************/
-//const DLiteMeta * const dlite_BasicMetadataSchema =
-//  (DLiteMeta *)&basic_metadata_schema;
-//const DLiteMeta * const dlite_EntitySchema =
-//  (DLiteMeta *)&entity_schema;
-//const DLiteMeta * const dlite_CollectionSchema =
-//  (DLiteMeta *)&collection_schema;
+/***********************************************************
+ * transaction_schema
+ ***********************************************************/
+static DLiteDimension transaction_schema_dimensions[] = {
+  {"ndimensions", "Number of dimensions."},
+  {"nproperties", "Number of properties."}
+};
+static int transaction_schema_prop_dimensions_dims[] = {0};
+static int transaction_schema_prop_properties_dims[] = {1};
+static DLiteProperty transaction_schema_properties[] = {
+  {
+   "name",                                    /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   "Transaction name."                        /* description */
+  },
+  {
+   "version",                                 /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   "Transaction version."                     /* description */
+  },
+  {
+   "namespace",                               /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   "Transaction namespace."                   /* description */
+  },
+  {
+   "parent_id",                               /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   "Id of parent transaction."                /* description */
+  },
+  {
+   "parent_hash",                             /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   "Hash value of parent transaction."        /* description */
+  },
+  {
+   "description",                             /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   "Description of transaction."              /* description */
+  },
+  {
+   "dimensions",                              /* name */
+   dliteDimension,                            /* type */
+   sizeof(DLiteDimension),                    /* size */
+   1,                                         /* ndims */
+   transaction_schema_prop_dimensions_dims,   /* dims */
+   NULL,                                      /* unit */
+   "Transaction dimensions."                  /* description */
+  },
+  {
+   "properties",                              /* name */
+   dliteProperty,                             /* type */
+   sizeof(DLiteProperty),                     /* size */
+   1,                                         /* ndims */
+   transaction_schema_prop_properties_dims,   /* dims */
+   NULL,                                      /* unit */
+   "Transaction properties."                  /* description */
+  }
+};
+static struct _TransactionSchema {
+  /* -- header */
+  DLiteMeta_HEAD
+  /* -- length of each dimension */
+  size_t ndims;
+  size_t nprops;
+  size_t nrels;
+  /* -- value of each property */
+  char *schema_name;
+  char *schema_version;
+  char *schema_namespace;
+  char *schema_description;
+  DLiteDimension *schema_dimensions;
+  DLiteProperty  *schema_properties;
+  DLiteRelation  *schema_relation;
+  /* -- value of each relation */
+  /* -- array of memory offsets to each instance property */
+  size_t offsets[8];
+} transaction_schema = {
+  /* -- header */
+  "dd4a20a7-a110-561b-9710-90cccdb4d9d6",     /* uuid (corresponds to uri) */
+  DLITE_TRANSACTION_SCHEMA,                   /* uri */
+  1,                                          /* refcount, never free */
+  (DLiteMeta *)&basic_metadata_schema,        /* meta */
 
+  2,                                          /* ndimensions */
+  8,                                          /* nproperties */
+  0,                                          /* nrelations */
+
+  transaction_schema_dimensions,              /* dimensions */
+  transaction_schema_properties,              /* properties */
+  NULL,                                       /* relations */
+
+  0,                                          /* headersize */
+  dlite_transaction_init,                     /* init */
+  dlite_transaction_deinit,                   /* deinit */
+
+  0,                                          /* dimoffset */
+  NULL,                                       /* propoffsets */
+  0,                                          /* reloffset */
+  0,                                          /* pooffset */
+  /* -- length of each dimention */
+  2,                                          /* ndims */
+  8,                                          /* nprops */
+  0,                                          /* nrels */
+  /* -- value of each property */
+  "TransactionSchema",                        /* schema_name */
+  "0.1",                                      /* schema_version */
+  "http://meta.sintef.no",                    /* schema_namespace */
+  "Meta-metadata description of transaction.",/* schema_description */
+  transaction_schema_dimensions,              /* schema_dimensions */
+  transaction_schema_properties,              /* schema_properties */
+  NULL,                                       /* schema_relations */
+  /* -- value of each relation */
+  /* -- array of memory offsets to each instance property */
+  {0, 0, 0, 0, 0, 0, 0, 0}                    /* offsets */
+};
+
+
+
+/**************************************************************
+ * Functions returning a pointer to above static schemas
+ **************************************************************/
 
 const DLiteMeta *dlite_get_basic_metadata_schema()
 {
@@ -383,4 +520,9 @@ const DLiteMeta *dlite_get_entity_schema()
 const DLiteMeta *dlite_get_collection_schema()
 {
   return (DLiteMeta *)&collection_schema;
+}
+
+const DLiteMeta *dlite_get_transaction_schema()
+{
+  return (DLiteMeta *)&transaction_schema;
 }

@@ -147,6 +147,28 @@ MU_TEST(test_instance_copy)
   mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
 }
 
+MU_TEST(test_instance_get_hash)
+{
+  char *hash, *hash2;
+  DLiteStorage *s;
+  int *arr;
+  hash = dlite_instance_get_hash(mydata);
+  mu_assert_string_eq("3e2f7652b1b77cad9a65ed9dee82875f3ac69252", hash);
+  arr = dlite_instance_get_property(mydata, "an-int-arr");
+  arr[1] = -2;
+  hash2 = dlite_instance_get_hash(mydata);
+  mu_assert_string_eq("94d461500eda46faddd3c2e1f706f2ce6a145dd6", hash2);
+  arr[1] = 1;
+#ifdef WITH_JSON
+  mu_check((s = dlite_storage_open("json", "myentity_hash.json", "mode=w")));
+  mu_check(dlite_instance_save(s, mydata) == 0);
+  mu_check(dlite_storage_close(s) == 0);
+#endif
+  free(hash);
+  free(hash2);
+  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
+}
+
 MU_TEST(test_instance_save)
 {
   DLiteStorage *s;
@@ -278,6 +300,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_get_dimension_size);
   MU_RUN_TEST(test_instance_set_dimension_sizes);
   MU_RUN_TEST(test_instance_copy);
+  MU_RUN_TEST(test_instance_get_hash);
   MU_RUN_TEST(test_instance_save);
   MU_RUN_TEST(test_instance_hdf5);
   MU_RUN_TEST(test_instance_json);

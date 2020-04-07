@@ -182,7 +182,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLiteInstance_HEAD                                              \
   char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
   const char *uri;                /* Unique uri for this instance. */   \
-                                  /*  May be NULL. */                   \
+                                  /* May be NULL. */                    \
   int refcount;                   /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
@@ -555,6 +555,12 @@ int dlite_instance_set_dimension_size(DLiteInstance *inst, const char *name,
  */
 DLiteInstance *dlite_instance_copy(const DLiteInstance *inst,
                                    const char *newid);
+
+
+/**
+  Returns a malloc'ed SHA-1 hash string for instance `inst` or NULL on error.
+ */
+char *dlite_instance_get_hash(const DLiteInstance *inst);
 
 
 /**

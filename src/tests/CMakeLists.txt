@@ -8,6 +8,7 @@ set(tests
   test_store
   test_triplestore
   test_collection
+  test_transaction
   test_schemas
   test_arrays
   )

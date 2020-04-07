@@ -7,7 +7,7 @@ set(tests
 
 foreach(test ${tests})
   add_test(
-    NAME test_python_bindings
+    NAME ${test}
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test}.py
     )
 

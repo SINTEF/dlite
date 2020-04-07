@@ -80,6 +80,24 @@ int test_sha1()
 }
 
 
+int test_sha1string()
+{
+  int status;
+  SHA1_CTX sha1;
+  char *messages[] = {"www.widgets.com",
+                      "En af dem der red med fane",
+                      NULL};
+  char **p, *hex;
+  SHA1Init(&sha1);
+  for (p=messages; *p; p++)
+    SHA1Update(&sha1, (unsigned char *)(*p), strlen(*p));
+  hex = SHA1String(&sha1);
+  status = strcmp(hex, "75bd58d47182594884598b0f2c84d7ef59bc461f");
+  free(hex);
+  return status;
+}
+
+
 int test_uuid3()
 {
   uuid_s u;
@@ -142,6 +160,7 @@ int main() {
 #endif
   Assert("md5", test_md5() == 0);
   Assert("sha1", test_sha1() == 0);
+  Assert("sha1string", test_sha1string() == 0);
   Assert("uuid3", test_uuid3() == 0);
   Assert("uuid5", test_uuid5() == 0);
   Assert("uuid_as_string", test_uuid_as_string() == 0);

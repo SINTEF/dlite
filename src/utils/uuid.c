@@ -65,7 +65,7 @@ uuid_s NameSpace_X500 = { /* 6ba7b814-9dad-11d1-80b4-00c04fd430c8 */
 
 
 /* Returns a single hex character converted to an integer */
-uint8_t hexdigit(char hex)
+uint16_t hexdigit(char hex)
 {
   return (hex <= '9') ? hex - '0' : toupper(hex) - 'A' + 10;
 }

@@ -164,7 +164,7 @@ void dlite_swig_capsula_instance_decref(PyObject *cap)
   if (inst) dlite_instance_decref(inst);
 }
 
-/* Decreases refcount to dlite instance referred to by capsula `cap`. */
+/* Frees data referred to by capsula `cap`. */
 void dlite_swig_capsula_free(PyObject *cap)
 {
   void *data = PyCapsule_GetPointer(cap, DLITE_DATA_CAPSULA_NAME);
