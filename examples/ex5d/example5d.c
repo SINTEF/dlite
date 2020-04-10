@@ -283,7 +283,7 @@ main(int argc, char *argv)
 		  fprintf(stdout, "Case %4d, temp= %16g, concSi= %16g\n", ipos, temp, conc);
 		  /* calculate equilibrium */
 		  tq_ce(" ", 0, 0, 0.0, iwsg, iwse);
-		  if (tq_sg1err(&ierr))return;
+		  if (tq_sg1err(&ierr)) goto fail;
 
 		  get_fv(iph, ncomp, iwsg, iwse, fv, comp);
 		  for (int k = 0; k < iph; k++) {

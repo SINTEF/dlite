@@ -125,10 +125,11 @@ int main()
   p->calcvalues[1*ncalc+1]=0.38;	// "X(MG2SI,Si)" at 800 K
 
 
-  str1=fvname(p->phases[1]);
   xstr=xname(p->phases[1], p->elements[2]);
 
+  str1=fvname(p->phases[1]);
   iloc=searchstring(p->calcnames, str1, ncalc);
+  free(str1);
   //iloc=searchstring(p->phases,p->phases[1],nphases);
   printf("position: %d\n",iloc);
 
@@ -148,9 +149,10 @@ int main()
    list of values of all the fv for all phases (except first phase that is the dependent one) ordered*/
   sum=0.0;
   for (i=1; i<nphases; i++){
-	str1=fvname(p->phases[i]);
+	char *s=fvname(p->phases[i]);
   	// find the corresponding calcnames if not raise error
-	iloc=searchstring(p->calcnames,str1,ncalc);
+	iloc=searchstring(p->calcnames,s,ncalc);
+        free(s);
 	if(iloc!=-1){
            value=bounding(p->calcvalues[iloc*ncalc+0],0.0,1.0);	// add a filter to ensure realistic value
         }
@@ -180,9 +182,10 @@ int main()
   for(i=1; i<nphases; i++){
 	sum=0.0;
 	for(ielt=0; ielt<nelements; ielt++){
-	   str1=xname(p->phases[i],p->elements[ielt]);
+	   char *s=xname(p->phases[i],p->elements[ielt]);
 	// find the corresponding calcnames else iloc=-1
-	   iloc=searchstring(p->calcnames,str1,ncalc);
+	   iloc=searchstring(p->calcnames,s,ncalc);
+           free(s);
 	   if(iloc>0){
 		value=bounding(p->calcvalues[iloc*ncalc+0],0.0,1.0);
 		list_comp[i][ielt]=value;
