@@ -64,7 +64,7 @@ void get_fv(TC_INT iph, TC_INT icomp, TC_INT* iwsg, TC_INT* iwse, double fv[] , 
 			tq_gpn(i + 1, phname, TC_STRLEN_PHASES, iwsg, iwse);
 			tq_get1("np", i + 1, -1, &valnp, iwsg, iwse);
 			fv[i] = (double) valnp;
-			
+
 			for (j = 0; j < icomp; j++)
 			{
 				tq_get1("w%", i + 1, j + 1, &valw[j], iwsg, iwse);
@@ -76,7 +76,7 @@ void get_fv(TC_INT iph, TC_INT icomp, TC_INT* iwsg, TC_INT* iwse, double fv[] , 
 		}
 		else
 		{
-			tq_gpn(i + 1, phname, TC_STRLEN_PHASES, iwsg, iwse); 
+			tq_gpn(i + 1, phname, TC_STRLEN_PHASES, iwsg, iwse);
 			fprintf(stdout, "%8s   is not there.\n", phname);
 			fv[i] = 0.0;
 			for (j = 0; j < icomp; j++)
@@ -119,19 +119,19 @@ main(int argc, char *argv)
 	/* ----------------------------------------------------------*/
     /* ----------------------------------------------------------*/
 
-  TC_INT *iwsg,*iwse;
-  tc_components_strings *components;
+  TC_INT *iwsg=NULL, *iwse=NULL;
+  tc_components_strings *components=NULL;
   TC_INT i,j,ncomp,iph,iliq;
   TC_INT icont,iconn,iconp,iconw;
   TC_BOOL pstat;
-  TC_STRING phname,sname;
+  TC_STRING phname=NULL, sname;
   TC_FLOAT an,val,valt;
   TC_INT ipp,ipm,imc;
   TC_FLOAT vm,vp,surface_energy;
   TC_INT ierr;
   char log_file_directory[FILENAME_MAX];
   char tc_installation_directory[FILENAME_MAX];
-  
+
   ierr = 0;
   iwsg=malloc(sizeof(TC_INT)*TC_NWSG);
   iwse=malloc(sizeof(TC_INT)*TC_NWSE);
@@ -143,18 +143,18 @@ main(int argc, char *argv)
   memset(iwse,0,sizeof(TC_INT)*TC_NWSE);
   memset(log_file_directory,0,sizeof(log_file_directory));
   memset(tc_installation_directory,0,sizeof(tc_installation_directory));
-    
+
   /* initiate the workspace */
   tq_ini3(tc_installation_directory,log_file_directory,TC_NWSG,TC_NWSE,iwsg,iwse);
 
   /* read the thermodynamic data file which was created by using */
   /* the GES module inside the Thermo-Calc software package */
   tq_rfil("AlMgSi",iwsg,iwse); //tq_rfil("TQEX01", iwsg, iwse);
-  if(tq_sg1err(&ierr))return;
+  if (tq_sg1err(&ierr)) goto fail;
 
   /* get component names in the system */
   tq_gcom(&ncomp,components,iwsg,iwse);
-  if(tq_sg1err(&ierr))return;
+  if (tq_sg1err(&ierr)) goto fail;
 
   fprintf(stdout,"This system has the following components:\n");
   for (i=0; i < ncomp; i++) {
@@ -164,13 +164,13 @@ main(int argc, char *argv)
 
   /* get number of phases in the system */
   tq_gnp(&iph, iwsg,iwse);
-  if(tq_sg1err(&ierr))return;
+  if (tq_sg1err(&ierr)) goto fail;
   fprintf(stdout,"This system has %d phases:\n",iph);
-  if(tq_sg1err(&ierr))return;
+  if (tq_sg1err(&ierr)) goto fail;
   /* get names and status of the phases in the system */
   for (i=0; i<iph; i++) {
     tq_gpn(i+1, phname, TC_STRLEN_PHASES, iwsg,iwse);
-    if(tq_sg1err(&ierr))return;
+    if (tq_sg1err(&ierr)) goto fail;
     pstat=tq_gsp(i+1, sname, TC_STRLEN_MAX, &an, iwsg,iwse);
     fprintf(stdout,"%s %s %g\n",phname,sname, an);
   }
@@ -204,12 +204,12 @@ main(int argc, char *argv)
   /* transfer the name of the elements (already read) */
   for (i = 0; i < ncomp; i++)
 	  p->elements[i] = strdup(components[i].component);
-  
+
   /* transfer the name of the phases */
   for (i = 0; i < iph; i++) {
-	  tq_gpn(i + 1, phname, TC_STRLEN_PHASES, iwsg, iwse);
-	  if (tq_sg1err(&ierr))return;
-	  p->phases[i]=strdup(phname);
+    tq_gpn(i + 1, phname, TC_STRLEN_PHASES, iwsg, iwse);
+    if (tq_sg1err(&ierr)) goto fail;
+    p->phases[i]=strdup(phname);
   }
 
   p->varnames[0] = strdup("T");
@@ -235,9 +235,9 @@ main(int argc, char *argv)
 
   /* set the units of some properties. */
   tq_ssu((TC_STRING)"ENERGY",(TC_STRING)"CAL",iwsg,iwse);
-  if(tq_sg1err(&ierr))return;
+  if (tq_sg1err(&ierr)) goto fail;
   tq_ssu((TC_STRING)"T",(TC_STRING)"K",iwsg,iwse);
-  if(tq_sg1err(&ierr))return;
+  if (tq_sg1err(&ierr)) goto fail;
 
   /* set the condition for a sigle equilibrium calculation */
   tq_setc("N", -1, -1, 1.00, &iconn, iwsg,iwse);
@@ -250,7 +250,7 @@ main(int argc, char *argv)
   /*                                                           */
   /* ----------------------------------------------------------*/
 	/* test of new subroutine */
-  double* fv; double* comp;
+  double* fv=NULL, *comp=NULL;
   fv = malloc(sizeof(double)*iph);
   comp = malloc(sizeof(double)*iph*ncomp);
 
@@ -279,7 +279,7 @@ main(int argc, char *argv)
 		  /* set the conditions */
 		  tq_setc("T", -1, -1, temp, &icont, iwsg, iwse);
 		  tq_setc("W%", -1, 3, conc, &iconw, iwsg, iwse);	// the concentration of Si
-		  
+
 		  fprintf(stdout, "Case %4d, temp= %16g, concSi= %16g\n", ipos, temp, conc);
 		  /* calculate equilibrium */
 		  tq_ce(" ", 0, 0, 0.0, iwsg, iwse);
@@ -287,7 +287,7 @@ main(int argc, char *argv)
 
 		  get_fv(iph, ncomp, iwsg, iwse, fv, comp);
 		  for (int k = 0; k < iph; k++) {
-			  p->calcvalues[ipos*ncalc + 0 + 3*k] = fv[k];		// "fv(LIQUID)" 
+			  p->calcvalues[ipos*ncalc + 0 + 3*k] = fv[k];		// "fv(LIQUID)"
 			  p->calcvalues[ipos*ncalc + 1 + 3*k] = comp[k * ncomp + 1];	// "X(LIQUID,Mg)"
 			  p->calcvalues[ipos*ncalc + 2 + 3*k] = comp[k * ncomp + 2];	// "X(LIQUID,Si)"
 		  }
@@ -305,11 +305,12 @@ main(int argc, char *argv)
   /* ----------------------------------------------------------*/
   /* ----------------------------------------------------------*/
 
-  free(components);
-  free(phname);
-  free(sname);
-  free(iwsg);
-  free(iwse);
-  free(fv);
-  free(comp);
+ fail:
+  if (components) free(components);
+  if (phname) free(phname);
+  if (sname) free(sname);
+  if (iwsg) free(iwsg);
+  if (iwse) free(iwse);
+  if (fv) free(fv);
+  if (comp) free(comp);
 }

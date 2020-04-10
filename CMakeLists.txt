@@ -92,6 +92,14 @@ endif()
 
 include(CTest)
 
+find_program(CPPCHECK cppcheck)
+if(CPPCHECK)
+  add_test(
+    NAME static-code-analysis
+    COMMAND ${CPPCHECK} . --language=c -q --force --error-exitcode=2 --inline-suppr
+    )
+endif()
+
 
 
 ####################################################################

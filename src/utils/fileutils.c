@@ -109,7 +109,10 @@ char *fu_vjoin_sep(int sep, const char *a, va_list ap)
     nargs++;
   }
 
-  if (!(path = malloc(len))) return err(1, "allocation failure"), NULL;
+  if (!(path = malloc(len))) {
+    va_end(aq);
+    return err(1, "allocation failure"), NULL;
+  }
 
   if (arg0 == 0) {
     n = strlen(a);

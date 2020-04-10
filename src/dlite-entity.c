@@ -1027,10 +1027,14 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, int *dims)
     if (newmembs == oldmembs) {
       continue;
     } else if (newmembs > 0) {
+      void *q;
       if (newmembs < oldmembs)
         for (i=newmembs; i < oldmembs; i++)
           dlite_type_clear((char *)(*ptr) + i*p->size, p->type, p->size);
-      *ptr = realloc(*ptr, newsize);
+      if (!(*ptr = realloc((q = *ptr), newsize))) {
+        if (q) free(q);
+        return err(1, "error reallocating '%s' to size %d", p->name, newsize);
+      }
       if (newmembs > oldmembs)
         memset((char *)(*ptr) + oldsize, 0, newsize - oldsize);
     } else if (*ptr) {

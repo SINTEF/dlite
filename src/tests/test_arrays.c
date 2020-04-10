@@ -4,6 +4,7 @@
 
 #include "minunit/minunit.h"
 #include "dlite.h"
+#include "dlite-macros.h"
 #include "dlite-arrays.h"
 
 int data[12];
@@ -14,8 +15,8 @@ DLiteArray *arr;
 MU_TEST(test_array_create)
 {
   size_t i;
-  int ndims=2, dims[]={3,4};
-  for (i=0; i<sizeof(data); i++) data[i] = i;
+  int ndims=2, dims[]={3, 4};
+  for (i=0; i<countof(data); i++) data[i] = i;
   mu_check((arr = dlite_array_create(data, dliteInt, sizeof(int),
 				     ndims, dims)));
 }
