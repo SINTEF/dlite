@@ -83,6 +83,16 @@ Short vocabulary
 Download and build
 ==================
 
+Quick start with VS Code and Remote Container
+---------------------------------------------
+
+1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
+2. Install the extension __Remote Development__.
+3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
+4. Open the _dlite_ folder with VS Code.
+5. When presented with a notification, select __Reopen in container__. This will build the container and restart VS Code in it. This may take some time the first time as the Docker image must be built.
+6. In the container terminal, perform the first build and tests with `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make && make test`.
+
 Docker container
 ----------------
 A docker containiner can be found on

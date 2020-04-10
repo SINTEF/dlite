@@ -8,9 +8,7 @@
 #     docker run -i -t dlite
 #
 
-
-#from continuumio/miniconda3
-FROM ubuntu:18.04
+FROM ubuntu:18.04 AS dependencies
 
 RUN apt-get update
 
@@ -47,12 +45,16 @@ RUN apt-get install -y \
     python3-numpy \
     python3-psycopg2 \
     python3-yaml \
-    swig3.0
+    swig3.0 \
+    cppcheck
 
 # Install IPython
 #RUN apt-get install -y ipython3
 RUN apt-get install -y python3-pip
 RUN pip3 install ipython
+
+# The following section performs the build
+FROM dependencies AS build
 
 # Create and become a normal user
 RUN useradd -ms /bin/bash user
@@ -67,6 +69,8 @@ RUN git clone https://github.com/SINTEF/dlite.git
 WORKDIR /home/user/sw/dlite
 RUN git submodule update --init
 RUN mkdir build
+
+RUN cppcheck . --language=c -q --force --error-exitcode=2
 
 WORKDIR /home/user/sw/dlite/build
 RUN cmake ..
