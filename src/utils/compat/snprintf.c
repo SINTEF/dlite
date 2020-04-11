@@ -1080,7 +1080,7 @@ fmtflt(char *str, size_t *len, size_t size, LDOUBLE fvalue, int width,
 	int ipos = 0;
 	int separators = (flags & PRINT_F_QUOTE);
 	int estyle = (flags & PRINT_F_TYPE_E);
-#if HAVE_LOCALECONV && HAVE_LCONV_DECIMAL_POINT
+#if defined(HAVE_LOCALECONV) && defined(HAVE_LCONV_DECIMAL_POINT)
 	struct lconv *lc = localeconv();
 #endif	/* HAVE_LOCALECONV && HAVE_LCONV_DECIMAL_POINT */
 
@@ -1325,7 +1325,7 @@ again:
 			printsep(str, len, size);
 	}
 	if (emitpoint) {	/* Decimal point. */
-#if HAVE_LOCALECONV && HAVE_LCONV_DECIMAL_POINT
+#if defined(HAVE_LOCALECONV) && defined(HAVE_LCONV_DECIMAL_POINT)
 		if (lc->decimal_point != NULL && *lc->decimal_point != '\0')
 			OUTCHAR(str, *len, size, *lc->decimal_point);
 		else	/* We'll always print some decimal point character. */
@@ -1353,7 +1353,7 @@ again:
 static void
 printsep(char *str, size_t *len, size_t size)
 {
-#if HAVE_LOCALECONV && HAVE_LCONV_THOUSANDS_SEP
+#if defined(HAVE_LOCALECONV) && defined(HAVE_LCONV_THOUSANDS_SEP)
 	struct lconv *lc = localeconv();
 	int i;
 
@@ -1369,7 +1369,7 @@ static int
 getnumsep(int digits)
 {
 	int separators = (digits - ((digits % 3 == 0) ? 1 : 0)) / 3;
-#if HAVE_LOCALECONV && HAVE_LCONV_THOUSANDS_SEP
+#if defined(HAVE_LOCALECONV) && defined(HAVE_LCONV_THOUSANDS_SEP)
 	int strln;
 	struct lconv *lc = localeconv();
 
