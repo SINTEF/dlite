@@ -295,8 +295,10 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
   v ## fun(msg, ap);                                    \
   va_end(ap)
 void dlite_fatal(int eval, const char *msg, ...) {
+  // cppcheck-suppress va_end_missing
   BODY(fatal, eval, msg); }
 void dlite_fatalx(int eval, const char *msg, ...) {
+  // cppcheck-suppress va_end_missing
   BODY(fatalx, eval, msg); }
 int dlite_err(int eval, const char *msg, ...) {
   BODY(err, eval, msg); return eval; }

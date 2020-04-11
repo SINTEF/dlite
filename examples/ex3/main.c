@@ -7,13 +7,13 @@
 #define _STRINGIFY(s) # s
 
 char* fvname(char* phase){
-   char* head="fv(";
-   char* tail=")";
-   char* string=(char*) malloc(1+strlen(head)+strlen(phase)+strlen(tail));
+   char* head = "fv(";
+   char* tail = ")";
+   char* string = (char*)malloc(1+strlen(head)+strlen(phase)+strlen(tail));
 
-   strcpy(string,head);
-   strcat(string,phase);
-   strcat(string,tail);
+   strcpy(string, head);
+   strcat(string, phase);
+   strcat(string, tail);
 
    //printf("%s\n",string);
 
@@ -21,16 +21,16 @@ char* fvname(char* phase){
 }
 
 char* xname(char* phase,char* element){
-   char* head="X(";
-   char* middle=",";
-   char* tail=")";
-   char* string=(char*) malloc(1+strlen(head)+strlen(phase)+strlen(middle)+strlen(element)+strlen(tail));
+   char* head = "X(";
+   char* middle = ",";
+   char* tail = ")";
+   char* string = (char*)malloc(1+strlen(head)+strlen(phase)+strlen(middle)+strlen(element)+strlen(tail));
 
-   strcpy(string,head);
-   strcat(string,phase);
-   strcat(string,middle);
-   strcat(string,element);
-   strcat(string,tail);
+   strcpy(string, head);
+   strcat(string, phase);
+   strcat(string, middle);
+   strcat(string, element);
+   strcat(string, tail);
 
    //printf("%s\n",string);
 
@@ -42,7 +42,7 @@ int searchstring(char** arraystr,char* key, int size){
   int i, iloc=-1;
 
    for (i=0; i<size; i++) {
-     if(strcmp(arraystr[i],key)==0){
+     if(strcmp(arraystr[i], key) == 0){
        iloc=i;
        break;
      }
@@ -81,7 +81,7 @@ int main()
   DLiteMeta *table;
   PhilibTable *p;
 
-  char* str1;
+  char* str1, *xstr;
   int iloc;
   double list_fv[nphases];
   double list_comp[nphases][nelements];
@@ -125,10 +125,11 @@ int main()
   p->calcvalues[1*ncalc+1]=0.38;	// "X(MG2SI,Si)" at 800 K
 
 
-  str1=fvname(p->phases[1]);
-  xname(p->phases[1],p->elements[2]);
+  xstr=xname(p->phases[1], p->elements[2]);
 
-  iloc=searchstring(p->calcnames,str1,ncalc);
+  str1=fvname(p->phases[1]);
+  iloc=searchstring(p->calcnames, str1, ncalc);
+  free(str1);
   //iloc=searchstring(p->phases,p->phases[1],nphases);
   printf("position: %d\n",iloc);
 
@@ -148,9 +149,10 @@ int main()
    list of values of all the fv for all phases (except first phase that is the dependent one) ordered*/
   sum=0.0;
   for (i=1; i<nphases; i++){
-	str1=fvname(p->phases[i]);
+	char *s=fvname(p->phases[i]);
   	// find the corresponding calcnames if not raise error
-	iloc=searchstring(p->calcnames,str1,ncalc);
+	iloc=searchstring(p->calcnames,s,ncalc);
+        free(s);
 	if(iloc!=-1){
            value=bounding(p->calcvalues[iloc*ncalc+0],0.0,1.0);	// add a filter to ensure realistic value
         }
@@ -163,13 +165,15 @@ int main()
   }
 
   // compute fv for the first phase (dependent)
-  list_fv[0] =1. - sum;
+  list_fv[0] = 1. - sum;
   // check if the dependent value is in bounds
   if(checkInBounds(list_fv[0],0.0,1.0)!=0) printf("Error: volume fraction for phase 0 out of bounds\n");
 
   printf("------ list_fv ------\n");
   for(i=0; i<nphases; i++){
-	printf("%s =%f\n",fvname(p->phases[i]),list_fv[i]);
+    char *s = fvname(p->phases[i]);
+    printf("%s =%f\n", s, list_fv[i]);
+    free(s);
   }
 
 
@@ -178,9 +182,10 @@ int main()
   for(i=1; i<nphases; i++){
 	sum=0.0;
 	for(ielt=0; ielt<nelements; ielt++){
-	   str1=xname(p->phases[i],p->elements[ielt]);
+	   char *s=xname(p->phases[i],p->elements[ielt]);
 	// find the corresponding calcnames else iloc=-1
-	   iloc=searchstring(p->calcnames,str1,ncalc);
+	   iloc=searchstring(p->calcnames,s,ncalc);
+           free(s);
 	   if(iloc>0){
 		value=bounding(p->calcvalues[iloc*ncalc+0],0.0,1.0);
 		list_comp[i][ielt]=value;
@@ -201,7 +206,9 @@ int main()
   printf("------ list_comp ------\n");
   for(i=1; i<nphases; i++){
     for(ielt=0; ielt<nelements; ielt++){
-	printf("%s =%f\n",xname(p->phases[i],p->elements[ielt]),list_comp[i][ielt]);
+      char *s = xname(p->phases[i],p->elements[ielt]);
+      printf("%s =%f\n", s, list_comp[i][ielt]);
+      free(s);
     }
   }
    // final check that all these values are not outside bounds
@@ -209,6 +216,7 @@ int main()
 
 
   /* Free instance and its entity */
+  free(xstr);
   dlite_instance_decref((DLiteInstance *)p);
   dlite_meta_decref(table);
 

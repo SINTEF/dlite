@@ -619,8 +619,10 @@ int tgen_subs_setn(TGenSubs *subs, const char *var, int len,
     free(name);
   } else {
     if (map_set((map_int_t *)&subs->map, name, subs->nsubs)) {
+      char msg[80];
+      snprintf(msg, sizeof(msg), "cannot add substitution for '%s'", name);
       free(name);
-      return err(TGenMapError, "cannot add substitution for '%s'", name);
+      return err(TGenMapError, "%s", msg);
     }
     if (subs->nsubs >= subs->size) {
       subs->size += 128;

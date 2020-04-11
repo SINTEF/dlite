@@ -109,7 +109,10 @@ char *fu_vjoin_sep(int sep, const char *a, va_list ap)
     nargs++;
   }
 
-  if (!(path = malloc(len))) return err(1, "allocation failure"), NULL;
+  if (!(path = malloc(len))) {
+    va_end(aq);
+    return err(1, "allocation failure"), NULL;
+  }
 
   if (arg0 == 0) {
     n = strlen(a);
@@ -255,9 +258,9 @@ char *fu_realpath(const char *path, char *resolved_path)
 #pragma message ( "Neither realpath() nor GetFullPathNameW() exists" )
   if (!resolved_path) return strdup(path);
 # ifdef WINDOWS
-  return strncpy(resolved_path, MAX_PATH, path);
+  return strncpy(resolved_path, path, MAX_PATH);
 # else
-  return strncpy(resolved_path, PATH_MAX, path);
+  return strncpy(resolved_path, path, PATH_MAX);
 # endif
 #endif
 }

@@ -119,6 +119,7 @@ Build dependencies
   - [SWIG v3][10], optional (needed by building Python bindings)
   - [Doxygen][11], optional, used for documentation generation
   - [valgrind][12], optional, used for memory checking (Linux only)
+  - [cppcheck][13], optional, used for static code analysis
 
 
 Download
