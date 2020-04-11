@@ -38,6 +38,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
+  enable_c_compiler_flag_if_supported("-Werror")
 endif()
 
 # Enable C99
