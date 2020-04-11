@@ -23,7 +23,6 @@ int main()
   Chemistry *p;
 
   // new variables
-  char *id ="mydata";
   Chemistry *pload;
 
   /* Load Chemistry entity */

@@ -258,9 +258,9 @@ char *fu_realpath(const char *path, char *resolved_path)
 #pragma message ( "Neither realpath() nor GetFullPathNameW() exists" )
   if (!resolved_path) return strdup(path);
 # ifdef WINDOWS
-  return strncpy(resolved_path, MAX_PATH, path);
+  return strncpy(resolved_path, path, MAX_PATH);
 # else
-  return strncpy(resolved_path, PATH_MAX, path);
+  return strncpy(resolved_path, path, PATH_MAX);
 # endif
 #endif
 }
