@@ -68,6 +68,10 @@ def test(verbosity=1, stream=sys.stdout):
 
 if __name__ == "__main__":
     #unittest.main()
-    results = test()
+    for k in sorted(os.environ.keys()):
+        for s in 'dlite', 'path', 'python':
+            if s in k.lower():
+                print("%35s : %-s" % (k, os.environ[k]))
+    results = test(verbosity=2)
     if results.errors or results.failures:
         sys.exit(1)

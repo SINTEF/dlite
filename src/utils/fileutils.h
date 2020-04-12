@@ -243,6 +243,36 @@ const char *fu_nextmatch(FUIter *iter);
 int fu_endmatch(FUIter *iter);
 
 
+/**
+  Returns a new iterator over all files and directories in `paths`.
+
+  An optional `pattern` can be provided to filter out file and
+  directory names that doesn't matches it.  This pattern will only
+  match against the base file/directory name, with the directory part
+  stripped off.
+
+  Returns NULL on error.
+
+  This is very similar to fu_startmatch(), but allows paths to be a
+  mixture of directories and files with glob patterns.  Is intended to
+  be used together with fu_pathsiter_next() and fu_pathsiter_deinit().
+ */
+FUIter *fu_pathsiter_init(FUPaths *paths, const char *pattern);
+
+/**
+  Returns the next file or directory in the iterator `iter` created
+  with fu_paths_iter_init().  NULL is returned on error or if there
+  are no more file names to iterate over.
+ */
+const char *fu_pathsiter_next(FUIter *iter);
+
+/**
+  Deallocates iterator created with fu_pathsiter_init().
+  Returns non-zero on error.
+ */
+int fu_pathsiter_deinit(FUIter *iter);
+
+
 
 /**
   Returns a new iterator over files matching `pattern`.

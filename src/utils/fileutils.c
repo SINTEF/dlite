@@ -12,6 +12,7 @@
 #include "compat.h"
 #include "err.h"
 #include "globmatch.h"
+#include "fileinfo.h"
 #include "fileutils.h"
 
 
@@ -35,11 +36,13 @@ struct _FUIter {
   const char *pattern;   /* File name glob pattern to match against. */
   size_t i;              /* Index of current position in `paths`. */
   const FUPaths *paths;  /* Paths */
-  const char *filename;  /* Name of curren file (excluding directory path) */
+  const char *filename;  /* Name of current file (excluding directory path) */
+  char *dirname;         /* Allocated name of current directory */
   char *path;            /* Full path to current file */
   size_t pathsize;       /* Allocated size of `path` */
   FUDir *dir;            /* Currend directory corresponding to `p`. */
   int dirsep;            /* Directory separator */
+  struct _FUIter *globiter;  /* Sub-iterator over glob patterns */
 };
 
 
@@ -236,9 +239,7 @@ char *fu_friendly_dirsep(char *path)
  */
 char *fu_realpath(const char *path, char *resolved_path)
 {
-#if defined(HAVE_REALPATH)
-  return realpath(path, resolved_path);
-#elif defined(HAVE_GetFullPathNameW)
+#ifdef HAVE_GetFullPathNameW
   int n, size=MAX_PATH;
   if (!resolved_path) size=0;
   if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
@@ -255,13 +256,7 @@ char *fu_realpath(const char *path, char *resolved_path)
                "(limited to MAX_PATH=%d)", path, MAX_PATH);
   return resolved_path;
 #else
-#pragma message ( "Neither realpath() nor GetFullPathNameW() exists" )
-  if (!resolved_path) return strdup(path);
-# ifdef WINDOWS
-  return strncpy(resolved_path, path, MAX_PATH);
-# else
-  return strncpy(resolved_path, path, PATH_MAX);
-# endif
+  return realpath(path, resolved_path);
 #endif
 }
 
@@ -455,6 +450,7 @@ int fu_paths_remove(FUPaths *paths, int n)
   return 0;
 }
 
+/* ---------------------------------------------------------- */
 
 /*
   Returns a new iterator for finding files matching `pattern` in
@@ -502,7 +498,7 @@ const char *fu_nextmatch(FUIter *iter)
     if (!iter->dir) {
       if (iter->i >= p->n) return NULL;
       if (!path[0]) path = ".";
-      if (!(iter->dir = opendir(path))) {
+      if (!(iter->dir = fu_opendir(path))) {
         iter->i++;
         continue;
       }
@@ -545,6 +541,148 @@ int fu_endmatch(FUIter *iter)
   free(iter);
   return 0;
 }
+
+/* ---------------------------------------------------------- */
+
+/*
+  Returns a new iterator over all files and directories in `paths`.
+
+  An optional `pattern` can be provided to filter out file and
+  directory names that doesn't matches it.  This pattern will only
+  match against the base file/directory name, with the directory part
+  stripped off.
+
+  Returns NULL on error.
+
+  This is very similar to fu_startmatch(), but allows paths to be a
+  mixture of directories and files with glob patterns.  Is intended to
+  be used together with fu_pathsiter_next() and fu_pathsiter_deinit().
+ */
+FUIter *fu_pathsiter_init(FUPaths *paths, const char *pattern)
+{
+  FUIter *iter;
+  if (!(iter = calloc(1, sizeof(FUIter))))
+    return err(1, "Allocation failure"), NULL;
+  iter->paths = paths;
+  iter->pattern = pattern;
+  iter->dirsep = DIRSEP[0];
+  return iter;
+}
+
+/*
+  Help function for fu_paths_iter_nextfile(), which does not take `pattern`
+  into account.
+ */
+const char *_fu_pathsiter_next(FUIter *iter)
+{
+  const FUPaths *p = iter->paths;
+  if (iter->i >= p->n) return NULL;
+
+  while (iter->i < p->n) {
+    const char *path;
+
+    /* Check for ongoing iteration over a directory... */
+    if (iter->dir) {
+      if ((iter->filename = (char *)fu_nextfile(iter->dir))) {
+        size_t n = strlen(iter->dirname);
+        size_t m = strlen(iter->filename);
+        size_t len = n + m + 2;
+        if (!strcmp(iter->filename, ".") || !strcmp(iter->filename, ".."))
+          continue;
+        if (iter->pathsize < len) {
+          iter->pathsize = len;
+          if (!(iter->path = realloc((iter->path), iter->pathsize)))
+            return err(1, "allocation failure"), NULL;
+        }
+        memcpy(iter->path, iter->dirname, n);
+        iter->path[n] = iter->dirsep;
+        memcpy(iter->path + n + 1, iter->filename, m + 1);
+        iter->path[n+m+1] = '\0';
+        return iter->path;
+      } else {
+        fu_closedir(iter->dir);
+        free(iter->dirname);
+        iter->dir = NULL;
+        iter->dirname = NULL;
+        iter->filename = NULL;
+        if (++iter->i >= p->n) break;
+      }
+    }
+
+    /* Check for ongoing iteration over a glob path... */
+    if (iter->globiter) {
+      if ((path = (char *)fu_globnext(iter->globiter))) {
+        char *p;
+        size_t len = strlen(path) + 1;
+        if (iter->pathsize < len) {
+          iter->pathsize = len;
+          if (!(iter->path = realloc((iter->path), iter->pathsize)))
+            return err(1, "allocation failure"), NULL;
+        }
+        memcpy(iter->path, path, len);
+        iter->filename = (p = strrchr(iter->path, iter->dirsep)) ?
+          p + 1 : iter->path;
+        return iter->path;
+      } else {
+        fu_globend(iter->globiter);
+        iter->globiter = NULL;
+        if (++iter->i >= p->n) break;
+      }
+    }
+
+    assert(!iter->dir && !iter->globiter);
+    path = p->paths[iter->i];
+
+    /* Check if `path` is a directory...
+       Note that we are calling opendir() directly, to avoid errors if
+       `path` is not a directory. */
+    if ((iter->dir = opendir(path))) {
+      iter->dirname = strdup(path);
+      continue;
+    }
+
+    /* Check if `path` is a glob pattern... */
+    if ((iter->globiter = fu_glob(path))) continue;
+    assert(0);  /* this should never be reached */
+  }
+  return NULL;
+}
+
+/*
+  Returns the next file or directory in the iterator `iter` created
+  with fu_paths_iter_init().  NULL is returned on error or if there
+  are no more file names to iterate over.
+ */
+const char *fu_pathsiter_next(FUIter *iter)
+{
+  const char *path;
+
+  if (!(path = _fu_pathsiter_next(iter))) return NULL;
+  if (!iter->pattern) return path;
+
+  while (globmatch(iter->pattern, iter->filename))
+    if (!(path = _fu_pathsiter_next(iter))) return NULL;
+
+  return path;
+}
+
+/*
+  Deallocates iterator created with fu_paths_iter_init().
+  Returns non-zero on error.
+ */
+int fu_pathsiter_deinit(FUIter *iter)
+{
+  int status=0;
+  if (iter->dirname) free(iter->dirname);
+  if (iter->path) free(iter->path);
+  if (iter->dir) status |= fu_closedir(iter->dir);
+  if (iter->globiter) status |= fu_globend(iter->globiter);
+  free(iter);
+  return status;
+}
+
+
+/* ---------------------------------------------------------- */
 
 
 /*
@@ -589,11 +727,11 @@ int fu_globend(FUIter *iter)
 {
   FUPaths *paths = (FUPaths *)iter->paths;
   char *pattern = (char *)iter->pattern;
-  int stat = fu_endmatch(iter);
+  int status = fu_endmatch(iter);
   fu_paths_deinit(paths);
   free(paths);
   free(pattern);
-  return stat;
+  return status;
 }
 
 /*

@@ -15,6 +15,9 @@ typedef struct _DLiteStorage DLiteStorage;
 /** Opaque type for an instance. */
 typedef struct _DLiteInstance DLiteInstance;
 
+/** Iterator over dlite storage paths. */
+typedef struct _DLiteStoragePathIter DLiteStoragePathIter;
+
 /** Flags for how to handle instance IDs. */
 typedef enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
@@ -177,6 +180,35 @@ int dlite_storage_paths_remove(int n);
   and dlite_storage_paths_append().
  */
 const char **dlite_storage_paths_get();
+
+
+/**
+  Returns an iterator over all files in storage paths (with glob
+  patterns in paths expanded).
+
+  Returns NULL on error.
+
+  Should be used together with dlite_storage_path_iter_next() and
+  dlite_storage_path_iter_stop().
+ */
+DLiteStoragePathIter *dlite_storage_paths_iter_start();
+
+/**
+  Returns name of the next file in the iterator `iter` created with
+  dlite_storage_paths_iter_start() or NULL if there are no more matches.
+
+  @note
+  The returned string is owned by the iterator. It will be overwritten
+  by the next call to fu_nextmatch() and should not be changed.  Use
+  strdup() or strncpy() if a copy is needed.
+ */
+const char *dlite_storage_paths_iter_next(DLiteStoragePathIter *iter);
+
+/**
+  Stops and deallocates iterator created with dlite_storage_paths_iter_start().
+ */
+int dlite_storage_paths_iter_stop(DLiteStoragePathIter *iter);
+
 
 /** @} */
 
