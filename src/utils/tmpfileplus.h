@@ -14,6 +14,9 @@
   See https://www.di-mgt.com.au/c_function_to_create_temp_file.html for
   details.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #if defined(_MSC_VER) && _MSC_VER > 1000
 #pragma once

@@ -163,9 +163,14 @@
  * <http://www.jhweiss.de/software/snprintf.html>.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif	/* HAVE_CONFIG_H */
+# ifdef HAVE_CONFIG_H
+#  include <config.h>
+# endif	/* HAVE_CONFIG_H */
+
+#ifdef HAVE_CONFIG_SNPRINTF_H
+#include <config_snprintf.h>
+#endif /* HAVE_CONFIG_SNPRINTF_H */
+
 
 #if TEST_SNPRINTF
 #include <math.h>	/* For pow(3), NAN, and INFINITY. */

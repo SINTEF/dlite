@@ -4,6 +4,7 @@
 set(tests
   test_err
   test_tmpfileplus
+  test_fileinfo
   test_fileutils
   test_globmatch
   test_dsl

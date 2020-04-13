@@ -44,6 +44,7 @@ endif()
 # Enable C99
 set(CMAKE_C_STANDARD 99)
 
+
 # Uncomment the lines below to compile with AddressSanitizer
 #set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
@@ -97,7 +98,8 @@ find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
   add_test(
     NAME static-code-analysis
-    COMMAND ${CPPCHECK} . --language=c -q --force --error-exitcode=2 --inline-suppr
+    COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
+      --language=c -q --force --error-exitcode=2 --inline-suppr -i build
     )
 endif()
 

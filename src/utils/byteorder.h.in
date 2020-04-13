@@ -65,10 +65,14 @@
 # include "integers.h"
 #endif
 
-
 #ifdef HAVE_ENDIAN_H
 # include <endian.h>
-#else
+#endif
+
+#ifdef HAVE_BYTESWAP_H
+# include <byteswap.h>
+#endif
+
 
 /* Byte order of target machine */
 #ifndef LITTLE_ENDIAN
@@ -86,13 +90,6 @@
 #  define BYTE_ORDER LITTLE_ENDIAN
 # endif
 #endif
-
-#endif /* HAVE_STDINT_H */
-
-
-#ifdef HAVE_BYTESWAP_H
-# include <byteswap.h>
-#else
 
 #ifndef HAVE_BSWAP_16
 # ifdef HAVE__BYTESWAP_USHORT
@@ -126,12 +123,8 @@
 # endif
 #endif
 
-#endif /* HAVE_BYTESWAP_H */
-
 
 /* Byte order conversion */
-#ifndef HAVE_ENDIAN_H
-
 #ifndef HAVE_HTOBE16
 # if BYTE_ORDER == LITTLE_ENDIAN
 #  define htobe16(x) bswap_16(x)
@@ -179,8 +172,6 @@
 #  error Byte order not supported
 # endif
 #endif
-
-#endif /* HAVE_ENDIAN_H */
 
 /** @endcond */
 
