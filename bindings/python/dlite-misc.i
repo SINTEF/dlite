@@ -24,6 +24,11 @@
 
 %}
 
+%feature("docstring", "\
+Returns DLite version.
+") dlite_get_version;
+const char *dlite_get_version(void);
+
 
 %feature("docstring", "\
 Returns an UUID, depending on:
