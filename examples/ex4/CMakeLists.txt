@@ -20,7 +20,7 @@ endif()
 add_executable(dlite-example-4 main.f90 dlite.f90)
 target_link_libraries(dlite-example-4
   ${DLITE_LIBRARIES}
-  -ldlite -ldlite-utils -luuid
+  -ldlite -ldlite-utils
   )
 target_include_directories(dlite-example-4 PUBLIC
   ${DLITE_INCLUDE_DIRS}

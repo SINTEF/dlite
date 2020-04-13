@@ -4,8 +4,9 @@ project(dlite-examples)
 #
 # Macro for testing examples
 # --------------------------
-# It adds a set for tests for each example that essentially runs the
-# following set of commands (here shown using unix makefiles):
+# It adds some tests for each example that essentially runs the
+# standard configure/build/test sequence of commands (here shown using
+# unix makefiles):
 #
 #      mkdir build                            (ex-mkdir)
 #      cd build
@@ -17,8 +18,8 @@ project(dlite-examples)
 macro(test_example example)
   add_test(
     NAME ${example}-mkdir
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${example}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND}
+      -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${example}
     )
   add_test(
     NAME ${example}-config
@@ -61,6 +62,16 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
   test_example(ex3)
   test_example(ex4)
   #test_example(ex5d)
+endif()
+
+# If we have no Fortran compiler, disable examples that depends on it
+if(NOT CMAKE_Fortran_COMPILER)
+  foreach(example ex4)
+    foreach(test mkdir config build test)
+      set(name "${example}-${test}")
+      set_property(TEST ${name} APPEND PROPERTY DISABLED True)
+    endforeach()
+  endforeach()
 endif()
 
 install(
