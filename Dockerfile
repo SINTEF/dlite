@@ -70,7 +70,8 @@ WORKDIR /home/user/sw/dlite
 RUN git submodule update --init
 RUN mkdir build
 
-RUN cppcheck . --language=c -q --force --error-exitcode=2 --inline-suppr
+RUN cppcheck . \
+    --language=c -q --force --error-exitcode=2 --inline-suppr -i build
 
 WORKDIR /home/user/sw/dlite/build
 RUN cmake ..
