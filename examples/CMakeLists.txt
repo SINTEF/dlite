@@ -64,16 +64,6 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
   #test_example(ex5d)
 endif()
 
-# If we have no Fortran compiler, disable examples that depends on it
-if(NOT CMAKE_Fortran_COMPILER)
-  foreach(example ex4)
-    foreach(test mkdir config build test)
-      set(name "${example}-${test}")
-      set_property(TEST ${name} APPEND PROPERTY DISABLED True)
-    endforeach()
-  endforeach()
-endif()
-
 install(
   DIRECTORY ex1 ex2 ex3 ex4 ex5d
   DESTINATION share/dlite/examples
