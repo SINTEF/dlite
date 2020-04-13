@@ -17,6 +17,12 @@
  */
 
 /**
+  Returns a pointer to the version string of DLite.
+*/
+const char *dlite_get_version(void);
+
+
+/**
   Writes an UUID to \a buff based on \a id.
 
   Whether and what kind of UUID that is generated depends on \a id:

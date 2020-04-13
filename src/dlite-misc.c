@@ -18,6 +18,15 @@
  ********************************************************************/
 
 /*
+  Returns a pointer to the version string of DLite.
+*/
+const char *dlite_get_version(void)
+{
+  return dlite_VERSION;
+}
+
+
+/*
   Writes an UUID to `buff` based on `id`.
 
   Whether and what kind of UUID that is generated depends on `id`:
