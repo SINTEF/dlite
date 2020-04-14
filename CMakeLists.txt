@@ -79,14 +79,18 @@ if(MEMORYCHECK_COMMAND)
     CACHE FILEPATH "File that contains suppressions for the memory checker"
     )
   set(MEMORYCHECK_COMMAND_OPTIONS
-    "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=50")
+    "-q --tool=memcheck --leak-check=yes --show-reachable=no --num-callers=50")
   #set(MEMORYCHECK_COMMAND_OPTIONS
   #  "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite
   #   --gen-suppressions=all")
 
   add_custom_target(memcheck
-    COMMAND ${CMAKE_CTEST_COMMAND}
-              --force-new-ctest-process --output-on-failure -T memcheck
+    COMMAND ${CMAKE_COMMAND}
+        -E env PYTHONMALLOC=malloc ${CMAKE_CTEST_COMMAND}
+            --exclude-regex=static-code-analysis
+            --force-new-ctest-process
+            --output-on-failure
+            --test-action memcheck
     COMMENT "Runs memory check with valgrind"
     )
 endif()

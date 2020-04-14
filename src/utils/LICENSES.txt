@@ -1,0 +1,139 @@
+Licenses for dlite/utils
+========================
+The code in general is covered by the MIT license, but some files
+have other licenses as listed below.
+
+
+MIT license
+-----------
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+License for uuid.c/uuid.h
+-------------------------
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. &
+Digital Equipment Corporation, Maynard, Mass.
+Copyright (c) 1998 Microsoft.
+To anyone who acknowledges that this file is provided "AS IS"
+without any express or implied warranty: permission to use, copy,
+modify, and distribute this file for any purpose is hereby
+granted without fee, provided that the above copyright notices and
+this notice appears in all source code copies, and that none of
+the names of Open Software Foundation, Inc., Hewlett-Packard
+Company, Microsoft, or Digital Equipment Corporation be used in
+advertising or publicity pertaining to distribution of the software
+without specific, written prior permission. Neither Open Software
+Foundation, Inc., Hewlett-Packard Company, Microsoft, nor Digital
+Equipment Corporation makes any representations about the
+suitability of this software for any purpose.
+
+
+License for globmatch.c/globmatch.h
+-----------------------------------
+Copyright 1994 Christopher Seiwald.  All rights reserved.
+
+License is hereby granted to use this software and distribute it
+freely, as long as this copyright notice is retained and modifications
+are clearly marked.
+
+ALL WARRANTIES ARE HEREBY DISCLAIMED.
+
+
+License for md5.c/md5.h
+-----------------------
+This is an OpenSSL-compatible implementation of the RSA Data Security, Inc.
+MD5 Message-Digest Algorithm (RFC 1321).
+
+Homepage:
+http://openwall.info/wiki/people/solar/software/public-domain-source-code/md5
+
+Author:
+Alexander Peslyak, better known as Solar Designer <solar at openwall.com>
+
+This software was written by Alexander Peslyak in 2001.  No copyright is
+claimed, and the software is hereby placed in the public domain.
+In case this attempt to disclaim copyright and place the software in the
+public domain is deemed null and void, then the software is
+Copyright (c) 2001 Alexander Peslyak and it is hereby released to the
+general public under the following terms:
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted.
+
+There's ABSOLUTELY NO WARRANTY, express or implied.
+
+
+License for tmpfileplus.c/tmpfileplus.h
+---------------------------------------
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+Copyright (c) 2012-16 David Ireland, DI Management Services Pty Ltd
+<http://www.di-mgt.com.au/contact/>.
+
+
+License for compat/realpath.c
+-----------------------------
+Copyright (c) 2003 Constantin S. Svintsoff <kostik@iclub.nsu.ru>
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The names of the authors may not be used to endorse or promote
+   products derived from this software without specific prior written
+   permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+
+Lisense for compat/snprintf.c
+-----------------------------
+Copyright (c) 1995 Patrick Powell.
+
+This code is based on code written by Patrick Powell <papowell@astart.com>.
+It may be used for any purpose as long as this notice remains intact on all
+source code distributions.
+
+Copyright (c) 2008 Holger Weiss.
+
+This version of the code is maintained by Holger Weiss <holger@jhweiss.de>.
+My changes to the code may freely be used, modified and/or redistributed for
+any purpose.  It would be nice if additions and fixes to this file (including
+trivial code cleanups) would be sent back in order to let me include them in
+the version available at <http://www.jhweiss.de/software/snprintf.html>.
+However, this is not a requirement for using or redistributing (possibly
+modified) versions of this file, nor is leaving this notice intact mandatory.

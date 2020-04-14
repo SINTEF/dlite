@@ -1,4 +1,9 @@
-/* fileinfo.h -- cross-platform information about files */
+/* fileinfo.h -- cross-platform information about files
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _FILEINFO_H
 #define _FILEINFO_H
 
@@ -10,11 +15,5 @@ int fileinfo_isdir(const char *path);
 
 /* Returns non-zero if `path` is a normal file. */
 int fileinfo_isnormal(const char *path);
-
-///* Returns non-zero if `path` is readable. */
-//int fileinfo_readable(const char *path);
-//
-///* Returns non-zero if `path` is readable. */
-//int fileinfo_writable(const char *path);
 
 #endif  /* _FILEINFO_H */

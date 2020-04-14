@@ -1,4 +1,9 @@
-/* err.h -- simple error reporting library */
+/* err.h -- simple error reporting library
+ *
+ * Copyright (C) 2010-2020 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef ERR_H
 #define ERR_H
 

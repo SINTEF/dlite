@@ -1,4 +1,8 @@
-/* error.c -- simple error reporting
+/* err.c -- simple error reporting library
+ *
+ * Copyright (C) 2010-2020 SINTEF
+ *
+ * Distributed under terms of the MIT license.
  */
 #include <assert.h>
 #include <stdio.h>
