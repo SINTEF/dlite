@@ -71,10 +71,6 @@ WORKDIR /home/user/sw/dlite
 RUN git submodule update --init
 RUN mkdir build
 
-RUN git fetch origin
-#RUN git checkout fixed-several-additional-bugs
-RUN git checkout debug
-
 RUN cppcheck . \
     --language=c -q --force --error-exitcode=2 --inline-suppr -i build
 
