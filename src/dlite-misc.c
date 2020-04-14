@@ -332,19 +332,6 @@ int dlite_warnx(const char *msg, ...) {
 
    FIXME - double-check that this is the correct fix on Windows too.
 */
-//void dlite_vfatal(int eval, const char *msg, va_list ap) {
-//  vfatal(eval, msg, ap); }
-//void dlite_vfatalx(int eval, const char *msg, va_list ap) {
-//  vfatalx(eval, msg, ap); }
-//int dlite_verr(int eval, const char *msg, va_list ap) {
-//  return verr(eval, msg, ap); }
-//int dlite_verrx(int eval, const char *msg, va_list ap) {
-//  return verrx(eval, msg, ap); }
-//int dlite_vwarn(const char *msg, va_list ap) {
-//  return vwarn(msg, ap); }
-//int dlite_vwarnx(const char *msg, va_list ap) {
-//  return vwarnx(msg, ap); }
-
 void dlite_vfatal(int eval, const char *msg, va_list ap) {
   exit(_err_vformat("Fatal", eval, errno, NULL, NULL, msg, ap)); }
 void dlite_vfatalx(int eval, const char *msg, va_list ap) {
