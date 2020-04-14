@@ -1,3 +1,10 @@
+/* compat.h -- auxiliary cross-platform compatibility functions
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
+
 /**
   @file
   @brief auxiliary compatibility functions

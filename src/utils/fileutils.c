@@ -1,5 +1,9 @@
-/* fileutils.c -- cross-platform file utility functions */
-
+/* fileutils.c -- cross-platform file utility functions
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

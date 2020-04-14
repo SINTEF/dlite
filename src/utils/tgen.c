@@ -1,5 +1,9 @@
-/* tgen.h -- simple templated text generator */
-
+/* tgen.c -- simple templated text generator
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

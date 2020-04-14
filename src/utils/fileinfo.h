@@ -1,7 +1,6 @@
 /* fileinfo.h -- cross-platform information about files
  *
- * Copyright (C) 2017 SINTEF Materials and Chemistry
- * By Jesper Friis <jesper.friis@sintef.no>
+ * Copyright (C) 2017 SINTEF
  *
  * Distributed under terms of the MIT license.
  */

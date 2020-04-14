@@ -1,4 +1,9 @@
-/* fileutils.h -- cross-platform file utility functions */
+/* fileutils.h -- cross-platform file utility functions
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _FILEUTILS_H
 #define _FILEUTILS_H
 

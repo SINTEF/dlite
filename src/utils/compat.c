@@ -1,5 +1,9 @@
-/* compat.c -- auxiliary compatibility functions */
-
+/* compat.c -- auxiliary cross-platform compatibility functions
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #include "config.h"
 
 #include <stdlib.h>
