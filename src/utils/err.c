@@ -31,8 +31,15 @@ static FILE *err_stream = err_default_stream;
  *   - err_abort_mode >= 2: abort
  *   - err_abort_mode == 1: exit (with error value)
  *   - err_abort_mode == 0: normal return
- *   - err_abort_mode < 0:  check ERR_ABORT environment variable (default)*/
+ *   - err_abort_mode < 0:  check ERR_ABORT environment variable (default) */
 static int err_abort_mode = -1;
+
+/* Indicate whether warnings should be turned into errors.
+ *   - err_warn_mode >= 2: turn warnings into errors
+ *   - err_warn_mode == 1: ignore
+ *   - err_warn_mode == 0: default
+ *   - err_warn_mode < 0:  check ERR_WARN environment variable (default) */
+static int err_warn_mode = -1;
 
 /* Indicates whether error messages should include debugging info.
  *   - err_debug_mode >= 2:  include file and line number and function
@@ -51,12 +58,25 @@ static int err_debug_mode = -1;
 static int err_override = -1;
 
 /* Error handler */
-//static void err_default_handler(const ErrRecord *record);
 static ErrHandler err_handler = err_default_handler;
 
-/* Tread-local variables */
+/* Error records
+ * Hold the latest error and message. These are thread-local to ensure
+ * that errors in different threads doesn't mess up with each other. */
+
+/* Root of the linked list of error records. */
 static _tls ErrRecord err_root_record;
+
+/* Pointer to the top level record. */
 static _tls ErrRecord *err_record = &err_root_record;
+
+/* Error names */
+static char *error_names[] = {
+  "Success",
+  "Warning",
+  "Error",
+  "Fatal"
+};
 
 
 /* Reports the error and returns `eval`.  Args:
@@ -68,10 +88,11 @@ static _tls ErrRecord *err_record = &err_root_record;
  *  msg     : error message
  *  ap      : printf()-like argument list for error message
  */
-int _err_vformat(const char *errname, int eval, int errnum, const char *file,
+int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 		 const char *func, const char *msg, va_list ap)
 {
   int n=0;
+  char *errname = error_names[errlevel];
   char *errmsg = err_record->msg;
   size_t errsize = sizeof(err_record->msg);
   FILE *stream = err_get_stream();
@@ -137,101 +158,107 @@ int _err_vformat(const char *errname, int eval, int errnum, const char *file,
       handler(err_record);
   }
 
+  /* check if warnings should be turned into errors */
+  if (err_get_warn_mode() && errlevel == errLWarn)
+    errlevel = errLErr;
+
   /* check err_abort_mode */
-  if (abort_mode == 1)
-    exit(eval);
-  else if (abort_mode >= 2)
-    abort();
+  if (errlevel >= errLErr) {
+    if (abort_mode == 1)
+      exit(eval);
+    else if (abort_mode >= 2)
+      abort();
+  }
 
   return eval;
 }
 
-int _err_format(const char *errname, int eval, int errnum, const char *file,
+int _err_format(ErrLevel errlevel, int eval, int errnum, const char *file,
                 const char *func, const char *msg, ...)
 {
   va_list ap;
   va_start(ap, msg);
-  _err_vformat(errname, eval, errnum, file, func, msg, ap);
+  _err_vformat(errlevel, eval, errnum, file, func, msg, ap);
   va_end(ap);
   return eval;
 }
 
 #ifndef HAVE___VA_ARGS__
 
-#define BODY(errname, eval, errnum)                             \
+#define BODY(errlevel, eval, errnum)                            \
   do {								\
     va_list ap;							\
     va_start(ap, msg);						\
-    _err_vformat(errname, eval, errnum, NULL, NULL, msg, ap);	\
+    _err_vformat(errlevel, eval, errnum, NULL, NULL, msg, ap);	\
     va_end(ap);							\
   } while (0)
 
 
 void fatal(int eval, const char *msg,...)
 {
-  BODY("Fatal", eval, errno);
+  BODY(errLFatal, eval, errno);
   exit(eval);
 }
 
 void fatalx(int eval, const char *msg, ...)
 {
-  BODY("Fatal", eval, 0);
+  BODY(errLFatal, eval, 0);
   exit(eval);
 }
 
 int err(int eval, const char *msg, ...)
 {
-  BODY("Error", eval, errno);
+  BODY(errLErr, eval, errno);
   return eval;
 }
 
 int errx(int eval, const char *msg, ...)
 {
-  BODY("Error", eval, 0);
+  BODY(errLErr, eval, 0);
   return eval;
 }
 
 int warn(const char *msg, ...)
 {
-  BODY("Warning", 0, errno);
+  BODY(errLWarn, 0, errno);
   return 0;
 }
 
 int warnx(const char *msg, ...)
 {
-  BODY("Warning", 0, 0);
+  BODY(errLWarn, 0, 0);
   return 0;
 }
 
 
 void vfatal(int eval, const char *msg, va_list ap)
 {
-  exit(_err_vformat("Fatal", eval, errno, NULL, NULL, msg, ap));
+  exit(_err_vformat(errLFatal, eval, errno, NULL, NULL, msg, ap));
 }
 
 void vfatalx(int eval, const char *msg, va_list ap)
 {
-  exit(_err_vformat("Fatal", eval, 0, NULL, NULL, msg, ap));
+  exit(_err_vformat(errLFatal, eval, 0, NULL, NULL, msg, ap));
 }
 
 int verr(int eval, const char *msg, va_list ap)
 {
-  return _err_vformat("Error", eval, errno, NULL, NULL, msg, ap);
+  return _err_vformat(errLErr, eval, errno, NULL, NULL, msg, ap);
 }
 
 int verrx(int eval, const char *msg, va_list ap)
 {
-  return _err_vformat("Error", eval, 0, NULL, NULL, msg, ap);
+  return _err_vformat(errLErr, eval, 0, NULL, NULL, msg, ap);
 }
 
 int vwarn(const char *msg, va_list ap)
 {
-  return _err_vformat("Warning", 0, errno, NULL, NULL, msg, ap);
+  return _err_vformat(errLWarn, 0, errno, NULL, NULL, msg, ap);
 }
 
 int vwarnx(const char *msg, va_list ap)
 {
-  return _err_vformat("Warning", 0, 0, NULL, NULL, msg, ap);
+  return _err_vformat(errLWarn, 0, 0, NULL, NULL, msg, ap);
 }
 
 #endif /* HAVE___VA_ARGS__ */
@@ -340,6 +367,30 @@ int err_get_abort_mode(void)
     if (err_abort_mode < 0) err_abort_mode = 0;
   }
   return err_abort_mode;
+}
+
+int err_set_warn_mode(int mode)
+{
+  int prev = err_warn_mode;
+  err_warn_mode = mode;
+  return prev;
+}
+
+int err_get_warn_mode()
+{
+  if (err_warn_mode < 0) {
+    char *mode = getenv("ERR_WARN");
+    if (!mode || !mode[0])
+      err_warn_mode = 0;
+    else if (strcasecmp(mode, "ignore") == 0)
+      err_warn_mode = 1;
+    else if (strcasecmp(mode, "error") == 0)
+      err_warn_mode = 2;
+    else
+      err_warn_mode = atoi(mode);
+    if (err_warn_mode < 0) err_warn_mode = 0;
+  }
+  return err_warn_mode;
 }
 
 int err_set_debug_mode(int mode)

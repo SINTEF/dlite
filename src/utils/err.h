@@ -27,6 +27,12 @@
  *       - "2" | "abort" | empty  : abort
  *       - otherwise              : return normally
  *
+ *   * `ERR_WARN`: Whether warnings should be ignored or turned into errors.
+ *       - "0" | "normal" | unset : report normally
+ *       - "1" | "ignore"         : ignore
+ *       - "2" | "error"          : turn into error
+ *       - otherwise              : report normally
+ *
  *   * `ERR_DEBUG`: Wheter debugging information (source file, line number
  *     and function name) should be included in the error message.
  *       - "0" | unset | empty  : no debugging info
@@ -82,12 +88,21 @@
 # define _err_func
 #endif
 
+/** Error levels */
+typedef enum _ErrLevel {
+  errLSuccess,
+  errLWarn,
+  errLErr,
+  errLFatal
+} ErrLevel;
+
+
 /* The functions that actually handles the errors */
-int _err_format(const char *errname, int eval, int errnum, const char *file,
+int _err_format(ErrLevel errlevel, int eval, int errnum, const char *file,
 		const char *func, const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 6, 7)));
 
-int _err_vformat(const char *errname, int eval, int errnum, const char *file,
+int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 		 const char *func, const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 6, 0)));
 
@@ -217,30 +232,30 @@ int vwarnx(const char *msg, va_list ap)
 /* Note that `...` include the `msg` macro argument to ensure that `...`
  * always corresponds to at least one argument as required by ISO C99. */
 #define fatal(eval, ...) \
-  exit(_err_format("Fatal", eval, errno, ERR_FILEPOS, _err_func, __VA_ARGS__))
+  exit(_err_format(errLFatal, eval, errno, ERR_FILEPOS, _err_func, __VA_ARGS__))
 #define fatalx(eval, ...) \
-  exit(_err_format("Fatal", eval, 0, ERR_FILEPOS, _err_func, __VA_ARGS__))
+  exit(_err_format(errLFatal, eval, 0, ERR_FILEPOS, _err_func, __VA_ARGS__))
 #define err(eval, ...) \
-  _err_format("Error", eval, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
+  _err_format(errLErr, eval, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
 #define errx(eval, ...) \
-  _err_format("Error", eval, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
+  _err_format(errLErr, eval, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
 #define warn(...) \
-  _err_format("Warning", 0, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
+  _err_format(errLWarn, 0, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
 #define warnx(...) \
-  _err_format("Warning", 0, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
+  _err_format(errLWarn, 0, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
 
 #define vfatal(eval, msg, ap) \
-  exit(_err_vformat("Fatal", eval, errno, ERR_FILEPOS, _err_func, msg, ap))
+  exit(_err_vformat(errLFatal, eval, errno, ERR_FILEPOS, _err_func, msg, ap))
 #define vfatalx(eval, msg, ap) \
-  exit(_err_vformat("Fatal", eval, 0, ERR_FILEPOS, _err_func, msg, ap))
+  exit(_err_vformat(errLFatal, eval, 0, ERR_FILEPOS, _err_func, msg, ap))
 #define verr(eval, msg, ap) \
-  _err_vformat("Error", eval, errno, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLErr, eval, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define verrx(eval, msg, ap) \
-  _err_vformat("Error", eval, 0, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLErr, eval, 0, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarn(msg, ap) \
-  _err_vformat("Error", 0, errno, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLWarn, 0, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarnx(msg, ap) \
-  _err_vformat("Error", 0, 0, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLWarn, 0, 0, ERR_FILEPOS, _err_func, msg, ap)
 
 /** @endcond */
 #endif /* HAVE___VA_ARGS__ */
@@ -307,6 +322,21 @@ int err_set_abort_mode(int mode);
  * @brief Returns the current abort mode.
  */
 int err_get_abort_mode(void);
+
+/**
+ * @brief Set whether warnings should be turned to errors.
+ * Interpretation of `mode` argument:
+ *   - err_warn_mode >= 1: turn warnings into errors
+ *   - err_warn_mode == 0: default
+ *   - err_warn_mode < 0:  check ERR_WARN environment variable (default)
+ *                         if it is set, warnings are turned into errors
+ */
+int err_set_warn_mode(int mode);
+
+/**
+ * @brief Returns the current warning mode.
+ */
+int err_get_warn_mode(void);
 
 /**
  * @brief Sets whether error messages should include debugging info.
@@ -496,12 +526,13 @@ ErrRecord *_err_get_record();
 /**
  * @brief Handles uncaught errors.
  */
-#define ErrOther                             \
-      /* if (!_record.handled) break; */     \
-    default:                                 \
-      _record.handled = 1;                   \
-      goto _errlabel_default;                \
-     _errlabel_default
+#define ErrOther                                \
+      /* if (!_record.handled) break; */        \
+    default:                                    \
+      _record.handled = 1;                      \
+    }                                           \
+    switch (_record.eval && !_record.handled) { \
+    case 1
 
 /**
  * @brief Code to run on no errors.

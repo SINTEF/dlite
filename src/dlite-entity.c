@@ -373,8 +373,6 @@ DLiteInstance *dlite_instance_get(const char *id)
   DLiteInstance *inst=NULL;
   DLiteStoragePathIter *iter;
   const char *url;
-  //const char **urls;
-  FILE *errstream;
 
   /* check if instance `id` is already instansiated... */
   if ((inst = _instance_store_get(id))) {
@@ -407,16 +405,18 @@ DLiteInstance *dlite_instance_get(const char *id)
 
     /* Set read-only as default mode (all drivers should support this) */
     if (!options) options = "mode=r";
-    errstream = err_set_stream(NULL);         /* silence errors */
     if ((s = dlite_storage_open(driver, location, options))) {
       /* url is a storage we can open... */
-      inst = _instance_load_casted(s, id, NULL, 0);
-      err_set_stream(errstream);  /* restore error stream */
+      ErrTry:
+        inst = _instance_load_casted(s, id, NULL, 0);
+        break;
+      ErrOther:
+        break;
+      ErrEnd;
       dlite_storage_close(s);
     } else {
       /* ...otherwise it may be a glob pattern */
       FUIter *iter;
-      err_set_stream(errstream);  /* restore error stream */
       if ((iter = fu_glob(location))) {
         const char *path;
         while (!inst && (path = fu_globnext(iter))) {
@@ -425,7 +425,7 @@ DLiteInstance *dlite_instance_get(const char *id)
             ErrTry:
               inst = _instance_load_casted(s, id, NULL, 0);
               break;
-            ErrCatch(1):
+            ErrOther:
               /* Ignore errors about that the instance cannot be loaded... */
               /* TODO: make error codes more specific. */
               break;
@@ -537,7 +537,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 
   /* check if storage implements the instance api */
   if (s->api->loadInstance) {
-    inst = s->api->loadInstance(s, id);
+    if (!(inst = s->api->loadInstance(s, id))) goto fail;
     if (metaid)
       return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
     else
@@ -634,12 +634,14 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   }
 
   /* cast if `metaid` is not NULL */
-  if (metaid)
+  if (inst && metaid)
     instance = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
   else
     instance = inst;
 
  fail:
+  if (!inst && !err_geteval())
+    err(1, "cannot load id '%s' from storage '%s'", id, s->uri);
   if (!instance && inst) dlite_instance_decref(inst);
   if (d) dlite_datamodel_free(d);
   if (uri) free((char *)uri);
