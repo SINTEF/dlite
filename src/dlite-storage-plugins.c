@@ -81,11 +81,6 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     if (n <= 1)
       tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGIN_DIRS enveronment "
                           "variable set?");
-#ifdef WITH_PYTHON
-    else
-      tgen_buf_append_fmt(&buf, "Is the DLITE_PYTHON_STORAGE_PLUGIN_DIRS "
-                          "enveronment variable set?");
-#endif
     errx(1, "%s", tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);
   }

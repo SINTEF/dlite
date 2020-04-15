@@ -55,7 +55,7 @@ const char *dlite_pyembed_classname(PyObject *cls)
 
 
 /*
-  Reports and restes Python error.
+  Reports and resets Python error.
 
   If an Python error has occured, an error message is appended to `msg`,
   containing the type, value and traceback.
@@ -344,12 +344,14 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
 
 
   /* Load all modules in `paths` */
-  if (!(iter = fu_startmatch("*.py", paths))) goto fail;
-  while ((path = fu_nextmatch(iter))) {
+  if (!(iter = fu_pathsiter_init(paths, "*.py"))) goto fail;
+  while ((path = fu_pathsiter_next(iter))) {
     int stat;
     FILE *fp=NULL;
     char *basename=NULL;
     PyObject *ret;
+
+    printf("*** py path: '%s'\n", path);
 
     /* Set __main__.__dict__['__file__'] = path */
     if (!(ppath = PyUnicode_FromString(path)))
@@ -369,7 +371,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
       }
     }
   }
-  if (fu_endmatch(iter)) goto fail;
+  if (fu_pathsiter_deinit(iter)) goto fail;
 
   /* Get list of subclasses implementing the plugins */
   if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
