@@ -11,9 +11,12 @@ set(sources
 
 add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
-  dlite
-  dlite-pyembed
-  dlite-utils
+  #dlite
+  #dlite-pyembed
+  #dlite-utils
+  dlite-static
+  dlite-pyembed-static
+  dlite-utils-static
   ${PYTHON_LIBRARIES}
   )
 target_include_directories(dlite-plugins-python PUBLIC
