@@ -113,7 +113,7 @@
 
 typedef void * dsl_handle;
 
-#define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY))
+#define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY | RTLD_GLOBAL))
 #define dsl_sym(handle, symbol)    ((void *)dlsym((void *)(handle), symbol))
 #define dsl_error()                ((const char *)dlerror())
 #define dsl_close(handle)          ((int)dlclose((void *)(handle)))

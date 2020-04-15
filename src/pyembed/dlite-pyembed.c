@@ -351,9 +351,6 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     char *basename=NULL;
     PyObject *ret;
 
-    printf("*** py path: '%s'\n", path);
-
-    /* Set __main__.__dict__['__file__'] = path */
     if (!(ppath = PyUnicode_FromString(path)))
       FAIL1("cannot create Python string from path: '%s'", path);
     stat = PyDict_SetItemString(main_dict, "__file__", ppath);
@@ -364,7 +361,6 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
       ret = PyRun_File(fp, basename, Py_file_input, main_dict, main_dict);
       free(basename);
       if (!ret) {
-        //PyErr_Print();  // xxx
         dlite_pyembed_err(1, "error parsing '%s'", path);
       } else {
         Py_DECREF(ret);
