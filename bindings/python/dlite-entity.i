@@ -258,11 +258,13 @@ struct _DLiteInstance {
   }
   _DLiteInstance(const char *url, const char *metaid=NULL) {
     DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
-    if (inst) dlite_errclr();
-    if (metaid) {
-      inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
-      dlite_instance_decref(inst);
-      inst = inst2;
+    if (inst) {
+      dlite_errclr();
+      if (metaid) {
+        inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+        dlite_instance_decref(inst);
+        inst = inst2;
+      }
     }
     return inst;
   }

@@ -1,9 +1,9 @@
-/*
- * Copyright (c) 2018, SINTEF Industry
- * By Jesper Friis
- * All rights reserved.
+/* strtob.c -- converts string to boolean
  *
- * Licensed under BSD v2.0. See the corresponding header for details.
+ * Copyright (c) 2018-2020, SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ *
  */
 #include "compat.h"
 #include <stdlib.h>

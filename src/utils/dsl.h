@@ -1,4 +1,9 @@
-/* dsl -- dynamic shared libraries */
+/* dsl.h -- dynamic shared libraries
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _DSL_H
 #define _DSL_H
 

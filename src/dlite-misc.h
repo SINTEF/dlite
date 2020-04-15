@@ -1,5 +1,5 @@
-#ifndef _DLITE_UTILS_H
-#define _DLITE_UTILS_H
+#ifndef _DLITE_MISC_H
+#define _DLITE_MISC_H
 
 /**
   @file
@@ -17,7 +17,7 @@
  */
 
 /**
-  Returns a pointer to the version string of DLite.
+  Returns static pointer to a string with the current version of DLite.
 */
 const char *dlite_get_version(void);
 
@@ -219,4 +219,4 @@ void dlite_errclr(void);
 /** @} */
 
 
-#endif /* _DLITE_UTILS_H */
+#endif /* _DLITE_MISC_H */

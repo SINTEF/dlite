@@ -13,13 +13,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#if defined(HAVE_BYTESWAP_H) && defined(HAVE_ENDIAN_H)
-# include <byteswap.h>
-# include <endian.h>
-#else
-# include "byteorder.h"
-#endif
-
+#include "byteorder.h"
 #include "md5.h"
 #include "sha1.h"
 #include "uuid4.h"

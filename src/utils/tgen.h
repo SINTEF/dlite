@@ -1,4 +1,9 @@
-/* tgen.h -- simple templated text generator */
+/* tgen.h -- simple templated text generator
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _TGEN_H
 #define _TGEN_H
 /**
