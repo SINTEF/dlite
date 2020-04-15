@@ -14,6 +14,11 @@
 #include "getuuid.h"
 
 
+/** Iterator over dlite storage paths. */
+struct _DLiteStoragePathIter {
+  FUIter *pathiter;
+};
+
 
 /********************************************************************
  * Public api
@@ -293,4 +298,50 @@ const char **dlite_storage_paths_get()
 {
   FUPaths *paths = storage_paths_get();
   return fu_paths_get(paths);
+}
+
+/*
+  Returns an iterator over all files in storage paths (with glob
+  patterns in paths expanded).
+
+  Returns NULL on error.
+
+  Should be used together with dlite_storage_path_iter_next() and
+  dlite_storage_path_iter_stop().
+ */
+DLiteStoragePathIter *dlite_storage_paths_iter_start()
+{
+  DLiteStoragePathIter *iter=NULL;
+  if (!(iter = calloc(1, sizeof(DLiteStoragePathIter))))
+    return err(1, "Allocation failure"), NULL;
+  if (!(iter->pathiter = fu_pathsiter_init(storage_paths_get(), NULL))) {
+    free(iter);
+    return err(1, "Failure initiating storage path iterator"), NULL;
+  }
+  return iter;
+}
+
+/*
+  Returns name of the next file in the iterator `iter` created with
+  dlite_storage_paths_iter_start() or NULL if there are no more matches.
+
+  @note
+  The returned string is owned by the iterator. It will be overwritten
+  by the next call to fu_nextmatch() and should not be changed.  Use
+  strdup() or strncpy() if a copy is needed.
+ */
+const char *dlite_storage_paths_iter_next(DLiteStoragePathIter *iter)
+{
+  return fu_pathsiter_next(iter->pathiter);
+}
+
+/*
+  Stops and deallocates iterator created with dlite_storage_paths_iter_start().
+ */
+int dlite_storage_paths_iter_stop(DLiteStoragePathIter *iter)
+{
+  int stat;
+  stat = fu_pathsiter_deinit(iter->pathiter);
+  free(iter);
+  return stat;
 }

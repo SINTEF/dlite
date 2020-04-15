@@ -266,7 +266,8 @@ MU_TEST(test_fu_match)
   fu_paths_append(&paths, "..");
   iter = fu_startmatch("*.h", &paths);
   printf("\nHeaders:\n");
-  while ((filename = fu_nextmatch(iter))) printf("  %s\n", filename);
+  while ((filename = fu_nextmatch(iter)))
+    printf("  %s\n", filename);
   fu_endmatch(iter);
   fu_paths_deinit(&paths);
 }
@@ -279,6 +280,25 @@ MU_TEST(test_fu_glob)
   while ((p = fu_globnext(iter)))
     printf("  %s\n", p);
   fu_globend(iter);
+}
+
+MU_TEST(test_fu_pathsiter)
+{
+  const char *filename;
+  FUIter *iter;
+  FUPaths paths;
+  fu_paths_init(&paths, NULL);
+  fu_paths_append(&paths, "doc");
+  fu_paths_append(&paths, "src/Makefile");
+  fu_paths_append(&paths, "tools/c*");
+  fu_paths_append(&paths, "d*");
+  iter = fu_pathsiter_init(&paths, "*.cmake");
+  //iter = fu_pathsiter_init(&paths, NULL);
+  printf("\nCMake files:\n");
+  while ((filename = fu_pathsiter_next(iter)))
+    printf("  %s\n", filename);
+  fu_pathsiter_deinit(iter);
+  fu_paths_deinit(&paths);
 }
 
 
@@ -302,6 +322,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_paths);
   MU_RUN_TEST(test_fu_match);
   MU_RUN_TEST(test_fu_glob);
+  MU_RUN_TEST(test_fu_pathsiter);
 }
 
 

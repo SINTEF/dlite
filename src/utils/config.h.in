@@ -3,6 +3,11 @@
 #ifndef _UTILS_CONFIG_H
 #define _UTILS_CONFIG_H
 
+/* System */
+#cmakedefine UNIX
+#cmakedefine WINDOWS
+#cmakedefine APPLE
+
 /* Language/preprocessor features */
 #cmakedefine HAVE___VA_ARGS__
 #cmakedefine HAVE_EXT__VA_ARGS__   /* __VA_ARGS__ swallows comma (MSVS) */
@@ -34,7 +39,12 @@
 #cmakedefine HAVE_UNSETENV
 
 #cmakedefine HAVE_REALPATH
+#cmakedefine HAVE_STAT
+#cmakedefine HAVE_P_TMPDIR
 #cmakedefine HAVE_GetFullPathNameW
+#cmakedefine HAVE_GetFullPathName
+#cmakedefine HAVE_GetFileAttributesW
+#cmakedefine HAVE_GetFileAttributes
 
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG
@@ -71,6 +81,8 @@
 /* =================================================== */
 /* Compatibility-functions in the compat/ subdirectory */
 /* =================================================== */
+
+#include <stdlib.h>
 
 /* compat/snprintf.c */
 #ifndef HAVE_SNPRINTF
@@ -112,6 +124,21 @@ int rpl_vasprintf(char **, const char *, va_list);
 
 #endif  /* HAVE_STDARG_H */
 
+
+#ifndef HAVE_REALPATH
+char *realpath(const char *path, char *resolved);
+#endif
+
+#ifndef HAVE_STRLCPY
+size_t strlcpy(char *dst, const char *src, size_t size);
+#endif
+#ifndef HAVE_STRLCAT
+size_t strlcat(char *dst, const char *src, size_t size);
+#endif
+
+#ifndef HAVE_P_TMPDIR
+# define P_tmpdir       "/tmp"
+#endif
 
 
 /* ================================== */

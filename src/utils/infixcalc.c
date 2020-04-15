@@ -1,5 +1,9 @@
-/* infix-calc.c -- simple infix calculator for integer arithmetic */
-
+/* infix-calc.c -- simple infix calculator for integer arithmetic
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>

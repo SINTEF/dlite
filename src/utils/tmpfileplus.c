@@ -132,6 +132,12 @@
 #define RANDCHARS   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 #define NRANDCHARS  (sizeof(RANDCHARS) - 1)
 
+
+#ifndef P_tmpdir
+# define P_tmpdir  "/tmp"
+#endif
+
+
 /** Replace each byte in string s with a random character from TEMPCHARS */
 static char *set_randpart(char *s)
 {

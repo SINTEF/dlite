@@ -1,5 +1,9 @@
-/* compat.c -- auxiliary compatibility functions */
-
+/* compat.c -- auxiliary cross-platform compatibility functions
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #include "config.h"
 
 #include <stdlib.h>
@@ -67,5 +71,25 @@ int strncasecmp(const char *s1, const char *s2, size_t len)
     if (c1 != c2) break;
   } while (--len);
   return (int)c1 - (int)c2;
+}
+#endif
+
+#if !defined(HAVE_STRLCPY)
+size_t strlcpy(char *dst, const char *src, size_t size)
+{
+  strncpy(dst, src, size);
+  dst[size -1] = '\0';
+  return strlen(dst);
+}
+#endif
+
+#if !defined(HAVE_STRLCPY)
+size_t strlcat(char *dst, const char *src, size_t size)
+{
+  size_t m = strlen(dst);
+  size_t n = strlen(src);
+  strncpy(dst + m, src, size - m);
+  dst[size -1] = '\0';
+  return m + n;
 }
 #endif
