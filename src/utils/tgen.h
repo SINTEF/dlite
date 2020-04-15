@@ -152,8 +152,8 @@
    Error codes used by this library
 */
 enum {
-  TGenOk,
-  TGenAllocationError,
+  TGenOk=0,
+  TGenAllocationError=2020,
   TGenSyntaxError,
   TGenIOError,
   TGenVariableError,

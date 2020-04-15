@@ -102,36 +102,56 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   FILE *stream = err_get_stream();
   int debug_mode = err_get_debug_mode();
   int abort_mode = err_get_abort_mode();
+  int warn_mode = err_get_warn_mode();
   int override = err_get_override_mode();
   int ignore_new_error = 0;
   ErrHandler handler = err_get_handler();
 
+  /* Check warning mode */
+  if (errlevel == errLWarn) {
+    switch (warn_mode) {
+    case 0:  // normal
+      break;
+    case 1:  // ignore warning
+      return 0;
+    case 2:  // turn warning into an error
+      errlevel = errLErr;
+      errname = error_names[errlevel];
+      break;
+    default:  // should never be reached
+      assert(0);
+    }
+  }
+
   /* Handle overridden errors */
   if (err_record->eval && err_record->prev && !err_record->handled) {
     switch (override) {
-    case 0:
+    case 0:  // append new error message
       n = strlen(errmsg);
       n += snprintf(errmsg + n, errsize - n, "\n");
       break;
-    case 1:
+    case 1:  // ignore old error and warn
       if (stream) fprintf(stream, "Warning: Overriding old error: '%s'\n",
                           err_record->msg);
       break;
-    case 2:
+    case 2:  // ignore new error and warn
       ignore_new_error = 1;
       if (stream) fprintf(stream, "Warning: Ignoring new error %d\n",
                           err_record->eval);
       break;
-    case 3:
+    case 3:  // ignore old error
       break;
-    case 4:
-    default:
+    case 4:  // ignore new error
       ignore_new_error = 1;
+      break;
+    default:  // should never be reached
+      assert(0);
     }
   }
 
-  /* Update the current error record */
   if (!ignore_new_error) {
+
+    /* Update the current error record */
     err_record->eval = eval;
 
     if (err_prefix && *err_prefix)
@@ -158,20 +178,17 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
               eval);
 
     /* call the error handler */
-    if ((!err_record->prev || err_record->handled) && handler)
+    //if ((!err_record->prev || err_record->handled) && handler)
+    if (handler && !err_record->handled && !err_record->prev)
       handler(err_record);
-  }
 
-  /* check if warnings should be turned into errors */
-  if (err_get_warn_mode() && errlevel == errLWarn)
-    errlevel = errLErr;
-
-  /* check err_abort_mode */
-  if (errlevel >= errLErr) {
-    if (abort_mode == 1)
-      exit(eval);
-    else if (abort_mode >= 2)
-      abort();
+    /* check err_abort_mode */
+    if (errlevel >= errLErr) {
+      if (abort_mode == 1)
+        exit(eval);
+      else if (abort_mode >= 2)
+        abort();
+    }
   }
 
   return eval;

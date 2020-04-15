@@ -74,16 +74,32 @@ MU_TEST(test_err_functions)
   err(1, "errmsg");
 }
 
-void nested_func()
+
+#define errA  1
+#define errB  2
+#define errC  4
+#define errD  8
+
+void fun2(void)
 {
-  err(2, "nested error");  /* swallowed error... */
-  err_raise(6, "new exception");
-  printf("\nprocessing...\n");
+  printf("\nfun2...\n");
 }
 
-
-MU_TEST(test_err_try)
+void fun4(int eval)
 {
+  err_raise(eval, "new exception");
+  printf("\nfun4...\n");
+}
+
+void fun8(int eval)
+{
+  err(eval, "fun8");
+  printf("\nfun8...\n");
+}
+
+int tryfun(int eval, int action)
+{
+  int cval=0;
   errno = 0;
   err_set_prefix("");
   err_set_debug_mode(0);
@@ -92,29 +108,42 @@ MU_TEST(test_err_try)
   mu_assert_int_eq(0, err_geteval());
 
   ErrTry:
-    nested_func();
+    if (action & 1) err(eval, "err1");
+    if (action & 2) fun2();
+    if (action & 4) fun4(eval);
+    if (action & 8) fun8(eval);
     break;
-  ErrCatch(1):
-    printf("\n*** ErrCatch 1: '%s'\n", err_getmsg());
+  ErrCatch(errA):
+    cval |= 1;
+    printf("\n*** ErrCatch A: '%s'\n", err_getmsg());
     break;
-  ErrCatch(2):
-  ErrCatch(3):
-    printf("\n*** ErrCatch 2, 3: '%s'\n", err_getmsg());
-    mu_assert_int_eq(2, err_geteval());
+  ErrCatch(errB):
+  ErrCatch(errC):
+    cval |= 4;
+    printf("\n*** ErrCatch B, C: '%s'\n", err_getmsg());
     break;
   ErrOther:
+    cval |= 8;
     printf("\n*** ErrOther: '%s'\n", err_getmsg());
     break;
   ErrElse:
+    cval |= 16;
     printf("\n*** ErrElse: '%s'\n", err_getmsg());
   ErrFinally:
+    cval |= 32;
     printf("\n*** ErrFinally: '%s'\n", err_getmsg());
     fflush(stderr);
   ErrEnd;
+  return cval;
+}
 
-  printf("\n*** continue... (eval=%d)\n", err_geteval());
-
-  mu_assert_int_eq(0, err_geteval());
+MU_TEST(test_errtry)
+{
+  mu_assert_int_eq(16    | 32, tryfun(errA, 0));
+  //mu_assert_int_eq(1     | 32, tryfun(errA, 1));
+  //mu_assert_int_eq(2 | 4 | 32, tryfun(errB, 1));
+  //mu_assert_int_eq(4     | 32, tryfun(errC, 1));
+  mu_assert_int_eq(8     | 32, tryfun(errD, 1));
 }
 
 /***********************************************************************/
@@ -122,7 +151,7 @@ MU_TEST(test_err_try)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_err_functions);
-  MU_RUN_TEST(test_err_try);
+  MU_RUN_TEST(test_errtry);
 }
 
 
