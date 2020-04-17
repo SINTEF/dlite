@@ -1,16 +1,9 @@
 name: Docker Image CI
 
-on:
-  push:
-    branches:
-      - master
-    tags:
-      - v*
+on: [push]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     env:
