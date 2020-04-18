@@ -12,6 +12,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Update submodules
+      run: |
+        git submodule init
+        git submodule update
+
     - name: Get docker version
       run: docker --version
 
