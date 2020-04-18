@@ -327,6 +327,14 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
 int err_geteval(void);
 
 /**
+ * @brief If the current error value is non-zero, set it to `eval`.
+ * Nothing is done if there is no corrent error.
+ *
+ * Returns the updated error value.
+ */
+int err_update_eval(int eval);
+
+/**
  * @brief Returns a pointer the error message of the last error.
  *
  * Note that the memory pointed to will be overridded by the next error.

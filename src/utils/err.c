@@ -302,6 +302,12 @@ int err_geteval(void)
   return err_record->eval;
 }
 
+int err_update_eval(int eval)
+{
+  if (err_record->eval) err_record->eval = eval;
+  return err_record->eval;
+}
+
 const char *err_getmsg(void)
 {
   return err_record->msg;
