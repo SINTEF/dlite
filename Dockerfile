@@ -49,9 +49,10 @@ RUN apt-get install -y \
     cppcheck \
     gfortran
 
-# Install IPython
-#RUN apt-get install -y ipython3
 RUN apt-get install -y python3-pip
+
+
+# Install Python packages
 RUN pip3 install ipython
 
 # The following section performs the build
@@ -62,23 +63,24 @@ RUN useradd -ms /bin/bash user
 USER user
 ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
 
+
+# Setup dlite
 RUN mkdir /home/user/sw
-
-WORKDIR /home/user/sw
-RUN git clone https://github.com/SINTEF/dlite.git
-
+COPY --chown=user:user . /home/user/sw/dlite
 WORKDIR /home/user/sw/dlite
-RUN git submodule update --init
-RUN mkdir build
+RUN rm -rf build
 
+# Perform static code checking
 RUN cppcheck . \
     --language=c -q --force --error-exitcode=2 --inline-suppr -i build
 
+# Build dlite
+RUN mkdir build
 WORKDIR /home/user/sw/dlite/build
-RUN cmake .. -DFORCE_EXAMPLES=ON
+RUN cmake ..
 RUN make
 RUN make install
-RUN make test
+RUN ctest -E postgresql  # skip postgresql since we haven't set up the server
 
 ENTRYPOINT ipython3 \
     --colors=LightBG \

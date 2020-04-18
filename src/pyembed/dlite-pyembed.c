@@ -55,7 +55,7 @@ const char *dlite_pyembed_classname(PyObject *cls)
 
 
 /*
-  Reports and restes Python error.
+  Reports and resets Python error.
 
   If an Python error has occured, an error message is appended to `msg`,
   containing the type, value and traceback.
@@ -344,14 +344,13 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
 
 
   /* Load all modules in `paths` */
-  if (!(iter = fu_startmatch("*.py", paths))) goto fail;
-  while ((path = fu_nextmatch(iter))) {
+  if (!(iter = fu_pathsiter_init(paths, "*.py"))) goto fail;
+  while ((path = fu_pathsiter_next(iter))) {
     int stat;
     FILE *fp=NULL;
     char *basename=NULL;
     PyObject *ret;
 
-    /* Set __main__.__dict__['__file__'] = path */
     if (!(ppath = PyUnicode_FromString(path)))
       FAIL1("cannot create Python string from path: '%s'", path);
     stat = PyDict_SetItemString(main_dict, "__file__", ppath);
@@ -362,14 +361,13 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
       ret = PyRun_File(fp, basename, Py_file_input, main_dict, main_dict);
       free(basename);
       if (!ret) {
-        //PyErr_Print();  // xxx
         dlite_pyembed_err(1, "error parsing '%s'", path);
       } else {
         Py_DECREF(ret);
       }
     }
   }
-  if (fu_endmatch(iter)) goto fail;
+  if (fu_pathsiter_deinit(iter)) goto fail;
 
   /* Get list of subclasses implementing the plugins */
   if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
