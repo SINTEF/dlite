@@ -11,6 +11,10 @@
 MU_TEST(test_err_functions)
 {
   char *msg;
+
+  /* Override old errors - so we don't need to clear the error for each test */
+  err_set_override_mode(errOverrideOld);
+
   mu_assert_int_eq(0, err_geteval());
   mu_assert_string_eq("", err_getmsg());
 
@@ -72,13 +76,31 @@ MU_TEST(test_err_functions)
 
   mu_assert_int_eq(1, err_set_debug_mode(2));
   err(1, "errmsg");
+
+  /* Reset */
+  err_set_warn_mode(0);
+  err_set_debug_mode(0);
+  err_set_override_mode(0);
 }
 
 
-#define errA  1
-#define errB  2
-#define errC  4
-#define errD  8
+enum {
+  errA = 1,
+  errB = 2,
+  errC = 3,
+  errD = 4,
+  errE = 5,
+  errF = 6,
+};
+enum {
+  vCtA = 1,
+  vCtB = 2,
+  vCtC = 4,
+  vCtD = 8,
+  vOth = 16,
+  vEls = 32,
+  vFin = 64
+};
 
 void fun2(void)
 {
@@ -105,33 +127,41 @@ int tryfun(int eval, int action)
   err_set_debug_mode(0);
   err_clear();
 
-  mu_assert_int_eq(0, err_geteval());
+  printf("\n-------------- eval=%d, action=%d --------------\n", eval, action);
+  assert(err_geteval() == 0);
 
   ErrTry:
     if (action & 1) err(eval, "err1");
     if (action & 2) fun2();
     if (action & 4) fun4(eval);
     if (action & 8) fun8(eval);
-    break;
   ErrCatch(errA):
-    cval |= 1;
-    printf("\n*** ErrCatch A: '%s'\n", err_getmsg());
+    cval |= vCtA;
+    printf("*** ErrCatch A: '%s'\n", err_getmsg());
     break;
   ErrCatch(errB):
+    cval |= vCtB;
+    printf("*** ErrCatch B: '%s'\n", err_getmsg());
+    // fall-through
   ErrCatch(errC):
-    cval |= 4;
-    printf("\n*** ErrCatch B, C: '%s'\n", err_getmsg());
+    cval |= vCtC;
+    printf("*** ErrCatch C: '%s'\n", err_getmsg());
+    break;
+  ErrCatch(errD):
+    cval |= vCtD;
+    printf("*** ErrCatch D: '%s'\n", err_getmsg());
+    err(errF, "errF when handling errD\n");
     break;
   ErrOther:
-    cval |= 8;
-    printf("\n*** ErrOther: '%s'\n", err_getmsg());
+    cval |= vOth;
+    printf("*** ErrOther: '%s'\n", err_getmsg());
     break;
   ErrElse:
-    cval |= 16;
-    printf("\n*** ErrElse: '%s'\n", err_getmsg());
+    cval |= vEls;
+    printf("*** ErrElse: '%s'\n", err_getmsg());
   ErrFinally:
-    cval |= 32;
-    printf("\n*** ErrFinally: '%s'\n", err_getmsg());
+    cval |= vFin;
+    printf("*** ErrFinally: '%s'\n", err_getmsg());
     fflush(stderr);
   ErrEnd;
   return cval;
@@ -139,11 +169,46 @@ int tryfun(int eval, int action)
 
 MU_TEST(test_errtry)
 {
-  mu_assert_int_eq(16    | 32, tryfun(errA, 0));
-  //mu_assert_int_eq(1     | 32, tryfun(errA, 1));
-  //mu_assert_int_eq(2 | 4 | 32, tryfun(errB, 1));
-  //mu_assert_int_eq(4     | 32, tryfun(errC, 1));
-  mu_assert_int_eq(8     | 32, tryfun(errD, 1));
+  mu_assert_int_eq(vEls | vFin, tryfun(errA, 0));
+  mu_assert_int_eq(vEls | vFin, tryfun(errB, 0));
+  mu_assert_int_eq(vEls | vFin, tryfun(errC, 0));
+  mu_assert_int_eq(vEls | vFin, tryfun(errD, 0));
+  mu_assert_int_eq(vEls | vFin, tryfun(errE, 0));
+  mu_assert_int_eq(0, err_geteval());
+
+  mu_assert_int_eq(vCtA | vFin, tryfun(errA, 1));
+  mu_assert_int_eq(vCtB | vCtC | vFin, tryfun(errB, 1));
+  mu_assert_int_eq(vCtC | vFin, tryfun(errC, 1));
+  mu_assert_int_eq(vCtD | vFin, tryfun(errD, 1));
+  mu_assert_int_eq(0, err_geteval());
+  mu_assert_int_eq(vOth | vFin, tryfun(errE, 1));
+  mu_assert_int_eq(errE, err_geteval());
+
+  mu_assert_int_eq(vEls | vFin, tryfun(errA, 2));
+  mu_assert_int_eq(vEls | vFin, tryfun(errB, 2));
+  mu_assert_int_eq(vEls | vFin, tryfun(errC, 2));
+  mu_assert_int_eq(vEls | vFin, tryfun(errD, 2));
+  mu_assert_int_eq(0, err_geteval());
+  mu_assert_int_eq(vEls | vFin, tryfun(errE, 2));
+  mu_assert_int_eq(0, err_geteval());
+
+  mu_assert_int_eq(vCtA | vFin, tryfun(errA, 3));
+  mu_assert_int_eq(0, err_geteval());
+
+  mu_assert_int_eq(vCtA | vFin, tryfun(errA, 4));
+  mu_assert_int_eq(vCtB |vCtC | vFin, tryfun(errB, 4));
+  mu_assert_int_eq(vCtC | vFin, tryfun(errC, 4));
+  mu_assert_int_eq(vCtD | vFin, tryfun(errD, 4));
+  //mu_assert_int_eq(vOth | vFin, tryfun(errE, 4));  // calls abort
+  mu_assert_int_eq(0, err_geteval());
+
+  mu_assert_int_eq(vCtA | vFin, tryfun(errA, 8));
+  mu_assert_int_eq(vCtB | vCtC | vFin, tryfun(errB, 8));
+  mu_assert_int_eq(vCtC | vFin, tryfun(errC, 8));
+  mu_assert_int_eq(vCtD | vFin, tryfun(errD, 8));
+  mu_assert_int_eq(0, err_geteval());
+  mu_assert_int_eq(vOth | vFin, tryfun(errE, 8));
+  mu_assert_int_eq(errE, err_geteval());
 }
 
 /***********************************************************************/

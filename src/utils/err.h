@@ -45,14 +45,16 @@
  *       - "2" | "full"         : print file, line number and function
  *       - otherwise            : no debugging info
  *
- *   * `ERR_OVERRIDE`: How to handle overridden errors in  ErrTry clauses.
- *       - unset | empty       : append new error message
+ *   * `ERR_OVERRIDE`: How to handle error messages when there already is a
+ *      message in the error message buffer.  Note that these options will
+ *      only affect the error message, not the error value.
+ *       - unset | empty       : append new error message to the old one
  *       - "0" | "append"      : append new error message
- *       - "1" | "warn-old"    : ignore old error and write warning
- *       - "2" | "warn-new"    : ignore new error and write warning
- *       - "3" | "ignore-old"  : ignore old error
- *       - "4" | "ignore-new"  : ignore new error
- *       - otherwise           : append new error message
+ *       - "1" | "warn-old"    : overwrite old error message and write warning
+ *       - "2" | "warn-new"    : ignore new error message and write warning
+ *       - "3" | "old"         : overwrite old error message
+ *       - "4" | "ignore-new"  : ignore new error message
+ *       - otherwise           : append new error message to the old one
  */
 
 /** @cond private */
@@ -94,12 +96,47 @@
 #endif
 
 /** Error levels */
-typedef enum _ErrLevel {
-  errLSuccess,
-  errLWarn,
-  errLErr,
-  errLFatal
+typedef enum {
+  errLevelSuccess,         /*!< success */
+  errLevelWarn,            /*!< warning */
+  errLevelError,           /*!< error */
+  errLevelException,       /*!< exception (never returns) */
+  errLevelFatal            /*!< fatal error (never returns) */
 } ErrLevel;
+
+/** Error abort mode */
+typedef enum {
+  errAbortEnv=-1,          /*!< set from ERR_ABORT environment variable */
+  errAbortNormal=0,        /*!< return normally */
+  errAbortExit,            /*!< call exit() with error value */
+  errAbortAbort            /*!< call abort() */
+} ErrAbortMode;
+
+/** Error warn mode */
+typedef enum {
+  errWarnEnv=-1,           /*!< set from ERR_WARN environment variable */
+  errWarnNormal=0,         /*!< report warnings as normal */
+  errWarnIgnore,           /*!< ignore warnings */
+  errWarnError             /*!< turn warnings into errors */
+} ErrWarnMode;
+
+/** Error debug mode */
+typedef enum {
+  errDebugEnv=-1,          /*!< set from ERR_DEBUG environment variable */
+  errDebugOff=0,           /*!< no debugging info in error messages */
+  errDebugSimple,          /*!< add file and line number to error messages */
+  errDebugFull             /*!< add also function name to error messages */
+} ErrDebugMode;
+
+/** Error override mode */
+typedef enum {
+  errOverrideEnv=-1,       /*!< set from ERR_OVERRIDE environment variable */
+  errOverrideAppend=0,     /*!< append new error to old error msg */
+  errOverrideWarnOld,      /*!< overwrite old error message and warn */
+  errOverrideWarnNew,      /*!< ignore new error message and warn */
+  errOverrideOld,          /*!< overwrite old error message */
+  errOverrideIgnoreNew     /*!< ignore new error message */
+} ErrOverrideMode;
 
 
 /* The functions that actually handles the errors */
@@ -207,6 +244,13 @@ int warn(const char *msg, ...)
 int warnx(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
 
+/**
+ * @brief Generic error function with explicit `errlevel` and `errnum`.
+ * Returns `eval`.
+ */
+int err_generic(int errlevel, int eval, int errnum, const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 4, 5)));
+
 /** @} */
 
 /**
@@ -229,6 +273,8 @@ int vwarn(const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 1, 0)));
 int vwarnx(const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 1, 0)));
+int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 4, 0)));
 /** @} */
 
 #else /* HAVE___VA_ARGS__ */
@@ -248,6 +294,8 @@ int vwarnx(const char *msg, va_list ap)
   _err_format(errLWarn, 0, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
 #define warnx(...) \
   _err_format(errLWarn, 0, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
+#define err_generic(errlevel, eval, errnum, ...) \
+  _err_format(errlevel, eval, errnum, ERR_FILEPOS, _err_func, __VA_ARGS__)
 
 #define vfatal(eval, msg, ap) \
   exit(_err_vformat(errLFatal, eval, errno, ERR_FILEPOS, _err_func, msg, ap))
@@ -261,6 +309,8 @@ int vwarnx(const char *msg, va_list ap)
   _err_vformat(errLWarn, 0, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarnx(msg, ap) \
   _err_vformat(errLWarn, 0, 0, ERR_FILEPOS, _err_func, msg, ap)
+#define verr_generic(errlevel, eval, errnum, msg, ap) \
+  _err_format(errlevel, eval, errnum, ERR_FILEPOS, _err_func, msg, ap)
 
 /** @endcond */
 #endif /* HAVE___VA_ARGS__ */
@@ -277,9 +327,14 @@ int vwarnx(const char *msg, va_list ap)
 int err_geteval(void);
 
 /**
- * @brief Returns the error message of the last error.
+ * @brief Returns a pointer the error message of the last error.
+ *
+ * Note that the memory pointed to will be overridded by the next error.
+ * Do not use the returned pointer as input to a new error message -
+ * this may result in an overflow of the error buffer (depending of the
+ * implementation of the underlying snprintf() function).
  */
-char *err_getmsg(void);
+const char *err_getmsg(void);
 
 /**
  * @brief Clear the last error (setting error value to zero).
@@ -321,12 +376,12 @@ FILE *err_get_stream(void);
  *
  * Returns the previous abort mode.
  */
-int err_set_abort_mode(int mode);
+ErrAbortMode err_set_abort_mode(int mode);
 
 /**
  * @brief Returns the current abort mode.
  */
-int err_get_abort_mode(void);
+ErrAbortMode err_get_abort_mode(void);
 
 /**
  * @brief Set whether warnings should be turned to errors.
@@ -336,12 +391,12 @@ int err_get_abort_mode(void);
  *   - err_warn_mode < 0:  check ERR_WARN environment variable (default)
  *                         if it is set, warnings are turned into errors
  */
-int err_set_warn_mode(int mode);
+ErrWarnMode err_set_warn_mode(int mode);
 
 /**
  * @brief Returns the current warning mode.
  */
-int err_get_warn_mode(void);
+ErrWarnMode err_get_warn_mode(void);
 
 /**
  * @brief Sets whether error messages should include debugging info.
@@ -355,12 +410,12 @@ int err_get_warn_mode(void);
  *
  * @note Debugging info requeres that the compiler supports `__VA_ARGS__`.
  */
-int err_set_debug_mode(int mode);
+ErrDebugMode err_set_debug_mode(int mode);
 
 /**
  * @brief Returns the current debugging mode.
  */
-int err_get_debug_mode(void);
+ErrDebugMode err_get_debug_mode(void);
 
 /**
  * @brief Sets how to handle overridden error in a Try/Catch block.
@@ -374,12 +429,12 @@ int err_get_debug_mode(void);
  *
  * Returns the current debugging mode.
  */
-int err_set_override_mode(int mode);
+ErrOverrideMode err_set_override_mode(int mode);
 
 /**
  * @brief Returns the current override mode.
  */
-int err_get_override_mode(void);
+ErrOverrideMode err_get_override_mode(void);
 
 
 /**
@@ -437,34 +492,30 @@ ErrHandler err_get_handler(void);
  *
  *     ErrTry:
  *       statements...;
- *       break;
- *     ErrCatch(eval):
+ *     ErrCatch(eval1):
  *       error_handling...;
- *       break;
+ *       break;  // do not fall-through
+ *     ErrCatch(eval2):
+ *       error_handling...;
+ *       break;  // not strictly needed since next clause is not an ErrCatch
  *     ErrOther:
  *       fallback_error_handling...;
- *       break;
  *     ErrElse:
  *       code_on_no_errors...;
- *       break;
  *     ErrFinally:
  *       always_executed...;
- *       break;
  *     ErrEnd;
  *
  * Except for `ErrTry` and `ErrEnd`, all clauses are optional.  But if
- * they are given, they should occour in the above order.  Like
- * for `switch`, the statements should end with `break` to avoid
- * unintended fall through (only strictly required in the `ErrTry` and
- * `ErrCatch` clauses).
+ * they are given, they should occour in the above order.
  *
  * The `ErrTry` clause is evaluated as normal, but errors that occurs
  * will only be reported if they are not caught by the `ErrCatch` or
  * `ErrOther` clauses.
  *
  * Multiple `ErrCatch` clauses may be provided, to handle different errors.
- * It is possible to handle more than one error value by fall-trhough. For
- * example in
+ * They should normally end with `break`.  If they don't, the evaluation
+ * will fall-through to the next `ErrCatch` clause. For example, in:
  *
  *     ErrCatch(1):
  *     ErrCatch(2):
@@ -482,6 +533,9 @@ ErrHandler err_get_handler(void);
  * The `ErrFinally` clause will, if it is provided, always be evaluated.
  * It is typically used for cleanup-code.
  *
+ * It is possible to use the `break` statement to end the execution of
+ * any clause.
+ *
  * @note
  * Errors occuring in the `ErrTry` clause (including any function called
  * from within the clause) will first be reported when execution
@@ -492,7 +546,7 @@ ErrHandler err_get_handler(void);
  */
 
 /** @{ */
-
+#include <assert.h>
 
 /** Adds link to new exception handler. Called internally by the
     ErrTry macro. Don't call this function directly. */
@@ -513,57 +567,62 @@ ErrRecord *_err_get_record();
 #define ErrTry                                       \
   do {                                               \
     ErrRecord _record;                               \
-    int _jmpstat;                                    \
+    int _fallthrough=0, _ft, _jmpeval, _last;        \
+    (void)_fallthrough;                              \
+    (void)_ft;                                       \
+    (void)_jmpeval;                                  \
+    (void)_last;                                     \
     _err_link_record(&_record);                      \
-    switch ((_jmpstat = setjmp(_record.env))) {      \
+    _jmpeval = setjmp(_record.env);                  \
+    _last = _jmpeval;                                \
+    assert(_jmpeval == _record.eval);                \
+    switch (_record.eval) {                          \
     case 0
 
 /**
  * @brief Catches an error with the given value.
  */
-#define ErrCatch(eval)                       \
-      /* if (!_record.handled) break; */     \
-    case eval:                               \
-      _record.handled = 1;                   \
-      goto _errlabel ## eval;                \
-     _errlabel ## eval
+#define ErrCatch(errval)                             \
+      _fallthrough = _last;                          \
+    }                                                \
+    _ft = _fallthrough;                              \
+    _fallthrough = 0;                                \
+    _last = _record.eval == errval || _ft;           \
+    _record.handled |= _last;                        \
+    switch (_last ? 1 : 0) {                         \
+    case 1
 
 /**
  * @brief Handles uncaught errors.
  */
-#define ErrOther                                \
-      /* if (!_record.handled) break; */        \
-    default:                                    \
-      _record.handled = 1;                      \
-    }                                           \
-    switch (_record.eval && !_record.handled) { \
+#define ErrOther                                     \
+    }                                                \
+    switch (_record.eval && !_record.handled) {      \
     case 1
 
 /**
  * @brief Code to run on no errors.
  */
-#define ErrElse			\
-    }				\
-    switch (_record.eval) {	\
-    case 0
+#define ErrElse			                     \
+    }				                     \
+    switch (_record.eval == 0) {                     \
+    case 1
 
 /**
  * @brief Final (cleanup) code to always run.
  */
-#define ErrFinally                           \
-  }                                          \
-    switch (_jmpstat == 0 && _record.eval) { \
+#define ErrFinally                                   \
+    }                                                \
+    switch (0) {                                     \
     case 0
 
 /**
  * @brief Ends an ErrTry block.
  */
-#define ErrEnd                               \
-    }                                        \
-    if (!_jmpstat && _record.eval)           \
-      longjmp(_record.env, _record.eval);    \
-    _err_unlink_record(&_record);            \
-    } while (0)
+#define ErrEnd                                       \
+    }                                                \
+    _err_unlink_record(&_record);                    \
+  } while (0)
 
 /** @} */
 
@@ -582,28 +641,31 @@ ErrRecord *_err_get_record();
  * This transfers the execution to the nearest enclosing ErrTry block.
  * If no such block exists, fatal() is called.
  */
-#define err_raise(eval, ...)                              \
-  do {                                                    \
-    ErrRecord *record = _err_get_record();                \
-    record->exception = 1;                                \
-    if (record->prev)                                     \
-      longjmp(record->env, err(eval, __VA_ARGS__));       \
-    else                                                  \
-      fatal(eval, __VA_ARGS__);                           \
+#define err_raise(eval, ...)                                    \
+  do {                                                          \
+    ErrRecord *record = _err_get_record();                      \
+    record->exception = 1;                                      \
+    if (record->prev) {                                         \
+      err_generic(errLevelException, eval, errno, __VA_ARGS__); \
+      longjmp(record->env, eval);                               \
+    } else                                                      \
+      fatal(eval, __VA_ARGS__);                                 \
   } while (0)
 
 /**
  * @brief Like raise(), but does not append a system error message to the
  * exception message.
  */
-#define err_raisex(eval, ...)                             \
-  do {                                                    \
-    ErrRecord *record = _err_get_record();                \
-    record->exception = 1;                                \
-    if (record->prev)                                     \
-      longjmp(record->env, errx(eval, __VA_ARGS__));      \
-    else                                                  \
-      fatalx(eval, __VA_ARGS__);                          \
+#define err_raisex(eval, ...)                                   \
+  do {                                                          \
+    ErrRecord *record = _err_get_record();                      \
+    record->exception = 1;                                      \
+    if (record->prev) {                                         \
+      err_generic(errLevelException, eval, 0, __VA_ARGS__);     \
+      longjmp(record->env, eval);                               \
+    } else                                                      \
+    else                                                        \
+      fatalx(eval, __VA_ARGS__);                                \
   } while (0)
 
 /** @} */
