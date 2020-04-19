@@ -444,15 +444,25 @@ ErrOverrideMode err_set_override_mode(int mode);
  */
 ErrOverrideMode err_get_override_mode(void);
 
+/* Where in an ErrTry.. ErrEnd clause we are */
+typedef enum {
+  errTryNormal,
+  errTryCatch,
+  errTryElse,
+  errTryFinally
+} ErrTryState;
 
 /**
  * @brief Error record, describing the last error.
  */
 typedef struct ErrRecord {
+  ErrLevel level;         /*!< @brief Error level. */
   int eval;               /*!< @brief Error value. */
+  int errnum;             /*!< @brief System error number. */
   char msg[ERR_MSGSIZE];  /*!< @brief Error message. */
   int handled;            /*!< @brief Whether the error has been handled. */
-  int exception;          /*!< @brief Whether error is an exception */
+  int reraise;            /*!< @brief Error value to reraise. */
+  ErrTryState state;      /*!< @brief Where we are in ErrTry.. ErrEnd. */
   struct ErrRecord *prev; /*!< @brief Pointer to previous record in the
 			       stack-allocated list of error records. */
   jmp_buf env;            /*!< @brief Buffer for longjmp(). */
@@ -597,6 +607,7 @@ ErrRecord *_err_get_record();
     _fallthrough = 0;                                \
     _last = _record.eval == errval || _ft;           \
     _record.handled |= _last;                        \
+    if (_last) _record.state = errTryCatch;          \
     switch (_last ? 1 : 0) {                         \
     case 1
 
@@ -605,7 +616,10 @@ ErrRecord *_err_get_record();
  */
 #define ErrOther                                     \
     }                                                \
-    switch (_record.eval && !_record.handled) {      \
+    _last = _record.eval && !_record.handled;        \
+    _record.handled |= _last;                        \
+    if (_last) _record.state = errTryCatch;          \
+    switch (_last ? 1 : 0) {                         \
     case 1
 
 /**
@@ -613,6 +627,7 @@ ErrRecord *_err_get_record();
  */
 #define ErrElse			                     \
     }				                     \
+   if (!_record.eval) _record.state = errTryElse;    \
     switch (_record.eval == 0) {                     \
     case 1
 
@@ -621,6 +636,7 @@ ErrRecord *_err_get_record();
  */
 #define ErrFinally                                   \
     }                                                \
+    _record.state = errTryFinally;                   \
     switch (0) {                                     \
     case 0
 
@@ -652,7 +668,6 @@ ErrRecord *_err_get_record();
 #define err_raise(eval, ...)                                    \
   do {                                                          \
     ErrRecord *record = _err_get_record();                      \
-    record->exception = 1;                                      \
     if (record->prev) {                                         \
       err_generic(errLevelException, eval, errno, __VA_ARGS__); \
       longjmp(record->env, eval);                               \
@@ -667,14 +682,25 @@ ErrRecord *_err_get_record();
 #define err_raisex(eval, ...)                                   \
   do {                                                          \
     ErrRecord *record = _err_get_record();                      \
-    record->exception = 1;                                      \
     if (record->prev) {                                         \
       err_generic(errLevelException, eval, 0, __VA_ARGS__);     \
       longjmp(record->env, eval);                               \
     } else                                                      \
-    else                                                        \
       fatalx(eval, __VA_ARGS__);                                \
   } while (0)
+
+/**
+ * @brief Reraises current error or exception
+ * This macro can only be called within `ErrCatch`, `ErrOther` and
+ * `ErrFinally` clauses.
+ */
+#define err_reraise()                                           \
+  do {                                                          \
+    _record.reraise = _record.eval;                             \
+  } while (0)
+
+
+
 
 /** @} */
 

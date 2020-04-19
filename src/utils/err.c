@@ -61,7 +61,7 @@ static _tls ErrRecord err_root_record;
 static _tls ErrRecord *err_record = &err_root_record;
 
 /* Separator between appended errors */
-static char *err_append_sep = "\n- ";
+static char *err_append_sep = "\n - ";
 
 /* Error names */
 static char *error_names[] = {
@@ -141,7 +141,9 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   }
 
   /* Update the current error record */
+  err_record->level = errlevel;
   err_record->eval = eval;
+  err_record->errnum = errnum;
 
   /* Write error message */
   if (!ignore_new_error) {
@@ -169,6 +171,11 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       fprintf(stream, "Warning: error %d truncated due to full message buffer",
               eval);
   }
+
+  /* If this error occured after the try clause in an ErrTry handler,
+     we mark this error to be reraised after leaving the handler. */
+  if (errlevel >= errLevelError && err_record->state)
+    err_record->reraise = eval;
 
   /* call the error handler if we are not within a ErrTry...ErrEnd clause */
   if (call_handler) handler(err_record);
@@ -316,8 +323,13 @@ const char *err_getmsg(void)
 void err_clear(void)
 {
   errno = 0;
+  err_record->level = 0;
   err_record->eval = 0;
+  err_record->errnum = 0;
   err_record->msg[0] = '\0';
+  err_record->handled = 0;
+  err_record->reraise = 0;
+  err_record->state = 0;
 }
 
 const char *err_set_prefix(const char *prefix)
@@ -482,7 +494,7 @@ ErrOverrideMode err_get_override_mode()
 /* Default error handler. */
 static void _err_default_handler(const ErrRecord *record)
 {
-  if (err_stream) fprintf(err_stream, "%s\n", record->msg);
+  if (err_stream) fprintf(err_stream, "** %s\n", record->msg);
 }
 
 ErrHandler err_set_handler(ErrHandler handler)
@@ -523,35 +535,52 @@ void _err_unlink_record(ErrRecord *record)
   assert(record == err_record);
   assert(err_record->prev);
   err_record = record->prev;
-  if (record->eval && !record->handled) {
+  if (record->reraise || (record->eval && !record->handled)) {
+    int eval = (record->reraise) ? record->reraise : record->eval;
+    ErrAbortMode abort_mode = err_get_abort_mode();
+    int ignore_new = 0;
+    int n = 0;
 
-    if (record->eval) {
-      int debug_mode = err_debug_mode;
-      if (debug_mode < 0) {
-	char *mode = getenv("ERR_DEBUG_MODE");
-	debug_mode = (mode) ? atoi(mode) : 0;
+    if (err_record->eval) {
+      switch (err_get_override_mode()) {
+      case errOverrideEnv:
+      case errOverrideAppend:
+        n = strlen(err_record->msg);
+        strncat(err_record->msg+n, err_append_sep, ERR_MSGSIZE-n);
+        n += strlen(err_append_sep);
+        break;
+      case errOverrideWarnOld:
+        fprintf(stderr, "** Warning: overwriting old error: %s\n",
+                err_record->msg);
+        break;
+      case errOverrideWarnNew:
+        ignore_new = 1;
+        fprintf(stderr, "** Warning: ignoring error: %s\n", record->msg);
+        break;
+      case errOverrideOld:
+        break;
+      case errOverrideIgnoreNew:
+        ignore_new = 1;
+        break;
       }
-      if (debug_mode > 0)
-	fprintf(err_stream, "Warning: overriding unhandled error: %s",
-		record->msg);
+    }
+    err_record->level = record->level;
+    err_record->eval = eval;
+    err_record->errnum = record->errnum;
+    if (!ignore_new) strncpy(err_record->msg+n, record->msg, ERR_MSGSIZE-n);
+
+    if (record->level == errLevelException && err_record->prev)
+      longjmp(err_record->env, eval);
+
+    if (!err_record->prev) {
+      ErrHandler handler = err_get_handler();
+      if (handler) err_handler(err_record);
     }
 
-    err_record->eval = record->eval;
-    strcpy(err_record->msg, record->msg);
-
-    /* reemit unhandled exeption */
-    if (record->exception) {
-      if (err_record->prev) {
-        longjmp(err_record->env, err_record->eval);
-      } else {
-        if (err_handler)
-          err_handler(err_record);
-        exit(err_record->eval);
-      }
+    if ((abort_mode && record->level >= errLevelError) ||
+        record->level >= errLevelException) {
+      if (abort_mode == errAbortAbort) abort();
+      exit(eval);
     }
-
-    /* reemit unhandled error */
-    if (!err_record->prev && err_handler)
-      err_handler(err_record);
   }
 }

@@ -409,8 +409,7 @@ DLiteInstance *dlite_instance_get(const char *id)
       /* url is a storage we can open... */
       ErrTry:
         inst = _instance_load_casted(s, id, NULL, 0);
-        break;
-      ErrOther:
+      ErrCatch(dliteStorageLoadError):  // suppressed error
         break;
       ErrEnd;
       dlite_storage_close(s);
@@ -424,10 +423,7 @@ DLiteInstance *dlite_instance_get(const char *id)
 	  if ((s = dlite_storage_open(driver, path, options))) {
             ErrTry:
               inst = _instance_load_casted(s, id, NULL, 0);
-              break;
-            ErrOther:
-              /* Ignore errors about that the instance cannot be loaded... */
-              /* TODO: make error codes more specific. */
+            ErrCatch(dliteStorageLoadError):  // suppressed error
               break;
             ErrEnd;
 	    dlite_storage_close(s);
@@ -647,6 +643,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   if (uri) free((char *)uri);
   if (dims) free(dims);
   if (pdims) free(pdims);
+  err_update_eval(dliteStorageLoadError);
   return instance;
 }
 
