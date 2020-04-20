@@ -41,6 +41,12 @@ jobs:
         dockerfile: Dockerfile
         build_extra_args: "--compress=true"
 
+    - name: Push docker image for version tagged commits
+      if: startsWith(github.ref, 'v')
+      run: |
+        echo "I should now push a tagged version: ${{ github.ref }}"
+
+
     # - name: Push docker image for version tagged commits
     #   if: startsWith(${{ github.ref }}, 'v')
     #   env:
