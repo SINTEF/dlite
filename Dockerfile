@@ -45,12 +45,10 @@ RUN apt-get install -y \
     python3-numpy \
     python3-psycopg2 \
     python3-yaml \
+    python3-pip \
     swig3.0 \
     cppcheck \
     gfortran
-
-RUN apt-get install -y python3-pip
-
 
 # Install Python packages
 RUN pip3 install ipython
