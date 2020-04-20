@@ -86,12 +86,15 @@ Download and build
 Quick start with VS Code and Remote Container
 ---------------------------------------------
 
+Using Visual Studio Code it is possible to do development on the system defined in Dockerfile.
+
 1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
 2. Install the extension __Remote Development__.
 3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
 4. Open the _dlite_ folder with VS Code.
-5. When presented with a notification, select __Reopen in container__. This will build the container and restart VS Code in it. This may take some time the first time as the Docker image must be built.
+5. Start VS Code, run the *Remote-Containers: Open Folder in Container...* command from the Command Palette (F1) or quick actions Status bar item. This will build the container and restart VS Code in it. This may take some time the first time as the Docker image must be built. See [Quick start: Open an existing folder in a container](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container) for more information and instructions.
 6. In the container terminal, perform the first build and tests with `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make && make test`.
+
 
 Docker container
 ----------------

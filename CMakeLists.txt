@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.11)
 include(CPack)
 
 project(dlite
-  VERSION 0.2.2
+  VERSION 0.2.2.1
   #DESCRIPTION "Lightweight library for working with scientific data"
   LANGUAGES C
   )
