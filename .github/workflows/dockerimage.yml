@@ -43,7 +43,7 @@ jobs:
         dockerfile: Dockerfile
 
     - name: Push docker image for version tagged commits
-      if: startsWith({{ github.ref }}, 'v')
+      if: startsWith(${{ github.ref }}, 'v')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
       run: |
