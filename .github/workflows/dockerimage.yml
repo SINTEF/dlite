@@ -26,18 +26,20 @@ jobs:
         echo $(sed -n 's/^ *VERSION *\([0-9a-zA-Z.-]*\) *$/\1/p' <CMakeLists.txt) >VERSION
 
     - name: Create github docker package
-      uses: whoan/docker-build-with-cache-action@v4
+      uses: whoan/docker-build-with-cache-action@v5
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
       with:
         push_image_and_stages: true
+        push_git_tag: false
         username: jesper-friis
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
-        image_name: sintef/dlite/dlite
-        image_tag: ci-cache
+        image_name: sintef/dlite/dlite-ci
+        image_tag: cache
         context: .
         dockerfile: Dockerfile
+        build_extra_args: "--compress=true"
 
     # - name: Push docker image for version tagged commits
     #   if: startsWith(${{ github.ref }}, 'v')
