@@ -86,7 +86,7 @@ Download and build
 Quick start with VS Code and Remote Container
 ---------------------------------------------
 
-Using VS Code it is possible to do development on the system defined in Dockerfile.
+Using Visual Studio Code it is possible to do development on the system defined in Dockerfile.
 
 1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
 2. Install the extension __Remote Development__.
