@@ -32,6 +32,7 @@ set(sources
   dlite-mapping.c
   dlite-mapping-plugins.c
   dlite-codegen.c
+  dlite-getlicense.c
   getuuid.c
   triplestore.c
   )
@@ -47,6 +48,15 @@ add_definitions(
 # library search (especially on Windows), the storage plugins will use
 # the static libraries.  For this to work, the static libraries will be
 # build position independent.
+#
+# FIXME
+# Linking storage plugins against static libraries is a VERY BAD IDEA!
+# It will create independent copies of global variables in the main
+# application and the storage plugins and break the uniqueness of
+# entities, mess up errors, +++.
+# We have to implement a robust way to find shared libraries on Windows,
+# probably by appending to the PATH environment variable before loading
+# any storage or mapping plugin.
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
@@ -77,6 +87,24 @@ set_target_properties(dlite-static PROPERTIES
 
 #set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+
+## Generate dlite_get_license.c
+add_executable(gencfile utils/gencfile.c)
+add_custom_command(
+  OUTPUT dlite-getlicense.c
+  COMMAND $<TARGET_FILE:gencfile>
+    dlite_get_license
+    ${CMAKE_CURRENT_BINARY_DIR}/dlite-getlicense.c
+    ${dlite_SOURCE_DIR}/LICENSE.txt
+    ${dlite-src-utils_SOURCE_DIR}/LICENSES.txt
+  DEPENDS
+    gencfile
+    ${dlite_SOURCE_DIR}/LICENSE.txt
+    ${dlite-src-utils_SOURCE_DIR}/LICENSES.txt
+  COMMENT "Generating dlite-getlicense.c"
+)
+
+
 ## create list of headers to install from ${sources}
 set(headers dlite.h)
 foreach(source ${sources})
@@ -95,6 +123,7 @@ install(
   PUBLIC_HEADER DESTINATION include/dlite
   INCLUDES DESTINATION include/dlite
 )
+
 
 # Install empty directories
 install(DIRECTORY DESTINATION share/dlite/storages)

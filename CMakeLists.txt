@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.11)
 include(CPack)
 
 project(dlite
-  VERSION 0.2.1
+  VERSION 0.2.2
   #DESCRIPTION "Lightweight library for working with scientific data"
   LANGUAGES C
   )
@@ -17,7 +17,6 @@ option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
-
 option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
 
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
@@ -38,10 +37,12 @@ if(CMAKE_COMPILER_IS_GNUCC)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
+  enable_c_compiler_flag_if_supported("-Werror")
 endif()
 
 # Enable C99
 set(CMAKE_C_STANDARD 99)
+
 
 # Uncomment the lines below to compile with AddressSanitizer
 #set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
@@ -78,19 +79,32 @@ if(MEMORYCHECK_COMMAND)
     CACHE FILEPATH "File that contains suppressions for the memory checker"
     )
   set(MEMORYCHECK_COMMAND_OPTIONS
-    "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=50")
+    "-q --tool=memcheck --leak-check=yes --show-reachable=no --num-callers=50")
   #set(MEMORYCHECK_COMMAND_OPTIONS
   #  "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite
   #   --gen-suppressions=all")
 
   add_custom_target(memcheck
-    COMMAND ${CMAKE_CTEST_COMMAND}
-              --force-new-ctest-process --output-on-failure -T memcheck
+    COMMAND ${CMAKE_COMMAND}
+        -E env PYTHONMALLOC=malloc ${CMAKE_CTEST_COMMAND}
+            --exclude-regex=static-code-analysis
+            --force-new-ctest-process
+            --output-on-failure
+            --test-action memcheck
     COMMENT "Runs memory check with valgrind"
     )
 endif()
 
 include(CTest)
+
+find_program(CPPCHECK cppcheck)
+if(CPPCHECK)
+  add_test(
+    NAME static-code-analysis
+    COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
+      --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+    )
+endif()
 
 
 

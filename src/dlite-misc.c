@@ -18,6 +18,15 @@
  ********************************************************************/
 
 /*
+  Returns a pointer to the version string of DLite.
+*/
+const char *dlite_get_version(void)
+{
+  return dlite_VERSION;
+}
+
+
+/*
   Writes an UUID to `buff` based on `id`.
 
   Whether and what kind of UUID that is generated depends on `id`:
@@ -283,20 +292,30 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 }
 
 
+/* ----------------------------------------------------------- */
+/* Add explanation for why we need these functions and do not
+ * call the error functions in err.h directly.
+ *
+ * It had something to do with loading dlite as a shared library
+ * in Python which itself can load shared library plugins.
+ */
+
 /* Wrappers around error functions */
 #define BODY(fun, eval, msg)                            \
   va_list ap;                                           \
   va_start(ap, msg);                                    \
-  v ## fun(eval, msg, ap);                              \
+  dlite_v ## fun(eval, msg, ap);                        \
   va_end(ap)
 #define BODY2(fun, msg)                                 \
   va_list ap;                                           \
   va_start(ap, msg);                                    \
-  v ## fun(msg, ap);                                    \
+  dlite_v ## fun(msg, ap);                              \
   va_end(ap)
 void dlite_fatal(int eval, const char *msg, ...) {
+  // cppcheck-suppress va_end_missing
   BODY(fatal, eval, msg); }
 void dlite_fatalx(int eval, const char *msg, ...) {
+  // cppcheck-suppress va_end_missing
   BODY(fatalx, eval, msg); }
 int dlite_err(int eval, const char *msg, ...) {
   BODY(err, eval, msg); return eval; }
@@ -307,18 +326,24 @@ int dlite_warn(const char *msg, ...) {
 int dlite_warnx(const char *msg, ...) {
   BODY2(warnx, msg); return 0; }
 
+/* Changed below to explicitely link against _err_vformat() to avoid
+   to unintensionally link against the nonstandard BSD family of error
+   functions, on systems implementing them.
+
+   FIXME - double-check that this is the correct fix on Windows too.
+*/
 void dlite_vfatal(int eval, const char *msg, va_list ap) {
-  vfatal(eval, msg, ap); }
+  exit(_err_vformat("Fatal", eval, errno, NULL, NULL, msg, ap)); }
 void dlite_vfatalx(int eval, const char *msg, va_list ap) {
-  vfatalx(eval, msg, ap); }
+  exit(_err_vformat("Fatal", eval, 0, NULL, NULL, msg, ap)); }
 int dlite_verr(int eval, const char *msg, va_list ap) {
-  return verr(eval, msg, ap); }
+  return _err_vformat("Error", eval, errno, NULL, NULL, msg, ap); }
 int dlite_verrx(int eval, const char *msg, va_list ap) {
-  return verrx(eval, msg, ap); }
+  return _err_vformat("Error", eval, 0, NULL, NULL, msg, ap); }
 int dlite_vwarn(const char *msg, va_list ap) {
-  return vwarn(msg, ap); }
+  return _err_vformat("Warning", 0, errno, NULL, NULL, msg, ap); }
 int dlite_vwarnx(const char *msg, va_list ap) {
-  return vwarnx(msg, ap); }
+  return _err_vformat("Warning", 0, 0, NULL, NULL, msg, ap); }
 
 int dlite_errval(void) { return err_geteval(); }
 const char *dlite_errmsg(void) { return err_getmsg(); }

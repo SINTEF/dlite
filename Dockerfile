@@ -8,9 +8,7 @@
 #     docker run -i -t dlite
 #
 
-
-#from continuumio/miniconda3
-FROM ubuntu:18.04
+FROM ubuntu:18.04 AS dependencies
 
 RUN apt-get update
 
@@ -47,33 +45,40 @@ RUN apt-get install -y \
     python3-numpy \
     python3-psycopg2 \
     python3-yaml \
-    swig3.0
+    python3-pip \
+    swig3.0 \
+    cppcheck \
+    gfortran
 
-# Install IPython
-#RUN apt-get install -y ipython3
-RUN apt-get install -y python3-pip
+# Install Python packages
 RUN pip3 install ipython
+
+# The following section performs the build
+FROM dependencies AS build
 
 # Create and become a normal user
 RUN useradd -ms /bin/bash user
 USER user
 ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
 
+
+# Setup dlite
 RUN mkdir /home/user/sw
-
-WORKDIR /home/user/sw
-RUN git clone https://github.com/SINTEF/dlite.git
-
+COPY --chown=user:user . /home/user/sw/dlite
 WORKDIR /home/user/sw/dlite
-RUN git submodule update --init
-RUN mkdir build
+RUN rm -rf build
 
+# Perform static code checking
+RUN cppcheck . \
+    --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+
+# Build dlite
+RUN mkdir build
 WORKDIR /home/user/sw/dlite/build
 RUN cmake ..
 RUN make
 RUN make install
-RUN make test
-
+RUN ctest -E postgresql  # skip postgresql since we haven't set up the server
 
 ENTRYPOINT ipython3 \
     --colors=LightBG \

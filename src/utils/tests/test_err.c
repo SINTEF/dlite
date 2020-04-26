@@ -29,6 +29,7 @@ MU_TEST(test_err_functions)
   mu_assert_string_eq(msg, err_getmsg());
 
   /* Failing system call */
+  // cppcheck-suppress leakReturnValNotUsed
   fopen("", "r");
 
   msg = "Error 2: my errmsg: ";

@@ -391,7 +391,10 @@ static herr_t find_entries(hid_t loc_id, const char *name,
   else {
     int n = strlen(name) + 1;
     if (!(e = malloc(sizeof(EntryList)))) return err(-1, NULL);
-    if (!(e->name = malloc(n))) return err(-1, NULL);
+    if (!(e->name = malloc(n))) {
+      free(e);
+      return err(-1, NULL);
+    }
     memcpy(e->name, name, n);
     e->next = *ep;
     *ep = e;
@@ -608,7 +611,7 @@ int dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
   int dimsize;
-  if (get_data(d, dh5->dimensions, name, &dimsize, dliteInt,
+  if (get_data(d, dh5->dimensions, name, (void *)&dimsize, dliteInt,
                sizeof(dimsize), 1, NULL) < 0)
     return err(-1, "cannot get size of dimension '%s'", name);
   return dimsize;

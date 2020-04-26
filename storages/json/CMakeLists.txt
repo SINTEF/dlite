@@ -13,8 +13,8 @@ add_definitions(-DHAVE_CONFIG_H)
 add_library(dlite-plugins-json SHARED ${sources})
 target_link_libraries(dlite-plugins-json
   ${JANSSON_LIBRARIES}
-  dlite-static
-  dlite-utils-static
+  dlite
+  dlite-utils
   )
 target_include_directories(dlite-plugins-json PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}

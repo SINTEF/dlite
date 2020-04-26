@@ -1,4 +1,9 @@
-/* err.h -- simple error reporting library */
+/* err.h -- simple error reporting library
+ *
+ * Copyright (C) 2010-2020 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef ERR_H
 #define ERR_H
 
@@ -411,8 +416,10 @@ ErrHandler err_get_handler(void);
  *       break;
  *     ErrElse:
  *       code_on_no_errors...;
+ *       break;
  *     ErrFinally:
  *       always_executed...;
+ *       break;
  *     ErrEnd;
  *
  * Except for `ErrTry` and `ErrEnd`, all clauses are optional.  But if
@@ -440,7 +447,7 @@ ErrHandler err_get_handler(void);
  * by an earlier `ErrCatch` clause.
  *
  * The `ErrElse` clause will, if it is provided, be evaluated, if no errors
- * during evaluation of the `ErrTry` clause.
+ * occured during evaluation of the `ErrTry` clause.
  *
  * The `ErrFinally` clause will, if it is provided, always be evaluated.
  * It is typically used for cleanup-code.
@@ -452,10 +459,9 @@ ErrHandler err_get_handler(void);
  * the possibility that an error might be missed if another error occurs
  * within the same clause.  How to handle this, is controlled by
  * err_set_override_mode() and the environment variable `ERR_OVERRIDE`.
- *
- * @{
  */
 
+/** @{ */
 
 
 /** Adds link to new exception handler. Called internally by the
@@ -469,8 +475,6 @@ void _err_unlink_record(ErrRecord *errrecord);
 /** Returns pointer to current error record.  Called internally by
     the raise() macro.  Don't call this function directly. */
 ErrRecord *_err_get_record();
-
-
 
 
 /**
@@ -570,7 +574,6 @@ ErrRecord *_err_get_record();
     else                                                  \
       fatalx(eval, __VA_ARGS__);                          \
   } while (0)
-
 
 /** @} */
 

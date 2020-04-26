@@ -1,4 +1,9 @@
-/* dsl -- dynamic shared libraries */
+/* dsl.h -- dynamic shared libraries
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _DSL_H
 #define _DSL_H
 
@@ -108,7 +113,7 @@
 
 typedef void * dsl_handle;
 
-#define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY))
+#define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY | RTLD_GLOBAL))
 #define dsl_sym(handle, symbol)    ((void *)dlsym((void *)(handle), symbol))
 #define dsl_error()                ((const char *)dlerror())
 #define dsl_close(handle)          ((int)dlclose((void *)(handle)))

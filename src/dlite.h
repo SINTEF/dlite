@@ -12,6 +12,7 @@
 #include "dlite-entity.h"
 #include "dlite-storage.h"
 #include "dlite-collection.h"
+#include "dlite-getlicense.h"
 
 
 #endif /* _DLITE_H */

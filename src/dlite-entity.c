@@ -371,7 +371,9 @@ int dlite_instance_decref(DLiteInstance *inst)
 DLiteInstance *dlite_instance_get(const char *id)
 {
   DLiteInstance *inst=NULL;
-  const char **urls;
+  DLiteStoragePathIter *iter;
+  const char *url;
+  //const char **urls;
   FILE *errstream;
 
   /* check if instance `id` is already instansiated... */
@@ -381,12 +383,12 @@ DLiteInstance *dlite_instance_get(const char *id)
   }
 
   /* ...otherwise look it up in storages */
-  if (!(urls = dlite_storage_paths_get())) return NULL;
+  if (!(iter = dlite_storage_paths_iter_start())) return NULL;
 
-  while (*urls) {
-    const char *url = *(urls++);
+  while ((url = dlite_storage_paths_iter_next(iter))) {
     DLiteStorage *s;
     char *copy, *driver, *location, *options;
+
     if (!(copy = strdup(url))) return err(1, "allocation failure"), NULL;
 #ifdef _WIN32
     /* Hack: on Window, don't interpreat the "C" in urls starting with
@@ -437,6 +439,7 @@ DLiteInstance *dlite_instance_get(const char *id)
     }
     if (inst) return inst;
   }
+  dlite_storage_paths_iter_stop(iter);
   return NULL;
 }
 
@@ -1027,10 +1030,14 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, int *dims)
     if (newmembs == oldmembs) {
       continue;
     } else if (newmembs > 0) {
+      void *q;
       if (newmembs < oldmembs)
         for (i=newmembs; i < oldmembs; i++)
           dlite_type_clear((char *)(*ptr) + i*p->size, p->type, p->size);
-      *ptr = realloc(*ptr, newsize);
+      if (!(*ptr = realloc((q = *ptr), newsize))) {
+        if (q) free(q);
+        return err(1, "error reallocating '%s' to size %d", p->name, newsize);
+      }
       if (newmembs > oldmembs)
         memset((char *)(*ptr) + oldsize, 0, newsize - oldsize);
     } else if (*ptr) {

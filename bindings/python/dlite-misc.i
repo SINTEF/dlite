@@ -24,6 +24,15 @@
 
 %}
 
+%feature("docstring", "\
+Returns the current version of DLite.
+") dlite_get_version;
+const char *dlite_get_version(void);
+
+%feature("docstring", "\
+Returns DLite licenses information.
+") dlite_get_license;
+const char *dlite_get_license(void);
 
 %feature("docstring", "\
 Returns an UUID, depending on:

@@ -27,6 +27,7 @@ MU_TEST(test_create_from_id)
   DLiteInstance *inst;
   inst = dlite_instance_create_from_id("http://meta.sintef.no/0.1/ent2",
                                        NULL, NULL);
+  mu_check(inst);
   dlite_instance_set_property(inst, "b", &b);
   p = dlite_instance_get_property(inst, "b");
   mu_assert_int_eq(-13, *p);

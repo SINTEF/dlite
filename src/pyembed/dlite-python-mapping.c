@@ -230,7 +230,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
 
   /* get classname for error messages */
   if (!(classname = dlite_pyembed_classname(cls)))
-    dlite_warnx("cannot get class name for API %s", *((char **)api));
+    dlite_warnx("cannot get class name for API");
 
   /* get attributes to fill into the api */
   if (!(name = PyObject_GetAttrString(cls, "name")))

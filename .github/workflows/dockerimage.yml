@@ -1,23 +1,22 @@
 name: Docker Image CI
 
-on:
-  push:
-    branches:
-      - master
-    tags:
-      - v*
+on: [push]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     env:
       IMAGE_NAME: dlite
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
 
     steps:
     - uses: actions/checkout@v1
+
+    - name: Update submodules
+      run: |
+        git submodule init
+        git submodule update
 
     - name: Get docker version
       run: docker --version
@@ -27,20 +26,45 @@ jobs:
         echo dlite-ci$(date +%s) >IMAGE_ID
         echo $(sed -n 's/^ *VERSION *\([0-9a-zA-Z.-]*\) *$/\1/p' <CMakeLists.txt) >VERSION
 
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag $(<IMAGE_ID)
-
     - name: Create github docker package
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
-      run: |
-        # Authenticate
-        echo "Authenticate with GITHUB_TOKEN"
-        #docker login -u jesper-friis -p $GITHUB_TOKEN docker.pkg.github.com
-        echo $GITHUB_TOKEN | docker login -u jesper-friis --password-stdin docker.pkg.github.com
-        # Tag
-        echo "Tag docker image: $(<IMAGE_ID) as $IMAGE_NAME:$(<VERSION)"
-        docker tag $(<IMAGE_ID) docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
-        # Publish
-        echo "Publish docker image: docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)"
-        docker push docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
+      uses: whoan/docker-build-with-cache-action@v5
+      with:
+        push_image_and_stages: true
+        push_git_tag: false
+        username: jesper-friis
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        image_name: sintef/dlite/dlite-ci
+        image_tag: cache
+        context: .
+        dockerfile: Dockerfile
+        build_extra_args: "--compress=true"
+
+    - name: Push docker image for version tagged commits
+      uses: whoan/docker-build-with-cache-action@v5
+      if: startsWith(github.ref, 'v')
+      with:
+        push_image_and_stages: true
+        push_git_tag: false
+        username: jesper-friis
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        image_name: sintef/dlite/dlite
+        image_tag: ${{ github.ref }}
+        context: .
+        dockerfile: Dockerfile
+        build_extra_args: "--compress=true"
+
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # token provided by actions
+    #   run: |
+    #     # Authenticate
+    #     echo "Authenticate with GITHUB_TOKEN"
+    #     #docker login -u jesper-friis -p $GITHUB_TOKEN docker.pkg.github.com
+    #     echo $GITHUB_TOKEN | docker login -u jesper-friis --password-stdin docker.pkg.github.com
+    #     # Tag
+    #     echo "Tag docker image: $(<IMAGE_ID) as $IMAGE_NAME:$(<VERSION)"
+    #     docker tag $(<IMAGE_ID) docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)
+    #     # Publish
+    #     echo "Publish docker image: docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)"
+    #     docker push docker.pkg.github.com/sintef/dlite/$IMAGE_NAME:$(<VERSION)

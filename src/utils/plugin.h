@@ -1,4 +1,9 @@
-/* plugins.h -- simple plugin library */
+/* plugins.h -- simple plugin library
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _PLUGINS_H
 #define _PLUGINS_H
 
