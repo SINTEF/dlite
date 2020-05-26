@@ -234,23 +234,27 @@ if(WITH_PYTHON)
       find_package(Numpy REQUIRED)
     else()
       message("*** cmake >= 3.14")
-      find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+      #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+
+      find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+      set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+      find_package(Numpy REQUIRED)
     endif()
 
-  message("*** Python3_EXECUTABLE: ${Python3_EXECUTABLE}")
-  message("*** _Python3_EXECUTABLE: ${_Python3_EXECUTABLE}\n")
+    message("*** Python3_EXECUTABLE: ${Python3_EXECUTABLE}")
+    message("*** _Python3_EXECUTABLE: ${_Python3_EXECUTABLE}\n")
 
-  message("*** Python3_INCLUDE_DIR: ${Python3_INCLUDE_DIR}")
-  message("*** _Python3_INCLUDE_DIR: ${_Python3_INCLUDE_DIR}\n")
+    message("*** Python3_INCLUDE_DIR: ${Python3_INCLUDE_DIR}")
+    message("*** _Python3_INCLUDE_DIR: ${_Python3_INCLUDE_DIR}\n")
 
-  message("*** Python3_LIBRARY_DEBUG: ${Python3_LIBRARY_DEBUG}")
-  message("*** _Python3_LIBRARY_DEBUG: ${_Python3_LIBRARY_DEBUG}\n")
+    message("*** Python3_LIBRARY_DEBUG: ${Python3_LIBRARY_DEBUG}")
+    message("*** _Python3_LIBRARY_DEBUG: ${_Python3_LIBRARY_DEBUG}\n")
 
-  message("*** Python3_LIBRARY_RELEASE: ${Python3_LIBRARY_RELEASE}")
-  message("*** _Python3_LIBRARY_RELEASE: ${_Python3_LIBRARY_RELEASE}\n")
+    message("*** Python3_LIBRARY_RELEASE: ${Python3_LIBRARY_RELEASE}")
+    message("*** _Python3_LIBRARY_RELEASE: ${_Python3_LIBRARY_RELEASE}\n")
 
-  message("*** Python3_NumPy_INCLUDE_DIR: ${Python3_NumPy_INCLUDE_DIR}")
-  message("*** _Python3_NumPy_INCLUDE_DIR: ${_Python3_NumPy_INCLUDE_DIR}\n")
+    message("*** Python3_NumPy_INCLUDE_DIR: ${Python3_NumPy_INCLUDE_DIR}")
+    message("*** _Python3_NumPy_INCLUDE_DIR: ${_Python3_NumPy_INCLUDE_DIR}\n")
 
 
     # Set backward compatible Python variables
