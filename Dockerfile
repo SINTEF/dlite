@@ -28,6 +28,7 @@ RUN wget -O - \
 
 # Add Kitware repo
 RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+RUN apt update
 
 # Install dependencies
 RUN apt-get install -y \
