@@ -2,7 +2,7 @@
 #
 cmake_minimum_required(VERSION 3.11)
 #cmake_policy(VERSION 3.11)
-#cmake_policy(SET CMP0074 NEW)
+cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 project(dlite
@@ -222,40 +222,19 @@ endif()
 # ======
 if(WITH_PYTHON)
   if(CMAKE_VERSION VERSION_LESS_EQUAL 3.12)
-    message("*** cmake <= 3.12")
     set(Python_ADDITIONAL_VERSIONS 3.8 3.7 3.6 3.5)
     find_package(PythonInterp 3.5 REQUIRED)
     find_package(PythonLibs 3.5 REQUIRED)
   else()
-    if(CMAKE_VERSION VERSION_LESS 3.14)
-      message("*** cmake < 3.14")
+    if(CMAKE_VERSION VERSION_LESS 3.14.7)
       find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
       set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-      find_package(Numpy REQUIRED)
+      find_package(NumPy REQUIRED)
     else()
-      message("*** cmake >= 3.14")
-      #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
-
-      find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-      set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-      find_package(Numpy REQUIRED)
+      find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+      # Set backward compatible Python variable
+      set(NUMPY_INCLUDE_DIR ${Python3_NumPy_INCLUDE_DIRS})
     endif()
-
-    message("*** Python3_EXECUTABLE: ${Python3_EXECUTABLE}")
-    message("*** _Python3_EXECUTABLE: ${_Python3_EXECUTABLE}\n")
-
-    message("*** Python3_INCLUDE_DIR: ${Python3_INCLUDE_DIR}")
-    message("*** _Python3_INCLUDE_DIR: ${_Python3_INCLUDE_DIR}\n")
-
-    message("*** Python3_LIBRARY_DEBUG: ${Python3_LIBRARY_DEBUG}")
-    message("*** _Python3_LIBRARY_DEBUG: ${_Python3_LIBRARY_DEBUG}\n")
-
-    message("*** Python3_LIBRARY_RELEASE: ${Python3_LIBRARY_RELEASE}")
-    message("*** _Python3_LIBRARY_RELEASE: ${_Python3_LIBRARY_RELEASE}\n")
-
-    message("*** Python3_NumPy_INCLUDE_DIR: ${Python3_NumPy_INCLUDE_DIR}")
-    message("*** _Python3_NumPy_INCLUDE_DIR: ${_Python3_NumPy_INCLUDE_DIR}\n")
-
 
     # Set backward compatible Python variables
     set(PYTHONINTERP_FOUND    ${Python3_Interpreter_FOUND})
@@ -268,8 +247,8 @@ if(WITH_PYTHON)
 
     set(PYTHONLIBS_FOUND      ${Python3_Development_FOUND})
     set(PYTHON_LIBRARIES      ${Python3_LIBRARIES})
-    set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
     set(PYTHON_LIBRARY_DIRS   ${Python3_LIBRARY_DIRS})
+    set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
     set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
   endif()
 endif()
@@ -462,9 +441,10 @@ message("export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
 message("export DLITE_STORAGES='${dlite_STORAGES}'")
 message("")
 message("========== Python ==================")
-message("PYTHON_INCLUDE_DIRS:  ${PYTHON_INCLUDE_DIRS}")
 message("PYTHON_LIBRARIES:     ${PYTHON_LIBRARIES}")
 message("PYTHON_LIBRARY_DIRS:  ${PYTHON_LIBRARY_DIRS}")
+message("PYTHON_INCLUDE_DIRS:  ${PYTHON_INCLUDE_DIRS}")
+message("NUMPY_INCLUDE_DIR:    ${NUMPY_INCLUDE_DIR}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")
