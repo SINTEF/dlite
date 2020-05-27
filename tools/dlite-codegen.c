@@ -10,8 +10,8 @@
 #include "utils/compat.h"
 #include "utils/compat/getopt.h"
 #include "utils/err.h"
-#include "utils/tgen.h"
 #include "utils/fileutils.h"
+#include "utils/tgen.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-codegen.h"
@@ -35,14 +35,14 @@ void help()
     "  -o, --output=PATH            Output file.  Default is stdout.",
     "  -s, --storage-plugins=PATH   Additional paths to look for storage ",
     "                               plugins.  May be provided multiple times.",
-    "  -t, --template=PATH          Template file to load.",
+    "  -t, --template-file=PATH     Template file to load.",
     "  -v, --variables=STRING       Assignment of additional variable(s).",
     "                               STRING is a semicolon-separated string of",
     "                               VAR=VALUE pairs.  This option may be ",
     "                               provided more than once.",
     "",
-    "The template is either provided via the --template option, or (if",
-    "--template is not given) read from stdin.",
+    "The template is either specified with the --format or --template-file "
+    "options.",
     "",
     "The URL identifies the instance and should be of the general form:",
     "",
@@ -73,11 +73,11 @@ int main(int argc, char *argv[])
   size_t n;
   int builtin = 0;
   DLiteInstance *inst = NULL;
-  char *text=NULL, *template=NULL;
+  char *text=NULL, *template=NULL, *template_path=NULL;
 
   /* Command line arguments */
   char *url = NULL;
-  char *format = NULL;
+  char *format = "c-header";
   char *output = NULL;
   const char *template_file = NULL;
   TGenBuf variables;
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
       {"native-typenames", 0, NULL, 'n'},
       {"output",           1, NULL, 'o'},
       {"storage-plugins",  1, NULL, 's'},
-      {"template",         1, NULL, 't'},
+      {"template-file",    1, NULL, 't'},
       {"variables",        1, NULL, 'v'},
       {NULL, 0, NULL, 0}
     };
@@ -136,26 +136,14 @@ int main(int argc, char *argv[])
     if (!(inst = dlite_instance_load_url(url))) goto fail;
   }
 
-  /* Load template */
-  if (template_file) {
-    if (!(template = tgen_readfile(template_file))) goto fail;
-  } else if (format) {
-    FUPaths paths;
-    char *pattern=NULL;
-    FUIter *iter=NULL;
-    if (fu_paths_init(&paths, "DLITE_TEMPLATE_DIRS") >= 0 &&
-        fu_paths_append(&paths, DLITE_TEMPLATE_DIRS) >= 0 &&
-        asprintf(&pattern, "%s.txt", format) > 0 &&
-        (iter = fu_startmatch(pattern, &paths)) &&
-        (template_file = fu_nextmatch(iter)))
-      template = tgen_readfile(template_file);
-    fu_paths_deinit(&paths);
-    if (pattern) free(pattern);
-    if (iter) fu_endmatch(iter);
-    if (!template) goto fail;
-  } else {
-    FAIL("either --template or --format must be given");
+  /* Get template file name */
+  if (!template_file) {
+    if (!(template_path = dlite_codegen_template_file(format))) goto fail;
+    template_file = template_path;
   }
+
+  /* Load template */
+  if (!(template = tgen_readfile(template_file))) goto fail;
 
   /* Generate */
   if (!(text = dlite_codegen(template, inst, tgen_buf_get(&variables))))
@@ -176,6 +164,7 @@ int main(int argc, char *argv[])
  fail:
   if (inst) dlite_instance_decref(inst);
   tgen_buf_deinit(&variables);
+  if (template_path) free(template_path);
   if (template) free(template);
   if (text) free(text);
   return retval;
