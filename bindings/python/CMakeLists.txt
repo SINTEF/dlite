@@ -157,6 +157,12 @@ install(
   DESTINATION ${PYTHON_MODULE_PATH}
   )
 
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mapping-plugins
+  DESTINATION ${DLITE_PYTHON_MAPPING_PLUGIN_DIRS}
+  PATTERN ".gitignore" EXCLUDE
+  )
+
 
 #
 # Tests
