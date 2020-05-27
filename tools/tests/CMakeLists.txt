@@ -24,7 +24,7 @@ if(WITH_JSON)
         json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
-    DEPENDS dlite-codegen
+    DEPENDS dlite-codegen dlite-plugins-json
     COMMENT "Generating C header for Chemistry-0.1.json"
   )
 
