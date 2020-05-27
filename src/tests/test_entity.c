@@ -46,6 +46,7 @@ MU_TEST(test_entity_create)
   };
 
   mu_check((entity = (DLiteMeta *)dlite_entity_create(uri, "My test entity.",
+                                                      NULL,
                                                       2, dimensions,
                                                       5, properties)));
   mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */

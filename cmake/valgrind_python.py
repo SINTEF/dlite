@@ -11,3 +11,4 @@ def to_string(byte_sequence):
 s = to_string(b'abc')
 
 A = np.random.rand(2, 2)
+print(A)

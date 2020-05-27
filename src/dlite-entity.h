@@ -601,7 +601,8 @@ DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
   Returns a new Entity created from the given arguments.
  */
 DLiteMeta *
-dlite_entity_create(const char *uri, const char *description,
+dlite_entity_create(const char *uri, const char *iri,
+                    const char *description,
                     size_t ndimensions, const DLiteDimension *dimensions,
                     size_t nproperties, const DLiteProperty *properties);
 
