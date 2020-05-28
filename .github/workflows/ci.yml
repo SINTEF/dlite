@@ -4,38 +4,47 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        python-version: [3.7]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Get Cmake version
-      run: |
-        cmake --version
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.7'
+        architecture: 'x64'
+
     - name: Update submodules
       run: |
         git submodule init
         git submodule update
+    - name: Get Cmake version
+      run: |
+        cmake --version
     - name: Install dependencies
       run: |
         sudo apt-get install libjansson-dev
         sudo apt-get install libhdf5-dev
-        sudo apt-get install python3-dev
-        sudo apt-get install python3-numpy
-        sudo apt-get install python3-yaml
-        sudo apt-get install python3-psycopg2
         sudo apt-get install swig3.0
         sudo apt-get install doxygen
         sudo apt-get install graphviz
+    - name: Install Python dependencies
+      run: |
+        pip3 install setuptools
+        pip3 install numpy
+        pip3 install PyYAML
+        pip3 install psycopg2
+    - name: check numpy
+      run: |
+        which python3
+        python3 --version
+        pip3 --version
+        python3 -c 'import numpy as np; print(np.get_include())'
     - name: configure
       run: |
         mkdir build
         cd build
-        cmake ..
+        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') cmake ..
         cd -
     - name: make
       run: |

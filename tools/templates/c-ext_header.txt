@@ -32,7 +32,6 @@
 #include "utils/floats.h"
 
 
-
 #define {name%U}_NAME      "{name}"
 #define {name%U}_VERSION   "{version}"
 #define {name%U}_NAMESPACE "{namespace}"
@@ -40,6 +39,7 @@
 #define {name%U}_UUID      "{_uuid}"
 #define {name%U}_META_URI  "{meta.uri}"
 #define {name%U}_META_UUID "{meta.uuid}"
+#define {name%U}_IRI       "{_iri}"
 
 
 #define {name}_HEAD{@38}\\
@@ -48,6 +48,7 @@
   const char *_uri;                   \\
   int _refcount;                      \\
   const struct _DLiteMeta *_meta;     \\
+  const char *_iri;                   \\
 {@if:{ismetameta}==1}\
                                       \\
   size_t ndimensions;                 \\

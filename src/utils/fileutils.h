@@ -16,6 +16,13 @@
 # include "config.h"
 #endif
 
+/** Error codes */
+enum {
+ fu_PathError=5870,
+ fu_OpenDirectoryError,
+};
+
+
 #if defined __unix__ || (defined __APPLE__ && defined __MARCH__)
 /* POSIX */
 # ifndef POSIX

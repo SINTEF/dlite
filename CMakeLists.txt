@@ -2,7 +2,7 @@
 #
 cmake_minimum_required(VERSION 3.11)
 #cmake_policy(VERSION 3.11)
-#cmake_policy(SET CMP0074 NEW)
+cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 project(dlite
@@ -67,45 +67,6 @@ else()
 endif()
 set(DLITE_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
   "Installation directory for CMake files")
-
-
-# Testing
-# -------
-find_program(MEMORYCHECK_COMMAND NAMES valgrind)
-
-if(MEMORYCHECK_COMMAND)
-  set(MEMORYCHECK_SUPPRESSIONS_FILE
-    ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
-    CACHE FILEPATH "File that contains suppressions for the memory checker"
-    )
-  set(MEMORYCHECK_COMMAND_OPTIONS
-    "-q --tool=memcheck --leak-check=yes --show-reachable=no --num-callers=50")
-  #set(MEMORYCHECK_COMMAND_OPTIONS
-  #  "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite
-  #   --gen-suppressions=all")
-
-  add_custom_target(memcheck
-    COMMAND ${CMAKE_COMMAND}
-        -E env PYTHONMALLOC=malloc ${CMAKE_CTEST_COMMAND}
-            --exclude-regex=static-code-analysis
-            --force-new-ctest-process
-            --output-on-failure
-            --test-action memcheck
-    COMMENT "Runs memory check with valgrind"
-    )
-endif()
-
-include(CTest)
-
-find_program(CPPCHECK cppcheck)
-if(CPPCHECK)
-  add_test(
-    NAME static-code-analysis
-    COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
-      --language=c -q --force --error-exitcode=2 --inline-suppr -i build
-    )
-endif()
-
 
 
 ####################################################################
@@ -265,12 +226,14 @@ if(WITH_PYTHON)
     find_package(PythonInterp 3.5 REQUIRED)
     find_package(PythonLibs 3.5 REQUIRED)
   else()
-    if(CMAKE_VERSION VERSION_LESS 3.14)
+    if(CMAKE_VERSION VERSION_LESS 3.14.7)
       find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
       set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-      find_package(Numpy REQUIRED)
+      find_package(NumPy REQUIRED)
     else()
       find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+      # Set backward compatible Python variable
+      set(NUMPY_INCLUDE_DIR ${Python3_NumPy_INCLUDE_DIRS})
     endif()
 
     # Set backward compatible Python variables
@@ -284,11 +247,85 @@ if(WITH_PYTHON)
 
     set(PYTHONLIBS_FOUND      ${Python3_Development_FOUND})
     set(PYTHON_LIBRARIES      ${Python3_LIBRARIES})
-    set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
     set(PYTHON_LIBRARY_DIRS   ${Python3_LIBRARY_DIRS})
+    set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
     set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
   endif()
 endif()
+
+
+# Testing
+# -------
+find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+
+if(MEMORYCHECK_COMMAND)
+
+  if(WITH_PYTHON)
+    set(python_supp "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.supp")
+    set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt")
+
+    # Generate platform-specific suppressions file for Python
+    if(NOT EXISTS ${python_supp} OR ${dlite_supp} IS_NEWER_THAN ${python_supp})
+      message(STATUS "generate Python suppressions")
+      find_program(AWK_COMMAND NAMES gawk awk)
+      execute_process(
+        COMMAND ${CMAKE_COMMAND}
+          -E env PYTHONMALLOC=malloc ${MEMORYCHECK_COMMAND}
+            --leak-check=yes
+            --show-leak-kinds=all
+            --suppressions=${dlite_supp}
+            --gen-suppressions=all
+            ${PYTHON_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
+        ERROR_FILE ${python_supp}.tmp
+        )
+      execute_process(
+        COMMAND ${AWK_COMMAND}
+          -f ${CMAKE_CURRENT_SOURCE_DIR}/cmake/parse_valgrind_suppressions.awk
+        INPUT_FILE ${python_supp}.tmp
+        OUTPUT_VARIABLE content
+        )
+      execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy
+          ${dlite_supp} ${python_supp}
+        )
+      file(APPEND ${python_supp} "\n# -------------------------------------\n# Platform-specific Python suppressions\n# -------------------------------------\n\n")
+      file(APPEND ${python_supp} ${content})
+    endif()
+
+    set(MEMORYCHECK_SUPPRESSIONS_FILE
+      ${python_supp}
+      CACHE FILEPATH "File that contains suppressions for the memory checker"
+      )
+  else()
+    set(MEMORYCHECK_SUPPRESSIONS_FILE
+      ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
+      CACHE FILEPATH "File that contains suppressions for the memory checker"
+      )
+  endif()
+
+  add_custom_target(memcheck
+    COMMAND ${CMAKE_COMMAND}
+        -E env PYTHONMALLOC=malloc ${CMAKE_CTEST_COMMAND}
+            --exclude-regex static-code-analysis
+            --force-new-ctest-process
+            --output-on-failure
+            --test-action memcheck
+    DEPENDS ${python_supp}
+    COMMENT "Runs memory check with valgrind"
+    )
+endif()
+
+include(CTest)
+
+find_program(CPPCHECK cppcheck)
+if(CPPCHECK)
+  add_test(
+    NAME static-code-analysis
+    COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
+      --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+    )
+endif()
+
 
 
 # -------------------------------------------
@@ -355,7 +392,7 @@ list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
 
 # DLITE_PYTHON_MAPPING_PLUGIN_DIRS - search path for Python mapping plugins
 set(dlite_PYTHON_MAPPING_PLUGINS
-  ${dlite_SOURCE_DIR}/mapping-plugins/src/pyembed
+  ${dlite_SOURCE_DIR}/bindings/python/mapping-plugins
   $ENV{DLITE_PYTHON_MAPPING_PLUGIN_DIRS}
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_MAPPING_PLUGINS)
@@ -404,9 +441,10 @@ message("export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
 message("export DLITE_STORAGES='${dlite_STORAGES}'")
 message("")
 message("========== Python ==================")
-message("PYTHON_INCLUDE_DIRS:  ${PYTHON_INCLUDE_DIRS}")
 message("PYTHON_LIBRARIES:     ${PYTHON_LIBRARIES}")
 message("PYTHON_LIBRARY_DIRS:  ${PYTHON_LIBRARY_DIRS}")
+message("PYTHON_INCLUDE_DIRS:  ${PYTHON_INCLUDE_DIRS}")
+message("NUMPY_INCLUDE_DIR:    ${NUMPY_INCLUDE_DIR}")
 message("")
 message("========== Jansson ==================")
 message("JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}")

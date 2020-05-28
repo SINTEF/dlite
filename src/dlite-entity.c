@@ -173,7 +173,6 @@ DLiteInstance *_instance_create(const DLiteMeta *meta, const size_t *dims,
      existing id. */
   if (lookup && id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
-    //if (dlite_instance_is_data(inst))
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->refcount);
     return inst;
@@ -308,6 +307,7 @@ static void dlite_instance_free(DLiteInstance *inst)
   /* Standard free */
   nprops = meta->nproperties;
   if (inst->uri) free((char *)inst->uri);
+  if (inst->iri) free((char *)inst->iri);
   if (meta->properties) {
     for (i=0; i<nprops; i++) {
       DLiteProperty *p = (DLiteProperty *)meta->properties + i;
@@ -373,8 +373,6 @@ DLiteInstance *dlite_instance_get(const char *id)
   DLiteInstance *inst=NULL;
   DLiteStoragePathIter *iter;
   const char *url;
-  //const char **urls;
-  FILE *errstream;
 
   /* check if instance `id` is already instansiated... */
   if ((inst = _instance_store_get(id))) {
@@ -385,6 +383,7 @@ DLiteInstance *dlite_instance_get(const char *id)
   /* ...otherwise look it up in storages */
   if (!(iter = dlite_storage_paths_iter_start())) return NULL;
 
+  assert(iter);
   while ((url = dlite_storage_paths_iter_next(iter))) {
     DLiteStorage *s;
     char *copy, *driver, *location, *options;
@@ -407,37 +406,38 @@ DLiteInstance *dlite_instance_get(const char *id)
 
     /* Set read-only as default mode (all drivers should support this) */
     if (!options) options = "mode=r";
-    errstream = err_set_stream(NULL);         /* silence errors */
     if ((s = dlite_storage_open(driver, location, options))) {
       /* url is a storage we can open... */
-      inst = _instance_load_casted(s, id, NULL, 0);
-      err_set_stream(errstream);  /* restore error stream */
+      ErrTry:
+        inst = _instance_load_casted(s, id, NULL, 0);
+      ErrCatch(dliteStorageLoadError):  // suppressed error
+        break;
+      ErrEnd;
       dlite_storage_close(s);
     } else {
       /* ...otherwise it may be a glob pattern */
-      FUIter *iter;
-      err_set_stream(errstream);  /* restore error stream */
-      if ((iter = fu_glob(location))) {
+      FUIter *fiter;
+      if ((fiter = fu_glob(location))) {
         const char *path;
-        while (!inst && (path = fu_globnext(iter))) {
+        while (!inst && (path = fu_globnext(fiter))) {
 	  driver = (char *)fu_fileext(path);
 	  if ((s = dlite_storage_open(driver, path, options))) {
             ErrTry:
               inst = _instance_load_casted(s, id, NULL, 0);
-              break;
-            ErrCatch(1):
-              /* Ignore errors about that the instance cannot be loaded... */
-              /* TODO: make error codes more specific. */
+            ErrCatch(dliteStorageLoadError):  // suppressed error
               break;
             ErrEnd;
 	    dlite_storage_close(s);
 	  }
         }
-        fu_globend(iter);
+        fu_globend(fiter);
       }
-      free(copy);
     }
-    if (inst) return inst;
+    free(copy);
+    if (inst) {
+      dlite_storage_paths_iter_stop(iter);
+      return inst;
+    }
   }
   dlite_storage_paths_iter_stop(iter);
   return NULL;
@@ -537,7 +537,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 
   /* check if storage implements the instance api */
   if (s->api->loadInstance) {
-    inst = s->api->loadInstance(s, id);
+    if (!(inst = s->api->loadInstance(s, id))) goto fail;
     if (metaid)
       return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
     else
@@ -634,17 +634,20 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   }
 
   /* cast if `metaid` is not NULL */
-  if (metaid)
+  if (inst && metaid)
     instance = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
   else
     instance = inst;
 
  fail:
+  if (!inst && !err_geteval())
+    err(1, "cannot load id '%s' from storage '%s'", id, s->uri);
   if (!instance && inst) dlite_instance_decref(inst);
   if (d) dlite_datamodel_free(d);
   if (uri) free((char *)uri);
   if (dims) free(dims);
   if (pdims) free(pdims);
+  err_update_eval(dliteStorageLoadError);
   return instance;
 }
 
@@ -1187,7 +1190,8 @@ DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
   Returns a new Entity created from the given arguments.
  */
 DLiteMeta *
-dlite_entity_create(const char *uri, const char *description,
+dlite_entity_create(const char *uri, const char *iri,
+                    const char *description,
 		    size_t ndimensions, const DLiteDimension *dimensions,
 		    size_t nproperties, const DLiteProperty *properties)
 {
@@ -1202,6 +1206,7 @@ dlite_entity_create(const char *uri, const char *description,
   if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))
     goto fail;
 
+  if (iri) e->iri = strdup(iri);
   if (dlite_instance_set_property(e, "name", &name)) goto fail;
   if (dlite_instance_set_property(e, "version", &version)) goto fail;
   if (dlite_instance_set_property(e, "namespace", &namespace)) goto fail;

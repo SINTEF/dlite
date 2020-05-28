@@ -333,17 +333,17 @@ int dlite_warnx(const char *msg, ...) {
    FIXME - double-check that this is the correct fix on Windows too.
 */
 void dlite_vfatal(int eval, const char *msg, va_list ap) {
-  exit(_err_vformat("Fatal", eval, errno, NULL, NULL, msg, ap)); }
+  exit(_err_vformat(errLevelFatal, eval, errno, NULL, NULL, msg, ap)); }
 void dlite_vfatalx(int eval, const char *msg, va_list ap) {
-  exit(_err_vformat("Fatal", eval, 0, NULL, NULL, msg, ap)); }
+  exit(_err_vformat(errLevelFatal, eval, 0, NULL, NULL, msg, ap)); }
 int dlite_verr(int eval, const char *msg, va_list ap) {
-  return _err_vformat("Error", eval, errno, NULL, NULL, msg, ap); }
+  return _err_vformat(errLevelError, eval, errno, NULL, NULL, msg, ap); }
 int dlite_verrx(int eval, const char *msg, va_list ap) {
-  return _err_vformat("Error", eval, 0, NULL, NULL, msg, ap); }
+  return _err_vformat(errLevelError, eval, 0, NULL, NULL, msg, ap); }
 int dlite_vwarn(const char *msg, va_list ap) {
-  return _err_vformat("Warning", 0, errno, NULL, NULL, msg, ap); }
+  return _err_vformat(errLevelWarn, 0, errno, NULL, NULL, msg, ap); }
 int dlite_vwarnx(const char *msg, va_list ap) {
-  return _err_vformat("Warning", 0, 0, NULL, NULL, msg, ap); }
+  return _err_vformat(errLevelWarn, 0, 0, NULL, NULL, msg, ap); }
 
 int dlite_errval(void) { return err_geteval(); }
 const char *dlite_errmsg(void) { return err_getmsg(); }

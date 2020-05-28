@@ -4,6 +4,7 @@
 
 #include "utils/err.h"
 #include "utils/tgen.h"
+#include "utils/fileutils.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -391,4 +392,46 @@ char *dlite_codegen(const char *template, const DLiteInstance *inst,
   text = tgen(template, &subs, &context);
   tgen_subs_deinit(&subs);
   return text;
+}
+
+
+/*
+  Returns a pointer to malloc'ed template file name, given a template
+  name (e.g. "c-header", "c-source", "c-ext_header", ...) or NULL on error.
+ */
+char *dlite_codegen_template_file(const char *template_name)
+{
+  FUPaths paths;
+  char *pattern=NULL, *retval=NULL;
+  const char *template_file;
+  FUIter *iter=NULL;
+
+  if (fu_paths_init(&paths, "DLITE_TEMPLATE_DIRS") < 0)
+    FAIL("failure initialising codegen template paths");
+  if (asprintf(&pattern, "%s.txt", template_name) < 0)
+    FAIL("allocation failure");
+  if (fu_paths_append(&paths, DLITE_TEMPLATE_DIRS) < 0)
+    FAIL1("failure appending default codegen template search path: %s",
+          DLITE_TEMPLATE_DIRS);
+  if (!(iter = fu_pathsiter_init(&paths, pattern)))
+    FAIL("failure creating codegen template path iterator");
+  if (!(template_file = fu_pathsiter_next(iter))) {
+      const char **path;
+      TGenBuf msg;
+      tgen_buf_append_fmt(&msg, "cannot find template file \"%s\" in paths:\n",
+                          template_file);
+      for (path=fu_paths_get(&paths); *path; path++)
+        tgen_buf_append_fmt(&msg, "  - %s\n", *path);
+      errx(1, "%s", tgen_buf_get(&msg));
+      tgen_buf_deinit(&msg);
+      goto fail;
+  }
+  retval = strdup(template_file);
+
+ fail:
+  if (iter) fu_pathsiter_deinit(iter);
+  if (pattern) free(pattern);
+  fu_paths_deinit(&paths);
+
+  return retval;
 }

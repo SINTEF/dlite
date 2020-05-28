@@ -329,22 +329,27 @@ const void *plugin_api_iter_next(PluginIter *iter)
 int plugin_unload(PluginInfo *info, const char *name)
 {
   char **ppath;
-  if (!map_get(&info->apis, name))
-    return errx(1, "cannot unload api: %s", name);
-  if ((ppath = map_get(&info->pluginpaths, name))) {
+  char *pname = strdup(name);
+  int retval = 1;
+  if (!map_get(&info->apis, pname))
+    FAIL1("cannot unload api: %s", pname);
+  if ((ppath = map_get(&info->pluginpaths, pname))) {
     Plugin **p;
     assert(*ppath);
     if ((p = map_get(&info->plugins, *ppath))) {
       char *path;
       assert(*p);
-      if (!(path = strdup(*ppath))) return err(1, "allocation failure");
+      if (!(path = strdup(*ppath))) FAIL("allocation failure");
       if (plugin_decref(*p) <= 0) map_remove(&info->plugins, path);
       free(path);
     }
   }
-  map_remove(&info->pluginpaths, name);
-  map_remove(&info->apis, name);
-  return 0;
+  map_remove(&info->pluginpaths, pname);
+  map_remove(&info->apis, pname);
+  retval = 0;
+ fail:
+  free(pname);
+  return retval;
 }
 
 

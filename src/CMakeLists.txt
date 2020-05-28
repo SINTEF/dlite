@@ -106,7 +106,7 @@ add_custom_command(
 
 
 ## create list of headers to install from ${sources}
-set(headers dlite.h)
+set(headers dlite.h dlite-errors.h)
 foreach(source ${sources})
   string(REPLACE ".c" ".h" header ${source})
   list(APPEND headers ${header})

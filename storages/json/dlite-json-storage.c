@@ -758,8 +758,6 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
 
   if (!json_is_object(obj)) return 1;
   prop->name = str_copy(json_string_value(json_object_get(obj, "name")));
-  prop->description =
-    str_copy(json_string_value(json_object_get(obj, "description")));
   ptype = json_string_value(json_object_get(obj, "type"));
   dlite_type_set_dtype_and_size(ptype, &(prop->type), &(prop->size));
   dims = json_object_get(obj, "dims");
@@ -777,6 +775,12 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
       }
     }
   }
+  prop->unit =
+    str_copy(json_string_value(json_object_get(obj, "unit")));
+  prop->iri =
+    str_copy(json_string_value(json_object_get(obj, "iri")));
+  prop->description =
+    str_copy(json_string_value(json_object_get(obj, "description")));
   return 0;
 }
 
@@ -785,6 +789,7 @@ DLiteMeta *dlite_json_entity(json_t *obj)
 {
   DLiteMeta *entity = NULL;
   char *uri=NULL;
+  char *iri=NULL;
   char *desc=NULL;
   int i, nprop, ndim;
   json_t *jd;
@@ -806,6 +811,9 @@ DLiteMeta *dlite_json_entity(json_t *obj)
           err(0, "no property for the entity %s", uri);
         }
         else if ((nprop > 0) && (ndim >= 0)) {
+          item = json_object_get(obj, "iri");
+          if (item) iri = str_copy(json_string_value(item));
+
           item = json_object_get(obj, "description");
           if (item) desc = str_copy(json_string_value(item));
 
@@ -827,7 +835,9 @@ DLiteMeta *dlite_json_entity(json_t *obj)
             dlite_json_entity_prop(item, ndim, dims, props + i);
           }
 
-          entity = dlite_entity_create(uri, desc, ndim, dims, nprop, props);
+          entity = dlite_entity_create(uri, iri, desc,
+                                       ndim, dims,
+                                       nprop, props);
         }
       }
       else

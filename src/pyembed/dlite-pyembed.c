@@ -354,7 +354,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     if (!(ppath = PyUnicode_FromString(path)))
       FAIL1("cannot create Python string from path: '%s'", path);
     stat = PyDict_SetItemString(main_dict, "__file__", ppath);
-    Py_XDECREF(ppath);
+    Py_DECREF(ppath);
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
     if ((basename = fu_basename(path)) && (fp = fopen(path, "r"))) {
@@ -365,6 +365,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
       } else {
         Py_DECREF(ret);
       }
+      fclose(fp);
     }
   }
   if (fu_pathsiter_deinit(iter)) goto fail;
