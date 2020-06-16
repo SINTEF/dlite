@@ -3,6 +3,9 @@
 
 external
 build*
+local
+jansson
+hdf5-1.10.*
 .gdb_history
 
 # Ignore personal modified bootstrap files

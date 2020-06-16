@@ -16,6 +16,12 @@
 #include "dlite-datamodel.h"
 #include "dlite-schemas.h"
 
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 #define max(x, y) (((x) >= (y)) ? (x) : (y))
 

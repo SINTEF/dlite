@@ -236,8 +236,8 @@ void dlite_mapping_free(DLiteMapping *m)
     assert(!(m->input_maps[i] && m->input_uris[i]));
     if (m->input_maps[i]) dlite_mapping_free((DLiteMapping *)m->input_maps[i]);
   }
-  free(m->input_maps);
-  free(m->input_uris);
+  free((void *)m->input_maps);
+  free((void *)m->input_uris);
   free(m);
 }
 
@@ -282,7 +282,7 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
   map_set(instances, inst->meta->uri, inst);
 
  fail:
-  if (insts) free(insts);
+  if (insts) free((void *)insts);
   return inst;
 }
 

@@ -103,41 +103,51 @@ MU_TEST(test_fu_friendly_dirsep)
 {
   char path[256];
   strcpy(path, "/etc/fstab");
-#if WINDOWS
-  mu_assert_string_eq("\\etc\\fstab", fu_friendly_dirsep(path));
-#else
   mu_assert_string_eq("/etc/fstab", fu_friendly_dirsep(path));
+
+  strcpy(path, "\\\\drive:a/file");
+#ifdef WINDOWS
+  mu_assert_string_eq("\\\\drive:a\\file", fu_friendly_dirsep(path));
+#else
+  mu_assert_string_eq("\\\\drive:a/file", fu_friendly_dirsep(path));
 #endif
 }
 
 MU_TEST(test_fu_realpath)
 {
   char *testdir, *path, *realpath;
-#if WINDOWS
+#ifdef WINDOWS
   char buff[MAX_PATH];
 #else
   char buff[PATH_MAX];
 #endif
   printf("\nfu_realpath()\n");
+  fflush(stdout);
 
   testdir = fu_realpath(STRINGIFY(TESTDIR), NULL);
-  printf("  %s ->\n  %s\n", STRINGIFY(TESTDIR), testdir);
 
   realpath = fu_join(testdir, "test_fileutils.c", NULL);
-  mu_assert_string_eq(realpath, fu_realpath(realpath, buff));
+  fu_friendly_dirsep(realpath);
+  fu_realpath(realpath, buff);
+  fu_friendly_dirsep(buff);
+  mu_assert_string_eq(realpath, buff);
 
   path = fu_join(testdir, "..", ".", "tests", "test_fileutils.c", NULL);
-  printf("\n  %s ->\n  %s\n", path, fu_realpath(path, buff));
-  mu_assert_string_eq(realpath, fu_realpath(path, buff));
+  fu_realpath(path, buff);
+  fu_friendly_dirsep(buff);
+  mu_assert_string_eq(realpath, buff);
   free(path);
 
   path = fu_join(testdir, "..", "", "tests", "test_fileutils.c", NULL);
-  printf("\n  %s ->\n  %s\n", path, fu_realpath(path, buff));
-  mu_assert_string_eq(realpath, fu_realpath(path, buff));
+  fu_realpath(path, buff);
+  fu_friendly_dirsep(buff);
+  mu_assert_string_eq(realpath, buff);
   free(path);
 
-  mu_check(fu_realpath("a_strange-non-existing_path...", buff) == NULL);
+  mu_assert_string_eq(NULL, fu_realpath("a_strange/non-existing_path...", buff));
+  mu_check(fu_realpath("a_strange/non-existing_path...", buff) == NULL);
   printf("\n");
+  fflush(stdout);
   free(realpath);
   free(testdir);
 }
@@ -165,6 +175,7 @@ MU_TEST(test_fu_getfile)
     if (strcmp(fname, "test_fileutils.c") == 0) found_self=1;
     if (strcmp(fname, "xyz") == 0) found_xyz=1;
   }
+  fflush(stdout);
 
   mu_assert_int_eq(1, found_self);
   mu_assert_int_eq(0, found_xyz);
@@ -209,11 +220,15 @@ MU_TEST(test_fu_paths)
   mu_assert_int_eq(2, paths.n);
 
   mu_assert_int_eq(0, fu_paths_insert(&paths, "path0", 0));
+  fprintf(stderr, "*** paths[0]='%s'\n", paths.paths[0]);
+  fprintf(stderr, "*** paths[1]='%s'\n", paths.paths[1]);
+  fprintf(stderr, "*** paths[2]='%s'\n", paths.paths[2]);
   mu_assert_int_eq(3, paths.n);
   mu_assert_int_eq(3, count_paths(&paths));
   mu_assert_string_eq("path0", paths.paths[0]);
   mu_assert_string_eq("path1", paths.paths[1]);
   mu_assert_string_eq("path2", paths.paths[2]);
+  mu_assert_string_eq(NULL,    paths.paths[3]);
 
   mu_assert_int_eq(1, fu_paths_insert(&paths, "new", -2));
   mu_assert_int_eq(4, paths.n);
@@ -221,13 +236,18 @@ MU_TEST(test_fu_paths)
   mu_assert_string_eq("new",   paths.paths[1]);
   mu_assert_string_eq("path1", paths.paths[2]);
   mu_assert_string_eq("path2", paths.paths[3]);
+  mu_assert_string_eq(NULL,    paths.paths[4]);
 
-  mu_assert_int_eq(0, fu_paths_insert(&paths, "new2", -10));
+  mu_assert_int_eq(0, fu_paths_insert(&paths, "new2", -4));
   mu_assert_int_eq(5, paths.n);
   mu_assert_string_eq("new2",  paths.paths[0]);
   mu_assert_string_eq("path0", paths.paths[1]);
+  mu_assert_string_eq("new",   paths.paths[2]);
+  mu_assert_string_eq("path1", paths.paths[3]);
+  mu_assert_string_eq("path2", paths.paths[4]);
+  mu_assert_string_eq(NULL,    paths.paths[5]);
 
-  mu_assert_int_eq(5, fu_paths_insert(&paths, "new3", 10));
+  mu_assert_int_eq(5, fu_paths_insert(&paths, "new3", 5));
   mu_assert_int_eq(6, paths.n);
   mu_assert_int_eq(6, count_paths(&paths));
   mu_assert_string_eq("path2", paths.paths[4]);

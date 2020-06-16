@@ -41,10 +41,14 @@
 #cmakedefine HAVE_REALPATH
 #cmakedefine HAVE_STAT
 #cmakedefine HAVE_P_TMPDIR
+
 #cmakedefine HAVE_GetFullPathNameW
 #cmakedefine HAVE_GetFullPathName
 #cmakedefine HAVE_GetFileAttributesW
 #cmakedefine HAVE_GetFileAttributes
+#cmakedefine HAVE_PathFileExistsW
+#cmakedefine HAVE_MBSTOWCS_S
+#cmakedefine HAVE_WCSTOMBS_S
 
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG

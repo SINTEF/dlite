@@ -8,6 +8,18 @@
 #include "config.h"
 #endif
 
+/* Whether we are on Windows */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# ifndef WINDOWS
+#  define WINDOWS
+# endif
+#endif
+
+#ifdef WINDOWS
+#include "windows.h"
+#include "shlwapi.h"
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -19,20 +31,12 @@
 #include "fileinfo.h"
 #include "fileutils.h"
 
-
 /** Convenient macros for failing */
 #define FAIL(msg) do { \
     err(1, msg); goto fail; } while (0)
 #define FAIL1(msg, a1) do { \
     err(1, msg, a1); goto fail; } while (0)
 
-
-/* Whether we are on Windows */
-#if defined WIN32 || defined _WIN32 || defined __WIN32__
-# ifndef WINDOWS
-#  define WINDOWS
-# endif
-#endif
 
 
 /* Paths iterator */
@@ -211,7 +215,8 @@ char *fu_friendly_dirsep(char *path)
   int from, to;
   char *c, *p=path;
   if (strlen(path) >= 2 &&
-      (path[0] == path[1] == '/' || path[0] == path[1] == '\\'))
+      ((path[0] == '/' && path[1] == '/') ||
+       (path[0] == '\\' && path[1] == '\\')))
     to='\\';
   else if (strlen(path) >= 2 && path[1] == ':' &&
            (('a' <= path[0] && path[0] <= 'z') ||
@@ -243,23 +248,83 @@ char *fu_friendly_dirsep(char *path)
  */
 char *fu_realpath(const char *path, char *resolved_path)
 {
-#ifdef HAVE_GetFullPathNameW
-  int n, size=MAX_PATH;
-  if (!resolved_path) size=0;
-  if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
-    return err(1, "cannot resolve canonical path for '%s'", path), NULL;
-  if (!resolved_path) {
-    size = n + 1;
-    if (!(resolved_path = malloc(size)))
-      return err(1, "allocation failure"), NULL;
-    if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
-      return err(1, "cannot resolve canonical path for '%s'", path), NULL;
+#ifdef WINDOWS
+#if defined(HAVE_GetFullPathNameW) && \
+  defined(HAVE_MBSTOWCS_S) && defined(HAVE_WCSTOMBS_S)
+  size_t wlen;
+  wchar_t wpath[MAX_PATH + 1], *buf=NULL;
+  int n;
+
+  /* Convert path to wide characters */
+  if (mbstowcs_s(&wlen, wpath, MAX_PATH + 1, path, MAX_PATH + 1)) {
+    err(1, "cannot convert path '%s' to wide char", path);
+    goto fail;
   }
-  if (n > size)
-    return err(1, "cannot create large enough buffer for canonicalize '%s' "
-               "(limited to MAX_PATH=%d)", path, MAX_PATH);
+
+  /* Check if path exists */
+#ifdef HAVE_PathFileExistsW
+  if (!PathFileExistsW(wpath)) {
+    err(1, "no such file or directory: %s", path);
+    goto fail;
+  }
+#endif
+
+  /* Resolve path name */
+  if ((n = GetFullPathNameW(wpath, 0, NULL, NULL)) <= 0) {
+    err(1, "cannot determine length of canonical path for '%s'", path);
+    goto fail;
+  }
+  if (!(buf = calloc(n+1, sizeof(wchar_t)))) {
+    err(1, "allocation failure");
+    goto fail;
+  }
+  if (GetFullPathNameW(wpath, n+1, buf, NULL) <= 0) {
+    err(1, "cannot resolve canonical path for '%s'", path);
+    goto fail;
+  }
+
+  /* Convert back from wide characters */
+  if (!resolved_path) {
+    size_t size;
+
+    if (wcstombs_s(&size, NULL, 0, buf, 0)) {
+      err(1, "cannot determine length of resolved path");
+      goto fail;
+    }
+    if (!(resolved_path = malloc(size))) {
+      err(1, "allocation failure");
+      goto fail;
+    }
+    if (wcstombs_s(&size, resolved_path, size, buf, size)) {
+      free(resolved_path);
+      err(1, "cannot convert wide character to multibyte string");
+      goto fail;
+    }
+  } else {
+    if (wcstombs_s(NULL, resolved_path, MAX_PATH, buf, MAX_PATH)) {
+      err(1, "cannot convert wide character to multibyte string");
+      goto fail;
+    }
+  }
+  free(buf);
   return resolved_path;
+
+ fail:
+  if (buf) free(buf);
+  return NULL;
 #else
+#error "Windows have no GetFullPathNameW()"
+  /* Poor man's realpath - do nothing... */
+  if (resolved_path) {
+    if (!(resolved_path = strdup(path)))
+      return err(1, "allocation failure"), NULL;
+  } else {
+    strncpy(resolved_path, path, MAX_PATH);
+    resolved_path[MAX_PATH - 1] = '\0';
+  }
+  return resolved_path;
+#endif
+#else  /* ! WINDOWS */
   return realpath(path, resolved_path);
 #endif
 }
@@ -357,7 +422,7 @@ void fu_paths_deinit(FUPaths *paths)
   size_t n;
   if (paths->paths) {
     for (n=0; n<paths->n; n++) free((char *)paths->paths[n]);
-    free(paths->paths);
+    free((void *)paths->paths);
   }
   memset(paths, 0, sizeof(FUPaths));
 }
@@ -410,16 +475,20 @@ const char **fu_paths_get(FUPaths *paths)
  */
 int fu_paths_insert(FUPaths *paths, const char *path, int n)
 {
-  if (paths->n + 1 >= paths->size) {
+  if (paths->n+1 >= paths->size) {
     paths->size = paths->n + FU_PATHS_CHUNKSIZE;
-    if (!(paths->paths = realloc(paths->paths, paths->size*sizeof(char *))))
+    if (!(paths->paths = realloc((char **)paths->paths,
+                                 paths->size*sizeof(char **))))
       return err(-1, "allocation failure");
   }
   if (n < 0) n += paths->n;
-  if (n < 0) n = 0;
-  if (n > (int)paths->n) n = paths->n;
+  if (n < 0 || n >= (int)paths->n+1)
+    return err(-1, "path index out of range: %d", n);
+  //if (n < 0) n = 0;
+  //if (n > (int)paths->n) n = paths->n;
   if (n < (int)paths->n)
-    memmove(paths->paths+n+1, paths->paths+n, (paths->n-n)*sizeof(char *));
+    memmove((char **)paths->paths + n + 1, paths->paths + n,
+            (paths->n-n)*sizeof(char **));
   paths->paths[n] = strdup(path);
   paths->paths[++paths->n] = NULL;
   return n;
@@ -446,10 +515,12 @@ int fu_paths_append(FUPaths *paths, const char *path)
 int fu_paths_remove(FUPaths *paths, int n)
 {
   if (n < 0) n += paths->n;
-  if (n < 0) n = 0;
-  if (n >= (int)paths->n) n = paths->n - 1;
+  if (n < 0 || n >= (int)paths->n)
+    return err(1, "path index out of range: %d", n);
+  assert(paths->paths[n]);
   free((char *)paths->paths[n]);
-  memmove(paths->paths+n, paths->paths+n+1, (paths->n-n)*sizeof(char *));
+  memmove((char **)paths->paths+n, paths->paths+n+1,
+          (paths->n-n)*sizeof(char **));
   paths->n--;
   return 0;
 }
