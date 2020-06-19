@@ -47,6 +47,7 @@ MU_TEST(test_infixcalc)
   mu_assert_int_eq(14, calc("2 + 3 * 4", NULL, 0));
   mu_assert_int_eq(10, calc("2 * 3 + 4", NULL, 0));
   mu_assert_int_eq(14, calc("2 * (3 + 4)", NULL, 0));
+  mu_assert_int_eq(14, calc("(3 + 4) * 2", NULL, 0));
   mu_assert_int_eq(20, calc("2 * ((3^2 + 4) - 3)", NULL, 0));
   mu_assert_int_eq(1,  calc("1", NULL, 0));
 
@@ -64,6 +65,7 @@ MU_TEST(test_infixcalc)
   mu_assert_int_eq(10, calc("ten", vars, nvars));
   mu_assert_int_eq(12, calc("2+ten", vars, nvars));
   mu_assert_int_eq(-3, calc("m*(zero+N)", vars, nvars));
+  mu_assert_int_eq(50, calc("ten*(M+N)", vars, nvars));
 }
 
 /***********************************************************************/
