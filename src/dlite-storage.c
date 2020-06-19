@@ -49,6 +49,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
   return storage;
  fail:
   if (storage) free(storage);
+  err_update_eval(dliteStorageOpenError);
   return NULL;
 }
 

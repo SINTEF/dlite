@@ -1,5 +1,5 @@
-DLite - lightweight library for working with scientific data
-=============================================================
+DLite - lightweight data-centric framework for working with scientific data
+===========================================================================
 
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
 
@@ -21,6 +21,15 @@ DLite is licensed under the MIT license.
 
 Main features
 -------------
+  - Enables semantic interoperability via simple formalised metadata and data
+  - Metadta can be linked to or generated from ontologies
+  - Code generation
+  - Plugin API for data storages
+  - Plugin API for mapping between metadata
+  - Bindings to C, Python (Fortran is in progress)
+
+More detailed features
+----------------------
   - Simple and structured way to represent data as a set of named properties
     within and between software
   - Simple type system where data type are specified as a basic type and size
@@ -131,7 +140,7 @@ Download DLite with git, using
 
     git clone ssh://git@git.code.sintef.no/sidase/dlite.git
 
-To initialize the uuid submodule, you may also have to run
+To initialize the minunit submodule, you may also have to run
 
     git submodule update --init
 
@@ -252,4 +261,5 @@ DLite is developed with the hope that it will be a delight to work with.
 [10]: http://www.swig.org/
 [11]: http://www.doxygen.org/
 [12]: http://valgrind.org/
+[13]: http://cppcheck.sourceforge.net/
 [SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
