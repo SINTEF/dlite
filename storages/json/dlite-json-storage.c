@@ -754,7 +754,8 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
   const char *ptype;
   json_t *dims;
   json_t *item;
-  size_t i, j, size;
+  size_t i, size;
+  UNUSED(d);
 
   if (!json_is_object(obj)) return 1;
   prop->name = str_copy(json_string_value(json_object_get(obj, "name")));
@@ -762,17 +763,15 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
   dlite_type_set_dtype_and_size(ptype, &(prop->type), &(prop->size));
   dims = json_object_get(obj, "dims");
   size = json_array_size(dims);
+  assert(ndim == size);
   prop->ndims = (int)size;
   if (prop->ndims > 0) {
-    prop->dims = calloc(prop->ndims, sizeof(int));
     for(i = 0; i < size; i++) {
+      const char *s;
       item = json_array_get(dims, i);
-      for(j = 0; j < ndim; j++) {
-        if (str_equal(json_string_value(item), d[j].name)) {
-          prop->dims[i] = j;
-          break;
-        }
-      }
+      if (!(s = json_string_value(item)))
+        return err(1, "property dimensions should be strings");
+      prop->dimss[i] = strdup(s);
     }
   }
   prop->unit =
@@ -791,7 +790,7 @@ DLiteMeta *dlite_json_entity(json_t *obj)
   char *uri=NULL;
   char *iri=NULL;
   char *desc=NULL;
-  int i, nprop, ndim;
+  int i, j, nprop, ndim;
   json_t *jd;
   json_t *jp;
   json_t *item;
@@ -855,7 +854,9 @@ DLiteMeta *dlite_json_entity(json_t *obj)
   if (props) {
     for (i=0; i<nprop; i++) {
       if (props[i].name) free(props[i].name);
-      if (props[i].dims) free(props[i].dims);
+      for (j=0; j<props[i].ndims; j++)
+        if (props[i].dimss[j]) free(props[i].dimss[j]);
+      if (props[i].dimss) free(props[i].dimss);
       if (props[i].description) free(props[i].description);
     }
     free(props);

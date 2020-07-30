@@ -29,9 +29,9 @@ DLiteInstance *mydata=NULL, *mydata2=NULL, *mydata3=NULL;
 
 MU_TEST(test_entity_create)
 {
-  int dims0[] = {1, 0};  /* [N, M] */
-  int dims1[] = {1};     /* [N] */
-  int dims2[] = {0};     /* [M] */
+  char *dims0[] = {"N", "M"};
+  char *dims1[] = {"N"};
+  char *dims2[] = {"M"};
   DLiteDimension dimensions[] = {
     {"M", "Length of dimension M."},
     {"N", "Length of dimension N."}
@@ -53,8 +53,8 @@ MU_TEST(test_entity_create)
 
   mu_assert_int_eq(2, entity->ndimensions);
   mu_assert_int_eq(5, entity->nproperties);
-  mu_assert_int_eq(1, entity->properties[2].dims[0]);
-  mu_assert_int_eq(0, entity->properties[2].dims[1]);
+  mu_assert_int_eq(2, DLITE_PROP_DIM(entity->meta, 4, 0));
+  mu_assert_int_eq(6, DLITE_PROP_DIM(entity->meta, 5, 0));
 
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */

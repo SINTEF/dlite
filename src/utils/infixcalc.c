@@ -330,3 +330,21 @@ int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
   if (ostack.size) free(ostack.items);
   return result;
 }
+
+
+
+/*
+  Returns non-zero if variable `varname` is in expression `expr`.
+ */
+int infixcalc_depend(const char *expr, const char *varname)
+{
+  const char *p = expr;
+  while ((p = strstr(p, varname))) {
+    const char *q = p;
+    p += strlen(varname);
+    if (q > expr && (isalnum(q[-1]) || q[-1] == '_')) continue;
+    if (isalnum(p[0]) || p[0] == '_') continue;
+    return 1;
+  }
+  return 0;
+}

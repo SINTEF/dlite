@@ -48,4 +48,9 @@ int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
               char *err, size_t errlen);
 
 
+/**
+  Returns non-zero if variable `varname` is in expression `expr`.
+ */
+int infixcalc_depend(const char *expr, const char *varname);
+
 #endif /* _INFIX_CALC_H */

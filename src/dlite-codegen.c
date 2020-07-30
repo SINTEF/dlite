@@ -118,7 +118,7 @@ static int list_dims(TGenBuf *s, const char *template, int len,
 
   if (tgen_subs_copy(&psubs, subs)) goto fail;
   for (i=0; i < p->ndims; i++) {
-    int dim = p->dims[i];
+    int dim = DLITE_PROP_DIM(meta, iprop, i);
     tgen_subs_set(&psubs, "dim.name",  dims[dim].name,        NULL);
     tgen_subs_set(&psubs, "dim.descr", dims[dim].description, NULL);
     tgen_subs_set_fmt(&psubs, "dim.value", NULL, "%zu", DLITE_DIM(meta, dim));
@@ -317,6 +317,7 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
     tgen_subs_set_fmt(subs, "_ndimensions", NULL, "%zu", meta->ndimensions);
     tgen_subs_set_fmt(subs, "_nproperties", NULL, "%zu", meta->nproperties);
     tgen_subs_set_fmt(subs, "_nrelations",  NULL, "%zu", meta->nrelations);
+    tgen_subs_set_fmt(subs, "_npropdims",   NULL, "%zu", meta->npropdims);
 
     tgen_subs_set_fmt(subs, "_headersize",  NULL, "0");
     tgen_subs_set_fmt(subs, "_init",        NULL, "NULL");

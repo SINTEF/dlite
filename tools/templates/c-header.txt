@@ -52,9 +52,14 @@ typedef struct _{name} {{
   DLiteInit _init;               /*!< Function initialising instance. */
   DLiteDeInit _deinit;           /*!< Function deinitialising instance. */
 
+  size_t npropdims;              /*!< Total number of property dimensions. */
+  size_t *propdim0inds;          /*!< Array of `propdims` indices */
+
   size_t _dimoffset;             /*!< Offset of first dimension value. */
   size_t *_propoffsets;          /*!< Array of offsets of property values. */
   size_t _reloffset;             /*!< Offset of first relation value. */
+  size_t propdimsoffset;         /*!< Offset to `propdims` array. */
+  size_t propdim0offset;         /*!< Offset to `propdim0inds` array . */
   size_t _pooffset;              /*!< Offset to array of property offsets. */
 {@endif}\
 
@@ -63,7 +68,19 @@ typedef struct _{name} {{
   /* -- property values */
 {list_properties:  {prop.cdecl};  {@33}/*!< {prop.descr}\
 {@if:{prop.ndims}!=0} [{prop.dims:{dim.name}{,}\.}]{@endif} */\n}
+  /* -- relation values */
+{@if:{_nrelations}!=0}\
+  // XXX\
+{@endif}\
+
+  /* -- property dimension values */
+  size_t _propdims[{_npropdims}];
 {@if:{ismetameta}=1}\
+
+  /* -- index of first dimension for each property */
+  size_t _propdim0inds[{_nproperties}];
+
+  /* -- offsets */
   size_t offsets[{_nproperties}];
 {@endif}\
 }} {name};

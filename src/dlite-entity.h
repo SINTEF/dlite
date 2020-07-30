@@ -69,13 +69,15 @@
   | dimension values              | meta->ndimensions | sizeof(size_t)        | meta->dimoffset      |
   | property values               | meta->nproperties | [a]                   | meta->propoffsets    |
   | relation values               | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset      |
+  | property dimension values     | meta->npropdims   | sizeof(size_t)        | meta->propdimsoffset |
+  | first property dim index [b]  | nproperties       | sizeof(size_t)        | meta->propdim0offset |
   | instance property offsets [b] | nproperties       | sizeof(size_t)        | meta->pooffset       |
 
     [a]: The size of properties depends on their `size` and whether
          they are dimensional.
 
-    [b]: Only metadata instances has the last segment with instance
-         property offsets.
+    [b]: Only metadata instances have the last segments with property
+         dimension indices and offsets.
 
   ### Header
   The header for all instances must start with `DLiteInstance_HEAD`.
@@ -157,6 +159,15 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_PROP(inst, n) \
   ((void *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->propoffsets[n]))
 
+/** Expands to array of dimension sizes for property `n` --> (size_t *) */
+#define DLITE_PROP_DIMS(inst, n) \
+  ((size_t *)((char *)(inst) + \
+              ((DLiteInstance *)(inst))->meta->propdimsoffset) + \
+   ((DLiteInstance *)(inst))->meta->propdim0inds[n])
+
+/** Expands to size of the `m`th dimension of property `n` --> (size_t) */
+#define DLITE_PROP_DIM(inst, n, m) (DLITE_PROP_DIMS(inst, n)[m])
+
 /** Expands to array of property descriptions --> (DLiteProperty *) */
 #define DLITE_PROPS_DESCR(inst) (((DLiteInstance *)(inst))->meta->properties)
 
@@ -173,7 +184,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 		     ((DLiteInstance *)(inst))->meta->reloffset))
 
 /** Expands to pointer to relation `n` --> (DLiteRelation *) */
-#define DLITE_REL(inst, n) (DLITE_RELS(inst)[n])
+#define DLITE_REL(inst, n) (DLITE_RELS(inst) + n)
 
 
 /**
@@ -208,30 +219,39 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   /* Convenient access to dimensions describing the instance */         \
   size_t ndimensions;  /* Number of dimensions in instance. */          \
   size_t nproperties;  /* Number of properties in instance. */          \
-  size_t nrelations;   /* Number of relations in instance. */		\
+  size_t nrelations;   /* Number of relations in instance. */           \
                                                                         \
   /* Convenient access to description of instance */                    \
   DLiteDimension *dimensions;  /* Array of dimensions. */               \
   DLiteProperty *properties;   /* Array of properties. */               \
   DLiteRelation *relations;    /* Array of relations. */                \
                                                                         \
-  /*  Function pointers used by instances */				\
-  size_t headersize;     /* Size of instance header.  If zero, */	\
+  /* Function pointers used by instances */                             \
+  size_t headersize;     /* Size of instance header.  If zero, */       \
                          /* it defaults to sizeof(DLiteInstance) or */  \
                          /* sizeof(DLiteMeta). */                       \
   DLiteInit init;        /* Function initialising an instance. */       \
   DLiteDeInit deinit;    /* Function deinitialising an instance. */     \
                                                                         \
+  /* Property dimension sizes */                                        \
+  /* Automatically assigned by dlite_meta_init() */                     \
+  size_t npropdims;      /* Total number of property dimensions. */     \
+  size_t *propdim0inds;  /* Pointer to array (within this metadata) */  \
+                         /* of `propdims` indices to first property */  \
+                         /* dimension. Length: nproperties */           \
+                                                                        \
   /* Memory layout of instances */                                      \
-  /* If `size` is zero, these values will automatically be */           \
-  /* calculated. */                                                     \
+  /* If `size` is zero, these values will automatically be assigned */  \
   size_t dimoffset;      /* Offset of first dimension value. */         \
-  size_t *propoffsets;   /* Pointer to array (in this metadata) of */	\
+  size_t *propoffsets;   /* Pointer to array (in this metadata) of */   \
                          /* offsets to property values in instance. */  \
   size_t reloffset;      /* Offset of first relation value. */          \
+  size_t propdimsoffset; /* Offset to `propdims` array. */              \
+  size_t propdim0offset; /* Offset to `propdim0inds` array . */         \
   size_t pooffset;       /* Offset to array of property offsets */
 
-
+  //size_t *propdims;      /* Array of property dimension sizes. */
+  //                       /* Length: npropdims */
 
 
 
@@ -267,7 +287,8 @@ struct _DLiteProperty {
   size_t size;        /*!< Size of one data element. */
   int ndims;          /*!< Number of dimension of the described */
                       /*   data.  Zero if scalar. */
-  int *dims;          /*!< Array of dimension indices. May be NULL. */
+  //int *dims;          /*!< Array of dimension indices. May be NULL. */
+  char **dimss;       /*!< Array of dimension strings.  May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
   char *iri;          /*!< Unique IRI to corresponding entity in an */
                       /*   ontology. */
@@ -294,6 +315,12 @@ typedef struct _DLiteMeta {
  */
 /* ================================================================= */
 /** @{ */
+
+/**
+  Prints instance to stdout. Intended for debugging.
+ */
+void dlite_instance_print(const DLiteInstance *inst);
+
 
 /**
   Returns a new dlite instance from Entiry `meta` and dimensions
@@ -519,9 +546,10 @@ int dlite_instance_is_metameta(const DLiteInstance *inst);
 
 
 /**
-  Updates the size of all dimensions from.  The new dimension sizes are
-  provided in `dims`, that must have length `inst->ndims`.  Dimensions
-  corresponding to negative elements in `dims` will remain unchanged.
+  Updates the size of all dimensions in `inst`.  The new dimension
+  sizes are provided in `dims`, which must be of length
+  `inst->ndimensions`.  Dimensions corresponding to negative elements
+  in `dims` will remain unchanged.
 
   All properties whos dimension are changed will be reallocated and
   new memory will be zeroed.  The values of properties with two or
@@ -530,7 +558,7 @@ int dlite_instance_is_metameta(const DLiteInstance *inst);
 
   Returns non-zero on error.
  */
-int dlite_instance_set_dimension_sizes(DLiteInstance *inst, int *dims);
+int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims);
 
 /**
   Like dlite_instance_set_dimension_sizes(), but only updates the size of

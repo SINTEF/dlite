@@ -688,12 +688,8 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
       if (!json_is_array(dimensions))
         return errx(-1, "JSON storage: dimensions should be an array"), NULL;
       for (i=0; i<p->ndims; i++) {
-        json_t *dim, *dimname;
-        dim = json_array_get(dimensions, p->dims[i]);
-        assert(dim);
-        dimname = json_object_get(dim, "name");
-        assert(dimname);
-        json_array_append(arr, dimname);  /* borrowed reference */
+        json_t *dimname = json_string(p->dimss[i]);
+        json_array_append_new(arr, dimname);
       }
       json_object_set_new(obj, "dims", arr);
     }
@@ -872,16 +868,16 @@ int dlite_json_get_value(void *ptr, const json_t *item,
 }
 
 
-/* help function */
+/* help function for dlite_json_get_value() */
 int parse_property(void *ptr, const json_t *item, const json_t *root)
 {
   DLiteProperty property;
-  json_t *str, *arr, *jdims;
-  char **dimension_names=NULL;
+  json_t *str, *arr;
   const char *s;
-  int i, j, retval=1, *dims=NULL;
-  int ndims=0, ndimensions;
+  int j, retval=1, *dims=NULL;
+  int ndims=0;
 
+  UNUSED(root);
   memset(&property, 0, sizeof(DLiteProperty));
 
   if (!json_is_object(item)) FAIL("expected json property object");
@@ -900,46 +896,15 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
     ndims = json_array_size(arr);
     if (!(dims = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
 
-    /* Read dimension names to get the order correct */
-    if (!json_is_object(root) ||
-        !((jdims = json_object_get(root, "dimensions")) ||
-          (jdims = json_object_get(root, "schema_dimensions"))))
-      FAIL("no \"dimensions\" in JSON root");
-    if (!json_is_array(jdims)) {
-      json_t *jprop;
-      if (!(jprop = json_object_get(root, "properties")))
-        FAIL("no \"properties\" in JSON root");
-      if (!(jdims = json_object_get(jprop, "dimensions")))
-        FAIL("no \"dimensions\" in JSON \"properties\" object");
-    }
-    if (!json_is_array(jdims)) FAIL("dimensions should be a json array");
-    ndimensions = json_array_size(jdims);
-    if (!(dimension_names = calloc(ndimensions, sizeof(char *))))
-      FAIL("allocation failure");
-
-    for (i=0; i<ndimensions; i++) {
-      json_t *js, *obj = json_array_get(jdims, i);
-      if (!json_is_object(obj)) FAIL("property items should be json objects");
-      if (!(js = json_object_get(obj, "name")))
-        FAIL("dimension must have name");
-      if (!(dimension_names[i] = strdup(json_string_value(js))))
-        FAIL("allocation failure");
-    }
-    /* Assign dims */
     for (j=0; j<ndims; j++) {
-      if (!(str = json_array_get(arr, j)) ||
-          !json_is_string(str) ||
-          !(s = json_string_value(str))) FAIL("cannot read property dims");
-      for (i=0; i<ndimensions; i++) {
-        if (strcmp(s, dimension_names[i]) == 0) {
-          dims[j] = i;
-          break;
-        }
-      }
-      if (i == ndimensions) FAIL1("no such dimension name: %s", s);
+      const char *s;
+      json_t *jdim  = json_array_get(arr, j);
+      assert(jdim);
+      if (!(s = json_string_value(jdim)))
+        FAIL("expected property dimension elements to be strings");
+      property.dimss[j] = strdup(s);
     }
     property.ndims = ndims;
-    property.dims = dims;
   }
 
   if ((str = json_object_get(item, "unit"))) {
@@ -974,9 +939,5 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
   memcpy(ptr, &property, sizeof(property));
   retval = 0;
  fail:
-  if (dimension_names) {
-    for (i=0; i<ndimensions; i++) free(dimension_names[i]);
-    free(dimension_names);
-  }
   return retval;
 }

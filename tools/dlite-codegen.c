@@ -22,7 +22,7 @@ void help()
   char **p, *msg[] = {
     "Usage: dlite-codegen [OPTIONS] URL",
     "Generates code from a template and a DLite instance.",
-    "  -b, --built-in               Whether the URL refers to an built-in",
+    "  -b, --built-in               Whether the URL refers to a built-in",
     "                               instance, rather than an instance located",
     "                               in a storage.",
     "  -f, --format=STRING          Output format if -t is not given.",
@@ -126,6 +126,15 @@ int main(int argc, char *argv[])
       strchr(";&", tgen_buf_get(&variables)[n-1]))
     tgen_buf_unappend(&variables, 1);
 
+  // xxx
+  inst = dlite_instance_get("http://meta.sintef.no/0.1/BasicMetadataSchema");
+  dlite_instance_print(inst);
+  printf("=====================================\n");
+  inst = dlite_instance_get("http://meta.sintef.no/0.3/EntitySchema");
+  dlite_instance_print(inst);
+  printf("=====================================\n");
+
+
   /* Load instance */
   if (builtin) {
     /* FIXME - this should be updated when default paths for entity lookup
@@ -135,6 +144,9 @@ int main(int argc, char *argv[])
   } else {
     if (!(inst = dlite_instance_load_url(url))) goto fail;
   }
+
+  // xxx
+  dlite_instance_print(inst);
 
   /* Get template file name */
   if (!template_file) {
