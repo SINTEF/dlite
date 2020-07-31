@@ -12,7 +12,7 @@ add_definitions(
   )
 
 add_library(dlite-pyembed SHARED ${sources})
-add_library(dlite-pyembed-static SHARED ${sources})
+add_library(dlite-pyembed-static STATIC ${sources})
 
 target_link_libraries(dlite-pyembed
   dlite

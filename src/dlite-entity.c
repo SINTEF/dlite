@@ -383,6 +383,7 @@ DLiteInstance *dlite_instance_get(const char *id)
   /* ...otherwise look it up in storages */
   if (!(iter = dlite_storage_paths_iter_start())) return NULL;
 
+  assert(iter);
   while ((url = dlite_storage_paths_iter_next(iter))) {
     DLiteStorage *s;
     char *copy, *driver, *location, *options;
@@ -415,10 +416,10 @@ DLiteInstance *dlite_instance_get(const char *id)
       dlite_storage_close(s);
     } else {
       /* ...otherwise it may be a glob pattern */
-      FUIter *iter;
-      if ((iter = fu_glob(location))) {
+      FUIter *fiter;
+      if ((fiter = fu_glob(location))) {
         const char *path;
-        while (!inst && (path = fu_globnext(iter))) {
+        while (!inst && (path = fu_globnext(fiter))) {
 	  driver = (char *)fu_fileext(path);
 	  if ((s = dlite_storage_open(driver, path, options))) {
             ErrTry:
@@ -429,11 +430,14 @@ DLiteInstance *dlite_instance_get(const char *id)
 	    dlite_storage_close(s);
 	  }
         }
-        fu_globend(iter);
+        fu_globend(fiter);
       }
-      free(copy);
     }
-    if (inst) return inst;
+    free(copy);
+    if (inst) {
+      dlite_storage_paths_iter_stop(iter);
+      return inst;
+    }
   }
   dlite_storage_paths_iter_stop(iter);
   return NULL;
