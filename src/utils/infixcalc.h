@@ -9,7 +9,16 @@
 /**
   @file
   @brief Simple infix calculator for integer arithmetic
-  Only unary operators are implemented.
+  Only the following binary operators are implemented:
+
+      +  plus
+      -  minus
+      *  times
+      /  division
+      %  modulus
+      ^  power
+
+  in addition to parenthesis.
 */
 
 
