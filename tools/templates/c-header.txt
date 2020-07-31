@@ -38,7 +38,7 @@ typedef struct _{name} {{
   const void *_meta;  /*!< Pointer to the metadata describing this instance. */
   const char *_iri;   /*!< Unique IRI to corresponding entity in an ontology.
                           May be NULL. */
-{@if:{ismeta}==1}\
+{@if:{ismetameta}==1}\
 
   size_t _ndimensions;         /*!< Number of dimensions in instance. */
   size_t _nproperties;         /*!< Number of properties in instance. */

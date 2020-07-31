@@ -56,11 +56,18 @@ MU_TEST(test_entity_create)
   mu_assert_int_eq(2, DLITE_PROP_DIM(entity->meta, 4, 0));
   mu_assert_int_eq(6, DLITE_PROP_DIM(entity->meta, 5, 0));
 
+  mu_assert_int_eq(0, dlite_instance_is_data((DLiteInstance *)entity));
+  mu_assert_int_eq(1, dlite_instance_is_meta((DLiteInstance *)entity));
+  mu_assert_int_eq(0, dlite_instance_is_metameta((DLiteInstance *)entity));
+
+  dlite_instance_print((DLiteInstance *)entity);
+
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
 #if (__GNUC__ && SIZEOF_VOID_P == 8)
   mu_assert_int_eq(72, sizeof(DLiteInstance));
   mu_assert_int_eq(72, entity->dimoffset);
+  mu_assert_int_eq(72, entity->headersize);
   mu_assert_int_eq(88, entity->propoffsets[0]);
   mu_assert_int_eq(96, entity->propoffsets[1]);
   mu_assert_int_eq(104, entity->propoffsets[2]);
@@ -68,8 +75,7 @@ MU_TEST(test_entity_create)
   mu_assert_int_eq(120, entity->propoffsets[4]);
   mu_assert_int_eq(128, entity->reloffset);
   mu_assert_int_eq(128, entity->propdimsoffset);
-  mu_assert_int_eq(128, entity->propdimindsoffset);
-  mu_assert_int_eq(72, entity->headersize);
+  mu_assert_int_eq(160, entity->propdimindsoffset);
 #endif
 }
 

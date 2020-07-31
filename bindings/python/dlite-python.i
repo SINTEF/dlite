@@ -116,7 +116,7 @@ int npy_type(DLiteType type, size_t size)
     }
   case dliteFixString:
     /* It would have been nicer to use NPY_UNICODE, but unfortunately is
-       it based 4 byte data points (UCS4), while the lengths of dlite
+       it based on 4 byte data points (UCS4), while the lengths of dlite
        fixed strings may have any lengths.
 
        We therefore fall back to NPY_STRING, which is simple ASCII. */
@@ -158,8 +158,8 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    assert(dtype->elsize == 0);
-    //assert(dtype->elsize == 0 || sizeof(void *));
+    //assert(dtype->elsize == 0);
+    assert(dtype->elsize == 0 || sizeof(void *));
     break;
   }
   return dtype;
@@ -364,10 +364,10 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
         char **p = *((char ***)ptr);
         PyObject *s = PyArray_GETITEM(arr, itemptr);
         assert(s);
-        if (PyUnicode_READY(s)) {
+        if (!PyUnicode_Check(s))
+          FAIL("array elements should be strings");
+        if (PyUnicode_READY(s))
           FAIL("failed preparing string");
-          Py_DECREF(s);
-        }
         if (s == Py_None) {
           if (p[i]) free(p[i]);
         } else if (PyUnicode_Check(s)) {
@@ -425,7 +425,7 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
 
   if (!dtype) goto fail;
   if (!(arr = (PyArrayObject *)PyArray_FromAny(obj, dtype, ndims, ndims,
-                                               NPY_ARRAY_IN_ARRAY, NULL)))
+                                               NPY_ARRAY_DEFAULT, NULL)))
     FAIL("cannot create C-contiguous array");
 
   switch (type) {
@@ -448,8 +448,8 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
               size);
     break;
   case dliteStringPtr:
-    for (i=0; i<PyArray_SIZE(arr); i++)
-      ((char **)ptr)[i] = strdup((char *)(PyArray_DATA(arr)) + i*dtype->elsize);
+    if (dlite_swig_set_array(&ptr, ndims, dims, type, size, (obj_t *)arr))
+      goto fail;
     break;
   default:
     memcpy(ptr, PyArray_DATA(arr), PyArray_SIZE(arr)*size);
