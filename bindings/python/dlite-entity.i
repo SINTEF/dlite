@@ -21,6 +21,7 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
   p->type = type;
   p->size = size;
   if (dims && dims != DLiteSwigNone) {
+    p->ndims = PySequence_Length(dims);
     if (!(p->dimss = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
                                            sizeof(char *), dims))) {
       free(p->name);
