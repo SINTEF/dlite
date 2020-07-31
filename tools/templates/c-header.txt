@@ -37,30 +37,29 @@ typedef struct _{name} {{
   size_t _refcount;   /*!< Number of references to this instance. */
   const void *_meta;  /*!< Pointer to the metadata describing this instance. */
   const char *_iri;   /*!< Unique IRI to corresponding entity in an ontology.
-                           May be NULL. */
-{@if:{ismetameta}==1}\
+                          May be NULL. */
+{@if:{ismeta}==1}\
 
-  size_t _ndimensions;           /*!< Number of dimensions in instance. */
-  size_t _nproperties;           /*!< Number of properties in instance. */
-  size_t _nrelations;            /*!< Number of relations in instance. */
+  size_t _ndimensions;         /*!< Number of dimensions in instance. */
+  size_t _nproperties;         /*!< Number of properties in instance. */
+  size_t _nrelations;          /*!< Number of relations in instance. */
 
-  DLiteDimension *_dimensions;   /*!< Array of dimensions. */
-  DLiteProperty *_properties;    /*!< Array of properties. */
-  DLiteRelation *_relations;     /*!< Array of relations. */
+  DLiteDimension *_dimensions; /*!< Array of dimensions [ndimensions] */
+  DLiteProperty *_properties;  /*!< Array of properties [nproperties] */
+  DLiteRelation *_relations;   /*!< Array of relations [nrelations] */
 
-  size_t _headersize;            /*!< Size of instance header. */
-  DLiteInit _init;               /*!< Function initialising instance. */
-  DLiteDeInit _deinit;           /*!< Function deinitialising instance. */
+  size_t _headersize;          /*!< Size of instance header. */
+  DLiteInit _init;             /*!< Function initialising instance. */
+  DLiteDeInit _deinit;         /*!< Function deinitialising instance. */
 
-  size_t npropdims;              /*!< Total number of property dimensions. */
-  size_t *propdim0inds;          /*!< Array of `propdims` indices */
+  size_t _npropdims;           /*!< Total number of property dimensions. */
+  size_t *_propdiminds;        /*!< Array of `propdims` indices [nproperties] */
 
-  size_t _dimoffset;             /*!< Offset of first dimension value. */
-  size_t *_propoffsets;          /*!< Array of offsets of property values. */
-  size_t _reloffset;             /*!< Offset of first relation value. */
-  size_t propdimsoffset;         /*!< Offset to `propdims` array. */
-  size_t propdim0offset;         /*!< Offset to `propdim0inds` array . */
-  size_t _pooffset;              /*!< Offset to array of property offsets. */
+  size_t _dimoffset;           /*!< Offset of first dimension value. */
+  size_t *_propoffsets;        /*!< Array of offsets of property values [nproperties] */
+  size_t _reloffset;           /*!< Offset of first relation value. */
+  size_t _propdimsoffset;      /*!< Offset to `propdims` array. */
+  size_t _propdimindsoffset;   /*!< Offset to `propdim0inds` array . */
 {@endif}\
 
   /* -- dimension values */
@@ -70,18 +69,18 @@ typedef struct _{name} {{
 {@if:{prop.ndims}!=0} [{prop.dims:{dim.name}{,}\.}]{@endif} */\n}
   /* -- relation values */
 {@if:{_nrelations}!=0}\
-  // XXX\
+  DLiteRelation __relations[{_nrelations}];
 {@endif}\
 
   /* -- property dimension values */
-  size_t _propdims[{_npropdims}];
+  size_t __propdims[{_npropdims}];
 {@if:{ismetameta}=1}\
 
   /* -- index of first dimension for each property */
-  size_t _propdim0inds[{_nproperties}];
+  size_t __propdiminds[{_nproperties}];
 
-  /* -- offsets */
-  size_t offsets[{_nproperties}];
+  /* -- propoffsets */
+  size_t __propoffsets[{_nproperties}];
 {@endif}\
 }} {name};
 

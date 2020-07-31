@@ -874,7 +874,8 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
   DLiteProperty property;
   json_t *str, *arr;
   const char *s;
-  int j, retval=1, *dims=NULL;
+  char **dims=NULL;
+  int j;
   int ndims=0;
 
   UNUSED(root);
@@ -894,7 +895,7 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
   if ((arr = json_object_get(item, "dims"))) {
     if (!json_is_array(arr)) FAIL("expected 'dims' to be a json array");
     ndims = json_array_size(arr);
-    if (!(dims = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    if (!(dims = calloc(ndims, sizeof(char *)))) FAIL("allocation failure");
 
     for (j=0; j<ndims; j++) {
       const char *s;
@@ -902,9 +903,10 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
       assert(jdim);
       if (!(s = json_string_value(jdim)))
         FAIL("expected property dimension elements to be strings");
-      property.dimss[j] = strdup(s);
+      dims[j] = strdup(s);
     }
     property.ndims = ndims;
+    property.dimss = dims;
   }
 
   if ((str = json_object_get(item, "unit"))) {
@@ -937,7 +939,12 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
   */
 
   memcpy(ptr, &property, sizeof(property));
-  retval = 0;
+  return 0;
  fail:
-  return retval;
+  if (dims) {
+    for (j=0; j<ndims; j++)
+      if (dims[j]) free(dims[j]);
+    free(dims);
+  }
+  return 1;
 }

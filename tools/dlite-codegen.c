@@ -126,15 +126,6 @@ int main(int argc, char *argv[])
       strchr(";&", tgen_buf_get(&variables)[n-1]))
     tgen_buf_unappend(&variables, 1);
 
-  // xxx
-  inst = dlite_instance_get("http://meta.sintef.no/0.1/BasicMetadataSchema");
-  dlite_instance_print(inst);
-  printf("=====================================\n");
-  inst = dlite_instance_get("http://meta.sintef.no/0.3/EntitySchema");
-  dlite_instance_print(inst);
-  printf("=====================================\n");
-
-
   /* Load instance */
   if (builtin) {
     /* FIXME - this should be updated when default paths for entity lookup
@@ -144,9 +135,6 @@ int main(int argc, char *argv[])
   } else {
     if (!(inst = dlite_instance_load_url(url))) goto fail;
   }
-
-  // xxx
-  dlite_instance_print(inst);
 
   /* Get template file name */
   if (!template_file) {

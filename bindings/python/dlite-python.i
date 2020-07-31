@@ -64,6 +64,15 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
  **********************************************/
 %{
 
+/* Free's array of allocated strings. */
+void free_str_array(char **arr, size_t len)
+{
+  size_t i;
+  for (i=0; i<len; i++)
+    if (arr[i]) free(arr[i]);
+  free(arr);
+}
+
 /* Returns the numpy type code corresponding to `type` and `size` or -1 on
    error. */
 int npy_type(DLiteType type, size_t size)
@@ -743,7 +752,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
         DLiteProperty *src = (DLiteProperty *)p;
         if (dest->name)        free(dest->name);
-        if (dest->dims)        free(dest->dims);
+        if (dest->dimss)       free_str_array(dest->dimss, dest->ndims);
         if (dest->unit)        free(dest->unit);
         if (dest->description) free(dest->description);
         dest->name  = strdup(src->name);
@@ -751,10 +760,12 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         dest->size  = src->size;
         dest->ndims = src->ndims;
         if (src->ndims > 0) {
-          dest->dims = malloc(src->ndims*sizeof(int));
-          memcpy(dest->dims, src->dims, src->ndims*sizeof(int));
+          int j;
+          dest->dimss = malloc(src->ndims*sizeof(char *));
+          for (j=0; j < src->ndims; j++)
+            dest->dimss[j] = strdup(src->dimss[j]);
         } else
-          dest->dims = NULL;
+          dest->dimss = NULL;
         dest->unit        = (src->unit) ? strdup(src->unit) : NULL;
         dest->description = (src->description) ? strdup(src->description) :NULL;
 
@@ -771,7 +782,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
             dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
                                           &t, &size) == 0) {
           if (dest->name)        free(dest->name);
-          if (dest->dims)        free(dest->dims);
+          if (dest->dimss)       free_str_array(dest->dimss, dest->ndims);
           if (dest->unit)        free(dest->unit);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
@@ -780,12 +791,13 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           if (dims && PyUnicode_Check(dims)) {
             const char *s = PyUnicode_AsUTF8(dims);
             const char *q = s;
-            int i=0, ndims=(s && *s) ? 1 : 0;
-            while (s[i]) if (s[i++] == ',') ndims++;
+            int j=0, ndims=(s && *s) ? 1 : 0;
+            while (s[j]) if (s[j++] == ',') ndims++;
             dest->ndims = ndims;
-            dest->dims = malloc(ndims*sizeof(int));
-            for (i=0; i<ndims; i++) {
-              dest->dims[i] = atoi(s);
+            dest->dimss = malloc(ndims*sizeof(int));
+            for (j=0; j<ndims; j++) {
+              if (dest->dimss[j]) free(dest->dimss[j]);
+              dest->dimss[j] = strdup(s);
               s += strcspn(q, ",") + 1;
             }
           }
@@ -907,13 +919,11 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   if (p->ndims == 0) {
     obj = dlite_swig_get_scalar(p->type, p->size, ptr);
   } else {
-    /* Note that p->dims are indices into instance dimensions */
     if (!(dims = malloc(p->ndims*sizeof(int)))) FAIL("allocation failure");
     for (j=0; j<p->ndims; j++) {
-      if (p->dims[j] < 0 || p->dims[j] >= (int)DLITE_NDIM(inst))
-        FAIL3("dimension %d of property %d is out of range: %d",
-              j, i, p->dims[j]);
-      dims[j] = DLITE_DIM(inst, p->dims[j]);
+      if (!p->dimss[j])
+        FAIL2("missing dimension %d of property %d", j, i);
+      dims[j] = DLITE_PROP_DIM(inst, i, j);
     }
     obj = dlite_swig_get_array(inst, p->ndims, dims, p->type, p->size, *ptr);
   }
@@ -943,13 +953,11 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   if (p->ndims == 0) {
     if (dlite_swig_set_scalar(ptr, p->type, p->size, obj)) goto fail;
   } else {
-    /* Note that p->dims are indices into instance dimensions */
     if (!(dims = malloc(p->ndims*sizeof(int)))) FAIL("allocation failure");
     for (j=0; j<p->ndims; j++) {
-      if (p->dims[j] < 0 || p->dims[j] >= (int)DLITE_NDIM(inst))
-        FAIL3("dimension %d of property %d is out of range: %d",
-              j, i, p->dims[j]);
-      dims[j] = DLITE_DIM(inst, p->dims[j]);
+      if (!p->dimss[j])
+        FAIL2("missing dimension %d of property %d", j, i);
+      dims[j] = DLITE_PROP_DIM(inst, i, j);
     }
     if (dlite_swig_set_array(ptr, p->ndims, dims, p->type, p->size, obj))
       goto fail;
@@ -1056,7 +1064,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
     for (i=0; i<$1; i++) {
       DLiteProperty *p = $2 + i;
       free(p->name);
-      if (p->dims) free(p->dims);
+      if (p->dimss) free_str_array(p->dimss, p->ndims);
       if (p->unit) free(p->unit);
       if (p->description) free(p->description);
     }

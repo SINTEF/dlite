@@ -559,8 +559,6 @@ static json_t *setdim(size_t d, void **pptr,
   json_t *item;
   if (d < ndims) {
     json_t *arr = json_array();
-    //printf("*** setdim(d=%d, type=%d, size=%lu, ndims=%lu)\n",
-    //       d, type, size, ndims);
     for (i=0; i<(int)dims[d]; i++) {
       if (!(item = setdim(d + 1, pptr, type, size, ndims, dims, root)))
         return NULL;

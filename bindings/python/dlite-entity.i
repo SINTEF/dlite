@@ -21,15 +21,15 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
   p->type = type;
   p->size = size;
   if (dims && dims != DLiteSwigNone) {
-    if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteInt,
-                                          sizeof(int), dims))) {
+    if (!(p->dimss = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
+                                           sizeof(char *), dims))) {
       free(p->name);
       free(p);
       return NULL;
     }
   } else {
     p->ndims = 0;
-    p->dims = NULL;
+    p->dimss = NULL;
   }
   if (unit) p->unit = strdup(unit);
   if (iri) p->iri = strdup(iri);
@@ -121,7 +121,7 @@ struct _DLiteProperty {
   }
   ~_DLiteProperty() {
     free($self->name);
-    if ($self->dims) free($self->dims);
+    if ($self->dimss) free_str_array($self->dimss, $self->ndims);
     if ($self->unit) free($self->unit);
     if ($self->iri) free($self->iri);
     if ($self->description) free($self->description);
@@ -137,7 +137,7 @@ struct _DLiteProperty {
   }
   obj_t *get_dims(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
-                                dliteInt, sizeof(int), $self->dims);
+                                dliteStringPtr, sizeof(char *), $self->dimss);
   }
   /*
   void set_dims(obj_t *arr) {

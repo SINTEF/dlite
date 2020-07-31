@@ -107,11 +107,11 @@ static struct _BasicMetadataSchema {
   DLiteRelation  *schema_relations;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t propdims[3];
+  size_t _propdims[3];
   /* -- array of first property dimension  */
-  size_t _propdim0inds[7];
+  size_t _propdiminds[7];
   /* -- array of memory offsets to each instance property */
-  size_t offsets[7];
+  size_t _propoffsets[7];
 } basic_metadata_schema = {
   /* -- header */
   "89cc72b5-1ced-54eb-815b-8fffc16c42d1",        /* uuid (corresponds to uri) */
@@ -133,18 +133,17 @@ static struct _BasicMetadataSchema {
   NULL,                                          /* deinit */
 
   3,                                             /* npropdims */
-  (size_t *)basic_metadata_schema._propdim0inds, /* propdim0inds */
+  (size_t *)basic_metadata_schema._propdiminds, /* propdiminds */
 
-  offsetof(struct _BasicMetadataSchema, ndims),  /* dimoffset */
-  (size_t *)basic_metadata_schema.offsets,       /* propoffsets */
-  offsetof(struct _BasicMetadataSchema, offsets),/* reloffset */
-  offsetof(struct _BasicMetadataSchema, propdims),/* propdimsoffset */
-  offsetof(struct _BasicMetadataSchema, _propdim0inds),/* propdim0offset */
-  offsetof(struct _BasicMetadataSchema, offsets),/* poofset */
+  offsetof(struct _BasicMetadataSchema, ndims),        /* dimoffset */
+  (size_t *)basic_metadata_schema._propoffsets,        /* propoffsets */
+  offsetof(struct _BasicMetadataSchema, _propdims),    /* reloffset */
+  offsetof(struct _BasicMetadataSchema, _propdims),    /* propdimsoffset */
+  offsetof(struct _BasicMetadataSchema, _propdiminds), /* propdimindsoffset */
   /* -- length of each dimention */
-  3,                                             /* ndims */
-  7,                                             /* nprops */
-  0,                                             /* nrels */
+  3,                                             /* _ndimensions */
+  7,                                             /* _nproperties */
+  0,                                             /* _nrelations */
   /* -- value of each property */
   "BasicMetadataSchema",                         /* schema_name */
   "0.1",                                         /* schema_version */
@@ -155,11 +154,11 @@ static struct _BasicMetadataSchema {
   NULL,                                          /* schema_relations */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {3, 7, 0},                                     /* propdims */
+  {3, 7, 0},                                     /* _propdims */
   /* -- array of first property dimension  */
-  {0, 0, 0, 0, 0, 1, 2},                         /* _propdim0inds */
+  {0, 0, 0, 0, 0, 1, 2},                         /* _propdiminds */
   /* -- array of memory offsets to each instance property */
-  {                                              /* offsets */
+  {                                              /* _propoffsets */
     offsetof(struct _BasicMetadataSchema, schema_name),
     offsetof(struct _BasicMetadataSchema, schema_version),
     offsetof(struct _BasicMetadataSchema, schema_namespace),
@@ -260,11 +259,11 @@ static struct _EntitySchema {
   DLiteRelation  *schema_relation;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t propdims[2];
+  size_t _propdims[2];
   /* -- array of first property dimension  */
-  size_t _propdim0inds[6];
+  size_t _propdiminds[6];
   /* -- array of memory offsets to each instance property */
-  size_t offsets[6];
+  size_t _propoffsets[6];
 } entity_schema = {
   /* -- header */
   "57742a73-ba65-5797-aebf-c1a270c4d02b",     /* uuid (corresponds to uri) */
@@ -286,18 +285,17 @@ static struct _EntitySchema {
   NULL,                                       /* deinit */
 
   0,                                          /* npropdims */
-  NULL,                                       /* propdim0inds */
+  NULL,                                       /* propdiminds */
 
   0,                                          /* dimoffset */
   NULL,                                       /* propoffsets */
   0,                                          /* reloffset */
   0,                                          /* propdimsoffset */
-  0,                                          /* propdim0offset */
-  0,                                          /* pooffset */
+  0,                                          /* propdimindsoffset */
   /* -- length of each dimention */
-  2,                                          /* ndims */
-  6,                                          /* nprops */
-  0,                                          /* nrels */
+  2,                                          /* _ndimensions */
+  6,                                          /* _nproperties */
+  0,                                          /* _nrelations */
   /* -- value of each property */
   "EntitySchema",                             /* schema_name */
   "0.3",                                      /* schema_version */
@@ -308,11 +306,11 @@ static struct _EntitySchema {
   NULL,                                       /* schema_relations */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {0, 0},                                     /* propdims */
+  {0, 0},                                     /* _propdims */
   /* -- array of first property dimension */
-  {0, 0, 0, 0, 0, 0},                         /* _propdim0inds */
+  {0, 0, 0, 0, 0, 0},                         /* _propdiminds */
   /* -- array of memory offsets to each instance property */
-  {0, 0, 0, 0, 0, 0}                          /* offsets */
+  {0, 0, 0, 0, 0, 0}                          /* _propoffsets */
 };
 
 
@@ -358,11 +356,11 @@ static struct _CollectionSchema {
   DLiteRelation  *schema_relations;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t propdims[1];
+  size_t _propdims[1];
   /* -- array of first property dimension  */
-  size_t _propdim0inds[1];
+  size_t _propdiminds[1];
   /* -- array of memory offsets to each instance property */
-  size_t offsets[1];
+  size_t _propoffsets[1];
 } collection_schema = {
   /* -- header */
   "a2e66e0e-d733-5067-b987-6b5e5d54fb12",        /* uuid (corresponds to uri) */
@@ -384,18 +382,17 @@ static struct _CollectionSchema {
   dlite_collection_deinit,                       /* deinit */
 
   0,                                             /* npropdims */
-  NULL,                                          /* propdim0inds */
+  NULL,                                          /* propdiminds */
 
   0,                                             /* dimoffset */
   NULL,                                          /* propoffsets */
   0,                                             /* reloffset */
   0,                                             /* propdimsoffset */
-  0,                                             /* propdim0offset */
-  0,                                             /* pooffset */
+  0,                                             /* propdimindsoffset */
   /* -- length of each dimention */
-  1,                                             /* ndims */
-  1,                                             /* nprops */
-  0,                                             /* nrels */
+  1,                                             /* _ndimensions */
+  1,                                             /* _nproperties */
+  0,                                             /* _nrelations */
   /* -- value of each property */
   "CollectionSchema",                            /* schema_name */
   "0.1",                                         /* schema_version */
@@ -406,11 +403,11 @@ static struct _CollectionSchema {
   NULL,                                          /* schema_relations */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {0},                                           /* propdims */
+  {0},                                           /* _propdims */
   /* -- array of first property dimension */
-  {0},                                           /* _propdim0inds */
+  {0},                                           /* _propdiminds */
   /* -- array of memory offsets to each instance property */
-  {0}                                            /* offsets */
+  {0}                                            /* _propoffsets */
 };
 
 

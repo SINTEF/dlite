@@ -108,7 +108,6 @@ static int list_dims(TGenBuf *s, const char *template, int len,
   int retval = 1;
   DLiteMeta *meta = (DLiteMeta *)((Context *)context)->inst;
   int iprop = ((Context *)context)->iprop;
-  DLiteDimension *dims = meta->dimensions;
   DLiteProperty *p = meta->properties + iprop;
   TGenSubs psubs;
   int i;
@@ -118,11 +117,9 @@ static int list_dims(TGenBuf *s, const char *template, int len,
 
   if (tgen_subs_copy(&psubs, subs)) goto fail;
   for (i=0; i < p->ndims; i++) {
-    int dim = DLITE_PROP_DIM(meta, iprop, i);
-    tgen_subs_set(&psubs, "dim.name",  dims[dim].name,        NULL);
-    tgen_subs_set(&psubs, "dim.descr", dims[dim].description, NULL);
-    tgen_subs_set_fmt(&psubs, "dim.value", NULL, "%zu", DLITE_DIM(meta, dim));
-    tgen_subs_set_fmt(&psubs, "dim.n",     NULL, "%d",  dim);
+    tgen_subs_set(&psubs, "dim.name",  p->dimss[i] , NULL);
+    tgen_subs_set_fmt(&psubs, "dim.value", NULL, "%zu",
+                      DLITE_PROP_DIM(meta, iprop, i));
     tgen_subs_set_fmt(&psubs, "dim.i",     NULL, "%d",  i);
     tgen_subs_set(&psubs, ",",  (i < p->ndims-1) ? ","  : "", NULL);
     tgen_subs_set(&psubs, ", ", (i < p->ndims-1) ? ", " : "", NULL);

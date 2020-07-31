@@ -67,7 +67,8 @@ MU_TEST(test_entity_create)
   mu_assert_int_eq(112, entity->propoffsets[3]);
   mu_assert_int_eq(120, entity->propoffsets[4]);
   mu_assert_int_eq(128, entity->reloffset);
-  mu_assert_int_eq(128, entity->pooffset);
+  mu_assert_int_eq(128, entity->propdimsoffset);
+  mu_assert_int_eq(128, entity->propdimindsoffset);
   mu_assert_int_eq(72, entity->headersize);
 #endif
 }

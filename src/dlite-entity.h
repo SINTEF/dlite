@@ -63,23 +63,22 @@
 
   The following table summarises the memory layout of an instance:
 
-  | segment                       | nmemb             | size                  | offset               |
-  | ----------------------------- | ----------------- | --------------------- | -------------------- |
-  | header                        | 1                 | meta->headersize      | 0                    |
-  | dimension values              | meta->ndimensions | sizeof(size_t)        | meta->dimoffset      |
-  | property values               | meta->nproperties | [a]                   | meta->propoffsets    |
-  | relation values               | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset      |
-  | property dimension values     | meta->npropdims   | sizeof(size_t)        | meta->propdimsoffset |
-  | first property dim index [b]  | nproperties       | sizeof(size_t)        | meta->propdim0offset |
-  | instance property offsets [b] | nproperties       | sizeof(size_t)        | meta->pooffset       |
+  | segment         | nmemb             | size                  | offset                  |
+  | --------------- | ----------------- | --------------------- | ----------------------- |
+  | header          | 1                 | meta->headersize      | 0                       |
+  | dimensions      | meta->ndimensions | sizeof(size_t)        | meta->dimoffset         |
+  | properties      | meta->nproperties | [a]                   | meta->propoffsets       |
+  | relations       | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset         |
+  | propdims        | meta->npropdims   | sizeof(size_t)        | meta->propdimsoffset    |
+  | propdiminds [b] | nproperties       | sizeof(size_t)        | meta->propdimindsoffset |
+  | propoffsets [b] | nproperties       | sizeof(size_t)        | PROPOFFSETSOFFSET(meta) |
 
     [a]: The size of properties depends on their `size` and whether
-         they are dimensional.
+         they are dimensional or not.
 
-    [b]: Only metadata instances have the last segments with property
-         dimension indices and offsets.
+    [b]: Only metadata instances have the last two segments.
 
-  ### Header
+  ### header
   The header for all instances must start with `DLiteInstance_HEAD`.
   This is a bare minimal, but sufficient for most data instances.  It
   contains the UUID and (optionally) URI identifying the instance as
@@ -90,10 +89,10 @@
   The header of all metadata must start with `DLiteMeta_HEAD` (which
   itself starts with `DLiteInstance_HEAD`.
 
-  ### Dimension values
+  ### dimensions
   The length of each dimension of the current instance.
 
-  ### Property values
+  ### properties
   The value of each property of the current instance.  The metadata
   for this instance defines the type and size for all properties.  The
   size that the `i`th property occupies in an instance is given by
@@ -104,13 +103,28 @@
   Some property types, like `dliteStringPtr` and `dliteProperty` may
   allocate additional memory.
 
-  ### Relation values
+  ### relations
   Array of relations for the current instance.
 
-  ### Instance property offsets
+  ### propdims
+  Array of evaluated property dimension sizes (calculated from
+  `dimensions`).  Use the DLITE_PROP_DIM() macro to access these
+  values.
+
+  ### propdiminds
+  Array with indices into `propdims` for the first dimension of each
+  property.  Note that only metadata has this segment.
+
+  ### propoffsets
   Memory offset of each property of its instances.  Don't access this
-  array directly, use the `DLITE_PROP()` macro instead.  Note that
-  only metadata instances has this segment.
+  array directly, use the DLITE_PROP() macro instead.  Note that only
+  metadata instances has this segment.
+
+  Note that the allocated size of data instances are fully defined by
+  their metadata.  However, this is not true for metadata since it
+  depends on `nproperties` - the number of properties it defines.  Use
+  the DLITE_INSTANCE_SIZE() macro to get the allocated size of an
+  instance.
 */
 
 #include "utils/boolean.h"
@@ -149,7 +163,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_DIM_DESCR(inst, n) \
   (((DLiteInstance *)(inst))->meta->dimensions + n)
 
-/** Expands to number of properties (size_t). */
+/** Expands to number of properties --> (size_t). */
 #define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
 
 /** Expands to pointer to the value of property `n` --> (void *)
@@ -163,7 +177,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLITE_PROP_DIMS(inst, n) \
   ((size_t *)((char *)(inst) + \
               ((DLiteInstance *)(inst))->meta->propdimsoffset) + \
-   ((DLiteInstance *)(inst))->meta->propdim0inds[n])
+   ((DLiteInstance *)(inst))->meta->propdiminds[n])
 
 /** Expands to size of the `m`th dimension of property `n` --> (size_t) */
 #define DLITE_PROP_DIM(inst, n, m) (DLITE_PROP_DIMS(inst, n)[m])
@@ -186,6 +200,18 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 /** Expands to pointer to relation `n` --> (DLiteRelation *) */
 #define DLITE_REL(inst, n) (DLITE_RELS(inst) + n)
 
+/** Expands to the allocated size of a data or metadata instance
+    --> (size_t) */
+#define DLITE_INSTANCE_SIZE(inst)                                       \
+  ((dlite_instance_is_data((DLiteInstance *)inst)) ?                    \
+   (inst->meta->propdimindsoffset) :                                    \
+   (inst->meta->propdimindsoffset +                                     \
+    2 * (((DLiteMeta *)inst)->ndimensions) * sizeof(size_t)))
+
+/** Expands to the offset of propoffsets memory section --> (size_t) */
+#define PROPOFFSETSOFFSET(inst)                                         \
+  ((size_t)(((DLiteMeta *)inst)->meta->propdimindsoffset +              \
+            ((DLiteMeta *)inst)->nproperties * sizeof(size_t)))
 
 /**
   Initial segment of all DLite instances.
@@ -236,7 +262,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   /* Property dimension sizes */                                        \
   /* Automatically assigned by dlite_meta_init() */                     \
   size_t npropdims;      /* Total number of property dimensions. */     \
-  size_t *propdim0inds;  /* Pointer to array (within this metadata) */  \
+  size_t *propdiminds;   /* Pointer to array (within this metadata) */  \
                          /* of `propdims` indices to first property */  \
                          /* dimension. Length: nproperties */           \
                                                                         \
@@ -247,12 +273,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
                          /* offsets to property values in instance. */  \
   size_t reloffset;      /* Offset of first relation value. */          \
   size_t propdimsoffset; /* Offset to `propdims` array. */              \
-  size_t propdim0offset; /* Offset to `propdim0inds` array . */         \
-  size_t pooffset;       /* Offset to array of property offsets */
-
-  //size_t *propdims;      /* Array of property dimension sizes. */
-  //                       /* Length: npropdims */
-
+  size_t propdimindsoffset; /* Offset of `propdiminds` array. */
 
 
 /**
