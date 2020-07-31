@@ -26,6 +26,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Schema name."                             /* description */
   },
   {
@@ -35,6 +36,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Schema version."                          /* description */
   },
   {
@@ -44,6 +46,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Schema namespace."                        /* description */
   },
   {
@@ -53,6 +56,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Description of schema."                   /* description */
   },
   {
@@ -62,6 +66,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    1,                                         /* ndims */
    basic_metadata_schema_prop_dimensions_dims,/* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Defines schema dimensions."               /* description */
   },
   {
@@ -71,6 +76,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    1,                                         /* ndims */
    basic_metadata_schema_prop_properties_dims,/* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Defines schema properties."               /* description */
   },
   {
@@ -80,6 +86,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    1,                                         /* ndims */
    basic_metadata_schema_prop_relations_dims, /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Defines schema relations."                /* description */
   }
 };
@@ -107,6 +114,7 @@ static struct _BasicMetadataSchema {
   DLITE_BASIC_METADATA_SCHEMA,                   /* uri */
   1,                                             /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
+  NULL,                                          /* iri */
 
   3,                                             /* ndimensions */
   7,                                             /* nproperties */
@@ -168,6 +176,7 @@ static DLiteProperty entity_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Entity name."                             /* description */
   },
   {
@@ -177,6 +186,7 @@ static DLiteProperty entity_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Entity version."                          /* description */
   },
   {
@@ -186,6 +196,7 @@ static DLiteProperty entity_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Entity namespace."                        /* description */
   },
   {
@@ -195,6 +206,7 @@ static DLiteProperty entity_schema_properties[] = {
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Description of entity."                   /* description */
   },
   {
@@ -204,6 +216,7 @@ static DLiteProperty entity_schema_properties[] = {
    1,                                         /* ndims */
    entity_schema_prop_dimensions_dims,        /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Entity dimensions."                       /* description */
   },
   {
@@ -213,6 +226,7 @@ static DLiteProperty entity_schema_properties[] = {
    1,                                         /* ndims */
    entity_schema_prop_properties_dims,        /* dims */
    NULL,                                      /* unit */
+   NULL,                                      /* iri */
    "Entity properties."                       /* description */
   }
 };
@@ -240,6 +254,7 @@ static struct _EntitySchema {
   DLITE_ENTITY_SCHEMA,                        /* uri */
   1,                                          /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,        /* meta */
+  NULL,                                       /* iri */
 
   2,                                          /* ndimensions */
   6,                                          /* nproperties */
@@ -295,6 +310,7 @@ static DLiteProperty collection_schema_properties[] = {
   1,                                         /* ndims */
   collection_schema_prop_relations_dims,     /* dims */
   NULL,                                      /* unit */
+  NULL,                                      /* iri */
   "Array of relations (subject, predicate, "
   "object, relation-id)."                    /* description */
   }
@@ -323,6 +339,7 @@ static struct _CollectionSchema {
   DLITE_COLLECTION_SCHEMA,                       /* uri */
   1,                                             /* refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
+  NULL,                                          /* iri */
 
   1,                                             /* ndimensions */
   1,                                             /* nproperties */

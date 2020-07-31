@@ -34,10 +34,10 @@ typedef struct _{name} {{
   char _uuid[36+1];   /*!< UUID for this data instance. */
   const char *_uri;   /*!< Unique name or uri of the data instance.
                            Can be NULL. */
-
   size_t _refcount;   /*!< Number of references to this instance. */
-
   const void *_meta;  /*!< Pointer to the metadata describing this instance. */
+  const char *_iri;   /*!< Unique IRI to corresponding entity in an ontology.
+                           May be NULL. */
 {@if:{ismetameta}==1}\
 
   size_t _ndimensions;           /*!< Number of dimensions in instance. */
@@ -57,6 +57,7 @@ typedef struct _{name} {{
   size_t _reloffset;             /*!< Offset of first relation value. */
   size_t _pooffset;              /*!< Offset to array of property offsets. */
 {@endif}\
+
   /* -- dimension values */
 {list_dimensions:  size_t {dim.name};  {@33}/*!< {dim.descr} */\n}
   /* -- property values */

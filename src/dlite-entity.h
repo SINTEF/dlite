@@ -182,12 +182,14 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 #define DLiteInstance_HEAD                                              \
   char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
   const char *uri;                /* Unique uri for this instance. */   \
-                                  /*  May be NULL. */                   \
+                                  /* May be NULL. */                    \
   int refcount;                   /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
-                                  /* bing this instance. */
-
+                                  /* bing this instance. */             \
+  const char *iri;                /* Unique IRI to corresponding */     \
+                                  /* entity in an ontology. May be */   \
+                                  /* NULL. */
 
 /**
   Initial segment of all DLite metadata.  With instance we here refer
@@ -267,6 +269,8 @@ struct _DLiteProperty {
                       /*   data.  Zero if scalar. */
   int *dims;          /*!< Array of dimension indices. May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
+  char *iri;          /*!< Unique IRI to corresponding entity in an */
+                      /*   ontology. */
   char *description;  /*!< Human described of the described data. */
 };
 
@@ -597,7 +601,8 @@ DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
   Returns a new Entity created from the given arguments.
  */
 DLiteMeta *
-dlite_entity_create(const char *uri, const char *description,
+dlite_entity_create(const char *uri, const char *iri,
+                    const char *description,
                     size_t ndimensions, const DLiteDimension *dimensions,
                     size_t nproperties, const DLiteProperty *properties);
 

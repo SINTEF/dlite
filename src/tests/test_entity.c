@@ -37,15 +37,16 @@ MU_TEST(test_entity_create)
     {"N", "Length of dimension N."}
   };
   DLiteProperty properties[] = {
-    /* name           type            size         ndims dims   unit descr */
-    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  "..."},
-    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", ""},
-    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", "descr.."},
-    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  "descr.."},
-    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "descr.."}
+    /* name           type            size         ndims dims   unit iri   descr */
+    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  NULL, "..."},
+    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", NULL, ""},
+    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", NULL, "descr.."},
+    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  NULL, "descr.."},
+    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  NULL, "descr.."}
   };
 
   mu_check((entity = (DLiteMeta *)dlite_entity_create(uri, "My test entity.",
+                                                      NULL,
                                                       2, dimensions,
                                                       5, properties)));
   mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
@@ -58,16 +59,16 @@ MU_TEST(test_entity_create)
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
 #if (__GNUC__ && SIZEOF_VOID_P == 8)
-  mu_assert_int_eq(64, sizeof(DLiteInstance));
-  mu_assert_int_eq(64, entity->dimoffset);
-  mu_assert_int_eq(80, entity->propoffsets[0]);
-  mu_assert_int_eq(88, entity->propoffsets[1]);
-  mu_assert_int_eq(96, entity->propoffsets[2]);
-  mu_assert_int_eq(104, entity->propoffsets[3]);
-  mu_assert_int_eq(112, entity->propoffsets[4]);
-  mu_assert_int_eq(120, entity->reloffset);
-  mu_assert_int_eq(120, entity->pooffset);
-  //mu_assert_int_eq(160, entity->size);
+  mu_assert_int_eq(72, sizeof(DLiteInstance));
+  mu_assert_int_eq(72, entity->dimoffset);
+  mu_assert_int_eq(88, entity->propoffsets[0]);
+  mu_assert_int_eq(96, entity->propoffsets[1]);
+  mu_assert_int_eq(104, entity->propoffsets[2]);
+  mu_assert_int_eq(112, entity->propoffsets[3]);
+  mu_assert_int_eq(120, entity->propoffsets[4]);
+  mu_assert_int_eq(128, entity->reloffset);
+  mu_assert_int_eq(128, entity->pooffset);
+  mu_assert_int_eq(72, entity->headersize);
 #endif
 }
 

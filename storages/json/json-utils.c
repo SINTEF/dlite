@@ -699,6 +699,8 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
     }
     if (p->unit && *p->unit)
       json_object_set_new(obj, "unit", json_string(p->unit));
+    if (p->iri && *p->iri)
+      json_object_set_new(obj, "iri", json_string(p->iri));
     if (p->description)
       json_object_set_new(obj, "description", json_string(p->description));
     return obj;
@@ -945,8 +947,13 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
     if (!(property.unit = strdup(s))) FAIL("allocation failure");
   }
 
+  if ((str = json_object_get(item, "iri"))) {
+    if (!(s = json_string_value(str))) FAIL("iri must be a string");
+    if (!(property.iri = strdup(s))) FAIL("allocation failure");
+  }
+
   if ((str = json_object_get(item, "description"))) {
-    if (!(s = json_string_value(str))) FAIL("unit must be a string");
+    if (!(s = json_string_value(str))) FAIL("description must be a string");
     if (!(property.description = strdup(s))) FAIL("allocation failure");
   }
 
@@ -960,6 +967,7 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
   for (i=0; i<ndims; i++) printf("  %d", dims[i]);
   printf("\n");
   printf("--- unit: '%s'\n", property.unit);
+  printf("--- iri: '%s'\n", property.iri);
   printf("--- description: '%s'\n", property.description);
   */
 

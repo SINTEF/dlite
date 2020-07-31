@@ -173,7 +173,6 @@ DLiteInstance *_instance_create(const DLiteMeta *meta, const size_t *dims,
      existing id. */
   if (lookup && id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
-    //if (dlite_instance_is_data(inst))
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->refcount);
     return inst;
@@ -308,6 +307,7 @@ static void dlite_instance_free(DLiteInstance *inst)
   /* Standard free */
   nprops = meta->nproperties;
   if (inst->uri) free((char *)inst->uri);
+  if (inst->iri) free((char *)inst->iri);
   if (meta->properties) {
     for (i=0; i<nprops; i++) {
       DLiteProperty *p = (DLiteProperty *)meta->properties + i;
@@ -1190,7 +1190,8 @@ DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
   Returns a new Entity created from the given arguments.
  */
 DLiteMeta *
-dlite_entity_create(const char *uri, const char *description,
+dlite_entity_create(const char *uri, const char *iri,
+                    const char *description,
 		    size_t ndimensions, const DLiteDimension *dimensions,
 		    size_t nproperties, const DLiteProperty *properties)
 {
@@ -1205,6 +1206,7 @@ dlite_entity_create(const char *uri, const char *description,
   if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))
     goto fail;
 
+  if (iri) e->iri = strdup(iri);
   if (dlite_instance_set_property(e, "name", &name)) goto fail;
   if (dlite_instance_set_property(e, "version", &version)) goto fail;
   if (dlite_instance_set_property(e, "namespace", &namespace)) goto fail;
