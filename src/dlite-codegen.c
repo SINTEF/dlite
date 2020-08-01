@@ -274,7 +274,9 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   tgen_subs_set_fmt(subs, "ismetameta", NULL, "%d", ismetameta);
 
   /* General (all types of instances) */
-  tgen_subs_set_fmt(subs, "uuid", NULL, "\"%s\"", inst->uuid);
+  tgen_subs_set(subs, "uuid", inst->uuid, NULL);
+  tgen_subs_set(subs, "uri", (inst->uri) ? inst->uri : "", NULL);
+  tgen_subs_set(subs, "iri", (inst->iri) ? inst->iri : "", NULL);
   if (inst->uri)
     tgen_subs_set(subs, "uri",        inst->uri,  NULL);
 
@@ -284,6 +286,7 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   asprintf(&header, "%s.h", tgen_camel_to_underscore(name, -1));
   tgen_subs_set(subs, "meta.uuid",       meta->uuid, NULL);
   tgen_subs_set(subs, "meta.uri",        meta->uri,  NULL);
+  tgen_subs_set(subs, "meta.iri",        (meta->iri) ? meta->iri : "",  NULL);
   tgen_subs_set(subs, "meta.name",       name,       NULL);
   tgen_subs_set(subs, "meta.version",    version,    NULL);
   tgen_subs_set(subs, "meta.namespace",  namespace,  NULL);
@@ -293,9 +296,8 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
 
   /* DLiteInstance_HEAD */
   tgen_subs_set(subs, "_uuid", inst->uuid, NULL);
-  tgen_subs_set(subs, "_uri", (inst->uri) ? inst->uri : "NULL", NULL);
-  tgen_subs_set(subs, "_refcount", "0",    NULL);
-  tgen_subs_set(subs, "_meta",     "NULL", NULL);
+  tgen_subs_set(subs, "_uri", (inst->uri) ? inst->uri : "", NULL);
+  tgen_subs_set(subs, "_iri", (inst->iri) ? inst->iri : "", NULL);
 
   /* For all metadata  */
   if (dlite_meta_is_metameta(inst->meta)) {
@@ -416,8 +418,9 @@ char *dlite_codegen_template_file(const char *template_name)
   if (!(template_file = fu_pathsiter_next(iter))) {
       const char **path;
       TGenBuf msg;
+      tgen_buf_init(&msg);
       tgen_buf_append_fmt(&msg, "cannot find template file \"%s\" in paths:\n",
-                          template_file);
+                          template_name);
       for (path=fu_paths_get(&paths); *path; path++)
         tgen_buf_append_fmt(&msg, "  - %s\n", *path);
       errx(1, "%s", tgen_buf_get(&msg));

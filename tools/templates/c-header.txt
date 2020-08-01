@@ -27,6 +27,24 @@
 #define {name%U}_UUID      "{_uuid}"
 #define {name%U}_META_URI  "{meta.uri}"
 #define {name%U}_META_UUID "{meta.uuid}"
+#define {name%U}_IRI       "{_iri}"
+
+
+/* Define generic types in case we don't have dlite */
+#if defined(HAVE_DLITE)
+# define inst_t DLiteInstance
+# define meta_t DLiteMeta
+# define dim_t  DLiteDimension
+# define prop_t DLiteProperty
+# define rel_t  DLiteRelation
+#elif ! defined(HAVE_DLITE_GENERIC_TYPES)
+# define HAVE_DLITE_GENERIC_TYPES
+# define inst_t void
+# define meta_t void
+# define dim_t  void
+# define prop_t void
+# typedef struct {{char *s, *p, *o, *id;}} rel_t;
+#endif
 
 
 typedef struct _{name} {{
@@ -35,7 +53,7 @@ typedef struct _{name} {{
   const char *_uri;   /*!< Unique name or uri of the data instance.
                            Can be NULL. */
   size_t _refcount;   /*!< Number of references to this instance. */
-  const void *_meta;  /*!< Pointer to the metadata describing this instance. */
+  const meta_t *_meta;/*!< Pointer to the metadata describing this instance. */
   const char *_iri;   /*!< Unique IRI to corresponding entity in an ontology.
                           May be NULL. */
 {@if:{ismetameta}==1}\
@@ -44,13 +62,13 @@ typedef struct _{name} {{
   size_t _nproperties;         /*!< Number of properties in instance. */
   size_t _nrelations;          /*!< Number of relations in instance. */
 
-  DLiteDimension *_dimensions; /*!< Array of dimensions [ndimensions] */
-  DLiteProperty *_properties;  /*!< Array of properties [nproperties] */
-  DLiteRelation *_relations;   /*!< Array of relations [nrelations] */
+  dim_t *_dimensions;          /*!< Array of dimensions [ndimensions] */
+  prop_t *_properties;         /*!< Array of properties [nproperties] */
+  rel_t *_relations;           /*!< Array of relations [nrelations] */
 
   size_t _headersize;          /*!< Size of instance header. */
-  DLiteInit _init;             /*!< Function initialising instance. */
-  DLiteDeInit _deinit;         /*!< Function deinitialising instance. */
+  int (*_init)(inst_t *inst);  /*!< Function initialising instance. */
+  int (*_deinit)(inst_t *inst);/*!< Function deinitialising instance. */
 
   size_t _npropdims;           /*!< Total number of property dimensions. */
   size_t *_propdiminds;        /*!< Array of `propdims` indices [nproperties] */
@@ -69,7 +87,7 @@ typedef struct _{name} {{
 {@if:{prop.ndims}!=0} [{prop.dims:{dim.name}{,}\.}]{@endif} */\n}
   /* -- relation values */
 {@if:{_nrelations}!=0}\
-  DLiteRelation __relations[{_nrelations}];
+  rel_t *__relations[{_nrelations};
 {@endif}\
 
   /* -- property dimension values */
