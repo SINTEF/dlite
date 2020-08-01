@@ -1418,7 +1418,7 @@ dlite_entity_create(const char *uri, const char *iri,
 }
 
 /*
-  Initialises internal data of `meta` describing its instances.
+  Initialises internal data of metadata `meta`.
 
   Returns non-zero on error.
  */

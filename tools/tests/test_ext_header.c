@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -11,10 +12,11 @@
 # pragma warning(disable: 4996)
 #endif
 
-typedef struct _ChemistryExt {
+typedef struct _Chemistry {
   Chemistry_HEAD
   int x;
-} ChemistryExt;
+  Chemistry_TAIL
+} Chemistry;
 
 
 int main()
@@ -29,21 +31,19 @@ int main()
   char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
   DLiteStorage *s;
   DLiteMeta *chem;
-  ChemistryExt *p;
+  Chemistry *p;
 
-  /* Load Chemistry entity */
+  /* Load Chemistry metadata and call DLITE_UPDATE_EXTENEDE_META() to
+     make it aware of its additional fields. */
   s = dlite_storage_open("json", path, "mode=r");
-  chem = (DLiteMeta *)
-    dlite_meta_load(s, "http://www.sintef.no/calm/0.1/Chemistry");
+  chem = dlite_meta_load(s, "http://www.sintef.no/calm/0.1/Chemistry");
   dlite_storage_close(s);
-
-  /* Update header size of chemistry */
-  printf("*** old headersize: %lu\n", chem->headersize);
-  chem->headersize = offsetof(ChemistryExt, nelements);
-  printf("*** new headersize: %lu\n", chem->headersize);
+  DLITE_UPDATE_EXTENEDE_META(chem, Chemistry, nelements);
 
   /* Create instance */
-  p = (ChemistryExt *)dlite_instance_create(chem, dims, "example-6xxx");
+  p = (Chemistry *)dlite_instance_create(chem, dims, "example-6xxx");
+
+  p->x = 42;
 
   p->alloy = strdup("Sample alloy...");
 
@@ -92,8 +92,29 @@ int main()
       p->Xp[i] -= atvol0/p->atvol[j] * p->volfrac[j] * p->Xp[j*nelements + i];
 
 
+  dlite_instance_print((DLiteInstance *)chem);
+  printf("\n");
+  printf("sizeof(Chemistry) = %lu\n", sizeof(Chemistry));
+  printf("inst size = %lu\n", DLITE_INSTANCE_SIZE(p));
+  printf("offsetof(inst, x) = %lu\n", offsetof(Chemistry, x));
+  printf("offsetof(inst, nelements) = %lu\n", offsetof(Chemistry, nelements));
+  printf("offsetof(inst, alloy) = %lu\n", offsetof(Chemistry, alloy));
+  printf("offsetof(inst, atvol) = %lu\n", offsetof(Chemistry, atvol));
+  printf("offsetof(inst, __propdims) = %lu\n", offsetof(Chemistry, __propdims));
+  printf("x=%d\n", p->x);
+  printf("\n");
+  dlite_instance_print((DLiteInstance *)p);
+
+  assert(sizeof(Chemistry) == DLITE_INSTANCE_SIZE(p));
+  assert(offsetof(Chemistry, x) == sizeof(DLiteInstance));
+  assert(offsetof(Chemistry, nelements) == chem->headersize);
+  assert(offsetof(Chemistry, alloy) == chem->propoffsets[0]);
+  assert(offsetof(Chemistry, atvol) == chem->propoffsets[7]);
+  assert(offsetof(Chemistry, __propdims) == chem->propdimsoffset);
+  assert(p->x == 42);
+
   /* Save instance */
-  s = dlite_storage_open("json", "example-6xxx.json", "mode=w");
+  s = dlite_storage_open("json", "test_ext_header.json", "mode=w");
   dlite_instance_save(s, (DLiteInstance *)p);
   dlite_storage_close(s);
 

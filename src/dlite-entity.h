@@ -127,6 +127,7 @@
   instance.
 */
 
+#include <stddef.h>
 #include "utils/boolean.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
@@ -338,7 +339,16 @@ typedef struct _DLiteMeta {
    (inst->meta->propdimindsoffset +                                     \
     2 * (((DLiteMeta *)inst)->ndimensions) * sizeof(size_t)))
 
-
+/** Updates metadata for extended entities.
+    `meta`: DLiteMeta
+    `type`: the struct to extend
+    `firstdim`: name of the first dimension
+*/
+#define DLITE_UPDATE_EXTENEDE_META(meta, type, firstdim)  \
+  do {                                                    \
+    meta->headersize = offsetof(type, firstdim);          \
+    dlite_meta_init((DLiteMeta *)meta);                   \
+  } while (0)
 
 /** @} */
 /* ================================================================= */
@@ -665,6 +675,13 @@ dlite_entity_create(const char *uri, const char *iri,
                     const char *description,
                     size_t ndimensions, const DLiteDimension *dimensions,
                     size_t nproperties, const DLiteProperty *properties);
+
+/**
+  Initialises internal data of metadata `meta`.
+
+  Returns non-zero on error.
+ */
+int dlite_meta_init(DLiteMeta *meta);
 
 /**
   Increase reference count to meta-metadata.
