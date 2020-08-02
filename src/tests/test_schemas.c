@@ -9,9 +9,8 @@ MU_TEST(test_write_schemas)
   DLiteStorage *s;
   DLiteMeta *meta;
 
-
   meta = (DLiteMeta *)
-    dlite_instance_get("http://meta.sintef.no/0.1/BasicMetadataSchema");
+    dlite_instance_get(DLITE_BASIC_METADATA_SCHEMA);
   s = dlite_storage_open("json", "BasicMetadataSchema.json", "mode=w;meta=yes");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
@@ -20,7 +19,7 @@ MU_TEST(test_write_schemas)
   dlite_storage_close(s);
 
   meta = (DLiteMeta *)
-    dlite_instance_get("http://meta.sintef.no/0.3/EntitySchema");
+    dlite_instance_get(DLITE_ENTITY_SCHEMA);
   s = dlite_storage_open("json", "EntitySchema.json", "mode=w;meta=true");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
@@ -29,7 +28,7 @@ MU_TEST(test_write_schemas)
   dlite_storage_close(s);
 
   meta = (DLiteMeta *)
-    dlite_instance_get("http://meta.sintef.no/0.6/CollectionSchema");
+    dlite_instance_get(DLITE_COLLECTION_SCHEMA);
   s = dlite_storage_open("json", "CollectionSchema.json", "mode=w;meta=true");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);

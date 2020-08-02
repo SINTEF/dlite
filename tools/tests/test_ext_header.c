@@ -3,7 +3,9 @@
 #include <string.h>
 
 #include "dlite.h"
-#include "chemistry-ext.h"
+
+#define CUSTOM_CHEMISTRY
+#include "chemistry.h"
 
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) # s

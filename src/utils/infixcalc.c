@@ -55,6 +55,13 @@
 typedef enum {
   opParentOpen  = '(',
   opParentClose = ')',
+  //opCond        = '?',
+  opLOr         = '|',
+  opLAnd        = '&',
+  opEq          = '=',
+  opNeq         = '!',
+  opGreater     = '>',
+  opSmaller     = '<',
   opPlus        = '+',
   opMinus       = '-',
   opTimes       = '*',
@@ -80,9 +87,9 @@ typedef struct {
 
 /* Stack */
 typedef struct {
-  size_t len;
-  size_t size;
-  int *items;
+  size_t len;   /* number of items in the stack */
+  size_t size;  /* allocated stack size */
+  int *items;   /* array of items */
 } Stack;
 
 typedef struct {
@@ -94,12 +101,19 @@ typedef struct {
 static const OpInfo _opinfo[] = {
   {'(', 0, 0},
   {')', 0, 0},
-  {'+', 1, 2},
-  {'-', 1, 2},
-  {'*', 2, 2},
-  {'/', 2, 2},
-  {'%', 2, 2},
-  {'^', 3, 2},
+  //{'?', 1, 3},  /* condition */
+  {'|', 1, 2},  /* logical or */
+  {'&', 2, 2},  /* logical and */
+  {'=', 3, 2},  /* equal */
+  {'!', 4, 2},  /* not equal */
+  {'>', 5, 2},  /* greater than */
+  {'<', 5, 2},  /* smaller than */
+  {'+', 6, 2},  /* addition */
+  {'-', 6, 2},  /* subtraction */
+  {'*', 7, 2},  /* multiplication */
+  {'/', 7, 2},  /* division */
+  {'%', 7, 2},  /* module */
+  {'^', 8, 2},  /* power */
   {0, 0, 0}
 };
 
@@ -173,6 +187,12 @@ static int poll(Stack *stack)
 static int binary_eval(Operator op, int arg1, int arg2)
 {
   switch (op) {
+  case '|':  return arg1 || arg2;
+  case '&':  return arg1 && arg2;
+  case '=':  return arg1 == arg2;
+  case '!':  return arg1 != arg2;
+  case '>':  return arg1 > arg2;
+  case '<':  return arg1 < arg2;
   case '+':  return arg1 + arg2;
   case '-':  return arg1 - arg2;
   case '*':  return arg1 * arg2;
@@ -290,8 +310,14 @@ int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
         push(&ostack, token.u.op);
         break;
       case ')':
-        while ((op = pop(&ostack)) != '(')
+        while ((op = pop(&ostack)) != '(') {
+          if (!ostack.len) {
+            snprintf(err, errlen,
+                     "missing start parenthesis in expression \"%s\"", expr);
+            goto fail;
+          }
           if (eval(op, &vstack, err, errlen)) goto fail;
+        }
         break;
       default:
         opinfo = get_opinfo(token.u.op);

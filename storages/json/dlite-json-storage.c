@@ -68,8 +68,8 @@
 
 /* How the json-data is organised */
 typedef enum {
-  fmtNormal,      /* normal data */
-  fmtMeta,        /* metadata who's instances are normal data */
+  fmtNormal,      /* format output as normal data */
+  fmtMeta,        /* format output as SOFT metadata */
   fmtSchema       /* schemas or meta-metadata */
 } DataFormat;
 
@@ -518,16 +518,22 @@ int dlite_json_set_metadata(DLiteDataModel *d, const char *metadata)
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   char *name, *version, *namespace;
 
-  if (dlite_split_meta_uri(metadata, &name, &version, &namespace))
-    return 1;
-
-  object_set_string(data->meta, "name", name);
-  object_set_string(data->meta, "version", version);
-  object_set_string(data->meta, "namespace", namespace);
-
-  free(name);
-  free(version);
-  free(namespace);
+  switch (data->fmt) {
+  case fmtNormal:
+    if (dlite_split_meta_uri(metadata, &name, &version, &namespace))
+      return 1;
+    object_set_string(data->meta, "name", name);
+    object_set_string(data->meta, "version", version);
+    object_set_string(data->meta, "namespace", namespace);
+    free(name);
+    free(version);
+    free(namespace);
+    break;
+  case fmtMeta:
+  case fmtSchema:
+    object_set_string(data->instance, "meta", metadata);
+    break;
+  }
   return 0;
 }
 
@@ -715,9 +721,12 @@ char *dlite_json_uri(json_t *obj)
   const char *name=NULL;
   const char *version=NULL;
   const char *namespace=NULL;
+  const char *uri;
   int n = 0;
 
   if (json_is_object(obj)) {
+    if ((uri = object_get_string(obj, "uri")) && !str_is_whitespace(uri))
+      return (char *)uri;
 
     name = object_get_string(obj, "name");
     if (!str_is_whitespace(name))

@@ -45,103 +45,90 @@
 
 /* Define generic types in case we don't have dlite */
 #if defined(HAVE_DLITE)
-# define inst_t DLiteInstance
-# define meta_t DLiteMeta
-# define dim_t  DLiteDimension
-# define prop_t DLiteProperty
-# define rel_t  DLiteRelation
+# include "dlite.h"
 #elif ! defined(HAVE_DLITE_GENERIC_TYPES)
 # define HAVE_DLITE_GENERIC_TYPES
-# define inst_t void
-# define meta_t void
-# define dim_t  void
-# define prop_t void
-# typedef struct {{char *s, *p, *o, *id;}} rel_t;
+# define DLiteInstance  void
+# define DLiteMeta      void
+# define DLiteDimension void
+# define DLiteProperty  void
+typedef struct {{char *s, *p, *o, *id;}} DLiteRelation;
 #endif
 
 
-#define {name}_HEAD{@38}\\
-  /* -- header */                     \\
-  char _uuid[36+1];                   \\
-  const char *_uri;                   \\
-                                      \\
-  size_t _refcount;                   \\
-  const meta_t *meta;                \\
-  const char *_iri;                   \\
-                                      \\
-{@if:{ismetameta} == 1}\
-                                      \\
-  size_t _ndimensions;                \\
-  size_t _nproperties;                \\
-  size_t _nrelations;                 \\
-                                      \\
-  dim_t *_dimensions;                 \\
-  prop_t *_properties;                \\
-  rel_t *_relations;                  \\
-                                      \\
-  size_t _headersize;                 \\
-  int (*_init)(inst_t *inst);         \\
-  int (*_deinit)(inst_t *inst);       \\
-                                      \\
-  size_t _npropdims;                  \\
-  size_t *_propdiminds;               \\
-                                      \\
-  size_t _dimoffset;                  \\
-  size_t *_propoffsets;               \\
-  size_t _reloffset;                  \\
-  size_t _propdimsoffset;             \\
-  size_t _propdimindsoffset;          \\
-{@endif}\
-  /* -- done */
+#define {name}_HEAD  {@40}\\
+  /* -- header */                       \\
+  char _uuid[36+1];                     \\
+  const char *_uri;                     \\
+  size_t _refcount;                     \\
+  const DLiteMeta *meta;                \\
+  const char *_iri;                     \\
+{@if:{ismeta}=1}
+                                        \\
+  size_t _ndimensions;                  \\
+  size_t _nproperties;                  \\
+  size_t _nrelations;                   \\
+                                        \\
+  DLiteDimension *_dimensions;          \\
+  DLiteProperty *_properties;           \\
+  DLiteRelation *_relations;            \\
+                                        \\
+  size_t _headersize;                   \\
+  int (*_init)(DLiteInstance *inst);    \\
+  int (*_deinit)(DLiteInstance *inst);  \\
+                                        \\
+  size_t _npropdims;                    \\
+  size_t *_propdiminds;                 \\
+                                        \\
+  size_t _dimoffset;                    \\
+  size_t *_propoffsets;                 \\
+  size_t _reloffset;                    \\
+  size_t _propdimsoffset;               \\
+  size_t _propdimindsoffset;            \\
+{@endif} \
+
+
+#define {name}_VALUES              {@78}\\
+  /* -- dimension values */        {@78}\\
+{list_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */{@78}\\\n} {@78}\\
+  /* -- property values */         {@78}\\
+{list_properties:  {prop.cdecl}; {@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */{@78}\\\n} \
+{@if:{_nrelations}!0}              {@78}\\
+  /* -- relation values */         {@78}\\
+  DLiteRelation __relations[{_nrelations}];
+{@endif} \
+
+
+#define {name}_ENDTAIL \\
+  /* -- __propdims: property dimension values */ \\
+  size_t __propdims[{_npropdims}]; \
+{@if:{ismeta}=1} \\
+  /* -- __propdiminds: index of first dimension for each property */ \\
+  size_t __propdiminds[{_nproperties}]; \\
+  /* -- __propoffsets */ \\
+  size_t __propoffsets[{_nproperties}];
+{@endif} \
+
 
 #define {name}_TAIL \\
-  /* -- dimension values */ \\
-{list_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */{@78}\\\n} \\
-  /* -- property values */ \\
-{list_properties:  {prop.cdecl}; {@30}/* {prop.descr} {@if:{prop.ndims}!=0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */{@78}\\\n} \\
-  /* -- relation values */ \\
-{@if:{_nrelations}!=0}\
-  rel_t __relations[{_nrelations}]; \\
-{@endif}\
-  /* -- property dimension values */ \\
-  size_t __propdims[{_npropdims}]; \\
-{@if:{ismetameta} == 1}\
-  /* -- index of first dimension for each property */ \\
-  size_t __propdiminds[{_nproperties}]; \\
-  /* -- propoffsets */ \\
-  size_t __propoffsets[{_nproperties}]; \\
-{@endif}\
-  /* -- done */
+  {name}_VALUES {name}_ENDTAIL
 
 
-//#ifdef HAVE_DLITE
-//#include "dlite.h"
-//#include "err.h"
-//
-///**
-//  Loads {name} from storage `s` and set the `headersize`, `init` and `deinit`
-//  fields correctly.  Returns NULL on error.
-// */
-//static inline DLiteInstance *{name%l}_load(const DLiteStorage *s)
-//{{
-//  static DLiteInstance *_{name%l} = NULL;
-//  if (!_{name%l}) {{
-//    if (!(_{name%l} = dlite_metastore_get({name%U}_UUID)) &&
-//        !(_{name%l} = dlite_instance_load(s, {name%U}_UUID, NULL)))
-//      return NULL;
-//{@if:{_headersize}!=0}\
-//    _{name%l}->headersize = {_headersize};
-//{@endif}\
-//{@if:{_init}\.}\
-//    _{name%l}->init = {_init};
-//{@endif}\
-//{@if:{_deinit}\.}\
-//    _{name%l}->deinit = {_deinit};
-//{@endif}\
-//  }}
-//  return _{name%l};
-//}}
-//#endif
+#ifndef CUSTOM_{name%U}
+typedef struct _{name} {{
+  {name}_HEAD
 
+  /* -- dimension values */
+{list_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */\n}
+  /* -- property values */
+{list_properties:  {prop.cdecl}; {@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */\n} \
+{@if:{_nrelations}!0}
+  /* -- relation values */
+  DLiteRelation __relations[{_nrelations}];
+{@endif} \
+
+ {name}_ENDTAIL
+}} {name};
+#endif
 
 #endif /* _{name%U}_H */

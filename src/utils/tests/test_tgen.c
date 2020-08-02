@@ -171,12 +171,14 @@ MU_TEST(test_tgen)
   TGenSubs subs;
 
   tgen_subs_init(&subs);
-  tgen_subs_set(&subs, "n",    "42",   NULL);
-  tgen_subs_set(&subs, "pi",   "3.14", NULL);
-  tgen_subs_set(&subs, "name", "Adam", NULL);
-  tgen_subs_set(&subs, "f",    NULL,   tgen_append);
-  tgen_subs_set(&subs, "f2",   "XX",   tgen_append);
-  tgen_subs_set(&subs, "loop", NULL,   loop);
+  tgen_subs_set(&subs, "n",     "42",   NULL);
+  tgen_subs_set(&subs, "pi",    "3.14", NULL);
+  tgen_subs_set(&subs, "name",  "Adam", NULL);
+  tgen_subs_set(&subs, "zero",  "0",    NULL);
+  tgen_subs_set(&subs, "empty", "",     NULL);
+  tgen_subs_set(&subs, "f",     NULL,   tgen_append);
+  tgen_subs_set(&subs, "f2",    "XX",   tgen_append);
+  tgen_subs_set(&subs, "loop",  NULL,   loop);
 
   str = tgen("{name} got n={n}!", &subs, NULL);
   mu_assert_string_eq("Adam got n=42!", str);
@@ -279,6 +281,18 @@ MU_TEST(test_tgen)
                         "  i=2 - data=5\n", str);
     free(str);
   }
+
+  /* test check for non-empty variables */
+  str = tgen("whether var is not empty: {?name}", &subs, NULL);
+  mu_assert_string_eq("whether var is not empty: 1", str);
+  free(str);
+
+  str = tgen("whether var is not empty: {?empty}", &subs, NULL);
+  mu_assert_string_eq("whether var is not empty: 0", str);
+  free(str);
+
+  str = tgen("whether var is not empty: {?}", &subs, NULL);
+  mu_check(!str);
 
   /* test condition */
   str = tgen("{@if:0}aa{@elif:}bbb{@else}pi = {pi}{@endif}...", &subs, NULL);

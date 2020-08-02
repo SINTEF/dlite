@@ -187,13 +187,13 @@ void dlite_instance_print(const DLiteInstance *inst)
     fprintf(fp, "  nrelations:  %lu\n", meta->nrelations);
 
     fprintf(fp, "  dimensions(%p):\n", (void *)meta->dimensions);
-    for (i=0; i < meta->ndimensions; i++)
+    for (i=0; i < inst->meta->ndimensions; i++)
       fprintf(fp, "    %lu. %s: %s\n", i, meta->dimensions[i].name,
               meta->dimensions[i].description);
 
-    fprintf(fp, "  properties(%p):\n", (void *)meta->properties);
-    for (i=0; i < meta->nproperties; i++) {
-      DLiteProperty *p = meta->properties + i;
+    fprintf(fp, "  meta properties(%p):\n", (void *)meta->properties);
+    for (i=0; i < inst->meta->nproperties; i++) {
+      DLiteProperty *p = meta->meta->properties + i;
       fprintf(fp, "    %lu. %s: %s:%lu [",
               i, p->name, dlite_type_get_dtypename(p->type), p->size);
       for (j=0, sep=""; j < p->ndims; j++, sep=", ")

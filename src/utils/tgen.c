@@ -16,6 +16,7 @@
 
 #include "compat.h"
 #include "err.h"
+#include "infixcalc.h"
 #include "tgen.h"
 
 
@@ -120,28 +121,43 @@ static int length_to_var(const char *p, const char *var, int maxlen)
 }
 
 
-/* Evaluates condition `cond`.
+/* Evaluates condition `cond` with length `len`.
 
-   Returns 1 if conds evaluates to true, 0 if cond is false or -1 on error. */
+   Returns 1 if `cond` evaluates to true, 0 if cond is false or -1 on error. */
 static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
                          void *context)
 {
   int retval=-1;
-  char *p, *endp;
+  char errmsg[256];
   TGenBuf s;
+
   tgen_buf_init(&s);
   if (tgen_append(&s, cond, len, subs, context)) goto fail;
   if (!s.buf || !*s.buf) {
     retval = 0;
-  } else if ((p = strstr(s.buf, "=="))) {
-    *p = '\0';
-    retval = (strcmp(s.buf, p+2) == 0) ? 1 : 0;
-  } else if ((p = strstr(s.buf, "!="))) {
-    *p = '\0';
-    retval = (strcmp(s.buf, p+2) != 0) ? 1 : 0;
   } else {
-    retval = (strtol(s.buf, &endp, 0) == 0 && !*endp) ? 0 : 1;
+    retval = infixcalc(s.buf, NULL, 0, errmsg, sizeof(errmsg));
+    if (errmsg[0])
+      retval = errx(-1, "invalid condition \"%.*s\" --> \"%s\": %s",
+                    len, cond, s.buf, errmsg);
   }
+  //int retval=-1;
+  //char *p, *endp;
+  //TGenBuf s;
+  //
+  //tgen_buf_init(&s);
+  //if (tgen_append(&s, cond, len, subs, context)) goto fail;
+  //if (!s.buf || !*s.buf) {
+  //  retval = 0;
+  //} else if ((p = strstr(s.buf, "=="))) {
+  //  *p = '\0';
+  //  retval = (strcmp(s.buf, p+2) == 0) ? 1 : 0;
+  //} else if ((p = strstr(s.buf, "!="))) {
+  //  *p = '\0';
+  //  retval = (strcmp(s.buf, p+2) != 0) ? 1 : 0;
+  //} else {
+  //  retval = (strtol(s.buf, &endp, 0) == 0 && !*endp) ? 0 : 1;
+  //}
  fail:
   tgen_buf_deinit(&s);
   return retval;
@@ -214,7 +230,7 @@ static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
 
       \a, \b, \f, \n, \r, \t, \v \\
 
-  in addition to escaped newlines.
+  in addition to escaped newlines and the "\." noop.
 
   Returns the number of characters written to `dest`.
  */
@@ -819,6 +835,13 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
             return err(TGenSyntaxError, "line %d: invalid @if conditional",
                        tgen_lineno(template, t));
           t += len;
+          continue;
+        } else if (t[0] == '?') {  /* check if variable is empty */
+          if (!(sub = tgen_subs_getn(subs, t+1, len-1)))
+            return err(TGenVariableError, "line %d: unknown var '%.*s'",
+                       tgen_lineno(template, t+1), len-1, t+1);
+          tgen_buf_append_fmt(s, "%d", sub->repl[0] ? 1 : 0);
+          t += len+1;
           continue;
         } else if (t[0] == '@' && isdigit(t[1])) {  /* alignment */
           char *endp;

@@ -88,12 +88,33 @@
 
   @endcode
   The `elif` and `else` tags are optional and there may be
-  multiple `elif` tags.  COND is the condition and is currently
-  very simple, only including the three forms:
-    - "str1==str2": true if `str1` equals `str2`
-    - "str1!=str2": true if `str1` does not equals `str2`
-    - "str": true if `str` is non-empty
-  Variable expansion is performed before COND is evaluated.
+  multiple `elif` tags.  The condition COND is evaluated using
+  infixcalc(), which supports integer arithmetic and the following
+  binary operators:
+      |  logical or
+      &  logical and
+      =  logical equal
+      !  logical not equal
+      >  logical greather than
+      <  logical smaller than
+      +  plus
+      -  minus
+      *  times
+      /  division
+      %  modulus
+      ^  power
+  in addition to parenthesis.  Variable expansion is performed before
+  COND is evaluated.
+
+  ### Check for non-empty variable
+  The construct
+  @code
+
+      {?VAR}
+
+  @endcode
+  will evaluate to 1 if VAR is non-empty and 0 if var is empty.  It is
+  intended to be used in conditions.
 
   ### Alignment tags
   Alignment are tags of the form
@@ -116,6 +137,7 @@
   `{{`            | `{`    | literal start brace
   `}}`            | `}`    | literal end brace
   `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
+  `\.'            | ``     | noop escape, may be used instead of `{}`
 
   Furthermore are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
   `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by

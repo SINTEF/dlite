@@ -11,6 +11,12 @@
   @brief Simple infix calculator for integer arithmetic
   Only the following binary operators are implemented:
 
+      |  logical or
+      &  logical and
+      =  logical equal
+      !  logical not equal
+      >  logical greather than
+      <  logical smaller than
       +  plus
       -  minus
       *  times

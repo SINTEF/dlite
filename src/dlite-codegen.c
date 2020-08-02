@@ -163,6 +163,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     size_t nref = (p->ndims > 0) ? 1 : 0;
     int isallocated = dlite_type_is_allocated(p->type);
     char typename[32], pcdecl[64];
+    char *iri = (p->iri) ? p->iri : "";
     dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
     dlite_type_set_cdecl(p->type, p->size, p->name, nref, pcdecl,
 			 sizeof(pcdecl), dlite_codegen_use_native_typenames);
@@ -172,8 +173,9 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&psubs, "prop.type",     type,     NULL);
     tgen_subs_set(&psubs, "prop.typename", typename, NULL);
     tgen_subs_set(&psubs, "prop.dtype",    dtype,    NULL);
-    tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,    NULL);
+    tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,   NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
+    tgen_subs_set(&psubs, "prop.iri",      iri,      NULL);
     tgen_subs_set(&psubs, "prop.descr",    descr,    NULL);
     tgen_subs_set(&psubs, "prop.dims",     NULL,     list_dims);
     tgen_subs_set_fmt(&psubs, "prop.typeno",      NULL, "%d",  p->type);
@@ -181,6 +183,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set_fmt(&psubs, "prop.ndims",       NULL, "%d",  p->ndims);
     tgen_subs_set_fmt(&psubs, "prop.isallocated", NULL, "%d",  isallocated);
     tgen_subs_set_fmt(&psubs, "prop.i",           NULL, "%zu", i);
+    tgen_subs_set_fmt(&psubs, "prop.dimind",      NULL, "%zu", m->propdiminds[i]);
     tgen_subs_set(&psubs, ",",  (i < m->nproperties-1) ? ","  : "", NULL);
     tgen_subs_set(&psubs, ", ", (i < m->nproperties-1) ? ", " : "", NULL);
 
@@ -208,6 +211,31 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
   ((Context *)context)->iprop = -1;
   tgen_subs_deinit(&psubs);
   if (meta_name) free(meta_name);
+  return retval;
+}
+
+/* Generator function for listing property dimensions. */
+static int list_propdims(TGenBuf *s, const char *template, int len,
+                         const TGenSubs *subs, void *context)
+{
+  int retval = 1;
+  const DLiteInstance *inst = ((Context *)context)->inst;
+  //DLiteMeta *meta = (DLiteMeta *)((Context *)context)->inst;
+  const DLiteMeta *meta = inst->meta;
+  size_t *propdims = (size_t *)((char *)inst + inst->meta->propdimsoffset);
+  TGenSubs psubs;
+  size_t i;
+  if (tgen_subs_copy(&psubs, subs)) goto fail;
+  for (i=0; i < meta->npropdims; i++) {
+    tgen_subs_set_fmt(&psubs, "propdim.i", NULL, "%zu", i);
+    tgen_subs_set_fmt(&psubs, "propdim.n", NULL, "%zu", propdims[i]);
+    tgen_subs_set(&psubs, ",",  (i < meta->npropdims-1) ? ","  : "", NULL);
+    tgen_subs_set(&psubs, ", ", (i < meta->npropdims-1) ? ", " : "", NULL);
+    if ((retval = tgen_append(s, template, len, &psubs, context))) goto fail;
+  }
+  retval = 0;
+ fail:
+  tgen_subs_deinit(&psubs);
   return retval;
 }
 
@@ -250,6 +278,7 @@ static int list_meta_relations(TGenBuf *s, const char *template, int len,
 }
 
 
+
 /*
   Assign/update substitutions based on the instance `inst`.
 
@@ -261,6 +290,12 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   const DLiteMeta *meta = inst->meta;
   int isdata=0, ismeta=0, ismetameta=0;
   char *basename, *header=NULL;
+
+  /* DLite version */
+  tgen_subs_set(subs, "dlite.version", dlite_VERSION, NULL);
+  tgen_subs_set_fmt(subs, "dlite.version.major",NULL,"%d",dlite_VERSION_MAJOR);
+  tgen_subs_set_fmt(subs, "dlite.version.minor",NULL,"%d",dlite_VERSION_MINOR);
+  tgen_subs_set_fmt(subs, "dlite.version.patch",NULL,"%d",dlite_VERSION_PATCH);
 
   /* Determine what this data is */
   if (dlite_meta_is_metameta(meta)) {
@@ -318,24 +353,27 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
     tgen_subs_set_fmt(subs, "_nrelations",  NULL, "%zu", meta->nrelations);
     tgen_subs_set_fmt(subs, "_npropdims",   NULL, "%zu", meta->npropdims);
 
-    tgen_subs_set_fmt(subs, "_headersize",  NULL, "0");
+    tgen_subs_set_fmt(subs, "_headersize",  NULL, "%zu", meta->headersize);
     tgen_subs_set_fmt(subs, "_init",        NULL, "NULL");
     tgen_subs_set_fmt(subs, "_deinit",      NULL, "NULL");
 
-    tgen_subs_set_fmt(subs, "_dimoffset",   NULL, "0");
-    tgen_subs_set_fmt(subs, "_propoffsets", NULL, "NULL");
-    tgen_subs_set_fmt(subs, "_reloffset",   NULL, "0");
-    tgen_subs_set_fmt(subs, "_pooffset",    NULL, "0");
+    tgen_subs_set_fmt(subs, "_npropdims",   NULL, "%zu", meta->npropdims);
+
+    tgen_subs_set_fmt(subs, "_dimoffset",   NULL, "%zu", meta->dimoffset);
+    tgen_subs_set_fmt(subs, "_reloffset",   NULL, "%zu", meta->reloffset);
+    tgen_subs_set_fmt(subs, "_propdimsoffset",   NULL, "%zu", meta->propdimsoffset);
+    tgen_subs_set_fmt(subs, "_propdimindsoffset",NULL, "%zu", meta->propdimindsoffset);
   }
 
   /* Lists */
-  tgen_subs_set(subs, "list_dimensions", NULL, list_dimensions);
-  tgen_subs_set(subs, "list_properties", NULL, list_properties);
-  tgen_subs_set(subs, "list_relations",  NULL, list_relations);
+  tgen_subs_set(subs, "list_dimensions",      NULL, list_dimensions);
+  tgen_subs_set(subs, "list_properties",      NULL, list_properties);
+  tgen_subs_set(subs, "list_relations",       NULL, list_relations);
   tgen_subs_set(subs, "list_meta_dimensions", NULL, list_meta_dimensions);
   tgen_subs_set(subs, "list_meta_properties", NULL, list_meta_properties);
   tgen_subs_set(subs, "list_meta_relations",  NULL, list_meta_relations);
-  tgen_subs_set(subs, ".copy", NULL, copy);
+  tgen_subs_set(subs, "list_propdims",        NULL, list_propdims);
+  tgen_subs_set(subs, ".copy",                NULL, copy);
 
   /* General */
   basename = tgen_camel_to_underscore(name, -1);

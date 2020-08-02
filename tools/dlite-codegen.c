@@ -40,6 +40,7 @@ void help()
     "                               STRING is a semicolon-separated string of",
     "                               VAR=VALUE pairs.  This option may be ",
     "                               provided more than once.",
+    "  -V, --version                Print dlite version number and exit.",
     "",
     "The template is either specified with the --format or --template-file "
     "options.",
@@ -98,9 +99,10 @@ int main(int argc, char *argv[])
       {"storage-plugins",  1, NULL, 's'},
       {"template-file",    1, NULL, 't'},
       {"variables",        1, NULL, 'v'},
+      {"version",          0, NULL, 'V'},
       {NULL, 0, NULL, 0}
     };
-    int c = getopt_long(argc, argv, "bf:hno:s:t:v:", longopts, &longindex);
+    int c = getopt_long(argc, argv, "bf:hno:s:t:v:V", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
     case 'b':  builtin = 1; break;
@@ -111,6 +113,7 @@ int main(int argc, char *argv[])
     case 's':  dlite_storage_plugin_path_append(optarg); break;
     case 't':  template_file = optarg; break;
     case 'v':  tgen_buf_append_fmt(&variables, "%s;",optarg); break;
+    case 'V':  printf("%s\n", dlite_VERSION); exit(0);
     case '?':  exit(1);
     default:   abort();
     }
