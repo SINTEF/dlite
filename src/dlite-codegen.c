@@ -450,7 +450,7 @@ char *dlite_codegen(const char *template, const DLiteInstance *inst,
 
 /*
   Returns a pointer to malloc'ed template file name, given a template
-  name (e.g. "c-data-header", "c-metadata-header", "c-source", ...) or
+  name (e.g. "c-header", "c-meta-header", "c-source", ...) or
   NULL on error.
  */
 char *dlite_codegen_template_file(const char *template_name)

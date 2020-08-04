@@ -2,14 +2,14 @@
 
 /* This file is generated with dlite-codegen {dlite.version} -- do not edit!
  *
- * Template: c-metadata-header.txt
+ * Template: c-header.txt
  * Source:   {_uri}
  *
- * This file declares the struct `{name}` with the dimensions and
- * properties of the dlite metadata it was generated from. It can be
- * included and used in your project without any dependencies (except
- * for the header files boolean.h, integers.h and floats.h that are
- * provided with dlite).
+ * This file declares the struct `{name}` for a dlite data instance,
+ * with the dimensions and properties of the dlite metadata it was
+ * generated from. It can be included and used in your project without
+ * any dependencies (except for the header files boolean.h, integers.h
+ * and floats.h that are provided with dlite).
  *
  * However it is beneficial to use it together with the dlite library,
  * e.g. for letting dlite handle I/O.  In that case you should either
@@ -23,11 +23,11 @@
  * default definition of the struct `{name}`.  Instead you should
  * define it yourself, like
  *
- *     typedef struct _{name}Schema {{
- *       {name}Schema_HEAD
+ *     typedef struct _{name} {{
+ *       {name}_HEAD
  *       <my fields>...
- *       {name}Schema_TAIL
- *     }} {name}Schema;
+ *       {name}_TAIL
+ *     }} {name};
  *
  * where <my fields> are any additional fields for internal data you
  * for {name}.  If you do this, remember to update the metadata using
@@ -39,12 +39,12 @@
   @file
   @brief {descr}
 */
-{@if: {isdata} }
-{@error:The template c-metadata-header requires metadata as input}
+{@if: {isdata} | {ismetameta} }
+{@error:The template c-header requires ordinary metadata as input}
 {@endif}
 
-#ifndef _{name%U}_SCHEMA_H
-#define _{name%U}_SCHEMA_H
+#ifndef _{name%U}_H
+#define _{name%U}_H
 
 #include "utils/integers.h"
 #include "utils/boolean.h"
@@ -82,45 +82,28 @@ typedef void DLiteInstance;
 
 #ifdef HAVE_DLITE
 /* FIXME - reuse DLiteInstance_HEAD/DLiteMeta_HEAD instead of redefining */
-//# define {name}Schema_HEAD DLiteMeta_HEAD
-#define {name}Schema_HEAD  {@40}\\
+{@if: {ismetameta} }\
+//# define {name}_HEAD DLiteMeta_HEAD
+{@else}\
+//# define {name}_HEAD DLiteInstance_HEAD
+{@endif}\
+#define {name}_HEAD  {@40}\\
   /* -- header */                       \\
   char _uuid[36+1];                     \\
   const char *_uri;                     \\
   size_t _refcount;                     \\
   const DLiteMeta *meta;                \\
-  const char *_iri;                     \\
-                                        \\
-  size_t _ndimensions;                  \\
-  size_t _nproperties;                  \\
-  size_t _nrelations;                   \\
-                                        \\
-  DLiteDimension *_dimensions;          \\
-  DLiteProperty *_properties;           \\
-  DLiteRelation *_relations;            \\
-                                        \\
-  size_t _headersize;                   \\
-  int (*_init)(DLiteInstance *inst);    \\
-  int (*_deinit)(DLiteInstance *inst);  \\
-                                        \\
-  size_t _npropdims;                    \\
-  size_t *_propdiminds;                 \\
-                                        \\
-  size_t _dimoffset;                    \\
-  size_t *_propoffsets;                 \\
-  size_t _reloffset;                    \\
-  size_t _propdimsoffset;               \\
-  size_t _propdimindsoffset;
+  const char *_iri;
 #else
-# define {name}Schema_HEAD
+# define {name}_HEAD
 #endif
 
 
-#define {name}Schema_VALUES        {@78}\\
+#define {name}_VALUES              {@78}\\
   /* -- dimension values */        {@78}\\
-{list_meta_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */{@78}\\\n} {@78}\\
+{list_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */{@78}\\\n} {@78}\\
   /* -- property values */         {@78}\\
-{list_meta_properties:  {prop.cdecl};{@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */{@78}\\\n} \
+{list_properties:  {prop.cdecl}; {@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */{@78}\\\n} \
 {@if: {_nrelations} }              {@78}\\
   /* -- relation values */         {@78}\\
   DLiteRelation __relations[{_nrelations}];
@@ -128,37 +111,33 @@ typedef void DLiteInstance;
 
 
 #ifdef HAVE_DLITE
-#define {name}Schema_ENDTAIL {@72}\\
-  /* -- __propdims: property dimension values */ {@72}\\
-  size_t __propdims[{meta._npropdims}]; {@72}\\
-  /* -- __propdiminds: index of first dimension for each property */ {@72}\\
-  size_t __propdiminds[{_nproperties}]; {@72}\\
-  /* -- __propoffsets */ {@72}\\
-  size_t __propoffsets[{_nproperties}];
+#define {name}_ENDTAIL \\
+  /* -- __propdims: property dimension values */ \\
+  size_t __propdims[{_npropdims}];
 #else
-#define {name}Schema_ENDTAIL
+#define {name}_ENDTAIL
 #endif
 
 
-#define {name}Schema_TAIL \\
-  {name}Schema_VALUES {name}Schema_ENDTAIL
+#define {name}_TAIL \\
+  {name}_VALUES {name}_ENDTAIL
 
 
 #ifndef CUSTOM_{name%U}
-typedef struct _{name}Schema {{
-  {name}Schema_HEAD
+typedef struct _{name} {{
+  {name}_HEAD
 
   /* -- dimension values */
-{list_meta_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */\n}
+{list_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */\n}
   /* -- property values */
-{list_meta_properties:  {prop.cdecl};{@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */\n} \
-{@if: {meta._nrelations} }
+{list_properties:  {prop.cdecl}; {@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */\n} \
+{@if:{_nrelations}!0}
   /* -- relation values */
-  DLiteRelation __relations[{meta._nrelations}];
+  DLiteRelation __relations[{_nrelations}];
 {@endif} \
 
- {name}Schema_ENDTAIL
-}} {name}Schema;
+ {name}_ENDTAIL
+}} {name};
 #endif
 
-#endif /* _{name%U}_SCHEMA_H */
+#endif /* _{name%U}_H */
