@@ -320,9 +320,9 @@ static struct _EntitySchema {
  **************************************************************/
 
 static DLiteDimension collection_schema_dimensions[] = {
-  //{"n-dimensions", "Number of common dimmensions."},
-  //{"n-instances",  "Number of instances added to the collection."},
-  //{"n-dim-maps",   "Number of dimension maps."},
+  //{"ndimensions", "Number of common dimmensions."},
+  //{"ninstances",  "Number of instances added to the collection."},
+  //{"ndim_maps",   "Number of dimension maps."},
   {"nrelations",  "Number of relations."},
 };
 static char *collection_schema_prop_relations_dims[] = {"nrelations"};
