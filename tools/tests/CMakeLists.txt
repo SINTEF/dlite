@@ -98,7 +98,10 @@ if(WITH_JSON)
     test_codegen.c ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h)
 
   add_executable(test_ext_header
-    test_ext_header.c ${CMAKE_CURRENT_BINARY_DIR}/chemistry-ext.h)
+    test_ext_header.c
+    ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h
+    #${CMAKE_CURRENT_BINARY_DIR}/chemistry-ext.h
+    )
 
   add_executable(test_c_source
     test_c_source.c chemistry.c

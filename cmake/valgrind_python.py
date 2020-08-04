@@ -1,4 +1,5 @@
-# Python script that
+# Simple python script to run when generating suppression file for python
+# More modules should maybe be loaded - whatever you do, don't import dlite!
 
 import os
 
