@@ -120,11 +120,59 @@ static int length_to_var(const char *p, const char *var, int maxlen)
   }
 }
 
+/* Check and evaluate string expression `s` of length `len`.  A string
+   expression should be either a double-quoted string or two strings
+   separated by the '=' or '!' operator.
+
+   Returns 1 if `s` evaluates to true, 0 if it evaluates to false and -1 if
+   it is not a valid string expression. */
+static int eval_string_expression(const char *s, int len)
+{
+  int i, nstrings=0, instring=0, start[2], length[2];
+  const char *p, *op;
+  for (i=0; i<len; i++) {
+    if (s[i] == '\\') {
+      i++;
+    } else if (!instring && strchr("\"'", s[i])) {
+      instring = s[i];
+      start[nstrings] = i;
+    } else if (instring && s[i] == instring) {
+        instring = 0;
+        length[nstrings] = i - start[nstrings] - 1;
+        if (++nstrings > 2) return -1;
+    }
+  }
+  if (instring) return -1;
+  switch (nstrings) {
+  case 0:
+    return -1;
+  case 1:
+    return (length[0]) ? 1 : 0;
+  case 2:
+    p = s + start[0] + length[0] + 2;
+    p += strspn(p, " ");
+    op = p++;
+    p += strspn(p, " ");
+    if (p != s + start[1]) return -1;
+    assert(*p == '"');
+    if (*op == '=') {
+      if (length[0] != length[1]) return 0;
+      return (strncmp(s + start[0] + 1, s + start[1] + 1, length[0])) ? 0 : 1;
+    } else if (*op == '!') {
+      if (length[0] != length[1]) return 1;
+      return (strncmp(s + start[0] + 1, s + start[1] + 1, length[0])) ? 1 : 0;
+    } else {
+      return -1;
+    }
+  default:
+    assert(0);
+  }
+}
 
 /* Evaluates condition `cond` with length `len`.
 
    Returns 1 if `cond` evaluates to true, 0 if cond is false or -1 on error. */
-static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
+static int evaluate_cond(const char *cond, int len, TGenSubs *subs,
                          void *context)
 {
   int retval=-1;
@@ -135,29 +183,12 @@ static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
   if (tgen_append(&s, cond, len, subs, context)) goto fail;
   if (!s.buf || !*s.buf) {
     retval = 0;
-  } else {
+  } else if ((retval = eval_string_expression(s.buf, s.pos)) < 0) {
     retval = infixcalc(s.buf, NULL, 0, errmsg, sizeof(errmsg));
     if (errmsg[0])
       retval = errx(-1, "invalid condition \"%.*s\" --> \"%s\": %s",
                     len, cond, s.buf, errmsg);
   }
-  //int retval=-1;
-  //char *p, *endp;
-  //TGenBuf s;
-  //
-  //tgen_buf_init(&s);
-  //if (tgen_append(&s, cond, len, subs, context)) goto fail;
-  //if (!s.buf || !*s.buf) {
-  //  retval = 0;
-  //} else if ((p = strstr(s.buf, "=="))) {
-  //  *p = '\0';
-  //  retval = (strcmp(s.buf, p+2) == 0) ? 1 : 0;
-  //} else if ((p = strstr(s.buf, "!="))) {
-  //  *p = '\0';
-  //  retval = (strcmp(s.buf, p+2) != 0) ? 1 : 0;
-  //} else {
-  //  retval = (strtol(s.buf, &endp, 0) == 0 && !*endp) ? 0 : 1;
-  //}
  fail:
   tgen_buf_deinit(&s);
   return retval;
@@ -170,7 +201,7 @@ static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
 
    Returns the number of bytes consumed or -1 on error.
 */
-static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
+static int builtin_if(TGenBuf *s, const char *template, TGenSubs *subs,
                       void *context)
 {
   const char *endp, *t = template;
@@ -214,6 +245,20 @@ static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
     }
   }
   return endp - template;
+}
+
+/* Returns the length of the identifier, if `s` is a valid identifier
+   directly followed by `endchar`.  Otherwise 0 is returned. */
+static int is_identifier(const char *s, int endchar)
+{
+  int i=1;
+  if (s[0] != '_' && !isalpha(s[0])) return 0;
+  while (s[i] && s[i] != endchar) {
+    if (s[i] != '_' && !isalnum(s[i])) return 0;
+    i++;
+  }
+  if (s[i] == endchar) return i;
+  return 0;
 }
 
 
@@ -768,7 +813,7 @@ int tgen_subs_copy(TGenSubs *dest, const TGenSubs *src)
 
   Returns NULL, on error.
  */
-char *tgen(const char *template, const TGenSubs *subs, void *context)
+char *tgen(const char *template, TGenSubs *subs, void *context)
 {
   TGenBuf s;
   tgen_buf_init(&s);
@@ -788,7 +833,7 @@ char *tgen(const char *template, const TGenSubs *subs, void *context)
   Returns non-zero on error.
  */
 int tgen_append(TGenBuf *s, const char *template, int tlen,
-                const TGenSubs *subs, void *context)
+                TGenSubs *subs, void *context)
 {
   const TGenSub *sub;
   const char *templ, *t = template;
@@ -796,7 +841,7 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
 
   if (tlen < 0) tlen = strlen(template);
   while (*t && t < template + tlen) {
-    int len = strcspn(t, "{}");
+    int l, len = strcspn(t, "{}");
     char *fmt = NULL;
     int casemode = 's';
     tgen_buf_append(s, t, len);
@@ -821,7 +866,7 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
       case '}':
         break;
       default:  /* substitution */
-        len = strcspn(t, "%:{}");
+        len = strcspn(t, "%:{}=");
         if (t[len] == '\0')
           return err(TGenSyntaxError, "line %d: template ends with "
                      "unmatched '{'", tgen_lineno(template, t));
@@ -830,19 +875,44 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
                      "substitution", tgen_lineno(template, t));
 
         /* parse special constructs */
-        if (strncmp(t, "@if", len) == 0) {  /* conditional */
+        if (strncmp(t, "@error", len) == 0) {  /* error */
+          err_clear();
+          return err(TGenUserError, "line %d: %.*s",
+                     tgen_lineno(template, t), length_to_endbrace(t+len)-1,
+                     t+len+1);
+
+        } else if (strncmp(t, "@if", len) == 0) {  /* conditional */
           if ((len = builtin_if(s, t, subs, context)) < 0)
-            return err(TGenSyntaxError, "line %d: invalid @if conditional",
-                       tgen_lineno(template, t));
+            return err(TGenSyntaxError,
+                       "line %d: invalid conditional: \"%.*s\"",
+                       tgen_lineno(template, t), (tlen > 120) ? 120 : tlen, t);
           t += len;
           continue;
-        } else if (t[0] == '?') {  /* check if variable is empty */
-          if (!(sub = tgen_subs_getn(subs, t+1, len-1)))
-            return err(TGenVariableError, "line %d: unknown var '%.*s'",
-                       tgen_lineno(template, t+1), len-1, t+1);
-          tgen_buf_append_fmt(s, "%d", sub->repl[0] ? 1 : 0);
-          t += len+1;
+
+        } else if ((l = is_identifier(t, '?'))) {  /* check if defined */
+          tgen_buf_append_fmt(s, "%d", (tgen_subs_getn(subs, t, l)) ? 1 : 0);
+          if ((len = length_to_endbrace(t)) < 0)
+            return err(TGenSyntaxError,
+                       "line %d: invalid existence tag '%.*s'...",
+                       tgen_lineno(template, t), 20, t);
+          t += len + 1;
           continue;
+
+        } else if ((l = is_identifier(t, '='))) {  /* assignment */
+          TGenBuf ss;
+          tgen_buf_init(&ss);
+          if (((len = length_to_endbrace(t)) < 0) ||
+              tgen_append(&ss, t+l+1, len-l-1, subs, context)) {
+            tgen_buf_deinit(&ss);
+            return err(TGenSyntaxError,
+                       "line %d: invalid assignment tag '%.*s'...",
+                       tgen_lineno(template, t), 30, t);
+          }
+          tgen_subs_setn(subs, t, l, ss.buf, NULL);
+          tgen_buf_deinit(&ss);
+          t += len + 1;
+          continue;
+
         } else if (t[0] == '@' && isdigit(t[1])) {  /* alignment */
           char *endp;
           long n = strtol(t+1, &endp, 0);
@@ -850,7 +920,15 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
             return err(TGenSyntaxError, "line %d: invalid alignment tag {%.*s",
                        tgen_lineno(template, t), len, t);
           tgen_buf_align(s, n);
-          t += len+1;
+          t += len + 1;
+          continue;
+
+        } else if (t[0] == ':' && t[1] == ' ') {  /* comment */
+          if ((len = length_to_endbrace(t)) < 0)
+            return err(TGenSyntaxError,
+                       "line %d: invalid comment tag '%.*s'...",
+                       tgen_lineno(template, t), 20, t);
+          t += len + 1;
           continue;
         }
 

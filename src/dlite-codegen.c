@@ -32,7 +32,7 @@ int dlite_codegen_use_native_typenames = 0;
    tgen?
 */
 static int copy(TGenBuf *s, const char *template, int len,
-		const TGenSubs *subs, void *context)
+		TGenSubs *subs, void *context)
 {
   return tgen_append(s, template, len, subs, context);
 }
@@ -42,7 +42,7 @@ static int copy(TGenBuf *s, const char *template, int len,
    `subs` is assigned the dimensions of `meta->meta`, otherwise it is
    assigned the dimensions of `meta`. Returns non-zero on error. */
 static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
-                                  const TGenSubs *subs, void *context,
+                                  TGenSubs *subs, void *context,
                                   int metameta)
 {
   int retval = 0;
@@ -73,7 +73,7 @@ static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
 
 /* Generator function for listing relations. */
 static int list_relations(TGenBuf *s, const char *template, int len,
-                          const TGenSubs *subs, void *context)
+                          TGenSubs *subs, void *context)
 {
   int retval = 0;
   DLiteMeta *meta = (DLiteMeta *)((Context *)context)->inst;
@@ -103,7 +103,7 @@ static int list_relations(TGenBuf *s, const char *template, int len,
 
 /* Generator function for listing property dimensions. */
 static int list_dims(TGenBuf *s, const char *template, int len,
-                     const TGenSubs *subs, void *context)
+                     TGenSubs *subs, void *context)
 {
   int retval = 1;
   DLiteMeta *meta = (DLiteMeta *)((Context *)context)->inst;
@@ -136,7 +136,7 @@ static int list_dims(TGenBuf *s, const char *template, int len,
    `subs` is assigned the properties of `meta->meta`, otherwise it is
    assigned the properties of `meta`. Returns non-zero on error. */
 static int list_properties_helper(TGenBuf *s, const char *template, int len,
-                                  const TGenSubs *subs, void *context,
+                                  TGenSubs *subs, void *context,
                                   int metameta)
 {
   int retval = 0;
@@ -216,7 +216,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
 
 /* Generator function for listing property dimensions. */
 static int list_propdims(TGenBuf *s, const char *template, int len,
-                         const TGenSubs *subs, void *context)
+                         TGenSubs *subs, void *context)
 {
   int retval = 1;
   const DLiteInstance *inst = ((Context *)context)->inst;
@@ -241,35 +241,35 @@ static int list_propdims(TGenBuf *s, const char *template, int len,
 
 /* Generator function for listing dimensions. */
 static int list_dimensions(TGenBuf *s, const char *template, int len,
-                           const TGenSubs *subs, void *context)
+                           TGenSubs *subs, void *context)
 {
   return list_dimensions_helper(s, template, len, subs, context, 0);
 }
 
 /* Generator function for listing dimensions. */
 static int list_meta_dimensions(TGenBuf *s, const char *template, int len,
-                                const TGenSubs *subs, void *context)
+                                TGenSubs *subs, void *context)
 {
   return list_dimensions_helper(s, template, len, subs, context, 1);
 }
 
 /* Generator function for listing properties. */
 static int list_properties(TGenBuf *s, const char *template, int len,
-                           const TGenSubs *subs, void *context)
+                           TGenSubs *subs, void *context)
 {
   return list_properties_helper(s, template, len, subs, context, 0);
 }
 
 /* Generator function for listing metadata properties. */
 static int list_meta_properties(TGenBuf *s, const char *template, int len,
-                                const TGenSubs *subs, void *context)
+                                TGenSubs *subs, void *context)
 {
   return list_properties_helper(s, template, len, subs, context, 1);
 }
 
 /* Generator function for listing metadata relations. */
 static int list_meta_relations(TGenBuf *s, const char *template, int len,
-                                const TGenSubs *subs, void *context)
+                               TGenSubs *subs, void *context)
 {
   Context c;
   c.inst = (DLiteInstance *)((Context *)context)->inst->meta;
@@ -318,7 +318,14 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   /* About metadata */
   dlite_split_meta_uri(meta->uri, &name, &version, &namespace);
   descr = dlite_instance_get_property((DLiteInstance *)meta, "description");
-  asprintf(&header, "%s.h", tgen_camel_to_underscore(name, -1));
+  if (ismeta) {
+    char *uriname;
+    dlite_split_meta_uri(inst->uri, &uriname, NULL, NULL);
+    asprintf(&header, "%s_schema.h", tgen_camel_to_underscore(uriname, -1));
+    free(uriname);
+  } else {
+    asprintf(&header, "%s.h", tgen_camel_to_underscore(name, -1));
+  }
   tgen_subs_set(subs, "meta.uuid",       meta->uuid, NULL);
   tgen_subs_set(subs, "meta.uri",        meta->uri,  NULL);
   tgen_subs_set(subs, "meta.iri",        (meta->iri) ? meta->iri : "",  NULL);
@@ -327,6 +334,14 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   tgen_subs_set(subs, "meta.namespace",  namespace,  NULL);
   tgen_subs_set(subs, "meta.descr",      *descr,     NULL);
   tgen_subs_set(subs, "meta.header",     header,     NULL);
+  tgen_subs_set_fmt(subs, "meta._ndimensions", NULL, "%zu",
+                    meta->meta->ndimensions);
+  tgen_subs_set_fmt(subs, "meta._nproperties", NULL, "%zu",
+                    meta->meta->nproperties);
+  tgen_subs_set_fmt(subs, "meta._nrelations", NULL, "%zu",
+                    meta->meta->nrelations);
+  tgen_subs_set_fmt(subs, "meta._npropdims", NULL, "%zu",
+                    meta->npropdims);
   free(header);
 
   /* DLiteInstance_HEAD */
@@ -435,7 +450,8 @@ char *dlite_codegen(const char *template, const DLiteInstance *inst,
 
 /*
   Returns a pointer to malloc'ed template file name, given a template
-  name (e.g. "c-header", "c-source", "c-ext_header", ...) or NULL on error.
+  name (e.g. "c-data-header", "c-metadata-header", "c-source", ...) or
+  NULL on error.
  */
 char *dlite_codegen_template_file(const char *template_name)
 {

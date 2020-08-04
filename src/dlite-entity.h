@@ -197,7 +197,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   DLiteInit init;        /* Function initialising an instance. */       \
   DLiteDeInit deinit;    /* Function deinitialising an instance. */     \
                                                                         \
-  /* Property dimension sizes */                                        \
+  /* Property dimension sizes of instances */                           \
   /* Automatically assigned by dlite_meta_init() */                     \
   size_t npropdims;      /* Total number of property dimensions. */     \
   size_t *propdiminds;   /* Pointer to array (within this metadata) */  \

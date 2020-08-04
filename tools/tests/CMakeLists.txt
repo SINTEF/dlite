@@ -24,18 +24,38 @@ if(WITH_JSON)
       DLITE_MAPPING_PLUGIN_DIRS="${dlite_MAPPING_PLUGINS}"
       DLITE_TEMPLATE_DIRS="${dlite_TEMPLATES}"
       $<TARGET_FILE:dlite-codegen>
-        --format=c-header
+        --format=c-data-header
         --output=chemistry.h
         --storage-plugins=${dlite_BINARY_DIR}/storages/json
         json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
-    DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
+    DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-data-header.txt
     DEPENDS dlite-codegen dlite-plugins-json dlite
     COMMENT "Generating C header for Chemistry-0.1.json"
   )
 
+  #add_custom_command(
+  #  OUTPUT chemistry-ext.h
+  #  COMMAND
+  #    ${CMAKE_COMMAND} -E env
+  #    PATH="${dlite_PATH}"
+  #    LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH}"
+  #    DLITE_STORAGE_PLUGIN_DIRS="${dlite_STORAGE_PLUGINS}"
+  #    DLITE_MAPPING_PLUGIN_DIRS="${dlite_MAPPING_PLUGINS}"
+  #    DLITE_TEMPLATE_DIRS="${dlite_TEMPLATES}"
+  #    $<TARGET_FILE:dlite-codegen>
+  #      --format=c-data-header
+  #      --output=chemistry-ext.h
+  #      --storage-plugins=${dlite_BINARY_DIR}/storages/json
+  #      json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+  #  MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+  #  DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-data-header.txt
+  #  DEPENDS dlite-codegen dlite-plugins-json dlite
+  #  COMMENT "Generating extended C header for Chemistry-0.1.json"
+  #)
+
   add_custom_command(
-    OUTPUT chemistry-ext.h
+    OUTPUT chemistry_schema.h
     COMMAND
       ${CMAKE_COMMAND} -E env
       PATH="${dlite_PATH}"
@@ -44,33 +64,12 @@ if(WITH_JSON)
       DLITE_MAPPING_PLUGIN_DIRS="${dlite_MAPPING_PLUGINS}"
       DLITE_TEMPLATE_DIRS="${dlite_TEMPLATES}"
       $<TARGET_FILE:dlite-codegen>
-        --format=c-ext_header
-        --output=chemistry-ext.h
+        --format=c-metadata-header
+        --output=chemistry_schema.h
         --storage-plugins=${dlite_BINARY_DIR}/storages/json
         json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
-    DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-ext_header.txt
-    DEPENDS dlite-codegen dlite-plugins-json dlite
-    COMMENT "Generating extended C header for Chemistry-0.1.json"
-  )
-
-  add_custom_command(
-    OUTPUT entity_schema.h
-    COMMAND
-      ${CMAKE_COMMAND} -E env
-      PATH="${dlite_PATH}"
-      LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH}"
-      DLITE_STORAGE_PLUGIN_DIRS="${dlite_STORAGE_PLUGINS}"
-      DLITE_MAPPING_PLUGIN_DIRS="${dlite_MAPPING_PLUGINS}"
-      DLITE_TEMPLATE_DIRS="${dlite_TEMPLATES}"
-      $<TARGET_FILE:dlite-codegen>
-        --built-in
-        --format=c-header
-        --output=entity_schema.h
-        --storage-plugins=${dlite_BINARY_DIR}/storages/json
-        http://meta.sintef.no/0.3/EntitySchema
-    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
-    DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-header.txt
+    DEPENDS ${dlite_SOURCE_DIR}/tools/templates/c-metadata-header.txt
     DEPENDS dlite-codegen dlite-plugins-json dlite
     COMMENT "Generating C header entity_schema.h"
   )
@@ -104,7 +103,7 @@ if(WITH_JSON)
   add_executable(test_c_source
     test_c_source.c chemistry.c
     ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h
-    ${CMAKE_CURRENT_BINARY_DIR}/entity_schema.h
+    ${CMAKE_CURRENT_BINARY_DIR}/chemistry_schema.h
     )
 
   foreach(test ${tests})

@@ -1,4 +1,6 @@
-/* This file is generated with dlite-codegen -- do not edit!
+/* -*- C -*-  (not really, but good for syntax highlighting) */
+
+/* This file is generated with dlite-codegen {dlite.version} -- do not edit!
  *
  * Template: c-source.txt
  * Metadata: {_uri}
@@ -23,6 +25,11 @@
  *     _deinit (optional)
  *         Name of deinit() function
  */
+\
+{StructName={name}{@if: {ismeta} }Schema{@endif}\.}\
+{dim0={list_dimensions:{@if:{dim.i}=0}{dim.name}{@endif}\.}\.}\
+{prop0={list_properties:{@if:{prop.i}=0}{prop.name}{@endif}\.}\.}\
+\
 #include <stddef.h>
 
 
@@ -70,17 +77,17 @@ static DLiteProperty {name}_properties[] = {{
 {@else}\
     {basename}_prop_{prop.name}_dims, {@40}/* dims */
 {@endif}\
-{@if:{?prop.unit}\.}\
+{@if:"{prop.unit}"}\
     "{prop.unit}", {@40}/* unit */
 {@else}\
     NULL,          {@40}/* unit */
 {@endif}\
-{@if:{?prop.iri}\.}\
+{@if:"{prop.iri}"}\
     "{prop.iri}",  {@40}/* iri */
 {@else}\
     NULL,          {@40}/* iri */
 {@endif}\
-{@if:{?prop.descr}\.}\
+{@if:"{prop.descr}"}\
     "{prop.descr}" {@40}/* description */
 {@else}\
     NULL           {@40}/* description */
@@ -91,7 +98,7 @@ static DLiteProperty {name}_properties[] = {{
 {@endif}\
 
 
-static {meta.name} {basename} = {{
+static {StructName} {basename} = {{
 #ifdef HAVE_DLITE
   /* -- header */
   "{_uuid}",  {@52}/* _uuid */
@@ -108,7 +115,7 @@ static {meta.name} {basename} = {{
   {name}_properties,        {@52}/* _properties */
   NULL,                     {@52}/* _relations */
 
-  offsetof({name}, {list_dimensions:{@if:{dim.i}=0}{dim.name}{@endif}\.}), {@52}/* _headersize */
+  offsetof({name}, {dim0}), {@52}/* _headersize */
   {_init},                  {@52}/* _init */
   {_deinit},                {@52}/* _deinit */
 
@@ -137,10 +144,10 @@ static {meta.name} {basename} = {{
   {{ {list_propdims:{propdim.n}{, }\.} }},
 {@if:{ismeta}=1}\
   /* -- __propdiminds: index of first dimension for each property in instance */
-  {{ {list_meta_properties:{prop.dimind}{, }\.} }},
+  {{ {list_properties:{prop.dimind}{, }\.} }},
   /* -- __propoffsets: memory offsets for each property in instance */
   {{
-{list_meta_properties:    offsetof({meta.name}, {prop.name}){,}\n}\
+{list_properties:    offsetof({name}, {prop.name}){,}\n}\
   }}
 {@endif}\
 #endif
@@ -148,15 +155,17 @@ static {meta.name} {basename} = {{
 
 
 /** Returns a pointer to hardcoded instance of {meta.name}. */
-const DLiteInstance *get_{basename}()
+const {StructName} *get_{basename}()
 {{
-  DLiteInstance *inst = (DLiteInstance *)&{basename};
+   {StructName} *inst = &{basename};
 #ifdef HAVE_DLITE
   static int initialized=0;
   if (!initialized) {{
     inst->meta = dlite_meta_get("{meta.uri}");
-    //if (dlite_instance_is_meta(inst))
-    //  dlite_meta_init((DLiteMeta *)inst);
+    /* In case {name} is extended, we must recalculate all offsets
+       from _headersize */
+    //if (dlite_instance_is_meta((DLiteInstance *)inst))
+    // dlite_meta_init((DLiteMeta *)inst);
     initialized = 1;
   }}
 #endif

@@ -93,18 +93,10 @@ int main()
     for (i=0; i<nelements; i++)
       p->Xp[i] -= atvol0/p->atvol[j] * p->volfrac[j] * p->Xp[j*nelements + i];
 
-
+  /* Display the data and metadata instances */
+  dlite_instance_print((DLiteInstance *)chem->meta->meta);
+  dlite_instance_print((DLiteInstance *)chem->meta);
   dlite_instance_print((DLiteInstance *)chem);
-  printf("\n");
-  printf("sizeof(Chemistry) = %lu\n", sizeof(Chemistry));
-  printf("inst size = %lu\n", DLITE_INSTANCE_SIZE(p));
-  printf("offsetof(inst, x) = %lu\n", offsetof(Chemistry, x));
-  printf("offsetof(inst, nelements) = %lu\n", offsetof(Chemistry, nelements));
-  printf("offsetof(inst, alloy) = %lu\n", offsetof(Chemistry, alloy));
-  printf("offsetof(inst, atvol) = %lu\n", offsetof(Chemistry, atvol));
-  printf("offsetof(inst, __propdims) = %lu\n", offsetof(Chemistry, __propdims));
-  printf("x=%d\n", p->x);
-  printf("\n");
   dlite_instance_print((DLiteInstance *)p);
 
   assert(sizeof(Chemistry) == DLITE_INSTANCE_SIZE(p));
