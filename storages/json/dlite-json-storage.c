@@ -778,7 +778,7 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
       item = json_array_get(dims, i);
       if (!(s = json_string_value(item)))
         return err(1, "property dimensions should be strings");
-      prop->dimss[i] = strdup(s);
+      prop->dims[i] = strdup(s);
     }
   }
   prop->unit =
@@ -862,8 +862,8 @@ DLiteMeta *dlite_json_entity(json_t *obj)
     for (i=0; i<nprop; i++) {
       if (props[i].name) free(props[i].name);
       for (j=0; j<props[i].ndims; j++)
-        if (props[i].dimss[j]) free(props[i].dimss[j]);
-      if (props[i].dimss) free(props[i].dimss);
+        if (props[i].dims[j]) free(props[i].dims[j]);
+      if (props[i].dims) free(props[i].dims);
       if (props[i].description) free(props[i].description);
     }
     free(props);

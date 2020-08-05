@@ -688,7 +688,7 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
       if (!json_is_array(dimensions))
         return errx(-1, "JSON storage: dimensions should be an array"), NULL;
       for (i=0; i<p->ndims; i++) {
-        json_t *dimname = json_string(p->dimss[i]);
+        json_t *dimname = json_string(p->dims[i]);
         json_array_append_new(arr, dimname);
       }
       json_object_set_new(obj, "dims", arr);
@@ -906,7 +906,7 @@ int parse_property(void *ptr, const json_t *item, const json_t *root)
       dims[j] = strdup(s);
     }
     property.ndims = ndims;
-    property.dimss = dims;
+    property.dims = dims;
   }
 
   if ((str = json_object_get(item, "unit"))) {

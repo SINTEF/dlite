@@ -226,7 +226,7 @@ void dlite_instance_print(const DLiteInstance *inst)
             i, p->name, inst->meta->propoffsets[i], DLITE_PROP(inst, i),
             dlite_type_get_dtypename(p->type), p->size);
     for (j=0, sep=""; j < p->ndims; j++, sep=", ")
-      fprintf(fp, "%s%s=%lu", sep, p->dimss[j], DLITE_PROP_DIM(inst, i, j));
+      fprintf(fp, "%s%s=%lu", sep, p->dims[j], DLITE_PROP_DIM(inst, i, j));
     fprintf(fp, "]\n");
   }
 
@@ -297,7 +297,7 @@ static int _instance_propdims_eval(DLiteInstance *inst, const size_t *dims)
     int j;
     char errmsg[256] = "";
     for (j=0; j < p->ndims; j++)
-      propdims[n++] = infixcalc(p->dimss[j], vars, meta->ndimensions,
+      propdims[n++] = infixcalc(p->dims[j], vars, meta->ndimensions,
                                 errmsg, sizeof(errmsg));
     if (errmsg[0]) FAIL1("invalid property dimension expression: %s", errmsg);
   }
@@ -370,7 +370,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   for (i=0; i<meta->nproperties; i++) {
     DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
     void **ptr = DLITE_PROP(inst, i);
-    if (p->ndims > 0 && p->dimss) {
+    if (p->ndims > 0 && p->dims) {
       size_t nmemb=1, size=p->size;
       for (j=0; j<p->ndims; j++)
         nmemb *= DLITE_PROP_DIM(inst, i, j);
@@ -469,7 +469,7 @@ static void dlite_instance_free(DLiteInstance *inst)
     for (i=0; i<nprops; i++) {
       DLiteProperty *p = (DLiteProperty *)meta->properties + i;
       void *ptr = DLITE_PROP(inst, i);
-      if (p->ndims > 0 && p->dimss) {
+      if (p->ndims > 0 && p->dims) {
         if (dlite_type_is_allocated(p->type)) {
           int j;
           size_t n, nmemb=1;

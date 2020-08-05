@@ -244,15 +244,15 @@ struct _DLiteProperty {
   char *name;         /*!< Name of this property. */
   DLiteType type;     /*!< Type of the described data. */
   size_t size;        /*!< Size of one data element. */
-  int ndims;          /*!< Number of dimension of the described */
-                      /*   data.  Zero if scalar. */
-  //int *dims;          /*!< Array of dimension indices. May be NULL. */
-  char **dimss;       /*!< Array of dimension strings.  May be NULL. */
+  int ndims;          /*!< Number of dimension of the described
+                           data.  Zero if scalar. */
+  char **dims;        /*!< Array of dimension strings.  May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
-  char *iri;          /*!< Unique IRI to corresponding entity in an */
-                      /*   ontology. */
+  char *iri;          /*!< Unique IRI to corresponding entity in an
+                           ontology. */
   char *description;  /*!< Human described of the described data. */
 };
+
 
 
 /**

@@ -752,7 +752,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
         DLiteProperty *src = (DLiteProperty *)p;
         if (dest->name)        free(dest->name);
-        if (dest->dimss)       free_str_array(dest->dimss, dest->ndims);
+        if (dest->dims)       free_str_array(dest->dims, dest->ndims);
         if (dest->unit)        free(dest->unit);
         if (dest->description) free(dest->description);
         dest->name  = strdup(src->name);
@@ -761,11 +761,11 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         dest->ndims = src->ndims;
         if (src->ndims > 0) {
           int j;
-          dest->dimss = malloc(src->ndims*sizeof(char *));
+          dest->dims = malloc(src->ndims*sizeof(char *));
           for (j=0; j < src->ndims; j++)
-            dest->dimss[j] = strdup(src->dimss[j]);
+            dest->dims[j] = strdup(src->dims[j]);
         } else
-          dest->dimss = NULL;
+          dest->dims = NULL;
         dest->unit        = (src->unit) ? strdup(src->unit) : NULL;
         dest->description = (src->description) ? strdup(src->description) :NULL;
 
@@ -782,7 +782,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
             dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
                                           &t, &size) == 0) {
           if (dest->name)        free(dest->name);
-          if (dest->dimss)       free_str_array(dest->dimss, dest->ndims);
+          if (dest->dims)       free_str_array(dest->dims, dest->ndims);
           if (dest->unit)        free(dest->unit);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
@@ -794,10 +794,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
             int j=0, ndims=(s && *s) ? 1 : 0;
             while (s[j]) if (s[j++] == ',') ndims++;
             dest->ndims = ndims;
-            dest->dimss = malloc(ndims*sizeof(int));
+            dest->dims = malloc(ndims*sizeof(int));
             for (j=0; j<ndims; j++) {
-              if (dest->dimss[j]) free(dest->dimss[j]);
-              dest->dimss[j] = strdup(s);
+              if (dest->dims[j]) free(dest->dims[j]);
+              dest->dims[j] = strdup(s);
               s += strcspn(q, ",") + 1;
             }
           }
@@ -921,7 +921,7 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   } else {
     if (!(dims = malloc(p->ndims*sizeof(int)))) FAIL("allocation failure");
     for (j=0; j<p->ndims; j++) {
-      if (!p->dimss[j])
+      if (!p->dims[j])
         FAIL2("missing dimension %d of property %d", j, i);
       dims[j] = DLITE_PROP_DIM(inst, i, j);
     }
@@ -955,7 +955,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   } else {
     if (!(dims = malloc(p->ndims*sizeof(int)))) FAIL("allocation failure");
     for (j=0; j<p->ndims; j++) {
-      if (!p->dimss[j])
+      if (!p->dims[j])
         FAIL2("missing dimension %d of property %d", j, i);
       dims[j] = DLITE_PROP_DIM(inst, i, j);
     }
@@ -1064,7 +1064,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
     for (i=0; i<$1; i++) {
       DLiteProperty *p = $2 + i;
       free(p->name);
-      if (p->dimss) free_str_array(p->dimss, p->ndims);
+      if (p->dims) free_str_array(p->dims, p->ndims);
       if (p->unit) free(p->unit);
       if (p->description) free(p->description);
     }
