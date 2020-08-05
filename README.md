@@ -270,5 +270,5 @@ DLite is developed with the hope that it will be a delight to work with.
 [12]: http://valgrind.org/
 [13]: http://cppcheck.sourceforge.net/
 [SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
-[refman]: https://sintef.github.io/dlite/ref/index.html
+[refman]: https://sintef.github.io/dlite/ref/latest/index.html
 [dlite-docker]: https://github.com/SINTEF/dlite/packages

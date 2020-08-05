@@ -56,9 +56,23 @@ jobs:
         cd build
         make test
         cd -
+
+    - name: Create public directory for deployment
+      run: |
+        mkdir build/public
+    - name: Check out current gh-pages
+      run: echo "todo..."
+    - name: Prepare public directory for deployment
+      run: |
+        cd build
+        mkdir -p public/refman/latest
+        cp -a doc/html/* public/refman/latest/.
+        full=$(git describe --tags)
+        tag=${full%%-*}
+        [ "$full" = "$tag" ] && mkdir public/refman/$tag && cp -a doc/html/* public/refman/$tag/.
+        cd -
     - name: Deploy DoxyGen-generated documentation to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3.6.4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build/doc/html
-        #destination_dir: ref
+        publish_dir: ./build/public
