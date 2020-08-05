@@ -22,11 +22,12 @@ DLite is licensed under the MIT license.
 Main features
 -------------
   - Enables semantic interoperability via simple formalised metadata and data
-  - Metadta can be linked to or generated from ontologies
+  - Metadata can be linked to or generated from ontologies
   - Code generation
   - Plugin API for data storages
   - Plugin API for mapping between metadata
-  - Bindings to C, Python (Fortran is in progress)
+  - Bindings to C and Python (Fortran is in progress)
+
 
 More detailed features
 ----------------------
@@ -58,6 +59,12 @@ More detailed features
   - Python bindings
   - Storage and mapping plugins written in Python
   - Fortran bindings (work in progress...)
+
+
+Reference manual
+----------------
+A doxygen-generated reference manual is available [here][refman].
+
 
 
 Short vocabulary
@@ -108,7 +115,7 @@ Using Visual Studio Code it is possible to do development on the system defined 
 Docker container
 ----------------
 A docker containiner can be found on
-[https://github.com/SINTEF/dlite/packages](https://github.com/SINTEF/dlite/packages).
+[https://github.com/SINTEF/dlite/packages][dlite-docker].
 
 
 Runtime dependencies
@@ -263,3 +270,5 @@ DLite is developed with the hope that it will be a delight to work with.
 [12]: http://valgrind.org/
 [13]: http://cppcheck.sourceforge.net/
 [SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
+[refman]: https://sintef.github.io/dlite/ref/index.html
+[dlite-docker]: https://github.com/SINTEF/dlite/packages
