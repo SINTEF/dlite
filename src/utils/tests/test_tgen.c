@@ -39,16 +39,16 @@ MU_TEST(test_tgen_setcase)
   mu_check(!tgen_setcase(s, -1, 's'));
   mu_assert_string_eq("A String - To Test!", s);
 
-  mu_check(!tgen_setcase(s, -1, 'l'));
+  mu_check(!tgen_setcase(s, -1, 'c'));
   mu_assert_string_eq("a string - to test!", s);
 
-  mu_check(!tgen_setcase(s, -1, 'U'));
+  mu_check(!tgen_setcase(s, -1, 'C'));
   mu_assert_string_eq("A STRING - TO TEST!", s);
 
   mu_check(!tgen_setcase(s, -1, 'T'));
   mu_assert_string_eq("A string - to test!", s);
 
-  mu_check(!tgen_setcase(s, 4, 'U'));
+  mu_check(!tgen_setcase(s, 4, 'C'));
   mu_assert_string_eq("A STring - to test!", s);
 
   mu_check(tgen_setcase(s, -1, 'S'));
@@ -63,27 +63,27 @@ MU_TEST(test_tgen_convert_case)
   mu_assert_string_eq("AVery mixed_Sentence: 1+2pi", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(s, -1, 'l')));
+  mu_check((p = tgen_convert_case(s, -1, 'c')));
   mu_assert_string_eq("avery mixed_sentence: 1+2pi", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(s, -1, 'U')));
+  mu_check((p = tgen_convert_case(s, -1, 'C')));
   mu_assert_string_eq("AVERY MIXED_SENTENCE: 1+2PI", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(s, -1, 'n')));
+  mu_check((p = tgen_convert_case(s, -1, 'u')));
   mu_assert_string_eq("a_very_mixed_sentence:_1+2pi", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(s, -1, 'N')));
+  mu_check((p = tgen_convert_case(s, -1, 'U')));
   mu_assert_string_eq("A_VERY_MIXED_SENTENCE:_1+2PI", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(s, -1, 'c')));
+  mu_check((p = tgen_convert_case(s, -1, 'm')));
   mu_assert_string_eq("aVeryMixedSentence:1+2Pi", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(s, -1, 'C')));
+  mu_check((p = tgen_convert_case(s, -1, 'M')));
   mu_assert_string_eq("AVeryMixedSentence:1+2Pi", p);
   free(p);
 
@@ -111,19 +111,19 @@ MU_TEST(test_tgen_convert_case)
 
   mu_check(!tgen_convert_case("  n+Atoms  ", -1, 'I'));
 
-  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'n')));
+  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'u')));
   mu_assert_string_eq("ab", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'n')));
+  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'u')));
   mu_assert_string_eq("ab_cd_e", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'C')));
+  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'M')));
   mu_assert_string_eq("Ab", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'C')));
+  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'M')));
   mu_assert_string_eq("AbCdE", p);
   free(p);
 }
@@ -294,7 +294,7 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("pi is 3.1", str);
   free(str);
 
-  str = tgen("pi is {pi%.3n}", &subs, NULL);
+  str = tgen("pi is {pi%.3u}", &subs, NULL);
   mu_assert_string_eq("pi is 3.1", str);
   free(str);
 
@@ -302,27 +302,27 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("pi is 3.1   ...", str);
   free(str);
 
-  str = tgen("The name is {name%l}...", &subs, NULL);
+  str = tgen("The name is {name%c}...", &subs, NULL);
   mu_assert_string_eq("The name is adam...", str);
   free(str);
 
-  str = tgen("The name is {name%U}...", &subs, NULL);
+  str = tgen("The name is {name%C}...", &subs, NULL);
   mu_assert_string_eq("The name is ADAM...", str);
   free(str);
 
-  str = tgen("Answer: {s%n}", &subs, NULL);
+  str = tgen("Answer: {s%u}", &subs, NULL);
   mu_assert_string_eq("Answer: length_is_5.5mm", str);
   free(str);
 
-  str = tgen("Answer: {s%N}", &subs, NULL);
+  str = tgen("Answer: {s%U}", &subs, NULL);
   mu_assert_string_eq("Answer: LENGTH_IS_5.5MM", str);
   free(str);
 
-  str = tgen("Answer: {s%c}", &subs, NULL);
+  str = tgen("Answer: {s%m}", &subs, NULL);
   mu_assert_string_eq("Answer: lengthIs5.5Mm", str);
   free(str);
 
-  str = tgen("Answer: {s%C}", &subs, NULL);
+  str = tgen("Answer: {s%M}", &subs, NULL);
   mu_assert_string_eq("Answer: LengthIs5.5Mm", str);
   free(str);
 

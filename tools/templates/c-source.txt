@@ -36,17 +36,17 @@
 {@endif}\
 
 {@if: {ismeta} }\
-#include "{name%n}.h"
+#include "{name%u}.h"
 {@endif}\
 {@if: {struct_name?} }\
 #define {name}Struct {struct_name}
 {@else}\
 #ifdef {name}_HEAD
 #define {name}Struct {name}{@if: {ismeta} }Schema{@endif}
-#include "{name%n}_schema.h"
+#include "{name%u}_schema.h"
 #else
 #define {name}Struct {meta.name}
-#include "{meta.name%n}.h"
+#include "{meta.name%u}.h"
 #endif
 
 
@@ -56,7 +56,7 @@ static DLiteDimension {name}_dimensions[] = {{
 }};
 {list_meta_properties:\
 {@if:{prop.ndims}!0}\
-static char *{name%n}_prop_{prop.name}_dims[] = {{\
+static char *{name%u}_prop_{prop.name}_dims[] = {{\
 {prop.dims:"{dim.name}"{, }\.}\
 }};
 {@endif}\.}\
@@ -69,7 +69,7 @@ static DLiteProperty {name}_properties[] = {{
 {@if:{prop.ndims}=0}\
     NULL,          {@40}/* dims */
 {@else}\
-    {name%n}_prop_{prop.name}_dims, {@40}/* dims */
+    {name%u}_prop_{prop.name}_dims, {@40}/* dims */
 {@endif}\
 {@if:"{prop.unit}"}\
     "{prop.unit}", {@40}/* unit */
@@ -92,7 +92,7 @@ static DLiteProperty {name}_properties[] = {{
 {@endif}\
 
 
-static {name}Struct {name%n} = {{
+static {name}Struct {name%u} = {{
 #ifdef HAVE_DLITE
   /* -- {name}Struct_HEAD */
   "{_uuid}",  {@52}/* _uuid */
@@ -114,10 +114,10 @@ static {name}Struct {name%n} = {{
   {_deinit},                {@52}/* _deinit */
 
   {_npropdims},             {@52}/* _npropdims */
-  {name%n}.__propdiminds,   {@52}/* _propdiminds */
+  {name%u}.__propdiminds,   {@52}/* _propdiminds */
 
   {_dimoffset},             {@52}/* _dimoffset */
-  {name%n}.__propoffsets,   {@52}/* _propoffsets */
+  {name%u}.__propoffsets,   {@52}/* _propoffsets */
   {_reloffset},             {@52}/* _reloffset */
   {_propdimsoffset},        {@52}/* _propdimsoffset */
   {_propdimindsoffset},     {@52}/* _propdimindsoffset */
@@ -147,9 +147,9 @@ static {name}Struct {name%n} = {{
 
 
 /** Returns a pointer to hardcoded instance of {meta.name}. */
-const {name}Struct *get_{name%n}()
+const {name}Struct *get_{name%u}()
 {{
-   {name}Struct *inst = &{name%n};
+   {name}Struct *inst = &{name%u};
 #ifdef HAVE_DLITE
   static int initialized=0;
   if (!initialized) {{

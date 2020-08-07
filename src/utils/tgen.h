@@ -56,16 +56,16 @@
            characters to write (not including padding).
          - CASE is a single character, with the following meaning:
            - 's': no change in case
-           - 'l': convert to lower case
-           - 'U': convert to upper case
-           - 'n': convert to underscore-separated lower case
-           - 'N': convert to underscore-separated upper case
-           - 'c': convert to lower camelCase
-           - 'C': convert to upper CamelCase
-           - 'T': convert to title case (convert first character to upper case
-                  and the rest to lower case)
+           - 'c': convert to lower case
+           - 'C': convert to upper case
+           - 'u': convert to underscore-separated lower case
+           - 'U': convert to underscore-separated upper case
+           - 'm': convert to lower mixedCase (aka camelCase)
+           - 'M': convert to upper MixedCase (aka CamelCase)
            - 'i': convert to a valid C identifier (permissive)
            - 'I': convert to a valid C identifier (strict)
+           - 'T': convert to title case (convert first character to upper case
+                  and the rest to lower case)
     - `TEMPL` is an optional template that may be used in
        nested calls.  It may contain embedded tags, as long
        as the opening and closing braces exactly match.
@@ -360,27 +360,27 @@ int tgen_setcase(char *s, int len, int casemode);
 
   Valid values for `casemode` are:
     - 's': no change in case
-    - 'l': convert to lower case
-    - 'U': convert to upper case
-    - 'n': convert to underscore-separated lower case
-    - 'N': convert to underscore-separated upper case
-    - 'c': convert to lower camelCase
-    - 'C': convert to upper CamelCase
-    - 'T': convert to title case (convert first character to upper case
-           and the rest to lower case)
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
     - 'i': convert to a valid C identifier (permissive)
     - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
 
   Returns NULL on error.
 
   Examples:
     s: "AVery mixed_Sentense" -> "AVery mixed_Sentense"
-    l: "AVery mixed_Sentense" -> "avery mixed_sentense"
-    U: "AVery mixed_Sentense" -> "AVERY MIXED_SENTENCE"
-    n: "AVery mixed_Sentense" -> "a_very_mixed_sentense"
-    N: "AVery mixed_Sentense" -> "A_VERY_MIXED_SENTENCE"
-    c: "AVery mixed_Sentense" -> "aVeryMixedSentense"
-    C: "AVery mixed_Sentense" -> "AVeryMixedSentense"
+    c: "AVery mixed_Sentense" -> "avery mixed_sentense"
+    C: "AVery mixed_Sentense" -> "AVERY MIXED_SENTENCE"
+    u: "AVery mixed_Sentense" -> "a_very_mixed_sentense"
+    U: "AVery mixed_Sentense" -> "A_VERY_MIXED_SENTENCE"
+    m: "AVery mixed_Sentense" -> "aVeryMixedSentense"
+    M: "AVery mixed_Sentense" -> "AVeryMixedSentense"
     T: "AVery mixed_Sentense" -> "Avery mixed_sentense"
     i: "  n-Atoms  " -> "n_Atoms"
     i: "  n+Atoms  " -> "n_Atoms"
@@ -444,16 +444,16 @@ int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
 
   Valid values for `casemode` are:
     - 's': no change in case
-    - 'l': convert to lower case
-    - 'U': convert to upper case
-    - 'n': convert to underscore-separated lower case
-    - 'N': convert to underscore-separated upper case
-    - 'c': convert to lower camelCase
-    - 'C': convert to upper CamelCase
-    - 'T': convert to title case (convert first character to upper case
-           and the rest to lower case)
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
     - 'i': convert to a valid C identifier (permissive)
     - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
  */
 int tgen_buf_append_case(TGenBuf *s, const char *src, int n, int casemode);
 

@@ -54,7 +54,7 @@ static int validate_fmt(const char *fmt, int len)
     if (!isdigit(*(p++))) return 0;
     while (isdigit(*p)) p++;
   }
-  if (!strchr("slUnNcCTiI", *(p++)))  /* CASE */
+  if (!strchr("scCuUmMiIT", *(p++)))  /* CASE */
       return 0;
   if (p != fmt + len)           /* check length */
     return 0;
@@ -325,8 +325,8 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
 
   Valid values for `casemode` are:
     - "s": no change in case
-    - "l": convert to lower case
-    - "U": convert to upper case
+    - "c": convert to lower case
+    - "C": convert to upper case
     - "T": convert to title case (convert first character to upper case
            and the rest to lower case)
 
@@ -340,10 +340,10 @@ int tgen_setcase(char *s, int len, int casemode)
   switch (casemode) {
   case 's':
     return 0;
-  case 'l':
+  case 'c':
     for (i=0; i<len; i++) s[i] = tolower(s[i]);
     return 0;
-  case 'U':
+  case 'C':
     for (i=0; i<len; i++) s[i] = toupper(s[i]);
     return 0;
   case 'T':
@@ -419,8 +419,8 @@ static int append_underscore(TGenBuf *buf, const char *s, int n, int upper)
 }
 
 /*
-  Converts the `n` first characters of `s` to CamelCase format
-  (UpperCamelCase if `upper` is non-zero, otherwise lowerCamelCase)
+  Converts the `n` first characters of `s` to MixedCase format
+  (UpperMixedCase if `upper` is non-zero, otherwise lowerMiexedlCase)
   and append them to `buf`.  If `n` is negative, all of `s` is
   appended.
 
@@ -430,7 +430,7 @@ static int append_underscore(TGenBuf *buf, const char *s, int n, int upper)
     "AVery mixed_Sentense" -> "aVeryMixedSentense"   (upper==0)
     "AVery mixed_Sentense" -> "AVeryMixedSentense"   (upper==1)
 */
-static int append_camelcase(TGenBuf *buf, const char *s, int n, int upper)
+static int append_mixedcase(TGenBuf *buf, const char *s, int n, int upper)
 {
   size_t startpos = buf->pos;
   int prevmode=0;  /* Previous char was: space=0, lower=1, upper=2, other=3 */
@@ -460,16 +460,16 @@ static int append_camelcase(TGenBuf *buf, const char *s, int n, int upper)
 
   Valid values for `casemode` are:
     - 's': no change in case
-    - 'l': convert to lower case
-    - 'U': convert to upper case
-    - 'n': convert to underscore-separated lower case
-    - 'N': convert to underscore-separated upper case
-    - 'c': convert to lower camelCase
-    - 'C': convert to upper CamelCase
-    - 'T': convert to title case (convert first character to upper case
-           and the rest to lower case)
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
     - 'i': convert to a valid C identifier (permissive)
     - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
 
   Returns NULL on error.
  */
@@ -608,16 +608,16 @@ int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap)
 
   Valid values for `casemode` are:
     - 's': no change in case
-    - 'l': convert to lower case
-    - 'U': convert to upper case
-    - 'n': convert to underscore-separated lower case
-    - 'N': convert to underscore-separated upper case
-    - 'c': convert to lower camelCase
-    - 'C': convert to upper CamelCase
-    - 'T': convert to title case (convert first character to upper case
-           and the rest to lower case)
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
     - 'i': convert to a valid C identifier (permissive)
     - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
  */
 int tgen_buf_append_case(TGenBuf *s, const char *src, int n, int casemode)
 {
@@ -628,22 +628,22 @@ int tgen_buf_append_case(TGenBuf *s, const char *src, int n, int casemode)
   switch (casemode) {
   case 's':
     return tgen_buf_append(s, src, n);
-  case 'l':
+  case 'c':
     if ((stat = tgen_buf_append(s, src, n)) < 0) return -1;
     for (p=s->buf+startpos; *p; p++) *p = tolower(*p);
     return stat;
-  case 'U':
+  case 'C':
     if ((stat = tgen_buf_append(s, src, n)) < 0) return -1;
     for (p=s->buf+startpos; *p; p++) *p = toupper(*p);
     return stat;
-  case 'n':
+  case 'u':
     return append_underscore(s, src, n, 0);
-  case 'N':
+  case 'U':
     return append_underscore(s, src, n, 1);
-  case 'c':
-    return append_camelcase(s, src, n, 0);
-  case 'C':
-    return append_camelcase(s, src, n, 1);
+  case 'm':
+    return append_mixedcase(s, src, n, 0);
+  case 'M':
+    return append_mixedcase(s, src, n, 1);
   case 'i':
     return append_identifier(s, src, n, 0);
   case 'I':

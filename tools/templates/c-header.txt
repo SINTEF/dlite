@@ -25,7 +25,7 @@
  *       DLiteInstance_HEAD  {@40}\\
  *       <my fields>...
  *
- *     #include "{name%n}.h"
+ *     #include "{name%u}.h"
  *
  * where <my fields> are any additional fields you want to add to
  * {name}.  If you do this, remember to update the metadata using
@@ -40,23 +40,23 @@
 {@if: {isdata} | {ismetameta} }\
 {@error:The template c-header requires ordinary metadata as input}
 {@endif}\
-#ifndef _{name%N}_H
-#define _{name%N}_H
+#ifndef _{name%U}_H
+#define _{name%U}_H
 
 #include "utils/integers.h"
 #include "utils/boolean.h"
 #include "utils/floats.h"
 
-#ifndef {name%U}_NAME
-#define {name%U}_NAME      "{name}"
-#define {name%U}_VERSION   "{version}"
-#define {name%U}_NAMESPACE "{namespace}"
-#define {name%U}_URI       "{_uri}"
-#define {name%U}_UUID      "{_uuid}"
-#define {name%U}_IRI       "{_iri}"
-#define {name%U}_META_URI  "{meta.uri}"
-#define {name%U}_META_UUID "{meta.uuid}"
-#define {name%U}_META_IRI  "{meta.iri}"
+#ifndef {name%C}_NAME
+#define {name%C}_NAME      "{name}"
+#define {name%C}_VERSION   "{version}"
+#define {name%C}_NAMESPACE "{namespace}"
+#define {name%C}_URI       "{_uri}"
+#define {name%C}_UUID      "{_uuid}"
+#define {name%C}_IRI       "{_iri}"
+#define {name%C}_META_URI  "{meta.uri}"
+#define {name%C}_META_UUID "{meta.uuid}"
+#define {name%C}_META_IRI  "{meta.iri}"
 #endif
 
 /** Minimal set of needed definitions in case we don't have dlite */
@@ -112,4 +112,4 @@ typedef struct _{name} {{
 }} {name};
 
 
-#endif /* _{name%N}_H */
+#endif /* _{name%U}_H */
