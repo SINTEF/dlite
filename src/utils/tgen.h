@@ -10,6 +10,7 @@
   @file
   @brief Simple templated text generator
 
+
   ### Introduction
   The main function in this library is tgen(). It takes a template and
   a list of substitutions and produces a new document.
@@ -31,11 +32,12 @@
         - Jack Daniel lives in USA
         - Fritjof Nansen lives in Norway
 
+
   ### Variable tags
   A pair of braces, "{" and "}", that encloses a string is a *tag*.
   When the template is processed, the tags are replaced with new
-  content according to the substitutions.  The general form for a tag
-  is:
+  content according to the substitutions.  The general form for a
+  variable tag is:
 
       {VAR%FMT:TEMPL}
 
@@ -74,6 +76,29 @@
       tag with its output.  The function uses `TEMPL` as a
       (sub)template.
 
+
+  ### Existence tags
+  Existence tags are of the form
+  @code
+
+      {VAR?}
+
+  @endcode
+  and will be replaced with "1" if VAR is defined and "0" if var is
+  empty.  It is mainly intended to be used in conditionals.
+
+
+  ### Assignment tags
+  Assignment tags has the form
+  @code
+
+      {VAR=VALUE}
+
+  @endcode
+  and will assign variable VAR to VALUE overriding a possible previous
+  value.  It is replaced with the empty string.
+
+
   ### Conditional tags
   Conditionals are a special form of tags with the following syntax:
   @code
@@ -88,12 +113,50 @@
 
   @endcode
   The `elif` and `else` tags are optional and there may be
-  multiple `elif` tags.  COND is the condition and is currently
-  very simple, only including the three forms:
-    - "str1==str2": true if `str1` equals `str2`
-    - "str1!=str2": true if `str1` does not equals `str2`
-    - "str": true if `str` is non-empty
-  Variable expansion is performed before COND is evaluated.
+  multiple `elif` tags.
+
+  If `COND` takes one of the forms
+      'string'               true if non-empty, false otherwise
+      'string1' = 'string2'  true if the strings are equal
+      'string1' ! 'string2'  true if the strings are not equal
+  it is evaluated as a string expressions, where the strings must be
+  quoted with either single (') or double (") quotes (quotes within
+  the strings may be escaped with backslash).
+
+  Otherwise `COND` is evaluated using infixcalc(), which supports
+  integer arithmetic and the following binary operators:
+      |  logical or
+      &  logical and
+      =  logical equal
+      !  logical not equal
+      >  logical greather than
+      <  logical smaller than
+      +  plus
+      -  minus
+      *  times
+      /  division
+      %  modulus
+      ^  power
+  in addition to parenthesis.
+
+  Note that unary minus and plus are not supported.  Hence,
+  an expression like "-3" is invalid (if needed, it can be rewritten
+  as "0-3").
+
+  Variable expansion is performed before `COND` is evaluated.
+
+
+  ### Expression tags
+  Expression tags has the form
+  @code
+
+      {@eval:EXPR}
+
+  @endcode
+  and will replace `EXPR` with its evaluated value using integer
+  arithmetics with infixcalc().  See the [Conditional tags](#conditional-tags)
+  for limitations.
+
 
   ### Alignment tags
   Alignment are tags of the form
@@ -107,6 +170,28 @@
   (that is `N` characters after the last newline).  If the alignment
   tag it placed after column `N`, no output will be produced.
 
+
+  ### Error tags
+  A template can signal errors like invalid variables or wrong use with
+  the construct
+  @code
+
+      {@error:message}
+
+  @endcode
+  This will make tgen fail with a TgenUserError with the provided message.
+
+
+  ### Comment tags
+  Comments that will not be visible in the output can be added by starting
+  a tag with ": ", like
+  @code
+
+      {: My comment... }
+
+  @endcode
+
+
   ### Literal braces and escapes
   Literal braces may be included in the template and the `TEMPL`
   section, if they are escaped according the following table:
@@ -116,6 +201,7 @@
   `{{`            | `{`    | literal start brace
   `}}`            | `}`    | literal end brace
   `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
+  `\.'            | ``     | noop escape, may be used instead of `{}`
 
   Furthermore are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
   `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by
@@ -153,13 +239,14 @@
 */
 enum {
   TGenOk=0,
-  TGenAllocationError=2020,
-  TGenSyntaxError,
-  TGenIOError,
-  TGenVariableError,
-  TGenSubtemplateError,
-  TGenMapError,
-  TGenFormatError,
+  TGenAllocationError=2020,  /*!< Allocation error */
+  TGenSyntaxError,           /*!< Syntax error */
+  TGenIOError,               /*!< Input/output error */
+  TGenVariableError,         /*!< Invalid variable name */
+  TGenSubtemplateError,      /*!< Missing subtemplate */
+  TGenMapError,              /*!< Error from the map library */
+  TGenFormatError,           /*!< Invalid format specifier */
+  TGenUserError,             /*!< Triggered by the {\@error:...} construct */
 };
 
 
@@ -207,7 +294,7 @@ typedef struct _TGenSubs {
   Returns non-zero on error.
 */
 typedef int (*TGenFun)(TGenBuf *s, const char *template, int len,
-                       const TGenSubs *subs, void *context);
+                       TGenSubs *subs, void *context);
 
 
 
@@ -474,7 +561,7 @@ int tgen_subs_copy(TGenSubs *dest, const TGenSubs *src);
 
   Returns NULL, on error.
  */
-char *tgen(const char *template, const TGenSubs *subs, void *context);
+char *tgen(const char *template, TGenSubs *subs, void *context);
 
 
 /**
@@ -484,7 +571,7 @@ char *tgen(const char *template, const TGenSubs *subs, void *context);
   Returns non-zero on error.
  */
 int tgen_append(TGenBuf *s, const char *template, int len,
-                const TGenSubs *subs, void *context);
+                TGenSubs *subs, void *context);
 
 /** @} */
 

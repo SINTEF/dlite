@@ -424,10 +424,13 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->size = s->size;
       d->ndims = s->ndims;
       if (d->ndims) {
-        d->dims = malloc(d->ndims*sizeof(int));
-        memcpy(d->dims, s->dims, d->ndims*sizeof(int));
-      } else
+        int i;
+        d->dims = malloc(d->ndims*sizeof(char *));
+        for (i=0; i<d->ndims; i++)
+          d->dims[i] = strdup(s->dims[i]);
+      } else {
         d->dims = NULL;
+      }
       d->unit = (s->unit) ? strdup(s->unit) : NULL;
       d->description = (s->description) ? strdup(s->description) : NULL;
     }
@@ -470,7 +473,13 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     break;
   case dliteProperty:
     free(((DLiteProperty *)p)->name);
-    if (((DLiteProperty *)p)->dims) free(((DLiteProperty *)p)->dims);
+    if (((DLiteProperty *)p)->dims) {
+      int i;
+      for (i=0; i < ((DLiteProperty *)p)->ndims; i++)
+        if (((DLiteProperty *)p)->dims[i])
+          free(((DLiteProperty *)p)->dims[i]);
+      free(((DLiteProperty *)p)->dims);
+    }
     if (((DLiteProperty *)p)->unit) free(((DLiteProperty *)p)->unit);
     if (((DLiteProperty *)p)->description)
       free(((DLiteProperty *)p)->description);

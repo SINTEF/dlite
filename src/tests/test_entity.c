@@ -29,9 +29,9 @@ DLiteInstance *mydata=NULL, *mydata2=NULL, *mydata3=NULL;
 
 MU_TEST(test_entity_create)
 {
-  int dims0[] = {1, 0};  /* [N, M] */
-  int dims1[] = {1};     /* [N] */
-  int dims2[] = {0};     /* [M] */
+  char *dims0[] = {"N", "M"};
+  char *dims1[] = {"N"};
+  char *dims2[] = {"M"};
   DLiteDimension dimensions[] = {
     {"M", "Length of dimension M."},
     {"N", "Length of dimension N."}
@@ -53,22 +53,29 @@ MU_TEST(test_entity_create)
 
   mu_assert_int_eq(2, entity->ndimensions);
   mu_assert_int_eq(5, entity->nproperties);
-  mu_assert_int_eq(1, entity->properties[2].dims[0]);
-  mu_assert_int_eq(0, entity->properties[2].dims[1]);
+  mu_assert_int_eq(2, DLITE_PROP_DIM(entity->meta, 4, 0));
+  mu_assert_int_eq(6, DLITE_PROP_DIM(entity->meta, 5, 0));
+
+  mu_assert_int_eq(0, dlite_instance_is_data((DLiteInstance *)entity));
+  mu_assert_int_eq(1, dlite_instance_is_meta((DLiteInstance *)entity));
+  mu_assert_int_eq(0, dlite_instance_is_metameta((DLiteInstance *)entity));
+
+  dlite_instance_print((DLiteInstance *)entity);
 
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
 #if (__GNUC__ && SIZEOF_VOID_P == 8)
   mu_assert_int_eq(72, sizeof(DLiteInstance));
   mu_assert_int_eq(72, entity->dimoffset);
+  mu_assert_int_eq(72, entity->headersize);
   mu_assert_int_eq(88, entity->propoffsets[0]);
   mu_assert_int_eq(96, entity->propoffsets[1]);
   mu_assert_int_eq(104, entity->propoffsets[2]);
   mu_assert_int_eq(112, entity->propoffsets[3]);
   mu_assert_int_eq(120, entity->propoffsets[4]);
   mu_assert_int_eq(128, entity->reloffset);
-  mu_assert_int_eq(128, entity->pooffset);
-  mu_assert_int_eq(72, entity->headersize);
+  mu_assert_int_eq(128, entity->propdimsoffset);
+  mu_assert_int_eq(160, entity->propdimindsoffset);
 #endif
 }
 

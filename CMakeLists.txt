@@ -555,5 +555,6 @@ install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
+    "${dlite_SOURCE_DIR}/cmake/CodeGen.cmake"
   DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   )

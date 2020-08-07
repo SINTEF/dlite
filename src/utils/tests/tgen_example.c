@@ -26,7 +26,7 @@ static void deinit(void)
 
 /* Expands {list_members} using the data catalogue passed via `context`. */
 static int list_members(TGenBuf *s, const char *template, int len,
-                        const TGenSubs *subs, void *context)
+                        TGenSubs *subs, void *context)
 {
   int i;
   Record *catalogue = (Record *)context;

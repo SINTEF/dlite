@@ -279,18 +279,7 @@ def standardise(v, asdict=True):
             d['namespace'] = self['namespace']
             d['description'] = self['description']
             d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
-            #
-            # FIXME: property dimensions should be strings, and not indices
-            # into the dimension values.
-            #d['properties'] = [p.asdict() for p in self['properties']]
-            dimnames = list(self.dimensions.keys())
-            props = []
-            for prop in self['properties']:
-                 p = prop.asdict()
-                 if 'dims' in p:
-                     p['dims'] = [dimnames[i] for i in p['dims']]
-                 props.append(p)
-            d['properties'] = props
+            d['properties'] = [p.asdict() for p in self['properties']]
         else:
             d['dimensions'] = self.dimensions
             d['properties'] = {k: standardise(v)

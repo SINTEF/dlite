@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "test_macros.h"
+#include "err.h"
 #include "tgen.h"
 
 #include "minunit/minunit.h"
@@ -147,7 +148,7 @@ MU_TEST(test_tgen_subs)
 
 
 static int loop(TGenBuf *s, const char *template, int len,
-                const TGenSubs *subs, void *context)
+                TGenSubs *subs, void *context)
 {
   int i, data[] = {1, 3, 5};
   TGenSubs subs2;
@@ -171,12 +172,14 @@ MU_TEST(test_tgen)
   TGenSubs subs;
 
   tgen_subs_init(&subs);
-  tgen_subs_set(&subs, "n",    "42",   NULL);
-  tgen_subs_set(&subs, "pi",   "3.14", NULL);
-  tgen_subs_set(&subs, "name", "Adam", NULL);
-  tgen_subs_set(&subs, "f",    NULL,   tgen_append);
-  tgen_subs_set(&subs, "f2",   "XX",   tgen_append);
-  tgen_subs_set(&subs, "loop", NULL,   loop);
+  tgen_subs_set(&subs, "n",     "42",   NULL);
+  tgen_subs_set(&subs, "pi",    "3.14", NULL);
+  tgen_subs_set(&subs, "name",  "Adam", NULL);
+  tgen_subs_set(&subs, "zero",  "0",    NULL);
+  tgen_subs_set(&subs, "empty", "",     NULL);
+  tgen_subs_set(&subs, "f",     NULL,   tgen_append);
+  tgen_subs_set(&subs, "f2",    "XX",   tgen_append);
+  tgen_subs_set(&subs, "loop",  NULL,   loop);
 
   str = tgen("{name} got n={n}!", &subs, NULL);
   mu_assert_string_eq("Adam got n=42!", str);
@@ -188,6 +191,7 @@ MU_TEST(test_tgen)
 
   str = tgen("{xname} got n={n}!", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("{name:new template} got n={n}!", &subs, NULL);
   mu_assert_string_eq("Adam got n=42!", str);
@@ -195,9 +199,11 @@ MU_TEST(test_tgen)
 
   str = tgen("{name:invalid {{n}} got n={n}!", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("invalid } template", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("{name:valid {n} } got n={n}!", &subs, NULL);
   mu_assert_string_eq("Adam got n=42!", str);
@@ -245,6 +251,7 @@ MU_TEST(test_tgen)
 
   str = tgen("func subst: {f}", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("func subst {f2:pi={pi} }", &subs, NULL);
   mu_assert_string_eq("func subst pi=3.14 ", str);
@@ -280,9 +287,76 @@ MU_TEST(test_tgen)
     free(str);
   }
 
+  /* test variable existences */
+  str = tgen("whether 'name' is defined: {name?}", &subs, NULL);
+  mu_assert_string_eq("whether 'name' is defined: 1", str);
+  free(str);
+
+  str = tgen("whether 'empty' is defined: {empty?}", &subs, NULL);
+  mu_assert_string_eq("whether 'empty' is defined: 1", str);
+  free(str);
+
+  str = tgen("whether 'xxx' is defined: {xxx?}", &subs, NULL);
+  mu_assert_string_eq("whether 'xxx' is defined: 0", str);
+  free(str);
+
+  str = tgen("whether var is not empty: {?}", &subs, NULL);
+  mu_check(!str);
+  err_clear();
+
+  /* test variable assignment */
+  str = tgen("exists={x?}, {x=5} exists={x?}, x={x}", &subs, NULL);
+  mu_assert_string_eq("exists=0,  exists=1, x=5", str);
+  free(str);
+
+  str = tgen("{name=Ewa}name={name}", &subs, NULL);
+  mu_assert_string_eq("name=Ewa", str);
+  free(str);
+
   /* test condition */
-  str = tgen("{@if:0}aa{@elif:}bbb{@else}pi = {pi}{@endif}...", &subs, NULL);
+  str = tgen("{@if:0}a{@elif:}b{@else}pi = {pi}{@endif}...", &subs, NULL);
   mu_assert_string_eq("pi = 3.14...", str);
+  free(str);
+
+  str = tgen("{@if:1}a{@elif:}b{@else}pi = {pi}{@endif}...", &subs, NULL);
+  mu_assert_string_eq("a...", str);
+  free(str);
+
+  err_clear();
+  str = tgen("{@if: {empty} }a{@elif:1}b{@else}c{@endif}...", &subs, NULL);
+  mu_check(!str);
+  err_clear();
+
+  str = tgen("{@if: \"{empty}\" }a{@elif:1}b{@else}c{@endif}...", &subs, NULL);
+  mu_assert_string_eq("b...", str);
+  free(str);
+
+  str = tgen("{@if: '{empty}' }a{@elif:1}b{@else}c{@endif}...", &subs, NULL);
+  mu_assert_string_eq("b...", str);
+  free(str);
+
+  str = tgen("{@if: \"\" }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("false", str);
+  free(str);
+
+  str = tgen("{@if: \" \" }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("true", str);
+  free(str);
+
+  str = tgen("{@if: '{pi}' }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("true", str);
+  free(str);
+
+  str = tgen("{@if:'{empty}'}true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("false", str);
+  free(str);
+
+  str = tgen("{@if: '{empty}' }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("false", str);
+  free(str);
+
+  str = tgen("{@if:'{name}'}true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("true", str);
   free(str);
 
   /* test padding */
@@ -294,6 +368,10 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("pi  is\n      3.14...", str);
   free(str);
 
+  /* test @error construct */
+  str = tgen("bla, bla {@error:My error message...} blu bla", &subs, NULL);
+  mu_check(!str);
+  mu_assert_string_eq("Error 2027: line 1: My error message...", err_getmsg());
 
   tgen_subs_deinit(&subs);
 }

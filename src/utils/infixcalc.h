@@ -11,6 +11,12 @@
   @brief Simple infix calculator for integer arithmetic
   Only the following binary operators are implemented:
 
+      |  logical or
+      &  logical and
+      =  logical equal
+      !  logical not equal
+      >  logical greather than
+      <  logical smaller than
       +  plus
       -  minus
       *  times
@@ -47,5 +53,10 @@ typedef struct {
 int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
               char *err, size_t errlen);
 
+
+/**
+  Returns non-zero if variable `varname` is in expression `expr`.
+ */
+int infixcalc_depend(const char *expr, const char *varname);
 
 #endif /* _INFIX_CALC_H */
