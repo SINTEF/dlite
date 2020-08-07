@@ -41,5 +41,4 @@
  #pragma warning(disable:4116)
 #endif
 
-
 #endif /* _DLITE_CONFIG_H */

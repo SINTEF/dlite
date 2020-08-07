@@ -44,6 +44,11 @@ macro(codegen output template url)
     list(APPEND codegen_dependencies ${template})
   else()
     set(template_option --format=${template})
+    foreach(dir ${dlite_TEMPLATES})
+      if(EXISTS ${dir}/${template}.txt)
+        list(APPEND codegen_dependencies "${dir}/${template}.txt")
+      endif()
+    endforeach()
   endif()
 
   if(EXISTS ${url})
@@ -78,8 +83,8 @@ macro(codegen output template url)
       ${DLITE_CODEGEN}
         --output=${output}
         ${template_option}
-        ${ARGN}
         ${url}
+        ${ARGN}
     DEPENDS ${codegen_dependencies}
     COMMENT "Generate ${output}"
   )

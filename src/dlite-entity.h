@@ -158,7 +158,7 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
   const char *uri;                /* Unique uri for this instance. */   \
                                   /* May be NULL. */                    \
-  int refcount;                   /* Number of references to this */    \
+  int _refcount;                  /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
                                   /* bing this instance. */             \
@@ -181,37 +181,37 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
   DLiteInstance_HEAD                                                    \
                                                                         \
   /* Convenient access to dimensions describing the instance */         \
-  size_t ndimensions;  /* Number of dimensions in instance. */          \
-  size_t nproperties;  /* Number of properties in instance. */          \
-  size_t nrelations;   /* Number of relations in instance. */           \
+  size_t _ndimensions;  /* Number of dimensions in instance. */         \
+  size_t _nproperties;  /* Number of properties in instance. */         \
+  size_t _nrelations;   /* Number of relations in instance. */          \
                                                                         \
   /* Convenient access to description of instance */                    \
-  DLiteDimension *dimensions;  /* Array of dimensions. */               \
-  DLiteProperty *properties;   /* Array of properties. */               \
-  DLiteRelation *relations;    /* Array of relations. */                \
+  DLiteDimension *_dimensions;  /* Array of dimensions. */              \
+  DLiteProperty *_properties;   /* Array of properties. */              \
+  DLiteRelation *_relations;    /* Array of relations. */               \
                                                                         \
   /* Function pointers used by instances */                             \
-  size_t headersize;     /* Size of instance header.  If zero, */       \
-                         /* it defaults to sizeof(DLiteInstance) or */  \
-                         /* sizeof(DLiteMeta). */                       \
-  DLiteInit init;        /* Function initialising an instance. */       \
-  DLiteDeInit deinit;    /* Function deinitialising an instance. */     \
+  size_t _headersize;     /* Size of instance header.  If zero, */      \
+                          /* it defaults to sizeof(DLiteInstance) or */ \
+                          /* sizeof(DLiteMeta). */                      \
+  DLiteInit _init;        /* Function initialising an instance. */      \
+  DLiteDeInit _deinit;    /* Function deinitialising an instance. */    \
                                                                         \
   /* Property dimension sizes of instances */                           \
   /* Automatically assigned by dlite_meta_init() */                     \
-  size_t npropdims;      /* Total number of property dimensions. */     \
-  size_t *propdiminds;   /* Pointer to array (within this metadata) */  \
-                         /* of `propdims` indices to first property */  \
-                         /* dimension. Length: nproperties */           \
+  size_t _npropdims;      /* Total number of property dimensions. */    \
+  size_t *_propdiminds;   /* Pointer to array (within this metadata) */ \
+                          /* of `propdims` indices to first property */ \
+                          /* dimension. Length: nproperties */          \
                                                                         \
   /* Memory layout of instances */                                      \
   /* If `size` is zero, these values will automatically be assigned */  \
-  size_t dimoffset;      /* Offset of first dimension value. */         \
-  size_t *propoffsets;   /* Pointer to array (in this metadata) of */   \
-                         /* offsets to property values in instance. */  \
-  size_t reloffset;      /* Offset of first relation value. */          \
-  size_t propdimsoffset; /* Offset to `propdims` array. */              \
-  size_t propdimindsoffset; /* Offset of `propdiminds` array. */
+  size_t _dimoffset;      /* Offset of first dimension value. */        \
+  size_t *_propoffsets;   /* Pointer to array (in this metadata) of */  \
+                          /* offsets to property values in instance. */ \
+  size_t _reloffset;      /* Offset of first relation value. */         \
+  size_t _propdimsoffset; /* Offset to `propdims` array. */             \
+  size_t _propdimindsoffset; /* Offset of `propdiminds` array. */
 
 
 /**
@@ -273,71 +273,71 @@ typedef struct _DLiteMeta {
 /** @{ */
 
 /** Expands to number of dimensions --> (size_t) */
-#define DLITE_NDIM(inst) (((DLiteInstance *)(inst))->meta->ndimensions)
+#define DLITE_NDIM(inst) (((DLiteInstance *)(inst))->meta->_ndimensions)
 
 /** Expands to pointer to array of dimension values --> (size_t *) */
 #define DLITE_DIMS(inst) \
-  ((size_t *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->dimoffset))
+  ((size_t *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->_dimoffset))
 
 /** Expands to length of dimension `n` --> (size_t) */
 #define DLITE_DIM(inst, n) (DLITE_DIMS(inst)[n])
 
 /** Expands to array of dimension descriptions --> (DLiteDimension *) */
-#define DLITE_DIMS_DESCR(inst) (((DLiteInstance *)(inst))->meta->dimensions)
+#define DLITE_DIMS_DESCR(inst) (((DLiteInstance *)(inst))->meta->_dimensions)
 
 /** Expands to description of dimensions `n` --> (DLiteDimension *) */
 #define DLITE_DIM_DESCR(inst, n) \
-  (((DLiteInstance *)(inst))->meta->dimensions + n)
+  (((DLiteInstance *)(inst))->meta->_dimensions + n)
 
 /** Expands to number of properties --> (size_t). */
-#define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->nproperties)
+#define DLITE_NPROP(inst) (((DLiteInstance *)(inst))->meta->_nproperties)
 
 /** Expands to pointer to the value of property `n` --> (void *)
 
     Note: for arrays this pointer must be dereferred (since all arrays
     are allocated on the heap). */
 #define DLITE_PROP(inst, n) \
-  ((void *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->propoffsets[n]))
+  ((void *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->_propoffsets[n]))
 
 /** Expands to array of dimension sizes for property `n` --> (size_t *) */
 #define DLITE_PROP_DIMS(inst, n) \
   ((size_t *)((char *)(inst) + \
-              ((DLiteInstance *)(inst))->meta->propdimsoffset) + \
-   ((DLiteInstance *)(inst))->meta->propdiminds[n])
+              ((DLiteInstance *)(inst))->meta->_propdimsoffset) + \
+   ((DLiteInstance *)(inst))->meta->_propdiminds[n])
 
 /** Expands to size of the `m`th dimension of property `n` --> (size_t) */
 #define DLITE_PROP_DIM(inst, n, m) (DLITE_PROP_DIMS(inst, n)[m])
 
 /** Expands to array of property descriptions --> (DLiteProperty *) */
-#define DLITE_PROPS_DESCR(inst) (((DLiteInstance *)(inst))->meta->properties)
+#define DLITE_PROPS_DESCR(inst) (((DLiteInstance *)(inst))->meta->_properties)
 
 /** Expands to pointer to description of property `n` --> (DLiteProperty *) */
 #define DLITE_PROP_DESCR(inst, n) \
-  (((DLiteInstance *)(inst))->meta->properties + n)
+  (((DLiteInstance *)(inst))->meta->_properties + n)
 
 /** Expands to number of relations --> (size_t) */
-#define DLITE_NRELS(inst) (((DLiteInstance *)(inst))->meta->nrelations)
+#define DLITE_NRELS(inst) (((DLiteInstance *)(inst))->meta->_nrelations)
 
 /** Expands to pointer to array of relations --> (DLiteRelation *) */
 #define DLITE_RELS(inst)						\
   ((DLiteRelation *)((char *)(inst) +					\
-		     ((DLiteInstance *)(inst))->meta->reloffset))
+		     ((DLiteInstance *)(inst))->meta->_reloffset))
 
 /** Expands to pointer to relation `n` --> (DLiteRelation *) */
 #define DLITE_REL(inst, n) (DLITE_RELS(inst) + n)
 
 /** Expands to the offset of propoffsets memory section --> (size_t) */
 #define DLITE_PROPOFFSETSOFFSET(inst)                                   \
-  ((size_t)(((DLiteMeta *)inst)->meta->propdimindsoffset +              \
-            ((DLiteMeta *)inst)->nproperties * sizeof(size_t)))
+  ((size_t)(((DLiteMeta *)inst)->meta->_propdimindsoffset +             \
+            ((DLiteMeta *)inst)->_nproperties * sizeof(size_t)))
 
 /** Expands to the allocated size of a data or metadata instance
     --> (size_t) */
 #define DLITE_INSTANCE_SIZE(inst)                                       \
   ((dlite_instance_is_data((DLiteInstance *)inst)) ?                    \
-   (inst->meta->propdimindsoffset) :                                    \
-   (inst->meta->propdimindsoffset +                                     \
-    2 * (((DLiteMeta *)inst)->ndimensions) * sizeof(size_t)))
+   (inst->meta->_propdimindsoffset) :                                   \
+   (inst->meta->_propdimindsoffset +                                    \
+    2 * (((DLiteMeta *)inst)->_ndimensions) * sizeof(size_t)))
 
 /** Updates metadata for extended entities.
     `meta`: DLiteMeta
@@ -346,7 +346,7 @@ typedef struct _DLiteMeta {
 */
 #define DLITE_UPDATE_EXTENEDE_META(meta, type, firstdim)  \
   do {                                                    \
-    meta->headersize = offsetof(type, firstdim);          \
+    meta->_headersize = offsetof(type, firstdim);         \
     dlite_meta_init((DLiteMeta *)meta);                   \
   } while (0)
 

@@ -122,7 +122,7 @@ MU_TEST(test_collection_next)
   printf("\nInstances:\n");
   while ((inst = dlite_collection_next(coll, &state))) {
     printf("  %s (refcount=%d)\n", (inst->uri) ? inst->uri : inst->uuid,
-           inst->refcount);
+           inst->_refcount);
     ninst++;
   }
   dlite_collection_deinit_state(&state);

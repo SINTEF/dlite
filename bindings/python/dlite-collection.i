@@ -64,7 +64,7 @@ struct _DLiteCollection {
   %immutable;
   char uuid[DLITE_UUID_LENGTH+1];
   char *uri;
-  int refcount;
+  int _refcount;
 };
 
 %feature("docstring", "\

@@ -13,61 +13,77 @@
  * should instantiate the corresponding metadata using the c-source.txt
  * template.
  *
- * Common variables that should be set when using this template:
+ * Some optional variables used by this template:
  *
- *     meta.header
+ *     include
+ *         Custom header file to include.  This must be set if {name}
+ *         is extended.  This header should define the macro
+ *         `{name%M}ExtValues` with the values of the additional
+ *         fields.
+ *     header
  *         Name of corresponding header file generated with c-header.txt
- *     _headersize (optional)
- *         Header size for extended header.  Typically specified using
- *         offsetof().
- *     _init (optional)
- *         Name of init() function
- *     _deinit (optional)
- *         Name of deinit() function
+ *     meta_header
+ *         Name of corresponding header file generated with c-meta-header.txt
+ *     struct_name
+ *         Name of generated struct to be included from {name%u}_schema.h
+ *         Use the c-meta-header template for generating that file.
+ *     _init
+ *         Name of _init() function
+ *     _deinit
+ *         Name of _deinit() function
  */
+{@if: {isdata} }\
+{@error:Generating C code for data instances is currently not supported.}
+{@endif}\
 \
-{StructName={name}{@if: {ismeta} }Schema{@endif}\.}\
 {dim0={list_dimensions:{@if:{dim.i}=0}{dim.name}{@endif}\.}\.}\
 {prop0={list_properties:{@if:{prop.i}=0}{prop.name}{@endif}\.}\.}\
 \
+{@if: {basename?}=0 }\
+{basename={name%M}\.}\
+{@endif}\
+\
+{@if: {struct_name?}=0 }\
+{struct_name={basename}Schema}\
+{@endif}\
+\
+{@if: {header?}=0 }\
+{header={name%u}.h}\
+{@endif}\
+\
+{@if: {meta_header?}=0 }\
+{meta_header={name%u}_schema.h}\
+{@endif}\
+\
+\
 #include <stddef.h>
+\
+{@if: {include?} }\
 
+#include "{include}"
+{@endif}\
 
-/* Minimal set of typedefs in case we don't have dlite */
-#if defined(HAVE_DLITE)
-#include "dlite.h"
-#elif ! defined(DLITE_MINIMAL_DEFS)
-#define DLITE_MINIMAL_DEFS
-typedef enum {{dliteBlob, dliteBool, dliteInt, dliteUInt, dliteFloat,
-              dliteFixString, dliteStringPtr,
-                   dliteDimension, dliteProperty, dliteRelation}} DLiteType;
-typedef struct {{ char *name, *description; }} DLiteDimension;
-typedef struct {{
-  char *name;
-  DLiteType type;
-  size_t size;
-  int ndims;
-  char **dims, *unit, *iri, *description;
-}} DLiteProperty;
-typedef void DLiteInstance;
-#endif
-
+{@if: {ismeta} }\
 #include "{header}"
-#include "{meta.header}"
+{@endif}\
+#include "{meta_header}"
+#define {basename}Struct {struct_name}
 
 
-{@if:{ismeta}=1}
-static DLiteDimension {name}_dimensions[] = {{
-{list_meta_dimensions:  {{"{dim.name}", "{dim.descr}"}}{,}\n}\
+{@if: {ismeta} }\
+static DLiteDimension {name%u}_dimensions[] = {{
+{list_dimensions:  {{"{dim.name}", "{dim.descr}"}}{,}\n}\
 }};
-{list_meta_properties:\
+
+{list_properties:\
 {@if:{prop.ndims}!0}\
-static char *{basename}_prop_{prop.name}_dims[] = {{\
+static char *{name%u}_prop_{prop.name}_dims[] = {{\
 {prop.dims:"{dim.name}"{, }\.}\
 }};
 {@endif}\.}\
-static DLiteProperty {name}_properties[] = {{
-{list_meta_properties:  {{
+
+static DLiteProperty {name%u}_properties[] = {{
+{list_properties:  {{
     "{prop.name}", {@40}/* name */
     {prop.dtype},  {@40}/* type */
     {prop.size},   {@40}/* size */
@@ -75,7 +91,7 @@ static DLiteProperty {name}_properties[] = {{
 {@if:{prop.ndims}=0}\
     NULL,          {@40}/* dims */
 {@else}\
-    {basename}_prop_{prop.name}_dims, {@40}/* dims */
+    {name%u}_prop_{prop.name}_dims, {@40}/* dims */
 {@endif}\
 {@if:"{prop.unit}"}\
     "{prop.unit}", {@40}/* unit */
@@ -98,9 +114,9 @@ static DLiteProperty {name}_properties[] = {{
 {@endif}\
 
 
-static {StructName} {basename} = {{
+static {basename}Struct {name%u} = {{
 #ifdef HAVE_DLITE
-  /* -- header */
+  /* -- {basename}Struct_HEAD */
   "{_uuid}",  {@52}/* _uuid */
   "{_uri}",   {@52}/* _uri */
   1,                        {@52}/* _refcount */
@@ -111,23 +127,27 @@ static {StructName} {basename} = {{
   {_nproperties},           {@52}/* _nproperties */
   {_nrelations},            {@52}/* _nrelations */
 
-  {name}_dimensions,        {@52}/* _dimensions */
-  {name}_properties,        {@52}/* _properties */
+  {name%u}_dimensions,      {@52}/* _dimensions */
+  {name%u}_properties,      {@52}/* _properties */
   NULL,                     {@52}/* _relations */
 
-  offsetof({name}, {dim0}), {@52}/* _headersize */
+  offsetof({basename}, {dim0}), {@52}/* _headersize */
   {_init},                  {@52}/* _init */
   {_deinit},                {@52}/* _deinit */
 
   {_npropdims},             {@52}/* _npropdims */
-  {basename}.__propdiminds, {@52}/* _propdiminds */
+  {name%u}.__propdiminds,   {@52}/* _propdiminds */
 
   {_dimoffset},             {@52}/* _dimoffset */
-  {basename}.__propoffsets, {@52}/* _propoffsets */
+  {name%u}.__propoffsets,   {@52}/* _propoffsets */
   {_reloffset},             {@52}/* _reloffset */
   {_propdimsoffset},        {@52}/* _propdimsoffset */
   {_propdimindsoffset},     {@52}/* _propdimindsoffset */
 {@endif}\
+#endif
+
+#ifdef {basename}ExtValues
+{basename}ExtValues
 #endif
 
   /* -- length of each dimension */
@@ -140,14 +160,12 @@ static {StructName} {basename} = {{
 {list_meta_relations:  {{"{rel.s}", "{rel.p}", "{rel.o}", "{rel.id}"}}{,}\n}\
 
 #ifdef HAVE_DLITE
-  /* -- __propdims: evaluated values of property dimensions */
-  {{ {list_propdims:{propdim.n}{, }\.} }},
+  /* -- {basename}Struct_TAIL */
+  {{ {list_propdims:{propdim.n}{, }\.} }},{@52}/* __propdims */
 {@if:{ismeta}=1}\
-  /* -- __propdiminds: index of first dimension for each property in instance */
-  {{ {list_properties:{prop.dimind}{, }\.} }},
-  /* -- __propoffsets: memory offsets for each property in instance */
-  {{
-{list_properties:    offsetof({name}, {prop.name}){,}\n}\
+  {{ {list_properties:{prop.dimind}{, }\.} }},{@52}/* __propdiminds */
+  {{                        {@52}/* __propoffsets */
+{list_properties:    offsetof({basename}, {prop.name}){,}\n}\
   }}
 {@endif}\
 #endif
@@ -155,17 +173,23 @@ static {StructName} {basename} = {{
 
 
 /** Returns a pointer to hardcoded instance of {meta.name}. */
-const {StructName} *get_{basename}()
+const {basename}Struct *get_{name%u}()
 {{
-   {StructName} *inst = &{basename};
+   {basename}Struct *inst = &{name%u};
 #ifdef HAVE_DLITE
   static int initialized=0;
   if (!initialized) {{
     inst->meta = dlite_meta_get("{meta.uri}");
-    /* In case {name} is extended, we must recalculate all offsets
-       from _headersize */
-    //if (dlite_instance_is_meta((DLiteInstance *)inst))
-    // dlite_meta_init((DLiteMeta *)inst);
+{@if: {ismeta} }\
+
+    /* Should not be needed, but it doesn't hurt to re-initialise... */
+    dlite_meta_init((DLiteMeta *)inst);
+
+    /* Call _init(), if it is given */
+    if (((DLiteMeta *)inst)->_init)
+      ((DLiteMeta *)inst)->_init((DLiteInstance *)inst);
+{@endif}\
+
     initialized = 1;
   }}
 #endif

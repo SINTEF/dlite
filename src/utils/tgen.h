@@ -55,11 +55,17 @@
          - PREC is a positive integer denoting the maximum number of
            characters to write (not including padding).
          - CASE is a single character, with the following meaning:
-           - "s": no change in case
-           - "l": convert to lower case
-           - "U": convert to upper case
-           - "T": convert to title case (convert first character to
-                  upper case and the rest to lower case)
+           - 's': no change in case
+           - 'c': convert to lower case
+           - 'C': convert to upper case
+           - 'u': convert to underscore-separated lower case
+           - 'U': convert to underscore-separated upper case
+           - 'm': convert to lower mixedCase (aka camelCase)
+           - 'M': convert to upper MixedCase (aka CamelCase)
+           - 'i': convert to a valid C identifier (permissive)
+           - 'I': convert to a valid C identifier (strict)
+           - 'T': convert to title case (convert first character to upper case
+                  and the rest to lower case)
     - `TEMPL` is an optional template that may be used in
        nested calls.  It may contain embedded tags, as long
        as the opening and closing braces exactly match.
@@ -76,15 +82,13 @@
       tag with its output.  The function uses `TEMPL` as a
       (sub)template.
 
-
-  ### Existence tags
-  Existence tags are of the form
+  An alternative syntax is
   @code
 
       {VAR?}
 
   @endcode
-  and will be replaced with "1" if VAR is defined and "0" if var is
+  which will be replaced with "1" if VAR is defined and "0" if var is
   empty.  It is mainly intended to be used in conditionals.
 
 
@@ -350,19 +354,40 @@ int tgen_escaped_copy(char *dest, const char *src, int n);
 int tgen_setcase(char *s, int len, int casemode);
 
 /**
-  Converts camel case to lower case and underscores.
+  Returns a new malloc'ed copy of the `len` first bytes of `s` with
+  the case converted according to `casemod`.  If `len` is negative,
+  all of `s` is copied.
 
-  Returns a newly allocated string based on the substring of `s` with
-  length `len`. Camel case in `s` is in the returned string converted
-  to lower case and underscores.  On error, NULL is returned.
+  Valid values for `casemode` are:
+    - 's': no change in case
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
+    - 'i': convert to a valid C identifier (permissive)
+    - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
 
-  If `len` is negative, all of `s` is used.
+  Returns NULL on error.
 
   Examples:
-    "CamelCaseWord" -> "camel_case_word"
-    "A sentence with CamelCase" -> "a sentence with camel_case"
+    s: "AVery mixed_Sentense" -> "AVery mixed_Sentense"
+    c: "AVery mixed_Sentense" -> "avery mixed_sentense"
+    C: "AVery mixed_Sentense" -> "AVERY MIXED_SENTENCE"
+    u: "AVery mixed_Sentense" -> "a_very_mixed_sentense"
+    U: "AVery mixed_Sentense" -> "A_VERY_MIXED_SENTENCE"
+    m: "AVery mixed_Sentense" -> "aVeryMixedSentense"
+    M: "AVery mixed_Sentense" -> "AVeryMixedSentense"
+    T: "AVery mixed_Sentense" -> "Avery mixed_sentense"
+    i: "  n-Atoms  " -> "n_Atoms"
+    i: "  n+Atoms  " -> "n_Atoms"
+    I: "  n-Atoms  " -> "n_Atoms"
+    I: "  n+Atoms  " -> NULL
  */
-char *tgen_camel_to_underscore(const char *s, int len);
+char *tgen_convert_case(const char *s, int len, int casemode);
 
 
 /**
@@ -412,6 +437,25 @@ int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
   variable number of arguments.
  */
 int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
+
+/**
+  Like tgen_buf_append(), but converts the first `n` bytes of `src`
+  according to `casemode` before appending them to `s`.
+
+  Valid values for `casemode` are:
+    - 's': no change in case
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
+    - 'i': convert to a valid C identifier (permissive)
+    - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
+ */
+int tgen_buf_append_case(TGenBuf *s, const char *src, int n, int casemode);
 
 /**
   Removes the last `n` characters appended to buffer `s`.  If `n` is larger

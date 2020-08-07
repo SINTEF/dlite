@@ -323,6 +323,7 @@ if(CPPCHECK)
     NAME static-code-analysis
     COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
       --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+      -I${dlite_SOURCE_DIR}/src
     )
 endif()
 
