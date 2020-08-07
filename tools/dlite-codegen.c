@@ -35,6 +35,8 @@ void help()
     "  -o, --output=PATH            Output file.  Default is stdout.",
     "  -s, --storage-plugins=PATH   Additional paths to look for storage ",
     "                               plugins.  May be provided multiple times.",
+    "  -m, --metadata=URL           Additional metadata to load.  May be ",
+    "                               provided multiple times.",
     "  -t, --template-file=PATH     Template file to load.",
     "  -v, --variables=STRING       Assignment of additional variable(s).",
     "                               STRING is a semicolon-separated string of",
@@ -97,12 +99,13 @@ int main(int argc, char *argv[])
       {"native-typenames", 0, NULL, 'n'},
       {"output",           1, NULL, 'o'},
       {"storage-plugins",  1, NULL, 's'},
+      {"metadata",         1, NULL, 'm'},
       {"template-file",    1, NULL, 't'},
       {"variables",        1, NULL, 'v'},
       {"version",          0, NULL, 'V'},
       {NULL, 0, NULL, 0}
     };
-    int c = getopt_long(argc, argv, "bf:hno:s:t:v:V", longopts, &longindex);
+    int c = getopt_long(argc, argv, "bf:hno:s:m:t:v:V", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
     case 'b':  builtin = 1; break;
@@ -111,6 +114,7 @@ int main(int argc, char *argv[])
     case 'n':  dlite_codegen_use_native_typenames = 1; break;
     case 'o':  output = optarg; break;
     case 's':  dlite_storage_plugin_path_append(optarg); break;
+    case 'm':  dlite_instance_load_url(optarg); break;
     case 't':  template_file = optarg; break;
     case 'v':  tgen_buf_append_fmt(&variables, "%s;",optarg); break;
     case 'V':  printf("%s\n", dlite_VERSION); exit(0);

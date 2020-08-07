@@ -5,7 +5,7 @@
  * Template: c-meta-header.txt
  * Source:   {_uri}
  *
- * Declares the struct `{name}Schema` for metadata entity
+ * Declares the struct `{name%M}Schema` for metadata entity
  * {_uri}.
  *
  * It can be included and used in your project without any
@@ -15,23 +15,29 @@
  * However it is beneficial to use it together with the dlite library,
  * e.g. for letting dlite handle I/O.  In that case you should either
  * define the macro HAVE_DLITE or including "dlite.h" before including
- * this header.  Instances of `{name}` are valid dlite instances and
+ * this header.  Instances of `{name%M}` are valid dlite instances and
  * can safely be casted to `DLiteInstance`.
  *
- * It is also possible to extend the header of the {name}Schema
+ * It is also possible to extend the header of the {name%M}Schema
  * struct with custom fields.  It that case you should define the
- * macro {name}Schema_HEAD before including this header, like
+ * macro {name%M}Schema_HEAD before including this header, like
  *
- *     #define {name}Schema_HEAD {@40}\\
+ *     #define {name%M}Schema_HEAD {@40}\\
  *       DLiteInstance_HEAD      {@40}\\
  *       <my fields>...
  *
  *     #include "{name%u}.h"
  *
  * where <my fields> are any additional fields you want to add to
- * {name}.  If you do this, remember to update the metadata using
+ * {name%M}.  If you do this, remember to update the metadata using
  * the DLITE_UPDATE_EXTENEDE_META() macro before loading/creating any
  * instances.
+ *
+ * Some optional variables used by this template:
+ *
+ *     struct_name
+ *         The typedef'ed name of the generated struct. Default: {name%M}Schema
+ *
  */
 
 /**
@@ -42,7 +48,7 @@
 {@error:The template c-meta-header requires metadata as input}
 {@endif}\
 {@if: {struct_name?}=0 }\
-{struct_name={name}Schema}\
+{struct_name={name%M}Schema}\
 {@endif}\
 \
 #ifndef _{struct_name%U}_H
@@ -59,9 +65,11 @@
 #define {name%C}_URI       "{_uri}"
 #define {name%C}_UUID      "{_uuid}"
 #define {name%C}_IRI       "{_iri}"
+#ifndef {struct_name}_HEAD
 #define {name%C}_META_URI  "{meta.uri}"
 #define {name%C}_META_UUID "{meta.uuid}"
 #define {name%C}_META_IRI  "{meta.iri}"
+#endif
 #endif
 
 
@@ -93,7 +101,7 @@ typedef void DLiteInstance;
 #endif
 
 
-/** Final fields of the {name}Schema structure. */
+/** Final fields of the {struct_name} structure. */
 #ifdef HAVE_DLITE
 #define {struct_name}_TAIL {@78}\\
   size_t __propdims[{meta._npropdims}];{@30}/*!< property dimension values */{@78}\\

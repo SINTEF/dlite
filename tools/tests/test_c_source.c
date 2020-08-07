@@ -10,8 +10,8 @@ const ChemistrySchema *get_chemistry();
 
 int main()
 {
-  const DLiteInstance *chem = (DLiteInstance *)get_chemistry();
-  dlite_instance_print(chem);
+  const ChemistrySchema *chem = get_chemistry();
+  dlite_instance_print((DLiteInstance *)chem);
 
 
 

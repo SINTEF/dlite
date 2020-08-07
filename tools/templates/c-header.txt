@@ -5,7 +5,7 @@
  * Template: c-header.txt
  * Source:   {_uri}
  *
- * This file declares the struct `{name}` for a dlite data instance,
+ * This file declares the struct `{name%M}` for a dlite data instance,
  * with the dimensions and properties of the dlite metadata it was
  * generated from. It can be included and used in your project without
  * any dependencies (except for the header files boolean.h, integers.h
@@ -14,21 +14,21 @@
  * However it is beneficial to use it together with the dlite library,
  * e.g. for letting dlite handle I/O.  In that case you should either
  * define the macro HAVE_DLITE or including "dlite.h" before including
- * this header.  Instances of `{name}` are valid dlite instances and
+ * this header.  Instances of `{name%M}` are valid dlite instances and
  * can safely be casted to `DLiteInstance`.
  *
- * It is also possible to extend the header of the {name} struct with
+ * It is also possible to extend the header of the {name%M} struct with
  * custom fields.  It that case you should define the macro
- * {name}_HEAD before including this header, like
+ * {name%M}_HEAD before including this header, like
  *
- *     #define {name}_HEAD   {@40}\\
+ *     #define {name%M}_HEAD   {@40}\\
  *       DLiteInstance_HEAD  {@40}\\
  *       <my fields>...
  *
  *     #include "{name%u}.h"
  *
  * where <my fields> are any additional fields you want to add to
- * {name}.  If you do this, remember to update the metadata using
+ * {name%M}.  If you do this, remember to update the metadata using
  * the DLITE_UPDATE_EXTENEDE_META() macro before loading/creating any
  * instances.
  */
@@ -81,23 +81,23 @@ typedef void DLiteInstance;
 #endif
 
 
-/** Initial fields of the {name} structure. */
-#ifndef {name}_HEAD
-#define {name}_HEAD  DLiteInstance_HEAD
+/** Initial fields of the {name%M} structure. */
+#ifndef {name%M}_HEAD
+#define {name%M}_HEAD  DLiteInstance_HEAD
 #endif
 
 
-/** Final fields of the {name} structure. */
+/** Final fields of the {name%M} structure. */
 #ifdef HAVE_DLITE
-#define {name}_TAIL \\
+#define {name%M}_TAIL \\
   size_t __propdims[{_npropdims}];  {@30}/*!< property dimension values */
 #else
-#define {name}_TAIL
+#define {name%M}_TAIL
 #endif
 
 
-typedef struct _{name} {{
-  {name}_HEAD  {@30}/*!< Common head for all instances */
+typedef struct _{name%M} {{
+  {name%M}_HEAD  {@30}/*!< Common head for all instances */
 
   /* -- dimension values */
 {list_dimensions:  size_t {dim.name}; {@30}/*!< {dim.descr} */\n}
@@ -108,8 +108,8 @@ typedef struct _{name} {{
   DLiteRelation __relations[{_nrelations}];
 {@endif} \
 
-  {name}_TAIL
-}} {name};
+  {name%M}_TAIL
+}} {name%M};
 
 
 #endif /* _{name%U}_H */

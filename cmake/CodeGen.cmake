@@ -83,8 +83,8 @@ macro(codegen output template url)
       ${DLITE_CODEGEN}
         --output=${output}
         ${template_option}
-        ${ARGN}
         ${url}
+        ${ARGN}
     DEPENDS ${codegen_dependencies}
     COMMENT "Generate ${output}"
   )
