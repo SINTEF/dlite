@@ -55,18 +55,78 @@ MU_TEST(test_tgen_setcase)
   mu_check(tgen_setcase(s, -1, '\0'));
 }
 
-MU_TEST(test_tgen_camel_to_underscore)
+MU_TEST(test_tgen_convert_case)
 {
-  char *s;
-  s = tgen_camel_to_underscore("CamelCaseWord", -1);
-  mu_assert_string_eq("camel_case_word", s);
-  free(s);
+  char *p,  *s = "AVery mixed_Sentence: 1+2pi";
 
-  s = tgen_camel_to_underscore("A sentence with CamelCase", -1);
-  mu_assert_string_eq("a sentence with camel_case", s);
-  free(s);
+  mu_check((p = tgen_convert_case(s, -1, 's')));
+  mu_assert_string_eq("AVery mixed_Sentence: 1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'l')));
+  mu_assert_string_eq("avery mixed_sentence: 1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'U')));
+  mu_assert_string_eq("AVERY MIXED_SENTENCE: 1+2PI", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'n')));
+  mu_assert_string_eq("a_very_mixed_sentence:_1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'N')));
+  mu_assert_string_eq("A_VERY_MIXED_SENTENCE:_1+2PI", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'c')));
+  mu_assert_string_eq("aVeryMixedSentence:1+2Pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'C')));
+  mu_assert_string_eq("AVeryMixedSentence:1+2Pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'T')));
+  mu_assert_string_eq("Avery mixed_sentence: 1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'i')));
+  mu_assert_string_eq("AVery_mixed_Sentence__1_2pi", p);
+  free(p);
+
+  mu_check(!tgen_convert_case(s, -1, 'I'));
+
+  mu_check((p = tgen_convert_case("  n-Atoms  ", -1, 'i')));
+  mu_assert_string_eq("n_Atoms", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case("  n+Atoms  ", -1, 'i')));
+  mu_assert_string_eq("n_Atoms", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case("  n-Atoms  ", -1, 'I')));
+  mu_assert_string_eq("n_Atoms", p);
+  free(p);
+
+  mu_check(!tgen_convert_case("  n+Atoms  ", -1, 'I'));
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'n')));
+  mu_assert_string_eq("ab", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'n')));
+  mu_assert_string_eq("ab_cd_e", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'C')));
+  mu_assert_string_eq("Ab", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'C')));
+  mu_assert_string_eq("AbCdE", p);
+  free(p);
 }
-
 
 MU_TEST(test_tgen_buf_append)
 {
@@ -177,6 +237,7 @@ MU_TEST(test_tgen)
   tgen_subs_set(&subs, "name",  "Adam", NULL);
   tgen_subs_set(&subs, "zero",  "0",    NULL);
   tgen_subs_set(&subs, "empty", "",     NULL);
+  tgen_subs_set(&subs, "s",     "length is 5.5mm", NULL);
   tgen_subs_set(&subs, "f",     NULL,   tgen_append);
   tgen_subs_set(&subs, "f2",    "XX",   tgen_append);
   tgen_subs_set(&subs, "loop",  NULL,   loop);
@@ -233,12 +294,36 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("pi is 3.1", str);
   free(str);
 
+  str = tgen("pi is {pi%.3n}", &subs, NULL);
+  mu_assert_string_eq("pi is 3.1", str);
+  free(str);
+
   str = tgen("pi is {pi%-6.3T}...", &subs, NULL);
   mu_assert_string_eq("pi is 3.1   ...", str);
   free(str);
 
+  str = tgen("The name is {name%l}...", &subs, NULL);
+  mu_assert_string_eq("The name is adam...", str);
+  free(str);
+
   str = tgen("The name is {name%U}...", &subs, NULL);
   mu_assert_string_eq("The name is ADAM...", str);
+  free(str);
+
+  str = tgen("Answer: {s%n}", &subs, NULL);
+  mu_assert_string_eq("Answer: length_is_5.5mm", str);
+  free(str);
+
+  str = tgen("Answer: {s%N}", &subs, NULL);
+  mu_assert_string_eq("Answer: LENGTH_IS_5.5MM", str);
+  free(str);
+
+  str = tgen("Answer: {s%c}", &subs, NULL);
+  mu_assert_string_eq("Answer: lengthIs5.5Mm", str);
+  free(str);
+
+  str = tgen("Answer: {s%C}", &subs, NULL);
+  mu_assert_string_eq("Answer: LengthIs5.5Mm", str);
   free(str);
 
   str = tgen("func subst {f:YY}", &subs, NULL);
@@ -387,7 +472,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_tgen_escaped_copy);
   MU_RUN_TEST(test_tgen_setcase);
-  MU_RUN_TEST(test_tgen_camel_to_underscore);
+  MU_RUN_TEST(test_tgen_convert_case);
   MU_RUN_TEST(test_tgen_buf_append);
   MU_RUN_TEST(test_tgen_lineno);
   MU_RUN_TEST(test_tgen_subs);

@@ -52,7 +52,7 @@ MU_TEST(test_entity_load)
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((entity = dlite_meta_load(s, entity_uri)));
   mu_assert_int_eq(0, dlite_storage_close(s));
-  mu_assert_int_eq(2, entity->refcount);  /* global + inst_store */
+  mu_assert_int_eq(2, entity->_refcount);  /* global + inst_store */
 }
 
 MU_TEST(test_instance_load)
@@ -63,8 +63,8 @@ MU_TEST(test_instance_load)
   mu_check((inst = dlite_instance_load(s, inst_id)));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
-  mu_assert_int_eq(1, inst->refcount);    /* global */
-  mu_assert_int_eq(3, entity->refcount);  /* global + inst_store + inst */
+  mu_assert_int_eq(1, inst->_refcount);    /* global */
+  mu_assert_int_eq(3, entity->_refcount);  /* global + inst_store + inst */
 }
 
 MU_TEST(test_store_create)
@@ -77,42 +77,42 @@ MU_TEST(test_store_create)
 MU_TEST(test_store)
 {
   mu_assert_int_eq(0, dlite_store_add(store, (DLiteInstance *)entity));
-  mu_assert_int_eq(4, entity->refcount);  /* global+inst_store+inst+store */
+  mu_assert_int_eq(4, entity->_refcount);  /* global+inst_store+inst+store */
   mu_assert_int_eq(0, dlite_store_add(store, inst));
   mu_assert_int_eq(2, count_uuids(store));
-  mu_assert_int_eq(2, inst->refcount);    /* global+store */
-  mu_assert_int_eq(4, entity->refcount);  /* global+inst_store+inst+store */
+  mu_assert_int_eq(2, inst->_refcount);    /* global+store */
+  mu_assert_int_eq(4, entity->_refcount);  /* global+inst_store+inst+store */
 
   /* removing non-existing uuid */
   mu_check(dlite_store_remove(store, "invalid_uuid"));
   mu_assert_int_eq(2, count_uuids(store));
 
   /* adding same instance twice */
-  mu_assert_int_eq(2, inst->refcount);
+  mu_assert_int_eq(2, inst->_refcount);
   mu_assert_int_eq(0, dlite_store_add(store, inst));
   mu_assert_int_eq(2, count_uuids(store));
-  mu_assert_int_eq(3, inst->refcount);    /* global+2*store */
-  mu_assert_int_eq(4, entity->refcount);  /* global+inst_store+inst+store */
+  mu_assert_int_eq(3, inst->_refcount);    /* global+2*store */
+  mu_assert_int_eq(4, entity->_refcount);  /* global+inst_store+inst+store */
 
   /* Removing once a double-added instance should not decrease the count... */
   mu_assert_int_eq(0, dlite_store_remove(store, inst->uuid));
   mu_assert_int_eq(2, count_uuids(store));
-  mu_assert_int_eq(2, inst->refcount);    /* global+store */
+  mu_assert_int_eq(2, inst->_refcount);    /* global+store */
 
   /* ... but the second remove should */
   mu_assert_int_eq(0, dlite_store_remove(store, inst->uuid));
   mu_assert_int_eq(1, count_uuids(store));
-  mu_assert_int_eq(1, inst->refcount);    /* global */
+  mu_assert_int_eq(1, inst->_refcount);    /* global */
 
   /* add it again */
   mu_assert_int_eq(0, dlite_store_add(store, inst));
   mu_assert_int_eq(2, count_uuids(store));
-  mu_assert_int_eq(2, inst->refcount);    /* global+store */
+  mu_assert_int_eq(2, inst->_refcount);    /* global+store */
 
   /* remove the entity */
   mu_assert_int_eq(0, dlite_store_remove(store, entity->uuid));
   mu_assert_int_eq(1, count_uuids(store));
-  mu_assert_int_eq(3, entity->refcount);  /* global+inst_store+inst */
+  mu_assert_int_eq(3, entity->_refcount);  /* global+inst_store+inst */
 }
 
 
@@ -124,31 +124,31 @@ MU_TEST(test_save_and_load)
   mu_assert_int_eq(0, dlite_store_save(s, store));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
-  mu_assert_int_eq(2, inst->refcount);    /* global+store */
-  mu_assert_int_eq(3, entity->refcount);  /* global+inst_store+inst */
+  mu_assert_int_eq(2, inst->_refcount);    /* global+store */
+  mu_assert_int_eq(3, entity->_refcount);  /* global+inst_store+inst */
 }
 
 
 MU_TEST(test_store_free)
 {
-  mu_assert_int_eq(2, inst->refcount);    /* global + store */
+  mu_assert_int_eq(2, inst->_refcount);    /* global + store */
   dlite_store_free(store);
-  mu_assert_int_eq(1, inst->refcount);    /* global */
+  mu_assert_int_eq(1, inst->_refcount);    /* global */
 }
 
 MU_TEST(test_instance_free)
 {
-  mu_assert_int_eq(1, inst->refcount);    /* global */
-  mu_assert_int_eq(3, entity->refcount);  /* global + inst_store + inst */
+  mu_assert_int_eq(1, inst->_refcount);    /* global */
+  mu_assert_int_eq(3, entity->_refcount);  /* global + inst_store + inst */
 
   dlite_instance_decref(inst);
-  mu_assert_int_eq(2, entity->refcount);  /* global + inst_store */
+  mu_assert_int_eq(2, entity->_refcount);  /* global + inst_store */
 }
 
 MU_TEST(test_entity_free)
 {
   dlite_meta_decref(entity);
-  mu_assert_int_eq(1, entity->refcount);  /* global */
+  mu_assert_int_eq(1, entity->_refcount);  /* global */
 
   dlite_meta_decref(entity);
 }

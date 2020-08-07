@@ -911,11 +911,11 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   obj_t *obj=NULL;
 
   PyErr_Clear();
-  if (n < 0) n += inst->meta->nproperties;
-  if (n < 0 || n >= (int)inst->meta->nproperties)
+  if (n < 0) n += inst->meta->_nproperties;
+  if (n < 0 || n >= (int)inst->meta->_nproperties)
     return dlite_err(-1, "Property index is out or range: %d", i), NULL;
   ptr = DLITE_PROP(inst, n);
-  p = inst->meta->properties + n;
+  p = inst->meta->_properties + n;
   if (p->ndims == 0) {
     obj = dlite_swig_get_scalar(p->type, p->size, ptr);
   } else {
@@ -943,11 +943,11 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   DLiteProperty *p;
 
   PyErr_Clear();
-  if (n < 0) n += inst->meta->nproperties;
-  if (n < 0 || n >= (int)inst->meta->nproperties)
+  if (n < 0) n += inst->meta->_nproperties;
+  if (n < 0 || n >= (int)inst->meta->_nproperties)
     FAIL1("Property index is out or range: %d", i);
   ptr = DLITE_PROP(inst, n);
-  p = inst->meta->properties + n;
+  p = inst->meta->_properties + n;
 
 
   if (p->ndims == 0) {

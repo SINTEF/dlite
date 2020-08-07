@@ -4,7 +4,13 @@
 
 #include "dlite.h"
 
-#define CUSTOM_CHEMISTRY
+/* My extended header
+   Should be defined before including the generated chemistry.h */
+#define Chemistry_HEAD \
+  DLiteInstance_HEAD   \
+  char *id;            \
+  int x;
+
 #include "chemistry.h"
 
 #define STRINGIFY(s) _STRINGIFY(s)
@@ -14,11 +20,6 @@
 # pragma warning(disable: 4996)
 #endif
 
-typedef struct _Chemistry {
-  Chemistry_HEAD
-  int x;
-  Chemistry_TAIL
-} Chemistry;
 
 
 int main()
@@ -45,6 +46,7 @@ int main()
   /* Create instance */
   p = (Chemistry *)dlite_instance_create(chem, dims, "example-6xxx");
 
+  p->id = "myid";
   p->x = 42;
 
   p->alloy = strdup("Sample alloy...");
@@ -101,10 +103,10 @@ int main()
 
   assert(sizeof(Chemistry) == DLITE_INSTANCE_SIZE(p));
   assert(offsetof(Chemistry, x) == sizeof(DLiteInstance));
-  assert(offsetof(Chemistry, nelements) == chem->headersize);
-  assert(offsetof(Chemistry, alloy) == chem->propoffsets[0]);
-  assert(offsetof(Chemistry, atvol) == chem->propoffsets[7]);
-  assert(offsetof(Chemistry, __propdims) == chem->propdimsoffset);
+  assert(offsetof(Chemistry, nelements) == chem->_headersize);
+  assert(offsetof(Chemistry, alloy) == chem->_propoffsets[0]);
+  assert(offsetof(Chemistry, atvol) == chem->_propoffsets[7]);
+  assert(offsetof(Chemistry, __propdims) == chem->_propdimsoffset);
   assert(p->x == 42);
 
   /* Save instance */

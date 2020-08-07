@@ -17,20 +17,18 @@
  * this header.  Instances of `{name}` are valid dlite instances and
  * can safely be casted to `DLiteInstance`.
  *
- * It is also possible to define an extended metadata struct with
+ * It is also possible to extend the header of the {name} struct with
  * custom fields.  It that case you should define the macro
- * CUSTOM_{name%U} before including this header to suppress the
- * default definition of the struct `{name}`.  Instead you should
- * define it yourself, like
+ * {name}_HEAD before including this header, like
  *
- *     typedef struct _{name} {{
- *       {name}_HEAD
+ *     #define {name}_HEAD   {@40}\\
+ *       DLiteInstance_HEAD  {@40}\\
  *       <my fields>...
- *       {name}_TAIL
- *     }} {name};
  *
- * where <my fields> are any additional fields for internal data you
- * for {name}.  If you do this, remember to update the metadata using
+ *     #include "{name%n}.h"
+ *
+ * where <my fields> are any additional fields you want to add to
+ * {name}.  If you do this, remember to update the metadata using
  * the DLITE_UPDATE_EXTENEDE_META() macro before loading/creating any
  * instances.
  */
@@ -39,31 +37,32 @@
   @file
   @brief {descr}
 */
-{@if: {isdata} | {ismetameta} }
+{@if: {isdata} | {ismetameta} }\
 {@error:The template c-header requires ordinary metadata as input}
-{@endif}
-
-#ifndef _{name%U}_H
-#define _{name%U}_H
+{@endif}\
+#ifndef _{name%N}_H
+#define _{name%N}_H
 
 #include "utils/integers.h"
 #include "utils/boolean.h"
 #include "utils/floats.h"
 
+#ifndef {name%U}_NAME
 #define {name%U}_NAME      "{name}"
 #define {name%U}_VERSION   "{version}"
 #define {name%U}_NAMESPACE "{namespace}"
 #define {name%U}_URI       "{_uri}"
 #define {name%U}_UUID      "{_uuid}"
+#define {name%U}_IRI       "{_iri}"
 #define {name%U}_META_URI  "{meta.uri}"
 #define {name%U}_META_UUID "{meta.uuid}"
-#define {name%U}_IRI       "{_iri}"
+#define {name%U}_META_IRI  "{meta.iri}"
+#endif
 
-
-/* Minimal set of typedefs in case we don't have dlite */
-#if defined(HAVE_DLITE)
+/** Minimal set of needed definitions in case we don't have dlite */
+#if defined HAVE_DLITE
 #include "dlite.h"
-#elif ! defined(DLITE_MINIMAL_DEFS)
+#elif !defined DLITE_MINIMAL_DEFS
 #define DLITE_MINIMAL_DEFS
 typedef enum {{dliteBlob, dliteBool, dliteInt, dliteUInt, dliteFloat,
               dliteFixString, dliteStringPtr,
@@ -77,67 +76,40 @@ typedef struct {{
   char **dims, *unit, *iri, *description;
 }} DLiteProperty;
 typedef void DLiteInstance;
+#define DLiteInstance_HEAD
+#define DLiteMeta_HEAD
 #endif
 
 
+/** Initial fields of the {name} structure. */
+#ifndef {name}_HEAD
+#define {name}_HEAD  DLiteInstance_HEAD
+#endif
+
+
+/** Final fields of the {name} structure. */
 #ifdef HAVE_DLITE
-/* FIXME - reuse DLiteInstance_HEAD/DLiteMeta_HEAD instead of redefining */
-{@if: {ismetameta} }\
-//# define {name}_HEAD DLiteMeta_HEAD
-{@else}\
-//# define {name}_HEAD DLiteInstance_HEAD
-{@endif}\
-#define {name}_HEAD  {@40}\\
-  /* -- header */                       \\
-  char _uuid[36+1];                     \\
-  const char *_uri;                     \\
-  size_t _refcount;                     \\
-  const DLiteMeta *meta;                \\
-  const char *_iri;
-#else
-# define {name}_HEAD
-#endif
-
-
-#define {name}_VALUES              {@78}\\
-  /* -- dimension values */        {@78}\\
-{list_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */{@78}\\\n} {@78}\\
-  /* -- property values */         {@78}\\
-{list_properties:  {prop.cdecl}; {@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */{@78}\\\n} \
-{@if: {_nrelations} }              {@78}\\
-  /* -- relation values */         {@78}\\
-  DLiteRelation __relations[{_nrelations}];
-{@endif} \
-
-
-#ifdef HAVE_DLITE
-#define {name}_ENDTAIL \\
-  /* -- __propdims: property dimension values */ \\
-  size_t __propdims[{_npropdims}];
-#else
-#define {name}_ENDTAIL
-#endif
-
-
 #define {name}_TAIL \\
-  {name}_VALUES {name}_ENDTAIL
+  size_t __propdims[{_npropdims}];  {@30}/*!< property dimension values */
+#else
+#define {name}_TAIL
+#endif
 
 
-#ifndef CUSTOM_{name%U}
 typedef struct _{name} {{
-  {name}_HEAD
+  {name}_HEAD  {@30}/*!< Common head for all instances */
 
   /* -- dimension values */
-{list_dimensions:  size_t {dim.name}; {@30}/* {dim.descr} */\n}
+{list_dimensions:  size_t {dim.name}; {@30}/*!< {dim.descr} */\n}
   /* -- property values */
-{list_properties:  {prop.cdecl}; {@30}/* {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */\n} \
+{list_properties:  {prop.cdecl}; {@30}/*!< {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */\n} \
 {@if:{_nrelations}!0}
   /* -- relation values */
   DLiteRelation __relations[{_nrelations}];
 {@endif} \
 
- {name}_ENDTAIL
+  {name}_TAIL
 }} {name};
-#endif
 
-#endif /* _{name%U}_H */
+
+#endif /* _{name%N}_H */
