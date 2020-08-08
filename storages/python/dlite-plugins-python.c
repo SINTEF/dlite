@@ -246,6 +246,11 @@ int iterNext(void *iter, char *buf)
 }
 
 
+void freeapi(PluginAPI *api)
+{
+  printf("*** Free python api: %p\n", (void *)api);
+}
+
 
 /*
   Returns API provided by storage plugin `name` implemented in Python.
@@ -319,6 +324,7 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
     FAIL("allocation failure");
 
   api->name = strdup(PyUnicode_AsUTF8(name));
+  api->freeapi = freeapi;
   api->open = opener;
   api->close = closer;
   if (queue) {

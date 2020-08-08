@@ -94,7 +94,7 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_register_api(info, api);
+  return plugin_register_api(info, (const PluginAPI *)api);
 }
 
 /*

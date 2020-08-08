@@ -79,18 +79,25 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
 
 
 /*
-  Free's plugin info.
+  Free's plugin info and all corresponding APIs.
  */
 void plugin_info_free(PluginInfo *info)
 {
   map_iter_t iter;
-  const char *path;
+  const char *path, *name;
 
   free((char *)info->kind);
   free((char *)info->symbol);
   if (info->envvar) free((char *)info->envvar);
   fu_paths_deinit(&info->paths);
 
+  iter = map_iter(&info->apis);
+  while ((name = map_next(&info->apis, &iter))) {
+    PluginAPI **p = map_get(&info->apis, name);
+    PluginAPI *api = *p;
+    assert(api);
+    if (api->freeapi) api->freeapi(api);
+  }
   iter = map_iter(&info->plugins);
   while ((path = map_next(&info->plugins, &iter))) {
     Plugin **p = map_get(&info->plugins, path);
@@ -110,13 +117,13 @@ void plugin_info_free(PluginInfo *info)
 
   Returns non-zero on error.
  */
-static int register_api(PluginInfo *info, const void *api,
+static int register_api(PluginInfo *info, const PluginAPI *api,
 			   const char *path, dsl_handle handle)
 {
-  char *name;
-  Plugin *plugin=NULL;
+  char *name = api->name;
+  Plugin *plugin = NULL;
   assert(api);
-  name = *((char **)api);
+  //name = *((char **)api);
 
   if (map_get(&info->apis, name))
     return errx(1, "api already registered: %s", name);
@@ -151,7 +158,7 @@ static int register_api(PluginInfo *info, const void *api,
 /*
   Registers `api` into `info`.  Returns non-zero on error.
  */
-int plugin_register_api(PluginInfo *info, const void *api)
+int plugin_register_api(PluginInfo *info, const PluginAPI *api)
 {
   return register_api(info, api, NULL, NULL);
 }
@@ -171,15 +178,16 @@ int plugin_register_api(PluginInfo *info, const void *api)
 
   Returns a pointer to the plugin API or NULL on error.
  */
-const void *plugin_load(PluginInfo *info, const char *name,
-                        const char *pattern, int emit_err)
+const PluginAPI *plugin_load(PluginInfo *info, const char *name,
+                             const char *pattern, int emit_err)
 {
   FUIter *iter=NULL;
   const char *filepath;
   dsl_handle handle=NULL;
   void *sym=NULL;
   PluginFunc func;
-  const void *api=NULL, *loaded_api=NULL, *retval=NULL;
+  PluginAPI *api=NULL;
+  const void *loaded_api=NULL, *retval=NULL;
 
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
@@ -206,7 +214,7 @@ const void *plugin_load(PluginInfo *info, const char *name,
        pointer to function pointer */
     *(void **)(&func) = sym;
 
-    while ((api = func(&iter1))) {
+    while ((api = (PluginAPI *)func(&iter1))) {
       char *apiname = *((char **)api);
       if (!map_get(&info->apis, apiname)) {  /* not plugin with this name */
         loaded_api = api;
@@ -255,15 +263,15 @@ const void *plugin_load(PluginInfo *info, const char *name,
 
   Otherwise NULL is returned.
  */
-const void *plugin_get_api(PluginInfo *info, const char *name)
+const PluginAPI *plugin_get_api(PluginInfo *info, const char *name)
 {
-  const void *api=NULL;
+  const PluginAPI *api=NULL;
+  PluginAPI **p;
   char *pattern=NULL;
-  void **p;
 
   /* Check already registered apis */
   if ((p = map_get(&info->apis, name)))
-    return (const void *)*p;
+    return (const PluginAPI *)*p;
 
   /* Load plugin from search path */
   if (!(pattern = malloc(strlen(name) + strlen(DSL_EXT) + 1)))
@@ -310,9 +318,9 @@ void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
   Used for iterating over plugins.  Plugins should not be registered
   or removed while iterating.
  */
-const void *plugin_api_iter_next(PluginIter *iter)
+const PluginAPI *plugin_api_iter_next(PluginIter *iter)
 {
-  void **p, *api;
+  PluginAPI **p, *api;
   PluginInfo *info = (PluginInfo *)iter->info;
   const char *name = map_next(&info->apis, &iter->miter);
   if (!name) return NULL;
@@ -330,9 +338,12 @@ int plugin_unload(PluginInfo *info, const char *name)
 {
   char **ppath;
   char *pname = strdup(name);
+  PluginAPI **apip, *api;
   int retval = 1;
-  if (!map_get(&info->apis, pname))
+  if (!(apip = map_get(&info->apis, pname)))
     FAIL1("cannot unload api: %s", pname);
+  api = *apip;
+  if (api->freeapi) api->freeapi(api);
   if ((ppath = map_get(&info->pluginpaths, pname))) {
     Plugin **p;
     assert(*ppath);

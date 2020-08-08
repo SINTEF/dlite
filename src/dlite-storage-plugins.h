@@ -35,6 +35,7 @@
 */
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
+#include "utils/plugin.h"
 
 #include "dlite-datamodel.h"
 #include "dlite-storage.h"
@@ -451,7 +452,7 @@ typedef void (*DriverFreer)(DLiteStoragePlugin *api);
   DLiteStoragePlugin.
 */
 struct _DLiteStoragePlugin {
-  const char *       name;             /*!< Name of plugin */
+  PluginAPI_HEAD
 
   /* Basic API (required) */
   Open               open;             /*!< Open storage */

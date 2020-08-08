@@ -196,11 +196,12 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
 /*
   Free's internal resources in `api`.
 */
-static void freer(DLiteMappingPlugin *api)
+static void freeapi(PluginAPI *api)
 {
-  free(api->input_uris);
-  Py_XDECREF(api->data);
-  free(api);
+  DLiteMappingPlugin *p = (DLiteMappingPlugin *)api;
+  free(p->input_uris);
+  Py_XDECREF(p->data);
+  free(p);
 }
 
 
@@ -272,12 +273,12 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   if (!(api = calloc(1, sizeof(DLiteMappingPlugin))))
     FAIL("allocation failure");
 
-  api->name = PyUnicode_AsUTF8(name);
+  api->name = (char *)PyUnicode_AsUTF8(name);
+  api->freeapi = freeapi;
   api->output_uri = PyUnicode_AsUTF8(out_uri);
   api->ninput = PySequence_Length(in_uris);
   api->input_uris = input_uris;
   api->mapper = mapper;
-  api->freer = freer;
   api->cost = cost;
   api->data = (void *)cls;
   Py_INCREF(cls);
