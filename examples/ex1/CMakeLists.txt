@@ -10,11 +10,11 @@ find_package(dlite REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake)
 
-include(CodeGen)
+include(dliteCodeGen)
 
 add_compile_options("-DDLITE_ROOT=${DLITE_ROOT}")
 
-codegen(
+dlite_codegen(
   chemistry.h
   c-header
   json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json?mode=r

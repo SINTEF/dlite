@@ -14,9 +14,9 @@ set(CMAKE_MODULE_PATH
 include(Finddlite)
 find_package(dlite)
 
-include(CodeGen)
+include(dliteCodeGen)
 
-codegen(
+dlite_codegen(
   philibtable.h
   c-header
   json:${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json?mode=r
