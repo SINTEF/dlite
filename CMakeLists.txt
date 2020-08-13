@@ -110,7 +110,7 @@ set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 COMPONENTS C)
+  find_package(HDF5 1.10.4 COMPONENTS C)
   if(NOT HDF5_FOUND)
     if(NOT BUILD_HDF5)
       message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")

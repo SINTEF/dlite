@@ -120,10 +120,9 @@ static const OpInfo *get_opinfo(Operator op)
    Variables must be valid C identifiers. */
 static const InfixCalcVariable *get_variable(const char *str,
                                              const InfixCalcVariable *vars,
-                                             int nvars)
+                                             size_t nvars)
 {
-  int i;
-  size_t n=0;
+  size_t i, n=0;
 
   if (!vars) return NULL;
 
@@ -194,7 +193,7 @@ static int binary_eval(Operator op, int arg1, int arg2)
    On error, -1 is returned.
 */
 static int parse_token(const char *str, TokenValue *val,
-                       const InfixCalcVariable *vars, int nvars)
+                       const InfixCalcVariable *vars, size_t nvars)
 {
   const OpInfo *opinfo;
   const InfixCalcVariable *var;
@@ -204,7 +203,7 @@ static int parse_token(const char *str, TokenValue *val,
     char *endptr;
     val->type = typeVal;
     val->u.val = strtol(str, &endptr, 0);
-    return endptr - str;
+    return (int)(endptr - str);
 
   } else if ((opinfo = get_opinfo(str[0]))) {
     val->type = typeOp;
@@ -214,7 +213,7 @@ static int parse_token(const char *str, TokenValue *val,
   } else if ((var = get_variable(str, vars, nvars))) {
     val->type = typeVal;
     val->u.val = var->value;
-    return strlen(var->name);
+    return (int)strlen(var->name);
   }
 
   return -1;
@@ -224,7 +223,7 @@ static int parse_token(const char *str, TokenValue *val,
   `vstack` and and push the result back onto `vstack`.
 
   Returns non-zero on error and write an message to `err`. */
-static int eval(Operator op, Stack *vstack, char *err, int errlen)
+static int eval(Operator op, Stack *vstack, char *err, size_t errlen)
 {
   const OpInfo *opinfo = get_opinfo(op);
   int value;

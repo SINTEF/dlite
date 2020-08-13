@@ -39,42 +39,47 @@ fi
 #
 # Build and install jansson
 #
-cd "$ROOT_PATH"
-if [ ! -d jansson ]; then
-    git clone https://github.com/akheron/jansson.git
+if [ ! -f $INSTALL_PREFIX/lib/jansson.lib ]; then
+    cd "$ROOT_PATH"
+    if [ ! -d jansson ]; then
+        git clone https://github.com/akheron/jansson.git
+    fi
+    cd jansson
+    mkdir -p build && cd build
+    cmake \
+        -G "$GENERATOR" \
+        -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX \
+        -DJANSSON_BUILD_SHARED_LIBS=OFF \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DJANSSON_BUILD_DOCS=OFF \
+        ..
+    cmake --build . --config Debug --target install
+    cmake --build . --config Release --target install
 fi
-cd jansson
-mkdir -p build && cd build
-cmake \
-    -G "$GENERATOR" \
-    -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX \
-    -DJANSSON_BUILD_SHARED_LIBS=OFF \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-    -DJANSSON_BUILD_DOCS=OFF \
-    ..
-cmake --build . --config Debug --target install
-cmake --build . --config Release --target install
 #
 # Build and install hdf5
 #
-cd $ROOT_PATH
-if [ ! -d hdf5-$HDF5_VERSION ]; then
-    TARFILE=hdf5-$HDF5_VERSION.tar.gz
-    if [ ! -f $TARFILE ]; then
-        curl https://support.hdfgroup.org/ftp/HDF5/current/src/$TARFILE --output $TARFILE
+if [ ! -f $INSTALL_PREFIX/lib/libhdf5.lib ]; then
+    cd $ROOT_PATH
+    if [ ! -d hdf5-$HDF5_VERSION ]; then
+        TARFILE=hdf5-$HDF5_VERSION.tar.gz
+        if [ ! -f $TARFILE ]; then
+            curl https://support.hdfgroup.org/ftp/HDF5/current/src/$TARFILE \
+                 --output $TARFILE
+        fi
+        tar -zxvf $TARFILE
     fi
-    tar -zxvf $TARFILE
+    cd hdf5-$HDF5_VERSION
+    mkdir -p build && cd build
+    cmake \
+        -G "$GENERATOR" \
+        -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DBUILD_SHARED_LIBS=OFF \
+        ..
+    cmake --build . --config Debug --target install
+    cmake --build . --config Release --target install
 fi
-cd hdf5-$HDF5_VERSION
-mkdir -p build && cd build
-cmake \
-    -G "$GENERATOR" \
-    -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-    -DBUILD_SHARED_LIBS=OFF \
-    ..
-cmake --build . --config Debug --target install
-cmake --build . --config Release --target install
 #
 # Configure and generate dlite project
 #
@@ -86,6 +91,12 @@ cmake \
     -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -DHDF5_DIR=$INSTALL_PREFIX/cmake/hdf5 \
+    -DHDF5_ROOT=$INSTALL_PREFIX
     ..
-cmake --build . --config Debug
 cmake --build . --config Release
+
+
+
+# Build in Debug mode doesn't work since we then will try to link to
+# python37_d.lib which doesn't exists
+#cmake --build . --config Debug
