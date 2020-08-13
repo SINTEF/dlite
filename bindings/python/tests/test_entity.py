@@ -81,8 +81,9 @@ dim = Dimension('N')
 prop = Property("a", type='float')
 
 # FIXME - property dimensions should be strings!
-prop2 = Property("b", type='string10', dims=[2, 3, 4],
+prop2 = Property("b", type='string10', dims=['I', 'J', 'K'],
                  description='something enlightening...')
+assert any(prop2.dims)
 
 props = myentity['properties']
 props[0]
@@ -97,7 +98,7 @@ e2 = Instance(
     'http://meta.sintef.no/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
     [Property('name', type='string', description='Name of something.'),
-     Property('arr', type='int', dims=[0], description='An array.'),
+     Property('arr', type='int', dims=['N+2'], description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
 

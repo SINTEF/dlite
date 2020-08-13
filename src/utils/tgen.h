@@ -10,6 +10,7 @@
   @file
   @brief Simple templated text generator
 
+
   ### Introduction
   The main function in this library is tgen(). It takes a template and
   a list of substitutions and produces a new document.
@@ -31,11 +32,12 @@
         - Jack Daniel lives in USA
         - Fritjof Nansen lives in Norway
 
+
   ### Variable tags
   A pair of braces, "{" and "}", that encloses a string is a *tag*.
   When the template is processed, the tags are replaced with new
-  content according to the substitutions.  The general form for a tag
-  is:
+  content according to the substitutions.  The general form for a
+  variable tag is:
 
       {VAR%FMT:TEMPL}
 
@@ -53,11 +55,17 @@
          - PREC is a positive integer denoting the maximum number of
            characters to write (not including padding).
          - CASE is a single character, with the following meaning:
-           - "s": no change in case
-           - "l": convert to lower case
-           - "U": convert to upper case
-           - "T": convert to title case (convert first character to
-                  upper case and the rest to lower case)
+           - 's': no change in case
+           - 'c': convert to lower case
+           - 'C': convert to upper case
+           - 'u': convert to underscore-separated lower case
+           - 'U': convert to underscore-separated upper case
+           - 'm': convert to lower mixedCase (aka camelCase)
+           - 'M': convert to upper MixedCase (aka CamelCase)
+           - 'i': convert to a valid C identifier (permissive)
+           - 'I': convert to a valid C identifier (strict)
+           - 'T': convert to title case (convert first character to upper case
+                  and the rest to lower case)
     - `TEMPL` is an optional template that may be used in
        nested calls.  It may contain embedded tags, as long
        as the opening and closing braces exactly match.
@@ -74,6 +82,27 @@
       tag with its output.  The function uses `TEMPL` as a
       (sub)template.
 
+  An alternative syntax is
+  @code
+
+      {VAR?}
+
+  @endcode
+  which will be replaced with "1" if VAR is defined and "0" if var is
+  empty.  It is mainly intended to be used in conditionals.
+
+
+  ### Assignment tags
+  Assignment tags has the form
+  @code
+
+      {VAR=VALUE}
+
+  @endcode
+  and will assign variable VAR to VALUE overriding a possible previous
+  value.  It is replaced with the empty string.
+
+
   ### Conditional tags
   Conditionals are a special form of tags with the following syntax:
   @code
@@ -88,12 +117,50 @@
 
   @endcode
   The `elif` and `else` tags are optional and there may be
-  multiple `elif` tags.  COND is the condition and is currently
-  very simple, only including the three forms:
-    - "str1==str2": true if `str1` equals `str2`
-    - "str1!=str2": true if `str1` does not equals `str2`
-    - "str": true if `str` is non-empty
-  Variable expansion is performed before COND is evaluated.
+  multiple `elif` tags.
+
+  If `COND` takes one of the forms
+      'string'               true if non-empty, false otherwise
+      'string1' = 'string2'  true if the strings are equal
+      'string1' ! 'string2'  true if the strings are not equal
+  it is evaluated as a string expressions, where the strings must be
+  quoted with either single (') or double (") quotes (quotes within
+  the strings may be escaped with backslash).
+
+  Otherwise `COND` is evaluated using infixcalc(), which supports
+  integer arithmetic and the following binary operators:
+      |  logical or
+      &  logical and
+      =  logical equal
+      !  logical not equal
+      >  logical greather than
+      <  logical smaller than
+      +  plus
+      -  minus
+      *  times
+      /  division
+      %  modulus
+      ^  power
+  in addition to parenthesis.
+
+  Note that unary minus and plus are not supported.  Hence,
+  an expression like "-3" is invalid (if needed, it can be rewritten
+  as "0-3").
+
+  Variable expansion is performed before `COND` is evaluated.
+
+
+  ### Expression tags
+  Expression tags has the form
+  @code
+
+      {@eval:EXPR}
+
+  @endcode
+  and will replace `EXPR` with its evaluated value using integer
+  arithmetics with infixcalc().  See the [Conditional tags](#conditional-tags)
+  for limitations.
+
 
   ### Alignment tags
   Alignment are tags of the form
@@ -107,6 +174,28 @@
   (that is `N` characters after the last newline).  If the alignment
   tag it placed after column `N`, no output will be produced.
 
+
+  ### Error tags
+  A template can signal errors like invalid variables or wrong use with
+  the construct
+  @code
+
+      {@error:message}
+
+  @endcode
+  This will make tgen fail with a TgenUserError with the provided message.
+
+
+  ### Comment tags
+  Comments that will not be visible in the output can be added by starting
+  a tag with ": ", like
+  @code
+
+      {: My comment... }
+
+  @endcode
+
+
   ### Literal braces and escapes
   Literal braces may be included in the template and the `TEMPL`
   section, if they are escaped according the following table:
@@ -116,6 +205,7 @@
   `{{`            | `{`    | literal start brace
   `}}`            | `}`    | literal end brace
   `{}`            | `}`    | only use this if `TEMPL` ends with a `}`
+  `\.'            | ``     | noop escape, may be used instead of `{}`
 
   Furthermore are normal C escape sequences (`\a`, `\b`, `\f`, `\n`,
   `\r`, `\t`, `\v` and `\\`) supported as well as line-continuation by
@@ -153,13 +243,14 @@
 */
 enum {
   TGenOk=0,
-  TGenAllocationError=2020,
-  TGenSyntaxError,
-  TGenIOError,
-  TGenVariableError,
-  TGenSubtemplateError,
-  TGenMapError,
-  TGenFormatError,
+  TGenAllocationError=2020,  /*!< Allocation error */
+  TGenSyntaxError,           /*!< Syntax error */
+  TGenIOError,               /*!< Input/output error */
+  TGenVariableError,         /*!< Invalid variable name */
+  TGenSubtemplateError,      /*!< Missing subtemplate */
+  TGenMapError,              /*!< Error from the map library */
+  TGenFormatError,           /*!< Invalid format specifier */
+  TGenUserError,             /*!< Triggered by the {\@error:...} construct */
 };
 
 
@@ -207,7 +298,7 @@ typedef struct _TGenSubs {
   Returns non-zero on error.
 */
 typedef int (*TGenFun)(TGenBuf *s, const char *template, int len,
-                       const TGenSubs *subs, void *context);
+                       TGenSubs *subs, void *context);
 
 
 
@@ -263,19 +354,40 @@ int tgen_escaped_copy(char *dest, const char *src, int n);
 int tgen_setcase(char *s, int len, int casemode);
 
 /**
-  Converts camel case to lower case and underscores.
+  Returns a new malloc'ed copy of the `len` first bytes of `s` with
+  the case converted according to `casemod`.  If `len` is negative,
+  all of `s` is copied.
 
-  Returns a newly allocated string based on the substring of `s` with
-  length `len`. Camel case in `s` is in the returned string converted
-  to lower case and underscores.  On error, NULL is returned.
+  Valid values for `casemode` are:
+    - 's': no change in case
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
+    - 'i': convert to a valid C identifier (permissive)
+    - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
 
-  If `len` is negative, all of `s` is used.
+  Returns NULL on error.
 
   Examples:
-    "CamelCaseWord" -> "camel_case_word"
-    "A sentence with CamelCase" -> "a sentence with camel_case"
+    s: "AVery mixed_Sentense" -> "AVery mixed_Sentense"
+    c: "AVery mixed_Sentense" -> "avery mixed_sentense"
+    C: "AVery mixed_Sentense" -> "AVERY MIXED_SENTENCE"
+    u: "AVery mixed_Sentense" -> "a_very_mixed_sentense"
+    U: "AVery mixed_Sentense" -> "A_VERY_MIXED_SENTENCE"
+    m: "AVery mixed_Sentense" -> "aVeryMixedSentense"
+    M: "AVery mixed_Sentense" -> "AVeryMixedSentense"
+    T: "AVery mixed_Sentense" -> "Avery mixed_sentense"
+    i: "  n-Atoms  " -> "n_Atoms"
+    i: "  n+Atoms  " -> "n_Atoms"
+    I: "  n-Atoms  " -> "n_Atoms"
+    I: "  n+Atoms  " -> NULL
  */
-char *tgen_camel_to_underscore(const char *s, int len);
+char *tgen_convert_case(const char *s, int len, int casemode);
 
 
 /**
@@ -325,6 +437,25 @@ int tgen_buf_append_fmt(TGenBuf *s, const char *fmt, ...);
   variable number of arguments.
  */
 int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap);
+
+/**
+  Like tgen_buf_append(), but converts the first `n` bytes of `src`
+  according to `casemode` before appending them to `s`.
+
+  Valid values for `casemode` are:
+    - 's': no change in case
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
+    - 'i': convert to a valid C identifier (permissive)
+    - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
+ */
+int tgen_buf_append_case(TGenBuf *s, const char *src, int n, int casemode);
 
 /**
   Removes the last `n` characters appended to buffer `s`.  If `n` is larger
@@ -474,7 +605,7 @@ int tgen_subs_copy(TGenSubs *dest, const TGenSubs *src);
 
   Returns NULL, on error.
  */
-char *tgen(const char *template, const TGenSubs *subs, void *context);
+char *tgen(const char *template, TGenSubs *subs, void *context);
 
 
 /**
@@ -484,7 +615,7 @@ char *tgen(const char *template, const TGenSubs *subs, void *context);
   Returns non-zero on error.
  */
 int tgen_append(TGenBuf *s, const char *template, int len,
-                const TGenSubs *subs, void *context);
+                TGenSubs *subs, void *context);
 
 /** @} */
 

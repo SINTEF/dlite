@@ -6,7 +6,7 @@ cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 project(dlite
-  VERSION 0.2.2
+  VERSION 0.2.3
   #DESCRIPTION "Lightweight library for working with scientific data"
   LANGUAGES C
   )
@@ -323,6 +323,7 @@ if(CPPCHECK)
     NAME static-code-analysis
     COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
       --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+      -I${dlite_SOURCE_DIR}/src
     )
 endif()
 
@@ -542,7 +543,7 @@ configure_package_config_file(
 install(
   FILES
     README.md
-    LICENSE.txt
+    LICENSE
   DESTINATION share/dlite
   )
 
@@ -555,5 +556,6 @@ install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
+    "${dlite_SOURCE_DIR}/cmake/CodeGen.cmake"
   DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   )

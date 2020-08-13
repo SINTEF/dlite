@@ -19,7 +19,7 @@ add_custom_command(
     LD_LIBRARY_PATH="${DLITE_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH}"
     DLITE_STORAGE_PLUGIN_DIRS="${DLITE_STORAGE_PLUGIN_DIRS}"
     ${DLITE_ROOT}/bin/dlite-codegen
-    --format c-header
+    --format c-data-header
     --output chemistry.h
     --storage-plugins "${DLITE_STORAGE_PLUGIN_DIRS}"
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json?mode=r

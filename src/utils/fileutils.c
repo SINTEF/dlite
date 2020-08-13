@@ -307,6 +307,25 @@ char *fu_realpath(const char *path, char *resolved_path)
     }
   }
   free(buf);
+  /*
+#ifdef HAVE_GetFullPathNameW
+  int n, size=MAX_PATH;
+  if (!resolved_path) size=0;
+  if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
+    return err(fu_PathError, "cannot resolve canonical path for '%s'",
+               path), NULL;
+  if (!resolved_path) {
+    size = n + 1;
+    if (!(resolved_path = malloc(size)))
+      return err(1, "allocation failure"), NULL;
+    if (n = GetFullPathNameW(path, size, resolved_path, NULL) == 0)
+      return err(fu_PathError, "cannot resolve canonical path for '%s'",
+                 path), NULL;
+  }
+  if (n > size)
+    return err(fu_PathError, "cannot create large enough buffer for "
+               "canonicalize '%s' (limited to MAX_PATH=%d)", path, MAX_PATH);
+  */
   return resolved_path;
 
  fail:
@@ -337,7 +356,8 @@ FUDir *fu_opendir(const char *path)
 {
   FUDir *dir;
   if (!(dir = (FUDir *)opendir(path)))
-    return err(1, "cannot open directory \"%s\"", path), NULL;
+    return err(fu_OpenDirectoryError, "cannot open directory \"%s\"",
+               path), NULL;
   return dir;
 }
 
@@ -573,7 +593,14 @@ const char *fu_nextmatch(FUIter *iter)
     if (!iter->dir) {
       if (iter->i >= p->n) return NULL;
       if (!path[0]) path = ".";
-      if (!(iter->dir = fu_opendir(path))) {
+
+      ErrTry:
+        iter->dir = fu_opendir(path);
+      ErrCatch(fu_OpenDirectoryError):  // suppress open directory errors
+        break;
+      ErrEnd;
+
+      if (!iter->dir) {
         iter->i++;
         continue;
       }

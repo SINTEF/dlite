@@ -6,6 +6,10 @@
   @brief Main header file for dlite which import main headers
 */
 
+#ifndef HAVE_DLITE
+#define HAVE_DLITE
+#endif
+
 #include "dlite-errors.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"

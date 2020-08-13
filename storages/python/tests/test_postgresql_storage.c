@@ -49,7 +49,7 @@ MU_TEST(test_save)
                                                 (DLiteInstance *)inst->meta));
   }
 
-  n = inst->refcount;
+  n = inst->_refcount;
   mu_assert_int_eq(2, n);
   for (i=0; i<n; i++) dlite_instance_decref(inst);
 }

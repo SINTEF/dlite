@@ -123,8 +123,10 @@ void dlite_storage_plugin_unload_all()
   if (!(iter = dlite_storage_plugin_iter_create())) return;
 
   while ((api = dlite_storage_plugin_iter_next(iter))) {
-    plugin_unload(info, api->name);
     if (api->freer) api->freer((DLiteStoragePlugin *)api);
+    plugin_unload(info, api->name);
+
+
     //free((DLiteStoragePlugin *)api);
   }
 
@@ -145,6 +147,8 @@ void dlite_storage_plugin_unload_all()
   }
   if (names) free(names);
     */
+
+  dlite_storage_plugin_iter_free(iter);
 }
 
 /*

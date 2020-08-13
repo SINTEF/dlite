@@ -68,8 +68,8 @@
 
 /* How the json-data is organised */
 typedef enum {
-  fmtNormal,      /* normal data */
-  fmtMeta,        /* metadata who's instances are normal data */
+  fmtNormal,      /* format output as normal data */
+  fmtMeta,        /* format output as SOFT metadata */
   fmtSchema       /* schemas or meta-metadata */
 } DataFormat;
 
@@ -518,16 +518,22 @@ int dlite_json_set_metadata(DLiteDataModel *d, const char *metadata)
   DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
   char *name, *version, *namespace;
 
-  if (dlite_split_meta_uri(metadata, &name, &version, &namespace))
-    return 1;
-
-  object_set_string(data->meta, "name", name);
-  object_set_string(data->meta, "version", version);
-  object_set_string(data->meta, "namespace", namespace);
-
-  free(name);
-  free(version);
-  free(namespace);
+  switch (data->fmt) {
+  case fmtNormal:
+    if (dlite_split_meta_uri(metadata, &name, &version, &namespace))
+      return 1;
+    object_set_string(data->meta, "name", name);
+    object_set_string(data->meta, "version", version);
+    object_set_string(data->meta, "namespace", namespace);
+    free(name);
+    free(version);
+    free(namespace);
+    break;
+  case fmtMeta:
+  case fmtSchema:
+    object_set_string(data->instance, "meta", metadata);
+    break;
+  }
   return 0;
 }
 
@@ -559,8 +565,6 @@ static json_t *setdim(size_t d, void **pptr,
   json_t *item;
   if (d < ndims) {
     json_t *arr = json_array();
-    //printf("*** setdim(d=%d, type=%d, size=%lu, ndims=%lu)\n",
-    //       d, type, size, ndims);
     for (i=0; i<(int)dims[d]; i++) {
       if (!(item = setdim(d + 1, pptr, type, size, ndims, dims, root)))
         return NULL;
@@ -717,9 +721,12 @@ char *dlite_json_uri(json_t *obj)
   const char *name=NULL;
   const char *version=NULL;
   const char *namespace=NULL;
+  const char *uri;
   int n = 0;
 
   if (json_is_object(obj)) {
+    if ((uri = object_get_string(obj, "uri")) && !str_is_whitespace(uri))
+      return (char *)uri;
 
     name = object_get_string(obj, "name");
     if (!str_is_whitespace(name))
@@ -754,29 +761,32 @@ int dlite_json_entity_prop(const json_t *obj, size_t ndim,
   const char *ptype;
   json_t *dims;
   json_t *item;
-  size_t i, j, size;
+  size_t i, size;
+  UNUSED(d);
 
   if (!json_is_object(obj)) return 1;
   prop->name = str_copy(json_string_value(json_object_get(obj, "name")));
-  prop->description =
-    str_copy(json_string_value(json_object_get(obj, "description")));
   ptype = json_string_value(json_object_get(obj, "type"));
   dlite_type_set_dtype_and_size(ptype, &(prop->type), &(prop->size));
   dims = json_object_get(obj, "dims");
   size = json_array_size(dims);
+  assert(ndim == size);
   prop->ndims = (int)size;
   if (prop->ndims > 0) {
-    prop->dims = calloc(prop->ndims, sizeof(int));
     for(i = 0; i < size; i++) {
+      const char *s;
       item = json_array_get(dims, i);
-      for(j = 0; j < ndim; j++) {
-        if (str_equal(json_string_value(item), d[j].name)) {
-          prop->dims[i] = j;
-          break;
-        }
-      }
+      if (!(s = json_string_value(item)))
+        return err(1, "property dimensions should be strings");
+      prop->dims[i] = strdup(s);
     }
   }
+  prop->unit =
+    str_copy(json_string_value(json_object_get(obj, "unit")));
+  prop->iri =
+    str_copy(json_string_value(json_object_get(obj, "iri")));
+  prop->description =
+    str_copy(json_string_value(json_object_get(obj, "description")));
   return 0;
 }
 
@@ -785,8 +795,9 @@ DLiteMeta *dlite_json_entity(json_t *obj)
 {
   DLiteMeta *entity = NULL;
   char *uri=NULL;
+  char *iri=NULL;
   char *desc=NULL;
-  int i, nprop, ndim;
+  int i, j, nprop, ndim;
   json_t *jd;
   json_t *jp;
   json_t *item;
@@ -806,6 +817,9 @@ DLiteMeta *dlite_json_entity(json_t *obj)
           err(0, "no property for the entity %s", uri);
         }
         else if ((nprop > 0) && (ndim >= 0)) {
+          item = json_object_get(obj, "iri");
+          if (item) iri = str_copy(json_string_value(item));
+
           item = json_object_get(obj, "description");
           if (item) desc = str_copy(json_string_value(item));
 
@@ -827,7 +841,9 @@ DLiteMeta *dlite_json_entity(json_t *obj)
             dlite_json_entity_prop(item, ndim, dims, props + i);
           }
 
-          entity = dlite_entity_create(uri, desc, ndim, dims, nprop, props);
+          entity = dlite_entity_create(uri, iri, desc,
+                                       ndim, dims,
+                                       nprop, props);
         }
       }
       else
@@ -845,6 +861,8 @@ DLiteMeta *dlite_json_entity(json_t *obj)
   if (props) {
     for (i=0; i<nprop; i++) {
       if (props[i].name) free(props[i].name);
+      for (j=0; j<props[i].ndims; j++)
+        if (props[i].dims[j]) free(props[i].dims[j]);
       if (props[i].dims) free(props[i].dims);
       if (props[i].description) free(props[i].description);
     }

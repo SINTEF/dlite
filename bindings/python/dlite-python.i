@@ -64,6 +64,15 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
  **********************************************/
 %{
 
+/* Free's array of allocated strings. */
+void free_str_array(char **arr, size_t len)
+{
+  size_t i;
+  for (i=0; i<len; i++)
+    if (arr[i]) free(arr[i]);
+  free(arr);
+}
+
 /* Returns the numpy type code corresponding to `type` and `size` or -1 on
    error. */
 int npy_type(DLiteType type, size_t size)
@@ -107,7 +116,7 @@ int npy_type(DLiteType type, size_t size)
     }
   case dliteFixString:
     /* It would have been nicer to use NPY_UNICODE, but unfortunately is
-       it based 4 byte data points (UCS4), while the lengths of dlite
+       it based on 4 byte data points (UCS4), while the lengths of dlite
        fixed strings may have any lengths.
 
        We therefore fall back to NPY_STRING, which is simple ASCII. */
@@ -149,8 +158,8 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    assert(dtype->elsize == 0);
-    //assert(dtype->elsize == 0 || sizeof(void *));
+    //assert(dtype->elsize == 0);
+    assert(dtype->elsize == 0 || sizeof(void *));
     break;
   }
   return dtype;
@@ -355,10 +364,10 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
         char **p = *((char ***)ptr);
         PyObject *s = PyArray_GETITEM(arr, itemptr);
         assert(s);
-        if (PyUnicode_READY(s)) {
+        if (!PyUnicode_Check(s))
+          FAIL("array elements should be strings");
+        if (PyUnicode_READY(s))
           FAIL("failed preparing string");
-          Py_DECREF(s);
-        }
         if (s == Py_None) {
           if (p[i]) free(p[i]);
         } else if (PyUnicode_Check(s)) {
@@ -416,7 +425,7 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
 
   if (!dtype) goto fail;
   if (!(arr = (PyArrayObject *)PyArray_FromAny(obj, dtype, ndims, ndims,
-                                               NPY_ARRAY_IN_ARRAY, NULL)))
+                                               NPY_ARRAY_DEFAULT, NULL)))
     FAIL("cannot create C-contiguous array");
 
   switch (type) {
@@ -439,8 +448,8 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
               size);
     break;
   case dliteStringPtr:
-    for (i=0; i<PyArray_SIZE(arr); i++)
-      ((char **)ptr)[i] = strdup((char *)(PyArray_DATA(arr)) + i*dtype->elsize);
+    if (dlite_swig_set_array(&ptr, ndims, dims, type, size, (obj_t *)arr))
+      goto fail;
     break;
   default:
     memcpy(ptr, PyArray_DATA(arr), PyArray_SIZE(arr)*size);
@@ -743,7 +752,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
         DLiteProperty *src = (DLiteProperty *)p;
         if (dest->name)        free(dest->name);
-        if (dest->dims)        free(dest->dims);
+        if (dest->dims)       free_str_array(dest->dims, dest->ndims);
         if (dest->unit)        free(dest->unit);
         if (dest->description) free(dest->description);
         dest->name  = strdup(src->name);
@@ -751,8 +760,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         dest->size  = src->size;
         dest->ndims = src->ndims;
         if (src->ndims > 0) {
-          dest->dims = malloc(src->ndims*sizeof(int));
-          memcpy(dest->dims, src->dims, src->ndims*sizeof(int));
+          int j;
+          dest->dims = malloc(src->ndims*sizeof(char *));
+          for (j=0; j < src->ndims; j++)
+            dest->dims[j] = strdup(src->dims[j]);
         } else
           dest->dims = NULL;
         dest->unit        = (src->unit) ? strdup(src->unit) : NULL;
@@ -771,7 +782,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
             dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
                                           &t, &size) == 0) {
           if (dest->name)        free(dest->name);
-          if (dest->dims)        free(dest->dims);
+          if (dest->dims)       free_str_array(dest->dims, dest->ndims);
           if (dest->unit)        free(dest->unit);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
@@ -780,12 +791,13 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           if (dims && PyUnicode_Check(dims)) {
             const char *s = PyUnicode_AsUTF8(dims);
             const char *q = s;
-            int i=0, ndims=(s && *s) ? 1 : 0;
-            while (s[i]) if (s[i++] == ',') ndims++;
+            int j=0, ndims=(s && *s) ? 1 : 0;
+            while (s[j]) if (s[j++] == ',') ndims++;
             dest->ndims = ndims;
             dest->dims = malloc(ndims*sizeof(int));
-            for (i=0; i<ndims; i++) {
-              dest->dims[i] = atoi(s);
+            for (j=0; j<ndims; j++) {
+              if (dest->dims[j]) free(dest->dims[j]);
+              dest->dims[j] = strdup(s);
               s += strcspn(q, ",") + 1;
             }
           }
@@ -899,21 +911,19 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   obj_t *obj=NULL;
 
   PyErr_Clear();
-  if (n < 0) n += inst->meta->nproperties;
-  if (n < 0 || n >= (int)inst->meta->nproperties)
+  if (n < 0) n += inst->meta->_nproperties;
+  if (n < 0 || n >= (int)inst->meta->_nproperties)
     return dlite_err(-1, "Property index is out or range: %d", i), NULL;
   ptr = DLITE_PROP(inst, n);
-  p = inst->meta->properties + n;
+  p = inst->meta->_properties + n;
   if (p->ndims == 0) {
     obj = dlite_swig_get_scalar(p->type, p->size, ptr);
   } else {
-    /* Note that p->dims are indices into instance dimensions */
     if (!(dims = malloc(p->ndims*sizeof(int)))) FAIL("allocation failure");
     for (j=0; j<p->ndims; j++) {
-      if (p->dims[j] < 0 || p->dims[j] >= (int)DLITE_NDIM(inst))
-        FAIL3("dimension %d of property %d is out of range: %d",
-              j, i, p->dims[j]);
-      dims[j] = DLITE_DIM(inst, p->dims[j]);
+      if (!p->dims[j])
+        FAIL2("missing dimension %d of property %d", j, i);
+      dims[j] = DLITE_PROP_DIM(inst, i, j);
     }
     obj = dlite_swig_get_array(inst, p->ndims, dims, p->type, p->size, *ptr);
   }
@@ -933,23 +943,21 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   DLiteProperty *p;
 
   PyErr_Clear();
-  if (n < 0) n += inst->meta->nproperties;
-  if (n < 0 || n >= (int)inst->meta->nproperties)
+  if (n < 0) n += inst->meta->_nproperties;
+  if (n < 0 || n >= (int)inst->meta->_nproperties)
     FAIL1("Property index is out or range: %d", i);
   ptr = DLITE_PROP(inst, n);
-  p = inst->meta->properties + n;
+  p = inst->meta->_properties + n;
 
 
   if (p->ndims == 0) {
     if (dlite_swig_set_scalar(ptr, p->type, p->size, obj)) goto fail;
   } else {
-    /* Note that p->dims are indices into instance dimensions */
     if (!(dims = malloc(p->ndims*sizeof(int)))) FAIL("allocation failure");
     for (j=0; j<p->ndims; j++) {
-      if (p->dims[j] < 0 || p->dims[j] >= (int)DLITE_NDIM(inst))
-        FAIL3("dimension %d of property %d is out of range: %d",
-              j, i, p->dims[j]);
-      dims[j] = DLITE_DIM(inst, p->dims[j]);
+      if (!p->dims[j])
+        FAIL2("missing dimension %d of property %d", j, i);
+      dims[j] = DLITE_PROP_DIM(inst, i, j);
     }
     if (dlite_swig_set_array(ptr, p->ndims, dims, p->type, p->size, obj))
       goto fail;
@@ -1056,7 +1064,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
     for (i=0; i<$1; i++) {
       DLiteProperty *p = $2 + i;
       free(p->name);
-      if (p->dims) free(p->dims);
+      if (p->dims) free_str_array(p->dims, p->ndims);
       if (p->unit) free(p->unit);
       if (p->description) free(p->description);
     }

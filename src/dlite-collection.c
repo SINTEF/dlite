@@ -366,7 +366,7 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
   const DLiteRelation *r;
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL))) {
     DLiteInstance *inst = dlite_instance_get(r->o);
-    assert(inst->refcount >= 2);
+    assert(inst->_refcount >= 2);
     dlite_instance_decref(inst);
     return inst;
   }
@@ -438,7 +438,7 @@ DLiteInstance *dlite_collection_next(DLiteCollection *coll,
 {
   DLiteInstance *inst = dlite_collection_next_new(coll, state);
   if (inst) {
-    assert(inst->refcount >= 2);
+    assert(inst->_refcount >= 2);
     dlite_instance_decref(inst);
   }
   return inst;

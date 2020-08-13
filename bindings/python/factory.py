@@ -83,7 +83,8 @@ class BaseExtension(object, metaclass=MetaExtension):
             meta = self.dlite_meta
         if not getter:
             getter = self._dlite_get
-        dims = [0] * len(meta.properties['dimensions'])
+        dims = [-1] * len(meta.properties['dimensions'])
+        dimnames = [d.name for d in meta.properties['dimensions']]
         for prop in meta.properties['properties']:
             if prop.ndims:
                 value = getter(prop.name)
@@ -95,15 +96,17 @@ class BaseExtension(object, metaclass=MetaExtension):
                     raise ValueError('expected %d dimensions for array '
                                      'property "%s"; got %d' % (
                                          prop.ndims, prop.name, arr.ndim))
-                for i, n in enumerate(prop.dims):
-                    if dims[n] == 0:
-                        dims[n] = arr.shape[i]
-                    elif arr.shape[i] and dims[n] != arr.shape[i]:
-                        raise ValueError(
-                            'inconsistent length of dimension "%s"; was %d '
-                            'but got %d for property %r' % (
-                            meta.properties['dimensions'][n].name, dims[n],
-                            arr.shape[i], prop.name))
+                for i, pdim in enumerate(prop.dims):
+                    if pdim in dimnames:
+                        n = dimnames.index(pdim)
+                        if dims[n] == -1:
+                            dims[n] = arr.shape[i]
+                        elif arr.shape[i] and dims[n] != arr.shape[i]:
+                            raise ValueError(
+                                'inconsistent length of dimension "%s"; was '
+                                '%d but got %d for property %r' % (
+                                meta.properties['dimensions'][n].name, dims[n],
+                                arr.shape[i], prop.name))
         if min(dims) < 0:
             raise ValueError('cannot infer all dimensions')
         return dims

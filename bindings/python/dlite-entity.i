@@ -13,6 +13,7 @@
 DLiteProperty *
 dlite_swig_create_property(const char *name, enum _DLiteType type,
                            int size, obj_t *dims, const char *unit,
+                           const char *iri,
                            const char *description)
 {
   DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
@@ -20,8 +21,9 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
   p->type = type;
   p->size = size;
   if (dims && dims != DLiteSwigNone) {
-    if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteInt,
-                                          sizeof(int), dims))) {
+    p->ndims = PySequence_Length(dims);
+    if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
+                                           sizeof(char *), dims))) {
       free(p->name);
       free(p);
       return NULL;
@@ -31,6 +33,7 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
     p->dims = NULL;
   }
   if (unit) p->unit = strdup(unit);
+  if (iri) p->iri = strdup(iri);
   if (description) p->description = strdup(description);
   return p;
 }
@@ -102,23 +105,26 @@ struct _DLiteProperty {
   int ndims;
   /* int *dims; */
   char *unit;
+  char *iri;
   char *description;
 };
 
 %extend _DLiteProperty {
   _DLiteProperty(const char *name, const char *type,
                  obj_t *dims=NULL, const char *unit=NULL,
+                 const char *iri=NULL,
                  const char *description=NULL) {
     DLiteType dtype;
     size_t size;
     if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
-    return dlite_swig_create_property(name, dtype, size, dims, unit,
+    return dlite_swig_create_property(name, dtype, size, dims, unit, iri,
                                       description);
   }
   ~_DLiteProperty() {
     free($self->name);
-    if ($self->dims) free($self->dims);
+    if ($self->dims) free_str_array($self->dims, $self->ndims);
     if ($self->unit) free($self->unit);
+    if ($self->iri) free($self->iri);
     if ($self->description) free($self->description);
     free($self);
   }
@@ -132,7 +138,7 @@ struct _DLiteProperty {
   }
   obj_t *get_dims(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
-                                dliteInt, sizeof(int), $self->dims);
+                                dliteStringPtr, sizeof(char *), $self->dims);
   }
   /*
   void set_dims(obj_t *arr) {
@@ -231,7 +237,7 @@ struct _DLiteInstance {
   %immutable;
   char uuid[DLITE_UUID_LENGTH+1];
   char *uri;
-  int refcount;
+  int _refcount;
   /* const struct _DLiteMeta *meta; */
 };
 
@@ -243,10 +249,10 @@ struct _DLiteInstance {
     size_t i, *d, n=ndims;
     if (!(meta = dlite_meta_get(metaid)))
       return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
-    if (n != meta->ndimensions) {
+    if (n != meta->_ndimensions) {
       dlite_meta_decref(meta);
       return dlite_err(1, "%s has %zu dimensions",
-                       metaid, meta->ndimensions), NULL;
+                       metaid, meta->_ndimensions), NULL;
     }
     d = malloc(n * sizeof(size_t));
     for (i=0; i<n; i++) d[i] = dims[i];
@@ -287,8 +293,9 @@ struct _DLiteInstance {
   _DLiteInstance(const char *uri,
                  int ndimensions, struct _DLiteDimension *dimensions,
                  int nproperties, struct _DLiteProperty *properties,
+                 const char *iri=NULL,
                  const char *description=NULL) {
-    DLiteMeta *inst = dlite_entity_create(uri, description,
+    DLiteMeta *inst = dlite_entity_create(uri, iri, description,
                                           ndimensions, dimensions,
                                           nproperties, properties);
     if (inst) dlite_errclr();
@@ -302,6 +309,18 @@ struct _DLiteInstance {
   %feature("docstring", "Returns reference to metadata.") get_meta;
   const struct _DLiteInstance *get_meta() {
     return (const DLiteInstance *)$self->meta;
+  }
+
+  %feature("docstring", "Returns ontology IRI reference.") get_iri;
+  const char *get_iri() {
+    return $self->iri;
+  }
+
+  %feature("docstring", "Sets ontology IRI (no argument clears the "
+           "IRI).") set_iri;
+  void set_iri(const char *iri=NULL) {
+    if ($self->iri) free((char *)self->iri);
+    $self->iri = (iri) ? strdup(iri) : NULL;
   }
 
   %feature("docstring", "Saves this instance to url or storage.") save;
@@ -362,8 +381,8 @@ struct _DLiteInstance {
     return dlite_instance_has_property($self, name);
   }
   bool has_property(int i) {
-    if (i < 0) i += $self->meta->nproperties;
-    if (0 <= i && i < (int)$self->meta->nproperties) return true;
+    if (i < 0) i += $self->meta->_nproperties;
+    if (0 <= i && i < (int)$self->meta->_nproperties) return true;
     return false;
   }
 
@@ -373,8 +392,8 @@ struct _DLiteInstance {
     return dlite_instance_has_dimension($self, name);
   }
   bool has_dimension(int i) {
-    if (i < 0) i += $self->meta->ndimensions;
-    if (0 <= i && i < (int)$self->meta->ndimensions) return true;
+    if (i < 0) i += $self->meta->_ndimensions;
+    if (0 <= i && i < (int)$self->meta->_ndimensions) return true;
     return false;
   }
 

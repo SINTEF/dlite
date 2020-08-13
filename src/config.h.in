@@ -8,9 +8,10 @@
 #endif
 
 /* dlite version */
-#ifndef dlite_VERSION
 #define dlite_VERSION "@dlite_VERSION@"
-#endif
+#define dlite_VERSION_MAJOR @dlite_VERSION_MAJOR@
+#define dlite_VERSION_MINOR @dlite_VERSION_MINOR@
+#define dlite_VERSION_PATCH @dlite_VERSION_PATCH@
 
 /* hardcoded default paths */
 #define DLITE_TEMPLATE_DIRS \
@@ -39,6 +40,5 @@
  /* do not warn about fully valid use of alingof() */
  #pragma warning(disable:4116)
 #endif
-
 
 #endif /* _DLITE_CONFIG_H */

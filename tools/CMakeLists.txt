@@ -27,7 +27,7 @@ target_include_directories(dlite-codegen PRIVATE
 
 
 # Subdirectories
-#add_subdirectory(tests)
+add_subdirectory(tests)
 
 
 # Install

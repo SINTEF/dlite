@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "test_macros.h"
+#include "err.h"
 #include "tgen.h"
 
 #include "minunit/minunit.h"
@@ -38,34 +39,94 @@ MU_TEST(test_tgen_setcase)
   mu_check(!tgen_setcase(s, -1, 's'));
   mu_assert_string_eq("A String - To Test!", s);
 
-  mu_check(!tgen_setcase(s, -1, 'l'));
+  mu_check(!tgen_setcase(s, -1, 'c'));
   mu_assert_string_eq("a string - to test!", s);
 
-  mu_check(!tgen_setcase(s, -1, 'U'));
+  mu_check(!tgen_setcase(s, -1, 'C'));
   mu_assert_string_eq("A STRING - TO TEST!", s);
 
   mu_check(!tgen_setcase(s, -1, 'T'));
   mu_assert_string_eq("A string - to test!", s);
 
-  mu_check(!tgen_setcase(s, 4, 'U'));
+  mu_check(!tgen_setcase(s, 4, 'C'));
   mu_assert_string_eq("A STring - to test!", s);
 
   mu_check(tgen_setcase(s, -1, 'S'));
   mu_check(tgen_setcase(s, -1, '\0'));
 }
 
-MU_TEST(test_tgen_camel_to_underscore)
+MU_TEST(test_tgen_convert_case)
 {
-  char *s;
-  s = tgen_camel_to_underscore("CamelCaseWord", -1);
-  mu_assert_string_eq("camel_case_word", s);
-  free(s);
+  char *p,  *s = "AVery mixed_Sentence: 1+2pi";
 
-  s = tgen_camel_to_underscore("A sentence with CamelCase", -1);
-  mu_assert_string_eq("a sentence with camel_case", s);
-  free(s);
+  mu_check((p = tgen_convert_case(s, -1, 's')));
+  mu_assert_string_eq("AVery mixed_Sentence: 1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'c')));
+  mu_assert_string_eq("avery mixed_sentence: 1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'C')));
+  mu_assert_string_eq("AVERY MIXED_SENTENCE: 1+2PI", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'u')));
+  mu_assert_string_eq("a_very_mixed_sentence:_1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'U')));
+  mu_assert_string_eq("A_VERY_MIXED_SENTENCE:_1+2PI", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'm')));
+  mu_assert_string_eq("aVeryMixedSentence:1+2Pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'M')));
+  mu_assert_string_eq("AVeryMixedSentence:1+2Pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'T')));
+  mu_assert_string_eq("Avery mixed_sentence: 1+2pi", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(s, -1, 'i')));
+  mu_assert_string_eq("AVery_mixed_Sentence__1_2pi", p);
+  free(p);
+
+  mu_check(!tgen_convert_case(s, -1, 'I'));
+
+  mu_check((p = tgen_convert_case("  n-Atoms  ", -1, 'i')));
+  mu_assert_string_eq("n_Atoms", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case("  n+Atoms  ", -1, 'i')));
+  mu_assert_string_eq("n_Atoms", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case("  n-Atoms  ", -1, 'I')));
+  mu_assert_string_eq("n_Atoms", p);
+  free(p);
+
+  mu_check(!tgen_convert_case("  n+Atoms  ", -1, 'I'));
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'u')));
+  mu_assert_string_eq("ab", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'u')));
+  mu_assert_string_eq("ab_cd_e", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'M')));
+  mu_assert_string_eq("Ab", p);
+  free(p);
+
+  mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'M')));
+  mu_assert_string_eq("AbCdE", p);
+  free(p);
 }
-
 
 MU_TEST(test_tgen_buf_append)
 {
@@ -147,7 +208,7 @@ MU_TEST(test_tgen_subs)
 
 
 static int loop(TGenBuf *s, const char *template, int len,
-                const TGenSubs *subs, void *context)
+                TGenSubs *subs, void *context)
 {
   int i, data[] = {1, 3, 5};
   TGenSubs subs2;
@@ -171,12 +232,15 @@ MU_TEST(test_tgen)
   TGenSubs subs;
 
   tgen_subs_init(&subs);
-  tgen_subs_set(&subs, "n",    "42",   NULL);
-  tgen_subs_set(&subs, "pi",   "3.14", NULL);
-  tgen_subs_set(&subs, "name", "Adam", NULL);
-  tgen_subs_set(&subs, "f",    NULL,   tgen_append);
-  tgen_subs_set(&subs, "f2",   "XX",   tgen_append);
-  tgen_subs_set(&subs, "loop", NULL,   loop);
+  tgen_subs_set(&subs, "n",     "42",   NULL);
+  tgen_subs_set(&subs, "pi",    "3.14", NULL);
+  tgen_subs_set(&subs, "name",  "Adam", NULL);
+  tgen_subs_set(&subs, "zero",  "0",    NULL);
+  tgen_subs_set(&subs, "empty", "",     NULL);
+  tgen_subs_set(&subs, "s",     "length is 5.5mm", NULL);
+  tgen_subs_set(&subs, "f",     NULL,   tgen_append);
+  tgen_subs_set(&subs, "f2",    "XX",   tgen_append);
+  tgen_subs_set(&subs, "loop",  NULL,   loop);
 
   str = tgen("{name} got n={n}!", &subs, NULL);
   mu_assert_string_eq("Adam got n=42!", str);
@@ -188,6 +252,7 @@ MU_TEST(test_tgen)
 
   str = tgen("{xname} got n={n}!", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("{name:new template} got n={n}!", &subs, NULL);
   mu_assert_string_eq("Adam got n=42!", str);
@@ -195,9 +260,11 @@ MU_TEST(test_tgen)
 
   str = tgen("{name:invalid {{n}} got n={n}!", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("invalid } template", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("{name:valid {n} } got n={n}!", &subs, NULL);
   mu_assert_string_eq("Adam got n=42!", str);
@@ -227,12 +294,36 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("pi is 3.1", str);
   free(str);
 
+  str = tgen("pi is {pi%.3u}", &subs, NULL);
+  mu_assert_string_eq("pi is 3.1", str);
+  free(str);
+
   str = tgen("pi is {pi%-6.3T}...", &subs, NULL);
   mu_assert_string_eq("pi is 3.1   ...", str);
   free(str);
 
-  str = tgen("The name is {name%U}...", &subs, NULL);
+  str = tgen("The name is {name%c}...", &subs, NULL);
+  mu_assert_string_eq("The name is adam...", str);
+  free(str);
+
+  str = tgen("The name is {name%C}...", &subs, NULL);
   mu_assert_string_eq("The name is ADAM...", str);
+  free(str);
+
+  str = tgen("Answer: {s%u}", &subs, NULL);
+  mu_assert_string_eq("Answer: length_is_5.5mm", str);
+  free(str);
+
+  str = tgen("Answer: {s%U}", &subs, NULL);
+  mu_assert_string_eq("Answer: LENGTH_IS_5.5MM", str);
+  free(str);
+
+  str = tgen("Answer: {s%m}", &subs, NULL);
+  mu_assert_string_eq("Answer: lengthIs5.5Mm", str);
+  free(str);
+
+  str = tgen("Answer: {s%M}", &subs, NULL);
+  mu_assert_string_eq("Answer: LengthIs5.5Mm", str);
   free(str);
 
   str = tgen("func subst {f:YY}", &subs, NULL);
@@ -245,6 +336,7 @@ MU_TEST(test_tgen)
 
   str = tgen("func subst: {f}", &subs, NULL);
   mu_check(!str);
+  err_clear();
 
   str = tgen("func subst {f2:pi={pi} }", &subs, NULL);
   mu_assert_string_eq("func subst pi=3.14 ", str);
@@ -280,9 +372,76 @@ MU_TEST(test_tgen)
     free(str);
   }
 
+  /* test variable existences */
+  str = tgen("whether 'name' is defined: {name?}", &subs, NULL);
+  mu_assert_string_eq("whether 'name' is defined: 1", str);
+  free(str);
+
+  str = tgen("whether 'empty' is defined: {empty?}", &subs, NULL);
+  mu_assert_string_eq("whether 'empty' is defined: 1", str);
+  free(str);
+
+  str = tgen("whether 'xxx' is defined: {xxx?}", &subs, NULL);
+  mu_assert_string_eq("whether 'xxx' is defined: 0", str);
+  free(str);
+
+  str = tgen("whether var is not empty: {?}", &subs, NULL);
+  mu_check(!str);
+  err_clear();
+
+  /* test variable assignment */
+  str = tgen("exists={x?}, {x=5} exists={x?}, x={x}", &subs, NULL);
+  mu_assert_string_eq("exists=0,  exists=1, x=5", str);
+  free(str);
+
+  str = tgen("{name=Ewa}name={name}", &subs, NULL);
+  mu_assert_string_eq("name=Ewa", str);
+  free(str);
+
   /* test condition */
-  str = tgen("{@if:0}aa{@elif:}bbb{@else}pi = {pi}{@endif}...", &subs, NULL);
+  str = tgen("{@if:0}a{@elif:}b{@else}pi = {pi}{@endif}...", &subs, NULL);
   mu_assert_string_eq("pi = 3.14...", str);
+  free(str);
+
+  str = tgen("{@if:1}a{@elif:}b{@else}pi = {pi}{@endif}...", &subs, NULL);
+  mu_assert_string_eq("a...", str);
+  free(str);
+
+  err_clear();
+  str = tgen("{@if: {empty} }a{@elif:1}b{@else}c{@endif}...", &subs, NULL);
+  mu_check(!str);
+  err_clear();
+
+  str = tgen("{@if: \"{empty}\" }a{@elif:1}b{@else}c{@endif}...", &subs, NULL);
+  mu_assert_string_eq("b...", str);
+  free(str);
+
+  str = tgen("{@if: '{empty}' }a{@elif:1}b{@else}c{@endif}...", &subs, NULL);
+  mu_assert_string_eq("b...", str);
+  free(str);
+
+  str = tgen("{@if: \"\" }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("false", str);
+  free(str);
+
+  str = tgen("{@if: \" \" }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("true", str);
+  free(str);
+
+  str = tgen("{@if: '{pi}' }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("true", str);
+  free(str);
+
+  str = tgen("{@if:'{empty}'}true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("false", str);
+  free(str);
+
+  str = tgen("{@if: '{empty}' }true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("false", str);
+  free(str);
+
+  str = tgen("{@if:'{name}'}true{@else}false{@endif}", &subs, NULL);
+  mu_assert_string_eq("true", str);
   free(str);
 
   /* test padding */
@@ -294,6 +453,10 @@ MU_TEST(test_tgen)
   mu_assert_string_eq("pi  is\n      3.14...", str);
   free(str);
 
+  /* test @error construct */
+  str = tgen("bla, bla {@error:My error message...} blu bla", &subs, NULL);
+  mu_check(!str);
+  mu_assert_string_eq("Error 2027: line 1: My error message...", err_getmsg());
 
   tgen_subs_deinit(&subs);
 }
@@ -309,7 +472,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_tgen_escaped_copy);
   MU_RUN_TEST(test_tgen_setcase);
-  MU_RUN_TEST(test_tgen_camel_to_underscore);
+  MU_RUN_TEST(test_tgen_convert_case);
   MU_RUN_TEST(test_tgen_buf_append);
   MU_RUN_TEST(test_tgen_lineno);
   MU_RUN_TEST(test_tgen_subs);
