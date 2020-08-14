@@ -1,6 +1,6 @@
 {
   "name": "Person",
-  "version": "0.1",
+  "version": "0.2",
   "namespace": "http://meta.sintef.no",
   "meta": "http://meta.sintef.no/0.3/EntitySchema",
   "description": "A person.",
@@ -8,7 +8,11 @@
     {
       "name": "N",
       "description": "Number of skills."
-    }
+    },
+    {
+      "name": "M",
+      "description": "Number of temperature measurements."
+    }    
   ],
   "properties": [
     {
@@ -24,12 +28,21 @@
     },
     {
       "name": "skills",
-      "type": "string",
+      "type": "string10",
       "dims": [
         "N"
       ],
       "description": "List of skills."
+    },
+    {
+      "name": "temperature",
+      "type": "float",
+      "unit": "degC",
+      "dims": [
+        "M"
+      ],
+      "description": "Temperature on the body."
     }
   ],
-  "dataname": "http://meta.sintef.no/0.1/Person"
+  "dataname": "http://meta.sintef.no/0.2/Person"
 }
