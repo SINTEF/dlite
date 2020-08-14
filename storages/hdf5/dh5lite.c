@@ -814,7 +814,6 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_set_dataname,
 
   /* internal data */
-  NULL,
   NULL
 };
 

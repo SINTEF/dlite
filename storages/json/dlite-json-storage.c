@@ -914,7 +914,6 @@ static DLiteStoragePlugin dlite_json_plugin = {
   //dlite_json_set_entity,
 
   /* internal data */
-  NULL,
   NULL
 };
 

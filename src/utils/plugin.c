@@ -123,7 +123,6 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
   char *name = api->name;
   Plugin *plugin = NULL;
   assert(api);
-  //name = *((char **)api);
 
   if (map_get(&info->apis, name))
     return errx(1, "api already registered: %s", name);
@@ -135,7 +134,7 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");
-      plugin->count++;
+      plugin_incref(plugin);
       plugin->handle = handle;
       if (map_set(&info->plugins, plugin->path, plugin))
         fatal(1, "failed to register plugin: %s", path);
@@ -302,35 +301,6 @@ void plugin_load_all(PluginInfo *info)
 
 
 /*
-  Initiates a plugin API iterator.
-*/
-void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
-{
-  memset(iter, 0, sizeof(PluginIter));
-  iter->info = info;
-  iter->miter = map_iter(&info->apis);
-}
-
-/*
-  Returns pointer to the next registered API or NULL if all APIs
-  have been visited.
-
-  Used for iterating over plugins.  Plugins should not be registered
-  or removed while iterating.
- */
-const PluginAPI *plugin_api_iter_next(PluginIter *iter)
-{
-  PluginAPI **p, *api;
-  PluginInfo *info = (PluginInfo *)iter->info;
-  const char *name = map_next(&info->apis, &iter->miter);
-  if (!name) return NULL;
-  if (!(p = map_get(&info->apis, name)) || !(api = *p))
-    fatal(1, "failed to get api: %s", name);
-  return (const void *)api;
-}
-
-
-/*
   Unloads and unregisters plugin with the given name.
   Returns non-zero on error.
 */
@@ -362,6 +332,59 @@ int plugin_unload(PluginInfo *info, const char *name)
   free(pname);
   return retval;
 }
+
+/*
+  Returns a NULL-terminated array of pointers to api names.
+  Returns NULL on error.
+*/
+char **plugin_names(const PluginInfo *info)
+{
+  int n=0, size=0;
+  char **names=NULL;
+  PluginIter iter;
+  const PluginAPI *api;
+  plugin_api_iter_init(&iter, info);
+  while ((api = plugin_api_iter_next(&iter))) {
+    if (n >= size) {
+      size += 16;
+      if (!(names = realloc(names, size * sizeof(char *))))
+        return err(1, "allocation failure"), NULL;
+    }
+    names[n++] = strdup(api->name);
+  }
+  names[n] = NULL;
+  return names;
+}
+
+
+/*
+  Initiates a plugin API iterator.
+*/
+void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
+{
+  memset(iter, 0, sizeof(PluginIter));
+  iter->info = info;
+  iter->miter = map_iter(&info->apis);
+}
+
+/*
+  Returns pointer to the next registered API or NULL if all APIs
+  have been visited.
+
+  Used for iterating over plugins.  Plugins should not be registered
+  or removed while iterating.
+ */
+const PluginAPI *plugin_api_iter_next(PluginIter *iter)
+{
+  PluginAPI **p, *api;
+  PluginInfo *info = (PluginInfo *)iter->info;
+  const char *name = map_next(&info->apis, &iter->miter);
+  if (!name) return NULL;
+  if (!(p = map_get(&info->apis, name)) || !(api = *p))
+    fatal(1, "failed to get api: %s", name);
+  return (const void *)api;
+}
+
 
 
 /*

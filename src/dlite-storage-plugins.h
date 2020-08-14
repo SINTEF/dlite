@@ -488,8 +488,7 @@ struct _DLiteStoragePlugin {
   GetDataName        getDataName;      /*!< Returns name of instance */
   SetDataName        setDataName;      /*!< Assigns name to instance */
 
-  /* Internal data */
-  DriverFreer        freer;            /*!< Releases internal data */
+  /* Driver data */
   void *             data;             /*!< Internal data used by the driver */
 };
 

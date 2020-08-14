@@ -161,6 +161,13 @@ int plugin_unload(PluginInfo *info, const char *name);
 
 
 /**
+  Returns a NULL-terminated array of pointers to api names.
+  Returns NULL on error.
+*/
+char **plugin_names(const PluginInfo *info);
+
+
+/**
   Returns a NULL-terminated array of pointers to search paths or NULL
   if no search path is defined.
  */
