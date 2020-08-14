@@ -44,24 +44,6 @@ module DLite
 
   end interface
 
-
-!  INTERFACE
-
-!     TYPE(c_ptr) FUNCTION dlite_storage_open(driver, uri, options) BIND(C)
-!       IMPORT :: c_ptr
-!       TYPE(c_ptr), VALUE :: driver
-!       TYPE(c_ptr), VALUE :: uri
-!       TYPE(c_ptr), VALUE :: options
-!     END FUNCTION dlite_storage_open
-
-!     INTEGER(c_int) FUNCTION dlite_storage_close(storage) BIND(C)
-!       IMPORT :: c_ptr, c_int
-!       TYPE(c_ptr), VALUE :: storage
-!     END FUNCTION dlite_storage_close
-
-
-!  END INTERFACE
-
 contains
 
   function f_c_string_func (f_string) result (c_string)
@@ -98,10 +80,10 @@ contains
   end function dlite_storage_open
 
   integer function dlite_storage_close(storage)
-    type(c_ptr) :: storage
-    integer(c_int) :: sta
-    sta = dlite_storage_close_c(storage)
-    dlite_storage_close = sta
+    DliteStorage   :: storage
+    integer(c_int) :: status
+    status = dlite_storage_close_c(storage%storage)
+    dlite_storage_close = status
   end function dlite_storage_close
 
   integer function dlite_storage_is_writable(storage)
