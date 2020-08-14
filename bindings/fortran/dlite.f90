@@ -1,14 +1,21 @@
+!
 ! Fortran interface to DLite
-
+!
 module DLite
   use iso_c_binding, only : c_ptr, c_int, c_char, c_null_char
 
   implicit none
   private
 
-  public :: dlite_storage_open
-  public :: dlite_storage_close
-  public :: dlite_storage_is_writable
+  public :: DLiteStorage
+
+  type :: DLiteStorage
+     type(c_ptr) :: storage
+     integer     :: readonly
+   contains
+     procedure :: open => dlite_storage_open
+     procedure :: close => dlite_storage_close
+  end type DLiteStorage
 
   interface
 
@@ -70,20 +77,21 @@ contains
 
   end function f_c_string_func
   
-  type(c_ptr) function dlite_storage_open(driver, uri, options)
+  DliteStorage function dlite_storage_open(driver, uri, options)
     character(len=*), intent(in) :: driver
     character(len=*), intent(in) :: uri
     character(len=*), intent(in) :: options
     character(len=1,kind=c_char) :: driver_c(len_trim(driver)+1)
     character(len=1,kind=c_char) :: uri_c(len_trim(uri)+1)
     character(len=1,kind=c_char) :: options_c(len_trim(options)+1)
-    type(c_ptr)                  :: storage
+    DliteStorage                 :: storage
 
     driver_c = f_c_string_func(driver)
     uri_c = f_c_string_func(uri)
     options_c = f_c_string_func(options)
 
-    storage = dlite_storage_open_c(driver_c, uri_c, options_c)
+    storage%storage = dlite_storage_open_c(driver_c, uri_c, options_c)
+    storage%readonly = dlite_storage_is_writable_c(storage%storage)
 
     dlite_storage_open = storage
 
