@@ -13,8 +13,8 @@ module DLite
      type(c_ptr) :: storage
      integer     :: readonly
    contains
-     procedure :: open => dlite_storage_open
-     procedure :: close => dlite_storage_close
+     !procedure :: open => dlite_storage_open
+     !procedure :: close => dlite_storage_close
   end type DLiteStorage
 
   interface
@@ -58,15 +58,15 @@ contains
     c_string(n + 1) = c_null_char
 
   end function f_c_string_func
-  
-  DliteStorage function dlite_storage_open(driver, uri, options)
+
+  type(DliteStorage) function dlite_storage_open(driver, uri, options)
     character(len=*), intent(in) :: driver
     character(len=*), intent(in) :: uri
     character(len=*), intent(in) :: options
     character(len=1,kind=c_char) :: driver_c(len_trim(driver)+1)
     character(len=1,kind=c_char) :: uri_c(len_trim(uri)+1)
     character(len=1,kind=c_char) :: options_c(len_trim(options)+1)
-    DliteStorage                 :: storage
+    type(DliteStorage)           :: storage
 
     driver_c = f_c_string_func(driver)
     uri_c = f_c_string_func(uri)
@@ -80,14 +80,14 @@ contains
   end function dlite_storage_open
 
   integer function dlite_storage_close(storage)
-    DliteStorage   :: storage
-    integer(c_int) :: status
+    type(DliteStorage) :: storage
+    integer(c_int)     :: status
     status = dlite_storage_close_c(storage%storage)
     dlite_storage_close = status
   end function dlite_storage_close
 
   integer function dlite_storage_is_writable(storage)
-    type(c_ptr) :: storage
+    type(c_ptr)    :: storage
     integer(c_int) :: sta
     sta = dlite_storage_is_writable_c(storage)
     dlite_storage_is_writable = sta

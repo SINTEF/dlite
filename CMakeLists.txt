@@ -13,7 +13,7 @@ project(dlite
 
 # Options
 option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
-option(WITH_FORTRAN     "Whether to build Fortran bindings"              ON)
+option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
 option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
@@ -258,10 +258,13 @@ endif()
 #
 # Fortran
 # =======
-if(WITH_PYTHON)
+if(WITH_FORTRAN)
   enable_language(Fortran)
 
-
+  enable_fortran_compiler_flag_if_supported("-Wall")
+  enable_fortran_compiler_flag_if_supported("-Wextra")
+  enable_fortran_compiler_flag_if_supported("-Wpedantic")
+  enable_fortran_compiler_flag_if_supported("-Werror")
 endif()
 
 
