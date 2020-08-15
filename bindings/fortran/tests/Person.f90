@@ -3,19 +3,13 @@
 !
 MODULE Person
   USE iso_c_binding, only : c_ptr, c_int, c_char, c_null_char, c_size_t, &
-       c_double, c_null_ptr, c_associated
+       c_double, c_null_ptr, c_f_pointer, c_associated
   USE DLite
 
   IMPLICIT NONE
   PRIVATE
 
-  !PUBLIC :: TPersonDims
   PUBLIC :: TPerson
-
-  !TYPE TPersonDims
-  !  integer :: n
-  !  integer :: m
-  !END TYPE TPersonDims
 
   TYPE TPerson
     type(c_ptr)                    :: cinst
@@ -56,12 +50,17 @@ CONTAINS
     implicit none
     type(TPerson), intent(inout)     :: person
     class(DLiteInstance), intent(in) :: instance
+    type(c_ptr)                      :: age_c
+    real(8), pointer                 :: age_p
     if (instance%check()) then
        person%cinst = instance%cinst
        !person%uuid = instance%uuid
        person%n = instance%get_dimension_size_by_index(0)
        person%m = instance%get_dimension_size_by_index(1)
-       !person%
+       age_c = instance%get_property("age")
+       ! FIXME - correct assignment of age
+       call c_f_pointer(age_c, age_p)
+       person%age = age_p
     else
        person%cinst = c_null_ptr
     end if

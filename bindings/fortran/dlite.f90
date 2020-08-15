@@ -30,7 +30,11 @@ module DLite
      procedure :: check => check_instance
      procedure :: save => dlite_instance_save
      procedure :: save_url => dlite_instance_save_url
+     procedure :: get_uuid => dlite_instance_get_uuid
+     procedure :: get_dimension_size => dlite_instance_get_dimension_size
      procedure :: get_dimension_size_by_index => dlite_instance_get_dimension_size_by_index
+     procedure :: get_property => dlite_instance_get_property
+     procedure :: get_property_by_index => dlite_instance_get_property_by_index
   end type DLiteInstance
 
   interface DLiteInstance
@@ -119,6 +123,21 @@ module DLite
        type(c_ptr), value, intent(in)                         :: instance
      end function dlite_instance_save_url_c
 
+     type(c_ptr) &
+     function dlite_instance_get_uuid_c(instance) &
+         bind(C,name='dlite_instance_get_uuid')
+       import c_ptr
+       type(c_ptr), value, intent(in)                         :: instance
+     end function dlite_instance_get_uuid_c
+
+     integer(c_size_t) &
+     function dlite_instance_get_dimension_size_c(instance, name) &
+         bind(C,name="dlite_instance_get_dimension_size")
+       import c_ptr, c_char, c_size_t
+       type(c_ptr), value, intent(in)                         :: instance
+       character(len=1,kind=c_char), dimension(*), intent(in) :: name
+     end function dlite_instance_get_dimension_size_c
+
      integer(c_size_t) &
      function dlite_instance_get_dimension_size_by_index_c(instance, i) &
          bind(C,name="dlite_instance_get_dimension_size_by_index")
@@ -127,9 +146,47 @@ module DLite
        integer(c_size_t), value, intent(in)                   :: i
      end function dlite_instance_get_dimension_size_by_index_c
 
+     type(c_ptr) &
+     function dlite_instance_get_property_c(instance, name) &
+         bind(C,name="dlite_instance_get_property")
+       import c_ptr, c_char
+       type(c_ptr), value, intent(in)                         :: instance
+       character(len=1,kind=c_char), dimension(*), intent(in) :: name
+     end function dlite_instance_get_property_c
+
+     type(c_ptr) &
+     function dlite_instance_get_property_by_index_c(instance, i) &
+         bind(C,name="dlite_instance_get_property_by_index")
+       import c_ptr, c_size_t
+       type(c_ptr), value, intent(in)                         :: instance
+       integer(c_size_t), value, intent(in)                   :: i
+     end function dlite_instance_get_property_by_index_c
+
   end interface
 
 contains
+  ! --------------------------------------------------------
+  ! Generic help functions
+  ! --------------------------------------------------------
+
+  ! Returns length of `c_string`
+  function c_string_length(c_string) result(length)
+    use, intrinsic :: iso_c_binding, only: c_ptr
+    type(c_ptr), intent(in) :: c_string
+    integer                 :: length
+    interface
+      ! use std c library function rather than writing our own.
+      function strlen(s) bind(c, name='strlen')
+        use, intrinsic :: iso_c_binding, only: c_ptr, c_size_t
+        implicit none
+        type(c_ptr), intent(in), value :: s
+        integer(c_size_t) :: strlen
+      end function strlen
+    end interface
+    length = int(strlen(c_string))
+  end function c_string_length
+
+
   function f_c_string_func(f_string) result (c_string)
     character(len=*), intent(in) :: f_string
     character(len=1,kind=c_char) :: c_string(len_trim(f_string)+1)
@@ -142,6 +199,52 @@ contains
     c_string(n + 1) = c_null_char
 
   end function f_c_string_func
+
+
+  !function c_f_string(cptr) result(f_string)
+  !  ! Convert a null-terminated c string into a fortran character array pointer
+  !  type(c_ptr), intent(in) :: cptr ! the c address
+  !  character(kind=c_char), dimension(:), pointer :: f_string
+  !  character(kind=c_char), dimension(1), target :: dummy_string="?"
+  !
+  !  interface ! strlen is a standard c function from <string.h>
+  !     ! int strlen(char *string)
+  !     function strlen(string) result(len) bind(c,name="strlen")
+  !       use iso_c_binding
+  !       type(c_ptr), value      :: string
+  !       integer(kind=c_size_t)  :: len
+  !     end function strlen
+  !  end interface
+  !
+  !  if(c_associated(cptr)) then
+  !     call c_f_pointer(f_string, cptr, [strlen(cptr)])
+  !  else
+  !     ! To avoid segfaults, associate f_string with a dummy target
+  !     f_string=>dummy_string
+  !  end if
+  !
+  !end function c_f_string
+
+  !! Copy C string to Fortran string
+  !subroutine c_string_copy(c_string, f_string)
+  !  use, intrinsic :: iso_c_binding, only: c_ptr, c_char
+  !  type(c_ptr), intent(in)             :: c_string
+  !  character, allocatable, intent(out) :: f_string(:)
+  !  integer                             :: i
+  !  interface
+  !     subroutine strncpy(dest, src, n) bind(c,name="strncpy")
+  !       use iso_c_binding
+  !       type(c_ptr), intent(out)      :: dest
+  !       type(c_ptr), intent(in)       :: src
+  !       integer(kind=c_size_t), value :: n
+  !     end subroutine strncpy
+  !  end interface
+  !
+  !  call strncpy(c_loc(f_string), c_string, size(f_string))
+  !  do i = size(f_string) - c_string_length(c_string), size(f_string)
+  !     f_string(i:i) = ' '
+  !  end do
+  !end subroutine c_string_copy
 
 
   ! --------------------------------------------------------
@@ -193,6 +296,7 @@ contains
   ! --------------------------------------------------------
   ! Fortran methods for DLiteInstance
   ! --------------------------------------------------------
+
   function dlite_instance_create_from_id(metaid, dims, id) result(instance)
     character(len=*), intent(in)          :: metaid
     integer(8), dimension(*), intent(in)  :: dims
@@ -260,6 +364,36 @@ contains
     status = dlite_instance_save_url_c(url_c, instance%cinst)
   end function dlite_instance_save_url
 
+  function dlite_instance_get_uuid(instance) result(uuid)
+    class(DLiteInstance), intent(in) :: instance
+    character(len=36)                :: uuid
+
+    ! FIXME - get UUID from instance
+    !integer :: i, n
+    integer :: n
+    type(c_ptr) :: cptr
+    !character(kind=c_char), dimension(:), pointer :: fptr
+    cptr = dlite_instance_get_uuid_c(instance%cinst)
+    n = c_string_length(cptr)
+    uuid = 'xxx'
+    !c_f_pointer(cptr, fptr, [n])
+    !do i = 1, n
+    !   uuid(i:i) = fptr(i:i)
+    !end do
+  end function dlite_instance_get_uuid
+
+  function dlite_instance_get_dimension_size(instance, name) result(n)
+    class(DLiteInstance), intent(in) :: instance
+    character(len=*), intent(in)     :: name
+    character(len=1,kind=c_char)     :: name_c(len_trim(name)+1)
+    integer                          :: n
+    integer(kind=c_size_t)           :: n_c
+    ! FIXME - correct call to dlite_instance_get_dimension_size_c()
+    name_c = f_c_string_func(name)
+    n_c = dlite_instance_get_dimension_size_c(instance%cinst, name_c)
+    n = int(n_c)
+  end function dlite_instance_get_dimension_size
+
   function dlite_instance_get_dimension_size_by_index(instance, i) result(n)
     class(DLiteInstance), intent(in) :: instance
     integer, intent(in)              :: i
@@ -270,5 +404,24 @@ contains
     n_c = dlite_instance_get_dimension_size_by_index_c(instance%cinst, i_c)
     n = int(n_c)
   end function dlite_instance_get_dimension_size_by_index
+
+  function dlite_instance_get_property(instance, name) result(ptr)
+    class(DLiteInstance), intent(in) :: instance
+    character(len=*), intent(in)     :: name
+    character(len=1,kind=c_char)     :: name_c(len_trim(name)+1)
+    type(c_ptr)                      :: ptr
+    ! FIXME - correct call to dlite_instance_get_property_c()
+    name_c = f_c_string_func(name)
+    ptr = dlite_instance_get_property_c(instance%cinst, name_c)
+  end function dlite_instance_get_property
+
+  function dlite_instance_get_property_by_index(instance, i) result(ptr)
+    class(DLiteInstance), intent(in) :: instance
+    integer, intent(in)              :: i
+    integer(kind=c_size_t)           :: i_c
+    type(c_ptr)                      :: ptr
+    i_c = i
+    ptr = dlite_instance_get_property_by_index_c(instance%cinst, i_c)
+  end function dlite_instance_get_property_by_index
 
 end module DLite
