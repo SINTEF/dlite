@@ -881,6 +881,47 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 
 
 /*
+  Returns a pointer to instance UUID.
+ */
+const char *dlite_instance_get_uuid(const DLiteInstance *inst)
+{
+  return inst->uuid;
+}
+
+/*
+  Returns a pointer to instance URI.
+ */
+const char *dlite_instance_get_uri(const DLiteInstance *inst)
+{
+  return inst->uri;
+}
+
+/*
+  Returns a pointer to instance IRI.
+ */
+const char *dlite_instance_get_iri(const DLiteInstance *inst)
+{
+  return inst->iri;
+}
+
+/*
+  Returns a pointer to the UUID of the instance metadata.
+ */
+const char *dlite_instance_get_meta_uuid(const DLiteInstance *inst)
+{
+  return inst->meta->uuid;
+}
+
+/*
+  Returns a pointer to the URI of the instance metadata.
+ */
+const char *dlite_instance_get_meta_uri(const DLiteInstance *inst)
+{
+  return inst->meta->uri;
+}
+
+
+/*
   Returns true if instance has a dimension with the given name.
  */
 bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name)
@@ -895,7 +936,7 @@ bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name)
 /*
   Returns number of dimensions or -1 on error.
  */
-int dlite_instance_get_ndimensions(const DLiteInstance *inst)
+size_t dlite_instance_get_ndimensions(const DLiteInstance *inst)
 {
   if (!inst->meta)
     return errx(-1, "no metadata available");
@@ -906,7 +947,7 @@ int dlite_instance_get_ndimensions(const DLiteInstance *inst)
 /*
   Returns number of properties or -1 on error.
  */
-int dlite_instance_get_nproperties(const DLiteInstance *inst)
+size_t dlite_instance_get_nproperties(const DLiteInstance *inst)
 {
   if (!inst->meta)
     return errx(-1, "no metadata available");
@@ -917,8 +958,8 @@ int dlite_instance_get_nproperties(const DLiteInstance *inst)
 /*
   Returns size of dimension `i` or -1 on error.
  */
-int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
-                                               size_t i)
+size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
+                                                  size_t i)
 {
   size_t *dimensions;
   if (!inst->meta)

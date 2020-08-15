@@ -261,6 +261,8 @@ endif()
 if(WITH_FORTRAN)
   enable_language(Fortran)
 
+  enable_fortran_compiler_flag_if_supported("-std=f2008")
+
   enable_fortran_compiler_flag_if_supported("-Wall")
   enable_fortran_compiler_flag_if_supported("-Wextra")
   enable_fortran_compiler_flag_if_supported("-Wpedantic")

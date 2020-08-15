@@ -1,6 +1,6 @@
 {
     "d473aa6f-2da3-4889-a88d-0c96186c3fa2": {
-        "meta": "http://meta.sintef.no/0.2/Person", 
+        "meta": "http://meta.sintef.no/0.2/Person",
         "dimensions": {
             "N": 2,
             "M": 3
@@ -13,7 +13,7 @@
         }
     },
     "ccdcb6a5-b730-4fd4-a98b-3cd8470c928b": {
-        "meta": "http://meta.sintef.no/0.2/Person", 
+        "meta": "http://meta.sintef.no/0.2/Person",
         "dimensions": {
             "N": 3,
             "M": 1

@@ -484,6 +484,33 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
  */
 int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
 
+
+/**
+  Returns a pointer to instance UUID.
+ */
+const char *dlite_instance_get_uuid(const DLiteInstance *inst);
+
+/**
+  Returns a pointer to instance URI.
+ */
+const char *dlite_instance_get_uri(const DLiteInstance *inst);
+
+/**
+  Returns a pointer to instance IRI.
+ */
+const char *dlite_instance_get_iri(const DLiteInstance *inst);
+
+/**
+  Returns a pointer to the UUID of the instance metadata.
+ */
+const char *dlite_instance_get_meta_uuid(const DLiteInstance *inst);
+
+/**
+  Returns a pointer to the URI of the instance metadata.
+ */
+const char *dlite_instance_get_meta_uri(const DLiteInstance *inst);
+
+
 /**
   Returns true if instance has a dimension with the given name.
  */
@@ -492,18 +519,18 @@ bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name);
 /**
   Returns number of dimensions or -1 on error.
  */
-int dlite_instance_get_ndimensions(const DLiteInstance *inst);
+size_t dlite_instance_get_ndimensions(const DLiteInstance *inst);
 
 /**
   Returns number of properties or -1 on error.
  */
-int dlite_instance_get_nproperties(const DLiteInstance *inst);
+size_t dlite_instance_get_nproperties(const DLiteInstance *inst);
 
 /**
   Returns size of dimension \a i or -1 on error.
  */
-int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
-                                               size_t i);
+size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
+                                                  size_t i);
 
 /**
   Returns a pointer to data corresponding to property with index \a i

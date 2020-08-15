@@ -2,90 +2,143 @@
 ! Fortran interface to Person entity from Person.json
 !
 MODULE Person
-
+  USE iso_c_binding, only : c_ptr, c_int, c_char, c_null_char, c_size_t, &
+       c_double, c_null_ptr, c_associated
   USE DLite
 
   IMPLICIT NONE
   PRIVATE
 
-  PUBLIC :: TPersonDims
+  !PUBLIC :: TPersonDims
   PUBLIC :: TPerson
 
-  PUBLIC :: readPerson
-  PUBLIC :: writePerson
-
-  TYPE TPersonDims
-    integer(c_size_t):: n
-    integer(c_size_t):: m
-  END TYPE TPersonDims
+  !TYPE TPersonDims
+  !  integer :: n
+  !  integer :: m
+  !END TYPE TPersonDims
 
   TYPE TPerson
-    type(TPersonDims)              :: dims
+    type(c_ptr)                    :: cinst
+    !character(len=36)              :: uuid
+    !type(TPersonDims)              :: dims
+    integer(8)                     :: n
+    integer(8)                     :: m
     character(len=45)              :: name
-    real(c_double)                 :: age
+    real(8)                        :: age
     character(len=10), allocatable :: skills(:)
-    real(c_double), allocatable    :: temperature(:)
+    real(8), allocatable           :: temperature(:)
+  contains
+    procedure :: check => checkPerson
+    procedure :: writeToURL => writePersonToURL
+    procedure :: writeToSource => writePersonToSource
+    procedure :: writeToStorage => writePersonToStorage
   END TYPE TPerson
 
-  INTERFACE readPerson
+  INTERFACE TPerson
+    ! read a person from an url
+    module procedure readPersonFromURL
     ! read a person from a data source (open and close the storage)
     module procedure readPersonFromSource
     ! read a person from a open storage
     module procedure readPersonFromStorage
-  END INTERFACE
-
-  INTERFACE writePerson
-    ! write a person to a data source (open and close the storage)
-    module procedure writePersonToSource
-    ! write a person to a open storage
-    module procedure writePersonToStorage
-  END INTERFACE  
+  END INTERFACE TPerson
 
 CONTAINS
 
-TPerson
-function readPersonFromSource(driver, uri, options, uid)
-  character(len=*), intent(in) :: driver
-  character(len=*), intent(in) :: uri
-  character(len=*), intent(in) :: options
-  character(len=*), intent(in) :: uid
-  DLiteStorage                 :: storage
-  TPerson                      :: person
+  function personToInstance(person) result(instance)
+    implicit none
+    class(TPerson), intent(in) :: person
+    type(DLiteInstance)        :: instance
+    instance%cinst = person%cinst
+  end function personToInstance
 
-  storage%open(driver, uri, "mode=r")
-  person = readPersonFromStorage(storage, uid)
-  storage%close()
-  
-  readPersonFromSource = person
+  subroutine assignPerson(person, instance)
+    implicit none
+    type(TPerson), intent(inout)     :: person
+    class(DLiteInstance), intent(in) :: instance
+    if (instance%check()) then
+       person%cinst = instance%cinst
+       !person%uuid = instance%uuid
+       person%n = instance%get_dimension_size_by_index(0)
+       person%m = instance%get_dimension_size_by_index(1)
+       !person%
+    else
+       person%cinst = c_null_ptr
+    end if
+  end subroutine assignPerson
 
-end function readPersonFromSource
+  function checkPerson(person) result(status)
+    implicit none
+    class(TPerson), intent(in) :: person
+    logical                    :: status
+    status = c_associated(person%cinst)
+  end function checkPerson
 
-function readPersonFromStorage(storage, uid)
-  DLiteStorage, intent(in)     :: storage
-  character(len=*), intent(in) :: uid
-  TPerson                      :: person
 
-end function readPersonFromStorage
+  function readPersonFromURL(url) result(person)
+    implicit none
+    character(len=*), intent(in)    :: url
+    type(TPerson)                   :: person
+    type(DLiteInstance)             :: instance
+    instance = DLiteInstance(url)
+    call assignPerson(person, instance)
+  end function readPersonFromURL
 
-integer
-function writePersonToSource(driver, uri, person)
-  character(len=*), intent(in) :: driver
-  character(len=*), intent(in) :: uri
-  character(len=*), intent(in) :: uid
-  DLiteStorage                 :: storage
-  TPerson                      :: person
+  function readPersonFromSource(driver, location, options, uid) result(person)
+    implicit none
+    character(len=*), intent(in) :: driver
+    character(len=*), intent(in) :: location
+    character(len=*), intent(in) :: options
+    character(len=*), intent(in) :: uid
+    type(TPerson)                :: person
+    type(DLiteStorage)           :: storage
+    integer                      :: status
+    storage = DLiteStorage(driver, location, options)
+    person = readPersonFromStorage(storage, uid)
+    status = storage%close()
+  end function readPersonFromSource
 
-  storage%open(driver, uri, "mode=w")
-  status = writePersonToStorage(storage, uid)
-  storage%close()
-  
-  writePersonToSource = status
+  function readPersonFromStorage(storage, uid) result(person)
+    implicit none
+    type(DLiteStorage), intent(in) :: storage
+    character(len=*), intent(in)    :: uid
+    type(TPerson)                   :: person
+    type(DLiteInstance)             :: instance
+    instance = DLiteInstance(storage, uid)
+    call assignPerson(person, instance)
+  end function readPersonFromStorage
 
-end function writePersonToSource
+  function writePersonToURL(person, url) result(status)
+    implicit none
+    class(TPerson), intent(in)     :: person
+    character(len=*), intent(in)   :: url
+    type(DLiteInstance)            :: instance
+    integer                        :: status
+    instance = personToInstance(person)
+    status = instance%save_url(url)
+  end function writePersonToURL
 
-integer
-function writePersonToStorage(storage, person)
+  function writePersonToSource(person, driver, location, options) result(status)
+    implicit none
+    class(TPerson), intent(in)   :: person
+    character(len=*), intent(in) :: driver
+    character(len=*), intent(in) :: location
+    character(len=*), intent(in) :: options
+    type(DLiteStorage)           :: storage
+    integer                      :: status, status2
+    storage = DLiteStorage(driver, location, options)
+    status = person%writeToStorage(storage)
+    status2 = storage%close()
+  end function writePersonToSource
 
-end function writePersonToStorage
+  function writePersonToStorage(person, storage) result(status)
+    implicit none
+    class(TPerson), intent(in)     :: person
+    type(DLiteStorage), intent(in) :: storage
+    type(DLiteInstance)            :: instance
+    integer                        :: status
+    instance = personToInstance(person)
+    status = instance%save(storage)
+  end function writePersonToStorage
 
 END MODULE Person
