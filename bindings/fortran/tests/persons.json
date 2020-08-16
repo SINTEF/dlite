@@ -7,7 +7,7 @@
         },
         "properties": {
             "name": "John",
-            "age": 23,
+            "age": 23.0,
             "skills": ["python", "fortran"],
             "temperature": [37.5, 36.9, 37.1]
         }
@@ -20,7 +20,7 @@
         },
         "properties": {
             "name": "Elisa",
-            "age": 45,
+            "age": 45.0,
             "skills": ["javascript", "c#", "c++"],
             "temperature": [37.4]
         }

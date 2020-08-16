@@ -774,7 +774,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
     break;
 
   case dliteFloat:
-    if (!json_is_number(item)) return errx(1, "expected json real");
+    if (!json_is_real(item)) return errx(1, "expected json real");
     switch (size) {
     case  4: *((float32_t *)ptr)  = (float32_t)json_real_value(item);  break;
     case  8: *((float64_t *)ptr)  = json_real_value(item);  break;
