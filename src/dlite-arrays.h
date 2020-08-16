@@ -60,6 +60,15 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
                                int ndims, const int *dims);
 
 /**
+  Like dlite_array_create(), but with argument `order`, which can have
+  the values:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+*/
+DLiteArray *dlite_array_create_order(void *data, DLiteType type, size_t size,
+                                     int ndims, const int *dims, int order);
+
+/**
   Free an array object, but not the associated data.
 */
 void dlite_array_free(DLiteArray *arr);

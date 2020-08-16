@@ -85,7 +85,6 @@ typedef struct _DLiteDimension DLiteDimension;
 typedef struct _Triplet        DLiteRelation;
 
 
-
 /** Basic data types */
 typedef enum _DLiteType {
   dliteBlob,             /*!< Binary blob, sequence of bytes */
@@ -100,6 +99,19 @@ typedef enum _DLiteType {
   dliteProperty,         /*!< Property, for entities */
   dliteRelation          /*!< Subject-predicate-object relation */
 } DLiteType;
+
+
+/** Function prototype that copies value from `src` to `dest`.  If
+    `dest_type` and `dest_size` differs from `src_type` and `src_size`
+    the value will be casted, if possible.
+
+    If `dest_type` contains allocated data, new memory should be
+    allocated for `dest`.  Information may get lost in this case.
+
+    Returns non-zero on error or if the cast is not supported. */
+typedef int
+(*DLiteTypeCast)(void *dest, DLiteType dest_type, size_t dest_size,
+                 const void *src, DLiteType src_type, size_t src_size);
 
 
 /**
@@ -213,5 +225,46 @@ size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset);
  */
 int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
                                  DLiteType dtype, size_t size);
+
+
+/**
+  Copies value from `src` to `dest`.  If `dest_type` and `dest_size` differs
+  from `src_type` and `src_size` the value will be casted, if possible.
+
+  If `dest_type` contains allocated data, new memory will be allocated
+  for `dest`.  Information may get lost in this case.
+
+  Returns non-zero on error.
+*/
+int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
+                         const void *src, DLiteType src_type, size_t src_size);
+
+/**
+  Copies n-dimensional array `src` to `dest` by calling `castfun` on
+  each element.
+
+    ndims: Number of dimensions for both source and destination.
+        Zero means scalar.
+    dest: Pointer to destination memory.  It must be large enough.
+    dest_type: Destination data type
+    dest_size: Size of each element in destination
+    dims_dims: Destination dimensions.  Length: `ndims`
+    dest_strides: Destination strides.  Length: `ndims`
+    src: Pointer to source memory.
+    src_type: Source data type.
+    src_size: Size of each element in source.
+    src_dims: Source dimensions.  Length: `ndims`
+    src_strides: Source strides.  Length: `ndims`
+    castfun: Function that is doing the actually casting. Called on each
+        element.
+
+  Returns non-zero on error.
+*/
+int dlite_type_ndcast(int ndims,
+                      void *dest, DLiteType dest_type, size_t dest_size,
+                      const int *dest_dims, const int *dest_strides,
+                      const char *src, DLiteType src_type, size_t src_size,
+                      const int *src_dims, const int *src_strides,
+                      DLiteTypeCast castfun);
 
 #endif /* _DLITE_TYPES_H */

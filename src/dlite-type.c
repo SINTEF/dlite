@@ -10,7 +10,9 @@
 #include "utils/err.h"
 #include "utils/integers.h"
 #include "utils/floats.h"
+#include "utils/boolean.h"
 #include "dlite-entity.h"
+#include "dlite-macros.h"
 #include "dlite-type.h"
 
 
@@ -449,6 +451,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
   return dest;
 }
 
+
 /*
   Clears the memory pointed to by `p`.  Its type is gived by `dtype` and `size`.
 
@@ -632,4 +635,148 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
   offset = prev_offset + prev_size;
   padding = (align - (offset & (align - 1))) & (align - 1);
   return offset + padding;
+}
+
+
+/*
+  Copies n-dimensional array `src` to `dest` by calling `castfun` on
+  each element.
+
+    ndims: Number of dimensions for both source and destination.
+        Zero means scalar.
+    dest: Pointer to destination memory.  It must be large enough.
+    dest_type: Destination data type
+    dest_size: Size of each element in destination
+    dest_dims: Destination dimensions.  Length: `ndims`, required if ndims > 0
+    dest_strides: Destination strides.  Length: `ndims`, optional
+    src: Pointer to source memory.
+    src_type: Source data type.
+    src_size: Size of each element in source.
+    src_dims: Source dimensions.  Length: `ndims`, required if ndims > 0
+    src_strides: Source strides.  Length: `ndims`, optional
+    castfun: Function that is doing the actually casting. Called on each
+        element.
+
+  Returns non-zero on error.
+*/
+int dlite_type_ndcast(int ndims,
+                      void *dest, DLiteType dest_type, size_t dest_size,
+                      const int *dest_dims, const int *dest_strides,
+                      const char *src, DLiteType src_type, size_t src_size,
+                      const int *src_dims, const int *src_strides,
+                      DLiteTypeCast castfun)
+{
+  int i, retval=1, *sidx=NULL, *didx=NULL, samelayout=1;
+  int *sstrides=NULL, *dstrides=NULL;
+  size_t n, N=1;
+
+  assert(src);
+  assert(dest);
+  if (!castfun) castfun = dlite_type_copy_cast;
+
+  /* Scalar */
+  if (ndims == 0)
+    return castfun(dest, dest_type, dest_size, src, src_type, src_size);
+
+  assert(src_dims);
+  assert(dest_dims);
+
+  /* Total number of elements: N */
+  for (i=0, n=1; i<ndims; i++) {
+    N *= src_dims[i];
+    n *= dest_dims[i];
+  }
+  if (n != N)
+    return err(1, "incompatible sizes of source (%lu) and dest (%lu)", N, n);
+
+  /* Default source strides */
+  if (!src_strides) {
+    int size = src_size;
+    if (!(sstrides = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    for (i=ndims-1; i >= 0; i++) {
+      sstrides[i] = size;
+      size *= src_dims[i];
+    }
+    src_strides = sstrides;
+  }
+
+  /* Default dest strides */
+  if (!dest_strides) {
+    int size = dest_size;
+    if (!(dstrides = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    for (i=ndims-1; i >= 0; i++) {
+      dstrides[i] = size;
+      size *= dest_dims[i];
+    }
+    dest_strides = dstrides;
+  }
+
+  /* -- check that source and dest have same layout */
+  if (dest_type != src_type || dest_size != src_size) samelayout = 0;
+  if (samelayout) {
+    for (i=0; i<ndims; i++)
+      if (dest_dims[i] != src_dims[i] || dest_strides[i] != src_strides[i]) {
+        samelayout = 0;
+        break;
+      }
+  }
+  if (samelayout) {
+    /* -- check that source is contiguous */
+    int size = src_size;
+    for (i=0; i<ndims; i++) {
+      int j, iscont=0;
+      for (j=0; j < src_dims[j]; j++)
+        if (src_strides[j] == size) { iscont = 1; break; }
+      if (!iscont) { samelayout = 0; break; }
+      size *= src_dims[i];
+    }
+  }
+
+  if (samelayout) {
+    /* Copy all data in one chunck */
+    memcpy(dest, src, N * src_size);
+    return 0;
+
+  } else {
+    /* Copy elements individually */
+    int M=ndims-1;
+    const char *sp = src;
+    char *dp = dest;
+    if (!(sidx = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    if (!(didx = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    while (1) {
+      if (castfun(dp, dest_type, dest_size, sp, src_type, src_size)) goto fail;
+
+      if (n++ >= N) break;
+
+      if (++sidx[M] < src_dims[M]) {
+        sp += src_strides[M];
+      } else {
+        sidx[M] = 0;
+        for (i=M-1; i>=0; i--) {
+          if (++sidx[i] < src_dims[M]) break;
+          sidx[i] = 0;
+        }
+        for (i=0, sp=src; i<M; i++) sp += src_strides[i] * sidx[i];
+      }
+
+      if (++didx[M] < dest_dims[M]) {
+        dp += dest_strides[M];
+      } else {
+        didx[M] = 0;
+        for (i=M-1; i>=0; i--) {
+          if (++didx[i] < dest_dims[M]) break;
+          didx[i] = 0;
+        }
+        for (i=0, dp=dest; i<M; i++) dp += dest_strides[i] * didx[i];
+      }
+    }
+  }
+  retval = 0;
+ fail:
+  if (sidx) free(sidx);
+  if (didx) free(didx);
+  if (sstrides) free(sstrides);
+  if (dstrides) free(dstrides);
+  return retval;
 }

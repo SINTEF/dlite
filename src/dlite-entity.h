@@ -657,9 +657,11 @@ int dlite_instance_set_dimension_size(DLiteInstance *inst, const char *name,
 DLiteInstance *dlite_instance_copy(const DLiteInstance *inst,
                                    const char *newid);
 
-
 /**
   Returns a new DLiteArray object for property number `i` in instance `inst`.
+
+  `order` can be 'C' for row-major (C-style) order and 'F' for column-manor
+  (Fortran-style) order.
 
   The returned array object only describes, but does not own the
   underlying array data, which remains owned by the instance.
@@ -669,11 +671,14 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst,
   Returns NULL on error.
  */
 DLiteArray *
-dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i);
-
+dlite_instance_get_property_array_by_index(const DLiteInstance *inst,
+                                           size_t i, int order);
 
 /**
   Returns a new DLiteArray object for property `name` in instance `inst`.
+
+  `order` can be 'C' for row-major (C-style) order and 'F' for column-manor
+  (Fortran-style) order.
 
   The returned array object only describes, but does not own the
   underlying array data, which remains owned by the instance.
@@ -683,7 +688,39 @@ dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i);
   Returns NULL on error.
  */
 DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
-                                              const char *name);
+                                              const char *name, int order);
+
+/**
+  Copy value of property `name` to memory pointed to by `dest`.  It must be
+  large enough to hole all the data.  The meaning or `order` is:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+
+  Return non-zero on error.
+ */
+int dlite_instance_copy_property(const DLiteInstance *inst, const char *name,
+                                 int order, void *dest);
+
+/**
+  Like dlite_instance_copy_property(), but the property is specified by
+  its index `i` instead of name.
+ */
+int dlite_instance_copy_property_by_index(const DLiteInstance *inst, int i,
+                                          int order, void *dest);
+
+
+/**
+  Copies and possible type-cast value of property number `i` to memory
+  pointed to by `dest` using `castfun`.  The destination memory is
+  described by arguments `type`, `size` `dims` and `strides`.  It must
+  be large enough to hole all the data.
+
+  Return non-zero on error.
+ */
+int dlite_instance_cast_property_by_index(const DLiteInstance *inst, int i,
+                                          DLiteType type, size_t size,
+                                          const int *dims, const int *strides,
+                                          void *dest, DLiteTypeCast castfun);
 
 
 /** @} */
@@ -695,7 +732,7 @@ DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
 /** @{ */
 
 /**
-  Returns a new Entity created from the given arguments.
+  Returns a new metadata created from the given arguments.
  */
 DLiteMeta *
 dlite_entity_create(const char *uri, const char *iri,
