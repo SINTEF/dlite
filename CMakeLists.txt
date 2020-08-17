@@ -7,7 +7,7 @@ include(CPack)
 
 project(dlite
   VERSION 0.2.3
-  #DESCRIPTION "Lightweight library for working with scientific data"
+  #DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   LANGUAGES C
   )
 
@@ -19,6 +19,7 @@ option(WITH_JSON        "Whether to build with JSON support"             ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
+option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
 
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
@@ -38,7 +39,9 @@ if(CMAKE_COMPILER_IS_GNUCC)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
-  enable_c_compiler_flag_if_supported("-Werror")
+  if(NOT ALLOW_WARNINGS)
+    enable_c_compiler_flag_if_supported("-Werror")
+  endif()
 endif()
 
 # Enable C99
@@ -64,7 +67,7 @@ set(DLITE_STORAGES                   "share/dlite/storages")
 if(WIN32 AND NOT CYGWIN)
   set(DEF_INSTALL_CMAKE_DIR cmake)
 else()
-  set(DEF_INSTALL_CMAKE_DIR lib/cmake/dlite)
+  set(DEF_INSTALL_CMAKE_DIR share/dlite/cmake)
 endif()
 set(DLITE_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
   "Installation directory for CMake files")
@@ -575,6 +578,6 @@ install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
-    "${dlite_SOURCE_DIR}/cmake/CodeGen.cmake"
+    "${dlite_SOURCE_DIR}/cmake/dliteCodeGen.cmake"
   DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   )
