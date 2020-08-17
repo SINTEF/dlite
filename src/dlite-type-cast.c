@@ -154,7 +154,7 @@ static int istrue(const void *src, DLiteType type, size_t size)
 #define toFixString                                                     \
   do {                                                                  \
     if (dlite_type_snprintf(src, src_type, src_size,                    \
-                            -1, -1, dest, dest_size) < 0) goto fail;    \
+                            0, -2, dest, dest_size) < 0) goto fail;     \
     return 0;                                                           \
   } while (0)
 
@@ -162,11 +162,11 @@ static int istrue(const void *src, DLiteType type, size_t size)
   do {                                                                  \
     int n, m;                                                           \
     if ((n = dlite_type_snprintf(src, src_type, src_size,               \
-                                 -1, -1, NULL, dest_size)) < 0) goto fail;\
+                                 0, -2, NULL, dest_size)) < 0) goto fail;\
     if (!(*(char **)dest = realloc(*(char **)dest, n + 1)))             \
       return err(1, "reallocation failure");                            \
     m = dlite_type_snprintf(src, src_type, src_size,                    \
-                            -1, -1, *(char **)dest, dest_size);         \
+                            0, -2, *(char **)dest, dest_size);          \
     assert(m == n);                                                     \
     return 0;                                                           \
   } while (0)
@@ -188,6 +188,8 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
   long long int vi;
   long double vf;
   char stype[32], dtype[32];
+
+  printf("--- dlite_type_copy_cast()\n");
 
   switch (src_type) {
 

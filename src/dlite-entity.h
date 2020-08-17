@@ -469,7 +469,7 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
 
 
 /**
-  Saves instance \a inst to storage \a s.  Returns non-zero on error.
+  Saves instance `inst` to storage `s`.  Returns non-zero on error.
  */
 int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 
@@ -527,49 +527,49 @@ size_t dlite_instance_get_ndimensions(const DLiteInstance *inst);
 size_t dlite_instance_get_nproperties(const DLiteInstance *inst);
 
 /**
-  Returns size of dimension \a i or -1 on error.
+  Returns size of dimension `i` or -1 on error.
  */
 size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
                                                   size_t i);
 
 /**
-  Returns a pointer to data corresponding to property with index \a i
+  Returns a pointer to data corresponding to property with index `i`
   or NULL on error.
  */
 void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i);
 
 /**
-  Sets property \a i to the value pointed to by \a ptr.
+  Sets property `i` to the value pointed to by `ptr`.
   Returns non-zero on error.
 */
 int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
                                          const void *ptr);
 
 /**
-  Returns number of dimensions of property with index \a i or -1 on error.
+  Returns number of dimensions of property with index `i` or -1 on error.
  */
 int dlite_instance_get_property_ndims_by_index(const DLiteInstance *inst,
                                                size_t i);
 
 /**
-  Returns size of dimension \a j in property \a i or -1 on error.
+  Returns size of dimension `j` in property `i` or -1 on error.
  */
 int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
                                                  size_t i, size_t j);
 
 /**
-  Returns size of dimension \a i or -1 on error.
+  Returns size of dimension `i` or -1 on error.
  */
 int dlite_instance_get_dimension_size(const DLiteInstance *inst,
                                       const char *name);
 
 /**
-  Returns a pointer to data corresponding to \a name or NULL on error.
+  Returns a pointer to data corresponding to `name` or NULL on error.
  */
 void *dlite_instance_get_property(const DLiteInstance *inst, const char *name);
 
 /**
-  Copies memory pointed to by \a ptr to property \a name.
+  Copies memory pointed to by `ptr` to property `name`.
   Returns non-zero on error.
 */
 int dlite_instance_set_property(DLiteInstance *inst, const char *name,
@@ -581,13 +581,13 @@ int dlite_instance_set_property(DLiteInstance *inst, const char *name,
 bool dlite_instance_has_property(DLiteInstance *inst, const char *name);
 
 /**
-  Returns number of dimensions of property  \a name or -1 on error.
+  Returns number of dimensions of property `name` or -1 on error.
 */
 int dlite_instance_get_property_ndims(const DLiteInstance *inst,
                                       const char *name);
 
 /**
-  Returns size of dimension \a j of property \a name or NULL on error.
+  Returns size of dimension `j` of property `name` or NULL on error.
 */
 size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
                                             const char *name, size_t j);
@@ -708,19 +708,55 @@ int dlite_instance_copy_property(const DLiteInstance *inst, const char *name,
 int dlite_instance_copy_property_by_index(const DLiteInstance *inst, int i,
                                           int order, void *dest);
 
-
 /**
   Copies and possible type-cast value of property number `i` to memory
   pointed to by `dest` using `castfun`.  The destination memory is
   described by arguments `type`, `size` `dims` and `strides`.  It must
   be large enough to hole all the data.
 
+  If `castfun` is NULL, it defaults to dlite_type_copy_cast().
+
   Return non-zero on error.
  */
-int dlite_instance_cast_property_by_index(const DLiteInstance *inst, int i,
-                                          DLiteType type, size_t size,
-                                          const int *dims, const int *strides,
-                                          void *dest, DLiteTypeCast castfun);
+int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
+                                          int i,
+                                          DLiteType type,
+                                          size_t size,
+                                          const int *dims,
+                                          const int *strides,
+                                          void *dest,
+                                          DLiteTypeCast castfun);
+
+
+
+/**
+  Set property `name` to memory pointed to by `src`. The meaning or `order` is:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+
+  Return non-zero on error.
+ */
+int dlite_instance_set_casted_property(const DLiteInstance *inst,
+                                       const char *name, int order,
+                                       const void *src);
+
+/**
+  Copies and possible type-cast memory pointed to by `src` to property
+  number `i` using `castfun`.  The memory pointed to by `src` is
+  described by arguments `type`, `size` `dims` and `strides`.
+
+  If `castfun` is NULL, it defaults to dlite_type_copy_cast().
+
+  Return non-zero on error.
+ */
+int dlite_instance_set_casted_property_by_index(const DLiteInstance *inst,
+                                                int i,
+                                                DLiteType type,
+                                                size_t size,
+                                                const int *dims,
+                                                const int *strides,
+                                                const void *src,
+                                                DLiteTypeCast castfun);
 
 
 /** @} */

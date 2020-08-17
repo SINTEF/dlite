@@ -662,7 +662,7 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
 int dlite_type_ndcast(int ndims,
                       void *dest, DLiteType dest_type, size_t dest_size,
                       const int *dest_dims, const int *dest_strides,
-                      const char *src, DLiteType src_type, size_t src_size,
+                      const void *src, DLiteType src_type, size_t src_size,
                       const int *src_dims, const int *src_strides,
                       DLiteTypeCast castfun)
 {
@@ -744,8 +744,20 @@ int dlite_type_ndcast(int ndims,
     char *dp = dest;
     if (!(sidx = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
     if (!(didx = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+
+    printf("\n***\n");
+
+    n = 0;
     while (1) {
+
+      printf("  %lu: sp=%-3ld sidx=[%d, %d, %d]  dp=%-3ld didx=[%d, %d, %d]\n",
+             n,
+             sp - (char *)src,  sidx[0], sidx[1], sidx[2],
+             dp - (char *)dest, didx[0], didx[1], didx[2]);
+
       if (castfun(dp, dest_type, dest_size, sp, src_type, src_size)) goto fail;
+
+      printf("---\n");
 
       if (n++ >= N) break;
 
@@ -757,7 +769,17 @@ int dlite_type_ndcast(int ndims,
           if (++sidx[i] < src_dims[M]) break;
           sidx[i] = 0;
         }
-        for (i=0, sp=src; i<M; i++) sp += src_strides[i] * sidx[i];
+        for (i=0, sp=src; i<M; i++) {
+          const char *spold=sp;
+
+          sp += src_strides[i] * sidx[i];
+
+          printf("    %i: sp=%ld->%ld  strides=%d  sidx=%d\n",
+                 i, spold - (char *)src, sp - (char *)src,
+                 src_strides[i], sidx[i]);
+
+
+        }
       }
 
       if (++didx[M] < dest_dims[M]) {

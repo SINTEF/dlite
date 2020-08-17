@@ -115,7 +115,7 @@ typedef int
 
 
 /**
-  Returns descriptive name for \a dtype or NULL on error.
+  Returns descriptive name for `dtype` or NULL on error.
 */
 const char *dlite_type_get_dtypename(DLiteType dtype);
 
@@ -125,13 +125,13 @@ const char *dlite_type_get_dtypename(DLiteType dtype);
 const char *dlite_type_get_enum_name(DLiteType dtype);
 
 /**
-  Returns the dtype corresponding to \a dtypename or -1 on error.
+  Returns the dtype corresponding to `dtypename` or -1 on error.
 */
 DLiteType dlite_type_get_dtype(const char *dtypename);
 
 /**
-  Writes the type name corresponding to \a dtype and \a size to \a typename,
-  which must be of size \a n.  Returns non-zero on error.
+  Writes the type name corresponding to `dtype` and `size` to `typename`,
+  which must be of size `n`.  Returns non-zero on error.
 */
 int dlite_type_set_typename(DLiteType dtype, size_t size,
                             char *typename, size_t n);
@@ -158,14 +158,14 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
 bool dlite_is_type(const char *name);
 
 /**
-  Assigns \a dtype and \a size from \a typename.  Returns non-zero on error.
+  Assigns `dtype` and `size` from `typename`.  Returns non-zero on error.
 */
 int dlite_type_set_dtype_and_size(const char *typename,
                                   DLiteType *dtype, size_t *size);
 
 
 /**
-  Returns non-zero id `dtype` contains allocated data, like dliteStringPtr.
+  Returns non-zero if `dtype` contains allocated data, like dliteStringPtr.
  */
 int dlite_type_is_allocated(DLiteType dtype);
 
@@ -217,9 +217,9 @@ size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset);
 
 
 /**
-  Returns the offset the current struct member with dtype \a dtype and
-  size \a size.  The offset of the previous struct member is \a prev_offset
-  and its size is \a prev_size.
+  Returns the offset the current struct member with dtype `dtype` and
+  size `size`.  The offset of the previous struct member is `prev_offset`
+  and its size is `prev_size`.
 
   Returns -1 on error.
  */
@@ -263,7 +263,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 int dlite_type_ndcast(int ndims,
                       void *dest, DLiteType dest_type, size_t dest_size,
                       const int *dest_dims, const int *dest_strides,
-                      const char *src, DLiteType src_type, size_t src_size,
+                      const void *src, DLiteType src_type, size_t src_size,
                       const int *src_dims, const int *src_strides,
                       DLiteTypeCast castfun);
 
