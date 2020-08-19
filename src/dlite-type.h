@@ -71,6 +71,7 @@
 #include "utils/boolean.h"
 #include "triplestore.h"
 
+
 /** Expands to the struct alignment of type */
 #define alignof(type) ((size_t)&((struct { char c; type d; } *)0)->d)
 
@@ -112,6 +113,9 @@ typedef enum _DLiteType {
 typedef int
 (*DLiteTypeCast)(void *dest, DLiteType dest_type, size_t dest_size,
                  const void *src, DLiteType src_type, size_t src_size);
+
+
+#include "dlite-type-cast.h"
 
 
 /**
@@ -226,18 +230,6 @@ size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset);
 int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
                                  DLiteType dtype, size_t size);
 
-
-/**
-  Copies value from `src` to `dest`.  If `dest_type` and `dest_size` differs
-  from `src_type` and `src_size` the value will be casted, if possible.
-
-  If `dest_type` contains allocated data, new memory will be allocated
-  for `dest`.  Information may get lost in this case.
-
-  Returns non-zero on error.
-*/
-int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
-                         const void *src, DLiteType src_type, size_t src_size);
 
 /**
   Copies n-dimensional array `src` to `dest` by calling `castfun` on

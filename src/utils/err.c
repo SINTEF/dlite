@@ -197,9 +197,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
     exit(eval);
   }
 
-  /* Clear errors */
-  err_clear();
-
   return eval;
 }
 
