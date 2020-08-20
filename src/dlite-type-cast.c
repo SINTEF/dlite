@@ -189,8 +189,6 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
   long double vf;
   char stype[32], dtype[32];
 
-  printf("--- dlite_type_copy_cast()\n");
-
   switch (src_type) {
 
   case dliteBlob:
@@ -361,7 +359,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
     case dliteBool:
       toBool;
     case dliteUInt:
-      switch (isnegative(src, src_type, src_type)) {
+      switch (isnegative(src, src_type, src_size)) {
       case 0: break;
       case 1: return err(1, "cannot cast negative int%lu_t to uint%lu_t",
                          8*src_size, 8*dest_size);
@@ -500,7 +498,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
     case dliteBool:
       toBool;
     case dliteUInt:
-      switch (isnegative(src, src_type, src_type)) {
+      switch (isnegative(src, src_type, src_size)) {
       case 0: break;
       case 1: return err(1, "cannot cast negative float%lu_t to uint%lu_t",
                          8*src_size, 8*dest_size);
@@ -688,7 +686,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
       *(bool *)src = (p && *p) ? 1 : 0;
       return 0;
     case dliteUInt:
-      switch (isnegative(src, src_type, src_type)) {
+      switch (isnegative(src, src_type, src_size)) {
       case 0: break;
       case 1: return err(1, "cannot cast negative string value \"%s\" to "
                          "uint%lu_t", p, 8*dest_size);
