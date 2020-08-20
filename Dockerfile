@@ -76,9 +76,10 @@ RUN cppcheck . \
 # Build dlite
 RUN mkdir build
 WORKDIR /home/user/sw/dlite/build
-RUN cmake ..
+RUN cmake .. -DFORCE_EXAMPLES=ON
 RUN make
 RUN make install
+
 RUN ctest -E postgresql  # skip postgresql since we haven't set up the server
 
 ENTRYPOINT ipython3 \
