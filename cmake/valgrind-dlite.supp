@@ -209,6 +209,44 @@
 }
 
 {
+   pyembed-initialize-2
+   Memcheck:Leak
+   fun:cealloc
+   ...
+   fun:_Py_InitializeFromConfig
+   fun:Py_InitializeEx
+   fun:dlite_pyembed_initialise
+}
+
+{
+   pyembed-initialize-3
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:_Py_InitializeFromConfig
+   fun:Py_InitializeEx
+   fun:dlite_pyembed_initialise
+}
+
+{
+   pyembed-initialize-4
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:PyMem_Calloc
+   fun:PyList_New
+   fun:_PyWarnings_Init
+   fun:_Py_InitializeCore_impl
+   fun:_Py_InitializeCore
+   fun:_Py_InitializeFromConfig
+   fun:Py_InitializeEx
+   fun:dlite_pyembed_initialise
+   fun:dlite_pyembed_load_plugins
+   fun:dlite_python_mapping_load
+   fun:get_dlite_mapping_api
+}
+
+{
    pyembed-init
    Memcheck:Leak
    fun:malloc
@@ -235,7 +273,6 @@
    fun:PyUnicode_New
    fun:_PyUnicodeWriter_PrepareInternal
    fun:PyUnicode_DecodeUTF8Stateful
-   fun:dlite_pyembed_load_plugins
 }
 
 {
@@ -290,15 +327,6 @@
    fun:_PyMethodDef_RawFastCallKeywords
    fun:_PyCFunction_FastCallKeywords
 }
-
-#{
-#   pyembed-conditional-jump-depends-on-uninitialised-value
-#   Memcheck:Cond
-#   fun:PyUnicode_Decode
-#   fun:PyUnicode_FromEncodedObject
-#   ...
-#   fun:_PyEval_EvalFrameDefault
-#}
 
 {
    pyembed-marchal
@@ -550,18 +578,252 @@
    fun:PyImport_ImportModuleLevelObject
 }
 
+{
+   pyembed-initializeEx
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_New
+   fun:PyModule_NewObject
+   fun:PyModule_New
+   fun:_PyModule_CreateInitialized
+   fun:PyInit__imp
+   ...
+   fun:_Py_InitializeCore_impl
+   fun:_Py_InitializeCore
+   fun:_Py_InitializeFromConfig
+   fun:Py_InitializeEx
+}
+{
+   Call _PyFunction
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+
+{
+   Calling _PyFunction_FastCallKeywords
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyDict_NewPresized
+   fun:_PyStack_AsDict
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+
+}
+
+{
+   Eval frame
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+
+{
+   Calling _PyFunction_FastCallKeywords
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+
+{
+   Eval default frame
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+
+
 # ------------------------------------
 # Python bindings
 # ------------------------------------
 
 {
-   python-bindings
+   python-bindings-1
    Memcheck:Leak
-   match-leak-kinds: definite
    fun:malloc
-   fun:_PyMem_RawWcsdup
    ...
    fun:_Py_InitializeCore
    ...
    fun:_Py_UnixMain
+}
+
+{
+   python-bindings-2
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:Py_FinalizeEx
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   python-bindings-3
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   python-bindings-4
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   python-bindings-5
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   python-bindings-6
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyRun_SimpleFileExFlags
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   python-bindings-7
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:PyRun_SimpleFileExFlags
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   python-bindings-8
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:PyRun_SimpleFileExFlags
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   python-bindings-9
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+
+{
+   python-bindings-10
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+
+{
+   python-bindings-11
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+
+# ------------------------------------
+# Python plugins
+# ------------------------------------
+
+{
+   python-plugins-opener
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:PyObject_CallMethod
+   fun:opener
+}
+
+{
+   python-plugins-closer
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyObject_CallMethod
+   fun:closer
+}
+
+{
+   python-plugins-loader1
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyObject_CallMethod
+   fun:loader
+}
+
+{
+   python-plugins-loader2
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:PyObject_CallMethod
+   fun:loader
+}
+
+{
+   python-plugins-saver
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyObject_CallMethod
+   fun:saver
 }

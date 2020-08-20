@@ -289,3 +289,6 @@ Design questions
       "schema_properties", etc. for meta-metadata.  Instead we could
       identify meta-metadata by checking if it has any property called
       "dimensions" and "properties".
+
+  [ ] Remove `dataname` from dlite-datamodel, dlite-entity and old
+      storage plugins.
