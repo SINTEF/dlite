@@ -1412,6 +1412,7 @@ int dlite_instance_copy_property(const DLiteInstance *inst, const char *name,
   return dlite_instance_copy_property_by_index(inst, i, order, dest);
 }
 
+
 /*
   Like dlite_instance_copy_property(), but the property is specified by
   its index `i` instead of name.
@@ -1431,54 +1432,13 @@ int dlite_instance_copy_property_by_index(const DLiteInstance *inst, int i,
 }
 
 
-///* Recursive help function for dlite_instance_cast_property_by_index().
-//   Copies dimension `d` from `src` to `dest` by calling `castfun` on
-//   each element.
-//     d: current dimension.  Call it with d=0
-//     ndims: Number of dimensions for both source and destination.
-//         Zero means scalar.
-//     dest: Pointer to destination memory.  It must be large enough.
-//     dest_type: Destination data type
-//     dest_size: Size of each element in destination
-//     dims_dims: Destination dimensions.  Length: `ndims`
-//     dest_strides: Destination strides.  Length: `ndims`
-//     src: Pointer to source memory.
-//     src_type: Source data type.
-//     src_size: Size of each element in source.
-//     src_dims: Source dimensions.  Length: `ndims`
-//     src_strides: Source strides.  Length: `ndims`
-//     castfun: Function that is doing the actually casting. Called on each
-//         element.
-//
-//   Returns non-zero on error.
-//*/
-//static int castdim(size_t d, int ndims,
-//                   void *dest, DLiteType dest_type, size_t dest_size,
-//                   const int *dest_dims, const int *dest_strides,
-//                   const char *src, DLiteType src_type, size_t src_size,
-//                   const int *src_dims, const int *src_strides,
-//                   DLiteTypeCast *castfun)
-//{
-//  size_t i;
-//  if (d < ndims) {
-//    for (i=0; i<dims[d]; i++)
-//      if (castdim(d+1, ndims,
-//                  dest + dest_strides[d], dest_type, dest_size,
-//                  dest_dims, dest_strides,
-//                  src + src_strides[d], src_type, src_size,
-//                  src_dims, src_strides,
-//                  castfun)) return 1;
-//  } else {
-//    if (castfun(dest, dest_type, dest_size, src, src_type, src_size)) return 1;
-//  }
-//  return 0;
-//}
-
 /*
   Copies and possible type-cast value of property number `i` to memory
   pointed to by `dest` using `castfun`.  The destination memory is
   described by arguments `type`, `size` `dims` and `strides`.  It must
   be large enough to hole all the data.
+
+  If `castfun` is NULL, it defaults to dlite_type_copy_cast().
 
   Return non-zero on error.
  */
@@ -1512,15 +1472,15 @@ int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
 
 
 /*
-  Set property `name` to memory pointed to by `src`. The meaning or `order` is:
+  Assigns property `name` to memory pointed to by `src`. The meaning
+  of `order` is:
     'C':  row-major (C-style) order, no reordering.
     'F':  coloumn-major (Fortran-style) order, transposed order.
 
   Return non-zero on error.
  */
-int dlite_instance_set_casted_property(const DLiteInstance *inst,
-                                       const char *name, int order,
-                                       const void *src)
+int dlite_instance_assign_property(const DLiteInstance *inst, const char *name,
+                                   int order, const void *src)
 {
   int i, retval=1;
   DLiteProperty *p;
@@ -1530,30 +1490,31 @@ int dlite_instance_set_casted_property(const DLiteInstance *inst,
   if (!(arr = dlite_instance_get_property_array(inst, p->name, order)))
     return 1;
   retval =
-    dlite_instance_set_casted_property_by_index(inst, i, p->type, p->size,
-                                                arr->dims, arr->strides,
-                                                src, NULL);
+    dlite_instance_assign_casted_property_by_index(inst, i, p->type, p->size,
+                                                   arr->dims, arr->strides,
+                                                   src, NULL);
   dlite_array_free(arr);
   return retval;
 }
 
+
 /*
-  Copies and possible type-cast memory pointed to by `src` to property
-  number `i` using `castfun`.  The memory pointed to by `src` is
-  described by arguments `type`, `size` `dims` and `strides`.
+  Assigns property `i` by copying and possible type-cast memory
+  pointed to by `src` using `castfun`.  The memory pointed to by `src`
+  is described by arguments `type`, `size` `dims` and `strides`.
 
   If `castfun` is NULL, it defaults to dlite_type_copy_cast().
 
   Return non-zero on error.
  */
-int dlite_instance_set_casted_property_by_index(const DLiteInstance *inst,
-                                                int i,
-                                                DLiteType type,
-                                                size_t size,
-                                                const int *dims,
-                                                const int *strides,
-                                                const void *src,
-                                                DLiteTypeCast castfun)
+int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
+                                                   int i,
+                                                   DLiteType type,
+                                                   size_t size,
+                                                   const int *dims,
+                                                   const int *strides,
+                                                   const void *src,
+                                                   DLiteTypeCast castfun)
 {
   void *dest = dlite_instance_get_property_by_index(inst, i);
   DLiteProperty *p = inst->meta->_properties + i;
