@@ -86,7 +86,7 @@ MU_TEST(test_close)
 
 MU_TEST(unload_plugins)
 {
-  //dlite_storage_plugin_unload_all();
+  dlite_storage_plugin_unload_all();
 }
 
 
