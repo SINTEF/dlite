@@ -158,11 +158,12 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
 /*
   Free's internal resources in `api`.
 */
-static void freer(DLiteStoragePlugin *api)
+static void freeapi(PluginAPI *api)
 {
-  free((char *)api->name);
-  Py_XDECREF(api->data);
-  free(api);
+  DLiteStoragePlugin *a = (DLiteStoragePlugin *)api;
+  free((char *)a->name);
+  Py_XDECREF(a->data);
+  free(a);
 }
 
 
@@ -252,7 +253,6 @@ int iterNext(void *iter, char *buf)
 }
 
 
-
 /*
   Returns API provided by storage plugin `name` implemented in Python.
 */
@@ -325,6 +325,7 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
     FAIL("allocation failure");
 
   api->name = strdup(PyUnicode_AsUTF8(name));
+  api->freeapi = freeapi;
   api->open = opener;
   api->close = closer;
   if (queue) {
@@ -334,7 +335,6 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
   }
   api->loadInstance = loader;
   api->saveInstance = saver;
-  api->freer = freer;
   api->data = (void *)cls;
   Py_INCREF(cls);
 

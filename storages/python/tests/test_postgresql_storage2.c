@@ -5,6 +5,7 @@
 
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "dlite-storage-plugins.h"
 
 /* This header should define HOST, DATABASE, USER and PASSWORD */
 #include "pgconf.h"
@@ -40,6 +41,11 @@ MU_TEST(test_load_inst)
                                               inst));
 }
 
+MU_TEST(test_unload_plugins)
+{
+  //dlite_storage_plugin_unload_all();
+}
+
 
 /***********************************************************************/
 
@@ -48,6 +54,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_load_inst);
   MU_RUN_TEST(test_load_meta);
+  MU_RUN_TEST(test_unload_plugins);
 }
 
 int main()

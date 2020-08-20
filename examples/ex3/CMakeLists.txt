@@ -6,21 +6,22 @@ project(dlite-example-3
   VERSION 0.1
   LANGUAGES C)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${DLITE_ROOT}/share/dlite/cmake
+  )
 include(Finddlite)
 find_package(dlite)
 
-message("CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
+include(dliteCodeGen)
 
-add_custom_command(
-OUTPUT philibtable.h
-COMMAND ${DLITE_ROOT}/bin/dlite-codegen
-  --format c-header
-  --output philibtable.h
-  json:${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json
-MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json
-COMMENT "Generating C header for PhilibTable.json"
-)
+dlite_codegen(
+  philibtable.h
+  c-header
+  json:${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json?mode=r
+  --storage-plugins=${DLITE_STORAGE_PLUGINS}
+  )
 
 link_directories(${DLITE_LIBRARY_DIR})
 

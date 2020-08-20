@@ -878,6 +878,7 @@ DLiteMeta *dlite_json_entity(json_t *obj)
 
 static DLiteStoragePlugin dlite_json_plugin = {
   "json",
+  NULL,
 
   /* basic api */
   dlite_json_open,
@@ -917,7 +918,6 @@ static DLiteStoragePlugin dlite_json_plugin = {
   //dlite_json_set_entity,
 
   /* internal data */
-  NULL,
   NULL
 };
 

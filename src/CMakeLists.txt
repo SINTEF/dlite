@@ -22,6 +22,7 @@ set(sources
   dlite-misc.c
   dlite-store.c
   dlite-type.c
+  dlite-type-cast.c
   dlite-arrays.c
   dlite-datamodel.c
   dlite-schemas.c

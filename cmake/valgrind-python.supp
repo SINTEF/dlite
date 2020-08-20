@@ -1,0 +1,3208 @@
+# ------------------------------------------
+# valgrind suppressions generated from
+# ts.log
+# ------------------------------------------
+{
+   suppression-1-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-2-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-3-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-4-ts.log
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:realloc
+}
+{
+   suppression-5-ts.log
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+}
+{
+   suppression-6-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:PyMem_Calloc
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyCFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-7-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-8-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-9-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-10-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:_PyObject_FastCallDict
+   ...
+   fun:PyObject_CallFunctionObjArgs
+}
+{
+   suppression-11-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyBytes_Resize
+}
+{
+   suppression-12-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyBytes_Resize
+}
+{
+   suppression-13-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyMem_Malloc
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-14-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:PyMem_Calloc
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+}
+{
+   suppression-15-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyUnicode_New
+   fun:_PyUnicodeWriter_PrepareInternal
+   fun:_PyUnicode_DecodeUnicodeEscape
+}
+{
+   suppression-16-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyUnicode_New
+   fun:PyUnicode_Append
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-17-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-18-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:_PyUnicode_DecodeUnicodeEscape
+}
+{
+   suppression-19-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:PyMem_Calloc
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyCFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-20-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:_PyUnicode_DecodeUnicodeEscape
+}
+{
+   suppression-21-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:_PyObject_FastCallDict
+   ...
+   fun:PyObject_CallFunctionObjArgs
+}
+{
+   suppression-22-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   fun:PyList_Append
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-23-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+}
+{
+   suppression-24-ts.log
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+}
+{
+   suppression-25-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyCFunction_FastCallKeywords
+}
+{
+   suppression-26-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+}
+{
+   suppression-27-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+}
+{
+   suppression-28-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyBytes_Resize
+}
+{
+   suppression-29-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyBytes_Resize
+}
+{
+   suppression-30-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyMethod_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-31-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PySlice_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-32-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-33-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-34-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_FromFormatV
+   fun:PyUnicode_FromFormat
+   ...
+   fun:_PyObject_GenericGetAttrWithDict
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+}
+{
+   suppression-35-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-36-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+}
+{
+   suppression-37-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyMem_Malloc
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-38-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   ...
+   fun:_Py_InitializeMainInterpreter
+   fun:_Py_InitializeFromConfig
+}
+{
+   suppression-39-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_FileExFlags
+}
+{
+   suppression-40-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_FileExFlags
+}
+{
+   suppression-41-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+}
+{
+   suppression-42-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+}
+{
+   suppression-43-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+}
+{
+   suppression-44-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+}
+{
+   suppression-45-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+}
+{
+   suppression-46-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+}
+{
+   suppression-47-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_FastCall_Prepend
+   ...
+   fun:PyObject_SetAttr
+}
+{
+   suppression-48-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-49-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyCFunction_NewEx
+   ...
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-50-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyCFunction_NewEx
+   ...
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-51-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-52-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-53-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-54-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+}
+{
+   suppression-55-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   fun:PyObject_GenericGetDict
+   ...
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-56-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-57-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_FileExFlags
+}
+{
+   suppression-58-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyMem_Malloc
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallDict
+}
+{
+   suppression-59-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyMem_Malloc
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-60-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyMem_Malloc
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-61-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+}
+{
+   suppression-62-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+}
+{
+   suppression-63-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-64-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+}
+{
+   suppression-65-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+}
+{
+   suppression-66-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-67-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+   fun:PyUnicode_AppendAndDel
+}
+{
+   suppression-68-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+   fun:PyUnicode_AppendAndDel
+}
+{
+   suppression-69-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-70-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-71-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+   fun:PyUnicode_AppendAndDel
+}
+{
+   suppression-72-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+   fun:PyUnicode_AppendAndDel
+}
+{
+   suppression-73-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   ...
+   fun:PyObject_GetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_FastCall_Prepend
+}
+{
+   suppression-74-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-75-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-76-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-77-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-78-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-79-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-80-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PySymtable_BuildObject
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_FileExFlags
+}
+{
+   suppression-81-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PySymtable_BuildObject
+   fun:PyAST_CompileObject
+}
+{
+   suppression-82-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+}
+{
+   suppression-83-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+}
+{
+   suppression-84-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+}
+{
+   suppression-85-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+}
+{
+   suppression-86-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-87-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyCFunction_NewEx
+   ...
+   fun:_PyObject_GetMethod
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-88-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-89-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyStack_AsDict
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+}
+{
+   suppression-90-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:PyDict_SetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-91-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-92-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_FileExFlags
+}
+{
+   suppression-93-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_New
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-94-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_Copy
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-95-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:PyDict_SetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+   fun:PyImport_ImportModuleLevelObject
+}
+{
+   suppression-96-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyDict_NewPresized
+   fun:_PyStack_AsDict
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-97-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyDict_NewPresized
+   fun:_PyStack_AsDict
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-98-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-99-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-100-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-101-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-102-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-103-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-104-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   fun:PyList_Append
+   fun:PyInit_posix
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+   fun:_PyCFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-105-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyMethod_New
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-106-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:PyDict_SetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-107-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:PyDict_SetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-108-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyTuple_Resize
+   fun:PySequence_Tuple
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-109-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PySymtable_BuildObject
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_FileExFlags
+}
+{
+   suppression-110-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:PyImport_ImportFrozenModuleObject
+   fun:PyImport_ImportFrozenModule
+   ...
+   fun:_Py_InitializeCore_impl
+}
+{
+   suppression-111-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:PyDict_SetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-112-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_Copy
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-113-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-114-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_New
+   fun:PyObject_GenericGetDict
+   ...
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-115-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-116-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:_PyDict_NewPresized
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-117-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:PyMem_Calloc
+   fun:PyList_New
+   ...
+   fun:PyObject_GetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+}
+{
+   suppression-118-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+}
+{
+   suppression-119-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-120-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-121-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-122-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-123-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:PyObject_CallMethod
+   ...
+   fun:_Py_InitializeCore_impl
+   fun:_Py_InitializeCore
+   fun:_Py_InitializeFromConfig
+}
+{
+   suppression-124-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-125-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_FastCall_Prepend
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-126-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_FastCall_Prepend
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-127-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-128-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:PyObject_Call
+}
+{
+   suppression-129-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+}
+{
+   suppression-130-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:PyFrame_New
+}
+{
+   suppression-131-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:PyObject_CallFunctionObjArgs
+   ...
+   fun:PyObject_ClearWeakRefs
+}
+{
+   suppression-132-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-133-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:PyObject_CallFunctionObjArgs
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-134-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-135-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallDict
+}
+{
+   suppression-136-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-137-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:PyObject_Call
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-138-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-139-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-140-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-141-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:PyObject_Call
+   ...
+   fun:PyObject_Str
+   fun:PyUnicode_Format
+}
+{
+   suppression-142-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+   fun:PyImport_ImportModuleLevelObject
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+}
+{
+   suppression-143-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-144-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+}
+{
+   suppression-145-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_Copy
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-146-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:PyObject_CallMethod
+}
+{
+   suppression-147-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-148-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-149-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyCFunction_FastCallKeywords
+}
+{
+   suppression-150-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-151-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-152-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+   fun:PyImport_ImportModuleLevelObject
+}
+{
+   suppression-153-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-154-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-155-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyMethod_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-156-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-157-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-158-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-159-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-160-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-161-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-162-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-163-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   fun:PyList_Append
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-164-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyDict_Copy
+   ...
+   fun:PyObject_Call
+   ...
+   fun:PyObject_Str
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-165-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:PyDict_SetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-166-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_FastCall_Prepend
+   ...
+   fun:PyObject_GetItem
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-167-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-168-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-169-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+   fun:PyImport_ImportModuleLevelObject
+   ...
+   fun:PyCFunction_Call
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-170-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:blas_thread_init
+   fun:gotoblas_init
+   fun:call_init.part.0
+   fun:_dl_init
+   fun:_dl_catch_exception
+   fun:dl_open_worker
+   fun:_dl_catch_exception
+   fun:_dl_open
+}
+{
+   suppression-171-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+   fun:Py_CompileStringObject
+}
+{
+   suppression-172-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyUnicode_New
+   fun:PyUnicode_Append
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-173-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-174-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyBytes_Resize
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_FileExFlags
+}
+{
+   suppression-175-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-176-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyMethod_New
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-177-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyMem_Malloc
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-178-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-179-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+   fun:PyImport_ImportModuleLevelObject
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-180-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:PyUnicode_Append
+   ...
+   fun:PyAST_CompileObject
+}
+{
+   suppression-181-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-182-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-183-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+}
+{
+   suppression-184-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-185-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   fun:PyList_Append
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-186-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+   fun:PyImport_ImportModuleLevelObject
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-187-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyMem_Malloc
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-188-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-189-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyTuple_Resize
+   fun:PySequence_Tuple
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-190-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+   fun:PyType_Ready
+   ...
+   fun:PyModule_ExecDef
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+   fun:_PyCFunction_FastCallDict
+}
+{
+   suppression-191-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericNew
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-192-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   fun:PyUnicode_DecodeUTF8Stateful
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+}
+{
+   suppression-193-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_Finish
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-194-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   ...
+   fun:PyDict_SetItem
+   fun:_PyObjectDict_SetItem
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_SetAttr
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+}
+{
+   suppression-195-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-196-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+   fun:_PyCFunction_FastCallDict
+}
+{
+   suppression-197-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   suppression-198-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyDict_New
+   ...
+   fun:PyAST_CompileObject
+   fun:Py_CompileStringObject
+}
+{
+   suppression-199-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   ...
+   fun:PyObject_Realloc
+   ...
+   fun:_PyUnicodeWriter_PrepareInternal
+   fun:_PyUnicodeWriter_WriteStr
+   fun:PyUnicode_Format
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+# ------------------------------------------
+# valgrind suppressions generated from
+# ts.log
+# ------------------------------------------
+{
+   suppression-1-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+{
+   suppression-2-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   ...
+   fun:PySymtable_BuildObject
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_StringFlags
+}
+{
+   suppression-3-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyCFunction_NewEx
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-4-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyList_New
+   fun:PyDict_Keys
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_StringFlags
+}
+{
+   suppression-5-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_New
+   fun:PyCFunction_NewEx
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-6-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   fun:PyList_Append
+   fun:_PyState_AddModule
+   fun:_PyImport_FixupExtensionObject
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+   fun:_PyCFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallKeywords
+}
+# ------------------------------------------
+# valgrind suppressions generated from
+# ts.log
+# ------------------------------------------
+{
+   suppression-1-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+}
+{
+   suppression-2-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-3-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:_PyObject_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyFunction_FastCallDict
+}
+{
+   suppression-4-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyEval_EvalCodeWithName
+   fun:_PyFunction_FastCallDict
+   ...
+   fun:PyObject_CallFunctionObjArgs
+   ...
+   fun:_pq_execute_sync
+}
+{
+   suppression-5-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   fun:_PyGen_Send
+   fun:_PyEval_EvalFrameDefault
+}
+{
+   suppression-6-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   ...
+   fun:PyObject_Call
+   ...
+   fun:_pq_execute_sync
+}
+{
+   suppression-7-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallKeywords
+   ...
+   fun:_PyEval_EvalFrameDefault
+   ...
+   fun:_PyObject_FastCallKeywords
+}
+{
+   suppression-8-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   ...
+   fun:PyObject_CallMethod
+   fun:loader
+   fun:_instance_load_casted
+}
+{
+   suppression-9-ts.log
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:_PyFrame_New_NoTrack
+   fun:_PyFunction_FastCallDict
+   fun:_PyObject_Call_Prepend
+   fun:_PyObject_FastCallDict
+   ...
+   fun:_PyObject_CallMethod_SizeT
+}
+{
+   suppression-10-ts.log
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:PyMem_Realloc
+   ...
+   fun:_PyMethodDef_RawFastCallDict
+   fun:_PyCFunction_FastCallDict
+   ...
+   fun:_PyObject_CallMethodIdObjArgs
+   ...
+   fun:_PyMethodDef_RawFastCallKeywords
+   fun:_PyMethodDescr_FastCallKeywords
+}

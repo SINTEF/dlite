@@ -16,7 +16,7 @@
 
 
 /* Global reference to mapping plugin info */
-static PluginInfo *mapping_plugin_info=NULL;
+static PluginInfo *mapping_plugin_info = NULL;
 
 
 /* Frees up `mapping_plugin_info`. */
@@ -24,10 +24,7 @@ static void mapping_plugin_info_free(void)
 {
   if (mapping_plugin_info) {
     PluginIter iter;
-    DLiteMappingPlugin *api;
     plugin_api_iter_init(&iter, mapping_plugin_info);
-    while ((api = (DLiteMappingPlugin *)plugin_api_iter_next(&iter)))
-      if (api && api->freer) api->freer(api);
     plugin_info_free(mapping_plugin_info);
   }
   mapping_plugin_info = NULL;
@@ -109,7 +106,7 @@ int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
-  return plugin_register_api(info, api);
+  return plugin_register_api(info, (PluginAPI *)api);
 }
 
 /*
@@ -134,7 +131,7 @@ int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
 const DLiteMappingPlugin *
 dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
 {
-  return plugin_api_iter_next((PluginIter *)iter);
+  return (const DLiteMappingPlugin *)plugin_api_iter_next((PluginIter *)iter);
 }
 
 
@@ -147,11 +144,8 @@ int dlite_mapping_plugin_unload(const char *name)
 {
   int stat;
   PluginInfo *info;
-  DLiteMappingPlugin *api;
   if (!(info = get_mapping_plugin_info())) return 1;
-  api = (DLiteMappingPlugin *)plugin_get_api(info, name);
   stat = plugin_unload(info, name);
-  if (api && api->freer) api->freer(api);
   return stat;
 }
 

@@ -6,26 +6,20 @@ project(dlite-example-1
   VERSION 0.1
   LANGUAGES C)
 
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
-#include(Finddlite)
 find_package(dlite REQUIRED)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake)
+
+include(dliteCodeGen)
 
 add_compile_options("-DDLITE_ROOT=${DLITE_ROOT}")
 
-add_custom_command(
-  OUTPUT chemistry.h
-  COMMAND
-    ${CMAKE_COMMAND} -E env
-    LD_LIBRARY_PATH="${DLITE_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-    DLITE_STORAGE_PLUGIN_DIRS="${DLITE_STORAGE_PLUGIN_DIRS}"
-    ${DLITE_ROOT}/bin/dlite-codegen
-    --format c-data-header
-    --output chemistry.h
-    --storage-plugins "${DLITE_STORAGE_PLUGIN_DIRS}"
-    json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json?mode=r
-  MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
-  COMMENT "Generating C header for Chemistry-0.1.json"
+dlite_codegen(
+  chemistry.h
+  c-header
+  json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json?mode=r
   )
+
 
 link_directories(${DLITE_LIBRARY_DIR})
 

@@ -118,8 +118,6 @@ static int list_dims(TGenBuf *s, const char *template, int len,
   if (tgen_subs_copy(&psubs, subs)) goto fail;
   for (i=0; i < p->ndims; i++) {
     tgen_subs_set(&psubs, "dim.name",  p->dims[i] , NULL);
-    tgen_subs_set_fmt(&psubs, "dim.value", NULL, "%zu",
-                      DLITE_PROP_DIM(meta, iprop, i));
     tgen_subs_set_fmt(&psubs, "dim.i",     NULL, "%d",  i);
     tgen_subs_set(&psubs, ",",  (i < p->ndims-1) ? ","  : "", NULL);
     tgen_subs_set(&psubs, ", ", (i < p->ndims-1) ? ", " : "", NULL);
@@ -289,7 +287,7 @@ static int list_meta_relations(TGenBuf *s, const char *template, int len,
 */
 int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
 {
-  char *name, *version, *namespace, **descr;
+  char *name=NULL, *version=NULL, *namespace=NULL, **descr;
   const DLiteMeta *meta = inst->meta;
   int isdata=0, ismeta=0, ismetameta=0;
 
@@ -335,6 +333,9 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
                     meta->meta->_nrelations);
   tgen_subs_set_fmt(subs, "meta._npropdims", NULL, "%zu",
                     meta->_npropdims);
+  free(name);
+  free(version);
+  free(namespace);
 
   /* DLiteInstance_HEAD */
   tgen_subs_set(subs, "_uuid", inst->uuid, NULL);
@@ -344,7 +345,6 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   /* For all metadata  */
   if (dlite_meta_is_metameta(inst->meta)) {
     DLiteMeta *meta = (DLiteMeta *)inst;
-    //char *underscore=NULL;
     dlite_split_meta_uri(inst->uri, &name, &version, &namespace);
     descr = dlite_instance_get_property((DLiteInstance *)meta, "description");
 
@@ -352,6 +352,9 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
     tgen_subs_set(subs, "version",    version,    NULL);
     tgen_subs_set(subs, "namespace",  namespace,  NULL);
     tgen_subs_set(subs, "descr",      *descr,     NULL);
+    free(name);
+    free(version);
+    free(namespace);
 
   /* DLiteMeta_HEAD */
     tgen_subs_set_fmt(subs, "_ndimensions", NULL, "%zu", meta->_ndimensions);

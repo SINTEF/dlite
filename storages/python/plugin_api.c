@@ -5,6 +5,7 @@
 
 static DLiteStoragePlugin dlite_python_plugin = {
   "python",
+  NULL,
 
   dlite_python_open,
   dlite_python_close,

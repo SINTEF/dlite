@@ -234,7 +234,7 @@ MU_TEST(test_copy_cast)
 
 MU_TEST(test_type_ndcast)
 {
-  int v[] = {0, 1, 2,
+  int s[] = {0, 1, 2,
              3, 4, 5,
 
              6, 7, 8,
@@ -243,11 +243,11 @@ MU_TEST(test_type_ndcast)
   int ddims[] = {2, 2, 3};
   int sstrides[] = {24, 12, 4};
   int dstrides[] = {48, 24, 8};
-  uint32_t d[12];
+  uint64_t d[12];
   mu_assert_int_eq(0, dlite_type_ndcast(3,
-                                        d, dliteUInt, 4,
+                                        d, dliteUInt, 8,
                                         ddims, dstrides,
-                                        v, dliteInt, sizeof(int),
+                                        s, dliteInt, sizeof(int),
                                         sdims, sstrides,
                                         NULL));
   mu_assert_int_eq(0, d[0]);
@@ -257,6 +257,21 @@ MU_TEST(test_type_ndcast)
   mu_assert_int_eq(4, d[4]);
   mu_assert_int_eq(11, d[11]);
 
+
+  mu_assert_int_eq(0, dlite_type_ndcast(3,
+                                        d, dliteUInt, 8,
+                                        ddims, NULL,
+                                        s, dliteInt, sizeof(int),
+                                        sdims, NULL,
+                                        NULL));
+  mu_assert_int_eq(0, d[0]);
+  mu_assert_int_eq(1, d[1]);
+  mu_assert_int_eq(2, d[2]);
+  mu_assert_int_eq(3, d[3]);
+  mu_assert_int_eq(4, d[4]);
+  mu_assert_int_eq(11, d[11]);
+
+
   ddims[0] = 3;
   ddims[1] = 2;
   ddims[2] = 2;
@@ -264,26 +279,23 @@ MU_TEST(test_type_ndcast)
   dstrides[1] = 24;
   dstrides[2] = 48;
   mu_assert_int_eq(0, dlite_type_ndcast(3,
-                                        d, dliteUInt, 4,
+                                        d, dliteUInt, 8,
                                         ddims, dstrides,
-                                        v, dliteInt, sizeof(int),
+                                        s, dliteInt, sizeof(int),
                                         sdims, sstrides,
                                         NULL));
   mu_assert_int_eq(0, d[0]);
-  mu_assert_int_eq(1, d[3]);
-  mu_assert_int_eq(2, d[1]);
-  mu_assert_int_eq(3, d[4]);
-  mu_assert_int_eq(4, d[2]);
-  mu_assert_int_eq(5, d[5]);
-  mu_assert_int_eq(6, d[6]);
-  mu_assert_int_eq(7, d[9]);
-  mu_assert_int_eq(8, d[7]);
-  mu_assert_int_eq(9, d[10]);
-  mu_assert_int_eq(10, d[8]);
+  mu_assert_int_eq(1, d[6]);
+  mu_assert_int_eq(2, d[3]);
+  mu_assert_int_eq(3, d[9]);
+  mu_assert_int_eq(4, d[1]);
+  mu_assert_int_eq(5, d[7]);
+  mu_assert_int_eq(6, d[4]);
+  mu_assert_int_eq(7, d[10]);
+  mu_assert_int_eq(8, d[2]);
+  mu_assert_int_eq(9, d[8]);
+  mu_assert_int_eq(10, d[5]);
   mu_assert_int_eq(11, d[11]);
-
-
-
 }
 
 
