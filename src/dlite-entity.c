@@ -889,6 +889,47 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 
 
 /*
+  Returns a pointer to instance UUID.
+ */
+const char *dlite_instance_get_uuid(const DLiteInstance *inst)
+{
+  return inst->uuid;
+}
+
+/*
+  Returns a pointer to instance URI.
+ */
+const char *dlite_instance_get_uri(const DLiteInstance *inst)
+{
+  return inst->uri;
+}
+
+/*
+  Returns a pointer to instance IRI.
+ */
+const char *dlite_instance_get_iri(const DLiteInstance *inst)
+{
+  return inst->iri;
+}
+
+/*
+  Returns a pointer to the UUID of the instance metadata.
+ */
+const char *dlite_instance_get_meta_uuid(const DLiteInstance *inst)
+{
+  return inst->meta->uuid;
+}
+
+/*
+  Returns a pointer to the URI of the instance metadata.
+ */
+const char *dlite_instance_get_meta_uri(const DLiteInstance *inst)
+{
+  return inst->meta->uri;
+}
+
+
+/*
   Returns true if instance has a dimension with the given name.
  */
 bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name)
@@ -903,7 +944,7 @@ bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name)
 /*
   Returns number of dimensions or -1 on error.
  */
-int dlite_instance_get_ndimensions(const DLiteInstance *inst)
+size_t dlite_instance_get_ndimensions(const DLiteInstance *inst)
 {
   if (!inst->meta)
     return errx(-1, "no metadata available");
@@ -914,7 +955,7 @@ int dlite_instance_get_ndimensions(const DLiteInstance *inst)
 /*
   Returns number of properties or -1 on error.
  */
-int dlite_instance_get_nproperties(const DLiteInstance *inst)
+size_t dlite_instance_get_nproperties(const DLiteInstance *inst)
 {
   if (!inst->meta)
     return errx(-1, "no metadata available");
@@ -925,8 +966,8 @@ int dlite_instance_get_nproperties(const DLiteInstance *inst)
 /*
   Returns size of dimension `i` or -1 on error.
  */
-int dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
-                                               size_t i)
+size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
+                                                  size_t i)
 {
   size_t *dimensions;
   if (!inst->meta)
@@ -1307,6 +1348,9 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
 /*
   Returns a new DLiteArray object for property number `i` in instance `inst`.
 
+  `order` can be 'C' for row-major (C-style) order and 'F' for column-manor
+  (Fortran-style) order.
+
   The returned array object only describes, but does not own the
   underlying array data, which remains owned by the instance.
 
@@ -1315,7 +1359,8 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
   Returns NULL on error.
  */
 DLiteArray *
-dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i)
+dlite_instance_get_property_array_by_index(const DLiteInstance *inst,
+                                           size_t i, int order)
 {
   void *ptr;
   int ndims=1, dim=1, *dims=&dim;
@@ -1329,7 +1374,7 @@ dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i)
     for (j=0; j < p->ndims; j++)
       dims[j] = DLITE_PROP_DIM(inst, i, j);
   }
-  arr = dlite_array_create(ptr, p->type, p->size, ndims, dims);
+  arr = dlite_array_create_order(ptr, p->type, p->size, ndims, dims, order);
  fail:
   if (dims && dims != &dim) free(dims);
   return arr;
@@ -1339,6 +1384,9 @@ dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i)
 /*
   Returns a new DLiteArray object for property `name` in instance `inst`.
 
+  `order` can be 'C' for row-major (C-style) order and 'F' for column-manor
+  (Fortran-style) order.
+
   The returned array object only describes, but does not own the
   underlying array data, which remains owned by the instance.
 
@@ -1347,14 +1395,153 @@ dlite_instance_get_property_array_by_index(const DLiteInstance *inst, size_t i)
   Returns NULL on error.
  */
 DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
-                                              const char *name)
+                                              const char *name, int order)
 {
   int i;
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return NULL;
-  return dlite_instance_get_property_array_by_index(inst, i);
+  return dlite_instance_get_property_array_by_index(inst, i, order);
 }
 
 
+/*
+  Copy value of property `name` to memory pointed to by `dest`.  It must be
+  large enough to hole all the data.  The order argument `order` has the
+  following meaning:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+
+  Return non-zero on error.
+ */
+int dlite_instance_copy_property(const DLiteInstance *inst, const char *name,
+                                 int order, void *dest)
+{
+  int i;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return 1;
+  return dlite_instance_copy_property_by_index(inst, i, order, dest);
+}
+
+
+/*
+  Like dlite_instance_copy_property(), but the property is specified by
+  its index `i` instead of name.
+ */
+int dlite_instance_copy_property_by_index(const DLiteInstance *inst, int i,
+                                          int order, void *dest)
+{
+  int retval=1;
+  DLiteProperty *p = inst->meta->_properties + i;
+  DLiteArray *arr = dlite_instance_get_property_array(inst, p->name, order);
+  if (!arr) return 1;
+  retval = dlite_instance_cast_property_by_index(inst, i, p->type, p->size,
+                                                 arr->dims, arr->strides,
+                                                 dest, NULL);
+  dlite_array_free(arr);
+  return retval;
+}
+
+
+/*
+  Copies and possible type-cast value of property number `i` to memory
+  pointed to by `dest` using `castfun`.  The destination memory is
+  described by arguments `type`, `size` `dims` and `strides`.  It must
+  be large enough to hole all the data.
+
+  If `castfun` is NULL, it defaults to dlite_type_copy_cast().
+
+  Return non-zero on error.
+ */
+int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
+                                          int i,
+                                          DLiteType type,
+                                          size_t size,
+                                          const int *dims,
+                                          const int *strides,
+                                          void *dest,
+                                          DLiteTypeCast castfun)
+{
+  void *src = dlite_instance_get_property_by_index(inst, i);
+  DLiteProperty *p = inst->meta->_properties + i;
+  int stat, j, *sdims = NULL;
+
+  if (p->ndims && !dims) {
+    if (!(sdims = calloc(p->ndims, sizeof(int))))
+      return err(1, "allocation failure");
+    for (j=0; j < p->ndims; j++)
+      sdims[j] = DLITE_PROP_DIM(inst, i, j);
+  }
+
+  stat = dlite_type_ndcast(p->ndims,
+                           dest, type, size, dims, strides,
+                           src, p->type, p->size, sdims, NULL,
+                           castfun);
+  if (sdims) free(sdims);
+  return stat;
+}
+
+
+/*
+  Assigns property `name` to memory pointed to by `src`. The meaning
+  of `order` is:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+
+  Return non-zero on error.
+ */
+int dlite_instance_assign_property(const DLiteInstance *inst, const char *name,
+                                   int order, const void *src)
+{
+  int i, retval=1;
+  DLiteProperty *p;
+  DLiteArray *arr;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return 1;
+  p = inst->meta->_properties + i;
+  if (!(arr = dlite_instance_get_property_array(inst, p->name, order)))
+    return 1;
+  retval =
+    dlite_instance_assign_casted_property_by_index(inst, i, p->type, p->size,
+                                                   arr->dims, arr->strides,
+                                                   src, NULL);
+  dlite_array_free(arr);
+  return retval;
+}
+
+
+/*
+  Assigns property `i` by copying and possible type-cast memory
+  pointed to by `src` using `castfun`.  The memory pointed to by `src`
+  is described by arguments `type`, `size` `dims` and `strides`.
+
+  If `castfun` is NULL, it defaults to dlite_type_copy_cast().
+
+  Return non-zero on error.
+ */
+int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
+                                                   int i,
+                                                   DLiteType type,
+                                                   size_t size,
+                                                   const int *dims,
+                                                   const int *strides,
+                                                   const void *src,
+                                                   DLiteTypeCast castfun)
+{
+  void *dest = dlite_instance_get_property_by_index(inst, i);
+  DLiteProperty *p = inst->meta->_properties + i;
+  int stat, j, *ddims = NULL;
+
+  if (p->ndims && !dims) {
+    if (!(ddims = calloc(p->ndims, sizeof(int))))
+      return err(1, "allocation failure");
+    for (j=0; j < p->ndims; j++)
+      ddims[j] = DLITE_PROP_DIM(inst, i, j);
+  }
+
+  stat = dlite_type_ndcast(p->ndims,
+                           dest, p->type, p->size, ddims, NULL,
+                           src, type, size, dims, strides,
+                           castfun);
+  if (ddims) free(ddims);
+  return stat;
+}
 
 
 /********************************************************************
