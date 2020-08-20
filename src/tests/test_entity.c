@@ -27,7 +27,7 @@ DLiteInstance *mydata=NULL, *mydata2=NULL, *mydata3=NULL;
  * Test entity
  ***************************************************************/
 
-MU_TEST(test_entity_create)
+MU_TEST(test_meta_create)
 {
   char *dims0[] = {"N", "M"};
   char *dims1[] = {"N"};
@@ -45,10 +45,10 @@ MU_TEST(test_entity_create)
     {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  NULL, "descr.."}
   };
 
-  mu_check((entity = (DLiteMeta *)dlite_entity_create(uri, "My test entity.",
-                                                      NULL,
-                                                      2, dimensions,
-                                                      5, properties)));
+  mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, "My test entity.",
+                                                    NULL,
+                                                    2, dimensions,
+                                                    5, properties)));
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 
   mu_assert_int_eq(2, entity->_ndimensions);
@@ -280,7 +280,7 @@ MU_TEST(test_meta_free)
 
 MU_TEST_SUITE(test_suite)
 {
-  MU_RUN_TEST(test_entity_create);    /* setup */
+  MU_RUN_TEST(test_meta_create);    /* setup */
   MU_RUN_TEST(test_instance_create);
   MU_RUN_TEST(test_instance_set_property);
   MU_RUN_TEST(test_instance_get_dimension_size);

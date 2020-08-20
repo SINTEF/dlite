@@ -30,7 +30,7 @@ typedef enum _DLiteIDFlag {
 
 
 /**
-  Opens a storage located at `uri` using `driver`.
+  Opens a storage located at `location` using `driver`.
   Returns a opaque pointer or NULL on error.
 
   The `options` are passed to the driver.  Options for known
@@ -42,12 +42,12 @@ typedef enum _DLiteIDFlag {
         - w    Write: truncate existing file or create new file
         - a    Append: open existing file for read and write
 */
-DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
+DLiteStorage *dlite_storage_open(const char *driver, const char *location,
                                  const char *options);
 
 /**
   Like dlite_storage_open(), but takes as input an url of the form
-  ``driver://uri?options``.  The question mark and options may be left out.
+  ``driver://location?options``.  The question mark and options may be left out.
 
   Returns a new storage, or NULL on error.
 */

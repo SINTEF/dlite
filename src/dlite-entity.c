@@ -687,7 +687,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   if (lookup && id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     warn("trying to load existing instance from storage \"%s\": %s"
-         " - creates a new reference", s->uri, id);
+         " - creates a new reference", s->location, id);
     return inst;
   }
 
@@ -725,7 +725,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   /* check metadata uri */
   if (strcmp(uri, meta->uri) != 0)
     FAIL3("metadata uri (%s) does not correspond to that in storage (%s): %s",
-	  meta->uri, uri, s->uri);
+	  meta->uri, uri, s->location);
 
   /* read dimensions */
   if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
@@ -766,7 +766,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
         dlite_get_uuid(inst->uuid, inst->uri);
       } else {
         FAIL2("metadata %s loaded from %s has no name, version and namespace",
-             id, s->uri);
+             id, s->location);
       }
     //} else {
     //  char **dataname;
@@ -791,7 +791,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 
  fail:
   if (!inst && !err_geteval())
-    err(1, "cannot load id '%s' from storage '%s'", id, s->uri);
+    err(1, "cannot load id '%s' from storage '%s'", id, s->location);
   if (!instance && inst) dlite_instance_decref(inst);
   if (d) dlite_datamodel_free(d);
   if (uri) free((char *)uri);
@@ -1059,7 +1059,7 @@ int dlite_instance_set_property(DLiteInstance *inst, const char *name,
 /*
   Returns true if instance has a property with the given name.
  */
-bool dlite_instance_has_property(DLiteInstance *inst, const char *name)
+bool dlite_instance_has_property(const DLiteInstance *inst, const char *name)
 {
   size_t i;
   for (i=0; i < inst->meta->_nproperties; i++)
@@ -1354,13 +1354,14 @@ DLiteArray *dlite_instance_get_property_array(const DLiteInstance *inst,
  ********************************************************************/
 
 /*
-  Returns a new Entity created from the given arguments.
+  Specialised function that returns a new metadata created from the
+  given arguments.  It is an instance of DLITE_ENTITY_SCHEMA.
  */
 DLiteMeta *
-dlite_entity_create(const char *uri, const char *iri,
-                    const char *description,
-		    size_t ndimensions, const DLiteDimension *dimensions,
-		    size_t nproperties, const DLiteProperty *properties)
+dlite_meta_create(const char *uri, const char *iri,
+                  const char *description,
+                  size_t ndimensions, const DLiteDimension *dimensions,
+                  size_t nproperties, const DLiteProperty *properties)
 {
   DLiteMeta *entity=NULL;
   DLiteInstance *e=NULL;
@@ -1674,4 +1675,512 @@ int dlite_meta_is_metameta(const DLiteMeta *meta)
   }
   if (has_dimensions && (has_properties || has_relations)) return 1;
   return 0;
+}
+
+
+/*
+  Returns true if `meta` has a dimension with the given name.
+ */
+bool dlite_meta_has_dimension(const DLiteMeta *meta, const char *name)
+{
+  return dlite_instance_has_dimension((DLiteInstance *)meta, name);
+}
+
+/*
+  Returns true if `meta` has a property with the given name.
+ */
+bool dlite_meta_has_property(const DLiteMeta *meta, const char *name)
+{
+  return dlite_instance_has_property((DLiteInstance *)meta, name);
+}
+
+
+
+/********************************************************************
+ *  Dimension
+ ********************************************************************/
+
+/*
+  Returns a newly malloc'ed DLiteDimension or NULL on error.
+
+  The `description` arguments may be NULL.
+*/
+DLiteDimension *dlite_dimension_create(const char *name,
+                                       const char *description)
+{
+  DLiteDimension *dim;
+  if (!(dim = calloc(1, sizeof(DLiteDimension)))) goto fail;
+  if (!(dim->name = strdup(name))) goto fail;
+  if (description && !(dim->description = strdup(description))) goto fail;
+  return dim;
+ fail:
+  if (dim) dlite_dimension_free(dim);
+  return err(1, "allocation failure"), NULL;
+}
+
+/*
+  Frees a DLiteDimension.
+*/
+void dlite_dimension_free(DLiteDimension *dim)
+{
+  if (dim->name) free(dim->name);
+  if (dim->description) free(dim->description);
+  free(dim);
+}
+
+
+/********************************************************************
+ *  Property
+ ********************************************************************/
+
+/*
+  Returns a newly malloc'ed DLiteProperty or NULL on error.
+
+  It is created with no dimensions.  Use dlite_property_add_dim() to
+  add dimensions to the property.
+
+  The arguments `unit`, `iri` and `description` may be NULL.
+*/
+DLiteProperty *dlite_property_create(const char *name,
+                                     DLiteType type,
+                                     size_t size,
+                                     const char *unit,
+                                     const char *iri,
+                                     const char *description)
+{
+  DLiteProperty *prop;
+  if (!(prop = calloc(1, sizeof(DLiteProperty)))) goto fail;
+  if (!(prop->name = strdup(name))) goto fail;
+  prop->type = type;
+  prop->size = size;
+  if (unit && !(prop->unit = strdup(unit))) goto fail;
+  if (iri && !(prop->iri = strdup(iri))) goto fail;
+  if (description && !(prop->description = strdup(description))) goto fail;
+  return prop;
+ fail:
+  if (prop) dlite_property_free(prop);
+  return err(1, "allocation failure"), NULL;
+}
+
+/*
+  Frees a DLiteProperty.
+*/
+void dlite_property_free(DLiteProperty *prop)
+{
+  int i;
+  if (prop->name) free(prop->name);
+  for (i=0; i < prop->ndims; i++) free(prop->dims[i]);
+  if (prop->unit) free(prop->unit);
+  if (prop->iri) free(prop->iri);
+  if (prop->description) free(prop->description);
+  free(prop);
+}
+
+/*
+  Add dimension expression `expr` to property.  Returns non-zero on error.
+ */
+int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
+{
+  if (!(prop->dims = realloc(prop->dims, sizeof(char *)*(prop->ndims+1))))
+    goto fail;
+  if (!(prop->dims[prop->ndims] = strdup(expr))) goto fail;
+  prop->ndims++;
+  return 0;
+ fail:
+  return err(1, "allocation failure");
+}
+
+
+/********************************************************************
+ *  MetaModel
+ *
+ *  Interface for easy creation of metadata programically.
+ *  This is especially useful in bindings to other languages like Fortran
+ *  where code generation is more difficult.
+ *
+ ********************************************************************/
+
+/* Internal struct used to hold data values in DLiteMetaModel */
+typedef struct {
+  char *name;         /* Name of corresponding property in metadata */
+  void *data;         /* Pointer to allocated memory holding the data */
+} Value;
+
+struct _DLiteMetaModel {
+  char *uri;
+  DLiteMeta *meta;
+  char *iri;
+
+  size_t *dimvalues;  /* Array of dimension values used for instance creation */
+
+  size_t nvalues;     /* Number of property values */
+  Value *values;      /* Pointer to property values, typically description
+                         for metadata and data values for data instances. */
+
+  /* Special storage of dimension, property and relation values */
+  size_t ndims;
+  size_t nprops;
+  size_t nrels;
+  DLiteDimension *dims;
+  DLiteProperty *props;
+  DLiteRelation *rels;
+};
+
+
+/*
+  Create and return a new empty metadata model.  `iri` is optional and
+  may be NULL.
+
+  Returns NULL on error.
+ */
+DLiteMetaModel *dlite_metamodel_create(const char *uri,
+                                       const char *metaid,
+                                       const char *iri)
+{
+  DLiteMetaModel *model;
+  if (!(model = calloc(1, sizeof(DLiteMetaModel)))) goto fail;
+  if (!(model->uri = strdup(uri))) goto fail;
+  if (!(model->meta = dlite_meta_get(metaid))) goto fail;
+  if (iri && !(model->iri = strdup(iri))) goto fail;
+  if (!(model->dimvalues = calloc(model->meta->_ndimensions, sizeof(size_t))))
+    goto fail;
+  return model;
+ fail:
+  if (model) {
+    if (model->uri) free(model->uri);
+    if (model->meta) dlite_meta_decref(model->meta);
+    if (model->iri) free(model->iri);
+    free(model);
+  }
+  return err(1, "allocation failure"), NULL;
+}
+
+
+/*
+  Frees metadata model.
+ */
+void dlite_metamodel_free(DLiteMetaModel *model)
+{
+  size_t i;
+  free(model->uri);
+  dlite_meta_decref(model->meta);
+  if (model->iri) free(model->iri);
+  if (model->dimvalues) free(model->dimvalues);
+  for (i=0; i < model->nvalues; i++) free((void *)model->values[i].name);
+  if (model->values) free(model->values);
+  if (model->dims) free(model->dims);
+  if (model->props) free(model->props);
+  if (model->rels) free(model->rels);
+  free(model);
+}
+
+
+/*
+  Sets actual value of dimension `name`, where `name` must correspond to
+  a named dimension in the metadata of this model.
+ */
+int dlite_metamodel_set_dimension_value(DLiteMetaModel *model,
+                                        const char *name,
+                                        size_t value)
+{
+  int i;
+  if ((i = dlite_meta_get_dimension_index(model->meta, name)) < 0)
+    return errx(1, "Metadata for model '%s' has no such dimension: %s",
+                model->uri, name);
+  model->dimvalues[i] = value;
+  return 0;
+}
+
+/*
+  Adds a data value to `model` corresponding to property `name` of
+  the metadata for this model.
+
+  Note that `model` only stores a pointer to `value`.  This means
+  that `value` must not be reallocated or free'ed while `model` is in
+  use.
+
+  This can e.g. be used to add description.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_add_value(DLiteMetaModel *model, const char *name,
+                                  const void *value)
+{
+  size_t i;
+  for (i=0; i < model->nvalues; i++)
+    if (strcmp(name, model->values[i].name) == 0)
+      return errx(1, "Meta model '%s' has already value: %s", model->uri, name);
+  return dlite_metamodel_set_value(model, name, value);
+}
+
+/*
+  Like dlite_metamodel_add_value(), but if a value exists, it is replaced
+  instead of added.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_set_value(DLiteMetaModel *model, const char *name,
+                              const void *value)
+{
+  size_t i;
+  Value *v=NULL;
+  if (!dlite_meta_has_property(model->meta, name))
+    FAIL2("Metadata '%s' has no such property: %s", model->meta->uri, name);
+  for (i=0; i < model->nvalues; i++)
+    if (strcmp(name, model->values[i].name) == 0)
+      v = model->values + i;
+
+  if (v) {
+    if (v->name) free(v->name);
+  } else {
+    if (!(model->values = realloc(model->values,
+                                  sizeof(Value)*(model->nvalues+1))))
+      FAIL("allocation failure");
+    v = model->values + model->nvalues++;
+  }
+  memset(v, 0, sizeof(Value));
+
+  if (!(v->name = strdup(name)))
+    FAIL("allocation failure");
+  v->data = value;
+
+  if (dlite_meta_is_metameta(model->meta)) {
+    size_t nproperties = model->nvalues;
+    if (model->dims) nproperties++;
+    if (model->props) nproperties++;
+    if (model->rels) nproperties++;
+    dlite_metamodel_set_dimension_value(model, "nproperties", nproperties);
+  }
+  return 0;
+ fail:
+  return 1;
+}
+
+
+/*
+  Adds a dimension to the property named "dimensions" of the metadata
+  for `model`.
+
+  The name and description of the new dimension is given by `name` and
+  `description`, respectively.  `description` may be NULL.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_add_dimension(DLiteMetaModel *model,
+                                      const char *name,
+                                      const char *description)
+{
+  size_t i;
+  if (!dlite_meta_has_dimension(model->meta, "ndimensions"))
+    FAIL1("Metadata for '%s' must have dimension \"ndimensions\"", model->uri);
+
+  for (i=0; i < model->ndims; i++)
+    if (strcmp(name, model->dims[i].name) == 0) break;
+  if (i < model->ndims)
+    FAIL1("A dimension named \"%s\" is already in model", name);
+
+  if (!(model->dims = realloc(model->dims,
+                               sizeof(DLiteDimension)*(model->ndims+1))))
+    FAIL("allocation failure");
+  memset(model->dims + model->ndims, 0, sizeof(DLiteDimension));
+
+
+  if (!(model->dims[model->ndims].name = strdup(name)))
+    FAIL("allocation failure");
+
+  if (description &&
+      !(model->dims[model->ndims].description = strdup(description)))
+    FAIL("allocation failure");
+
+  model->ndims++;
+  dlite_metamodel_set_dimension_value(model, "ndimensions", model->ndims);
+  return 0;
+ fail:
+  return 1;
+}
+
+
+/*
+  Adds a property to the property named "properties" of the metadata
+  for `model`.
+
+  The arguments following `model` are passed to the new property.  You
+  may set `unit`, `iri` and description to NULL to indicate missing
+  values.
+
+  Use dlite_metamodel_add_property_dim() to add dimensions to the
+  property.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_add_property(DLiteMetaModel *model,
+                                 const char *name,
+                                 DLiteType type,
+                                 size_t size,
+                                 const char *unit,
+                                 const char *iri,
+                                 const char *description)
+{
+  size_t i, nproperties;
+  DLiteProperty *p;
+  if (!dlite_meta_has_dimension(model->meta, "nproperties"))
+    FAIL1("Metadata for '%s' must have dimension \"nproperties\"", model->uri);
+  if (!dlite_meta_has_property(model->meta, "properties"))
+    FAIL1("Metadata for '%s' must have property \"properties\"", model->uri);
+
+  for (i=0; i < model->nprops; i++)
+    if (strcmp(name, model->props[i].name) == 0)
+      FAIL1("A property named \"%s\" is already in model", name);
+
+
+  if (!(model->props = realloc(model->props,
+                               sizeof(DLiteProperty)*(model->nprops+1))))
+    FAIL("allocation failure");
+  p = model->props + model->nprops;
+  memset(p, 0, sizeof(DLiteProperty));
+
+  if (!(p->name = strdup(name))) FAIL("allocation failure");
+  p->type = type;
+  p->size = size;
+  if (unit && !(p->unit = strdup(unit))) FAIL("allocation failure");
+  if (iri && !(p->iri = strdup(iri))) FAIL("allocation failure");
+  if (description && !(p->description = strdup(description)))
+    FAIL("allocation failure");
+  model->nprops++;
+
+  nproperties = model->nvalues;
+  if (model->dims) nproperties++;
+  if (model->props) nproperties++;
+  if (model->rels) nproperties++;
+  dlite_metamodel_set_dimension_value(model, "nproperties", nproperties);
+  return 0;
+ fail:
+  return 1;
+}
+
+
+/*
+  Add dimension expression `expr` to property `name` (which must have
+  been added with dlite_metamodel_add_property()).
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_add_property_dim(DLiteMetaModel *model,
+                                  const char *name,
+                                  const char *expr)
+{
+  size_t i;
+  for (i=0; i < model->nprops; i++)
+    if (strcmp(name, model->props[i].name) == 0)
+      return dlite_property_add_dim(model->props + i, expr);
+  return errx(1, "Model '%s' has no such property: %s", model->uri, name);
+}
+
+
+/*
+  If `model` is missing a value described by a property in its
+  metadata, return a pointer to the name of the first missing value.
+
+  If all values are assigned, NULL is returned.
+ */
+const char *dlite_metamodel_missing_value(const DLiteMetaModel *model)
+{
+  size_t i, j;
+  for (i=0; i < model->meta->_nproperties; i++) {
+    DLiteProperty *p = model->meta->_properties + i;
+    if (strcmp(p->name, "dimensions") == 0) {
+      if (!model->dims) return p->name;
+    } else if (strcmp(p->name, "properties") == 0) {
+      if (!model->props) return p->name;
+    } else if (strcmp(p->name, "relations") == 0) {
+      continue;
+    } else {
+      for (j=0; j < model->nvalues; j++)
+        if (strcmp(model->values[j].name, p->name) == 0) break;
+      if (j >= model->nvalues) return p->name;
+    }
+  }
+  return NULL;
+}
+
+
+/*
+  Returns a pointer to the value, dimension or property added with the
+  given name.
+
+  Returns NULL on error.
+ */
+const void *dlite_metamodel_get_property(const DLiteMetaModel *model,
+                                         const char *name)
+{
+  size_t i;
+  if (strcmp(name, "dimensions") == 0)
+    return &model->dims;
+  if (strcmp(name, "properties") == 0)
+    return &model->props;
+  if (strcmp(name, "relations") == 0)
+    return &model->rels;
+  for (i=0; i < model->nvalues; i++)
+    if (strcmp(name, model->values[i].name) == 0)
+      return model->values[i].data;
+  return err(1, "Model '%s' has no such property: %s", model->uri, name), NULL;
+}
+
+
+/*
+  Creates and return a new dlite metadata from `model`.
+
+  If the metadata of `model` has properties "name", "version" and
+  "namespace", they will automatically be set based on the uri of `model`.
+
+  Returns NULL on error.
+*/
+DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
+{
+  DLiteMeta *meta=NULL;
+  char *name=NULL, *version=NULL, *namespace=NULL;
+  const char *missing;
+  size_t i;
+
+  if (dlite_meta_is_metameta(model->meta) &&
+      dlite_meta_has_property(model->meta, "name") &&
+      dlite_meta_has_property(model->meta, "version") &&
+      dlite_meta_has_property(model->meta, "namespace")) {
+    if (dlite_split_meta_uri(model->uri, &name, &version, &namespace))
+      goto fail;
+    dlite_metamodel_set_value(model, "name", &name);
+    dlite_metamodel_set_value(model, "version", &version);
+    dlite_metamodel_set_value(model, "namespace", &namespace);
+    name = version = namespace = NULL;
+  }
+
+  if ((missing = dlite_metamodel_missing_value(model)))
+    FAIL2("Missing value for \"%s\" in metadata model: %s",
+          missing, model->uri);
+
+  if (!(meta = (DLiteMeta *)dlite_instance_create(model->meta,
+                                                  model->dimvalues,
+                                                  model->uri))) goto fail;
+  if (model->iri && !(meta->iri = strdup(model->iri)))
+    FAIL("allocation failure");
+
+  for (i=0; i < model->meta->_nproperties; i++) {
+    const void *src;
+    void *dest;
+    DLiteProperty *p = model->meta->_properties + i;
+    if (!(src = dlite_metamodel_get_property(model, p->name))) goto fail;
+    if (!(dest = dlite_instance_get_property_by_index((DLiteInstance *)meta,
+                                                      i))) goto fail;
+
+    /* FIXME - copy arrays properly...
+       This make dlite_metamodel_add_value() stealing all arrays. */
+    if (!dlite_type_copy(dest, src, p->type, p->size)) goto fail;
+  }
+  return meta;
+ fail:
+  if (name) free(name);
+  if (version) free(version);
+  if (namespace) free(namespace);
+  if (meta) dlite_meta_decref(meta);
+  return NULL;
 }

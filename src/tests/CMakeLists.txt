@@ -5,6 +5,7 @@ set(tests
   test_misc
   test_storage
   test_entity
+  test_metamodel
   test_store
   test_triplestore
   test_collection

@@ -24,10 +24,16 @@ typedef struct {
 
 
 /*
-  Opens `uri` and returns a newly created storage for it.
+  Opens `location` and returns a newly created storage for it.
+
+  The `location` and `options` arguments are passed on to the open
+  method in Python.
+
+  Returns NULL on error.
  */
 DLiteStorage *
-opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
+opener(const DLiteStoragePlugin *api, const char *location,
+       const char *options)
 {
   DLitePythonStorage *s=NULL;
   DLiteStorage *retval=NULL;
@@ -41,7 +47,7 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
   /* Call method: open() */
   if (!(obj = PyObject_CallObject(cls, NULL)))
     FAIL1("error instantiating %s", classname);
-  v = PyObject_CallMethod(obj, "open", "ss", uri, options);
+  v = PyObject_CallMethod(obj, "open", "ss", location, options);
   if (dlite_pyembed_err_check("error calling %s.open()", classname)) goto fail;
 
   /* Check if the open() method has set attribute `writable` */
@@ -51,7 +57,7 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
   if (!(s = calloc(1, sizeof(DLitePythonStorage))))
     FAIL("Allocation failure");
   s->api = api;
-  s->uri = strdup(uri);
+  s->location = strdup(location);
   s->options = (options) ? strdup(options) : NULL;
   s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
   s->obj = obj;
@@ -59,7 +65,7 @@ opener(const DLiteStoragePlugin *api, const char *uri, const char *options)
   retval = (DLiteStorage *)s;
  fail:
   if (s && !retval) {
-    free(s->uri);
+    free(s->location);
     if (s->options) free(s->options);
     Py_DECREF(s->obj);
     free(s);

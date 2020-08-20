@@ -54,19 +54,21 @@ typedef struct {
 
 /* Error macros for when DLiteDataModel instance d is available */
 #define DFAIL0(d, msg) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid); goto fail;} while (0)
 
 #define DFAIL1(d, msg, a1) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1); goto fail;} while (0)
 
 #define DFAIL2(d, msg, a1, a2) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1, a2); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1, a2); \
+    goto fail;} while (0)
 
 #define DFAIL3(d, msg, a1, a2, a3) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1, a2, a3); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1, a2, a3); \
+    goto fail;} while (0)
 
 #define DFAIL4(d, msg, a1, a2, a3, a4)                            \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1, a2, a3, a4); \
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1, a2, a3, a4); \
     goto fail;} while (0)
 
 
@@ -499,7 +501,7 @@ int dh5_close(DLiteStorage *s)
   DH5Storage *sh5 = (DH5Storage *)s;
   int nerr=0;
   if (H5Fclose(sh5->root) < 0)
-    nerr += err(1, "cannot close %s", s->uri);
+    nerr += err(1, "cannot close %s", s->location);
   return nerr;
 }
 
@@ -514,42 +516,44 @@ DLiteDataModel *dh5_datamodel(const DLiteStorage *s, const char *uuid)
   if (!(d = calloc(1, sizeof(DH5DataModel)))) FAIL0("allocation failure");
 
   if ((exists = H5Lexists(sh5->root, uuid, H5P_DEFAULT)) < 0)
-    FAIL2("cannot determine if '%s' exists in %s", uuid, sh5->uri);
+    FAIL2("cannot determine if '%s' exists in %s", uuid, sh5->location);
 
   if (exists) {
     /* Instance `uuid` already exists: assign groups */
     if ((d->instance = H5Gopen(sh5->root, uuid, H5P_DEFAULT)) < 0)
-      FAIL2("cannot open instance '/%s' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot open instance '/%s' in '%s'", uuid, sh5->location);
 
     if ((d->meta = H5Gopen(d->instance, "meta", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open '/%s/meta' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/meta' in '%s'", uuid, sh5->location);
 
     if ((d->dimensions = H5Gopen(d->instance, "dimensions", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open '/%s/dimensions' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/dimensions' in '%s'", uuid, sh5->location);
 
     if ((d->properties = H5Gopen(d->instance, "properties", H5P_DEFAULT)) < 0)
-      FAIL2("cannot open '/%s/properties' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot open '/%s/properties' in '%s'", uuid, sh5->location);
 
   } else {
     /* Instance `uuid` does not exists: create new group structure */
     if (!s->writable)
       FAIL2("cannot create new instance '%s' in read-only storage %s",
-            uuid, sh5->uri);
+            uuid, sh5->location);
     if ((d->instance = H5Gcreate(sh5->root, uuid, H5P_DEFAULT, H5P_DEFAULT,
                                  H5P_DEFAULT)) < 0)
-      FAIL2("cannot open/create group '/%s' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot open/create group '/%s' in '%s'", uuid, sh5->location);
 
     if ((d->meta = H5Gcreate(d->instance, "meta", H5P_DEFAULT, H5P_DEFAULT,
                              H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group '/%s/meta' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/meta' in '%s'", uuid, sh5->location);
 
     if ((d->dimensions = H5Gcreate(d->instance, "dimensions", H5P_DEFAULT,
                                    H5P_DEFAULT, H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group '/%s/dimensions' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/dimensions' in '%s'",
+            uuid, sh5->location);
 
     if ((d->properties = H5Gcreate(d->instance, "properties", H5P_DEFAULT,
                                    H5P_DEFAULT, H5P_DEFAULT)) < 0)
-      FAIL2("cannot create group '/%s/properties' in '%s'", uuid, sh5->uri);
+      FAIL2("cannot create group '/%s/properties' in '%s'",
+            uuid, sh5->location);
   }
 
   retval = (DLiteDataModel *)d;
@@ -567,13 +571,15 @@ int dh5_datamodel_free(DLiteDataModel *d)
   DH5DataModel *dh5=(DH5DataModel *)d;
   int nerr=0;
   if (H5Gclose(dh5->properties) < 0)
-    nerr += err(1, "cannot close /%s/properties in %s", d->uuid, d->s->uri);
+    nerr += err(1, "cannot close /%s/properties in %s",
+                d->uuid, d->s->location);
   if (H5Gclose(dh5->dimensions) < 0)
-    nerr += err(1, "cannot close /%s/dimensions in %s", d->uuid, d->s->uri);
+    nerr += err(1, "cannot close /%s/dimensions in %s",
+                d->uuid, d->s->location);
   if (H5Gclose(dh5->meta) < 0)
-    nerr += err(1, "cannot close /%s/meta in %s", d->uuid, d->s->uri);
+    nerr += err(1, "cannot close /%s/meta in %s", d->uuid, d->s->location);
   if (H5Gclose(dh5->instance) < 0)
-    nerr += err(1, "cannot close /%s in %s", d->uuid, d->s->uri);
+    nerr += err(1, "cannot close /%s in %s", d->uuid, d->s->location);
   return nerr;
 }
 
@@ -730,7 +736,7 @@ int dh5_has_dimension(const DLiteDataModel *d, const char *name)
   htri_t exists;
   if ((exists = H5Lexists(dh5->dimensions, name, H5P_DEFAULT)) < 0)
     return err(-1, "cannot determine if '%s' has dimension '%s' in %s",
-               d->uuid, name, d->s->uri);
+               d->uuid, name, d->s->location);
   return exists;
 }
 
@@ -744,7 +750,7 @@ int dh5_has_property(const DLiteDataModel *d, const char *name)
   htri_t exists;
   if ((exists = H5Lexists(dh5->properties, name, H5P_DEFAULT)) < 0)
     return err(-1, "cannot determine if '%s' has property '%s' in %s",
-               d->uuid, name, d->s->uri);
+               d->uuid, name, d->s->location);
   return exists;
 }
 

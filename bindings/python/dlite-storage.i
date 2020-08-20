@@ -68,14 +68,14 @@ Represents a data storage.
 
 Call signatures
 ---------------
-Storage(driver, uri, options)
+Storage(driver, location, options)
 Storage(url)
 
 Parameters
 ----------
 driver : string
     Name of driver used to connect to the storage.
-uri : string
+location : string
     The location to the storage.  For file storages, this is the file name.
     For web-based storages this is the location-part of the url.
 options : string
@@ -87,15 +87,15 @@ options : string
       - compact={'yes','no'}: Whether to store in a compact format (json).
       - meta={'yes','no'}: Whether to format output as metadata (json).
 url : string
-    A combination of `driver`, `uri` and `options` in the form
+    A combination of `driver`, `location` and `options` in the form
 
-        driver://uri?options
+        driver://location?options
 ") _DLiteStorage;
 %rename(Storage) _DLiteStorage;
 
 struct _DLiteStorage {
   %immutable;
-  char *uri;                /*!< URI passed to dlite_storage_open() */
+  char *location;           /*!< Location passed to dlite_storage_open() */
   char *options;            /*!< Options passed to dlite_storage_open() */
   int writable;             /*!< Whether storage is writable */
   int idflag;               /*!< How to handle instance id's */
@@ -103,8 +103,8 @@ struct _DLiteStorage {
 
 %extend _DLiteStorage {
   %feature("docstring", "") __init__;
-  _DLiteStorage(const char *driver, const char *uri, const char *options) {
-    return dlite_storage_open(driver, uri, options);
+  _DLiteStorage(const char *driver, const char *location, const char *options) {
+    return dlite_storage_open(driver, location, options);
   }
   _DLiteStorage(const char *url) {
     return dlite_storage_open_url(url);

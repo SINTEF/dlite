@@ -449,6 +449,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
   return dest;
 }
 
+
 /*
   Clears the memory pointed to by `p`.  Its type is gived by `dtype` and `size`.
 
