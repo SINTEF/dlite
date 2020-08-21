@@ -580,9 +580,46 @@ int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
   case dliteStringPtr:
     m = snprintf(dest, n, "%*.*s", w, r, *((char **)p));
     break;
-  default:
-    return err(-1, "serialising dtype \"%s\" is not supported",
-	       dtype_enum_names[dtype]);
+  case dliteDimension:
+    m = snprintf(dest, n, "{\"name\": \"%s\", \"description\": \"%s\"}",
+                 ((DLiteDimension *)p)->name,
+                 ((DLiteDimension *)p)->description);
+    break;
+  case dliteProperty:
+    {
+      int i;
+      char typename[32];
+      DLiteProperty *prop = (DLiteProperty *)p;
+      dlite_type_set_typename(prop->type, prop->size, typename,
+                              sizeof(typename));
+      m = snprintf(dest, n, "{"
+                   "\"name\": \"%s\", "
+                   "\"type\": \"%s\", "
+                   "\"ndims\": %d",
+                   prop->name, typename, prop->ndims);
+      if (prop->ndims) {
+        m += snprintf(dest+m, n-m, ", [");
+        for (i=0; i < prop->ndims; i++)
+          m += snprintf(dest+m, n-m, "\"%s\"%s", prop->dims[i],
+                        (i < prop->ndims-1) ? ", " : "");
+        m += snprintf(dest+m, n-m, "]");
+      }
+      if (prop->unit)
+        m += snprintf(dest+m, n-m, ", \"unit\": \"%s\"", prop->unit);
+      if (prop->iri)
+        m += snprintf(dest+m, n-m, ", \"iri\": \"%s\"", prop->iri);
+      if (prop->description)
+        m += snprintf(dest+m, n-m, ", \"description\": \"%s\"",
+                      prop->description);
+      m += snprintf(dest+m, n-m, "}");
+    }
+    break;
+  case dliteRelation:
+    {
+      DLiteRelation *r = (DLiteRelation *)p;
+      m = snprintf(dest, n, "[\"%s\", \"%s\", \"%s\"]", r->s, r->p, r->o);
+    }
+    break;
   }
   return m;
 }
@@ -651,20 +688,20 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
   n-dimensional array from C to Fortran order.
 
   Arguments:
-    ndims: Number of dimensions for both source and destination.
-        Zero means scalar.
-    dest: Pointer to destination memory.  It must be large enough.
-    dest_type: Destination data type
-    dest_size: Size of each element in destination
-    dest_dims: Destination dimensions.  Length: `ndims`, required if ndims > 0
-    dest_strides: Destination strides.  Length: `ndims`, optional
-    src: Pointer to source memory.
-    src_type: Source data type.
-    src_size: Size of each element in source.
-    src_dims: Source dimensions.  Length: `ndims`, required if ndims > 0
-    src_strides: Source strides.  Length: `ndims`, optional
-    castfun: Function that is doing the actually casting. Called on each
-        element.
+    - ndims: Number of dimensions for both source and destination.
+          Zero means scalar.
+    - dest: Pointer to destination memory.  It must be large enough.
+    - dest_type: Destination data type
+    - dest_size: Size of each element in destination
+    - dest_dims: Destination dimensions.  Length: `ndims`, required if ndims > 0
+    - dest_strides: Destination strides.  Length: `ndims`, optional
+    - src: Pointer to source memory.
+    - src_type: Source data type.
+    - src_size: Size of each element in source.
+    - src_dims: Source dimensions.  Length: `ndims`, required if ndims > 0
+    - src_strides: Source strides.  Length: `ndims`, optional
+    - castfun: Function that is doing the actually casting. Called on each
+          element.
 
   Returns non-zero on error.
 
@@ -674,14 +711,14 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
 */
 int dlite_type_ndcast(int ndims,
                       void *dest, DLiteType dest_type, size_t dest_size,
-                      const int *dest_dims, const int *dest_strides,
+                      const size_t *dest_dims, const int *dest_strides,
                       const void *src, DLiteType src_type, size_t src_size,
-                      const int *src_dims, const int *src_strides,
+                      const size_t *src_dims, const int *src_strides,
                       DLiteTypeCast castfun)
 {
-  int i, retval=1, *sidx=NULL, *didx=NULL, samelayout=1;
-  int *sstrides=NULL, *dstrides=NULL;
-  size_t n, N=1;
+  int i, retval=1, samelayout=1, *sstrides=NULL, *dstrides=NULL;
+  size_t *sidx=NULL, *didx=NULL;
+  size_t j, n, N=1;
 
   assert(src);
   assert(dest);
@@ -704,8 +741,8 @@ int dlite_type_ndcast(int ndims,
 
   /* Default source strides */
   if (!src_strides) {
-    int size = src_size;
-    if (!(sstrides = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    size_t size = src_size;
+    if (!(sstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
     for (i=ndims-1; i >= 0; i--) {
       sstrides[i] = size;
       size *= src_dims[i];
@@ -715,8 +752,8 @@ int dlite_type_ndcast(int ndims,
 
   /* Default dest strides */
   if (!dest_strides) {
-    int size = dest_size;
-    if (!(dstrides = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    size_t size = dest_size;
+    if (!(dstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
     for (i=ndims-1; i >= 0; i--) {
       dstrides[i] = size;
       size *= dest_dims[i];
@@ -737,7 +774,7 @@ int dlite_type_ndcast(int ndims,
     /* -- check that source is contiguous */
     int size = src_size;
     for (i=0; i<ndims; i++) {
-      int j, iscont=0;
+      int iscont=0;
       for (j=0; j < src_dims[j]; j++)
         if (src_strides[j] == size) { iscont = 1; break; }
       if (!iscont) { samelayout = 0; break; }
@@ -749,7 +786,6 @@ int dlite_type_ndcast(int ndims,
     /* Special case: if source and dest have same layout and are
        contiguous, copy all data in one chunck */
     memcpy(dest, src, N * src_size);
-    return 0;
 
   } else {
     /* General case: copy all elements individually using castfun()
@@ -758,11 +794,11 @@ int dlite_type_ndcast(int ndims,
        current index in each dimension in `src` and `dest` are stored
        in `sidx` and `didx`, respectively.
     */
-    int M=ndims-1;
+    size_t M=ndims-1;
     const char *sp = src;  /* pointer to current element in `src` */
     char *dp = dest;       /* pointer to current element in `dest` */
-    if (!(sidx = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
-    if (!(didx = calloc(ndims, sizeof(int)))) FAIL("allocation failure");
+    if (!(sidx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(didx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
 
     n = 0;
     while (1) {
@@ -779,8 +815,8 @@ int dlite_type_ndcast(int ndims,
           if (++sidx[i] < src_dims[i]) break;
           sidx[i] = 0;
         }
-        for (i=0, sp=src; i<M; i++)
-          sp += src_strides[i] * sidx[i];
+        for (j=0, sp=src; j<M; j++)
+          sp += src_strides[j] * sidx[j];
       }
 
       /* update dest pointer and index */
@@ -792,7 +828,8 @@ int dlite_type_ndcast(int ndims,
           if (++didx[i] < dest_dims[i]) break;
           didx[i] = 0;
         }
-        for (i=0, dp=dest; i<M; i++) dp += dest_strides[i] * didx[i];
+        for (j=0, dp=dest; j<M; j++)
+          dp += dest_strides[j] * didx[j];
       }
     }
   }

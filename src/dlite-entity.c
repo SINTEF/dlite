@@ -1063,6 +1063,25 @@ int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
 }
 
 /*
+  Returns a malloc'ed array of dimensions of property `i` or NULL on error.
+ */
+size_t *dlite_instance_get_property_dims_by_index(const DLiteInstance *inst,
+                                                  size_t i)
+{
+  size_t *dims;
+  const DLiteProperty *p;
+  if (!inst->meta)
+    return errx(1, "no metadata available"), NULL;
+  if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
+    return NULL;
+  if (!(dims = malloc(p->ndims * sizeof(size_t))))
+    return NULL;
+  memcpy(dims, DLITE_PROP_DIMS(inst, i), p->ndims*sizeof(size_t));
+  return dims;
+}
+
+
+/*
   Returns size of dimension `i` or -1 on error.
  */
 int dlite_instance_get_dimension_size(const DLiteInstance *inst,
@@ -1363,7 +1382,8 @@ dlite_instance_get_property_array_by_index(const DLiteInstance *inst,
                                            size_t i, int order)
 {
   void *ptr;
-  int ndims=1, dim=1, *dims=&dim;
+  int ndims=1;
+  size_t dim=1, *dims=&dim;
   DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
   DLiteArray *arr = NULL;
   if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
@@ -1454,28 +1474,37 @@ int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
                                           int i,
                                           DLiteType type,
                                           size_t size,
-                                          const int *dims,
+                                          const size_t *dims,
                                           const int *strides,
                                           void *dest,
                                           DLiteTypeCast castfun)
 {
+  //void *src = dlite_instance_get_property_by_index(inst, i);
+  //DLiteProperty *p = inst->meta->_properties + i;
+  //int stat, j;
+  //size_t *sdims = NULL;
+  //
+  //if (p->ndims && !dims) {
+  //  if (!(sdims = calloc(p->ndims, sizeof(int))))
+  //    return err(1, "allocation failure");
+  //  for (j=0; j < p->ndims; j++)
+  //    sdims[j] = DLITE_PROP_DIM(inst, i, j);
+  //}
+  //
+  //stat = dlite_type_ndcast(p->ndims,
+  //                         dest, type, size, dims, strides,
+  //                         src, p->type, p->size, sdims, NULL,
+  //                         castfun);
+  //if (sdims) free(sdims);
+  //return stat;
+  //
   void *src = dlite_instance_get_property_by_index(inst, i);
   DLiteProperty *p = inst->meta->_properties + i;
-  int stat, j, *sdims = NULL;
-
-  if (p->ndims && !dims) {
-    if (!(sdims = calloc(p->ndims, sizeof(int))))
-      return err(1, "allocation failure");
-    for (j=0; j < p->ndims; j++)
-      sdims[j] = DLITE_PROP_DIM(inst, i, j);
-  }
-
-  stat = dlite_type_ndcast(p->ndims,
+  size_t *sdims = DLITE_PROP_DIMS(inst, i);
+  return dlite_type_ndcast(p->ndims,
                            dest, type, size, dims, strides,
                            src, p->type, p->size, sdims, NULL,
                            castfun);
-  if (sdims) free(sdims);
-  return stat;
 }
 
 
@@ -1519,28 +1548,36 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    int i,
                                                    DLiteType type,
                                                    size_t size,
-                                                   const int *dims,
+                                                   const size_t *dims,
                                                    const int *strides,
                                                    const void *src,
                                                    DLiteTypeCast castfun)
 {
+  //void *dest = dlite_instance_get_property_by_index(inst, i);
+  //DLiteProperty *p = inst->meta->_properties + i;
+  //int stat, j, *ddims = NULL;
+  //
+  //if (p->ndims && !dims) {
+  //  if (!(ddims = calloc(p->ndims, sizeof(int))))
+  //    return err(1, "allocation failure");
+  //  for (j=0; j < p->ndims; j++)
+  //    ddims[j] = DLITE_PROP_DIM(inst, i, j);
+  //}
+  //
+  //stat = dlite_type_ndcast(p->ndims,
+  //                         dest, p->type, p->size, ddims, NULL,
+  //                         src, type, size, dims, strides,
+  //                         castfun);
+  //if (ddims) free(ddims);
+  //return stat;
+  //
   void *dest = dlite_instance_get_property_by_index(inst, i);
   DLiteProperty *p = inst->meta->_properties + i;
-  int stat, j, *ddims = NULL;
-
-  if (p->ndims && !dims) {
-    if (!(ddims = calloc(p->ndims, sizeof(int))))
-      return err(1, "allocation failure");
-    for (j=0; j < p->ndims; j++)
-      ddims[j] = DLITE_PROP_DIM(inst, i, j);
-  }
-
-  stat = dlite_type_ndcast(p->ndims,
+  size_t *ddims = DLITE_PROP_DIMS(inst, i);
+  return dlite_type_ndcast(p->ndims,
                            dest, p->type, p->size, ddims, NULL,
                            src, type, size, dims, strides,
                            castfun);
-  if (ddims) free(ddims);
-  return stat;
 }
 
 
@@ -1609,14 +1646,11 @@ int dlite_meta_init(DLiteMeta *meta)
 
   /* Assign: ndimensions, nproperties and nrelations */
   for (i=0; i<meta->meta->_ndimensions; i++) {
-    if (strcmp(meta->meta->_dimensions[i].name, "ndimensions") == 0 ||
-	strcmp(meta->meta->_dimensions[i].name, "n-dimensions") == 0)
+    if (strcmp(meta->meta->_dimensions[i].name, "ndimensions") == 0)
       idim_dim = i;
-    if (strcmp(meta->meta->_dimensions[i].name, "nproperties") == 0 ||
-	strcmp(meta->meta->_dimensions[i].name, "n-properties") == 0)
+    if (strcmp(meta->meta->_dimensions[i].name, "nproperties") == 0)
       idim_prop = i;
-    if (strcmp(meta->meta->_dimensions[i].name, "nrelations") == 0 ||
-	strcmp(meta->meta->_dimensions[i].name, "n-relations") == 0)
+    if (strcmp(meta->meta->_dimensions[i].name, "nrelations") == 0)
       idim_rel = i;
   }
   if (idim_dim < 0) return err(1, "dimensions are expected in metadata");
@@ -1987,9 +2021,9 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
 
 
 /********************************************************************
- *  MetaModel
+ *  MetaModel - a data model for metadata
  *
- *  Interface for easy creation of metadata programically.
+ *  An interface for easy creation of metadata programically.
  *  This is especially useful in bindings to other languages like Fortran
  *  where code generation is more difficult.
  *
@@ -1999,6 +2033,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
 typedef struct {
   char *name;         /* Name of corresponding property in metadata */
   void *data;         /* Pointer to allocated memory holding the data */
+  char **strp;        /* Used for adding strings. */
 } Value;
 
 struct _DLiteMetaModel {
@@ -2061,7 +2096,13 @@ void dlite_metamodel_free(DLiteMetaModel *model)
   dlite_meta_decref(model->meta);
   if (model->iri) free(model->iri);
   if (model->dimvalues) free(model->dimvalues);
-  for (i=0; i < model->nvalues; i++) free((void *)model->values[i].name);
+  for (i=0; i < model->nvalues; i++) {
+    free(model->values[i].name);
+    if (model->values[i].strp) {
+      free(*(model->values[i].strp));
+      free(model->values[i].strp);
+    }
+  }
   if (model->values) free(model->values);
   if (model->dims) free(model->dims);
   if (model->props) free(model->props);
@@ -2086,6 +2127,7 @@ int dlite_metamodel_set_dimension_value(DLiteMetaModel *model,
   return 0;
 }
 
+
 /*
   Adds a data value to `model` corresponding to property `name` of
   the metadata for this model.
@@ -2093,8 +2135,6 @@ int dlite_metamodel_set_dimension_value(DLiteMetaModel *model,
   Note that `model` only stores a pointer to `value`.  This means
   that `value` must not be reallocated or free'ed while `model` is in
   use.
-
-  This can e.g. be used to add description.
 
   Returns non-zero on error.
 */
@@ -2108,9 +2148,10 @@ int dlite_metamodel_add_value(DLiteMetaModel *model, const char *name,
   return dlite_metamodel_set_value(model, name, value);
 }
 
+
 /*
-  Like dlite_metamodel_add_value(), but if a value exists, it is replaced
-  instead of added.
+  Like dlite_metamodel_add_value(), but if a value already exists, it
+  is replaced instead of added.
 
   Returns non-zero on error.
 */
@@ -2127,11 +2168,15 @@ int dlite_metamodel_set_value(DLiteMetaModel *model, const char *name,
 
   if (v) {
     if (v->name) free(v->name);
+    if (v->strp) {
+      free(*v->strp);
+      free(v->strp);
+    }
   } else {
     if (!(model->values = realloc(model->values,
                                   sizeof(Value)*(model->nvalues+1))))
       FAIL("allocation failure");
-    v = model->values + model->nvalues++;
+    v = model->values + model->nvalues;
   }
   memset(v, 0, sizeof(Value));
 
@@ -2139,16 +2184,54 @@ int dlite_metamodel_set_value(DLiteMetaModel *model, const char *name,
     FAIL("allocation failure");
   v->data = (void *)value;
 
-  if (dlite_meta_is_metameta(model->meta)) {
-    size_t nproperties = model->nvalues;
-    if (model->dims) nproperties++;
-    if (model->props) nproperties++;
-    if (model->rels) nproperties++;
-    dlite_metamodel_set_dimension_value(model, "nproperties", nproperties);
-  }
+  model->nvalues++;
   return 0;
  fail:
   return 1;
+}
+
+
+/*
+  Adds a string to `model` corresponding to property `name` of the
+  metadata for this model.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_add_string(DLiteMetaModel *model, const char *name,
+                               const char *s)
+{
+  size_t i;
+  for (i=0; i < model->nvalues; i++)
+    if (strcmp(name, model->values[i].name) == 0)
+      return errx(1, "Meta model '%s' has already string: %s",
+                  model->uri, name);
+  return dlite_metamodel_set_string(model, name, s);
+}
+
+
+/*
+  Like dlite_metamodel_add_string(), but if the string already exists, it
+  is replaced instead of added.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_set_string(DLiteMetaModel *model, const char *name,
+                               const char *s)
+{
+  size_t i;
+  char *p;
+  if (!(p = strdup(s))) return err(1, "allocation failure");
+  if (dlite_metamodel_set_value(model, name, NULL)) return 1;
+  for (i=0; i < model->nvalues; i++)
+    if (strcmp(name, model->values[i].name) == 0) {
+      Value *v = model->values + i;
+      assert(v->data == NULL);
+      if (!(v->strp = malloc(sizeof(char **)))) return 1;
+      *(v->strp) = p;
+      v->data = v->strp;
+      return 0;
+    }
+  assert(0);  /* should never be reached */
 }
 
 
@@ -2166,7 +2249,8 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
                                       const char *description)
 {
   size_t i;
-  if (!dlite_meta_has_dimension(model->meta, "ndimensions"))
+  int idim = dlite_meta_get_dimension_index(model->meta, "ndimensions");
+  if (idim < 0)
     FAIL1("Metadata for '%s' must have dimension \"ndimensions\"", model->uri);
 
   for (i=0; i < model->ndims; i++)
@@ -2188,7 +2272,7 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
     FAIL("allocation failure");
 
   model->ndims++;
-  dlite_metamodel_set_dimension_value(model, "ndimensions", model->ndims);
+  model->dimvalues[idim]++;
   return 0;
  fail:
   return 1;
@@ -2196,12 +2280,16 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
 
 
 /*
-  Adds a property to the property named "properties" of the metadata
+  Adds a new property to the property named "properties" of the metadata
   for `model`.
 
-  The arguments following `model` are passed to the new property.  You
-  may set `unit`, `iri` and description to NULL to indicate missing
-  values.
+  Arguments:
+    - model: datamodel that the property is added to
+    - name: name of new property
+    - typename: type of new property, ex. "string80", "int64", "string",...
+    - unit: unit of new type. May be NULL
+    - iri: iri reference to an ontology. May be NULL
+    - description: description of property. May be NULL
 
   Use dlite_metamodel_add_property_dim() to add dimensions to the
   property.
@@ -2210,18 +2298,21 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
 */
 int dlite_metamodel_add_property(DLiteMetaModel *model,
                                  const char *name,
-                                 DLiteType type,
-                                 size_t size,
+                                 const char *typename,
                                  const char *unit,
                                  const char *iri,
                                  const char *description)
 {
-  size_t i, nproperties;
+  size_t i;
   DLiteProperty *p;
-  if (!dlite_meta_has_dimension(model->meta, "nproperties"))
+  DLiteType type;
+  size_t size;
+  int iprop = dlite_meta_get_dimension_index(model->meta, "nproperties");
+  if (iprop < 0)
     FAIL1("Metadata for '%s' must have dimension \"nproperties\"", model->uri);
   if (!dlite_meta_has_property(model->meta, "properties"))
     FAIL1("Metadata for '%s' must have property \"properties\"", model->uri);
+  if (dlite_type_set_dtype_and_size(typename, &type, &size)) goto fail;
 
   for (i=0; i < model->nprops; i++)
     if (strcmp(name, model->props[i].name) == 0)
@@ -2241,13 +2332,9 @@ int dlite_metamodel_add_property(DLiteMetaModel *model,
   if (iri && !(p->iri = strdup(iri))) FAIL("allocation failure");
   if (description && !(p->description = strdup(description)))
     FAIL("allocation failure");
-  model->nprops++;
 
-  nproperties = model->nvalues;
-  if (model->dims) nproperties++;
-  if (model->props) nproperties++;
-  if (model->rels) nproperties++;
-  dlite_metamodel_set_dimension_value(model, "nproperties", nproperties);
+  model->nprops++;
+  model->dimvalues[iprop]++;
   return 0;
  fail:
   return 1;
@@ -2310,11 +2397,11 @@ const void *dlite_metamodel_get_property(const DLiteMetaModel *model,
 {
   size_t i;
   if (strcmp(name, "dimensions") == 0)
-    return &model->dims;
+    return model->dims;
   if (strcmp(name, "properties") == 0)
-    return &model->props;
+    return model->props;
   if (strcmp(name, "relations") == 0)
-    return &model->rels;
+    return model->rels;
   for (i=0; i < model->nvalues; i++)
     if (strcmp(name, model->values[i].name) == 0)
       return model->values[i].data;
@@ -2332,7 +2419,7 @@ const void *dlite_metamodel_get_property(const DLiteMetaModel *model,
 */
 DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
 {
-  DLiteMeta *meta=NULL;
+  DLiteMeta *retval=NULL, *meta=NULL;
   char *name=NULL, *version=NULL, *namespace=NULL;
   const char *missing;
   size_t i;
@@ -2343,10 +2430,9 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
       dlite_meta_has_property(model->meta, "namespace")) {
     if (dlite_split_meta_uri(model->uri, &name, &version, &namespace))
       goto fail;
-    dlite_metamodel_set_value(model, "name", &name);
-    dlite_metamodel_set_value(model, "version", &version);
-    dlite_metamodel_set_value(model, "namespace", &namespace);
-    name = version = namespace = NULL;
+    dlite_metamodel_set_string(model, "name", name);
+    dlite_metamodel_set_string(model, "version", version);
+    dlite_metamodel_set_string(model, "namespace", namespace);
   }
 
   if ((missing = dlite_metamodel_missing_value(model)))
@@ -2356,6 +2442,7 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
   if (!(meta = (DLiteMeta *)dlite_instance_create(model->meta,
                                                   model->dimvalues,
                                                   model->uri))) goto fail;
+  if (dlite_meta_init(meta)) goto fail;
   if (model->iri && !(meta->iri = strdup(model->iri)))
     FAIL("allocation failure");
 
@@ -2363,19 +2450,21 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
     const void *src;
     void *dest;
     DLiteProperty *p = model->meta->_properties + i;
+    size_t *dims = (p->ndims) ? DLITE_PROP_DIMS(meta, i) : NULL;
+
     if (!(src = dlite_metamodel_get_property(model, p->name))) goto fail;
     if (!(dest = dlite_instance_get_property_by_index((DLiteInstance *)meta,
                                                       i))) goto fail;
-
-    /* FIXME - copy arrays properly...
-       This make dlite_metamodel_add_value() stealing all arrays. */
-    if (!dlite_type_copy(dest, src, p->type, p->size)) goto fail;
+    if (dlite_type_ndcast(p->ndims,
+                          dest, p->type, p->size, dims, NULL,
+                          src, p->type, p->size, dims, NULL,
+                          NULL)) goto fail;
   }
-  return meta;
+  retval = meta;
  fail:
   if (name) free(name);
   if (version) free(version);
   if (namespace) free(namespace);
-  if (meta) dlite_meta_decref(meta);
-  return NULL;
+  if (!retval && meta) dlite_meta_decref(meta);
+  return retval;
 }

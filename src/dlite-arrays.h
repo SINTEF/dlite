@@ -32,9 +32,11 @@ typedef struct _DLiteArray {
   DLiteType type;  /*!< data type of elements */
   size_t size;     /*!< size of each element in bytes */
   int ndims;       /*!< number of dimensions */
-  int *dims;       /*!< dimension sizes [ndims] */
+  size_t *dims;    /*!< dimension sizes [ndims] */
   int *strides;    /*!< strides, that is number of bytes between two following
-                        elements along each dimension [ndims] */
+                        elements along each dimension [ndims]
+                        Note: strides can be negative, so we must use
+                        a signed type. */
 } DLiteArray;
 
 
@@ -57,7 +59,7 @@ typedef struct _DLiteArrayIter {
   Returns the new array or NULL on error.
  */
 DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
-                               int ndims, const int *dims);
+                               int ndims, const size_t *dims);
 
 /**
   Like dlite_array_create(), but with argument `order`, which can have
@@ -66,7 +68,7 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
     'F':  coloumn-major (Fortran-style) order, transposed order.
 */
 DLiteArray *dlite_array_create_order(void *data, DLiteType type, size_t size,
-                                     int ndims, const int *dims, int order);
+                                     int ndims, const size_t *dims, int order);
 
 /**
   Free an array object, but not the associated data.
@@ -176,7 +178,7 @@ DLiteArray *dlite_array_slice(const DLiteArray *arr,
   Returns NULL on error.
  */
 DLiteArray *dlite_array_reshape(const DLiteArray *arr,
-                                int ndims, const int *dims);
+                                int ndims, const size_t *dims);
 
 
 /**
@@ -202,12 +204,14 @@ DLiteArray *dlite_array_transpose(DLiteArray *arr);
 void *dlite_array_make_continuous(DLiteArray *arr);
 
 /**
-  Print array `arr` to stream `fp`.  Returns non-zero on error.
+  Print array `arr` to stream `fp`.
 
   The `width` and `prec` arguments corresponds to the printf() minimum
   field width and precision/length modifier.  If you set them to -1, a
   suitable value will selected according to `type`.  To ignore their
   effect, set `width` to zero or `prec` to -2.
+
+  Returns non-zero on error.
  */
 int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec);
 

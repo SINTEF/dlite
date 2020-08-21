@@ -564,6 +564,12 @@ int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
                                                  size_t i, size_t j);
 
 /**
+  Returns a malloc'ed array of dimensions of property `i` or NULL on error.
+ */
+size_t *dlite_instance_get_property_dims_by_index(const DLiteInstance *inst,
+                                                  size_t i);
+
+/**
   Returns size of dimension `i` or -1 on error.
  */
 int dlite_instance_get_dimension_size(const DLiteInstance *inst,
@@ -729,7 +735,7 @@ int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
                                           int i,
                                           DLiteType type,
                                           size_t size,
-                                          const int *dims,
+                                          const size_t *dims,
                                           const int *strides,
                                           void *dest,
                                           DLiteTypeCast castfun);
@@ -760,7 +766,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    int i,
                                                    DLiteType type,
                                                    size_t size,
-                                                   const int *dims,
+                                                   const size_t *dims,
                                                    const int *strides,
                                                    const void *src,
                                                    DLiteTypeCast castfun);
@@ -941,7 +947,11 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr);
 /** @} */
 /* ================================================================= */
 /**
- * @name IModel - instance data model
+ * @name MetaModel - a data model for metadata
+ *
+ *  An interface for easy creation of metadata programically.
+ *  This is especially useful in bindings to other languages like Fortran
+ *  where code generation is more difficult.
  */
 /* ================================================================= */
 /** @{ */
@@ -994,6 +1004,24 @@ int dlite_metamodel_set_value(DLiteMetaModel *model, const char *name,
                               const void *value);
 
 /**
+  Adds a string to `model` corresponding to property `name` of the
+  metadata for this model.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_add_string(DLiteMetaModel *model, const char *name,
+                               const char *s);
+
+/**
+  Like dlite_metamodel_add_string(), but if the string already exists, it
+  is replaced instead of added.
+
+  Returns non-zero on error.
+*/
+int dlite_metamodel_set_string(DLiteMetaModel *model, const char *name,
+                               const char *s);
+
+/**
   Adds a dimension to the property named "dimensions" of the metadata
   for `model`.
 
@@ -1007,12 +1035,16 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
                                   const char *description);
 
 /**
-  Adds a property to the property named "properties" of the metadata
+  Adds a new property to the property named "properties" of the metadata
   for `model`.
 
-  The arguments following `model` are passed to the new property.  You
-  may set `unit`, `iri` and description to NULL to indicate missing
-  values.
+  Arguments:
+    - model: datamodel that the property is added to
+    - name: name of new property
+    - typename: type of new property, ex. "string80", "int64", "string",...
+    - unit: unit of new type. May be NULL
+    - iri: iri reference to an ontology. May be NULL
+    - description: description of property. May be NULL
 
   Use dlite_metamodel_add_property_dim() to add dimensions to the
   property.
@@ -1021,8 +1053,7 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
 */
 int dlite_metamodel_add_property(DLiteMetaModel *model,
                                  const char *name,
-                                 DLiteType type,
-                                 size_t size,
+                                 const char *typename,
                                  const char *unit,
                                  const char *iri,
                                  const char *description);
