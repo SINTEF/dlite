@@ -164,11 +164,15 @@ size_t strlcat(char *dst, const char *src, size_t size);
    between integers or floats of different size */
 # pragma warning(disable: 4267 4244)
 
- /* do not warn about that fully confirming standard library functions are
+/* do not warn about that fully confirming standard library functions are
     depricated */
 # pragma warning(disable: 4996)
 
+/* do not warn about locally defined symbols */
+# pragma warning(disable: 4217)
+
 #endif
+
 
 /* Allow overriding default dynamic shared library prefix and extension  */
 #cmakedefine DSL_PREFIX @DSL_PREFIX@

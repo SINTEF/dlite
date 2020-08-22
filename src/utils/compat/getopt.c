@@ -83,7 +83,7 @@ static int _getopt_(int argc, char* const argv[],
                 if(longopts != 0 && *(argv[optind] + 1) == '-') {
                     char const* spec_long = argv[optind] + 2;
                     char const* pos_eq = strchr(spec_long, '=');
-                    int spec_len = (pos_eq == NULL ? (int)strlen(spec_long) : pos_eq - spec_long);
+                    int spec_len = (int)(pos_eq == NULL ? strlen(spec_long) : pos_eq - spec_long);
                     int index_search = 0;
                     int index_found = -1;
                     const struct option* optdef = 0;

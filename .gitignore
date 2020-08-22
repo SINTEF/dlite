@@ -1,11 +1,11 @@
 *~
-.gdb_history
 
 external
 build*
 local
 jansson
 hdf5-1.10.*
+.vscode
 .gdb_history
 
 # Ignore personal modified bootstrap files

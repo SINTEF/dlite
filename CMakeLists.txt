@@ -68,6 +68,20 @@ endif()
 set(DLITE_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
   "Installation directory for CMake files")
 
+# Variables to include in dliteConfig.cmake
+set(DLITE_CONFIG_VARS
+    DLITE_INCLUDE_DIRS
+    DLITE_LIBRARY_DIR
+    DLITE_RUNTIME_DIR
+    DLITE_TEMPLATE_DIRS
+    DLITE_STORAGE_PLUGIN_DIRS
+    DLITE_MAPPING_PLUGIN_DIRS
+    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+    DLITE_STORAGES
+    )
+
+
 
 ####################################################################
 # Use ExternalProject_add instead of add_subdirectory for packages.
@@ -171,6 +185,8 @@ if(WITH_HDF5)
     endif()
 
   endif()
+else()
+  set(HDF5_LIBRARIES "")
 endif()
 
 
@@ -214,6 +230,8 @@ if(WITH_JSON)
     set(JANSSON_LIBRARIES
       ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
   endif()
+else()
+  set(JANSSON_LIBRARIES "")
 endif()
 
 
@@ -251,6 +269,8 @@ if(WITH_PYTHON)
     set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
     set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
   endif()
+else()
+  set(PYTHON_LIBRARIES "")
 endif()
 
 
@@ -522,19 +542,8 @@ configure_package_config_file(
   cmake/dliteConfig.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
   INSTALL_DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
-  PATH_VARS
-    DLITE_INCLUDE_DIRS
-    DLITE_LIBRARY_DIR
-    DLITE_RUNTIME_DIR
-    DLITE_TEMPLATE_DIRS
-    DLITE_STORAGE_PLUGIN_DIRS
-    DLITE_MAPPING_PLUGIN_DIRS
-    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-    DLITE_STORAGES
-    PYTHON_LIBRARIES
-    JANSSON_LIBRARIES
-    HDF5_LIBRARIES
+  PATH_VARS ${DLITE_CONFIG_VARS}
+
   )
 
 #################################################################
