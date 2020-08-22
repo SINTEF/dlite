@@ -130,7 +130,8 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
   if (path) {
     assert(handle);
     if (map_get(&info->plugins, path)) {
-      warnx("plugin already registered: %s", path);
+      //warnx("plugin already registered: %s", path);
+      //plugin_incref(*p);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");
@@ -143,7 +144,7 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     }
   }
 
-  if (map_set(&info->apis, name, (void *)api))
+  if (map_set(&info->apis, name, (PluginAPI *)api))
     fatal(1, "failed to register api: %s", name);
 
   return 0;
@@ -214,12 +215,12 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
     *(void **)(&func) = sym;
 
     while ((api = (PluginAPI *)func(&iter1))) {
-      char *apiname = *((char **)api);
-      if (!map_get(&info->apis, apiname)) {  /* not plugin with this name */
+
+      if (!map_get(&info->apis, api->name)) {  /* not plugin with this name */
         loaded_api = api;
         if (!name) {
           register_api(info, api, filepath, handle);
-        } else if (strcmp(apiname, name) == 0) {
+        } else if (strcmp(api->name, name) == 0) {
           if (register_api(info, api, filepath, handle)) goto fail;
           fu_endmatch(iter);
           return api;
@@ -228,7 +229,6 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
       if (iter1 == iter2) break;
       iter2 = iter1;
     }
-    //if (!api && (iter1 || iter2))
     if (!api)
       warn("failure calling \"%s\" in plugin \"%s\": %s",
            info->symbol, filepath, dsl_error());
