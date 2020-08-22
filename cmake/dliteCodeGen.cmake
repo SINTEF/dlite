@@ -71,6 +71,15 @@ macro(dlite_codegen output template url)
     list(APPEND codegen_dependencies ${DLITE_CODEGEN})
   endif()
 
+  # Try to force CMake to understand that the semicolons are part of the
+  # string (paths separator) instead of separator between items in a list.
+  if(WIN32)
+    string(JOIN "\;" dlite_PATH ${dlite_PATH})
+    string(JOIN "\;" dlite_STORAGE_PLUGINS ${dlite_STORAGE_PLUGINS})
+    string(JOIN "\;" dlite_MAPPING_PLUGINS ${dlite_MAPPING_PLUGINS})
+    string(JOIN "\;" dlite_TEMPLATE_DIRS ${dlite_TEMPLATE_DIRS})
+  endif()
+
   add_custom_command(
     OUTPUT ${output}
     COMMAND

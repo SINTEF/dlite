@@ -3,10 +3,12 @@
 #ifndef _UTILS_CONFIG_H
 #define _UTILS_CONFIG_H
 
+
 /* System */
 #cmakedefine UNIX
 #cmakedefine WINDOWS
 #cmakedefine APPLE
+
 
 /* Language/preprocessor features */
 #cmakedefine HAVE___VA_ARGS__

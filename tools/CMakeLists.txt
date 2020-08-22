@@ -10,7 +10,8 @@ endif()
 # dlite-getuuid
 add_executable(dlite-getuuid dlite-getuuid.c)
 target_link_libraries(dlite-getuuid
-  dlite-static
+  #dlite-static
+  dlite
   )
 target_include_directories(dlite-getuuid PRIVATE
   ${dlite_SOURCE_DIR}/src

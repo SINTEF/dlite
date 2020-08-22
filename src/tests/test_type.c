@@ -163,17 +163,20 @@ MU_TEST(test_snprintf)
 
 MU_TEST(test_get_alignment)
 {
+  mu_assert_int_eq(1,  dlite_type_get_alignment(dliteUInt, 1));
+  mu_assert_int_eq(2,  dlite_type_get_alignment(dliteUInt, 2));
+  mu_assert_int_eq(1,  dlite_type_get_alignment(dliteBlob, 3));
+  mu_assert_int_eq(1,  dlite_type_get_alignment(dliteBlob, 4));
+  mu_assert_int_eq(4,  dlite_type_get_alignment(dliteInt,  4));
+  mu_assert_int_eq(8,  dlite_type_get_alignment(dliteInt,  8));
+  mu_assert_int_eq(1,  dlite_type_get_alignment(dliteFixString, 3));
+  mu_assert_int_eq(8,  dlite_type_get_alignment(dliteStringPtr, 8));
+  mu_assert_int_eq(8,  dlite_type_get_alignment(dliteDimension,
+                                                sizeof(DLiteDimension)));
+#if defined(HAVE_FLOAT80) || defined(HAVE_FLOAT128)
   mu_assert_int_eq(16, dlite_type_get_alignment(dliteFloat, 16));
-  mu_assert_int_eq(1, dlite_type_get_alignment(dliteUInt, 1));
-  mu_assert_int_eq(2, dlite_type_get_alignment(dliteUInt, 2));
-  mu_assert_int_eq(1, dlite_type_get_alignment(dliteBlob, 3));
-  mu_assert_int_eq(1, dlite_type_get_alignment(dliteBlob, 4));
-  mu_assert_int_eq(4, dlite_type_get_alignment(dliteInt,  4));
-  mu_assert_int_eq(8, dlite_type_get_alignment(dliteInt,  8));
-  mu_assert_int_eq(1, dlite_type_get_alignment(dliteFixString, 3));
-  mu_assert_int_eq(8, dlite_type_get_alignment(dliteStringPtr, 8));
-  mu_assert_int_eq(8, dlite_type_get_alignment(dliteDimension,
-                                               sizeof(DLiteDimension)));
+#endif
+
 }
 
 MU_TEST(test_padding_at)

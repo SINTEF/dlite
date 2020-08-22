@@ -31,7 +31,8 @@ link_directories(
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite-utils-static)
+  #target_link_libraries(${test} dlite-utils-static)
+  target_link_libraries(${test} dlite-utils)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src/tests
     ${dlite-src-utils_SOURCE_DIR}
@@ -41,8 +42,9 @@ foreach(test ${tests})
      -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
      -DLIBDIR=$<TARGET_FILE_DIR:${test}>
      -DABS_WORKDIR=${CMAKE_CURRENT_BINARY_DIR}
-     )
-  add_dependencies(${test} dlite-utils-static)
+   )
+  #add_dependencies(${test} dlite-utils-static)
+  add_dependencies(${test} dlite-utils)
 
   add_test(
     NAME ${test}
