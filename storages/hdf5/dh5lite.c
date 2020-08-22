@@ -778,6 +778,7 @@ int dh5_set_dataname(DLiteDataModel *d, const char *name)
 
 static DLiteStoragePlugin h5_plugin = {
   "hdf5",
+  NULL,
 
   /* basic api */
   dh5_open,
@@ -813,7 +814,6 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_set_dataname,
 
   /* internal data */
-  NULL,
   NULL
 };
 

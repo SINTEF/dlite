@@ -60,6 +60,15 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
                                int ndims, const int *dims);
 
 /**
+  Like dlite_array_create(), but with argument `order`, which can have
+  the values:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+*/
+DLiteArray *dlite_array_create_order(void *data, DLiteType type, size_t size,
+                                     int ndims, const int *dims, int order);
+
+/**
   Free an array object, but not the associated data.
 */
 void dlite_array_free(DLiteArray *arr);
@@ -120,16 +129,18 @@ int dlite_array_compare(const DLiteArray *a, const DLiteArray *b);
   `stop` and `step` has the same meaning as in Python and should be
   either NULL or arrays of length `arr->ndims`.
 
-  For `step[n] > 0` the range for dimension `n` is increasing:
+  For `step[n] > 0` the range for dimension `n` is increasing
+  (assuming `step[n]=1`):
 
       start[n], start[n]+1, ... stop[n]-2, stop[n]-1
 
   For `step[n] < 0` the range for dimension `n` is decreasing:
+  (assuming `step[n]=1`):
 
       start[n]-1, start[n]-2, ... stop[n]+1, stop[n]
 
-  Like Python, negative values of `start` or `stop` from the back.
-  Hence index `-k` is equivalent to `arr->dims[n]-k`.
+  Like Python, negative values of `start` or `stop` counts from the back.
+  Hence index `-k` is equivalent to `arr->dims[n]-|k|`.
 
   If `start` is NULL, it will default to zero for dimensions `n` with
   positive `step` and `arr->dims[n]` for dimensions with negative
@@ -150,7 +161,7 @@ int dlite_array_compare(const DLiteArray *a, const DLiteArray *b);
       start[n], start[n]-1, ... stop[n]+2, stop[n]+1
 
   In Python, you can get the full reversed range by specifying `None`
-  as the stop value.  But `None` is not a valid C integer.  If dlite
+  as the stop value.  But `None` is not a valid C integer.  In dlite
   you can get the full reversed range by setting `stop[n]` to zero.
  */
 DLiteArray *dlite_array_slice(const DLiteArray *arr,

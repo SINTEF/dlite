@@ -47,6 +47,33 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
   return arr;
 }
 
+/*
+  Like dlite_array_create(), but with argument `order`, which can have
+  the values:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+*/
+DLiteArray *dlite_array_create_order(void *data, DLiteType type, size_t size,
+                                     int ndims, const int *dims, int order)
+{
+  DLiteArray *arr2, *arr = dlite_array_create(data, type, size, ndims, dims);
+  if (!arr) return NULL;
+  switch (order) {
+  case 'C':
+    return arr;
+  case 'F':
+    if (!(arr2 = dlite_array_transpose(arr))) {
+      dlite_array_free(arr);
+      return NULL;
+    };
+    dlite_array_free(arr);
+    return arr2;
+  default:
+    return err(1, "invalid order '%c', should be either 'C' or 'F'",
+               order), NULL;
+  }
+}
+
 
 /*
   Free an array object, but not the associated data.

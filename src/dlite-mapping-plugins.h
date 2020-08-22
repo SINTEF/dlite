@@ -22,6 +22,7 @@
 */
 
 #include "utils/dsl.h"
+#include "utils/plugin.h"
 #include "dlite-entity.h"
 
 /**
@@ -176,12 +177,11 @@ typedef void (*Freer)(DLiteMappingPlugin *api);
   trivial mapping to an existing input is zero.
 */
 struct _DLiteMappingPlugin {
-  const char *   name;       /*!< Name of plugin */
+  PluginAPI_HEAD
   const char *   output_uri; /*!< Output metedata URI */
   int            ninput;     /*!< Number of inputs */
   const char **  input_uris; /*!< Array of input metedata URIs */
   Mapper         mapper;     /*!< Pointer to mapping function */
-  Freer          freer;      /*!< Pointer to function releasing internal data */
   int            cost;       /*!< Cost of this mapping. Default: 20 */
   void *         data;       /*!< Internal data used by the mapper */
 };

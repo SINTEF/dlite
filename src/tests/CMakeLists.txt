@@ -3,6 +3,7 @@
 
 set(tests
   test_misc
+  test_type
   test_storage
   test_entity
   test_store

@@ -292,6 +292,7 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 }
 
 
+
 /* ----------------------------------------------------------- */
 /* Add explanation for why we need these functions and do not
  * call the error functions in err.h directly.

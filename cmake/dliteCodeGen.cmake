@@ -1,6 +1,6 @@
 # -- Macro simplifying calling dlite-codegen
 #
-# codegen(output template sources)
+# dlite_codegen(output template sources)
 #
 #   Generate source code using dlite-codegen.
 #
@@ -35,7 +35,7 @@
 #       Path to look for dlite-codegen if it is not a target of the current
 #       cmake session
 
-macro(codegen output template url)
+macro(dlite_codegen output template url)
 
   set(codegen_dependencies "")
 

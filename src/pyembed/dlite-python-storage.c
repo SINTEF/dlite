@@ -3,6 +3,7 @@
  */
 #include <Python.h>
 #include <assert.h>
+#include <stdlib.h>
 
 /* Python pulls in a lot of defines that conflicts with utils/config.h */
 #define SKIP_UTILS_CONFIG_H
@@ -135,8 +136,6 @@ void *dlite_python_storage_load(void)
 /* Unloads all currently loaded storages. */
 void dlite_python_storage_unload(void)
 {
-  if (loaded_storages) {
+  if (loaded_storages)
     Py_DECREF(loaded_storages);
-    loaded_storages = NULL;
-  }
 }
