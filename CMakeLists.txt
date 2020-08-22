@@ -7,7 +7,7 @@ include(CPack)
 
 project(dlite
   VERSION 0.2.3
-  #DESCRIPTION "Lightweight library for working with scientific data"
+  #DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   LANGUAGES C
   )
 
@@ -18,6 +18,7 @@ option(WITH_JSON        "Whether to build with JSON support"             ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
+option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
 
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
@@ -37,7 +38,9 @@ if(CMAKE_COMPILER_IS_GNUCC)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
-  enable_c_compiler_flag_if_supported("-Werror")
+  if(NOT ALLOW_WARNINGS)
+    enable_c_compiler_flag_if_supported("-Werror")
+  endif()
 endif()
 
 # Enable C99
@@ -61,12 +64,10 @@ set(DLITE_STORAGES                   "share/dlite/storages")
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
-  set(DEF_INSTALL_CMAKE_DIR cmake)
+  set(DLITE_INSTALL_CMAKE_DIR "cmake")
 else()
-  set(DEF_INSTALL_CMAKE_DIR lib/cmake/dlite)
+  set(DLITE_INSTALL_CMAKE_DIR "share/dlite/cmake")
 endif()
-set(DLITE_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
-  "Installation directory for CMake files")
 
 
 ####################################################################
@@ -256,52 +257,56 @@ endif()
 
 # Testing
 # -------
+include(CTest)
+
 find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 
 if(MEMORYCHECK_COMMAND)
+  set(logfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.log")
+  set(suppfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.supp")
+  set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
+  set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
 
   if(WITH_PYTHON)
-    set(python_supp "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.supp")
-    set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt")
+    set(suppressions ${suppfile})
 
     # Generate platform-specific suppressions file for Python
-    if(NOT EXISTS ${python_supp} OR ${dlite_supp} IS_NEWER_THAN ${python_supp})
-      message(STATUS "generate Python suppressions")
-      find_program(AWK_COMMAND NAMES gawk awk)
-      execute_process(
-        COMMAND ${CMAKE_COMMAND}
-          -E env PYTHONMALLOC=malloc ${MEMORYCHECK_COMMAND}
-            --leak-check=yes
-            --show-leak-kinds=all
-            --suppressions=${dlite_supp}
-            --gen-suppressions=all
-            ${PYTHON_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
-        ERROR_FILE ${python_supp}.tmp
-        )
-      execute_process(
-        COMMAND ${AWK_COMMAND}
-          -f ${CMAKE_CURRENT_SOURCE_DIR}/cmake/parse_valgrind_suppressions.awk
-        INPUT_FILE ${python_supp}.tmp
-        OUTPUT_VARIABLE content
-        )
-      execute_process(
-        COMMAND ${CMAKE_COMMAND} -E copy
-          ${dlite_supp} ${python_supp}
-        )
-      file(APPEND ${python_supp} "\n# -------------------------------------\n# Platform-specific Python suppressions\n# -------------------------------------\n\n")
-      file(APPEND ${python_supp} ${content})
-    endif()
-
-    set(MEMORYCHECK_SUPPRESSIONS_FILE
-      ${python_supp}
-      CACHE FILEPATH "File that contains suppressions for the memory checker"
+    add_custom_command(
+      OUTPUT ${logfile}
+      COMMAND ${CMAKE_COMMAND}
+        -E env PYTHONMALLOC=malloc ${MEMORYCHECK_COMMAND}
+        --leak-check=yes
+        --show-leak-kinds=all
+        --suppressions=${dlite_supp}
+        --gen-suppressions=all
+        --log-file=${logfile}
+        ${PYTHON_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
+      MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
+      COMMENT "Generating valgrind suppressions log file for Python"
+      )
+    add_custom_command(
+      OUTPUT ${suppfile}
+      COMMAND ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/cmake/valgrind-log2supp.py
+        --head=${dlite_supp}
+        --tail=${python_supp}
+        ${logfile}
+        ${suppfile}
+      MAIN_DEPENDENCY ${logfile}
+      DEPENDS
+        ${dlite_supp}
+        ${python_supp}
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/valgrind-log2supp.py
+      COMMENT "Convert valgrind log file to suppressions for Python"
       )
   else()
-    set(MEMORYCHECK_SUPPRESSIONS_FILE
-      ${dlite_SOURCE_DIR}/cmake/valgrind-suppressions.txt
-      CACHE FILEPATH "File that contains suppressions for the memory checker"
-      )
+    set(suppressions ${dlite_supp})
   endif()
+
+  set(MEMORYCHECK_SUPPRESSIONS_FILE
+    ${suppressions}
+    CACHE FILEPATH "File that contains suppressions for the memory checker"
+    )
 
   add_custom_target(memcheck
     COMMAND ${CMAKE_COMMAND}
@@ -310,12 +315,11 @@ if(MEMORYCHECK_COMMAND)
             --force-new-ctest-process
             --output-on-failure
             --test-action memcheck
-    DEPENDS ${python_supp}
+    DEPENDS ${suppressions}
     COMMENT "Runs memory check with valgrind"
     )
 endif()
 
-include(CTest)
 
 find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
@@ -556,6 +560,6 @@ install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
-    "${dlite_SOURCE_DIR}/cmake/CodeGen.cmake"
+    "${dlite_SOURCE_DIR}/cmake/dliteCodeGen.cmake"
   DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   )

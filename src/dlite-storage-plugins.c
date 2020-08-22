@@ -94,7 +94,7 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_register_api(info, api);
+  return plugin_register_api(info, (const PluginAPI *)api);
 }
 
 /*
@@ -115,40 +115,14 @@ int dlite_storage_plugin_load_all()
 void dlite_storage_plugin_unload_all()
 {
   PluginInfo *info;
-  DLiteStoragePluginIter *iter;
-  const DLiteStoragePlugin *api;
-  //char **names=NULL;
-  //int i, n=0, N=0;
+  char **p, **names;
   if (!(info = get_storage_plugin_info())) return;
-  if (!(iter = dlite_storage_plugin_iter_create())) return;
-
-  while ((api = dlite_storage_plugin_iter_next(iter))) {
-    if (api->freer) api->freer((DLiteStoragePlugin *)api);
-    plugin_unload(info, api->name);
-
-
-    //free((DLiteStoragePlugin *)api);
+  if (!(names = plugin_names(info))) return;
+  for (p=names; *p; p++) {
+    plugin_unload(info, *p);
+    free(*p);
   }
-
-  /* make a list with all plugin names */
-    /*
-  while ((api = dlite_storage_plugin_iter_next(iter))) {
-    if (n >= N) {
-      N += 64;
-      names = realloc(names, N*sizeof(char *));
-    }
-    names[n++] = strdup(api->name);
-  }
-  dlite_storage_plugin_iter_free(iter);
-
-  for (i=0; i<n; i++) {
-    plugin_unload(info, names[i]);
-    free(names[i]);
-  }
-  if (names) free(names);
-    */
-
-  dlite_storage_plugin_iter_free(iter);
+  free(names);
 }
 
 /*

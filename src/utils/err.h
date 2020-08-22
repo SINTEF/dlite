@@ -282,33 +282,36 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
 
 /* Note that `...` include the `msg` macro argument to ensure that `...`
  * always corresponds to at least one argument as required by ISO C99. */
-#define fatal(eval, ...) \
-  exit(_err_format(errLFatal, eval, errno, ERR_FILEPOS, _err_func, __VA_ARGS__))
-#define fatalx(eval, ...) \
-  exit(_err_format(errLFatal, eval, 0, ERR_FILEPOS, _err_func, __VA_ARGS__))
-#define err(eval, ...) \
-  _err_format(errLErr, eval, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
-#define errx(eval, ...) \
-  _err_format(errLErr, eval, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
-#define warn(...) \
-  _err_format(errLWarn, 0, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
-#define warnx(...) \
-  _err_format(errLWarn, 0, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
-#define err_generic(errlevel, eval, errnum, ...) \
+#define fatal(eval, ...)                                                \
+  exit(_err_format(errLevelFatal, eval, errno, ERR_FILEPOS, _err_func,  \
+                   __VA_ARGS__))
+#define fatalx(eval, ...)                                               \
+  exit(_err_format(errLevelFatal, eval, 0, ERR_FILEPOS, _err_func,      \
+                   __VA_ARGS__))
+#define err(eval, ...)                                                  \
+  _err_format(errLevelError, eval, errno, ERR_FILEPOS, _err_func,         \
+              __VA_ARGS__)
+#define errx(eval, ...)                                                 \
+  _err_format(errLevelError, eval, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
+#define warn(...)                                                       \
+  _err_format(errLevelWarn, 0, errno, ERR_FILEPOS, _err_func, __VA_ARGS__)
+#define warnx(...)                                                      \
+  _err_format(errLevelWarn, 0, 0, ERR_FILEPOS, _err_func, __VA_ARGS__)
+#define err_generic(errlevel, eval, errnum, ...)                        \
   _err_format(errlevel, eval, errnum, ERR_FILEPOS, _err_func, __VA_ARGS__)
 
 #define vfatal(eval, msg, ap) \
-  exit(_err_vformat(errLFatal, eval, errno, ERR_FILEPOS, _err_func, msg, ap))
+  exit(_err_vformat(errLevelFatal, eval, errno, ERR_FILEPOS, _err_func, msg, ap))
 #define vfatalx(eval, msg, ap) \
-  exit(_err_vformat(errLFatal, eval, 0, ERR_FILEPOS, _err_func, msg, ap))
+  exit(_err_vformat(errLevelFatal, eval, 0, ERR_FILEPOS, _err_func, msg, ap))
 #define verr(eval, msg, ap) \
-  _err_vformat(errLErr, eval, errno, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLevelError, eval, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define verrx(eval, msg, ap) \
-  _err_vformat(errLErr, eval, 0, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLevelError, eval, 0, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarn(msg, ap) \
-  _err_vformat(errLWarn, 0, errno, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLevelWarn, 0, errno, ERR_FILEPOS, _err_func, msg, ap)
 #define vwarnx(msg, ap) \
-  _err_vformat(errLWarn, 0, 0, ERR_FILEPOS, _err_func, msg, ap)
+  _err_vformat(errLevelWarn, 0, 0, ERR_FILEPOS, _err_func, msg, ap)
 #define verr_generic(errlevel, eval, errnum, msg, ap) \
   _err_format(errlevel, eval, errnum, ERR_FILEPOS, _err_func, msg, ap)
 

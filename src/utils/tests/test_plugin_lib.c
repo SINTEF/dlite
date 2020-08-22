@@ -15,6 +15,7 @@ static double fun2(double a)
 
 static TestAPI testapi = {
   "testapi",
+  NULL,
   fun1,
   fun2
 };
@@ -22,6 +23,6 @@ static TestAPI testapi = {
 
 DSL_EXPORT const TestAPI *get_testapi(int *iter)
 {
-  (void)(iter);  /* unused */
+  (void)(iter);     /* unused */
   return &testapi;
 }
