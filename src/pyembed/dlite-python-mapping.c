@@ -201,7 +201,7 @@ static void freeapi(PluginAPI *api)
   DLiteMappingPlugin *p = (DLiteMappingPlugin *)api;
   free(p->name);
   free((char *)p->output_uri);
-  free(p->input_uris);
+  free((char **)p->input_uris);
   Py_XDECREF(p->data);
   free(p);
 }
@@ -223,7 +223,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
 
   if (!(mappings = dlite_python_mapping_load())) goto fail;
   assert(PyList_Check(mappings));
-  n = PyList_Size(mappings);
+  n = (int)PyList_Size(mappings);
 
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
@@ -282,7 +282,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   api->name = apiname;
   api->freeapi = freeapi;
   api->output_uri = output_uri;
-  api->ninput = PySequence_Length(in_uris);
+  api->ninput = (int)PySequence_Length(in_uris);
   api->input_uris = input_uris;
   api->mapper = mapper;
   api->cost = cost;
@@ -299,7 +299,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   if (!retval) {
     if (name) free(name);
     if (output_uri) free((char *)output_uri);
-    if (input_uris) free(input_uris);
+    if (input_uris) free((char **)input_uris);
     if (api) free(api);
   }
   return retval;
