@@ -111,6 +111,20 @@ MU_TEST(test_fu_friendly_dirsep)
 #else
   mu_assert_string_eq("\\\\drive:a/file", fu_friendly_dirsep(path));
 #endif
+
+  strcpy(path, "C:\\dir\\file");
+#ifdef WINDOWS
+  mu_assert_string_eq("C:\\dir\\file", fu_friendly_dirsep(path));
+#else
+  mu_assert_string_eq("C:\\dir\\file", fu_friendly_dirsep(path));
+#endif
+
+  strcpy(path, "C:/dir/file");
+#ifdef WINDOWS
+  mu_assert_string_eq("C:\\dir\\file", fu_friendly_dirsep(path));
+#else
+  mu_assert_string_eq("C:/dir/file", fu_friendly_dirsep(path));
+#endif
 }
 
 MU_TEST(test_fu_realpath)

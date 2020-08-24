@@ -204,7 +204,7 @@ const char *fu_fileext(const char *path)
 
   On Windows, the following logic is applied:
     - path starts with "//" or "\\":                      '/' -> '\'
-    - path starts with "C:" (where C is any character):   '\' -> '/'
+    - path starts with "C:" (where C is any character):   '/' -> '\'
     - otherwise                                           '\' -> '/'
 
   Returns a pointer to `path`.
