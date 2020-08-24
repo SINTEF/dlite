@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 
   } else  {
     int i, j;
-    if (optind >= argc) return errx(1, "Missing COMMAND argument");
+    if (optind >= argc) FAIL("Missing COMMAND argument");
 
     printf("*** optind=%d, argc=%d\n", optind, argc);
 
@@ -172,12 +172,13 @@ int main(int argc, char *argv[])
     if (!(args = calloc(argc - optind + 1, sizeof(char **))))
       return err(1, "allocation failure");
     for (i=optind, j=0; i<argc; i++)
-      if (!(args[j++] = strdup(argv[i]))) return err(1, "allocation failure");
+      if (!(args[j++] = strdup(argv[i]))) FAIL("allocation failure");
 
     /* -- execute command */
     retval = exec_process(args[0], args, env);
   }
 
+ fail:
   if (env) strlist_free(env);
   if (args) strlist_free(args);
   if (vars) strlist_free(vars);

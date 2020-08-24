@@ -8,15 +8,22 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_EXEC
-#include <sys/types.h>
-#include <unistd.h>
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# ifndef WINDOWS
+#  define WINDOWS
+# endif
+# include <windows.h>
+# include <processthreadsapi.h>
+# include <processenv.h>
 #else
-#include <string.h>
-#include <windows.h>
-#include <processthreadsapi.h>
-#include <processenv.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <unistd.h>
+/* seems we have to declare environ here as well... */
+extern char **environ;
 #endif
+
+# include <string.h>
 
 #include "err.h"
 #include "execprocess.h"
@@ -46,24 +53,9 @@
 
   Returns non-zero on error.
 */
-int exec_process(const char *pathname, const char *argv[], const char *env[])
+int exec_process(const char *pathname, char *const argv[], char *const env[])
 {
-#ifdef HAVE_EXEC
-  int status=1;
-  pid_t pid = fork();
-  if (pid < 0)
-    return err(-1 "error forking: %s", pathname);
-  else if (pid > 0) {
-    /* parent process */
-    wait(&status);
-  } else {
-    /* child process */
-    if (execvpe(pathname, argv, env) < 0)
-      fatal(1, "cannot execute pathname %s", pathname);
-  }
-  return status;
-
-#else
+#ifdef WINDOWS
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   CHAR cmdline[4096];
@@ -108,6 +100,20 @@ int exec_process(const char *pathname, const char *argv[], const char *env[])
   CloseHandle(pi.hThread);
   CloseHandle(pi.hProcess);
   return 0;
+#else
+  int status=1;
+  pid_t pid = fork();
+  if (pid < 0)
+    return err(-1, "error forking: %s", pathname);
+  else if (pid > 0) {
+    /* parent process */
+    wait(&status);
+  } else {
+    /* child process */
+    if (execve(pathname, argv, env) < 0)
+      fatal(1, "cannot execute pathname %s", pathname);
+  }
+  return status;
 #endif
 }
 
@@ -124,11 +130,10 @@ int exec_process(const char *pathname, const char *argv[], const char *env[])
  */
 char **get_environment(void)
 {
-#ifdef HAVE_EXEC
-  return copy_environment(environ);
-#endif
+  char **env=NULL;
+#ifdef WINDOWS
   size_t size=0, n=0;
-  char *p, **env=NULL;
+  char *p;
   LPCH envbuf = GetEnvironmentStrings();
   if (!envbuf) return err(1, "cannot get environment"), NULL;
   for (p=envbuf; *p; p+=strlen(p)+1) {
@@ -140,6 +145,9 @@ char **get_environment(void)
   }
   env[n] = NULL;
   FreeEnvironmentStrings(envbuf);
+#else
+  env = strlist_copy(environ);
+#endif
   return env;
 }
 
@@ -186,7 +194,6 @@ char *get_envvar(char **env, const char *name)
  */
 char **set_envitem(char **env, const char *item)
 {
-  char **retval=NULL;
   char **q;
   if (!strchr(item, '='))
     return err(1, "no equal sign in environment item: %s", item), NULL;
@@ -246,14 +253,14 @@ char **strlist_copy(char **strlist)
 char **strlist_add(char **strlist, const char *s)
 {
   int n=0;
+  char **q;
   if (strlist)
     while (strlist[n]) n++;
-  if (!(strlist = realloc(strlist, (n+2)*sizeof(char **))))
+  if (!(q = realloc(strlist, (n+2)*sizeof(char **))))
     return err(1, "allocation failure"), NULL;
-  if (!(strlist[n] = strdup(s)))
-    return err(1, "allocation failure"), NULL;
-  strlist[n+1] = NULL;
-  return strlist;
+  q[n] = strdup(s);
+  q[n+1] = NULL;
+  return q;
 }
 
 /*

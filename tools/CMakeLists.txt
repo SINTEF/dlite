@@ -26,7 +26,7 @@ target_include_directories(dlite-env PRIVATE
   ${dlite_SOURCE_DIR}/src
   ${dlite_BINARY_DIR}/src
   )
-
+add_dependencies(dlite-env config-paths.h)
 
 # Subdirectories
 add_subdirectory(tests)

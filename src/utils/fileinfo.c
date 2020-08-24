@@ -92,8 +92,12 @@ int fileinfo_isnormal(const char *path)
 int fileinfo_isreadable(const char *path)
 {
   int errno_orig = errno;
-  FILE *fp = fopen(path, "r");
-  int readable = (fp) ? 1 : 0;
+  FILE *fp;
+  int readable;
+  if (fileinfo_isdir(path)) return 0;
+  if (!fileinfo_isnormal(path)) return 0;
+  fp = fopen(path, "r");
+  readable = (fp) ? 1 : 0;
   if (fp) fclose(fp);
   errno = errno_orig;
   return readable;

@@ -20,7 +20,7 @@
           NULL-terminated array of pointers to NUL-terminated
           strings.
 */
-int exec_process(const char *pathname, const char *argv[], const char *env[]);
+int exec_process(const char *pathname, char *const argv[], char *const env[]);
 
 
 /**
