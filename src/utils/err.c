@@ -166,7 +166,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       n += vsnprintf(errmsg + n, errsize - n, msg, ap);
     if (errnum)
       n += snprintf(errmsg + n, errsize - n, ": %s", strerror(errnum));
-
     if (n >= (int)errsize && stream)
       fprintf(stream, "Warning: error %d truncated due to full message buffer",
               eval);

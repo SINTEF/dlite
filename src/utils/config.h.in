@@ -48,7 +48,10 @@
 #cmakedefine HAVE_GetFullPathName
 #cmakedefine HAVE_GetFileAttributesW
 #cmakedefine HAVE_GetFileAttributes
+#cmakedefine HAVE_PathFileExistsA
 #cmakedefine HAVE_PathFileExistsW
+#cmakedefine HAVE_PathFileExists
+#cmakedefine HAVE_CreateProcessA
 #cmakedefine HAVE_MBSTOWCS_S
 #cmakedefine HAVE_WCSTOMBS_S
 

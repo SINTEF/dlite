@@ -11,6 +11,9 @@ endif()
 # -----------------
 configure_file(config.h.in config.h)
 
+include(dliteGenEnv)
+dlite_genenv(config-paths.h ${CMAKE_CURRENT_BINARY_DIR} NATIVE)
+
 
 #-----------------------------------------------------
 # Compile library

@@ -124,6 +124,10 @@ typedef void * dsl_handle;
 
 #include <windows.h>
 
+/* Get rid of warnings about strerror() being deprecated on VS */
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable: 4996) 
+
 typedef HMODULE dsl_handle;
 
 #define dsl_open(filename) \

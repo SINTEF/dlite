@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     case 's':  dlite_storage_plugin_path_append(optarg); break;
     case 'm':  dlite_instance_load_url(optarg); break;
     case 't':  template_file = optarg; break;
-    case 'v':  tgen_buf_append_fmt(&variables, "%s;",optarg); break;
+    case 'v':  tgen_buf_append_fmt(&variables, "%s;", optarg); break;
     case 'V':  printf("%s\n", dlite_VERSION); exit(0);
     case '?':  exit(1);
     default:   abort();

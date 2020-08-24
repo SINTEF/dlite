@@ -4,6 +4,11 @@
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
 
+/* Get rid of MSVS warnings */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4273 4996)
+#endif
+
 
 static int python_initialized = 0;
 

@@ -47,7 +47,8 @@ endif()
 
 
 # Add macros for use with swig
-include(${SWIG_USE_FILE})
+include(UseSWIG)
+#include(${SWIG_USE_FILE})
 
 #
 # Create Python library

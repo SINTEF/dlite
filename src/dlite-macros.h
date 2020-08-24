@@ -4,6 +4,10 @@
   @file
   @brief A simple colledtion of convinient macros (internal use)
 */
+#ifdef HAVE_CONFIG
+#include "config.h"
+#endif
+
 #include "dlite-misc.h"
 
 

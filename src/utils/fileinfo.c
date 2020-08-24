@@ -9,6 +9,9 @@
 #endif
 
 #include <assert.h>
+#include <errno.h>
+#include <stdio.h>
+
 #if defined(__unix__)
 # ifndef POSIX
 #  define POSIX
@@ -21,6 +24,7 @@
 #  define WINDOWS
 # endif
 # include <Windows.h>
+# include <shlwapi.h>
 #else
 # error "fileinfo supports only POSIX (__unix__) and Windows (_WIN32)"
 #endif
@@ -35,8 +39,17 @@ int fileinfo_exists(const char *path)
   struct stat statbuf;
   if (stat(path, &statbuf) == 0) return 1;
 #elif defined(WINDOWS)
+#if defined(HAVE_GetFullPathNameW) && defined(HAVE_MBSTOWCS_S)
+  size_t wlen;
+  wchar_t wpath[MAX_PATH + 1];
+
+  /* Convert path to wide characters */
+  if (mbstowcs_s(&wlen, wpath, MAX_PATH + 1, path, MAX_PATH + 1)) return 0;
+  return PathFileExistsW(wpath);
+#else
   DWORD dwAttrib = GetFileAttributes(path);
   if (dwAttrib != INVALID_FILE_ATTRIBUTES) return 1;
+#endif
 #endif
   return 0;
 }
@@ -50,7 +63,8 @@ int fileinfo_isdir(const char *path)
       statbuf.st_mode & S_IFDIR) return 1;
 #elif defined(WINDOWS)
   DWORD dwAttrib = GetFileAttributes(path);
-  if (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+  if (fileinfo_exists(path) &&
+      dwAttrib != INVALID_FILE_ATTRIBUTES &&
       (dwAttrib & FILE_ATTRIBUTE_DIRECTORY)) return 1;
 #endif
   return 0;
@@ -65,8 +79,22 @@ int fileinfo_isnormal(const char *path)
       statbuf.st_mode & S_IFREG) return 1;
 #elif defined(WINDOWS)
   DWORD dwAttrib = GetFileAttributes(path);
-  if (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-      (dwAttrib & FILE_ATTRIBUTE_NORMAL)) return 1;
+  /* Why does Windows attribute normal files as archives? */
+  if (fileinfo_exists(path) &&
+      dwAttrib != INVALID_FILE_ATTRIBUTES &&
+      ((dwAttrib & FILE_ATTRIBUTE_NORMAL) ||
+       (dwAttrib & FILE_ATTRIBUTE_ARCHIVE))) return 1;
 #endif
   return 0;
+}
+
+/* Returns non-zero if `path` is a normal file and readable. */
+int fileinfo_isreadable(const char *path)
+{
+  int errno_orig = errno;
+  FILE *fp = fopen(path, "r");
+  int readable = (fp) ? 1 : 0;
+  if (fp) fclose(fp);
+  errno = errno_orig;
+  return readable;
 }
