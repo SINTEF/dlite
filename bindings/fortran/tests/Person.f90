@@ -39,6 +39,15 @@ MODULE Person
 
 CONTAINS
 
+!  type(c_ptr)
+!  function create_meta_person() result(meta)
+!    info = dlite_metainfo_create(uri, iri, description)
+!    dlite_metainfo_add_dim(info, "N", "Dim descriion")
+!    prop1 = dlite_metainfo_add_prop(info, "name", "")
+!    dlite_metainfo_add_prop_dim(prop1, "N")
+!    meta = dlite_meta_create_form_info(info)
+!  end function create_meta_person
+
   function personToInstance(person) result(instance)
     implicit none
     class(TPerson), intent(in) :: person
