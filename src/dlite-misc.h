@@ -178,6 +178,21 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
 
 /**
+  On Windows, this function adds default directories to the DLL search
+  path.  Based on whether the `DLITE_USE_BUILDROOT` environment
+  variable is defined, the library directories under either the build
+  directory or the installation root (environment variable DLITE_ROOT)
+  are added to the DLL search path using AddDllDirectory().
+
+  On Linux this function does nothing.
+
+  Returns non-zero on error.
+ */
+int dlite_add_dll_path(void);
+
+
+
+/**
   @name Wrappers around error functions
 */
 #ifndef __GNUC__

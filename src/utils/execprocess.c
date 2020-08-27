@@ -161,6 +161,7 @@ char **get_environment(void)
 char **get_envitem(char **env, const char *name)
 {
   char **q;
+  if (!env) return NULL;
   for (q=env; *q; q++) {
     int n, len=strcspn(name, "=");
     char *p = strchr(*q, '=');
@@ -194,6 +195,8 @@ char *get_envvar(char **env, const char *name)
  */
 char **set_envitem(char **env, const char *item)
 {
+  /* FIXME - this seems to add item to environment even if variable is
+     already present...*/
   char **q;
   if (!strchr(item, '='))
     return err(1, "no equal sign in environment item: %s", item), NULL;

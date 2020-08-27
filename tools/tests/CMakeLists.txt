@@ -65,6 +65,8 @@ if(WITH_JSON)
       ENVIRONMENT "PATH=${dlite_PATH}")
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+    set_property(TEST ${test} PROPERTY
+      ENVIRONMENT "DLITE_USE_BUILDROOT=YES")
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
     set_property(TEST ${test} APPEND PROPERTY

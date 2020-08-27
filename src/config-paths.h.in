@@ -3,10 +3,14 @@
 #ifndef _DLITE_CONFIG_PATHS_H
 #define _DLITE_CONFIG_PATHS_H
 
-/* hardcoded paths in build tree */
 #define dlite_PATH                   "@PATH_unix@"
 #define dlite_LD_LIBRARY_PATH        "@LD_LIBRARY_PATH_unix@"
 #define dlite_PYTHONPATH             "@PYTHONPATH_unix@"
+
+
+#define dlite_BUILD_ROOT             "@dlite_BINARY_DIR@"
+
+/* hardcoded paths in build tree */
 #define dlite_STORAGE_PLUGINS        "@STORAGE_PLUGINS_unix@"
 #define dlite_MAPPING_PLUGINS        "@MAPPING_PLUGINS_unix@"
 #define dlite_PYTHON_STORAGE_PLUGINS "@PYTHON_STORAGE_PLUGINS_unix@"

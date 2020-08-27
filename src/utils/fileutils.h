@@ -88,6 +88,8 @@ int fu_isabs(const char *path);
   If any component is an absolute path, all previous path components
   will be discarded.  An empty last part will result in a path that
   ends with a separator.
+
+  Returns a pointer to a malloc'ed string or NULL on error.
  */
 char *fu_join(const char *a, ...)
   __attribute__((sentinel));
@@ -138,6 +140,86 @@ const char *fu_fileext(const char *path);
   Returns a pointer to `path`.
  */
 char *fu_friendly_dirsep(char *path);
+
+
+/**
+  Finds individual paths in `paths`, which should be a string of paths
+  joined with `pathsep`.
+
+  At the initial call, `*endptr` must point to NULL.  On return will
+  `endptr` be updated to point to the first character after the
+  returned path.  That is the next path separator or or the
+  terminating NUL if there are no more paths left.
+
+  If `pathsep` is not NULL, any character in `pathsep` will be used as
+  a path separator.  NULL corresponds to ";:", except that the colon
+  will not be considered as a path separator in the following two cases:
+    - it is the second character in the path preceded by an alphabetic
+      character and followed by forward or backward slash. Ex: 'C:\xxx'.
+    - it is preceded by only alphabetic characters and followed by
+      two foreard slashes and a alphabetic character.  Ex: http://xxx...
+
+  Returns a pointer to the next path or NULL if there are no more paths left.
+  On error is NULL returned and `*endptr` will not point to NUL.
+
+  Example
+  -------
+
+  ```C
+  char *endptr=NULL, *paths="C:\\aa\\bb.txt;/etc/fstab:http://example.com";
+  const char *p;
+  while ((p = fu_pathsep(paths, &endptr, NULL)))
+    printf("%.*s\n", endptr - p, p);
+  ```
+
+  Should print
+
+      C:\\aa\\bb.txt
+      /etc/fstab
+      http://example.com
+
+  Note that the length of a returned path can be obtained with `endptr-p`.
+ */
+const char *fu_nextpath(const char *paths, char **endptr, const char *pathsep);
+
+
+/**
+  Converts `path` to a valid Windows path and return a pointer to the result.
+
+  The string `path` may be a single path or several paths.  In the
+  latter case they are separated with fu_nextpath().  The `pathsep` argument
+  is passed to it.
+
+  If `dest` is not NULL, the converted path is written to the memory it
+  points to and `dest` is returned.  At most `size` bytes is written.
+
+  If `dest` is NULL, sufficient memory is allocated for performing the
+  full convertion and a pointer to it is returned.
+
+  Returns NULL on error.
+ */
+char *fu_winpath(const char *path, char *dest, size_t size,
+                 const char *pathsep);
+
+
+/**
+  Converts `path` to a valid Unix path and return a pointer to the result.
+
+  The string `path` may be a single path or several paths.  In the
+  latter case they are separated with fu_nextpath().  The `pathsep` argument
+  is passed to it.
+
+  If `dest` is not NULL, the converted path is written to the memory it
+  points to and `dest` is returned.  At most `size` bytes is written.
+
+  If `dest` is NULL, sufficient memory is allocated for performing the
+  full convertion and a pointer to it is returned.
+
+  Returns NULL on error.
+ */
+char *fu_unixpath(const char *path, char *dest, size_t size,
+                  const char *pathsep);
+
 
 /**
   Returns the canonicalized absolute pathname for `path`.  Resolves
@@ -213,6 +295,15 @@ const char **fu_paths_get(FUPaths *paths);
 int fu_paths_insert(FUPaths *paths, const char *path, int n);
 
 /**
+  Like fu_paths_insert(), but allows that `path` is not NUL-terminated
+  with its length is provided with `len`.  If `len` is zero, this is
+  equivalent to fu_paths_insert().
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n);
+
+/**
   Appends `path` to `paths`.  Equivalent to
 
       fu_paths_insert(paths, path, paths->n)
@@ -220,6 +311,15 @@ int fu_paths_insert(FUPaths *paths, const char *path, int n);
   Returns the index of the newly appended element or -1 on error.
  */
 int fu_paths_append(FUPaths *paths, const char *path);
+
+/**
+  Appends `path` to `paths`.  Equivalent to
+
+      fu_paths_insertn(paths, path, len, paths->n)
+
+  Returns the index of the newly inserted element or -1 on error.
+ */
+int fu_paths_appendn(FUPaths *paths, const char *path, size_t len);
 
 /**
   Removes path index `n` from `paths`.  If `n` is negative, it

@@ -71,18 +71,28 @@ endif()
 
 # Variables to include in dliteConfig.cmake
 set(DLITE_CONFIG_VARS
-    DLITE_INCLUDE_DIRS
-    DLITE_LIBRARY_DIR
-    DLITE_RUNTIME_DIR
-    DLITE_STORAGE_PLUGIN_DIRS
-    DLITE_MAPPING_PLUGIN_DIRS
-    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-    DLITE_TEMPLATE_DIRS
-    DLITE_STORAGES
-    )
+  dlite_VERSION
+  DLITE_ROOT
+  DLITE_INCLUDE_DIRS
+  DLITE_LIBRARY_DIR
+  DLITE_RUNTIME_DIR
+  DLITE_TEMPLATE_DIRS
+  DLITE_STORAGE_PLUGIN_DIRS
+  DLITE_MAPPING_PLUGIN_DIRS
+  DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+  DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+  DLITE_STORAGES
+  )
 
+# ------------------------
+# Installation environment
+# ------------------------
 
+# Installation paths
+set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
+set(DLITE_INCLUDE_DIRS include/dlite)
+set(DLITE_LIBRARY_DIR  lib)
+set(DLITE_RUNTIME_DIR  bin)
 
 ####################################################################
 # Use ExternalProject_add instead of add_subdirectory for packages.
@@ -270,6 +280,10 @@ if(WITH_PYTHON)
     set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
     set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
   endif()
+
+  set(DLITE_PYTHONPATH
+    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/dlite)
+
 else()
   set(PYTHON_LIBRARIES "")
 endif()
@@ -352,83 +366,61 @@ if(CPPCHECK)
 endif()
 
 
+
 # -------------------------------------------
 # Environment for running tests in build tree
 # -------------------------------------------
-include(ListToPaths)
 
 # PATH - path to runtime directories (.exe and .dll)
-#set(dlite_PATH ${dlite-tools_BINARY_DIR})
-set(dlite_PATH $<TARGET_FILE_DIR:dlite-codegen>)
+set(dlite_PATH ${dlite-tools_BINARY_DIR})
 if(WIN32)
   list(APPEND dlite_PATH
-    #${dlite_BINARY_DIR}/src
-    #${dlite_BINARY_DIR}/src/utils
-    $<TARGET_FILE_DIR:dlite>
-    $<TARGET_FILE_DIR:dlite-utils>
+    ${dlite_BINARY_DIR}/src
+    ${dlite_BINARY_DIR}/src/utils
     ${JANSSON_RUNTIME_DIR}
     ${HDF5_RUNTIME_DIR}
     )
-  #string(REPLACE "/" "\\" dlite_PATH "${dlite_PATH}")
+  string(REPLACE "/" "\\" dlite_PATH "${dlite_PATH}")
 endif()
-#list(APPEND dlite_PATH $ENV{PATH})
-list(APPEND dlite_PATH $ENV{DLITE_PATH})
+list(APPEND dlite_PATH
+  $ENV{PATH}
+  )
 list(REMOVE_DUPLICATES dlite_PATH)
-#list_to_paths(dlite_PATH)
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH
-  #${dlite_BINARY_DIR}/src
-  #${dlite_BINARY_DIR}/src/utils
-  $<TARGET_FILE_DIR:dlite>
-  $<TARGET_FILE_DIR:dlite-utils>
+  ${dlite_BINARY_DIR}/src
+  ${dlite_BINARY_DIR}/src/utils
   ${JANSSON_LIBRARY_DIR}
   ${HDF5_LIBRARY_DIR}
-  #$ENV{LD_LIBRARY_PATH}
-  $ENV{DLITE_LD_LIBRARY_PATH}
+  $ENV{LD_LIBRARY_PATH}
   )
 list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
-#list_to_paths(dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
   ${dlite_BINARY_DIR}/bindings/python
   $ENV{PYTHONPATH}
   )
-list(REMOVE_DUPLICATES dlite_PYTHONPATH)
-#list_to_paths(dlite_PYTHONPATH)
+if(dlite_PYTHONPATH)
+  list(REMOVE_DUPLICATES dlite_PYTHONPATH)
+endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
-if(WITH_JSON)
-  list(APPEND dlite_STORAGE_PLUGINS $<TARGET_FILE_DIR:dlite-plugins-json>)
-endif()
-if(WITH_HDF5)
-  list(APPEND dlite_STORAGE_PLUGINS $<TARGET_FILE_DIR:dlite-plugins-hdf5>)
-endif()
-if(WITH_PYTHON)
-  list(APPEND dlite_STORAGE_PLUGINS $<TARGET_FILE_DIR:dlite-plugins-python>)
-endif()
-list(APPEND dlite_STORAGE_PLUGINS $ENV{DLITE_STORAGE_PLUGIN_DIRS})
-#set(dlite_STORAGE_PLUGINS
-#  #${dlite_BINARY_DIR}/storages/json
-#  #${dlite_BINARY_DIR}/storages/hdf5
-#  #${dlite_BINARY_DIR}/storages/python
-#  $<TARGET_FILE_DIR:dlite-plugins-json>
-#  $<TARGET_FILE_DIR:dlite-plugins-hdf5>
-#  $<TARGET_FILE_DIR:dlite-plugins-python>
-#  $ENV{DLITE_STORAGE_PLUGIN_DIRS}
-#  )
+set(dlite_STORAGE_PLUGINS
+  ${dlite_BINARY_DIR}/storages/json
+  ${dlite_BINARY_DIR}/storages/hdf5
+  ${dlite_BINARY_DIR}/storages/python
+  $ENV{DLITE_STORAGE_PLUGIN_DIRS}
+  )
 list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
-#list_to_paths(dlite_STORAGE_PLUGINS)
 
 # DLITE_MAPPING_PLUGIN_DIRS - search path for DLite mapping plugins
-set(dlite_MAPPING_PLUGINS "")
-if(WITH_PYTHON)
-  list(APPEND dlite_MAPPING_PLUGINS $<TARGET_FILE_DIR:dlite-pyembed>)
-endif()
-list(APPEND dlite_MAPPING_PLUGINS $ENV{DLITE_MAPPING_PLUGIN_DIRS})
+set(dlite_MAPPING_PLUGINS
+  ${dlite_BINARY_DIR}/src/pyembed
+  $ENV{DLITE_MAPPING_PLUGIN_DIRS}
+  )
 list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
-#list_to_paths(dlite_MAPPING_PLUGINS)
 
 # DLITE_PYTHON_STORAGE_PLUGIN_DIRS - search path for Python storage plugins
 set(dlite_PYTHON_STORAGE_PLUGINS
@@ -436,7 +428,6 @@ set(dlite_PYTHON_STORAGE_PLUGINS
   $ENV{DLITE_PYTHON_STORAGE_PLUGIN_DIRS}
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
-#list_to_paths(dlite_PYTHON_STORAGE_PLUGINS)
 
 # DLITE_PYTHON_MAPPING_PLUGIN_DIRS - search path for Python mapping plugins
 set(dlite_PYTHON_MAPPING_PLUGINS
@@ -444,7 +435,6 @@ set(dlite_PYTHON_MAPPING_PLUGINS
   $ENV{DLITE_PYTHON_MAPPING_PLUGIN_DIRS}
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_MAPPING_PLUGINS)
-#list_to_paths(dlite_PYTHON_MAPPING_PLUGINS)
 
 # DLITE_TEMPLATE_DIRS - search path for DLite templates
 set(dlite_TEMPLATES
@@ -452,21 +442,28 @@ set(dlite_TEMPLATES
   $ENV{DLITE_TEMPLATE_DIRS}
   )
 list(REMOVE_DUPLICATES dlite_TEMPLATES)
-#list_to_paths(dlite_TEMPLATES)
 
-# DLITE_STORAGES - DLite storages (inc. metadata).
-# Note that DLITE_STORAGES uses "|" as separator on all systems
+# DLITE_STORAGES - DLite storages (inc. metadata)
 set(dlite_STORAGES
   ${dlite_SOURCE_DIR}/examples/storages/*.json
   $ENV{DLITE_STORAGES}
   )
 list(REMOVE_DUPLICATES dlite_STORAGES)
-string(REPLACE ";" "|" dlite_STORAGES "${dlite_STORAGES}")
 
-# Generate environment scripts
-include(dliteGenEnv)
-dlite_genenv(${dlite_SOURCE_DIR}/cmake/dlite-env.sh
-  ${CMAKE_CURRENT_BINARY_DIR} UNIX)
+if(UNIX)
+  string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
+  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH  "${dlite_LD_LIBRARY_PATH}")
+  string(REPLACE ";" ":" dlite_PYTHONPATH       "${dlite_PYTHONPATH}")
+  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
+  string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
+  string(REPLACE ";" ":" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
+  string(REPLACE ";" ":" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
+  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
+endif()
+
+# Note, DLITE_STORAGES uses "|" as separator on all systems
+string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
+
 
 #################################################################
 
@@ -551,14 +548,6 @@ write_basic_package_version_file(
   VERSION ${dlite_VERSION}
   COMPATIBILITY SameMajorVersion
   )
-
-set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
-set(DLITE_INCLUDE_DIRS include/dlite)
-set(DLITE_LIBRARY_DIR  lib)
-set(DLITE_RUNTIME_DIR  bin)
-#set(python_LIBRARIES $<$<BOOL:${PYTHON_LIBRARIES}>:PYTHON_LIBRARIES>)
-#set(jansson_LIBRARIES $<$<BOOL:${JANSSON_LIBRARIES}>:JANSSON_LIBRARIES>)
-#set(hdf5_LIBRARIES $<$<BOOL:${HDF5_LIBRARIES}>:HDF5_LIBRARIES>)
 
 configure_package_config_file(
   cmake/dliteConfig.cmake.in

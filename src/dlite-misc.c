@@ -7,6 +7,7 @@
 #include "utils/err.h"
 #include "utils/strtob.h"
 #include "utils/tgen.h"
+#include "utils/fileutils.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -290,6 +291,45 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
   return 0;
 }
+
+
+/*
+  On Windows, this function adds default directories to the DLL search
+  path.  Based on whether the `DLITE_USE_BUILDROOT` environment
+  variable is defined, the library directories under either the build
+  directory or the installation root (environment variable DLITE_ROOT)
+  are added to the DLL search path using AddDllDirectory().
+
+  On Linux this function does nothing.
+
+  Returns non-zero on error.
+ */
+int dlite_add_dll_path(void)
+{
+#ifdef WINDOWS
+  static int called = 0;
+  char buf[1024];
+
+  if (called) return 0;
+  called = 1;
+
+  if (getenv("DLITE_USE_BUILD_ROOT")) {
+    AddDllDirectory(fu_winpath(dlite_BUILDROOT "/src",
+                               buf, sizeof(buf), NULL));
+    AddDllDirectory(fu_winpath(dlite_BUILDROOT "/src/util",
+                               buf, sizeof(buf), NULL));
+#ifdef WITH_PYTHON
+    AddDllDirectory(fu_winpath(dlite_BUILDROOT "/src/pyembed",
+                               buf, sizeof(buf), NULL));
+#endif
+  } else {
+    AddDllDirectory(fu_winpath(DLITE_ROOT "/" DLITE_LIBRARY_DIR,
+                               buf, sizeof(buf), NULL));
+  }
+#endif
+  return 0;
+}
+
 
 
 

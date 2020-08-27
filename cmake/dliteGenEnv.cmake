@@ -50,6 +50,8 @@ function(dlite_genenv filename output_dir newline_style)
         -DPATH="${PATH}"
         -DLD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
         -DPYTHONPATH="${PYTHONPATH}"
+        -Ddlite_SOURCE_DIR="${dlite_SOURCE_DIR}"
+        -Ddlite_BINARY_DIR="${dlite_BINARY_DIR}"
         -DSTORAGE_PLUGINS="${STORAGE_PLUGINS}"
         -DMAPPING_PLUGINS="${MAPPING_PLUGINS}"
         -DPYTHON_STORAGE_PLUGINS="${PYTHON_STORAGE_PLUGINS}"

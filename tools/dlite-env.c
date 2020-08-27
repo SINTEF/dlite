@@ -47,25 +47,25 @@ void help()
   `pathsep`) to the existing value.  Otherwise, just add `paths` to
   `env`.
 
-  Returns non-zero on error.
+  Returns pointer to (possible reallocated) environment.
 */
-int prepend_paths(char **env, const char *name, const char *paths,
+char **prepend_paths(char **env, const char *name, const char *paths,
                   const char *pathsep)
 {
   char **q;
-  if (!paths || !*paths) return 0;
+  if (!paths || !*paths) return NULL;
   if ((q = get_envitem(env, name))) {
     char *item;
     int n = strlen(name);
     int len = strlen(*q) + strlen(paths) + strlen(pathsep) + 1;
-    if (!(item = malloc(len))) return err(1, "allocation failure");
+    if (!(item = malloc(len))) return err(1, "allocation failure"), NULL;
     snprintf(item, len, "%s=%s%s%s", name, paths, pathsep, *q+n+1);
     free(*q);
     *q = item;
   } else {
-    set_envvar(env, name, paths);
+    env = set_envvar(env, name, paths);
   }
-  return 0;
+  return env;
 }
 
 
@@ -125,43 +125,57 @@ int main(int argc, char *argv[])
     env = get_environment();
   }
   if (with_install) {
-    /*
-    prepend_paths(env, "PATH", DLITE_PATH, pathsep);
-    prepend_paths(env, "LD_LIBRARY_PATH", DLITE_LD_LIBRARY_PATH, pathsep);
-    prepend_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
-                  DLITE_STORAGE_PLUGIN_DIRS, pathsep);
-    prepend_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
-                  DLITE_MAPPING_PLUGIN_DIRS, pathsep);
-    prepend_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
-                  DLITE_PYTHON_STORAGE_PLUGIN_DIRS, pathsep);
-    prepend_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
-                  DLITE_PYTHON_MAPPING_PLUGIN_DIRS, pathsep);
-    prepend_paths(env, "DLITE_TEMPLATE_DIRS", DLITE_TEMPLATE_DIRS, pathsep);
-    prepend_paths(env, "DLITE_STORAGES", DLITE_STORAGES, pathsep);
-    */
+    env = prepend_paths(env, "PATH",
+                        DLITE_RUNTIME_DIR, pathsep);
+    env = prepend_paths(env, "LD_LIBRARY_PATH",
+                        DLITE_LIBRARY_DIR, pathsep);
+    env = prepend_paths(env, "DLITE_PYTHONPATH",
+                        DLITE_PYTHONPATH, pathsep);
+    env = prepend_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
+                        DLITE_STORAGE_PLUGIN_DIRS, pathsep);
+    env = prepend_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
+                        DLITE_MAPPING_PLUGIN_DIRS, pathsep);
+    env = prepend_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
+                        DLITE_PYTHON_STORAGE_PLUGIN_DIRS, pathsep);
+    env = prepend_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
+                        DLITE_PYTHON_MAPPING_PLUGIN_DIRS, pathsep);
+    env = prepend_paths(env, "DLITE_TEMPLATE_DIRS",
+                        DLITE_TEMPLATE_DIRS, pathsep);
+    env = prepend_paths(env, "DLITE_STORAGES",
+                        DLITE_STORAGES, pathsep);
   }
   if (with_build) {
-    prepend_paths(env, "PATH", dlite_PATH, pathsep);
-    prepend_paths(env, "LD_LIBRARY_PATH", dlite_LD_LIBRARY_PATH, pathsep);
-    prepend_paths(env, "DLITE_STORAGE_PLUGIN_DIRS", dlite_STORAGE_PLUGINS,
-                  pathsep);
-    prepend_paths(env, "DLITE_MAPPING_PLUGIN_DIRS", dlite_MAPPING_PLUGINS,
-                  pathsep);
-    prepend_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
-                  dlite_PYTHON_STORAGE_PLUGINS, pathsep);
-    prepend_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
-                  dlite_PYTHON_MAPPING_PLUGINS, pathsep);
-    prepend_paths(env, "DLITE_TEMPLATE_DIRS", dlite_TEMPLATES, pathsep);
-    prepend_paths(env, "DLITE_STORAGES", dlite_STORAGES, pathsep);
+    env = prepend_paths(env, "PATH",
+                        dlite_PATH, pathsep);
+    env = prepend_paths(env, "LD_LIBRARY_PATH",
+                        dlite_LD_LIBRARY_PATH, pathsep);
+    env = prepend_paths(env, "PYTHONPATH",
+                        dlite_PYTHONPATH, pathsep);
+    env = prepend_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
+                        dlite_STORAGE_PLUGINS, pathsep);
+    env = prepend_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
+                        dlite_MAPPING_PLUGINS, pathsep);
+    env = prepend_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
+                        dlite_PYTHON_STORAGE_PLUGINS, pathsep);
+    env = prepend_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
+                        dlite_PYTHON_MAPPING_PLUGINS, pathsep);
+    env = prepend_paths(env, "DLITE_TEMPLATE_DIRS",
+                        dlite_TEMPLATES, pathsep);
+    env = prepend_paths(env, "DLITE_STORAGES",
+                        dlite_STORAGES, pathsep);
   }
-  for (q=vars; *q; q++)
-    set_envitem(env, *q);
+  if (vars) {
+    for (q=vars; *q; q++)
+      set_envitem(env, *q);
+  }
+
 
   if (print) {
     /* Print environment */
-    for (q=vars; *q; q++)
-      printf("%s\n", *q);
-
+    if (env) {
+      for (q=env; *q; q++)
+        printf("%s\n", *q);
+    }
   } else  {
     int i, j;
     if (optind >= argc) FAIL("Missing COMMAND argument");
