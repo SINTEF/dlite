@@ -4,13 +4,14 @@
 module DLite
   use iso_c_binding, only : c_ptr, c_int, c_size_t, c_char, c_null_char, &
        c_associated
+  use c_interface, only: c_f_string, f_c_string
 
   implicit none
   private
 
   type, public :: DLiteStorage
-     type(c_ptr) :: storage
-     integer     :: readonly
+     type(c_ptr) :: cptr
+     logical     :: readonly
    contains
      procedure :: close => dlite_storage_close
      procedure :: is_writable => dlite_storage_is_writable
@@ -44,123 +45,208 @@ module DLite
      module procedure dlite_instance_load_casted
   end interface DLiteInstance
 
+  ! type, public :: DLiteMetaModel
+  !   type(c_ptr) :: cptr
+  ! contains
+  !   procedure :: add_string => dlite_metamodel_add_string
+  !   procedure :: add_dimension => dlite_metamodel_add_dimension
+  !   procedure :: add_property => dlite_metamodel_add_property
+  !   procedure :: add_property_dim => dlite_metamodel_add_property_dim
+  ! end type DLiteMetaModel
+
+  ! interface DLiteMetaModel
+  !    module procedure dlite_metamodel_create
+  ! end interface DLiteMetaModel
+
+
   ! --------------------------------------------------------
-  ! C interface
+  ! C interface for DLite
   ! --------------------------------------------------------
   interface
+  ! --------------------------------------------------------
+  ! Storage
+  ! --------------------------------------------------------
+  type(c_ptr) function dlite_storage_open_c(driver, uri, options) &
+    bind(C,name="dlite_storage_open")
+    import c_ptr, c_char
+    character(len=1,kind=c_char), dimension(*), intent(in) :: driver
+    character(len=1,kind=c_char), dimension(*), intent(in) :: uri
+    character(len=1,kind=c_char), dimension(*), intent(in) :: options
+  end function dlite_storage_open_c
 
-     ! Storage
-     type(c_ptr) &
-     function dlite_storage_open_c(driver, uri, options) &
-         bind(C,name="dlite_storage_open")
-       import c_ptr, c_char
-       character(len=1,kind=c_char), dimension(*), intent(in) :: driver
-       character(len=1,kind=c_char), dimension(*), intent(in) :: uri
-       character(len=1,kind=c_char), dimension(*), intent(in) :: options
-     end function dlite_storage_open_c
+  integer(c_int) function dlite_storage_close_c(storage) &
+    bind(C,name="dlite_storage_close")
+    import c_ptr, c_int
+    type(c_ptr), value, intent(in) :: storage
+  end function dlite_storage_close_c
 
-     integer(c_int) &
-     function dlite_storage_close_c(storage) &
-         bind(C,name="dlite_storage_close")
-       import c_ptr, c_int
-       type(c_ptr), value, intent(in) :: storage
-     end function dlite_storage_close_c
+  integer(c_int) function dlite_storage_is_writable_c(storage) &
+    bind(C,name="dlite_storage_is_writable")
+    import c_ptr, c_int
+    type(c_ptr), value, intent(in) :: storage
+  end function dlite_storage_is_writable_c
 
-     integer(c_int) &
-     function dlite_storage_is_writable_c(storage) &
-         bind(C,name="dlite_storage_is_writable")
-       import c_ptr, c_int
-       type(c_ptr), value, intent(in) :: storage
-     end function dlite_storage_is_writable_c
+  ! --------------------------------------------------------
+  ! Instance
+  ! --------------------------------------------------------
+  type(c_ptr) &
+  function dlite_instance_create_from_id_c(metaid, dims, id) &
+      bind(C,name="dlite_instance_create_from_id")
+    import c_ptr, c_size_t, c_char
+    character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
+    integer(c_size_t), dimension(*), intent(in)            :: dims
+    character(len=1,kind=c_char), dimension(*), intent(in) :: id
+  end function dlite_instance_create_from_id_c
 
-     ! Instance
-     type(c_ptr) &
-     function dlite_instance_create_from_id_c(metaid, dims, id) &
-         bind(C,name="dlite_instance_create_from_id")
-       import c_ptr, c_size_t, c_char
-       character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
-       integer(c_size_t), dimension(*), intent(in)            :: dims
-       character(len=1,kind=c_char), dimension(*), intent(in) :: id
-     end function dlite_instance_create_from_id_c
+  type(c_ptr) &
+  function dlite_instance_load_c(storage, id) &
+      bind(C,name="dlite_instance_load")
+    import c_ptr, c_char
+    type(c_ptr), value, intent(in)                         :: storage
+    character(len=1,kind=c_char), dimension(*), intent(in) :: id
+  end function dlite_instance_load_c
 
-     type(c_ptr) &
-     function dlite_instance_load_c(storage, id) &
-         bind(C,name="dlite_instance_load")
-       import c_ptr, c_char
-       type(c_ptr), value, intent(in)                         :: storage
-       character(len=1,kind=c_char), dimension(*), intent(in) :: id
-     end function dlite_instance_load_c
+  type(c_ptr) &
+  function dlite_instance_load_url_c(url) &
+      bind(C,name="dlite_instance_load_url")
+    import c_ptr, c_char
+    character(len=1,kind=c_char), dimension(*), intent(in) :: url
+  end function dlite_instance_load_url_c
 
-     type(c_ptr) &
-     function dlite_instance_load_url_c(url) &
-         bind(C,name="dlite_instance_load_url")
-       import c_ptr, c_char
-       character(len=1,kind=c_char), dimension(*), intent(in) :: url
-     end function dlite_instance_load_url_c
+  type(c_ptr) &
+  function dlite_instance_load_casted_c(storage, id, metaid) &
+      bind(C,name="dlite_instance_load_casted")
+    import c_ptr, c_char
+    type(c_ptr), value, intent(in)                         :: storage
+    character(len=1,kind=c_char), dimension(*), intent(in) :: id
+    character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
+  end function dlite_instance_load_casted_c
 
-     type(c_ptr) &
-     function dlite_instance_load_casted_c(storage, id, metaid) &
-         bind(C,name="dlite_instance_load_casted")
-       import c_ptr, c_char
-       type(c_ptr), value, intent(in)                         :: storage
-       character(len=1,kind=c_char), dimension(*), intent(in) :: id
-       character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
-     end function dlite_instance_load_casted_c
+  integer(c_int) &
+  function dlite_instance_save_c(storage, instance) &
+      bind(C,name="dlite_instance_save")
+    import c_ptr, c_int
+    type(c_ptr), value, intent(in)                         :: storage
+    type(c_ptr), value, intent(in)                         :: instance
+  end function dlite_instance_save_c
 
-     integer(c_int) &
-     function dlite_instance_save_c(storage, instance) &
-         bind(C,name="dlite_instance_save")
-       import c_ptr, c_int
-       type(c_ptr), value, intent(in)                         :: storage
-       type(c_ptr), value, intent(in)                         :: instance
-     end function dlite_instance_save_c
+  integer(c_int) &
+  function dlite_instance_save_url_c(url, instance) &
+      bind(C,name="dlite_instance_save_url")
+    import c_ptr, c_char, c_int
+    character(len=1,kind=c_char), dimension(*), intent(in) :: url
+    type(c_ptr), value, intent(in)                         :: instance
+  end function dlite_instance_save_url_c
 
-     integer(c_int) &
-     function dlite_instance_save_url_c(url, instance) &
-         bind(C,name="dlite_instance_save_url")
-       import c_ptr, c_char, c_int
-       character(len=1,kind=c_char), dimension(*), intent(in) :: url
-       type(c_ptr), value, intent(in)                         :: instance
-     end function dlite_instance_save_url_c
+  type(c_ptr) &
+  function dlite_instance_get_uuid_c(instance) &
+      bind(C,name='dlite_instance_get_uuid')
+    import c_ptr
+    type(c_ptr), value, intent(in)                         :: instance
+  end function dlite_instance_get_uuid_c
 
-     type(c_ptr) &
-     function dlite_instance_get_uuid_c(instance) &
-         bind(C,name='dlite_instance_get_uuid')
-       import c_ptr
-       type(c_ptr), value, intent(in)                         :: instance
-     end function dlite_instance_get_uuid_c
+  integer(c_size_t) &
+  function dlite_instance_get_dimension_size_c(instance, name) &
+      bind(C,name="dlite_instance_get_dimension_size")
+    import c_ptr, c_char, c_size_t
+    type(c_ptr), value, intent(in)                         :: instance
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
+  end function dlite_instance_get_dimension_size_c
 
-     integer(c_size_t) &
-     function dlite_instance_get_dimension_size_c(instance, name) &
-         bind(C,name="dlite_instance_get_dimension_size")
-       import c_ptr, c_char, c_size_t
-       type(c_ptr), value, intent(in)                         :: instance
-       character(len=1,kind=c_char), dimension(*), intent(in) :: name
-     end function dlite_instance_get_dimension_size_c
+  integer(c_size_t) &
+  function dlite_instance_get_dimension_size_by_index_c(instance, i) &
+      bind(C,name="dlite_instance_get_dimension_size_by_index")
+    import c_ptr, c_size_t
+    type(c_ptr), value, intent(in)                         :: instance
+    integer(c_size_t), value, intent(in)                   :: i
+  end function dlite_instance_get_dimension_size_by_index_c
 
-     integer(c_size_t) &
-     function dlite_instance_get_dimension_size_by_index_c(instance, i) &
-         bind(C,name="dlite_instance_get_dimension_size_by_index")
-       import c_ptr, c_size_t
-       type(c_ptr), value, intent(in)                         :: instance
-       integer(c_size_t), value, intent(in)                   :: i
-     end function dlite_instance_get_dimension_size_by_index_c
+  type(c_ptr) &
+  function dlite_instance_get_property_c(instance, name) &
+      bind(C,name="dlite_instance_get_property")
+    import c_ptr, c_char
+    type(c_ptr), value, intent(in)                         :: instance
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
+  end function dlite_instance_get_property_c
 
-     type(c_ptr) &
-     function dlite_instance_get_property_c(instance, name) &
-         bind(C,name="dlite_instance_get_property")
-       import c_ptr, c_char
-       type(c_ptr), value, intent(in)                         :: instance
-       character(len=1,kind=c_char), dimension(*), intent(in) :: name
-     end function dlite_instance_get_property_c
+  type(c_ptr) &
+  function dlite_instance_get_property_by_index_c(instance, i) &
+    bind(C,name="dlite_instance_get_property_by_index")
+    import c_ptr, c_size_t
+    type(c_ptr), value, intent(in)                         :: instance
+    integer(c_size_t), value, intent(in)                   :: i
+  end function dlite_instance_get_property_by_index_c
 
-     type(c_ptr) &
-     function dlite_instance_get_property_by_index_c(instance, i) &
-         bind(C,name="dlite_instance_get_property_by_index")
-       import c_ptr, c_size_t
-       type(c_ptr), value, intent(in)                         :: instance
-       integer(c_size_t), value, intent(in)                   :: i
-     end function dlite_instance_get_property_by_index_c
+  ! --------------------------------------------------------
+  ! DLiteMetaModel
+  ! --------------------------------------------------------
+  !
+  ! DLiteMetaModel *dlite_metamodel_create(const char *uri,
+  !                                        const char *metaid,
+  !                                        const char *iri);
+  ! type(c_ptr) function dlite_metamodel_create_c(uri, metaid, iri) &
+  !   bind(C,name="dlite_metamodel_create")
+  !   import c_char, c_ptr
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: uri
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: iri
+  ! end function dlite_metamodel_create_c
+
+  ! ! void dlite_metamodel_free(DLiteMetaModel *model);
+  ! subroutine dlite_metamodel_free_c(model) &
+  !   bind(C,name="dlite_metamodel_free")
+  !   import c_ptr
+  !   type(c_ptr), value, intent(in) :: model
+  ! end subroutine dlite_metamodel_free_c
+
+  ! ! int dlite_metamodel_add_string(DLiteMetaModel *model, const char *name,
+  ! !                                const void *value);
+  ! integer(c_int) function dlite_metamodel_add_string_c(model, name, value) &
+  !   bind(C,name="dlite_metamodel_add_string")
+  !   import c_int, c_ptr, c_char
+  !   type(c_ptr), value, intent(in)                         :: model
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: value
+  ! end function dlite_metamodel_add_string_c
+
+  ! ! int dlite_metamodel_add_dimension(DLiteMetaModel *model,
+  ! !                                   const char *name,
+  ! !                                   const char *description);
+  ! integer(c_int) function dlite_metamodel_add_dimension_c(model, name, description) &
+  !   bind(C,name="dlite_metamodel_add_dimension")
+  !   import c_int, c_ptr, c_char
+  !   type(c_ptr), value, intent(in)                         :: model
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: description
+  ! end function dlite_metamodel_add_dimension_c
+
+  ! ! int dlite_metamodel_add_property(DLiteMetaModel *model,
+  ! !                                  const char *name,
+  ! !                                  const char *typename,
+  ! !                                  const char *unit,
+  ! !                                  const char *iri,
+  ! !                                  const char *description);
+  ! integer(c_int) function dlite_metamodel_add_property_c(model, name, typename, unit, iri, description) &
+  !   bind(C,name="dlite_metamodel_add_property")
+  !   import c_int, c_ptr, c_char
+  !   type(c_ptr), value, intent(in)                         :: model
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: typename
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: unit
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: iri
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: description
+  ! end function dlite_metamodel_add_property_c 
+
+  ! ! int dlite_metamodel_add_property_dim(DLiteMetaModel *model,
+  ! !                                      const char *name,
+  ! !                                      const char *expr);
+  ! integer(c_int) function dlite_metamodel_add_property_dim_c(model, name, expr) &
+  !   bind(C,name="dlite_metamodel_add_property_dim")
+  !   import c_int, c_ptr, c_char
+  !   type(c_ptr), value, intent(in)                         :: model
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
+  !   character(len=1,kind=c_char), dimension(*), intent(in) :: expr
+  ! end function dlite_metamodel_add_property_dim_c
 
   end interface
 
@@ -268,19 +354,25 @@ contains
     character(len=1,kind=c_char) :: options_c(len_trim(options)+1)
     type(DliteStorage)           :: storage
 
-    driver_c = f_c_string_func(driver)
-    uri_c = f_c_string_func(uri)
-    options_c = f_c_string_func(options)
+    call f_c_string(driver, driver_c)
+    call f_c_string(uri, uri_c)
+    call f_c_string(options, options_c)
 
-    storage%storage = dlite_storage_open_c(driver_c, uri_c, options_c)
-    storage%readonly = dlite_storage_is_writable_c(storage%storage)
+    storage%cptr = dlite_storage_open_c(driver_c, uri_c, options_c)
+    if (c_associated(storage%cptr)) then
+      if (dlite_storage_is_writable(storage) .eq. 0) then
+        storage%readonly = .true.
+      else
+        storage%readonly = .false.
+      end if
+    end if
   end function dlite_storage_open
 
   function dlite_storage_close(storage) result(status)
     class(DLiteStorage), intent(in) :: storage
     integer(c_int)                  :: c_status
     integer                         :: status
-    c_status = dlite_storage_close_c(storage%storage)
+    c_status = dlite_storage_close_c(storage%cptr)
     status = c_status
   end function dlite_storage_close
 
@@ -288,7 +380,7 @@ contains
     class(DLiteStorage), intent(in) :: storage
     integer(c_int)                  :: c_status
     integer                         :: status
-    c_status = dlite_storage_is_writable_c(storage%storage)
+    c_status = dlite_storage_is_writable_c(storage%cptr)
     status = c_status
   end function dlite_storage_is_writable
 
@@ -321,7 +413,7 @@ contains
     type(DliteInstance)                   :: instance
 
     id_c = f_c_string_func(id)
-    instance%cinst = dlite_instance_load_c(storage%storage, id_c)
+    instance%cinst = dlite_instance_load_c(storage%cptr, id_c)
   end function dlite_instance_load
 
   function dlite_instance_load_url(url) result(instance)
@@ -345,14 +437,14 @@ contains
     metaid_c = f_c_string_func(metaid)
 
     instance%cinst = &
-         dlite_instance_load_casted_c(storage%storage, id_c, metaid_c)
+         dlite_instance_load_casted_c(storage%cptr, id_c, metaid_c)
   end function dlite_instance_load_casted
 
   function dlite_instance_save(instance, storage) result(status)
     class(DLiteInstance), intent(in) :: instance
     type(DLiteStorage), intent(in)   :: storage
     integer                          :: status
-    status = dlite_instance_save_c(storage%storage, instance%cinst)
+    status = dlite_instance_save_c(storage%cptr, instance%cinst)
   end function dlite_instance_save
 
   function dlite_instance_save_url(instance, url) result(status)
@@ -423,5 +515,20 @@ contains
     i_c = i
     ptr = dlite_instance_get_property_by_index_c(instance%cinst, i_c)
   end function dlite_instance_get_property_by_index
+
+  ! function dlite_metamodel_create(uri, metaid, iri) result(model)
+  !   character(len=*), intent(in) :: uri
+  !   character(len=*), intent(in) :: metaid
+  !   character(len=*), intent(in) :: iri
+  !   character(len=1,kind=c_char) :: uri_c(len_trim(uri)+1)
+  !   character(len=1,kind=c_char) :: metaid_c(len_trim(metaid)+1)
+  !   character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
+  !   type(DLiteMetaModel)         :: model
+    
+  !   call f_c_string(uri, uri_c)
+  !   call f_c_string(metaid, metaid_c)
+  !   call f_c_string(uri, uri_c)
+  !   model%ptr = dlite_metamodel_create_(uri_c, metaid_c, iri_c)
+  ! end function dlite_metamodel_create
 
 end module DLite

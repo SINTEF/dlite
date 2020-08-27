@@ -5,6 +5,7 @@
 program ftest_person
 
   use DLite
+  use dlite_config, only: dlite_fortran_test_dir
   use Person
 
   implicit none
@@ -14,7 +15,7 @@ program ftest_person
 
   person = TPerson( &
        "json", &
-       "persons.json", &
+       dlite_fortran_test_dir // "persons.json", &
        "mode=r", &
        "d473aa6f-2da3-4889-a88d-0c96186c3fa2")
 

@@ -1,8 +1,10 @@
 project(dlite-bindings-fortran Fortran)
 
-
+configure_file(dlite_config.f90.in dlite_config.f90)
 
 set(sources
+  c_interface.f90
+  dlite_config.f90
   dlite.f90
   )
 

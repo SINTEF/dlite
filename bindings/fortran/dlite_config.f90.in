@@ -1,0 +1,11 @@
+module dlite_config
+
+  implicit none
+  public
+
+  character(len=*), parameter :: &
+      dlite_version = '@dlite_VERSION@', &
+      dlite_source_dir = '@dlite_SOURCE_DIR@/', &
+      dlite_fortran_test_dir = '@dlite_SOURCE_DIR@/bindings/fortran/tests/'
+
+end module dlite_config
