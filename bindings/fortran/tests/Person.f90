@@ -39,14 +39,25 @@ MODULE Person
 
 CONTAINS
 
-!  type(c_ptr)
-!  function create_meta_person() result(meta)
-!    info = dlite_metainfo_create(uri, iri, description)
-!    dlite_metainfo_add_dim(info, "N", "Dim descriion")
-!    prop1 = dlite_metainfo_add_prop(info, "name", "")
-!    dlite_metainfo_add_prop_dim(prop1, "N")
-!    meta = dlite_meta_create_form_info(info)
-!  end function create_meta_person
+  ! type(c_ptr) function create_meta_person() result(meta)
+  !   class(DLiteMeta)      :: meta
+  !   class(DLiteMetaModel) :: model
+    
+  !   model = DLiteMetaModel('http://meta.sintef.no/0.2/Person', &
+  !                          'http://meta.sintef.no/0.3/EntitySchema', &
+  !                          '')
+  !   model%add_string('description', 'A person.')
+  !   model%add_dimension('N', 'Number of skills.')
+  !   model%add_dimension('M', 'Number of temperature measurements.')
+  !   model%add_property('name', 'string45', '', '', '')
+  !   model%add_property('age', 'float', 'years', '', '')
+  !   model%add_property('skills', 'string10', '', '', '')
+  !   model%add_property_dim('skills', 'N')
+  !   model%add_property('temperature', 'float', '', '', '')
+  !   model%add_property_dim('temperature', 'M')
+  !   meta = DLiteMeta(model)
+  !   model%destroy()
+  ! end function create_meta_person
 
   function personToInstance(person) result(instance)
     implicit none
