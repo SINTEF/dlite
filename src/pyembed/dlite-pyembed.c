@@ -319,8 +319,10 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
   char initcode[96];
   const char *path;
   PyObject *baseclass=NULL, *main_module=NULL, *main_dict=NULL;
-  PyObject *ppath=NULL, *pfun=NULL, *subclasses=NULL;
+  PyObject *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
+  PyObject *subclassnames=NULL;
   FUIter *iter;
+  int i;
 
   dlite_errclr();
   dlite_pyembed_initialise();
@@ -342,6 +344,23 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
   if (!(baseclass = PyDict_GetItemString(main_dict, baseclassname)))
     FAIL1("cannot get base class '%s' from the main dict", baseclassname);
 
+  /* Get list of initial subclasses and corresponding set subclassnames */
+  if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
+      subclasses = PyObject_CallFunctionObjArgs(pfun, NULL);
+  Py_XDECREF(pfun);
+  if (!(subclassnames = PySet_New(NULL))) FAIL("cannot create empty set");
+  for (i=0; i < PyList_Size(subclasses); i++) {
+    PyObject *item = PyList_GetItem(subclasses, i);
+    PyObject *name = PyObject_GetAttrString(item, "__name__");
+    if (name) {
+      if (PySet_Contains(subclassnames, name) == 0 &&
+          PySet_Add(subclassnames, name)) FAIL("cannot add class name to set");
+    } else {
+      FAIL("cannot get name attribute from class");
+    }
+    Py_XDECREF(name);
+    name = NULL;
+  }
 
   /* Load all modules in `paths` */
   if (!(iter = fu_pathsiter_init(paths, "*.py"))) goto fail;
@@ -370,11 +389,29 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
   }
   if (fu_pathsiter_deinit(iter)) goto fail;
 
-  /* Get list of subclasses implementing the plugins */
+  /* Append new subclasses to the list of Python plugins that will be
+     returned */
   if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
-      subclasses = PyObject_CallFunctionObjArgs(pfun, NULL);
+      lst = PyObject_CallFunctionObjArgs(pfun, NULL);
+  Py_XDECREF(pfun);
+  for (i=0; i < PyList_Size(lst); i++) {
+    PyObject *item = PyList_GetItem(lst, i);
+    PyObject *name = PyObject_GetAttrString(item, "__name__");
+    if (name) {
+      if (PySet_Contains(subclassnames, name) == 0) {
+        if (PySet_Add(subclassnames, name))
+          FAIL("cannot add class name to set");
+        if (PyList_Append(subclasses, item))
+          FAIL("cannot append subclass to set");
+      }
+    } else {
+      FAIL("cannot get name attribute from class");
+    }
+    Py_XDECREF(name);
+    name = NULL;
+  }
 
  fail:
-  Py_XDECREF(pfun);
+  Py_XDECREF(lst);
   return subclasses;
 }
