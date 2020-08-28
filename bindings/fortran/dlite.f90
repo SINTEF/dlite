@@ -46,31 +46,31 @@ module DLite
      module procedure dlite_instance_load_casted
   end interface DLiteInstance
 
-  ! type, public :: DLiteMeta
-  !   type(c_ptr) :: cptr
-  ! contains
-  !   procedure :: has_dimension => dlite_meta_has_dimension
-  !   procedure :: has_property => dlite_meta_has_property
-  !   !procedure :: destroy => dlite_meta_free? or dlite_instance_free?
-  ! end type DLiteMeta
+  type, public :: DLiteMeta
+    type(c_ptr) :: cptr
+  contains
+    procedure :: has_dimension => dlite_meta_has_dimension
+    procedure :: has_property => dlite_meta_has_property
+    !procedure :: destroy => dlite_meta_free? or dlite_instance_free?
+  end type DLiteMeta
 
-  ! interface DLiteMeta
-  !    module procedure dlite_meta_create_from_metamodel
-  ! end interface DLiteMeta
+  interface DLiteMeta
+     module procedure dlite_meta_create_from_metamodel
+  end interface DLiteMeta
 
-  ! type, public :: DLiteMetaModel
-  !   type(c_ptr) :: cptr
-  ! contains
-  !   procedure :: add_string => dlite_metamodel_add_string
-  !   procedure :: add_dimension => dlite_metamodel_add_dimension
-  !   procedure :: add_property => dlite_metamodel_add_property
-  !   procedure :: add_property_dim => dlite_metamodel_add_property_dim
-  !   procedure :: destroy => dlite_metamodel_free
-  ! end type DLiteMetaModel
+  type, public :: DLiteMetaModel
+    type(c_ptr) :: cptr
+  contains
+    procedure :: add_string => dlite_metamodel_add_string
+    procedure :: add_dimension => dlite_metamodel_add_dimension
+    procedure :: add_property => dlite_metamodel_add_property
+    procedure :: add_property_dim => dlite_metamodel_add_property_dim
+    procedure :: destroy => dlite_metamodel_free
+  end type DLiteMetaModel
 
-  ! interface DLiteMetaModel
-  !    module procedure dlite_metamodel_create
-  ! end interface DLiteMetaModel
+  interface DLiteMetaModel
+     module procedure dlite_metamodel_create
+  end interface DLiteMetaModel
 
 
   ! --------------------------------------------------------
@@ -187,103 +187,103 @@ module DLite
     type(c_ptr), value, intent(in)                         :: instance
   end function dlite_instance_decref_c    
 
-  ! ! --------------------------------------------------------
-  ! ! C interface for DLiteMetaModel
-  ! ! --------------------------------------------------------
-  ! !
-  ! ! DLiteMetaModel *dlite_metamodel_create(const char *uri,
-  ! !                                        const char *metaid,
-  ! !                                        const char *iri);
-  ! type(c_ptr) function dlite_metamodel_create_c(uri, metaid, iri) &
-  !   bind(C,name="dlite_metamodel_create")
-  !   import c_char, c_ptr
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: uri
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: iri
-  ! end function dlite_metamodel_create_c
+  ! --------------------------------------------------------
+  ! C interface for DLiteMetaModel
+  ! --------------------------------------------------------
+  !
+  ! DLiteMetaModel *dlite_metamodel_create(const char *uri,
+  !                                        const char *metaid,
+  !                                        const char *iri);
+  type(c_ptr) function dlite_metamodel_create_c(uri, metaid, iri) &
+    bind(C,name="dlite_metamodel_create")
+    import c_char, c_ptr
+    character(len=1,kind=c_char), dimension(*), intent(in) :: uri
+    character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
+    character(len=1,kind=c_char), dimension(*), intent(in) :: iri
+  end function dlite_metamodel_create_c
 
-  ! ! void dlite_metamodel_free(DLiteMetaModel *model);
-  ! subroutine dlite_metamodel_free_c(model) &
-  !   bind(C,name="dlite_metamodel_free")
-  !   import c_ptr
-  !   type(c_ptr), value, intent(in) :: model
-  ! end subroutine dlite_metamodel_free_c
+  ! void dlite_metamodel_free(DLiteMetaModel *model);
+  subroutine dlite_metamodel_free_c(model) &
+    bind(C,name="dlite_metamodel_free")
+    import c_ptr
+    type(c_ptr), value, intent(in) :: model
+  end subroutine dlite_metamodel_free_c
 
-  ! ! int dlite_metamodel_add_string(DLiteMetaModel *model, const char *name,
-  ! !                                const void *value);
-  ! integer(c_int) function dlite_metamodel_add_string_c(model, name, value) &
-  !   bind(C,name="dlite_metamodel_add_string")
-  !   import c_int, c_ptr, c_char
-  !   type(c_ptr), value, intent(in)                         :: model
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: value
-  ! end function dlite_metamodel_add_string_c
+  ! int dlite_metamodel_add_string(DLiteMetaModel *model, const char *name,
+  !                                const void *value);
+  integer(c_int) function dlite_metamodel_add_string_c(model, name, value) &
+    bind(C,name="dlite_metamodel_add_string")
+    import c_int, c_ptr, c_char
+    type(c_ptr), value, intent(in)                         :: model
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
+    character(len=1,kind=c_char), dimension(*), intent(in) :: value
+  end function dlite_metamodel_add_string_c
 
-  ! ! int dlite_metamodel_add_dimension(DLiteMetaModel *model,
-  ! !                                   const char *name,
-  ! !                                   const char *description);
-  ! integer(c_int) function dlite_metamodel_add_dimension_c(model, name, description) &
-  !   bind(C,name="dlite_metamodel_add_dimension")
-  !   import c_int, c_ptr, c_char
-  !   type(c_ptr), value, intent(in)                         :: model
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: description
-  ! end function dlite_metamodel_add_dimension_c
+  ! int dlite_metamodel_add_dimension(DLiteMetaModel *model,
+  !                                   const char *name,
+  !                                   const char *description);
+  integer(c_int) function dlite_metamodel_add_dimension_c(model, name, description) &
+    bind(C,name="dlite_metamodel_add_dimension")
+    import c_int, c_ptr, c_char
+    type(c_ptr), value, intent(in)                         :: model
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
+    character(len=1,kind=c_char), dimension(*), intent(in) :: description
+  end function dlite_metamodel_add_dimension_c
 
-  ! ! int dlite_metamodel_add_property(DLiteMetaModel *model,
-  ! !                                  const char *name,
-  ! !                                  const char *typename,
-  ! !                                  const char *unit,
-  ! !                                  const char *iri,
-  ! !                                  const char *description);
-  ! integer(c_int) function dlite_metamodel_add_property_c(model, name, typename, unit, iri, description) &
-  !   bind(C,name="dlite_metamodel_add_property")
-  !   import c_int, c_ptr, c_char
-  !   type(c_ptr), value, intent(in)                         :: model
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: typename
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: unit
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: iri
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: description
-  ! end function dlite_metamodel_add_property_c 
+  ! int dlite_metamodel_add_property(DLiteMetaModel *model,
+  !                                  const char *name,
+  !                                  const char *typename,
+  !                                  const char *unit,
+  !                                  const char *iri,
+  !                                  const char *description);
+  integer(c_int) function dlite_metamodel_add_property_c(model, name, typename, unit, iri, description) &
+    bind(C,name="dlite_metamodel_add_property")
+    import c_int, c_ptr, c_char
+    type(c_ptr), value, intent(in)                         :: model
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
+    character(len=1,kind=c_char), dimension(*), intent(in) :: typename
+    character(len=1,kind=c_char), dimension(*), intent(in) :: unit
+    character(len=1,kind=c_char), dimension(*), intent(in) :: iri
+    character(len=1,kind=c_char), dimension(*), intent(in) :: description
+  end function dlite_metamodel_add_property_c 
 
-  ! ! int dlite_metamodel_add_property_dim(DLiteMetaModel *model,
-  ! !                                      const char *name,
-  ! !                                      const char *expr);
-  ! integer(c_int) function dlite_metamodel_add_property_dim_c(model, name, expr) &
-  !   bind(C,name="dlite_metamodel_add_property_dim")
-  !   import c_int, c_ptr, c_char
-  !   type(c_ptr), value, intent(in)                         :: model
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: expr
-  ! end function dlite_metamodel_add_property_dim_c
+  ! int dlite_metamodel_add_property_dim(DLiteMetaModel *model,
+  !                                      const char *name,
+  !                                      const char *expr);
+  integer(c_int) function dlite_metamodel_add_property_dim_c(model, name, expr) &
+    bind(C,name="dlite_metamodel_add_property_dim")
+    import c_int, c_ptr, c_char
+    type(c_ptr), value, intent(in)                         :: model
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
+    character(len=1,kind=c_char), dimension(*), intent(in) :: expr
+  end function dlite_metamodel_add_property_dim_c
 
-  ! ! --------------------------------------------------------
-  ! ! C interface for DLiteMeta
-  ! ! --------------------------------------------------------
+  ! --------------------------------------------------------
+  ! C interface for DLiteMeta
+  ! --------------------------------------------------------
 
-  ! ! DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model);
-  ! type(c_ptr) function dlite_meta_create_from_metamodel_c(model) &
-  !   bind(C,name="dlite_meta_create_from_metamodel")
-  !   import c_ptr
-  !   type(c_ptr), value, intent(in)                         :: model
-  ! end function dlite_meta_create_from_metamodel_c
+  ! DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model);
+  type(c_ptr) function dlite_meta_create_from_metamodel_c(model) &
+    bind(C,name="dlite_meta_create_from_metamodel")
+    import c_ptr
+    type(c_ptr), value, intent(in)                         :: model
+  end function dlite_meta_create_from_metamodel_c
 
-  ! ! bool dlite_meta_has_dimension(DLiteMeta *meta, const char *name);
-  ! type(c_bool) function dlite_meta_has_dimension_c(meta, name) &
-  !   bind(C,name="dlite_meta_has_dimension")
-  !   import c_ptr, c_bool
-  !   type(c_ptr), value, intent(in)                         :: meta
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name    
-  ! end function dlite_meta_has_dimension_c
+  ! bool dlite_meta_has_dimension(DLiteMeta *meta, const char *name);
+  logical(c_bool) function dlite_meta_has_dimension_c(meta, name) &
+    bind(C,name="dlite_meta_has_dimension")
+    import c_ptr, c_bool, c_char
+    type(c_ptr), value, intent(in)                         :: meta
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name    
+  end function dlite_meta_has_dimension_c
 
-  ! ! bool dlite_meta_has_property(DLiteMeta *meta, const char *name);
-  ! type(c_bool) function dlite_meta_has_property_c(meta, name) &
-  !   bind(C,name="dlite_meta_has_property")
-  !   import c_ptr, c_bool
-  !   type(c_ptr), value, intent(in)                         :: meta
-  !   character(len=1,kind=c_char), dimension(*), intent(in) :: name    
-  ! end function dlite_meta_has_property_c  
+  ! bool dlite_meta_has_property(DLiteMeta *meta, const char *name);
+  logical(c_bool) function dlite_meta_has_property_c(meta, name) &
+    bind(C,name="dlite_meta_has_property")
+    import c_ptr, c_bool, c_char
+    type(c_ptr), value, intent(in)                         :: meta
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name    
+  end function dlite_meta_has_property_c  
 
   ! End C interface for DLite
   end interface
@@ -565,128 +565,131 @@ contains
     count = count_c
   end function dlite_instance_decref
 
-  ! ! --------------------------------------------------------
-  ! ! Fortran methods for DLiteMetaModel
-  ! ! --------------------------------------------------------
+  ! --------------------------------------------------------
+  ! Fortran methods for DLiteMetaModel
+  ! --------------------------------------------------------
 
-  ! function dlite_metamodel_create(uri, metaid, iri) result(model)
-  !   character(len=*), intent(in) :: uri
-  !   character(len=*), intent(in) :: metaid
-  !   character(len=*), intent(in) :: iri
-  !   character(len=1,kind=c_char) :: uri_c(len_trim(uri)+1)
-  !   character(len=1,kind=c_char) :: metaid_c(len_trim(metaid)+1)
-  !   character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
-  !   type(DLiteMetaModel)         :: model
+  function dlite_metamodel_create(uri, metaid, iri) result(model)
+    character(len=*), intent(in) :: uri
+    character(len=*), intent(in) :: metaid
+    character(len=*), intent(in) :: iri
+    character(len=1,kind=c_char) :: uri_c(len_trim(uri)+1)
+    character(len=1,kind=c_char) :: metaid_c(len_trim(metaid)+1)
+    character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
+    type(DLiteMetaModel)         :: model
     
-  !   call f_c_string(uri, uri_c)
-  !   call f_c_string(metaid, metaid_c)
-  !   call f_c_string(uri, uri_c)
-  !   model%cptr = dlite_metamodel_create_c(uri_c, metaid_c, iri_c)
-  ! end function dlite_metamodel_create
+    call f_c_string(uri, uri_c)
+    call f_c_string(metaid, metaid_c)
+    call f_c_string(uri, uri_c)
+    model%cptr = dlite_metamodel_create_c(uri_c, metaid_c, iri_c)
+  end function dlite_metamodel_create
 
-  ! subroutine dlite_metamodel_free(model)
-  !   type(DLiteMetaModel)         :: model
-  !   call dlite_metamodel_free_c(model%cptr)
-  !   model%cptr = c_null_ptr
-  ! end subroutine dlite_metamodel_free
+  subroutine dlite_metamodel_free(model)
+    class(DLiteMetaModel) :: model
+    call dlite_metamodel_free_c(model%cptr)
+    model%cptr = c_null_ptr
+  end subroutine dlite_metamodel_free
 
-  ! function dlite_metamodel_add_string(model, name, value) result(status)
-  !   type(DLiteMetaModel)         :: model
-  !   character(len=*), intent(in) :: name
-  !   character(len=*), intent(in) :: value
-  !   character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
-  !   character(len=1,kind=c_char) :: value_c(len_trim(value)+1)
-  !   type(c_int)                  :: status_c
-  !   integer                      :: status
+  function dlite_metamodel_add_string(model, name, value) result(status)
+    class(DLiteMetaModel)        :: model
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: value
+    character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
+    character(len=1,kind=c_char) :: value_c(len_trim(value)+1)
+    integer(c_int)                  :: status_c
+    integer                      :: status
 
-  !   call f_c_string(name, name_c)
-  !   call f_c_string(value, value_c)
-  !   status_c = dlite_metamodel_add_string_c(model%cptr, name_c, value_c)
-  !   status = status_c
-  ! end function dlite_metamodel_add_string
+    call f_c_string(name, name_c)
+    call f_c_string(value, value_c)
+    status_c = dlite_metamodel_add_string_c(model%cptr, name_c, value_c)
+    status = status_c
+  end function dlite_metamodel_add_string
 
-  ! function dlite_metamodel_add_dimension(model, name, description) result(status)
-  !   type(DLiteMetaModel)         :: model
-  !   character(len=*), intent(in) :: name
-  !   character(len=*), intent(in) :: description
-  !   character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
-  !   character(len=1,kind=c_char) :: description_c(len_trim(description)+1)
-  !   type(c_int)                  :: status_c
-  !   integer                      :: status
+  function dlite_metamodel_add_dimension(model, name, description) result(status)
+    class(DLiteMetaModel)        :: model
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: description
+    character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
+    character(len=1,kind=c_char) :: description_c(len_trim(description)+1)
+    integer(c_int)                  :: status_c
+    integer                      :: status
 
-  !   call f_c_string(name, name_c)
-  !   call f_c_string(description, description_c)
-  !   status_c = dlite_metamodel_add_dimension_c(model%cptr, name_c, description_c)
-  !   status = status_c
-  ! end function dlite_metamodel_add_dimension
+    call f_c_string(name, name_c)
+    call f_c_string(description, description_c)
+    status_c = dlite_metamodel_add_dimension_c(model%cptr, name_c, description_c)
+    status = status_c
+  end function dlite_metamodel_add_dimension
 
-  ! function dlite_metamodel_add_property(model, name, typename, &
-  !                                       unit, iri, description) result(status)
-  !   type(DLiteMetaModel)         :: model
-  !   character(len=*), intent(in) :: name
-  !   character(len=*), intent(in) :: description
-  !   character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
-  !   character(len=1,kind=c_char) :: typename_c(len_trim(typename)+1)
-  !   character(len=1,kind=c_char) :: unit_c(len_trim(unit)+1)
-  !   character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
-  !   character(len=1,kind=c_char) :: description_c(len_trim(description)+1)
-  !   type(c_int)                  :: status_c
-  !   integer                      :: status
-  !   call f_c_string(name, name_c)
-  !   call f_c_string(typename, typename_c)
-  !   call f_c_string(unit, unit_c)
-  !   call f_c_string(iri, iri_c)
-  !   call f_c_string(description, description_c)
-  !   status_c = dlite_metamodel_add_property_c(model%cptr, name_c, typename_c, &
-  !                                             unit_c, iri_c, description_c)
-  !   status = status_c    
-  ! end function dlite_metamodel_add_property 
+  function dlite_metamodel_add_property(model, name, typename, &
+                                        unit, iri, description) result(status)
+    class(DLiteMetaModel)        :: model
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: typename
+    character(len=*), intent(in) :: unit
+    character(len=*), intent(in) :: iri
+    character(len=*), intent(in) :: description
+    character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
+    character(len=1,kind=c_char) :: typename_c(len_trim(typename)+1)
+    character(len=1,kind=c_char) :: unit_c(len_trim(unit)+1)
+    character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
+    character(len=1,kind=c_char) :: description_c(len_trim(description)+1)
+    integer(c_int)                  :: status_c
+    integer                      :: status
+    call f_c_string(name, name_c)
+    call f_c_string(typename, typename_c)
+    call f_c_string(unit, unit_c)
+    call f_c_string(iri, iri_c)
+    call f_c_string(description, description_c)
+    status_c = dlite_metamodel_add_property_c(model%cptr, name_c, typename_c, &
+                                              unit_c, iri_c, description_c)
+    status = status_c    
+  end function dlite_metamodel_add_property 
 
-  ! function dlite_metamodel_add_property_dim(model, name, expr) result(status)
-  !   type(DLiteMetaModel)         :: model
-  !   character(len=*), intent(in) :: name
-  !   character(len=*), intent(in) :: expr
-  !   character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
-  !   character(len=1,kind=c_char) :: expr_c(len_trim(expr)+1)
-  !   type(c_int)                  :: status_c
-  !   integer                      :: status
+  function dlite_metamodel_add_property_dim(model, name, expr) result(status)
+    class(DLiteMetaModel)        :: model
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: expr
+    character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
+    character(len=1,kind=c_char) :: expr_c(len_trim(expr)+1)
+    integer(c_int)                  :: status_c
+    integer                      :: status
 
-  !   call f_c_string(name, name_c)
-  !   call f_c_string(expr, expr_c)
-  !   status_c = dlite_metamodel_add_string_c(model%cptr, name_c, expr_c)
-  !   status = status_c
-  ! end function dlite_metamodel_add_property_dim
+    call f_c_string(name, name_c)
+    call f_c_string(expr, expr_c)
+    status_c = dlite_metamodel_add_property_dim_c(model%cptr, name_c, expr_c)
+    status = status_c
+  end function dlite_metamodel_add_property_dim
 
-  ! ! --------------------------------------------------------
-  ! ! Fortran methods for DLiteMeta
-  ! ! --------------------------------------------------------
+  ! --------------------------------------------------------
+  ! Fortran methods for DLiteMeta
+  ! --------------------------------------------------------
 
-  ! function dlite_meta_create_from_metamodel(model) result(meta)
-  !   type(DLiteMetaModel) :: model
-  !   type(DLiteMeta)      :: meta
-  !   meta%cptr = dlite_meta_create_from_metamodel_c(model%cptr)
-  ! end function dlite_meta_create_from_metamodel
+  function dlite_meta_create_from_metamodel(model) result(meta)
+    class(DLiteMetaModel):: model
+    type(DLiteMeta)      :: meta
+    meta%cptr = dlite_meta_create_from_metamodel_c(model%cptr)
+  end function dlite_meta_create_from_metamodel
 
-  ! function dlite_meta_has_dimension(meta, name) result(answer)
-  !   type(DLiteMeta)              :: meta
-  !   character(len=*), intent(in) :: name
-  !   character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
-  !   type(c_bool)                 :: answer_c
-  !   logical                      :: answer
-  !   call f_c_string(name, name_c)
-  !   answer_c = dlite_meta_has_dimension_c(meta%cptr, name_c)
-  !   answer = answer_c
-  ! end function dlite_meta_has_dimension
+  function dlite_meta_has_dimension(meta, name) result(answer)
+    class(DLiteMeta)             :: meta
+    character(len=*), intent(in) :: name
+    character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
+    logical(c_bool)              :: answer_c
+    logical                      :: answer
+    call f_c_string(name, name_c)
+    answer_c = dlite_meta_has_dimension_c(meta%cptr, name_c)
+    answer = answer_c
+  end function dlite_meta_has_dimension
 
-  ! function dlite_meta_has_property(meta, name) result(answer)
-  !   type(DLiteMeta)              :: meta
-  !   character(len=*), intent(in) :: name
-  !   character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
-  !   type(c_bool)                 :: answer_c
-  !   logical                      :: answer
-  !   call f_c_string(name, name_c)
-  !   answer_c = dlite_meta_has_property_c(meta%cptr, name_c)
-  !   answer = answer_c
-  ! end function dlite_meta_has_property
+  function dlite_meta_has_property(meta, name) result(answer)
+    class(DLiteMeta)             :: meta
+    character(len=*), intent(in) :: name
+    character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
+    logical(c_bool)              :: answer_c
+    logical                      :: answer
+    call f_c_string(name, name_c)
+    answer_c = dlite_meta_has_property_c(meta%cptr, name_c)
+    answer = answer_c
+  end function dlite_meta_has_property
 
 end module DLite

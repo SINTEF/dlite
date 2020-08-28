@@ -1912,7 +1912,12 @@ int dlite_meta_is_metameta(const DLiteMeta *meta)
  */
 bool dlite_meta_has_dimension(const DLiteMeta *meta, const char *name)
 {
-  return dlite_instance_has_dimension((DLiteInstance *)meta, name);
+  size_t i;
+  for (i=0; i<meta->_ndimensions; i++) {
+    DLiteDimension *d = meta->_dimensions + i;
+    if (strcmp(name, d->name) == 0) return true;
+  }
+  return false;
 }
 
 /*
@@ -1920,7 +1925,12 @@ bool dlite_meta_has_dimension(const DLiteMeta *meta, const char *name)
  */
 bool dlite_meta_has_property(const DLiteMeta *meta, const char *name)
 {
-  return dlite_instance_has_property((DLiteInstance *)meta, name);
+  size_t i;
+  for (i=0; i<meta->_nproperties; i++) {
+    DLiteProperty *p = meta->_properties + i;
+    if (strcmp(name, p->name) == 0) return true;
+  }
+  return false;
 }
 
 

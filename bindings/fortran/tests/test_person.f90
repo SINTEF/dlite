@@ -10,8 +10,13 @@ program ftest_person
 
   implicit none
 
-  type(TPerson)      :: person
+  type(TPerson)      :: person, john
   integer            :: status
+
+  type(DLiteMeta) :: meta
+     
+  meta = create_meta_person()
+  print *, meta%has_dimension('N'), meta%has_property('name')
 
   person = TPerson( &
        "json", &
@@ -33,6 +38,12 @@ program ftest_person
 
 
   person%age = 34
+
+  john = TPerson(2, 4)
+  john%name = 'John Doe'
+  john%age = 45.0
+  john%skills(1) = 'c++'
+  john%skills(2) = 'py'
 
   status = person%writeToSource( &
        "json", &

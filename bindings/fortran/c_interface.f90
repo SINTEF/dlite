@@ -5,9 +5,11 @@
 !
 module c_interface
   use iso_c_binding, only : c_ptr, c_int, c_size_t, c_char, c_null_char, &
-  c_associated, c_f_pointer
+                            c_associated, c_f_pointer
 
   implicit none
+
+  public :: c_strlen_safe
 
   interface c_f_string
       module procedure c_f_string_ptr

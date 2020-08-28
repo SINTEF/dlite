@@ -3,13 +3,16 @@
 !
 MODULE Person
   USE iso_c_binding, only : c_ptr, c_int, c_char, c_null_char, c_size_t, &
-       c_double, c_null_ptr, c_f_pointer, c_associated
+                            c_double, c_null_ptr, c_f_pointer, c_associated, &
+                            c_loc, c_float
+  USE c_interface, only: c_f_string, c_strlen_safe
   USE DLite
 
   IMPLICIT NONE
   PRIVATE
 
   PUBLIC :: TPerson
+  PUBLIC :: create_meta_person
 
   TYPE TPerson
     type(c_ptr)                    :: cinst
@@ -18,9 +21,9 @@ MODULE Person
     integer(8)                     :: n
     integer(8)                     :: m
     character(len=45)              :: name
-    real(8)                        :: age
+    real(4)                        :: age
     character(len=10), allocatable :: skills(:)
-    real(8), allocatable           :: temperature(:)
+    real(4), allocatable           :: temperature(:)
   contains
     procedure :: check => checkPerson
     procedure :: writeToURL => writePersonToURL
@@ -35,29 +38,54 @@ MODULE Person
     module procedure readPersonFromSource
     ! read a person from a open storage
     module procedure readPersonFromStorage
+    ! create a person and allocate the arrays
+    module procedure createPerson32
+    ! create a person and allocate the arrays
+    module procedure createPerson64
   END INTERFACE TPerson
 
 CONTAINS
 
-  ! type(c_ptr) function create_meta_person() result(meta)
-  !   class(DLiteMeta)      :: meta
-  !   class(DLiteMetaModel) :: model
+  function create_meta_person() result(meta)
+    type(DLiteMeta)      :: meta
+    type(DLiteMetaModel) :: model
+    integer              :: i
     
-  !   model = DLiteMetaModel('http://meta.sintef.no/0.2/Person', &
-  !                          'http://meta.sintef.no/0.3/EntitySchema', &
-  !                          '')
-  !   model%add_string('description', 'A person.')
-  !   model%add_dimension('N', 'Number of skills.')
-  !   model%add_dimension('M', 'Number of temperature measurements.')
-  !   model%add_property('name', 'string45', '', '', '')
-  !   model%add_property('age', 'float', 'years', '', '')
-  !   model%add_property('skills', 'string10', '', '', '')
-  !   model%add_property_dim('skills', 'N')
-  !   model%add_property('temperature', 'float', '', '', '')
-  !   model%add_property_dim('temperature', 'M')
-  !   meta = DLiteMeta(model)
-  !   model%destroy()
-  ! end function create_meta_person
+    model = DLiteMetaModel('http://meta.sintef.no/0.2/Person', 'http://meta.sintef.no/0.3/EntitySchema', '')
+    i = model%add_string('description', 'A person.')
+    i = model%add_dimension('N', 'Number of skills.')
+    i = model%add_dimension('M', 'Number of temperature measurements.')
+    i = model%add_property('name', 'string45', '', '', '')
+    i = model%add_property('age', 'float', 'years', '', '')
+    i = model%add_property('skills', 'string10', '', '', '')
+    i = model%add_property_dim('skills', 'N')
+    i = model%add_property('temperature', 'float', 'degC', '', '')
+    i = model%add_property_dim('temperature', 'M')
+    meta = DLiteMeta(model)
+    call model%destroy()
+  end function create_meta_person
+
+  function createPerson32(n, m) result(person)
+    implicit none
+    type(TPerson)          :: person
+    integer(4), intent(in) :: n
+    integer(4), intent(in) :: m
+    person%n = n
+    person%m = m
+    allocate(person%skills(n))
+    allocate(person%temperature(m))
+  end function createPerson32
+
+  function createPerson64(n, m) result(person)
+    implicit none
+    type(TPerson)          :: person
+    integer(8), intent(in) :: n
+    integer(8), intent(in) :: m
+    person%n = n
+    person%m = m
+    allocate(person%skills(n))
+    allocate(person%temperature(m))
+  end function createPerson64
 
   function personToInstance(person) result(instance)
     implicit none
@@ -66,23 +94,62 @@ CONTAINS
     instance%cinst = person%cinst
   end function personToInstance
 
+  !   !> Calculates the length of a C string.
+  ! function cstrlen(carray) result(res)
+  !   character(kind=c_char), intent(in) :: carray(:)
+  !   integer :: res
+
+  !   integer :: ii
+
+  !   do ii = 1, size(carray)
+  !     if (carray(ii) == c_null_char) then
+  !       res = ii - 1
+  !       return
+  !     end if
+  !   end do
+  !   res = ii
+
+  ! end function cstrlen
+
+  ! Copy C data (DLiteInstance::instance) in Fortran type (TPerson::person)
   subroutine assignPerson(person, instance)
     implicit none
-    type(TPerson), intent(inout)     :: person
-    class(DLiteInstance), intent(in) :: instance
-    type(c_ptr)                      :: age_c
-    real(8), pointer                 :: age_p
+    type(TPerson), intent(inout)            :: person
+    class(DLiteInstance), intent(in)        :: instance
+    type(c_ptr)                             :: cptr
+    real(c_float), pointer                  :: age_f
+    character(kind=c_char), pointer         :: skills_f(:,:)
+    real(c_float), pointer                  :: temperature_f(:)
+
+    integer(8)                              :: nstring, strlen, i
+
     if (instance%check()) then
-       person%cinst = instance%cinst
-       !person%uuid = instance%uuid
-       person%n = instance%get_dimension_size_by_index(0)
-       person%m = instance%get_dimension_size_by_index(1)
-       age_c = instance%get_property("age")
-       ! FIXME - correct assignment of age
-       call c_f_pointer(age_c, age_p)
-       person%age = age_p
+      person%cinst = instance%cinst
+      !person%uuid = instance%uuid
+      person%n = instance%get_dimension_size_by_index(0)
+      person%m = instance%get_dimension_size_by_index(1)
+      ! name
+      cptr = instance%get_property_by_index(0)
+      call c_f_string(cptr, person%name)
+      ! age
+      cptr = instance%get_property_by_index(1)
+      call c_f_pointer(cptr, age_f)
+      person%age = age_f
+      ! skills
+      cptr = instance%get_property_by_index(2)
+      nstring = person%n 
+      strlen = 10
+      call c_f_pointer(cptr, skills_f, [strlen, nstring])
+      allocate(person%skills(nstring))
+      do i = 1, nstring
+        call c_f_string(skills_f(:,i), person%skills(i))
+      end do      
+      ! temperature
+      cptr = instance%get_property_by_index(3)
+      call c_f_pointer(cptr, temperature_f, (/person%m/))
+      person%temperature = temperature_f
     else
-       person%cinst = c_null_ptr
+      person%cinst = c_null_ptr
     end if
   end subroutine assignPerson
 
@@ -92,7 +159,6 @@ CONTAINS
     logical                    :: status
     status = c_associated(person%cinst)
   end function checkPerson
-
 
   function readPersonFromURL(url) result(person)
     implicit none
