@@ -6,7 +6,7 @@ cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 project(dlite
-  VERSION 0.2.3
+  VERSION 0.2.4
   #DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   LANGUAGES C
   )

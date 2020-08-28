@@ -139,6 +139,27 @@ instances are metadata) must be "dimensions", "properties" and
 "relations" if the metadata instance has no other properties.
 
 
+Naming dimensions and properties
+--------------------------------
+The names of your dimensions and properties should be valid C identifiers,
+not starting with underscore.  Another restriction is that should not be
+one of the following keywords:
+
+  - uuid
+  - uri
+  - meta
+  - iri
+
+Furthermore, while the following dimension and property names are
+actively used in metadata, they must not be used in data instances:
+
+  - ndimensions
+  - nproperties
+  - nrelations
+  - dimensions
+  - properties
+  - relations
+
 ---
 
 [1]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
