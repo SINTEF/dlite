@@ -64,6 +64,9 @@ add_definitions(
 add_library(dlite SHARED ${sources})
 add_library(dlite-static STATIC ${sources})
 
+add_dependencies(dlite config-paths.h)
+add_dependencies(dlite-static config-paths.h)
+
 target_link_libraries(dlite
   dlite-utils
   ${CMAKE_DL_LIBS}

@@ -178,6 +178,20 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
 
 /**
+  Returns non-zero if paths should refer to build root instead of
+  installation root.
+ */
+int dlite_get_use_build_root(void);
+
+/**
+  Sets whether paths should refer to build root.  Default is the
+  installation root, unless the environment variable
+  DLITE_USE_BUILD_ROOT is set and is not false.
+*/
+void dlite_set_use_build_root(int v);
+
+
+/**
   On Windows, this function adds default directories to the DLL search
   path.  Based on whether the `DLITE_USE_BUILDROOT` environment
   variable is defined, the library directories under either the build

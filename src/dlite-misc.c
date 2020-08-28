@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
+#include "config-paths.h"
+
 #include "utils/compat.h"
 #include "utils/err.h"
 #include "utils/strtob.h"
@@ -11,6 +14,10 @@
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
+
+
+/* Global variables */
+static int use_build_root = -1;
 
 
 
@@ -294,8 +301,57 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
 
 /*
+  Returns non-zero if paths should refer to build root instead of
+  installation root.
+ */
+int dlite_get_use_build_root(void)
+{
+  if (use_build_root == -1) {
+    char *endptr, *p = getenv("DLITE_USE_BUILD_ROOT");
+    use_build_root = 0;
+    if (p) {
+      if (!*p) {
+        use_build_root = 1;
+      } else {
+        int v = strtob(p, &endptr);
+        if (!endptr)
+          use_build_root = (v) ? 1 : 0;
+        else
+          warn("environment variable DLITE_USE_BUILD_ROOT must have a "
+               "valid boolean value: %s", p);
+      }
+    }
+  }
+  return use_build_root;
+}
+
+/*
+  Sets whether paths should refer to build root.  Default is the
+  installation root, unless the environment variable
+  DLITE_USE_BUILD_ROOT is set and is not false.
+*/
+void dlite_set_use_build_root(int v)
+{
+  use_build_root = (v) ? 1 : 0;
+}
+
+
+
+
+/* Help function for dlite_add_dll_path() */
+#ifdef WINDOWS
+static void _add_dll_dir(const char *path)
+{
+  size_t n;
+  wchar_t wcstr[256];
+  mbstowcs_s(&n, wcstr, 256, path, 255);
+  AddDllDirectory(wcstr);
+}
+#endif
+
+/*
   On Windows, this function adds default directories to the DLL search
-  path.  Based on whether the `DLITE_USE_BUILDROOT` environment
+  path.  Based on whether the `DLITE_USE_BUILD_ROOT` environment
   variable is defined, the library directories under either the build
   directory or the installation root (environment variable DLITE_ROOT)
   are added to the DLL search path using AddDllDirectory().
@@ -314,17 +370,17 @@ int dlite_add_dll_path(void)
   called = 1;
 
   if (getenv("DLITE_USE_BUILD_ROOT")) {
-    AddDllDirectory(fu_winpath(dlite_BUILDROOT "/src",
-                               buf, sizeof(buf), NULL));
-    AddDllDirectory(fu_winpath(dlite_BUILDROOT "/src/util",
-                               buf, sizeof(buf), NULL));
+    _add_dll_dir(fu_winpath((const char *)dlite_BUILD_ROOT "/src",
+                            buf, sizeof(buf), NULL));
+    _add_dll_dir(fu_winpath(dlite_BUILD_ROOT "/src/util",
+                            buf, sizeof(buf), NULL));
 #ifdef WITH_PYTHON
-    AddDllDirectory(fu_winpath(dlite_BUILDROOT "/src/pyembed",
-                               buf, sizeof(buf), NULL));
+    _add_dll_dir(fu_winpath(dlite_BUILD_ROOT "/src/pyembed",
+                            buf, sizeof(buf), NULL));
 #endif
   } else {
-    AddDllDirectory(fu_winpath(DLITE_ROOT "/" DLITE_LIBRARY_DIR,
-                               buf, sizeof(buf), NULL));
+    _add_dll_dir(fu_winpath(DLITE_ROOT "/" DLITE_LIBRARY_DIR,
+                            buf, sizeof(buf), NULL));
   }
 #endif
   return 0;

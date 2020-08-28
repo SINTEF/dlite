@@ -147,7 +147,7 @@ def standardise(v, asdict=True):
 %extend _DLiteInstance {
 
   int __len__(void) {
-    return $self->meta->_nproperties;
+    return (int)$self->meta->_nproperties;
   }
 
   %newobject __repr__;

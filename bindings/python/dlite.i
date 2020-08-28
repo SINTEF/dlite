@@ -21,9 +21,8 @@
 
 %begin %{
   /* Disable some selected warnings in generated code */
-#pragma GCC diagnostic ignored "-Wpedantic"
-
 #if defined __GNUC__ && __GNUC__ >= 8
+#pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
 %}

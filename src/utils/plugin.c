@@ -417,7 +417,17 @@ int plugin_path_insert(PluginInfo *info, const char *path, int n)
 int plugin_path_append(PluginInfo *info, const char *path)
 {
   return fu_paths_append(&info->paths, path);
+}
 
+/*
+  Like plugin_path_append(), but appends at most the `n` first bytes
+  of `path` to the current search path.
+
+  Returns the index of the newly appended path or -1 on error.
+*/
+int plugin_path_appendn(PluginInfo *info, const char *path, size_t n)
+{
+  return fu_paths_appendn(&info->paths, path, n);
 }
 
 /*

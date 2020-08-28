@@ -27,7 +27,7 @@ specific paths below.
     to the installation prefix provided to cmake.  You have to set this
     if dlite is moved.
 
-  - **DLITE_USE_BUILDROOT**: If this is defined, use the build root instead
+  - **DLITE_USE_BUILD_ROOT**: If this is defined, use the build root instead
     of the installation root.  This environment variable is mainly intended
     for testing.
 

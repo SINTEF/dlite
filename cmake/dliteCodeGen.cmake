@@ -1,6 +1,6 @@
 # -- Macro simplifying calling dlite-codegen
 #
-# dlite_codegen(output template sources)
+# dlite_codegen(output template url [options])
 #
 #   Generate source code using dlite-codegen.
 #
@@ -15,6 +15,7 @@
 #       Additional options to dlite-codegen may be provided after the
 #       ordinary arguments.  Relevant options include:
 #         --built-in              Whether `url` refers to a built-in instance
+#         --build-root            Whether to load plugins from build directory
 #         --native-typenames      Whether to generate native typenames
 #         --storage-plugins=PATH  Additional paths to look for storage plugins
 #         --variables=STRING      Assignment of additional variables as a

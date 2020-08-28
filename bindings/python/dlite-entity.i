@@ -12,7 +12,7 @@
 /* Returns a new property. */
 DLiteProperty *
 dlite_swig_create_property(const char *name, enum _DLiteType type,
-                           int size, obj_t *dims, const char *unit,
+                           size_t size, obj_t *dims, const char *unit,
                            const char *iri,
                            const char *description)
 {
@@ -21,7 +21,7 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
   p->type = type;
   p->size = size;
   if (dims && dims != DLiteSwigNone) {
-    p->ndims = PySequence_Length(dims);
+    p->ndims = (int)PySequence_Length(dims);
     if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
                                            sizeof(char *), dims))) {
       free(p->name);
@@ -131,7 +131,7 @@ struct _DLiteProperty {
 
   %newobject get_type;
   char *get_type(void) {
-    return to_typename($self->type, $self->size);
+    return to_typename($self->type, (int)$self->size);
   }
   int get_dtype(void) {
     return $self->type;
@@ -341,7 +341,7 @@ struct _DLiteInstance {
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;
   %newobject get_dimensions;
   obj_t *get_dimensions() {
-    int dims[1] = { DLITE_NDIM($self) };
+    int dims[1] = { (int)DLITE_NDIM($self) };
     return dlite_swig_get_array($self, 1, dims, dliteUInt, sizeof(size_t),
                                 DLITE_DIMS($self));
   }
@@ -350,10 +350,10 @@ struct _DLiteInstance {
            "Returns the size of dimension with given name or index.")
      get_dimension_size;
   int get_dimension_size(const char *name) {
-    return dlite_instance_get_dimension_size($self, name);
+    return (int)dlite_instance_get_dimension_size($self, name);
   }
   int get_dimension_size(int i) {
-    return dlite_instance_get_dimension_size_by_index($self, i);
+    return (int)dlite_instance_get_dimension_size_by_index($self, i);
   }
 
   %feature("docstring", "Returns property with given name or index.")
@@ -381,7 +381,7 @@ struct _DLiteInstance {
     return dlite_instance_has_property($self, name);
   }
   bool has_property(int i) {
-    if (i < 0) i += $self->meta->_nproperties;
+    if (i < 0) i += (int)$self->meta->_nproperties;
     if (0 <= i && i < (int)$self->meta->_nproperties) return true;
     return false;
   }
@@ -392,7 +392,7 @@ struct _DLiteInstance {
     return dlite_instance_has_dimension($self, name);
   }
   bool has_dimension(int i) {
-    if (i < 0) i += $self->meta->_ndimensions;
+    if (i < 0) i += (int)$self->meta->_ndimensions;
     if (0 <= i && i < (int)$self->meta->_ndimensions) return true;
     return false;
   }

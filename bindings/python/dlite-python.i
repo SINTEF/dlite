@@ -144,7 +144,7 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
   switch (type) {
   case dliteBlob:
   case dliteBool:
-    dtype->elsize = size;
+    dtype->elsize = (int)size;
     break;
   case dliteInt:
   case dliteUInt:
@@ -152,7 +152,7 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
     assert(dtype->elsize == (int)size);
     break;
   case dliteFixString:
-    dtype->elsize = size;
+    dtype->elsize = (int)size;
     break;
   case dliteStringPtr:
   case dliteDimension:
@@ -371,7 +371,7 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
         if (s == Py_None) {
           if (p[i]) free(p[i]);
         } else if (PyUnicode_Check(s)) {
-          int len = PyUnicode_GET_LENGTH(s);
+          long len = (long)PyUnicode_GET_LENGTH(s);
           p[i] = realloc(p[i], len+1);
           memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
           p[i][len] = '\0';
@@ -457,7 +457,7 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
   }
 
   for (i=0; i<ndims; i++)
-    dims[i] = PyArray_DIM(arr, i);
+    dims[i] = (int)PyArray_DIM(arr, i);
 
   retptr = ptr; /* success! */
  fail:
@@ -495,7 +495,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       case 1: value = *((int8_t *)data);  break;
       case 2: value = *((int16_t *)data); break;
       case 4: value = *((int32_t *)data); break;
-      case 8: value = *((int64_t *)data); break;
+      case 8: value = (long)*((int64_t *)data); break;
       default: FAIL1("invalid integer size: %zu", size);
       }
       obj = PyLong_FromLong(value);
@@ -509,7 +509,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       case 1: value = *((uint8_t *)data);  break;
       case 2: value = *((uint16_t *)data); break;
       case 4: value = *((uint32_t *)data); break;
-      case 8: value = *((uint64_t *)data); break;
+      case 8: value = (unsigned long)*((uint64_t *)data); break;
       default: FAIL1("invalid unsigned integer size: %zu", size);
       }
       obj = PyLong_FromUnsignedLong(value);
@@ -632,10 +632,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (overflow) FAIL("overflow when converting to int");
       if (PyErr_Occurred()) FAIL("cannot convert to int");
       switch (size) {
-      case 1: *((int8_t *)ptr) = value;  break;
-      case 2: *((int16_t *)ptr) = value; break;
-      case 4: *((int32_t *)ptr) = value; break;
-      case 8: *((int64_t *)ptr) = value; break;
+      case 1: *((int8_t *)ptr)  =  (int8_t)value; break;
+      case 2: *((int16_t *)ptr) = (int16_t)value; break;
+      case 4: *((int32_t *)ptr) = (int32_t)value; break;
+      case 8: *((int64_t *)ptr) = (int64_t)value; break;
       default: FAIL1("invalid integer size: %zu", size);
       }
     }
@@ -650,10 +650,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 #endif
       if (PyErr_Occurred()) FAIL("cannot convert to unsigned int");
       switch (size) {
-      case 1: *((uint8_t *)ptr) = value;  break;
-      case 2: *((uint16_t *)ptr) = value; break;
-      case 4: *((uint32_t *)ptr) = value; break;
-      case 8: *((uint64_t *)ptr) = value; break;
+      case 1: *((uint8_t *)ptr)  =  (uint8_t)value;  break;
+      case 2: *((uint16_t *)ptr) = (uint16_t)value; break;
+      case 4: *((uint32_t *)ptr) = (uint32_t)value; break;
+      case 8: *((uint64_t *)ptr) = (uint64_t)value; break;
       default: FAIL1("invalid unsigned integer size: %zu", size);
       }
       break;
@@ -663,10 +663,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
     double value = PyFloat_AsDouble(obj);
     if (PyErr_Occurred()) FAIL("cannot convert to double");
     switch (size) {
-    case 4:  *((float32_t *)ptr) = value; break;
-    case 8:  *((float64_t *)ptr) = value; break;
-    //case 10: *((float80_t *)ptr) = value; break;
-    //case 16: *((float128_t *)ptr) = value; break;
+    case 4:  *((float32_t *)ptr)  =  (float32_t)value; break;
+    case 8:  *((float64_t *)ptr)  =  (float64_t)value; break;
+#ifdef HAVE_FLOAT80
+    case 10: *((float80_t *)ptr)  =  (float80_t)value; break;
+#endif
+#ifdef HAVE_FLOAT128
+    case 16: *((float128_t *)ptr) = (float128_t)value; break;
+#endif
     default: FAIL1("invalid float size: %zu", size);
     }
   }
@@ -827,7 +831,8 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         triplet_reset(ptr, src->s, src->p, src->o, src->id);
 
       } else if (PySequence_Check(obj) || PyIter_Check(obj)) {
-        int i, n;
+        int i;
+        Py_ssize_t n;
         PyObject *lst;
         char **s = ptr;  /* cast DLiteRelation to 4 string pointers */
         assert(sizeof(DLiteRelation) == 4*sizeof(char *));
@@ -911,7 +916,7 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   obj_t *obj=NULL;
 
   PyErr_Clear();
-  if (n < 0) n += inst->meta->_nproperties;
+  if (n < 0) n += (int)inst->meta->_nproperties;
   if (n < 0 || n >= (int)inst->meta->_nproperties)
     return dlite_err(-1, "Property index is out or range: %d", i), NULL;
   ptr = DLITE_PROP(inst, n);
@@ -923,7 +928,7 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
     for (j=0; j<p->ndims; j++) {
       if (!p->dims[j])
         FAIL2("missing dimension %d of property %d", j, i);
-      dims[j] = DLITE_PROP_DIM(inst, i, j);
+      dims[j] = (int)DLITE_PROP_DIM(inst, i, j);
     }
     obj = dlite_swig_get_array(inst, p->ndims, dims, p->type, p->size, *ptr);
   }
@@ -943,7 +948,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   DLiteProperty *p;
 
   PyErr_Clear();
-  if (n < 0) n += inst->meta->_nproperties;
+  if (n < 0) n += (int)inst->meta->_nproperties;
   if (n < 0 || n >= (int)inst->meta->_nproperties)
     FAIL1("Property index is out or range: %d", i);
   ptr = DLITE_PROP(inst, n);
@@ -957,7 +962,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
     for (j=0; j<p->ndims; j++) {
       if (!p->dims[j])
         FAIL2("missing dimension %d of property %d", j, i);
-      dims[j] = DLITE_PROP_DIM(inst, i, j);
+      dims[j] = (int)DLITE_PROP_DIM(inst, i, j);
     }
     if (dlite_swig_set_array(ptr, p->ndims, dims, p->type, p->size, obj))
       goto fail;
@@ -1015,7 +1020,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   $2 = NULL;
   if (!PySequence_Check($input))
     SWIG_exception(SWIG_TypeError, "Expected a sequence");
-  $1 = PySequence_Length($input);
+  $1 = (int)PySequence_Length($input);
   if (!($2 = calloc($1, sizeof(DLiteDimension))))
     SWIG_exception(SWIG_MemoryError, "Allocation failure");
   if (dlite_swig_set_array(&$2, 1, &$1, dliteDimension,
@@ -1052,7 +1057,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   $2 = NULL;
   if (!PySequence_Check($input))
     SWIG_exception(SWIG_TypeError, "Expected a sequence");
-  $1 = PySequence_Length($input);
+  $1 = (int)PySequence_Length($input);
   if (!($2 = calloc($1, sizeof(DLiteProperty))))
     SWIG_exception(SWIG_MemoryError, "Allocation failure");
   if (dlite_swig_set_array(&$2, 1, &$1, dliteProperty,

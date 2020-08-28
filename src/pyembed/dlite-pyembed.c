@@ -229,7 +229,7 @@ void *dlite_pyembed_get_address(const char *symbol)
 
   /* Seems that ctypes.addressof() returns the address where the pointer to
      `symbol` is stored, so we need an extra dereference... */
-  if (ptr) ptr = *((void **)ptr);
+  if (ptr) ptr = (void *)*((void **)ptr);
 
  fail:
   Py_XDECREF(addr);

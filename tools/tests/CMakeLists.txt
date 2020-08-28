@@ -20,18 +20,21 @@ if(WITH_JSON)
     chemistry.h
     c-header
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+    --build-root
     )
 
   dlite_codegen(
     chemistry_schema.h
     c-meta-header
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+    --build-root
     )
 
   dlite_codegen(
     chemistry.c
     c-source
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+    --build-root
     )
 
   add_executable(test_codegen

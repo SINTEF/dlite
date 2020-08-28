@@ -25,6 +25,9 @@ void help()
     "  -b, --built-in               Whether the URL refers to a built-in",
     "                               instance, rather than an instance located",
     "                               in a storage.",
+    "  -B, --build-root             Whether to look for storage plugins in ",
+    "                               the build root directory rather than ",
+    "                               under DLITE_ROOT.  Intended for testing.",
     "  -f, --format=STRING          Output format if -t is not given.",
     "                               It should correspond to a template name.",
     "                               Defaults to \"c-header\"",
@@ -94,6 +97,7 @@ int main(int argc, char *argv[])
     int longindex = 0;
     struct option longopts[] = {
       {"built-in",         0, NULL, 'b'},
+      {"build-root",       0, NULL, 'B'},
       {"format",           1, NULL, 'f'},
       {"help",             0, NULL, 'h'},
       {"native-typenames", 0, NULL, 'n'},
@@ -105,10 +109,11 @@ int main(int argc, char *argv[])
       {"version",          0, NULL, 'V'},
       {NULL, 0, NULL, 0}
     };
-    int c = getopt_long(argc, argv, "bf:hno:s:m:t:v:V", longopts, &longindex);
+    int c = getopt_long(argc, argv, "bBf:hno:s:m:t:v:V", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
     case 'b':  builtin = 1; break;
+    case 'B':  dlite_set_use_build_root(1); break;
     case 'f':  format = optarg; break;
     case 'h':  help(stdout); exit(0);
     case 'n':  dlite_codegen_use_native_typenames = 1; break;

@@ -1,4 +1,5 @@
 #include "config.h"
+#include "config-paths.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -38,7 +39,15 @@ static PluginInfo *get_storage_plugin_info(void)
 			  "get_dlite_storage_plugin_api",
 			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
     atexit(storage_plugin_info_free);
-    dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGIN_DIRS);
+    if (dlite_get_use_build_root()) {
+      char *endptr;
+      const char *p;
+      while ((p = fu_nextpath(dlite_STORAGE_PLUGINS, &endptr, NULL)))
+        dlite_storage_plugin_path_appendn(p, endptr - p);
+    } else {
+      dlite_storage_plugin_path_append(DLITE_ROOT "/"
+                                       DLITE_STORAGE_PLUGIN_DIRS);
+    }
   }
   return storage_plugin_info;
 }
@@ -211,6 +220,19 @@ int dlite_storage_plugin_path_append(const char *path)
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
   return plugin_path_append(info, path);
+}
+
+/*
+  Like dlite_storage_plugin_path_append(), but appends at most the
+  first `n` bytes of `path` to the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_appendn(const char *path, size_t n)
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return 1;
+  return plugin_path_appendn(info, path, n);
 }
 
 /*

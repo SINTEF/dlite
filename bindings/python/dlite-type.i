@@ -5,7 +5,7 @@
     size_t v = 0;
     status_t retval =
       dlite_type_set_dtype_and_size(typename, (DLiteType *)type, &v);
-    if (retval == 0) *size = v;
+    if (retval == 0) *size = (int)v;
     return retval;
   }
 

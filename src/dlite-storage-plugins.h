@@ -177,6 +177,14 @@ int dlite_storage_plugin_path_insert(int n, const char *path);
 int dlite_storage_plugin_path_append(const char *path);
 
 /**
+  Like dlite_storage_plugin_path_append(), but appends at most the
+  first `n` bytes of `path` to the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_appendn(const char *path, size_t n);
+
+/**
   Removes path number `n` from current search path.
 
   Returns non-zero on error.
