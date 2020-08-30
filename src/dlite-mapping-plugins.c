@@ -47,6 +47,9 @@ static PluginInfo *get_mapping_plugin_info(void)
     else
       plugin_path_extend_prefix(mapping_plugin_info, dlite_root_get(),
                                 DLITE_MAPPING_PLUGIN_DIRS, NULL);
+
+    /* Make sure that dlite DLLs are added to the library search path */
+    dlite_add_dll_path();
   }
   return mapping_plugin_info;
 }

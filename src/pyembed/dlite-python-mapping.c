@@ -49,6 +49,9 @@ const FUPaths *dlite_python_mapping_paths(void)
                                 "plugin dirs"), NULL;
     mapping_paths_initialised = 1;
     mapping_paths_modified = 0;
+
+    /* Make sure that dlite DLLs are added to the library search path */
+    dlite_add_dll_path();
   }
   return &mapping_paths;
 }
