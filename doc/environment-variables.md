@@ -31,6 +31,11 @@ specific paths below.
     of the installation root.  This environment variable is mainly intended
     for testing.
 
+    @note
+    On Windows `DLITE_USE_BUILD_ROOT` affects both the library and the
+    plugin search paths, while it only affects the plugin search paths
+    on Linux.
+
 
 Spesific paths
 --------------

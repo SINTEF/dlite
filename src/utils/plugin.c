@@ -431,6 +431,53 @@ int plugin_path_appendn(PluginInfo *info, const char *path, size_t n)
 }
 
 /*
+  Extends current search path by appending all `pathsep`-separated paths
+  in `s` to it.
+
+  Returns the index of the last appended path or zero if nothing is appended.
+  On error, -1 is returned.
+ */
+int plugin_path_extend(PluginInfo *info, const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep)))
+    if ((stat = plugin_path_appendn(info, p, endptr - p)) < 0) return stat;
+  return stat;
+}
+
+/*
+  Like plugin_paths_extend(), but prefix all relative paths in `s`
+  with `prefix` before appending them to `paths`.
+
+  Returns the index of the last appended paths or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
+                              const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep))) {
+    int len = endptr - p;
+    if (fu_isabs(p)) {
+      if ((stat = plugin_path_appendn(info, p, len)) < 0) return stat;
+    } else {
+      char buf[1024];
+      int n = snprintf(buf, sizeof(buf), "%s/%.*s", prefix, len, p);
+      if (n < 0) return err(-1, "unexpected error in snprintf()");
+      if (n >= (int)sizeof(buf) - 1)
+        return err(-1, "path exeeds buffer size: %s/%.*s", prefix, len, p);
+      if ((stat = plugin_path_append(info, buf)) < 0) return stat;
+    }
+  }
+  return stat;
+}
+
+
+/*
   Removes path index `n` from current search path.  If `n` is
   negative, it counts from the end (like Python).
 

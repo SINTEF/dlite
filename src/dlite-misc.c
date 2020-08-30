@@ -304,7 +304,7 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
   Returns non-zero if paths should refer to build root instead of
   installation root.
  */
-int dlite_get_use_build_root(void)
+int dlite_use_build_root(void)
 {
   if (use_build_root == -1) {
     char *endptr, *p = getenv("DLITE_USE_BUILD_ROOT");
@@ -335,7 +335,19 @@ void dlite_set_use_build_root(int v)
   use_build_root = (v) ? 1 : 0;
 }
 
-
+/*
+  Returns pointer to installation root.  It may be altered with environment
+  variable DLITE_ROOT.
+*/
+const char *dlite_root_get(void)
+{
+  static char *dlite_root = NULL;
+  if (!dlite_root) {
+    char *v = getenv("DLITE_ROOT");
+    dlite_root = (v) ? v : DLITE_ROOT;
+  }
+  return dlite_root;
+}
 
 
 /* Help function for dlite_add_dll_path() */

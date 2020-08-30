@@ -181,7 +181,7 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
   Returns non-zero if paths should refer to build root instead of
   installation root.
  */
-int dlite_get_use_build_root(void);
+int dlite_use_build_root(void);
 
 /**
   Sets whether paths should refer to build root.  Default is the
@@ -189,6 +189,12 @@ int dlite_get_use_build_root(void);
   DLITE_USE_BUILD_ROOT is set and is not false.
 */
 void dlite_set_use_build_root(int v);
+
+/**
+  Returns pointer to installation root.  It may be altered with environment
+  variable DLITE_ROOT.
+*/
+const char *dlite_root_get(void);
 
 
 /**

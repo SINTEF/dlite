@@ -1,4 +1,5 @@
 #include "config.h"
+#include "config-paths.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -40,7 +41,12 @@ static PluginInfo *get_mapping_plugin_info(void)
                           "get_dlite_mapping_api",
                           "DLITE_MAPPING_PLUGIN_DIRS"))) {
     atexit(mapping_plugin_info_free);
-    dlite_mapping_plugin_path_append(DLITE_MAPPING_PLUGIN_DIRS);
+
+    if (dlite_use_build_root())
+      plugin_path_extend(mapping_plugin_info, dlite_MAPPING_PLUGINS, NULL);
+    else
+      plugin_path_extend_prefix(mapping_plugin_info, dlite_root_get(),
+                                DLITE_MAPPING_PLUGIN_DIRS, NULL);
   }
   return mapping_plugin_info;
 }
@@ -214,6 +220,19 @@ int dlite_mapping_plugin_path_append(const char *path)
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
   return plugin_path_append(info, path);
+}
+
+/*
+  Like dlite_mapping_plugin_path_append(), but appends at most the
+  first `n` bytes of `path` to the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_mapping_plugin_path_appendn(const char *path, size_t n)
+{
+  PluginInfo *info;
+  if (!(info = get_mapping_plugin_info())) return 1;
+  return plugin_path_appendn(info, path, n);
 }
 
 /*

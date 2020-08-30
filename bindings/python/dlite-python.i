@@ -843,7 +843,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
         if ((n = PySequence_Fast_GET_SIZE(lst)) < 3 || n > 4) {
           Py_DECREF(lst);
-          FAIL1("relations must be 3 or 4 strings, got %d", n);
+          FAIL1("relations must be 3 or 4 strings, got %ld", n);
         }
         for (i=0; i<n; i++) {
           PyObject *item = PySequence_Fast_GET_ITEM(lst, i);

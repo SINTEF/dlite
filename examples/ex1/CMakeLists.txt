@@ -37,3 +37,13 @@ add_test(
   NAME dlite-example-1
   COMMAND dlite-example-1
   )
+
+set_property(TEST dlite-example-1 PROPERTY
+  ENVIRONMENT "DLITE_ROOT=${DLITE_ROOT}")
+if(UNIX)
+set_property(TEST dlite-example-1 APPEND PROPERTY
+  ENVIRONMENT "LD_LIBRARY_PATH=${DLITE_ROOT}/lib")
+elseif(WIN32)
+set_property(TEST dlite-example-1 APPEND PROPERTY
+  ENVIRONMENT "PATH=${DLITE_ROOT/lib};${PATH}")
+endif()

@@ -4,9 +4,10 @@
 #include <Python.h>
 #include <assert.h>
 
-#ifdef HAVE_CONFIG_H
-#undef HAVE_CONFIG_H
-#endif
+/* Python pulls in a lot of defines that conflicts with utils/config.h */
+#define SKIP_UTILS_CONFIG_H
+
+#include "config-paths.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -35,8 +36,17 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 const FUPaths *dlite_python_mapping_paths(void)
 {
   if (!mapping_paths_initialised) {
-    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_DIRS") < 0)
-      return dlite_err(1, "cannot initialise DLITE_PYTHON_MAPPING_DIRS"), NULL;
+    int s;
+    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS") < 0)
+      return dlite_err(1, "cannot initialise "
+                       "DLITE_PYTHON_MAPPING_PLUGIN_DIRS"), NULL;
+    if (dlite_use_build_root())
+      s = fu_paths_extend(&mapping_paths, dlite_PYTHON_MAPPING_PLUGINS, NULL);
+    else
+      s = fu_paths_extend_prefix(&mapping_paths, dlite_root_get(),
+                                 DLITE_PYTHON_MAPPING_PLUGIN_DIRS, NULL);
+    if (s < 0) return dlite_err(1, "error initialising dlite python mapping "
+                                "plugin dirs"), NULL;
     mapping_paths_initialised = 1;
     mapping_paths_modified = 0;
   }

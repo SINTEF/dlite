@@ -6,6 +6,8 @@
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
 
+#include "config-paths.h"
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-codegen.h"
@@ -453,9 +455,12 @@ char *dlite_codegen_template_file(const char *template_name)
     FAIL("failure initialising codegen template paths");
   if (asprintf(&pattern, "%s.txt", template_name) < 0)
     FAIL("allocation failure");
-  if (fu_paths_append(&paths, DLITE_TEMPLATE_DIRS) < 0)
-    FAIL1("failure appending default codegen template search path: %s",
-          DLITE_TEMPLATE_DIRS);
+
+  if (dlite_use_build_root())
+    fu_paths_extend(&paths, dlite_TEMPLATES, NULL);
+  else
+    fu_paths_extend_prefix(&paths, dlite_root_get(), DLITE_TEMPLATE_DIRS, NULL);
+
   if (!(iter = fu_pathsiter_init(&paths, pattern)))
     FAIL("failure creating codegen template path iterator");
   if (!(template_file = fu_pathsiter_next(iter))) {

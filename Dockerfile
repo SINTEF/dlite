@@ -76,7 +76,7 @@ RUN cppcheck . \
 # Build dlite
 RUN mkdir build
 WORKDIR /home/user/sw/dlite/build
-RUN cmake .. -DFORCE_EXAMPLES=ON
+RUN cmake .. -DFORCE_EXAMPLES=ON -DALLOW_WARNINGS=ON
 RUN make
 RUN make install
 

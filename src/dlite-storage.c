@@ -7,6 +7,8 @@
 #include "utils/err.h"
 #include "utils/fileutils.h"
 
+#include "config-paths.h"
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
@@ -248,6 +250,12 @@ FUPaths *storage_paths_get(void)
       return err(1, "allocation failure"), NULL;
     fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
     atexit(storage_paths_free);
+
+    if (dlite_use_build_root())
+      fu_paths_extend(_storage_paths, dlite_STORAGES, "|");
+    else
+      fu_paths_extend_prefix(_storage_paths, dlite_root_get(),
+                             DLITE_STORAGES, "|");
   }
   return _storage_paths;
 }

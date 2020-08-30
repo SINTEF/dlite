@@ -159,9 +159,10 @@ install(
   )
 
 install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mapping-plugins
-  DESTINATION ${DLITE_PYTHON_MAPPING_PLUGIN_DIRS}
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
+  DESTINATION share/dlite
   PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
   )
 
 

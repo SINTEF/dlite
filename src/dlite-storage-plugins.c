@@ -39,15 +39,12 @@ static PluginInfo *get_storage_plugin_info(void)
 			  "get_dlite_storage_plugin_api",
 			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
     atexit(storage_plugin_info_free);
-    if (dlite_get_use_build_root()) {
-      char *endptr;
-      const char *p;
-      while ((p = fu_nextpath(dlite_STORAGE_PLUGINS, &endptr, NULL)))
-        dlite_storage_plugin_path_appendn(p, endptr - p);
-    } else {
-      dlite_storage_plugin_path_append(DLITE_ROOT "/"
-                                       DLITE_STORAGE_PLUGIN_DIRS);
-    }
+
+    if (dlite_use_build_root())
+      plugin_path_extend(storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);
+    else
+      plugin_path_extend_prefix(storage_plugin_info, dlite_root_get(),
+                                DLITE_STORAGE_PLUGIN_DIRS, NULL);
   }
   return storage_plugin_info;
 }
@@ -83,13 +80,15 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     TGenBuf buf;
     int n=0;
     const char *p, **paths = dlite_storage_plugin_paths();
+    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT or ";
     tgen_buf_init(&buf);
     tgen_buf_append_fmt(&buf, "cannot find storage plugin for driver \"%s\" "
                         "in search path:\n", name);
     while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
     if (n <= 1)
-      tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGIN_DIRS enveronment "
-                          "variable set?");
+      tgen_buf_append_fmt(&buf, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
+                          "enveronment variable(s) set?", submsg);
+
     errx(1, "%s", tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);
   }

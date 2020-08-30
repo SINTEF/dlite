@@ -162,7 +162,7 @@ static int istrue(const void *src, DLiteType type, size_t size)
   do {                                                                  \
     int n, m;                                                           \
     if ((n = dlite_type_snprintf(src, src_type, src_size,               \
-                                 0, -2, NULL, dest_size)) < 0) goto fail;\
+                                 0, -2, NULL, 0)) < 0) goto fail;       \
     if (!(*(char **)dest = realloc(*(char **)dest, n + 1)))             \
       return err(1, "reallocation failure");                            \
     m = dlite_type_snprintf(src, src_type, src_size,                    \

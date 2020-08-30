@@ -697,6 +697,8 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   size_t i, *dims=NULL;
   const char *uri=NULL;
 
+  if (!s) FAIL("invalid storage, see previous errors");
+
   /* check if id is already loaded */
   if (lookup && id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);

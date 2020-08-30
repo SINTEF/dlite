@@ -66,7 +66,7 @@ macro(dlite_codegen output template url)
     find_program(DLITE_CODEGEN
       NAMES dlite-codegen
       PATHS
-        ${dlite-tools-BINARY_DIR}
+        ${dlite-tools_BINARY_DIR}
         ${dlite_PATH}
       )
     list(APPEND codegen_dependencies ${DLITE_CODEGEN})

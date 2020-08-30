@@ -39,7 +39,6 @@
     err(1, msg, a1); goto fail; } while (0)
 
 
-
 /* Paths iterator */
 struct _FUIter {
   const char *pattern;   /* File name glob pattern to match against. */
@@ -55,8 +54,78 @@ struct _FUIter {
 };
 
 
+/*
+  Returns native platform.
+*/
+FUPlatform fu_native_platform(void)
+{
+#if defined POSIX
+  return fuUnix;
+#elif defined WINDOWS
+  return fuWindows;
+#elif defined __APPLE__
+  return fuApple;
+#else
+  return fuUnknownPlatform;
+#endif
+}
 
-/* Returns non-zero if `path` is an absolute path. */
+/*
+  Returns non-zero if `platform` is supported.
+*/
+int fu_supported_platform(FUPlatform platform)
+{
+  if (platform == fuNative) platform = fu_native_platform();
+  switch (platform) {
+  case fuUnix:
+  case fuWindows:
+    return 1;
+  default:
+    return 0;
+  }
+}
+
+/*
+  Returns a constant pointer to the name of `platform`.
+ */
+const char *fu_platform_name(FUPlatform platform)
+{
+  char *names[] = {"Native", "Unix", "Windows", "Apple" };
+  if (platform < 0 || platform >= fuLastPlatform)
+    return "Unknown";
+  else
+    return names[platform];
+}
+
+/*
+  Returns a pointer to directory separator for `platform` or NULL on error.
+*/
+const char *fu_dirsep(FUPlatform platform)
+{
+  if (platform == fuNative) platform = fu_native_platform();
+  switch (platform) {
+  case fuUnix: return "/";
+  case fuWindows: return "\\";
+  default: return err(1, "unsupported platform: %d", platform), NULL;
+  }
+}
+
+/*
+  Returns a pointer to path separator for `platform` or NULL on error.
+*/
+const char *fu_pathsep(FUPlatform platform)
+{
+  if (platform == fuNative) platform = fu_native_platform();
+  switch (platform) {
+  case fuUnix: return ":";
+  case fuWindows: return ";";
+  default: return err(1, "unsupported platform: %d", platform), NULL;
+  }
+}
+
+/*
+  Returns non-zero if `path` is an absolute path.
+*/
 int fu_isabs(const char *path)
 {
   if (!path) return 0;
@@ -255,6 +324,8 @@ char *fu_friendly_dirsep(char *path)
     - it is preceded by only alphabetic characters and followed by
       two foreard slashes and a alphabetic character.  Ex: http://xxx...
 
+  Repeated path separators will be treated as a single path separator.
+
   Returns a pointer to the next path or NULL if there are no more paths left.
   On error is NULL returned and `*endptr` will not point to NUL.
 
@@ -286,6 +357,9 @@ const char *fu_nextpath(const char *paths, char **endptr, const char *pathsep)
     return NULL;
   else                 /* proceeding */
     p = *endptr + 1;
+
+  /* ignore repeated path separators */
+  while (strchr((pathsep) ? pathsep : ";:", *p)) p++;
 
   if (pathsep) {
     *endptr = p + strcspn(p, pathsep);
@@ -338,7 +412,7 @@ const char *fu_nextpath(const char *paths, char **endptr, const char *pathsep)
  */
 char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
 {
-  char *q, *endptr=NULL;
+  char *q, *d, *endptr=NULL;
   const char *p;
   int n=0;
   if (!dest) {
@@ -358,6 +432,12 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
     if (*endptr) n += snprintf(dest+n, size-n, ";");
   }
   for (q=dest; *q; q++) if (*q == '/') *q = '\\';
+
+  /* Remove repeated dirsep's */
+  for (d=q=dest; *q; d++, q++) {
+    while (*q == '\\' && *(q+1) == '\\') q++;
+    *d = *q;
+  }
   return dest;
 }
 
@@ -380,7 +460,7 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
 char *fu_unixpath(const char *path, char *dest, size_t size,
                   const char *pathsep)
 {
-  char *q, *endptr=NULL;
+  char *q, *d, *endptr=NULL;
   const char *p;
   int n=0;
   if (!dest) {
@@ -402,6 +482,13 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
     if (*endptr) n += snprintf(dest+n, size-n, ":");
   }
   for (q=dest; *q; q++) if (*q == '\\') *q = '/';
+
+  /* Remove repeated dirsep's */
+  for (d=q=dest; *q; d++, q++) {
+    while (*q == '/' && *(q+1) == '/') q++;
+    *d = *q;
+  }
+
   return dest;
 }
 
@@ -550,7 +637,7 @@ int fu_closedir(FUDir *dir)
   return closedir((DIR *)dir);
 }
 
-#if 0
+#if 0  // XXX
 /* Like fu_opendir(), but truncates `path` at first occation of PATHSEP. */
 static FUDir *opendir_sep(const char *path)
 {
@@ -565,7 +652,6 @@ static FUDir *opendir_sep(const char *path)
   return dir;
 }
 #endif
-
 
 
 /*
@@ -596,6 +682,45 @@ int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep)
 }
 
 /*
+  Sets platform that `paths` should confirm to.
+
+  Returns the previous platform or -1 on error.
+*/
+FUPlatform fu_paths_set_platform(FUPaths *paths, FUPlatform platform)
+{
+  size_t i;
+  if (platform == fuNative) platform = fu_native_platform();
+  FUPlatform prev = paths->platform;
+  if (platform >= 0 && platform < fuLastPlatform)
+    paths->platform = platform;
+  else
+    return err(-1, "invalid platform number: %d", platform);
+
+  for (i=0; i < paths->n; i++) {
+    const char *p = paths->paths[i];
+    if (platform == fuUnix)
+      paths->paths[i] = fu_unixpath(p, NULL, 0, ":");
+    else if (platform == fuWindows)
+      paths->paths[i] = fu_winpath(p, NULL, 0, ";");
+    else {
+      warn("unsupported platform: %s", fu_platform_name(platform));
+      paths->paths[i] = strdup(p);
+    }
+    free((void *)p);
+  }
+
+  return prev;
+}
+
+/*
+  Returns the current platform for `paths`.
+ */
+FUPlatform fu_paths_get_platform(FUPaths *paths)
+{
+  return paths->platform;
+}
+
+/*
   Frees all memory allocated in `paths`.
  */
 void fu_paths_deinit(FUPaths *paths)
@@ -608,22 +733,23 @@ void fu_paths_deinit(FUPaths *paths)
   memset(paths, 0, sizeof(FUPaths));
 }
 
-/*
-  Returns an allocated string with all paths in `paths` separated by `pathsep`.
 
-  If `pathsep` is NULL, the system path separator is used.  Note that unlike
-  fu_paths_init_sep(), if `pathsep` is more than one character (in addition to
-  the terminating NUL), the full string is inserted as path separator.
- */
-char *fu_paths_string(const FUPaths *paths, const char *pathsep)
+/*
+  Returns an allocated string with all paths in `paths` separated by
+  the path separator of the platform specified by fu_paths_set_platform().
+
+  Returns NULL on error.
+*/
+char *fu_paths_string(const FUPaths *paths)
 {
   size_t i, seplen, size=0;
   char *s, *string;
-  if (!pathsep) pathsep = PATHSEP;
+  const char *pathsep = fu_pathsep(paths->platform);
   seplen = strlen(pathsep);
   for (i=0; i<paths->n; i++) size += strlen(paths->paths[i]);
   size += (paths->n - 1) * seplen;
-  s = string = malloc(size + 1);
+  if (!(s = string = malloc(size + 1)))
+    return err(1, "allocation failure"), NULL;
   for (i=0; i < paths->n; i++) {
     int n = strlen(paths->paths[i]);
     strncpy(s, paths->paths[i], n);
@@ -659,30 +785,57 @@ int fu_paths_insert(FUPaths *paths, const char *path, int n)
   return fu_paths_insertn(paths, path, 0, n);
 }
 
+
 /*
-  Like fu_paths_insert(), but allows that `path` is not NUL-terminated
-  with its length is provided with `len`.  If `len` is zero, this is
-  equivalent to fu_paths_insert().
+  Like fu_paths_insert(), but allows that `path` is not NUL-terminated.
+
+  Inserts the `len` first bytes of `path` into `paths` before position `n`.
+  If `len` is zero, this is equivalent to fu_paths_insert().
 
   Returns the index of the newly inserted element or -1 on error.
  */
 int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
 {
-  if (paths->n+1 >= paths->size) {
-    paths->size = paths->n + FU_PATHS_CHUNKSIZE;
-    if (!(paths->paths = realloc((char **)paths->paths,
-                                 paths->size*sizeof(char **))))
-      return err(-1, "allocation failure");
-  }
+  int platform = paths->platform;
+  char *p=NULL, *tmp=NULL;
+
+  if (n < (int)(-paths->n) || n >= (int)paths->n+1)
+    FAIL1("path index out of range: %d", n);
   if (n < 0) n += paths->n;
-  if (n < 0 || n >= (int)paths->n+1)
-    return err(-1, "path index out of range: %d", n);
+
+  if (len) {
+    if (!(tmp = strndup(path, len))) FAIL("allocation failure");
+    path = tmp;
+  }
+
+  if (platform == fuNative) platform = fu_native_platform();
+  if (!fu_supported_platform(platform))
+    FAIL1("unsupported platform: %d", platform);
+  switch (platform) {
+  case fuUnix:     p = fu_unixpath(path, NULL, 0, NULL);  break;
+  case fuWindows:  p = fu_winpath(path, NULL, 0, NULL);   break;
+  default: assert(0);  // should never happen
+  }
+  if (!p) FAIL("allocation failure");
+
+  if (paths->n+1 >= paths->size) {
+    const char **q;
+    paths->size = paths->n + FU_PATHS_CHUNKSIZE;
+    if (!(q = realloc((char **)paths->paths, paths->size*sizeof(char **))))
+      FAIL("reallocation failure");
+    paths->paths = q;
+  }
   if (n < (int)paths->n)
     memmove((char **)paths->paths + n + 1, paths->paths + n,
             (paths->n-n)*sizeof(char **));
-  paths->paths[n] = (len > 0) ? strndup(path, len) : strdup(path);
+  paths->paths[n] = p;
   paths->paths[++paths->n] = NULL;
+  if (tmp) free(tmp);
   return n;
+ fail:
+  if (p) free(p);
+  if (tmp) free(tmp);
+  return -1;
 }
 
 /*
@@ -707,6 +860,52 @@ int fu_paths_append(FUPaths *paths, const char *path)
 int fu_paths_appendn(FUPaths *paths, const char *path, size_t len)
 {
   return fu_paths_insertn(paths, path, len, paths->n);
+}
+
+/*
+  Extends `paths` by appending all `pathsep`-separated paths in `s` to it.
+  See fu_nextpath() for a description of `pathsep`.
+
+  Returns the index of the last appended element or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int fu_paths_extend(FUPaths *paths, const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep)))
+    if ((stat = fu_paths_appendn(paths, p, endptr - p)) < 0) return stat;
+  return stat;
+}
+
+/*
+  Like fu_paths_extend(), but prefix all relative paths in `s` with `prefix`
+  before appending them to `paths`.
+
+  Returns the index of the last appended element or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int fu_paths_extend_prefix(FUPaths *paths, const char *prefix,
+                           const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep))) {
+    int len = endptr - p;
+    if (fu_isabs(p)) {
+      if ((stat = fu_paths_appendn(paths, p, len)) < 0) return stat;
+    } else {
+      char buf[1024];
+      int n = snprintf(buf, sizeof(buf), "%s/%.*s", prefix, len, p);
+      if (n < 0) return err(-1, "unexpected error in snprintf()");
+      if (n >= (int)sizeof(buf) - 1)
+        return err(-1, "path exeeds buffer size: %s/%.*s", prefix, len, p);
+      if ((stat = fu_paths_append(paths, buf)) < 0) return stat;
+    }
+  }
+  return stat;
 }
 
 /*

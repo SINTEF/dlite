@@ -61,19 +61,56 @@ typedef DIR FUDir;
 # define __attribute__(x)
 #endif
 
+/** Platform */
+typedef enum _FUPlatform {
+  fuUnknownPlatform=-1,  /*!< Unknown platform */
+  fuNative=0,            /*!< Platform we are compiling on */
+  fuUnix,                /*!< Unix-like platforms; POSIX complient */
+  fuWindows,             /*!< Windows */
+  fuApple,               /*!< Apple - not yet supported... */
+  fuLastPlatform         /*!< Must always be the last */
+} FUPlatform;
 
 /** Directory state. */
 typedef DIR FUDir;
 
 /** List of directory search pathes */
 typedef struct _FUPaths {
-  size_t n;            /*!< number of paths */
-  size_t size;         /*!< allocated number of paths */
-  const char **paths;  /*!< NULL-terminated array of pointers to paths */
+  size_t n;             /*!< number of paths */
+  size_t size;          /*!< allocated number of paths */
+  const char **paths;   /*!< NULL-terminated array of pointers to paths */
+  FUPlatform platform;  /*!< platform that returned paths should confirm to,
+                             defaults to native */
 } FUPaths;
 
 /** File matching iterator. */
 typedef struct _FUIter FUIter;
+
+
+/**
+  Returns native platform.
+ */
+FUPlatform fu_native_platform(void);
+
+/**
+  Returns non-zero if `platform` is supported.
+*/
+int fu_supported_platform(FUPlatform platform);
+
+/**
+  Returns a constant pointer to the name of `platform`.
+ */
+const char *fu_platform_name(FUPlatform platform);
+
+/**
+  Returns a pointer to directory separator for `platform` or NULL on error.
+*/
+const char *fu_dirsep(FUPlatform platform);
+
+/**
+  Returns a pointer to path separator for `platform` or NULL on error.
+*/
+const char *fu_pathsep(FUPlatform platform);
 
 
 /**
@@ -158,6 +195,8 @@ char *fu_friendly_dirsep(char *path);
       character and followed by forward or backward slash. Ex: 'C:\xxx'.
     - it is preceded by only alphabetic characters and followed by
       two foreard slashes and a alphabetic character.  Ex: http://xxx...
+
+  Repeated path separators will be treated as a single path separator.
 
   Returns a pointer to the next path or NULL if there are no more paths left.
   On error is NULL returned and `*endptr` will not point to NUL.
@@ -270,15 +309,29 @@ int fu_paths_init(FUPaths *paths, const char *envvar);
 int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep);
 
 /**
+  Sets platform that `paths` should confirm to.
+
+  Returns the previous platform or -1 on error.
+*/
+FUPlatform fu_paths_set_platform(FUPaths *paths, FUPlatform platform);
+
+/**
+  Returns the current platform for `paths`.
+ */
+FUPlatform fu_paths_get_platform(FUPaths *paths);
+
+/**
   Frees all memory allocated in `paths`.
  */
 void fu_paths_deinit(FUPaths *paths);
 
 /**
-  Returns an allocated string with all paths in `paths` separated by `pathsep`.
-  If `pathsep` is NULL, the system path separator is used.
+  Returns an allocated string with all paths in `paths` separated by
+  the path separator of the platform specified by fu_paths_set_platform().
+
+  Returns NULL on error.
  */
-char *fu_paths_string(const FUPaths *paths, const char *pathsep);
+char *fu_paths_string(const FUPaths *paths);
 
 /**
   Returns a NULL-terminated array of pointers to paths or NULL if
@@ -295,9 +348,10 @@ const char **fu_paths_get(FUPaths *paths);
 int fu_paths_insert(FUPaths *paths, const char *path, int n);
 
 /**
-  Like fu_paths_insert(), but allows that `path` is not NUL-terminated
-  with its length is provided with `len`.  If `len` is zero, this is
-  equivalent to fu_paths_insert().
+  Like fu_paths_insert(), but allows that `path` is not NUL-terminated.
+
+  Inserts the `len` first bytes of `path` into `paths` before position `n`.
+  If `len` is zero, this is equivalent to fu_paths_insert().
 
   Returns the index of the newly inserted element or -1 on error.
  */
@@ -320,6 +374,25 @@ int fu_paths_append(FUPaths *paths, const char *path);
   Returns the index of the newly inserted element or -1 on error.
  */
 int fu_paths_appendn(FUPaths *paths, const char *path, size_t len);
+
+/**
+  Extends `paths` by appending all `pathsep`-separated paths in `s` to it.
+  See fu_nextpath() for a description of `pathsep`.
+
+  Returns the index of the last appended element or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int fu_paths_extend(FUPaths *paths, const char *s, const char *pathsep);
+
+/**
+  Like fu_paths_extend(), but prefix all relative paths in `s` with `prefix`
+  before appending them to `paths`.
+
+  Returns the index of the last appended element or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int fu_paths_extend_prefix(FUPaths *paths, const char *prefix, const char *s,
+                           const char *pathsep);
 
 /**
   Removes path index `n` from `paths`.  If `n` is negative, it

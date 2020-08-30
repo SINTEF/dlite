@@ -371,28 +371,55 @@ endif()
 # Environment for running tests in build tree
 # -------------------------------------------
 
+# Macro that appends build directories `dirs` to list `lst`
+#
+# Usage: build_append(<var> dirs...)
+#
+# This macro is a workaround, since we cannot use $<TARGET_FILE_DIR:tgt>
+# generator expressions because they makes the generated
+# src/config-paths.h depend on the dlite libraries creating circular
+# dependencies (since the libraries depends on src/config-paths.h).
+macro(build_append lst)
+  foreach(dir ${ARGN})
+    list(APPEND ${lst} ${dir})
+    if(WIN32)
+      list(APPEND ${lst} ${dir}/Release)
+      list(APPEND ${lst} ${dir}/Debug)
+    endif()
+  endforeach()
+endmacro()
+
 # PATH - path to runtime directories (.exe and .dll)
 set(dlite_PATH ${dlite-tools_BINARY_DIR})
 if(WIN32)
+  build_append(dlite_PATH
+    ${dlite-src_BINARY_DIR}
+    ${dlite-src-utils_BINARY_DIR}
+    )
+  if(WITH_PYTHON)
+    build_append(dlite_PATH ${dlite-src-pyembed_BINARY_DIR})
+  endif()
   list(APPEND dlite_PATH
-    ${dlite_BINARY_DIR}/src
-    ${dlite_BINARY_DIR}/src/utils
     ${JANSSON_RUNTIME_DIR}
     ${HDF5_RUNTIME_DIR}
     )
   string(REPLACE "/" "\\" dlite_PATH "${dlite_PATH}")
 endif()
-list(APPEND dlite_PATH
-  $ENV{PATH}
-  )
+list(APPEND dlite_PATH $ENV{PATH})
 list(REMOVE_DUPLICATES dlite_PATH)
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
-set(dlite_LD_LIBRARY_PATH
-  ${dlite_BINARY_DIR}/src
-  ${dlite_BINARY_DIR}/src/utils
-  ${JANSSON_LIBRARY_DIR}
-  ${HDF5_LIBRARY_DIR}
+set(dlite_LD_LIBRARY_PATH "")
+build_append(dlite_LD_LIBRARY_PATH
+  ${dlite-src_BINARY_DIR}
+  ${dlite-src-utils_BINARY_DIR}
+  )
+if(WITH_PYTHON)
+  build_append(dlite_LD_LIBRARY_PATH ${dlite-src-pyembed_BINARY_DIR})
+endif()
+list(APPEND dlite_LD_LIBRARY_PATH
+  ${JANSSON_RUNTIME_DIR}
+  ${HDF5_RUNTIME_DIR}
   $ENV{LD_LIBRARY_PATH}
   )
 list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
@@ -407,33 +434,37 @@ if(dlite_PYTHONPATH)
 endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
-set(dlite_STORAGE_PLUGINS
-  ${dlite_BINARY_DIR}/storages/json
-  ${dlite_BINARY_DIR}/storages/hdf5
-  ${dlite_BINARY_DIR}/storages/python
-  $ENV{DLITE_STORAGE_PLUGIN_DIRS}
-  )
+set(dlite_STORAGE_PLUGINS "")
+if(WITH_JSON)
+  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/json)
+endif()
+if(WITH_HDF5)
+  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/hdf5)
+endif()
+if(WITH_PYTHON)
+  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/python)
+endif()
+list(APPEND dlite_STORAGE_PLUGINS $ENV{DLITE_STORAGE_PLUGIN_DIRS})
 list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 
 # DLITE_MAPPING_PLUGIN_DIRS - search path for DLite mapping plugins
-set(dlite_MAPPING_PLUGINS
-  ${dlite_BINARY_DIR}/src/pyembed
-  $ENV{DLITE_MAPPING_PLUGIN_DIRS}
-  )
+set(dlite_MAPPING_PLUGINS "")
+list(APPEND dlite_MAPPING_PLUGINS $ENV{DLITE_MAPPING_PLUGIN_DIRS})
 list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
 
 # DLITE_PYTHON_STORAGE_PLUGIN_DIRS - search path for Python storage plugins
-set(dlite_PYTHON_STORAGE_PLUGINS
+set(dlite_PYTHON_STORAGE_PLUGINS "")
+build_append(dlite_PYTHON_STORAGE_PLUGINS
   ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
-  $ENV{DLITE_PYTHON_STORAGE_PLUGIN_DIRS}
   )
+list(APPEND dlite_PYTHON_STORAGE_PLUGINS $ENV{DLITE_PYTHON_STORAGE_PLUGIN_DIRS})
 list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
 
 # DLITE_PYTHON_MAPPING_PLUGIN_DIRS - search path for Python mapping plugins
-set(dlite_PYTHON_MAPPING_PLUGINS
-  ${dlite_SOURCE_DIR}/bindings/python/mapping-plugins
-  $ENV{DLITE_PYTHON_MAPPING_PLUGIN_DIRS}
-  )
+set(dlite_PYTHON_MAPPING_PLUGINS "")
+build_append(dlite_PYTHON_MAPPING_PLUGINS
+  ${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins)
+list(APPEND dlite_PYTHON_MAPPING_PLUGINS $ENV{DLITE_PYTHON_MAPPING_PLUGIN_DIRS})
 list(REMOVE_DUPLICATES dlite_PYTHON_MAPPING_PLUGINS)
 
 # DLITE_TEMPLATE_DIRS - search path for DLite templates
