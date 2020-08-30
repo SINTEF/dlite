@@ -17,21 +17,21 @@ if(WITH_JSON)
   include(dliteCodeGen)
 
   dlite_codegen(
-    chemistry.h
+    ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h
     c-header
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     --build-root
     )
 
   dlite_codegen(
-    chemistry_schema.h
+    ${CMAKE_CURRENT_BINARY_DIR}/chemistry_schema.h
     c-meta-header
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     --build-root
     )
 
   dlite_codegen(
-    chemistry.c
+    ${CMAKE_CURRENT_BINARY_DIR}/chemistry.c
     c-source
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
     --build-root

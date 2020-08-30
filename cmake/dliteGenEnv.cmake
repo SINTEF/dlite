@@ -6,24 +6,21 @@
 #   - output_dir: Where to place the generated script.
 #   - newline_style: Either "UNIX" (LF), "DOS" (CRLF) or NATIVE
 #
-function(dlite_genenv filename output_dir newline_style)
+macro(dlite_genenv output newline_style)
 
-  get_filename_component(basename ${filename} NAME)
+  get_filename_component(filename ${output} NAME)
 
-  if(IS_ABSOLUTE ${filename})
-    set(input ${filename}.in)
-  else()
-    set(input ${CMAKE_CURRENT_SOURCE_DIR}/${filename}.in)
-  endif()
-  set(output ${output_dir}/${basename})
+  set(input ${CMAKE_CURRENT_SOURCE_DIR}/${filename}.in)
   set(script ${dlite_SOURCE_DIR}/cmake/dliteGenEnv-sub.cmake)
 
-  if(newline_style STREQUAL "NATIVE")
+  if(${newline_style} STREQUAL "NATIVE")
     if(WINDOWS)
-      set(newline_style "CRLF")
+      set(_newline_style "CRLF")
     else()
-      set(newline_style "LF")
+      set(_newline_style "LF")
     endif()
+  else()
+    set(_newline_style ${newline_style})
   endif()
 
 
@@ -46,7 +43,7 @@ function(dlite_genenv filename output_dir newline_style)
       ${CMAKE_COMMAND}
         -Dinput=${input}
         -Doutput=${output}
-        -Dnewline_style=${newline_style}
+        -Dnewline_style=${_newline_style}
         -DPATH="${PATH}"
         -DLD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
         -DPYTHONPATH="${PYTHONPATH}"
@@ -63,8 +60,4 @@ function(dlite_genenv filename output_dir newline_style)
     COMMENT "Generate ${output}"
   )
 
-  add_custom_target(${basename}
-    DEPENDS ${output}
-    )
-
-endfunction()
+endmacro()

@@ -356,6 +356,7 @@ static void _add_dll_dir(const char *path)
 {
   size_t n;
   wchar_t wcstr[256];
+  printf("\n*** adding DLL dir: %s\n", path);
   mbstowcs_s(&n, wcstr, 256, path, 255);
   AddDllDirectory(wcstr);
 }
