@@ -23,6 +23,7 @@
 
 #include "utils/dsl.h"
 #include "utils/plugin.h"
+#include "utils/fileutils.h"
 #include "dlite-entity.h"
 
 /**
@@ -107,14 +108,27 @@ int dlite_mapping_plugin_unload_all(void);
 
 
 /**
+  Returns a pointer to the underlying FUPaths object for storage plugins
+  or NULL on error.
+ */
+FUPaths *dlite_mapping_plugin_paths_get(void);
+
+/**
   Returns a pointer to the current mapping plugin search path.  It is
   initialised from the environment variable `DLITE_MAPPING_PLUGIN_DIRS`.
 
-  Use dlite_mapping_plugin_path_insert(),
-  dlite_mapping_plugin_path_append()
+  Use dlite_mapping_plugin_path_insert(), dlite_mapping_plugin_path_append()
   and dlite_mapping_plugin_path_remove() to modify it.
 */
 const char **dlite_mapping_plugin_paths(void);
+
+/**
+  Returns an allocated string with the content of `paths` formatted
+  according to the current platform.  See dlite_set_platform().
+
+  Returns NULL on error.
+ */
+char *dlite_mapping_plugin_path_string(void);
 
 /**
   Inserts `path` into the current search path at index `n`.  If `n` is

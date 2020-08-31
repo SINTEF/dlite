@@ -53,6 +53,9 @@ struct _FUIter {
   struct _FUIter *globiter;  /* Sub-iterator over glob patterns */
 };
 
+/* Platform names */
+static char *_platform_names[] = {"Native", "Unix", "Windows", "Apple", NULL};
+
 
 /*
   Returns native platform.
@@ -90,12 +93,23 @@ int fu_supported_platform(FUPlatform platform)
  */
 const char *fu_platform_name(FUPlatform platform)
 {
-  char *names[] = {"Native", "Unix", "Windows", "Apple" };
   if (platform < 0 || platform >= fuLastPlatform)
     return "Unknown";
   else
-    return names[platform];
+    return _platform_names[platform];
 }
+
+/*
+  Returns the platform number corresponding to `name`.
+ */
+FUPlatform fu_platform(const char *name)
+{
+  int i;
+  for (i=0; _platform_names[i]; i++)
+    if (strcasecmp(_platform_names[i], name) == 0) return i;
+  return errx(fuUnknownPlatform, "unknown platform: %s", name);
+}
+
 
 /*
   Returns a pointer to directory separator for `platform` or NULL on error.
@@ -676,6 +690,7 @@ int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep)
   const char *p;
   char *endptr=NULL, *s = (envvar) ? getenv(envvar) : NULL;
   memset(paths, 0, sizeof(FUPaths));
+  paths->platform = fu_native_platform();
   while ((p = fu_nextpath(s, &endptr, pathsep)))
     fu_paths_appendn(paths, p, endptr - p);
   return 0;
@@ -689,12 +704,14 @@ int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep)
 FUPlatform fu_paths_set_platform(FUPaths *paths, FUPlatform platform)
 {
   size_t i;
-  if (platform == fuNative) platform = fu_native_platform();
   FUPlatform prev = paths->platform;
-  if (platform >= 0 && platform < fuLastPlatform)
-    paths->platform = platform;
-  else
+  if (platform < 0 || platform >= fuLastPlatform)
     return err(-1, "invalid platform number: %d", platform);
+  if (platform == fuNative)
+    platform = fu_native_platform();
+  if (platform == paths->platform)
+    return 0;
+  paths->platform = platform;
 
   for (i=0; i < paths->n; i++) {
     const char *p = paths->paths[i];

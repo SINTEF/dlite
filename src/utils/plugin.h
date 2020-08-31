@@ -32,10 +32,6 @@
   @see http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "dsl.h"
 #include "fileutils.h"
 #include "globmatch.h"

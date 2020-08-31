@@ -8,13 +8,13 @@
 #ifdef HAVE_CONFIG_H
 #undef HAVE_CONFIG_H
 #endif
-#include "utils/fileutils.h"
+//#include "utils/fileutils.h"
 
 
 /**
   Returns a pointer to internal Python mapping search paths.
 */
-const FUPaths *dlite_python_mapping_paths(void);
+FUPaths *dlite_python_mapping_paths(void);
 
 /**
   Clears Python mapping search path.

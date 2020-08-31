@@ -48,6 +48,10 @@ static PluginInfo *get_mapping_plugin_info(void)
       plugin_path_extend_prefix(mapping_plugin_info, dlite_root_get(),
                                 DLITE_MAPPING_PLUGIN_DIRS, NULL);
 
+    /* Register storage plugin paths */
+    dlite_paths_register("DLITE_MAPPING_PLUGIN_DIRS",
+                         &mapping_plugin_info->paths);
+
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
   }
@@ -184,6 +188,18 @@ int dlite_mapping_plugin_unload_all(void)
 }
 */
 
+
+/*
+  Returns a pointer to the underlying FUPaths object for storage plugins
+  or NULL on error.
+ */
+FUPaths *dlite_mapping_plugin_paths_get(void)
+{
+  PluginInfo *info;
+  if (!(info = get_mapping_plugin_info())) return NULL;
+  return &info->paths;
+}
+
 /*
   Returns a NULL-terminated array of pointers to search paths or NULL
   if no search path is defined.
@@ -196,6 +212,19 @@ const char **dlite_mapping_plugin_paths()
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return NULL;
   return plugin_path_get(info);
+}
+
+/*
+  Returns an allocated string with the content of `paths` formatted
+  according to the current platform.  See dlite_set_platform().
+
+  Returns NULL on error.
+ */
+char *dlite_mapping_plugin_path_string(void)
+{
+  PluginInfo *info;
+  if (!(info = get_mapping_plugin_info())) return NULL;
+  return fu_paths_string(&info->paths);
 }
 
 /*

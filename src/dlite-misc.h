@@ -6,9 +6,10 @@
   @brief Main header file for dlite
 */
 
-#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
-
+#include "utils/fileutils.h"
 #include "dlite-type.h"
+
+#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
 
 
 /**
@@ -20,6 +21,35 @@
   Returns static pointer to a string with the current version of DLite.
 */
 const char *dlite_get_version(void);
+
+
+/**
+  Returns current path formatting standard.
+ */
+FUPlatform dlite_paths_get_standard(void);
+
+/**
+  Sets path formatting standard according to `platform`. Returns the
+  previous standard or -1 on error.
+ */
+FUPlatform dlite_paths_set_standard(FUPlatform platform);
+
+/**
+  Unregisters all paths.
+ */
+void dlite_paths_unregister(void);
+
+/**
+  Registers `paths` with given name.
+ */
+int dlite_paths_register(const char *name, FUPaths *paths);
+
+/**
+  Returns paths corresponding to `name` or NULL on error.  The returned
+  object is NOT owned, and should not be uninitialised by the
+  caller.
+ */
+FUPaths *dlite_paths_get(const char *name);
 
 
 /**

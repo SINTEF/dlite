@@ -7,11 +7,11 @@
 
 #include "config.h"
 
+#include "dlite.h"
 #include "utils/compat.h"
 #include "utils/compat/getopt.h"
 #include "utils/err.h"
 #include "utils/execprocess.h"
-#include "dlite.h"
 #include "dlite-macros.h"
 #include "config-paths.h"
 
@@ -31,7 +31,7 @@ void help()
     "  -v  --variable NAME=VALUE",
     "                      Add NAME-VALUE pair to environment.",
     "  -V, --version       Print dlite version number and exit.",
-    "  --                  End of options.  The rest is passed to COMMAND.",
+    "  --                  End of options.  The rest are passed to COMMAND.",
     "",
     "By default dlite install paths are pre-pended to existing environment",
     "variables.",
@@ -78,9 +78,6 @@ int main(int argc, char *argv[])
   /* Command line arguments */
   int with_build=0, with_env=1, with_install=1, print=0;
   char **args=NULL, **env=NULL, **vars=NULL, *pathsep;
-  //char *path, *ld_library_path, *pythonpath, *storage_plugins,
-  //  *mapping_plugins, *python_storage_plugins, *python_mapping_plugins,
-  //  *templates, *storages;
 
   err_set_prefix("dlite-env");
 
@@ -122,14 +119,18 @@ int main(int argc, char *argv[])
 
   /* Create environment */
   if (with_env)  {
+    printf("*** with_env\n");
     env = get_environment();
   }
   if (with_install) {
+    printf("*** with_install\n");
+    env = prepend_paths(env, "DLITE_ROOT",
+                        DLITE_ROOT, pathsep);
     env = prepend_paths(env, "PATH",
                         DLITE_RUNTIME_DIR, pathsep);
     env = prepend_paths(env, "LD_LIBRARY_PATH",
                         DLITE_LIBRARY_DIR, pathsep);
-    env = prepend_paths(env, "DLITE_PYTHONPATH",
+    env = prepend_paths(env, "PYTHONPATH",
                         DLITE_PYTHONPATH, pathsep);
     env = prepend_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
                         DLITE_STORAGE_PLUGIN_DIRS, pathsep);
@@ -145,6 +146,7 @@ int main(int argc, char *argv[])
                         DLITE_STORAGES, pathsep);
   }
   if (with_build) {
+    printf("*** with_build\n");
     env = prepend_paths(env, "PATH",
                         dlite_PATH, pathsep);
     env = prepend_paths(env, "LD_LIBRARY_PATH",
@@ -173,14 +175,30 @@ int main(int argc, char *argv[])
   if (print) {
     /* Print environment */
     if (env) {
+      char *names[] = {
+        "DLITE_ROOT",
+        "PATH",
+        "LD_LIBRARY_PATH",
+        "PYTHONPATH",
+        "DLITE_STORAGE_PLUGIN_DIRS",
+        "DLITE_MAPPING_PLUGIN_DIRS",
+        "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
+        "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
+        "DLITE_TEMPLATE_DIRS",
+        "DLITE_STORAGES",
+        NULL
+      };
+      UNUSED(names);
+      //for (q=names; *q; q++) {
+      //  char **p = get_envitem(env, *q);
+      //  if (p) printf("%s\n", *p);
+      //}
       for (q=env; *q; q++)
         printf("%s\n", *q);
     }
   } else  {
     int i, j;
     if (optind >= argc) FAIL("Missing COMMAND argument");
-
-    printf("*** optind=%d, argc=%d\n", optind, argc);
 
     /* -- create argument list */
     if (!(args = calloc(argc - optind + 1, sizeof(char **))))

@@ -6,6 +6,9 @@
   @brief Opens and closes storages.
 */
 
+#include "utils/fileutils.h"
+
+
 /** Opaque type for a DLiteStorage.
 
     Nothing is actually declared to be a DLiteStorage, but all plugin
@@ -147,6 +150,16 @@ void dlite_storage_uuids_free(char **uuids);
  * @name Storage paths
  * @{
  */
+
+/**
+  Returns pointer to storage paths.a
+*/
+FUPaths *dlite_storage_paths(void);
+
+/**
+  Free's up memory used by storage paths.
+*/
+void dlite_storage_paths_free(void);
 
 /**
   Inserts `path` into storage paths before position `n`.  If `n` is

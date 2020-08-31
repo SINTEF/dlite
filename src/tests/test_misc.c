@@ -3,8 +3,29 @@
 #include "minunit/minunit.h"
 #include "utils/err.h"
 #include "utils/strtob.h"
+#include "utils/fileutils.h"
 #include "boolean.h"
 #include "dlite.h"
+
+
+MU_TEST(test_paths)
+{
+  FUPaths *paths;
+  char *s;
+  printf("\ndlite version: %s\n", dlite_get_version());
+  printf("dlite path standard: %s\n",
+         fu_platform_name(dlite_paths_get_standard()));
+
+  mu_check(dlite_paths_set_standard(fuUnix) >= 0);
+
+  paths = dlite_paths_get("DLITE_STORAGES");
+  mu_check(paths);
+  s = fu_paths_string(paths);
+  printf("\nDLITE_STORAGES=%s\n", s);
+  free(s);
+
+}
+
 
 
 MU_TEST(test_get_uuid)
@@ -121,6 +142,7 @@ MU_TEST(test_split_url)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_paths);
   MU_RUN_TEST(test_get_uuid);
   MU_RUN_TEST(test_join_split_metadata);
   MU_RUN_TEST(test_option_parse);

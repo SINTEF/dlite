@@ -232,32 +232,35 @@ const char *dlite_storage_get_driver(const DLiteStorage *s)
  *******************************************************************/
 static FUPaths *_storage_paths = NULL;
 
-/* Free's up and reset storage paths */
-void storage_paths_free(void)
-{
-  if (_storage_paths) {
-    fu_paths_deinit(_storage_paths);
-    free(_storage_paths);
-  }
-  _storage_paths = NULL;
-}
-
 /* Returns referance to storage paths */
-FUPaths *storage_paths_get(void)
+FUPaths *dlite_storage_paths(void)
 {
   if (!_storage_paths) {
     if (!(_storage_paths = calloc(1, sizeof(FUPaths))))
       return err(1, "allocation failure"), NULL;
     fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
-    atexit(storage_paths_free);
+    atexit(dlite_storage_paths_free);
 
     if (dlite_use_build_root())
       fu_paths_extend(_storage_paths, dlite_STORAGES, "|");
     else
       fu_paths_extend_prefix(_storage_paths, dlite_root_get(),
                              DLITE_STORAGES, "|");
+
+    /* Register the storage paths */
+    dlite_paths_register("DLITE_STORAGES", _storage_paths);
   }
   return _storage_paths;
+}
+
+/* Free's up and reset storage paths */
+void dlite_storage_paths_free(void)
+{
+  if (_storage_paths) {
+    fu_paths_deinit(_storage_paths);
+    free(_storage_paths);
+  }
+  _storage_paths = NULL;
 }
 
 /*
@@ -268,7 +271,7 @@ FUPaths *storage_paths_get(void)
  */
 int dlite_storage_paths_insert(int n, const char *path)
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_insert(paths, path, n);
 }
 
@@ -279,7 +282,7 @@ int dlite_storage_paths_insert(int n, const char *path)
  */
 int dlite_storage_paths_append(const char *path)
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_append(paths, path);
 }
 
@@ -291,7 +294,7 @@ int dlite_storage_paths_append(const char *path)
  */
 int dlite_storage_paths_remove(int n)
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_remove(paths, n);
 }
 
@@ -305,7 +308,7 @@ int dlite_storage_paths_remove(int n)
  */
 const char **dlite_storage_paths_get()
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_get(paths);
 }
 
@@ -323,7 +326,7 @@ DLiteStoragePathIter *dlite_storage_paths_iter_start()
   DLiteStoragePathIter *iter=NULL;
   if (!(iter = calloc(1, sizeof(DLiteStoragePathIter))))
     return err(1, "Allocation failure"), NULL;
-  if (!(iter->pathiter = fu_pathsiter_init(storage_paths_get(), NULL))) {
+  if (!(iter->pathiter = fu_pathsiter_init(dlite_storage_paths(), NULL))) {
     free(iter);
     return err(1, "Failure initiating storage path iterator"), NULL;
   }

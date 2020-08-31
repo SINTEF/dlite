@@ -7,14 +7,12 @@
 #ifndef _FILEUTILS_H
 #define _FILEUTILS_H
 
+#include <stdarg.h>
+
 /**
   @file
   @brief Cross-platform file utility functions
  */
-
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
 
 /** Error codes */
 enum {
@@ -101,6 +99,11 @@ int fu_supported_platform(FUPlatform platform);
   Returns a constant pointer to the name of `platform`.
  */
 const char *fu_platform_name(FUPlatform platform);
+
+/**
+  Returns the platform number corresponding to `name`.
+ */
+FUPlatform fu_platform(const char *name);
 
 /**
   Returns a pointer to directory separator for `platform` or NULL on error.

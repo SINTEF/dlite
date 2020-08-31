@@ -7,6 +7,7 @@
 #include "config-paths.h"
 
 #include "utils/compat.h"
+#include "utils/map.h"
 #include "utils/err.h"
 #include "utils/strtob.h"
 #include "utils/tgen.h"
@@ -14,11 +15,22 @@
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "dlite-storage-plugins.h"
+#include "dlite-mapping-plugins.h"
+#include "dlite-codegen.h"
 
+#ifdef WITH_PYTHON
+#include "pyembed/dlite-python-storage.h"
+#include "pyembed/dlite-python-mapping.h"
+#endif
+
+/* New type mapping name to pointer to a FUPaths object. */
+typedef map_t(FUPaths *) PathsMap;
 
 /* Global variables */
-static int use_build_root = -1;
-
+static int use_build_root = -1;               /* whether to use build root */
+static FUPlatform _path_standard = fuNative;  /* current path standard */
+static PathsMap *_pathsmap = NULL;            /* registered path's */
 
 
 /********************************************************************
@@ -32,6 +44,100 @@ const char *dlite_get_version(void)
 {
   return dlite_VERSION;
 }
+
+
+/* Returns a pointer to map structure for paths */
+static PathsMap *get_pathsmap(void)
+{
+  if (!_pathsmap) {
+    static PathsMap pathsmap;
+    map_init(&pathsmap);
+    atexit(dlite_paths_unregister);
+
+    _pathsmap = &pathsmap;
+
+    /* For convenience, initialise the paths the first time we call this
+       function so we have them available.
+
+       We do that by asking them for their paths, which will create their
+       paths and trigger registering them in pathsmap.
+
+       Note that we for now do not call functions that reside in the
+       dlite library.  Hence, dlite_python_storage_paths()
+       and dlite_python_mapping_paths() are not called. */
+    dlite_storage_plugin_paths_get();
+    dlite_mapping_plugin_paths_get();
+    //dlite_python_storage_paths();
+    //dlite_python_mapping_paths();
+    dlite_codegen_path_get();
+    dlite_storage_paths();
+  }
+  return _pathsmap;
+}
+
+/*
+  Returns current path formatting standard.
+ */
+FUPlatform dlite_paths_get_standard(void)
+{
+  if (_path_standard == fuNative) _path_standard = fu_native_platform();
+  return _path_standard;
+}
+
+/*
+  Sets path formatting standard according to `platform`. Returns the
+  previous standard or -1 on error.
+ */
+FUPlatform dlite_paths_set_standard(FUPlatform platform)
+{
+  FUPlatform prev = _path_standard;
+  const char *key;
+  PathsMap *pathsmap = get_pathsmap();
+  map_iter_t iter;
+  if (platform == fuNative) platform = fu_native_platform();
+  if (!fu_supported_platform(platform))
+    return errx(-1, "unsupported platform: %d", platform);
+  _path_standard = platform;
+
+  iter = map_iter(pathsmap);
+  while ((key = map_next(pathsmap, &iter))) {
+    FUPaths **paths_ptr = map_get(pathsmap, key);
+    fu_paths_set_platform(*paths_ptr, platform);
+  }
+  return prev;
+}
+
+/*
+  Unregisters all paths.
+ */
+void dlite_paths_unregister(void)
+{
+  if (_pathsmap) map_deinit(_pathsmap);
+  _pathsmap = NULL;
+}
+
+/*
+  Registers `paths` with given name.
+ */
+int dlite_paths_register(const char *name, FUPaths *paths)
+{
+  PathsMap *pathsmap = get_pathsmap();
+  map_set(pathsmap, name, paths);
+  return 0;
+}
+
+/*
+  Returns paths corresponding to `name` or NULL on error.
+ */
+FUPaths *dlite_paths_get(const char *name)
+{
+
+  PathsMap *pathsmap = get_pathsmap();
+  FUPaths **p = map_get(pathsmap, name);
+  if (!p) return errx(1, "invalid path name: %s", name), NULL;
+  return *p;
+}
+
 
 
 /*

@@ -162,11 +162,12 @@ char **get_envitem(char **env, const char *name)
 {
   char **q;
   if (!env) return NULL;
+
   for (q=env; *q; q++) {
     int n, len=strcspn(name, "=");
     char *p = strchr(*q, '=');
     if (!p) return err(1, "no equal sign in environment item: %s", *q), NULL;
-    n = *q -p;
+    n = p - *q;
     if (n == len && strncmp(*q, name, n) == 0) return q;
   }
   return NULL;
@@ -240,10 +241,11 @@ char **strlist_copy(char **strlist)
   int i, n=0;
   char **copy;
   while (strlist[n]) n++;
-  if (!(copy = malloc(n*sizeof(char *))))
+  if (!(copy = malloc((n+1)*sizeof(char *))))
     return err(1, "allocation failure"), NULL;
   for (i=0; i<n; i++)
     copy[i] = strdup(strlist[i]);
+  copy[n] = NULL;
   return copy;
 }
 

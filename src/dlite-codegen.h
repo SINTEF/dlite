@@ -10,6 +10,8 @@
   typically is code that will be written to file and compiled.
 */
 
+#include "utils/fileutils.h"
+
 
 /**
   Global variable indicating whether native typenames should be used.
@@ -31,6 +33,17 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst);
   Returns non-zero on error.
 */
 int dlite_option_subs(TGenSubs *subs, const char *options);
+
+
+/**
+  Returns a pointer to current template path.
+*/
+FUPaths *dlite_codegen_path_get(void);
+
+/**
+  Free up memory in template paths.
+*/
+void dlite_codegen_path_free(void);
 
 
 /**

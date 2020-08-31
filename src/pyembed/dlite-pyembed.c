@@ -3,6 +3,8 @@
 #include "dlite-macros.h"
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
+#include "dlite-python-storage.h"
+#include "dlite-python-mapping.h"
 
 /* Get rid of MSVS warnings */
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
@@ -17,6 +19,8 @@ void dlite_pyembed_initialise(void)
 {
   wchar_t *progname;
   if (!python_initialized) {
+    python_initialized = 1;
+
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;
@@ -24,7 +28,10 @@ void dlite_pyembed_initialise(void)
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
     Py_Initialize();
-    python_initialized = 1;
+
+    /* Initialise paths */
+    dlite_python_storage_paths();
+    dlite_python_mapping_paths();
   }
 }
 

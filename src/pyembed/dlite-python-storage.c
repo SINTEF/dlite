@@ -34,7 +34,7 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 /*
   Returns a pointer to Python storage paths
 */
-const FUPaths *dlite_python_storage_paths(void)
+FUPaths *dlite_python_storage_paths(void)
 {
   if (!storage_paths_initialised) {
     int s;
@@ -50,6 +50,9 @@ const FUPaths *dlite_python_storage_paths(void)
                                 "plugin dirs"), NULL;
     storage_paths_initialised = 1;
     storage_paths_modified = 0;
+
+    /* Register storage plugin paths */
+    dlite_paths_register("DLITE_PYTHON_STORAGE_PLUGIN_DIRS", &storage_paths);
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
