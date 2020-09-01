@@ -10,7 +10,7 @@
 
 FROM ubuntu:18.04 AS dependencies
 
-RUN apt-get update
+RUN apt-get update --fix-missing
 
 # Default cmake is 3.10.2. We need at least 3.11...
 # Install tools for adding cmake
@@ -49,10 +49,14 @@ RUN apt-get install -y \
     python3-pip \
     swig3.0 \
     cppcheck \
-    gfortran
+    gfortran \
+    gdb \
+    cmake-curses-gui
 
 # Install Python packages
-RUN pip3 install ipython
+RUN pip3 install --trusted-host files.pythonhosted.org \
+    ipython \
+    fortran-language-server
 
 # The following section performs the build
 FROM dependencies AS build
