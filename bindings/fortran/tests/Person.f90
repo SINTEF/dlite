@@ -5,7 +5,7 @@ MODULE Person
   USE iso_c_binding, only : c_ptr, c_int, c_char, c_null_char, c_size_t, &
                             c_double, c_null_ptr, c_f_pointer, c_associated, &
                             c_loc, c_float
-  USE c_interface, only: c_f_string, c_strlen_safe
+  USE c_interface, only: c_f_string, c_strlen_safe, f_c_string
   USE DLite
 
   IMPLICIT NONE
@@ -89,27 +89,36 @@ CONTAINS
 
   function personToInstance(person) result(instance)
     implicit none
-    class(TPerson), intent(in) :: person
-    type(DLiteInstance)        :: instance
-    instance%cinst = person%cinst
+    class(TPerson), intent(in)      :: person
+    type(DLiteInstance)             :: instance
+    type(c_ptr)                     :: cptr
+    real(c_float), pointer          :: age_f
+    character(kind=c_char), pointer :: skills_f(:,:)
+    real(c_float), pointer          :: temperature_f(:)
+    integer(8)                      :: nstring, strlen, i
+    ! create new DLiteInstance
+    instance = DLiteInstance('http://meta.sintef.no/0.2/Person', &
+                             [person%n, person%m], '')
+    ! name
+    call f_c_string(person%name, instance%get_property_by_index(0))
+    ! age
+    cptr = instance%get_property_by_index(1)
+    call c_f_pointer(cptr, age_f)
+    age_f = person%age
+      ! skills
+    cptr = instance%get_property_by_index(2)
+    nstring = person%n 
+    strlen = 10
+    call c_f_pointer(cptr, skills_f, [strlen, nstring])
+    do i = 1, nstring
+      call f_c_string(person%skills(i), skills_f(:,i))
+    end do          
+    ! temperature
+    cptr = instance%get_property_by_index(3)
+    call c_f_pointer(cptr, temperature_f, (/person%m/))
+    temperature_f = person%temperature
+    !instance%cinst = person%cinst
   end function personToInstance
-
-  !   !> Calculates the length of a C string.
-  ! function cstrlen(carray) result(res)
-  !   character(kind=c_char), intent(in) :: carray(:)
-  !   integer :: res
-
-  !   integer :: ii
-
-  !   do ii = 1, size(carray)
-  !     if (carray(ii) == c_null_char) then
-  !       res = ii - 1
-  !       return
-  !     end if
-  !   end do
-  !   res = ii
-
-  ! end function cstrlen
 
   ! Copy C data (DLiteInstance::instance) in Fortran type (TPerson::person)
   subroutine assignPerson(person, instance)
