@@ -18,7 +18,7 @@
 
 /* Installation root */
 #ifndef DLITE_ROOT
-#define DLITE_ROOT         "@DLITE_ROOT@"
+#define DLITE_ROOT             "@DLITE_ROOT@"
 #endif
 
 /* Installation directories relative to DLITE_ROOT */

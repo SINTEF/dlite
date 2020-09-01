@@ -95,6 +95,7 @@ set(DLITE_INCLUDE_DIRS include/dlite)
 set(DLITE_LIBRARY_DIR  lib)
 set(DLITE_RUNTIME_DIR  bin)
 
+
 ####################################################################
 # Use ExternalProject_add instead of add_subdirectory for packages.
 # For explanation of the approach, see

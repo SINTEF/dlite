@@ -101,7 +101,7 @@ int fu_supported_platform(FUPlatform platform);
 const char *fu_platform_name(FUPlatform platform);
 
 /**
-  Returns the platform number corresponding to `name`.
+  Returns the platform number corresponding to `name` or -1 on error.
  */
 FUPlatform fu_platform(const char *name);
 

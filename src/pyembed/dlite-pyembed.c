@@ -21,17 +21,18 @@ void dlite_pyembed_initialise(void)
   if (!python_initialized) {
     python_initialized = 1;
 
+    Py_Initialize();
+
+    /* Initialise python paths and ask them to register themselves */
+    dlite_python_storage_paths();
+    dlite_python_mapping_paths();
+
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
-    Py_Initialize();
-
-    /* Initialise paths */
-    dlite_python_storage_paths();
-    dlite_python_mapping_paths();
   }
 }
 

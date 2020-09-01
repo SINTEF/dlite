@@ -126,12 +126,17 @@ typedef void * dsl_handle;
 
 /* Get rid of warnings about strerror() being deprecated on VS */
 #define _CRT_SECURE_NO_WARNINGS
-#pragma warning(disable: 4996) 
+#pragma warning(disable: 4996)
 
 typedef HMODULE dsl_handle;
 
-#define dsl_open(filename) \
+/*
+#define dsl_open(filename)                            \
   ((dsl_handle)LoadLibrary((LPCTSTR)(filename)))
+*/
+#define dsl_open(filename)                                      \
+  ((dsl_handle)LoadLibraryExA((LPCTSTR)(filename), NULL,        \
+                              LOAD_LIBRARY_SEARCH_USER_DIRS))
 #define dsl_sym(handle, symbol) \
   ((void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol)))
 #define dsl_close(handle) \

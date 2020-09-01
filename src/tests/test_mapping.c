@@ -13,8 +13,8 @@
 
 MU_TEST(test_mapping_path)
 {
-  char *mpath = STRINGIFY(DLITE_BINARY_ROOT) "/src/tests/mappings";
-  char *spath = STRINGIFY(DLITE_ROOT) "/src/tests/mappings/*.json";
+  char *mpath = STRINGIFY(dlite_BINARY_DIR) "/src/tests/mappings";
+  char *spath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/mappings/*.json";
 
   dlite_mapping_plugin_path_insert(0, mpath);
   dlite_storage_paths_insert(0, spath);

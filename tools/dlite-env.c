@@ -15,6 +15,12 @@
 #include "dlite-macros.h"
 #include "config-paths.h"
 
+typedef enum {Replace, Append, Prepend} Action;
+
+/* Globals */
+FUPlatform platform = fuNative;
+const char *dlite_root = NULL;
+
 
 void help()
 {
@@ -26,8 +32,10 @@ void help()
     "  -h, --help          Prints this help and exit.",
     "  -i, --no-install    Do not include install paths.",
     "  -p, --print         Print environment to standard output and exit.",
-    "  -s, --pathsep SEP   Path separator.  Default is \":\" on Unix and \";\"",
-    "                      on Windows.",
+    "  -P  --platform PLATFORM",
+    "                      Set environment variables according to this "
+    "                      platform.  PLATFORM should be either \"Unix\" or ",
+    "                      \"Windows\".  Defaults to the host platform.",
     "  -v  --variable NAME=VALUE",
     "                      Add NAME-VALUE pair to environment.",
     "  -V, --version       Print dlite version number and exit.",
@@ -42,32 +50,41 @@ void help()
 }
 
 
-/*
-  If `name` is in the environment, prepend `paths` (followed by
-  `pathsep`) to the existing value.  Otherwise, just add `paths` to
-  `env`.
-
-  Returns pointer to (possible reallocated) environment.
-*/
-char **prepend_paths(char **env, const char *name, const char *paths,
-                  const char *pathsep)
+/* Update `env` by adding variable `name` and `value` to it.  How it
+   is done is determined by `action`, which ban be either 'Replace',
+   'Append' or 'Prepend'. */
+char **add_paths(char **env, const char *name, const char *value, Action action)
 {
-  char **q;
-  if (!paths || !*paths) return NULL;
-  if ((q = get_envitem(env, name))) {
-    char *item;
-    int n = strlen(name);
-    int len = strlen(*q) + strlen(paths) + strlen(pathsep) + 1;
-    if (!(item = malloc(len))) return err(1, "allocation failure"), NULL;
-    snprintf(item, len, "%s=%s%s%s", name, paths, pathsep, *q+n+1);
-    free(*q);
-    *q = item;
-  } else {
-    env = set_envvar(env, name, paths);
-  }
-  return env;
+  FUPaths paths;
+  char **q, *v, *s;
+  if (!value || !*value) return env;
+  fu_paths_init(&paths, NULL);
+  fu_paths_set_platform(&paths, platform);
+
+  if (action == Append && (v = get_envvar(env, name)))
+    fu_paths_extend_prefix(&paths, dlite_root, v, NULL);
+
+  fu_paths_extend_prefix(&paths, dlite_root, value, NULL);
+
+  if (action == Prepend && (v = get_envvar(env, name)))
+    fu_paths_extend_prefix(&paths, dlite_root, v, NULL);
+
+  if (!(s = fu_paths_string(&paths)))
+    return err(1, "cannot add %s to environment", name), env;
+  if (!(q = set_envvar(env, name, s)))
+    return err(1, "cannot set environment variable %s", name), env;
+  free(s);
+  fu_paths_deinit(&paths);
+  return q;
 }
 
+
+/* Set platform */
+void set_platform(const char *s)
+{
+  platform = fu_platform(s);
+  if (platform < 0) exit(1);
+}
 
 
 int main(int argc, char *argv[])
@@ -77,15 +94,9 @@ int main(int argc, char *argv[])
 
   /* Command line arguments */
   int with_build=0, with_env=1, with_install=1, print=0;
-  char **args=NULL, **env=NULL, **vars=NULL, *pathsep;
+  char **args=NULL, **env=NULL, **vars=NULL;
 
   err_set_prefix("dlite-env");
-
-#ifdef WINDOWS
-  pathsep = ";";
-#else
-  pathsep = ":";
-#endif
 
   /* Parse options and arguments */
   while (1) {
@@ -96,12 +107,12 @@ int main(int argc, char *argv[])
       {"help",          0, NULL, 'h'},
       {"no-install",    0, NULL, 'i'},
       {"print",         0, NULL, 'p'},
-      {"pathsep",       1, NULL, 's'},
+      {"platform",      1, NULL, 'P'},
       {"variable",      1, NULL, 'v'},
       {"version",       0, NULL, 'V'},
       {NULL, 0, NULL, 0}
     };
-    int c = getopt_long(argc, argv, "behips:v:V", longopts, &longindex);
+    int c = getopt_long(argc, argv, "behipP:v:V", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
     case 'b':  with_build = 1; break;
@@ -109,94 +120,71 @@ int main(int argc, char *argv[])
     case 'h':  help(stdout); exit(0);
     case 'i':  with_install = 0; break;
     case 'p':  print = 1; break;
-    case 's':  pathsep = optarg; break;
-    case 'v':  strlist_add(vars, optarg); break;
+    case 'P':  set_platform(optarg); break;
+    case 'v':  vars = strlist_add(vars, optarg); break;
     case 'V':  printf("%s\n", dlite_VERSION); exit(0);
     case '?':  exit(1);
     default:   abort();
     }
   }
 
+  dlite_root = (with_env) ? dlite_root_get() : DLITE_ROOT;
+
   /* Create environment */
   if (with_env)  {
-    printf("*** with_env\n");
+    /* -- load current environment */
     env = get_environment();
   }
   if (with_install) {
-    printf("*** with_install\n");
-    env = prepend_paths(env, "DLITE_ROOT",
-                        DLITE_ROOT, pathsep);
-    env = prepend_paths(env, "PATH",
-                        DLITE_RUNTIME_DIR, pathsep);
-    env = prepend_paths(env, "LD_LIBRARY_PATH",
-                        DLITE_LIBRARY_DIR, pathsep);
-    env = prepend_paths(env, "PYTHONPATH",
-                        DLITE_PYTHONPATH, pathsep);
-    env = prepend_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
-                        DLITE_STORAGE_PLUGIN_DIRS, pathsep);
-    env = prepend_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
-                        DLITE_MAPPING_PLUGIN_DIRS, pathsep);
-    env = prepend_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
-                        DLITE_PYTHON_STORAGE_PLUGIN_DIRS, pathsep);
-    env = prepend_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
-                        DLITE_PYTHON_MAPPING_PLUGIN_DIRS, pathsep);
-    env = prepend_paths(env, "DLITE_TEMPLATE_DIRS",
-                        DLITE_TEMPLATE_DIRS, pathsep);
-    env = prepend_paths(env, "DLITE_STORAGES",
-                        DLITE_STORAGES, pathsep);
+    /* -- add install paths */
+    env = add_paths(env, "DLITE_ROOT", dlite_root, Replace);
+    env = add_paths(env, "PATH", DLITE_RUNTIME_DIR, Prepend);
+    env = add_paths(env, "LD_LIBRARY_PATH", DLITE_LIBRARY_DIR, Prepend);
+    env = add_paths(env, "PYTHONPATH", DLITE_PYTHONPATH, Prepend);
+    env = add_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
+                    DLITE_STORAGE_PLUGIN_DIRS, Prepend);
+    env = add_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
+                    DLITE_MAPPING_PLUGIN_DIRS, Prepend);
+    env = add_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
+                    DLITE_PYTHON_STORAGE_PLUGIN_DIRS, Prepend);
+    env = add_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
+                    DLITE_PYTHON_MAPPING_PLUGIN_DIRS, Prepend);
+    env = add_paths(env, "DLITE_TEMPLATE_DIRS",
+                    DLITE_TEMPLATE_DIRS, Prepend);
+    env = add_paths(env, "DLITE_STORAGES",
+                    DLITE_STORAGES, Prepend);
   }
   if (with_build) {
-    printf("*** with_build\n");
-    env = prepend_paths(env, "PATH",
-                        dlite_PATH, pathsep);
-    env = prepend_paths(env, "LD_LIBRARY_PATH",
-                        dlite_LD_LIBRARY_PATH, pathsep);
-    env = prepend_paths(env, "PYTHONPATH",
-                        dlite_PYTHONPATH, pathsep);
-    env = prepend_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
-                        dlite_STORAGE_PLUGINS, pathsep);
-    env = prepend_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
-                        dlite_MAPPING_PLUGINS, pathsep);
-    env = prepend_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
-                        dlite_PYTHON_STORAGE_PLUGINS, pathsep);
-    env = prepend_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
-                        dlite_PYTHON_MAPPING_PLUGINS, pathsep);
-    env = prepend_paths(env, "DLITE_TEMPLATE_DIRS",
-                        dlite_TEMPLATES, pathsep);
-    env = prepend_paths(env, "DLITE_STORAGES",
-                        dlite_STORAGES, pathsep);
+    /* -- add build paths */
+    env = add_paths(env, "PATH", dlite_PATH, Prepend);
+    env = add_paths(env, "LD_LIBRARY_PATH", dlite_LD_LIBRARY_PATH, Prepend);
+    env = add_paths(env, "PYTHONPATH", dlite_PYTHONPATH, Prepend);
+    env = add_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
+                    dlite_STORAGE_PLUGINS, Prepend);
+    env = add_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
+                    dlite_MAPPING_PLUGINS, Prepend);
+    env = add_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
+                    dlite_PYTHON_STORAGE_PLUGINS, Prepend);
+    env = add_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
+                    dlite_PYTHON_MAPPING_PLUGINS, Prepend);
+    env = add_paths(env, "DLITE_TEMPLATE_DIRS",
+                    dlite_TEMPLATES, Prepend);
+    env = add_paths(env, "DLITE_STORAGES",
+                    dlite_STORAGES, Prepend);
   }
   if (vars) {
+    /* -- add additional variables from command line */
     for (q=vars; *q; q++)
-      set_envitem(env, *q);
+      env = set_envitem(env, *q);
   }
-
 
   if (print) {
     /* Print environment */
-    if (env) {
-      char *names[] = {
-        "DLITE_ROOT",
-        "PATH",
-        "LD_LIBRARY_PATH",
-        "PYTHONPATH",
-        "DLITE_STORAGE_PLUGIN_DIRS",
-        "DLITE_MAPPING_PLUGIN_DIRS",
-        "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
-        "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
-        "DLITE_TEMPLATE_DIRS",
-        "DLITE_STORAGES",
-        NULL
-      };
-      UNUSED(names);
-      //for (q=names; *q; q++) {
-      //  char **p = get_envitem(env, *q);
-      //  if (p) printf("%s\n", *p);
-      //}
-      for (q=env; *q; q++)
-        printf("%s\n", *q);
-    }
+    for (q=env; *q; q++)
+      printf("%s\n", *q);
+
   } else  {
+    /* Run command */
     int i, j;
     if (optind >= argc) FAIL("Missing COMMAND argument");
 

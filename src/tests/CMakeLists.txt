@@ -26,7 +26,8 @@ endif()
 
 
 add_definitions(
-  -DDLITE_ROOT=${dlite_SOURCE_DIR}
+  -Ddlite_SOURCE_DIR=${dlite_SOURCE_DIR}
+  -Ddlite_BINARY_DIR=${dlite_BINARY_DIR}
   -DDLITE_BINARY_ROOT=${dlite_BINARY_DIR}
   )
 

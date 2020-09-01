@@ -10,19 +10,41 @@
 
 MU_TEST(test_paths)
 {
-  FUPaths *paths;
-  char *s;
+  const char *key;
   printf("\ndlite version: %s\n", dlite_get_version());
   printf("dlite path standard: %s\n",
          fu_platform_name(dlite_paths_get_standard()));
 
-  mu_check(dlite_paths_set_standard(fuUnix) >= 0);
+  dlite_paths_init(1);
 
-  paths = dlite_paths_get("DLITE_STORAGES");
-  mu_check(paths);
-  s = fu_paths_string(paths);
-  printf("\nDLITE_STORAGES=%s\n", s);
-  free(s);
+  //DLiteStorage *s = dlite_storage_open("unknown", "xxx.unknown", "");
+  //printf("***s=%p\n", (void *)s);
+  //dlite_storage_close(s);
+
+  //mu_check(dlite_paths_set_standard(fuUnix) >= 0);
+  mu_check(dlite_paths_set_standard(fuWindows) >= 0);
+
+
+
+
+  printf("\ndlite path standard: %s\n",
+         fu_platform_name(dlite_paths_get_standard()));
+
+  printf("\n");
+  PathsMap *pathsmap = dlite_pathsmap();
+  map_iter_t iter = map_iter(pathsmap);
+  while ((key = map_next(pathsmap, &iter))) {
+    FUPaths **paths_ptr = map_get(pathsmap, key);
+    char *s = fu_paths_string(*paths_ptr);
+    printf("*** %s=%s\n", key, s);
+    free(s);
+  }
+
+  //paths = dlite_paths_get("DLITE_STORAGES");
+  //mu_check(paths);
+  //s = fu_paths_string(paths);
+  //printf("\nDLITE_STORAGES=%s\n", s);
+  //free(s);
 
 }
 

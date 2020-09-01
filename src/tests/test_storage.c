@@ -12,7 +12,7 @@ DLiteStorage *s=NULL;
 
 MU_TEST(test_open)
 {
-  char *path = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+  char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-data.json";
   mu_check((s = dlite_storage_open("json", path, NULL)));
   mu_assert_int_eq(1, dlite_storage_is_writable(s));
 }
@@ -20,7 +20,7 @@ MU_TEST(test_open)
 MU_TEST(test_open_url)
 {
   char *url =
-    "json://" STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json?mode=r";
+    "json://" STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-data.json?mode=r";
   mu_assert_int_eq(0, dlite_storage_close(s));
   mu_check((s = dlite_storage_open_url(url)));
   mu_assert_int_eq(0, dlite_storage_is_writable(s));
