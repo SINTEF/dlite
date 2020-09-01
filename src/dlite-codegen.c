@@ -432,9 +432,6 @@ FUPaths *dlite_codegen_path_get(void)
 
     atexit(dlite_codegen_path_free);
     template_paths = &paths;
-
-    /* Register the template paths */
-    dlite_paths_register("DLITE_TEMPLATE_DIRS", template_paths);
   }
   return template_paths;
 }

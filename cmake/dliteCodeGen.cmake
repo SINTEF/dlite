@@ -11,6 +11,8 @@
 #       Name of or path to the template to use
 #   url
 #       url of entity to generate code for
+#   [ENV_OPTIONS options]
+#       A comma-separated list of options to dlite-env
 #   {options}
 #       Additional options to dlite-codegen may be provided after the
 #       ordinary arguments.  Relevant options include:
@@ -38,7 +40,12 @@
 
 macro(dlite_codegen output template url)
 
+  include(CMakeParseArguments)
+  cmake_parse_arguments(CODEGEN "" "ENV_OPTIONS" "" ${ARGN})
+
+  string(REPLACE "," ";" env_options "${CODEGEN_ENV_OPTIONS}")
   set(codegen_dependencies "")
+  set(codegen_extra_options ${CODEGEN_UNPARSED_ARGUMENTS})
 
   if(EXISTS ${template})
     set(template_option --template-file=${template})
@@ -66,35 +73,38 @@ macro(dlite_codegen output template url)
     find_program(DLITE_CODEGEN
       NAMES dlite-codegen
       PATHS
+        ${DLITE_ROOT}/${DLITE_RUNTIME_DIR}
         ${dlite-tools_BINARY_DIR}
         ${dlite_PATH}
       )
     list(APPEND codegen_dependencies ${DLITE_CODEGEN})
   endif()
 
-  # Try to force CMake to understand that the semicolons are part of the
-  # string (paths separator) instead of separator between items in a list.
-  if(WIN32)
-    string(JOIN "\\\;" dlite_PATH            ${dlite_PATH})
-    string(JOIN "\\\;" dlite_STORAGE_PLUGINS ${dlite_STORAGE_PLUGINS})
-    string(JOIN "\\\;" dlite_MAPPING_PLUGINS ${dlite_MAPPING_PLUGINS})
-    string(JOIN "\\\;" dlite_TEMPLATE_DIRS   ${dlite_TEMPLATE_DIRS})
+  if(TARGET dlite-env)
+    set(DLITE_ENV $<TARGET_FILE:dlite-env>)
+    list(APPEND codegen_dependencies dlite-env)
+  else()
+    find_program(DLITE_ENV
+      NAMES dlite-env
+      PATHS
+        ${DLITE_ROOT}/${DLITE_RUNTIME_DIR}
+        ${dlite-tools_BINARY_DIR}
+        ${dlite_PATH}
+      )
+    list(APPEND codegen_dependencies ${DLITE_ENV})
   endif()
 
   add_custom_command(
     OUTPUT ${output}
     COMMAND
-      ${CMAKE_COMMAND} -E env
-      PATH="${dlite_PATH}"
-      LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH}"
-      DLITE_STORAGE_PLUGIN_DIRS="${dlite_STORAGE_PLUGINS}"
-      DLITE_MAPPING_PLUGIN_DIRS="${dlite_MAPPING_PLUGINS}"
-      DLITE_TEMPLATE_DIRS="${dlite_TEMPLATES}"
-      ${DLITE_CODEGEN}
-        --output=${output}
-        ${template_option}
-        ${url}
-        ${ARGN}
+      ${DLITE_ENV}
+        ${env_options}
+        --
+        ${DLITE_CODEGEN}
+          --output=${output}
+          ${template_option}
+          ${url}
+          ${codegen_extra_options}
     DEPENDS ${codegen_dependencies}
     COMMENT "Generate ${output}"
   )

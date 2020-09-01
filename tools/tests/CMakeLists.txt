@@ -20,6 +20,7 @@ if(WITH_JSON)
     ${CMAKE_CURRENT_BINARY_DIR}/chemistry.h
     c-header
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+    ENV_OPTIONS --build
     --build-root
     )
 
@@ -27,6 +28,7 @@ if(WITH_JSON)
     ${CMAKE_CURRENT_BINARY_DIR}/chemistry_schema.h
     c-meta-header
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+    ENV_OPTIONS --build
     --build-root
     )
 
@@ -34,6 +36,7 @@ if(WITH_JSON)
     ${CMAKE_CURRENT_BINARY_DIR}/chemistry.c
     c-source
     json://${CMAKE_CURRENT_SOURCE_DIR}/Chemistry-0.1.json
+    ENV_OPTIONS --build
     --build-root
     )
 

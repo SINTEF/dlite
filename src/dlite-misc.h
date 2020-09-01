@@ -11,10 +11,6 @@
 
 #define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
 
-/** New mapping type that maps path names to pointers to a FUPaths objects. */
-typedef map_t(FUPaths *) PathsMap;
-
-
 
 /**
   @name General dlite utility functions
@@ -25,64 +21,6 @@ typedef map_t(FUPaths *) PathsMap;
   Returns static pointer to a string with the current version of DLite.
 */
 const char *dlite_get_version(void);
-
-
-/**
-  Returns a pointer to an internal PathsMap that maps dlite paths
-  names (same as corresponding environment variables) to paths
-  strings.
-*/
-PathsMap *dlite_pathsmap(void);
-
-/**
-  Initialise all paths returned by dlite_pathsmap().
-
-  If `plugins` is non-zero, all plugins will be accessed and their
-  paths added by trying to load a non-existing plugin.
-
-  Returns non-zero on error.
-*/
-int dlite_paths_init(int plugins);
-
-/**
-  Returns current path formatting standard.
- */
-FUPlatform dlite_paths_get_standard(void);
-
-/**
-  Sets path formatting standard according to `platform`. Returns the
-  previous standard or -1 on error.
- */
-FUPlatform dlite_paths_set_standard(FUPlatform platform);
-
-/**
-  Unregisters all paths.
- */
-void dlite_paths_unregister(void);
-
-/**
-  Registers `paths` with given name.
- */
-int dlite_paths_register(const char *name, FUPaths *paths);
-
-/**
-  Returns paths corresponding to `name` or NULL on error.  The returned
-  object is NOT owned, and should not be uninitialised by the
-  caller.
- */
-FUPaths *dlite_paths_get(const char *name);
-
-/**
-  Initiates `paths` from environment variable `envvar`, append all
-  paths in `s` to it and registers it as a dlite environment variable
-  with name `name`.  If `name` is NULL, it defaults to `envvar`.
-  if `prefix` is not NULL, all paths in `s` will be prefixed with it.
-
-  Returns non-zero on error.
- */
-int dlite_paths_add(FUPaths *paths, const char *envvar, const char *name,
-                    const char *prefix, const char *s);
-
 
 
 /**

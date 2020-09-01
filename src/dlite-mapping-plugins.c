@@ -48,10 +48,6 @@ static PluginInfo *get_mapping_plugin_info(void)
       plugin_path_extend_prefix(mapping_plugin_info, dlite_root_get(),
                                 DLITE_MAPPING_PLUGIN_DIRS, NULL);
 
-    /* Register storage plugin paths */
-    dlite_paths_register("DLITE_MAPPING_PLUGIN_DIRS",
-                         &mapping_plugin_info->paths);
-
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
   }

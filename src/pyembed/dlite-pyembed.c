@@ -23,10 +23,6 @@ void dlite_pyembed_initialise(void)
 
     Py_Initialize();
 
-    /* Initialise python paths and ask them to register themselves */
-    dlite_python_storage_paths();
-    dlite_python_mapping_paths();
-
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;

@@ -46,10 +46,6 @@ static PluginInfo *get_storage_plugin_info(void)
       plugin_path_extend_prefix(storage_plugin_info, dlite_root_get(),
                                 DLITE_STORAGE_PLUGIN_DIRS, NULL);
 
-    /* Register storage plugin paths */
-    dlite_paths_register("DLITE_STORAGE_PLUGIN_DIRS",
-                         &storage_plugin_info->paths);
-
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
   }

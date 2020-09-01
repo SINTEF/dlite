@@ -15,20 +15,18 @@
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
-#include "dlite-storage-plugins.h"
-#include "dlite-mapping-plugins.h"
-#include "dlite-codegen.h"
-#include "dlite-mapping.h"
-
-#ifdef WITH_PYTHON
-#include "pyembed/dlite-python-storage.h"
-#include "pyembed/dlite-python-mapping.h"
-#endif
+//#include "dlite-storage-plugins.h"
+//#include "dlite-mapping-plugins.h"
+//#include "dlite-codegen.h"
+//#include "dlite-mapping.h"
+//
+//#ifdef WITH_PYTHON
+//#include "pyembed/dlite-python-storage.h"
+//#include "pyembed/dlite-python-mapping.h"
+//#endif
 
 /* Global variables */
 static int use_build_root = -1;               /* whether to use build root */
-static FUPlatform _path_standard = fuNative;  /* current path standard */
-static PathsMap *_pathsmap = NULL;            /* registered path's */
 
 
 /********************************************************************
@@ -42,185 +40,6 @@ const char *dlite_get_version(void)
 {
   return dlite_VERSION;
 }
-
-
-/*
-  Returns a pointer to an internal PathsMap that maps dlite paths
-  names (same as corresponding environment variables) to paths
-  strings.
-*/
-PathsMap *dlite_pathsmap(void)
-{
-  if (!_pathsmap) {
-    static PathsMap pathsmap;
-    map_init(&pathsmap);
-    atexit(dlite_paths_unregister);
-    _pathsmap = &pathsmap;
-  }
-  return _pathsmap;
-}
-
-/*
-  Initialise all paths returned by dlite_pathsmap().
-
-  If `plugins` is non-zero, all plugins will be accessed and their
-  paths added by trying to load a non-existing plugin.
-
-  Returns non-zero on error.
-*/
-int dlite_paths_init(int plugins)
-{
-  DLiteStorage *s=NULL;
-  DLiteMapping *m=NULL;
-  static FUPaths path, ldpath;
-
-  switch (dlite_paths_get_standard()) {
-  case fuUnix:
-    dlite_paths_add(&path, "PATH", NULL, DLITE_ROOT, DLITE_RUNTIME_DIR);
-    dlite_paths_add(&ldpath, "LD_LIBRARY_PATH", NULL, DLITE_ROOT, DLITE_RUNTIME_DIR);
-    break;
-  case fuWindows:
-    dlite_paths_add(&path, "PATH", NULL, DLITE_ROOT,
-                    DLITE_RUNTIME_DIR ";" DLITE_LIBRARY_DIR);
-    break;
-  default:
-    err(1, "unklown path standard: %d", dlite_paths_get_standard());
-  }
-
-  /* Try to load a non-existing storage.  This will access all storage
-     plugins and make them register their search paths. */
- ErrTry:
-  if (plugins)
-    s = dlite_storage_open("nonexisting", "xxx.nonexisting", "");
- ErrOther:
-  if (s) {
-    warn("A storage plugin named \"nonexisting\" unexpectedly esists - "
-         "some paths might not have been initialised");
-    dlite_storage_close(s);
-  }
- ErrEnd;
-
-  /* Try to load a non-existing mapping.  This will access all mapping
-     plugins and make them register their search paths. */
- ErrTry:
-  if (plugins)
-    {
-      const char *uri = "no://such/0.0/mapping";
-      m = dlite_mapping_create("no://such/0.1/mapping", &uri, 1);
-    }
- ErrOther:
-  if (m) {
-    warn("A mapping from 'no://such/0.0/mapping' to 'no://such/0.1/mapping' "
-         "unexpectedly esists - some paths might not have been initialised");
-    dlite_storage_close(s);
-  }
- ErrEnd;
-
-
-    /* For convenience, initialise the paths the first time we call this
-       function so we have them available.
-
-       We do that by asking them for their paths, which will create their
-       paths and trigger registering them in pathsmap.
-
-       Note that we for now do not call functions that reside in the
-       dlite library.  Hence, dlite_python_storage_paths()
-       and dlite_python_mapping_paths() are not called. */
- /*
-    dlite_storage_plugin_paths_get();
-    dlite_mapping_plugin_paths_get();
-    //dlite_python_storage_paths();
-    //dlite_python_mapping_paths();
-    dlite_codegen_path_get();
-    dlite_storage_paths();
- */
-    return 0;
-}
-
-/*
-  Returns current path formatting standard.
- */
-FUPlatform dlite_paths_get_standard(void)
-{
-  if (_path_standard == fuNative) _path_standard = fu_native_platform();
-  return _path_standard;
-}
-
-/*
-  Sets path formatting standard according to `platform`. Returns the
-  previous standard or -1 on error.
- */
-FUPlatform dlite_paths_set_standard(FUPlatform platform)
-{
-  FUPlatform prev = _path_standard;
-  const char *key;
-  PathsMap *pathsmap = dlite_pathsmap();
-  map_iter_t iter;
-  if (platform == fuNative) platform = fu_native_platform();
-  if (!fu_supported_platform(platform))
-    return errx(-1, "unsupported platform: %d", platform);
-  _path_standard = platform;
-
-  iter = map_iter(pathsmap);
-  while ((key = map_next(pathsmap, &iter))) {
-    FUPaths **paths_ptr = map_get(pathsmap, key);
-    fu_paths_set_platform(*paths_ptr, platform);
-  }
-  return prev;
-}
-
-/*
-  Unregisters all paths.
- */
-void dlite_paths_unregister(void)
-{
-  if (_pathsmap) map_deinit(_pathsmap);
-  _pathsmap = NULL;
-}
-
-/*
-  Registers `paths` with given name.
- */
-int dlite_paths_register(const char *name, FUPaths *paths)
-{
-  PathsMap *pathsmap = dlite_pathsmap();
-  map_set(pathsmap, name, paths);
-  return 0;
-}
-
-/*
-  Initiates `paths` from environment variable `envvar`, append all
-  paths in `s` to it and registers it as a dlite environment variable
-  with name `name`.  If `name` is NULL, it defaults to `envvar`.
-  if `prefix` is not NULL, all paths in `s` will be prefixed with it.
-
-  Returns non-zero on error.
- */
-int dlite_paths_add(FUPaths *paths, const char *envvar, const char *name,
-                    const char *prefix, const char *s)
-{
-  if (!name) name = envvar;
-  if (!name) return err(1, "either 'name' or 'envvar' must be provided");
-  if (fu_paths_init(paths, envvar)) return 1;
-  if (fu_paths_extend_prefix(paths, prefix, s, NULL) < 0) return 1;
-  if (dlite_paths_register(name, paths)) return 1;
-  if (_path_standard > 0 && fu_paths_set_platform(paths, _path_standard) < 0)
-    return 1;
-  return 0;
-}
-
-/*
-  Returns paths corresponding to `name` or NULL on error.
- */
-FUPaths *dlite_paths_get(const char *name)
-{
-
-  PathsMap *pathsmap = dlite_pathsmap();
-  FUPaths **p = map_get(pathsmap, name);
-  if (!p) return errx(1, "invalid path name: %s", name), NULL;
-  return *p;
-}
-
 
 
 /*

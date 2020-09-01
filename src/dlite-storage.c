@@ -246,9 +246,6 @@ FUPaths *dlite_storage_paths(void)
     else
       fu_paths_extend_prefix(_storage_paths, dlite_root_get(),
                              DLITE_STORAGES, "|");
-
-    /* Register the storage paths */
-    dlite_paths_register("DLITE_STORAGES", _storage_paths);
   }
   return _storage_paths;
 }

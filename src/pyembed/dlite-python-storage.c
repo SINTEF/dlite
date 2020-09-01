@@ -51,9 +51,6 @@ FUPaths *dlite_python_storage_paths(void)
     storage_paths_initialised = 1;
     storage_paths_modified = 0;
 
-    /* Register storage plugin paths */
-    dlite_paths_register("DLITE_PYTHON_STORAGE_PLUGIN_DIRS", &storage_paths);
-
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
   }
