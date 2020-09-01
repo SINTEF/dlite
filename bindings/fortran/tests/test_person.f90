@@ -21,7 +21,6 @@ program ftest_person
   person = TPerson( &
        "json", &
        dlite_fortran_test_dir // "persons.json", &
-       !"/workspaces/dlite/bindings/fortran/tests/persons.json", &
        "mode=r", &
        "d473aa6f-2da3-4889-a88d-0c96186c3fa2")
 

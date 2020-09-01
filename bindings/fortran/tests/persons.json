@@ -21,7 +21,7 @@
         "properties": {
             "name": "Elisa",
             "age": 45.0,
-            "skills": ["javascript", "c#", "c++"],
+            "skills": ["java", "c#", "c++"],
             "temperature": [37.4]
         }
     }

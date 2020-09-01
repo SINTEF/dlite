@@ -50,7 +50,7 @@ CONTAINS
     type(DLiteMeta)      :: meta
     type(DLiteMetaModel) :: model
     integer              :: i
-    
+
     model = DLiteMetaModel('http://meta.sintef.no/0.2/Person', 'http://meta.sintef.no/0.3/EntitySchema', '')
     i = model%add_string('description', 'A person.')
     i = model%add_dimension('N', 'Number of skills.')
@@ -107,12 +107,12 @@ CONTAINS
     age_f = person%age
       ! skills
     cptr = instance%get_property_by_index(2)
-    nstring = person%n 
+    nstring = person%n
     strlen = 10
     call c_f_pointer(cptr, skills_f, [strlen, nstring])
     do i = 1, nstring
       call f_c_string(person%skills(i), skills_f(:,i))
-    end do          
+    end do
     ! temperature
     cptr = instance%get_property_by_index(3)
     call c_f_pointer(cptr, temperature_f, (/person%m/))
@@ -146,13 +146,13 @@ CONTAINS
       person%age = age_f
       ! skills
       cptr = instance%get_property_by_index(2)
-      nstring = person%n 
+      nstring = person%n
       strlen = 10
       call c_f_pointer(cptr, skills_f, [strlen, nstring])
       allocate(person%skills(nstring))
       do i = 1, nstring
         call c_f_string(skills_f(:,i), person%skills(i))
-      end do      
+      end do
       ! temperature
       cptr = instance%get_property_by_index(3)
       call c_f_pointer(cptr, temperature_f, (/person%m/))

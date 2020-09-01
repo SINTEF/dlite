@@ -91,7 +91,7 @@ module c_interface
     integer, intent(in), optional :: C_string_len
     character(len=1,kind=C_char), dimension(:), pointer :: p_chars
     integer :: i, strlen
-    strlen = len(F_string)
+    strlen = len_trim(F_string)
     if (present(C_string_len)) then
       if (C_string_len <= 0) return
       strlen = min(strlen,C_string_len-1)
@@ -116,7 +116,7 @@ module c_interface
     integer, intent(in), optional                           :: c_string_len
     integer                                                 :: i
     integer                                                 :: strlen
-    strlen = len(f_string)
+    strlen = len_trim(f_string)
     if (present(c_string_len)) then
       if (c_string_len <= 0) return
       strlen = min(strlen,c_string_len-1)
