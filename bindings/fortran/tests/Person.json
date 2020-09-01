@@ -28,7 +28,7 @@
     },
     {
       "name": "skills",
-      "type": "string10",
+      "type": "string20",
       "dims": [
         "N"
       ],

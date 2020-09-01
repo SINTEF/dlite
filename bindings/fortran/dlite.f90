@@ -185,7 +185,7 @@ module DLite
     bind(C,name="dlite_instance_decref")
     import c_ptr, c_int
     type(c_ptr), value, intent(in)                         :: instance
-  end function dlite_instance_decref_c    
+  end function dlite_instance_decref_c
 
   ! --------------------------------------------------------
   ! C interface for DLiteMetaModel
@@ -245,7 +245,7 @@ module DLite
     character(len=1,kind=c_char), dimension(*), intent(in) :: unit
     character(len=1,kind=c_char), dimension(*), intent(in) :: iri
     character(len=1,kind=c_char), dimension(*), intent(in) :: description
-  end function dlite_metamodel_add_property_c 
+  end function dlite_metamodel_add_property_c
 
   ! int dlite_metamodel_add_property_dim(DLiteMetaModel *model,
   !                                      const char *name,
@@ -274,7 +274,7 @@ module DLite
     bind(C,name="dlite_meta_has_dimension")
     import c_ptr, c_bool, c_char
     type(c_ptr), value, intent(in)                         :: meta
-    character(len=1,kind=c_char), dimension(*), intent(in) :: name    
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
   end function dlite_meta_has_dimension_c
 
   ! bool dlite_meta_has_property(DLiteMeta *meta, const char *name);
@@ -282,8 +282,8 @@ module DLite
     bind(C,name="dlite_meta_has_property")
     import c_ptr, c_bool, c_char
     type(c_ptr), value, intent(in)                         :: meta
-    character(len=1,kind=c_char), dimension(*), intent(in) :: name    
-  end function dlite_meta_has_property_c  
+    character(len=1,kind=c_char), dimension(*), intent(in) :: name
+  end function dlite_meta_has_property_c
 
   ! End C interface for DLite
   end interface
@@ -560,7 +560,7 @@ contains
   function dlite_instance_decref(instance) result(count)
     class(DLiteInstance), intent(in) :: instance
     integer(c_int)                      :: count_c
-    integer                          :: count 
+    integer                          :: count
     count_c = dlite_instance_decref_c(instance%cinst)
     count = count_c
   end function dlite_instance_decref
@@ -577,10 +577,10 @@ contains
     character(len=1,kind=c_char) :: metaid_c(len_trim(metaid)+1)
     character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
     type(DLiteMetaModel)         :: model
-    
+
     call f_c_string(uri, uri_c)
     call f_c_string(metaid, metaid_c)
-    call f_c_string(uri, uri_c)
+    call f_c_string(iri, iri_c)
     model%cptr = dlite_metamodel_create_c(uri_c, metaid_c, iri_c)
   end function dlite_metamodel_create
 
@@ -642,8 +642,8 @@ contains
     call f_c_string(description, description_c)
     status_c = dlite_metamodel_add_property_c(model%cptr, name_c, typename_c, &
                                               unit_c, iri_c, description_c)
-    status = status_c    
-  end function dlite_metamodel_add_property 
+    status = status_c
+  end function dlite_metamodel_add_property
 
   function dlite_metamodel_add_property_dim(model, name, expr) result(status)
     class(DLiteMetaModel)        :: model

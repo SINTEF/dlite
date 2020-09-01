@@ -2078,6 +2078,9 @@ DLiteMetaModel *dlite_metamodel_create(const char *uri,
                                        const char *iri)
 {
   DLiteMetaModel *model;
+
+  if (iri && !*iri) iri = NULL;
+
   if (!(model = calloc(1, sizeof(DLiteMetaModel)))) goto fail;
   if (!(model->uri = strdup(uri))) goto fail;
   if (!(model->meta = dlite_meta_get(metaid))) goto fail;

@@ -15,21 +15,21 @@ module c_interface
       module procedure c_f_string_ptr
       module procedure c_f_string_chars
   end interface c_f_string
-  
+
   interface f_c_string
       module procedure f_c_string_ptr
       module procedure f_c_string_chars
   end interface f_c_string
 
   interface
-  
+
   ! Return the length of S.
   ! extern size_t strlen (const char *s)
   function c_strlen(s) result(result) bind(C,name="strlen")
     import c_ptr, c_size_t
     integer(c_size_t) :: result
     type(c_ptr), value, intent(in) :: s
-  end function c_strlen  
+  end function c_strlen
 
   end interface
 
@@ -105,7 +105,7 @@ module c_interface
     end forall
     p_chars(strlen+1) = c_null_char
     end subroutine f_c_string_ptr
-      
+
   ! Copy a Fortran string to a C string passed by char-array reference.
   ! If the length is not passed, the C string must be at least: len(F_string)+1
   ! If the length is passed and F_string is too long, it is truncated.
@@ -125,6 +125,6 @@ module c_interface
       c_string(i) = f_string(i:i)
     end forall
     c_string(strlen+1) = c_null_char
-  end subroutine f_c_string_chars      
-        
+  end subroutine f_c_string_chars
+
 end module c_interface
