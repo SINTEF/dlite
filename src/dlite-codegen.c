@@ -424,6 +424,8 @@ FUPaths *dlite_codegen_path_get(void)
     if (fu_paths_init(&paths, "DLITE_TEMPLATE_DIRS") < 0)
       return err(1, "failure initialising codegen template paths"), NULL;
 
+    fu_paths_set_platform(&paths, dlite_get_platform());
+
     if (dlite_use_build_root())
       fu_paths_extend(&paths, dlite_TEMPLATES, NULL);
     else

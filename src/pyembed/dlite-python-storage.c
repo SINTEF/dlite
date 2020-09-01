@@ -41,6 +41,9 @@ FUPaths *dlite_python_storage_paths(void)
     if (fu_paths_init(&storage_paths, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS") < 0)
       return dlite_err(1, "cannot initialise "
                        "DLITE_PYTHON_STORAGE_PLUGIN_DIRS"), NULL;
+
+    fu_paths_set_platform(&storage_paths, dlite_get_platform());
+
     if (dlite_use_build_root())
       s = fu_paths_extend(&storage_paths, dlite_PYTHON_STORAGE_PLUGINS, NULL);
     else

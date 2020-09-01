@@ -42,6 +42,8 @@ static PluginInfo *get_mapping_plugin_info(void)
                           "DLITE_MAPPING_PLUGIN_DIRS"))) {
     atexit(mapping_plugin_info_free);
 
+    fu_paths_set_platform(&mapping_plugin_info->paths, dlite_get_platform());
+
     if (dlite_use_build_root())
       plugin_path_extend(mapping_plugin_info, dlite_MAPPING_PLUGINS, NULL);
     else

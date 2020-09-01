@@ -15,18 +15,10 @@
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
-//#include "dlite-storage-plugins.h"
-//#include "dlite-mapping-plugins.h"
-//#include "dlite-codegen.h"
-//#include "dlite-mapping.h"
-//
-//#ifdef WITH_PYTHON
-//#include "pyembed/dlite-python-storage.h"
-//#include "pyembed/dlite-python-mapping.h"
-//#endif
 
 /* Global variables */
-static int use_build_root = -1;               /* whether to use build root */
+static int use_build_root = -1;   /* whether to use build root */
+static int dlite_platform = 0;    /* dlite platform */
 
 
 /********************************************************************
@@ -41,6 +33,22 @@ const char *dlite_get_version(void)
   return dlite_VERSION;
 }
 
+/*
+  Returns current platform based on the DLITE_PLATFORM environment
+  variable.  Used when initiating paths.
+ */
+FUPlatform dlite_get_platform(void)
+{
+  if (!dlite_platform) {
+    FUPlatform platform;
+    char *s = getenv("DLITE_PLATFORM");
+    if (s && (platform = fu_platform(s)) >= 0) {
+      if (platform == fuNative) platform = fu_native_platform();
+      dlite_platform = platform;
+    }
+  }
+  return dlite_platform;
+}
 
 /*
   Writes an UUID to `buff` based on `id`.

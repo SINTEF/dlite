@@ -239,6 +239,7 @@ FUPaths *dlite_storage_paths(void)
     if (!(_storage_paths = calloc(1, sizeof(FUPaths))))
       return err(1, "allocation failure"), NULL;
     fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
+    fu_paths_set_platform(_storage_paths, dlite_get_platform());
     atexit(dlite_storage_paths_free);
 
     if (dlite_use_build_root())

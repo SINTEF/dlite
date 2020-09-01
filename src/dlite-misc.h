@@ -22,6 +22,11 @@
 */
 const char *dlite_get_version(void);
 
+/**
+  Returns current platform based on the DLITE_PLATFORM environment
+  variable.  Used when initiating paths.
+ */
+FUPlatform dlite_get_platform(void);
 
 /**
   Writes an UUID to \a buff based on \a id.

@@ -54,7 +54,8 @@ struct _FUIter {
 };
 
 /* Platform names */
-static char *_platform_names[] = {"Native", "Unix", "Windows", "Apple", NULL};
+static char *_platform_names[] = {"Native", "Unix", "Windows",
+                                  /* "Apple", */ NULL};
 
 
 /*

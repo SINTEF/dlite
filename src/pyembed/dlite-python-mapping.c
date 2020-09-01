@@ -40,6 +40,9 @@ FUPaths *dlite_python_mapping_paths(void)
     if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS") < 0)
       return dlite_err(1, "cannot initialise "
                        "DLITE_PYTHON_MAPPING_PLUGIN_DIRS"), NULL;
+
+    fu_paths_set_platform(&mapping_paths, dlite_get_platform());
+
     if (dlite_use_build_root())
       s = fu_paths_extend(&mapping_paths, dlite_PYTHON_MAPPING_PLUGINS, NULL);
     else
