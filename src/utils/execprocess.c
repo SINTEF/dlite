@@ -23,7 +23,7 @@
 extern char **environ;
 #endif
 
-# include <string.h>
+#include <string.h>
 
 #include "err.h"
 #include "execprocess.h"
@@ -133,15 +133,16 @@ char **get_environment(void)
   char **env=NULL;
 #ifdef WINDOWS
   size_t size=0, n=0;
-  char *p;
+  char *item;
   LPCH envbuf = GetEnvironmentStrings();
   if (!envbuf) return err(1, "cannot get environment"), NULL;
-  for (p=envbuf; *p; p+=strlen(p)+1) {
+  for (item=envbuf; *item; item+=strlen(item)+1) {
+    if (item[0] == '=' || !strchr(item, '=')) continue;
     if (n+1 >= size) {
       size += 64*sizeof(char *);
       env = realloc(env, size);
     }
-    env[n++] = strdup(p);
+    env[n++] = strdup(item);
   }
   env[n] = NULL;
   FreeEnvironmentStrings(envbuf);
