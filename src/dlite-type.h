@@ -147,14 +147,56 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   If `native` is non-zero, the native typename will be written to `pcdecl`
   (e.g. "double") instead of the portable typename (e.g. "float64_t").
 
-  `name` is the name of the C variable.
+  `name` is the name of the Fortran variable.
 
-  `nref` is the number of extra * to add in front of `name`.
+  `ndims` number of dimensions
 
   Returns the number of bytes written or -1 on error.
 */
 int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
                          size_t nref, char *pcdecl, size_t n, int native);
+
+/**
+  Writes Fortran type to `dest` corresponding to `dtype` and `size`.
+  At most `n` bytes are written.
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_ftype(DLiteType dtype, size_t size, char *dest, size_t n);
+
+/**
+  Writes Fortran pointer type (for iso_c_binding) to `dest`
+  corresponding to `dtype` and `size`.  At most `n` bytes are written.
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_fptr(DLiteType dtype, size_t size, char *dest, size_t n);
+
+/**
+  Writes Fortran type to `dest` for a variable with given `dtype`
+  and `size`.  The size of the memory pointed to by `dest` must be
+  at least `n` bytes.
+
+  `name` is the name of the Fortran variable.
+  `ndims` number of dimensions
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_fdecl(DLiteType dtype, size_t size, const char *name,
+                         int ndims, char *dest, size_t n);
+
+/**
+  Writes Fortran pointer type (for iso_c_binding) to `dest` for a
+  variable with given `dtype` and `size`.  The size of the memory
+  pointed to by `dest` must be at least `n` bytes.
+
+  `name` is the name of the Fortran variable.
+  `ndims` number of dimensions
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_fptrdecl(DLiteType dtype, size_t size, const char *name,
+                            int ndims, char *dest, size_t n);
 
 /**
   Returns true if name is a DLiteType, otherwise false.

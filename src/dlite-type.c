@@ -16,6 +16,10 @@
 #include "dlite-type.h"
 
 
+#define scheck(m) \
+  if ((m) < 0) return err(-1, "snprintf failed on %s:%d", __FILE__, __LINE__)
+
+
 /* Name DLite types */
 static char *dtype_names[] = {
   "blob",
@@ -304,6 +308,145 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
   }
   if (m < 0)
     return err(-1, "error writing C declaration for dtype %d", dtype);
+  return m;
+}
+
+
+/*
+  Writes Fortran type to `dest` corresponding to `dtype` and `size`.
+  At most `n` bytes are written.
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_ftype(DLiteType dtype, size_t size, char *dest, size_t n)
+{
+  int m=0;
+
+  switch (dtype) {
+  case dliteInt:
+    m = snprintf(dest, n, "integer(%zu)", size);
+    break;
+  case dliteFloat:
+    m = snprintf(dest, n, "real(%zu)", size);
+    break;
+  case dliteFixString:
+    m = snprintf(dest, n, "character(len=%zu)", size-1);
+    break;
+  case dliteStringPtr:
+    m = snprintf(dest, n, "character(len=1)");
+    break;
+  case dliteDimension:
+    m = snprintf(dest, n, "!type(dliteDimension)");
+    break;
+  case dliteProperty:
+    m = snprintf(dest, n, "!type(dliteProperty)");
+    break;
+  default:
+    return errx(-1, "not yet supported dtype: %d", dtype);
+  }
+  if (m < 0)
+    return err(-1, "error writing Fortran type for dtype %d", dtype);
+  return m;
+}
+
+/*
+  Writes Fortran pointer type (for iso_c_binding) to `dest`
+  corresponding to `dtype` and `size`.  At most `n` bytes are written.
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_fptr(DLiteType dtype, size_t size, char *dest, size_t n)
+{
+  int m=0;
+
+  switch (dtype) {
+  case dliteInt:
+    m = snprintf(dest, n, "integer(kind=c_int%zu_t)", 8*size);
+    break;
+  case dliteFloat:
+    m = snprintf(dest, n, "real(kind=c_%s)",
+                 dlite_type_get_native_typename(dtype, size));
+    break;
+  case dliteFixString:
+  case dliteStringPtr:
+    m = snprintf(dest, n, "character(kind=c_char)");
+    break;
+  case dliteDimension:
+    m = snprintf(dest, n, "!c_ptr");
+    break;
+  case dliteProperty:
+    m = snprintf(dest, n, "!c_ptr");
+    break;
+  default:
+    return errx(-1, "not yet supported dtype: %d", dtype);
+  }
+  if (m < 0)
+    return err(-1, "error writing Fortran pointer for dtype %d", dtype);
+  return m;
+}
+
+/*
+  Writes Fortran type to `dest` for a variable with given `dtype`
+  and `size`.  The size of the memory pointed to by `dest` must be
+  at least `n` bytes.
+
+  `name` is the name of the Fortran variable.
+  `ndims` number of dimensions
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_fdecl(DLiteType dtype, size_t size, const char *name,
+                         int ndims, char *dest, size_t n)
+{
+  int i, m, k;
+  if ((m = dlite_type_set_ftype(dtype, size, dest, n)) < 0) return -1;
+  if (ndims) {
+    scheck((k = snprintf(dest+m, n-m, ", allocatable")));
+    m += k;
+  }
+  scheck((k = snprintf(dest+m, n-m, " :: %s", name)));
+  m += k;
+  if (ndims) {
+    scheck((k = snprintf(dest+m, n-m, "(")));
+    m += k;
+    for (i=0; i<ndims; i++) {
+      scheck((k = snprintf(dest+m, n-m, "%s:", i ? "," : "")));
+      m += k;
+    }
+    scheck((k = snprintf(dest+m, n-m, ")")));
+    m += k;
+  }
+  return m;
+}
+
+/*
+  Writes Fortran pointer type (for iso_c_binding) to `dest` for a
+  variable with given `dtype` and `size`.  The size of the memory
+  pointed to by `dest` must be at least `n` bytes.
+
+  `name` is the name of the Fortran variable. A "_f" will be appended to it.
+  `ndims` number of dimensions
+
+  Returns the number of bytes written or -1 on error.
+*/
+int dlite_type_set_fptrdecl(DLiteType dtype, size_t size, const char *name,
+                         int ndims, char *dest, size_t n)
+{
+  int i, k, m, nref = ndims;
+  if (dtype == dliteFixString || dtype == dliteStringPtr) nref++;
+  if ((m = dlite_type_set_fptr(dtype, size, dest, n)) < 0) return -1;
+  scheck((k = snprintf(dest+m, n-m, ", pointer :: %s_f", name)));
+  m += k;
+  if (nref) {
+    scheck((k = snprintf(dest+m, n-m, "(")));
+    m += k;
+    for (i=0; i<nref; i++) {
+      scheck((k = snprintf(dest+m, n-m, "%s:", i ? "," : "")));
+      m += k;
+    }
+    scheck((k = snprintf(dest+m, n-m, ")")));
+    m += k;
+  }
   return m;
 }
 

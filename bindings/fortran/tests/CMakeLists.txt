@@ -5,6 +5,14 @@ set(tests
   test_person
   )
 
+if(WITH_JSON)
+  include(dliteCodeGen)
+  dlite_codegen(
+    Person.f90
+    f-module
+    json://${CMAKE_CURRENT_SOURCE_DIR}/Person.json
+    )
+endif()
 
 add_library(Person Person.f90)
 target_link_libraries(Person

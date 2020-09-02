@@ -43,5 +43,6 @@
       ],
       "description": "Temperature on the body."
     }
-  ]
+  ],
+  "dataname": "http://meta.sintef.no/0.2/Person"
 }
