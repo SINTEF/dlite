@@ -80,10 +80,20 @@ set(DLITE_CONFIG_VARS
   DLITE_TEMPLATE_DIRS
   DLITE_STORAGE_PLUGIN_DIRS
   DLITE_MAPPING_PLUGIN_DIRS
-  DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-  DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-  DLITE_STORAGES
   )
+  if(WITH_JSON)
+    list(APPEND DLITE_CONFIG_VARS JANSSON_LIBRARIES)
+  endif()
+  if(WITH_HDF5)
+    list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
+  endif()
+  if(WITH_PYTHON)
+    list(APPEND DLITE_CONFIG_VARS
+      PYTHON_LIBRARIES
+      DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+      DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+      )
+  endif()
 
 # ------------------------
 # Installation environment
@@ -579,7 +589,6 @@ configure_package_config_file(
   "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
   INSTALL_DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   PATH_VARS ${DLITE_CONFIG_VARS}
-
   )
 
 #################################################################
