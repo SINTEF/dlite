@@ -3,11 +3,14 @@
 !
 module DLite
   use iso_c_binding, only : c_ptr, c_int, c_size_t, c_char, c_null_char, &
-                            c_associated, c_null_ptr, c_bool
+                            c_associated, c_null_ptr, c_bool, c_float,   &
+                            c_double, c_f_pointer
   use c_interface, only: c_f_string, f_c_string
 
   implicit none
   private
+
+  public :: dlite_instance_set_property_value
 
   type, public :: DLiteStorage
      type(c_ptr) :: cptr
@@ -21,6 +24,16 @@ module DLite
      module procedure dlite_storage_open ! User-defined constructor
   end interface DLiteStorage
 
+  interface dlite_instance_set_property_value
+    
+    module procedure set_property_value_string
+    module procedure set_property_value_real4
+    module procedure set_property_value_real8
+
+    module procedure set_property_array_string
+    module procedure set_property_array_real4
+      
+  end interface dlite_instance_set_property_value
 
   type, public :: DLiteInstance
      type(c_ptr)                   :: cinst
@@ -36,6 +49,7 @@ module DLite
      procedure :: get_dimension_size_by_index => dlite_instance_get_dimension_size_by_index
      procedure :: get_property => dlite_instance_get_property
      procedure :: get_property_by_index => dlite_instance_get_property_by_index
+     procedure :: get_property_dims_by_index => dlite_instance_get_property_dims_by_index
      procedure :: destroy => dlite_instance_decref
   end type DLiteInstance
 
@@ -179,6 +193,20 @@ module DLite
     type(c_ptr), value, intent(in)                         :: instance
     integer(c_size_t), value, intent(in)                   :: i
   end function dlite_instance_get_property_by_index_c
+
+  integer(c_int) function dlite_instance_get_property_ndims_by_index_c(instance, i) &
+    bind(C,name="dlite_instance_get_property_ndims_by_index")
+    import c_ptr, c_size_t, c_int
+    type(c_ptr), value, intent(in)                         :: instance
+    integer(c_size_t), value, intent(in)                   :: i
+  end function dlite_instance_get_property_ndims_by_index_c
+
+  type(c_ptr) function dlite_instance_get_property_dims_by_index_c(instance, i) &
+    bind(C,name="dlite_instance_get_property_dims_by_index")
+    import c_ptr, c_size_t, c_int
+    type(c_ptr), value, intent(in)                         :: instance
+    integer(c_size_t), value, intent(in)                   :: i
+  end function dlite_instance_get_property_dims_by_index_c
 
   ! int dlite_instance_decref(DLiteInstance *inst)
   integer(c_int) function dlite_instance_decref_c(instance) &
@@ -557,6 +585,24 @@ contains
     ptr = dlite_instance_get_property_by_index_c(instance%cinst, i_c)
   end function dlite_instance_get_property_by_index
 
+  subroutine dlite_instance_get_property_dims_by_index(instance, i, dims)
+    class(DLiteInstance), intent(in) :: instance
+    integer, intent(in)              :: i
+    integer(kind=c_size_t)           :: i_c
+    type(c_ptr)                      :: ptr
+    integer(c_size_t), pointer       :: dims_p(:)
+    integer(c_int)                   :: ndim_c
+    integer(8)                           :: ndim
+    integer(8), allocatable, intent(out) :: dims(:)
+    i_c = i
+    ndim_c = dlite_instance_get_property_ndims_by_index_c(instance%cinst, i_c)
+    ndim = ndim_c
+    ptr = dlite_instance_get_property_dims_by_index_c(instance%cinst, i_c)
+    call c_f_pointer(ptr, dims_p, [ndim])
+    allocate(dims(ndim))
+    dims = dims_p
+  end subroutine dlite_instance_get_property_dims_by_index
+
   function dlite_instance_decref(instance) result(count)
     class(DLiteInstance), intent(in) :: instance
     integer(c_int)                      :: count_c
@@ -691,5 +737,77 @@ contains
     answer_c = dlite_meta_has_property_c(meta%cptr, name_c)
     answer = answer_c
   end function dlite_meta_has_property
+
+  subroutine set_property_value_string(inst, index, prop)
+    type(DLiteInstance), intent(in)  :: inst
+    integer, intent(in)              :: index
+    character(len=*), intent(in)     :: prop
+
+    call f_c_string(prop, inst%get_property_by_index(index))
+
+  end subroutine set_property_value_string
+
+  subroutine set_property_value_real4(inst, index, prop)
+    type(DLiteInstance), intent(in)  :: inst
+    integer, intent(in)              :: index
+    real(4), intent(in)              :: prop    
+    type(c_ptr)                      :: cptr
+    real(c_float), pointer           :: prop_p
+
+    cptr = inst%get_property_by_index(index)    
+    call c_f_pointer(cptr, prop_p)
+    prop_p = prop
+
+  end subroutine set_property_value_real4
+
+  subroutine set_property_value_real8(inst, index, prop)
+    type(DLiteInstance), intent(in)  :: inst
+    integer, intent(in)              :: index
+    real(8), intent(in)              :: prop
+    type(c_ptr)                      :: cptr
+    real(c_double), pointer          :: prop_p
+
+    cptr = inst%get_property_by_index(index)    
+    call c_f_pointer(cptr, prop_p)
+    prop_p = prop
+
+  end subroutine set_property_value_real8
+
+  subroutine set_property_array_string(inst, index, prop)
+    type(DLiteInstance), intent(in)        :: inst
+    integer, intent(in)                    :: index
+    character(*), dimension(*), intent(in) :: prop(:)
+    type(c_ptr)                            :: cptr
+    character(kind=c_char), pointer        :: prop_p(:,:)
+    integer(8), dimension(*), allocatable  :: dims(:), dims2(:)
+    integer(8)                             :: i
+
+    call dlite_instance_get_property_dims_by_index(inst, index, dims)
+    allocate(dims2(2))
+    dims2(1) = len(prop(1))
+    dims2(2) = dims(1)
+    cptr = inst%get_property_by_index(index)    
+    call c_f_pointer(cptr, prop_p, dims2)
+    do i = 1, dims(1)
+      call f_c_string(prop(i), prop_p(:,i))
+    end do
+
+  end subroutine set_property_array_string
+
+  subroutine set_property_array_real4(inst, index, prop)
+    type(DLiteInstance), intent(in)      :: inst
+    integer, intent(in)                  :: index
+    real(4), dimension(*), intent(in)    :: prop(:)
+    type(c_ptr)                          :: cptr
+    real(c_float), pointer               :: prop_p(:)
+    integer(8), dimension(*), allocatable:: dims(:)
+
+    call dlite_instance_get_property_dims_by_index(inst, index, dims)
+    cptr = inst%get_property_by_index(index)
+    call c_f_pointer(cptr, prop_p, dims)
+    prop_p = prop
+
+  end subroutine set_property_array_real4  
+
 
 end module DLite

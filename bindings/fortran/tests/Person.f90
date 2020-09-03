@@ -91,32 +91,37 @@ CONTAINS
     implicit none
     class(TPerson), intent(in)      :: person
     type(DLiteInstance)             :: instance
-    type(c_ptr)                     :: cptr
-    real(c_float), pointer          :: age_f
-    character(kind=c_char), pointer :: skills_f(:,:)
-    real(c_float), pointer          :: temperature_f(:)
-    integer(8)                      :: nstring, strlen, i
+    !type(c_ptr)                     :: cptr
+    !real(c_float), pointer          :: age_f
+    !character(kind=c_char), pointer :: skills_f(:,:)
+    !real(c_float), pointer          :: temperature_f(:)
+    !integer(8)                      :: nstring, strlen, i
     ! create new DLiteInstance
     instance = DLiteInstance('http://meta.sintef.no/0.2/Person', &
                              [person%n, person%m], '')
+    call dlite_instance_set_property_value(instance, 0, person%name)
+    call dlite_instance_set_property_value(instance, 1, person%age)
+    call dlite_instance_set_property_value(instance, 2, person%skills)
+    call dlite_instance_set_property_value(instance, 3, person%temperature)
     ! name
-    call f_c_string(person%name, instance%get_property_by_index(0))
+    !call f_c_string(person%name, instance%get_property_by_index(0))
     ! age
-    cptr = instance%get_property_by_index(1)
-    call c_f_pointer(cptr, age_f)
-    age_f = person%age
-      ! skills
-    cptr = instance%get_property_by_index(2)
-    nstring = person%n
-    strlen = 10
-    call c_f_pointer(cptr, skills_f, [strlen, nstring])
-    do i = 1, nstring
-      call f_c_string(person%skills(i), skills_f(:,i))
-    end do
-    ! temperature
-    cptr = instance%get_property_by_index(3)
-    call c_f_pointer(cptr, temperature_f, (/person%m/))
-    temperature_f = person%temperature
+    !cptr = instance%get_property_by_index(1)
+    !call c_f_pointer(cptr, age_f)
+    !age_f = person%age
+    ! skills
+    !cptr = instance%get_property_by_index(2)
+    !nstring = person%n
+    !strlen = 10
+    !print *, len(person%skills(1)), len(person%skills(2))
+    !call c_f_pointer(cptr, skills_f, [strlen, nstring])
+    !do i = 1, nstring
+    !  call f_c_string(person%skills(i), skills_f(:,i))
+    !end do
+    ! temperature    
+    !cptr = instance%get_property_by_index(3)
+    !call c_f_pointer(cptr, temperature_f, (/person%m/))
+    !temperature_f = person%temperature
     !instance%cinst = person%cinst
   end function personToInstance
 
