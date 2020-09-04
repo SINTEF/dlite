@@ -17,7 +17,7 @@
   "properties": [
     {
       "name": "name",
-      "type": "string",
+      "type": "string45",
       "description": "Full name."
     },
     {
@@ -43,5 +43,6 @@
       ],
       "description": "Temperature on the body."
     }
-  ]
+  ],
+  "dataname": "http://meta.sintef.no/0.2/Person"
 }

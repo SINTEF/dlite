@@ -162,17 +162,21 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     char *descr = (p->description) ? p->description : "";
     size_t nref = (p->ndims > 0) ? 1 : 0;
     int isallocated = dlite_type_is_allocated(p->type);
-    char typename[32], pcdecl[64];
+    char typename[32], pcdecl[64], ftype[25], isoctype[64];
     char *iri = (p->iri) ? p->iri : "";
     dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
     dlite_type_set_cdecl(p->type, p->size, p->name, nref, pcdecl,
 			 sizeof(pcdecl), dlite_codegen_use_native_typenames);
+    dlite_type_set_ftype(p->type, p->size, ftype, sizeof(ftype));
+    dlite_type_set_isoctype(p->type, p->size, isoctype, sizeof(isoctype));
 
     ((Context *)context)->iprop = i;
     tgen_subs_set(&psubs, "prop.name",     p->name,  NULL);
     tgen_subs_set(&psubs, "prop.type",     type,     NULL);
     tgen_subs_set(&psubs, "prop.typename", typename, NULL);
     tgen_subs_set(&psubs, "prop.dtype",    dtype,    NULL);
+    tgen_subs_set(&psubs, "prop.ftype",    ftype,    NULL);
+    tgen_subs_set(&psubs, "prop.isoctype", isoctype,    NULL);
     tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,   NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
     tgen_subs_set(&psubs, "prop.iri",      iri,      NULL);

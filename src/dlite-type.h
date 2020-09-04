@@ -140,6 +140,20 @@ DLiteType dlite_type_get_dtype(const char *dtypename);
 int dlite_type_set_typename(DLiteType dtype, size_t size,
                             char *typename, size_t n);
 
+/*
+  Writes the fortran type name corresponding to `dtype` and `size` to
+  `typename`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_ftype(DLiteType dtype, size_t size,
+                         char *ftype, size_t n);
+
+/*
+  Writes the Fortran ISO_C_BINDING type name corresponding to `dtype` and
+  `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_isoctype(DLiteType dtype, size_t size,
+                            char *isoctype, size_t n);                         
+
 /**
   Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
   The size of the memory pointed to by `cdecl` must be at least `n` bytes.
