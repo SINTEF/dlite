@@ -1,79 +1,46 @@
 # Sub-cmake file for running configure_file() during build time
 
-# TODO - add regex for handling other windows drive letters
-
-macro(tounix0 varname input)
-  string(REPLACE "\\"  "/"   ${varname} "${input}")
-  string(REPLACE "C:/" "/c/" ${varname} "${${varname}}")
-endmacro()
-
-macro(tounix varname input)
-  string(REPLACE "\\"  "/"   ${varname} "${input}")
-  string(REPLACE "C:/" "/c/" ${varname} "${${varname}}")
-  string(REPLACE "|"   ":"   ${varname} "${${varname}}")
-endmacro()
-
-macro(towin0 varname input)
-  string(REPLACE "/c/" "C:\\" ${varname} "${input}")
-  string(REPLACE "/"   "\\"   ${varname} "${${varname}}")
-endmacro()
-
-macro(towin varname input)
-  string(REPLACE "/c/" "C:\\" ${varname} "${input}")
-  string(REPLACE "/"   "\\"   ${varname} "${${varname}}")
-  string(REPLACE "|"   ";"    ${varname} "${${varname}}")
-endmacro()
+# Append our cmake-modules to CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 
 
-tounix(PATH_unix                   "${PATH}")
-tounix(LD_LIBRARY_PATH_unix        "${LD_LIBRARY_PATH}")
-tounix(PYTHONPATH_unix             "${PYTHONPATH}")
-tounix(STORAGE_PLUGINS_unix        "${STORAGE_PLUGINS}")
-tounix(MAPPING_PLUGINS_unix        "${MAPPING_PLUGINS}")
-tounix(PYTHON_STORAGE_PLUGINS_unix "${PYTHON_STORAGE_PLUGINS}")
-tounix(PYTHON_MAPPING_PLUGINS_unix "${PYTHON_MAPPING_PLUGINS}")
-tounix(TEMPLATES_unix              "${TEMPLATES}")
-tounix0(STORAGES_unix              "${STORAGES}")
-
-# Windows path separators
-towin(PATH_win                     "${PATH}")
-towin(LD_LIBRARY_PATH_win          "${LD_LIBRARY_PATH}")
-towin(PYTHONPATH_win               "${PYTHONPATH}")
-towin(STORAGE_PLUGINS_win          "${STORAGE_PLUGINS}")
-towin(MAPPING_PLUGINS_win          "${MAPPING_PLUGINS}")
-towin(PYTHON_STORAGE_PLUGINS_win   "${PYTHON_STORAGE_PLUGINS}")
-towin(PYTHON_MAPPING_PLUGINS_win   "${PYTHON_MAPPING_PLUGINS}")
-towin(TEMPLATES_win                "${TEMPLATES}")
-towin0(STORAGES_win                "${STORAGES}")
+# Convert from pipe-separated paths to lists
+set(dlite_BUILD_ROOT ${dlite_BINARY_DIR})
+string(REPLACE "|" ";" dlite_PATH                   "${dlite_PATH}")
+string(REPLACE "|" ";" dlite_LD_LIBRARY_PATH        "${dlite_LD_LIBRARY_PATH}")
+string(REPLACE "|" ";" dlite_PYTHONPATH             "${dlite_PYTHONPATH}")
+string(REPLACE "|" ";" dlite_STORAGE_PLUGINS        "${dlite_STORAGE_PLUGINS}")
+string(REPLACE "|" ";" dlite_MAPPING_PLUGINS        "${dlite_MAPPING_PLUGINS}")
+string(REPLACE "|" ";" dlite_PYTHON_STORAGE_PLUGINS "${dlite_PYTHON_STORAGE_PLUGINS}")
+string(REPLACE "|" ";" dlite_PYTHON_MAPPING_PLUGINS "${dlite_PYTHON_MAPPING_PLUGINS}")
+string(REPLACE "|" ";" dlite_TEMPLATES              "${dlite_TEMPLATES}")
+string(REPLACE "|" ";" dlite_STORAGES               "${dlite_STORAGES}")
 
 
-# #string(REPLACE "C:/" "/c/" PATH                   "${PATH}")
-# string(REPLACE "C:/" "/c/" LD_LIBRARY_PATH        "${LD_LIBRARY_PATH}")
-# string(REPLACE "C:/" "/c/" PYTHONPATH             "${PYTHONPATH}")
-# string(REPLACE "C:/" "/c/" STORAGE_PLUGINS        "${STORAGE_PLUGINS}")
-# string(REPLACE "C:/" "/c/" MAPPING_PLUGINS        "${MAPPING_PLUGINS}")
-# string(REPLACE "C:/" "/c/" PYTHON_STORAGE_PLUGINS "${PYTHON_STORAGE_PLUGINS}")
-# string(REPLACE "C:/" "/c/" PYTHON_MAPPING_PLUGINS "${PYTHON_MAPPING_PLUGINS}")
-# string(REPLACE "C:/" "/c/" TEMPLATES              "${TEMPLATES}")
-#
-# #string(REPLACE "|" ":" PATH_unix                   "${PATH}")
-# string(REPLACE "|" ":" LD_LIBRARY_PATH_unix        "${LD_LIBRARY_PATH}")
-# string(REPLACE "|" ":" PYTHONPATH_unix             "${PYTHONPATH}")
-# string(REPLACE "|" ":" STORAGE_PLUGINS_unix        "${STORAGE_PLUGINS}")
-# string(REPLACE "|" ":" MAPPING_PLUGINS_unix        "${MAPPING_PLUGINS}")
-# string(REPLACE "|" ":" PYTHON_STORAGE_PLUGINS_unix "${PYTHON_STORAGE_PLUGINS}")
-# string(REPLACE "|" ":" PYTHON_MAPPING_PLUGINS_unix "${PYTHON_MAPPING_PLUGINS}")
-# string(REPLACE "|" ":" TEMPLATES_unix              "${TEMPLATES}")
-#
-# # Windows path separators
-# #string(REPLACE "|" ";" PATH_win                   "${PATH}")
-# string(REPLACE "|" ";" LD_LIBRARY_PATH_win        "${LD_LIBRARY_PATH}")
-# string(REPLACE "|" ";" PYTHONPATH_win             "${PYTHONPATH}")
-# string(REPLACE "|" ";" STORAGE_PLUGINS_win        "${STORAGE_PLUGINS}")
-# string(REPLACE "|" ";" MAPPING_PLUGINS_win        "${MAPPING_PLUGINS}")
-# string(REPLACE "|" ";" PYTHON_STORAGE_PLUGINS_win "${PYTHON_STORAGE_PLUGINS}")
-# string(REPLACE "|" ";" PYTHON_MAPPING_PLUGINS_win "${PYTHON_MAPPING_PLUGINS}")
-# string(REPLACE "|" ";" TEMPLATES_win              "${TEMPLATES}")
+# Add platform-specific paths
+include(MakePlatformPaths)
+make_platform_paths(
+  PATHS
+    dlite_BUILD_ROOT
+    dlite_BINARY_DIR
+    dlite_SOURCE_DIR
+    dlite_LD_LIBRARY_PATH
+    dlite_PYTHONPATH
+    dlite_PYTHON_STORAGE_PLUGINS
+    dlite_PYTHON_MAPPING_PLUGINS
+    dlite_TEMPLATES
+  MULTI_CONFIG_PATHS
+    dlite_PATH
+    dlite_STORAGE_PLUGINS
+    dlite_MAPPING_PLUGINS
+  ESCAPE_WIN32_DIRSEP
+  )
+
+# Make dlite_STORAGES pipe-separated
+string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
+string(REPLACE ";" "|" dlite_STORAGES_NATIVE  "${dlite_STORAGES_NATIVE}")
+string(REPLACE ";" "|" dlite_STORAGES_UNIX    "${dlite_STORAGES_UNIX}")
+string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
 
 
 configure_file(${input} ${output}

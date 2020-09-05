@@ -508,9 +508,6 @@ list(REMOVE_DUPLICATES dlite_STORAGES)
 #  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
 #endif()
 
-# Note, DLITE_STORAGES uses "|" as separator on all systems
-string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
-
 make_platform_paths(
   PATHS
     dlite_LD_LIBRARY_PATH
@@ -525,6 +522,13 @@ make_platform_paths(
     dlite_MAPPING_PLUGINS
   #PATHSEP0
   )
+
+# Note, DLITE_STORAGES uses "|" as separator on all systems
+string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
+string(REPLACE ";" "|" dlite_STORAGES_NATIVE  "${dlite_STORAGES_NATIVE}")
+string(REPLACE ";" "|" dlite_STORAGES_UNIX    "${dlite_STORAGES_UNIX}")
+string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
+
 
 # Add target "show" for showing test environment
 set(test_env

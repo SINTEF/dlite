@@ -1,12 +1,11 @@
 # Generates a script or header with dlite environment
 #
 # Arguments
-#   - filename: Name of generated filename.  The input file is expected to
+#   - output: Name of generated filename.  The input file is expected to
 #         have '.in' appended to it.
-#   - output_dir: Where to place the generated script.
 #   - newline_style: Either "UNIX" (LF), "DOS" (CRLF) or NATIVE
 #
-macro(dlite_genenv output newline_style)
+function(dlite_genenv output newline_style)
 
   get_filename_component(filename ${output} NAME)
 
@@ -14,7 +13,7 @@ macro(dlite_genenv output newline_style)
   set(script ${dlite_SOURCE_DIR}/cmake/dliteGenEnv-sub.cmake)
 
   if(${newline_style} STREQUAL "NATIVE")
-    if(WINDOWS)
+    if(WIN32)
       set(_newline_style "CRLF")
     else()
       set(_newline_style "LF")
@@ -44,20 +43,20 @@ macro(dlite_genenv output newline_style)
         -Dinput=${input}
         -Doutput=${output}
         -Dnewline_style=${_newline_style}
-        -DPATH="${PATH}"
-        -DLD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
-        -DPYTHONPATH="${PYTHONPATH}"
         -Ddlite_SOURCE_DIR="${dlite_SOURCE_DIR}"
         -Ddlite_BINARY_DIR="${dlite_BINARY_DIR}"
-        -DSTORAGE_PLUGINS="${STORAGE_PLUGINS}"
-        -DMAPPING_PLUGINS="${MAPPING_PLUGINS}"
-        -DPYTHON_STORAGE_PLUGINS="${PYTHON_STORAGE_PLUGINS}"
-        -DPYTHON_MAPPING_PLUGINS="${PYTHON_MAPPING_PLUGINS}"
-        -DTEMPLATES="${TEMPLATES}"
-        -DSTORAGES="${dlite_STORAGES}"
+        -Ddlite_PATH="${PATH}"
+        -Ddlite_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+        -Ddlite_PYTHONPATH="${PYTHONPATH}"
+        -Ddlite_STORAGE_PLUGINS="${STORAGE_PLUGINS}"
+        -Ddlite_MAPPING_PLUGINS="${MAPPING_PLUGINS}"
+        -Ddlite_PYTHON_STORAGE_PLUGINS="${PYTHON_STORAGE_PLUGINS}"
+        -Ddlite_PYTHON_MAPPING_PLUGINS="${PYTHON_MAPPING_PLUGINS}"
+        -Ddlite_TEMPLATES="${TEMPLATES}"
+        -Ddlite_STORAGES="${dlite_STORAGES}"
         -P ${script}
     DEPENDS ${input} ${script}
     COMMENT "Generate ${output}"
   )
 
-endmacro()
+endfunction()

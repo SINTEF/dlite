@@ -9,7 +9,7 @@ set(tests
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR} -DHAVE_DLITE)
 
-if(WINDOWS)
+if(WIN32)
   set(exeext .exe)
 endif()
 

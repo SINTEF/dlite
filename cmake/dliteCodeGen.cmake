@@ -63,50 +63,112 @@ macro(dlite_codegen output template url)
     list(APPEND codegen_dependencies ${url})
   endif()
 
-  if(TARGET dlite-codegen)
-    set(DLITE_CODEGEN $<TARGET_FILE:dlite-codegen>)
-    list(APPEND codegen_dependencies dlite dlite-codegen)
-    if(WITH_JSON)
-      list(APPEND codegen_dependencies dlite-plugins-json)
-    endif()
-  else()
+  if(WIN32)
+    # Windows is really a headache. For some reason calling dlite-env
+    # doesn't work.  Try instead to generate a bat file and run it.
+    include(dliteGenEnv)
+
     find_program(DLITE_CODEGEN
       NAMES dlite-codegen
       PATHS
-        ${DLITE_ROOT}/${DLITE_RUNTIME_DIR}
         ${dlite-tools_BINARY_DIR}
-        ${dlite_PATH}
+        ${dlite-tools_BINARY_DIR}/Release
+        ${dlite-tools_BINARY_DIR}/Debug
       )
-    list(APPEND codegen_dependencies ${DLITE_CODEGEN})
-  endif()
 
-  if(TARGET dlite-env)
-    set(DLITE_ENV $<TARGET_FILE:dlite-env>)
-    list(APPEND codegen_dependencies dlite-env)
-  else()
-    find_program(DLITE_ENV
-      NAMES dlite-env
+    set(out "")
+    list(APPEND out "${output}")
+
+    make_platform_paths(
+      PREFIX e_
       PATHS
-        ${DLITE_ROOT}/${DLITE_RUNTIME_DIR}
-        ${dlite-tools_BINARY_DIR}
-        ${dlite_PATH}
+        out
+        DLITE_CODEGEN
+        dlite_BINARY_DIR
+        dlite_SOURCE_DIR
+        dlite_LD_LIBRARY_PATH
+        dlite_PYTHONPATH
+        dlite_PYTHON_STORAGE_PLUGINS
+        dlite_PYTHON_MAPPING_PLUGINS
+        dlite_TEMPLATES
+      MULTI_CONFIG_PATHS
+        dlite_PATH
+        dlite_STORAGE_PLUGINS
+        dlite_MAPPING_PLUGINS
       )
-    list(APPEND codegen_dependencies ${DLITE_ENV})
-  endif()
 
-  add_custom_command(
-    OUTPUT ${output}
-    COMMAND
-      ${DLITE_ENV}
-        ${env_options}
-        --
-        ${DLITE_CODEGEN}
-          --output=${output}
-          ${template_option}
-          ${url}
-          ${codegen_extra_options}
-    DEPENDS ${codegen_dependencies}
-    COMMENT "Generate ${output}"
-  )
+    get_filename_component(basename ${output} NAME)
+    string(REPLACE . _ basename "${basename}")
+    set(batfile "${basename}.bat")
+
+    set(_url "${url}")
+    configure_file(
+      ${dlite_SOURCE_DIR}/cmake/dliteCodeGen.bat.in
+      ${batfile}
+      @ONLY
+      NEWLINE_STYLE CRLF
+      )
+
+    add_custom_command(
+      OUTPUT ${output}
+      COMMAND ${batfile}
+      DEPENDS ${codegen_dependencies}
+      COMMENT "Generate ${output}"
+      )
+
+
+  else()
+    # Run the code generator via dlite-env (we could run it directly on
+    # Unix, but we keep it like this in case we some day figure out
+    # how to make this work on Windows too...
+
+    if(TARGET dlite-codegen)
+      set(DLITE_CODEGEN $<TARGET_FILE:dlite-codegen>)
+      list(APPEND codegen_dependencies dlite dlite-codegen)
+      if(WITH_JSON)
+        list(APPEND codegen_dependencies dlite-plugins-json)
+      endif()
+    else()
+      find_program(DLITE_CODEGEN
+        NAMES dlite-codegen
+        PATHS
+          ${DLITE_ROOT}/${DLITE_RUNTIME_DIR}
+          ${dlite-tools_BINARY_DIR}
+          ${dlite_PATH}
+        )
+      list(APPEND codegen_dependencies ${DLITE_CODEGEN})
+    endif()
+
+
+    if(TARGET dlite-env)
+      set(DLITE_ENV $<TARGET_FILE:dlite-env>)
+      list(APPEND codegen_dependencies dlite-env)
+    else()
+      find_program(DLITE_ENV
+        NAMES dlite-env
+        PATHS
+          ${DLITE_ROOT}/${DLITE_RUNTIME_DIR}
+          ${dlite-tools_BINARY_DIR}
+          ${dlite_PATH}
+        )
+      list(APPEND codegen_dependencies ${DLITE_ENV})
+    endif()
+
+
+    add_custom_command(
+      OUTPUT ${output}
+      COMMAND
+        ${DLITE_ENV}
+          ${env_options}
+          --
+          ${DLITE_CODEGEN}
+            --output=${output}
+            ${template_option}
+            ${url}
+            ${codegen_extra_options}
+      DEPENDS ${codegen_dependencies}
+      COMMENT "Generate ${output}"
+      )
+  endif()
 
 endmacro()

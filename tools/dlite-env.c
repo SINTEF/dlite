@@ -33,7 +33,7 @@ void help()
     "  -i, --no-install    Do not include install paths.",
     "  -p, --print         Print environment to standard output and exit.",
     "  -P  --platform PLATFORM",
-    "                      Set environment variables according to this "
+    "                      Set environment variables according to this ",
     "                      platform.  PLATFORM should be either \"Unix\" or ",
     "                      \"Windows\".  Defaults to the host platform.",
     "  -v  --variable NAME=VALUE",
@@ -159,18 +159,19 @@ int main(int argc, char *argv[])
     env = add_paths(env, "PATH", dlite_PATH, Prepend);
     env = add_paths(env, "LD_LIBRARY_PATH", dlite_LD_LIBRARY_PATH, Prepend);
     env = add_paths(env, "PYTHONPATH", dlite_PYTHONPATH, Prepend);
+    env = set_envvar(env, "DLITE_USE_BUILD_ROOT", "YES");
     env = add_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
-                    dlite_STORAGE_PLUGINS, Prepend);
+                    dlite_STORAGE_PLUGINS, Replace);
     env = add_paths(env, "DLITE_MAPPING_PLUGIN_DIRS",
-                    dlite_MAPPING_PLUGINS, Prepend);
+                    dlite_MAPPING_PLUGINS, Replace);
     env = add_paths(env, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS",
-                    dlite_PYTHON_STORAGE_PLUGINS, Prepend);
+                    dlite_PYTHON_STORAGE_PLUGINS, Replace);
     env = add_paths(env, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS",
-                    dlite_PYTHON_MAPPING_PLUGINS, Prepend);
+                    dlite_PYTHON_MAPPING_PLUGINS, Replace);
     env = add_paths(env, "DLITE_TEMPLATE_DIRS",
-                    dlite_TEMPLATES, Prepend);
+                    dlite_TEMPLATES, Replace);
     env = add_paths(env, "DLITE_STORAGES",
-                    dlite_STORAGES, Prepend);
+                    dlite_STORAGES, Replace);
   }
   if (vars) {
     /* -- add additional variables from command line */

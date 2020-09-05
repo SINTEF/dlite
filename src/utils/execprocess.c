@@ -161,13 +161,13 @@ char **get_environment(void)
 */
 char **get_envitem(char **env, const char *name)
 {
-  char **q;
+  char **q, *p;
   if (!env) return NULL;
 
   for (q=env; *q; q++) {
     int n, len=strcspn(name, "=");
-    char *p = strchr(*q, '=');
-    if (!p) return err(1, "no equal sign in environment item: %s", *q), NULL;
+    if (!(p = strchr(*q, '='))) continue;
+    //if (!p) return err(1, "no equal sign in environment item: %s", *q), NULL;
     n = p - *q;
     if (n == len && strncmp(*q, name, n) == 0) return q;
   }
@@ -179,9 +179,12 @@ char **get_envitem(char **env, const char *name)
 */
 char *get_envvar(char **env, const char *name)
 {
+  size_t len1, len2;
   char **q = get_envitem(env, name);
   if (!q) return NULL;
-  return *q + strcspn(*q, "=") + 1;
+  len1 = strlen(*q);
+  len2 = strcspn(*q, "=") + 1;
+  return (len2 < len1) ? *q + len2 : *q + len1;
 }
 
 /*

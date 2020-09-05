@@ -1,13 +1,16 @@
 # Make platform-specific path names
 #
 # make_platform_paths(
+#     [PREFIX <prefix>]
 #     [PATHS <paths_var> [...]]
 #     [MULTI_CONFIG_PATHS <multi_paths_var> [...]]
 #     [CONFIG_DIRS <name> [...]]
+#     [ESCAPE_WIN32_DIRSEP]
 #     [PATHSEP0]
 # )
 #
 # Arguments
+#   - PREFIX: Optional prefix to prepended to new variables.
 #   - PATHS: Name of a variable holding a list of paths.
 #         New variables will be created with the following postfixes
 #         appended to the variable name:
@@ -21,17 +24,31 @@
 #         each path of the value of `multi_paths_var`.  Defaults to
 #         `${CMAKE_CONFIGURATION_TYPES}` for multi-configuration
 #         generators and nothing otherwise.
+#   - ESCAPE_WIN32_DIRSEP: Whether to escape Windows directory separators.
+#         This is typically needed when the created variables are
+#         used in configure_file().
 #   - PATHSEP0: Whether to create three new variables; `<var>_NATIVE0`,
 #         `<var>_UNIX0` and `<var>_WINDOWS0`, for each input variable,
 #         with the path separator set to the pipe '|' symbol.
 #
 function(make_platform_paths)
-  set(multiArgs PATHS MULTI_CONFIG_PATHS CONFIG_DIRS)
-  cmake_parse_arguments("PP" "PATHSEP0" ""
-    "PATHS;MULTI_CONFIG_PATHS;CONFIG_DIRS" ${ARGN})
+  cmake_parse_arguments(
+    "PP"
+    "ESCAPE_WIN32_DIRSEP;PATHSEP0"
+    "PREFIX"
+    "PATHS;MULTI_CONFIG_PATHS;CONFIG_DIRS"
+    ${ARGN}
+    )
+
+  set(prefix "${PP_PREFIX}")
   set(paths_vars "${PP_PATHS}")
   set(multi_paths_vars "${PP_MULTI_CONFIG_PATHS}")
   set(names "${PP_CONFIG_DIRS}")
+  if(PP_ESCAPE_WIN32_DIRSEP)
+    set(win_dirsep "\\\\")
+  else()
+    set(win_dirsep "\\")
+  endif()
 
   if(NOT names AND GENERATOR_IS_MULTI_CONFIG)
     set(names "${CMAKE_CONFIGURATION_TYPES}")
@@ -51,11 +68,11 @@ function(make_platform_paths)
       list(APPEND ${var}_UNIX "${path}")
 
       string(REGEX REPLACE "/([a-zA-Z])/" "\\1:\\\\" path "${path}")
-      string(REPLACE "/" "\\" path "${path}")
+      string(REPLACE "/" "${win_dirsep}" path "${path}")
       list(APPEND ${var}_WINDOWS "${path}")
     endforeach()
     string(REPLACE ";" ":" ${var}_UNIX "${${var}_UNIX}")
-    if(WINDOWS)
+    if(WIN32)
       set(${var}_NATIVE "${${var}_WINDOWS}")
     else()
       set(${var}_NATIVE "${${var}_UNIX}")
@@ -74,7 +91,7 @@ function(make_platform_paths)
   # Assign all new variables in parent scope
   foreach(var ${vars})
     foreach(conv ${conversions})
-      set(${var}_${conv} "${${var}_${conv}}" PARENT_SCOPE)
+      set(${prefix}${var}_${conv} "${${var}_${conv}}" PARENT_SCOPE)
       #message("*** adding ${var}_${conv}=${${var}_${conv}}")  # XXX
     endforeach()
   endforeach()
@@ -84,12 +101,12 @@ function(make_platform_paths)
     foreach(var ${vars})
       string(REPLACE ":" "|" ${var}_UNIX0 "${${var}_UNIX}")
       string(REPLACE ";" "|" ${var}_WINDOWS0 "${${var}_WINDOWS}")
-      set(${var}_UNIX0 "${${var}_UNIX0}" PARENT_SCOPE)
-      set(${var}_WINDOWS0 "${${var}_WINDOWS0}" PARENT_SCOPE)
-      if(WINDOWS)
-        set(${var}_NATIVE0 "${${var}_WINDOWS0}" PARENT_SCOPE)
+      set(${prefix}${var}_UNIX0 "${${var}_UNIX0}" PARENT_SCOPE)
+      set(${prefix}${var}_WINDOWS0 "${${var}_WINDOWS0}" PARENT_SCOPE)
+      if(WIN32)
+        set(${prefix}${var}_NATIVE0 "${${var}_WINDOWS0}" PARENT_SCOPE)
       else()
-        set(${var}_NATIVE0 "${${var}_UNIX0}" PARENT_SCOPE)
+        set(${prefix}${var}_NATIVE0 "${${var}_UNIX0}" PARENT_SCOPE)
       endif()
 
       # XXX

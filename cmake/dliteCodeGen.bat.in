@@ -1,0 +1,19 @@
+@echo off
+
+setlocal
+
+set DLITE_USE_BUILD_ROOT=YES
+set PATH="@e_dlite_PATH_WINDOWS@"
+set PYTHONPATH="@e_dlite_PATH_WINDOWS@"
+set DLITE_STORAGE_PLUGIN_DIRS="@e_dlite_STORAGE_PLUGINS_WINDOWS@"
+set DLITE_MAPPING_PLUGIN_DIRS="@e_dlite_MAPPING_PLUGINS_WINDOWS@"
+set DLITE_PYTHON_STORAGE_PLUGIN_DIRS="@e_dlite_PYTHON_STORAGE_PLUGINS_WINDOWS@"
+set DLITE_PYTHON_MAPPING_PLUGIN_DIRS="@e_dlite_PYTHON_MAPPING_PLUGINS_WINDOWS@"
+set DLITE_TEMPLATE_DIRS="@e_dlite_TEMPLATES_WINDOWS@"
+set DLITE_STORAGES="@e_dlite_STORAGES_WINDOWS@"
+
+@e_DLITE_CODEGEN_WINDOWS@ --output="@e_out_WINDOWS@" @template_option@ "@_url@" @codegen_extra_options@
+
+REM C:\Users\jesperf\source\repos\dlite\build\tools\Release\dlite-codegen.exe -f c-source json://../tools/tests/Chemistry-0.1.json?mode=r --output=xxx.c
+
+endlocal

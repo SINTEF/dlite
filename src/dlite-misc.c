@@ -372,7 +372,6 @@ static void _add_dll_dir(const char *path)
 {
   size_t n;
   wchar_t wcstr[256];
-  printf("\n*** adding DLL dir: %s\n", path);
   mbstowcs_s(&n, wcstr, 256, path, 255);
   AddDllDirectory(wcstr);
 }
@@ -393,20 +392,21 @@ int dlite_add_dll_path(void)
 {
 #ifdef WINDOWS
   static int called = 0;
-  char buf[1024];
+  char buf[4096];
 
   if (called) return 0;
   called = 1;
 
   if (dlite_use_build_root()) {
-    _add_dll_dir(fu_winpath((const char *)dlite_BUILD_ROOT "/src",
-                            buf, sizeof(buf), NULL));
-    _add_dll_dir(fu_winpath(dlite_BUILD_ROOT "/src/util",
-                            buf, sizeof(buf), NULL));
-#ifdef WITH_PYTHON
-    _add_dll_dir(fu_winpath(dlite_BUILD_ROOT "/src/pyembed",
-                            buf, sizeof(buf), NULL));
-#endif
+    if (fu_winpath(dlite_PATH, buf, sizeof(buf), NULL)) {
+      char *endptr=NULL;
+      const char *p;
+      while ((p = fu_nextpath(buf, &endptr, NULL))) {
+        char *s = strndup(p, endptr - p);
+        _add_dll_dir(s);
+        free(s);
+      }
+    }
   } else {
     char libdir[256];
     snprintf(libdir, sizeof(libdir), "%s/%s", dlite_root_get(),
