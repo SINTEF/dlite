@@ -66,21 +66,15 @@ if(WITH_JSON)
     add_test(
       NAME ${test}
       COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_codegen
-    )
+      )
+
     set_property(TEST ${test} PROPERTY
-      ENVIRONMENT "PATH=${dlite_PATH}")
+      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
     set_property(TEST ${test} APPEND PROPERTY
-      ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
-    set_property(TEST ${test} PROPERTY
-      ENVIRONMENT "DLITE_USE_BUILDROOT=YES")
+      ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
     set_property(TEST ${test} APPEND PROPERTY
-      ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
-    set_property(TEST ${test} APPEND PROPERTY
-      ENVIRONMENT "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
-    set_property(TEST ${test} APPEND PROPERTY
-      ENVIRONMENT "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
-    set_property(TEST ${test} APPEND PROPERTY
-      ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
+      ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+
   endforeach()
 
 endif()

@@ -187,17 +187,17 @@ MU_TEST(test_fu_winpath)
 {
   char buf[256], *s;
   mu_check(fu_winpath("/users/mrx/file.txt", buf, sizeof(buf), NULL));
-  mu_assert_string_eq("C:\\users\\mrx\\file.txt", buf);
+  mu_assert_string_eq("\\users\\mrx\\file.txt", buf);
 
-  mu_check(fu_winpath("/d/users/mrx/file.txt", buf, sizeof(buf), NULL));
-  mu_assert_string_eq("D:\\users\\mrx\\file.txt", buf);
+  mu_check(fu_winpath("/c/users/mrx/file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("C:\\users\\mrx\\file.txt", buf);
 
   mu_check(fu_winpath("../file.txt", buf, sizeof(buf), NULL));
   mu_assert_string_eq("..\\file.txt", buf);
 
   mu_check(fu_winpath("/d/users/mrx/bin:/c/bin:/users/mry/bin",
                       buf, sizeof(buf), NULL));
-  mu_assert_string_eq("D:\\users\\mrx\\bin;C:\\bin;C:\\users\\mry\\bin", buf);
+  mu_assert_string_eq("D:\\users\\mrx\\bin;C:\\bin;\\users\\mry\\bin", buf);
 
   mu_check((s = fu_winpath("C:\\dir\\file.txt", NULL, 0, NULL)));
   mu_assert_string_eq("C:\\dir\\file.txt", s);
@@ -382,7 +382,7 @@ MU_TEST(test_fu_paths)
 
   fu_paths_set_platform(&paths, fuWindows);
   s = fu_paths_string(&paths);
-  mu_assert_string_eq("new2;path0;new;C:\\var\\path1;C:\\users\\path2;"
+  mu_assert_string_eq("new2;path0;new;\\var\\path1;C:\\users\\path2;"
                       "new3;aa;bb;cc", s);
   free(s);
 

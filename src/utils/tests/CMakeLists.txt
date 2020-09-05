@@ -4,6 +4,7 @@
 set(tests
   test_err
   test_tmpfileplus
+  test_strtob
   test_fileinfo
   test_fileutils
   test_execprocess
@@ -44,11 +45,10 @@ foreach(test ${tests})
     COMMAND ${test}
     )
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH}")
+    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+
 endforeach()
 
 

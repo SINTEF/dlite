@@ -33,7 +33,7 @@ int strtob(const char *ptr, char **endptr)
     }
   }
   if (*p) p++;
-  if (endptr) *endptr = p + 1;
+  if (endptr) *endptr = p;
   return -1;
 }
 

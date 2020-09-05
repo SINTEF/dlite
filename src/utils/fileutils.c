@@ -439,8 +439,6 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
     int len = endptr - p;
     if (globmatch("/[a-zA-Z]/*", p) == 0) {
       n += snprintf(dest+n, size-n, "%c:\\%.*s", toupper(p[1]), len-3, p+3);
-    } else if (p[0] == '/') {
-      n += snprintf(dest+n, size-n, "C:%.*s", len, p);
     } else {
       n += snprintf(dest+n, size-n, "%.*s", len, p);
     }

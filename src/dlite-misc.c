@@ -330,7 +330,7 @@ int dlite_use_build_root(void)
         use_build_root = 1;
       } else {
         int v = strtob(p, &endptr);
-        if (!endptr)
+        if (v >= 0)
           use_build_root = (v) ? 1 : 0;
         else
           warn("environment variable DLITE_USE_BUILD_ROOT must have a "
@@ -398,7 +398,7 @@ int dlite_add_dll_path(void)
   if (called) return 0;
   called = 1;
 
-  if (getenv("DLITE_USE_BUILD_ROOT")) {
+  if (dlite_use_build_root()) {
     _add_dll_dir(fu_winpath((const char *)dlite_BUILD_ROOT "/src",
                             buf, sizeof(buf), NULL));
     _add_dll_dir(fu_winpath(dlite_BUILD_ROOT "/src/util",
@@ -408,8 +408,11 @@ int dlite_add_dll_path(void)
                             buf, sizeof(buf), NULL));
 #endif
   } else {
-    _add_dll_dir(fu_winpath(DLITE_ROOT "/" DLITE_LIBRARY_DIR,
-                            buf, sizeof(buf), NULL));
+    char libdir[256];
+    snprintf(libdir, sizeof(libdir), "%s/%s", dlite_root_get(),
+             DLITE_LIBRARY_DIR);
+    _add_dll_dir(fu_winpath(libdir, buf, sizeof(buf), NULL));
+
   }
 #endif
   return 0;

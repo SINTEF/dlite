@@ -44,7 +44,7 @@ static PluginInfo *get_storage_plugin_info(void)
 
     if (dlite_use_build_root())
       plugin_path_extend(storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);
-    else
+   else
       plugin_path_extend_prefix(storage_plugin_info, dlite_root_get(),
                                 DLITE_STORAGE_PLUGIN_DIRS, NULL);
 
