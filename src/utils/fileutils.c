@@ -220,7 +220,7 @@ char *fu_vjoin_sep(int sep, const char *a, va_list ap)
     arg0++;
   }
   for (i=0; i<arg0-1; i++)
-    va_arg(aq, char *);
+    p = va_arg(aq, char *);
   for (i=arg0; i<nargs; i++) {
     p = va_arg(aq, char *);
     n = strlen(p);

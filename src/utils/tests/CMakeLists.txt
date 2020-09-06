@@ -14,6 +14,7 @@ set(tests
   test_tgen
   test_uuid
   test_uuid2
+  test_uuid4
   test_infixcalc
 
   tgen_example

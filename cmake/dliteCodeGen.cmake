@@ -111,7 +111,7 @@ macro(dlite_codegen output template url)
 
     add_custom_command(
       OUTPUT ${output}
-      COMMAND ${batfile}
+      COMMAND cmd /C ${batfile}
       DEPENDS ${codegen_dependencies}
       COMMENT "Generate ${output}"
       )

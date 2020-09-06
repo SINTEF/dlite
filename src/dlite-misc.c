@@ -130,12 +130,14 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
   }
   if (version) {
     int size = p - q;
+    assert(size > 0);
     if (!(versionp = malloc(size))) FAIL("allocation failure");
     memcpy(versionp, q + 1, size - 1);
     versionp[size - 1] = '\0';
   }
   if (namespace) {
     int size = q - uri + 1;
+    assert(size > 0);
     if (!(namespacep = malloc(size))) FAIL("allocation failure");
     memcpy(namespacep, uri, size - 1);
     namespacep[size - 1] = '\0';

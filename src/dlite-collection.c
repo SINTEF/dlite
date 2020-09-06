@@ -185,7 +185,7 @@ int dlite_collection_save(DLiteCollection *coll, DLiteStorage *s)
  */
 int dlite_collection_save_url(DLiteCollection *coll, const char *url)
 {
-  int retval;
+  int retval=1;
   char *str=NULL, *driver=NULL, *path=NULL, *options=NULL;
   DLiteStorage *s=NULL;
   if (!(str = strdup(url))) FAIL("allocation failure");

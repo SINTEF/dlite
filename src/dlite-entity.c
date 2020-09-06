@@ -67,7 +67,10 @@ static instance_map_t *_instance_store = NULL;
 static void _instance_store_create(void)
 {
   if (!_instance_store) {
-    _instance_store = malloc(sizeof(instance_map_t));
+    if (!(_instance_store = malloc(sizeof(instance_map_t)))) {
+      err(1, "allocation failure");
+      return;
+    }
     map_init(_instance_store);
     atexit(_instance_store_free);
     _instance_store_add((DLiteInstance *)dlite_get_basic_metadata_schema());
@@ -882,7 +885,7 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
  */
 int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 {
-  int retval;
+  int retval=1;
   char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
   DLiteStorage *s=NULL;
   if (!(str = strdup(url))) FAIL("allocation failure");

@@ -381,7 +381,7 @@ void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
  */
 const PluginAPI *plugin_api_iter_next(PluginIter *iter)
 {
-  PluginAPI **p, *api;
+  PluginAPI **p, *api=NULL;
   PluginInfo *info = (PluginInfo *)iter->info;
   const char *name = map_next(&info->apis, &iter->miter);
   if (!name) return NULL;

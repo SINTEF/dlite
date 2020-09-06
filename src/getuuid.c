@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "config.h"
 
@@ -24,7 +25,7 @@
  */
 int getuuid(char *buff, const char *id)
 {
-  int version;
+  int i, version;
   uuid_s uuid;
 
   if (!id) {
@@ -39,6 +40,10 @@ int getuuid(char *buff, const char *id)
     buff[UUID_LEN] = '\0';
     version = 0;
   }
+
+  /* For reprodusability, always convert to lower case */
+  for (i=0; i < UUID_LEN; i++)
+    buff[i] = tolower(buff[i]);
 
   return version;
 }

@@ -51,6 +51,8 @@ int globmatch(const char *pattern, const char *string)
         char bitlist[ BITLISTSIZE ];
         char *here;
 
+        memset(bitlist, 0, sizeof(bitlist));
+
         for( ;; )
             switch( *c++ )
         {

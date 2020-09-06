@@ -991,6 +991,7 @@ scandir(
     /* Release allocated memory on error */
     if (result < 0) {
         for (i = 0; i < size; i++) {
+          if (files && files[i])
             free (files[i]);
         }
         free (files);
@@ -1105,7 +1106,7 @@ dirent_mbstowcs_s(
     wcstr[n] = '\0';
 
     /* Return length of wide-character string with zero-terminator */
-    *pReturnValue = (size_t) (n + 1);
+    *pReturnValue = (size_t)n + 1;
 
     /* Return zero if conversion succeeded */
     if (n > 0) {
@@ -1188,7 +1189,7 @@ dirent_wcstombs_s(
     mbstr[n] = '\0';
 
     /* Return length of multi-byte string with zero-terminator */
-    *pReturnValue = (size_t) (n + 1);
+    *pReturnValue = (size_t)n + 1;
 
     /* Return zero if conversion succeeded without using default characters */
     if (n > 0  &&  flag == 0) {

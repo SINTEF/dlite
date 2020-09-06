@@ -138,13 +138,14 @@ char **get_environment(void)
   if (!envbuf) return err(1, "cannot get environment"), NULL;
   for (item=envbuf; *item; item+=strlen(item)+1) {
     if (item[0] == '=' || !strchr(item, '=')) continue;
-    if (n+1 >= size) {
-      size += 64*sizeof(char *);
-      env = realloc(env, size);
-    }
-    env[n++] = strdup(item);
+    env = strlist_add(env, item);
+    //if (n+1 >= size) {
+    //  size = (n + 64)*sizeof(char **);
+    //  env = realloc(env, size);
+    //}
+    //env[n++] = strdup(item);
   }
-  env[n] = NULL;
+  //env[n] = NULL;
   FreeEnvironmentStrings(envbuf);
 #else
   env = strlist_copy(environ);

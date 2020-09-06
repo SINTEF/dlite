@@ -170,7 +170,7 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
 {
   char **p = NULL;
-  if (s->api->iterCreate && s->api->iterCreate && s->api->iterCreate) {
+  if (s->api->iterCreate && s->api->iterNext && s->api->iterFree) {
     char buf[DLITE_UUID_LENGTH+1];
     void *iter = s->api->iterCreate(s, pattern);
     int n=0, len=0;
@@ -184,7 +184,8 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
     }
     s->api->iterFree(iter);
     if (p) {
-      p = realloc(p, (n+1)*sizeof(char *));
+      if (!(p = realloc(p, (n+1)*sizeof(char *))))
+        return err(1, "allocation failure"), NULL;
       p[n] = NULL;
     }
   } else if (s->api->getUUIDs)
