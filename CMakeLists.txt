@@ -267,7 +267,7 @@ if(WITH_FORTRAN)
   enable_fortran_compiler_flag_if_supported("-Wall")
   enable_fortran_compiler_flag_if_supported("-Wextra")
   enable_fortran_compiler_flag_if_supported("-Wpedantic")
-  enable_fortran_compiler_flag_if_supported("-Werror")
+  #enable_fortran_compiler_flag_if_supported("-Werror")
 endif()
 
 

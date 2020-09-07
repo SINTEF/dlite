@@ -27,11 +27,7 @@ module DLite
   interface dlite_instance_set_property_value
     
     module procedure set_property_value_string
-    module procedure set_property_value_real4
-    module procedure set_property_value_real8
-
     module procedure set_property_array_string
-    module procedure set_property_array_real4
       
   end interface dlite_instance_set_property_value
 
@@ -63,6 +59,7 @@ module DLite
   type, public :: DLiteMeta
     type(c_ptr) :: cptr
   contains
+    procedure :: check => dlite_meta_check
     procedure :: has_dimension => dlite_meta_has_dimension
     procedure :: has_property => dlite_meta_has_property
     !procedure :: destroy => dlite_meta_free? or dlite_instance_free?
@@ -317,87 +314,6 @@ module DLite
   end interface
 
 contains
-  ! --------------------------------------------------------
-  ! Generic help functions
-  ! --------------------------------------------------------
-
-  ! Returns length of `c_string`
-  function c_string_length(c_string) result(length)
-    use, intrinsic :: iso_c_binding, only: c_ptr
-    type(c_ptr), intent(in) :: c_string
-    integer                 :: length
-    interface
-      ! use std c library function rather than writing our own.
-      function strlen(s) bind(c, name='strlen')
-        use, intrinsic :: iso_c_binding, only: c_ptr, c_size_t
-        implicit none
-        type(c_ptr), intent(in), value :: s
-        integer(c_size_t) :: strlen
-      end function strlen
-    end interface
-    length = int(strlen(c_string))
-  end function c_string_length
-
-
-  function f_c_string_func(f_string) result (c_string)
-    character(len=*), intent(in) :: f_string
-    character(len=1,kind=c_char) :: c_string(len_trim(f_string)+1)
-    integer                      :: n, i
-
-    n = len_trim(f_string)
-    do i = 1, n
-      c_string(i) = f_string(i:i)
-    end do
-    c_string(n + 1) = c_null_char
-
-  end function f_c_string_func
-
-
-  !function c_f_string(cptr) result(f_string)
-  !  ! Convert a null-terminated c string into a fortran character array pointer
-  !  type(c_ptr), intent(in) :: cptr ! the c address
-  !  character(kind=c_char), dimension(:), pointer :: f_string
-  !  character(kind=c_char), dimension(1), target :: dummy_string="?"
-  !
-  !  interface ! strlen is a standard c function from <string.h>
-  !     ! int strlen(char *string)
-  !     function strlen(string) result(len) bind(c,name="strlen")
-  !       use iso_c_binding
-  !       type(c_ptr), value      :: string
-  !       integer(kind=c_size_t)  :: len
-  !     end function strlen
-  !  end interface
-  !
-  !  if(c_associated(cptr)) then
-  !     call c_f_pointer(f_string, cptr, [strlen(cptr)])
-  !  else
-  !     ! To avoid segfaults, associate f_string with a dummy target
-  !     f_string=>dummy_string
-  !  end if
-  !
-  !end function c_f_string
-
-  !! Copy C string to Fortran string
-  !subroutine c_string_copy(c_string, f_string)
-  !  use, intrinsic :: iso_c_binding, only: c_ptr, c_char
-  !  type(c_ptr), intent(in)             :: c_string
-  !  character, allocatable, intent(out) :: f_string(:)
-  !  integer                             :: i
-  !  interface
-  !     subroutine strncpy(dest, src, n) bind(c,name="strncpy")
-  !       use iso_c_binding
-  !       type(c_ptr), intent(out)      :: dest
-  !       type(c_ptr), intent(in)       :: src
-  !       integer(kind=c_size_t), value :: n
-  !     end subroutine strncpy
-  !  end interface
-  !
-  !  call strncpy(c_loc(f_string), c_string, size(f_string))
-  !  do i = size(f_string) - c_string_length(c_string), size(f_string)
-  !     f_string(i:i) = ' '
-  !  end do
-  !end subroutine c_string_copy
-
 
   ! --------------------------------------------------------
   ! Fortran methods for DLiteStorage
@@ -466,9 +382,8 @@ contains
     character(len=1,kind=c_char)          :: id_c(len_trim(id)+1)
     type(DliteInstance)                   :: instance
 
-    metaid_c = f_c_string_func(metaid)
-    id_c = f_c_string_func(id)
-
+    call f_c_string(metaid, metaid_c)
+    call f_c_string(id, id_c)
     instance%cinst = dlite_instance_create_from_id_c(metaid_c, dims, id_c)
     !instance%uuid =
     !instance%uri =
@@ -481,7 +396,7 @@ contains
     character(len=1,kind=c_char)          :: id_c(len_trim(id)+1)
     type(DliteInstance)                   :: instance
 
-    id_c = f_c_string_func(id)
+    call f_c_string(id, id_c)
     instance%cinst = dlite_instance_load_c(storage%cptr, id_c)
   end function dlite_instance_load
 
@@ -490,7 +405,7 @@ contains
     character(len=1,kind=c_char)          :: url_c(len_trim(url)+1)
     type(DliteInstance)                   :: instance
 
-    url_c = f_c_string_func(url)
+    call f_c_string(url, url_c)
     instance%cinst = dlite_instance_load_url_c(url_c)
   end function dlite_instance_load_url
 
@@ -502,11 +417,10 @@ contains
     character(len=1,kind=c_char)          :: metaid_c(len_trim(metaid)+1)
     type(DliteInstance)                   :: instance
 
-    id_c = f_c_string_func(id)
-    metaid_c = f_c_string_func(metaid)
-
+    call f_c_string(metaid, metaid_c)
+    call f_c_string(id, id_c)
     instance%cinst = &
-         dlite_instance_load_casted_c(storage%cptr, id_c, metaid_c)
+        dlite_instance_load_casted_c(storage%cptr, id_c, metaid_c)
   end function dlite_instance_load_casted
 
   function dlite_instance_save(instance, storage) result(status)
@@ -521,38 +435,27 @@ contains
     character(len=*), intent(in)     :: url
     character(len=1,kind=c_char)     :: url_c(len_trim(url)+1)
     integer                          :: status
-    url_c = f_c_string_func(url)
+    call f_c_string(url, url_c)
     status = dlite_instance_save_url_c(url_c, instance%cinst)
   end function dlite_instance_save_url
 
   function dlite_instance_get_uuid(instance) result(uuid)
     class(DLiteInstance), intent(in) :: instance
     character(len=36)                :: uuid
-
-    ! FIXME - get UUID from instance
-    !integer :: i, n
-    integer :: n
     type(c_ptr) :: cptr
-    !character(kind=c_char), dimension(:), pointer :: fptr
     cptr = dlite_instance_get_uuid_c(instance%cinst)
-    n = c_string_length(cptr)
-    uuid = 'xxx'
-    !c_f_pointer(cptr, fptr, [n])
-    !do i = 1, n
-    !   uuid(i:i) = fptr(i:i)
-    !end do
+    call c_f_string(cptr, uuid)
   end function dlite_instance_get_uuid
 
   function dlite_instance_get_dimension_size(instance, name) result(n)
     class(DLiteInstance), intent(in) :: instance
     character(len=*), intent(in)     :: name
     character(len=1,kind=c_char)     :: name_c(len_trim(name)+1)
-    integer                          :: n
+    integer(8)                       :: n
     integer(kind=c_size_t)           :: n_c
-    ! FIXME - correct call to dlite_instance_get_dimension_size_c()
-    name_c = f_c_string_func(name)
+    call f_c_string(name, name_c)
     n_c = dlite_instance_get_dimension_size_c(instance%cinst, name_c)
-    n = int(n_c)
+    n = n_c
   end function dlite_instance_get_dimension_size
 
   function dlite_instance_get_dimension_size_by_index(instance, i) result(n)
@@ -571,8 +474,7 @@ contains
     character(len=*), intent(in)     :: name
     character(len=1,kind=c_char)     :: name_c(len_trim(name)+1)
     type(c_ptr)                      :: ptr
-    ! FIXME - correct call to dlite_instance_get_property_c()
-    name_c = f_c_string_func(name)
+    call f_c_string(name, name_c)
     ptr = dlite_instance_get_property_c(instance%cinst, name_c)
   end function dlite_instance_get_property
 
@@ -716,6 +618,12 @@ contains
     meta%cptr = dlite_meta_create_from_metamodel_c(model%cptr)
   end function dlite_meta_create_from_metamodel
 
+  function dlite_meta_check(meta) result(status)
+    class(DLiteMeta)             :: meta
+    logical                      :: status
+    status = c_associated(meta%cptr)
+  end function dlite_meta_check
+
   function dlite_meta_has_dimension(meta, name) result(answer)
     class(DLiteMeta)             :: meta
     character(len=*), intent(in) :: name
@@ -747,32 +655,6 @@ contains
 
   end subroutine set_property_value_string
 
-  subroutine set_property_value_real4(inst, index, prop)
-    type(DLiteInstance), intent(in)  :: inst
-    integer, intent(in)              :: index
-    real(4), intent(in)              :: prop    
-    type(c_ptr)                      :: cptr
-    real(c_float), pointer           :: prop_p
-
-    cptr = inst%get_property_by_index(index)    
-    call c_f_pointer(cptr, prop_p)
-    prop_p = prop
-
-  end subroutine set_property_value_real4
-
-  subroutine set_property_value_real8(inst, index, prop)
-    type(DLiteInstance), intent(in)  :: inst
-    integer, intent(in)              :: index
-    real(8), intent(in)              :: prop
-    type(c_ptr)                      :: cptr
-    real(c_double), pointer          :: prop_p
-
-    cptr = inst%get_property_by_index(index)    
-    call c_f_pointer(cptr, prop_p)
-    prop_p = prop
-
-  end subroutine set_property_value_real8
-
   subroutine set_property_array_string(inst, index, prop)
     type(DLiteInstance), intent(in)        :: inst
     integer, intent(in)                    :: index
@@ -793,21 +675,5 @@ contains
     end do
 
   end subroutine set_property_array_string
-
-  subroutine set_property_array_real4(inst, index, prop)
-    type(DLiteInstance), intent(in)      :: inst
-    integer, intent(in)                  :: index
-    real(4), dimension(*), intent(in)    :: prop(:)
-    type(c_ptr)                          :: cptr
-    real(c_float), pointer               :: prop_p(:)
-    integer(8), dimension(*), allocatable:: dims(:)
-
-    call dlite_instance_get_property_dims_by_index(inst, index, dims)
-    cptr = inst%get_property_by_index(index)
-    call c_f_pointer(cptr, prop_p, dims)
-    prop_p = prop
-
-  end subroutine set_property_array_real4  
-
 
 end module DLite

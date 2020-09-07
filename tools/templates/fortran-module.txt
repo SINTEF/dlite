@@ -19,7 +19,8 @@ module {name}
     PRIVATE
   
     PUBLIC :: T{name}
-    PUBLIC :: create_meta_{name%c}
+    
+    type(DLiteMeta) :: meta_{name%c}
   
     TYPE T{name}
       type(c_ptr)                    :: cinst
@@ -56,24 +57,25 @@ module {name}
   
   contains
 
-  function create_meta_{name%c}() result(meta)
-    type(DLiteMeta)      :: meta
+  subroutine create_meta_{name%c}()
     type(DLiteMetaModel) :: model
     integer              :: i
-
-    model = DLiteMetaModel('{_uri}', 'http://meta.sintef.no/0.3/EntitySchema', '')
-    i = model%add_string('description', '{descr}')
-{list_dimensions:{@4}i = model%add_dimension('{dim.name}', '{dim.descr}')\n}    
-{list_properties:{@4}i = model%add_property('{prop.name}', '{prop.typename}', '{prop.unit}', '{prop.iri}', '{prop.descr}')\
-{@if:{prop.ndims}!0}\n{prop.dims:{@4}i = model%add_property_dim('{prop.name}', '{dim.name}')}{@endif}\n}
-    meta = DLiteMeta(model)
-    call model%destroy()
-  end function create_meta_person
+    if (.not. meta_{name%c}%check()) then
+      model = DLiteMetaModel('{_uri}', 'http://meta.sintef.no/0.3/EntitySchema', '')
+      i = model%add_string('description', '{descr}')
+{list_dimensions:{@6}i = model%add_dimension('{dim.name}', '{dim.descr}')\n}    
+{list_properties:{@6}i = model%add_property('{prop.name}', '{prop.typename}', '{prop.unit}', '{prop.iri}', '{prop.descr}')\
+{@if:{prop.ndims}!0}\n{prop.dims:{@6}i = model%add_property_dim('{prop.name}', '{dim.name}')\n}{@endif}\n}
+      meta_{name%c} = DLiteMeta(model)
+      call model%destroy()
+    endif
+  end subroutine create_meta_{name%c}
 
   function create32({list_dimensions:{dim.name}{, }\.}) result({name%c})
     implicit none
-    type(T{name}) :: {name%c}
+    type(T{name}) :: {name%c}    
 {list_dimensions:{@4}integer(4)    :: {dim.name}\n}
+    call create_meta_{name%c}()
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
 {list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
   end function create32
@@ -82,17 +84,22 @@ module {name}
     implicit none
     type(T{name}) :: {name%c}
 {list_dimensions:{@4}integer(8)    :: {dim.name}\n}
+    call create_meta_{name%c}()
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
 {list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
   end function create64
 
   subroutine readFromInstance({name%c}, instance)
-    class(T{name})                  :: {name%c}
-    type(DLiteInstance), intent(in) :: instance
-    type(c_ptr)                     :: cptr
+    class(T{name})                        :: {name%c}
+    type(DLiteInstance), intent(in)       :: instance
+    type(c_ptr)                           :: cptr
+    integer(8), dimension(*), allocatable :: dims(:)
+    integer(8)                            :: i, strlen, nstring
 {list_properties:\
-{@if:{prop.typeno}=5}\
+{@if:({prop.typeno}=5)&({prop.ndims}=0)}\
 {@4}! {prop.isoctype} {@42}:: {prop.name}\n\
+{@elif:({prop.typeno}=5)&({prop.ndims}=1)}\
+{@4}character(kind=c_char), pointer {@42}:: {prop.name}_p(:,:)\n\
 {@elif:{prop.ndims}!0}\
 {@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p({prop.dims::{,}\.})\n\
 {@else}\
@@ -103,8 +110,18 @@ module {name}
 {list_dimensions:{@6}{name%c}%{dim.name} = instance%get_dimension_size_by_index({dim.i})\n}
 {list_properties:\
 {@6}! {prop.name}\n\
-{@if:{prop.typeno}=5}\
-{@6}!call dlite_instance_get_property_value(instance, {prop.i}, {name%c}%{prop.name})\n\
+{@if:({prop.typeno}=5)&({prop.ndims}=0)}\
+{@6}call c_f_string(instance%get_property_by_index({prop.i}), {name%c}%{prop.name})\n\
+{@elif:({prop.typeno}=5)&({prop.ndims}=1)}\
+{@6}cptr = instance%get_property_by_index({prop.i})\n\
+{@6}call instance%get_property_dims_by_index({prop.i}, dims)\n\
+{@6}nstring = dims(1)\n\
+{@6}strlen = {prop.size}\n\
+{@6}call c_f_pointer(cptr, {prop.name}_p, [strlen, nstring])\n\
+{@6}allocate({name%c}%{prop.name}(nstring))\n\
+{@6}do i = 1, nstring
+{@8}call c_f_string({prop.name}_p(:,i), {name%c}%{prop.name}(i))
+{@6}end do
 {@elif:{prop.ndims}!0}\
 {@6}cptr = instance%get_property_by_index({prop.i})\n\
 {@6}call instance%get_property_dims_by_index({prop.i}, dims)\n\
@@ -161,6 +178,7 @@ module {name}
     character(len=*), intent(in)    :: url
     type(T{name})                   :: {name%c}
     type(DLiteInstance)             :: instance
+    call create_meta_{name%c}()
     instance = DLiteInstance(url)
     call {name%c}%readFromInstance(instance)
   end function readFromURL
@@ -174,8 +192,9 @@ module {name}
     type(T{name})                :: {name%c}
     type(DLiteStorage)           :: storage
     integer                      :: status
+    call create_meta_{name%c}()
     storage = DLiteStorage(driver, location, options)
-    person = readFromStorage(storage, uid)
+    {name%c} = readFromStorage(storage, uid)
     status = storage%close()
   end function readFromSource
 
@@ -185,6 +204,7 @@ module {name}
     character(len=*), intent(in)    :: uid
     type(T{name})                   :: {name%c}
     type(DLiteInstance)             :: instance
+    call create_meta_{name%c}()
     instance = DLiteInstance(storage, uid)
     call {name%c}%readFromInstance(instance)
   end function readFromStorage

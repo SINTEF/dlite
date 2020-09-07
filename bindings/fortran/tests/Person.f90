@@ -12,7 +12,8 @@ MODULE Person
   PRIVATE
 
   PUBLIC :: TPerson
-  PUBLIC :: create_meta_person
+
+  type(DLiteMeta) :: meta_person
 
   TYPE TPerson
     type(c_ptr)                    :: cinst
@@ -46,30 +47,32 @@ MODULE Person
 
 CONTAINS
 
-  function create_meta_person() result(meta)
-    type(DLiteMeta)      :: meta
+  subroutine create_meta_person()
     type(DLiteMetaModel) :: model
     integer              :: i
-
-    model = DLiteMetaModel('http://meta.sintef.no/0.2/Person', 'http://meta.sintef.no/0.3/EntitySchema', '')
-    i = model%add_string('description', 'A person.')
-    i = model%add_dimension('N', 'Number of skills.')
-    i = model%add_dimension('M', 'Number of temperature measurements.')
-    i = model%add_property('name', 'string45', '', '', '')
-    i = model%add_property('age', 'float', 'years', '', '')
-    i = model%add_property('skills', 'string10', '', '', '')
-    i = model%add_property_dim('skills', 'N')
-    i = model%add_property('temperature', 'float', 'degC', '', '')
-    i = model%add_property_dim('temperature', 'M')
-    meta = DLiteMeta(model)
-    call model%destroy()
-  end function create_meta_person
+    if (.not. meta_person%check()) then
+      model = DLiteMetaModel('http://meta.sintef.no/0.2/Person',&
+                             'http://meta.sintef.no/0.3/EntitySchema', '')
+      i = model%add_string('description', 'A person.')
+      i = model%add_dimension('N', 'Number of skills.')
+      i = model%add_dimension('M', 'Number of temperature measurements.')
+      i = model%add_property('name', 'string45', '', '', '')
+      i = model%add_property('age', 'float', 'years', '', '')
+      i = model%add_property('skills', 'string10', '', '', '')
+      i = model%add_property_dim('skills', 'N')
+      i = model%add_property('temperature', 'float', 'degC', '', '')
+      i = model%add_property_dim('temperature', 'M')
+      meta_person = DLiteMeta(model)
+      call model%destroy()
+    endif
+  end subroutine create_meta_person
 
   function createPerson32(n, m) result(person)
     implicit none
     type(TPerson)          :: person
     integer(4), intent(in) :: n
     integer(4), intent(in) :: m
+    call create_meta_person()
     person%n = n
     person%m = m
     allocate(person%skills(n))
@@ -81,6 +84,7 @@ CONTAINS
     type(TPerson)          :: person
     integer(8), intent(in) :: n
     integer(8), intent(in) :: m
+    call create_meta_person()
     person%n = n
     person%m = m
     allocate(person%skills(n))
@@ -179,6 +183,7 @@ CONTAINS
     character(len=*), intent(in)    :: url
     type(TPerson)                   :: person
     type(DLiteInstance)             :: instance
+    call create_meta_person()
     instance = DLiteInstance(url)
     call assignPerson(person, instance)
   end function readPersonFromURL
@@ -192,6 +197,7 @@ CONTAINS
     type(TPerson)                :: person
     type(DLiteStorage)           :: storage
     integer                      :: status
+    call create_meta_person()
     storage = DLiteStorage(driver, location, options)
     person = readPersonFromStorage(storage, uid)
     status = storage%close()
@@ -203,6 +209,7 @@ CONTAINS
     character(len=*), intent(in)    :: uid
     type(TPerson)                   :: person
     type(DLiteInstance)             :: instance
+    call create_meta_person()
     instance = DLiteInstance(storage, uid)
     call assignPerson(person, instance)
   end function readPersonFromStorage

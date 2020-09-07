@@ -1,12 +1,27 @@
 # -*- Mode: cmake -*-
 #
 
+include(dliteCodeGen)
+
+add_compile_options("-DDLITE_ROOT=${DLITE_ROOT}")
+
+dlite_codegen(
+  ${CMAKE_CURRENT_BINARY_DIR}/Person2.f90
+  fortran-module
+  json://${CMAKE_CURRENT_SOURCE_DIR}/Person.json?mode=r
+  )
+
+dlite_codegen(
+  ${CMAKE_CURRENT_BINARY_DIR}/Scan3D.f90
+  fortran-module
+  json://${CMAKE_CURRENT_SOURCE_DIR}/Scan3D.json?mode=r
+  )
+
 set(tests
   test_person
   )
 
-
-add_library(Person Person.f90)
+add_library(Person ${CMAKE_CURRENT_BINARY_DIR}/Person2.f90)
 target_link_libraries(Person
   dlite
   dlite-utils
@@ -17,6 +32,16 @@ target_include_directories(Person PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 
+add_library(Scan3D ${CMAKE_CURRENT_BINARY_DIR}/Scan3D.f90)
+target_link_libraries(Scan3D
+  dlite
+  dlite-utils
+  dlite-fortran
+  )
+target_include_directories(Scan3D PRIVATE
+  ${dlite-bindings-fortran_BINARY_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
 
 foreach(test ${tests})
   add_executable(${test} ${test}.f90)
@@ -25,6 +50,7 @@ foreach(test ${tests})
     dlite-utils
     dlite-fortran
     Person
+    Scan3D
     )
   target_include_directories(${test} PRIVATE
     ${dlite-bindings-fortran_BINARY_DIR}

@@ -7,16 +7,14 @@ program ftest_person
   use DLite
   use dlite_config, only: dlite_fortran_test_dir
   use Person
+  use Scan3D
 
   implicit none
 
+  type(DLiteStorage) :: storage
   type(TPerson)      :: person, john
+  type(TScan3D)      :: scan
   integer            :: status
-
-  type(DLiteMeta) :: meta
-
-  meta = create_meta_person()
-  print *, meta%has_dimension('N'), meta%has_property('name')
 
   person = TPerson( &
        "json", &
@@ -50,5 +48,17 @@ program ftest_person
        "persons2.json", &
        "mode=w")
 
+scan = TScan3D(5, 3)
+scan%date = '2020-09-07'
+scan%points(1,:) = [1, 1, 1]
+
+storage = DLiteStorage("json", &
+                       dlite_fortran_test_dir // "inputs.json", &
+                       "mode=r")
+person = TPerson(storage, "b04965e6-a9bb-591f-8f8a-1adcb2c8dc39")
+scan = TScan3D(storage, "4b166dbe-d99d-5091-abdd-95b83330ed3a")
+status = storage%close()
+
+status = scan%writeToURL("json://scans.json")
 
 end program ftest_person
