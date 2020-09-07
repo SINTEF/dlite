@@ -49,19 +49,23 @@
 
 /* Error macros for when DLiteDataModel instance d in available */
 #define DFAIL0(d, msg) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid); \
+    goto fail;} while (0)
 
 #define DFAIL1(d, msg, a1) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1); \
+    goto fail;} while (0)
 
 #define DFAIL2(d, msg, a1, a2) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1, a2); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1, a2); \
+    goto fail;} while (0)
 
 #define DFAIL3(d, msg, a1, a2, a3) \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1, a2, a3); goto fail;} while (0)
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1, a2, a3); \
+    goto fail;} while (0)
 
 #define DFAIL4(d, msg, a1, a2, a3, a4)                            \
-  do {err(-1, "%s/%s: " msg, d->s->uri, d->uuid, a1, a2, a3, a4); \
+  do {err(-1, "%s/%s: " msg, d->s->location, d->uuid, a1, a2, a3, a4); \
     goto fail;} while (0)
 
 
@@ -252,7 +256,7 @@ int dlite_json_close(DLiteStorage *s)
   if (storage->writable == 1) {
     size_t flags=0;
     flags |= (storage->compact) ? JSON_COMPACT : JSON_INDENT(2);
-    json_dump_file(storage->root, storage->uri, flags);
+    json_dump_file(storage->root, storage->location, flags);
   }
   json_decref(storage->root);
   return nerr;
@@ -284,7 +288,7 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     /* Instance `id` exists - assign datamodel... */
     if (!json_is_object(data))
       FAIL2("expected a json object for instance '%s' in '%s'",
-            id, storage->uri);
+            id, storage->location);
     d->instance = data;
     d->meta = json_object_get(data, "meta");
     d->dimensions = json_object_get(data, "dimensions");
@@ -305,7 +309,7 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
       free(uri2);
       if (strcmp(uuid2, uuid) != 0)
 	FAIL5("uri %s/%s/%s in storage %s doesn't match id: %s",
-	      namespace, version, name, storage->uri, id);
+	      namespace, version, name, storage->location, id);
     }
 
     /* Instance is a metadata definition */
@@ -332,7 +336,7 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
       free(uri2);
       if (strcmp(uuid2, uuid) != 0)
 	FAIL5("uri %s/%s/%s in storage %s doesn't match id: %s",
-	      namespace, version, name, storage->uri, id);
+	      namespace, version, name, storage->location, id);
     }
 
     /* Instance is a meta-metadata definition (schema) */
@@ -350,7 +354,7 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
        assign the datamodel... */
     if (!storage->writable)
       FAIL2("cannot create new instance '%s' in read-only storage %s",
-            uuid, storage->uri);
+            uuid, storage->location);
     d->fmt = storage->fmt;
     switch (d->fmt) {
     case fmtNormal:
@@ -841,9 +845,9 @@ DLiteMeta *dlite_json_entity(json_t *obj)
             dlite_json_entity_prop(item, ndim, dims, props + i);
           }
 
-          entity = dlite_entity_create(uri, iri, desc,
-                                       ndim, dims,
-                                       nprop, props);
+          entity = dlite_meta_create(uri, iri, desc,
+                                     ndim, dims,
+                                     nprop, props);
         }
       }
       else
