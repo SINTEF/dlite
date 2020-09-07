@@ -97,6 +97,21 @@ struct _DLiteDimension {
 /* --------
  * Property
  * -------- */
+%feature("docstring", "\
+Creates a new property.
+
+Property(name, type, dims=None, unit=None, iri=None, description=None)
+    Creates a new property with the provided attributes.
+
+Property(seq)
+    Creates a new property from sequence of 6 strings, corresponding to
+    `name`, `type`, `dims`, `unit`, `iri` and `description`.  Valid
+    values for `dims` are:
+      - '' or '[]': no dimensions
+      - '<dim1>, <dim2>': list of dimension names
+      - '[<dim1>, <dim2>]': list of dimension names
+
+") _DLiteProperty;
 %rename(Property) _DLiteProperty;
 struct _DLiteProperty {
   char *name;
