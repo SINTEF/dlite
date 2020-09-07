@@ -487,22 +487,33 @@ contains
     ptr = dlite_instance_get_property_by_index_c(instance%cinst, i_c)
   end function dlite_instance_get_property_by_index
 
-  subroutine dlite_instance_get_property_dims_by_index(instance, i, dims)
-    class(DLiteInstance), intent(in) :: instance
-    integer, intent(in)              :: i
-    integer(kind=c_size_t)           :: i_c
-    type(c_ptr)                      :: ptr
-    integer(c_size_t), pointer       :: dims_p(:)
-    integer(c_int)                   :: ndim_c
-    integer(8)                           :: ndim
+  subroutine dlite_instance_get_property_dims_by_index(instance, i, dims, reverse)
+    class(DLiteInstance), intent(in)     :: instance
+    integer, intent(in)                  :: i
+    integer(kind=c_size_t)               :: i_c
+    type(c_ptr)                          :: ptr
+    integer(c_size_t), pointer           :: dims_p(:)
+    integer(c_int)                       :: ndim_c
+    integer(8)                           :: ndim, j
     integer(8), allocatable, intent(out) :: dims(:)
+    logical, optional                    :: reverse
     i_c = i
     ndim_c = dlite_instance_get_property_ndims_by_index_c(instance%cinst, i_c)
     ndim = ndim_c
     ptr = dlite_instance_get_property_dims_by_index_c(instance%cinst, i_c)
     call c_f_pointer(ptr, dims_p, [ndim])
     allocate(dims(ndim))
-    dims = dims_p
+    if (present(reverse)) then
+      if (reverse .and. (ndim .gt. 1)) then
+        do j = 1, ndim
+          dims(j) = dims_p(ndim - j + 1)
+        end do
+      else
+        dims = dims_p
+      endif
+    else
+      dims = dims_p
+    endif        
   end subroutine dlite_instance_get_property_dims_by_index
 
   function dlite_instance_decref(instance) result(count)

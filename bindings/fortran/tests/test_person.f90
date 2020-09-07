@@ -59,6 +59,7 @@ person = TPerson(storage, "b04965e6-a9bb-591f-8f8a-1adcb2c8dc39")
 scan = TScan3D(storage, "4b166dbe-d99d-5091-abdd-95b83330ed3a")
 status = storage%close()
 
+print *, scan%points
 status = scan%writeToURL("json://scans.json")
 
 end program ftest_person

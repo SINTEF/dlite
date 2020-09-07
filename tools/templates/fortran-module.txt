@@ -124,7 +124,7 @@ module {name}
 {@6}end do
 {@elif:{prop.ndims}!0}\
 {@6}cptr = instance%get_property_by_index({prop.i})\n\
-{@6}call instance%get_property_dims_by_index({prop.i}, dims)\n\
+{@6}call instance%get_property_dims_by_index({prop.i}, dims, .true.)\n\
 {@6}call c_f_pointer(cptr, {prop.name}_p, dims)\n\
 {@6}{name%c}%{prop.name} = {prop.name}_p\n\
 {@else}\
@@ -156,7 +156,7 @@ module {name}
 {@4}call dlite_instance_set_property_value(instance, {prop.i}, {name%c}%{prop.name})\n\
 {@elif:{prop.ndims}!0}\
 {@4}cptr = instance%get_property_by_index({prop.i})\n\
-{@4}call instance%get_property_dims_by_index({prop.i}, dims)\n\
+{@4}call instance%get_property_dims_by_index({prop.i}, dims, .true.)\n\
 {@4}call c_f_pointer(cptr, {prop.name}_p, dims)\n\
 {@4}{prop.name}_p = {name%c}%{prop.name}\n\
 {@else}\
