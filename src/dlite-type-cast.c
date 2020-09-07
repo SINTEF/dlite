@@ -166,7 +166,7 @@ static int istrue(const void *src, DLiteType type, size_t size)
     if (!(*(char **)dest = realloc(*(char **)dest, n + 1)))             \
       return err(1, "reallocation failure");                            \
     m = dlite_type_snprintf(src, src_type, src_size,                    \
-                            0, -2, *(char **)dest, dest_size);          \
+                            0, -2, *(char **)dest, n+1);                \
     assert(m == n);                                                     \
     return 0;                                                           \
   } while (0)
@@ -739,6 +739,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
     if (dest_type == dliteDimension) {
       assert(dest_size == src_size);
       if (!dlite_type_copy(dest, src, dest_type, dest_size)) goto fail;
+      return 0;
     }
     goto fail;
 
@@ -746,6 +747,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
     if (dest_type == dliteProperty) {
       assert(dest_size == src_size);
       if (!dlite_type_copy(dest, src, dest_type, dest_size)) goto fail;
+      return 0;
     }
     goto fail;
 
@@ -753,6 +755,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
     if (dest_type == dliteRelation) {
       assert(dest_size == src_size);
       if (!dlite_type_copy(dest, src, dest_type, dest_size)) goto fail;
+      return 0;
     }
     goto fail;
 
