@@ -329,6 +329,8 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
     dlite_instance_incref(inst);
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->_refcount);
+    /* FIXME - check that dims corresponds to existing instance.
+       If not - fail! */
     return inst;
   }
 
