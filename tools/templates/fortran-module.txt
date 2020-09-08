@@ -23,9 +23,8 @@ module {name}
     type(DLiteMeta) :: meta_{name%c}
   
     TYPE T{name}
-      type(c_ptr)                    :: cinst
-      !character(len=36)              :: uuid
-      !type(TPersonDims)              :: dims
+      type(c_ptr)                      :: cinst
+      character(len=36)                :: uuid
       ! -- dimension values 
 {list_dimensions:{@6}integer(8){@40}:: {dim.name} ! {dim.descr} \n}
       ! -- property values
@@ -76,6 +75,7 @@ module {name}
     type(T{name}) :: {name%c}    
 {list_dimensions:{@4}integer(4)    :: {dim.name}\n}
     call create_meta_{name%c}()
+    {name%c}%uuid(:) = ' '
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
 {list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
   end function create32
@@ -85,6 +85,7 @@ module {name}
     type(T{name}) :: {name%c}
 {list_dimensions:{@4}integer(8)    :: {dim.name}\n}
     call create_meta_{name%c}()
+    {name%c}%uuid(:) = ' '
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
 {list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
   end function create64
@@ -107,6 +108,7 @@ module {name}
 {@endif}\ }
 
     if (instance%check()) then
+      {name%c}%uuid = instance%get_uuid()
 {list_dimensions:{@6}{name%c}%{dim.name} = instance%get_dimension_size_by_index({dim.i})\n}
 {list_properties:\
 {@6}! {prop.name}\n\
@@ -126,11 +128,17 @@ module {name}
 {@6}cptr = instance%get_property_by_index({prop.i})\n\
 {@6}call instance%get_property_dims_by_index({prop.i}, dims, .true.)\n\
 {@6}call c_f_pointer(cptr, {prop.name}_p, dims)\n\
-{@6}{name%c}%{prop.name} = {prop.name}_p\n\
 {@else}\
 {@6}cptr = instance%get_property_by_index({prop.i})\n\
 {@6}call c_f_pointer(cptr, {prop.name}_p)\n\
 {@6}{name%c}%{prop.name} = {prop.name}_p\n\
+{@endif}\ }
+{@6}! copy arrays
+{list_properties:\
+{@if:({prop.typeno}!5)&({prop.ndims}=1)}\
+{@6}{name%c}%{prop.name} = {prop.name}_p\n\
+{@elif:({prop.typeno}!5)&({prop.ndims}=2)}\
+{@6}{name%c}%{prop.name} = transpose({prop.name}_p)\n\
 {@endif}\ }
     endif    
   end subroutine readFromInstance
@@ -149,7 +157,9 @@ module {name}
 {@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p\n\
 {@endif}\ }
     instance = DLiteInstance('{_uri}', &
-                             [{list_dimensions:{name%c}%{dim.name}{, }\.}], '')
+                             {_ndimensions}, &
+                             [{list_dimensions:{name%c}%{dim.name}{, }\.}], &
+                             {name%c}%uuid)
 {list_properties:\
 {@4}! {prop.name}\n\
 {@if:{prop.typeno}=5}\
@@ -158,11 +168,18 @@ module {name}
 {@4}cptr = instance%get_property_by_index({prop.i})\n\
 {@4}call instance%get_property_dims_by_index({prop.i}, dims, .true.)\n\
 {@4}call c_f_pointer(cptr, {prop.name}_p, dims)\n\
-{@4}{prop.name}_p = {name%c}%{prop.name}\n\
 {@else}\
 {@4}cptr = instance%get_property_by_index({prop.i})\n\
 {@4}call c_f_pointer(cptr, {prop.name}_p)\n\
 {@4}{prop.name}_p = {name%c}%{prop.name}\n\
+{@endif}\ }
+{@4}! copy arrays
+{list_properties:\
+{@if:({prop.typeno}!5)&({prop.ndims}=1)}\
+{@4}{prop.name}_p = {name%c}%{prop.name}\n\
+{@elif:({prop.typeno}!5)&({prop.ndims}=2)}\
+points_p = transpose(scan3d%points)
+{@4}{prop.name}_p = transpose({name%c}%{prop.name})\n\
 {@endif}\ }
   end function writeToInstance  
 

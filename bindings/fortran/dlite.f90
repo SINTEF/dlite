@@ -4,7 +4,7 @@
 module DLite
   use iso_c_binding, only : c_ptr, c_int, c_size_t, c_char, c_null_char, &
                             c_associated, c_null_ptr, c_bool, c_float,   &
-                            c_double, c_f_pointer
+                            c_double, c_f_pointer, c_loc
   use c_interface, only: c_f_string, f_c_string
 
   implicit none
@@ -374,17 +374,38 @@ contains
   ! Fortran methods for DLiteInstance
   ! --------------------------------------------------------
 
-  function dlite_instance_create_from_id(metaid, dims, id) result(instance)
+  function dlite_instance_create_from_id(metaid, ndim, dims, id) result(instance)
     character(len=*), intent(in)          :: metaid
     integer(8), dimension(*), intent(in)  :: dims
+    integer, intent(in)                   :: ndim
     character(len=*), intent(in)          :: id
     character(len=1,kind=c_char)          :: metaid_c(len_trim(metaid)+1)
     character(len=1,kind=c_char)          :: id_c(len_trim(id)+1)
     type(DliteInstance)                   :: instance
+    integer(c_size_t), allocatable, target:: dims1(:)
+    integer(c_size_t), pointer            :: dims1_p(:)
+    type(c_ptr)                           :: cptr 
+    integer                               :: i
 
+    ! copy metaid in a C string
     call f_c_string(metaid, metaid_c)
-    call f_c_string(id, id_c)
-    instance%cinst = dlite_instance_create_from_id_c(metaid_c, dims, id_c)
+    
+    ! copy dims in a C pointer (size_t*)
+    allocate(dims1(ndim))
+    do i=1, ndim
+       dims1(i) = dims(i)
+    end do
+    dims1_p => dims1
+    cptr = c_loc(dims1_p)
+
+    ! check if uuid is empty or not
+    if (len_trim(id) == 36) then
+      ! copy uuid in a C string
+      call f_c_string(id, id_c)
+      instance%cinst = dlite_instance_create_from_id_c(metaid_c, dims1, id_c)
+    else
+      instance%cinst = dlite_instance_create_from_id_c(metaid_c, dims1, c_null_char)
+    endif
     !instance%uuid =
     !instance%uri =
     !instance%iri =

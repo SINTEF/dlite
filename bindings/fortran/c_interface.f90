@@ -58,13 +58,14 @@ module c_interface
     if (.not. c_associated(c_string)) then
       f_string = ' '
     else
-      call c_f_pointer(c_string,p_chars,[huge(0)])
-      i=1
-      do while(p_chars(i)/=c_null_char .and. i<=len(f_string))
+      print *, len(f_string)
+      call c_f_pointer(c_string, p_chars, [len(f_string) + 1])
+      i = 1
+      do while((p_chars(i).ne.c_null_char) .and. (i.le.len(f_string)))
         f_string(i:i) = p_chars(i)
-        i=i+1
+        i = i + 1
       end do
-      if (i<len(f_string)) f_string(i:) = ' '
+      if (i .lt. len(f_string)) f_string(i:) = ' '
     end if
   end subroutine c_f_string_ptr
 
@@ -86,22 +87,22 @@ module c_interface
   ! If the length is not passed, the C string must be at least: len(F_string)+1
   ! If the length is passed and F_string is too long, it is truncated.
   subroutine f_c_string_ptr(f_string, c_string, c_string_len)
-    character(len=*), intent(in) :: F_string
-    type(C_ptr), intent(in) :: C_string ! target = intent(out)
-    integer, intent(in), optional :: C_string_len
-    character(len=1,kind=C_char), dimension(:), pointer :: p_chars
-    integer :: i, strlen
-    strlen = len_trim(F_string)
-    if (present(C_string_len)) then
-      if (C_string_len <= 0) return
-      strlen = min(strlen,C_string_len-1)
+    character(len=*), intent(in)                        :: f_string
+    type(c_ptr), intent(in)                             :: c_string
+    integer, intent(in), optional                       :: c_string_len
+    character(len=1,kind=c_char), dimension(:), pointer :: p_chars
+    integer                                             :: i, strlen
+    strlen = len_trim(f_string)
+    if (present(c_string_len)) then
+      if (c_string_len <= 0) return
+      strlen = min(strlen,c_string_len-1)
     end if
-    if (.not. c_associated(C_string)) then
+    if (.not. c_associated(c_string)) then
       return
     end if
-    call c_f_pointer(C_string,p_chars,[strlen+1])
+    call c_f_pointer(c_string,p_chars,[strlen+1])
     forall (i=1:strlen)
-      p_chars(i) = F_string(i:i)
+      p_chars(i) = f_string(i:i)
     end forall
     p_chars(strlen+1) = c_null_char
     end subroutine f_c_string_ptr

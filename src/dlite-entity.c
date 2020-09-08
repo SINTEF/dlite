@@ -325,7 +325,8 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
 
   /* Check if we are trying to create an instance with an already
      existing id. */
-  if (lookup && id && (inst = _instance_store_get(id))) {
+  //if (lookup && id && *id && (inst = _instance_store_get(id))) {
+    if (lookup && id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->_refcount);
@@ -879,9 +880,13 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
   int retval;
   char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
   DLiteStorage *s=NULL;
+  
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &loc, &options, NULL)) goto fail;
   if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
+  dlite_instance_print(inst);
+  //float *first = dlite_instance_get_property_by_index(inst, 1);
+  //printf(">>>> %f\n", *(first++));
   retval = dlite_instance_save(s, inst);
  fail:
   if (s) dlite_storage_close(s);
