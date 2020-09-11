@@ -16,6 +16,7 @@ program ftest_person
   type(TScan3D)      :: scan
   integer            :: status, k, i
 
+  print *, "test_person.f90: load persons.json"
   person = TPerson("json", &
                    dlite_fortran_test_dir // "persons.json", &
                    "mode=r", &
@@ -29,44 +30,45 @@ program ftest_person
   print *, 'skills      = ', person%skills
   print *, 'temperature = ', person%temperature
 
-  john = TPerson(2, 4)
-  john%name = 'John Doe'
-  john%age = 45.0
-  john%skills(1) = 'c++'
-  john%skills(2) = 'py'
-  john%temperature = [37.5, 37.6, 37.9, 36.8]
+!   john = TPerson(2, 4)
+!  ! john%name = 'John Doe'
+!   john%name = 'first name middle name last name --!--- names !!'
+!   john%age = 45.0
+!   john%skills(1) = 'c++'
+!   john%skills(2) = 'py'
+!   john%temperature = [37.5, 37.6, 37.9, 36.8]
 
-  status = john%writeToSource("json", "persons2.json", "mode=w")
+!   status = john%writeToSource("json", "persons2.json", "mode=w")
 
-  storage = DLiteStorage("json", &
-                        dlite_fortran_test_dir // "inputs.json", &
-                        "mode=r")
-  print *, 'load person'
-  person = TPerson(storage, "b04965e6-a9bb-591f-8f8a-1adcb2c8dc39")
-  print *, 'load scan'
-  scan = TScan3D(storage, "4b166dbe-d99d-5091-abdd-95b83330ed3a")
-  print *, 'scan date = ', scan%date
-  status = storage%close()
+!   storage = DLiteStorage("json", &
+!                         dlite_fortran_test_dir // "inputs.json", &
+!                         "mode=r")
+!   print *, "test_person.f90: load person in inputs.json"
+!   person = TPerson(storage, "b04965e6-a9bb-591f-8f8a-1adcb2c8dc39")
+!   print *, "test_person.f90: load person in inputs.json"
+!   scan = TScan3D(storage, "4b166dbe-d99d-5091-abdd-95b83330ed3a")
+!   print *, 'scan date = ', scan%date
+!   status = storage%close()
 
-  !scan%points(2,:) = [2, 3, 5]
+!   !scan%points(2,:) = [2, 3, 5]
 
-  print *, "Array, shape=(", size(scan%points, 1), ",", size(scan%points, 2), ")"
-  do i = 1, size(scan%points, 1)
-      print *, scan%points(i, :)
-  end do
-  status = scan%writeToURL("json://scans.json")
+!   print *, "Array, shape=(", size(scan%points, 1), ",", size(scan%points, 2), ")"
+!   do i = 1, size(scan%points, 1)
+!       print *, scan%points(i, :)
+!   end do
+!   status = scan%writeToURL("json://scans.json")
 
-  scan = TScan3D(5, 3)
-  scan%date = '2020-09-07'
-  scan%points(:,:) = 11.0
-  scan%points(1,1) = 1
-  scan%points(1,2) = 2
-  scan%points(1,3) = 3
-  print *, "Array, shape=(", size(scan%points, 1), ",", size(scan%points, 2), ")"
-  do i = 1, size(scan%points, 1)
-      print *, scan%points(i, :)
-  end do
-  status = scan%writeToURL("json://scans2.json")  
+!   scan = TScan3D(5, 3)
+!   scan%date = '2020-09-07'
+!   scan%points(:,:) = 11.0
+!   scan%points(1,1) = 1
+!   scan%points(1,2) = 2
+!   scan%points(1,3) = 3
+!   print *, "Array, shape=(", size(scan%points, 1), ",", size(scan%points, 2), ")"
+!   do i = 1, size(scan%points, 1)
+!       print *, scan%points(i, :)
+!   end do
+!   status = scan%writeToURL("json://scans2.json")
 
 end program ftest_person
 

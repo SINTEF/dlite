@@ -87,7 +87,7 @@ MU_TEST(test_set_dtype_and_size)
 
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string10", &type, &size));
   mu_assert_int_eq(dliteFixString, type);
-  mu_assert_int_eq(10, size);
+  mu_assert_int_eq(11, size);
 
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string", &type, &size));
   mu_assert_int_eq(dliteStringPtr, type);
