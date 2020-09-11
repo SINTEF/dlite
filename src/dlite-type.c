@@ -145,7 +145,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     snprintf(typename, n, "float%zu", size*8);
     break;
   case dliteFixString:
-    snprintf(typename, n, "string%zu", size);
+    snprintf(typename, n, "string%zu", size-1);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
@@ -195,7 +195,7 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
     snprintf(ftype, n, "real(%zu)", size);
     break;
   case dliteFixString:
-    snprintf(ftype, n, "character(len=%zu)", size);
+    snprintf(ftype, n, "character(len=%zu)", size-1);
     break;
   case dliteStringPtr:
     snprintf(ftype, n, "character(*)");
@@ -444,7 +444,7 @@ int dlite_type_set_dtype_and_size(const char *typename,
     *size = typesize;
   } else if (strncmp(typename, "string", namelen) == 0) {
     *dtype = dliteFixString;
-    *size = typesize;
+    *size = typesize+1;
   } else {
     return err(1, "unknown type: %s", typename);
   }
