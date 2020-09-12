@@ -11,10 +11,10 @@ program ftest_person
 
   implicit none
 
-  type(DLiteStorage) :: storage
+  !type(DLiteStorage) :: storage
   type(TPerson)      :: person
-  type(TScan3D)      :: scan
-  integer            :: status, k, i
+  !type(TScan3D)      :: scan
+  !integer            :: status, k, i
 
   print *, "test_person.f90: load persons.json"
   person = TPerson("json", &
