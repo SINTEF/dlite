@@ -325,13 +325,18 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
 
   /* Check if we are trying to create an instance with an already
      existing id. */
-  //if (lookup && id && *id && (inst = _instance_store_get(id))) {
-    if (lookup && id && (inst = _instance_store_get(id))) {
+  if (lookup && id && *id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->_refcount);
-    /* FIXME - check that dims corresponds to existing instance.
-       If not - fail! */
+
+    /* Check that `dims` corresponds to the dims of the existing instance. */
+    for (i=0; i < meta->_ndimensions; i++) {
+      if (dims[i] != dlite_instance_get_dimension_size_by_index(inst, i))
+        FAIL3("mismatch of dimension %zu. Trying to create with size %zu "
+              "but existing instance has size %zu", i, dims[i],
+              dlite_instance_get_dimension_size_by_index(inst, i));
+    }
     return inst;
   }
 
