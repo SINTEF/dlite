@@ -26,7 +26,7 @@ Main features
   - Code generation
   - Plugin API for data storages
   - Plugin API for mapping between metadata
-  - Bindings to C, Python (Fortran is in progress)
+  - Bindings to C, Python and Fortran
 
 More detailed features
 ----------------------
@@ -51,13 +51,11 @@ More detailed features
   - Memory for metadata and instances is reference counted
   - Lookup of metadata and instances at pre-defined locations (initiated
     from the DLITE_STORAGES environment variable)
-  - Template-based code generation (includes templates for C, Fortran
-    templates are planned)
+  - Template-based code generation (includes templates for C and Fortran)
   - Plugin system for mappings that maps instances of a set of input metadata
     to an output instance
   - Python bindings
   - Storage and mapping plugins written in Python
-  - Fortran bindings (work in progress...)
 
 
 Short vocabulary
