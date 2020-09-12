@@ -128,10 +128,11 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     return errx(1, "api already registered: %s", name);
 
   if (path) {
+    Plugin **p;
     assert(handle);
-    if (map_get(&info->plugins, path)) {
-      //warnx("plugin already registered: %s", path);
-      //plugin_incref(*p);
+    if ((p = map_get(&info->plugins, path))) {
+      warnx("plugin already registered: %s", path);
+      plugin_incref(*p);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");

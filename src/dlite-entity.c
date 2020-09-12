@@ -703,7 +703,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   if (lookup && id && *id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     warn("trying to load existing instance from storage \"%s\": %s"
-         " - creates a new reference", s->location, id);
+         " - create a new reference", s->location, id);
     return inst;
   }
 
