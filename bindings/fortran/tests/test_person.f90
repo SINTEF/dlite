@@ -12,7 +12,7 @@ program ftest_person
   implicit none
 
   type(DLiteStorage) :: storage
-  type(TPerson)      :: person, john
+  type(TPerson)      :: person
   type(TScan3D)      :: scan
   integer            :: status, k, i
 
@@ -71,6 +71,3 @@ program ftest_person
 !   status = scan%writeToURL("json://scans2.json")
 
 end program ftest_person
-
-
-

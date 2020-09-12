@@ -55,6 +55,7 @@ static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
                "\"list_dimensions\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&dsubs, subs))) goto fail;
+  dsubs.parent = subs;
   for (i=0; i < m->_ndimensions; i++) {
     DLiteDimension *d = m->_dimensions + i;
     tgen_subs_set(&dsubs, "dim.name", d->name, NULL);
@@ -84,6 +85,7 @@ static int list_relations(TGenBuf *s, const char *template, int len,
                "\"list_relations\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&rsubs, subs))) goto fail;
+  rsubs.parent = subs;
   for (i=0; i < meta->_nrelations; i++) {
     DLiteRelation *r = meta->_relations + i;
     tgen_subs_set(&rsubs, "rel.s",  r->s, NULL);
@@ -116,6 +118,7 @@ static int list_dims(TGenBuf *s, const char *template, int len,
                "\"list_dims\" only works for metadata");
 
   if (tgen_subs_copy(&psubs, subs)) goto fail;
+  psubs.parent = subs;
   for (i=0; i < p->ndims; i++) {
     tgen_subs_set(&psubs, "dim.name",  p->dims[i] , NULL);
     tgen_subs_set_fmt(&psubs, "dim.i",     NULL, "%d",  i);
@@ -153,6 +156,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
   }
 
   if ((retval = tgen_subs_copy(&psubs, subs))) goto fail;
+  psubs.parent = subs;
 
   for (i=0; i < m->_nproperties; i++) {
     DLiteProperty *p = m->_properties + i;
@@ -231,6 +235,8 @@ static int list_propdims(TGenBuf *s, const char *template, int len,
   TGenSubs psubs;
   size_t i;
   if (tgen_subs_copy(&psubs, subs)) goto fail;
+  psubs.parent = subs;
+
   for (i=0; i < meta->_npropdims; i++) {
     tgen_subs_set_fmt(&psubs, "propdim.i", NULL, "%zu", i);
     tgen_subs_set_fmt(&psubs, "propdim.n", NULL, "%zu", propdims[i]);

@@ -663,7 +663,7 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   assert(url);
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
-  if (id && (inst = _instance_store_get(id))) {
+  if (id && *id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
   } else {
     err_clear();
@@ -695,7 +695,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   const char *uri=NULL;
 
   /* check if id is already loaded */
-  if (lookup && id && (inst = _instance_store_get(id))) {
+  if (lookup && id && *id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     warn("trying to load existing instance from storage \"%s\": %s"
          " - creates a new reference", s->location, id);
@@ -880,7 +880,7 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
   int retval;
   char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
   DLiteStorage *s=NULL;
-  
+
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &loc, &options, NULL)) goto fail;
   if (!(s = dlite_storage_open(driver, loc, options))) goto fail;

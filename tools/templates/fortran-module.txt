@@ -1,3 +1,5 @@
+! -*- f90 -*-  (not really, but good for syntax highlighting)
+
 ! This file is generated with dlite-codegen {dlite.version} -- do not edit!
 !
 ! Template: fortran-module.txt
@@ -8,24 +10,32 @@
 !
 ! Fortran interface to Person entity from Person.json
 !
+{have_fixstring_arr=0}\
+{list_properties:\
+{@if: ({prop.typeno} = 5) & ({prop.ndims} > 0)}\
+{have_fixstring_arr=1}\
+{@endif}\
+}\
+
+
 module {name}
     USE iso_c_binding, only : c_ptr, c_int, c_char, c_null_char, c_size_t,    &
                               c_double, c_null_ptr, c_f_pointer, c_associated,&
                               c_loc, c_float
     USE c_interface, only: c_f_string, c_strlen_safe, f_c_string
     USE DLite
-  
+
     IMPLICIT NONE
     PRIVATE
-  
+
     PUBLIC :: T{name}
-    
+
     type(DLiteMeta) :: meta_{name%c}
-  
+
     TYPE T{name}
       type(c_ptr)                      :: cinst
       character(len=36)                :: uuid
-      ! -- dimension values 
+      ! -- dimension values
 {list_dimensions:{@6}integer(8){@40}:: {dim.name} ! {dim.descr} \n}
       ! -- property values
 {list_properties:\
@@ -40,7 +50,7 @@ module {name}
       procedure :: readFromInstance => readFromInstance
       procedure :: writeToInstance => writeToInstance
     END TYPE T{name}
-  
+
     INTERFACE T{name}
       ! read a {name} from an url
       module procedure readFromURL
@@ -53,7 +63,7 @@ module {name}
       ! create a {name} and allocate the arrays
       module procedure create64
     END INTERFACE T{name}
-  
+
   contains
 
   subroutine create_meta_{name%c}()
@@ -62,7 +72,7 @@ module {name}
     if (.not. meta_{name%c}%check()) then
       model = DLiteMetaModel('{_uri}', 'http://meta.sintef.no/0.3/EntitySchema', '')
       i = model%add_string('description', '{descr}')
-{list_dimensions:{@6}i = model%add_dimension('{dim.name}', '{dim.descr}')\n}    
+{list_dimensions:{@6}i = model%add_dimension('{dim.name}', '{dim.descr}')\n}
 {list_properties:{@6}i = model%add_property('{prop.name}', '{prop.typename}', '{prop.unit}', '{prop.iri}', '{prop.descr}')\
 {@if:{prop.ndims}!0}\n{prop.dims:{@6}i = model%add_property_dim('{prop.name}', '{dim.name}')\n}{@endif}\n}
       meta_{name%c} = DLiteMeta(model)
@@ -72,7 +82,7 @@ module {name}
 
   function create32({list_dimensions:{dim.name}{, }\.}) result({name%c})
     implicit none
-    type(T{name}) :: {name%c}    
+    type(T{name}) :: {name%c}
 {list_dimensions:{@4}integer(4)    :: {dim.name}\n}
     call create_meta_{name%c}()
     {name%c}%uuid(:) = ' '
@@ -95,7 +105,10 @@ module {name}
     type(DLiteInstance), intent(in)       :: instance
     type(c_ptr)                           :: cptr
     integer(8), dimension(*), allocatable :: dims(:)
-    integer(8)                            :: i, strlen, nstring
+{@if:{have_fixstring_arr}\.}\
+    integer(8)                            :: strlen, nstring, i
+{@endif}\
+
 {list_properties:\
 {@if:({prop.typeno}=5)&({prop.ndims}=0)}\
 {@4}! {prop.isoctype} {@42}:: {prop.name}\n\
@@ -140,7 +153,7 @@ module {name}
 {@elif:({prop.typeno}!5)&({prop.ndims}=2)}\
 {@6}{name%c}%{prop.name} = transpose({prop.name}_p)\n\
 {@endif}\ }
-    endif    
+    endif
   end subroutine readFromInstance
 
   function writeToInstance({name%c}) result(instance)
@@ -181,7 +194,7 @@ module {name}
 points_p = transpose(scan3d%points)
 {@4}{prop.name}_p = transpose({name%c}%{prop.name})\n\
 {@endif}\ }
-  end function writeToInstance  
+  end function writeToInstance
 
   function check({name%c}) result(status)
     implicit none

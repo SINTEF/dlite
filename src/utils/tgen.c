@@ -1053,6 +1053,7 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
 
         } else if ((l = is_identifier(t, '='))) {  /* assignment */
           TGenBuf ss;
+          TGenSubs *parent = subs->parent;
           tgen_buf_init(&ss);
           if (((len = length_to_endbrace(t)) < 0) ||
               tgen_append(&ss, t+l+1, len-l-1, subs, context)) {
@@ -1062,6 +1063,10 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
                        tgen_lineno(template, t), 30, t);
           }
           tgen_subs_setn(subs, t, l, ss.buf, NULL);
+          while (parent) {
+            tgen_subs_setn(parent, t, l, ss.buf, NULL);
+            parent = parent->parent;
+          }
           tgen_buf_deinit(&ss);
           t += len + 1;
           continue;
