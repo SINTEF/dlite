@@ -49,6 +49,7 @@ module {name}
       procedure :: writeToStorage => writeToStorage
       procedure :: readFromInstance => readFromInstance
       procedure :: writeToInstance => writeToInstance
+      !procedure :: destroy => destroy
     END TYPE T{name}
 
     INTERFACE T{name}

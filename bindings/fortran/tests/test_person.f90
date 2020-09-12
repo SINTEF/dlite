@@ -70,4 +70,5 @@ program ftest_person
 !   end do
 !   status = scan%writeToURL("json://scans2.json")
 
+  !person%destroy()
 end program ftest_person

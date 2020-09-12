@@ -25,15 +25,15 @@ module DLite
   end interface DLiteStorage
 
   interface dlite_instance_set_property_value
-    
+
     module procedure set_property_value_string
     module procedure set_property_array_string
-      
+
   end interface dlite_instance_set_property_value
 
   type, public :: DLiteInstance
      type(c_ptr)                   :: cinst
-     !character(36,kind=c_char)     :: uuid
+     !character(37,kind=c_char)     :: uuid
      !character(len=1, kind=c_char) :: uri
      !character(len=1, kind=c_char) :: iri
    contains
@@ -62,7 +62,7 @@ module DLite
     procedure :: check => dlite_meta_check
     procedure :: has_dimension => dlite_meta_has_dimension
     procedure :: has_property => dlite_meta_has_property
-    !procedure :: destroy => dlite_meta_free? or dlite_instance_free?
+    procedure :: destroy => dlite_meta_decref
   end type DLiteMeta
 
   interface DLiteMeta
@@ -88,6 +88,14 @@ module DLite
   ! C interface for DLite
   ! --------------------------------------------------------
   interface
+  ! --------------------------------------------------------
+  ! C interface to C standard library
+  ! --------------------------------------------------------
+  subroutine free_c(ptr) &
+    bind(C,name="free")
+    import c_ptr
+    type(c_ptr), value, intent(in) :: ptr
+  end subroutine free_c
   ! --------------------------------------------------------
   ! C interface for DLiteStorage
   ! --------------------------------------------------------
@@ -211,6 +219,13 @@ module DLite
     import c_ptr, c_int
     type(c_ptr), value, intent(in)                         :: instance
   end function dlite_instance_decref_c
+
+  ! int dlite_meta_decref(DLiteMeta *meta)
+  integer(c_int) function dlite_meta_decref_c(meta) &
+    bind(C,name="dlite_meta_decref")
+    import c_ptr, c_int
+    type(c_ptr), value, intent(in)                         :: meta
+  end function dlite_meta_decref_c
 
   ! --------------------------------------------------------
   ! C interface for DLiteMetaModel
@@ -384,12 +399,12 @@ contains
     type(DliteInstance)                   :: instance
     integer(c_size_t), allocatable, target:: dims1(:)
     integer(c_size_t), pointer            :: dims1_p(:)
-    type(c_ptr)                           :: cptr 
+    type(c_ptr)                           :: cptr
     integer                               :: i
 
     ! copy metaid in a C string
     call f_c_string(metaid, metaid_c)
-    
+
     ! copy dims in a C pointer (size_t*)
     allocate(dims1(ndim))
     do i=1, ndim
@@ -534,16 +549,25 @@ contains
       endif
     else
       dims = dims_p
-    endif        
+    endif
+    call free_c(ptr)
   end subroutine dlite_instance_get_property_dims_by_index
 
   function dlite_instance_decref(instance) result(count)
     class(DLiteInstance), intent(in) :: instance
-    integer(c_int)                      :: count_c
+    integer(c_int)                   :: count_c
     integer                          :: count
     count_c = dlite_instance_decref_c(instance%cinst)
     count = count_c
   end function dlite_instance_decref
+
+  function dlite_meta_decref(meta) result(count)
+    class(DLiteMeta), intent(in) :: meta
+    integer(c_int)               :: count_c
+    integer                      :: count
+    count_c = dlite_meta_decref_c(meta%cptr)
+    count = count_c
+  end function dlite_meta_decref
 
   ! --------------------------------------------------------
   ! Fortran methods for DLiteMetaModel
@@ -700,7 +724,7 @@ contains
     allocate(dims2(2))
     dims2(1) = len(prop(1))+1
     dims2(2) = dims(1)
-    cptr = inst%get_property_by_index(index)    
+    cptr = inst%get_property_by_index(index)
     call c_f_pointer(cptr, prop_p, dims2)
     do i = 1, dims(1)
       call f_c_string(prop(i), prop_p(:,i))

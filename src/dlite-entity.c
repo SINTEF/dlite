@@ -1767,19 +1767,23 @@ int dlite_meta_init(DLiteMeta *meta)
 
 /*
   Increase reference count to metadata.
+
+  Returns the new reference count.
  */
-void dlite_meta_incref(DLiteMeta *meta)
+int dlite_meta_incref(DLiteMeta *meta)
 {
-  dlite_instance_incref((DLiteInstance *)meta);
+  return dlite_instance_incref((DLiteInstance *)meta);
 }
 
 /*
   Decrease reference count to metadata.  If the reference count reaches
   zero, the metadata is free'ed.
+
+  Returns the new reference count.
  */
-void dlite_meta_decref(DLiteMeta *meta)
+int dlite_meta_decref(DLiteMeta *meta)
 {
-  dlite_instance_decref((DLiteInstance *)meta);
+  return dlite_instance_decref((DLiteInstance *)meta);
 }
 
 
