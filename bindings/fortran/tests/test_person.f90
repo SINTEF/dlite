@@ -52,8 +52,6 @@ program ftest_person
   print *, 'scan date = ', scan%date
   status = storage%close()
 
-  !scan%points(2,:) = [2, 3, 5]
-
   print *, "Array, shape=(", size(scan%points, 1), ",", size(scan%points, 2), ")"
   do i = 1, size(scan%points, 1)
     print *, scan%points(i, :)
@@ -72,7 +70,7 @@ program ftest_person
   end do
   status = scan%writeToURL("json://scans2.json")
 
-  !person%destroy()
-  !john%destroy()
-  !scan%destroy()
+  status = person%destroy()
+  status = john%destroy()
+  status = scan%destroy()
 end program ftest_person

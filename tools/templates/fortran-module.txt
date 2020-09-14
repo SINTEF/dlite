@@ -33,7 +33,7 @@ module {name}
     type(DLiteMeta) :: meta_{name%c}
 
     TYPE T{name}
-      type(c_ptr)                      :: cinst
+      type(DLiteInstance)              :: instance
       character(len=36)                :: uuid
       ! -- dimension values
 {list_dimensions:{@6}integer(8){@40}:: {dim.name} ! {dim.descr} \n}
@@ -49,7 +49,7 @@ module {name}
       procedure :: writeToStorage => writeToStorage
       procedure :: readFromInstance => readFromInstance
       procedure :: writeToInstance => writeToInstance
-      !procedure :: destroy => destroy
+      procedure :: destroy => destroy
     END TYPE T{name}
 
     INTERFACE T{name}
@@ -59,9 +59,9 @@ module {name}
       module procedure readFromSource
       ! read a {name} from a open storage
       module procedure readFromStorage
-      ! create a {name} and allocate the arrays
+      ! create a {name} and allocate the arrays (type of dimensions: integer(4))
       module procedure create32
-      ! create a {name} and allocate the arrays
+      ! create a {name} and allocate the arrays (type of dimensions: integer(8))
       module procedure create64
     END INTERFACE T{name}
 
@@ -84,8 +84,9 @@ module {name}
   function create32({list_dimensions:{dim.name}{, }\.}) result({name%c})
     implicit none
     type(T{name}) :: {name%c}
-{list_dimensions:{@4}integer(4)    :: {dim.name}\n}
+{list_dimensions:{@4}integer(4)    :: {dim.name}\n}    
     call create_meta_{name%c}()
+    {name%c}%instance%cinst = c_null_ptr
     {name%c}%uuid(:) = ' '
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
 {list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
@@ -94,8 +95,9 @@ module {name}
   function create64({list_dimensions:{dim.name}{, }\.}) result({name%c})
     implicit none
     type(T{name}) :: {name%c}
-{list_dimensions:{@4}integer(8)    :: {dim.name}\n}
+{list_dimensions:{@4}integer(8)    :: {dim.name}\n}    
     call create_meta_{name%c}()
+    {name%c}%instance%cinst = c_null_ptr
     {name%c}%uuid(:) = ' '
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
 {list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
@@ -122,6 +124,7 @@ module {name}
 {@endif}\ }
 
     if (instance%check()) then
+      {name%c}%instance = instance
       {name%c}%uuid = instance%get_uuid()
 {list_dimensions:{@6}{name%c}%{dim.name} = instance%get_dimension_size_by_index({dim.i})\n}
 {list_properties:\
@@ -147,7 +150,7 @@ module {name}
 {@6}call c_f_pointer(cptr, {prop.name}_p)\n\
 {@6}{name%c}%{prop.name} = {prop.name}_p\n\
 {@endif}\ }
-{@6}! copy arrays
+      ! copy arrays
 {list_properties:\
 {@if:({prop.typeno}!5)&({prop.ndims}=1)}\
 {@6}{name%c}%{prop.name} = {prop.name}_p\n\
@@ -158,7 +161,7 @@ module {name}
   end subroutine readFromInstance
 
   function writeToInstance({name%c}) result(instance)
-    class(T{name}), intent(in)            :: {name%c}
+    class(T{name})                        :: {name%c}
     type(DLiteInstance)                   :: instance
     type(c_ptr)                           :: cptr
     integer(8), dimension(*), allocatable :: dims(:)
@@ -170,10 +173,16 @@ module {name}
 {@else}\
 {@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p\n\
 {@endif}\ }
-    instance = DLiteInstance('{_uri}', &
-                             {_ndimensions}, &
-                             [{list_dimensions:{name%c}%{dim.name}{, }\.}], &
-                             {name%c}%uuid)
+    if ({name%c}%check()) then
+      instance = {name%c}%instance
+    else
+      instance = DLiteInstance(&
+                    '{_uri}', &
+                    {_ndimensions}, &
+                    [{list_dimensions:{name%c}%{dim.name}{, }\.}], &
+                    {name%c}%uuid)
+      {name%c}%instance = instance
+    endif
 {list_properties:\
 {@4}! {prop.name}\n\
 {@if:{prop.typeno}=5}\
@@ -187,12 +196,11 @@ module {name}
 {@4}call c_f_pointer(cptr, {prop.name}_p)\n\
 {@4}{prop.name}_p = {name%c}%{prop.name}\n\
 {@endif}\ }
-{@4}! copy arrays
+    ! copy arrays
 {list_properties:\
 {@if:({prop.typeno}!5)&({prop.ndims}=1)}\
 {@4}{prop.name}_p = {name%c}%{prop.name}\n\
 {@elif:({prop.typeno}!5)&({prop.ndims}=2)}\
-points_p = transpose(scan3d%points)
 {@4}{prop.name}_p = transpose({name%c}%{prop.name})\n\
 {@endif}\ }
   end function writeToInstance
@@ -201,7 +209,7 @@ points_p = transpose(scan3d%points)
     implicit none
     class(T{name}), intent(in) :: {name%c}
     logical                    :: status
-    status = c_associated({name%c}%cinst)
+    status = {name%c}%instance%check()
   end function check
 
   function readFromURL(url) result({name%c})
@@ -272,5 +280,12 @@ points_p = transpose(scan3d%points)
     instance = {name%c}%writeToInstance()
     status = instance%save(storage)
   end function writeToStorage
+
+  function destroy({name%c}) result(status)
+    implicit none
+    class(T{name}), intent(in)     :: {name%c}
+    integer                        :: status
+    status = {name%c}%instance%destroy()
+  end function destroy  
 
 end module

@@ -6,7 +6,7 @@ include(dliteCodeGen)
 add_compile_options("-DDLITE_ROOT=${DLITE_ROOT}")
 
 dlite_codegen(
-  ${CMAKE_CURRENT_BINARY_DIR}/Person2.f90
+  ${CMAKE_CURRENT_BINARY_DIR}/Person.f90
   fortran-module
   json://${CMAKE_CURRENT_SOURCE_DIR}/Person.json?mode=r
   )
@@ -21,7 +21,7 @@ set(tests
   test_person
   )
 
-add_library(Person ${CMAKE_CURRENT_BINARY_DIR}/Person2.f90)
+add_library(Person ${CMAKE_CURRENT_BINARY_DIR}/Person.f90)
 target_link_libraries(Person
   dlite
   dlite-utils

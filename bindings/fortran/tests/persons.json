@@ -6,7 +6,7 @@
             "M": 3
         },
         "properties": {
-            "name": "John",
+            "name": "first name middle name last name -!!--- names",
             "age": 23.0,
             "skills": ["python", "fortran"],
             "temperature": [37.5, 36.9, 37.1]
