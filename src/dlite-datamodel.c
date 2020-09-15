@@ -93,6 +93,11 @@ char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d)
 }
 
 
+void dlite_datamodel_resolve_dimensions(DLiteDataModel *d, const DLiteMeta *meta)
+{
+  if (d->api->resolveDimensions)
+    d->api->resolveDimensions(d, meta);
+}
 /*
   Returns the size of dimension `name` or -1 on error.
  */

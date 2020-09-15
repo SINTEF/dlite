@@ -316,6 +316,9 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->dimensions = json_object_get(data, "dimensions");
     d->properties = json_object_get(data, "properties");
     d->relations = json_object_get(data, "relations");
+    if (!d->properties) {
+      d->properties = data;
+    }
 
   } else if ((jns = json_object_get(storage->root, "namespace")) &&
              (jver = json_object_get(storage->root, "version")) &&
@@ -445,6 +448,42 @@ char *dlite_json_get_metadata(const DLiteDataModel *d)
   }
 }
 
+void dlite_json_resolve_dimensions(DLiteDataModel *d, const DLiteMeta *meta)
+{
+  DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
+  const DLiteProperty *prop;
+  const DLiteDimension *dim;
+  json_t *obj;
+  size_t i;
+  int j;
+  ivec_t *shape;
+  if (data->fmt == fmtNormal) {
+    if (meta->_ndimensions != json_object_size(data->dimensions)) {
+      if (!json_is_object(data->dimensions))
+        data->dimensions = json_object();
+      for(i=0; i < meta->_ndimensions; i++) {
+        dim = dlite_meta_get_dimension_by_index(meta, i);
+        obj = json_object_get(data->dimensions, dim->name);
+        if (!obj) {
+          json_object_set_new(data->dimensions, dim->name, json_integer(0));
+        }
+      }
+      for(i=0; i < meta->_nproperties; i++) {
+        prop = dlite_meta_get_property_by_index(meta, i);
+        if (prop->ndims > 0) {
+          obj = json_object_get(data->properties, prop->name);
+          shape = json_array_dimensions(obj);
+          if ((int)(ivec_size(shape)) == prop->ndims) {
+            for(j=0; j < prop->ndims; j++) {
+              obj = json_object_get(data->dimensions, prop->dims[j]);
+              json_integer_set(obj, shape->data[j]);
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 /**
   Returns the size of dimension `name` or -1 on error.
@@ -921,6 +960,7 @@ static DLiteStoragePlugin dlite_json_plugin = {
   dlite_json_datamodel_free,
 
   dlite_json_get_metadata,
+  dlite_json_resolve_dimensions,
   dlite_json_get_dimension_size,
   dlite_json_get_property,
 

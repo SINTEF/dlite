@@ -27,15 +27,9 @@
     },
     "Joe Doe": {
         "meta": "http://meta.sintef.no/0.2/Person",
-        "dimensions": {
-            "N": 3,
-            "M": 1
-        },
-        "properties": {
-            "name": "Joe Doe",
-            "age": 53.0,
-            "skills": ["java", "c#", "c++"],
-            "temperature": [37.4]
-        }
+        "name": "Joe Doe",
+        "age": 53.0,
+        "skills": ["java", "c#", "c++"],
+        "temperature": [37.4]        
     }    
 }

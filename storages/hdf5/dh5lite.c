@@ -807,6 +807,7 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_datamodel_free,
 
   dh5_get_meta_uri,
+  NULL, // resolve dimensions
   dh5_get_dimension_size,
   dh5_get_property,
 
