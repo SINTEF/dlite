@@ -43,15 +43,18 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
     }
   }
 
-  if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
+  if (s->idflag == dliteIDKeepID) {
+      d = s->api->dataModel(s, id);  
+  } else if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
       s->idflag == dliteIDRequireUUID) {
     if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
       FAIL1("failed generating UUID from id \"%s\"", id);
     if (uuidver != 0 && s->idflag == dliteIDRequireUUID)
       FAIL1("id is not a valid UUID: \"%s\"", id);
+    d = s->api->dataModel(s, uuid); 
   }
 
-  if (!(d = s->api->dataModel(s, uuid)))
+  if (!d)
     FAIL2("cannot create datamodel id='%s' for storage '%s'", id, s->api->name);
 
   /* Initialise common fields */

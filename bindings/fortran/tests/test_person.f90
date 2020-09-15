@@ -32,6 +32,20 @@ program ftest_person
   print *, 'skills      = ', person%skills
   print *, 'temperature = ', person%temperature
 
+  print *, "test_person.f90: load persons_names.json"
+  person = TPerson("json", &
+                   dlite_fortran_test_dir // "persons_names.json", &
+                   "mode=r;useid=keep", &
+                   "Joe Doe")
+
+  print *, 'uuid        = ', person%uuid
+  print *, 'n           = ', person%n
+  print *, 'm           = ', person%m
+  print *, 'name        = ', person%name
+  print *, 'age         = ', person%age
+  print *, 'skills      = ', person%skills
+  print *, 'temperature = ', person%temperature  
+
   john = TPerson(2, 4)
   john%name = 'John Doe'
   !john%name = 'first name middle name last name --!--- names !!'

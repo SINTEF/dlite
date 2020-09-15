@@ -485,6 +485,8 @@ dh5_open(const DLiteStoragePlugin *api, const char *uri, const char *options)
   if (s->root < 0)
     FAIL2("cannot open: '%s' with options '%s'", uri, options);
 
+  s->idflag = dliteIDTranslateToUUID;
+
   retval = (DLiteStorage *)s;
  fail:
   if (optcopy) free(optcopy);
