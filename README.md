@@ -75,7 +75,7 @@ Short vocabulary
     by an UUID.
   - **iri**: An [internationalized resource identifier (IRI)][IRI] is the
     extension of URI to international characters.  In dlite, the term "iri"
-    is used as a reference to a concept in an ontology oviding a semantic
+    is used as a reference to a concept in an ontology providing a semantic
     definition of an instance or property.
   - **Mapping**: A function that maps one or more input instances to an
     output instance.  They are an important mechanism for interoperability.
@@ -100,8 +100,9 @@ Short vocabulary
     to a web resource, like a file (on a given computer), database
     entry, web page, etc.  In dlite url's refer to a storage or even
     an specific instance in a storage using the general syntax
-    `driver://location?options#fragment`.  Lost of the parts are optional.
-    If `fragment` is given, it should be the uuid or uri of an instance.
+    `driver://location?options#fragment`, where `options` and `fragment`
+    are optional.  If `fragment` is provided, it should be the uuid or 
+    uri of an instance.
   - **uuid**: A [universal unique identifier (UUID)][UUID] is commonly
     used to uniquely identify digital information.  DLite uses the 36
     character string representation of uuid's to uniquely identify
