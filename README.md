@@ -74,9 +74,9 @@ Short vocabulary
     by their metadata which itself are instances.  Instances are identified
     by an UUID.
   - **iri**: An [internationalized resource identifier (IRI)][IRI] is the
-    extension of URI to international characters.  In dlite, the term `iri`
-    is used as a reference to a concept in an ontology defining an instance
-    or property.
+    extension of URI to international characters.  In dlite, the term "iri"
+    is used as a reference to a concept in an ontology oviding a semantic
+    definition of an instance or property.
   - **Mapping**: A function that maps one or more input instances to an
     output instance.  They are an important mechanism for interoperability.
     Mappings are called translators in SOFT5.
@@ -93,20 +93,20 @@ Short vocabulary
     [SOFT5 nomenclauture][SOFT5_nomenclauture].
   - **uri**: A [uniform resource identifier (URI)][URI] is a
     generalisation of URL, but follows the same syntax rules.  In
-    dlite, the term `uri` is used as an human readable identifier for
+    dlite, the term "uri" is used as an human readable identifier for
     instances (optional for data instances) and has the form
-
-        namespace/version/name
-
+    `namespace/version/name`.
   - **url**: A [uniform resource locator (URL)][URL] is an reference
     to a web resource, like a file (on a given computer), database
-    entry, web page, etc.  DLite used the term `url` to refer to a
-    storage or even an specific instance in a storage.
+    entry, web page, etc.  In dlite url's refer to a storage or even
+    an specific instance in a storage using the general syntax
+    `driver://location?options#fragment`.  Lost of the parts are optional.
+    If `fragment` is given, it should be the uuid or uri of an instance.
   - **uuid**: A [universal unique identifier (UUID)][UUID] is commonly
     used to uniquely identify digital information.  DLite uses the 36
-    character string representation of `uuid`s to uniquely identify
-    instances.  The `uuid` is generated from the `uri` for instances
-    that has an `uri`, otherwise it is randomly generated.
+    character string representation of uuid's to uniquely identify
+    instances.  The uuid is generated from the uri for instances that
+    has an uri, otherwise it is randomly generated.
 
 
 Download and build
