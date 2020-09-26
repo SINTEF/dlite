@@ -21,55 +21,160 @@ DLite is licensed under the MIT license.
 
 Main features
 -------------
+See [doc/features.md](doc/features.md) for a more detailed list.
   - Enables semantic interoperability via simple formalised metadata and data
   - Metadta can be linked to or generated from ontologies
-  - Code generation
+  - Code generation for simple integration in existing code bases
   - Plugin API for data storages
   - Plugin API for mapping between metadata
-  - Bindings to C, Python (Fortran is in progress)
+  - Bindings to C, Python and Fortran
 
-More detailed features
-----------------------
-  - Simple and structured way to represent data as a set of named properties
-    within and between software
-  - Simple type system where data type are specified as a basic type and size
-    Supported basic types includes:
-      - binary blob (any size)
-      - boolean (system-dependent size, typically 8 bits)
-      - integer (8, 16, 32, 64 bits)
-      - unsigned integer (8, 16, 32, 64 bits)
-      - float (32, 64, [80, 128] bits)
-      - fixed string (any size, always NUL-terminated)
-      - string pointer (pointer to malloc'ed string, NUL-terminated)
-      - relation (subject-predicate-object triplet)
-      - dimension (only intended for metadata)
-      - property (only intended for metadata)
-  - Supports units and multi-dimensional arrays
-  - Fully implemented metadata model as presented by Thomas Hagelien
-  - Builtin HDF5, JSON, YAML and PostgreSQL storage plugins
-  - Plugin system for user-provided storage drivers
-  - Memory for metadata and instances is reference counted
-  - Lookup of metadata and instances at pre-defined locations (initiated
-    from the DLITE_STORAGES environment variable)
-  - Template-based code generation (includes templates for C, Fortran
-    templates are planned)
-  - Plugin system for mappings that maps instances of a set of input metadata
-    to an output instance
-  - Python bindings
-  - Storage and mapping plugins written in Python
-  - Fortran bindings (work in progress...)
+
+Example use
+-----------
+Lets say that you have the following Python class
+
+```python
+class Person:
+    def __init__(self, name, age, skills):
+        self.name = name
+        self.age = age
+        self.skills = skills
+
+    def __repr__(self):
+        return 'Person(%r, %r, %r)' % (self.name, self.age, list(self.skills))
+```
+
+that you want to describe semantically.  We do that by defining the
+following metadata specifying `name` as a string, `age` as a float and
+`skills` as an array of strings:
+
+```json
+{
+  "name": "Person",
+  "version": "0.1",
+  "namespace": "http://meta.sintef.no",
+  "meta": "http://meta.sintef.no/0.3/EntitySchema",
+  "description": "A person.",
+  "dimensions": [
+    {
+      "name": "N",
+      "description": "Number of skills."
+    }
+  ],
+  "properties": [
+    {
+      "name": "name",
+      "type": "string",
+      "description": "Full name."
+    },
+    {
+      "name": "age",
+      "type": "float",
+      "unit": "years",
+      "description": "Age of person."
+    },
+    {
+      "name": "skills",
+      "type": "string",
+      "dims": [
+        "N"
+      ],
+      "description": "List of skills."
+    }
+  ]
+}
+```
+
+and save it as "Person.json".  Back in Python we can now make a dlite-aware
+version of the `Person` class, create an instance and serialise it to
+a storage:
+
+```python
+import dlite
+
+DLitePerson = dlite.classfactory(Person, url='json://Person.json')
+
+person = DLitePerson('Sherlock Holmes', 34., ['observing', 'chemistry',
+    'violin', 'boxing'])
+
+print(person.dlite_inst.asjson(indent=2))
+person.dlite_inst.save('json://homes.json?mode=w')
+```
+
+To access this instance from C, you can first generate a header file from
+the meta data
+
+```sh
+dlite-codegen -f c-header -o person.h Person.json
+```
+
+and then include it in your C program:
+
+```c
+// homes.c
+#include <stdio.h>
+#include <dlite>
+#include "person.h"
+
+int main()
+{
+  int i;
+  char *url = "json://homes.json#7ac977ce-a0dc-4e19-a7e1-7781c0cd23d2";
+
+  Person *person = dlite_instance_load_url(url);
+
+  printf("name:  %s\n", person->name);
+  printf("age:   %g\n", person->age);
+  printf("skills:\n");
+  for (i=0; i<person->N; i++)
+    printf("  - %s\n", person->skills[i]);
+
+  return 0;
+}
+```
+
+Since we are using `dlite_instance_load_url()` to load the instance,
+you must link to dlite when compiling this program.  Assuming you are using
+Linux and dlite in installed in `$HOME/.local`, compiling with gcc,
+would look like:
+
+```sh
+gcc -g -ldlite -I$HOME/.local/include/dlite -L$HOME/.local/lib -o homes homes.c
+```
+
+Finally you can run the program with
+
+```sh
+$ DLITE_STORAGES=*.json ./homes
+name:  Sherlock Holmes
+age:   34
+skills:
+  - observing
+  - chemistry
+  - violin
+  - boxing
+```
+
+Note that we in this case have to define the environment variable
+`DLITE_STORAGES` in order to let dlite find the metadata we stored in
+'Person.json'.  There are ways to avoid that, either by hardcoding the
+metadata in C using `dlite-codegen -f c-source` or in the C program
+explicitely load Person.json before homes.json.
 
 
 Short vocabulary
 ----------------
+The following terms have a special meaning in dlite:
   - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
   - **Collection**: A specialised instance that contains references to set
     of instances and relations between them.  Within a collection instances
     are labeled.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
   - **Data instance**: A "leaf" instance that is not metadata.
-  - **Entity**: A special type of metadata that describes standard data
-    instances.  This is different from SOFT5 where entities are the
-    fundamental metadata.
+  - **Entity**: May be any kind of instance, including data instances,
+    metadata instances or meta-metadata instances.  However, for historical
+    reasons it is often used for "standard" metadata that are instances of
+    meta-metadata "http://meta.sintef.no/0.3/EntitySchema".
   - **Instance**: The basic data object in DLite.  All instances are described
     by their metadata which itself are instances.  Instances are identified
     by an UUID.
