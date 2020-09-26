@@ -4,11 +4,10 @@ DLite - lightweight data-centric framework for working with scientific data
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
 
 
-DLite is a small cross-platform C library under development, for
-working with and sharing scientific data in an interoperable way.  It
-is strongly inspired by [SOFT][1], with the aim to be a lightweight
-replacement in cases where Windows portability is a showstopper for
-using SOFT.
+DLite is a lightweight cross-platform C library, for working with and
+sharing scientific data in an interoperable way.  It is strongly
+inspired by [SOFT][1], with the aim to be a lightweight replacement in
+cases where Windows portability is a showstopper for using SOFT.
 
 DLite shares the [metadata model of SOFT5][2] and is compatible with
 SOFT5 in many respects.  However, it has also some notable
@@ -19,19 +18,8 @@ See [doc/concepts.md](doc/concepts.md) for details.
 DLite is licensed under the MIT license.
 
 
-Main features
--------------
-See [doc/features.md](doc/features.md) for a more detailed list.
-  - Enables semantic interoperability via simple formalised metadata and data
-  - Metadta can be linked to or generated from ontologies
-  - Code generation for simple integration in existing code bases
-  - Plugin API for data storages
-  - Plugin API for mapping between metadata
-  - Bindings to C, Python and Fortran
-
-
-Simple example
---------------
+Example
+-------
 Lets say that you have the following Python class
 
 ```python
@@ -40,14 +28,17 @@ class Person:
         self.name = name
         self.age = age
         self.skills = skills
-
-    def __repr__(self):
-        return 'Person(%r, %r, %r)' % (self.name, self.age, list(self.skills))
 ```
 
 that you want to describe semantically.  We do that by defining the
-following metadata which states that `name` as a string, `age` is a float and
-`skills` is an array of `N` strings:
+following metadata (using json) identifying the Python attributes with
+dlite properties.  Here we define `name` to be a string, `age` to be a
+float and `skills` to be an array of `N` strings, where `N` is a name
+of a dimension.  The metadata uniquely identifies itself with the
+"name", "version" and "namespace" fields and "meta" refers the the
+metadata schema (meta-metadata) that this metadata is described by.
+Finally are human description of the metadata itself, its dimensions
+and its properties provide in the "description" fields.
 
 ```json
 {
@@ -71,24 +62,22 @@ following metadata which states that `name` as a string, `age` is a float and
     {
       "name": "age",
       "type": "float",
-      "unit": "years",
+      "unit": "year",
       "description": "Age of person."
     },
     {
       "name": "skills",
       "type": "string",
-      "dims": [
-        "N"
-      ],
+      "dims": ["N"],
       "description": "List of skills."
     }
   ]
 }
 ```
 
-and save it as "Person.json".  Back in Python we can now make a
-dlite-aware subclass of `Person`, instantiate it and serialise it to a
-storage:
+We save the metadata in file "Person.json".  Back in Python we can now
+make a dlite-aware subclass of `Person`, instantiate it and serialise
+it to a storage:
 
 ```python
 import dlite
@@ -104,24 +93,27 @@ person = DLitePerson('Sherlock Holmes', 34., ['observing', 'chemistry',
 person.dlite_inst.save('json://homes.json?mode=w')
 ```
 
-To access this instance from C, you can first generate a header file from
-the meta data
+To access this new instance from C, you can first generate a header
+file from the meta data
 
-```sh
+```console
 $ dlite-codegen -f c-header -o person.h Person.json
 ```
 
 and then include it in your C program:
 
 ```c
-// homes.c
+// homes.c -- sample program that loads instance from homes.json and prints it
 #include <stdio.h>
 #include <dlite>
-#include "person.h"
+#include "person.h"  // header generated with dlite-codegen
 
 int main()
 {
   int i;
+  /* URL of instance to load using the json driver.  The storage is here
+     the file 'homes.json' and the instance within the file is identified
+     with the UUID following the hash (#) sign. */
   char *url = "json://homes.json#7ac977ce-a0dc-4e19-a7e1-7781c0cd23d2";
 
   Person *person = dlite_instance_load_url(url);
@@ -142,7 +134,7 @@ using Linux and dlite in installed in `$HOME/.local`, compiling with
 gcc would look like:
 
 ```console
-$ gcc -g -ldlite -I$HOME/.local/include/dlite -L$HOME/.local/lib -o homes homes.c
+$ gcc -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -o homes homes.c
 ```
 
 Finally you can run the program with
@@ -163,6 +155,21 @@ Note that we in this case have to define the environment variable
 'Person.json'.  There are ways to avoid that, e.g. by hardcoding the
 metadata in C using `dlite-codegen -f c-source` or in the C program
 explicitely load 'Person.json' before 'homes.json'.
+
+This was just a brief example.  There is much more to dlite.  Since
+the documentation is still not complete, the best source is the code
+itself, including the tests and examples.
+
+
+Main features
+-------------
+See [doc/features.md](doc/features.md) for a more detailed list.
+  - Enables semantic interoperability via simple formalised metadata and data
+  - Metadta can be linked to or generated from ontologies
+  - Code generation for simple integration in existing code bases
+  - Plugin API for data storages
+  - Plugin API for mapping between metadata
+  - Bindings to C, Python and Fortran
 
 
 Short vocabulary
