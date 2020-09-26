@@ -30,8 +30,8 @@ See [doc/features.md](doc/features.md) for a more detailed list.
   - Bindings to C, Python and Fortran
 
 
-Example use
------------
+Simple example
+--------------
 Lets say that you have the following Python class
 
 ```python
@@ -46,8 +46,8 @@ class Person:
 ```
 
 that you want to describe semantically.  We do that by defining the
-following metadata specifying `name` as a string, `age` as a float and
-`skills` as an array of strings:
+following metadata which states that `name` as a string, `age` is a float and
+`skills` is an array of `N` strings:
 
 ```json
 {
@@ -86,19 +86,21 @@ following metadata specifying `name` as a string, `age` as a float and
 }
 ```
 
-and save it as "Person.json".  Back in Python we can now make a dlite-aware
-version of the `Person` class, create an instance and serialise it to
-a storage:
+and save it as "Person.json".  Back in Python we can now make a
+dlite-aware subclass of `Person`, instantiate it and serialise it to a
+storage:
 
 ```python
 import dlite
 
+# Create a dlite-aware subclass of Person
 DLitePerson = dlite.classfactory(Person, url='json://Person.json')
 
+# Instantiate
 person = DLitePerson('Sherlock Holmes', 34., ['observing', 'chemistry',
     'violin', 'boxing'])
 
-print(person.dlite_inst.asjson(indent=2))
+# Write to storage (here a json file)
 person.dlite_inst.save('json://homes.json?mode=w')
 ```
 
@@ -106,7 +108,7 @@ To access this instance from C, you can first generate a header file from
 the meta data
 
 ```sh
-dlite-codegen -f c-header -o person.h Person.json
+$ dlite-codegen -f c-header -o person.h Person.json
 ```
 
 and then include it in your C program:
@@ -135,17 +137,17 @@ int main()
 ```
 
 Since we are using `dlite_instance_load_url()` to load the instance,
-you must link to dlite when compiling this program.  Assuming you are using
-Linux and dlite in installed in `$HOME/.local`, compiling with gcc,
-would look like:
+you must link to dlite when compiling this program.  Assuming you are
+using Linux and dlite in installed in `$HOME/.local`, compiling with
+gcc would look like:
 
-```sh
-gcc -g -ldlite -I$HOME/.local/include/dlite -L$HOME/.local/lib -o homes homes.c
+```console
+$ gcc -g -ldlite -I$HOME/.local/include/dlite -L$HOME/.local/lib -o homes homes.c
 ```
 
 Finally you can run the program with
 
-```sh
+```console
 $ DLITE_STORAGES=*.json ./homes
 name:  Sherlock Holmes
 age:   34
@@ -158,9 +160,9 @@ skills:
 
 Note that we in this case have to define the environment variable
 `DLITE_STORAGES` in order to let dlite find the metadata we stored in
-'Person.json'.  There are ways to avoid that, either by hardcoding the
+'Person.json'.  There are ways to avoid that, e.g. by hardcoding the
 metadata in C using `dlite-codegen -f c-source` or in the C program
-explicitely load Person.json before homes.json.
+explicitely load 'Person.json' before 'homes.json'.
 
 
 Short vocabulary
@@ -206,7 +208,7 @@ The following terms have a special meaning in dlite:
     entry, web page, etc.  In dlite url's refer to a storage or even
     an specific instance in a storage using the general syntax
     `driver://location?options#fragment`, where `options` and `fragment`
-    are optional.  If `fragment` is provided, it should be the uuid or 
+    are optional.  If `fragment` is provided, it should be the uuid or
     uri of an instance.
   - **uuid**: A [universal unique identifier (UUID)][UUID] is commonly
     used to uniquely identify digital information.  DLite uses the 36
