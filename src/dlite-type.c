@@ -145,7 +145,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     snprintf(typename, n, "float%zu", size*8);
     break;
   case dliteFixString:
-    snprintf(typename, n, "string%zu", size);
+    snprintf(typename, n, "string%zu", size-1);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
@@ -168,6 +168,52 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   return 0;
 }
 
+/*
+  Writes the fortran type name corresponding to `dtype` and `size` to
+  `typename`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_ftype(DLiteType dtype, size_t size,
+                         char *ftype, size_t n)
+{
+  switch (dtype) {
+  case dliteBlob:
+    snprintf(ftype, n, "blob");    
+    break;
+  case dliteBool:
+    if (size != sizeof(bool))
+      return errx(1, "bool should have size %zu, but %zu was provided",
+                 sizeof(bool), size);
+    snprintf(ftype, n, "logical");
+    break;
+  case dliteInt:
+    snprintf(ftype, n, "integer(%zu)", size);
+    break;
+  case dliteUInt:
+    snprintf(ftype, n, "integer(%zu)", size);
+    break;
+  case dliteFloat:
+    snprintf(ftype, n, "real(%zu)", size);
+    break;
+  case dliteFixString:
+    snprintf(ftype, n, "character(len=%zu)", size-1);
+    break;
+  case dliteStringPtr:
+    snprintf(ftype, n, "character(*)");
+    break;
+  case dliteDimension:
+    snprintf(ftype, n, "type(DLiteDimension)");
+    break;
+  case dliteProperty:
+    snprintf(ftype, n, "type(DLiteProperty)");
+    break;
+  case dliteRelation:
+    snprintf(ftype, n, "type(DLiteRelation)");
+    break;
+  default:
+    return errx(1, "unknown dtype number: %d", dtype);
+  }
+  return 0;
+}
 
 /*
   If the type specified with `dtype` and `size` has a native type name
@@ -216,6 +262,54 @@ const char *dlite_type_get_native_typename(DLiteType dtype, size_t size)
     break;
   }
   return NULL;
+}
+
+/*
+  Writes the Fortran ISO_C_BINDING type name corresponding to `dtype` and
+  `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_isoctype(DLiteType dtype, size_t size,
+                            char *isoctype, size_t n)
+{
+  const char* native = dlite_type_get_native_typename(dtype, size);
+  switch (dtype) {
+  case dliteBlob:
+    snprintf(isoctype, n, "blob");    
+    break;
+  case dliteBool:
+    if (size != sizeof(bool))
+      return errx(1, "bool should have size %zu, but %zu was provided",
+                 sizeof(bool), size);
+    snprintf(isoctype, n, "logical(c_bool)");
+    break;
+  case dliteInt:
+    snprintf(isoctype, n, "integer(c_%s)", native);
+    break;
+  case dliteUInt:
+    snprintf(isoctype, n, "integer(c_%s)", native);
+    break;
+  case dliteFloat:
+    snprintf(isoctype, n, "real(c_%s)", native);
+    break;
+  case dliteFixString:
+    snprintf(isoctype, n, "character(kind=c_char)");
+    break;
+  case dliteStringPtr:
+    snprintf(isoctype, n, "character(kind=c_char)");
+    break;
+  case dliteDimension:
+    snprintf(isoctype, n, "type(c_ptr)");
+    break;
+  case dliteProperty:
+    snprintf(isoctype, n, "type(c_ptr)");
+    break;
+  case dliteRelation:
+    snprintf(isoctype, n, "type(c_ptr)");
+    break;
+  default:
+    return errx(1, "unknown dtype number: %d", dtype);
+  }
+  return 0;
 }
 
 /*
@@ -350,7 +444,7 @@ int dlite_type_set_dtype_and_size(const char *typename,
     *size = typesize;
   } else if (strncmp(typename, "string", namelen) == 0) {
     *dtype = dliteFixString;
-    *size = typesize;
+    *size = typesize+1;
   } else {
     return err(1, "unknown type: %s", typename);
   }
@@ -401,7 +495,9 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       char *s = *((char **)src);
       if (s) {
         size_t len = strlen(s) + 1;
-        *((void **)dest) = realloc(*((void **)dest), len);
+        void *p = realloc(*((void **)dest), len);
+        if (!p) return err(1, "allocation failure"), NULL;
+        *((void **)dest) = p;
         memcpy(*((void **)dest), s, len);
       } else if (*((void **)dest)) {
         free(*((void **)dest));
@@ -427,7 +523,8 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->ndims = s->ndims;
       if (d->ndims) {
         int i;
-        d->dims = malloc(d->ndims*sizeof(char *));
+        if (!(d->dims = malloc(d->ndims*sizeof(char *))))
+          return err(1, "allocation failure"), NULL;
         for (i=0; i<d->ndims; i++)
           d->dims[i] = strdup(s->dims[i]);
       } else {

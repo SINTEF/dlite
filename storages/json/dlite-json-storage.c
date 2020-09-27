@@ -165,6 +165,8 @@ void object_set_real(json_t *obj, const char *key, const double val)
       Whether to write output in compact format
   - meta : yes | no
       Whether to format output as metadata
+  - useid: translate | require | keep
+      How to use the ID
  */
 DLiteStorage *
 dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
@@ -178,10 +180,15 @@ dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
     "\"append\" (appends to existing storage or creates a new one); "
     "\"r\" (read-only); "
     "\"w\" (truncate existing storage or create a new one)";
+  char *useid_descr = "How to use ID.  Valid values are: "
+    "\"translate\" (translate to UUID if ID is not a valid UUID); "
+    "\"require\" (require a valid UUID as ID); "
+    "\"keep\" (keep ID as it is)";
   DLiteOpt opts[] = {
     {'m', "mode",    "append", mode_descr},
     {'c', "compact", "false",  "Whether to write output in compact format"},
     {'M', "meta",    "false",  "Whether to format output as metadata"},
+    {'u', "useid",   "translate",  useid_descr},
     {0, NULL, NULL, NULL}
   };
   char *optcopy = (options) ? strdup(options) : NULL;
@@ -222,6 +229,14 @@ dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
     s->fmt = fmtMeta;
     if (meta < 0)
       errx(1, "invalid boolean value: '%s'.  Assuming true.", opts[2].value);
+  }
+
+  if (strcmp(opts[3].value, "require") == 0) {
+    s->idflag = dliteIDRequireUUID;
+  } else if (strcmp(opts[3].value, "keep") == 0) {
+    s->idflag = dliteIDKeepID;
+  } else {
+    s->idflag = dliteIDTranslateToUUID;
   }
 
   if (s->root == NULL) {
@@ -276,15 +291,22 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
   DLiteDataModel *retval=NULL;
   DLiteJsonStorage *storage = (DLiteJsonStorage *)s;
   char uuid[DLITE_UUID_LENGTH + 1];
-  json_t *data;
+  json_t *data=NULL;
   json_t *jname, *jver, *jns;
 
   if (!(d = calloc(1, sizeof(DLiteJsonDataModel))))
     FAIL0("allocation failure");
 
-  if (id && dlite_get_uuid(uuid, id) < 0) goto fail;
+  if (id) {
+    if (dlite_storage_get_idflag(s) == dliteIDKeepID) {
+      data = json_object_get(storage->root, id);
+    } else  {
+      if (dlite_get_uuid(uuid, id) < 0) goto fail;
+      data = json_object_get(storage->root, uuid);
+    };
+  }
 
-  if (id && (data = json_object_get(storage->root, uuid))) {
+  if (data) {
     /* Instance `id` exists - assign datamodel... */
     if (!json_is_object(data))
       FAIL2("expected a json object for instance '%s' in '%s'",
@@ -294,6 +316,9 @@ DLiteDataModel *dlite_json_datamodel(const DLiteStorage *s, const char *id)
     d->dimensions = json_object_get(data, "dimensions");
     d->properties = json_object_get(data, "properties");
     d->relations = json_object_get(data, "relations");
+    if (!d->properties) {
+      d->properties = data;
+    }
 
   } else if ((jns = json_object_get(storage->root, "namespace")) &&
              (jver = json_object_get(storage->root, "version")) &&
@@ -423,6 +448,42 @@ char *dlite_json_get_metadata(const DLiteDataModel *d)
   }
 }
 
+void dlite_json_resolve_dimensions(DLiteDataModel *d, const DLiteMeta *meta)
+{
+  DLiteJsonDataModel *data = (DLiteJsonDataModel *)d;
+  const DLiteProperty *prop;
+  const DLiteDimension *dim;
+  json_t *obj;
+  size_t i;
+  int j;
+  ivec_t *shape;
+  if (data->fmt == fmtNormal) {
+    if (meta->_ndimensions != json_object_size(data->dimensions)) {
+      if (!json_is_object(data->dimensions))
+        data->dimensions = json_object();
+      for(i=0; i < meta->_ndimensions; i++) {
+        dim = dlite_meta_get_dimension_by_index(meta, i);
+        obj = json_object_get(data->dimensions, dim->name);
+        if (!obj) {
+          json_object_set_new(data->dimensions, dim->name, json_integer(0));
+        }
+      }
+      for(i=0; i < meta->_nproperties; i++) {
+        prop = dlite_meta_get_property_by_index(meta, i);
+        if (prop->ndims > 0) {
+          obj = json_object_get(data->properties, prop->name);
+          shape = json_array_dimensions(obj);
+          if ((int)(ivec_size(shape)) == prop->ndims) {
+            for(j=0; j < prop->ndims; j++) {
+              obj = json_object_get(data->dimensions, prop->dims[j]);
+              json_integer_set(obj, shape->data[j]);
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 /**
   Returns the size of dimension `name` or -1 on error.
@@ -899,6 +960,7 @@ static DLiteStoragePlugin dlite_json_plugin = {
   dlite_json_datamodel_free,
 
   dlite_json_get_metadata,
+  dlite_json_resolve_dimensions,
   dlite_json_get_dimension_size,
   dlite_json_get_property,
 

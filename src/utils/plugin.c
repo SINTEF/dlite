@@ -4,6 +4,11 @@
  *
  * Distributed under terms of the MIT license.
  */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <assert.h>
 #include <string.h>
 
@@ -128,10 +133,11 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     return errx(1, "api already registered: %s", name);
 
   if (path) {
+    Plugin **p;
     assert(handle);
-    if (map_get(&info->plugins, path)) {
-      //warnx("plugin already registered: %s", path);
-      //plugin_incref(*p);
+    if ((p = map_get(&info->plugins, path))) {
+      warnx("plugin already registered: %s", path);
+      plugin_incref(*p);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");
@@ -376,7 +382,7 @@ void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
  */
 const PluginAPI *plugin_api_iter_next(PluginIter *iter)
 {
-  PluginAPI **p, *api;
+  PluginAPI **p, *api=NULL;
   PluginInfo *info = (PluginInfo *)iter->info;
   const char *name = map_next(&info->apis, &iter->miter);
   if (!name) return NULL;
@@ -417,8 +423,65 @@ int plugin_path_insert(PluginInfo *info, const char *path, int n)
 int plugin_path_append(PluginInfo *info, const char *path)
 {
   return fu_paths_append(&info->paths, path);
-
 }
+
+/*
+  Like plugin_path_append(), but appends at most the `n` first bytes
+  of `path` to the current search path.
+
+  Returns the index of the newly appended path or -1 on error.
+*/
+int plugin_path_appendn(PluginInfo *info, const char *path, size_t n)
+{
+  return fu_paths_appendn(&info->paths, path, n);
+}
+
+/*
+  Extends current search path by appending all `pathsep`-separated paths
+  in `s` to it.
+
+  Returns the index of the last appended path or zero if nothing is appended.
+  On error, -1 is returned.
+ */
+int plugin_path_extend(PluginInfo *info, const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep)))
+    if ((stat = plugin_path_appendn(info, p, endptr - p)) < 0) return stat;
+  return stat;
+}
+
+/*
+  Like plugin_paths_extend(), but prefix all relative paths in `s`
+  with `prefix` before appending them to `paths`.
+
+  Returns the index of the last appended paths or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
+                              const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep))) {
+    int len = endptr - p;
+    if (fu_isabs(p)) {
+      if ((stat = plugin_path_appendn(info, p, len)) < 0) return stat;
+    } else {
+      char buf[1024];
+      int n = snprintf(buf, sizeof(buf), "%s/%.*s", prefix, len, p);
+      if (n < 0) return err(-1, "unexpected error in snprintf()");
+      if (n >= (int)sizeof(buf) - 1)
+        return err(-1, "path exeeds buffer size: %s/%.*s", prefix, len, p);
+      if ((stat = plugin_path_append(info, buf)) < 0) return stat;
+    }
+  }
+  return stat;
+}
+
 
 /*
   Removes path index `n` from current search path.  If `n` is

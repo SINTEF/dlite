@@ -269,7 +269,7 @@ Dependencies
 
 Compiling
 ---------
-See [here](docs/build-with-vs.md) for instructions for building with
+See [here](doc/build-with-vs.md) for instructions for building with
 Visual Studio.
 
 

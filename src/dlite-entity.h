@@ -799,14 +799,18 @@ int dlite_meta_init(DLiteMeta *meta);
 
 /**
   Increase reference count to meta-metadata.
+
+  Returns the new reference count.
  */
-void dlite_meta_incref(DLiteMeta *meta);
+int dlite_meta_incref(DLiteMeta *meta);
 
 /**
   Decrease reference count to meta-metadata.  If the reference count reaches
   zero, the meta-metadata is free'ed.
+
+  Returns the new reference count.
  */
-void dlite_meta_decref(DLiteMeta *meta);
+int dlite_meta_decref(DLiteMeta *meta);
 
 /**
   Returns a new reference to metadata with given `id` or NULL if no such

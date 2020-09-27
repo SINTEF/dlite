@@ -631,7 +631,7 @@ ErrRecord *_err_get_record();
 #define ErrElse			                     \
     }				                     \
    if (!_record.eval) _record.state = errTryElse;    \
-    switch (_record.eval == 0) {                     \
+   switch (_record.eval == 0 ? 1 : 0) {              \
     case 1
 
 /**

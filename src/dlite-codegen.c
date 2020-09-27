@@ -6,6 +6,8 @@
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
 
+#include "config-paths.h"
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-codegen.h"
@@ -19,11 +21,13 @@ typedef struct {
 }  Context;
 
 
-/*
-  Global variable indicating whether native typenames should be used.
-  The default is to use portable type names.
-*/
+/* Global variable indicating whether native typenames should be used.
+   The default is to use portable type names. */
 int dlite_codegen_use_native_typenames = 0;
+
+/* Pointer to template paths.  Access it via dlite_codegen_path_get(). */
+static FUPaths *template_paths = NULL;
+
 
 
 /* Generator function that simply copies the template.
@@ -55,6 +59,7 @@ static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
                "\"list_dimensions\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&dsubs, subs))) goto fail;
+  dsubs.parent = subs;
   for (i=0; i < m->_ndimensions; i++) {
     DLiteDimension *d = m->_dimensions + i;
     tgen_subs_set(&dsubs, "dim.name", d->name, NULL);
@@ -84,6 +89,7 @@ static int list_relations(TGenBuf *s, const char *template, int len,
                "\"list_relations\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&rsubs, subs))) goto fail;
+  rsubs.parent = subs;
   for (i=0; i < meta->_nrelations; i++) {
     DLiteRelation *r = meta->_relations + i;
     tgen_subs_set(&rsubs, "rel.s",  r->s, NULL);
@@ -116,6 +122,7 @@ static int list_dims(TGenBuf *s, const char *template, int len,
                "\"list_dims\" only works for metadata");
 
   if (tgen_subs_copy(&psubs, subs)) goto fail;
+  psubs.parent = subs;
   for (i=0; i < p->ndims; i++) {
     tgen_subs_set(&psubs, "dim.name",  p->dims[i] , NULL);
     tgen_subs_set_fmt(&psubs, "dim.i",     NULL, "%d",  i);
@@ -153,6 +160,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
   }
 
   if ((retval = tgen_subs_copy(&psubs, subs))) goto fail;
+  psubs.parent = subs;
 
   for (i=0; i < m->_nproperties; i++) {
     DLiteProperty *p = m->_properties + i;
@@ -162,17 +170,21 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     char *descr = (p->description) ? p->description : "";
     size_t nref = (p->ndims > 0) ? 1 : 0;
     int isallocated = dlite_type_is_allocated(p->type);
-    char typename[32], pcdecl[64];
+    char typename[32], pcdecl[64], ftype[25], isoctype[64];
     char *iri = (p->iri) ? p->iri : "";
     dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
     dlite_type_set_cdecl(p->type, p->size, p->name, nref, pcdecl,
 			 sizeof(pcdecl), dlite_codegen_use_native_typenames);
+    dlite_type_set_ftype(p->type, p->size, ftype, sizeof(ftype));
+    dlite_type_set_isoctype(p->type, p->size, isoctype, sizeof(isoctype));
 
     ((Context *)context)->iprop = i;
     tgen_subs_set(&psubs, "prop.name",     p->name,  NULL);
     tgen_subs_set(&psubs, "prop.type",     type,     NULL);
     tgen_subs_set(&psubs, "prop.typename", typename, NULL);
     tgen_subs_set(&psubs, "prop.dtype",    dtype,    NULL);
+    tgen_subs_set(&psubs, "prop.ftype",    ftype,    NULL);
+    tgen_subs_set(&psubs, "prop.isoctype", isoctype,    NULL);
     tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,   NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
     tgen_subs_set(&psubs, "prop.iri",      iri,      NULL);
@@ -227,6 +239,8 @@ static int list_propdims(TGenBuf *s, const char *template, int len,
   TGenSubs psubs;
   size_t i;
   if (tgen_subs_copy(&psubs, subs)) goto fail;
+  psubs.parent = subs;
+
   for (i=0; i < meta->_npropdims; i++) {
     tgen_subs_set_fmt(&psubs, "propdim.i", NULL, "%zu", i);
     tgen_subs_set_fmt(&psubs, "propdim.n", NULL, "%zu", propdims[i]);
@@ -411,6 +425,37 @@ int dlite_option_subs(TGenSubs *subs, const char *options)
 }
 
 
+/* Returns a pointer to current template paths. */
+FUPaths *dlite_codegen_path_get(void)
+{
+  if (!template_paths) {
+    static FUPaths paths;
+
+    if (fu_paths_init(&paths, "DLITE_TEMPLATE_DIRS") < 0)
+      return err(1, "failure initialising codegen template paths"), NULL;
+
+    fu_paths_set_platform(&paths, dlite_get_platform());
+
+    if (dlite_use_build_root())
+      fu_paths_extend(&paths, dlite_TEMPLATES, NULL);
+    else
+      fu_paths_extend_prefix(&paths, dlite_root_get(),
+                             DLITE_TEMPLATE_DIRS, NULL);
+
+    atexit(dlite_codegen_path_free);
+    template_paths = &paths;
+  }
+  return template_paths;
+}
+
+/* Free template paths */
+void dlite_codegen_path_free(void)
+{
+  if (template_paths) fu_paths_deinit(template_paths);
+  template_paths = NULL;
+}
+
+
 /*
   Returns a newly malloc'ed string with a generated document based on
   `template` and instanse `inst`.  `options` is a semicolon (;) separated
@@ -444,19 +489,17 @@ char *dlite_codegen(const char *template, const DLiteInstance *inst,
  */
 char *dlite_codegen_template_file(const char *template_name)
 {
-  FUPaths paths;
+  FUPaths *paths;
   char *pattern=NULL, *retval=NULL;
   const char *template_file;
   FUIter *iter=NULL;
 
-  if (fu_paths_init(&paths, "DLITE_TEMPLATE_DIRS") < 0)
-    FAIL("failure initialising codegen template paths");
+  if (!(paths = dlite_codegen_path_get())) return NULL;
+
   if (asprintf(&pattern, "%s.txt", template_name) < 0)
     FAIL("allocation failure");
-  if (fu_paths_append(&paths, DLITE_TEMPLATE_DIRS) < 0)
-    FAIL1("failure appending default codegen template search path: %s",
-          DLITE_TEMPLATE_DIRS);
-  if (!(iter = fu_pathsiter_init(&paths, pattern)))
+
+  if (!(iter = fu_pathsiter_init(paths, pattern)))
     FAIL("failure creating codegen template path iterator");
   if (!(template_file = fu_pathsiter_next(iter))) {
       const char **path;
@@ -464,7 +507,7 @@ char *dlite_codegen_template_file(const char *template_name)
       tgen_buf_init(&msg);
       tgen_buf_append_fmt(&msg, "cannot find template file \"%s\" in paths:\n",
                           template_name);
-      for (path=fu_paths_get(&paths); *path; path++)
+      for (path=fu_paths_get(paths); *path; path++)
         tgen_buf_append_fmt(&msg, "  - %s\n", *path);
       errx(1, "%s", tgen_buf_get(&msg));
       tgen_buf_deinit(&msg);
@@ -475,7 +518,6 @@ char *dlite_codegen_template_file(const char *template_name)
  fail:
   if (iter) fu_pathsiter_deinit(iter);
   if (pattern) free(pattern);
-  fu_paths_deinit(&paths);
 
   return retval;
 }

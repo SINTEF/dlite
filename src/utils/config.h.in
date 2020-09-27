@@ -3,10 +3,12 @@
 #ifndef _UTILS_CONFIG_H
 #define _UTILS_CONFIG_H
 
+
 /* System */
 #cmakedefine UNIX
 #cmakedefine WINDOWS
 #cmakedefine APPLE
+
 
 /* Language/preprocessor features */
 #cmakedefine HAVE___VA_ARGS__
@@ -41,10 +43,17 @@
 #cmakedefine HAVE_REALPATH
 #cmakedefine HAVE_STAT
 #cmakedefine HAVE_P_TMPDIR
+
 #cmakedefine HAVE_GetFullPathNameW
 #cmakedefine HAVE_GetFullPathName
 #cmakedefine HAVE_GetFileAttributesW
 #cmakedefine HAVE_GetFileAttributes
+#cmakedefine HAVE_PathFileExistsA
+#cmakedefine HAVE_PathFileExistsW
+#cmakedefine HAVE_PathFileExists
+#cmakedefine HAVE_CreateProcessA
+#cmakedefine HAVE_MBSTOWCS_S
+#cmakedefine HAVE_WCSTOMBS_S
 
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG
@@ -160,11 +169,15 @@ size_t strlcat(char *dst, const char *src, size_t size);
    between integers or floats of different size */
 # pragma warning(disable: 4267 4244)
 
- /* do not warn about that fully confirming standard library functions are
+/* do not warn about that fully confirming standard library functions are
     depricated */
 # pragma warning(disable: 4996)
 
+/* do not warn about locally defined symbols */
+# pragma warning(disable: 4217)
+
 #endif
+
 
 /* Allow overriding default dynamic shared library prefix and extension  */
 #cmakedefine DSL_PREFIX @DSL_PREFIX@

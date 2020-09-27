@@ -32,29 +32,13 @@ foreach(test ${tests})
     COMMAND ${test}
     )
 
-
-  #set(dlite_PATH ${dlite_PATH} ${dlite_BINARY_DIR}/storages/json)
-  #if(UNIX)
-  #  string(REPLACE ";" ":" dlite_PATH ${dlite_PATH})
-  #endif()
-
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH}")
+    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH}")
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
-    "DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
-     "DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
+    ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
 
 endforeach()

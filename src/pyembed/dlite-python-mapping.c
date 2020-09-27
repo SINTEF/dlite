@@ -4,9 +4,10 @@
 #include <Python.h>
 #include <assert.h>
 
-#ifdef HAVE_CONFIG_H
-#undef HAVE_CONFIG_H
-#endif
+/* Python pulls in a lot of defines that conflicts with utils/config.h */
+#define SKIP_UTILS_CONFIG_H
+
+#include "config-paths.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -32,13 +33,28 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 /*
   Returns a pointer to Python mapping paths
 */
-const FUPaths *dlite_python_mapping_paths(void)
+FUPaths *dlite_python_mapping_paths(void)
 {
   if (!mapping_paths_initialised) {
-    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_DIRS") < 0)
-      return dlite_err(1, "cannot initialise DLITE_PYTHON_MAPPING_DIRS"), NULL;
+    int s;
+    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS") < 0)
+      return dlite_err(1, "cannot initialise "
+                       "DLITE_PYTHON_MAPPING_PLUGIN_DIRS"), NULL;
+
+    fu_paths_set_platform(&mapping_paths, dlite_get_platform());
+
+    if (dlite_use_build_root())
+      s = fu_paths_extend(&mapping_paths, dlite_PYTHON_MAPPING_PLUGINS, NULL);
+    else
+      s = fu_paths_extend_prefix(&mapping_paths, dlite_root_get(),
+                                 DLITE_PYTHON_MAPPING_PLUGIN_DIRS, NULL);
+    if (s < 0) return dlite_err(1, "error initialising dlite python mapping "
+                                "plugin dirs"), NULL;
     mapping_paths_initialised = 1;
     mapping_paths_modified = 0;
+
+    /* Make sure that dlite DLLs are added to the library search path */
+    dlite_add_dll_path();
   }
   return &mapping_paths;
 }
@@ -201,7 +217,7 @@ static void freeapi(PluginAPI *api)
   DLiteMappingPlugin *p = (DLiteMappingPlugin *)api;
   free(p->name);
   free((char *)p->output_uri);
-  free(p->input_uris);
+  free((char **)p->input_uris);
   Py_XDECREF(p->data);
   free(p);
 }
@@ -223,7 +239,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
 
   if (!(mappings = dlite_python_mapping_load())) goto fail;
   assert(PyList_Check(mappings));
-  n = PyList_Size(mappings);
+  n = (int)PyList_Size(mappings);
 
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
@@ -282,7 +298,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   api->name = apiname;
   api->freeapi = freeapi;
   api->output_uri = output_uri;
-  api->ninput = PySequence_Length(in_uris);
+  api->ninput = (int)PySequence_Length(in_uris);
   api->input_uris = input_uris;
   api->mapper = mapper;
   api->cost = cost;
@@ -299,7 +315,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   if (!retval) {
     if (name) free(name);
     if (output_uri) free((char *)output_uri);
-    if (input_uris) free(input_uris);
+    if (input_uris) free((char **)input_uris);
     if (api) free(api);
   }
   return retval;

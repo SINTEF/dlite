@@ -35,11 +35,20 @@ check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 
 check_symbol_exists(realpath            stdlib.h     HAVE_REALPATH)
 check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
+check_symbol_exists(exec                unistd.h     HAVE_EXEC)
 check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
+
 check_symbol_exists(GetFullPathNameW    Windows.h    HAVE_GetFullPathNameW)
 check_symbol_exists(GetFullPathName     Windows.h    HAVE_GetFullPathName)
 check_symbol_exists(GetFileAttributesW  Windows.h    HAVE_GetFileAttributesW)
 check_symbol_exists(GetFileAttributes   Windows.h    HAVE_GetFileAttributes)
+list(APPEND CMAKE_REQUIRED_LIBRARIES Shlwapi.lib)
+check_symbol_exists(PathFileExistsW     shlwapi.h    HAVE_PathFileExistsW)
+check_symbol_exists(PathFileExists      shlwapi.h    HAVE_PathFileExists)
+list(REMOVE_ITEM CMAKE_REQUIRED_LIBRARIES Shlwapi.lib)
+check_symbol_exists(CreateProcessA      processthreadsapi.h HAVE_CreateProcessA)
+check_symbol_exists(mbstowcs_s          stdlib.h     HAVE_MBSTOWCS_S)
+check_symbol_exists(wcstombs_s          stdlib.h     HAVE_WCSTOMBS_S)
 
 check_symbol_exists(strlcpy             string.h     HAVE_STRLCPY)
 check_symbol_exists(strlcat             string.h     HAVE_STRLCAT)
@@ -205,6 +214,7 @@ set(sources
   err.c
   fileinfo.c
   fileutils.c
+  execprocess.c
   globmatch.c
   plugin.c
   map.c
@@ -254,6 +264,10 @@ target_include_directories(dlite-utils-static PUBLIC
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 
+if(HAVE_PathFileExistsW)
+  target_link_libraries(dlite-utils Shlwapi.lib)
+  target_link_libraries(dlite-utils-static Shlwapi.lib)
+endif()
 
 ## create list of headers to install from ${sources}
 set(headers "")

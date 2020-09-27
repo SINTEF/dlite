@@ -40,3 +40,13 @@ add_test(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/dlite-example-3
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
+
+set_property(TEST dlite-example-3 PROPERTY
+  ENVIRONMENT "DLITE_ROOT=${DLITE_ROOT}")
+if(UNIX)
+set_property(TEST dlite-example-3 APPEND PROPERTY
+  ENVIRONMENT "LD_LIBRARY_PATH=${DLITE_ROOT}/lib")
+elseif(WIN32)
+set_property(TEST dlite-example-3 APPEND PROPERTY
+  ENVIRONMENT "PATH=${DLITE_ROOT/lib};${PATH}")
+endif()

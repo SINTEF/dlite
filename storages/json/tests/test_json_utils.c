@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
+
 #include "minunit/minunit.h"
 #include "utils/integers.h"
 #include "utils/boolean.h"
 #include "json-utils.h"
 #include "str.h"
-
-#include "config.h"
 
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) # s

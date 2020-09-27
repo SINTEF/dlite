@@ -24,7 +24,7 @@ def main():
         help='Input file created with the valgrind --log-file option.')
     parser.add_argument(
         'outfile', type=argparse.FileType('wt'),
-        help='Input file created with the valgrind --log-file option.')
+        help='Output suppressions file.')
     parser.add_argument(
         '--head', '-H', type=argparse.FileType('rt'),
         help="A file who's content will included first in the output.")
@@ -45,6 +45,9 @@ def main():
 
     d = parse_input(args)
     write_output(args, d)
+
+    args.infile.close()
+    args.outfile.close()
 
 
 def parse_input(args):
@@ -101,6 +104,7 @@ def parse_input(args):
             sec.append(line.rstrip())
 
     return d
+
 
 def write_output(args, d):
     """Write output file. `d` is the dict returned by parse_input(). """

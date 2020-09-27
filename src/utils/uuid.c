@@ -19,6 +19,11 @@
 #include "uuid4.h"
 #include "uuid.h"
 
+/* Get rid of MSVS warnings */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4273 4996)
+#endif
+
 
 typedef uint64_t uuid_sime_t;
 typedef struct {

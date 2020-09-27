@@ -8,13 +8,13 @@
 #ifdef HAVE_CONFIG_H
 #undef HAVE_CONFIG_H
 #endif
-#include "utils/fileutils.h"
+//#include "utils/fileutils.h"
 
 
 /**
   Returns a pointer to internal Python storage search paths.
 */
-const FUPaths *dlite_python_storage_paths(void);
+FUPaths *dlite_python_storage_paths(void);
 
 /**
   Clears Python storage search path.

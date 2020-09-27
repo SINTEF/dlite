@@ -3,6 +3,13 @@
 #include "dlite-macros.h"
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
+#include "dlite-python-storage.h"
+#include "dlite-python-mapping.h"
+
+/* Get rid of MSVS warnings */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4273 4996)
+#endif
 
 
 static int python_initialized = 0;
@@ -12,14 +19,16 @@ void dlite_pyembed_initialise(void)
 {
   wchar_t *progname;
   if (!python_initialized) {
+    python_initialized = 1;
+
+    Py_Initialize();
+
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
-    Py_Initialize();
-    python_initialized = 1;
   }
 }
 
@@ -224,7 +233,7 @@ void *dlite_pyembed_get_address(const char *symbol)
 
   /* Seems that ctypes.addressof() returns the address where the pointer to
      `symbol` is stored, so we need an extra dereference... */
-  if (ptr) ptr = *((void **)ptr);
+  if (ptr) ptr = (void *)*((void **)ptr);
 
  fail:
   Py_XDECREF(addr);

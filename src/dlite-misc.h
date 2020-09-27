@@ -6,9 +6,10 @@
   @brief Main header file for dlite
 */
 
-#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
-
+#include "utils/fileutils.h"
 #include "dlite-type.h"
+
+#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
 
 
 /**
@@ -21,6 +22,11 @@
 */
 const char *dlite_get_version(void);
 
+/**
+  Returns current platform based on the DLITE_PLATFORM environment
+  variable.  Used when initiating paths.
+ */
+FUPlatform dlite_get_platform(void);
 
 /**
   Writes an UUID to `buff` based on `id`.
@@ -175,6 +181,41 @@ int dlite_split_url(char *url, char **driver, char **location, char **options,
  */
 int dlite_split_url_winpath(char *url, char **driver, char **location,
                             char **options, char **fragment, int winpath);
+
+
+/**
+  Returns non-zero if paths should refer to build root instead of
+  installation root.
+ */
+int dlite_use_build_root(void);
+
+/**
+  Sets whether paths should refer to build root.  Default is the
+  installation root, unless the environment variable
+  DLITE_USE_BUILD_ROOT is set and is not false.
+*/
+void dlite_set_use_build_root(int v);
+
+/**
+  Returns pointer to installation root.  It may be altered with environment
+  variable DLITE_ROOT.
+*/
+const char *dlite_root_get(void);
+
+
+/**
+  On Windows, this function adds default directories to the DLL search
+  path.  Based on whether the `DLITE_USE_BUILDROOT` environment
+  variable is defined, the library directories under either the build
+  directory or the installation root (environment variable DLITE_ROOT)
+  are added to the DLL search path using AddDllDirectory().
+
+  On Linux this function does nothing.
+
+  Returns non-zero on error.
+ */
+int dlite_add_dll_path(void);
+
 
 
 /**

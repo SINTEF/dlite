@@ -24,7 +24,7 @@ MU_TEST(test_entity_load)
 {
   DLiteStorage *s;
   DLiteInstance *e;  /* the entity cast to a DLiteInstance */
-  char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
+  char *path = STRINGIFY(dlite_SOURCE_DIR) "/tools/tests/Chemistry-0.1.json";
   char *uri = "http://www.sintef.no/calm/0.1/Chemistry";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
@@ -92,7 +92,7 @@ MU_TEST(test_instance_create)
 
 MU_TEST(test_instance_load)
 {
-  char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
+  char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/alloys.json";
   int i;
   DLiteStorage *s;
   DLiteInstance *inst2, *e=(DLiteInstance *)entity;
