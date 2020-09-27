@@ -344,6 +344,10 @@ typedef int (*DataModelFree)(DLiteDataModel *d);
  */
 typedef char *(*GetMetaURI)(const DLiteDataModel *d);
 
+/**
+ * Resolve the dimensions from the properties (JSON or YAML storage)
+ */
+typedef void (*ResolveDimensions)(DLiteDataModel *d, const DLiteMeta *meta);
 
 /**
   Returns the size of dimension `name` or -1 on error.
@@ -474,6 +478,7 @@ struct _DLiteStoragePlugin {
   DataModelFree      dataModelFree;    /*!< Frees a data model */
 
   GetMetaURI         getMetaURI;       /*!< Returns uri to metadata */
+  ResolveDimensions  resolveDimensions;/*!< Resolves dimensions from properties */
   GetDimensionSize   getDimensionSize; /*!< Returns size of dimension */
   GetProperty        getProperty;      /*!< Gets value of property */
 

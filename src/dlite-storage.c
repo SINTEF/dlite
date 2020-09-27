@@ -43,8 +43,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   if (!(storage = api->open(api, location, options))) goto fail;
   storage->api = api;
   if (!(storage->location = strdup(location))) FAIL(NULL);
-  if (options && !(storage->options = strdup(options))) FAIL(NULL);
-  storage->idflag = dliteIDTranslateToUUID;
+  if (options && !(storage->options = strdup(options))) FAIL(NULL);  
 
   return storage;
  fail:

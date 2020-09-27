@@ -32,6 +32,20 @@ program ftest_person
   print *, 'skills      = ', person%skills
   print *, 'temperature = ', person%temperature
 
+  print *, "test_person.f90: load persons_names.json"
+  person = TPerson("json", &
+                   dlite_fortran_test_dir // "persons_names.json", &
+                   "mode=r;useid=keep", &
+                   "Joe Doe")
+
+  print *, 'uuid        = ', person%uuid
+  print *, 'n           = ', person%n
+  print *, 'm           = ', person%m
+  print *, 'name        = ', person%name
+  print *, 'age         = ', person%age
+  print *, 'skills      = ', person%skills
+  print *, 'temperature = ', person%temperature  
+
   john = TPerson(2, 4)
   john%name = 'John Doe'
   !john%name = 'first name middle name last name --!--- names !!'
@@ -52,8 +66,6 @@ program ftest_person
   print *, 'scan date = ', scan%date
   status = storage%close()
 
-  !scan%points(2,:) = [2, 3, 5]
-
   print *, "Array, shape=(", size(scan%points, 1), ",", size(scan%points, 2), ")"
   do i = 1, size(scan%points, 1)
     print *, scan%points(i, :)
@@ -72,7 +84,7 @@ program ftest_person
   end do
   status = scan%writeToURL("json://scans2.json")
 
-  !person%destroy()
-  !john%destroy()
-  !scan%destroy()
+  status = person%destroy()
+  status = john%destroy()
+  status = scan%destroy()
 end program ftest_person

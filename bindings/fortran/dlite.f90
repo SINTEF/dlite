@@ -33,14 +33,13 @@ module DLite
 
   type, public :: DLiteInstance
      type(c_ptr)                   :: cinst
-     !character(37,kind=c_char)     :: uuid
-     !character(len=1, kind=c_char) :: uri
-     !character(len=1, kind=c_char) :: iri
    contains
      procedure :: check => check_instance
      procedure :: save => dlite_instance_save
      procedure :: save_url => dlite_instance_save_url
      procedure :: get_uuid => dlite_instance_get_uuid
+     procedure :: get_uri => dlite_instance_get_uri
+     procedure :: get_iri => dlite_instance_get_iri          
      procedure :: get_dimension_size => dlite_instance_get_dimension_size
      procedure :: get_dimension_size_by_index => dlite_instance_get_dimension_size_by_index
      procedure :: get_property => dlite_instance_get_property
@@ -170,6 +169,18 @@ module DLite
     import c_ptr
     type(c_ptr), value, intent(in)                         :: instance
   end function dlite_instance_get_uuid_c
+
+  type(c_ptr) function dlite_instance_get_uri_c(instance) &
+      bind(C,name='dlite_instance_get_uri')
+    import c_ptr
+    type(c_ptr), value, intent(in)                         :: instance
+  end function dlite_instance_get_uri_c
+
+  type(c_ptr) function dlite_instance_get_iri_c(instance) &
+      bind(C,name='dlite_instance_get_iri')
+    import c_ptr
+    type(c_ptr), value, intent(in)                         :: instance
+  end function dlite_instance_get_iri_c
 
   integer(c_size_t) function dlite_instance_get_dimension_size_c(instance, name) &
       bind(C,name="dlite_instance_get_dimension_size")
@@ -483,6 +494,22 @@ contains
     call c_f_string(cptr, uuid)
   end function dlite_instance_get_uuid
 
+  function dlite_instance_get_uri(instance) result(uri)
+    class(DLiteInstance), intent(in) :: instance
+    character(len=256)               :: uri
+    type(c_ptr) :: cptr
+    cptr = dlite_instance_get_uri_c(instance%cinst)
+    call c_f_string(cptr, uri)
+  end function dlite_instance_get_uri
+
+  function dlite_instance_get_iri(instance) result(iri)
+    class(DLiteInstance), intent(in) :: instance
+    character(len=256)               :: iri
+    type(c_ptr) :: cptr
+    cptr = dlite_instance_get_iri_c(instance%cinst)
+    call c_f_string(cptr, iri)
+  end function dlite_instance_get_iri
+
   function dlite_instance_get_dimension_size(instance, name) result(n)
     class(DLiteInstance), intent(in) :: instance
     character(len=*), intent(in)     :: name
@@ -554,19 +581,27 @@ contains
   end subroutine dlite_instance_get_property_dims_by_index
 
   function dlite_instance_decref(instance) result(count)
-    class(DLiteInstance), intent(in) :: instance
-    integer(c_int)                   :: count_c
-    integer                          :: count
+    class(DLiteInstance)                 :: instance
+    integer(c_int)                       :: count_c
+    integer                              :: count
     count_c = dlite_instance_decref_c(instance%cinst)
     count = count_c
+    if (count .le. 0) then
+      instance%cinst = c_null_ptr
+      count = 0
+    endif
   end function dlite_instance_decref
 
   function dlite_meta_decref(meta) result(count)
-    class(DLiteMeta), intent(in) :: meta
+    class(DLiteMeta)             :: meta
     integer(c_int)               :: count_c
     integer                      :: count
     count_c = dlite_meta_decref_c(meta%cptr)
     count = count_c
+    if (count .le. 0) then
+      meta%cptr = c_null_ptr
+      count = 0
+    endif    
   end function dlite_meta_decref
 
   ! --------------------------------------------------------

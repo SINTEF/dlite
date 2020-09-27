@@ -1,5 +1,5 @@
 {
-    "d473aa6f-2da3-4889-a88d-0c96186c3fa2": {
+    "Joe": {
         "meta": "http://meta.sintef.no/0.2/Person",
         "dimensions": {
             "N": 2,
@@ -12,7 +12,7 @@
             "temperature": [37.5, 36.9, 37.1]
         }
     },
-    "ccdcb6a5-b730-4fd4-a98b-3cd8470c928b": {
+    "Elisa": {
         "meta": "http://meta.sintef.no/0.2/Person",
         "dimensions": {
             "N": 3,
@@ -24,5 +24,12 @@
             "skills": ["java", "c#", "c++"],
             "temperature": [37.4]
         }
-    }
+    },
+    "Joe Doe": {
+        "meta": "http://meta.sintef.no/0.2/Person",
+        "name": "Joe Doe",
+        "age": 53.0,
+        "skills": ["java", "c#", "c++"],
+        "temperature": [37.4]        
+    }    
 }
