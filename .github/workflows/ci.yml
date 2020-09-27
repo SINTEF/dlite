@@ -44,12 +44,17 @@ jobs:
       run: |
         mkdir build
         cd build
-        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') cmake ..
+        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') cmake .. FORCE_EXAMPLES=ON
         cd -
     - name: make
       run: |
         cd build
         make
+        cd -
+    - name: install
+      run: |
+        cd build
+        make install
         cd -
     - name: make test
       run: |
