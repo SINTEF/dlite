@@ -110,14 +110,15 @@ and then include it in your C program:
 
 int main()
 {
-  int i;
-  /* URL of instance to load using the json driver.  The storage is here
-     the file 'homes.json' and the instance within the file is identified
-     with the UUID following the hash (#) sign. */
+  /* URL of instance to load using the json driver.  The storage is
+     here the file 'homes.json' and the instance we want to load in
+     this file is identified with the UUID following the hash (#)
+     sign. */
   char *url = "json://homes.json#7ac977ce-a0dc-4e19-a7e1-7781c0cd23d2";
 
   Person *person = dlite_instance_load_url(url);
 
+  int i;
   printf("name:  %s\n", person->name);
   printf("age:   %g\n", person->age);
   printf("skills:\n");
@@ -152,7 +153,7 @@ skills:
 
 Note that we in this case have to define the environment variable
 `DLITE_STORAGES` in order to let dlite find the metadata we stored in
-'Person.json'.  There are ways to avoid that, e.g. by hardcoding the
+'Person.json'.  There are ways to avoid this, e.g. by hardcoding the
 metadata in C using `dlite-codegen -f c-source` or in the C program
 explicitely load 'Person.json' before 'homes.json'.
 
@@ -227,27 +228,25 @@ The following terms have a special meaning in dlite:
 Download and build
 ==================
 
-Quick start with VS Code and Remote Container
----------------------------------------------
+Download
+--------
+### From source
+DLite sources can be cloned from GitHub
 
-Using Visual Studio Code it is possible to do development on the system defined in Dockerfile.
+    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
 
-1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
-2. Install the extension __Remote Development__.
-3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
-4. Open the _dlite_ folder with VS Code.
-5. Start VS Code, run the *Remote-Containers: Open Folder in Container...* command from the Command Palette (F1) or quick actions Status bar item. This will build the container and restart VS Code in it. This may take some time the first time as the Docker image must be built. See [Quick start: Open an existing folder in a container](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container) for more information and instructions.
-6. In the container terminal, perform the first build and tests with `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make && make test`.
+To initialize the minunit submodule, you may also have to run
 
+    git submodule update --init
 
-Docker container
-----------------
-A docker containiner can be found on
-[https://github.com/SINTEF/dlite/packages](https://github.com/SINTEF/dlite/packages).
+### Pre-build docker container
+Docker containers are available from
+[https://github.com/SINTEF/dlite/packages][dlite-packages].
 
+Dependencies
+------------
 
-Runtime dependencies
---------------------
+### Runtime dependencies
   - [HDF5][3], optional (needed by HDF5 storage plugin)
   - [Jansson][4], optional (needed by JSON storage plugin)
   - [Python 3][5], optional (needed by Python bindings and some plugins)
@@ -256,8 +255,7 @@ Runtime dependencies
     - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
 
 
-Build dependencies
-------------------
+### Build dependencies
   - [cmake][9], required for building
   - hdf5 development libraries, optional (needed by HDF5 storage plugin)
   - Jansson development libraries, optional (needed by JSON storage plugin)
@@ -269,86 +267,44 @@ Build dependencies
   - [cppcheck][13], optional, used for static code analysis
 
 
-Download
---------
-Download DLite with git, using
-
-    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-
-To initialize the minunit submodule, you may also have to run
-
-    git submodule update --init
+Compiling
+---------
+See [here](docs/build-with-vs.md) for instructions for building with
+Visual Studio.
 
 
-Building
---------
+### Quick start with VS Code and Remote Container
 
-## Build on Microsoft Windows
+Using Visual Studio Code it is possible to do development on the
+system defined in Dockerfile.
 
-@verbatim
-1. Install a recent version of cmake https://cmake.org/download/
-2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the
-   C/C++ components
-
-3. Prepare a directory structure for DLite and 3rd party libraries:
-   1. Select a root folder to create the directory structure
-      (e.g. "C:\" or "C:\Users\{username}\Documents\")
-	2. Create the following directory: {root}\local
-	3. Clone the DLite repository in the root folder, folder
-           {root}\dlite will be created.
-4. Download hdf5 library archive from
-   https://support.hdfgroup.org/ftp/HDF5/current/src/
-5. Make a copy of the file {root}\dlite\bootstrap-win.sh into the root
-   folder
-6. Edit the copy of bootstrap-win.sh in the root folder:
-	1. Modify the variable CMAKE_PATH to the path of cmake directory
-	2. Modify the variable ROOT_PATH to your root folder
-	3. Modify the variable PYTHON_EXECUTABLE to Python version 3.x
-	   executable
-	4. Check the version number of hdf5 library
-    5. To build in Win64 mode, add '-G "Visual Studio 15 Win64"' after
-       cmake command when generating the solution (not building)
-7. Open a git-bash window:
-	1. Change the directory to your root folder
-	2. Type `sh bootstrap-win.sh` and press enter
-8. Open the file {root}\dlite\build\dlite.sln in Visual Studio
-9. In Visual Studio:
-    1. Select the solution configuration "Debug", then build the
-       solution (Menu Build -> Build solution)
-    2. Select the solution configuration "Release", then build the
-       solution (Menu Build -> Build solution)
-
-To run the tests, do
-
-    ctest -C Debug
+1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
+2. Install the extension __Remote Development__.
+3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
+4. Open the _dlite_ folder with VS Code.
+5. Start VS Code, run the *Remote-Containers: Open Folder in
+   Container...* command from the Command Palette (F1) or quick
+   actions Status bar item. This will build the container and restart
+   VS Code in it. This may take some time the first time as the Docker
+   image must be built. See [Quick start: Open an existing folder in a
+   container][vs-container] for more information and instructions.
+6. In the container terminal, perform the first build and tests with
+   `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
+   make test`.
 
 
-Summary to build and install DLite when hdf5 and jansson lib are installed
-in the given path LOCAL_DIR
+### Build on Linux
 
-	LOCAL_DIR=/C/Users/tco/Documents/Programs/philib/local
-	PATH=$PATH:$LOCAL_DIR/bin
-	cd dlite
-	mkdir build && cd build
-	cmake -G "Visual Studio 14 2015 Win64" -DHDF5_DIR=$LOCAL_DIR/cmake/hdf5 -DJANSSON_ROOT=$LOCAL_DIR/ -DCMAKE_INSTALL_PREFIX=$LOCAL_DIR/ ..
-	cmake --build . --config Debug --target doc
-	cmake --build . --config Debug --target install
-	cmake --build . --config Release --target install
-	ctest -C Debug
-	ctest -C Release
+Install the hdf5 (does not include the parallel component) and jansson
+libraries
 
-@endverbatim
+On Ubuntu:
 
+    sudo apt-get install libhdf5-serial-dev libjansson-dev
 
-## Build on Linux
+On Redhad-based distributions (Fedora, Centos, ...):
 
-If hdf5 is not installed (does not include the parallel component):
-
-    sudo apt-get install libhdf5-serial-dev
-
-If JANSSON is not installed:
-
-    sudo apt-get install libjansson-dev
+    sudo dnf install hdf5-devel jansson-devel
 
 Build with:
 
@@ -360,10 +316,8 @@ Build with:
 Before running make, you may wish to configure some options with
 `ccmake ..`
 
-For example, you might need to change (using e.g. cmake-gui)
-CMAKE_INSTALL_PREFIX to a location accessible for writing. Default
-is ~/.local
-
+For example, you might need to change CMAKE_INSTALL_PREFIX to a
+location accessible for writing. Default is ~/.local
 
 To run the tests, do
 
@@ -402,3 +356,5 @@ DLite is developed with the hope that it will be a delight to work with.
 [URL]: https://en.wikipedia.org/wiki/URL
 [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
 [IRI]: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
+[dlite-packages]: https://github.com/SINTEF/dlite/packages
+[vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
