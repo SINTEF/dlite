@@ -70,6 +70,31 @@ else()
   set(DLITE_INSTALL_CMAKE_DIR "share/dlite/cmake")
 endif()
 
+# Variables to include in dliteConfig.cmake
+set(DLITE_CONFIG_VARS
+  dlite_VERSION
+  DLITE_ROOT
+  DLITE_INCLUDE_DIRS
+  DLITE_LIBRARY_DIR
+  DLITE_RUNTIME_DIR
+  DLITE_TEMPLATE_DIRS
+  DLITE_STORAGE_PLUGIN_DIRS
+  DLITE_MAPPING_PLUGIN_DIRS
+  )
+  if(WITH_JSON)
+    list(APPEND DLITE_CONFIG_VARS JANSSON_LIBRARIES)
+  endif()
+  if(WITH_HDF5)
+    list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
+  endif()
+  if(WITH_PYTHON)
+    list(APPEND DLITE_CONFIG_VARS
+      PYTHON_LIBRARIES
+      DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+      DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+      )
+  endif()
+
 
 ####################################################################
 # Use ExternalProject_add instead of add_subdirectory for packages.
@@ -545,19 +570,7 @@ configure_package_config_file(
   cmake/dliteConfig.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
   INSTALL_DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
-  PATH_VARS
-    DLITE_INCLUDE_DIRS
-    DLITE_LIBRARY_DIR
-    DLITE_RUNTIME_DIR
-    DLITE_TEMPLATE_DIRS
-    DLITE_STORAGE_PLUGIN_DIRS
-    DLITE_MAPPING_PLUGIN_DIRS
-    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-    DLITE_STORAGES
-    PYTHON_LIBRARIES
-    JANSSON_LIBRARIES
-    HDF5_LIBRARIES
+  PATH_VARS ${DLITE_CONFIG_VARS}
   )
 
 #################################################################

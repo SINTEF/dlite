@@ -71,6 +71,10 @@ Short vocabulary
   - **Instance**: The basic data object in DLite.  All instances are described
     by their metadata which itself are instances.  Instances are identified
     by an UUID.
+  - **iri**: An [internationalized resource identifier (IRI)][IRI] is the
+    extension of URI to international characters.  In dlite, the term `iri`
+    is used as a reference to a concept in an ontology defining an instance
+    or property.
   - **Mapping**: A function that maps one or more input instances to an
     output instance.  They are an important mechanism for interoperability.
     Mappings are called translators in SOFT5.
@@ -85,6 +89,22 @@ Short vocabulary
     represent the evolution of the state of a software as a series of
     immutable instances.  See also the
     [SOFT5 nomenclauture][SOFT5_nomenclauture].
+  - **uri**: A [uniform resource identifier (URI)][URI] is a
+    generalisation of URL, but follows the same syntax rules.  In
+    dlite, the term `uri` is used as an human readable identifier for
+    instances (optional for data instances) and has the form
+
+        namespace/version/name
+
+  - **url**: A [uniform resource locator (URL)][URL] is an reference
+    to a web resource, like a file (on a given computer), database
+    entry, web page, etc.  DLite used the term `url` to refer to a
+    storage or even an specific instance in a storage.
+  - **uuid**: A [universal unique identifier (UUID)][UUID] is commonly
+    used to uniquely identify digital information.  DLite uses the 36
+    character string representation of `uuid`s to uniquely identify
+    instances.  The `uuid` is generated from the `uri` for instances
+    that has an `uri`, otherwise it is randomly generated.
 
 
 Download and build
@@ -261,3 +281,7 @@ DLite is developed with the hope that it will be a delight to work with.
 [12]: http://valgrind.org/
 [13]: http://cppcheck.sourceforge.net/
 [SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
+[UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
+[URL]: https://en.wikipedia.org/wiki/URL
+[URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+[IRI]: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
