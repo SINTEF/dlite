@@ -4,25 +4,21 @@
 set(tests
   test_err
   test_tmpfileplus
+  test_strtob
   test_fileinfo
   test_fileutils
+  test_execprocess
   test_globmatch
   test_dsl
   test_plugin
   test_tgen
   test_uuid
   test_uuid2
+  test_uuid4
   test_infixcalc
 
   tgen_example
   )
-
-# Workaround for old CMake adding CONFIG to binary path for MSVC
-#if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
-#  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-#else()
-#  set(LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
-#endif()
 
 link_directories(
   ${dlite_BINARY_DIR}/src/utils
@@ -32,6 +28,7 @@ link_directories(
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test} dlite-utils-static)
+  #target_link_libraries(${test} dlite-utils)
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src/tests
     ${dlite-src-utils_SOURCE_DIR}
@@ -39,21 +36,20 @@ foreach(test ${tests})
     )
   target_compile_definitions(${test} PUBLIC
      -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
-     -DLIBDIR=$<TARGET_FILE_DIR:${test}>
-     -DABS_WORKDIR=${CMAKE_CURRENT_BINARY_DIR}
-     )
+     -DBINDIR=$<TARGET_FILE_DIR:${test}>
+   )
   add_dependencies(${test} dlite-utils-static)
+  #add_dependencies(${test} dlite-utils)
 
   add_test(
     NAME ${test}
     COMMAND ${test}
     )
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH}")
+    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+
 endforeach()
 
 

@@ -401,7 +401,9 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       char *s = *((char **)src);
       if (s) {
         size_t len = strlen(s) + 1;
-        *((void **)dest) = realloc(*((void **)dest), len);
+        void *p = realloc(*((void **)dest), len);
+        if (!p) return err(1, "allocation failure"), NULL;
+        *((void **)dest) = p;
         memcpy(*((void **)dest), s, len);
       } else if (*((void **)dest)) {
         free(*((void **)dest));
@@ -427,7 +429,8 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->ndims = s->ndims;
       if (d->ndims) {
         int i;
-        d->dims = malloc(d->ndims*sizeof(char *));
+        if (!(d->dims = malloc(d->ndims*sizeof(char *))))
+          return err(1, "allocation failure"), NULL;
         for (i=0; i<d->ndims; i++)
           d->dims[i] = strdup(s->dims[i]);
       } else {

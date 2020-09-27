@@ -122,7 +122,7 @@ else()
     PARENT_SCOPE)
 
   # Define variables for setting up environment needed by dlite
-  if(WINDOWS)
+  if(WIN32)
     set(dlite_PATH
       "${DLITE_RUNTIME_DIR};${DLITE_LIBRARY_DIR};$ENV{PATH}")
     set(dlite_LD_LIBRARY_PATH

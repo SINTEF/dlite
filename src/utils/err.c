@@ -119,7 +119,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
     switch (override) {
     case errOverrideAppend:
       n = strlen(errmsg);
-      n += snprintf(errmsg + n, errsize - n, err_append_sep);
+      n += snprintf(errmsg + n, errsize - n, "%s", err_append_sep);
       break;
     case errOverrideWarnOld:
       if (stream) fprintf(stream, "Warning: Overriding old error: '%s'\n",
@@ -166,7 +166,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       n += vsnprintf(errmsg + n, errsize - n, msg, ap);
     if (errnum)
       n += snprintf(errmsg + n, errsize - n, ": %s", strerror(errnum));
-
     if (n >= (int)errsize && stream)
       fprintf(stream, "Warning: error %d truncated due to full message buffer",
               eval);

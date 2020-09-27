@@ -11,6 +11,9 @@ endif()
 # -----------------
 configure_file(config.h.in config.h)
 
+include(dliteGenEnv)
+dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)
+
 
 #-----------------------------------------------------
 # Compile library
@@ -58,8 +61,14 @@ add_definitions(
 # We have to implement a robust way to find shared libraries on Windows,
 # probably by appending to the PATH environment variable before loading
 # any storage or mapping plugin.
-add_library(dlite SHARED ${sources})
-add_library(dlite-static STATIC ${sources})
+add_library(dlite SHARED
+  ${sources}
+  ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
+  )
+add_library(dlite-static STATIC
+  ${sources}
+  ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
+  )
 
 target_link_libraries(dlite
   dlite-utils

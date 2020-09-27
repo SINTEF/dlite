@@ -48,7 +48,7 @@ int count_adds(DLiteStore *store) {
 MU_TEST(test_entity_load)
 {
   DLiteStorage *s;
-  char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
+  char *path = STRINGIFY(dlite_SOURCE_DIR) "/tools/tests/Chemistry-0.1.json";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((entity = dlite_meta_load(s, entity_uri)));
   mu_assert_int_eq(0, dlite_storage_close(s));
@@ -58,7 +58,7 @@ MU_TEST(test_entity_load)
 MU_TEST(test_instance_load)
 {
   DLiteStorage *s;
-  char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
+  char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/alloys.json";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((inst = dlite_instance_load(s, inst_id)));
   mu_assert_int_eq(0, dlite_storage_close(s));

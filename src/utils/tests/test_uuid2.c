@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include "uuid.h"
 
+/* Get rid of MSVS warnings */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4217)
+#endif
+
 
 /* puid -- print a UUID */
 void puid(uuid_s u)

@@ -32,10 +32,6 @@
   @see http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "dsl.h"
 #include "fileutils.h"
 #include "globmatch.h"
@@ -189,6 +185,33 @@ int plugin_path_insert(PluginInfo *info, const char *path, int n);
   Returns the index of the newly appended path or -1 on error.
  */
 int plugin_path_append(PluginInfo *info, const char *path);
+
+/**
+  Like plugin_path_append(), but appends at most the `n` first bytes
+  of `path` to the current search path.
+
+  Returns the index of the newly appended path or -1 on error.
+*/
+int plugin_path_appendn(PluginInfo *info, const char *path, size_t n);
+
+/**
+  Extends current search path by appending all `pathsep`-separated paths
+  in `s` to it.
+
+  Returns the index of the last appended path or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int plugin_path_extend(PluginInfo *info, const char *s, const char *pathsep);
+
+/**
+  Like plugin_paths_extend(), but prefix all relative paths in `s`
+  with `prefix` before appending them to `paths`.
+
+  Returns the index of the last appended paths or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
+                              const char *s, const char *pathsep);
 
 /**
   Removes path index `n` from current search path.  If `n` is

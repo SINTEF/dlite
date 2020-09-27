@@ -3,14 +3,22 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
+#include "config-paths.h"
+
 #include "utils/compat.h"
+#include "utils/map.h"
 #include "utils/err.h"
 #include "utils/strtob.h"
 #include "utils/tgen.h"
+#include "utils/fileutils.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 
+/* Global variables */
+static int use_build_root = -1;   /* whether to use build root */
+static int dlite_platform = 0;    /* dlite platform */
 
 
 /********************************************************************
@@ -25,6 +33,22 @@ const char *dlite_get_version(void)
   return dlite_VERSION;
 }
 
+/*
+  Returns current platform based on the DLITE_PLATFORM environment
+  variable.  Used when initiating paths.
+ */
+FUPlatform dlite_get_platform(void)
+{
+  if (!dlite_platform) {
+    FUPlatform platform;
+    char *s = getenv("DLITE_PLATFORM");
+    if (s && (platform = fu_platform(s)) >= 0) {
+      if (platform == fuNative) platform = fu_native_platform();
+      dlite_platform = platform;
+    }
+  }
+  return dlite_platform;
+}
 
 /*
   Writes an UUID to `buff` based on `id`.
@@ -106,12 +130,14 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
   }
   if (version) {
     int size = p - q;
+    assert(size > 0);
     if (!(versionp = malloc(size))) FAIL("allocation failure");
     memcpy(versionp, q + 1, size - 1);
     versionp[size - 1] = '\0';
   }
   if (namespace) {
     int size = q - uri + 1;
+    assert(size > 0);
     if (!(namespacep = malloc(size))) FAIL("allocation failure");
     memcpy(namespacep, uri, size - 1);
     namespacep[size - 1] = '\0';
@@ -290,6 +316,110 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
   return 0;
 }
+
+
+/*
+  Returns non-zero if paths should refer to build root instead of
+  installation root.
+ */
+int dlite_use_build_root(void)
+{
+  if (use_build_root == -1) {
+    char *endptr, *p = getenv("DLITE_USE_BUILD_ROOT");
+    use_build_root = 0;
+    if (p) {
+      if (!*p) {
+        use_build_root = 1;
+      } else {
+        int v = strtob(p, &endptr);
+        if (v >= 0)
+          use_build_root = (v) ? 1 : 0;
+        else
+          warn("environment variable DLITE_USE_BUILD_ROOT must have a "
+               "valid boolean value: %s", p);
+      }
+    }
+  }
+  return use_build_root;
+}
+
+/*
+  Sets whether paths should refer to build root.  Default is the
+  installation root, unless the environment variable
+  DLITE_USE_BUILD_ROOT is set and is not false.
+*/
+void dlite_set_use_build_root(int v)
+{
+  use_build_root = (v) ? 1 : 0;
+}
+
+/*
+  Returns pointer to installation root.  It may be altered with environment
+  variable DLITE_ROOT.
+*/
+const char *dlite_root_get(void)
+{
+  static char *dlite_root = NULL;
+  if (!dlite_root) {
+    char *v = getenv("DLITE_ROOT");
+    dlite_root = (v) ? v : DLITE_ROOT;
+  }
+  return dlite_root;
+}
+
+
+/* Help function for dlite_add_dll_path() */
+#ifdef WINDOWS
+static void _add_dll_dir(const char *path)
+{
+  size_t n;
+  wchar_t wcstr[256];
+  mbstowcs_s(&n, wcstr, 256, path, 255);
+  AddDllDirectory(wcstr);
+}
+#endif
+
+/*
+  On Windows, this function adds default directories to the DLL search
+  path.  Based on whether the `DLITE_USE_BUILD_ROOT` environment
+  variable is defined, the library directories under either the build
+  directory or the installation root (environment variable DLITE_ROOT)
+  are added to the DLL search path using AddDllDirectory().
+
+  On Linux this function does nothing.
+
+  Returns non-zero on error.
+ */
+int dlite_add_dll_path(void)
+{
+#ifdef WINDOWS
+  static int called = 0;
+  char buf[4096];
+
+  if (called) return 0;
+  called = 1;
+
+  if (dlite_use_build_root()) {
+    if (fu_winpath(dlite_PATH, buf, sizeof(buf), NULL)) {
+      char *endptr=NULL;
+      const char *p;
+      while ((p = fu_nextpath(buf, &endptr, NULL))) {
+        char *s = strndup(p, endptr - p);
+        _add_dll_dir(s);
+        free(s);
+      }
+    }
+  } else {
+    char libdir[256];
+    snprintf(libdir, sizeof(libdir), "%s/%s", dlite_root_get(),
+             DLITE_LIBRARY_DIR);
+    _add_dll_dir(fu_winpath(libdir, buf, sizeof(buf), NULL));
+
+  }
+#endif
+  return 0;
+}
+
 
 
 

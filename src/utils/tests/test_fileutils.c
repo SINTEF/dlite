@@ -103,41 +103,166 @@ MU_TEST(test_fu_friendly_dirsep)
 {
   char path[256];
   strcpy(path, "/etc/fstab");
-#if WINDOWS
-  mu_assert_string_eq("\\etc\\fstab", fu_friendly_dirsep(path));
-#else
   mu_assert_string_eq("/etc/fstab", fu_friendly_dirsep(path));
+
+  strcpy(path, "\\\\drive:a/file");
+#ifdef WINDOWS
+  mu_assert_string_eq("\\\\drive:a\\file", fu_friendly_dirsep(path));
+#else
+  mu_assert_string_eq("\\\\drive:a/file", fu_friendly_dirsep(path));
 #endif
+
+  strcpy(path, "C:\\dir\\file");
+#ifdef WINDOWS
+  //mu_assert_string_eq("C:\\dir\\file", fu_friendly_dirsep(path));
+#else
+  mu_assert_string_eq("C:\\dir\\file", fu_friendly_dirsep(path));
+#endif
+
+  strcpy(path, "C:/dir/file");
+#ifdef WINDOWS
+  //mu_assert_string_eq("C:\\dir\\file", fu_friendly_dirsep(path));
+#else
+  mu_assert_string_eq("C:/dir/file", fu_friendly_dirsep(path));
+#endif
+}
+
+MU_TEST(test_fu_nextpath)
+{
+  char *paths = "C:\\aa\\bb.txt;/etc/fstab:http://example.com";
+  char *paths2 = "C:reldir/f.txt:bin/;/etc/fstab";
+  char *paths3 = "/var///log::/dev/null";  // repeated dirsep and pathsep
+  char *endptr = NULL;
+  const char *p;
+  p = fu_nextpath(paths, &endptr, NULL);
+  mu_assert_string_eq(paths, p);
+  mu_assert_int_eq(';', *endptr);
+
+  p = fu_nextpath(paths, &endptr, NULL);
+  mu_assert_string_eq("/etc/fstab:http://example.com", p);
+  mu_assert_int_eq(':', *endptr);
+
+  p = fu_nextpath(paths, &endptr, NULL);
+  mu_assert_string_eq("http://example.com", p);
+  mu_assert_int_eq('\0', *endptr);
+
+  p = fu_nextpath(paths, &endptr, NULL);
+  mu_assert_string_eq(NULL, p);
+  mu_assert_int_eq('\0', *endptr);
+
+
+  endptr = NULL;
+  p = fu_nextpath(paths, &endptr, ";");
+  mu_assert_string_eq(paths, p);
+  mu_assert_int_eq(';', *endptr);
+
+  p = fu_nextpath(paths, &endptr, ";");
+  mu_assert_string_eq("/etc/fstab:http://example.com", p);
+  mu_assert_int_eq('\0', *endptr);
+
+
+  endptr = NULL;
+  p = fu_nextpath(paths2, &endptr, NULL);
+  mu_assert_string_eq(paths2, p);
+  mu_assert_int_eq(':', *endptr);
+
+  p = fu_nextpath(paths2, &endptr, NULL);
+  mu_assert_string_eq("bin/;/etc/fstab", p);
+  mu_assert_int_eq(';', *endptr);
+
+  p = fu_nextpath(paths2, &endptr, NULL);
+  mu_assert_string_eq("/etc/fstab", p);
+  mu_assert_int_eq('\0', *endptr);
+
+
+  endptr = NULL;
+  p = fu_nextpath(paths3, &endptr, NULL);
+  mu_assert_string_eq(paths3, p);
+
+  p = fu_nextpath(paths3, &endptr, NULL);
+  mu_assert_string_eq("/dev/null", p);
+}
+
+MU_TEST(test_fu_winpath)
+{
+  char buf[256], *s;
+  mu_check(fu_winpath("/users/mrx/file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("\\users\\mrx\\file.txt", buf);
+
+  mu_check(fu_winpath("/c/users/mrx/file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("C:\\users\\mrx\\file.txt", buf);
+
+  mu_check(fu_winpath("../file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("..\\file.txt", buf);
+
+  mu_check(fu_winpath("/d/users/mrx/bin:/c/bin:/users/mry/bin",
+                      buf, sizeof(buf), NULL));
+  mu_assert_string_eq("D:\\users\\mrx\\bin;C:\\bin;\\users\\mry\\bin", buf);
+
+  mu_check((s = fu_winpath("C:\\dir\\file.txt", NULL, 0, NULL)));
+  mu_assert_string_eq("C:\\dir\\file.txt", s);
+  free(s);
+}
+
+MU_TEST(test_fu_unixpath)
+{
+  char buf[256], *s;
+  mu_check(fu_unixpath("C:\\users\\mrx\\file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("/c/users/mrx/file.txt", buf);
+
+  mu_check(fu_unixpath("D:\\users\\mrx\\file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("/d/users/mrx/file.txt", buf);
+
+  mu_check(fu_unixpath("..\\file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("../file.txt", buf);
+
+  mu_check(fu_unixpath("C:reldir/file.txt", buf, sizeof(buf), NULL));
+  mu_assert_string_eq("reldir/file.txt", buf);
+
+  mu_check(fu_unixpath("D:\\users\\mrx\\bin;C:\\bin;C:\\users\\mry\\bin",
+                      buf, sizeof(buf), NULL));
+  mu_assert_string_eq("/d/users/mrx/bin:/c/bin:/c/users/mry/bin", buf);
+
+  mu_check((s = fu_unixpath("/users/mrx/file.txt", NULL, 0, NULL)));
+  mu_assert_string_eq("/users/mrx/file.txt", s);
+  free(s);
 }
 
 MU_TEST(test_fu_realpath)
 {
   char *testdir, *path, *realpath;
-#if WINDOWS
+#ifdef WINDOWS
   char buff[MAX_PATH];
 #else
   char buff[PATH_MAX];
 #endif
   printf("\nfu_realpath()\n");
+  fflush(stdout);
 
   testdir = fu_realpath(STRINGIFY(TESTDIR), NULL);
-  printf("  %s ->\n  %s\n", STRINGIFY(TESTDIR), testdir);
 
   realpath = fu_join(testdir, "test_fileutils.c", NULL);
-  mu_assert_string_eq(realpath, fu_realpath(realpath, buff));
+  fu_friendly_dirsep(realpath);
+  fu_realpath(realpath, buff);
+  fu_friendly_dirsep(buff);
+  mu_assert_string_eq(realpath, buff);
 
   path = fu_join(testdir, "..", ".", "tests", "test_fileutils.c", NULL);
-  printf("\n  %s ->\n  %s\n", path, fu_realpath(path, buff));
-  mu_assert_string_eq(realpath, fu_realpath(path, buff));
+  fu_realpath(path, buff);
+  fu_friendly_dirsep(buff);
+  mu_assert_string_eq(realpath, buff);
   free(path);
 
   path = fu_join(testdir, "..", "", "tests", "test_fileutils.c", NULL);
-  printf("\n  %s ->\n  %s\n", path, fu_realpath(path, buff));
-  mu_assert_string_eq(realpath, fu_realpath(path, buff));
+  fu_realpath(path, buff);
+  fu_friendly_dirsep(buff);
+  mu_assert_string_eq(realpath, buff);
   free(path);
 
-  mu_check(fu_realpath("a_strange-non-existing_path...", buff) == NULL);
+  mu_assert_string_eq(NULL, fu_realpath("a_strange/non-existing_path...", buff));
+  mu_check(fu_realpath("a_strange/non-existing_path...", buff) == NULL);
   printf("\n");
+  fflush(stdout);
   free(realpath);
   free(testdir);
 }
@@ -165,6 +290,7 @@ MU_TEST(test_fu_getfile)
     if (strcmp(fname, "test_fileutils.c") == 0) found_self=1;
     if (strcmp(fname, "xyz") == 0) found_xyz=1;
   }
+  fflush(stdout);
 
   mu_assert_int_eq(1, found_self);
   mu_assert_int_eq(0, found_xyz);
@@ -190,14 +316,15 @@ MU_TEST(test_fu_paths)
   FUPaths paths;
   char *s;
   fu_paths_init(&paths, NULL);
+  fu_paths_set_platform(&paths, fuUnix);
   mu_assert_int_eq(0, paths.n);
 
-  mu_assert_int_eq(0, fu_paths_append(&paths, "path1"));
-  mu_assert_int_eq(1, fu_paths_append(&paths, "path2"));
+  mu_assert_int_eq(0, fu_paths_append(&paths, "/var/path1"));
+  mu_assert_int_eq(1, fu_paths_append(&paths, "C:\\users\\path2"));
   mu_assert_int_eq(2, paths.n);
   mu_assert_int_eq(2, count_paths(&paths));
-  mu_assert_string_eq("path1", paths.paths[0]);
-  mu_assert_string_eq("path2", paths.paths[1]);
+  mu_assert_string_eq("/var/path1", paths.paths[0]);
+  mu_assert_string_eq("/c/users/path2", paths.paths[1]);
   mu_assert_string_eq(NULL,    paths.paths[2]);
 
   mu_assert_int_eq(0, fu_paths_remove(&paths, 1));
@@ -205,36 +332,58 @@ MU_TEST(test_fu_paths)
   mu_assert_int_eq(1, count_paths(&paths));
   mu_assert_string_eq(NULL,    paths.paths[1]);
 
-  mu_assert_int_eq(1, fu_paths_append(&paths, "path2"));
+  mu_assert_int_eq(1, fu_paths_append(&paths, "/c/users/path2"));
   mu_assert_int_eq(2, paths.n);
 
   mu_assert_int_eq(0, fu_paths_insert(&paths, "path0", 0));
+  fprintf(stderr, "\n");
+  fprintf(stderr, "*** paths[0]='%s'\n", paths.paths[0]);
+  fprintf(stderr, "*** paths[1]='%s'\n", paths.paths[1]);
+  fprintf(stderr, "*** paths[2]='%s'\n", paths.paths[2]);
   mu_assert_int_eq(3, paths.n);
   mu_assert_int_eq(3, count_paths(&paths));
   mu_assert_string_eq("path0", paths.paths[0]);
-  mu_assert_string_eq("path1", paths.paths[1]);
-  mu_assert_string_eq("path2", paths.paths[2]);
+  mu_assert_string_eq("/var/path1", paths.paths[1]);
+  mu_assert_string_eq("/c/users/path2", paths.paths[2]);
+  mu_assert_string_eq(NULL,    paths.paths[3]);
 
   mu_assert_int_eq(1, fu_paths_insert(&paths, "new", -2));
   mu_assert_int_eq(4, paths.n);
   mu_assert_string_eq("path0", paths.paths[0]);
   mu_assert_string_eq("new",   paths.paths[1]);
-  mu_assert_string_eq("path1", paths.paths[2]);
-  mu_assert_string_eq("path2", paths.paths[3]);
+  mu_assert_string_eq("/var/path1", paths.paths[2]);
+  mu_assert_string_eq("/c/users/path2", paths.paths[3]);
+  mu_assert_string_eq(NULL,    paths.paths[4]);
 
-  mu_assert_int_eq(0, fu_paths_insert(&paths, "new2", -10));
+  mu_assert_int_eq(0, fu_paths_insert(&paths, "new2", -4));
   mu_assert_int_eq(5, paths.n);
   mu_assert_string_eq("new2",  paths.paths[0]);
   mu_assert_string_eq("path0", paths.paths[1]);
+  mu_assert_string_eq("new",   paths.paths[2]);
+  mu_assert_string_eq("/var/path1", paths.paths[3]);
+  mu_assert_string_eq("/c/users/path2", paths.paths[4]);
+  mu_assert_string_eq(NULL,    paths.paths[5]);
 
-  mu_assert_int_eq(5, fu_paths_insert(&paths, "new3", 10));
+  mu_assert_int_eq(5, fu_paths_insert(&paths, "new3", 5));
   mu_assert_int_eq(6, paths.n);
   mu_assert_int_eq(6, count_paths(&paths));
-  mu_assert_string_eq("path2", paths.paths[4]);
+  mu_assert_string_eq("/c/users/path2", paths.paths[4]);
   mu_assert_string_eq("new3",  paths.paths[5]);
 
-  s = fu_paths_string(&paths, ":");
-  mu_assert_string_eq("new2:path0:new:path1:path2:new3", s);
+  s = fu_paths_string(&paths);
+  mu_assert_string_eq("new2:path0:new:/var/path1:/c/users/path2:new3", s);
+  free(s);
+
+  mu_assert_int_eq(8, fu_paths_extend(&paths, "aa:bb;cc", NULL));
+  s = fu_paths_string(&paths);
+  mu_assert_string_eq("new2:path0:new:/var/path1:/c/users/path2:new3:aa:bb:cc",
+                      s);
+  free(s);
+
+  fu_paths_set_platform(&paths, fuWindows);
+  s = fu_paths_string(&paths);
+  mu_assert_string_eq("new2;path0;new;\\var\\path1;C:\\users\\path2;"
+                      "new3;aa;bb;cc", s);
   free(s);
 
   fu_paths_deinit(&paths);
@@ -313,6 +462,9 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_basename);
   MU_RUN_TEST(test_fu_fileext);
   MU_RUN_TEST(test_fu_friendly_dirsep);
+  MU_RUN_TEST(test_fu_nextpath);
+  MU_RUN_TEST(test_fu_winpath);
+  MU_RUN_TEST(test_fu_unixpath);
   MU_RUN_TEST(test_fu_realpath);
 
   MU_RUN_TEST(test_fu_opendir);       /* setup */
