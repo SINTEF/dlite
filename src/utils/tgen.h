@@ -277,10 +277,13 @@ typedef struct _TGenBuf {
   A structure managing a list of substitutions
 */
 typedef struct _TGenSubs {
-  struct _TGenSub *subs;  /*!< list of substitutions */
-  int size;               /*!< allocated size of subs */
-  int nsubs;              /*!< length of subs */
-  map_int_t map;          /*!< maps variable name to index in subs */
+  struct _TGenSub *subs;     /*!< list of substitutions */
+  int size;                  /*!< allocated size of subs */
+  int nsubs;                 /*!< length of subs */
+  map_int_t map;             /*!< maps variable name to index in subs */
+  struct _TGenSubs *parent;  /*!< Pointer to parent substitutions.  Used by
+                                  substitution functions that create their
+                                  own scope.  Otherwise it is NULL. */
 } TGenSubs;
 
 

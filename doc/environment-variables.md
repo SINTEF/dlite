@@ -8,6 +8,8 @@ General environment variables
 Standard environment variables also known outside of DLite.  You may
 have to adjust these.
 
+Generic environment variables
+-----------------------------
   - **PATH**: Standard search path for runtimes (.exe and .dll on Windows).
     The paths are separated by ";" on Windows and ":" on Linux.
 
@@ -18,11 +20,8 @@ have to adjust these.
     The paths are separated by ";" on Windows and ":" on Linux.
 
 
-DLite installation root
------------------------
-DLITE_ROOT is the main installation root that prefixes all the
-specific paths below.
-
+DLite-specific environment variables
+------------------------------------
   - **DLITE_ROOT**: The root of the installation path.  It default
     to the installation prefix provided to cmake.  You have to set this
     if dlite is moved.
@@ -34,16 +33,16 @@ specific paths below.
     of the installation root.  This environment variable is mainly intended
     for testing.
 
-    @note
+    **note**:
     On Windows `DLITE_USE_BUILD_ROOT` affects both the library and the
-    plugin search paths, while it only affects the plugin search paths
-    on Linux.
+    plugin search paths, while it only affects the plugin search paths on
+    Linux.
 
-
-Spesific paths
---------------
+### Spesific paths
 These environment variables can be used to provide additional search
-paths in addition to the defaults in the installation or build root.
+paths apart from the defaults, which is either in the installation
+root (if DLITE_USE_BUILD_ROOT is not set) or build directory (if
+DLITE_USE_BUILD_ROOT is set).
 
   - **DLITE_STORAGE_PLUGIN_DIRS**: Search path for DLite storage plugins.
     The paths are separated by ";" on Windows and ":" on Linux.
@@ -69,3 +68,44 @@ paths in addition to the defaults in the installation or build root.
       - a file path (/path/to/storage.json)
       - a glob pattern (/path/to/*.json)
     In the two last cases, the file extension must match the driver name.
+
+
+Environment variables for controlling error handling
+----------------------------------------------------
+  - **ERR_STREAM**: Error stream to write messages to.  May be:
+      - empty             : do not write anything
+      - "stderr" | unset  : write to stderr
+      - "stdout"          : write to stdout
+      - otherwise         : open the given file and append to it
+
+  - **ERR_ABORT**: Whether errors should should return normally,
+    exit or about.  May be:
+      - "0" | "normal" | unset : return normally
+      - "1" | "exit"           : exit
+      - "2" | "abort" | empty  : abort
+      - otherwise              : return normally
+
+  - **ERR_WARN**: Whether warnings should be ignored or turned into errors.
+    May be:
+      - "0" | "normal" | unset : report normally
+      - "1" | "ignore"         : ignore
+      - "2" | "error"          : turn into error
+      - otherwise              : report normally
+
+  - **ERR_DEBUG**: Wheter debugging information (source file, line number
+    and function name) should be included in the error message.  May be:
+      - "0" | unset | empty  : no debugging info
+      - "1" | "debug"        : print file and line number
+      - "2" | "full"         : print file, line number and function
+      - otherwise            : no debugging info
+
+  - **ERR_OVERRIDE**: How to handle error messages when there already is a
+     message in the error message buffer.  Note that these options will
+     only affect the error message, not the error value.  May be:
+      - unset | empty       : append new error message to the old one
+      - "0" | "append"      : append new error message
+      - "1" | "warn-old"    : overwrite old error message and write warning
+      - "2" | "warn-new"    : ignore new error message and write warning
+      - "3" | "old"         : overwrite old error message
+      - "4" | "ignore-new"  : ignore new error message
+      - otherwise           : append new error message to the old one
