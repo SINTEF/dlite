@@ -307,7 +307,7 @@ if(WITH_PYTHON)
   endif()
 
   set(DLITE_PYTHONPATH
-    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/dlite)
+    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
 
 
 
