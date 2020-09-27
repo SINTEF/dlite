@@ -242,8 +242,8 @@ MU_TEST(test_type_ndcast)
 
              6, 7, 8,
              9, 10, 11};
-  int sdims[] = {2, 2, 3};
-  int ddims[] = {2, 2, 3};
+  size_t sdims[] = {2, 2, 3};
+  size_t ddims[] = {2, 2, 3};
   int sstrides[] = {24, 12, 4};
   int dstrides[] = {48, 24, 8};
   uint64_t d[12];

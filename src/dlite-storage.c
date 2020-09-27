@@ -27,24 +27,24 @@ struct _DLiteStoragePathIter {
  ********************************************************************/
 
 /*
-  Opens a storage located at `uri` using `driver`.
+  Opens a storage located at `location` using `driver`.
   Returns a opaque pointer or NULL on error.
 
   The `options` are passed to the driver.
  */
-DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
+DLiteStorage *dlite_storage_open(const char *driver, const char *location,
                                  const char *options)
 {
   const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
-  if (!uri) FAIL("missing uri");
-  if (!driver || !*driver) driver = fu_fileext(uri);
+  if (!location) FAIL("missing location");
+  if (!driver || !*driver) driver = fu_fileext(location);
   if (!driver || !*driver) FAIL("missing driver");
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
-  if (!(storage = api->open(api, uri, options))) goto fail;
+  if (!(storage = api->open(api, location, options))) goto fail;
   storage->api = api;
-  if (!(storage->uri = strdup(uri))) FAIL(NULL);
+  if (!(storage->location = strdup(location))) FAIL(NULL);
   if (options && !(storage->options = strdup(options))) FAIL(NULL);
   storage->idflag = dliteIDTranslateToUUID;
 
@@ -90,7 +90,7 @@ int dlite_storage_close(DLiteStorage *s)
   int stat;
   assert(s);
   stat = s->api->close(s);
-  free(s->uri);
+  free(s->location);
   if (s->options) free(s->options);
   free(s);
   return stat;
