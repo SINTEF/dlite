@@ -334,10 +334,18 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
 
   /* Check if we are trying to create an instance with an already
      existing id. */
-  if (lookup && id && (inst = _instance_store_get(id))) {
+  if (lookup && id && *id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->_refcount);
+
+    /* Check that `dims` corresponds to the dims of the existing instance. */
+    for (i=0; i < meta->_ndimensions; i++) {
+      if (dims[i] != dlite_instance_get_dimension_size_by_index(inst, i))
+        FAIL3("mismatch of dimension %zu. Trying to create with size %zu "
+              "but existing instance has size %zu", i, dims[i],
+              dlite_instance_get_dimension_size_by_index(inst, i));
+    }
     return inst;
   }
 
@@ -669,7 +677,7 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   assert(url);
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
-  if (id && (inst = _instance_store_get(id))) {
+  if (id && *id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
   } else {
     err_clear();
@@ -703,10 +711,10 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   if (!s) FAIL("invalid storage, see previous errors");
 
   /* check if id is already loaded */
-  if (lookup && id && (inst = _instance_store_get(id))) {
+  if (lookup && id && *id && (inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     warn("trying to load existing instance from storage \"%s\": %s"
-         " - creates a new reference", s->location, id);
+         " - create a new reference", s->location, id);
     return inst;
   }
 
@@ -747,6 +755,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 	  meta->uri, uri, s->location);
 
   /* read dimensions */
+  dlite_datamodel_resolve_dimensions(d, meta);
   if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
     FAIL("allocation failure");
   for (i=0; i<meta->_ndimensions; i++)
@@ -1771,19 +1780,23 @@ int dlite_meta_init(DLiteMeta *meta)
 
 /*
   Increase reference count to metadata.
+
+  Returns the new reference count.
  */
-void dlite_meta_incref(DLiteMeta *meta)
+int dlite_meta_incref(DLiteMeta *meta)
 {
-  dlite_instance_incref((DLiteInstance *)meta);
+  return dlite_instance_incref((DLiteInstance *)meta);
 }
 
 /*
   Decrease reference count to metadata.  If the reference count reaches
   zero, the metadata is free'ed.
+
+  Returns the new reference count.
  */
-void dlite_meta_decref(DLiteMeta *meta)
+int dlite_meta_decref(DLiteMeta *meta)
 {
-  dlite_instance_decref((DLiteInstance *)meta);
+  return dlite_instance_decref((DLiteInstance *)meta);
 }
 
 
@@ -1923,7 +1936,12 @@ int dlite_meta_is_metameta(const DLiteMeta *meta)
  */
 bool dlite_meta_has_dimension(const DLiteMeta *meta, const char *name)
 {
-  return dlite_instance_has_dimension((DLiteInstance *)meta, name);
+  size_t i;
+  for (i=0; i<meta->_ndimensions; i++) {
+    DLiteDimension *d = meta->_dimensions + i;
+    if (strcmp(name, d->name) == 0) return true;
+  }
+  return false;
 }
 
 /*
@@ -1931,7 +1949,12 @@ bool dlite_meta_has_dimension(const DLiteMeta *meta, const char *name)
  */
 bool dlite_meta_has_property(const DLiteMeta *meta, const char *name)
 {
-  return dlite_instance_has_property((DLiteInstance *)meta, name);
+  size_t i;
+  for (i=0; i<meta->_nproperties; i++) {
+    DLiteProperty *p = meta->_properties + i;
+    if (strcmp(name, p->name) == 0) return true;
+  }
+  return false;
 }
 
 
@@ -2079,6 +2102,9 @@ DLiteMetaModel *dlite_metamodel_create(const char *uri,
                                        const char *iri)
 {
   DLiteMetaModel *model;
+
+  if (iri && !*iri) iri = NULL;
+
   if (!(model = calloc(1, sizeof(DLiteMetaModel)))) goto fail;
   if (!(model->uri = strdup(uri))) goto fail;
   if (!(model->meta = dlite_meta_get(metaid))) goto fail;

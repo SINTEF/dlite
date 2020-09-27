@@ -28,7 +28,7 @@ int getuuid(char *buff, const char *id)
   int i, version;
   uuid_s uuid;
 
-  if (!id) {
+  if (!id || !*id) {
     int status = uuid4_generate(buff);
     version = (status == 0) ? 4 : -1;
   } else if (uuid_from_string(NULL, id)) {

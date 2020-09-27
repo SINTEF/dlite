@@ -61,6 +61,7 @@ opener(const DLiteStoragePlugin *api, const char *location,
   s->options = (options) ? strdup(options) : NULL;
   s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
   s->obj = obj;
+  s->idflag = dliteIDTranslateToUUID;
 
   retval = (DLiteStorage *)s;
  fail:

@@ -59,6 +59,7 @@ static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
                "\"list_dimensions\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&dsubs, subs))) goto fail;
+  dsubs.parent = subs;
   for (i=0; i < m->_ndimensions; i++) {
     DLiteDimension *d = m->_dimensions + i;
     tgen_subs_set(&dsubs, "dim.name", d->name, NULL);
@@ -88,6 +89,7 @@ static int list_relations(TGenBuf *s, const char *template, int len,
                "\"list_relations\" only works for metadata");
 
   if ((retval = tgen_subs_copy(&rsubs, subs))) goto fail;
+  rsubs.parent = subs;
   for (i=0; i < meta->_nrelations; i++) {
     DLiteRelation *r = meta->_relations + i;
     tgen_subs_set(&rsubs, "rel.s",  r->s, NULL);
@@ -120,6 +122,7 @@ static int list_dims(TGenBuf *s, const char *template, int len,
                "\"list_dims\" only works for metadata");
 
   if (tgen_subs_copy(&psubs, subs)) goto fail;
+  psubs.parent = subs;
   for (i=0; i < p->ndims; i++) {
     tgen_subs_set(&psubs, "dim.name",  p->dims[i] , NULL);
     tgen_subs_set_fmt(&psubs, "dim.i",     NULL, "%d",  i);
@@ -157,6 +160,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
   }
 
   if ((retval = tgen_subs_copy(&psubs, subs))) goto fail;
+  psubs.parent = subs;
 
   for (i=0; i < m->_nproperties; i++) {
     DLiteProperty *p = m->_properties + i;
@@ -166,17 +170,21 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     char *descr = (p->description) ? p->description : "";
     size_t nref = (p->ndims > 0) ? 1 : 0;
     int isallocated = dlite_type_is_allocated(p->type);
-    char typename[32], pcdecl[64];
+    char typename[32], pcdecl[64], ftype[25], isoctype[64];
     char *iri = (p->iri) ? p->iri : "";
     dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
     dlite_type_set_cdecl(p->type, p->size, p->name, nref, pcdecl,
 			 sizeof(pcdecl), dlite_codegen_use_native_typenames);
+    dlite_type_set_ftype(p->type, p->size, ftype, sizeof(ftype));
+    dlite_type_set_isoctype(p->type, p->size, isoctype, sizeof(isoctype));
 
     ((Context *)context)->iprop = i;
     tgen_subs_set(&psubs, "prop.name",     p->name,  NULL);
     tgen_subs_set(&psubs, "prop.type",     type,     NULL);
     tgen_subs_set(&psubs, "prop.typename", typename, NULL);
     tgen_subs_set(&psubs, "prop.dtype",    dtype,    NULL);
+    tgen_subs_set(&psubs, "prop.ftype",    ftype,    NULL);
+    tgen_subs_set(&psubs, "prop.isoctype", isoctype,    NULL);
     tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,   NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
     tgen_subs_set(&psubs, "prop.iri",      iri,      NULL);
@@ -231,6 +239,8 @@ static int list_propdims(TGenBuf *s, const char *template, int len,
   TGenSubs psubs;
   size_t i;
   if (tgen_subs_copy(&psubs, subs)) goto fail;
+  psubs.parent = subs;
+
   for (i=0; i < meta->_npropdims; i++) {
     tgen_subs_set_fmt(&psubs, "propdim.i", NULL, "%zu", i);
     tgen_subs_set_fmt(&psubs, "propdim.n", NULL, "%zu", propdims[i]);

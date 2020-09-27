@@ -1,0 +1,35 @@
+{
+    "Joe": {
+        "meta": "http://meta.sintef.no/0.2/Person",
+        "dimensions": {
+            "N": 2,
+            "M": 3
+        },
+        "properties": {
+            "name": "first name middle name last name -!!--- names",
+            "age": 23.0,
+            "skills": ["python", "fortran"],
+            "temperature": [37.5, 36.9, 37.1]
+        }
+    },
+    "Elisa": {
+        "meta": "http://meta.sintef.no/0.2/Person",
+        "dimensions": {
+            "N": 3,
+            "M": 1
+        },
+        "properties": {
+            "name": "Elisa",
+            "age": 45.0,
+            "skills": ["java", "c#", "c++"],
+            "temperature": [37.4]
+        }
+    },
+    "Joe Doe": {
+        "meta": "http://meta.sintef.no/0.2/Person",
+        "name": "Joe Doe",
+        "age": 53.0,
+        "skills": ["java", "c#", "c++"],
+        "temperature": [37.4]        
+    }    
+}
