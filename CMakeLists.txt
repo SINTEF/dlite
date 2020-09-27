@@ -6,7 +6,7 @@ cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 project(dlite
-  VERSION 0.2.4
+  VERSION 0.2.5
   #DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   LANGUAGES C
   )
@@ -307,7 +307,7 @@ if(WITH_PYTHON)
   endif()
 
   set(DLITE_PYTHONPATH
-    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/dlite)
+    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
 
 
 
