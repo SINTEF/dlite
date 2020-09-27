@@ -505,14 +505,14 @@
         }
         strcat(desired_dims,s);
       }
-      len = strlen(desired_dims);
+      len = (int)strlen(desired_dims);
       desired_dims[len-1] = ']';
       for (i = 0; i < n; i++)
       {
         sprintf(s, "%ld,", (long int)array_size(ary,i));
         strcat(actual_dims,s);
       }
-      len = strlen(actual_dims);
+      len = (int)strlen(actual_dims);
       actual_dims[len-1] = ']';
       PyErr_Format(PyExc_TypeError,
                    "Array must have shape of %s.  Given array has shape of %s",

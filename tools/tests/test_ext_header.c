@@ -102,7 +102,7 @@ int main()
   dlite_instance_print((DLiteInstance *)p);
 
   assert(sizeof(Chemistry) == DLITE_INSTANCE_SIZE(p));
-  assert(offsetof(Chemistry, x) == sizeof(DLiteInstance));
+  assert(offsetof(Chemistry, id) == sizeof(DLiteInstance));
   assert(offsetof(Chemistry, nelements) == chem->_headersize);
   assert(offsetof(Chemistry, alloy) == chem->_propoffsets[0]);
   assert(offsetof(Chemistry, atvol) == chem->_propoffsets[7]);

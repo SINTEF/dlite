@@ -1,6 +1,12 @@
 Environment variables
 =====================
-This page describes environment variables used by DLite.
+A summary of all environment variables are used by DLite.
+
+
+General environment variables
+-----------------------------
+Standard environment variables also known outside of DLite.  You may
+have to adjust these.
 
 Generic environment variables
 -----------------------------
@@ -16,6 +22,28 @@ Generic environment variables
 
 DLite-specific environment variables
 ------------------------------------
+  - **DLITE_ROOT**: The root of the installation path.  It default
+    to the installation prefix provided to cmake.  You have to set this
+    if dlite is moved.
+
+  - **DLITE_PLATFORM**: Specifies how paths are formatted.  If defined,
+    it should be "Native" (default), "Unix" or "Windows".
+
+  - **DLITE_USE_BUILD_ROOT**: If this is defined, use the build root instead
+    of the installation root.  This environment variable is mainly intended
+    for testing.
+
+    **note**:
+    On Windows `DLITE_USE_BUILD_ROOT` affects both the library and the
+    plugin search paths, while it only affects the plugin search paths on
+    Linux.
+
+### Spesific paths
+These environment variables can be used to provide additional search
+paths apart from the defaults, which is either in the installation
+root (if DLITE_USE_BUILD_ROOT is not set) or build directory (if
+DLITE_USE_BUILD_ROOT is set).
+
   - **DLITE_STORAGE_PLUGIN_DIRS**: Search path for DLite storage plugins.
     The paths are separated by ";" on Windows and ":" on Linux.
 

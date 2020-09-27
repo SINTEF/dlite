@@ -1,0 +1,40 @@
+# Sets up dlite environment for bash.
+#
+# Load this file with "source dlite-env.sh"
+#
+# To unload, use "dlite-deactivate"
+#
+
+dlite-deactivate() {
+    export PS1="$_dlite_PS1_OLD"
+    export PATH="$_dlite_PATH_OLD"
+    export LD_LIBRARY_PATH="$_dlite_LD_LIBRARY_PATH_OLD"
+    export PYTHONPATH="$_dlite_PYTHONPATH_OLD"
+    unset _dlite_PS1_OLD
+    unset _dlite_PATH_OLD
+    unset _dlite_LD_LIBRARY_PATH_OLD
+    unset _dlite_PYTHONPATH_OLD
+
+    unset DLITE_STORAGE_PLUGIN_DIRS
+    unset DLITE_MAPPING_PLUGIN_DIRS
+    unset DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+    unset DLITE_PYTHON_MAPPINGS_PLUGIN_DIRS
+    unset DLITE_TEMPLATE_DIRS
+    unset DLITE_STORAGES
+}
+
+export _dlite_PS1_OLD="$PS1"
+export _dlite_PATH_OLD="$PATH"
+export _dlite_LD_LIBRARY_PATH_OLD="$LD_LIBRARY_PATH"
+export _dlite_PYTHONPATH_OLD="$PYTHONPATH"
+
+export PS1="dlite:$PS1"
+export PATH="@PATH_unix@:$PATH"
+export LD_LIBRARY_PATH="@LD_LIBRARY_PATH_unix@:$LD_LIBRARY_PATH"
+export PYTHONPATH="@PYTHONPATH_unix@:$PYTHONPATH"
+export DLITE_STORAGE_PLUGIN_DIRS="@STORAGE_PLUGINS_unix@"
+export DLITE_MAPPING_PLUGIN_DIRS="@MAPPING_PLUGINS_unix@"
+export DLITE_PYTHON_STORAGE_PLUGIN_DIRS="@PYTHON_STORAGE_PLUGINS_unix@"
+export DLITE_PYTHON_MAPPING_PLUGIN_DIRS="@PYTHON_MAPPING_PLUGINS_unix@"
+export DLITE_TEMPLATE_DIRS="@TEMPLATES_unix@"
+export DLITE_STORAGES='@STORAGES@'

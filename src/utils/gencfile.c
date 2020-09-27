@@ -13,6 +13,13 @@
  *   OUTFILE - generated C source file
  *   INFILES - concatenated input files who's content will be encoded
  */
+
+/* Get rid of warnings about using functions from the standard C library
+   instead of Microsoft-specific functions in MSVS */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4996)
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -170,6 +170,8 @@ static int eval_string_expression(const char *s, int len)
   default:
     assert(0);
   }
+  assert(0);
+  return 1;  /* never neached, but added to make MSVS happy */
 }
 
 /* Evaluates condition `cond` with length `len`.

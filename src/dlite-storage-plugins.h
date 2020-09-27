@@ -151,6 +151,12 @@ void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter);
 int dlite_storage_plugin_unload(const char *name);
 
 /**
+  Returns a pointer to the underlying FUPaths object for storage plugins
+  or NULL on error.
+ */
+FUPaths *dlite_storage_plugin_paths_get(void);
+
+/**
   Returns a pointer to the current storage plugin search path.  It is
   initialised from the environment variable `DLITE_STORAGE_PLUGIN_DIRS`.
 
@@ -158,6 +164,14 @@ int dlite_storage_plugin_unload(const char *name);
   and dlite_storage_plugin_path_remove() to modify it.
 */
 const char **dlite_storage_plugin_paths(void);
+
+/**
+  Returns an allocated string with the content of `paths` formatted
+  according to the current platform.  See dlite_set_platform().
+
+  Returns NULL on error.
+ */
+char *dlite_storage_plugin_path_string(void);
 
 /**
   Inserts `path` into the current search path at index `n`.  If `n` is
@@ -175,6 +189,14 @@ int dlite_storage_plugin_path_insert(int n, const char *path);
   Returns non-zero on error.
 */
 int dlite_storage_plugin_path_append(const char *path);
+
+/**
+  Like dlite_storage_plugin_path_append(), but appends at most the
+  first `n` bytes of `path` to the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_appendn(const char *path, size_t n);
 
 /**
   Removes path number `n` from current search path.

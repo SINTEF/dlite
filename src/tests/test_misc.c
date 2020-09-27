@@ -3,6 +3,7 @@
 #include "minunit/minunit.h"
 #include "utils/err.h"
 #include "utils/strtob.h"
+#include "utils/fileutils.h"
 #include "boolean.h"
 #include "dlite.h"
 
@@ -10,6 +11,7 @@
 MU_TEST(test_get_uuid)
 {
   char buff[37];
+
   mu_assert_int_eq(4, dlite_get_uuid(buff, NULL));
 
   mu_assert_int_eq(5, dlite_get_uuid(buff, "abc"));
@@ -21,6 +23,10 @@ MU_TEST(test_get_uuid)
   mu_assert_int_eq(0, dlite_get_uuid(buff,
                                      "a839938d-1d30-5b2a-af5c-2a23d436abdc"));
   mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
+
+  mu_assert_int_eq(0, dlite_get_uuid(buff,
+                                     "A839938D-1D30-5B2A-AF5C-2A23D436ABDC"));
+  mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
 }
 
 
@@ -28,6 +34,7 @@ MU_TEST(test_join_split_metadata)
 {
   char *uri = "http://www.sintef.no/meta/dlite/0.1/testdata";
   char *name, *version, *namespace, *meta;
+
   mu_check(dlite_split_meta_uri(uri, &name, &version, &namespace) == 0);
   mu_assert_string_eq("http://www.sintef.no/meta/dlite", namespace);
   mu_assert_string_eq("0.1", version);
@@ -56,6 +63,7 @@ MU_TEST(test_option_parse)
     {'x', "x", "0", NULL},
     {0, NULL, NULL, NULL}
   };
+
   mu_assert_int_eq(0, dlite_option_parse(options, opts, 1));
   for (i=0; opts[i].key; i++) {
     switch (opts[i].c) {

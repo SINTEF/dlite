@@ -267,7 +267,7 @@ DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
 
   if (!(storages = dlite_python_storage_load())) goto fail;
   assert(PyList_Check(storages));
-  n = PyList_Size(storages);
+  n = (int)PyList_Size(storages);
 
   /* get class implementing the plugin API */
   dlite_errclr();

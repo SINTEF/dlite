@@ -209,11 +209,11 @@ To run the tests, do
 Summary to build and install DLite when hdf5 and jansson lib are installed
 in the given path LOCAL_DIR
 
-	LOCAL_DIR=/C/Users/tco/Documents/Programs/philib/local
+	LOCAL_DIR="$HOME/Documents/Programs/local"
 	PATH=$PATH:$LOCAL_DIR/bin
 	cd dlite
-	mkdir build && cd build
-	cmake -G "Visual Studio 14 2015 Win64" -DHDF5_DIR=$LOCAL_DIR/cmake/hdf5 -DJANSSON_ROOT=$LOCAL_DIR/ -DCMAKE_INSTALL_PREFIX=$LOCAL_DIR/ ..
+	mkdir -p build && cd build
+	cmake -G "Visual Studio 15 2017 Win64" -DHDF5_DIR="$LOCAL_DIR/cmake/hdf5" -DJANSSON_ROOT="$LOCAL_DIR" -DCMAKE_INSTALL_PREFIX="$LOCAL_DIR" ..
 	cmake --build . --config Debug --target doc
 	cmake --build . --config Debug --target install
 	cmake --build . --config Release --target install
