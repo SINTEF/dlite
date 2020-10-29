@@ -58,6 +58,8 @@ typedef struct _DLiteCollection {
       Note that this pointer may change if `relations` is reallocated. */
   DLiteRelation *relations;
 
+  /* -- propdims */
+  size_t __propdims[1];
 } DLiteCollection;
 
 

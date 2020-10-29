@@ -369,6 +369,18 @@ typedef struct _DLiteMetaModel DLiteMetaModel;
  */
 void dlite_instance_print(const DLiteInstance *inst);
 
+/**
+  Initialises internal data in `inst`.
+
+  You don't need to call this function on instances returned by
+  dlite_instance_create() or dlite_instance_load*().  But it might be
+  needed if you implement your own extended instance types.
+
+  It is safe to call this function more than once.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_init(DLiteInstance *inst);
 
 /**
   Returns a new dlite instance from Entiry `meta` and dimensions

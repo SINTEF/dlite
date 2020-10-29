@@ -27,6 +27,7 @@ int dlite_collection_init(DLiteInstance *inst)
   coll->rstore =
     triplestore_create_external(&coll->relations, &coll->nrelations,
                                 NULL, NULL);
+  dlite_instance_init(inst);
   return 0;
 }
 
@@ -65,7 +66,8 @@ int dlite_collection_deinit(DLiteInstance *inst)
  */
 DLiteCollection *dlite_collection_create(const char *id)
 {
-  DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_SCHEMA);
+  //DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_SCHEMA);
+  DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_ENTITY);
   size_t dims[] = {0, 4};
   return (DLiteCollection *)dlite_instance_create(meta, dims, id);
 }
@@ -304,6 +306,10 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
   dlite_collection_add_relation(coll, label, "_is-a", "Instance");
   dlite_collection_add_relation(coll, label, "_has-uuid", inst->uuid);
   dlite_collection_add_relation(coll, label, "_has-meta", inst->meta->uri);
+
+  /* FIXME - add faster implementation */
+  dlite_instance_init(inst);
+
   return 0;
 }
 
@@ -316,7 +322,12 @@ int dlite_collection_add(DLiteCollection *coll, const char *label,
                          DLiteInstance *inst)
 {
   if (dlite_collection_add_new(coll, label, inst)) return 1;
-  dlite_instance_incref(inst);
+
+  printf("--> propdims: %zu\n", coll->__propdims[0]);
+  printf("    nrelations: %zu\n", coll->nrelations);
+  //dlite_instance_incref(inst);
+  coll->__propdims[0] = coll->nrelations;
+  printf("    propdims: %zu\n", coll->__propdims[0]);
   return 0;
 }
 
@@ -351,6 +362,10 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
     dlite_collection_remove_relations(coll, label, "_has-uuid", NULL);
     dlite_collection_remove_relations(coll, label, "_has-meta", NULL);
     dlite_collection_remove_relations(coll, label, "_has-dimmap", NULL);
+
+    /* FIXME - add faster implementation */
+    dlite_instance_init(inst);
+
     return 0;
   }
   return 1;

@@ -31,6 +31,7 @@ set(py_sources
   factory.py
   options.py
   utils.py
+  ontomap.py
   )
 
 

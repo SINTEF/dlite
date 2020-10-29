@@ -7,7 +7,10 @@ set(tests
   test_postgresql_storage2
   )
 
-add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
+add_definitions(
+  -DDLITE_ROOT=${dlite_SOURCE_DIR}
+  -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+  )
 
 
 # The test_postgresql_storage test require local configurations of the

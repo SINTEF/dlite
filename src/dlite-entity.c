@@ -75,7 +75,8 @@ static void _instance_store_create(void)
     atexit(_instance_store_free);
     _instance_store_add((DLiteInstance *)dlite_get_basic_metadata_schema());
     _instance_store_add((DLiteInstance *)dlite_get_entity_schema());
-    _instance_store_add((DLiteInstance *)dlite_get_collection_schema());
+    //_instance_store_add((DLiteInstance *)dlite_get_collection_schema());
+    _instance_store_add((DLiteInstance *)dlite_get_collection_entity());
   }
 }
 
@@ -416,6 +417,27 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   }
   return NULL;
 }
+
+
+/*
+  Initialises internal data in `inst`.
+
+  You don't need to call this function on instances returned by
+  dlite_instance_create() or dlite_instance_load*().  But it might be
+  needed if you implement your own extended instance types.
+
+  It is safe to call this function more than once.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_init(DLiteInstance *inst)
+{
+  if (dlite_instance_is_meta(inst))
+    return dlite_meta_init((DLiteMeta *)inst);
+  else
+    return _instance_propdims_eval(inst, DLITE_DIMS(inst));
+}
+
 
 /*
   Returns a new dlite instance from Entiry `meta` and dimensions

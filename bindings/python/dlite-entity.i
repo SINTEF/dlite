@@ -221,7 +221,7 @@ Instance(driver, location, options, id=None)
     and `options`. `id` is the id of the instance in the storage (not
     required if the storage only contains more one instance).
 
-Instance(uri, dimensions, properties, description)
+Instance(uri, dimensions, properties, description, iri=None, description=None)
     Creates a new metadata entity (instance of entity schema) casted
     to an instance.
 

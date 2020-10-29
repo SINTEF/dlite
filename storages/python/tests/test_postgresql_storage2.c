@@ -18,6 +18,15 @@ char *options = "database=" DATABASE ";user=" USER;
 #endif
 
 
+MU_TEST(test_load_person)
+{
+  DLiteMeta *meta;
+  DLiteStorage *s = dlite_storage_open("json", "Person.json", "mode=r");
+  mu_check(s);
+  meta = dlite_meta_load(s, NULL);
+  mu_check(meta);
+  mu_assert_int_eq(0, dlite_storage_close(s));
+}
 
 MU_TEST(test_load_meta)
 {
@@ -52,6 +61,7 @@ MU_TEST(test_unload_plugins)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_load_person);
   MU_RUN_TEST(test_load_inst);
   MU_RUN_TEST(test_load_meta);
   MU_RUN_TEST(test_unload_plugins);
