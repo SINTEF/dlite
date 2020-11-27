@@ -5,43 +5,33 @@ include(dliteCodeGen)
 
 add_compile_options("-DDLITE_ROOT=${DLITE_ROOT}")
 
-dlite_codegen(
-  ${CMAKE_CURRENT_BINARY_DIR}/Person.f90
-  fortran-module
-  json://${CMAKE_CURRENT_SOURCE_DIR}/Person.json?mode=r
-  )
-
-dlite_codegen(
-  ${CMAKE_CURRENT_BINARY_DIR}/Scan3D.f90
-  fortran-module
-  json://${CMAKE_CURRENT_SOURCE_DIR}/Scan3D.json?mode=r
-  )
+set(metadata
+  Person
+  Scan3D
+  Animal
+)
+foreach(name ${metadata})
+  dlite_codegen(
+    ${CMAKE_CURRENT_BINARY_DIR}/${name}.f90
+    fortran-module
+    json://${CMAKE_CURRENT_SOURCE_DIR}/${name}.json?mode=r
+    )
+  add_library(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.f90)
+  target_link_libraries(${name}
+    dlite
+    dlite-utils
+    dlite-fortran
+    )
+  target_include_directories(${name} PRIVATE
+    ${dlite-bindings-fortran_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    )    
+endforeach()
 
 set(tests
   test_person
-  )
-
-add_library(Person ${CMAKE_CURRENT_BINARY_DIR}/Person.f90)
-target_link_libraries(Person
-  dlite
-  dlite-utils
-  dlite-fortran
-  )
-target_include_directories(Person PRIVATE
-  ${dlite-bindings-fortran_BINARY_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
-  )
-
-add_library(Scan3D ${CMAKE_CURRENT_BINARY_DIR}/Scan3D.f90)
-target_link_libraries(Scan3D
-  dlite
-  dlite-utils
-  dlite-fortran
-  )
-target_include_directories(Scan3D PRIVATE
-  ${dlite-bindings-fortran_BINARY_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
-  )
+  test_animal
+  ) 
 
 foreach(test ${tests})
   add_executable(${test} ${test}.f90)
@@ -51,6 +41,7 @@ foreach(test ${tests})
     dlite-fortran
     Person
     Scan3D
+    Animal
     )
   target_include_directories(${test} PRIVATE
     ${dlite-bindings-fortran_BINARY_DIR}
