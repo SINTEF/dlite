@@ -7,6 +7,7 @@
 
 
 DLiteMetaModel *model;
+DLiteMetaModel *nodim;
 
 
 MU_TEST(test_metamodel_create)
@@ -14,12 +15,20 @@ MU_TEST(test_metamodel_create)
   model = dlite_metamodel_create("http://meta.sintef.no/0.1/Vehicle",
                                  DLITE_ENTITY_SCHEMA, NULL);
   mu_check(model);
+
+  nodim = dlite_metamodel_create("http://meta.sintef.no/1.0/NoDimension",
+                                 DLITE_ENTITY_SCHEMA, NULL);
+  mu_check(nodim);
+
 }
 
 MU_TEST(test_metamodel_add_value)
 {
   char *descr = "A vehicle like car, bike, etc...";
   mu_assert_int_eq(0, dlite_metamodel_add_string(model, "description", descr));
+
+  char *descr2 = "A metadata without dimension";
+  mu_assert_int_eq(0, dlite_metamodel_add_string(nodim, "description", descr2));
 }
 
 MU_TEST(test_metamodel_add_dimension)
@@ -40,21 +49,61 @@ MU_TEST(test_metamodel_add_property)
   mu_assert_int_eq(0, stat);
   stat = dlite_metamodel_add_property_dim(model, "checks", "nchecks");
   mu_assert_int_eq(0, stat);
+
+  stat = dlite_metamodel_add_property(nodim, "name", "string32", NULL, NULL,
+                                      "Name of the instance.");
+  mu_assert_int_eq(0, stat);                                      
+  stat = dlite_metamodel_add_property(nodim, "value", "float", "mm", NULL,
+                                      "Value of the instance.");
+  mu_assert_int_eq(0, stat);
 }
 
 MU_TEST(test_metamodel_create_meta)
 {
+  int stat;
+
   DLiteMeta *meta = dlite_meta_create_from_metamodel(model);
   mu_check(meta);
   //dlite_instance_print((DLiteInstance *)meta);
   dlite_instance_save_url("json://Vehicle.json?mode=w&meta=yes",
                           (DLiteInstance *)meta);
+
+  size_t dims[] = {0};
+  DLiteInstance *vehicle = dlite_instance_create(meta, dims, NULL);
+  mu_check(vehicle);
+  char *brand = "Ford"; 
+  stat = dlite_instance_set_property(vehicle, "brand", &brand);
+  mu_assert_int_eq(0, stat);
+  stat = dlite_instance_save_url("json://Ford.json?mode=w", vehicle);
+  mu_assert_int_eq(0, stat);  
+  dlite_instance_decref(vehicle);
   dlite_meta_decref(meta);
+
+  DLiteMeta *meta2 = dlite_meta_create_from_metamodel(nodim);
+  mu_check(meta2);
+  //dlite_instance_print((DLiteInstance *)meta);
+  dlite_instance_save_url("json://NoDimension.json?mode=w&meta=yes",
+                          (DLiteInstance *)meta2);  
+
+  DLiteInstance *inst = dlite_instance_create(meta2, NULL, NULL);
+  mu_check(inst);
+  char *name = "John"; 
+  stat = dlite_instance_set_property(inst, "name", &name);
+  mu_assert_int_eq(0, stat);
+  float value = 33.0;
+  stat = dlite_instance_set_property(inst, "value", &value);
+  mu_assert_int_eq(0, stat);
+  stat = dlite_instance_save_url("json://JohnNoDim.json?mode=w", inst);
+  mu_assert_int_eq(0, stat);
+
+  dlite_instance_decref(inst);
+  dlite_meta_decref(meta2);
 }
 
 MU_TEST(test_metamodel_free)
 {
   dlite_metamodel_free(model);
+  dlite_metamodel_free(nodim);
 }
 
 
