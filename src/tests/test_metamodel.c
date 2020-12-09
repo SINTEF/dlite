@@ -72,7 +72,7 @@ MU_TEST(test_metamodel_create_meta)
   DLiteInstance *vehicle = dlite_instance_create(meta, dims, NULL);
   mu_check(vehicle);
   char *brand = "Ford";
-  stat = dlite_instance_set_property(vehicle, "brand", &brand);
+  stat = dlite_instance_set_property(vehicle, "brand", brand);
   mu_assert_int_eq(0, stat);
   stat = dlite_instance_save_url("json://Ford.json?mode=w", vehicle);
   mu_assert_int_eq(0, stat);
