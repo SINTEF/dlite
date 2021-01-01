@@ -786,6 +786,8 @@ INPUT                  = @dlite_SOURCE_DIR@/doc \
                          @dlite_SOURCE_DIR@/doc/concepts.md \
                          @dlite_SOURCE_DIR@/src \
                          @dlite_SOURCE_DIR@/src/utils \
+                         @dlite_SOURCE_DIR@/storages/python/python-storage-plugins/README.md \
+                         @dlite_SOURCE_DIR@/storages/python/README.md \
                          @dlite_SOURCE_DIR@/src/tests/minunit/README.md
 
 # This tag can be used to specify the character encoding of the source files
