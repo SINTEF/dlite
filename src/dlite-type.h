@@ -140,6 +140,20 @@ DLiteType dlite_type_get_dtype(const char *dtypename);
 int dlite_type_set_typename(DLiteType dtype, size_t size,
                             char *typename, size_t n);
 
+/*
+  Writes the fortran type name corresponding to `dtype` and `size` to
+  `typename`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_ftype(DLiteType dtype, size_t size,
+                         char *ftype, size_t n);
+
+/*
+  Writes the Fortran ISO_C_BINDING type name corresponding to `dtype` and
+  `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_isoctype(DLiteType dtype, size_t size,
+                            char *isoctype, size_t n);                         
+
 /**
   Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
   The size of the memory pointed to by `cdecl` must be at least `n` bytes.
@@ -233,30 +247,39 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
 
 /**
   Copies n-dimensional array `src` to `dest` by calling `castfun` on
-  each element.
+  each element.  `dest` must have sufficient size to hold the result.
 
-    ndims: Number of dimensions for both source and destination.
-        Zero means scalar.
-    dest: Pointer to destination memory.  It must be large enough.
-    dest_type: Destination data type
-    dest_size: Size of each element in destination
-    dims_dims: Destination dimensions.  Length: `ndims`
-    dest_strides: Destination strides.  Length: `ndims`
-    src: Pointer to source memory.
-    src_type: Source data type.
-    src_size: Size of each element in source.
-    src_dims: Source dimensions.  Length: `ndims`
-    src_strides: Source strides.  Length: `ndims`
-    castfun: Function that is doing the actually casting. Called on each
-        element.
+  If either `dest_strides` or `src_strides`  are NULL, the memory is
+  assumed to be C-contiguous.
+
+  This function is rather general function that allows `src` and
+  `dest` to have different type and memory layout.  By e.g. inverting
+  the order of `dest_dims` and `dest_strides` you can copy an
+  n-dimensional array from C to Fortran order.
+
+  Arguments:
+    - ndims: Number of dimensions for both source and destination.
+          Zero means scalar.
+    - dest: Pointer to destination memory.  It must be large enough.
+    - dest_type: Destination data type
+    - dest_size: Size of each element in destination
+    - dest_dims: Destination dimensions.  Length: `ndims`, required if ndims > 0
+    - dest_strides: Destination strides.  Length: `ndims`, optional
+    - src: Pointer to source memory.
+    - src_type: Source data type.
+    - src_size: Size of each element in source.
+    - src_dims: Source dimensions.  Length: `ndims`, required if ndims > 0
+    - src_strides: Source strides.  Length: `ndims`, optional
+    - castfun: Function that is doing the actually casting. Called on each
+          element.
 
   Returns non-zero on error.
 */
 int dlite_type_ndcast(int ndims,
                       void *dest, DLiteType dest_type, size_t dest_size,
-                      const int *dest_dims, const int *dest_strides,
+                      const size_t *dest_dims, const int *dest_strides,
                       const void *src, DLiteType src_type, size_t src_size,
-                      const int *src_dims, const int *src_strides,
+                      const size_t *src_dims, const int *src_strides,
                       DLiteTypeCast castfun);
 
 #endif /* _DLITE_TYPES_H */

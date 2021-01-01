@@ -51,6 +51,11 @@ int dlite_datamodel_free(DLiteDataModel *d);
 char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d);
 
 /**
+ * Resolve dimensions
+ */
+void dlite_datamodel_resolve_dimensions(DLiteDataModel *d,
+                                        const DLiteMeta *meta);
+/**
   Returns the size of dimension \a name or -1 on error.
  */
 int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,

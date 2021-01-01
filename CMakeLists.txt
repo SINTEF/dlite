@@ -6,13 +6,14 @@ cmake_policy(SET CMP0074 NEW)
 include(CPack)
 
 project(dlite
-  VERSION 0.2.3
+  VERSION 0.2.5
   #DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   LANGUAGES C
   )
 
 # Options
 option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
+option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
 option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
@@ -159,7 +160,7 @@ set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 1.10 COMPONENTS C)
+  find_package(HDF5 1.8.20 COMPONENTS C)
   if(NOT HDF5_FOUND)
     if(NOT BUILD_HDF5)
       message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
@@ -306,12 +307,27 @@ if(WITH_PYTHON)
   endif()
 
   set(DLITE_PYTHONPATH
-    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/dlite)
+    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
 
 
 
 else()
   set(PYTHON_LIBRARIES "")
+endif()
+
+
+#
+# Fortran
+# =======
+if(WITH_FORTRAN)
+  enable_language(Fortran)
+
+  enable_fortran_compiler_flag_if_supported("-std=f2008")
+
+  enable_fortran_compiler_flag_if_supported("-Wall")
+  enable_fortran_compiler_flag_if_supported("-Wextra")
+  enable_fortran_compiler_flag_if_supported("-Wpedantic")
+  enable_fortran_compiler_flag_if_supported("-Werror")
 endif()
 
 
@@ -578,6 +594,9 @@ add_subdirectory(tools)
 # Bindings
 if(WITH_PYTHON)
   add_subdirectory(bindings/python)
+endif()
+if(WITH_FORTRAN)
+  add_subdirectory(bindings/fortran)
 endif()
 
 # Storage plugins

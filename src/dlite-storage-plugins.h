@@ -48,7 +48,7 @@ typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
 /** Initial segment of all DLiteStorage plugin data structures. */
 #define DLiteStorage_HEAD                                                  \
   const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */            \
-  char *uri;                /*!< URI passed to dlite_storage_open() */     \
+  char *location;           /*!< Location passed to dlite_storage_open() */ \
   char *options;            /*!< Options passed to dlite_storage_open() */ \
   int writable;             /*!< Whether storage is writable */            \
   DLiteIDFlag idflag;       /*!< How to handle instance id's */
@@ -366,6 +366,10 @@ typedef int (*DataModelFree)(DLiteDataModel *d);
  */
 typedef char *(*GetMetaURI)(const DLiteDataModel *d);
 
+/**
+ * Resolve the dimensions from the properties (JSON or YAML storage)
+ */
+typedef void (*ResolveDimensions)(DLiteDataModel *d, const DLiteMeta *meta);
 
 /**
   Returns the size of dimension `name` or -1 on error.
@@ -496,6 +500,7 @@ struct _DLiteStoragePlugin {
   DataModelFree      dataModelFree;    /*!< Frees a data model */
 
   GetMetaURI         getMetaURI;       /*!< Returns uri to metadata */
+  ResolveDimensions  resolveDimensions;/*!< Resolves dimensions from properties */
   GetDimensionSize   getDimensionSize; /*!< Returns size of dimension */
   GetProperty        getProperty;      /*!< Gets value of property */
 

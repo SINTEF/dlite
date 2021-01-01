@@ -107,7 +107,7 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
     return NULL;
 
   if (lazy) {
-    dlite_storage_paths_append(s->uri);
+    dlite_storage_paths_append(s->location);
     return coll;
   }
 

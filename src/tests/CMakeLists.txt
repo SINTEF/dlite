@@ -6,6 +6,7 @@ set(tests
   test_type
   test_storage
   test_entity
+  test_metamodel
   test_store
   test_triplestore
   test_collection

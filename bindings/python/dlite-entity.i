@@ -310,9 +310,9 @@ struct _DLiteInstance {
                  int nproperties, struct _DLiteProperty *properties,
                  const char *iri=NULL,
                  const char *description=NULL) {
-    DLiteMeta *inst = dlite_entity_create(uri, iri, description,
-                                          ndimensions, dimensions,
-                                          nproperties, properties);
+    DLiteMeta *inst = dlite_meta_create(uri, iri, description,
+                                        ndimensions, dimensions,
+                                        nproperties, properties);
     if (inst) dlite_errclr();
     return (DLiteInstance *)inst;
   }
