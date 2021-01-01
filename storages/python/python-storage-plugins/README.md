@@ -19,8 +19,10 @@ Enabling the postgresql storage tests
 -------------------------------------
 The test_postgresql_storage test require local configurations of the
 PostgreSQL server.  The tests are only enabled if a file pgconf.h can
-be found in the [storage/python/tests](../tests) source directory with
-the following content:
+be found in the [storage/python/tests](../tests) source directory.
+
+Hence, to enable the postgresql storage tests, you should add the file
+`storage/python/tests/pgconf.h` with the following content:
 
     #define HOST "pg_server_host"
     #define USER "my_username"
