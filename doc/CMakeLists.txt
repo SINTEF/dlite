@@ -50,6 +50,8 @@ if(DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/utils/uuid.h
     ${dlite_SOURCE_DIR}/src/utils/tests/tgen_example.c
 
+    ${dlite_SOURCE_DIR}/storages/python/README.md
+    ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/README.md
     ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
     )
 
