@@ -2480,7 +2480,6 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
   if (!(meta = (DLiteMeta *)dlite_instance_create(model->meta,
                                                   model->dimvalues,
                                                   model->uri))) goto fail;
-  if (dlite_meta_init(meta)) goto fail;
   if (model->iri && !(meta->iri = strdup(model->iri)))
     FAIL("allocation failure");
 
@@ -2507,6 +2506,7 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
       goto fail;
     }
   }
+  if (dlite_meta_init(meta)) goto fail;
   retval = meta;
  fail:
   if (name) free(name);

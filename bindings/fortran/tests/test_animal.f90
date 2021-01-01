@@ -25,7 +25,7 @@ program ftest_animal
   cat%young = 'kitten'
 
   status = dog%writeToURL("json://animals.json?mode=w")
-  status = cat%writeToURL("json://animals.json?mode=a")
+  status = cat%writeToURL("json://animals.json?mode=append")
 
   status = dog%destroy()
   status = cat%destroy()
