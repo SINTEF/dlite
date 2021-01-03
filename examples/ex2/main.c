@@ -16,14 +16,14 @@ int main()
   double tmp, atvol0;
 
   size_t dims[] = {nelements, nphases};
-  char *path = "Chemistry-0.1.json";
+  char *path = STRINGIFY(DLITE_ROOT)
+    "/share/dlite/examples/ex2/Chemistry-0.1.json";
   DLiteStorage *s;
   DLiteStorage *s2;
   DLiteMeta *chem;
   Chemistry *p;
 
   // new variables
-  char *id ="mydata";
   Chemistry *pload;
 
   /* Load Chemistry entity */

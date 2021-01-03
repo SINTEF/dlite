@@ -47,7 +47,8 @@ endif()
 
 
 # Add macros for use with swig
-include(${SWIG_USE_FILE})
+include(UseSWIG)
+#include(${SWIG_USE_FILE})
 
 #
 # Create Python library
@@ -155,6 +156,13 @@ set(PYTHON_MODULE_PATH
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
   DESTINATION ${PYTHON_MODULE_PATH}
+  )
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
+  DESTINATION share/dlite
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
   )
 
 

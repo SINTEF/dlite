@@ -1,5 +1,9 @@
-/* tgen.h -- simple templated text generator */
-
+/* tgen.c -- simple templated text generator
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -12,6 +16,7 @@
 
 #include "compat.h"
 #include "err.h"
+#include "infixcalc.h"
 #include "tgen.h"
 
 
@@ -49,7 +54,7 @@ static int validate_fmt(const char *fmt, int len)
     if (!isdigit(*(p++))) return 0;
     while (isdigit(*p)) p++;
   }
-  if (!strchr("slUT", *(p++)))  /* CASE */
+  if (!strchr("scCuUmMiIT", *(p++)))  /* CASE */
       return 0;
   if (p != fmt + len)           /* check length */
     return 0;
@@ -106,37 +111,88 @@ static int length_to_var(const char *p, const char *var, int maxlen)
     } else if (*q == '{') {
       q++;
     } else {
+      int len;
       size_t m = strcspn(q, "%:}");
       if (strncmp(q, var, m) == 0)
         return q - p - 1;
+      else if ((len = length_to_endbrace(q)) >= 0)
+        q += len;
       else
-        q += length_to_endbrace(q);
+        return -1;  /* missing end brace */
     }
   }
 }
 
+/* Check and evaluate string expression `s` of length `len`.  A string
+   expression should be either a double-quoted string or two strings
+   separated by the '=' or '!' operator.
 
-/* Evaluates condition `cond`.
+   Returns 1 if `s` evaluates to true, 0 if it evaluates to false and -1 if
+   it is not a valid string expression. */
+static int eval_string_expression(const char *s, int len)
+{
+  int i, nstrings=0, instring=0, start[2], length[2];
+  const char *p, *op;
+  for (i=0; i<len; i++) {
+    if (s[i] == '\\') {
+      i++;
+    } else if (!instring && strchr("\"'", s[i])) {
+      instring = s[i];
+      start[nstrings] = i;
+    } else if (instring && s[i] == instring) {
+        instring = 0;
+        length[nstrings] = i - start[nstrings] - 1;
+        if (++nstrings > 2) return -1;
+    }
+  }
+  if (instring) return -1;
+  switch (nstrings) {
+  case 0:
+    return -1;
+  case 1:
+    return (length[0]) ? 1 : 0;
+  case 2:
+    p = s + start[0] + length[0] + 2;
+    p += strspn(p, " ");
+    op = p++;
+    p += strspn(p, " ");
+    if (p != s + start[1]) return -1;
+    assert(*p == '"');
+    if (*op == '=') {
+      if (length[0] != length[1]) return 0;
+      return (strncmp(s + start[0] + 1, s + start[1] + 1, length[0])) ? 0 : 1;
+    } else if (*op == '!') {
+      if (length[0] != length[1]) return 1;
+      return (strncmp(s + start[0] + 1, s + start[1] + 1, length[0])) ? 1 : 0;
+    } else {
+      return -1;
+    }
+  default:
+    assert(0);
+  }
+  assert(0);
+  return 1;  /* never neached, but added to make MSVS happy */
+}
 
-   Returns 1 if conds evaluates to true, 0 if cond is false or -1 on error. */
-static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
+/* Evaluates condition `cond` with length `len`.
+
+   Returns 1 if `cond` evaluates to true, 0 if cond is false or -1 on error. */
+static int evaluate_cond(const char *cond, int len, TGenSubs *subs,
                          void *context)
 {
   int retval=-1;
-  char *p, *endp;
+  char errmsg[256];
   TGenBuf s;
+
   tgen_buf_init(&s);
   if (tgen_append(&s, cond, len, subs, context)) goto fail;
   if (!s.buf || !*s.buf) {
     retval = 0;
-  } else if ((p = strstr(s.buf, "=="))) {
-    *p = '\0';
-    retval = (strcmp(s.buf, p+2) == 0) ? 1 : 0;
-  } else if ((p = strstr(s.buf, "!="))) {
-    *p = '\0';
-    retval = (strcmp(s.buf, p+2) != 0) ? 1 : 0;
-  } else {
-    retval = (strtol(s.buf, &endp, 0) == 0 && !*endp) ? 0 : 1;
+  } else if ((retval = eval_string_expression(s.buf, s.pos)) < 0) {
+    retval = infixcalc(s.buf, NULL, 0, errmsg, sizeof(errmsg));
+    if (errmsg[0])
+      retval = errx(-1, "invalid condition \"%.*s\" --> \"%s\": %s",
+                    len, cond, s.buf, errmsg);
   }
  fail:
   tgen_buf_deinit(&s);
@@ -150,7 +206,7 @@ static int evaluate_cond(const char *cond, int len, const TGenSubs *subs,
 
    Returns the number of bytes consumed or -1 on error.
 */
-static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
+static int builtin_if(TGenBuf *s, const char *template, TGenSubs *subs,
                       void *context)
 {
   const char *endp, *t = template;
@@ -196,6 +252,20 @@ static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
   return endp - template;
 }
 
+/* Returns the length of the identifier, if `s` is a valid identifier
+   directly followed by `endchar`.  Otherwise 0 is returned. */
+static int is_identifier(const char *s, int endchar)
+{
+  int i=1;
+  if (s[0] != '_' && !isalpha(s[0])) return 0;
+  while (s[i] && s[i] != endchar) {
+    if (s[i] != '_' && !isalnum(s[i])) return 0;
+    i++;
+  }
+  if (s[i] == endchar) return i;
+  return 0;
+}
+
 
 
 /***************************************************************
@@ -210,7 +280,7 @@ static int builtin_if(TGenBuf *s, const char *template, const TGenSubs *subs,
 
       \a, \b, \f, \n, \r, \t, \v \\
 
-  in addition to escaped newlines.
+  in addition to escaped newlines and the "\." noop.
 
   Returns the number of characters written to `dest`.
  */
@@ -257,8 +327,8 @@ int tgen_escaped_copy(char *dest, const char *src, int n)
 
   Valid values for `casemode` are:
     - "s": no change in case
-    - "l": convert to lower case
-    - "U": convert to upper case
+    - "c": convert to lower case
+    - "C": convert to upper case
     - "T": convert to title case (convert first character to upper case
            and the rest to lower case)
 
@@ -272,10 +342,10 @@ int tgen_setcase(char *s, int len, int casemode)
   switch (casemode) {
   case 's':
     return 0;
-  case 'l':
+  case 'c':
     for (i=0; i<len; i++) s[i] = tolower(s[i]);
     return 0;
-  case 'U':
+  case 'C':
     for (i=0; i<len; i++) s[i] = toupper(s[i]);
     return 0;
   case 'T':
@@ -287,28 +357,131 @@ int tgen_setcase(char *s, int len, int casemode)
 }
 
 /*
-  Converts camel case to lower case and underscores.
+  Converts the `n` first characters of `s` to a valid C identifier (by
+  stripping spaces and replacing hyphen with underscore) and append
+  them to `buf`.  If `n` is negative, all of `s` is appended.
 
-  Returns a newly allocated string based on the substring of `s` with
-  length `len`. Camel case in `s` is in the returned string converted
-  to lower case and underscores.  On error, NULL is returned.
+  If strict is non-zero, -1 is returned if a non-alphanumeric
+  characters is encountered.  Otherwise it is converted to underscore.
 
-  If `len` is negative, all of `s` is used.
+  Returns the number of bytes appended to `s`, or -1 on error.
+ */
+static int append_identifier(TGenBuf *buf, const char *s, int n, int strict)
+{
+  size_t startpos = buf->pos;
+  char *space = " \f\n\r\t\v";
+  int i = strspn(s, space);
+  if (n < 0) n = strlen(s);
+  while (strchr(space, s[n-1])) n--;
+  if (s[i] == '_' || isalpha(s[i]))
+    tgen_buf_append(buf, s+i, 1);
+  else if (!strict)
+    tgen_buf_append(buf, "_", 1);
+  else
+    return -1;
+  while (++i < n) {
+    if (s[i] == '_' || isalnum(s[i]))
+      tgen_buf_append(buf, s+i, 1);
+    else if (!strict || s[i] == '-' || strchr(space, s[i]))
+      tgen_buf_append(buf, "_", 1);
+    else
+      return -1;
+  }
+  return buf->pos - startpos;
+}
+
+/*
+  Converts the `n` first characters of `s` to underscore format and
+  append them to `buf`.  If `n` is negative, all of `s` is appended.
+
+  Returns the number of bytes appended to `s`, or -1 on error.
 
   Examples:
-    "CamelCaseWord" -> "camel_case_word"
-    "A sentence with CamelCase" -> "a sentence with camel_case"
+    "AVery mixed_Sentense" -> "a_very_mixed_sentense"   (upper==0)
+    "AVery mixed_Sentense" -> "A_VERY_MIXED_SENTENCE"   (upper==1)
+*/
+static int append_underscore(TGenBuf *buf, const char *s, int n, int upper)
+{
+  size_t startpos = buf->pos;
+  int prevmode=0;  /* Previous char was: space=0, lower=1, upper=2 */
+  int i, mode;
+  char *space = " \f\n\r\t\v";
+  char *sep = " _-\f\n\r\t\v";
+  if (n < 0) n = strlen(s);
+  while (strchr(space, s[n-1])) n--;
+  for (i=strspn(s, space); i<n; i++) {
+    mode = strchr(sep, s[i]) ? 0 : isupper(s[i]) ? 2 : 1;
+    if ((prevmode && !mode) || (prevmode && mode == 2))
+      tgen_buf_append(buf, "_", -1);
+    if (mode)
+       tgen_buf_append_fmt(buf, "%c", (upper) ? toupper(s[i]) : tolower(s[i]));
+    prevmode = mode;
+  }
+  return buf->pos - startpos;
+}
+
+/*
+  Converts the `n` first characters of `s` to MixedCase format
+  (UpperMixedCase if `upper` is non-zero, otherwise lowerMiexedlCase)
+  and append them to `buf`.  If `n` is negative, all of `s` is
+  appended.
+
+  Returns the number of bytes appended to `s`, or -1 on error.
+
+  Examples:
+    "AVery mixed_Sentense" -> "aVeryMixedSentense"   (upper==0)
+    "AVery mixed_Sentense" -> "AVeryMixedSentense"   (upper==1)
+*/
+static int append_mixedcase(TGenBuf *buf, const char *s, int n, int upper)
+{
+  size_t startpos = buf->pos;
+  int prevmode=0;  /* Previous char was: space=0, lower=1, upper=2, other=3 */
+  int i, mode;
+  char *space = " \f\n\r\t\v";
+  char *sep = " _-\f\n\r\t\v";
+  if (n < 0) n = strlen(s);
+  for (i=strspn(s, space); i<n; i++) {
+    mode = strchr(sep, s[i]) ? 0 : islower(s[i]) ? 1 : isupper(s[i]) ? 2 : 3;
+    if (buf->pos == 0) {
+      tgen_buf_append_fmt(buf, "%c", (upper) ? toupper(s[i]) : tolower(s[i]));
+    } else if (prevmode == 0 || prevmode == 3) {
+      if (mode) tgen_buf_append_fmt(buf, "%c", toupper(s[i]));
+    } else {
+      if (mode) tgen_buf_append_fmt(buf, "%c", s[i]);
+    }
+    prevmode = mode;
+  }
+  return buf->pos - startpos;
+}
+
+
+/*
+  Returns a new malloc'ed copy of the `len` first bytes of `s` with
+  the case converted according to `casemod`.  If `len` is negative,
+  all of `s` is copied.
+
+  Valid values for `casemode` are:
+    - 's': no change in case
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
+    - 'i': convert to a valid C identifier (permissive)
+    - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
+
+  Returns NULL on error.
  */
-char *tgen_camel_to_underscore(const char *s, int len)
+char *tgen_convert_case(const char *s, int len, int casemode)
 {
   TGenBuf buf;
-  int i, n=0;
   tgen_buf_init(&buf);
-  if (len < 0) len = strlen(s);
-  for (i=0; i<len; i++) {
-    if (isupper(s[i]) && n++) tgen_buf_append(&buf, "_", -1);
-    tgen_buf_append_fmt(&buf, "%c", tolower(s[i]));
-    if (isspace(s[i])) n = 0;
+  if (tgen_buf_append_case(&buf, s, len, casemode) < 0) {
+    tgen_buf_deinit(&buf);
+    return NULL;
   }
   return tgen_buf_steal(&buf);
 }
@@ -429,6 +602,61 @@ int tgen_buf_append_vfmt(TGenBuf *s, const char *fmt, va_list ap)
   if (src != buf) free(src);
   va_end(ap2);
   return retval;
+}
+
+/*
+  Like tgen_buf_append(), but converts the first `n` bytes of `src`
+  according to `casemode` before appending them to `s`.
+
+  Valid values for `casemode` are:
+    - 's': no change in case
+    - 'c': convert to lower case
+    - 'C': convert to upper case
+    - 'u': convert to underscore-separated lower case
+    - 'U': convert to underscore-separated upper case
+    - 'm': convert to lower mixedCase (aka camelCase)
+    - 'M': convert to upper MixedCase (aka CamelCase)
+    - 'i': convert to a valid C identifier (permissive)
+    - 'I': convert to a valid C identifier (strict)
+    - 'T': convert to title case (convert first character to upper case
+           and the rest to lower case)
+ */
+int tgen_buf_append_case(TGenBuf *s, const char *src, int n, int casemode)
+{
+  char *p;
+  int stat, startpos = s->pos;
+  if (n < 0) n = strlen(src);
+
+  switch (casemode) {
+  case 's':
+    return tgen_buf_append(s, src, n);
+  case 'c':
+    if ((stat = tgen_buf_append(s, src, n)) < 0) return -1;
+    for (p=s->buf+startpos; *p; p++) *p = tolower(*p);
+    return stat;
+  case 'C':
+    if ((stat = tgen_buf_append(s, src, n)) < 0) return -1;
+    for (p=s->buf+startpos; *p; p++) *p = toupper(*p);
+    return stat;
+  case 'u':
+    return append_underscore(s, src, n, 0);
+  case 'U':
+    return append_underscore(s, src, n, 1);
+  case 'm':
+    return append_mixedcase(s, src, n, 0);
+  case 'M':
+    return append_mixedcase(s, src, n, 1);
+  case 'i':
+    return append_identifier(s, src, n, 0);
+  case 'I':
+    return append_identifier(s, src, n, 1);
+  case 'T':
+    if ((stat = tgen_buf_append(s, src, n)) < 0) return -1;
+    s->buf[startpos] = toupper(s->buf[startpos]);
+    for (p=s->buf+startpos+1; *p; p++) *p = tolower(*p);
+    return stat;
+  }
+  return errx(-1, "invalid case conversion character: %c", casemode);
 }
 
 /*
@@ -619,8 +847,10 @@ int tgen_subs_setn(TGenSubs *subs, const char *var, int len,
     free(name);
   } else {
     if (map_set((map_int_t *)&subs->map, name, subs->nsubs)) {
+      char msg[80];
+      snprintf(msg, sizeof(msg), "cannot add substitution for '%s'", name);
       free(name);
-      return err(TGenMapError, "cannot add substitution for '%s'", name);
+      return err(TGenMapError, "%s", msg);
     }
     if (subs->nsubs >= subs->size) {
       subs->size += 128;
@@ -746,7 +976,7 @@ int tgen_subs_copy(TGenSubs *dest, const TGenSubs *src)
 
   Returns NULL, on error.
  */
-char *tgen(const char *template, const TGenSubs *subs, void *context)
+char *tgen(const char *template, TGenSubs *subs, void *context)
 {
   TGenBuf s;
   tgen_buf_init(&s);
@@ -766,7 +996,7 @@ char *tgen(const char *template, const TGenSubs *subs, void *context)
   Returns non-zero on error.
  */
 int tgen_append(TGenBuf *s, const char *template, int tlen,
-                const TGenSubs *subs, void *context)
+                TGenSubs *subs, void *context)
 {
   const TGenSub *sub;
   const char *templ, *t = template;
@@ -774,8 +1004,9 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
 
   if (tlen < 0) tlen = strlen(template);
   while (*t && t < template + tlen) {
-    int len = strcspn(t, "{}");
+    int l, len = strcspn(t, "{}");
     char *fmt = NULL;
+    char buf[10];
     int casemode = 's';
     tgen_buf_append(s, t, len);
     t += len;
@@ -799,7 +1030,7 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
       case '}':
         break;
       default:  /* substitution */
-        len = strcspn(t, "%:{}");
+        len = strcspn(t, "%:{}=?");
         if (t[len] == '\0')
           return err(TGenSyntaxError, "line %d: template ends with "
                      "unmatched '{'", tgen_lineno(template, t));
@@ -808,12 +1039,40 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
                      "substitution", tgen_lineno(template, t));
 
         /* parse special constructs */
-        if (strncmp(t, "@if", len) == 0) {  /* conditional */
+        if (strncmp(t, "@error", len) == 0) {  /* error */
+          err_clear();
+          return err(TGenUserError, "line %d: %.*s",
+                     tgen_lineno(template, t), length_to_endbrace(t+len)-1,
+                     t+len+1);
+
+        } else if (strncmp(t, "@if", len) == 0) {  /* conditional */
           if ((len = builtin_if(s, t, subs, context)) < 0)
-            return err(TGenSyntaxError, "line %d: invalid @if conditional",
-                       tgen_lineno(template, t));
+            return err(TGenSyntaxError,
+                       "line %d: invalid conditional: \"%.*s\"",
+                       tgen_lineno(template, t), (tlen > 120) ? 120 : tlen, t);
           t += len;
           continue;
+
+        } else if ((l = is_identifier(t, '='))) {  /* assignment */
+          TGenBuf ss;
+          TGenSubs *parent = subs->parent;
+          tgen_buf_init(&ss);
+          if (((len = length_to_endbrace(t)) < 0) ||
+              tgen_append(&ss, t+l+1, len-l-1, subs, context)) {
+            tgen_buf_deinit(&ss);
+            return err(TGenSyntaxError,
+                       "line %d: invalid assignment tag '%.*s'...",
+                       tgen_lineno(template, t), 30, t);
+          }
+          tgen_subs_setn(subs, t, l, ss.buf, NULL);
+          while (parent) {
+            tgen_subs_setn(parent, t, l, ss.buf, NULL);
+            parent = parent->parent;
+          }
+          tgen_buf_deinit(&ss);
+          t += len + 1;
+          continue;
+
         } else if (t[0] == '@' && isdigit(t[1])) {  /* alignment */
           char *endp;
           long n = strtol(t+1, &endp, 0);
@@ -821,18 +1080,35 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
             return err(TGenSyntaxError, "line %d: invalid alignment tag {%.*s",
                        tgen_lineno(template, t), len, t);
           tgen_buf_align(s, n);
-          t += len+1;
+          t += len + 1;
+          continue;
+
+        } else if (t[0] == ':' && t[1] == ' ') {  /* comment */
+          if ((len = length_to_endbrace(t)) < 0)
+            return err(TGenSyntaxError,
+                       "line %d: invalid comment tag '%.*s'...",
+                       tgen_lineno(template, t), 20, t);
+          t += len + 1;
           continue;
         }
 
         /* parse VAR */
-        if (!(sub = tgen_subs_getn(subs, t, len)))
+        if (t[len] == '?') {
+          if (t[len+1] != '}')
+            return err(TGenVariableError,
+                       "line %d: expect '}' after '?' in var '%.*s'",
+                       tgen_lineno(template, t), len, t);
+          tgen_buf_append_fmt(s, "%d",
+                              (tgen_subs_getn(subs, t, len)) ? 1 : 0);
+          t += len + 2;
+          continue;
+        } else if (!(sub = tgen_subs_getn(subs, t, len))) {
           return err(TGenVariableError, "line %d: unknown var '%.*s'",
                      tgen_lineno(template, t), len, t);
+        }
 
         /* parse FMT */
         if (t[len] == '%') {
-          char buf[10];
           const char *tt = t + len;
           int m = strcspn(tt, ":}");
           if (m >= (int)sizeof(buf))
@@ -898,11 +1174,13 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
           if ((stat = sub->func(s, templ, templ_len, subs, context)))
             return stat;
         } else if (fmt) {
-          char *p = s->buf + s->pos;
-          if ((nchars = tgen_buf_append_fmt(s, fmt, sub->repl)) < 0)
-            return nchars;
-          tgen_setcase(p, nchars, casemode);
+          char *p = tgen_convert_case(sub->repl, -1, casemode);
+          if (!p) return -1;
+          nchars = tgen_buf_append_fmt(s, fmt, p);
+          free(p);
+          if (nchars < 0) return nchars;
         } else {
+          assert(casemode == 's');
           if ((nchars = tgen_buf_append(s, sub->repl, -1)) < 0)
             return -1;
         }

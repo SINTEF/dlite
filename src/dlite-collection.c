@@ -107,7 +107,7 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
     return NULL;
 
   if (lazy) {
-    dlite_storage_paths_append(s->uri);
+    dlite_storage_paths_append(s->location);
     return coll;
   }
 
@@ -185,7 +185,7 @@ int dlite_collection_save(DLiteCollection *coll, DLiteStorage *s)
  */
 int dlite_collection_save_url(DLiteCollection *coll, const char *url)
 {
-  int retval;
+  int retval=1;
   char *str=NULL, *driver=NULL, *path=NULL, *options=NULL;
   DLiteStorage *s=NULL;
   if (!(str = strdup(url))) FAIL("allocation failure");
@@ -366,7 +366,7 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
   const DLiteRelation *r;
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL))) {
     DLiteInstance *inst = dlite_instance_get(r->o);
-    assert(inst->refcount >= 2);
+    assert(inst->_refcount >= 2);
     dlite_instance_decref(inst);
     return inst;
   }
@@ -438,7 +438,7 @@ DLiteInstance *dlite_collection_next(DLiteCollection *coll,
 {
   DLiteInstance *inst = dlite_collection_next_new(coll, state);
   if (inst) {
-    assert(inst->refcount >= 2);
+    assert(inst->_refcount >= 2);
     dlite_instance_decref(inst);
   }
   return inst;

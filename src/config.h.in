@@ -6,30 +6,37 @@
 #ifndef SKIP_UTILS_CONFIG_H
 #include "utils/config.h"
 #endif
+//#include "config-paths.h"
 
 /* dlite version */
-#ifndef dlite_VERSION
 #define dlite_VERSION "@dlite_VERSION@"
+#define dlite_VERSION_MAJOR @dlite_VERSION_MAJOR@
+#define dlite_VERSION_MINOR @dlite_VERSION_MINOR@
+#define dlite_VERSION_PATCH @dlite_VERSION_PATCH@
+
+#define DLITE_CONFIG_VARS  "@DLITE_CONFIG_VARS@"
+
+/* Installation root */
+#ifndef DLITE_ROOT
+#define DLITE_ROOT             "@DLITE_ROOT@"
 #endif
 
-/* hardcoded default paths */
-#define DLITE_TEMPLATE_DIRS \
-  "@CMAKE_INSTALL_PREFIX@/@DLITE_TEMPLATE_DIRS@"
-#define DLITE_STORAGE_PLUGIN_DIRS \
-  "@CMAKE_INSTALL_PREFIX@/@DLITE_STORAGE_PLUGIN_DIRS@"
-#define DLITE_MAPPING_PLUGIN_DIRS \
-  "@CMAKE_INSTALL_PREFIX@/@DLITE_MAPPING_PLUGIN_DIRS@"
-#define DLITE_PYTHON_STORAGE_PLUGIN_DIRS \
-  "@CMAKE_INSTALL_PREFIX@/@DLITE_PYTHON_STORAGE_PLUGIN_DIRS@"
-#define DLITE_PYTHON_MAPPING_PLUGIN_DIRS \
-  "@CMAKE_INSTALL_PREFIX@/@DLITE_PYTHON_MAPPING_PLUGIN_DIRS@"
-#define DLITE_STORAGES \
-  "@CMAKE_INSTALL_PREFIX@/@DLITE_STORAGES@"
+/* Installation directories relative to DLITE_ROOT */
+#define DLITE_INCLUDE_DIRS               "@DLITE_INCLUDE_DIRS@"
+#define DLITE_LIBRARY_DIR                "@DLITE_LIBRARY_DIR@"
+#define DLITE_RUNTIME_DIR                "@DLITE_RUNTIME_DIR@"
+#define DLITE_PYTHONPATH                 "@DLITE_PYTHONPATH@"
+#define DLITE_STORAGE_PLUGIN_DIRS        "@DLITE_STORAGE_PLUGIN_DIRS@"
+#define DLITE_MAPPING_PLUGIN_DIRS        "@DLITE_MAPPING_PLUGIN_DIRS@"
+#define DLITE_PYTHON_STORAGE_PLUGIN_DIRS "@DLITE_PYTHON_STORAGE_PLUGIN_DIRS@"
+#define DLITE_PYTHON_MAPPING_PLUGIN_DIRS "@DLITE_PYTHON_MAPPING_PLUGIN_DIRS@"
+#define DLITE_TEMPLATE_DIRS              "@DLITE_TEMPLATE_DIRS@"
+#define DLITE_STORAGES                   "@DLITE_STORAGES@"
+
 
 /* built-in storage plugins */
 #cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
-#cmakedefine WITH_POSTGRESQL
 
 /* available bindings */
 #cmakedefine WITH_PYTHON
@@ -39,6 +46,5 @@
  /* do not warn about fully valid use of alingof() */
  #pragma warning(disable:4116)
 #endif
-
 
 #endif /* _DLITE_CONFIG_H */

@@ -31,7 +31,9 @@
 
 /** @cond SKIP */
 
+#ifndef HAVE_STDINT_H
 #cmakedefine HAVE_STDINT_H
+#endif
 
 #cmakedefine HAVE_UINT8_T
 #cmakedefine HAVE_UINT16_T

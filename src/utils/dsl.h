@@ -1,4 +1,9 @@
-/* dsl -- dynamic shared libraries */
+/* dsl.h -- dynamic shared libraries
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _DSL_H
 #define _DSL_H
 
@@ -108,7 +113,7 @@
 
 typedef void * dsl_handle;
 
-#define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY))
+#define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY | RTLD_GLOBAL))
 #define dsl_sym(handle, symbol)    ((void *)dlsym((void *)(handle), symbol))
 #define dsl_error()                ((const char *)dlerror())
 #define dsl_close(handle)          ((int)dlclose((void *)(handle)))
@@ -119,10 +124,19 @@ typedef void * dsl_handle;
 
 #include <windows.h>
 
+/* Get rid of warnings about strerror() being deprecated on VS */
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable: 4996)
+
 typedef HMODULE dsl_handle;
 
-#define dsl_open(filename) \
+/*
+#define dsl_open(filename)                            \
   ((dsl_handle)LoadLibrary((LPCTSTR)(filename)))
+*/
+#define dsl_open(filename)                                      \
+  ((dsl_handle)LoadLibraryExA((LPCTSTR)(filename), NULL,        \
+                              LOAD_LIBRARY_SEARCH_USER_DIRS))
 #define dsl_sym(handle, symbol) \
   ((void *)GetProcAddress((HMODULE)(handle), (LPCSTR)(symbol)))
 #define dsl_close(handle) \

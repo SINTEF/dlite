@@ -71,6 +71,7 @@
 #include "utils/boolean.h"
 #include "triplestore.h"
 
+
 /** Expands to the struct alignment of type */
 #define alignof(type) ((size_t)&((struct { char c; type d; } *)0)->d)
 
@@ -83,7 +84,6 @@
 typedef struct _DLiteProperty  DLiteProperty;
 typedef struct _DLiteDimension DLiteDimension;
 typedef struct _Triplet        DLiteRelation;
-
 
 
 /** Basic data types */
@@ -102,8 +102,24 @@ typedef enum _DLiteType {
 } DLiteType;
 
 
+/** Function prototype that copies value from `src` to `dest`.  If
+    `dest_type` and `dest_size` differs from `src_type` and `src_size`
+    the value will be casted, if possible.
+
+    If `dest_type` contains allocated data, new memory should be
+    allocated for `dest`.  Information may get lost in this case.
+
+    Returns non-zero on error or if the cast is not supported. */
+typedef int
+(*DLiteTypeCast)(void *dest, DLiteType dest_type, size_t dest_size,
+                 const void *src, DLiteType src_type, size_t src_size);
+
+
+#include "dlite-type-cast.h"
+
+
 /**
-  Returns descriptive name for \a dtype or NULL on error.
+  Returns descriptive name for `dtype` or NULL on error.
 */
 const char *dlite_type_get_dtypename(DLiteType dtype);
 
@@ -113,16 +129,30 @@ const char *dlite_type_get_dtypename(DLiteType dtype);
 const char *dlite_type_get_enum_name(DLiteType dtype);
 
 /**
-  Returns the dtype corresponding to \a dtypename or -1 on error.
+  Returns the dtype corresponding to `dtypename` or -1 on error.
 */
 DLiteType dlite_type_get_dtype(const char *dtypename);
 
 /**
-  Writes the type name corresponding to \a dtype and \a size to \a typename,
-  which must be of size \a n.  Returns non-zero on error.
+  Writes the type name corresponding to `dtype` and `size` to `typename`,
+  which must be of size `n`.  Returns non-zero on error.
 */
 int dlite_type_set_typename(DLiteType dtype, size_t size,
                             char *typename, size_t n);
+
+/*
+  Writes the fortran type name corresponding to `dtype` and `size` to
+  `typename`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_ftype(DLiteType dtype, size_t size,
+                         char *ftype, size_t n);
+
+/*
+  Writes the Fortran ISO_C_BINDING type name corresponding to `dtype` and
+  `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_isoctype(DLiteType dtype, size_t size,
+                            char *isoctype, size_t n);                         
 
 /**
   Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
@@ -146,14 +176,14 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
 bool dlite_is_type(const char *name);
 
 /**
-  Assigns \a dtype and \a size from \a typename.  Returns non-zero on error.
+  Assigns `dtype` and `size` from `typename`.  Returns non-zero on error.
 */
 int dlite_type_set_dtype_and_size(const char *typename,
                                   DLiteType *dtype, size_t *size);
 
 
 /**
-  Returns non-zero id `dtype` contains allocated data, like dliteStringPtr.
+  Returns non-zero if `dtype` contains allocated data, like dliteStringPtr.
  */
 int dlite_type_is_allocated(DLiteType dtype);
 
@@ -205,13 +235,51 @@ size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset);
 
 
 /**
-  Returns the offset the current struct member with dtype \a dtype and
-  size \a size.  The offset of the previous struct member is \a prev_offset
-  and its size is \a prev_size.
+  Returns the offset the current struct member with dtype `dtype` and
+  size `size`.  The offset of the previous struct member is `prev_offset`
+  and its size is `prev_size`.
 
   Returns -1 on error.
  */
 int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
                                  DLiteType dtype, size_t size);
+
+
+/**
+  Copies n-dimensional array `src` to `dest` by calling `castfun` on
+  each element.  `dest` must have sufficient size to hold the result.
+
+  If either `dest_strides` or `src_strides`  are NULL, the memory is
+  assumed to be C-contiguous.
+
+  This function is rather general function that allows `src` and
+  `dest` to have different type and memory layout.  By e.g. inverting
+  the order of `dest_dims` and `dest_strides` you can copy an
+  n-dimensional array from C to Fortran order.
+
+  Arguments:
+    - ndims: Number of dimensions for both source and destination.
+          Zero means scalar.
+    - dest: Pointer to destination memory.  It must be large enough.
+    - dest_type: Destination data type
+    - dest_size: Size of each element in destination
+    - dest_dims: Destination dimensions.  Length: `ndims`, required if ndims > 0
+    - dest_strides: Destination strides.  Length: `ndims`, optional
+    - src: Pointer to source memory.
+    - src_type: Source data type.
+    - src_size: Size of each element in source.
+    - src_dims: Source dimensions.  Length: `ndims`, required if ndims > 0
+    - src_strides: Source strides.  Length: `ndims`, optional
+    - castfun: Function that is doing the actually casting. Called on each
+          element.
+
+  Returns non-zero on error.
+*/
+int dlite_type_ndcast(int ndims,
+                      void *dest, DLiteType dest_type, size_t dest_size,
+                      const size_t *dest_dims, const int *dest_strides,
+                      const void *src, DLiteType src_type, size_t src_size,
+                      const size_t *src_dims, const int *src_strides,
+                      DLiteTypeCast castfun);
 
 #endif /* _DLITE_TYPES_H */

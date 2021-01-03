@@ -1,5 +1,9 @@
-/* infix-calc.c -- simple infix calculator for integer arithmetic */
-
+/* infix-calc.c -- simple infix calculator for integer arithmetic
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -51,6 +55,13 @@
 typedef enum {
   opParentOpen  = '(',
   opParentClose = ')',
+  //opCond        = '?',
+  opLOr         = '|',
+  opLAnd        = '&',
+  opEq          = '=',
+  opNeq         = '!',
+  opGreater     = '>',
+  opSmaller     = '<',
   opPlus        = '+',
   opMinus       = '-',
   opTimes       = '*',
@@ -76,9 +87,9 @@ typedef struct {
 
 /* Stack */
 typedef struct {
-  size_t len;
-  size_t size;
-  int *items;
+  size_t len;   /* number of items in the stack */
+  size_t size;  /* allocated stack size */
+  int *items;   /* array of items */
 } Stack;
 
 typedef struct {
@@ -90,12 +101,19 @@ typedef struct {
 static const OpInfo _opinfo[] = {
   {'(', 0, 0},
   {')', 0, 0},
-  {'+', 1, 2},
-  {'-', 1, 2},
-  {'*', 2, 2},
-  {'/', 2, 2},
-  {'%', 2, 2},
-  {'^', 3, 2},
+  //{'?', 1, 3},  /* condition */
+  {'|', 1, 2},  /* logical or */
+  {'&', 2, 2},  /* logical and */
+  {'=', 3, 2},  /* equal */
+  {'!', 4, 2},  /* not equal */
+  {'>', 5, 2},  /* greater than */
+  {'<', 5, 2},  /* smaller than */
+  {'+', 6, 2},  /* addition */
+  {'-', 6, 2},  /* subtraction */
+  {'*', 7, 2},  /* multiplication */
+  {'/', 7, 2},  /* division */
+  {'%', 7, 2},  /* module */
+  {'^', 8, 2},  /* power */
   {0, 0, 0}
 };
 
@@ -116,10 +134,9 @@ static const OpInfo *get_opinfo(Operator op)
    Variables must be valid C identifiers. */
 static const InfixCalcVariable *get_variable(const char *str,
                                              const InfixCalcVariable *vars,
-                                             int nvars)
+                                             size_t nvars)
 {
-  int i;
-  size_t n=0;
+  size_t i, n=0;
 
   if (!vars) return NULL;
 
@@ -169,6 +186,12 @@ static int poll(Stack *stack)
 static int binary_eval(Operator op, int arg1, int arg2)
 {
   switch (op) {
+  case '|':  return arg1 || arg2;
+  case '&':  return arg1 && arg2;
+  case '=':  return arg1 == arg2;
+  case '!':  return arg1 != arg2;
+  case '>':  return arg1 > arg2;
+  case '<':  return arg1 < arg2;
   case '+':  return arg1 + arg2;
   case '-':  return arg1 - arg2;
   case '*':  return arg1 * arg2;
@@ -190,7 +213,7 @@ static int binary_eval(Operator op, int arg1, int arg2)
    On error, -1 is returned.
 */
 static int parse_token(const char *str, TokenValue *val,
-                       const InfixCalcVariable *vars, int nvars)
+                       const InfixCalcVariable *vars, size_t nvars)
 {
   const OpInfo *opinfo;
   const InfixCalcVariable *var;
@@ -200,7 +223,7 @@ static int parse_token(const char *str, TokenValue *val,
     char *endptr;
     val->type = typeVal;
     val->u.val = strtol(str, &endptr, 0);
-    return endptr - str;
+    return (int)(endptr - str);
 
   } else if ((opinfo = get_opinfo(str[0]))) {
     val->type = typeOp;
@@ -210,7 +233,7 @@ static int parse_token(const char *str, TokenValue *val,
   } else if ((var = get_variable(str, vars, nvars))) {
     val->type = typeVal;
     val->u.val = var->value;
-    return strlen(var->name);
+    return (int)strlen(var->name);
   }
 
   return -1;
@@ -220,7 +243,7 @@ static int parse_token(const char *str, TokenValue *val,
   `vstack` and and push the result back onto `vstack`.
 
   Returns non-zero on error and write an message to `err`. */
-static int eval(Operator op, Stack *vstack, char *err, int errlen)
+static int eval(Operator op, Stack *vstack, char *err, size_t errlen)
 {
   const OpInfo *opinfo = get_opinfo(op);
   int value;
@@ -286,8 +309,14 @@ int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
         push(&ostack, token.u.op);
         break;
       case ')':
-        while ((op = pop(&ostack)) != '(')
+        while ((op = pop(&ostack)) != '(') {
+          if (!ostack.len) {
+            snprintf(err, errlen,
+                     "missing start parenthesis in expression \"%s\"", expr);
+            goto fail;
+          }
           if (eval(op, &vstack, err, errlen)) goto fail;
+        }
         break;
       default:
         opinfo = get_opinfo(token.u.op);
@@ -325,4 +354,22 @@ int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
   if (vstack.size) free(vstack.items);
   if (ostack.size) free(ostack.items);
   return result;
+}
+
+
+
+/*
+  Returns non-zero if variable `varname` is in expression `expr`.
+ */
+int infixcalc_depend(const char *expr, const char *varname)
+{
+  const char *p = expr;
+  while ((p = strstr(p, varname))) {
+    const char *q = p;
+    p += strlen(varname);
+    if (q > expr && (isalnum(q[-1]) || q[-1] == '_')) continue;
+    if (isalnum(p[0]) || p[0] == '_') continue;
+    return 1;
+  }
+  return 0;
 }

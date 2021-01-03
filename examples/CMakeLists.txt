@@ -4,8 +4,9 @@ project(dlite-examples)
 #
 # Macro for testing examples
 # --------------------------
-# It adds a set for tests for each example that essentially runs the
-# following set of commands (here shown using unix makefiles):
+# It adds some tests for each example that essentially runs the
+# standard configure/build/test sequence of commands (here shown using
+# unix makefiles):
 #
 #      mkdir build                            (ex-mkdir)
 #      cd build
@@ -17,17 +18,17 @@ project(dlite-examples)
 macro(test_example example)
   add_test(
     NAME ${example}-mkdir
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${example}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND}
+      -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${example}
     )
   add_test(
     NAME ${example}-config
     COMMAND ${CMAKE_COMMAND}
       -G ${CMAKE_GENERATOR}
-      -DDLITE_ROOT=${CMAKE_INSTALL_PREFIX}
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+      -DDLITE_ROOT=${DLITE_ROOT}
       $<$<BOOL:${CMAKE_TOOLCHAIN_FILE}>:${CMAKE_TOOLCHAIN_FILE}>
       ${CMAKE_CURRENT_SOURCE_DIR}/${example}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${example}

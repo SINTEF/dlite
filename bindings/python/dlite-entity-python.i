@@ -85,9 +85,10 @@ def standardise(v, asdict=True):
     def __repr__(self):
         dims = ', dims=%r' % self.dims.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
+        iri = ', iri=%r' % self.iri if self.iri else ''
         descr = ', description=%r' %self.description if self.description else ''
-        return 'Property(%r, type=%r%s%s%s)' % (
-            self.name, self.type, dims, unit, descr)
+        return 'Property(%r, type=%r%s%s%s%s)' % (
+            self.name, self.type, dims, unit, iri, descr)
 
     def asdict(self):
         """Returns a dict representation of self."""
@@ -98,6 +99,8 @@ def standardise(v, asdict=True):
             d['dims'] = self.dims.tolist()
         if self.unit:
             d['unit'] = self.unit
+        if self.iri:
+            d['iri'] = self.iri
         if self.description:
             d['description'] = self.description
         return d
@@ -106,6 +109,7 @@ def standardise(v, asdict=True):
         """Returns a representation of self as a tuple of strings."""
         return (self.name, self.type, ','.join(str(d) for d in self.dims),
                 '' if self.unit is None else self.unit,
+                '' if self.iri is None else self.iri,
                 '' if self.description is None else self.description)
 
     type = property(get_type, doc='Type name.')
@@ -143,7 +147,7 @@ def standardise(v, asdict=True):
 %extend _DLiteInstance {
 
   int __len__(void) {
-    return $self->meta->nproperties;
+    return (int)$self->meta->_nproperties;
   }
 
   %newobject __repr__;
@@ -166,6 +170,8 @@ def standardise(v, asdict=True):
 
   %pythoncode %{
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
+    iri = property(get_iri, set_iri,
+                   doc="Unique IRI to corresponding concept in an ontology.")
     dimensions = property(
         lambda self: OrderedDict((d.name, int(v))
                                  for d, v in zip(self.meta['dimensions'],
@@ -265,24 +271,15 @@ def standardise(v, asdict=True):
         d['meta'] = self.meta.uri
         if self.uri:
             d['uri'] = self.uri
+        if self.iri:
+            d['iri'] = self.iri
         if self.is_meta:
             d['name'] = self['name']
             d['version'] = self['version']
             d['namespace'] = self['namespace']
             d['description'] = self['description']
             d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
-            #
-            # FIXME: property dimensions should be strings, and not indices
-            # into the dimension values.
-            #d['properties'] = [p.asdict() for p in self['properties']]
-            dimnames = list(self.dimensions.keys())
-            props = []
-            for prop in self['properties']:
-                 p = prop.asdict()
-                 if 'dims' in p:
-                     p['dims'] = [dimnames[i] for i in p['dims']]
-                 props.append(p)
-            d['properties'] = props
+            d['properties'] = [p.asdict() for p in self['properties']]
         else:
             d['dimensions'] = self.dimensions
             d['properties'] = {k: standardise(v)

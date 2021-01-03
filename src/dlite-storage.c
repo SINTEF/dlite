@@ -7,6 +7,8 @@
 #include "utils/err.h"
 #include "utils/fileutils.h"
 
+#include "config-paths.h"
+
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
@@ -14,36 +16,41 @@
 #include "getuuid.h"
 
 
+/** Iterator over dlite storage paths. */
+struct _DLiteStoragePathIter {
+  FUIter *pathiter;
+};
+
 
 /********************************************************************
  * Public api
  ********************************************************************/
 
 /*
-  Opens a storage located at `uri` using `driver`.
+  Opens a storage located at `location` using `driver`.
   Returns a opaque pointer or NULL on error.
 
   The `options` are passed to the driver.
  */
-DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
+DLiteStorage *dlite_storage_open(const char *driver, const char *location,
                                  const char *options)
 {
   const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
-  if (!uri) FAIL("missing uri");
-  if (!driver || !*driver) driver = fu_fileext(uri);
+  if (!location) FAIL("missing location");
+  if (!driver || !*driver) driver = fu_fileext(location);
   if (!driver || !*driver) FAIL("missing driver");
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
-  if (!(storage = api->open(api, uri, options))) goto fail;
+  if (!(storage = api->open(api, location, options))) goto fail;
   storage->api = api;
-  if (!(storage->uri = strdup(uri))) FAIL(NULL);
-  if (options && !(storage->options = strdup(options))) FAIL(NULL);
-  storage->idflag = dliteIDTranslateToUUID;
+  if (!(storage->location = strdup(location))) FAIL(NULL);
+  if (options && !(storage->options = strdup(options))) FAIL(NULL);  
 
   return storage;
  fail:
   if (storage) free(storage);
+  err_update_eval(dliteStorageOpenError);
   return NULL;
 }
 
@@ -82,7 +89,7 @@ int dlite_storage_close(DLiteStorage *s)
   int stat;
   assert(s);
   stat = s->api->close(s);
-  free(s->uri);
+  free(s->location);
   if (s->options) free(s->options);
   free(s);
   return stat;
@@ -162,7 +169,7 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
 {
   char **p = NULL;
-  if (s->api->iterCreate && s->api->iterCreate && s->api->iterCreate) {
+  if (s->api->iterCreate && s->api->iterNext && s->api->iterFree) {
     char buf[DLITE_UUID_LENGTH+1];
     void *iter = s->api->iterCreate(s, pattern);
     int n=0, len=0;
@@ -176,7 +183,8 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
     }
     s->api->iterFree(iter);
     if (p) {
-      p = realloc(p, (n+1)*sizeof(char *));
+      if (!(p = realloc(p, (n+1)*sizeof(char *))))
+        return err(1, "allocation failure"), NULL;
       p[n] = NULL;
     }
   } else if (s->api->getUUIDs)
@@ -224,26 +232,33 @@ const char *dlite_storage_get_driver(const DLiteStorage *s)
  *******************************************************************/
 static FUPaths *_storage_paths = NULL;
 
+/* Returns referance to storage paths */
+FUPaths *dlite_storage_paths(void)
+{
+  if (!_storage_paths) {
+    if (!(_storage_paths = calloc(1, sizeof(FUPaths))))
+      return err(1, "allocation failure"), NULL;
+    fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
+    fu_paths_set_platform(_storage_paths, dlite_get_platform());
+    atexit(dlite_storage_paths_free);
+
+    if (dlite_use_build_root())
+      fu_paths_extend(_storage_paths, dlite_STORAGES, "|");
+    else
+      fu_paths_extend_prefix(_storage_paths, dlite_root_get(),
+                             DLITE_STORAGES, "|");
+  }
+  return _storage_paths;
+}
+
 /* Free's up and reset storage paths */
-void storage_paths_free(void)
+void dlite_storage_paths_free(void)
 {
   if (_storage_paths) {
     fu_paths_deinit(_storage_paths);
     free(_storage_paths);
   }
   _storage_paths = NULL;
-}
-
-/* Returns referance to storage paths */
-FUPaths *storage_paths_get(void)
-{
-  if (!_storage_paths) {
-    if (!(_storage_paths = calloc(1, sizeof(FUPaths))))
-      return err(1, "allocation failure"), NULL;
-    fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
-    atexit(storage_paths_free);
-  }
-  return _storage_paths;
 }
 
 /*
@@ -254,7 +269,7 @@ FUPaths *storage_paths_get(void)
  */
 int dlite_storage_paths_insert(int n, const char *path)
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_insert(paths, path, n);
 }
 
@@ -265,7 +280,7 @@ int dlite_storage_paths_insert(int n, const char *path)
  */
 int dlite_storage_paths_append(const char *path)
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_append(paths, path);
 }
 
@@ -277,7 +292,7 @@ int dlite_storage_paths_append(const char *path)
  */
 int dlite_storage_paths_remove(int n)
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_remove(paths, n);
 }
 
@@ -291,6 +306,52 @@ int dlite_storage_paths_remove(int n)
  */
 const char **dlite_storage_paths_get()
 {
-  FUPaths *paths = storage_paths_get();
+  FUPaths *paths = dlite_storage_paths();
   return fu_paths_get(paths);
+}
+
+/*
+  Returns an iterator over all files in storage paths (with glob
+  patterns in paths expanded).
+
+  Returns NULL on error.
+
+  Should be used together with dlite_storage_path_iter_next() and
+  dlite_storage_path_iter_stop().
+ */
+DLiteStoragePathIter *dlite_storage_paths_iter_start()
+{
+  DLiteStoragePathIter *iter=NULL;
+  if (!(iter = calloc(1, sizeof(DLiteStoragePathIter))))
+    return err(1, "Allocation failure"), NULL;
+  if (!(iter->pathiter = fu_pathsiter_init(dlite_storage_paths(), NULL))) {
+    free(iter);
+    return err(1, "Failure initiating storage path iterator"), NULL;
+  }
+  return iter;
+}
+
+/*
+  Returns name of the next file in the iterator `iter` created with
+  dlite_storage_paths_iter_start() or NULL if there are no more matches.
+
+  @note
+  The returned string is owned by the iterator. It will be overwritten
+  by the next call to fu_nextmatch() and should not be changed.  Use
+  strdup() or strncpy() if a copy is needed.
+ */
+const char *dlite_storage_paths_iter_next(DLiteStoragePathIter *iter)
+{
+  return fu_pathsiter_next(iter->pathiter);
+}
+
+/*
+  Stops and deallocates iterator created with dlite_storage_paths_iter_start().
+ */
+int dlite_storage_paths_iter_stop(DLiteStoragePathIter *iter)
+{
+  int stat;
+  stat = fu_pathsiter_deinit(iter->pathiter);
+  free(iter);
+  return stat;
 }

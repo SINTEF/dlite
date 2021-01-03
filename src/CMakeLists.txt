@@ -11,6 +11,9 @@ endif()
 # -----------------
 configure_file(config.h.in config.h)
 
+include(dliteGenEnv)
+dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)
+
 
 #-----------------------------------------------------
 # Compile library
@@ -22,6 +25,7 @@ set(sources
   dlite-misc.c
   dlite-store.c
   dlite-type.c
+  dlite-type-cast.c
   dlite-arrays.c
   dlite-datamodel.c
   dlite-schemas.c
@@ -33,6 +37,7 @@ set(sources
   dlite-mapping.c
   dlite-mapping-plugins.c
   dlite-codegen.c
+  dlite-getlicense.c
   getuuid.c
   triplestore.c
   )
@@ -48,8 +53,23 @@ add_definitions(
 # library search (especially on Windows), the storage plugins will use
 # the static libraries.  For this to work, the static libraries will be
 # build position independent.
-add_library(dlite SHARED ${sources})
-add_library(dlite-static STATIC ${sources})
+#
+# FIXME
+# Linking storage plugins against static libraries is a VERY BAD IDEA!
+# It will create independent copies of global variables in the main
+# application and the storage plugins and break the uniqueness of
+# entities, mess up errors, +++.
+# We have to implement a robust way to find shared libraries on Windows,
+# probably by appending to the PATH environment variable before loading
+# any storage or mapping plugin.
+add_library(dlite SHARED
+  ${sources}
+  ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
+  )
+add_library(dlite-static STATIC
+  ${sources}
+  ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
+  )
 
 target_link_libraries(dlite
   dlite-utils
@@ -78,8 +98,26 @@ set_target_properties(dlite-static PROPERTIES
 
 #set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+
+## Generate dlite_get_license.c
+add_executable(gencfile utils/gencfile.c)
+add_custom_command(
+  OUTPUT dlite-getlicense.c
+  COMMAND $<TARGET_FILE:gencfile>
+    dlite_get_license
+    ${CMAKE_CURRENT_BINARY_DIR}/dlite-getlicense.c
+    ${dlite_SOURCE_DIR}/LICENSE
+    ${dlite-src-utils_SOURCE_DIR}/LICENSES.txt
+  DEPENDS
+    gencfile
+    ${dlite_SOURCE_DIR}/LICENSE
+    ${dlite-src-utils_SOURCE_DIR}/LICENSES.txt
+  COMMENT "Generating dlite-getlicense.c"
+)
+
+
 ## create list of headers to install from ${sources}
-set(headers dlite.h)
+set(headers dlite.h dlite-errors.h)
 foreach(source ${sources})
   string(REPLACE ".c" ".h" header ${source})
   list(APPEND headers ${header})
@@ -96,6 +134,7 @@ install(
   PUBLIC_HEADER DESTINATION include/dlite
   INCLUDES DESTINATION include/dlite
 )
+
 
 # Install empty directories
 install(DIRECTORY DESTINATION share/dlite/storages)

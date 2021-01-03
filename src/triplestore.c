@@ -173,10 +173,12 @@ TripleStore *triplestore_create_external(Triplet **p, size_t *lenp,
   if (p) {
     ts->triplets = *p;
     if (*p) {
-      if (!lenp)
+      if (!lenp) {
+        free(ts);
         return errx(1, "in triplestore_create_external(): `lenp`, the number "
                     "of external triplets must be provided if `*p` is not "
                     "NULL"), NULL;
+      }
       ts->length = ts->true_length = ts->size = *lenp;
     }
   }

@@ -12,7 +12,7 @@ add_definitions(
   )
 
 add_library(dlite-pyembed SHARED ${sources})
-add_library(dlite-pyembed-static SHARED ${sources})
+add_library(dlite-pyembed-static STATIC ${sources})
 
 target_link_libraries(dlite-pyembed
   dlite
@@ -57,10 +57,6 @@ set_target_properties(dlite-pyembed-static PROPERTIES
   PUBLIC_HEADER "dlite-pyembed.h;dlite-python-mapping.h"
   )
 
-#set_target_properties(_dlite PROPERTIES
-#  BUILD_RPATH ${dlite-bindings-python_BINARY_DIR}
-#  )
-
 install(
   TARGETS dlite-pyembed dlite-pyembed-static
   EXPORT  dliteTargets
@@ -71,12 +67,5 @@ install(
   INCLUDES DESTINATION include/dlite/pyembed
 
 )
-
-install(
-  DIRECTORY python-mapping-plugins
-  DESTINATION share/dlite
-  PATTERN "*~" EXCLUDE
-  )
-
 
 add_subdirectory(tests)

@@ -3,8 +3,10 @@
 
 set(tests
   test_misc
+  test_type
   test_storage
   test_entity
+  test_metamodel
   test_store
   test_triplestore
   test_collection
@@ -26,7 +28,8 @@ endif()
 
 
 add_definitions(
-  -DDLITE_ROOT=${dlite_SOURCE_DIR}
+  -Ddlite_SOURCE_DIR=${dlite_SOURCE_DIR}
+  -Ddlite_BINARY_DIR=${dlite_BINARY_DIR}
   -DDLITE_BINARY_ROOT=${dlite_BINARY_DIR}
   )
 
@@ -51,22 +54,12 @@ foreach(test ${tests})
     )
 
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH}")
+    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH}")
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
-    "DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT
-     "DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
+    ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
 
 endforeach()

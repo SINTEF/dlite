@@ -991,6 +991,7 @@ scandir(
     /* Release allocated memory on error */
     if (result < 0) {
         for (i = 0; i < size; i++) {
+          if (files && files[i])
             free (files[i]);
         }
         free (files);
@@ -1098,14 +1099,14 @@ dirent_mbstowcs_s(
         /* Pointer to string to convert */ mbstr,
         /* Size of multi-byte string */ (int) len,
         /* Pointer to output buffer */ wcstr,
-        /* Size of output buffer */ sizeInWords - 1
+        /* Size of output buffer */ (int)(sizeInWords - 1)
     );
 
     /* Ensure that output buffer is zero-terminated */
     wcstr[n] = '\0';
 
     /* Return length of wide-character string with zero-terminator */
-    *pReturnValue = (size_t) (n + 1);
+    *pReturnValue = (size_t)n + 1;
 
     /* Return zero if conversion succeeded */
     if (n > 0) {
@@ -1179,7 +1180,7 @@ dirent_wcstombs_s(
         /* Pointer to unicode string */ wcstr,
         /* Length of unicode string */ (int) len,
         /* Pointer to output buffer */ mbstr,
-        /* Size of output buffer */ sizeInBytes - 1,
+        /* Size of output buffer */ (int)(sizeInBytes - 1),
         /* Default character */ NULL,
         /* Whether default character was used or not */ pflag
     );
@@ -1188,7 +1189,7 @@ dirent_wcstombs_s(
     mbstr[n] = '\0';
 
     /* Return length of multi-byte string with zero-terminator */
-    *pReturnValue = (size_t) (n + 1);
+    *pReturnValue = (size_t)n + 1;
 
     /* Return zero if conversion succeeded without using default characters */
     if (n > 0  &&  flag == 0) {

@@ -1,4 +1,8 @@
-/* error.c -- simple error reporting
+/* err.c -- simple error reporting library
+ *
+ * Copyright (C) 2010-2020 SINTEF
+ *
+ * Distributed under terms of the MIT license.
  */
 #include <assert.h>
 #include <stdio.h>
@@ -28,35 +32,45 @@ static const char *err_prefix = "";
 static FILE *err_stream = err_default_stream;
 
 /* Indicate wheter the error functions should return, exit or about.
- *   - err_abort_mode >= 2: abort
- *   - err_abort_mode == 1: exit (with error value)
- *   - err_abort_mode == 0: normal return
- *   - err_abort_mode < 0:  check ERR_ABORT environment variable (default)*/
-static int err_abort_mode = -1;
+ * If negative (default), check the environment. */
+static _tls ErrAbortMode err_abort_mode = -1;
+
+/* Indicate whether warnings should be turned into errors.
+ * If negative (default), check the environment. */
+static _tls ErrWarnMode err_warn_mode = -1;
 
 /* Indicates whether error messages should include debugging info.
- *   - err_debug_mode >= 2:  include file and line number and function
- *   - err_debug_mode == 1:  include file and line number
- *   - err_debug_mode == 0:  no debugging info
- *   - err_debug_mode < 0:   check ERR_DEBUG environment variable */
-static int err_debug_mode = -1;
+ * If negative (default), check the environment. */
+static _tls ErrDebugMode err_debug_mode = -1;
 
 /* How to handle overridden errors in  ErrTry clauses.
- *   - err_override >= 4:  ignore new error
- *   - err_override == 3:  ignore old error
- *   - err_override == 2:  ignore new error and write warning to error stream
- *   - err_override == 1:  ignore old error and write warning to error stream
- *   - err_override == 0:  append to previous error
- *   - err_override < 0:   check ERR_OVERRIDE environment variable */
-static int err_override = -1;
+ * If negative (default), check the environment. */
+static _tls ErrOverrideMode err_override = -1;
 
 /* Error handler */
-//static void err_default_handler(const ErrRecord *record);
 static ErrHandler err_handler = err_default_handler;
 
-/* Tread-local variables */
+/* Error records
+ * Hold the latest error and message. These are thread-local to ensure
+ * that errors in different threads doesn't mess up with each other. */
+
+/* Root of the linked list of error records. */
 static _tls ErrRecord err_root_record;
+
+/* Pointer to the top level record. */
 static _tls ErrRecord *err_record = &err_root_record;
+
+/* Separator between appended errors */
+static char *err_append_sep = "\n - ";
+
+/* Error names */
+static char *error_names[] = {
+  "Success",
+  "Warning",
+  "Error",
+  "Exception",
+  "Fatal"
+};
 
 
 /* Reports the error and returns `eval`.  Args:
@@ -68,46 +82,71 @@ static _tls ErrRecord *err_record = &err_root_record;
  *  msg     : error message
  *  ap      : printf()-like argument list for error message
  */
-int _err_vformat(const char *errname, int eval, int errnum, const char *file,
+int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 		 const char *func, const char *msg, va_list ap)
 {
   int n=0;
+  char *errname = error_names[errlevel];
   char *errmsg = err_record->msg;
   size_t errsize = sizeof(err_record->msg);
   FILE *stream = err_get_stream();
-  int debug_mode = err_get_debug_mode();
-  int abort_mode = err_get_abort_mode();
-  int override = err_get_override_mode();
+  ErrDebugMode debug_mode = err_get_debug_mode();
+  ErrAbortMode abort_mode = err_get_abort_mode();
+  ErrWarnMode warn_mode = err_get_warn_mode();
+  ErrOverrideMode override = err_get_override_mode();
   int ignore_new_error = 0;
   ErrHandler handler = err_get_handler();
+  int call_handler = handler && !err_record->prev;
+
+  /* Check warning mode */
+  if (errlevel == errLevelWarn) {
+    switch (warn_mode) {
+    case errWarnNormal:
+      break;
+    case errWarnIgnore:
+      return 0;
+    case errWarnError:
+      errlevel = errLevelError;
+      errname = error_names[errlevel];
+      break;
+    default:  // should never be reached
+      assert(0);
+    }
+  }
 
   /* Handle overridden errors */
-  if (err_record->eval && err_record->prev && !err_record->handled) {
+  if (err_record->eval) {
     switch (override) {
-    case 0:
+    case errOverrideAppend:
       n = strlen(errmsg);
-      n += snprintf(errmsg + n, errsize - n, "\n");
+      n += snprintf(errmsg + n, errsize - n, "%s", err_append_sep);
       break;
-    case 1:
+    case errOverrideWarnOld:
       if (stream) fprintf(stream, "Warning: Overriding old error: '%s'\n",
                           err_record->msg);
       break;
-    case 2:
+    case errOverrideWarnNew:
       ignore_new_error = 1;
       if (stream) fprintf(stream, "Warning: Ignoring new error %d\n",
                           err_record->eval);
       break;
-    case 3:
+    case errOverrideOld:
       break;
-    case 4:
-    default:
+    case errOverrideIgnoreNew:
       ignore_new_error = 1;
+      break;
+    default:  // should never be reached
+      assert(0);
     }
   }
 
   /* Update the current error record */
+  err_record->level = errlevel;
+  err_record->eval = eval;
+  err_record->errnum = errnum;
+
+  /* Write error message */
   if (!ignore_new_error) {
-    err_record->eval = eval;
 
     if (err_prefix && *err_prefix)
       n += snprintf(errmsg + n, errsize - n, "%s: ", err_prefix);
@@ -127,111 +166,136 @@ int _err_vformat(const char *errname, int eval, int errnum, const char *file,
       n += vsnprintf(errmsg + n, errsize - n, msg, ap);
     if (errnum)
       n += snprintf(errmsg + n, errsize - n, ": %s", strerror(errnum));
-
     if (n >= (int)errsize && stream)
       fprintf(stream, "Warning: error %d truncated due to full message buffer",
               eval);
-
-    /* call the error handler */
-    if ((!err_record->prev || err_record->handled) && handler)
-      handler(err_record);
   }
 
+  /* If this error occured after the try clause in an ErrTry handler,
+     we mark this error to be reraised after leaving the handler. */
+  if (errlevel >= errLevelError && err_record->state)
+    err_record->reraise = eval;
+
+  /* call the error handler if we are not within a ErrTry...ErrEnd clause */
+  if (call_handler) handler(err_record);
+
   /* check err_abort_mode */
-  if (abort_mode == 1)
+  if (errlevel >= errLevelError) {
+    if (abort_mode == errAbortExit) {
+      if (!call_handler) handler(err_record);
+      exit(eval);
+    } else if (abort_mode >= errAbortAbort) {
+      if (!call_handler) handler(err_record);
+      abort();
+    }
+  }
+
+  /* fatal errors should never exit */
+  if (errlevel >= errLevelFatal) {
+    if (!call_handler) handler(err_record);
     exit(eval);
-  else if (abort_mode >= 2)
-    abort();
+  }
 
   return eval;
 }
 
-int _err_format(const char *errname, int eval, int errnum, const char *file,
+int _err_format(ErrLevel errlevel, int eval, int errnum, const char *file,
                 const char *func, const char *msg, ...)
 {
   va_list ap;
   va_start(ap, msg);
-  _err_vformat(errname, eval, errnum, file, func, msg, ap);
+  _err_vformat(errlevel, eval, errnum, file, func, msg, ap);
   va_end(ap);
   return eval;
 }
 
 #ifndef HAVE___VA_ARGS__
 
-#define BODY(errname, eval, errnum)                             \
+#define BODY(errlevel, eval, errnum)                            \
   do {								\
     va_list ap;							\
     va_start(ap, msg);						\
-    _err_vformat(errname, eval, errnum, NULL, NULL, msg, ap);	\
+    _err_vformat(errlevel, eval, errnum, NULL, NULL, msg, ap);	\
     va_end(ap);							\
   } while (0)
 
 
 void fatal(int eval, const char *msg,...)
 {
-  BODY("Fatal", eval, errno);
+  BODY(errLevelFatal, eval, errno);
   exit(eval);
 }
 
 void fatalx(int eval, const char *msg, ...)
 {
-  BODY("Fatal", eval, 0);
+  BODY(errLevelFatal, eval, 0);
   exit(eval);
 }
 
 int err(int eval, const char *msg, ...)
 {
-  BODY("Error", eval, errno);
+  BODY(errLevelError, eval, errno);
   return eval;
 }
 
 int errx(int eval, const char *msg, ...)
 {
-  BODY("Error", eval, 0);
+  BODY(errLevelError, eval, 0);
   return eval;
 }
 
 int warn(const char *msg, ...)
 {
-  BODY("Warning", 0, errno);
+  BODY(errLevelWarn, 0, errno);
   return 0;
 }
 
 int warnx(const char *msg, ...)
 {
-  BODY("Warning", 0, 0);
+  BODY(errLevelWarn, 0, 0);
   return 0;
+}
+
+int err_generic(int errlevel, int eval, int errnum, const char *msg, ...)
+{
+  BODY(errlevel, eval, errnum);
+  return eval;
 }
 
 
 void vfatal(int eval, const char *msg, va_list ap)
 {
-  exit(_err_vformat("Fatal", eval, errno, NULL, NULL, msg, ap));
+  exit(_err_vformat(errLevelFatal, eval, errno, NULL, NULL, msg, ap));
 }
 
 void vfatalx(int eval, const char *msg, va_list ap)
 {
-  exit(_err_vformat("Fatal", eval, 0, NULL, NULL, msg, ap));
+  exit(_err_vformat(errLevelFatal, eval, 0, NULL, NULL, msg, ap));
 }
 
 int verr(int eval, const char *msg, va_list ap)
 {
-  return _err_vformat("Error", eval, errno, NULL, NULL, msg, ap);
+  return _err_vformat(errLevelError, eval, errno, NULL, NULL, msg, ap);
 }
 
 int verrx(int eval, const char *msg, va_list ap)
 {
-  return _err_vformat("Error", eval, 0, NULL, NULL, msg, ap);
+  return _err_vformat(errLevelError, eval, 0, NULL, NULL, msg, ap);
 }
 
 int vwarn(const char *msg, va_list ap)
 {
-  return _err_vformat("Warning", 0, errno, NULL, NULL, msg, ap);
+  return _err_vformat(errLevelWarn, 0, errno, NULL, NULL, msg, ap);
 }
 
 int vwarnx(const char *msg, va_list ap)
 {
-  return _err_vformat("Warning", 0, 0, NULL, NULL, msg, ap);
+  return _err_vformat(errLevelWarn, 0, 0, NULL, NULL, msg, ap);
+}
+
+int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap)
+{
+  return _err_vformat(errlevel, eval, errnum, NULL, NULL, msg, ap);
 }
 
 #endif /* HAVE___VA_ARGS__ */
@@ -244,7 +308,13 @@ int err_geteval(void)
   return err_record->eval;
 }
 
-char *err_getmsg(void)
+int err_update_eval(int eval)
+{
+  if (err_record->eval) err_record->eval = eval;
+  return err_record->eval;
+}
+
+const char *err_getmsg(void)
 {
   return err_record->msg;
 }
@@ -252,8 +322,13 @@ char *err_getmsg(void)
 void err_clear(void)
 {
   errno = 0;
+  err_record->level = 0;
   err_record->eval = 0;
+  err_record->errnum = 0;
   err_record->msg[0] = '\0';
+  err_record->handled = 0;
+  err_record->reraise = 0;
+  err_record->state = 0;
 }
 
 const char *err_set_prefix(const char *prefix)
@@ -277,6 +352,7 @@ static int err_stream_atexit_called = 0;
 static void err_close_stream(void)
 {
   if (err_stream_opened) {
+    fflush(err_stream);
     fclose(err_stream);
     err_stream_opened = 0;
   }
@@ -318,70 +394,99 @@ FILE *err_get_stream(void)
   return err_stream;
 }
 
-int err_set_abort_mode(int mode)
+ErrAbortMode err_set_abort_mode(int mode)
 {
   int prev = err_abort_mode;
   err_abort_mode = mode;
   return prev;
 }
 
-int err_get_abort_mode(void)
+ErrAbortMode err_get_abort_mode(void)
 {
   if (err_abort_mode < 0) {
     char *mode = getenv("ERR_ABORT");
     if (!mode || !mode[0])
-      err_abort_mode = 0;
+      err_abort_mode = errAbortNormal;
     else if (strcasecmp(mode, "exit") == 0)
-      err_abort_mode = 1;
+      err_abort_mode = errAbortExit;
     else if (strcasecmp(mode, "abort") == 0)
-      err_abort_mode = 2;
+      err_abort_mode = errAbortAbort;
     else
       err_abort_mode = atoi(mode);
     if (err_abort_mode < 0) err_abort_mode = 0;
+    if (err_abort_mode > errAbortAbort) err_abort_mode = errAbortAbort;
   }
   return err_abort_mode;
 }
 
-int err_set_debug_mode(int mode)
+ErrWarnMode err_set_warn_mode(int mode)
+{
+  int prev = err_warn_mode;
+  err_warn_mode = mode;
+  return prev;
+}
+
+ErrWarnMode err_get_warn_mode()
+{
+  if (err_warn_mode < 0) {
+    char *mode = getenv("ERR_WARN");
+    if (!mode || !mode[0])
+      err_warn_mode = errWarnNormal;
+    else if (strcasecmp(mode, "ignore") == 0)
+      err_warn_mode = errWarnIgnore;
+    else if (strcasecmp(mode, "error") == 0)
+      err_warn_mode = errWarnError;
+    else
+      err_warn_mode = atoi(mode);
+    if (err_warn_mode < 0) err_warn_mode = errWarnNormal;
+    if (err_warn_mode > errWarnError) err_warn_mode = errWarnError;
+  }
+  return err_warn_mode;
+}
+
+ErrDebugMode err_set_debug_mode(int mode)
 {
   int prev = err_debug_mode;
   err_debug_mode = mode;
   return prev;
 }
 
-int err_get_debug_mode()
+ErrDebugMode err_get_debug_mode()
 {
   if (err_debug_mode < 0) {
     char *mode = getenv("ERR_DEBUG");
     err_debug_mode =
-      (!mode || !*mode) ? 0 :
-      (strcmp(mode, "debug") == 0) ? 1 :
-      (strcmp(mode, "full") == 0) ? 2 :
+      (!mode || !*mode)             ? errDebugOff :
+      (strcmp(mode, "debug") == 0)  ? errDebugSimple :
+      (strcmp(mode, "full") == 0)   ? errDebugFull :
       atoi(mode);
-    if (err_debug_mode < 0) err_debug_mode = 0;
+    if (err_debug_mode < 0) err_debug_mode = errDebugOff;
+    if (err_debug_mode > errDebugFull) err_debug_mode = errDebugFull;
   }
   return err_debug_mode;
 }
 
-int err_set_override_mode(int mode)
+ErrOverrideMode err_set_override_mode(int mode)
 {
   int prev = err_override;
   err_override = mode;
   return prev;
 }
 
-int err_get_override_mode()
+ErrOverrideMode err_get_override_mode()
 {
   if (err_override < 0) {
     char *mode = getenv("ERR_OVERRIDE");
     err_override =
-      (!mode || !*mode) ? 0 :
-      (strcmp(mode, "warn-old") == 0) ? 1 :
-      (strcmp(mode, "warn-new") == 0) ? 2 :
-      (strcmp(mode, "ignore-old") == 0) ? 3 :
-      (strcmp(mode, "ignore-new") == 0) ? 4 :
+      (!mode || !*mode)                 ? errOverrideAppend :
+      (strcmp(mode, "warn-old") == 0)   ? errOverrideWarnOld :
+      (strcmp(mode, "warn-new") == 0)   ? errOverrideWarnNew :
+      (strcmp(mode, "old") == 0)        ? errOverrideOld :
+      (strcmp(mode, "ignore-new") == 0) ? errOverrideIgnoreNew :
       atoi(mode);
-    if (err_override < 0) err_override = 0;
+    if (err_override < 0) err_override = errOverrideAppend;
+    if (err_override > errOverrideIgnoreNew)
+      err_override = errOverrideIgnoreNew;
   }
   return err_override;
 }
@@ -389,7 +494,7 @@ int err_get_override_mode()
 /* Default error handler. */
 static void _err_default_handler(const ErrRecord *record)
 {
-  if (err_stream) fprintf(err_stream, "%s\n", record->msg);
+  if (err_stream) fprintf(err_stream, "** %s\n", record->msg);
 }
 
 ErrHandler err_set_handler(ErrHandler handler)
@@ -430,35 +535,52 @@ void _err_unlink_record(ErrRecord *record)
   assert(record == err_record);
   assert(err_record->prev);
   err_record = record->prev;
-  if (record->eval && !record->handled) {
+  if (record->reraise || (record->eval && !record->handled)) {
+    int eval = (record->reraise) ? record->reraise : record->eval;
+    ErrAbortMode abort_mode = err_get_abort_mode();
+    int ignore_new = 0;
+    int n = 0;
 
-    if (record->eval) {
-      int debug_mode = err_debug_mode;
-      if (debug_mode < 0) {
-	char *mode = getenv("ERR_DEBUG_MODE");
-	debug_mode = (mode) ? atoi(mode) : 0;
+    if (err_record->eval) {
+      switch (err_get_override_mode()) {
+      case errOverrideEnv:
+      case errOverrideAppend:
+        n = strlen(err_record->msg);
+        strncat(err_record->msg+n, err_append_sep, ERR_MSGSIZE-n);
+        n += strlen(err_append_sep);
+        break;
+      case errOverrideWarnOld:
+        fprintf(stderr, "** Warning: overwriting old error: %s\n",
+                err_record->msg);
+        break;
+      case errOverrideWarnNew:
+        ignore_new = 1;
+        fprintf(stderr, "** Warning: ignoring error: %s\n", record->msg);
+        break;
+      case errOverrideOld:
+        break;
+      case errOverrideIgnoreNew:
+        ignore_new = 1;
+        break;
       }
-      if (debug_mode > 0)
-	fprintf(err_stream, "Warning: overriding unhandled error: %s",
-		record->msg);
+    }
+    err_record->level = record->level;
+    err_record->eval = eval;
+    err_record->errnum = record->errnum;
+    if (!ignore_new) strncpy(err_record->msg+n, record->msg, ERR_MSGSIZE-n);
+
+    if (record->level == errLevelException && err_record->prev)
+      longjmp(err_record->env, eval);
+
+    if (!err_record->prev) {
+      ErrHandler handler = err_get_handler();
+      if (handler) err_handler(err_record);
     }
 
-    err_record->eval = record->eval;
-    strcpy(err_record->msg, record->msg);
-
-    /* reemit unhandled exeption */
-    if (record->exception) {
-      if (err_record->prev) {
-        longjmp(err_record->env, err_record->eval);
-      } else {
-        if (err_handler)
-          err_handler(err_record);
-        exit(err_record->eval);
-      }
+    if ((abort_mode && record->level >= errLevelError) ||
+        record->level >= errLevelException) {
+      if (abort_mode == errAbortAbort) abort();
+      exit(eval);
     }
-
-    /* reemit unhandled error */
-    if (!err_record->prev && err_handler)
-      err_handler(err_record);
   }
 }

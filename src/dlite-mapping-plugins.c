@@ -1,4 +1,5 @@
 #include "config.h"
+#include "config-paths.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -16,7 +17,7 @@
 
 
 /* Global reference to mapping plugin info */
-static PluginInfo *mapping_plugin_info=NULL;
+static PluginInfo *mapping_plugin_info = NULL;
 
 
 /* Frees up `mapping_plugin_info`. */
@@ -24,10 +25,7 @@ static void mapping_plugin_info_free(void)
 {
   if (mapping_plugin_info) {
     PluginIter iter;
-    DLiteMappingPlugin *api;
     plugin_api_iter_init(&iter, mapping_plugin_info);
-    while ((api = (DLiteMappingPlugin *)plugin_api_iter_next(&iter)))
-      if (api && api->freer) api->freer(api);
     plugin_info_free(mapping_plugin_info);
   }
   mapping_plugin_info = NULL;
@@ -43,7 +41,17 @@ static PluginInfo *get_mapping_plugin_info(void)
                           "get_dlite_mapping_api",
                           "DLITE_MAPPING_PLUGIN_DIRS"))) {
     atexit(mapping_plugin_info_free);
-    dlite_mapping_plugin_path_append(DLITE_MAPPING_PLUGIN_DIRS);
+
+    fu_paths_set_platform(&mapping_plugin_info->paths, dlite_get_platform());
+
+    if (dlite_use_build_root())
+      plugin_path_extend(mapping_plugin_info, dlite_MAPPING_PLUGINS, NULL);
+    else
+      plugin_path_extend_prefix(mapping_plugin_info, dlite_root_get(),
+                                DLITE_MAPPING_PLUGIN_DIRS, NULL);
+
+    /* Make sure that dlite DLLs are added to the library search path */
+    dlite_add_dll_path();
   }
   return mapping_plugin_info;
 }
@@ -109,7 +117,7 @@ int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
-  return plugin_register_api(info, api);
+  return plugin_register_api(info, (PluginAPI *)api);
 }
 
 /*
@@ -134,7 +142,7 @@ int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
 const DLiteMappingPlugin *
 dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
 {
-  return plugin_api_iter_next((PluginIter *)iter);
+  return (const DLiteMappingPlugin *)plugin_api_iter_next((PluginIter *)iter);
 }
 
 
@@ -147,11 +155,8 @@ int dlite_mapping_plugin_unload(const char *name)
 {
   int stat;
   PluginInfo *info;
-  DLiteMappingPlugin *api;
   if (!(info = get_mapping_plugin_info())) return 1;
-  api = (DLiteMappingPlugin *)plugin_get_api(info, name);
   stat = plugin_unload(info, name);
-  if (api && api->freer) api->freer(api);
   return stat;
 }
 
@@ -181,6 +186,18 @@ int dlite_mapping_plugin_unload_all(void)
 }
 */
 
+
+/*
+  Returns a pointer to the underlying FUPaths object for storage plugins
+  or NULL on error.
+ */
+FUPaths *dlite_mapping_plugin_paths_get(void)
+{
+  PluginInfo *info;
+  if (!(info = get_mapping_plugin_info())) return NULL;
+  return &info->paths;
+}
+
 /*
   Returns a NULL-terminated array of pointers to search paths or NULL
   if no search path is defined.
@@ -193,6 +210,19 @@ const char **dlite_mapping_plugin_paths()
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return NULL;
   return plugin_path_get(info);
+}
+
+/*
+  Returns an allocated string with the content of `paths` formatted
+  according to the current platform.  See dlite_set_platform().
+
+  Returns NULL on error.
+ */
+char *dlite_mapping_plugin_path_string(void)
+{
+  PluginInfo *info;
+  if (!(info = get_mapping_plugin_info())) return NULL;
+  return fu_paths_string(&info->paths);
 }
 
 /*
@@ -220,6 +250,19 @@ int dlite_mapping_plugin_path_append(const char *path)
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
   return plugin_path_append(info, path);
+}
+
+/*
+  Like dlite_mapping_plugin_path_append(), but appends at most the
+  first `n` bytes of `path` to the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_mapping_plugin_path_appendn(const char *path, size_t n)
+{
+  PluginInfo *info;
+  if (!(info = get_mapping_plugin_info())) return 1;
+  return plugin_path_appendn(info, path, n);
 }
 
 /*

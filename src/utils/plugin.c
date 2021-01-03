@@ -1,3 +1,14 @@
+/* plugins.c -- simple plugin library
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <assert.h>
 #include <string.h>
 
@@ -73,18 +84,25 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
 
 
 /*
-  Free's plugin info.
+  Free's plugin info and all corresponding APIs.
  */
 void plugin_info_free(PluginInfo *info)
 {
   map_iter_t iter;
-  const char *path;
+  const char *path, *name;
 
   free((char *)info->kind);
   free((char *)info->symbol);
   if (info->envvar) free((char *)info->envvar);
   fu_paths_deinit(&info->paths);
 
+  iter = map_iter(&info->apis);
+  while ((name = map_next(&info->apis, &iter))) {
+    PluginAPI **p = map_get(&info->apis, name);
+    PluginAPI *api = *p;
+    assert(api);
+    if (api->freeapi) api->freeapi(api);
+  }
   iter = map_iter(&info->plugins);
   while ((path = map_next(&info->plugins, &iter))) {
     Plugin **p = map_get(&info->plugins, path);
@@ -104,25 +122,26 @@ void plugin_info_free(PluginInfo *info)
 
   Returns non-zero on error.
  */
-static int register_api(PluginInfo *info, const void *api,
+static int register_api(PluginInfo *info, const PluginAPI *api,
 			   const char *path, dsl_handle handle)
 {
-  char *name;
-  Plugin *plugin=NULL;
+  char *name = api->name;
+  Plugin *plugin = NULL;
   assert(api);
-  name = *((char **)api);
 
   if (map_get(&info->apis, name))
     return errx(1, "api already registered: %s", name);
 
   if (path) {
+    Plugin **p;
     assert(handle);
-    if (map_get(&info->plugins, path)) {
+    if ((p = map_get(&info->plugins, path))) {
       warnx("plugin already registered: %s", path);
+      plugin_incref(*p);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");
-      plugin->count++;
+      plugin_incref(plugin);
       plugin->handle = handle;
       if (map_set(&info->plugins, plugin->path, plugin))
         fatal(1, "failed to register plugin: %s", path);
@@ -131,7 +150,7 @@ static int register_api(PluginInfo *info, const void *api,
     }
   }
 
-  if (map_set(&info->apis, name, (void *)api))
+  if (map_set(&info->apis, name, (PluginAPI *)api))
     fatal(1, "failed to register api: %s", name);
 
   return 0;
@@ -145,7 +164,7 @@ static int register_api(PluginInfo *info, const void *api,
 /*
   Registers `api` into `info`.  Returns non-zero on error.
  */
-int plugin_register_api(PluginInfo *info, const void *api)
+int plugin_register_api(PluginInfo *info, const PluginAPI *api)
 {
   return register_api(info, api, NULL, NULL);
 }
@@ -165,15 +184,16 @@ int plugin_register_api(PluginInfo *info, const void *api)
 
   Returns a pointer to the plugin API or NULL on error.
  */
-const void *plugin_load(PluginInfo *info, const char *name,
-                        const char *pattern, int emit_err)
+const PluginAPI *plugin_load(PluginInfo *info, const char *name,
+                             const char *pattern, int emit_err)
 {
   FUIter *iter=NULL;
   const char *filepath;
   dsl_handle handle=NULL;
   void *sym=NULL;
   PluginFunc func;
-  const void *api=NULL, *loaded_api=NULL, *retval=NULL;
+  PluginAPI *api=NULL;
+  const void *loaded_api=NULL, *retval=NULL;
 
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
@@ -200,13 +220,13 @@ const void *plugin_load(PluginInfo *info, const char *name,
        pointer to function pointer */
     *(void **)(&func) = sym;
 
-    while ((api = func(&iter1))) {
-      char *apiname = *((char **)api);
-      if (!map_get(&info->apis, apiname)) {  /* not plugin with this name */
+    while ((api = (PluginAPI *)func(&iter1))) {
+
+      if (!map_get(&info->apis, api->name)) {  /* not plugin with this name */
         loaded_api = api;
         if (!name) {
           register_api(info, api, filepath, handle);
-        } else if (strcmp(apiname, name) == 0) {
+        } else if (strcmp(api->name, name) == 0) {
           if (register_api(info, api, filepath, handle)) goto fail;
           fu_endmatch(iter);
           return api;
@@ -215,7 +235,6 @@ const void *plugin_load(PluginInfo *info, const char *name,
       if (iter1 == iter2) break;
       iter2 = iter1;
     }
-    //if (!api && (iter1 || iter2))
     if (!api)
       warn("failure calling \"%s\" in plugin \"%s\": %s",
            info->symbol, filepath, dsl_error());
@@ -249,15 +268,15 @@ const void *plugin_load(PluginInfo *info, const char *name,
 
   Otherwise NULL is returned.
  */
-const void *plugin_get_api(PluginInfo *info, const char *name)
+const PluginAPI *plugin_get_api(PluginInfo *info, const char *name)
 {
-  const void *api=NULL;
+  const PluginAPI *api=NULL;
+  PluginAPI **p;
   char *pattern=NULL;
-  void **p;
 
   /* Check already registered apis */
   if ((p = map_get(&info->apis, name)))
-    return (const void *)*p;
+    return (const PluginAPI *)*p;
 
   /* Load plugin from search path */
   if (!(pattern = malloc(strlen(name) + strlen(DSL_EXT) + 1)))
@@ -288,6 +307,63 @@ void plugin_load_all(PluginInfo *info)
 
 
 /*
+  Unloads and unregisters plugin with the given name.
+  Returns non-zero on error.
+*/
+int plugin_unload(PluginInfo *info, const char *name)
+{
+  char **ppath;
+  char *pname = strdup(name);
+  PluginAPI **apip, *api;
+  int retval = 1;
+  if (!(apip = map_get(&info->apis, pname)))
+    FAIL1("cannot unload api: %s", pname);
+  api = *apip;
+  if (api->freeapi) api->freeapi(api);
+  if ((ppath = map_get(&info->pluginpaths, pname))) {
+    Plugin **p;
+    assert(*ppath);
+    if ((p = map_get(&info->plugins, *ppath))) {
+      char *path;
+      assert(*p);
+      if (!(path = strdup(*ppath))) FAIL("allocation failure");
+      if (plugin_decref(*p) <= 0) map_remove(&info->plugins, path);
+      free(path);
+    }
+  }
+  map_remove(&info->pluginpaths, pname);
+  map_remove(&info->apis, pname);
+  retval = 0;
+ fail:
+  free(pname);
+  return retval;
+}
+
+/*
+  Returns a NULL-terminated array of pointers to api names.
+  Returns NULL on error.
+*/
+char **plugin_names(const PluginInfo *info)
+{
+  int n=0, size=0;
+  char **names=NULL;
+  PluginIter iter;
+  const PluginAPI *api;
+  plugin_api_iter_init(&iter, info);
+  while ((api = plugin_api_iter_next(&iter))) {
+    if (n >= size) {
+      size += 16;
+      if (!(names = realloc(names, size * sizeof(char *))))
+        return err(1, "allocation failure"), NULL;
+    }
+    names[n++] = strdup(api->name);
+  }
+  names[n] = NULL;
+  return names;
+}
+
+
+/*
   Initiates a plugin API iterator.
 */
 void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
@@ -304,9 +380,9 @@ void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
   Used for iterating over plugins.  Plugins should not be registered
   or removed while iterating.
  */
-const void *plugin_api_iter_next(PluginIter *iter)
+const PluginAPI *plugin_api_iter_next(PluginIter *iter)
 {
-  void **p, *api;
+  PluginAPI **p, *api=NULL;
   PluginInfo *info = (PluginInfo *)iter->info;
   const char *name = map_next(&info->apis, &iter->miter);
   if (!name) return NULL;
@@ -315,31 +391,6 @@ const void *plugin_api_iter_next(PluginIter *iter)
   return (const void *)api;
 }
 
-
-/*
-  Unloads and unregisters plugin with the given name.
-  Returns non-zero on error.
-*/
-int plugin_unload(PluginInfo *info, const char *name)
-{
-  char **ppath;
-  if (!map_get(&info->apis, name))
-    return errx(1, "cannot unload api: %s", name);
-  if ((ppath = map_get(&info->pluginpaths, name))) {
-    Plugin **p;
-    assert(*ppath);
-    if ((p = map_get(&info->plugins, *ppath))) {
-      char *path;
-      assert(*p);
-      if (!(path = strdup(*ppath))) return err(1, "allocation failure");
-      if (plugin_decref(*p) <= 0) map_remove(&info->plugins, path);
-      free(path);
-    }
-  }
-  map_remove(&info->pluginpaths, name);
-  map_remove(&info->apis, name);
-  return 0;
-}
 
 
 /*
@@ -372,8 +423,65 @@ int plugin_path_insert(PluginInfo *info, const char *path, int n)
 int plugin_path_append(PluginInfo *info, const char *path)
 {
   return fu_paths_append(&info->paths, path);
-
 }
+
+/*
+  Like plugin_path_append(), but appends at most the `n` first bytes
+  of `path` to the current search path.
+
+  Returns the index of the newly appended path or -1 on error.
+*/
+int plugin_path_appendn(PluginInfo *info, const char *path, size_t n)
+{
+  return fu_paths_appendn(&info->paths, path, n);
+}
+
+/*
+  Extends current search path by appending all `pathsep`-separated paths
+  in `s` to it.
+
+  Returns the index of the last appended path or zero if nothing is appended.
+  On error, -1 is returned.
+ */
+int plugin_path_extend(PluginInfo *info, const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep)))
+    if ((stat = plugin_path_appendn(info, p, endptr - p)) < 0) return stat;
+  return stat;
+}
+
+/*
+  Like plugin_paths_extend(), but prefix all relative paths in `s`
+  with `prefix` before appending them to `paths`.
+
+  Returns the index of the last appended paths or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
+                              const char *s, const char *pathsep)
+{
+  const char *p;
+  char *endptr=NULL;
+  int stat=0;
+  while ((p = fu_nextpath(s, &endptr, pathsep))) {
+    int len = endptr - p;
+    if (fu_isabs(p)) {
+      if ((stat = plugin_path_appendn(info, p, len)) < 0) return stat;
+    } else {
+      char buf[1024];
+      int n = snprintf(buf, sizeof(buf), "%s/%.*s", prefix, len, p);
+      if (n < 0) return err(-1, "unexpected error in snprintf()");
+      if (n >= (int)sizeof(buf) - 1)
+        return err(-1, "path exeeds buffer size: %s/%.*s", prefix, len, p);
+      if ((stat = plugin_path_append(info, buf)) < 0) return stat;
+    }
+  }
+  return stat;
+}
+
 
 /*
   Removes path index `n` from current search path.  If `n` is

@@ -163,9 +163,14 @@
  * <http://www.jhweiss.de/software/snprintf.html>.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif	/* HAVE_CONFIG_H */
+# ifdef HAVE_CONFIG_H
+#  include <config.h>
+# endif	/* HAVE_CONFIG_H */
+
+#ifdef HAVE_CONFIG_SNPRINTF_H
+#include <config_snprintf.h>
+#endif /* HAVE_CONFIG_SNPRINTF_H */
+
 
 #if TEST_SNPRINTF
 #include <math.h>	/* For pow(3), NAN, and INFINITY. */
@@ -1490,11 +1495,15 @@ rpl_vasprintf(char **ret, const char *format, va_list ap)
 	int len;
 	va_list aq;
 
+        // cppcheck-suppress va_list_usedBeforeStarted
 	VA_COPY(aq, ap);
+        // cppcheck-suppress va_list_usedBeforeStarted
 	len = vsnprintf(NULL, 0, format, aq);
 	VA_END_COPY(aq);
 	if (len < 0 || (*ret = malloc(size = len + 1)) == NULL)
+                // cppcheck-suppress memleak
 		return -1;
+        // cppcheck-suppress memleak
 	return vsnprintf(*ret, size, format, ap);
 }
 #endif	/* !HAVE_VASPRINTF */

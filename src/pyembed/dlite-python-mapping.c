@@ -4,9 +4,10 @@
 #include <Python.h>
 #include <assert.h>
 
-#ifdef HAVE_CONFIG_H
-#undef HAVE_CONFIG_H
-#endif
+/* Python pulls in a lot of defines that conflicts with utils/config.h */
+#define SKIP_UTILS_CONFIG_H
+
+#include "config-paths.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -32,13 +33,28 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 /*
   Returns a pointer to Python mapping paths
 */
-const FUPaths *dlite_python_mapping_paths(void)
+FUPaths *dlite_python_mapping_paths(void)
 {
   if (!mapping_paths_initialised) {
-    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_DIRS") < 0)
-      return dlite_err(1, "cannot initialise DLITE_PYTHON_MAPPING_DIRS"), NULL;
+    int s;
+    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS") < 0)
+      return dlite_err(1, "cannot initialise "
+                       "DLITE_PYTHON_MAPPING_PLUGIN_DIRS"), NULL;
+
+    fu_paths_set_platform(&mapping_paths, dlite_get_platform());
+
+    if (dlite_use_build_root())
+      s = fu_paths_extend(&mapping_paths, dlite_PYTHON_MAPPING_PLUGINS, NULL);
+    else
+      s = fu_paths_extend_prefix(&mapping_paths, dlite_root_get(),
+                                 DLITE_PYTHON_MAPPING_PLUGIN_DIRS, NULL);
+    if (s < 0) return dlite_err(1, "error initialising dlite python mapping "
+                                "plugin dirs"), NULL;
     mapping_paths_initialised = 1;
     mapping_paths_modified = 0;
+
+    /* Make sure that dlite DLLs are added to the library search path */
+    dlite_add_dll_path();
   }
   return &mapping_paths;
 }
@@ -196,11 +212,14 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
 /*
   Free's internal resources in `api`.
 */
-static void freer(DLiteMappingPlugin *api)
+static void freeapi(PluginAPI *api)
 {
-  free(api->input_uris);
-  Py_XDECREF(api->data);
-  free(api);
+  DLiteMappingPlugin *p = (DLiteMappingPlugin *)api;
+  free(p->name);
+  free((char *)p->output_uri);
+  free((char **)p->input_uris);
+  Py_XDECREF(p->data);
+  free(p);
 }
 
 
@@ -215,11 +234,12 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   DLiteMappingPlugin *api=NULL, *retval=NULL;
   PyObject *mappings=NULL, *cls=NULL;
   PyObject *name=NULL, *out_uri=NULL, *in_uris=NULL, *map=NULL, *pcost=NULL;
-  const char **input_uris=NULL, *classname=NULL;
+  const char *output_uri=NULL, **input_uris=NULL, *classname=NULL;
+  char *apiname=NULL;
 
   if (!(mappings = dlite_python_mapping_load())) goto fail;
   assert(PyList_Check(mappings));
-  n = PyList_Size(mappings);
+  n = (int)PyList_Size(mappings);
 
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
@@ -230,7 +250,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
 
   /* get classname for error messages */
   if (!(classname = dlite_pyembed_classname(cls)))
-    dlite_warnx("cannot get class name for API %s", *((char **)api));
+    dlite_warnx("cannot get class name for API");
 
   /* get attributes to fill into the api */
   if (!(name = PyObject_GetAttrString(cls, "name")))
@@ -272,24 +292,31 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   if (!(api = calloc(1, sizeof(DLiteMappingPlugin))))
     FAIL("allocation failure");
 
-  api->name = PyUnicode_AsUTF8(name);
-  api->output_uri = PyUnicode_AsUTF8(out_uri);
-  api->ninput = PySequence_Length(in_uris);
+  apiname = strdup(PyUnicode_AsUTF8(name));
+  output_uri = strdup(PyUnicode_AsUTF8(out_uri));
+
+  api->name = apiname;
+  api->freeapi = freeapi;
+  api->output_uri = output_uri;
+  api->ninput = (int)PySequence_Length(in_uris);
   api->input_uris = input_uris;
   api->mapper = mapper;
-  api->freer = freer;
   api->cost = cost;
   api->data = (void *)cls;
   Py_INCREF(cls);
 
   retval = api;
  fail:
-  if (!retval && api) free(api);
   Py_XDECREF(name);
   Py_XDECREF(out_uri);
   Py_XDECREF(in_uris);
   Py_XDECREF(map);
   Py_XDECREF(pcost);
-  if (!retval && input_uris) free(input_uris);
+  if (!retval) {
+    if (name) free(name);
+    if (output_uri) free((char *)output_uri);
+    if (input_uris) free((char **)input_uris);
+    if (api) free(api);
+  }
   return retval;
 }

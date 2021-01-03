@@ -13,17 +13,16 @@
 #include <string.h>
 #include <ctype.h>
 
-#if defined(HAVE_BYTESWAP_H) && defined(HAVE_ENDIAN_H)
-# include <byteswap.h>
-# include <endian.h>
-#else
-# include "byteorder.h"
-#endif
-
+#include "byteorder.h"
 #include "md5.h"
 #include "sha1.h"
 #include "uuid4.h"
 #include "uuid.h"
+
+/* Get rid of MSVS warnings */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4273 4996)
+#endif
 
 
 typedef uint64_t uuid_sime_t;

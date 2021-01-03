@@ -11,7 +11,7 @@
 
 MU_TEST(test_tempfileplus)
 {
-  char *tmpdir = STRINGIFY(LIBDIR) "/tmp";
+  char *tmpdir = STRINGIFY(BINDIR) "/tmp";
   char *tmpfile=NULL;
   FILE *fp = tmpfileplus(tmpdir, NULL, &tmpfile, 0);
   printf("\n*** tmpdir='%s'\n", tmpdir);

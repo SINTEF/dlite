@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,7 +20,7 @@ typedef int (*Sum)(int x, int y);
 
 MU_TEST(test_dsl_open)
 {
-  char *path = STRINGIFY(LIBDIR) "/" DSL_PREFIX "test_dsl_lib" DSL_EXT;
+  char *path = STRINGIFY(BINDIR) "/" DSL_PREFIX "test_dsl_lib" DSL_EXT;
   const char *msg;
   printf("\n*** path='%s'\n", path);
 

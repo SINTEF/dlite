@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 
 #ifdef HAVE_STDINT_H
 # include <stdint.h>
@@ -36,6 +37,36 @@ static uint64_t xorshift128plus(uint64_t *s) {
 }
 
 
+#if RAND_MAX/256 >= 0xFFFFFFFFFFFFFF
+  #define LOOP_COUNT 1
+#elif RAND_MAX/256 >= 0xFFFFFF
+  #define LOOP_COUNT 2
+#elif RAND_MAX/256 >= 0x3FFFF
+  #define LOOP_COUNT 3
+#elif RAND_MAX/256 >= 0x1FF
+  #define LOOP_COUNT 4
+#else
+  #define LOOP_COUNT 5
+#endif
+uint64_t rand_uint64(void) {
+  uint64_t r = 0;
+  for (int i=LOOP_COUNT; i > 0; i--) {
+    r = r*(RAND_MAX + (uint64_t)1) + rand();
+  }
+  return r;
+}
+
+
+static int simple_seed(void) {
+  int i;
+  clock_t c = clock();
+  srand((unsigned int)c);
+  for (i=0; i<2; i++)
+    seed[i] = rand_uint64();
+  return UUID4_ESUCCESS;
+}
+
+
 static int init_seed(void) {
 #if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
   int res;
@@ -46,7 +77,11 @@ static int init_seed(void) {
   res = fread(seed, 1, sizeof(seed), fp);
   fclose(fp);
   if ( res != sizeof(seed) ) {
+#ifdef UUID4_ONLY_HIGH_QUALITY_SEED
     return UUID4_EFAILURE;
+#else
+    return simple_seed();
+#endif
   }
 
 #elif defined(_WIN32)
@@ -55,12 +90,16 @@ static int init_seed(void) {
   res = CryptAcquireContext(
     &hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
   if (!res) {
-    return UUID4_EFAILURE;
+    return simple_seed();
   }
   res = CryptGenRandom(hCryptProv, (DWORD) sizeof(seed), (PBYTE) seed);
   CryptReleaseContext(hCryptProv, 0);
   if (!res) {
+#ifdef UUID4_ONLY_HIGH_QUALITY_SEED
     return UUID4_EFAILURE;
+#else
+    return simple_seed();
+#endif
   }
 
 #else

@@ -8,6 +8,7 @@ project(dlite-src-utils C)
 # Generate config.h
 # -----------------
 
+
 # -- check for headers
 include(CheckIncludeFile)
 check_include_file(stdarg.h     HAVE_STDARG_H)
@@ -20,35 +21,53 @@ check_include_file(locale.h     HAVE_LOCALE_H)
 
 # -- check for symbols
 include(CheckSymbolExists)
-check_symbol_exists(strdup            string.h   HAVE_STRDUP)
-check_symbol_exists(_strdup           string.h   HAVE__STRDUP)
-check_symbol_exists(strndup           string.h   HAVE_STRNDUP)
-check_symbol_exists(_strndup          string.h   HAVE__STRNDUP)
-check_symbol_exists(strcasecmp        string.h   HAVE_STRCASECMP)
-check_symbol_exists(_stricmp          string.h   HAVE__STRICMP)
-check_symbol_exists(strncasecmp       string.h   HAVE_STRNCASECMP)
-check_symbol_exists(_strnicmp         string.h   HAVE__STRNICMP)
+check_symbol_exists(strdup              string.h     HAVE_STRDUP)
+check_symbol_exists(_strdup             string.h     HAVE__STRDUP)
+check_symbol_exists(strndup             string.h     HAVE_STRNDUP)
+check_symbol_exists(_strndup            string.h     HAVE__STRNDUP)
+check_symbol_exists(strcasecmp          string.h     HAVE_STRCASECMP)
+check_symbol_exists(_stricmp            string.h     HAVE__STRICMP)
+check_symbol_exists(strncasecmp         string.h     HAVE_STRNCASECMP)
+check_symbol_exists(_strnicmp           string.h     HAVE__STRNICMP)
 
-check_symbol_exists(setenv            stdlib.h   HAVE_SETENV)
-check_symbol_exists(unsetenv          stdlib.h   HAVE_UNSETENV)
+check_symbol_exists(setenv              stdlib.h     HAVE_SETENV)
+check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 
-check_symbol_exists(realpath          stdlib.h   HAVE_REALPATH)
-check_symbol_exists(GetFullPathNameW  Windows.h  HAVE_GetFullPathNameW)
+check_symbol_exists(realpath            stdlib.h     HAVE_REALPATH)
+check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
+check_symbol_exists(exec                unistd.h     HAVE_EXEC)
+check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
 
-check_symbol_exists(getopt            unistd.h   HAVE_GETOPT)
-check_symbol_exists(getopt_long       getopt.h   HAVE_GETOPT_LONG)
+check_symbol_exists(GetFullPathNameW    Windows.h    HAVE_GetFullPathNameW)
+check_symbol_exists(GetFullPathName     Windows.h    HAVE_GetFullPathName)
+check_symbol_exists(GetFileAttributesW  Windows.h    HAVE_GetFileAttributesW)
+check_symbol_exists(GetFileAttributes   Windows.h    HAVE_GetFileAttributes)
+list(APPEND CMAKE_REQUIRED_LIBRARIES Shlwapi.lib)
+check_symbol_exists(PathFileExistsW     shlwapi.h    HAVE_PathFileExistsW)
+check_symbol_exists(PathFileExists      shlwapi.h    HAVE_PathFileExists)
+list(REMOVE_ITEM CMAKE_REQUIRED_LIBRARIES Shlwapi.lib)
+check_symbol_exists(CreateProcessA      processthreadsapi.h HAVE_CreateProcessA)
+check_symbol_exists(mbstowcs_s          stdlib.h     HAVE_MBSTOWCS_S)
+check_symbol_exists(wcstombs_s          stdlib.h     HAVE_WCSTOMBS_S)
 
-check_symbol_exists(snprintf          stdio.h    HAVE_SNPRINTF)
-check_symbol_exists(_snprintf         stdio.h    HAVE__SNPRINTF)
-check_symbol_exists(vsnprintf         stdio.h    HAVE_VSNPRINTF)
-check_symbol_exists(_vsnprintf        stdio.h    HAVE__VSNPRINTF)
-check_symbol_exists(vasprintf         stdio.h    HAVE_VASPRINTF)
-check_symbol_exists(_vasprintf        stdio.h    HAVE__VASPRINTF)
-check_symbol_exists(asprintf          stdio.h    HAVE_ASPRINTF)
-check_symbol_exists(_asprintf         stdio.h    HAVE__ASPRINTF)
-check_symbol_exists(localeconv        locale.h   HAVE__LOCALECONV)
-check_symbol_exists(va_copy           stdarg.h   HAVE_VA_COPY)
-check_symbol_exists(__va_copy         stdarg.h   HAVE___VA_COPY)
+check_symbol_exists(strlcpy             string.h     HAVE_STRLCPY)
+check_symbol_exists(strlcat             string.h     HAVE_STRLCAT)
+
+check_symbol_exists(getopt              unistd.h     HAVE_GETOPT)
+check_symbol_exists(getopt_long         getopt.h     HAVE_GETOPT_LONG)
+
+check_symbol_exists(snprintf            stdio.h      HAVE_SNPRINTF)
+check_symbol_exists(_snprintf           stdio.h      HAVE__SNPRINTF)
+check_symbol_exists(vsnprintf           stdio.h      HAVE_VSNPRINTF)
+check_symbol_exists(_vsnprintf          stdio.h      HAVE__VSNPRINTF)
+check_symbol_exists(vasprintf           stdio.h      HAVE_VASPRINTF)
+check_symbol_exists(_vasprintf          stdio.h      HAVE__VASPRINTF)
+check_symbol_exists(asprintf            stdio.h      HAVE_ASPRINTF)
+check_symbol_exists(_asprintf           stdio.h      HAVE__ASPRINTF)
+check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
+check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
+check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
+
 
 # -- check for structure members
 include(CheckStructHasMember)
@@ -177,14 +196,25 @@ check_type_size("long double" SIZEOF_LONG_DOUBLE)
 
 configure_file(floats.h.in floats.h)
 
+# Generate config_snprintf.h
+# --------------------------
+if(NOT (HAVE_SNPRINTF OR HAVE__SNPRINTF) OR
+    NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF))
+  set(WITH_SNPRINTF 1)
+  configure_file(compat/config_snprintf.h.in config_snprintf.h)
+endif()
+
 
 #-----------------------------------------------------
 # Compile library
 #-----------------------------------------------------
+
 set(sources
   compat.c
   err.c
+  fileinfo.c
   fileutils.c
+  execprocess.c
   globmatch.c
   plugin.c
   map.c
@@ -201,9 +231,12 @@ set(sources
 if(NOT HAVE_GETOPT)
   list(APPEND sources compat/getopt.c)
 endif()
-if(NOT (HAVE_SNPRINTF OR HAVE__SNPRINTF) OR
-   NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF))
+if(WITH_SNPRINTF)
   list(APPEND sources compat/snprintf.c)
+  add_definitions(-DHAVE_CONFIG_SNPRINTF_H)
+endif()
+if(NOT HAVE_REALPATH AND UNIX)
+  list(APPEND sources compat/realpath.c)
 endif()
 
 add_definitions(
@@ -231,6 +264,10 @@ target_include_directories(dlite-utils-static PUBLIC
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 
+if(HAVE_PathFileExistsW)
+  target_link_libraries(dlite-utils Shlwapi.lib)
+  target_link_libraries(dlite-utils-static Shlwapi.lib)
+endif()
 
 ## create list of headers to install from ${sources}
 set(headers "")

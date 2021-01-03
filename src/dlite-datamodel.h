@@ -51,6 +51,11 @@ int dlite_datamodel_free(DLiteDataModel *d);
 char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d);
 
 /**
+ * Resolve dimensions
+ */
+void dlite_datamodel_resolve_dimensions(DLiteDataModel *d,
+                                        const DLiteMeta *meta);
+/**
   Returns the size of dimension \a name or -1 on error.
  */
 int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
@@ -157,15 +162,19 @@ char *dlite_datamodel_get_dataname(DLiteDataModel *d);
    @{
  */
 
-/** Copies data from nested pointer to pointers array \a src to the
-    flat continuous C-ordered array \a dst. The size of dest must be
-    sufficient large.  Returns non-zero on error. */
+/**
+   Copies data from nested pointer to pointers array `src` to the
+   flat continuous C-ordered array `dst`. The size of dest must be
+   sufficient large.  Returns non-zero on error.
+*/
 int dlite_copy_to_flat(void *dst, const void *src, size_t size,
                        size_t ndims, const size_t *dims);
 
-/** Copies data from flat continuous C-ordered array \a dst to nested
-    pointer to pointers array \a src. The size of dest must be
-    sufficient large.  Returns non-zero on error. */
+/**
+   Copies data from flat continuous C-ordered array `src` to nested
+   pointer to pointers array `dst`. The size of dest must be
+   sufficient large.  Returns non-zero on error.
+*/
 int dlite_copy_to_nested(void *dst, const void *src, size_t size,
                          size_t ndims, const size_t *dims);
 

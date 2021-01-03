@@ -3,9 +3,12 @@
  */
 #include <Python.h>
 #include <assert.h>
+#include <stdlib.h>
 
 /* Python pulls in a lot of defines that conflicts with utils/config.h */
 #define SKIP_UTILS_CONFIG_H
+
+#include "config-paths.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -31,17 +34,28 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 /*
   Returns a pointer to Python storage paths
 */
-const FUPaths *dlite_python_storage_paths(void)
+FUPaths *dlite_python_storage_paths(void)
 {
   if (!storage_paths_initialised) {
+    int s;
     if (fu_paths_init(&storage_paths, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS") < 0)
-      return dlite_err(1, "cannot initialise DLITE_PYTHON_STORAGE_PLUGIN_DIRS"
-                       ), NULL;
-    if (fu_paths_append(&storage_paths, DLITE_PYTHON_STORAGE_PLUGIN_DIRS) < 0)
-      return dlite_err(1, "error initialising dlite python storage plugin "
-                       "dirs"), NULL;
+      return dlite_err(1, "cannot initialise "
+                       "DLITE_PYTHON_STORAGE_PLUGIN_DIRS"), NULL;
+
+    fu_paths_set_platform(&storage_paths, dlite_get_platform());
+
+    if (dlite_use_build_root())
+      s = fu_paths_extend(&storage_paths, dlite_PYTHON_STORAGE_PLUGINS, NULL);
+    else
+      s = fu_paths_extend_prefix(&storage_paths, dlite_root_get(),
+                                 DLITE_PYTHON_STORAGE_PLUGIN_DIRS, NULL);
+    if (s < 0) return dlite_err(1, "error initialising dlite python storage "
+                                "plugin dirs"), NULL;
     storage_paths_initialised = 1;
     storage_paths_modified = 0;
+
+    /* Make sure that dlite DLLs are added to the library search path */
+    dlite_add_dll_path();
   }
   return &storage_paths;
 }
@@ -135,8 +149,6 @@ void *dlite_python_storage_load(void)
 /* Unloads all currently loaded storages. */
 void dlite_python_storage_unload(void)
 {
-  if (loaded_storages) {
+  if (loaded_storages)
     Py_DECREF(loaded_storages);
-    loaded_storages = NULL;
-  }
 }

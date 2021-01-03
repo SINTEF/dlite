@@ -1,10 +1,30 @@
-/* infix-calc.h -- simple infix calculator for integer arithmetic */
+/* infix-calc.h -- simple infix calculator for integer arithmetic
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _INFIX_CALC_H
 #define _INFIX_CALC_H
 /**
   @file
   @brief Simple infix calculator for integer arithmetic
-  Only unary operators are implemented.
+  Only the following binary operators are implemented:
+
+      |  logical or
+      &  logical and
+      =  logical equal
+      !  logical not equal
+      >  logical greather than
+      <  logical smaller than
+      +  plus
+      -  minus
+      *  times
+      /  division
+      %  modulus
+      ^  power
+
+  in addition to parenthesis.
 */
 
 
@@ -33,5 +53,10 @@ typedef struct {
 int infixcalc(const char *expr, const InfixCalcVariable *vars, size_t nvars,
               char *err, size_t errlen);
 
+
+/**
+  Returns non-zero if variable `varname` is in expression `expr`.
+ */
+int infixcalc_depend(const char *expr, const char *varname);
 
 #endif /* _INFIX_CALC_H */

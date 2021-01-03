@@ -3,6 +3,13 @@
 #include "dlite-macros.h"
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
+#include "dlite-python-storage.h"
+#include "dlite-python-mapping.h"
+
+/* Get rid of MSVS warnings */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4273 4996)
+#endif
 
 
 static int python_initialized = 0;
@@ -12,14 +19,16 @@ void dlite_pyembed_initialise(void)
 {
   wchar_t *progname;
   if (!python_initialized) {
+    python_initialized = 1;
+
+    Py_Initialize();
+
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
-    Py_Initialize();
-    python_initialized = 1;
   }
 }
 
@@ -55,7 +64,7 @@ const char *dlite_pyembed_classname(PyObject *cls)
 
 
 /*
-  Reports and restes Python error.
+  Reports and resets Python error.
 
   If an Python error has occured, an error message is appended to `msg`,
   containing the type, value and traceback.
@@ -224,7 +233,7 @@ void *dlite_pyembed_get_address(const char *symbol)
 
   /* Seems that ctypes.addressof() returns the address where the pointer to
      `symbol` is stored, so we need an extra dereference... */
-  if (ptr) ptr = *((void **)ptr);
+  if (ptr) ptr = (void *)*((void **)ptr);
 
  fail:
   Py_XDECREF(addr);
@@ -319,8 +328,10 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
   char initcode[96];
   const char *path;
   PyObject *baseclass=NULL, *main_module=NULL, *main_dict=NULL;
-  PyObject *ppath=NULL, *pfun=NULL, *subclasses=NULL;
+  PyObject *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
+  PyObject *subclassnames=NULL;
   FUIter *iter;
+  int i;
 
   dlite_errclr();
   dlite_pyembed_initialise();
@@ -342,40 +353,74 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
   if (!(baseclass = PyDict_GetItemString(main_dict, baseclassname)))
     FAIL1("cannot get base class '%s' from the main dict", baseclassname);
 
+  /* Get list of initial subclasses and corresponding set subclassnames */
+  if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
+      subclasses = PyObject_CallFunctionObjArgs(pfun, NULL);
+  Py_XDECREF(pfun);
+  if (!(subclassnames = PySet_New(NULL))) FAIL("cannot create empty set");
+  for (i=0; i < PyList_Size(subclasses); i++) {
+    PyObject *item = PyList_GetItem(subclasses, i);
+    PyObject *name = PyObject_GetAttrString(item, "__name__");
+    if (name) {
+      if (PySet_Contains(subclassnames, name) == 0 &&
+          PySet_Add(subclassnames, name)) FAIL("cannot add class name to set");
+    } else {
+      FAIL("cannot get name attribute from class");
+    }
+    Py_XDECREF(name);
+    name = NULL;
+  }
 
   /* Load all modules in `paths` */
-  if (!(iter = fu_startmatch("*.py", paths))) goto fail;
-  while ((path = fu_nextmatch(iter))) {
+  if (!(iter = fu_pathsiter_init(paths, "*.py"))) goto fail;
+  while ((path = fu_pathsiter_next(iter))) {
     int stat;
     FILE *fp=NULL;
     char *basename=NULL;
     PyObject *ret;
 
-    /* Set __main__.__dict__['__file__'] = path */
     if (!(ppath = PyUnicode_FromString(path)))
       FAIL1("cannot create Python string from path: '%s'", path);
     stat = PyDict_SetItemString(main_dict, "__file__", ppath);
-    Py_XDECREF(ppath);
+    Py_DECREF(ppath);
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
     if ((basename = fu_basename(path)) && (fp = fopen(path, "r"))) {
       ret = PyRun_File(fp, basename, Py_file_input, main_dict, main_dict);
       free(basename);
       if (!ret) {
-        //PyErr_Print();  // xxx
         dlite_pyembed_err(1, "error parsing '%s'", path);
       } else {
         Py_DECREF(ret);
       }
+      fclose(fp);
     }
   }
-  if (fu_endmatch(iter)) goto fail;
+  if (fu_pathsiter_deinit(iter)) goto fail;
 
-  /* Get list of subclasses implementing the plugins */
+  /* Append new subclasses to the list of Python plugins that will be
+     returned */
   if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
-      subclasses = PyObject_CallFunctionObjArgs(pfun, NULL);
+      lst = PyObject_CallFunctionObjArgs(pfun, NULL);
+  Py_XDECREF(pfun);
+  for (i=0; i < PyList_Size(lst); i++) {
+    PyObject *item = PyList_GetItem(lst, i);
+    PyObject *name = PyObject_GetAttrString(item, "__name__");
+    if (name) {
+      if (PySet_Contains(subclassnames, name) == 0) {
+        if (PySet_Add(subclassnames, name))
+          FAIL("cannot add class name to set");
+        if (PyList_Append(subclasses, item))
+          FAIL("cannot append subclass to set");
+      }
+    } else {
+      FAIL("cannot get name attribute from class");
+    }
+    Py_XDECREF(name);
+    name = NULL;
+  }
 
  fail:
-  Py_XDECREF(pfun);
+  Py_XDECREF(lst);
   return subclasses;
 }

@@ -27,47 +27,55 @@ DLiteInstance *mydata=NULL, *mydata2=NULL, *mydata3=NULL;
  * Test entity
  ***************************************************************/
 
-MU_TEST(test_entity_create)
+MU_TEST(test_meta_create)
 {
-  int dims0[] = {1, 0};  /* [N, M] */
-  int dims1[] = {1};     /* [N] */
-  int dims2[] = {0};     /* [M] */
+  char *dims0[] = {"N", "M"};
+  char *dims1[] = {"N"};
+  char *dims2[] = {"M"};
   DLiteDimension dimensions[] = {
     {"M", "Length of dimension M."},
     {"N", "Length of dimension N."}
   };
   DLiteProperty properties[] = {
-    /* name           type            size         ndims dims   unit descr */
-    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  "..."},
-    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", ""},
-    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", "descr.."},
-    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  "descr.."},
-    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "descr.."}
+    /* name           type            size         ndims dims   unit iri   descr */
+    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  NULL, "..."},
+    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", NULL, ""},
+    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", NULL, "descr.."},
+    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  NULL, "descr.."},
+    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  NULL, "descr.."}
   };
 
-  mu_check((entity = (DLiteMeta *)dlite_entity_create(uri, "My test entity.",
-                                                      2, dimensions,
-                                                      5, properties)));
-  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+  mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, "My test entity.",
+                                                    NULL,
+                                                    2, dimensions,
+                                                    5, properties)));
+  mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 
-  mu_assert_int_eq(2, entity->ndimensions);
-  mu_assert_int_eq(5, entity->nproperties);
-  mu_assert_int_eq(1, entity->properties[2].dims[0]);
-  mu_assert_int_eq(0, entity->properties[2].dims[1]);
+  mu_assert_int_eq(2, entity->_ndimensions);
+  mu_assert_int_eq(5, entity->_nproperties);
+  mu_assert_int_eq(2, DLITE_PROP_DIM(entity->meta, 4, 0));
+  mu_assert_int_eq(6, DLITE_PROP_DIM(entity->meta, 5, 0));
+
+  mu_assert_int_eq(0, dlite_instance_is_data((DLiteInstance *)entity));
+  mu_assert_int_eq(1, dlite_instance_is_meta((DLiteInstance *)entity));
+  mu_assert_int_eq(0, dlite_instance_is_metameta((DLiteInstance *)entity));
+
+  dlite_instance_print((DLiteInstance *)entity);
 
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
 #if (__GNUC__ && SIZEOF_VOID_P == 8)
-  mu_assert_int_eq(64, sizeof(DLiteInstance));
-  mu_assert_int_eq(64, entity->dimoffset);
-  mu_assert_int_eq(80, entity->propoffsets[0]);
-  mu_assert_int_eq(88, entity->propoffsets[1]);
-  mu_assert_int_eq(96, entity->propoffsets[2]);
-  mu_assert_int_eq(104, entity->propoffsets[3]);
-  mu_assert_int_eq(112, entity->propoffsets[4]);
-  mu_assert_int_eq(120, entity->reloffset);
-  mu_assert_int_eq(120, entity->pooffset);
-  //mu_assert_int_eq(160, entity->size);
+  mu_assert_int_eq(72, sizeof(DLiteInstance));
+  mu_assert_int_eq(72, entity->_dimoffset);
+  mu_assert_int_eq(72, entity->_headersize);
+  mu_assert_int_eq(88, entity->_propoffsets[0]);
+  mu_assert_int_eq(96, entity->_propoffsets[1]);
+  mu_assert_int_eq(104, entity->_propoffsets[2]);
+  mu_assert_int_eq(112, entity->_propoffsets[3]);
+  mu_assert_int_eq(120, entity->_propoffsets[4]);
+  mu_assert_int_eq(128, entity->_reloffset);
+  mu_assert_int_eq(128, entity->_propdimsoffset);
+  mu_assert_int_eq(160, entity->_propdimindsoffset);
 #endif
 }
 
@@ -75,8 +83,8 @@ MU_TEST(test_instance_create)
 {
   size_t dims[]={3, 2};
   mu_check((mydata = dlite_instance_create(entity, dims, id)));
-  mu_assert_int_eq(1, mydata->refcount);
-  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
+  mu_assert_int_eq(1, mydata->_refcount);
+  mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_set_property)
@@ -91,8 +99,8 @@ MU_TEST(test_instance_set_property)
   mu_check(dlite_instance_set_property(mydata, "an-int-arr", intarr) == 0);
   mu_check(dlite_instance_set_property(mydata, "a-string-arr", strarr) == 0);
   mu_check(dlite_instance_set_property(mydata, "a-string3-arr", str3arr) == 0);
-  mu_assert_int_eq(1, mydata->refcount);
-  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
+  mu_assert_int_eq(1, mydata->_refcount);
+  mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_get_dimension_size)
@@ -102,8 +110,8 @@ MU_TEST(test_instance_get_dimension_size)
 
   mu_assert_int_eq(3, dlite_instance_get_dimension_size(mydata, "M"));
   mu_assert_int_eq(2, dlite_instance_get_dimension_size(mydata, "N"));
-  mu_assert_int_eq(1, mydata->refcount);
-  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
+  mu_assert_int_eq(1, mydata->_refcount);
+  mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_set_dimension_sizes)
@@ -125,26 +133,26 @@ MU_TEST(test_instance_set_dimension_sizes)
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
-  mu_assert_int_eq(1, mydata->refcount);
-  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
+  mu_assert_int_eq(1, mydata->_refcount);
+  mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_copy)
 {
   DLiteStorage *s;
   DLiteInstance *inst;
-  mu_assert_int_eq(1, mydata->refcount);
+  mu_assert_int_eq(1, mydata->_refcount);
   mu_check((inst = dlite_instance_copy(mydata, NULL)));
-  mu_assert_int_eq(1, mydata->refcount);
+  mu_assert_int_eq(1, mydata->_refcount);
 #ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", "myentity_copy.json", "mode=w")));
   mu_check(dlite_instance_save(s, inst) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
-  mu_assert_int_eq(1, mydata->refcount);
-  mu_assert_int_eq(1, inst->refcount);
+  mu_assert_int_eq(1, mydata->_refcount);
+  mu_assert_int_eq(1, inst->_refcount);
   dlite_instance_decref(inst);
-  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
+  mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_get_hash)
@@ -166,7 +174,7 @@ MU_TEST(test_instance_get_hash)
 #endif
   free(hash);
   free(hash2);
-  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+mydata */
+  mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
 
 MU_TEST(test_instance_save)
@@ -182,9 +190,9 @@ MU_TEST(test_instance_save)
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
-  mu_assert_int_eq(1, mydata->refcount);
+  mu_assert_int_eq(1, mydata->_refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata));
-  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+  mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_instance_hdf5)
@@ -199,10 +207,10 @@ MU_TEST(test_instance_hdf5)
   mu_check(dlite_instance_save(s, mydata2) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
-  mu_assert_int_eq(1, mydata2->refcount);
+  mu_assert_int_eq(1, mydata2->_refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata2));
 #endif
-  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+  mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_instance_json)
@@ -217,10 +225,10 @@ MU_TEST(test_instance_json)
   mu_check(dlite_instance_save(s, mydata3) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
-  mu_assert_int_eq(1, mydata3->refcount);
+  mu_assert_int_eq(1, mydata3->_refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata3));
 #endif
-  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+  mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_instance_load_url)
@@ -231,7 +239,7 @@ MU_TEST(test_instance_load_url)
   mu_check(0 == dlite_instance_save_url("json://myentity6.json?mode=w", inst));
   mu_assert_int_eq(0, dlite_instance_decref(inst));
 #endif
-  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+  mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_meta_save)
@@ -248,7 +256,7 @@ MU_TEST(test_meta_save)
   mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
-  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+  mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_meta_load)
@@ -259,27 +267,27 @@ MU_TEST(test_meta_load)
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=r")));
   mu_check((e = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
-  mu_assert_int_eq(3, entity->refcount);  /* refs: global+store+e */
+  mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+e */
 
   mu_check((s = dlite_storage_open("json", "MyEntity2.json", "mode=r")));
   mu_check((e2 = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
-  mu_assert_int_eq(4, entity->refcount);  /* refs: global+store+e+e2 */
+  mu_assert_int_eq(4, entity->_refcount);  /* refs: global+store+e+e2 */
 
   mu_check((s = dlite_storage_open("json", "MyEntity3.json", "mode=w;meta=1")));
   mu_check(dlite_meta_save(s, e) == 0);
   mu_check(dlite_storage_close(s) == 0);
-  mu_assert_int_eq(4, entity->refcount);  /* refs: global+store+e+e2 */
+  mu_assert_int_eq(4, entity->_refcount);  /* refs: global+store+e+e2 */
 
   mu_check((s = dlite_storage_open("json", "MyEntity4.json", "mode=w;meta=1")));
   mu_check(dlite_meta_save(s, e2) == 0);
   mu_check(dlite_storage_close(s) == 0);
-  mu_assert_int_eq(4, entity->refcount);  /* refs: global+store+e+e2 */
+  mu_assert_int_eq(4, entity->_refcount);  /* refs: global+store+e+e2 */
 
   dlite_meta_decref(e);
   dlite_meta_decref(e2);
 #endif
-  mu_assert_int_eq(2, entity->refcount);  /* refs: global+store */
+  mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
 
@@ -294,7 +302,7 @@ MU_TEST(test_meta_free)
 
 MU_TEST_SUITE(test_suite)
 {
-  MU_RUN_TEST(test_entity_create);    /* setup */
+  MU_RUN_TEST(test_meta_create);    /* setup */
   MU_RUN_TEST(test_instance_create);
   MU_RUN_TEST(test_instance_set_property);
   MU_RUN_TEST(test_instance_get_dimension_size);

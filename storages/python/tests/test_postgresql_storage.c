@@ -5,6 +5,7 @@
 
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "dlite-storage-plugins.h"
 
 /* This header should define HOST, DATABASE, USER and PASSWORD */
 #include "pgconf.h"
@@ -49,9 +50,10 @@ MU_TEST(test_save)
                                                 (DLiteInstance *)inst->meta));
   }
 
-  n = inst->refcount;
+  n = inst->_refcount;
   mu_assert_int_eq(2, n);
   for (i=0; i<n; i++) dlite_instance_decref(inst);
+  dlite_instance_decref(meta);
 }
 
 
@@ -68,12 +70,14 @@ MU_TEST(test_load)
 MU_TEST(test_iter)
 {
   char uuid[DLITE_UUID_LENGTH+1];
-  void *si = dlite_storage_iter_create(db, NULL);
-  mu_check(si);
-  printf("\n");
-  while (dlite_storage_iter_next(db, si, uuid) == 0)
-    printf("  - uuid: %s\n", uuid);
-  dlite_storage_iter_free(db, si);
+  if (db) {
+    void *si = dlite_storage_iter_create(db, NULL);
+    mu_check(si);
+    printf("\n");
+    while (dlite_storage_iter_next(db, si, uuid) == 0)
+      printf("  - uuid: %s\n", uuid);
+    dlite_storage_iter_free(db, si);
+  }
 }
 
 
@@ -83,6 +87,11 @@ MU_TEST(test_close_db)
     mu_assert_int_eq(0, dlite_storage_close(db));
 }
 
+
+MU_TEST(test_unload_plugins)
+{
+  dlite_storage_plugin_unload_all();
+}
 
 
 
@@ -96,6 +105,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_iter);
   MU_RUN_TEST(test_close_db);
+  MU_RUN_TEST(test_unload_plugins);
 }
 
 int main()

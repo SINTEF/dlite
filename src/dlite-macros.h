@@ -4,16 +4,17 @@
   @file
   @brief A simple colledtion of convinient macros (internal use)
 */
+#ifdef HAVE_CONFIG
+#include "config.h"
+#endif
 
-//#include "config.h"
-//#include "utils/err.h"
 #include "dlite-misc.h"
 
 
 /** Macro for getting rid of unused parameter warnings... */
 #define UNUSED(x) (void)(x)
 
-/** Turns macro literal `s` into a C string */
+/** Turns literal `s` into a C string */
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) # s
 

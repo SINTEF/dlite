@@ -10,7 +10,9 @@
 #include "utils/err.h"
 #include "utils/integers.h"
 #include "utils/floats.h"
+#include "utils/boolean.h"
 #include "dlite-entity.h"
+#include "dlite-macros.h"
 #include "dlite-type.h"
 
 
@@ -143,7 +145,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     snprintf(typename, n, "float%zu", size*8);
     break;
   case dliteFixString:
-    snprintf(typename, n, "string%zu", size);
+    snprintf(typename, n, "string%zu", size-1);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
@@ -166,6 +168,52 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
   return 0;
 }
 
+/*
+  Writes the fortran type name corresponding to `dtype` and `size` to
+  `typename`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_ftype(DLiteType dtype, size_t size,
+                         char *ftype, size_t n)
+{
+  switch (dtype) {
+  case dliteBlob:
+    snprintf(ftype, n, "blob");    
+    break;
+  case dliteBool:
+    if (size != sizeof(bool))
+      return errx(1, "bool should have size %zu, but %zu was provided",
+                 sizeof(bool), size);
+    snprintf(ftype, n, "logical");
+    break;
+  case dliteInt:
+    snprintf(ftype, n, "integer(%zu)", size);
+    break;
+  case dliteUInt:
+    snprintf(ftype, n, "integer(%zu)", size);
+    break;
+  case dliteFloat:
+    snprintf(ftype, n, "real(%zu)", size);
+    break;
+  case dliteFixString:
+    snprintf(ftype, n, "character(len=%zu)", size-1);
+    break;
+  case dliteStringPtr:
+    snprintf(ftype, n, "character(*)");
+    break;
+  case dliteDimension:
+    snprintf(ftype, n, "type(DLiteDimension)");
+    break;
+  case dliteProperty:
+    snprintf(ftype, n, "type(DLiteProperty)");
+    break;
+  case dliteRelation:
+    snprintf(ftype, n, "type(DLiteRelation)");
+    break;
+  default:
+    return errx(1, "unknown dtype number: %d", dtype);
+  }
+  return 0;
+}
 
 /*
   If the type specified with `dtype` and `size` has a native type name
@@ -214,6 +262,54 @@ const char *dlite_type_get_native_typename(DLiteType dtype, size_t size)
     break;
   }
   return NULL;
+}
+
+/*
+  Writes the Fortran ISO_C_BINDING type name corresponding to `dtype` and
+  `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
+*/
+int dlite_type_set_isoctype(DLiteType dtype, size_t size,
+                            char *isoctype, size_t n)
+{
+  const char* native = dlite_type_get_native_typename(dtype, size);
+  switch (dtype) {
+  case dliteBlob:
+    snprintf(isoctype, n, "blob");    
+    break;
+  case dliteBool:
+    if (size != sizeof(bool))
+      return errx(1, "bool should have size %zu, but %zu was provided",
+                 sizeof(bool), size);
+    snprintf(isoctype, n, "logical(c_bool)");
+    break;
+  case dliteInt:
+    snprintf(isoctype, n, "integer(c_%s)", native);
+    break;
+  case dliteUInt:
+    snprintf(isoctype, n, "integer(c_%s)", native);
+    break;
+  case dliteFloat:
+    snprintf(isoctype, n, "real(c_%s)", native);
+    break;
+  case dliteFixString:
+    snprintf(isoctype, n, "character(kind=c_char)");
+    break;
+  case dliteStringPtr:
+    snprintf(isoctype, n, "character(kind=c_char)");
+    break;
+  case dliteDimension:
+    snprintf(isoctype, n, "type(c_ptr)");
+    break;
+  case dliteProperty:
+    snprintf(isoctype, n, "type(c_ptr)");
+    break;
+  case dliteRelation:
+    snprintf(isoctype, n, "type(c_ptr)");
+    break;
+  default:
+    return errx(1, "unknown dtype number: %d", dtype);
+  }
+  return 0;
 }
 
 /*
@@ -348,7 +444,7 @@ int dlite_type_set_dtype_and_size(const char *typename,
     *size = typesize;
   } else if (strncmp(typename, "string", namelen) == 0) {
     *dtype = dliteFixString;
-    *size = typesize;
+    *size = typesize+1;
   } else {
     return err(1, "unknown type: %s", typename);
   }
@@ -399,7 +495,9 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       char *s = *((char **)src);
       if (s) {
         size_t len = strlen(s) + 1;
-        *((void **)dest) = realloc(*((void **)dest), len);
+        void *p = realloc(*((void **)dest), len);
+        if (!p) return err(1, "allocation failure"), NULL;
+        *((void **)dest) = p;
         memcpy(*((void **)dest), s, len);
       } else if (*((void **)dest)) {
         free(*((void **)dest));
@@ -424,10 +522,14 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->size = s->size;
       d->ndims = s->ndims;
       if (d->ndims) {
-        d->dims = malloc(d->ndims*sizeof(int));
-        memcpy(d->dims, s->dims, d->ndims*sizeof(int));
-      } else
+        int i;
+        if (!(d->dims = malloc(d->ndims*sizeof(char *))))
+          return err(1, "allocation failure"), NULL;
+        for (i=0; i<d->ndims; i++)
+          d->dims[i] = strdup(s->dims[i]);
+      } else {
         d->dims = NULL;
+      }
       d->unit = (s->unit) ? strdup(s->unit) : NULL;
       d->description = (s->description) ? strdup(s->description) : NULL;
     }
@@ -445,6 +547,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
   }
   return dest;
 }
+
 
 /*
   Clears the memory pointed to by `p`.  Its type is gived by `dtype` and `size`.
@@ -470,7 +573,13 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     break;
   case dliteProperty:
     free(((DLiteProperty *)p)->name);
-    if (((DLiteProperty *)p)->dims) free(((DLiteProperty *)p)->dims);
+    if (((DLiteProperty *)p)->dims) {
+      int i;
+      for (i=0; i < ((DLiteProperty *)p)->ndims; i++)
+        if (((DLiteProperty *)p)->dims[i])
+          free(((DLiteProperty *)p)->dims[i]);
+      free(((DLiteProperty *)p)->dims);
+    }
     if (((DLiteProperty *)p)->unit) free(((DLiteProperty *)p)->unit);
     if (((DLiteProperty *)p)->description)
       free(((DLiteProperty *)p)->description);
@@ -568,9 +677,46 @@ int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
   case dliteStringPtr:
     m = snprintf(dest, n, "%*.*s", w, r, *((char **)p));
     break;
-  default:
-    return err(-1, "serialising dtype \"%s\" is not supported",
-	       dtype_enum_names[dtype]);
+  case dliteDimension:
+    m = snprintf(dest, n, "{\"name\": \"%s\", \"description\": \"%s\"}",
+                 ((DLiteDimension *)p)->name,
+                 ((DLiteDimension *)p)->description);
+    break;
+  case dliteProperty:
+    {
+      int i;
+      char typename[32];
+      DLiteProperty *prop = (DLiteProperty *)p;
+      dlite_type_set_typename(prop->type, prop->size, typename,
+                              sizeof(typename));
+      m = snprintf(dest, n, "{"
+                   "\"name\": \"%s\", "
+                   "\"type\": \"%s\", "
+                   "\"ndims\": %d",
+                   prop->name, typename, prop->ndims);
+      if (prop->ndims) {
+        m += snprintf(dest+m, n-m, ", [");
+        for (i=0; i < prop->ndims; i++)
+          m += snprintf(dest+m, n-m, "\"%s\"%s", prop->dims[i],
+                        (i < prop->ndims-1) ? ", " : "");
+        m += snprintf(dest+m, n-m, "]");
+      }
+      if (prop->unit)
+        m += snprintf(dest+m, n-m, ", \"unit\": \"%s\"", prop->unit);
+      if (prop->iri)
+        m += snprintf(dest+m, n-m, ", \"iri\": \"%s\"", prop->iri);
+      if (prop->description)
+        m += snprintf(dest+m, n-m, ", \"description\": \"%s\"",
+                      prop->description);
+      m += snprintf(dest+m, n-m, "}");
+    }
+    break;
+  case dliteRelation:
+    {
+      DLiteRelation *r = (DLiteRelation *)p;
+      m = snprintf(dest, n, "[\"%s\", \"%s\", \"%s\"]", r->s, r->p, r->o);
+    }
+    break;
   }
   return m;
 }
@@ -589,10 +735,10 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   switch (dtype) {
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
-  default:              return err(0, "cannot determine alignment of "
+  default:              return err(1, "cannot determine alignment of "
                                    "dtype='%s' (%d), size=%zu",
                                    dlite_type_get_dtypename(dtype), dtype,
-                                   size);
+                                   size), 0;
   }
 }
 
@@ -609,9 +755,9 @@ size_t dlite_type_padding_at(DLiteType dtype, size_t size, size_t offset)
 
 
 /*
-  Returns the offset the current struct member with dtype \a dtype and
-  size \a size.  The offset of the previous struct member is \a prev_offset
-  and its size is \a prev_size.
+  Returns the offset the current struct member with dtype `dtype` and
+  size `size`.  The offset of the previous struct member is `prev_offset`
+  and its size is `prev_size`.
 
   Returns -1 on error.
  */
@@ -623,4 +769,172 @@ int dlite_type_get_member_offset(size_t prev_offset, size_t prev_size,
   offset = prev_offset + prev_size;
   padding = (align - (offset & (align - 1))) & (align - 1);
   return offset + padding;
+}
+
+
+/*
+  Copies n-dimensional array `src` to `dest` by calling `castfun` on
+  each element.  `dest` must have sufficient size to hold the result.
+
+  If either `dest_strides` or `src_strides`  are NULL, the memory is
+  assumed to be C-contiguous.
+
+  This function is rather general function that allows `src` and
+  `dest` to have different type and memory layout.  By e.g. inverting
+  the order of `dest_dims` and `dest_strides` you can copy an
+  n-dimensional array from C to Fortran order.
+
+  Arguments:
+    - ndims: Number of dimensions for both source and destination.
+          Zero means scalar.
+    - dest: Pointer to destination memory.  It must be large enough.
+    - dest_type: Destination data type
+    - dest_size: Size of each element in destination
+    - dest_dims: Destination dimensions.  Length: `ndims`, required if ndims > 0
+    - dest_strides: Destination strides.  Length: `ndims`, optional
+    - src: Pointer to source memory.
+    - src_type: Source data type.
+    - src_size: Size of each element in source.
+    - src_dims: Source dimensions.  Length: `ndims`, required if ndims > 0
+    - src_strides: Source strides.  Length: `ndims`, optional
+    - castfun: Function that is doing the actually casting. Called on each
+          element.
+
+  Returns non-zero on error.
+
+  TODO
+  Allow different number of dimensions in `src` and `dest` as long as
+  the total number of elements are equal.
+*/
+int dlite_type_ndcast(int ndims,
+                      void *dest, DLiteType dest_type, size_t dest_size,
+                      const size_t *dest_dims, const int *dest_strides,
+                      const void *src, DLiteType src_type, size_t src_size,
+                      const size_t *src_dims, const int *src_strides,
+                      DLiteTypeCast castfun)
+{
+  int i, retval=1, samelayout=1, *sstrides=NULL, *dstrides=NULL;
+  size_t *sidx=NULL, *didx=NULL;
+  size_t j, n, N=1;
+
+  assert(src);
+  assert(dest);
+  if (!castfun) castfun = dlite_type_copy_cast;
+
+  /* Scalar */
+  if (ndims == 0)
+    return castfun(dest, dest_type, dest_size, src, src_type, src_size);
+
+  assert(src_dims);
+  assert(dest_dims);
+
+  /* Total number of elements: N */
+  for (i=0, n=1; i<ndims; i++) {
+    N *= src_dims[i];
+    n *= dest_dims[i];
+  }
+  if (n != N)
+    return err(1, "incompatible sizes of source (%lu) and dest (%lu)", N, n);
+
+  /* Default source strides */
+  if (!src_strides) {
+    size_t size = src_size;
+    if (!(sstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    for (i=ndims-1; i >= 0; i--) {
+      sstrides[i] = size;
+      size *= src_dims[i];
+    }
+    src_strides = sstrides;
+  }
+
+  /* Default dest strides */
+  if (!dest_strides) {
+    size_t size = dest_size;
+    if (!(dstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    for (i=ndims-1; i >= 0; i--) {
+      dstrides[i] = size;
+      size *= dest_dims[i];
+    }
+    dest_strides = dstrides;
+  }
+
+  /* -- check that source and dest have same layout */
+  if (dest_type != src_type || dest_size != src_size) samelayout = 0;
+  if (samelayout) {
+    for (i=0; i<ndims; i++)
+      if (dest_dims[i] != src_dims[i] || dest_strides[i] != src_strides[i]) {
+        samelayout = 0;
+        break;
+      }
+  }
+  if (samelayout) {
+    /* -- check that source is contiguous */
+    int size = src_size;
+    for (i=0; i<ndims; i++) {
+      int iscont=0;
+      for (j=0; j < src_dims[j]; j++)
+        if (src_strides[j] == size) { iscont = 1; break; }
+      if (!iscont) { samelayout = 0; break; }
+      size *= src_dims[i];
+    }
+  }
+
+  if (samelayout) {
+    /* Special case: if source and dest have same layout and are
+       contiguous, copy all data in one chunck */
+    memcpy(dest, src, N * src_size);
+
+  } else {
+    /* General case: copy all elements individually using castfun()
+
+       We make a single loop over the total number of elements.  The
+       current index in each dimension in `src` and `dest` are stored
+       in `sidx` and `didx`, respectively.
+    */
+    size_t M=ndims-1;
+    const char *sp = src;  /* pointer to current element in `src` */
+    char *dp = dest;       /* pointer to current element in `dest` */
+    if (!(sidx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(didx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+
+    n = 0;
+    while (1) {
+      if (castfun(dp, dest_type, dest_size, sp, src_type, src_size)) goto fail;
+
+      if (++n >= N) break;
+
+      /* update src pointer and index */
+      if (++sidx[M] < src_dims[M]) {
+        sp += src_strides[M];
+      } else {
+        sidx[M] = 0;
+        for (i=M-1; i>=0; i--) {
+          if (++sidx[i] < src_dims[i]) break;
+          sidx[i] = 0;
+        }
+        for (j=0, sp=src; j<M; j++)
+          sp += src_strides[j] * sidx[j];
+      }
+
+      /* update dest pointer and index */
+      if (++didx[M] < dest_dims[M]) {
+        dp += dest_strides[M];
+      } else {
+        didx[M] = 0;
+        for (i=M-1; i>=0; i--) {
+          if (++didx[i] < dest_dims[i]) break;
+          didx[i] = 0;
+        }
+        for (j=0, dp=dest; j<M; j++)
+          dp += dest_strides[j] * didx[j];
+      }
+    }
+  }
+  retval = 0;
+ fail:
+  if (sidx) free(sidx);
+  if (didx) free(didx);
+  if (sstrides) free(sstrides);
+  if (dstrides) free(dstrides);
+  return retval;
 }

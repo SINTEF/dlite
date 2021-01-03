@@ -1,14 +1,15 @@
-#ifndef _DLITE_UTILS_H
-#define _DLITE_UTILS_H
+#ifndef _DLITE_MISC_H
+#define _DLITE_MISC_H
 
 /**
   @file
   @brief Main header file for dlite
 */
 
-#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
-
+#include "utils/fileutils.h"
 #include "dlite-type.h"
+
+#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
 
 
 /**
@@ -17,27 +18,38 @@
  */
 
 /**
-  Writes an UUID to \a buff based on \a id.
+  Returns static pointer to a string with the current version of DLite.
+*/
+const char *dlite_get_version(void);
 
-  Whether and what kind of UUID that is generated depends on \a id:
-    - If \a id is NULL or empty, a new random version 4 UUID is generated.
-    - If \a id is not a valid UUID string, a new version 5 sha1-based UUID
-      is generated from \a id using the DNS namespace.
-    - Otherwise is \a id already a valid UUID and it is simply copied to
-      \a buff.
+/**
+  Returns current platform based on the DLITE_PLATFORM environment
+  variable.  Used when initiating paths.
+ */
+FUPlatform dlite_get_platform(void);
 
-  Length of \a buff must at least (DLITE_UUID_LENGTH + 1) bytes (36 bytes
+/**
+  Writes an UUID to `buff` based on `id`.
+
+  Whether and what kind of UUID that is generated depends on `id`:
+    - If `id`  is NULL or empty, a new random version 4 UUID is generated.
+    - If `id` is not a valid UUID string, a new version 5 sha1-based UUID
+      is generated from `id` using the DNS namespace.
+    - Otherwise is `id` already a valid UUID and it is simply copied to
+      `buff`.
+
+  Length of `buff` must at least (DLITE_UUID_LENGTH + 1) bytes (36 bytes
   for UUID + NUL termination).
 
-  Returns the UUID version if a new UUID is generated or zero if \a id
+  Returns the UUID version if a new UUID is generated or zero if `id`
   is already a valid UUID.  On error, -1 is returned.
  */
 int dlite_get_uuid(char *buff, const char *id);
 
 
 /**
-  Returns an unique uri for metadata defined by \a name, \a version
-  and \a namespace as a newly malloc()'ed string or NULL on error.
+  Returns an unique uri for metadata defined by `name`, `version`
+  and `namespace` as a newly malloc()'ed string or NULL on error.
 
   The returned uri is constructed as follows:
 
@@ -47,8 +59,8 @@ char *dlite_join_meta_uri(const char *name, const char *version,
                           const char *namespace);
 
 /**
-  Splits \a metadata uri into its components.  If \a name, \a version and/or
-  \a namespace are not NULL, the memory they points to will be set to a
+  Splits metadata `uri` into its components.  If `name`, `version` and/or
+  `namespace` are not NULL, the memory they points to will be set to a
   pointer to a newly malloc()'ed string with the corresponding value.
 
   Returns non-zero on error.
@@ -172,6 +184,41 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
 
 /**
+  Returns non-zero if paths should refer to build root instead of
+  installation root.
+ */
+int dlite_use_build_root(void);
+
+/**
+  Sets whether paths should refer to build root.  Default is the
+  installation root, unless the environment variable
+  DLITE_USE_BUILD_ROOT is set and is not false.
+*/
+void dlite_set_use_build_root(int v);
+
+/**
+  Returns pointer to installation root.  It may be altered with environment
+  variable DLITE_ROOT.
+*/
+const char *dlite_root_get(void);
+
+
+/**
+  On Windows, this function adds default directories to the DLL search
+  path.  Based on whether the `DLITE_USE_BUILDROOT` environment
+  variable is defined, the library directories under either the build
+  directory or the installation root (environment variable DLITE_ROOT)
+  are added to the DLL search path using AddDllDirectory().
+
+  On Linux this function does nothing.
+
+  Returns non-zero on error.
+ */
+int dlite_add_dll_path(void);
+
+
+
+/**
   @name Wrappers around error functions
 */
 #ifndef __GNUC__
@@ -213,4 +260,4 @@ void dlite_errclr(void);
 /** @} */
 
 
-#endif /* _DLITE_UTILS_H */
+#endif /* _DLITE_MISC_H */

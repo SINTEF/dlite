@@ -26,7 +26,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   DLiteDataModel *d=NULL;
   char **uuids=NULL;
   char uuid[DLITE_UUID_LENGTH+1];
-  int uuidver;
+  int uuidver=4;
 
   /* allow id to be NULL if the storage only contains one instance */
   if (!id || !*id) {
@@ -37,21 +37,24 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
         id = uuids[0];
       else
         FAIL2("`id` required to load from storage \"%s\" with %d instances",
-              s->uri, n);
+              s->location, n);
     } else if (!s->writable) {
-      FAIL1("`id` required to load from storage \"%s\"", s->uri);
+      FAIL1("`id` required to load from storage \"%s\"", s->location);
     }
   }
 
-  if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
+  if (s->idflag == dliteIDKeepID) {
+      d = s->api->dataModel(s, id);  
+  } else if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
       s->idflag == dliteIDRequireUUID) {
     if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
       FAIL1("failed generating UUID from id \"%s\"", id);
     if (uuidver != 0 && s->idflag == dliteIDRequireUUID)
       FAIL1("id is not a valid UUID: \"%s\"", id);
+    d = s->api->dataModel(s, uuid); 
   }
 
-  if (!(d = s->api->dataModel(s, uuid)))
+  if (!d)
     FAIL2("cannot create datamodel id='%s' for storage '%s'", id, s->api->name);
 
   /* Initialise common fields */
@@ -90,6 +93,11 @@ char *dlite_datamodel_get_meta_uri(const DLiteDataModel *d)
 }
 
 
+void dlite_datamodel_resolve_dimensions(DLiteDataModel *d, const DLiteMeta *meta)
+{
+  if (d->api->resolveDimensions)
+    d->api->resolveDimensions(d, meta);
+}
 /*
   Returns the size of dimension `name` or -1 on error.
  */

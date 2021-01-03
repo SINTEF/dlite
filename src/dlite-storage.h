@@ -6,6 +6,9 @@
   @brief Opens and closes storages.
 */
 
+#include "utils/fileutils.h"
+
+
 /** Opaque type for a DLiteStorage.
 
     Nothing is actually declared to be a DLiteStorage, but all plugin
@@ -14,6 +17,9 @@ typedef struct _DLiteStorage DLiteStorage;
 
 /** Opaque type for an instance. */
 typedef struct _DLiteInstance DLiteInstance;
+
+/** Iterator over dlite storage paths. */
+typedef struct _DLiteStoragePathIter DLiteStoragePathIter;
 
 /** Flags for how to handle instance IDs. */
 typedef enum _DLiteIDFlag {
@@ -27,7 +33,7 @@ typedef enum _DLiteIDFlag {
 
 
 /**
-  Opens a storage located at `uri` using `driver`.
+  Opens a storage located at `location` using `driver`.
   Returns a opaque pointer or NULL on error.
 
   The `options` are passed to the driver.  Options for known
@@ -39,12 +45,12 @@ typedef enum _DLiteIDFlag {
         - w    Write: truncate existing file or create new file
         - a    Append: open existing file for read and write
 */
-DLiteStorage *dlite_storage_open(const char *driver, const char *uri,
+DLiteStorage *dlite_storage_open(const char *driver, const char *location,
                                  const char *options);
 
 /**
   Like dlite_storage_open(), but takes as input an url of the form
-  ``driver://uri?options``.  The question mark and options may be left out.
+  ``driver://location?options``.  The question mark and options may be left out.
 
   Returns a new storage, or NULL on error.
 */
@@ -146,6 +152,16 @@ void dlite_storage_uuids_free(char **uuids);
  */
 
 /**
+  Returns pointer to storage paths.a
+*/
+FUPaths *dlite_storage_paths(void);
+
+/**
+  Free's up memory used by storage paths.
+*/
+void dlite_storage_paths_free(void);
+
+/**
   Inserts `path` into storage paths before position `n`.  If `n` is
   negative, it counts from the end (like Python).
 
@@ -177,6 +193,35 @@ int dlite_storage_paths_remove(int n);
   and dlite_storage_paths_append().
  */
 const char **dlite_storage_paths_get();
+
+
+/**
+  Returns an iterator over all files in storage paths (with glob
+  patterns in paths expanded).
+
+  Returns NULL on error.
+
+  Should be used together with dlite_storage_path_iter_next() and
+  dlite_storage_path_iter_stop().
+ */
+DLiteStoragePathIter *dlite_storage_paths_iter_start();
+
+/**
+  Returns name of the next file in the iterator `iter` created with
+  dlite_storage_paths_iter_start() or NULL if there are no more matches.
+
+  @note
+  The returned string is owned by the iterator. It will be overwritten
+  by the next call to fu_nextmatch() and should not be changed.  Use
+  strdup() or strncpy() if a copy is needed.
+ */
+const char *dlite_storage_paths_iter_next(DLiteStoragePathIter *iter);
+
+/**
+  Stops and deallocates iterator created with dlite_storage_paths_iter_start().
+ */
+int dlite_storage_paths_iter_stop(DLiteStoragePathIter *iter);
+
 
 /** @} */
 

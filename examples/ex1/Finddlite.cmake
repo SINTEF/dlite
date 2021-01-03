@@ -58,6 +58,7 @@ else()
     message(FATAL_ERROR "DLite not found (try to specify DLITE_ROOT)")
   else()
     message(STATUS "DLite not found")
+    return()
   endif()
 
   # DLITE_LIBRARY_DIR
@@ -116,9 +117,12 @@ else()
     ${HDF5_LIBRARIES}
     )
 
+  # Append to CMAKE_MODULE_PATH
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake
+    PARENT_SCOPE)
 
   # Define variables for setting up environment needed by dlite
-  if(WINDOWS)
+  if(WIN32)
     set(dlite_PATH
       "${DLITE_RUNTIME_DIR};${DLITE_LIBRARY_DIR};$ENV{PATH}")
     set(dlite_LD_LIBRARY_PATH

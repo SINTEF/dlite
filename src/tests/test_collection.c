@@ -83,12 +83,12 @@ MU_TEST(test_collection_add)
   DLiteStorage *s;
   DLiteInstance *e, *inst;
 
-  path = STRINGIFY(DLITE_ROOT) "/src/tests/test-entity.json";
+  path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-entity.json";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((e = dlite_instance_load(s, NULL)));
   mu_check(!dlite_storage_close(s));
 
-  path = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+  path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-data.json";
   uri = "my_test_instance";
   //uri = "e076a856-e36e-5335-967e-2f2fd153c17d";
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
@@ -122,7 +122,7 @@ MU_TEST(test_collection_next)
   printf("\nInstances:\n");
   while ((inst = dlite_collection_next(coll, &state))) {
     printf("  %s (refcount=%d)\n", (inst->uri) ? inst->uri : inst->uuid,
-           inst->refcount);
+           inst->_refcount);
     ninst++;
   }
   dlite_collection_deinit_state(&state);

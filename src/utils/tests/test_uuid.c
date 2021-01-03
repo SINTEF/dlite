@@ -16,6 +16,12 @@
 #include "sha1.h"
 #include "uuid.h"
 
+/* Get rid of MSVS warnings */
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
+# pragma warning(disable: 4996)
+#endif
+
+
 
 int test_bswap_16()
 {
@@ -49,7 +55,7 @@ int test_md5()
                       NULL};
   MD5Init(&md5);
   for (p=messages; *p; p++)
-    MD5Update(&md5, *p, strlen(*p));
+    MD5Update(&md5, *p, (unsigned long)strlen(*p));
   MD5Final(digest, &md5);
 
   for (i=0; i<sizeof(digest); i++)
@@ -70,7 +76,7 @@ int test_sha1()
                       NULL};
   SHA1Init(&sha1);
   for (p=messages; *p; p++)
-    SHA1Update(&sha1, (unsigned char *)(*p), strlen(*p));
+    SHA1Update(&sha1, (unsigned char *)(*p), (uint32_t)strlen(*p));
   SHA1Final(digest, &sha1);
 
   for (i=0; i<sizeof(digest); i++)
@@ -104,7 +110,7 @@ int test_uuid3()
   char *s = "www.widgets.com";
   char uuid[37];
 
-  uuid_create_md5_from_name(&u, NameSpace_DNS, s, strlen(s));
+  uuid_create_md5_from_name(&u, NameSpace_DNS, s, (int)strlen(s));
   uuid_as_string(&u, uuid);
   return strcmp(uuid, "3d813cbb-47fb-32ba-91df-831e1593ac29");
 }
@@ -115,7 +121,7 @@ int test_uuid5()
   char *s = "www.widgets.com";
   char uuid[37];
 
-  uuid_create_sha1_from_name(&u, NameSpace_DNS, s, strlen(s));
+  uuid_create_sha1_from_name(&u, NameSpace_DNS, s, (int)strlen(s));
   uuid_as_string(&u, uuid);
 
   return strcmp(uuid, "21f7f8de-8051-5b89-8680-0195ef798b6a");

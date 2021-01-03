@@ -1,0 +1,31 @@
+{
+    "name": "Scan3D",
+    "version": "0.1",
+    "namespace": "http://meta.sintef.no",
+    "meta": "http://meta.sintef.no/0.3/EntitySchema",
+    "description": "A 3D scan.",
+    "dimensions": [
+      {
+        "name": "P",
+        "description": "Number of points."
+      },
+      {
+        "name": "N",
+        "description": "Number of dimension (3D)."
+      }
+    ],
+    "properties": [
+        {
+            "name": "date",
+            "type": "string10",
+            "description": "Date of the scan."
+        },
+        {
+        "name": "points",
+        "type": "float",
+        "unit": "mm",
+        "dims": ["P", "N"],            
+        "description": "Point cloud."
+        }
+    ]
+}

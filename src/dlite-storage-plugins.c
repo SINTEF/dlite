@@ -1,4 +1,5 @@
 #include "config.h"
+#include "config-paths.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -38,7 +39,17 @@ static PluginInfo *get_storage_plugin_info(void)
 			  "get_dlite_storage_plugin_api",
 			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
     atexit(storage_plugin_info_free);
-    dlite_storage_plugin_path_append(DLITE_STORAGE_PLUGIN_DIRS);
+
+    fu_paths_set_platform(&storage_plugin_info->paths, dlite_get_platform());
+
+    if (dlite_use_build_root())
+      plugin_path_extend(storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);
+   else
+      plugin_path_extend_prefix(storage_plugin_info, dlite_root_get(),
+                                DLITE_STORAGE_PLUGIN_DIRS, NULL);
+
+    /* Make sure that dlite DLLs are added to the library search path */
+    dlite_add_dll_path();
   }
   return storage_plugin_info;
 }
@@ -74,18 +85,15 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     TGenBuf buf;
     int n=0;
     const char *p, **paths = dlite_storage_plugin_paths();
+    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT or ";
     tgen_buf_init(&buf);
     tgen_buf_append_fmt(&buf, "cannot find storage plugin for driver \"%s\" "
                         "in search path:\n", name);
     while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
     if (n <= 1)
-      tgen_buf_append_fmt(&buf, "Is the DLITE_STORAGE_PLUGIN_DIRS enveronment "
-                          "variable set?");
-#ifdef WITH_PYTHON
-    else
-      tgen_buf_append_fmt(&buf, "Is the DLITE_PYTHON_STORAGE_PLUGIN_DIRS "
-                          "enveronment variable set?");
-#endif
+      tgen_buf_append_fmt(&buf, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
+                          "enveronment variable(s) set?", submsg);
+
     errx(1, "%s", tgen_buf_get(&buf));
     tgen_buf_deinit(&buf);
   }
@@ -99,7 +107,7 @@ int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_register_api(info, api);
+  return plugin_register_api(info, (const PluginAPI *)api);
 }
 
 /*
@@ -120,36 +128,14 @@ int dlite_storage_plugin_load_all()
 void dlite_storage_plugin_unload_all()
 {
   PluginInfo *info;
-  DLiteStoragePluginIter *iter;
-  const DLiteStoragePlugin *api;
-  //char **names=NULL;
-  //int i, n=0, N=0;
+  char **p, **names;
   if (!(info = get_storage_plugin_info())) return;
-  if (!(iter = dlite_storage_plugin_iter_create())) return;
-
-  while ((api = dlite_storage_plugin_iter_next(iter))) {
-    plugin_unload(info, api->name);
-    if (api->freer) api->freer((DLiteStoragePlugin *)api);
-    //free((DLiteStoragePlugin *)api);
+  if (!(names = plugin_names(info))) return;
+  for (p=names; *p; p++) {
+    plugin_unload(info, *p);
+    free(*p);
   }
-
-  /* make a list with all plugin names */
-    /*
-  while ((api = dlite_storage_plugin_iter_next(iter))) {
-    if (n >= N) {
-      N += 64;
-      names = realloc(names, N*sizeof(char *));
-    }
-    names[n++] = strdup(api->name);
-  }
-  dlite_storage_plugin_iter_free(iter);
-
-  for (i=0; i<n; i++) {
-    plugin_unload(info, names[i]);
-    free(names[i]);
-  }
-  if (names) free(names);
-    */
+  free(names);
 }
 
 /*
@@ -200,17 +186,41 @@ int dlite_storage_plugin_unload(const char *name)
 
 
 /*
+  Returns a pointer to the underlying FUPaths object for storage plugins
+  or NULL on error.
+ */
+FUPaths *dlite_storage_plugin_paths_get(void)
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return NULL;
+  return &info->paths;
+}
+
+/*
   Returns a NULL-terminated array of pointers to search paths or NULL
   if no search path is defined.
 
   Use dlite_storage_plugin_path_insert(), dlite_storage_plugin_path_append()
   and dlite_storage_plugin_path_remove() to modify it.
 */
-const char **dlite_storage_plugin_paths()
+const char **dlite_storage_plugin_paths(void)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return NULL;
   return plugin_path_get(info);
+}
+
+/*
+  Returns an allocated string with the content of `paths` formatted
+  according to the current platform.  See dlite_set_platform().
+
+  Returns NULL on error.
+ */
+char *dlite_storage_plugin_path_string(void)
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return NULL;
+  return fu_paths_string(&info->paths);
 }
 
 /*
@@ -238,6 +248,19 @@ int dlite_storage_plugin_path_append(const char *path)
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
   return plugin_path_append(info, path);
+}
+
+/*
+  Like dlite_storage_plugin_path_append(), but appends at most the
+  first `n` bytes of `path` to the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_appendn(const char *path, size_t n)
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return 1;
+  return plugin_path_appendn(info, path, n);
 }
 
 /*

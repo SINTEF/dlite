@@ -1,4 +1,9 @@
-/* plugins.h -- simple plugin library */
+/* plugins.h -- simple plugin library
+ *
+ * Copyright (C) 2017 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
 #ifndef _PLUGINS_H
 #define _PLUGINS_H
 
@@ -9,7 +14,7 @@
   Plugins accessed with this library, are dynamic shared libraries
   exposing a single function with prototype
 
-      const void *symbol(int *iter);
+      const PluginAPI *symbol(int *iter);
 
   This function should return a pointer to a struct with function
   pointers to all functions provided by the plugin (data member are
@@ -27,24 +32,35 @@
   @see http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "dsl.h"
 #include "fileutils.h"
 #include "globmatch.h"
 #include "map.h"
 
-/** Prototype for function that is looked up in shared library */
-typedef const void *(*PluginFunc)(int *iter);
 
-/** Opaque struct for list of plugins */
+/** Initial fields in all plugin APIs. */
+#define PluginAPI_HEAD                                                  \
+  char *name;                               /* Plugin name */           \
+  void (*freeapi)(struct _PluginAPI *api);  /* Optional function */     \
+                                            /* that free's instances */ \
+                                            /* of this struct */
+
+
+/** Base declaration of a plugin API that all plugin APIs can be cast
+    into. */
+typedef struct _PluginAPI {
+  PluginAPI_HEAD
+} PluginAPI;
+
+/** Prototype for function that is looked up in shared library */
+typedef const PluginAPI *(*PluginFunc)(int *iter);
+
+/** Opaque struct for list of loaded plugins (shared libraries) */
 typedef struct _Plugin Plugin;
 
-/** Maps plugin file names to plugins */
-typedef map_t(Plugin *) Plugins;
-
+/** New map types for plugins and plugin apis */
+typedef map_t(Plugin *) map_plg_t;
+typedef map_t(PluginAPI *) map_api_t;
 
 /** Info about a plugin kind */
 typedef struct _PluginInfo {
@@ -53,9 +69,9 @@ typedef struct _PluginInfo {
   const char *envvar;    /*!< Name of environment variable initialising the
                               plugin search path */
   FUPaths paths;         /*!< Current plugin search paths */
-  Plugins plugins;       /*!< Maps plugin paths to loaded plugins */
-  map_str_t pluginpaths; /*!< Maps api names to plugin paths */
-  map_void_t apis;       /*!< Maps api names to apis (void pointers) */
+  map_plg_t plugins;     /*!< Maps plugin paths to loaded plugins */
+  map_str_t pluginpaths; /*!< Maps api names to plugin path names */
+  map_api_t apis;        /*!< Maps api names to plugin apis */
 } PluginInfo;
 
 
@@ -64,7 +80,6 @@ typedef struct _PluginIter {
   const PluginInfo *info;
   map_iter_t miter;
 } PluginIter;
-
 
 
 /**
@@ -88,7 +103,7 @@ void plugin_info_free(PluginInfo *info);
 /*
   Registers `api` into `info`.  Returns non-zero on error.
  */
-int plugin_register_api(PluginInfo *info, const void *api);
+int plugin_register_api(PluginInfo *info, const PluginAPI *api);
 
 
 /**
@@ -108,7 +123,7 @@ int plugin_register_api(PluginInfo *info, const void *api);
 
   Otherwise NULL is returned.
  */
-const void *plugin_get_api(PluginInfo *info, const char *name);
+const PluginAPI *plugin_get_api(PluginInfo *info, const char *name);
 
 /**
   Load all plugins that can be found in the plugin search path.
@@ -130,7 +145,7 @@ void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info);
   Used for iterating over plugins.  Plugins should not be registered
   or removed while iterating.
  */
-const void *plugin_api_iter_next(PluginIter *iter);
+const PluginAPI *plugin_api_iter_next(PluginIter *iter);
 
 
 
@@ -139,6 +154,13 @@ const void *plugin_api_iter_next(PluginIter *iter);
   Returns non-zero on error.
 */
 int plugin_unload(PluginInfo *info, const char *name);
+
+
+/**
+  Returns a NULL-terminated array of pointers to api names.
+  Returns NULL on error.
+*/
+char **plugin_names(const PluginInfo *info);
 
 
 /**
@@ -163,6 +185,33 @@ int plugin_path_insert(PluginInfo *info, const char *path, int n);
   Returns the index of the newly appended path or -1 on error.
  */
 int plugin_path_append(PluginInfo *info, const char *path);
+
+/**
+  Like plugin_path_append(), but appends at most the `n` first bytes
+  of `path` to the current search path.
+
+  Returns the index of the newly appended path or -1 on error.
+*/
+int plugin_path_appendn(PluginInfo *info, const char *path, size_t n);
+
+/**
+  Extends current search path by appending all `pathsep`-separated paths
+  in `s` to it.
+
+  Returns the index of the last appended path or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int plugin_path_extend(PluginInfo *info, const char *s, const char *pathsep);
+
+/**
+  Like plugin_paths_extend(), but prefix all relative paths in `s`
+  with `prefix` before appending them to `paths`.
+
+  Returns the index of the last appended paths or zero if nothing is appended.
+  On error, -1 is returned.
+*/
+int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
+                              const char *s, const char *pathsep);
 
 /**
   Removes path index `n` from current search path.  If `n` is

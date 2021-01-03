@@ -24,27 +24,54 @@
   Returns the new array or NULL on error.
  */
 DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
-                               int ndims, const int *dims)
+                               int ndims, const size_t *dims)
 {
   DLiteArray *arr;
-  int i, asize = sizeof(DLiteArray) + 2*ndims*sizeof(int);
+  int i, asize = sizeof(DLiteArray) + ndims*sizeof(size_t) + ndims*sizeof(int);
   assert(ndims >= 0);
 
   /* allocate the array object (except the data) in one chunk */
   if (!(arr = calloc(1, asize))) return err(1, "allocation failure"), NULL;
-  arr->dims = (int *)((char *)arr + sizeof(DLiteArray));
-  arr->strides = (int *)((char *)arr->dims + ndims*sizeof(int));
+  arr->dims = (size_t *)((char *)arr + sizeof(DLiteArray));
+  arr->strides = (int *)((char *)arr->dims + ndims*sizeof(size_t));
 
   arr->data = data;
   arr->type = type;
   arr->size = size;
   arr->ndims = ndims;
-  memcpy(arr->dims, dims, ndims*sizeof(int));
+  memcpy(arr->dims, dims, ndims*sizeof(size_t));
   for (i=ndims-1; i>=0; i--) {
     arr->strides[i] = size;
     size *= dims[i];
   }
   return arr;
+}
+
+/*
+  Like dlite_array_create(), but with argument `order`, which can have
+  the values:
+    'C':  row-major (C-style) order, no reordering.
+    'F':  coloumn-major (Fortran-style) order, transposed order.
+*/
+DLiteArray *dlite_array_create_order(void *data, DLiteType type, size_t size,
+                                     int ndims, const size_t *dims, int order)
+{
+  DLiteArray *arr2, *arr = dlite_array_create(data, type, size, ndims, dims);
+  if (!arr) return NULL;
+  switch (order) {
+  case 'C':
+    return arr;
+  case 'F':
+    if (!(arr2 = dlite_array_transpose(arr))) {
+      dlite_array_free(arr);
+      return NULL;
+    };
+    dlite_array_free(arr);
+    return arr2;
+  default:
+    return err(1, "invalid order '%c', should be either 'C' or 'F'",
+               order), NULL;
+  }
 }
 
 
@@ -146,7 +173,7 @@ void *dlite_array_iter_next(DLiteArrayIter *iter)
     if (arr->dims[n] <= 0) return NULL;  /* check that all dimensions has
 					    positive length */
   for (n=arr->ndims-1; n>=0; n--) {
-    if (++iter->ind[n] < arr->dims[n]) break;
+    if (++iter->ind[n] < (int)arr->dims[n]) break;
     iter->ind[n] = 0;
   }
   if (n < 0) {
@@ -214,7 +241,7 @@ int dlite_array_compare(const DLiteArray *a, const DLiteArray *b)
       start[n], start[n]-1, ... stop[n]+2, stop[n]+1
 
   In Python, you can get the full reversed range by specifying `None`
-  as the stop value.  But `None` is not a valid C integer.  If dlite
+  as the stop value.  But `None` is not a valid C integer.  In dlite
   you can get the full reversed range by setting `stop[n]` to zero.
  */
 DLiteArray *dlite_array_slice(const DLiteArray *arr,
@@ -225,24 +252,20 @@ DLiteArray *dlite_array_slice(const DLiteArray *arr,
   if (!(new = dlite_array_create(arr->data, arr->type, arr->size,
 				 arr->ndims, arr->dims))) return NULL;
   for (n = arr->ndims-1; n >= 0; n--) {
-    int s1, s2, m;
+    int s1, s2;
     int d = (step) ? step[n] : 1;
     if (d == 0) return err(1, "dim %d: slice step cannot be zero", n), NULL;
     if (d > 0) {
       s1 = (start) ? start[n] % arr->dims[n] : 0;
-      s2 = (stop) ? (stop[n]-1) % arr->dims[n] + 1 : arr->dims[n];
-      if (s1 < 0) s1 += arr->dims[n];
-      if (s2 < 0) s2 += arr->dims[n];
-      offset += s1 * arr->strides[n];
+      s2 = (stop) ? stop[n] % arr->dims[n] - 1 : arr->dims[n] - 1;
     } else {
-      s1 = (start) ? (start[n]-1) % arr->dims[n] + 1 : arr->dims[n];
-      s2 = (stop) ? (stop[n]-1) % arr->dims[n] + 1 : 0;
-      if (s1 < 0) s1 += arr->dims[n];
-      if (s2 < 0) s2 += arr->dims[n];
-      offset += (s1 - 1) * arr->strides[n];
+      s1 = (start) ? start[n] % arr->dims[n] - 1 : arr->dims[n] - 1;
+      s2 = (stop) ? stop[n] % arr->dims[n] : 0;
     }
-    m = (abs(s2 - s1) + d/2) / abs(d);
-    new->dims[n] = m;
+    if (s1 < 0) s1 += arr->dims[n];
+    if (s2 < 0) s2 += arr->dims[n];
+    offset += s1 * arr->strides[n];
+    new->dims[n] = (abs(s2 - s1) + 1 + d/2) / abs(d);
     new->strides[n] *= d;
   }
   new->data = ((char *)arr->data) + offset;
@@ -258,7 +281,7 @@ DLiteArray *dlite_array_slice(const DLiteArray *arr,
   Returns NULL on error.
  */
 DLiteArray *dlite_array_reshape(const DLiteArray *arr,
-                                int ndims, const int *dims)
+                                int ndims, const size_t *dims)
 {
   int i, prod1=1, prod2=1;;
   if (!dlite_array_is_continuous(arr))
@@ -328,7 +351,14 @@ void *dlite_array_make_continuous(DLiteArray *arr)
 
 
 /*
-  Print array `arr` to stream `fp`.  Returns non-zero on error.
+  Print array `arr` to stream `fp`.
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  Returns non-zero on error.
  */
 int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec)
 {
@@ -346,7 +376,8 @@ int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec)
     for (i=0; i<m; i++) fprintf(fp, "[");
     dlite_type_snprintf(p, arr->type, arr->size, width, prec, buf, sizeof(buf));
     fprintf(fp, "%s%s", buf, sep);
-    for (i=N; i >= 0 && iter.ind[i] == arr->dims[i]-1; i--) fprintf(fp, "]");
+    for (i=N; i >= 0 && iter.ind[i] == (int)arr->dims[i]-1; i--)
+      fprintf(fp, "]");
     if (iter.ind[N] == NN) fprintf(fp, "\n");
   }
   dlite_array_iter_deinit(&iter);

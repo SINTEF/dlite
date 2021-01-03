@@ -35,6 +35,7 @@
 */
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
+#include "utils/plugin.h"
 
 #include "dlite-datamodel.h"
 #include "dlite-storage.h"
@@ -47,7 +48,7 @@ typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
 /** Initial segment of all DLiteStorage plugin data structures. */
 #define DLiteStorage_HEAD                                                  \
   const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */            \
-  char *uri;                /*!< URI passed to dlite_storage_open() */     \
+  char *location;           /*!< Location passed to dlite_storage_open() */ \
   char *options;            /*!< Options passed to dlite_storage_open() */ \
   int writable;             /*!< Whether storage is writable */            \
   DLiteIDFlag idflag;       /*!< How to handle instance id's */
@@ -150,6 +151,12 @@ void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter);
 int dlite_storage_plugin_unload(const char *name);
 
 /**
+  Returns a pointer to the underlying FUPaths object for storage plugins
+  or NULL on error.
+ */
+FUPaths *dlite_storage_plugin_paths_get(void);
+
+/**
   Returns a pointer to the current storage plugin search path.  It is
   initialised from the environment variable `DLITE_STORAGE_PLUGIN_DIRS`.
 
@@ -157,6 +164,14 @@ int dlite_storage_plugin_unload(const char *name);
   and dlite_storage_plugin_path_remove() to modify it.
 */
 const char **dlite_storage_plugin_paths(void);
+
+/**
+  Returns an allocated string with the content of `paths` formatted
+  according to the current platform.  See dlite_set_platform().
+
+  Returns NULL on error.
+ */
+char *dlite_storage_plugin_path_string(void);
 
 /**
   Inserts `path` into the current search path at index `n`.  If `n` is
@@ -174,6 +189,14 @@ int dlite_storage_plugin_path_insert(int n, const char *path);
   Returns non-zero on error.
 */
 int dlite_storage_plugin_path_append(const char *path);
+
+/**
+  Like dlite_storage_plugin_path_append(), but appends at most the
+  first `n` bytes of `path` to the current search path.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_plugin_path_appendn(const char *path, size_t n);
 
 /**
   Removes path number `n` from current search path.
@@ -343,6 +366,10 @@ typedef int (*DataModelFree)(DLiteDataModel *d);
  */
 typedef char *(*GetMetaURI)(const DLiteDataModel *d);
 
+/**
+ * Resolve the dimensions from the properties (JSON or YAML storage)
+ */
+typedef void (*ResolveDimensions)(DLiteDataModel *d, const DLiteMeta *meta);
 
 /**
   Returns the size of dimension `name` or -1 on error.
@@ -451,7 +478,7 @@ typedef void (*DriverFreer)(DLiteStoragePlugin *api);
   DLiteStoragePlugin.
 */
 struct _DLiteStoragePlugin {
-  const char *       name;             /*!< Name of plugin */
+  PluginAPI_HEAD
 
   /* Basic API (required) */
   Open               open;             /*!< Open storage */
@@ -473,6 +500,7 @@ struct _DLiteStoragePlugin {
   DataModelFree      dataModelFree;    /*!< Frees a data model */
 
   GetMetaURI         getMetaURI;       /*!< Returns uri to metadata */
+  ResolveDimensions  resolveDimensions;/*!< Resolves dimensions from properties */
   GetDimensionSize   getDimensionSize; /*!< Returns size of dimension */
   GetProperty        getProperty;      /*!< Gets value of property */
 
@@ -487,8 +515,7 @@ struct _DLiteStoragePlugin {
   GetDataName        getDataName;      /*!< Returns name of instance */
   SetDataName        setDataName;      /*!< Assigns name to instance */
 
-  /* Internal data */
-  DriverFreer        freer;            /*!< Releases internal data */
+  /* Driver data */
   void *             data;             /*!< Internal data used by the driver */
 };
 

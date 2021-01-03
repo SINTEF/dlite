@@ -24,7 +24,7 @@ MU_TEST(test_entity_load)
 {
   DLiteStorage *s;
   DLiteInstance *e;  /* the entity cast to a DLiteInstance */
-  char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
+  char *path = STRINGIFY(dlite_SOURCE_DIR) "/tools/tests/Chemistry-0.1.json";
   char *uri = "http://www.sintef.no/calm/0.1/Chemistry";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
@@ -92,18 +92,21 @@ MU_TEST(test_instance_create)
 
 MU_TEST(test_instance_load)
 {
-  char *path = STRINGIFY(DLITE_ROOT) "/src/tests/alloys.json";
+  char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/alloys.json";
   int i;
   DLiteStorage *s;
   DLiteInstance *inst2, *e=(DLiteInstance *)entity;
   int ndims = dlite_instance_get_dimension_size(e, "ndimensions");
   int nprops = dlite_instance_get_dimension_size(e, "nproperties");
-  int *dims = calloc(ndims, sizeof(int)) ;
+  int *dims = calloc(ndims, sizeof(int));
   char *id = "8411a72c-c7a3-5a6a-b126-1e90b8a55ae2";
   //char *id = "http://www.sintef.no/calm/0.1/Chemistry";
 
+  // cppcheck-suppress memleak
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
+  // cppcheck-suppress memleak
   mu_check((inst2 = dlite_instance_load(s, id)));
+  // cppcheck-suppress memleak
   mu_check(!dlite_storage_close(s));
 
   for (i=0; i<ndims; i++) {
