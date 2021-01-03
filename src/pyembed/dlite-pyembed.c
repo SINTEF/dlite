@@ -377,7 +377,6 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     int stat;
     FILE *fp=NULL;
     char *basename=NULL;
-    PyObject *ret;
 
     if (!(ppath = PyUnicode_FromString(path)))
       FAIL1("cannot create Python string from path: '%s'", path);
@@ -386,7 +385,8 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
     if ((basename = fu_basename(path)) && (fp = fopen(path, "r"))) {
-      ret = PyRun_File(fp, basename, Py_file_input, main_dict, main_dict);
+      PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
+                                 main_dict);
       free(basename);
       if (!ret) {
         dlite_pyembed_err(1, "error parsing '%s'", path);
@@ -409,9 +409,9 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     if (name) {
       if (PySet_Contains(subclassnames, name) == 0) {
         if (PySet_Add(subclassnames, name))
-          FAIL("cannot add class name to set");
+          FAIL("cannot add class name to set of subclass names");
         if (PyList_Append(subclasses, item))
-          FAIL("cannot append subclass to set");
+          FAIL("cannot append subclass to list of subclasses");
       }
     } else {
       FAIL("cannot get name attribute from class");
@@ -422,5 +422,6 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
 
  fail:
   Py_XDECREF(lst);
+  Py_XDECREF(subclassnames);
   return subclasses;
 }

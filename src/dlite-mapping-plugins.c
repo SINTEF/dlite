@@ -111,16 +111,6 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
 }
 
 /*
-  Registers `api` for a mapping plugin.  Returns non-zero on error.
-*/
-int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api)
-{
-  PluginInfo *info;
-  if (!(info = get_mapping_plugin_info())) return 1;
-  return plugin_register_api(info, (PluginAPI *)api);
-}
-
-/*
   Initiates a mapping plugin iterator.  Returns non-zero on error.
 */
 int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
@@ -165,27 +155,17 @@ int dlite_mapping_plugin_unload(const char *name)
 */
 int dlite_mapping_plugin_unload_all(void)
 {
-  mapping_plugin_info_free();
-  return 0;
-}
-/*
-  // xxx
   PluginInfo *info;
-  PluginIter iter;
-  DLiteMappingPlugin *api;
+  char **p, **names;
   if (!(info = get_mapping_plugin_info())) return 1;
-  plugin_api_iter_init(&iter, info);
-  while ((api = (DLiteMappingPlugin *)plugin_api_iter_next(&iter))) {
-    //plugin_unload(info, api->name);
-    if (api && api->freer) api->freer(api);
+  if (!(names = plugin_names(info))) return 1;
+  for (p=names; *p; p++) {
+    plugin_unload(info, *p);
+    free(*p);
   }
-  plugin_info_free(info);
-
-  //plugin_deinit_iter(&iter);
+  free(names);
   return 0;
 }
-*/
-
 
 /*
   Returns a pointer to the underlying FUPaths object for storage plugins

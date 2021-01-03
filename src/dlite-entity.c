@@ -777,7 +777,10 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
     void *ptr = (void *)dlite_instance_get_property_by_index(inst, i);
     size_t *pdims = DLITE_PROP_DIMS(inst, i);
     if (dlite_datamodel_get_property(d, p->name, ptr, p->type, p->size,
-				     p->ndims, pdims)) goto fail;
+				     p->ndims, pdims)) {
+      dlite_type_clear(ptr, p->type, p->size);
+      goto fail;
+    }
   }
 
   /* initiates metadata of the new instance is metadata */
