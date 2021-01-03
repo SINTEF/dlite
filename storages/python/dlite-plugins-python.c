@@ -97,7 +97,6 @@ int closer(DLiteStorage *s)
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
     retval = 1;
   Py_XDECREF(v);
-
   Py_DECREF(sp->obj);
   return retval;
 }
@@ -164,6 +163,7 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
 static void freeapi(PluginAPI *api)
 {
   DLiteStoragePlugin *a = (DLiteStoragePlugin *)api;
+
   free((char *)a->name);
   Py_XDECREF(a->data);
   free(a);

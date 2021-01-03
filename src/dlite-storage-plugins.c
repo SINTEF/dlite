@@ -101,16 +101,6 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 }
 
 /*
-  Registers `api` for a storage plugin.  Returns non-zero on error.
-*/
-int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api)
-{
-  PluginInfo *info;
-  if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_register_api(info, (const PluginAPI *)api);
-}
-
-/*
   Load all plugins that can be found in the plugin search path.
   Returns non-zero on error.
  */

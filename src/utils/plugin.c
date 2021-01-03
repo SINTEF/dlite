@@ -143,6 +143,7 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");
       plugin_incref(plugin);
       plugin->handle = handle;
+
       if (map_set(&info->plugins, plugin->path, plugin))
         fatal(1, "failed to register plugin: %s", path);
       if (map_set(&info->pluginpaths, name, plugin->path))
@@ -155,18 +156,13 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
 
   return 0;
  fail:
-  if (plugin->path) free(plugin->path);
-  if (plugin) free(plugin);
+  if (plugin) {
+    map_remove(&info->plugins, plugin->path);
+    map_remove(&info->pluginpaths, name);
+    free(plugin->path);
+    free(plugin);
+  }
   return 1;
-}
-
-
-/*
-  Registers `api` into `info`.  Returns non-zero on error.
- */
-int plugin_register_api(PluginInfo *info, const PluginAPI *api)
-{
-  return register_api(info, api, NULL, NULL);
 }
 
 
@@ -193,7 +189,7 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
   void *sym=NULL;
   PluginFunc func;
   PluginAPI *api=NULL;
-  const void *loaded_api=NULL, *retval=NULL;
+  const void *loaded_api=NULL, *registered_api=NULL, *retval=NULL;
 
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
@@ -209,6 +205,7 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
       warn("cannot open plugin: \"%s\": %s", filepath, dsl_error());
       continue;
     }
+
     if (!(sym = dsl_sym(handle, info->symbol))) {
       warn("dsl_sym: %s", dsl_error());
       dsl_close(handle);
@@ -221,30 +218,42 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
     *(void **)(&func) = sym;
 
     while ((api = (PluginAPI *)func(&iter1))) {
+      registered_api = NULL;
 
-      if (!map_get(&info->apis, api->name)) {  /* not plugin with this name */
+      if (!map_get(&info->apis, api->name)) {  /* no plugin with this name */
         loaded_api = api;
         if (!name) {
-          register_api(info, api, filepath, handle);
+          if (!register_api(info, api, filepath, handle))
+            registered_api = api;
         } else if (strcmp(api->name, name) == 0) {
           if (register_api(info, api, filepath, handle)) goto fail;
+          registered_api = api;
           fu_endmatch(iter);
           return api;
         }
       }
+      if (!registered_api && api && api->freeapi)
+        api->freeapi(api);
+
       if (iter1 == iter2) break;
       iter2 = iter1;
     }
     if (!api)
       warn("failure calling \"%s\" in plugin \"%s\": %s",
            info->symbol, filepath, dsl_error());
+
+    if (!registered_api && handle) {
+      if (handle) dsl_close(handle);
+      handle = NULL;
+    }
   }
   if (name && emit_err)
     errx(1, "no such api: \"%s\"", name);
   else
     retval = loaded_api;
  fail:
-  if (!retval && handle) dsl_close(handle);
+  if (!retval && handle)
+    dsl_close(handle);
   if (iter) fu_endmatch(iter);
 
   return retval;
@@ -319,6 +328,7 @@ int plugin_unload(PluginInfo *info, const char *name)
   if (!(apip = map_get(&info->apis, pname)))
     FAIL1("cannot unload api: %s", pname);
   api = *apip;
+
   if (api->freeapi) api->freeapi(api);
   if ((ppath = map_get(&info->pluginpaths, pname))) {
     Plugin **p;
@@ -362,7 +372,7 @@ char **plugin_names(const PluginInfo *info)
     }
     names[n++] = strdup(api->name);
   }
-  names[n] = NULL;
+  if (names) names[n] = NULL;
   return names;
 }
 
