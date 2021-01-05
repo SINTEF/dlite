@@ -110,3 +110,37 @@ Understands the following patterns:
      \x      match x
 ") globmatch;
 int globmatch(const char *pattern, const char *s);
+
+
+%feature("docstring", "\
+Clear the last error (setting its error code to zero).
+") dlite_err_set_file;
+void dlite_errclr(void);
+
+%feature("docstring", "\
+Get current error stream.
+") dlite_err_set_file;
+FILE *dlite_err_get_stream(void);
+
+%feature("docstring", "\
+Set error stream.
+") dlite_err_set_file;
+void dlite_err_set_stream(FILE *);
+
+%feature("docstring", "\
+Set error log file.  Special values includes:
+  - None | "": turn off error output
+  - <stderr>:  standard error
+  - <stdout>:  standard output
+All other values are treated as a filename that will be opened in append mode.
+") dlite_err_set_file;
+void dlite_err_set_file(const char *filename);
+
+
+
+/* -----------------------------------
+ * Target language-spesific extensions
+ * ----------------------------------- */
+#ifdef SWIGPYTHON
+%include "dlite-misc-python.i"
+#endif
