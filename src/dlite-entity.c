@@ -96,16 +96,20 @@ static void _instance_store_free(void)
     if ((q = map_get(_instance_store, uuid)) && (inst = *q) &&
         dlite_instance_is_meta(inst) && inst->_refcount > 0) {
       if (delsize <= ndel) {
+        void *ptr;
         delsize += 64;
-        del = realloc(del, delsize*sizeof(DLiteInstance *));
+        if (!(ptr = realloc(del, delsize*sizeof(DLiteInstance *))))
+          free(del);
+        del = ptr;
       }
-      del[ndel++] = inst;
+      if (del) del[ndel++] = inst;
     }
   }
 
-  for (i=0; i<ndel; i++) dlite_instance_decref(del[i]);
-  if (del) free(del);
-
+  if (del) {
+    for (i=0; i<ndel; i++) dlite_instance_decref(del[i]);
+    free(del);
+  }
   map_deinit(_instance_store);
   free(_instance_store);
   _instance_store = NULL;

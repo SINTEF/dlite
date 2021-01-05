@@ -5,6 +5,7 @@
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
+#include "config-paths.h"
 
 /* Get rid of MSVS warnings */
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
@@ -29,6 +30,24 @@ void dlite_pyembed_initialise(void)
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
+
+    if (dlite_use_build_root()) {
+      PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
+      if (!(sys = PyImport_ImportModule("sys")))
+        FAIL("cannot import sys");
+      if (!(sys_path = PyObject_GetAttrString(sys, "path")))
+        FAIL("cannot access sys.path");
+      if (!PyList_Check(sys_path))
+        FAIL("sys.path is not a list");
+      if (!(path = PyUnicode_FromString(dlite_PYTHONPATH)))
+        FAIL("cannot create python object for dlite_PYTHONPATH");
+      if (PyList_Insert(sys_path, 0, path))
+        FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
+    fail:
+      Py_XDECREF(sys);
+      Py_XDECREF(sys_path);
+      Py_XDECREF(path);
+    }
   }
 }
 

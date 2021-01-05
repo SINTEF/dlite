@@ -331,7 +331,7 @@ int err_geteval(void);
 
 /**
  * @brief If the current error value is non-zero, set it to `eval`.
- * Nothing is done if there is no corrent error.
+ * Nothing is done if there is no current error.
  *
  * Returns the updated error value.
  */

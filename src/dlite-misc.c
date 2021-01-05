@@ -479,3 +479,21 @@ int dlite_vwarnx(const char *msg, va_list ap) {
 int dlite_errval(void) { return err_geteval(); }
 const char *dlite_errmsg(void) { return err_getmsg(); }
 void dlite_errclr(void) { err_clear(); }
+FILE *dlite_err_get_stream(void) { return err_get_stream(); }
+void dlite_err_set_stream(FILE *stream) { err_set_stream(stream); }
+
+/* Like dlite_err_set_stream(), but takes a filename instead of a stream. */
+void dlite_err_set_file(const char *filename)
+{
+  FILE *fp;
+  if (!filename || !*filename)
+    err_set_stream(NULL);
+  else if (strcmp(filename, "<stdout>"))
+    err_set_stream(stdout);
+  else if (strcmp(filename, "<stderr>"))
+    err_set_stream(stderr);
+  else if ((fp = fopen(filename, "a")))
+    err_set_stream(fp);
+  else
+    err(1, "cannot open error file: %s", filename);
+}
