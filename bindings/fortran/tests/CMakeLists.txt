@@ -15,6 +15,8 @@ foreach(name ${metadata})
     ${CMAKE_CURRENT_BINARY_DIR}/${name}.f90
     fortran-module
     json://${CMAKE_CURRENT_SOURCE_DIR}/${name}.json?mode=r
+    ENV_OPTIONS --build
+    --build-root
     )
   add_library(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.f90)
   target_link_libraries(${name}
@@ -55,22 +57,12 @@ foreach(test ${tests})
     )
 
   set_property(TEST ${name} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH}")
+    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
-    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH}")
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}")
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}")
-  set_property(TEST ${name} APPEND PROPERTY
-    ENVIRONMENT "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}")
-  set_property(TEST ${name} APPEND PROPERTY ENVIRONMENT
-    "DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}")
-  set_property(TEST ${name} APPEND PROPERTY ENVIRONMENT
-     "DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}")
-  set_property(TEST ${name} APPEND PROPERTY
-    ENVIRONMENT "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}")
-  set_property(TEST ${name} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGES=${dlite_STORAGES}")
+    ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
 
 endforeach()

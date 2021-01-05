@@ -110,11 +110,6 @@ typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(int *iter);
 const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
 
 /**
-  Registers `api` for a storage plugin.  Returns non-zero on error.
-*/
-int dlite_storage_plugin_register_api(const DLiteStoragePlugin *api);
-
-/**
   Load all plugins that can be found in the plugin search path.
  */
 int dlite_storage_plugin_load_all();

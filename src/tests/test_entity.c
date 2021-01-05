@@ -224,13 +224,13 @@ MU_TEST(test_meta_save)
 {
   DLiteStorage *s;
 #ifdef WITH_JSON
-  mu_check((s = dlite_storage_open("json", "MyEntityX.json", "mode=w;meta=1")));
+  mu_check((s = dlite_storage_open("json", "SEntity.json", "mode=w;meta=1")));
   mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
 
 #ifdef WITH_JSON
-  mu_check((s = dlite_storage_open("json", "MyEntityX2.json", "mode=w;meta=0")));
+  mu_check((s = dlite_storage_open("json", "SEntity2.json", "mode=w;meta=0")));
   mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
@@ -242,22 +242,22 @@ MU_TEST(test_meta_load)
   DLiteStorage *s;
   DLiteMeta *e, *e2;
 #ifdef WITH_JSON
-  mu_check((s = dlite_storage_open("json", "MyEntityX.json", "mode=r")));
+  mu_check((s = dlite_storage_open("json", "SEntity.json", "mode=r")));
   mu_check((e = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
   mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+e */
 
-  mu_check((s = dlite_storage_open("json", "MyEntityX2.json", "mode=r")));
+  mu_check((s = dlite_storage_open("json", "SEntity2.json", "mode=r")));
   mu_check((e2 = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
   mu_assert_int_eq(4, entity->_refcount);  /* refs: global+store+e+e2 */
 
-  mu_check((s = dlite_storage_open("json", "MyEntityX3.json", "mode=w;meta=1")));
+  mu_check((s = dlite_storage_open("json", "SEntity3.json", "mode=w;meta=1")));
   mu_check(dlite_meta_save(s, e) == 0);
   mu_check(dlite_storage_close(s) == 0);
   mu_assert_int_eq(4, entity->_refcount);  /* refs: global+store+e+e2 */
 
-  mu_check((s = dlite_storage_open("json", "MyEntityX4.json", "mode=w;meta=1")));
+  mu_check((s = dlite_storage_open("json", "SEntity4.json", "mode=w;meta=1")));
   mu_check(dlite_meta_save(s, e2) == 0);
   mu_check(dlite_storage_close(s) == 0);
   mu_assert_int_eq(4, entity->_refcount);  /* refs: global+store+e+e2 */

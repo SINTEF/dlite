@@ -5,6 +5,7 @@
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
+#include "config-paths.h"
 
 /* Get rid of MSVS warnings */
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
@@ -29,6 +30,24 @@ void dlite_pyembed_initialise(void)
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
+
+    if (dlite_use_build_root()) {
+      PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
+      if (!(sys = PyImport_ImportModule("sys")))
+        FAIL("cannot import sys");
+      if (!(sys_path = PyObject_GetAttrString(sys, "path")))
+        FAIL("cannot access sys.path");
+      if (!PyList_Check(sys_path))
+        FAIL("sys.path is not a list");
+      if (!(path = PyUnicode_FromString(dlite_PYTHONPATH)))
+        FAIL("cannot create python object for dlite_PYTHONPATH");
+      if (PyList_Insert(sys_path, 0, path))
+        FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
+    fail:
+      Py_XDECREF(sys);
+      Py_XDECREF(sys_path);
+      Py_XDECREF(path);
+    }
   }
 }
 
@@ -377,7 +396,6 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     int stat;
     FILE *fp=NULL;
     char *basename=NULL;
-    PyObject *ret;
 
     if (!(ppath = PyUnicode_FromString(path)))
       FAIL1("cannot create Python string from path: '%s'", path);
@@ -386,7 +404,8 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
     if ((basename = fu_basename(path)) && (fp = fopen(path, "r"))) {
-      ret = PyRun_File(fp, basename, Py_file_input, main_dict, main_dict);
+      PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
+                                 main_dict);
       free(basename);
       if (!ret) {
         dlite_pyembed_err(1, "error parsing '%s'", path);
@@ -409,9 +428,9 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     if (name) {
       if (PySet_Contains(subclassnames, name) == 0) {
         if (PySet_Add(subclassnames, name))
-          FAIL("cannot add class name to set");
+          FAIL("cannot add class name to set of subclass names");
         if (PyList_Append(subclasses, item))
-          FAIL("cannot append subclass to set");
+          FAIL("cannot append subclass to list of subclasses");
       }
     } else {
       FAIL("cannot get name attribute from class");
@@ -422,5 +441,6 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
 
  fail:
   Py_XDECREF(lst);
+  Py_XDECREF(subclassnames);
   return subclasses;
 }

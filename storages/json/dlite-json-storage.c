@@ -456,7 +456,7 @@ void dlite_json_resolve_dimensions(DLiteDataModel *d, const DLiteMeta *meta)
   json_t *obj;
   size_t i;
   int j;
-  ivec_t *shape;
+  ivec_t *shape = NULL;
   if (data->fmt == fmtNormal) {
     if (meta->_ndimensions != json_object_size(data->dimensions)) {
       if (!json_is_object(data->dimensions))
@@ -483,6 +483,7 @@ void dlite_json_resolve_dimensions(DLiteDataModel *d, const DLiteMeta *meta)
       }
     }
   }
+  if (shape) ivec_free(shape);
 }
 
 /**
