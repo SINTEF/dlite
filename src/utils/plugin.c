@@ -352,9 +352,13 @@ char **plugin_names(const PluginInfo *info)
   plugin_api_iter_init(&iter, info);
   while ((api = plugin_api_iter_next(&iter))) {
     if (n >= size) {
+      void *ptr;
       size += 16;
-      if (!(names = realloc(names, size * sizeof(char *))))
+      if (!(ptr = realloc(names, size * sizeof(char *)))) {
+        free(names);
         return err(1, "allocation failure"), NULL;
+      }
+      names = ptr;
     }
     names[n++] = strdup(api->name);
   }
