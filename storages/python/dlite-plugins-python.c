@@ -97,23 +97,24 @@ int closer(DLiteStorage *s)
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
     retval = 1;
   Py_XDECREF(v);
-
   Py_DECREF(sp->obj);
   return retval;
 }
 
 
 /*
-  Returns a new instance from `uuid` in storage `s`.  NULL is returned
+  Returns a new instance from `id` in storage `s`.  NULL is returned
   on error.
  */
-DLiteInstance *loader(const DLiteStorage *s, const char *uuid)
+DLiteInstance *loader(const DLiteStorage *s, const char *id)
 {
   DLitePythonStorage *sp = (DLitePythonStorage *)s;
-  PyObject *pyuuid = PyUnicode_FromString(uuid);
+  PyObject *pyuuid;
   DLiteInstance *inst = NULL;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
+
+  pyuuid = PyUnicode_FromString(id);
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
@@ -162,6 +163,7 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
 static void freeapi(PluginAPI *api)
 {
   DLiteStoragePlugin *a = (DLiteStoragePlugin *)api;
+
   free((char *)a->name);
   Py_XDECREF(a->data);
   free(a);

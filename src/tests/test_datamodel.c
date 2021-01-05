@@ -263,7 +263,7 @@ MU_TEST(test_has_property)
 
 MU_TEST(test_storage_plugin_unload_all)
 {
-  //dlite_storage_plugin_unload_all();
+  dlite_storage_plugin_unload_all();
 }
 
 

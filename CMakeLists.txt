@@ -333,16 +333,19 @@ endif()
 
 # Testing
 # -------
+set(logfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.log")
+set(suppfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.supp")
+set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
+set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
+
+# Must be assigned before including CTest
+set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=200 --keep-debuginfo=yes --suppressions=${dlite_supp} --gen-suppressions=all")
+
 include(CTest)
 
 find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 
 if(MEMORYCHECK_COMMAND)
-  set(logfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.log")
-  set(suppfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.supp")
-  set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
-  set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
-
   if(WITH_PYTHON)
     set(suppressions ${suppfile})
 

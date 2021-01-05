@@ -723,33 +723,42 @@ int tgen_lineno(const char *template, const char *t)
  */
 char *tgen_readfile(const char *filename)
 {
-  int retval=0;
+  int retval=1;
   char buf[4096], *p=NULL;
   size_t n, pos, size=0;
   FILE *fp=stdin;
+  void *ptr;
 
   if (filename && !(fp = fopen(filename, "rb")))
     FAIL1(TGenIOError, "cannot open file \"%s\"", filename);
 
   /* read in chunks of sizeof(buf) and copy to allocated memory... */
   while ((n = fread(buf, 1, sizeof(buf), fp)) == sizeof(buf)) {
-    if (ferror(fp)) FAIL1(TGenIOError, "error reading file \"%s\"", filename);
     size_t pos = size;
+    if (ferror(fp)) FAIL1(TGenIOError, "error reading file \"%s\"", filename);
     size += n;
-    p = realloc(p, size);
+    if (!(ptr = realloc(p, size)))
+      FAIL1(TGenAllocationError, "cannot reallocate string to %lu bytes", size);
+    p = ptr;
     memcpy(p + pos, buf, n);
   }
 
   /* copy last chunk to allocated memory and add space for NUL-termination */
   pos = size;
   size += n + 1;
-  p = realloc(p, size);
+  if (!(ptr = realloc(p, size)))
+    FAIL1(TGenAllocationError, "cannot reallocate string to %lu bytes", size);
+  p = ptr;
   memcpy(p + pos, buf, n);
   p[size-1] = '\0';
+  retval = 0;  // success
 
  fail:
   if (fp && fp != stdin) fclose(fp);
-  if (retval && p) free(p);
+  if (retval) {
+    if (p) free(p);
+    p = NULL;
+  }
   return p;
 }
 
