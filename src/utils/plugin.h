@@ -100,12 +100,6 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
 void plugin_info_free(PluginInfo *info);
 
 
-/*
-  Registers `api` into `info`.  Returns non-zero on error.
- */
-int plugin_register_api(PluginInfo *info, const PluginAPI *api);
-
-
 /**
   Returns pointer to plugin api.
 

@@ -37,6 +37,7 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 FUPaths *dlite_python_storage_paths(void)
 {
   if (!storage_paths_initialised) {
+    static int first_call = 1;
     int s;
     if (fu_paths_init(&storage_paths, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS") < 0)
       return dlite_err(1, "cannot initialise "
@@ -56,6 +57,11 @@ FUPaths *dlite_python_storage_paths(void)
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
+
+    if (first_call) {
+      first_call = 0;
+      atexit(dlite_python_storage_paths_clear);
+    }
   }
   return &storage_paths;
 }

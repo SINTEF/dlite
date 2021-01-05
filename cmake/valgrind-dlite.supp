@@ -29,6 +29,17 @@
 # ------------------------------------
 
 {
+   Resize-global-error-messages
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:add_to_global_resize
+   ...
+   fun:dlopen*
+   fun:plugin_load
+}
+
+{
    dlopen-still_reachable1
    Memcheck:Leak
    match-leak-kinds: reachable
@@ -826,4 +837,327 @@
    ...
    fun:PyObject_CallMethod
    fun:saver
+}
+
+{
+   dlite_pyembed_initialise-possible
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:dlite_pyembed_initialise
+}
+
+{
+   dlite_pyembed_initialise-reachable
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:dlite_pyembed_initialise
+}
+
+{
+   PyRun_File-1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyRun_File-2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyRun_File-3
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyRun_File-4
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyRun_File-5
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyUnicode_New
+   ...
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyRun_File-5
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:PyList_Append
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyObject_CallFunctionObjArgs-1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:PyObject_CallFunctionObjArgs
+   fun:dlite_pyembed_get_address
+}
+
+{
+   PyObject_CallFunctionObjArgs-2
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:PyCapsule_New
+   ...
+   fun:PyObject_CallFunctionObjArgs
+   fun:dlite_pyembed_from_instance
+}
+
+{
+   PyObject_CallFunctionObjArgs-3
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:PyUnicode_New
+   ...
+   fun:PyObject_CallFunctionObjArgs
+   fun:dlite_pyembed_from_instance
+}
+
+{
+   PyObject_CallFunctionObjArgs-4
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:PyObject_CallFunctionObjArgs
+   fun:mapper
+   fun:mapping_map_rec
+}
+
+{
+   PyObject_GetAttrString-1 - is it a cache in Python?
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:PyUnicode_New
+   ...
+   fun:PyObject_GetAttrString
+   fun:dlite_pyembed_classname
+}
+
+{
+   PyObject_GetAttrString-2 - is it a cache in Python?
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:PyUnicode_New
+   ...
+   fun:PyObject_GetAttrString
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyObject_GetAttrString-3 - is it a cache in Python?
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:PyUnicode_New
+   ...
+   fun:PyObject_GetAttrString
+   ...
+   fun:plugin_load
+}
+
+{
+   PyUnicode_FromString - is it a cache in Python?
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:PyUnicode_New
+   obj:*
+   fun:dlite_pyembed_load_plugins
+}
+
+{
+   PyObject_CallMethod-1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:PyObject_CallMethod
+   fun:opener
+}
+
+{
+   PyObject_CallMethod-2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:PyObject_CallMethod
+   fun:opener
+}
+
+{
+   Py_BytesMain-1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:PyRun_SimpleFileExFlags
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-1r
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   ...
+   fun:PyRun_SimpleFileExFlags
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-2
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_SimpleFileExFlags
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-3
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:PyAST_CompileObject
+   ...
+   fun:PyRun_SimpleFileExFlags
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-4
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:PyObject_CallFunction
+   ...
+   fun:PyRun_SimpleFileExFlags
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-5
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:PyUnicode_New
+   ...
+   fun:PyRun_SimpleFileExFlags
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-5r
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:PyUnicode_New
+   ...
+   fun:PyRun_SimpleFileExFlags
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-6
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:Py_InitializeFromConfig
+   ...
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-7
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:Py_InitializeFromConfig
+   ...
+   fun:Py_BytesMain
+}
+
+{
+   Py_BytesMain-8
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:PyImport_ImportModuleLevelObject
+   ...
+   fun:Py_BytesMain
+}
+
+{
+   Py_FinalizeEx
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:Py_FinalizeEx
+   fun:Py_RunMain
+   fun:Py_BytesMain
+   fun:(below main)
+}
+
+{
+   PyObject_CallObject
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   obj:*
+   fun:_PyObject_GC_NewVar
+   ...
+   fun:dlite_pyembed_get_instance
 }
