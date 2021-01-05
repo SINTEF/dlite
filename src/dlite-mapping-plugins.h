@@ -74,11 +74,6 @@ typedef const DLiteMappingPlugin *(*GetDLiteMappingAPI)(int *iter);
 const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name);
 
 /**
-  Registers `api` for a mapping plugin.  Returns non-zero on error.
-*/
-int dlite_mapping_plugin_register_api(const DLiteMappingPlugin *api);
-
-/**
   Initiates a mapping plugin iterator.  Returns non-zero on error.
 */
 int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter);
