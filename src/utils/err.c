@@ -353,7 +353,8 @@ static void err_close_stream(void)
 {
   if (err_stream_opened) {
     fflush(err_stream);
-    fclose(err_stream);
+    if (err_stream != stderr && err_stream != stdout)
+      fclose(err_stream);
     err_stream_opened = 0;
   }
 }

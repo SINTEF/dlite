@@ -104,16 +104,18 @@ int closer(DLiteStorage *s)
 
 
 /*
-  Returns a new instance from `uuid` in storage `s`.  NULL is returned
+  Returns a new instance from `id` in storage `s`.  NULL is returned
   on error.
  */
-DLiteInstance *loader(const DLiteStorage *s, const char *uuid)
+DLiteInstance *loader(const DLiteStorage *s, const char *id)
 {
   DLitePythonStorage *sp = (DLitePythonStorage *)s;
-  PyObject *pyuuid = PyUnicode_FromString(uuid);
+  PyObject *pyuuid;
   DLiteInstance *inst = NULL;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
+
+  pyuuid = PyUnicode_FromString(id);
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
