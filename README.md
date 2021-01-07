@@ -334,6 +334,17 @@ To install dlite locally, do
     make install
 
 
+
+Using dlite
+===========
+If dlite is installed in a non-default location, you may need to set
+the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
+variables.  See the [documentation of environment
+variables](doc/environment-variables.md) for more details.
+
+For how to link to dlite from C, see the examples in the
+[examples](examples) directory.
+
 ---
 
 DLite is developed with the hope that it will be a delight to work with.
