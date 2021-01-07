@@ -45,7 +45,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   if (!(storage = api->open(api, location, options))) goto fail;
   storage->api = api;
   if (!(storage->location = strdup(location))) FAIL(NULL);
-  if (options && !(storage->options = strdup(options))) FAIL(NULL);  
+  if (options && !(storage->options = strdup(options))) FAIL(NULL);
 
   return storage;
  fail:
@@ -171,20 +171,26 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
   char **p = NULL;
   if (s->api->iterCreate && s->api->iterNext && s->api->iterFree) {
     char buf[DLITE_UUID_LENGTH+1];
-    void *iter = s->api->iterCreate(s, pattern);
+    void *ptr, *iter = s->api->iterCreate(s, pattern);
     int n=0, len=0;
     while (s->api->iterNext(iter, buf) == 0) {
       if (n >= len) {
         len += 32;
-        if (!(p = realloc(p, len*sizeof(char *))))
+        if (!(ptr = realloc(p, len*sizeof(char *)))) {
+          free(p);
           return err(1, "allocation failure"), NULL;
+        }
+        p = ptr;
       }
       p[n++] = strdup(buf);
     }
     s->api->iterFree(iter);
     if (p) {
-      if (!(p = realloc(p, (n+1)*sizeof(char *))))
+      if (!(ptr = realloc(p, (n+1)*sizeof(char *)))) {
+        free(p);
         return err(1, "allocation failure"), NULL;
+      }
+      p = ptr;
       p[n] = NULL;
     }
   } else if (s->api->getUUIDs)

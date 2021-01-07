@@ -6,8 +6,8 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-mapping.h"
+#include "dlite-storage-plugins.h"
 #include "dlite-python-mapping.h"
-
 
 
 MU_TEST(test_initialize)
@@ -35,7 +35,6 @@ MU_TEST(test_initialize)
 }
 
 
-
 MU_TEST(test_map)
 {
   DLiteInstance *insts[1], *inst3;
@@ -57,13 +56,20 @@ MU_TEST(test_map)
 }
 
 
-
 MU_TEST(test_finalize)
 {
   dlite_python_mapping_paths_clear();
   dlite_python_mapping_unload();
   mu_assert_int_eq(0, dlite_pyembed_finalise());
   mu_assert_int_eq(0, dlite_mapping_plugin_unload_all());
+}
+
+
+MU_TEST(test_plugin_unload_all)
+{
+  printf("*** dlite_plugin_unload_all()\n");
+  dlite_storage_plugin_unload_all();
+  dlite_mapping_plugin_unload_all();
 }
 
 
@@ -75,6 +81,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_initialize);
   MU_RUN_TEST(test_map);
   MU_RUN_TEST(test_finalize);
+  MU_RUN_TEST(test_plugin_unload_all);
 }
 
 

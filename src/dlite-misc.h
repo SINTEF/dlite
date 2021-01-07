@@ -5,6 +5,7 @@
   @file
   @brief Main header file for dlite
 */
+#include <stdio.h>
 
 #include "utils/fileutils.h"
 #include "dlite-type.h"
@@ -254,6 +255,9 @@ int dlite_vwarnx(const char *msg, va_list ap)
 int dlite_errval(void);
 const char *dlite_errmsg(void);
 void dlite_errclr(void);
+FILE *dlite_err_get_stream(void);
+void dlite_err_set_stream(FILE *stream);
+void dlite_err_set_file(const char *filename);
 
 
 
