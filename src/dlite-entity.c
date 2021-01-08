@@ -2415,7 +2415,6 @@ const char *dlite_metamodel_missing_value(const DLiteMetaModel *model)
   for (i=0; i < model->meta->_nproperties; i++) {
     DLiteProperty *p = model->meta->_properties + i;
     if (strcmp(p->name, "dimensions") == 0) {
-      //if (!model->dims) return p->name;
       continue;
     } else if (strcmp(p->name, "properties") == 0) {
       if (!model->props) return p->name;
@@ -2498,9 +2497,6 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
 
     src = dlite_metamodel_get_property(model, p->name);
     dest = dlite_instance_get_property_by_index((DLiteInstance *)meta, i);
-    //if (!(src = dlite_metamodel_get_property(model, p->name))) goto fail;
-    //if (!(dest = dlite_instance_get_property_by_index((DLiteInstance *)meta,
-    //                                                  i))) goto fail;
     if ((src == NULL) && (dest == NULL)) {
       continue;
     }
