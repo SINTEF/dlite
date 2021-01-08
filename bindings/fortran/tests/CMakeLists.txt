@@ -27,13 +27,13 @@ foreach(name ${metadata})
   target_include_directories(${name} PRIVATE
     ${dlite-bindings-fortran_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    )    
+    )
 endforeach()
 
 set(tests
   test_person
   test_animal
-  ) 
+  )
 
 foreach(test ${tests})
   add_executable(${test} ${test}.f90)
