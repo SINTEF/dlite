@@ -36,7 +36,7 @@ class yaml(DLiteStorageBase):
         """
         self.options = Options(options, defaults='mode=append')
         self.mode = dict(r='r', w='w', append='r+')[self.options.mode]
-        self.writable = False if self.mode == 'r' else True
+        self.writable = False if 'r' in self.mode else True
         self.uri = uri
         self.d = {}
         if self.mode in ('r', 'r+') and os.path.exists(uri):
