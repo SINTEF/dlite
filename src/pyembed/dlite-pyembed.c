@@ -105,8 +105,9 @@ int dlite_pyembed_err(int eval, const char *msg, ...)
  */
 int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
 {
+  char errmsg[4096];
+
   if (PyErr_Occurred()) {
-    char errmsg[4096];
     PyObject *type, *value, *tb=NULL;
 
     errmsg[0] = '\0';
