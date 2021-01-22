@@ -37,7 +37,7 @@ install(
   DESTINATION bin
   )
 install(
-  PROGRAMS dlite
+  PROGRAMS dlite-docker
   DESTINATION bin
   )
 install(
