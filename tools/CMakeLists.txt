@@ -34,8 +34,12 @@ add_subdirectory(tests)
 # Install
 install(
   TARGETS dlite-getuuid dlite-codegen dlite-env
-  DESTINATION bin)
-
+  DESTINATION bin
+  )
+install(
+  PROGRAMS dlite
+  DESTINATION bin
+  )
 install(
   DIRECTORY templates
   DESTINATION share/dlite

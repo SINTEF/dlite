@@ -3,13 +3,31 @@
 #
 #     docker build -t dlite .
 #
-# Run this docker
+# To run this docker in an interactive bash shell, do
 #
 #     docker run -i -t dlite
 #
+# A more realistic way to use this docker is to put the following
+# into a shell script (called dlite)
+#
+#     #!/bin/sh
+#     docker run --rm -it --user="$(id -u):$(id -g)" --net=none \
+#         -v "$PWD":/data dlite "$@"
+#
+# To run the getuuid tool, you could then do
+#
+#     dlite dlite-getuuid <string>
+#
+# To run a python script in current directory
+#
+#     dlite python /data/script.py
+#
 
-FROM ubuntu:18.04 AS dependencies
 
+##########################################
+# Stage: install dependencies
+##########################################
+FROM ubuntu:20.04 AS dependencies
 RUN apt-get update --fix-missing
 
 # Default cmake is 3.10.2. We need at least 3.11...
@@ -27,14 +45,23 @@ RUN wget -O - \
      apt-key add -
 
 # Add Kitware repo
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+#RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
 RUN apt update
 
+# Ensure that our keyring stays up to date
+RUN apt-get install kitware-archive-keyring
+
 # Install dependencies
+#RUN apt-get install -y --fix-missing
 RUN apt-get install -y \
     cmake \
+    cmake-curses-gui \
+    cppcheck \
     doxygen \
     gcc \
+    gdb \
+    gfortran \
     git \
     graphviz \
     g++ \
@@ -47,18 +74,18 @@ RUN apt-get install -y \
     python3-psycopg2 \
     python3-yaml \
     python3-pip \
-    swig3.0 \
-    cppcheck \
-    gfortran \
-    gdb \
-    cmake-curses-gui
+    swig3.0
 
 # Install Python packages
 RUN pip3 install --trusted-host files.pythonhosted.org \
-    ipython \
+    --upgrade pip
+RUN pip install --trusted-host files.pythonhosted.org \
     fortran-language-server
 
-# The following section performs the build
+
+##########################################
+# Stage: build
+##########################################
 FROM dependencies AS build
 
 # Create and become a normal user
@@ -74,23 +101,53 @@ WORKDIR /home/user/sw/dlite
 RUN rm -rf build
 
 # Perform static code checking
+# FIXME - test_tgen.c produce a lot of false positives
 RUN cppcheck . \
-    --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+    --language=c -q --force --error-exitcode=2 --inline-suppr -i build \
+    -i src/utils/tests/test_tgen.c
 
 # Build dlite
 RUN mkdir build
 WORKDIR /home/user/sw/dlite/build
-RUN cmake .. -DFORCE_EXAMPLES=ON -DALLOW_WARNINGS=ON
+RUN cmake .. -DFORCE_EXAMPLES=ON -DALLOW_WARNINGS=ON -DWITH_FORTRAN=ON \
+        -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
 RUN make
+USER root
 RUN make install
 
-RUN ctest -E postgresql  # skip postgresql since we haven't set up the server
+# skip postgresql tests since we haven't set up the server and
+# static-code-analysis since it is already done
+USER user
+RUN ctest -E "(postgresql|static-code-analysis)"
 
-ENTRYPOINT ipython3 \
-    --colors=LightBG \
-    --autocall=1 \
-    --no-confirm-exit \
-    --TerminalInteractiveShell.display_completions=readlinelike \
-    -i \
-    -c 'import dlite' \
-    --
+# Remove unneeded installed files
+USER root
+RUN rm -r /tmp/dlite-install/lib/lib*.a
+RUN rm -r /tmp/dlite-install/include
+RUN rm -r /tmp/dlite-install/share/dlite/html
+RUN rm -r /tmp/dlite-install/share/dlite/examples
+RUN rm -r /tmp/dlite-install/share/dlite/cmake
+
+
+##########################################
+# Stage: final slim image
+##########################################
+FROM python:3.8.3-slim-buster
+COPY --from=build /tmp/dlite-install /usr/local
+COPY --from=build /usr/lib/x86_64-linux-gnu/libjansson.so* /usr/local/lib/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libhdf5*.so* /usr/local/lib/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libsz.so* /usr/local/lib/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libaec.so* /usr/local/lib/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libm.so* /usr/local/lib/
+# remove postgresql plugin - to avoid error if psycopg2 is not installed
+RUN rm /usr/local/share/dlite/python-storage-plugins/postgresql.py
+RUN pip install --upgrade pip
+RUN pip install numpy PyYAML #psycopg2
+RUN useradd -ms /bin/bash user
+USER user
+WORKDIR /home/user
+ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV DLITE_ROOT=/usr/local
+
+# Default command
+CMD ["/bin/bash"]
