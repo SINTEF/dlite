@@ -240,7 +240,7 @@ To initialize the minunit submodule, you may also have to run
     git submodule update --init
 
 ### Pre-build docker container
-Docker containers are available from
+A docker image is available on
 [https://github.com/SINTEF/dlite/packages][dlite-packages].
 
 Dependencies
@@ -342,8 +342,15 @@ the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
 variables.  See the [documentation of environment
 variables](doc/environment-variables.md) for more details.
 
-For how to link to dlite from C, see the examples in the
-[examples](examples) directory.
+An example of how to use dlite is shown above.  See also the examples
+in the [examples](examples) directory for how to link to dlite from C
+and use of the Fortran bindings.
+
+
+Using the docker image
+----------------------
+The easiest way to use the docker image is via the
+[dlite-docker](tools/dlite-docker) script.
 
 ---
 
