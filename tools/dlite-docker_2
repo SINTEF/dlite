@@ -1,0 +1,5 @@
+#!/bin/bash
+
+winpty docker run --rm -it  --user="$(id -u):$(id -g)" --net=none \
+      -v /"$PWD":/home/user/data dlite $@
+
