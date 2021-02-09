@@ -63,7 +63,8 @@ MU_TEST(test_tgen_convert_case)
   mu_assert_string_eq("AVery mixed_Sentence: 1+2pi", p);
   free(p);
 
-  mu_check((p = tgen_convert_case(s, -1, 'c')));
+  p = tgen_convert_case(s, -1, 'c');
+  mu_check(p);
   mu_assert_string_eq("avery mixed_sentence: 1+2pi", p);
   free(p);
 
