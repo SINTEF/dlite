@@ -1,0 +1,21 @@
+{
+    "name": "Animal",
+    "version": "0.1",
+    "namespace": "http://meta.sintef.no",
+    "meta": "http://meta.sintef.no/0.3/EntitySchema",
+    "description": "Define a metadata without dimension.",
+    "dimensions": [
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "string45",
+        "description": "Trivial name."
+      },
+      {
+        "name": "young",
+        "type": "string45",
+        "description": "Specific name for young animal."
+      }
+    ]
+}
