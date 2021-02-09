@@ -67,7 +67,7 @@ jobs:
     - name: make
       run: |
         cd build
-        make
+        CFLAGS='-Wno-missing-field-initializers' make
         cd -
     - name: install
       run: |
