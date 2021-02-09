@@ -65,67 +65,67 @@ MU_TEST(test_tgen_convert_case)
 
   mu_check((p = tgen_convert_case(s, -1, 'c')));
   mu_assert_string_eq("avery mixed_sentence: 1+2pi", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(s, -1, 'C')));
   mu_assert_string_eq("AVERY MIXED_SENTENCE: 1+2PI", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(s, -1, 'u')));
   mu_assert_string_eq("a_very_mixed_sentence:_1+2pi", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(s, -1, 'U')));
   mu_assert_string_eq("A_VERY_MIXED_SENTENCE:_1+2PI", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(s, -1, 'm')));
   mu_assert_string_eq("aVeryMixedSentence:1+2Pi", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(s, -1, 'M')));
   mu_assert_string_eq("AVeryMixedSentence:1+2Pi", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(s, -1, 'T')));
   mu_assert_string_eq("Avery mixed_sentence: 1+2pi", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(s, -1, 'i')));
   mu_assert_string_eq("AVery_mixed_Sentence__1_2pi", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check(!tgen_convert_case(s, -1, 'I'));
 
   mu_check((p = tgen_convert_case("  n-Atoms  ", -1, 'i')));
   mu_assert_string_eq("n_Atoms", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case("  n+Atoms  ", -1, 'i')));
   mu_assert_string_eq("n_Atoms", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case("  n-Atoms  ", -1, 'I')));
   mu_assert_string_eq("n_Atoms", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check(!tgen_convert_case("  n+Atoms  ", -1, 'I'));
 
   mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'u')));
   mu_assert_string_eq("ab", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'u')));
   mu_assert_string_eq("ab_cd_e", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(" ab  cd e ", 4, 'M')));
   mu_assert_string_eq("Ab", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 
   mu_check((p = tgen_convert_case(" ab  cd e ", -1, 'M')));
   mu_assert_string_eq("AbCdE", p);
-  free(p);
+  free(p);  // cppcheck-suppress doubleFree
 }
 
 MU_TEST(test_tgen_buf_append)
