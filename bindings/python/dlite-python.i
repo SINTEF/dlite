@@ -773,12 +773,13 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         dest->unit        = (src->unit) ? strdup(src->unit) : NULL;
         dest->description = (src->description) ? strdup(src->description) :NULL;
 
-      } else if (PySequence_Check(obj) && PySequence_Length(obj) == 5) {
-        PyObject *name = PySequence_GetItem(obj, 0);
-        PyObject *type = PySequence_GetItem(obj, 1);
-        PyObject *dims = PySequence_GetItem(obj, 2);
-        PyObject *unit = PySequence_GetItem(obj, 3);
-        PyObject *descr = PySequence_GetItem(obj, 4);
+      } else if (PySequence_Check(obj) && PySequence_Length(obj) == 6) {
+        PyObject *name  = PySequence_GetItem(obj, 0);
+        PyObject *type  = PySequence_GetItem(obj, 1);
+        PyObject *dims  = PySequence_GetItem(obj, 2);
+        PyObject *unit  = PySequence_GetItem(obj, 3);
+        PyObject *iri   = PySequence_GetItem(obj, 4);
+        PyObject *descr = PySequence_GetItem(obj, 5);
         DLiteType t;
         size_t size;
         if (name && PyUnicode_Check(name) &&
@@ -786,31 +787,37 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
             dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
                                           &t, &size) == 0) {
           if (dest->name)        free(dest->name);
-          if (dest->dims)       free_str_array(dest->dims, dest->ndims);
+          if (dest->dims)        free_str_array(dest->dims, dest->ndims);
           if (dest->unit)        free(dest->unit);
+          if (dest->iri)         free(dest->iri);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
           dest->type = t;
           dest->size = size;
           if (dims && PyUnicode_Check(dims)) {
             const char *s = PyUnicode_AsUTF8(dims);
-            const char *q = s;
             int j=0, ndims=(s && *s) ? 1 : 0;
             while (s[j]) if (s[j++] == ',') ndims++;
             dest->ndims = ndims;
-            dest->dims = malloc(ndims*sizeof(int));
+            dest->dims = malloc(ndims*sizeof(char *));
+            s += strspn(s, " \t\n[");
             for (j=0; j<ndims; j++) {
-              if (dest->dims[j]) free(dest->dims[j]);
-              dest->dims[j] = strdup(s);
-              s += strcspn(q, ",") + 1;
+              size_t len;
+              s += strspn(s, " \t\n");
+              len = strcspn(s, ",] \t\n");
+              dest->dims[j] = strndup(s, len);
+              s += len + 1;
             }
           }
           dest->unit = (unit && PyUnicode_Check(unit)) ?
             strdup(PyUnicode_AsUTF8(unit)) : NULL;
+          dest->iri = (iri && PyUnicode_Check(iri)) ?
+            strdup(PyUnicode_AsUTF8(iri)) : NULL;
           dest->description = (descr && PyUnicode_Check(descr)) ?
             strdup(PyUnicode_AsUTF8(descr)) : NULL;
-        } else
-          dlite_err(1, "cannot convert Python sequence to dimension");
+        } else {
+          dlite_err(1, "cannot convert Python sequence to property");
+        }
         Py_XDECREF(name);
         Py_XDECREF(type);
         Py_XDECREF(dims);
@@ -818,7 +825,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         Py_XDECREF(descr);
 
       } else {
-        FAIL("cannot convert Python object to dimension");
+        FAIL("cannot convert Python object to property");
       }
     }
     break;

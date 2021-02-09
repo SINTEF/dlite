@@ -21,4 +21,6 @@ jobs:
 
     - name: Run static code analysis
       run: |
-        cppcheck . --language=c -q --force --error-exitcode=2 --inline-suppr
+        # We ignore src/utils/tests/test_tgen.c due to a strange bug in the
+        # version of cppcheck in ubuntu-20.04
+        cppcheck . --language=c -q --force --error-exitcode=2 --inline-suppr -i src/utils/tests/test_tgen.c

@@ -111,7 +111,7 @@
 
 #include <dlfcn.h>
 
-typedef void * dsl_handle;
+typedef void *dsl_handle;
 
 #define dsl_open(filename)         ((dsl_handle)dlopen(filename, RTLD_LAZY | RTLD_GLOBAL))
 #define dsl_sym(handle, symbol)    ((void *)dlsym((void *)(handle), symbol))

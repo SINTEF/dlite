@@ -99,7 +99,17 @@ class postgresql(DLiteStorageBase):
         values = tokens[4:]
         assert uuid_ == uuid
         assert metaid_ == metaid
+
+        # Make sure we have metadata object correcponding to metaid
+        try:
+            with dlite.err():
+                meta = dlite.get_instance(metaid)
+        except RuntimeError:
+            dlite.errclr()
+            meta = self.load(metaid)
+
         inst = dlite.Instance(metaid, dims, uri)
+
         for i, p in enumerate(inst.meta['properties']):
             inst.set_property(p.name, values[i])
         return inst
@@ -156,11 +166,10 @@ class postgresql(DLiteStorageBase):
             'dims integer[%d]' % meta.ndimensions
         ]
         for p in meta['properties']:
+            decl = f'"{p.name}" {to_pgtype(p.type)}'
             if len(p.dims):
-                sdims = ''.join(f'[{dims[d]}]' for d in p.dims)
-                cols.append(f'"{p.name}" {to_pgtype(p.type)}{sdims}')
-            else:
-                cols.append(f'"{p.name}" {to_pgtype(p.type)}')
+                decl += '[]' * len(p.dims)
+            cols.append(decl)
         q = sql.SQL('CREATE TABLE {} (%s);' %
                     ', '.join(cols)).format(sql.Identifier(meta.uri))
         self.cur.execute(q)

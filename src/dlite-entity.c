@@ -97,16 +97,20 @@ static void _instance_store_free(void)
     if ((q = map_get(_instance_store, uuid)) && (inst = *q) &&
         dlite_instance_is_meta(inst) && inst->_refcount > 0) {
       if (delsize <= ndel) {
+        void *ptr;
         delsize += 64;
-        del = realloc(del, delsize*sizeof(DLiteInstance *));
+        if (!(ptr = realloc(del, delsize*sizeof(DLiteInstance *))))
+          free(del);
+        del = ptr;
       }
-      del[ndel++] = inst;
+      if (del) del[ndel++] = inst;
     }
   }
 
-  for (i=0; i<ndel; i++) dlite_instance_decref(del[i]);
-  if (del) free(del);
-
+  if (del) {
+    for (i=0; i<ndel; i++) dlite_instance_decref(del[i]);
+    free(del);
+  }
   map_deinit(_instance_store);
   free(_instance_store);
   _instance_store = NULL;
@@ -778,7 +782,10 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
     void *ptr = (void *)dlite_instance_get_property_by_index(inst, i);
     size_t *pdims = DLITE_PROP_DIMS(inst, i);
     if (dlite_datamodel_get_property(d, p->name, ptr, p->type, p->size,
-				     p->ndims, pdims)) goto fail;
+				     p->ndims, pdims)) {
+      dlite_type_clear(ptr, p->type, p->size);
+      goto fail;
+    }
   }
 
   /* initiates metadata of the new instance is metadata */
@@ -2502,7 +2509,7 @@ const char *dlite_metamodel_missing_value(const DLiteMetaModel *model)
   for (i=0; i < model->meta->_nproperties; i++) {
     DLiteProperty *p = model->meta->_properties + i;
     if (strcmp(p->name, "dimensions") == 0) {
-      if (!model->dims) return p->name;
+      continue;
     } else if (strcmp(p->name, "properties") == 0) {
       if (!model->props) return p->name;
     } else if (strcmp(p->name, "relations") == 0) {
@@ -2573,7 +2580,6 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
   if (!(meta = (DLiteMeta *)dlite_instance_create(model->meta,
                                                   model->dimvalues,
                                                   model->uri))) goto fail;
-  if (dlite_meta_init(meta)) goto fail;
   if (model->iri && !(meta->iri = strdup(model->iri)))
     FAIL("allocation failure");
 
@@ -2583,14 +2589,21 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
     DLiteProperty *p = model->meta->_properties + i;
     size_t *dims = (p->ndims) ? DLITE_PROP_DIMS(meta, i) : NULL;
 
-    if (!(src = dlite_metamodel_get_property(model, p->name))) goto fail;
-    if (!(dest = dlite_instance_get_property_by_index((DLiteInstance *)meta,
-                                                      i))) goto fail;
-    if (dlite_type_ndcast(p->ndims,
-                          dest, p->type, p->size, dims, NULL,
-                          src, p->type, p->size, dims, NULL,
-                          NULL)) goto fail;
+    src = dlite_metamodel_get_property(model, p->name);
+    dest = dlite_instance_get_property_by_index((DLiteInstance *)meta, i);
+    if ((src == NULL) && (dest == NULL)) {
+      continue;
+    }
+    else if ((src != NULL) && (dest != NULL)) {
+      if (dlite_type_ndcast(p->ndims,
+                            dest, p->type, p->size, dims, NULL,
+                            src, p->type, p->size, dims, NULL,
+                            NULL)) goto fail;
+    } else {
+      goto fail;
+    }
   }
+  if (dlite_meta_init(meta)) goto fail;
   retval = meta;
  fail:
   if (name) free(name);
