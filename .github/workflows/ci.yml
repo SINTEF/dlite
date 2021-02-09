@@ -4,15 +4,15 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.7'
-        architecture: 'x64'
+    #- uses: actions/setup-python@v2
+    #  with:
+    #    python-version: '3.8'
+    #    architecture: 'x64'
 
     - name: Update submodules
       run: |
@@ -28,6 +28,8 @@ jobs:
         sudo apt-get install swig3.0
         sudo apt-get install doxygen
         sudo apt-get install graphviz
+        sudo apt-get install python3
+        sudo apt-get install python3-dev
     - name: Install Python dependencies
       run: |
         pip3 install setuptools
