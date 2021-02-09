@@ -62,12 +62,14 @@ jobs:
       run: |
         mkdir build
         cd build
-        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') cmake .. -DFORCE_EXAMPLES=ON
+        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
+          CFLAGS='-Wno-missing-field-initializers' \
+          cmake .. -DFORCE_EXAMPLES=ON
         cd -
     - name: make
       run: |
         cd build
-        CFLAGS='-Wno-missing-field-initializers' make
+        make
         cd -
     - name: install
       run: |
