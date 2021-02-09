@@ -9,11 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    #- uses: actions/setup-python@v2
-    #  with:
-    #    python-version: '3.7'
-    #    architecture: 'x64'
-
     - name: Update submodules
       run: |
         git submodule init
@@ -24,14 +19,6 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update --fix-missing
-        #sudo apt-get install libjansson-dev
-        #sudo apt-get install libhdf5-dev
-        #sudo apt-get install swig3.0
-        #sudo apt-get install doxygen
-        #sudo apt-get install graphviz
-        #sudo apt-get install python3
-        #sudo apt-get install python3-dev
-        #sudo apt-get install python3-numpy
         sudo apt-get install \
           libjansson-dev \
           libhdf5-dev \
@@ -48,10 +35,6 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install fortran-language-server
-        #pip3 install setuptools
-        #pip3 install numpy
-        #pip3 install PyYAML
-        #pip3 install psycopg2
     - name: check numpy
       run: |
         which python3
