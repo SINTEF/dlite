@@ -61,5 +61,5 @@ jobs:
     - name: make test
       run: |
         cd build
-        make test
+        ctest
         cd -
