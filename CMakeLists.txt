@@ -276,7 +276,7 @@ endif()
 # ======
 if(WITH_PYTHON)
   if(CMAKE_VERSION VERSION_LESS_EQUAL 3.12)
-    set(Python_ADDITIONAL_VERSIONS 3.8 3.7 3.6 3.5)
+    set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5)
     find_package(PythonInterp 3.5 REQUIRED)
     find_package(PythonLibs 3.5 REQUIRED)
   else()
