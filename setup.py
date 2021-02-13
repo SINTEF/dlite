@@ -108,6 +108,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     #download_url=['https://github.com/SINTEF/dlite/archive/v0.2.5.tar.gz'],
+    install_requires=['numpy', 'PyYAML', 'psycopg2'],
     packages=[''],
     package_data={'': rglob(dlite_package)},
     scripts=glob('dist/bin/*'),
