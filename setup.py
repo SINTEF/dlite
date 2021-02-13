@@ -107,6 +107,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    #download_url=['https://github.com/SINTEF/dlite/archive/v0.2.5.tar.gz'],
     packages=[''],
     package_data={'': rglob(dlite_package)},
     scripts=glob('dist/bin/*'),
