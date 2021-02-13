@@ -2275,7 +2275,7 @@ int dlite_metamodel_set_string(DLiteMetaModel *model, const char *name,
       v->data = v->strp;
       return 0;
     }
-  assert(0);  /* should never be reached */
+  abort();  /* should never be reached */
 }
 
 
