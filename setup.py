@@ -15,11 +15,10 @@ source_dir = pathlib.Path(__file__).parent.absolute()
 
 # Path to dlite package installed by CMake
 dlite_package = os.path.join(
-    os.path.join('dist', os.path.relpath(
-        get_path('platlib'),
-        get_config_var('exec_prefix'))),
+    'dist',
+    os.path.relpath(get_path('platlib'), get_config_var('exec_prefix')),
     'dlite')
-print('***', dlite_package)  #XXX
+
 
 def rglob(patt):
     """Recursive glob function that only returns ordinary files."""
@@ -108,9 +107,8 @@ setup(
         'Programming Language :: Python :: 3.9',
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    packages=[
-        dlite_package,
-    ],
+    packages=[''],
+    package_data={'': rglob(dlite_package)},
     scripts=glob('dist/bin/*'),
     ext_modules=[CMakeExtension(os.path.join(dlite_package, '_dlite'))],
     data_files=[
