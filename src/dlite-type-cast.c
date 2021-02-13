@@ -163,6 +163,7 @@ static int istrue(const void *src, DLiteType type, size_t size)
   do {                                                                  \
     int n, m;                                                           \
     char *p;                                                            \
+    UNUSED(m);  /* m is unused if NDEBUG is non-zero */                 \
     if ((n = dlite_type_snprintf(src, src_type, src_size,               \
                                  0, -2, NULL, 0)) < 0) goto fail;       \
     if (!(p = realloc(*(char **)dest, n + 1)))                          \
@@ -613,7 +614,7 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
       default:
         goto fail;
       }
-      assert(0);
+      abort();  /* should never be reached */
     case dliteFloat:
       switch (dest_size) {
       case 4:
