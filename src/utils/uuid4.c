@@ -64,8 +64,9 @@ static int simple_seed(void) {
   GetSystemTimeAsFileTime(&ft);
   timeseed = (unsigned int)(ft.dwLowDateTime + ft.dwHighDateTime);
 #else
-  /* FIXME - clock returns the approximate CPU time used by the
-     program which might be very similar between each invocations */
+  /* FIXME - clock() returns the approximate CPU time used by the
+     program (typically in ms resolution), which might be similar
+     between invocations on fast CPUs. */
   timeseed = (unsigned int)clock();
 #endif
   srand(timeseed);
