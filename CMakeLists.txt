@@ -25,7 +25,7 @@ option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 
 # Set default cmake configurations
 include(SetDefaults)
@@ -280,15 +280,20 @@ if(WITH_PYTHON)
     find_package(PythonInterp 3.5 REQUIRED)
     find_package(PythonLibs 3.5 REQUIRED)
   else()
-    if(CMAKE_VERSION VERSION_LESS 3.14.7)
-      find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-      set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-      find_package(NumPy REQUIRED)
-    else()
-      find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
-      # Set backward compatible Python variable
-      set(NUMPY_INCLUDE_DIR ${Python3_NumPy_INCLUDE_DIRS})
-    endif()
+
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+    set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+    find_package(NumPy REQUIRED)
+
+    #if(CMAKE_VERSION VERSION_LESS 3.14.7)
+    #  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+    #  set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+    #  find_package(NumPy REQUIRED)
+    #else()
+    #  find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+    #  # Set backward compatible Python variable
+    #  set(NUMPY_INCLUDE_DIR ${Python3_NumPy_INCLUDE_DIRS})
+    #endif()
 
     # Set backward compatible Python variables
     set(PYTHONINTERP_FOUND    ${Python3_Interpreter_FOUND})

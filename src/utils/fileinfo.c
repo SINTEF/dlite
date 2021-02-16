@@ -23,7 +23,7 @@
 # ifndef WINDOWS
 #  define WINDOWS
 # endif
-# include <Windows.h>
+# include <windows.h>
 # include <shlwapi.h>
 #else
 # error "fileinfo supports only POSIX (__unix__) and Windows (_WIN32)"

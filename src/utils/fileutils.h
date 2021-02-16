@@ -115,6 +115,11 @@ const char *fu_dirsep(FUPlatform platform);
 */
 const char *fu_pathsep(FUPlatform platform);
 
+/**
+  Returns a pointer to line separator for `platform` or NULL on error.
+*/
+const char *fu_linesep(FUPlatform platform);
+
 
 /**
   Returns non-zero if `path` is an absolute path.
@@ -339,6 +344,9 @@ char *fu_paths_string(const FUPaths *paths);
 /**
   Returns a NULL-terminated array of pointers to paths or NULL if
   `paths` is empty.
+
+  The memory own by `paths` and should not be deallocated by the
+  caller.
  */
 const char **fu_paths_get(FUPaths *paths);
 

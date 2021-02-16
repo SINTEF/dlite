@@ -18,6 +18,7 @@
 #ifdef WINDOWS
 #include "windows.h"
 #include "shlwapi.h"
+#include "fileapi.h"
 #endif
 
 #include <assert.h>
@@ -54,8 +55,7 @@ struct _FUIter {
 };
 
 /* Platform names */
-static char *_platform_names[] = {"Native", "Unix", "Windows",
-                                  /* "Apple", */ NULL};
+static char *_platform_names[] = {"Native", "Unix", "Windows", "Apple", NULL};
 
 
 /*
@@ -134,6 +134,20 @@ const char *fu_pathsep(FUPlatform platform)
   switch (platform) {
   case fuUnix: return ":";
   case fuWindows: return ";";
+  default: return err(1, "unsupported platform: %d", platform), NULL;
+  }
+}
+
+/*
+  Returns a pointer to line separator for `platform` or NULL on error.
+*/
+const char *fu_linesep(FUPlatform platform)
+{
+  if (platform == fuNative) platform = fu_native_platform();
+  switch (platform) {
+  case fuUnix: return "\n";
+  case fuWindows: return "\r\n";
+  case fuApple: return "\r";
   default: return err(1, "unsupported platform: %d", platform), NULL;
   }
 }
@@ -451,6 +465,7 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
     while (*q == '\\' && *(q+1) == '\\') q++;
     *d = *q;
   }
+  printf("\n*** %s\n -> %s\n", path, dest);
   return dest;
 }
 
@@ -782,6 +797,9 @@ char *fu_paths_string(const FUPaths *paths)
 /*
   Returns a NULL-terminated array of pointers to paths or NULL if
   `paths` is empty.
+
+  The memory own by `paths` and should not be deallocated by the
+  caller.
  */
 const char **fu_paths_get(FUPaths *paths)
 {

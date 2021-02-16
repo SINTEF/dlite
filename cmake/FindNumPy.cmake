@@ -19,13 +19,22 @@ if(NOT FIND_NUMPY_QUIETLY)
   message("-- Checking for NumPy")
 endif()
 
+message("*** PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE}")
+
 execute_process(
   COMMAND "${PYTHON_EXECUTABLE}" -c "import numpy; print(numpy.get_include()); print(numpy.version.version)"
+  RESULT_VARIABLE numpy_retval
   OUTPUT_VARIABLE numpy_output
-  ERROR_VARIABLE numpy_error)
+  ERROR_VARIABLE numpy_error
+  )
 
-if(numpy_error)
+message("*** numpy_retval ${numpy_retval}")
+message("*** numpy_output ${numpy_output}")
+message("*** numpy_error ${numpy_error}")
+
+if(${numpy_retval})
   set(NUMPY_FOUND FALSE)
+  message(${numpy_error})
 else()
   set(NUMPY_FOUND TRUE)
   string(REPLACE "\n" ";" numpy_output ${numpy_output})
