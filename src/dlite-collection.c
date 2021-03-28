@@ -65,8 +65,8 @@ int dlite_collection_deinit(DLiteInstance *inst)
  */
 DLiteCollection *dlite_collection_create(const char *id)
 {
-  DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_SCHEMA);
-  size_t dims[] = {0, 4};
+  DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_ENTITY);
+  size_t dims[] = {0};
   return (DLiteCollection *)dlite_instance_create(meta, dims, id);
 }
 
@@ -116,7 +116,7 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
     if (!(t2 = dlite_collection_find_first(coll, t->s, "_has-meta", NULL)))
       FAIL1("collection inconsistency - no \"_has-meta\" relation for "
            "instance: %s", t->s);
-    if (strcmp(t2->o, DLITE_COLLECTION_SCHEMA) == 0) {
+    if (strcmp(t2->o, DLITE_COLLECTION_ENTITY) == 0) {
       if (!dlite_collection_load(s, t->o, 0)) goto fail;
     } else {
       if (!dlite_instance_load(s, t->o)) goto fail;
@@ -164,12 +164,12 @@ int dlite_collection_save(DLiteCollection *coll, DLiteStorage *s)
 {
   DLiteCollectionState state;
   DLiteInstance *inst;
-  const DLiteMeta *schema = dlite_get_collection_schema();
+  const DLiteMeta *e = dlite_get_collection_entity();
   int stat=0;
   if ((stat = dlite_instance_save(s, (DLiteInstance *)coll))) return stat;
   dlite_collection_init_state(coll, &state);
   while ((inst = dlite_collection_next(coll, &state))) {
-    if (inst->meta == schema)
+    if (inst->meta == e)
       stat |= dlite_collection_save((DLiteCollection *)inst, s);
     else
       stat |= dlite_instance_save(s, inst);

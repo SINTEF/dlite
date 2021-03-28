@@ -75,7 +75,6 @@ static void _instance_store_create(void)
     atexit(_instance_store_free);
     _instance_store_add((DLiteInstance *)dlite_get_basic_metadata_schema());
     _instance_store_add((DLiteInstance *)dlite_get_entity_schema());
-    _instance_store_add((DLiteInstance *)dlite_get_collection_schema());
     _instance_store_add((DLiteInstance *)dlite_get_collection_entity());
   }
 }
