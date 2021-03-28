@@ -408,6 +408,99 @@ static struct _CollectionEntity {
 
 
 /**************************************************************
+ * collection_entity
+ **************************************************************/
+
+static DLiteDimension collection_entity_dimensions[] = {
+  //{"ndimensions", "Number of common dimmensions."},
+  //{"ninstances",  "Number of instances added to the collection."},
+  //{"ndim_maps",   "Number of dimension maps."},
+  {"nrelations",  "Number of relations."},
+};
+static char *collection_entity_prop_relations_dims[] = {"nrelations"};
+static DLiteProperty collection_entity_properties[] = {
+  {
+  "relations",                               /* name */
+  dliteRelation,                             /* type */
+  sizeof(DLiteRelation),                     /* size */
+  1,                                         /* ndims */
+  collection_entity_prop_relations_dims,     /* dims */
+  NULL,                                      /* unit */
+  NULL,                                      /* iri */
+  "Array of relations (subject, predicate, "
+  "object, relation-id)."                    /* description */
+  }
+};
+static struct _CollectionEntity {
+  /* -- header */
+  DLiteMeta_HEAD
+  /* -- length of each dimension */
+  size_t ndimensions;
+  size_t nproperties;
+  /* -- value of each property */
+  char *name;
+  char *version;
+  char *namespace;
+  char *description;
+  DLiteDimension *dimensions;
+  DLiteProperty  *properties;
+  /* -- value of each relation */
+  /* -- array property dimension values */
+  size_t __propdims[1];
+  /* -- array of first property dimension  */
+  size_t __propdiminds[1];
+  /* -- array of memory offsets to each instance property */
+  size_t __propoffsets[1];
+} collection_entity = {
+  /* -- header */
+  "8948745c-904c-5599-834a-9f59613fb6c5",        /* uuid (corresponds to uri) */
+  DLITE_COLLECTION_ENTITY,                       /* uri */
+  1,                                             /* _refcount, never free */
+  (DLiteMeta *)&entity_schema,                   /* meta */
+  NULL,                                          /* iri */
+
+  1,                                             /* _ndimensions */
+  1,                                             /* _nproperties */
+  0,                                             /* _nrelations */
+
+  collection_entity_dimensions,                  /* _dimensions */
+  collection_entity_properties,                  /* _properties */
+  NULL,                                          /* _relations */
+
+  offsetof(DLiteCollection, nrelations),         /* _headersize */
+  dlite_collection_init,                         /* _init */
+  dlite_collection_deinit,                       /* _deinit */
+
+  0,                                             /* _npropdims */
+  NULL,                                          /* _propdiminds */
+
+  0,                                             /* _dimoffset */
+  NULL,                                          /* _propoffsets */
+  0,                                             /* _reloffset */
+  0,                                             /* _propdimsoffset */
+  0,                                             /* _propdimindsoffset */
+  /* -- length of each dimention */
+  1,                                             /* ndimensions */
+  1,                                             /* nproperties */
+  /* -- value of each property */
+  "Collection",                                  /* name */
+  "0.1",                                         /* version */
+  "http://meta.sintef.no",                       /* namespace */
+  "Meta-metadata description a collection.",     /* description */
+  collection_entity_dimensions,                  /* dimensions */
+  collection_entity_properties,                  /* properties */
+  /* -- value of each relation */
+  /* -- array property dimension values */
+  {0},                                           /* __propdims */
+  /* -- array of first property dimension */
+  {0},                                           /* __propdiminds */
+  /* -- array of memory offsets to each instance property */
+  {0}                                            /* __propoffsets */
+};
+
+
+
+/**************************************************************
  * Exposed pointers to schemas
  **************************************************************/
 
