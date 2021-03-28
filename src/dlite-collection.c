@@ -205,8 +205,10 @@ int dlite_collection_save_url(DLiteCollection *coll, const char *url)
 int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
                                   const char *p, const char *o)
 {
-  triplestore_add(coll->rstore, s, p, o);
-  return 0;
+  int stat = triplestore_add(coll->rstore, s, p, o);
+  if (!stat)
+    DLITE_PROP_DIM(coll, 0, 0) = coll->nrelations;
+  return stat;
 }
 
 
@@ -218,6 +220,8 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
                                       const char *p, const char *o)
 {
   int retval = triplestore_remove(coll->rstore, s, p, o);
+  if (retval > -1)
+    DLITE_PROP_DIM(coll, 0, 0) = coll->nrelations;
   return retval;
 }
 
@@ -301,6 +305,7 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
   if (dlite_collection_find(coll, NULL, label, "_is-a", "Instance"))
     return err(1, "instance with label '%s' is already in the collection",
                label);
+
   dlite_collection_add_relation(coll, label, "_is-a", "Instance");
   dlite_collection_add_relation(coll, label, "_has-uuid", inst->uuid);
   dlite_collection_add_relation(coll, label, "_has-meta", inst->meta->uri);
@@ -344,7 +349,7 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
     }
 
     dlite_collection_init_state(coll, &state);
-    while ((r=dlite_collection_find(coll,&state, label, "_has-dimmap", NULL)))
+    while ((r=dlite_collection_find(coll, &state, label, "_has-dimmap", NULL)))
       triplestore_remove_by_id(coll->rstore, r->o);
     dlite_collection_deinit_state(&state);
 
