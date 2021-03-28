@@ -261,9 +261,13 @@ int triplestore_add_triplets(TripleStore *ts, const Triplet *triplets,
   /* make space for new triplets */
   if (ts->size < ts->true_length + n) {
     size_t m = (ts->true_length + n - ts->size) / TRIPLESTORE_BUFFSIZE;
-    ts->size += (m + 1) * TRIPLESTORE_BUFFSIZE;
-    assert(ts->size >= ts->true_length + n);
-    ts->triplets = realloc(ts->triplets, ts->size * sizeof(Triplet));
+    size_t size = ts->size + (m + 1) * TRIPLESTORE_BUFFSIZE;
+    void *ptr;
+    assert(size >= ts->true_length + n);
+    if (!(ptr = realloc(ts->triplets, size * sizeof(Triplet))))
+      return err(1, "allocation failure");
+    ts->triplets = ptr;
+    ts->size = size;
     memset(ts->triplets + ts->true_length, 0,
            (ts->size - ts->true_length)*sizeof(Triplet));
     if (ts->p) *ts->p = ts->triplets;
@@ -317,8 +321,9 @@ static int _remove_by_index(TripleStore *ts, size_t n)
     /* no running iterators, remove triplet */
     assert(ts->length == ts->true_length);
     triplet_clean(t);
-    if (t < ts->triplets + (ts->length - 1))
-      memcpy(t, &ts->triplets[--ts->length], sizeof(Triplet));
+    ts->length--;
+    if (t < ts->triplets + ts->length)
+      memcpy(t, &ts->triplets[ts->length], sizeof(Triplet));
     ts->true_length = ts->length;
     if (ts->lenp) *ts->lenp = ts->length;
   }

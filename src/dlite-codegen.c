@@ -120,6 +120,9 @@ static int list_dims(TGenBuf *s, const char *template, int len,
   if (!dlite_meta_is_metameta(meta->meta))
     return err(TGenSyntaxError,
                "\"list_dims\" only works for metadata");
+  if (iprop >= (int)meta->_nproperties)
+    return err(1, "RuntimeError: iprop=%d is out of range: (0:%zu)",
+               iprop, meta->_nproperties-1);
 
   if (tgen_subs_copy(&psubs, subs)) goto fail;
   psubs.parent = subs;
@@ -184,7 +187,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&psubs, "prop.typename", typename, NULL);
     tgen_subs_set(&psubs, "prop.dtype",    dtype,    NULL);
     tgen_subs_set(&psubs, "prop.ftype",    ftype,    NULL);
-    tgen_subs_set(&psubs, "prop.isoctype", isoctype,    NULL);
+    tgen_subs_set(&psubs, "prop.isoctype", isoctype, NULL);
     tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,   NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
     tgen_subs_set(&psubs, "prop.iri",      iri,      NULL);
@@ -235,7 +238,7 @@ static int list_propdims(TGenBuf *s, const char *template, int len,
   int retval = 1;
   const DLiteInstance *inst = ((Context *)context)->inst;
   const DLiteMeta *meta = inst->meta;
-  size_t *propdims = (size_t *)((char *)inst + inst->meta->_propdimsoffset);
+  size_t *propdims = (size_t *)((char *)inst + meta->_propdimsoffset);
   TGenSubs psubs;
   size_t i;
   if (tgen_subs_copy(&psubs, subs)) goto fail;
