@@ -335,8 +335,7 @@ static DLiteProperty collection_entity_properties[] = {
   collection_entity_prop_relations_dims,     /* dims */
   NULL,                                      /* unit */
   NULL,                                      /* iri */
-  "Array of relations (subject, predicate, "
-  "object, relation-id)."                    /* description */
+  "Array of relations (s-p-o triples)."      /* description */
   }
 };
 static struct _CollectionEntity {
