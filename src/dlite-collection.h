@@ -70,13 +70,27 @@ typedef struct _TripleState DLiteCollectionState;
  */
 int dlite_collection_init(DLiteInstance *inst);
 
-
 /**
   Deinitiates a collection instance.
 
   Returns non-zero on error.
  */
 int dlite_collection_deinit(DLiteInstance *inst);
+
+/**
+  Returns size of dimension number `i` or -1 on error.
+*/
+int dlite_collection_getdim(const DLiteInstance *inst, size_t i);
+
+/**
+  Loads instance relations to triplestore.  Returns -1 on error.
+*/
+int dlite_collection_loadprop(const DLiteInstance *inst, size_t i);
+
+/**
+  Saves triplestore to instance relations. Returns non-zero on error.
+*/
+int dlite_collection_saveprop(DLiteInstance *inst, size_t i);
 
 
 /**

@@ -6,6 +6,25 @@ if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(dlite-src_BINARY_DIR ${dlite-src_BINARY_DIR}/$<CONFIG>)
 endif()
 
+# Whether we have Redland installed
+if(WITH_REDLAND)
+  find_package(Redland)
+  if(REDLAND_FOUND)
+    set(HAVE_REDLAND TRUE)
+
+    find_package(Rasqal REQUIRED)
+    if(RASQAL_FOUND)
+      set(HAVE_RASQAL TRUE)
+    endif()
+
+    find_package(Raptor REQUIRED)
+    if(RAPTOR_FOUND)
+      set(HAVE_RAPTOR TRUE)
+    endif()
+
+  endif()
+endif()
+
 
 # Generate config.h
 # -----------------
@@ -13,6 +32,7 @@ configure_file(config.h.in config.h)
 
 include(dliteGenEnv)
 dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)
+
 
 
 #-----------------------------------------------------
@@ -38,6 +58,7 @@ set(sources
   dlite-codegen.c
   dlite-getlicense.c
   getuuid.c
+  triple.c
   triplestore.c
   )
 
@@ -45,6 +66,22 @@ add_definitions(
   -DHAVE_CONFIG_H
   #-DWITH_DEBUG
   )
+
+set(include_directories_extra)
+set(link_libraries_extra)
+if(HAVE_REDLAND)
+  list(APPEND include_directories_extra ${REDLAND_INCLUDE_DIR})
+  list(APPEND link_libraries_extra ${REDLAND_LIBRARY})
+endif()
+if(HAVE_RASQAL)
+  list(APPEND include_directories_extra ${RASQAL_INCLUDE_DIR})
+  list(APPEND link_libraries_extra ${RASQAL_LIBRARIES})
+endif()
+if(HAVE_RAPTOR)
+  list(APPEND include_directories_extra ${RAPTOR_INCLUDE_DIR})
+  list(APPEND link_libraries_extra ${RAPTOR_LIBRARY})
+endif()
+
 
 
 # We are building both shared and static libraries.  User software will
@@ -61,32 +98,37 @@ add_definitions(
 # We have to implement a robust way to find shared libraries on Windows,
 # probably by appending to the PATH environment variable before loading
 # any storage or mapping plugin.
-add_library(dlite SHARED
+set(lib_args
   ${sources}
   ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
   )
-add_library(dlite-static STATIC
-  ${sources}
-  ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
-  )
+add_library(dlite SHARED ${lib_args})
+add_library(dlite-static STATIC ${lib_args})
 
-target_link_libraries(dlite
+set(include_args
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
+  ${include_directories_extra}
+  )
+target_include_directories(dlite PUBLIC ${include_args})
+target_include_directories(dlite-static PUBLIC ${include_args})
+
+#target_include_directories(dlite PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#  $<INSTALL_INTERFACE:include/dlite>
+#  )
+#target_include_directories(dlite-static PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#  $<INSTALL_INTERFACE:include/dlite>
+#  )
+
+set(link_args
   dlite-utils
   ${CMAKE_DL_LIBS}
+  ${link_libraries_extra}
   )
-target_link_libraries(dlite-static
-  dlite-utils-static
-  ${CMAKE_DL_LIBS}
-  )
-
-target_include_directories(dlite PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include/dlite>
-  )
-target_include_directories(dlite-static PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include/dlite>
-  )
+target_link_libraries(dlite ${link_args})
+target_link_libraries(dlite-static ${link_args})
 
 set_target_properties(dlite PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON

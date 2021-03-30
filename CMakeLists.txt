@@ -16,6 +16,7 @@ option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
 option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
 option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
+option(WITH_REDLAND     "Whether to build with Redland (if available)"   ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
@@ -29,6 +30,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 
 # Set default cmake configurations
 include(SetDefaults)
+
+# Get number of CPUs
+include(ProcessorCount)
+ProcessorCount(NUMBER_OF_CPUS)
+if(NUMBER_OF_CPUS)
+  set(NUMBER_OF_CPUS_OPTION -j${NUMBER_OF_CPUS})
+else()
+  set(NUMBER_OF_CPUS_OPTION "")
+endif()
 
 
 # Compiler options
@@ -406,7 +416,7 @@ if(CPPCHECK)
     NAME static-code-analysis
     COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
       --language=c -q --force --error-exitcode=2 --inline-suppr -i build
-      -I${dlite_SOURCE_DIR}/src
+      -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
     )
 endif()
 
