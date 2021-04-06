@@ -78,6 +78,7 @@ typedef struct {{
 typedef void DLiteInstance;
 #define DLiteInstance_HEAD
 #define DLiteMeta_HEAD
+#define DLITE_UPDATE_EXTENEDE_META(meta, type, firstdim)
 #endif
 
 
@@ -87,7 +88,8 @@ typedef void DLiteInstance;
 #endif
 
 
-/** Final fields of the {name%M} structure. */
+/** Final fields of the {name%M} structure (not intended for direct access
+    by user). */
 #ifdef HAVE_DLITE
 #define {name%M}_TAIL \\
   size_t __propdims[{_npropdims}];  {@30}/*!< property dimension values */

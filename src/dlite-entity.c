@@ -76,7 +76,7 @@ static void _instance_store_create(void)
     atexit(_instance_store_free);
     _instance_store_add((DLiteInstance *)dlite_get_basic_metadata_schema());
     _instance_store_add((DLiteInstance *)dlite_get_entity_schema());
-    _instance_store_add((DLiteInstance *)dlite_get_collection_schema());
+    _instance_store_add((DLiteInstance *)dlite_get_collection_entity());
   }
 }
 
@@ -1840,9 +1840,9 @@ int dlite_meta_init(DLiteMeta *meta)
       meta->_propoffsets[i] = size;
       size += p->size;
     }
-    DEBUG_LOG("    propoffset[%zu]=%zu (pad=%d, type=%d size=%-2lu ndims=%d)"
+    DEBUG_LOG("    propoffset[%zu]=%zu (type=%d size=%-2lu ndims=%d)"
           " + %zu\n",
-          i, meta->_propoffsets[i], padding, p->type, p->size, p->ndims,
+          i, meta->_propoffsets[i], p->type, p->size, p->ndims,
           (p->ndims) ? sizeof(size_t *) : p->size);
   }
   /* -- relation values (reloffset) */
@@ -2369,7 +2369,7 @@ int dlite_metamodel_set_string(DLiteMetaModel *model, const char *name,
       v->data = v->strp;
       return 0;
     }
-  assert(0);  /* should never be reached */
+  abort();  /* should never be reached */
 }
 
 

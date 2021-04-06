@@ -352,6 +352,16 @@ Using the docker image
 The easiest way to use the docker image is via the
 [dlite-docker](tools/dlite-docker) script.
 
+
+Licensing
+=========
+DLite is licensed under the [MIT license](LICENSE).  However, it
+include a few third party source files with other permissive licenses.
+All of these should allow dynamic and static linking against open and
+propritary codes.  A full list of included licenses can be found in
+[LICENSES.txt](src/utils/LICENSES.txt).
+
+
 ---
 
 DLite is developed with the hope that it will be a delight to work with.

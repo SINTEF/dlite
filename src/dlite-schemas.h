@@ -16,8 +16,8 @@
 #define DLITE_ENTITY_SCHEMA \
   "http://meta.sintef.no/0.3/EntitySchema"
 
-#define DLITE_COLLECTION_SCHEMA \
-  "http://meta.sintef.no/0.6/CollectionSchema"
+#define DLITE_COLLECTION_ENTITY \
+  "http://meta.sintef.no/0.1/Collection"
 
 #define DLITE_TRANSACTION_SCHEMA \
   "http://meta.sintef.no/0.1/TransactionSchema"
@@ -26,7 +26,7 @@
 /** Functions returning a pointer to static definitions of basic schemas. */
 const DLiteMeta *dlite_get_basic_metadata_schema();
 const DLiteMeta *dlite_get_entity_schema();
-const DLiteMeta *dlite_get_collection_schema();
+const DLiteMeta *dlite_get_collection_entity();
 const DLiteMeta *dlite_get_transaction_schema();
 
 #endif /* _DLITE_SCHEMAS_H */
