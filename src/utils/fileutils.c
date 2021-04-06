@@ -214,6 +214,7 @@ char *fu_vjoin_sep(int sep, const char *a, va_list ap)
 
   if (arg0 == 0) {
     n = strlen(a);
+    assert(len > n);
     strncpy(path, a, n);
     pos += n;
     path[pos++] = sep;
@@ -224,6 +225,7 @@ char *fu_vjoin_sep(int sep, const char *a, va_list ap)
   for (i=arg0; i<nargs; i++) {
     p = va_arg(aq, char *);
     n = strlen(p);
+    assert(len-pos > n);
     strncpy(path+pos, p, n);
     pos += n;
     path[pos++] = sep;
@@ -767,7 +769,7 @@ char *fu_paths_string(const FUPaths *paths)
   if (!(s = string = malloc(size + 1)))
     return err(1, "allocation failure"), NULL;
   for (i=0; i < paths->n; i++) {
-    int n = strlen(paths->paths[i]);
+    size_t n = strlen(paths->paths[i]);
     strncpy(s, paths->paths[i], n);
     s += n;
     if (i < paths->n - 1) {
@@ -776,6 +778,7 @@ char *fu_paths_string(const FUPaths *paths)
     }
   }
   *s = '\0';
+  assert((long)size >= s - string);
   return string;
 }
 
