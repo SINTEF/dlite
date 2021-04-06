@@ -119,7 +119,9 @@ RUN make install
 # static-code-analysis since it is already done.
 # TODO - set up postgresql server and run the postgresql tests...
 USER user
-RUN ctest -E "(postgresql|static-code-analysis)"
+RUN ctest -E "(postgresql|static-code-analysis)" || \
+    ctest -E "(postgresql|static-code-analysis)" \
+        --rerun-failed --output-on-failure -VV
 
 # Remove unneeded installed files
 USER root
