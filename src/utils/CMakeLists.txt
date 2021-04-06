@@ -91,34 +91,34 @@ int main(void) { return 0; }" HAVE_WIN32_THREAD_LOCAL_STORAGE)
 
 check_c_source_compiles("
 #define F(x, ...) f(x, __VA_ARGS__)
-void f(int a, ...) { }
+int f(int a, int b) { return a + b; }
 int main(void) { F(1, 2); return 0; }
 " HAVE___VA_ARGS__)
 
 check_c_source_compiles("
 #define F(x, ...) f(x, __VA_ARGS__)
-void f(int a, ...) { }
+int f(int a) { return a; }
 int main(void) { F(1); return 0; }
 " HAVE_EXT__VA_ARGS__)
 
 check_c_source_compiles("
 #define F(x, ...) f(x, ##__VA_ARGS__)
-void f(int a, ...) { }
+int f(int a) { return a; }
 int main(void) { F(1); return 0; }
 " HAVE_EXT2__VA_ARGS__)
 
 check_c_source_compiles("
 #define F(x, ...) f(x __VA_OPT__(,) __VA_ARGS__)
-void f(int a, ...) { }
+int f(int a) { return a; }
 int main(void) { F(1); return 0; }
 " HAVE___VA_OPT__)
 
 check_c_source_compiles("
-int main(void) { char *f = __func__; return 0; }
+int main(void) { const char *f = __func__; (void)(f); return 0; }
 " HAVE___FUNC__)
 
 check_c_source_compiles("
-int main(void) { char *f = __FUNCTION__; return 0; }
+int main(void) { const char *f = __FUNCTION__; (void)(f); return 0; }
 " HAVE___FUNCTION__)
 
 
