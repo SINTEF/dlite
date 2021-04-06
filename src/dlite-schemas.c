@@ -259,7 +259,7 @@ static struct _EntitySchema {
   DLiteRelation  *relation;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t __propdims[2];
+  size_t __propdims[3];
   /* -- array of first property dimension  */
   size_t __propdiminds[6];
   /* -- array of memory offsets to each instance property */
@@ -306,7 +306,7 @@ static struct _EntitySchema {
   NULL,                                       /* relations */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {0, 0},                                     /* __propdims */
+  {0, 0, 0},                                  /* __propdims */
   /* -- array of first property dimension */
   {0, 0, 0, 0, 0, 0},                         /* __propdiminds */
   /* -- array of memory offsets to each instance property */
@@ -335,8 +335,7 @@ static DLiteProperty collection_entity_properties[] = {
   collection_entity_prop_relations_dims,     /* dims */
   NULL,                                      /* unit */
   NULL,                                      /* iri */
-  "Array of relations (subject, predicate, "
-  "object, relation-id)."                    /* description */
+  "Array of relations (s-p-o triples)."      /* description */
   }
 };
 static struct _CollectionEntity {
@@ -354,7 +353,7 @@ static struct _CollectionEntity {
   DLiteProperty  *properties;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t __propdims[1];
+  size_t __propdims[2];
   /* -- array of first property dimension  */
   size_t __propdiminds[1];
   /* -- array of memory offsets to each instance property */
@@ -399,7 +398,7 @@ static struct _CollectionEntity {
   collection_entity_properties,                  /* properties */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {0},                                           /* __propdims */
+  {0, 0},                                        /* __propdims */
   /* -- array of first property dimension */
   {0},                                           /* __propdiminds */
   /* -- array of memory offsets to each instance property */
