@@ -146,6 +146,8 @@ DLiteDataModel *rdf_datamodel(const DLiteStorage *storage, const char *id)
   RdfDataModel *d=NULL;
   DLiteDataModel *retval=NULL;
   RdfStorage *s = (RdfStorage *)storage;
+  UNUSED(id);
+  UNUSED(s);
   if (!(d = calloc(1, sizeof(RdfDataModel))))
     FAIL("allocation failure");
   //d->api =

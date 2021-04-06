@@ -29,6 +29,9 @@
 #include "utils/map.h"
 #include "triplestore.h"
 
+#define UNUSED(x) (void)(x)
+
+
 
 /* Allocate triplestore memory in chunks of TRIPLESTORE_BUFFSIZE */
 #define TRIPLESTORE_BUFFSIZE 1024
