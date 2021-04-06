@@ -138,6 +138,15 @@ set_target_properties(dlite-static PROPERTIES
   )
 
 #set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_source_files_properties(
+    dlite-misc.c
+    dlite-storage.c
+    dlite-storage-plugins.c
+    dlite-mapping-plugins.c
+    dlite-codegen.c
+  PROPERTIES
+    OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
+  )
 
 
 ## Generate dlite_get_license.c
