@@ -939,49 +939,46 @@ DLiteMeta *dlite_json_entity(json_t *obj)
 
 
 static DLiteStoragePlugin dlite_json_plugin = {
-  "json",
-  NULL,
+  /* head */
+  "json",                          /* name */
+  NULL,                            /* freeapi */
 
   /* basic api */
-  dlite_json_open,
-  dlite_json_close,
+  dlite_json_open,                 /* open */
+  dlite_json_close,                /* close */
 
   /* queue api */
-  NULL,
-  NULL,
-  NULL,
-  dlite_json_get_uuids,
+  NULL,                            /* iterCreate */
+  NULL,                            /* iterNext */
+  NULL,                            /* iterFree */
+  dlite_json_get_uuids,            /* getUUIDs */
 
   /* direct api */
-  NULL,
-  NULL,
+  NULL,                            /* loadInstance */
+  NULL,                            /* saveInstance */
 
   /* datamodel api */
-  dlite_json_datamodel,
-  dlite_json_datamodel_free,
+  dlite_json_datamodel,            /* dataModel */
+  dlite_json_datamodel_free,       /* dataModelFree */
 
-  dlite_json_get_metadata,
-  dlite_json_resolve_dimensions,
-  dlite_json_get_dimension_size,
-  dlite_json_get_property,
+  dlite_json_get_metadata,         /* getMetaURI */
+  dlite_json_resolve_dimensions,   /* resolveDimensions */
+  dlite_json_get_dimension_size,   /* getDimensionSize */
+  dlite_json_get_property,         /* getProperty */
 
   /* -- datamodel api (optional) */
-  dlite_json_set_metadata,
-  dlite_json_set_dimension_size,
-  dlite_json_set_property,
+  dlite_json_set_metadata,         /* setMetaURI */
+  dlite_json_set_dimension_size,   /* setDimensionSize */
+  dlite_json_set_property,         /* setProperty */
 
-  dlite_json_has_dimension,
-  dlite_json_has_property,
+  dlite_json_has_dimension,        /* hasDimension */
+  dlite_json_has_property,         /* hasProperty */
 
-  dlite_json_get_dataname,
-  dlite_json_set_dataname,
-
-  /* specialised api */
-  //dlite_json_get_entity,
-  //dlite_json_set_entity,
+  dlite_json_get_dataname,         /* getDataName, obsolute */
+  dlite_json_set_dataname,         /* setDataName, obsolute */
 
   /* internal data */
-  NULL
+  NULL                             /* data */
 };
 
 

@@ -53,14 +53,14 @@
         json.dumps()."""
         return self.asinstance().asjson()
 
-    def relations(self, s=None, p=None, o=None):
+    def get_relations(self, s=None, p=None, o=None):
         """Returns a generator over all relations matching the given
         values of `s`, `p` and `o`."""
         itr = self.get_iter()
         while itr.poll():
             yield itr.find(s, p, o)
 
-    def instances(self):
+    def get_instances(self):
         """Returns a generator over all instances in this collection."""
         itr = self.get_iter()
         while itr.poll():
