@@ -1,4 +1,0 @@
-[submodule "src/tests/minunit"]
-	path = src/tests/minunit
-        url = https://github.com/siu/minunit.git
-        #url = git@github.com:siu/minunit.git

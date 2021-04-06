@@ -28,11 +28,11 @@ MU_TEST(test_write_schemas)
   dlite_storage_close(s);
 
   meta = (DLiteMeta *)
-    dlite_instance_get(DLITE_COLLECTION_SCHEMA);
-  s = dlite_storage_open("json", "CollectionSchema.json", "mode=w;meta=true");
+    dlite_instance_get(DLITE_COLLECTION_ENTITY);
+  s = dlite_storage_open("json", "Collection.json", "mode=w;meta=true");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
-  s = dlite_storage_open("json", "collection_schema.json", "mode=w");
+  s = dlite_storage_open("json", "collection.json", "mode=w");
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
 }
