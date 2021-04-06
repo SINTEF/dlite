@@ -62,6 +62,20 @@ TripleStore *triplestore_create()
   return ts;
 }
 
+/*
+  Returns a new empty triplestore or NULL on error.
+ */
+TripleStore *triplestore_create_with_storage(const char *storage_name,
+                                             const char *name,
+                                             const char *options)
+{
+  UNUSED(storage_name);
+  UNUSED(name);
+  UNUSED(options);
+  warn("builtin triplestore does not support a storage");
+  return triplestore_create();
+}
+
 
 /*
   Frees triplestore `ts`.

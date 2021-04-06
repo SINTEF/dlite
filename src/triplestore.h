@@ -29,24 +29,28 @@ typedef struct _TripleState {
 
 
 
-///**
-//  Returns a new empty triplestore that stores its triples and the number of
-//  triples in the external memory pointed to by `*p` and `*lenp`, respectively.
-//
-//  `freer` is a cleanup-function.  If not NULL, it is called by
-//  triplestore_free() with `freedata` as argument.
-//
-//  Returns NULL on error.
-// */
-//TripleStore *triplestore_create_external(Triple **p, size_t *lenp,
-//                                         void (*freer)(void *), void *freedata);
-
-
 /**
   Returns a new empty triplestore or NULL on error.
  */
 TripleStore *triplestore_create();
 
+/**
+  Returns a new empty triplestore.
+
+  Arguments:
+    storage_name: Name of storage module. If NULL, the default storage will
+                  be used.
+    name:         An identifier for the storage.
+    options:      Options for `storage_name`. May be NULL if the storage
+                  allows it.  See
+                  http://librdf.org/docs/api/redland-storage-modules.html
+                  for more info.
+
+  Returns NULL on error.
+ */
+TripleStore *triplestore_create_with_storage(const char *storage_name,
+                                             const char *name,
+                                             const char *options);
 
 /**
   Frees triplestore.

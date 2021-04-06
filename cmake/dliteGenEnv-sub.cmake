@@ -42,7 +42,6 @@ string(REPLACE ";" "|" dlite_STORAGES_NATIVE  "${dlite_STORAGES_NATIVE}")
 string(REPLACE ";" "|" dlite_STORAGES_UNIX    "${dlite_STORAGES_UNIX}")
 string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
 
-
 configure_file(${input} ${output}
   @ONLY
   NEWLINE_STYLE ${newline_style}

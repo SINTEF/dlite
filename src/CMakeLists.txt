@@ -6,25 +6,6 @@ if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
   set(dlite-src_BINARY_DIR ${dlite-src_BINARY_DIR}/$<CONFIG>)
 endif()
 
-# Whether we have Redland installed
-if(WITH_REDLAND)
-  find_package(Redland)
-  if(REDLAND_FOUND)
-    set(HAVE_REDLAND TRUE)
-
-    find_package(Rasqal REQUIRED)
-    if(RASQAL_FOUND)
-      set(HAVE_RASQAL TRUE)
-    endif()
-
-    find_package(Raptor REQUIRED)
-    if(RAPTOR_FOUND)
-      set(HAVE_RAPTOR TRUE)
-    endif()
-
-  endif()
-endif()
-
 
 # Generate config.h
 # -----------------
