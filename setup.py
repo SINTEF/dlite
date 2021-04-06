@@ -111,12 +111,18 @@ setup(
     install_requires=['numpy', 'PyYAML', 'psycopg2'],
     packages=[''],
     package_data={'': rglob(dlite_package)},
-    scripts=glob('dist/bin/*'),
     ext_modules=[CMakeExtension(os.path.join(dlite_package, '_dlite'))],
+    # FIXME: according to the setuptools documentation data_files is
+    # deprecated and should be avoided since it doesn't work with weels.
+    #
+    # No alternative is mentioned in the documentation, though.  The
+    # best I can think of is to use package_data and a post-install script
+    # to move them to the right place.
     data_files=[
         ('include/dlite', rglob('dist/include/dlite/**')),
         ('lib', rglob('dist/lib/**')),
         ('share/dlite', rglob('dist/share/**')),
+        ('bin', glob('dist/bin/*')),
     ],
     cmdclass={
         'build_ext': build_ext,
