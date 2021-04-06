@@ -68,7 +68,7 @@ macro(dlite_codegen output template url)
     # doesn't work.  Try instead to generate a bat file and run it.
     include(dliteGenEnv)
 
-    # At configure-time we can only guess the location og dlite-codegen.
+    # At configure-time we can only guess the location of dlite-codegen.
     # A better approach would be to pass $<TARGET_FILE:dlite-codegen>
     # as argument to the script at compile time...
     if(NOT EXISTS ${DLITE_CODEGEN})
