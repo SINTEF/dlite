@@ -19,11 +19,13 @@
 typedef void (*Freer)(void *ptr);
 
 struct _TripleStore {
-  librdf_world *world;        /* Convenient Reference to librdf world */
+  librdf_world *world;        /* Reference to librdf world */
+  librdf_storage *storage;    /* Reference to librdf storage */
   librdf_model *model;        /* The RDF graph - librdf model */
   const char *storage_name;   /* Name of storage module */
   const char *name;           /* Identifier for the storage. */
   const char *options;        /* Options provided when creating the storage. */
+  const char *ns;             /* Namespace. */
   Triple triple;              /* A triple with current result used by
                                  triplestore_find() and
                                  triplestore_find_first() */
@@ -187,6 +189,7 @@ static int assign_triple_from_statement(Triple *t,
 /* Public functions                   */
 /* ================================== */
 
+
 /* Mark the triplestore to be finalized when the last model has
    been freed. */
 void triplestore_finalize()
@@ -212,16 +215,9 @@ void triplestore_set_default_world(librdf_world *world)
   default_world = world;
 }
 
-/* Returns a pointer to the default world. */
+/* Returns a pointer to the default world.  A new default world is
+   created if it doesn't already exists. */
 librdf_world *triplestore_get_default_world()
-{
-  return default_world;
-}
-
-/* Returns a pointer to the default world.  Unlike
-   triplestore_get_default_world(), the default world is created if it
-   doesn't already exists. */
-librdf_world *triplestore_get_world()
 {
   if (!default_world) {
     triplestore_init();
@@ -236,6 +232,18 @@ librdf_world *triplestore_get_world()
 }
 
 
+/* Returns the internal librdf world. */
+librdf_world *triplestore_get_world(TripleStore *ts)
+{
+  return ts->world;
+}
+
+/* Returns the internal librdf model. */
+librdf_model *triplestore_get_model(TripleStore *ts)
+{
+  return ts->model;
+}
+
 /* Set the default storage name.  Returns non-zero on error. */
 int triplestore_set_default_storage(const char *name)
 {
@@ -247,6 +255,20 @@ int triplestore_set_default_storage(const char *name)
     }
   }
   return err(1, "no such triplestore storage: %s", name);
+}
+
+/* Set default namespace */
+void triplestore_set_namespace(TripleStore *ts, const char *ns)
+{
+  if (ts->ns) free((char *)ts->ns);
+  ts->ns = (ns) ? strdup(ns) : NULL;
+}
+
+/* Returns a pointer to default namespace.
+   It may be NULL if it hasn't been set */
+const char *triplestore_get_namespace(TripleStore *ts)
+{
+  return ts->ns;
 }
 
 /* Returns a pointer to the name of default storage or NULL on error. */
@@ -268,7 +290,7 @@ TripleStore *triplestore_create_with_world(librdf_world *world,
   TripleStore *ts=NULL;
   librdf_storage *storage=NULL;
   triplestore_init();
-  if (!world) world = triplestore_get_world();
+  if (!world) world = triplestore_get_default_world();
   if (!storage_name) storage_name = default_storage_name;
 
   if (!(storage = librdf_new_storage(world, storage_name, name, options)))
@@ -276,6 +298,7 @@ TripleStore *triplestore_create_with_world(librdf_world *world,
 
   if (!(ts = calloc(1, sizeof(TripleStore)))) FAIL("Allocation failure");
   ts->world = world;
+  ts->storage = storage;
   if (!(ts->model = librdf_new_model(world, storage, NULL))) goto fail;
   if (storage_name) ts->storage_name = strdup(storage_name);
   if (name) ts->name = strdup(name);
@@ -285,7 +308,7 @@ TripleStore *triplestore_create_with_world(librdf_world *world,
   return ts;
  fail:
   if (ts) triplestore_free(ts);
-  if (storage) librdf_free_storage(storage);
+  if (storage && !ts) librdf_free_storage(storage);
   return NULL;
 }
 
@@ -326,15 +349,16 @@ TripleStore *triplestore_create()
  */
 void triplestore_free(TripleStore *ts)
 {
-  librdf_storage *storage = librdf_model_get_storage(ts->model);
-  assert(storage);
+  //librdf_storage *storage = librdf_model_get_storage(ts->model);
+  //assert(storage);
   assert(nmodels > 0);
   nmodels--;
+  librdf_free_storage(ts->storage);
   librdf_free_model(ts->model);
-  librdf_free_storage(storage);
-  if (ts->storage_name) free((char *)ts->storage_name);
-  if (ts->name) free((char *)ts->name);
-  if (ts->options) free((char *)ts->options);
+  if (ts->storage_name)  free((char *)ts->storage_name);
+  if (ts->name)          free((char *)ts->name);
+  if (ts->options)       free((char *)ts->options);
+  if (ts->ns)            free((char *)ts->ns);
   free(ts);
   finalize_check();
 }
@@ -352,6 +376,27 @@ size_t triplestore_length(TripleStore *ts)
 }
 
 
+/* Returns a newly created uri node from `uri`. If `uri` has no namespace,
+   the default namespace is prepended. */
+static librdf_node *new_uri_node(TripleStore *ts, const char *uri)
+{
+  librdf_node *node;
+  if (ts->ns && !strchr(uri, ':')) {
+    size_t len_ns = strlen(ts->ns);
+    size_t len_uri = strlen(uri);
+    unsigned char *buf = malloc(len_ns + len_uri + 2);
+    memcpy(buf, ts->ns, len_ns);
+    buf[len_ns] = ':';
+    memcpy(buf + len_ns + 1, uri, len_uri + 1);
+    node = librdf_new_node_from_uri_string(ts->world, buf);
+    free(buf);
+  } else {
+    node = librdf_new_node_from_uri_string(ts->world,
+                                           (const unsigned char *)uri);
+  }
+  return node;
+}
+
 /*
   Adds a single (s,p,o) triple to store.
 
@@ -361,32 +406,38 @@ size_t triplestore_length(TripleStore *ts)
   If `lang` is not NULL, it must be a valid XML language abbreviation,
   like "en". Only used if `literal` is non-zero.
 
+  If `datatype_uri` is not NULL, it should be an uri for the literal
+  datatype. Ex: "xsd:integer".
+
   Returns non-zero on error.
  */
 int triplestore_add2(TripleStore *ts, const char *s, const char *p,
-                     const char *o, int literal, const char *lang)
+                     const char *o, int literal, const char *lang,
+                     const char *datatype_uri)
 {
   librdf_node *ns=NULL, *np=NULL, *no=NULL;
-  if (!(ns = librdf_new_node_from_uri_string(ts->world,
-                                             (const unsigned char *)s)))
+  librdf_uri *uri=NULL;
+  if (!(ns = new_uri_node(ts, s)))
     FAIL1("error creating node for subject: '%s'", s);
-  if (!(np = librdf_new_node_from_uri_string(ts->world,
-                                             (const unsigned char *)p)))
+  if (!(np = new_uri_node(ts, p)))
     FAIL1("error creating node for predicate: '%s'", p);
   if (literal) {
-    if (librdf_model_add_string_literal_statement(ts->model, ns, np,
-                                                  (const unsigned char *)o,
-                                                  lang, 0))
-      FAIL("error adding literal triple");
-  } else {
-    if (!(no = librdf_new_node_from_uri_string(ts->world,
-                                               (const unsigned char *)o)))
+    if (datatype_uri &&
+        !(uri = librdf_new_uri(ts->world, (unsigned char *)datatype_uri)))
+      FAIL1("error creating uri from '%s'", datatype_uri);
+    if (!(no = librdf_new_node_from_typed_literal(ts->world, (unsigned char *)o,
+                                                  lang, uri)))
       FAIL1("error creating node for object: '%s'", o);
-    if (librdf_model_add(ts->model, ns, np, no))
-      FAIL("error adding triple");
+  } else {
+    if (!(no = new_uri_node(ts, o)))
+      FAIL1("error creating node for object: '%s'", o);
   }
+  if (librdf_model_add(ts->model, ns, np, no))
+    FAIL("error adding triple");
+  if (uri) librdf_free_uri(uri);
   return 0;
  fail:
+  if (uri) librdf_free_uri(uri);
   if (ns) librdf_free_node(ns);
   if (np) librdf_free_node(np);
   if (no) librdf_free_node(no);
@@ -403,7 +454,18 @@ int triplestore_add2(TripleStore *ts, const char *s, const char *p,
 int triplestore_add(TripleStore *ts, const char *s, const char *p,
                     const char *o)
 {
-  return triplestore_add2(ts, s, p, o, 1, NULL);
+  return triplestore_add2(ts, s, p, o, 1, NULL, NULL);
+}
+
+
+/*
+  Adds a single triple to store.  The object is considered to be an URI.
+  Returns non-zero on error.
+ */
+int triplestore_add_uri(TripleStore *ts, const char *s, const char *p,
+                        const char *o)
+{
+  return triplestore_add2(ts, s, p, o, 0, NULL, NULL);
 }
 
 

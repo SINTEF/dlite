@@ -2,7 +2,9 @@
 #
 
 set(tests
+  test_compat
   test_err
+  test_strutils
   test_tmpfileplus
   test_strtob
   test_fileinfo
@@ -16,6 +18,7 @@ set(tests
   test_uuid2
   test_uuid4
   test_infixcalc
+  test_jsmn
 
   tgen_example
   )

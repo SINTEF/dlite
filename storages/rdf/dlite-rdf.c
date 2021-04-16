@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include "boolean.h"
+#include "utils/compat.h"
 #include "utils/strtob.h"
 #include "utils/err.h"
 
@@ -19,10 +20,25 @@
 #include "dlite-datamodel.h"
 
 
+/* Prefix and corrosponding IRI value for predicates */
+#ifndef _P
+#define _P "dm"                           /* prefix */
+#endif
+#ifndef _V
+#define _V "http://emmo.info/datamodel#"  /* value */
+#endif
+
+
 /** Storage for librdf backend. */
 typedef struct {
   DLiteStorage_HEAD
-  TripleStore *ts;
+  TripleStore *ts;  /*!< Pointer to triplestore. */
+  char *store;      /*!< Name of storage. */
+  char *base_uri;   /*!< Base uri to use in serialisation. */
+  char *filename;   /*!< Name of optional input/output file. */
+  char *format;     /*!< Format of optional input/output file. */
+  char *mime_type;  /*!< Mime time of optional input/output file. */
+  char *type_uri;   /*!< Type uri of optional input/output file. */
 } RdfStorage;
 
 /** Data model for librdf backend. */
@@ -51,15 +67,25 @@ typedef struct {
 
   - mode : w | r
       Valid values are:
-      - w: Writable (default)
-      - r: Read-only
+      - r: Read-only (default)
+      - w: Writable, the store will be synced
   - store : "hashes" | "memory" | "file" | "mysql" | "postgresql" | "sqlite" |
             "tstore" | "uri" | "virtuoso"
       Name of librdf storage module to use. The default is "hashes".
       See https://librdf.org/docs/api/redland-storage-modules.html
       for more info.
-  - name : string
-      Name of the storage.
+  - base-uri : string
+      Base uri to use in serialisation.
+  - filename : string
+      Name of optional input/output file.
+  - format : "atom" | "json" | "ntriples" | "rdfxml" | "rdfxml-abbrev" |
+             "rdfxml-xmp" | "turtle" | "rss-1.0" | "dot"
+      Format of optional input/output file. See also
+      https://librdf.org/raptor/api-1.4/raptor-serializers.html
+  - mime-type : string
+      Mime type for format of optional input/output file.
+  - type-uri : string
+      Uri specifying format of optional input/output file.
   - options : string
       Comma-separated string of options to pass to the librdf storage module.
 
@@ -70,36 +96,57 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
 {
   RdfStorage *s=NULL;
   DLiteStorage *retval=NULL;
-  char *mode_descr = "How to open storage.  Valid values are: "
+  char *mode_descr =
+    "How to open storage.  Valid values are: "
     "\"w\" (writable, default); "
     "\"r\" (read-only)";
-  char *store_descr = "librdf storage module.  One of: "
+  char *store_descr =
+    "librdf storage module.  One of: "
     "\"hashes\", \"memory\", \"file\", \"mysql\", \"postgresql\", \"sqlite\", "
-    "\"tstore\", \"uri\" or \"virtuoso\".  See "
+    "\"tstore\", \"uri\" or \"virtuoso\".  See also "
     "https://librdf.org/docs/api/redland-storage-modules.html";
-  char *name_descr = "Name of the storage.";
-  char *options_descr = "Comma-separated string of options to pass to "
-    "the librdf storage module.";
+  char *base_descr =
+    "Base URI to use in serialisation.";
+  char *filename_descr =
+    "Name of optional input/output file.";
+  char *format_descr =
+    "Format of optional input/output file.  One of: "
+    "\"atom\", \"json\", \"ntriples\", \"rdfxml\", \"rdfxml-abbrev\", "
+    "\"rdfxml-xmp\", \"turtle\", \"rss-1.0\" or \"dot\"  See also "
+    "https://librdf.org/raptor/api-1.4/raptor-serializers.html";
+  char *mime_descr =
+    "Mime type for format of optional input/output file.";
+  char *type_descr =
+    "Uri specifying format of optional input/output file.";
+  char *options_descr =
+    "Comma-separated string of options to pass to the librdf storage module.";
   DLiteOpt opts[] = {
-    {'m', "mode",    "w",       mode_descr},
-    {'s', "store",   "hashes",  store_descr},
-    {'n', "name",    "",        name_descr},
-    {'o', "options", "",        options_descr},
+    {'m', "mode",      "w",        mode_descr},
+    {'s', "store",     "hashes",   store_descr},
+    {'b', "base-uri",  NULL,       base_descr},
+    {'f', "filename",  NULL,       filename_descr},
+    {'F', "format",    "ntriples", format_descr},
+    {'m', "mime-type", NULL,       mime_descr},
+    {'t', "type-uri",  NULL,       type_descr},
+    {'o', "options",   NULL,       options_descr},
     {0, NULL, NULL, NULL}
   };
   char *optcopy = (options) ? strdup(options) : NULL;
-  const char *mode, *store, *name, *opt;
+  const char *mode, *opt;
   UNUSED(api);
-  UNUSED(uri);
 
   if (!(s = calloc(1, sizeof(RdfStorage)))) FAIL("allocation failure");
 
   /* parse options */
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
   mode  = opts[0].value;
-  store = (opts[1].value) ? opts[1].value : NULL;
-  name  = (opts[2].value) ? opts[2].value : NULL;
-  opt   = (opts[3].value) ? opts[3].value : NULL;
+  s->store   =   (opts[1].value) ? strdup(opts[1].value) : NULL;
+  s->base_uri =  (opts[2].value) ? strdup(opts[2].value) : NULL;
+  s->filename =  (opts[3].value) ? strdup(opts[3].value) : NULL;
+  s->format  =   (opts[4].value) ? strdup(opts[4].value) : NULL;
+  s->mime_type = (opts[5].value) ? strdup(opts[5].value) : NULL;
+  s->type_uri  = (opts[6].value) ? strdup(opts[6].value) : NULL;
+  opt   = (opts[7].value) ? opts[7].value : NULL;
 
   if (strcmp(mode, "r") == 0 || strcmp(mode, "read") == 0) {
     s->writable = 0;
@@ -109,8 +156,8 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
     FAIL1("invalid \"mode\" value: '%s'. Must be \"w\" (writable) "
           "or \"r\" (read-only) ", mode);
   }
-
-  if (!(s->ts = triplestore_create_with_storage(store, name, opt))) goto fail;
+  if (!(s->ts = triplestore_create_with_storage(s->store, uri, opt))) goto fail;
+  triplestore_set_namespace(s->ts, s->base_uri);
   retval = (DLiteStorage *)s;
  fail:
   if (optcopy) free(optcopy);
@@ -128,36 +175,156 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
 int rdf_close(DLiteStorage *storage)
 {
   RdfStorage *s = (RdfStorage *)storage;
+
+  if (s->writable) {
+    librdf_world *world = triplestore_get_world(s->ts);
+    librdf_model *model = triplestore_get_model(s->ts);
+    assert(world);
+    assert(model);
+
+    /* Sync storage */
+    librdf_model_sync(model);
+
+    /* Store to file */
+    // FIXME - send directly to a serializer instead of writing to string...
+    if (s->filename) {
+      unsigned char *buf;
+      librdf_uri *base_uri=NULL, *type_uri=NULL;
+      if (s->base_uri)
+        base_uri = librdf_new_uri(world, (unsigned char *)s->base_uri);
+      if (s->type_uri)
+        type_uri = librdf_new_uri(world, (unsigned char *)s->type_uri);
+
+      buf = librdf_model_to_string(model, base_uri, s->format, s->mime_type,
+                                   type_uri);
+
+      if (strcmp(s->filename, "-") == 0) {
+        fprintf(stdout, "%s", buf);
+      } else {
+        FILE *fp = fopen(s->filename, "w");
+        fprintf(fp, "%s", buf);
+        fclose(fp);
+      }
+
+      if (base_uri) librdf_free_uri(base_uri);
+      if (type_uri) librdf_free_uri(type_uri);
+      free(buf);
+    }
+  }
+
   triplestore_free(s->ts);
-  free(s);
+  if (s->store) free(s->store);
+  if (s->base_uri) free(s->base_uri);
+  if (s->filename) free(s->filename);
+  if (s->format) free(s->format);
+  if (s->mime_type) free(s->mime_type);
+  if (s->type_uri) free(s->type_uri);
   return 0;
 }
 
+
 /**
-  Creates a new datamodel for rdf storage `storage`.
-
-  If `id` exists in `storage`, the datamodel should describe the
-  corresponding instance.
-
-  Returns the new datamodel or NULL on error.
-*/
-DLiteDataModel *rdf_datamodel(const DLiteStorage *storage, const char *id)
+  Stores instance `inst` to `storage`.  Returns non-zero on error.
+ */
+DLiteInstance *rdf_load_instance(const DLiteStorage *s, const char *uuid)
 {
-  RdfDataModel *d=NULL;
-  DLiteDataModel *retval=NULL;
-  RdfStorage *s = (RdfStorage *)storage;
-  UNUSED(id);
   UNUSED(s);
-  if (!(d = calloc(1, sizeof(RdfDataModel))))
-    FAIL("allocation failure");
-  //d->api =
-  //d->storage = storage;
-  retval = (DLiteDataModel *)d;
- fail:
-  if (!retval && d) free(d);
-  return retval;
+  UNUSED(uuid);
+  return NULL;
 }
 
+/**
+  Returns a UTF-8 encoded string for a new blank node, based on `id`.
+  If `id` is NULL, an internally generated node is created.
+  Returns NULL on error.
+ */
+static char *get_blank_node(TripleStore *ts, const char *id)
+{
+  char *str;
+  librdf_world *world = triplestore_get_world(ts);
+  librdf_node *node =
+    librdf_new_node_from_blank_identifier(world, (unsigned char *)id);
+  if (!node) return NULL;
+  str = (char *)librdf_node_get_blank_identifier(node);
+  if (str) str = strdup(str);
+  librdf_free_node(node);
+  return str;
+}
+
+
+/**
+  Stores instance `inst` to `storage`.  Returns non-zero on error.
+ */
+int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
+{
+  RdfStorage *s = (RdfStorage *)storage;
+  TripleStore *ts = s->ts;
+  size_t i, buffsize=0;
+  char *buff=NULL, *b1=NULL, *b2=NULL;
+  if (dlite_instance_is_data(inst))
+    triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Object");
+  else
+    triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Entity");
+  if (inst->uri)
+    triplestore_add_uri(ts, inst->uuid, _P ":hasURI", inst->uri);
+  triplestore_add_uri(ts, inst->uuid, _P ":hasMeta", inst->meta->uri);
+
+  /* Dimension values */
+  if (inst->meta->_ndimensions) {
+    asnprintf(&buff, &buffsize, "%s#_dimval0", inst->uuid);
+    b1 = get_blank_node(ts, buff);
+    triplestore_add_uri(ts, b1, "rdf:type", _P ":DimensionValue");
+    triplestore_add_uri(ts, inst->uuid, _P ":hasFirstDimensionValue", b1);
+    asnprintf(&buff, &buffsize, "%zu",
+             dlite_instance_get_dimension_size_by_index(inst, 0));
+    triplestore_add2(ts, b1, _P ":hasIntegerValue", buff,
+                     1, NULL, "xsd:integer");
+  }
+  for (i=1; i < inst->meta->_ndimensions; i++) {
+    asnprintf(&buff, &buffsize, "%s#_dimval%d", inst->uuid, i);
+    b2 = get_blank_node(ts, buff);
+    triplestore_add_uri(ts, b2, "rdf:type", _P ":DimensionValue");
+    triplestore_add_uri(ts, b1, _P ":hasNextElement", b2);
+    asnprintf(&buff, &buffsize, "%zu",
+             dlite_instance_get_dimension_size_by_index(inst, i));
+    triplestore_add2(ts, b2, _P ":hasIntegerValue", buff,
+                     1, NULL, "xsd:integer");
+    free(b1);
+    b1 = b2;
+  }
+  if (b1 && !b2) free(b1);
+  if (b2) free(b2);
+
+  /* Property values */
+  if (inst->meta->_nproperties) {
+    const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, 0);
+    const void *ptr = dlite_instance_get_property_by_index(inst, 0);
+    asnprintf(&buff, &buffsize, "%s#_propval0", inst->uuid);
+    b1 = get_blank_node(ts, buff);
+    triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
+    triplestore_add_uri(ts, inst->uuid, _P ":hasFirstPropertyValue", b1);
+    dlite_type_aprint(&buff, &buffsize, 0, ptr, p->type, p->size, 0, -2, 0);
+    triplestore_add2(ts, b1, _P ":hasValue", buff, 1, NULL, "rdf:PlainLiteral");
+  }
+  for (i=1; i < inst->meta->_nproperties; i++) {
+    const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, i);
+    const void *ptr = dlite_instance_get_property_by_index(inst, i);
+    asnprintf(&buff, &buffsize, "%s#_propval%d", inst->uuid, i);
+    b2 = get_blank_node(ts, buff);
+    triplestore_add_uri(ts, b2, "rdf:type", _P ":PropertyValue");
+    triplestore_add_uri(ts, b1, _P ":hasNextElement", b2);
+    dlite_property_aprint(&buff, &buffsize, 0, ptr, p,
+                          DLITE_PROP_DIMS(inst, i), 0, -2, 0);
+    triplestore_add2(ts, b2, _P ":hasValue", buff, 1, NULL, "rdf:PlainLiteral");
+    free(b1);
+    b1 = b2;
+  }
+  free(buff);
+  if (b1 && !b2) free(b1);
+  if (b2) free(b2);
+
+  return 0;
+}
 
 
 
@@ -170,41 +337,37 @@ static DLiteStoragePlugin rdf_plugin = {
   rdf_close,
 
   /* queue api */
-  NULL,                            /* iterCreate */
-  NULL,                            /* iterNext */
-  NULL,                            /* iterFree */
+  NULL,                                 /* iterCreate */
+  NULL,                                 /* iterNext */
+  NULL,                                 /* iterFree */
   NULL, //dlite_rdf_get_uuids,
 
   /* direct api */
-  NULL,
-  NULL,
+  rdf_load_instance,                    /* loadInstance */
+  rdf_save_instance,                    /* saveInstance */
 
   /* datamodel api */
-  rdf_datamodel,
-  NULL, //dlite_rdf_datamodel_free,
+  NULL, //rdf_datamodel,                /* dataModel */
+  NULL, //dlite_rdf_datamodel_free,     /* dataModelFree */
 
-  NULL, //dlite_rdf_get_metadata,
-  NULL, //dlite_rdf_resolve_dimensions,
-  NULL, //dlite_rdf_get_dimension_size,
-  NULL, //dlite_rdf_get_property,
+  NULL, //dlite_rdf_get_metadata,       /* getMetaURI */
+  NULL, //dlite_rdf_resolve_dimensions, /* resolveDimensions */
+  NULL, //dlite_rdf_get_dimension_size, /* getDimensionSize */
+  NULL, //dlite_rdf_get_property,       /* getProperty */
 
   /* -- datamodel api (optional) */
-  NULL, //dlite_rdf_set_metadata,
-  NULL, //dlite_rdf_set_dimension_size,
-  NULL, //dlite_rdf_set_property,
+  NULL, //dlite_rdf_set_metadata,       /* setMetaURI */
+  NULL, //dlite_rdf_set_dimension_size, /* setDimensionSize */
+  NULL, //dlite_rdf_set_property,       /* setProperty */
 
-  NULL, //dlite_rdf_has_dimension,
-  NULL, //dlite_rdf_has_property,
+  NULL, //dlite_rdf_has_dimension,      /* hasDimension */
+  NULL, //dlite_rdf_has_property,       /* hasProperty */
 
-  NULL, //dlite_rdf_get_dataname,
-  NULL, //dlite_rdf_set_dataname,
-
-  /* specialised api */
-  //dlite_rdf_get_entity,
-  //dlite_rdf_set_entity,
+  NULL, //dlite_rdf_get_dataname,       /* getDataName */
+  NULL, //dlite_rdf_set_dataname,       /* setDataName */
 
   /* internal data */
-  NULL
+  NULL                                  /* data */
 };
 
 

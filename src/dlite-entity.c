@@ -2,11 +2,14 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "utils/err.h"
 #include "utils/map.h"
 #include "utils/fileutils.h"
 #include "utils/infixcalc.h"
+#define JSMN_HEADER
+#include "utils/jsmn.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -1921,7 +1924,22 @@ DLiteMeta *dlite_meta_get(const char *id)
 */
 DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id)
 {
-  return (DLiteMeta *)dlite_instance_load(s, id);
+  DLiteInstance *inst = dlite_instance_load(s, id);
+  if (!dlite_instance_is_meta(inst))
+    return err(1, "not metadata: %s (%s)", s->location, id), NULL;
+  return (DLiteMeta *)inst;
+}
+
+/*
+  Like dlite_instance_load_url(), but loads metadata instead.
+  Returns the metadata or NULL on error.
+ */
+DLiteMeta *dlite_meta_load_url(const char *url)
+{
+  DLiteInstance *inst = dlite_instance_load_url(url);
+  if (!dlite_instance_is_meta(inst))
+    return err(1, "not metadata: %s", url), NULL;
+  return (DLiteMeta *)inst;
 }
 
 /*
@@ -1930,6 +1948,14 @@ DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id)
 int dlite_meta_save(DLiteStorage *s, const DLiteMeta *meta)
 {
   return dlite_instance_save(s, (const DLiteInstance *)meta);
+}
+
+/*
+  Saves metadata `meta` to `url`.  Returns non-zero on error.
+ */
+int dlite_meta_save_url(const char *url, const DLiteMeta *meta)
+{
+  return dlite_instance_save_url(url, (const DLiteInstance *)meta);
 }
 
 /*
@@ -2157,6 +2183,190 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
  fail:
   return err(1, "allocation failure");
 }
+
+/* Expands to `a - b` if `a > b` else to `0`. */
+#define PDIFF(a, b) (((size_t)(a) > (size_t)(b)) ? (a) - (b) : 0)
+
+/*
+  Recursive help function for dlite_property_print() for handling
+  n-dimensional arrays.
+
+  Arguments:
+     d      current dimension
+     dest   buffer to write to
+     n      size of `dest`
+     pptr   pointer to pointer to memory with the data to be written
+     p      property describing the data
+     dims   array of property dimension values
+     width  printf() field width
+     prec   printf() precision
+
+  Return number of bytes written to `dest` or would have been written
+  to `dest` if it is not big enough.  Returns -1 on error.
+*/
+static int writedim(int d, char *dest, size_t n, const void **pptr,
+                    const DLiteProperty *p, const size_t *dims,
+                    int width, int prec, DLiteTypeFlag flags)
+{
+  int N=0, m;
+  size_t i;
+  if (d < p->ndims) {
+    if ((m = snprintf(dest+N, PDIFF(n, N), "[")) < 0) goto fail;
+    N += m;
+    for (i=0; i < dims[d]; i++) {
+      if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, dims,
+                        width, prec, flags)) < 0) return -1;
+      N += m;
+      if (i < dims[d]-1) {
+        if ((m = snprintf(dest+N, PDIFF(n, N), ", ")) < 0) goto fail;
+        N += m;
+      }
+    }
+    if ((m = snprintf(dest+N, PDIFF(n, N), "]")) < 0) goto fail;
+    N += m;
+  } else {
+    if ((m = dlite_type_print(dest+N, PDIFF(n, N), *pptr, p->type, p->size,
+                              width, prec, flags)) < 0) return m;
+    N += m;
+    *((char **)pptr) += p->size;
+  }
+  return N;
+ fail:
+  return err(-1, "failed to write string representation of array");
+}
+
+/*
+  Writes a string representation of data for property `p` to `dest`.
+
+  The pointer `ptr` should point to the memory where the data is stored.
+  The meaning and layout of the data is described by property `p`.
+  The actual sizes of the property dimension is provided by `dims`.  Use
+  dlite_instance_get_property_dims_by_index() or the DLITE_PROP_DIMS macro
+  for accessing `dims`.
+
+  No more than `n` bytes are written to `dest` (incl. the terminating
+  NUL).  Arrays will be written with a JSON-loke syntax.
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+ */
+int dlite_property_print(char *dest, size_t n, const void *ptr,
+                         const DLiteProperty *p, const size_t *dims,
+                         int width, int prec, DLiteTypeFlag flags)
+{
+  if (p->ndims)
+    return writedim(0, dest, n, &ptr, p, dims, width, prec, flags);
+  else
+    return dlite_type_print(dest, n, ptr, p->type, p->size, width, prec, flags);
+}
+
+/*
+  Like dlite_type_print(), but prints to allocated buffer.
+
+  Prints to position `pos` in `*dest`, which should point to a buffer
+  of size `*n`.  `*dest` is reallocated if needed.
+
+  Returns number or bytes written or a negative number on error.
+ */
+int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
+                          const DLiteProperty *p, const size_t *dims,
+                          int width, int prec, DLiteTypeFlag flags)
+{
+  int m;
+  void *q;
+  size_t newsize;
+  if (!dest && !*dest) *n = 0;
+  m = dlite_property_print(*dest + pos, PDIFF(*n, pos), ptr, p, dims,
+                           width, prec, flags);
+  if (m < 0) return m;  /* failure */
+  if (m < (int)PDIFF(*n, pos)) return m;  // success, buffer is large enough
+
+  /* Reallocate buffer to required size. */
+  newsize = m + pos + 1;
+  if (!(q = realloc(*dest, newsize))) return -1;
+  *dest = q;
+  *n = newsize;
+  m = dlite_property_print(*dest + pos, PDIFF(*n, pos), ptr, p, dims,
+                           width, prec, flags);
+  assert(0 <= m && m < (int)*n);
+  return m;
+}
+
+
+/*
+  Recursive help function for dlite_property_scan() for handling
+  n-dimensional arrays.
+
+  Arguments:
+     d      current dimension
+     src    buffer to read from
+     pptr   pointer to pointer to memory to write to
+     p      property describing the data
+     dims   array of property dimension values
+     t      pointer to a jsmn token
+
+  Returns non-zero on error.
+*/
+static int scandim(int d, const char *src, void **pptr,
+                   const DLiteProperty *p, const size_t *dims,
+                   DLiteTypeFlag flags, jsmntok_t *t)
+{
+  int m;
+  size_t i;
+  if (d < p->ndims) {
+    if (t->type != JSMN_ARRAY)
+      return err(-1, "expected JSON array");
+    if (t->size != (int)dims[d])
+      return err(-1, "for dimension %d, expected %zu elements, got %d",
+                 d, dims[d], t->size);
+    for (i=0; i < dims[d]; i++)
+      if (scandim(d+1, src, pptr, p, dims, flags, ++t)) goto fail;
+  } else {
+    if ((m = dlite_type_scan(src+t->start, *pptr, p->type, p->size, flags)) < 0)
+      return m;
+    *((char **)pptr) += p->size;
+  }
+  return 0;
+ fail:
+  return err(-1, "failed to scan string representation of array");
+}
+
+/*
+  Scans property from `src` and wite it to memory pointed to by `ptr`.
+
+  The property is described by `p`. Dimension sizes are given by `dims`.
+
+  Returns number of characters consumed from `src` or a negative
+  number on error.
+ */
+int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
+                        const size_t *dims, DLiteTypeFlag flags)
+{
+  if (p->ndims) {
+    int r, n;
+    unsigned int ntokens=0;
+    jsmntok_t *tokens=NULL;
+    jsmn_parser parser;
+    jsmn_init(&parser);
+    r = jsmn_parse_alloc(&parser, src, strlen(src), &tokens, &ntokens);
+    if (r < 0) return err(r, "error parsing input: %s", jsmn_strerror(r));
+    r = scandim(0, src, &ptr, p, dims, flags, tokens);
+    n = tokens[0].end;
+    free(tokens);
+    if (r < 0) return r;
+    return n;
+  } else {
+    return dlite_type_scan(src, ptr, p->type, p->size, flags);
+  }
+}
+
 
 
 /********************************************************************

@@ -55,4 +55,26 @@ int strncasecmp(const char *s1, const char *s2, size_t n);
 #endif
 
 
+/** asnprintf() - print to allocated string */
+#ifndef HAVE_ASNPRINTF
+int asnprintf(char **buf, size_t *size, const char *fmt, ...);
+#endif
+
+/** asnprintf() - print to allocated string using va_list */
+#ifndef HAVE_VASNPRINTF
+int vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap);
+#endif
+
+/** asnprintf() - print to position `pos` in allocated string */
+#ifndef HAVE_ASNPPRINTF
+int asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...);
+#endif
+
+/** asnprintf() - print to position `pos` in allocated string using va_list */
+#ifndef HAVE_VASNPPRINTF
+int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
+                va_list ap);
+#endif
+
+
 #endif /* _COMPAT_H */
