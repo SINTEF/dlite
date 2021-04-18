@@ -150,6 +150,34 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
     Returns non-zero on error. */
 typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
+/** Function for accessing internal dimension sizes of extended
+    metadata.  If provided it will be called by dlite_instance_save(),
+    dlite_instance_get_dimension_size() and related functions.
+    Returns size of dimension `i` or -1 on error. */
+typedef int (*DLiteGetDimension)(const DLiteInstance *inst, size_t i);
+
+/** Function for setting internal dimension sizes of extended
+    metadata.  If provided, it will be called by
+    dlite_instance_set_dimension_size() and related functions.
+    Returns zero on success.  If the extended metadata does not support
+    setting size of dimension `i`, 1 is returned. On other errors, a
+    negative value is returned. */
+typedef int (*DLiteSetDimension)(DLiteInstance *inst, size_t i, size_t value);
+
+/** Function used by extended metadata to load internal state from
+    property number `i`.  If provided, this function will be called by
+    dlite_instance_set_property() and related functions.
+    Returns non-zero on error. */
+typedef int (*DLiteLoadProperty)(const DLiteInstance *inst, size_t i);
+
+/** Function used by extended metadata to save internal state to
+    property number `i`.  If provided, this function will be called by
+    dlite_instance_save(), dlite_instance_get_property() and related
+    functions.
+    Returns non-zero on error. */
+typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
+
+
 
 /**
   Initial segment of all DLite instances.
@@ -196,6 +224,10 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
                           /* sizeof(DLiteMeta). */                      \
   DLiteInit _init;        /* Function initialising an instance. */      \
   DLiteDeInit _deinit;    /* Function deinitialising an instance. */    \
+  DLiteGetDimension _getdim;   /* Gets dim. size from internal state.*/ \
+  DLiteSetDimension _setdim;   /* Sets dim. size of internal state. */  \
+  DLiteLoadProperty _loadprop; /* Loads internal state from prop. */    \
+  DLiteSaveProperty _saveprop; /* Saves internal state to prop. */      \
                                                                         \
   /* Property dimension sizes of instances */                           \
   /* Automatically assigned by dlite_meta_init() */                     \
@@ -541,6 +573,9 @@ size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
 /**
   Returns a pointer to data corresponding to property with index `i`
   or NULL on error.
+
+  The returned pointer points to the actual data and should not be
+  dereferred for arrays.
  */
 void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i);
 
@@ -624,6 +659,39 @@ int dlite_instance_is_meta(const DLiteInstance *inst);
   addition to a "dimensions" property (of type DLiteDimension).
  */
 int dlite_instance_is_metameta(const DLiteInstance *inst);
+
+
+/**
+  Help function that update dimension sizes from the getdim() method of
+  extended metadata.  Does nothing, if the metadata has no getdim() method.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_to_dimension_sizes(DLiteInstance *inst);
+
+/**
+  Updates internal state of extended metadata from instance dimensions
+  using setdim().  Does nothing, if the metadata has no setdim().
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_from_dimension_sizes(DLiteInstance *inst);
+
+/**
+  Help function that update properties from the saveprop() method of
+  extended metadata.  Does nothing, if the metadata has no saveprop() method.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_to_properties(DLiteInstance *inst);
+
+/**
+  Updates internal state of extended metadata from instance properties
+  using loadprop().  Does nothing, if the metadata has no loadprop().
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_from_properties(DLiteInstance *inst);
 
 
 /**
@@ -831,9 +899,20 @@ DLiteMeta *dlite_meta_get(const char *id);
 DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id);
 
 /**
+  Like dlite_instance_load_url(), but loads metadata instead.
+  Returns the metadata or NULL on error.
+ */
+DLiteMeta *dlite_meta_load_url(const char *url);
+
+/**
   Saves metadata `meta` to storage `s`.  Returns non-zero on error.
  */
 int dlite_meta_save(DLiteStorage *s, const DLiteMeta *meta);
+
+/**
+  Saves metadata `meta` to `url`.  Returns non-zero on error.
+ */
+int dlite_meta_save_url(const char *url, const DLiteMeta *meta);
 
 /**
   Returns index of dimension named `name` or -1 on error.
@@ -952,6 +1031,61 @@ void dlite_property_free(DLiteProperty *prop);
  */
 int dlite_property_add_dim(DLiteProperty *prop, const char *expr);
 
+
+/**
+  Writes a string representation of data for property `p` to `dest`.
+
+  The pointer `ptr` should point to the memory where the data is stored.
+  The meaning and layout of the data is described by property `p`.
+  The actual sizes of the property dimension is provided by `dims`.  Use
+  dlite_instance_get_property_dims_by_index() or the DLITE_PROP_DIMS macro
+  for accessing `dims`.
+
+  No more than `n` bytes are written to `dest` (incl. the terminating
+  NUL).  Arrays will be written with a JSON-loke syntax.
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+ */
+int dlite_property_print(char *dest, size_t n, const void *ptr,
+                         const DLiteProperty *p, const size_t *dims,
+                         int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Like dlite_type_print(), but prints to allocated buffer.
+
+  Prints to position `pos` in `*dest`, which should point to a buffer
+  of size `*n`.  `*dest` is reallocated if needed.
+
+  Returns number or bytes written or a negative number on error.
+ */
+int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
+                          const DLiteProperty *p, const size_t *dims,
+                          int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Scans property from `src` and wite it to memory pointed to by `ptr`.
+
+  The property is described by `p`.
+
+  For arrays, `ptr` should points to the first element and will not be
+  not dereferenced.  Evaluated dimension sizes are given by `dims`.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
+
+  Returns number of characters consumed from `src` or a negative
+  number on error.
+ */
+int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
+                        const size_t *dims, DLiteTypeFlag flags);
 
 
 /** @} */

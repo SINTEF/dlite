@@ -132,6 +132,10 @@ static struct _BasicMetadataSchema {
   0,                                             /* _headersize */
   NULL,                                          /* _init */
   NULL,                                          /* _deinit */
+  NULL,                                          /* _getdim */
+  NULL,                                          /* _setdim */
+  NULL,                                          /* _loadprop */
+  NULL,                                          /* _saveprop */
 
   3,                                             /* _npropdims */
   (size_t *)basic_metadata_schema.__propdiminds, /* _propdiminds */
@@ -284,6 +288,10 @@ static struct _EntitySchema {
   0,                                          /* _headersize */
   NULL,                                       /* _init */
   NULL,                                       /* _deinit */
+  NULL,                                          /* _getdim */
+  NULL,                                          /* _setdim */
+  NULL,                                          /* _loadprop */
+  NULL,                                          /* _saveprop */
 
   0,                                          /* _npropdims */
   NULL,                                       /* _propdiminds */
@@ -378,6 +386,10 @@ static struct _CollectionEntity {
   offsetof(DLiteCollection, nrelations),         /* _headersize */
   dlite_collection_init,                         /* _init */
   dlite_collection_deinit,                       /* _deinit */
+  dlite_collection_getdim,                       /* _getdim */
+  NULL,                                          /* _setdim */
+  dlite_collection_loadprop,                     /* _loadprop */
+  dlite_collection_saveprop,                     /* _saveprop */
 
   0,                                             /* _npropdims */
   NULL,                                          /* _propdiminds */

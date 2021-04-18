@@ -31,6 +31,14 @@
  *         Name of _init() function
  *     _deinit
  *         Name of _deinit() function
+ *     _getdim
+ *         Name of _getdim() function
+ *     _setdim
+ *         Name of _setdim() function
+ *     _loadprop
+ *         Name of _loadprop() function
+ *     _saveprop
+ *         Name of _saveprop() function
  */
 {@if: {isdata} }\
 {@error:Generating C code for data instances is currently not supported.}
@@ -138,6 +146,10 @@ static {basename}Struct {name%u} = {{
   offsetof({basename}, {dim0}), {@52}/* _headersize */
   {_init},                  {@52}/* _init */
   {_deinit},                {@52}/* _deinit */
+  {_getdim},                {@52}/* _getdim */
+  {_setdim},                {@52}/* _setdim */
+  {_loadprop},              {@52}/* _loadprop */
+  {_saveprop},              {@52}/* _saveprop */
 
   {_npropdims},             {@52}/* _npropdims */
   {name%u}.__propdiminds,   {@52}/* _propdiminds */

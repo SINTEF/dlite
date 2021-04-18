@@ -555,7 +555,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 
   case dliteRelation:
     if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
-                                   SWIGTYPE_p__Triplet, 0)))
+                                   SWIGTYPE_p__Triple, 0)))
       FAIL("cannot create relation");
     break;
 
@@ -833,9 +833,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
   case dliteRelation:
     {
       void *p;
-      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__Triplet, 0))) {
+      if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__Triple, 0))) {
         DLiteRelation *src = (DLiteRelation *)p;
-        triplet_reset(ptr, src->s, src->p, src->o, src->id);
+        triple_reset(ptr, src->s, src->p, src->o, src->id);
 
       } else if (PySequence_Check(obj) || PyIter_Check(obj)) {
         int i;
@@ -873,7 +873,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
         /* Assign id if not already provided */
         if (n < 4)
-          s[3] = triplet_get_id(NULL, s[0], s[1], s[2]);
+          s[3] = triple_get_id(NULL, s[0], s[1], s[2]);
         Py_DECREF(lst);
 
       } else if (PyMapping_Check(obj)) {
@@ -892,7 +892,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
              !PyUnicode_Check(id) || PyUnicode_READY(id)))
           msg = "If given, relation id must be a string";
         if (!msg)
-          triplet_reset(ptr, PyUnicode_DATA(s), PyUnicode_DATA(p),
+          triple_reset(ptr, PyUnicode_DATA(s), PyUnicode_DATA(p),
                         PyUnicode_DATA(o), (id) ? PyUnicode_DATA(id) : NULL);
         Py_XDECREF(s);
         Py_XDECREF(p);
@@ -926,6 +926,7 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   if (n < 0) n += (int)inst->meta->_nproperties;
   if (n < 0 || n >= (int)inst->meta->_nproperties)
     return dlite_err(-1, "Property index is out or range: %d", i), NULL;
+  dlite_instance_sync_to_properties(inst);
   ptr = DLITE_PROP(inst, n);
   p = inst->meta->_properties + n;
   if (p->ndims == 0) {
@@ -961,7 +962,6 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   ptr = DLITE_PROP(inst, n);
   p = inst->meta->_properties + n;
 
-
   if (p->ndims == 0) {
     if (dlite_swig_set_scalar(ptr, p->type, p->size, obj)) goto fail;
   } else {
@@ -974,6 +974,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
     if (dlite_swig_set_array(ptr, p->ndims, dims, p->type, p->size, obj))
       goto fail;
   }
+  if (dlite_instance_sync_from_properties(inst)) goto fail;
 
   status = 0;
  fail:

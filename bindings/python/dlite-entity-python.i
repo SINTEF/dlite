@@ -122,7 +122,7 @@ def standardise(v, asdict=True):
 /* --------
  * Relation
  * -------- */
-%extend _Triplet {
+%extend _Triple {
   %pythoncode %{
     def __repr__(self):
         return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (

@@ -18,12 +18,20 @@
 #include <stdlib.h>
 #include "config.h"
 
+/* Remove __attribute__ when we are not compiling with gcc */
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
+
+
+
 /** strdup */
 #ifdef HAVE__STRDUP
 # define strdup(s) _strdup(s)
 #else
 # ifndef HAVE_STRDUP
-char *strdup(const char *s);
+char *strdup(const char *s)
+  __attribute__ ((__malloc__));
 # endif
 #endif
 
@@ -32,7 +40,8 @@ char *strdup(const char *s);
 # define strndup(s, n) _strndup(s, n)
 #else
 # ifndef HAVE_STRNDUP
-char *strndup(const char *s, size_t n);
+char *strndup(const char *s, size_t n)
+  __attribute__ ((__malloc__));
 # endif
 #endif
 
@@ -52,6 +61,32 @@ int strcasecmp(const char *s1, const char *s2);
 # ifndef HAVE_STRNCASECMP
 int strncasecmp(const char *s1, const char *s2, size_t n);
 # endif
+#endif
+
+
+/** asnprintf() - print to allocated string */
+#ifndef HAVE_ASNPRINTF
+int asnprintf(char **buf, size_t *size, const char *fmt, ...)
+  __attribute__ ((__format__ (__printf__, 3, 4)));
+#endif
+
+/** asnprintf() - print to allocated string using va_list */
+#ifndef HAVE_VASNPRINTF
+int vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
+  __attribute__ ((__format__ (__printf__, 3, 0)));
+#endif
+
+/** asnprintf() - print to position `pos` in allocated string */
+#ifndef HAVE_ASNPPRINTF
+int asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...)
+  __attribute__ ((__format__ (__printf__, 4, 5)));
+#endif
+
+/** asnprintf() - print to position `pos` in allocated string using va_list */
+#ifndef HAVE_VASNPPRINTF
+int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
+                va_list ap)
+  __attribute__ ((__format__ (__printf__, 4, 0)));
 #endif
 
 
