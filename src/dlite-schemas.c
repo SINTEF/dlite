@@ -528,7 +528,7 @@ static struct _TransactionSchema {
   DLiteRelation  *relation;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t __propdims[2];
+  size_t __propdims[3];
   /* -- array of first property dimension  */
   size_t __propdiminds[8];
   /* -- array of memory offsets to each instance property */
@@ -552,6 +552,10 @@ static struct _TransactionSchema {
   0,                                          /* _headersize */
   dlite_transaction_init,                     /* _init */
   dlite_transaction_deinit,                   /* _deinit */
+  NULL,                                       /* _getdim */
+  NULL,                                       /* _setdim */
+  NULL,                                       /* _loadprop */
+  NULL,                                       /* _saveprop */
 
   0,                                          /* _npropdims */
   NULL,                                       /* _propdiminds */
@@ -575,7 +579,7 @@ static struct _TransactionSchema {
   NULL,                                       /* relations */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {0, 0},                                     /* __propdims */
+  {0, 0, 0},                                  /* __propdims */
   /* -- array of first property dimension */
   {0, 0, 0, 0, 0, 0, 0, 0},                   /* __propdiminds */
   /* -- array of memory offsets to each instance property */
