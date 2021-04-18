@@ -150,6 +150,34 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
     Returns non-zero on error. */
 typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
+/** Function for accessing internal dimension sizes of extended
+    metadata.  If provided it will be called by dlite_instance_save(),
+    dlite_instance_get_dimension_size() and related functions.
+    Returns size of dimension `i` or -1 on error. */
+typedef int (*DLiteGetDimension)(const DLiteInstance *inst, size_t i);
+
+/** Function for setting internal dimension sizes of extended
+    metadata.  If provided, it will be called by
+    dlite_instance_set_dimension_size() and related functions.
+    Returns zero on success.  If the extended metadata does not support
+    setting size of dimension `i`, 1 is returned. On other errors, a
+    negative value is returned. */
+typedef int (*DLiteSetDimension)(DLiteInstance *inst, size_t i, size_t value);
+
+/** Function used by extended metadata to load internal state from
+    property number `i`.  If provided, this function will be called by
+    dlite_instance_set_property() and related functions.
+    Returns non-zero on error. */
+typedef int (*DLiteLoadProperty)(const DLiteInstance *inst, size_t i);
+
+/** Function used by extended metadata to save internal state to
+    property number `i`.  If provided, this function will be called by
+    dlite_instance_save(), dlite_instance_get_property() and related
+    functions.
+    Returns non-zero on error. */
+typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
+
+
 
 /**
   Initial segment of all DLite instances.
@@ -196,6 +224,10 @@ typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
                           /* sizeof(DLiteMeta). */                      \
   DLiteInit _init;        /* Function initialising an instance. */      \
   DLiteDeInit _deinit;    /* Function deinitialising an instance. */    \
+  DLiteGetDimension _getdim;   /* Gets dim. size from internal state.*/ \
+  DLiteSetDimension _setdim;   /* Sets dim. size of internal state. */  \
+  DLiteLoadProperty _loadprop; /* Loads internal state from prop. */    \
+  DLiteSaveProperty _saveprop; /* Saves internal state to prop. */      \
                                                                         \
   /* Property dimension sizes of instances */                           \
   /* Automatically assigned by dlite_meta_init() */                     \
@@ -624,6 +656,39 @@ int dlite_instance_is_meta(const DLiteInstance *inst);
   addition to a "dimensions" property (of type DLiteDimension).
  */
 int dlite_instance_is_metameta(const DLiteInstance *inst);
+
+
+/**
+  Help function that update dimension sizes from the getdim() method of
+  extended metadata.  Does nothing, if the metadata has no getdim() method.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_to_dimension_sizes(DLiteInstance *inst);
+
+/**
+  Updates internal state of extended metadata from instance dimensions
+  using setdim().  Does nothing, if the metadata has no setdim().
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_from_dimension_sizes(DLiteInstance *inst);
+
+/**
+  Help function that update properties from the saveprop() method of
+  extended metadata.  Does nothing, if the metadata has no saveprop() method.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_to_properties(DLiteInstance *inst);
+
+/**
+  Updates internal state of extended metadata from instance properties
+  using loadprop().  Does nothing, if the metadata has no loadprop().
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_from_properties(DLiteInstance *inst);
 
 
 /**

@@ -25,7 +25,7 @@
   float     | dliteFloat     | 4, 8, {10, 16}         | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
   fixstring | dliteFixString | any                    | char *                        | fix-sized NUL-terminated string  | string20
   string    | dliteStringPtr | sizeof(char *)         | char **                       | pointer to NUL-terminated string | string
-  relation  | dliteRelation  | sizeof(DLiteRelation)  | DLiteRelation *               | subject-predicate-object triplet | relation
+  relation  | dliteRelation  | sizeof(DLiteRelation)  | DLiteRelation *               | subject-predicate-object triple  | relation
   dimension | dliteDimension | sizeof(DLiteDimension) | DLiteDimension *              | only intended for metadata       | dimension
   property  | dliteProperty  | sizeof(DLiteProperty)  | DLiteProperty *               | only intended for metadata       | property
 
@@ -57,8 +57,8 @@
       allocated with malloc().  If you free a string, you should always
       set the pointer to NULL, since functions like dlite_entity_free()
       otherwise will try to free it again, causing memory corruption.
-    - *relation*: a subject-predicate-object triplet defined in
-      `triplestore.h`.  In addition have all triplets an id, allowing
+    - *relation*: a subject-predicate-object triple defined in
+      `triplestore.h`.  In addition have all triples an id, allowing
       a relation to refer to another relation.
     - *dimension*: Name and description of a dimension.  Only intended
       for metadata.
@@ -83,7 +83,7 @@
 
 typedef struct _DLiteProperty  DLiteProperty;
 typedef struct _DLiteDimension DLiteDimension;
-typedef struct _Triplet        DLiteRelation;
+typedef struct _Triple         DLiteRelation;
 
 
 /** Basic data types */
@@ -152,7 +152,7 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
   `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
 */
 int dlite_type_set_isoctype(DLiteType dtype, size_t size,
-                            char *isoctype, size_t n);                         
+                            char *isoctype, size_t n);
 
 /**
   Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.

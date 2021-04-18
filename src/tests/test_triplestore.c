@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "minunit/minunit.h"
 #include "triplestore.h"
@@ -11,22 +12,23 @@ TripleStore *ts;
 MU_TEST(test_create)
 {
   mu_check((ts = triplestore_create()));
+  errno = 0;
 }
 
-MU_TEST(test_triplet)
+MU_TEST(test_triple)
 {
-  Triplet t;
+  Triple t;
   char *id;
-  triplet_set(&t, "book", "is-a", "thing", NULL);
-  id = triplet_get_id(NULL, t.s, t.p, t.o);
+  triple_set(&t, "book", "is-a", "thing", NULL);
+  id = triple_get_id(NULL, t.s, t.p, t.o);
   mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", id);
-  triplet_clean(&t);
+  triple_clean(&t);
   free(id);
 }
 
 MU_TEST(test_add)
 {
-  Triplet t[] = {
+  Triple t[] = {
     {"book", "is-a", "thing", NULL},
     {"table", "is-a", "thing", NULL},
     {"book", "is-ontop-of", "table", NULL},
@@ -37,7 +39,7 @@ MU_TEST(test_add)
   size_t n = sizeof(t) / sizeof(t[0]);
 
   mu_check(0 == triplestore_length(ts));
-  mu_assert_int_eq(0, triplestore_add_triplets(ts, t, n));
+  mu_assert_int_eq(0, triplestore_add_triples(ts, t, n));
   mu_check(5 == triplestore_length(ts));
 
   mu_assert_int_eq(0, triplestore_add(ts, "read", "is-a", "action"));
@@ -49,7 +51,7 @@ MU_TEST(test_add)
 MU_TEST(test_next)
 {
   TripleState state;
-  const Triplet *t;
+  const Triple *t;
 
   triplestore_init_state(ts, &state);
   printf("\n");
@@ -63,7 +65,7 @@ MU_TEST(test_next)
 MU_TEST(test_find)
 {
   int n;
-  const Triplet *t;
+  const Triple *t;
   TripleState state;
 
   t = triplestore_find_first(ts, NULL, "is-a", "table");
@@ -114,7 +116,7 @@ MU_TEST(test_free)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_create);
-  MU_RUN_TEST(test_triplet);
+  MU_RUN_TEST(test_triple);
   MU_RUN_TEST(test_add);
   MU_RUN_TEST(test_next);
   MU_RUN_TEST(test_find);

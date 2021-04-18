@@ -51,7 +51,8 @@ static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
                                   int metameta)
 {
   int retval = 0;
-  DLiteMeta *meta = (DLiteMeta *)((Context *)context)->inst;
+  const DLiteInstance *inst = ((Context *)context)->inst;
+  const DLiteMeta *meta = (const DLiteMeta *)inst;
   const DLiteMeta *m = (metameta) ? meta->meta : meta;
   TGenSubs dsubs;
   size_t i;
@@ -65,7 +66,8 @@ static int list_dimensions_helper(TGenBuf *s, const char *template, int len,
     DLiteDimension *d = m->_dimensions + i;
     tgen_subs_set(&dsubs, "dim.name", d->name, NULL);
     tgen_subs_set(&dsubs, "dim.descr", d->description, NULL);
-    tgen_subs_set_fmt(&dsubs, "dim.value", NULL, "%zu", DLITE_DIM(meta, i));
+    tgen_subs_set_fmt(&dsubs, "dim.value", NULL, "%zu",
+                      dlite_instance_get_dimension_size_by_index(inst, i));
     tgen_subs_set_fmt(&dsubs, "dim.i",     NULL, "%zu", i);
     tgen_subs_set(&dsubs, ",",  (i < m->_ndimensions-1) ? ","  : "", NULL);
     tgen_subs_set(&dsubs, ", ", (i < m->_ndimensions-1) ? ", " : "", NULL);
@@ -387,6 +389,10 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
     tgen_subs_set_fmt(subs, "_headersize",  NULL, "%zu", meta->_headersize);
     tgen_subs_set_fmt(subs, "_init",        NULL, "NULL");
     tgen_subs_set_fmt(subs, "_deinit",      NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_getdim",      NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_setdim",      NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_loadprop",    NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_saveprop",    NULL, "NULL");
 
     tgen_subs_set_fmt(subs, "_npropdims",   NULL, "%zu", meta->_npropdims);
 

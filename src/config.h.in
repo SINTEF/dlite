@@ -38,6 +38,11 @@
 #cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
 
+/* use redland triplestore */
+#cmakedefine HAVE_REDLAND
+#cmakedefine HAVE_RASQAL
+#cmakedefine HAVE_RAPTOR
+
 /* available bindings */
 #cmakedefine WITH_PYTHON
 

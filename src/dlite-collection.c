@@ -22,11 +22,9 @@
 int dlite_collection_init(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
-
-  /* Initialise tripletstore */
-  coll->rstore =
-    triplestore_create_external(&coll->relations, &coll->nrelations,
-                                NULL, NULL);
+  assert(coll->nrelations == 0);
+  assert(coll->relations == NULL);
+  coll->rstore = triplestore_create();
   return 0;
 }
 
@@ -51,6 +49,43 @@ int dlite_collection_deinit(DLiteInstance *inst)
   dlite_collection_deinit_state(&state);
 
   triplestore_free(coll->rstore);
+  return 0;
+}
+
+/* Returns size of dimension number `i` or -1 on error. */
+int dlite_collection_getdim(const DLiteInstance *inst, size_t i)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  if (i != 0) return err(-1, "index out of range: %zu", i);
+  return triplestore_length(coll->rstore);
+}
+
+/* Loads instance relations to triplestore.  Returns -1 on error. */
+int dlite_collection_loadprop(const DLiteInstance *inst, size_t i)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  if (i != 0) return err(-1, "index out of range: %zu", i);
+  triplestore_clear(coll->rstore);
+  if (triplestore_add_triples(coll->rstore, coll->relations, coll->nrelations))
+    return -1;
+  return 0;
+}
+
+/* Saves triplestore to instance relations. Returns non-zero on error. */
+int dlite_collection_saveprop(DLiteInstance *inst, size_t i)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  TripleState state;
+  const Triple *t;
+  size_t n = 0;
+  if (i != 0) return err(-1, "index out of range: %zu", i);
+  triplestore_init_state(coll->rstore, &state);
+  while ((t = triplestore_next(&state))) {
+    assert(n < coll->nrelations);
+    triple_copy(coll->relations + n, t);
+    n++;
+  }
+  triplestore_deinit_state(&state);
   return 0;
 }
 
@@ -101,7 +136,7 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
 {
   DLiteCollection *coll;
   DLiteCollectionState state;
-  const Triplet *t, *t2;
+  const Triple *t, *t2;
 
   if (!(coll = (DLiteCollection *)dlite_instance_load(s, id)))
     return NULL;
@@ -256,7 +291,7 @@ void dlite_collection_deinit_state(DLiteCollectionState *state)
   first call it should be provided a `state` initialised with
   dlite_collection_init_state().
 
-  For each call it will return a pointer to triplet matching `s`, `p`
+  For each call it will return a pointer to triple matching `s`, `p`
   and `o`.  Any of these may be NULL, allowing for multiple matches.
   When no more matches can be found, NULL is returned.
 
@@ -348,10 +383,12 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
       warn("cannot remove missing instance: %s", r->o);
     }
 
-    dlite_collection_init_state(coll, &state);
-    while ((r=dlite_collection_find(coll, &state, label, "_has-dimmap", NULL)))
-      triplestore_remove_by_id(coll->rstore, r->o);
-    dlite_collection_deinit_state(&state);
+    /* FIXME - there is something wrong here... */
+    //dlite_collection_init_state(coll, &state);
+    //while ((r=dlite_collection_find(coll, &state, label, "_has-dimmap", NULL)))
+    //  triplestore_remove_by_id(coll->rstore, r->o);
+    //*dlite_collection_deinit_state(&state);
+    UNUSED(state);
 
     dlite_collection_remove_relations(coll, label, "_has-uuid", NULL);
     dlite_collection_remove_relations(coll, label, "_has-meta", NULL);
@@ -459,7 +496,7 @@ DLiteInstance *dlite_collection_next_new(DLiteCollection *coll,
                                          DLiteCollectionState *state)
 {
   UNUSED(coll);
-  const Triplet *t;
+  const Triple *t;
   while ((t = triplestore_find(state, NULL, "_has-uuid", NULL)))
     return dlite_instance_get(t->o);
   return NULL;

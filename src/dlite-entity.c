@@ -184,6 +184,9 @@ void dlite_instance_print(const DLiteInstance *inst)
     (dlite_instance_is_data(inst)) ? "Data" :
     (dlite_instance_is_metameta(inst)) ? "Meta-metadata" :
     (dlite_instance_is_meta(inst)) ? "Metadata" : "???";
+
+  dlite_instance_sync_to_dimension_sizes((DLiteInstance *)inst);
+
   fprintf(fp, "\n");
   fprintf(fp, "%s instance (%p)\n", insttype, (void *)inst);
   fprintf(fp, "  _uuid: %s\n", inst->uuid);
@@ -379,12 +382,11 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
 
   /* Set dimensions */
   if (meta->_ndimensions) {
-    size_t *dimensions = (size_t *)((char *)inst + meta->_dimoffset);
+    size_t *dimensions = DLITE_DIMS(inst);
     memcpy(dimensions, dims, meta->_ndimensions*sizeof(size_t));
   }
 
-  /* Additional initialisation */
-  if (meta->_init && meta->_init(inst)) goto fail;
+  /* Evaluate property dimensions */
   if (_instance_propdims_eval(inst, dims)) goto fail;
 
   /* Allocate arrays for dimensional properties */
@@ -402,6 +404,11 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
       }
     }
   }
+
+  /* Initialisation of extended metadata.
+     Note that we do not call _setdim() and _loadprop() here.  If
+     needed, they should be called by _init(). */
+  if (meta->_init && meta->_init(inst)) goto fail;
 
   /* Add to instance cache */
   if (_instance_store_add(inst)) goto fail;
@@ -647,6 +654,7 @@ DLiteInstance *dlite_instance_get_casted(const char *id, const char *metaid)
   return instances;
 }
 
+
 /*
   Loads instance identified by `id` from storage `s` and returns a
   new and fully initialised dlite instance.
@@ -863,6 +871,7 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   size_t i, *dims;
 
   if (!(meta = inst->meta)) return errx(-1, "no metadata available");
+  if (dlite_instance_sync_to_properties((DLiteInstance *)inst)) goto fail;
 
   /* check if storage implements the instance api */
   if (s->api->saveInstance)
@@ -872,7 +881,7 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   if (!(d = dlite_datamodel(s, inst->uuid))) goto fail;
   if (dlite_datamodel_set_meta_uri(d, meta->uri)) goto fail;
 
-  dims = (size_t *)((char *)inst + inst->meta->_dimoffset);
+  dims = DLITE_DIMS(inst);
   for (i=0; i<meta->_ndimensions; i++) {
     char *dimname = inst->meta->_dimensions[i].name;
     if (dlite_datamodel_set_dimension_size(d, dimname, dims[i])) goto fail;
@@ -996,13 +1005,16 @@ size_t dlite_instance_get_nproperties(const DLiteInstance *inst)
 size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
                                                   size_t i)
 {
-  size_t *dimensions;
   if (!inst->meta)
     return errx(-1, "no metadata available");
   if (i >= inst->meta->_nproperties)
     return errx(-1, "no property with index %zu in %s", i, inst->meta->uri);
-  dimensions = (size_t *)((char *)inst + inst->meta->_dimoffset);
-  return dimensions[i];
+  if (inst->meta->_getdim) {
+    size_t n = inst->meta->_getdim(inst, i);
+    if (n != DLITE_DIM(inst, i))
+      dlite_instance_sync_to_dimension_sizes((DLiteInstance *)inst);
+  }
+  return DLITE_DIM(inst, i);
 }
 
 
@@ -1020,6 +1032,10 @@ void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i)
   if (i >= inst->meta->_nproperties)
     return errx(1, "index %zu exceeds number of properties (%zu) in %s",
 		i, inst->meta->_nproperties, inst->meta->uri), NULL;
+  if (dlite_instance_sync_to_dimension_sizes((DLiteInstance *)inst))
+    return NULL;
+  if (inst->meta->_saveprop &&
+      inst->meta->_saveprop((DLiteInstance *)inst, i)) return NULL;
   ptr = DLITE_PROP(inst, i);
   if (inst->meta->_properties[i].ndims > 0)
     ptr = *(void **)ptr;
@@ -1056,6 +1072,12 @@ int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
     dest = DLITE_PROP(inst, i);
     if (!dlite_type_copy(dest, ptr, p->type, p->size)) return -1;
   }
+
+  if (inst->meta->_setdim &&
+      dlite_instance_sync_from_dimension_sizes((DLiteInstance *)inst))
+    return -1;
+  if (inst->meta->_loadprop && inst->meta->_loadprop(inst, i)) return -1;
+
   return 0;
 }
 
@@ -1101,6 +1123,8 @@ size_t *dlite_instance_get_property_dims_by_index(const DLiteInstance *inst,
     return errx(1, "no metadata available"), NULL;
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
     return NULL;
+  if (dlite_instance_sync_to_dimension_sizes((DLiteInstance *)inst))
+    return NULL;
   if (!(dims = malloc(p->ndims * sizeof(size_t))))
     return NULL;
   memcpy(dims, DLITE_PROP_DIMS(inst, i), p->ndims*sizeof(size_t));
@@ -1115,14 +1139,11 @@ int dlite_instance_get_dimension_size(const DLiteInstance *inst,
                                       const char *name)
 {
   int i;
-  size_t *dimensions;
   if (!inst->meta)
     return errx(-1, "no metadata available");
   if ((i = dlite_meta_get_dimension_index(inst->meta, name)) < 0) return -1;
-  if (i >= (int)inst->meta->_nproperties)
-    return errx(-1, "no property with index %d in %s", i, inst->meta->uri);
-  dimensions = (size_t *)((char *)inst + inst->meta->_dimoffset);
-  return dimensions[i];
+  assert(i < (int)inst->meta->_nproperties);
+  return dlite_instance_get_dimension_size_by_index(inst, i);
 }
 
 /*
@@ -1209,7 +1230,7 @@ int dlite_instance_is_meta(const DLiteInstance *inst)
   return 0;
 }
 
-/**
+/*
   Returns non-zero if `inst` is meta-metadata.
 
   Meta-metadata contains either a "properties" property (of type
@@ -1220,6 +1241,76 @@ int dlite_instance_is_metameta(const DLiteInstance *inst)
 {
   if (dlite_meta_is_metameta(inst->meta) &&
       dlite_meta_is_metameta((DLiteMeta *)inst)) return 1;
+  return 0;
+}
+
+
+/*
+  Updates dimension sizes from the getdim() method of
+  extended metadata.  Does nothing, if the metadata has no getdim() method.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_to_dimension_sizes(DLiteInstance *inst)
+{
+  int *dims=NULL, retval=1;
+  size_t i;
+  if (!inst->meta->_getdim) return 0;
+  if (!(dims = calloc(inst->meta->_ndimensions, sizeof(int))))
+    return err(1, "allocation failure");
+  for (i=0; i<inst->meta->_ndimensions; i++)
+    if ((dims[i] = inst->meta->_getdim(inst, i)) < 0) goto fail;
+  if (dlite_instance_set_dimension_sizes(inst, dims)) goto fail;
+  retval = 0;
+ fail:
+  if (dims) free(dims);
+  return retval;
+}
+
+/*
+  Updates internal state of extended metadata from instance dimensions
+  using setdim().  Does nothing, if the metadata has no setdim().
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_from_dimension_sizes(DLiteInstance *inst)
+{
+  size_t i;
+  if (!inst->meta->_setdim) return 0;
+  for (i=0; i<inst->meta->_ndimensions; i++)
+    if (inst->meta->_setdim(inst, i, DLITE_DIM(inst, i))) return 1;
+  return 0;
+}
+
+/*
+  Help function that update properties from the saveprop() method of
+  extended metadata.  Does nothing, if the metadata has no saveprop() method.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_to_properties(DLiteInstance *inst)
+{
+  size_t i;
+  if (!inst->meta->_saveprop) return 0;
+  if (dlite_instance_sync_to_dimension_sizes(inst)) return 1;
+  for (i=0; i<inst->meta->_nproperties; i++)
+    if (inst->meta->_saveprop(inst, i)) return 1;
+  return 0;
+}
+
+/*
+  Updates internal state of extended metadata from instance properties
+  using loadprop().  Does nothing, if the metadata has no loadprop().
+
+  Returns non-zero on error.
+ */
+int dlite_instance_sync_from_properties(DLiteInstance *inst)
+{
+  size_t i;
+  if (!inst->meta->_loadprop) return 0;
+  if (dlite_instance_sync_from_dimension_sizes(inst)) return 1;
+  for (i=0; i<inst->meta->_nproperties; i++)
+    if (inst->meta->_loadprop(inst, i)) return 1;
   return 0;
 }
 
@@ -1247,6 +1338,10 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims)
 
   if (!dlite_instance_is_data(inst))
     return err(1, "it is not possible to change dimensions of metadata");
+
+  if (inst->meta->_setdim)
+    for (n=0; n < inst->meta->_ndimensions; n++)
+      if (inst->meta->_setdim(inst, n, dims[n]) < 0) goto fail;
 
   if (!(xdims = calloc(inst->meta->_ndimensions, sizeof(size_t))))
     FAIL("Allocation failure");
@@ -1309,6 +1404,8 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims)
   for (n=0; n < inst->meta->_ndimensions; n++)
     if (dims[n] >= 0) DLITE_DIM(inst, n) = dims[n];
 
+  if (dlite_instance_sync_from_dimension_sizes(inst)) goto fail;
+
   retval = 0;
  fail:
   if (retval && oldpropdims)
@@ -1366,6 +1463,7 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
   DLiteInstance *new=NULL;
   size_t n;
   int i;
+  if (dlite_instance_sync_to_properties((DLiteInstance *)inst)) return NULL;
   if (!(new = dlite_instance_create(inst->meta, DLITE_DIMS(inst), newid)))
     return NULL;
   for (n=0; n < inst->meta->_nproperties; n++) {
