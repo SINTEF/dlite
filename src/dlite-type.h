@@ -105,9 +105,9 @@ typedef enum _DLiteType {
 /** Some flags for printing or scanning dlite types */
 typedef enum _DLiteTypeFlag {
   dliteFlagDefault = 0,  /*!< Default */
-  dliteFlagRaw=0,        /*!< Raw unquoted input/output */
-  dliteFlagQuoted=1,     /*!< Quoted input/output */
-  dliteFlagStrip=2       /*!< Strip off initial and final spaces */
+  dliteFlagRaw=1,        /*!< Raw unquoted input/output */
+  dliteFlagQuoted=2,     /*!< Quoted input/output */
+  dliteFlagStrip=3       /*!< Strip off initial and final spaces */
 } DLiteTypeFlag;
 
 
@@ -251,6 +251,8 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 /**
   Scans a value from `src` and write it to memory pointed to by `p`.
 
+  If `len` is non-negative, at most `len` bytes are read from `src`.
+
   The type and size of the scanned data is described by `dtype` and `size`,
   respectively.
 
@@ -259,8 +261,8 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 
   Returns number of characters consumed or -1 on error.
  */
-int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
-                    DLiteTypeFlag flags);
+int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
+                    size_t size, DLiteTypeFlag flags);
 
 /**
   Returns the struct alignment of the given type or 0 on error.

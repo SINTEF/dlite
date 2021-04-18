@@ -382,6 +382,8 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   memcpy(inst->uuid, uuid, sizeof(uuid));
   if (uuid_version == 5) inst->uri = strdup(id);
   inst->meta = (DLiteMeta *)meta;
+  if (dlite_meta_is_metameta(meta) && dlite_meta_init((DLiteMeta *)inst))
+    goto fail;
 
   /* Set dimensions */
   if (meta->_ndimensions) {
@@ -2252,6 +2254,9 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
   suitable value will selected according to `type`.  To ignore their
   effect, set `width` to zero or `prec` to -2.
 
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are quoted.
+
   Returns number of bytes written to `dest`.  If the output is
   truncated because it exceeds `n`, the number of bytes that would
   have been written if `n` was large enough is returned.  On error, a
@@ -2261,6 +2266,7 @@ int dlite_property_print(char *dest, size_t n, const void *ptr,
                          const DLiteProperty *p, const size_t *dims,
                          int width, int prec, DLiteTypeFlag flags)
 {
+  if (flags == dliteFlagDefault) flags = dliteFlagQuoted;
   if (p->ndims)
     return writedim(0, dest, n, &ptr, p, dims, width, prec, flags);
   else
@@ -2316,22 +2322,25 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
 */
 static int scandim(int d, const char *src, void **pptr,
                    const DLiteProperty *p, const size_t *dims,
-                   DLiteTypeFlag flags, jsmntok_t *t)
+                   DLiteTypeFlag flags, jsmntok_t **t)
 {
   int m;
   size_t i;
   if (d < p->ndims) {
-    if (t->type != JSMN_ARRAY)
+    if ((*t)->type != JSMN_ARRAY)
       return err(-1, "expected JSON array");
-    if (t->size != (int)dims[d])
+    if ((*t)->size != (int)dims[d])
       return err(-1, "for dimension %d, expected %zu elements, got %d",
-                 d, dims[d], t->size);
-    for (i=0; i < dims[d]; i++)
-      if (scandim(d+1, src, pptr, p, dims, flags, ++t)) goto fail;
+                 d, dims[d], (*t)->size);
+    for (i=0; i < dims[d]; i++) {
+      (*t)++;
+      if (scandim(d+1, src, pptr, p, dims, flags, t)) goto fail;
+    }
   } else {
-    if ((m = dlite_type_scan(src+t->start, *pptr, p->type, p->size, flags)) < 0)
-      return m;
+    if ((m = dlite_type_scan(src+(*t)->start, (*t)->end-(*t)->start, *pptr,
+                             p->type, p->size, flags)) < 0) return m;
     *((char **)pptr) += p->size;
+    *t += jsmn_count(*t);
   }
   return 0;
  fail:
@@ -2341,7 +2350,13 @@ static int scandim(int d, const char *src, void **pptr,
 /*
   Scans property from `src` and wite it to memory pointed to by `ptr`.
 
-  The property is described by `p`. Dimension sizes are given by `dims`.
+  The property is described by `p`.
+
+  For arrays, `ptr` should points to the first element and will not be
+  not dereferenced.  Evaluated dimension sizes are given by `dims`.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
 
   Returns number of characters consumed from `src` or a negative
   number on error.
@@ -2351,19 +2366,22 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
 {
   if (p->ndims) {
     int r, n;
+    void *q = ptr;
     unsigned int ntokens=0;
-    jsmntok_t *tokens=NULL;
+    jsmntok_t *tokens=NULL, *t;
     jsmn_parser parser;
     jsmn_init(&parser);
+    if (flags == dliteFlagDefault) flags = dliteFlagQuoted;
     r = jsmn_parse_alloc(&parser, src, strlen(src), &tokens, &ntokens);
     if (r < 0) return err(r, "error parsing input: %s", jsmn_strerror(r));
-    r = scandim(0, src, &ptr, p, dims, flags, tokens);
+    t = tokens;
+    r = scandim(0, src, &q, p, dims, flags, &t);
     n = tokens[0].end;
     free(tokens);
     if (r < 0) return r;
     return n;
   } else {
-    return dlite_type_scan(src, ptr, p->type, p->size, flags);
+    return dlite_type_scan(src, -1, ptr, p->type, p->size, flags);
   }
 }
 

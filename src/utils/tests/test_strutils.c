@@ -7,6 +7,36 @@
 
 
 
+MU_TEST(test_strnput)
+{
+  char *buf=NULL;
+  size_t size=0;
+  int n=0, m;
+
+  m = strnput(&buf, &size, 0, "abc", -1);
+  mu_assert_int_eq(3, m);
+  mu_assert_string_eq("abc", buf);
+  n += m;
+
+  m = strnput(&buf, &size, n, " def", -1);
+  mu_assert_int_eq(4, m);
+  mu_assert_string_eq("abc def", buf);
+  n += m;
+
+  m = strnput(&buf, &size, n, " ghij", 3);
+  mu_assert_int_eq(3, m);
+  mu_assert_string_eq("abc def gh", buf);
+  n += m;
+
+  m = strnput(&buf, &size, 0, " ghij", 3);
+  mu_assert_int_eq(3, m);
+  mu_assert_string_eq(" gh", buf);
+  n = m;
+
+  free(buf);
+}
+
+
 MU_TEST(test_strquote)
 {
   char buf[10];
@@ -96,6 +126,7 @@ MU_TEST(test_strunquote)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_strnput);
   MU_RUN_TEST(test_strquote);
   MU_RUN_TEST(test_strnquote);
   MU_RUN_TEST(test_strunquote);

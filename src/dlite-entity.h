@@ -1067,7 +1067,13 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
 /**
   Scans property from `src` and wite it to memory pointed to by `ptr`.
 
-  The property is described by `p`. Dimension size are given by `dims`.
+  The property is described by `p`.
+
+  For arrays, `ptr` should points to the first element and will not be
+  not dereferenced.  Evaluated dimension sizes are given by `dims`.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
 
   Returns number of characters consumed from `src` or a negative
   number on error.

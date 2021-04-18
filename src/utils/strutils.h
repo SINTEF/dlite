@@ -7,6 +7,13 @@
 #ifndef _STRUTILS_H
 #define _STRUTILS_H
 
+#include <stdlib.h>
+
+/* Remove __attribute__ when we are not compiling with gcc */
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
+
 
 /** Flags for strquote() */
 typedef enum _StrquoteFlags {
@@ -17,6 +24,38 @@ typedef enum _StrquoteFlags {
   strquoteRaw=7             /*!< Copy the input without conversions */
 } StrquoteFlags;
 
+
+/**
+  A convinient variant of asnprintf() that returns the allocated string,
+  or NULL on error.
+ */
+char *aprintf(const char *fmt, ...)
+  __attribute__ ((__malloc__, __format__ (__printf__, 1, 2)));
+
+
+/**
+  Copies `src` string to malloc'ed memory pointed to by `*destp`.
+
+  The string pointed to by `*destp` may be reallocated.  It will always
+  be NUL-terminated.
+
+  If `sizep` is not NULL, the value it points to should be the allocated
+  size of `*destp`.  It will be updated on return.
+
+  `pos` is the position of `*destp` that `src` will be copied to.
+
+  Returns number of characters written (excluding terminating NUL).
+  On allocation error, a negative number is returned and `destp` and
+  `sizep` will not be touched.
+ */
+int strput(char **destp, size_t *sizep, size_t pos, const char *src);
+
+
+/**
+  Like strput(), but at most `n` bytes from `src` will be copied.
+  If `n` is negative, all of `src` will be copited.
+ */
+int strnput(char **destp, size_t *sizep, size_t pos, const char *src, int n);
 
 
 /**
@@ -56,6 +95,16 @@ int strnquote(char *dest, size_t size, const char *s, int n,
   double quote is found).
  */
 int strunquote(char *dest, size_t size, const char *s,
+               int *consumed, StrquoteFlags flags);
+
+/**
+  Like strunquote, but if `n` is non-negative, at most `n` bytes are
+  read from `s`.
+
+  This mostly make sense in combination when `flags & strquoteNoEscape`
+  is true.
+ */
+int strnunquote(char *dest, size_t size, const char *s, int n,
                int *consumed, StrquoteFlags flags);
 
 

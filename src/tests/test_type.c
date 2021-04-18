@@ -198,105 +198,105 @@ MU_TEST(test_scan)
   DLiteRelation rel;
 
   /* blob */
-  n = dlite_type_scan("01ff", blob, dliteBlob, 2, 0);
+  n = dlite_type_scan("01ff", -1, blob, dliteBlob, 2, 0);
   mu_assert_int_eq(-1, n);
   err_clear();
 
-  n = dlite_type_scan("\"01fe\"", blob, dliteBlob, 2, 0);
+  n = dlite_type_scan("\"01fe\"", -1, blob, dliteBlob, 2, 0);
   mu_assert_int_eq(6, n);
   mu_assert_int_eq(1, blob[0]);
   mu_assert_int_eq(254, blob[1]);
 
-  n = dlite_type_scan("01fx", blob, dliteBlob, 2, 0);
+  n = dlite_type_scan("01fx", -1, blob, dliteBlob, 2, 0);
   mu_assert_int_eq(-1, n);
   err_clear();
 
   /* bool */
-  n = dlite_type_scan("1", &b, dliteBool, sizeof(bool), 0);
+  n = dlite_type_scan("1", -1, &b, dliteBool, sizeof(bool), 0);
   mu_assert_int_eq(1, n);
   mu_assert_int_eq(1, b);
 
-  n = dlite_type_scan("false", &b, dliteBool, sizeof(bool), 0);
+  n = dlite_type_scan("false", -1, &b, dliteBool, sizeof(bool), 0);
   mu_assert_int_eq(5, n);
   mu_assert_int_eq(0, b);
 
-  n = dlite_type_scan("yes", &b, dliteBool, sizeof(bool), 0);
+  n = dlite_type_scan("yes", -1, &b, dliteBool, sizeof(bool), 0);
   mu_assert_int_eq(3, n);
   mu_assert_int_eq(1, b);
 
-  n = dlite_type_scan(".FALSE.", &b, dliteBool, sizeof(bool), 0);
+  n = dlite_type_scan(".FALSE.", -1, &b, dliteBool, sizeof(bool), 0);
   mu_assert_int_eq(7, n);
   mu_assert_int_eq(0, b);
 
-  n = dlite_type_scan("1 a", &b, dliteBool, sizeof(bool), 0);
+  n = dlite_type_scan("1 a", -1, &b, dliteBool, sizeof(bool), 0);
   mu_assert_int_eq(1, n);
   mu_assert_int_eq(1, b);
 
-  n = dlite_type_scan(".", &b, dliteBool, sizeof(bool), 0);
+  n = dlite_type_scan(".", -1, &b, dliteBool, sizeof(bool), 0);
   mu_check(n < 0);
   err_clear();
 
   /* int */
-  n = dlite_type_scan("-35", &int16, dliteInt, sizeof(int16), 0);
+  n = dlite_type_scan("-35", -1, &int16, dliteInt, sizeof(int16), 0);
   mu_assert_int_eq(3, n);
   mu_assert_int_eq(-35, int16);
 
-  n = dlite_type_scan("0xff", &int16, dliteInt, sizeof(int16), 0);
+  n = dlite_type_scan("0xff", -1, &int16, dliteInt, sizeof(int16), 0);
   mu_assert_int_eq(4, n);
   mu_assert_int_eq(255, int16);
 
   // hmm, overflow is not reported as error, but silently cast
   // Is this a bug?
-  n = dlite_type_scan("1000000  ", &int16, dliteInt, sizeof(int16), 0);
+  n = dlite_type_scan("1000000  ", -1, &int16, dliteInt, sizeof(int16), 0);
   mu_assert_int_eq(7, n);
   mu_assert_int_eq((int16_t)1000000, int16);
 
   /* uint */
-  n = dlite_type_scan("42", &uint16, dliteUInt, sizeof(uint16), 0);
+  n = dlite_type_scan("42", -1, &uint16, dliteUInt, sizeof(uint16), 0);
   mu_assert_int_eq(2, n);
   mu_assert_int_eq(42, uint16);
 
-  n = dlite_type_scan("0xff", &uint16, dliteUInt, sizeof(uint16), 0);
+  n = dlite_type_scan("0xff", -1, &uint16, dliteUInt, sizeof(uint16), 0);
   mu_assert_int_eq(4, n);
   mu_assert_int_eq(255, uint16);
 
   // hmm, accepts negative integer and cast it to unit16_t
   // Isn't this a bug?
-  n = dlite_type_scan("-35", &uint16, dliteUInt, sizeof(uint16), 0);
+  n = dlite_type_scan("-35", -1, &uint16, dliteUInt, sizeof(uint16), 0);
   mu_assert_int_eq(3, n);
   mu_assert_int_eq((uint16_t)-35, uint16);
 
-  n = dlite_type_scan("-", &uint16, dliteUInt, sizeof(uint16), 0);
+  n = dlite_type_scan("-", -1, &uint16, dliteUInt, sizeof(uint16), 0);
   mu_assert_int_eq(-1, n);
   err_clear();
 
   /* float */
-  n = dlite_type_scan(" 3.14 ", &float64, dliteFloat, sizeof(float64), 0);
+  n = dlite_type_scan(" 3.14 ", -1, &float64, dliteFloat, sizeof(float64), 0);
   mu_assert_int_eq(5, n);
   mu_assert_double_eq(3.14, float64);
 
-  n = dlite_type_scan(" 2.1e-2 ", &float64, dliteFloat, sizeof(float64), 0);
+  n = dlite_type_scan(" 2.1e-2 ", -1, &float64, dliteFloat, sizeof(float64), 0);
   mu_assert_int_eq(7, n);
   mu_assert_double_eq(2.1e-2, float64);
 
   /* fixstring */
-  n = dlite_type_scan(" 3.14 ", buf, dliteFixString, sizeof(buf),
+  n = dlite_type_scan(" 3.14 ", -1, buf, dliteFixString, sizeof(buf),
                       dliteFlagQuoted);
   mu_assert_int_eq(-1, n);
   err_clear();
 
-  n = dlite_type_scan(" \"3.14\" ", buf, dliteFixString, sizeof(buf),
+  n = dlite_type_scan(" \"3.14\" ", -1, buf, dliteFixString, sizeof(buf),
                       dliteFlagQuoted);
   mu_assert_int_eq(7, n);
   mu_assert_string_eq("3.14", buf);
 
-  n = dlite_type_scan("\"1234567890\"", buf, dliteFixString, sizeof(buf),
+  n = dlite_type_scan("\"1234567890\"", -1, buf, dliteFixString, sizeof(buf),
                       dliteFlagQuoted);
   mu_assert_int_eq(12, n);
   mu_assert_string_eq("123456789", buf);
 
   /* string */
-  n = dlite_type_scan(" \"3.14\" ", &s, dliteStringPtr, sizeof(char **),
+  n = dlite_type_scan(" \"3.14\" ", -1, &s, dliteStringPtr, sizeof(char **),
                       dliteFlagQuoted);
   mu_assert_int_eq(7, n);
   mu_assert_string_eq("3.14", s);
@@ -306,24 +306,24 @@ MU_TEST(test_scan)
   memset(&dim, 0, sizeof(DLiteDimension));
 
   s = "{\"name\": \"nelem\"}";
-  n = dlite_type_scan(s, &dim, dliteDimension, sizeof(DLiteDimension), 0);
+  n = dlite_type_scan(s, -1, &dim, dliteDimension, sizeof(DLiteDimension), 0);
   mu_assert_int_eq(17, n);
   mu_assert_string_eq("nelem", dim.name);
   mu_assert_string_eq(NULL, dim.description);
 
   s = "{\"name\": \"N\", \"description\": \"number of items\"}  ";
-  n = dlite_type_scan(s, &dim, dliteDimension, sizeof(DLiteDimension), 0);
+  n = dlite_type_scan(s, -1, &dim, dliteDimension, sizeof(DLiteDimension), 0);
   mu_assert_int_eq(47, n);
   mu_assert_string_eq("N", dim.name);
   mu_assert_string_eq("number of items", dim.description);
 
-  n = dlite_type_scan("{\"namex\": \"ntokens\"}", &dim, dliteDimension,
+  n = dlite_type_scan("{\"namex\": \"ntokens\"}", -1, &dim, dliteDimension,
                       sizeof(DLiteDimension), 0);
   mu_assert_int_eq(-1, n);
   err_clear();
 
   s = "{\"name\": \"M\", \"xxx\": \"this is an array\"}";
-  n = dlite_type_scan(s, &dim, dliteDimension, sizeof(DLiteDimension), 0);
+  n = dlite_type_scan(s, -1, &dim, dliteDimension, sizeof(DLiteDimension), 0);
   mu_assert_int_eq(40, n);
   mu_assert_string_eq("M", dim.name);
   mu_assert_string_eq(NULL, dim.description);
@@ -340,7 +340,7 @@ MU_TEST(test_scan)
     "\"dims\": [\"N+1\", \"M\"], "
     "\"unit\": \"m\""
     "}";
-  n = dlite_type_scan(s, &prop, dliteProperty, sizeof(DLiteProperty), 0);
+  n = dlite_type_scan(s, -1, &prop, dliteProperty, sizeof(DLiteProperty), 0);
   mu_assert_int_eq(69, n);
   mu_assert_string_eq("field", prop.name);
   mu_assert_int_eq(dliteBlob, prop.type);
@@ -361,7 +361,7 @@ MU_TEST(test_scan)
   memset(&rel, 0, sizeof(DLiteRelation));
 
   s = "[\"subject\", \"predicate\", \"object\"]";
-  n = dlite_type_scan(s, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
   mu_assert_int_eq(34, n);
   mu_assert_string_eq("subject",   rel.s);
   mu_assert_string_eq("predicate", rel.p);

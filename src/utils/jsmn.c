@@ -30,6 +30,7 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
                      jsmntok_t **tokens_ptr, unsigned int *num_tokens_ptr)
 {
   int n, n_save;
+  unsigned int saved_pos;
   jsmntok_t *t=NULL;
   (void) n_save;  // avoid unused parameter error when assert is turned off
   assert(tokens_ptr);
@@ -37,9 +38,11 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
   if (!*tokens_ptr) *num_tokens_ptr = 0;
   if (!*num_tokens_ptr) *tokens_ptr = NULL;
 
+  saved_pos = parser->pos;
   if ((n = jsmn_parse(parser, js, len, NULL, 0)) < 0) goto fail;
   if (!(t = realloc(*tokens_ptr, n*sizeof(jsmntok_t)))) return JSMN_ERROR_NOMEM;
   n_save = n;
+  parser->pos = saved_pos;
   if ((n = jsmn_parse(parser, js, len, t, n)) < 0) goto fail;
   assert(n == n_save);
   *tokens_ptr = t;

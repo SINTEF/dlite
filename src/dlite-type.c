@@ -616,6 +616,7 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
 static StrquoteFlags as_qflags(DLiteTypeFlag flags)
 {
   switch (flags) {
+  case dliteFlagDefault: return strquoteRaw;
   case dliteFlagRaw: return strquoteRaw;
   case dliteFlagQuoted: return 0;
   case dliteFlagStrip: return strquoteNoQuote | strquoteNoEscape;
@@ -760,7 +761,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
                    "\"ndims\": %d",
                    prop->name, typename, prop->ndims);
       if (prop->ndims) {
-        m += snprintf(dest+m, PDIFF(n, m), ", [");
+        m += snprintf(dest+m, PDIFF(n, m), ", \"dims\": [");
         for (i=0; i < prop->ndims; i++)
           m += snprintf(dest+m, PDIFF(n, m), "\"%s\"%s", prop->dims[i],
                         (i < prop->ndims-1) ? ", " : "");
@@ -830,13 +831,15 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 /*
   Scans a value from `src` and write it to memory pointed to by `p`.
 
+  If `len` is non-negative, at most `len` bytes are read from `src`.
+
   The type and size of the scanned data is described by `dtype` and `size`,
   respectively.
 
   Returns number of characters consumed or -1 on error.
 */
-int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
-                    DLiteTypeFlag flags)
+int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
+                    size_t size, DLiteTypeFlag flags)
 {
   size_t i;
   int m=0, v;
@@ -938,7 +941,7 @@ int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
     break;
 
   case dliteFixString:
-    switch (strunquote((char *)p, size, src, &m, qflags)) {
+    switch (strnunquote((char *)p, size, src, len, &m, qflags)) {
     case -1: return errx(-1, "expected initial double quote around string");
     case -2: return errx(-1, "expected final double quote around string");
     }
@@ -949,7 +952,7 @@ int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
     {
       char *q=NULL;
       int n;
-      switch((n = strunquote(NULL, 0, src, &m, qflags))) {
+      switch((n = strnunquote(NULL, 0, src, len, &m, qflags))) {
       case -1: return errx(-1, "expected initial double quote around string");
       case -2: return errx(-1, "expected final double quote around string");
       }
@@ -958,7 +961,6 @@ int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
         return err(-1, "allocation failure");
       n = strunquote(q, n+1, src, NULL, qflags);
       assert(n >= 0);
-      printf("\n*** q='%s', src='%s', n=%d, m=%d\n", q, src, n, m);
       *(char **)p = q;
     }
     break;
@@ -974,8 +976,9 @@ int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
       if (dim->description) free(dim->description);
       memset(dim, 0, sizeof(DLiteDimension));
 
+      if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, strlen(src), tokens, 5)) < 0)
+      if ((r = jsmn_parse(&parser, src, len, tokens, 5)) < 0)
         return err(-1, "cannot parse dimension: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
@@ -1003,8 +1006,9 @@ int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
       if (prop->description) free(prop->description);
       memset(prop, 0, sizeof(DLiteProperty));
 
+      if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, strlen(src), tokens, 32)) < 0)
+      if ((r = jsmn_parse(&parser, src, len, tokens, 32)) < 0)
         return err(-1, "cannot parse property: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
@@ -1055,8 +1059,9 @@ int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
       if (rel->id) free(rel->id);
       memset(rel, 0, sizeof(DLiteRelation));
 
+      if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, strlen(src), tokens, 5)) < 0)
+      if ((r = jsmn_parse(&parser, src, len, tokens, 5)) < 0)
         return err(-1, "cannot parse relation: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_ARRAY)
@@ -1071,7 +1076,7 @@ int dlite_type_scan(const char *src, void *p, DLiteType dtype, size_t size,
       rel->p = strndup(src + t->start, t->end - t->start);
       if (!(t = jsmn_element(src, tokens, 2))) return -1;
       rel->o = strndup(src + t->start, t->end - t->start);
-      if ((t = jsmn_element(src, tokens, 3)))
+      if (tokens->size > 3 && (t = jsmn_element(src, tokens, 3)))
         rel->id = strndup(src + t->start, t->end - t->start);
     }
     break;
