@@ -412,5 +412,5 @@ const Triple *triplestore_find2(TripleState *state,
 {
   UNUSED(literal);
   UNUSED(lang);
-  return truplestore_find(state, s, p, o);
+  return triplestore_find(state, s, p, o);
 }
