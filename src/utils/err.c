@@ -4,6 +4,11 @@
  *
  * Distributed under terms of the MIT license.
  */
+
+/*
+ * TODO: Consider to reuse good ideas from https://github.com/rxi/log.c
+ */
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>

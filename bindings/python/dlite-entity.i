@@ -164,46 +164,46 @@ struct _DLiteProperty {
 /* --------
  * Relation
  * -------- */
-%rename(Relation) _Triplet;
-struct _Triplet {
+%rename(Relation) _Triple;
+struct _Triple {
   char *s;     /*!< subject */
   char *p;     /*!< predicate */
   char *o;     /*!< object */
-  char *id;    /*!< unique ID identifying this triplet */
+  char *id;    /*!< unique ID identifying this triple */
 };
 
-%extend _Triplet {
-  _Triplet(const char *s, const char *p, const char *o, const char *id=NULL) {
-    Triplet *t;
-    if (!(t =  calloc(1, sizeof(Triplet)))) FAIL("allocation failure");
-    if (triplet_set(t, s, p, o, id)) FAIL("cannot set relation");
+%extend _Triple {
+  _Triple(const char *s, const char *p, const char *o, const char *id=NULL) {
+    Triple *t;
+    if (!(t =  calloc(1, sizeof(Triple)))) FAIL("allocation failure");
+    if (triple_set(t, s, p, o, id)) FAIL("cannot set relation");
     return t;
   fail:
     if (t) {
-      triplet_clean(t);
+      triple_clean(t);
       free(t);
     }
     return NULL;
   }
 
-  ~_Triplet() {
-    triplet_clean($self);
+  ~_Triple() {
+    triple_clean($self);
     free($self);
   }
 }
 
 %{
-char *triplet_get_id2(const char *s, const char *p, const char *o,
+char *triple_get_id2(const char *s, const char *p, const char *o,
                       const char *namespace) {
-  return triplet_get_id(namespace, s, p, o);
+  return triple_get_id(namespace, s, p, o);
 }
 %}
- %rename(triplet_get_id) triplet_get_id2;
-%newobject triplet_get_id;
-char *triplet_get_id(const char *s, const char *p, const char *o,
+ %rename(triple_get_id) triple_get_id2;
+%newobject triple_get_id;
+char *triple_get_id(const char *s, const char *p, const char *o,
                      const char *namespace=NULL);
 
-void triplet_set_default_namespace(const char *namespace);
+void triple_set_default_namespace(const char *namespace);
 
 
 /* --------
@@ -357,6 +357,7 @@ struct _DLiteInstance {
   %newobject get_dimensions;
   obj_t *get_dimensions() {
     int dims[1] = { (int)DLITE_NDIM($self) };
+    dlite_instance_sync_to_dimension_sizes($self);
     return dlite_swig_get_array($self, 1, dims, dliteUInt, sizeof(size_t),
                                 DLITE_DIMS($self));
   }

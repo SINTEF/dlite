@@ -15,6 +15,7 @@ include(dliteGenEnv)
 dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)
 
 
+
 #-----------------------------------------------------
 # Compile library
 #-----------------------------------------------------
@@ -38,6 +39,7 @@ set(sources
   dlite-codegen.c
   dlite-getlicense.c
   getuuid.c
+  triple.c
   triplestore.c
   )
 
@@ -45,6 +47,22 @@ add_definitions(
   -DHAVE_CONFIG_H
   #-DWITH_DEBUG
   )
+
+set(include_directories_extra)
+set(link_libraries_extra)
+if(HAVE_REDLAND)
+  list(APPEND include_directories_extra ${REDLAND_INCLUDE_DIR})
+  list(APPEND link_libraries_extra ${REDLAND_LIBRARY})
+endif()
+if(HAVE_RASQAL)
+  list(APPEND include_directories_extra ${RASQAL_INCLUDE_DIR})
+  list(APPEND link_libraries_extra ${RASQAL_LIBRARIES})
+endif()
+if(HAVE_RAPTOR)
+  list(APPEND include_directories_extra ${RAPTOR_INCLUDE_DIR})
+  list(APPEND link_libraries_extra ${RAPTOR_LIBRARY})
+endif()
+
 
 
 # We are building both shared and static libraries.  User software will
@@ -61,32 +79,37 @@ add_definitions(
 # We have to implement a robust way to find shared libraries on Windows,
 # probably by appending to the PATH environment variable before loading
 # any storage or mapping plugin.
-add_library(dlite SHARED
+set(lib_args
   ${sources}
   ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
   )
-add_library(dlite-static STATIC
-  ${sources}
-  ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
-  )
+add_library(dlite SHARED ${lib_args})
+add_library(dlite-static STATIC ${lib_args})
 
-target_link_libraries(dlite
+set(include_args
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include/dlite>
+  ${include_directories_extra}
+  )
+target_include_directories(dlite PUBLIC ${include_args})
+target_include_directories(dlite-static PUBLIC ${include_args})
+
+#target_include_directories(dlite PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#  $<INSTALL_INTERFACE:include/dlite>
+#  )
+#target_include_directories(dlite-static PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#  $<INSTALL_INTERFACE:include/dlite>
+#  )
+
+set(link_args
   dlite-utils
   ${CMAKE_DL_LIBS}
+  ${link_libraries_extra}
   )
-target_link_libraries(dlite-static
-  dlite-utils-static
-  ${CMAKE_DL_LIBS}
-  )
-
-target_include_directories(dlite PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include/dlite>
-  )
-target_include_directories(dlite-static PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include/dlite>
-  )
+target_link_libraries(dlite ${link_args})
+target_link_libraries(dlite-static ${link_args})
 
 set_target_properties(dlite PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
@@ -96,6 +119,15 @@ set_target_properties(dlite-static PROPERTIES
   )
 
 #set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_source_files_properties(
+    dlite-misc.c
+    dlite-storage.c
+    dlite-storage-plugins.c
+    dlite-mapping-plugins.c
+    dlite-codegen.c
+  PROPERTIES
+    OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
+  )
 
 
 ## Generate dlite_get_license.c

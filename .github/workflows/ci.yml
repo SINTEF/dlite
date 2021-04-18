@@ -62,5 +62,5 @@ jobs:
     - name: make test
       run: |
         cd build
-        ctest
+        ctest || ctest --rerun-failed --output-on-failure -V
         cd -
