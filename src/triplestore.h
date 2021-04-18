@@ -14,6 +14,17 @@
 
 #include "triple.h"
 
+/** Namespaces */
+#define XML     "http://www.w3.org/XML/1998/namespace:"
+#define XSD     "http://www.w3.org/2001/XMLSchema#"
+#define RDF     "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+#define RDFS    "http://www.w3.org/2000/01/rdf-schema#"
+#define OWL     "http://www.w3.org/2002/07/owl#"
+#define SKOS    "http://www.w3.org/2004/02/skos/core#"
+#define DCTERMS "http://purl.org/dc/terms/"
+#define EMMO    "http://emmo.info/emmo#"
+#define SOFT    "http://emmo.info/soft#"
+
 
 /** Triplet store. */
 typedef struct _TripleStore TripleStore;
@@ -28,30 +39,69 @@ typedef struct _TripleState {
 } TripleState;
 
 
+/* ================================== */
+/* Functions specific to librdf       */
+/* ================================== */
+#ifdef HAVE_REDLAND
+#include "redland.h"
 
-///**
-//  Returns a new empty triplestore that stores its triples and the number of
-//  triples in the external memory pointed to by `*p` and `*lenp`, respectively.
-//
-//  `freer` is a cleanup-function.  If not NULL, it is called by
-//  triplestore_free() with `freedata` as argument.
-//
-//  Returns NULL on error.
-// */
-//TripleStore *triplestore_create_external(Triple **p, size_t *lenp,
-//                                         void (*freer)(void *), void *freedata);
+/** Returns a pointer to the default world.  A new default world is
+    created if it doesn't already exists. */
+librdf_world *triplestore_get_default_world();
 
+/** Returns the internal librdf world. */
+librdf_world *triplestore_get_world(TripleStore *ts);
+
+/** Returns the internal librdf model. */
+librdf_model *triplestore_get_model(TripleStore *ts);
+
+#endif
+
+
+
+/* ================================== */
+/* Generic functions                  */
+/* ================================== */
 
 /**
   Returns a new empty triplestore or NULL on error.
  */
 TripleStore *triplestore_create();
 
+/**
+  Returns a new empty triplestore.
+
+  Arguments:
+    storage_name: Name of storage module. If NULL, the default storage will
+                  be used.
+    name:         An identifier for the storage.
+    options:      Options for `storage_name`. May be NULL if the storage
+                  allows it.  See
+                  http://librdf.org/docs/api/redland-storage-modules.html
+                  for more info.
+
+  Returns NULL on error.
+ */
+TripleStore *triplestore_create_with_storage(const char *storage_name,
+                                             const char *name,
+                                             const char *options);
 
 /**
   Frees triplestore.
  */
 void triplestore_free(TripleStore *ts);
+
+
+/**
+  Set default namespace
+*/
+void triplestore_set_namespace(TripleStore *ts, const char *ns);
+
+/**
+  Returns a pointer to default namespace.
+  It may be NULL if it hasn't been set.
+*/
+const char *triplestore_get_namespace(TripleStore *ts);
 
 
 /**
@@ -61,10 +111,38 @@ size_t triplestore_length(TripleStore *ts);
 
 
 /**
-  Adds a single triple to store.  Returns non-zero on error.
+  Adds a single (s,p,o) triple to store.
+
+  If `literal` is non-zero the object will be considered to be a
+  literal, otherwise it is considered to be an URI.
+
+  If `lang` is not NULL, it must be a valid XML language abbreviation,
+  like "en". Only used if `literal` is non-zero.
+
+  If `datatype_uri` is not NULL, it should be an uri for the literal
+  datatype. Ex: "xsd:integer".
+
+  Returns non-zero on error.
+ */
+int triplestore_add2(TripleStore *ts, const char *s, const char *p,
+                     const char *o, int literal, const char *lang,
+                     const char *datatype_uri);
+
+
+/**
+  Adds a single triple to store.  The object is considered to be a
+  literal with no language.  Returns non-zero on error.
  */
 int triplestore_add(TripleStore *ts, const char *s, const char *p,
                     const char *o);
+
+
+/**
+  Adds a single triple to store.  The object is considered to be an URI.
+  Returns non-zero on error.
+ */
+int triplestore_add_uri(TripleStore *ts, const char *s, const char *p,
+                        const char *o);
 
 
 /**
@@ -147,9 +225,27 @@ const Triple *triplestore_poll(TripleState *state);
 
   No other calls to triplestore_add() or triplestore_find() should be
   done while searching.
+
+  NULL is also returned on error.
  */
 const Triple *triplestore_find(TripleState *state,
                                 const char *s, const char *p, const char *o);
+
+
+/**
+  Like triplestore_find(), but has two additional arguments.
+
+  If `literal` is non-zero the object will be considered to be a
+  literal, otherwise it is considered to be an URI.
+
+  If `lang` is not NULL, it must be a valid XML language abbreviation,
+  like "en". Only used if `literal` is non-zero.
+
+  If redland is not available, it is equivalent to triplestore_find().
+ */
+const Triple *triplestore_find2(TripleState *state,
+                                const char *s, const char *p, const char *o,
+                                int literal, const char *lang);
 
 
 #endif /* _TRIPLESTORE_H */

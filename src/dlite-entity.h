@@ -573,6 +573,9 @@ size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
 /**
   Returns a pointer to data corresponding to property with index `i`
   or NULL on error.
+
+  The returned pointer points to the actual data and should not be
+  dereferred for arrays.
  */
 void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i);
 
@@ -890,9 +893,20 @@ DLiteMeta *dlite_meta_get(const char *id);
 DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id);
 
 /**
+  Like dlite_instance_load_url(), but loads metadata instead.
+  Returns the metadata or NULL on error.
+ */
+DLiteMeta *dlite_meta_load_url(const char *url);
+
+/**
   Saves metadata `meta` to storage `s`.  Returns non-zero on error.
  */
 int dlite_meta_save(DLiteStorage *s, const DLiteMeta *meta);
+
+/**
+  Saves metadata `meta` to `url`.  Returns non-zero on error.
+ */
+int dlite_meta_save_url(const char *url, const DLiteMeta *meta);
 
 /**
   Returns index of dimension named `name` or -1 on error.
@@ -1011,6 +1025,61 @@ void dlite_property_free(DLiteProperty *prop);
  */
 int dlite_property_add_dim(DLiteProperty *prop, const char *expr);
 
+
+/**
+  Writes a string representation of data for property `p` to `dest`.
+
+  The pointer `ptr` should point to the memory where the data is stored.
+  The meaning and layout of the data is described by property `p`.
+  The actual sizes of the property dimension is provided by `dims`.  Use
+  dlite_instance_get_property_dims_by_index() or the DLITE_PROP_DIMS macro
+  for accessing `dims`.
+
+  No more than `n` bytes are written to `dest` (incl. the terminating
+  NUL).  Arrays will be written with a JSON-loke syntax.
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+ */
+int dlite_property_print(char *dest, size_t n, const void *ptr,
+                         const DLiteProperty *p, const size_t *dims,
+                         int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Like dlite_type_print(), but prints to allocated buffer.
+
+  Prints to position `pos` in `*dest`, which should point to a buffer
+  of size `*n`.  `*dest` is reallocated if needed.
+
+  Returns number or bytes written or a negative number on error.
+ */
+int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
+                          const DLiteProperty *p, const size_t *dims,
+                          int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Scans property from `src` and wite it to memory pointed to by `ptr`.
+
+  The property is described by `p`.
+
+  For arrays, `ptr` should points to the first element and will not be
+  not dereferenced.  Evaluated dimension sizes are given by `dims`.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
+
+  Returns number of characters consumed from `src` or a negative
+  number on error.
+ */
+int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
+                        const size_t *dims, DLiteTypeFlag flags);
 
 
 /** @} */

@@ -1,6 +1,9 @@
 # -*- Mode: cmake -*-
 project(dlite-tools C)
 
+# TODO - It would be preferable to link with the shared libraries.
+# How to do that without breaking the docker build?
+
 
 # dlite-getuuid
 add_executable(dlite-getuuid dlite-getuuid.c)

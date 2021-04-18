@@ -102,6 +102,15 @@ typedef enum _DLiteType {
 } DLiteType;
 
 
+/** Some flags for printing or scanning dlite types */
+typedef enum _DLiteTypeFlag {
+  dliteFlagDefault = 0,  /*!< Default */
+  dliteFlagRaw=1,        /*!< Raw unquoted input/output */
+  dliteFlagQuoted=2,     /*!< Quoted input/output */
+  dliteFlagStrip=3       /*!< Strip off initial and final spaces */
+} DLiteTypeFlag;
+
+
 /** Function prototype that copies value from `src` to `dest`.  If
     `dest_type` and `dest_size` differs from `src_type` and `src_size`
     the value will be casted, if possible.
@@ -176,7 +185,12 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
 bool dlite_is_type(const char *name);
 
 /**
-  Assigns `dtype` and `size` from `typename`.  Returns non-zero on error.
+  Assigns `dtype` and `size` from `typename`.
+
+  Characters other than alphanumerics or underscore may follow the
+  type name.
+
+  Returns non-zero on error.
 */
 int dlite_type_set_dtype_and_size(const char *typename,
                                   DLiteType *dtype, size_t *size);
@@ -219,8 +233,36 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
   have been written if `n` was large enough is returned.  On error, a
   negative value is returned.
  */
-int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
-			int width, int prec, char *dest, size_t n);
+int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
+                     size_t size, int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Like dlite_type_print(), but prints to allocated buffer.
+
+  Prints to position `pos` in `*dest`, which should point to a buffer
+  of size `*n`.  `*dest` is reallocated if needed.
+
+  Returns number or bytes written or a negative number on error.
+ */
+int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
+                      DLiteType dtype, size_t size, int width, int prec,
+                      DLiteTypeFlag flags);
+
+/**
+  Scans a value from `src` and write it to memory pointed to by `p`.
+
+  If `len` is non-negative, at most `len` bytes are read from `src`.
+
+  The type and size of the scanned data is described by `dtype` and `size`,
+  respectively.
+
+  For allocated types, the memory pointed to by `p` should either be
+  initialized to zero or contain valid data.
+
+  Returns number of characters consumed or -1 on error.
+ */
+int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
+                    size_t size, DLiteTypeFlag flags);
 
 /**
   Returns the struct alignment of the given type or 0 on error.

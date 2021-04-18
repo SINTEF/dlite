@@ -30,6 +30,11 @@ check_symbol_exists(_stricmp            string.h     HAVE__STRICMP)
 check_symbol_exists(strncasecmp         string.h     HAVE_STRNCASECMP)
 check_symbol_exists(_strnicmp           string.h     HAVE__STRNICMP)
 
+check_symbol_exists(asnprintf           stdio.h      HAVE_ASPRINTF)
+check_symbol_exists(vasnprintf          stdio.h      HAVE_VASPRINTF)
+check_symbol_exists(asnpprintf          stdio.h      HAVE_ASPPRINTF)
+check_symbol_exists(vasnpprintf         stdio.h      HAVE_VASPPRINTF)
+
 check_symbol_exists(setenv              stdlib.h     HAVE_SETENV)
 check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 
@@ -212,6 +217,7 @@ endif()
 set(sources
   compat.c
   err.c
+  strutils.c
   fileinfo.c
   fileutils.c
   execprocess.c
@@ -222,6 +228,7 @@ set(sources
   tgen.c
   tmpfileplus.c
   infixcalc.c
+  jsmn.c
 
   md5.c
   sha1.c

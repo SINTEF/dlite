@@ -282,6 +282,28 @@ endif()
 
 
 #
+# Redland
+# =======
+if(WITH_REDLAND)
+  find_package(Redland)
+  if(REDLAND_FOUND)
+    set(HAVE_REDLAND TRUE)
+
+    find_package(Rasqal REQUIRED)
+    if(RASQAL_FOUND)
+      set(HAVE_RASQAL TRUE)
+    endif()
+
+    find_package(Raptor REQUIRED)
+    if(RAPTOR_FOUND)
+      set(HAVE_RAPTOR TRUE)
+    endif()
+
+  endif()
+endif()
+
+
+#
 # Python
 # ======
 if(WITH_PYTHON)
@@ -455,10 +477,15 @@ if(WIN32)
   if(WITH_PYTHON)
     build_append(dlite_PATH ${dlite-src-pyembed_BINARY_DIR})
   endif()
-  list(APPEND dlite_PATH
-    ${JANSSON_RUNTIME_DIR}
-    ${HDF5_RUNTIME_DIR}
-    )
+  if(WITH_JSON)
+    list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
+  endif()
+  if(WITH_HDF5)
+    list(APPEND dlite_PATH ${HDF5_RUNTIME_DIR})
+  endif()
+  if(HAVE_REDLAND)
+    list(APPEND dlite_PATH ${REDLAND_RUNTIME_DIR})
+  endif()
 endif()
 list(REMOVE_DUPLICATES dlite_PATH)
 
@@ -471,10 +498,10 @@ build_append(dlite_LD_LIBRARY_PATH
 if(WITH_PYTHON)
   build_append(dlite_LD_LIBRARY_PATH ${dlite-src-pyembed_BINARY_DIR})
 endif()
-list(APPEND dlite_LD_LIBRARY_PATH
-  ${JANSSON_RUNTIME_DIR}
-  ${HDF5_RUNTIME_DIR}
-  )
+#list(APPEND dlite_LD_LIBRARY_PATH
+#  ${JANSSON_RUNTIME_DIR}
+#  ${HDF5_RUNTIME_DIR}
+#  )
 list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
@@ -492,6 +519,9 @@ if(WITH_JSON)
 endif()
 if(WITH_HDF5)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/hdf5)
+endif()
+if(HAVE_REDLAND)
+  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/rdf)
 endif()
 if(WITH_PYTHON)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/python)
@@ -618,6 +648,9 @@ if(WITH_HDF5)
 endif()
 if(WITH_JSON)
   add_subdirectory(storages/json)
+endif()
+if(HAVE_REDLAND)
+  add_subdirectory(storages/rdf)
 endif()
 if(WITH_PYTHON)
   add_subdirectory(storages/python)

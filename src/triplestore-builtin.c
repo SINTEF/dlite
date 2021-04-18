@@ -29,6 +29,9 @@
 #include "utils/map.h"
 #include "triplestore.h"
 
+#define UNUSED(x) (void)(x)
+
+
 
 /* Allocate triplestore memory in chunks of TRIPLESTORE_BUFFSIZE */
 #define TRIPLESTORE_BUFFSIZE 1024
@@ -60,6 +63,20 @@ TripleStore *triplestore_create()
 {
   TripleStore *ts = calloc(1, sizeof(TripleStore));
   return ts;
+}
+
+/*
+  Returns a new empty triplestore or NULL on error.
+ */
+TripleStore *triplestore_create_with_storage(const char *storage_name,
+                                             const char *name,
+                                             const char *options)
+{
+  UNUSED(storage_name);
+  UNUSED(name);
+  UNUSED(options);
+  warn("builtin triplestore does not support a storage");
+  return triplestore_create();
 }
 
 
@@ -384,4 +401,16 @@ const Triple *triplestore_find(TripleState *state,
       return t;
   }
   return NULL;
+}
+
+/*
+  Default implementation...
+ */
+const Triple *triplestore_find2(TripleState *state,
+                                const char *s, const char *p, const char *o,
+                                int literal, const char *lang)
+{
+  UNUSED(literal);
+  UNUSED(lang);
+  return triplestore_find(state, s, p, o);
 }
