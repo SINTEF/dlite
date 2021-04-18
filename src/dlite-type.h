@@ -25,7 +25,7 @@
   float     | dliteFloat     | 4, 8, {10, 16}         | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
   fixstring | dliteFixString | any                    | char *                        | fix-sized NUL-terminated string  | string20
   string    | dliteStringPtr | sizeof(char *)         | char **                       | pointer to NUL-terminated string | string
-  relation  | dliteRelation  | sizeof(DLiteRelation)  | DLiteRelation *               | subject-predicate-object triplet | relation
+  relation  | dliteRelation  | sizeof(DLiteRelation)  | DLiteRelation *               | subject-predicate-object triple  | relation
   dimension | dliteDimension | sizeof(DLiteDimension) | DLiteDimension *              | only intended for metadata       | dimension
   property  | dliteProperty  | sizeof(DLiteProperty)  | DLiteProperty *               | only intended for metadata       | property
 
@@ -57,8 +57,8 @@
       allocated with malloc().  If you free a string, you should always
       set the pointer to NULL, since functions like dlite_entity_free()
       otherwise will try to free it again, causing memory corruption.
-    - *relation*: a subject-predicate-object triplet defined in
-      `triplestore.h`.  In addition have all triplets an id, allowing
+    - *relation*: a subject-predicate-object triple defined in
+      `triplestore.h`.  In addition have all triples an id, allowing
       a relation to refer to another relation.
     - *dimension*: Name and description of a dimension.  Only intended
       for metadata.
@@ -83,7 +83,7 @@
 
 typedef struct _DLiteProperty  DLiteProperty;
 typedef struct _DLiteDimension DLiteDimension;
-typedef struct _Triplet        DLiteRelation;
+typedef struct _Triple         DLiteRelation;
 
 
 /** Basic data types */
@@ -100,6 +100,15 @@ typedef enum _DLiteType {
   dliteProperty,         /*!< Property, for entities */
   dliteRelation          /*!< Subject-predicate-object relation */
 } DLiteType;
+
+
+/** Some flags for printing or scanning dlite types */
+typedef enum _DLiteTypeFlag {
+  dliteFlagDefault = 0,  /*!< Default */
+  dliteFlagRaw=1,        /*!< Raw unquoted input/output */
+  dliteFlagQuoted=2,     /*!< Quoted input/output */
+  dliteFlagStrip=3       /*!< Strip off initial and final spaces */
+} DLiteTypeFlag;
 
 
 /** Function prototype that copies value from `src` to `dest`.  If
@@ -152,7 +161,7 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
   `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
 */
 int dlite_type_set_isoctype(DLiteType dtype, size_t size,
-                            char *isoctype, size_t n);                         
+                            char *isoctype, size_t n);
 
 /**
   Writes C declaration to `cdecl` of a C variable with given `dtype` and `size`.
@@ -176,7 +185,12 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
 bool dlite_is_type(const char *name);
 
 /**
-  Assigns `dtype` and `size` from `typename`.  Returns non-zero on error.
+  Assigns `dtype` and `size` from `typename`.
+
+  Characters other than alphanumerics or underscore may follow the
+  type name.
+
+  Returns non-zero on error.
 */
 int dlite_type_set_dtype_and_size(const char *typename,
                                   DLiteType *dtype, size_t *size);
@@ -219,8 +233,36 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size);
   have been written if `n` was large enough is returned.  On error, a
   negative value is returned.
  */
-int dlite_type_snprintf(const void *p, DLiteType dtype, size_t size,
-			int width, int prec, char *dest, size_t n);
+int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
+                     size_t size, int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Like dlite_type_print(), but prints to allocated buffer.
+
+  Prints to position `pos` in `*dest`, which should point to a buffer
+  of size `*n`.  `*dest` is reallocated if needed.
+
+  Returns number or bytes written or a negative number on error.
+ */
+int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
+                      DLiteType dtype, size_t size, int width, int prec,
+                      DLiteTypeFlag flags);
+
+/**
+  Scans a value from `src` and write it to memory pointed to by `p`.
+
+  If `len` is non-negative, at most `len` bytes are read from `src`.
+
+  The type and size of the scanned data is described by `dtype` and `size`,
+  respectively.
+
+  For allocated types, the memory pointed to by `p` should either be
+  initialized to zero or contain valid data.
+
+  Returns number of characters consumed or -1 on error.
+ */
+int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
+                    size_t size, DLiteTypeFlag flags);
 
 /**
   Returns the struct alignment of the given type or 0 on error.

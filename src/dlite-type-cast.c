@@ -154,8 +154,8 @@ static int istrue(const void *src, DLiteType type, size_t size)
 
 #define toFixString                                                     \
   do {                                                                  \
-    if (dlite_type_snprintf(src, src_type, src_size,                    \
-                            0, -2, dest, dest_size) < 0) goto fail;     \
+    if (dlite_type_print(dest, dest_size, src, src_type, src_size,      \
+                         0, -2, 0) < 0) goto fail;                      \
     return 0;                                                           \
   } while (0)
 
@@ -164,13 +164,13 @@ static int istrue(const void *src, DLiteType type, size_t size)
     int n, m;                                                           \
     char *p;                                                            \
     UNUSED(m);  /* m is unused if NDEBUG is non-zero */                 \
-    if ((n = dlite_type_snprintf(src, src_type, src_size,               \
-                                 0, -2, NULL, 0)) < 0) goto fail;       \
+    if ((n = dlite_type_print(NULL, 0, src, src_type, src_size,         \
+                              0, -2, 0)) < 0) goto fail;                \
     if (!(p = realloc(*(char **)dest, n + 1)))                          \
       FAIL("reallocation failure");                                     \
     *(char **)dest = p;                                                 \
-    m = dlite_type_snprintf(src, src_type, src_size,                    \
-                            0, -2, *(char **)dest, n+1);                \
+    m = dlite_type_print(*(char **)dest, n+1, src, src_type, src_size,  \
+                         0, -2, 0);                                     \
     assert(m == n);                                                     \
     return 0;                                                           \
   } while (0)

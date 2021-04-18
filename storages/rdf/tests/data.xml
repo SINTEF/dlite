@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:base="file:///home/friisj/Private/prosjekter/software/dlite/build/test-file.xml">
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:Entity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4">
+    <ns0:hasURI xmlns:ns0="dm:" rdf:resource="http://meta.sintef.no/0.1/test-entity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4">
+    <ns0:hasMeta xmlns:ns0="dm:" rdf:resource="http://meta.sintef.no/0.3/EntitySchema"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval0">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:DimensionValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4">
+    <ns0:hasFirstDimensionValue xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval0">
+    <ns0:hasIntegerValue xmlns:ns0="dm:" rdf:datatype="xsd:integer">3</ns0:hasIntegerValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval1">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:DimensionValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval0">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval1">
+    <ns0:hasIntegerValue xmlns:ns0="dm:" rdf:datatype="xsd:integer">6</ns0:hasIntegerValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval0">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4">
+    <ns0:hasFirstPropertyValue xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval0">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">test-entity</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval1">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval0">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval1">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">"0.1"</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval2">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval1">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval2">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">"http://meta.sintef.no"</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval3">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval2">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval3"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval3">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">"test entity with explicit meta"</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval4">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval3">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval4"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval4">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">[{"name": "L", "description": "first dim"}, {"name": "M", "description": "second dim"}, {"name": "N", "description": "third dim"}]</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval5">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval4">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval5">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">[{"name": "myblob", "type": "blob3", "ndims": 0}, {"name": "mydouble", "type": "float64", "ndims": 0, "unit": "m", "description": "A double following a single character..."}, {"name": "myfixstring", "type": "string3", "ndims": 0, "description": "A fix string."}, {"name": "mystring", "type": "string", "ndims": 0, "description": "A string pointer."}, {"name": "myshort", "type": "uint16", "ndims": 0, "description": "An unsigned short integer."}, {"name": "myarray", "type": "int32", "ndims": 3, "dims": ["L", "M", "N"], "description": "An array string pointer."}]</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:Object"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d">
+    <ns0:hasMeta xmlns:ns0="dm:" rdf:resource="http://meta.sintef.no/0.1/test-entity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval0">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:DimensionValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d">
+    <ns0:hasFirstDimensionValue xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval0">
+    <ns0:hasIntegerValue xmlns:ns0="dm:" rdf:datatype="xsd:integer">2</ns0:hasIntegerValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval1">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:DimensionValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval0">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval1">
+    <ns0:hasIntegerValue xmlns:ns0="dm:" rdf:datatype="xsd:integer">1</ns0:hasIntegerValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval2">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:DimensionValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval1">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval2">
+    <ns0:hasIntegerValue xmlns:ns0="dm:" rdf:datatype="xsd:integer">3</ns0:hasIntegerValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval0">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d">
+    <ns0:hasFirstPropertyValue xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval0">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">0a0010</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval1">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval0">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval1">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">3.14</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval2">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval1">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval2">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">"Al"</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval3">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval2">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval3"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval3">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">"allocated string..."</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval4">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval3">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval4"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval4">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">17</ns0:hasValue>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval5">
+    <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval4">
+    <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_propval5">
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">[[[1, 2, 3]], [[4, 5, 6]]]</ns0:hasValue>
+  </rdf:Description>
+</rdf:RDF>

@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #ifdef HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -374,7 +375,7 @@ int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec)
     if (iter.ind[N] == 0)
       for (; i >= 0; i--) fprintf(fp, " ");
     for (i=0; i<m; i++) fprintf(fp, "[");
-    dlite_type_snprintf(p, arr->type, arr->size, width, prec, buf, sizeof(buf));
+    dlite_type_print(buf, sizeof(buf), p, arr->type, arr->size, width, prec, 0);
     fprintf(fp, "%s%s", buf, sep);
     for (i=N; i >= 0 && iter.ind[i] == (int)arr->dims[i]-1; i--)
       fprintf(fp, "]");

@@ -32,7 +32,7 @@
     predicate `p` and object `o`.  If any of `s`, `p` or `o` are None, it
     works as a wildcard matching everything.
   ") next;
-  const struct _Triplet *find(const char *s=NULL, const char *p=NULL,
+  const struct _Triple *find(const char *s=NULL, const char *p=NULL,
                               const char *o=NULL) {
     return dlite_collection_find($self->coll, &$self->state, s, p, o);
   }
@@ -41,7 +41,7 @@
     Returns reference to the current instance or None if all instances have
     been visited.
   ") poll;
-  const struct _Triplet *poll(void) {
+  const struct _Triple *poll(void) {
     return triplestore_poll(&$self->state);
   }
 
@@ -121,8 +121,8 @@ Collection(url, lazy)
   void add_relation(const char *s, const char *p, const char *o) {
     dlite_collection_add_relation($self, s, p, o);
   }
-  void add_relation(const Triplet *t) {
-    triplestore_add_triplets($self->rstore, t, 1);
+  void add_relation(const Triple *t) {
+    triplestore_add_triples($self->rstore, t, 1);
   }
 
   %feature("docstring", "Returns reference to metadata.") get_meta;
@@ -154,7 +154,7 @@ Collection(url, lazy)
   `p` and object `o`.  If any of `s`, `p` and/or `o` are None, they works
   as a wildcard.
   ") find_first;
-  const struct _Triplet *find_first(const char *s=NULL, const char *p=NULL,
+  const struct _Triple *find_first(const char *s=NULL, const char *p=NULL,
                                     const char *o=NULL) {
     return dlite_collection_find_first($self, s, p, o);
   }
