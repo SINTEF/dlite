@@ -13,6 +13,7 @@
 #include "utils/compat.h"
 #include "utils/strtob.h"
 #include "utils/strutils.h"
+#include "utils/globmatch.h"
 #include "utils/err.h"
 
 #include "triplestore.h"
@@ -47,6 +48,11 @@ typedef struct {
   DLiteDataModel_HEAD
 } RdfDataModel;
 
+/** */
+typedef struct {
+  TripleState state;
+  char *pattern;
+} RdfIter;
 
 
 
@@ -440,44 +446,98 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
 }
 
 
+/*
+  Returns a new iterator over all instances in storage `s` who's metadata
+  URI matches `pattern`.
+
+  Returns NULL on error.
+ */
+void *rdf_iter_create(const DLiteStorage *storage, const char *pattern)
+{
+  RdfStorage *s = (RdfStorage *)storage;
+  TripleStore *ts = s->ts;
+  RdfIter *iter;
+  if (!(iter = calloc(1, sizeof(RdfIter))))
+    return err(1, "allocation failure"), NULL;
+  iter->pattern = (pattern) ? strdup(pattern) : NULL;
+  triplestore_init_state(ts, &iter->state);
+  return iter;
+}
+
+/*
+  Free's iterator created with IterCreate().
+ */
+void rdf_iter_free(void *iter)
+{
+  RdfIter *riter = iter;
+  if (riter->pattern) free(riter->pattern);
+  triplestore_deinit_state(&riter->state);
+  free(iter);
+}
+
+/*
+  Writes the UUID to buffer pointed to by `buf` of the next instance
+  in `iter`, where `iter` is an iterator created with IterCreate().
+
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
+ */
+int rdf_iter_next(void *iter, char *buf)
+{
+  RdfIter *riter = iter;
+  const Triple *t;
+  while (1) {
+    t = triplestore_find(&riter->state, NULL, _P ":hasMeta", NULL);
+    if (!t) return 1;
+    if (!riter->pattern) break;
+    if (globmatch(riter->pattern, t->o) == 0) break;
+  }
+  assert(t);
+  if (dlite_get_uuid(buf, t->o) < 0)
+    return err(-1, "cannot create uuid from '%s'", t->o);
+  return 0;
+}
+
+
+
 
 static DLiteStoragePlugin rdf_plugin = {
-  "rdf",
-  NULL,
+  "rdf",                                /* name */
+  NULL,                                 /* freeapi */
 
   /* basic api */
-  rdf_open,
-  rdf_close,
+  rdf_open,                             /* open */
+  rdf_close,                            /* close */
 
   /* queue api */
-  NULL,                                 /* iterCreate */
-  NULL,                                 /* iterNext */
-  NULL,                                 /* iterFree */
-  NULL, //dlite_rdf_get_uuids,
+  rdf_iter_create,                      /* iterCreate */
+  rdf_iter_next,                        /* iterNext */
+  rdf_iter_free,                        /* iterFree */
+  NULL,                                 /* getUUIDs */
 
   /* direct api */
   rdf_load_instance,                    /* loadInstance */
   rdf_save_instance,                    /* saveInstance */
 
   /* datamodel api */
-  NULL, //rdf_datamodel,                /* dataModel */
-  NULL, //dlite_rdf_datamodel_free,     /* dataModelFree */
+  NULL,                                 /* dataModel */
+  NULL,                                 /* dataModelFree */
 
-  NULL, //dlite_rdf_get_metadata,       /* getMetaURI */
-  NULL, //dlite_rdf_resolve_dimensions, /* resolveDimensions */
-  NULL, //dlite_rdf_get_dimension_size, /* getDimensionSize */
-  NULL, //dlite_rdf_get_property,       /* getProperty */
+  NULL,                                 /* getMetaURI */
+  NULL,                                 /* resolveDimensions */
+  NULL,                                 /* getDimensionSize */
+  NULL,                                 /* getProperty */
 
   /* -- datamodel api (optional) */
-  NULL, //dlite_rdf_set_metadata,       /* setMetaURI */
-  NULL, //dlite_rdf_set_dimension_size, /* setDimensionSize */
-  NULL, //dlite_rdf_set_property,       /* setProperty */
+  NULL,                                 /* setMetaURI */
+  NULL,                                 /* setDimensionSize */
+  NULL,                                 /* setProperty */
 
-  NULL, //dlite_rdf_has_dimension,      /* hasDimension */
-  NULL, //dlite_rdf_has_property,       /* hasProperty */
+  NULL,                                 /* hasDimension */
+  NULL,                                 /* hasProperty */
 
-  NULL, //dlite_rdf_get_dataname,       /* getDataName */
-  NULL, //dlite_rdf_set_dataname,       /* setDataName */
+  NULL,                                 /* getDataName */
+  NULL,                                 /* setDataName */
 
   /* internal data */
   NULL                                  /* data */

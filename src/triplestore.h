@@ -225,9 +225,27 @@ const Triple *triplestore_poll(TripleState *state);
 
   No other calls to triplestore_add() or triplestore_find() should be
   done while searching.
+
+  NULL is also returned on error.
  */
 const Triple *triplestore_find(TripleState *state,
                                 const char *s, const char *p, const char *o);
+
+
+/**
+  Like triplestore_find(), but has two additional arguments.
+
+  If `literal` is non-zero the object will be considered to be a
+  literal, otherwise it is considered to be an URI.
+
+  If `lang` is not NULL, it must be a valid XML language abbreviation,
+  like "en". Only used if `literal` is non-zero.
+
+  If redland is not available, it is equivalent to triplestore_find().
+ */
+const Triple *triplestore_find2(TripleState *state,
+                                const char *s, const char *p, const char *o,
+                                int literal, const char *lang);
 
 
 #endif /* _TRIPLESTORE_H */

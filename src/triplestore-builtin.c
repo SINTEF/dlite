@@ -402,3 +402,15 @@ const Triple *triplestore_find(TripleState *state,
   }
   return NULL;
 }
+
+/*
+  Default implementation...
+ */
+const Triple *triplestore_find2(TripleState *state,
+                                const char *s, const char *p, const char *o,
+                                int literal, const char *lang)
+{
+  UNUSED(literal);
+  UNUSED(lang);
+  return truplestore_find(state, s, p, o);
+}

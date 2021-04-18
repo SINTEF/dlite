@@ -9,11 +9,9 @@
 DLiteInstance *inst=NULL;
 DLiteMeta *meta=NULL;
 
-#define TEST_LOAD
 
 
-
-#ifndef TEST_LOAD
+/*
 MU_TEST(test_load)
 {
   char *url;
@@ -26,18 +24,14 @@ MU_TEST(test_load)
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 }
-
-#else
+*/
 
 
 MU_TEST(test_load)
 {
   int stat;
   char *loc = STRINGIFY(dlite_SOURCE_DIR) "/storages/rdf/tests/data.xml";
-  DLiteStorage *s = dlite_storage_open("rdf", loc,
-                                       "mode=r"
-                                       ";store=file");
-                                       //";base-uri=case1");
+  DLiteStorage *s = dlite_storage_open("rdf", loc, "mode=r;store=file");
   mu_check(s);
 
   inst = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
@@ -50,7 +44,7 @@ MU_TEST(test_load)
   mu_assert_int_eq(0, stat);
 }
 
-#endif
+
 
 
 MU_TEST(test_write)
@@ -63,6 +57,41 @@ MU_TEST(test_write)
   mu_assert_int_eq(0, dlite_instance_save(s, (DLiteInstance *)meta));
   mu_assert_int_eq(0, dlite_instance_save(s, inst));
   mu_assert_int_eq(0, dlite_storage_close(s));
+}
+
+
+MU_TEST(test_iter)
+{
+  int stat;
+  void *iter;
+  char buf[DLITE_UUID_LENGTH+1];
+  char *loc = STRINGIFY(dlite_SOURCE_DIR) "/storages/rdf/tests/data.xml";
+  DLiteStorage *s = dlite_storage_open("rdf", loc, "mode=r;store=file");
+  mu_check(s);
+
+  iter = dlite_storage_iter_create(s, NULL);
+  printf("\n\nAll instances:\n");
+  while (dlite_storage_iter_next(s, iter, buf) == 0)
+    printf("- %s\n", buf);
+  printf("\n");
+  dlite_storage_iter_free(s, iter);
+
+  iter = dlite_storage_iter_create(s, "*Schema");
+  printf("Metadata:\n");
+  while (dlite_storage_iter_next(s, iter, buf) == 0)
+    printf("- %s\n", buf);
+  printf("\n");
+  dlite_storage_iter_free(s, iter);
+
+  iter = dlite_storage_iter_create(s, "http://*");
+  printf("Starts with http:\n");
+  while (dlite_storage_iter_next(s, iter, buf) == 0)
+    printf("- %s\n", buf);
+  printf("\n");
+  dlite_storage_iter_free(s, iter);
+
+  stat = dlite_storage_close(s);
+  mu_assert_int_eq(0, stat);
 }
 
 
@@ -79,6 +108,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_write);
+  MU_RUN_TEST(test_iter);
   MU_RUN_TEST(test_freedata);
 }
 
