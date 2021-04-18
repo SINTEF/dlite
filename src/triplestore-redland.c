@@ -156,32 +156,49 @@ static librdf_stream *find(TripleStore *ts, const char *s, const char *p,
 }
 
 
-/* Assign triple `t` from RDF `statement`.  Returns non-zero on error. */
+/*
+  Assign triple `t` from RDF `statement`.
+
+  The s-p-o-id pointers in `t` must either be NULL or points to
+  allocated strings.  In the latter case they will be freed and
+  new memory reallocated.
+
+  Returns non-zero on error.
+*/
 static int assign_triple_from_statement(Triple *t,
                                          librdf_statement *statement)
 {
   librdf_node *node;
-  t->s = (char *)
-    librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_subject(statement)));
-
-  t->p = (char *)
-    librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_predicate(statement)));
-
+  unsigned char *s=NULL, *p=NULL, *o=NULL;
+  errno = 0;
+  s = librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_subject(statement)));
+  p = librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_predicate(statement)));
   node = librdf_statement_get_object(statement);
   switch (librdf_node_get_type(node)) {
   case LIBRDF_NODE_TYPE_UNKNOWN:
     return err(1, "unknown node type");
   case LIBRDF_NODE_TYPE_RESOURCE:
-    t->o = (char *)librdf_uri_to_string(librdf_node_get_uri(node));
+    o = librdf_uri_to_string(librdf_node_get_uri(node));
     break;
   case LIBRDF_NODE_TYPE_LITERAL:
-    t->o = (char *)librdf_node_get_literal_value(node);
+    o = librdf_node_get_literal_value(node);
+    if (o) o = (unsigned char *)strdup((char *)o);
     break;
   case LIBRDF_NODE_TYPE_BLANK:
-    t->o = (char *)librdf_node_get_blank_identifier(node);
+    o = librdf_node_get_blank_identifier(node);
+    if (o) o = (unsigned char *)strdup((char *)o);
     break;
   }
-  return 0;
+  if (s && p && o) {
+    if (t->s) free(t->s);
+    if (t->p) free(t->p);
+    if (t->o) free(t->o);
+    t->s = (char *)s;
+    t->p = (char *)p;
+    t->o = (char *)o;
+    return 0;
+  }
+  return err(1, "error in assign_triple_from_statement");
 }
 
 
@@ -349,8 +366,6 @@ TripleStore *triplestore_create()
  */
 void triplestore_free(TripleStore *ts)
 {
-  //librdf_storage *storage = librdf_model_get_storage(ts->model);
-  //assert(storage);
   assert(nmodels > 0);
   nmodels--;
   librdf_free_storage(ts->storage);
@@ -359,6 +374,9 @@ void triplestore_free(TripleStore *ts)
   if (ts->name)          free((char *)ts->name);
   if (ts->options)       free((char *)ts->options);
   if (ts->ns)            free((char *)ts->ns);
+  if (ts->triple.s)      free(ts->triple.s);
+  if (ts->triple.p)      free(ts->triple.p);
+  if (ts->triple.o)      free(ts->triple.o);
   free(ts);
   finalize_check();
 }

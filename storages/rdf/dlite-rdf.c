@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "utils/compat.h"
 #include "utils/strtob.h"
+#include "utils/strutils.h"
 #include "utils/err.h"
 
 #include "triplestore.h"
@@ -156,8 +157,24 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
     FAIL1("invalid \"mode\" value: '%s'. Must be \"w\" (writable) "
           "or \"r\" (read-only) ", mode);
   }
+  if (!s->base_uri && (strcmp(s->store, "file") == 0 ||
+                       strcmp(s->store, "hashes") == 0 ||
+                       strcmp(s->store, "sqlite") == 0))
+    s->base_uri = strdup(_P);
+
+  /* if read-only, check that storage file exists for file-based storages */
+  if (!s->writable) {
+    if (strcmp(s->store, "file") == 0) {
+      FILE *fp;
+      if (!(fp = fopen(uri, "r"))) FAIL1("cannot open storage: %s", uri);
+      fclose(fp);
+    }
+  }
+
+  /* create triplestore */
   if (!(s->ts = triplestore_create_with_storage(s->store, uri, opt))) goto fail;
   triplestore_set_namespace(s->ts, s->base_uri);
+
   retval = (DLiteStorage *)s;
  fail:
   if (optcopy) free(optcopy);
@@ -223,14 +240,110 @@ int rdf_close(DLiteStorage *storage)
 }
 
 
-/**
-  Stores instance `inst` to `storage`.  Returns non-zero on error.
- */
-DLiteInstance *rdf_load_instance(const DLiteStorage *s, const char *uuid)
+/* Returns pointer to object corresponding to subject `s` and predicate `p`
+   or NULL on error. */
+static const char *getobj(RdfStorage *rdf, const char *s, const char *p)
 {
-  UNUSED(s);
-  UNUSED(uuid);
-  return NULL;
+  TripleStore *ts = rdf->ts;
+  const Triple *t;
+  if (!(t = triplestore_find_first(ts, s, p, NULL)))
+    return err(1, "missing s='%s' p='%s': %s", s, p, rdf->location), NULL;
+  return t->o;
+}
+
+
+/*
+  Loads instance from storage `s`.  Returns non-zero on error.
+ */
+DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
+{
+  RdfStorage *s = (RdfStorage *)storage;
+  TripleStore *ts = s->ts;
+  TripleState state;
+  const Triple *t=NULL, *t2;
+  DLiteInstance *inst=NULL;
+  DLiteMeta *meta;
+  size_t i, size=0, *dims=NULL;
+  int ok=0;
+  char uuid[DLITE_UUID_LENGTH+1], muuid[DLITE_UUID_LENGTH+1];
+  char *pid=NULL, *mid=NULL, *buf=NULL;
+
+  errno = 0;
+  dlite_get_uuid(uuid, id);
+  pid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, uuid) : NULL;
+
+  triplestore_init_state(ts, &state);
+  while ((t2 = triplestore_find(&state, pid, _P ":hasMeta", NULL))) {
+    if (t) FAIL1("UUID must be provided if storage holds "
+                 "more than one instance: %s", s->location);
+    t = t2;
+  }
+  if (!t) FAIL2("no instance with UUID %s in store: %s", pid, s->location);
+
+  /* get/load metadata */
+  dlite_get_uuid(muuid, t->o);
+  mid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, muuid) : NULL;
+  if (!(meta = dlite_meta_get(muuid)) &&
+      !(meta = dlite_meta_load(storage, muuid)))
+    FAIL1("cannot load metadata: '%s'", t->o);
+
+  /* allocate and read dimension values */
+  if (meta->_ndimensions) {
+    const char *dim, *val;
+    if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
+      FAIL("allocation failure");
+    /* read first dimension value */
+    if (!(dim = getobj(s, pid, _P ":hasFirstDimensionValue"))) goto fail;
+    if (strput(&buf, &size, 0, dim) < 0) FAIL("allocation failure");
+    if (!(val = getobj(s, buf, _P ":hasIntegerValue"))) goto fail;
+    dims[0] = strtol(val, NULL, 0);
+    /* read remaining dimension values */
+    for (i=1; i<meta->_ndimensions; i++) {
+      if (!(dim = getobj(s, buf, _P ":hasNextElement"))) goto fail;
+      if (strput(&buf, &size, 0, dim) < 0) FAIL("allocation failure");
+      if (!(val = getobj(s, buf, _P ":hasIntegerValue"))) goto fail;
+      dims[i] = strtol(t->o, NULL, 0);
+    }
+  }
+
+  if (!(inst = dlite_instance_create(meta, dims, (id) ? id : uuid))) goto fail;
+
+  /* read first property value */
+  if (meta->_nproperties) {
+    const char *prop, *val;
+    void *ptr;
+    DLiteProperty *p = meta->_properties;
+    size_t *pdims = DLITE_PROP_DIMS(inst, 0);
+    if (!(prop = getobj(s, pid, _P ":hasFirstPropertyValue"))) goto fail;
+    if (strput(&buf, &size, 0, prop) < 0) FAIL("allocation failure");
+    if (!(val = getobj(s, buf, _P ":hasValue"))) goto fail;
+    ptr = dlite_instance_get_property_by_index(inst, 0);
+    if (dlite_property_scan(val, ptr, p, pdims, 0) < 0) goto fail;
+
+    /* read remaining property values */
+    for (i=1; i < meta->_nproperties; i++) {
+      p = meta->_properties + i;
+      pdims = DLITE_PROP_DIMS(inst, i);
+      if (!(prop = getobj(s, buf, _P ":hasNextElement"))) goto fail;
+      if (strput(&buf, &size, 0, prop) < 0) FAIL("allocation failure");
+      if (!(val = getobj(s, buf, _P ":hasValue"))) goto fail;
+      ptr = dlite_instance_get_property_by_index(inst, i);
+      if (dlite_property_scan(t->o, ptr, p, pdims, 0) < 0) goto fail;
+    }
+  }
+
+  if (!inst->uri && (t = triplestore_find_first(ts, pid, _P ":hasURI", NULL)))
+    inst->uri = strdup(t->o);
+
+  ok = 1;
+ fail:
+  if (pid) free(pid);
+  if (mid) free(mid);
+  if (buf) free(buf);
+  if (dims) free(dims);
+  if (!ok && inst) dlite_instance_decref(inst);
+  triplestore_deinit_state(&state);
+  return (ok) ? inst : NULL;
 }
 
 /**
@@ -281,7 +394,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
                      1, NULL, "xsd:integer");
   }
   for (i=1; i < inst->meta->_ndimensions; i++) {
-    asnprintf(&buff, &buffsize, "%s#_dimval%d", inst->uuid, i);
+    asnprintf(&buff, &buffsize, "%s#_dimval%zu", inst->uuid, i);
     b2 = get_blank_node(ts, buff);
     triplestore_add_uri(ts, b2, "rdf:type", _P ":DimensionValue");
     triplestore_add_uri(ts, b1, _P ":hasNextElement", b2);
@@ -309,7 +422,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
   for (i=1; i < inst->meta->_nproperties; i++) {
     const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, i);
     const void *ptr = dlite_instance_get_property_by_index(inst, i);
-    asnprintf(&buff, &buffsize, "%s#_propval%d", inst->uuid, i);
+    asnprintf(&buff, &buffsize, "%s#_propval%zu", inst->uuid, i);
     b2 = get_blank_node(ts, buff);
     triplestore_add_uri(ts, b2, "rdf:type", _P ":PropertyValue");
     triplestore_add_uri(ts, b1, _P ":hasNextElement", b2);

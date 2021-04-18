@@ -9,8 +9,12 @@
 DLiteInstance *inst=NULL;
 DLiteMeta *meta=NULL;
 
+#define TEST_LOAD
 
-MU_TEST(test_loaddata)
+
+
+#ifndef TEST_LOAD
+MU_TEST(test_load)
 {
   char *url;
   url="json://"STRINGIFY(dlite_SOURCE_DIR)"/src/tests/test-entity.json?mode=r";
@@ -23,13 +27,37 @@ MU_TEST(test_loaddata)
   mu_check(inst);
 }
 
+#else
+
+
+MU_TEST(test_load)
+{
+  int stat;
+  char *loc = STRINGIFY(dlite_SOURCE_DIR) "/storages/rdf/tests/data.xml";
+  DLiteStorage *s = dlite_storage_open("rdf", loc,
+                                       "mode=r"
+                                       ";store=file");
+                                       //";base-uri=case1");
+  mu_check(s);
+
+  inst = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+  mu_check(inst);
+
+  meta = (DLiteMeta *)inst->meta;
+  mu_check(meta);
+
+  stat = dlite_storage_close(s);
+  mu_assert_int_eq(0, stat);
+}
+
+#endif
+
 
 MU_TEST(test_write)
 {
   DLiteStorage *s = dlite_storage_open("rdf", "test-file.xml",
                                        "mode=w;"
                                        "store=file;"
-                                       "base-uri=case1;"
                                        "filename=-");
   mu_check(s);
   mu_assert_int_eq(0, dlite_instance_save(s, (DLiteInstance *)meta));
@@ -45,15 +73,12 @@ MU_TEST(test_freedata)
 }
 
 
-
 /***********************************************************************/
 
 MU_TEST_SUITE(test_suite)
 {
-  MU_RUN_TEST(test_loaddata);
-
+  MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_write);
-
   MU_RUN_TEST(test_freedata);
 }
 
