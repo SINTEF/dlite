@@ -738,6 +738,12 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst,
                                    const char *newid);
 
 /**
+  Returns a malloc'ed SHA-1 hash string for instance `inst` or NULL on error.
+ */
+char *dlite_instance_get_hash(const DLiteInstance *inst);
+
+
+/**
   Returns a new DLiteArray object for property number `i` in instance `inst`.
 
   `order` can be 'C' for row-major (C-style) order and 'F' for column-manor

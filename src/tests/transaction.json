@@ -1,0 +1,60 @@
+{
+  "name": "test-transaction",
+  "version": "0.1",
+  "namespace": "http://meta.sintef.no",
+  "parent_id": null,
+  "parent_hash": null,
+  "meta": "http://meta.sintef.no/0.1/TransactionSchema",
+  "description": "test transaction",
+  "dimensions": [
+    {
+      "name": "L",
+      "description": "first dim"
+    },
+    {
+      "name": "M",
+      "description": "second dim"
+    },
+    {
+      "name": "N",
+      "description": "third dim"
+    }
+  ],
+  "properties": [
+    {
+      "name": "myblob",
+      "type": "blob3"
+    },
+    {
+      "name": "mydouble",
+      "type": "double",
+      "unit": "m",
+      "description": "A double following three bytes."
+    },
+    {
+      "name": "myfixstring",
+      "type": "string3",
+      "description": "A fix string."
+    },
+    {
+      "name": "mystring",
+      "type": "string",
+      "description": "A string pointer."
+    },
+    {
+      "name": "myshort",
+      "type": "uint16",
+      "description": "An unsigned short integer."
+    },
+    {
+      "name": "myarray",
+      "type": "int",
+      "dims": [
+        "L",
+        "M",
+        "N"
+      ],
+      "description": "An array of integers."
+    }
+  ]
+}

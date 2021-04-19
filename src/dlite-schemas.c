@@ -3,6 +3,7 @@
 
 #include "dlite.h"
 #include "dlite-collection.h"
+#include "dlite-transaction.h"
 #include "dlite-schemas.h"
 
 
@@ -419,8 +420,176 @@ static struct _CollectionEntity {
 
 
 
+/***********************************************************
+ * transaction_schema
+ ***********************************************************/
+static DLiteDimension transaction_schema_dimensions[] = {
+  {"ndimensions", "Number of dimensions."},
+  {"nproperties", "Number of properties."}
+};
+static char *transaction_schema_prop_dimensions_dims[] = {"ndimensions"};
+static char *transaction_schema_prop_properties_dims[] = {"nproperties"};
+static DLiteProperty transaction_schema_properties[] = {
+  {
+   "name",                                    /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Transaction name."                        /* description */
+  },
+  {
+   "version",                                 /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Transaction version."                     /* description */
+  },
+  {
+   "namespace",                               /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Transaction namespace."                   /* description */
+  },
+  {
+   "parent_id",                               /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Id of parent transaction."                /* description */
+  },
+  {
+   "parent_hash",                             /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Hash value of parent transaction."        /* description */
+  },
+  {
+   "description",                             /* name */
+   dliteStringPtr,                            /* type */
+   sizeof(char *),                            /* size */
+   0,                                         /* ndims */
+   NULL,                                      /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Description of transaction."              /* description */
+  },
+  {
+   "dimensions",                              /* name */
+   dliteDimension,                            /* type */
+   sizeof(DLiteDimension),                    /* size */
+   1,                                         /* ndims */
+   transaction_schema_prop_dimensions_dims,   /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Transaction dimensions."                  /* description */
+  },
+  {
+   "properties",                              /* name */
+   dliteProperty,                             /* type */
+   sizeof(DLiteProperty),                     /* size */
+   1,                                         /* ndims */
+   transaction_schema_prop_properties_dims,   /* dims */
+   NULL,                                      /* unit */
+   NULL,                                      /* iri */
+   "Transaction properties."                  /* description */
+  }
+};
+static struct _TransactionSchema {
+  /* -- header */
+  DLiteMeta_HEAD
+  /* -- length of each dimension */
+  size_t ndimensions;
+  size_t nproperties;
+  size_t nrelations;
+  /* -- value of each property */
+  char *name;
+  char *version;
+  char *namespace;
+  char *description;
+  DLiteDimension *dimensions;
+  DLiteProperty  *properties;
+  DLiteRelation  *relation;
+  /* -- value of each relation */
+  /* -- array property dimension values */
+  size_t __propdims[3];
+  /* -- array of first property dimension  */
+  size_t __propdiminds[8];
+  /* -- array of memory offsets to each instance property */
+  size_t __propoffsets[8];
+} transaction_schema = {
+  /* -- header */
+  "dd4a20a7-a110-561b-9710-90cccdb4d9d6",     /* uuid (corresponds to uri) */
+  DLITE_TRANSACTION_SCHEMA,                   /* uri */
+  1,                                          /* refcount, never free */
+  (DLiteMeta *)&basic_metadata_schema,        /* meta */
+  NULL,                                       /* iri */
+
+  2,                                          /* _ndimensions */
+  8,                                          /* _nproperties */
+  0,                                          /* _nrelations */
+
+  transaction_schema_dimensions,              /* _dimensions */
+  transaction_schema_properties,              /* _properties */
+  NULL,                                       /* _relations */
+
+  0,                                          /* _headersize */
+  dlite_transaction_init,                     /* _init */
+  dlite_transaction_deinit,                   /* _deinit */
+  NULL,                                       /* _getdim */
+  NULL,                                       /* _setdim */
+  NULL,                                       /* _loadprop */
+  NULL,                                       /* _saveprop */
+
+  0,                                          /* _npropdims */
+  NULL,                                       /* _propdiminds */
+
+  0,                                          /* _dimoffset */
+  NULL,                                       /* _propoffsets */
+  0,                                          /* _reloffset */
+  0,                                          /* _propdimofset */
+  0,                                          /* _propdimindsofset */
+  /* -- length of each dimention */
+  2,                                          /* ndimensions */
+  8,                                          /* nproperties */
+  0,                                          /* nrelations */
+  /* -- value of each property */
+  "TransactionSchema",                        /* name */
+  "0.1",                                      /* version */
+  "http://meta.sintef.no",                    /* namespace */
+  "Meta-metadata description of transaction.",/* description */
+  transaction_schema_dimensions,              /* dimensions */
+  transaction_schema_properties,              /* properties */
+  NULL,                                       /* relations */
+  /* -- value of each relation */
+  /* -- array property dimension values */
+  {0, 0, 0},                                  /* __propdims */
+  /* -- array of first property dimension */
+  {0, 0, 0, 0, 0, 0, 0, 0},                   /* __propdiminds */
+  /* -- array of memory offsets to each instance property */
+  {0, 0, 0, 0, 0, 0, 0, 0}                    /* __propoffsets */
+};
+
+
+
 /**************************************************************
- * Exposed pointers to schemas
+ * Functions returning a pointer to above static schemas
  **************************************************************/
 
 /* Forward declaration */
@@ -445,4 +614,9 @@ const DLiteMeta *dlite_get_collection_entity()
   if (!collection_entity._headersize)
     dlite_meta_init((DLiteMeta *)&collection_entity);
   return (DLiteMeta *)&collection_entity;
+}
+
+const DLiteMeta *dlite_get_transaction_schema()
+{
+  return (DLiteMeta *)&transaction_schema;
 }

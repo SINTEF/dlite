@@ -32,6 +32,7 @@ set(sources
   dlite-schemas.c
   dlite-entity.c
   dlite-collection.c
+  dlite-transaction.c
   dlite-storage.c
   dlite-storage-plugins.c
   dlite-mapping.c

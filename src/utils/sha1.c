@@ -11,11 +11,16 @@ A million repetitions of "a"
   34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
 */
 /*
- * Minor modifications by Jesper Friis (2017)
+ * 2017 - Minor modifications by Jesper Friis, SINTEF
+ * 2020 - Added SHA1String(), Jesper Friis, SINTEF
  */
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
+#include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "sha1.h"
@@ -45,6 +50,7 @@ A million repetitions of "a"
 #define R2(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0x6ED9EBA1+rol(v,5);w=rol(w,30);
 #define R3(v,w,x,y,z,i) z+=(((w|x)&y)|(w&x))+blk(i)+0x8F1BBCDC+rol(v,5);w=rol(w,30);
 #define R4(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0xCA62C1D6+rol(v,5);w=rol(w,30);
+
 
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
@@ -287,4 +293,20 @@ void SHA1(
         SHA1Update(&ctx, (const unsigned char*)str + ii, 1);
     SHA1Final((unsigned char *)hash_out, &ctx);
     hash_out[20] = '\0';
+}
+
+
+/* Convenience function. Returns malloc'ed digest as a NUL-terminated
+   hex string. */
+char *SHA1String(
+    SHA1_CTX *context)
+{
+    int i, n=0;
+    unsigned char digest[20];
+    char *hex = malloc(41);
+    assert(hex);
+    SHA1Final(digest, context);
+    for (i=0; i<20; i++)
+      n += snprintf(hex+n, 41-n, "%02x", digest[i]);
+    return hex;
 }
