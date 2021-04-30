@@ -30,6 +30,11 @@ check_symbol_exists(_stricmp            string.h     HAVE__STRICMP)
 check_symbol_exists(strncasecmp         string.h     HAVE_STRNCASECMP)
 check_symbol_exists(_strnicmp           string.h     HAVE__STRNICMP)
 
+check_symbol_exists(asnprintf           stdio.h      HAVE_ASPRINTF)
+check_symbol_exists(vasnprintf          stdio.h      HAVE_VASPRINTF)
+check_symbol_exists(asnpprintf          stdio.h      HAVE_ASPPRINTF)
+check_symbol_exists(vasnpprintf         stdio.h      HAVE_VASPPRINTF)
+
 check_symbol_exists(setenv              stdlib.h     HAVE_SETENV)
 check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 
@@ -91,34 +96,34 @@ int main(void) { return 0; }" HAVE_WIN32_THREAD_LOCAL_STORAGE)
 
 check_c_source_compiles("
 #define F(x, ...) f(x, __VA_ARGS__)
-void f(int a, ...) { }
+int f(int a, int b) { return a + b; }
 int main(void) { F(1, 2); return 0; }
 " HAVE___VA_ARGS__)
 
 check_c_source_compiles("
 #define F(x, ...) f(x, __VA_ARGS__)
-void f(int a, ...) { }
+int f(int a) { return a; }
 int main(void) { F(1); return 0; }
 " HAVE_EXT__VA_ARGS__)
 
 check_c_source_compiles("
 #define F(x, ...) f(x, ##__VA_ARGS__)
-void f(int a, ...) { }
+int f(int a) { return a; }
 int main(void) { F(1); return 0; }
 " HAVE_EXT2__VA_ARGS__)
 
 check_c_source_compiles("
 #define F(x, ...) f(x __VA_OPT__(,) __VA_ARGS__)
-void f(int a, ...) { }
+int f(int a) { return a; }
 int main(void) { F(1); return 0; }
 " HAVE___VA_OPT__)
 
 check_c_source_compiles("
-int main(void) { char *f = __func__; return 0; }
+int main(void) { const char *f = __func__; (void)(f); return 0; }
 " HAVE___FUNC__)
 
 check_c_source_compiles("
-int main(void) { char *f = __FUNCTION__; return 0; }
+int main(void) { const char *f = __FUNCTION__; (void)(f); return 0; }
 " HAVE___FUNCTION__)
 
 
@@ -214,6 +219,7 @@ endif()
 set(sources
   compat.c
   err.c
+  strutils.c
   fileinfo.c
   fileutils.c
   execprocess.c
@@ -224,6 +230,7 @@ set(sources
   tgen.c
   tmpfileplus.c
   infixcalc.c
+  jsmn.c
 
   md5.c
   sha1.c

@@ -22,11 +22,9 @@
 int dlite_collection_init(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
-
-  /* Initialise tripletstore */
-  coll->rstore =
-    triplestore_create_external(&coll->relations, &coll->nrelations,
-                                NULL, NULL);
+  assert(coll->nrelations == 0);
+  assert(coll->relations == NULL);
+  coll->rstore = triplestore_create();
   return 0;
 }
 
@@ -54,6 +52,43 @@ int dlite_collection_deinit(DLiteInstance *inst)
   return 0;
 }
 
+/* Returns size of dimension number `i` or -1 on error. */
+int dlite_collection_getdim(const DLiteInstance *inst, size_t i)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  if (i != 0) return err(-1, "index out of range: %zu", i);
+  return triplestore_length(coll->rstore);
+}
+
+/* Loads instance relations to triplestore.  Returns -1 on error. */
+int dlite_collection_loadprop(const DLiteInstance *inst, size_t i)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  if (i != 0) return err(-1, "index out of range: %zu", i);
+  triplestore_clear(coll->rstore);
+  if (triplestore_add_triples(coll->rstore, coll->relations, coll->nrelations))
+    return -1;
+  return 0;
+}
+
+/* Saves triplestore to instance relations. Returns non-zero on error. */
+int dlite_collection_saveprop(DLiteInstance *inst, size_t i)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  TripleState state;
+  const Triple *t;
+  size_t n = 0;
+  if (i != 0) return err(-1, "index out of range: %zu", i);
+  triplestore_init_state(coll->rstore, &state);
+  while ((t = triplestore_next(&state))) {
+    assert(n < coll->nrelations);
+    triple_copy(coll->relations + n, t);
+    n++;
+  }
+  triplestore_deinit_state(&state);
+  return 0;
+}
+
 /*
   Returns a new collection with given id.  If `id` is NULL, a new
   random uuid is generated.
@@ -65,8 +100,8 @@ int dlite_collection_deinit(DLiteInstance *inst)
  */
 DLiteCollection *dlite_collection_create(const char *id)
 {
-  DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_SCHEMA);
-  size_t dims[] = {0, 4};
+  DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_ENTITY);
+  size_t dims[] = {0};
   return (DLiteCollection *)dlite_instance_create(meta, dims, id);
 }
 
@@ -101,7 +136,7 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
 {
   DLiteCollection *coll;
   DLiteCollectionState state;
-  const Triplet *t, *t2;
+  const Triple *t, *t2;
 
   if (!(coll = (DLiteCollection *)dlite_instance_load(s, id)))
     return NULL;
@@ -116,7 +151,7 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
     if (!(t2 = dlite_collection_find_first(coll, t->s, "_has-meta", NULL)))
       FAIL1("collection inconsistency - no \"_has-meta\" relation for "
            "instance: %s", t->s);
-    if (strcmp(t2->o, DLITE_COLLECTION_SCHEMA) == 0) {
+    if (strcmp(t2->o, DLITE_COLLECTION_ENTITY) == 0) {
       if (!dlite_collection_load(s, t->o, 0)) goto fail;
     } else {
       if (!dlite_instance_load(s, t->o)) goto fail;
@@ -164,12 +199,12 @@ int dlite_collection_save(DLiteCollection *coll, DLiteStorage *s)
 {
   DLiteCollectionState state;
   DLiteInstance *inst;
-  const DLiteMeta *schema = dlite_get_collection_schema();
+  const DLiteMeta *e = dlite_get_collection_entity();
   int stat=0;
   if ((stat = dlite_instance_save(s, (DLiteInstance *)coll))) return stat;
   dlite_collection_init_state(coll, &state);
   while ((inst = dlite_collection_next(coll, &state))) {
-    if (inst->meta == schema)
+    if (inst->meta == e)
       stat |= dlite_collection_save((DLiteCollection *)inst, s);
     else
       stat |= dlite_instance_save(s, inst);
@@ -205,8 +240,10 @@ int dlite_collection_save_url(DLiteCollection *coll, const char *url)
 int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
                                   const char *p, const char *o)
 {
-  triplestore_add(coll->rstore, s, p, o);
-  return 0;
+  int stat = triplestore_add(coll->rstore, s, p, o);
+  if (!stat)
+    DLITE_PROP_DIM(coll, 0, 0) = coll->nrelations;
+  return stat;
 }
 
 
@@ -218,6 +255,8 @@ int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
                                       const char *p, const char *o)
 {
   int retval = triplestore_remove(coll->rstore, s, p, o);
+  if (retval > -1)
+    DLITE_PROP_DIM(coll, 0, 0) = coll->nrelations;
   return retval;
 }
 
@@ -252,7 +291,7 @@ void dlite_collection_deinit_state(DLiteCollectionState *state)
   first call it should be provided a `state` initialised with
   dlite_collection_init_state().
 
-  For each call it will return a pointer to triplet matching `s`, `p`
+  For each call it will return a pointer to triple matching `s`, `p`
   and `o`.  Any of these may be NULL, allowing for multiple matches.
   When no more matches can be found, NULL is returned.
 
@@ -301,6 +340,7 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
   if (dlite_collection_find(coll, NULL, label, "_is-a", "Instance"))
     return err(1, "instance with label '%s' is already in the collection",
                label);
+
   dlite_collection_add_relation(coll, label, "_is-a", "Instance");
   dlite_collection_add_relation(coll, label, "_has-uuid", inst->uuid);
   dlite_collection_add_relation(coll, label, "_has-meta", inst->meta->uri);
@@ -343,10 +383,12 @@ int dlite_collection_remove(DLiteCollection *coll, const char *label)
       warn("cannot remove missing instance: %s", r->o);
     }
 
-    dlite_collection_init_state(coll, &state);
-    while ((r=dlite_collection_find(coll,&state, label, "_has-dimmap", NULL)))
-      triplestore_remove_by_id(coll->rstore, r->o);
-    dlite_collection_deinit_state(&state);
+    /* FIXME - there is something wrong here... */
+    //dlite_collection_init_state(coll, &state);
+    //while ((r=dlite_collection_find(coll, &state, label, "_has-dimmap", NULL)))
+    //  triplestore_remove_by_id(coll->rstore, r->o);
+    //*dlite_collection_deinit_state(&state);
+    UNUSED(state);
 
     dlite_collection_remove_relations(coll, label, "_has-uuid", NULL);
     dlite_collection_remove_relations(coll, label, "_has-meta", NULL);
@@ -454,7 +496,7 @@ DLiteInstance *dlite_collection_next_new(DLiteCollection *coll,
                                          DLiteCollectionState *state)
 {
   UNUSED(coll);
-  const Triplet *t;
+  const Triple *t;
   while ((t = triplestore_find(state, NULL, "_has-uuid", NULL)))
     return dlite_instance_get(t->o);
   return NULL;

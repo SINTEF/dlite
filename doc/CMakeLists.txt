@@ -35,6 +35,7 @@ if(DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/dlite-mapping-plugins.h
     ${dlite_SOURCE_DIR}/src/getuuid.h
     ${dlite_SOURCE_DIR}/src/triplestore.h
+    ${dlite_SOURCE_DIR}/src/triple.h
 
     ${dlite_SOURCE_DIR}/src/utils/compat.h
     ${dlite_SOURCE_DIR}/src/utils/dsl.h

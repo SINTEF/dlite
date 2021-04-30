@@ -43,20 +43,19 @@ typedef struct _DLiteCollection {
   TripleStore *rstore;       /*!< TripleStore managing the relations. */
 
   /* -- dimensions */
-  size_t nrelations;          /*!< Number of relations. */
+  size_t nrelations;         /*!< Number of relations. */
 
   /* -- properties */
-
-  /** An experimental URI identifying a (currently informal) schema
-      that this collection is expected to ahead to.  May be used
-      instead of a metadata URI when a collection is provided as input
-      to a mapping. */
-  //char *schema;
 
   /** Pointer to array of relations.  This can safely be cast to
       ``char *relations[4]``, which is an 2D array of strings.
       Note that this pointer may change if `relations` is reallocated. */
   DLiteRelation *relations;
+
+  /* -- relations */
+
+  /* -- propdims */
+  size_t __propdims[1];
 
 } DLiteCollection;
 
@@ -71,13 +70,27 @@ typedef struct _TripleState DLiteCollectionState;
  */
 int dlite_collection_init(DLiteInstance *inst);
 
-
 /**
   Deinitiates a collection instance.
 
   Returns non-zero on error.
  */
 int dlite_collection_deinit(DLiteInstance *inst);
+
+/**
+  Returns size of dimension number `i` or -1 on error.
+*/
+int dlite_collection_getdim(const DLiteInstance *inst, size_t i);
+
+/**
+  Loads instance relations to triplestore.  Returns -1 on error.
+*/
+int dlite_collection_loadprop(const DLiteInstance *inst, size_t i);
+
+/**
+  Saves triplestore to instance relations. Returns non-zero on error.
+*/
+int dlite_collection_saveprop(DLiteInstance *inst, size_t i);
 
 
 /**

@@ -131,6 +131,10 @@ static struct _BasicMetadataSchema {
   0,                                             /* _headersize */
   NULL,                                          /* _init */
   NULL,                                          /* _deinit */
+  NULL,                                          /* _getdim */
+  NULL,                                          /* _setdim */
+  NULL,                                          /* _loadprop */
+  NULL,                                          /* _saveprop */
 
   3,                                             /* _npropdims */
   (size_t *)basic_metadata_schema.__propdiminds, /* _propdiminds */
@@ -259,7 +263,7 @@ static struct _EntitySchema {
   DLiteRelation  *relation;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t __propdims[2];
+  size_t __propdims[3];
   /* -- array of first property dimension  */
   size_t __propdiminds[6];
   /* -- array of memory offsets to each instance property */
@@ -283,6 +287,10 @@ static struct _EntitySchema {
   0,                                          /* _headersize */
   NULL,                                       /* _init */
   NULL,                                       /* _deinit */
+  NULL,                                          /* _getdim */
+  NULL,                                          /* _setdim */
+  NULL,                                          /* _loadprop */
+  NULL,                                          /* _saveprop */
 
   0,                                          /* _npropdims */
   NULL,                                       /* _propdiminds */
@@ -306,7 +314,7 @@ static struct _EntitySchema {
   NULL,                                       /* relations */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {0, 0},                                     /* __propdims */
+  {0, 0, 0},                                  /* __propdims */
   /* -- array of first property dimension */
   {0, 0, 0, 0, 0, 0},                         /* __propdiminds */
   /* -- array of memory offsets to each instance property */
@@ -316,36 +324,34 @@ static struct _EntitySchema {
 
 
 /**************************************************************
- * collection_schema
+ * collection_entity
  **************************************************************/
 
-static DLiteDimension collection_schema_dimensions[] = {
+static DLiteDimension collection_entity_dimensions[] = {
   //{"ndimensions", "Number of common dimmensions."},
   //{"ninstances",  "Number of instances added to the collection."},
   //{"ndim_maps",   "Number of dimension maps."},
   {"nrelations",  "Number of relations."},
 };
-static char *collection_schema_prop_relations_dims[] = {"nrelations"};
-static DLiteProperty collection_schema_properties[] = {
+static char *collection_entity_prop_relations_dims[] = {"nrelations"};
+static DLiteProperty collection_entity_properties[] = {
   {
   "relations",                               /* name */
   dliteRelation,                             /* type */
   sizeof(DLiteRelation),                     /* size */
   1,                                         /* ndims */
-  collection_schema_prop_relations_dims,     /* dims */
+  collection_entity_prop_relations_dims,     /* dims */
   NULL,                                      /* unit */
   NULL,                                      /* iri */
-  "Array of relations (subject, predicate, "
-  "object, relation-id)."                    /* description */
+  "Array of relations (s-p-o triples)."      /* description */
   }
 };
-static struct _CollectionSchema {
+static struct _CollectionEntity {
   /* -- header */
   DLiteMeta_HEAD
   /* -- length of each dimension */
   size_t ndimensions;
   size_t nproperties;
-  size_t nrelations;
   /* -- value of each property */
   char *name;
   char *version;
@@ -353,33 +359,36 @@ static struct _CollectionSchema {
   char *description;
   DLiteDimension *dimensions;
   DLiteProperty  *properties;
-  DLiteRelation  *relations;
   /* -- value of each relation */
   /* -- array property dimension values */
-  size_t __propdims[1];
+  size_t __propdims[2];
   /* -- array of first property dimension  */
   size_t __propdiminds[1];
   /* -- array of memory offsets to each instance property */
   size_t __propoffsets[1];
-} collection_schema = {
+} collection_entity = {
   /* -- header */
-  "a2e66e0e-d733-5067-b987-6b5e5d54fb12",        /* uuid (corresponds to uri) */
-  DLITE_COLLECTION_SCHEMA,                       /* uri */
+  "8948745c-904c-5599-834a-9f59613fb6c5",        /* uuid (corresponds to uri) */
+  DLITE_COLLECTION_ENTITY,                       /* uri */
   1,                                             /* _refcount, never free */
-  (DLiteMeta *)&basic_metadata_schema,           /* meta */
+  (DLiteMeta *)&entity_schema,                   /* meta */
   NULL,                                          /* iri */
 
   1,                                             /* _ndimensions */
   1,                                             /* _nproperties */
   0,                                             /* _nrelations */
 
-  collection_schema_dimensions,                  /* _dimensions */
-  collection_schema_properties,                  /* _properties */
+  collection_entity_dimensions,                  /* _dimensions */
+  collection_entity_properties,                  /* _properties */
   NULL,                                          /* _relations */
 
   offsetof(DLiteCollection, nrelations),         /* _headersize */
   dlite_collection_init,                         /* _init */
   dlite_collection_deinit,                       /* _deinit */
+  dlite_collection_getdim,                       /* _getdim */
+  NULL,                                          /* _setdim */
+  dlite_collection_loadprop,                     /* _loadprop */
+  dlite_collection_saveprop,                     /* _saveprop */
 
   0,                                             /* _npropdims */
   NULL,                                          /* _propdiminds */
@@ -392,18 +401,16 @@ static struct _CollectionSchema {
   /* -- length of each dimention */
   1,                                             /* ndimensions */
   1,                                             /* nproperties */
-  0,                                             /* nrelations */
   /* -- value of each property */
-  "CollectionSchema",                            /* name */
+  "Collection",                                  /* name */
   "0.1",                                         /* version */
   "http://meta.sintef.no",                       /* namespace */
   "Meta-metadata description a collection.",     /* description */
-  collection_schema_dimensions,                  /* dimensions */
-  collection_schema_properties,                  /* properties */
-  NULL,                                          /* relations */
+  collection_entity_dimensions,                  /* dimensions */
+  collection_entity_properties,                  /* properties */
   /* -- value of each relation */
   /* -- array property dimension values */
-  {0},                                           /* __propdims */
+  {0, 0},                                        /* __propdims */
   /* -- array of first property dimension */
   {0},                                           /* __propdiminds */
   /* -- array of memory offsets to each instance property */
@@ -433,9 +440,9 @@ const DLiteMeta *dlite_get_entity_schema()
   return (DLiteMeta *)&entity_schema;
 }
 
-const DLiteMeta *dlite_get_collection_schema()
+const DLiteMeta *dlite_get_collection_entity()
 {
-  if (!collection_schema._headersize)
-    dlite_meta_init((DLiteMeta *)&collection_schema);
-  return (DLiteMeta *)&collection_schema;
+  if (!collection_entity._headersize)
+    dlite_meta_init((DLiteMeta *)&collection_entity);
+  return (DLiteMeta *)&collection_entity;
 }

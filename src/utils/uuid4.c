@@ -58,9 +58,18 @@ uint64_t rand_uint64(void) {
 
 
 static int simple_seed(void) {
-  int i;
-  clock_t c = clock();
-  srand((unsigned int)c);
+  unsigned int i, timeseed;
+#ifdef _WIN32
+  FILETIME ft;
+  GetSystemTimeAsFileTime(&ft);
+  timeseed = (unsigned int)(ft.dwLowDateTime + ft.dwHighDateTime);
+#else
+  /* FIXME - clock() returns the approximate CPU time used by the
+     program (typically in ms resolution), which might be similar
+     between invocations on fast CPUs. */
+  timeseed = (unsigned int)clock();
+#endif
+  srand(timeseed);
   for (i=0; i<2; i++)
     seed[i] = rand_uint64();
   return UUID4_ESUCCESS;
