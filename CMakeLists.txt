@@ -16,6 +16,7 @@ option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
 option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
 option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
 option(WITH_JSON        "Whether to build with JSON support"             ON)
+option(WITH_REDLAND     "Whether to build with Redland (if available)"   ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
@@ -29,6 +30,15 @@ list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 
 # Set default cmake configurations
 include(SetDefaults)
+
+# Get number of CPUs
+include(ProcessorCount)
+ProcessorCount(NUMBER_OF_CPUS)
+if(NUMBER_OF_CPUS)
+  set(NUMBER_OF_CPUS_OPTION -j${NUMBER_OF_CPUS})
+else()
+  set(NUMBER_OF_CPUS_OPTION "")
+endif()
 
 
 # Compiler options
@@ -272,6 +282,28 @@ endif()
 
 
 #
+# Redland
+# =======
+if(WITH_REDLAND)
+  find_package(Redland)
+  if(REDLAND_FOUND)
+    set(HAVE_REDLAND TRUE)
+
+    find_package(Rasqal REQUIRED)
+    if(RASQAL_FOUND)
+      set(HAVE_RASQAL TRUE)
+    endif()
+
+    find_package(Raptor REQUIRED)
+    if(RAPTOR_FOUND)
+      set(HAVE_RAPTOR TRUE)
+    endif()
+
+  endif()
+endif()
+
+
+#
 # Python
 # ======
 if(WITH_PYTHON)
@@ -411,7 +443,7 @@ if(CPPCHECK)
     NAME static-code-analysis
     COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
       --language=c -q --force --error-exitcode=2 --inline-suppr -i build
-      -I${dlite_SOURCE_DIR}/src
+      -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
     )
 endif()
 
@@ -450,10 +482,15 @@ if(WIN32)
   if(WITH_PYTHON)
     build_append(dlite_PATH ${dlite-src-pyembed_BINARY_DIR})
   endif()
-  list(APPEND dlite_PATH
-    ${JANSSON_RUNTIME_DIR}
-    ${HDF5_RUNTIME_DIR}
-    )
+  if(WITH_JSON)
+    list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
+  endif()
+  if(WITH_HDF5)
+    list(APPEND dlite_PATH ${HDF5_RUNTIME_DIR})
+  endif()
+  if(HAVE_REDLAND)
+    list(APPEND dlite_PATH ${REDLAND_RUNTIME_DIR})
+  endif()
 endif()
 list(REMOVE_DUPLICATES dlite_PATH)
 
@@ -466,10 +503,10 @@ build_append(dlite_LD_LIBRARY_PATH
 if(WITH_PYTHON)
   build_append(dlite_LD_LIBRARY_PATH ${dlite-src-pyembed_BINARY_DIR})
 endif()
-list(APPEND dlite_LD_LIBRARY_PATH
-  ${JANSSON_RUNTIME_DIR}
-  ${HDF5_RUNTIME_DIR}
-  )
+#list(APPEND dlite_LD_LIBRARY_PATH
+#  ${JANSSON_RUNTIME_DIR}
+#  ${HDF5_RUNTIME_DIR}
+#  )
 list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
@@ -487,6 +524,9 @@ if(WITH_JSON)
 endif()
 if(WITH_HDF5)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/hdf5)
+endif()
+if(HAVE_REDLAND)
+  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/rdf)
 endif()
 if(WITH_PYTHON)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/python)
@@ -613,6 +653,9 @@ if(WITH_HDF5)
 endif()
 if(WITH_JSON)
   add_subdirectory(storages/json)
+endif()
+if(HAVE_REDLAND)
+  add_subdirectory(storages/rdf)
 endif()
 if(WITH_PYTHON)
   add_subdirectory(storages/python)

@@ -1,17 +1,36 @@
 # Once done this will define
 #
-#   JANSSON_FOUND          - True if jansson found.
-#   JANSSON_INCLUDE_DIRS   - Where to find jansson.h.
-#   JANSSON_LIBRARIES      - List of libraries when using jansson.
-#   JANSSON_VERSION_STRING - The version of jansson found.
+#  JANSSON_FOUND        - whether system has Jansson
+#  JANSSON_INCLUDE_DIRS - the Jansson include directory
+#  JANSSON_LIBRARIES    - link these to use Jansson
+#  JANSSON_LIBRARY_DIR  - Jansson library directory (lib files)
+#  JANSSON_RUNTIME_DIR  - Jansson runtime directory (dlls)
 #
-find_package(PkgConfig QUIET)
-pkg_check_modules(PC_JANSSON QUIET jansson)
 
-find_path(JANSSON_INCLUDE_DIR
-  NAMES jansson.h
-  HINTS ${PC_JANSSON_INCLUDEDIR} ${PC_JANSSON_INCLUDE_DIRS}
-  )
+if(JANSSON_LIBRARIES AND JANSSON_INCLUDE_DIRS)
+  # in cache already
+  set(JANSSON_FOUND TRUE)
+else()
+  find_path(JANSSON_INCLUDE_DIR
+    NAMES
+      jansson.h
+    PATHS
+      ${JANSSON_ROOT}/include
+      $ENV{JANSSON_ROOT}/include
+      $ENV{HOME}/.local/include
+      /usr/include
+      /usr/local/include
+      /opt/local/include
+      /sw/include
+    )
+  list(APPEND JANSSON_INCLUDE_DIRS ${JANSSON_INCLUDE_DIR})
+  get_filename_component(JANSSON_ROOT ${JANSSON_INCLUDE_DIR} DIRECTORY)
+
+  find_library(JANSSON_LIBRARY
+    NAMES jansson
+    PATHS ${JANSSON_ROOT}/lib
+    )
+  list(APPEND JANSSON_LIBRARIES ${JANSSON_LIBRARY})
 
 find_library(JANSSON_LIBRARY
   NAMES jansson libjansson
