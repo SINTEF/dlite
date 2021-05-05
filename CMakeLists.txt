@@ -3,7 +3,6 @@
 cmake_minimum_required(VERSION 3.11)
 #cmake_policy(VERSION 3.11)
 cmake_policy(SET CMP0074 NEW)
-include(CPack)
 
 project(dlite
   VERSION 0.2.5
@@ -24,6 +23,7 @@ option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
 
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
+
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
@@ -665,6 +665,40 @@ endif()
 if(WITH_DOC)
   add_subdirectory(doc)
 endif()
+
+#################################################################
+
+# CPack
+# -----
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VENDOR "SINTEF")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+  "Lightweight data-centric framework for working with scientific data")
+set(CPACK_PACKAGE_VERSION "${dlite_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${dlite_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${dlite_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${dlite_VERSION_RELEASE}")
+#set(CPACK_PACKAGE_ICON "${dlite_SOURCE_DIR}/doc/icons/dlite.ico")
+#set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
+set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${CPACK_SYSTEM_NAME}")
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+#set(CPACK_RESOURCE_FILE_README "")
+#set(CPACK_RESOURCE_FILE_WELCOME "")
+#set(CPACK_SET_DESTDIR "ON")
+
+set(CPACK_SOURCE_GENERATOR "ZIP")
+set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
+  ".git/*" "${CMAKE_BINARY_DIR}/*" "build*/*" "dist/*" "dlite.egg-info/*")
+
+if(WIN32)
+  #set(CPACK_SET_DESTDIR ON)
+  set(CPACK_INSTALL_PREFIX "\$$PROFILE")
+  #set(CPACK_PACKAGE_INSTALL_DIRECTORY "\$$PROFILE")
+endif()
+
+# Include CPack after configuring it...
+include(CPack)
 
 #################################################################
 
