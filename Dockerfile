@@ -63,24 +63,18 @@ RUN apt-get install -y \
     gdb \
     gfortran \
     git \
-    graphviz \
     g++ \
     libhdf5-dev \
     libjansson-dev \
     make \
-    python3 \
     python3-dev \
-    python3-numpy \
-    python3-psycopg2 \
-    python3-yaml \
     python3-pip \
-    swig3.0
+    swig4.0
 
 # Install Python packages
+COPY requirements.txt .
 RUN pip3 install --trusted-host files.pythonhosted.org \
-    --upgrade pip
-RUN pip3 install --trusted-host files.pythonhosted.org \
-    fortran-language-server
+    --upgrade pip -r requirements.txt
 
 
 ##########################################
