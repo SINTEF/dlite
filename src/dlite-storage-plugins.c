@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils/compat.h"
 #include "utils/err.h"
 #include "utils/tgen.h"
 #include "utils/plugin.h"
@@ -39,12 +40,10 @@ static PluginInfo *get_storage_plugin_info(void)
 			  "get_dlite_storage_plugin_api",
 			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
     atexit(storage_plugin_info_free);
-
     fu_paths_set_platform(&storage_plugin_info->paths, dlite_get_platform());
-
     if (dlite_use_build_root())
       plugin_path_extend(storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);
-   else
+    else
       plugin_path_extend_prefix(storage_plugin_info, dlite_root_get(),
                                 DLITE_STORAGE_PLUGIN_DIRS, NULL);
 
@@ -72,7 +71,7 @@ static PluginInfo *get_storage_plugin_info(void)
   is loaded, registered and returned.
 
   Otherwise NULL is returned.
- */
+*/
 const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 {
   const DLiteStoragePlugin *api;
@@ -82,20 +81,76 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 
   if (!(api = (const DLiteStoragePlugin *)plugin_get_api(info, name))) {
     /* create informative error message... */
-    TGenBuf buf;
-    int n=0;
+    int n=0, r;
     const char *p, **paths = dlite_storage_plugin_paths();
     char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT or ";
-    tgen_buf_init(&buf);
-    tgen_buf_append_fmt(&buf, "cannot find storage plugin for driver \"%s\" "
-                        "in search path:\n", name);
-    while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
-    if (n <= 1)
-      tgen_buf_append_fmt(&buf, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
-                          "enveronment variable(s) set?", submsg);
+    size_t size=0, m=0;
+    char *buf=NULL;
+    r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
+                    "\"%s\" in search path:\n", name);
+    if (r >= 0) m += r;
+    printf("    r=%d\n", r);
+    printf("    buf='%s'\n", buf);
+    printf("    size=%d\n", (int)size);
+    printf("    m=%d\n", (int)m);
+    while ((p = *(paths++)) && ++n) {
+      //r = asnpprintf(&buf, &size, m, "    %s\n", p);
+      r = asnpprintf(&buf, &size, m, "    @%d\n", n);
+      if (r >= 0) m += r;
+      if (r < 0) perror("**  asnpprintf");
 
-    errx(1, "%s", tgen_buf_get(&buf));
-    tgen_buf_deinit(&buf);
+      printf("*** path='%s'\n", p);
+      printf("    r=%d\n", r);
+      printf("    buf='%s'\n", buf);
+      printf("    size=%d\n", (int)size);
+      printf("    m=%d, n=%d\n", (int)m, n);
+      FILE *fp;
+      DIR *dp;
+
+      if ((fp = fopen(p, "r"))) {
+        printf("    open=YES\n");
+        fclose(fp);
+      } else
+        printf("    open=NO\n");
+      if ((dp = opendir(p))) {
+        printf("    opendir=YES\n");
+        closedir(dp);
+      } else
+        printf("    opendir=NO\n");
+
+      char *unixpath = fu_unixpath(p, NULL, 0, ";");
+      printf("    unixpath='%s'\n", unixpath);
+      if ((fp = fopen(unixpath, "r"))) {
+        printf("    open=YES\n");
+        fclose(fp);
+      } else
+        printf("    open=NO\n");
+      if ((dp = opendir(unixpath))) {
+        printf("    opendir=YES\n");
+        closedir(dp);
+      } else
+        printf("    opendir=NO\n");
+      free(unixpath);
+
+      printf("\n");
+
+    }
+    if (n <= 1)
+      m += asnpprintf(&buf, &size, m, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
+                     "enveronment variable(s) set?", submsg);
+    errx(1, "%s", buf);
+    free(buf);
+    //TGenBuf buf;
+    //tgen_buf_init(&buf);
+    //tgen_buf_append_fmt(&buf, "cannot find storage plugin for driver \"%s\" "
+    //                    "in search path:\n", name);
+    //while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
+    //if (n <= 1)
+    //  tgen_buf_append_fmt(&buf, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
+    //                      "enveronment variable(s) set?", submsg);
+    //
+    //errx(1, "%s", tgen_buf_get(&buf));
+    //tgen_buf_deinit(&buf);
   }
   return api;
 }

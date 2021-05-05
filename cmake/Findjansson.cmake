@@ -1,3 +1,4 @@
+# - Try to find Jansson
 # Once done this will define
 #
 #  JANSSON_FOUND        - whether system has Jansson
@@ -6,6 +7,7 @@
 #  JANSSON_LIBRARY_DIR  - Jansson library directory (lib files)
 #  JANSSON_RUNTIME_DIR  - Jansson runtime directory (dlls)
 #
+
 
 if(JANSSON_LIBRARIES AND JANSSON_INCLUDE_DIRS)
   # in cache already
@@ -21,45 +23,49 @@ else()
       /usr/include
       /usr/local/include
       /opt/local/include
+      /mingw/include
       /sw/include
     )
   list(APPEND JANSSON_INCLUDE_DIRS ${JANSSON_INCLUDE_DIR})
   get_filename_component(JANSSON_ROOT ${JANSSON_INCLUDE_DIR} DIRECTORY)
 
   find_library(JANSSON_LIBRARY
-    NAMES jansson
-    PATHS ${JANSSON_ROOT}/lib
+    NAMES
+      jansson
+      libjansson.dll.a
+    PATHS
+      ${JANSSON_ROOT}/lib
+      /usr/lib
+      /usr/local/lib
+      /opt/local/lib
+      /mingw/lib
+      /sw/lib
     )
   list(APPEND JANSSON_LIBRARIES ${JANSSON_LIBRARY})
 
-find_library(JANSSON_LIBRARY
-  NAMES jansson libjansson
-  HINTS ${PC_JANSSON_LIBDIR} ${PC_JANSSON_LIBRARY_DIRS}
-  )
+  get_filename_component(JANSSON_LIBRARY_DIR ${JANSSON_LIBRARY} DIRECTORY)
 
-if(PC_JANSSON_VERSION)
-  set(JANSSON_VERSION_STRING ${PC_JANSSON_VERSION})
-elseif(JANSSON_INCLUDE_DIR AND EXISTS "${JANSSON_INCLUDE_DIR}/jansson.h")
-  set(regex_jansson_version
-    "^#define[ \t]+JANSSON_VERSION[ \t]+\"([^\"]+)\".*")
+  if(EXISTS ${JANSSON_ROOT}/bin)
+    set(JANSSON_RUNTIME_DIR ${JANSSON_ROOT}/bin)
+  else()
+    set(JANSSON_RUNTIME_DIR "")
+  endif()
 
-  file(STRINGS
-    "${JANSSON_INCLUDE_DIR}/jansson.h" jansson_version
-    REGEX "${regex_jansson_version}")
-  string(REGEX REPLACE "${regex_jansson_version}" "\\1"
-    JANSSON_VERSION_STRING "${jansson_version}")
-  unset(regex_jansson_version)
-  unset(jansson_version)
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(Jansson DEFAULT_MSG
+    JANSSON_INCLUDE_DIRS
+    JANSSON_LIBRARIES
+    JANSSON_LIBRARY_DIR
+    JANSSON_RUNTIME_DIR
+    )
+
+  # show the JANSSON_INCLUDE_DIRS and JANSSON_LIBRARIES variables only
+  # in the advanced view
+  mark_as_advanced(
+    JANSSON_INCLUDE_DIRS
+    JANSSON_LIBRARIES
+    JANSSON_LIBRARY_DIR
+    JANSSON_RUNTIME_DIR
+    )
+
 endif()
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(jansson
-  REQUIRED_VARS JANSSON_LIBRARY JANSSON_INCLUDE_DIR
-  VERSION_VAR JANSSON_VERSION_STRING)
-
-if(JANSSON_FOUND)
-  set(JANSSON_LIBRARIES ${JANSSON_LIBRARY})
-  set(JANSSON_INCLUDE_DIRS ${JANSSON_INCLUDE_DIR})
-endif()
-
-mark_as_advanced(JANSSON_INCLUDE_DIR JANSSON_LIBRARY)

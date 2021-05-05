@@ -7,6 +7,10 @@
 /*
  * Modified by Jesper Friis (2017)
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,7 +25,9 @@
 
 /* Get rid of MSVS warnings */
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
-# pragma warning(disable: 4273 4996)
+# ifndef CROSS_TARGET
+#  pragma warning(disable: 4273 4996)
+# endif
 #endif
 
 

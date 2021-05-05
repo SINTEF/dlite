@@ -1,0 +1,141 @@
+# -*- Mode: Dockerfile -*-
+
+#
+# Build this docker with
+#
+#     docker build -t dlite-mingw -f Dockerfile.mingw .
+#
+# To run this docker in an interactive bash shell, do
+#
+#     docker run -i -t dlite-mingw
+#
+# A more realistic way to use this docker is to put the following
+# into a shell script (called dlite)
+#
+#     #!/bin/sh
+#     docker run --rm -it --user="$(id -u):$(id -g)" --net=none \
+#         -v "$PWD":/data dlite "$@"
+#
+# To run the getuuid tool, you could then do
+#
+#     dlite dlite-getuuid <string>
+#
+# To run a python script in current directory
+#
+#     dlite python /data/script.py
+#
+
+
+##########################################
+# Stage: install dependencies
+##########################################
+FROM fedora:34 AS dependencies
+
+RUN dnf update -y
+RUN dnf install -y \
+        git \
+        file \
+        make \
+        cmake \
+        patch \
+        which \
+        diffutils \
+        dos2unix \
+        findutils \
+        swig \
+        cppcheck \
+        doxygen \
+        ccache \
+        wine-core \
+        wine-filesystem \
+        mingw-filesystem-base \
+        mingw-binutils-generic \
+        mingw64-filesystem \
+        mingw64-crt \
+        mingw64-pkg-config \
+        mingw64-zlib \
+        mingw64-winpthreads \
+        mingw64-headers \
+        mingw64-binutils \
+        mingw64-gcc \
+        mingw64-cpp \
+        mingw64-sqlite \
+        mingw64-openssl \
+        mingw64-python3 \
+        mingw64-python3-numpy \
+        mingw64-jansson \
+        mingw64-gcc-gfortran \
+        mingw64-gcc-c++ \
+        mingw64-dlfcn
+
+#        ninja-build \
+#        mingw64-expat \
+#        mingw64-libffi \
+#        mingw64-bzip2 \
+#        mingw64-gdb \
+#        mingw32-wine-gecko \
+#        mingw64-wine-gecko
+
+#        graphviz \
+#        rsync \
+#        gcc \
+#        gcc-c++ \
+#        gfortran \
+#        valgrind \
+#        glibc-headers \
+#        python3 \
+#        python3-devel \
+#        python3-numpy \
+#        jansson-devel \
+#        hdf5-devel \
+#        redland \
+#        raptor2 \
+#        rasqal \
+
+
+##########################################
+# Stage: build
+##########################################
+FROM dependencies AS build
+
+# Create and become a normal user
+RUN useradd -ms /bin/bash user
+USER user
+ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
+
+# Setup dlite
+RUN mkdir /home/user/sw
+COPY --chown=user:user . /home/user/sw/dlite
+WORKDIR /home/user/sw/dlite
+RUN rm -rf build
+
+# Perform static code checking
+# FIXME - test_tgen.c produce a lot of false positives
+RUN cppcheck . \
+        --language=c -q --force --error-exitcode=2 --inline-suppr \
+        -Isrc/utils -Isrc -i build -i build.win64
+
+# Build dlite
+RUN mkdir build
+WORKDIR /home/user/sw/dlite/build
+RUN cmake .. \
+        -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-win64.cmake \
+        -DFORCE_EXAMPLES=OFF \
+        -DALLOW_WARNINGS=ON \
+        -DWITH_HDF5=OFF \
+        -DWITH_FORTRAN=OFF \
+        -DWITH_PYTHON=OFF \
+        -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install \
+        -DDLITE_CODEGEN=/home/user/sw/dlite/build/tools/dlite-codegen.exe
+RUN make
+#USER root
+#RUN make install
+#
+## Skip postgresql tests since we haven't set up the server and
+## static-code-analysis since it is already done.
+## TODO - set up postgresql server and run the postgresql tests...
+#USER user
+#RUN ctest -E "(postgresql|static-code-analysis)" || \
+#    ctest -E "(postgresql|static-code-analysis)" \
+#        --rerun-failed --output-on-failure -VV
+#

@@ -43,7 +43,7 @@ MU_TEST(test_read)
   ids = dlite_storage_uuids(db, NULL);
   n = 0;
   for(i=0; ids[i]; i++) {
-    printf("%zd: %s\n", i, ids[i]);
+    printf("%d: %s\n", (int)i, ids[i]);
     n++;
   }
   /*printf("n=%d\n", n);*/

@@ -738,7 +738,8 @@ char *tgen_readfile(const char *filename)
     if (ferror(fp)) FAIL1(TGenIOError, "error reading file \"%s\"", filename);
     size += n;
     if (!(ptr = realloc(p, size)))
-      FAIL1(TGenAllocationError, "cannot reallocate string to %lu bytes", size);
+      FAIL1(TGenAllocationError, "cannot reallocate string to %lu bytes",
+            (unsigned long)size);
     p = ptr;
     memcpy(p + pos, buf, n);
   }
@@ -747,7 +748,8 @@ char *tgen_readfile(const char *filename)
   pos = size;
   size += n + 1;
   if (!(ptr = realloc(p, size)))
-    FAIL1(TGenAllocationError, "cannot reallocate string to %lu bytes", size);
+    FAIL1(TGenAllocationError, "cannot reallocate string to %lu bytes",
+          (unsigned long)size);
   p = ptr;
   memcpy(p + pos, buf, n);
   p[size-1] = '\0';
@@ -1122,8 +1124,9 @@ int tgen_append(TGenBuf *s, const char *template, int tlen,
           int m = strcspn(tt, ":}");
           if (m >= (int)sizeof(buf))
             return err(TGenSyntaxError, "line %d: format specifier \"%.*s\" "
-                       "must not exceed %zd characters",
-                       tgen_lineno(template, t), m, tt, sizeof(buf)-1);
+                       "must not exceed %lu characters",
+                       tgen_lineno(template, t), m, tt,
+                       (unsigned long)sizeof(buf)-1);
           if (tt[m] == '\0')
             return err(TGenSyntaxError, "line %d: template ends with "
                        "unmatched '{'", tgen_lineno(template, t));

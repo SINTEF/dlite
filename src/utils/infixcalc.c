@@ -256,8 +256,8 @@ static int eval(Operator op, Stack *vstack, char *err, size_t errlen)
     int arg1 = pop(vstack);
     value = binary_eval(op, arg1, arg2);
   } else {
-    snprintf(err, errlen, "%zu-ary operators are not implemented",
-             opinfo->nargs);
+    snprintf(err, errlen, "%lu-ary operators are not implemented",
+             (unsigned long)opinfo->nargs);
     return -1;
   }
   push(vstack, value);

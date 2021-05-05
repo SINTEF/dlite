@@ -68,21 +68,6 @@ macro(dlite_codegen output template url)
     # doesn't work.  Try instead to generate a bat file and run it.
     include(dliteGenEnv)
 
-    # At configure-time we can only guess the location og dlite-codegen.
-    # A better approach would be to pass $<TARGET_FILE:dlite-codegen>
-    # as argument to the script at compile time...
-    if(NOT EXISTS ${DLITE_CODEGEN})
-      unset(DLITE_CODEGEN CACHE)
-    endif()
-    find_program(DLITE_CODEGEN
-      NAMES dlite-codegen.exe
-      PATHS
-        ${dlite-tools_BINARY_DIR}
-        ${dlite-tools_BINARY_DIR}/Release
-        ${dlite-tools_BINARY_DIR}/Debug
-      NO_DEFAULT_PATH
-      )
-
     set(out "")
     list(APPEND out "${output}")
 
@@ -91,6 +76,7 @@ macro(dlite_codegen output template url)
       PATHS
         out
         DLITE_CODEGEN
+        dlite-tools_BINARY_DIR
         dlite_BINARY_DIR
         dlite_SOURCE_DIR
         dlite_LD_LIBRARY_PATH

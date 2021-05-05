@@ -40,7 +40,6 @@ enum {
 #  define WINDOWS
 # endif
 # include "compat/dirent.h"
-typedef DIR FUDir;
 # ifndef PATHSEP
 #  define PATHSEP ";"
 # endif

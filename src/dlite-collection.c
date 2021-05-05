@@ -56,7 +56,7 @@ int dlite_collection_deinit(DLiteInstance *inst)
 int dlite_collection_getdim(const DLiteInstance *inst, size_t i)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
-  if (i != 0) return err(-1, "index out of range: %zu", i);
+  if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
   return triplestore_length(coll->rstore);
 }
 
@@ -64,7 +64,7 @@ int dlite_collection_getdim(const DLiteInstance *inst, size_t i)
 int dlite_collection_loadprop(const DLiteInstance *inst, size_t i)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
-  if (i != 0) return err(-1, "index out of range: %zu", i);
+  if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
   triplestore_clear(coll->rstore);
   if (triplestore_add_triples(coll->rstore, coll->relations, coll->nrelations))
     return -1;
@@ -78,7 +78,7 @@ int dlite_collection_saveprop(DLiteInstance *inst, size_t i)
   TripleState state;
   const Triple *t;
   size_t n = 0;
-  if (i != 0) return err(-1, "index out of range: %zu", i);
+  if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
   triplestore_init_state(coll->rstore, &state);
   while ((t = triplestore_next(&state))) {
     assert(n < coll->nrelations);

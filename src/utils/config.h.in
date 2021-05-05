@@ -9,6 +9,12 @@
 #cmakedefine WINDOWS
 #cmakedefine APPLE
 
+#cmakedefine CROSS_TARGET
+#ifdef CROSS_TARGET
+#undef CROSS_TARGET
+#define CROSS_TARGET @CROSS_TARGET@
+#endif
+
 
 /* Language/preprocessor features */
 #cmakedefine HAVE___VA_ARGS__
@@ -21,7 +27,9 @@
 /* Whether headers exists */
 #cmakedefine HAVE_STDARG_H
 #cmakedefine HAVE_STDDEF_H
+#ifndef HAVE_STDINT_H
 #cmakedefine HAVE_STDINT_H
+#endif
 #cmakedefine HAVE_STDLIB_H
 #cmakedefine HAVE_FLOAT_H
 #cmakedefine HAVE_INTTYPES_H
@@ -163,7 +171,7 @@ size_t strlcat(char *dst, const char *src, size_t size);
 #endif
 
 
-#ifdef WINDOWS
+#if defined WINDOWS && !defined CROSS_TARGET
 /* Get rid of warnings from MSVS about insecure standard library functions */
 # define _CRT_SECURE_NO_WARNINGS
 

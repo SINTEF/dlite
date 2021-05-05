@@ -63,6 +63,8 @@ check_symbol_exists(strlcat             string.h     HAVE_STRLCAT)
 check_symbol_exists(getopt              unistd.h     HAVE_GETOPT)
 check_symbol_exists(getopt_long         getopt.h     HAVE_GETOPT_LONG)
 
+# vsnprintf() is broken on windows - use own implementation there
+if(NOT WIN32)
 check_symbol_exists(snprintf            stdio.h      HAVE_SNPRINTF)
 check_symbol_exists(_snprintf           stdio.h      HAVE__SNPRINTF)
 check_symbol_exists(vsnprintf           stdio.h      HAVE_VSNPRINTF)
@@ -71,6 +73,7 @@ check_symbol_exists(vasprintf           stdio.h      HAVE_VASPRINTF)
 check_symbol_exists(_vasprintf          stdio.h      HAVE__VASPRINTF)
 check_symbol_exists(asprintf            stdio.h      HAVE_ASPRINTF)
 check_symbol_exists(_asprintf           stdio.h      HAVE__ASPRINTF)
+endif()
 check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
 check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
@@ -138,11 +141,27 @@ configure_file(config.h.in config.h)
 
 # Generate byteorder.h
 # --------------------
-include(TestBigEndian)
-test_big_endian(IS_BIG_ENDIAN)
-
 check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(endian.h     HAVE_ENDIAN_H)
+
+if(NOT HAVE_BYTESWAP_H)
+  configure_file(byteorder.h.in byteswap.h)
+endif()
+if(NOT HAVE_ENDIAN_H)
+  configure_file(byteorder.h.in endian.h)
+endif()
+
+if(WIN64)
+  set(IS_BIG_ENDIAN 0 CACHE INTERNAL "Windows is not big endian" FORCE)
+  set(HAVE_IS_BIG_ENDIAN 0 CACHE INTERNAL "Windows is not big endian" FORCE)
+else()
+  include(TestBigEndian)
+  test_big_endian(IS_BIG_ENDIAN)
+endif()
+
+#include(TestBigEndian)
+#test_big_endian(IS_BIG_ENDIAN)
+
 
 check_symbol_exists(bswap_16 byteswap.h HAVE_BSWAP_16)
 check_symbol_exists(bswap_32 byteswap.h HAVE_BSWAP_32)

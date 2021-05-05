@@ -3,6 +3,7 @@
 
 set(tests
   test_compat
+  test_snprintf
   test_err
   test_strutils
   test_tmpfileplus

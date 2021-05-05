@@ -38,8 +38,6 @@ add_subdirectory(mappings)
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
-    #dlite-static
-    #dlite-utils-static
     dlite
     dlite-utils
     )
@@ -55,6 +53,8 @@ foreach(test ${tests})
 
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+  set_property(TEST ${test} PROPERTY
+    ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY

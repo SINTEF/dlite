@@ -28,7 +28,7 @@
 #endif
 
 #if defined(_WIN32)
-#include <Windows.h>
+#include <windows.h>
 #if defined(_MSC_VER) && _MSC_VER < 1900
   #define snprintf _snprintf
   #define __func__ __FUNCTION__

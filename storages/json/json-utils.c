@@ -1,6 +1,13 @@
 /* json-utils.c */
 
-#include <assert.h>
+#include "config.h"
+
+//#include <assert.h>
+//#ifdef HAVE_INTTYPES_H
+//#include <inttypes.h>
+//#else
+//#define SCNx8 "hhx"
+//#endif
 
 #include "utils/err.h"
 #include "utils/boolean.h"
@@ -566,7 +573,7 @@ json_t *hex_encode(const uint8_t *src, size_t n)
   char *dest = malloc(2*n+1);
   json_t *v=NULL;
   for (i=0; i<n; i++)
-    if (snprintf(dest + 2*i, 3, "%02hhx", src[i]) != 2)
+    if (snprintf(dest + 2*i, 3, "%02x", src[i]) != 2)
       FAIL1("invalid hex string: '%s'", src);
   v = json_string(dest);
  fail:
@@ -584,11 +591,14 @@ int hex_decode(uint8_t *dest, const json_t *src, size_t n)
   if (!json_is_string(src)) return errx(1, "expected json string");
   if (json_string_length(src) != 2*n)
     return errx(1, "expected encoded blob length: %lu, got %lu",
-                2*n, json_string_length(src));
+                (unsigned long)(2*n), (unsigned long)json_string_length(src));
   s = json_string_value(src);
-  for (i=0; i<n; i++)
-    if (sscanf(s + 2*i, "%2hhx", dest + i) != 1)
+  for (i=0; i<n; i++) {
+    unsigned int tmp;
+    if (sscanf(s + 2*i, "%2x", &tmp) != 1)
       return err(-1, "invalid hex string: '%s'", s);
+    dest[i] = tmp;
+  }
   return 0;
 }
 
@@ -620,7 +630,8 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
     case 2:  ival = *((int16_t *)ptr); break;
     case 4:  ival = *((int32_t *)ptr); break;
     case 8:  ival = *((int64_t *)ptr); break;
-    default: return errx(-1, "invalid int size: %lu", size), NULL;
+    default: return errx(-1, "invalid int size: %lu", (unsigned long)size),
+        NULL;
     }
     return json_integer(ival);
 
@@ -630,7 +641,8 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
     case 2:  ival = *((uint16_t *)ptr); break;
     case 4:  ival = *((uint32_t *)ptr); break;
     case 8:  ival = *((uint64_t *)ptr); break;
-    default: return errx(-1, "invalid uint size: %lu", size), NULL;
+    default: return errx(-1, "invalid uint size: %lu", (unsigned long)size),
+        NULL;
     }
     return json_integer(ival);
 
@@ -644,7 +656,8 @@ json_t *dlite_json_set_value(const void *ptr, DLiteType type, size_t size,
 #ifdef HAVE_FLOAT128
     case 16: fval = *((float128_t *)ptr); break;
 #endif
-    default: return errx(-1, "invalid float size: %lu", size), NULL;
+    default: return errx(-1, "invalid float size: %lu", (unsigned long)size),
+        NULL;
     }
     return json_real(fval);
 
@@ -757,7 +770,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
     case 2:  *((int16_t *)ptr) = json_integer_value(item);  break;
     case 4:  *((int32_t *)ptr) = json_integer_value(item);  break;
     case 8:  *((int64_t *)ptr) = json_integer_value(item);  break;
-    default: return errx(1, "invalid int size: %lu", size);
+    default: return errx(1, "invalid int size: %lu", (unsigned long)size);
     }
     break;
 
@@ -769,7 +782,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
     case 2:  *((uint16_t *)ptr) = json_integer_value(item);  break;
     case 4:  *((uint32_t *)ptr) = json_integer_value(item);  break;
     case 8:  *((uint64_t *)ptr) = json_integer_value(item);  break;
-    default: return errx(1, "invalid uint size: %lu", size);
+    default: return errx(1, "invalid uint size: %lu", (unsigned long)size);
     }
     break;
 
@@ -784,7 +797,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
 #ifdef HAVE_FLOAT128
     case 16: *((float128_t *)ptr) = json_real_value(item);  break;
 #endif
-    default: return errx(1, "invalid float size: %lu", size);
+    default: return errx(1, "invalid float size: %lu", (unsigned long)size);
     }
     break;
 
@@ -792,7 +805,7 @@ int dlite_json_get_value(void *ptr, const json_t *item,
     if (!json_is_string(item)) return errx(1, "expected json string");
     if (json_string_length(item) > size)
       return errx(1, "length of JSON string (%lu), exceeds buffer size (%lu)",
-                  json_string_length(item), size);
+                  (unsigned long)json_string_length(item), (unsigned long)size);
     strncpy(ptr, json_string_value(item), size);
     if (size > 0) ((char *)ptr)[size-1] = '\0';
     break;

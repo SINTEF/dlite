@@ -46,20 +46,24 @@ char *strndup(const char *s, size_t n)
 #endif
 
 /** strcasecmp */
-#ifdef HAVE__STRICMP
-# define strcasecmp(s1, s2) _stricmp(s1, s2)
-#else
-# ifndef HAVE_STRCASECMP
+#ifndef strcasecmp
+# ifdef HAVE__STRICMP
+#  define strcasecmp(s1, s2) _stricmp(s1, s2)
+# else
+#  ifndef HAVE_STRCASECMP
 int strcasecmp(const char *s1, const char *s2);
+#  endif
 # endif
 #endif
 
 /** strncasecmp */
-#ifdef HAVE__STRNICMP
-# define strncasecmp(s1, s2, n) _strnicmp(s1, s2, n)
-#else
-# ifndef HAVE_STRNCASECMP
+#ifndef strncasecmp
+# ifdef HAVE__STRNICMP
+#  define strncasecmp(s1, s2, n) _strnicmp(s1, s2, n)
+# else
+#  ifndef HAVE_STRNCASECMP
 int strncasecmp(const char *s1, const char *s2, size_t n);
+#  endif
 # endif
 #endif
 

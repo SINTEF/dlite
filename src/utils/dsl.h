@@ -126,7 +126,9 @@ typedef void *dsl_handle;
 
 /* Get rid of warnings about strerror() being deprecated on VS */
 #define _CRT_SECURE_NO_WARNINGS
+#ifndef CROSS_TARGET
 #pragma warning(disable: 4996)
+#endif
 
 typedef HMODULE dsl_handle;
 

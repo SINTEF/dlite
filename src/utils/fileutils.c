@@ -467,7 +467,6 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
     while (*q == '\\' && *(q+1) == '\\') q++;
     *d = *q;
   }
-  printf("\n*** %s\n -> %s\n", path, dest);
   return dest;
 }
 
@@ -835,7 +834,6 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
 {
   int platform = paths->platform;
   char *p=NULL, *tmp=NULL;
-
   if (n < -(int)(paths->n) || n >= (int)paths->n+1)
     FAIL1("path index out of range: %d", n);
   if (n < 0) n += paths->n;
