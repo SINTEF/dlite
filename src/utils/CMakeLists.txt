@@ -63,7 +63,7 @@ check_symbol_exists(strlcat             string.h     HAVE_STRLCAT)
 check_symbol_exists(getopt              unistd.h     HAVE_GETOPT)
 check_symbol_exists(getopt_long         getopt.h     HAVE_GETOPT_LONG)
 
-# vsnprintf() is broken on windows - use own implementation there
+# snprintf() is broken on windows - use own implementation there
 if(NOT WIN32)
 check_symbol_exists(snprintf            stdio.h      HAVE_SNPRINTF)
 check_symbol_exists(_snprintf           stdio.h      HAVE__SNPRINTF)

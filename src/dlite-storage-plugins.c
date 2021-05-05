@@ -89,51 +89,9 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
                     "\"%s\" in search path:\n", name);
     if (r >= 0) m += r;
-    printf("    r=%d\n", r);
-    printf("    buf='%s'\n", buf);
-    printf("    size=%d\n", (int)size);
-    printf("    m=%d\n", (int)m);
     while ((p = *(paths++)) && ++n) {
-      //r = asnpprintf(&buf, &size, m, "    %s\n", p);
-      r = asnpprintf(&buf, &size, m, "    @%d\n", n);
+      r = asnpprintf(&buf, &size, m, "    %s\n", p);
       if (r >= 0) m += r;
-      if (r < 0) perror("**  asnpprintf");
-
-      printf("*** path='%s'\n", p);
-      printf("    r=%d\n", r);
-      printf("    buf='%s'\n", buf);
-      printf("    size=%d\n", (int)size);
-      printf("    m=%d, n=%d\n", (int)m, n);
-      FILE *fp;
-      DIR *dp;
-
-      if ((fp = fopen(p, "r"))) {
-        printf("    open=YES\n");
-        fclose(fp);
-      } else
-        printf("    open=NO\n");
-      if ((dp = opendir(p))) {
-        printf("    opendir=YES\n");
-        closedir(dp);
-      } else
-        printf("    opendir=NO\n");
-
-      char *unixpath = fu_unixpath(p, NULL, 0, ";");
-      printf("    unixpath='%s'\n", unixpath);
-      if ((fp = fopen(unixpath, "r"))) {
-        printf("    open=YES\n");
-        fclose(fp);
-      } else
-        printf("    open=NO\n");
-      if ((dp = opendir(unixpath))) {
-        printf("    opendir=YES\n");
-        closedir(dp);
-      } else
-        printf("    opendir=NO\n");
-      free(unixpath);
-
-      printf("\n");
-
     }
     if (n <= 1)
       m += asnpprintf(&buf, &size, m, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
