@@ -102,7 +102,7 @@ size_t strlcat(char *dst, const char *src, size_t size)
 
 /* asnprintf() - print to allocated string */
 #if !defined(HAVE_ASNPRINTF)
-int asnprintf(char **buf, size_t *size, const char *fmt, ...)
+int rpl_asnprintf(char **buf, size_t *size, const char *fmt, ...)
 {
   int n;
   va_list ap;
@@ -115,7 +115,7 @@ int asnprintf(char **buf, size_t *size, const char *fmt, ...)
 
 /* asnprintf() - print to allocated string using va_list */
 #if !defined(HAVE_VASNPRINTF)
-int vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
+int rpl_vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
 {
   return vasnpprintf(buf, size, 0, fmt, ap);
 }
@@ -123,7 +123,7 @@ int vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
 
 /* asnprintf() - print to position in allocated string */
 #if !defined(HAVE_ASNPPRINTF)
-int asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...)
+int rpl_asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...)
 {
   int n;
   va_list ap;
@@ -145,13 +145,10 @@ static inline int msb(int v)
 /* Expands to `a - b` if `a > b` else to `0`. */
 #define PDIFF(a, b) (((size_t)(a) > (size_t)(b)) ? (a) - (b) : 0)
 
-/* Make sure that vsnprintf() is declared */
-int vsnprintf(char *str, size_t size, const char *format, va_list ap);
-
 /* asnprintf() - print to position in allocated string using va_list */
 #if !defined(HAVE_VASNPPRINTF)
-int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
-                va_list ap)
+int rpl_vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
+                    va_list ap)
 {
   void *p;
   int n;
@@ -161,8 +158,6 @@ int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
   va_copy(aq, ap);
   n = vsnprintf(*buf + pos, PDIFF(*size, pos), fmt, aq);
   va_end(aq);
-  printf("  - n=%d, size=%d, pos=%d, diff=%d, fmt='%s'\n",
-         n, (int)*size, (int)pos, (int)PDIFF(*size, pos), fmt);
 
   if (n < 0) return n;  /* failure */
   if (n < (int)PDIFF(*size, pos)) return n;  // success, buffer is large enough
@@ -173,7 +168,6 @@ int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
   *buf = p;
   *size = newsize;
   n = vsnprintf(*buf + pos, PDIFF(*size, pos), fmt, ap);
-  printf(" -- n=%d, size=%d, pos=%d\n", n, (int)*size, (int)pos);
   return n;
 }
 #endif

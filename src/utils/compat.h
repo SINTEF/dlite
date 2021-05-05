@@ -70,26 +70,30 @@ int strncasecmp(const char *s1, const char *s2, size_t n);
 
 /** asnprintf() - print to allocated string */
 #ifndef HAVE_ASNPRINTF
-int asnprintf(char **buf, size_t *size, const char *fmt, ...)
+#define asnprintf rpl_asnprintf
+int rpl_asnprintf(char **buf, size_t *size, const char *fmt, ...)
   __attribute__ ((__format__ (__printf__, 3, 4)));
 #endif
 
 /** asnprintf() - print to allocated string using va_list */
 #ifndef HAVE_VASNPRINTF
-int vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
+#define vasnprintf rpl_vasnprintf
+int rpl_vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
   __attribute__ ((__format__ (__printf__, 3, 0)));
 #endif
 
 /** asnprintf() - print to position `pos` in allocated string */
 #ifndef HAVE_ASNPPRINTF
-int asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...)
+#define asnpprintf rpl_asnpprintf
+int rpl_asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...)
   __attribute__ ((__format__ (__printf__, 4, 5)));
 #endif
 
 /** asnprintf() - print to position `pos` in allocated string using va_list */
 #ifndef HAVE_VASNPPRINTF
-int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
-                va_list ap)
+#define vasnpprintf rpl_vasnpprintf
+int rpl_vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
+                    va_list ap)
   __attribute__ ((__format__ (__printf__, 4, 0)));
 #endif
 

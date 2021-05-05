@@ -496,26 +496,27 @@ list(REMOVE_DUPLICATES dlite_PATH)
 
 # WINEPATH - path to runtime dirs (.exe and .dll) when cross-compiling for win64
 set(dlite_WINEPATH "")
-if(CROSS_TARGET EQUAL "win64")
+if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
   build_append(dlite_WINEPATH
     ${dlite-src_BINARY_DIR}
     ${dlite-src-utils_BINARY_DIR}
     ${dlite-tools_BINARY_DIR}
     )
   if(WITH_PYTHON)
-    build_append(dlite_PATH ${dlite-src-pyembed_BINARY_DIR})
+    build_append(dlite_WINEPATH ${dlite-src-pyembed_BINARY_DIR})
   endif()
   if(WITH_JSON)
-    list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
+    list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
   endif()
   if(WITH_HDF5)
-    list(APPEND dlite_PATH ${HDF5_RUNTIME_DIR})
+    list(APPEND dlite_WINEPATH ${HDF5_RUNTIME_DIR})
   endif()
   if(HAVE_REDLAND)
-    list(APPEND dlite_PATH ${REDLAND_RUNTIME_DIR})
+    list(APPEND dlite_WINEPATH ${REDLAND_RUNTIME_DIR})
   endif()
+  string(REPLACE ";" "\\;" dlite_WINEPATH_NATIVE "${dlite_WINEPATH}")
 endif()
-list(REMOVE_DUPLICATES dlite_PATH)
+list(REMOVE_DUPLICATES dlite_WINEPATH)
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH "")
