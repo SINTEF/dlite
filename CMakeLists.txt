@@ -660,7 +660,6 @@ add_custom_target(show ${cmd})
 
 # Subdirectories
 add_subdirectory(src)
-add_subdirectory(tools)
 
 # Bindings
 if(WITH_PYTHON)
@@ -683,6 +682,9 @@ endif()
 if(WITH_PYTHON)
   add_subdirectory(storages/python)
 endif()
+
+# Tools (may depend on storage plugins)
+add_subdirectory(tools)
 
 # Examples
 if(WITH_EXAMPLES)

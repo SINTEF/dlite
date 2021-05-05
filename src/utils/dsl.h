@@ -75,7 +75,11 @@
       defined __WIN32__
 # define DSL_PLATFORM DSL_Windows
 # ifndef DSL_PREFIX
-#  define DSL_PREFIX ""
+#  if defined __MINGW32__ || defined __MINGW64__
+#   define DSL_PREFIX "lib"
+#  else
+#   define DSL_PREFIX ""
+#  endif
 # endif
 # ifndef DSL_EXT
 #  define DSL_EXT ".dll"

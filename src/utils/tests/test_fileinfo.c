@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,7 +25,7 @@ MU_TEST(test_exists)
 
   mu_check( fileinfo_exists("."));
   mu_check( fileinfo_exists("../.."));
-#ifndef _MSC_VER
+#ifndef WINDOWS
   /* Windows thinks this is an existing directory - this is a bug!
      Since it is a rather uncommon case, we ignore it for now... */
   mu_check(!fileinfo_exists("..."));
@@ -35,7 +39,7 @@ MU_TEST(test_isdir)
 {
   mu_check( fileinfo_isdir("."));
   mu_check( fileinfo_isdir("../.."));
-#ifndef _MSC_VER
+#ifndef WINDOWS
   /* Windows thinks this is an existing directory - this is a bug!
      Since it is a rather uncommon case, we ignore it for now... */
   mu_check(!fileinfo_isdir("..."));
