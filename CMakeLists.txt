@@ -59,6 +59,11 @@ endif()
 # Enable C99
 set(CMAKE_C_STANDARD 99)
 
+# Define MINGW if we are running a GNU compiler on a Windows system
+if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(MINGW TRUE)
+endif()
+
 
 # Uncomment the lines below to compile with AddressSanitizer
 #set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")

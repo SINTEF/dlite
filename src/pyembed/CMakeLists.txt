@@ -7,6 +7,13 @@ set(sources
   dlite-python-mapping.c
   )
 
+# Extra libraries needed when cross-compiling with MinGW
+set(EXTRA_LIBRARIES "")
+if(CROSS_TARGET AND MINGW)
+  find_library(gcc_s_seh gcc_s_seh-1)
+  list(APPEND EXTRA_LIBRARIES ${gcc_s_seh})
+endif()
+
 add_definitions(
   -DHAVE_CONFIG_H
   )
@@ -18,11 +25,13 @@ target_link_libraries(dlite-pyembed
   dlite
   dlite-utils
   ${PYTHON_LIBRARIES}
+  ${EXTRA_LIBRARIES}
   )
 target_link_libraries(dlite-pyembed-static
   dlite-static
   dlite-utils-static
   ${PYTHON_LIBRARIES}
+  ${EXTRA_LIBRARIES}
   )
 
 target_include_directories(dlite-pyembed PUBLIC
