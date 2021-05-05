@@ -68,17 +68,17 @@
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG
 
-#cmakedefine HAVE_SNPRINTF
-#cmakedefine HAVE__SNPRINTF
-#cmakedefine HAVE_VSNPRINTF
-#cmakedefine HAVE__VSNPRINTF
-#cmakedefine HAVE_VASPRINTF
-#cmakedefine HAVE__VASPRINTF
-#cmakedefine HAVE_ASPRINTF
-#cmakedefine HAVE__ASPRINTF
-#cmakedefine HAVE_LOCALECONV
-#cmakedefine HAVE_VA_COPY
-#cmakedefine HAVE___VA_COPY
+// #cmakedefine HAVE_SNPRINTF
+// #cmakedefine HAVE__SNPRINTF
+// #cmakedefine HAVE_VSNPRINTF
+// #cmakedefine HAVE__VSNPRINTF
+// #cmakedefine HAVE_VASPRINTF
+// #cmakedefine HAVE__VASPRINTF
+// #cmakedefine HAVE_ASPRINTF
+// #cmakedefine HAVE__ASPRINTF
+// #cmakedefine HAVE_LOCALECONV
+// #cmakedefine HAVE_VA_COPY
+// #cmakedefine HAVE___VA_COPY
 
 /* Whether types exists */
 #cmakedefine HAVE_LONG_DOUBLE
@@ -88,6 +88,7 @@
 #cmakedefine HAVE_UINTMAX_T
 #cmakedefine HAVE_UINTPTR_T
 #cmakedefine HAVE_PTRDIFF_T
+#cmakedefine HAVE_SIZE_T
 
 
 /* Whether structure members exists */
@@ -97,72 +98,19 @@
 /* Size of (void *) */
 #define SIZEOF_VOID_P @CMAKE_SIZEOF_VOID_P@
 
-/* =================================================== */
-/* Compatibility-functions in the compat/ subdirectory */
-/* =================================================== */
 
-#include <stdlib.h>
+/* ================================== */
+/* Other stuff...                     */
+/* ================================== */
 
-/* compat/snprintf.c */
-#ifndef HAVE_SNPRINTF
-# ifdef HAVE__SNPRINTF
-#  define snprintf _snprintf
-# else
-#  ifndef HAVE_SNPRINTF
-#   ifdef HAVE_STDLIB_H
-#    include <stdlib.h>
-#   endif
-#   define snprintf rpl_snprintf
-int rpl_snprintf(char *, size_t, const char *, ...);
-#  endif
-# endif
-#endif
-
-#ifdef HAVE__ASPRINTF
-# define asprintf _asprintf
-#else
-# ifndef HAVE_ASPRINTF
-#  define asprintf rpl_asprintf
-int rpl_asprintf(char **, const char *, ...);
-# endif
-#endif
-
-
-#ifdef HAVE_STDARG_H
-#include <stdarg.h>
-
-#ifndef HAVE_VSNPRINTF
-# define vsnprintf rpl_vsnprintf
-int rpl_vsnprintf(char *, size_t, const char *, va_list);
-#endif
-
-#ifndef HAVE_VASPRINTF
-# define vasprintf rpl_vasprintf
-int rpl_vasprintf(char **, const char *, va_list);
-#endif
-
-#endif  /* HAVE_STDARG_H */
-
-
-#ifndef HAVE_REALPATH
-char *realpath(const char *path, char *resolved);
-#endif
-
-#ifndef HAVE_STRLCPY
-size_t strlcpy(char *dst, const char *src, size_t size);
-#endif
-#ifndef HAVE_STRLCAT
-size_t strlcat(char *dst, const char *src, size_t size);
+/* Remove __attribute__ when we are not compiling with gcc */
+#ifndef __GNUC__
+# define __attribute__(x)
 #endif
 
 #ifndef HAVE_P_TMPDIR
 # define P_tmpdir       "/tmp"
 #endif
-
-
-/* ================================== */
-/* Other stuff...                     */
-/* ================================== */
 
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
 # ifndef WINDOWS
@@ -203,11 +151,6 @@ size_t strlcat(char *dst, const char *src, size_t size);
 # define _thread_local __declspec(thread)
 #else
 # define _thread_local
-#endif
-
-/* Remove __attribute__ when we are not compiling with gcc */
-#ifndef __GNUC__
-# define __attribute__(x)
 #endif
 
 #endif /* _UTILS_CONFIG_H */

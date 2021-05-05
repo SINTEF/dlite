@@ -18,6 +18,11 @@
 typedef int make_iso_compilers_happy;
 
 
+#ifdef HAVE_VASPRINTF
+#include <stdarg.h>
+#endif
+
+
 /* strdup() - duplicate a string */
 #if !defined(HAVE_STRDUP) && !defined(HAVE__STRDUP)
 char *strdup(const char *s)

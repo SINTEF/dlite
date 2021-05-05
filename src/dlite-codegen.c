@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "utils/compat.h"
 #include "utils/err.h"
 #include "utils/tgen.h"
 #include "utils/fileutils.h"

@@ -3,7 +3,7 @@
 #
 # Build this docker with
 #
-#     docker build -t dlite-mingw -f Dockerfile.mingw .
+#     docker build -t dlite-mingw -f Dockerfile-mingw .
 #
 # To run this docker in an interactive bash shell, do
 #

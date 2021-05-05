@@ -20,6 +20,12 @@ check_include_file(inttypes.h   HAVE_INTTYPES_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 
 # -- check for symbols
+set(CMAKE_C_FLAGS_saved ${CMAKE_C_FLAGS})
+set(CMAKE_C_FLAGS "")
+if(CMAKE_COMPILER_IS_GNUCC)
+  set(CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE")
+endif()
+
 include(CheckSymbolExists)
 check_symbol_exists(strdup              string.h     HAVE_STRDUP)
 check_symbol_exists(_strdup             string.h     HAVE__STRDUP)
@@ -29,11 +35,6 @@ check_symbol_exists(strcasecmp          string.h     HAVE_STRCASECMP)
 check_symbol_exists(_stricmp            string.h     HAVE__STRICMP)
 check_symbol_exists(strncasecmp         string.h     HAVE_STRNCASECMP)
 check_symbol_exists(_strnicmp           string.h     HAVE__STRNICMP)
-
-check_symbol_exists(asnprintf           stdio.h      HAVE_ASPRINTF)
-check_symbol_exists(vasnprintf          stdio.h      HAVE_VASPRINTF)
-check_symbol_exists(asnpprintf          stdio.h      HAVE_ASPPRINTF)
-check_symbol_exists(vasnpprintf         stdio.h      HAVE_VASPPRINTF)
 
 check_symbol_exists(setenv              stdlib.h     HAVE_SETENV)
 check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
@@ -69,14 +70,18 @@ check_symbol_exists(snprintf            stdio.h      HAVE_SNPRINTF)
 check_symbol_exists(_snprintf           stdio.h      HAVE__SNPRINTF)
 check_symbol_exists(vsnprintf           stdio.h      HAVE_VSNPRINTF)
 check_symbol_exists(_vsnprintf          stdio.h      HAVE__VSNPRINTF)
-check_symbol_exists(vasprintf           stdio.h      HAVE_VASPRINTF)
-check_symbol_exists(_vasprintf          stdio.h      HAVE__VASPRINTF)
 check_symbol_exists(asprintf            stdio.h      HAVE_ASPRINTF)
 check_symbol_exists(_asprintf           stdio.h      HAVE__ASPRINTF)
+check_symbol_exists(vasprintf           stdio.h      HAVE_VASPRINTF)
+check_symbol_exists(_vasprintf          stdio.h      HAVE__VASPRINTF)
+check_symbol_exists(asnprintf           stdio.h      HAVE_ASPPRINTF)
+check_symbol_exists(asnprintf           stdio.h      HAVE_ASPPRINTF)
 endif()
 check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
 check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
+
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS_saved})
 
 
 # -- check for structure members
@@ -204,6 +209,9 @@ check_type_size(intmax_t                  HAVE_INTMAX_T)
 check_type_size(uintmax_t                 HAVE_UINTMAX_T)
 check_type_size(uintptr_t                 HAVE_UINTPTR_T)
 check_type_size(ptrdiff_t                 HAVE_PTRDIFF_T)
+set(CMAKE_REQUIRED_INCLUDES stdlib.h)
+check_type_size(size_t                    HAVE_SIZE_T)
+unset(CMAKE_REQUIRED_INCLUDES)
 
 check_type_size(char                      SIZEOF_CHAR)
 check_type_size(short                     SIZEOF_SHORT)
@@ -225,7 +233,9 @@ configure_file(floats.h.in floats.h)
 # Generate config_snprintf.h
 # --------------------------
 if(NOT (HAVE_SNPRINTF OR HAVE__SNPRINTF) OR
-    NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF))
+   NOT (HAVE_VSPRINTF OR HAVE__VSPRINTF) OR
+   NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF) OR
+   NOT (HAVE_VASPRINTF OR HAVE__VASPRINTF))
   set(WITH_SNPRINTF 1)
   configure_file(compat/config_snprintf.h.in config_snprintf.h)
 endif()

@@ -23,6 +23,73 @@
 # define __attribute__(x)
 #endif
 
+/* Make sure that we have size_t defined */
+#ifdef HAVE_STDLIB_H
+# include <stdlib.h>
+#elif !defined HAVE_SIZE_T
+#error "system is missing definition of size_t"
+#endif
+
+/*
+ * compat/realpath.c
+ */
+#ifndef HAVE_REALPATH
+char *realpath(const char *path, char *resolved);
+#endif
+
+
+/*
+ * compat/snprintf.c
+ */
+
+/** snprintf() */
+#ifndef HAVE_SNPRINTF
+# ifdef HAVE__SNPRINTF
+#  define snprintf _snprintf
+# else
+#  ifdef HAVE_STDLIB_H
+#   include <stdlib.h>
+#  endif
+#  define snprintf rpl_snprintf
+int rpl_snprintf(char *str, size_t size, const char *fmt, ...)
+  __attribute__ ((__format__ (__printf__, 3, 4)));
+# endif
+#endif
+
+/** asprintf() */
+#ifndef HAVE_ASPRINTF
+# ifdef HAVE__ASPRINTF
+#  define asprintf _asprintf
+# else
+#  ifdef HAVE_STDLIB_H
+#   include <stdlib.h>
+#  endif
+#  define asprintf rpl_asprintf
+int rpl_asprintf(char **buf, const char *fmt, ...)
+  __attribute__ ((__format__ (__printf__, 2, 3)));
+# endif
+#endif
+
+
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+
+/** vsnprintf() */
+#ifndef HAVE_VSNPRINTF
+# define vsnprintf rpl_vsnprintf
+int rpl_vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
+  __attribute__ ((__format__ (__printf__, 3, 0)));
+#endif
+
+/** vasprintf() */
+#ifndef HAVE_VASPRINTF
+# define vasprintf rpl_vasprintf
+int rpl_vasprintf(char **buf, const char *fmt, va_list ap)
+  __attribute__ ((__format__ (__printf__, 2, 0)));
+#endif
+
+#endif  /* HAVE_STDARG_H */
+
 
 
 /** strdup */
@@ -65,6 +132,21 @@ int strcasecmp(const char *s1, const char *s2);
 int strncasecmp(const char *s1, const char *s2, size_t n);
 #  endif
 # endif
+#endif
+
+
+/*
+ * compat.c
+ */
+
+/** strlcpy() */
+#ifndef HAVE_STRLCPY
+size_t strlcpy(char *dst, const char *src, size_t size);
+#endif
+
+/** strlcat() */
+#ifndef HAVE_STRLCAT
+size_t strlcat(char *dst, const char *src, size_t size);
 #endif
 
 

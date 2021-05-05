@@ -29,6 +29,7 @@ MU_TEST(test_vsnprintf)
   char *long_string = "0123456789abcdef";
   int n;
 
+  printf("\n\n--- test_vsnprintf\n");
   n = wrap_vsnprintf(buf, sizeof(buf), "%s", short_string);
   mu_assert_int_eq(strlen(short_string), n);
 
@@ -44,8 +45,14 @@ MU_TEST(test_snprintf)
   char *long_string = "0123456789abcdef";
   int n;
 
-  n = snprintf(buf, sizeof(buf), "%s", short_string);
+  printf("\n\n--- test_snprintf\n");
+  n = rpl_snprintf(buf, sizeof(buf), "%s", short_string);
   mu_assert_int_eq(strlen(short_string), n);
+
+  memset(buf, 0, sizeof(buf));
+  n = rpl_snprintf(buf, 4, "%s", long_string);
+  printf("\n*** n=%d, buf='%.10s'\n", n, buf);
+
 
   n = snprintf(buf, sizeof(buf), "%s", long_string);
   mu_assert_int_eq(strlen(long_string), n);

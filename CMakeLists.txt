@@ -46,6 +46,7 @@ endif()
 # Enable compiler warnings
 include(SetCompilerFlags)
 if(CMAKE_COMPILER_IS_GNUCC)
+  add_definitions(-D_GNU_SOURCE)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")

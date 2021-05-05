@@ -537,8 +537,6 @@ static UINTMAX_T cast(LDOUBLE);
 static UINTMAX_T myround(LDOUBLE);
 static LDOUBLE mypow10(int);
 
-extern int errno;
-
 int
 rpl_vsnprintf(char *str, size_t size, const char *format, va_list args)
 {
@@ -1498,13 +1496,13 @@ rpl_vasprintf(char **ret, const char *format, va_list ap)
         // cppcheck-suppress va_list_usedBeforeStarted
 	VA_COPY(aq, ap);
         // cppcheck-suppress va_list_usedBeforeStarted
-	len = vsnprintf(NULL, 0, format, aq);
+	len = rpl_vsnprintf(NULL, 0, format, aq);
 	VA_END_COPY(aq);
 	if (len < 0 || (*ret = malloc(size = len + 1)) == NULL)
                 // cppcheck-suppress memleak
 		return -1;
         // cppcheck-suppress memleak
-	return vsnprintf(*ret, size, format, ap);
+	return rpl_vsnprintf(*ret, size, format, ap);
 }
 #endif	/* !HAVE_VASPRINTF */
 
@@ -1529,7 +1527,7 @@ rpl_snprintf(va_alist) va_dcl
 	VA_SHIFT(ap, str, char *);
 	VA_SHIFT(ap, size, size_t);
 	VA_SHIFT(ap, format, const char *);
-	len = vsnprintf(str, size, format, ap);
+	len = rpl_vsnprintf(str, size, format, ap);
 	va_end(ap);
 	return len;
 }
@@ -1554,7 +1552,7 @@ rpl_asprintf(va_alist) va_dcl
 	VA_START(ap, format);
 	VA_SHIFT(ap, ret, char **);
 	VA_SHIFT(ap, format, const char *);
-	len = vasprintf(ret, format, ap);
+	len = rpl_vasprintf(ret, format, ap);
 	va_end(ap);
 	return len;
 }
