@@ -29,7 +29,7 @@
 ##########################################
 # Stage: install dependencies
 ##########################################
-FROM fedora:34 AS dependencies
+FROM fedora:33 AS dependencies
 
 RUN dnf update -y
 RUN dnf install -y \
@@ -125,17 +125,15 @@ RUN cmake .. \
         -DWITH_HDF5=OFF \
         -DWITH_FORTRAN=OFF \
         -DWITH_PYTHON=OFF \
-        -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install \
-        -DDLITE_CODEGEN=/home/user/sw/dlite/build/tools/dlite-codegen.exe
+        -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
 RUN make
-#USER root
-#RUN make install
-#
+
 ## Skip postgresql tests since we haven't set up the server and
 ## static-code-analysis since it is already done.
 ## TODO - set up postgresql server and run the postgresql tests...
-#USER user
-#RUN ctest -E "(postgresql|static-code-analysis)" || \
-#    ctest -E "(postgresql|static-code-analysis)" \
-#        --rerun-failed --output-on-failure -VV
-#
+RUN ctest -E "(postgresql|static-code-analysis)" || \
+    ctest -E "(postgresql|static-code-analysis)" \
+        --rerun-failed --output-on-failure -VV
+
+USER root
+RUN make install

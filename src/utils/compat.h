@@ -33,6 +33,8 @@
 /*
  * compat/realpath.c
  */
+
+/** realpath() - return the canonicalized absolute pathname */
 #ifndef HAVE_REALPATH
 char *realpath(const char *path, char *resolved);
 #endif
@@ -42,28 +44,22 @@ char *realpath(const char *path, char *resolved);
  * compat/snprintf.c
  */
 
-/** snprintf() */
+/** snprintf() - write formatted output to sized buffer */
 #ifndef HAVE_SNPRINTF
 # ifdef HAVE__SNPRINTF
 #  define snprintf _snprintf
 # else
-#  ifdef HAVE_STDLIB_H
-#   include <stdlib.h>
-#  endif
 #  define snprintf rpl_snprintf
 int rpl_snprintf(char *str, size_t size, const char *fmt, ...)
   __attribute__ ((__format__ (__printf__, 3, 4)));
 # endif
 #endif
 
-/** asprintf() */
+/** asprintf() - write formatted output to allocated buffer */
 #ifndef HAVE_ASPRINTF
 # ifdef HAVE__ASPRINTF
 #  define asprintf _asprintf
 # else
-#  ifdef HAVE_STDLIB_H
-#   include <stdlib.h>
-#  endif
 #  define asprintf rpl_asprintf
 int rpl_asprintf(char **buf, const char *fmt, ...)
   __attribute__ ((__format__ (__printf__, 2, 3)));
@@ -74,14 +70,14 @@ int rpl_asprintf(char **buf, const char *fmt, ...)
 #ifdef HAVE_STDARG_H
 #include <stdarg.h>
 
-/** vsnprintf() */
+/** vsnprintf() - write formatted output to sized buffer */
 #ifndef HAVE_VSNPRINTF
 # define vsnprintf rpl_vsnprintf
 int rpl_vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
   __attribute__ ((__format__ (__printf__, 3, 0)));
 #endif
 
-/** vasprintf() */
+/** vasprintf() - write formatted output to allocated buffer */
 #ifndef HAVE_VASPRINTF
 # define vasprintf rpl_vasprintf
 int rpl_vasprintf(char **buf, const char *fmt, va_list ap)
@@ -92,7 +88,7 @@ int rpl_vasprintf(char **buf, const char *fmt, va_list ap)
 
 
 
-/** strdup */
+/** strdup() - duplicate a string */
 #ifdef HAVE__STRDUP
 # define strdup(s) _strdup(s)
 #else
@@ -102,7 +98,7 @@ char *strdup(const char *s)
 # endif
 #endif
 
-/** strndup */
+/** strndup() - duplicate a string with a maximal size */
 #ifdef HAVE__STRNDUP
 # define strndup(s, n) _strndup(s, n)
 #else
@@ -112,7 +108,7 @@ char *strndup(const char *s, size_t n)
 # endif
 #endif
 
-/** strcasecmp */
+/** strcasecmp() - case insensitive string comparison */
 #ifndef strcasecmp
 # ifdef HAVE__STRICMP
 #  define strcasecmp(s1, s2) _stricmp(s1, s2)
@@ -123,7 +119,7 @@ int strcasecmp(const char *s1, const char *s2);
 # endif
 #endif
 
-/** strncasecmp */
+/** strncasecmp() - case insensitive, length-limited string comparison */
 #ifndef strncasecmp
 # ifdef HAVE__STRNICMP
 #  define strncasecmp(s1, s2, n) _strnicmp(s1, s2, n)
@@ -139,12 +135,12 @@ int strncasecmp(const char *s1, const char *s2, size_t n);
  * compat.c
  */
 
-/** strlcpy() */
+/** strlcpy() - like strncpy(), but guarantees that `dst` is NUL-terminated */
 #ifndef HAVE_STRLCPY
 size_t strlcpy(char *dst, const char *src, size_t size);
 #endif
 
-/** strlcat() */
+/** strlcat() - like strncat(), but guarantees that `dst` is NUL-terminated */
 #ifndef HAVE_STRLCAT
 size_t strlcat(char *dst, const char *src, size_t size);
 #endif

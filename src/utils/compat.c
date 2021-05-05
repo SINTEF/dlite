@@ -83,6 +83,7 @@ int strncasecmp(const char *s1, const char *s2, size_t len)
 }
 #endif
 
+/* strlcpy() - like strncpy(), but guarantees that `dst` is NUL-terminated */
 #if !defined(HAVE_STRLCPY)
 size_t strlcpy(char *dst, const char *src, size_t size)
 {
@@ -92,6 +93,7 @@ size_t strlcpy(char *dst, const char *src, size_t size)
 }
 #endif
 
+/* strlcat() - like strncat(), but guarantees that `dst` is NUL-terminated */
 #if !defined(HAVE_STRLCPY)
 size_t strlcat(char *dst, const char *src, size_t size)
 {

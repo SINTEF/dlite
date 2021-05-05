@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "utils/compat.h"
 #include "utils/err.h"
 #include "utils/map.h"
 #include "utils/fileutils.h"

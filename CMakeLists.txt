@@ -28,6 +28,9 @@ option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 
+# Enable C99
+set(CMAKE_C_STANDARD 99)
+
 # Set default cmake configurations
 include(SetDefaults)
 
@@ -40,11 +43,13 @@ else()
   set(NUMBER_OF_CPUS_OPTION "")
 endif()
 
-
 # Compiler options
 # ----------------
-# Enable compiler warnings
 include(SetCompilerFlags)
+
+enable_c_compiler_flag_if_supported("-m64")
+
+# Enable compiler warnings
 if(CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-D_GNU_SOURCE)
   enable_c_compiler_flag_if_supported("-Wall")
@@ -55,9 +60,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
     enable_c_compiler_flag_if_supported("-Werror")
   endif()
 endif()
-
-# Enable C99
-set(CMAKE_C_STANDARD 99)
 
 # Define MINGW if we are running a GNU compiler on a Windows system
 if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -481,12 +483,12 @@ endmacro()
 set(dlite_PATH "")
 if(WIN32)
   build_append(dlite_PATH
-    ${dlite-src_BINARY_DIR}
-    ${dlite-src-utils_BINARY_DIR}
-    ${dlite-tools_BINARY_DIR}
+    ${dlite_BINARY_DIR}/src
+    ${dlite_BINARY_DIR}/src/utils
+    ${dlite_BINARY_DIR}/tools
     )
   if(WITH_PYTHON)
-    build_append(dlite_PATH ${dlite-src-pyembed_BINARY_DIR})
+    build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
   endif()
   if(WITH_JSON)
     list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
@@ -504,12 +506,12 @@ list(REMOVE_DUPLICATES dlite_PATH)
 set(dlite_WINEPATH "")
 if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
   build_append(dlite_WINEPATH
-    ${dlite-src_BINARY_DIR}
-    ${dlite-src-utils_BINARY_DIR}
-    ${dlite-tools_BINARY_DIR}
+    ${dlite_BINARY_DIR}/src
+    ${dlite_BINARY_DIR}/src/utils
+    ${dlite_BINARY_DIR}/tools
     )
   if(WITH_PYTHON)
-    build_append(dlite_WINEPATH ${dlite-src-pyembed_BINARY_DIR})
+    build_append(dlite_WINEPATH ${dlite_BINARY_DIR}/src/pyembed)
   endif()
   if(WITH_JSON)
     list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
@@ -527,11 +529,11 @@ list(REMOVE_DUPLICATES dlite_WINEPATH)
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH "")
 build_append(dlite_LD_LIBRARY_PATH
-  ${dlite-src_BINARY_DIR}
-  ${dlite-src-utils_BINARY_DIR}
+  ${dlite_BINARY_DIR}/src
+  ${dlite_BINARY_DIR}/src/utils
   )
 if(WITH_PYTHON)
-  build_append(dlite_LD_LIBRARY_PATH ${dlite-src-pyembed_BINARY_DIR})
+  build_append(dlite_LD_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
 endif()
 #list(APPEND dlite_LD_LIBRARY_PATH
 #  ${JANSSON_RUNTIME_DIR}

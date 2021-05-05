@@ -526,6 +526,11 @@ do {                                                                         \
 	(len)++;                                                             \
 } while (/* CONSTCOND */ 0)
 
+int rpl_snprintf(char *str, size_t size, const char *fmt, ...);
+int rpl_vsnprintf(char *str, size_t size, const char *fmt, va_list ap);
+int rpl_asprintf(char **buf, const char *fmt, ...);
+int rpl_vasprintf(char **buf, const char *fmt, va_list ap);
+
 static void fmtstr(char *, size_t *, size_t, const char *, int, int, int);
 static void fmtint(char *, size_t *, size_t, INTMAX_T, int, int, int, int);
 static void fmtflt(char *, size_t *, size_t, LDOUBLE, int, int, int, int *);

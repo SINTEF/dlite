@@ -118,8 +118,9 @@ else()
     )
 
   # Append to CMAKE_MODULE_PATH
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake
-    PARENT_SCOPE)
+  set(CMAKE_MODULE_PATH ${DLITE_ROOT}/share/dlite/cmake ${CMAKE_MODULE_PATH})
+  #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake
+  #  PARENT_SCOPE)
 
   # Define variables for setting up environment needed by dlite
   if(WIN32)
