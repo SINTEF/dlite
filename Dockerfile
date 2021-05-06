@@ -96,9 +96,13 @@ ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
 
 # Setup dlite
 RUN mkdir -p /home/user/sw/dlite
-#COPY --chown=user:user . /home/user/sw/dlite
-COPY --chown=user:user bindings cmake doc examples src /home/user/sw/dlite/
-COPY --chown=user:user storages tools /home/user/sw/dlite/
+COPY --chown=user:user bindings /home/user/sw/dlite/bindings
+COPY --chown=user:user cmake /home/user/sw/dlite/cmake
+COPY --chown=user:user doc /home/user/sw/dlite/doc
+COPY --chown=user:user examples /home/user/sw/dlite/examples
+COPY --chown=user:user src /home/user/sw/dlite/src
+COPY --chown=user:user storages /home/user/sw/dlite/storages
+COPY --chown=user:user tools /home/user/sw/dlite/tools
 COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
 RUN rm -rf build
