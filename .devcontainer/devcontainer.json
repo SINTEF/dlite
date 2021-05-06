@@ -10,6 +10,7 @@
 	"dockerFile": "../Dockerfile",
 
 	"build": {
+		"target": "develop"
 		//"target": "build"
 	},
 
