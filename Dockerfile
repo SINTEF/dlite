@@ -95,8 +95,11 @@ ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
 
 
 # Setup dlite
-RUN mkdir /home/user/sw
-COPY --chown=user:user . /home/user/sw/dlite
+RUN mkdir -p /home/user/sw/dlite
+#COPY --chown=user:user . /home/user/sw/dlite
+COPY --chown=user:user bindings cmake doc examples src /home/user/sw/dlite/
+COPY --chown=user:user storages tools /home/user/sw/dlite/
+COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
 RUN rm -rf build
 
@@ -123,25 +126,22 @@ RUN ctest -E "(postgresql|static-code-analysis)" || \
     ctest -E "(postgresql|static-code-analysis)" \
         --rerun-failed --output-on-failure -VV
 
+
 #########################################
 # Stage: develop
 #########################################
-from build as develop
+FROM build AS develop
 ENV PATH=/tmp/dlite-install/bin:$PATH
 ENV DLITE_ROOT=/tmp/dlite-install
 ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
+
 
 ##########################################
 # Stage: final slim image
 ##########################################
 FROM python:3.8.3-slim-buster
-# Remove unneeded installed files
 USER root
-RUN rm -r /tmp/dlite-install/lib/lib*.a
-RUN rm -r /tmp/dlite-install/include
-RUN rm -r /tmp/dlite-install/share/dlite/html
-RUN rm -r /tmp/dlite-install/share/dlite/examples
-RUN rm -r /tmp/dlite-install/share/dlite/cmake
+
 # Copy executable files and libraries
 COPY --from=build /tmp/dlite-install /usr/local
 COPY --from=build /usr/lib/x86_64-linux-gnu/libjansson.so* /usr/local/lib/
