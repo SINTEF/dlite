@@ -685,9 +685,6 @@ add_subdirectory(src)
 if(WITH_PYTHON)
   add_subdirectory(bindings/python)
 endif()
-if(WITH_FORTRAN)
-  add_subdirectory(bindings/fortran)
-endif()
 
 # Storage plugins
 if(WITH_HDF5)
@@ -703,8 +700,13 @@ if(WITH_PYTHON)
   add_subdirectory(storages/python)
 endif()
 
-# Tools (may depend on storage plugins)
+# Tools - may depend on storage plugins
 add_subdirectory(tools)
+
+# Fortran - depends on tools
+if(WITH_FORTRAN)
+  add_subdirectory(bindings/fortran)
+endif()
 
 # Examples
 if(WITH_EXAMPLES)

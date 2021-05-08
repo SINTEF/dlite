@@ -16,7 +16,7 @@
 
 
 if(NOT FIND_NUMPY_QUIETLY)
-  message(STATUS "-- Checking for NumPy")
+  message(STATUS "Checking for NumPy")
 endif()
 
 set(script "
@@ -59,9 +59,9 @@ endif()
 
 if(NOT FIND_NUMPY_QUIETLY)
   if(NUMPY_FOUND)
-    message(STATUS "-- Checking for NumPy - found version ${NUMPY_VERSION}")
+    message(STATUS "Checking for NumPy - found version ${NUMPY_VERSION}")
   else()
-    message(STATUS "-- Checking for NumPy - not found")
+    message(STATUS "Checking for NumPy - not found")
   endif()
 endif()
 

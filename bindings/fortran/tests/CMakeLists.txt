@@ -53,11 +53,13 @@ foreach(test ${tests})
   set(name ${test}-f90)
   add_test(
     NAME ${name}
-    COMMAND ${test}
+    COMMAND ${RUNNER} ${test}
     )
 
   set_property(TEST ${name} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+  set_property(TEST ${name} APPEND PROPERTY
+    ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
