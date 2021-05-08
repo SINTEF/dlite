@@ -672,30 +672,66 @@ endif()
 # -----
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VENDOR "SINTEF")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-  "Lightweight data-centric framework for working with scientific data")
-set(CPACK_PACKAGE_VERSION "${dlite_VERSION}")
 set(CPACK_PACKAGE_VERSION_MAJOR "${dlite_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${dlite_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${dlite_VERSION_RELEASE}")
+set(CPACK_PACKAGE_DESCRIPTION
+  "DLite is a lightweight cross-platform C library, for working with
+  and sharing scientific data in an interoperable way.
+
+  All data in DLite is represented by an Instance, which is build on a
+  simple data model.  An Instance is identified by a unique UUID and
+  have a set of named dimensions and properties.  It is described by
+  its Metadata.  In the Metadata, each dimension is given a name and
+  description (optional) and each property is given a name, type,
+  shape (optional), unit (optional) and description (optional).  The
+  shape of a property refers to the named dimensions.
+
+  When an Instance is instantiated, you must suply a value to the
+  named dimensions.  The shape of the properties will be set according
+  to that.  This ensures that the shape of the properties are
+  internally consistent.
+
+  A Metadata is also an Instance, and hence described by its
+  meta-metadata.  By default, DLite defines four levels of metadata;
+  instance, metadata, metadata schema and basic metadata schema. The
+  basic metadata schema describes itself, so no further meta levels
+  are needed.  The idea is if two different systems describes their data
+  model in terms of the basic metadata schema, they can easily be made
+  semantically interoperable.
+
+  An alternative and more flexible way to enable interoperability is
+  to use a common ontology.  DLite provides a specialised Instance
+  called Collection.  A collection is essentially a container holding
+  a set of Instances and relations between them.  But it can also
+  relate an Instance or even a dimension or property of an instance to
+  a concept in an ontology.  DLite allows to transparently map an
+  Instance whos Metadata corresponding to a concept in one ontology to
+  an Instance whos Metadata corresponding to a concept in another
+  ontology.  Such mappings can easily be registered (in C or Python)
+  and reused, providing a very powerful system for achieving
+  interoperability.
+
+  DLite provides also a common and extendable API for loading/storing
+  Instances from/to different storages.  New storage plugins can be
+  written in C or Python.
+  ")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Lightweight data-centric
+framework for working with scientific data")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/SINTEF/dlite")
+set(CPACK_PACKAGE_FILE_NAME
+"dlite-${dlite_VERSION}-${CPACK_SYSTEM_NAME}")
+#set(CPACK_PACKAGE_INSTALL_DIRECTORY "")
 #set(CPACK_PACKAGE_ICON "${dlite_SOURCE_DIR}/doc/icons/dlite.ico")
+set(CPACK_PACKAGE_CHECKSUM "SHA256")
 #set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
-set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${CPACK_SYSTEM_NAME}")
-
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-#set(CPACK_RESOURCE_FILE_README "")
+set(CPACK_RESOURCE_FILE_README "${dlite_SOURCE_DIR}/README.md")
 #set(CPACK_RESOURCE_FILE_WELCOME "")
-#set(CPACK_SET_DESTDIR "ON")
-
-set(CPACK_SOURCE_GENERATOR "ZIP")
+set(CPACK_VERBATIM_VARIABLES TRUE)
+#set(CPACK_SOURCE_GENERATOR "ZIP")
 set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
   ".git/*" "${CMAKE_BINARY_DIR}/*" "build*/*" "dist/*" "dlite.egg-info/*")
-
-if(WIN32)
-  #set(CPACK_SET_DESTDIR ON)
-  set(CPACK_INSTALL_PREFIX "\$$PROFILE")
-  #set(CPACK_PACKAGE_INSTALL_DIRECTORY "\$$PROFILE")
-endif()
 
 # Include CPack after configuring it...
 include(CPack)
