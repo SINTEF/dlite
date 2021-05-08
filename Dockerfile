@@ -67,7 +67,11 @@ RUN apt-get install -y --fix-missing \
     make \
     python3-dev \
     python3-pip \
-    swig4.0
+    swig4.0 \
+    rpm \
+    librpmbuild8 \
+    dpkg
+
 
 # Install Python packages
 COPY requirements.txt .
