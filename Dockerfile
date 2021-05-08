@@ -45,16 +45,14 @@ RUN wget -O - \
      apt-key add -
 
 # Add Kitware repo
-#RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal bionic main'
 RUN apt update
 
 # Ensure that our keyring stays up to date
 RUN apt-get install kitware-archive-keyring
 
 # Install dependencies
-#RUN apt-get install -y --fix-missing
-RUN apt-get install -y \
+RUN apt-get install -y --fix-missing \
     cmake \
     cmake-curses-gui \
     cppcheck \
@@ -63,24 +61,18 @@ RUN apt-get install -y \
     gdb \
     gfortran \
     git \
-    graphviz \
     g++ \
     libhdf5-dev \
     libjansson-dev \
     make \
-    python3 \
     python3-dev \
-    python3-numpy \
-    python3-psycopg2 \
-    python3-yaml \
     python3-pip \
-    swig3.0
+    swig4.0
 
 # Install Python packages
+COPY requirements.txt .
 RUN pip3 install --trusted-host files.pythonhosted.org \
-    --upgrade pip
-RUN pip3 install --trusted-host files.pythonhosted.org \
-    fortran-language-server
+    --upgrade pip -r requirements.txt
 
 
 ##########################################
@@ -130,6 +122,9 @@ RUN ctest -E "(postgresql|static-code-analysis)" || \
     ctest -E "(postgresql|static-code-analysis)" \
         --rerun-failed --output-on-failure -VV
 
+# Set DLITE_USE_BUILD_ROOT in case we want to test dlite from the build dir
+ENV DLITE_USE_BUILD_ROOT=YES
+
 
 #########################################
 # Stage: develop
@@ -144,9 +139,9 @@ ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
 # Stage: final slim image
 ##########################################
 FROM python:3.8.3-slim-buster
-USER root
 
-# Copy executable files and libraries
+# Copy needed dlite files and libraries to slim image
+USER root
 COPY --from=build /tmp/dlite-install /usr/local
 COPY --from=build /usr/lib/x86_64-linux-gnu/libjansson.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libhdf5*.so* /usr/local/lib/
