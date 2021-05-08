@@ -28,7 +28,7 @@ foreach(test ${tests})
 
   add_test(
     NAME ${test}
-    COMMAND ${test}
+    COMMAND ${RUNNER} ${test}
     )
 
   set_property(TEST ${test} PROPERTY

@@ -268,6 +268,15 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
 
 
 /**
+  Converts `path` native platform.
+
+  Calls fu_winpath() or fu_unixpath() depending on current platform.
+ */
+char *fu_nativepath(const char *path, char *dest, size_t size,
+                    const char *pathsep);
+
+
+/**
   Returns the canonicalized absolute pathname for `path`.  Resolves
   symbolic links and references to '/./', '/../' and extra '/'.  Note
   that `path` must exists.

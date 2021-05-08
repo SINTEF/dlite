@@ -209,7 +209,8 @@ void *dlite_pyembed_get_address(const char *symbol)
   PyObject *ctypes_name=NULL, *ctypes_module=NULL, *ctypes_dict=NULL;
   PyObject *PyDLL=NULL, *addressof=NULL;
   PyObject *so=NULL, *sym=NULL, *addr=NULL;
-  const char *filename=NULL;
+  const char *fname=NULL;
+  char *filename=NULL;
   void *ptr=NULL;
 
   /* Import dlite */
@@ -226,8 +227,10 @@ void *dlite_pyembed_get_address(const char *symbol)
 
   /* Get C path to _dlite */
   if (!PyUnicode_Check(_dlite_file) ||
-      !(filename = PyUnicode_AsUTF8(_dlite_file)))
+      !(fname = PyUnicode_AsUTF8(_dlite_file)))
     FAIL("cannot get C path to dlite extension module");
+  if (!(filename = fu_nativepath(fname, NULL, 0, NULL)))
+    FAIL1("cannot convert path: '%s'", fname);
 
   /* Get PyDLL() from ctypes */
   if (!(ctypes_name = PyUnicode_FromString("ctypes")) ||
@@ -270,6 +273,7 @@ void *dlite_pyembed_get_address(const char *symbol)
   //Py_XDECREF(dlite_dict);     // borrowed reference
   Py_XDECREF(dlite_module);
   Py_XDECREF(dlite_name);
+  if (filename) free(filename);
   return ptr;
 }
 

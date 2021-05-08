@@ -521,6 +521,25 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
   return dest;
 }
 
+/*
+  Converts `path` native platform.
+
+  Calls fu_winpath() or fu_unixpath() depending on current platform.
+ */
+char *fu_nativepath(const char *path, char *dest, size_t size,
+                    const char *pathsep)
+{
+  switch (fu_native_platform()) {
+  case fuUnix:
+    return fu_unixpath(path, dest, size, pathsep);
+  case fuWindows:
+    return fu_winpath(path, dest, size, pathsep);
+  default:
+    return err(1, "don't know how to convert path - current platform is "
+               "neither Unix or Windows"), NULL;
+  }
+}
+
 
 /*
   Returns the canonicalized absolute pathname for `path`.  Resolves

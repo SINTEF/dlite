@@ -18,6 +18,9 @@ set(WIN64 1
 set(CMAKE_SYSTEM_NAME Windows)
 
 set(TOOLCHAIN_PREFIX "x86_64-w64-mingw32")
+set(TOOLCHAIN_ROOTDIR /usr/${TOOLCHAIN_PREFIX}/sys-root/mingw)
+set(TOOLCHAIN_BINDIR ${TOOLCHAIN_ROOTDIR}/bin)
+set(TOOLCHAIN_LIBDIR ${TOOLCHAIN_ROOTDIR}/lib)
 
 # set COMPILER_PREFIX, see http://www.mingw.org/
 set(COMPILER_PREFIX ${TOOLCHAIN_PREFIX}-)
@@ -48,3 +51,7 @@ set(CMAKE_FIND_ROOT_PATH
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+# Make sure that we find the right Python executable
+#set(Python3_EXECUTABLE /usr/${TOOLCHAIN_PREFIX}/sys-root/mingw/bin/python3.exe)
+set(Python3_EXECUTABLE ${TOOLCHAIN_BINDIR}/python3.exe)

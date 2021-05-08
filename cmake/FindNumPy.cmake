@@ -16,21 +16,31 @@
 
 
 if(NOT FIND_NUMPY_QUIETLY)
-  message("-- Checking for NumPy")
+  message(STATUS "-- Checking for NumPy")
 endif()
 
-message("*** PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE}")
+set(script "
+import os
+from pathlib import Path
+import numpy as np
+
+def basepath(path):
+    return Path(os.path.splitdrive(path)[1])
+
+incdir = basepath(np.get_include())
+coredir = basepath(np.__file__).parent / 'core'
+
+print(incdir.as_posix())
+print(np.version.version)
+print(coredir.as_posix())
+")
 
 execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "import numpy; print(numpy.get_include()); print(numpy.version.version)"
+  COMMAND "${PYTHON_EXECUTABLE}" -c "${script}"
   RESULT_VARIABLE numpy_retval
   OUTPUT_VARIABLE numpy_output
   ERROR_VARIABLE numpy_error
   )
-
-message("*** numpy_retval ${numpy_retval}")
-message("*** numpy_output ${numpy_output}")
-message("*** numpy_error ${numpy_error}")
 
 if(${numpy_retval})
   set(NUMPY_FOUND FALSE)
@@ -40,13 +50,18 @@ else()
   string(REPLACE "\n" ";" numpy_output ${numpy_output})
   list(GET numpy_output 0 NUMPY_INCLUDE_DIR)
   list(GET numpy_output 1 NUMPY_VERSION)
+  list(GET numpy_output 2 NUMPY_LIBRARY_DIR)
 endif()
+
+#message("*** NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR}")
+#message("*** NUMPY_VERSION ${NUMPY_VERSION}")
+#message("*** NUMPY_LIBRARY_DIR ${NUMPY_LIBRARY_DIR}")
 
 if(NOT FIND_NUMPY_QUIETLY)
   if(NUMPY_FOUND)
-    message("-- Checking for NumPy - found version ${NUMPY_VERSION}")
+    message(STATUS "-- Checking for NumPy - found version ${NUMPY_VERSION}")
   else()
-    message("-- Checking for NumPy - not found")
+    message(STATUS "-- Checking for NumPy - not found")
   endif()
 endif()
 
@@ -54,5 +69,5 @@ endif()
 include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(
-  NumPy DEFAULT_MSG NUMPY_VERSION NUMPY_INCLUDE_DIR)
-mark_as_advanced(INCLUDE_FOUND NUMPY_VERSION NUMPY_INCLUDE_DIR)
+  NumPy DEFAULT_MSG NUMPY_VERSION NUMPY_INCLUDE_DIR NUMPY_LIBRARY_DIR)
+mark_as_advanced(NUMPY_FOUND NUMPY_VERSION NUMPY_INCLUDE_DIR NUMPY_LIBRARY_DIR)

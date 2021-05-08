@@ -294,11 +294,13 @@ set_target_properties(dlite-utils-static PROPERTIES
 target_include_directories(dlite-utils PUBLIC
   #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 target_include_directories(dlite-utils-static PUBLIC
   #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 

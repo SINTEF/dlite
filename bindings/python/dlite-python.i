@@ -16,6 +16,9 @@
 #define DLITE_DATA_CAPSULA_NAME ((char *)"dlite.data")
 
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
+
+  /* forward declarations */
+  char *strndup(const char *s, size_t n);
 %}
 
 /* Some cross-target language typedef's and definitions */
@@ -86,8 +89,8 @@ int npy_type(DLiteType type, size_t size)
     case 1: return NPY_BOOL;  /* numpy bool is always 1 byte */
     case 2: return NPY_UINT16;
     case 4: return NPY_UINT32;
-    default: return dlite_err(-1, "no numpy type code for bool of size %zu",
-                              size);
+    default: return dlite_err(-1, "no numpy type code for bool of size %lu",
+                              (unsigned long)size);
     }
   case dliteInt:
     switch (size) {
@@ -95,8 +98,8 @@ int npy_type(DLiteType type, size_t size)
     case 2: return NPY_INT16;
     case 4: return NPY_INT32;
     case 8: return NPY_INT64;
-    default: return dlite_err(-1, "no numpy type code for integer of size %zu",
-                              size);
+    default: return dlite_err(-1, "no numpy type code for integer of size %lu",
+                              (unsigned long)size);
     }
   case dliteUInt:
     switch (size) {
@@ -105,14 +108,14 @@ int npy_type(DLiteType type, size_t size)
     case 4: return NPY_UINT32;
     case 8: return NPY_UINT64;
     default: return dlite_err(-1, "no numpy type code for unsigned integer "
-                              "of size %zu", size);
+                              "of size %lu", (unsigned long)size);
     }
   case dliteFloat:
     switch (size) {
     case 4: return NPY_FLOAT32;
     case 8: return NPY_FLOAT64;
-    default: return dlite_err(-1, "no numpy type code for float of size %zu",
-                              size);
+    default: return dlite_err(-1, "no numpy type code for float of size %lu",
+                              (unsigned long)size);
     }
   case dliteFixString:
     /* It would have been nicer to use NPY_UNICODE, but unfortunately is
@@ -340,7 +343,7 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
   for (i=0; i<ndims; i++)
     if (PyArray_DIM(arr, i) != dims[i])
       FAIL3("expected length of dimension %d to be %d, got %ld",
-            i, dims[i], PyArray_DIM(arr, i));
+            i, dims[i], (long)PyArray_DIM(arr, i));
 
   /* Assign memory */
   switch(type) {
@@ -496,7 +499,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       case 2: value = *((int16_t *)data); break;
       case 4: value = *((int32_t *)data); break;
       case 8: value = (long)*((int64_t *)data); break;
-      default: FAIL1("invalid integer size: %zu", size);
+      default: FAIL1("invalid integer size: %lu", (unsigned long)size);
       }
       obj = PyLong_FromLong(value);
     }
@@ -510,7 +513,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       case 2: value = *((uint16_t *)data); break;
       case 4: value = *((uint32_t *)data); break;
       case 8: value = (unsigned long)*((uint64_t *)data); break;
-      default: FAIL1("invalid unsigned integer size: %zu", size);
+      default: FAIL1("invalid unsigned integer size: %lu", (unsigned long)size);
       }
       obj = PyLong_FromUnsignedLong(value);
     }
@@ -528,7 +531,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 #ifdef HAVE_FLOAT128_T
       case 16: value = *((float128_t *)data); break;
 #endif
-      default: FAIL1("invalid float size: %zu", size);
+      default: FAIL1("invalid float size: %lu", (unsigned long)size);
       }
       obj = PyFloat_FromDouble(value);
     }
@@ -605,7 +608,8 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       n = PyBytes_Size(bytes);
       if (n > size) {
         Py_DECREF(bytes);
-        FAIL2("Length of bytearray is %zu. Exceeds size of blob: %zu", n, size);
+        FAIL2("Length of bytearray is %lu. Exceeds size of blob: %lu",
+              (unsigned long)n, (unsigned long)size);
       }
       memset(ptr, 0, size);
       memcpy(ptr, PyBytes_AsString(bytes), n);
@@ -636,7 +640,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       case 2: *((int16_t *)ptr) = (int16_t)value; break;
       case 4: *((int32_t *)ptr) = (int32_t)value; break;
       case 8: *((int64_t *)ptr) = (int64_t)value; break;
-      default: FAIL1("invalid integer size: %zu", size);
+      default: FAIL1("invalid integer size: %lu", (unsigned long)size);
       }
     }
     break;
@@ -654,7 +658,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       case 2: *((uint16_t *)ptr) = (uint16_t)value; break;
       case 4: *((uint32_t *)ptr) = (uint32_t)value; break;
       case 8: *((uint64_t *)ptr) = (uint64_t)value; break;
-      default: FAIL1("invalid unsigned integer size: %zu", size);
+      default: FAIL1("invalid unsigned integer size: %lu", (unsigned long)size);
       }
       break;
     }
@@ -671,7 +675,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 #ifdef HAVE_FLOAT128
     case 16: *((float128_t *)ptr) = (float128_t)value; break;
 #endif
-    default: FAIL1("invalid float size: %zu", size);
+    default: FAIL1("invalid float size: %lu", (unsigned long)size);
     }
   }
     break;
@@ -689,7 +693,8 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       n = PyUnicode_GET_LENGTH(str);
       if (n > size) {
         Py_DECREF(str);
-        FAIL2("Length of string is %zu. Exceeds available size: %zu", n, size);
+        FAIL2("Length of string is %lu. Exceeds available size: %lu",
+              (unsigned long)n, (unsigned long)size);
       }
       s = PyUnicode_1BYTE_DATA(str);
       memset(ptr, 0, size);
@@ -850,7 +855,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
         if ((n = PySequence_Fast_GET_SIZE(lst)) < 3 || n > 4) {
           Py_DECREF(lst);
-          FAIL1("relations must be 3 or 4 strings, got %ld", n);
+          FAIL1("relations must be 3 or 4 strings, got %ld", (long)n);
         }
         for (i=0; i<n; i++) {
           PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
