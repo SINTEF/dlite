@@ -45,16 +45,14 @@ RUN wget -O - \
      apt-key add -
 
 # Add Kitware repo
-#RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal bionic main'
 RUN apt update
 
 # Ensure that our keyring stays up to date
 RUN apt-get install kitware-archive-keyring
 
 # Install dependencies
-#RUN apt-get install -y --fix-missing
-RUN apt-get install -y \
+RUN apt-get install -y --fix-missing \
     cmake \
     cmake-curses-gui \
     cppcheck \
@@ -89,8 +87,15 @@ ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
 
 
 # Setup dlite
-RUN mkdir /home/user/sw
-COPY --chown=user:user . /home/user/sw/dlite
+RUN mkdir -p /home/user/sw/dlite
+COPY --chown=user:user bindings /home/user/sw/dlite/bindings
+COPY --chown=user:user cmake /home/user/sw/dlite/cmake
+COPY --chown=user:user doc /home/user/sw/dlite/doc
+COPY --chown=user:user examples /home/user/sw/dlite/examples
+COPY --chown=user:user src /home/user/sw/dlite/src
+COPY --chown=user:user storages /home/user/sw/dlite/storages
+COPY --chown=user:user tools /home/user/sw/dlite/tools
+COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
 RUN rm -rf build
 
@@ -117,19 +122,26 @@ RUN ctest -E "(postgresql|static-code-analysis)" || \
     ctest -E "(postgresql|static-code-analysis)" \
         --rerun-failed --output-on-failure -VV
 
-# Remove unneeded installed files
-USER root
-RUN rm -r /tmp/dlite-install/lib/lib*.a
-RUN rm -r /tmp/dlite-install/include
-RUN rm -r /tmp/dlite-install/share/dlite/html
-RUN rm -r /tmp/dlite-install/share/dlite/examples
-RUN rm -r /tmp/dlite-install/share/dlite/cmake
+# Set DLITE_USE_BUILD_ROOT in case we want to test dlite from the build dir
+ENV DLITE_USE_BUILD_ROOT=YES
+
+
+#########################################
+# Stage: develop
+#########################################
+FROM build AS develop
+ENV PATH=/tmp/dlite-install/bin:$PATH
+ENV DLITE_ROOT=/tmp/dlite-install
+ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
 
 
 ##########################################
 # Stage: final slim image
 ##########################################
 FROM python:3.8.3-slim-buster
+
+# Copy needed dlite files and libraries to slim image
+USER root
 COPY --from=build /tmp/dlite-install /usr/local
 COPY --from=build /usr/lib/x86_64-linux-gnu/libjansson.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libhdf5*.so* /usr/local/lib/

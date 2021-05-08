@@ -10,7 +10,8 @@
 	"dockerFile": "../Dockerfile",
 
 	"build": {
-		"target": "build"
+		//"target": "build"
+		"target": "develop"
 	},
 
 	// Set *default* container specific settings.json values on container create.
