@@ -20,41 +20,15 @@ else()
 endif()
 
 # Add macros for use with swig
+# It seems that we cannot set policy  CMP0078 to NEW, since that would
+# create a target named "dlite" chich would be in conflict with the target
+# of src/dlite.so.
+# TODO: Check if it is possible to rename the target of src/dlite.so
+# using a property
 cmake_policy(SET CMP0078 OLD)
 set(SWIG_MODULE_pydlite_REAL_NAME "_dlite")
 find_package(SWIG)
 include(UseSWIG)
-
-## We are not ready to support new policies in cmake-3.13 yet...
-#if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
-#  cmake_policy(SET CMP0078 OLD)
-#  cmake_policy(SET CMP0086 OLD)
-#  #cmake_policy(SET CMP0079 NEW)
-#endif()
-#
-## Try to require correct version of swig depending on Python version
-#if(${PYTHON_VERSION_STRING} VERSION_LESS 3.5)
-#  set(REQUIRED_SWIG_VERSION 3.0.0)
-#else()
-#  set(REQUIRED_SWIG_VERSION 3.0.8)
-#endif()
-#
-## There is a bug in UseSWIG for cmake less than 3.14.  If our version of
-## swig is less than 3.14, we use FindSWIG from cmake 3.14 included with
-## dlite instead.
-#if(CMAKE_VERSION VERSION_LESS 3.14)
-#  find_package(SWIG314 ${REQUIRED_SWIG_VERSION} REQUIRED)
-#  # SWIG_MODULE_dlite_REAL_NAME is not defined before cmake 3.14
-#  set(SWIG_MODULE_dlite_REAL_NAME "_dlite")
-#else()
-#  find_package(SWIG ${REQUIRED_SWIG_VERSION} REQUIRED)
-#endif()
-#
-#
-#
-## Add macros for use with swig
-#include(UseSWIG)
-##include(${SWIG_USE_FILE})
 
 #
 # Create Python library
@@ -69,10 +43,13 @@ include_directories(
   ${dlite-src-utils_BINARY_DIR}
   )
 
-set_source_files_properties(dlite.i PROPERTIES
-  SWIG_FLAGS "-py3;-Wall;-DNPY_SIZE_T=${NPY_SIZE_T}"
-  )
+set_source_files_properties(dlite.i
+  PROPERTIES
+    SWIG_FLAGS "-py3;-Wall;-DNPY_SIZE_T=${NPY_SIZE_T}"
+    SWIG_MODULE_NAME "dlite"
+    )
 
+SET(CMAKE_SKIP_BUILD_RPATH TRUE)
 swig_add_library(dlite
   TYPE SHARED
   LANGUAGE python
@@ -87,8 +64,6 @@ swig_link_libraries(dlite
   dlite
   ${PYTHON_LIBRARIES}
   )
-
-#set_property(TARGET pydlite PROPERTY SWIG_MODULE_NAME _dlite)
 
 
 ##
