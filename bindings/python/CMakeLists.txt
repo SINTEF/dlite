@@ -20,6 +20,8 @@ else()
 endif()
 
 # Add macros for use with swig
+cmake_policy(SET CMP0078 OLD)
+set(SWIG_MODULE_pydlite_REAL_NAME "_dlite")
 find_package(SWIG)
 include(UseSWIG)
 
@@ -72,7 +74,7 @@ set_source_files_properties(dlite.i PROPERTIES
   )
 
 swig_add_library(dlite
-  TYPE
+  TYPE SHARED
   LANGUAGE python
   OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite
   OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -86,54 +88,46 @@ swig_link_libraries(dlite
   ${PYTHON_LIBRARIES}
   )
 
+#set_property(TARGET pydlite PROPERTY SWIG_MODULE_NAME _dlite)
+
 
 ##
 ## Create a working Python package in binary dir
 ## ---------------------------------------------
-#set(pkgdir ${CMAKE_CURRENT_BINARY_DIR}/dlite)
-#set(abs_sources)
-#foreach(source ${py_sources})
-#  list(APPEND abs_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
-#endforeach()
-#
-#set(abs_targets)
-#foreach(source ${py_sources})
-#  list(APPEND abs_targets ${pkgdir}/${source})
-#endforeach()
-#
-#add_custom_command(
-#  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
-#  POST_BUILD
-#  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
-#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
-#    ${CMAKE_CURRENT_BINARY_DIR}/dlite.py
-#    ${pkgdir}
-#  BYPRODUCTS
-#    ${pkgdir}
-#    ${pkgdir}/dlite.py
-#  )
-#
-#add_custom_target(python_package ALL DEPENDS ${abs_targets})
-#add_custom_command(
-#  OUTPUT
-#    ${abs_targets}
-#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    ${abs_sources}
-#    ${pkgdir}
-#  DEPENDS
-#    ${pkgdir}
-#    ${abs_sources}
-#  )
+set(pkgdir ${CMAKE_CURRENT_BINARY_DIR}/dlite)
+set(abs_sources)
+foreach(source ${py_sources})
+  list(APPEND abs_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
+endforeach()
 
+set(abs_targets)
+foreach(source ${py_sources})
+  list(APPEND abs_targets ${pkgdir}/${source})
+endforeach()
 
-# Again a workaround for cmake < 3.14...
-if(CMAKE_VERSION VERSION_LESS 3.14)
-  add_custom_command(
-    OUTPUT ${pkgdir}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
-    )
-endif()
+add_custom_command(
+  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+    ${pkgdir}
+  BYPRODUCTS
+    ${pkgdir}
+    ${pkgdir}/dlite.py
+  )
+
+add_custom_target(python_package ALL DEPENDS ${abs_targets})
+add_custom_command(
+  OUTPUT
+    ${abs_targets}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${abs_sources}
+    ${pkgdir}
+  DEPENDS
+    ${pkgdir}
+    ${abs_sources}
+  )
 
 
 #
@@ -147,20 +141,20 @@ else()
 endif()
 
 execute_process(COMMAND
-  ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
-  OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
+  ${Python3_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
+  OUTPUT_VARIABLE _ABS_Python3_MODULE_PATH
   OUTPUT_STRIP_TRAILING_WHITESPACE)
-get_filename_component(_ABS_PYTHON_MODULE_PATH
-  ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
-file(RELATIVE_PATH _REL_PYTHON_MODULE_PATH
-  ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
-set(PYTHON_MODULE_PATH
-  ${_REL_PYTHON_MODULE_PATH}
+get_filename_component(_ABS_Python3_MODULE_PATH
+  ${_ABS_Python3_MODULE_PATH} ABSOLUTE)
+file(RELATIVE_PATH _REL_Python3_MODULE_PATH
+  ${CMAKE_INSTALL_PREFIX} ${_ABS_Python3_MODULE_PATH})
+set(Python3_MODULE_PATH
+  ${_REL_Python3_MODULE_PATH}
 )
 
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
-  DESTINATION ${PYTHON_MODULE_PATH}
+  DESTINATION ${Python3_MODULE_PATH}
   )
 
 install(
