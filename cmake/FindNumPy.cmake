@@ -20,20 +20,20 @@ if(NOT DEFINED Python3_NumPy_FOUND)
   endif()
 
   set(script "
-  import os
-  from pathlib import Path
-  import numpy as np
+import os
+from pathlib import Path
+import numpy as np
 
-  def basepath(path):
-      return Path(os.path.splitdrive(path)[1])
+def basepath(path):
+    return Path(os.path.splitdrive(path)[1])
 
-  incdir = basepath(np.get_include())
-  coredir = basepath(np.__file__).parent / 'core'
+incdir = basepath(np.get_include())
+coredir = basepath(np.__file__).parent / 'core'
 
-  print(np.version.version)
-  print(incdir.as_posix())
-  print(coredir.as_posix())
-  ")
+print(np.version.version)
+print(incdir.as_posix())
+print(coredir.as_posix())
+")
 
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "${script}"
