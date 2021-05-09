@@ -1,8 +1,6 @@
 # -*- Mode: cmake -*-
 #
-cmake_minimum_required(VERSION 3.11)
-#cmake_policy(VERSION 3.11)
-cmake_policy(SET CMP0074 NEW)
+cmake_minimum_required(VERSION 3.14)
 include(CPack)
 
 project(dlite
@@ -315,21 +313,15 @@ endif()
 # Python
 # ======
 if(WITH_PYTHON)
-  if(CMAKE_VERSION VERSION_LESS_EQUAL 3.12)
-    set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5)
-    find_package(PythonInterp 3.5 REQUIRED)
-    find_package(PythonLibs 3.5 REQUIRED)
-  else()
+  if(CROSS_TARGET AND MINGW)
+    set(Python3_FIND_REGISTRY NEVER)
+    set(Python3_FIND_STRATEGY LOCATION)
+    set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
+  endif()
 
-    if(CROSS_TARGET AND MINGW)
-      set(Python3_FIND_REGISTRY NEVER)
-      set(Python3_FIND_STRATEGY LOCATION)
-      set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
-    endif()
+  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+  find_package(NumPy REQUIRED)
 
-    find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-    set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-    find_package(NumPy REQUIRED)
 
     #if(CMAKE_VERSION VERSION_LESS 3.14.7)
     #  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
@@ -356,11 +348,10 @@ if(WITH_PYTHON)
     set(PYTHON_LIBRARY_DIRS   ${Python3_LIBRARY_DIRS})
     set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
     set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
-  endif()
+
 
   set(DLITE_PYTHONPATH
-    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
-
+    ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
 
 
 else()

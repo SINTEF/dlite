@@ -1,21 +1,21 @@
 # - Finds the Python module NumPy
 #
 # This module defines:
-#   NUMPY_INCLUDE_DIR    include path for arrayobject.h
-#   NUMPY_VERSION        numpy version string
-#   NUMPY_FOUND          whether NumPy headers are found
+#   Python3_NumPy_FOUND
+#   Python3_NumPy_VERSION
+#   Python3_NumPy_INCLUDE_DIRS
+#   Python3_NumPy_LIBRARY_DIRS
 #
 # We assume that you include
 #
-#     find_package(PythonInterp REQUIRED)
-#     find_package(PythonLibs REQUIRED)
+#     find_package(Python3 REQUIRED Interpreter)
 #
 # before finding this package.  Verbose output can be suppressed by setting
-# FIND_NUMPY_QUIETLY to TRUE.
+# FIND_NumPy_QUIETLY to TRUE.
 #
 
 
-if(NOT FIND_NUMPY_QUIETLY)
+if(NOT FIND_NumPy_QUIETLY)
   message(STATUS "Checking for NumPy")
 endif()
 
@@ -30,36 +30,32 @@ def basepath(path):
 incdir = basepath(np.get_include())
 coredir = basepath(np.__file__).parent / 'core'
 
-print(incdir.as_posix())
 print(np.version.version)
+print(incdir.as_posix())
 print(coredir.as_posix())
 ")
 
 execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "${script}"
+  COMMAND "${Python3_EXECUTABLE}" -c "${script}"
   RESULT_VARIABLE numpy_retval
   OUTPUT_VARIABLE numpy_output
   ERROR_VARIABLE numpy_error
   )
 
 if(${numpy_retval})
-  set(NUMPY_FOUND FALSE)
+  set(Python3_NumPy_FOUND FALSE)
   message(${numpy_error})
 else()
-  set(NUMPY_FOUND TRUE)
-  string(REPLACE "\n" ";" numpy_output ${numpy_output})
-  list(GET numpy_output 0 NUMPY_INCLUDE_DIR)
-  list(GET numpy_output 1 NUMPY_VERSION)
-  list(GET numpy_output 2 NUMPY_LIBRARY_DIR)
+  set(Python3_NumPy_FOUND TRUE)
+  string(REPLACE "\n" ";" lst ${numpy_output})
+  list(GET lst 0 Python3_NumPy_VERSION)
+  list(GET lst 1 Python3_NumPy_INCLUDE_DIRS)
+  list(GET lst 2 Python3_NumPy_LIBRARY_DIRS)
 endif()
 
-#message("*** NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR}")
-#message("*** NUMPY_VERSION ${NUMPY_VERSION}")
-#message("*** NUMPY_LIBRARY_DIR ${NUMPY_LIBRARY_DIR}")
-
-if(NOT FIND_NUMPY_QUIETLY)
-  if(NUMPY_FOUND)
-    message(STATUS "Checking for NumPy - found version ${NUMPY_VERSION}")
+if(NOT FIND_NumPy_QUIETLY)
+  if(Python3_NumPy_FOUND)
+    message(STATUS "Checking for NumPy - found version ${Python3_NumPy_VERSION}")
   else()
     message(STATUS "Checking for NumPy - not found")
   endif()
@@ -69,5 +65,5 @@ endif()
 include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(
-  NumPy DEFAULT_MSG NUMPY_VERSION NUMPY_INCLUDE_DIR NUMPY_LIBRARY_DIR)
-mark_as_advanced(NUMPY_FOUND NUMPY_VERSION NUMPY_INCLUDE_DIR NUMPY_LIBRARY_DIR)
+  NumPy DEFAULT_MSG Python3_NumPy_VERSION Python3_NumPy_INCLUDE_DIRS Python3_NumPy_LIBRARY_DIRS)
+mark_as_advanced(Python3_NumPy_FOUND Python3_NumPy_VERSION Python3_NumPy_INCLUDE_DIRS Python3_NumPy_LIBRARY_DIRS)
