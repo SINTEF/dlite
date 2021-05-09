@@ -14,11 +14,11 @@
 #     docker run --rm -it --user="$(id -u):$(id -g)" --net=none \
 #         -v "$PWD":/data dlite "$@"
 #
-# To run the getuuid tool, you could then do
+# To run the getuuid tool inside the docker image, you could then do
 #
 #     dlite dlite-getuuid <string>
 #
-# To run a python script in current directory
+# To run a python script in current directory inside the docker image
 #
 #     dlite python /data/script.py
 #
