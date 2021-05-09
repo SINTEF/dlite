@@ -31,6 +31,8 @@ needed.  The idea is if two different systems describes their data
 model in terms of the basic metadata schema, they can easily be made
 semantically interoperable.
 
+![The datamodel of DLite.](doc/figs/datamodel.svg)
+
 An alternative and more flexible way to enable interoperability is to
 use a common ontology.  DLite provides a specialised Instance called
 Collection.  A collection is essentially a container holding a set of

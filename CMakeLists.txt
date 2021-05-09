@@ -11,6 +11,7 @@ project(dlite
 set(dlite_VENDOR "SINTEF")
 set(dlite_LICENSE "MIT")
 set(dlite_CONTACT "Jesper Friis")
+set(dlite_LOGO "doc/figs/logo_circle.svg")
 set(dlite_LONG_DESCRIPTION "\
 DLite is a lightweight cross-platform C library, for working with and
 sharing scientific data in an interoperable way.
@@ -746,12 +747,11 @@ if(CROSS_TARGET)
 else()
   set(arch "${CMAKE_SYSTEM_PROCESSOR}")
 endif()
-#set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
 set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${arch}")
-#set(CPACK_PACKAGE_ICON "${dlite_SOURCE_DIR}/doc/icons/dlite.ico")
-set(CPACK_PACKAGE_CHECKSUM "SHA256")
+set(CPACK_PACKAGE_ICON "${dlite_SOURCE_DIR}/doc/figs/logo-circle.ico")
 set(CPACK_RESOURCE_FILE_LICENSE "${dlite_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${dlite_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_CHECKSUM "SHA256")
 set(CPACK_VERBATIM_VARIABLES TRUE)
 set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
   ".git/*" "${dlite_BINARY_DIR}/*" "build*/*" "dist/*" "dlite.egg-info/*")
