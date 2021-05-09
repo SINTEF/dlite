@@ -505,7 +505,7 @@ if(WIN32)
     )
   if(WITH_PYTHON)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
-    list(APPEND dlite_PATH ${NUMPY_LIBRARY_DIR})
+    list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
   endif()
   if(WITH_JSON)
     list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
@@ -531,7 +531,7 @@ if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
     build_append(dlite_WINEPATH ${dlite_BINARY_DIR}/src/pyembed)
     list(APPEND dlite_WINEPATH ${TOOLCHAIN_BINDIR})
     list(APPEND dlite_WINEPATH ${TOOLCHAIN_LIBDIR})
-    list(APPEND dlite_WINEPATH ${NUMPY_LIBRARY_DIR})
+    list(APPEND dlite_WINEPATH ${Python3_NumPy_LIBRARY_DIRS})
   endif()
   if(WITH_JSON)
     list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
@@ -660,10 +660,11 @@ set(test_env
   "export DLITE_STORAGES='${dlite_STORAGES}'"
   ""
   "========== Python =================="
-  "Python3_LIBRARIES:    ${Python3_LIBRARIES}"
-  "Python3_LIBRARY_DIRS: ${Python3_LIBRARY_DIRS}"
-  "Python3_INCLUDE_DIRS: ${Python3_INCLUDE_DIRS}"
-  "NUMPY_INCLUDE_DIR:    ${NUMPY_INCLUDE_DIR}"
+  "Python3_LIBRARIES:          ${Python3_LIBRARIES}"
+  "Python3_LIBRARY_DIRS:       ${Python3_LIBRARY_DIRS}"
+  "Python3_INCLUDE_DIRS:       ${Python3_INCLUDE_DIRS}"
+  "Python3_NumPy_INCLUDE_DIRS: ${Python3_NumPy_INCLUDE_DIRS}"
+  "Python3_NumPy_LIBRARY_DIRS: ${Python3_NumPy_LIBRARY_DIRS}"
   ""
   "========== Jansson =================="
   "JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}"
@@ -740,7 +741,13 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${dlite_DESCRIPTION}")
 set(CPACK_PACKAGE_DESCRIPTION "${dlite_LONG_DESCRIPTION}")
 #set(CPACK_RESOURCE_FILE_WELCOME "")
 set(CPACK_PACKAGE_CONTACT "${dlite_CONTACT}")
-set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
+if(CROSS_TARGET)
+  set(arch "${CROSS_TARGET}")
+else()
+  set(arch "${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+#set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${arch}")
 #set(CPACK_PACKAGE_ICON "${dlite_SOURCE_DIR}/doc/icons/dlite.ico")
 set(CPACK_PACKAGE_CHECKSUM "SHA256")
 set(CPACK_RESOURCE_FILE_LICENSE "${dlite_SOURCE_DIR}/LICENSE")

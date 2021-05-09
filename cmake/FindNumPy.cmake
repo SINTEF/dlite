@@ -13,7 +13,7 @@
 # before finding this package.  Verbose output can be suppressed by setting
 # FIND_NumPy_QUIETLY to TRUE.
 #
-if(NOT DEFINED Python3_NumPy_FOUND)
+if(NOT Python3_NumPy_FOUND)
 
   if(NOT FIND_NumPy_QUIETLY)
     message(STATUS "Looking for NumPy")

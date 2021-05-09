@@ -37,7 +37,7 @@ set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
   ${Python3_INCLUDE_DIRS}
-  ${NUMPY_INCLUDE_DIR}
+  ${Python3_NumPy_INCLUDE_DIRS}
   ${dlite-src_SOURCE_DIR}
   ${dlite-src_BINARY_DIR}
   ${dlite-src-utils_BINARY_DIR}

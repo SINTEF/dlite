@@ -53,24 +53,27 @@ RUN apt-get install kitware-archive-keyring
 
 # Install dependencies
 RUN apt-get install -y --fix-missing \
-    cmake \
-    cmake-curses-gui \
-    cppcheck \
-    doxygen \
-    gcc \
-    gdb \
-    gfortran \
-    git \
-    g++ \
-    libhdf5-dev \
-    libjansson-dev \
-    make \
-    python3-dev \
-    python3-pip \
-    swig4.0 \
-    rpm \
-    librpmbuild8 \
-    dpkg
+        cmake \
+        cmake-curses-gui \
+        cppcheck \
+        doxygen \
+        gcc \
+        gdb \
+        gfortran \
+        git \
+        g++ \
+        libhdf5-dev \
+        libjansson-dev \
+        librdf0-dev \
+        librasqal3-dev \
+        libraptor2-dev \
+        make \
+        python3-dev \
+        python3-pip \
+        swig4.0 \
+        rpm \
+        librpmbuild8 \
+        dpkg
 
 
 # Install Python packages
@@ -115,6 +118,13 @@ WORKDIR /home/user/sw/dlite/build
 RUN cmake .. -DFORCE_EXAMPLES=ON -DALLOW_WARNINGS=ON -DWITH_FORTRAN=ON \
         -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
 RUN make
+
+# Create distributable packages
+RUN cpack
+RUN cpack -G DEB
+RUN cpack -G RPM
+
+# Install
 USER root
 RUN make install
 
