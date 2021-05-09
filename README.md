@@ -1,8 +1,10 @@
-DLite - lightweight data-centric framework for working with scientific data
-===========================================================================
-
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
 
+<img src="doc/figs/logo.png" align="right" />
+
+DLite
+=====
+> Lightweight data-centric framework for working with scientific data
 
 DLite is a lightweight cross-platform C library, for working with and
 sharing scientific data in an interoperable way.  It is strongly
