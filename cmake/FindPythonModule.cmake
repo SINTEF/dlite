@@ -4,7 +4,7 @@
 #
 # We assume that you include
 #
-#     find_package(PythonInterp REQUIRED)
+#     find_package(Python3 REQUIRED)
 #
 # before finding this package.
 #
@@ -16,7 +16,7 @@ function(find_python_module module)
     endif()
     # A package's location is usually a directory, but for modules
     # it's a .py or .so file.
-    execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c"
+    execute_process(COMMAND "${Python3_EXECUTABLE}" "-c"
       "import re, ${module}; print(re.compile('/__init__.(py.*)|(so)').sub('',${module}.__file__))"
       RESULT_VARIABLE _${module}_status
       OUTPUT_VARIABLE _${module}_location
