@@ -24,18 +24,18 @@ add_library(dlite-pyembed-static STATIC ${sources})
 target_link_libraries(dlite-pyembed
   dlite
   dlite-utils
-  ${PYTHON_LIBRARIES}
+  ${Python3_LIBRARIES}
   ${EXTRA_LIBRARIES}
   )
 target_link_libraries(dlite-pyembed-static
   dlite-static
   dlite-utils-static
-  ${PYTHON_LIBRARIES}
+  ${Python3_LIBRARIES}
   ${EXTRA_LIBRARIES}
   )
 
 target_include_directories(dlite-pyembed PUBLIC
-  ${PYTHON_INCLUDE_DIRS}
+  ${Python3_INCLUDE_DIRS}
   $<BUILD_INTERFACE:${dlite-src_SOURCE_DIR}>
   $<BUILD_INTERFACE:${dlite-src_BINARY_DIR}>
   $<BUILD_INTERFACE:${dlite-src-pyembed_SOURCE_DIR}>
@@ -45,7 +45,7 @@ target_include_directories(dlite-pyembed PUBLIC
   $<INSTALL_INTERFACE:include/dlite/pyembed>
   )
 target_include_directories(dlite-pyembed-static PUBLIC
-  ${PYTHON_INCLUDE_DIRS}
+  ${Python3_INCLUDE_DIRS}
   $<BUILD_INTERFACE:${dlite-src_SOURCE_DIR}>
   $<BUILD_INTERFACE:${dlite-src_BINARY_DIR}>
   $<BUILD_INTERFACE:${dlite-src-pyembed_SOURCE_DIR}>

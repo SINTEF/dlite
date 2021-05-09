@@ -152,7 +152,7 @@ set(DLITE_CONFIG_VARS
   endif()
   if(WITH_PYTHON)
     list(APPEND DLITE_CONFIG_VARS
-      PYTHON_LIBRARIES
+      Python3_LIBRARIES
       DLITE_PYTHON_STORAGE_PLUGIN_DIRS
       DLITE_PYTHON_MAPPING_PLUGIN_DIRS
       )
@@ -368,40 +368,12 @@ if(WITH_PYTHON)
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
   find_package(NumPy REQUIRED)
 
-
-    #if(CMAKE_VERSION VERSION_LESS 3.14.7)
-    #  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-    #  set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-    #  find_package(NumPy REQUIRED)
-    #else()
-    #  find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
-    #  # Set backward compatible Python variable
-    #  set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-    #  set(NUMPY_INCLUDE_DIR ${Python3_NumPy_INCLUDE_DIRS})
-    #endif()
-
-    # Set backward compatible Python variables
-    set(PYTHONINTERP_FOUND    ${Python3_Interpreter_FOUND})
-    set(PYTHON_EXECUTABLE     ${Python3_EXECUTABLE})
-
-    set(PYTHON_VERSION_STRING ${Python3_VERSION})
-    set(PYTHON_VERSION_MAJOR  ${Python3_VERSION_MAJOR})
-    set(PYTHON_VERSION_MINOR  ${Python3_VERSION_MINOR})
-    set(PYTHON_VERSION_PATCH  ${Python3_VERSION_PATCH})
-
-    set(PYTHONLIBS_FOUND      ${Python3_Development_FOUND})
-    set(PYTHON_LIBRARIES      ${Python3_LIBRARIES})
-    set(PYTHON_LIBRARY_DIRS   ${Python3_LIBRARY_DIRS})
-    set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
-    set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
-
-
   set(DLITE_PYTHONPATH
     ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
 
 
 else()
-  set(PYTHON_LIBRARIES "")
+  set(Python3_LIBRARIES "")
 endif()
 
 
@@ -448,13 +420,13 @@ if(MEMORYCHECK_COMMAND)
         --suppressions=${dlite_supp}
         --gen-suppressions=all
         --log-file=${logfile}
-        ${PYTHON_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
+        ${Python3_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
       MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
       COMMENT "Generating valgrind suppressions log file for Python"
       )
     add_custom_command(
       OUTPUT ${suppfile}
-      COMMAND ${PYTHON_EXECUTABLE}
+      COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/cmake/valgrind-log2supp.py
         --head=${dlite_supp}
         --tail=${python_supp}
@@ -688,9 +660,9 @@ set(test_env
   "export DLITE_STORAGES='${dlite_STORAGES}'"
   ""
   "========== Python =================="
-  "PYTHON_LIBRARIES:     ${PYTHON_LIBRARIES}"
-  "PYTHON_LIBRARY_DIRS:  ${PYTHON_LIBRARY_DIRS}"
-  "PYTHON_INCLUDE_DIRS:  ${PYTHON_INCLUDE_DIRS}"
+  "Python3_LIBRARIES:    ${Python3_LIBRARIES}"
+  "Python3_LIBRARY_DIRS: ${Python3_LIBRARY_DIRS}"
+  "Python3_INCLUDE_DIRS: ${Python3_INCLUDE_DIRS}"
   "NUMPY_INCLUDE_DIR:    ${NUMPY_INCLUDE_DIR}"
   ""
   "========== Jansson =================="

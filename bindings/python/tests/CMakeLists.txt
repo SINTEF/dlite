@@ -15,7 +15,7 @@ foreach(test ${tests})
   set(name ${test}-py)
   add_test(
     NAME ${name}
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test}.py
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test}.py
     )
 
   set_property(TEST ${name} PROPERTY

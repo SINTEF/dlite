@@ -36,7 +36,7 @@ include(UseSWIG)
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
-  ${PYTHON_INCLUDE_DIRS}
+  ${Python3_INCLUDE_DIRS}
   ${NUMPY_INCLUDE_DIR}
   ${dlite-src_SOURCE_DIR}
   ${dlite-src_BINARY_DIR}
@@ -62,7 +62,7 @@ swig_link_libraries(dlite
   dlite-utils
   dlite-pyembed
   dlite
-  ${PYTHON_LIBRARIES}
+  ${Python3_LIBRARIES}
   )
 
 

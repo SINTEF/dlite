@@ -16,7 +16,7 @@
 if(NOT DEFINED Python3_NumPy_FOUND)
 
   if(NOT FIND_NumPy_QUIETLY)
-    message(STATUS "Checking for NumPy")
+    message(STATUS "Looking for NumPy")
   endif()
 
   set(script "
@@ -55,9 +55,9 @@ print(coredir.as_posix())
 
   if(NOT FIND_NumPy_QUIETLY)
     if(Python3_NumPy_FOUND)
-      message(STATUS "Checking for NumPy - found version ${Python3_NumPy_VERSION}")
+      message(STATUS "Looking for NumPy - found version ${Python3_NumPy_VERSION}")
     else()
-      message(STATUS "Checking for NumPy - not found")
+      message(STATUS "Looking for NumPy - not found")
     endif()
   endif()
 
@@ -66,11 +66,10 @@ print(coredir.as_posix())
 
   find_package_handle_standard_args(NumPy
     DEFAULT_MSG
-    REQUIRED_VARS
-      Python3_NumPy_INCLUDE_DIRS
-      Python3_NumPy_LIBRARY_DIRS
-    VERSION_VAR
-      Python3_NumPy_VERSION
+    Python3_NumPy_FOUND
+    Python3_NumPy_VERSION
+    Python3_NumPy_INCLUDE_DIRS
+    Python3_NumPy_LIBRARY_DIRS
     )
   mark_as_advanced(
     Python3_NumPy_FOUND
