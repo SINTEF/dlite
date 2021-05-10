@@ -140,7 +140,7 @@ and then include it in your C program:
 ```c
 // homes.c -- sample program that loads instance from homes.json and prints it
 #include <stdio.h>
-#include <dlite>
+#include <dlite.h>
 #include "person.h"  // header generated with dlite-codegen
 
 int main()
@@ -149,9 +149,9 @@ int main()
      here the file 'homes.json' and the instance we want to load in
      this file is identified with the UUID following the hash (#)
      sign. */
-  char *url = "json://homes.json#7ac977ce-a0dc-4e19-a7e1-7781c0cd23d2";
+  char *url = "json://homes.json#315088f2-6ebd-4c53-b825-7a6ae5c9659b";
 
-  Person *person = dlite_instance_load_url(url);
+  Person *person = (Person *)dlite_instance_load_url(url);
 
   int i;
   printf("name:  %s\n", person->name);

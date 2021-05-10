@@ -145,6 +145,7 @@ ENV DLITE_USE_BUILD_ROOT=YES
 #########################################
 FROM build AS develop
 ENV PATH=/tmp/dlite-install/bin:$PATH
+ENV LD_LIBRARY_PATH=/tmp/dlite-install/lib:$LD_LIBRARY_PATH
 ENV DLITE_ROOT=/tmp/dlite-install
 ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
 
