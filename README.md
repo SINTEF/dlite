@@ -163,6 +163,8 @@ int main()
   return 0;
 }
 ```
+Now run the python file and it would create a homes.json file, which contains an entity information.
+Use the UUID of the entity from the homes.json file, and update the url variable in the homes.c file.
 
 Since we are using `dlite_instance_load_url()` to load the instance,
 you must link to dlite when compiling this program.  Assuming you are
@@ -171,6 +173,10 @@ gcc would look like:
 
 ```console
 $ gcc -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -o homes homes.c
+```
+Or if you are using the development environment , you can compile using:
+```console
+$ gcc -I/tmp/dlite-install/include/dlite -L/tmp/dlite-install/lib -o homes homes.c -ldlite -ldlite-utils
 ```
 
 Finally you can run the program with
