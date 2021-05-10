@@ -22,7 +22,7 @@ MU_TEST(test_array_create)
   printf("\n");
   dlite_array_printf(stdout, arr, 2, 0);
   printf("ndims:   %d\n", arr->ndims);
-  printf("dims:    [%2lu, %2lu]\n", arr->dims[0], arr->dims[1]);
+  printf("dims:    [%2d, %2d]\n", (int)arr->dims[0], (int)arr->dims[1]);
   printf("strides: [%2d, %2d]\n", arr->strides[0], arr->strides[1]);
   printf("\n");
 }
@@ -160,7 +160,7 @@ MU_TEST(test_array_slice)
 
   dlite_array_printf(stdout, a, 2, 0);
   printf("ndims:   %d\n", a->ndims);
-  printf("dims:    [%2lu, %2lu]\n", a->dims[0], a->dims[1]);
+  printf("dims:    [%2d, %2d]\n", (int)a->dims[0], (int)a->dims[1]);
   printf("strides: [%2d, %2d]\n", a->strides[0], a->strides[1]);
   printf("\n");
 

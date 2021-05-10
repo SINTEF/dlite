@@ -16,8 +16,14 @@
 
 /* Get rid of warnings about using functions from the standard C library
    instead of Microsoft-specific functions in MSVS */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
-# pragma warning(disable: 4996)
+# ifndef CROSS_TARGET
+#  pragma warning(disable: 4996)
+# endif
 #endif
 
 #include <stdlib.h>

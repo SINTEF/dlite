@@ -185,9 +185,9 @@ static int _remove_by_index(TripleStore *ts, size_t n)
 {
   Triple *t = ts->triples + n;
   if (n >= ts->true_length)
-    return err(1, "triple index out of range: %zu", n);
+    return err(1, "triple index out of range: %lu", (unsigned long)n);
   if (!t->id)
-    return err(1, "triple %zu is already removed", n);
+    return err(1, "triple %lu is already removed", (unsigned long)n);
   map_remove(&ts->map, t->id);
 
   if (ts->niter) {

@@ -75,7 +75,11 @@
       defined __WIN32__
 # define DSL_PLATFORM DSL_Windows
 # ifndef DSL_PREFIX
-#  define DSL_PREFIX ""
+#  if defined __MINGW32__ || defined __MINGW64__
+#   define DSL_PREFIX "lib"
+#  else
+#   define DSL_PREFIX ""
+#  endif
 # endif
 # ifndef DSL_EXT
 #  define DSL_EXT ".dll"
@@ -126,7 +130,9 @@ typedef void *dsl_handle;
 
 /* Get rid of warnings about strerror() being deprecated on VS */
 #define _CRT_SECURE_NO_WARNINGS
+#ifndef CROSS_TARGET
 #pragma warning(disable: 4996)
+#endif
 
 typedef HMODULE dsl_handle;
 

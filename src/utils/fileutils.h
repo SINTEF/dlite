@@ -40,7 +40,6 @@ enum {
 #  define WINDOWS
 # endif
 # include "compat/dirent.h"
-typedef DIR FUDir;
 # ifndef PATHSEP
 #  define PATHSEP ";"
 # endif
@@ -114,6 +113,11 @@ const char *fu_dirsep(FUPlatform platform);
   Returns a pointer to path separator for `platform` or NULL on error.
 */
 const char *fu_pathsep(FUPlatform platform);
+
+/**
+  Returns a pointer to line separator for `platform` or NULL on error.
+*/
+const char *fu_linesep(FUPlatform platform);
 
 
 /**
@@ -264,6 +268,15 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
 
 
 /**
+  Converts `path` native platform.
+
+  Calls fu_winpath() or fu_unixpath() depending on current platform.
+ */
+char *fu_nativepath(const char *path, char *dest, size_t size,
+                    const char *pathsep);
+
+
+/**
   Returns the canonicalized absolute pathname for `path`.  Resolves
   symbolic links and references to '/./', '/../' and extra '/'.  Note
   that `path` must exists.
@@ -339,6 +352,9 @@ char *fu_paths_string(const FUPaths *paths);
 /**
   Returns a NULL-terminated array of pointers to paths or NULL if
   `paths` is empty.
+
+  The memory own by `paths` and should not be deallocated by the
+  caller.
  */
 const char **fu_paths_get(FUPaths *paths);
 

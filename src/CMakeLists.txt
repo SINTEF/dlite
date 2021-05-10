@@ -132,9 +132,10 @@ set_source_files_properties(
 
 ## Generate dlite_get_license.c
 add_executable(gencfile utils/gencfile.c)
+target_include_directories(gencfile PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/utils)
 add_custom_command(
   OUTPUT dlite-getlicense.c
-  COMMAND $<TARGET_FILE:gencfile>
+  COMMAND ${RUNNER} $<TARGET_FILE:gencfile>
     dlite_get_license
     ${CMAKE_CURRENT_BINARY_DIR}/dlite-getlicense.c
     ${dlite_SOURCE_DIR}/LICENSE

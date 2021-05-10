@@ -10,8 +10,8 @@
 	"dockerFile": "../Dockerfile",
 
 	"build": {
-		//"target": "build"
 		"target": "develop"
+		//"target": "build"
 	},
 
 	// Set *default* container specific settings.json values on container create.
@@ -33,9 +33,9 @@
 	// Uncomment the next line to run commands after the container is created - for example installing git.
 	// "postCreateCommand": "apt-get update && apt-get install -y git",
 
-	"runArgs": [
-		"--network=scinet"	,
-	],
+	//"runArgs": [
+	//	"--network=scinet",
+	//],
 	// Uncomment when using a ptrace-based debugger like C++, Go, and Rust
 	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
 

@@ -1,15 +1,59 @@
 # -*- Mode: cmake -*-
 #
-cmake_minimum_required(VERSION 3.11)
-#cmake_policy(VERSION 3.11)
-cmake_policy(SET CMP0074 NEW)
-include(CPack)
+cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.2.5
-  #DESCRIPTION "Lightweight data-centric framework for working with scientific data"
+  VERSION 0.2.6
+  DESCRIPTION "Lightweight data-centric framework for working with scientific data"
+  HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
   )
+set(dlite_VENDOR "SINTEF")
+set(dlite_LICENSE "MIT")
+set(dlite_CONTACT "Jesper Friis")
+set(dlite_LOGO "doc/figs/logo_circle.svg")
+set(dlite_LONG_DESCRIPTION "\
+DLite is a lightweight cross-platform C library, for working with and
+sharing scientific data in an interoperable way.
+
+All data in DLite is represented by an Instance, which is build on a
+simple data model.  An Instance is identified by a unique UUID and
+have a set of named dimensions and properties.  It is described by its
+Metadata.  In the Metadata, each dimension is given a name and
+description (optional) and each property is given a name, type, shape
+(optional), unit (optional) and description (optional).  The shape of
+a property refers to the named dimensions.
+
+When an Instance is instantiated, you must suply a value to the named
+dimensions.  The shape of the properties will be set according to
+that.  This ensures that the shape of the properties are internally
+consistent.
+
+A Metadata is also an Instance, and hence described by its
+meta-metadata.  By default, DLite defines four levels of metadata;
+instance, metadata, metadata schema and basic metadata schema. The
+basic metadata schema describes itself, so no further meta levels are
+needed.  The idea is if two different systems describes their data
+model in terms of the basic metadata schema, they can easily be made
+semantically interoperable.
+
+An alternative and more flexible way to enable interoperability is to
+use a common ontology.  DLite provides a specialised Instance called
+Collection.  A collection is essentially a container holding a set of
+Instances and relations between them.  But it can also relate an
+Instance or even a dimension or property of an instance to a concept
+in an ontology.  DLite allows to transparently map an Instance whos
+Metadata corresponding to a concept in one ontology to an Instance
+whos Metadata corresponding to a concept in another ontology.  Such
+mappings can easily be registered (in C or Python) and reused,
+providing a very powerful system for achieving interoperability.
+
+DLite provides also a common and extendable API for loading/storing
+Instances from/to different storages.  New storage plugins can be
+written in C or Python.
+
+DLite is released under the MIT license.
+")
 
 # Options
 option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
@@ -25,8 +69,12 @@ option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
 option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
 option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
 
+
 # Append our cmake-modules to CMAKE_MODULE_PATH
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
+
+# Enable C99
+set(CMAKE_C_STANDARD 99)
 
 # Set default cmake configurations
 include(SetDefaults)
@@ -40,12 +88,15 @@ else()
   set(NUMBER_OF_CPUS_OPTION "")
 endif()
 
-
 # Compiler options
 # ----------------
-# Enable compiler warnings
 include(SetCompilerFlags)
+
+enable_c_compiler_flag_if_supported("-m64")
+
+# Enable compiler warnings
 if(CMAKE_COMPILER_IS_GNUCC)
+  add_definitions(-D_GNU_SOURCE)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
@@ -55,8 +106,10 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
 endif()
 
-# Enable C99
-set(CMAKE_C_STANDARD 99)
+# Define MINGW if we are running a GNU compiler on a Windows system
+if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(MINGW TRUE)
+endif()
 
 
 # Uncomment the lines below to compile with AddressSanitizer
@@ -100,7 +153,7 @@ set(DLITE_CONFIG_VARS
   endif()
   if(WITH_PYTHON)
     list(APPEND DLITE_CONFIG_VARS
-      PYTHON_LIBRARIES
+      Python3_LIBRARIES
       DLITE_PYTHON_STORAGE_PLUGIN_DIRS
       DLITE_PYTHON_MAPPING_PLUGIN_DIRS
       )
@@ -307,44 +360,21 @@ endif()
 # Python
 # ======
 if(WITH_PYTHON)
-  if(CMAKE_VERSION VERSION_LESS_EQUAL 3.12)
-    set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5)
-    find_package(PythonInterp 3.5 REQUIRED)
-    find_package(PythonLibs 3.5 REQUIRED)
-  else()
-    if(CMAKE_VERSION VERSION_LESS 3.14.7)
-      find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-      set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-      find_package(NumPy REQUIRED)
-    else()
-      find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
-      # Set backward compatible Python variable
-      set(NUMPY_INCLUDE_DIR ${Python3_NumPy_INCLUDE_DIRS})
-    endif()
-
-    # Set backward compatible Python variables
-    set(PYTHONINTERP_FOUND    ${Python3_Interpreter_FOUND})
-    set(PYTHON_EXECUTABLE     ${Python3_EXECUTABLE})
-
-    set(PYTHON_VERSION_STRING ${Python3_VERSION})
-    set(PYTHON_VERSION_MAJOR  ${Python3_VERSION_MAJOR})
-    set(PYTHON_VERSION_MINOR  ${Python3_VERSION_MINOR})
-    set(PYTHON_VERSION_PATCH  ${Python3_VERSION_PATCH})
-
-    set(PYTHONLIBS_FOUND      ${Python3_Development_FOUND})
-    set(PYTHON_LIBRARIES      ${Python3_LIBRARIES})
-    set(PYTHON_LIBRARY_DIRS   ${Python3_LIBRARY_DIRS})
-    set(PYTHON_INCLUDE_DIRS   ${Python3_INCLUDE_DIRS})
-    set(PYTHONLIBS_VERSION_STRING ${Python3_VERSION})
+  if(CROSS_TARGET AND MINGW)
+    set(Python3_FIND_REGISTRY NEVER)
+    set(Python3_FIND_STRATEGY LOCATION)
+    set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
   endif()
 
-  set(DLITE_PYTHONPATH
-    ${DLITE_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+  find_package(NumPy REQUIRED)
 
+  set(DLITE_PYTHONPATH
+    ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
 
 
 else()
-  set(PYTHON_LIBRARIES "")
+  set(Python3_LIBRARIES "")
 endif()
 
 
@@ -391,13 +421,13 @@ if(MEMORYCHECK_COMMAND)
         --suppressions=${dlite_supp}
         --gen-suppressions=all
         --log-file=${logfile}
-        ${PYTHON_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
+        ${Python3_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
       MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
       COMMENT "Generating valgrind suppressions log file for Python"
       )
     add_custom_command(
       OUTPUT ${suppfile}
-      COMMAND ${PYTHON_EXECUTABLE}
+      COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/cmake/valgrind-log2supp.py
         --head=${dlite_supp}
         --tail=${python_supp}
@@ -470,12 +500,13 @@ endmacro()
 set(dlite_PATH "")
 if(WIN32)
   build_append(dlite_PATH
-    ${dlite-src_BINARY_DIR}
-    ${dlite-src-utils_BINARY_DIR}
-    ${dlite-tools_BINARY_DIR}
+    ${dlite_BINARY_DIR}/src
+    ${dlite_BINARY_DIR}/src/utils
+    ${dlite_BINARY_DIR}/tools
     )
   if(WITH_PYTHON)
-    build_append(dlite_PATH ${dlite-src-pyembed_BINARY_DIR})
+    build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
+    list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
   endif()
   if(WITH_JSON)
     list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
@@ -489,14 +520,41 @@ if(WIN32)
 endif()
 list(REMOVE_DUPLICATES dlite_PATH)
 
+# WINEPATH - path to runtime dirs (.exe and .dll) when cross-compiling for win64
+if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
+  set(dlite_WINEPATH "")
+  build_append(dlite_WINEPATH
+    ${dlite_BINARY_DIR}/src
+    ${dlite_BINARY_DIR}/src/utils
+    ${dlite_BINARY_DIR}/tools
+    )
+  if(WITH_PYTHON)
+    build_append(dlite_WINEPATH ${dlite_BINARY_DIR}/src/pyembed)
+    list(APPEND dlite_WINEPATH ${TOOLCHAIN_BINDIR})
+    list(APPEND dlite_WINEPATH ${TOOLCHAIN_LIBDIR})
+    list(APPEND dlite_WINEPATH ${Python3_NumPy_LIBRARY_DIRS})
+  endif()
+  if(WITH_JSON)
+    list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
+  endif()
+  if(WITH_HDF5)
+    list(APPEND dlite_WINEPATH ${HDF5_RUNTIME_DIR})
+  endif()
+  if(HAVE_REDLAND)
+    list(APPEND dlite_WINEPATH ${REDLAND_RUNTIME_DIR})
+  endif()
+  string(REPLACE ";" "\\;" dlite_WINEPATH_NATIVE "${dlite_WINEPATH}")
+  list(REMOVE_DUPLICATES dlite_WINEPATH)
+endif()
+
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH "")
 build_append(dlite_LD_LIBRARY_PATH
-  ${dlite-src_BINARY_DIR}
-  ${dlite-src-utils_BINARY_DIR}
+  ${dlite_BINARY_DIR}/src
+  ${dlite_BINARY_DIR}/src/utils
   )
 if(WITH_PYTHON)
-  build_append(dlite_LD_LIBRARY_PATH ${dlite-src-pyembed_BINARY_DIR})
+  build_append(dlite_LD_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
 endif()
 #list(APPEND dlite_LD_LIBRARY_PATH
 #  ${JANSSON_RUNTIME_DIR}
@@ -603,10 +661,11 @@ set(test_env
   "export DLITE_STORAGES='${dlite_STORAGES}'"
   ""
   "========== Python =================="
-  "PYTHON_LIBRARIES:     ${PYTHON_LIBRARIES}"
-  "PYTHON_LIBRARY_DIRS:  ${PYTHON_LIBRARY_DIRS}"
-  "PYTHON_INCLUDE_DIRS:  ${PYTHON_INCLUDE_DIRS}"
-  "NUMPY_INCLUDE_DIR:    ${NUMPY_INCLUDE_DIR}"
+  "Python3_LIBRARIES:          ${Python3_LIBRARIES}"
+  "Python3_LIBRARY_DIRS:       ${Python3_LIBRARY_DIRS}"
+  "Python3_INCLUDE_DIRS:       ${Python3_INCLUDE_DIRS}"
+  "Python3_NumPy_INCLUDE_DIRS: ${Python3_NumPy_INCLUDE_DIRS}"
+  "Python3_NumPy_LIBRARY_DIRS: ${Python3_NumPy_LIBRARY_DIRS}"
   ""
   "========== Jansson =================="
   "JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}"
@@ -632,14 +691,10 @@ add_custom_target(show ${cmd})
 
 # Subdirectories
 add_subdirectory(src)
-add_subdirectory(tools)
 
 # Bindings
 if(WITH_PYTHON)
   add_subdirectory(bindings/python)
-endif()
-if(WITH_FORTRAN)
-  add_subdirectory(bindings/fortran)
 endif()
 
 # Storage plugins
@@ -656,6 +711,14 @@ if(WITH_PYTHON)
   add_subdirectory(storages/python)
 endif()
 
+# Tools - may depend on storage plugins
+add_subdirectory(tools)
+
+# Fortran - depends on tools
+if(WITH_FORTRAN)
+  add_subdirectory(bindings/fortran)
+endif()
+
 # Examples
 if(WITH_EXAMPLES)
   add_subdirectory(examples)
@@ -665,6 +728,54 @@ endif()
 if(WITH_DOC)
   add_subdirectory(doc)
 endif()
+
+#################################################################
+
+# CPack
+# -----
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VENDOR "${dlite_VENDOR}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${dlite_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${dlite_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${dlite_VERSION_RELEASE}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${dlite_DESCRIPTION}")
+set(CPACK_PACKAGE_DESCRIPTION "${dlite_LONG_DESCRIPTION}")
+#set(CPACK_RESOURCE_FILE_WELCOME "")
+set(CPACK_PACKAGE_CONTACT "${dlite_CONTACT}")
+if(CROSS_TARGET)
+  set(arch "${CROSS_TARGET}")
+else()
+  set(arch "${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${arch}")
+set(CPACK_PACKAGE_ICON "${dlite_SOURCE_DIR}/doc/figs/logo-circle.ico")
+set(CPACK_RESOURCE_FILE_LICENSE "${dlite_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${dlite_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_CHECKSUM "SHA256")
+set(CPACK_VERBATIM_VARIABLES TRUE)
+set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
+  ".git/*" "${dlite_BINARY_DIR}/*" "build*/*" "dist/*" "dlite.egg-info/*")
+
+# DEB package
+set(CPACK_DEBIAN_PACKAGE_DEPENDS
+  libhdf5
+  libjansson
+  python3
+  python3-numpy
+  )
+
+# RPM package
+set(CPACK_RPM_PACKAGE_LICENSE "${dlite_LICENSE}")
+set(CPACK_RPM_PACKAGE_REQUIRES
+  hdf5
+  jansson
+  python3
+  python3-numpy
+  )
+
+# Include CPack after configuring it...
+include(CPack)
+
 
 #################################################################
 

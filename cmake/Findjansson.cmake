@@ -8,6 +8,7 @@
 #  JANSSON_RUNTIME_DIR  - Jansson runtime directory (dlls)
 #
 
+
 if(JANSSON_LIBRARIES AND JANSSON_INCLUDE_DIRS)
   # in cache already
   set(JANSSON_FOUND TRUE)
@@ -22,14 +23,23 @@ else()
       /usr/include
       /usr/local/include
       /opt/local/include
+      /mingw/include
       /sw/include
     )
   list(APPEND JANSSON_INCLUDE_DIRS ${JANSSON_INCLUDE_DIR})
   get_filename_component(JANSSON_ROOT ${JANSSON_INCLUDE_DIR} DIRECTORY)
 
   find_library(JANSSON_LIBRARY
-    NAMES jansson
-    PATHS ${JANSSON_ROOT}/lib
+    NAMES
+      jansson
+      libjansson.dll.a
+    PATHS
+      ${JANSSON_ROOT}/lib
+      /usr/lib
+      /usr/local/lib
+      /opt/local/lib
+      /mingw/lib
+      /sw/lib
     )
   list(APPEND JANSSON_LIBRARIES ${JANSSON_LIBRARY})
 

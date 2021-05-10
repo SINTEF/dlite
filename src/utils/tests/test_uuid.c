@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "integers.h"
+#include "byteswap.h"
 #include "byteorder.h"
 
 #include "md5.h"

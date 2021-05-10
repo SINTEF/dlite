@@ -1,19 +1,54 @@
-DLite - lightweight data-centric framework for working with scientific data
-===========================================================================
+<img src="doc/figs/logo.svg" align="right" />
+
+DLite
+=====
+> Lightweight data-centric framework for working with scientific data
 
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
 
-
 DLite is a lightweight cross-platform C library, for working with and
-sharing scientific data in an interoperable way.  It is strongly
-inspired by [SOFT][1], with the aim to be a lightweight replacement in
-cases where Windows portability is a showstopper for using SOFT.
+sharing scientific data in an interoperable way.  It can be described
+as a C implementation of [SOFT][1].
 
-DLite shares the [metadata model of SOFT5][2] and is compatible with
-SOFT5 in many respects.  However, it has also some notable
-differences, mainly with respect to the type system and that it fully
-implements the metadata model envisioned in SOFT5.
-See [doc/concepts.md](doc/concepts.md) for details.
+All data in DLite is represented by an Instance, which is build on a
+simple data model.  An Instance is identified by a unique UUID and
+have a set of named dimensions and properties.  It is described by its
+Metadata.  In the Metadata, each dimension is given a name and
+description (optional) and each property is given a name, type, shape
+(optional), unit (optional) and description (optional).  The shape of
+a property refers to the named dimensions.
+
+When an Instance is instantiated, you must suply a value to the named
+dimensions.  The shape of the properties will be set according to
+that.  This ensures that the shape of the properties are internally
+consistent.
+
+A Metadata is also an Instance, and hence described by its
+meta-metadata.  By default, DLite defines four levels of metadata;
+instance, metadata, metadata schema and basic metadata schema. The
+basic metadata schema describes itself, so no further meta levels are
+needed.  The idea is if two different systems describes their data
+model in terms of the basic metadata schema, they can easily be made
+semantically interoperable.
+
+![The datamodel of DLite.](doc/figs/datamodel.svg)
+
+An alternative and more flexible way to enable interoperability is to
+use a common ontology.  DLite provides a specialised Instance called
+Collection.  A collection is essentially a container holding a set of
+Instances and relations between them.  But it can also relate an
+Instance or even a dimension or property of an instance to a concept
+in an ontology.  DLite allows to transparently map an Instance whos
+Metadata corresponding to a concept in one ontology to an Instance
+whos Metadata corresponding to a concept in another ontology.  Such
+mappings can easily be registered (in C or Python) and reused,
+providing a very powerful system for achieving interoperability.
+
+DLite provides also a common and extendable API for loading/storing
+Instances from/to different storages.  New storage plugins can be
+written in C or Python.
+
+See [doc/concepts.md](doc/concepts.md) for more details.
 
 DLite is licensed under the MIT license.
 
@@ -105,7 +140,7 @@ and then include it in your C program:
 ```c
 // homes.c -- sample program that loads instance from homes.json and prints it
 #include <stdio.h>
-#include <dlite>
+#include <dlite.h>
 #include "person.h"  // header generated with dlite-codegen
 
 int main()
@@ -114,9 +149,9 @@ int main()
      here the file 'homes.json' and the instance we want to load in
      this file is identified with the UUID following the hash (#)
      sign. */
-  char *url = "json://homes.json#7ac977ce-a0dc-4e19-a7e1-7781c0cd23d2";
+  char *url = "json://homes.json#315088f2-6ebd-4c53-b825-7a6ae5c9659b";
 
-  Person *person = dlite_instance_load_url(url);
+  Person *person = (Person *)dlite_instance_load_url(url);
 
   int i;
   printf("name:  %s\n", person->name);
@@ -128,6 +163,8 @@ int main()
   return 0;
 }
 ```
+Now run the python file and it would create a homes.json file, which contains an entity information.
+Use the UUID of the entity from the homes.json file, and update the url variable in the homes.c file.
 
 Since we are using `dlite_instance_load_url()` to load the instance,
 you must link to dlite when compiling this program.  Assuming you are
@@ -136,6 +173,10 @@ gcc would look like:
 
 ```console
 $ gcc -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -o homes homes.c
+```
+Or if you are using the development environment , you can compile using:
+```console
+$ gcc -I/tmp/dlite-install/include/dlite -L/tmp/dlite-install/lib -o homes homes.c -ldlite -ldlite-utils
 ```
 
 Finally you can run the program with

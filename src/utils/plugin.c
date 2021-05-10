@@ -46,7 +46,7 @@ int plugin_decref(Plugin *plugin)
   int count = --plugin->count;
   if (count <= 0) {
     free(plugin->path);
-    dsl_close(plugin->handle);
+    (void)dsl_close(plugin->handle);
     free(plugin);
   }
   return count;
@@ -66,15 +66,14 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
                                const char *envvar)
 {
   PluginInfo *info=NULL;
-
   if (!(info = calloc(1, sizeof(PluginInfo))))
     return err(1, "allocation failure"), NULL;
 
   info->kind = strdup(kind);
   info->symbol = strdup(symbol);
   info->envvar = (envvar) ? strdup(envvar) : NULL;
-
   fu_paths_init(&info->paths, envvar);
+
   map_init(&info->plugins);
   map_init(&info->pluginpaths);
   map_init(&info->apis);
@@ -208,7 +207,7 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
 
     if (!(sym = dsl_sym(handle, info->symbol))) {
       warn("dsl_sym: %s", dsl_error());
-      dsl_close(handle);
+      (void)dsl_close(handle);
       continue;
     }
     err_clear();
@@ -243,7 +242,7 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
            info->symbol, filepath, dsl_error());
 
     if (!registered_api && handle) {
-      if (handle) dsl_close(handle);
+      if (handle) (void)dsl_close(handle);
       handle = NULL;
     }
   }
@@ -253,7 +252,7 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
     retval = loaded_api;
  fail:
   if (!retval && handle)
-    dsl_close(handle);
+    (void)dsl_close(handle);
   if (iter) fu_endmatch(iter);
 
   return retval;

@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #endif
 
+#include "utils/compat.h"
 #include "utils/err.h"
 #include "utils/integers.h"
 #include "utils/floats.h"
@@ -132,30 +133,30 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
 {
   switch (dtype) {
   case dliteBlob:
-    snprintf(typename, n, "blob%zu", size);
+    snprintf(typename, n, "blob%lu", (unsigned long)size);
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(1, "bool should have size %zu, but %zu was provided",
-                 sizeof(bool), size);
+      return errx(1, "bool should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(bool), (unsigned long)size);
     snprintf(typename, n, "bool");
     break;
   case dliteInt:
-    snprintf(typename, n, "int%zu", size*8);
+    snprintf(typename, n, "int%lu", (unsigned long)size*8);
     break;
   case dliteUInt:
-    snprintf(typename, n, "uint%zu", size*8);
+    snprintf(typename, n, "uint%lu", (unsigned long)size*8);
     break;
   case dliteFloat:
-    snprintf(typename, n, "float%zu", size*8);
+    snprintf(typename, n, "float%lu", (unsigned long)size*8);
     break;
   case dliteFixString:
-    snprintf(typename, n, "string%zu", size-1);
+    snprintf(typename, n, "string%lu", (unsigned long)(size-1));
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return errx(1, "string should have size %zu, but %zu was provided",
-                 sizeof(char *), size);
+      return errx(1, "string should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(char *), (unsigned long)size);
     snprintf(typename, n, "string");
     break;
   case dliteDimension:
@@ -186,21 +187,21 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(1, "bool should have size %zu, but %zu was provided",
-                 sizeof(bool), size);
+      return errx(1, "bool should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(bool), (unsigned long)size);
     snprintf(ftype, n, "logical");
     break;
   case dliteInt:
-    snprintf(ftype, n, "integer(%zu)", size);
+    snprintf(ftype, n, "integer(%lu)", (unsigned long)size);
     break;
   case dliteUInt:
-    snprintf(ftype, n, "integer(%zu)", size);
+    snprintf(ftype, n, "integer(%lu)", (unsigned long)size);
     break;
   case dliteFloat:
-    snprintf(ftype, n, "real(%zu)", size);
+    snprintf(ftype, n, "real(%lu)", (unsigned long)size);
     break;
   case dliteFixString:
-    snprintf(ftype, n, "character(len=%zu)", size-1);
+    snprintf(ftype, n, "character(len=%lu)", (unsigned long)size-1);
     break;
   case dliteStringPtr:
     snprintf(ftype, n, "character(*)");
@@ -283,8 +284,8 @@ int dlite_type_set_isoctype(DLiteType dtype, size_t size,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(1, "bool should have size %zu, but %zu was provided",
-                 sizeof(bool), size);
+      return errx(1, "bool should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(bool), (unsigned long)size);
     snprintf(isoctype, n, "logical(c_bool)");
     break;
   case dliteInt:
@@ -339,63 +340,67 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
   const char *native_type;
 
   if (nref >= sizeof(ref))
-    return errx(-1, "too many dereferences to write: %zu", nref);
+    return errx(-1, "too many dereferences to write: %lu", (unsigned long)nref);
   memset(ref, '*', sizeof(ref));
   ref[nref] = '\0';
 
   switch (dtype) {
   case dliteBlob:
-    m = snprintf(pcdecl, n, "uint8_t %s%s[%zu]", ref, name, size);
+    m = snprintf(pcdecl, n, "uint8_t %s%s[%lu]", ref, name,
+                 (unsigned long)size);
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(-1, "bool should have size %zu, but %zu was provided",
-                 sizeof(bool), size);
+      return errx(-1, "bool should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(bool), (unsigned long)size);
     m = snprintf(pcdecl, n, "bool %s%s", ref, name);
     break;
   case dliteInt:
     if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
       m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
     else
-      m = snprintf(pcdecl, n, "int%zu_t %s%s", size*8, ref, name);
+      m = snprintf(pcdecl, n, "int%lu_t %s%s",
+                   (unsigned long)size*8, ref, name);
     break;
   case dliteUInt:
     if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
       m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
     else
-      m = snprintf(pcdecl, n, "uint%zu_t %s%s", size*8, ref, name);
+      m = snprintf(pcdecl, n, "uint%lu_t %s%s",
+                   (unsigned long)size*8, ref, name);
     break;
   case dliteFloat:
     if (native && (native_type = dlite_type_get_native_typename(dtype, size)))
       m = snprintf(pcdecl, n, "%s %s%s", native_type, ref, name);
     else
-      m = snprintf(pcdecl, n, "float%zu_t %s%s", size*8, ref, name);
+      m = snprintf(pcdecl, n, "float%lu_t %s%s",
+                   (unsigned long)size*8, ref, name);
     break;
   case dliteFixString:
-    m = snprintf(pcdecl, n, "char %s%s[%zu]", ref, name, size);
+    m = snprintf(pcdecl, n, "char %s%s[%lu]", ref, name, (unsigned long)size);
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return errx(-1, "string should have size %zu, but %zu was provided",
-                 sizeof(char *), size);
+      return errx(-1, "string should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(char *), (unsigned long)size);
     m = snprintf(pcdecl, n, "char *%s%s", ref, name);
     break;
   case dliteDimension:
     if (size != sizeof(DLiteDimension))
-      return errx(-1, "DLiteDimension must have size %zu, got %zu",
-                  sizeof(DLiteDimension), size);
+      return errx(-1, "DLiteDimension must have size %lu, got %lu",
+                  (unsigned long)sizeof(DLiteDimension), (unsigned long)size);
     m = snprintf(pcdecl, n, "DLiteDimension %s%s", ref, name);
     break;
   case dliteProperty:
     if (size != sizeof(DLiteProperty))
-      return errx(-1, "DLiteProperty must have size %zu, got %zu",
-                  sizeof(DLiteProperty), size);
+      return errx(-1, "DLiteProperty must have size %lu, got %lu",
+                  (unsigned long)sizeof(DLiteProperty), (unsigned long)size);
     m = snprintf(pcdecl, n, "DLiteProperty %s%s", ref, name);
     break;
   case dliteRelation:
     if (size != sizeof(DLiteRelation))
-      return errx(-1, "DLiteRelation must have size %zu, got %zu",
-                  sizeof(DLiteRelation), size);
+      return errx(-1, "DLiteRelation must have size %lu, got %lu",
+                  (unsigned long)sizeof(DLiteRelation), (unsigned long)size);
     m = snprintf(pcdecl, n, "DLiteRelation %s%s", ref, name);
     break;
   default:
@@ -658,7 +663,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
         m += v;
       }
     for (i=0; i<size; i++) {
-      int v = snprintf(dest+m, PDIFF(n, m), "%02hhx",
+      int v = snprintf(dest+m, PDIFF(n, m), "%02x",
                        *((unsigned char *)p+i));
       if (v < 0) return err(-1, "error printing blob");
       m += v;
@@ -689,7 +694,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     case 4: m = snprintf(dest, n, "%*.*d",   w, r, *((int32_t *)p)); break;
     case 8: m = snprintf(dest, n, "%*.*lld", w, r, *((int64_t *)p)); break;
 #endif
-    default: return err(-1, "invalid int size: %zu", size);
+    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
     }
     break;
 
@@ -707,7 +712,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     case 4: m = snprintf(dest, n, "%*.*u",   w, r, *((uint32_t *)p)); break;
     case 8: m = snprintf(dest, n, "%*.*llu", w, r, *((uint64_t *)p)); break;
 #endif
-    default: return err(-1, "invalid int size: %zu", size);
+    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
     }
     break;
 
@@ -723,7 +728,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
 #ifdef HAVE_FLOAT128
     case 16: m = snprintf(dest, n, "%*.*Lg", w, r, *((float128_t *)p)); break;
 #endif
-    default: return err(-1, "invalid int size: %zu", size);
+    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
     }
     break;
 
@@ -854,9 +859,13 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     for (i=0; i<2*size; i++)
       if (!isxdigit(src[i+m]))
         return errx(-1, "invalid character in blob: %c", src[i+m]);
-    for (i=0; i<size; i++)
-      if (sscanf(src + 2*i+m, "%2hhx", (unsigned char *)p + i) != 1)
+    for (i=0; i<size; i++) {
+      unsigned int tmp;
+      if (sscanf(src + 2*i+m, "%2x", &tmp) != 1)
         return errx(-1, "error scanning blob: '%.*s'", (int)size, src);
+      assert(tmp < 256);
+      ((unsigned char *)p)[i] = tmp;
+    }
     m += 2*size;
     if (!(flags & dliteFlagQuoted) && src[m++] != '"')
       return errx(-1, "expected final double quote around blob");
@@ -883,7 +892,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     case 4: v = sscanf(src, "%i%n",   ((int32_t *)p), &m); break;
     case 8: v = sscanf(src, "%lli%n", ((int64_t *)p), &m); break;
 #endif
-    default: return err(-1, "invalid int size: %zu", size);
+    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
     }
     if (v != 1) return err(-1, "invalid int: '%s'", src);
     break;
@@ -904,7 +913,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       case 4: v = sscanf(src, "%x%n",   ((uint32_t *)p), &m); break;
       case 8: v = sscanf(src, "%llx%n", ((uint64_t *)p), &m); break;
 #endif
-      default: return err(-1, "invalid int size: %zu", size);
+      default: return err(-1, "invalid int size: %lu", (unsigned long)size);
       }
     } else {
       switch (size) {
@@ -919,7 +928,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       case 4: v = sscanf(src, "%u%n",   ((uint32_t *)p), &m); break;
       case 8: v = sscanf(src, "%llu%n", ((uint64_t *)p), &m); break;
 #endif
-      default: return err(-1, "invalid uint size: %zu", size);
+      default: return err(-1, "invalid uint size: %lu", (unsigned long)size);
       }
     }
     if (v != 1) return err(-1, "invalid uint: '%s'", src);
@@ -935,7 +944,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 #ifdef HAVE_FLOAT128
     case 16: v = sscanf(src, "%Lf%n", ((float128_t *)p), &m); break;
 #endif
-    default: return err(-1, "invalid int size: %zu", size);
+    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
     }
     if (v != 1) return err(-1, "invalid float: '%s'", src);
     break;
@@ -1100,9 +1109,9 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
   default:              return err(1, "cannot determine alignment of "
-                                   "dtype='%s' (%d), size=%zu",
+                                   "dtype='%s' (%d), size=%lu",
                                    dlite_type_get_dtypename(dtype), dtype,
-                                   size), 0;
+                                   (unsigned long)size), 0;
   }
 }
 
@@ -1198,7 +1207,8 @@ int dlite_type_ndcast(int ndims,
     n *= dest_dims[i];
   }
   if (n != N)
-    return err(1, "incompatible sizes of source (%lu) and dest (%lu)", N, n);
+    return err(1, "incompatible sizes of source (%lu) and dest (%lu)",
+               (unsigned long)N, (unsigned long)n);
 
   /* Default source strides */
   if (!src_strides) {

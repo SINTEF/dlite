@@ -65,11 +65,13 @@ if(WITH_JSON)
 
     add_test(
       NAME ${test}
-      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_codegen
+      COMMAND ${RUNNER} test_codegen
       )
 
     set_property(TEST ${test} PROPERTY
       ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
     set_property(TEST ${test} APPEND PROPERTY

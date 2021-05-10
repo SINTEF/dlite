@@ -59,8 +59,10 @@ int exec_process(const char *pathname, char *const argv[], char *const env[])
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   CHAR cmdline[4096];
-  char *p, envbuf[BUFSIZE];
-  int i, n;
+  //char *p, envbuf[BUFSIZE];
+  char envbuf[BUFSIZE];
+  int i;
+  size_t n;
 
   n = snprintf(cmdline, sizeof(cmdline), "%s", pathname);
   if (argv) {
@@ -70,7 +72,8 @@ int exec_process(const char *pathname, char *const argv[], char *const env[])
 
   envbuf[0] = envbuf[1] = '\0';
   if (env) {
-    for (p=(char *)env[0], i=n=0; env[i] && n < BUFSIZE; p=(char *)env[++i]) {
+    //for (p=(char *)env[0], i=n=0; env[i] && n < BUFSIZE; p=(char *)env[++i]) {
+    for (i=n=0; env[i] && n < BUFSIZE; i++) {
       int len = strlen(env[i]);
       strncpy(envbuf+n, env[i], BUFSIZE-n);
       //if (FAILED(StringCchCopy(envbuf+n, BUFSIZE-n, env[i])))
@@ -132,7 +135,7 @@ char **get_environment(void)
 {
   char **env=NULL;
 #ifdef WINDOWS
-  size_t size=0, n=0;
+  //size_t size=0, n=0;
   char *item;
   LPCH envbuf = GetEnvironmentStrings();
   if (!envbuf) return err(1, "cannot get environment"), NULL;

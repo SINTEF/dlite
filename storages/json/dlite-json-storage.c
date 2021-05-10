@@ -528,7 +528,9 @@ static int getdim(size_t d, const json_t *arr, void **pptr,
   if (d < ndims) {
     if (json_array_size(arr) != dims[d])
       return errx(1, "length of dimension %lu is %lu, expected %lu",
-                  d, json_array_size(arr), dims[d]);
+                  (unsigned long)d,
+                  (unsigned long)json_array_size(arr),
+                  (unsigned long)dims[d]);
     for (i=0; i<dims[d]; i++) {
       const json_t *a = json_array_get(arr, i);
       if (getdim(d+1, a, pptr, type, size, ndims, dims, root)) return 1;

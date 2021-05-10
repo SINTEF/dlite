@@ -31,9 +31,9 @@ MU_TEST(test_infixcalc)
   };
   size_t nvars = sizeof(vars)/sizeof(InfixCalcVariable);
 
-  printf("nvars=%zu\n", nvars);
-  printf("sizeof(vars)=%zu\n", sizeof(vars));
-  printf("sizeof(var)=%zu\n", sizeof(InfixCalcVariable));
+  printf("nvars=%lu\n", (unsigned long)nvars);
+  printf("sizeof(vars)=%lu\n", (unsigned long)sizeof(vars));
+  printf("sizeof(var)=%lu\n", (unsigned long)sizeof(InfixCalcVariable));
 
   mu_assert_int_eq(4,  calc("2+2", NULL, 0));
   mu_assert_int_eq(1,  calc("2-1", NULL, 0));

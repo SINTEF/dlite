@@ -114,7 +114,10 @@ MU_TEST(test_print_arr)
   prop.type = dliteBool;
   prop.size = sizeof(bool);
   prop.ndims = 2;
+  printf("\n=======================\n");
   m = dlite_property_aprint(&s, &size, n, b, &prop, dims, 0, -2, 0);
+  printf("m=%d\n", m);
+  printf("\n=======================\n");
   mu_assert_int_eq(43, m);
   mu_assert_string_eq("[[true, false, true], [false, false, true]]", s);
 

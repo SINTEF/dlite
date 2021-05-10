@@ -85,7 +85,7 @@ int jsmn_count(jsmntok_t *t)
     }
     return n;
   }
-  assert(0);
+  abort();
 }
 
 

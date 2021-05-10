@@ -11,8 +11,7 @@
 #   defFile: variable that will be assigned to the generated .def file
 #
 if(MSVC)
-  include(FindPythonInterp)
-  find_package(PythonInterp)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 endif()
 
 
@@ -24,7 +23,7 @@ function(generate_def target sources defFile)
     add_custom_command(
       OUTPUT ${output}
       COMMAND
-        ${PYTHON_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/GenerateDef.py
+        ${Python3_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/GenerateDef.py
         --output ${output} $<TARGET_FILE:${target}> ${xmlfile} ${sources}
       MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/cmake/GenerateDef.py
       DEPENDS

@@ -40,7 +40,9 @@
 /** @cond SKIP */
 
 /* The following macros should be defined in CMakeLists.txt: */
+#ifndef HAVE_STDINT_H
 #cmakedefine HAVE_STDINT_H        /* Whether stdint.h exists */
+#endif
 #cmakedefine HAVE_ENDIAN_H        /* Whether endian.h exists */
 #cmakedefine HAVE_BYTESWAP_H      /* Whether byteswap.h exists */
 

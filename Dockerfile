@@ -14,11 +14,11 @@
 #     docker run --rm -it --user="$(id -u):$(id -g)" --net=none \
 #         -v "$PWD":/data dlite "$@"
 #
-# To run the getuuid tool, you could then do
+# To run the getuuid tool inside the docker image, you could then do
 #
 #     dlite dlite-getuuid <string>
 #
-# To run a python script in current directory
+# To run a python script in current directory inside the docker image
 #
 #     dlite python /data/script.py
 #
@@ -53,21 +53,28 @@ RUN apt-get install kitware-archive-keyring
 
 # Install dependencies
 RUN apt-get install -y --fix-missing \
-    cmake \
-    cmake-curses-gui \
-    cppcheck \
-    doxygen \
-    gcc \
-    gdb \
-    gfortran \
-    git \
-    g++ \
-    libhdf5-dev \
-    libjansson-dev \
-    make \
-    python3-dev \
-    python3-pip \
-    swig4.0
+        cmake \
+        cmake-curses-gui \
+        cppcheck \
+        doxygen \
+        gcc \
+        gdb \
+        gfortran \
+        git \
+        g++ \
+        libhdf5-dev \
+        libjansson-dev \
+        librdf0-dev \
+        librasqal3-dev \
+        libraptor2-dev \
+        make \
+        python3-dev \
+        python3-pip \
+        swig4.0 \
+        rpm \
+        librpmbuild8 \
+        dpkg
+
 
 # Install Python packages
 COPY requirements.txt .
@@ -111,6 +118,13 @@ WORKDIR /home/user/sw/dlite/build
 RUN cmake .. -DFORCE_EXAMPLES=ON -DALLOW_WARNINGS=ON -DWITH_FORTRAN=ON \
         -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
 RUN make
+
+# Create distributable packages
+RUN cpack
+RUN cpack -G DEB
+RUN cpack -G RPM
+
+# Install
 USER root
 RUN make install
 
@@ -131,6 +145,7 @@ ENV DLITE_USE_BUILD_ROOT=YES
 #########################################
 FROM build AS develop
 ENV PATH=/tmp/dlite-install/bin:$PATH
+ENV LD_LIBRARY_PATH=/tmp/dlite-install/lib:$LD_LIBRARY_PATH
 ENV DLITE_ROOT=/tmp/dlite-install
 ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
 

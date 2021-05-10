@@ -18,6 +18,7 @@
 #ifdef WINDOWS
 #include "windows.h"
 #include "shlwapi.h"
+#include "fileapi.h"
 #endif
 
 #include <assert.h>
@@ -54,8 +55,7 @@ struct _FUIter {
 };
 
 /* Platform names */
-static char *_platform_names[] = {"Native", "Unix", "Windows",
-                                  /* "Apple", */ NULL};
+static char *_platform_names[] = {"Native", "Unix", "Windows", "Apple", NULL};
 
 
 /*
@@ -134,6 +134,20 @@ const char *fu_pathsep(FUPlatform platform)
   switch (platform) {
   case fuUnix: return ":";
   case fuWindows: return ";";
+  default: return err(1, "unsupported platform: %d", platform), NULL;
+  }
+}
+
+/*
+  Returns a pointer to line separator for `platform` or NULL on error.
+*/
+const char *fu_linesep(FUPlatform platform)
+{
+  if (platform == fuNative) platform = fu_native_platform();
+  switch (platform) {
+  case fuUnix: return "\n";
+  case fuWindows: return "\r\n";
+  case fuApple: return "\r";
   default: return err(1, "unsupported platform: %d", platform), NULL;
   }
 }
@@ -507,6 +521,25 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
   return dest;
 }
 
+/*
+  Converts `path` native platform.
+
+  Calls fu_winpath() or fu_unixpath() depending on current platform.
+ */
+char *fu_nativepath(const char *path, char *dest, size_t size,
+                    const char *pathsep)
+{
+  switch (fu_native_platform()) {
+  case fuUnix:
+    return fu_unixpath(path, dest, size, pathsep);
+  case fuWindows:
+    return fu_winpath(path, dest, size, pathsep);
+  default:
+    return err(1, "don't know how to convert path - current platform is "
+               "neither Unix or Windows"), NULL;
+  }
+}
+
 
 /*
   Returns the canonicalized absolute pathname for `path`.  Resolves
@@ -785,6 +818,9 @@ char *fu_paths_string(const FUPaths *paths)
 /*
   Returns a NULL-terminated array of pointers to paths or NULL if
   `paths` is empty.
+
+  The memory own by `paths` and should not be deallocated by the
+  caller.
  */
 const char **fu_paths_get(FUPaths *paths)
 {
@@ -817,7 +853,6 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
 {
   int platform = paths->platform;
   char *p=NULL, *tmp=NULL;
-
   if (n < -(int)(paths->n) || n >= (int)paths->n+1)
     FAIL1("path index out of range: %d", n);
   if (n < 0) n += paths->n;

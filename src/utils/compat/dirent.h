@@ -203,6 +203,10 @@
 /* Return the maximum size of a file name */
 #define _D_ALLOC_NAMLEN(p) ((PATH_MAX)+1)
 
+/* Remove __attribute__ when we are not compiling with gcc */
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -282,27 +286,33 @@ typedef struct DIR DIR;
 static DIR *opendir (const char *dirname);
 static _WDIR *_wopendir (const wchar_t *dirname);
 
-static struct dirent *readdir (DIR *dirp);
-static struct _wdirent *_wreaddir (_WDIR *dirp);
+static struct dirent *readdir (DIR *dirp)
+  __attribute__((unused));
+static struct _wdirent *_wreaddir (_WDIR *dirp)
+  __attribute__((unused));
 
 static int readdir_r(
     DIR *dirp, struct dirent *entry, struct dirent **result);
 static int _wreaddir_r(
-    _WDIR *dirp, struct _wdirent *entry, struct _wdirent **result);
+    _WDIR *dirp, struct _wdirent *entry, struct _wdirent **result)
+  __attribute__((unused));
 
 static int closedir (DIR *dirp);
 static int _wclosedir (_WDIR *dirp);
 
-static void rewinddir (DIR* dirp);
+static void rewinddir (DIR* dirp)
+  __attribute__((unused));
 static void _wrewinddir (_WDIR* dirp);
 
 static int scandir (const char *dirname, struct dirent ***namelist,
     int (*filter)(const struct dirent*),
-    int (*compare)(const struct dirent**, const struct dirent**));
+    int (*compare)(const struct dirent**, const struct dirent**))
+  __attribute__((unused));
 
 static int alphasort (const struct dirent **a, const struct dirent **b);
 
-static int versionsort (const struct dirent **a, const struct dirent **b);
+static int versionsort (const struct dirent **a, const struct dirent **b)
+  __attribute__((unused));
 
 
 /* For compatibility with Symbian */
@@ -1217,7 +1227,6 @@ dirent_set_errno(
 
 #endif
 }
-
 
 #ifdef __cplusplus
 }

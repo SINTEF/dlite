@@ -68,14 +68,6 @@ macro(dlite_codegen output template url)
     # doesn't work.  Try instead to generate a bat file and run it.
     include(dliteGenEnv)
 
-    find_program(DLITE_CODEGEN
-      NAMES dlite-codegen
-      PATHS
-        ${dlite-tools_BINARY_DIR}
-        ${dlite-tools_BINARY_DIR}/Release
-        ${dlite-tools_BINARY_DIR}/Debug
-      )
-
     set(out "")
     list(APPEND out "${output}")
 
@@ -84,6 +76,7 @@ macro(dlite_codegen output template url)
       PATHS
         out
         DLITE_CODEGEN
+        dlite-tools_BINARY_DIR
         dlite_BINARY_DIR
         dlite_SOURCE_DIR
         dlite_LD_LIBRARY_PATH
@@ -111,7 +104,7 @@ macro(dlite_codegen output template url)
 
     add_custom_command(
       OUTPUT ${output}
-      COMMAND cmd /C ${batfile}
+      COMMAND ${RUNNER} cmd /C ${batfile}
       DEPENDS ${codegen_dependencies}
       COMMENT "Generate ${output}"
       )

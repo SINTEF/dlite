@@ -266,8 +266,8 @@ struct _DLiteInstance {
       return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
     if (n != meta->_ndimensions) {
       dlite_meta_decref(meta);
-      return dlite_err(1, "%s has %zu dimensions",
-                       metaid, meta->_ndimensions), NULL;
+      return dlite_err(1, "%s has %u dimensions",
+                       metaid, (unsigned)meta->_ndimensions), NULL;
     }
     d = malloc(n * sizeof(size_t));
     for (i=0; i<n; i++) d[i] = dims[i];

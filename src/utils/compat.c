@@ -7,6 +7,7 @@
 #include "config.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
@@ -15,6 +16,11 @@
 
 /* Ensure non-empty translation unit */
 typedef int make_iso_compilers_happy;
+
+
+#ifdef HAVE_VASPRINTF
+#include <stdarg.h>
+#endif
 
 
 /* strdup() - duplicate a string */
@@ -77,6 +83,7 @@ int strncasecmp(const char *s1, const char *s2, size_t len)
 }
 #endif
 
+/* strlcpy() - like strncpy(), but guarantees that `dst` is NUL-terminated */
 #if !defined(HAVE_STRLCPY)
 size_t strlcpy(char *dst, const char *src, size_t size)
 {
@@ -86,6 +93,7 @@ size_t strlcpy(char *dst, const char *src, size_t size)
 }
 #endif
 
+/* strlcat() - like strncat(), but guarantees that `dst` is NUL-terminated */
 #if !defined(HAVE_STRLCPY)
 size_t strlcat(char *dst, const char *src, size_t size)
 {
@@ -101,7 +109,7 @@ size_t strlcat(char *dst, const char *src, size_t size)
 
 /* asnprintf() - print to allocated string */
 #if !defined(HAVE_ASNPRINTF)
-int asnprintf(char **buf, size_t *size, const char *fmt, ...)
+int rpl_asnprintf(char **buf, size_t *size, const char *fmt, ...)
 {
   int n;
   va_list ap;
@@ -114,7 +122,7 @@ int asnprintf(char **buf, size_t *size, const char *fmt, ...)
 
 /* asnprintf() - print to allocated string using va_list */
 #if !defined(HAVE_VASNPRINTF)
-int vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
+int rpl_vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
 {
   return vasnpprintf(buf, size, 0, fmt, ap);
 }
@@ -122,7 +130,7 @@ int vasnprintf(char **buf, size_t *size, const char *fmt, va_list ap)
 
 /* asnprintf() - print to position in allocated string */
 #if !defined(HAVE_ASNPPRINTF)
-int asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...)
+int rpl_asnpprintf(char **buf, size_t *size, size_t pos, const char *fmt, ...)
 {
   int n;
   va_list ap;
@@ -146,17 +154,18 @@ static inline int msb(int v)
 
 /* asnprintf() - print to position in allocated string using va_list */
 #if !defined(HAVE_VASNPPRINTF)
-int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
-                va_list ap)
+int rpl_vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
+                    va_list ap)
 {
   void *p;
   int n;
   size_t newsize;
   va_list aq;
-  if (!buf || !*buf) *size = 0;
+  if (!*buf) *size = 0;
   va_copy(aq, ap);
   n = vsnprintf(*buf + pos, PDIFF(*size, pos), fmt, aq);
   va_end(aq);
+
   if (n < 0) return n;  /* failure */
   if (n < (int)PDIFF(*size, pos)) return n;  // success, buffer is large enough
 
@@ -165,6 +174,7 @@ int vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
   if (!(p = realloc(*buf, newsize))) return -1;
   *buf = p;
   *size = newsize;
-  return vsnprintf(*buf + pos, PDIFF(*size, pos), fmt, ap);
+  n = vsnprintf(*buf + pos, PDIFF(*size, pos), fmt, ap);
+  return n;
 }
 #endif

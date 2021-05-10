@@ -20,6 +20,12 @@ check_include_file(inttypes.h   HAVE_INTTYPES_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 
 # -- check for symbols
+set(CMAKE_C_FLAGS_saved ${CMAKE_C_FLAGS})
+set(CMAKE_C_FLAGS "")
+if(CMAKE_COMPILER_IS_GNUCC)
+  set(CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE")
+endif()
+
 include(CheckSymbolExists)
 check_symbol_exists(strdup              string.h     HAVE_STRDUP)
 check_symbol_exists(_strdup             string.h     HAVE__STRDUP)
@@ -30,11 +36,6 @@ check_symbol_exists(_stricmp            string.h     HAVE__STRICMP)
 check_symbol_exists(strncasecmp         string.h     HAVE_STRNCASECMP)
 check_symbol_exists(_strnicmp           string.h     HAVE__STRNICMP)
 
-check_symbol_exists(asnprintf           stdio.h      HAVE_ASPRINTF)
-check_symbol_exists(vasnprintf          stdio.h      HAVE_VASPRINTF)
-check_symbol_exists(asnpprintf          stdio.h      HAVE_ASPPRINTF)
-check_symbol_exists(vasnpprintf         stdio.h      HAVE_VASPPRINTF)
-
 check_symbol_exists(setenv              stdlib.h     HAVE_SETENV)
 check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 
@@ -43,15 +44,17 @@ check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
 check_symbol_exists(exec                unistd.h     HAVE_EXEC)
 check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
 
-check_symbol_exists(GetFullPathNameW    Windows.h    HAVE_GetFullPathNameW)
-check_symbol_exists(GetFullPathName     Windows.h    HAVE_GetFullPathName)
-check_symbol_exists(GetFileAttributesW  Windows.h    HAVE_GetFileAttributesW)
-check_symbol_exists(GetFileAttributes   Windows.h    HAVE_GetFileAttributes)
-list(APPEND CMAKE_REQUIRED_LIBRARIES Shlwapi.lib)
+check_symbol_exists(GetFullPathNameW    fileapi.h    HAVE_GetFullPathNameW)
+check_symbol_exists(GetFullPathName     fileapi.h    HAVE_GetFullPathName)
+check_symbol_exists(GetFileAttributesW  fileapi.h    HAVE_GetFileAttributesW)
+check_symbol_exists(GetFileAttributes   fileapi.h    HAVE_GetFileAttributes)
+list(APPEND CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
 check_symbol_exists(PathFileExistsW     shlwapi.h    HAVE_PathFileExistsW)
 check_symbol_exists(PathFileExists      shlwapi.h    HAVE_PathFileExists)
-list(REMOVE_ITEM CMAKE_REQUIRED_LIBRARIES Shlwapi.lib)
+list(REMOVE_ITEM CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
 check_symbol_exists(CreateProcessA      processthreadsapi.h HAVE_CreateProcessA)
+check_symbol_exists(mbstowcs            stdlib.h     HAVE_MBSTOWCS)
+check_symbol_exists(wcstombs            stdlib.h     HAVE_WCSTOMBS)
 check_symbol_exists(mbstowcs_s          stdlib.h     HAVE_MBSTOWCS_S)
 check_symbol_exists(wcstombs_s          stdlib.h     HAVE_WCSTOMBS_S)
 
@@ -61,17 +64,24 @@ check_symbol_exists(strlcat             string.h     HAVE_STRLCAT)
 check_symbol_exists(getopt              unistd.h     HAVE_GETOPT)
 check_symbol_exists(getopt_long         getopt.h     HAVE_GETOPT_LONG)
 
+# snprintf() is broken on windows - use own implementation there
+if(NOT WIN32)
 check_symbol_exists(snprintf            stdio.h      HAVE_SNPRINTF)
 check_symbol_exists(_snprintf           stdio.h      HAVE__SNPRINTF)
 check_symbol_exists(vsnprintf           stdio.h      HAVE_VSNPRINTF)
 check_symbol_exists(_vsnprintf          stdio.h      HAVE__VSNPRINTF)
-check_symbol_exists(vasprintf           stdio.h      HAVE_VASPRINTF)
-check_symbol_exists(_vasprintf          stdio.h      HAVE__VASPRINTF)
 check_symbol_exists(asprintf            stdio.h      HAVE_ASPRINTF)
 check_symbol_exists(_asprintf           stdio.h      HAVE__ASPRINTF)
+check_symbol_exists(vasprintf           stdio.h      HAVE_VASPRINTF)
+check_symbol_exists(_vasprintf          stdio.h      HAVE__VASPRINTF)
+check_symbol_exists(asnprintf           stdio.h      HAVE_ASPPRINTF)
+check_symbol_exists(asnprintf           stdio.h      HAVE_ASPPRINTF)
+endif()
 check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
 check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
+
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS_saved})
 
 
 # -- check for structure members
@@ -136,11 +146,27 @@ configure_file(config.h.in config.h)
 
 # Generate byteorder.h
 # --------------------
-include(TestBigEndian)
-test_big_endian(IS_BIG_ENDIAN)
-
 check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(endian.h     HAVE_ENDIAN_H)
+
+if(NOT HAVE_BYTESWAP_H)
+  configure_file(byteorder.h.in byteswap.h)
+endif()
+if(NOT HAVE_ENDIAN_H)
+  configure_file(byteorder.h.in endian.h)
+endif()
+
+if(WIN64)
+  set(IS_BIG_ENDIAN 0 CACHE INTERNAL "Windows is not big endian" FORCE)
+  set(HAVE_IS_BIG_ENDIAN 0 CACHE INTERNAL "Windows is not big endian" FORCE)
+else()
+  include(TestBigEndian)
+  test_big_endian(IS_BIG_ENDIAN)
+endif()
+
+#include(TestBigEndian)
+#test_big_endian(IS_BIG_ENDIAN)
+
 
 check_symbol_exists(bswap_16 byteswap.h HAVE_BSWAP_16)
 check_symbol_exists(bswap_32 byteswap.h HAVE_BSWAP_32)
@@ -183,6 +209,9 @@ check_type_size(intmax_t                  HAVE_INTMAX_T)
 check_type_size(uintmax_t                 HAVE_UINTMAX_T)
 check_type_size(uintptr_t                 HAVE_UINTPTR_T)
 check_type_size(ptrdiff_t                 HAVE_PTRDIFF_T)
+set(CMAKE_REQUIRED_INCLUDES stdlib.h)
+check_type_size(size_t                    HAVE_SIZE_T)
+unset(CMAKE_REQUIRED_INCLUDES)
 
 check_type_size(char                      SIZEOF_CHAR)
 check_type_size(short                     SIZEOF_SHORT)
@@ -204,7 +233,9 @@ configure_file(floats.h.in floats.h)
 # Generate config_snprintf.h
 # --------------------------
 if(NOT (HAVE_SNPRINTF OR HAVE__SNPRINTF) OR
-    NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF))
+   NOT (HAVE_VSPRINTF OR HAVE__VSPRINTF) OR
+   NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF) OR
+   NOT (HAVE_VASPRINTF OR HAVE__VASPRINTF))
   set(WITH_SNPRINTF 1)
   configure_file(compat/config_snprintf.h.in config_snprintf.h)
 endif()
@@ -263,17 +294,21 @@ set_target_properties(dlite-utils-static PROPERTIES
 target_include_directories(dlite-utils PUBLIC
   #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 target_include_directories(dlite-utils-static PUBLIC
   #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 
-if(HAVE_PathFileExistsW)
-  target_link_libraries(dlite-utils Shlwapi.lib)
-  target_link_libraries(dlite-utils-static Shlwapi.lib)
+if(HAVE_PathFileExists OR HAVE_PathFileExistsW)
+  #target_link_libraries(dlite-utils shlwapi.lib)
+  #target_link_libraries(dlite-utils-static shlwapi.lib)
+  target_link_libraries(dlite-utils shlwapi)
+  target_link_libraries(dlite-utils-static shlwapi)
 endif()
 
 ## create list of headers to install from ${sources}
