@@ -378,70 +378,86 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
 {
   RdfStorage *s = (RdfStorage *)storage;
   TripleStore *ts = s->ts;
-  size_t i, buffsize=0;
-  char *buff=NULL, *b1=NULL, *b2=NULL;
-  if (dlite_instance_is_data(inst))
-    triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Object");
-  else
+  DLiteMeta *meta = (dlite_instance_is_meta(inst)) ? (DLiteMeta *)inst : NULL;
+  size_t i, bufsize=0;
+  char *buf=NULL, *b1=NULL;
+  triplestore_add_uri(ts, inst->uuid, "rdf:type", "owl:NamedIndividual");
+  if (meta)
     triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Entity");
+  else
+    triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Object");
   if (inst->uri)
     triplestore_add_uri(ts, inst->uuid, _P ":hasURI", inst->uri);
   triplestore_add_uri(ts, inst->uuid, _P ":hasMeta", inst->meta->uri);
 
   /* Dimension values */
-  if (inst->meta->_ndimensions) {
-    asnprintf(&buff, &buffsize, "%s#_dimval0", inst->uuid);
-    b1 = get_blank_node(ts, buff);
-    triplestore_add_uri(ts, b1, "rdf:type", _P ":DimensionValue");
-    triplestore_add_uri(ts, inst->uuid, _P ":hasFirstDimensionValue", b1);
-    asnprintf(&buff, &buffsize, "%zu",
-             dlite_instance_get_dimension_size_by_index(inst, 0));
-    triplestore_add2(ts, b1, _P ":hasIntegerValue", buff,
+  for (i=0; i < inst->meta->_ndimensions; i++) {
+    const char *name = inst->meta->_dimensions[i].name;
+    asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
+    b1 = get_blank_node(ts, buf);
+
+    asnprintf(&buf, &bufsize, "%d",
+              (int)dlite_instance_get_dimension_size_by_index(inst, i));
+    triplestore_add2(ts, b1, _P ":hasDimensionValue", buf,
                      1, NULL, "xsd:integer");
   }
-  for (i=1; i < inst->meta->_ndimensions; i++) {
-    asnprintf(&buff, &buffsize, "%s#_dimval%zu", inst->uuid, i);
-    b2 = get_blank_node(ts, buff);
-    triplestore_add_uri(ts, b2, "rdf:type", _P ":DimensionValue");
-    triplestore_add_uri(ts, b1, _P ":hasNextElement", b2);
-    asnprintf(&buff, &buffsize, "%zu",
-             dlite_instance_get_dimension_size_by_index(inst, i));
-    triplestore_add2(ts, b2, _P ":hasIntegerValue", buff,
-                     1, NULL, "xsd:integer");
-    free(b1);
-    b1 = b2;
-  }
-  if (b1 && !b2) free(b1);
-  if (b2) free(b2);
 
   /* Property values */
-  if (inst->meta->_nproperties) {
-    const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, 0);
-    const void *ptr = dlite_instance_get_property_by_index(inst, 0);
-    asnprintf(&buff, &buffsize, "%s#_propval0", inst->uuid);
-    b1 = get_blank_node(ts, buff);
-    triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
-    triplestore_add_uri(ts, inst->uuid, _P ":hasFirstPropertyValue", b1);
-    dlite_type_aprint(&buff, &buffsize, 0, ptr, p->type, p->size, 0, -2, 0);
-    triplestore_add2(ts, b1, _P ":hasValue", buff, 1, NULL, "rdf:PlainLiteral");
-  }
-  for (i=1; i < inst->meta->_nproperties; i++) {
+  for (i=0; i < inst->meta->_nproperties; i++) {
     const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, i);
     const void *ptr = dlite_instance_get_property_by_index(inst, i);
-    asnprintf(&buff, &buffsize, "%s#_propval%zu", inst->uuid, i);
-    b2 = get_blank_node(ts, buff);
-    triplestore_add_uri(ts, b2, "rdf:type", _P ":PropertyValue");
-    triplestore_add_uri(ts, b1, _P ":hasNextElement", b2);
-    dlite_property_aprint(&buff, &buffsize, 0, ptr, p,
-                          DLITE_PROP_DIMS(inst, i), 0, -2, 0);
-    triplestore_add2(ts, b2, _P ":hasValue", buff, 1, NULL, "rdf:PlainLiteral");
-    free(b1);
-    b1 = b2;
+    const char *name = inst->meta->_properties[i].name;
+    const size_t *dims = DLITE_PROP_DIMS(inst, i);
+    asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
+    b1 = get_blank_node(ts, buf);
+    triplestore_add_uri(ts, inst->uuid, _P ":hasPropertyValue", b1);
+    triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
+    triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
+    triplestore_add2(ts, b1, "rdfs:label", name, 1, "en", NULL);
+    dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, -2, 0,
+                          dliteFlagRaw | dliteFlagStrip);
+    triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL, "rdf:PlainLiteral");
   }
-  free(buff);
-  if (b1 && !b2) free(b1);
-  if (b2) free(b2);
+  if (b1) free(b1);
 
+  if (meta)
+    /* Dimensions */
+    for (i=0; i < inst->meta->_ndimensions; i++) {
+      const char *name = inst->meta->_dimensions[i].name;
+      asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
+      b1 = get_blank_node(ts, buf);
+      triplestore_add_uri(ts, inst->uuid, _P ":hasDimensionValue", b1);
+      triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
+      triplestore_add_uri(ts, b1, "rdf:type", _P ":DimensionValue");
+      triplestore_add2(ts, b1, "rdfs:label", name, 1, "en", NULL);
+      asnprintf(&buf, &bufsize, "%d",
+                (int)dlite_instance_get_dimension_size_by_index(inst, i));
+      triplestore_add2(ts, b1, _P ":hasIntegerValue", buf,
+                       1, NULL, "xsd:integer");
+    }
+  if (b1) free(b1);
+
+
+  /* Properties */
+  for (i=0; i < inst->meta->_nproperties; i++) {
+    const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, i);
+    const void *ptr = dlite_instance_get_property_by_index(inst, i);
+    const char *name = inst->meta->_properties[i].name;
+    const size_t *dims = DLITE_PROP_DIMS(inst, i);
+    asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
+    b1 = get_blank_node(ts, buf);
+    triplestore_add_uri(ts, inst->uuid, _P ":hasPropertyValue", b1);
+    triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
+    triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
+    triplestore_add2(ts, b1, "rdfs:label", name, 1, "en", NULL);
+    dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, -2, 0,
+                          dliteFlagRaw | dliteFlagStrip);
+    triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL, "rdf:PlainLiteral");
+  }
+  if (b1) free(b1);
+}
+
+  if (buf) free(buf);
   return 0;
 }
 
