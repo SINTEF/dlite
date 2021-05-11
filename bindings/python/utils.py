@@ -25,9 +25,15 @@ def instance_from_dict(d):
                 dims = [dimmap[d] for d in p['dims']]
             else:
                 dims = None
-            props.append(dlite.Property(p['name'], p['type'], dims,
-                                        p.get('unit'), p.get('description')))
-        inst = dlite.Instance(d['uri'], dimensions, props, d.get('description'))
+            props.append(dlite.Property(
+                name=p['name'],
+                type=p['type'],
+                dims=dims,
+                unit=p.get('unit'),
+                iri=p.get('iri'),
+                description=p.get('description')))
+        inst = dlite.Instance(d['uri'], dimensions, props, d.get('iri'),
+                              d.get('description'))
     else:
         dims = list(d['dimensions'].values())
         inst = dlite.Instance(meta.uri, dims, d.get('uuid', None))

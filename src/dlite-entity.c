@@ -1020,8 +1020,9 @@ size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
 {
   if (!inst->meta)
     return errx(-1, "no metadata available");
-  if (i >= inst->meta->_nproperties)
-    return errx(-1, "no property with index %d in %s", (int)i, inst->meta->uri);
+  if (i >= inst->meta->_ndimensions)
+    return errx(-1, "no dimension with index %d in %s",
+                (int)i, inst->meta->uri);
   if (inst->meta->_getdim) {
     size_t n = inst->meta->_getdim(inst, i);
     if (n != DLITE_DIM(inst, i))

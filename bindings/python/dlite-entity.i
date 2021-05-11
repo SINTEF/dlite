@@ -115,10 +115,8 @@ Property(seq)
 %rename(Property) _DLiteProperty;
 struct _DLiteProperty {
   char *name;
-  /* enum _DLiteType type; */
   size_t size;
   int ndims;
-  /* int *dims; */
   char *unit;
   char *iri;
   char *description;
@@ -236,7 +234,7 @@ Instance(driver, location, options, id=None)
     and `options`. `id` is the id of the instance in the storage (not
     required if the storage only contains more one instance).
 
-Instance(uri, dimensions, properties, description)
+Instance(uri, dimensions, properties, iri, description)
     Creates a new metadata entity (instance of entity schema) casted
     to an instance.
 
