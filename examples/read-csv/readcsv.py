@@ -8,4 +8,18 @@ csv = dlite.Instance(f'csv:{csvfile}?'
                      'mode=r;'
                      'meta=http://meta.sintef.no/0.1/Eruptions')
 
-#print(csv)
+print(csv.meta)
+print(csv.uuid)
+
+
+csv.save('csv:newfile.csv')
+
+# Try to use the pandas hdf writer...
+csv.save('csv:newfile.h5?pandas_opts=key=group')
+
+# ... or excel writer (requires openpyxl)
+try:
+    import openpyxl
+    csv.save('csv:newfile.xlsx')
+except ImportError:
+    pass

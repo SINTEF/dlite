@@ -8,4 +8,3 @@ csvfile = thisdir / 'faithful.csv'
 plugindir = thisdir / 'python-storage-plugins'
 
 os.environ['DLITE_PYTHON_STORAGE_PLUGIN_DIRS'] = str(plugindir)
-os.environ['DLITE_STORAGES'] = f'{thisdir}/*.csv|{thisdir}/*.json'
