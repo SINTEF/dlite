@@ -9,9 +9,8 @@
 	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
 	"dockerFile": "../Dockerfile",
 
-	"build": {
-		"target": "develop"
-		//"target": "build"
+	"build": {		
+		"target": "production"
 	},
 
 	// Set *default* container specific settings.json values on container create.

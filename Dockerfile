@@ -28,11 +28,11 @@
 # Stage: install dependencies
 ##########################################
 FROM ubuntu:20.04 AS dependencies
-RUN apt-get update --fix-missing
+RUN apt-get -qq update --fix-missing
 
 # Default cmake is 3.10.2. We need at least 3.11...
 # Install tools for adding cmake
-RUN apt-get install -y \
+RUN apt-get install -qq -y \
     apt-transport-https \
     ca-certificates \
     gnupg \
@@ -52,7 +52,7 @@ RUN apt update
 RUN apt-get install kitware-archive-keyring
 
 # Install dependencies
-RUN apt-get install -y --fix-missing \
+RUN apt-get install -qq -y --fix-missing \
         cmake \
         cmake-curses-gui \
         cppcheck \
@@ -73,7 +73,8 @@ RUN apt-get install -y --fix-missing \
         swig4.0 \
         rpm \
         librpmbuild8 \
-        dpkg
+        dpkg \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # Install Python packages
@@ -153,18 +154,24 @@ ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
 ##########################################
 # Stage: final slim image
 ##########################################
-FROM python:3.8.3-slim-buster
+FROM python:3.8.3-slim-buster AS production
 
+RUN apt -qq update \
+  && apt install -y -qq --fix-missing librdf0 \
+  && rm -rf /var/lib/apt/lists/*
 # Copy needed dlite files and libraries to slim image
-USER root
 COPY --from=build /tmp/dlite-install /usr/local
 COPY --from=build /usr/lib/x86_64-linux-gnu/libjansson.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libhdf5*.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libsz.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libaec.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libm.so* /usr/local/lib/
-RUN pip install --upgrade pip
-RUN pip install numpy PyYAML psycopg2-binary
+RUN pip install --upgrade pip \
+    --trusted-host files.pythonhosted.org \
+    numpy \
+    PyYAML \
+    psycopg2-binary
+
 RUN useradd -ms /bin/bash user
 USER user
 WORKDIR /home/user
