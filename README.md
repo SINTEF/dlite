@@ -172,7 +172,7 @@ using Linux and dlite in installed in `$HOME/.local`, compiling with
 gcc would look like:
 
 ```console
-$ gcc -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -o homes homes.c
+$ gcc homes.c -o homes -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -ldlite-utils
 ```
 Or if you are using the development environment , you can compile using:
 ```console
