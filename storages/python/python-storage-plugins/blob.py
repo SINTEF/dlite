@@ -43,7 +43,6 @@ class blob(DLiteStorageBase):
                 }
             ]
         })
-        print(Meta)
         inst = Meta(dims=(), id=self.options.get('id'))
         inst.content = content
         return inst
