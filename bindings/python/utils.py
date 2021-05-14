@@ -13,8 +13,9 @@ def instance_from_dict(d):
     meta = dlite.get_instance(d['meta'])
     if meta.is_metameta:
         try:
-            return dlite.get_instance(d['uri'])
-        except RuntimeError:
+            with dlite.silent:
+                return dlite.get_instance(d['uri'])
+        except dlite.DLiteError:
             pass
         dimensions = [dlite.Dimension(d['name'], d.get('description'))
                 for d in d['dimensions']]
