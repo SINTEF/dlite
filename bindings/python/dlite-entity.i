@@ -411,17 +411,33 @@ struct _DLiteInstance {
     return false;
   }
 
-  bool _is_data() {
+  %feature("docstring", "Returns true if this is a data instance.") _is_data;
+  bool _is_data(void) {
     return (bool)dlite_instance_is_data($self);
   }
 
-  bool _is_meta() {
+  %feature("docstring", "Returns true if this is metadata.") _is_meta;
+  bool _is_meta(void) {
     return (bool)dlite_instance_is_meta($self);
   }
 
-  bool _is_metameta() {
+  %feature("docstring", "Returns true if this is meta-metadata.") _is_metameta;
+  bool _is_metameta(void) {
     return (bool)dlite_instance_is_metameta($self);
   }
+
+  %feature("docstring",
+           "Increase reference count and return the new refcount.") incref;
+  int incref(void) {
+    return dlite_instance_incref($self);
+  }
+
+  %feature("docstring",
+           "Decrease reference count and return the new refcount.") decref;
+  int decref(void) {
+    return dlite_instance_decref($self);
+  }
+
 };
 
 
@@ -434,7 +450,12 @@ struct _DLiteInstance {
 //struct _DLiteInstance *dlite_instance_get_casted(const char *id,
 //                                                 const char *metaid=NULL);
 
+%feature("docstring", "\
+Returns a new reference to instance with given id.  If `metaid` is provided,
+the instance will be mapped to an instance of this metadata.
+") dlite_swig_get_instance;
 %rename(get_instance) dlite_swig_get_instance;
+
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;
 %rename(_has_property) dlite_instance_has_property;
@@ -448,7 +469,7 @@ bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
 #define BASIC_METADATA_SCHEMA  "http://meta.sintef.no/0.1/BasicMetadataSchema"
 #define ENTITY_SCHEMA          "http://meta.sintef.no/0.3/EntitySchema"
-#define COLLECTION_SCHEMA      "http://meta.sintef.no/0.6/CollectionSchema"
+#define COLLECTION_ENTITY      "http://meta.sintef.no/0.1/Collection"
 
 /* -----------------------------------
  * Target language-spesific extensions
