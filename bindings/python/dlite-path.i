@@ -1,0 +1,109 @@
+/* -*- C -*-  (not really, but good for syntax highlighting) */
+
+/* --------
+ * Wrappers
+ * -------- */
+%{
+#include <string.h>
+
+  //#include "utils/compat.h"
+#include "utils/fileutils.h"
+  //#include "dlite-macros.h"
+#include "pyembed/dlite-python-storage.h"
+#include "pyembed/dlite-python-mapping.h"
+
+const char *platforms[] = {"native", "unix", "windows", "apple"};
+%}
+
+
+/* -----
+ * _Path
+ * ----- */
+%rename(FUPath) _FUPaths;
+struct _FUPaths {
+  %immutable;
+  int n;
+};
+
+%feature("docstring", "\
+Creates a _Path instance of type `pathtype`.
+") _FUPaths;
+%extend struct _FUPaths {
+  _FUPaths(const char *pathtype) {
+    if (strcmp(pathtype, "storage") == 0) {
+      return dlite_storage_paths();
+    } else if (strcmp(pathtype, "mapping") == 0) {
+      return dlite_mapping_plugin_paths_get();
+    } else if (strcmp(pathtype, "python-storage") == 0) {
+      return dlite_python_storage_paths();
+    } else if (strcmp(pathtype, "python-mapping") == 0) {
+      return dlite_python_mapping_paths();
+    } else {
+      return dlite_err(1, "invalid pathtype: %s", pathtype), NULL;
+    }
+  }
+
+  ~_FUPaths(void) {
+    (void)$self;
+    dlite_warnx("Paths objects are not destroyed...");
+  }
+
+  char *__repr__(void) {
+    return fu_paths_string($self);
+  }
+  int __len__(void) {
+    return $self->n;
+  }
+  const char *__getitem__(int index) {
+    if (index < 0) index += $self->n;
+    if (index < 0 || index >= (int)$self->n)
+      return dlite_err(1, "index out of range: %d", index), NULL;
+    return $self->paths[index];
+  }
+  void __setitem__(int index, const char *path) {
+    if (index < 0) index += $self->n;
+    if (index < 0 || index >= (int)$self->n) {
+      dlite_err(1, "index out of range: %d", index);
+    } else {
+      fu_paths_remove($self, index);
+      fu_paths_insert($self, path, index);
+    }
+  }
+  void __delitem__(int index) {
+    fu_paths_remove($self, index);
+  }
+
+  void insert(int index, const char *path) {
+    fu_paths_insert($self, path, index);
+  }
+  void append(const char *path) {
+    fu_paths_append($self, path);
+  }
+  void extend(const char *paths, const char *pathsep=NULL) {
+    fu_paths_extend($self, paths, pathsep);
+  }
+
+  const char *get_platform(void) {
+    if ($self->platform < 0 || $self->platform >= (int)countof(platforms))
+      return "unknown";
+    return platforms[$self->platform];
+  }
+  void set_platform(const char *platform) {
+    size_t i;
+    const char **q=platforms;
+    for (i=0; i < countof(platforms); i++, q++)
+      if (strcmp(*q, platform) == 0) {
+        $self->platform = i;
+        break;
+      }
+  }
+
+}
+
+
+/* -----------------------------------
+ * Target language-spesific extensions
+ * ----------------------------------- */
+#ifdef SWIGPYTHON
+%include "dlite-path-python.i"
+#endif
