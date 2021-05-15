@@ -94,4 +94,5 @@
 %include "dlite-storage.i"
 %include "dlite-entity.i"
 %include "dlite-collection.i"
+%include "dlite-path.i"
 %include "dlite-mapping.i"

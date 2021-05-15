@@ -168,31 +168,7 @@ Iterates over loaded storage plugins.
 }
 
 
-/* Dublicated declarations from dlite-storage.h */
-%rename(storage_paths_insert) dlite_storage_paths_insert;
-%rename(storage_paths_append) dlite_storage_paths_append;
-%rename(storage_paths_remove) dlite_storage_paths_remove;
-%rename(storage_paths_get)    dlite_storage_paths_get;
-int dlite_storage_paths_insert(int n, const char *path);
-int dlite_storage_paths_append(const char *path);
-int dlite_storage_paths_remove(int n);
-const_char **dlite_storage_paths_get(void);
-
-
-/* Dublicated declarations from dlite-storage-plugins.h */
-%{
-  int dlite_storage_plugin_path_remove(int n);
-%}
-%rename(storage_plugin_path_insert) dlite_storage_plugin_path_insert;
-%rename(storage_plugin_path_append) dlite_storage_plugin_path_append;
-%rename(storage_plugin_path_remove) dlite_storage_plugin_path_remove;
-%rename(storage_plugin_paths)       dlite_storage_plugin_paths;
-int dlite_storage_plugin_path_insert(int n, const char *path);
-int dlite_storage_plugin_path_append(const char *path);
-int dlite_storage_plugin_path_remove(int n);
-const_char **dlite_storage_plugin_paths(void);
-
-%rename(storage_plugin_unload) dlite_storage_plugin_unload;
+%rename(storage_unload) dlite_storage_plugin_unload;
 int dlite_storage_plugin_unload(const char *name);
 
 

@@ -32,6 +32,11 @@ MU_TEST(test_initialize)
   for (p = dlite_mapping_plugin_paths(); *p; p++)
     printf("  - '%s'\n", *p);
   printf("\n\n");
+
+  printf("Python mapping paths:\n");
+  for (p = dlite_python_mapping_paths_get(); *p; p++)
+    printf("  - '%s'\n", *p);
+  printf("\n\n");
 }
 
 
