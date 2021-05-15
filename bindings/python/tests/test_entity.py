@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import sys
 import pickle
-
-import numpy as np
 
 import dlite
 from dlite import Instance, Dimension, Property, Relation
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
-url = 'json://' + thisdir + '/MyEntity.json' #+ "?mode=r"
+url = 'json://' + thisdir + '/MyEntity.json'
 
 
 # Load metadata (i.e. an instance of meta-metadata) from url
@@ -56,8 +53,6 @@ inst['a-relation'] = ['dog', 'is_a', 'mammal']
 inst['a-relation'] = dict(s='dog', p='is_a', o='mammal')
 inst['a-relation-array'] = [
     ('cheep', 'is_a', 'mammal'),
-    #('cat', 'is_a', 'mammal'),
-    #dlite.Relation('cheep', 'is_a', 'mammal'),
     dlite.Relation('cat', 'is_a', 'mammal'),
     ]
 

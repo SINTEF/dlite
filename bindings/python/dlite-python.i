@@ -20,7 +20,6 @@
   /* forward declarations */
   static PyObject *DLiteError = NULL;
   char *strndup(const char *s, size_t n);
-  PyObject *DLiteError = NULL;
 %}
 
 /* Some cross-target language typedef's and definitions */

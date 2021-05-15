@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 import dlite
 
 thisdir = os.path.dirname(__file__)
@@ -18,7 +17,7 @@ def instance_from_dict(d):
         except dlite.DLiteError:
             pass
         dimensions = [dlite.Dimension(d['name'], d.get('description'))
-                for d in d['dimensions']]
+                      for d in d['dimensions']]
         props = []
         dimmap = {dim['name']: i for i, dim in enumerate(d['dimensions'])}
         for p in d['properties']:
@@ -43,10 +42,9 @@ def instance_from_dict(d):
     return inst
 
 
-
 if __name__ == '__main__':
 
-    url = 'json://' + os.path.join(thisdir, 'tests', 'Person.json') #+ "?mode=r"
+    url = 'json://' + os.path.join(thisdir, 'tests', 'Person.json')
     Person = dlite.Instance(url)
 
     person = Person([2])
@@ -56,7 +54,6 @@ if __name__ == '__main__':
 
     d1 = person.asdict()
     inst1 = instance_from_dict(d1)
-
 
     d2 = Person.asdict()
     inst2 = instance_from_dict(d2)

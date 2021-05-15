@@ -5,7 +5,7 @@ import dlite
 
 thisdir = os.path.dirname(__file__)
 
-url = 'json://' + os.path.join(thisdir, 'Person.json')  #+ "?mode=r"
+url = 'json://' + os.path.join(thisdir, 'Person.json')
 Person = dlite.Instance(url)
 
 person = Person(dims=[2])
@@ -30,7 +30,6 @@ person2.age = 24.3
 person2.skills = ['eating', 'sleeping', 'reading']
 with dlite.Storage('yaml://test.yaml') as s:
     s.save(person2)
-
 
 
 s = dlite.Storage('yaml://test.yaml')
