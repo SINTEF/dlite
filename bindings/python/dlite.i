@@ -66,8 +66,8 @@
   $action
   if (dlite_errval()) {
 #ifdef SWIGPYTHON
-    SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
-    //PyErr_SetString(DLiteError, dlite_errmsg());
+    PyErr_SetString(DLiteError, dlite_errmsg());
+    SWIG_fail;
 #else
     SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
 #endif

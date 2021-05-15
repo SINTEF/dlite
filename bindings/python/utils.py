@@ -15,16 +15,8 @@ def instance_from_dict(d):
         try:
             with dlite.silent:
                 return dlite.get_instance(d['uri'])
-        except RuntimeError:
+        except dlite.DLiteError:
             pass
-        #f = dlite.err_get_stream()
-        #try:
-        #    dlite.err_set_file(None)
-        #    return dlite.get_instance(d['uri'])
-        #except RuntimeError:
-        #    pass
-        #finally:
-        #    dlite.err_set_stream(f)
         dimensions = [dlite.Dimension(d['name'], d.get('description'))
                 for d in d['dimensions']]
         props = []
