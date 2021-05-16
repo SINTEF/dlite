@@ -4,11 +4,12 @@
 #define _DLITE_CONFIG_PATHS_H
 
 #define dlite_PATH                   "@dlite_PATH_NATIVE@"
+#define dlite_PATH_EXTRA             "@dlite_PATH_EXTRA@"
 #define dlite_LD_LIBRARY_PATH        "@dlite_LD_LIBRARY_PATH_NATIVE@"
 #define dlite_PYTHONPATH             "@dlite_PYTHONPATH_NATIVE@"
 
-
 #define dlite_BUILD_ROOT             "@dlite_BUILD_ROOT_NATIVE@"
+#define dlite_INSTALL_ROOT           "@CMAKE_INSTALL_PREFIX@"
 
 /* hardcoded paths in build tree */
 #define dlite_STORAGE_PLUGINS        "@dlite_STORAGE_PLUGINS_NATIVE@"

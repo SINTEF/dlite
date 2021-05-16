@@ -8,6 +8,8 @@ set(py_sources
   utils.py
   )
 
+configure_file(paths.py.in paths.py)
+
 # Determine size of size_t
 include(CheckTypeSize)
 check_type_size(size_t SIZEOF_SIZE_T)
@@ -74,6 +76,8 @@ set(abs_sources)
 foreach(source ${py_sources})
   list(APPEND abs_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
 endforeach()
+
+list(APPEND abs_sources ${CMAKE_CURRENT_BINARY_DIR}/paths.py)
 
 set(abs_targets)
 foreach(source ${py_sources})

@@ -91,8 +91,6 @@ FROM dependencies AS build
 # Create and become a normal user
 RUN useradd -ms /bin/bash user
 USER user
-ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
-
 
 # Setup dlite
 RUN mkdir -p /home/user/sw/dlite
@@ -105,7 +103,6 @@ COPY --chown=user:user storages /home/user/sw/dlite/storages
 COPY --chown=user:user tools /home/user/sw/dlite/tools
 COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
-RUN rm -rf build
 
 # Perform static code checking
 # FIXME - test_tgen.c produce a lot of false positives

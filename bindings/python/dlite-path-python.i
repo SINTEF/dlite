@@ -19,5 +19,4 @@ mapping_path = FUPath("mapping")
 python_storage_path = FUPath("python-storage")
 python_mapping_path = FUPath("python-mapping")
 
-
 %}

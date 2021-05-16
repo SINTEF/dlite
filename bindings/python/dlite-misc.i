@@ -1,6 +1,7 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
 %{
+  #include "utils/strtob.h"
   #include "utils/globmatch.h"
 
   posstatus_t get_uuid_version(const char *id) {
@@ -20,6 +21,10 @@
     if (fragment) *fragment = strdup((frg) ? frg : "");
     free(url2);
     return retval;
+  }
+
+  bool asbool(const char *str) {
+    return atob(str);
   }
 
 %}
@@ -135,6 +140,16 @@ Set error log file.  Special values includes:
 All other values are treated as a filename that will be opened in append mode.
 ") dlite_err_set_file;
 void dlite_err_set_file(const char *filename);
+
+
+
+/* ------------------------------
+ * Expose other utility functions
+ * ------------------------------ */
+%feature("docstring", "\
+Set error stream.
+") asbool;
+bool asbool(const char *str);
 
 
 

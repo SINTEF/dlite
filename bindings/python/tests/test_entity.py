@@ -106,4 +106,10 @@ e3 = Instance(
     'Something new...')
 
 inst.save('json://yyy.json')
-inst.save('yaml://yyy.yaml')
+
+try:
+    import yaml
+except ImportError:
+    pass
+else:
+    inst.save('yaml://yyy.yaml')

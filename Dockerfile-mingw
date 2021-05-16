@@ -70,6 +70,10 @@ RUN dnf install -y \
         mingw64-libffi \
         mingw32-nsis
 
+# fc34
+#RUN dnf install -y  mingw64-python3-pyyaml
+
+
 #        ninja-build \
 #        mingw64-expat \
 #        mingw64-libffi \
@@ -95,6 +99,7 @@ RUN dnf install -y \
 #        rasqal \
 
 
+
 ##########################################
 # Stage: build
 ##########################################
@@ -103,19 +108,21 @@ FROM dependencies AS build
 # Create and become a normal user
 RUN useradd -ms /bin/bash user
 USER user
-ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
+ENV PATH "/usr/x86_64-w64-mingw32/bin:$PATH"
+ENV WINEPATH "/usr/x86_64-w64-mingw32/sys-root/mingw/bin:$PATH"
+ENV WINEDEBUG fixme-all
 
 # Setup dlite
-RUN mkdir /home/user/sw
-COPY --chown=user:user . /home/user/sw/dlite
+RUN mkdir -p /home/user/sw/dlite
+COPY --chown=user:user bindings /home/user/sw/dlite/bindings
+COPY --chown=user:user cmake /home/user/sw/dlite/cmake
+COPY --chown=user:user doc /home/user/sw/dlite/doc
+COPY --chown=user:user examples /home/user/sw/dlite/examples
+COPY --chown=user:user src /home/user/sw/dlite/src
+COPY --chown=user:user storages /home/user/sw/dlite/storages
+COPY --chown=user:user tools /home/user/sw/dlite/tools
+COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
-RUN rm -rf build
-
-# Perform static code checking
-# FIXME - test_tgen.c produce a lot of false positives
-RUN cppcheck . \
-        --language=c -q --force --error-exitcode=2 --inline-suppr \
-        -Isrc/utils -Isrc -i build -i build.win64
 
 # Build dlite
 RUN mkdir build
@@ -125,8 +132,9 @@ RUN cmake .. \
         -DFORCE_EXAMPLES=OFF \
         -DALLOW_WARNINGS=ON \
         -DWITH_HDF5=OFF \
-        -DWITH_FORTRAN=OFF \
-        -DWITH_PYTHON=OFF \
+        -DWITH_FORTRAN=ON \
+        -DWITH_PYTHON=ON \
+        -DWITH_REDLAND=OFF \
         -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
 RUN make
 

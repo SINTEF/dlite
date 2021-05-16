@@ -377,6 +377,21 @@ static void _add_dll_dir(const char *path)
   mbstowcs_s(&n, wcstr, 256, path, 255);
   AddDllDirectory(wcstr);
 }
+
+/* Help function for dlite_add_dll_path() */
+static void _add_dll_paths(const char *paths)
+{
+  char buf[4096];
+  if (fu_winpath(paths, buf, sizeof(buf), NULL)) {
+    char *endptr=NULL;
+    const char *p;
+    while ((p = fu_nextpath(buf, &endptr, NULL))) {
+      char *s = strndup(p, endptr - p);
+      _add_dll_dir(s);
+      free(s);
+    }
+  }
+}
 #endif
 
 /*
@@ -400,15 +415,8 @@ int dlite_add_dll_path(void)
   called = 1;
 
   if (dlite_use_build_root()) {
-    if (fu_winpath(dlite_PATH, buf, sizeof(buf), NULL)) {
-      char *endptr=NULL;
-      const char *p;
-      while ((p = fu_nextpath(buf, &endptr, NULL))) {
-        char *s = strndup(p, endptr - p);
-        _add_dll_dir(s);
-        free(s);
-      }
-    }
+    _add_dll_paths(dlite_PATH);
+    //_add_dll_paths(dlite_PATH_EXTRA);
   } else {
     char libdir[256];
     snprintf(libdir, sizeof(libdir), "%s/%s", dlite_root_get(),
