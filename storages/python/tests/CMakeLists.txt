@@ -20,8 +20,31 @@ set(tests
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
-
 include(FindPythonModule)
+
+# Disable yaml test if PyYAML is not in installed
+find_python_module(yaml)
+if(NOT PY_YAML)
+  add_test(NAME test_yaml_storage
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled")
+  set_property(TEST test_yaml_storage PROPERTY DISABLED True)
+  list(REMOVE_ITEM tests test_yaml_storage)
+endif()
+
+# Disable postgresql tests if psycopg2 is not installed or if pgconf.h
+# cannot be found
+find_python_module(psycopg2)
+if(NOT PY_PSYCOPG2 OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
+  add_test(NAME test_postgresql_storage
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled")
+  add_test(NAME test_postgresql_storage2
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled")
+  set_property(TEST test_postgresql_storage PROPERTY DISABLED True)
+  set_property(TEST test_postgresql_storage2 PROPERTY DISABLED True)
+  list(REMOVE_ITEM tests test_postgresql_storage)
+  list(REMOVE_ITEM tests test_postgresql_storage2)
+endif()
+
 
 # We are linking to dlite-plugins-python DLL - this require that this
 # DLL is in the PATH on Windows. Copying the DLL to the current
@@ -67,19 +90,6 @@ foreach(test ${tests})
 endforeach()
 
 
-# Disable yaml test if PyYAML is not in installed
-find_python_module(yaml)
-if(NOT PY_YAML)
-  set_property(TEST test_yaml_storage APPEND PROPERTY DISABLED True)
-endif()
-
-# Disable postgresql tests if psycopg2 is not installed or if pgconf.h
-# cannot be found
-find_python_module(psycopg2)
-if(NOT PY_PSYCOPG2 OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
-  set_property(TEST test_postgresql_storage APPEND PROPERTY DISABLED True)
-  set_property(TEST test_postgresql_storage2 APPEND PROPERTY DISABLED True)
-else()
-  set_property(TEST test_postgresql_storage2 APPEND PROPERTY
-    DEPEND test_postgresql_storage)
-endif()
+# Set dependencies
+set_property(TEST test_postgresql_storage2 APPEND
+  PROPERTY DEPEND test_postgresql_storage)
