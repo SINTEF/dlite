@@ -15,6 +15,13 @@ project(dlite-examples)
 #      make test                              (ex-test)
 #
 # Here <conf> is the configurations that dlite is build with.
+
+
+if(CMAKE_TOOLCHAIN_FILE)
+  get_filename_component(toolchain_file ${CMAKE_TOOLCHAIN_FILE} REALPATH)
+  set(toolchain_opt "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
+endif()
+
 macro(test_example example)
   add_test(
     NAME ${example}-mkdir
@@ -29,7 +36,7 @@ macro(test_example example)
       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -DDLITE_ROOT=${CMAKE_INSTALL_PREFIX}
-      $<$<BOOL:${CMAKE_TOOLCHAIN_FILE}>:${CMAKE_TOOLCHAIN_FILE}>
+      ${toolchain_opt}
       ${CMAKE_CURRENT_SOURCE_DIR}/${example}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${example}
     )
@@ -57,12 +64,15 @@ endmacro()
 # The FORCE_EXAMPLES option gives us the option to bypass testing examples
 # if dlite hasn't been installed.  This may be useful in CI frameworks
 if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
-  test_example(ex1)
-  test_example(ex2)
-  test_example(ex3)
-  test_example(ex4)
+  if(WITH_HDF5)
+    test_example(ex1)
+    test_example(ex2)
+    test_example(ex3)
+    test_example(ex4)
+  endif()
   #test_example(ex5d)
 endif()
+
 
 install(
   DIRECTORY ex1 ex2 ex3 ex4 ex5d

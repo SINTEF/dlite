@@ -109,6 +109,8 @@ endif()
 # Define MINGW if we are running a GNU compiler on a Windows system
 if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(MINGW TRUE)
+  enable_c_compiler_flag_if_supported("-Wno-pragmas")
+  enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
 endif()
 
 
@@ -162,6 +164,9 @@ set(DLITE_CONFIG_VARS
 # ------------------------
 # Installation environment
 # ------------------------
+
+# Define installation directory names according to the GNU standards
+include(GNUInstallDirs)
 
 # Installation paths
 set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
@@ -369,6 +374,11 @@ if(WITH_PYTHON)
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
   find_package(NumPy REQUIRED)
 
+  # On mingw, python depends on libffi
+  find_library(ffi ffi)
+  mark_as_advanced(ffi)
+  get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
+
   set(DLITE_PYTHONPATH
     ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
 
@@ -508,6 +518,9 @@ if(WIN32)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
     list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
   endif()
+  if(WITH_FORTRAN)
+    build_append(dlite_PATH ${dlite_BINARY_DIR}/bindings/fortran)
+  endif()
   if(WITH_JSON)
     list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
   endif()
@@ -530,9 +543,13 @@ if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
     )
   if(WITH_PYTHON)
     build_append(dlite_WINEPATH ${dlite_BINARY_DIR}/src/pyembed)
+    list(APPEND dlite_WINEPATH ${dlite_PATH_EXTRA})
     list(APPEND dlite_WINEPATH ${TOOLCHAIN_BINDIR})
     list(APPEND dlite_WINEPATH ${TOOLCHAIN_LIBDIR})
     list(APPEND dlite_WINEPATH ${Python3_NumPy_LIBRARY_DIRS})
+  endif()
+  if(WITH_FORTRAN)
+    list(APPEND dlite_WINEPATH ${dlite_BINARY_DIR}/bindings/fortran)
   endif()
   if(WITH_JSON)
     list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
@@ -822,5 +839,13 @@ install(
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
     "${dlite_SOURCE_DIR}/cmake/dliteCodeGen.cmake"
+    "${dlite_SOURCE_DIR}/cmake/dliteCodeGen.bat.in"
+    "${dlite_SOURCE_DIR}/cmake/dliteGenEnv.cmake"
+    "${dlite_SOURCE_DIR}/cmake/dliteGenEnv-sub.cmake"
+    "${dlite_SOURCE_DIR}/cmake/MakePlatformPaths.cmake"
   DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
+  )
+install(
+  FILES "${dlite_SOURCE_DIR}/cmake/Finddlite.cmake"
+  DESTINATION "share/cmake/Modules"
   )

@@ -13,7 +13,10 @@
 # before finding this package.  Verbose output can be suppressed by setting
 # FIND_NumPy_QUIETLY to TRUE.
 #
-if(NOT Python3_NumPy_FOUND)
+if(Python3_NumPy_INCLUDE_DIRS AND Python3_NumPy_LIBRARY_DIRS)
+  # in cache already
+  set(Python3_NumPy_FOUND TRUE)
+else()
 
   if(NOT FIND_NumPy_QUIETLY)
     message(STATUS "Looking for NumPy")
@@ -43,10 +46,8 @@ print(coredir.as_posix())
     )
 
   if(${numpy_retval})
-    set(Python3_NumPy_FOUND FALSE)
     message(${numpy_error})
   else()
-    set(Python3_NumPy_FOUND TRUE)
     string(REPLACE "\n" ";" lst ${numpy_output})
     list(GET lst 0 Python3_NumPy_VERSION)
     list(GET lst 1 Python3_NumPy_INCLUDE_DIRS)
@@ -54,25 +55,20 @@ print(coredir.as_posix())
   endif()
 
   if(NOT FIND_NumPy_QUIETLY)
-    if(Python3_NumPy_FOUND)
+    if(Python3_NumPy_VERSION)
       message(STATUS "Looking for NumPy - found version ${Python3_NumPy_VERSION}")
     else()
       message(STATUS "Looking for NumPy - not found")
     endif()
   endif()
 
-
   include(FindPackageHandleStandardArgs)
-
-  find_package_handle_standard_args(NumPy
-    DEFAULT_MSG
-    Python3_NumPy_FOUND
+  find_package_handle_standard_args(NumPy DEFAULT_MSG
     Python3_NumPy_VERSION
     Python3_NumPy_INCLUDE_DIRS
     Python3_NumPy_LIBRARY_DIRS
     )
   mark_as_advanced(
-    Python3_NumPy_FOUND
     Python3_NumPy_VERSION
     Python3_NumPy_INCLUDE_DIRS
     Python3_NumPy_LIBRARY_DIRS

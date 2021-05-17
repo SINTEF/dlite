@@ -1,6 +1,6 @@
 # -*- Mode: cmake -*-
 #
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 
 project(dlite-example-3
   VERSION 0.1
@@ -8,10 +8,11 @@ project(dlite-example-3
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${DLITE_ROOT}/share/dlite/cmake
+  ${DLITE_ROOT}/cmake
+  ${DLITE_ROOT}/cmake/Modules
+  ${DLITE_ROOT}/share/cmake
+  ${DLITE_ROOT}/share/cmake/Modules
   )
-include(Finddlite)
 find_package(dlite)
 
 include(dliteCodeGen)
@@ -31,7 +32,6 @@ target_include_directories(dlite-example-3 PUBLIC
   ${DLITE_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   )
-
 
 enable_testing()
 

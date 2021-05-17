@@ -1,6 +1,24 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
 /* --------
+ * Wrappers
+ * -------- */
+%{
+
+/* Returns a collection corresponding to `id`. */
+struct _DLiteCollection *get_collection(const char *id)
+{
+  struct _DLiteInstance *inst = dlite_instance_get(id);
+  if (!inst) return dlite_err(1, "no instance with this id: %s", id), NULL;
+  if (strcmp(inst->meta->uri, DLITE_COLLECTION_ENTITY) != 0)
+    return dlite_err(1, "not a collection: %s", id), NULL;
+  return (DLiteCollection *)inst;
+}
+
+%}
+
+
+/* --------
  * Iterator
  * -------- */
 %rename(CollectionIter) _CollectionIter;
@@ -226,8 +244,30 @@ Collection(url, lazy)
     return dlite_collection_count($self);
   }
 
+  %feature("docstring", "\
+  Increase reference count and return the new refcount.
+  ") incref;
+  int incref(void) {
+    return dlite_instance_incref((DLiteInstance *)$self);
+  }
+
+  %feature("docstring", "\
+  Decrease reference count and return the new refcount.
+  ") decref;
+  int decref(void) {
+    return dlite_instance_decref((DLiteInstance *)$self);
+  }
+
 }
 
+
+/* ----------------
+ * Module functions
+ * ---------------- */
+%feature("docstring", "\
+Returns a new reference to a collection with given id.
+") get_collection;
+struct _DLiteCollection *get_collection(const char *id);
 
 
 /* -----------------------------------

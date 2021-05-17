@@ -67,7 +67,6 @@ def test(verbosity=1, stream=sys.stdout):
 
 
 if __name__ == "__main__":
-    #unittest.main()
     for k in sorted(os.environ.keys()):
         for s in 'dlite', 'path', 'python':
             if s in k.lower():

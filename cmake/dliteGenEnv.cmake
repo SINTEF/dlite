@@ -43,9 +43,11 @@ function(dlite_genenv output newline_style)
         -Dinput=${input}
         -Doutput=${output}
         -Dnewline_style=${_newline_style}
+        -DCMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}"
         -Ddlite_SOURCE_DIR="${dlite_SOURCE_DIR}"
         -Ddlite_BINARY_DIR="${dlite_BINARY_DIR}"
         -Ddlite_PATH="${PATH}"
+        -Ddlite_PATH_EXTRA="${dlite_PATH_EXTRA}"
         -Ddlite_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
         -Ddlite_PYTHONPATH="${PYTHONPATH}"
         -Ddlite_STORAGE_PLUGINS="${STORAGE_PLUGINS}"

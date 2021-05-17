@@ -65,7 +65,12 @@
   dlite_swig_errclr();
   $action
   if (dlite_errval()) {
+#ifdef SWIGPYTHON
+    PyErr_SetString(DLiteError, dlite_errmsg());
+    SWIG_fail;
+#else
     SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
+#endif
   }
 }
 
@@ -89,4 +94,5 @@
 %include "dlite-storage.i"
 %include "dlite-entity.i"
 %include "dlite-collection.i"
+%include "dlite-path.i"
 %include "dlite-mapping.i"

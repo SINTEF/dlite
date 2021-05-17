@@ -11,6 +11,12 @@
 typedef DLiteInstance *(*fun_t)(const char *id);
 
 
+MU_TEST(test_add_dll_path)
+{
+  dlite_add_dll_path();
+}
+
+
 MU_TEST(test_load_modules)
 {
   int i;
@@ -37,9 +43,10 @@ MU_TEST(test_load_modules)
 }
 
 
-
 MU_TEST(test_get_address)
 {
+  /* FIXME - enable this test on Windows */
+#ifndef WINDOWS
   const char *id = "http://meta.sintef.no/0.3/EntitySchema";
   void *addr;
   fun_t fun;
@@ -63,6 +70,7 @@ MU_TEST(test_get_address)
   mu_assert_string_eq(id, inst->uri);
 
   dlite_instance_decref(inst);
+#endif  /* WINDOWS */
 }
 
 
@@ -89,6 +97,7 @@ MU_TEST(test_finalize)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_add_dll_path);
   MU_RUN_TEST(test_load_modules);
   MU_RUN_TEST(test_get_address);
   MU_RUN_TEST(test_get_instance);

@@ -130,7 +130,10 @@ def standardise(v, asdict=True):
 
     def asdict(self):
         """Returns a dict representation of self."""
-        d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
+        if self.id:
+            d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
+        else:
+            d = OrderedDict(s=self.s, p=self.p, o=self.o)
         return d
 
     def asstrings(self):
@@ -284,7 +287,7 @@ def standardise(v, asdict=True):
             d['dimensions'] = self.dimensions
             d['properties'] = {k: standardise(v)
                                for k, v in self.properties.items()}
-        if 'relations' in self:
+        if 'relations' in self.meta.properties:
             d['relations'] = self['relations'].tolist()
         return d
 

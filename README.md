@@ -140,7 +140,7 @@ and then include it in your C program:
 ```c
 // homes.c -- sample program that loads instance from homes.json and prints it
 #include <stdio.h>
-#include <dlite>
+#include <dlite.h>
 #include "person.h"  // header generated with dlite-codegen
 
 int main()
@@ -149,9 +149,9 @@ int main()
      here the file 'homes.json' and the instance we want to load in
      this file is identified with the UUID following the hash (#)
      sign. */
-  char *url = "json://homes.json#7ac977ce-a0dc-4e19-a7e1-7781c0cd23d2";
+  char *url = "json://homes.json#315088f2-6ebd-4c53-b825-7a6ae5c9659b";
 
-  Person *person = dlite_instance_load_url(url);
+  Person *person = (Person *)dlite_instance_load_url(url);
 
   int i;
   printf("name:  %s\n", person->name);
@@ -163,6 +163,8 @@ int main()
   return 0;
 }
 ```
+Now run the python file and it would create a homes.json file, which contains an entity information.
+Use the UUID of the entity from the homes.json file, and update the url variable in the homes.c file.
 
 Since we are using `dlite_instance_load_url()` to load the instance,
 you must link to dlite when compiling this program.  Assuming you are
@@ -170,7 +172,11 @@ using Linux and dlite in installed in `$HOME/.local`, compiling with
 gcc would look like:
 
 ```console
-$ gcc -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -o homes homes.c
+$ gcc homes.c -o homes -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -ldlite-utils
+```
+Or if you are using the development environment , you can compile using:
+```console
+$ gcc -I/tmp/dlite-install/include/dlite -L/tmp/dlite-install/lib -o homes homes.c -ldlite -ldlite-utils
 ```
 
 Finally you can run the program with
@@ -288,6 +294,7 @@ Dependencies
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
     - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+    - [pandas][pandas], optional (used for csv storage plugin)
 
 
 ### Build dependencies
@@ -421,3 +428,4 @@ DLite is developed with the hope that it will be a delight to work with.
 [IRI]: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
 [dlite-packages]: https://github.com/SINTEF/dlite/packages
 [vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
+[pandas]: https://pandas.pydata.org/

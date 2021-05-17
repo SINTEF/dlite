@@ -18,6 +18,7 @@
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
 
   /* forward declarations */
+  static PyObject *DLiteError = NULL;
   char *strndup(const char *s, size_t n);
 %}
 
@@ -53,6 +54,12 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 %init %{
   Py_Initialize();  /* should already be called, but just in case... */
   import_array();  /* Initialize numpy */
+  DLiteError = PyErr_NewExceptionWithDoc(
+    "dlite.DLiteError",                      // name
+    "Base exception for the dlite module.",  // doc
+    NULL,                                    // base
+    NULL                                     // dict
+  );
 %}
 
 %numpy_typemaps(unsigned char, NPY_UBYTE,  size_t)
@@ -67,6 +74,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
  ** Help functions
  **********************************************/
 %{
+
+PyObject *_get_DLiteError(void) {
+  return DLiteError;
+}
 
 /* Free's array of allocated strings. */
 void free_str_array(char **arr, size_t len)
@@ -1122,7 +1133,6 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 }
 
 
-
 /* ---------------
  * Output typemaps
  * --------------- */
@@ -1183,3 +1193,14 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
       PyList_Append($result, PyString_FromString(*p));
   }
 }
+
+
+/* ------------------
+ * Expose generic api
+ * ------------------ */
+PyObject *_get_DLiteError(void);
+
+
+%pythoncode %{
+  DLiteError = _dlite._get_DLiteError()
+%}
