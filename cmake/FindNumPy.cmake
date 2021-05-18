@@ -39,7 +39,7 @@ print(coredir.as_posix())
 ")
 
   execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -c "${script}"
+    COMMAND ${RUNNER} "${Python3_EXECUTABLE}" -c "${script}"
     RESULT_VARIABLE numpy_retval
     OUTPUT_VARIABLE numpy_output
     ERROR_VARIABLE numpy_error

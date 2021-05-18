@@ -16,7 +16,7 @@ function(find_python_module module)
     endif()
     # A package's location is usually a directory, but for modules
     # it's a .py or .so file.
-    execute_process(COMMAND "${Python3_EXECUTABLE}" "-c"
+    execute_process(COMMAND ${RUNNER} "${Python3_EXECUTABLE}" "-c"
       "import re, ${module}; print(re.compile('/__init__.(py.*)|(so)').sub('',${module}.__file__))"
       RESULT_VARIABLE _${module}_status
       OUTPUT_VARIABLE _${module}_location
