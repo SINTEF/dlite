@@ -597,10 +597,13 @@ void triplestore_init_state(TripleStore *ts, TripleState *state)
 
 /*
   Deinitiates a TripleState initialised with triplestore_init_state().
+
+  It is not an errror to call this function multiple times.
 */
 void triplestore_deinit_state(TripleState *state)
 {
   if (state->data) librdf_free_stream((librdf_stream *)state->data);
+  state->data = NULL;
 }
 
 /*

@@ -306,16 +306,29 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   dlite_get_uuid(uuid, id);
   pid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, uuid) : NULL;
 
+  /* find instance and metadata UUIDs */
   triplestore_init_state(ts, &state);
   while ((t2 = triplestore_find(&state, pid, _P ":hasMeta", NULL))) {
-    if (t) FAIL1("UUID must be provided if storage holds "
+    if (t) FAIL1("ID must be provided if storage holds "
                  "more than one instance: %s", s->location);
     t = t2;
   }
-  if (!t) FAIL2("no instance with UUID %s in store: %s", pid, s->location);
+  triplestore_deinit_state(&state);
+  if (t) {
+    dlite_get_uuid(muuid, t->o);
+  } else {
+    triplestore_init_state(ts, &state);
+    while ((t2 = triplestore_find(&state, pid, _P ":hasURI", NULL))) {
+      if (t) FAIL1("ID must be provided if storage holds "
+                   "more than one instance: %s", s->location);
+      t = t2;
+    }
+    triplestore_deinit_state(&state);
+    if (t) strncpy(muuid, DLITE_ENTITY_SCHEMA, sizeof(muuid));
+  }
+  if (!t) FAIL2("no instance with id '%s' in store: %s", id, s->location);
 
   /* get/load metadata */
-  dlite_get_uuid(muuid, t->o);
   mid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, muuid) : NULL;
   if (!(meta = dlite_meta_get(muuid)) &&
       !(meta = dlite_meta_load(storage, muuid)))
@@ -327,7 +340,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
       FAIL("allocation failure");
     /* read first dimension value */
-    if (!(dim = getobj(s, pid, _P ":hasFirstDimensionValue"))) goto fail;
+    if (!(dim = getobj(s, pid, _P ":hasDimensionValue"))) goto fail;
     if (strput(&buf, &size, 0, dim) < 0) FAIL("allocation failure");
     if (!(val = getobj(s, buf, _P ":hasIntegerValue"))) goto fail;
     dims[0] = strtol(val, NULL, 0);
