@@ -11,7 +11,6 @@ DLiteMeta *meta=NULL;
 
 
 
-/*
 MU_TEST(test_load)
 {
   char *url;
@@ -24,9 +23,9 @@ MU_TEST(test_load)
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 }
-*/
 
 
+/*
 MU_TEST(test_load)
 {
   int stat;
@@ -43,16 +42,17 @@ MU_TEST(test_load)
   stat = dlite_storage_close(s);
   mu_assert_int_eq(0, stat);
 }
-
+*/
 
 
 
 MU_TEST(test_write)
 {
-  DLiteStorage *s = dlite_storage_open("rdf", "test-file.xml",
+  DLiteStorage *s = dlite_storage_open("rdf", "db.xml",
                                        "mode=w;"
                                        "store=file;"
-                                       "filename=-");
+                                       "filename=-;"
+                                       "format=turtle");
   mu_check(s);
   mu_assert_int_eq(0, dlite_instance_save(s, (DLiteInstance *)meta));
   mu_assert_int_eq(0, dlite_instance_save(s, inst));

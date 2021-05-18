@@ -22,13 +22,26 @@
 #include "dlite-datamodel.h"
 
 
-/* Prefix and corrosponding IRI value for predicates */
+/** Prefix and corrosponding IRI value for predicates */
 #ifndef _P
-#define _P "dm"                           /* prefix */
+#define _P "dm"                           /*!< prefix */
 #endif
 #ifndef _V
-#define _V "http://emmo.info/datamodel#"  /* value */
+#define _V "http://emmo.info/datamodel#"  /*!< value */
 #endif
+
+
+/** Formatting flags
+
+  The simple format serialise data and metadata differently, while
+
+ */
+typedef enum {
+  fmtMetaAnnot=1,  /*!< Serialise metadata using the hasURI, hasDescription,
+                        hasProperty and hasDescription properties. */
+  fmtMetaVals=2    /*!< Serialise metadata as any other data using
+                        hasDimensionValue and hasPropertyValue. */
+} FmtFlags;
 
 
 /** Storage for librdf backend. */
@@ -41,6 +54,7 @@ typedef struct {
   char *format;     /*!< Format of optional input/output file. */
   char *mime_type;  /*!< Mime time of optional input/output file. */
   char *type_uri;   /*!< Type uri of optional input/output file. */
+  FmtFlags flags;   /*!< Formatting flags. */
 } RdfStorage;
 
 /** Data model for librdf backend. */
@@ -95,6 +109,12 @@ typedef struct {
       Uri specifying format of optional input/output file.
   - options : string
       Comma-separated string of options to pass to the librdf storage module.
+  - meta-annot : bool
+      Whether to serialise metadata using the hasURI, hasDescription,
+      hasProperty and hasDescription properties.  Default: true
+  - meta-vals : bool
+      Whether to serialise metadata as any other data using
+      hasDimensionValue and hasPropertyValue.  Default: false
 
   Returns NULL on error.
 */
@@ -127,6 +147,10 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
     "Uri specifying format of optional input/output file.";
   char *options_descr =
     "Comma-separated string of options to pass to the librdf storage module.";
+  char *metaannot_descr = "Whether to serialise metadata using the hasURI, "
+    "hasDescription, hasProperty and hasDescription properties.  Default: true";
+  char *metavals_descr = "Whether to serialise metadata as any other data using"
+    "hasDimensionValue and hasPropertyValue.  Default: false";
   DLiteOpt opts[] = {
     {'m', "mode",      "w",        mode_descr},
     {'s', "store",     "hashes",   store_descr},
@@ -136,6 +160,8 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
     {'m', "mime-type", NULL,       mime_descr},
     {'t', "type-uri",  NULL,       type_descr},
     {'o', "options",   NULL,       options_descr},
+    {'a', "meta-annot","yes",      metaannot_descr},
+    {'v', "meta-vals", "no",       metavals_descr},
     {0, NULL, NULL, NULL}
   };
   char *optcopy = (options) ? strdup(options) : NULL;
@@ -146,7 +172,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
 
   /* parse options */
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
-  mode  = opts[0].value;
+  mode = opts[0].value;
   s->store   =   (opts[1].value) ? strdup(opts[1].value) : NULL;
   s->base_uri =  (opts[2].value) ? strdup(opts[2].value) : NULL;
   s->filename =  (opts[3].value) ? strdup(opts[3].value) : NULL;
@@ -154,6 +180,8 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
   s->mime_type = (opts[5].value) ? strdup(opts[5].value) : NULL;
   s->type_uri  = (opts[6].value) ? strdup(opts[6].value) : NULL;
   opt   = (opts[7].value) ? opts[7].value : NULL;
+  s->flags |= (atob(opts[8].value)) ? fmtMetaAnnot : 0;
+  s->flags |= (atob(opts[9].value)) ? fmtMetaVals : 0;
 
   if (strcmp(mode, "r") == 0 || strcmp(mode, "read") == 0) {
     s->writable = 0;
@@ -363,7 +391,7 @@ static char *get_blank_node(TripleStore *ts, const char *id)
   librdf_world *world = triplestore_get_world(ts);
   librdf_node *node =
     librdf_new_node_from_blank_identifier(world, (unsigned char *)id);
-  if (!node) return NULL;
+  if (!node) return err(1, "cannot create blank node: %s", id), NULL;
   str = (char *)librdf_node_get_blank_identifier(node);
   if (str) str = strdup(str);
   librdf_free_node(node);
@@ -379,86 +407,113 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
   RdfStorage *s = (RdfStorage *)storage;
   TripleStore *ts = s->ts;
   DLiteMeta *meta = (dlite_instance_is_meta(inst)) ? (DLiteMeta *)inst : NULL;
-  size_t i, bufsize=0;
-  char *buf=NULL, *b1=NULL;
+  size_t i, bufsize=0, buf2size=0;
+  int j, retval=1;
+  char *buf=NULL, *buf2=NULL, *b1, *b2;
   triplestore_add_uri(ts, inst->uuid, "rdf:type", "owl:NamedIndividual");
   if (meta)
     triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Entity");
   else
     triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Object");
+  triplestore_add(ts, inst->uuid, _P ":hasUUID", inst->uuid);
+  triplestore_add(ts, inst->uuid, _P ":hasMeta", inst->meta->uri);
   if (inst->uri)
-    triplestore_add_uri(ts, inst->uuid, _P ":hasURI", inst->uri);
-  triplestore_add_uri(ts, inst->uuid, _P ":hasMeta", inst->meta->uri);
+    triplestore_add(ts, inst->uuid, _P ":hasURI", inst->uri);
 
-  /* Dimension values */
-  for (i=0; i < inst->meta->_ndimensions; i++) {
-    const char *name = inst->meta->_dimensions[i].name;
-    asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
-    b1 = get_blank_node(ts, buf);
+  /* Describe metadata with spesialised properties */
+  if (meta && s->flags & fmtMetaAnnot) {
+    const char **descr = dlite_instance_get_property(inst, "description");
+    if (descr)
+      triplestore_add_en(ts, inst->uuid, _P ":hasDescription", *descr);
 
-    asnprintf(&buf, &bufsize, "%d",
-              (int)dlite_instance_get_dimension_size_by_index(inst, i));
-    triplestore_add2(ts, b1, _P ":hasDimensionValue", buf,
-                     1, NULL, "xsd:integer");
+    for (i=0; i < meta->_ndimensions; i++) {
+      DLiteDimension *d = meta->_dimensions + i;
+      asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, d->name);
+      if (!(b1 = get_blank_node(ts, buf))) goto fail;
+      triplestore_add_uri(ts, inst->uuid, _P ":hasDimension", b1);
+      triplestore_add_uri(ts, b1, "rdf:type", _P ":Dimension");
+      triplestore_add(ts, b1, _P ":hasLabel", d->name);
+      triplestore_add_en(ts, b1, _P ":hasDescription", d->description);
+      free(b1);
+    }
+
+    for (i=0; i < meta->_nproperties; i++) {
+      DLiteProperty *p = meta->_properties + i;
+      char typename[32];
+      dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
+      asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, p->name);
+      if (!(b1 = get_blank_node(ts, buf))) goto fail;
+      asnprintf(&buf2, &buf2size, "%s/shape0", buf);
+      if (!(b2 = get_blank_node(ts, buf2))) goto fail;
+      triplestore_add_uri(ts, inst->uuid, _P ":hasProperty", b1);
+      triplestore_add_uri(ts, b1, "rdf:type", _P ":Property");
+      triplestore_add(ts, b1, _P ":hasLabel", p->name);
+      triplestore_add(ts, b1, _P ":hasType", typename);
+      if (p->ndims)
+        triplestore_add_uri(ts, b1, _P ":hasShape", b2);
+      if (p->unit)
+        triplestore_add(ts, b1, _P ":hasUnit", p->unit);
+      if (p->description)
+        triplestore_add_en(ts, b1, _P ":hasDescription", p->description);
+
+      if (p->dims) {
+        triplestore_add_uri(ts, b2, "rdf:type", _P ":Shape");
+        triplestore_add_uri(ts, b2, _P ":hasDimensionExpression", p->dims[0]);
+      }
+      for (j=1; j < p->ndims; j++) {
+        char *b;
+        asnprintf(&buf2, &buf2size, "%s/shape%d", buf, j);
+        if (!(b = get_blank_node(ts, buf2))) goto fail;
+        triplestore_add_uri(ts, b2, _P ":hasNextShape", b);
+        triplestore_add_uri(ts, b, "rdf:type", _P ":Shape");
+        triplestore_add_uri(ts, b, _P ":hasDimensionExpression", p->dims[j]);
+        free(b2);
+        b2 = b;
+      }
+      free(b1);
+      free(b2);
+    }
   }
 
-  /* Property values */
-  for (i=0; i < inst->meta->_nproperties; i++) {
-    const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, i);
-    const void *ptr = dlite_instance_get_property_by_index(inst, i);
-    const char *name = inst->meta->_properties[i].name;
-    const size_t *dims = DLITE_PROP_DIMS(inst, i);
-    asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
-    b1 = get_blank_node(ts, buf);
-    triplestore_add_uri(ts, inst->uuid, _P ":hasPropertyValue", b1);
-    triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
-    triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
-    triplestore_add2(ts, b1, "rdfs:label", name, 1, "en", NULL);
-    dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, -2, 0,
-                          dliteFlagRaw | dliteFlagStrip);
-    triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL, "rdf:PlainLiteral");
-  }
-  if (b1) free(b1);
-
-  if (meta)
-    /* Dimensions */
+  if (!meta || s->flags & fmtMetaVals) {
+    /* Dimension values */
     for (i=0; i < inst->meta->_ndimensions; i++) {
       const char *name = inst->meta->_dimensions[i].name;
       asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
-      b1 = get_blank_node(ts, buf);
-      triplestore_add_uri(ts, inst->uuid, _P ":hasDimensionValue", b1);
-      triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
-      triplestore_add_uri(ts, b1, "rdf:type", _P ":DimensionValue");
-      triplestore_add2(ts, b1, "rdfs:label", name, 1, "en", NULL);
+      if (!(b1 = get_blank_node(ts, buf))) goto fail;
       asnprintf(&buf, &bufsize, "%d",
                 (int)dlite_instance_get_dimension_size_by_index(inst, i));
-      triplestore_add2(ts, b1, _P ":hasIntegerValue", buf,
+      triplestore_add_uri(ts, inst->uuid, _P ":hasDimensionValue", b1);
+      triplestore_add(ts, b1, _P ":hasLabel", name);
+      triplestore_add2(ts, b1, _P ":hasDimensionSize", buf,
                        1, NULL, "xsd:integer");
+      free(b1);
     }
-  if (b1) free(b1);
 
-
-  /* Properties */
-  for (i=0; i < inst->meta->_nproperties; i++) {
-    const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, i);
-    const void *ptr = dlite_instance_get_property_by_index(inst, i);
-    const char *name = inst->meta->_properties[i].name;
-    const size_t *dims = DLITE_PROP_DIMS(inst, i);
-    asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
-    b1 = get_blank_node(ts, buf);
-    triplestore_add_uri(ts, inst->uuid, _P ":hasPropertyValue", b1);
-    triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
-    triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
-    triplestore_add2(ts, b1, "rdfs:label", name, 1, "en", NULL);
-    dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, -2, 0,
-                          dliteFlagRaw | dliteFlagStrip);
-    triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL, "rdf:PlainLiteral");
+    /* Property values */
+    for (i=0; i < inst->meta->_nproperties; i++) {
+      const DLiteProperty *p = dlite_meta_get_property_by_index(inst->meta, i);
+      const void *ptr = dlite_instance_get_property_by_index(inst, i);
+      const char *name = inst->meta->_properties[i].name;
+      const size_t *dims = DLITE_PROP_DIMS(inst, i);
+      asnprintf(&buf, &bufsize, "%s/%s", inst->uuid, name);
+      if (!(b1 = get_blank_node(ts, buf))) goto fail;
+      triplestore_add_uri(ts, inst->uuid, _P ":hasPropertyValue", b1);
+      triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
+      triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
+      triplestore_add2(ts, b1, "rdfs:label", name, 1, "en", NULL);
+      dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, -2, 0,
+                            dliteFlagRaw | dliteFlagStrip);
+      triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL,
+                       "rdf:PlainLiteral");
+      free(b1);
+    }
   }
-  if (b1) free(b1);
-}
 
+  retval = 0;
+ fail:
   if (buf) free(buf);
-  return 0;
+  return retval;
 }
 
 
