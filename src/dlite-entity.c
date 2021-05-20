@@ -178,7 +178,7 @@ static DLiteInstance *_instance_store_get(const char *id)
 /*
   Prints instance to stdout. Intended for debugging.
  */
-void dlite_instance_print(const DLiteInstance *inst)
+void dlite_instance_debug(const DLiteInstance *inst)
 {
   size_t i;
   int j;
@@ -1720,6 +1720,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
 }
 
 
+
 /********************************************************************
  *  Metadata
  ********************************************************************/
@@ -2196,6 +2197,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
  fail:
   return err(1, "allocation failure");
 }
+
 
 /* Expands to `a - b` if `a > b` else to `0`. */
 #define PDIFF(a, b) (((size_t)(a) > (size_t)(b)) ? (a) - (b) : 0)

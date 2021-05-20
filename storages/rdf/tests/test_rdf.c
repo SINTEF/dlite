@@ -6,11 +6,11 @@
 #define _STRINGIFY(s) # s
 
 
-DLiteInstance *inst=NULL;
+DLiteInstance *inst=NULL, *inst2=NULL;
 DLiteMeta *meta=NULL;
 
 
-
+/*
 MU_TEST(test_load)
 {
   char *url;
@@ -23,27 +23,24 @@ MU_TEST(test_load)
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 }
+*/
 
 
-/*
 MU_TEST(test_load)
 {
   int stat;
-  char *loc = STRINGIFY(dlite_SOURCE_DIR) "/storages/rdf/tests/data.xml";
-  DLiteStorage *s = dlite_storage_open("rdf", loc, "mode=r;store=file");
+  //char *loc = STRINGIFY(dlite_SOURCE_DIR) "/storages/rdf/tests/data.xml";
+  DLiteStorage *s = dlite_storage_open("rdf", "db.xml",
+                                       "mode=r;"
+                                       "store=file");
   mu_check(s);
 
-  inst = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
-  mu_check(inst);
-
-  meta = (DLiteMeta *)inst->meta;
-  mu_check(meta);
+  inst2 = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+  mu_check(inst2);
 
   stat = dlite_storage_close(s);
   mu_assert_int_eq(0, stat);
 }
-*/
-
 
 
 MU_TEST(test_write)
@@ -58,6 +55,7 @@ MU_TEST(test_write)
   mu_assert_int_eq(0, dlite_instance_save(s, inst));
   mu_assert_int_eq(0, dlite_storage_close(s));
 }
+
 
 
 MU_TEST(test_iter)
