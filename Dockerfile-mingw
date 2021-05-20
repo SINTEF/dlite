@@ -101,7 +101,8 @@ RUN dnf install -y \
 
 
 # Enable transparently running Windows executables
-RUN dnf install -y wine-systemd
+#RUN dnf install -y wine-systemd
+#RUN mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
 
 
 ##########################################
