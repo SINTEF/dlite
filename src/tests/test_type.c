@@ -199,10 +199,15 @@ MU_TEST(test_scan)
 
   /* blob */
   n = dlite_type_scan("01ff", -1, blob, dliteBlob, 2, 0);
+  mu_assert_int_eq(4, n);
+  mu_assert_int_eq(1, blob[0]);
+  mu_assert_int_eq(255, blob[1]);
+
+  n = dlite_type_scan("\"01ff\"", -1, blob, dliteBlob, 2, 0);
   mu_assert_int_eq(-1, n);
   err_clear();
 
-  n = dlite_type_scan("\"01fe\"", -1, blob, dliteBlob, 2, 0);
+  n = dlite_type_scan("\"01fe\"", -1, blob, dliteBlob, 2, dliteFlagQuoted);
   mu_assert_int_eq(6, n);
   mu_assert_int_eq(1, blob[0]);
   mu_assert_int_eq(254, blob[1]);

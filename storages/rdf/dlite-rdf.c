@@ -314,7 +314,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   DLiteInstance *inst=NULL;
   DLiteMeta *meta;
   size_t i, *dims=NULL;
-  int ok=0, n;
+  int ok=0, n, j;
   char uuid[DLITE_UUID_LENGTH+1], muuid[DLITE_UUID_LENGTH+1];
   char *pid=NULL, *mid=NULL, *propiri=NULL;
 
@@ -361,11 +361,13 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
       triplestore_init_state(ts, &state);
       while ((t = triplestore_find(&state, pid, _P ":hasDimensionValue",
                                    NULL))) {
-        if (!(name = getobj(s, t->o, _P ":hasLabel", 1))) goto fail;
-        i = dlite_meta_get_dimension_index(meta, name);
-        if (!(val = getobj(s, t->o, _P ":hasDimensionSize", 1))) goto fail;
-        dims[i] = dlite_instance_get_dimension_size_by_index(inst, i);
+        char *dimval = strdup(t->o);
+        if (!(name = getobj(s, dimval, _P ":hasLabel", 1))) goto fail;
+        j = dlite_meta_get_dimension_index(meta, name);
+        if (!(val = getobj(s, dimval, _P ":hasDimensionSize", 1))) goto fail;
+        dims[j] = atoi(val);
         n++;
+        free(dimval);
       }
       triplestore_deinit_state(&state);
       if (n != (int)meta->_ndimensions)
@@ -386,6 +388,9 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (!inst->uri && (t = triplestore_find_first(ts, pid, _P ":hasURI", NULL)))
     inst->uri = strdup(t->o);
 
+  /* FIXME - should have been called by dlite_instance_create() */
+  if (dlite_instance_is_meta(inst)) dlite_meta_init((DLiteMeta *)inst);
+
   n = 0;
   while ((t = triplestore_find(&state, pid, _P ":hasPropertyValue", NULL))) {
     /* -- read property values */
@@ -393,31 +398,64 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     const char *name, *val;
     size_t *pdims;
     void *ptr;
-
-    printf("+++ o: %s\n", t->o);
-
-    if (!(name = getobj(s, t->o, _P ":hasLabel", 1))) goto fail;
-    i = dlite_meta_get_property_index(meta, name);
-    printf("+++ name: %s\n", name);
-    if (!(val = getobj(s, t->o, _P ":hasValue", 1))) goto fail;
-    p = meta->_properties + i;
-    pdims = DLITE_PROP_DIMS(inst, i);
-    ptr = dlite_instance_get_property_by_index(inst, i);
-    if (dlite_property_scan(val, ptr, p, pdims, 0) < 0) goto fail;
+    char *prop=strdup(t->o);
+    if (!(name = getobj(s, prop, _P ":hasLabel", 1))) goto fail;
+    j = dlite_meta_get_property_index(meta, name);
+    if (!(name = getobj(s, prop, _P ":hasLabel", 1))) goto fail;
+    if ((j = dlite_meta_get_property_index(meta, name)) < 0) goto fail;
+    if (!(val = getobj(s, prop, _P ":hasValue", 1))) goto fail;
+    p = meta->_properties + j;
+    pdims = DLITE_PROP_DIMS(inst, j);
+    ptr = dlite_instance_get_property_by_index(inst, j);
+    if (dlite_property_scan(val, ptr, p, pdims, dliteFlagRaw) < 0) goto fail;
     n++;
+    free(prop);
   }
   triplestore_deinit_state(&state);
+
+  /* Metadata is normally stored with dedicated relations according to the
+     datamodel ontology. */
   if (n == 0 && strcmp(meta->uri, DLITE_ENTITY_SCHEMA) == 0) {
+    const char *str;
+    char **namep, **verp, **nsp, **descrp;
+    DLiteDimension *d;
+    DLiteProperty *p;
+
+    /* -- read header: uri, description */
+    namep = dlite_instance_get_property(inst, "name");
+    verp = dlite_instance_get_property(inst, "version");
+    nsp = dlite_instance_get_property(inst, "namespace");
+    if (!(namep && verp && nsp))
+      fatal(1, "%s should have name, version and namespace properties",
+            DLITE_ENTITY_SCHEMA);
+    if (!(str = getobj(s, pid, _P ":hasURI", 1))) goto fail;
+    dlite_split_meta_uri(str, namep, verp, nsp);
+
+    descrp = dlite_instance_get_property(inst, "description");
+    if ((str = getobj(s, pid, _P ":hasDescription", 0)))
+      *descrp = strdup(str);
+
+    /* -- read dimensions */
+    d = dlite_instance_get_property(inst, "dimensions");
+    triplestore_init_state(ts, &state);
+    while ((t = triplestore_find(&state, pid, _P ":hasDimension", NULL))) {
+      propiri = strdup(t->o);
+      if (!(str = getobj(s, propiri, _P ":hasLabel", 1))) goto fail;
+      d->name = strdup(str);
+      if ((str = getobj(s, propiri, _P ":hasDescription", 0)))
+        d->description = strdup(str);
+      d++;
+      free(propiri);
+      propiri = NULL;
+    }
+    triplestore_deinit_state(&state);
+
+
     /* -- read properties */
-
-    printf("\n--- id=%s\n", (inst->uri) ? inst->uri : inst->uuid);
-
-    DLiteProperty *p = dlite_instance_get_property(inst, "properties");
+    p = dlite_instance_get_property(inst, "properties");
     triplestore_init_state(ts, &state);
     while ((t = triplestore_find(&state, pid, _P ":hasProperty", NULL))) {
       const char *name, *typename, *shape, *unit, *descr;
-
-      printf("---0: %s\n", t->o);
 
       /* save propiri so it is not overwritten by getobj() */
       propiri = strdup(t->o);
@@ -432,8 +470,6 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
       if ((descr = getobj(s, propiri, _P ":hasDescription", 0)))
         p->description = strdup(descr);
 
-      printf("---1\n");
-
       /* count and allocate property dimensions */
       shape = getobj(s, propiri, _P ":hasFirstShape", 0);
       while (shape) {
@@ -442,29 +478,28 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
       }
       p->dims = calloc(p->ndims, sizeof(char *));
 
-      printf("---2\n");
-
       /* assign property dimensions */
       i = 0;
       shape = getobj(s, propiri, _P ":hasFirstShape", 0);
       while (shape) {
-        const char *expr = getobj(s, shape, _P ":hasDimensionExpression", 1);
-        if (!expr)
+        const char *expr;
+        char buf[64];
+        strncpy(buf, shape, sizeof(buf));
+        if (!(expr = getobj(s, buf, _P ":hasDimensionExpression", 1)))
           FAIL2("%s has no dimension expression: %s", t2->s, s->location);
-        p->dims[i] = strdup(expr);
-        shape = getobj(s, shape, _P ":hasNextShape", 0);
+        p->dims[i++] = strdup(expr);
+        shape = getobj(s, buf, _P ":hasNextShape", 0);
       }
-      printf("---3\n");
       p++;
       n++;
+      free(propiri);
+      propiri = NULL;
     }
     triplestore_deinit_state(&state);
 
-    printf("================================================\n");
-    dlite_instance_debug(inst);
-    printf("================================================\n");
+    /* reinitialise metadata after property dimensions have been set */
+    dlite_meta_init((DLiteMeta *)inst);
   }
-  printf("--- x\n");
   if (n != (int)meta->_nproperties)
     FAIL4("entity %s expect %d property values, but got %d: %s",
           id, (int)meta->_nproperties, n, s->location);
@@ -477,7 +512,6 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (dims) free(dims);
   if (!ok && inst) dlite_instance_decref(inst);
   triplestore_deinit_state(&state);
-  printf("--- y\n");
   return (ok) ? inst : NULL;
 }
 
@@ -559,7 +593,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
 
       if (p->dims) {
         triplestore_add_uri(ts, b2, "rdf:type", _P ":Shape");
-        triplestore_add_uri(ts, b2, _P ":hasDimensionExpression", p->dims[0]);
+        triplestore_add(ts, b2, _P ":hasDimensionExpression", p->dims[0]);
       }
       for (j=1; j < p->ndims; j++) {
         char *b;
@@ -567,7 +601,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
         if (!(b = get_blank_node(ts, buf2))) goto fail;
         triplestore_add_uri(ts, b2, _P ":hasNextShape", b);
         triplestore_add_uri(ts, b, "rdf:type", _P ":Shape");
-        triplestore_add_uri(ts, b, _P ":hasDimensionExpression", p->dims[j]);
+        triplestore_add(ts, b, _P ":hasDimensionExpression", p->dims[j]);
         free(b2);
         b2 = b;
       }
@@ -603,7 +637,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
       triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
       triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
       triplestore_add(ts, b1, _P ":hasLabel", name);
-      dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, -2, 0,
+      dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, 0, -2,
                             dliteFlagRaw | dliteFlagStrip);
       triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL,
                        "rdf:PlainLiteral");
@@ -614,6 +648,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
   retval = 0;
  fail:
   if (buf) free(buf);
+  if (buf2) free(buf2);
   return retval;
 }
 
