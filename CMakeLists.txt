@@ -852,3 +852,20 @@ install(
   FILES "${dlite_SOURCE_DIR}/cmake/Finddlite.cmake"
   DESTINATION "share/cmake/Modules"
   )
+
+if(CROSS_TARGET)
+  # When cross-compiling, include the python in the distribution
+  set(pyver "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+  install(
+    FILES
+      ${TOOLCHAIN_BINDIR}/python${pyver}.exe
+      ${TOOLCHAIN_BINDIR}/libpython${pyver}.dll
+      ${TOOLCHAIN_BINDIR}/libwinpthread-1.dll
+      ${TOOLCHAIN_BINDIR}/libssp-0.dll
+    DESTINATION "bin"
+    )
+  install(
+    DIRECTORY ${TOOLCHAIN_LIBDIR}/python${pyver}
+    DESTINATION "lib"
+    )
+endif()
