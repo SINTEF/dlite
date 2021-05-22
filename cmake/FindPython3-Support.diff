@@ -1,12 +1,12 @@
 --- Support.cmake	2021-05-22 16:04:42.194647803 +0200
 +++ /usr/share/cmake/Modules/FindPython/Support.cmake	2021-05-22 16:06:20.839925070 +0200
 @@ -652,6 +652,11 @@
- 
+
    unset ({_PYTHON_PGL_NAME} PARENT_SCOPE)
- 
+
 +  # XXX - hack for running python during cross-compilation
 +  if (CROSS_TARGET AND RUNNER)
-+    set ({_PYTHON_PGL_NAME} "${RUNNER}" PARENT_SCOPE)
++    set (${_PYTHON_PGL_NAME} "${RUNNER}" PARENT_SCOPE)
 +  endif()
 +
    if ((_PGL_INTERPRETER AND NOT _${_PYTHON_PREFIX}_EXECUTABLE)
