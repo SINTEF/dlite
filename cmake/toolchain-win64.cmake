@@ -36,7 +36,6 @@ find_program(CMAKE_Fortran_COMPILER NAMES ${COMPILER_PREFIX}gfortran)
 find_program(WINE NAMES wine64)
 set(RUNNER ${WINE})
 
-
 # here is the target environment located
 set(CMAKE_FIND_ROOT_PATH
   /usr/${TOOLCHAIN_PREFIX}

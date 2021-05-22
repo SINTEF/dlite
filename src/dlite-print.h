@@ -7,7 +7,7 @@ typedef enum {
 } DLitePrintFlag;
 
 /**
-  Prints instance `inst` to buffer, formatted as JSON.
+  Prints instance `inst` to `dest`, formatted as JSON.
 */
 int dlite_print(char *dest, size_t size, DLiteInstance *inst,
                 int indent, DLitePrintFlag flags);

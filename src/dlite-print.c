@@ -46,7 +46,7 @@
 
 
 /*
-  Prints instance `inst` to buffer, formatted as JSON.
+  Prints instance `inst` to `dest`, formatted as JSON.
 */
 int dlite_print(char *dest, size_t size, DLiteInstance *inst,
                 int indent, DLitePrintFlag flags)
@@ -55,7 +55,6 @@ int dlite_print(char *dest, size_t size, DLiteInstance *inst,
   int n=0, ok=0, m;
   size_t i;
   char *in = malloc(indent + 1);
-  UNUSED(flags);
   memset(in, ' ', indent);
   in[indent] = '\0';
 

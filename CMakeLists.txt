@@ -371,8 +371,10 @@ if(WITH_PYTHON)
     set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
   endif()
 
+  set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
   find_package(NumPy REQUIRED)
+  unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
   # On mingw, python depends on libffi
   find_library(ffi ffi)
