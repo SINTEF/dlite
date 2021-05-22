@@ -428,6 +428,7 @@ if(MEMORYCHECK_COMMAND)
         -E env PYTHONMALLOC=malloc ${MEMORYCHECK_COMMAND}
         --leak-check=yes
         --show-leak-kinds=all
+        --keep-debuginfo=yes
         --suppressions=${dlite_supp}
         --gen-suppressions=all
         --log-file=${logfile}

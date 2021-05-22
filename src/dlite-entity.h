@@ -399,7 +399,7 @@ typedef struct _DLiteMetaModel DLiteMetaModel;
 /**
   Prints instance to stdout. Intended for debugging.
  */
-void dlite_instance_print(const DLiteInstance *inst);
+void dlite_instance_debug(const DLiteInstance *inst);
 
 
 /**

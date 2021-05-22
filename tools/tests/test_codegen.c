@@ -80,7 +80,7 @@ int main()
       p->Xp[i] -= atvol0/p->atvol[j] * p->volfrac[j] * p->Xp[j*nelements + i];
 
 
-  dlite_instance_print((DLiteInstance *)p->meta);
+  dlite_instance_debug((DLiteInstance *)p->meta);
 
   /* Save instance */
   s = dlite_storage_open("json", "example-6xxx.json", "mode=w");

@@ -138,6 +138,14 @@ int triplestore_add(TripleStore *ts, const char *s, const char *p,
 
 
 /**
+  Adds a single triple to store.  The object is considered to be an
+  english literal.  Returns non-zero on error.
+ */
+int triplestore_add_en(TripleStore *ts, const char *s, const char *p,
+                    const char *o);
+
+
+/**
   Adds a single triple to store.  The object is considered to be an URI.
   Returns non-zero on error.
  */

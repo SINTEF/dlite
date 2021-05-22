@@ -620,13 +620,19 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
  */
 static StrquoteFlags as_qflags(DLiteTypeFlag flags)
 {
-  switch (flags) {
-  case dliteFlagDefault: return strquoteRaw;
-  case dliteFlagRaw: return strquoteRaw;
-  case dliteFlagQuoted: return 0;
-  case dliteFlagStrip: return strquoteNoQuote | strquoteNoEscape;
-  }
-  abort();
+  int flg=0;
+  if (flags == dliteFlagDefault) return strquoteRaw;
+  if (flags & dliteFlagRaw)    flg |= strquoteRaw;
+  if (flags & dliteFlagQuoted) flg |= 0;
+  if (flags & dliteFlagStrip)  flg |= strquoteNoQuote | strquoteNoEscape;
+  return flg;
+  //switch (flags) {
+  //case dliteFlagDefault: return strquoteRaw;
+  //case dliteFlagRaw: return strquoteRaw;
+  //case dliteFlagQuoted: return 0;
+  //case dliteFlagStrip: return strquoteNoQuote | strquoteNoEscape;
+  //}
+  //abort();
 }
 
 
@@ -854,7 +860,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
   case dliteBlob:
     if (!(flags & dliteFlagStrip)) while (isblank(src[m])) m++;
-    if (!(flags & dliteFlagQuoted) && src[m++] != '"')
+    if ((flags & dliteFlagQuoted) && src[m++] != '"')
       return errx(-1, "expected initial double quote around blob");
     for (i=0; i<2*size; i++)
       if (!isxdigit(src[i+m]))
@@ -867,7 +873,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       ((unsigned char *)p)[i] = tmp;
     }
     m += 2*size;
-    if (!(flags & dliteFlagQuoted) && src[m++] != '"')
+    if ((flags & dliteFlagQuoted) && src[m++] != '"')
       return errx(-1, "expected final double quote around blob");
     break;
 

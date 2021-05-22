@@ -178,7 +178,7 @@ static DLiteInstance *_instance_store_get(const char *id)
 /*
   Prints instance to stdout. Intended for debugging.
  */
-void dlite_instance_print(const DLiteInstance *inst)
+void dlite_instance_debug(const DLiteInstance *inst)
 {
   size_t i;
   int j;
@@ -541,10 +541,6 @@ int dlite_instance_incref(DLiteInstance *inst)
   DEBUG_LOG("+++ incref: %2d -> %2d : %s\n",
             inst->_refcount, inst->_refcount+1,
             (inst->uri) ? inst->uri : inst->uuid);
-  //printf("+++ incref: %2d -> %2d : %p : %s\n",
-  //       inst->_refcount, inst->_refcount+1, (void *)inst,
-  //       (inst->uri) ? inst->uri : inst->uuid);
-
   return ++inst->_refcount;
 }
 
@@ -560,10 +556,6 @@ int dlite_instance_decref(DLiteInstance *inst)
   DEBUG_LOG("--- decref: %2d -> %2d : %s\n",
             inst->_refcount, inst->_refcount-1,
             (inst->uri) ? inst->uri : inst->uuid);
-  //printf("--- decref: %2d -> %2d : %p : %s\n",
-  //       inst->_refcount, inst->_refcount-1, (void *)inst,
-  //       (inst->uri) ? inst->uri : inst->uuid);
-
   assert(inst->_refcount > 0);
   if ((count = --inst->_refcount) <= 0) dlite_instance_free(inst);
   return count;
@@ -1720,6 +1712,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
 }
 
 
+
 /********************************************************************
  *  Metadata
  ********************************************************************/
@@ -2196,6 +2189,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
  fail:
   return err(1, "allocation failure");
 }
+
 
 /* Expands to `a - b` if `a > b` else to `0`. */
 #define PDIFF(a, b) (((size_t)(a) > (size_t)(b)) ? (a) - (b) : 0)

@@ -134,7 +134,7 @@ MU_TEST(test_scan)
   unsigned char blob[4];
   prop.type = dliteBlob;
   prop.size = sizeof(blob);
-  n = dlite_property_scan("\"ff0a1008\"", &blob, &prop, NULL, 0);
+  n = dlite_property_scan("\"ff0a1008\"", &blob, &prop, NULL, dliteFlagQuoted);
   mu_assert_int_eq(10, n);
   mu_assert_int_eq(255, blob[0]);
   mu_assert_int_eq(10, blob[1]);
@@ -175,6 +175,9 @@ MU_TEST(test_scan)
   mu_assert_int_eq(4, n);
   mu_assert_double_eq(3.14, d);
   n = dlite_property_scan("3.14", &d, &prop, NULL, dliteFlagQuoted);
+  mu_assert_int_eq(4, n);
+  mu_assert_double_eq(3.14, d);
+  n = dlite_property_scan("3.14", &d, &prop, NULL, dliteFlagRaw);
   mu_assert_int_eq(4, n);
   mu_assert_double_eq(3.14, d);
 

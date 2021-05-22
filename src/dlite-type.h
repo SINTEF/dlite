@@ -107,7 +107,7 @@ typedef enum _DLiteTypeFlag {
   dliteFlagDefault = 0,  /*!< Default */
   dliteFlagRaw=1,        /*!< Raw unquoted input/output */
   dliteFlagQuoted=2,     /*!< Quoted input/output */
-  dliteFlagStrip=3       /*!< Strip off initial and final spaces */
+  dliteFlagStrip=4       /*!< Strip off initial and final spaces */
 } DLiteTypeFlag;
 
 
