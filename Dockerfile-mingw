@@ -92,7 +92,8 @@ RUN dnf install -y \
 # Patch the FindPython3 CMake module to run Python interpreter via wine
 COPY cmake/FindPython3-Support.diff .
 RUN patch /usr/share/cmake/Modules/FindPython/Support.cmake \
-        cmake/FindPython3-Support.diff
+        FindPython3-Support.diff
+
 
 
 
