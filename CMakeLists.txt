@@ -413,7 +413,7 @@ set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
 set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
 
 # Must be assigned before including CTest
-set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=200 --keep-debuginfo=yes --suppressions=${dlite_supp} --gen-suppressions=all")
+set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
 
 include(CTest)
 

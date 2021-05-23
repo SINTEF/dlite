@@ -54,7 +54,7 @@ MU_TEST(test_load)
 
   inst = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
   mu_check(inst);
-  dlite_print(buf, sizeof(buf), inst, 0, 0);
+  dlite_sprint(buf, sizeof(buf), inst, 0, 0);
   printf("%s\n", buf);
 
   stat = dlite_storage_close(s);

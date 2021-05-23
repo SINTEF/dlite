@@ -7,6 +7,7 @@
 #ifndef _FILEUTILS_H
 #define _FILEUTILS_H
 
+#include <stdio.h>
 #include <stdarg.h>
 
 /**
@@ -502,5 +503,14 @@ int fu_globend(FUIter *iter);
   fu_globnext().  Defaults to DIRSEP.
 */
 void fu_iter_set_dirsep(FUIter *iter, int dirsep);
+
+
+
+/**
+  Read `stream` into an malloc'ed buffer and return a pointer to the buffer.
+  Returns NULL on error.
+*/
+char *fu_readfile(FILE *fp);
+
 
 #endif  /*  _FILEUTILS_H */

@@ -97,6 +97,7 @@ int closer(DLiteStorage *s)
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
     retval = 1;
   Py_XDECREF(v);
+  //Py_XDECREF(v);  // why do we have to call this twice?
   Py_DECREF(sp->obj);
   return retval;
 }
@@ -152,6 +153,7 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
   retval = 0;
  fail:
   Py_XDECREF(pyinst);
+  //Py_XDECREF(pyinst);  // why do we have to call this twice?
   Py_XDECREF(v);
   return retval;
 }

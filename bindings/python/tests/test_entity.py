@@ -113,3 +113,8 @@ except ImportError:
     pass
 else:
     inst.save('yaml://yyy.yaml')
+
+
+del inst
+del e2
+del e3

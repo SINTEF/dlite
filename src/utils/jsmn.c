@@ -99,12 +99,14 @@ int jsmn_count(jsmntok_t *t)
 jsmntok_t *jsmn_item(const char *js, jsmntok_t *t, const char *key)
 {
   int i, n, nitems;
+  int len, keylen=strlen(key);
   if (t->type != JSMN_OBJECT) return errx(1, "expected JSMN OBJECT"), NULL;
   nitems = t->size;
   for (i=0; i<nitems; i++) {
     t++;
     assert(t->type == JSMN_STRING);
-    if (strncmp(key, js + t->start, t->end - t->start) == 0) return t+1;
+    len = t->end - t->start;
+    if (len == keylen && strncmp(key, js + t->start, len) == 0) return t+1;
     t++;
     if ((n = jsmn_count(t)) < 0) return NULL;
     t += n;

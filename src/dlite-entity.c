@@ -390,8 +390,9 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   memcpy(inst->uuid, uuid, sizeof(uuid));
   if (uuid_version == 5) inst->uri = strdup(id);
   inst->meta = (DLiteMeta *)meta;
+
   if (dlite_meta_is_metameta(meta) && dlite_meta_init((DLiteMeta *)inst))
-    goto fail;
+    goto fail;  // hmm, shouldn't this be done after dimensions are set?
 
   /* Set dimensions */
   if (meta->_ndimensions) {
@@ -2252,7 +2253,7 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
   for accessing `dims`.
 
   No more than `n` bytes are written to `dest` (incl. the terminating
-  NUL).  Arrays will be written with a JSON-loke syntax.
+  NUL).  Arrays will be written with a JSON-like syntax.
 
   The `width` and `prec` arguments corresponds to the printf() minimum
   field width and precision/length modifier.  If you set them to -1, a
@@ -2353,7 +2354,7 @@ static int scandim(int d, const char *src, void **pptr,
 }
 
 /*
-  Scans property from `src` and wite it to memory pointed to by `ptr`.
+  Scans property from `src` and write it to memory pointed to by `ptr`.
 
   The property is described by `p`.
 

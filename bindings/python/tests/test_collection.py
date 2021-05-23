@@ -29,3 +29,8 @@ coll.add('inst2', inst2)
 
 assert coll.count() == 2
 print(list(coll))
+
+
+del inst1
+del inst2
+del coll

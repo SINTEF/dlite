@@ -1036,7 +1036,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr);
   for accessing `dims`.
 
   No more than `n` bytes are written to `dest` (incl. the terminating
-  NUL).  Arrays will be written with a JSON-loke syntax.
+  NUL).  Arrays will be written with a JSON-like syntax.
 
   The `width` and `prec` arguments corresponds to the printf() minimum
   field width and precision/length modifier.  If you set them to -1, a
@@ -1065,7 +1065,7 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
                           int width, int prec, DLiteTypeFlag flags);
 
 /**
-  Scans property from `src` and wite it to memory pointed to by `ptr`.
+  Scans property from `src` and write it to memory pointed to by `ptr`.
 
   The property is described by `p`.
 

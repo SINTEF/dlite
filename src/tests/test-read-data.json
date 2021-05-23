@@ -1,12 +1,11 @@
 {
   "empty": {
-    "dataname": "",
     "meta": {},
     "dimensions": {},
     "properties": {}
   },
   "dbd9d597-16b4-58f5-b10f-7e49cf85084b": {
-    "dataname": "test-a",
+    "uri": "test-a",
     "meta": {
       "name": "A",
       "version": "1",
@@ -27,15 +26,34 @@
     }
   },
   "b": {
-    "dataname": "test-b",
+    "uri": "test-b",
     "meta": "dlite/1.0/B",
     "dimensions": {},
     "properties": {}
   },
   "c": {
-    "dataname": "test-c",
+    "uri": "test-c",
     "meta": {},
     "dimensions": {},
     "properties": {}
+  },
+  "dlite/1/A": {
+    "uri": "dlite/1/A",
+    "description": "dummy entity",
+    "dimensions": [
+      {"name": "N", "description": "length of P2"}
+    ],
+    "properties": [
+      {
+        "name": "P1",
+        "type": "int"
+      },
+      {
+        "name": "P2",
+        "type": "int",
+        "dims": ["N"],
+        "description": "array"
+      }
+    ]
   }
 }
