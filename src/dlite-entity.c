@@ -172,7 +172,7 @@ static DLiteInstance *_instance_store_get(const char *id)
 
 
 /********************************************************************
- *  Instances
+ *  Framework internals and debugging
  ********************************************************************/
 
 /*
@@ -279,23 +279,54 @@ void dlite_instance_debug(const DLiteInstance *inst)
     fprintf(fp, "  __propdiminds(%+d:%p): [",
             (int)inst->meta->_propdimindsoffset,
             (void *)((char *)inst + inst->meta->_propdimindsoffset));
-    for (i=0, sep=""; i < meta->_nproperties; i++, sep=", ") {
-      fprintf(fp, "%s%lu", sep, (unsigned long)meta->_propdiminds[i]);
-    }
+    if (meta->_propdiminds)
+      for (i=0, sep=""; i < meta->_nproperties; i++, sep=", ")
+        fprintf(fp, "%s%lu", sep, (unsigned long)meta->_propdiminds[i]);
+    else
+      fprintf(fp, "(nil)");
     fprintf(fp, "]\n");
 
     fprintf(fp, "  __propoffsets(%+d:%p): [",
             (int)DLITE_PROPOFFSETSOFFSET(inst),
             (void *)((char *)inst + DLITE_PROPOFFSETSOFFSET(inst)));
-    for (i=0, sep=""; i < meta->_nproperties; i++, sep=", ") {
-      size_t *propoffsets =
-        (size_t *)((char *)inst + DLITE_PROPOFFSETSOFFSET(inst));
-      fprintf(fp, "%s%lu", sep, (unsigned long)propoffsets[i]);
-    }
+    if (meta->_propoffsets) {
+      for (i=0, sep=""; i < meta->_nproperties; i++, sep=", ") {
+        size_t *propoffsets =
+          (size_t *)((char *)inst + DLITE_PROPOFFSETSOFFSET(inst));
+        fprintf(fp, "%s%lu", sep, (unsigned long)propoffsets[i]);
+      }
+    } else
+      fprintf(fp, "(nil)");
     fprintf(fp, "]\n");
   }
 }
 
+/*
+  Returns the allocated size of an instance with metadata `meta` and
+  dimensions `dims`.  The length of `dims` is given by
+  ``meta->_ndimensions``.  Mostly intended for internal use.
+
+  Returns zero on error.
+ */
+size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims)
+{
+  int j;
+  size_t size = meta->_propdimindsoffset;
+  if (dlite_meta_is_metameta(meta)) {
+    size_t nproperties;
+    if ((j = dlite_meta_get_dimension_index(meta, "nproperties")) < 0)
+      return 0;
+    nproperties = dims[j];
+    size += 2*nproperties*sizeof(size_t);
+  }
+  size += padding_at(DLiteInstance, size);  /* add final padding */
+  return size;
+}
+
+
+/********************************************************************
+ *  Instances
+ ********************************************************************/
 
 /*
   Help function that evaluates array of instance property dimension
@@ -372,16 +403,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   if (_instance_store_add((DLiteInstance *)meta) < 0) goto fail;
 
   /* Allocate instance */
-  size = meta->_propdimindsoffset;
-  if (dlite_meta_is_metameta(meta)) {
-    size_t nproperties;
-    if ((j = dlite_meta_get_dimension_index(meta, "nproperties")) < 0)
-      goto fail;
-    nproperties = dims[j];
-    size += 2*nproperties*sizeof(size_t);
-  }
-  size += padding_at(DLiteInstance, size);  /* add final padding */
-
+  if (!(size = dlite_instance_size(meta, dims))) goto fail;
   if (!(inst = calloc(1, size))) FAIL("allocation failure");
   dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
@@ -390,9 +412,6 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   memcpy(inst->uuid, uuid, sizeof(uuid));
   if (uuid_version == 5) inst->uri = strdup(id);
   inst->meta = (DLiteMeta *)meta;
-
-  if (dlite_meta_is_metameta(meta) && dlite_meta_init((DLiteMeta *)inst))
-    goto fail;  // hmm, shouldn't this be done after dimensions are set?
 
   /* Set dimensions */
   if (meta->_ndimensions) {
@@ -419,6 +438,10 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
     }
   }
 
+  /* Further initialisation if metadata..,  */
+  if (dlite_meta_is_metameta(meta) && dlite_meta_init((DLiteMeta *)inst))
+    goto fail;
+
   /* Initialisation of extended metadata.
      Note that we do not call _setdim() and _loadprop() here.  If
      needed, they should be called by _init(). */
@@ -427,8 +450,8 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   /* Add to instance cache */
   if (_instance_store_add(inst)) goto fail;
 
-  /* Increase reference counts */
-  dlite_meta_incref((DLiteMeta *)meta);  /* increase refcount of metadata */
+  /* Increase reference count of metadata */
+  dlite_meta_incref((DLiteMeta *)meta);
 
   return inst;
  fail:
@@ -1761,6 +1784,11 @@ dlite_meta_create(const char *uri, const char *iri,
 /*
   Initialises internal data of metadata `meta`.
 
+  Note, even though this function is called internally in
+  dlite_instance_create(), it has to be called again after properties
+  has been assigned to the metadata.  This because `_npropdims` and
+  `__propdiminds` depends on the property dimensions.
+
   Returns non-zero on error.
  */
 int dlite_meta_init(DLiteMeta *meta)
@@ -1881,7 +1909,7 @@ int dlite_meta_init(DLiteMeta *meta)
   size += meta->_nproperties * sizeof(size_t);
   DEBUG_LOG("    propdimindsoffset=%d\n", (int)meta->_propdimindsoffset);
 
-  /* -- total size */
+  /* -- total size of instance (metadata has more fields) */
   size += padding_at(size_t, size);
   size += meta->_nproperties * sizeof(size_t);
   size += padding_at(size_t, size);

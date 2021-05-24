@@ -62,7 +62,7 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
 /*
   Returns number of sub-tokens contained in `t` or -1 on error.
 */
-int jsmn_count(jsmntok_t *t)
+int jsmn_count(const jsmntok_t *t)
 {
   int n=0, i;
   switch (t->type) {

@@ -227,7 +227,7 @@ MU_TEST(test_instance_snprint)
   char buf[1024];
   inst = dlite_instance_load_url("json://myentity.json?mode=r#mydata");
   mu_check(inst);
-  n = dlite_sprint(buf, sizeof(buf), inst, 2, 0);
+  n = dlite_json_sprint(buf, sizeof(buf), inst, 2, 0);
   printf("\n=========================================================\n");
   printf("%s\n", buf);
   printf("=========================================================\n");

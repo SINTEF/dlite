@@ -3,7 +3,9 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
+#include "utils/err.h"
 #include "utils/compat.h"
 #include "utils/strutils.h"
 #define JSMN_HEADER
@@ -50,6 +52,16 @@
   } while (0)
 
 
+/* Iterator struct */
+struct _DLiteJsonIter {
+  const char *src;        /*!< Source document to search */
+  jsmntok_t *tokens;      /*!< Allocated tokens */
+  unsigned int ntokens;   /*!< Number of allocated tokens */
+  const jsmntok_t *t;     /*!< Pointer to current token */
+  unsigned int n;         /*!< Current token number */
+  char metauuid[DLITE_UUID_LENGTH+1];  /*!< UUID of metadata */
+};
+
 
 /*
   Serialise instance `inst` to `dest`, formatted as JSON.
@@ -62,8 +74,8 @@
   have been written if `size` was large enough is returned.  On error, a
   negative value is returned.
 */
-int dlite_sprint(char *dest, size_t size, DLiteInstance *inst,
-                 int indent, DLitePrintFlag flags)
+int dlite_json_sprint(char *dest, size_t size, DLiteInstance *inst,
+                      int indent, DLiteJsonFlag flags)
 {
   DLiteTypeFlag f = (DLiteTypeFlag)flags;
   int n=0, ok=0, m, j;
@@ -73,13 +85,13 @@ int dlite_sprint(char *dest, size_t size, DLiteInstance *inst,
   in[indent] = '\0';
 
   PRINT1("%s{\n", in);
-  if (flags & dlitePrintUUID)
+  if (flags & dliteJsonUuid)
     PRINT2("%s  \"uuid\": \"%s\",\n", in, inst->uuid);
   if (inst->uri)
     PRINT2("%s  \"uri\": \"%s\",\n", in, inst->uri);
   PRINT2("%s  \"meta\": \"%s\",\n", in, inst->meta->uri);
 
-  if ((flags & dlitePrintMetaAsData) || dlite_instance_is_data(inst)) {
+  if ((flags & dliteJsonMetaAsData) || dlite_instance_is_data(inst)) {
     /* Standard format */
     PRINT1("%s  \"dimensions\": {\n", in);
     for (i=0; i < inst->meta->_ndimensions; i++) {
@@ -159,21 +171,21 @@ int dlite_sprint(char *dest, size_t size, DLiteInstance *inst,
 
 
 /*
-  Like dlite_sprint(), but prints to allocated buffer.
+  Like dlite_json_sprint(), but prints to allocated buffer.
 
   Prints to position `pos` in `*dest`, which should point to a buffer
   of size `*size`.  `*dest` is reallocated if needed.
 
   Returns number or bytes written or a negative number on error.
  */
-int dlite_asprint(char **dest, size_t *size, size_t pos, DLiteInstance *inst,
-                  int indent, DLitePrintFlag flags)
+int dlite_json_asprint(char **dest, size_t *size, size_t pos,
+                       DLiteInstance *inst, int indent, DLiteJsonFlag flags)
 {
   int m;
   void *q;
   size_t newsize;
   if (!dest && !*dest) *size = 0;
-  m = dlite_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
+  m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
   if (m < 0) return m;
   if (m < (int)PDIFF(*size, pos)) return m;
 
@@ -182,35 +194,37 @@ int dlite_asprint(char **dest, size_t *size, size_t pos, DLiteInstance *inst,
   if (!(q = realloc(*dest, newsize))) return -1;
   *dest = q;
   *size = newsize;
-  m = dlite_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
+  m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
   assert(0 <= m && m < (int)*size);
   return m;
 }
 
 
 /*
-  Like dlite_sprint(), but returns allocated buffer with serialised instance.
+  Like dlite_json_sprint(), but returns allocated buffer with
+  serialised instance.
  */
-char *dlite_aprint(DLiteInstance *inst, int indent, DLitePrintFlag flags)
+char *dlite_json_aprint(DLiteInstance *inst, int indent, DLiteJsonFlag flags)
 {
   char *dest=NULL;
   size_t size=0;
-  if ((dlite_asprint(&dest, &size, 0, inst, indent, flags)) < 0) return NULL;
+  if ((dlite_json_asprint(&dest, &size, 0, inst, indent, flags)) < 0)
+    return NULL;
   return dest;
 }
 
 /*
-  Like dlite_sprint(), but prints to stream `fp`.
+  Like dlite_json_sprint(), but prints to stream `fp`.
 
   Returns number or bytes printed or a negative number on error.
  */
-int dlite_fprint(FILE *fp, DLiteInstance *inst, int indent,
-                 DLitePrintFlag flags)
+int dlite_json_fprint(FILE *fp, DLiteInstance *inst, int indent,
+                      DLiteJsonFlag flags)
 {
   int m;
   char *buf=NULL;
   size_t size=0;
-  if ((m = dlite_asprint(&buf, &size, 0, inst, indent, flags)) >= 0) {
+  if ((m = dlite_json_asprint(&buf, &size, 0, inst, indent, flags)) >= 0) {
     fprintf(fp, "%s\n", buf);
     free(buf);
   }
@@ -242,8 +256,6 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
   assert(obj->type == JSMN_OBJECT);
 
-  printf("\n--- parse %s\n", id);
-
   /* Get metadata */
   if ((item = jsmn_item(src, obj, "meta"))) {
     int len = item->end - item->start;
@@ -266,7 +278,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       FAIL1("\"meta\" not string or object in object %s", id);
     }
     if (!(meta = dlite_meta_get(buf)) &&
-        !(meta = (DLiteMeta *)dlite_sscan(src, buf)))
+        !(meta = (DLiteMeta *)dlite_json_sscan(src, buf)))
       FAIL2("cannot find metadata '%s' when loading '%s' - please add the "
             "right storage to DLITE_STORAGES and try again", buf, id);
   } else {
@@ -315,37 +327,6 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   /* Create instance */
   if (!(inst = dlite_instance_create(meta, dims, id))) goto fail;
 
-
-  dlite_instance_debug(inst);
-
-  /* FIXME - should have been called by dlite_instance_create() */
-  if (dlite_instance_is_meta(inst)) {
-    DLiteMeta *m = (DLiteMeta *)inst;
-    size_t npropdims=0;
-    for (i=0; i < meta->_nproperties; i++)
-      npropdims += meta->_properties[i].ndims;
-    m->_npropdims = npropdims;
-    printf("*** npropdims=%zu\n", npropdims);
-    dlite_meta_init((DLiteMeta *)inst);
-    size_t *dimensions = DLITE_DIMS(inst);
-    memcpy(dimensions, dims, meta->_ndimensions*sizeof(size_t));
-  }
-
-  dlite_instance_debug(inst);
-
-
-  if (dlite_meta_is_metameta(meta)) {
-    DLiteMeta *m = (DLiteMeta *)inst;
-    size_t *dimensions = DLITE_DIMS(inst);
-    memcpy(dimensions, dims, meta->_ndimensions*sizeof(size_t));
-    dlite_meta_init(m);
-    printf("*** npropdims=%zu\n", m->_npropdims);
-    m->_npropdims = 1;
-    dlite_meta_init(m);
-    printf("*** npropdims=%zu\n", m->_npropdims);
-  }
-
-
   /* Parse properties */
   if (meta->_nproperties > 0) {
     jsmntok_t *base;
@@ -370,26 +351,27 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       if (dlite_split_meta_uri(buf, &name, &version, &namespace))
         FAIL2("invalid uri '%s' in %s", buf, id);
       if (!inst->uri) inst->uri = strdup(buf);
-    } else if (dlite_split_meta_uri(id, &name, &version, &namespace))
-      FAIL1("cannot infer name, version and namespace from id: %s", id);
+    } else {
+      int status;
+
+      ErrTry:
+        status = dlite_split_meta_uri(id, &name, &version, &namespace);
+      ErrCatch(1):
+        break;
+      ErrEnd;
+
+      if (status && dlite_instance_is_meta(inst))
+        FAIL1("cannot infer name, version and namespace from id: %s", id);
+    }
 
     /* -- read properties */
     for (i=0; i < meta->_nproperties; i++) {
       void *ptr;
       DLiteProperty *p = meta->_properties + i;
       size_t *pdims = DLITE_PROP_DIMS(inst, i);
-
-      printf("  * prop: %s\n", p->name);
-
       if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
-
       if ((t = jsmn_item(src, base, p->name))) {
         strnput(&buf, &size, 0, src+t->start, t->end-t->start);
-
-
-        printf("  - scanning %s, size=%d, type=%d.%d\n",
-               p->name, t->size, p->type, (int)p->size);
-
         if (dlite_property_scan(buf, ptr, p, pdims, 0) < 0) goto fail;
       } else {
         /* -- if not given, use inferred name, version and namespace */
@@ -402,98 +384,9 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
         } else
           FAIL2("missing property \"%s\" in %s", p->name, id);
       }
-      printf("-\n");
     }
-
-        ///* spacial cases for metadata... */
-        //if (dimtype == JSMN_ARRAY &&
-        //    (strcmp(p->name, "dimensions") == 0 ||
-        //     strcmp(p->name, "properties") == 0 ||
-        //     strcmp(p->name, "relations") == 0)) {
-        //  int j, len=t->size;
-        //  assert(t->type == dimtype);
-        //  assert(p->ndims == 1);
-        //  //assert(t->size == (int)pdims[0]);
-        //
-        //  printf("  - scanning %s, len=%d, type=%d.%d: '%.*s'\n",
-        //         p->name, len, p->type, (int)p->size, t->end-t->start, src+t->start);
-        //
-        //  for (j=0; j<len; j++) {
-        //    t++;
-        //    strnput(&buf, &size, 0, src+t->start, t->end-t->start);
-        //    printf("  = value%d = '%s'\n", j, buf);
-        //    if (dlite_property_scan(buf, ptr, p, pdims, 0) < 0)
-        //      goto fail;
-        //    t += jsmn_count(t);
-        //  }
-        //} else {
-        //  if (dlite_property_scan(src+t->start, ptr, p, pdims, 0) < 0)
-        //    goto fail;
-        //}
-
-
-      //if ((t = jsmn_item(src, base, p->name))) {
-      //
-      //  printf("  * val: '%.*s'\n", t->end-t->start, src+t->start);
-      //
-      //  if (dlite_property_scan(src+t->start, ptr, p, pdims, 0) < 0) goto fail;
-      //} else if (strcmp(p->name, "name") == 0) {
-      //  if (dlite_property_scan(name, ptr, p, pdims, 0) < 0) goto fail;
-      //} else if (strcmp(p->name, "version") == 0) {
-      //  if (dlite_property_scan(version, ptr, p, pdims, 0) < 0) goto fail;
-      //} else if (strcmp(p->name, "namespace") == 0) {
-      //  if (dlite_property_scan(namespace, ptr, p, pdims, 0) < 0) goto fail;
-      //} else
-      //  FAIL2("missing property \"%s\" in %s", p->name, id);
-
-      //printf("  * key: '%.*s'\n", t->end-t->start, src+t->start);
-      //jsmntok_t *v = t + 1;
-      //printf("    val: '%.*s'\n", v->end-v->start, src+v->start);
-      //
-      //if (t->type != JSMN_STRING)
-      //  FAIL1("property keys should be strings: %s", id);
-      //
-      //
-      //if (dlite_property_scan(src+v->start, ptr, p, pdims, 0) < 0) goto fail;
-      //t += jsmn_count(v) + 2;
-
-
-
-
-    //if (item->type == JSMN_OBJECT) {
-    //  for (i=0, t=item+1; i < meta->_nproperties; i++) {
-    //    void *ptr;
-    //    DLiteProperty *p = meta->_properties + i;
-    //    size_t *pdims = DLITE_PROP_DIMS(inst, i);
-    //    jsmntok_t *v = t+1;
-    //    if (t->type != JSMN_STRING)
-    //      FAIL1("dimension keys should be strings: %s", id);
-    //    printf("  - %.*s: '%.*s'\n",
-    //           t->end-t->start, src+t->start,
-    //           v->end-v->start, src+v->start);
-    //    if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
-    //    if (dlite_property_scan(src+v->start, ptr, p, pdims, 0) < 0) goto fail;
-    //    t += jsmn_count(v) + 2;
-    //  }
-    //} else if (item->type == JSMN_ARRAY) {
-    //  assert(dlite_instance_is_meta(inst));
-    //  for (i=0, t=item+1; (int)i < item->size; i++) {
-    //    void *ptr;
-    //    DLiteProperty *p = meta->_properties + i;
-    //    size_t *pdims = DLITE_PROP_DIMS(inst, i);
-    //    printf("  - prop%d='%.*s'\n", (int)i, t->end-t->start, src+t->start);
-    //    if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
-    //    if (dlite_property_scan(src+t->start, ptr, p, pdims, 0) < 0) goto fail;
-    //    t += jsmn_count(t) + 1;
-    //  }
-    //} else {
-    //  FAIL1("\"properties\" must be object or array: %s", id);
-    //}
-
   }
-
-  printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
-  dlite_fprint(stdout, inst, 0, 0);
+  if (dlite_instance_is_meta(inst)) dlite_meta_init((DLiteMeta *)inst);
 
   ok = 1;
  fail:
@@ -513,17 +406,21 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 /*
   Returns a new instance scanned from `src`.
 
-  The `flags` provides some format options.  If zero (default) bools
-  and strings are expected to be quoted.
+  `id` is the uri or uuid of the instance to load.  If the string only
+  contain one instance, `id` may be NULL.
+
+  Returns the instance or NULL on error.
  */
-DLiteInstance *dlite_sscan(const char *src, const char *id)
+DLiteInstance *dlite_json_sscan(const char *src, const char *id)
 {
   int i, r;
   DLiteInstance *inst=NULL;
   unsigned int ntokens=0;
   jsmntok_t *tokens=NULL, *root;
   jsmn_parser parser;
-  UNUSED(id);
+
+  errno = 0;
+
   jsmn_init(&parser);
   r = jsmn_parse_alloc(&parser, src, strlen(src), &tokens, &ntokens);
   if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
@@ -558,17 +455,94 @@ DLiteInstance *dlite_sscan(const char *src, const char *id)
  fail:
   free(tokens);
 
-  printf("--------------> %s\n", id);
   return inst;
 }
 
+/*
+  Like dlite_json_sscan(), but scans instance `id` from stream `fp` instead
+  of a string.
 
-DLiteInstance *dlite_fscan(FILE *fp, const char *id)
+  Returns the instance or NULL on error.
+ */
+DLiteInstance *dlite_json_fscan(FILE *fp, const char *id)
 {
   DLiteInstance *inst;
   char *buf;
   if (!(buf = fu_readfile(fp))) return NULL;
-  inst = dlite_sscan(buf, id);
+  inst = dlite_json_sscan(buf, id);
   free(buf);
   return inst;
+}
+
+
+
+
+
+
+/*
+  Creates and returns a new iterator used by dlite_json_next().
+
+  Arguments
+  - src: input JSON string to search.
+  - length: length of `src`.  If zero or negative, all of `src` will be used.
+  - metaid: limit the search to instances of metadata with this id.
+
+  Returns new iterator or NULL on error.
+ */
+DLiteJsonIter *dlite_json_iter_init(const char *src, int length,
+                                    const char *metaid)
+{
+  int r, ok=0;
+  DLiteJsonIter *iter=NULL;
+  jsmn_parser parser;
+
+  if (!(iter = calloc(1, sizeof(DLiteJsonIter)))) FAIL("allocation failure");
+
+  if (length <= 0) length = strlen(src);
+  jsmn_init(&parser);
+  r = jsmn_parse_alloc(&parser, src, length, &iter->tokens, &iter->ntokens);
+  if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
+  if (iter->tokens->type != JSMN_OBJECT) FAIL("json root should be an object");
+  iter->src = src;
+  iter->t = iter->tokens + 1;
+  if (metaid && dlite_get_uuid(iter->metauuid, metaid) < 0) goto fail;
+
+  ok=1;
+ fail:
+  if (!ok) dlite_json_iter_deinit(iter);
+  return iter;
+}
+
+/*
+  Free's iterator created with dlite_json_iter_init().
+ */
+void dlite_json_iter_deinit(DLiteJsonIter *iter)
+{
+  if (iter) {
+    if (iter->tokens) free(iter->tokens);
+    free(iter);
+  }
+}
+
+/*
+  Search for instances in the JSON document provided to dlite_json_iter_init()
+  and returns a pointer to instance UUIDs.
+
+  Returns a pointer to the next matching UUID or NULL if there are no more
+  matches left.
+ */
+  const char *dlite_json_next(DLiteJsonIter *iter, int *length)
+
+{
+  const jsmntok_t *t = iter->t;
+  while (iter->n < iter->ntokens) {
+    const char *p = iter->src + t->start;
+    if (length) *length = t->end - t->start;
+    iter->t += jsmn_count(t + 1) + 2;
+    if (*iter->metauuid) {
+      if (strncmp(p, iter->metauuid, DLITE_UUID_LENGTH) == 0) return p;
+    } else
+      return p;
+  }
+  return NULL;
 }

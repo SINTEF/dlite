@@ -388,10 +388,12 @@ typedef struct _DLiteMetaModel DLiteMetaModel;
     dlite_meta_init((DLiteMeta *)meta);                   \
   } while (0)
 
+
+
 /** @} */
 /* ================================================================= */
 /**
- * @name Instance API
+ * @name Framework internals and debugging
  */
 /* ================================================================= */
 /** @{ */
@@ -401,6 +403,23 @@ typedef struct _DLiteMetaModel DLiteMetaModel;
  */
 void dlite_instance_debug(const DLiteInstance *inst);
 
+/**
+  Returns the allocated size of an instance with metadata `meta` and
+  dimensions `dims`.  The length of `dims` is given by
+  ``meta->_ndimensions``.  Mostly intended for internal use.
+
+  Returns -1 on error.
+ */
+size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims);
+
+
+/** @} */
+/* ================================================================= */
+/**
+ * @name Instance API
+ */
+/* ================================================================= */
+/** @{ */
 
 /**
   Returns a new dlite instance from Entiry `meta` and dimensions
@@ -860,6 +879,11 @@ dlite_meta_create(const char *uri, const char *iri,
 
 /**
   Initialises internal data of metadata `meta`.
+
+  Note, even though this function is called internally in
+  dlite_instance_create(), it has to be called again after properties
+  has been assigned to the metadata.  This because `_npropdims` and
+  `__propdiminds` depends on the property dimensions.
 
   Returns non-zero on error.
  */
