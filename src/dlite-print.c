@@ -329,7 +329,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
   /* Parse properties */
   if (meta->_nproperties > 0) {
-    jsmntok_t *base=NULL;
+    jsmntok_t *base=obj;  // assigned to make cppcheck happy...
     if (!(item = jsmn_item(src, obj, "properties")))
       FAIL1("no \"properties\" in object %s", id);
     if (dimtype && item->type != dimtype)
