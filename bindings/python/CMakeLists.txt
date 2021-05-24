@@ -8,6 +8,8 @@ set(py_sources
   utils.py
   )
 
+configure_file(paths.py.in paths.py)
+
 # Determine size of size_t
 include(CheckTypeSize)
 check_type_size(size_t SIZEOF_SIZE_T)
@@ -75,6 +77,8 @@ foreach(source ${py_sources})
   list(APPEND abs_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
 endforeach()
 
+list(APPEND abs_sources ${CMAKE_CURRENT_BINARY_DIR}/paths.py)
+
 set(abs_targets)
 foreach(source ${py_sources})
   list(APPEND abs_targets ${pkgdir}/${source})
@@ -116,7 +120,7 @@ else()
 endif()
 
 execute_process(COMMAND
-  ${Python3_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
+  ${RUNNER} ${Python3_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
   OUTPUT_VARIABLE _ABS_Python3_MODULE_PATH
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 get_filename_component(_ABS_Python3_MODULE_PATH

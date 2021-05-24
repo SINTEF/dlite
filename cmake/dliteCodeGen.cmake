@@ -71,6 +71,7 @@ macro(dlite_codegen output template url)
     set(out "")
     list(APPEND out "${output}")
 
+    include(MakePlatformPaths)
     make_platform_paths(
       PREFIX e_
       PATHS
@@ -94,9 +95,21 @@ macro(dlite_codegen output template url)
     string(REPLACE . _ basename "${basename}")
     set(batfile "${basename}.bat")
 
+    if(EXISTS ${dlite_SOURCE_DIR}/cmake/dliteCodeGen.bat.in)
+      set(dlitecodegen_bat_in ${dlite_SOURCE_DIR}/cmake/dliteCodeGen.bat.in)
+    else()
+      find_file(dlitecodegen_bat_in
+        NAMES dliteCodeGen.bat.in
+        PATHS
+          ${dlite_SOURCE_DIR}/cmake
+          ${DLITE_ROOT}/share/dlite/cmake
+          ${DLITE_ROOT}/cmake
+        )
+    endif()
+
     set(_url "${url}")
     configure_file(
-      ${dlite_SOURCE_DIR}/cmake/dliteCodeGen.bat.in
+      ${dlitecodegen_bat_in}
       ${batfile}
       @ONLY
       NEWLINE_STYLE CRLF
@@ -108,7 +121,6 @@ macro(dlite_codegen output template url)
       DEPENDS ${codegen_dependencies}
       COMMENT "Generate ${output}"
       )
-
 
   else()
     # Run the code generator via dlite-env (we could run it directly on
@@ -123,7 +135,7 @@ macro(dlite_codegen output template url)
       endif()
     else()
       find_program(DLITE_CODEGEN
-        NAMES dlite-codegen
+        NAMES dlite-codegen dlite-codegen.exe
         PATHS
           ${DLITE_ROOT}/${DLITE_RUNTIME_DIR}
           ${dlite-tools_BINARY_DIR}
@@ -131,7 +143,6 @@ macro(dlite_codegen output template url)
         )
       list(APPEND codegen_dependencies ${DLITE_CODEGEN})
     endif()
-
 
     if(TARGET dlite-env)
       set(DLITE_ENV $<TARGET_FILE:dlite-env>)

@@ -17,7 +17,7 @@ class Person:
         return 'Person(%r, %r, %r)' % (self.name, self.age, list(self.skills))
 
 
-url = 'json://' + thisdir + '/Person.json' #+ "?mode=r"
+url = 'json://' + thisdir + '/Person.json'
 
 print('-- create: ExPerson')
 ExPerson = dlite.classfactory(Person, url=url)

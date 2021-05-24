@@ -96,10 +96,10 @@ int main()
       p->Xp[i] -= atvol0/p->atvol[j] * p->volfrac[j] * p->Xp[j*nelements + i];
 
   /* Display the data and metadata instances */
-  dlite_instance_print((DLiteInstance *)chem->meta->meta);
-  dlite_instance_print((DLiteInstance *)chem->meta);
-  dlite_instance_print((DLiteInstance *)chem);
-  dlite_instance_print((DLiteInstance *)p);
+  dlite_instance_debug((DLiteInstance *)chem->meta->meta);
+  dlite_instance_debug((DLiteInstance *)chem->meta);
+  dlite_instance_debug((DLiteInstance *)chem);
+  dlite_instance_debug((DLiteInstance *)p);
 
   assert(sizeof(Chemistry) == DLITE_INSTANCE_SIZE(p));
   assert(offsetof(Chemistry, id) == sizeof(DLiteInstance));

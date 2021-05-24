@@ -130,7 +130,10 @@ def standardise(v, asdict=True):
 
     def asdict(self):
         """Returns a dict representation of self."""
-        d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
+        if self.id:
+            d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
+        else:
+            d = OrderedDict(s=self.s, p=self.p, o=self.o)
         return d
 
     def asstrings(self):
@@ -191,7 +194,7 @@ def standardise(v, asdict=True):
         elif isinstance(ind, int):
             raise IndexError('instance property index out of range: %d' % ind)
         else:
-            raise KeyError('no such property: %s', ind)
+            raise KeyError('no such property: %s' % ind)
 
     def __setitem__(self, ind, value):
         if self.has_property(ind):
@@ -199,7 +202,7 @@ def standardise(v, asdict=True):
         elif isinstance(ind, int):
             raise IndexError('instance property index out of range: %d' % ind)
         else:
-            raise KeyError('no such property: %s', ind)
+            raise KeyError('no such property: %s' % ind)
 
     def __contains__(self, item):
         return item in self.properties.keys()
@@ -284,7 +287,7 @@ def standardise(v, asdict=True):
             d['dimensions'] = self.dimensions
             d['properties'] = {k: standardise(v)
                                for k, v in self.properties.items()}
-        if 'relations' in self:
+        if self.has_property('relations'):
             d['relations'] = self['relations'].tolist()
         return d
 

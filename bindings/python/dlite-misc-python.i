@@ -1,8 +1,10 @@
-/* -*- c -*-  (not really, but good for syntax highlighting) */
+/* -*- python -*-  (not really, but good for syntax highlighting) */
 
 /* Python-spesific extensions to dlite-misc.i */
 
 %pythoncode %{
+import dlite
+
 class err():
     """Context manager for temporary turning off or redirecting errors.
 
@@ -17,11 +19,13 @@ class err():
         self.filename = filename
 
     def __enter__(self):
-        self.f = err_get_stream()
-        err_set_file(self.filename)
+        self.f = dlite.err_get_stream()
+        dlite.err_set_file(self.filename)
         return self.f
 
     def __exit__(self, *exc):
-        errclr()
-        err_set_stream(self.f)
+        dlite.errclr()
+        dlite.err_set_stream(self.f)
+
+silent = err()
 %}

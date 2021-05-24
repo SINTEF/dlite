@@ -388,10 +388,12 @@ typedef struct _DLiteMetaModel DLiteMetaModel;
     dlite_meta_init((DLiteMeta *)meta);                   \
   } while (0)
 
+
+
 /** @} */
 /* ================================================================= */
 /**
- * @name Instance API
+ * @name Framework internals and debugging
  */
 /* ================================================================= */
 /** @{ */
@@ -399,8 +401,25 @@ typedef struct _DLiteMetaModel DLiteMetaModel;
 /**
   Prints instance to stdout. Intended for debugging.
  */
-void dlite_instance_print(const DLiteInstance *inst);
+void dlite_instance_debug(const DLiteInstance *inst);
 
+/**
+  Returns the allocated size of an instance with metadata `meta` and
+  dimensions `dims`.  The length of `dims` is given by
+  ``meta->_ndimensions``.  Mostly intended for internal use.
+
+  Returns -1 on error.
+ */
+size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims);
+
+
+/** @} */
+/* ================================================================= */
+/**
+ * @name Instance API
+ */
+/* ================================================================= */
+/** @{ */
 
 /**
   Returns a new dlite instance from Entiry `meta` and dimensions
@@ -861,6 +880,11 @@ dlite_meta_create(const char *uri, const char *iri,
 /**
   Initialises internal data of metadata `meta`.
 
+  Note, even though this function is called internally in
+  dlite_instance_create(), it has to be called again after properties
+  has been assigned to the metadata.  This because `_npropdims` and
+  `__propdiminds` depends on the property dimensions.
+
   Returns non-zero on error.
  */
 int dlite_meta_init(DLiteMeta *meta);
@@ -1036,7 +1060,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr);
   for accessing `dims`.
 
   No more than `n` bytes are written to `dest` (incl. the terminating
-  NUL).  Arrays will be written with a JSON-loke syntax.
+  NUL).  Arrays will be written with a JSON-like syntax.
 
   The `width` and `prec` arguments corresponds to the printf() minimum
   field width and precision/length modifier.  If you set them to -1, a
@@ -1065,7 +1089,7 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
                           int width, int prec, DLiteTypeFlag flags);
 
 /**
-  Scans property from `src` and wite it to memory pointed to by `ptr`.
+  Scans property from `src` and write it to memory pointed to by `ptr`.
 
   The property is described by `p`.
 

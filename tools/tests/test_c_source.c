@@ -11,7 +11,7 @@ const ChemistrySchema *get_chemistry();
 int main()
 {
   const ChemistrySchema *chem = get_chemistry();
-  dlite_instance_print((DLiteInstance *)chem);
+  dlite_instance_debug((DLiteInstance *)chem);
 
 
 

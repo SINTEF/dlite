@@ -134,7 +134,7 @@ MU_TEST(test_scan)
   unsigned char blob[4];
   prop.type = dliteBlob;
   prop.size = sizeof(blob);
-  n = dlite_property_scan("\"ff0a1008\"", &blob, &prop, NULL, 0);
+  n = dlite_property_scan("\"ff0a1008\"", &blob, &prop, NULL, dliteFlagQuoted);
   mu_assert_int_eq(10, n);
   mu_assert_int_eq(255, blob[0]);
   mu_assert_int_eq(10, blob[1]);
@@ -177,6 +177,9 @@ MU_TEST(test_scan)
   n = dlite_property_scan("3.14", &d, &prop, NULL, dliteFlagQuoted);
   mu_assert_int_eq(4, n);
   mu_assert_double_eq(3.14, d);
+  n = dlite_property_scan("3.14", &d, &prop, NULL, dliteFlagRaw);
+  mu_assert_int_eq(4, n);
+  mu_assert_double_eq(3.14, d);
 
   char buf[10];
   prop.type = dliteFixString;
@@ -207,7 +210,7 @@ MU_TEST(test_scan)
   prop.size = sizeof(dim);
   memset(&dim, 0, sizeof(dim));
   n = dlite_property_scan("  {\"name\": \"N\", "
-                          "\"description\": \"Number of something\"}  ",
+                          "\"description\": \"Number of something\"}",
                           &dim, &prop, NULL, 0);
   mu_assert_int_eq(51, n);
   mu_assert_string_eq("N", dim.name);

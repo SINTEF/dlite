@@ -60,7 +60,7 @@ MU_TEST(test_meta_create)
   mu_assert_int_eq(1, dlite_instance_is_meta((DLiteInstance *)entity));
   mu_assert_int_eq(0, dlite_instance_is_metameta((DLiteInstance *)entity));
 
-  dlite_instance_print((DLiteInstance *)entity);
+  dlite_instance_debug((DLiteInstance *)entity);
 
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
@@ -220,6 +220,23 @@ MU_TEST(test_instance_load_url)
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
+MU_TEST(test_instance_snprint)
+{
+  DLiteInstance *inst;
+  int n;
+  char buf[1024];
+  inst = dlite_instance_load_url("json://myentity.json?mode=r#mydata");
+  mu_check(inst);
+  n = dlite_json_sprint(buf, sizeof(buf), inst, 2, 0);
+  printf("\n=========================================================\n");
+  printf("%s\n", buf);
+  printf("=========================================================\n");
+  printf("n=%d\n", n);
+  //mu_assert_int_eq(22, n);
+  dlite_instance_decref(inst);
+}
+
+
 MU_TEST(test_meta_save)
 {
   DLiteStorage *s;
@@ -290,6 +307,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_hdf5);
   MU_RUN_TEST(test_instance_json);
   MU_RUN_TEST(test_instance_load_url);
+  MU_RUN_TEST(test_instance_snprint);
 
   MU_RUN_TEST(test_meta_save);
   MU_RUN_TEST(test_meta_load);

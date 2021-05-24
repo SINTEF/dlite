@@ -118,9 +118,8 @@ else()
     )
 
   # Append to CMAKE_MODULE_PATH
-  set(CMAKE_MODULE_PATH ${DLITE_ROOT}/share/dlite/cmake ${CMAKE_MODULE_PATH})
-  #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake
-  #  PARENT_SCOPE)
+  list(APPEND CMAKE_MODULE_PATH ${DLITE_ROOT}/share/dlite/cmake)
+  list(APPEND CMAKE_MODULE_PATH ${DLITE_ROOT}/cmake)
 
   # Define variables for setting up environment needed by dlite
   if(WIN32)
@@ -144,7 +143,7 @@ else()
   endif()
 
   include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(DLITE DEFAULT_MSG
+  find_package_handle_standard_args(dlite DEFAULT_MSG
     DLITE_INCLUDE_DIRS
     DLITE_LIBRARIES
     DLITE_LIBRARY_DIR

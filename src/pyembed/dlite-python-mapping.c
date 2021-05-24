@@ -123,6 +123,13 @@ const char **dlite_python_mapping_paths_get(void)
 {
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return NULL;
+
+  const char **p, **fp=fu_paths_get((FUPaths *)paths);
+  printf("\n=== %p\n", (void *)fp);
+  if (fp) {
+    for (p=fp; *p; p++)
+      printf("  %s\n", *p);
+  }
   return fu_paths_get((FUPaths *)paths);
 }
 

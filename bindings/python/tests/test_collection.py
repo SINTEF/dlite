@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import sys
 
-import numpy as np
-
-import dlite
 from dlite import Instance, Collection
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
@@ -32,6 +28,9 @@ coll.add('inst1', inst1)
 coll.add('inst2', inst2)
 
 assert coll.count() == 2
-#assert coll.has
-
 print(list(coll))
+
+
+del inst1
+del inst2
+del coll

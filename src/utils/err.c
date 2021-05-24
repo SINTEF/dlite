@@ -181,24 +181,28 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   if (errlevel >= errLevelError && err_record->state)
     err_record->reraise = eval;
 
-  /* call the error handler if we are not within a ErrTry...ErrEnd clause */
-  if (call_handler) handler(err_record);
+  /* If we are not within a ErrTry...ErrEnd clause */
+  if (call_handler) {
 
-  /* check err_abort_mode */
-  if (errlevel >= errLevelError) {
-    if (abort_mode == errAbortExit) {
+    /* ...call the error handler */
+    handler(err_record);
+
+    /* ...check err_abort_mode */
+    if (errlevel >= errLevelError) {
+      if (abort_mode == errAbortExit) {
+        if (!call_handler) handler(err_record);
+        exit(eval);
+      } else if (abort_mode >= errAbortAbort) {
+        if (!call_handler) handler(err_record);
+        abort();
+      }
+    }
+
+    /* ...make sure that fatal errors always exit */
+    if (errlevel >= errLevelFatal) {
       if (!call_handler) handler(err_record);
       exit(eval);
-    } else if (abort_mode >= errAbortAbort) {
-      if (!call_handler) handler(err_record);
-      abort();
     }
-  }
-
-  /* fatal errors should never exit */
-  if (errlevel >= errLevelFatal) {
-    if (!call_handler) handler(err_record);
-    exit(eval);
   }
 
   return eval;

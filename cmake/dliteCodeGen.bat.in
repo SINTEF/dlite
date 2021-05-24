@@ -3,6 +3,7 @@
 setlocal
 
 set DLITE_USE_BUILD_ROOT=YES
+set DLITE_ROOT=@DLITE_ROOT@
 set PATH=@e_dlite_PATH_WINDOWS@
 set PYTHONPATH=@e_dlite_PATH_WINDOWS@
 set DLITE_STORAGE_PLUGIN_DIRS=@e_dlite_STORAGE_PLUGINS_WINDOWS@
@@ -22,8 +23,12 @@ if exist "%TOOLSDIR%\dlite-codegen.exe" (
     if exist "%TOOLSDIR%\Debug\dlite-codegen.exe" (
       set CODEGEN=%TOOLSDIR%\Debug\dlite-codegen.exe
     ) else (
-      echo "Cannot find dlite-codegen.exe"
-      exit 1
+      if exist "%DLITE_ROOT%\bin\dlite-codegen.exe" (
+        set CODEGEN=%DLITE_ROOT%\bin\dlite-codegen.exe
+      ) else (
+        echo "Cannot find dlite-codegen.exe"
+        exit 1
+      )
     )
   )
 )

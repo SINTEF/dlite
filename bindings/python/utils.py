@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 import dlite
 
 thisdir = os.path.dirname(__file__)
@@ -13,11 +12,12 @@ def instance_from_dict(d):
     meta = dlite.get_instance(d['meta'])
     if meta.is_metameta:
         try:
-            return dlite.get_instance(d['uri'])
-        except RuntimeError:
+            with dlite.silent:
+                return dlite.get_instance(d['uri'])
+        except dlite.DLiteError:
             pass
         dimensions = [dlite.Dimension(d['name'], d.get('description'))
-                for d in d['dimensions']]
+                      for d in d['dimensions']]
         props = []
         dimmap = {dim['name']: i for i, dim in enumerate(d['dimensions'])}
         for p in d['properties']:
@@ -25,9 +25,15 @@ def instance_from_dict(d):
                 dims = [dimmap[d] for d in p['dims']]
             else:
                 dims = None
-            props.append(dlite.Property(p['name'], p['type'], dims,
-                                        p.get('unit'), p.get('description')))
-        inst = dlite.Instance(d['uri'], dimensions, props, d.get('description'))
+            props.append(dlite.Property(
+                name=p['name'],
+                type=p['type'],
+                dims=dims,
+                unit=p.get('unit'),
+                iri=p.get('iri'),
+                description=p.get('description')))
+        inst = dlite.Instance(d['uri'], dimensions, props, d.get('iri'),
+                              d.get('description'))
     else:
         dims = list(d['dimensions'].values())
         inst = dlite.Instance(meta.uri, dims, d.get('uuid', None))
@@ -36,10 +42,9 @@ def instance_from_dict(d):
     return inst
 
 
-
 if __name__ == '__main__':
 
-    url = 'json://' + os.path.join(thisdir, 'tests', 'Person.json') #+ "?mode=r"
+    url = 'json://' + os.path.join(thisdir, 'tests', 'Person.json')
     Person = dlite.Instance(url)
 
     person = Person([2])
@@ -49,7 +54,6 @@ if __name__ == '__main__':
 
     d1 = person.asdict()
     inst1 = instance_from_dict(d1)
-
 
     d2 = Person.asdict()
     inst2 = instance_from_dict(d2)

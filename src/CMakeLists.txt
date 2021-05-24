@@ -38,6 +38,7 @@ set(sources
   dlite-mapping-plugins.c
   dlite-codegen.c
   dlite-getlicense.c
+  dlite-print.c
   getuuid.c
   triple.c
   triplestore.c

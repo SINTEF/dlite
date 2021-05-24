@@ -294,6 +294,7 @@ Dependencies
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
     - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+    - [pandas][pandas], optional (used for csv storage plugin)
 
 
 ### Build dependencies
@@ -427,3 +428,4 @@ DLite is developed with the hope that it will be a delight to work with.
 [IRI]: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
 [dlite-packages]: https://github.com/SINTEF/dlite/packages
 [vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
+[pandas]: https://pandas.pydata.org/

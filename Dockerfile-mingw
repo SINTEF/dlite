@@ -70,29 +70,31 @@ RUN dnf install -y \
         mingw64-libffi \
         mingw32-nsis
 
-#        ninja-build \
-#        mingw64-expat \
-#        mingw64-libffi \
-#        mingw64-bzip2 \
-#        mingw64-gdb \
-#        mingw32-wine-gecko \
-#        mingw64-wine-gecko
+# fc34
+#RUN dnf install -y  mingw64-python3-pyyaml
 
-#        graphviz \
-#        rsync \
-#        gcc \
-#        gcc-c++ \
-#        gfortran \
-#        valgrind \
-#        glibc-headers \
-#        python3 \
-#        python3-devel \
-#        python3-numpy \
-#        jansson-devel \
-#        hdf5-devel \
 #        redland \
 #        raptor2 \
-#        rasqal \
+#        rasqal
+
+
+# Enable transparently running Windows executables
+#RUN dnf install -y wine-systemd
+#RUN mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+
+
+# Install pip and python packages -- seems not to work properly...
+#RUN wine64 /usr/x86_64-w64-mingw32/sys-root/mingw/bin/python3.exe -m ensurepip
+#RUN wine64 /usr/x86_64-w64-mingw32/sys-root/mingw/bin/python3.exe \
+#        -m pip install PyYAML
+
+
+# Patch the FindPython3 CMake module to run Python interpreter via wine
+COPY cmake/FindPython3-Support.diff .
+RUN patch /usr/share/cmake/Modules/FindPython/Support.cmake \
+        FindPython3-Support.diff
+
+
 
 
 ##########################################
@@ -103,19 +105,21 @@ FROM dependencies AS build
 # Create and become a normal user
 RUN useradd -ms /bin/bash user
 USER user
-ENV PYTHONPATH "/home/user/EMMO-python/:${PYTHONPATH}"
+ENV PATH "/usr/x86_64-w64-mingw32/bin:$PATH"
+ENV WINEPATH "/usr/x86_64-w64-mingw32/sys-root/mingw/bin:$PATH"
+ENV WINEDEBUG fixme-all
 
 # Setup dlite
-RUN mkdir /home/user/sw
-COPY --chown=user:user . /home/user/sw/dlite
+RUN mkdir -p /home/user/sw/dlite
+COPY --chown=user:user bindings /home/user/sw/dlite/bindings
+COPY --chown=user:user cmake /home/user/sw/dlite/cmake
+COPY --chown=user:user doc /home/user/sw/dlite/doc
+COPY --chown=user:user examples /home/user/sw/dlite/examples
+COPY --chown=user:user src /home/user/sw/dlite/src
+COPY --chown=user:user storages /home/user/sw/dlite/storages
+COPY --chown=user:user tools /home/user/sw/dlite/tools
+COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
-RUN rm -rf build
-
-# Perform static code checking
-# FIXME - test_tgen.c produce a lot of false positives
-RUN cppcheck . \
-        --language=c -q --force --error-exitcode=2 --inline-suppr \
-        -Isrc/utils -Isrc -i build -i build.win64
 
 # Build dlite
 RUN mkdir build
@@ -125,8 +129,9 @@ RUN cmake .. \
         -DFORCE_EXAMPLES=OFF \
         -DALLOW_WARNINGS=ON \
         -DWITH_HDF5=OFF \
-        -DWITH_FORTRAN=OFF \
-        -DWITH_PYTHON=OFF \
+        -DWITH_FORTRAN=ON \
+        -DWITH_PYTHON=ON \
+        -DWITH_REDLAND=OFF \
         -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
 RUN make
 
@@ -135,6 +140,7 @@ RUN cpack -G NSIS
 
 USER root
 RUN make install
+
 
 ## Skip postgresql tests since we haven't set up the server and
 ## static-code-analysis since it is already done.

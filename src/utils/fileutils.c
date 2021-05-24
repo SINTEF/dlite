@@ -1280,3 +1280,34 @@ void fu_iter_set_dirsep(FUIter *iter, int dirsep)
 {
   iter->dirsep = dirsep;
 }
+
+
+
+/*
+  Read `stream` into an malloc'ed buffer and return a pointer to the buffer.
+  Returns NULL on error.
+*/
+char *fu_readfile(FILE *fp)
+{
+  char *ptr, *buf=NULL;
+  size_t n, newsize, size=0, pos=0, chunk_size=4096;
+  while (1) {
+    size += chunk_size;
+    if (!(ptr = realloc(buf, size))) {
+      if (buf) free(buf);
+      return  err(1, "allocation failure"), NULL;
+    }
+    buf = ptr;
+    if ((n = fread(buf+pos, 1, chunk_size, fp)) < chunk_size) break;
+    pos += n;
+  }
+  if (ferror(fp)) {
+    free(buf);
+    return err(1, "error reading file"), NULL;
+  }
+  newsize = pos + n;
+  assert(newsize < size);
+  buf = realloc(buf, newsize + 1);
+  buf[newsize] = '\0';
+  return buf;
+}

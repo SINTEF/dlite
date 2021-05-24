@@ -36,7 +36,6 @@ find_program(CMAKE_Fortran_COMPILER NAMES ${COMPILER_PREFIX}gfortran)
 find_program(WINE NAMES wine64)
 set(RUNNER ${WINE})
 
-
 # here is the target environment located
 set(CMAKE_FIND_ROOT_PATH
   /usr/${TOOLCHAIN_PREFIX}
@@ -53,5 +52,5 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 # Make sure that we find the right Python executable
-#set(Python3_EXECUTABLE /usr/${TOOLCHAIN_PREFIX}/sys-root/mingw/bin/python3.exe)
+#set(Python3_EXECUTABLE /usr/${TOOLCHAIN_PREFIX}/bin/python3)
 set(Python3_EXECUTABLE ${TOOLCHAIN_BINDIR}/python3.exe)

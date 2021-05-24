@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.2.6
+  VERSION 0.2.7
   DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -109,6 +109,8 @@ endif()
 # Define MINGW if we are running a GNU compiler on a Windows system
 if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(MINGW TRUE)
+  enable_c_compiler_flag_if_supported("-Wno-pragmas")
+  enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
 endif()
 
 
@@ -162,6 +164,9 @@ set(DLITE_CONFIG_VARS
 # ------------------------
 # Installation environment
 # ------------------------
+
+# Define installation directory names according to the GNU standards
+include(GNUInstallDirs)
 
 # Installation paths
 set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
@@ -366,8 +371,15 @@ if(WITH_PYTHON)
     set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
   endif()
 
+  set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
   find_package(NumPy REQUIRED)
+  unset(CMAKE_CROSSCOMPILING_EMULATOR)
+
+  # On mingw, python depends on libffi
+  find_library(ffi ffi)
+  mark_as_advanced(ffi)
+  get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
 
   set(DLITE_PYTHONPATH
     ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
@@ -401,7 +413,7 @@ set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
 set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
 
 # Must be assigned before including CTest
-set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=200 --keep-debuginfo=yes --suppressions=${dlite_supp} --gen-suppressions=all")
+set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
 
 include(CTest)
 
@@ -418,6 +430,7 @@ if(MEMORYCHECK_COMMAND)
         -E env PYTHONMALLOC=malloc ${MEMORYCHECK_COMMAND}
         --leak-check=yes
         --show-leak-kinds=all
+        --keep-debuginfo=yes
         --suppressions=${dlite_supp}
         --gen-suppressions=all
         --log-file=${logfile}
@@ -508,6 +521,9 @@ if(WIN32)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
     list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
   endif()
+  if(WITH_FORTRAN)
+    build_append(dlite_PATH ${dlite_BINARY_DIR}/bindings/fortran)
+  endif()
   if(WITH_JSON)
     list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
   endif()
@@ -530,9 +546,13 @@ if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
     )
   if(WITH_PYTHON)
     build_append(dlite_WINEPATH ${dlite_BINARY_DIR}/src/pyembed)
+    list(APPEND dlite_WINEPATH ${dlite_PATH_EXTRA})
     list(APPEND dlite_WINEPATH ${TOOLCHAIN_BINDIR})
     list(APPEND dlite_WINEPATH ${TOOLCHAIN_LIBDIR})
     list(APPEND dlite_WINEPATH ${Python3_NumPy_LIBRARY_DIRS})
+  endif()
+  if(WITH_FORTRAN)
+    list(APPEND dlite_WINEPATH ${dlite_BINARY_DIR}/bindings/fortran)
   endif()
   if(WITH_JSON)
     list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
@@ -822,5 +842,30 @@ install(
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfigVersion.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/dliteConfig.cmake"
     "${dlite_SOURCE_DIR}/cmake/dliteCodeGen.cmake"
+    "${dlite_SOURCE_DIR}/cmake/dliteCodeGen.bat.in"
+    "${dlite_SOURCE_DIR}/cmake/dliteGenEnv.cmake"
+    "${dlite_SOURCE_DIR}/cmake/dliteGenEnv-sub.cmake"
+    "${dlite_SOURCE_DIR}/cmake/MakePlatformPaths.cmake"
   DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   )
+install(
+  FILES "${dlite_SOURCE_DIR}/cmake/Finddlite.cmake"
+  DESTINATION "share/cmake/Modules"
+  )
+
+if(CROSS_TARGET)
+  # When cross-compiling, include the python in the distribution
+  set(pyver "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+  install(
+    FILES
+      ${TOOLCHAIN_BINDIR}/python${pyver}.exe
+      ${TOOLCHAIN_BINDIR}/libpython${pyver}.dll
+      ${TOOLCHAIN_BINDIR}/libwinpthread-1.dll
+      ${TOOLCHAIN_BINDIR}/libssp-0.dll
+    DESTINATION "bin"
+    )
+  install(
+    DIRECTORY ${TOOLCHAIN_LIBDIR}/python${pyver}
+    DESTINATION "lib"
+    )
+endif()
