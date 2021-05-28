@@ -42,15 +42,21 @@ def standardise(v, asdict=True):
     """Represent property value `v` as a standard python type.
     If `asdict` is true, dimensions, properties and relations will be
     represented with a dict, otherwise as a list of strings."""
-    if asdict:
-        conv = lambda x: x.asdict() if hasattr(x, 'asdict') else x
+
+    def conv(x):
+        if asdict and isinstance(
+                x, (dlite.Dimension, dlite.Property, dlite.Relation)):
+            return x.asdict()
+        return (x.aspreferred() if hasattr(x, 'aspreferred') else
+                x.asstrings() if hasattr(x, 'asstrings') else x)
+
+    if isinstance(v, (str, bytes)):
+        u = str(v)
+    elif hasattr(v, '__getitem__'):
+        u = [conv(x) for x in v]
     else:
-        conv = lambda x: list(x.aspreferred() if hasattr(x, 'aspreferred') else
-                              x.asstrings() if hasattr(x, 'asstrings') else x)
-    if hasattr(v, 'tolist'):
-        return [conv(x) for x in v.tolist()]
-    else:
-        return conv(v)
+        u = conv(v)
+    return u
 
 %}
 
