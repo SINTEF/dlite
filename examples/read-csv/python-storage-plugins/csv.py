@@ -55,7 +55,7 @@ class csv(DLiteStorageBase):  # noqa: F821
         data = reader(self.uri, **pdopts)
         rows, columns = data.shape
 
-        if 'infer' not in self.options or self.options.infer:
+        if 'infer' not in self.options or dlite.asbool(self.options.infer):
             Meta = infer_meta(data, self.options.meta, self.uri)
         else:
             Meta = dlite.get_instance(self.options.meta)
