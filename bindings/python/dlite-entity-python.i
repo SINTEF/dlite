@@ -28,6 +28,8 @@ class InstanceEncoder(json.JSONEncoder):
                 return conv(obj.tolist())
             else:
                 return obj.tolist()
+        elif hasattr(obj, 'aspreferred'):
+            return obj.aspreferred()
         elif hasattr(obj, 'asdict'):
             return obj.asdict()
         elif hasattr(obj, 'asstrings'):
@@ -127,6 +129,10 @@ def standardise(v, asdict=True):
     def __repr__(self):
         return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
             self.s, self.p, self.o, self.id)
+
+    def aspreferred(self):
+        """Returns preferred Python representation."""
+        return self.asstrings()
 
     def asdict(self):
         """Returns a dict representation of self."""
@@ -287,7 +293,8 @@ def standardise(v, asdict=True):
             d['dimensions'] = self.dimensions
             d['properties'] = {k: standardise(v)
                                for k, v in self.properties.items()}
-        if self.has_property('relations'):
+        if self.has_property('relations') and (
+                self.is_meta or self.meta.has_property('relations')):
             d['relations'] = self['relations'].tolist()
         return d
 
