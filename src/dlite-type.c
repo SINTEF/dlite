@@ -626,13 +626,6 @@ static StrquoteFlags as_qflags(DLiteTypeFlag flags)
   if (flags & dliteFlagQuoted) flg |= 0;
   if (flags & dliteFlagStrip)  flg |= strquoteNoQuote | strquoteNoEscape;
   return flg;
-  //switch (flags) {
-  //case dliteFlagDefault: return strquoteRaw;
-  //case dliteFlagRaw: return strquoteRaw;
-  //case dliteFlagQuoted: return 0;
-  //case dliteFlagStrip: return strquoteNoQuote | strquoteNoEscape;
-  //}
-  //abort();
 }
 
 

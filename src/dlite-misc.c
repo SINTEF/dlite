@@ -319,7 +319,7 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
 
 /*
-  Returns non-zero if paths should refer to build root instead of
+  Returns non-zero if paths refer to build root rather than the
   installation root.
  */
 int dlite_use_build_root(void)
