@@ -58,10 +58,18 @@ int dlite_swig_set_property(DLiteInstance *inst, const char *name, obj_t *obj)
 
 /* Returns instance corresponding to `id`. */
 struct _DLiteInstance *
-  dlite_swig_get_instance(const char *id, const char *metaid)
+  dlite_swig_get_instance(const char *id, const char *metaid,
+                          bool check_storages)
 {
-  struct _DLiteInstance *inst = dlite_instance_get_casted(id, metaid);
-  if (!inst) return dlite_err(1, "no instance with this id: %s", id), NULL;
+  struct _DLiteInstance *inst=NULL;
+  if (check_storages) {
+    inst = dlite_instance_get_casted(id, metaid);
+  } else if ((inst = dlite_instance_has(id, check_storages))) {
+    if (metaid)
+      inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+    else
+      dlite_instance_incref(inst);
+  }
   return inst;
 }
 
@@ -451,8 +459,17 @@ struct _DLiteInstance {
 //                                                 const char *metaid=NULL);
 
 %feature("docstring", "\
-Returns a new reference to instance with given id.  If `metaid` is provided,
-the instance will be mapped to an instance of this metadata.
+Returns a new reference to instance with given id.
+
+If `metaid` is provided, the instance will be mapped to an instance of
+this metadata.
+
+If the instance exists in the in-memory store it is returned.
+Otherwise, if `check_storages` is true, the instance is searched for
+in the storage plugin path (initiated from the DLITE_STORAGES
+environment variable).
+
+It is an error message if the instance cannot be found.
 ") dlite_swig_get_instance;
 %rename(get_instance) dlite_swig_get_instance;
 
@@ -460,7 +477,8 @@ the instance will be mapped to an instance of this metadata.
 %rename(_set_property) dlite_swig_set_property;
 %rename(_has_property) dlite_instance_has_property;
 struct _DLiteInstance *
-dlite_swig_get_instance(const char *id, const char *metaid=NULL);
+dlite_swig_get_instance(const char *id, const char *metaid=NULL,
+                        bool check_storages=true);
 obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
 void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
