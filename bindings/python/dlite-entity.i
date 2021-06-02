@@ -73,6 +73,12 @@ struct _DLiteInstance *
   return inst;
 }
 
+/* Returns true if instance is recognised. */
+bool dlite_swig_has_instance(const char *id, bool check_storages)
+{
+  return (dlite_instance_has(id, check_storages)) ? 1 : 0;
+}
+
 %}
 
 
@@ -472,13 +478,24 @@ environment variable).
 It is an error message if the instance cannot be found.
 ") dlite_swig_get_instance;
 %rename(get_instance) dlite_swig_get_instance;
+struct _DLiteInstance *
+dlite_swig_get_instance(const char *id, const char *metaid=NULL,
+                        bool check_storages=true);
+
+
+%feature("docstring", "\
+Returns whether an instance with `id` exists.
+
+If `check_storages` is true, the instance is also searched for
+in the storage plugin path.
+") dlite_swig_has_instance;
+%rename(has_instance) dlite_swig_has_instance;
+bool dlite_swig_has_instance(const char *id, bool check_storages=true);
+
 
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;
 %rename(_has_property) dlite_instance_has_property;
-struct _DLiteInstance *
-dlite_swig_get_instance(const char *id, const char *metaid=NULL,
-                        bool check_storages=true);
 obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
 void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
