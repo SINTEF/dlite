@@ -1,5 +1,7 @@
 """Storage plugin that reading/writing CSV files."""
 import re
+import warnings
+import hashlib
 from pathlib import Path
 
 import pandas as pd
@@ -52,17 +54,19 @@ class csv(DLiteStorageBase):  # noqa: F821
         instance."""
         reader = getattr(pd, 'read_' + self.format)
         pdopts = optstring2keywords(self.options.get('pandas_opts', ''))
+        metaid = self.options.meta if 'meta' in self.options else None
         data = reader(self.uri, **pdopts)
         rows, columns = data.shape
 
-        if 'infer' not in self.options or self.options.infer:
-            Meta = infer_meta(data, self.options.meta, self.uri)
+        if 'infer' not in self.options or dlite.asbool(self.options.infer):
+            Meta = infer_meta(data, metaid, self.uri)
         else:
-            Meta = dlite.get_instance(self.options.meta)
+            Meta = dlite.get_instance(metaid)
 
         inst = Meta(dims=(rows, ), id=self.options.get('id'))
         for i, name in enumerate(inst.properties):
             inst[i] = data.iloc[:, i]
+
 
         return inst
 
@@ -111,6 +115,16 @@ def infer_meta(data, metauri, uri):
     `metauri` is a namespace/version/name URI for the metadata.
     `uri` is the location of the input storage.
     """
+    if not metauri:
+        ext = Path(uri).suffix.lstrip('.')
+        fmt = ext if ext else 'csv'
+        with open(uri, 'rb') as f:
+            hash = hashlib.sha256(f.read()).hexdigest()
+        metauri = f'onto-ns.com/meta/1.0/generated_from_{fmt}_{hash}'
+    elif dlite.has_instance(metauri):
+        warnings.warn(f'csv option infer is true, but explicit instance id '
+                      '"{metauri}" already exists')
+
     dims_ = [dlite.Dimension('rows', 'Number of rows.')]
     props = []
     for i, col in enumerate(data.columns):
