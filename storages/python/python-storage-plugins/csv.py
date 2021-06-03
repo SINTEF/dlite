@@ -60,13 +60,15 @@ class csv(DLiteStorageBase):  # noqa: F821
 
         if 'infer' not in self.options or dlite.asbool(self.options.infer):
             Meta = infer_meta(data, metaid, self.uri)
-        else:
+        elif metaid:
             Meta = dlite.get_instance(metaid)
+        else:
+            raise ValueError(
+                'csv option `meta` must be provided if `infer` if false')
 
         inst = Meta(dims=(rows, ), id=self.options.get('id'))
         for i, name in enumerate(inst.properties):
             inst[i] = data.iloc[:, i]
-
 
         return inst
 
