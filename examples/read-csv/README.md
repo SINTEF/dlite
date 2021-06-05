@@ -18,6 +18,12 @@ DLITE_PYTHON_STORAGE_PLUGIN_DIRS such that dlite is able to locate the
 plugin in the `python-storage-plugins` directory.
 
 
+Notes
+-----
+Since the csv plugin seems rather useful, it is also been included to
+the default plugins.
+
+
 Credits
 -------
 The example csv file was downloaded from

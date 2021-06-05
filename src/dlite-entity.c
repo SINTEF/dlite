@@ -587,8 +587,41 @@ int dlite_instance_decref(DLiteInstance *inst)
 
 
 /*
+  Checks whether an instance with the given `id` exists.
+
+  If `check_storages` is true, the storage plugin path is searched if
+  the instance is not found in the in-memory store.  This is
+  equivalent to dlite_instance_get(), except that a borrowed
+  reference is returned and no error is reported if the instance
+  cannot be found.
+
+  Returns a pointer to the instance (borrowed reference) if it exists
+  or NULL otherwise.
+ */
+DLiteInstance *dlite_instance_has(const char *id, bool check_storages)
+{
+  DLiteInstance *inst;
+  if (!(inst = _instance_store_get(id)) && check_storages) {
+    ErrTry:
+      if ((inst = dlite_instance_get(id)))
+        dlite_instance_decref(inst);
+    ErrOther:
+      break;
+    ErrEnd;
+  }
+  return inst;
+}
+
+
+/*
   Returns a new reference to instance with given `id` or NULL if no such
   instance can be found.
+
+  If the instance exists in the in-memory store it is returned.
+  Otherwise it is searched for in the storage plugin path (initiated
+  from the DLITE_STORAGES environment variable).
+
+  It is an error message if the instance cannot be found.
 */
 DLiteInstance *dlite_instance_get(const char *id)
 {
@@ -1758,6 +1791,7 @@ dlite_meta_create(const char *uri, const char *iri,
 
   if ((e = dlite_instance_get(uri)))
     return (DLiteMeta *)e;
+
   if (dlite_split_meta_uri(uri, &name, &version, &namespace)) goto fail;
   if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))
     goto fail;
