@@ -1,6 +1,18 @@
 # -*- Mode: cmake -*-
 project(dlite-examples)
 
+# Python examples
+set(python_examples
+  read-csv
+  )
+
+
+# CMake toolchain option
+if(CMAKE_TOOLCHAIN_FILE)
+  get_filename_component(toolchain_file ${CMAKE_TOOLCHAIN_FILE} REALPATH)
+  set(toolchain_opt "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
+endif()
+
 #
 # Macro for testing examples
 # --------------------------
@@ -15,13 +27,6 @@ project(dlite-examples)
 #      make test                              (ex-test)
 #
 # Here <conf> is the configurations that dlite is build with.
-
-
-if(CMAKE_TOOLCHAIN_FILE)
-  get_filename_component(toolchain_file ${CMAKE_TOOLCHAIN_FILE} REALPATH)
-  set(toolchain_opt "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
-endif()
-
 macro(test_example example)
   add_test(
     NAME ${example}-mkdir
@@ -72,12 +77,23 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
   endif()
   #test_example(ex5d)
 
-  if(WITH_PYTHON)
+
+  # Run python examples
+  foreach(name ${python_examples})
     add_test(
-      NAME read-csv
-      COMMAND ${RUNNER} ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/read-csv/readcsv.py
+      NAME ${name}
+      COMMAND ${RUNNER} ${Python3_EXECUTABLE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/read-csv/main.py
       )
-  endif()
+    set_property(TEST ${name} PROPERTY
+      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    set_property(TEST ${name} APPEND PROPERTY
+      ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+    set_property(TEST ${name} APPEND PROPERTY
+      ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+    set_property(TEST ${name} APPEND PROPERTY
+      ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+  endforeach()
 
 endif()
 
