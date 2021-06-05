@@ -71,6 +71,14 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     test_example(ex4)
   endif()
   #test_example(ex5d)
+
+  if(WITH_PYTHON)
+    add_test(
+      NAME read-csv
+      COMMAND ${RUNNER} ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/read-csv/readcsv.py
+      )
+  endif()
+
 endif()
 
 
