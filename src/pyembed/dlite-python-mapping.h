@@ -8,7 +8,6 @@
 #ifdef HAVE_CONFIG_H
 #undef HAVE_CONFIG_H
 #endif
-//#include "utils/fileutils.h"
 
 
 /**
@@ -61,6 +60,21 @@ void *dlite_python_mapping_load(void);
 */
 void dlite_python_mapping_unload(void);
 
+
+/**
+  Returns pointer to next Python mapping plugin (casted to void *) or
+  NULL on error.
+
+  At the first call to this function, `*iter` should be initialised to zero.
+  If there are more APIs, `*iter` will be increased by one.
+*/
+const void *dlite_python_mapping_next(int *iter);
+
+/**
+  Returns Python mapping plugin (casted to void *) with given name or
+  NULL if no matches can be found.
+ */
+const void *dlite_python_mapping_get_api(const char *name);
 
 
 #endif /* _DLITE_PYTHON_MAPPING_H */

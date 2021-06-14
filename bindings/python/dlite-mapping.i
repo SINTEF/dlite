@@ -2,7 +2,6 @@
 
 /*
   TODO:
-    - add typemap for (const DLiteInstance **instances, int n)
     - add tests
     - check dlite_python_mapping_paths_insert()
 */
@@ -10,28 +9,39 @@
 %{
 #include "dlite-mapping.h"
 #include "pyembed/dlite-python-mapping.h"
+
+struct _DLiteInstance *swig_mapping(const char *output_uri,
+                                    struct _DLiteInstance **instances,
+                                    int ninstances)
+{
+  return dlite_mapping(output_uri, (const DLiteInstance **)instances,
+                       ninstances);
+}
+
+
 %}
 
+
+
+%rename(mapping) swig_mapping;
+%feature("docstring", "\
+  Returns a new instance of metadata `output_uri` by mapping the
+  input instances.
+") swig_mapping;
+struct _DLiteInstance *swig_mapping(const char *output_uri,
+                                    struct _DLiteInstance **instances,
+                                    int ninstances);
+
 %rename("%(strip:[dlite_])s") "";
-
-%feature("docstring", "\
-  Returns a new instance of metadata `output_uri` by mapping the `n` input
-  instances in the array `instances`.
-
-  This is the main function in the mapping api.
-") dlite_mapping;
-DLiteInstance *dlite_mapping(const char *output_uri,
-                             const DLiteInstance **instances, int n);
-
-%feature("docstring", "\
-  Loads all Python mappings (if needed).
-
-  Returns a borrowed reference to a list of mapping plugins (casted to
-  void *) or NULL on error.
-") dlite_python_mapping_load;
-void *dlite_python_mapping_load(void);
 
 %feature("docstring", "\
   Unloads all currently loaded mappings.
 ") dlite_python_mapping_unload;
 void dlite_python_mapping_unload(void);
+
+
+%feature("docstring", "\
+  Unloads mapping plugin with given name.  If `name` is None, all mapping
+  plugins are unloaded.
+") dlite_python_mapping_unload;
+int dlite_mapping_plugin_unload(const char *name=NULL);

@@ -40,6 +40,7 @@ set(sources
   dlite-getlicense.c
   dlite-print.c
   getuuid.c
+  pathshash.c
   triple.c
   triplestore.c
   )

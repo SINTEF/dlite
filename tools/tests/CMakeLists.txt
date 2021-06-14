@@ -7,6 +7,10 @@ set(tests
   test_c_source
   )
 
+if(WITH_PYTHON)
+  set(pyembed_libs dlite-pyembed)
+endif()
+
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR} -DHAVE_DLITE)
 
 if(WIN32)
@@ -56,7 +60,7 @@ if(WITH_JSON)
 
   foreach(test ${tests})
 
-    target_link_libraries(${test} dlite)
+    target_link_libraries(${test} dlite ${pyembed_libs})
     target_include_directories(${test} PRIVATE
       ${dlite_SOURCE_DIR}/src
       ${dlite_BINARY_DIR}/src

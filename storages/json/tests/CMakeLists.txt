@@ -6,6 +6,10 @@ set(tests
   test_json_storage
   )
 
+if(WITH_PYTHON)
+  set(pyembed_libs dlite-pyembed)
+endif()
+
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
 # We are linking to dlite-plugins-json DLL - this require that this
@@ -20,7 +24,7 @@ add_custom_target(
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite-plugins-json)
+  target_link_libraries(${test} dlite-plugins-json ${pyembed_libs})
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/storages/json
     ${dlite-src_SOURCE_DIR}/tests

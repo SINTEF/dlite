@@ -34,7 +34,13 @@ typedef struct _DLiteMappingPlugin DLiteMappingPlugin;
 /**
  An iterator over all registered mapping plugins.
  */
-typedef struct _PluginIter DLiteMappingPluginIter;
+//typedef struct _PluginIter DLiteMappingPluginIter;
+typedef struct _DLiteMappingPluginIter {
+  PluginIter iter;  /*!< plugin iterator */
+  int n;            /*!< counter for python mappings */
+  int stop;         /*!< set to non-zero if no more python mappings are
+                         available */
+} DLiteMappingPluginIter;
 
 
 /**
@@ -91,6 +97,9 @@ dlite_mapping_plugin_next(DLiteMappingPluginIter *iter);
 
 /**
   Unloads and unregisters mapping plugin with the given name.
+
+  If `name` is NULL, dlite_mapping_plugin_unload_all() is called.
+
   Returns non-zero on error.
 */
 int dlite_mapping_plugin_unload(const char *name);
