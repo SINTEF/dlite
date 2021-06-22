@@ -1,4 +1,6 @@
-"""The setup script."""
+"""The setup script, used for testing the python-bindings
+in a virtual enviroment during the cmake-build-process.
+"""
 
 import sys
 import os
@@ -70,7 +72,7 @@ setup(
         "Programming Language :: Python :: 3.8",
     ],
     platforms=[ "Windows", "Linux" ],
-    description="Experimental dlite python package setup.",
+    description="Experimental dlite python package setup for testing in a virtual environment.",
     #entry_points={
     #    "console_scripts": [
     #        "MyScript=myscript:main",
@@ -84,9 +86,9 @@ setup(
     keywords="dlite",
     name="dlite-python",
     
-    package_dir = { 'dlite': r'../../bindings/python/dlite' },
+    package_dir = { "dlite": r"../../bindings/python/dlite" }, # Must be relative
     package_data={ "dlite": dlite_package_data },
-    packages= [ 'dlite' ],
+    packages= [ "dlite" ],
     #setup_requires=setup_requirements,
     #test_suite="tests",
     #tests_require=test_requirements,
@@ -94,11 +96,11 @@ setup(
     has_ext_modules=lambda: True,
     ext_modules=[
       Extension(
-        'dlite-extension',
+        "dlite-extension",
         [],
        )
     ],
-    cmdclass={'build_ext': MyBuildExt },
+    cmdclass={ "build_ext" : MyBuildExt },
     distclass=BinaryDistribution,
     
     version=version,
