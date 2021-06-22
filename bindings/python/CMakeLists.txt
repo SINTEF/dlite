@@ -106,6 +106,7 @@ add_custom_command(
   DEPENDS
     ${pkgdir}
     ${abs_sources}
+    dlite-plugins-json
   )
 
 
