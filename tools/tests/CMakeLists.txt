@@ -68,8 +68,13 @@ if(WITH_JSON)
       COMMAND ${RUNNER} test_codegen
       )
 
-    set_property(TEST ${test} PROPERTY
+    if(WIN32 AND MSVC)
+      set_property(TEST ${test} PROPERTY
+        ENVIRONMENT "PATH=${CMAKE_INSTALL_PREFIX}/bin;$ENV{PATH}")
+    else()
+      set_property(TEST ${test} PROPERTY
       ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    endif()
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
     set_property(TEST ${test} APPEND PROPERTY
