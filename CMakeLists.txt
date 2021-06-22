@@ -315,12 +315,25 @@ if(WITH_JSON)
     message(STATUS "Download and build jansson as external package")
     set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
     set(jansson_INSTALL_PREFIX "${external_INSTALL_DIR}")
+    if(NOT WIN32 OR MINGW)
     set(cmake_args
+      -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
+      -DJANSSON_BUILD_DOCS=${WITH_DOC}
       -DBUILD_SHARED_LIBS=ON
       )
+    else() # WIN32
+    set(cmake_args
+      -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
+      -DJANSSON_BUILD_DOCS=${WITH_DOC}
+      -DBUILD_SHARED_LIBS=OFF
+      -DJANSSON_BUILD_SHARED_LIBS=OFF
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    )
+    endif()
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
       list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
@@ -334,12 +347,17 @@ if(WITH_JSON)
       CMAKE_ARGS      ${cmake_args}
       UPDATE_COMMAND  ""
       TEST_COMMAND    ctest
-      INSTALL_COMMAND cmake --build . --target install
+      INSTALL_COMMAND cmake --build . --config Release --target install
       )
     set(JANSSON_DEPENDENCIES janssonProj)
     set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
+    if(NOT WIN32 OR MINGW)
     set(JANSSON_LIBRARIES
       ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
+    else() # WIN32
+    set(JANSSON_LIBRARIES
+      ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${LIB_EXT})
+    endif()
   endif()
 else()
   set(JANSSON_LIBRARIES "")
