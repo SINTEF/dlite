@@ -1,0 +1,106 @@
+"""The setup script."""
+
+import sys
+import os
+import shutil
+import platform
+
+from distutils.command.build_ext import build_ext
+from pathlib import Path
+from setuptools import setup, Distribution, Extension
+
+extension_dirs=[ Path("${dlite_BINARY_DIR}") / "src",                  # dlite.dll,                   libdlite.so
+                 Path("${dlite_BINARY_DIR}") / "src" / "pyembed",      # dlite-pyembed.dll            libdlite-pyembed.so
+                 Path("${dlite_BINARY_DIR}") / "src" / "utils",        # dlite-utils.dll              libdlite-utils.so
+                 Path("${dlite_BINARY_DIR}") / "storages" / "json",    # dlite-plugin-json.dll        libdlite-plugins-json.so
+                 Path("${dlite_BINARY_DIR}") / "storages" / "python",  # dlite-plugins-python.dll     libdlite-plugins-python.so
+               ]
+
+if platform.system() == "Linux":
+    dlite_package_data = [ "_dlite.so" ]
+    dlite_lib_dir=Path("./lib")
+elif platform.system() == "Darwin":
+    raise NotImplementedError()
+elif platform.system() == "Windows":
+    dlite_package_data = [ "_dlite.pyd" ]
+    dlite_lib_dir=Path("./")
+    extension_dirs=[item / "${CMAKE_CONFIGURATION_TYPES}" for item in extension_dirs]
+
+LIB_EXT="${SH_EXT}"
+
+class BinaryDistribution(Distribution):
+    def has_ext_modules(self):
+        return True
+    def is_pure(self):
+        return False
+
+class MyBuildExt(build_ext):
+    def build_extension(self, ext):
+        thisdir=Path(self.get_ext_fullpath(ext.name)).parent
+
+        if platform.system() == "Linux":
+            (thisdir / "dlite" / "lib").mkdir(exist_ok=True)
+
+        # Add pre-generated *.dll or *.so
+        for dll_dir in extension_dirs:
+            if os.path.isdir(dll_dir):
+                for item in os.listdir(dll_dir):
+                    if item.endswith(LIB_EXT):
+                        shutil.copyfile(dll_dir / item, thisdir / "dlite" / dlite_lib_dir / item)
+
+version = "${dlite_VERSION}"
+
+requirements = [
+    "numpy",
+    "PyYAML",
+    "psycopg2-binary",
+    "pandas",
+    "tables"
+    ]
+
+setup(
+    author="Peter Schiffels",
+    author_email="peter.schiffels@ifam.fraunhofer.de",
+    python_requires=">=3.8",
+    classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+    ],
+    platforms=[ "Windows", "Linux" ],
+    description="Experimental dlite python package setup.",
+    #entry_points={
+    #    "console_scripts": [
+    #        "MyScript=myscript:main",
+    #    ],
+    #},
+    
+    install_requires=requirements,
+    #dependency_links=dependencies,
+    long_description="",
+    include_package_data=True,
+    keywords="dlite",
+    name="dlite-python",
+    
+    package_dir = { 'dlite': r'../../bindings/python/dlite' },
+    package_data={ "dlite": dlite_package_data },
+    packages= [ 'dlite' ],
+    #setup_requires=setup_requirements,
+    #test_suite="tests",
+    #tests_require=test_requirements,
+    
+    has_ext_modules=lambda: True,
+    ext_modules=[
+      Extension(
+        'dlite-extension',
+        [],
+       )
+    ],
+    cmdclass={'build_ext': MyBuildExt },
+    distclass=BinaryDistribution,
+    
+    version=version,
+    zip_safe=False,
+)

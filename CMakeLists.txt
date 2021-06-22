@@ -56,19 +56,20 @@ DLite is released under the MIT license.
 ")
 
 # Options
-option(WITH_PYTHON              "Whether to build Python 3 bindings"             ON)
-option(WITH_PYTHON_ADD_VENVTEST "Whether to test python-bindings in a venv"      ON)
-option(WITH_FORTRAN             "Whether to build Fortran bindings"              OFF)
-option(WITH_HDF5                "Whether to build with HDF5 support"             ON)
-option(WITH_JSON                "Whether to build with JSON support"             ON)
-option(WITH_REDLAND             "Whether to build with Redland (if available)"   ON)
-option(WITH_DOC                 "Whether to build documentation using doxygen"   ON)
-option(WITH_EXAMPLES            "Whether to build/run examples during testing"   ON)
-option(FORCE_EXAMPLES           "Whether to force building/running examples"     OFF)
-option(ALLOW_WARNINGS           "Whether to not fail on compilation warnings"    OFF)
+option(WITH_PYTHON               "Whether to build Python 3 bindings"             ON)
+option(WITH_PYTHON_ADD_VENVTEST  "Whether to test python-bindings in a venv"      ON)
+option(WITH_PYTHON_INSTALL_WHEEL "Whether to install the wheel"                   ON)
+option(WITH_FORTRAN              "Whether to build Fortran bindings"              OFF)
+option(WITH_HDF5                 "Whether to build with HDF5 support"             ON)
+option(WITH_JSON                 "Whether to build with JSON support"             ON)
+option(WITH_REDLAND              "Whether to build with Redland (if available)"   ON)
+option(WITH_DOC                  "Whether to build documentation using doxygen"   ON)
+option(WITH_EXAMPLES             "Whether to build/run examples during testing"   ON)
+option(FORCE_EXAMPLES            "Whether to force building/running examples"     OFF)
+option(ALLOW_WARNINGS            "Whether to not fail on compilation warnings"    OFF)
 
-option(BUILD_HDF5               "If not installed, download and compile HDF5"    OFF)
-option(BUILD_JSON               "If not installed, download and compile jansson" OFF)
+option(BUILD_HDF5                "If not installed, download and compile HDF5"    OFF)
+option(BUILD_JSON                "If not installed, download and compile jansson" OFF)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -390,7 +391,7 @@ if(WITH_PYTHON)
   endif()
 
   if(MSVC)
-    # Testing the python-bindings can fail on Windows for a number of reasons,
+    # Testing the python-bindings can fail on Windows for a number of reasons:
     # embedding: https://github.com/pybind/pybind11/issues/2369
     # numpy-related: https://github.com/numpy/numpy/issues/12667
     # Test in a virtual environment instead
@@ -731,6 +732,9 @@ add_subdirectory(src)
 # Bindings
 if(WITH_PYTHON)
   add_subdirectory(bindings/python)
+  if(WITH_PYTHON_ADD_VENVTEST OR WITH_PYTHON_VENVTEST_ONLY)
+    add_subdirectory(api/python)
+  endif()
 endif()
 
 # Storage plugins
