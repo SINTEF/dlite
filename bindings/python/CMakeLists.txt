@@ -147,4 +147,6 @@ install(
 #
 # Tests
 # -----
-add_subdirectory(tests)
+if(NOT WITH_PYTHON_VENVTEST_ONLY)
+  add_subdirectory(tests)
+endif()

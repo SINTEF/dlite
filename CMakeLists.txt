@@ -56,18 +56,19 @@ DLite is released under the MIT license.
 ")
 
 # Options
-option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
-option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
-option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
-option(WITH_JSON        "Whether to build with JSON support"             ON)
-option(WITH_REDLAND     "Whether to build with Redland (if available)"   ON)
-option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
-option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
-option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
-option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
+option(WITH_PYTHON              "Whether to build Python 3 bindings"             ON)
+option(WITH_PYTHON_ADD_VENVTEST "Whether to test python-bindings in a venv"      ON)
+option(WITH_FORTRAN             "Whether to build Fortran bindings"              OFF)
+option(WITH_HDF5                "Whether to build with HDF5 support"             ON)
+option(WITH_JSON                "Whether to build with JSON support"             ON)
+option(WITH_REDLAND             "Whether to build with Redland (if available)"   ON)
+option(WITH_DOC                 "Whether to build documentation using doxygen"   ON)
+option(WITH_EXAMPLES            "Whether to build/run examples during testing"   ON)
+option(FORCE_EXAMPLES           "Whether to force building/running examples"     OFF)
+option(ALLOW_WARNINGS           "Whether to not fail on compilation warnings"    OFF)
 
-option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
-option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
+option(BUILD_HDF5               "If not installed, download and compile HDF5"    OFF)
+option(BUILD_JSON               "If not installed, download and compile jansson" OFF)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -381,10 +382,20 @@ if(WITH_PYTHON)
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
-  # On mingw, python depends on libffi
-  find_library(ffi ffi)
-  mark_as_advanced(ffi)
-  get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
+  if(MINGW)
+    # On mingw, python depends on libffi
+    find_library(ffi ffi)
+    mark_as_advanced(ffi)
+    get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
+  endif()
+
+  if(MSVC)
+    # Testing the python-bindings can fail on Windows for a number of reasons,
+    # embedding: https://github.com/pybind/pybind11/issues/2369
+    # numpy-related: https://github.com/numpy/numpy/issues/12667
+    # Test in a virtual environment instead
+    set(WITH_PYTHON_VENVTEST_ONLY ON)
+  endif()
 
   set(DLITE_PYTHONPATH
     ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
