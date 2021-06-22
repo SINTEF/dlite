@@ -79,4 +79,6 @@ install(
 
 if(NOT WITH_PYTHON_VENVTEST_ONLY)
   add_subdirectory(tests)
+else()
+  message(WARNING "Skipping pyembed testing.")
 endif()
