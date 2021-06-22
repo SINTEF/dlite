@@ -45,5 +45,10 @@ install(
   DESTINATION ${DLITE_STORAGE_PLUGIN_DIRS}
 )
 
+install(
+  TARGETS dlite-plugins-json
+  LIBRARY DESTINATION lib
+)
+
 # tests
 add_subdirectory(tests)

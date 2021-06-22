@@ -41,6 +41,11 @@ install(
 )
 
 install(
+  TARGETS dlite-plugins-python
+  LIBRARY DESTINATION lib
+)
+
+install(
   DIRECTORY python-storage-plugins
   DESTINATION share/dlite
   PATTERN "*~" EXCLUDE
