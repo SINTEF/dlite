@@ -22,7 +22,7 @@ target_include_directories(dlite-plugins-json PUBLIC
   ${dlite-src_BINARY_DIR}
   ${JANSSON_INCLUDE_DIRS}
   )
-if(${JANSSON_DEPENDENCIES})
+if(JANSSON_DEPENDENCIES)
   add_dependencies(dlite-plugins-json ${JANSSON_DEPENDENCIES})
 endif()
 set_target_properties(dlite-plugins-json PROPERTIES
