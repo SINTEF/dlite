@@ -747,14 +747,6 @@ add_custom_target(show ${cmd})
 # Subdirectories
 add_subdirectory(src)
 
-# Bindings
-if(WITH_PYTHON)
-  add_subdirectory(bindings/python)
-  if(WITH_PYTHON_ADD_VENVTEST OR WITH_PYTHON_VENVTEST_ONLY)
-    add_subdirectory(api/python)
-  endif()
-endif()
-
 # Storage plugins
 if(WITH_HDF5)
   add_subdirectory(storages/hdf5)
@@ -765,8 +757,16 @@ endif()
 if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)
 endif()
+
 if(WITH_PYTHON)
+  if(NOT WITH_JSON)
+    message(FATAL_ERROR "Python bindings and testing depend on the json-plugin, set WITH_JSON=ON.")
+  endif()
   add_subdirectory(storages/python)
+  add_subdirectory(bindings/python)
+  if(WITH_PYTHON_ADD_VENVTEST OR WITH_PYTHON_VENVTEST_ONLY)
+    add_subdirectory(api/python)
+  endif()
 endif()
 
 # Tools - may depend on storage plugins
