@@ -36,7 +36,7 @@ else()
 
       set(CURRENT_WHEEL_NAME dlite_python-${dlite_VERSION}-cp3${wheelversion_minor}-cp3${wheelversion_minor}-${WHEEL_BDIST_EXT})
 
-      add_custom_target(dlite-python-wheel3${wheelversion_minor} ALL
+      add_custom_target(dlite-python-wheel3${wheelversion_minor} ALL DEPENDS python_package
         COMMAND ${VIRTUALENV} -p ${PYTHON_VENV_PYTHON_VERSION} ${PYTHON_VENV_NAME}
         COMMAND ${PYTHON_VENV_PIP} install wheel
         #COMMAND ${PYTHON_VENV_PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/setup.py test
