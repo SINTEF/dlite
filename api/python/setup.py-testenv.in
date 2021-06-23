@@ -56,7 +56,7 @@ extensions=[
 
             ## Storage Plugins (Python) - unclear where to put them
 
-             ## dlite-plugins-python.dll, dlite-plugins-python.exp, dlite-plugins-python.lib                libdlite-plugins-python.so
+             ## dlite-plugins-python.dll, dlite-plugins-python.exp, dlite-plugins-python.lib               libdlite-plugins-python.so
              #{ "src":  current_bindir / "storages" / "python" / dlite_ext_loc,
              #  "dest": dlite_extinstall_dir / Path("${DLITE_STORAGE_PLUGIN_DIRS}") },
 
@@ -92,7 +92,7 @@ class MyBuildExt(build_ext):
 version = "${dlite_VERSION}"
 
 requirements = [
-    "numpy",
+    "numpy==${Python3_NumPy_VERSION}",
     "PyYAML",
     "psycopg2-binary",
     "pandas",
