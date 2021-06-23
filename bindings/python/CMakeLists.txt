@@ -150,4 +150,6 @@ install(
 # -----
 if(NOT WITH_PYTHON_VENVTEST_ONLY)
   add_subdirectory(tests)
+else()
+  message(WARNING "Testing Python bindings in virtual environment only (numpy import fails for Windows).")
 endif()
