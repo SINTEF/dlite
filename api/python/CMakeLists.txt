@@ -13,16 +13,17 @@ else()
     endif()
     message(STATUS "Python base Interpreter: ${Python3_VERSION} path=${Python3_EXECUTABLE}")
 
-    set(wheelversions_minor
-      #7
-      8
-      #${Python3_VERSION_MINOR}
+    set(python_versions_minor
+      ${Python3_VERSION_MINOR}
+    )
+    set(python_versions_patch
+      ${Python3_VERSION_PATCH}
     )
 
-    foreach(wheelversion_minor ${wheelversions_minor})
+    foreach(python_version_minor python_version_patch IN ZIP_LISTS python_versions_minor python_versions_patch)
 
-      set(PYTHON_VENV_PYTHON_VERSION python3.${wheelversion_minor})
-      set(PYTHON_VENV_NAME venv3${wheelversion_minor})
+      set(PYTHON_VERSION "3.${python_version_minor}.${python_version_patch}")
+      set(PYTHON_VENV_NAME "venv${PYTHON_VERSION}")
 
       if(WIN32)
         set(PYTHON_VENV_PYTHON ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_VENV_NAME}/Scripts/python)
@@ -34,10 +35,10 @@ else()
         set(WHEEL_BDIST_EXT linux_x86_64.whl)
       endif()
 
-      set(CURRENT_WHEEL_NAME dlite_python-${dlite_VERSION}-cp3${wheelversion_minor}-cp3${wheelversion_minor}-${WHEEL_BDIST_EXT})
+      set(CURRENT_WHEEL_NAME dlite_python-${dlite_VERSION}-cp3${python_version_minor}-cp3${python_version_minor}-${WHEEL_BDIST_EXT})
 
-      add_custom_target(dlite-python-wheel3${wheelversion_minor} ALL DEPENDS python_package dlite-plugins-python
-        COMMAND ${VIRTUALENV} -p ${PYTHON_VENV_PYTHON_VERSION} ${PYTHON_VENV_NAME}
+      add_custom_target(dlite-python-wheel3${python_version_minor} ALL DEPENDS python_package dlite-plugins-python
+        COMMAND ${VIRTUALENV} -p python${PYTHON_VERSION} ${PYTHON_VENV_NAME}
         COMMAND ${PYTHON_VENV_PIP} install wheel
         #COMMAND ${PYTHON_VENV_PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/setup.py test
         COMMAND ${PYTHON_VENV_PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/setup.py bdist_wheel
@@ -67,7 +68,7 @@ else()
       )
   
       foreach(test ${tests})
-      set(name ${test}-py_venv_python3${wheelversion_minor})
+      set(name ${test}-py_venv_python${PYTHON_VERSION})
       add_test(
           NAME ${name}
           COMMAND ${RUNNER} ${PYTHON_VENV_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/../../bindings/python/tests/${test}.py
@@ -81,7 +82,7 @@ else()
       )
   
       foreach(test ${additional_tests})
-      set(name ${test}-py_venv_python3${wheelversion_minor})
+      set(name ${test}-py_venv_python${PYTHON_VERSION})
       add_test(
           NAME ${name}
           COMMAND ${RUNNER} ${PYTHON_VENV_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/../../examples/${test}/main.py
