@@ -866,7 +866,7 @@ configure_package_config_file(
 install(
   FILES
     README.md
-    LICENSE
+    LICENSE.txt
   DESTINATION share/dlite
   )
 

@@ -139,11 +139,11 @@ add_custom_command(
   COMMAND ${RUNNER} $<TARGET_FILE:gencfile>
     dlite_get_license
     ${CMAKE_CURRENT_BINARY_DIR}/dlite-getlicense.c
-    ${dlite_SOURCE_DIR}/LICENSE
+    ${dlite_SOURCE_DIR}/LICENSE.txt
     ${dlite-src-utils_SOURCE_DIR}/LICENSES.txt
   DEPENDS
     gencfile
-    ${dlite_SOURCE_DIR}/LICENSE
+    ${dlite_SOURCE_DIR}/LICENSE.txt
     ${dlite-src-utils_SOURCE_DIR}/LICENSES.txt
   COMMENT "Generating dlite-getlicense.c"
 )
