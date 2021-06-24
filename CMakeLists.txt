@@ -58,6 +58,7 @@ DLite is released under the MIT license.
 # Options
 option(WITH_PYTHON               "Whether to build Python 3 bindings"             ON)
 option(WITH_PYTHON_BUILD_WHEEL   "Whether to build the Python wheel"              OFF)
+option(WITH_PYTHON_TEST_WHEEL    "Whether to run tests in venv."                  OFF)
 option(WITH_FORTRAN              "Whether to build Fortran bindings"              OFF)
 option(WITH_HDF5                 "Whether to build with HDF5 support"             ON)
 option(WITH_JSON                 "Whether to build with JSON support"             ON)
@@ -411,7 +412,7 @@ if(WITH_PYTHON)
     # Testing the python-bindings can fail on Windows for a number of reasons:
     # embedding: https://github.com/pybind/pybind11/issues/2369
     # numpy-related: https://github.com/numpy/numpy/issues/12667
-    # Test in a virtual environment instead (The wheel will be build and installed too.)
+    # Test in a virtual environment instead.
     set(WITH_PYTHON_VENVTEST_ONLY ON)
   endif()
 
@@ -763,7 +764,10 @@ if(WITH_PYTHON)
   endif()
   add_subdirectory(storages/python)
   add_subdirectory(bindings/python)
-  if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_VENVTEST_ONLY)
+  if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL OR WITH_PYTHON_VENVTEST_ONLY)
+    # WITH_PYTHON_BUILD_WHEEL=ON: Build the wheel
+    # WITH_PYTHON_TEST_WHEEL=ON: Additionally test the wheel
+    # WITH_PYTHON_VENVTEST_ONLY=ON: Must build the wheel and test the wheel (Default on Windows)
     add_subdirectory(api/python)
   endif()
 endif()
