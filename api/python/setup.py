@@ -10,8 +10,9 @@ from sysconfig import get_path, get_config_var
 import platform
 
 from distutils import sysconfig, dir_util
+import pkg_resources
 
-from setuptools import setup, Extension, Distribution
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
 # Based on
@@ -19,30 +20,32 @@ from setuptools.command.build_ext import build_ext
 
 SETUP_DIR = Path(__file__).parent.resolve()
 SOURCE_DIR = (SETUP_DIR / "../.." ).resolve()
-BUILD_DIR = SETUP_DIR / "mybuild"
 
-CONFIG="Release"
 
-BUILD_DIR.mkdir(exist_ok=True)
+if platform.system() == "Linux":
+    dlite_compiled_ext = "_dlite.so"
+    dlite_compiled_dll_suffix = '*.so'
 
-CMAKE_COMMON_VARIABLES = [
-    #'-G', 'Visual Studio 15 2017',
-    #'-A', 'x64',
-    '-DWITH_DOC=OFF',
-    '-DWITH_JSON=ON',
-    '-DBUILD_JSON=ON',
-    '-DWITH_HDF5=OFF',
-    '-DWITH_PYTHON_BUILD_WHEEL=ON',
-    #'-DCMAKE_BUILD_TYPE=%s' % config,
-    #'-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s' % extdir.parent.absolute(),
-    #'-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s' % binary_dir,
-    #f'-DCMAKE_INSTALL_PREFIX={install_dir}',
-    #'-DALLOW_WARNINGS=ON',
-    # Assume cmake version >= v3.12.4
-    #'-DPython_EXECUTABLE=%s' % sys.executable,
-    #'-DPYTHON_EXECUTABLE=%s' % sys.executable,
-    #str(SOURCE_DIR)
-]
+elif platform.system() == "Windows":
+    dlite_compiled_ext = "_dlite.pyd"
+    dlite_compiled_dll_suffix = '*.dll'
+
+    CMAKE_COMMON_VARIABLES = [
+        '-G', 'Visual Studio 15 2017',
+        '-A', 'x64',
+        '-DWITH_DOC=OFF',
+        '-DWITH_JSON=ON',
+        '-DBUILD_JSON=ON',
+        '-DWITH_HDF5=OFF',
+        '-DWITH_PYTHON_BUILD_WHEEL=ON',
+        #'-DALLOW_WARNINGS=ON',
+        # Assume cmake version >= v3.12.4
+        #'-DPython_EXECUTABLE=%s' % sys.executable,
+        #'-DPYTHON_EXECUTABLE=%s' % sys.executable,
+    ]
+    
+else:
+    raise NotImplementedError()
 
 
 class CMakeExtension(Extension):
@@ -57,39 +60,35 @@ class CMakeExtension(Extension):
 
 class CMakeBuildExt(build_ext):
     """
-    setuptools build_exit which builds using cmake & make
-    You can add cmake args with the CMAKE_COMMON_VARIABLES environment variable
+    setuptools build_exit which builds using cmake
     """
 
     def build_extension(self, ext):
-        if isinstance(ext, CMakeExtension):
-            output_dir = os.path.abspath(
-                os.path.dirname(self.get_ext_fullpath(ext.name)))
+        output_dir = os.path.abspath(
+            os.path.dirname(self.get_ext_fullpath(ext.name)))
 
-            build_type = 'Debug' if self.debug else 'Release'
-            cmake_args = ['cmake',
-                          str(SOURCE_DIR),
-                          '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir,
-                          '-DCMAKE_BUILD_TYPE=' + build_type,
-                          ]
-            cmake_args.extend(CMAKE_COMMON_VARIABLES)
+        build_type = 'Debug' if self.debug else 'Release'
+        cmake_args = ['cmake',
+                       ext.sourcedir,
+                       f'-DCMAKE_CONFIGURATION_TYPES:STRING={build_type}',
+                      ]
+        cmake_args.extend(CMAKE_COMMON_VARIABLES)
 
-            env = os.environ.copy()
-            if not os.path.exists(self.build_temp):
-                os.makedirs(self.build_temp)
-            #self.build_temp=build\temp.win-amd64-3.8\Release
-            #ext.sourcedir=C:\Users\ps-adm\repo\proj\A419409_OntoTRANS\SINTEF\dlite-github\api\python
-            print(" ".join(cmake_args))
-            subprocess.check_call(cmake_args,
-                                  cwd=self.build_temp,
-                                  env=env)
-            #subprocess.check_call(['make', '-j', ext.name],
-            #                      cwd=self.build_temp,
-            #                      env=env)
-        else:
-            super().build_extension(ext)
-
-
+        env = os.environ.copy()
+        if not os.path.exists(self.build_temp):
+            os.makedirs(self.build_temp)
+        print("Cmake>\n"+" ".join(cmake_args)+"\n")
+        subprocess.check_call(cmake_args,
+                                cwd=self.build_temp,
+                                env=env)
+        subprocess.check_call(['cmake', '--build', '.', '--config', build_type],
+                                cwd=self.build_temp,
+                                env=env)
+        
+        # TODO: Would be better to define a custom CMake target and install this to our self.build_temp/dlite
+        cmake_bdist_dir=Path(self.build_temp) / Path(f"api/python/build/lib.{pkg_resources.get_build_platform()}-3.{sys.version_info[1]}")
+        dir_util.copy_tree(str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name))
+        
 requirements = [
     "numpy==1.19.2",
     "PyYAML",
@@ -127,18 +126,17 @@ setup(
     #download_url=['https://github.com/SINTEF/dlite/archive/v0.2.5.tar.gz'],
     install_requires=requirements,
 
-    #package_dir = { "dlite": r"../../out/build/x64-Release/bindings/python/dlite" }, # Must be relative
-    #!package_dir = { "dlite": "packages/dlite" },
-
-    #!packages= [ "dlite" ],
-    #!package_data={ "dlite": [ dlite_compiled_ext, '*.dll', './share/dlite/storage-plugins/*dll'] },
-    #!include_package_data=True,
-    #!has_ext_modules=lambda: True,
-    ext_modules=[CMakeExtension('make_target')],
+    packages = [ "dlite" ],
+    package_data={ "dlite": [
+        dlite_compiled_ext,
+        dlite_compiled_dll_suffix,
+        './share/dlite/storage-plugins/'+dlite_compiled_dll_suffix
+        ]
+    },
+    ext_modules=[CMakeExtension('dlite', sourcedir=SOURCE_DIR)],
     cmdclass={
         'build_ext': CMakeBuildExt,
     },
-    #!distclass=BinaryDistribution,
 
     # FIXME: according to the setuptools documentation data_files is
     # deprecated and should be avoided since it doesn't work with weels.
@@ -152,5 +150,6 @@ setup(
     #    ('share/dlite', rglob('dist/share/**')),
     #    ('bin', glob('dist/bin/*')),
     #],
+
     zip_safe=False,
 )

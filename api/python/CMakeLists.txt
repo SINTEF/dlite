@@ -55,6 +55,10 @@ else()
         COMMAND ${PYTHON_VENV_PIP} install wheel
         COMMAND ${PYTHON_VENV_PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/setup.py bdist_wheel
       )
+
+      # The bdist is in
+      #set(CMAKE_PYTHON_BDIST_DIR "${CMAKE_CURRENT_BINARY_DIR}\build\lib.win-amd64-3.8\dlite")
+
       #if(WITH_HDF5)
       #  add_dependencies ?
       #endif()
