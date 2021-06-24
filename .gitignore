@@ -24,3 +24,4 @@ CMakeLists.txt.user
 old
 
 out
+/dlite_python.egg-info
