@@ -19,7 +19,7 @@ from setuptools.command.build_ext import build_ext
 # https://github.com/galois-advertising/cmake_setup/blob/master/cmake_setup/cmake/__init__.py
 
 SETUP_DIR = Path(__file__).parent.resolve()
-SOURCE_DIR = (SETUP_DIR / "../.." ).resolve()
+SOURCE_DIR = SETUP_DIR
 
 
 if platform.system() == "Linux":
