@@ -68,7 +68,7 @@ setup(
     include_package_data=True,
     keywords="dlite",
     
-    package_dir = { "dlite": r"../../bindings/python/dlite" }, # Must be relative
+    package_dir = { "dlite": "dlite" },
     package_data={ "dlite": [ dlite_compiled_ext ] },
     packages= [ "dlite" ],
     
