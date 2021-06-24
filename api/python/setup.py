@@ -1,13 +1,13 @@
 import os
+import platform
+import subprocess
 import sys
 import re
-import subprocess
 
 from pathlib import Path
 from glob import glob
 from sysconfig import get_path, get_config_var
 
-import platform
 
 from distutils import sysconfig, dir_util
 import pkg_resources
@@ -86,7 +86,7 @@ class CMakeBuildExt(build_ext):
                                 env=env)
         
         # TODO: Would be better to define a custom CMake target and install this to our self.build_temp/dlite
-        cmake_bdist_dir=Path(self.build_temp) / Path(f"api/python/build/lib.{pkg_resources.get_build_platform()}-3.{sys.version_info[1]}")
+        cmake_bdist_dir=Path(self.build_temp) / Path(f"bindings/python")
         dir_util.copy_tree(str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name))
         
 requirements = [
