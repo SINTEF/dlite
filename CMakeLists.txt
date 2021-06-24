@@ -760,15 +760,10 @@ endif()
 
 if(WITH_PYTHON)
   if(NOT WITH_JSON)
-    message(FATAL_ERROR "Python bindings and testing depend on the json-plugin, set WITH_JSON=ON.")
+    message(FATAL_ERROR "Python bindings and testing depend on the json-plugin, set WITH_JSON=ON and eventually BUILD_JSON=ON")
   endif()
   add_subdirectory(storages/python)
   add_subdirectory(bindings/python)
-  if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL)
-    # WITH_PYTHON_BUILD_WHEEL=ON: Build the wheel
-    # WITH_PYTHON_TEST_WHEEL=ON: Additionally test the wheel in the virtual environment
-    add_subdirectory(api/python)
-  endif()
 endif()
 
 # Tools - may depend on storage plugins
