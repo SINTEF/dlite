@@ -764,10 +764,9 @@ if(WITH_PYTHON)
   endif()
   add_subdirectory(storages/python)
   add_subdirectory(bindings/python)
-  if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL OR WITH_PYTHON_VENVTEST_ONLY)
+  if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL)
     # WITH_PYTHON_BUILD_WHEEL=ON: Build the wheel
-    # WITH_PYTHON_TEST_WHEEL=ON: Additionally test the wheel
-    # WITH_PYTHON_VENVTEST_ONLY=ON: Must build the wheel and test the wheel (Default on Windows)
+    # WITH_PYTHON_TEST_WHEEL=ON: Additionally test the wheel in the virtual environment
     add_subdirectory(api/python)
   endif()
 endif()

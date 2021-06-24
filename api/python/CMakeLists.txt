@@ -2,13 +2,11 @@
 # WITH_PYTHON_BUILD_WHEEL=ON
 # Generate a Python virtual environment for the base interpreter
 # (and eventually for other Python versions), Configure the setup.py
-# script, build the wheel in the venev.
+# script, build the wheel in the venev and (optionally) install the wheel(s) to ./dist
 #
 # WITH_PYTHON_TEST_WHEEL=ON
 # Install the wheel in the venv and run python-tests in the virtual environment.
-#
-# WITH_PYTHON_VENVTEST_ONLY=ON
-# Must build and test the wheel
+# Will only install the wheel(s) if WITH_PYTHON_BUILD_WHEEL=ON
 #
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
@@ -64,7 +62,7 @@ else()
       #  add_dependencies ?
       #endif()
 
-      if(WITH_PYTHON_TEST_WHEEL OR WITH_PYTHON_VENVTEST_ONLY)
+      if(WITH_PYTHON_TEST_WHEEL)
 
         add_custom_target(dlite-python-wheel3${python_version_minor}_install ALL DEPENDS dlite-python-wheel3${python_version_minor}
           COMMAND ${PYTHON_VENV_PIP} install ${CMAKE_CURRENT_BINARY_DIR}/dist/${CURRENT_WHEEL_NAME}
@@ -107,6 +105,7 @@ else()
 endif()
 
 if(WITH_PYTHON_BUILD_WHEEL)
+   # Skip in case we only have WITH_PYTHON_TEST_WHEEL=ON
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist
         DESTINATION .
