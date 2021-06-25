@@ -98,7 +98,7 @@ class CMakeBuildExt(build_ext):
         )
 
 
-requirements = ["numpy==1.19.2", "PyYAML", "psycopg2-binary", "pandas", "tables"]
+requirements = ["numpy", "PyYAML", "psycopg2-binary", "pandas", "tables"]
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
