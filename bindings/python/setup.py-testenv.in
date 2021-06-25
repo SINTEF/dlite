@@ -1,0 +1,82 @@
+"""The setup script, used for testing the python-bindings
+in a virtual enviroment during the cmake-build-process.
+"""
+
+import os
+import sys
+import platform
+
+from distutils import sysconfig, dir_util
+from distutils.command.build_ext import build_ext
+from pathlib import Path
+from setuptools import setup, Distribution, Extension
+
+current_bindir=Path("${dlite_BINARY_DIR}")
+
+if platform.system() == "Windows":
+    dlite_compiled_ext = "_dlite.pyd"
+    dlite_compiled_dll_suffix = '*.dll'    
+
+elif platform.system() == "Linux":
+    dlite_compiled_ext = "_dlite.so"
+    dlite_compiled_dll_suffix = '*.so'
+
+else:
+    raise NotImplementedError()
+
+LIB_EXT="${SH_EXT}" # *.dll, *.so
+
+class BinaryDistribution(Distribution):
+    def has_ext_modules(self):
+        return True
+    def is_pure(self):
+        return False
+
+class MyBuildExt(build_ext):
+    def build_extension(self, ext):
+        output_dir = os.path.abspath(
+            os.path.dirname(self.get_ext_fullpath(ext.name)))
+        dir_util.copy_tree("${pkgdir}", str(Path(output_dir) / ext.name))
+
+version = "${dlite_VERSION}"
+
+requirements = [
+    "numpy==${Python3_NumPy_VERSION}",
+    "PyYAML",
+    "psycopg2-binary",
+    "pandas",
+    "tables"
+    ]
+
+setup(
+    name="dlite-python",
+    author="Peter Schiffels",
+    author_email="peter.schiffels@ifam.fraunhofer.de",
+    python_requires=">=3.8",
+    classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+    ],
+    platforms=[ "Windows", "Linux" ],
+    description="Experimental dlite python package setup for testing in a virtual environment.",
+    
+    install_requires=requirements,
+    long_description="",
+    include_package_data=True,
+    keywords="dlite",
+    
+    package_dir = { "dlite": "dlite" },
+    package_data={ "dlite": [ dlite_compiled_ext ] },
+    packages= [ "dlite" ],
+    
+    has_ext_modules=lambda: True,
+    ext_modules=[ Extension( "dlite", [], )],
+    cmdclass={ "build_ext" : MyBuildExt },
+    distclass=BinaryDistribution,
+    
+    version=version,
+    zip_safe=False,
+)

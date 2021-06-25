@@ -57,7 +57,8 @@ target_include_directories(dlite-pyembed-static PUBLIC
 
 set_target_properties(dlite-pyembed PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
-  BUILD_RPATH "${dlite-bindings-python_BINARY_DIR}"
+  BUILD_RPATH "$ORIGIN/:${dlite-bindings-python_BINARY_DIR}"
+  INSTALL_RPATH "$ORIGIN/"
   PUBLIC_HEADER "dlite-pyembed.h;dlite-python-mapping.h"
   )
 set_target_properties(dlite-pyembed-static PROPERTIES
@@ -77,4 +78,8 @@ install(
 
 )
 
-add_subdirectory(tests)
+if(NOT WITH_PYTHON_VENVTEST_ONLY)
+  add_subdirectory(tests)
+else()
+  message(WARNING "Skipping pyembed testing.")
+endif()
