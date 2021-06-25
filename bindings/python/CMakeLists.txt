@@ -23,10 +23,15 @@ endif()
 
 # Add macros for use with swig
 # It seems that we cannot set policy  CMP0078 to NEW, since that would
-# create a target named "dlite" chich would be in conflict with the target
+# create a target named "dlite" which would be in conflict with the target
 # of src/dlite.so.
 # TODO: Check if it is possible to rename the target of src/dlite.so
 # using a property
+
+# https://cmake.org/cmake/help/latest/module/UseSWIG.html
+# Changed in version 3.13: This command creates a target with the specified <name> when policy CMP0078 is set to NEW.
+# Otherwise, the legacy behavior will choose a different target name and store it in the SWIG_MODULE_<name>_REAL_NAME variable.
+
 cmake_policy(SET CMP0078 OLD)
 set(SWIG_MODULE_pydlite_REAL_NAME "_dlite")
 find_package(SWIG)
@@ -51,13 +56,20 @@ set_source_files_properties(dlite.i
     SWIG_MODULE_NAME "dlite"
     )
 
-SET(CMAKE_SKIP_BUILD_RPATH TRUE)
+#SET(CMAKE_SKIP_BUILD_RPATH TRUE)
 swig_add_library(dlite
   TYPE SHARED
   LANGUAGE python
   OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite
   OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES dlite.i
+  )
+
+
+# Convince _dlite.so that it may search for whatever libraries it depends on in its own directory
+set_target_properties(${SWIG_MODULE_dlite_REAL_NAME} PROPERTIES
+  BUILD_RPATH "$ORIGIN/"
+  INSTALL_RPATH "$ORIGIN/"
   )
 
 swig_link_libraries(dlite
