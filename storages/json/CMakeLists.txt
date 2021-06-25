@@ -27,6 +27,8 @@ if(JANSSON_DEPENDENCIES)
 endif()
 set_target_properties(dlite-plugins-json PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
+  BUILD_RPATH "$ORIGIN/../../../"       # library is in ./dlite/share/dlite/storage-plugins, find libdlite-pyembed.so, libdlite.so, libdlite-utils.so in ./dlite
+  INSTALL_RPATH "$ORIGIN/../../../"
   )
 
 # Simplify plugin search path for testing in build tree, copy target
