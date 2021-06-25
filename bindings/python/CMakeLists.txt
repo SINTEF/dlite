@@ -150,6 +150,18 @@ add_custom_command(
     python_package
   )
 
+if(NOT MSVC) # MSVC: jannson was build as a static library and linked to dlite.dll
+  add_custom_command(
+    TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      ${JANSSON_LIBRARIES}
+      ${pkgdir}
+    DEPENDS
+      python_package
+)
+endif()
+
 #
 # Build a python wheel from the bdist (optional)
 #
