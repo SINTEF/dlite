@@ -1,4 +1,5 @@
 """Storage plugin that reading/writing CSV files."""
+import sys
 import re
 import warnings
 import hashlib
@@ -146,4 +147,10 @@ def optstring2keywords(optstring):
     The values should be valid Python expressions.  They are parsed with
     ast.literal_eval().
     """
-    return ast.literal_eval('{%s}' % optstring)
+    s = '{%s}' % (optstring, )
+    try:
+        return ast.literal_eval(s)
+    except:
+        exc, val, tr = sys.exc_info()
+        raise ValueError(
+            f'invalid in option string ({exc.__name__}): {optstring!r}')
