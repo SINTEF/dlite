@@ -2,6 +2,7 @@
 import re
 import warnings
 import hashlib
+import ast
 from pathlib import Path
 
 import pandas as pd
@@ -29,10 +30,9 @@ class csv(DLiteStorageBase):  # noqa: F821
             Additional search directories to add to the search path for
             `meta`.  Optional
         pandas_opts: string
-            Comma-separated string of key=value options sent to pandas
-            read_<format> or save_<format> function.
-            Values containing commas may be quoted with either single
-            or double quotes.
+            Comma-separated string of "key"=value options sent to pandas
+            read_<format> or save_<format> function.  String values should
+            be quoted.
         format: "csv" | "excel" | "json" | "clipboard", ...
             Any format supported by pandas.  The default is inferred from
             the extension of `uri`.
@@ -140,12 +140,10 @@ def infer_meta(data, metauri, uri):
 
 
 def optstring2keywords(optstring):
-    """Converts comma-separated ``key=value`` option string `optstring` to
-    a keyword dict and return it.  Values containing commas may be
-    quoted with either single or double quotes.
+    """Converts comma-separated ``"key":value`` option string `optstring`
+    to a keyword dict and return it.
+
+    The values should be valid Python expressions.  They are parsed with
+    ast.literal_eval().
     """
-    d = {}
-    for key, a, b, c in re.findall(
-            '([^=]+)=([^"\',]+|"([^"]*)"|\'([^\']*)\'),?', optstring):
-        d[key] = c if c else b if b else a
-    return d
+    return ast.literal_eval('{%s}' % optstring)
