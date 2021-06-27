@@ -605,9 +605,9 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
       free(((DLiteProperty *)p)->description);
     break;
   case dliteRelation:
-    free(((DLiteRelation *)p)->s);
-    free(((DLiteRelation *)p)->p);
-    free(((DLiteRelation *)p)->o);
+    if (((DLiteRelation *)p)->s)  free(((DLiteRelation *)p)->s);
+    if (((DLiteRelation *)p)->p)  free(((DLiteRelation *)p)->p);
+    if (((DLiteRelation *)p)->o)  free(((DLiteRelation *)p)->o);
     if (((DLiteRelation *)p)->id) free(((DLiteRelation *)p)->id);
     break;
   }

@@ -231,6 +231,16 @@ int dlite_json_fprint(FILE *fp, DLiteInstance *inst, int indent,
   return m;
 }
 
+/*
+  Prints json representation of `inst` to standard output.
+
+  Returns number or bytes printed or a negative number on error.
+*/
+int dlite_json_print(DLiteInstance *inst)
+{
+  return dlite_json_fprint(stdout, inst, 0, 0);
+}
+
 
 
 
@@ -247,7 +257,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 {
   int ok=0;
   jsmntok_t *item, *t;
-  char *buf=NULL;
+  char *buf=NULL, *uri=NULL, uuid[DLITE_UUID_LENGTH+1];
   size_t i, size=0, *dims=NULL;
   DLiteInstance *inst=NULL;
   const DLiteMeta *meta;
@@ -255,6 +265,19 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   char *name=NULL, *version=NULL, *namespace=NULL;
 
   assert(obj->type == JSMN_OBJECT);
+
+  /* Get uri */
+  if ((item = jsmn_item(src, obj, "uri"))) {
+    uri = strndup(src + item->start, item->end - item->start);
+    if (!id) id = uri;
+    if (dlite_get_uuid(uuid, uri) < 0) goto fail;
+  } else if ((item = jsmn_item(src, obj, "uuid"))) {
+    if (item->end - item->start != DLITE_UUID_LENGTH)
+      FAIL2("invalid length of \"uuid\": %.*s",
+            item->end - item->start, src + item->start);
+    strncpy(uuid, src + item->start, sizeof(uuid));
+    if (!id) id = uuid;
+  }
 
   /* Get metadata */
   if ((item = jsmn_item(src, obj, "meta"))) {
@@ -384,6 +407,12 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
         } else
           FAIL2("missing property \"%s\" in %s", p->name, id);
       }
+
+      printf("*** load prop: %s : %d\n", meta->uri, (int)i);
+      if (meta->_loadprop) {
+        printf("+++\n");
+        meta->_loadprop(inst, i);
+      }
     }
   }
   if (dlite_instance_is_meta(inst)) dlite_meta_init((DLiteMeta *)inst);
@@ -395,6 +424,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   if (namespace) free(namespace);
   if (dims) free(dims);
   if (buf) free(buf);
+  if (uri) free(uri);
   if (!ok && inst) {
     dlite_instance_decref(inst);
     inst = NULL;
@@ -414,6 +444,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 DLiteInstance *dlite_json_sscan(const char *src, const char *id)
 {
   int i, r;
+  char *buf=NULL;
   DLiteInstance *inst=NULL;
   unsigned int ntokens=0;
   jsmntok_t *tokens=NULL, *root;
@@ -428,13 +459,21 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id)
   if (root->type != JSMN_OBJECT) FAIL("json root should be an object");
 
   if (!id) {
-    inst = parse_instance(src, root, id);
+    if (root->size == 1) {
+      jsmntok_t *key = root + 1;
+      jsmntok_t *val = root + 2;
+      int len = key->end - key->start;
+      buf = strndup(src + key->start, len);
+      inst = parse_instance(src, val, buf);
+    } else {
+      inst = parse_instance(src, root, id);
+    }
   } else {
     int n=1;
     char uuid[DLITE_UUID_LENGTH+1];
     if (dlite_get_uuid(uuid, id) < 0) goto fail;
     for (i=0; i < root->size; i++) {
-      char uuid2[DLITE_UUID_LENGTH+1], buf[128];
+      char uuid2[DLITE_UUID_LENGTH+1];
       jsmntok_t *key = root + n;
       jsmntok_t *val = root + n+1;
       int len = key->end - key->start;
@@ -442,8 +481,7 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id)
       if (len >= (int)sizeof(buf))
         FAIL3("key exceeded maximum key length (%d): %.*s",
               (int)sizeof(buf), len, src+key->start);
-      strncpy(buf, src+key->start, len);
-      buf[len] = '\0';
+      buf = strndup(src+key->start, len);
       if (dlite_get_uuid(uuid2, buf) < 0) goto fail;
       if (strcmp(uuid2, uuid) == 0) {
         inst = parse_instance(src, val, id);
@@ -454,6 +492,7 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id)
   }
  fail:
   free(tokens);
+  if (buf) free(buf);
 
   return inst;
 }

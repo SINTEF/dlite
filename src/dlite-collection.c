@@ -11,6 +11,7 @@
 #include "dlite-schemas.h"
 #include "dlite-storage-plugins.h"
 #include "dlite-collection.h"
+#include "dlite.h"
 
 
 
@@ -22,9 +23,8 @@
 int dlite_collection_init(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
-  assert(coll->nrelations == 0);
-  assert(coll->relations == NULL);
-  coll->rstore = triplestore_create();
+  if (coll->rstore) return errx(1, "triplestore already initialised");
+  if (!(coll->rstore = triplestore_create())) return 1;
   return 0;
 }
 
@@ -64,6 +64,9 @@ int dlite_collection_getdim(const DLiteInstance *inst, size_t i)
 int dlite_collection_loadprop(const DLiteInstance *inst, size_t i)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
+  printf("*** loadprop: %d\n", (int)i);
+  printf("*** uuid: %s\n", inst->uuid);
+  printf("*** uri: %s\n", inst->uri);
   if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
   triplestore_clear(coll->rstore);
   if (triplestore_add_triples(coll->rstore, coll->relations, coll->nrelations))

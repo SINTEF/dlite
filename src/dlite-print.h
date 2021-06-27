@@ -55,6 +55,13 @@ int dlite_json_fprint(FILE *fp, DLiteInstance *inst, int indent,
                       DLiteJsonFlag flags);
 
 
+/**
+  Prints json representation of `inst` to standard output.
+
+  Returns number or bytes printed or a negative number on error.
+*/
+int dlite_json_print(DLiteInstance *inst);
+
 
 /**
   Returns a new instance scanned from `src`.

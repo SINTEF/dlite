@@ -167,9 +167,27 @@ MU_TEST(test_collection_load)
 {
   DLiteStorage *s;
   DLiteCollection *coll2;
+  char uuid[DLITE_UUID_LENGTH+1];
+  strncpy(uuid, coll->uuid, sizeof(uuid));
+
+  printf("\n\ncoll:\n");
+  dlite_json_print((DLiteInstance *)coll);
+  dlite_collection_decref(coll);
+
+  FILE *fp = fopen("coll1.json", "r");
+  coll2 = (DLiteCollection *)dlite_json_fscan(fp, NULL);
+  fclose(fp);
+  printf("\n\ncoll2:\n");
+  dlite_json_print((DLiteInstance *)coll2);
+
+
+
   mu_check((s = dlite_storage_open("json", "coll1.json", "mode=r")));
-  mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, coll->uuid)));
+  mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, uuid)));
   mu_check(dlite_storage_close(s) == 0);
+
+  printf("\n\ncoll2:\n");
+  dlite_json_print((DLiteInstance *)coll2);
 
   mu_check((s = dlite_storage_open("json", "coll2.json", "mode=w")));
   mu_check(dlite_instance_save(s, (DLiteInstance *)coll2) == 0);
@@ -181,7 +199,7 @@ MU_TEST(test_collection_load)
 
 MU_TEST(test_collection_free)
 {
-  dlite_collection_decref(coll);
+  //dlite_collection_decref(coll);
 }
 
 
