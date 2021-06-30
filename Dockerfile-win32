@@ -19,7 +19,7 @@ RUN C:\TEMP\vs_buildtools.exe --quiet --wait --norestart --nocache `
     --remove Microsoft.VisualStudio.Component.Windows81SDK `
  || IF "%ERRORLEVEL%"=="3010" EXIT 0
 
-RUN ["dir", "C:\BuildTools"]
+RUN "dir"
 
 # Define the entry point for the docker container.
 # This entry point starts the developer command prompt and launches the PowerShell shell.
