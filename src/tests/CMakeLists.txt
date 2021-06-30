@@ -34,6 +34,9 @@ add_definitions(
   )
 
 add_subdirectory(mappings)
+if(WITH_PYTHON)
+  add_subdirectory(python)
+endif()
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
