@@ -4,16 +4,11 @@ project(dlite-tools C)
 # TODO - It would be preferable to link with the shared libraries.
 # How to do that without breaking the docker build?
 
-if(WITH_PYTHON)
-  set(pyembed_static dlite-pyembed-static)
-endif()
-
 # dlite-getuuid
 add_executable(dlite-getuuid dlite-getuuid.c)
 target_link_libraries(dlite-getuuid
   dlite-static
   dlite-utils-static
-  ${pyembed_static}
   )
 target_include_directories(dlite-getuuid PRIVATE
   ${dlite_SOURCE_DIR}/src
@@ -25,7 +20,6 @@ add_executable(dlite-codegen dlite-codegen.c)
 target_link_libraries(dlite-codegen
   dlite-static
   dlite-utils-static
-  ${pyembed_static}
   )
 target_include_directories(dlite-codegen PRIVATE
   ${dlite_SOURCE_DIR}/src
@@ -38,7 +32,6 @@ add_executable(dlite-env dlite-env.c)
 target_link_libraries(dlite-env
   dlite-static
   dlite-utils-static
-  ${pyembed_static}
   )
 target_include_directories(dlite-env PRIVATE
   ${dlite_SOURCE_DIR}/src

@@ -27,10 +27,6 @@ if(WITH_POSTGRESQL)
   list(APPEND tests test_postgresql_storage)
 endif()
 
-if(WITH_PYTHON)
-  set(pyembed_libs dlite-pyembed)
-endif()
-
 add_definitions(
   -Ddlite_SOURCE_DIR=${dlite_SOURCE_DIR}
   -Ddlite_BINARY_DIR=${dlite_BINARY_DIR}
@@ -44,7 +40,6 @@ foreach(test ${tests})
   target_link_libraries(${test}
     dlite
     dlite-utils
-    ${pyembed_libs}
     )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src

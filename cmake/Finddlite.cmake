@@ -91,14 +91,9 @@ else()
     NAMES dlite-utils
     PATHS ${DLITE_LIBRARY_DIR}
     )
-  find_library(DLITE_PYEMBED_LIBRARY
-    NAMES dlite-pyembed
-    PATHS ${DLITE_LIBRARY_DIR}
-    )
   list(APPEND DLITE_LIBRARIES
     ${DLITE_LIBRARY}
     ${DLITE_UTILS_LIBRARY}
-    ${DLITE_PYEMBED_LIBRARY}
     )
 
   # Find HDF5 and Jansson

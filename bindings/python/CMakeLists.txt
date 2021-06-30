@@ -62,7 +62,6 @@ swig_add_library(dlite
 
 swig_link_libraries(dlite
   dlite-utils
-  dlite-pyembed
   dlite
   ${Python3_LIBRARIES}
   )

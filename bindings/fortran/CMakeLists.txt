@@ -8,16 +8,11 @@ set(sources
   dlite.f90
   )
 
-if(WITH_PYTHON)
-  set(pyembed_libs dlite-pyembed)
-endif()
-
 add_library(dlite-fortran SHARED ${sources})
 
 target_link_libraries(dlite-fortran
   dlite
   dlite-utils
-  ${pyembed_libs}
   )
 
 
