@@ -26,8 +26,13 @@ assert simple.age == person.age
 coll = dlite.Collection()
 coll.add('simple', simple)
 
+# Get the added person instance from the collection mapped to a new
+# instance of SimplePerson (the second argument can be omitted...)
 s = coll.get('simple', 'http://meta.sintef.no/0.1/SimplePerson')
 assert s == simple
+s2 = coll.get('simple')
+assert s2 == s
+
 
 # Get the added person instance from the collection mapped to a new
 # instance of Person (with no skills)
