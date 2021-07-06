@@ -1,10 +1,8 @@
 #include <string.h>
 
 #include "dlite.h"
+#include "dlite-macros.h"
 #include "chemistry.h"
-
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
 
 #ifdef _MSC_VER
 # pragma warning(disable: 4996)
