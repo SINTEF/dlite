@@ -6,10 +6,14 @@ project(dlite-example-4
   VERSION 0.1
   LANGUAGES Fortran C)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
+list(APPEND CMAKE_MODULE_PATH
+  ${DLITE_ROOT}/cmake
+  ${DLITE_ROOT}/cmake/Modules
+  ${DLITE_ROOT}/share/cmake
+  ${DLITE_ROOT}/share/cmake/Modules
+  )
 include(Finddlite)
 find_package(dlite)
-
 
 link_directories(${DLITE_LIBRARY_DIR})
 

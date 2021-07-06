@@ -27,7 +27,6 @@ if(WITH_POSTGRESQL)
   list(APPEND tests test_postgresql_storage)
 endif()
 
-
 add_definitions(
   -Ddlite_SOURCE_DIR=${dlite_SOURCE_DIR}
   -Ddlite_BINARY_DIR=${dlite_BINARY_DIR}
@@ -35,6 +34,9 @@ add_definitions(
   )
 
 add_subdirectory(mappings)
+if(WITH_PYTHON)
+  add_subdirectory(python)
+endif()
 
 foreach(test ${tests})
   add_executable(${test} ${test}.c)

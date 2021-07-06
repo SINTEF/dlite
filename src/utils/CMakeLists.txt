@@ -271,6 +271,7 @@ set(sources
 
   md5.c
   sha1.c
+  sha3.c
   uuid.c
   uuid4.c
   )

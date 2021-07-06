@@ -43,12 +43,6 @@ if(NOT DLITE_LIBRARIES)
 
   # Python
   if(WITH_PYTHON)
-    find_library(dlite_PYEMBED_LIBRARY
-      NAMES dlite-pyembed
-      PATHS ${DLITE_ROOT}/lib
-      )
-    list(APPEND dlite_LIBRARIES "${dlite_PYEMBED_LIBRARY}")
-
     set_and_check(DLITE_PYTHON_STORAGE_PLUGIN_DIRS
       "@DLITE_ROOT@/@DLITE_PYTHON_STORAGE_PLUGIN_DIRS@")
     set_and_check(DLITE_PYTHON_MAPPING_PLUGIN_DIRS

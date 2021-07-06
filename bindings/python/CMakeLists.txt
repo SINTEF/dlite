@@ -74,7 +74,6 @@ set_target_properties(${SWIG_MODULE_dlite_REAL_NAME} PROPERTIES
 
 swig_link_libraries(dlite
   dlite-utils
-  dlite-pyembed
   dlite
   ${Python3_LIBRARIES}
   )
@@ -135,9 +134,6 @@ add_custom_command(
     "$<TARGET_FILE:dlite>"
     ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "$<TARGET_FILE:dlite-pyembed>"
-    ${pkgdir}
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite-utils>"
     ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -177,7 +173,7 @@ endif()
 #
 
 if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL)
- 
+
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
   if(NOT Python3_FOUND)
@@ -194,7 +190,7 @@ if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL)
     message(STATUS "Python base Interpreter: ${Python3_VERSION} path=${Python3_EXECUTABLE}")
 
     # ZIP_LISTS Requires cmake > 3.17
-    if(${CMAKE_VERSION} VERSION_LESS "3.17.0") 
+    if(${CMAKE_VERSION} VERSION_LESS "3.17.0")
       message(WARNING "Please consider to switch to CMake > 3.17.0 - Building the wheel only for your base Python version.")
       # CMake > 3.17.0
       #set(python_versions_minor
@@ -240,7 +236,7 @@ if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL)
       add_custom_target(dlite-python-wheel3${Python3_VERSION_MINOR}_install ALL DEPENDS dlite-python-wheel3${Python3_VERSION_MINOR}
         COMMAND ${PYTHON_VENV_PIP} install ${CMAKE_CURRENT_BINARY_DIR}/dist/${CURRENT_WHEEL_NAME}
       )
-  
+
       set(tests
       test_python_bindings
       test_collection
@@ -250,7 +246,7 @@ if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL)
       test_python_storage
       test_storage
       )
-  
+
       foreach(test ${tests})
         set(name ${test}-py_venv_python${PYTHON_VENV_VERSION})
         add_test(
@@ -258,13 +254,13 @@ if(WITH_PYTHON_BUILD_WHEEL OR WITH_PYTHON_TEST_WHEEL)
             COMMAND ${RUNNER} ${PYTHON_VENV_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/../../bindings/python/tests/${test}.py
             )
       endforeach()
-  
+
       # More tests in ./examples, add them here
-  
+
       set(additional_tests
         read-csv
       )
-  
+
       foreach(test ${additional_tests})
         set(name ${test}-py_venv_python${PYTHON_VENV_VERSION})
         add_test(

@@ -27,32 +27,11 @@
 ##########################################
 # Stage: install dependencies
 ##########################################
-FROM ubuntu:20.04 AS dependencies
+FROM ubuntu:21.04 AS dependencies
 RUN apt-get -qq update --fix-missing
 
-# Default cmake is 3.10.2. We need at least 3.11...
-# Install tools for adding cmake
-RUN apt-get install -qq -y \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    software-properties-common \
-    wget
-
-# Obtain signing key
-RUN wget -O - \
-     https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | \
-     apt-key add -
-
-# Add Kitware repo
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal bionic main'
-RUN apt update
-
-# Ensure that our keyring stays up to date
-RUN apt-get install kitware-archive-keyring
-
 # Install dependencies
-RUN apt-get install -qq -y --fix-missing \
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --fix-missing \
         cmake \
         cmake-curses-gui \
         cppcheck \
@@ -72,7 +51,7 @@ RUN apt-get install -qq -y --fix-missing \
         python3-pip \
         swig4.0 \
         rpm \
-        librpmbuild8 \
+        librpmbuild9 \
         dpkg \
     && rm -rf /var/lib/apt/lists/*
 
@@ -107,8 +86,8 @@ WORKDIR /home/user/sw/dlite
 # Perform static code checking
 # FIXME - test_tgen.c produce a lot of false positives
 RUN cppcheck . \
-    --language=c -q --force --error-exitcode=2 --inline-suppr -i build \
-    -i src/utils/tests/test_tgen.c
+    -I src \
+    --language=c -q --force --error-exitcode=2 --inline-suppr -i build
 
 # Build dlite
 RUN mkdir build

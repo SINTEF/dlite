@@ -8,16 +8,22 @@
 
 #include "utils/err.h"
 #include "utils/dsl.h"
+#include "utils/sha3.h"
+#include "utils/compat.h"
 #include "utils/fileutils.h"
 #include "utils/plugin.h"
-#include "utils/tgen.h"
 
 #include "dlite-datamodel.h"
 #include "dlite-mapping-plugins.h"
-
+#ifdef WITH_PYTHON
+#include "pyembed/dlite-python-mapping.h"
+#endif
 
 /* Global reference to mapping plugin info */
 static PluginInfo *mapping_plugin_info = NULL;
+
+/* Sha256 hash of plugin paths */
+static unsigned char mapping_plugin_path_hash[32];
 
 
 /* Frees up `mapping_plugin_info`. */
@@ -48,7 +54,7 @@ static PluginInfo *get_mapping_plugin_info(void)
       plugin_path_extend(mapping_plugin_info, dlite_MAPPING_PLUGINS, NULL);
     else
       plugin_path_extend_prefix(mapping_plugin_info, dlite_root_get(),
-                                DLITE_MAPPING_PLUGIN_DIRS, NULL);
+                                DLITE_ROOT "/" DLITE_MAPPING_PLUGIN_DIRS, NULL);
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
@@ -59,11 +65,29 @@ static PluginInfo *get_mapping_plugin_info(void)
 /* Loads all plugins (if we haven't done that before) */
 static void load_mapping_plugins(void)
 {
-  static int mapping_plugins_loaded = 0;
   PluginInfo *info;
-  if (!mapping_plugins_loaded && (info = get_mapping_plugin_info())) {
+  FUIter *iter;
+  const char *path;
+  const unsigned char *hash;
+  sha3_context c;
+
+#ifdef WITH_PYTHON
+  dlite_python_mapping_load();
+#endif
+
+  // FIXME - use pathshash() instead
+  if (!(info = get_mapping_plugin_info())) return;
+  if (!(iter = fu_pathsiter_init(&info->paths, NULL))) return;
+  sha3_Init256(&c);
+  while ((path = fu_pathsiter_next(iter)))
+    sha3_Update(&c, path, strlen(path));
+
+  hash = sha3_Finalize(&c);
+  fu_pathsiter_deinit(iter);
+
+  if (memcmp(hash, mapping_plugin_path_hash, 32) != 0) {
     plugin_load_all(info);
-    mapping_plugins_loaded = 1;
+    memcpy(mapping_plugin_path_hash, hash, 32);
   }
 }
 
@@ -88,27 +112,40 @@ static void load_mapping_plugins(void)
  */
 const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
 {
-  DLiteMappingPlugin *api;
+  const DLiteMappingPlugin *api;
   PluginInfo *info;
 
   if (!(info = get_mapping_plugin_info())) return NULL;
-
-  if (!(api = (DLiteMappingPlugin *)plugin_get_api(info, name))) {
-    TGenBuf buf;
-    int n=0;
-    const char *p, **paths = dlite_mapping_plugin_paths();
-    tgen_buf_init(&buf);
-    tgen_buf_append_fmt(&buf, "cannot find mapping plugin for driver \"%s\" "
-                        "in search path:\n", name);
-    while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
-    if (n <= 1)
-      tgen_buf_append_fmt(&buf, "Is the DLITE_MAPPING_PLUGIN_DIRS enveronment "
-                          "variable set?");
-    errx(1, "%s", tgen_buf_get(&buf));
-    tgen_buf_deinit(&buf);
-  }
-  return api;
+  if ((api = (DLiteMappingPlugin *)plugin_get_api(info, name))) return api;
+  load_mapping_plugins();
+  if ((api = (DLiteMappingPlugin *)plugin_get_api(info, name))) return api;
+#ifdef WITH_PYTHON
+  if ((api = dlite_python_mapping_get_api(name))) return api;
+#endif
+  /* Cannot find API */
+  int i, j, m=0;
+  char *buf=NULL;
+  size_t size=0;
+  const char **paths;
+  m += asnpprintf(&buf, &size, m,
+                  "cannot find mapping plugin for driver \"%s\" "
+                  "in search path:\n", name);
+  if ((paths = dlite_mapping_plugin_paths()))
+    for (i=0; paths[i]; i++)
+      m += asnpprintf(&buf, &size, m, "    %s\n", paths[i]);
+  if ((paths = dlite_python_mapping_paths_get()))
+    for (j=0; paths[j]; j++)
+      m += asnpprintf(&buf, &size, m, "    %s\n", paths[j]);
+  if (i <= 1 || j <= 1)
+    m += asnpprintf(&buf, &size, m,
+                    "Are the DLITE_MAPPING_PLUGIN_DIRS and "
+                    "DLITE_PYTHON_MAPPING_DIRS enveronment "
+                    "variables set?");
+  errx(1, "%s", buf);
+  free(buf);
+  return NULL;
 }
+
 
 /*
   Initiates a mapping plugin iterator.  Returns non-zero on error.
@@ -116,11 +153,13 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
 int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
 {
   PluginInfo *info;
+  memset(iter, 0, sizeof(DLiteMappingPluginIter));
   load_mapping_plugins();
   if (!(info = get_mapping_plugin_info())) return 1;
-  plugin_api_iter_init((PluginIter *)iter, info);
+  plugin_api_iter_init(&iter->iter, info);
   return 0;
 }
+
 
 /*
   Returns the next registered mapping plugin or NULL if all plugins
@@ -132,13 +171,23 @@ int dlite_mapping_plugin_init_iter(DLiteMappingPluginIter *iter)
 const DLiteMappingPlugin *
 dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
 {
-  return (const DLiteMappingPlugin *)plugin_api_iter_next((PluginIter *)iter);
+  const DLiteMappingPlugin *api;
+  if ((api = (const DLiteMappingPlugin *)plugin_api_iter_next(&iter->iter)))
+    return api;
+  if (!iter->stop) {
+    int n = iter->n;
+    api = dlite_python_mapping_next(&iter->n);
+    if (iter->n == n) iter->stop = 1;
+  }
+  return api;
 }
-
 
 
 /*
   Unloads and unregisters mapping plugin with the given name.
+
+  If `name` is NULL, dlite_mapping_plugin_unload_all() is called.
+
   Returns non-zero on error.
 */
 int dlite_mapping_plugin_unload(const char *name)
@@ -146,7 +195,10 @@ int dlite_mapping_plugin_unload(const char *name)
   int stat;
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
-  stat = plugin_unload(info, name);
+  if (name)
+    stat = plugin_unload(info, name);
+  else
+    stat = dlite_mapping_plugin_unload_all();
   return stat;
 }
 

@@ -246,10 +246,10 @@ void dlite_mapping_free(DLiteMapping *m)
   Recursive help function that performs the actual mapping and returns
   a new instance (with metadata `m->output_uri`).
 
-  `m` mapping tree that descripes how the instance can be created.
-  `instances` maps metadata URI to an instance with this metadata.  The
-      instance should be either an input instance or created by a
-      mapping.
+  `m`: mapping tree that descripes how the instance can be created.
+  `instances`: maps metadata URI to an instance with this metadata.  The
+       instance should be either an input instance or created by a
+       mapping.
  */
 DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
 {
