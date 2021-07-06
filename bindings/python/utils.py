@@ -11,11 +11,15 @@ def instance_from_dict(d):
     """
     meta = dlite.get_instance(d['meta'])
     if meta.is_metameta:
+
         try:
             with dlite.silent:
-                return dlite.get_instance(d['uri'])
+                inst = dlite.get_instance(d['uri'])
+                if inst:
+                    return inst
         except dlite.DLiteError:
             pass
+
         dimensions = [dlite.Dimension(d['name'], d.get('description'))
                       for d in d['dimensions']]
         props = []

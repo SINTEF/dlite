@@ -785,7 +785,22 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteRelation:
     {
       DLiteRelation *r = (DLiteRelation *)p;
-      m = snprintf(dest, n, "[\"%s\", \"%s\", \"%s\"]", r->s, r->p, r->o);
+      m = snprintf(dest, n, "[");
+      if (r->s)
+        m += snprintf(dest+m, PDIFF(n, m), "\"%s\"", r->s);
+      else
+        m += snprintf(dest+m, PDIFF(n, m), "null");
+      m += snprintf(dest+m, PDIFF(n, m), ", ");
+      if (r->p)
+        m += snprintf(dest+m, PDIFF(n, m), "\"%s\"", r->p);
+      else
+        m += snprintf(dest+m, PDIFF(n, m), "null");
+      m += snprintf(dest+m, PDIFF(n, m), ", ");
+      if (r->o)
+        m += snprintf(dest+m, PDIFF(n, m), "\"%s\"", r->o);
+      else
+        m += snprintf(dest+m, PDIFF(n, m), "null");
+      m += snprintf(dest+m, PDIFF(n, m), "]");
     }
     break;
   }

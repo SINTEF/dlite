@@ -91,7 +91,10 @@ else()
     NAMES dlite-utils
     PATHS ${DLITE_LIBRARY_DIR}
     )
-  list(APPEND DLITE_LIBRARIES ${DLITE_LIBRARY} ${DLITE_UTILS_LIBRARY})
+  list(APPEND DLITE_LIBRARIES
+    ${DLITE_LIBRARY}
+    ${DLITE_UTILS_LIBRARY}
+    )
 
   # Find HDF5 and Jansson
   # FIXME - when dlite is using dynamic loaded plugins we should:
