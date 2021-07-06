@@ -3,8 +3,8 @@ import dlite
 
 class Person2SimplePerson(DLiteMappingBase):
     name = "Person2SimplePerson"
-    output_uri = "http://meta.sintef.no/0.1/SimplePerson"
-    input_uris = ["http://meta.sintef.no/0.1/Person"]
+    output_uri = "http://onto-ns.com/meta/0.1/SimplePerson"
+    input_uris = ["http://onto-ns.com/meta/0.1/Person"]
     cost = 25
 
     def map(self, instances):
@@ -17,8 +17,8 @@ class Person2SimplePerson(DLiteMappingBase):
 
 class SimplePerson2Person(DLiteMappingBase):
     name = "SimplePerson2Person"
-    output_uri = "http://meta.sintef.no/0.1/Person"
-    input_uris = ["http://meta.sintef.no/0.1/SimplePerson"]
+    output_uri = "http://onto-ns.com/meta/0.1/Person"
+    input_uris = ["http://onto-ns.com/meta/0.1/SimplePerson"]
     cost = 25
 
     def map(self, instances):

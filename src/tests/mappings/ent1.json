@@ -1,7 +1,7 @@
 {
     "name": "ent1",
     "version": "0.1",
-    "namespace": "http://meta.sintef.no",
+    "namespace": "http://onto-ns.com/meta",
     "description": "test entity",
     "dimensions": [],
     "properties": [

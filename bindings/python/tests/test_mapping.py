@@ -17,7 +17,7 @@ person.age = 39
 person.skills = ['keping the head cold', 'famous quotes']
 
 # Map person to an instance of SimplePerson
-simple = dlite.mapping('http://meta.sintef.no/0.1/SimplePerson', [person])
+simple = dlite.mapping('http://onto-ns.com/meta/0.1/SimplePerson', [person])
 assert simple != person
 assert simple.name == person.name
 assert simple.age == person.age
@@ -28,7 +28,7 @@ coll.add('simple', simple)
 
 # Get the added person instance from the collection mapped to a new
 # instance of SimplePerson (the second argument can be omitted...)
-s = coll.get('simple', 'http://meta.sintef.no/0.1/SimplePerson')
+s = coll.get('simple', 'http://onto-ns.com/meta/0.1/SimplePerson')
 assert s == simple
 s2 = coll.get('simple')
 assert s2 == s
@@ -36,7 +36,7 @@ assert s2 == s
 
 # Get the added person instance from the collection mapped to a new
 # instance of Person (with no skills)
-p = coll.get('simple', 'http://meta.sintef.no/0.1/Person')
+p = coll.get('simple', 'http://onto-ns.com/meta/0.1/Person')
 assert p != person
 assert p.meta == person.meta
 assert p.name == person.name

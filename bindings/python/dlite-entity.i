@@ -502,9 +502,9 @@ void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
-#define BASIC_METADATA_SCHEMA  "http://meta.sintef.no/0.1/BasicMetadataSchema"
-#define ENTITY_SCHEMA          "http://meta.sintef.no/0.3/EntitySchema"
-#define COLLECTION_ENTITY      "http://meta.sintef.no/0.1/Collection"
+#define BASIC_METADATA_SCHEMA  "http://onto-ns.com/meta/0.1/BasicMetadataSchema"
+#define ENTITY_SCHEMA          "http://onto-ns.com/meta/0.3/EntitySchema"
+#define COLLECTION_ENTITY      "http://onto-ns.com/meta/0.1/Collection"
 
 /* -----------------------------------
  * Target language-spesific extensions

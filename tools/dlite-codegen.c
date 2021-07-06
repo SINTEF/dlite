@@ -174,6 +174,7 @@ int main(int argc, char *argv[])
   /* Cleanup */
   retval = 0;
  fail:
+  printf("failed");
   if (inst) dlite_instance_decref(inst);
   tgen_buf_deinit(&variables);
   if (template_path) free(template_path);

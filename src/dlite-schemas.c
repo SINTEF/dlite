@@ -151,7 +151,7 @@ static struct _BasicMetadataSchema {
   /* -- value of each property */
   "BasicMetadataSchema",                         /* name */
   "0.1",                                         /* version */
-  "http://meta.sintef.no",                       /* namespace */
+  "http://onto-ns.com/meta",                       /* namespace */
   "Meta-metadata description an entity.",        /* description */
   basic_metadata_schema_dimensions,              /* dimensions */
   basic_metadata_schema_properties,              /* properties */
@@ -307,7 +307,7 @@ static struct _EntitySchema {
   /* -- value of each property */
   "EntitySchema",                             /* name */
   "0.3",                                      /* version */
-  "http://meta.sintef.no",                    /* namespace */
+  "http://onto-ns.com/meta",                    /* namespace */
   "Meta-metadata description an entity.",     /* description */
   entity_schema_dimensions,                   /* dimensions */
   entity_schema_properties,                   /* properties */
@@ -404,7 +404,7 @@ static struct _CollectionEntity {
   /* -- value of each property */
   "Collection",                                  /* name */
   "0.1",                                         /* version */
-  "http://meta.sintef.no",                       /* namespace */
+  "http://onto-ns.com/meta",                       /* namespace */
   "Meta-metadata description a collection.",     /* description */
   collection_entity_dimensions,                  /* dimensions */
   collection_entity_properties,                  /* properties */

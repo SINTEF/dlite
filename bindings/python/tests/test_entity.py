@@ -17,7 +17,7 @@ print(myentity.uuid)
 
 # Check some properties of the entity
 assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
-assert myentity.uri == 'http://meta.sintef.no/0.1/MyEntity'
+assert myentity.uri == 'http://onto-ns.com/meta/0.1/MyEntity'
 assert myentity.dimensions == {'ndimensions': 2, 'nproperties': 14}
 assert not myentity.is_data
 assert myentity.is_meta
@@ -85,12 +85,12 @@ props[0]
 
 assert inst.meta == myentity
 
-e = dlite.get_instance('http://meta.sintef.no/0.1/MyEntity')
+e = dlite.get_instance('http://onto-ns.com/meta/0.1/MyEntity')
 assert e == myentity
 assert e != inst
 
 e2 = Instance(
-    'http://meta.sintef.no/0.1/NewEntity',
+    'http://onto-ns.com/meta/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
     [Property('name', type='string', description='Name of something.'),
      Property('arr', type='int', dims=['N+2'], description='An array.'),
@@ -98,7 +98,7 @@ e2 = Instance(
     'Something new...')
 
 e3 = Instance(
-    'http://meta.sintef.no/0.1/NewEntity2',
+    'http://onto-ns.com/meta/0.1/NewEntity2',
     [],
     [Property('name', type='string', description='Name of something.'),
      Property('arr', type='int', description='An array.'),

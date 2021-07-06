@@ -22,7 +22,7 @@ char *options = "database=" DATABASE ";user=" USER;
 MU_TEST(test_load_meta)
 {
   DLiteInstance *meta;
-  char url[256], *id="http://meta.sintef.no/0.1/Person";
+  char url[256], *id="http://onto-ns.com/meta/0.1/Person";
   snprintf(url, sizeof(url), "postgresql://%s?%s#%s", HOST, options, id);
   mu_check((meta = dlite_instance_load_url(url)));
 

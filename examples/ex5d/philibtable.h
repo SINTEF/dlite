@@ -1,7 +1,7 @@
 /* This file is generated with dlite-codegen -- do not edit!
  *
  * Template: c-header.txt
- * Metadata: http://meta.sintef.no/philib/0.1/PhilibTable
+ * Metadata: http://onto-ns.com/meta/philib/0.1/PhilibTable
  *
  * This file declares a struct for metadata PhilibTable that can be included
  * and used in your project without any dependencies (except for the
@@ -22,10 +22,10 @@
 
 #define PHILIBTABLE_NAME      "PhilibTable"
 #define PHILIBTABLE_VERSION   "0.1"
-#define PHILIBTABLE_NAMESPACE "http://meta.sintef.no/philib"
-#define PHILIBTABLE_URI       "http://meta.sintef.no/philib/0.1/PhilibTable"
+#define PHILIBTABLE_NAMESPACE "http://onto-ns.com/meta/philib"
+#define PHILIBTABLE_URI       "http://onto-ns.com/meta/philib/0.1/PhilibTable"
 #define PHILIBTABLE_UUID      "f6626c3e-e427-59b9-b5fd-0c296bd5787d"
-#define PHILIBTABLE_META_URI  "http://meta.sintef.no/0.3/EntitySchema"
+#define PHILIBTABLE_META_URI  "http://onto-ns.com/meta/0.3/EntitySchema"
 #define PHILIBTABLE_META_UUID "57742a73-ba65-5797-aebf-c1a270c4d02b"
 
 
