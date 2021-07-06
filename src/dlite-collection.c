@@ -415,6 +415,7 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
     dlite_instance_decref(inst);
     return inst;
   }
+  err(1, "cannot load instance '%s' from collection", label);
   return NULL;
 }
 
@@ -444,9 +445,10 @@ DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
 {
   DLiteInstance *inst = (DLiteInstance *)dlite_collection_get(coll, label);
   if (!inst) return NULL;
-  if (metaid)
-    return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
-  else
+  if (metaid) {
+    if (!(inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1)))
+      err(1, "cannot map instance labeled '%s' to '%s'", label, metaid);
+  } else
     dlite_instance_incref(inst);
   return inst;
 }

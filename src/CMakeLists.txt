@@ -21,6 +21,10 @@ dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)
 #-----------------------------------------------------
 
 add_subdirectory(utils)
+# Support driver and mapping plugins written in Python
+if(WITH_PYTHON)
+  add_subdirectory(pyembed)
+endif()
 
 set(sources
   dlite-misc.c
@@ -40,8 +44,10 @@ set(sources
   dlite-getlicense.c
   dlite-print.c
   getuuid.c
+  pathshash.c
   triple.c
   triplestore.c
+  ${pyembed_sources}
   )
 
 add_definitions(
@@ -63,7 +69,10 @@ if(HAVE_RAPTOR)
   list(APPEND include_directories_extra ${RAPTOR_INCLUDE_DIR})
   list(APPEND link_libraries_extra ${RAPTOR_LIBRARY})
 endif()
-
+if(WITH_PYTHON)
+  list(APPEND include_directories_extra ${Python3_INCLUDE_DIRS})
+  list(APPEND link_libraries_extra ${Python3_LIBRARIES})
+endif()
 
 
 # We are building both shared and static libraries.  User software will
@@ -89,6 +98,7 @@ add_library(dlite-static STATIC ${lib_args})
 
 set(include_args
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite>
   ${include_directories_extra}
   )
@@ -181,11 +191,6 @@ if(WIN32 AND MSVC AND (NOT MSVC_VERSION LESS 1600) AND
   install(FILES $<TARGET_PDB_FILE:dlite> DESTINATION bin OPTIONAL)
 endif()
 
-
-# Support driver and mapping plugins written in Python
-if(WITH_PYTHON)
-  add_subdirectory(pyembed)
-endif()
 
 # Tests
 add_subdirectory(tests)

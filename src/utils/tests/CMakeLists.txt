@@ -15,6 +15,8 @@ set(tests
   test_dsl
   test_plugin
   test_tgen
+  test_sha3
+  #test_sha3_slow
   test_uuid
   test_uuid2
   test_uuid4
@@ -55,6 +57,7 @@ foreach(test ${tests})
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
 
 endforeach()
+
 
 
 # Create shared library for test_dsl
