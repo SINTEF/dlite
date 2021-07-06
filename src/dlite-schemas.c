@@ -114,7 +114,7 @@ static struct _BasicMetadataSchema {
   size_t __propoffsets[7];
 } basic_metadata_schema = {
   /* -- header */
-  "89cc72b5-1ced-54eb-815b-8fffc16c42d1",        /* uuid (corresponds to uri) */
+  "a8194052-7d3b-530f-ba1e-7e82fd51bf31",        /* uuid (corresponds to uri) */
   DLITE_BASIC_METADATA_SCHEMA,                   /* uri */
   1,                                             /* _refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
@@ -270,7 +270,7 @@ static struct _EntitySchema {
   size_t __propoffsets[6];
 } entity_schema = {
   /* -- header */
-  "57742a73-ba65-5797-aebf-c1a270c4d02b",     /* uuid (corresponds to uri) */
+  "46168985-705c-5029-b856-3ee1cccccefc",     /* uuid (corresponds to uri) */
   DLITE_ENTITY_SCHEMA,                        /* uri */
   1,                                          /* _refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,        /* meta */
@@ -368,7 +368,7 @@ static struct _CollectionEntity {
   size_t __propoffsets[1];
 } collection_entity = {
   /* -- header */
-  "8948745c-904c-5599-834a-9f59613fb6c5",        /* uuid (corresponds to uri) */
+  "96f31fc3-3838-5cb8-8d90-eddee6ff59ca",        /* uuid (corresponds to uri) */
   DLITE_COLLECTION_ENTITY,                       /* uri */
   1,                                             /* _refcount, never free */
   (DLiteMeta *)&entity_schema,                   /* meta */
