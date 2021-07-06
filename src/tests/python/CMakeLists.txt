@@ -18,11 +18,11 @@ foreach(test ${tests})
   target_link_libraries(${test}
     dlite
     dlite-utils
-    dlite-pyembed
     )
   target_include_directories(${test} PRIVATE
     ${dlite-src_SOURCE_DIR}
     ${dlite-src_BINARY_DIR}
+    ${dlite-src_SOURCE_DIR}/pyembed
     ${dlite-src_SOURCE_DIR}/tests
     )
 

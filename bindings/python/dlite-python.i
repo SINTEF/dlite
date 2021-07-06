@@ -1013,6 +1013,8 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  *     Array of dimensions.
  * int, struct _DLiteProperty * -> numpy array
  *     Array of properties.
+ * struct _DLiteInstance **, int -> numpy array
+ *     Array of DLiteInstance's.
  *
  * Argout typemaps
  * ---------------
@@ -1111,6 +1113,45 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
        ((item = PySequence_GetItem($input, 0)) &&
         SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $2_descriptor, 0)))))
     $1 = 1;
+  Py_XDECREF(item);
+}
+
+/* Array of input instances */
+%typemap("doc") (struct _DLiteInstance **instances, int ninstances)
+  "Array of dlite instances."
+%typemap(in) (struct _DLiteInstance **instances, int ninstances) {
+  int i;
+  if (!PySequence_Check($input))
+    SWIG_exception(SWIG_TypeError, "Expected a sequence");
+  $2 = (int)PySequence_Length($input);
+  if (!($1 = calloc($2, sizeof(DLiteInstance **))))
+    SWIG_exception(SWIG_MemoryError, "Allocation failure");
+  for (i=0; i<$2; i++) {
+    void *p;
+    PyObject *item = PySequence_GetItem($input, i);
+    if (SWIG_IsOK(SWIG_ConvertPtr(item, &p, SWIGTYPE_p__DLiteInstance, 0))) {
+      $1[i] = (DLiteInstance *)p;
+      dlite_instance_incref($1[i]);
+    }
+    Py_XDECREF(item);
+  }
+}
+%typemap(freearg) (struct _DLiteInstance **instances, int ninstances) {
+  if ($1) {
+    int i;
+    for (i=0; i<$2; i++) dlite_instance_decref($1[i]);
+  }
+}
+%typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
+  (struct _DLiteInstance **instances, int ninstances) {
+  PyObject *item=NULL;
+  void *vptr;
+  $2 = 0;
+  if (PySequence_Check($input) &&
+      (PySequence_Length($input) == 0 ||
+       ((item = PySequence_GetItem($input, 0)) &&
+        SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $1_descriptor, 0)))))
+    $2 = 1;
   Py_XDECREF(item);
 }
 

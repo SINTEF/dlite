@@ -110,6 +110,7 @@ int strnquote(char *dest, size_t size, const char *s, int n,
               StrquoteFlags flags)
 {
   size_t i=0, j=0;
+  if (!size) dest = NULL;
   if (!(flags & strquoteNoQuote)) {
     if (size > i) dest[i] = '"';
     i++;
@@ -203,4 +204,25 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
   if (!(flags & strquoteNoQuote) && s[j++] != '"') return -2;
   if (consumed) *consumed = (n >= 0 && (int)j >= n) ? n : (int)j;
   return i;
+}
+
+
+/*
+  Writes binary data to hex-encoded and nul-terminated string `hex`.
+
+  `hexsize` is the size of memory poined to by `hex`.
+  `data` points to the first byte of binary data of size `size`.
+
+  Returns number of bytes written to `hex`, assuming `hexsize` is
+  sufficiently large, or -1 on error.
+*/
+int strhex(char *hex, size_t hexsize, const unsigned char *data, size_t size)
+{
+  int n, m=0;
+  unsigned i;
+  for (i=0; i<size; i++) {
+    if ((n = snprintf(hex+m, PDIFF(hexsize, m), "%02x", data[i])) < 0) return n;
+    m += n;
+  }
+  return m;
 }

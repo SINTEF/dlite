@@ -462,7 +462,7 @@ int fu_endmatch(FUIter *iter);
   mixture of directories and files with glob patterns.  Is intended to
   be used together with fu_pathsiter_next() and fu_pathsiter_deinit().
  */
-FUIter *fu_pathsiter_init(FUPaths *paths, const char *pattern);
+FUIter *fu_pathsiter_init(const FUPaths *paths, const char *pattern);
 
 /**
   Returns the next file or directory in the iterator `iter` created

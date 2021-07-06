@@ -11,6 +11,7 @@
 #include "utils/tgen.h"
 #include "utils/plugin.h"
 
+#include "pathshash.h"
 #include "dlite-misc.h"
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
@@ -23,6 +24,8 @@ struct _DLiteStoragePluginIter {
 /* Global reference to storage plugin info */
 static PluginInfo *storage_plugin_info=NULL;
 
+/* Sha256 hash of plugin paths */
+static unsigned char storage_plugin_path_hash[32];
 
 /* Frees up `storage_plugin_info`. */
 static void storage_plugin_info_free(void)
@@ -76,18 +79,36 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 {
   const DLiteStoragePlugin *api;
   PluginInfo *info;
+  unsigned char hash[32];
 
   if (!(info = get_storage_plugin_info())) return NULL;
 
-  if (!(api = (const DLiteStoragePlugin *)plugin_get_api(info, name))) {
-    /* create informative error message... */
+  /* Return plugin if it is loaded */
+  if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
+    return api;
+
+  /* ...otherwise, if any plugin path has changed, reload all plugins
+     and try again */
+  if (storage_plugin_info &&
+      pathshash(hash, sizeof(hash), &info->paths) == 0) {
+    if (memcmp(storage_plugin_path_hash, hash, sizeof(hash)) != 0) {
+      plugin_load_all(info);
+      memcpy(storage_plugin_path_hash, hash, sizeof(hash));
+
+      if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
+        return api;
+    }
+  }
+
+  /* Cannot find api - create informative error message */
+  {
     int n=0, r;
     const char *p, **paths = dlite_storage_plugin_paths();
     char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT or ";
     size_t size=0, m=0;
     char *buf=NULL;
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
-                    "\"%s\" in search path:\n", name);
+                   "\"%s\" in search path:\n", name);
     if (r >= 0) m += r;
     while ((p = *(paths++)) && ++n) {
       r = asnpprintf(&buf, &size, m, "    %s\n", p);
@@ -95,22 +116,11 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     }
     if (n <= 1)
       m += asnpprintf(&buf, &size, m, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
-                     "enveronment variable(s) set?", submsg);
+                      "enveronment variable(s) set?", submsg);
     errx(1, "%s", buf);
     free(buf);
-    //TGenBuf buf;
-    //tgen_buf_init(&buf);
-    //tgen_buf_append_fmt(&buf, "cannot find storage plugin for driver \"%s\" "
-    //                    "in search path:\n", name);
-    //while ((p = *(paths++)) && ++n) tgen_buf_append_fmt(&buf, "    %s\n", p);
-    //if (n <= 1)
-    //  tgen_buf_append_fmt(&buf, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
-    //                      "enveronment variable(s) set?", submsg);
-    //
-    //errx(1, "%s", tgen_buf_get(&buf));
-    //tgen_buf_deinit(&buf);
   }
-  return api;
+  return NULL;
 }
 
 /*
