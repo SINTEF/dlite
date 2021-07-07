@@ -53,7 +53,7 @@ jobs:
       run: cmake --build . --config Release
       working-directory: build
 
-      - name: Test
+    - name: Test
       run: ctest -C Release
       working-directory: build
 
