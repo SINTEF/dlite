@@ -2,6 +2,8 @@
 
 setlocal
 
+type dliteCodegen.bat
+
 set DLITE_USE_BUILD_ROOT=YES
 set DLITE_ROOT=@DLITE_ROOT@
 set PATH=@e_dlite_PATH_WINDOWS@
