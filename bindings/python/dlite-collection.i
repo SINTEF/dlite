@@ -206,10 +206,7 @@ Collection(url, lazy)
     Returns NULL on error.
   ") get;
   struct _DLiteInstance *get(const char *label, const char *metaid=NULL) {
-    DLiteInstance *inst;
-    if (!(inst = dlite_collection_get_new($self, label, metaid)))
-      return dlite_err(1, "cannot load \"%s\" from collection", label), NULL;
-    return inst;
+    return dlite_collection_get_new($self, label, metaid);
   }
 
   %newobject get_id;

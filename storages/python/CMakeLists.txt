@@ -10,7 +10,6 @@ set(sources
 add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
   dlite
-  dlite-pyembed
   dlite-utils
   ${Python3_LIBRARIES}
   )

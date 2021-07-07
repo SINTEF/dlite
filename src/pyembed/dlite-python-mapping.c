@@ -9,6 +9,7 @@
 
 #include "config-paths.h"
 
+#include "utils/sha3.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
@@ -20,7 +21,7 @@
 /* Python mapping paths */
 static FUPaths mapping_paths;
 static int mapping_paths_initialised = 0;
-static int mapping_paths_modified = 0;
+static unsigned char mapping_plugin_path_hash[32];
 
 /* A cache with all loaded plugins */
 static PyObject *loaded_mappings = NULL;
@@ -51,11 +52,12 @@ FUPaths *dlite_python_mapping_paths(void)
     if (s < 0) return dlite_err(1, "error initialising dlite python mapping "
                                 "plugin dirs"), NULL;
     mapping_paths_initialised = 1;
-    mapping_paths_modified = 0;
+    memset(mapping_plugin_path_hash, 0, sizeof(mapping_plugin_path_hash));
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
   }
+
   return &mapping_paths;
 }
 
@@ -66,8 +68,8 @@ void dlite_python_mapping_paths_clear(void)
 {
   if (mapping_paths_initialised) {
     fu_paths_deinit(&mapping_paths);
+    memset(mapping_plugin_path_hash, 0, sizeof(mapping_plugin_path_hash));
     mapping_paths_initialised = 0;
-    mapping_paths_modified = 0;
   }
 }
 
@@ -79,12 +81,9 @@ void dlite_python_mapping_paths_clear(void)
 */
 int dlite_python_mapping_paths_insert(const char *path, int n)
 {
-  int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return -1;
-  if ((stat = fu_paths_insert((FUPaths *)paths, path, n)))
-    mapping_paths_modified = 1;
-  return stat;
+  return fu_paths_insert((FUPaths *)paths, path, n);
 }
 
 /*
@@ -93,12 +92,9 @@ int dlite_python_mapping_paths_insert(const char *path, int n)
 */
 int dlite_python_mapping_paths_append(const char *path)
 {
-  int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return -1;
-  if ((stat = fu_paths_append((FUPaths *)paths, path)))
-    mapping_paths_modified = 1;
-  return stat;
+  return fu_paths_append((FUPaths *)paths, path);
 }
 
 /*
@@ -107,12 +103,9 @@ int dlite_python_mapping_paths_append(const char *path)
 */
 int dlite_python_mapping_paths_remove(int n)
 {
-  int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return -1;
-  if ((stat = fu_paths_remove((FUPaths *)paths, n)))
-    mapping_paths_modified = 1;
-  return stat;
+  return fu_paths_remove((FUPaths *)paths, n);
 }
 
 /*
@@ -123,13 +116,6 @@ const char **dlite_python_mapping_paths_get(void)
 {
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return NULL;
-
-  const char **p, **fp=fu_paths_get((FUPaths *)paths);
-  printf("\n=== %p\n", (void *)fp);
-  if (fp) {
-    for (p=fp; *p; p++)
-      printf("  %s\n", *p);
-  }
   return fu_paths_get((FUPaths *)paths);
 }
 
@@ -142,12 +128,24 @@ const char **dlite_python_mapping_paths_get(void)
 */
 void *dlite_python_mapping_load(void)
 {
-  if (!loaded_mappings || mapping_paths_modified) {
-    const FUPaths *paths;
+  FUPaths *paths;
+  FUIter *iter;
+  const char *path;
+  const unsigned char *hash;
+  sha3_context c;
+  if (!(paths = dlite_python_mapping_paths())) return NULL;
+  if (!(iter = fu_pathsiter_init(paths, "*.py"))) return NULL;
+  sha3_Init256(&c);
+  while ((path = fu_pathsiter_next(iter)))
+    sha3_Update(&c, path, strlen(path));
+  hash = sha3_Finalize(&c);
+  fu_pathsiter_deinit(iter);
+  if (memcmp(mapping_plugin_path_hash, hash,
+             sizeof(mapping_plugin_path_hash)) != 0) {
     if (loaded_mappings) dlite_python_mapping_unload();
-    if (!(paths = dlite_python_mapping_paths())) return NULL;
     loaded_mappings = dlite_pyembed_load_plugins((FUPaths *)paths,
                                                  "DLiteMappingBase");
+    memcpy(mapping_plugin_path_hash, hash, sizeof(mapping_plugin_path_hash));
   }
   return (void *)loaded_mappings;
 }
@@ -230,8 +228,43 @@ static void freeapi(PluginAPI *api)
 }
 
 
+/* Forward declaration */
+const DLiteMappingPlugin *get_dlite_mapping_api(int *iter);
+
+/*
+  Returns pointer to next Python mapping plugin (casted to void *) or
+  NULL on error.
+
+  At the first call to this function, `*iter` should be initialised to zero.
+  If there are more APIs, `*iter` will be increased by one.
+*/
+const void *dlite_python_mapping_next(int *iter)
+{
+  return get_dlite_mapping_api(iter);
+}
+
+/*
+  Returns Python mapping plugin (casted to void *) with given name or
+  NULL if no matches can be found.
+ */
+const void *dlite_python_mapping_get_api(const char *name)
+{
+  const DLiteMappingPlugin *api;
+  int iter1=0, iter2;
+  do {
+    iter2 = iter1;
+    if (!(api = get_dlite_mapping_api(&iter1))) break;
+    if (strcmp(api->name, name) == 0) return api;
+  } while (iter1 > iter2);
+  return NULL;
+}
+
+
 /*
   Returns API provided by mapping plugin `name` implemented in Python.
+
+  At the first call to this function, `*iter` should be initialised to zero.
+  If there are more APIs, `*iter` will be increased by one.
 
   Default cost is 25.
 */
