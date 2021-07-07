@@ -35,7 +35,7 @@ jobs:
       run: mkdir build
 
     - name: Use cmake
-      run: cmake -A x64 -DWITH_DOC=OFF -DWITH_JSON=ON -DBUILD_JSON=ON -DWITH_HDF5=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ..
+      run: cmake -A x64 -DWITH_DOC=OFF -DWITH_JSON=OFF -DBUILD_JSON=OFF -DWITH_HDF5=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ..
       working-directory: build
 
     - name: Build
