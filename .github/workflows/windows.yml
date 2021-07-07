@@ -8,20 +8,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2019, windows-latest]
-        python-version: [ '3.8', '3.9' ]
+        #os: [windows-2019, windows-latest]
+        #python-version: [ '3.8', '3.9' ]
+        os: [windows-2019]
+        python-version: ['3.9']
 
     steps:
     - name: Fetch Sources
       uses: actions/checkout@v2
 
-#    - name: Setup Python
-#      uses: actions/setup-python@v2
-#      with:
-#        python-version: ${{ matrix.python-version }}
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-#    - name: Install Python Dependencies
-#      run: pip install meson ninja
+    - name: Install Python Dependencies
+      run: pip install -r requirements.txt
 
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.9
