@@ -55,7 +55,7 @@ jobs:
       run: cmake --build . --config Release
       working-directory: build
       env:
-        DLITE_CODE_GEN_EXPLICIT_PATH=${GITHUB_WORKSPACE}/tools/Release
+        DLITE_CODE_GEN_EXPLICIT_PATH: ${GITHUB_WORKSPACE}/tools/Release
 
     - name: Test
       run: ctest -C Release
