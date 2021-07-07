@@ -133,9 +133,11 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
   if ((paths = dlite_mapping_plugin_paths()))
     for (i=0; paths[i]; i++)
       m += asnpprintf(&buf, &size, m, "    %s\n", paths[i]);
+#ifdef WITH_PYTHON
   if ((paths = dlite_python_mapping_paths_get()))
     for (j=0; paths[j]; j++)
       m += asnpprintf(&buf, &size, m, "    %s\n", paths[j]);
+#endif
   if (i <= 1 || j <= 1)
     m += asnpprintf(&buf, &size, m,
                     "Are the DLITE_MAPPING_PLUGIN_DIRS and "
@@ -176,7 +178,9 @@ dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
     return api;
   if (!iter->stop) {
     int n = iter->n;
+#ifdef WITH_PYTHON
     api = dlite_python_mapping_next(&iter->n);
+#endif
     if (iter->n == n) iter->stop = 1;
   }
   return api;
