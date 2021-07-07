@@ -3,7 +3,7 @@
     "meta": {
       "name": "PhilibTable",
       "version": "0.1",
-      "namespace": "http://meta.sintef.no/philib"
+      "namespace": "http://onto-ns.com/meta/philib"
     },
     "dimensions": {
       "nelements": 3,

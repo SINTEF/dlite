@@ -11,8 +11,8 @@ url = 'json://' + thisdir + '/MyEntity.json'
 
 # Load metadata (i.e. an instance of meta-metadata) from url
 s = dlite.Storage(url)
-myentity = dlite.Instance(s, 'http://meta.sintef.no/0.1/MyEntity')
+myentity = dlite.Instance(s, 'http://onto-ns.com/meta/0.1/MyEntity')
 del s
 
 with dlite.Storage(url) as s2:
-    myentity2 = dlite.Instance(s2, 'http://meta.sintef.no/0.1/MyEntity')
+    myentity2 = dlite.Instance(s2, 'http://onto-ns.com/meta/0.1/MyEntity')

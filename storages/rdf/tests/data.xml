@@ -4,10 +4,10 @@
     <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:Entity"/>
   </rdf:Description>
   <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4">
-    <ns0:hasURI xmlns:ns0="dm:" rdf:resource="http://meta.sintef.no/0.1/test-entity"/>
+    <ns0:hasURI xmlns:ns0="dm:" rdf:resource="http://onto-ns.com/meta/0.1/test-entity"/>
   </rdf:Description>
   <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4">
-    <ns0:hasMeta xmlns:ns0="dm:" rdf:resource="http://meta.sintef.no/0.3/EntitySchema"/>
+    <ns0:hasMeta xmlns:ns0="dm:" rdf:resource="http://onto-ns.com/meta/0.3/EntitySchema"/>
   </rdf:Description>
   <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_dimval0">
     <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:DimensionValue"/>
@@ -52,7 +52,7 @@
     <ns0:hasNextElement xmlns:ns0="dm:" rdf:resource="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval2"/>
   </rdf:Description>
   <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval2">
-    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">"http://meta.sintef.no"</ns0:hasValue>
+    <ns0:hasValue xmlns:ns0="dm:" rdf:datatype="rdf:PlainLiteral">"http://onto-ns.com/meta"</ns0:hasValue>
   </rdf:Description>
   <rdf:Description rdf:about="dm:8adc5d91-1a29-5114-b289-2453f3b671a4#_propval3">
     <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:PropertyValue"/>
@@ -85,7 +85,7 @@
     <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:Object"/>
   </rdf:Description>
   <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d">
-    <ns0:hasMeta xmlns:ns0="dm:" rdf:resource="http://meta.sintef.no/0.1/test-entity"/>
+    <ns0:hasMeta xmlns:ns0="dm:" rdf:resource="http://onto-ns.com/meta/0.1/test-entity"/>
   </rdf:Description>
   <rdf:Description rdf:about="dm:e076a856-e36e-5335-967e-2f2fd153c17d#_dimval0">
     <ns0:type xmlns:ns0="rdf:" rdf:resource="dm:DimensionValue"/>

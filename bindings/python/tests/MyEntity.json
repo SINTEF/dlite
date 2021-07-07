@@ -1,8 +1,8 @@
 {
   "name": "MyEntity",
   "version": "0.1",
-  "namespace": "http://meta.sintef.no",
-  "meta": "http://meta.sintef.no/0.3/EntitySchema",
+  "namespace": "http://onto-ns.com/meta",
+  "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
   "description": "Just some tests..",
   "dimensions": [
     {
@@ -112,5 +112,5 @@
       "description": "A relation array"
     }
   ],
-  "dataname": "http://meta.sintef.no/0.1/MyEntity"
+  "dataname": "http://onto-ns.com/meta/0.1/MyEntity"
 }

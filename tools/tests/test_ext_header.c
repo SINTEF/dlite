@@ -37,7 +37,7 @@ int main()
   /* Load Chemistry metadata and call DLITE_UPDATE_EXTENEDE_META() to
      make it aware of its additional fields. */
   s = dlite_storage_open("json", path, "mode=r");
-  chem = dlite_meta_load(s, "http://www.sintef.no/calm/0.1/Chemistry");
+  chem = dlite_meta_load(s, "http://sintef.no/calm/0.1/Chemistry");
   dlite_storage_close(s);
   DLITE_UPDATE_EXTENEDE_META(chem, Chemistry, nelements);
 

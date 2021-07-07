@@ -14,7 +14,7 @@
 DLiteMeta *entity = NULL;
 DLiteInstance *inst = NULL;
 DLiteStore *store = NULL;
-char *entity_uri = "http://www.sintef.no/calm/0.1/Chemistry";
+char *entity_uri = "http://sintef.no/calm/0.1/Chemistry";
 char *inst_id = "8411a72c-c7a3-5a6a-b126-1e90b8a55ae2";
 
 

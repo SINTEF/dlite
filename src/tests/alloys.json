@@ -3,7 +3,7 @@
     "meta": {
       "name": "Chemistry",
       "version": "0.1",
-      "namespace": "http://www.sintef.no/calm"
+      "namespace": "http://sintef.no/calm"
     },
     "dimensions": {
       "nelements": 3,

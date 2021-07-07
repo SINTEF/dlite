@@ -25,7 +25,7 @@ int main()
   /* Load Chemistry entity */
   s = dlite_storage_open("json", path, "mode=r");
   chem = (DLiteMeta *)
-    dlite_meta_load(s, "http://www.sintef.no/calm/0.1/Chemistry");
+    dlite_meta_load(s, "http://sintef.no/calm/0.1/Chemistry");
   dlite_storage_close(s);
 
   /* Create instance */
