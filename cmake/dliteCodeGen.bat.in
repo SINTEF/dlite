@@ -2,7 +2,11 @@
 
 setlocal
 
-type dliteCodegen.bat
+type dliteCodeGen.bat
+cd ..
+cd ..
+cd ..
+cd ..
 dir dlite-codegen.exe /S /B
 
 set DLITE_USE_BUILD_ROOT=YES
