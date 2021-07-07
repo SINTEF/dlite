@@ -1,9 +1,7 @@
 /* Example program demonstrating tgen */
 #include <stdio.h>
 #include "tgen.h"
-
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
+#include "test_macros.h"
 
 #define UNUSED(x) (void)(x)
 

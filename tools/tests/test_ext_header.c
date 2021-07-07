@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "dlite.h"
+#include "dlite-macros.h"
 
 /* My extended header
    Should be defined before including the generated chemistry.h */
@@ -12,9 +13,6 @@
   int x;
 
 #include "chemistry.h"
-
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
 
 #ifdef _MSC_VER
 # pragma warning(disable: 4996)

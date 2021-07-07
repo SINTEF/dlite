@@ -428,6 +428,7 @@ int dlite_meta_init(DLiteMeta *meta);
 
 const DLiteMeta *dlite_get_basic_metadata_schema()
 {
+  dlite_get_uuid(basic_metadata_schema.uuid, DLITE_BASIC_METADATA_SCHEMA);
   if (!basic_metadata_schema._headersize)
     dlite_meta_init((DLiteMeta *)&basic_metadata_schema);
   return (DLiteMeta *)&basic_metadata_schema;
@@ -435,6 +436,7 @@ const DLiteMeta *dlite_get_basic_metadata_schema()
 
 const DLiteMeta *dlite_get_entity_schema()
 {
+  dlite_get_uuid(entity_schema.uuid, DLITE_ENTITY_SCHEMA);
   if (!entity_schema._headersize)
     dlite_meta_init((DLiteMeta *)&entity_schema);
   return (DLiteMeta *)&entity_schema;
@@ -442,6 +444,7 @@ const DLiteMeta *dlite_get_entity_schema()
 
 const DLiteMeta *dlite_get_collection_entity()
 {
+  dlite_get_uuid(collection_entity.uuid, DLITE_COLLECTION_ENTITY);
   if (!collection_entity._headersize)
     dlite_meta_init((DLiteMeta *)&collection_entity);
   return (DLiteMeta *)&collection_entity;
