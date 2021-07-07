@@ -1,6 +1,6 @@
 name: Build on Windows
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   msvc:
@@ -24,6 +24,11 @@ jobs:
 
     - name: Install Python Dependencies
       run: pip install -r requirements.txt
+
+    - name: Install SWIG
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install swig -y
 
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.9
