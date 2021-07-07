@@ -49,7 +49,7 @@ jobs:
       run: cmake --build . --config Release --target dlite-codegen
       working-directory: build
 
-    - run: dir dlite-codegen.exe /s /b
+    - run: Get-ChildItem -Filter dlite-codegen.exe -Recurse -ErrorAction SilentlyContinue -Force
 
     - name: Install
       run: cmake --install
