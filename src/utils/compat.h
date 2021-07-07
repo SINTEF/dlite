@@ -16,6 +16,10 @@
 #define _COMPAT_H
 
 #include <stdlib.h>
+#ifdef WIN32
+/* https://stackoverflow.com/questions/42536311/msvc-1900-and-define-vsnprintf */
+#include <stdio.h>
+#endif
 #include "config.h"
 
 /* Remove __attribute__ when we are not compiling with gcc */

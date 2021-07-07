@@ -56,18 +56,20 @@ DLite is released under the MIT license.
 ")
 
 # Options
-option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
-option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
-option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
-option(WITH_JSON        "Whether to build with JSON support"             ON)
-option(WITH_REDLAND     "Whether to build with Redland (if available)"   ON)
-option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
-option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
-option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
-option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
+option(WITH_PYTHON               "Whether to build Python 3 bindings"             ON)
+option(WITH_PYTHON_BUILD_WHEEL   "Whether to build the Python wheel"              OFF)
+option(WITH_PYTHON_TEST_WHEEL    "Whether to run tests in venv."                  OFF)
+option(WITH_FORTRAN              "Whether to build Fortran bindings"              OFF)
+option(WITH_HDF5                 "Whether to build with HDF5 support"             ON)
+option(WITH_JSON                 "Whether to build with JSON support"             ON)
+option(WITH_REDLAND              "Whether to build with Redland (if available)"   ON)
+option(WITH_DOC                  "Whether to build documentation using doxygen"   ON)
+option(WITH_EXAMPLES             "Whether to build/run examples during testing"   ON)
+option(FORCE_EXAMPLES            "Whether to force building/running examples"     OFF)
+option(ALLOW_WARNINGS            "Whether to not fail on compilation warnings"    OFF)
 
-option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
-option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
+option(BUILD_HDF5                "If not installed, download and compile HDF5"    OFF)
+option(BUILD_JSON                "If not installed, download and compile jansson" OFF)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -113,6 +115,11 @@ if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
 endif()
 
+# Fix utf-8 handling for MSVC: Force utf-8 encoded source-code files
+if(MSVC)
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+endif()
 
 # Uncomment the lines below to compile with AddressSanitizer
 #set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
@@ -308,12 +315,25 @@ if(WITH_JSON)
     message(STATUS "Download and build jansson as external package")
     set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
     set(jansson_INSTALL_PREFIX "${external_INSTALL_DIR}")
+    if(NOT WIN32 OR MINGW)
     set(cmake_args
+      -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
+      -DJANSSON_BUILD_DOCS=${WITH_DOC}
       -DBUILD_SHARED_LIBS=ON
       )
+    else() # WIN32
+    set(cmake_args
+      -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
+      -DJANSSON_BUILD_DOCS=${WITH_DOC}
+      -DBUILD_SHARED_LIBS=OFF
+      -DJANSSON_BUILD_SHARED_LIBS=OFF
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    )
+    endif()
     if(CMAKE_TOOLCHAIN_FILE)
       get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
       list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
@@ -327,12 +347,17 @@ if(WITH_JSON)
       CMAKE_ARGS      ${cmake_args}
       UPDATE_COMMAND  ""
       TEST_COMMAND    ctest
-      INSTALL_COMMAND cmake --build . --target install
+      INSTALL_COMMAND cmake --build . --config Release --target install
       )
     set(JANSSON_DEPENDENCIES janssonProj)
     set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
+    if(NOT WIN32 OR MINGW)
     set(JANSSON_LIBRARIES
       ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
+    else() # WIN32
+    set(JANSSON_LIBRARIES
+      ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${LIB_EXT})
+    endif()
   endif()
 else()
   set(JANSSON_LIBRARIES "")
@@ -376,10 +401,20 @@ if(WITH_PYTHON)
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
-  # On mingw, python depends on libffi
-  find_library(ffi ffi)
-  mark_as_advanced(ffi)
-  get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
+  if(MINGW)
+    # On mingw, python depends on libffi
+    find_library(ffi ffi)
+    mark_as_advanced(ffi)
+    get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
+  endif()
+
+  if(MSVC)
+    # Testing the python-bindings can fail on Windows for a number of reasons:
+    # embedding: https://github.com/pybind/pybind11/issues/2369
+    # numpy-related: https://github.com/numpy/numpy/issues/12667
+    # Test in a virtual environment instead.
+    set(WITH_PYTHON_VENVTEST_ONLY ON)
+  endif()
 
   set(DLITE_PYTHONPATH
     ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
@@ -712,11 +747,6 @@ add_custom_target(show ${cmd})
 # Subdirectories
 add_subdirectory(src)
 
-# Bindings
-if(WITH_PYTHON)
-  add_subdirectory(bindings/python)
-endif()
-
 # Storage plugins
 if(WITH_HDF5)
   add_subdirectory(storages/hdf5)
@@ -727,8 +757,13 @@ endif()
 if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)
 endif()
+
 if(WITH_PYTHON)
+  if(NOT WITH_JSON)
+    message(FATAL_ERROR "Python bindings and testing depend on the json-plugin, set WITH_JSON=ON and eventually BUILD_JSON=ON")
+  endif()
   add_subdirectory(storages/python)
+  add_subdirectory(bindings/python)
 endif()
 
 # Tools - may depend on storage plugins
@@ -769,7 +804,7 @@ else()
 endif()
 set(CPACK_PACKAGE_FILE_NAME "dlite-${dlite_VERSION}-${arch}")
 set(CPACK_PACKAGE_ICON "${dlite_SOURCE_DIR}/doc/figs/logo-circle.ico")
-set(CPACK_RESOURCE_FILE_LICENSE "${dlite_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_LICENSE "${dlite_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_RESOURCE_FILE_README "${dlite_SOURCE_DIR}/README.md")
 set(CPACK_PACKAGE_CHECKSUM "SHA256")
 set(CPACK_VERBATIM_VARIABLES TRUE)
@@ -828,7 +863,7 @@ configure_package_config_file(
 install(
   FILES
     README.md
-    LICENSE
+    LICENSE.txt
   DESTINATION share/dlite
   )
 

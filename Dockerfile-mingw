@@ -118,7 +118,7 @@ COPY --chown=user:user examples /home/user/sw/dlite/examples
 COPY --chown=user:user src /home/user/sw/dlite/src
 COPY --chown=user:user storages /home/user/sw/dlite/storages
 COPY --chown=user:user tools /home/user/sw/dlite/tools
-COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
+COPY --chown=user:user CMakeLists.txt LICENSE.txt README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
 
 # Build dlite
