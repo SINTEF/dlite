@@ -16,7 +16,7 @@ myentity = Instance(url)
 print(myentity.uuid)
 
 # Check some properties of the entity
-assert myentity.uuid == 'ea34bc5e-de88-544d-bcba-150b7292873d'
+assert myentity.uuid == 'a0e63529-3397-5c4f-a56c-14bf07ecc219'
 assert myentity.uri == 'http://onto-ns.com/meta/0.1/MyEntity'
 assert myentity.dimensions == {'ndimensions': 2, 'nproperties': 14}
 assert not myentity.is_data
