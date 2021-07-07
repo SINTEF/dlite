@@ -46,8 +46,10 @@ jobs:
       working-directory: build
 
     - name: Build
-      run: cmake --build . --config Release
+      run: cmake --build . --config Release --target dlite-codegen
       working-directory: build
+
+    - run: dir dlite-codegen.exe /s /b
 
     - name: Install
       run: cmake --install
