@@ -1,9 +1,7 @@
 
 #include "minunit/minunit.h"
 #include "dlite.h"
-
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
+#include "dlite-macros.h"
 
 
 DLiteInstance *inst=NULL;

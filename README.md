@@ -79,8 +79,8 @@ and its properties provide in the "description" fields.
 {
   "name": "Person",
   "version": "0.1",
-  "namespace": "http://meta.sintef.no",
-  "meta": "http://meta.sintef.no/0.3/EntitySchema",
+  "namespace": "http://onto-ns.com/meta",
+  "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
   "description": "A person.",
   "dimensions": [
     {
@@ -225,7 +225,7 @@ The following terms have a special meaning in dlite:
   - **Entity**: May be any kind of instance, including data instances,
     metadata instances or meta-metadata instances.  However, for historical
     reasons it is often used for "standard" metadata that are instances of
-    meta-metadata "http://meta.sintef.no/0.3/EntitySchema".
+    meta-metadata "http://onto-ns.com/meta/0.3/EntitySchema".
   - **Instance**: The basic data object in DLite.  All instances are described
     by their metadata which itself are instances.  Instances are identified
     by an UUID.

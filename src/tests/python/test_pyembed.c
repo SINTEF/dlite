@@ -47,7 +47,7 @@ MU_TEST(test_get_address)
 {
   /* FIXME - enable this test on Windows */
 #ifndef WINDOWS
-  const char *id = "http://meta.sintef.no/0.3/EntitySchema";
+  const char *id = "http://onto-ns.com/meta/0.3/EntitySchema";
   void *addr;
   fun_t fun;
   DLiteInstance *inst;
@@ -76,7 +76,7 @@ MU_TEST(test_get_address)
 
 MU_TEST(test_get_instance)
 {
-  const char *id = "http://meta.sintef.no/0.3/EntitySchema";
+  const char *id = "http://onto-ns.com/meta/0.3/EntitySchema";
   PyObject *instance = dlite_pyembed_from_instance(id);
   mu_check(instance);
   printf("\nPython instance: ");

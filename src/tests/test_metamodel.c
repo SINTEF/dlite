@@ -12,11 +12,11 @@ DLiteMetaModel *nodim;
 
 MU_TEST(test_metamodel_create)
 {
-  model = dlite_metamodel_create("http://meta.sintef.no/0.1/Vehicle",
+  model = dlite_metamodel_create("http://onto-ns.com/meta/0.1/Vehicle",
                                  DLITE_ENTITY_SCHEMA, NULL);
   mu_check(model);
 
-  nodim = dlite_metamodel_create("http://meta.sintef.no/1.0/NoDimension",
+  nodim = dlite_metamodel_create("http://onto-ns.com/meta/1.0/NoDimension",
                                  DLITE_ENTITY_SCHEMA, NULL);
   mu_check(nodim);
 

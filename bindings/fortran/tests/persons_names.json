@@ -1,6 +1,6 @@
 {
     "Joe": {
-        "meta": "http://meta.sintef.no/0.2/Person",
+        "meta": "http://onto-ns.com/meta/0.2/Person",
         "dimensions": {
             "N": 2,
             "M": 3
@@ -13,7 +13,7 @@
         }
     },
     "Elisa": {
-        "meta": "http://meta.sintef.no/0.2/Person",
+        "meta": "http://onto-ns.com/meta/0.2/Person",
         "dimensions": {
             "N": 3,
             "M": 1
@@ -26,7 +26,7 @@
         }
     },
     "Joe Doe": {
-        "meta": "http://meta.sintef.no/0.2/Person",
+        "meta": "http://onto-ns.com/meta/0.2/Person",
         "name": "Joe Doe",
         "age": 53.0,
         "skills": ["java", "c#", "c++"],

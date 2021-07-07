@@ -1,8 +1,8 @@
 {
   "name": "Person",
   "version": "0.2",
-  "namespace": "http://meta.sintef.no",
-  "meta": "http://meta.sintef.no/0.3/EntitySchema",
+  "namespace": "http://onto-ns.com/meta",
+  "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
   "description": "A person.",
   "dimensions": [
     {
@@ -44,5 +44,5 @@
       "description": "Temperature on the body."
     }
   ],
-  "dataname": "http://meta.sintef.no/0.2/Person"
+  "dataname": "http://onto-ns.com/meta/0.2/Person"
 }
