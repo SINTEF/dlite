@@ -5,12 +5,9 @@
 
 #include "minunit/minunit.h"
 #include "dlite.h"
+#include "dlite-macros.h"
 
 #include "config.h"
-
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
-
 
 
 MU_TEST(test_storage_lookup)

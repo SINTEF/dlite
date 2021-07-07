@@ -9,9 +9,6 @@
 
 #include "minunit/minunit.h"
 
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
-
 
 DLiteInstance *inst=NULL;
 DLiteMeta *meta=NULL;
