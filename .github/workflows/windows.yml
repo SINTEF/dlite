@@ -1,0 +1,27 @@
+name: Build on Windows
+
+on: [push, pull_request]
+
+jobs:
+  msvc:
+    name: Build dlite with MS Visual Studio
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-2019, windows-latest]
+        python-version: [ '3.8', '3.9' ]
+
+    steps:
+    - name: Fetch Sources
+      uses: actions/checkout@v2
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Python Dependencies
+      run: pip install meson ninja
+
+    - name: Prepare MSVC
+      uses: bus1/cabuild/action/msdevshell@v1
