@@ -49,8 +49,6 @@ jobs:
       run: cmake --build . --config Release --target dlite-codegen
       working-directory: build
 
-    - run: Get-ChildItem -Filter dliteCodeGen.bat -Recurse -ErrorAction SilentlyContinue -Force
-
     - name: Build
       run: cmake --build . --config Release
       working-directory: build
