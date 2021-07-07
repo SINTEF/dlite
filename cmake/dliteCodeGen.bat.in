@@ -7,7 +7,7 @@ cd ..
 cd ..
 cd ..
 cd ..
-dir dlite-codegen.exe /S /B
+dir dliteCodeGen.bat /S /B
 
 set DLITE_USE_BUILD_ROOT=YES
 set DLITE_ROOT=@DLITE_ROOT@
@@ -33,8 +33,8 @@ if exist "%TOOLSDIR%\dlite-codegen.exe" (
       if exist "%DLITE_ROOT%\bin\dlite-codegen.exe" (
         set CODEGEN=%DLITE_ROOT%\bin\dlite-codegen.exe
       ) else (
-        if exist "tools\Release\dlite-codegen.exe" (
-          set CODEGEN=tools\Release\dlite-codegen.exe
+        if exist "%DLITE_CODE_GEN_EXPLICIT_PATH%\dlite-codegen.exe" (
+          set CODEGEN=%DLITE_CODE_GEN_EXPLICIT_PATH%\dlite-codegen.exe
         ) else (
           echo "Cannot find dlite-codegen.exe"
           exit 1
