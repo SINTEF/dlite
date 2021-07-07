@@ -82,5 +82,5 @@
       "description": "Average volume per atom for each phase."
     }
   ],
-  "dataname": "http://www.sintef.no/calm/0.1/Chemistry"
+  "dataname": "http://sintef.no/calm/0.1/Chemistry"
 }

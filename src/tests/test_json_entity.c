@@ -25,7 +25,7 @@ MU_TEST(test_entity_load)
   DLiteStorage *s;
   DLiteInstance *e;  /* the entity cast to a DLiteInstance */
   char *path = STRINGIFY(dlite_SOURCE_DIR) "/tools/tests/Chemistry-0.1.json";
-  char *uri = "http://www.sintef.no/calm/0.1/Chemistry";
+  char *uri = "http://sintef.no/calm/0.1/Chemistry";
 
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
   mu_check((entity = dlite_meta_load(s, uri)));
@@ -100,7 +100,7 @@ MU_TEST(test_instance_load)
   int nprops = dlite_instance_get_dimension_size(e, "nproperties");
   int *dims = calloc(ndims, sizeof(int));
   char *id = "8411a72c-c7a3-5a6a-b126-1e90b8a55ae2";
-  //char *id = "http://www.sintef.no/calm/0.1/Chemistry";
+  //char *id = "http://sintef.no/calm/0.1/Chemistry";
 
   // cppcheck-suppress memleak
   mu_check((s = dlite_storage_open("json", path, "mode=r")));
