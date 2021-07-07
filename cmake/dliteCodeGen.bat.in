@@ -14,9 +14,6 @@ set DLITE_TEMPLATE_DIRS=@e_dlite_TEMPLATES_WINDOWS@
 set DLITE_STORAGES=@e_dlite_STORAGES_WINDOWS@
 
 set TOOLSDIR=@e_dlite-tools_BINARY_DIR_WINDOWS@
-echo "Trying: %TOOLSDIR%\dlite-codegen.exe"
-echo "Alternate: %DLITE_ROOT%\bin\dlite-codegen.exe"
-echo "Third: %CD%"
 if exist "%TOOLSDIR%\dlite-codegen.exe" (
   set CODEGEN=%TOOLSDIR%\dlite-codegen.exe
 ) else (
@@ -29,8 +26,8 @@ if exist "%TOOLSDIR%\dlite-codegen.exe" (
       if exist "%DLITE_ROOT%\bin\dlite-codegen.exe" (
         set CODEGEN=%DLITE_ROOT%\bin\dlite-codegen.exe
       ) else (
-        if exist "%TOOLSDIR%\tools\Release\dlite-codegen.exe" (
-          set CODEGEN=%TOOLSDIR%\tools\Release\dlite-codegen.exe
+        if exist "%CD%\..\Release\dlite-codegen.exe" (
+          set CODEGEN=%CD%\..\Release\dlite-codegen.exe
         ) else (
           echo "Cannot find dlite-codegen.exe"
           exit 1
