@@ -15,13 +15,37 @@ jobs:
     - name: Fetch Sources
       uses: actions/checkout@v2
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+#    - name: Setup Python
+#      uses: actions/setup-python@v2
+#      with:
+#        python-version: ${{ matrix.python-version }}
 
-    - name: Install Python Dependencies
-      run: pip install meson ninja
+#    - name: Install Python Dependencies
+#      run: pip install meson ninja
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.9
+      with:
+        cmake-version: '3.20.x'
 
     - name: Prepare MSVC
       uses: bus1/cabuild/action/msdevshell@v1
+
+    - name: Make build folder
+      run: mkdir build
+
+    - name: Use cmake
+      run: cmake -A x64 -DWITH_DOC=OFF -DWITH_JSON=ON -DBUILD_JSON=ON -DWITH_HDF5=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ..
+      working-directory: build
+
+    - name: Build
+      run: cmake --build . --config Release
+      working-directory: build
+
+    - name: Install
+      run: cmake --install
+      working-directory: build
+
+    - name: Test
+      run: ctest -C Release
+      working-directory: build
