@@ -46,7 +46,11 @@ jobs:
       working-directory: build
 
     - name: Build
-      run: cmake --build . --config Release --target dlite-codegen
+      run: cmake --build . --config Release --target dlite-env --target dlite-codegen --target dlite-getuuid --target dlite-plugins-json
+      working-directory: build
+
+    - name: Minimal install
+      run: cmake --install .
       working-directory: build
 
     - name: Build

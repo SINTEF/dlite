@@ -26,12 +26,8 @@ if exist "%TOOLSDIR%\dlite-codegen.exe" (
       if exist "%DLITE_ROOT%\bin\dlite-codegen.exe" (
         set CODEGEN=%DLITE_ROOT%\bin\dlite-codegen.exe
       ) else (
-        if exist "%CD%\..\Release\dlite-codegen.exe" (
-          set CODEGEN=%CD%\..\Release\dlite-codegen.exe
-        ) else (
-          echo "Cannot find dlite-codegen.exe"
-          exit 1
-        )
+        echo "Cannot find dlite-codegen.exe"
+        exit 1
       )
     )
   )
