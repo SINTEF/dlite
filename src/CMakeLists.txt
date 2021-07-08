@@ -114,13 +114,16 @@ target_include_directories(dlite-static PUBLIC ${include_args})
 #  $<INSTALL_INTERFACE:include/dlite>
 #  )
 
-set(link_args
+target_link_libraries(dlite 
   dlite-utils
   ${CMAKE_DL_LIBS}
   ${link_libraries_extra}
   )
-target_link_libraries(dlite ${link_args})
-target_link_libraries(dlite-static ${link_args})
+target_link_libraries(dlite-static
+  dlite-utils-static
+  ${CMAKE_DL_LIBS}
+  ${link_libraries_extra}
+  )
 
 set_target_properties(dlite PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
