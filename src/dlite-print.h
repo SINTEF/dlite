@@ -71,7 +71,8 @@ int dlite_json_print(DLiteInstance *inst);
 
   Returns the instance or NULL on error.
  */
-DLiteInstance *dlite_json_sscan(const char *src, const char *id);
+DLiteInstance *dlite_json_sscan(const char *src, const char *id,
+                                const char *metaid);
 
 /**
   Like dlite_sscan(), but scans instance `id` from stream `fp` instead
@@ -79,7 +80,7 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id);
 
   Returns the instance or NULL on error.
  */
-DLiteInstance *dlite_json_fscan(FILE *fp, const char *id);
+DLiteInstance *dlite_json_fscan(FILE *fp, const char *id, const char *metaid);
 
 
 
@@ -94,6 +95,9 @@ typedef struct _DLiteJsonIter DLiteJsonIter;
   - length: length of `src`.  If zero or negative, all of `src` will be used.
   - metaid: limit the search to instances of metadata with this id.
 
+  The source should be a JSON object with keys being instance UUIDs
+  and values being the JSON representation of the individual instances.
+
   Returns new iterator or NULL on error.
  */
 DLiteJsonIter *dlite_json_iter_init(const char *src, int length,
@@ -107,6 +111,10 @@ void dlite_json_iter_deinit(DLiteJsonIter *iter);
 /**
   Search for instances in the JSON document provided to dlite_json_iter_init()
   and returns a pointer to instance UUIDs.
+
+  `iter` should be an iterator created with dlite_json_iter_init().
+
+  If `length` is given, it is set to the length of the returned identifier.
 
   Returns a pointer to the next matching UUID or NULL if there are no more
   matches left.

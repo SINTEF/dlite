@@ -71,7 +71,7 @@ MU_TEST(test_sscan)
   char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-read-data.json";
   FILE *fp = fopen(path, "r");
   mu_check(fp);
-  inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b");
+  inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b", NULL);
   fclose(fp);
   mu_check(inst);
 

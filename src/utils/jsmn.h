@@ -111,7 +111,7 @@ JSMN_API void jsmn_init(jsmn_parser *parser);
  * Returns
  * -------
  * On success, it returns the number of tokens actually used by the parser.
- * On error, one of the following codes is returned:
+ * On error, one of the following (negative) codes is returned:
  *
  *  - JSMN_ERROR_INVAL: bad token, JSON string is corrupted
  *  - JSMN_ERROR_NOMEM: not enough tokens, JSON string is too large
@@ -129,7 +129,7 @@ JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
 /**
  * Like jsmn_parse(), but realloc's the buffer pointed to by `tokens_ptr`
  * if it is too small.  `num_tokens_ptr` should point to the number of
- * allocated tokens.
+ * allocated tokens or be zero to `tokens_ptr` is not pre-allocated.
  *
  * Returns JSMN_ERROR_NOMEM on allocation error.
  */

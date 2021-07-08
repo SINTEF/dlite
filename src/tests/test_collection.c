@@ -18,6 +18,28 @@ DLiteCollection *coll = NULL;
  * Test collection
  ***************************************************************/
 
+MU_TEST(test1)
+{
+  FILE *fp = fopen("coll.json", "r");
+  coll = (DLiteCollection *)
+    dlite_json_fscan(fp, NULL, DLITE_COLLECTION_ENTITY);
+  fclose(fp);
+
+  printf("*** coll: %p\n", (void *)coll);
+
+  printf("----------------------------\n");
+
+  dlite_json_print((DLiteInstance *)coll);
+  dlite_instance_decref((DLiteInstance *)coll);
+
+  printf("----------------------------\n");
+
+}
+
+
+
+
+
 MU_TEST(test_collection_create)
 {
   mu_check((coll = dlite_collection_create("mycoll")));
@@ -173,7 +195,8 @@ MU_TEST(test_collection_load)
   dlite_collection_decref(coll);
 
   FILE *fp = fopen("coll1.json", "r");
-  coll2 = (DLiteCollection *)dlite_json_fscan(fp, NULL);
+  coll2 = (DLiteCollection *)
+    dlite_json_fscan(fp, NULL, "http://meta.sintef.no/0.1/Collection");
   fclose(fp);
   printf("\n\ncoll2:\n");
   dlite_json_print((DLiteInstance *)coll2);
@@ -206,6 +229,9 @@ MU_TEST(test_collection_free)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test1);
+
+
   MU_RUN_TEST(test_collection_create);     /* setup */
 
   MU_RUN_TEST(test_collection_add_relation);

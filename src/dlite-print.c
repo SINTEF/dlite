@@ -44,11 +44,11 @@
     if (m < 0) goto fail;                                       \
     n += m;                                                     \
   } while (0)
-#define PRINT4(fmt, a1, a2, a3, a4)                                 \
-  do {                                                              \
-    int m = snprintf(dest+n, PDIFF(size, n), fmt, a1, a2, a3, a4);  \
-    if (m < 0) goto fail;                                           \
-    n += m;                                                         \
+#define PRINT4(fmt, a1, a2, a3, a4)                                     \
+  do {                                                                  \
+    int m = snprintf(dest+n, PDIFF(size, n), fmt, a1, a2, a3, a4);      \
+    if (m < 0) goto fail;                                               \
+    n += m;                                                             \
   } while (0)
 
 
@@ -59,6 +59,7 @@ struct _DLiteJsonIter {
   unsigned int ntokens;   /*!< Number of allocated tokens */
   const jsmntok_t *t;     /*!< Pointer to current token */
   unsigned int n;         /*!< Current token number */
+  unsigned int size;      /*!< Size of the root object */
   char metauuid[DLITE_UUID_LENGTH+1];  /*!< UUID of metadata */
 };
 
@@ -149,11 +150,11 @@ int dlite_json_sprint(char *dest, size_t size, DLiteInstance *inst,
         for (j=0; j < p->ndims; j++) {
           char *cc = (j < p->ndims - 1) ? ", " : "";
           PRINT2("\"%s\"%s", p->dims[j], cc);
-            }
+        }
         PRINT("]");
       }
       if (p->unit)
-          PRINT2(",\n%s      \"unit\": \"%s\"", in, p->unit);
+        PRINT2(",\n%s      \"unit\": \"%s\"", in, p->unit);
       if (p->description)
         PRINT2(",\n%s      \"description\": \"%s\"", in, p->description);
       PRINT2("\n%s    }%s\n", in, c);
@@ -177,7 +178,7 @@ int dlite_json_sprint(char *dest, size_t size, DLiteInstance *inst,
   of size `*size`.  `*dest` is reallocated if needed.
 
   Returns number or bytes written or a negative number on error.
- */
+*/
 int dlite_json_asprint(char **dest, size_t *size, size_t pos,
                        DLiteInstance *inst, int indent, DLiteJsonFlag flags)
 {
@@ -203,7 +204,7 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
 /*
   Like dlite_json_sprint(), but returns allocated buffer with
   serialised instance.
- */
+*/
 char *dlite_json_aprint(DLiteInstance *inst, int indent, DLiteJsonFlag flags)
 {
   char *dest=NULL;
@@ -217,7 +218,7 @@ char *dlite_json_aprint(DLiteInstance *inst, int indent, DLiteJsonFlag flags)
   Like dlite_json_sprint(), but prints to stream `fp`.
 
   Returns number or bytes printed or a negative number on error.
- */
+*/
 int dlite_json_fprint(FILE *fp, DLiteInstance *inst, int indent,
                       DLiteJsonFlag flags)
 {
@@ -242,6 +243,79 @@ int dlite_json_print(DLiteInstance *inst)
 }
 
 
+/* ================================================================
+ * Scanning
+ * ================================================================ */
+
+/* Writes the UUID of the instance represented by `obj` to `uuid`.
+
+   Returns non-zero on error. */
+static int get_meta_uuid(char *uuid, const char *src, const jsmntok_t *obj)
+{
+  jsmntok_t *item;
+  int retval = 1;
+  char *buf=NULL;
+  size_t size=0;
+  const char *s = src + obj->start;
+  int len = obj->end - obj->start;
+  if (!(item = jsmn_item(src, (jsmntok_t *)obj, "meta")))
+    FAIL2("no 'meta' in json repr. of instance: %.*s", len, s);
+
+  if (item->type == JSMN_OBJECT) {
+    int n=0;
+    jsmntok_t *t;
+    if (!(t = jsmn_item(src, item, "namespace")))
+      FAIL2("no \"namespace\" in meta for object %.*s", len, s);
+    n += strnput(&buf, &size, n, src + t->start, t->end - t->start);
+
+    if (!(t = jsmn_item(src, item, "version")))
+      FAIL2("no \"version\" in meta for object %.*s", len, s);
+    n += asnpprintf(&buf, &size, n, "/%.*s", t->end - t->start, src+t->start);
+
+    if (!(t = jsmn_item(src, item, "name")))
+      FAIL2("no \"name\" in meta for object %.*s", len, s);
+    n += asnpprintf(&buf, &size, n, "/%.*s", t->end - t->start, src+t->start);
+
+  } else if (item->type == JSMN_STRING) {
+    strnput(&buf, &size, 0, src + item->start, item->end - item->start);
+
+  } else
+    return err(1, "\"meta\" in json repr. of instance should be either an "
+               "object or a string: %.*s", len, s);
+
+  if (dlite_get_uuid(uuid, buf) < 0) goto fail;
+
+  retval = 0;
+ fail:
+  if (buf) free(buf);
+  return retval;
+}
+
+/*
+  Search for instances in the JSON document provided to dlite_json_iter_init()
+  and returns a pointer to the corresponding jsmn token.
+
+  Returns NULL if there are no more tokens left.
+
+  See also dlite_json_next().
+*/
+static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length)
+{
+  while (iter->n < iter->size) {
+    const jsmntok_t *t = iter->t;
+    if (length) *length = t->end - t->start;
+    iter->t += jsmn_count(t + 1) + 2;
+    iter->n++;
+    if (*iter->metauuid) {
+      char uuid[DLITE_UUID_LENGTH+1];
+      const jsmntok_t *v = t + 1;
+      get_meta_uuid(uuid, iter->src, v);
+      if (strncmp(uuid, iter->metauuid, DLITE_UUID_LENGTH) == 0) return t;
+    } else
+      return t;
+  }
+  return NULL;
+}
 
 
 /*
@@ -301,7 +375,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       FAIL1("\"meta\" not string or object in object %s", id);
     }
     if (!(meta = dlite_meta_get(buf)) &&
-        !(meta = (DLiteMeta *)dlite_json_sscan(src, buf)))
+        !(meta = (DLiteMeta *)dlite_json_sscan(src, buf, NULL)))
       FAIL2("cannot find metadata '%s' when loading '%s' - please add the "
             "right storage to DLITE_STORAGES and try again", buf, id);
   } else {
@@ -347,8 +421,27 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     }
   }
 
+  printf("------------------ meta -------------------------\n");
+  dlite_json_print((DLiteInstance *)meta);
+  printf("-------------------------------------------------\n");
+  printf("*** id='%s'\n", id);
+  printf("*** dims:");
+  {
+    size_t i;
+    for (i=0; i < meta->_ndimensions; i++)
+      printf(" %d", (int)dims[i]);
+    printf("\n");
+  }
+
+
   /* Create instance */
   if (!(inst = dlite_instance_create(meta, dims, id))) goto fail;
+
+  printf("*** inst = %p\n", (void *)inst);
+  printf("------------------ inst -------------------------\n");
+  dlite_json_print(inst);
+  printf("-------------------------------------------------\n");
+
 
   /* Parse properties */
   if (meta->_nproperties > 0) {
@@ -377,10 +470,10 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     } else {
       int status;
 
-      ErrTry:
-        status = dlite_split_meta_uri(id, &name, &version, &namespace);
-      ErrCatch(1):
-        break;
+    ErrTry:
+      status = dlite_split_meta_uri(id, &name, &version, &namespace);
+    ErrCatch(1):
+      break;
       ErrEnd;
 
       if (status && dlite_instance_is_meta(inst))
@@ -437,36 +530,53 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   Returns a new instance scanned from `src`.
 
   `id` is the uri or uuid of the instance to load.  If the string only
-  contain one instance, `id` may be NULL.
+  contain one instance (of the required metadata), `id` may be NULL.
+
+  If `metaid` is not NULL, it should be the URI or UUID of the
+  metadata of the returned instance.  It is an error if no such
+  instance exists in the source.
 
   Returns the instance or NULL on error.
- */
-DLiteInstance *dlite_json_sscan(const char *src, const char *id)
+*/
+DLiteInstance *dlite_json_sscan(const char *src, const char *id,
+                                const char *metaid)
 {
   int i, r;
   char *buf=NULL;
+  DLiteJsonIter *iter=NULL;
   DLiteInstance *inst=NULL;
   unsigned int ntokens=0;
   jsmntok_t *tokens=NULL, *root;
   jsmn_parser parser;
+  size_t srclen = strlen(src);
 
   errno = 0;
 
   jsmn_init(&parser);
-  r = jsmn_parse_alloc(&parser, src, strlen(src), &tokens, &ntokens);
+  r = jsmn_parse_alloc(&parser, src, srclen, &tokens, &ntokens);
   if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
   root = tokens;
   if (root->type != JSMN_OBJECT) FAIL("json root should be an object");
 
   if (!id) {
-    if (root->size == 1) {
-      jsmntok_t *key = root + 1;
-      jsmntok_t *val = root + 2;
-      int len = key->end - key->start;
-      buf = strndup(src + key->start, len);
-      inst = parse_instance(src, val, buf);
-    } else {
+    if (jsmn_item(src, root, "properties")) {
       inst = parse_instance(src, root, id);
+    } else {
+      int len;
+      if (!(iter = dlite_json_iter_init(src, srclen, metaid))) goto fail;
+      const jsmntok_t *t1 = nexttok(iter, &len);
+      const jsmntok_t *t2 = nexttok(iter, NULL);
+      if (!t1) {
+        if (metaid)
+          FAIL1("json source has no instance with meta id: '%s'", metaid);
+        else
+          FAIL("no instances in json source");
+      }
+      if (t2) FAIL("`id` is required when scanning json input with "
+                     "multiple instances");
+      jsmntok_t *val = (jsmntok_t *)t1 + 1;
+      buf = strndup(src + t1->start, t1->end - t1->start);
+      if (!(inst = parse_instance(src, val, buf))) goto fail;
     }
   } else {
     int n=1;
@@ -484,31 +594,46 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id)
       buf = strndup(src+key->start, len);
       if (dlite_get_uuid(uuid2, buf) < 0) goto fail;
       if (strcmp(uuid2, uuid) == 0) {
-        inst = parse_instance(src, val, id);
+        if (!(inst = parse_instance(src, val, id))) goto fail;
         break;
       }
       n += jsmn_count(val) + 2;
     }
   }
+
+  assert(inst);
+  if (metaid) {
+    char uuid[DLITE_UUID_LENGTH + 1];
+    if (dlite_get_uuid(uuid, metaid) < 0 || strcmp(metaid, uuid) != 0) {
+      if (!id) id = (inst->iri) ? inst->iri : inst->uuid;
+      err(1, "instance '%s' has meta id '%s' but '%s' is expected",
+          id, inst->meta->uri, metaid);
+      dlite_instance_decref(inst);
+      inst = NULL;
+    }
+  }
+
  fail:
   free(tokens);
   if (buf) free(buf);
+  if (iter) dlite_json_iter_deinit(iter);
 
   return inst;
 }
+
 
 /*
   Like dlite_json_sscan(), but scans instance `id` from stream `fp` instead
   of a string.
 
   Returns the instance or NULL on error.
- */
-DLiteInstance *dlite_json_fscan(FILE *fp, const char *id)
+*/
+DLiteInstance *dlite_json_fscan(FILE *fp, const char *id, const char *metaid)
 {
   DLiteInstance *inst;
   char *buf;
   if (!(buf = fu_readfile(fp))) return NULL;
-  inst = dlite_json_sscan(buf, id);
+  inst = dlite_json_sscan(buf, id, metaid);
   free(buf);
   return inst;
 }
@@ -526,8 +651,11 @@ DLiteInstance *dlite_json_fscan(FILE *fp, const char *id)
   - length: length of `src`.  If zero or negative, all of `src` will be used.
   - metaid: limit the search to instances of metadata with this id.
 
+  The source should be a JSON object with keys being instance UUIDs
+  and values being the JSON representation of the individual instances.
+
   Returns new iterator or NULL on error.
- */
+*/
 DLiteJsonIter *dlite_json_iter_init(const char *src, int length,
                                     const char *metaid)
 {
@@ -544,6 +672,7 @@ DLiteJsonIter *dlite_json_iter_init(const char *src, int length,
   if (iter->tokens->type != JSMN_OBJECT) FAIL("json root should be an object");
   iter->src = src;
   iter->t = iter->tokens + 1;
+  iter->size = iter->tokens->size;
   if (metaid && dlite_get_uuid(iter->metauuid, metaid) < 0) goto fail;
 
   ok=1;
@@ -554,7 +683,7 @@ DLiteJsonIter *dlite_json_iter_init(const char *src, int length,
 
 /*
   Free's iterator created with dlite_json_iter_init().
- */
+*/
 void dlite_json_iter_deinit(DLiteJsonIter *iter)
 {
   if (iter) {
@@ -563,25 +692,24 @@ void dlite_json_iter_deinit(DLiteJsonIter *iter)
   }
 }
 
+
+
 /*
   Search for instances in the JSON document provided to dlite_json_iter_init()
   and returns a pointer to instance UUIDs.
 
+  `iter` should be an iterator created with dlite_json_iter_init().
+
+  If `length` is given, it is set to the length of the returned identifier.
+
   Returns a pointer to the next matching UUID or NULL if there are no more
   matches left.
- */
-  const char *dlite_json_next(DLiteJsonIter *iter, int *length)
-
+*/
+const char *dlite_json_next(DLiteJsonIter *iter, int *length)
 {
-  const jsmntok_t *t = iter->t;
-  while (iter->n < iter->ntokens) {
-    const char *p = iter->src + t->start;
-    if (length) *length = t->end - t->start;
-    iter->t += jsmn_count(t + 1) + 2;
-    if (*iter->metauuid) {
-      if (strncmp(p, iter->metauuid, DLITE_UUID_LENGTH) == 0) return p;
-    } else
-      return p;
-  }
+  const jsmntok_t *t = nexttok(iter, length);
+  if (t) printf("*** next: %.*s\n", t->end - t->start, iter->src + t->start);
+
+  if (t) return iter->src + t->start;
   return NULL;
 }
