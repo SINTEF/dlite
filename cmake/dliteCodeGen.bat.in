@@ -32,7 +32,7 @@ if exist "%TOOLSDIR%\dlite-codegen.exe" (
     )
   )
 )
-
+echo "Executing %CODEGEN% --output=@e_out_WINDOWS@ @template_option@ @_url@ @codegen_extra_options@"
 %CODEGEN% --output="@e_out_WINDOWS@" @template_option@ "@_url@" @codegen_extra_options@
 
 if %ERRORLEVEL% NEQ 0 (

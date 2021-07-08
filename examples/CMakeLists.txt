@@ -68,7 +68,7 @@ endmacro()
 #
 # The FORCE_EXAMPLES option gives us the option to bypass testing examples
 # if dlite hasn't been installed.  This may be useful in CI frameworks
-if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
+if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples AND NOT WITH_PYTHON_VENVTEST_ONLY)
   if(WITH_HDF5)
     test_example(ex1)
     test_example(ex2)
