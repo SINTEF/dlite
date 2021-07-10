@@ -7,7 +7,7 @@ set(tests
   test_storage
   test_entity
   test_property
-  test_print
+  test_json
   test_metamodel
   test_store
   test_triplestore
