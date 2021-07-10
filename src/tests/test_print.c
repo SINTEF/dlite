@@ -79,17 +79,7 @@ MU_TEST(test_sscan)
   dlite_json_fprint(stdout, inst, 0, 0);
 
   /* cleanup */
-  int refcount;
-  const DLiteMeta *meta = inst->meta;
-  dlite_meta_incref((DLiteMeta *)meta);
-  do {
-    refcount = inst->_refcount;
-    dlite_instance_decref(inst);
-  } while (refcount > 1);
-  do {
-    refcount = meta->_refcount;
-    dlite_meta_decref((DLiteMeta *)meta);
-  } while (refcount > 1);
+  dlite_instance_decref(inst);
 }
 
 

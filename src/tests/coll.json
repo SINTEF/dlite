@@ -1,0 +1,71 @@
+{
+  "6dd2f36a-f1e7-4a3e-a918-05bb9cd541ed": {
+    "meta": {
+      "name": "Collection",
+      "version": "0.1",
+      "namespace": "http://onto-ns.com/meta"
+    },
+    "dimensions": {
+      "nrelations": 4
+    },
+    "properties": {
+      "relations": [
+        {
+          "s": "inst",
+          "p": "_is-a",
+          "o": "Instance"
+        },
+        {
+          "s": "inst",
+          "p": "_has-uuid",
+          "o": "3ba1a32c-9536-4f16-8da9-564e6fb62d6c"
+        },
+        {
+          "s": "inst",
+          "p": "_has-meta",
+          "o": "http://onto-ns.com/meta/0.1/test-entity"
+        },
+        {
+          "s": "inst",
+          "p": "has_descr",
+          "o": "test instance"
+        }
+      ]
+    }
+  },
+  "3ba1a32c-9536-4f16-8da9-564e6fb62d6c": {
+    "meta": {
+      "name": "test-entity",
+      "version": "0.1",
+      "namespace": "http://onto-ns.com/meta"
+    },
+    "dimensions": {
+      "L": 2,
+      "M": 1,
+      "N": 3
+    },
+    "properties": {
+      "myblob": "0a0010",
+      "mydouble": 3.1400000000000001,
+      "myfixstring": "Al",
+      "mystring": "allocated string...",
+      "myshort": 17,
+      "myarray": [
+        [
+          [
+            1,
+            2,
+            3
+          ]
+        ],
+        [
+          [
+            4,
+            5,
+            6
+          ]
+        ]
+      ]
+    }
+  }
+}

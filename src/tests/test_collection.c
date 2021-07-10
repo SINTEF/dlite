@@ -18,23 +18,29 @@ DLiteCollection *coll = NULL;
  * Test collection
  ***************************************************************/
 
-MU_TEST(test1)
-{
-  FILE *fp = fopen("coll.json", "r");
-  coll = (DLiteCollection *)
-    dlite_json_fscan(fp, NULL, DLITE_COLLECTION_ENTITY);
-  fclose(fp);
-
-  printf("*** coll: %p\n", (void *)coll);
-
-  printf("----------------------------\n");
-
-  dlite_json_print((DLiteInstance *)coll);
-  dlite_instance_decref((DLiteInstance *)coll);
-
-  printf("----------------------------\n");
-
-}
+//MU_TEST(test1)
+//{
+//  FILE *fp = fopen("coll.json", "r");
+//  coll = (DLiteCollection *)
+//    dlite_json_fscan(fp, NULL, DLITE_COLLECTION_ENTITY);
+//  fclose(fp);
+//
+//  printf("*** coll: %p\n", (void *)coll);
+//  printf("----------------------------\n");
+//  dlite_json_print((DLiteInstance *)coll);
+//  printf("----------------------------\n");
+//
+//  const DLiteInstance *inst2 = dlite_collection_get(coll, "inst2");
+//  printf("***inst2: %p\n", (void *)inst2);
+//  printf("----------------------------\n");
+//  dlite_json_print((DLiteInstance *)coll);
+//  printf("----------------------------\n");
+//
+//
+//
+//  dlite_instance_decref((DLiteInstance *)coll);
+//  printf("==================== test1 done ================================\n");
+//}
 
 
 
@@ -185,42 +191,60 @@ MU_TEST(test_collection_save)
 
 MU_TEST(test_collection_load)
 {
-  DLiteStorage *s;
   DLiteCollection *coll2;
-  char uuid[DLITE_UUID_LENGTH+1];
-  strncpy(uuid, coll->uuid, sizeof(uuid));
+  char *collpath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/coll.json";
+  DLiteStoragePathIter *iter;
+  const char *path;
+  //DLiteStorage *s;
+  //char uuid[DLITE_UUID_LENGTH+1];
+  //strncpy(uuid, coll->uuid, sizeof(uuid));
 
-  printf("\n\ncoll:\n");
-  dlite_json_print((DLiteInstance *)coll);
-  dlite_collection_decref(coll);
+  //dlite_collection_decref(coll);
 
-  FILE *fp = fopen("coll1.json", "r");
+  dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
+
+  printf("\n\nStorage paths:\n");
+  iter = dlite_storage_paths_iter_start();
+  while ((path = dlite_storage_paths_iter_next(iter)))
+    printf("  - %s\n", path);
+  printf("\n");
+  dlite_storage_paths_iter_stop(iter);
+
+
+
+  FILE *fp = fopen(collpath, "r");
   coll2 = (DLiteCollection *)
-    dlite_json_fscan(fp, NULL, "http://meta.sintef.no/0.1/Collection");
+    dlite_json_fscan(fp, NULL, "http://onto-ns.com/meta/0.1/Collection");
   fclose(fp);
-  printf("\n\ncoll2:\n");
+  printf("\n\n--- coll2: %p ---\n", (void *)coll2);
   dlite_json_print((DLiteInstance *)coll2);
-
-
-
-  mu_check((s = dlite_storage_open("json", "coll1.json", "mode=r")));
-  mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, uuid)));
-  mu_check(dlite_storage_close(s) == 0);
-
-  printf("\n\ncoll2:\n");
-  dlite_json_print((DLiteInstance *)coll2);
-
-  mu_check((s = dlite_storage_open("json", "coll2.json", "mode=w")));
-  mu_check(dlite_instance_save(s, (DLiteInstance *)coll2) == 0);
-  mu_check(dlite_storage_close(s) == 0);
-
+  printf("----------------------\n");
+  const DLiteInstance *inst = dlite_collection_get(coll2, "inst");
+  printf("\n--- inst: %p ---\n", (void *)inst);
+  dlite_json_print((DLiteInstance *)inst);
+  printf("----------------------\n");
   dlite_collection_decref(coll2);
+  printf("----------------------\n");
+
+  //mu_check((s = dlite_storage_open("json", "coll1.json", "mode=r")));
+  //mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, uuid)));
+  //mu_check(dlite_storage_close(s) == 0);
+  //
+  //printf("\n\ncoll2:\n");
+  //dlite_json_print((DLiteInstance *)coll2);
+  //
+  //mu_check((s = dlite_storage_open("json", "coll2.json", "mode=w")));
+  //mu_check(dlite_instance_save(s, (DLiteInstance *)coll2) == 0);
+  //mu_check(dlite_storage_close(s) == 0);
+  //
+  //dlite_collection_decref(coll2);
 }
 
 
 MU_TEST(test_collection_free)
 {
-  //dlite_collection_decref(coll);
+  printf("------- done ---------\n");
+  dlite_collection_decref(coll);
 }
 
 
@@ -229,7 +253,7 @@ MU_TEST(test_collection_free)
 
 MU_TEST_SUITE(test_suite)
 {
-  MU_RUN_TEST(test1);
+  //MU_RUN_TEST(test1);
 
 
   MU_RUN_TEST(test_collection_create);     /* setup */

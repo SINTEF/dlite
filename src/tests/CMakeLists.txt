@@ -64,5 +64,7 @@ foreach(test ${tests})
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES='${CMAKE_CURRENT_SOURCE_DIR}/*.json'")
 
 endforeach()

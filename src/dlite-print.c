@@ -247,13 +247,11 @@ int dlite_json_print(DLiteInstance *inst)
  * Scanning
  * ================================================================ */
 
-/* Writes the UUID of the instance represented by `obj` to `uuid`.
-
-   Returns non-zero on error. */
-static int get_meta_uuid(char *uuid, const char *src, const jsmntok_t *obj)
+/* Returns a malloc buffer with the URI of the metadata of `obj` or
+   NULL on error. */
+static char *get_meta_uri(const char *src, const jsmntok_t *obj)
 {
   jsmntok_t *item;
-  int retval = 1;
   char *buf=NULL;
   size_t size=0;
   const char *s = src + obj->start;
@@ -281,13 +279,22 @@ static int get_meta_uuid(char *uuid, const char *src, const jsmntok_t *obj)
 
   } else
     return err(1, "\"meta\" in json repr. of instance should be either an "
-               "object or a string: %.*s", len, s);
+               "object or a string: %.*s", len, s), NULL;
+ fail:
+  return buf;
+}
 
+/* Writes the UUID of the instance represented by `obj` to `uuid`.
+   Returns non-zero on error. */
+static int get_meta_uuid(char *uuid, const char *src, const jsmntok_t *obj)
+{
+  int retval=1;
+  char *buf;
+  if (!(buf = get_meta_uri(src, obj))) goto fail;
   if (dlite_get_uuid(uuid, buf) < 0) goto fail;
-
   retval = 0;
  fail:
-  if (buf) free(buf);
+  free(buf);
   return retval;
 }
 
@@ -331,7 +338,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 {
   int ok=0;
   jsmntok_t *item, *t;
-  char *buf=NULL, *uri=NULL, uuid[DLITE_UUID_LENGTH+1];
+  char *buf=NULL, *uri=NULL, *metauri=NULL, uuid[DLITE_UUID_LENGTH+1];
   size_t i, size=0, *dims=NULL;
   DLiteInstance *inst=NULL;
   const DLiteMeta *meta;
@@ -355,32 +362,15 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
   /* Get metadata */
   if ((item = jsmn_item(src, obj, "meta"))) {
-    int len = item->end - item->start;
-    if (item->type == JSMN_STRING) {
-      strnput(&buf, &size, 0, src + item->start, len);
-    } else if (item->type == JSMN_OBJECT) {
-      int n=0;
-      if (!(t = jsmn_item(src, item, "namespace")))
-        FAIL1("no \"namespace\" in meta for object %s", id);
-      n += strnput(&buf, &size, n, src + t->start, t->end - t->start);
-
-      if (!(t = jsmn_item(src, item, "version")))
-        FAIL1("no \"version\" in meta for object %s", id);
-      n += asnpprintf(&buf, &size, n, "/%.*s", t->end - t->start, src+t->start);
-
-      if (!(t = jsmn_item(src, item, "name")))
-        FAIL1("no \"name\" in meta for object %s", id);
-      n += asnpprintf(&buf, &size, n, "/%.*s", t->end - t->start, src+t->start);
-    } else {
-      FAIL1("\"meta\" not string or object in object %s", id);
-    }
-    if (!(meta = dlite_meta_get(buf)) &&
-        !(meta = (DLiteMeta *)dlite_json_sscan(src, buf, NULL)))
+    if (!(metauri = get_meta_uri(src, obj))) goto fail;
+    if (!(meta = dlite_meta_get(metauri)) &&
+        !(meta = (DLiteMeta *)dlite_json_sscan(src, metauri, NULL)))
       FAIL2("cannot find metadata '%s' when loading '%s' - please add the "
-            "right storage to DLITE_STORAGES and try again", buf, id);
+            "right storage to DLITE_STORAGES and try again", metauri, id);
   } else {
-    /* If "meta" is not given, we assume it is an entity */
-    meta = dlite_get_entity_schema();
+    /* If "meta" is not given, we assume it is an entity. */
+    meta = dlite_get_entity_schema();  // borrowed reference
+    dlite_meta_incref((DLiteMeta *)meta);
   }
   assert(meta);
 
@@ -421,27 +411,8 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     }
   }
 
-  printf("------------------ meta -------------------------\n");
-  dlite_json_print((DLiteInstance *)meta);
-  printf("-------------------------------------------------\n");
-  printf("*** id='%s'\n", id);
-  printf("*** dims:");
-  {
-    size_t i;
-    for (i=0; i < meta->_ndimensions; i++)
-      printf(" %d", (int)dims[i]);
-    printf("\n");
-  }
-
-
   /* Create instance */
   if (!(inst = dlite_instance_create(meta, dims, id))) goto fail;
-
-  printf("*** inst = %p\n", (void *)inst);
-  printf("------------------ inst -------------------------\n");
-  dlite_json_print(inst);
-  printf("-------------------------------------------------\n");
-
 
   /* Parse properties */
   if (meta->_nproperties > 0) {
@@ -482,10 +453,10 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
     /* -- read properties */
     for (i=0; i < meta->_nproperties; i++) {
-      void *ptr;
       DLiteProperty *p = meta->_properties + i;
       size_t *pdims = DLITE_PROP_DIMS(inst, i);
-      if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
+      void *ptr = DLITE_PROP(inst, i);
+      if (DLITE_PROP_NDIM(inst, i) > 0) ptr = *(void **)ptr;
       if ((t = jsmn_item(src, base, p->name))) {
         strnput(&buf, &size, 0, src+t->start, t->end-t->start);
         if (dlite_property_scan(buf, ptr, p, pdims, 0) < 0) goto fail;
@@ -500,12 +471,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
         } else
           FAIL2("missing property \"%s\" in %s", p->name, id);
       }
-
-      printf("*** load prop: %s : %d\n", meta->uri, (int)i);
-      if (meta->_loadprop) {
-        printf("+++\n");
-        meta->_loadprop(inst, i);
-      }
+      if (meta->_loadprop) meta->_loadprop(inst, i);
     }
   }
   if (dlite_instance_is_meta(inst)) dlite_meta_init((DLiteMeta *)inst);
@@ -518,10 +484,12 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   if (dims) free(dims);
   if (buf) free(buf);
   if (uri) free(uri);
+  if (metauri) free(metauri);
   if (!ok && inst) {
     dlite_instance_decref(inst);
     inst = NULL;
   }
+  if (meta) dlite_meta_decref((DLiteMeta *)meta);
   return inst;
 }
 
@@ -588,11 +556,10 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id,
       jsmntok_t *val = root + n+1;
       int len = key->end - key->start;
       if (key->type != JSMN_STRING) FAIL("expect json keys to be strings");
-      if (len >= (int)sizeof(buf))
-        FAIL3("key exceeded maximum key length (%d): %.*s",
-              (int)sizeof(buf), len, src+key->start);
       buf = strndup(src+key->start, len);
       if (dlite_get_uuid(uuid2, buf) < 0) goto fail;
+      free(buf);
+      buf = NULL;
       if (strcmp(uuid2, uuid) == 0) {
         if (!(inst = parse_instance(src, val, id))) goto fail;
         break;
@@ -604,7 +571,8 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id,
   assert(inst);
   if (metaid) {
     char uuid[DLITE_UUID_LENGTH + 1];
-    if (dlite_get_uuid(uuid, metaid) < 0 || strcmp(metaid, uuid) != 0) {
+    if (dlite_get_uuid(uuid, metaid) < 0 ||
+        (strcmp(metaid, uuid) != 0 && strcmp(metaid, inst->meta->uri) != 0)) {
       if (!id) id = (inst->iri) ? inst->iri : inst->uuid;
       err(1, "instance '%s' has meta id '%s' but '%s' is expected",
           id, inst->meta->uri, metaid);

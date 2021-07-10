@@ -1073,7 +1073,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     {
       DLiteRelation *rel = p;
       jsmn_parser parser;
-      jsmntok_t tokens[5], *t;
+      jsmntok_t tokens[7], *t;
       int r;
 
       if (rel->s) free(rel->s);
@@ -1084,23 +1084,33 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, len, tokens, 5)) < 0)
+      if ((r = jsmn_parse(&parser, src, len, tokens, 7)) < 0)
         return err(-1, "cannot parse relation: %s: '%s'",
                    jsmn_strerror(r), src);
-      if (tokens->type != JSMN_ARRAY)
-        return errx(-1, "relation should be a JSON array");
       if (tokens->size < 3 || tokens->size > 4)
         return errx(-1, "relation should have 3 (optionally 4) elements");
       m = tokens->end - tokens->start;
-
-      if (!(t = jsmn_element(src, tokens, 0))) return -1;
-      rel->s = strndup(src + t->start, t->end - t->start);
-      if (!(t = jsmn_element(src, tokens, 1))) return -1;
-      rel->p = strndup(src + t->start, t->end - t->start);
-      if (!(t = jsmn_element(src, tokens, 2))) return -1;
-      rel->o = strndup(src + t->start, t->end - t->start);
-      if (tokens->size > 3 && (t = jsmn_element(src, tokens, 3)))
-        rel->id = strndup(src + t->start, t->end - t->start);
+      if (tokens->type == JSMN_ARRAY) {
+        if (!(t = jsmn_element(src, tokens, 0))) return -1;
+        rel->s = strndup(src + t->start, t->end - t->start);
+        if (!(t = jsmn_element(src, tokens, 1))) return -1;
+        rel->p = strndup(src + t->start, t->end - t->start);
+        if (!(t = jsmn_element(src, tokens, 2))) return -1;
+        rel->o = strndup(src + t->start, t->end - t->start);
+        if (tokens->size > 3 && (t = jsmn_element(src, tokens, 3)))
+          rel->id = strndup(src + t->start, t->end - t->start);
+      } else if (tokens->type == JSMN_OBJECT) {
+        if (!(t = jsmn_item(src, tokens, "s"))) return -1;
+        rel->s = strndup(src + t->start, t->end - t->start);
+        if (!(t = jsmn_item(src, tokens, "p"))) return -1;
+        rel->p = strndup(src + t->start, t->end - t->start);
+        if (!(t = jsmn_item(src, tokens, "o"))) return -1;
+        rel->o = strndup(src + t->start, t->end - t->start);
+        if ((t = jsmn_item(src, tokens, "id")))
+          rel->id = strndup(src + t->start, t->end - t->start);
+      } else {
+        return errx(-1, "relation should be a JSON array");
+      }
     }
     break;
   }

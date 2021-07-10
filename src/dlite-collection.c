@@ -43,7 +43,7 @@ int dlite_collection_deinit(DLiteInstance *inst)
     if ((inst2 = dlite_instance_get(r->o))) {
       dlite_instance_decref(inst2);
     } else {
-      warn("cannot remove missing instance: %s", r->o);
+      warnx("cannot remove missing instance: %s", r->o);
     }
   }
   dlite_collection_deinit_state(&state);
@@ -63,15 +63,28 @@ int dlite_collection_getdim(const DLiteInstance *inst, size_t i)
 /* Loads instance relations to triplestore.  Returns -1 on error. */
 int dlite_collection_loadprop(const DLiteInstance *inst, size_t i)
 {
+  int retval = 0;
   DLiteCollection *coll = (DLiteCollection *)inst;
-  printf("*** loadprop: %d\n", (int)i);
-  printf("*** uuid: %s\n", inst->uuid);
-  printf("*** uri: %s\n", inst->uri);
+  TripleState state;
+  const Triple *t;
   if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
   triplestore_clear(coll->rstore);
   if (triplestore_add_triples(coll->rstore, coll->relations, coll->nrelations))
     return -1;
-  return 0;
+
+  /* Iterate over all newly added triples and load instances corresponding
+     to "_has-uuid" relations. */
+  triplestore_init_state(coll->rstore, &state);
+  while ((t = triplestore_find(&state, NULL, "_has-uuid", NULL))) {
+    DLiteInstance *inst2 = dlite_instance_get(t->o);
+    if (!inst2) retval = errx(1, "cannot get instance \"%s\" labeled \"%s\" "
+                              "from collection \"%s\".  "
+                              "Is DLITE_STORAGES properly set?",
+                              t->o, t->s, coll->uuid);
+  }
+  triplestore_deinit_state(&state);
+
+  return retval;
 }
 
 /* Saves triplestore to instance relations. Returns non-zero on error. */
@@ -80,15 +93,20 @@ int dlite_collection_saveprop(DLiteInstance *inst, size_t i)
   DLiteCollection *coll = (DLiteCollection *)inst;
   TripleState state;
   const Triple *t;
-  size_t n = 0;
+  int n, j=0;
+
+  if ((n = dlite_instance_get_dimension_size_by_index(inst, i)) < 0) return -1;
   if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
+
   triplestore_init_state(coll->rstore, &state);
   while ((t = triplestore_next(&state))) {
-    assert(n < coll->nrelations);
-    triple_copy(coll->relations + n, t);
-    n++;
+    assert(j < (int)coll->nrelations);
+    triple_copy(coll->relations + j, t);
+    j++;
   }
   triplestore_deinit_state(&state);
+
+  assert(j == n);
   return 0;
 }
 
@@ -415,7 +433,7 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
     dlite_instance_decref(inst);
     return inst;
   }
-  err(1, "cannot load instance '%s' from collection", label);
+  errx(1, "cannot load instance '%s' from collection", label);
   return NULL;
 }
 
@@ -447,7 +465,7 @@ DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
   if (!inst) return NULL;
   if (metaid) {
     if (!(inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1)))
-      err(1, "cannot map instance labeled '%s' to '%s'", label, metaid);
+      errx(1, "cannot map instance labeled '%s' to '%s'", label, metaid);
   } else
     dlite_instance_incref(inst);
   return inst;
