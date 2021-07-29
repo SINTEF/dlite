@@ -152,7 +152,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 
 /** @brief Buffer size for error messages. */
 #ifndef ERR_MSGSIZE
-#define ERR_MSGSIZE 1024
+#define ERR_MSGSIZE 4096
 #endif
 
 /** @brief Default error stream (checks the ERR_STREAM environment variable) */

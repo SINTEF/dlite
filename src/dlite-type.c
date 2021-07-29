@@ -992,7 +992,8 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     {
       DLiteDimension *dim = p;
       jsmn_parser parser;
-      jsmntok_t tokens[5], *t;
+      jsmntok_t tokens[5];
+      const jsmntok_t *t;
       int r;
 
       if (dim->name) free(dim->name);
@@ -1020,7 +1021,8 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     {
       DLiteProperty *prop = p;
       jsmn_parser parser;
-      jsmntok_t tokens[32], *t, *d;
+      jsmntok_t tokens[32];
+      const jsmntok_t *t, *d;
       int r, i;
 
       if (prop->name) free(prop->name);
@@ -1073,7 +1075,8 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     {
       DLiteRelation *rel = p;
       jsmn_parser parser;
-      jsmntok_t tokens[7], *t;
+      jsmntok_t tokens[7];
+      const jsmntok_t *t;
       int r;
 
       if (rel->s) free(rel->s);

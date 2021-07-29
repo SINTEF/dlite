@@ -2,7 +2,6 @@
 #
 
 set(tests
-  test_json_utils
   test_json_storage
   )
 

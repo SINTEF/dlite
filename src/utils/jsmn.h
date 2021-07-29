@@ -129,7 +129,7 @@ JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
 /**
  * Like jsmn_parse(), but realloc's the buffer pointed to by `tokens_ptr`
  * if it is too small.  `num_tokens_ptr` should point to the number of
- * allocated tokens or be zero to `tokens_ptr` is not pre-allocated.
+ * allocated tokens or be zero if `tokens_ptr` is not pre-allocated.
  *
  * Returns JSMN_ERROR_NOMEM on allocation error.
  */
@@ -140,7 +140,7 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
 /**
  * Returns number of sub-tokens contained in `t` or -1 on error.
  */
-  JSMN_API int jsmn_count(const jsmntok_t *t);
+int jsmn_count(const jsmntok_t *t);
 
 
 /**
@@ -150,7 +150,7 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
  *
  * Returns NULL on error.
  */
-JSMN_API jsmntok_t *jsmn_item(const char *js, jsmntok_t *t, const char *key);
+const jsmntok_t *jsmn_item(const char *js, const jsmntok_t *t, const char *key);
 
 
 /**
@@ -160,13 +160,13 @@ JSMN_API jsmntok_t *jsmn_item(const char *js, jsmntok_t *t, const char *key);
  *
  * Returns NULL on error.
  */
-JSMN_API jsmntok_t *jsmn_element(const char *js, jsmntok_t *t, int i);
+const jsmntok_t *jsmn_element(const char *js, const jsmntok_t *t, int i);
 
 
 /**
  * Returns error message corresponding to return value from jsmn_parse().
  */
-JSMN_API const char *jsmn_strerror(int r);
+const char *jsmn_strerror(int r);
 
 
 

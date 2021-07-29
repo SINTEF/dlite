@@ -18,7 +18,8 @@ MU_TEST(test_jsmn)
     "}";
 
   jsmn_parser p;
-  jsmntok_t tokens[128], *t; /* We expect no more than 128 JSON tokens */
+  jsmntok_t tokens[128];
+  const jsmntok_t *t; /* We expect no more than 128 JSON tokens */
   int r;
   //char *name;
   //char *type;

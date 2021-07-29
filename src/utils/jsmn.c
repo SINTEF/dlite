@@ -96,7 +96,7 @@ int jsmn_count(const jsmntok_t *t)
 
   Returns NULL on error.
 */
-jsmntok_t *jsmn_item(const char *js, jsmntok_t *t, const char *key)
+const jsmntok_t *jsmn_item(const char *js, const jsmntok_t *t, const char *key)
 {
   int i, n, nitems;
   int len, keylen=strlen(key);
@@ -122,7 +122,7 @@ jsmntok_t *jsmn_item(const char *js, jsmntok_t *t, const char *key)
 
   Returns NULL on error.
 */
-jsmntok_t *jsmn_element(const char *js, jsmntok_t *t, int i)
+const jsmntok_t *jsmn_element(const char *js, const jsmntok_t *t, int i)
 {
   int j, n;
   (void)js;  // unused
@@ -142,7 +142,7 @@ jsmntok_t *jsmn_element(const char *js, jsmntok_t *t, int i)
 /*
   Returns error message corresponding to return value from jsmn_parse().
 */
-JSMN_API const char *jsmn_strerror(int r)
+const char *jsmn_strerror(int r)
 {
   if (r >= 0) return "success";
   switch (r) {

@@ -2431,8 +2431,8 @@ static int scandim(int d, const char *src, void **pptr,
   For arrays, `ptr` should points to the first element and will not be
   not dereferenced.  Evaluated dimension sizes are given by `dims`.
 
-  The `flags` provides some format options.  If zero (default) bools
-  and strings are expected to be quoted.
+  The `flags` provides some format options.  If zero (default)
+  strings are expected to be quoted.
 
   Returns number of characters consumed from `src` or a negative
   number on error.
@@ -2447,7 +2447,6 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
     jsmntok_t *tokens=NULL, *t;
     jsmn_parser parser;
     jsmn_init(&parser);
-    if (flags == dliteFlagDefault) flags = dliteFlagQuoted;
     r = jsmn_parse_alloc(&parser, src, strlen(src), &tokens, &ntokens);
     if (r < 0) return err(r, "error parsing input: %s", jsmn_strerror(r));
     t = tokens;
