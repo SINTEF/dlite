@@ -676,8 +676,6 @@ void dlite_json_iter_deinit(DLiteJsonIter *iter)
 const char *dlite_json_next(DLiteJsonIter *iter, int *length)
 {
   const jsmntok_t *t = nexttok(iter, length);
-  if (t) printf("*** next: %.*s\n", t->end - t->start, iter->src + t->start);
-
   if (t) return iter->src + t->start;
   return NULL;
 }
