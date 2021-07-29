@@ -540,8 +540,8 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id,
         else
           FAIL("no instances in json source");
       }
-      if (t2) FAIL("`id` is required when scanning json input with "
-                     "multiple instances");
+      if (t2) FAIL("`id` (or `metaid`) is required when scanning json input "
+                     "with multiple instances");
       jsmntok_t *val = (jsmntok_t *)t1 + 1;
       buf = strndup(src + t1->start, t1->end - t1->start);
       if (!(inst = parse_instance(src, val, buf))) goto fail;

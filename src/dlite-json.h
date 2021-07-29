@@ -68,7 +68,11 @@ int dlite_json_print(DLiteInstance *inst);
   Returns a new instance scanned from `src`.
 
   `id` is the uri or uuid of the instance to load.  If the string only
-  contain one instance, `id` may be NULL.
+  contain one instance (of the required metadata), `id` may be NULL.
+
+  If `metaid` is not NULL, it should be the URI or UUID of the
+  metadata of the returned instance.  It is an error if no such
+  instance exists in the source.
 
   Returns the instance or NULL on error.
  */
