@@ -86,7 +86,7 @@ int dlite_json_sprint(char *dest, size_t size, DLiteInstance *inst,
   in[indent] = '\0';
 
   PRINT1("%s{\n", in);
-  if (flags & dliteJsonUuid)
+  if (flags & dliteJsonWithUuid)
     PRINT2("%s  \"uuid\": \"%s\",\n", in, inst->uuid);
   if (inst->uri)
     PRINT2("%s  \"uri\": \"%s\",\n", in, inst->uri);

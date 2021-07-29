@@ -39,7 +39,7 @@ MU_TEST(test_sprint)
   mu_assert_int_eq(1066, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
-                  dliteJsonWithUuid | dliteJsonMetaAsData);
+                        dliteJsonWithUuid | dliteJsonMetaAsData);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
   mu_assert_int_eq(1152, m);

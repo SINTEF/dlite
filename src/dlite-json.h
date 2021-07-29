@@ -1,17 +1,18 @@
-/* A set of utility function for serialising and deserialising dlite
-   instances to/from JSON.
+/**
+  @file
+  @brief Provides built-in support for JSON in dlite
 
-   This file provides built-in support for JSON to DLite.  This will not
-   replace
- */
+  A set of utility function for serialising and deserialising dlite
+  instances to/from JSON.
+*/
 
 #ifndef _DLITE_PRINT_H
 #define _DLITE_PRINT_H
 
 
 typedef enum {
-  dliteJsonUuid=1,        /*!< Whether to include uuid */
-  dliteJsonMetaAsData=2,  /*!< Whether to print entities simplified */
+  dliteJsonWithUuid=1,    /*!< Whether to include uuid in output */
+  dliteJsonMetaAsData=2,  /*!< Whether to write metadata as data */
 } DLiteJsonFlag;
 
 /**
