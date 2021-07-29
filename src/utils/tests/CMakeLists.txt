@@ -22,6 +22,7 @@ set(tests
   test_uuid4
   test_infixcalc
   test_jsmn
+  test_jstore
 
   tgen_example
   )

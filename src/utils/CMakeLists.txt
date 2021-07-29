@@ -260,6 +260,7 @@ set(sources
   tmpfileplus.c
   infixcalc.c
   jsmn.c
+  jstore.c
 
   md5.c
   sha1.c
