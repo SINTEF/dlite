@@ -1,6 +1,6 @@
 {
-  "empty": {
-    "meta": {},
+  "dlite/1/empty": {
+    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
     "dimensions": {},
     "properties": {}
   },
@@ -25,20 +25,25 @@
       ]
     }
   },
-  "b": {
-    "uri": "test-b",
-    "meta": "dlite/1.0/B",
-    "dimensions": {},
-    "properties": {}
+  "2f4ae7b7-247a-5cc2-b6c5-5ac0ccd8cc5c": {
+    "meta": "dlite/1/A",
+    "dimensions": {
+      "N": 0
+    },
+    "properties": {
+      "P1": 1,
+      "P2": []
+    }
   },
-  "c": {
+  "ae8594ef-4ceb-5fca-ab41-b8a030b99966": {
     "uri": "test-c",
-    "meta": {},
+    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
     "dimensions": {},
     "properties": {}
   },
-  "dlite/1/A": {
+  "0a75c038-1ea1-5916-bbd4-6d0298894f4c": {
     "uri": "dlite/1/A",
+    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
     "description": "dummy entity",
     "dimensions": [
       {"name": "N", "description": "length of P2"}
@@ -50,7 +55,7 @@
       },
       {
         "name": "P2",
-        "type": "int",
+        "type": "float",
         "dims": ["N"],
         "description": "array"
       }

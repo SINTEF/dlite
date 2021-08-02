@@ -39,7 +39,7 @@ int dlite_python_storage_paths_append(const char *path);
   Removes path index `n` to Python storage paths.
   Returns non-zero on error.
 */
-int dlite_python_storage_paths_remove(int n);
+int dlite_python_storage_paths_delete(int n);
 
 /**
   Returns a pointer to the current Python storage plugin search path

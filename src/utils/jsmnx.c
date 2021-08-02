@@ -1,4 +1,10 @@
-/* jsmn.h -- small and fast JSON parser, see https://github.com/zserge/jsmn */
+/* jsmnx.c -- extended version of the simple JSMN JSON parser
+ *
+ * Copyright (C) 2021 SINTEF
+ *
+ * Distributed under terms of the MIT license.
+ */
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,15 +14,9 @@
 /* Include the jsmn.h header without defining JSMN_HEADER defined.
    This defines all functions in jsmn. */
 #define JSNM_STATIC
+#define JSMN_STRICT
+#define JSMN_PARENT_LINKS
 #include "jsmn.h"
-
-
-/*
-  Additional functions not provided with the minimalistic jsmn api
-  ================================================================
-
-  We allow dependencies on the standard library in this file.
- */
 
 
 /*

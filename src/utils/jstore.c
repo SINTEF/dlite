@@ -124,7 +124,7 @@ int jstore_addstolen(JStore *js, const char *key, const char *value)
 
 /* Returns JSON value for given key or NULL if the key isn't in the store.
    This function can also be used to check if a key exists in the store. */
-char *jstore_get(JStore *js, const char *key)
+const char *jstore_get(JStore *js, const char *key)
 {
   char **p = map_get(&js->store, key);
   return (p) ? *p : NULL;

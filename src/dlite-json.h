@@ -1,14 +1,15 @@
 /**
   @file
-  @brief Provides built-in sopport for JSON in dlite
- */
+  @brief Provides built-in support for JSON in dlite
 
-#ifndef _DLITE_PRINT_H
-#define _DLITE_PRINT_H
+  A set of utility function for serialising and deserialising dlite
+  instances to/from JSON.
+*/
+#ifndef _DLITE_JSON_H
+#define _DLITE_JSON_H
 
 #include "utils/jstore.h"
-#define JSMN_HEADER
-#include "utils/jsmn.h"
+#include "utils/jsmnx.h"
 
 
 /** Flags for serialisation */
@@ -18,13 +19,13 @@ typedef enum {
 } DLiteJsonFlag;
 
 
-/** Iterater struct */
-typedef struct _DLiteJsonIter {
-  JStoreIter jiter;                    /*!< jstore iterater */
-  char metauuid[DLITE_UUID_LENGTH+1];  /*!< UUID of metadata */
-  jsmntok_t *tokens;                   /*!< pointer to allocated tokens */
-  unsigned int ntokens;                /*!< number of allocated tokens */
-} DLiteJsonIter;
+///** Iterater struct */
+//typedef struct _DLiteJsonIter {
+//  JStoreIter jiter;                    /*!< jstore iterater */
+//  char metauuid[DLITE_UUID_LENGTH+1];  /*!< UUID of metadata */
+//  jsmntok_t *tokens;                   /*!< pointer to allocated tokens */
+//  unsigned int ntokens;                /*!< number of allocated tokens */
+//} DLiteJsonIter;
 
 
 /**
@@ -83,13 +84,16 @@ int dlite_json_print(const DLiteInstance *inst);
 /**
   Appends json representation of `inst` to json string pointed to by `*s`.
 
-  The input/output string `*s` will be reallocated as needed. `*size` if
-  the size of `*s`.
+  On input, `*s` should be a malloc'ed string representation of a json object.
+  It will be reallocated as needed.
+
+  `*size` if the allocated size of `*s`.  It will be updated when `*s`
+  is realocated.
 
   Returns number or bytes inserted or a negative number on error.
  */
-//int dlite_json_append(char **s, size_t *size, const DLiteInstance *inst,
-//                      DLiteJsonFlag flags);
+int dlite_json_append(char **s, size_t *size, const DLiteInstance *inst,
+                      DLiteJsonFlag flags);
 
 
 /** @} */
@@ -131,81 +135,104 @@ DLiteInstance *dlite_json_scanfile(const char *filename, const char *id,
                                    const char *metaid);
 
 
+
+
+/** @} */
+/**
+ * @name Iterator
+ */
+/** @{ */
+
+/** Opaque iterator struct */
+typedef struct _DLiteJsonIter DLiteJsonIter;
+
+/**
+  Creates and returns a new iterator used by dlite_json_next().
+
+  Arguments
+  - src: input JSON string to search.
+  - length: length of `src`.  If zero or negative, all of `src` will be used.
+  - metaid: limit the search to instances of metadata with this id.
+
+  The source should be a JSON object with keys being instance UUIDs
+  and values being the JSON representation of the individual instances.
+
+  Returns a new iterator or NULL on error.
+ */
+DLiteJsonIter *dlite_json_iter_create(const char *src, int length,
+                                      const char *metaid);
+
+/**
+  Free's iterator created with dlite_json_iter_create().
+ */
+void dlite_json_iter_free(DLiteJsonIter *iter);
+
+/**
+  Search for instances in the JSON document provided to dlite_json_iter_create()
+  and returns a pointer to instance UUIDs.
+
+  `iter` should be an iterator created with dlite_json_iter_create().
+
+  If `length` is given, it is set to the length of the returned identifier.
+
+  Returns a pointer to the next matching UUID or NULL if there are no more
+  matches left.
+ */
+const char *dlite_json_next(DLiteJsonIter *iter, int *length);
+
+
+
 /** @} */
 /**
  * @name JSON store
  */
 /** @{ */
 
+/** Opaque iterator struct */
+typedef struct _DLiteJStoreIter DLiteJStoreIter;
+
 /**
-  Appends json representation of `inst` to json store `js`.
+  Add json representation of `inst` to json store `js`.
 
   Returns non-zero on error.
  */
-int dlite_json_add(JStore *js, const DLiteInstance *inst, DLiteJsonFlag flags);
+int dlite_jstore_add(JStore *js, const DLiteInstance *inst,
+                     DLiteJsonFlag flags);
+
+/**
+  Removes instance with given id from json store `js`.
+
+  Returns non-zero on error.
+ */
+int dlite_jstore_remove(JStore *js, const char *id);
 
 /**
   Initiate iterator `init` from json store `js`.
   If `metaid` is provided, the iterator will only iterate over instances
   of this metadata.
 
-  Returns non-zero on error.
+  Returns a new iterator or NULL on error.
  */
-int dlite_json_iter_init(DLiteJsonIter *iter, JStore *js, const char *metaid);
+DLiteJStoreIter *dlite_jstore_iter_create(JStore *js, const char *metaid);
+
+/**
+  Deinitialises iterater.
+
+  Return non-zero on error.
+*/
+int dlite_jstore_iter_free(DLiteJStoreIter *iter);
 
 /**
   Return the id of the next instance in the json store or NULL if the
   iterator is exausted.
  */
-const char *dlite_json_iter_next(DLiteJsonIter *iter);
-
-/**
-  deinitialises iterater.  Return non-zero on error.
-*/
-int dlite_json_iter_deinit(DLiteJsonIter *iter);
+const char *dlite_jstore_iter_next(DLiteJStoreIter *iter);
 
 
 
 
-
-///** Opaque iterator struct */
-//typedef struct _DLiteJsonIter DLiteJsonIter;
-//
-///**
-//  Creates and returns a new iterator used by dlite_json_next().
-//
-//  Arguments
-//  - src: input JSON string to search.
-//  - length: length of `src`.  If zero or negative, all of `src` will be used.
-//  - metaid: limit the search to instances of metadata with this id.
-//
-//  The source should be a JSON object with keys being instance UUIDs
-//  and values being the JSON representation of the individual instances.
-//
-//  Returns new iterator or NULL on error.
-// */
-//DLiteJsonIter *dlite_json_iter_init(const char *src, int length,
-//                                    const char *metaid);
-//
-///**
-//  Free's iterator created with dlite_json_iter_init().
-// */
-//void dlite_json_iter_deinit(DLiteJsonIter *iter);
-//
-///**
-//  Search for instances in the JSON document provided to dlite_json_iter_init()
-//  and returns a pointer to instance UUIDs.
-//
-//  `iter` should be an iterator created with dlite_json_iter_init().
-//
-//  If `length` is given, it is set to the length of the returned identifier.
-//
-//  Returns a pointer to the next matching UUID or NULL if there are no more
-//  matches left.
-// */
-//const char *dlite_json_next(DLiteJsonIter *iter, int *length);
 
 /** @} */
 
 
-#endif /*_ DLITE_PRINT_H */
+#endif /*_ DLITE_JSON_H */

@@ -9,6 +9,7 @@
 
 #include "utils/err.h"
 #include "utils/strtob.h"
+#include "utils/jstore.h"
 #include "dlite.h"
 #include "dlite-storage-plugins.h"
 #include "dlite-macros.h"
@@ -17,8 +18,8 @@
 /** Storage for json backend. */
 typedef struct {
   DLiteStorage_HEAD
+  JStore *jstore;       /* json storage */
   DLiteJsonFlag flags;  /* output flags */
-  int append;           /* whether to append to existing output */
 } DLiteJsonStorage;
 
 
@@ -42,8 +43,8 @@ typedef struct {
   - useid: translate | require | keep (deprecated)
       How to use the ID.
  */
-DLiteStorage *dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
-                              const char *options)
+DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
+                        const char *options)
 {
   DLiteJsonStorage *s;
   DLiteStorage *retval=NULL;
@@ -68,16 +69,20 @@ DLiteStorage *dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
   if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL("allocation failure");
   s->api = api;
   s->location = strdup(uri);
+  if (!(s->jstore = jstore_open())) goto fail;
   if (options) s->options = strdup(options);
 
   /* parse options */
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
   if (strcmp(*mode, "r") == 0) {
     s->writable = 0;
+    if (jstore_update_from_file(s->jstore, uri))
+      FAIL1("cannot read \"%s\"", uri);
   } else if (strcmp(*mode, "w") == 0) {
     s->writable = 1;
   } else if (strcmp(*mode, "a") == 0 || strcmp(*mode, "append") == 0) {
-    s->append = 1;
+    if (jstore_update_from_file(s->jstore, uri))
+      FAIL1("cannot read \"%s\"", uri);
     s->writable = 1;
   } else {
     FAIL1("invalid \"mode\" value: '%s'. Must be \"r\" (read-only), "
@@ -94,6 +99,16 @@ DLiteStorage *dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
   if (withuuid) s->flags |= dliteJsonWithUuid;
   if (asdata) s->flags |= dliteJsonMetaAsData;
 
+  /* if storage is in metadata format - revert it to data format */
+  if (jstore_get(s->jstore, "properties")) {
+    DLiteInstance *inst;
+    if (jstore_close(s->jstore)) goto fail;
+    if (!(s->jstore = jstore_open())) goto fail;
+    if (!(inst = dlite_json_scanfile(s->location, NULL, NULL))) goto fail;
+    if (dlite_jstore_add(s->jstore, inst, 0)) goto fail;
+    dlite_instance_decref(inst);
+  }
+
   retval = (DLiteStorage *)s;
 
  fail:
@@ -107,9 +122,55 @@ DLiteStorage *dlite_json_open(const DLiteStoragePlugin *api, const char *uri,
 /**
   Closes data handle json. Returns non-zero on error.
  */
-int dlite_json_close(DLiteStorage *s)
+int json_close(DLiteStorage *s)
 {
-  UNUSED(s);
+  DLiteJsonStorage *js = (DLiteJsonStorage *)s;
+  if (js->writable)
+    return jstore_to_file(js->jstore, js->location);
+  return 0;
+}
+
+
+/**
+  Load instance `id` from storage `s` and return it.
+  NULL is returned on error.
+ */
+DLiteInstance *json_load(const DLiteStorage *s, const char *id)
+{
+  DLiteJsonStorage *js = (DLiteJsonStorage *)s;
+  const char *buf=NULL;
+  char uuid[DLITE_UUID_LENGTH+1];
+
+  if (!id || !*id) {
+    JStoreIter iter;
+    if (jstore_iter_init(js->jstore, &iter)) goto fail;
+    if (!(id = jstore_iter_next(&iter)))
+      FAIL1("cannot load instance from empty storage \"%s\"", s->location);
+    if (jstore_iter_next(&iter)) {
+      FAIL1("id is required when loading from storage with more "
+            "than one instance: %s", s->location);
+    }
+    if (jstore_iter_deinit(&iter)) goto fail;
+  } else if (dlite_get_uuid(uuid, id) == 5) {
+    buf = jstore_get(js->jstore, uuid);
+  }
+  if (!buf && !(buf = jstore_get(js->jstore, id)))
+    FAIL2("no instance with id \"%s\" in storage \"%s\"", id, s->location);
+  return dlite_json_sscan(buf, id, NULL);
+ fail:
+  return NULL;
+}
+
+
+/**
+  Saves instance `inst` to storage `s`.  Returns non-zero on error.
+*/
+int json_save(DLiteStorage *s, const DLiteInstance *inst)
+{
+  DLiteJsonStorage *js = (DLiteJsonStorage *)s;
+  if (!s->writable)
+    return errx(1, "storage \"%s\" is not writable", s->location);
+  if (dlite_jstore_add(js->jstore, inst, js->flags)) return 1;
   return 0;
 }
 
@@ -122,7 +183,7 @@ int dlite_json_close(DLiteStorage *s)
 
   Returns new iterator or NULL on error.
  */
-void *dlite_json_iter_create(const DLiteStorage *s, const char *metaid)
+void *json_iter_create(const DLiteStorage *s, const char *metaid)
 {
   FILE *fp;
   char *buf;
@@ -130,78 +191,35 @@ void *dlite_json_iter_create(const DLiteStorage *s, const char *metaid)
   if (!(fp = fopen(s->location, "r")))
     FAIL1("cannot open storage \"%s\"", s->location);
   if (!(buf = fu_readfile(fp))) goto fail;
-  if (!(iter = dlite_json_iter_init(buf, 0, metaid))) goto fail;
+  if (!(iter = dlite_json_iter_create(buf, 0, metaid))) goto fail;
  fail:
   if (fp) fclose(fp);
   if (buf) free(buf);
-  printf("*** create iter=%p\n", (void *)iter);
   return iter;
 }
-
 
 /**
   Writes the uuid of the next instance to `buf`, where `iter` is an
   iterator returned by dlite_json_iter_create().
 
-  Return non-zero on error.
+  Returns zero on success, 1 if there are no more UUIDs to iterate
+  over and a negative number on other errors.
  */
-int dlite_json_iter_next(void *iter, char *buf)
+int json_iter_next(void *iter, char *buf)
 {
   int len;
   const char *id;
   if (!(id = dlite_json_next(iter, &len))) return 1;
-  if (dlite_get_uuid(buf, id) < 0) return 1;
+  if (dlite_get_uuid(buf, id) < 0) return -1;
   return 0;
 }
-
 
 /**
   Free's iterator created with dlite_json_iter_create().
  */
-void dlite_json_iter_free(void *iter)
+void json_iter_free(void *iter)
 {
-  printf("*** free iter=%p\n", (void *)iter);
-  dlite_json_iter_deinit(iter);
-}
-
-
-/**
-  Load instance `id` from storage `s` and return it.
-  NULL is returned on error.
- */
-DLiteInstance *dlite_json_load(const DLiteStorage *s, const char *id)
-{
-  return dlite_json_scanfile(s->location, id, NULL);
-}
-
-
-/**
-  Saves instance `inst` to storage `s`.  Returns non-zero on error.
-*/
-int dlite_json_save(DLiteStorage *s, const DLiteInstance *inst)
-{
-  DLiteJsonStorage *js = (DLiteJsonStorage *)s;
-  int retval=1;
-  char *buf=NULL;
-  size_t size=0;
-  FILE *fp=NULL;
-  if (!s->writable)
-    FAIL1("storage \"%s\" is not writable", s->location);
-  if (!(fp = fopen(s->location, "w")))
-    FAIL1("cannot open storage \"%s\" for writing", s->location);
-  if (js->append) {
-    if (dlite_json_append(&buf, &size, inst, 0) < 0) goto fail;
-  } else {
-    if (dlite_json_asprint(&buf, &size, 0, inst, 0, js->flags) < 0)
-      goto fail;
-  }
-  if (fprintf(fp, buf) < 0)
-    FAIL1("error writing to storage \"%s\"", s->location);
-  retval = 0;
- fail:
-  if (buf) free(buf);
-  if (fp) fclose(fp);
-  return retval;
+  dlite_json_iter_free(iter);
 }
 
 
@@ -211,18 +229,18 @@ static DLiteStoragePlugin dlite_json_plugin = {
   NULL,                     /* freeapi */
 
   /* basic api */
-  dlite_json_open,          /* open */
-  dlite_json_close,         /* close */
+  json_open,                /* open */
+  json_close,               /* close */
 
   /* queue api */
-  dlite_json_iter_create,   /* iterCreate */
-  dlite_json_iter_next,     /* iterNext */
-  dlite_json_iter_free,     /* iterFree */
+  json_iter_create,         /* iterCreate */
+  json_iter_next,           /* iterNext */
+  json_iter_free,           /* iterFree */
   NULL,                     /* getUUIDs */
 
   /* direct api */
-  dlite_json_load,          /* loadInstance */
-  dlite_json_save,          /* saveInstance */
+  json_load,                /* loadInstance */
+  json_save,                /* saveInstance */
 
   /* datamodel api */
   NULL,                     /* dataModel */

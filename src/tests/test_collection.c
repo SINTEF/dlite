@@ -139,6 +139,7 @@ MU_TEST(test_collection_get)
   const DLiteInstance *inst;
   mu_check((inst = dlite_collection_get(coll, "inst")));
   mu_check(!dlite_collection_get(coll, "XXX"));
+  dlite_errclr();
 }
 
 
@@ -189,17 +190,14 @@ MU_TEST(test_collection_save)
   mu_check(dlite_storage_close(s) == 0);
 }
 
+
+
 MU_TEST(test_collection_load)
 {
   DLiteCollection *coll2;
   char *collpath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/coll.json";
   DLiteStoragePathIter *iter;
   const char *path;
-  //DLiteStorage *s;
-  //char uuid[DLITE_UUID_LENGTH+1];
-  //strncpy(uuid, coll->uuid, sizeof(uuid));
-
-  //dlite_collection_decref(coll);
 
   dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
 
@@ -209,8 +207,6 @@ MU_TEST(test_collection_load)
     printf("  - %s\n", path);
   printf("\n");
   dlite_storage_paths_iter_stop(iter);
-
-
 
   FILE *fp = fopen(collpath, "r");
   coll2 = (DLiteCollection *)
@@ -223,27 +219,15 @@ MU_TEST(test_collection_load)
   printf("\n--- inst: %p ---\n", (void *)inst);
   dlite_json_print((DLiteInstance *)inst);
   printf("----------------------\n");
-  dlite_collection_decref(coll2);
-  printf("----------------------\n");
 
-  //mu_check((s = dlite_storage_open("json", "coll1.json", "mode=r")));
-  //mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, uuid)));
-  //mu_check(dlite_storage_close(s) == 0);
-  //
-  //printf("\n\ncoll2:\n");
-  //dlite_json_print((DLiteInstance *)coll2);
-  //
-  //mu_check((s = dlite_storage_open("json", "coll2.json", "mode=w")));
-  //mu_check(dlite_instance_save(s, (DLiteInstance *)coll2) == 0);
-  //mu_check(dlite_storage_close(s) == 0);
-  //
-  //dlite_collection_decref(coll2);
+  dlite_instance_decref((DLiteInstance *)inst);
+  dlite_collection_decref(coll2);
 }
+
 
 
 MU_TEST(test_collection_free)
 {
-  printf("------- done ---------\n");
   dlite_collection_decref(coll);
 }
 
@@ -269,6 +253,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_collection_next);
   MU_RUN_TEST(test_collection_remove);
   MU_RUN_TEST(test_collection_save);
+  MU_RUN_TEST(test_collection_load);
   MU_RUN_TEST(test_collection_load);
 #endif
 

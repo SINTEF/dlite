@@ -24,7 +24,7 @@ assert myentity.is_meta
 assert not myentity.is_metameta
 
 # Store the entity to a new file
-myentity.save('json://xxx.json')
+myentity.save('json://xxx.json?mode=w')
 
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
@@ -64,7 +64,7 @@ for i in range(len(inst)):
 print(inst)
 
 # Check save and load
-inst.save('json://inst.json')
+inst.save('json://inst.json?mode=w')
 inst2 = Instance('json://inst.json')
 
 # Check pickling

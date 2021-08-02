@@ -9,8 +9,7 @@
 #include "utils/map.h"
 #include "utils/fileutils.h"
 #include "utils/infixcalc.h"
-#define JSMN_HEADER
-#include "utils/jsmn.h"
+#include "utils/jsmnx.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -2002,6 +2001,7 @@ DLiteMeta *dlite_meta_get(const char *id)
 DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id)
 {
   DLiteInstance *inst = dlite_instance_load(s, id);
+  if (!inst) return NULL;
   if (!dlite_instance_is_meta(inst))
     return err(1, "not metadata: %s (%s)", s->location, id), NULL;
   return (DLiteMeta *)inst;

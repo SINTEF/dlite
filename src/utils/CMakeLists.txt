@@ -259,7 +259,7 @@ set(sources
   tgen.c
   tmpfileplus.c
   infixcalc.c
-  jsmn.c
+  jsmnx.c
   jstore.c
 
   md5.c

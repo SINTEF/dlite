@@ -4,13 +4,29 @@
  *
  * Distributed under terms of the MIT license.
  */
+
+/**
+  @file
+  @brief Simple JSON storage
+
+  This library maintains a simple JSON storage, whos root is a JSON object.
+  The keys identify storage items and the values are valid JSON string
+  representing the item values.
+
+  Items can be added, updated and removed from the storage.  Iteration
+  over all items in the storage is also supported.
+*/
 #ifndef _JSTORE_H
 #define _JSTORE_H
 
 #include <stdlib.h>
 #include "map.h"
-#define JSMN_HEADER
-#include "jsmn.h"
+#include "jsmnx.h"
+
+//#define JSMN_HEADER
+//#define JSMN_STRICT
+//#define JSMN_PARENT_LINKS
+//#include "jsmn.h"
 
 
 /** JStore object */
@@ -51,7 +67,7 @@ int jstore_addstolen(JStore *js, const char *key, const char *value);
 
 /** Returns JSON value for given key or NULL if the key isn't in the store.
     This function can also be used to check if a key exists in the store. */
-char *jstore_get(JStore *js, const char *key);
+const char *jstore_get(JStore *js, const char *key);
 
 /** Removes item corresponding to given key from JSON store. */
 int jstore_remove(JStore *js, const char *key);

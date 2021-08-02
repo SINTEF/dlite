@@ -281,9 +281,21 @@ int dlite_storage_plugin_path_appendn(const char *path, size_t n)
 
   Returns non-zero on error.
 */
-int dlite_storage_plugin_path_remove(int n)
+int dlite_storage_plugin_path_delete(int n)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_path_remove(info, n);
+  return plugin_path_delete(info, n);
+}
+
+/*
+  Removes path `path` from current search path.
+
+  Returns non-zero if there is no such path.
+*/
+int dlite_storage_plugin_path_remove(const char *path)
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return 1;
+  return plugin_path_remove(info, path);
 }

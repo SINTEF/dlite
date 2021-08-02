@@ -327,7 +327,7 @@ MU_TEST(test_fu_paths)
   mu_assert_string_eq("/c/users/path2", paths.paths[1]);
   mu_assert_string_eq(NULL,    paths.paths[2]);
 
-  mu_assert_int_eq(0, fu_paths_remove(&paths, 1));
+  mu_assert_int_eq(0, fu_paths_delete(&paths, 1));
   mu_assert_int_eq(1, paths.n);
   mu_assert_int_eq(1, count_paths(&paths));
   mu_assert_string_eq(NULL,    paths.paths[1]);
@@ -346,6 +346,12 @@ MU_TEST(test_fu_paths)
   mu_assert_string_eq("/var/path1", paths.paths[1]);
   mu_assert_string_eq("/c/users/path2", paths.paths[2]);
   mu_assert_string_eq(NULL,    paths.paths[3]);
+
+  mu_assert_int_eq(0, fu_paths_index(&paths, "path0"));
+  mu_assert_int_eq(1, fu_paths_index(&paths, "/var/path1"));
+  mu_assert_int_eq(2, fu_paths_index(&paths, "/c/users/path2"));
+  mu_assert_int_eq(-1, fu_paths_index(&paths, "non-existing-path"));
+  mu_assert_int_eq(-1, fu_paths_index(&paths, ""));
 
   mu_assert_int_eq(1, fu_paths_insert(&paths, "new", -2));
   mu_assert_int_eq(4, paths.n);

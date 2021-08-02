@@ -15,8 +15,8 @@
 #include "utils/boolean.h"
 #include "utils/strtob.h"
 #include "utils/strutils.h"
-#define JSMN_HEADER
-#include "utils/jsmn.h"
+#include "utils/jsmnx.h"
+
 #include "dlite-entity.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"

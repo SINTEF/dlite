@@ -39,7 +39,7 @@ MU_TEST(test_sprint)
   mu_assert_int_eq(1066, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
-                  dliteJsonWithUuid | dliteJsonMetaAsData);
+                        dliteJsonWithUuid | dliteJsonMetaAsData);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
   mu_assert_int_eq(1152, m);
@@ -52,7 +52,37 @@ MU_TEST(test_sprint)
 
   m = dlite_json_sprint(buf, 80, inst, 4, 0);
   mu_assert_int_eq(371, m);
+}
 
+
+int append(const char *str)
+{
+  char *s = strdup(str);
+  size_t size = strlen(s) + 1;
+  int m, retval=0;
+  printf("\n--- append: '%s' ---\n", str);
+  m = dlite_json_append(&s, &size, inst, 0);
+  dlite_errclr();
+  if (m < 0) retval=m;
+  printf("%s", s);
+  free(s);
+  return retval;
+}
+
+MU_TEST(test_append)
+{
+  mu_assert_int_eq(0, append("{}"));
+  mu_assert_int_eq(0, append("{ \t}"));
+  mu_assert_int_eq(0, append("{\"a\": 1, \"b\": [2, 3]}"));
+  mu_assert_int_eq(0, append("{\"a\": 1, \"b\": [2, 3] }"));
+  mu_assert_int_eq(0, append("{\"a\": 1, }"));  // be forgiving
+  mu_assert_int_eq(-1, append(""));
+  mu_assert_int_eq(-1, append(" "));
+  mu_assert_int_eq(-1, append("1"));
+  mu_assert_int_eq(-1, append("[1, ]"));
+  mu_assert_int_eq(-1, append(","));
+  mu_assert_int_eq(-1, append("{"));
+  mu_assert_int_eq(-1, append("[ "));
 }
 
 
@@ -91,6 +121,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_sprint);
+  MU_RUN_TEST(test_append);
   MU_RUN_TEST(test_decref);
   MU_RUN_TEST(test_sscan);
 }

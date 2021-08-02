@@ -9,7 +9,7 @@
     },
     "properties": {
       "myblob": "0a0010",
-      "mydouble": 3.1400000000000001,
+      "mydouble": 3.14,
       "myfixstring": "Al",
       "mystring": "allocated string...",
       "myshort": 17,
@@ -40,7 +40,7 @@
     },
     "properties": {
       "myblob": "0a0120",
-      "mydouble": 2.7200000000000002,
+      "mydouble": 2.72,
       "myfixstring": "Si",
       "mystring": "...",
       "myshort": 13,

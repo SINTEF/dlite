@@ -21,7 +21,7 @@ set(tests
   test_uuid2
   test_uuid4
   test_infixcalc
-  test_jsmn
+  test_jsmnx
   test_jstore
 
   tgen_example

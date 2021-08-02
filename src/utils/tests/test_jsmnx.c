@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define JSMN_HEADER
-#include "jsmn.h"
-
+#include "jsmnx.h"
 #include "minunit/minunit.h"
 
 
@@ -21,11 +19,6 @@ MU_TEST(test_jsmn)
   jsmntok_t tokens[128];
   const jsmntok_t *t; /* We expect no more than 128 JSON tokens */
   int r;
-  //char *name;
-  //char *type;
-  //char *dims;
-  //char *unit;
-
 
   jsmn_init(&p);
   r = jsmn_parse(&p, js, strlen(js), tokens, 128);
@@ -42,6 +35,8 @@ MU_TEST(test_jsmn)
   mu_assert_strn_eq("M", js+t->start, 1);
 
 }
+
+
 
 
 
