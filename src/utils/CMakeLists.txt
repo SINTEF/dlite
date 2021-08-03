@@ -341,6 +341,12 @@ install(
 
 install(
   FILES
+    jsmn.h
+  DESTINATION include/dlite/utils
+  )
+
+install(
+  FILES
     compat/dirent.h
     compat/getopt.h
   DESTINATION include/dlite/utils/compat
