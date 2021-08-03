@@ -429,8 +429,11 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
   const DLiteRelation *r;
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL))) {
     DLiteInstance *inst = dlite_instance_get(r->o);
-    assert(inst->_refcount >= 2);
-    dlite_instance_decref(inst);
+    //assert(inst->_refcount >= 2);
+    //dlite_instance_decref(inst);
+
+    /* FIXME - this looks like a hack, should be solved properly... */
+    if (inst->_refcount >= 2) dlite_instance_decref(inst);
     return inst;
   }
   errx(1, "cannot load instance '%s' from collection", label);
