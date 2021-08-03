@@ -20,13 +20,9 @@
 #define _JSTORE_H
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "map.h"
 #include "jsmnx.h"
-
-//#define JSMN_HEADER
-//#define JSMN_STRICT
-//#define JSMN_PARENT_LINKS
-//#include "jsmn.h"
 
 
 /** JStore object */
@@ -38,6 +34,33 @@ typedef struct _JStoreIter {
   map_iter_t miter;
 } JStoreIter;
 
+
+
+/** @name Utility functions */
+/** @{ */
+
+/** Read stream into an allocated buffer.
+    Returns a pointer to the buffer or NULL on error. */
+char *jstore_readfp(FILE *fp);
+
+/** Read file into an allocated buffer.
+    Returns a pointer to the buffer or NULL on error. */
+char *jstore_readfile(const char *filename);
+
+/** Read file into an allocated buffer and parse it with JSMN.
+
+    The `tokens_ptr` and `num_tokens_ptr` arguments are passed on to
+    jsmn_parse_alloc().
+
+    Returns a pointer to the buffer or NULL on error. */
+char *jstore_readfile_to_jsmn(const char *filename, jsmntok_t **tokens_ptr,
+                              unsigned int *num_tokens_ptr);
+
+
+
+/** @} */
+/** @name JStore API */
+/** @{ */
 
 /** Create a new JSON store and return it.  Returns NULL on error. */
 JStore *jstore_open(void);
@@ -108,5 +131,6 @@ const char *jstore_iter_next(JStoreIter *iter);
     In the current implementation, this function does nothing. */
 int jstore_iter_deinit(JStoreIter *iter);
 
+/** @} */
 
 #endif  /* _JSTORE_H */

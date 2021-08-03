@@ -151,7 +151,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         PRINT2(",\n%s      \"description\": \"%s\"", in, p->description);
       PRINT2("\n%s    }%s\n", in, c);
     }
-    PRINT1("%s  ],\n", in);
+    PRINT1("%s  ]\n", in);
   }
 
   PRINT1("%s}", in);
@@ -395,8 +395,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   /* Get metadata */
   if ((item = jsmn_item(src, obj, "meta"))) {
     if (!(metauri = get_meta_uri(src, obj))) goto fail;
-    if (!(meta = dlite_meta_get(metauri)) &&
-        !(meta = (DLiteMeta *)dlite_json_sscan(src, metauri, NULL)))
+    if (!(meta = dlite_meta_get(metauri)))
       FAIL2("cannot find metadata '%s' when loading '%s' - please add the "
             "right storage to DLITE_STORAGES and try again", metauri, id);
   } else {
@@ -430,14 +429,18 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
         dims[i] = atoi(src + t->start);
       }
     } else if (item->type == JSMN_ARRAY) {
-      int n=0;
+      size_t n=0;
       if (!dlite_meta_is_metameta(meta))
         FAIL1("only metadata can have array dimensions: %s", id);
-      if (meta->_ndimensions >= 2) dims[n++] = item->size;
-      if ((t = jsmn_item(src, obj, "properties")))
+      if (meta->_ndimensions > n)
+        dims[n++] = item->size;
+      if (meta->_ndimensions > n && (t = jsmn_item(src, obj, "properties")))
         dims[n++] = t->size;
-      if (meta->_ndimensions >= 3 && (t = jsmn_item(src, obj, "relations")))
+      if (meta->_ndimensions > n && (t = jsmn_item(src, obj, "relations")))
         dims[n++] = t->size;
+      if (n != meta->_ndimensions)
+        FAIL3("expected %d dimensions, got %d: %s",
+              (int)meta->_ndimensions, (int)n, id);
     } else {
       FAIL1("\"dimensions\" must be object or array: %s", id);
     }
@@ -464,35 +467,18 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     assert(base->type == JSMN_OBJECT);
 
     /* -- infer name, version and namespace */
-    if ((t = jsmn_item(src, base, "uri"))) {
-      if (t->type != JSMN_STRING) FAIL1("uri must be a string: %s", id);
-      strnput(&buf, &size, 0, src + t->start, t->end - t->start);
-      if (dlite_split_meta_uri(buf, &name, &version, &namespace))
-        FAIL2("invalid uri '%s' in %s", buf, id);
-      if (!inst->uri) inst->uri = strdup(buf);
-    } else if (id) {
-      int status;
-
-    ErrTry:
-      status = dlite_split_meta_uri(id, &name, &version, &namespace);
-    ErrCatch(1):
-      break;
-      ErrEnd;
-
-      if (status && dlite_instance_is_meta(inst))
+    if (dlite_instance_is_meta(inst)) {
+      if (dlite_split_meta_uri((uri) ? uri : id, &name, &version, &namespace))
         FAIL1("cannot infer name, version and namespace from id: %s", id);
-    } else {
-      const jsmntok_t *t1, *t2, *t3;
-      if ((t1 = jsmn_item(src, base, "name")) &&
-          (t2 = jsmn_item(src, base, "version")) &&
-          (t3 = jsmn_item(src, base, "namespace"))) {
-        name      = strndup(src + t1->start, t1->end - t1->start);
-        version   = strndup(src + t2->start, t2->end - t2->start);
-        namespace = strndup(src + t3->start, t3->end - t3->start);
-        if (!inst->uri)
-          inst->uri = dlite_join_meta_uri(name, version, namespace);
-      } else
-        FAIL1("missing name, version and namespace: %s", id);
+    }
+
+    /* -- assign uri */
+    if (!inst->uri) {
+      char uuid2[DLITE_UUID_LENGTH+1];
+      if (uri)
+        inst->uri = strdup(uri);
+      else if (id && dlite_get_uuid(uuid2, id) > 0)
+        inst->uri = strdup(id);
     }
 
     /* -- read properties */
@@ -504,7 +490,8 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       if ((t = jsmn_item(src, base, p->name))) {
         strnput(&buf, &size, 0, src+t->start, t->end-t->start);
         if (dlite_property_scan(buf, ptr, p, pdims, 0) < 0) goto fail;
-      } else {
+      //} else {
+      } else if (dlite_instance_is_meta(inst)) {
         /* -- if not given, use inferred name, version and namespace */
         if (strcmp(p->name, "name") == 0) {
           if (dlite_property_scan(name, ptr, p, pdims, 0) < 0) goto fail;
@@ -512,9 +499,12 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
           if (dlite_property_scan(version, ptr, p, pdims, 0) < 0) goto fail;
         } else if (strcmp(p->name, "namespace") == 0) {
           if (dlite_property_scan(namespace, ptr, p, pdims, 0) < 0) goto fail;
+        } else if (strcmp(p->name, "description") == 0) {
+          // pass
         } else
           FAIL2("missing property \"%s\" in %s", p->name, id);
-      }
+      } else
+        FAIL2("missing property \"%s\" in %s", p->name, id);
       if (meta->_loadprop) meta->_loadprop(inst, i);
     }
   }
@@ -630,243 +620,6 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id,
   return inst;
 }
 
-
-///*
-//  Returns a new instance scanned from `src`.
-//
-//  `id` is the uri or uuid of the instance to load.  If the string only
-//  contain one instance (of the required metadata), `id` may be NULL.
-//
-//  If `metaid` is not NULL, it should be the URI or UUID of the
-//  metadata of the returned instance.  It is an error if no such
-//  instance exists in the source.
-//
-//  Returns the instance or NULL on error.
-//*/
-//DLiteInstance *dlite_json_sscan(const char *src, const char *id,
-//                                const char *metaid)
-//{
-//  int i, r;
-//  char *buf=NULL;
-//  DLiteJsonIter *iter=NULL;
-//  DLiteInstance *inst=NULL;
-//  unsigned int ntokens=0;
-//  jsmntok_t *tokens=NULL, *root;
-//  jsmn_parser parser;
-//  size_t srclen = strlen(src);
-//
-//  errno = 0;
-//  if (id && id[0] == '\0') id = NULL;
-//
-//  jsmn_init(&parser);
-//  r = jsmn_parse_alloc(&parser, src, srclen, &tokens, &ntokens);
-//  if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
-//  root = tokens;
-//  if (root->type != JSMN_OBJECT) FAIL("json root should be an object");
-//
-//  if (jsmn_item(src, root, "properties")) {
-//    /* simple metadata layout (dliteJsonMetaAsData=0) */
-//    if (!(inst = parse_instance(src, root, id))) goto fail;
-//  } else {
-//    /* data layout (dliteJsonMetaAsData=1) */
-//    const char *val=NULL;
-//    JStore *js = jstore_open();
-//    if (jstore_update_from_jsmn(js, src, root)) goto fail;
-//    if (id) {
-//      char uuid[DLITE_UUID_LENGTH+1];
-//      if (dlite_get_uuid(uuid, id) < 0) goto fail;
-//      if (!(val = jstore_get(js, uuid)) &&
-//          !(val = jstore_get(js, id)))
-//        FAIL1("no instance corresponding to id \"%s\" in input", id);
-//      if (!(inst = parse_instance(val, root, id) goto fail;
-//    } else {
-//      const char *key;
-//      DLiteJsonIter iter;
-//      if (dlite_json_iter_init(&iter, js, metaid)) goto fail;
-//      if (!(key = dlite_json_iter_next(&iter))) {
-//        if (metaid)
-//          FAIL1("no instance with metadata \"%s\" in input", metaid);
-//        else
-//          FAIL("no instances in input");
-//      }
-//<<<<<<< HEAD
-//      if (dlite_json_iter_next(&iter))
-//        FAIL("more than one (matching) instance in input");
-//      val = jstore_get(is, key);
-//      assert(val);
-//      if (!(inst = parse_instance(val, root, id) goto fail;
-//=======
-//      if (t2) FAIL("`id` (or `metaid`) is required when scanning json input "
-//                     "with multiple instances");
-//      jsmntok_t *val = (jsmntok_t *)t1 + 1;
-//      buf = strndup(src + t1->start, t1->end - t1->start);
-//      if (!(inst = parse_instance(src, val, buf))) goto fail;
-//>>>>>>> load-collection
-//    }
-//
-//
-//
-//
-//
-//    int n=1;
-//    char uuid[DLITE_UUID_LENGTH+1];
-//    if (dlite_get_uuid(uuid, id) < 0) goto fail;
-//    for (i=0; i < root->size; i++) {
-//      char uuid2[DLITE_UUID_LENGTH+1];
-//      jsmntok_t *key = root + n;
-//      jsmntok_t *val = root + n+1;
-//      int len = key->end - key->start;
-//      if (key->type != JSMN_STRING) FAIL("expect json keys to be strings");
-//      buf = strndup(src+key->start, len);
-//      if (dlite_get_uuid(uuid2, buf) < 0) goto fail;
-//      free(buf);
-//      buf = NULL;
-//      if (strcmp(uuid2, uuid) == 0) {
-//        if (!(inst = parse_instance(src, val, id))) goto fail;
-//        break;
-//      }
-//      n += jsmn_count(val) + 2;
-//    }
-//    if (!inst) FAIL2("no instance with uuid \"%s\" (%s)", uuid, id);
-//  } else {
-//    /* data layout (dliteJsonMetaAsData=1), no id, expects only 1 instance */
-//    int len;
-//    if (!(iter = dlite_json_iter_init(src, srclen, metaid))) goto fail;
-//    const jsmntok_t *t1 = nexttok(iter, &len);
-//    const jsmntok_t *t2 = nexttok(iter, NULL);
-//    if (!t1) {
-//      if (metaid)
-//        FAIL1("json source has no instance with meta id: '%s'", metaid);
-//      else
-//        FAIL("no instances in json source");
-//    }
-//    if (t2) FAIL("`id` is required when scanning json input with "
-//                   "multiple instances");
-//    jsmntok_t *val = (jsmntok_t *)t1 + 1;
-//    buf = strndup(src + t1->start, t1->end - t1->start);
-//    if (!(inst = parse_instance(src, val, buf))) goto fail;
-//  }
-//
-//  assert(inst);
-//  if (metaid) {
-//    char uuid[DLITE_UUID_LENGTH + 1];
-//    if (dlite_get_uuid(uuid, metaid) < 0 ||
-//        (strcmp(metaid, uuid) != 0 && strcmp(metaid, inst->meta->uri) != 0)) {
-//      if (!id) id = (inst->iri) ? inst->iri : inst->uuid;
-//      err(1, "instance '%s' has meta id '%s' but '%s' is expected",
-//          id, inst->meta->uri, metaid);
-//      dlite_instance_decref(inst);
-//      inst = NULL;
-//    }
-//  }
-//
-// fail:
-//  free(tokens);
-//  if (buf) free(buf);
-//  if (iter) dlite_json_iter_deinit(iter);
-//
-//  return inst;
-//}
-
-
-///*
-//  Returns a new instance scanned from `src`.
-//
-//  `id` is the uri or uuid of the instance to load.  If the string only
-//  contain one instance (of the required metadata), `id` may be NULL.
-//
-//  If `metaid` is not NULL, it should be the URI or UUID of the
-//  metadata of the returned instance.  It is an error if no such
-//  instance exists in the source.
-//
-//  Returns the instance or NULL on error.
-//*/
-//DLiteInstance *dlite_json_sscan(const char *src, const char *id,
-//                                const char *metaid)
-//{
-//  int i, r;
-//  char *buf=NULL;
-//  DLiteJsonIter *iter=NULL;
-//  DLiteInstance *inst=NULL;
-//  unsigned int ntokens=0;
-//  jsmntok_t *tokens=NULL, *root;
-//  jsmn_parser parser;
-//  size_t srclen = strlen(src);
-//
-//  errno = 0;
-//  if (id && id[0] == '\0') id = NULL;
-//
-//  jsmn_init(&parser);
-//  r = jsmn_parse_alloc(&parser, src, srclen, &tokens, &ntokens);
-//  if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
-//  root = tokens;
-//  if (root->type != JSMN_OBJECT) FAIL("json root should be an object");
-//
-//  if (jsmn_item(src, root, "properties")) {
-//    /* simple metadata layout (dliteJsonMetaAsData=0) */
-//    if (!(inst = parse_instance(src, root, id))) goto fail;
-//  } else if (id) {
-//    /* data layout (dliteJsonMetaAsData=1), search for id */
-//    int n=1;
-//    char uuid[DLITE_UUID_LENGTH+1];
-//    if (dlite_get_uuid(uuid, id) < 0) goto fail;
-//    for (i=0; i < root->size; i++) {
-//      char uuid2[DLITE_UUID_LENGTH+1];
-//      jsmntok_t *key = root + n;
-//      jsmntok_t *val = root + n+1;
-//      int len = key->end - key->start;
-//      if (key->type != JSMN_STRING) FAIL("expect json keys to be strings");
-//      buf = strndup(src+key->start, len);
-//      if (dlite_get_uuid(uuid2, buf) < 0) goto fail;
-//      free(buf);
-//      buf = NULL;
-//      if (strcmp(uuid2, uuid) == 0) {
-//        if (!(inst = parse_instance(src, val, id))) goto fail;
-//        break;
-//      }
-//      n += jsmn_count(val) + 2;
-//    }
-//    if (!inst) FAIL2("no instance with uuid \"%s\" (%s)", uuid, id);
-//  } else {
-//    /* data layout (dliteJsonMetaAsData=1), no id, expects only 1 instance */
-//    int len;
-//    if (!(iter = dlite_json_iter_init(src, srclen, metaid))) goto fail;
-//    const jsmntok_t *t1 = nexttok(iter, &len);
-//    const jsmntok_t *t2 = nexttok(iter, NULL);
-//    if (!t1) {
-//      if (metaid)
-//        FAIL1("json source has no instance with meta id: '%s'", metaid);
-//      else
-//        FAIL("no instances in json source");
-//    }
-//    if (t2) FAIL("`id` is required when scanning json input with "
-//                   "multiple instances");
-//    jsmntok_t *val = (jsmntok_t *)t1 + 1;
-//    buf = strndup(src + t1->start, t1->end - t1->start);
-//    if (!(inst = parse_instance(src, val, buf))) goto fail;
-//  }
-//
-//  assert(inst);
-//  if (metaid) {
-//    char uuid[DLITE_UUID_LENGTH + 1];
-//    if (dlite_get_uuid(uuid, metaid) < 0 ||
-//        (strcmp(metaid, uuid) != 0 && strcmp(metaid, inst->meta->uri) != 0)) {
-//      if (!id) id = (inst->iri) ? inst->iri : inst->uuid;
-//      err(1, "instance '%s' has meta id '%s' but '%s' is expected",
-//          id, inst->meta->uri, metaid);
-//      dlite_instance_decref(inst);
-//      inst = NULL;
-//    }
-//  }
-//
-// fail:
-//  free(tokens);
-//  if (buf) free(buf);
-//  if (iter) dlite_json_iter_deinit(iter);
-//
-//  return inst;
-//}
-//
 
 /*
   Like dlite_json_sscan(), but scans instance `id` from stream `fp` instead
@@ -1043,6 +796,66 @@ struct _DLiteJStoreIter {
 };
 
 
+/*
+  Load content of json string `src` to json store `js`.
+  `len` is the length of `src`.
+
+  Returns json format or -1 on error.
+ */
+DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
+{
+  jsmn_parser parser;
+  jsmntok_t *tokens=NULL;
+  unsigned int ntokens=0;
+  char uuid[DLITE_UUID_LENGTH+1];
+  int r;
+  DLiteJsonFormat retval=-1;
+  char *dots = (len > 30) ? "..." : "";
+  jsmn_init(&parser);
+  if ((r = jsmn_parse_alloc(&parser, src, len, &tokens, &ntokens)) < 0)
+    FAIL3("error parsing json string: \"%.30s%s\": %s",
+          src, dots, jsmn_strerror(r));
+  if (tokens->type != JSMN_OBJECT)
+    FAIL2("root of json data must be an object: \"%.30s%s\"", src, dots);
+
+  if (jsmn_item(src, tokens, "properties")) {
+    /* metadata format */
+    char *uri = get_uri(src, tokens);
+    if (!uri) FAIL2("missing uri in metadata-formatted json data: \"%.30s%s\"",
+                    src, dots);
+    if (dlite_get_uuid(uuid, uri) < 0) goto fail;
+    jstore_addn(js, uuid, DLITE_UUID_LENGTH, src, len);
+    retval = dliteJsonMetaFormat;
+  } else {
+    /* data format */
+    jsmntok_t *t = tokens + 1;
+    int i;
+    for (i=0; i < tokens->size; i++) {
+      jsmntok_t *v = t+1;
+      if (dlite_get_uuidn(uuid, src + t->start, t->end - t->start) < 0)
+        goto fail;
+      if (jstore_addn(js, uuid, DLITE_UUID_LENGTH,
+                      src + v->start, v->end - v->start)) goto fail;
+      t += jsmn_count(v) + 2;
+    }
+    retval = dliteJsonDataFormat;
+  }
+ fail:
+  if (tokens) free(tokens);
+  return retval;
+}
+
+/*
+  Read content of `filename` to json store `js`.
+
+  Returns json format or -1 on error.
+ */
+DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
+{
+  char *buf = jstore_readfile(filename);
+  if (!buf) return err(1, "cannot load json file \"%s\"", filename);
+  return dlite_jstore_loads(js, buf, strlen(buf));
+}
 
 /*
   Add json representation of `inst` to json store `js`.

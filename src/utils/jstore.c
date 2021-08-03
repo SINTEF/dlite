@@ -4,8 +4,6 @@
  *
  * Distributed under terms of the MIT license.
  */
-#include <stdlib.h>
-#include <stdio.h>
 #include "err.h"
 #include "compat.h"
 #include "jstore.h"
@@ -21,20 +19,28 @@ struct _JStore {
 };
 
 
+/*
+ * Utility functions
+ * -----------------
+ */
+
 /* Read stream into an allocated buffer.
    Returns a pointer to the buffer or NULL on error. */
-static char *readfp(FILE *fp)
+char *jstore_readfp(FILE *fp)
 {
   char *buf;
   long pos = ftell(fp);
   long len;
-  if (fseek(fp, 0, SEEK_END) < 0) return NULL;
+  if (fseek(fp, 0, SEEK_END) < 0)
+    return err(1, "cannot SEEK to end of file"), NULL;
   len = ftell(fp) - pos;
-  if (fseek(fp, pos, SEEK_SET) < 0) return NULL;
-  if (!(buf = malloc(len + 1))) return NULL;
+  if (fseek(fp, pos, SEEK_SET) < 0)
+    return err(1, "cannot set SEEK position"), NULL;
+  if (!(buf = malloc(len + 1)))
+    return err(1, "allocation failure"), NULL;
   if (fread(buf, len, 1, fp) != 1) {
     free(buf);
-    return NULL;
+    return err(1, "cannot read from file"), NULL;
   }
   buf[len] = '\0';
   return buf;
@@ -42,17 +48,44 @@ static char *readfp(FILE *fp)
 
 /* Read file into an allocated buffer.
    Returns a pointer to the buffer or NULL on error. */
-static char *readfile(const char *filename)
+char *jstore_readfile(const char *filename)
 {
   char *buf;
   FILE *fp = fopen(filename, "r");
-  if (!fp) return NULL;
-  buf = readfp(fp);
+  if (!fp) return err(1, "cannot open file: \"%s\"", filename), NULL;
+  buf = jstore_readfp(fp);
   fclose(fp);
   return buf;
 }
 
+/* Read file into an allocated buffer and parse it with JSMN.
 
+   The `tokens_ptr` and `num_tokens_ptr` arguments are passed on to
+   jsmn_parse_alloc().
+
+   Returns a pointer to the buffer or NULL on error. */
+char *jstore_readfile_to_jsmn(const char *filename, jsmntok_t **tokens_ptr,
+                              unsigned int *num_tokens_ptr)
+{
+  char *buf = jstore_readfile(filename);
+  jsmn_parser parser;
+  int r;
+  if (!buf) return NULL;
+  jsmn_init(&parser);
+  r = jsmn_parse_alloc(&parser, buf, strlen(buf), tokens_ptr, num_tokens_ptr);
+  if (r < 0) {
+    free(buf);
+    return errx(1, "error parsing json file \"%s\": %s",
+                filename, jsmn_strerror(r)), NULL;
+  }
+  return buf;
+}
+
+
+/*
+ * JStore API
+ * ----------
+ */
 
 /* Create a new JSON store and return it.  Returns NULL on error. */
 JStore *jstore_open(void)
@@ -164,7 +197,6 @@ int jstore_update_from_jsmn(JStore *js, const char *src, jsmntok_t *tok)
   int i;
   jsmntok_t *tk = tok+1;
   if (tok->type != JSMN_OBJECT) return err(1, "jsmn token must be an object");
-  printf("\n");
   for (i=0; i < tok->size; i++) {
     jsmntok_t *tv = tk+1;
     if (jstore_addn(js,
@@ -184,7 +216,7 @@ int jstore_update_from_file(JStore *js, const char *filename)
   unsigned int ntokens=0;
   int stat;
   char *buf;
-  if (!(buf = readfile(filename)))
+  if (!(buf = jstore_readfile(filename)))
     return err(1, "error reading JSON file \"%s\"", filename);
   jsmn_init(&parser);
   if (jsmn_parse_alloc(&parser, buf, strlen(buf), &tokens, &ntokens) < 0) {

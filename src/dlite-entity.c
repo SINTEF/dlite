@@ -604,6 +604,7 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages)
     ErrTry:
       if ((inst = dlite_instance_get(id)))
         dlite_instance_decref(inst);
+      assert(inst->_refcount > 0);
     ErrOther:
       break;
     ErrEnd;

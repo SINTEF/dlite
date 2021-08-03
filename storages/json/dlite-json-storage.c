@@ -10,16 +10,21 @@
 #include "utils/err.h"
 #include "utils/strtob.h"
 #include "utils/jstore.h"
+#include "utils/map.h"
 #include "dlite.h"
 #include "dlite-storage-plugins.h"
 #include "dlite-macros.h"
 
+typedef struct { char uuid[DLITE_UUID_LENGTH+1]; } uuid_t;
+typedef map_t(uuid_t) map_uuid_t;
 
 /** Storage for json backend. */
 typedef struct {
   DLiteStorage_HEAD
   JStore *jstore;       /* json storage */
   DLiteJsonFlag flags;  /* output flags */
+  int changed;          /* whether the storage is changed */
+  map_uuid_t ids;       /* maps uuids to ids */
 } DLiteJsonStorage;
 
 
@@ -51,7 +56,7 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   char *mode_descr = "How to open storage.  Valid values are: "
     "\"r\" (read-only); "
     "\"w\" (truncate existing storage or create a new one); "
-  "\"a\" (appends to existing storage or creates a new one, default)";
+    "\"a\" (appends to existing storage or creates a new one, default)";
   DLiteOpt opts[] = {
     {'m', "mode",      "a", mode_descr},
     {'u', "with-uuid", "false", "Whether to include uuid in output"},
@@ -61,8 +66,13 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
     {'U', "useid",     "",      "Unused (deprecated)"},
     {0, NULL, NULL, NULL}
   };
+  int load;  // whether to load uri
+
+  /* parse options */
   char *optcopy = (options) ? strdup(options) : NULL;
-  const char **mode = &opts[0].value;
+  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
+
+  char mode = *opts[0].value;
   int withuuid = atob(opts[1].value);
   int asdata = atob(opts[2].value);
 
@@ -72,21 +82,29 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   if (!(s->jstore = jstore_open())) goto fail;
   if (options) s->options = strdup(options);
 
-  /* parse options */
-  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
-  if (strcmp(*mode, "r") == 0) {
+  switch (mode) {
+  case 'r':
+    load = 1;
     s->writable = 0;
-    if (jstore_update_from_file(s->jstore, uri))
-      FAIL1("cannot read \"%s\"", uri);
-  } else if (strcmp(*mode, "w") == 0) {
+    break;
+  case 'a':
+    load = 1;
     s->writable = 1;
-  } else if (strcmp(*mode, "a") == 0 || strcmp(*mode, "append") == 0) {
-    if (jstore_update_from_file(s->jstore, uri))
-      FAIL1("cannot read \"%s\"", uri);
+    break;
+  case 'w':
+    load = 0;
     s->writable = 1;
-  } else {
-    FAIL1("invalid \"mode\" value: '%s'. Must be \"r\" (read-only), "
-          "\"w\" (write) or \"a\" (append)", *mode);
+    break;
+  default:
+    FAIL1("invalid \"mode\" value: '%c'. Must be \"r\" (read-only), "
+          "\"w\" (write) or \"a\" (append)", mode);
+  }
+
+  if (load) {
+    DLiteJsonFormat fmt = dlite_jstore_loadf(s->jstore, uri);
+    if (fmt < 0) goto fail;
+    if (fmt == dliteJsonMetaFormat) s->writable = 0;
+    dlite_storage_paths_append(uri);
   }
 
   if (withuuid < 0) FAIL1("invalid boolean value for `with-uuid=%s`.",
@@ -98,16 +116,6 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
 
   if (withuuid) s->flags |= dliteJsonWithUuid;
   if (asdata) s->flags |= dliteJsonMetaAsData;
-
-  /* if storage is in metadata format - revert it to data format */
-  if (jstore_get(s->jstore, "properties")) {
-    DLiteInstance *inst;
-    if (jstore_close(s->jstore)) goto fail;
-    if (!(s->jstore = jstore_open())) goto fail;
-    if (!(inst = dlite_json_scanfile(s->location, NULL, NULL))) goto fail;
-    if (dlite_jstore_add(s->jstore, inst, 0)) goto fail;
-    dlite_instance_decref(inst);
-  }
 
   retval = (DLiteStorage *)s;
 
@@ -125,7 +133,7 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
 int json_close(DLiteStorage *s)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
-  if (js->writable)
+  if (js->writable && js->changed)
     return jstore_to_file(js->jstore, js->location);
   return 0;
 }
@@ -171,6 +179,7 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   if (!s->writable)
     return errx(1, "storage \"%s\" is not writable", s->location);
   if (dlite_jstore_add(js->jstore, inst, js->flags)) return 1;
+  js->changed = 1;
   return 0;
 }
 
@@ -185,17 +194,8 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
  */
 void *json_iter_create(const DLiteStorage *s, const char *metaid)
 {
-  FILE *fp;
-  char *buf;
-  DLiteJsonIter *iter;
-  if (!(fp = fopen(s->location, "r")))
-    FAIL1("cannot open storage \"%s\"", s->location);
-  if (!(buf = fu_readfile(fp))) goto fail;
-  if (!(iter = dlite_json_iter_create(buf, 0, metaid))) goto fail;
- fail:
-  if (fp) fclose(fp);
-  if (buf) free(buf);
-  return iter;
+  DLiteJsonStorage *js = (DLiteJsonStorage *)s;
+  return dlite_jstore_iter_create(js->jstore, metaid);
 }
 
 /**
@@ -207,9 +207,8 @@ void *json_iter_create(const DLiteStorage *s, const char *metaid)
  */
 int json_iter_next(void *iter, char *buf)
 {
-  int len;
   const char *id;
-  if (!(id = dlite_json_next(iter, &len))) return 1;
+  if (!(id = dlite_jstore_iter_next(iter))) return 1;
   if (dlite_get_uuid(buf, id) < 0) return -1;
   return 0;
 }
@@ -219,7 +218,8 @@ int json_iter_next(void *iter, char *buf)
  */
 void json_iter_free(void *iter)
 {
-  dlite_json_iter_free(iter);
+  //dlite_json_iter_free(iter);
+  dlite_jstore_iter_free(iter);
 }
 
 

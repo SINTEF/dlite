@@ -36,7 +36,7 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0, 0);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
-  mu_assert_int_eq(1066, m);
+  mu_assert_int_eq(1065, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
                         dliteJsonWithUuid | dliteJsonMetaAsData);
@@ -47,11 +47,11 @@ MU_TEST(test_sprint)
   printf("\n========================================================\n");
   m = dlite_json_sprint(buf, sizeof(buf), inst, 4, 0);
   printf("%s\n", buf);
-  mu_assert_int_eq(371, m);
+  mu_assert_int_eq(404, m);
   printf("\n--------------------------------------------------------\n");
 
   m = dlite_json_sprint(buf, 80, inst, 4, 0);
-  mu_assert_int_eq(371, m);
+  mu_assert_int_eq(404, m);
 }
 
 
@@ -100,7 +100,10 @@ MU_TEST(test_sscan)
   DLiteInstance *inst;
   char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-read-data.json";
   FILE *fp = fopen(path, "r");
+  int stat;
   mu_check(fp);
+  stat = dlite_storage_paths_append(path);
+  mu_check(stat > 0);
   inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b", NULL);
   fclose(fp);
   mu_check(inst);

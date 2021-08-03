@@ -110,7 +110,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
                    "\"%s\" in search path:\n", name);
     if (r >= 0) m += r;
-    while ((p = *(paths++)) && ++n) {
+    while (paths && (p = *(paths++)) && ++n) {
       r = asnpprintf(&buf, &size, m, "    %s\n", p);
       if (r >= 0) m += r;
     }

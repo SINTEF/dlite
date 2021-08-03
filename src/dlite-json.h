@@ -15,8 +15,14 @@
 /** Flags for serialisation */
 typedef enum {
   dliteJsonWithUuid=1,    /*!< Whether to include uuid in output */
-  dliteJsonMetaAsData=2,  /*!< Whether to write metadata as data */
+  dliteJsonMetaAsData=2   /*!< Whether to write metadata as data */
 } DLiteJsonFlag;
+
+/** JSON formats */
+typedef enum {
+  dliteJsonDataFormat,    /*!< Data format - single item */
+  dliteJsonMetaFormat     /*!< Metadata format - multiple items */
+} DLiteJsonFormat;
 
 
 ///** Iterater struct */
@@ -187,6 +193,22 @@ const char *dlite_json_next(DLiteJsonIter *iter, int *length);
  * @name JSON store
  */
 /** @{ */
+
+
+/**
+  Load content of json string `src` to json store `js`.
+  `len` is the length of `src`.
+
+  Returns json format or -1 on error.
+ */
+DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len);
+
+/**
+  Read content of `filename` to json store `js`.
+
+  Returns json format or -1 on error.
+ */
+DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename);
 
 /** Opaque iterator struct */
 typedef struct _DLiteJStoreIter DLiteJStoreIter;

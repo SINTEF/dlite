@@ -29,6 +29,40 @@ MU_TEST(test_get_uuid)
   mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
 }
 
+MU_TEST(test_get_uuidn)
+{
+  char *id, buff[37];
+
+  mu_assert_int_eq(4, dlite_get_uuidn(buff, NULL, 0));
+  mu_assert_int_eq(4, dlite_get_uuidn(buff, NULL, 1));
+  mu_assert_int_eq(4, dlite_get_uuidn(buff, "abc", 0));
+  mu_assert_int_eq(4, dlite_get_uuidn(buff, "", 20));
+
+  mu_assert_int_eq(5, dlite_get_uuidn(buff, "abc", 3));
+  mu_assert_string_eq("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8", buff);
+
+  mu_assert_int_eq(5, dlite_get_uuidn(buff, "abc", 2));
+  mu_assert_string_eq("710a586f-e1aa-54ec-93a9-85a85aa0b725", buff);
+
+  mu_assert_int_eq(5, dlite_get_uuidn(buff, "abc", 4));
+  mu_assert_string_eq("aa02945d-3cd6-5aec-82f9-0a8f51980d11", buff);
+
+
+  id = "a839938d-1d30-5b2a-af5c-2a23d436abdc";
+  mu_assert_int_eq(0, dlite_get_uuidn(buff, id, 36));
+  mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
+
+  id = "a839938d-1d30-5b2a-af5c-2a23d436abdcXXX";
+  mu_assert_int_eq(0, dlite_get_uuidn(buff, id, 36));
+  mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
+
+  id = "A839938D-1D30-5B2A-AF5C-2A23D436ABDC";
+  mu_assert_int_eq(0, dlite_get_uuidn(buff, id, 36));
+  mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
+}
+
+
+
 
 MU_TEST(test_join_split_metadata)
 {
@@ -130,6 +164,7 @@ MU_TEST(test_split_url)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_get_uuid);
+  MU_RUN_TEST(test_get_uuidn);
   MU_RUN_TEST(test_join_split_metadata);
   MU_RUN_TEST(test_option_parse);
   MU_RUN_TEST(test_join_url);

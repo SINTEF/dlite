@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     int c = getopt_long(argc, argv, "behipP:v:V", longopts, &longindex);
     if (c == -1) break;
     switch (c) {
-    case 'b':  with_build = 1; break;
+    case 'b':  with_build=1; with_install=0; break;
     case 'e':  with_env = 0; break;
     case 'h':  help(stdout); exit(0);
     case 'i':  with_install = 0; break;

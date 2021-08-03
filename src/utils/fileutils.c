@@ -829,9 +829,13 @@ const char **fu_paths_get(FUPaths *paths)
   return paths->paths;
 }
 
+
 /*
-  Inserts `path` into `paths` before position `n`.  If `n` is negative, it
-  counts from the end (like Python).
+  Inserts `path` into `paths` before position `n`.  If `n` is
+  negative, it counts from the end (like Python).
+
+  If `path` already exists in `paths`, it is moved to position `n`, but
+  not duplicated.
 
   Returns the index of the newly inserted element or -1 on error.
  */
@@ -847,15 +851,29 @@ int fu_paths_insert(FUPaths *paths, const char *path, int n)
   Inserts the `len` first bytes of `path` into `paths` before position `n`.
   If `len` is zero, this is equivalent to fu_paths_insert().
 
+  If `n` is negative, it counts from the end (like Python).
+
+  If `path` already exists in `paths`, it is moved to position `n`, but
+  not duplicated.
+
   Returns the index of the newly inserted element or -1 on error.
  */
 int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
 {
   int platform = paths->platform;
   char *p=NULL, *tmp=NULL;
+  int index;
+
   if (n < -(int)(paths->n) || n >= (int)paths->n+1)
     FAIL1("path index out of range: %d", n);
   if (n < 0) n += paths->n;
+  if ((index = fu_paths_index(paths, path)) >= 0) {
+    /* path already in paths - remove it if it is not at expected position */
+    if (index == n || (n == (int)paths->n && index == (int)paths->n - 1))
+      return index;  // path already at expected position
+    if (fu_paths_delete(paths, index)) goto fail;
+    if (n > index) n--;
+  }
 
   if (len) {
     if (!(tmp = strndup(path, len))) FAIL("allocation failure");
@@ -893,7 +911,7 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
 }
 
 /*
-  Appends `path` to `paths`.  Equivalent to
+  Appends `path` to `paths` (if it not already exists).  Equivalent to
 
       fu_paths_insert(paths, path, paths->n)
 
@@ -970,9 +988,9 @@ int fu_paths_extend_prefix(FUPaths *paths, const char *prefix,
  */
 int fu_paths_delete(FUPaths *paths, int n)
 {
-  if (n < 0) n += paths->n;
-  if (n < 0 || n >= (int)paths->n)
+  if (n < -(int)(paths->n) || n >= (int)paths->n+1)
     return err(1, "path index out of range: %d", n);
+  if (n < 0) n += paths->n;
   assert(paths->paths[n]);
   free((char *)paths->paths[n]);
   memmove((char **)paths->paths+n, paths->paths+n+1,

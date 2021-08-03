@@ -120,7 +120,7 @@ int test_uuid_as_string()
 int test_uuid_from_string()
 {
   uuid_s u;
-  if (uuid_from_string(&u, "6ba7b811-9dad-11d1-80b4-00c04fd430c8"))
+  if (uuid_from_string(&u, "6ba7b811-9dad-11d1-80b4-00c04fd430c8", 36))
     return 1;
   return uuid_compare(&u, &NameSpace_URL);
 }

@@ -1,8 +1,11 @@
 {
   "dlite/1/empty": {
+    "name": "empty",
+    "version": "1",
+    "namespace": "dlite",
     "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-    "dimensions": {},
-    "properties": {}
+    "dimensions": [],
+    "properties": []
   },
   "dbd9d597-16b4-58f5-b10f-7e49cf85084b": {
     "uri": "test-a",
@@ -35,11 +38,11 @@
       "P2": []
     }
   },
-  "ae8594ef-4ceb-5fca-ab41-b8a030b99966": {
-    "uri": "test-c",
+  "4cd9ed73-cb8d-5b98-8f3c-db5c916c53a5": {
+    "uri": "dlite/1/test-c",
     "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-    "dimensions": {},
-    "properties": {}
+    "dimensions": [],
+    "properties": []
   },
   "0a75c038-1ea1-5916-bbd4-6d0298894f4c": {
     "uri": "dlite/1/A",

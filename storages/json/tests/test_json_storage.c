@@ -36,7 +36,7 @@ MU_TEST(test_read)
 
   inst = json_load(s, "dbd9d597-16b4-58f5-b10f-7e49cf85084b");
   mu_check(inst);
-  printf("\n--- dbd9d597-16b4-58f5-b10f-7e49cf85084b ---\n");
+  printf("\n--- test_read: dbd9d597-16b4-58f5-b10f-7e49cf85084b ---\n");
   dlite_json_print(inst);
 
   r = dlite_storage_close(s);
@@ -65,18 +65,22 @@ MU_TEST(test_write)
 
 MU_TEST(test_iter)
 {
+  char *filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json";
   DLiteStorage *s=NULL;
   void *iter;
   char uuid[DLITE_UUID_LENGTH+1];
   int r, n=0;
 
-  s = dlite_storage_open("json", "test-json-write.json", "mode=w");
+  s = dlite_storage_open("json", filename, "mode=r");
   mu_check(s);
 
+  printf("\n--- test_iter ---\n");
   iter = json_iter_create(s, NULL);
   while ((r = json_iter_next(iter, uuid)) == 0) {
-    printf("\n** uuid: %s\n", uuid);
-    DLiteInstance *inst2 = dlite_instance_get(uuid);
+    dlite_errclr();
+    printf("\nuuid: %s\n", uuid);
+    DLiteInstance *inst2 = dlite_instance_load(s, uuid);
+    mu_check(inst2);
     dlite_json_print(inst2);
     dlite_instance_decref(inst2);
     n++;
@@ -85,6 +89,9 @@ MU_TEST(test_iter)
   mu_assert_int_eq(5, n);
 
   json_iter_free(iter);
+
+  r = dlite_storage_close(s);
+  mu_assert_int_eq(0, r);
 }
 
 

@@ -24,4 +24,10 @@
  */
 int getuuid(char *buff, const char *id);
 
+
+/**
+ * Like getuuid(), but takes the the length of `id` as an additional parameter.
+ */
+int getuuidn(char *buff, const char *id, size_t len);
+
 #endif /* _GETUUID_H */

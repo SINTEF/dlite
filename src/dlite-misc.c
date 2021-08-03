@@ -71,6 +71,14 @@ int dlite_get_uuid(char *buff, const char *id)
   return getuuid(buff, id);
 }
 
+/*
+  Like dlite_get_uuid(), but takes the the length of `id` as an
+  additional parameter.
+ */
+int dlite_get_uuidn(char *buff, const char *id, size_t len)
+{
+  return getuuidn(buff, id, len);
+}
 
 /*
   Returns an unique uri for metadata defined by `name`, `version`
