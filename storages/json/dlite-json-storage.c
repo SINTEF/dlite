@@ -28,6 +28,24 @@ typedef struct {
 } DLiteJsonStorage;
 
 
+/** Returns default mode:
+    - 'w': if `uri` if we can't open uri
+    - 'a': if `uri` is in data format
+    - 'r': otherwise
+*/
+static int default_mode(const char *uri)
+{
+  int mode;
+  JStore *js = jstore_open();
+  if (jstore_update_from_file(js, uri))
+    mode = 'w';
+  else
+    mode = (jstore_get(js, "properties")) ? 'r' : 'a';
+  jstore_close(js);
+  return mode;
+}
+
+
 /**
   Returns an url to the metadata.
 
@@ -56,9 +74,9 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   char *mode_descr = "How to open storage.  Valid values are: "
     "\"r\" (read-only); "
     "\"w\" (truncate existing storage or create a new one); "
-    "\"a\" (appends to existing storage or creates a new one, default)";
+    "\"a\" (appends to existing storage or creates a new one)";
   DLiteOpt opts[] = {
-    {'m', "mode",      "a", mode_descr},
+    {'m', "mode",      "", mode_descr},
     {'u', "with-uuid", "false", "Whether to include uuid in output"},
     {'d', "as-data",   "false", "Whether to write metadata as data"},
     {'c', "compact",   "false", "Aliad for `as-data=false` (deprecated)"},
@@ -82,6 +100,7 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   if (!(s->jstore = jstore_open())) goto fail;
   if (options) s->options = strdup(options);
 
+  if (!mode) mode = default_mode(uri);
   switch (mode) {
   case 'r':
     load = 1;
