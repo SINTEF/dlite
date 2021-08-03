@@ -30,13 +30,15 @@ Creates a _Path instance of type `pathtype`.
 ") _FUPaths;
 %extend struct _FUPaths {
   _FUPaths(const char *pathtype) {
-    if (strcmp(pathtype, "storage") == 0) {
+    if (strcmp(pathtype, "storages") == 0) {
       return dlite_storage_paths();
-    } else if (strcmp(pathtype, "mapping") == 0) {
+    } else if (strcmp(pathtype, "storage-plugins") == 0) {
+      return dlite_storage_plugin_paths_get();
+    } else if (strcmp(pathtype, "mapping-plugins") == 0) {
       return dlite_mapping_plugin_paths_get();
-    } else if (strcmp(pathtype, "python-storage") == 0) {
+    } else if (strcmp(pathtype, "python-storage-plugins") == 0) {
       return dlite_python_storage_paths();
-    } else if (strcmp(pathtype, "python-mapping") == 0) {
+    } else if (strcmp(pathtype, "python-mapping-plugins") == 0) {
       return dlite_python_mapping_paths();
     } else {
       return dlite_err(1, "invalid pathtype: %s", pathtype), NULL;
