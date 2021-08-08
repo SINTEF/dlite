@@ -96,9 +96,8 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
 
   if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL("allocation failure");
   s->api = api;
-  s->location = strdup(uri);
+
   if (!(s->jstore = jstore_open())) goto fail;
-  if (options) s->options = strdup(options);
 
   if (!mode) mode = default_mode(uri);
   switch (mode) {
@@ -140,7 +139,7 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
 
  fail:
   if (optcopy) free(optcopy);
-  if (!retval && s) free(s);
+  if (!retval && s) dlite_storage_close((DLiteStorage *)s);
 
   return retval;
 }
@@ -152,9 +151,11 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
 int json_close(DLiteStorage *s)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
+  int stat=0;
   if (js->writable && js->changed)
-    return jstore_to_file(js->jstore, js->location);
-  return 0;
+    stat = jstore_to_file(js->jstore, js->location);
+  stat |= jstore_close(js->jstore);
+  return stat;
 }
 
 

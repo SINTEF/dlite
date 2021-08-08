@@ -26,8 +26,8 @@ MU_TEST(test_add)
 
 MU_TEST(test_addn)
 {
-  char *src = "{\"key\": \"a long string...\"}";
-  jstore_addn(js, src+2, 3, src+8, 18);
+  char *src = "{\"key\": \"a truncated string\", ...}";
+  jstore_addn(js, src+2, 3, src+8, 20);
 }
 
 MU_TEST(test_addstolen)
@@ -40,7 +40,7 @@ MU_TEST(test_get)
 {
   mu_assert_string_eq("3.14", jstore_get(js, "pi"));
   mu_assert_string_eq("[1, 2, 3]", jstore_get(js, "arr"));
-  mu_assert_string_eq("\"a long string...\"", jstore_get(js, "key"));
+  mu_assert_string_eq("\"a truncated string\"", jstore_get(js, "key"));
   mu_assert_string_eq("\"a stolen value\"", jstore_get(js, "str"));
   mu_assert_string_eq(NULL, jstore_get(js, "xxx"));
 }

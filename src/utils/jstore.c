@@ -214,14 +214,16 @@ int jstore_update_from_file(JStore *js, const char *filename)
   jsmn_parser parser;
   jsmntok_t *tokens=NULL;
   unsigned int ntokens=0;
-  int stat;
+  int r, stat;
   char *buf;
   if (!(buf = jstore_readfile(filename)))
     return err(1, "error reading JSON file \"%s\"", filename);
   jsmn_init(&parser);
-  if (jsmn_parse_alloc(&parser, buf, strlen(buf), &tokens, &ntokens) < 0) {
+  r = jsmn_parse_alloc(&parser, buf, strlen(buf), &tokens, &ntokens);
+  if (r < 0) {
     free(buf);
-    return err(1, "error parsing JSON file \"%s\"", filename);
+    return err(1, "error parsing JSON file \"%s\": %s",
+               filename, jsmn_strerror(r));
   }
   stat = jstore_update_from_jsmn(js, buf, tokens);
   free(tokens);

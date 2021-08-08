@@ -1,4 +1,29 @@
 {
+  "0a75c038-1ea1-5916-bbd4-6d0298894f4c": {
+    "uri": "dlite/1/A",
+    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
+    "description": "dummy entity",
+    "dimensions": [
+      {"name": "N", "description": "length of P2"}
+    ],
+    "properties": [
+      {
+        "name": "P1",
+        "type": "int"
+      },
+      {
+        "name": "P2",
+        "type": "float",
+        "dims": ["N"],
+        "description": "array"
+      }
+    ]
+  },
+  "dlite/1/test-c": {
+    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
+    "dimensions": [],
+    "properties": []
+  },
   "dlite/1/empty": {
     "name": "empty",
     "version": "1",
@@ -38,30 +63,14 @@
       "P2": []
     }
   },
-  "4cd9ed73-cb8d-5b98-8f3c-db5c916c53a5": {
-    "uri": "dlite/1/test-c",
-    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-    "dimensions": [],
-    "properties": []
-  },
-  "0a75c038-1ea1-5916-bbd4-6d0298894f4c": {
-    "uri": "dlite/1/A",
-    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-    "description": "dummy entity",
-    "dimensions": [
-      {"name": "N", "description": "length of P2"}
-    ],
-    "properties": [
-      {
-        "name": "P1",
-        "type": "int"
-      },
-      {
-        "name": "P2",
-        "type": "float",
-        "dims": ["N"],
-        "description": "array"
-      }
-    ]
+  "data3": {
+    "meta": "dlite/1/A",
+    "dimensions": {
+      "N": 1
+    },
+    "properties": {
+      "P1": 2,
+      "P2": [3.14]
+    }
   }
 }

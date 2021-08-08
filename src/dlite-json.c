@@ -807,7 +807,7 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   jsmn_parser parser;
   jsmntok_t *tokens=NULL;
   unsigned int ntokens=0;
-  char uuid[DLITE_UUID_LENGTH+1];
+  char uuid[DLITE_UUID_LENGTH+1], *uri=NULL;
   int r;
   DLiteJsonFormat retval=-1;
   char *dots = (len > 30) ? "..." : "";
@@ -820,9 +820,9 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
 
   if (jsmn_item(src, tokens, "properties")) {
     /* metadata format */
-    char *uri = get_uri(src, tokens);
-    if (!uri) FAIL2("missing uri in metadata-formatted json data: \"%.30s%s\"",
-                    src, dots);
+    if (!(uri = get_uri(src, tokens)))
+      FAIL2("missing uri in metadata-formatted json data: \"%.30s%s\"",
+            src, dots);
     if (dlite_get_uuid(uuid, uri) < 0) goto fail;
     jstore_addn(js, uuid, DLITE_UUID_LENGTH, src, len);
     retval = dliteJsonMetaFormat;
@@ -842,6 +842,7 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   }
  fail:
   if (tokens) free(tokens);
+  if (uri) free(uri);
   return retval;
 }
 
@@ -853,8 +854,11 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
 DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
 {
   char *buf = jstore_readfile(filename);
+  int fmt;
   if (!buf) return err(1, "cannot load json file \"%s\"", filename);
-  return dlite_jstore_loads(js, buf, strlen(buf));
+  fmt = dlite_jstore_loads(js, buf, strlen(buf));
+  free(buf);
+  return fmt;
 }
 
 /*
