@@ -207,9 +207,9 @@ Main features
 -------------
 See [doc/features.md](doc/features.md) for a more detailed list.
   - Enables semantic interoperability via simple formalised metadata and data
-  - Metadta can be linked to or generated from ontologies
+  - Metadata can be linked to or generated from ontologies
   - Code generation for simple integration in existing code bases
-  - Plugin API for data storages
+  - Plugin API for data storages (json, hdf5, rdf, yaml, postgresql, blob, csv...)
   - Plugin API for mapping between metadata
   - Bindings to C, Python and Fortran
 
@@ -289,7 +289,7 @@ Dependencies
 
 ### Runtime dependencies
   - [HDF5][3], optional (needed by HDF5 storage plugin)
-  - [Jansson][4], optional (needed by JSON storage plugin)
+  - [librdf][4], optional (needed by RDF (Redland) storage plugin)
   - [Python 3][5], optional (needed by Python bindings and some plugins)
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
@@ -300,7 +300,7 @@ Dependencies
 ### Build dependencies
   - [cmake][9], required for building
   - hdf5 development libraries, optional (needed by HDF5 storage plugin)
-  - Jansson development libraries, optional (needed by JSON storage plugin)
+  - librdf development libraries, optional (needed by librdf storage plugin)
   - Python 3 development libraries, optional (needed by Python bindings)
   - NumPy development libraries, optional (needed by Python bindings)
   - [SWIG v3][10], optional (needed by building Python bindings)
@@ -337,16 +337,15 @@ system defined in Dockerfile.
 
 ### Build on Linux
 
-Install the hdf5 (does not include the parallel component) and jansson
-libraries
+Install the hdf5 (does not include the parallel component) libraries
 
 On Ubuntu:
 
-    sudo apt-get install libhdf5-serial-dev libjansson-dev
+    sudo apt-get install libhdf5-serial-dev
 
 On Redhad-based distributions (Fedora, Centos, ...):
 
-    sudo dnf install hdf5-devel jansson-devel
+    sudo dnf install hdf5-devel
 
 Build with:
 
@@ -411,7 +410,7 @@ DLite is developed with the hope that it will be a delight to work with.
 [1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
 [2]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
 [3]: https://support.hdfgroup.org/HDF5/
-[4]: http://www.digip.org/jansson/
+[4]: https://librdf.org/
 [5]: https://www.python.org/
 [6]: https://pypi.org/project/numpy/
 [7]: https://pypi.org/project/PyYAML/

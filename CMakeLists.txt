@@ -66,9 +66,6 @@ option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
 option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
 
-option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
-option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
-
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
@@ -147,9 +144,6 @@ set(DLITE_CONFIG_VARS
   DLITE_STORAGE_PLUGIN_DIRS
   DLITE_MAPPING_PLUGIN_DIRS
   )
-  if(WITH_JSON)
-    list(APPEND DLITE_CONFIG_VARS JANSSON_LIBRARIES)
-  endif()
   if(WITH_HDF5)
     list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
   endif()
@@ -186,156 +180,13 @@ make_platform_paths(
   )
 
 
-
-####################################################################
-# Use ExternalProject_add instead of add_subdirectory for packages.
-# For explanation of the approach, see
-# https://coderwall.com/p/y3zzbq/use-cmake-enabled-libraries-in-your-cmake-project
-#
-# In short, main reasons for using ExternalProject:
-#   - Avoids problems with multible definitions of standard targets like
-#     doc, memcheck, etc...
-#   - External dependencies are transparently downloaded, configured
-#     and compiled as a part of the build process.
-#
-# Since external download and configure steps of ExternalProject
-# happens at compile time, find_package(), which operate at configure
-# time, cannot be used with ExternalProject.  For this reason some
-# people configures everything as ExternalProject (even the main
-# project) and creates a super project that calls
-# ExternalProject_Add() in the correct order such all dependencies are
-# build when the ExternalProject of the main project is configured,
-# allowing them to use configure project.
-#
-# Here we take another approach. Instead of relying on find_package()
-# we manually sets the path of the resources (headers, libraries)
-# provided by the dependency after ExternalProject_Add() is called.
-# This way, the main project can follow the standard cmake structure.
-#
-####################################################################
-include(ExternalProject)
-
-# A directory that external projects install into
-set(external_INSTALL_DIR ${dlite_BINARY_DIR}/local)
-
-# Short names
-set(LIB_PRE ${CMAKE_STATIC_LIBRARY_PREFIX})
-set(LIB_EXT ${CMAKE_STATIC_LIBRARY_SUFFIX})
-set(SH_PRE  ${CMAKE_SHARED_LIBRARY_PREFIX})
-set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
-
 #
 # hdf5
 # ====
 if(WITH_HDF5)
   find_package(HDF5 1.8.20 COMPONENTS C)
-  if(NOT HDF5_FOUND)
-    if(NOT BUILD_HDF5)
-      message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
-    endif()
-    message(STATUS "Download and build HDF5 as external package")
-
-    set(hdf5_MAJOR_VERSION  "1.10")
-    set(hdf5_MINOR_VERSION  "4")
-    set(hdf5_MD5            cdf02e61f0d9920a7e7183aa0fb35429)
-    set(hdf5_VERSION        "${hdf5_MAJOR_VERSION}.${hdf5_MINOR_VERSION}")
-    set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
-    set(hdf5_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/${hdf5_NAME}")
-    set(hdf5_INSTALL_PREFIX "${external_INSTALL_DIR}")
-
-    set(cmake_args
-      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -DHDF5_BUILD_CXX=OFF
-      -DHDF5_BUILD_FORTRAN=OFF
-      -DCMAKE_BUILD_TYPE=Release
-      -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
-      -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
-      -DBUILD_SHARED_LIBS=ON
-      -DH5_BUILT_AS_DYNAMIC_LIB
-    )
-    if(CMAKE_TOOLCHAIN_FILE)
-      get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
-      list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
-    endif()
-
-    ExternalProject_Add(
-      hdf5Proj
-      PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/external/${hdf5_NAME}
-      URL               https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${hdf5_MAJOR_VERSION}/${hdf5_NAME}/src/${hdf5_NAME}.tar.gz
-      URL_MD5           ${hdf5_MD5}
-      SOURCE_DIR        ${hdf5_SOURCE_DIR}
-      UPDATE_COMMAND    ""
-      CMAKE_ARGS        ${cmake_args}
-      TEST_COMMAND      ctest -C Release
-      INSTALL_COMMAND   cmake --build . --target install
-    )
-    set(HDF5_DEPENDENCIES hdf5Proj)
-
-    # Define the following variables:
-    #
-    #   HDF5_INCLUDE_DIRS - location of the HDF5 include dirs
-    #   HDF5_LIBRARY_DIRS - location of the HDF5 library dirs
-    #   HDF5_LIBRARIES    - required libraries
-    #
-    set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
-    set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
-    set(HDF5_LIBRARIES
-      ${hdf5_INSTALL_PREFIX}/lib/${SH_PRE}hdf5${SH_EXT})
-
-    if(WIN32)
-      list(APPEND HDF5_LIBRARIES Kernel32)
-    else()
-      list(APPEND HDF5_LIBRARIES m dl)
-    endif()
-
-  endif()
 else()
   set(HDF5_LIBRARIES "")
-endif()
-
-
-#
-# jansson
-# =======
-if(WITH_JSON)
-  include(Findjansson)
-  find_package(jansson)
-
-  if(NOT JANSSON_FOUND)
-    if(NOT BUILD_JSON)
-      message(FATAL_ERROR "Jansson not found.  Try to set BUILD_JSON to ON")
-    endif()
-    message(STATUS "Download and build jansson as external package")
-    set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
-    set(jansson_INSTALL_PREFIX "${external_INSTALL_DIR}")
-    set(cmake_args
-      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -DCMAKE_BUILD_TYPE=Release
-      -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
-      -DBUILD_SHARED_LIBS=ON
-      )
-    if(CMAKE_TOOLCHAIN_FILE)
-      get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
-      list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
-    endif()
-    ExternalProject_Add(
-      janssonProj
-      PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/external/jansson
-      SOURCE_DIR      ${jansson_SOURCE_DIR}
-      GIT_REPOSITORY  "https://github.com/akheron/jansson.git"
-      GIT_TAG         v2.9
-      CMAKE_ARGS      ${cmake_args}
-      UPDATE_COMMAND  ""
-      TEST_COMMAND    ctest
-      INSTALL_COMMAND cmake --build . --target install
-      )
-    set(JANSSON_DEPENDENCIES janssonProj)
-    set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
-    set(JANSSON_LIBRARIES
-      ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
-  endif()
-else()
-  set(JANSSON_LIBRARIES "")
 endif()
 
 
@@ -524,9 +375,6 @@ if(WIN32)
   if(WITH_FORTRAN)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/bindings/fortran)
   endif()
-  if(WITH_JSON)
-    list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
-  endif()
   if(WITH_HDF5)
     list(APPEND dlite_PATH ${HDF5_RUNTIME_DIR})
   endif()
@@ -554,9 +402,6 @@ if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
   if(WITH_FORTRAN)
     list(APPEND dlite_WINEPATH ${dlite_BINARY_DIR}/bindings/fortran)
   endif()
-  if(WITH_JSON)
-    list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
-  endif()
   if(WITH_HDF5)
     list(APPEND dlite_WINEPATH ${HDF5_RUNTIME_DIR})
   endif()
@@ -577,7 +422,6 @@ if(WITH_PYTHON)
   build_append(dlite_LD_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
 endif()
 #list(APPEND dlite_LD_LIBRARY_PATH
-#  ${JANSSON_RUNTIME_DIR}
 #  ${HDF5_RUNTIME_DIR}
 #  )
 list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
@@ -680,18 +524,26 @@ set(test_env
   "export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
   "export DLITE_STORAGES='${dlite_STORAGES}'"
   ""
-  "========== Python =================="
+  "========== Python ==================="
   "Python3_LIBRARIES:          ${Python3_LIBRARIES}"
   "Python3_LIBRARY_DIRS:       ${Python3_LIBRARY_DIRS}"
   "Python3_INCLUDE_DIRS:       ${Python3_INCLUDE_DIRS}"
   "Python3_NumPy_INCLUDE_DIRS: ${Python3_NumPy_INCLUDE_DIRS}"
   "Python3_NumPy_LIBRARY_DIRS: ${Python3_NumPy_LIBRARY_DIRS}"
   ""
-  "========== Jansson =================="
-  "JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}"
-  "JANSSON_LIBRARIES:    ${JANSSON_LIBRARIES}"
-  "JANSSON_LIBRARY_DIR:  ${JANSSON_LIBRARY_DIR}"
-  "JANSSON_RUNTIME_DIR:  ${JANSSON_RUNTIME_DIR}"
+  "========== Redland =================="
+  "REDLAND_INCLUDE_DIRS: ${REDLAND_INCLUDE_DIRS}"
+  "REDLAND_LIBRARIES:    ${REDLAND_LIBRARIES}"
+  "REDLAND_LIBRARY_DIR:  ${REDLAND_LIBRARY_DIR}"
+  "REDLAND_RUNTIME_DIR:  ${REDLAND_RUNTIME_DIR}"
+  ""
+  "RASQAL_INCLUDE_DIRS: ${RASQAL_INCLUDE_DIRS}"
+  "RASQAL_LIBRARIES:    ${RASQAL_LIBRARIES}"
+  "RASQAL_DEFINITIONS:  ${RASQAL_DEFINITIONS}"
+  ""
+  "RAPTOR_INCLUDE_DIRS: ${RAPTOR_INCLUDE_DIRS}"
+  "RAPTOR_LIBRARIES:    ${RAPTOR_LIBRARIES}"
+  "RAPTOR_DEFINITIONS:  ${RAPTOR_DEFINITIONS}"
   ""
   "========== HDF5 ====================="
   "HDF5_INCLUDE_DIRS:    ${HDF5_INCLUDE_DIRS}"
@@ -779,7 +631,6 @@ set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
 # DEB package
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
   libhdf5
-  libjansson
   python3
   python3-numpy
   )
@@ -788,7 +639,6 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS
 set(CPACK_RPM_PACKAGE_LICENSE "${dlite_LICENSE}")
 set(CPACK_RPM_PACKAGE_REQUIRES
   hdf5
-  jansson
   python3
   python3-numpy
   )
