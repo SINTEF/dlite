@@ -6,6 +6,14 @@
     def __contains__(self, value):
         return value in self.aslist()
 
+    def __getitem__(self, key):
+        n = len(self)
+        if key < 0:
+            key += n
+        if key < 0 or key >= n:
+            raise IndexError(f'key out of range: {key}')
+        return self.getitem(key)
+
     def aslist(self):
         return [self[i] for i in range(len(self))]
 

@@ -56,7 +56,7 @@ Creates a _Path instance of type `pathtype`.
   int __len__(void) {
     return $self->n;
   }
-  const char *__getitem__(int index) {
+  const char *getitem(int index) {
     if (index < 0) index += $self->n;
     if (index < 0 || index >= (int)$self->n)
       return dlite_err(1, "index out of range: %d", index), NULL;

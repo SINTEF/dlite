@@ -12,9 +12,9 @@ for fname in glob(f'{thisdir}/*.json'):
 
 dlite.python_mapping_plugin_path.append(f'{thisdir}/python-mapping-plugins')
 
-print(dlite.storage_path)
-#for path in dlite.storage_path:
-#    print(path)
+#print(dlite.storage_path)
+for path in dlite.storage_path:
+    print('- ' + path)
 
 # Create an instance of Person
 Person = dlite.Instance(f'json:{thisdir}/Person.json?mode=r')

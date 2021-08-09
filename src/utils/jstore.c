@@ -24,26 +24,29 @@ struct _JStore {
  * -----------------
  */
 
+
 /* Read stream into an allocated buffer.
    Returns a pointer to the buffer or NULL on error. */
 char *jstore_readfp(FILE *fp)
 {
-  char *buf;
-  long pos = ftell(fp);
-  long len;
-  if (fseek(fp, 0, SEEK_END) < 0)
-    return err(1, "cannot SEEK to end of file"), NULL;
-  len = ftell(fp) - pos;
-  if (fseek(fp, pos, SEEK_SET) < 0)
-    return err(1, "cannot set SEEK position"), NULL;
-  if (!(buf = malloc(len + 1)))
-    return err(1, "allocation failure"), NULL;
-  if (fread(buf, len, 1, fp) != 1) {
-    free(buf);
-    return err(1, "cannot read from file"), NULL;
-  }
-  buf[len] = '\0';
+  char *q, *buf=NULL;
+  size_t n, bytes_left, bytes_read=0, size=256;
+  do {
+    if (ferror(fp)) FAIL("stream error");
+    size *= 2;
+    if (!(q = realloc(buf, size))) FAIL("reallocation failure");
+    buf = q;
+    bytes_left = size - bytes_read;
+    n = fread(buf+bytes_read, 1, bytes_left, fp);
+    bytes_read += n;
+  } while (n == bytes_left && !feof(fp));
+  assert(feof(fp));  // stream should be exausted
+  if (!(q = realloc(buf, bytes_read+1))) FAIL("reallocation failure");
+  buf[bytes_read] = '\0';
   return buf;
+ fail:
+  if (buf) free(buf);
+  return NULL;
 }
 
 /* Read file into an allocated buffer.
@@ -55,6 +58,7 @@ char *jstore_readfile(const char *filename)
   if (!fp) return err(1, "cannot open file: \"%s\"", filename), NULL;
   buf = jstore_readfp(fp);
   fclose(fp);
+  if (!buf) err(1, "error reading from file \"%s\"", filename);
   return buf;
 }
 

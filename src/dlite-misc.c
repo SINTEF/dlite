@@ -304,8 +304,10 @@ int dlite_split_url_winpath(char *url, char **driver, char **location,
 
   /* assign driver and location */
   i = strcspn(url, ":/");
-  if (winpath && strlen(url) > 3 && (url[0] == 'C' || url[0] == 'c') &&
-      url[1] == ':' && (url[2] == '\\' || url[2] == '/')) {
+  if (winpath && strlen(url) > 3 &&
+      ((url[0] >= 'A' && url[0] <= 'Z') || (url[0] >= 'a' && url[0] <= 'z')) &&
+      url[1] == ':' &&
+      (url[2] == '\\' || url[2] == '/')) {
     /* special case: url is a windows path */
     if (driver) *driver = NULL;
     if (location) *location = url;

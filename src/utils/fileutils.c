@@ -45,6 +45,9 @@ struct _FUIter {
   const char *pattern;   /* File name glob pattern to match against. */
   size_t i;              /* Index of current position in `paths`. */
   const FUPaths *paths;  /* Paths */
+  char **origpaths;      /* Copy of paths->paths to not be affected by
+                            inserts and deletions during iteration */
+  size_t origlen;        /* Copy of paths->n */
   const char *filename;  /* Name of current file (excluding directory path) */
   char *dirname;         /* Allocated name of current directory */
   char *path;            /* Full path to current file */
@@ -867,13 +870,6 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
   if (n < -(int)(paths->n) || n >= (int)paths->n+1)
     FAIL1("path index out of range: %d", n);
   if (n < 0) n += paths->n;
-  if ((index = fu_paths_index(paths, path)) >= 0) {
-    /* path already in paths - remove it if it is not at expected position */
-    if (index == n || (n == (int)paths->n && index == (int)paths->n - 1))
-      return index;  // path already at expected position
-    if (fu_paths_delete(paths, index)) goto fail;
-    if (n > index) n--;
-  }
 
   if (len) {
     if (!(tmp = strndup(path, len))) FAIL("allocation failure");
@@ -889,6 +885,18 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
   default: assert(0);  // should never happen
   }
   if (!p) FAIL("allocation failure");
+
+  if ((index = fu_paths_index(paths, p)) >= 0) {
+
+    /* path already in paths - remove it if it is not at expected position */
+    if (index == n || (n == (int)paths->n && index == (int)paths->n - 1)) {
+      if (p) free(p);
+      if (tmp) free(tmp);
+      return index;  // path already at expected position
+    }
+    if (fu_paths_delete(paths, index)) goto fail;
+    if (n > index) n--;
+  }
 
   if (paths->n+1 >= paths->size) {
     const char **q;
@@ -989,7 +997,7 @@ int fu_paths_extend_prefix(FUPaths *paths, const char *prefix,
 int fu_paths_delete(FUPaths *paths, int n)
 {
   if (n < -(int)(paths->n) || n >= (int)paths->n+1)
-    return err(1, "path index out of range: %d", n);
+    return err(-1, "path index out of range: %d", n);
   if (n < 0) n += paths->n;
   assert(paths->paths[n]);
   free((char *)paths->paths[n]);
@@ -1005,8 +1013,9 @@ int fu_paths_delete(FUPaths *paths, int n)
 int fu_paths_remove(FUPaths *paths, const char *path)
 {
   int i = fu_paths_index(paths, path);
-  if (i < 0) return i;
-  return fu_paths_delete(paths, i);
+  if (i < 0) return -1;
+  if (fu_paths_delete(paths, i)) return 1;
+  return 0;
 }
 
 /*
@@ -1024,6 +1033,35 @@ int fu_paths_index(FUPaths *paths, const char *path)
 
 /* ---------------------------------------------------------- */
 
+/* Frees NULL-terminated list of malloc'ed strings.
+   Returns non-zero on error. */
+static int strlist_free(char **strlist)
+{
+  char **q;
+  if (!strlist) return err(1, "string list is NULL");
+  for (q=strlist; *q; q++) free(*q);
+  free(strlist);
+  return 0;
+}
+
+/* Returns a copy of NULL-terminated list of malloc'ed strings. */
+static char **strlist_copy(const char **strlist)
+{
+  char **cpy;
+  size_t i, n=0;
+  while (strlist[n]) n++;
+  if (!(cpy = calloc(n+1, sizeof(char *))))
+    return err(1, "allocation failure"), NULL;
+  for (i=0; i<n; i++) {
+    if (!(cpy[i] = strdup(strlist[i]))) {
+      strlist_free(cpy);
+      return err(1, "allocation failure"), NULL;
+    }
+  }
+  return cpy;
+}
+
+
 /*
   Returns a new iterator for finding files matching `pattern` in
   directories included in `paths`.
@@ -1035,18 +1073,23 @@ int fu_paths_index(FUPaths *paths, const char *path)
  */
 FUIter *fu_startmatch(const char *pattern, const FUPaths *paths)
 {
-  FUIter *iter;
-  if (!(iter = calloc(1, sizeof(FUIter))))
-    return err(1, "allocation failure"), NULL;
+  FUIter *iter=NULL;
+  if (!(iter = calloc(1, sizeof(FUIter)))) FAIL("allocation failure");
   iter->pattern = pattern;
   iter->i = 0;
   iter->paths = paths;
+  iter->origlen = paths->n;
+  if (!(iter->origpaths = strlist_copy(paths->paths))) goto fail;
   iter->filename = NULL;
   iter->path = NULL;
   iter->pathsize = 0;
   iter->dir = NULL;
   iter->dirsep = DIRSEP[0];
   return iter;
+ fail:
+  if (iter->origpaths) strlist_free(iter->origpaths);
+  if (iter) free(iter);
+  return NULL;
 }
 
 /*
@@ -1057,18 +1100,23 @@ FUIter *fu_startmatch(const char *pattern, const FUPaths *paths)
   The returned string is owned by the iterator. It will be overwritten
   by the next call to fu_nextmatch() and should not be changed.  Use
   strdup() or strncpy() if a copy is needed.
+
+  Note 2:
+  The iterator will not be affected by adding or deleting paths during
+  iteration.  Hence, it is safe to insert a path or delete the path
+  returned by fu_nextmatch().  But if you delete a yet non-visited path
+  it will still be visited.
  */
 const char *fu_nextmatch(FUIter *iter)
 {
   const char *filename;
-  const FUPaths *p = iter->paths;
   char dirsep[2] = { iter->dirsep, 0 };
-  if (iter->i >= p->n) return NULL;
+  if (iter->i >= iter->origlen) return NULL;
 
-  while (iter->i < p->n) {
-    const char *path = p->paths[iter->i];
+  while (iter->i < iter->origlen) {
+    const char *path = iter->origpaths[iter->i];
     if (!iter->dir) {
-      if (iter->i >= p->n) return NULL;
+      if (iter->i >= iter->origlen) return NULL;
       if (!path[0]) path = ".";
 
       ErrTry:
@@ -1115,10 +1163,12 @@ const char *fu_nextmatch(FUIter *iter)
  */
 int fu_endmatch(FUIter *iter)
 {
+  int status = 0;
   if (iter->path) free(iter->path);
   if (iter->dir) fu_closedir(iter->dir);
+  status |= strlist_free(iter->origpaths);
   free(iter);
-  return 0;
+  return status;
 }
 
 /* ---------------------------------------------------------- */
@@ -1145,7 +1195,12 @@ FUIter *fu_pathsiter_init(const FUPaths *paths, const char *pattern)
   iter->paths = paths;
   iter->pattern = pattern;
   iter->dirsep = DIRSEP[0];
+  iter->origlen = paths->n;
+  if (!(iter->origpaths = strlist_copy(paths->paths))) goto fail;
   return iter;
+ fail:
+  if (iter) free(iter);
+  return NULL;
 }
 
 /*
@@ -1154,10 +1209,9 @@ FUIter *fu_pathsiter_init(const FUPaths *paths, const char *pattern)
  */
 const char *_fu_pathsiter_next(FUIter *iter)
 {
-  const FUPaths *p = iter->paths;
-  if (iter->i >= p->n) return NULL;
+  if (iter->i >= iter->origlen) return NULL;
 
-  while (iter->i < p->n) {
+  while (iter->i < iter->origlen) {
     const char *path;
 
     /* Check for ongoing iteration over a directory... */
@@ -1184,7 +1238,7 @@ const char *_fu_pathsiter_next(FUIter *iter)
         iter->dir = NULL;
         iter->dirname = NULL;
         iter->filename = NULL;
-        if (++iter->i >= p->n) break;
+        if (++iter->i >= iter->origlen) break;
       }
     }
 
@@ -1205,12 +1259,12 @@ const char *_fu_pathsiter_next(FUIter *iter)
       } else {
         fu_globend(iter->globiter);
         iter->globiter = NULL;
-        if (++iter->i >= p->n) break;
+        if (++iter->i >= iter->origlen) break;
       }
     }
 
     assert(!iter->dir && !iter->globiter);
-    path = p->paths[iter->i];
+    path = iter->origpaths[iter->i];
 
     /* Check if `path` is a directory...
        Note that we are calling opendir() directly, to avoid errors if
@@ -1231,6 +1285,12 @@ const char *_fu_pathsiter_next(FUIter *iter)
   Returns the next file or directory in the iterator `iter` created
   with fu_paths_iter_init().  NULL is returned on error or if there
   are no more file names to iterate over.
+
+  Note:
+  The iterator will not be affected by adding or deleting paths during
+  iteration.  Hence, it is safe to insert a path or delete the path
+  returned by fu_pathiter_next().  But if you delete a yet non-visited
+  path it will still be visited.
  */
 const char *fu_pathsiter_next(FUIter *iter)
 {
@@ -1256,6 +1316,7 @@ int fu_pathsiter_deinit(FUIter *iter)
   if (iter->path) free(iter->path);
   if (iter->dir) status |= fu_closedir(iter->dir);
   if (iter->globiter) status |= fu_globend(iter->globiter);
+  status |= strlist_free(iter->origpaths);
   free(iter);
   return status;
 }

@@ -60,7 +60,7 @@ inst['a-relation-array'] = [
 for i in range(len(inst)):
     print('prop%d:' % i, inst[i])
 
-# Strin representation (as json)
+# String representation (as json)
 print(inst)
 
 # Check save and load
@@ -113,7 +113,6 @@ except ImportError:
     pass
 else:
     inst.save('yaml://yyy.yaml')
-
 
 del inst
 del e2
