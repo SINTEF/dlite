@@ -66,9 +66,6 @@ option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
 option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
 
-option(BUILD_HDF5       "If not installed, download and compile HDF5"    OFF)
-option(BUILD_JSON       "If not installed, download and compile jansson" OFF)
-
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
@@ -186,34 +183,6 @@ make_platform_paths(
   )
 
 
-
-####################################################################
-# Use ExternalProject_add instead of add_subdirectory for packages.
-# For explanation of the approach, see
-# https://coderwall.com/p/y3zzbq/use-cmake-enabled-libraries-in-your-cmake-project
-#
-# In short, main reasons for using ExternalProject:
-#   - Avoids problems with multible definitions of standard targets like
-#     doc, memcheck, etc...
-#   - External dependencies are transparently downloaded, configured
-#     and compiled as a part of the build process.
-#
-# Since external download and configure steps of ExternalProject
-# happens at compile time, find_package(), which operate at configure
-# time, cannot be used with ExternalProject.  For this reason some
-# people configures everything as ExternalProject (even the main
-# project) and creates a super project that calls
-# ExternalProject_Add() in the correct order such all dependencies are
-# build when the ExternalProject of the main project is configured,
-# allowing them to use configure project.
-#
-# Here we take another approach. Instead of relying on find_package()
-# we manually sets the path of the resources (headers, libraries)
-# provided by the dependency after ExternalProject_Add() is called.
-# This way, the main project can follow the standard cmake structure.
-#
-####################################################################
-include(ExternalProject)
 
 # A directory that external projects install into
 set(external_INSTALL_DIR ${dlite_BINARY_DIR}/local)
