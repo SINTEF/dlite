@@ -183,16 +183,6 @@ make_platform_paths(
   )
 
 
-
-# A directory that external projects install into
-set(external_INSTALL_DIR ${dlite_BINARY_DIR}/local)
-
-# Short names
-set(LIB_PRE ${CMAKE_STATIC_LIBRARY_PREFIX})
-set(LIB_EXT ${CMAKE_STATIC_LIBRARY_SUFFIX})
-set(SH_PRE  ${CMAKE_SHARED_LIBRARY_PREFIX})
-set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
-
 #
 # hdf5
 # ====
@@ -561,7 +551,7 @@ set(test_env
   "export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
   "export DLITE_STORAGES='${dlite_STORAGES}'"
   ""
-  "========== Python =================="
+  "========== Python ==================="
   "Python3_LIBRARIES:          ${Python3_LIBRARIES}"
   "Python3_LIBRARY_DIRS:       ${Python3_LIBRARY_DIRS}"
   "Python3_INCLUDE_DIRS:       ${Python3_INCLUDE_DIRS}"
@@ -573,6 +563,20 @@ set(test_env
   "JANSSON_LIBRARIES:    ${JANSSON_LIBRARIES}"
   "JANSSON_LIBRARY_DIR:  ${JANSSON_LIBRARY_DIR}"
   "JANSSON_RUNTIME_DIR:  ${JANSSON_RUNTIME_DIR}"
+  ""
+   "========== Redland ================="
+  "REDLAND_INCLUDE_DIRS: ${REDLAND_INCLUDE_DIRS}"
+  "REDLAND_LIBRARIES:    ${REDLAND_LIBRARIES}"
+  "REDLAND_LIBRARY_DIR:  ${REDLAND_LIBRARY_DIR}"
+  "REDLAND_RUNTIME_DIR:  ${REDLAND_RUNTIME_DIR}"
+  ""
+  "RASQAL_INCLUDE_DIRS: ${RASQAL_INCLUDE_DIRS}"
+  "RASQAL_LIBRARIES:    ${RASQAL_LIBRARIES}"
+  "RASQAL_DEFINITIONS:  ${RASQAL_DEFINITIONS}"
+  ""
+  "RAPTOR_INCLUDE_DIRS: ${RAPTOR_INCLUDE_DIRS}"
+  "RAPTOR_LIBRARIES:    ${RAPTOR_LIBRARIES}"
+  "RAPTOR_DEFINITIONS:  ${RAPTOR_DEFINITIONS}"
   ""
   "========== HDF5 ====================="
   "HDF5_INCLUDE_DIRS:    ${HDF5_INCLUDE_DIRS}"
