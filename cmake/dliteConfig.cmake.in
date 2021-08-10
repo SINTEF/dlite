@@ -54,13 +54,18 @@ if(NOT DLITE_LIBRARIES)
     list(APPEND dlite_LIBRARIES "${Python3_LIBRARIES}")
   endif()
 
+  # Jansson
+  if(WITH_JSON)
+    set(JANSON_LIBRARIES "@JANSSON_LIBRARIES@" CACHE STRING
+      "Jansson libraries")
+    list(APPEND dlite_LIBRARIES "${JANSSON_LIBRARIES}")
+  endif()
+
   # HDF5
   if(WITH_HDF5)
     set(HDF5_LIBRARIES "@HDF5_LIBRARIES@" CACHE STRING "HDF5 libraries")
     list(APPEND dlite_LIBRARIES "${HDF5_LIBRARIES}")
   endif()
-
-  # FIXME: also add redland
 
   set(DLITE_LIBRARIES "${dlite_LIBRARIES}" CACHE STRING "DLite libraries")
 endif()
