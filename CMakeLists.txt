@@ -184,18 +184,15 @@ make_platform_paths(
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 1.8.20 COMPONENTS C)
-  if(HDF5_FOUND)
-    if(WIN32)
-      list(APPEND HDF5_LIBRARIES Kernel32)
-    else()
-      list(APPEND HDF5_LIBRARIES m dl)
-    endif()
+  find_package(HDF5 1.8.20 COMPONENTS C REQUIRED)
+  if(WIN32)
+    list(APPEND HDF5_LIBRARIES Kernel32)
+  else()
+    list(APPEND HDF5_LIBRARIES m dl)
   endif()
 else()
   set(HDF5_LIBRARIES "")
 endif()
-
 
 #
 # Redland
@@ -377,6 +374,7 @@ if(WIN32)
     )
   if(WITH_PYTHON)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
+    list(APPEND dlite_PATH ${Python3_RUNTIME_LIBRARY_DIRS})
     list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
   endif()
   if(WITH_FORTRAN)
