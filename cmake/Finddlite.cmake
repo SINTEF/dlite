@@ -102,7 +102,6 @@ else()
   # FIXME - should we also find redland?
 
   list(APPEND DLITE_LIBRARIES
-    ${JANSSON_LIBRARIES}
     ${HDF5_LIBRARIES}
     )
 

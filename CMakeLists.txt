@@ -144,9 +144,6 @@ set(DLITE_CONFIG_VARS
   DLITE_STORAGE_PLUGIN_DIRS
   DLITE_MAPPING_PLUGIN_DIRS
   )
-if(WITH_JSON)
-  list(APPEND DLITE_CONFIG_VARS JANSSON_LIBRARIES)
-endif()
 if(WITH_HDF5)
   list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
 endif()
@@ -187,28 +184,15 @@ make_platform_paths(
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 1.8.20 COMPONENTS C)
-  if(NOT HDF5_FOUND)
-    message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
+  find_package(HDF5 1.8.20 COMPONENTS C REQUIRED)
+  if(WIN32)
+    list(APPEND HDF5_LIBRARIES Kernel32)
+  else()
+    list(APPEND HDF5_LIBRARIES m dl)
   endif()
 else()
   set(HDF5_LIBRARIES "")
 endif()
-
-
-#
-# jansson
-# =======
-if(WITH_JSON)
-  include(Findjansson)
-  find_package(jansson)
-  if(NOT JANSSON_FOUND)
-    message(FATAL_ERROR "Jansson not found.  Try to set BUILD_JSON to ON")
-  endif()
-else()
-  set(JANSSON_LIBRARIES "")
-endif()
-
 
 #
 # Redland
@@ -390,13 +374,11 @@ if(WIN32)
     )
   if(WITH_PYTHON)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
+    list(APPEND dlite_PATH ${Python3_RUNTIME_LIBRARY_DIRS})
     list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
   endif()
   if(WITH_FORTRAN)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/bindings/fortran)
-  endif()
-  if(WITH_JSON)
-    list(APPEND dlite_PATH ${JANSSON_RUNTIME_DIR})
   endif()
   if(WITH_HDF5)
     list(APPEND dlite_PATH ${HDF5_RUNTIME_DIR})
@@ -425,9 +407,6 @@ if(CROSS_TARGET STREQUAL "win64" OR CROSS_TARGET STREQUAL "win32")
   if(WITH_FORTRAN)
     list(APPEND dlite_WINEPATH ${dlite_BINARY_DIR}/bindings/fortran)
   endif()
-  if(WITH_JSON)
-    list(APPEND dlite_WINEPATH ${JANSSON_RUNTIME_DIR})
-  endif()
   if(WITH_HDF5)
     list(APPEND dlite_WINEPATH ${HDF5_RUNTIME_DIR})
   endif()
@@ -448,7 +427,6 @@ if(WITH_PYTHON)
   build_append(dlite_LD_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
 endif()
 #list(APPEND dlite_LD_LIBRARY_PATH
-#  ${JANSSON_RUNTIME_DIR}
 #  ${HDF5_RUNTIME_DIR}
 #  )
 list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
@@ -558,13 +536,7 @@ set(test_env
   "Python3_NumPy_INCLUDE_DIRS: ${Python3_NumPy_INCLUDE_DIRS}"
   "Python3_NumPy_LIBRARY_DIRS: ${Python3_NumPy_LIBRARY_DIRS}"
   ""
-  "========== Jansson =================="
-  "JANSSON_INCLUDE_DIRS: ${JANSSON_INCLUDE_DIRS}"
-  "JANSSON_LIBRARIES:    ${JANSSON_LIBRARIES}"
-  "JANSSON_LIBRARY_DIR:  ${JANSSON_LIBRARY_DIR}"
-  "JANSSON_RUNTIME_DIR:  ${JANSSON_RUNTIME_DIR}"
-  ""
-   "========== Redland ================="
+  "========== Redland =================="
   "REDLAND_INCLUDE_DIRS: ${REDLAND_INCLUDE_DIRS}"
   "REDLAND_LIBRARIES:    ${REDLAND_LIBRARIES}"
   "REDLAND_LIBRARY_DIR:  ${REDLAND_LIBRARY_DIR}"
@@ -664,7 +636,6 @@ set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
 # DEB package
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
   libhdf5
-  libjansson
   python3
   python3-numpy
   )
@@ -673,7 +644,6 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS
 set(CPACK_RPM_PACKAGE_LICENSE "${dlite_LICENSE}")
 set(CPACK_RPM_PACKAGE_REQUIRES
   hdf5
-  jansson
   python3
   python3-numpy
   )
