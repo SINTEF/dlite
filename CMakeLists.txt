@@ -144,16 +144,16 @@ set(DLITE_CONFIG_VARS
   DLITE_STORAGE_PLUGIN_DIRS
   DLITE_MAPPING_PLUGIN_DIRS
   )
-  if(WITH_HDF5)
-    list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
-  endif()
-  if(WITH_PYTHON)
-    list(APPEND DLITE_CONFIG_VARS
-      Python3_LIBRARIES
-      DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-      DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-      )
-  endif()
+if(WITH_HDF5)
+  list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
+endif()
+if(WITH_PYTHON)
+  list(APPEND DLITE_CONFIG_VARS
+    Python3_LIBRARIES
+    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+    )
+endif()
 
 # ------------------------
 # Installation environment
@@ -185,6 +185,13 @@ make_platform_paths(
 # ====
 if(WITH_HDF5)
   find_package(HDF5 1.8.20 COMPONENTS C)
+  if(HDF5_FOUND)
+    if(WIN32)
+      list(APPEND HDF5_LIBRARIES Kernel32)
+    else()
+      list(APPEND HDF5_LIBRARIES m dl)
+    endif()
+  endif()
 else()
   set(HDF5_LIBRARIES "")
 endif()
