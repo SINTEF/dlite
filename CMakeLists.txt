@@ -147,19 +147,19 @@ set(DLITE_CONFIG_VARS
   DLITE_STORAGE_PLUGIN_DIRS
   DLITE_MAPPING_PLUGIN_DIRS
   )
-  if(WITH_JSON)
-    list(APPEND DLITE_CONFIG_VARS JANSSON_LIBRARIES)
-  endif()
-  if(WITH_HDF5)
-    list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
-  endif()
-  if(WITH_PYTHON)
-    list(APPEND DLITE_CONFIG_VARS
-      Python3_LIBRARIES
-      DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-      DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-      )
-  endif()
+if(WITH_JSON)
+  list(APPEND DLITE_CONFIG_VARS JANSSON_LIBRARIES)
+endif()
+if(WITH_HDF5)
+  list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
+endif()
+if(WITH_PYTHON)
+  list(APPEND DLITE_CONFIG_VARS
+    Python3_LIBRARIES
+    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+    )
+endif()
 
 # ------------------------
 # Installation environment
@@ -230,64 +230,7 @@ set(SH_EXT  ${CMAKE_SHARED_LIBRARY_SUFFIX})
 if(WITH_HDF5)
   find_package(HDF5 1.8.20 COMPONENTS C)
   if(NOT HDF5_FOUND)
-    if(NOT BUILD_HDF5)
-      message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
-    endif()
-    message(STATUS "Download and build HDF5 as external package")
-
-    set(hdf5_MAJOR_VERSION  "1.10")
-    set(hdf5_MINOR_VERSION  "4")
-    set(hdf5_MD5            cdf02e61f0d9920a7e7183aa0fb35429)
-    set(hdf5_VERSION        "${hdf5_MAJOR_VERSION}.${hdf5_MINOR_VERSION}")
-    set(hdf5_NAME           "hdf5-${hdf5_VERSION}")
-    set(hdf5_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/${hdf5_NAME}")
-    set(hdf5_INSTALL_PREFIX "${external_INSTALL_DIR}")
-
-    set(cmake_args
-      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -DHDF5_BUILD_CXX=OFF
-      -DHDF5_BUILD_FORTRAN=OFF
-      -DCMAKE_BUILD_TYPE=Release
-      -DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_PREFIX}
-      -DHAVE_IOEO_EXITCODE="FAILED_TO_RUN"
-      -DBUILD_SHARED_LIBS=ON
-      -DH5_BUILT_AS_DYNAMIC_LIB
-    )
-    if(CMAKE_TOOLCHAIN_FILE)
-      get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
-      list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
-    endif()
-
-    ExternalProject_Add(
-      hdf5Proj
-      PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/external/${hdf5_NAME}
-      URL               https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${hdf5_MAJOR_VERSION}/${hdf5_NAME}/src/${hdf5_NAME}.tar.gz
-      URL_MD5           ${hdf5_MD5}
-      SOURCE_DIR        ${hdf5_SOURCE_DIR}
-      UPDATE_COMMAND    ""
-      CMAKE_ARGS        ${cmake_args}
-      TEST_COMMAND      ctest -C Release
-      INSTALL_COMMAND   cmake --build . --target install
-    )
-    set(HDF5_DEPENDENCIES hdf5Proj)
-
-    # Define the following variables:
-    #
-    #   HDF5_INCLUDE_DIRS - location of the HDF5 include dirs
-    #   HDF5_LIBRARY_DIRS - location of the HDF5 library dirs
-    #   HDF5_LIBRARIES    - required libraries
-    #
-    set(HDF5_INCLUDE_DIRS ${hdf5_INSTALL_PREFIX}/include)
-    set(HDF5_LIBRARY_DIRS ${hdf5_INSTALL_PREFIX}/lib)
-    set(HDF5_LIBRARIES
-      ${hdf5_INSTALL_PREFIX}/lib/${SH_PRE}hdf5${SH_EXT})
-
-    if(WIN32)
-      list(APPEND HDF5_LIBRARIES Kernel32)
-    else()
-      list(APPEND HDF5_LIBRARIES m dl)
-    endif()
-
+    message(FATAL_ERROR "HDF5 not found.  Try to set BUILD_HDF5 to ON")
   endif()
 else()
   set(HDF5_LIBRARIES "")
@@ -300,39 +243,8 @@ endif()
 if(WITH_JSON)
   include(Findjansson)
   find_package(jansson)
-
   if(NOT JANSSON_FOUND)
-    if(NOT BUILD_JSON)
-      message(FATAL_ERROR "Jansson not found.  Try to set BUILD_JSON to ON")
-    endif()
-    message(STATUS "Download and build jansson as external package")
-    set(jansson_SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/external/jansson")
-    set(jansson_INSTALL_PREFIX "${external_INSTALL_DIR}")
-    set(cmake_args
-      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -DCMAKE_BUILD_TYPE=Release
-      -DCMAKE_INSTALL_PREFIX=${jansson_INSTALL_PREFIX}
-      -DBUILD_SHARED_LIBS=ON
-      )
-    if(CMAKE_TOOLCHAIN_FILE)
-      get_filename_component(toolchain_file "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
-      list(APPEND cmake_args "-DCMAKE_TOOLCHAIN_FILE=${toolchain_file}")
-    endif()
-    ExternalProject_Add(
-      janssonProj
-      PREFIX          ${CMAKE_CURRENT_BINARY_DIR}/external/jansson
-      SOURCE_DIR      ${jansson_SOURCE_DIR}
-      GIT_REPOSITORY  "https://github.com/akheron/jansson.git"
-      GIT_TAG         v2.9
-      CMAKE_ARGS      ${cmake_args}
-      UPDATE_COMMAND  ""
-      TEST_COMMAND    ctest
-      INSTALL_COMMAND cmake --build . --target install
-      )
-    set(JANSSON_DEPENDENCIES janssonProj)
-    set(JANSSON_INCLUDE_DIRS ${jansson_INSTALL_PREFIX}/include)
-    set(JANSSON_LIBRARIES
-      ${jansson_INSTALL_PREFIX}/lib/${SH_PRE}jansson${SH_EXT})
+    message(FATAL_ERROR "Jansson not found.  Try to set BUILD_JSON to ON")
   endif()
 else()
   set(JANSSON_LIBRARIES "")
