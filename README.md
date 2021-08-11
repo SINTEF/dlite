@@ -1,5 +1,6 @@
 <img src="doc/figs/logo.svg" align="right" />
 
+
 DLite
 =====
 > Lightweight data-centric framework for working with scientific data
