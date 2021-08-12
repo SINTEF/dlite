@@ -33,7 +33,9 @@ MU_TEST(test_save)
   float age = 42.;
   const char *skills[] = {"jumping", "hopping"};
   int n, i;
+  char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests/*.json";
 
+  mu_check(dlite_storage_plugin_path_append(paths) >= 0);
   mu_check((meta = dlite_instance_load_url("json://Person.json?mode=r")));
   mu_check((inst = dlite_instance_create((DLiteMeta *)meta, dims, "ada")));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "name", &name));

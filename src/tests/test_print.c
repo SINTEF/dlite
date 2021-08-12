@@ -9,9 +9,6 @@
 
 #include "minunit/minunit.h"
 
-#define STRINGIFY(s) _STRINGIFY(s)
-#define _STRINGIFY(s) # s
-
 
 DLiteInstance *inst=NULL;
 DLiteMeta *meta=NULL;
@@ -39,22 +36,22 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0, 0);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
-  mu_assert_int_eq(1062, m);
+  mu_assert_int_eq(1066, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
                   dliteJsonUuid | dliteJsonMetaAsData);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
-  mu_assert_int_eq(1146, m);
+  mu_assert_int_eq(1152, m);
 
   printf("\n========================================================\n");
   m = dlite_json_sprint(buf, sizeof(buf), inst, 4, 0);
   printf("%s\n", buf);
-  mu_assert_int_eq(369, m);
+  mu_assert_int_eq(371, m);
   printf("\n--------------------------------------------------------\n");
 
   m = dlite_json_sprint(buf, 80, inst, 4, 0);
-  mu_assert_int_eq(369, m);
+  mu_assert_int_eq(371, m);
 
 }
 

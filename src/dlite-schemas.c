@@ -114,7 +114,7 @@ static struct _BasicMetadataSchema {
   size_t __propoffsets[7];
 } basic_metadata_schema = {
   /* -- header */
-  "89cc72b5-1ced-54eb-815b-8fffc16c42d1",        /* uuid (corresponds to uri) */
+  "a8194052-7d3b-530f-ba1e-7e82fd51bf31",        /* uuid (corresponds to uri) */
   DLITE_BASIC_METADATA_SCHEMA,                   /* uri */
   1,                                             /* _refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,           /* meta */
@@ -151,7 +151,7 @@ static struct _BasicMetadataSchema {
   /* -- value of each property */
   "BasicMetadataSchema",                         /* name */
   "0.1",                                         /* version */
-  "http://meta.sintef.no",                       /* namespace */
+  "http://onto-ns.com/meta",                       /* namespace */
   "Meta-metadata description an entity.",        /* description */
   basic_metadata_schema_dimensions,              /* dimensions */
   basic_metadata_schema_properties,              /* properties */
@@ -270,7 +270,7 @@ static struct _EntitySchema {
   size_t __propoffsets[6];
 } entity_schema = {
   /* -- header */
-  "57742a73-ba65-5797-aebf-c1a270c4d02b",     /* uuid (corresponds to uri) */
+  "46168985-705c-5029-b856-3ee1cccccefc",     /* uuid (corresponds to uri) */
   DLITE_ENTITY_SCHEMA,                        /* uri */
   1,                                          /* _refcount, never free */
   (DLiteMeta *)&basic_metadata_schema,        /* meta */
@@ -307,7 +307,7 @@ static struct _EntitySchema {
   /* -- value of each property */
   "EntitySchema",                             /* name */
   "0.3",                                      /* version */
-  "http://meta.sintef.no",                    /* namespace */
+  "http://onto-ns.com/meta",                    /* namespace */
   "Meta-metadata description an entity.",     /* description */
   entity_schema_dimensions,                   /* dimensions */
   entity_schema_properties,                   /* properties */
@@ -368,7 +368,7 @@ static struct _CollectionEntity {
   size_t __propoffsets[1];
 } collection_entity = {
   /* -- header */
-  "8948745c-904c-5599-834a-9f59613fb6c5",        /* uuid (corresponds to uri) */
+  "96f31fc3-3838-5cb8-8d90-eddee6ff59ca",        /* uuid (corresponds to uri) */
   DLITE_COLLECTION_ENTITY,                       /* uri */
   1,                                             /* _refcount, never free */
   (DLiteMeta *)&entity_schema,                   /* meta */
@@ -404,7 +404,7 @@ static struct _CollectionEntity {
   /* -- value of each property */
   "Collection",                                  /* name */
   "0.1",                                         /* version */
-  "http://meta.sintef.no",                       /* namespace */
+  "http://onto-ns.com/meta",                       /* namespace */
   "Meta-metadata description a collection.",     /* description */
   collection_entity_dimensions,                  /* dimensions */
   collection_entity_properties,                  /* properties */
@@ -428,6 +428,7 @@ int dlite_meta_init(DLiteMeta *meta);
 
 const DLiteMeta *dlite_get_basic_metadata_schema()
 {
+  dlite_get_uuid(basic_metadata_schema.uuid, DLITE_BASIC_METADATA_SCHEMA);
   if (!basic_metadata_schema._headersize)
     dlite_meta_init((DLiteMeta *)&basic_metadata_schema);
   return (DLiteMeta *)&basic_metadata_schema;
@@ -435,6 +436,7 @@ const DLiteMeta *dlite_get_basic_metadata_schema()
 
 const DLiteMeta *dlite_get_entity_schema()
 {
+  dlite_get_uuid(entity_schema.uuid, DLITE_ENTITY_SCHEMA);
   if (!entity_schema._headersize)
     dlite_meta_init((DLiteMeta *)&entity_schema);
   return (DLiteMeta *)&entity_schema;
@@ -442,6 +444,7 @@ const DLiteMeta *dlite_get_entity_schema()
 
 const DLiteMeta *dlite_get_collection_entity()
 {
+  dlite_get_uuid(collection_entity.uuid, DLITE_COLLECTION_ENTITY);
   if (!collection_entity._headersize)
     dlite_meta_init((DLiteMeta *)&collection_entity);
   return (DLiteMeta *)&collection_entity;

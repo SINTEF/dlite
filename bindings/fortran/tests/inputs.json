@@ -1,6 +1,6 @@
 {
     "b04965e6-a9bb-591f-8f8a-1adcb2c8dc39": {
-        "meta": "http://meta.sintef.no/0.2/Person",
+        "meta": "http://onto-ns.com/meta/0.2/Person",
         "dimensions": {
             "N": 2,
             "M": 3
@@ -13,7 +13,7 @@
         }
     },
     "4b166dbe-d99d-5091-abdd-95b83330ed3a": {
-        "meta": "http://meta.sintef.no/0.1/Scan3D",
+        "meta": "http://onto-ns.com/meta/0.1/Scan3D",
         "dimensions": {
             "N": 3,
             "P": 5

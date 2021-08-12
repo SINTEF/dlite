@@ -31,8 +31,8 @@ class blob(DLiteStorageBase):
         with open(self.uri, 'rb') as f:
             content = f.read()
         Meta = instance_from_dict({
-            'meta': 'http://meta.sintef.no/0.3/EntitySchema',
-            'uri': 'http://meta.sintef.no/0.1/Blob',
+            'meta': 'http://onto-ns.com/meta/0.3/EntitySchema',
+            'uri': 'http://onto-ns.com/meta/0.1/Blob',
             'description': 'Entity representing a single binary blob.',
             'dimensions': [],
             'properties': [

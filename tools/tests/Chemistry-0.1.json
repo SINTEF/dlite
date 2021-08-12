@@ -1,8 +1,8 @@
 {
   "name": "Chemistry",
   "version": "0.1",
-  "namespace": "http://www.sintef.no/calm",
-  "meta": "http://meta.sintef.no/0.3/EntitySchema",
+  "namespace": "http://sintef.no/calm",
+  "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
   "description": "Simple entity with alloy and particle compositions.",
   "dimensions": [
     {
@@ -82,5 +82,5 @@
       "description": "Average volume per atom for each phase."
     }
   ],
-  "dataname": "http://www.sintef.no/calm/0.1/Chemistry"
+  "dataname": "http://sintef.no/calm/0.1/Chemistry"
 }

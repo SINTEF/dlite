@@ -72,7 +72,7 @@ module {name}
     type(DLiteMetaModel) :: model
     integer              :: i
     if (.not. meta_{name%c}%check()) then
-      model = DLiteMetaModel('{_uri}', 'http://meta.sintef.no/0.3/EntitySchema', '')
+      model = DLiteMetaModel('{_uri}', 'http://onto-ns.com/meta/0.3/EntitySchema', '')
       i = model%add_string('description', '{descr}')
 {list_dimensions:{@6}i = model%add_dimension('{dim.name}', '{dim.descr}')\n}
 {list_properties:{@6}i = model%add_property('{prop.name}', '{prop.typename}', '{prop.unit}', '{prop.iri}', '{prop.descr}')\

@@ -111,7 +111,7 @@ main(int argc, char *argv)
 
 	/* Load PhilibTable entity */
 	s = dlite_storage_open("json", path, "mode=r");
-	char *uri = "http://meta.sintef.no/philib/0.1/PhilibTable";
+	char *uri = "http://onto-ns.com/meta/philib/0.1/PhilibTable";
 	table = (DLiteMeta *)dlite_meta_load(s, uri);
 	size_t ndims = table->ndimensions;
 	dlite_storage_close(s);
