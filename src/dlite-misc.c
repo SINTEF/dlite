@@ -453,11 +453,15 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
+#define ATEXIT_STATE_ID "dlite-atexit-state"
+
 static DLiteGlobals *_globals_handler=NULL;
 
 /* Called by atexit().  Should be ok to call this multiple times... */
 static void _free_globals(void) {
   Session *s = session_get_default();
+  int *atexit_state = session_get_state(s, ATEXIT_STATE_ID);
+  *atexit_state = 1;
   session_free(s);
 }
 
@@ -472,6 +476,11 @@ DLiteGlobals *dlite_globals_get(void)
     /* Make valgrind and other memory leak detectors happy by freeing
        up all globals at exit. */
     atexit(_free_globals);
+
+    /* Add an atexit-state indicating whether we are in an atexit handler */
+    int *atexit_state = calloc(1, sizeof(int));
+    session_add_state((Session *)_globals_handler, ATEXIT_STATE_ID,
+                      atexit_state, free);
   }
   return _globals_handler;
 }
@@ -517,6 +526,17 @@ void *dlite_globals_get_state(const char *name)
   Session *s = (Session *)dlite_globals_get();
   return session_get_state(s, name);
 }
+
+/*
+  Returns non-zero if we are in an atexit handler.
+ */
+int dlite_globals_in_atexit(void)
+{
+  int *atexit_state = dlite_globals_get_state(ATEXIT_STATE_ID);
+  assert(atexit_state);
+  return *atexit_state;
+}
+
 
 
 /********************************************************************

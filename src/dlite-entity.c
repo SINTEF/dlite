@@ -73,7 +73,7 @@ static void _instance_store_addmeta(instance_map_t *istore,
 /* Returns pointer to instance store. */
 static instance_map_t *_instance_store(void)
 {
-  instance_map_t *istore = dlite_globals_get_state("instance-store");
+  instance_map_t *istore = dlite_globals_get_state("dlite-instance-store");
   if (!istore) {
     if (!(istore = malloc(sizeof(instance_map_t))))
       return err(1, "allocation failure"), NULL;
@@ -81,7 +81,8 @@ static instance_map_t *_instance_store(void)
     _instance_store_addmeta(istore, dlite_get_basic_metadata_schema());
     _instance_store_addmeta(istore, dlite_get_entity_schema());
     _instance_store_addmeta(istore, dlite_get_collection_entity());
-    dlite_globals_add_state("instance-store", istore, _instance_store_free);
+    dlite_globals_add_state("dlite-instance-store", istore,
+                            _instance_store_free);
   }
   return istore;
 }

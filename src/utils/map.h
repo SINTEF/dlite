@@ -56,6 +56,8 @@
       void map_remove(MAP_T *m, const char *key);
   Removes the mapping of the given key from the map. If the key
   does not exist in the map then the function has no effect.
+  Note: this function should not be called while iterating over
+  the map.
 
       map_iter_t map_iter(MAP_T *m);
   Returns a map_iter_t which can be used with map_next() to

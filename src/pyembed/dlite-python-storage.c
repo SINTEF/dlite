@@ -17,18 +17,44 @@
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 
+#define GLOBALS_ID "dlite-python-storage-globals"
 
-/* Python storage paths */
-static FUPaths storage_paths;
-static int storage_paths_initialised = 0;
-static int storage_paths_modified = 0;
-
-/* A cache with all loaded plugins */
-static PyObject *loaded_storages = NULL;
 
 /* Prototype for function converting `inst` to a Python object.
    Returns a new reference or NULL on error. */
 typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
+
+/* Global state for this module */
+typedef struct {
+  FUPaths paths;              /* Python storage paths */
+  int initialised;            /* Whether `paths` is initiated */
+  int modified;               /* Whether `paths` is modified */
+  PyObject *loaded_storages;  /* Cache with all loaded python storage plugins */
+} PythonStorageGlobals;
+
+
+/* Return a pointer to global state for this module */
+static void free_globals(void *globals)
+{
+  PythonStorageGlobals *g = (PythonStorageGlobals *)globals;
+  if (g->initialised) fu_paths_deinit(&g->paths);
+
+  /* Do not call Py_DECREF if we are in an atexit handler */
+  if (!dlite_globals_in_atexit()) Py_XDECREF(g->loaded_storages);
+}
+
+
+/* Return a pointer to global state for this module */
+static PythonStorageGlobals *get_globals(void)
+{
+  PythonStorageGlobals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(PythonStorageGlobals))))
+      return dlite_err(1, "allocation failure"), NULL;
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
+  }
+  return g;
+}
 
 
 /*
@@ -36,34 +62,29 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 */
 FUPaths *dlite_python_storage_paths(void)
 {
-  if (!storage_paths_initialised) {
-    static int first_call = 1;
+  PythonStorageGlobals *g = get_globals();
+  if (!g->initialised) {
     int s;
-    if (fu_paths_init(&storage_paths, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS") < 0)
+    if (fu_paths_init(&g->paths, "DLITE_PYTHON_STORAGE_PLUGIN_DIRS") < 0)
       return dlite_err(1, "cannot initialise "
                        "DLITE_PYTHON_STORAGE_PLUGIN_DIRS"), NULL;
 
-    fu_paths_set_platform(&storage_paths, dlite_get_platform());
+    fu_paths_set_platform(&g->paths, dlite_get_platform());
 
     if (dlite_use_build_root())
-      s = fu_paths_extend(&storage_paths, dlite_PYTHON_STORAGE_PLUGINS, NULL);
+      s = fu_paths_extend(&g->paths, dlite_PYTHON_STORAGE_PLUGINS, NULL);
     else
-      s = fu_paths_extend_prefix(&storage_paths, dlite_root_get(),
+      s = fu_paths_extend_prefix(&g->paths, dlite_root_get(),
                                  DLITE_PYTHON_STORAGE_PLUGIN_DIRS, NULL);
     if (s < 0) return dlite_err(1, "error initialising dlite python storage "
                                 "plugin dirs"), NULL;
-    storage_paths_initialised = 1;
-    storage_paths_modified = 0;
+    g->initialised = 1;
+    g->modified = 0;
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
-
-    if (first_call) {
-      first_call = 0;
-      atexit(dlite_python_storage_paths_clear);
-    }
   }
-  return &storage_paths;
+  return &g->paths;
 }
 
 /*
@@ -71,10 +92,11 @@ FUPaths *dlite_python_storage_paths(void)
 */
 void dlite_python_storage_paths_clear(void)
 {
-  if (storage_paths_initialised) {
-    fu_paths_deinit(&storage_paths);
-    storage_paths_initialised = 0;
-    storage_paths_modified = 0;
+  PythonStorageGlobals *g = get_globals();
+  if (g->initialised) {
+    fu_paths_deinit(&g->paths);
+    g->initialised = 0;
+    g->modified = 0;
   }
 }
 
@@ -89,8 +111,10 @@ int dlite_python_storage_paths_insert(const char *path, int n)
   int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_storage_paths())) return -1;
-  if ((stat = fu_paths_insert((FUPaths *)paths, path, n)))
-    storage_paths_modified = 1;
+  if ((stat = fu_paths_insert((FUPaths *)paths, path, n))) {
+    PythonStorageGlobals *g = get_globals();
+    g->modified = 1;
+  }
   return stat;
 }
 
@@ -103,8 +127,10 @@ int dlite_python_storage_paths_append(const char *path)
   int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_storage_paths())) return -1;
-  if ((stat = fu_paths_append((FUPaths *)paths, path)))
-    storage_paths_modified = 1;
+  if ((stat = fu_paths_append((FUPaths *)paths, path))) {
+    PythonStorageGlobals *g = get_globals();
+    g->modified = 1;
+  }
   return stat;
 }
 
@@ -117,8 +143,10 @@ int dlite_python_storage_paths_delete(int n)
   int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_storage_paths())) return -1;
-  if ((stat = fu_paths_delete((FUPaths *)paths, n)))
-    storage_paths_modified = 1;
+  if ((stat = fu_paths_delete((FUPaths *)paths, n))) {
+    PythonStorageGlobals *g = get_globals();
+    g->modified = 1;
+  }
   return stat;
 }
 
@@ -142,19 +170,23 @@ const char **dlite_python_storage_paths_get(void)
 */
 void *dlite_python_storage_load(void)
 {
-  if (!loaded_storages || storage_paths_modified) {
+  PythonStorageGlobals *g = get_globals();
+  if (!g->loaded_storages || g->modified) {
     const FUPaths *paths;
-    if (loaded_storages) dlite_python_storage_unload();
+    if (g->loaded_storages) dlite_python_storage_unload();
     if (!(paths = dlite_python_storage_paths())) return NULL;
-    loaded_storages = dlite_pyembed_load_plugins((FUPaths *)paths,
+    g->loaded_storages = dlite_pyembed_load_plugins((FUPaths *)paths,
                                                  "DLiteStorageBase");
   }
-  return (void *)loaded_storages;
+  return (void *)g->loaded_storages;
 }
 
 /* Unloads all currently loaded storages. */
 void dlite_python_storage_unload(void)
 {
-  if (loaded_storages)
-    Py_DECREF(loaded_storages);
+  PythonStorageGlobals *g = get_globals();
+  if (g->loaded_storages) {
+    Py_DECREF(g->loaded_storages);
+    g->loaded_storages = NULL;
+  }
 }

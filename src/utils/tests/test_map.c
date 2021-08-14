@@ -24,7 +24,8 @@ MU_TEST(test_map)
   iter = map_iter(&m);
   while ((key = map_next(&m, &iter))) {
     printf("%s -> %u\n", key, *map_get(&m, key));
-    map_remove(&m, key);
+    /* Note - calling map_remove() while iterating is not allowed! */
+    //map_remove(&m, key);
   }
 
   map_deinit(&m);

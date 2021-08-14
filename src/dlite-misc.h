@@ -273,6 +273,11 @@ int dlite_globals_remove_state(const char *name);
  */
 void *dlite_globals_get_state(const char *name);
 
+/**
+  Returns non-zero if we are in an atexit handler.
+ */
+int dlite_globals_in_atexit(void);
+
 /** @} */
 
 
