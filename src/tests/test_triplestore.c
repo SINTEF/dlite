@@ -106,8 +106,9 @@ MU_TEST(test_remove)
 
 MU_TEST(test_free)
 {
-  Session *s = session_get_default();
   triplestore_free(ts);
+
+  Session *s = session_get_default();
   session_free(s);
 }
 

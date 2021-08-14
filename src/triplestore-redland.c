@@ -10,10 +10,12 @@
 #include <redland.h>
 
 #include "utils/err.h"
+#include "utils/session.h"
 #include "utils/sha1.h"
 #include "dlite-macros.h"
 #include "triplestore.h"
 
+#define TRIPLESTORE_REDLAND_GLOBALS_ID "triplestore-redland-globals-id"
 
 /* Prototype for cleanup-function */
 typedef void (*Freer)(void *ptr);
@@ -31,25 +33,18 @@ struct _TripleStore {
                                  triplestore_find_first() */
 };
 
+/* Global variables for this module */
+typedef struct {
+  librdf_world *default_world;
+  const char *default_storage_name;
+  int nmodels;           /* Number of created models */
+  int initialized;       /* whether triplestore is initialised */
+  int finalize_pending;  /* whether the last storage has been freed */
+} Globals;
 
-
-
-/* Default world */
-static librdf_world *default_world = NULL;
-
-/* Name of default storage */
-static const char *default_storage_name = "memory";
-
-/* Number of created models */
-static int nmodels = 0;
-
-/* Flags indicating whether the triplestore has been initiated or will
-   finalize when the last storage has been freed. */
-static int initialized = 0;
-static int finalize_pending = 0;
 
 /* Name of available storage modules */
-char *storage_module_names[] = {
+static char *storage_module_names[] = {
   "memory",
   "hashes",
   "file",
@@ -61,6 +56,35 @@ char *storage_module_names[] = {
   "Virtuoso",
   NULL
 };
+
+/* Forward declarations */
+void triplestore_finalize();
+
+
+/* Free's global variables. */
+static void free_globals(void *globals)
+{
+  triplestore_finalize();
+  free(globals);
+}
+
+/* Return pointer to global variables */
+static Globals *get_globals(void)
+{
+  Session *s = session_get_default();
+  Globals *g = session_get_state(s, TRIPLESTORE_REDLAND_GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(Globals))))
+      return err(1, "allocation failure"), NULL;
+    g->default_world = NULL;
+    g->default_storage_name = "memory";
+    g->nmodels = 0;
+    g->initialized = 0;
+    g->finalize_pending = 0;
+    session_add_state(s, TRIPLESTORE_REDLAND_GLOBALS_ID, g, free_globals);
+  }
+  return g;
+}
 
 
 /* Logger for librdf for all log levels */
@@ -86,13 +110,14 @@ static int logger(void *user_data, librdf_log_message *message)
   return 1;
 }
 
-/* Check whether the Finalizes the triplestore */
+/* Free triplestore on pending finalise. */
 static void finalize_check()
 {
-  if (finalize_pending && nmodels == 0 && default_world) {
-    librdf_free_world(default_world);
-    default_world = NULL;
-    finalize_pending = 0;
+  Globals *g = get_globals();
+  if (g->finalize_pending && g->nmodels == 0 && g->default_world) {
+    librdf_free_world(g->default_world);
+    g->default_world = NULL;
+    g->finalize_pending = 0;
   }
 }
 
@@ -211,41 +236,42 @@ static int assign_triple_from_statement(Triple *t,
    been freed. */
 void triplestore_finalize()
 {
-  finalize_pending = 1;
+  Globals *g = get_globals();
+  g->finalize_pending = 1;
   finalize_check();
 }
 
 /* Initiates the triplestore */
 void triplestore_init()
 {
-  if (!initialized) {
-    initialized = 1;
-    atexit(triplestore_finalize);
-  }
-  finalize_pending = 0;
+  Globals *g = get_globals();
+  if (!g->initialized) g->initialized = 1;
+  g->finalize_pending = 0;
 }
 
 
 /* Set the default world. */
 void triplestore_set_default_world(librdf_world *world)
 {
-  default_world = world;
+  Globals *g = get_globals();
+  g->default_world = world;
 }
 
 /* Returns a pointer to the default world.  A new default world is
    created if it doesn't already exists. */
 librdf_world *triplestore_get_default_world()
 {
-  if (!default_world) {
+  Globals *g = get_globals();
+  if (!g->default_world) {
     triplestore_init();
-    if (!(default_world = librdf_new_world()))
+    if (!(g->default_world = librdf_new_world()))
       return err(1, "Failure to create new librdf world"), NULL;
-    librdf_world_set_logger(default_world, NULL, logger);
+    librdf_world_set_logger(g->default_world, NULL, logger);
     //librdf_world_set_digest();
     //librdf_world_set_feature();
-    librdf_world_open(default_world);
+    librdf_world_open(g->default_world);
   }
-  return default_world;
+  return g->default_world;
 }
 
 
@@ -267,7 +293,8 @@ int triplestore_set_default_storage(const char *name)
   char **p = storage_module_names;
   while (p) {
     if (strcasecmp(name, *p) == 0) {
-      default_storage_name = name;
+      Globals *g = get_globals();
+      g->default_storage_name = name;
       return 0;
     }
   }
@@ -291,7 +318,8 @@ const char *triplestore_get_namespace(TripleStore *ts)
 /* Returns a pointer to the name of default storage or NULL on error. */
 const char *triplestore_get_default_storage()
 {
-  return default_storage_name;
+  Globals *g = get_globals();
+  return g->default_storage_name;
 }
 
 
@@ -304,11 +332,12 @@ TripleStore *triplestore_create_with_world(librdf_world *world,
                                            const char *name,
                                            const char *options)
 {
-  TripleStore *ts=NULL;
+  Globals *g = get_globals();
+ TripleStore *ts=NULL;
   librdf_storage *storage=NULL;
   triplestore_init();
   if (!world) world = triplestore_get_default_world();
-  if (!storage_name) storage_name = default_storage_name;
+  if (!storage_name) storage_name = g->default_storage_name;
 
   if (!(storage = librdf_new_storage(world, storage_name, name, options)))
     goto fail;
@@ -321,7 +350,7 @@ TripleStore *triplestore_create_with_world(librdf_world *world,
   if (name) ts->name = strdup(name);
   if (options) ts->options = strdup(options);
 
-  nmodels++;
+  g->nmodels++;
   return ts;
  fail:
   if (ts) triplestore_free(ts);
@@ -366,8 +395,9 @@ TripleStore *triplestore_create()
  */
 void triplestore_free(TripleStore *ts)
 {
-  assert(nmodels > 0);
-  nmodels--;
+  Globals *g = get_globals();
+ assert(g->nmodels > 0);
+ g->nmodels--;
   librdf_free_storage(ts->storage);
   librdf_free_model(ts->model);
   if (ts->storage_name)  free((char *)ts->storage_name);
