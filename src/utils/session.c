@@ -205,11 +205,10 @@ int session_remove_state(Session *s, const char *name)
 /*
   Retrieve global state corresponding to `name`
 
-  Return pointer to global state or NULL on error.
+  Return pointer to global state or NULL if no state with this name exists.
  */
 void *session_get_state(Session *s, const char *name)
 {
-  State *sp = map_get(&s->states, name);
-  if (!sp) return errx(1, "no such global state: %s", name), NULL;
-  return sp->ptr;
+  State *st = map_get(&s->states, name);
+  return (st) ? st->ptr : NULL;
 }

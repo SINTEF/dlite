@@ -51,51 +51,57 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
  *  the refcount hold by the instance store.
  ********************************************************************/
 
+typedef map_t(DLiteInstance *) instance_map_t;
+
 /* Forward declarations */
-static void _instance_store_create(void);
-static void _instance_store_free(void);
+static instance_map_t *_instance_store(void);
+static void _instance_store_free(void *instance_store);
 static int _instance_store_add(const DLiteInstance *inst);
 static int _instance_store_remove(const char *id);
 static DLiteInstance *_instance_store_get(const char *id);
 
-typedef map_t(DLiteInstance *) instance_map_t;
 
-/* Global store (hash table) with references to all instansiated
-   instances in DLite. */
-static instance_map_t *_instance_store = NULL;
-
-
-/* Creates global instance store.  */
-static void _instance_store_create(void)
+/* Help function for adding metadata */
+static void _instance_store_addmeta(instance_map_t *istore,
+                                    const DLiteMeta *meta)
 {
-  if (!_instance_store) {
-    if (!(_instance_store = malloc(sizeof(instance_map_t)))) {
-      err(1, "allocation failure");
-      return;
-    }
-    map_init(_instance_store);
-    atexit(_instance_store_free);
-    _instance_store_add((DLiteInstance *)dlite_get_basic_metadata_schema());
-    _instance_store_add((DLiteInstance *)dlite_get_entity_schema());
-    _instance_store_add((DLiteInstance *)dlite_get_collection_entity());
+  int stat = map_set(istore, meta->uuid, (DLiteInstance *)meta);
+  assert(stat == 0);
+  dlite_instance_incref((DLiteInstance *)meta);
+}
+
+/* Returns pointer to instance store. */
+static instance_map_t *_instance_store(void)
+{
+  instance_map_t *istore = dlite_globals_get_state("instance-store");
+  if (!istore) {
+    if (!(istore = malloc(sizeof(instance_map_t))))
+      return err(1, "allocation failure"), NULL;
+    map_init(istore);
+    _instance_store_addmeta(istore, dlite_get_basic_metadata_schema());
+    _instance_store_addmeta(istore, dlite_get_entity_schema());
+    _instance_store_addmeta(istore, dlite_get_collection_entity());
+    dlite_globals_add_state("instance-store", istore, _instance_store_free);
   }
+  return istore;
 }
 
 /* Frees up a global instance store.  Will be called at program exit,
    but can be called at any time. */
-static void _instance_store_free(void)
+static void _instance_store_free(void *instance_store)
 {
+  instance_map_t *istore = instance_store;
   const char *uuid;
   map_iter_t iter;
   DLiteInstance **del=NULL;
   int i, ndel=0, delsize=0;
-  if (!_instance_store) return;
+  assert(istore);
 
   /* Remove all instances (to decrease the reference count for metadata) */
-  iter = map_iter(_instance_store);
-  while ((uuid = map_next(_instance_store, &iter))) {
+  iter = map_iter(istore);
+  while ((uuid = map_next(istore, &iter))) {
     DLiteInstance *inst, **q;
-    if ((q = map_get(_instance_store, uuid)) && (inst = *q) &&
+    if ((q = map_get(istore, uuid)) && (inst = *q) &&
         dlite_instance_is_meta(inst) && inst->_refcount > 0) {
       if (delsize <= ndel) {
         void *ptr;
@@ -112,9 +118,8 @@ static void _instance_store_free(void)
     for (i=0; i<ndel; i++) dlite_instance_decref(del[i]);
     free(del);
   }
-  map_deinit(_instance_store);
-  free(_instance_store);
-  _instance_store = NULL;
+  map_deinit(istore);
+  free(istore);
 }
 
 /* Adds instance to global instance store.  Returns zero on success, 1
@@ -122,11 +127,11 @@ static void _instance_store_free(void)
 */
 static int _instance_store_add(const DLiteInstance *inst)
 {
-  if (!_instance_store) _instance_store_create();
-  assert(_instance_store);
+  instance_map_t *istore = _instance_store();
+  assert(istore);
   assert(inst);
-  if (map_get(_instance_store, inst->uuid)) return 1;
-  map_set(_instance_store, inst->uuid, (DLiteInstance *)inst);
+  if (map_get(istore, inst->uuid)) return 1;
+  map_set(istore, inst->uuid, (DLiteInstance *)inst);
 
   /* Increase reference  count for metadata that is kept in the store */
   if (dlite_instance_is_meta(inst))
@@ -139,13 +144,13 @@ static int _instance_store_add(const DLiteInstance *inst)
    on error.*/
 static int _instance_store_remove(const char *uuid)
 {
+  instance_map_t *istore = _instance_store();
   DLiteInstance *inst, **q;
-  if (!_instance_store)
-    return errx(-1, "cannot remove %s from unallocated store", uuid);
-  if (!(q = map_get(_instance_store, uuid)))
+  assert(istore);
+  if (!(q = map_get(istore, uuid)))
     return errx(-1, "cannot remove %s since it is not in store", uuid);
   inst = *q;
-  map_remove(_instance_store, uuid);
+  map_remove(istore, uuid);
 
   if (dlite_instance_is_meta(inst) && inst->_refcount > 0)
     dlite_instance_decref(inst);
@@ -155,15 +160,14 @@ static int _instance_store_remove(const char *uuid)
 /* Returns pointer to instance for id `id` or NULL if `id` cannot be found. */
 static DLiteInstance *_instance_store_get(const char *id)
 {
+  instance_map_t *istore = _instance_store();
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
-  if (!_instance_store) _instance_store_create();
   if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
     return errx(1, "id '%s' is neither a valid UUID or a convertable string",
                 id), NULL;
-  if (!(instp = map_get(_instance_store, uuid))) return NULL;
-    //return err(-1, "no such id in instance store: %s", id), NULL;
+  if (!(instp = map_get(istore, uuid))) return NULL;
   return *instp;
 }
 

@@ -119,7 +119,7 @@ int session_remove_state(Session *s, const char *name);
 /**
   @brief Retrieve global state corresponding to `name`
 
-  @return Pointer to global state or NULL on error.
+  @return Pointer to global state or NULL if no state with this name exists.
  */
 void *session_get_state(Session *s, const char *name);
 
