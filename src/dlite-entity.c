@@ -65,8 +65,7 @@ typedef map_t(DLiteInstance *) instance_map_t;
 static instance_map_t *_instance_store = NULL;
 
 
-/* Frees up a global instance store.  Will be called at program exit,
-   but can be called at any time. */
+/* Creates global instance store.  */
 static void _instance_store_create(void)
 {
   if (!_instance_store) {

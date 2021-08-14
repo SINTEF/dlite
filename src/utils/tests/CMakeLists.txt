@@ -5,6 +5,7 @@ set(tests
   test_compat
   test_snprintf
   test_err
+  test_map
   test_strutils
   test_tmpfileplus
   test_strtob
@@ -23,6 +24,7 @@ set(tests
   test_infixcalc
   test_jsmnx
   test_jstore
+  test_session
 
   tgen_example
   )

@@ -137,6 +137,13 @@ typedef struct _DLiteOpt {
  */
 int dlite_option_parse(char *options, DLiteOpt *opts, int modify);
 
+/** @} */
+
+
+/**
+  @name Path handling
+  @{
+ */
 
 /**
   Returns a newly allocated url constructed from the arguments of the form
@@ -223,10 +230,55 @@ const char *dlite_root_get(void);
  */
 int dlite_add_dll_path(void);
 
+/** @} */
+
+
+/**
+  @name Managing global state
+  @{
+*/
+
+/**
+  Globals handle.
+ */
+typedef struct _Session DLiteGlobals;
+
+/**
+  Returns reference to globals handle.
+*/
+DLiteGlobals *dlite_globals_get(void);
+
+/**
+  Set globals handle.
+*/
+void dlite_globals_set(DLiteGlobals *);
+
+/**
+  Add global state with given name.
+
+  `ptr` is a pointer to the state and `free_fun` is a function that frees it.
+  Returns non-zero on error.
+ */
+int dlite_globals_add_state(const char *name, void *ptr,
+                            void (*free_fun)(void *ptr));
+
+/**
+  Remove global state with the given name.
+  Returns non-zero on error.
+ */
+int dlite_globals_remove_state(const char *name);
+
+/**
+  Returns global state with given name or NULL on error.
+ */
+void *dlite_globals_get_state(const char *name);
+
+/** @} */
 
 
 /**
   @name Wrappers around error functions
+  @{
 */
 #ifndef __GNUC__
 #define __attribute__(x)

@@ -261,6 +261,7 @@ set(sources
   infixcalc.c
   jsmnx.c
   jstore.c
+  session.c
 
   md5.c
   sha1.c

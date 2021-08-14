@@ -12,6 +12,7 @@
 #include "utils/strtob.h"
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
+#include "utils/session.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -22,7 +23,7 @@ static int dlite_platform = 0;    /* dlite platform */
 
 
 /********************************************************************
- * Utility functions
+ * General utility functions
  ********************************************************************/
 
 /*
@@ -163,6 +164,11 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
 }
 
 
+
+/********************************************************************
+ * Parsing options
+ ********************************************************************/
+
 /*
   Parses the options string `options` and assign corresponding values
   of the array `opts`.  The options string should be a valid url query
@@ -212,6 +218,10 @@ int dlite_option_parse(char *options, DLiteOpt *opts, int modify)
   return 0;
 }
 
+
+/********************************************************************
+ * Path handling
+ ********************************************************************/
 
 /*
   Returns a newly allocated url constructed from the arguments of the form
@@ -439,10 +449,83 @@ int dlite_add_dll_path(void)
 }
 
 
+/********************************************************************
+ * Managing global state
+ ********************************************************************/
 
+static DLiteGlobals *_globals_handler=NULL;
+
+/* Called by atexit().  Should be ok to call this multiple times... */
+static void _free_globals(void) {
+  Session *s = session_get_default();
+  session_free(s);
+}
+
+/*
+  Returns reference to globals handle.
+*/
+DLiteGlobals *dlite_globals_get(void)
+{
+  if (!_globals_handler) {
+    _globals_handler = session_get_default();
+
+    /* Make valgrind and other memory leak detectors happy by freeing
+       up all globals at exit. */
+    atexit(_free_globals);
+  }
+  return _globals_handler;
+}
+
+/*
+  Set globals handle.  Should be called as the first thing by dynamic
+  loaded plugins.
+*/
+void dlite_globals_set(DLiteGlobals *globals_handler)
+{
+  session_set_default((Session *)globals_handler);
+}
+
+/*
+  Add global state with given name.
+
+  `ptr` is a pointer to the state and `free_fun` is a function that frees it.
+  Returns non-zero on error.
+ */
+int dlite_globals_add_state(const char *name, void *ptr,
+                            void (*free_fun)(void *ptr))
+{
+  Session *s = (Session *)dlite_globals_get();
+  return session_add_state(s, name, ptr, free_fun);
+}
+
+
+/*
+  Remove global state with the given name.
+  Returns non-zero on error.
+ */
+int dlite_globals_remove_state(const char *name)
+{
+  Session *s = (Session *)dlite_globals_get();
+  return session_remove_state(s, name);
+}
+
+/*
+  Returns global state with given name or NULL on error.
+ */
+void *dlite_globals_get_state(const char *name)
+{
+  Session *s = (Session *)dlite_globals_get();
+  return session_get_state(s, name);
+}
+
+
+/********************************************************************
+ * Wrappers around error functions
+ ********************************************************************/
 
 /* ----------------------------------------------------------- */
-/* Add explanation for why we need these functions and do not
+/* TODO:
+ * Add explanation for why we need these functions and do not
  * call the error functions in err.h directly.
  *
  * It had something to do with loading dlite as a shared library
