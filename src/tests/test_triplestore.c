@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "utils/session.h"
 #include "minunit/minunit.h"
 #include "triplestore.h"
 
@@ -103,10 +104,11 @@ MU_TEST(test_remove)
 }
 
 
-
 MU_TEST(test_free)
 {
+  Session *s = session_get_default();
   triplestore_free(ts);
+  session_free(s);
 }
 
 
