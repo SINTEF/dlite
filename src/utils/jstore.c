@@ -42,6 +42,7 @@ char *jstore_readfp(FILE *fp)
   } while (n == bytes_left && !feof(fp));
   assert(feof(fp));  // stream should be exausted
   if (!(q = realloc(buf, bytes_read+1))) FAIL("reallocation failure");
+  buf = q;
   buf[bytes_read] = '\0';
   return buf;
  fail:
