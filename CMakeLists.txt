@@ -638,12 +638,16 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS
   libhdf5
   python3
   python3-numpy
+  librdf0
+  libraptor2
   )
 
 # RPM package
 set(CPACK_RPM_PACKAGE_LICENSE "${dlite_LICENSE}")
 set(CPACK_RPM_PACKAGE_REQUIRES
   hdf5
+  redland
+  raptor2
   python3
   python3-numpy
   )

@@ -66,20 +66,17 @@ RUN pip3 install --trusted-host files.pythonhosted.org \
 ##########################################
 FROM dependencies AS build
 
-# Create and become a normal user
-RUN useradd -ms /bin/bash user
-USER user
 
 # Setup dlite
 RUN mkdir -p /home/user/sw/dlite
-COPY --chown=user:user bindings /home/user/sw/dlite/bindings
-COPY --chown=user:user cmake /home/user/sw/dlite/cmake
-COPY --chown=user:user doc /home/user/sw/dlite/doc
-COPY --chown=user:user examples /home/user/sw/dlite/examples
-COPY --chown=user:user src /home/user/sw/dlite/src
-COPY --chown=user:user storages /home/user/sw/dlite/storages
-COPY --chown=user:user tools /home/user/sw/dlite/tools
-COPY --chown=user:user CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
+COPY bindings /home/user/sw/dlite/bindings
+COPY  cmake /home/user/sw/dlite/cmake
+COPY  doc /home/user/sw/dlite/doc
+COPY  examples /home/user/sw/dlite/examples
+COPY  src /home/user/sw/dlite/src
+COPY  storages /home/user/sw/dlite/storages
+COPY  tools /home/user/sw/dlite/tools
+COPY  CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
 
 # Perform static code checking
@@ -101,13 +98,11 @@ RUN cpack -G DEB
 RUN cpack -G RPM
 
 # Install
-USER root
 RUN make install
 
 # Skip postgresql tests since we haven't set up the server and
 # static-code-analysis since it is already done.
 # TODO - set up postgresql server and run the postgresql tests...
-USER user
 RUN ctest -E "(postgresql|static-code-analysis)" || \
     ctest -E "(postgresql|static-code-analysis)" \
         --rerun-failed --output-on-failure -VV
@@ -129,14 +124,14 @@ ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
 ##########################################
 # Stage: final slim image
 ##########################################
-FROM python:3.8.3-slim-buster AS production
+FROM ubuntu:21.04 AS production
+#FROM python:3.9.6-slim-buster
 
-RUN apt -qq update \
-  && apt install -y -qq --fix-missing librdf0 \
+RUN apt -qq update
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --fix-missing librdf0 python3-dev python3-pip \
   && rm -rf /var/lib/apt/lists/*
 # Copy needed dlite files and libraries to slim image
 COPY --from=build /tmp/dlite-install /usr/local
-#COPY --from=build /usr/lib/x86_64-linux-gnu/libjansson.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libhdf5*.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libsz.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libaec.so* /usr/local/lib/
@@ -147,11 +142,10 @@ RUN pip install --upgrade pip \
     PyYAML \
     psycopg2-binary
 
-RUN useradd -ms /bin/bash user
-USER user
 WORKDIR /home/user
 ENV LD_LIBRARY_PATH=/usr/local/lib
 ENV DLITE_ROOT=/usr/local
+ENV PYTHONPATH=/usr/local/lib/python3.9/site-packages
 
 # Default command
 CMD ["/bin/bash"]
