@@ -34,13 +34,6 @@ typedef struct {
   int use_native_typenames;
 } Globals;
 
-// /* Global variable indicating whether native typenames should be used.
-//    The default is to use portable type names. */
-// int dlite_codegen_use_native_typenames = 0;
-//
-// /* Pointer to template paths.  Access it via dlite_codegen_path_get(). */
-// static FUPaths *template_paths = NULL;
-
 
 /* Free global state for this module */
 static void free_globals(void *globals)

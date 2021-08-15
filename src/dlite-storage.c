@@ -15,11 +15,43 @@
 #include "dlite-storage-plugins.h"
 #include "getuuid.h"
 
+#define GLOBALS_ID "dlite-storage-id"
 
-/** Iterator over dlite storage paths. */
+
+/* Iterator over dlite storage paths. */
 struct _DLiteStoragePathIter {
   FUIter *pathiter;
 };
+
+/* Global variables for dlite-storage */
+typedef struct {
+  FUPaths *storage_paths;
+} Globals;
+
+
+/* Frees global state for this module - called by atexit() */
+static void free_globals(void *globals)
+{
+  Globals *g = globals;
+  dlite_storage_paths_free();
+  free(g);
+}
+
+/* Return a pointer to global state for this module */
+static Globals *get_globals(void)
+{
+  Globals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
+  }
+  return g;
+ fail:
+  if (g) free(g);
+  return NULL;
+}
+
+
 
 
 /********************************************************************
@@ -236,35 +268,38 @@ const char *dlite_storage_get_driver(const DLiteStorage *s)
 /*******************************************************************
  *  Storage paths and URLs
  *******************************************************************/
-static FUPaths *_storage_paths = NULL;
+//static FUPaths *_storage_paths = NULL;
 
 /* Returns referance to storage paths */
 FUPaths *dlite_storage_paths(void)
 {
-  if (!_storage_paths) {
-    if (!(_storage_paths = calloc(1, sizeof(FUPaths))))
+  Globals *g;
+  if (!(g = get_globals())) return NULL;
+  if (!g->storage_paths) {
+    if (!(g->storage_paths = calloc(1, sizeof(FUPaths))))
       return err(1, "allocation failure"), NULL;
-    fu_paths_init_sep(_storage_paths, "DLITE_STORAGES", "|");
-    fu_paths_set_platform(_storage_paths, dlite_get_platform());
-    atexit(dlite_storage_paths_free);
+    fu_paths_init_sep(g->storage_paths, "DLITE_STORAGES", "|");
+    fu_paths_set_platform(g->storage_paths, dlite_get_platform());
 
     if (dlite_use_build_root())
-      fu_paths_extend(_storage_paths, dlite_STORAGES, "|");
+      fu_paths_extend(g->storage_paths, dlite_STORAGES, "|");
     else
-      fu_paths_extend_prefix(_storage_paths, dlite_root_get(),
+      fu_paths_extend_prefix(g->storage_paths, dlite_root_get(),
                              DLITE_ROOT "/" DLITE_STORAGES, "|");
   }
-  return _storage_paths;
+  return g->storage_paths;
 }
 
 /* Free's up and reset storage paths */
 void dlite_storage_paths_free(void)
 {
-  if (_storage_paths) {
-    fu_paths_deinit(_storage_paths);
-    free(_storage_paths);
+  Globals *g;
+  if (!(g = get_globals())) return;
+  if (g->storage_paths) {
+    fu_paths_deinit(g->storage_paths);
+    free(g->storage_paths);
   }
-  _storage_paths = NULL;
+  g->storage_paths = NULL;
 }
 
 /*
