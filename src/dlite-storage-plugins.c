@@ -16,44 +16,61 @@
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
 
+#define GLOBALS_ID "dlite-storage-plugins-id"
+
 
 struct _DLiteStoragePluginIter {
   PluginIter iter;
 };
 
-/* Global reference to storage plugin info */
-static PluginInfo *storage_plugin_info=NULL;
+/* Global variables for dlite-storage-plugins */
+typedef struct {
+  PluginInfo *storage_plugin_info;  /* reference to storage plugin info */
+  unsigned char storage_plugin_path_hash[32];  /* Sha256 hash of plugin paths */
+} Globals;
 
-/* Sha256 hash of plugin paths */
-static unsigned char storage_plugin_path_hash[32];
 
-/* Frees up `storage_plugin_info`. */
-static void storage_plugin_info_free(void)
+/* Frees global state for this module - called by atexit() */
+static void free_globals(void *globals)
 {
-  if (storage_plugin_info) plugin_info_free(storage_plugin_info);
-  storage_plugin_info = NULL;
+  Globals *g = globals;
+  if (g->storage_plugin_info) plugin_info_free(g->storage_plugin_info);
+  free(g);
+}
+
+/* Return a pointer to global state for this module */
+static Globals *get_globals(void)
+{
+  Globals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(Globals))))
+      return err(1, "allocation failure"), NULL;
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
+  }
+  return g;
 }
 
 /* Returns a pointer to `storage_plugin_info`. */
 static PluginInfo *get_storage_plugin_info(void)
 {
-  if (!storage_plugin_info &&
-      (storage_plugin_info =
+  Globals *g;
+  if (!(g = get_globals())) return NULL;
+  if (!g->storage_plugin_info &&
+      (g->storage_plugin_info =
        plugin_info_create("storage-plugin",
 			  "get_dlite_storage_plugin_api",
 			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
-    atexit(storage_plugin_info_free);
-    fu_paths_set_platform(&storage_plugin_info->paths, dlite_get_platform());
+    fu_paths_set_platform(&g->storage_plugin_info->paths, dlite_get_platform());
     if (dlite_use_build_root())
-      plugin_path_extend(storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);
+      plugin_path_extend(g->storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);
     else
-      plugin_path_extend_prefix(storage_plugin_info, dlite_root_get(),
+      plugin_path_extend_prefix(g->storage_plugin_info, dlite_root_get(),
                                 DLITE_STORAGE_PLUGIN_DIRS, NULL);
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
   }
-  return storage_plugin_info;
+  return g->storage_plugin_info;
 }
 
 
@@ -80,7 +97,9 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   const DLiteStoragePlugin *api;
   PluginInfo *info;
   unsigned char hash[32];
+  Globals *g;
 
+  if (!(g = get_globals())) return NULL;
   if (!(info = get_storage_plugin_info())) return NULL;
 
   /* Return plugin if it is loaded */
@@ -89,11 +108,10 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 
   /* ...otherwise, if any plugin path has changed, reload all plugins
      and try again */
-  if (storage_plugin_info &&
-      pathshash(hash, sizeof(hash), &info->paths) == 0) {
-    if (memcmp(storage_plugin_path_hash, hash, sizeof(hash)) != 0) {
+  if (pathshash(hash, sizeof(hash), &info->paths) == 0) {
+    if (memcmp(g->storage_plugin_path_hash, hash, sizeof(hash)) != 0) {
       plugin_load_all(info);
-      memcpy(storage_plugin_path_hash, hash, sizeof(hash));
+      memcpy(g->storage_plugin_path_hash, hash, sizeof(hash));
 
       if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
         return api;
