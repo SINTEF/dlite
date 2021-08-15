@@ -33,7 +33,7 @@ typedef struct {
 } PythonStorageGlobals;
 
 
-/* Return a pointer to global state for this module */
+/* Free global state for this module */
 static void free_globals(void *globals)
 {
   PythonStorageGlobals *g = (PythonStorageGlobals *)globals;
@@ -41,6 +41,8 @@ static void free_globals(void *globals)
 
   /* Do not call Py_DECREF if we are in an atexit handler */
   if (!dlite_globals_in_atexit()) Py_XDECREF(g->loaded_storages);
+
+  free(g);
 }
 
 

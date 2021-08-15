@@ -14,12 +14,6 @@
 
 
 /**
-  Global variable indicating whether native typenames should be used.
-  The default is to use portable type names.
-*/
-extern int dlite_codegen_use_native_typenames;
-
-/**
   Assign/update substitutions based on the instance `inst`.
 
   Returns non-zero on error.
@@ -44,6 +38,17 @@ FUPaths *dlite_codegen_path_get(void);
   Free up memory in template paths.
 */
 void dlite_codegen_path_free(void);
+
+
+/**
+  Returns whether to use native typenames
+*/
+int dlite_codegen_get_native_typenames(void);
+
+/**
+  Sets whether to use native typenames. If zero, use portable type names.
+*/
+  void dlite_codegen_set_native_typenames(int use_native_typenames);
 
 
 /**

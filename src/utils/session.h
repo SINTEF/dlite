@@ -123,5 +123,10 @@ int session_remove_state(Session *s, const char *name);
  */
 void *session_get_state(Session *s, const char *name);
 
+/**
+  Dump a listing of all sessions to stdout.  For debugging
+ */
+void session_dump(void);
+
 
 #endif /*  _SESSION_H */

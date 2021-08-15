@@ -212,3 +212,23 @@ void *session_get_state(Session *s, const char *name)
   State *st = map_get(&s->states, name);
   return (st) ? st->ptr : NULL;
 }
+
+/*
+  Dump a listing of all sessions to stdout.  For debugging
+ */
+void session_dump(void)
+{
+  map_iter_t iter = map_iter(&_sessions);
+  const char *session_id, *key;
+  while ((session_id = map_next(&_sessions, &iter))) {
+    Session *s = map_get(&_sessions, session_id);
+    map_iter_t stiter = map_iter(&s->states);
+    printf("SESSION %s: (%p)\n", session_id, (void *)s);
+    if (strcmp(s->session_id, session_id))
+      printf("  WARNING session id mismatch: %s\n", s->session_id);
+    while ((key = map_next(&s->states, &stiter))) {
+      State *st = map_get(&s->states, key);
+      printf("  - %s: %p\n", key, st->ptr);
+    }
+  }
+}

@@ -453,15 +453,23 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
-#define ATEXIT_STATE_ID "dlite-atexit-state"
+/* Sspecial state id only used to indicate whether we are in an atexit
+   handler or not */
+#define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
 
+/* A cache pointing to the current session handler */
 static DLiteGlobals *_globals_handler=NULL;
+
 
 /* Called by atexit().  Should be ok to call this multiple times... */
 static void _free_globals(void) {
   Session *s = session_get_default();
-  int *atexit_state = session_get_state(s, ATEXIT_STATE_ID);
-  *atexit_state = 1;
+
+  /* Remove the atexit marker state to indicate that we now are in a
+     atexit handler */
+  if (session_get_state(s, ATEXIT_MARKER_ID))
+    session_remove_state(s, ATEXIT_MARKER_ID);
+
   session_free(s);
 }
 
@@ -473,14 +481,18 @@ DLiteGlobals *dlite_globals_get(void)
   if (!_globals_handler) {
     _globals_handler = session_get_default();
 
-    /* Make valgrind and other memory leak detectors happy by freeing
-       up all globals at exit. */
-    atexit(_free_globals);
+    if (!session_get_state(_globals_handler, ATEXIT_MARKER_ID)) {
+      static void **dummy_ptr=NULL;
 
-    /* Add an atexit-state indicating whether we are in an atexit handler */
-    int *atexit_state = calloc(1, sizeof(int));
-    session_add_state((Session *)_globals_handler, ATEXIT_STATE_ID,
-                      atexit_state, free);
+      /* Make valgrind and other memory leak detectors happy by freeing
+         up all globals at exit. */
+      atexit(_free_globals);
+
+      /* Add an atexit marker used by dlite_blobals_in_atexit().
+         The value of the state is not used. */
+      session_add_state((Session *)_globals_handler, ATEXIT_MARKER_ID,
+                        &dummy_ptr, NULL);
+    }
   }
   return _globals_handler;
 }
@@ -492,6 +504,7 @@ DLiteGlobals *dlite_globals_get(void)
 void dlite_globals_set(DLiteGlobals *globals_handler)
 {
   session_set_default((Session *)globals_handler);
+  _globals_handler = globals_handler;
 }
 
 /*
@@ -532,9 +545,7 @@ void *dlite_globals_get_state(const char *name)
  */
 int dlite_globals_in_atexit(void)
 {
-  int *atexit_state = dlite_globals_get_state(ATEXIT_STATE_ID);
-  assert(atexit_state);
-  return *atexit_state;
+  return (dlite_globals_get_state(ATEXIT_MARKER_ID)) ? 0 : 1;
 }
 
 
