@@ -86,7 +86,8 @@ struct _DLiteDataModel {
   plugins exposing several APIs.  If the plugin has more APIs to
   expose, it should increase the integer pointed to by `iter` by one.
  */
-typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(int *iter);
+typedef const DLiteStoragePlugin *(*GetDLiteStorageAPI)(DLiteGlobals *g,
+                                                        int *iter);
 
 
 /**

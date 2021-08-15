@@ -261,13 +261,16 @@ int iterNext(void *iter, char *buf)
 /*
   Returns API provided by storage plugin `name` implemented in Python.
 */
-DSL_EXPORT const DLiteStoragePlugin *get_dlite_storage_plugin_api(int *iter)
+DSL_EXPORT const DLiteStoragePlugin *
+get_dlite_storage_plugin_api(void *state, int *iter)
 {
   int n;
   DLiteStoragePlugin *api=NULL, *retval=NULL;
   PyObject *storages=NULL, *cls=NULL, *name=NULL;
   PyObject *open=NULL, *close=NULL, *queue=NULL, *load=NULL, *save=NULL;
   const char *classname=NULL;
+
+  dlite_globals_set(state);
 
   if (!(storages = dlite_python_storage_load())) goto fail;
   assert(PyList_Check(storages));

@@ -55,11 +55,13 @@ static PluginInfo *get_storage_plugin_info(void)
 {
   Globals *g;
   if (!(g = get_globals())) return NULL;
+
   if (!g->storage_plugin_info &&
       (g->storage_plugin_info =
        plugin_info_create("storage-plugin",
 			  "get_dlite_storage_plugin_api",
-			  "DLITE_STORAGE_PLUGIN_DIRS"))) {
+			  "DLITE_STORAGE_PLUGIN_DIRS",
+                          dlite_globals_get()))) {
     fu_paths_set_platform(&g->storage_plugin_info->paths, dlite_get_platform());
     if (dlite_use_build_root())
       plugin_path_extend(g->storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);

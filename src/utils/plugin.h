@@ -14,7 +14,7 @@
   Plugins accessed with this library, are dynamic shared libraries
   exposing a single function with prototype
 
-      const PluginAPI *symbol(int *iter);
+      const PluginAPI *symbol(void *state, int *iter);
 
   This function should return a pointer to a struct with function
   pointers to all functions provided by the plugin (data member are
@@ -22,9 +22,15 @@
   The first element in the API must be a pointer to a string containg
   the name of the plugin.  Plugin names should be unique.
 
+  The `state` argument is used to pass a pointer to the global state
+  of the caller to the plugin.  You may use the session.h module for that.
+
   The `iter` argument is normally ignored.  It is provided to support
-  plugins exposing several APIs.  If the plugin has more APIs to
-  expose, it should increase the integer pointed to by `iter` by one.
+  plugins exposing several APIs.  `*iter` will be zero at the first
+  time the function is called.  If the plugin has more APIs to
+  expose, it should increase `*iter` by one to indicate that it should
+  be called again to return the next API.  When returning the last API,
+  it should leave `*iter` unchanged.
 
   A new plugin kind, with its own API, can be created with
   plugin_info_create().
@@ -52,8 +58,9 @@ typedef struct _PluginAPI {
   PluginAPI_HEAD
 } PluginAPI;
 
-/** Prototype for function that is looked up in shared library */
-typedef const PluginAPI *(*PluginFunc)(int *iter);
+/** Prototype for function that is looked up in shared library.
+    See above for more info. */
+typedef const PluginAPI *(*PluginFunc)(void *state, int *iter);
 
 /** Opaque struct for list of loaded plugins (shared libraries) */
 typedef struct _Plugin Plugin;
@@ -68,6 +75,7 @@ typedef struct _PluginInfo {
   const char *symbol;    /*!< Name of function in plugin returning the api */
   const char *envvar;    /*!< Name of environment variable initialising the
                               plugin search path */
+  void *state;           /*!< Pointer to global state passed to PluginFunc */
   FUPaths paths;         /*!< Current plugin search paths */
   map_plg_t plugins;     /*!< Maps plugin paths to loaded plugins */
   map_str_t pluginpaths; /*!< Maps api names to plugin path names */
@@ -88,11 +96,12 @@ typedef struct _PluginIter {
   `kind` is the name of the new plugin kind.
   `symbol` is the name of the function that plugins should define.
   `envvar` is the name of environment variable with plugin search path.
+  `state` pointer to global state passed to the plugin function.
 
   Returns NULL on error.
 */
 PluginInfo *plugin_info_create(const char *kind, const char *symbol,
-                               const char *envvar);
+                               const char *envvar, void *state);
 
 /**
   Free's plugin info.

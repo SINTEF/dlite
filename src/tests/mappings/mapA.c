@@ -36,11 +36,13 @@ DLiteInstance *mapper(const DLiteMappingPlugin *api,
 }
 
 
-DSL_EXPORT const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
+DSL_EXPORT const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
 {
   static DLiteMappingPlugin api;
   static const char *input_uris[] = { "http://onto-ns.com/meta/0.1/ent1" };
   UNUSED(iter);
+
+  dlite_globals_set(state);
 
   api.name = "mapA";
   api.output_uri = "http://onto-ns.com/meta/0.1/ent2";

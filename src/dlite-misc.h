@@ -251,7 +251,7 @@ DLiteGlobals *dlite_globals_get(void);
 /**
   Set globals handle.
 */
-void dlite_globals_set(DLiteGlobals *);
+void dlite_globals_set(DLiteGlobals *globals_handler);
 
 /**
   Add global state with given name.

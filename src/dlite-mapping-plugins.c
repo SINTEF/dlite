@@ -50,7 +50,8 @@ static Globals *get_globals(void) {
 
     g->mapping_plugin_info = plugin_info_create("mapping-plugin",
                                                 "get_dlite_mapping_api",
-                                                "DLITE_MAPPING_PLUGIN_DIRS");
+                                                "DLITE_MAPPING_PLUGIN_DIRS",
+                                                dlite_globals_get());
     if (!g->mapping_plugin_info) goto fail;
 
     fu_paths_set_platform(&g->mapping_plugin_info->paths, dlite_get_platform());
@@ -195,7 +196,7 @@ dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
     return api;
   if (!iter->stop) {
     int n = iter->n;
-    api = dlite_python_mapping_next(&iter->n);
+    api = dlite_python_mapping_next(dlite_globals_get(), &iter->n);
     if (iter->n == n) iter->stop = 1;
   }
   return api;

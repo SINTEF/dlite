@@ -65,10 +65,12 @@ void dlite_python_mapping_unload(void);
   Returns pointer to next Python mapping plugin (casted to void *) or
   NULL on error.
 
+  `state` should be a pointer to the global state.
+
   At the first call to this function, `*iter` should be initialised to zero.
   If there are more APIs, `*iter` will be increased by one.
 */
-const void *dlite_python_mapping_next(int *iter);
+const void *dlite_python_mapping_next(void *state, int *iter);
 
 /**
   Returns Python mapping plugin (casted to void *) with given name or

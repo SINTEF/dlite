@@ -828,8 +828,9 @@ static DLiteStoragePlugin h5_plugin = {
 
 
 DSL_EXPORT const DLiteStoragePlugin *
-get_dlite_storage_plugin_api(int *iter)
+get_dlite_storage_plugin_api(void *state, int *iter)
 {
   UNUSED(iter);
+  dlite_globals_set(state);
   return &h5_plugin;
 }

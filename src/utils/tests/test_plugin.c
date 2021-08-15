@@ -17,7 +17,7 @@ PluginInfo *info=NULL;
 MU_TEST(test_info_create)
 {
   char *path = STRINGIFY(BINDIR);
-  mu_check((info = plugin_info_create("TestPlugin", "get_testapi", NULL)));
+  mu_check((info = plugin_info_create("TestPlugin", "get_testapi", NULL, NULL)));
             //"TEST_PLUGIN_PATH")));
   mu_assert_int_eq(0, plugin_path_append(info, path));
 }
