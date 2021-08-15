@@ -151,7 +151,7 @@ Session *session_get_default(void)
 int session_set_default(Session *s)
 {
   map_session_t *sessions = get_sessions();
-  Session *s2 = session_get(DEFAULT_SESSION_ID);
+  Session *s2 = map_get(sessions, DEFAULT_SESSION_ID);
   if (s2 && s2 != s)
     return errx(1, "a default session has already been set");
   map_set(sessions, DEFAULT_SESSION_ID, *s);
