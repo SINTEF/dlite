@@ -210,7 +210,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
   Py_XDECREF(insts);
   Py_XDECREF(map);
   for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
-  if (inst) dlite_meta_decref((DLiteMeta *)inst->meta);  // XXX - correct?
+  if (inst) dlite_meta_decref((DLiteMeta *)inst->meta);  // @todo - correct?
   return inst;
 }
 

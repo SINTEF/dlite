@@ -1,20 +1,12 @@
 #!/usr/bin/env python
 from pathlib import Path
-from glob import glob
 
 import dlite
 
-
+# Configure search paths
 thisdir = Path(__file__).parent.absolute()
-#dlite.storage_path.append(f'{thisdir}/*.json')
-for fname in glob(f'{thisdir}/*.json'):
-    dlite.storage_path.append(fname)
-
+dlite.storage_path.append(f'{thisdir}/*.json')
 dlite.python_mapping_plugin_path.append(f'{thisdir}/python-mapping-plugins')
-
-#print(dlite.storage_path)
-for path in dlite.storage_path:
-    print('- ' + path)
 
 # Create an instance of Person
 Person = dlite.Instance(f'json:{thisdir}/Person.json?mode=r')

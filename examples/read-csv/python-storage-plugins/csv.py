@@ -1,5 +1,4 @@
 """Storage plugin that reading/writing CSV files."""
-import sys
 import warnings
 import hashlib
 import ast
@@ -149,7 +148,6 @@ def optstring2keywords(optstring):
     s = '{%s}' % (optstring, )
     try:
         return ast.literal_eval(s)
-    except:  # noqa: E722
-        exc, val, tr = sys.exc_info()
+    except Exception as e:
         raise ValueError(
-            f'invalid in option string ({exc.__name__}): {optstring!r}')
+            f'invalid in option string ({e.__name__}): {optstring!r}')

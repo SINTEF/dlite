@@ -847,6 +847,12 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 }
 
 
+
+/* Maximum number of jsmn tokens in a dimension, property and relation */
+#define MAX_DIMENSION_TOKENS  5
+#define MAX_PROPERTY_TOKENS  64  // this supports up to 53 dimensions...
+#define MAX_RELATION_TOKENS   9
+
 /*
   Scans a value from `src` and write it to memory pointed to by `p`.
 
@@ -992,7 +998,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     {
       DLiteDimension *dim = p;
       jsmn_parser parser;
-      jsmntok_t tokens[5];
+      jsmntok_t tokens[MAX_DIMENSION_TOKENS];
       const jsmntok_t *t;
       int r;
 
@@ -1002,7 +1008,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, len, tokens, 5)) < 0)
+      if ((r = jsmn_parse(&parser, src, len, tokens,MAX_DIMENSION_TOKENS)) < 0)
         return err(-1, "cannot parse dimension: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
@@ -1021,7 +1027,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     {
       DLiteProperty *prop = p;
       jsmn_parser parser;
-      jsmntok_t tokens[32];
+      jsmntok_t tokens[MAX_PROPERTY_TOKENS];
       const jsmntok_t *t, *d;
       int r, i;
 
@@ -1033,7 +1039,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, len, tokens, 32)) < 0)
+      if ((r = jsmn_parse(&parser, src, len, tokens, MAX_PROPERTY_TOKENS)) < 0)
         return err(-1, "cannot parse property: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
@@ -1075,7 +1081,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     {
       DLiteRelation *rel = p;
       jsmn_parser parser;
-      jsmntok_t tokens[7];
+      jsmntok_t tokens[MAX_RELATION_TOKENS];
       const jsmntok_t *t;
       int r;
 
@@ -1087,7 +1093,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, len, tokens, 7)) < 0)
+      if ((r = jsmn_parse(&parser, src, len, tokens, MAX_RELATION_TOKENS)) < 0)
         return err(-1, "cannot parse relation: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->size < 3 || tokens->size > 4)

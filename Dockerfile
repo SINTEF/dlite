@@ -136,7 +136,6 @@ RUN apt -qq update \
   && rm -rf /var/lib/apt/lists/*
 # Copy needed dlite files and libraries to slim image
 COPY --from=build /tmp/dlite-install /usr/local
-#COPY --from=build /usr/lib/x86_64-linux-gnu/libjansson.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libhdf5*.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libsz.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libaec.so* /usr/local/lib/
