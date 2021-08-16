@@ -220,10 +220,15 @@ endif()
 # Python
 # ======
 if(WITH_PYTHON)
+
   if(CROSS_TARGET AND MINGW)
     set(Python3_FIND_REGISTRY NEVER)
     set(Python3_FIND_STRATEGY LOCATION)
     set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
+  endif()
+
+  if(WIN32)
+    set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
