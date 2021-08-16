@@ -14,37 +14,6 @@
 DLiteCollection *coll = NULL;
 
 
-/***************************************************************
- * Test collection
- ***************************************************************/
-
-//MU_TEST(test1)
-//{
-//  FILE *fp = fopen("coll.json", "r");
-//  coll = (DLiteCollection *)
-//    dlite_json_fscan(fp, NULL, DLITE_COLLECTION_ENTITY);
-//  fclose(fp);
-//
-//  printf("*** coll: %p\n", (void *)coll);
-//  printf("----------------------------\n");
-//  dlite_json_print((DLiteInstance *)coll);
-//  printf("----------------------------\n");
-//
-//  const DLiteInstance *inst2 = dlite_collection_get(coll, "inst2");
-//  printf("***inst2: %p\n", (void *)inst2);
-//  printf("----------------------------\n");
-//  dlite_json_print((DLiteInstance *)coll);
-//  printf("----------------------------\n");
-//
-//
-//
-//  dlite_instance_decref((DLiteInstance *)coll);
-//  printf("==================== test1 done ================================\n");
-//}
-
-
-
-
 
 MU_TEST(test_collection_create)
 {
@@ -225,7 +194,6 @@ MU_TEST(test_collection_load)
 }
 
 
-
 MU_TEST(test_collection_free)
 {
   dlite_collection_decref(coll);
@@ -253,7 +221,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_collection_next);
   MU_RUN_TEST(test_collection_remove);
   MU_RUN_TEST(test_collection_save);
-  MU_RUN_TEST(test_collection_load);
   MU_RUN_TEST(test_collection_load);
 #endif
 

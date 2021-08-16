@@ -26,6 +26,9 @@ assert not myentity.is_metameta
 # Store the entity to a new file
 myentity.save('json://xxx.json?mode=w')
 
+# Save again, but without mode
+myentity.save('json://xxx2.json')
+
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
 # interchangable with its uuid

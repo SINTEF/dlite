@@ -190,8 +190,6 @@ if(WITH_HDF5)
   else()
     list(APPEND HDF5_LIBRARIES m dl)
   endif()
-else()
-  set(HDF5_LIBRARIES "")
 endif()
 
 #
