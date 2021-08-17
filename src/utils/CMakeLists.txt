@@ -340,6 +340,8 @@ install(
   INCLUDES DESTINATION include/dlite/utils
   )
 
+# Install jsmn.h explicitly since it has no corresponding .c file
+# included in `sources`
 install(
   FILES
     jsmn.h
