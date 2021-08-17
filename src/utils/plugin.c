@@ -59,11 +59,12 @@ int plugin_decref(Plugin *plugin)
   `name` is the name of the new plugin type.
   `symbol` is the name of the function that plugins should define
   `envvar` is the name of environment variable with plugin search path
+  `state` pointer to global state passed to the plugin function.
 
   Returns NULL on error.
 */
 PluginInfo *plugin_info_create(const char *kind, const char *symbol,
-                               const char *envvar)
+                               const char *envvar, void *state)
 {
   PluginInfo *info=NULL;
   if (!(info = calloc(1, sizeof(PluginInfo))))
@@ -72,6 +73,7 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
   info->kind = strdup(kind);
   info->symbol = strdup(symbol);
   info->envvar = (envvar) ? strdup(envvar) : NULL;
+  info->state = state;
   fu_paths_init(&info->paths, envvar);
 
   map_init(&info->plugins);
@@ -216,7 +218,7 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
        pointer to function pointer */
     *(void **)(&func) = sym;
 
-    while ((api = (PluginAPI *)func(&iter1))) {
+    while ((api = (PluginAPI *)func(info->state, &iter1))) {
       registered_api = NULL;
 
       if (!map_get(&info->apis, api->name)) {  /* no plugin with this name */

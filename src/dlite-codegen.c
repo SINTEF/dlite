@@ -13,6 +13,7 @@
 #include "dlite-macros.h"
 #include "dlite-codegen.h"
 
+#define GLOBALS_ID "dlite-codegen-globals-id"
 
 
 /* Context for looping over properties */
@@ -22,14 +23,40 @@ typedef struct {
   int metameta;               /* whether to list inst->meta instead of inst */
 }  Context;
 
+typedef struct {
+  /* Pointer to template paths.  Access it via dlite_codegen_path_get(). */
+  FUPaths template_paths;
 
-/* Global variable indicating whether native typenames should be used.
-   The default is to use portable type names. */
-int dlite_codegen_use_native_typenames = 0;
+  /* Whether template_paths are initialised */
+  int template_paths_initialised;
 
-/* Pointer to template paths.  Access it via dlite_codegen_path_get(). */
-static FUPaths *template_paths = NULL;
+  /* Whether native typenames should be used.  Defaults to portable type names. */
+  int use_native_typenames;
+} Globals;
 
+
+/* Free global state for this module */
+static void free_globals(void *globals)
+{
+  Globals *g = globals;
+  dlite_codegen_path_free();
+  free(g);
+}
+
+/* Return a pointer to global state for this module */
+static Globals *get_globals(void)
+{
+  Globals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
+  }
+  return g;
+ fail:
+  if (g) free(g);
+  return NULL;
+}
 
 
 /* Generator function that simply copies the template.
@@ -152,6 +179,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
                                   TGenSubs *subs, void *context,
                                   int metameta)
 {
+  Globals *g = get_globals();
   int retval = 0;
   const DLiteMeta *meta = (const DLiteMeta *)((Context *)context)->inst;
   const DLiteMeta *m = (metameta) ? meta->meta : meta;
@@ -182,7 +210,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     char *iri = (p->iri) ? p->iri : "";
     dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
     dlite_type_set_cdecl(p->type, p->size, p->name, nref, pcdecl,
-			 sizeof(pcdecl), dlite_codegen_use_native_typenames);
+			 sizeof(pcdecl), g->use_native_typenames);
     dlite_type_set_ftype(p->type, p->size, ftype, sizeof(ftype));
     dlite_type_set_isoctype(p->type, p->size, isoctype, sizeof(isoctype));
 
@@ -454,31 +482,47 @@ int dlite_option_subs(TGenSubs *subs, const char *options)
 /* Returns a pointer to current template paths. */
 FUPaths *dlite_codegen_path_get(void)
 {
-  if (!template_paths) {
-    static FUPaths paths;
+  Globals *g = get_globals();
+  if (!g->template_paths_initialised) {
+    if (fu_paths_init(&g->template_paths, "DLITE_TEMPLATE_DIRS") < 0)
+      return errx(1, "failure initialising codegen template paths"), NULL;
 
-    if (fu_paths_init(&paths, "DLITE_TEMPLATE_DIRS") < 0)
-      return err(1, "failure initialising codegen template paths"), NULL;
-
-    fu_paths_set_platform(&paths, dlite_get_platform());
+    fu_paths_set_platform(&g->template_paths, dlite_get_platform());
 
     if (dlite_use_build_root())
-      fu_paths_extend(&paths, dlite_TEMPLATES, NULL);
+      fu_paths_extend(&g->template_paths, dlite_TEMPLATES, NULL);
     else
-      fu_paths_extend_prefix(&paths, dlite_root_get(),
+      fu_paths_extend_prefix(&g->template_paths, dlite_root_get(),
                              DLITE_TEMPLATE_DIRS, NULL);
 
-    atexit(dlite_codegen_path_free);
-    template_paths = &paths;
+    g->template_paths_initialised = 1;
   }
-  return template_paths;
+  return &g->template_paths;
 }
 
 /* Free template paths */
 void dlite_codegen_path_free(void)
 {
-  if (template_paths) fu_paths_deinit(template_paths);
-  template_paths = NULL;
+  Globals *g = get_globals();
+  if (g->template_paths_initialised) {
+    fu_paths_deinit(&g->template_paths);
+    g->template_paths_initialised = 1;
+  }
+}
+
+/* Returns whether to use native typenames */
+int dlite_codegen_get_native_typenames(void)
+{
+  Globals *g = get_globals();
+  return g->use_native_typenames;
+}
+
+
+/* Sets whether to use native typenames. If zero, use portable type names. */
+void dlite_codegen_set_native_typenames(int use_native_typenames)
+{
+  Globals *g = get_globals();
+  g->use_native_typenames = use_native_typenames;
 }
 
 

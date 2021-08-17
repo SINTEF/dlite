@@ -7,38 +7,49 @@
 
 #include "utils/err.h"
 #include "utils/sha1.h"
+#include "utils/session.h"
 #include "triple.h"
 
+#define TRIPLE_GLOBALS_ID "triple-globals-id"
 
-/* Default namespace */
-static char *default_namespace = NULL;
-static int atexit_registered = 0;
+/* Global variables for this modules */
+typedef struct {
+  char *default_namespace;
+} TripleGlobals;
 
 
-/* Free's default_namespace. Called by atexit(). */
-static void free_default_namespace(void)
+/* Free's global variables. */
+static void free_globals(void *globals)
 {
-  if (default_namespace) free(default_namespace);
-  default_namespace = NULL;
+  TripleGlobals *g = globals;
+  if (g->default_namespace) free(g->default_namespace);
+  free(g);
 }
 
 /* Sets default namespace to be prepended to triple id's. */
 void triple_set_default_namespace(const char *namespace)
 {
-  if (!atexit_registered)
-    atexit(free_default_namespace);
-  if (default_namespace)
-    free(default_namespace);
+  Session *s = session_get_default();
+  TripleGlobals *g = session_get_state(s, TRIPLE_GLOBALS_ID);
+  if (g->default_namespace)
+    free(g->default_namespace);
   if (namespace)
-    default_namespace = strdup(namespace);
+    g->default_namespace = strdup(namespace);
   else
-    default_namespace = NULL;
+    g->default_namespace = NULL;
 }
 
 /* Returns default namespace. */
 const char *triple_get_default_namespace(void)
 {
-  return (const char *)default_namespace;
+  Session *s = session_get_default();
+  TripleGlobals *g = session_get_state(s, TRIPLE_GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(TripleGlobals))))
+      return err(1, "allocation failure"), NULL;
+    session_add_state(s, TRIPLE_GLOBALS_ID, g, free_globals);
+  }
+  return (const char *)g->default_namespace;
 }
 
 
@@ -101,7 +112,7 @@ char *triple_get_id(const char *namespace, const char *s, const char *p,
   SHA1Update(&context, (unsigned char *)p, strlen(p));
   SHA1Update(&context, (unsigned char *)o, strlen(o));
   SHA1Final(digest, &context);
-  if (!namespace) namespace = default_namespace;
+  if (!namespace) namespace = triple_get_default_namespace();
   if (namespace) size += strlen(namespace);
   if (!(id = malloc(size))) return NULL;
   if (namespace) n += snprintf(id+n, size-n, "%s", namespace);

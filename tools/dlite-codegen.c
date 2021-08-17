@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     case 'B':  dlite_set_use_build_root(1); break;
     case 'f':  format = optarg; break;
     case 'h':  help(stdout); exit(0);
-    case 'n':  dlite_codegen_use_native_typenames = 1; break;
+    case 'n':  dlite_codegen_set_native_typenames(1); break;
     case 'o':  output = optarg; break;
     case 's':  dlite_storage_plugin_path_append(optarg); break;
     case 'm':  dlite_instance_load_url(optarg); break;

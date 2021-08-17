@@ -15,51 +15,69 @@
 
 #include "dlite-datamodel.h"
 #include "dlite-mapping-plugins.h"
+#include "dlite-macros.h"
 #ifdef WITH_PYTHON
 #include "pyembed/dlite-python-mapping.h"
 #endif
 
-/* Global reference to mapping plugin info */
-static PluginInfo *mapping_plugin_info = NULL;
-
-/* Sha256 hash of plugin paths */
-static unsigned char mapping_plugin_path_hash[32];
+#define GLOBALS_ID "dlite-mapping-plugins-id"
 
 
-/* Frees up `mapping_plugin_info`. */
-static void mapping_plugin_info_free(void)
+typedef struct {
+  /* Global reference to mapping plugin info */
+  PluginInfo *mapping_plugin_info;
+
+  /* Sha256 hash of plugin paths */
+  unsigned char mapping_plugin_path_hash[32];
+} Globals;
+
+
+/* Free global state for this module */
+static void free_globals(void *globals)
 {
-  if (mapping_plugin_info) {
-    PluginIter iter;
-    plugin_api_iter_init(&iter, mapping_plugin_info);
-    plugin_info_free(mapping_plugin_info);
+  Globals *g = globals;
+  if (g->mapping_plugin_info) {
+    plugin_info_free(g->mapping_plugin_info);
   }
-  mapping_plugin_info = NULL;
+  free(g);
 }
 
+/* Return a pointer to global state for this module */
+static Globals *get_globals(void) {
+  Globals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
 
-/* Returns a pointer to `mapping_plugin_info`. */
-static PluginInfo *get_mapping_plugin_info(void)
-{
-  if (!mapping_plugin_info &&
-      (mapping_plugin_info =
-       plugin_info_create("mapping-plugin",
-                          "get_dlite_mapping_api",
-                          "DLITE_MAPPING_PLUGIN_DIRS"))) {
-    atexit(mapping_plugin_info_free);
+    g->mapping_plugin_info = plugin_info_create("mapping-plugin",
+                                                "get_dlite_mapping_api",
+                                                "DLITE_MAPPING_PLUGIN_DIRS",
+                                                dlite_globals_get());
+    if (!g->mapping_plugin_info) goto fail;
 
-    fu_paths_set_platform(&mapping_plugin_info->paths, dlite_get_platform());
+    fu_paths_set_platform(&g->mapping_plugin_info->paths, dlite_get_platform());
 
     if (dlite_use_build_root())
-      plugin_path_extend(mapping_plugin_info, dlite_MAPPING_PLUGINS, NULL);
+      plugin_path_extend(g->mapping_plugin_info, dlite_MAPPING_PLUGINS, NULL);
     else
-      plugin_path_extend_prefix(mapping_plugin_info, dlite_root_get(),
+      plugin_path_extend_prefix(g->mapping_plugin_info, dlite_root_get(),
                                 DLITE_ROOT "/" DLITE_MAPPING_PLUGIN_DIRS, NULL);
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
+
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
-  return mapping_plugin_info;
+  return g;
+ fail:
+  if (g) free(g);
+  return NULL;
+}
+
+/* Returns a pointer to `mapping_plugin_info`. */
+static PluginInfo *get_mapping_plugin_info(void)
+{
+  Globals *g = get_globals();
+  return (g) ? g->mapping_plugin_info : NULL;
 }
 
 /* Loads all plugins (if we haven't done that before) */
@@ -70,13 +88,15 @@ static void load_mapping_plugins(void)
   const char *path;
   const unsigned char *hash;
   sha3_context c;
+  Globals *g;
 
 #ifdef WITH_PYTHON
   dlite_python_mapping_load();
 #endif
 
   // FIXME - use pathshash() instead
-  if (!(info = get_mapping_plugin_info())) return;
+  if (!(g = get_globals())) return;
+  if (!(info = g->mapping_plugin_info)) return;
   if (!(iter = fu_pathsiter_init(&info->paths, NULL))) return;
   sha3_Init256(&c);
   while ((path = fu_pathsiter_next(iter)))
@@ -85,9 +105,9 @@ static void load_mapping_plugins(void)
   hash = sha3_Finalize(&c);
   fu_pathsiter_deinit(iter);
 
-  if (memcmp(hash, mapping_plugin_path_hash, 32) != 0) {
+  if (memcmp(hash, g->mapping_plugin_path_hash, 32) != 0) {
     plugin_load_all(info);
-    memcpy(mapping_plugin_path_hash, hash, 32);
+    memcpy(g->mapping_plugin_path_hash, hash, 32);
   }
 }
 
@@ -176,7 +196,7 @@ dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
     return api;
   if (!iter->stop) {
     int n = iter->n;
-    api = dlite_python_mapping_next(&iter->n);
+    api = dlite_python_mapping_next(dlite_globals_get(), &iter->n);
     if (iter->n == n) iter->stop = 1;
   }
   return api;

@@ -229,18 +229,20 @@ static void freeapi(PluginAPI *api)
 
 
 /* Forward declaration */
-const DLiteMappingPlugin *get_dlite_mapping_api(int *iter);
+const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter);
 
 /*
   Returns pointer to next Python mapping plugin (casted to void *) or
   NULL on error.
 
+  `state` should be a pointer to the global state.
+
   At the first call to this function, `*iter` should be initialised to zero.
   If there are more APIs, `*iter` will be increased by one.
 */
-const void *dlite_python_mapping_next(int *iter)
+const void *dlite_python_mapping_next(void *state, int *iter)
 {
-  return get_dlite_mapping_api(iter);
+  return get_dlite_mapping_api(state, iter);
 }
 
 /*
@@ -251,9 +253,10 @@ const void *dlite_python_mapping_get_api(const char *name)
 {
   const DLiteMappingPlugin *api;
   int iter1=0, iter2;
+  void *state = dlite_globals_get();
   do {
     iter2 = iter1;
-    if (!(api = get_dlite_mapping_api(&iter1))) break;
+    if (!(api = get_dlite_mapping_api(state, &iter1))) break;
     if (strcmp(api->name, name) == 0) return api;
   } while (iter1 > iter2);
   return NULL;
@@ -263,12 +266,14 @@ const void *dlite_python_mapping_get_api(const char *name)
 /*
   Returns API provided by mapping plugin `name` implemented in Python.
 
+  `state` should be a pointer to the global state.
+
   At the first call to this function, `*iter` should be initialised to zero.
   If there are more APIs, `*iter` will be increased by one.
 
   Default cost is 25.
 */
-const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
+const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
 {
   int i, n, cost=25;
   DLiteMappingPlugin *api=NULL, *retval=NULL;
@@ -276,6 +281,8 @@ const DLiteMappingPlugin *get_dlite_mapping_api(int *iter)
   PyObject *name=NULL, *out_uri=NULL, *in_uris=NULL, *map=NULL, *pcost=NULL;
   const char *output_uri=NULL, **input_uris=NULL, *classname=NULL;
   char *apiname=NULL;
+
+  dlite_globals_set(state);
 
   if (!(mappings = dlite_python_mapping_load())) goto fail;
   assert(PyList_Check(mappings));
