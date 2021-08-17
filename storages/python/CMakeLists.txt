@@ -9,8 +9,8 @@ set(sources
 
 add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
-  dlite
-  dlite-utils
+  dlite-static
+  dlite-utils-static
   ${Python3_LIBRARIES}
   )
 target_include_directories(dlite-plugins-python PUBLIC
