@@ -159,7 +159,7 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
   if (i <= 1 || j <= 1)
     m += asnpprintf(&buf, &size, m,
                     "Are the DLITE_MAPPING_PLUGIN_DIRS and "
-                    "DLITE_PYTHON_MAPPING_DIRS enveronment "
+                    "DLITE_PYTHON_MAPPING_DIRS environment "
                     "variables set?");
   errx(1, "%s", buf);
   free(buf);
