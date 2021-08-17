@@ -96,27 +96,12 @@ else()
     ${DLITE_UTILS_LIBRARY}
     )
 
-  # Find HDF5 and Jansson
-  # FIXME - when dlite is using dynamic loaded plugins we should:
-  #     Windows: append Jansson and HDF5 runtime library paths to dlite_PATH
-  #     Linux:   append Jansson and HDF5 library paths to dlite_LD_LIBRARY_PATH
-  find_library(JANSSON_LIBRARY
-    NAMES
-      jansson
-    PATHS
-      ${JANSSON_ROOT}/lib
-      $ENV{HOME}/.local/lib
-      /usr/lib
-      /usr/local/lib
-      /opt/local/lib
-      /sw/lib
-    )
-  list(APPEND JANSSON_LIBRARIES ${JANSSON_LIBRARY})
-
+  # Find HDF5
   find_package(HDF5 COMPONENTS C)
 
+  # FIXME - should we also find redland?
+
   list(APPEND DLITE_LIBRARIES
-    ${JANSSON_LIBRARIES}
     ${HDF5_LIBRARIES}
     )
 

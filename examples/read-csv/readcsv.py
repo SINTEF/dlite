@@ -1,5 +1,3 @@
-import os
-
 from config_paths import csvfile
 import dlite
 
@@ -18,7 +16,7 @@ csv.save('csv:newfile.h5?pandas_opts="key": "group", "index": False')
 
 # ... or excel writer (requires openpyxl)
 try:
-    import openpyxl
+    import openpyxl  # noqa: F401
     csv.save('csv:newfile.xlsx')
 except ImportError:
     pass

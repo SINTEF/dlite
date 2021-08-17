@@ -47,26 +47,6 @@ if [ -f bootstrap-win-user.sh ]; then
     source bootstrap-win-user.sh
 fi
 #
-# Build and install jansson
-#
-if [ ! "$WITH_JSON" = OFF ] && [ ! -f $INSTALL_PREFIX/lib/jansson.lib ]; then
-    cd "$ROOT_PATH"
-    if [ ! -d jansson ]; then
-        git clone https://github.com/akheron/jansson.git
-    fi
-    cd jansson
-    mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
-    cmake \
-        -G "$GENERATOR" \
-        -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" \
-        -DJANSSON_BUILD_SHARED_LIBS=OFF \
-        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-        -DJANSSON_BUILD_DOCS=OFF \
-        ..
-    cmake --build . --config Debug --target install
-    cmake --build . --config Release --target install
-fi
-#
 # Build and install hdf5
 #
 if [ ! "$WITH_HDF5" = OFF ] && [ ! -f $INSTALL_PREFIX/lib/libhdf5.lib ]; then

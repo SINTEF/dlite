@@ -9,8 +9,7 @@
 #include "utils/map.h"
 #include "utils/fileutils.h"
 #include "utils/infixcalc.h"
-#define JSMN_HEADER
-#include "utils/jsmn.h"
+#include "utils/jsmnx.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -605,6 +604,7 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages)
     ErrTry:
       if ((inst = dlite_instance_get(id)))
         dlite_instance_decref(inst);
+      assert(inst->_refcount > 0);
     ErrOther:
       break;
     ErrEnd;
@@ -617,9 +617,10 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages)
   Returns a new reference to instance with given `id` or NULL if no such
   instance can be found.
 
-  If the instance exists in the in-memory store it is returned.
-  Otherwise it is searched for in the storage plugin path (initiated
-  from the DLITE_STORAGES environment variable).
+  If the instance exists in the in-memory store it is returned (with
+  its refcount increased by one).  Otherwise it is searched for in the
+  storage plugin path (initiated from the DLITE_STORAGES environment
+  variable).
 
   It is an error message if the instance cannot be found.
 */
@@ -1309,24 +1310,31 @@ int dlite_instance_is_metameta(const DLiteInstance *inst)
 
 
 /*
-  Updates dimension sizes from the getdim() method of
-  extended metadata.  Does nothing, if the metadata has no getdim() method.
+  Updates dimension sizes from internal state by calling the getdim()
+  method of extended metadata.  Does nothing, if the metadata has no
+  getdim() method.
 
   Returns non-zero on error.
  */
 int dlite_instance_sync_to_dimension_sizes(DLiteInstance *inst)
 {
-  int *dims=NULL, retval=1;
-  size_t i;
+  int n, retval=1, update=0, *newdims=NULL;
+  size_t i, *dims=DLITE_DIMS(inst);
   if (!inst->meta->_getdim) return 0;
-  if (!(dims = calloc(inst->meta->_ndimensions, sizeof(int))))
-    return err(1, "allocation failure");
-  for (i=0; i<inst->meta->_ndimensions; i++)
-    if ((dims[i] = inst->meta->_getdim(inst, i)) < 0) goto fail;
-  if (dlite_instance_set_dimension_sizes(inst, dims)) goto fail;
+  for (i=0; i<inst->meta->_ndimensions; i++) {
+    if ((n = inst->meta->_getdim(inst, i)) < 0) goto fail;
+    if (n != (int)dims[i]) update=1;
+  }
+  if (update) {
+    if (!(newdims = calloc(inst->meta->_ndimensions, sizeof(int))))
+      return err(1, "allocation failure");
+    for (i=0; i<inst->meta->_ndimensions; i++)
+      newdims[i] = inst->meta->_getdim(inst, i);
+    if (dlite_instance_set_dimension_sizes(inst, newdims)) goto fail;
+  }
   retval = 0;
  fail:
-  if (dims) free(dims);
+  if (newdims) free(newdims);
   return retval;
 }
 
@@ -1994,6 +2002,7 @@ DLiteMeta *dlite_meta_get(const char *id)
 DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id)
 {
   DLiteInstance *inst = dlite_instance_load(s, id);
+  if (!inst) return NULL;
   if (!dlite_instance_is_meta(inst))
     return err(1, "not metadata: %s (%s)", s->location, id), NULL;
   return (DLiteMeta *)inst;
@@ -2423,8 +2432,8 @@ static int scandim(int d, const char *src, void **pptr,
   For arrays, `ptr` should points to the first element and will not be
   not dereferenced.  Evaluated dimension sizes are given by `dims`.
 
-  The `flags` provides some format options.  If zero (default) bools
-  and strings are expected to be quoted.
+  The `flags` provides some format options.  If zero (default)
+  strings are expected to be quoted.
 
   Returns number of characters consumed from `src` or a negative
   number on error.
@@ -2439,7 +2448,6 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
     jsmntok_t *tokens=NULL, *t;
     jsmn_parser parser;
     jsmn_init(&parser);
-    if (flags == dliteFlagDefault) flags = dliteFlagQuoted;
     r = jsmn_parse_alloc(&parser, src, strlen(src), &tokens, &ntokens);
     if (r < 0) return err(r, "error parsing input: %s", jsmn_strerror(r));
     t = tokens;

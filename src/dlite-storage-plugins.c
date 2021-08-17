@@ -110,7 +110,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
                    "\"%s\" in search path:\n", name);
     if (r >= 0) m += r;
-    while ((p = *(paths++)) && ++n) {
+    while (paths && (p = *(paths++)) && ++n) {
       r = asnpprintf(&buf, &size, m, "    %s\n", p);
       if (r >= 0) m += r;
     }
@@ -281,9 +281,21 @@ int dlite_storage_plugin_path_appendn(const char *path, size_t n)
 
   Returns non-zero on error.
 */
-int dlite_storage_plugin_path_remove(int n)
+int dlite_storage_plugin_path_delete(int n)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_path_remove(info, n);
+  return plugin_path_delete(info, n);
+}
+
+/*
+  Removes path `path` from current search path.
+
+  Returns non-zero if there is no such path.
+*/
+int dlite_storage_plugin_path_remove(const char *path)
+{
+  PluginInfo *info;
+  if (!(info = get_storage_plugin_info())) return 1;
+  return plugin_path_remove(info, path);
 }

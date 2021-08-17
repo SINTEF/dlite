@@ -9,6 +9,7 @@ set(tests
   test_misc
   test_python_storage
   test_storage
+  test_paths
   )
 
 foreach(test ${tests})

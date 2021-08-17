@@ -101,11 +101,11 @@ int dlite_python_mapping_paths_append(const char *path)
   Removes path index `n` to Python mapping paths.
   Returns non-zero on error.
 */
-int dlite_python_mapping_paths_remove(int n)
+int dlite_python_mapping_paths_delete(int n)
 {
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return -1;
-  return fu_paths_remove((FUPaths *)paths, n);
+  return fu_paths_delete((FUPaths *)paths, n);
 }
 
 /*
@@ -210,7 +210,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
   Py_XDECREF(insts);
   Py_XDECREF(map);
   for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
-  dlite_meta_decref((DLiteMeta *)inst->meta);  // XXX - is this correct?
+  if (inst) dlite_meta_decref((DLiteMeta *)inst->meta);  // @todo - correct?
   return inst;
 }
 

@@ -97,9 +97,9 @@ int uuid_compare(uuid_s *u1, uuid_s *u2);
 /* uuid_as_string -- write uuid to string */
 void uuid_as_string(uuid_s *uuid, char s[37]);
 
-/* uuid_from_string -- set uuid from string s. Returns non-zero if s
-   is not formatted as a valid uuid.  If uuid is NULL, only format
-   checking is performed. */
-int uuid_from_string(uuid_s *uuid, const char *s);
+/* uuid_from_string -- set uuid from string `s` of length `len`.
+   Returns non-zero if `s` is not formatted as a valid uuid.
+   If `uuid` is NULL, only format checking is performed. */
+int uuid_from_string(uuid_s *uuid, const char *s, size_t len);
 
 #endif /* !__uuid_h__ */

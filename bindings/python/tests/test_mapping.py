@@ -3,11 +3,10 @@ from pathlib import Path
 
 import dlite
 
-
+# Configure search paths
 thisdir = Path(__file__).parent.absolute()
 dlite.storage_path.append(f'{thisdir}/*.json')
-dlite.python_mapping_path.append(f'{thisdir}/python-mapping-plugins')
-
+dlite.python_mapping_plugin_path.append(f'{thisdir}/python-mapping-plugins')
 
 # Create an instance of Person
 Person = dlite.Instance(f'json:{thisdir}/Person.json?mode=r')

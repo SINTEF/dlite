@@ -18,7 +18,7 @@
 #include "dlite-storage.h"
 #include "dlite-collection.h"
 #include "dlite-getlicense.h"
-#include "dlite-print.h"
+#include "dlite-json.h"
 
 
 #endif /* _DLITE_H */

@@ -1,5 +1,3 @@
-/* jsmn.h -- small and fast JSON parser, see https://github.com/zserge/jsmn */
-
 /*
  * MIT License
  *
@@ -89,89 +87,20 @@ typedef struct jsmn_parser {
 } jsmn_parser;
 
 /**
- * Initializes a JSON parser.
+ * Create JSON parser over an array of tokens
  */
 JSMN_API void jsmn_init(jsmn_parser *parser);
 
 /**
- * Run JSON parser.
- *
- * It parses a JSON data string into and array of tokens, each
- * describing a single JSON object.
- *
- * Arguments
- * ---------
- *  - parser: pointer to initialized parser
- *  - js: the JSON input string
- *  - len: length of `js`
- *  - tokens: pointer to a preallocated buffer of JSMN tokens.  May be
- *    NULL in order to return the number of tokens in the input.
- *  - num_tokens: the size of `tokens`
- *
- * Returns
- * -------
- * On success, it returns the number of tokens actually used by the parser.
- * On error, one of the following codes is returned:
- *
- *  - JSMN_ERROR_INVAL: bad token, JSON string is corrupted
- *  - JSMN_ERROR_NOMEM: not enough tokens, JSON string is too large
- *  - JSMN_ERROR_PART:  JSON string is too short, expecting more JSON data
+ * Run JSON parser. It parses a JSON data string into and array of tokens, each
+ * describing
+ * a single JSON object.
  */
 JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
                         jsmntok_t *tokens, const unsigned int num_tokens);
 
-
-/** Chunck size when reallocating new chunks */
-#ifndef JSMN_CHUNK_SIZE
-#define JSMN_CHUNK_SIZE 4096
-#endif
-
-/**
- * Like jsmn_parse(), but realloc's the buffer pointed to by `tokens_ptr`
- * if it is too small.  `num_tokens_ptr` should point to the number of
- * allocated tokens.
- *
- * Returns JSMN_ERROR_NOMEM on allocation error.
- */
-int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
-                     jsmntok_t **tokens_ptr, unsigned int *num_tokens_ptr);
-
-
-/**
- * Returns number of sub-tokens contained in `t` or -1 on error.
- */
-  JSMN_API int jsmn_count(const jsmntok_t *t);
-
-
-/**
- * Returns a pointer to the value of item `key` of JSMN object token `t`.
- *
- * `js` is the JSON source.
- *
- * Returns NULL on error.
- */
-JSMN_API jsmntok_t *jsmn_item(const char *js, jsmntok_t *t, const char *key);
-
-
-/**
- * Returns a pointer to the element `i` of JSMN array token `t`.
- *
- * `js` is the JSON source.
- *
- * Returns NULL on error.
- */
-JSMN_API jsmntok_t *jsmn_element(const char *js, jsmntok_t *t, int i);
-
-
-/**
- * Returns error message corresponding to return value from jsmn_parse().
- */
-JSMN_API const char *jsmn_strerror(int r);
-
-
-
 #ifndef JSMN_HEADER
-/*
+/**
  * Allocates a fresh unused token from the token pool.
  */
 static jsmntok_t *jsmn_alloc_token(jsmn_parser *parser, jsmntok_t *tokens,
@@ -189,7 +118,7 @@ static jsmntok_t *jsmn_alloc_token(jsmn_parser *parser, jsmntok_t *tokens,
   return tok;
 }
 
-/*
+/**
  * Fills token type and boundaries.
  */
 static void jsmn_fill_token(jsmntok_t *token, const jsmntype_t type,
@@ -200,7 +129,7 @@ static void jsmn_fill_token(jsmntok_t *token, const jsmntype_t type,
   token->size = 0;
 }
 
-/*
+/**
  * Fills next available token with JSON primitive.
  */
 static int jsmn_parse_primitive(jsmn_parser *parser, const char *js,
@@ -258,7 +187,7 @@ found:
   return 0;
 }
 
-/*
+/**
  * Fills next token with JSON string.
  */
 static int jsmn_parse_string(jsmn_parser *parser, const char *js,
@@ -333,7 +262,7 @@ static int jsmn_parse_string(jsmn_parser *parser, const char *js,
   return JSMN_ERROR_PART;
 }
 
-/*
+/**
  * Parse JSON string and fill tokens.
  */
 JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
@@ -523,7 +452,7 @@ JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
   return count;
 }
 
-/*
+/**
  * Creates a new parser based over a given buffer with an array of tokens
  * available.
  */
@@ -532,8 +461,6 @@ JSMN_API void jsmn_init(jsmn_parser *parser) {
   parser->toknext = 0;
   parser->toksuper = -1;
 }
-
-
 
 #endif /* JSMN_HEADER */
 

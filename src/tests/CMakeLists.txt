@@ -7,7 +7,7 @@ set(tests
   test_storage
   test_entity
   test_property
-  test_print
+  test_json
   test_metamodel
   test_store
   test_triplestore
@@ -64,5 +64,7 @@ foreach(test ${tests})
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES='${CMAKE_CURRENT_SOURCE_DIR}/*.json'")
 
 endforeach()

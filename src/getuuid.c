@@ -25,14 +25,25 @@
  */
 int getuuid(char *buff, const char *id)
 {
+  return getuuidn(buff, id, (id) ? strlen(id) : 0);
+}
+
+
+/*
+ * Like getuuid(), but takes the the length of `id` as an additional parameter.
+ */
+int getuuidn(char *buff, const char *id, size_t len)
+{
   int i, version;
   uuid_s uuid;
+
+  if (len == 0) id = NULL;
 
   if (!id || !*id) {
     int status = uuid4_generate(buff);
     version = (status == 0) ? 4 : -1;
-  } else if (uuid_from_string(NULL, id)) {
-    uuid_create_sha1_from_name(&uuid, NameSpace_DNS, id, strlen(id));
+  } else if (uuid_from_string(NULL, id, len)) {
+    uuid_create_sha1_from_name(&uuid, NameSpace_DNS, id, len);
     uuid_as_string(&uuid, buff);
     version = 5;
   } else {

@@ -14,9 +14,6 @@
 DLiteCollection *coll = NULL;
 
 
-/***************************************************************
- * Test collection
- ***************************************************************/
 
 MU_TEST(test_collection_create)
 {
@@ -111,6 +108,7 @@ MU_TEST(test_collection_get)
   const DLiteInstance *inst;
   mu_check((inst = dlite_collection_get(coll, "inst")));
   mu_check(!dlite_collection_get(coll, "XXX"));
+  dlite_errclr();
 }
 
 
@@ -161,18 +159,37 @@ MU_TEST(test_collection_save)
   mu_check(dlite_storage_close(s) == 0);
 }
 
+
+
 MU_TEST(test_collection_load)
 {
-  DLiteStorage *s;
   DLiteCollection *coll2;
-  mu_check((s = dlite_storage_open("json", "coll1.json", "mode=r")));
-  mu_check((coll2 = (DLiteCollection *)dlite_instance_load(s, coll->uuid)));
-  mu_check(dlite_storage_close(s) == 0);
+  char *collpath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/coll.json";
+  DLiteStoragePathIter *iter;
+  const char *path;
 
-  mu_check((s = dlite_storage_open("json", "coll2.json", "mode=w")));
-  mu_check(dlite_instance_save(s, (DLiteInstance *)coll2) == 0);
-  mu_check(dlite_storage_close(s) == 0);
+  dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
 
+  printf("\n\nStorage paths:\n");
+  iter = dlite_storage_paths_iter_start();
+  while ((path = dlite_storage_paths_iter_next(iter)))
+    printf("  - %s\n", path);
+  printf("\n");
+  dlite_storage_paths_iter_stop(iter);
+
+  FILE *fp = fopen(collpath, "r");
+  coll2 = (DLiteCollection *)
+    dlite_json_fscan(fp, NULL, "http://onto-ns.com/meta/0.1/Collection");
+  fclose(fp);
+  printf("\n\n--- coll2: %p ---\n", (void *)coll2);
+  dlite_json_print((DLiteInstance *)coll2);
+  printf("----------------------\n");
+  const DLiteInstance *inst = dlite_collection_get(coll2, "inst");
+  printf("\n--- inst: %p ---\n", (void *)inst);
+  dlite_json_print((DLiteInstance *)inst);
+  printf("----------------------\n");
+
+  dlite_instance_decref((DLiteInstance *)inst);
   dlite_collection_decref(coll2);
 }
 
@@ -188,6 +205,9 @@ MU_TEST(test_collection_free)
 
 MU_TEST_SUITE(test_suite)
 {
+  //MU_RUN_TEST(test1);
+
+
   MU_RUN_TEST(test_collection_create);     /* setup */
 
   MU_RUN_TEST(test_collection_add_relation);

@@ -16,7 +16,8 @@ Features
       - property (only intended for metadata)
   - Supports units and multi-dimensional arrays
   - Fully implemented metadata model as presented by Thomas Hagelien
-  - Builtin HDF5, JSON, YAML and PostgreSQL storage plugins
+  - Builtin JSON, HDF5, RDF, YAML, PostgreSQL, csv, blob storage plugins
+    (JSON is always available, the other depends on external libraries)
   - Plugin system for user-provided storage drivers
   - Memory for metadata and instances is reference counted
   - Lookup of metadata and instances at pre-defined locations (initiated

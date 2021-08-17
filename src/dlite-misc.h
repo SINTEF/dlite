@@ -47,6 +47,12 @@ FUPlatform dlite_get_platform(void);
  */
 int dlite_get_uuid(char *buff, const char *id);
 
+/**
+  Like dlite_get_uuid(), but takes the the length of `id` as an
+  additional parameter.
+ */
+int dlite_get_uuidn(char *buff, const char *id, size_t len);
+
 
 /**
   Returns an unique uri for metadata defined by `name`, `version`

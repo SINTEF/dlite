@@ -1,36 +1,4 @@
 {
-  "e076a856-e36e-5335-967e-2f2fd153c17d": {
-    "meta": "http://onto-ns.com/meta/0.1/test-entity",
-    "dataname": "my_test_instance",
-    "dimensions": {
-      "L": 2,
-      "M": 1,
-      "N": 3
-    },
-    "properties": {
-      "myblob": "0a0010",
-      "mydouble": 3.1400000000000001,
-      "myfixstring": "Al",
-      "mystring": "allocated string...",
-      "myshort": 17,
-      "myarray": [
-        [
-          [
-            1,
-            2,
-            3
-          ]
-        ],
-        [
-          [
-            4,
-            5,
-            6
-          ]
-        ]
-      ]
-    }
-  },
   "204b05b2-4c89-43f4-93db-fd1cb70f54ef": {
     "meta": "http://onto-ns.com/meta/0.1/test-entity",
     "dimensions": {
@@ -40,7 +8,7 @@
     },
     "properties": {
       "myblob": "0a0120",
-      "mydouble": 2.7200000000000002,
+      "mydouble": 2.72,
       "myfixstring": "Si",
       "mystring": "...",
       "myshort": 13,
@@ -67,6 +35,38 @@
             6,
             5,
             4
+          ]
+        ]
+      ]
+    }
+  },
+  "e076a856-e36e-5335-967e-2f2fd153c17d": {
+    "meta": "http://onto-ns.com/meta/0.1/test-entity",
+    "uri": "my_test_instance",
+    "dimensions": {
+      "L": 2,
+      "M": 1,
+      "N": 3
+    },
+    "properties": {
+      "myblob": "0a0010",
+      "mydouble": 3.14,
+      "myfixstring": "Al",
+      "mystring": "allocated string...",
+      "myshort": 17,
+      "myarray": [
+        [
+          [
+            1,
+            2,
+            3
+          ]
+        ],
+        [
+          [
+            4,
+            5,
+            6
           ]
         ]
       ]

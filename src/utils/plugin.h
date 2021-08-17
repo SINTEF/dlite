@@ -213,8 +213,17 @@ int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
 
   Returns non-zero on error.
  */
-int plugin_path_remove(PluginInfo *info, int n);
+int plugin_path_delete(PluginInfo *info, int n);
 
+/**
+  Removes path `path`.  Returns non-zero if there is no such path.
+ */
+int plugin_path_remove(PluginInfo *info, const char *path);
+
+/**
+  Returns index of plugin path `path` or -1 on error.
+ */
+int plugin_path_index(PluginInfo *info, const char *path);
 
 
 #endif /* _PLUGINS_H */

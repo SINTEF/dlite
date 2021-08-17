@@ -154,7 +154,7 @@ int uuid_create_random(uuid_s *uuid)
   char buf[UUID4_LEN];
   if (uuid4_generate(buf))
     return 1;
-  if (uuid_from_string(uuid, buf))
+  if (uuid_from_string(uuid, buf, 36))
     return 1;
   return 0;
 }
@@ -198,11 +198,11 @@ void uuid_as_string(uuid_s *uuid, char s[37])
 /* uuid_from_string -- set uuid from string s. Returns non-zero if s
    is not formatted as a valid uuid.  If uuid is none, only format
    checking is done. */
-int uuid_from_string(uuid_s *uuid, const char *s)
+int uuid_from_string(uuid_s *uuid, const char *s, size_t len)
 {
   uuid_s u;
   int i, n;
-  if (strlen(s) != 36)
+  if (len != 36)
     return 1;
 
   if (sscanf(s, "%8x-%4hx-%4hx-%n",

@@ -27,7 +27,7 @@ int count_uuids(DLiteStore *store) {
   return n;
 }
 
-/* Counts number adds to store */
+/* Counts number of adds to store */
 /*
 int count_adds(DLiteStore *store) {
   int n=0;

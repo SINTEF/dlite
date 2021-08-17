@@ -83,7 +83,7 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     add_test(
       NAME ${name}
       COMMAND ${RUNNER} ${Python3_EXECUTABLE}
-          ${CMAKE_CURRENT_SOURCE_DIR}/read-csv/main.py
+          ${CMAKE_CURRENT_SOURCE_DIR}/${name}/main.py
       )
     set_property(TEST ${name} PROPERTY
       ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
@@ -93,6 +93,8 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
       ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+    set_property(TEST ${name} PROPERTY
+      SKIP_RETURN_CODE 77)
   endforeach()
 
 endif()

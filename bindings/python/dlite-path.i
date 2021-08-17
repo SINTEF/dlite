@@ -30,13 +30,15 @@ Creates a _Path instance of type `pathtype`.
 ") _FUPaths;
 %extend struct _FUPaths {
   _FUPaths(const char *pathtype) {
-    if (strcmp(pathtype, "storage") == 0) {
+    if (strcmp(pathtype, "storages") == 0) {
       return dlite_storage_paths();
-    } else if (strcmp(pathtype, "mapping") == 0) {
+    } else if (strcmp(pathtype, "storage-plugins") == 0) {
+      return dlite_storage_plugin_paths_get();
+    } else if (strcmp(pathtype, "mapping-plugins") == 0) {
       return dlite_mapping_plugin_paths_get();
-    } else if (strcmp(pathtype, "python-storage") == 0) {
+    } else if (strcmp(pathtype, "python-storage-plugins") == 0) {
       return dlite_python_storage_paths();
-    } else if (strcmp(pathtype, "python-mapping") == 0) {
+    } else if (strcmp(pathtype, "python-mapping-plugins") == 0) {
       return dlite_python_mapping_paths();
     } else {
       return dlite_err(1, "invalid pathtype: %s", pathtype), NULL;
@@ -54,7 +56,7 @@ Creates a _Path instance of type `pathtype`.
   int __len__(void) {
     return $self->n;
   }
-  const char *__getitem__(int index) {
+  const char *getitem(int index) {
     if (index < 0) index += $self->n;
     if (index < 0 || index >= (int)$self->n)
       return dlite_err(1, "index out of range: %d", index), NULL;
@@ -65,12 +67,12 @@ Creates a _Path instance of type `pathtype`.
     if (index < 0 || index >= (int)$self->n) {
       dlite_err(1, "index out of range: %d", index);
     } else {
-      fu_paths_remove($self, index);
+      fu_paths_delete($self, index);
       fu_paths_insert($self, path, index);
     }
   }
   void __delitem__(int index) {
-    fu_paths_remove($self, index);
+    fu_paths_delete($self, index);
   }
 
   void insert(int index, const char *path) {

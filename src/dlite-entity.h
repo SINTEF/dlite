@@ -337,6 +337,10 @@ typedef struct _DLiteMetaModel DLiteMetaModel;
 #define DLITE_PROP(inst, n) \
   ((void *)((char *)(inst) + ((DLiteInstance *)(inst))->meta->_propoffsets[n]))
 
+/** Expands to number of dimensions of property `n` --> (int) */
+#define DLITE_PROP_NDIM(inst, n) \
+  (((DLiteInstance *)(inst))->meta->_properties[n].ndims)
+
 /** Expands to array of dimension sizes for property `n` --> (size_t *) */
 #define DLITE_PROP_DIMS(inst, n) \
   ((size_t *)((char *)(inst) + \
@@ -486,9 +490,10 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages);
   Returns a new reference to instance with given `id` or NULL if no such
   instance can be found.
 
-  If the instance exists in the in-memory store it is returned.
-  Otherwise it is searched for in the storage plugin path (initiated
-  from the DLITE_STORAGES environment variable).
+  If the instance exists in the in-memory store it is returned (with
+  its refcount increased by one).  Otherwise it is searched for in the
+  storage plugin path (initiated from the DLITE_STORAGES environment
+  variable).
 
   It is an error message if the instance cannot be found.
 */
@@ -701,8 +706,9 @@ int dlite_instance_is_metameta(const DLiteInstance *inst);
 
 
 /**
-  Help function that update dimension sizes from the getdim() method of
-  extended metadata.  Does nothing, if the metadata has no getdim() method.
+  Updates dimension sizes from internal state by calling the getdim()
+  method of extended metadata.  Does nothing, if the metadata has no
+  getdim() method.
 
   Returns non-zero on error.
  */

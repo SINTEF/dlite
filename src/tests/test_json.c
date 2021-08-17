@@ -36,10 +36,10 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0, 0);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
-  mu_assert_int_eq(1066, m);
+  mu_assert_int_eq(1065, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
-                  dliteJsonUuid | dliteJsonMetaAsData);
+                        dliteJsonWithUuid | dliteJsonMetaAsData);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
   mu_assert_int_eq(1152, m);
@@ -47,12 +47,42 @@ MU_TEST(test_sprint)
   printf("\n========================================================\n");
   m = dlite_json_sprint(buf, sizeof(buf), inst, 4, 0);
   printf("%s\n", buf);
-  mu_assert_int_eq(371, m);
+  mu_assert_int_eq(404, m);
   printf("\n--------------------------------------------------------\n");
 
   m = dlite_json_sprint(buf, 80, inst, 4, 0);
-  mu_assert_int_eq(371, m);
+  mu_assert_int_eq(404, m);
+}
 
+
+int append(const char *str)
+{
+  char *s = strdup(str);
+  size_t size = strlen(s) + 1;
+  int m, retval=0;
+  printf("\n--- append: '%s' ---\n", str);
+  m = dlite_json_append(&s, &size, inst, 0);
+  dlite_errclr();
+  if (m < 0) retval=m;
+  printf("%s", s);
+  free(s);
+  return retval;
+}
+
+MU_TEST(test_append)
+{
+  mu_assert_int_eq(0, append("{}"));
+  mu_assert_int_eq(0, append("{ \t}"));
+  mu_assert_int_eq(0, append("{\"a\": 1, \"b\": [2, 3]}"));
+  mu_assert_int_eq(0, append("{\"a\": 1, \"b\": [2, 3] }"));
+  mu_assert_int_eq(0, append("{\"a\": 1, }"));  // be forgiving
+  mu_assert_int_eq(-1, append(""));
+  mu_assert_int_eq(-1, append(" "));
+  mu_assert_int_eq(-1, append("1"));
+  mu_assert_int_eq(-1, append("[1, ]"));
+  mu_assert_int_eq(-1, append(","));
+  mu_assert_int_eq(-1, append("{"));
+  mu_assert_int_eq(-1, append("[ "));
 }
 
 
@@ -70,8 +100,11 @@ MU_TEST(test_sscan)
   DLiteInstance *inst;
   char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-read-data.json";
   FILE *fp = fopen(path, "r");
+  int stat;
   mu_check(fp);
-  inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b");
+  stat = dlite_storage_paths_append(path);
+  mu_check(stat > 0);
+  inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b", NULL);
   fclose(fp);
   mu_check(inst);
 
@@ -79,17 +112,7 @@ MU_TEST(test_sscan)
   dlite_json_fprint(stdout, inst, 0, 0);
 
   /* cleanup */
-  int refcount;
-  const DLiteMeta *meta = inst->meta;
-  dlite_meta_incref((DLiteMeta *)meta);
-  do {
-    refcount = inst->_refcount;
-    dlite_instance_decref(inst);
-  } while (refcount > 1);
-  do {
-    refcount = meta->_refcount;
-    dlite_meta_decref((DLiteMeta *)meta);
-  } while (refcount > 1);
+  dlite_instance_decref(inst);
 }
 
 
@@ -101,6 +124,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_sprint);
+  MU_RUN_TEST(test_append);
   MU_RUN_TEST(test_decref);
   MU_RUN_TEST(test_sscan);
 }

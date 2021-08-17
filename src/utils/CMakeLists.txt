@@ -259,7 +259,8 @@ set(sources
   tgen.c
   tmpfileplus.c
   infixcalc.c
-  jsmn.c
+  jsmnx.c
+  jstore.c
 
   md5.c
   sha1.c
@@ -336,6 +337,14 @@ install(
   RUNTIME DESTINATION bin
   PUBLIC_HEADER DESTINATION include/dlite/utils
   INCLUDES DESTINATION include/dlite/utils
+  )
+
+# Install jsmn.h explicitly since it has no corresponding .c file
+# included in `sources`
+install(
+  FILES
+    jsmn.h
+  DESTINATION include/dlite/utils
   )
 
 install(

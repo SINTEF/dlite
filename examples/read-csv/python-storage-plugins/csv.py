@@ -1,6 +1,4 @@
 """Storage plugin that reading/writing CSV files."""
-import sys
-import re
 import warnings
 import hashlib
 import ast
@@ -126,7 +124,7 @@ def infer_meta(data, metauri, uri):
         metauri = f'onto-ns.com/meta/1.0/generated_from_{fmt}_{hash}'
     elif dlite.has_instance(metauri):
         warnings.warn(f'csv option infer is true, but explicit instance id '
-                      '"{metauri}" already exists')
+                      f'"{metauri}" already exists')
 
     dims_ = [dlite.Dimension('rows', 'Number of rows.')]
     props = []
@@ -150,7 +148,6 @@ def optstring2keywords(optstring):
     s = '{%s}' % (optstring, )
     try:
         return ast.literal_eval(s)
-    except:
-        exc, val, tr = sys.exc_info()
+    except Exception as e:
         raise ValueError(
-            f'invalid in option string ({exc.__name__}): {optstring!r}')
+            f'invalid in option string ({e.__name__}): {optstring!r}')

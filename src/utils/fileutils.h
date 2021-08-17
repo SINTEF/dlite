@@ -225,7 +225,8 @@ char *fu_friendly_dirsep(char *path);
       /etc/fstab
       http://example.com
 
-  Note that the length of a returned path can be obtained with `endptr-p`.
+  @note
+  The length of a returned path can be obtained with `endptr-p`.
  */
 const char *fu_nextpath(const char *paths, char **endptr, const char *pathsep);
 
@@ -420,7 +421,18 @@ int fu_paths_extend_prefix(FUPaths *paths, const char *prefix, const char *s,
 
   Returns non-zero on error.
  */
-int fu_paths_remove(FUPaths *paths, int n);
+int fu_paths_delete(FUPaths *paths, int n);
+
+/**
+  Removes path `path`.  Returns non-zero if there is no such path.
+ */
+int fu_paths_remove(FUPaths *paths, const char *path);
+
+/**
+  Returns index of path `path` or -1 if there is no such path in `paths`.
+ */
+int fu_paths_index(FUPaths *paths, const char *path);
+
 
 
 /**
@@ -439,6 +451,12 @@ FUIter *fu_startmatch(const char *pattern, const FUPaths *paths);
   The returned string is owned by the iterator. It will be overwritten
   by the next call to fu_nextmatch() and should not be changed.  Use
   strdup() or strncpy() if a copy is needed.
+
+  @note
+  The iterator will not be affected by adding or deleting paths during
+  iteration.  Hence, it is safe to insert a path or delete the path
+  returned by fu_nextmatch().  But if you delete a yet non-visited path
+  it will still be visited.
  */
 const char *fu_nextmatch(FUIter *iter);
 
@@ -468,6 +486,12 @@ FUIter *fu_pathsiter_init(const FUPaths *paths, const char *pattern);
   Returns the next file or directory in the iterator `iter` created
   with fu_paths_iter_init().  NULL is returned on error or if there
   are no more file names to iterate over.
+
+  @note
+  The iterator will not be affected by adding or deleting paths during
+  iteration.  Hence, it is safe to insert a path or delete the path
+  returned by fu_pathiter_next().  But if you delete a yet non-visited
+  path it will still be visited.
  */
 const char *fu_pathsiter_next(FUIter *iter);
 
