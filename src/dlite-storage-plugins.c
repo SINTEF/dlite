@@ -136,7 +136,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     }
     if (n <= 1)
       m += asnpprintf(&buf, &size, m, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
-                      "enveronment variable(s) set?", submsg);
+                      "environment variable(s) set?", submsg);
     errx(1, "%s", buf);
     free(buf);
   }
