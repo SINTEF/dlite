@@ -85,8 +85,9 @@ jobs:
       run: echo "DLITE_VERSION=$(git describe --tags | sed 's/\([^-]*\).*/\1/')" >> $GITHUB_ENV
 
     - name: test version 2
-      run: echo ${{ env.DLITE_VERSION }}
-      run: echo "DLITE_VERSION=v${{ env.DLITE_VERSION }}"
+      run: |
+        echo ${{ env.DLITE_VERSION }}
+        echo "DLITE_VERSION=v${{ env.DLITE_VERSION }}"
 
       # If we have problems with this action, there is also another
       # popular action for publishing to GitHub Pages:
