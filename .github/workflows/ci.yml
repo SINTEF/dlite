@@ -99,7 +99,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/doc/html
         publish_branch: gh-pages
-        destination_dir: "v${{ DLITE_VERSION }}/doc"
+        destination_dir: "v${{ env.DLITE_VERSION }}/doc"
 
       #
       #uses: actions/upload-artifact@v2
