@@ -637,22 +637,17 @@ set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
   ".git/*" "${dlite_BINARY_DIR}/*" "build*/*" "dist/*" "dlite.egg-info/*")
 
 # DEB package
-set(CPACK_DEBIAN_PACKAGE_DEPENDS
-  libhdf5
-  python3
-  python3-numpy
-  librdf0
-  libraptor2
-  )
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "python3, python3-numpy, librdf0, libraptor2-dev, libhdf5-dev")
+
 
 # RPM package
 set(CPACK_RPM_PACKAGE_LICENSE "${dlite_LICENSE}")
 set(CPACK_RPM_PACKAGE_REQUIRES
-  hdf5
-  redland
-  raptor2
   python3
   python3-numpy
+  redland
+  raptor2
+  hdf5
   )
 
 # Include CPack after configuring it...
