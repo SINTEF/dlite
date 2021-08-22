@@ -82,7 +82,11 @@ jobs:
         echo "VERSION: v${{ steps.get_version.outputs.version }}"
 
     - name: set version 2
-      run: echo "DLITE_VERSION=$(git describe --tags | sed 's/\([^-]*\).*/\1/')" >> $GITHUB_ENV
+      run: |
+        echo git describe --tags
+        #echo "DLITE_VERSION=$(git describe --tags | sed 's/\([^-]*\).*/\1/')" >> $GITHUB_ENV
+        echo "DLITE_VERSION=$(sed -n '/VERSION/s/^  *VERSION  *\([0-9.]*\)$/\1/p' < CMakeLists.txt)"
+        echo "DLITE_VERSION=$(sed -n '/VERSION/s/^  *VERSION  *\([0-9.]*\)$/\1/p' < CMakeLists.txt)" >> $GITHUB_ENV
 
     - name: test version 2
       run: |
