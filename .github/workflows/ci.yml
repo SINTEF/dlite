@@ -13,9 +13,11 @@ jobs:
       run: |
         git submodule init
         git submodule update
+
     - name: Get Cmake version
       run: |
         cmake --version
+
     - name: Install dependencies
       run: |
         sudo apt-get update --fix-missing
@@ -31,15 +33,18 @@ jobs:
           python3-numpy \
           python3-yaml \
           python3-psycopg2
+
     - name: Install Python dependencies
       run: |
         pip install --upgrade pip -r requirements.txt
+
     - name: check numpy
       run: |
         which python3
         python3 --version
         pip3 --version
         python3 -c 'import numpy as np; print(np.get_include())'
+
     - name: configure
       run: |
         mkdir build
@@ -48,18 +53,33 @@ jobs:
           CFLAGS='-Wno-missing-field-initializers' \
           cmake .. -DFORCE_EXAMPLES=ON
         cd -
+
     - name: make
       run: |
         cd build
         make
         cd -
+
     - name: install
       run: |
         cd build
         make install
         cd -
-    - name: make test
+
+    - name: ctest
       run: |
         cd build
         ctest || ctest --rerun-failed --output-on-failure -V
         cd -
+
+    - name: Get version
+      uses: battila7/get-version-action@v2
+      run: echo "DLite version: ${{ uses: steps.get_version.outputs.version }}"
+
+    - name: Upload documentation to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        publish_dir: build/doc/html
+        branch: gh-pages
+        destination_dir: "v${{ steps.get_version.outputs.version-without-v }}"
