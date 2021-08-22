@@ -75,11 +75,14 @@ jobs:
     - name: Get version
       uses: battila7/get-version-action@v2
 
+      # If we have problems with this action, there is also another
+      # popular action for publishing to GitHub Pages:
+      #     JamesIves/github-pages-deploy-action@4.1.4
     - name: Upload documentation to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
-        uses: JamesIves/github-pages-deploy-action@4.1.4
         publish_dir: build/doc/html
         branch: gh-pages
         destination_dir: "v${{ steps.get_version.outputs.version-without-v }}"
-      run: echo "Publish: v${{ steps.get_version.outputs.version-without-v }}"
+      run: |
+        echo "Publish: v${{ steps.get_version.outputs.version-without-v }}"
