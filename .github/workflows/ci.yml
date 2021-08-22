@@ -75,6 +75,19 @@ jobs:
     - name: Get version
       uses: battila7/get-version-action@v2
 
+    - name: test version
+      run: |
+        echo ${{ steps.get_version.outputs.version }}
+        echo "VERSION: ${{ steps.get_version.outputs.version }}"
+        echo "VERSION: v${{ steps.get_version.outputs.version }}"
+
+    - name: set version 2
+      run: echo "DLITE_VERSION=$(git describe --tags | sed 's/\([^-]*\).*/\1/')" >> $GITHUB_ENV
+
+    - name: test version 2
+      run: echo ${{ env.DLITE_VERSION }}
+      run: echo "DLITE_VERSION=v${{ env.DLITE_VERSION }}"
+
       # If we have problems with this action, there is also another
       # popular action for publishing to GitHub Pages:
       #     JamesIves/github-pages-deploy-action@4.1.4
@@ -85,4 +98,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/doc/html
         publish_branch: gh-pages
-        destination_dir: "v${{ steps.get_version.outputs.version-without-v }}"
+        destination_dir: "v${{ DLITE_VERSION }}/doc"
+
+      #
+      #uses: actions/upload-artifact@v2
