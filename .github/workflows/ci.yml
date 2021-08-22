@@ -74,9 +74,7 @@ jobs:
 
     - name: set version
       run: |
-        #echo "DLITE_VERSION=$(sed -n '/VERSION/s/^  *VERSION  *\([0-9.]*\)$/\1/p' < CMakeLists.txt)" >> $GITHUB_ENV
-        DLITE_ROOT=$HOME/.local python3 -c 'import dlite; print(f"DLITE_VERSION={dlite.get_version()}")'
-        DLITE_ROOT=$HOME/.local python3 -c 'import dlite; print(f"DLITE_VERSION={dlite.get_version()}")' >> $GITHUB_ENV
+        echo "DLITE_VERSION=$(sed -n '/VERSION/s/^  *VERSION  *\([0-9.]*\)$/\1/p' < CMakeLists.txt)" >> $GITHUB_ENV
 
     - name: test version
       run: |
