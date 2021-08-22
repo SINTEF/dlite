@@ -74,7 +74,6 @@ jobs:
 
     - name: Get version
       uses: battila7/get-version-action@v2
-      run: echo "DLite version: ${{ uses: steps.get_version.outputs.version }}"
 
     - name: Upload documentation to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
@@ -83,3 +82,4 @@ jobs:
         publish_dir: build/doc/html
         branch: gh-pages
         destination_dir: "v${{ steps.get_version.outputs.version-without-v }}"
+      run: echo "Publish: v${{ steps.get_version.outputs.version-without-v }}"
