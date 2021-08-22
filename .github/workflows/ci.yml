@@ -84,5 +84,3 @@ jobs:
         publish_dir: build/doc/html
         branch: gh-pages
         destination_dir: "v${{ steps.get_version.outputs.version-without-v }}"
-      run: |
-        echo "Publish: v${{ steps.get_version.outputs.version-without-v }}"
