@@ -994,27 +994,27 @@ int fu_paths_extend_prefix(FUPaths *paths, const char *prefix,
 
   Returns non-zero on error.
  */
-int fu_paths_delete(FUPaths *paths, int n)
+int fu_paths_delete_index(FUPaths *paths, int index)
 {
-  if (n < -(int)(paths->n) || n >= (int)paths->n+1)
-    return err(-1, "path index out of range: %d", n);
-  if (n < 0) n += paths->n;
-  assert(paths->paths[n]);
-  free((char *)paths->paths[n]);
-  memmove((char **)paths->paths+n, paths->paths+n+1,
-          (paths->n-n)*sizeof(char **));
-  paths->n--;
+  if (index < -(int)(paths->index) || index >= (int)paths->index+1)
+    return err(-1, "path index out of range: %d", index);
+  if (index < 0) index += paths->index;
+  assert(paths->paths[index]);
+  free((char *)paths->paths[index]);
+  memmove((char **)paths->paths+index, paths->paths+index+1,
+          (paths->index-index)*sizeof(char **));
+  paths->index--;
   return 0;
 }
 
 /*
   Removes path `path`.  Returns non-zero if there is no such path.
  */
-int fu_paths_remove(FUPaths *paths, const char *path)
+int fu_paths_delete(FUPaths *paths, const char *path)
 {
   int i = fu_paths_index(paths, path);
   if (i < 0) return -1;
-  if (fu_paths_delete(paths, i)) return 1;
+  if (fu_paths_delete_index(paths, i)) return 1;
   return 0;
 }
 
