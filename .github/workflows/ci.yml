@@ -72,20 +72,11 @@ jobs:
         ctest || ctest --rerun-failed --output-on-failure -V
         cd -
 
-    - name: set version
+    - name: Set DLITE_VERSION environment variable
       run: |
         echo "DLITE_VERSION=$(sed -n '/VERSION/s/^  *VERSION  *\([0-9.]*\)$/\1/p' < CMakeLists.txt)" >> $GITHUB_ENV
 
-    - name: test version
-      run: |
-        echo ${{ env.DLITE_VERSION }}
-        echo "DLITE_VERSION=v${{ env.DLITE_VERSION }}"
-
-      # If we have problems with this action, there is also another
-      # popular action for publishing to GitHub Pages:
-      #     JamesIves/github-pages-deploy-action@4.1.4
-      #     crazy-max/ghaction-github-pages@2.5.0
-    - name: Upload documentation to GitHub Pages
+    - name: Upload doxygen-generated documentation to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
