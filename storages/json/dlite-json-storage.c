@@ -29,15 +29,22 @@ typedef struct {
 
 
 /** Returns default mode:
-    - 'w': if `uri` if we can't open uri
+    - 'w': if we can't open `uri`
     - 'a': if `uri` is in data format
     - 'r': otherwise
 */
 static int default_mode(const char *uri)
 {
-  int mode;
+  int mode, stat;
   JStore *js = jstore_open();
-  if (jstore_update_from_file(js, uri))
+
+  ErrTry:
+    stat = jstore_update_from_file(js, uri);
+  ErrCatch(1):
+    break;
+  ErrEnd;
+
+  if (stat)
     mode = 'w';
   else
     mode = (jstore_get(js, "properties")) ? 'r' : 'a';
