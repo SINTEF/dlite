@@ -16,12 +16,12 @@ MU_TEST(test_load)
 {
   char *url = "blob://" STRINGIFY(CURRENT_SOURCE_DIR) "/test_blob_storage.c";
   inst = dlite_instance_load_url(url);
+  mu_check(inst);
 }
 
 MU_TEST(test_save)
 {
   char *url = "blob://" STRINGIFY(CURRENT_BINARY_DIR) "/blob-output.c?mode=w";
-  mu_check(inst);
   int stat = dlite_instance_save_url(url, inst);
   mu_assert_int_eq(0, stat);
 }
