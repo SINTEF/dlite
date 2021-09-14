@@ -12,7 +12,6 @@ class blob(DLiteStorageBase):
 
     def open(self, uri, options=None):
         """Opens `uri`."""
-        self.options = Options(options, defaults='')
         self.uri = uri
 
     def close(self):
