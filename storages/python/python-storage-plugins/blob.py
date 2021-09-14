@@ -3,22 +3,15 @@ as a binary blob.
 
 The generated entity has no dimensions and one property called "content".
 """
+import numpy as np
 import dlite
-from dlite.options import Options
-from dlite.utils import instance_from_dict
 
 
 class blob(DLiteStorageBase):
     """DLite storage plugin for binary blobs."""
 
     def open(self, uri, options=None):
-        """Opens `uri`.
-
-        Options
-        -------
-        id: string
-            Explicit id of returned instance if reading.  Optional
-        """
+        """Opens `uri`."""
         self.options = Options(options, defaults='')
         self.uri = uri
 
@@ -30,21 +23,9 @@ class blob(DLiteStorageBase):
         """Loads `uuid` from current storage and return it as a new instance."""
         with open(self.uri, 'rb') as f:
             content = f.read()
-        Meta = instance_from_dict({
-            'meta': 'http://onto-ns.com/meta/0.3/EntitySchema',
-            'uri': 'http://onto-ns.com/meta/0.1/Blob',
-            'description': 'Entity representing a single binary blob.',
-            'dimensions': [],
-            'properties': [
-                {
-                    'name': 'content',
-                    'type': 'blob%d' % len(content),
-                    'description': 'Content of the binary blob.'
-                }
-            ]
-        })
-        inst = Meta(dims=(), id=self.options.get('id'))
-        inst.content = content
+        meta = dlite.get_instance('http://onto-ns.com/meta/0.1/Blob')
+        inst = meta(dims=[len(content)])
+        inst.content = np.frombuffer(content, dtype='uint8')
         return inst
 
     def save(self, inst):
