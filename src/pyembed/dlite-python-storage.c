@@ -140,12 +140,12 @@ int dlite_python_storage_paths_append(const char *path)
   Removes path index `n` to Python storage paths.
   Returns non-zero on error.
 */
-int dlite_python_storage_paths_delete(int n)
+int dlite_python_storage_paths_remove_index(int index)
 {
   int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_storage_paths())) return -1;
-  if ((stat = fu_paths_delete((FUPaths *)paths, n))) {
+  if ((stat = fu_paths_remove_index((FUPaths *)paths, index))) {
     PythonStorageGlobals *g = get_globals();
     g->modified = 1;
   }

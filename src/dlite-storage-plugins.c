@@ -301,11 +301,11 @@ int dlite_storage_plugin_path_appendn(const char *path, size_t n)
 
   Returns non-zero on error.
 */
-int dlite_storage_plugin_path_delete_index(int index)
+int dlite_storage_plugin_path_remove_index(int index)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_path_delete_index(info, index);
+  return plugin_path_remove_index(info, index);
 }
 
 /*
@@ -313,9 +313,9 @@ int dlite_storage_plugin_path_delete_index(int index)
 
   Returns non-zero if there is no such path.
 */
-int dlite_storage_plugin_path_delete(const char *path)
+int dlite_storage_plugin_path_remove(const char *path)
 {
   PluginInfo *info;
   if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_path_delete(info, path);
+  return plugin_path_remove(info, path);
 }

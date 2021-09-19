@@ -331,10 +331,10 @@ int dlite_storage_paths_append(const char *path)
 
   Returns non-zero on error.
  */
-int dlite_storage_paths_delete_index(int index)
+int dlite_storage_paths_remove_index(int index)
 {
   FUPaths *paths = dlite_storage_paths();
-  return fu_paths_delete_index(paths, index);
+  return fu_paths_remove_index(paths, index);
 }
 
 /*

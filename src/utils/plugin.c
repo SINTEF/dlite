@@ -504,19 +504,19 @@ int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
 
   Returns non-zero on error.
  */
-int plugin_path_delete_index(PluginInfo *info, int index)
+int plugin_path_remove_index(PluginInfo *info, int index)
 {
-  return fu_paths_delete_index(&info->paths, index);
+  return fu_paths_remove_index(&info->paths, index);
 }
 
 /*
   Removes path `path`.  Returns non-zero if there is no such path.
  */
-int plugin_path_delete(PluginInfo *info, const char *path)
+int plugin_path_remove(PluginInfo *info, const char *path)
 {
   int i = plugin_path_index(info, path);
   if (i < 0) return i;
-  return plugin_path_delete_index(info, i);
+  return plugin_path_remove_index(info, i);
 }
 
 /*
