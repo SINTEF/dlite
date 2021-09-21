@@ -78,6 +78,8 @@ foreach(test ${tests})
     string(REPLACE ";" "\\\\\;" dlite_PATH_NATIVE_WINSEP "${dlite_PATH_NATIVE};$ENV{PATH}")
     set_property(TEST ${test} PROPERTY
       ENVIRONMENT "PATH=${dlite_PATH_NATIVE_WINSEP}")
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
   else()
     set_property(TEST ${test} PROPERTY
       ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")

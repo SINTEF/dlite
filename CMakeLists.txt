@@ -236,6 +236,9 @@ if(WITH_PYTHON)
 
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+  message(STATUS "Python Runtime Library Dirs: ${Python3_RUNTIME_LIBRARY_DIRS}")
+  message(STATUS "Python Interpreter ID: ${Python3_INTERPRETER_ID}")
+
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
