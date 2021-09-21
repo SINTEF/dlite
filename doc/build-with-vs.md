@@ -1,11 +1,12 @@
 Build with Visual Studio
 ========================
 
-1. Install Visual Studio 15 2017 or Visual Studio 16 2019 with the
+1. Install "Visual Studio 15 2017" and/or "Visual Studio 16 2019"" with the
    C/C++ components and cmake.
    
-   In case you want Python-bindings, use "Visual Studio 15 2017" for Python>=3.7. For older versions
-   of Python see the correct versions here: [pythonwindows]
+   In case you want Python-bindings, use "Visual Studio 15 2017" for Python>=3.7. Otherwise,
+   you are betting on binary compatibility between compiler versions. For older versions
+   of Python see the correct compiler to use here: [pythonwindows]
 
 2. (Optional) Install SWIG in case you want to build Python-bindings as described
    here [swig]. Add the swig-executable to your windows PATH
@@ -24,7 +25,13 @@ Build with Visual Studio
 
 4. git clone dlite to a directory of your choice
 
-5. Build from the Windows commandline
+5. Build and test
+
+5.1. Build from the Windows commandline
+
+   When building with Python support, this will build against your default Python.
+   Make sure you have the following Python packages installed: numpy, pyyaml, pandas, psycopg2
+   Use `py -0p` to check the Python default.
 
    $ mkdir .\out\build\x64-Release-vs15
    $ cd .\out\build\x64-Release-vs15
@@ -33,14 +40,16 @@ Build with Visual Studio
            -DWITH_DOC=OFF ^
            -DWITH_HDF5=OFF ^
            -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ^
-           -DCMAKE_INSTALL_PREFIX:PATH="%CD%\..\..\install\x64-Release" ^
+           -DCMAKE_INSTALL_PREFIX:PATH="%CD%\..\..\install\x64-Release-vs15" ^
            ..\..\..
 
     $ cmake --build . --config Release
     $ cmake --install .
     $ ctest -C Release
 
-6. (Alternative) Build from Visual Studio
+5.2 Build from Visual Studio
+
+   When building with Python support, this will again build against your default Python.
 
    Open the dlite directory with Visual Studio, it will be recognized as a CMake project.
    Add a CMakeSettings.json file with the following minimum contents:
@@ -65,6 +74,26 @@ Build with Visual Studio
     * Right click on the top-level "CMakeLists.txt" -> "Build"
     * Right click on the top-level "CMakeLists.txt" -> "Run Tests"
 
+7. Build against Python in a virtual environment (Recommended)
+
+   This example uses Anaconda Python and conda environemnts.
+
+   $ conda create --name=py38dlite python=3.8 numpy pyyaml pandas psycopg2
+   $ conda activate py38dlite
+
+   $ mkdir .\out\build\x64-Release-vs15
+   $ cd .\out\build\x64-Release-vs15
+   $ cmake -G "Visual Studio 15 2017" ^
+           -A x64 ^
+           -DWITH_DOC=OFF ^
+           -DWITH_HDF5=OFF ^
+           -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ^
+           -DCMAKE_INSTALL_PREFIX:PATH="%CD%\..\..\install\x64-Release-vs15" ^
+           ..\..\..
+
+    $ cmake --build . --config Release
+    $ cmake --install .
+    $ ctest -C Release
 
 [cmake]: https://cmake.org/download/
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
