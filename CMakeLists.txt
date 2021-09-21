@@ -110,6 +110,11 @@ if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
 endif()
 
+# Fix utf-8 handling for MSVC: Force utf-8 encoded source-code files
+if(MSVC)
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+endif()
 
 # Uncomment the lines below to compile with AddressSanitizer
 #set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
