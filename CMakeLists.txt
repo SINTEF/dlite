@@ -488,6 +488,7 @@ list(REMOVE_DUPLICATES dlite_TEMPLATES)
 # DLITE_STORAGES - DLite storages (inc. metadata)
 set(dlite_STORAGES
   ${dlite_SOURCE_DIR}/examples/storages/*.json
+  ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/*.json
   )
 list(REMOVE_DUPLICATES dlite_STORAGES)
 

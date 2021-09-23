@@ -43,6 +43,13 @@ install(
   DIRECTORY python-storage-plugins
   DESTINATION share/dlite
   PATTERN "*~" EXCLUDE
-)
+  )
+
+install(
+  FILES
+    python-storage-plugins/blob.json
+  DESTINATION share/dlite/storages
+  )
+
 # tests
 add_subdirectory(tests)
