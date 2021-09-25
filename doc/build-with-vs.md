@@ -1,15 +1,15 @@
 Build with Visual Studio
 ========================
 
-1. Install Visual Studio 15 2017 or Visual Studio 16 2019 with the
+1. Install Visual Studio 14 2015, Visual Studio 15 2017 or Visual Studio 16 2019 with the
    C/C++ components and cmake.
-   
+
    In case you want Python-bindings, use "Visual Studio 15 2017" for Python>=3.7. For older versions
    of Python see the correct versions here: [pythonwindows]
 
 2. (Optional) Install SWIG in case you want to build Python-bindings as described
    here [swig]. Add the swig-executable to your windows PATH
-   
+
 3. (Optional) Check versions
 
    $ swig -version
@@ -56,7 +56,7 @@ Build with Visual Studio
           "cmakeCommandArgs": "-DWITH_DOC=OFF -DWITH_HDF5=OFF",
           "buildCommandArgs": "",
           "inheritEnvironments": [ "msvc_x64_x64" ]
-        },
+        }
       ]
     }
 
