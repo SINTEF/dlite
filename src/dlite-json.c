@@ -831,9 +831,18 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
     jsmntok_t *t = tokens + 1;
     int i;
     for (i=0; i < tokens->size; i++) {
-      jsmntok_t *v = t+1;
-      if (dlite_get_uuidn(uuid, src + t->start, t->end - t->start) < 0)
+      jsmntok_t *v = t + 1;
+
+      /* if `id` is not an uuid, add it as a label associated with uuid to the
+         jstore */
+      const char *id = src + t->start;
+      int len = t->end - t->start;
+      int uuidver = dlite_get_uuidn(uuid, id, len);
+      if (uuidver < 0)
         goto fail;
+      else if (uuidver > 0)
+        jstore_set_labeln(js, uuid, id, len);
+
       if (jstore_addn(js, uuid, DLITE_UUID_LENGTH,
                       src + v->start, v->end - v->start)) goto fail;
       t += jsmn_count(v) + 2;
