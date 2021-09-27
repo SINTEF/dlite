@@ -1,0 +1,21 @@
+{
+  "name": "Blob",
+  "version": "0.1",
+  "namespace": "http://onto-ns.com/meta",
+  "description": "Entity representing a single binary blob.",
+  "dimensions": [
+    {
+      "name": "n",
+      "description": "Size of blob."
+    }
+  ],
+  "properties": [
+    {
+      "name": "content",
+      "type": "uint8",
+      "dims": ["n"],
+      "unit": "bytes",
+      "description": "Content of the binary blob."
+    }
+   ]
+}

@@ -2,6 +2,7 @@
 
 external
 build*
+install*
 dist
 local
 jansson

@@ -14,11 +14,16 @@
 
 set(tests
   test_yaml_storage
+  test_blob_storage
   test_postgresql_storage
   test_postgresql_storage2
   )
 
-add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
+add_definitions(
+  -DDLITE_ROOT=${dlite_SOURCE_DIR}
+  -DCURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+  -DCURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+  )
 
 include(FindPythonModule)
 
@@ -71,21 +76,29 @@ foreach(test ${tests})
 
   add_test(
     NAME ${test}
-    COMMAND ${test}
+    COMMAND ${RUNNER} ${test}
     )
 
-  set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+  if (MSVC)
+    string(REPLACE ";" "\\\\\;" dlite_PATH_NATIVE_WINSEP "${dlite_PATH_NATIVE};$ENV{PATH}")
+    set_property(TEST ${test} PROPERTY
+      ENVIRONMENT "PATH=${dlite_PATH_NATIVE_WINSEP}")
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
+  else()
+    set_property(TEST ${test} PROPERTY
+      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+  endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
-  set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json")
+    ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json|${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/*.json")
 
 endforeach()
 
