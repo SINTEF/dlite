@@ -27,11 +27,8 @@ import os
 from pathlib import Path
 import numpy as np
 
-def basepath(path):
-    return Path(os.path.splitdrive(path)[1])
-
-incdir = basepath(np.get_include())
-coredir = basepath(np.__file__).parent / 'core'
+incdir = Path(np.get_include())
+coredir = Path(np.__file__).parent / 'core'
 
 print(np.version.version)
 print(incdir.as_posix())

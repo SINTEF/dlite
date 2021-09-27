@@ -72,8 +72,10 @@ if(WITH_JSON)
       ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+    if (NOT WIN32)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+    endif()
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
 

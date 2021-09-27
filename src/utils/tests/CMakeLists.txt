@@ -56,8 +56,10 @@ foreach(test ${tests})
     )
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+  if (NOT WIN32)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+  endif()
 
 endforeach()
 
