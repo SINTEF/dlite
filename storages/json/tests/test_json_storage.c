@@ -45,7 +45,7 @@ MU_TEST(test_load)
 MU_TEST(test_load2)
 {
   int stat;
-  char *url = STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json"
+  char *url = "json://" STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json"
     "#dlite/1/test-c";
   printf("\n--- test_load2: %s ---\n", url);
 
@@ -71,7 +71,7 @@ MU_TEST(test_load3)
 MU_TEST(test_load4)
 {
   int stat;
-  char *url = STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json#dlite/1/A";
+  char *url = "json://" STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json#dlite/1/A";
   printf("\n--- test_load4: %s ---\n", url);
 
   DLiteInstance *inst2 = dlite_instance_load_url(url);
@@ -82,7 +82,7 @@ MU_TEST(test_load4)
 
 MU_TEST(test_load_data3)
 {
-  char *url = STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json#data3";
+  char *url = "json://" STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json#data3";
   printf("\n--- test_load_data3: %s ---\n", url);
 
   data3 = dlite_instance_load_url(url);
@@ -151,7 +151,7 @@ MU_TEST(test_iter)
     DLiteInstance *inst2 = dlite_instance_load(s, uuid);
     mu_check(inst2);
     dlite_json_print(inst2);
-    dlite_instance_decref(inst2);
+    //dlite_instance_decref(inst2);
     n++;
   }
   mu_assert_int_eq(1, r);

@@ -468,8 +468,10 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
     /* -- infer name, version and namespace */
     if (dlite_instance_is_meta(inst)) {
-      if (dlite_split_meta_uri((uri) ? uri : id, &name, &version, &namespace))
-        FAIL1("cannot infer name, version and namespace from id: %s", id);
+      if (uri && dlite_split_meta_uri(uri, &name, &version, &namespace))
+        FAIL1("cannot infer name, version and namespace from uri '%s'", uri);
+      if (!name && id && dlite_split_meta_uri(id, &name, &version, &namespace))
+        FAIL1("cannot infer name, version and namespace from id '%s'", id);
     }
 
     /* -- assign uri */
