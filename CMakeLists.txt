@@ -236,11 +236,17 @@ if(WITH_PYTHON)
 
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-  message(STATUS "Python Runtime Library Dirs: ${Python3_RUNTIME_LIBRARY_DIRS}")
-  message(STATUS "Python Interpreter ID: ${Python3_INTERPRETER_ID}")
-
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
+
+  if (WIN32)
+    # Prepare to workaround Anaconda issues on Windows
+    # https://github.com/pytorch/pytorch/issues/17051
+    # https://github.com/ContinuumIO/anaconda-issues/issues/11374
+    include(FindPythonAnaconda)
+    # PYTHON_IS_ANACONDA
+    # PYTHON_IS_ANACONDA_BASE
+  endif()
 
   # On mingw, python depends on libffi
   find_library(ffi ffi)
@@ -387,6 +393,10 @@ if(WIN32)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
     list(APPEND dlite_PATH ${Python3_RUNTIME_LIBRARY_DIRS})
     list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
+    if (WIN32 AND PYTHON_IS_ANACONDA)
+      # Fix dll search path for Anaconda on Windows
+      list(APPEND dlite_PATH "${Python3_RUNTIME_LIBRARY_DIRS}\\Library\\bin")
+    endif()
   endif()
   if(WITH_FORTRAN)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/bindings/fortran)
@@ -491,7 +501,6 @@ list(REMOVE_DUPLICATES dlite_TEMPLATES)
 # DLITE_STORAGES - DLite storages (inc. metadata)
 set(dlite_STORAGES
   ${dlite_SOURCE_DIR}/examples/storages/*.json
-  ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/*.json
   )
 list(REMOVE_DUPLICATES dlite_STORAGES)
 
@@ -520,6 +529,16 @@ make_platform_paths(
     dlite_MAPPING_PLUGINS
   #PATHSEP0
   )
+
+set(dlite_PATH_NATIVE1 "")
+foreach(path ${dlite_PATH})
+  list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
+endforeach()
+if(WIN32)
+  string(REPLACE ";" "\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
+else()
+  string(REPLACE ";" ":" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
+endif()
 
 # Note, DLITE_STORAGES uses "|" as separator on all systems
 string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
