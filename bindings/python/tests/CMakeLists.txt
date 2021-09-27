@@ -19,18 +19,14 @@ foreach(test ${tests})
     COMMAND ${RUNNER} ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test}.py
     )
 
-  if (MSVC)
-    string(REPLACE ";" "\\\\\;" dlite_PATH_NATIVE_WINSEP "${dlite_PATH_NATIVE};$ENV{PATH}")
-    set_property(TEST ${name} PROPERTY
-      ENVIRONMENT "PATH=${dlite_PATH_NATIVE_WINSEP}")
-  else()
-    set_property(TEST ${name} PROPERTY
-      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
-    set_property(TEST ${name} APPEND PROPERTY
-      ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
-  endif()
+  set_property(TEST ${name} PROPERTY
+    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+  if (NOT WIN32)
+  set_property(TEST ${name} APPEND PROPERTY
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+  endif()
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
 
