@@ -4,8 +4,14 @@ Build with Visual Studio
 1. Install Visual Studio 14 2015, Visual Studio 15 2017 or Visual Studio 16 2019 with the
    C/C++ components and cmake.
 
-   In case you want Python-bindings, use "Visual Studio 15 2017" for Python>=3.7. For older versions
-   of Python see the correct versions here: [pythonwindows]
+   In case you want Python-bindings, make sure to use a "Visual Studio" version
+   that generates dlite-libraries which are compatible to the Python version you are using.
+   For Python>=3.5, any of the above versions will work: See [mscompilers] for a discussion on
+   binary compatibilty between Visual Studio compiler versions. For older versions of Python see
+   the correct versions here: [pythonwindows].
+
+   In the examples below, we use "Visual Studio 15 2017" which is the compiler version with which
+   Python>=3.7 is build on Windows.
 
 2. (Optional) Install SWIG in case you want to build Python-bindings as described
    here [swig]. Add the swig-executable to your windows PATH
@@ -70,3 +76,5 @@ Build with Visual Studio
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
 [swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/
 [pythonwindows]: https://pythondev.readthedocs.io/windows.html
+[mscompilers] https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
+
