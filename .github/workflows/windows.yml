@@ -50,6 +50,6 @@ jobs:
       working-directory: build
 
     - name: Test
-      run: ctest -C Release
+      run: ctest -C Release -VV
       working-directory: build
 
