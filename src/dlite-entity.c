@@ -756,10 +756,16 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   assert(url);
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
-  if (id && *id && (inst = _instance_store_get(id))) {
-    dlite_instance_incref(inst);
+
+ ErrTry:
+  if (id && *id) inst = _instance_store_get(id);
+ ErrOther:
+  err_clear();
+ ErrEnd;
+
+ if (inst) {
+   dlite_instance_incref(inst);
   } else {
-    err_clear();
     if (!(s = dlite_storage_open(driver, location, options))) goto fail;
     if (!(inst = dlite_instance_load(s, id))) goto fail;
   }

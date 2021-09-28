@@ -15,7 +15,8 @@
 
 /* JSON store */
 struct _JStore {
-  map_str_t store;
+  map_str_t store;       // maps keys to json content
+  map_str_t labels;      // maps keys to associated label
 };
 
 
@@ -98,6 +99,7 @@ JStore *jstore_open(void)
   JStore *js = calloc(1, sizeof(JStore));
   if (!js) return err(1, "allocation failure"), NULL;
   map_init(&js->store);
+  map_init(&js->labels);
   return js;
 }
 
@@ -105,6 +107,7 @@ JStore *jstore_open(void)
 int jstore_close(JStore *js)
 {
   const char *key;
+
   map_iter_t miter = map_iter(&js->store);
   while ((key = map_next(&js->store, &miter))) {
     char **val = map_get(&js->store, key);
@@ -112,6 +115,15 @@ int jstore_close(JStore *js)
     free(*val);
   }
   map_deinit(&js->store);
+
+  map_iter_t liter = map_iter(&js->labels);
+  while ((key = map_next(&js->labels, &liter))) {
+    char **val = map_get(&js->labels, key);
+    assert(val);
+    free(*val);
+  }
+  map_deinit(&js->labels);
+
   free(js);
   return 0;
 }
@@ -317,4 +329,47 @@ int jstore_iter_deinit(JStoreIter *iter)
 {
   (void)(iter);  // unused
   return 0;
+}
+
+
+/* Associate `label` with `key`.  If `len` is non-negative, it is the
+   length of `label`; otherwise `label` is assumed to be NUL-terminated.
+   If `key` already has a label, the old label is replaced.
+   Returns non-zero on error. */
+int jstore_set_labeln(JStore *js, const char *key, const char *label, int len)
+{
+  char **p, *s;
+  int stat;
+  if ((p = map_get(&js->labels, key))) free(*p);
+
+  if (len > 0)
+    s = strndup(label, len);
+  else if (len == 0)
+    s = strdup("");
+  else
+    s = strdup(label);
+  if (!s) return err(1, "allocation failure");
+
+  if ((stat = map_set(&js->labels, key, s))) {
+    errx(2, "error associating label '%s' to key '%s'", s, key);
+    free(s);
+  }
+  return stat;
+}
+
+/* Associate `label` with `key`.
+   If `key` already has a label, the old label is replaced.
+   Returns non-zero on error. */
+int jstore_set_label(JStore *js, const char *key, const char *label)
+{
+  return jstore_set_labeln(js, key, label, -1);
+}
+
+/* Returns a pointer to label associated with `key` or NULL if `key` has no
+   associated label. */
+const char *jstore_get_label(JStore *js, const char *key)
+{
+  char **p = map_get(&js->labels, key);
+  if (!p) return NULL;
+  return (const char *)*p;
 }

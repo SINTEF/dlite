@@ -1,5 +1,6 @@
 # -*- Mode: cmake -*-
-#
+project(dlite-src-tests C)
+
 
 set(tests
   test_misc
