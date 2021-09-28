@@ -89,8 +89,10 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
       ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
-    set_property(TEST ${name} APPEND PROPERTY
+    if(NOT WIN32)
+      set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+    endif()
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
     set_property(TEST ${name} PROPERTY
