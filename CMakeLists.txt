@@ -244,8 +244,15 @@ if(WITH_PYTHON)
     # https://github.com/pytorch/pytorch/issues/17051
     # https://github.com/ContinuumIO/anaconda-issues/issues/11374
     include(FindPythonAnaconda)
-    # PYTHON_IS_ANACONDA
-    # PYTHON_IS_ANACONDA_BASE
+    if (PYTHON_IS_ANACONDA)
+      if (PYTHON_IS_ANACONDA_BASE)
+        message(STATUS "Check Anaconda on Windows: Python3 is Anaconda - Root environment.")
+      else()
+        message(STATUS "Check Anaconda on Windows: Python3 is Anaconda - Virtual Environment.")
+      endif()
+    else()
+      message(STATUS "Check Anaconda on Windows: Python3 is NOT Anaconda.")
+    endif()
   endif()
 
   # On mingw, python depends on libffi
@@ -410,7 +417,7 @@ if(WIN32)
     list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
     if (WIN32 AND PYTHON_IS_ANACONDA)
       # Fix dll search path for Anaconda on Windows
-      list(APPEND dlite_PATH "${Python3_RUNTIME_LIBRARY_DIRS}\\Library\\bin")
+      list(APPEND dlite_PATH "${Python3_RUNTIME_LIBRARY_DIRS}/Library/bin")
     endif()
   endif()
   if(WITH_FORTRAN)
