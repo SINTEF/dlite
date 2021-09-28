@@ -12,8 +12,8 @@
 #define dlite_INSTALL_ROOT           "@CMAKE_INSTALL_PREFIX@"
 
 /* hardcoded paths in build tree */
-#define dlite_STORAGE_PLUGINS        "@dlite_STORAGE_PLUGINS_NATIVE@"
-#define dlite_MAPPING_PLUGINS        "@dlite_MAPPING_PLUGINS_NATIVE@"
+#define dlite_STORAGE_PLUGINS        "@dlite_STORAGE_PLUGINS@"
+#define dlite_MAPPING_PLUGINS        "@dlite_MAPPING_PLUGINS@"
 #define dlite_PYTHON_STORAGE_PLUGINS "@dlite_PYTHON_STORAGE_PLUGINS_NATIVE@"
 #define dlite_PYTHON_MAPPING_PLUGINS "@dlite_PYTHON_MAPPING_PLUGINS_NATIVE@"
 #define dlite_TEMPLATES              "@dlite_TEMPLATES_NATIVE@"
