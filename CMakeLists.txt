@@ -363,6 +363,21 @@ endif()
 # Environment for running tests in build tree
 # -------------------------------------------
 
+# Name of all targets that produce a DLL that we have to take special
+# care of on Windows
+set(dll_targets
+  dlite
+  dlite-utils
+  dlite-plugins-json
+  dlite-plugins-python
+  )
+if(WITH_HDF5)
+  list(APPEND targets dlite-plugins-python)
+endif()
+if(WITH_REDLAND)
+  list(APPEND targets dlite-plugins-rdf)
+endif()
+
 # Macro that appends build directories `dirs` to list `lst`
 #
 # Usage: build_append(<var> dirs...)
@@ -529,6 +544,19 @@ make_platform_paths(
     dlite_MAPPING_PLUGINS
   #PATHSEP0
   )
+
+# Workaround for cross-compiling for Windows on Linux using MinGW.
+# Some paths in ${dlite_PATH} may start with "Z:/" which the
+# $<SHELL_PATH:...> generator expression complains about being a
+# relative path.  To fix this, we strip off the initial "Z:".
+if(CROSS_TARGET AND MINGW)
+  set(paths "")
+  foreach(path ${dlite_PATH})
+    string(REGEX REPLACE "^[A-Z]:(/.*)" "\\1" out ${path})
+    list(APPEND paths ${out})
+  endforeach()
+  set(dlite_PATH ${paths})
+endif()
 
 set(dlite_PATH_NATIVE1 "")
 foreach(path ${dlite_PATH})
