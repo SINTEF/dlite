@@ -565,12 +565,32 @@ if(CROSS_TARGET AND MINGW)
   set(dlite_PATH ${paths})
 endif()
 
+#set(dlite_STORAGE_PLUGIN1 "")
+#foreach(path ${dlite_PATH})
+#  list(APPEND dlite_STORAGE_PLUGIN1 $<SHELL_PATH:${path}>)
+#endforeach()
+#if(WIN32)
+#  string(REPLACE ";" "\;" dlite_STORAGE_PLUGIN "${dlite_STORAGE_PLUGIN1}")
+#else()
+#  string(REPLACE ";" ":" dlite_STORAGE_PLUGIN "${dlite_STORAGE_PLUGIN1}")
+#endif()
+#
+#set(dlite_MAPPING_PLUGIN1 "")
+#foreach(path ${dlite_PATH})
+#  list(APPEND dlite_MAPPING_PLUGIN1 $<SHELL_PATH:${path}>)
+#endforeach()
+#if(WIN32)
+#  string(REPLACE ";" "\;" dlite_MAPPING_PLUGIN "${dlite_MAPPING_PLUGIN1}")
+#else()
+#  string(REPLACE ";" ":" dlite_MAPPING_PLUGIN "${dlite_MAPPING_PLUGIN1}")
+#endif()
+
 set(dlite_PATH_NATIVE1 "")
 foreach(path ${dlite_PATH})
   list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
 endforeach()
 if(WIN32)
-  string(REPLACE ";" "\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
+  string(REPLACE ";" "\\\\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
 else()
   string(REPLACE ";" ":" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
 endif()
@@ -585,7 +605,9 @@ string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
 # Add target "show" for showing test environment
 set(test_env
   "========== Test environment ========="
+  "export DLITE_ROOT=${DLITE_ROOT}"
   "export PATH=${dlite_PATH}"
+  "dlite_PATH_NATIVE=${dlite_PATH_NATIVE}"
   "export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}"
   "export PYTHONPATH=${dlite_PYTHONPATH}"
   "export DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
