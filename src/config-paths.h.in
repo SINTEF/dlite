@@ -6,7 +6,7 @@
 #define dlite_PATH                   "@dlite_PATH@"
 #define dlite_PATH_EXTRA             "@dlite_PATH_EXTRA@"
 #define dlite_LD_LIBRARY_PATH        "@dlite_LD_LIBRARY_PATH_NATIVE@"
-#define dlite_PYTHONPATH             "@dlite_PYTHONPATH@"
+#define dlite_PYTHONPATH             "@dlite_PYTHONPATH_NATIVE@"
 
 #define dlite_BUILD_ROOT             "@dlite_BUILD_ROOT_NATIVE@"
 #define dlite_INSTALL_ROOT           "@CMAKE_INSTALL_PREFIX@"
