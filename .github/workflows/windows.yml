@@ -42,11 +42,11 @@ jobs:
       run: mkdir build
 
     - name: Use cmake
-      run: cmake -A x64 -DWITH_DOC=OFF -DWITH_HDF5=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release" .. || true
+      run: cmake -A x64 -DWITH_DOC=OFF -DWITH_HDF5=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ..
       working-directory: build
 
     - name: Build
-      run: cmake --build . --config Release
+      run: cmake --build . --config Release || true
       working-directory: build
 
     - name: Test
