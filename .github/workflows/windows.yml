@@ -46,10 +46,10 @@ jobs:
       working-directory: build
 
     - name: Build
-      run: cmake --build . --config Release || true
+      run: |
+        echo "$HOME/build/tools/Release" >> $GITHUB_PATH
+        cmake --build . --config Release || true
       working-directory: build
-      with:
-        path: "tools/Release"
 
     - name: Check dlite config settings
       run: cmake --build . --config Release --target show || true
