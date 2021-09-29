@@ -49,7 +49,7 @@ jobs:
       run: cmake --build . --config Release || true
       working-directory: build
       with:
-        path: "tools\Release"
+        path: "tools/Release"
 
     - name: Check dlite config settings
       run: cmake --build . --config Release --target show || true
