@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 
 # For Anaconda Python on Windows, it is sufficient to set the PATH before
 # calling Python so that _dlite.pyd can find and load the DLLs it depends on.
@@ -45,5 +46,10 @@ if (sys.platform == 'win32') and (not is_conda):
     del AddDllDirectory
 
 
+# FIXME: Do we need this variable to be set or can we live without this?
+if 'DLITE_ROOT' not in os.environ:
+    os.environ['DLITE_ROOT']=Path(__file__).parent.resolve().as_posix()
+
 from .dlite import *  # noqa: F401, F403
 from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
+

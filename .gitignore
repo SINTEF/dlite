@@ -23,3 +23,6 @@ CMakeLists.txt.user
 
 # A convenient directory to place temporary stuff
 old
+
+out
+/dlite_python.egg-info

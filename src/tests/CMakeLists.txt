@@ -56,7 +56,7 @@ foreach(test ${tests})
     )
 
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
   if (WIN32 AND PYTHON_IS_ANACONDA)
