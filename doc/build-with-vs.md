@@ -107,6 +107,13 @@ Build with Visual Studio
    $ cd python
    $ python setup.py install
 
+   # Or use the following
+   $ conda create --name=py38dlite python=3.8
+   $ conda activate py38dlite
+   $ cd python
+   # --use-feature=in-tree-build is requred for pip < 21.3. for pip >= 21.3 it will become the default.
+   $ pip --use-feature=in-tree-build install .
+
 [cmake]: https://cmake.org/download/
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
 [swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/
