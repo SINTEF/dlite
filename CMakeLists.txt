@@ -56,15 +56,15 @@ DLite is released under the MIT license.
 ")
 
 # Options
-option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
-option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
-option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
-option(WITH_JSON        "Whether to build with JSON support"             ON)
-option(WITH_REDLAND     "Whether to build with Redland (if available)"   ON)
-option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
-option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
-option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
-option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
+option(WITH_PYTHON      "Whether to build Python 3 bindings"                ON)
+option(WITH_FORTRAN     "Whether to build Fortran bindings"                OFF)
+option(WITH_HDF5        "Whether to build with HDF5 support"                ON)
+option(WITH_JSON        "Whether to build with JSON support"                ON)
+option(WITH_REDLAND     "Whether to build with RDF support (using librdf)"  ON)
+option(WITH_DOC         "Whether to build documentation using doxygen"      ON)
+option(WITH_EXAMPLES    "Whether to build/run examples during testing"      ON)
+option(FORCE_EXAMPLES   "Whether to force building/running examples"       OFF)
+option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      OFF)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
