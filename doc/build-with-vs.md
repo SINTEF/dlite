@@ -99,6 +99,7 @@ Build with Visual Studio
     $ cmake --build . --config Release
     $ cmake --install .
     $ ctest -C Release
+
 [cmake]: https://cmake.org/download/
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
 [swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/
