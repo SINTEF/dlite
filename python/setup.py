@@ -61,7 +61,7 @@ class CMakeExtension(Extension):
         """
         super().__init__(name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
-        self.python_package_dir=python_package_dir
+        self.python_package_dir = python_package_dir
 
 
 class CMakeBuildExt(build_ext):
@@ -89,7 +89,7 @@ class CMakeBuildExt(build_ext):
         cmake_args.extend(CMAKE_ARGS)
 
         env = os.environ.copy()
-        Path(self.build_temp).mkdir(exist_ok = True)
+        Path(self.build_temp).mkdir(exist_ok=True)
 
         print("Cmake>\n" + " ".join(cmake_args) + "\n")
         subprocess.check_call(cmake_args, cwd=self.build_temp, env=env)
@@ -100,11 +100,17 @@ class CMakeBuildExt(build_ext):
         )
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         dir_util.copy_tree(
-            str(cmake_bdist_dir / ext.name ), str(Path(output_dir) / ext.name )
+            str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
 
 
-requirements = ["numpy", "PyYAML", "psycopg2-binary", "pandas", "tables"]
+requirements = [
+    "fortran-language-server",
+    "numpy",
+    "PyYAML",
+    "psycopg2-binary",
+    "pandas",
+]
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
