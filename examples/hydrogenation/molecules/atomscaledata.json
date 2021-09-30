@@ -1,0 +1,51 @@
+{
+  "328ee02f-39c6-4746-a6c4-bd5a6cfb4793":   {
+    "meta": "http://sintef.no/meta/soft/0.1/Molecule",
+    "dimensions": {
+      "natoms": 6,
+      "ncoords": 3
+    },
+    "properties": {
+      "positions": [[-1.64114, 1.11889, -0.05022], [-0.40366, 0.63951, 0.05011], [-2.15239, 1.12517, -1.00794], [-2.15239, 1.50868, 0.82462], [0.10759, 0.24972, -0.82473], [0.10759, 0.63323, 1.00783]],
+      "symbols": ["C", "C", "H", "H", "H", "H"],
+      "masses": [12.011, 12.011, 1.008, 1.008, 1.008, 1.008],
+      "energy": 2.41079
+    }
+  },
+  "8f698706-c38a-4d52-b90f-eb48147bc45c":   {
+    "meta": "http://sintef.no/meta/soft/0.1/Molecule",
+    "dimensions": {
+      "natoms": 8,
+      "ncoords": 3
+    },
+    "properties": {
+      "positions": [[-1.72867, 1.1528, -0.05732], [-0.31613, 0.6056, 0.05721], [-1.85537, 2.015, 0.63079], [-2.46138, 0.36275, 0.21083], [-1.9195, 1.48749, -1.09871], [-0.1253, 0.27091, 1.0986], [0.41658, 1.39565, -0.21094], [-0.18943, -0.2566, -0.6309]],
+      "symbols": ["C", "C", "H", "H", "H", "H", "H", "H"],
+      "masses": [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
+      "energy": 2.86124
+    }
+  },
+  "cd08e186-798f-53ec-8a41-7a4849225abd":   {
+    "uri": "molecules",
+    "meta": "http://onto-ns.com/meta/0.1/Collection",
+    "dimensions": {
+      "nrelations": 9
+    },
+    "properties": {
+      "relations": [["c2h6", "_is-a", "Instance"], ["c2h6", "_has-uuid", "8f698706-c38a-4d52-b90f-eb48147bc45c"], ["c2h6", "_has-meta", "http://sintef.no/meta/soft/0.1/Molecule"], ["c2h4", "_is-a", "Instance"], ["c2h4", "_has-uuid", "328ee02f-39c6-4746-a6c4-bd5a6cfb4793"], ["c2h4", "_has-meta", "http://sintef.no/meta/soft/0.1/Molecule"], ["h2", "_is-a", "Instance"], ["h2", "_has-uuid", "b432a95d-b987-4d72-be15-4162abc04ee2"], ["h2", "_has-meta", "http://sintef.no/meta/soft/0.1/Molecule"]]
+    }
+  },
+  "b432a95d-b987-4d72-be15-4162abc04ee2":   {
+    "meta": "http://sintef.no/meta/soft/0.1/Molecule",
+    "dimensions": {
+      "natoms": 2,
+      "ncoords": 3
+    },
+    "properties": {
+      "positions": [[-1.64097, 1.37077, 0], [-1.03814, 1.74207, 0]],
+      "symbols": ["H", "H"],
+      "masses": [1.008, 1.008],
+      "energy": 1.34613
+    }
+  }
+}
