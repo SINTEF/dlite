@@ -46,9 +46,7 @@ jobs:
       working-directory: build
 
     - name: Build
-      run: |
-        set PATH=%PATH%;%CD%/tools/Release
-        cmake --build . --config Release || true
+      run: cmake --build . --config Release || true
       working-directory: build
 
     - name: Check dlite config settings
