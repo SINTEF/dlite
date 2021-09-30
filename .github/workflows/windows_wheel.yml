@@ -35,8 +35,8 @@ jobs:
     - name: Prepare MSVC
       uses: bus1/cabuild/action/msdevshell@v1
 
-    - name: Install Numpy
-      run: pip install numpy
+    - name: Install Numpy and Wheel
+      run: pip install numpy wheel
 
     - name: build the wheel
       run: cd python && python setup.py bdist_wheel
