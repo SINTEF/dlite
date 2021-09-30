@@ -16,7 +16,6 @@ from setuptools.command.build_ext import build_ext
 SETUP_DIR = Path(__file__).parent.resolve()
 SOURCE_DIR = SETUP_DIR.parent
 
-
 if platform.system() == "Linux":
     dlite_compiled_ext = "_dlite.so"
     dlite_compiled_dll_suffix = "*.so"
@@ -112,6 +111,10 @@ requirements = [
     "pandas",
 ]
 
+setup_requirements = [
+    "numpy"
+]
+
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
     Path(SOURCE_DIR / "CMakeLists.txt").read_text(),
@@ -144,6 +147,7 @@ setup(
     ],
     # download_url=['https://github.com/SINTEF/dlite/archive/v0.2.5.tar.gz'],
     install_requires=requirements,
+    setup_requires=setup_requirements,
     packages=["dlite"],
     package_data={
         "dlite": [
