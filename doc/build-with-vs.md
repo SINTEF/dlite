@@ -100,6 +100,13 @@ Build with Visual Studio
     $ cmake --install .
     $ ctest -C Release
 
+6. Install the Python package
+
+   $ conda create --name=py38dlite python=3.8 numpy
+   $ conda activate py38dlite
+   $ cd python
+   $ python setup.py install
+
 [cmake]: https://cmake.org/download/
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
 [swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/
