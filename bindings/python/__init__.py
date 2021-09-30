@@ -25,7 +25,6 @@ else:
     is_conda = True
 
 if (sys.platform == 'win32') and (not is_conda):
-    from pathlib import Path
     from ctypes import windll, c_wchar_p
     from ctypes.wintypes import DWORD
     from .paths import dlite_INSTALL_ROOT, dlite_PATH
@@ -42,7 +41,7 @@ if (sys.platform == 'win32') and (not is_conda):
     else:
         AddDllDirectory(str(Path(dlite_INSTALL_ROOT) / 'bin'))
 
-    del Path, c_wchar_p, DWORD, dlite_INSTALL_ROOT, dlite_PATH
+    del c_wchar_p, DWORD, dlite_INSTALL_ROOT, dlite_PATH
     del AddDllDirectory
 
 
