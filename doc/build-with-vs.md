@@ -111,7 +111,7 @@ Build with Visual Studio
    $ conda create --name=py38dlite python=3.8
    $ conda activate py38dlite
    $ cd python
-   # --use-feature=in-tree-build is requred for pip < 21.3. for pip >= 21.3 it will become the default.
+   # --use-feature=in-tree-build is required for pip < 21.3. for pip >= 21.3 it will become the default.
    $ pip --use-feature=in-tree-build install .
 
 [cmake]: https://cmake.org/download/
