@@ -97,7 +97,7 @@ class CMakeBuildExt(build_ext):
         except subprocess.CalledProcessError:
             tb = traceback.format_exc()
             print(tb)
-            exit(1)
+            pass
         try:
             subprocess.check_call(
                 ["cmake", "--build", ".", "--config", build_type],
@@ -107,7 +107,7 @@ class CMakeBuildExt(build_ext):
         except subprocess.CalledProcessError:
             tb = traceback.format_exc()
             print(tb)
-            exit(1)
+            pass
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         dir_util.copy_tree(
