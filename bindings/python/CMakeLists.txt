@@ -135,27 +135,25 @@ add_custom_command(
 # This can be picked up by a setup.py script with ""python setup.py install"" (or bdist_wheel)
 #
 
-#add_custom_command(
-#  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
-#  POST_BUILD
-#  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storage-plugins
-#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    "$<TARGET_FILE:dlite>"
-#    ${pkgdir}
-#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    "$<TARGET_FILE:dlite-utils>"
-#    ${pkgdir}
-#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    "$<TARGET_FILE:dlite-plugins-python>"
-#    ${pkgdir}/share/dlite/storage-plugins
-#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    "$<TARGET_FILE:dlite-plugins-json>"
-#    ${pkgdir}/share/dlite/storage-plugins
-#  DEPENDS
-#    python_package
-#  )
-#
-
+add_custom_command(
+  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite>"
+    ${pkgdir}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite-utils>"
+    ${pkgdir}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite-plugins-python>"
+    ${pkgdir}/share/dlite/storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite-plugins-json>"
+    ${pkgdir}/share/dlite/storage-plugins
+  DEPENDS
+    python_package
+  )
 
 #
 # Install
