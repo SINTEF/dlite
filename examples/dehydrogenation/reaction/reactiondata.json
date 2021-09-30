@@ -1,0 +1,26 @@
+{
+  "1a269790-3aae-47c3-8310-e325884c413e":   {
+    "meta": "http://onto-ns.com/meta/0.1/Reaction",
+    "dimensions": {
+      "nreactants": 1,
+      "nproducts": 2
+    },
+    "properties": {
+      "reactants": ["c2h6"],
+      "products": ["c2h4", "h2"],
+      "reactant_stoichiometric_coefficient": [1],
+      "product_stoichiometric_coefficient": [1, 1],
+      "energy": 0.89568
+    }
+  },
+  "e1e268da-cb13-526b-bcab-f8a2973fe98e":   {
+    "uri": "reactions",
+    "meta": "http://onto-ns.com/meta/0.1/Collection",
+    "dimensions": {
+      "nrelations": 3
+    },
+    "properties": {
+      "relations": [["ethane_dehydrogenation", "_is-a", "Instance"], ["ethane_dehydrogenation", "_has-uuid", "1a269790-3aae-47c3-8310-e325884c413e"], ["ethane_dehydrogenation", "_has-meta", "http://onto-ns.com/meta/0.1/Reaction"]]
+    }
+  }
+}
