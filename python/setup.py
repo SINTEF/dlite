@@ -35,8 +35,8 @@ elif platform.system() == "Windows":
     dlite_compiled_dll_suffix = "*.dll"
 
     CMAKE_ARGS = [
-        "-G",
-        "Visual Studio 15 2017",
+        #"-G",
+        #"Visual Studio 15 2017",
         "-A",
         "x64",
         "-DWITH_DOC=OFF",
