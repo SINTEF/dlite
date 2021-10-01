@@ -393,7 +393,9 @@ const char *fu_nextpath(const char *paths, char **endptr, const char *pathsep)
     p = *endptr + 1;
 
   /* ignore repeated path separators */
-  while (strchr((pathsep) ? pathsep : ";:", *p)) p++;
+  if (*p) {
+    while (strchr((pathsep) ? pathsep : ";:", *p)) p++;
+  }
 
   if (pathsep) {
     *endptr = p + strcspn(p, pathsep);
