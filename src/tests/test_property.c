@@ -51,7 +51,7 @@ MU_TEST(test_print)
   mu_assert_int_eq(2, m);
   mu_assert_string_eq("42", s);
 
-  float f = 3.14;
+  float f = 3.14f;
   prop.type = dliteFloat;
   prop.size = sizeof(f);
   m = dlite_property_aprint(&s, &size, n, &f, &prop, NULL, 0, -2, 0);

@@ -252,7 +252,8 @@ void *dlite_pyembed_get_address(const char *symbol)
     FAIL1("error calling ctypes.addressof(\"%s\")", symbol);
   if (!PyLong_Check(addr))
     FAIL2("address of \"%s\" in %s is not a long", symbol, filename);
-  ptr = (void *)PyLong_AsLong(addr);
+  size_t val = PyLong_AsLong(addr);
+    ptr = (void *)val;
 
   /* Seems that ctypes.addressof() returns the address where the pointer to
      `symbol` is stored, so we need an extra dereference... */
