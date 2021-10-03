@@ -453,9 +453,12 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
-/* Sspecial state id only used to indicate whether we are in an atexit
+/* Special state id only used to indicate whether we are in an atexit
    handler or not */
 #define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
+
+#define ERR_GLOBALS_ID "err-globals-id"
+
 
 /* A cache pointing to the current session handler */
 static DLiteGlobals *_globals_handler=NULL;
@@ -494,6 +497,7 @@ DLiteGlobals *dlite_globals_get(void)
                         &dummy_ptr, NULL);
     }
   }
+  dlite_init();
   return _globals_handler;
 }
 
@@ -503,9 +507,25 @@ DLiteGlobals *dlite_globals_get(void)
 */
 void dlite_globals_set(DLiteGlobals *globals_handler)
 {
+  void *g;
   session_set_default((Session *)globals_handler);
   _globals_handler = globals_handler;
+
+  /* Set globals in utils/err.c */
+  if ((g = dlite_globals_get_state(ERR_GLOBALS_ID)))
+    err_set_globals(g);
 }
+
+/*
+  Initialises dlite. This function may be called several times.
+ */
+void dlite_init(void)
+{
+  /* Set up global state for utils/err.c */
+  if (!dlite_globals_get_state(ERR_GLOBALS_ID))
+    dlite_globals_add_state(ERR_GLOBALS_ID, err_get_globals(), NULL);
+}
+
 
 /*
   Add global state with given name.

@@ -29,12 +29,54 @@
 #endif
 
 
+/* Global variables */
+typedef struct {
+  const char *err_prefix;  // Prefix to append to all errors in this
+                           // application.  Typically the program name.
+  FILE *err_stream;        // Stream for print errors. Set to NULL to for silent
+  ErrHandler err_handler;  // Error handler
+  int err_stream_opened;
+  int err_stream_atexit_called;
+} Globals;
+
+/* Global state */
+static Globals _globals = {"", err_default_stream, err_default_handler, 0, 0};
+
+/* Return a pointer to global state for this module */
+void *err_get_globals(void)
+{
+  return (void *)&_globals;
+}
+
+/* Sets globals from state returned by err_get_globals().
+   If `globals` is NULL, the globals are initialised to default values. */
+void err_set_globals(void *globals)
+{
+  if (globals) {
+    Globals *g = (Globals *)globals;
+    _globals.err_prefix = g->err_prefix;
+    _globals.err_stream = g->err_stream;
+    _globals.err_handler = g->err_handler;
+    _globals.err_stream_opened = g->err_stream_opened;
+    _globals.err_stream_atexit_called = g->err_stream_atexit_called;
+  } else {
+    _globals.err_prefix = "";
+    _globals.err_stream = err_default_stream;
+    _globals.err_handler = err_default_handler;
+    _globals.err_stream_opened = 0;
+    _globals.err_stream_atexit_called = 0;
+  }
+}
+
+
+
+
 /* Prefix to append to all errors in this application.  Typically the
    program name. */
-static const char *err_prefix = "";
+//static const char *err_prefix = "";
 
 /* Stream for print errors. Set to NULL to for silent. */
-static FILE *err_stream = err_default_stream;
+//static FILE *err_stream = err_default_stream;
 
 /* Indicate wheter the error functions should return, exit or about.
  * If negative (default), check the environment. */
@@ -53,7 +95,7 @@ static _tls ErrDebugMode err_debug_mode = -1;
 static _tls ErrOverrideMode err_override = -1;
 
 /* Error handler */
-static ErrHandler err_handler = err_default_handler;
+//static ErrHandler err_handler = err_default_handler;
 
 /* Error records
  * Hold the latest error and message. These are thread-local to ensure
@@ -90,6 +132,7 @@ static char *error_names[] = {
 int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 		 const char *func, const char *msg, va_list ap)
 {
+  Globals *g = (Globals *)err_get_globals();
   int n=0;
   char *errname = error_names[errlevel];
   char *errmsg = err_record->msg;
@@ -153,8 +196,8 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   /* Write error message */
   if (!ignore_new_error) {
 
-    if (err_prefix && *err_prefix)
-      n += snprintf(errmsg + n, errsize - n, "%s: ", err_prefix);
+    if (g->err_prefix && *g->err_prefix)
+      n += snprintf(errmsg + n, errsize - n, "%s: ", g->err_prefix);
 
     if (debug_mode >= 1)
       n += snprintf(errmsg + n, errsize - n, "%s: ", file);
@@ -180,6 +223,10 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
      we mark this error to be reraised after leaving the handler. */
   if (errlevel >= errLevelError && err_record->state)
     err_record->reraise = eval;
+
+  fprintf(stderr, "!!! handler=%d: err_record->prev=%p\n",
+          (handler) ? 1 : 0, (void *)err_record->prev);
+  fprintf(stderr, "!!! call_handler=%d: %s\n", call_handler, errmsg);
 
   /* If we are not within a ErrTry...ErrEnd clause */
   if (call_handler) {
@@ -342,66 +389,71 @@ void err_clear(void)
 
 const char *err_set_prefix(const char *prefix)
 {
-  const char *prev = err_prefix;
-  err_prefix = prefix;
+  Globals *g = (Globals *)err_get_globals();
+  const char *prev = g->err_prefix;
+  g->err_prefix = prefix;
   return prev;
 }
 
 const char *err_get_prefix(void)
 {
-  return err_prefix;
+  Globals *g = (Globals *)err_get_globals();
+  return g->err_prefix;
 }
 
 /* whether the error stream has been opened with fopen() */
-static int err_stream_opened = 0;
+//static int err_stream_opened = 0;
 
 /* whether `atexit(err_close_stream)` has been called */
-static int err_stream_atexit_called = 0;
+//static int err_stream_atexit_called = 0;
 
 static void err_close_stream(void)
 {
-  if (err_stream_opened) {
-    fflush(err_stream);
-    if (err_stream != stderr && err_stream != stdout)
-      fclose(err_stream);
-    err_stream_opened = 0;
+  Globals *g = (Globals *)err_get_globals();
+  if (g->err_stream_opened) {
+    fflush(g->err_stream);
+    if (g->err_stream != stderr && g->err_stream != stdout)
+      fclose(g->err_stream);
+    g->err_stream_opened = 0;
   }
 }
 
 FILE *err_set_stream(FILE *stream)
 {
-  FILE *prev = err_stream;
+  Globals *g = (Globals *)err_get_globals();
+  FILE *prev = g->err_stream;
   err_close_stream();
-  err_stream = stream;
+  g->err_stream = stream;
   return prev;
 }
 
 FILE *err_get_stream(void)
 {
-  if (err_stream == err_default_stream) {
+  Globals *g = (Globals *)err_get_globals();
+  if (g->err_stream == err_default_stream) {
     char *errfile = getenv("ERR_STREAM");
     if (!errfile) {
-      err_stream = stderr;
+      g->err_stream = stderr;
     } else if (!errfile[0]) {
-      err_stream = NULL;
+      g->err_stream = NULL;
     } else if (strcmp(errfile, "stderr") == 0) {
-      err_stream = stderr;
+      g->err_stream = stderr;
     } else if (strcmp(errfile, "stdout") == 0) {
-      err_stream = stdout;
+      g->err_stream = stdout;
     } else {
-      err_stream = fopen(errfile, "a");
-      if (!err_stream) { /* fallback to stderr if errfile cannot be opened */
-        err_stream = stderr;
+      g->err_stream = fopen(errfile, "a");
+      if (!g->err_stream) { /* fallback to stderr if errfile cannot be opened */
+        g->err_stream = stderr;
       } else {
-        err_stream_opened = 1;
-        if (!err_stream_atexit_called) {
+        g->err_stream_opened = 1;
+        if (!g->err_stream_atexit_called) {
           atexit(err_close_stream);
-          err_stream_atexit_called = 1;
+          g->err_stream_atexit_called = 1;
         }
       }
     }
   }
-  return err_stream;
+  return g->err_stream;
 }
 
 ErrAbortMode err_set_abort_mode(int mode)
@@ -504,21 +556,24 @@ ErrOverrideMode err_get_override_mode()
 /* Default error handler. */
 static void _err_default_handler(const ErrRecord *record)
 {
-  if (err_stream) fprintf(err_stream, "** %s\n", record->msg);
+  Globals *g = (Globals *)err_get_globals();
+  if (g->err_stream) fprintf(g->err_stream, "** %s\n", record->msg);
 }
 
 ErrHandler err_set_handler(ErrHandler handler)
 {
-  ErrHandler prev = err_handler;
-  err_handler = handler;
+  Globals *g = (Globals *)err_get_globals();
+  ErrHandler prev = g->err_handler;
+  g->err_handler = handler;
   return prev;
 }
 
 ErrHandler err_get_handler(void)
 {
-  if (err_handler == err_default_handler)
-    err_handler = _err_default_handler;
-  return err_handler;
+  Globals *g = (Globals *)err_get_globals();
+  if (g->err_handler == err_default_handler)
+    g->err_handler = _err_default_handler;
+  return g->err_handler;
 }
 
 
@@ -535,6 +590,8 @@ ErrRecord *_err_get_record()
 
 void _err_link_record(ErrRecord *record)
 {
+  fprintf(stderr, "!!! _err_link_record(%d, %p)\n",
+          (record) ? 1 : 0, (void *)err_record);
   memset(record, 0, sizeof(ErrRecord));
   record->prev = err_record;
   err_record = record;
@@ -542,8 +599,13 @@ void _err_link_record(ErrRecord *record)
 
 void _err_unlink_record(ErrRecord *record)
 {
+  Globals *g = (Globals *)err_get_globals();
   assert(record == err_record);
   assert(err_record->prev);
+
+  fprintf(stderr, "!!! _err_unlink_record: %p <- %p)\n",
+          (void *)err_record, (void *)err_record->prev);
+
   err_record = record->prev;
   if (record->reraise || (record->eval && !record->handled)) {
     int eval = (record->reraise) ? record->reraise : record->eval;
@@ -584,7 +646,7 @@ void _err_unlink_record(ErrRecord *record)
 
     if (!err_record->prev) {
       ErrHandler handler = err_get_handler();
-      if (handler) err_handler(err_record);
+      if (handler) g->err_handler(err_record);
     }
 
     if ((abort_mode && record->level >= errLevelError) ||

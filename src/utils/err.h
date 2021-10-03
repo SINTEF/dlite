@@ -324,6 +324,18 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
  * @{
  */
 
+
+/**
+ * Return a pointer to global state for this module.
+ */
+void *err_get_globals(void);
+
+/**
+ * Sets globals from state returned by err_get_globals().
+ * If `globals` is NULL, the globals are initialised to default values.
+ */
+void err_set_globals(void *globals);
+
 /**
  * @brief Returns the error value of the last error.
  */
