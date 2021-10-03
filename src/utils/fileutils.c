@@ -393,7 +393,9 @@ const char *fu_nextpath(const char *paths, char **endptr, const char *pathsep)
     p = *endptr + 1;
 
   /* ignore repeated path separators */
-  while (strchr((pathsep) ? pathsep : ";:", *p)) p++;
+  if (*p) {
+    while (strchr((pathsep) ? pathsep : ";:", *p)) p++;
+  }
 
   if (pathsep) {
     *endptr = p + strcspn(p, pathsep);
@@ -1196,7 +1198,8 @@ FUIter *fu_pathsiter_init(const FUPaths *paths, const char *pattern)
   iter->pattern = pattern;
   iter->dirsep = DIRSEP[0];
   iter->origlen = paths->n;
-  if (!(iter->origpaths = strlist_copy(paths->paths))) goto fail;
+  if (!(iter->origpaths = (paths->paths) ? strlist_copy(paths->paths) : NULL))
+    goto fail;
   return iter;
  fail:
   if (iter) free(iter);

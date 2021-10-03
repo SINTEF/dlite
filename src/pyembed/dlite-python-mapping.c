@@ -287,6 +287,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
   if (!(mappings = dlite_python_mapping_load())) goto fail;
   assert(PyList_Check(mappings));
   n = (int)PyList_Size(mappings);
+  if (n == 0) return NULL;
 
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
