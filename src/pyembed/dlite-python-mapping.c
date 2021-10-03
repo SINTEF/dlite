@@ -287,10 +287,11 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
   if (!(mappings = dlite_python_mapping_load())) goto fail;
   assert(PyList_Check(mappings));
   n = (int)PyList_Size(mappings);
+  if (n == 0) return NULL;
 
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
-    FAIL1("API iterator index is out of range: %d", *iter);
+    FAIL1("Mapping API iterator index is out of range: %d", *iter);
   cls = PyList_GetItem(mappings, *iter);
   assert(cls);
   if (*iter < n - 1) (*iter)++;
