@@ -287,6 +287,11 @@ add_definitions(
   -DHAVE_CONFIG_H
   )
 
+# FIXME - Should we add this here?
+#if(WINDOWS)
+#  add_definitions(-DDLLEXPORT)
+#endif()
+
 add_library(dlite-utils SHARED ${sources})
 add_library(dlite-utils-static STATIC ${sources})
 
