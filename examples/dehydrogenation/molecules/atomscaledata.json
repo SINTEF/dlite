@@ -1,19 +1,7 @@
 {
-  "5fa3f107-8e1f-4545-a694-dd5651aaa5c8":   {
-    "meta": "http://sintef.no/meta/soft/0.1/Molecule",
-    "dimensions": {
-      "natoms": 8,
-      "ncoords": 3
-    },
-    "properties": {
-      "positions": [[-1.72867, 1.1528, -0.05732], [-0.31613, 0.6056, 0.05721], [-1.85537, 2.015, 0.63079], [-2.46138, 0.36275, 0.21083], [-1.9195, 1.48749, -1.09871], [-0.1253, 0.27091, 1.0986], [0.41658, 1.39565, -0.21094], [-0.18943, -0.2566, -0.6309]],
-      "symbols": ["C", "C", "H", "H", "H", "H", "H", "H"],
-      "masses": [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-      "energy": 2.86124
-    }
-  },
-  "d8449e54-6f78-4eca-b919-573268f39a24":   {
-    "meta": "http://sintef.no/meta/soft/0.1/Molecule",
+  "8a986375-22d2-5c2e-aa55-1f07567f4524":   {
+    "uri": "h2",
+    "meta": "http://onto-ns.com/meta/0.1/Molecule",
     "dimensions": {
       "natoms": 2,
       "ncoords": 3
@@ -25,8 +13,9 @@
       "energy": 1.34613
     }
   },
-  "ca13e137-cd40-44f8-8cca-3c0d7c0cb630":   {
-    "meta": "http://sintef.no/meta/soft/0.1/Molecule",
+  "de5fd264-b03d-54ca-8156-81f4489e2fe9":   {
+    "uri": "c2h4",
+    "meta": "http://onto-ns.com/meta/0.1/Molecule",
     "dimensions": {
       "natoms": 6,
       "ncoords": 3
@@ -45,7 +34,21 @@
       "nrelations": 9
     },
     "properties": {
-      "relations": [["c2h6", "_is-a", "Instance"], ["c2h6", "_has-uuid", "5fa3f107-8e1f-4545-a694-dd5651aaa5c8"], ["c2h6", "_has-meta", "http://sintef.no/meta/soft/0.1/Molecule"], ["c2h4", "_is-a", "Instance"], ["c2h4", "_has-uuid", "ca13e137-cd40-44f8-8cca-3c0d7c0cb630"], ["c2h4", "_has-meta", "http://sintef.no/meta/soft/0.1/Molecule"], ["h2", "_is-a", "Instance"], ["h2", "_has-uuid", "d8449e54-6f78-4eca-b919-573268f39a24"], ["h2", "_has-meta", "http://sintef.no/meta/soft/0.1/Molecule"]]
+      "relations": [["c2h6", "_is-a", "Instance"], ["c2h6", "_has-uuid", "b1108f07-e09e-57e0-920b-7701ebaaa077"], ["c2h6", "_has-meta", "http://onto-ns.com/meta/0.1/Molecule"], ["c2h4", "_is-a", "Instance"], ["c2h4", "_has-uuid", "de5fd264-b03d-54ca-8156-81f4489e2fe9"], ["c2h4", "_has-meta", "http://onto-ns.com/meta/0.1/Molecule"], ["h2", "_is-a", "Instance"], ["h2", "_has-uuid", "8a986375-22d2-5c2e-aa55-1f07567f4524"], ["h2", "_has-meta", "http://onto-ns.com/meta/0.1/Molecule"]]
+    }
+  },
+  "b1108f07-e09e-57e0-920b-7701ebaaa077":   {
+    "uri": "c2h6",
+    "meta": "http://onto-ns.com/meta/0.1/Molecule",
+    "dimensions": {
+      "natoms": 8,
+      "ncoords": 3
+    },
+    "properties": {
+      "positions": [[-1.72867, 1.1528, -0.05732], [-0.31613, 0.6056, 0.05721], [-1.85537, 2.015, 0.63079], [-2.46138, 0.36275, 0.21083], [-1.9195, 1.48749, -1.09871], [-0.1253, 0.27091, 1.0986], [0.41658, 1.39565, -0.21094], [-0.18943, -0.2566, -0.6309]],
+      "symbols": ["C", "C", "H", "H", "H", "H", "H", "H"],
+      "masses": [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
+      "energy": 2.86124
     }
   }
 }

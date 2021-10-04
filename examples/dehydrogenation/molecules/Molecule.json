@@ -1,7 +1,7 @@
 {
     "name": "Molecule",
     "version": "0.1",
-    "namespace": "http://sintef.no/meta/soft",
+    "namespace": "http://onto-ns.com/meta",
     "description": "A minimal description of a molecules",
     "dimensions": [
         {

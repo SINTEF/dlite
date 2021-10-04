@@ -1,3 +1,5 @@
+import os
+
 import dlite
 import ase.io
 from ase.calculators.emt import EMT
@@ -5,7 +7,8 @@ from ase.calculators.emt import EMT
 def readMolecule(filename, Molecule):
     atoms = ase.io.read(filename)  # ASE Atoms object
     atoms.calc = EMT()
-    inst = Molecule(dims=[len(atoms), 3])  # DLite instance
+    basename = os.path.splitext(filename)[0]
+    inst = Molecule(dims=[len(atoms), 3], id=basename)  # DLite instance
     inst.symbols = atoms.get_chemical_symbols()
     inst.masses = atoms.get_masses()
     inst.positions = atoms.positions
@@ -13,10 +16,6 @@ def readMolecule(filename, Molecule):
     return inst
 
 Molecule = dlite.Instance('json:Molecule.json')  # DLite Metadata
-#ethane = readMolecule('c2h6.xyz')
-#ethene = readMolecule('c2h4.xyz')
-#h2 = readMolecule('h2.xyz')
-
 
 coll = dlite.Collection('molecules')
 for molname in ['c2h6', 'c2h4', 'h2']:
@@ -24,9 +23,3 @@ for molname in ['c2h6', 'c2h4', 'h2']:
     coll.add(label=molname, inst=mol)
 
 coll.save('json', 'atomscaledata.json', 'mode=w')
-
-
-
-
-
-

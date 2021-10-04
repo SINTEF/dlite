@@ -1,5 +1,5 @@
 {
-  "1a269790-3aae-47c3-8310-e325884c413e":   {
+  "ed7f3974-a1fb-4107-8470-bb30f46a7ae2":   {
     "meta": "http://onto-ns.com/meta/0.1/Reaction",
     "dimensions": {
       "nreactants": 1,
@@ -20,7 +20,7 @@
       "nrelations": 3
     },
     "properties": {
-      "relations": [["ethane_dehydrogenation", "_is-a", "Instance"], ["ethane_dehydrogenation", "_has-uuid", "1a269790-3aae-47c3-8310-e325884c413e"], ["ethane_dehydrogenation", "_has-meta", "http://onto-ns.com/meta/0.1/Reaction"]]
+      "relations": [["ethane_dehydrogenation", "_is-a", "Instance"], ["ethane_dehydrogenation", "_has-uuid", "ed7f3974-a1fb-4107-8470-bb30f46a7ae2"], ["ethane_dehydrogenation", "_has-meta", "http://onto-ns.com/meta/0.1/Reaction"]]
     }
   }
 }
