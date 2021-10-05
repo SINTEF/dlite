@@ -11,7 +11,8 @@
 # Defaults
 set(default_build_type     "Debug")
 if(WIN32)
-  set(default_install_prefix "$ENV{HOMEDRIVE}$ENV{HOMEPATH}/.local")
+  #set(default_install_prefix "$ENV{ALLUSERSPROFILE}/dlite")
+  set(default_install_prefix "$ENV{APPDATA}/dlite")
 else()
   set(default_install_prefix "$ENV{HOME}/.local")
 endif()
