@@ -10,7 +10,11 @@
 
 # Defaults
 set(default_build_type     "Debug")
-set(default_install_prefix "$ENV{HOME}/.local")
+if(WIN32)
+  set(default_install_prefix "$ENV{HOMEDRIVE}$ENV{HOMEPATH}/.local")
+else()
+  set(default_install_prefix "$ENV{HOME}/.local")
+endif()
 
 
 # CMAKE_BUILD_TYPE

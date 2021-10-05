@@ -21,3 +21,9 @@ print('delete second last path:')
 del dlite.storage_path[-2]
 for path in dlite.storage_path:
     print('- ' + path)
+
+print()
+print('Predefined paths:')
+for (k,v) in dlite.__dict__.items():
+    if k.endswith('path'):
+        print(f"dlite.{k}='{v}'")
