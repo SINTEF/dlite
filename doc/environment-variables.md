@@ -22,15 +22,18 @@ Generic environment variables
 
 DLite-specific environment variables
 ------------------------------------
-  - **DLITE_ROOT**: The root of the installation path.  It default
+  - **DLITE_ROOT**: The root of the installation path.  It defaults
     to the installation prefix provided to cmake.  You have to set this
     if dlite is moved.
+
+    In case no install prefix is provided to CMake, the default for
+    DLITE_ROOT is "/.local" on Linux and "%APPDATA%/dlite" on Windows.
 
   - **DLITE_PLATFORM**: Specifies how paths are formatted.  If defined,
     it should be "Native" (default), "Unix" or "Windows".
 
   - **DLITE_USE_BUILD_ROOT**: If this is defined, use the build root instead
-    of the installation root.  This environment variable is mainly intended
+    of the installation root.  This environment variable is only intended
     for testing.
 
     **note**:
