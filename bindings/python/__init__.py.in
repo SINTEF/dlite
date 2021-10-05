@@ -5,6 +5,22 @@ from pathlib import Path
 
 dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE='@dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE@'
 
+try:
+    import conda
+    del conda
+except:
+    is_conda_base = False
+    is_conda = os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
+else:
+    assert os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
+    is_conda_base = True
+    is_conda = True
+
+if is_conda_base and (sys.platform == 'win32'):
+    print("WARNING: You are using the Anaconda Python base environment on Windows.")
+    print("WARNING: In order for the Python-embedding in dlite to work, you may need to set PYTHONHOME.")
+    print("WARNING: See: https://github.com/ContinuumIO/anaconda-issues/issues/11374")
+
 if (dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE != "YES") and (sys.platform == 'win32'):
 
     # The following is only for testing the Python package after build or install
@@ -57,17 +73,6 @@ if (dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE != "YES") and (sys.platform == 'w
     if _dlite_use_build_root_for_testing():
         assert Path(dlite_BUILD_ROOT).is_dir()
 
-    try:
-        import conda
-        del conda
-    except:
-        is_conda_base = False
-        is_conda = os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
-    else:
-        assert os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
-        is_conda_base = True
-        is_conda = True
-
     if not is_conda:
         from ctypes import windll, c_wchar_p
         from ctypes.wintypes import DWORD
@@ -85,7 +90,7 @@ if (dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE != "YES") and (sys.platform == 'w
             assert (Path(dlite_INSTALL_ROOT) / 'bin').is_dir()
             AddDllDirectory(str(Path(dlite_INSTALL_ROOT) / 'bin'))
 
-        del winndll, c_wchar_p, DWORD
+        del windll, c_wchar_p, DWORD
         del AddDllDirectory
 
     del dlite_INSTALL_ROOT
@@ -100,9 +105,10 @@ if (dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE != "YES") and (sys.platform == 'w
     del dlite_TEMPLATES
     del dlite_STORAGES
     del _dlite_use_build_root_for_testing
-    del is_conda, is_conda_base
 
-rewind_env=False
+del is_conda, is_conda_base
+
+rewind_env = False
 if dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE == "YES":
     # We set the DLITE_ROOT to the package directory such that
     # the plugins will be found in:
@@ -114,10 +120,10 @@ if dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE == "YES":
 
     assert 'DLITE_ROOT' not in os.environ
     os.environ['DLITE_ROOT']=Path(__file__).parent.resolve().as_posix()
-    #DLITE_MAPPING_PLUGIN_DIRS
     rewind_env=True
 
-    # FIXME: Maybe better to use dlite.storage_path.append etc. after the "from .dlite import *" ?
+    #FIXME: Maybe better like this, without fiddling with the environment
+    #python_storage_plugin_path.insert(0, str(Path(__file__).parent.resolve() / Path("./share/dlite/python-storage-plugins")))
 
 from .dlite import *  # noqa: F401, F403
 from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
