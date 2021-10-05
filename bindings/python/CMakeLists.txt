@@ -2,13 +2,13 @@ project(dlite-bindings-python C)
 
 # Python sources
 set(py_sources
-  __init__.py
   factory.py
   options.py
   utils.py
   )
 
 configure_file(paths.py.in paths.py)
+configure_file(__init__.py.in __init__.py)
 
 # Determine size of size_t
 include(CheckTypeSize)
@@ -89,6 +89,7 @@ foreach(source ${py_sources})
 endforeach()
 
 list(APPEND abs_sources ${CMAKE_CURRENT_BINARY_DIR}/paths.py)
+list(APPEND abs_sources ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
 
 set(abs_targets)
 foreach(source ${py_sources})
@@ -134,11 +135,13 @@ add_custom_command(
 # effectively producing a binary distribution ready to be run.
 # This can be picked up by a setup.py script with ""python setup.py install"" (or bdist_wheel)
 #
-
 add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/mapping-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite>"
     ${pkgdir}
@@ -151,6 +154,9 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite-plugins-json>"
     ${pkgdir}/share/dlite/storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+    ${pkgdir}/share/dlite/python-storage-plugins
   DEPENDS
     python_package
   )
