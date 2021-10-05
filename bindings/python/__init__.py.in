@@ -113,10 +113,8 @@ if dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE == "YES":
     # ./share/dlite/python-mapping-plugins
 
     assert 'DLITE_ROOT' not in os.environ
-
-    DLITE_MAPPING_PLUGIN_DIRS
-
     os.environ['DLITE_ROOT']=Path(__file__).parent.resolve().as_posix()
+    #DLITE_MAPPING_PLUGIN_DIRS
     rewind_env=True
 
     # FIXME: Maybe better to use dlite.storage_path.append etc. after the "from .dlite import *" ?
