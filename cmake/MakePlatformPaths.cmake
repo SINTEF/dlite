@@ -66,7 +66,7 @@ function(make_platform_paths)
     foreach(path ${${var}})
       file(TO_CMAKE_PATH path "${path}")
       list(APPEND ${var}_UNIX "${path}")
-      string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:\\\\" path1 "${path1}") # /C/other/sub -> C:\other/sub
+      string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:\\\\" path "${path}") # /C/other/sub -> C:\other/sub
       string(REPLACE "/" "${win_dirsep}" path "${path}")
       list(APPEND ${var}_WINDOWS "${path}")
     endforeach()
