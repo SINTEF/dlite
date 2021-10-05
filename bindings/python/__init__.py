@@ -44,10 +44,7 @@ if (sys.platform == 'win32') and (not is_conda):
     del c_wchar_p, DWORD, dlite_INSTALL_ROOT, dlite_PATH
     del AddDllDirectory
 
-
-# FIXME: Do we need this variable to be set or can we live without this?
-if 'DLITE_ROOT' not in os.environ:
-    os.environ['DLITE_ROOT']=Path(__file__).parent.resolve().as_posix()
+del is_conda, is_conda_base
 
 from .dlite import *  # noqa: F401, F403
 from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
