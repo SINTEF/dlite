@@ -26,6 +26,7 @@ if platform.system() == "Linux":
         "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
         "-DALLOW_WARNINGS=ON",
+        "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
         # Assume cmake version >= v3.12.4
         #'-DPython_EXECUTABLE=%s' % sys.executable,
         #'-DPYTHON_EXECUTABLE=%s' % sys.executable,
@@ -43,6 +44,7 @@ elif platform.system() == "Windows":
         "-DWITH_DOC=OFF",
         "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
+        "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
     ]
 
 else:
