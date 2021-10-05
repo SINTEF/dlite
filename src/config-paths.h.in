@@ -18,7 +18,32 @@
 #define dlite_PYTHON_STORAGE_PLUGINS "@dlite_PYTHON_STORAGE_PLUGINS@"
 #define dlite_PYTHON_MAPPING_PLUGINS "@dlite_PYTHON_MAPPING_PLUGINS@"
 #define dlite_TEMPLATES              "@dlite_TEMPLATES@"
+/* BUG: The following is always an empty string*/
+/* dlite_STORAGES=         @dlite_STORAGES@ */
+/* dlite_STORAGES_NATIVE=  @dlite_STORAGES_NATIVE@ */
+/* dlite_STORAGES_WINDOWS= @dlite_STORAGES_WINDOWS@ */
+/* dlite_STORAGES_UNIX =   @dlite_STORAGES_UNIX@ */
 #define dlite_STORAGES               "@dlite_STORAGES_NATIVE@"
 
+/* defined are
+
+     ${CMAKE_COMMAND}
+        -Dinput=${input}
+        -Doutput=${output}
+        -Dnewline_style=${_newline_style}
+        -DCMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}"
+        -Ddlite_SOURCE_DIR="${dlite_SOURCE_DIR}"
+        -Ddlite_BINARY_DIR="${dlite_BINARY_DIR}"
+        -Ddlite_PATH="${PATH}"
+        -Ddlite_PATH_EXTRA="${dlite_PATH_EXTRA}"
+        -Ddlite_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+        -Ddlite_PYTHONPATH="${PYTHONPATH}"
+        -Ddlite_STORAGE_PLUGINS="${STORAGE_PLUGINS}"
+        -Ddlite_MAPPING_PLUGINS="${MAPPING_PLUGINS}"
+        -Ddlite_PYTHON_STORAGE_PLUGINS="${PYTHON_STORAGE_PLUGINS}"
+        -Ddlite_PYTHON_MAPPING_PLUGINS="${PYTHON_MAPPING_PLUGINS}"
+        -Ddlite_TEMPLATES="${TEMPLATES}"
+        -Ddlite_STORAGES="${dlite_STORAGES}"
+*/
 
 #endif /* _DLITE_CONFIG_PATHS_H */
