@@ -11,7 +11,9 @@
 # Defaults
 set(default_build_type     "Debug")
 if(WIN32)
-  set(default_install_prefix "$ENV{ALLUSERSPROFILE}/dlite")
+  # %USERPROFILE% = %SystemDrive%\Users\{username}
+  #This is equivalent to the $HOME environment variable in Unix/Linux
+  set(default_install_prefix "$ENV{USERPROFILE}./local")
 else()
   set(default_install_prefix "$ENV{HOME}/.local")
 endif()
