@@ -13,7 +13,7 @@ set(default_build_type     "Debug")
 if(WIN32)
   # %USERPROFILE% = %SystemDrive%\Users\{username}
   #This is equivalent to the $HOME environment variable in Unix/Linux
-  set(default_install_prefix "$ENV{USERPROFILE}/.local")
+  set(default_install_prefix "$ENV{ALLUSERSPROFILE}/.local")
 else()
   set(default_install_prefix "$ENV{HOME}/.local")
 endif()
