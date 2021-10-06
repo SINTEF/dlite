@@ -110,25 +110,68 @@ del is_conda, is_conda_base
 
 rewind_env = False
 if dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE == "YES":
-    # We set the DLITE_ROOT to the package directory such that
-    # the plugins will be found in:
+    thispath = Path(__file__).parent.resolve()
+
+    # We set some shell environment variables prior to importing .dlite
+    # such that the plugins and storages distributed with the dlite Python
+    # package will be found in the package install directory
+
+    # DLITE_ROOT
     #
     # ./share/dlite/storage-plugins
-    # ./share/dlite/mapping_plugin_paths
     # ./share/dlite/python-storage-plugins
     # ./share/dlite/python-mapping-plugins
 
     assert 'DLITE_ROOT' not in os.environ
-    os.environ['DLITE_ROOT']=Path(__file__).parent.resolve().as_posix()
+    os.environ['DLITE_ROOT']=str(thispath)
+
+    # DLITE_MAPPING_PLUGIN_DIRS
+    #
+    # ./share/dlite/mapping-plugins
+
+    assert 'DLITE_MAPPING_PLUGIN_DIRS' not in os.environ
+    os.environ['DLITE_MAPPING_PLUGIN_DIRS']=str(thispath / 'share/dlite/mapping-plugins')
+
+    # DLITE_STORAGES
+    #
+    # ./share/dlite/storages
+
+    assert 'DLITE_STORAGES' not in os.environ
+    os.environ['DLITE_STORAGES']=str(thispath / 'share/dlite/storages')
+
+    del thispath
     rewind_env=True
 
-    #FIXME: Maybe better like this, without fiddling with the environment
-    #python_storage_plugin_path.insert(0, str(Path(__file__).parent.resolve() / Path("./share/dlite/python-storage-plugins")))
-
 from .dlite import *  # noqa: F401, F403
+
+if dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE == "YES":
+
+    pass
+    # assert len(storage_path) == 1
+    # del storage_path[0]
+    # storage_path.append(str(thispath / "share/dlite/storages")))
+
+    # assert len(python_storage_plugin_path) == 1
+    # del python_storage_plugin_path[0]
+    # python_storage_plugin_path.append(str(thispath / "share/dlite/python-storage-plugins")))
+    
+    # assert len(python_mapping_plugin_path) == 1
+    # del python_mapping_plugin_path[0]
+    # python_mapping_plugin_path.append(str(thispath / "share/dlite/python-mapping-plugins")))
+
+    # assert len(mapping_plugin_path) == 1
+    # del mapping_plugin_path[0]
+    # mapping_plugin_path.append(str(thispath / "share/dlite/mapping-plugins")))
+
+    # assert len(storage_plugin_path) == 1
+    # del storage_plugin_path[0]
+    # storage_plugin_path.append(str(thispath / "share/dlite/storage-plugins")))
+
 from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
 
 if rewind_env:
     os.environ.pop('DLITE_ROOT')
+    os.environ.pop('DLITE_MAPPING_PLUGIN_DIRS')
+    os.environ.pop('DLITE_STORAGES')
 
 del sys, os, Path, rewind_env, dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE
