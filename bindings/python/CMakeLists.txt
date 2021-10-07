@@ -157,6 +157,9 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
     ${pkgdir}/share/dlite/python-storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
+    ${pkgdir}/share/dlite/python-mapping-plugins
   DEPENDS
     python_package
   )
