@@ -35,10 +35,10 @@ int dlite_python_mapping_paths_insert(const char *path, int n);
 int dlite_python_mapping_paths_append(const char *path);
 
 /**
-  Removes path index `n` to Python mapping paths.
+  Removes path number `index` from the Python mapping paths.
   Returns non-zero on error.
 */
-int dlite_python_mapping_paths_delete(int n);
+int dlite_python_mapping_paths_remove_index(int index);
 
 /**
   Returns a pointer to the current Python mapping plugin search path

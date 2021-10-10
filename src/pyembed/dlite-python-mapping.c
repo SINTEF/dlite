@@ -98,14 +98,14 @@ int dlite_python_mapping_paths_append(const char *path)
 }
 
 /*
-  Removes path index `n` to Python mapping paths.
+  Removes path number `index` from the Python mapping paths.
   Returns non-zero on error.
 */
-int dlite_python_mapping_paths_delete(int n)
+int dlite_python_mapping_paths_remove_index(int index)
 {
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return -1;
-  return fu_paths_delete((FUPaths *)paths, n);
+  return fu_paths_remove_index((FUPaths *)paths, index);
 }
 
 /*
