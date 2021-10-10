@@ -64,7 +64,7 @@ option(WITH_REDLAND     "Whether to build with RDF support (using librdf)"  ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"      ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"      ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"       OFF)
-option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      OFF)
+option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"       ON)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
