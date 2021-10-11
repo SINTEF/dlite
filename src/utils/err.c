@@ -645,8 +645,8 @@ void _err_link_record(ErrRecord *record)
 void _err_unlink_record(ErrRecord *record)
 {
   Globals *g = (Globals *)err_get_globals();
-  assert(record == err_record);
-  assert(err_record->prev);
+  assert(record == tls.err_record);
+  assert(tls.err_record->prev);
 
   fprintf(stderr, "!!! _err_unlink_record: %p <- %p)\n",
           (void *)tls.err_record, (void *)tls.err_record->prev);
