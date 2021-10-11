@@ -171,6 +171,7 @@ int rpl_vasnpprintf(char **buf, size_t *size, size_t pos, const char *fmt,
 
   /* Reallocate buffer. Round up the size to the next power of two. */
   newsize = ((size_t)1) << (msb(n + pos) + 1);
+
   if (!(p = realloc(*buf, newsize))) return -1;
   *buf = p;
   *size = newsize;
