@@ -8,7 +8,11 @@ set(py_sources
   )
 
 configure_file(paths.py.in paths.py)
-configure_file(__init__.py.in __init__.py)
+if(dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE)
+  configure_file(__init__standalone.py.in __init__.py)
+else()
+  configure_file(__init__inbuild.py.in __init__.py)
+endif()
 
 # Determine size of size_t
 include(CheckTypeSize)

@@ -1,0 +1,65 @@
+import sys
+import os
+from pathlib import Path
+
+__version__ = "@dlite_VERSION@"
+
+try:
+    import conda
+    del conda
+except:
+    is_conda_base = False
+    is_conda = os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
+else:
+    assert os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
+    is_conda_base = True
+    is_conda = True
+
+if is_conda_base and (sys.platform == 'win32'):
+    msg="You are using the Anaconda Python base environment on Windows.\n"
+    msg+="In order for the Python-embedding in dlite to work, you may need to set PYTHONHOME.\n"
+    msg+="See: https://github.com/ContinuumIO/anaconda-issues/issues/11374\n"
+    msg+="Recommended workaround: Create a conda environment, reinstall dlite in that environment.\n"
+    raise RuntimeError(msg)
+
+from .dlite import *  # noqa: F401, F403
+
+# We remove paths defined during build time and set those paths
+# to defult directories in the package distribution directory
+
+thispath = Path(__file__).parent.resolve()
+
+if "DLITE_ROOT" not in os.environ:
+
+    del storage_plugin_path[0]
+    storage_plugin_path.append(str(thispath / "share/dlite/storage-plugins"))
+
+    assert len(python_storage_plugin_path) == 1
+    del python_storage_plugin_path[0]
+    python_storage_plugin_path.append(str(thispath / "share/dlite/python-storage-plugins"))
+    
+    assert len(python_mapping_plugin_path) == 1
+    del python_mapping_plugin_path[0]
+    python_mapping_plugin_path.append(str(thispath / "share/dlite/python-mapping-plugins"))
+
+else:
+    # user has decided to set DLITE_ROOT, the three plugins will relative to that root-dir
+    pass
+
+# DLITE_MAPPING_PLUGIN_DIRS are inserted at 0 to this as is
+# We delete the path introduced during build and set our package path instead
+
+del mapping_plugin_path[-1]
+mapping_plugin_path.append(str(thispath / "share/dlite/mapping-plugins"))
+
+# DLITE_STORAGES are inserted at 0 to this as is
+# We delete the path introduced during build and set our package path instead
+
+del storage_path[-1]
+storage_path.append(str(thispath / "share/dlite/storages"))
+
+del thispath
+
+from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
+
+del sys, os, Path
