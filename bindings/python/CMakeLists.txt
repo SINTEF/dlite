@@ -146,6 +146,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/mapping-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storages
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite>"
     ${pkgdir}
