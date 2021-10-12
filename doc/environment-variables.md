@@ -27,7 +27,7 @@ DLite-specific environment variables
     if dlite is moved.
 
     In case no install prefix is provided to CMake, the default for
-    DLITE_ROOT is "/.local" on Linux and "%APPDATA%/dlite" on Windows.
+    DLITE_ROOT is "/.local" on Linux and "%ALLUSERSPROFILE%/.local" on Windows.
 
   - **DLITE_PLATFORM**: Specifies how paths are formatted.  If defined,
     it should be "Native" (default), "Unix" or "Windows".
