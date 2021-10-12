@@ -457,7 +457,7 @@ int dlite_add_dll_path(void)
    handler or not */
 #define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
 
-#define ERR_GLOBALS_ID "err-globals-id"
+#define ERR_STATE_ID "err-globals-id"
 
 
 /* A cache pointing to the current session handler */
@@ -512,8 +512,8 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
   _globals_handler = globals_handler;
 
   /* Set globals in utils/err.c */
-  if ((g = dlite_globals_get_state(ERR_GLOBALS_ID)))
-    err_set_globals(g);
+  if ((g = dlite_globals_get_state(ERR_STATE_ID)))
+    err_set_state(g);
 }
 
 /*
@@ -522,8 +522,8 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 void dlite_init(void)
 {
   /* Set up global state for utils/err.c */
-  if (!dlite_globals_get_state(ERR_GLOBALS_ID))
-    dlite_globals_add_state(ERR_GLOBALS_ID, err_get_globals(), NULL);
+  if (!dlite_globals_get_state(ERR_STATE_ID))
+    dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
 }
 
 
