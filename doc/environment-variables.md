@@ -142,7 +142,7 @@ dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; %DLITE_ROOT
 dlite.python_mapping_plugin_path %DLITE_PYTHON_MAPPING_PLUGIN_DIRS%; %DLITE_ROOT%\share\dlite\python-mapping-plugins
 
 dlite.mapping_plugin_path        %DLITE_MAPPING_PLUGIN_DIRS%;       .env\Lib\site-packagesshare\dlite\mapping-plugins
-dlite.storage_path               %DLITE_STORAGES%;                  .env\Lib\site-packagesshare\dlite\storages
+dlite.storage_path               %DLITE_STORAGES%;                  .env\Lib\site-packagesshare\dlite\storages\*.json
 
 
 2. DLITE_ROOT is undefined
@@ -152,5 +152,5 @@ dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; .env\Lib\si
 dlite.python_mapping_plugin_path %DLITE_PYTHON_MAPPING_PLUGIN_DIRS%; .env\Lib\site-packages\dlite\share\dlite\python-mapping-plugins
 
 dlite.mapping_plugin_path        %DLITE_MAPPING_PLUGIN_DIRS%;        .env\Lib\site-packagesshare\dlite\mapping-plugins
-dlite.storage_path               %DLITE_STORAGES%;                   .env\Lib\site-packagesshare\dlite\storages
+dlite.storage_path               %DLITE_STORAGES%;                   .env\Lib\site-packagesshare\dlite\storage\*.jsons
 
