@@ -222,7 +222,7 @@ int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
 
   Returns non-zero on error.
  */
-int plugin_path_delete(PluginInfo *info, int n);
+int plugin_path_remove_index(PluginInfo *info, int index);
 
 /**
   Removes path `path`.  Returns non-zero if there is no such path.
