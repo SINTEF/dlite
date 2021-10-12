@@ -59,7 +59,7 @@ del storage_path[-1]
 
 # Set our package paths instead
 mapping_plugin_path.append(str(thispath / "share/dlite/mapping-plugins"))
-storage_path.append(str(thispath / "share/dlite/storages"))
+storage_path.append(str(thispath / "share/dlite/storages/*.json"))
 
 # The following environment variables will be added to the respective dlite paths
 # as is at position 0 (Search first)
