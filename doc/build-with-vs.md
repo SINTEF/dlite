@@ -100,7 +100,7 @@ Build with Visual Studio
     $ cmake --install .
     $ ctest -C Release
 
-6. Install the Python package
+6. Install the Python package via setup from sources
 
    $ conda create --name=py38dlite python=3.8 numpy
    $ conda activate py38dlite
@@ -113,6 +113,15 @@ Build with Visual Studio
    $ cd python
    # --use-feature=in-tree-build is required for pip < 21.3. for pip >= 21.3 it will become the default.
    $ pip --use-feature=in-tree-build install .
+
+
+7. Install dlite-python via a pre-packaged wheel
+
+   $ conda create --name=py37dlite python=3.7 numpy
+   $ conda activate py37dlite
+   $ pip install dlite_python-0.3.3-cp37-cp37m-win_amd64.whl
+
+
 
 [cmake]: https://cmake.org/download/
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
