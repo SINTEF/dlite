@@ -147,7 +147,6 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storages
-
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite>"
     ${pkgdir}
@@ -159,13 +158,7 @@ add_custom_command(
     ${pkgdir}/share/dlite/storage-plugins
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite-plugins-json>"
-    ${pkgdir}/share/dlite/storages
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${dlite_SOURCE_DIR}/examples/storage-plugins
-    ${pkgdir}/share/dlite/storages
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${dlite_SOURCE_DIR}/examples/mappings
-    ${pkgdir}/share/dlite/mappings
+    ${pkgdir}/share/dlite/storage-plugins
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
     ${pkgdir}/share/dlite/python-storage-plugins
