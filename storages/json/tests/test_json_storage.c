@@ -24,6 +24,27 @@ void json_iter_free(void *iter);
 DLiteInstance *inst, *data3;
 
 
+MU_TEST(test_get_instance_from_in_memory_store)
+{
+    char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+    DLiteStorage* s = NULL;
+    DLiteInstance* inst1, * inst0;
+    int r, stat;
+    printf("\n--- test_get_instance_from_in_memory_store ---\n");
+
+    s = dlite_storage_open("json", filename, "mode=r");
+    mu_check(s);
+
+    inst0 = json_load(s, "204b05b2-4c89-43f4-93db-fd1cb70f54ef");
+    mu_check(inst0);
+    r = dlite_storage_close(s);
+    mu_assert_int_eq(0, r);
+
+    inst1 = dlite_instance_get("204b05b2-4c89-43f4-93db-fd1cb70f54ef");
+    mu_check(inst1);
+    dlite_instance_debug(inst1);
+}
+
 MU_TEST(test_remove_last_instance)
 {
     char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
@@ -199,6 +220,7 @@ MU_TEST(test_iter)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_get_instance_from_in_memory_store);
   MU_RUN_TEST(test_remove_last_instance);
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_load2);
