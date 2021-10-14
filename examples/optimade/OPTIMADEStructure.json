@@ -17,9 +17,9 @@
 	"description": "An integer specifying the number of periodic dimensions in the structure, equivalent to the number of non-zero entries in dimension_types."
 	},
 	{
-	"name": "spatial_dimensions",
-	"description": "vector dimensionality (should always be 3)"
-    	}
+        "name": "spatial_dimensions",
+        "description": "vector dimensionality (should always be 3)"
+    }
     ],
     "properties": [
 	{
@@ -49,10 +49,10 @@
             "description":"The chemical symbols of the different elements present in the structure."
         },
 	{
-	    "name": "element_ratios",
+	    "name": "elements_ratios",
             "type": "float",
-            "shape": ["nelements"],
-            "description":" Relative proportions of different elements in the structure"
+            "dims": ["nelements"],
+            "description": "Relative proportions of different elements in the structure"
         },
 	{
 	    "name": "chemical_formula_descriptive",
@@ -90,7 +90,7 @@
 	{
             "name": "cartesian_site_positions",
             "type":"float",
-            "shape":["nsites", "spatial_dimensions"],
+            "dims":["nsites", "spatial_dimensions"],
 	    "unit": "Å",
             "description": "Cartesian positions of each site in the structure. A site is usually used to describe positions of atoms; what atoms can be encountered at a given site is conveyed by the species_at_sites property, and the species themselves are described in the species property."
         }
