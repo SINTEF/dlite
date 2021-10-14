@@ -35,7 +35,7 @@
             "description": "Atomic masses."
         },
         {
-            "name": "energy",
+            "name": "ground_state_energy",
             "type": "double",
             "unit": "eV",
             "description": "Molecule ground state energy."
