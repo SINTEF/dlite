@@ -1,0 +1,98 @@
+{
+    "name": "OPTIMADEStructure",
+    "version": "0.1",
+    "namespace": "http://onto-ns.com/meta",
+    "description": "A datamode for an OPTIMADE structures entry",
+    "dimensions": [
+	{
+        "name": "nelements",
+	"description": "Number of different elements in the structure as an integer"
+	},
+	{
+	"name": "nperiodic_dimensions",
+	"description": "An integer specifying the number of periodic dimensions in the structure, equivalent to the number of non-zero entries in dimension_types."
+	},
+	{
+	"name": "nsites",
+	"description": "An integer specifying the length of the cartesian_site_positions property."
+	},
+	{
+	"name": "spacial_dimensions",
+	"description": "vector dimensionality (should always be 3)"
+    	}
+    ],
+    "properties": [
+	{
+	    "name": "id",
+            "type": "string",
+            "description": "An entry's ID as defined in section Definition of Terms."
+        },
+	{
+	    "name": "type",
+            "type": "string",
+            "description": "The name of the type of an entry."
+        },
+	{
+	    "name": "immutable_id",
+            "type": "string",
+            "description": "The entry's immutable ID (e.g., an UUID)."
+        },
+	{
+	    "name": "last_modified",
+            "type": "timestamp",
+            "description": "Date and time representing when the entry was last modified."
+        },
+	{
+	    "name": "elements",
+            "type": "float",
+            "dims": ["nelements"],
+            "description":"The chemical symbols of the different elements present in the structure."
+        },
+	{
+	    "name": "element_ratios",
+            "type": "float",
+            "shape": ["nelements"],
+            "description":" Relative proportions of different elements in the structure"
+        },
+	{
+	    "name": "chemical_formula_descriptive",
+            "type": "string",
+            "description": "The chemical formula for a structure as a string in a form chosen by the API implementation."
+        },
+	{
+            "name": "chemical_formula_reduced",
+            "type": "string",
+            "description": "The reduced chemical formula for a structure as a string with element symbols and integer chemical proportion numbers. The proportion number MUST be omitted if it is 1."
+        },
+	{
+	    "name": "chemical_formula_hill",
+            "type": "string",
+            "description": "The chemical formula for a structure in Hill form with element symbols followed by integer chemical proportion numbers. The proportion number MUST be omitted if it is 1"
+        },
+	{
+            "name": "chemical_formula_anonymous",
+            "type": "string",
+            "description": " The anonymous formula is the chemical_formula_reduced, but where the elements are instead first ordered by their chemical proportion number, and then, in order left to right, replaced by anonymous symbols A, B, C, ..., Z, Aa, Ba, ..., Za, Ab, Bb, ... and so on."
+        },
+	{
+	    "name": "dimension_types",
+            "type":"int",
+            "dims": ["spatial_dimensions"],
+            "description": "List of three integers. For each of the three directions indicated by the three lattice vectors (see property lattice_vectors), this list indicates if the direction is periodic (value 1) or non-periodic (value 0). Note: the elements in this list each refer to the direction of the corresponding entry in lattice_vectors and not the Cartesian x, y, z directions."
+        },
+	{
+	    "name": "lattice_vectors",
+            "type":"float",
+            "dims":["nperiodic_dimensions", "spacial_dimensions"],
+	    "unit": "Å",
+            "description": "The three lattice vectors in Cartesian coordinates, in ångström (Å)."
+        },
+	{
+            "name": "cartesian_site_positions",
+            "type":"float",
+            "shape":["nsites", "spacial_dimensions"],
+	    "unit": "Å",
+            "description": "Cartesian positions of each site in the structure. A site is usually used to describe positions of atoms; what atoms can be encountered at a given site is conveyed by the species_at_sites property, and the species themselves are described in the species property."
+        }
+    ]
+}
