@@ -98,14 +98,14 @@ int dlite_python_mapping_paths_append(const char *path)
 }
 
 /*
-  Removes path index `n` to Python mapping paths.
+  Removes path number `index` from the Python mapping paths.
   Returns non-zero on error.
 */
-int dlite_python_mapping_paths_delete(int n)
+int dlite_python_mapping_paths_remove_index(int index)
 {
   const FUPaths *paths;
   if (!(paths = dlite_python_mapping_paths())) return -1;
-  return fu_paths_delete((FUPaths *)paths, n);
+  return fu_paths_remove_index((FUPaths *)paths, index);
 }
 
 /*
@@ -291,7 +291,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
 
   /* get class implementing the plugin API */
   if (*iter < 0 || *iter >= n)
-    FAIL1("API iterator index is out of range: %d", *iter);
+    FAIL1("Mapping API iterator index is out of range: %d", *iter);
   cls = PyList_GetItem(mappings, *iter);
   assert(cls);
   if (*iter < n - 1) (*iter)++;
