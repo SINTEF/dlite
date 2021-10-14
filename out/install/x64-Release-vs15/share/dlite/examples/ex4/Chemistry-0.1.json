@@ -1,0 +1,86 @@
+{
+  "name": "Chemistry",
+  "version": "0.1",
+  "namespace": "http://sintef.no/calm",
+  "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
+  "description": "Simple entity with alloy and particle compositions.",
+  "dimensions": [
+    {
+      "name": "nelements",
+      "description": "Number of different chemical elements."
+    },
+    {
+      "name": "nphases",
+      "description": "Number of phases."
+    }
+  ],
+  "properties": [
+    {
+      "name": "alloy",
+      "type": "string",
+      "description": "A human description of the alloying system and temper."
+    },
+    {
+      "name": "elements",
+      "type": "string",
+      "dims": [
+        "nelements"
+      ],
+      "description": "Chemical symbol of each chemical element.  By convension the dependent element (e.g. Al) is listed first."
+    },
+    {
+      "name": "phases",
+      "type": "string",
+      "dims": [
+        "nphases"
+      ],
+      "description": "Name of each phase."
+    },
+    {
+      "name": "X0",
+      "type": "double",
+      "unit": "atom-fraction",
+      "dims": [
+        "nelements"
+      ],
+      "description": "Nominal composition.  Should sum to one."
+    },
+    {
+      "name": "Xp",
+      "type": "double",
+      "unit": "atom-fraction",
+      "dims": [
+        "nphases",
+        "nelements"
+      ],
+      "description": "Average composition of each phase, excluding matrix.  Each row should sum to one."
+    },
+    {
+      "name": "volfrac",
+      "type": "double",
+      "dims": [
+        "nphases"
+      ],
+      "description": "Volume fraction of each phase, excluding matrix."
+    },
+    {
+      "name": "rpart",
+      "type": "double",
+      "unit": "m",
+      "dims": [
+        "nphases"
+      ],
+      "description": "Average particle radius of each phase, excluding matrix."
+    },
+    {
+      "name": "atvol",
+      "type": "double",
+      "unit": "m^3",
+      "dims": [
+        "nphases"
+      ],
+      "description": "Average volume per atom for each phase."
+    }
+  ],
+  "dataname": "http://sintef.no/calm/0.1/Chemistry"
+}

@@ -1,0 +1,117 @@
+/* -*- C -*-  (not really, but good for syntax highlighting) */
+
+/* This file is generated with dlite-codegen {dlite.version} -- do not edit!
+ *
+ * Template: c-header.txt
+ * Source:   {_uri}
+ *
+ * This file declares the struct `{name%M}` for a dlite data instance,
+ * with the dimensions and properties of the dlite metadata it was
+ * generated from. It can be included and used in your project without
+ * any dependencies (except for the header files boolean.h, integers.h
+ * and floats.h that are provided with dlite).
+ *
+ * However it is beneficial to use it together with the dlite library,
+ * e.g. for letting dlite handle I/O.  In that case you should either
+ * define the macro HAVE_DLITE or including "dlite.h" before including
+ * this header.  Instances of `{name%M}` are valid dlite instances and
+ * can safely be casted to `DLiteInstance`.
+ *
+ * It is also possible to extend the header of the {name%M} struct with
+ * custom fields.  It that case you should define the macro
+ * {name%M}_HEAD before including this header, like
+ *
+ *     #define {name%M}_HEAD   {@40}\\
+ *       DLiteInstance_HEAD  {@40}\\
+ *       <my fields>...
+ *
+ *     #include "{name%u}.h"
+ *
+ * where <my fields> are any additional fields you want to add to
+ * {name%M}.  If you do this, remember to update the metadata using
+ * the DLITE_UPDATE_EXTENEDE_META() macro before loading/creating any
+ * instances.
+ */
+
+/**
+  @file
+  @brief {descr}
+*/
+{@if: {isdata} | {ismetameta} }\
+{@error:The template c-header requires ordinary metadata as input}
+{@endif}\
+#ifndef _{name%U}_H
+#define _{name%U}_H
+
+#include "utils/integers.h"
+#include "utils/boolean.h"
+#include "utils/floats.h"
+
+#ifndef {name%C}_NAME
+#define {name%C}_NAME      "{name}"
+#define {name%C}_VERSION   "{version}"
+#define {name%C}_NAMESPACE "{namespace}"
+#define {name%C}_URI       "{_uri}"
+#define {name%C}_UUID      "{_uuid}"
+#define {name%C}_IRI       "{_iri}"
+#define {name%C}_META_URI  "{meta.uri}"
+#define {name%C}_META_UUID "{meta.uuid}"
+#define {name%C}_META_IRI  "{meta.iri}"
+#endif
+
+/** Minimal set of needed definitions in case we don't have dlite */
+#if defined HAVE_DLITE
+#include "dlite.h"
+#elif !defined DLITE_MINIMAL_DEFS
+#define DLITE_MINIMAL_DEFS
+typedef enum {{dliteBlob, dliteBool, dliteInt, dliteUInt, dliteFloat,
+              dliteFixString, dliteStringPtr,
+                   dliteDimension, dliteProperty, dliteRelation}} DLiteType;
+typedef struct {{ char *name, description; }} DLiteDimension;
+typedef struct {{
+  char *name;
+  DLiteType type;
+  size_t size;
+  int ndims;
+  char **dims, *unit, *iri, *description;
+}} DLiteProperty;
+typedef void DLiteInstance;
+#define DLiteInstance_HEAD
+#define DLiteMeta_HEAD
+#define DLITE_UPDATE_EXTENEDE_META(meta, type, firstdim)
+#endif
+
+
+/** Initial fields of the {name%M} structure. */
+#ifndef {name%M}_HEAD
+#define {name%M}_HEAD  DLiteInstance_HEAD
+#endif
+
+
+/** Final fields of the {name%M} structure (not intended for direct access
+    by user). */
+#ifdef HAVE_DLITE
+#define {name%M}_TAIL \\
+  size_t __propdims[{_npropdims}];  {@30}/*!< property dimension values */
+#else
+#define {name%M}_TAIL
+#endif
+
+
+typedef struct _{name%M} {{
+  {name%M}_HEAD  {@30}/*!< Common head for all instances */
+
+  /* -- dimension values */
+{list_dimensions:  size_t {dim.name}; {@30}/*!< {dim.descr} */\n}
+  /* -- property values */
+{list_properties:  {prop.cdecl}; {@30}/*!< {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */\n} \
+{@if:{_nrelations}!0}
+  /* -- relation values */
+  DLiteRelation __relations[{_nrelations}];
+{@endif} \
+
+  {name%M}_TAIL
+}} {name%M};
+
+
+#endif /* _{name%U}_H */

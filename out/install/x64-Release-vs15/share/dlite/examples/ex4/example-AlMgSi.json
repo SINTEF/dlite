@@ -1,0 +1,77 @@
+{
+  "d3d18712-3e8f-5f02-a1ea-ab147199c4f1": {
+    "meta": {
+      "name": "PhilibTable",
+      "version": "0.1",
+      "namespace": "http://onto-ns.com/meta/philib"
+    },
+    "dimensions": {
+      "nelements": 3,
+      "nphases": 2,
+      "nvars": 1,
+      "nbounds": 2,
+      "nconds": 2,
+      "ncalc": 2,
+      "npoints": 2
+    },
+    "properties": {
+      "database": null,
+      "elements": [
+        "Al",
+        "Mg",
+        "Si"
+      ],
+      "phases": [
+        "FCC_A1",
+        "MG2SI"
+      ],
+      "phaseselementdep": [
+        0,
+        1
+      ],
+      "varnames": [
+        "T"
+      ],
+      "varranges": [
+        [
+          500.0,
+          800.0
+        ]
+      ],
+      "condnames": [
+        "X0(Mg)",
+        "X0(Si)"
+      ],
+      "condvalues": [
+        0.10000000000000001,
+        0.10000000000000001
+      ],
+      "calcnames": [
+        "fv(MG2SI)",
+        "X(MG2SI,Si)"
+      ],
+      "calcvalues": [
+        [
+          0.20000000000000001,
+          0.10000000000000001
+        ],
+        [
+          0.33000000000000002,
+          0.38
+        ]
+      ],
+      "regular_grid": false,
+      "ticks": [
+        0
+      ],
+      "points": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ]
+      ]
+    }
+  }
+}

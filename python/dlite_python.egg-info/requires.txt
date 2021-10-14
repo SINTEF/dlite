@@ -1,0 +1,5 @@
+fortran-language-server
+numpy
+PyYAML
+psycopg2-binary
+pandas
