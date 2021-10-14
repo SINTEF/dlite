@@ -9,15 +9,15 @@
 	"description": "Number of different elements in the structure as an integer"
 	},
 	{
-	"name": "nperiodic_dimensions",
-	"description": "An integer specifying the number of periodic dimensions in the structure, equivalent to the number of non-zero entries in dimension_types."
-	},
-	{
 	"name": "nsites",
 	"description": "An integer specifying the length of the cartesian_site_positions property."
 	},
 	{
-	"name": "spacial_dimensions",
+	"name": "nperiodic_dimensions",
+	"description": "An integer specifying the number of periodic dimensions in the structure, equivalent to the number of non-zero entries in dimension_types."
+	},
+	{
+	"name": "spatial_dimensions",
 	"description": "vector dimensionality (should always be 3)"
     	}
     ],
@@ -39,12 +39,12 @@
         },
 	{
 	    "name": "last_modified",
-            "type": "timestamp",
+            "type": "string",
             "description": "Date and time representing when the entry was last modified."
         },
 	{
 	    "name": "elements",
-            "type": "float",
+            "type": "string",
             "dims": ["nelements"],
             "description":"The chemical symbols of the different elements present in the structure."
         },
@@ -83,14 +83,14 @@
 	{
 	    "name": "lattice_vectors",
             "type":"float",
-            "dims":["nperiodic_dimensions", "spacial_dimensions"],
+            "dims":["nperiodic_dimensions", "spatial_dimensions"],
 	    "unit": "Å",
             "description": "The three lattice vectors in Cartesian coordinates, in ångström (Å)."
         },
 	{
             "name": "cartesian_site_positions",
             "type":"float",
-            "shape":["nsites", "spacial_dimensions"],
+            "shape":["nsites", "spatial_dimensions"],
 	    "unit": "Å",
             "description": "Cartesian positions of each site in the structure. A site is usually used to describe positions of atoms; what atoms can be encountered at a given site is conveyed by the species_at_sites property, and the species themselves are described in the species property."
         }
