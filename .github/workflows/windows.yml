@@ -41,6 +41,9 @@ jobs:
     - name: Make build folder
       run: mkdir build
 
+    - name: Check for NumPy
+      run: python -c "import numpy; print(numpy.get_include())"
+
     - name: Use cmake
       run: cmake -A x64 -DWITH_DOC=OFF -DWITH_HDF5=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ..
       working-directory: build
