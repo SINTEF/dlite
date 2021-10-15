@@ -287,10 +287,10 @@ add_definitions(
   -DHAVE_CONFIG_H
   )
 
-# FIXME - Should we add this here?
-#if(WINDOWS)
-#  add_definitions(-DDLLEXPORT)
-#endif()
+# FIXME - Should we add this here? Gets at least rid of a Linker warning: LNK4217 related to NameSpace_DNS, NameSpace_URL
+if(MSVC)
+  add_definitions(-DDLLEXPORT)
+endif()
 
 add_library(dlite-utils SHARED ${sources})
 add_library(dlite-utils-static STATIC ${sources})

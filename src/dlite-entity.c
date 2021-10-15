@@ -75,6 +75,7 @@ static instance_map_t *_instance_store(void)
 {
   instance_map_t *istore = dlite_globals_get_state("dlite-instance-store");
   if (!istore) {
+      printf("-->> Initializing dlite-instance-store <<--\n");
     if (!(istore = malloc(sizeof(instance_map_t))))
       return err(1, "allocation failure"), NULL;
     map_init(istore);
@@ -131,8 +132,29 @@ static int _instance_store_add(const DLiteInstance *inst)
   instance_map_t *istore = _instance_store();
   assert(istore);
   assert(inst);
-  if (map_get(istore, inst->uuid)) return 1;
+  const char* uuid1;
+  map_iter_t iter;
+
+  printf("\nuuids in store (BEFORE Adding)->\n");
+  iter = map_iter(istore);
+  while ((uuid1 = map_next(istore, &iter))) {
+      printf("uuid: %s\n", uuid1);
+  }
+  printf("<-uuids in store\n\n");
+
+  if (map_get(istore, inst->uuid)) {
+      printf("NOT Adding instance to store (already in): %s\n", inst->uuid);
+      return 1;
+  }
+  printf("Adding instance to store: %s\n", inst->uuid);
   map_set(istore, inst->uuid, (DLiteInstance *)inst);
+
+  printf("\nuuids in store (AFTER Adding)->\n");
+  iter = map_iter(istore);
+  while ((uuid1 = map_next(istore, &iter))) {
+      printf("uuid: %s\n", uuid1);
+  }
+  printf("<-uuids in store\n\n");
 
   /* Increase reference  count for metadata that is kept in the store */
   if (dlite_instance_is_meta(inst))
@@ -165,6 +187,19 @@ static DLiteInstance *_instance_store_get(const char *id)
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
+
+
+  const char* uuid1;
+  map_iter_t iter;
+
+  printf("\nGETTING: uuids in store->\n");
+  iter = map_iter(istore);
+  while ((uuid1 = map_next(istore, &iter))) {
+      printf("uuid: %s\n", uuid1);
+  }
+  printf("<-uuids in store\n\n");
+
+
   if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
     return errx(1, "id '%s' is neither a valid UUID or a convertable string",
                 id), NULL;
