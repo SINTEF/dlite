@@ -27,8 +27,8 @@ DLiteInstance *inst, *data3;
 MU_TEST(test_get_instance_from_in_memory_store)
 {
     char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
-    DLiteStorage* s = NULL, *stat = NULL;
-    DLiteInstance* inst1, * inst0;
+    DLiteStorage* s = NULL;
+    DLiteInstance* inst1, * inst0, *stat = NULL;
     int r;
     printf("\n--- test_get_instance_from_in_memory_store ---\n");
 
