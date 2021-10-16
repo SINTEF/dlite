@@ -54,8 +54,10 @@ foreach(test ${tests})
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
   endif()
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  if(MINGW)
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   if (NOT WIN32)

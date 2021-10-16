@@ -33,8 +33,10 @@ foreach(test ${tests})
 
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  if(MINGW)
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  endif()
   if (WIN32 AND PYTHON_IS_ANACONDA)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
