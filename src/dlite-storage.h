@@ -182,7 +182,7 @@ int dlite_storage_paths_append(const char *path);
 
   Returns non-zero on error.
  */
-int dlite_storage_paths_delete(int n);
+int dlite_storage_paths_remove_index(int index);
 
 /**
   Returns a NULL-terminated array of pointers to paths/urls or NULL if

@@ -1,0 +1,10 @@
+setup.cfg
+setup.py
+../LICENSE
+dlite/__init__.py
+dlite_python.egg-info/PKG-INFO
+dlite_python.egg-info/SOURCES.txt
+dlite_python.egg-info/dependency_links.txt
+dlite_python.egg-info/not-zip-safe
+dlite_python.egg-info/requires.txt
+dlite_python.egg-info/top_level.txt

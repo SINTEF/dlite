@@ -319,9 +319,9 @@ int dlite_mapping_plugin_path_appendn(const char *path, size_t n)
 
   Returns non-zero on error.
 */
-int dlite_mapping_plugin_path_delete(int n)
+int dlite_mapping_plugin_path_remove_index(int index)
 {
   PluginInfo *info;
   if (!(info = get_mapping_plugin_info())) return 1;
-  return plugin_path_delete(info, n);
+  return plugin_path_remove_index(info, index);
 }

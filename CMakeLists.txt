@@ -158,6 +158,7 @@ if(WITH_HDF5)
   list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
 endif()
 if(WITH_PYTHON)
+  #FIME: Python3_LIBRARIES is undefined here
   list(APPEND DLITE_CONFIG_VARS
     Python3_LIBRARIES
     DLITE_PYTHON_STORAGE_PLUGIN_DIRS
@@ -229,6 +230,7 @@ endif()
 # ======
 if(WITH_PYTHON)
 
+  message(STATUS "Looking for Python3")
   if(CROSS_TARGET AND MINGW)
     set(Python3_FIND_REGISTRY NEVER)
     set(Python3_FIND_STRATEGY LOCATION)
@@ -236,6 +238,8 @@ if(WITH_PYTHON)
   endif()
 
   if(WIN32)
+    set(Python3_FIND_REGISTRY NEVER)
+    set(Python3_FIND_STRATEGY LOCATION)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
@@ -244,6 +248,10 @@ if(WITH_PYTHON)
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
+  message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
+  message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
+  message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
+  message(STATUS "Python3_NumPy_INCLUDE_DIRS = ${Python3_NumPy_INCLUDE_DIRS}")
   if (WIN32)
     # Prepare to workaround Anaconda issues on Windows
     # https://github.com/pytorch/pytorch/issues/17051

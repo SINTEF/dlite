@@ -67,12 +67,12 @@ Creates a _Path instance of type `pathtype`.
     if (index < 0 || index >= (int)$self->n) {
       dlite_err(1, "index out of range: %d", index);
     } else {
-      fu_paths_delete($self, index);
+      fu_paths_remove_index($self, index);
       fu_paths_insert($self, path, index);
     }
   }
   void __delitem__(int index) {
-    fu_paths_delete($self, index);
+    fu_paths_remove_index($self, index);
   }
 
   void insert(int index, const char *path) {
