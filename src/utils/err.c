@@ -131,6 +131,7 @@ static void reset_tls(void)
 static ThreadLocals *get_tls(void)
 {
   if (!_tls_initialized) {
+    _tls_initialized = 1;
     memset(&_tls, 0, sizeof(_tls));
     _tls.err_abort_mode = -1;
     _tls.err_warn_mode = -1;
@@ -306,10 +307,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
      we mark this error to be reraised after leaving the handler. */
   if (errlevel >= errLevelError && tls->err_record->state)
     tls->err_record->reraise = eval;
-
-  fprintf(stderr, "!!! handler=%d: err_record->prev=%p\n",
-          (handler) ? 1 : 0, (void *)tls->err_record->prev);
-  fprintf(stderr, "!!! call_handler=%d: %s\n", call_handler, errmsg);
 
   /* If we are not within a ErrTry...ErrEnd clause */
   if (call_handler) {
@@ -695,8 +692,6 @@ ErrRecord *_err_get_record()
 void _err_link_record(ErrRecord *record)
 {
   ThreadLocals *tls = get_tls();
-  fprintf(stderr, "!!! _err_link_record(%d, %p)\n",
-          (record) ? 1 : 0, (void *)tls->err_record);
   memset(record, 0, sizeof(ErrRecord));
   record->prev = tls->err_record;
   tls->err_record = record;
@@ -708,9 +703,6 @@ void _err_unlink_record(ErrRecord *record)
   Globals *g = tls->globals;
   assert(record == tls->err_record);
   assert(tls->err_record->prev);
-
-  fprintf(stderr, "!!! _err_unlink_record: %p <- %p)\n",
-          (void *)tls->err_record, (void *)tls->err_record->prev);
 
   tls->err_record = record->prev;
   if (record->reraise || (record->eval && !record->handled)) {

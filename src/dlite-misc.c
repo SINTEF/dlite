@@ -521,9 +521,16 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
  */
 void dlite_init(void)
 {
-  /* Set up global state for utils/err.c */
-  if (!dlite_globals_get_state(ERR_STATE_ID))
-    dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
+  static int initialized = 0;
+
+  if (!initialized) {
+    initialized = 1;
+
+    /* Set up global state for utils/err.c */
+    if (!dlite_globals_get_state(ERR_STATE_ID))
+      dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
+  }
+
 }
 
 
