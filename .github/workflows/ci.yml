@@ -63,3 +63,9 @@ jobs:
         cd build
         ctest || ctest --rerun-failed --output-on-failure -V
         cd -
+    - name: build Linux wheel
+      run: |
+        cd python
+        pip install numpy wheel
+        python3 setup.py bdist_wheel
+        cd -
