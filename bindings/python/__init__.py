@@ -6,13 +6,6 @@ import os
 # The dll loading trick below is not working on Anaconda Python
 # https://github.com/pytorch/pytorch/issues/17051
 
-# For CPython, setting the PATH is not sufficient. This may be related to the
-# following bug recognised by the numpy cummunity;
-# https://github.com/numpy/numpy/issues/12667
-#
-# For CPython: To work around, call AddDllDirectory() directly via ctypes to set the
-# search path on Windows
-
 try:
     import conda
 except:
@@ -24,6 +17,12 @@ else:
     is_conda = True
 
 if (sys.platform == 'win32') and (not is_conda):
+    # For CPython, setting the PATH is not sufficient on Windows without Anaconda Python.
+    # This may be related to the following bug recognised by the numpy cummunity;
+    # https://github.com/numpy/numpy/issues/12667
+    #
+    # To work around, call AddDllDirectory() directly via ctypes to set the
+    # search path on Windows before importing dlite
     from pathlib import Path
     from ctypes import windll, c_wchar_p
     from ctypes.wintypes import DWORD
