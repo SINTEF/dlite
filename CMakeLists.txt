@@ -391,7 +391,7 @@ set(dll_targets
   dlite-plugins-python
   )
 if(WITH_HDF5)
-  list(APPEND targets dlite-plugins-python)
+  list(APPEND targets dlite-plugins-hdf5)
 endif()
 if(WITH_REDLAND)
   list(APPEND targets dlite-plugins-rdf)
