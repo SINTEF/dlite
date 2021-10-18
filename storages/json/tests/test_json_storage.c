@@ -44,12 +44,11 @@ MU_TEST(test_get_instance_from_in_memory_store)
     mu_assert_int_eq(0, r);
 
     // Should be in store now
-    printf("Should be in store now ---\n");
     stat = dlite_instance_has("204b05b2-4c89-43f4-93db-fd1cb70f54ef", 0);
     mu_assert_int_eq(0, (stat) ? 0 : -1);
     stat = dlite_instance_has(inst0->uuid, 0);
     mu_assert_int_eq(0, (stat) ? 0 : -1);
-    
+
     // Now getting it from istore
     inst1 = dlite_instance_get(inst0->uuid);
     mu_check(inst1);
