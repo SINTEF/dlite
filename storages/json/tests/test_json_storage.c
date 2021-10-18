@@ -231,15 +231,15 @@ MU_TEST(test_iter)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_get_instance_from_in_memory_store);
-  //MU_RUN_TEST(test_remove_last_instance);
-  //MU_RUN_TEST(test_load);
-  //MU_RUN_TEST(test_load2);
-  //MU_RUN_TEST(test_load3);
-  //MU_RUN_TEST(test_load4);
-  //MU_RUN_TEST(test_load_data3);
-  //MU_RUN_TEST(test_write);
-  //MU_RUN_TEST(test_append);
-  //MU_RUN_TEST(test_iter);
+  MU_RUN_TEST(test_remove_last_instance);
+  MU_RUN_TEST(test_load);
+  MU_RUN_TEST(test_load2);
+  MU_RUN_TEST(test_load3);
+  MU_RUN_TEST(test_load4);
+  MU_RUN_TEST(test_load_data3);
+  MU_RUN_TEST(test_write);
+  MU_RUN_TEST(test_append);
+  MU_RUN_TEST(test_iter);
 }
 
 
