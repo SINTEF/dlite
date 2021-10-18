@@ -421,7 +421,7 @@ int fu_paths_extend_prefix(FUPaths *paths, const char *prefix, const char *s,
 
   Returns non-zero on error.
  */
-int fu_paths_delete(FUPaths *paths, int n);
+int fu_paths_remove_index(FUPaths *paths, int index);
 
 /**
   Removes path `path`.  Returns non-zero if there is no such path.

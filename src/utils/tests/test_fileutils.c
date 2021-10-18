@@ -327,7 +327,7 @@ MU_TEST(test_fu_paths)
   mu_assert_string_eq("/c/users/path2", paths.paths[1]);
   mu_assert_string_eq(NULL,    paths.paths[2]);
 
-  mu_assert_int_eq(0, fu_paths_delete(&paths, 1));
+  mu_assert_int_eq(0, fu_paths_remove_index(&paths, 1));
   mu_assert_int_eq(1, paths.n);
   mu_assert_int_eq(1, count_paths(&paths));
   mu_assert_string_eq(NULL,    paths.paths[1]);

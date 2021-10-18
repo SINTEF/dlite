@@ -24,6 +24,65 @@ void json_iter_free(void *iter);
 DLiteInstance *inst, *data3;
 
 
+MU_TEST(test_get_instance_from_in_memory_store)
+{
+    char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+    DLiteStorage* s = NULL;
+    DLiteInstance* inst1, * inst0, *stat = NULL;
+    int r;
+    printf("\n--- test_get_instance_from_in_memory_store ---\n");
+
+    // Instance cannot be in store
+    stat = dlite_instance_has("204b05b2-4c89-43f4-93db-fd1cb70f54ef", 0);
+    mu_assert_int_eq(-1, (stat) ? 0 : -1);
+
+    s = dlite_storage_open("json", filename, "mode=r");
+    mu_check(s);
+    inst0 = json_load(s, "204b05b2-4c89-43f4-93db-fd1cb70f54ef");
+    mu_check(inst0);
+    r = dlite_storage_close(s);
+    mu_assert_int_eq(0, r);
+
+    // Should be in store now
+    stat = dlite_instance_has("204b05b2-4c89-43f4-93db-fd1cb70f54ef", 0);
+    mu_assert_int_eq(0, (stat) ? 0 : -1);
+    stat = dlite_instance_has(inst0->uuid, 0);
+    mu_assert_int_eq(0, (stat) ? 0 : -1);
+
+    // Now getting it from istore
+    inst1 = dlite_instance_get(inst0->uuid);
+    mu_check(inst1);
+    dlite_instance_debug(inst1);
+}
+
+MU_TEST(test_remove_last_instance)
+{
+    char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+    DLiteStorage* s = NULL;
+    DLiteInstance* inst1, * inst0;
+    int r, stat;
+    printf("\n--- test_remove_last_instance ---\n");
+
+    s = dlite_storage_open("json", filename, "mode=r");
+    mu_check(s);
+
+    inst0 = json_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+    mu_check(inst0);
+    inst1 = json_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+    mu_check(inst1);
+    dlite_instance_debug(inst1);
+
+    r = dlite_storage_close(s);
+    mu_assert_int_eq(0, r);
+
+    stat = dlite_instance_decref(inst1);
+    mu_assert_int_eq(1, stat);
+    dlite_instance_debug(inst1);
+
+    stat = dlite_instance_decref(inst1);
+    mu_assert_int_eq(0, stat);
+}
+
 MU_TEST(test_load)
 {
   char *filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json";
@@ -171,6 +230,8 @@ MU_TEST(test_iter)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_get_instance_from_in_memory_store);
+  MU_RUN_TEST(test_remove_last_instance);
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_load2);
   MU_RUN_TEST(test_load3);

@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.3
+  VERSION 0.3.1
   DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -64,7 +64,7 @@ option(WITH_REDLAND     "Whether to build with RDF support (using librdf)"  ON)
 option(WITH_DOC         "Whether to build documentation using doxygen"      ON)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"      ON)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"       OFF)
-option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      OFF)
+option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"       ON)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -234,6 +234,7 @@ if(WITH_PYTHON)
     set(Python3_FIND_STRATEGY LOCATION)
     set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
   endif()
+
   if(WIN32)
     set(Python3_FIND_REGISTRY NEVER)
     set(Python3_FIND_STRATEGY LOCATION)
@@ -592,6 +593,7 @@ string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
 string(REPLACE ";" "|" dlite_STORAGES_NATIVE  "${dlite_STORAGES_NATIVE}")
 string(REPLACE ";" "|" dlite_STORAGES_UNIX    "${dlite_STORAGES_UNIX}")
 string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
+
 
 # Add target "show" for showing test environment
 set(test_env
