@@ -1,0 +1,92 @@
+@prefix : <http://onto-ns.com/ontology/chemistry#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://onto-ns.com/ontology/chemistry> .
+
+<http://onto-ns.com/ontology/chemistry> rdf:type owl:Ontology ;
+                                         owl:versionIRI <http://onto-ns.com/ontology/0.1/chemistry> ;
+                                         owl:imports <https://raw.githubusercontent.com/emmo-repo/emmo-repo.github.io/master/versions/1.0.0-beta/emmo-inferred-chemistry2.ttl> ,
+                                                     <https://www.w3.org/ns/dcat.ttl> .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://onto-ns.com/ontology/chemical-reaction#EMMO_5656b8e2_cbc3_4a0c_bd36_9d500786c3cf
+<http://onto-ns.com/ontology/chemical-reaction#EMMO_5656b8e2_cbc3_4a0c_bd36_9d500786c3cf> rdf:type owl:ObjectProperty ;
+                                                                                          rdfs:subPropertyOf <http://emmo.info/emmo#EMMO_c5aae418_1622_4d02_93c5_21159e28e6c1> ;
+                                                                                          <http://www.w3.org/2004/02/skos/core#prefLabel> "hasOutputParticipant"@en .
+
+
+###  http://onto-ns.com/ontology/chemical-reaction#EMMO_7cadcff4_c0fe_416a_98d1_07b23129d4a4
+<http://onto-ns.com/ontology/chemical-reaction#EMMO_7cadcff4_c0fe_416a_98d1_07b23129d4a4> rdf:type owl:ObjectProperty ;
+                                                                                          rdfs:subPropertyOf <http://emmo.info/emmo#EMMO_c5aae418_1622_4d02_93c5_21159e28e6c1> ;
+                                                                                          <http://www.w3.org/2004/02/skos/core#prefLabel> "hasInputParticipant"@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://onto-ns.com/ontology/chemical-reaction#ChemicalPhenomenon
+<http://onto-ns.com/ontology/chemical-reaction#ChemicalPhenomenon> rdf:type owl:Class ;
+                                                                   rdfs:subClassOf <http://emmo.info/emmo#EMMO_43e9a05d_98af_41b4_92f6_00f79a09bfce> ;
+                                                                   <http://emmo.info/emmo#EMMO_967080e5_2f42_4eb2_a3a9_c58143e835f9> "A 'process' that is recognized by chemical sciences and is catogrized accordingly."@en ;
+                                                                   <http://www.w3.org/2004/02/skos/core#prefLabel> "ChemicalPhenomenon"@en .
+
+
+###  http://onto-ns.com/ontology/chemical-reaction#ChemicalReaction
+<http://onto-ns.com/ontology/chemical-reaction#ChemicalReaction> rdf:type owl:Class ;
+                                                                 rdfs:subClassOf <http://onto-ns.com/ontology/chemical-reaction#ChemicalPhenomenon> ,
+                                                                                 [ rdf:type owl:Restriction ;
+                                                                                   owl:onProperty <http://emmo.info/emmo#EMMO_ae2d1a96_bfa1_409a_a7d2_03d69e8a125a> ;
+                                                                                   owl:someValuesFrom <http://onto-ns.com/ontology/chemical-reaction#EMMO_ee3c4eef_7a80_4f2d_b46e_1a78f27a7257>
+                                                                                 ] ,
+                                                                                 [ rdf:type owl:Restriction ;
+                                                                                   owl:onProperty <http://onto-ns.com/ontology/chemical-reaction#EMMO_5656b8e2_cbc3_4a0c_bd36_9d500786c3cf> ;
+                                                                                   owl:someValuesFrom <http://onto-ns.com/ontology/chemical-reaction#EMMO_3af2b20b_b962_4b77_ae9c_cab70f70aedd>
+                                                                                 ] ,
+                                                                                 [ rdf:type owl:Restriction ;
+                                                                                   owl:onProperty <http://onto-ns.com/ontology/chemical-reaction#EMMO_7cadcff4_c0fe_416a_98d1_07b23129d4a4> ;
+                                                                                   owl:someValuesFrom <http://onto-ns.com/ontology/chemical-reaction#EMMO_491adfa8_b085_41ad_a990_025af21f8f80>
+                                                                                 ] ;
+                                                                 <http://emmo.info/emmo#EMMO_967080e5_2f42_4eb2_a3a9_c58143e835f9> """A process that results in the interconversion of chemical species. Chemical reactions may be elementary reactions or stepwise reactions. (It should be noted that this definition includes experimentally observable interconversions of conformers.) Detectable chemical reactions normally involve sets of molecular entities as indicated by this definition, but it is often conceptually convenient to use the term also for changes involving single molecular entities (i.e. 'microscopic chemical events').
+
+- IUPAC Gold Book"""@en ;
+                                                                 <http://www.w3.org/2004/02/skos/core#prefLabel> "ChemicalReaction"@en .
+
+
+###  http://onto-ns.com/ontology/chemical-reaction#EMMO_3af2b20b_b962_4b77_ae9c_cab70f70aedd
+<http://onto-ns.com/ontology/chemical-reaction#EMMO_3af2b20b_b962_4b77_ae9c_cab70f70aedd> rdf:type owl:Class ;
+                                                                                          rdfs:subClassOf <http://emmo.info/emmo#EMMO_df96cbb6_b5ee_4222_8eab_b3675df24bea> ;
+                                                                                          <http://emmo.info/emmo#EMMO_967080e5_2f42_4eb2_a3a9_c58143e835f9> "A substance that is consumed in the course of a chemical reaction. It is sometimes known, especially in the older literature, as a reagent, but this term is better used in a more specialized sense as a test substance that is added to a system in order to bring about a reaction or to see whether a reaction occurs (e.g. an analytical reagent)."@en ;
+                                                                                          <http://www.w3.org/2004/02/skos/core#prefLabel> "ChemicalReactant"@en .
+
+
+###  http://onto-ns.com/ontology/chemical-reaction#EMMO_491adfa8_b085_41ad_a990_025af21f8f80
+<http://onto-ns.com/ontology/chemical-reaction#EMMO_491adfa8_b085_41ad_a990_025af21f8f80> rdf:type owl:Class ;
+                                                                                          rdfs:subClassOf <http://emmo.info/emmo#EMMO_df96cbb6_b5ee_4222_8eab_b3675df24bea> ;
+                                                                                          <http://emmo.info/emmo#EMMO_967080e5_2f42_4eb2_a3a9_c58143e835f9> "A substance that is formed during a chemical reaction."@en ;
+                                                                                          <http://www.w3.org/2004/02/skos/core#prefLabel> "ChemicalProduct"@en .
+
+
+###  http://onto-ns.com/ontology/chemical-reaction#EMMO_ee3c4eef_7a80_4f2d_b46e_1a78f27a7257
+<http://onto-ns.com/ontology/chemical-reaction#EMMO_ee3c4eef_7a80_4f2d_b46e_1a78f27a7257> rdf:type owl:Class ;
+                                                                                          rdfs:subClassOf <http://emmo.info/emmo#EMMO_31ec09ba_1713_42cb_83c7_b38bf6f9ced2> ;
+                                                                                          <http://www.w3.org/2004/02/skos/core#prefLabel> "ReactionEnergy"@en .
+
+
+###  http://onto-ns.com/ontology/chemical-reaction#EMMO_fd9be2ac_477a_44b2_b9b0_f7c1d369ae81
+<http://onto-ns.com/ontology/chemical-reaction#EMMO_fd9be2ac_477a_44b2_b9b0_f7c1d369ae81> rdf:type owl:Class ;
+                                                                                          rdfs:subClassOf <http://emmo.info/emmo#EMMO_53935db0_af45_4426_b9e9_244a0d77db00> ,
+                                                                                                          [ rdf:type owl:Restriction ;
+                                                                                                            owl:onProperty <http://emmo.info/emmo#EMMO_e1097637_70d2_4895_973f_2396f04fa204> ;
+                                                                                                            owl:someValuesFrom <http://emmo.info/emmo#EMMO_4c151909_6f26_4ef9_b43d_7c9e9514883a>
+                                                                                                          ] ;
+                                                                                          <http://www.w3.org/2004/02/skos/core#prefLabel> "MoleculeModel"@en .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
