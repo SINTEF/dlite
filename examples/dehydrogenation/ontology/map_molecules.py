@@ -12,15 +12,7 @@ dlite_onto = get_ontology('https://raw.githubusercontent.com/'
 
 
 
-substance_model = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/Substance')
-substance_model.mapsTo = chemistry_onto.MoleculeModel
-
-
-substance_energy = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/Substance#energy')
-substance_energy.mapsTo = chemistry_onto.Energy
-
-
-
-
+molecule_model = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/Molecule')
+molecule_model.mapsTo = chemistry_onto.MoleculeModel
 
 
