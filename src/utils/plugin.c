@@ -46,12 +46,7 @@ int plugin_decref(Plugin *plugin)
   int count = --plugin->count;
   if (count <= 0) {
     free(plugin->path);
-    /* FIXME - remove the #ifndef below
-       For some strange reason MSVC segfaults when we call FreeLibrary()...
-    */
-#ifndef _MSC_VER
     (void)dsl_close(plugin->handle);
-#endif
     free(plugin);
   }
   return count;
