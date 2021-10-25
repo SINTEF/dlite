@@ -463,8 +463,11 @@ int plugin_path_extend(PluginInfo *info, const char *s, const char *pathsep)
   const char *p;
   char *endptr=NULL;
   int stat=0;
-  while ((p = fu_nextpath(s, &endptr, pathsep)))
-    if ((stat = plugin_path_appendn(info, p, endptr - p)) < 0) return stat;
+
+  while ((p = fu_nextpath(s, &endptr, pathsep))) {
+    if (*p && (stat = plugin_path_appendn(info, p, endptr - p)) < 0)
+      return stat;
+  }
   return stat;
 }
 
@@ -481,6 +484,7 @@ int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
   const char *p;
   char *endptr=NULL;
   int stat=0;
+
   while ((p = fu_nextpath(s, &endptr, pathsep))) {
     int len = endptr - p;
     if (fu_isabs(p)) {

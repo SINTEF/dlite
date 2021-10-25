@@ -18,6 +18,7 @@ check_include_file(stdlib.h     HAVE_STDLIB_H)
 check_include_file(float.h      HAVE_FLOAT_H)
 check_include_file(inttypes.h   HAVE_INTTYPES_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
+check_include_file(windows.h    HAVE_WINDOWS_H)
 
 # -- check for symbols
 set(CMAKE_C_FLAGS_saved ${CMAKE_C_FLAGS})
@@ -44,10 +45,12 @@ check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
 check_symbol_exists(exec                unistd.h     HAVE_EXEC)
 check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
 
-check_symbol_exists(GetFullPathNameW    fileapi.h    HAVE_GetFullPathNameW)
-check_symbol_exists(GetFullPathName     fileapi.h    HAVE_GetFullPathName)
-check_symbol_exists(GetFileAttributesW  fileapi.h    HAVE_GetFileAttributesW)
-check_symbol_exists(GetFileAttributes   fileapi.h    HAVE_GetFileAttributes)
+if(HAVE_WINDOWS_H)
+check_symbol_exists(GetFullPathNameW    windows.h    HAVE_GetFullPathNameW)
+check_symbol_exists(GetFullPathName     windows.h    HAVE_GetFullPathName)
+check_symbol_exists(GetFileAttributesW  windows.h    HAVE_GetFileAttributesW)
+check_symbol_exists(GetFileAttributes   windows.h    HAVE_GetFileAttributes)
+endif()
 list(APPEND CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
 check_symbol_exists(PathFileExistsW     shlwapi.h    HAVE_PathFileExistsW)
 check_symbol_exists(PathFileExists      shlwapi.h    HAVE_PathFileExists)
@@ -283,6 +286,11 @@ endif()
 add_definitions(
   -DHAVE_CONFIG_H
   )
+
+# FIXME - Should we add this here?
+#if(WINDOWS)
+#  add_definitions(-DDLLEXPORT)
+#endif()
 
 add_library(dlite-utils SHARED ${sources})
 add_library(dlite-utils-static STATIC ${sources})

@@ -53,14 +53,11 @@ static Globals *get_globals(void) {
                                                 "DLITE_MAPPING_PLUGIN_DIRS",
                                                 dlite_globals_get());
     if (!g->mapping_plugin_info) goto fail;
-
     fu_paths_set_platform(&g->mapping_plugin_info->paths, dlite_get_platform());
-
     if (dlite_use_build_root())
       plugin_path_extend(g->mapping_plugin_info, dlite_MAPPING_PLUGINS, NULL);
-    else
-      plugin_path_extend_prefix(g->mapping_plugin_info, dlite_root_get(),
-                                DLITE_ROOT "/" DLITE_MAPPING_PLUGIN_DIRS, NULL);
+    plugin_path_extend_prefix(g->mapping_plugin_info, dlite_root_get(),
+                              DLITE_ROOT "/" DLITE_MAPPING_PLUGIN_DIRS, NULL);
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();

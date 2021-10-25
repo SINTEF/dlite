@@ -83,12 +83,21 @@ foreach(source ${py_sources})
   list(APPEND abs_targets ${pkgdir}/${source})
 endforeach()
 
+# On windows, also copy all dlite DLLs to our Python package
+set(dlls)
+if(WINDOWS OR MINGW)
+  foreach(dll_target ${dll_targets})
+    list(APPEND dlls $<TARGET_FILE:${dll_target}>)
+  endforeach()
+endif()
+
 add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+    ${dlls}
     ${pkgdir}
   BYPRODUCTS
     ${pkgdir}

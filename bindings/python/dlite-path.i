@@ -54,16 +54,16 @@ Creates a _Path instance of type `pathtype`.
     return fu_paths_string($self);
   }
   int __len__(void) {
-    return $self->n;
+    return (int)$self->n;
   }
   const char *getitem(int index) {
-    if (index < 0) index += $self->n;
+    if (index < 0) index += (int)$self->n;
     if (index < 0 || index >= (int)$self->n)
       return dlite_err(1, "index out of range: %d", index), NULL;
     return $self->paths[index];
   }
   void __setitem__(int index, const char *path) {
-    if (index < 0) index += $self->n;
+    if (index < 0) index += (int)$self->n;
     if (index < 0 || index >= (int)$self->n) {
       dlite_err(1, "index out of range: %d", index);
     } else {

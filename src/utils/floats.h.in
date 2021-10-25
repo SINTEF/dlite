@@ -42,14 +42,20 @@ typedef double double128_t;
 
 #ifdef HAVE_LONG_DOUBLE
 # if SIZEOF_LONG_DOUBLE == 8
-#  define HAVE_FLOAT64_T
+#  ifndef HAVE_FLOAT64_T
+#   define HAVE_FLOAT64_T
 typedef  long double float64_t;
+#  endif
 # elif SIZEOF_LONG_DOUBLE == 10
-#  define HAVE_FLOAT80_T
+#  ifndef HAVE_FLOAT80_T
+#   define HAVE_FLOAT80_T
 typedef long double float80_t;
+#  endif()
 # elif SIZEOF_LONG_DOUBLE == 16
-#  define HAVE_FLOAT128_T
+#  ifndef HAVE_FLOAT128_T
+#   define HAVE_FLOAT128_T
 typedef long double float128_t;
+#  endif
 #else
 #  error "Non-standard size of long double" # SIZEOF_DOUBLE
 # endif

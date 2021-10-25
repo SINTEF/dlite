@@ -51,7 +51,7 @@ MU_TEST(test_map)
   inst3 = dlite_mapping("http://onto-ns.com/meta/0.1/ent3", instances, 1);
   mu_check(inst3);
   mu_check((p = dlite_instance_get_property(inst3, "c")));
-  mu_assert_double_eq(54.0, (double)*((float *)p));
+  mu_assert_double_eq(54.0, *(float *)p);
 
   dlite_instance_save_url("json://inst3.json", inst3);
 
