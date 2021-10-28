@@ -23,3 +23,8 @@ for molname in ['c2h6', 'c2h4', 'h2']:
     coll.add(label=molname, inst=mol)
 
 coll.save('json', 'atomscaledata.json', 'mode=w')
+
+# Change this example so that the calculation is done on the entities
+# from the collection of Molecules (with only info about chemical structure)
+# Read and populate the Molecule
+
