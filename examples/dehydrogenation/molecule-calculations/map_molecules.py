@@ -1,6 +1,6 @@
 from ontopy import get_ontology, World
 
-# Note install emmopython from github, not pypi. 
+# Note install emmopython from github, not pypi.
 world = World()
 
 mapsTo_onto = world.get_ontology('../ontology/mapsTo.ttl').load(EMMObased=False)
@@ -17,15 +17,11 @@ mapping.imported_ontologies.extend([mapsTo_onto, chemistry_onto, dlite_onto])
 with mapping:
 
     molecule = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/Molecule')
-    molecule.mapsTo = chemistry_onto.MoleculeModel
+    molecule.mapsTo.append(chemistry_onto.MoleculeModel)
 
 
     molecule_energy = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/'
                                           'Molecule#ground_state_energy')
-    molecule_energy.mapsTo = chemistry_onto.GroundStateEnergy
+    molecule_energy.mapsTo.append(chemistry_onto.GroundStateEnergy)
 
 mapping.save('mapping.ttl')
-
-
-
-
