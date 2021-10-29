@@ -15,6 +15,11 @@
     ],
     "properties": [
         {
+            "name": "name",
+            "type": "string",
+            "description": "Name of the molecule."
+        },
+        {
             "name": "positions",
             "type": "double",
             "dims": ["natoms", "ncoords"],

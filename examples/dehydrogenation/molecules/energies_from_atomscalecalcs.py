@@ -9,9 +9,10 @@ def readMolecule(filename, Molecule):
     atoms.calc = EMT()
     basename = os.path.splitext(filename)[0]
     inst = Molecule(dims=[len(atoms), 3], id=basename)  # DLite instance
+    inst.name = basename
+    inst.positions = atoms.positions
     inst.symbols = atoms.get_chemical_symbols()
     inst.masses = atoms.get_masses()
-    inst.positions = atoms.positions
     inst.energy = atoms.get_potential_energy()
     return inst
 
@@ -27,4 +28,3 @@ coll.save('json', 'atomscaledata.json', 'mode=w')
 # Change this example so that the calculation is done on the entities
 # from the collection of Molecules (with only info about chemical structure)
 # Read and populate the Molecule
-
