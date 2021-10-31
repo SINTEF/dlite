@@ -2,11 +2,59 @@
 
 We want to be able to calculate the reaction energy of the following dehydrogenation reaction:
 
-![C2H6(g) --> C2H4(g) + H2(g)](figs/reaction.png)
+<img src="figs/reaction.png" alt="C2H6(g) --> C2H4(g) + H2(g)" width="500px">
 
 The structure of all the involved molecules are stored in the folder
 [molecules](molecules) in the
 [xyz](https://en.wikipedia.org/wiki/XYZ_file_format) file format.
+
+
+
+## Workflows
+We will divide this example into three workflows:
+
+1. simple workflow that explicitly calculates the reaction energy of the `C2H6(g) --> C2H4(g) + H2(g)` reaction
+2. like workflow 1, but replaces the explicit calculation of the reaction energy
+   in the second step with dlite mappings
+3. like workflow 2, but uses ontological mappings to generate the dlite mappings
+
+
+### 1. Simple workflow
+Lets start with a very simple workflow, consisting of two steps:
+
+#### Step 1.1: Create Molecule instances
+Run the script
+
+    molecule-calculations/energies_from_atomscalecalcs.py
+
+It will:
+- read all the molecule structures in the [molecules](#molecules) directory
+- calculate the corresponding molecule ground state energies using the [ASE EMT](https://wiki.fysik.dtu.dk/ase/ase/calculators/emt.html#module-ase.calculators.emt) calculator
+- for each molecule, instantiate a DLite Molecule instance populated with the structure information and calculated energy
+- add all the Molecule instances to a new collection
+- write the collection to disk: [atomscaledata.json](#molecule-calculations/atomscaledata.json)
+
+The generated [atomscaledata.json](#molecule-calculations/atomscaledata.json) file can be seen as a database of molecule structures with energies calculated using the EMT calculator.
+
+
+#### Step 1.2: Explicit calculation of reaction energy
+By running the script
+
+    reaction/calculate_reaction.py
+
+you will:
+- load the [atomscaledata.json](#molecule-calculations/atomscaledata.json) database
+- use that to calculate the energy of the chemical reaction `C2H6(g) --> C2H4(g) + H2(g)`
+- populate a new [Reaction](#reaction/Reaction.json) instance
+- write the new Reaction instance to [file](#ethane-dehydrogenation.json)
+- prints the calculated reaction energy to screen
+
+### 2. Workflow using DLite mappings
+
+
+
+
+
 
 
 ## Metadata used in the example
@@ -14,20 +62,12 @@ The structure of all the involved molecules are stored in the folder
 ### Molecule data model
 First we define a DLite data model describing a molecule.
 In addition to the information available in the structures, this data model also has a ground state energy property.
+See [molecule-calculations/Molecule.json](#molecule-calculations/Molecule.json) for how it is defined.
 
 
 ### Substance data model
+The [substance data model](#reaction/Substance.json) is very simple. It only defines two properties, an id (or name) identifying a substance and its molecular energy.
 
 
 ### Reaction data model
-
-
-## Steps
-
-### Step 1: Create Molecule instances
-
-
-### Step 2: Map Molecule instances to Substance instances
-
-
-### Step 3: Calculate Reaction instances
+The [reaction data model](#reaction/Reaction.json) defines a chemical reaction including its reaction energy.  It has two dimensions; the number of reactants and the number of products.
