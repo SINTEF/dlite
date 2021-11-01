@@ -50,9 +50,11 @@ you will:
 - prints the calculated reaction energy to screen
 
 ### 2. Workflow using DLite mappings
+TODO: write
 
 
-
+### 3. Workflow based on ontological mappings
+TODO: write
 
 
 
