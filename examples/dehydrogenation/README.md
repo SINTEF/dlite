@@ -49,8 +49,19 @@ you will:
 - write the new Reaction instance to [file](#ethane-dehydrogenation.json)
 - prints the calculated reaction energy to screen
 
+
 ### 2. Workflow using DLite mappings
-TODO: write
+This is very similar to workflow 1.  It starts from the same [collection of molecules](#1-simple-workflow/atomscaledata.json) as generated in step 1.1.  However, step 1.2 is replaced by running the script
+
+    python 2-dlite-mappings/create_substances.py
+
+The main difference is that the Molecule instances are implicitly converted Substance instances by providing the Substance URI as a second argument to `coll.get()`:
+
+```python
+    substance = coll.get(label, substance_id)
+```
+
+This conversion is performed with the `molecule2substance.py` dlite mapping plugin in the `python-mapping-plugins/` subdirectory.
 
 
 ### 3. Workflow based on ontological mappings

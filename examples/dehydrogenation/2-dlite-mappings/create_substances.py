@@ -30,12 +30,10 @@ def reaction_energy(coll, reactants, products):
     """
     energy = 0
     for label, n in reactants.items():
-        print(f'--- label={label}')
         substance = coll.get(label, substance_id)
         energy -= n * substance.molecule_energy
 
     for label, n in products.items():
-        print(f'+++ label={label}')
         substance = coll.get(label, substance_id)
         energy += n * substance.molecule_energy
 
