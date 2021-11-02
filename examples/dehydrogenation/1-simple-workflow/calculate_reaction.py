@@ -18,7 +18,7 @@ dlite.python_mapping_plugin_path.append(f'{mappingdir}')
 reactants = {'C2H6':1}
 products = {'C2H4':1,'H2':1}
 
-coll = dlite.Collection(url=f'json://{atomdata}?mode=r#molecules')
+coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 
 #Reaction = dlite.Instance(f'json://{entitydir}/Reaction.json')
 Reaction = dlite.get_instance('http://onto-ns.com/meta/0.1/Reaction')
