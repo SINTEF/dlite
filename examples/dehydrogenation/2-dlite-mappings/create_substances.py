@@ -15,6 +15,8 @@ dlite.python_mapping_plugin_path.append(f'{rootdir}/python-mapping-plugins')
 
 substance_id = 'http://onto-ns.com/meta/0.1/Substance'
 
+substances = []
+
 
 def reaction_energy(coll, reactants, products):
     """Returns the calculated reaction energy.
@@ -33,11 +35,13 @@ def reaction_energy(coll, reactants, products):
         print(f'--- label={label}')
         substance = coll.get(label, substance_id)
         energy -= n * substance.molecule_energy
+        substances.append(substance)
 
     for label, n in products.items():
         print(f'+++ label={label}')
         substance = coll.get(label, substance_id)
         energy += n * substance.molecule_energy
+        substances.append(substance)
 
     return energy
 

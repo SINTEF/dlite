@@ -12,7 +12,7 @@
             "description": "An identifier for the substance."
         },
         {
-            "name": "energy",
+            "name": "molecule_energy",
             "type": "double",
             "unit": "eV",
             "description": "Molecule energy."
