@@ -18,6 +18,33 @@
 %extend struct _DLiteCollection {
 
   %pythoncode %{
+    def __init__(self, url=None, storage=None, id=None, lazy=False):
+      """Returns a collection instance.
+
+      Args:
+          url: Loads collection from `url`, which should be of the form
+            ``driver://location?options#id``.
+          storage: Loads collection from `storage` object.
+          id: The id of the collection to load (if either `url` or `storage`
+            are given) or create (if neither `url` or `storage` are given).
+          laze: Whether to load instances on demand.  If False, all instances
+            are loaded immediately.
+
+      If neither `url` or `storage` are given, a new empty collection
+      is created.
+      """
+      if url and storage:
+          raise ValueError(f'url={url} and storage={storage} cannot be given '
+                           'simuntaniously.')
+      if url:
+          _dlite.Collection_swiginit(self, _dlite.new_Collection(
+              url, int(lazy)))
+      elif storage:
+          _dlite.Collection_swiginit(self, _dlite.new_Collection(
+              storage, id, int(lazy)))
+      else:
+          _dlite.Collection_swiginit(self, _dlite.new_Collection(id))
+
     def __repr__(self):
         return "Collection(%r)" % (self.uri if self.uri else self.uuid)
 

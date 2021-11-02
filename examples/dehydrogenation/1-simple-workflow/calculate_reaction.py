@@ -7,22 +7,21 @@ import dlite
 
 # Setup dlite paths
 thisdir = Path(__file__).parent.absolute()
-molcalcdir = thisdir.parent / 'molecule-calculations'
+entitydir = thisdir.parent / 'entities'
 reactiondir = thisdir
 mappingdir = thisdir.parent / 'python-mapping-plugins'
-atomdata = molcalcdir / 'atomscaledata.json'
-dlite.storage_path.append(f'{molcalcdir}/*.json')
-dlite.storage_path.append(f'{reactiondir}/*.json')
+atomdata = thisdir / 'atomscaledata.json'
+dlite.storage_path.append(f'{entitydir}/*.json')
 dlite.python_mapping_plugin_path.append(f'{mappingdir}')
 
 # input from chemical engineer
 reactants = {'C2H6':1}
 products = {'C2H4':1,'H2':1}
 
-coll = dlite.Collection(
-    'json://{atomdata}?mode=r#molecules', 0)  # not intuituve
+coll = dlite.Collection(url=f'json://{atomdata}?mode=r#molecules')
 
-Reaction = dlite.Instance(f'json://{thisdir}/Reaction.json')
+#Reaction = dlite.Instance(f'json://{entitydir}/Reaction.json')
+Reaction = dlite.get_instance('http://onto-ns.com/meta/0.1/Reaction')
 
 reaction = Reaction(dims=[len(reactants), len(products)])
 
@@ -44,4 +43,4 @@ for label, n in products.items():
 print(f'Calculated reaction energy: {energy:.3} eV')
 reaction.energy = energy
 
-reaction.save('json', f'{reactiondir}/ethane-dehydrogenation.json', 'mode=w')
+reaction.save('json', f'{thisdir}/ethane-dehydrogenation.json', 'mode=w')

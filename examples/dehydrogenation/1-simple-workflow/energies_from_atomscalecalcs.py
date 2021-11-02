@@ -10,6 +10,7 @@ from ase.calculators.emt import EMT
 # Setup
 thisdir = Path(__file__).parent.absolute()
 moldir = thisdir.parent / 'molecules'  # directory with .xyz files
+entitydir = thisdir.parent / 'entities'
 
 
 def readMolecule(filename):
@@ -30,7 +31,7 @@ def readMolecule(filename):
     return inst
 
 
-Molecule = dlite.Instance(f'json://{thisdir}/Molecule.json')  # DLite Metadata
+Molecule = dlite.Instance(f'json://{entitydir}/Molecule.json')  # DLite Metadata
 
 # Create a new collection and populate it with all molecule structures
 coll = dlite.Collection('molecules')
