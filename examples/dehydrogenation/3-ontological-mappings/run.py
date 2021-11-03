@@ -44,7 +44,7 @@ def get_energy(reaction):
     energy = 0
     for label, n in reaction.items():
         inst = make_instance(Substance, coll[label], mappings)
-        energy+=n*inst.molecule_energy
+        energy += n*inst.molecule_energy
     return energy
 
 
@@ -55,13 +55,13 @@ coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 # input from chemical engineer, e.g. what are reactants and products
 # reactants (left side of equation) have negative stochiometric coefficient
 # products (right side of equation) have positive stochiometric coefficient
-reaction1 = {'C2H6':-1, 'C2H4':1,'H2':1}
+reaction1 = {'C2H6': -1, 'C2H4': 1, 'H2': 1}
 
 reaction_energy = get_energy(reaction1)
 print('Reaction energy 1', reaction_energy)
 
 
-reaction2 = {'C3H8':-1, 'H2': -2,'CH4':3}
+reaction2 = {'C3H8':-1, 'H2': -2,'CH4': 3}
 
 reaction_energy2 = get_energy(reaction2)
 print('Reaction energy 1', reaction_energy2)

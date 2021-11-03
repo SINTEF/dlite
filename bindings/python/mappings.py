@@ -1,5 +1,4 @@
 """Implements mappings between entities.
-
 """
 from typing import Dict, AnyStr
 
