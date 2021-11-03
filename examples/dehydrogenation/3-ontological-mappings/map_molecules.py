@@ -1,4 +1,5 @@
 from ontopy import get_ontology, World
+from ontopy.utils import write_catalog
 
 # Note install emmopython from github, not pypi.
 world = World()
@@ -24,4 +25,10 @@ with mapping:
                                           'Molecule#ground_state_energy')
     molecule_energy.mapsTo.append(chemistry_onto.GroundStateEnergy)
 
-mapping.save('mapping.ttl')
+mapping.save('mapping_mols.ttl')
+
+catalog = {'http://emmo.info/datamodel/dlitemodel':
+           'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master/dlitemodel.ttl',
+           'http://onto-ns.com/ontology/chemistry': '../ontology/chemistry.ttl',
+           'http://onto-ns.com/ontology/mapsTo': '../ontology/mapsTo.ttl'}
+write_catalog(catalog, 'catalog_v001.xml')

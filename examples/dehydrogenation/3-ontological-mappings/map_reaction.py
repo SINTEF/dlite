@@ -23,4 +23,4 @@ with mapping:
     substance_energy = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/Substance#energy')
     substance_energy.mapsTo.append(chemistry_onto.GroundStateEnergy)
 
-mapping.save('mapping.ttl')
+mapping.save('mapping_reaction.ttl')
