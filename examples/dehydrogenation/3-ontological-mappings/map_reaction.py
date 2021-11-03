@@ -11,16 +11,29 @@ dlite_onto = world.get_ontology('https://raw.githubusercontent.com/'
                           'emmo-repo/datamodel-ontology/master'
                           '/dlitemodel.ttl').load(EMMObased=False)
 
-mapping = world.get_ontology('mapping.ttl')
+mapping = world.get_ontology('http://onto-ns.com/ontology/mapping#')
+mapping.set_version('0.1')
 mapping.imported_ontologies.extend([mapsTo_onto, chemistry_onto, dlite_onto])
+
+substance_model = dlite_onto.Metadata()
+substance_model.iri = 'http://onto-ns.com/meta/0.1/Substance'
+
+substance_energy = dlite_onto.Metadata()
+substance_energy.iri = 'http://onto-ns.com/meta/0.1/Substance#molecule_energy'
+
+substance_id = dlite_onto.Metadata()
+substance_id.iri = 'http://onto-ns.com/meta/0.1/Substance#id'
+
+
 
 with mapping:
 
-    substance_model = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/Substance')
     substance_model.mapsTo.append(chemistry_onto.MoleculeModel)
 
-
-    substance_energy = dlite_onto.Metadata('http://onto-ns.com/meta/0.1/Substance#energy')
     substance_energy.mapsTo.append(chemistry_onto.GroundStateEnergy)
+
+    substance_id.mapsTo.append(chemistry_onto.Identifier)
+
+
 
 mapping.save('mapping_reaction.ttl')

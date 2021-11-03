@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from typing import Dict, AnyStr
 from pathlib import Path
+from ontopy import get_ontology
 
 import dlite
 
@@ -13,23 +14,17 @@ entitiesdir = rootdir / 'entities'
 atomdata = workflow1dir / 'atomscaledata.json'
 dlite.storage_path.append(f'{entitiesdir}/*.json')
 
-mappings = [
-    ('http://onto-ns.com/meta/0.1/Molecule#name', ':mapsTo',
-     'chem:Identifier'),
-    ('http://onto-ns.com/meta/0.1/Molecule#groundstate_energy', ':mapsTo',
-     'chem:GroundStateEnergy'),
-    ('http://onto-ns.com/meta/0.1/Substance#id', ':mapsTo',
-     'chem:Identifier'),
-    ('http://onto-ns.com/meta/0.1/Substance#molecule_energy', ':mapsTo',
-     'chem:GroundStateEnergy'),
-]
+molecules_onto = get_ontology('mapping_mols.ttl').load()
+reaction_onto = get_ontology('mapping_reaction.ttl').load()
 
-
+mappings = list(molecules_onto.get_unabbreviated_triples())
+mappings.extend(list(reaction_onto.get_unabbreviated_triples()))
 
 
 Molecule = dlite.get_instance('http://onto-ns.com/meta/0.1/Molecule')
 Substance = dlite.get_instance('http://onto-ns.com/meta/0.1/Substance')
 
+mapsTo = 'http://onto-ns.com/ontology/mapsTo#mapsTo'
 
 def create_match(triples):
     """Returns a match functions for `triples`."""
@@ -42,6 +37,7 @@ def create_match(triples):
     return match
 
 match = create_match(mappings)
+print(match(p=mapsTo))
 
 def match_first(s=None, p=None, o=None):
     """Returns the first match.  If there are no matches,
@@ -49,7 +45,6 @@ def match_first(s=None, p=None, o=None):
     return next(iter(match(s, p, o) or ()), (None, None, None))
 
 
-mapsTo = 'mo:mapsTo'
 
 for prop1 in Molecule['properties']:
     uri1 = f'{Molecule.uri}#{prop1.name}'
@@ -83,6 +78,9 @@ def unitconvert_pint(dest_unit, value, unit, conf=None):
         conf: Optional configurations of the unit converter.
     """
     import pint
+    if not dest_unit and not unit:
+        return value
+    # Fix if only one unit is missing
     ureg = pint.UnitRegistry()
     u1 = ureg(unit)
     u2 = ureg(dest_unit)
@@ -162,7 +160,8 @@ def make_instance(meta, instances, mappings=(), strict=True,
                         value = inst[prop2.name]
                         if prop.name not in props:
                             assign_dimensions(dims, inst, prop2.name)
-                            props[prop.name] = value
+                            props[prop.name] = unitconvert(prop.unit, value,
+                                                           prop2.unit)
                         elif props[prop.name] != value:
                             raise AmbiguousMappingError(
                                 f'"{prop.name}" maps to both '
@@ -174,7 +173,9 @@ def make_instance(meta, instances, mappings=(), strict=True,
                     value = inst[prop.name]
                     if prop.name not in props:
                         assign_dimensions(dims, inst, prop.name)
-                        props[prop.name] = value
+                        props[prop.name] = unitconvert(prop.unit, value,
+                                                       prop2.unit)
+
                     elif props[prop.name] != value:
                         raise AmbiguousMappingError(
                             f'"{prop.name}" assigned to both '
@@ -195,6 +196,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
     return inst
 
 
+mapsTo = 'http://onto-ns.com/ontology/mapsTo#mapsTo'
 def get_energy(reaction):
     """Calculates reaction energies with data from Substance entity
     data is harvested from collection and mapped to Substance according to
@@ -210,7 +212,8 @@ def get_energy(reaction):
     """
     energy = 0
     for label, n in reaction.items():
-        inst = make_instance(Substance, coll[label], mappings)
+        inst = make_instance(Substance, coll[label], mappings,
+                             mapsTo=mapsTo)
         energy+=n*inst.molecule_energy
     return energy
 

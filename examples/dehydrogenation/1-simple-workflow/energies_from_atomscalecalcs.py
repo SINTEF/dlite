@@ -27,7 +27,7 @@ def readMolecule(filename):
     inst.positions = atoms.positions
     inst.symbols = atoms.get_chemical_symbols()
     inst.masses = atoms.get_masses()
-    inst.energy = atoms.get_potential_energy()
+    inst.groundstate_energy = atoms.get_potential_energy()
     return inst
 
 

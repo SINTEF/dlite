@@ -11,5 +11,5 @@ class Molecule2Substance(DLiteMappingBase):
         molecule = instances[0]
         substance = dlite.Instance(self.output_uri, [])
         substance.id = molecule.name
-        substance.molecule_energy = molecule.energy
+        substance.molecule_energy = molecule.groundstate_energy
         return substance
