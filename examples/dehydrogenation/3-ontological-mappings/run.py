@@ -42,8 +42,8 @@ def create_match(triples):
 match = create_match(mappings)
 
 def match_first(s=None, p=None, o=None):
-    """Returns the first match.  If there are no matches, ``(None, None, None)``
-    is returned."""
+    """Returns the first match.  If there are no matches,
+    ``(None, None, None)`` is returned."""
     return next(iter(match(s, p, o) or ()), (None, None, None))
 
 
@@ -93,9 +93,9 @@ def assign_dimensions(dims: Dict,
             dims[dim] = inst.dimensions[dim]
         elif dims[dim] != inst.dimensions[dim]:
             raise InconsistentDimensionError(
-                f'Trying to assign dimension {dim} of {src_inst.meta.uri} to '
-                f'{src_inst.dimensions[dim]}, but it is already assigned to '
-                f'{dims[dim]}')
+                f'Trying to assign dimension {dim} of {src_inst.meta.uri} '
+                f'to {src_inst.dimensions[dim]}, but it is already assigned '
+                f'to {dims[dim]}')
 
 
 def make_instance(meta, instances, mappings=(), strict=True,
