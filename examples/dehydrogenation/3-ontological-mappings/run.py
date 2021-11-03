@@ -71,6 +71,22 @@ class InconsistentDimensionError(MappingError):
     """The size of a dimension is assigned to more than one value."""
 
 
+def unitconvert_pint(dest_unit, value, unit, conf=None):
+    """Returns `value` converted to `dest_unit`.
+
+    Args:
+        dest_unit: Destination unit that `value` should be converted to.
+        value: Source value.
+        unit: The unit of the source value.
+        conf: Optional configurations of the unit converter.
+    """
+    import pint
+    ureg = pint.UnitRegistry()
+    u1 = ureg(unit)
+    u2 = ureg(dest_unit)
+    return (value * u1).to(u2).m
+
+
 def assign_dimensions(dims: Dict,
                       inst,
                       propname: AnyStr):
@@ -99,6 +115,7 @@ def assign_dimensions(dims: Dict,
 
 
 def make_instance(meta, instances, mappings=(), strict=True,
+                  allow_incomplete=False, unitconvert=unitconvert_pint,
                   mapsTo=':mapsTo'):
     """Create an instance of `meta` using data found in `*instances`.
 
@@ -109,6 +126,9 @@ def make_instance(meta, instances, mappings=(), strict=True,
         mappings: A sequence of triples defining the mappings.
         strict: If false, we will allow implicit mapping of properties
             with the same name.
+        allow_incomplete: Whether to allow not populating all properties
+            of the returned instance.
+        unitconvert: A callable that converts between units.
         mapsTo: How the 'mapsTo' predicate is written in `mappings`.
 
     Returns:
@@ -132,9 +152,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
 
     for prop in meta['properties']:
         prop_uri = f'{meta.uri}#{prop.name}'
-        print(f'--- {prop.name} : {prop_uri}', mapsTo)
         for _, _, o in match(prop_uri, mapsTo, None):
-            print(f'+++ {o}')
             for inst in instances:
                 for prop2 in inst.meta['properties']:
                     prop2_uri = f'{inst.meta.uri}#{prop2.name}'
@@ -160,7 +178,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
                             f'"{prop.name}" assigned to both '
                             f'"{props[prop.name]}" and "{value}"')
 
-        if prop.name not in props:
+        if not allow_incomplete and prop.name not in props:
             raise InsufficientMappingError(
                 f'no mapping for assigning property "{prop.name}" '
                 f'in {meta.uri}')
@@ -169,16 +187,62 @@ def make_instance(meta, instances, mappings=(), strict=True,
         dimname = [k for k, v in dims.items() if v is None][0]
         raise InsufficientMappingError(f'dimension "{dimname}" is not assigned')
 
-    print('*** dims:', dims)
-    print('*** props:', props)
-
     inst = meta(list(dims.values()))
-    for k, v in props:
+    for k, v in props.items():
         inst[k] = v
     return inst
 
 
+def get_energy(reaction):
+    """Calculates reaction energies with data from Substance entity
+    data is harvested from collection and mapped to Substance according to
+    mappings
+    
+    Args:
+        reaction: dict with names of reactants and products ase keys
+                  and stochiometric coefficient as value-
+                  Negative stochiometric coefficients for reactants.
+                  Positive stochiometric coefficients for products. 
+    Returns:
+        reaction energy
+    """
+    energy = 0
+    for label, n in reaction.items():
+        inst = make_instance(Substance, coll[label], mappings)
+        energy+=n*inst.molecule_energy
+    return energy
+
+
+
+
+# Define where the molecule data is obtained from
+# This is a dlite collection
 coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 
-inst = make_instance(Substance, coll['H2'], mappings)
-print(inst)
+
+# input from chemical engineer, e.g. what are reactants and products
+# reactants (left side of equation) have negative stochiometric coefficient
+# products (right side of equation) have positive stochiometric coefficient
+reaction1 = {'C2H6':-1, 'C2H4':1,'H2':1}
+
+reaction_energy = get_energy(reaction1)
+print('Reaction energy 1', reaction_energy)
+
+
+reaction2 = {'C3H8':-1, 'H2': -2,'CH4':3}
+
+reaction_energy2 = get_energy(reaction2)
+print('Reaction energy 1', reaction_energy2)
+
+
+
+# Map instance Molecule with label 'H2' to Substance
+#inst = make_instance(Substance, coll['H2'], mappings)
+#print(inst)
+
+# Map instance Molecule with label 'H2' to itself
+#inst2 = make_instance(Molecule, coll['H2'], mappings, strict=False)
+#print(inst2)
+
+
+
