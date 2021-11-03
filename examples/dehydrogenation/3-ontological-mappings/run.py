@@ -173,7 +173,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
     print('*** props:', props)
 
     inst = meta(list(dims.values()))
-    for k, v in props:
+    for k, v in props.items():
         inst[k] = v
     return inst
 
