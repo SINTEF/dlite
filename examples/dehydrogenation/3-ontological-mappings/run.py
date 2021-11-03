@@ -71,6 +71,22 @@ class InconsistentDimensionError(MappingError):
     """The size of a dimension is assigned to more than one value."""
 
 
+def unitconvert_pint(dest_unit, value, unit, conf=None):
+    """Returns `value` converted to `dest_unit`.
+
+    Args:
+        dest_unit: Destination unit that `value` should be converted to.
+        value: Source value.
+        unit: The unit of the source value.
+        conf: Optional configurations of the unit converter.
+    """
+    import pint
+    ureg = pint.UnitRegistry()
+    u1 = ureg(unit)
+    u2 = ureg(dest_unit)
+    return (value * u1).to(u2).m
+
+
 def assign_dimensions(dims: Dict,
                       inst,
                       propname: AnyStr):
@@ -99,6 +115,7 @@ def assign_dimensions(dims: Dict,
 
 
 def make_instance(meta, instances, mappings=(), strict=True,
+                  allow_incomplete=False, unitconvert=unitconvert_pint,
                   mapsTo=':mapsTo'):
     """Create an instance of `meta` using data found in `*instances`.
 
@@ -109,6 +126,9 @@ def make_instance(meta, instances, mappings=(), strict=True,
         mappings: A sequence of triples defining the mappings.
         strict: If false, we will allow implicit mapping of properties
             with the same name.
+        allow_incomplete: Whether to allow not populating all properties
+            of the returned instance.
+        unitconvert: A callable that converts between units.
         mapsTo: How the 'mapsTo' predicate is written in `mappings`.
 
     Returns:
@@ -132,9 +152,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
 
     for prop in meta['properties']:
         prop_uri = f'{meta.uri}#{prop.name}'
-        print(f'--- {prop.name} : {prop_uri}', mapsTo)
         for _, _, o in match(prop_uri, mapsTo, None):
-            print(f'+++ {o}')
             for inst in instances:
                 for prop2 in inst.meta['properties']:
                     prop2_uri = f'{inst.meta.uri}#{prop2.name}'
@@ -160,7 +178,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
                             f'"{prop.name}" assigned to both '
                             f'"{props[prop.name]}" and "{value}"')
 
-        if prop.name not in props:
+        if not allow_incomplete and prop.name not in props:
             raise InsufficientMappingError(
                 f'no mapping for assigning property "{prop.name}" '
                 f'in {meta.uri}')
@@ -168,9 +186,6 @@ def make_instance(meta, instances, mappings=(), strict=True,
     if None in dims:
         dimname = [k for k, v in dims.items() if v is None][0]
         raise InsufficientMappingError(f'dimension "{dimname}" is not assigned')
-
-    print('*** dims:', dims)
-    print('*** props:', props)
 
     inst = meta(list(dims.values()))
     for k, v in props.items():
