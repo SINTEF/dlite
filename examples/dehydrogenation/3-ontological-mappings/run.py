@@ -193,7 +193,56 @@ def make_instance(meta, instances, mappings=(), strict=True,
     return inst
 
 
+def get_energy(reaction):
+    """Calculates reaction energies with data from Substance entity
+    data is harvested from collection and mapped to Substance according to
+    mappings
+    
+    Args:
+        reaction: dict with names of reactants and products ase keys
+                  and stochiometric coefficient as value-
+                  Negative stochiometric coefficients for reactants.
+                  Positive stochiometric coefficients for products. 
+    Returns:
+        reaction energy
+    """
+    energy = 0
+    for label, n in reaction.items():
+        inst = make_instance(Substance, coll[label], mappings)
+        energy+=n*inst.molecule_energy
+    return energy
+
+
+
+
+# Define where the molecule data is obtained from
+# This is a dlite collection
 coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 
-inst = make_instance(Substance, coll['H2'], mappings)
-print(inst)
+
+# input from chemical engineer, e.g. what are reactants and products
+# reactants (left side of equation) have negative stochiometric coefficient
+# products (right side of equation) have positive stochiometric coefficient
+reaction1 = {'C2H6':-1, 'C2H4':1,'H2':1}
+
+reaction_energy = get_energy(reaction1)
+print('Reaction energy 1', reaction_energy)
+
+
+reaction2 = {'C3H8':-1, 'H2': -2,'CH4':3}
+
+reaction_energy2 = get_energy(reaction2)
+print('Reaction energy 1', reaction_energy2)
+
+
+
+# Map instance Molecule with label 'H2' to Substance
+#inst = make_instance(Substance, coll['H2'], mappings)
+#print(inst)
+
+# Map instance Molecule with label 'H2' to itself
+#inst2 = make_instance(Molecule, coll['H2'], mappings, strict=False)
+#print(inst2)
+
+
+
