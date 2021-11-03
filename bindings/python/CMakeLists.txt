@@ -6,6 +6,7 @@ set(py_sources
   factory.py
   options.py
   utils.py
+  mappings.py
   )
 
 configure_file(paths.py.in paths.py)
