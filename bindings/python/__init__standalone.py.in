@@ -69,8 +69,8 @@ storage_path.append(str(thispath / "share/dlite/storages/*.json"))
 # Unused environment variable:
 # DLITE_TEMPLATE_DIRS: Search path for DLite templates.
 
-del thispath
 
 from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
 
-del sys, os, Path
+del thispath
+del sys, os, Path, is_conda, is_conda_base
