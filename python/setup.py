@@ -3,7 +3,6 @@ import platform
 import re
 import subprocess
 import sys
-import traceback
 from distutils import dir_util
 from pathlib import Path
 
@@ -93,23 +92,30 @@ class CMakeBuildExt(build_ext):
         env = os.environ.copy()
         Path(self.build_temp).mkdir(exist_ok=True)
 
-        print("Cmake> " + " ".join(cmake_args) + "\n")
         try:
-            subprocess.check_call(cmake_args, cwd=self.build_temp, env=env)
-        except subprocess.CalledProcessError:
-            tb = traceback.format_exc()
-            print(tb)
-            pass
-        try:
-            subprocess.check_call(
-                ["cmake", "--build", ".", "--config", build_type],
+            completed_process = subprocess.run(cmake_args, 
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 cwd=self.build_temp,
                 env=env,
+                check=True)
+        except:
+            print(completed_process.stdout.decode("utf-8"))
+            print(completed_process.stderr.decode("utf-8"))
+            raise
+        try:
+            completed_process = subprocess.run(
+                ["cmake", "--build", ".", "--config", build_type],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=self.build_temp,
+                env=env,
+                check=True
             )
-        except subprocess.CalledProcessError:
-            tb = traceback.format_exc()
-            print(tb)
-            pass
+        except:
+            print(completed_process.stdout.decode("utf-8"))
+            print(completed_process.stderr.decode("utf-8"))
+            raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         dir_util.copy_tree(
