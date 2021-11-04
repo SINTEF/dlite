@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.1
+  VERSION 0.3.2
   DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -391,7 +391,7 @@ set(dll_targets
   dlite-plugins-python
   )
 if(WITH_HDF5)
-  list(APPEND targets dlite-plugins-python)
+  list(APPEND targets dlite-plugins-hdf5)
 endif()
 if(WITH_REDLAND)
   list(APPEND targets dlite-plugins-rdf)
