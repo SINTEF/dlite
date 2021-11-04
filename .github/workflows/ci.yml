@@ -72,6 +72,6 @@ jobs:
     - name: Install python package via setup.py and test the installation
       run: |
          cd python
-         python3 setup.py install
+         python3 setup.py install --user
          cd ../bindings/python/tests
          python3 __main__.py
