@@ -47,7 +47,7 @@ reaction_onto = get_ontology('mapping_substance.ttl').load()
 mappings = list(molecules_onto.get_unabbreviated_triples())
 mappings.extend(list(reaction_onto.get_unabbreviated_triples()))
 
-# Obtain the Metadata to be mapped to eachothers
+# Obtain the Metadata to be mapped to each other
 Molecule = dlite.get_instance('http://onto-ns.com/meta/0.1/Molecule')
 Substance = dlite.get_instance('http://onto-ns.com/meta/0.1/Substance')
 
