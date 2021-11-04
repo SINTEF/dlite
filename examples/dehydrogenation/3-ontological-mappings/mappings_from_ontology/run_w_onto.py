@@ -52,7 +52,12 @@ Molecule = dlite.get_instance('http://onto-ns.com/meta/0.1/Molecule')
 Substance = dlite.get_instance('http://onto-ns.com/meta/0.1/Substance')
 
 
-mapsTo = 'http://onto-ns.com/ontology/mapsTo#mapsTo'
+# Find mapping relation
+# TODO: investigate what to do if the two cases
+# use a different mappings relation. As of now it is a
+# hard requirement that they use the same.
+mapsTo = molecules_onto.mapsTo.iri
+
 
 # Define where the molecule data is obtained from
 # This is a dlite collection
