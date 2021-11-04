@@ -69,3 +69,9 @@ jobs:
         pip install numpy wheel
         python3 setup.py bdist_wheel
         cd -
+    - name: Install python package via setup.py and test the installation
+      run: |
+         cd python
+         python3 setup.py install
+         cd ../bindings/python/tests
+         python3 __main__.py
