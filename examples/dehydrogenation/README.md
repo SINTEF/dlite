@@ -65,7 +65,19 @@ This conversion is performed with the `molecule2substance.py` dlite mapping plug
 
 
 ### 3. Workflow based on ontological mappings
-TODO: write
+Two examples are provided: 
+
+1. The mappings are hardcoded into the run script, and can be run directly with python
+
+
+2. The mappings are obtained by use of ontologies in a two step process.
+This step requires the python package EMMOntoPy. Install EMMOntoPy from github and not PyPi to obtain some needed functionality not yet in the released version.
+The mappings to the common ontology (chemistry.ttl) are first done with the scripts map_molecule.py and map_substance.py, resulting in two ontologies with the actual mappings. In the second step these mappings are read into the run script. 
+
+In this final example i situation in which two separate processes are mapped to the same ontology is showcased, thus enabling interoperability even though the users do not have detailed knowledge about both cases. 
+
+
+
 
 
 
