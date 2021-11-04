@@ -40,3 +40,10 @@ jobs:
 
     - name: build the wheel
       run: cd python && python setup.py bdist_wheel
+
+    - name: Install via setup.py and test the installation
+      run: |
+         cd python
+         python setup.py install
+         cd ../bindings/python/tests
+         python __main__.py

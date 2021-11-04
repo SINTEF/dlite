@@ -100,7 +100,7 @@ Build with Visual Studio
     $ cmake --install .
     $ ctest -C Release
 
-6. Install the Python package via setup from sources
+6. Install the Python package via using ./python/setup.py from sources
 
    $ conda create --name=py38dlite python=3.8 numpy
    $ conda activate py38dlite
