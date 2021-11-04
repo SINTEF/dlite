@@ -9,6 +9,8 @@ The structure of all the involved molecules are stored in the folder
 [xyz](https://en.wikipedia.org/wiki/XYZ_file_format) file format.
 
 
+TODO: People: Alice, Bob and Cyril. Beskriv historien. 
+
 
 ## Workflows
 We will divide this example into three workflows:
@@ -51,7 +53,10 @@ you will:
 
 
 ### 2. Workflow using DLite mappings
-This is very similar to workflow 1.  It starts from the same [collection of molecules](#1-simple-workflow/atomscaledata.json) as generated in step 1.1.  However, step 1.2 is replaced by running the script
+The work flow is now separated into two different simulations performed independently. The first part is the calculation of energies of molecules. 
+This was already done in workflow 1.
+We therefore start from the same [collection of molecules](#1-simple-workflow/atomscaledata.json) as generated in step 1.1.
+However, step 1.2 is replaced by running the script
 
     python 2-dlite-mappings/create_substances.py
 
@@ -79,13 +84,18 @@ See documentation for other possible arguments.
 This step requires the python package EMMOntoPy.
 Install EMMOntoPy from github and not PyPi to obtain some needed functionality not yet in the released version.
 
-
-The mappings to the common ontology (chemistry.ttl) are first done with the scripts map_molecule.py and map_substance.py, resulting in two ontologies with the actual mappings.
+Step1.2: The mappings to the common ontology (chemistry.ttl) are first done with the scripts map_molecule.py and map_substance.py, resulting in two ontologies with the actual mappings.
 In the second step these mappings are read into the run script and combined into a list of triples for all relevant mappings.
 
 
-In this final example a situation in which two separate processes are mapped to the same ontology is showcased, thus enabling interoperability even though the users do not have detailed knowledge about both cases. 
+In this final example a situation in which two separate processes are mapped to the same ontology is showcased, thus enabling interoperability even though the users do not have detailed knowledge about both cases.
 
+
+TODO: Descrive scenarios. Alice in Antigua does molecule energy calcs and put the into a repository, and have mapped them two an openly known ontology.
+Bob from Belgium does reaction energy calculations but needs molecule energies from elsewhere. He can map his desired data (he calls them Substance) to the
+same ontology. Discussion on choice of ontology is not part of this, but he could also use another ontology and match to something else and thus
+also have access to other data repos mapped to those ontologies.
+Mapping between data form the external repository and Bobs desired Substance(s) is then done automatically because of the common ontology. 
 
 
 
