@@ -153,6 +153,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
       of properties defined in the ontology.
       Use the ast module for safe evaluation to ensure that this feature
       cannot be misused for code injection.
+    - Add a function that visualise the possible mapping paths.
     """
     match = create_match(mappings)  # match function
 
