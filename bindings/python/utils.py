@@ -46,6 +46,9 @@ def instance_from_dict(d):
     return inst
 
 
+def get_package_paths():
+    return {k:v for k,v in dlite.__dict__.items() if k.endswith('path')}
+
 if __name__ == '__main__':
 
     url = 'json://' + os.path.join(thisdir, 'tests', 'Person.json')

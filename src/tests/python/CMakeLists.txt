@@ -37,12 +37,13 @@ foreach(test ${tests})
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
   endif()
-  if (WIN32 AND PYTHON_IS_ANACONDA)
+  if (WIN32 AND PYTHON_IS_ANACONDA_BASE)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
   endif()
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+  # No need to set PYTHONPATH since we are not importing the package in any test here
+  #set_property(TEST ${test} APPEND PROPERTY
+  #  ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   if (NOT WIN32)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")

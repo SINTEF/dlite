@@ -113,6 +113,8 @@ target_link_libraries(dlite-static ${link_args})
 
 set_target_properties(dlite PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
+  BUILD_RPATH "$ORIGIN/"
+  INSTALL_RPATH "$ORIGIN/"
   )
 set_target_properties(dlite-static PROPERTIES
   POSITION_INDEPENDENT_CODE ON
