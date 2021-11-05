@@ -148,6 +148,11 @@ def make_instance(meta, instances, mappings=(), strict=True,
       a lot of complexity.  Should we have different relations for
       default values and values that will overwrite what is provided
       from a matching input instance?
+    - Add `mapsToPythonExpression` subproperty of `mapsTo` to allow
+      writing analytical Python expression for a property as a function
+      of properties defined in the ontology.
+      Use the ast module for safe evaluation to ensure that this feature
+      cannot be misused for code injection.
     """
     match = create_match(mappings)  # match function
 
