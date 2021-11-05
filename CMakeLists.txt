@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.2
+  VERSION 0.3.3
   DESCRIPTION "Lightweight data-centric framework for working with scientific data"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -662,8 +662,8 @@ if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)
 endif()
 if(WITH_PYTHON)
-  add_subdirectory(storages/python)
   add_subdirectory(bindings/python)
+  add_subdirectory(storages/python)
 endif()
 
 # Tools - may depend on storage plugins
