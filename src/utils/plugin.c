@@ -137,7 +137,8 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     Plugin **p;
     assert(handle);
     if ((p = map_get(&info->plugins, path))) {
-      warnx("plugin already registered: %s", path);
+      /* Plugin is already registered (but it may still provides more
+         plugin APIs... */
       plugin_incref(*p);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
@@ -189,17 +190,18 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
   dsl_handle handle=NULL;
   void *sym=NULL;
   PluginFunc func;
-  PluginAPI *api=NULL;
+  PluginAPI *api=NULL, **apiptr;
   const void *loaded_api=NULL, *registered_api=NULL, *retval=NULL;
 
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
+  /* Check if plugin is already loaded */
+  if (name && (apiptr = map_get(&info->apis, name)))
+    return *apiptr;
+
   while ((filepath = fu_nextmatch(iter))) {
     int iter1=0, iter2=0;
     err_clear();
-
-    /* check that plugin is not already loaded */
-    if (map_get(&info->plugins, filepath)) continue;
 
     /* load plugin */
     if (!(handle = dsl_open(filepath))) {

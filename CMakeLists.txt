@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(dlite
   VERSION 0.3.3
-  DESCRIPTION "Lightweight data-centric framework for working with scientific data"
+  DESCRIPTION "Lightweight data-centric interoperability framework"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
   )
