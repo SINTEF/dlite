@@ -15,8 +15,6 @@ csv = dlite.Instance(f'csv://{csvfile}')
 print(csv.meta)
 print(csv.uuid)
 
-csv.save('yaml://faithful.yaml?mode=w')
-
 csv.save('csv://newfile.csv?mode=w')
 
 
@@ -32,10 +30,5 @@ except ImportError:
     pass
 
 
-coll = dlite.Collection()
-coll.save('json://coll.json')
-print('--------------------')
-print(coll.meta)
 
-coll.add('csv_label', csv)
-coll.save('json://coll2.json?mode=w')
+csv.save('yaml://faithful.yaml?mode=w')

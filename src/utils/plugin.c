@@ -137,7 +137,8 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     Plugin **p;
     assert(handle);
     if ((p = map_get(&info->plugins, path))) {
-      warnx("plugin already registered: %s", path);
+      /* Plugin is already registered (but it may still provides more
+         plugin APIs... */
       plugin_incref(*p);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
