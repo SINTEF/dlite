@@ -1,6 +1,21 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
 /* --------
+ * Typemaps
+ * -------- */
+
+/* A typemap that allows using pathlib as input to paths */
+%typemap(in) (const char *path) {
+  if (PyUnicode_Check($input)) {
+    $1 = (char *)PyUnicode_AsUTF8($input);
+  } else {
+    PyObject *s = PyObject_Str($input);
+    $1 = (char *)PyUnicode_AsUTF8(s);
+    Py_DECREF(s);
+  }
+}
+
+/* --------
  * Wrappers
  * -------- */
 %{
@@ -24,6 +39,7 @@ struct _FUPaths {
   %immutable;
   int n;
 };
+
 
 %feature("docstring", "\
 Creates a _Path instance of type `pathtype`.

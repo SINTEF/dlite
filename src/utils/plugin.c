@@ -189,17 +189,18 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
   dsl_handle handle=NULL;
   void *sym=NULL;
   PluginFunc func;
-  PluginAPI *api=NULL;
+  PluginAPI *api=NULL, **apiptr;
   const void *loaded_api=NULL, *registered_api=NULL, *retval=NULL;
 
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
+  /* Check if plugin is already loaded */
+  if (name && (apiptr = map_get(&info->apis, name)))
+    return *apiptr;
+
   while ((filepath = fu_nextmatch(iter))) {
     int iter1=0, iter2=0;
     err_clear();
-
-    /* check that plugin is not already loaded */
-    if (map_get(&info->plugins, filepath)) continue;
 
     /* load plugin */
     if (!(handle = dsl_open(filepath))) {
