@@ -31,14 +31,24 @@ inst = dlite.Instance('json:inst.json#my-data')
 
 
 # Test yaml
-print('--- testing yaml')
-inst.save('yaml:inst.yaml?mode=w')
-del inst
-inst = dlite.Instance('yaml:inst.yaml#my-data')
+try:
+    import yaml
+except ImportError:
+    pass
+else:
+    print('--- testing yaml')
+    inst.save('yaml:inst.yaml?mode=w')
+    del inst
+    inst = dlite.Instance('yaml:inst.yaml#my-data')
 
 
 # Test rdf
-print('--- testing rdf')
-inst.save('rdf:db.xml?mode=w;store=file;filename=inst.ttl;format=turtle')
-del inst
-inst = dlite.Instance('rdf:db.xml#my-data')  # XXX read from inst.ttl not db.xml
+try:
+    print('--- testing rdf')
+    inst.save('rdf:db.xml?mode=w;store=file;filename=inst.ttl;format=turtle')
+except dlite.DLiteError:
+    print('    skipping rdf test')
+else:
+    del inst
+    # FIXME: read from inst.ttl not db.xml
+    inst = dlite.Instance('rdf:db.xml#my-data')
