@@ -111,6 +111,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   /* ...otherwise, if any plugin path has changed, reload all plugins
      and try again */
   if (pathshash(hash, sizeof(hash), &info->paths) == 0) {
+
     if (memcmp(g->storage_plugin_path_hash, hash, sizeof(hash)) != 0) {
       plugin_load_all(info);
       memcpy(g->storage_plugin_path_hash, hash, sizeof(hash));
@@ -124,7 +125,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   {
     int n=0, r;
     const char *p, **paths = dlite_storage_plugin_paths();
-    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT or ";
+    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT, ";
     size_t size=0, m=0;
     char *buf=NULL;
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
@@ -135,8 +136,9 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       if (r >= 0) m += r;
     }
     if (n <= 1)
-      m += asnpprintf(&buf, &size, m, "Is the %sDLITE_STORAGE_PLUGIN_DIRS "
-                      "environment variable(s) set?", submsg);
+      m += asnpprintf(&buf, &size, m, "Are the %sDLITE_STORAGE_PLUGIN_DIRS "
+                      "or DLITE_PYTHON_STORAGE_PLUGIN_DIRS "
+                      "environment variables set?", submsg);
     errx(1, "%s", buf);
     free(buf);
   }

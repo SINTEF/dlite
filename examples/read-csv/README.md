@@ -12,11 +12,6 @@ To test the example, just run
 
     python readcsv.py
 
-Note that `readcsv.py` imports `config_paths.py` before importing
-dlite.  This is nessesary, since `config_paths.py` sets the
-DLITE_PYTHON_STORAGE_PLUGIN_DIRS such that dlite is able to locate the
-plugin in the `python-storage-plugins` directory.
-
 
 Notes
 -----
