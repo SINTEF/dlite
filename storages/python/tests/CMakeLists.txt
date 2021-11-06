@@ -79,16 +79,25 @@ foreach(test ${tests})
     COMMAND ${RUNNER} ${test}
     )
 
+
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  if (WIN32 AND PYTHON_IS_ANACONDA)
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
+  endif()
+  if(MINGW)
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
-  set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+  if (NOT WIN32)
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+  endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json|${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/*.json")
 

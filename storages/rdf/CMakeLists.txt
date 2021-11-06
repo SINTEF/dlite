@@ -11,8 +11,8 @@ add_library(dlite-plugins-rdf SHARED ${sources})
 target_link_libraries(dlite-plugins-rdf
   ${REDLAND_LIBRARIES}
   ${RAPTOR_LIBRARIES}
-  dlite-static
-  dlite-utils-static
+  dlite
+  dlite-utils
   )
 target_include_directories(dlite-plugins-rdf PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}

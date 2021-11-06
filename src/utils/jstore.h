@@ -131,6 +131,22 @@ const char *jstore_iter_next(JStoreIter *iter);
     In the current implementation, this function does nothing. */
 int jstore_iter_deinit(JStoreIter *iter);
 
+
+/** Associate `label` with `key`.  If `len` is non-negative, it is the
+    length of `label`; otherwise `label` is assumed to be NUL-terminated.
+    If `key` already has a label, the old label is replaced.
+    Returns non-zero on error. */
+int jstore_set_labeln(JStore *js, const char *key, const char *label, int len);
+
+/** Associate `label` with `key`.
+    If `key` already has a label, the old label is replaced.
+    Returns non-zero on error. */
+int jstore_set_label(JStore *js, const char *key, const char *label);
+
+/** Returns a pointer to label associated with `key` or NULL if `key` has no
+    associated label. */
+const char *jstore_get_label(JStore *js, const char *key);
+
 /** @} */
 
 #endif  /* _JSTORE_H */

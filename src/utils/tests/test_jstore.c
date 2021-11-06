@@ -117,6 +117,29 @@ MU_TEST(test_iter)
   jstore_iter_deinit(&iter);
 }
 
+MU_TEST(test_label)
+{
+  int stat;
+  const char *label;
+  stat = jstore_set_label(js, "key", "my label");
+  mu_assert_int_eq(0, stat);
+
+  stat = jstore_set_label(js, "key", "new label");
+  mu_assert_int_eq(0, stat);
+
+  stat = jstore_set_labeln(js, "key2", "another label", 7);
+  mu_assert_int_eq(0, stat);
+
+  label = jstore_get_label(js, "key");
+  mu_assert_string_eq("new label", label);
+
+  label = jstore_get_label(js, "key2");
+  mu_assert_string_eq("another", label);
+
+  label = jstore_get_label(js, "non-existing-key");
+  mu_assert_string_eq(NULL, label);
+}
+
 MU_TEST(test_close)
 {
   jstore_close(js);
@@ -140,6 +163,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_to_file);
   MU_RUN_TEST(test_update_file);
   MU_RUN_TEST(test_iter);
+  MU_RUN_TEST(test_label);
   MU_RUN_TEST(test_close);
 }
 

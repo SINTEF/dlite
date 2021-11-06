@@ -75,20 +75,9 @@ if(WITH_PYTHON)
 endif()
 
 
-# We are building both shared and static libraries.  User software will
-# normally link to the shared libraries.  However, to simplify the
-# library search (especially on Windows), the storage plugins will use
-# the static libraries.  For this to work, the static libraries will be
-# build position independent.
-#
-# FIXME
-# Linking storage plugins against static libraries is a VERY BAD IDEA!
-# It will create independent copies of global variables in the main
-# application and the storage plugins and break the uniqueness of
-# entities, mess up errors, +++.
-# We have to implement a robust way to find shared libraries on Windows,
-# probably by appending to the PATH environment variable before loading
-# any storage or mapping plugin.
+# We are building both shared and static libraries. User software will
+# normally link to the shared libraries.
+
 set(lib_args
   ${sources}
   ${CMAKE_CURRENT_BINARY_DIR}/config-paths.h
@@ -124,6 +113,8 @@ target_link_libraries(dlite-static ${link_args})
 
 set_target_properties(dlite PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
+  BUILD_RPATH "$ORIGIN/"
+  INSTALL_RPATH "$ORIGIN/"
   )
 set_target_properties(dlite-static PROPERTIES
   POSITION_INDEPENDENT_CODE ON

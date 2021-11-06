@@ -14,8 +14,11 @@ struct _DLiteInstance *swig_mapping(const char *output_uri,
                                     struct _DLiteInstance **instances,
                                     int ninstances)
 {
-  return dlite_mapping(output_uri, (const DLiteInstance **)instances,
-                       ninstances);
+ DLiteInstance *inst=NULL;
+ if (!(inst = dlite_mapping(output_uri, (const DLiteInstance **)instances,
+                       ninstances)))
+      return dlite_err(1, "mapping failed '%s'", output_uri), NULL;
+  return inst;
 }
 
 

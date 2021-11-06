@@ -393,7 +393,9 @@ const char *fu_nextpath(const char *paths, char **endptr, const char *pathsep)
     p = *endptr + 1;
 
   /* ignore repeated path separators */
-  while (strchr((pathsep) ? pathsep : ";:", *p)) p++;
+  if (*p) {
+    while (strchr((pathsep) ? pathsep : ";:", *p)) p++;
+  }
 
   if (pathsep) {
     *endptr = p + strcspn(p, pathsep);
@@ -894,7 +896,7 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
       if (tmp) free(tmp);
       return index;  // path already at expected position
     }
-    if (fu_paths_delete(paths, index)) goto fail;
+    if (fu_paths_remove_index(paths, index)) goto fail;
     if (n > index) n--;
   }
 
@@ -994,15 +996,15 @@ int fu_paths_extend_prefix(FUPaths *paths, const char *prefix,
 
   Returns non-zero on error.
  */
-int fu_paths_delete(FUPaths *paths, int n)
+int fu_paths_remove_index(FUPaths *paths, int index)
 {
-  if (n < -(int)(paths->n) || n >= (int)paths->n+1)
-    return err(-1, "path index out of range: %d", n);
-  if (n < 0) n += paths->n;
-  assert(paths->paths[n]);
-  free((char *)paths->paths[n]);
-  memmove((char **)paths->paths+n, paths->paths+n+1,
-          (paths->n-n)*sizeof(char **));
+  if (index < -(int)(paths->n) || index >= (int)paths->n+1)
+    return err(-1, "path index out of range: %d", index);
+  if (index < 0) index += paths->n;
+  assert(paths->paths[index]);
+  free((char *)paths->paths[index]);
+  memmove((char **)paths->paths+index, paths->paths+index+1,
+          (paths->n-index)*sizeof(char **));
   paths->n--;
   return 0;
 }
@@ -1014,7 +1016,7 @@ int fu_paths_remove(FUPaths *paths, const char *path)
 {
   int i = fu_paths_index(paths, path);
   if (i < 0) return -1;
-  if (fu_paths_delete(paths, i)) return 1;
+  if (fu_paths_remove_index(paths, i)) return 1;
   return 0;
 }
 
@@ -1196,7 +1198,8 @@ FUIter *fu_pathsiter_init(const FUPaths *paths, const char *pattern)
   iter->pattern = pattern;
   iter->dirsep = DIRSEP[0];
   iter->origlen = paths->n;
-  if (!(iter->origpaths = strlist_copy(paths->paths))) goto fail;
+  if (!(iter->origpaths = (paths->paths) ? strlist_copy(paths->paths) : NULL))
+    goto fail;
   return iter;
  fail:
   if (iter) free(iter);

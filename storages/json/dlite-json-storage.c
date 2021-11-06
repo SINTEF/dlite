@@ -173,7 +173,7 @@ int json_close(DLiteStorage *s)
 DLiteInstance *json_load(const DLiteStorage *s, const char *id)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
-  const char *buf=NULL;
+  const char *buf=NULL, *scanid;
   char uuid[DLITE_UUID_LENGTH+1];
 
   if (!id || !*id) {
@@ -190,8 +190,18 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
     buf = jstore_get(js->jstore, uuid);
   }
   if (!buf && !(buf = jstore_get(js->jstore, id)))
-    FAIL2("no instance with id \"%s\" in storage \"%s\"", id, s->location);
-  return dlite_json_sscan(buf, id, NULL);
+      goto fail;
+    //FAIL2("no instance with id \"%s\" in storage \"%s\"", id, s->location);
+
+  if (dlite_get_uuid(uuid, id) == 0) {
+    /* the provided id is an uuid - check if a human readable id has been
+       assoicated with `id` as a label */
+    if (!(scanid = jstore_get_label(js->jstore, id))) scanid = id;
+  } else {
+    scanid = id;
+  }
+
+  return dlite_json_sscan(buf, scanid, NULL);
  fail:
   return NULL;
 }

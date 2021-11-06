@@ -1,77 +1,148 @@
 Build with Visual Studio
 ========================
 
-1. Install a recent version of [CMake][cmake]
-2. Install Visual Studio 14 2015 or Visual Studio 15 2017 with the
-   C/C++ components
+1. Install "Visual Studio 14 2015", "Visual Studio 15 2017" or "Visual Studio 16 2019" with the
+   C/C++ components and cmake.
 
-3. Prepare a directory structure for DLite and 3rd party libraries:
+   In case you want Python-bindings, make sure to use a "Visual Studio" version
+   that generates dlite-libraries which are compatible to the Python version you are using.
+   For Python>=3.5, any of the above versions will work: See [mscompilers] for a discussion on
+   binary compatibilty between Visual Studio compiler versions. For older versions of Python see
+   the correct versions here: [pythonwindows].
 
-     1. Select a root folder to create the directory structure. Ex:
+   In the examples below, we use "Visual Studio 15 2017" which is the compiler version with which
+   Python>=3.7 is build on Windows.
 
-            "C:\Users\{username}\Documents\"
+2. (Optional) Install SWIG in case you want to build Python-bindings as described
+   here [swig]. Add the swig-executable to your windows PATH
 
-     2. Create the following directory:
+3. (Optional) Check versions
 
-            {root}\local
+   $ swig -version
+     SWIG Version 4.0.2
+     Compiled with i686-w64-mingw32-g++ [i686-w64-mingw32]
+     Configured options: +pcre
+     Please see http://www.swig.org for reporting bugs and further information
 
-     3. Clone the DLite repository in the root folder, creating the folder
+   $ cmake -version
+    cmake version 3.20.21032501-MSVC_2
+    CMake suite maintained and supported by Kitware (kitware.com/cmake).
 
-            {root}\dlite
+4. git clone dlite to a directory of your choice
 
-4. Download hdf5 library archive from
-   [https://support.hdfgroup.org/ftp/HDF5/current/src/][hdf5]
+5. Build and test
 
-5. Copy of the file
+5.1. Build from the Windows commandline
 
-            {root}\dlite\bootstrap-win.sh
+   When building with Python support, this will build against your default Python.
+   Make sure you have the following Python packages installed: numpy, pyyaml, pandas, psycopg2
+   Use `py -0p` to check the Python default.
 
-   into the root folder and edit it as follows:
+   $ mkdir .\out\build\x64-Release-vs15
+   $ cd .\out\build\x64-Release-vs15
+   $ cmake -G "Visual Studio 15 2017" ^
+           -A x64 ^
+           -DWITH_DOC=OFF ^
+           -DWITH_HDF5=OFF ^
+           -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ^
+           -DCMAKE_INSTALL_PREFIX:PATH="%CD%\..\..\install\x64-Release-vs15" ^
+           ..\..\..
 
-	1. Modify the variable CMAKE_PATH to the path of cmake directory
-	2. Modify the variable ROOT_PATH to your root folder
-	3. Modify the variable PYTHON_EXECUTABLE to Python version 3.x
-	   executable
-	4. Check the version number of hdf5 library
-    5. To build in Win64 mode, add '-G "Visual Studio 15 Win64"' after
-       cmake command when generating the solution (not building)
+    $ cmake --build . --config Release
+    $ cmake --install .
+    $ ctest -C Release
 
-6. Open a git-bash window:
-	1. Change the directory to your root folder
-	2. Type `sh bootstrap-win.sh` and press enter
+5.2 Build from Visual Studio
 
-7. Open the file
+   When building with Python support, this will again build against your default Python.
 
-            {root}\dlite\build\dlite.sln
+   Open the dlite directory with Visual Studio, it will be recognized as a CMake project.
+   Add a CMakeSettings.json file with the following minimum contents:
 
-   in Visual Studio
+    {
+      "configurations": [
+        {
+          "name": "x64-Release-vs15",
+          "generator": "Visual Studio 15 2017 Win64",
+          "configurationType": "Release",
+          "buildRoot": "${projectDir}\\out\\build\\${name}",
+          "installRoot": "${projectDir}\\out\\install\\${name}",
+          "cmakeCommandArgs": "-DWITH_DOC=OFF -DWITH_HDF5=OFF",
+          "buildCommandArgs": "",
+          "inheritEnvironments": [ "msvc_x64_x64" ]
+        }
+      ]
+    }
 
-8. In Visual Studio:
+    * Select the "x64-Release-vs15" configuration
+    * Right click on the top-level "CMakeLists.txt" -> "configure dlite"
+    * Right click on the top-level "CMakeLists.txt" -> "Build"
+    * Right click on the top-level "CMakeLists.txt" -> "Run Tests"
 
-    1. Select the solution configuration "Debug", then build the
-       solution (Menu Build -> Build solution)
-    2. Select the solution configuration "Release", then build the
-       solution (Menu Build -> Build solution)
+5.3 Build against Python in a virtual environment (Recommended)
 
-To run the tests, do
+   This example uses Anaconda Python and conda environemnts.
 
-    ctest -C Debug
+   $ conda create --name=py38dlite python=3.8 numpy pyyaml pandas psycopg2
+   $ conda activate py38dlite
 
+   $ mkdir .\out\build\x64-Release-vs15
+   $ cd .\out\build\x64-Release-vs15
+   $ cmake -G "Visual Studio 15 2017" ^
+           -A x64 ^
+           -DWITH_DOC=OFF ^
+           -DWITH_HDF5=OFF ^
+           -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ^
+           -DCMAKE_INSTALL_PREFIX:PATH="%CD%\..\..\install\x64-Release-vs15" ^
+           ..\..\..
 
-Summary to build and install DLite when hdf5 lib are installed
-in the given path LOCAL_DIR
+    $ cmake --build . --config Release
+    $ cmake --install .
+    $ ctest -C Release
 
-    LOCAL_DIR=/C/Users/tco/Documents/Programs/philib/local
-    PATH=$PATH:$LOCAL_DIR/bin
-    cd dlite
-    mkdir build && cd build
-    cmake -G "Visual Studio 14 2015 Win64" -DHDF5_DIR=$LOCAL_DIR/cmake/hdf5 -DCMAKE_INSTALL_PREFIX=$LOCAL_DIR/ ..
-    cmake --build . --config Debug --target doc
-    cmake --build . --config Debug --target install
-    cmake --build . --config Release --target install
-    ctest -C Debug
-    ctest -C Release
+6. Install the Python package via using ./python/setup.py from sources (legacy)
 
+   $ conda create --name=py38dlite python=3.8 numpy
+   $ conda activate py38dlite
+   $ cd python
+   $ python setup.py install
+
+7. Use pip to install the Python package from sources (Recommended)
+
+   Make sure you have pip >= 21.3 in which in-tree-build is the default.
+   For pip > 21.0.1 and < 21.3, you need an additional flag `pip --use-feature=in-tree-build install .`
+
+   $ conda create --name=py38dlite python=3.8
+   $ conda activate py38dlite
+   $ pip install --upgrade pip
+   $ pip -V # >= 21.3?
+   $ cd python
+   $ pip install .
+
+8. Install dlite-python from GitHub sources
+
+   Make sure you have pip >= 21.3 again
+
+   $ conda create --name=py37dlite python=3.7
+   $ conda activate py37dlite
+
+   Install a specific commit:
+   $ pip install git+https://github.com/SINTEF/dlite.git@d19e93b7d69f486485e8d6c3468e6bc672d7590d#subdirectory=python
+
+   Install a specific tag:
+   $ pip install git+https://github.com/SINTEF/dlite.git@v0.3.2dev1#subdirectory=python
+
+9. Install dlite-python via a pre-packaged wheel
+
+   Make sure you have pip >= 21.3 again
+
+   $ conda create --name=py37dlite python=3.7
+   $ conda activate py37dlite
+   $ pip install dlite_python-0.3.3-cp37-cp37m-win_amd64.whl
 
 [cmake]: https://cmake.org/download/
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
+[swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/
+[pythonwindows]: https://pythondev.readthedocs.io/windows.html
+[mscompilers] https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
+
