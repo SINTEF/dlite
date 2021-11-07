@@ -40,8 +40,8 @@ def get_energy(reaction):
 
 
 # Import ontologies with mappings
-molecules_onto = get_ontology('mapping_mols.ttl').load()
-reaction_onto = get_ontology('mapping_substance.ttl').load()
+molecules_onto = get_ontology(f'{thisdir}/mapping_mols.ttl').load()
+reaction_onto = get_ontology(f'{thisdir}/mapping_substance.ttl').load()
 
 # Convert to mappings to a single list of triples
 mappings = list(molecules_onto.get_unabbreviated_triples())
@@ -87,6 +87,3 @@ print('Reaction energy 1', reaction_energy2)
 # Map instance Molecule with label 'H2' to itself
 #inst2 = make_instance(Molecule, coll['H2'], mappings, strict=False)
 #print(inst2)
-
-
-

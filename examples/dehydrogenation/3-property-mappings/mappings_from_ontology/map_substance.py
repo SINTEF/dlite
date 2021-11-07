@@ -1,15 +1,23 @@
+from pathlib import Path
+
 from ontopy import get_ontology, World
+
+
+# Setup dlite paths
+thisdir = Path(__file__).parent.absolute()
+rootdir = thisdir.parent.parent
 
 # Note install emmopython from github, not pypi.
 world = World()
 
-mapsTo_onto = world.get_ontology('../../ontology/mapsTo.ttl').load(EMMObased=False)
+mapsTo_onto = world.get_ontology(f'{rootdir}/ontology/mapsTo.ttl').load(
+    EMMObased=False)
 
-chemistry_onto = world.get_ontology('../../ontology/chemistry.ttl').load()
+chemistry_onto = world.get_ontology(f'{rootdir}/ontology/chemistry.ttl').load()
 
-dlite_onto = world.get_ontology('https://raw.githubusercontent.com/'
-                          'emmo-repo/datamodel-ontology/master'
-                          '/dlitemodel.ttl').load(EMMObased=False)
+dlite_onto = world.get_ontology(
+    'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master'
+    '/dlitemodel.ttl').load(EMMObased=False)
 
 mapping = world.get_ontology('http://onto-ns.com/ontology/mapping#')
 mapping.set_version('0.1')
@@ -30,7 +38,7 @@ with mapping:
     substance_energy.mapsTo.append(chemistry_onto.GroundStateEnergy)
     substance_id.mapsTo.append(chemistry_onto.Identifier)
 
-mapping.save('mapping_substance.ttl')
+mapping.save(f'{thisdir}/mapping_substance.ttl')
 
 # A catalog file is not writte here because the catalog from molecule
 # can be reused. This will most likely not be the case in a more realistic

@@ -1,5 +1,8 @@
 """Implements mappings between entities.
 """
+import types
+import itertools
+from collections import defaultdict
 from typing import Dict, AnyStr
 
 import dlite
@@ -61,6 +64,192 @@ def create_match(triples, match_first=False):
         return match
 
 
+def mapping_route(
+        target, sources, triples, mapsTo=':mapsTo',
+        subClassOf='http://www.w3.org/2000/01/rdf-schema#subClassOf',
+        subPropertyOf='http://www.w3.org/2000/01/rdf-schema#subPropertyOf'):
+    """Finds the route of mappings from any source in `sources` to `target`.
+
+    This implementation takes transitivity, subclasses and
+    subproperties into accaount.
+
+    Args:
+        target: IRI of the target in `triples`.
+        sources: Sequence of source IRIs in `triples`.
+        triples: Sequence of (subject, predicate, object) triples.
+          It is safe to pass a generator expression too.
+        mapsTo: How 'mapsTo' is written in `triples`.
+        subClassOf: How 'subClassOf' is written in `triples`.  Set it
+          to None if subclasses should not be considered.
+        subPropertyOf: How 'subPropertyOf' is written in `triples`.  Set it
+          to None if subproperties of `mapsTo` should not be considered.
+
+    Returns:
+        list: Names of all sources that maps to `target`.
+
+        list: A nested list with different mapping routes from `target`
+          to a source, where a mapping route is expressed as a
+          list of triples.  For example:
+
+              [(target, mapsTo, 'onto:A'),
+               ('onto:A', mapsTo, 'onto:B'),
+               (source1, mapsTo, 'onto:B')]
+
+    Bugs:
+        In the current implementation will the returned mapping route
+        report sub properties of `mapsTo` as `mapsTo`.  Some
+        postprocessing is required to fix this.
+    """
+    sources = set(sources)
+
+    # Create a set 'relations' to consider, consisting of mapsTo and
+    # its sub properties
+    if subPropertyOf:
+        def walk(src, d):
+            yield src
+            for s in d[src]:
+                yield from walk(s, d)
+
+        if isinstance(triples, types.GeneratorType):
+            # Convert generator to a list such that we can transverse it twice
+            triples = list(triples)
+
+        oSPs = defaultdict(set)  # (o, subPropertyOf, s) ==> oSPs[o] -> {s, ..}
+        for s, p, o in triples:
+            if p == subPropertyOf:
+                oSPs[o].add(s)
+        relations = set(walk(mapsTo, oSPs))
+        del oSPs
+    else:
+        relations = set([mapsTo])
+
+    # Create lookup tables for fast access to properties
+    # This only transverse `tiples` once
+    sRo = defaultdict(list)   # (s, mapsTo, o)     ==> sRo[s] -> [o, ..]
+    oRs = defaultdict(list)   # (o, mapsTo, s)     ==> oRs[o] -> [s, ..]
+    sSCo = defaultdict(list)  # (s, subClassOf, o) ==> sSCo[s] -> [o, ..]
+    oSCs = defaultdict(list)  # (o, subClassOf, s) ==> oSCs[o] -> [s, ..]
+    for s, p, o in triples:
+        if p in relations:
+            sRo[s].append(o)
+            oRs[o].append(s)
+        elif p == subClassOf:
+            sSCo[s].append(o)
+            oSCs[o].append(s)
+
+    # The lists to return, populated with walk_forward() and walk_backward()
+    mapped_sources = []
+    mapped_routes = []
+
+    def walk_forward(entity, visited, route):
+        """Walk forward from `entity` in the direction of mapsTo."""
+        if entity not in visited:
+            walk_backward(entity, visited, route)
+            for e in sRo[entity]:
+                walk_forward(
+                    e, visited.union(set([entity])),
+                    route + [(entity, mapsTo, e)])
+            for e in oSCs[entity]:
+                walk_forward(
+                    e, visited.union(set([entity])),
+                    route + [(e, subClassOf, entity)])
+
+    def walk_backward(entity, visited, route):
+        """Walk backward from `entity` to a source, against the direction of
+        mapsTo."""
+        if entity not in visited:
+            if entity in sources:
+                mapped_sources.append(entity)
+                mapped_routes.append(route)
+            else:
+                for e in oRs[entity]:
+                    walk_backward(
+                        e, visited.union(set([entity])),
+                        route + [(e, mapsTo, entity)])
+                for e in sSCo[entity]:
+                    walk_backward(
+                        e, visited.union(set([entity])),
+                        route + [(entity, subClassOf, e)])
+
+    walk_forward(target, set(), [])
+
+    return mapped_sources, mapped_routes
+
+
+
+#
+# def mapping_targets(source, triples, mapsTo=':mapsTo', return_routes=False):
+#     """Finds all targets that `source` maps to.
+#
+#     This implementation takes the transitivity of mapsTo into accaount.
+#
+#     Args:
+#         source: IRI of source in `triples`.
+#         triples: Sequence of (subject, predicate, object) triples.
+#         mapsTo: How the 'mapsTo' predicate is written in `triples`.
+#         return_routes: Whether to also return a list of tuples showing the
+#           mapping route.
+#
+#     Returns:
+#         list: Name of all targets that `source` maps to.
+#         list: (optional) If `return_route` is true, a list of mapping routes
+#           corresponding to the list of targets is also returned.
+#           Each route is expressed as a list of triples.  For example
+#           can the route from 'a' to 'b' be expressed as
+#
+#               [[('a', ':mapsTo', 'onto:A'), ('b', ':mapsTo', 'onto:A')]]
+#     """
+#     import itertools
+#     match = create_match(triples)  # match function
+#
+#     # Trivial implementation
+#     #for _, _, cls in match(s=source, p=mapsTo):
+#     #    for target, _, _ in match(p=mapsTo, o=cls):
+#     #        targets.append(target)
+#     #        if return_routes:
+#     #            routes.append([(source, mapsTo, cls), (target, mapsTo, cls)])
+#
+#     # Recursive implementation taking transitivity into account
+#     targets = []
+#     routes = []
+#
+#     def add_target(target, route):
+#         targets.append(target)
+#         if return_routes:
+#             routes.append(route)
+#
+#     def find_target(cls, route, visited):
+#         """Find all targets that maps to `cls`.
+#         Returns true if cls correspond to a final target, otherwise false."""
+#         m = match(p=mapsTo, o=cls)
+#         try:
+#             s, p, o = m.__next__()
+#         except StopIteration:
+#             return True
+#
+#         # Use itertools.chain() to put (s, p, o) in what we are iterating over
+#         for s, p, o in itertools.chain(iter([(s, p, o)]), m):
+#             if s in visited:
+#                 pass
+#             else:
+#                 if find_target(s, route + [s, p, o], visited + [s]):
+#                     add_target(s, route + [s, p, o])
+#         return False
+#
+#     def find(s, route, visited):
+#         """Find all classes that `s` maps to."""
+#         for s, p, o in match(s=s, p=mapsTo):
+#             find_target(o, route + [(s, p, o)], visited + [s])
+#             find(o, route + [(s, p, o)], visited + [s])
+#
+#     find(source, [], [])
+#
+#     if return_routes:
+#         return targets, routes
+#     else:
+#         return targets
+#
+
 def unitconvert_pint(dest_unit, value, unit):
     """Returns `value` converted to `dest_unit`.
 
@@ -80,7 +269,7 @@ def unitconvert_pint(dest_unit, value, unit):
 
 
 def assign_dimensions(dims: Dict,
-                      inst,
+                      inst: dlite.Instance,
                       propname: AnyStr):
     """Assign dimensions from property assignment.
 
