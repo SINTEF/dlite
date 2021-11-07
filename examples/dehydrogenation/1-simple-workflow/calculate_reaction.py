@@ -15,8 +15,8 @@ dlite.storage_path.append(f'{entitydir}/*.json')
 dlite.python_mapping_plugin_path.append(f'{mappingdir}')
 
 # input from chemical engineer
-reactants = {'C2H6':1}
-products = {'C2H4':1,'H2':1}
+reactants = {'C2H6': 1}
+products = {'C2H4': 1,'H2': 1}
 
 coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 

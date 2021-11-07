@@ -6,54 +6,71 @@ We want to be able to calculate the reaction energy of the following dehydrogena
 
 The structure of all the involved molecules are stored in the folder
 [molecules](molecules) in the
-[xyz](https://en.wikipedia.org/wiki/XYZ_file_format) file format.
+[xyz](https://en.wikipedia.org/wiki/XYZ_file_format) file format.  For now we consider this as our poor man's database, which we will use as input to the following workflow:
+
+![Overall workflow](figs/dehydrogenation-overall-workflow.png)
+
+This workflow involves three people that decided to use dlite for interoperability:
+* __Allice__ from Australia, who is an expert on molecular modelling.  She uses
+  [ASE](https://wiki.fysik.dtu.dk/ase/) to calculate the molecule energies and
+  store them in a dlite collection as instances of [Molecule] metadata.
+* __Bob__ from Belgium, who know how to calculate reaction energies.  His software takes instances of [Substance] metadata as input and returns an instance of [Reaction] as output.
+* __Cyril__ from Corsica is the end user is this user case and need the reaction energies as input to higher-scale simulations.  He is happy to read the input in terms of an instance of [Reaction] metadata.
+
+Hence, the interesting step in this workflow is the conversion from [Molecule] instances of Allice to [Substance] instances needed by Bob.
+We will provide three different implementations of this workflow, with increasing level of semantic interoperability:
+
+1. [Explicit exchange of DLite instances](#workflow-1-explicit-exchange-of-dlite-instances)
+2. [Static instance-based mapping](#workflow-2-static-instance-based-mapping)
+3. [Dynamic property-based mappings](#workflow-3-dynamic-property-based-mappings)
 
 
-TODO: People: Alice, Bob and Cyril. Beskriv historien. 
+## Workflow 1: Explicit exchange of DLite instances
+Alice, Bob and Cyril have met at a summer school in Copenhagen and are setting up this workflow together.  Because of this close interaction, Bob makes a variant of his reaction script, called [calculate_reaction.py], that takes instances of [Molecule] metadata as input.  Hence the workflow reduces to
+
+![Workflow 1](figs/dehydrogenation-workflow1.png)
+
+with two calculation steps.
+
+* Allice starts by creating a script [molecular-energies.py] which you can run with
+
+      python 1-simple-workflow/molecular_energies.py
+
+  It does the following:
+  - reads all the molecule structures in the [molecules](#molecules) directory
+  - calculates the corresponding molecule ground state energies using the [ASE EMT](https://wiki.fysik.dtu.dk/ase/ase/calculators/emt.html#module-ase.calculators.emt) calculator
+  - for each molecule, instantiates a DLite [Molecule] instance populated with the structure information and calculated energy
+  - add all the [Molecule] instances to a new collection
+  - write the collection to disk: atomscaledata.json
+
+* Bob makes a variant of his reaction script, called [calculate-reaction.py], that can be executed with
+
+        python 1-simple-workflow/calculate_reaction.py
+
+  It does the following:
+  - loads the [atomscaledata.json](#1-simple-workflow/atomscaledata.json) database
+  - use that to calculate the energy of the chemical reaction `C2H6(g) --> C2H4(g) + H2(g)`
+  - populate a new [Reaction](#entities/Reaction.json) instance
+  - write the new Reaction instance to [file](#ethane-dehydrogenation.json)
+  - prints the calculated reaction energy to screen
 
 
-## Workflows
-We will divide this example into three workflows:
-
-1. simple workflow that explicitly calculates the reaction energy of the `C2H6(g) --> C2H4(g) + H2(g)` reaction
-2. like workflow 1, but replaces the explicit calculation of the reaction energy
-   in the second step with dlite mappings
-3. like workflow 2, but uses ontological mappings to generate the dlite mappings
+## Workflow 2: Static instance-based mapping
+Alice, Bob and Cyril have left Copenhagen and went home to their respective country and continues to work more separately.
+* Alice calculates more molecules and makes the results available in an online database.
+* Bob improves his chemical reaction software that takes instances of [Substance] as input.  To also support reading [Molecule] instances as input, he creates a _DLite mapping plugin_ (see [python-mapping-plugins/molecule2substance.py](python-mapping-plugins/molecule2substance.py)) which transparently can instantiate an instance of [Substance] from an instance of [Molecule].  In his updated [script](2-instance-mappings/calculate_reactions.py)
 
 
-### 1. Simple workflow
-Lets start with a very simple workflow, consisting of two steps:
-
-#### Step 1.1: Create Molecule instances
-Run the script
-
-    python 1-simple-workflow/energies_from_atomscalecalcs.py
-
-It will:
-- read all the molecule structures in the [molecules](#molecules) directory
-- calculate the corresponding molecule ground state energies using the [ASE EMT](https://wiki.fysik.dtu.dk/ase/ase/calculators/emt.html#module-ase.calculators.emt) calculator
-- for each molecule, instantiate a DLite Molecule instance populated with the structure information and calculated energy
-- add all the Molecule instances to a new collection
-- write the collection to disk: [atomscaledata.json](#1-simple-workflow/atomscaledata.json)
-
-The generated [atomscaledata.json](#1-simple-workflow/atomscaledata.json) file can be seen as a database of molecule structures with energies calculated using the EMT calculator.
+* Cyril performs more simulations and would like to utilise the new results from Alice.  He has access to the new software of Bob, but needs to convert
 
 
-#### Step 1.2: Explicit calculation of reaction energy
-By running the script
-
-    python 1-simple-workflow/calculate_reaction.py
-
-you will:
-- load the [atomscaledata.json](#1-simple-workflow/atomscaledata.json) database
-- use that to calculate the energy of the chemical reaction `C2H6(g) --> C2H4(g) + H2(g)`
-- populate a new [Reaction](#entities/Reaction.json) instance
-- write the new Reaction instance to [file](#ethane-dehydrogenation.json)
-- prints the calculated reaction energy to screen
 
 
-### 2. Workflow using DLite mappings
-The work flow is now separated into two different simulations performed independently. The first part is the calculation of energies of molecules. 
+
+![Workflow 2](figs/dehydrogenation-workflow2.png)
+
+
+The work flow is now separated into two different simulations performed independently. The first part is the calculation of energies of molecules.
 This was already done in workflow 1.
 We therefore start from the same [collection of molecules](#1-simple-workflow/atomscaledata.json) as generated in step 1.1.
 However, step 1.2 is replaced by running the script
@@ -69,7 +86,7 @@ The main difference is that the Molecule instances are implicitly converted Subs
 This conversion is performed with the `molecule2substance.py` dlite mapping plugin in the `python-mapping-plugins/` subdirectory.
 
 
-### 3. Workflow based on ontological mappings
+## Workflow 3: Dynamic property-based mappings
 Two examples are provided:
 
 1. The mappings are hard coded into the run script, which can be run directly with python.
@@ -95,7 +112,7 @@ TODO: Descrive scenarios. Alice in Antigua does molecule energy calcs and put th
 Bob from Belgium does reaction energy calculations but needs molecule energies from elsewhere. He can map his desired data (he calls them Substance) to the
 same ontology. Discussion on choice of ontology is not part of this, but he could also use another ontology and match to something else and thus
 also have access to other data repos mapped to those ontologies.
-Mapping between data form the external repository and Bobs desired Substance(s) is then done automatically because of the common ontology. 
+Mapping between data form the external repository and Bobs desired Substance(s) is then done automatically because of the common ontology.
 
 
 
@@ -114,3 +131,18 @@ The [substance data model](#entities/Substance.json) is very simple. It only def
 
 ### Reaction data model
 The [reaction data model](#entities/Reaction.json) defines a chemical reaction including its reaction energy.  It has two dimensions; the number of reactants and the number of products.
+
+
+
+[Molecule]: entities/Molecule.json
+[Substance]: entities/Substance.json
+[Reaction]: entities/Reaction.json
+[molecular-energies.py]: 1-simple-workflow/molecular-energies.py
+[calculate-reaction.py]: 1-simple-workflow/calculate-reaction.py
+
+
+
+1. simple workflow that explicitly calculates the reaction energy of the `C2H6(g) --> C2H4(g) + H2(g)` reaction
+2. like workflow 1, but replaces the explicit calculation of the reaction energy
+   in the second step with dlite mappings
+3. like workflow 2, but uses ontological mappings to generate the dlite mappings
