@@ -7,20 +7,19 @@ import dlite
 # Setup dlite paths
 thisdir = Path(__file__).parent.absolute()
 rootdir = thisdir.parent
-workflow1dir = rootdir / '1-simple-workflow'
-entitiesdir = rootdir / 'entities'
-atomdata = workflow1dir / 'atomscaledata.json'
-dlite.storage_path.append(f'{entitiesdir}/*.json')
-dlite.python_mapping_plugin_path.append(f'{rootdir}/python-mapping-plugins')
+atomdata = rootdir / '1-simple-workflow' / 'atomscaledata.json'
+dlite.storage_path.append(f'{rootdir}/entities/*.json')
 
+# URI to DLite metadata
 substance_id = 'http://onto-ns.com/meta/0.1/Substance'
+reaction_id = 'http://onto-ns.com/meta/0.1/Reaction'
 
 
 def reaction_energy(coll, reactants, products):
     """Returns the calculated reaction energy.
 
     Args:
-        coll: Collection with molecules.
+        coll: Collection with Substance instances.
         reactants: Dict with reactants.  It should map molecule names to
           their corresponding stoichiometric coefficient in the reaction
           formula.
@@ -37,16 +36,13 @@ def reaction_energy(coll, reactants, products):
         substance = coll.get(label, substance_id)
         energy += n * substance.molecule_energy
 
-    return energy
+    # Instantiate a new Reaction instance
+    Reaction = dlite.get_instance(reaction_id)
+    reaction = Reaction(dims=[len(reactants), len(products)])
+    reaction.reactants = list(reactants.keys())
+    reaction.products = list(products.keys())
+    reaction.reactant_stoichiometric_coefficient = list(reactants.values())
+    reaction.product_stoichiometric_coefficient = list(products.values())
+    reaction.energy = energy
 
-
-if __name__ == '__main__':
-    Substance = dlite.get_instance(substance_id)
-
-
-    # Load collection with atom scale data
-    coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
-
-    e = reaction_energy(coll, reactants={'C2H6': 1},
-                        products={'C2H4': 1,'H2': 1})
-    print(f'Reaction energy: {e} eV')
+    return reaction

@@ -18,11 +18,12 @@ This workflow involves three people that decided to use dlite for interoperabili
 * __Cyril__ from Corsica is the end user is this user case and need the reaction energies as input to higher-scale simulations.  He is happy to read the input in terms of an instance of [Reaction] metadata.
 
 Hence, the interesting step in this workflow is the conversion from [Molecule] instances of Allice to [Substance] instances needed by Bob.
-We will provide three different implementations of this workflow, with increasing level of semantic interoperability:
+We will provide four different implementations of this workflow, with increasing level of semantic interoperability:
 
 1. [Explicit exchange of DLite instances](#workflow-1-explicit-exchange-of-dlite-instances)
 2. [Static instance-based mapping](#workflow-2-static-instance-based-mapping)
 3. [Dynamic property-based mappings](#workflow-3-dynamic-property-based-mappings)
+4. [Ontologically described transformations](#workflow-4-ontologically-described-transformations)
 
 
 ## Workflow 1: Explicit exchange of DLite instances
@@ -37,7 +38,7 @@ with two calculation steps.
       python 1-simple-workflow/molecular_energies.py
 
   It does the following:
-  - reads all the molecule structures in the [molecules](#molecules) directory
+  - reads all the molecule structures in the [molecules](molecules) directory
   - calculates the corresponding molecule ground state energies using the [ASE EMT](https://wiki.fysik.dtu.dk/ase/ase/calculators/emt.html#module-ase.calculators.emt) calculator
   - for each molecule, instantiates a DLite [Molecule] instance populated with the structure information and calculated energy
   - add all the [Molecule] instances to a new collection
@@ -48,45 +49,39 @@ with two calculation steps.
         python 1-simple-workflow/calculate_reaction.py
 
   It does the following:
-  - loads the [atomscaledata.json](#1-simple-workflow/atomscaledata.json) database
+  - loads the [atomscaledata.json](1-simple-workflow/atomscaledata.json) database
   - use that to calculate the energy of the chemical reaction `C2H6(g) --> C2H4(g) + H2(g)`
-  - populate a new [Reaction](#entities/Reaction.json) instance
-  - write the new Reaction instance to [file](#ethane-dehydrogenation.json)
+  - populate a new [Reaction] instance
+  - write the new Reaction instance to [file](1-simple-workflow/ethane-dehydrogenation.json)
   - prints the calculated reaction energy to screen
 
 
 ## Workflow 2: Static instance-based mapping
 Alice, Bob and Cyril have left Copenhagen and went home to their respective country and continues to work more separately.
 * Alice calculates more molecules and makes the results available in an online database.
-* Bob improves his chemical reaction software that takes instances of [Substance] as input.  To also support reading [Molecule] instances as input, he creates a _DLite mapping plugin_ (see [python-mapping-plugins/molecule2substance.py](python-mapping-plugins/molecule2substance.py)) which transparently can instantiate an instance of [Substance] from an instance of [Molecule].  In his updated [script](2-instance-mappings/calculate_reactions.py)
+* Bob improves his chemical reaction software that takes instances of [Substance] as input.  To also support reading [Molecule] instances as input, he creates a _DLite mapping plugin_ [molecule2substance](python-mapping-plugins/molecule2substance.py) in the [python-mapping-plugins/](python-mapping-plugins) subdirectory, which transparently can instantiate an instance of [Substance] from an instance of [Molecule].  In his updated [Python module](2-instance-mappings/reaction_energy.py) he has provides a second argument to `coll.get()`:
 
+  ```python
+  substance = coll.get(label, substance_id)
+  ```
 
-* Cyril performs more simulations and would like to utilise the new results from Alice.  He has access to the new software of Bob, but needs to convert
+  that instructs DLite to convert the instance referred to by `label` to an instance of metadata `substance_id='http://onto-ns.com/meta/0.1/Substance'`.
+* Cyril performs more simulations and would like to utilise the new results from Alice.  He uses the mapping plugin provided by Bob.  He installs the mapping plugin and creates a small [script](2-instance-mappings/calculate_reactions.py) that imports the reaction_energy module by Bob.
 
-
-
-
+The workflow now looks as follows
 
 ![Workflow 2](figs/dehydrogenation-workflow2.png)
 
+and can be run with the script of Cyril
 
-The work flow is now separated into two different simulations performed independently. The first part is the calculation of energies of molecules.
-This was already done in workflow 1.
-We therefore start from the same [collection of molecules](#1-simple-workflow/atomscaledata.json) as generated in step 1.1.
-However, step 1.2 is replaced by running the script
-
-    python 2-dlite-mappings/create_substances.py
-
-The main difference is that the Molecule instances are implicitly converted Substance instances by providing the Substance URI as a second argument to `coll.get()`:
-
-```python
-    substance = coll.get(label, substance_id)
-```
-
-This conversion is performed with the `molecule2substance.py` dlite mapping plugin in the `python-mapping-plugins/` subdirectory.
+    python 2-dlite-mappings/calculate_reactions.py
 
 
 ## Workflow 3: Dynamic property-based mappings
+Alice and Bob have learned about ontologies and FAIR data, and realised that mapping their data to ontological concepts is a very good way to make it available for others.
+
+![Workflow 3](figs/dehydrogenation-workflow3.png)
+
 Two examples are provided:
 
 1. The mappings are hard coded into the run script, which can be run directly with python.
@@ -96,6 +91,8 @@ previous cases.
 The actual mapping betweeen the instances of required molecules in the [collection of molecules](#1-simple-workflow/atomscaledata.json)  and the Substance instances needed in the reaction calculation (`get_energy`) is done with the dlite function `make_instance`.
 Arguments provided are the target metadata (here Substance), instance(s) that the new Substance instance should be populated from and the mappings.
 See documentation for other possible arguments.
+
+![Mappings](figs/dehydrogenation-mappings.png)
 
 2. The mappings are obtained by use of ontologies in a two step process.
 This step requires the python package EMMOntoPy.
@@ -119,18 +116,39 @@ Mapping between data form the external repository and Bobs desired Substance(s) 
 
 
 
+
+## Workflow 4: Ontologically described transformations
+
+OTEAPI
+
+ProMo(?)
+
+
+![Workflow 4](figs/dehydrogenation-workflow4.png)
+
+
+![Mappings](figs/dehydrogenation-mappings2.png)
+
+
+
+
+
+
+
+
+
 ## Metadata used in the example
-You find all metadata in this example in the [entities](#entities) folder.
+You find all metadata in this example in the [entities](entities) folder.
 
 ### Molecule data model
-First we define a DLite data model describing a [molecule](#entities/Molecule.json).
+First we define a DLite data model describing a [Molecule].
 In addition to the information available in the structures, this data model also has a ground state energy property.
 
 ### Substance data model
-The [substance data model](#entities/Substance.json) is very simple. It only defines two properties, an id (or name) identifying a substance and its molecular energy.
+The [substance] data model is very simple. It only defines two properties, an id (or name) identifying a substance and its molecular energy.
 
 ### Reaction data model
-The [reaction data model](#entities/Reaction.json) defines a chemical reaction including its reaction energy.  It has two dimensions; the number of reactants and the number of products.
+The [Reaction] data model defines a chemical reaction including its reaction energy.  It has two dimensions; the number of reactants and the number of products.
 
 
 
