@@ -11,13 +11,13 @@ The structure of all the involved molecules are stored in the folder
 ![Overall workflow](figs/dehydrogenation-overall-workflow.png)
 
 This workflow involves three people that decided to use dlite for interoperability:
-* __Allice__ from Australia, who is an expert on molecular modelling.  She uses
+* __Alice__ from Australia, who is an expert on molecular modelling.  She uses
   [ASE](https://wiki.fysik.dtu.dk/ase/) to calculate the molecule energies and
   store them in a dlite collection as instances of [Molecule] metadata.
 * __Bob__ from Belgium, who know how to calculate reaction energies.  His software takes instances of [Substance] metadata as input and returns an instance of [Reaction] as output.
 * __Cyril__ from Corsica is the end user is this user case and need the reaction energies as input to higher-scale simulations.  He is happy to read the input in terms of an instance of [Reaction] metadata.
 
-Hence, the interesting step in this workflow is the conversion from [Molecule] instances of Allice to [Substance] instances needed by Bob.
+Hence, the interesting step in this workflow is the conversion from [Molecule] instances of Alice to [Substance] instances needed by Bob.
 We will provide four different implementations of this workflow, with increasing level of semantic interoperability:
 
 1. [Explicit exchange of DLite instances](#workflow-1-explicit-exchange-of-dlite-instances)
@@ -33,7 +33,7 @@ Alice, Bob and Cyril have met at a summer school in Copenhagen and are setting u
 
 with two calculation steps.
 
-* Allice starts by creating a script [molecular-energies.py] which you can run with
+* Alice starts by creating a script [molecular-energies.py] which you can run with
 
       python 1-simple-workflow/molecular_energies.py
 
@@ -57,7 +57,7 @@ with two calculation steps.
 
 
 ## Workflow 2: Static instance-based mapping
-Alice, Bob and Cyril have left Copenhagen and went home to their respective country and continues to work more separately.
+Alice, Bob and Cyril have left Copenhagen and gone home to their respective countries and continue the work separately.
 * Alice calculates more molecules and makes the results available in an online database.
 * Bob improves his chemical reaction software that takes instances of [Substance] as input.  To also support reading [Molecule] instances as input, he creates a _DLite mapping plugin_ [molecule2substance](python-mapping-plugins/molecule2substance.py) in the [python-mapping-plugins/](python-mapping-plugins) subdirectory, which transparently can instantiate an instance of [Substance] from an instance of [Molecule].  In his updated [Python module](2-instance-mappings/reaction_energy.py) he has provides a second argument to `coll.get()`:
 
@@ -84,7 +84,7 @@ Alice and Bob have learned about ontologies and FAIR data, and realised that map
 
 Two examples are provided:
 
-1. The mappings are hard coded into the run script, which can be run directly with python.
+* Example 1. The mappings are hard coded into the run script, which can be run directly with python.
 Note that the data are obtained from same [collection of molecules](#1-simple-workflow/atomscaledata.json) as in the two
 previous cases.
 
@@ -94,26 +94,22 @@ See documentation for other possible arguments.
 
 ![Mappings](figs/dehydrogenation-mappings.png)
 
-2. The mappings are obtained by use of ontologies in a two step process.
-This step requires the python package EMMOntoPy.
-Install EMMOntoPy from github and not PyPi to obtain some needed functionality not yet in the released version.
-
-Step1.2: The mappings to the common ontology (chemistry.ttl) are first done with the scripts map_molecule.py and map_substance.py, resulting in two ontologies with the actual mappings.
-In the second step these mappings are read into the run script and combined into a list of triples for all relevant mappings.
-
+* Example 2. The mappings are obtained by use of separate mapping to the same ontology.
 
 In this final example a situation in which two separate processes are mapped to the same ontology is showcased, thus enabling interoperability even though the users do not have detailed knowledge about both cases.
 
 
-TODO: Descrive scenarios. Alice in Antigua does molecule energy calcs and put the into a repository, and have mapped them two an openly known ontology.
-Bob from Belgium does reaction energy calculations but needs molecule energies from elsewhere. He can map his desired data (he calls them Substance) to the
-same ontology. Discussion on choice of ontology is not part of this, but he could also use another ontology and match to something else and thus
-also have access to other data repos mapped to those ontologies.
+First, the mappings to the common ontology (chemistry.ttl) are first done with the scripts map_molecule.py and map_substance.py, resulting in two ontologies with the actual mappings. This step requires the python package EMMOntoPy.
+Install EMMOntoPy from github and not PyPi to obtain some needed functionality not yet in the released version.
+With this procedure, Alice and Bob can make mappings to the same ontology without reference to each other.
+As a result the chemical reaction software can utilise any database of molecules that has been mapped to the same ontology (and that contains the required properties). 
+Alice's data are now available to anyone who knows the ontology.
+
+In the second step these mappings are read into the run script and combined into a list of triples for all relevant mappings. 
 Mapping between data form the external repository and Bobs desired Substance(s) is then done automatically because of the common ontology.
 
-
-
-
+Discussion on choice of ontology is not part of this dlite example, but Bob could also have used another ontology and match to something else and thus
+also have access to other data repos mapped to other ontologies.
 
 
 

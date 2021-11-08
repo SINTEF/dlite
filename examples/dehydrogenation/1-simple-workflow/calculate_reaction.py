@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 from pathlib import Path
 
 import dlite
@@ -16,12 +15,11 @@ dlite.python_mapping_plugin_path.append(f'{mappingdir}')
 
 # input from chemical engineer
 reactants = {'C2H6': 1}
-products = {'C2H4': 1,'H2': 1}
+products = {'C2H4': 1, 'H2': 1}
 
 coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 
 Reaction = dlite.Instance(f'json://{entitydir}/Reaction.json')
-#Reaction = dlite.get_instance('http://onto-ns.com/meta/0.1/Reaction')
 
 reaction = Reaction(dims=[len(reactants), len(products)])
 
@@ -34,11 +32,11 @@ reaction.product_stoichiometric_coefficient = list(products.values())
 energy = 0
 for label, n in reactants.items():
     inst = coll.get(label)
-    energy-=n*inst.groundstate_energy
+    energy -= n*inst.groundstate_energy
 
 for label, n in products.items():
     inst = coll.get(label)
-    energy+=n*inst.groundstate_energy
+    energy += n*inst.groundstate_energy
 
 print(f'Calculated reaction energy: {energy:.3} eV')
 reaction.energy = energy
