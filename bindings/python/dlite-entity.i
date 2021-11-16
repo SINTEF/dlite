@@ -79,6 +79,15 @@ bool dlite_swig_has_instance(const char *id, bool check_storages)
   return (dlite_instance_has(id, check_storages)) ? 1 : 0;
 }
 
+/* Returns list of uuids from istore. */
+char** dlite_swig_istore_get_uuids()
+{
+  int n;
+  char** uuids;
+  uuids = dlite_istore_get_uuids(&n);
+  return uuids;
+}
+
 %}
 
 
@@ -492,6 +501,13 @@ in the storage plugin path.
 %rename(has_instance) dlite_swig_has_instance;
 bool dlite_swig_has_instance(const char *id, bool check_storages=true);
 
+
+%feature("docstring", "\
+Returns a list of in-memory stored ids.
+
+") dlite_swig_istore_get_uuids;
+%rename(istore_get_uuids) dlite_swig_istore_get_uuids;
+char** dlite_swig_istore_get_uuids();
 
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;
