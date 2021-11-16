@@ -326,6 +326,34 @@ size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims)
   return size;
 }
 
+/* Return of newly allocated NULL-terminated array of string pointers
+   with uuids available in the internal storage (istore) */
+char** dlite_istore_get_uuids(int* nuuids)
+{
+    instance_map_t* istore = _instance_store();
+    assert(istore);
+    const char* uuid;
+    map_iter_t iter;
+
+    iter = map_iter(istore);
+    *nuuids = 0;
+    while ((uuid = map_next(istore, &iter))) (*nuuids)++;
+
+    char** uuids;
+    uuids = malloc((*nuuids + 1) * sizeof(char*));
+
+    int i = 0;
+    iter = map_iter(istore);
+    while ((uuid = map_next(istore, &iter))) {
+        {
+            uuids[i] = malloc(DLITE_UUID_LENGTH + 1);
+            strcpy(uuids[i], uuid);
+            i++;
+        }
+    }
+    uuids[i] = NULL;
+    return uuids;
+}
 
 /********************************************************************
  *  Instances
@@ -638,7 +666,7 @@ DLiteInstance *dlite_instance_get(const char *id)
   DLiteStoragePathIter *iter;
   const char *url;
 
-  /* check if instance `id` is already instansiated... */
+  /* check if instance `id` is already instantiated... */
   if ((inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     return inst;
