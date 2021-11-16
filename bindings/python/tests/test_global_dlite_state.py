@@ -9,7 +9,13 @@ uuids_in_istore=len(dlite.istore_get_uuids())
 # But when this test is run as a testcase in test_python_bindings.py, this test is executed in the same Python process
 # as previous tests and those previous tests have already populated dlites internal storage (which nicely illustrates the point).
 
-assert uuids_in_istore in [3, 12]
+if uuids_in_istore in [3, 12]:
+    pass
+else:
+    msg="\n"
+    for n, uuid in enumerate(dlite.istore_get_uuids()):
+        msg+=f"{n}: {uuid}\n"
+    raise RuntimeError(msg)
 
 coll = dlite.Collection()
 assert dlite.has_instance(coll.uuid)
