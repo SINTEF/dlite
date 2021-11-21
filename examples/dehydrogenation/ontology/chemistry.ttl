@@ -30,6 +30,21 @@
 #    Classes
 #################################################################
 
+###  http://emmo.info/emmo#EMMO_5b2222df_4da6_442f_8244_96e9e45887d1
+<http://emmo.info/emmo#EMMO_5b2222df_4da6_442f_8244_96e9e45887d1> owl:equivalentClass [ owl:intersectionOf ( <http://emmo.info/emmo#EMMO_98ada9d8_f1c8_4f13_99b5_d890f5354152>
+                                                                                                             [ rdf:type owl:Restriction ;
+                                                                                                               owl:onProperty <http://emmo.info/emmo#EMMO_17e27c22_37e1_468c_9dd7_95e137f73e7f> ;
+                                                                                                               owl:someValuesFrom <http://emmo.info/emmo#EMMO_385b8f6e_43ac_4596_ad76_ac322c68b7ca>
+                                                                                                             ]
+                                                                                                             [ rdf:type owl:Restriction ;
+                                                                                                               owl:onProperty <http://emmo.info/emmo#EMMO_7afbed84_7593_4a23_bd88_9d9c6b04e8f6> ;
+                                                                                                               owl:allValuesFrom <http://emmo.info/emmo#EMMO_5b2222df_4da6_442f_8244_96e9e45887d1>
+                                                                                                             ]
+                                                                                                           ) ;
+                                                                                        rdf:type owl:Class
+                                                                                      ] .
+
+
 ###  http://onto-ns.com/ontology/chemistry#ChemicalPhenomenon
 :ChemicalPhenomenon rdf:type owl:Class ;
                     rdfs:subClassOf <http://emmo.info/emmo#EMMO_43e9a05d_98af_41b4_92f6_00f79a09bfce> ;
@@ -99,7 +114,11 @@
                                            rdfs:subClassOf <http://emmo.info/emmo#EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213> ,
                                                            [ rdf:type owl:Restriction ;
                                                              owl:onProperty <http://emmo.info/emmo#EMMO_e1097637_70d2_4895_973f_2396f04fa204> ;
-                                                             owl:someValuesFrom <http://emmo.info/emmo#EMMO_4c151909_6f26_4ef9_b43d_7c9e9514883a>
+                                                             owl:someValuesFrom :EMMO_99f2309f_e920_4c96_afba_493ca92182e0
+                                                           ] ,
+                                                           [ rdf:type owl:Restriction ;
+                                                             owl:onProperty <http://emmo.info/emmo#EMMO_e1097637_70d2_4895_973f_2396f04fa204> ;
+                                                             owl:someValuesFrom :EMMO_f57da558_e5b0_4ddb_b791_2878e58ec324
                                                            ] ;
                                            <http://www.w3.org/2004/02/skos/core#prefLabel> "MoleculeModel"@en .
 

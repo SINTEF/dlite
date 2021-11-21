@@ -9,10 +9,9 @@
 <http://onto-ns.com/ontology/mapsTo> rdf:type owl:Ontology ;
     owl:versionIRI <http://onto-ns.com/ontology/0.1/mapsTo> .
 
-:mapsTo rdf:type owl:AnnotationProperty ,
-                 owl:TransitiveProperty ;
-    rdfs:comment "Maps a resource to a class in an ontology."@en ;
+:mapsTo rdf:type rdf:Property ;
+    rdfs:subPropertyOf rdfs:subClassOf ;
+    rdfs:comment "Maps a resource (represented as a class in the ontology) to a concept (represented as another class) in an ontology."@en ;
     rdfs:label "mapsTo"@en ;
-    rdfs:subPropertyOf rdfs:seeAlso ;
     rdfs:range rdfs:Class ;
-    rdfs:domain rdfs:Resource .
+    rdfs:domain rdfs:Class .
