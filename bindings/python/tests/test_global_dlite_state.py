@@ -14,7 +14,8 @@ if uuids_in_istore in [3, 12]:
 else:
     msg="\n"
     for n, uuid in enumerate(dlite.istore_get_uuids()):
-        msg+=f"{n}: {uuid}\n"
+        inst=dlite.get_instance(uuid)
+        msg+=f"{n}: {uuid}, {inst.uri}\n---\n {inst}\n"
     raise RuntimeError(msg)
 
 coll = dlite.Collection()
