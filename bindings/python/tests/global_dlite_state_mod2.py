@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import pickle
 
 import dlite
 from dlite import Instance, Dimension, Property, Relation
