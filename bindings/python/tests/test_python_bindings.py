@@ -35,6 +35,8 @@ def test(verbosity=1, stream=sys.stdout):
     tests = [test for test in sorted(glob(os.path.join(thisdir, 'test_*.py')))
              if not test.endswith('__.py')
              and not test.endswith('test_python_bindings.py')
+             # Exclude test_global_dlite_state.py since the global state
+             # that it is testing depends on the other tests.
              and not test.endswith('test_global_dlite_state.py')]
     ts = unittest.TestSuite()
     for test in tests:
