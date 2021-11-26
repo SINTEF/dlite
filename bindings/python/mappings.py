@@ -1,9 +1,13 @@
 """Implements mappings between entities.
 """
+from __future__ import annotations
+
 import types
 import itertools
+import warnings
 from collections import defaultdict
-from typing import Dict, AnyStr
+from collections.abc import Sequence
+from typing import Union, Dict, List
 
 import dlite
 
@@ -24,8 +28,88 @@ class InconsistentDimensionError(MappingError):
     """The size of a dimension is assigned to more than one value."""
 
 
-def create_match(triples, match_first=False):
-    """Returns a match functions for `triples`.
+class InconsistentTriplesError(MappingError):
+    """Inconsistcy in RDF triples."""
+
+
+class MappingStep:
+    """A step in a mapping route from a target to one or more source properties.
+
+    A mapping step corresponds to one or more RDF triples.  In the
+    simple case of a `:mapsTo` or `rdfs:isSubclassOf` relation, it is
+    only one triple.  For transformations that has several input and
+    output, a set of triples are expected.
+
+    Subproperty relations should be resolved using the ontology before
+    creating a mapping step.
+
+    Args:
+        inputs: Sequence of inputs to this mapping step.  Should either be
+          MappingStep objects for the peceeding mapping steps or the URI
+          of source property.
+        output: IRI of the output concept.
+        predicate: Either "mapsTo", "subClassOf" or "hasInput", corresponding
+          to a mapping, inference or transformation step.
+        triples: Optional. Sequence of RDF triples for this step.  Might be
+          used for visualisation.
+        unit: The output of this step.
+        config: Configuration of a transformation step.
+
+    Attributes:
+        inputs: Sequence of inputs to this mapping step.  Should either be
+          MappingStep objects for the peceeding mapping steps or the URI
+          of source property.
+        predicate: Either "mapsTo", "subClassOf" or "hasInput", corresponding
+          to a mapping, inference or transformation step.
+        output: IRI of the output concept.
+        triples: Copy of the `triples` argument.
+        unit: The output of this step.
+        config: Configuration of a transformation step.
+        next: List with the next mapping step.
+    """
+    def __init__(self,
+                 inputs: Sequence[Union[str, MappingStep]],
+                 output: str,
+                 predicate: Union['mapsTo', 'subClassOf', 'hasInput'] = 'mapsTo',
+                 triples: Sequence[(str, str, str)] = (),
+                 unit: str = None,
+                 config: dict = None,
+                 ) -> None:
+        self.inputs = []
+        self.predicate = predicate
+        self.output = output
+        self.triples = [(t[0], t[1], t[2]) for t in triples]
+        self.unit = unit
+        self.config = config
+        for input in inputs:
+            self.add_input(input)
+        self.next = []
+
+    def add_input(self, step: MappingStep) -> None:
+        """Adds an input mapping step."""
+        self.inputs.append(input)
+        if isinstance(input, MappingStep):
+            input.next.append(self)
+
+    def get_sources(self) -> List[str]:
+        """Returns a list of URIs of all source metadata."""
+        sources = []
+        if not self.inputs:
+            warnings.warn(f'')
+        for input in self.inputs:
+            if isinstance(input, MappingStep):
+                sources.extend(input.get_sources())
+            else:
+                sources.append(input)
+        return sources
+
+    def eval(self, input_values, input_units=None, unit=None):
+        """Returns the evaluated value."""
+        pass
+
+
+def match_factory(triples, match_first=False):
+    """A factory function that returns a match functions for `triples`.
 
     If `match_first` is false, the returned match function will return
     a generator over all matching triples.  Otherwise the the returned
@@ -43,8 +127,8 @@ def create_match(triples, match_first=False):
     ...     (':mouse', 'rdfs:subClassOf', ':mamal'),
     ...     (':cat', ':eats', ':mouse'),
     ... ]
-    >>> match = create_match(triples)
-    >>> match_first = create_match(triples, only_first=True)
+    >>> match = match_factory(triples)
+    >>> match_first = match_factory(triples, only_first=True)
     >>> list(match(':cat'))
     [(':cat', 'rdfs:subClassOf', ':mamal'),
      (':cat', ':eats', ':mouse')]
@@ -65,9 +149,12 @@ def create_match(triples, match_first=False):
 
 
 def mapping_route(
-        target, sources, triples, mapsTo=':mapsTo',
+        target, sources, triples,
+        mapsTo=':mapsTo',
         subClassOf='http://www.w3.org/2000/01/rdf-schema#subClassOf',
-        subPropertyOf='http://www.w3.org/2000/01/rdf-schema#subPropertyOf'):
+        subPropertyOf='http://www.w3.org/2000/01/rdf-schema#subPropertyOf',
+        hasInput=':hasInput',
+        hasOutput=':hasOutput'):
     """Finds the route of mappings from any source in `sources` to `target`.
 
     This implementation takes transitivity, subclasses and
@@ -83,6 +170,8 @@ def mapping_route(
           to None if subclasses should not be considered.
         subPropertyOf: How 'subPropertyOf' is written in `triples`.  Set it
           to None if subproperties of `mapsTo` should not be considered.
+        hasInput: How 'hasInput' is written in `triples`.
+        hasOutput: How 'hasOutput' is written in `triples`.
 
     Returns:
         list: Names of all sources that maps to `target`.
@@ -102,7 +191,7 @@ def mapping_route(
     """
     sources = set(sources)
 
-    # Create a set 'relations' to consider, consisting of mapsTo and
+    # Create a set of 'relations' to consider, consisting of mapsTo and
     # its sub properties
     if subPropertyOf:
         def walk(src, d):
@@ -110,16 +199,25 @@ def mapping_route(
             for s in d[src]:
                 yield from walk(s, d)
 
+        def get_relations(rel):
+            """Returns a set of `rel` and its subproperties."""
+            oSPs = defaultdict(set)
+            for s, p, o in triples:
+                if p == subPropertyOf:
+                    oSPs[o].add(s)
+            return set(walk(rel, oSPs))
+
         if isinstance(triples, types.GeneratorType):
             # Convert generator to a list such that we can transverse it twice
             triples = list(triples)
 
-        oSPs = defaultdict(set)  # (o, subPropertyOf, s) ==> oSPs[o] -> {s, ..}
-        for s, p, o in triples:
-            if p == subPropertyOf:
-                oSPs[o].add(s)
-        relations = set(walk(mapsTo, oSPs))
-        del oSPs
+        #oSPs = defaultdict(set)  # (o, subPropertyOf, s) ==> oSPs[o] -> {s, ..}
+        #for s, p, o in triples:
+        #    if p == subPropertyOf:
+        #        oSPs[o].add(s)
+        #relations = set(walk(mapsTo, oSPs))
+        #del oSPs
+        relations = get_relations(mapsTo)
     else:
         relations = set([mapsTo])
 
@@ -200,7 +298,7 @@ def mapping_route(
 #               [[('a', ':mapsTo', 'onto:A'), ('b', ':mapsTo', 'onto:A')]]
 #     """
 #     import itertools
-#     match = create_match(triples)  # match function
+#     match = match_factory(triples)  # match function
 #
 #     # Trivial implementation
 #     #for _, _, cls in match(s=source, p=mapsTo):
@@ -270,7 +368,7 @@ def unitconvert_pint(dest_unit, value, unit):
 
 def assign_dimensions(dims: Dict,
                       inst: dlite.Instance,
-                      propname: AnyStr):
+                      propname: str):
     """Assign dimensions from property assignment.
 
     Args:
@@ -344,7 +442,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
       cannot be misused for code injection.
     - Add a function that visualise the possible mapping paths.
     """
-    match = create_match(mappings)  # match function
+    match = match_factory(mappings)  # match function
 
     if isinstance(instances, dlite.Instance):
         instances = [instances]

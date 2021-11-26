@@ -59,10 +59,10 @@ coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 reaction1 = {'C2H6': -1, 'C2H4': 1, 'H2': 1}
 
 reaction_energy = get_energy(reaction1)
-print('Reaction energy 1', reaction_energy)
+print('Reaction energy 1:', reaction_energy)
 
 
 reaction2 = {'C3H8':-1, 'H2': -2,'CH4': 3}
 
 reaction_energy2 = get_energy(reaction2)
-print('Reaction energy 1', reaction_energy2)
+print('Reaction energy 2:', reaction_energy2)
