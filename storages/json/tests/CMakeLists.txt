@@ -54,8 +54,10 @@ foreach(test ${tests})
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
   endif()
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  if(MINGW)
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   if (NOT WIN32)
@@ -66,12 +68,5 @@ foreach(test ${tests})
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGES=$<SHELL_PATH:${dlite-src-tests_SOURCE_DIR}/*.json>")
-  if (WIN32)
-    set_property(TEST ${test} APPEND PROPERTY
-      ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
-  else()
-    set_property(TEST ${test} APPEND PROPERTY
-      ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
-  endif()
 
 endforeach()

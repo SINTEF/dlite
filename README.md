@@ -3,7 +3,7 @@
 
 DLite
 =====
-> Lightweight data-centric framework for working with scientific data
+> Lightweight data-centric interoperability framework for working with scientific data
 
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
 

@@ -3,8 +3,8 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.1
-  DESCRIPTION "Lightweight data-centric framework for working with scientific data"
+  VERSION 0.3.3
+  DESCRIPTION "Lightweight data-centric interoperability framework"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
   )
@@ -229,7 +229,6 @@ endif()
 # Python
 # ======
 if(WITH_PYTHON)
-
   message(STATUS "Looking for Python3")
   if(CROSS_TARGET AND MINGW)
     set(Python3_FIND_REGISTRY NEVER)
@@ -252,6 +251,7 @@ if(WITH_PYTHON)
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
   message(STATUS "Python3_NumPy_INCLUDE_DIRS = ${Python3_NumPy_INCLUDE_DIRS}")
+
   if (WIN32)
     # Prepare to workaround Anaconda issues on Windows
     # https://github.com/pytorch/pytorch/issues/17051
@@ -392,7 +392,7 @@ set(dll_targets
   dlite-plugins-python
   )
 if(WITH_HDF5)
-  list(APPEND targets dlite-plugins-python)
+  list(APPEND targets dlite-plugins-hdf5)
 endif()
 if(WITH_REDLAND)
   list(APPEND targets dlite-plugins-rdf)
@@ -578,25 +578,6 @@ if(CROSS_TARGET AND MINGW)
   set(dlite_PATH ${paths})
 endif()
 
-#set(dlite_STORAGE_PLUGIN1 "")
-#foreach(path ${dlite_PATH})
-#  list(APPEND dlite_STORAGE_PLUGIN1 $<SHELL_PATH:${path}>)
-#endforeach()
-#if(WIN32)
-#  string(REPLACE ";" "\;" dlite_STORAGE_PLUGIN "${dlite_STORAGE_PLUGIN1}")
-#else()
-#  string(REPLACE ";" ":" dlite_STORAGE_PLUGIN "${dlite_STORAGE_PLUGIN1}")
-#endif()
-#
-#set(dlite_MAPPING_PLUGIN1 "")
-#foreach(path ${dlite_PATH})
-#  list(APPEND dlite_MAPPING_PLUGIN1 $<SHELL_PATH:${path}>)
-#endforeach()
-#if(WIN32)
-#  string(REPLACE ";" "\;" dlite_MAPPING_PLUGIN "${dlite_MAPPING_PLUGIN1}")
-#else()
-#  string(REPLACE ";" ":" dlite_MAPPING_PLUGIN "${dlite_MAPPING_PLUGIN1}")
-#endif()
 
 set(dlite_PATH_NATIVE1 "")
 foreach(path ${dlite_PATH})
@@ -671,11 +652,6 @@ add_custom_target(show ${cmd})
 # Subdirectories
 add_subdirectory(src)
 
-# Bindings
-if(WITH_PYTHON)
-  add_subdirectory(bindings/python)
-endif()
-
 # Storage plugins
 if(WITH_HDF5)
   add_subdirectory(storages/hdf5)
@@ -687,6 +663,7 @@ if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)
 endif()
 if(WITH_PYTHON)
+  add_subdirectory(bindings/python)
   add_subdirectory(storages/python)
 endif()
 

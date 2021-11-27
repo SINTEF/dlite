@@ -14,7 +14,7 @@ Generic environment variables
     The paths are separated by ";" on Windows and ":" on Linux.
 
   - **LD_LIBRARY_PATH**: Standard search path for shared libraries on
-    Linux.  The paths are separated by ":".
+    Linux.  The paths are separated by ":". This has no special meaning for Windows.
 
   - **PYTHONPATH**: Standard search path for python modules and packages.
     The paths are separated by ";" on Windows and ":" on Linux.
@@ -22,15 +22,18 @@ Generic environment variables
 
 DLite-specific environment variables
 ------------------------------------
-  - **DLITE_ROOT**: The root of the installation path.  It default
+  - **DLITE_ROOT**: The root of the installation path.  It defaults
     to the installation prefix provided to cmake.  You have to set this
     if dlite is moved.
+
+    In case no install prefix is provided to CMake, the default for
+    DLITE_ROOT is "/.local" on Linux and "%ALLUSERSPROFILE%/.local" on Windows.
 
   - **DLITE_PLATFORM**: Specifies how paths are formatted.  If defined,
     it should be "Native" (default), "Unix" or "Windows".
 
   - **DLITE_USE_BUILD_ROOT**: If this is defined, use the build root instead
-    of the installation root.  This environment variable is mainly intended
+    of the installation root.  This environment variable is only intended
     for testing.
 
     **note**:
@@ -38,7 +41,7 @@ DLite-specific environment variables
     plugin search paths, while it only affects the plugin search paths on
     Linux.
 
-### Spesific paths
+### Specific paths
 These environment variables can be used to provide additional search
 paths apart from the defaults, which is either in the installation
 root (if DLITE_USE_BUILD_ROOT is not set) or build directory (if
@@ -109,3 +112,45 @@ Environment variables for controlling error handling
       - "3" | "old"         : overwrite old error message
       - "4" | "ignore-new"  : ignore new error message
       - otherwise           : append new error message to the old one
+
+
+Path handling when using the pre-packaged wheel (Linux, Windows)
+----------------------------------------------------------------
+
+dlite-python can be installed from the wheel distribution. In that case, paths
+compiled into the executables during build have no meaning (They may originate from a different machine).
+The installer (pip) determines the location of the local install which also depends on
+the Python used (Anaconda base, virtual environment, CPython, etc.)
+
+In the following, we assume that the package is installed in .env/Lib/site-packages/dlite
+
+The dlite-specific search paths can be influenced by the following environment variables:
+
+DLITE_ROOT
+DLITE_STORAGE_PLUGIN_DIRS
+DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+DLITE_MAPPING_PLUGIN_DIRS
+DLITE_STORAGES
+
+The following rules apply:
+
+1. DLITE_ROOT is defined
+
+dlite.storage_plugin_path        %DLITE_STORAGE_PLUGIN_DIRS%;        %DLITE_ROOT%\share\dlite\storage-plugins
+dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; %DLITE_ROOT%\share\dlite\python-storage-plugins
+dlite.python_mapping_plugin_path %DLITE_PYTHON_MAPPING_PLUGIN_DIRS%; %DLITE_ROOT%\share\dlite\python-mapping-plugins
+
+dlite.mapping_plugin_path        %DLITE_MAPPING_PLUGIN_DIRS%;       .env\Lib\site-packagesshare\dlite\mapping-plugins
+dlite.storage_path               %DLITE_STORAGES%;                  .env\Lib\site-packagesshare\dlite\storages\*.json
+
+
+2. DLITE_ROOT is undefined
+
+dlite.storage_plugin_path        %DLITE_STORAGE_PLUGIN_DIRS%;        .env\Lib\site-packages\dlite\share\dlite\storage-plugins
+dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; .env\Lib\site-packages\dlite\share\dlite\python-storage-plugins
+dlite.python_mapping_plugin_path %DLITE_PYTHON_MAPPING_PLUGIN_DIRS%; .env\Lib\site-packages\dlite\share\dlite\python-mapping-plugins
+
+dlite.mapping_plugin_path        %DLITE_MAPPING_PLUGIN_DIRS%;        .env\Lib\site-packagesshare\dlite\mapping-plugins
+dlite.storage_path               %DLITE_STORAGES%;                   .env\Lib\site-packagesshare\dlite\storage\*.jsons
+

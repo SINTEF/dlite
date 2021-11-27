@@ -99,6 +99,47 @@ Build with Visual Studio
     $ cmake --build . --config Release
     $ cmake --install .
     $ ctest -C Release
+
+6. Install the Python package via using ./python/setup.py from sources (legacy)
+
+   $ conda create --name=py38dlite python=3.8 numpy
+   $ conda activate py38dlite
+   $ cd python
+   $ python setup.py install
+
+7. Use pip to install the Python package from sources (Recommended)
+
+   Make sure you have pip >= 21.3 in which in-tree-build is the default.
+   For pip > 21.0.1 and < 21.3, you need an additional flag `pip --use-feature=in-tree-build install .`
+
+   $ conda create --name=py38dlite python=3.8
+   $ conda activate py38dlite
+   $ pip install --upgrade pip
+   $ pip -V # >= 21.3?
+   $ cd python
+   $ pip install .
+
+8. Install dlite-python from GitHub sources
+
+   Make sure you have pip >= 21.3 again
+
+   $ conda create --name=py37dlite python=3.7
+   $ conda activate py37dlite
+
+   Install a specific commit:
+   $ pip install git+https://github.com/SINTEF/dlite.git@d19e93b7d69f486485e8d6c3468e6bc672d7590d#subdirectory=python
+
+   Install a specific tag:
+   $ pip install git+https://github.com/SINTEF/dlite.git@v0.3.2dev1#subdirectory=python
+
+9. Install dlite-python via a pre-packaged wheel
+
+   Make sure you have pip >= 21.3 again
+
+   $ conda create --name=py37dlite python=3.7
+   $ conda activate py37dlite
+   $ pip install dlite_python-0.3.3-cp37-cp37m-win_amd64.whl
+
 [cmake]: https://cmake.org/download/
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
 [swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/

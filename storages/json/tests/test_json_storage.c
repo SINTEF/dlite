@@ -231,9 +231,6 @@ MU_TEST(test_iter)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_get_instance_from_in_memory_store);
-
-#ifndef _MSC_VER
-  /* TODO - enable these on MSVC */
   MU_RUN_TEST(test_remove_last_instance);
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_load2);
@@ -243,7 +240,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_write);
   MU_RUN_TEST(test_append);
   MU_RUN_TEST(test_iter);
-#endif
 }
 
 
