@@ -38,8 +38,8 @@ Build with Visual Studio
    Make sure you have the following Python packages installed: numpy, pyyaml, pandas, psycopg2
    Use `py -0p` to check the Python default.
 
-   $ mkdir .\out\build\x64-Release-vs15
-   $ cd .\out\build\x64-Release-vs15
+   $ mkdir ".\out\build\x64-Release-vs15"
+   $ cd ".\out\build\x64-Release-vs15"
    $ cmake -G "Visual Studio 15 2017" ^
            -A x64 ^
            -DWITH_DOC=OFF ^
@@ -86,8 +86,8 @@ Build with Visual Studio
    $ conda create --name=py38dlite python=3.8 numpy pyyaml pandas psycopg2
    $ conda activate py38dlite
 
-   $ mkdir .\out\build\x64-Release-vs15
-   $ cd .\out\build\x64-Release-vs15
+   $ mkdir ".\out\build\x64-Release-vs15"
+   $ cd ".\out\build\x64-Release-vs15"
    $ cmake -G "Visual Studio 15 2017" ^
            -A x64 ^
            -DWITH_DOC=OFF ^
@@ -145,4 +145,3 @@ Build with Visual Studio
 [swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/
 [pythonwindows]: https://pythondev.readthedocs.io/windows.html
 [mscompilers] https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
-
