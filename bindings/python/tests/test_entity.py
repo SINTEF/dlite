@@ -38,6 +38,9 @@ assert inst.is_data
 assert not inst.is_meta
 assert not inst.is_metameta
 
+assert dlite.has_instance(inst.uuid)
+assert inst.uuid in dlite.istore_get_uuids()
+
 # Assign properties
 inst['a-blob'] = bytearray(b'0123456789abcdef')
 inst['a-blob-array'] = [[b'0123', b'4567'], [b'89ab', b'cdef']]
