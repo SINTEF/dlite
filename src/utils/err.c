@@ -44,10 +44,10 @@
 
 /* Global variables */
 typedef struct {
-  const char *err_prefix;  // Prefix to append to all errors in this
-                           // application.  Typically the program name.
-  FILE *err_stream;        // Stream for print errors. Set to NULL to for silent
-  ErrHandler err_handler;  // Error handler
+  const char *err_prefix;  //!< Prefix to append to all errors in this
+                           //!< application.  Typically the program name.
+  FILE *err_stream;        //!< Stream for error printing. Set to NULL to silent
+  ErrHandler err_handler;  //!< Error handler
   int err_stream_opened;
   int err_stream_atexit_called;
 } Globals;
