@@ -32,13 +32,12 @@ Build with Visual Studio
 
 5. Build and test
 
-5.1. Build from the Windows commandline
+   5.1. Build from the Windows commandline
 
    When building with Python support, this will build against your default Python.
    Make sure you have the following Python packages installed: numpy, pyyaml, pandas, psycopg2
    Use `py -0p` to check the Python default.
-
-   ```
+   ```shell
    $ mkdir .\out\build\x64-Release-vs15
    $ cd .\out\build\x64-Release-vs15
    $ cmake -G "Visual Studio 15 2017" ^
@@ -54,14 +53,13 @@ Build with Visual Studio
     $ ctest -C Release
     ```
 
-5.2 Build from Visual Studio
+   5.2 Build from Visual Studio
 
    When building with Python support, this will again build against your default Python.
 
    Open the dlite directory with Visual Studio, it will be recognized as a CMake project.
    Add a CMakeSettings.json file with the following minimum contents:
-
-   ```
+   ```json
    {
      "configurations": [
        {
@@ -83,14 +81,13 @@ Build with Visual Studio
    * Right click on the top-level "CMakeLists.txt" -> "Build"
    * Right click on the top-level "CMakeLists.txt" -> "Run Tests"
 
-5.3 Build against Python in a virtual environment (Recommended)
+   5.3 Build against Python in a virtual environment (Recommended)
 
    This example uses Anaconda Python and conda environemnts.
-
+   ```shell
    $ conda create --name=py38dlite python=3.8 numpy pyyaml pandas psycopg2
    $ conda activate py38dlite
 
-   ```
    $ mkdir .\out\build\x64-Release-vs15
    $ cd .\out\build\x64-Release-vs15
    $ cmake -G "Visual Studio 15 2017" ^
@@ -107,8 +104,7 @@ Build with Visual Studio
     ```
 
 6. Install the Python package via using ./python/setup.py from sources (legacy)
-
-   ```
+   ```shell
    $ conda create --name=py38dlite python=3.8 numpy
    $ conda activate py38dlite
    $ cd python
@@ -119,7 +115,7 @@ Build with Visual Studio
 
    Make sure you have pip >= 21.3 in which in-tree-build is the default.
    For pip > 21.0.1 and < 21.3, you need an additional flag `pip --use-feature=in-tree-build install .`
-   ```
+   ```shell
    $ conda create --name=py38dlite python=3.8
    $ conda activate py38dlite
    $ pip install --upgrade pip
@@ -132,26 +128,26 @@ Build with Visual Studio
 
    Make sure you have pip >= 21.3 again
 
-   ```
+   ```shell
    $ conda create --name=py37dlite python=3.7
    $ conda activate py37dlite
    ```
 
    Install a specific commit:
 
-   ```
+   ```shell
    $ pip install git+https://github.com/SINTEF/dlite.git@d19e93b7d69f486485e8d6c3468e6bc672d7590d#subdirectory=python
    ```
 
    Install a specific tag:
-   ```
+   ```shell
    $ pip install git+https://github.com/SINTEF/dlite.git@v0.3.2dev1#subdirectory=python
    ```
 
 9. Install dlite-python via a pre-packaged wheel
 
    Make sure you have pip >= 21.3 again
-   ```
+   ```shell
    $ conda create --name=py37dlite python=3.7
    $ conda activate py37dlite
    $ pip install dlite_python-0.3.3-cp37-cp37m-win_amd64.whl
@@ -161,4 +157,4 @@ Build with Visual Studio
 [hdf5]: https://support.hdfgroup.org/ftp/HDF5/current/src/
 [swig]: https://www.dev2qa.com/how-to-install-swig-on-macos-linux-and-windows/
 [pythonwindows]: https://pythondev.readthedocs.io/windows.html
-[mscompilers] https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
+[mscompilers]: https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017

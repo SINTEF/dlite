@@ -664,26 +664,19 @@ DLiteInstance *dlite_instance_get(const char *id)
 #else
     dlite_split_url(copy, &driver, &location, &options, NULL);
 #endif
-    fprintf(stderr, "### driver=%s, location=%s, options=%s\n",
-            driver, location, options);
-
 
     /* If driver is not given, infer it from file extension */
     if (!driver) driver = (char *)fu_fileext(location);
 
     /* Set read-only as default mode (all drivers should support this) */
     if (!options) options = "mode=r";
-      fprintf(stderr, "### 0\n");
     if ((s = dlite_storage_open(driver, location, options))) {
       /* url is a storage we can open... */
       ErrTry:
-        fprintf(stderr, "### 1\n");
         inst = _instance_load_casted(s, id, NULL, 0);
       ErrCatch(dliteStorageLoadError):  // suppressed error
-        fprintf(stderr, "### 2\n");
         break;
       ErrEnd;
-      fprintf(stderr, "### 3\n");
       dlite_storage_close(s);
     } else {
       /* ...otherwise it may be a glob pattern */

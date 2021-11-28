@@ -48,8 +48,8 @@ typedef struct {
                            //!< application.  Typically the program name.
   FILE *err_stream;        //!< Stream for error printing. Set to NULL to silent
   ErrHandler err_handler;  //!< Error handler
-  int err_stream_opened;
-  int err_stream_atexit_called;
+  int err_stream_opened;   //!< Whether err_stream has been opened
+  int err_stream_atexit_called;  //!< Whether atexit() has been installed
 } Globals;
 
 /* Thread local variables */
@@ -81,22 +81,6 @@ typedef struct {
   Globals *globals;
 
 } ThreadLocals;
-
-
-///* Error records
-// * Hold the latest error and message. These are thread-local to ensure
-// * that errors in different threads doesn't mess up with each other. */
-//
-///* Root of the linked list of error records. */
-//static thread_local ErrRecord err_root_record;
-//static  ErrRecord err_root_record;
-
-
-///* Stream for print errors. Set to NULL to for silent. */
-//static FILE *err_stream = err_default_stream;
-//
-///* Error handler */
-//static ErrHandler err_handler = err_default_handler;
 
 /* Global state */
 static Globals _globals = {"", err_default_stream, err_default_handler, 0, 0};
@@ -143,13 +127,11 @@ static ThreadLocals *get_tls(void)
   return &_tls;
 }
 
-
 /* Return a pointer to (thread local) state for this module */
 void *err_get_state(void)
 {
   return (void *)get_tls();
 }
-
 
 /* Sets state from state returned by err_get_state().
    If `state` is NULL, the state is initialised to default values. */
@@ -163,32 +145,6 @@ void err_set_state(void *state)
     reset_tls();
   }
 }
-
-
-
-
-/* Prefix to append to all errors in this application.  Typically the
-   program name. */
-//static const char *err_prefix = "";
-
-///* Indicate wheter the error functions should return, exit or about.
-// * If negative (default), check the environment. */
-//static thread_local ErrAbortMode err_abort_mode = -1;
-//
-///* Indicate whether warnings should be turned into errors.
-// * If negative (default), check the environment. */
-//static thread_local ErrWarnMode err_warn_mode = -1;
-//
-///* Indicates whether error messages should include debugging info.
-// * If negative (default), check the environment. */
-//static thread_local ErrDebugMode err_debug_mode = -1;
-//
-///* How to handle overridden errors in  ErrTry clauses.
-// * If negative (default), check the environment. */
-//static thread_local ErrOverrideMode err_override = -1;
-//
-///* Pointer to the top level record. */
-//static thread_local ErrRecord *err_record = &err_root_record;
 
 /* Separator between appended errors */
 static char *err_append_sep = "\n - ";
