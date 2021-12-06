@@ -126,6 +126,7 @@ requirements = [
     "PyYAML",
     "psycopg2-binary",
     "pandas",
+    "pymongo",
 ]
 
 setup_requirements = [

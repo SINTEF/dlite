@@ -3,3 +3,4 @@ numpy
 PyYAML
 psycopg2-binary
 pandas
+pymongo
