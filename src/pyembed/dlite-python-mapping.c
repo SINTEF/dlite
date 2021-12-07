@@ -361,7 +361,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
   Py_XDECREF(map);
   Py_XDECREF(pcost);
   if (!retval) {
-    if (name) free(name);
+    if (apiname) free(apiname);
     if (output_uri) free((char *)output_uri);
     if (input_uris) free((char **)input_uris);
     if (api) free(api);
