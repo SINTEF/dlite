@@ -12,9 +12,14 @@ def instance_from_dict(d):
     meta = dlite.get_instance(d['meta'])
     if meta.is_metameta:
 
+        if 'uri' in d:
+            uri = d['uri']
+        else:
+            uri = d['namespace'] + '/' + d['version'] + '/' + d['name']
+
         try:
             with dlite.silent:
-                inst = dlite.get_instance(d['uri'])
+                inst = dlite.get_instance(uri)
                 if inst:
                     return inst
         except dlite.DLiteError:
@@ -23,20 +28,15 @@ def instance_from_dict(d):
         dimensions = [dlite.Dimension(d['name'], d.get('description'))
                       for d in d['dimensions']]
         props = []
-        dimmap = {dim['name']: i for i, dim in enumerate(d['dimensions'])}
         for p in d['properties']:
-            if 'dims' in p:
-                dims = [dimmap[d] for d in p['dims']]
-            else:
-                dims = None
             props.append(dlite.Property(
                 name=p['name'],
                 type=p['type'],
-                dims=dims,
+                dims=p.get('dims'),
                 unit=p.get('unit'),
                 iri=p.get('iri'),
                 description=p.get('description')))
-        inst = dlite.Instance(d['uri'], dimensions, props, d.get('iri'),
+        inst = dlite.Instance(uri, dimensions, props, d.get('iri'),
                               d.get('description'))
     else:
         dims = list(d['dimensions'].values())
@@ -48,6 +48,7 @@ def instance_from_dict(d):
 
 def get_package_paths():
     return {k:v for k,v in dlite.__dict__.items() if k.endswith('path')}
+
 
 if __name__ == '__main__':
 
