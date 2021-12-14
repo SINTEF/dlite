@@ -196,22 +196,26 @@ void dlite_swig_capsula_free(PyObject *cap)
 }
 
 
+/* Read Python hexstring `hexstr` of length ``2*n``, convert it to bytes
+   and write the result to `dest`.  `n` bytes are written to `dest`.
+   Returns non-zero on error. */
 /*
-int dlite_swig_hexstring(char *dest, size_t n, PyObject str)
+int dlite_swig_read_hexstring(char *dest, size_t n, PyObject hexstr)
+{
+  PyObject *str = PyObject_Str(hexstr);
+  if (!str)
+    return dlite_err(-1, ""
+    Py_DECREF(bytes);
+    Py_DECREF(str);
+  }
+  if (PyUnicode_READY(str)) {
+    Py_DECREF(str);
+    FAIL("failed preparing string");
+  }
 
-          PyObject *str = PyObject_Str(obj);
-        if (!str) {
-          Py_DECREF(bytes);
-          Py_DECREF(str);
-        }
-        if (PyUnicode_READY(str)) {
-          Py_DECREF(str);
-          FAIL("failed preparing string");
-        }
-
-        Py_DECREF(str);
+  Py_DECREF(str);
+}
 */
-
 
 /**********************************************
  ** Python-specific implementations
