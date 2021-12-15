@@ -1,3 +1,4 @@
+import binascii
 import os
 
 import dlite
@@ -15,7 +16,7 @@ def instance_from_dict(d):
         if 'uri' in d:
             uri = d['uri']
         else:
-            uri = d['namespace'] + '/' + d['version'] + '/' + d['name']
+            uri = dlite.join_meta_uri(d['name'], d['version'], d['namespace'])
 
         try:
             with dlite.silent:
@@ -40,9 +41,17 @@ def instance_from_dict(d):
                               d.get('description'))
     else:
         dims = list(d['dimensions'].values())
-        inst = dlite.Instance(meta.uri, dims, d.get('uuid', None))
+        if 'uri' in d.keys():
+            arg = d.get('uri', d.get('uuid', None))
+        else:
+            arg = d.get('uuid', None)
+        inst = dlite.Instance(meta.uri, dims, arg)
         for p in meta['properties']:
-            inst[p.name] = d['properties'][p.name]
+            value = d['properties'][p.name]
+            if p.type.startswith('blob') and type(value) == str:
+                # If binary data is a string, assume it is hexadecimal
+                value = bytearray(binascii.unhexlify(value))
+            inst[p.name] = value
     return inst
 
 
