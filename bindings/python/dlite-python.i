@@ -196,6 +196,26 @@ void dlite_swig_capsula_free(PyObject *cap)
 }
 
 
+/* Read Python hexstring `hexstr` of length ``2*n``, convert it to bytes
+   and write the result to `dest`.  `n` bytes are written to `dest`.
+   Returns non-zero on error. */
+/*
+int dlite_swig_read_hexstring(char *dest, size_t n, PyObject hexstr)
+{
+  PyObject *str = PyObject_Str(hexstr);
+  if (!str)
+    return dlite_err(-1, ""
+    Py_DECREF(bytes);
+    Py_DECREF(str);
+  }
+  if (PyUnicode_READY(str)) {
+    Py_DECREF(str);
+    FAIL("failed preparing string");
+  }
+
+  Py_DECREF(str);
+}
+*/
 
 /**********************************************
  ** Python-specific implementations
@@ -378,14 +398,12 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
       for (i=0; i<n; i++, itemptr+=itemsize) {
         char **p = *((char ***)ptr);
         PyObject *s = PyArray_GETITEM(arr, itemptr);
-        assert(s);
-        if (!PyUnicode_Check(s))
-          FAIL("array elements should be strings");
-        if (PyUnicode_READY(s))
-          FAIL("failed preparing string");
         if (s == Py_None) {
           if (p[i]) free(p[i]);
         } else if (PyUnicode_Check(s)) {
+          assert(s);
+          if (PyUnicode_READY(s))
+            FAIL("failed preparing string");
           long len = (long)PyUnicode_GET_LENGTH(s);
           p[i] = realloc(p[i], len+1);
           memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
@@ -615,7 +633,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
     {
       size_t n;
       PyObject *bytes = PyObject_Bytes(obj);
-      if (!bytes) FAIL("cannot convert object to bytes");
+      if (!bytes) {
+        //xxx
+        FAIL("cannot convert object to bytes");
+      }
       assert(PyBytes_Check(bytes));
       n = PyBytes_Size(bytes);
       if (n > size) {

@@ -15,6 +15,7 @@
 set(tests
   test_yaml_storage
   test_blob_storage
+  test_bson_storage
   test_postgresql_storage
   test_postgresql_storage2
   )
@@ -34,6 +35,15 @@ if(NOT PY_YAML)
     COMMAND ${CMAKE_COMMAND} -E echo "disabled")
   set_property(TEST test_yaml_storage PROPERTY DISABLED True)
   list(REMOVE_ITEM tests test_yaml_storage)
+endif()
+
+# Disable BSON test if pymongo is not installed
+find_python_module(pymongo)
+if(NOT PY_PYMONGO)
+  add_test(NAME test_bson_storage
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled")
+  set_property(TEST test_bson_storage PROPERTY DISABLED True)
+  list(REMOVE_ITEM tests test_bson_storage)
 endif()
 
 # Disable postgresql tests if psycopg2 is not installed or if pgconf.h

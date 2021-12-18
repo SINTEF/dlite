@@ -10,6 +10,7 @@ set(tests
   test_python_storage
   test_storage
   test_paths
+  test_utils
   test_global_dlite_state
   )
 
