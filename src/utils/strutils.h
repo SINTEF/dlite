@@ -117,7 +117,25 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
   Returns number of bytes written to `hex`, assuming `hexsize` is
   sufficiently large, or -1 on error.
 */
-int strhex(char *hex, size_t hexsize, const unsigned char *data, size_t size);
+int strhex_encode(char *hex, size_t hexsize, const unsigned char *data,
+                  size_t size);
 
+
+
+/**
+  Read binary data from hex-encoded string.
+
+  `data` pointer to buffer to write to.  No more than `size` bytes
+      are written.
+  `size` size of `data` in bytes.
+  `hex` hex-encoded string to read from.
+  `hexsize` number of bytes to read from `hex`.  If negative, `hex` is
+      assumed to be NUL-terminated and the whole string is read.
+
+  Returns number of bytes written to `data`, assuming `size` is
+  sufficiently large, or -1 on error.
+*/
+int strhex_decode(unsigned char *data, size_t size, const char *hex,
+                  int hexsize);
 
 #endif  /* _STRUTILS_H */

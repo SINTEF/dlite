@@ -156,24 +156,6 @@ int strunquote(char *dest, size_t size, const char *s,
                int *consumed, StrquoteFlags flags)
 {
   return strnunquote(dest, size, s, -1, consumed, flags);
-  /*
-  size_t i=0, j=0;
-  if (!dest) size = 0;
-  if (!size) dest = NULL;
-  if (!(flags && strquoteInitialBlanks))
-    while (isspace(s[j])) j++;
-  if (!(flags & strquoteNoQuote) && s[j++] != '"') return -1;
-  while (s[j] && ((flags & strquoteNoQuote) || s[j] != '"')) {
-    if (!(flags & strquoteNoEscape) && s[j] == '\\' && s[j+1] == '"') j++;
-    if (dest && size > i) dest[i] = s[j];
-    i++;
-    j++;
-  }
-  if (dest) dest[(size > i) ? i : size-1] = '\0';
-  if (!(flags & strquoteNoQuote) && !s[j++]) return -2;
-  if (consumed) *consumed = j;
-  return i;
-  */
 }
 
 
@@ -208,21 +190,62 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
 
 
 /*
-  Writes binary data to hex-encoded and nul-terminated string `hex`.
+  Writes binary data to hex-encoded string.
 
-  `hexsize` is the size of memory poined to by `hex`.
+  `hex` destination string.  Will be NUL-terminated.
+  `hexsize` size of memory poined to by `hex` (incl. NUL terminator).
   `data` points to the first byte of binary data of size `size`.
+  `size` number of bytes to read from `data`.
 
   Returns number of bytes written to `hex`, assuming `hexsize` is
   sufficiently large, or -1 on error.
 */
-int strhex(char *hex, size_t hexsize, const unsigned char *data, size_t size)
+int strhex_encode(char *hex, size_t hexsize, const unsigned char *data,
+                  size_t size)
 {
   int n, m=0;
-  unsigned i;
+  size_t i;
   for (i=0; i<size; i++) {
     if ((n = snprintf(hex+m, PDIFF(hexsize, m), "%02x", data[i])) < 0) return n;
+    if (n == 2 && m == (int)hexsize-2) hex[m] = '\0';
     m += n;
   }
   return m;
+}
+
+
+/*
+  Read binary data from hex-encoded string.
+
+  `data` pointer to buffer to write to.  No more than `size` bytes
+      are written.
+  `size` size of `data` in bytes.
+  `hex` hex-encoded string to read from.
+  `hexsize` number of bytes to read from `hex`.  If negative, `hex` is
+      assumed to be NUL-terminated and the whole string is read.
+
+  Returns number of bytes written to `data`, assuming `size` is
+  sufficiently large, or -1 on error.
+*/
+int strhex_decode(unsigned char *data, size_t size, const char *hex,
+                  int hexsize)
+{
+  size_t i, j;
+  if (hexsize < 0) hexsize = strlen(hex);
+  if (hexsize % 2) return -1;
+  for (i=0; i < size && i < (size_t)hexsize/2; i++) {
+    int v = 0;
+    for (j=0; j<2; j++) {
+      int c = tolower(hex[2*i + j]);
+      v *= 16;
+      if (c >= '0' && c <= '9')
+        v += c - '0';
+      else if (c >= 'a' && c <= 'z')
+        v += c - 'a' + 10;
+      else
+        return -1;
+    }
+    data[i] = v;
+  }
+  return hexsize / 2;
 }
