@@ -18,6 +18,7 @@ if __name__ == '__main__':
     # The test scripts to run
     tests = [
         'bson_test.py',
+        'yaml_test.py',
         ]
     path = str(os.getcwd()).replace('\\', '/') + '/'
     for t in tests:

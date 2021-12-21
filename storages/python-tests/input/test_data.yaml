@@ -1,0 +1,51 @@
+204b05b2-4c89-43f4-93db-fd1cb70f54ef:
+  dimensions:
+    L: 2
+    M: 2
+    N: 3
+  meta: http://onto-ns.com/meta/0.1/test-entity
+  properties:
+    myarray:
+    - - - 1
+        - 2
+        - 3
+      - - 3
+        - 2
+        - 1
+    - - - 4
+        - 5
+        - 6
+      - - 6
+        - 5
+        - 4
+    myblob: !!python/object/apply:builtins.bytearray
+    - "\n\x01 "
+    - latin-1
+    mydouble: 2.72
+    myfixstring: Si
+    myshort: 13
+    mystring: '...'
+  uuid: 204b05b2-4c89-43f4-93db-fd1cb70f54ef
+e076a856-e36e-5335-967e-2f2fd153c17d:
+  dimensions:
+    L: 2
+    M: 1
+    N: 3
+  meta: http://onto-ns.com/meta/0.1/test-entity
+  properties:
+    myarray:
+    - - - 1
+        - 2
+        - 3
+    - - - 4
+        - 5
+        - 6
+    myblob: !!python/object/apply:builtins.bytearray
+    - "\n\0\x10"
+    - latin-1
+    mydouble: 3.14
+    myfixstring: Al
+    myshort: 17
+    mystring: allocated string...
+  uri: my_test_instance
+  uuid: e076a856-e36e-5335-967e-2f2fd153c17d
