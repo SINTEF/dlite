@@ -16,7 +16,9 @@ def print_test_exception(err: Exception):
 
 if __name__ == '__main__':
     # The test scripts to run
-    tests = []
+    tests = [
+        'bson_test.py',
+        ]
     path = str(os.getcwd()).replace('\\', '/') + '/'
     for t in tests:
         print(''.center(screen_width, '-')) 
