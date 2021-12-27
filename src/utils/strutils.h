@@ -109,13 +109,15 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
 
 
 /**
-  Writes binary data to hex-encoded and nul-terminated string `hex`.
+  Writes binary data to hex-encoded string.
 
-  `hexsize` is the size of memory poined to by `hex`.
+  `hex` destination string.  Will be NUL-terminated.
+  `hexsize` size of memory poined to by `hex` (incl. NUL terminator).
   `data` points to the first byte of binary data of size `size`.
+  `size` number of bytes to read from `data`.
 
-  Returns number of bytes written to `hex`, assuming `hexsize` is
-  sufficiently large, or -1 on error.
+  Returns number of bytes one wants to write to `hex` (not incl. NUL
+  terminator), or -1 on error.
 */
 int strhex_encode(char *hex, size_t hexsize, const unsigned char *data,
                   size_t size);

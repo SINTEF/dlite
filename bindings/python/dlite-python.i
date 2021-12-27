@@ -214,7 +214,7 @@ int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
       FAIL("failed preparing string");
     len = (long)PyUnicode_GET_LENGTH(src);
     if (len != (long)n*2)
-      FAIL3("cannot convert Python string of lenght %d (expected length %d) "
+      FAIL3("cannot convert Python string of length %d (expected length %d) "
             "to blob%d", (int)len, (int)n*2, (int)n);
     if (strhex_decode(dest, n, (char *)PyUnicode_1BYTE_DATA(src), len) < 0)
       FAIL("cannot convert Python string to blob");

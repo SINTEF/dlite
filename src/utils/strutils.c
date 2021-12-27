@@ -197,8 +197,8 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
   `data` points to the first byte of binary data of size `size`.
   `size` number of bytes to read from `data`.
 
-  Returns number of bytes written to `hex`, assuming `hexsize` is
-  sufficiently large, or -1 on error.
+  Returns number of bytes one wants to write to `hex` (not incl. NUL
+  terminator), or -1 on error.
 */
 int strhex_encode(char *hex, size_t hexsize, const unsigned char *data,
                   size_t size)
@@ -240,7 +240,7 @@ int strhex_decode(unsigned char *data, size_t size, const char *hex,
       v *= 16;
       if (c >= '0' && c <= '9')
         v += c - '0';
-      else if (c >= 'a' && c <= 'z')
+      else if (c >= 'a' && c <= 'f')
         v += c - 'a' + 10;
       else
         return -1;
