@@ -120,6 +120,6 @@ except ImportError:
 else:
     inst.save('yaml://yyy.yaml')
 
-del inst
+#del inst
 del e2
 del e3

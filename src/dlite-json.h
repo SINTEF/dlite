@@ -14,8 +14,14 @@
 
 /** Flags for serialisation */
 typedef enum {
-  dliteJsonWithUuid=1,    /*!< Whether to include uuid in output */
-  dliteJsonMetaAsData=2   /*!< Whether to write metadata as data */
+  dliteJsonWithUuid=1,         /*!< include uuid in output */
+  dliteJsonMetaAsData=2,       /*!< write metadata as data */
+
+  // xxx
+  dliteJsonMetaAsArray=4,      /*!< write metadata properties and dimension as
+                                    json arrays (old format) */
+  dliteJsonRelationAsObject=8, /*!< write relations as json objects (old fmt) */
+  dliteJsonRelationWithId=16   /*!< also write relation id  */
 } DLiteJsonFlag;
 
 /** JSON formats */
@@ -23,15 +29,6 @@ typedef enum {
   dliteJsonDataFormat,    /*!< Data format - single item */
   dliteJsonMetaFormat     /*!< Metadata format - multiple items */
 } DLiteJsonFormat;
-
-
-///** Iterater struct */
-//typedef struct _DLiteJsonIter {
-//  JStoreIter jiter;                    /*!< jstore iterater */
-//  char metauuid[DLITE_UUID_LENGTH+1];  /*!< UUID of metadata */
-//  jsmntok_t *tokens;                   /*!< pointer to allocated tokens */
-//  unsigned int ntokens;                /*!< number of allocated tokens */
-//} DLiteJsonIter;
 
 
 /**

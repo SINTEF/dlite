@@ -423,10 +423,24 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
         DLiteDimension *d = meta->_dimensions + i;
         if (!(t = jsmn_item(src, item, d->name)))
           FAIL2("missing dimension \"%s\" in %s", d->name, id);
-        if (t->type != JSMN_PRIMITIVE)
-          FAIL3("value '%.*s' of dimension should be an integer: %s",
-                t->end-t->start, src+t->start, id);
-        dims[i] = atoi(src + t->start);
+        if (dlite_meta_is_metameta(meta)) {
+          const jsmntok_t *tt;
+          if (t->type != JSMN_STRING)
+            FAIL1("expected dimension description, got: %.6s...",
+                  src + t->start);
+          if (d->name[0] != 'n')
+            FAIL1("metadata dimension names should start with \"n\": %s",
+                  d->name);
+          if (!(tt = jsmn_item(src, obj, d->name+1)))
+            FAIL1("no metadata array named %s", d->name+1);
+          dims[i] = tt->size;
+        } else {
+          if (t->type == JSMN_PRIMITIVE)
+            dims[i] = atoi(src + t->start);
+          else
+            FAIL3("value '%.*s' of dimension should be an integer: %s",
+                  t->end-t->start, src+t->start, id);
+        }
       }
     } else if (item->type == JSMN_ARRAY) {
       size_t n=0;
@@ -445,6 +459,74 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       FAIL1("\"dimensions\" must be object or array: %s", id);
     }
   }
+
+
+
+
+
+
+
+
+
+
+    //if (dlite_meta_is_metameta(meta)) {
+    //  /* parse metadata dimensions */
+    //  if (item->type == JSMN_OBJECT) {
+    //    if (item->size != (int)meta->_ndimensions)
+    //      FAIL3("expected %d dimensions, got %d in instance %s",
+    //            (int)meta->_ndimensions, item->size, id);
+    //
+    //
+    //
+    //    for (i=0; i < meta->_ndimensions; i++) {
+    //      DLiteDimension *d = meta->_dimensions + i;
+    //      if (!(t = jsmn_item(src, item, d->name)))
+    //        FAIL2("missing dimension \"%s\" in %s", d->name, id);
+    //      if (t->type == JSMN_PRIMITIVE)
+    //        dims[i] = atoi(src + t->start);
+    //      else
+    //        FAIL3("value '%.*s' of dimension should be an integer: %s",
+    //              t->end-t->start, src+t->start, id);
+    //    }
+    //
+    //
+    //
+    //} else {
+    //  /* parse data instance dimensions */
+    //
+    //}
+
+    //if (item->type == JSMN_OBJECT) {
+    //  if (item->size != (int)meta->_ndimensions)
+    //    FAIL3("expected %d dimensions, got %d in instance %s",
+    //          (int)meta->_ndimensions, item->size, id);
+    //  for (i=0; i < meta->_ndimensions; i++) {
+    //    DLiteDimension *d = meta->_dimensions + i;
+    //    if (!(t = jsmn_item(src, item, d->name)))
+    //      FAIL2("missing dimension \"%s\" in %s", d->name, id);
+    //    if (t->type == JSMN_PRIMITIVE)
+    //      dims[i] = atoi(src + t->start);
+    //    else
+    //      FAIL3("value '%.*s' of dimension should be an integer: %s",
+    //            t->end-t->start, src+t->start, id);
+    //  }
+    //} else if (item->type == JSMN_ARRAY) {
+    //  size_t n=0;
+    //  if (!dlite_meta_is_metameta(meta))
+    //    FAIL1("only metadata can have array dimensions: %s", id);
+    //  if (meta->_ndimensions > n)
+    //    dims[n++] = item->size;
+    //  if (meta->_ndimensions > n && (t = jsmn_item(src, obj, "properties")))
+    //    dims[n++] = t->size;
+    //  if (meta->_ndimensions > n && (t = jsmn_item(src, obj, "relations")))
+    //    dims[n++] = t->size;
+    //  if (n != meta->_ndimensions)
+    //    FAIL3("expected %d dimensions, got %d: %s",
+    //          (int)meta->_ndimensions, (int)n, id);
+    //} else {
+    //  FAIL1("\"dimensions\" must be object or array: %s", id);
+    //}
+
 
   /* Create instance */
   if (!(inst = dlite_instance_create(meta, dims, id))) goto fail;
