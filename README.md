@@ -316,8 +316,15 @@ See [here](doc/build-with-vs.md) for instructions for building with
 Visual Studio.
 
 
-### Quick start with VS Code and Remote Container
+### Build and install with Python
+Given you have a C compiler and Python correctly installed, you should be
+able to build and install dlite via the python/setup.py script:
 
+    cd python
+    python setup.py install
+
+
+### Quick start with VS Code and Remote Container
 Using Visual Studio Code it is possible to do development on the
 system defined in Dockerfile.
 
@@ -337,7 +344,6 @@ system defined in Dockerfile.
 
 
 ### Build on Linux
-
 Install the hdf5 (does not include the parallel component) libraries
 
 On Ubuntu:
