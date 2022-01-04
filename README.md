@@ -321,7 +321,7 @@ Given you have a C compiler and Python correctly installed, you should be
 able to build and install dlite via the python/setup.py script:
 
     cd python
-    pip install .
+    python setup.py install
 
 
 ### Quick start with VS Code and Remote Container
