@@ -19,10 +19,10 @@ while itr.poll():
 url = 'json://' + thisdir + '/MyEntity.json' + "?mode=r"
 
 # Load metadata (i.e. an instance of meta-metadata) from url
-e = Instance(url)
+e = Instance.create_from_url(url)
 
-inst1 = Instance(e.uri, [3, 2])
-inst2 = Instance(e.uri, (3, 4), 'myinst')
+inst1 = Instance.create_from_metaid(e.uri, [3, 2])
+inst2 = Instance.create_from_metaid(e.uri, (3, 4), 'myinst')
 
 coll.add('inst1', inst1)
 coll.add('inst2', inst2)
