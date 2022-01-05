@@ -14,7 +14,7 @@ url = 'json://' + thisdir + '/MyEntity.json'
 
 
 # Load metadata (i.e. an instance of meta-metadata) from url
-myentity = Instance(url)
+myentity = Instance.create_from_url(url)
 print(myentity.uuid)
 
 # Check some properties of the entity
@@ -34,7 +34,7 @@ myentity.save('json://xxx2.json')
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
 # interchangable with its uuid
-inst = Instance(myentity.uri, [2, 3], 'myid')
+inst = Instance.create_metadata(myentity.uri, [2, 3], 'myid')
 assert inst.dimensions == {'N': 2, 'M': 3}
 assert inst.is_data
 assert not inst.is_meta
@@ -76,7 +76,7 @@ print(inst)
 
 # Check save and load
 inst.save('json://inst.json?mode=w')
-inst2 = Instance('json://inst.json')
+inst2 = Instance.create_from_url('json://inst.json')
 
 # Check pickling
 s = pickle.dumps(inst)
@@ -100,7 +100,7 @@ e = dlite.get_instance('http://onto-ns.com/meta/0.1/MyEntity')
 assert e == myentity
 assert e != inst
 
-e2 = Instance(
+e2 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
     [Property('name', type='string', description='Name of something.'),
@@ -108,7 +108,7 @@ e2 = Instance(
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
 
-e3 = Instance(
+e3 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity2',
     [],
     [Property('name', type='string', description='Name of something.'),

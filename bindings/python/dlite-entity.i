@@ -257,16 +257,18 @@ Instance(driver, location, options, id=None)
     and `options`. `id` is the id of the instance in the storage (not
     required if the storage only contains more one instance).
 
-Instance(uri, dimensions, properties, iri, description)
+Instance(uri, dimensions, properties, description)
     Creates a new metadata entity (instance of entity schema) casted
     to an instance.
 
+Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
+
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
-%apply(int ndimensions, struct _DLiteDimension *dimensions) {
-  (int ndimensions, struct _DLiteDimension *dimensions)};
-%apply(int nproperties, struct _DLiteProperty *properties) {
-  (int nproperties, struct _DLiteProperty *properties)};
+%apply(struct _DLiteDimension *dimensions, int ndimensions) {
+  (struct _DLiteDimension *dimensions, int ndimensions)};
+%apply(struct _DLiteProperty *properties, int nproperties) {
+  (struct _DLiteProperty *properties, int nproperties)};
 
 %rename(Instance) _DLiteInstance;
 struct _DLiteInstance {
@@ -278,6 +280,71 @@ struct _DLiteInstance {
 };
 
 %extend _DLiteInstance {
+  _DLiteInstance(const char *metaid=NULL, int *dims=NULL, int ndims=0,
+		const char *id=NULL, const char *url=NULL, struct _DLiteStorage *storage=NULL,
+    const char *driver=NULL, const char *location=NULL, const char *options=NULL, 
+    const char *uri=NULL,
+    struct _DLiteDimension *dimensions=NULL, int ndimensions=0,
+    struct _DLiteProperty *properties=NULL, int nproperties=0,
+    const char *description=NULL) {
+    if (dims && metaid) {
+      DLiteInstance *inst;
+      DLiteMeta *meta;
+      size_t i, *d, n=ndims;
+      if (!(meta = dlite_meta_get(metaid)))
+        return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
+      if (n != meta->_ndimensions) {
+        dlite_meta_decref(meta);
+        return dlite_err(1, "%s has %u dimensions",
+                          metaid, (unsigned)meta->_ndimensions), NULL;
+      }
+      d = malloc(n * sizeof(size_t));
+      for (i=0; i<n; i++) d[i] = dims[i];
+      inst = dlite_instance_create(meta, d, id);
+      free(d);
+      if (inst) dlite_errclr();
+      dlite_meta_decref(meta);
+      return inst;
+    } 
+    else if (url) {
+      DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
+      if (inst) {
+        dlite_errclr();
+        if (metaid) {
+          inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+          dlite_instance_decref(inst);
+          inst = inst2;
+        }
+      }
+      return inst;
+    }
+    else if (storage) {
+      DLiteInstance *inst = dlite_instance_load_casted(storage, id, metaid);
+      if (inst) dlite_errclr();
+      return inst;
+    }
+    else if (driver && location){
+      DLiteStorage *s;
+      DLiteInstance *inst;
+      if (!(s = dlite_storage_open(driver, location, options))) return NULL;
+      inst = dlite_instance_load(s, id);
+      dlite_storage_close(s);
+      if (inst) dlite_errclr();
+      return inst;
+    }
+    else if (uri && dimensions && properties && description){
+       DLiteMeta *inst = dlite_meta_create(uri, NULL, description,
+                                        ndimensions, dimensions,
+                                        nproperties, properties);
+      if (inst) dlite_errclr();
+      return (DLiteInstance *)inst;
+    }
+    else {
+      dlite_err(1, "invalid arguments to Instance()");
+    }
+    return NULL;
+  }
+  /*
   _DLiteInstance(const char *metaid, int *dims, int ndims,
 		 const char *id=NULL) {
     DLiteInstance *inst;
@@ -337,7 +404,8 @@ struct _DLiteInstance {
     if (inst) dlite_errclr();
     return (DLiteInstance *)inst;
   }
-
+*/
+  
   ~_DLiteInstance() {
     dlite_instance_decref($self);
   }

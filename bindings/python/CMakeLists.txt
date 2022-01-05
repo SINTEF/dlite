@@ -56,7 +56,7 @@ include_directories(
 
 set_source_files_properties(dlite.i
   PROPERTIES
-    SWIG_FLAGS "-py3;-Wall;-DNPY_SIZE_T=${NPY_SIZE_T}"
+    SWIG_FLAGS "-py3;-Wall;-DNPY_SIZE_T=${NPY_SIZE_T};-keyword"
     SWIG_MODULE_NAME "dlite"
     )
 
