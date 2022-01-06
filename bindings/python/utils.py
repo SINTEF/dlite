@@ -37,7 +37,7 @@ def instance_from_dict(d):
                 unit=p.get('unit'),
                 iri=p.get('iri'),
                 description=p.get('description')))
-        inst = dlite.Instance(uri, dimensions, props, d.get('iri'),
+        inst = dlite.Instance.create_metadata(uri, dimensions, props,
                               d.get('description'))
     else:
         dims = list(d['dimensions'].values())
@@ -45,7 +45,7 @@ def instance_from_dict(d):
             arg = d.get('uri', d.get('uuid', None))
         else:
             arg = d.get('uuid', None)
-        inst = dlite.Instance(meta.uri, dims, arg)
+        inst = dlite.Instance.create_from_metaid(meta.uri, dims, arg)
         for p in meta['properties']:
             value = d['properties'][p.name]
             if p.type.startswith('blob') and type(value) == str:
@@ -62,7 +62,7 @@ def get_package_paths():
 if __name__ == '__main__':
 
     url = 'json://' + os.path.join(thisdir, 'tests', 'Person.json')
-    Person = dlite.Instance(url)
+    Person = dlite.Instance.create_from_url(url)
 
     person = Person([2])
     person.name = 'Ada'

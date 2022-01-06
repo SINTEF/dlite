@@ -15,7 +15,7 @@ class plugin1(DLiteMappingBase):
 
     def map(self, instances):
         inst1 = instances[0]
-        inst3 = dlite.Instance(self.output_uri, [])
+        inst3 = dlite.Instance.create_from_metaid(self.output_uri, [])
         inst3.c = inst1.a + 12.0
         return inst3
 
@@ -29,6 +29,6 @@ class plugin2(DLiteMappingBase):
     def map(self, instances):
         inst3 = instances[0]
         print(inst3)
-        inst1 = dlite.Instance(self.output_uri, [])
+        inst1 = dlite.Instance.create_from_metaid(self.output_uri, [])
         inst1.a = int(inst3.c - 12.0 + 0.5)
         return inst1

@@ -108,7 +108,7 @@ class postgresql(DLiteStorageBase):
             dlite.errclr()
             meta = self.load(metaid)
 
-        inst = dlite.Instance(metaid, dims, uri)
+        inst = dlite.Instance.create_from_metaid(metaid, dims, uri)
 
         for i, p in enumerate(inst.meta['properties']):
             inst.set_property(p.name, values[i])

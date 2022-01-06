@@ -323,7 +323,7 @@ def standardise(v, asdict=True):
         """Returns an uninitiated instance of this metadata."""
         if not self.is_meta:
             raise TypeError('data instances are not callable')
-        return Instance(self.uri, dims, id)
+        return Instance.create_from_metaid(self.uri, dims, id)
 
     def asdict(self):
         """Returns a dict representation of self."""

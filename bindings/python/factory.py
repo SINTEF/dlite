@@ -134,8 +134,8 @@ class BaseExtension(object, metaclass=MetaExtension):
 
     def dlite_load(self, *args):
         """Loads dlite instance from storage and assign self from it.
-        The arguments `args` are passed to dlite.Instance()."""
-        inst = Instance(*args)
+        The arguments `args` are passed to dlite.Instance.create_from_storage()."""
+        inst = Instance.create_from_storage(*args)
         self._dlite_assign(inst)
 
 
@@ -149,6 +149,18 @@ def instancefactory(theclass, inst):
     obj.dlite_meta = inst.meta
     obj.dlite_inst = inst
     return obj
+
+def instancefactory(theclass, inst):
+    """Returns an extended instance of `theclass` initiated from dlite
+    instance `inst`.
+    """
+    cls = classfactory(theclass, meta=inst.meta)
+    obj = cls._dlite__new__(inst)
+    obj.dlite_assign(inst)
+    obj.dlite_meta = inst.meta
+    obj.dlite_inst = inst
+    return obj
+
 
 
 def objectfactory(obj, meta=None, deepcopy=False, cls=None,

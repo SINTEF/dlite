@@ -137,7 +137,7 @@ def infer_meta(data, metauri, uri):
         unit = infer_prop_unit(col)
         props.append(dlite.Property(name, type, dims, unit, None, None))
     descr = f'Inferred metadata for {uri}'
-    return dlite.Instance(metauri, dims_, props, None, descr)
+    return dlite.Instance.create_metadata(metauri, dims_, props, descr)
 
 
 def optstring2keywords(optstring):

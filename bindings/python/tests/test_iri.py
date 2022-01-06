@@ -8,7 +8,7 @@ thisdir = os.path.abspath(os.path.dirname(__file__))
 
 url = 'json://' + thisdir + '/MyEntity.json' + "?mode=r"
 
-E = dlite.Instance(url)
+E = dlite.Instance.create_from_url(url)
 E.iri = 'http://emmo.info/emmo/EMMO_Physical'
 E.iri = None
 E.iri = 'http://emmo.info/emmo/EMMO_Physical'
