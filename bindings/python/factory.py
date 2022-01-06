@@ -146,11 +146,8 @@ class BaseExtension(object, metaclass=MetaExtension):
 
 
 def instancefactory(theclass, inst):
-    """Returns an extended instance of `theclass` initiated dlite
-    instance.
-
-    If `*args` is a dlite instance, the returned object is initiated form
-    it.  Otherwise `*args` is passed to dlite.Instance()
+    """Returns an extended instance of `theclass` initiated from dlite
+    instance `inst`.
     """
     cls = classfactory(theclass, meta=inst.meta)
     obj = cls._dlite__new__(inst)
