@@ -34,7 +34,7 @@ myentity.save('json://xxx2.json')
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
 # interchangable with its uuid
-inst = Instance.create_metadata(myentity.uri, [2, 3], 'myid')
+inst = Instance.create_from_metaid(myentity.uri, [2, 3], 'myid')
 assert inst.dimensions == {'N': 2, 'M': 3}
 assert inst.is_data
 assert not inst.is_meta

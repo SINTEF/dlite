@@ -199,8 +199,10 @@ def standardise(v, asdict=True):
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
         """
-        return cls(metaid=metaid, dims=dims, id=id)
-    
+        return cls(metaid=metaid, dims=dims, id=id,
+                   dimensions=(), properties=()  # arrays must not be None
+                   )
+
     @classmethod
     def create_from_url(cls, url, metaid=None):
         """Load the instance from `url`.  The URL should be of the form
@@ -208,8 +210,10 @@ def standardise(v, asdict=True):
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return cls(url=url, metaid=metaid)
-    
+        return cls(url=url, metaid=metaid,
+                   dims=(), dimensions=(), properties=()  # arrays
+                   )
+
     @classmethod
     def create_from_storage(cls, storage, id=None, metaid=None):
         """Load the instance from `storage`.  `id` is the id of the instance
@@ -218,7 +222,9 @@ def standardise(v, asdict=True):
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return cls(storage=storage, id=id, metaid=metaid)
+        return cls(storage=storage, id=id, metaid=metaid,
+                   dims=(), dimensions=(), properties=()  # arrays
+                   )
 
     @classmethod
     def create_from_location(cls, driver, location, options=None, id=None):
@@ -226,15 +232,19 @@ def standardise(v, asdict=True):
         and `options`.  `id` is the id of the instance in the storage (not
         required if the storage only contains more one instance).
         """
-        return cls(driver=driver, location=location, options=options, id=id)
-    
+        return cls(driver=driver, location=location, options=options, id=id,
+                   dims=(), dimensions=(), properties=()  # arrays
+                   )
+
     @classmethod
     def create_metadata(cls, uri, dimensions, properties, description):
         """Create a new metadata entity (instance of entity schema) casted
         to an instance.
         """
-        return cls(uri=uri, dimensions=dimensions, properties=properties, 
-            description=description)
+        return cls(uri=uri, dimensions=dimensions, properties=properties,
+                   description=description,
+                   dims=()  # arrays
+                   )
 
     def __getitem__(self, ind):
         if self.has_property(ind):
@@ -302,7 +312,7 @@ def standardise(v, asdict=True):
                    p = prop.asdict() if hasattr(prop, 'asdict') else prop
                yield i, p
         return (
-            Instance,
+            Instance.create_from_metaid,
             (self.meta.uri, list(self.dimensions.values()), self.uuid),
             None,
             None,
