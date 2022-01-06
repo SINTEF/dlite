@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """A module that makes it easy to add dlite functionality to existing classes.
-
 Class customisations
-
 In order to handle special cases, the following methods may be
 defined/overridden in the class that is to be extended:
-
     _dlite_get_<name>(self, name)
     _dlite_set_<name>(self, name, value)
     _dlite__new__(cls, inst)
-
 """
 import copy
 
@@ -39,7 +35,6 @@ class BaseExtension(object, metaclass=MetaExtension):
     """Base class for extension.  Except for `dlite_id`, all
     arguments are passed further to the __init__() function of the
     class we are inheriting from.
-
     If `instanceid` is given, the id of the underlying dlite instance
     will be set to it.
     """
@@ -122,7 +117,6 @@ class BaseExtension(object, metaclass=MetaExtension):
     def _dlite__new__(cls, inst=None):
         """Class method returning a new uninitialised instance of the class
         that is extended.
-
         This method simply returns ``cls.__new__(cls)``.  Override
         this method if the extended class already defines a __new__()
         method.
@@ -161,11 +155,9 @@ def objectfactory(obj, meta=None, deepcopy=False, cls=None,
                   url=None, storage=None, id=None, instanceid=None):
     """Returns an extended copy of `obj`.  If `deepcopy` is true, a deep
     copy is returned, otherwise a shallow copy is returned.
-
     By default, the returned object will have the same class as `obj`.  If
     `cls` is provided, the class of the returned object will be set to `cls`
     (typically a subclass of ``obj.__class__``).
-
     The `url`, `storage` and `id` arguments are passed to classfactory().
     """
     if cls is None:
@@ -180,7 +172,6 @@ def objectfactory(obj, meta=None, deepcopy=False, cls=None,
 def classfactory(theclass, meta=None, url=None, storage=None, id=None):
     """Factory function that returns a new class that inherits from both
     `theclass` and BaseInstance.
-
     Parameters
     ----------
     theclass : class instance
