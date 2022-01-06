@@ -109,6 +109,6 @@ if sys.platform == 'win32':
 del is_conda, is_conda_base
 
 from .dlite import *  # noqa: F401, F403
-from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
+from .factory import classfactory, objectfactory, instancefactory  # noqa: F401
 
 del sys, os, Path
