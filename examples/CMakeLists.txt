@@ -5,6 +5,7 @@ project(dlite-examples)
 if(WITH_PYTHON)
 set(python_examples
   read-csv
+  dehydrogenation
   )
 endif()
 
