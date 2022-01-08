@@ -1,0 +1,50 @@
+{
+    "name": "Molecule",
+    "version": "0.1",
+    "namespace": "http://onto-ns.com/meta",
+    "description": "A minimal description of a molecules",
+    "dimensions": [
+        {
+            "name": "natoms",
+            "description": "Number of atoms"
+        },
+        {
+            "name": "ncoords",
+            "description": "Number coordinates. Always 3"
+        }
+    ],
+    "properties": [
+        {
+            "name": "name",
+            "type": "string",
+            "description": "Name of the molecule."
+        },
+        {
+            "name": "positions",
+            "type": "double",
+            "dims": ["natoms", "ncoords"],
+            "unit": "Ångström",
+            "description": "Atomic positions in Cartesian coordinates."
+        },
+        {
+            "name": "symbols",
+            "type": "string",
+            "dims": ["natoms"],
+            "description": "Chemical symbols."
+        },
+        {
+            "name": "masses",
+            "type": "double",
+            "dims": ["natoms"],
+            "unit": "u",
+            "description": "Atomic masses."
+        },
+        {
+            "name": "groundstate_energy",
+            "type": "double",
+            "unit": "eV",
+            "description": "Molecule ground state energy."
+        }
+
+    ]
+}
