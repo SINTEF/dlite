@@ -121,6 +121,73 @@ MU_TEST(test_strunquote)
 }
 
 
+MU_TEST(test_strhex_encode)
+{
+  unsigned char data[4] = {0x61, 0x62, 0x63, 0x64};
+  char hex[13];
+  int n;
+
+  n = strhex_encode(hex, sizeof(hex), data, sizeof(data));
+  mu_assert_int_eq(8, n);
+  mu_assert_string_eq("61626364", hex);
+
+  n = strhex_encode(hex, sizeof(hex), data, 2);
+  mu_assert_int_eq(4, n);
+  mu_assert_string_eq("6162", hex);
+
+  n = strhex_encode(hex, 7, data, sizeof(data));
+  mu_assert_int_eq(8, n);
+  mu_assert_string_eq("616263", hex);
+
+  n = strhex_encode(hex, 5, data, sizeof(data));
+  mu_assert_int_eq(8, n);
+  mu_assert_string_eq("6162", hex);
+
+  n = strhex_encode(hex, 6, data, sizeof(data));
+  mu_assert_int_eq(8, n);
+  mu_assert_string_eq("6162", hex);
+}
+
+
+MU_TEST(test_strhex_decode)
+{
+  unsigned char data[8];
+  int n;
+
+  n = strhex_decode(data, sizeof(data), "00ff", -1);
+  mu_assert_int_eq(2, n);
+  mu_assert_int_eq(0x00, data[0]);
+  mu_assert_int_eq(0xff, data[1]);
+
+  n = strhex_decode(data, sizeof(data), "00FF", 4);
+  mu_assert_int_eq(2, n);
+  mu_assert_int_eq(0x00, data[0]);
+  mu_assert_int_eq(0xff, data[1]);
+
+  n = strhex_decode(data, 2, "aabbccdd", -1);
+  mu_assert_int_eq(4, n);
+  mu_assert_int_eq(0xaa, data[0]);
+  mu_assert_int_eq(0xbb, data[1]);
+
+  n = strhex_decode(data, sizeof(data), "0aff", 2);
+  mu_assert_int_eq(1, n);
+  mu_assert_int_eq(0x0a, data[0]);
+
+  n = strhex_decode(data, sizeof(data), "00ff", 6);
+  mu_assert_int_eq(-1, n);
+
+  n = strhex_decode(data, sizeof(data), "00ff", 3);
+  mu_assert_int_eq(-1, n);
+
+  n = strhex_decode(data, sizeof(data), "00ffa", -1);
+  mu_assert_int_eq(-1, n);
+
+  n = strhex_decode(data, sizeof(data), "0a-b", -1);
+  mu_assert_int_eq(-1, n);
+}
+
+
+
 
 /***********************************************************************/
 
@@ -130,6 +197,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_strquote);
   MU_RUN_TEST(test_strnquote);
   MU_RUN_TEST(test_strunquote);
+  MU_RUN_TEST(test_strhex_encode);
+  MU_RUN_TEST(test_strhex_decode);
 }
 
 
