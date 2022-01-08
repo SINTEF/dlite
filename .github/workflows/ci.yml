@@ -78,13 +78,12 @@ jobs:
 
     - name: Upload doxygen-generated documentation to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
+      #uses: actions/upload-artifact@v2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/doc/html
         publish_branch: gh-pages
         destination_dir: "v${{ env.DLITE_VERSION }}/doc"
-      #
-      #uses: actions/upload-artifact@v2
 
     - name: build Linux wheel
       run: |
@@ -92,6 +91,7 @@ jobs:
         pip install numpy wheel
         python3 setup.py bdist_wheel
         cd -
+
     - name: Install python package via setup.py and test the installation
       run: |
          cd python
