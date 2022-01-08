@@ -3206,3 +3206,14 @@
    fun:_PyMethodDef_RawFastCallKeywords
    fun:_PyMethodDescr_FastCallKeywords
 }
+{
+   suppression-test_storage-py
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   fun:_PyObject_GC_Resize
+   ...
+   fun:Py_FinalizeEx
+   fun:Py_RunMain
+   fun:Py_BytesMain
+}

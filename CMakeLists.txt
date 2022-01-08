@@ -3,8 +3,8 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.1
-  DESCRIPTION "Lightweight data-centric framework for working with scientific data"
+  VERSION 0.3.3
+  DESCRIPTION "Lightweight data-centric interoperability framework"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
   )
@@ -56,15 +56,16 @@ DLite is released under the MIT license.
 ")
 
 # Options
-option(WITH_PYTHON      "Whether to build Python 3 bindings"             ON)
-option(WITH_FORTRAN     "Whether to build Fortran bindings"              OFF)
-option(WITH_HDF5        "Whether to build with HDF5 support"             ON)
-option(WITH_JSON        "Whether to build with JSON support"             ON)
-option(WITH_REDLAND     "Whether to build with Redland (if available)"   ON)
-option(WITH_DOC         "Whether to build documentation using doxygen"   ON)
-option(WITH_EXAMPLES    "Whether to build/run examples during testing"   ON)
-option(FORCE_EXAMPLES   "Whether to force building/running examples"     OFF)
-option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"    OFF)
+option(WITH_PYTHON      "Whether to build Python 3 bindings"                ON)
+option(WITH_FORTRAN     "Whether to build Fortran bindings"                OFF)
+option(WITH_HDF5        "Whether to build with HDF5 support"                ON)
+option(WITH_JSON        "Whether to build with JSON support"                ON)
+option(WITH_REDLAND     "Whether to build with RDF support (using librdf)"  ON)
+option(WITH_THREADS     "Whether to build with threading support"          OFF)
+option(WITH_DOC         "Whether to build documentation using doxygen"      ON)
+option(WITH_EXAMPLES    "Whether to build/run examples during testing"      ON)
+option(FORCE_EXAMPLES   "Whether to force building/running examples"       OFF)
+option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"       ON)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -110,6 +111,15 @@ if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
 endif()
 
+if(MSVC)
+  # Fix utf-8 handling for MSVC: Force utf-8 encoded source-code files
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
+  # Do not complain about strdup() and similar POSIX functions to be
+  # deprecated in MSVC
+  add_definitions("-D_CRT_NONSTDC_NO_DEPRECATE")
+endif()
 
 # Uncomment the lines below to compile with AddressSanitizer
 #set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
@@ -148,6 +158,7 @@ if(WITH_HDF5)
   list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
 endif()
 if(WITH_PYTHON)
+  #FIME: Python3_LIBRARIES is undefined here
   list(APPEND DLITE_CONFIG_VARS
     Python3_LIBRARIES
     DLITE_PYTHON_STORAGE_PLUGIN_DIRS
@@ -218,7 +229,7 @@ endif()
 # Python
 # ======
 if(WITH_PYTHON)
-
+  message(STATUS "Looking for Python3")
   if(CROSS_TARGET AND MINGW)
     set(Python3_FIND_REGISTRY NEVER)
     set(Python3_FIND_STRATEGY LOCATION)
@@ -226,6 +237,8 @@ if(WITH_PYTHON)
   endif()
 
   if(WIN32)
+    set(Python3_FIND_REGISTRY NEVER)
+    set(Python3_FIND_STRATEGY LOCATION)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
@@ -233,6 +246,27 @@ if(WITH_PYTHON)
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
+
+  message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
+  message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
+  message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
+  message(STATUS "Python3_NumPy_INCLUDE_DIRS = ${Python3_NumPy_INCLUDE_DIRS}")
+
+  if (WIN32)
+    # Prepare to workaround Anaconda issues on Windows
+    # https://github.com/pytorch/pytorch/issues/17051
+    # https://github.com/ContinuumIO/anaconda-issues/issues/11374
+    include(FindPythonAnaconda)
+    if (PYTHON_IS_ANACONDA)
+      if (PYTHON_IS_ANACONDA_BASE)
+        message(STATUS "Check Anaconda on Windows: Python3 is Anaconda - Root environment.")
+      else()
+        message(STATUS "Check Anaconda on Windows: Python3 is Anaconda - Virtual Environment.")
+      endif()
+    else()
+      message(STATUS "Check Anaconda on Windows: Python3 is NOT Anaconda.")
+    endif()
+  endif()
 
   # On mingw, python depends on libffi
   find_library(ffi ffi)
@@ -349,6 +383,21 @@ endif()
 # Environment for running tests in build tree
 # -------------------------------------------
 
+# Name of all targets that produce a DLL that we have to take special
+# care of on Windows
+set(dll_targets
+  dlite
+  dlite-utils
+  dlite-plugins-json
+  dlite-plugins-python
+  )
+if(WITH_HDF5)
+  list(APPEND targets dlite-plugins-hdf5)
+endif()
+if(WITH_REDLAND)
+  list(APPEND targets dlite-plugins-rdf)
+endif()
+
 # Macro that appends build directories `dirs` to list `lst`
 #
 # Usage: build_append(<var> dirs...)
@@ -379,6 +428,10 @@ if(WIN32)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/src/pyembed)
     list(APPEND dlite_PATH ${Python3_RUNTIME_LIBRARY_DIRS})
     list(APPEND dlite_PATH ${Python3_NumPy_LIBRARY_DIRS})
+    if (WIN32 AND PYTHON_IS_ANACONDA)
+      # Fix dll search path for Anaconda on Windows
+      list(APPEND dlite_PATH "${Python3_RUNTIME_LIBRARY_DIRS}/Library/bin")
+    endif()
   endif()
   if(WITH_FORTRAN)
     build_append(dlite_PATH ${dlite_BINARY_DIR}/bindings/fortran)
@@ -512,6 +565,30 @@ make_platform_paths(
   #PATHSEP0
   )
 
+# Workaround for cross-compiling for Windows on Linux using MinGW.
+# Some paths in ${dlite_PATH} may start with "Z:/" which the
+# $<SHELL_PATH:...> generator expression complains about being a
+# relative path.  To fix this, we strip off the initial "Z:".
+if(CROSS_TARGET AND MINGW)
+  set(paths "")
+  foreach(path ${dlite_PATH})
+    string(REGEX REPLACE "^[A-Z]:(/.*)" "\\1" out ${path})
+    list(APPEND paths ${out})
+  endforeach()
+  set(dlite_PATH ${paths})
+endif()
+
+
+set(dlite_PATH_NATIVE1 "")
+foreach(path ${dlite_PATH})
+  list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
+endforeach()
+if(WIN32)
+  string(REPLACE ";" "\\\\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
+else()
+  string(REPLACE ";" ":" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
+endif()
+
 # Note, DLITE_STORAGES uses "|" as separator on all systems
 string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
 string(REPLACE ";" "|" dlite_STORAGES_NATIVE  "${dlite_STORAGES_NATIVE}")
@@ -522,9 +599,12 @@ string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
 # Add target "show" for showing test environment
 set(test_env
   "========== Test environment ========="
+  "export DLITE_ROOT=${DLITE_ROOT}"
   "export PATH=${dlite_PATH}"
+  "dlite_PATH_NATIVE=${dlite_PATH_NATIVE}"
   "export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}"
   "export PYTHONPATH=${dlite_PYTHONPATH}"
+  "PYTHONPATH_NATIVE=${dlite_PYTHONPATH_NATIVE}"
   "export DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
   "export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
   "export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"
@@ -572,11 +652,6 @@ add_custom_target(show ${cmd})
 # Subdirectories
 add_subdirectory(src)
 
-# Bindings
-if(WITH_PYTHON)
-  add_subdirectory(bindings/python)
-endif()
-
 # Storage plugins
 if(WITH_HDF5)
   add_subdirectory(storages/hdf5)
@@ -588,6 +663,7 @@ if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)
 endif()
 if(WITH_PYTHON)
+  add_subdirectory(bindings/python)
   add_subdirectory(storages/python)
 endif()
 

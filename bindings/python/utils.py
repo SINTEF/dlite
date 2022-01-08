@@ -1,3 +1,4 @@
+import binascii
 import os
 
 import dlite
@@ -12,9 +13,14 @@ def instance_from_dict(d):
     meta = dlite.get_instance(d['meta'])
     if meta.is_metameta:
 
+        if 'uri' in d:
+            uri = d['uri']
+        else:
+            uri = dlite.join_meta_uri(d['name'], d['version'], d['namespace'])
+
         try:
             with dlite.silent:
-                inst = dlite.get_instance(d['uri'])
+                inst = dlite.get_instance(uri)
                 if inst:
                     return inst
         except dlite.DLiteError:
@@ -23,27 +29,34 @@ def instance_from_dict(d):
         dimensions = [dlite.Dimension(d['name'], d.get('description'))
                       for d in d['dimensions']]
         props = []
-        dimmap = {dim['name']: i for i, dim in enumerate(d['dimensions'])}
         for p in d['properties']:
-            if 'dims' in p:
-                dims = [dimmap[d] for d in p['dims']]
-            else:
-                dims = None
             props.append(dlite.Property(
                 name=p['name'],
                 type=p['type'],
-                dims=dims,
+                dims=p.get('dims'),
                 unit=p.get('unit'),
                 iri=p.get('iri'),
                 description=p.get('description')))
-        inst = dlite.Instance(d['uri'], dimensions, props, d.get('iri'),
+        inst = dlite.Instance(uri, dimensions, props, d.get('iri'),
                               d.get('description'))
     else:
         dims = list(d['dimensions'].values())
-        inst = dlite.Instance(meta.uri, dims, d.get('uuid', None))
+        if 'uri' in d.keys():
+            arg = d.get('uri', d.get('uuid', None))
+        else:
+            arg = d.get('uuid', None)
+        inst = dlite.Instance(meta.uri, dims, arg)
         for p in meta['properties']:
-            inst[p.name] = d['properties'][p.name]
+            value = d['properties'][p.name]
+            if p.type.startswith('blob') and type(value) == str:
+                # If binary data is a string, assume it is hexadecimal
+                value = bytearray(binascii.unhexlify(value))
+            inst[p.name] = value
     return inst
+
+
+def get_package_paths():
+    return {k:v for k,v in dlite.__dict__.items() if k.endswith('path')}
 
 
 if __name__ == '__main__':

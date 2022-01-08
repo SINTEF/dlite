@@ -2,13 +2,17 @@ project(dlite-bindings-python C)
 
 # Python sources
 set(py_sources
-  __init__.py
   factory.py
   options.py
   utils.py
   )
 
 configure_file(paths.py.in paths.py)
+if(dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE)
+  configure_file(__init__standalone.py.in __init__.py)
+else()
+  configure_file(__init__inbuild.py.in __init__.py)
+endif()
 
 # Determine size of size_t
 include(CheckTypeSize)
@@ -23,10 +27,15 @@ endif()
 
 # Add macros for use with swig
 # It seems that we cannot set policy  CMP0078 to NEW, since that would
-# create a target named "dlite" chich would be in conflict with the target
+# create a target named "dlite" which would be in conflict with the target
 # of src/dlite.so.
 # TODO: Check if it is possible to rename the target of src/dlite.so
 # using a property
+
+# https://cmake.org/cmake/help/latest/module/UseSWIG.html
+# Changed in version 3.13: This command creates a target with the specified <name> when policy CMP0078 is set to NEW.
+# Otherwise, the legacy behavior will choose a different target name and store it in the SWIG_MODULE_<name>_REAL_NAME variable.
+
 cmake_policy(SET CMP0078 OLD)
 set(SWIG_MODULE_pydlite_REAL_NAME "_dlite")
 find_package(SWIG)
@@ -51,13 +60,20 @@ set_source_files_properties(dlite.i
     SWIG_MODULE_NAME "dlite"
     )
 
-SET(CMAKE_SKIP_BUILD_RPATH TRUE)
+#SET(CMAKE_SKIP_BUILD_RPATH TRUE)
 swig_add_library(dlite
   TYPE SHARED
   LANGUAGE python
   OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite
   OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES dlite.i
+  )
+
+
+# Convince _dlite.so that it may search for whatever libraries it depends on in its own directory
+set_target_properties(${SWIG_MODULE_dlite_REAL_NAME} PROPERTIES
+  BUILD_RPATH "$ORIGIN/"
+  INSTALL_RPATH "$ORIGIN/"
   )
 
 swig_link_libraries(dlite
@@ -77,11 +93,20 @@ foreach(source ${py_sources})
 endforeach()
 
 list(APPEND abs_sources ${CMAKE_CURRENT_BINARY_DIR}/paths.py)
+list(APPEND abs_sources ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
 
 set(abs_targets)
 foreach(source ${py_sources})
   list(APPEND abs_targets ${pkgdir}/${source})
 endforeach()
+
+# On windows, also copy all dlite DLLs to our Python package
+set(dlls)
+if(WINDOWS OR MINGW)
+  foreach(dll_target ${dll_targets})
+    list(APPEND dlls $<TARGET_FILE:${dll_target}>)
+  endforeach()
+endif()
 
 add_custom_command(
   TARGET ${SWIG_MODULE_dlite_REAL_NAME}
@@ -89,6 +114,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+    ${dlls}
     ${pkgdir}
   BYPRODUCTS
     ${pkgdir}
@@ -105,8 +131,49 @@ add_custom_command(
   DEPENDS
     ${pkgdir}
     ${abs_sources}
+    dlite-plugins-json
   )
 
+#
+# Add the extension-libraries (*.dll, *.so) to the package directory
+# effectively producing a binary distribution ready to be run.
+# This can be picked up by a setup.py script with ""python setup.py install"" (or bdist_wheel)
+#
+add_custom_command(
+  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/mapping-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storages
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite>"
+    ${pkgdir}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite-utils>"
+    ${pkgdir}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite-plugins-python>"
+    ${pkgdir}/share/dlite/storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite-plugins-json>"
+    ${pkgdir}/share/dlite/storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+    ${pkgdir}/share/dlite/python-storage-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
+    ${pkgdir}/share/dlite/python-mapping-plugins
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${dlite_SOURCE_DIR}/examples/storages
+    ${pkgdir}/share/dlite/storages
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${dlite_SOURCE_DIR}/examples/mappings
+    ${pkgdir}/share/dlite/mapping-plugins
+  DEPENDS
+    python_package
+  )
 
 #
 # Install

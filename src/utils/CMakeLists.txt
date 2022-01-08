@@ -18,6 +18,7 @@ check_include_file(stdlib.h     HAVE_STDLIB_H)
 check_include_file(float.h      HAVE_FLOAT_H)
 check_include_file(inttypes.h   HAVE_INTTYPES_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
+check_include_file(windows.h    HAVE_WINDOWS_H)
 
 # -- check for symbols
 set(CMAKE_C_FLAGS_saved ${CMAKE_C_FLAGS})
@@ -44,10 +45,12 @@ check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
 check_symbol_exists(exec                unistd.h     HAVE_EXEC)
 check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
 
-check_symbol_exists(GetFullPathNameW    fileapi.h    HAVE_GetFullPathNameW)
-check_symbol_exists(GetFullPathName     fileapi.h    HAVE_GetFullPathName)
-check_symbol_exists(GetFileAttributesW  fileapi.h    HAVE_GetFileAttributesW)
-check_symbol_exists(GetFileAttributes   fileapi.h    HAVE_GetFileAttributes)
+if(HAVE_WINDOWS_H)
+check_symbol_exists(GetFullPathNameW    windows.h    HAVE_GetFullPathNameW)
+check_symbol_exists(GetFullPathName     windows.h    HAVE_GetFullPathName)
+check_symbol_exists(GetFileAttributesW  windows.h    HAVE_GetFileAttributesW)
+check_symbol_exists(GetFileAttributes   windows.h    HAVE_GetFileAttributes)
+endif()
 list(APPEND CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
 check_symbol_exists(PathFileExistsW     shlwapi.h    HAVE_PathFileExistsW)
 check_symbol_exists(PathFileExists      shlwapi.h    HAVE_PathFileExists)
@@ -90,6 +93,17 @@ check_struct_has_member("struct lconv"   decimal_point   locale.h
   HAVE_LCONV_DECIMAL_POINT)
 check_struct_has_member("struct lconv"   thousands_sep   locale.h
   HAVE_LCONV_THOUSANDS_SEP)
+
+
+# -- check for threads
+if(WITH_THREADS)
+  find_package(Threads)
+  if(Threads_FOUND)
+    set(HAVE_THREADS TRUE)
+    add_definitions(-DHAVE_THREADS)
+  endif()
+endif()
+
 
 # -- additional checks...
 include(CheckCSourceCompiles)
@@ -284,6 +298,11 @@ add_definitions(
   -DHAVE_CONFIG_H
   )
 
+# FIXME - Should we add this here?
+#if(WINDOWS)
+#  add_definitions(-DDLLEXPORT)
+#endif()
+
 add_library(dlite-utils SHARED ${sources})
 add_library(dlite-utils-static STATIC ${sources})
 
@@ -295,24 +314,27 @@ set_target_properties(dlite-utils-static PROPERTIES
   )
 
 target_include_directories(dlite-utils PUBLIC
-  #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 target_include_directories(dlite-utils-static PUBLIC
-  #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 
+set(link_libs)
 if(HAVE_PathFileExists OR HAVE_PathFileExistsW)
-  #target_link_libraries(dlite-utils shlwapi.lib)
-  #target_link_libraries(dlite-utils-static shlwapi.lib)
-  target_link_libraries(dlite-utils shlwapi)
-  target_link_libraries(dlite-utils-static shlwapi)
+  list(APPEND link_libs shlwapi)
 endif()
+if(Threads_FOUND)
+  add_definitions(-DHAVE_THREADS)
+  list(APPEND link_libs Threads::Threads)
+endif()
+target_link_libraries(dlite-utils ${link_libs})
+target_link_libraries(dlite-utils-static ${link_libs})
+
 
 ## create list of headers to install from ${sources}
 set(headers "")

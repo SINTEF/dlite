@@ -137,8 +137,10 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     Plugin **p;
     assert(handle);
     if ((p = map_get(&info->plugins, path))) {
-      warnx("plugin already registered: %s", path);
-      plugin_incref(*p);
+      /* Plugin is already registered (but it may still provides more
+         plugin APIs... */
+      plugin = *p;
+      plugin_incref(plugin);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");
@@ -147,9 +149,9 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
 
       if (map_set(&info->plugins, plugin->path, plugin))
         fatal(1, "failed to register plugin: %s", path);
-      if (map_set(&info->pluginpaths, name, plugin->path))
-        fatal(1, "failed to map plugin name '%s' to path: %s", name, path);
     }
+    if (map_set(&info->pluginpaths, name, plugin->path))
+      fatal(1, "failed to map plugin name '%s' to path: %s", name, path);
   }
 
   if (map_set(&info->apis, name, (PluginAPI *)api))
@@ -189,17 +191,18 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
   dsl_handle handle=NULL;
   void *sym=NULL;
   PluginFunc func;
-  PluginAPI *api=NULL;
+  PluginAPI *api=NULL, **apiptr;
   const void *loaded_api=NULL, *registered_api=NULL, *retval=NULL;
 
   if (!(iter = fu_startmatch(pattern, &info->paths))) goto fail;
 
+  /* Check if plugin is already loaded */
+  if (name && (apiptr = map_get(&info->apis, name)))
+    return *apiptr;
+
   while ((filepath = fu_nextmatch(iter))) {
     int iter1=0, iter2=0;
     err_clear();
-
-    /* check that plugin is not already loaded */
-    if (map_get(&info->plugins, filepath)) continue;
 
     /* load plugin */
     if (!(handle = dsl_open(filepath))) {
@@ -463,8 +466,11 @@ int plugin_path_extend(PluginInfo *info, const char *s, const char *pathsep)
   const char *p;
   char *endptr=NULL;
   int stat=0;
-  while ((p = fu_nextpath(s, &endptr, pathsep)))
-    if ((stat = plugin_path_appendn(info, p, endptr - p)) < 0) return stat;
+
+  while ((p = fu_nextpath(s, &endptr, pathsep))) {
+    if (*p && (stat = plugin_path_appendn(info, p, endptr - p)) < 0)
+      return stat;
+  }
   return stat;
 }
 
@@ -481,6 +487,7 @@ int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
   const char *p;
   char *endptr=NULL;
   int stat=0;
+
   while ((p = fu_nextpath(s, &endptr, pathsep))) {
     int len = endptr - p;
     if (fu_isabs(p)) {
@@ -504,9 +511,9 @@ int plugin_path_extend_prefix(PluginInfo *info, const char *prefix,
 
   Returns non-zero on error.
  */
-int plugin_path_delete(PluginInfo *info, int n)
+int plugin_path_remove_index(PluginInfo *info, int index)
 {
-  return fu_paths_delete(&info->paths, n);
+  return fu_paths_remove_index(&info->paths, index);
 }
 
 /*
@@ -516,7 +523,7 @@ int plugin_path_remove(PluginInfo *info, const char *path)
 {
   int i = plugin_path_index(info, path);
   if (i < 0) return i;
-  return plugin_path_delete(info, i);
+  return plugin_path_remove_index(info, i);
 }
 
 /*

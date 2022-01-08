@@ -1,6 +1,21 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
 /* --------
+ * Typemaps
+ * -------- */
+
+/* A typemap that allows using pathlib as input to paths */
+%typemap(in) (const char *path) {
+  if (PyUnicode_Check($input)) {
+    $1 = (char *)PyUnicode_AsUTF8($input);
+  } else {
+    PyObject *s = PyObject_Str($input);
+    $1 = (char *)PyUnicode_AsUTF8(s);
+    Py_DECREF(s);
+  }
+}
+
+/* --------
  * Wrappers
  * -------- */
 %{
@@ -24,6 +39,7 @@ struct _FUPaths {
   %immutable;
   int n;
 };
+
 
 %feature("docstring", "\
 Creates a _Path instance of type `pathtype`.
@@ -54,25 +70,25 @@ Creates a _Path instance of type `pathtype`.
     return fu_paths_string($self);
   }
   int __len__(void) {
-    return $self->n;
+    return (int)$self->n;
   }
   const char *getitem(int index) {
-    if (index < 0) index += $self->n;
+    if (index < 0) index += (int)$self->n;
     if (index < 0 || index >= (int)$self->n)
       return dlite_err(1, "index out of range: %d", index), NULL;
     return $self->paths[index];
   }
   void __setitem__(int index, const char *path) {
-    if (index < 0) index += $self->n;
+    if (index < 0) index += (int)$self->n;
     if (index < 0 || index >= (int)$self->n) {
       dlite_err(1, "index out of range: %d", index);
     } else {
-      fu_paths_delete($self, index);
+      fu_paths_remove_index($self, index);
       fu_paths_insert($self, path, index);
     }
   }
   void __delitem__(int index) {
-    fu_paths_delete($self, index);
+    fu_paths_remove_index($self, index);
   }
 
   void insert(int index, const char *path) {

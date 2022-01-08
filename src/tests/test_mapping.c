@@ -4,6 +4,7 @@
 
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "dlite-storage.h"
 #include "dlite-mapping.h"
 #include "dlite-mapping-plugins.h"
 
@@ -14,10 +15,37 @@
 MU_TEST(test_mapping_path)
 {
   char *mpath = STRINGIFY(dlite_BINARY_DIR) "/src/tests/mappings";
-  char *spath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/mappings/*.json";
+  char *spath1 = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json";
+  char *spath2 = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/mappings/*.json";
 
   dlite_mapping_plugin_path_insert(0, mpath);
-  dlite_storage_paths_insert(0, spath);
+  dlite_storage_paths_insert(0, spath1);
+  dlite_storage_paths_insert(0, spath2);
+
+  const char **paths, **p;
+  printf("\nStorage plugin paths:\n");
+  paths = dlite_storage_plugin_paths();
+  for (p=paths; *p; p++)
+    printf("  - '%s'\n", *p);
+
+  printf("\nMapping plugin paths:\n");
+  paths = dlite_mapping_plugin_paths();
+  for (p=paths; *p; p++)
+    printf("  - '%s'\n", *p);
+
+  printf("\nStorages:\n");
+  paths = dlite_storage_paths_get();
+  for (p=paths; *p; p++)
+    printf("  - '%s'\n", *p);
+
+  printf("\nStorages (wildcard-expanded):\n");
+  const char *path;
+  DLiteStoragePathIter *iter = dlite_storage_paths_iter_start();
+  while ((path = dlite_storage_paths_iter_next(iter)))
+    printf("  - '%s'\n", path);
+  dlite_storage_paths_iter_stop(iter);
+
+  printf("\n");
 }
 
 

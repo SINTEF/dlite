@@ -14,11 +14,17 @@
 
 set(tests
   test_yaml_storage
+  test_blob_storage
+  test_bson_storage
   test_postgresql_storage
   test_postgresql_storage2
   )
 
-add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
+add_definitions(
+  -DDLITE_ROOT=${dlite_SOURCE_DIR}
+  -DCURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+  -DCURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+  )
 
 include(FindPythonModule)
 
@@ -29,6 +35,15 @@ if(NOT PY_YAML)
     COMMAND ${CMAKE_COMMAND} -E echo "disabled")
   set_property(TEST test_yaml_storage PROPERTY DISABLED True)
   list(REMOVE_ITEM tests test_yaml_storage)
+endif()
+
+# Disable BSON test if pymongo is not installed
+find_python_module(pymongo)
+if(NOT PY_PYMONGO)
+  add_test(NAME test_bson_storage
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled")
+  set_property(TEST test_bson_storage PROPERTY DISABLED True)
+  list(REMOVE_ITEM tests test_bson_storage)
 endif()
 
 # Disable postgresql tests if psycopg2 is not installed or if pgconf.h
@@ -71,21 +86,30 @@ foreach(test ${tests})
 
   add_test(
     NAME ${test}
-    COMMAND ${test}
+    COMMAND ${RUNNER} ${test}
     )
+
 
   set_property(TEST ${test} PROPERTY
     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
-  set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  if (WIN32 AND PYTHON_IS_ANACONDA)
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
+  endif()
+  if(MINGW)
+    set_property(TEST ${test} APPEND PROPERTY
+      ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
+  endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
-  set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+  if (NOT WIN32)
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json")
+    ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+  endif()
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json|${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/*.json")
 
 endforeach()
 

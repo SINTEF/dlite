@@ -1,0 +1,3 @@
+ipython==7.25.0
+ipykernel==6.0.1
+ipython_genutils==0.2.0

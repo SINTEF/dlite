@@ -326,6 +326,34 @@ size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims)
   return size;
 }
 
+/* Return of newly allocated NULL-terminated array of string pointers
+   with uuids available in the internal storage (istore) */
+char** dlite_istore_get_uuids(int* nuuids)
+{
+    instance_map_t* istore = _instance_store();
+    assert(istore);
+    const char* uuid;
+    map_iter_t iter;
+
+    iter = map_iter(istore);
+    *nuuids = 0;
+    while ((uuid = map_next(istore, &iter))) (*nuuids)++;
+
+    char** uuids;
+    uuids = malloc((*nuuids + 1) * sizeof(char*));
+
+    int i = 0;
+    iter = map_iter(istore);
+    while ((uuid = map_next(istore, &iter))) {
+        {
+            uuids[i] = malloc(DLITE_UUID_LENGTH + 1);
+            strcpy(uuids[i], uuid);
+            i++;
+        }
+    }
+    uuids[i] = NULL;
+    return uuids;
+}
 
 /********************************************************************
  *  Instances
@@ -517,9 +545,10 @@ DLiteInstance *dlite_instance_create_from_id(const char *metaid,
 /*
   Free's an instance and all arrays associated with dimensional properties.
  */
-static void dlite_instance_free(DLiteInstance *inst)
+static int dlite_instance_free(DLiteInstance *inst)
 {
   size_t i, nprops;
+  int stat;
   const DLiteMeta *meta = inst->meta;
   assert(meta);
 
@@ -527,7 +556,7 @@ static void dlite_instance_free(DLiteInstance *inst)
   if (meta->_deinit) meta->_deinit(inst);
 
   /* Remove from instance cache */
-  _instance_store_remove(inst->uuid);
+  stat = _instance_store_remove(inst->uuid);
 
   /* Standard free */
   nprops = meta->_nproperties;
@@ -555,6 +584,7 @@ static void dlite_instance_free(DLiteInstance *inst)
   free(inst);
 
   dlite_meta_decref((DLiteMeta *)meta);  /* decrease metadata refcount */
+  return stat;
 }
 
 
@@ -584,7 +614,9 @@ int dlite_instance_decref(DLiteInstance *inst)
             inst->_refcount, inst->_refcount-1,
             (inst->uri) ? inst->uri : inst->uuid);
   assert(inst->_refcount > 0);
-  if ((count = --inst->_refcount) <= 0) dlite_instance_free(inst);
+  if ((count = --inst->_refcount) == 0) {
+      if (dlite_instance_free(inst) == -1) return -1;
+  }
   return count;
 }
 
@@ -634,7 +666,7 @@ DLiteInstance *dlite_instance_get(const char *id)
   DLiteStoragePathIter *iter;
   const char *url;
 
-  /* check if instance `id` is already instansiated... */
+  /* check if instance `id` is already instantiated... */
   if ((inst = _instance_store_get(id))) {
     dlite_instance_incref(inst);
     return inst;
@@ -756,10 +788,16 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   assert(url);
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
-  if (id && *id && (inst = _instance_store_get(id))) {
-    dlite_instance_incref(inst);
+
+ ErrTry:
+  if (id && *id) inst = _instance_store_get(id);
+ ErrOther:
+  err_clear();
+ ErrEnd;
+
+ if (inst) {
+   dlite_instance_incref(inst);
   } else {
-    err_clear();
     if (!(s = dlite_storage_open(driver, location, options))) goto fail;
     if (!(inst = dlite_instance_load(s, id))) goto fail;
   }

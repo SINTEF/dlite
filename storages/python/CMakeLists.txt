@@ -9,8 +9,8 @@ set(sources
 
 add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
-  dlite-static
-  dlite-utils-static
+  dlite
+  dlite-utils
   ${Python3_LIBRARIES}
   )
 target_include_directories(dlite-plugins-python PUBLIC
@@ -21,6 +21,8 @@ target_include_directories(dlite-plugins-python PUBLIC
   )
 set_target_properties(dlite-plugins-python PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
+  BUILD_RPATH "$ORIGIN/../../../"       # library is in ./dlite/share/dlite/storage-plugins, find libdlite-pyembed.so, libdlite.so, libdlite-utils.so in ./dlite
+  INSTALL_RPATH "$ORIGIN/../../../"
   )
 
 # Simplify plugin search path for testing in build tree, copy target
@@ -40,9 +42,21 @@ install(
 )
 
 install(
+  TARGETS dlite-plugins-python
+  LIBRARY DESTINATION lib
+)
+
+install(
   DIRECTORY python-storage-plugins
   DESTINATION share/dlite
   PATTERN "*~" EXCLUDE
-)
+  )
+
+install(
+  FILES
+    python-storage-plugins/blob.json
+  DESTINATION share/dlite/storages
+  )
+
 # tests
 add_subdirectory(tests)

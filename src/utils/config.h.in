@@ -99,6 +99,7 @@
 #define SIZEOF_VOID_P @CMAKE_SIZEOF_VOID_P@
 
 
+
 /* ================================== */
 /* Other stuff...                     */
 /* ================================== */
@@ -141,7 +142,19 @@
 #cmakedefine DSL_PREFIX @DSL_PREFIX@
 #cmakedefine DSL_EXT    @DSL_EXT@
 
-/* Thread local storage */
+
+/* Threads */
+#ifndef HAVE_THREADS  /* CMake adds  -DHAVE_THREADS if we have threads */
+#cmakedefine HAVE_THREADS
+#endif
+
+/* -- The thread library to use.  May be empty if the thread functions
+      are provided by the system libraries, requirering no special
+      flags */
+#cmakedefine CMAKE_THREAD_LIBS_INIT
+
+
+/* -- thread local storage */
 #cmakedefine HAVE_GCC_THREAD_LOCAL_STORAGE
 #cmakedefine HAVE_WIN32_THREAD_LOCAL_STORAGE
 
