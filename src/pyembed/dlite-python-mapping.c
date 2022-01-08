@@ -179,6 +179,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
     FAIL("failed to create list");
   for (i=0; i<n; i++) {
     PyObject *pyinst;
+
     if (!(pyinst = dlite_pyembed_from_instance(instances[i]->uuid))) goto fail;
     PyList_SetItem(insts, i, pyinst);
   }
@@ -210,7 +211,6 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
   Py_XDECREF(insts);
   Py_XDECREF(map);
   for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
-  if (inst) dlite_meta_decref((DLiteMeta *)inst->meta);  // @todo - correct?
   return inst;
 }
 
