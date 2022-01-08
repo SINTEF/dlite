@@ -416,6 +416,14 @@ void dlite_instance_debug(const DLiteInstance *inst);
  */
 size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims);
 
+/**
+  Returns a newly allocated NULL-terminated array of string pointers
+  with uuids available in the internal storage (istore).
+
+  Mostly intended for internal/debugging use.
+
+*/
+char** dlite_istore_get_uuids(int* nuuids);
 
 /** @} */
 /* ================================================================= */

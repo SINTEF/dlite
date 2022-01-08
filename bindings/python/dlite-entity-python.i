@@ -16,10 +16,8 @@ import numpy as np
 
 class InstanceEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, bytearray):
-            return base64.b16encode(obj).decode()
-        elif isinstance(obj, bytes):
-            return obj.decode()
+        if isinstance(obj, (bytes, bytearray)):
+            return obj.hex()
         elif isinstance(obj, np.ndarray):
             if obj.dtype.kind == 'V':
                 conv = lambda e: ([conv(ele) for ele in e]

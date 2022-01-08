@@ -3,6 +3,8 @@
 import os
 import pickle
 
+import numpy as np
+
 import dlite
 from dlite import Instance, Dimension, Property, Relation
 
@@ -38,8 +40,13 @@ assert inst.is_data
 assert not inst.is_meta
 assert not inst.is_metameta
 
+assert dlite.has_instance(inst.uuid)
+assert inst.uuid in dlite.istore_get_uuids()
+
 # Assign properties
 inst['a-blob'] = bytearray(b'0123456789abcdef')
+inst['a-blob'] = b'0123456789abcdef'
+inst['a-blob-array'] = [[b'abcd', '00112233'], [np.int32(42), b'xyz_']]
 inst['a-blob-array'] = [[b'0123', b'4567'], [b'89ab', b'cdef']]
 inst['a-bool'] = False
 inst['a-bool-array'] = True, False
@@ -58,6 +65,7 @@ inst['a-relation-array'] = [
     ('cheep', 'is_a', 'mammal'),
     dlite.Relation('cat', 'is_a', 'mammal'),
     ]
+
 
 # Print the value of all properties
 for i in range(len(inst)):

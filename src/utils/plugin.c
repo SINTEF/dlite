@@ -139,7 +139,8 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
     if ((p = map_get(&info->plugins, path))) {
       /* Plugin is already registered (but it may still provides more
          plugin APIs... */
-      plugin_incref(*p);
+      plugin = *p;
+      plugin_incref(plugin);
     } else {
       if (!(plugin = calloc(1, sizeof(Plugin)))) FAIL("allocation failure");
       if (!(plugin->path = strdup(path))) FAIL("allocation failure");
@@ -148,9 +149,9 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
 
       if (map_set(&info->plugins, plugin->path, plugin))
         fatal(1, "failed to register plugin: %s", path);
-      if (map_set(&info->pluginpaths, name, plugin->path))
-        fatal(1, "failed to map plugin name '%s' to path: %s", name, path);
     }
+    if (map_set(&info->pluginpaths, name, plugin->path))
+      fatal(1, "failed to map plugin name '%s' to path: %s", name, path);
   }
 
   if (map_set(&info->apis, name, (PluginAPI *)api))

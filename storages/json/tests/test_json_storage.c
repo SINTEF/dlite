@@ -29,7 +29,8 @@ MU_TEST(test_get_instance_from_in_memory_store)
     char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
     DLiteStorage* s = NULL;
     DLiteInstance* inst1, * inst0, *stat = NULL;
-    int r;
+    int r, i;
+    char** uuids;
     printf("\n--- test_get_instance_from_in_memory_store ---\n");
 
     // Instance cannot be in store
@@ -53,6 +54,14 @@ MU_TEST(test_get_instance_from_in_memory_store)
     inst1 = dlite_instance_get(inst0->uuid);
     mu_check(inst1);
     dlite_instance_debug(inst1);
+
+    // Show all ids in istore
+    int n;
+    uuids = dlite_istore_get_uuids(&n);
+    for (i = 0; i < n; i++) {
+        printf("%d: %s\n", i, uuids[i]);
+    }
+    mu_assert_int_eq(5, n);
 }
 
 MU_TEST(test_remove_last_instance)

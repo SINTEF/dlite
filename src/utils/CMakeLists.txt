@@ -94,6 +94,17 @@ check_struct_has_member("struct lconv"   decimal_point   locale.h
 check_struct_has_member("struct lconv"   thousands_sep   locale.h
   HAVE_LCONV_THOUSANDS_SEP)
 
+
+# -- check for threads
+if(WITH_THREADS)
+  find_package(Threads)
+  if(Threads_FOUND)
+    set(HAVE_THREADS TRUE)
+    add_definitions(-DHAVE_THREADS)
+  endif()
+endif()
+
+
 # -- additional checks...
 include(CheckCSourceCompiles)
 
@@ -303,24 +314,27 @@ set_target_properties(dlite-utils-static PROPERTIES
   )
 
 target_include_directories(dlite-utils PUBLIC
-  #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 target_include_directories(dlite-utils-static PUBLIC
-  #${CMAKE_CURRENT_BINARY_DIR}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include/dlite/utils>
   )
 
+set(link_libs)
 if(HAVE_PathFileExists OR HAVE_PathFileExistsW)
-  #target_link_libraries(dlite-utils shlwapi.lib)
-  #target_link_libraries(dlite-utils-static shlwapi.lib)
-  target_link_libraries(dlite-utils shlwapi)
-  target_link_libraries(dlite-utils-static shlwapi)
+  list(APPEND link_libs shlwapi)
 endif()
+if(Threads_FOUND)
+  add_definitions(-DHAVE_THREADS)
+  list(APPEND link_libs Threads::Threads)
+endif()
+target_link_libraries(dlite-utils ${link_libs})
+target_link_libraries(dlite-utils-static ${link_libs})
+
 
 ## create list of headers to install from ${sources}
 set(headers "")

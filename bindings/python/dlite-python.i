@@ -10,6 +10,7 @@
 #include "integers.h"
 #endif
 #include "floats.h"
+#include "strutils.h"
 #include "dlite.h"
 
 #define DLITE_INSTANCE_CAPSULE_NAME ((char *)"dlite.Instance")
@@ -196,6 +197,42 @@ void dlite_swig_capsule_free(PyObject *cap)
 }
 
 
+/* Convert Python object `src` to a sequence of bytes (blob) and write
+   the result to `dest`.  At most `n` bytes are written to `dest`.
+
+   All Python types supporting the buffer protocol as well as hex-encoded
+   strings are converted.
+
+   Returns the number of bytes that are available in `src` or -1 on error.
+ */
+int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
+{
+  int retval=-1;
+  if (PyUnicode_Check(src)) {
+    long len;
+    if (PyUnicode_READY(src))
+      FAIL("failed preparing string");
+    len = (long)PyUnicode_GET_LENGTH(src);
+    if (len != (long)n*2)
+      FAIL3("cannot convert Python string of length %d (expected length %d) "
+            "to blob%d", (int)len, (int)n*2, (int)n);
+    if (strhex_decode(dest, n, (char *)PyUnicode_1BYTE_DATA(src), len) < 0)
+      FAIL("cannot convert Python string to blob");
+    retval = len/2;
+  } else if (PyObject_CheckBuffer(src)) {
+    Py_buffer view;
+    if (PyObject_GetBuffer(src, &view, PyBUF_SIMPLE)) goto fail;
+    memcpy(dest, view.buf, n);
+    retval = view.len;
+    PyBuffer_Release(&view);
+  } else {
+    FAIL("Only Python types supporting the buffer protocol "
+         "or (hex-encoded) strings can be converted to blob");
+  }
+ fail:
+  return retval;
+}
+
 
 /**********************************************
  ** Python-specific implementations
@@ -303,14 +340,15 @@ static int dlite_swig_setitem(PyObject *obj, int ndims, int *dims,
   int i;
   if (d < ndims) {
     PyArrayObject *arr = (PyArrayObject *)obj;
-    assert(PyArray_Check(obj));
-    assert(PyArray_DIM(arr, d) == dims[d]);
+    assert(!PyArray_Check(obj) || PyArray_DIM(arr, d) == dims[d]);
     for (i=0; i<dims[d]; i++) {
+      int stat;
       PyObject *key = PyLong_FromLong(i);
       PyObject *item = PyObject_GetItem(obj, key);
-      int stat = dlite_swig_setitem(item, ndims, dims, type, size, d+1, ptr);
-      Py_DECREF(item);
       Py_DECREF(key);
+      if (!item) return dlite_err(1, "dimension %d had no index %d", d, i);
+      stat = dlite_swig_setitem(item, ndims, dims, type, size, d+1, ptr);
+      Py_DECREF(item);
       if (stat) return stat;
     }
   } else {
@@ -343,8 +381,13 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
 
   if (typecode < 0) goto fail;
   for (i=0; i<ndims; i++) n *= dims[i];
-  if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj, typecode, 0, 0)))
-    FAIL("cannot create contiguous array");
+  if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj,typecode,0,0))) {
+
+    /* Clear the error and try to convert object as-is */
+    void *p = *(void **)ptr;
+    PyErr_Clear();
+    return dlite_swig_setitem((PyObject *)obj, ndims, dims, type, size, 0, &p);
+  }
 
   /* Check dimensions */
   if (PyArray_TYPE(arr) == NPY_OBJECT || PyArray_TYPE(arr) == NPY_VOID)
@@ -378,14 +421,12 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
       for (i=0; i<n; i++, itemptr+=itemsize) {
         char **p = *((char ***)ptr);
         PyObject *s = PyArray_GETITEM(arr, itemptr);
-        assert(s);
-        if (!PyUnicode_Check(s))
-          FAIL("array elements should be strings");
-        if (PyUnicode_READY(s))
-          FAIL("failed preparing string");
         if (s == Py_None) {
           if (p[i]) free(p[i]);
         } else if (PyUnicode_Check(s)) {
+          assert(s);
+          if (PyUnicode_READY(s))
+            FAIL("failed preparing string");
           long len = (long)PyUnicode_GET_LENGTH(s);
           p[i] = realloc(p[i], len+1);
           memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
@@ -613,9 +654,19 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
   case dliteBlob:
     {
+      int n = dlite_swig_read_python_blob(obj, ptr, size);
+      if (n < 0) goto fail;
+      if (n != (int)size)
+        FAIL2("cannot read Python blob of size %d into buffer of size %d",
+              n, (int)size);
+      // xxx
+      /*
       size_t n;
       PyObject *bytes = PyObject_Bytes(obj);
-      if (!bytes) FAIL("cannot convert object to bytes");
+      if (!bytes) {
+        //xxx
+        FAIL("cannot convert object to bytes");
+      }
       assert(PyBytes_Check(bytes));
       n = PyBytes_Size(bytes);
       if (n > size) {
@@ -626,6 +677,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       memset(ptr, 0, size);
       memcpy(ptr, PyBytes_AsString(bytes), n);
       Py_DECREF(bytes);
+      */
     }
     break;
 

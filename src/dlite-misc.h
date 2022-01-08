@@ -238,6 +238,11 @@ int dlite_add_dll_path(void);
   @{
 */
 
+/*
+  Initialises dlite. This function may be called several times.
+ */
+void dlite_init(void);
+
 /**
   Globals handle.
  */
