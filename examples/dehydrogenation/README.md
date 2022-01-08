@@ -84,7 +84,7 @@ Alice and Bob have learned about ontologies and FAIR data, and realised that map
 
 Two examples are provided:
 
-* Example 1. The mappings are hard coded into the run script, which can be run directly with python.
+* Example 1. The mappings are hard-coded into the run script, which can be run directly with python.
 Note that the data are obtained from same [collection of molecules](#1-simple-workflow/atomscaledata.json) as in the two
 previous cases.
 
@@ -102,10 +102,10 @@ In this final example a situation in which two separate processes are mapped to 
 First, the mappings to the common ontology (chemistry.ttl) are first done with the scripts map_molecule.py and map_substance.py, resulting in two ontologies with the actual mappings. This step requires the python package EMMOntoPy.
 Install EMMOntoPy from github and not PyPi to obtain some needed functionality not yet in the released version.
 With this procedure, Alice and Bob can make mappings to the same ontology without reference to each other.
-As a result the chemical reaction software can utilise any database of molecules that has been mapped to the same ontology (and that contains the required properties). 
+As a result the chemical reaction software can utilise any database of molecules that has been mapped to the same ontology (and that contains the required properties).
 Alice's data are now available to anyone who knows the ontology.
 
-In the second step these mappings are read into the run script and combined into a list of triples for all relevant mappings. 
+In the second step these mappings are read into the run script and combined into a list of triples for all relevant mappings.
 Mapping between data form the external repository and Bobs desired Substance(s) is then done automatically because of the common ontology.
 
 Discussion on choice of ontology is not part of this dlite example, but Bob could also have used another ontology and match to something else and thus
@@ -115,20 +115,15 @@ also have access to other data repos mapped to other ontologies.
 
 ## Workflow 4: Ontologically described transformations
 
-OTEAPI
-
-ProMo(?)
+TODO: write up
+- use OTEAPI
+- ProMo(?)
 
 
 ![Workflow 4](figs/dehydrogenation-workflow4.png)
 
 
 ![Mappings](figs/dehydrogenation-mappings2.png)
-
-
-
-
-
 
 
 
