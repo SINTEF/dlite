@@ -24,10 +24,10 @@ inst['a-bool-array'] = True, False
 
 # Test json
 print('--- testing json')
-myentity.save('json:myentity.json')
-inst.save('json:inst.json')
+myentity.save('json://myentity.json?mode=w')
+inst.save('json://inst.json')
 del inst
-inst = dlite.Instance('json:inst.json#my-data')
+inst = dlite.Instance('json://inst.json#my-data')
 
 
 # Test yaml
@@ -37,9 +37,9 @@ except ImportError:
     pass
 else:
     print('--- testing yaml')
-    inst.save('yaml:inst.yaml?mode=w')
+    inst.save('yaml://inst.yaml?mode=w')
     del inst
-    inst = dlite.Instance('yaml:inst.yaml#my-data')
+    inst = dlite.Instance('yaml://inst.yaml#my-data')
 
 
 # Test rdf
@@ -51,4 +51,4 @@ except dlite.DLiteError:
 else:
     del inst
     # FIXME: read from inst.ttl not db.xml
-    inst = dlite.Instance('rdf:db.xml#my-data')
+    inst = dlite.Instance('rdf://db.xml#my-data')

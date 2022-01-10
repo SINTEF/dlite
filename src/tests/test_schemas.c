@@ -11,28 +11,38 @@ MU_TEST(test_write_schemas)
 
   meta = (DLiteMeta *)
     dlite_instance_get(DLITE_BASIC_METADATA_SCHEMA);
-  s = dlite_storage_open("json", "BasicMetadataSchema.json", "mode=w;meta=yes");
+  mu_check(meta);
+  s = dlite_storage_open("json", "BasicMetadataSchema.json",
+                         "mode=w;with-uuid=yes");
+  mu_check(s);
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
   s = dlite_storage_open("json", "basic_metadata_schema.json", "mode=w");
+  mu_check(s);
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
 
   meta = (DLiteMeta *)
     dlite_instance_get(DLITE_ENTITY_SCHEMA);
-  s = dlite_storage_open("json", "EntitySchema.json", "mode=w;meta=true");
+  mu_check(meta);
+  s = dlite_storage_open("json", "EntitySchema.json", "mode=w;with-uuid=true");
+  mu_check(s);
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
   s = dlite_storage_open("json", "entity_schema.json", "mode=w");
+  mu_check(s);
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
 
   meta = (DLiteMeta *)
     dlite_instance_get(DLITE_COLLECTION_ENTITY);
-  s = dlite_storage_open("json", "Collection.json", "mode=w;meta=true");
+  mu_check(meta);
+  s = dlite_storage_open("json", "Collection.json", "mode=w;with-uuid=true");
+  mu_check(s);
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
   s = dlite_storage_open("json", "collection.json", "mode=w");
+  mu_check(s);
   dlite_instance_save(s, (DLiteInstance *)meta);
   dlite_storage_close(s);
 }

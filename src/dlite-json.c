@@ -70,22 +70,32 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length);
 int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
                       int indent, DLiteJsonFlag flags)
 {
-  DLiteTypeFlag f = (DLiteTypeFlag)flags;
+  DLiteTypeFlag f = dliteFlagQuoted;
   int n=0, ok=0, m, j;
   size_t i;
   char *in = malloc(indent + 1);
   memset(in, ' ', indent);
   in[indent] = '\0';
 
+  /*
+  if ((flags & dliteJsonSingle) && (flags & dliteJsonMulti))
+    FAIL("`dliteJsonSingle` and `dliteJsonMulti` are mutually exclusive");
+  if (!(flags & (dliteJsonSingle | dliteJsonMulti)))
+    flags |= (dlite_instance_is_data(inst)) ? dliteJsonMulti : dliteJsonSingle;
+  */
+
   PRINT1("%s{\n", in);
-  if (flags & dliteJsonWithUuid)
-    PRINT2("%s  \"uuid\": \"%s\",\n", in, inst->uuid);
   if (inst->uri)
     PRINT2("%s  \"uri\": \"%s\",\n", in, inst->uri);
-  PRINT2("%s  \"meta\": \"%s\",\n", in, inst->meta->uri);
+  if (flags & dliteJsonWithUuid)
+    PRINT2("%s  \"uuid\": \"%s\",\n", in, inst->uuid);
+  if (flags & dliteJsonWithMeta ||
+      dlite_instance_is_data(inst) ||
+      dlite_instance_is_metameta(inst))
+    PRINT2("%s  \"meta\": \"%s\",\n", in, inst->meta->uri);
 
-  if ((flags & dliteJsonMetaAsData) || dlite_instance_is_data(inst)) {
-    /* Standard format */
+  if (dlite_instance_is_data(inst)) {
+    /* data */
     PRINT1("%s  \"dimensions\": {\n", in);
     for (i=0; i < inst->meta->_ndimensions; i++) {
       char *name = inst->meta->_dimensions[i].name;
@@ -110,13 +120,28 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     PRINT1("%s  }\n", in);
 
   } else {
-    /* Special format for entities */
-    void *ptr;
+    /* metadata */
     DLiteMeta *met = (DLiteMeta *)inst;
-    if ((ptr = dlite_instance_get_property(inst, "description")))
-      PRINT2("%s  \"description\": \"%s\",\n", in, *(char **)ptr);
+    char *description =
+      *((char **)dlite_instance_get_property(inst, "description"));
+    if (description)
+      PRINT2("%s  \"description\": \"%s\",\n", in, description);
 
     PRINT1("%s  \"dimensions\": [\n", in);
+
+    //printf("\n");
+    //printf("*** flags: %x\n", flags);
+    //printf("*** inst: %s\n", inst->uri);
+    //printf("*** meta: %s\n", inst->meta->uri);
+    //printf("*** metameta: %s\n", inst->meta->meta->uri);
+    //printf("*** inst->_ndimensions: %d\n", (int)met->_ndimensions);
+    //printf("*** meta->_ndimensions: %d\n", (int)inst->meta->_ndimensions);
+    //printf("*** metameta->_ndimensions: %d\n", (int)inst->meta->meta->_ndimensions);
+    //printf("*** inst->_nproperties: %d\n", (int)met->_nproperties);
+    //printf("*** meta->_nproperties: %d\n", (int)inst->meta->_nproperties);
+    //printf("*** metameta->_nproperties: %d\n", (int)inst->meta->meta->_nproperties);
+
+
     for (i=0; i < met->_ndimensions; i++) {
       char *c = (i < met->_ndimensions - 1) ? "," : "";
       DLiteDimension *d = met->_dimensions + i;
@@ -145,9 +170,9 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         }
         PRINT("]");
       }
-      if (p->unit)
+      if (p->unit && *p->unit)
         PRINT2(",\n%s      \"unit\": \"%s\"", in, p->unit);
-      if (p->description)
+      if (p->description && *p->description)
         PRINT2(",\n%s      \"description\": \"%s\"", in, p->description);
       PRINT2("\n%s    }%s\n", in, c);
     }
@@ -236,6 +261,34 @@ int dlite_json_print(const DLiteInstance *inst)
   return dlite_json_fprint(stdout, inst, 0, 0);
 }
 
+/*
+  Like dlite_json_sprint(), but prints the output to file `filename`.
+
+  Returns number or bytes printed or a negative number on error.
+ */
+int dlite_json_printfile(const char *filename, const DLiteInstance *inst,
+                         DLiteJsonFlag flags)
+{
+  FILE *fp;
+  int m;
+  if (!(fp = fopen(filename, "wt")))
+    return err(1, "cannot write json to \"%s\"", filename);
+  if (dlite_instance_is_data(inst) && (flags & dliteJsonSingle) && !inst->uri)
+    flags |= dliteJsonWithUuid;
+  if (flags & dliteJsonSingle) {
+    m = dlite_json_fprint(fp, inst, 0, flags);
+  } else {
+    fprintf(fp, "{\n");
+    if (flags & dliteJsonUriKey && inst->uri)
+      fprintf(fp, "  \"%s\":", inst->uri);
+    else
+      fprintf(fp, "  \"%s\":", inst->uuid);
+    m = dlite_json_fprint(fp, inst, 2, flags);
+    fprintf(fp, "}\n");
+  }
+  fclose(fp);
+  return m;
+}
 
 /*
   Appends json representation of `inst` to json string pointed to by `*s`.
@@ -373,6 +426,10 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
   assert(obj->type == JSMN_OBJECT);
 
+  /* If instance already exists, return it immediately */
+  if (dlite_instance_has(id, 0))
+      return dlite_instance_get(id);
+
   /* Get uri and uuid */
   uri = get_uri(src, obj);
   if (!uri && (item = jsmn_item(src, obj, "uuid"))) {
@@ -429,7 +486,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
             FAIL1("expected dimension description, got: %.6s...",
                   src + t->start);
           if (d->name[0] != 'n')
-            FAIL1("metadata dimension names should start with \"n\": %s",
+            FAIL1("meta-metadata dimension names should start with \"n\": %s",
                   d->name);
           if (!(tt = jsmn_item(src, obj, d->name+1)))
             FAIL1("no metadata array named %s", d->name+1);
@@ -752,6 +809,68 @@ DLiteInstance *dlite_json_scanfile(const char *filename, const char *id,
   if (fp) fclose(fp);
   if (buf) free(buf);
   return inst;
+}
+
+
+/* ================================================================
+ * Checking
+ * ================================================================ */
+
+/*
+  Check format of `src` and return it.  If `flags` is not NULL,
+  it will be assigned.
+
+  Returns -1 on error.
+ */
+DLiteJsonFormat dlite_json_scheck(const char *src, DLiteJsonFlag *flags)
+{
+  DLiteJsonFormat retval=-1, fmt;
+  DLiteJsonFlag flg=0:
+  jsmntok_t *tokens=NULL, *root, *item, *props, *prop, *t;
+  jsmn_parser parser;
+  size_t srclen = strlen(src);
+
+  jsmn_init(&parser);
+  r = jsmn_parse_alloc(&parser, src, srclen, &tokens, &ntokens);
+  if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
+  root = tokens;
+  if (root->type != JSMN_OBJECT) FAIL("json root should be an object");
+
+  if (jsmn_item(src, root, "properties")) {
+    item = root;
+    flg |= dliteJsonSingle;
+  } else if (root->size) {
+    item = root + 2;
+    t = root + 1;
+    if (dlite_get_uuidn(src + t->start, t->end - t->start))
+      flg |= dliteJsonUriKey;
+  } else {
+    return dliteJsonDataFormat;  /* empty root object */
+  }
+
+  if (!(props = jsmn_item(src, item, "properties")))
+    FAIL("missing key properties");
+  if (props->type == JSMN_ARRAY) {
+    fmt = dliteJsonMetaFormat;
+    flg |= dliteJsonArray;
+  } else if (props->type == JSMN_OBJECT) {
+    prop = props + 1;
+    if (prop != JSMN_OBJECT) FAIL("property must be an object");
+    fmt = (jsmn_item(src, item, "type")) ?
+      dliteJsonMetaFormat : dliteJsonDataFormat;
+  } else {
+    FAIL("properties must be an array or object");
+  }
+
+  if (jsmn_item(src, item, "uuid"))
+    flg |= dliteJsonWithUuid;
+  if (jsmn_item(src, item, "meta"))
+    flg |= dliteJsonWithMeta;
+
+  if (flags) *flags = flg;
+  retval = fmt
+ fail:
+  return retval;
 }
 
 

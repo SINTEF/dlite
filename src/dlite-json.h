@@ -12,22 +12,23 @@
 #include "utils/jsmnx.h"
 
 
-/** Flags for serialisation */
+/** Flags for controlling serialisation */
 typedef enum {
-  dliteJsonWithUuid=1,         /*!< include uuid in output */
-  dliteJsonMetaAsData=2,       /*!< write metadata as data */
-
-  // xxx
-  dliteJsonMetaAsArray=4,      /*!< write metadata properties and dimension as
-                                    json arrays (old format) */
-  dliteJsonRelationAsObject=8, /*!< write relations as json objects (old fmt) */
-  dliteJsonRelationWithId=16   /*!< also write relation id  */
+  dliteJsonSingle=1,    /*!< single-entity format */
+  //dliteJsonMulti=2,     /*!< multi-entity format (cannot be combined)
+  //                           with dliteJsonSingle) */
+  dliteJsonUriKey=4,    /*!< Use uri (if it exists) as json key in multi-
+                             entity format. */
+  dliteJsonWithUuid=8,  /*!< include uuid in output */
+  dliteJsonWithMeta=16, /*!< always include "meta" (even for metadata) */
+  dliteJsonArrays=32,   /*!< write metadata dimension and properties as
+                             json arrays (old format) */
 } DLiteJsonFlag;
 
 /** JSON formats */
 typedef enum {
-  dliteJsonDataFormat,    /*!< Data format - single item */
-  dliteJsonMetaFormat     /*!< Metadata format - multiple items */
+  dliteJsonDataFormat,    /*!< Data format - multiple items */
+  dliteJsonMetaFormat     /*!< Metadata format - single item */
 } DLiteJsonFormat;
 
 
@@ -83,6 +84,14 @@ int dlite_json_fprint(FILE *fp, const DLiteInstance *inst, int indent,
   Returns number or bytes printed or a negative number on error.
 */
 int dlite_json_print(const DLiteInstance *inst);
+
+/**
+  Like dlite_json_sprint(), but prints the output to file `filename`.
+
+  Returns number or bytes printed or a negative number on error.
+ */
+int dlite_json_printfile(const char *filename, const DLiteInstance *inst,
+                         DLiteJsonFlag flags);
 
 /**
   Appends json representation of `inst` to json string pointed to by `*s`.

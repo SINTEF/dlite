@@ -287,10 +287,10 @@ static struct _EntitySchema {
   0,                                          /* _headersize */
   NULL,                                       /* _init */
   NULL,                                       /* _deinit */
-  NULL,                                          /* _getdim */
-  NULL,                                          /* _setdim */
-  NULL,                                          /* _loadprop */
-  NULL,                                          /* _saveprop */
+  NULL,                                       /* _getdim */
+  NULL,                                       /* _setdim */
+  NULL,                                       /* _loadprop */
+  NULL,                                       /* _saveprop */
 
   0,                                          /* _npropdims */
   NULL,                                       /* _propdiminds */
@@ -307,7 +307,7 @@ static struct _EntitySchema {
   /* -- value of each property */
   "EntitySchema",                             /* name */
   "0.3",                                      /* version */
-  "http://onto-ns.com/meta",                    /* namespace */
+  "http://onto-ns.com/meta",                  /* namespace */
   "Meta-metadata description an entity.",     /* description */
   entity_schema_dimensions,                   /* dimensions */
   entity_schema_properties,                   /* properties */

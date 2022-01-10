@@ -86,7 +86,6 @@ dim = Dimension('N')
 
 prop = Property("a", type='float')
 
-# FIXME - property dimensions should be strings!
 prop2 = Property("b", type='string10', dims=['I', 'J', 'K'],
                  description='something enlightening...')
 assert any(prop2.dims)
@@ -125,6 +124,14 @@ except ImportError:
 else:
     inst.save('yaml://yyy.yaml')
 
-#del inst
+del inst
 del e2
 del e3
+
+
+# Metadata schema
+schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
+schema.save('entity_schema.json')
+
+inst = dlite.Instance('json://entity_schema.json')
+assert inst.uri == dlite.ENTITY_SCHEMA
