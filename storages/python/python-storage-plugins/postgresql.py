@@ -8,6 +8,7 @@ from psycopg2 import sql
 
 import dlite
 from dlite.options import Options
+from dlite.utils import instance_from_dict
 
 
 # Translation table from dlite types to postgresql types
@@ -19,6 +20,8 @@ pgtypes = {
     'int16': 'smallint',
     'int32': 'integer',
     'int64': 'bigint',
+    'uint16': 'integer',
+    'uint32': 'bigint',
     'float': 'real',
     'double': 'float8',
     'float32': 'real',
@@ -112,6 +115,12 @@ class postgresql(DLiteStorageBase):
 
         for i, p in enumerate(inst.meta['properties']):
             inst.set_property(p.name, values[i])
+        
+        # The uuid will be wrong for data instances, so override it
+        if not inst.is_metameta:
+            d = inst.asdict()
+            d['uuid'] = uuid
+            inst = instance_from_dict(d)
         return inst
 
     def save(self, inst):
