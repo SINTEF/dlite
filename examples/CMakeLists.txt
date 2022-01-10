@@ -79,8 +79,6 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     test_example(ex4)
   endif()
   #test_example(ex5d)
-  if(WITH_PYTHON)
-  endif()
 
   # Run python examples
   foreach(name ${python_examples})
