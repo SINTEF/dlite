@@ -825,7 +825,7 @@ DLiteInstance *dlite_json_scanfile(const char *filename, const char *id,
 DLiteJsonFormat dlite_json_scheck(const char *src, DLiteJsonFlag *flags)
 {
   DLiteJsonFormat retval=-1, fmt;
-  DLiteJsonFlag flg=0:
+  DLiteJsonFlag flg=0;
   jsmntok_t *tokens=NULL, *root, *item, *props, *prop, *t;
   jsmn_parser parser;
   size_t srclen = strlen(src);
@@ -990,6 +990,19 @@ const char *dlite_json_next(DLiteJsonIter *iter, int *length)
  * JSON store
  * ================================================================ */
 
+// FIXME - replace with improved function above!!!
+/* Returns 1 if src is metadata-formatted, 0 if not and -1 on errors. */
+int is_metadata(const char *src, jsmntok_t *tokens)
+{
+  jsmntok_t *props;
+  if (!(props = jsmn_item(src, tokens, "properties"))) return -1;
+  if (props.type == JSMN_ARRAY) return 1;
+  if (props.type != JSMN_OBJECT) return -1;
+  if (jsmn_item(src, props, "type")) return 1;
+  return 0;
+}
+
+
 /* Iterater struct */
 struct _DLiteJStoreIter {
   JStoreIter jiter;                    /*!< jstore iterater */
@@ -1021,7 +1034,7 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   if (tokens->type != JSMN_OBJECT)
     FAIL2("root of json data must be an object: \"%.30s%s\"", src, dots);
 
-  if (jsmn_item(src, tokens, "properties")) {
+  if (is_metadata(src, tokens)) {
     /* metadata format */
     if (!(uri = get_uri(src, tokens)))
       FAIL2("missing uri in metadata-formatted json data: \"%.30s%s\"",
