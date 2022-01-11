@@ -15,20 +15,18 @@
 /** Flags for controlling serialisation */
 typedef enum {
   dliteJsonSingle=1,    /*!< single-entity format */
-  //dliteJsonMulti=2,     /*!< multi-entity format (cannot be combined)
-  //                           with dliteJsonSingle) */
-  dliteJsonUriKey=4,    /*!< Use uri (if it exists) as json key in multi-
+  dliteJsonUriKey=2,    /*!< Use uri (if it exists) as json key in multi-
                              entity format. */
-  dliteJsonWithUuid=8,  /*!< include uuid in output */
-  dliteJsonWithMeta=16, /*!< always include "meta" (even for metadata) */
-  dliteJsonArrays=32,   /*!< write metadata dimension and properties as
+  dliteJsonWithUuid=4,  /*!< include uuid in output */
+  dliteJsonWithMeta=8,  /*!< always include "meta" (even for metadata) */
+  dliteJsonArrays=16,   /*!< write metadata dimension and properties as
                              json arrays (old format) */
 } DLiteJsonFlag;
 
-/** JSON formats */
+/** Enum indicating whether a JSON string is formatted as data and metadata. */
 typedef enum {
-  dliteJsonDataFormat,    /*!< Data format - multiple items */
-  dliteJsonMetaFormat     /*!< Metadata format - single item */
+  dliteJsonDataFormat,    /*!< Data format */
+  dliteJsonMetaFormat     /*!< Metadata format */
 } DLiteJsonFormat;
 
 
@@ -108,6 +106,7 @@ int dlite_json_append(char **s, size_t *size, const DLiteInstance *inst,
                       DLiteJsonFlag flags);
 
 
+
 /** @} */
 /**
  * @name Deserialisation
@@ -146,6 +145,57 @@ DLiteInstance *dlite_json_fscan(FILE *fp, const char *id, const char *metaid);
 DLiteInstance *dlite_json_scanfile(const char *filename, const char *id,
                                    const char *metaid);
 
+
+
+/** @} */
+/**
+ * @name Checking
+ */
+/** @{ */
+
+/**
+  Check format of a parsed JSON string.
+
+  `src` is the JSON string to check.
+
+  `tokens` should be a parsed set of JSMN tokens corresponding to `src`.
+
+  If `id` is not NULL, it is used to select what instance in a
+  multi-entity formatted JSON string that will be used to assign
+  flags.  If NULL, the first instance will be used.
+
+  If `flags` is not NULL, the formatting (of the first entry in case
+  of multi-entity format) will be investigated and `flags` set
+  accordingly.
+
+  Return the format of `src` or -1 on error.
+ */
+DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
+                                 const char *id, DLiteJsonFlag *flags);
+
+/**
+  Like dlite_json_check(), but checks string `src` with length `len`.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_scheck(const char *src, size_t len,
+                                  const char *id, DLiteJsonFlag *flags);
+
+/**
+  Like dlite_json_scheck(), but checks the content of stream `fp` instead.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_fcheck(FILE *fp, const char *id,
+                                  DLiteJsonFlag *flags);
+
+/**
+  Like dlite_json_scheck(), but checks the file `filename` instead.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_checkfile(const char *filename,
+                                     const char *id, DLiteJsonFlag *flags);
 
 
 

@@ -817,47 +817,67 @@ DLiteInstance *dlite_json_scanfile(const char *filename, const char *id,
  * ================================================================ */
 
 /*
-  Check format of `src` and return it.  If `flags` is not NULL,
-  it will be assigned.
+  Check format of a parsed JSON string.
 
-  Returns -1 on error.
+  `src` is the JSON string to check.
+
+  `tokens` should be a parsed set of JSMN tokens corresponding to `src`.
+
+  If `id` is not NULL, it is used to select what instance in a
+  multi-entity formatted JSON string that will be used to assign
+  flags.  If NULL, the first instance will be used.
+
+  If `flags` is not NULL, the formatting (of the first entry in case
+  of multi-entity format) will be investigated and `flags` set
+  accordingly.
+
+  Return the format of `src` or -1 on error.
  */
-DLiteJsonFormat dlite_json_scheck(const char *src, DLiteJsonFlag *flags)
+DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
+                                 const char *id, DLiteJsonFlag *flags)
 {
   DLiteJsonFormat retval=-1, fmt;
   DLiteJsonFlag flg=0;
-  jsmntok_t *tokens=NULL, *root, *item, *props, *prop, *t;
-  jsmn_parser parser;
-  size_t srclen = strlen(src);
+  const jsmntok_t *root, *key, *item, *props, *prop;
+  char uuid[DLITE_UUID_LENGTH+1];
 
-  jsmn_init(&parser);
-  r = jsmn_parse_alloc(&parser, src, srclen, &tokens, &ntokens);
-  if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
   root = tokens;
   if (root->type != JSMN_OBJECT) FAIL("json root should be an object");
 
-  if (jsmn_item(src, root, "properties")) {
+  if (id && *id) {
+    if (!(item = jsmn_item(src, root, id)))
+      FAIL1("no such id in json source: \"%s\"", id);
+  } else if (jsmn_item(src, root, "properties")) {
     item = root;
     flg |= dliteJsonSingle;
   } else if (root->size) {
     item = root + 2;
-    t = root + 1;
-    if (dlite_get_uuidn(src + t->start, t->end - t->start))
-      flg |= dliteJsonUriKey;
   } else {
     return dliteJsonDataFormat;  /* empty root object */
+  }
+
+  if (!(flg & dliteJsonSingle)) {
+    int ver;
+    key = item - 1;
+    if ((ver = dlite_get_uuidn(uuid, src + key->start,
+                               key->end - key->start)) < 0)
+      FAIL2("cannot calculate uuid for key: \"%.*s\"",
+            key->end - key->start, src + key->start);
+    if (ver > 0) flg |= dliteJsonUriKey;
   }
 
   if (!(props = jsmn_item(src, item, "properties")))
     FAIL("missing key properties");
   if (props->type == JSMN_ARRAY) {
     fmt = dliteJsonMetaFormat;
-    flg |= dliteJsonArray;
+    flg |= dliteJsonArrays;
   } else if (props->type == JSMN_OBJECT) {
     prop = props + 1;
-    if (prop != JSMN_OBJECT) FAIL("property must be an object");
-    fmt = (jsmn_item(src, item, "type")) ?
-      dliteJsonMetaFormat : dliteJsonDataFormat;
+    if (prop->type == JSMN_OBJECT)
+      fmt = (jsmn_item(src, item, "type")) ?
+        dliteJsonMetaFormat : dliteJsonDataFormat;
+    else
+      fmt = dliteJsonDataFormat;
   } else {
     FAIL("properties must be an array or object");
   }
@@ -868,10 +888,74 @@ DLiteJsonFormat dlite_json_scheck(const char *src, DLiteJsonFlag *flags)
     flg |= dliteJsonWithMeta;
 
   if (flags) *flags = flg;
-  retval = fmt
+  retval = fmt;
  fail:
   return retval;
 }
+
+
+/*
+  Like dlite_json_check(), but checks string `src` with length `len`.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_scheck(const char *src, size_t len,
+                                  const char *id, DLiteJsonFlag *flags)
+{
+  DLiteJsonFormat format=-1;
+  jsmn_parser parser;
+  jsmntok_t *tokens=NULL;
+  unsigned int ntokens=0;
+  int r;
+
+  jsmn_init(&parser);
+  r = jsmn_parse_alloc(&parser, src, len, &tokens, &ntokens);
+  if (r < 0) FAIL1("error parsing json: %s", jsmn_strerror(r));
+
+  format = dlite_json_check(src, tokens, id, flags);
+ fail:
+  if (tokens) free(tokens);
+  return format;
+}
+
+
+/*
+  Like dlite_json_scheck(), but checks the content of stream `fp` instead.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_fcheck(FILE *fp, const char *id,
+                                  DLiteJsonFlag *flags)
+{
+  DLiteJsonFormat fmt;
+  char *buf;
+  if (!(buf = fu_readfile(fp))) return -1;
+  fmt = dlite_json_scheck(buf, strlen(buf), id, flags);
+  free(buf);
+  return fmt;
+}
+
+
+/*
+  Like dlite_json_scheck(), but checks the file `filename` instead.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_checkfile(const char *filename,
+                                     const char *id, DLiteJsonFlag *flags)
+{
+  DLiteJsonFormat fmt=-1;
+  FILE *fp=NULL;
+  if (!(fp = fopen(filename, "r")))
+    FAIL1("cannot open file \"%s\"", filename);
+  if ((fmt = dlite_json_fcheck(fp, id, flags)) < 0)
+    FAIL1("error checking json format of file \"%s\"", filename);
+ fail:
+  if (fp) fclose(fp);
+  return fmt;
+}
+
+
 
 
 /* ================================================================
@@ -990,19 +1074,6 @@ const char *dlite_json_next(DLiteJsonIter *iter, int *length)
  * JSON store
  * ================================================================ */
 
-// FIXME - replace with improved function above!!!
-/* Returns 1 if src is metadata-formatted, 0 if not and -1 on errors. */
-int is_metadata(const char *src, jsmntok_t *tokens)
-{
-  jsmntok_t *props;
-  if (!(props = jsmn_item(src, tokens, "properties"))) return -1;
-  if (props.type == JSMN_ARRAY) return 1;
-  if (props.type != JSMN_OBJECT) return -1;
-  if (jsmn_item(src, props, "type")) return 1;
-  return 0;
-}
-
-
 /* Iterater struct */
 struct _DLiteJStoreIter {
   JStoreIter jiter;                    /*!< jstore iterater */
@@ -1025,8 +1096,10 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   unsigned int ntokens=0;
   char uuid[DLITE_UUID_LENGTH+1], *uri=NULL;
   int r;
-  DLiteJsonFormat retval=-1;
+  DLiteJsonFormat format=-1;
+  DLiteJsonFlag flags;
   char *dots = (len > 30) ? "..." : "";
+
   jsmn_init(&parser);
   if ((r = jsmn_parse_alloc(&parser, src, len, &tokens, &ntokens)) < 0)
     FAIL3("error parsing json string: \"%.30s%s\": %s",
@@ -1034,41 +1107,54 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   if (tokens->type != JSMN_OBJECT)
     FAIL2("root of json data must be an object: \"%.30s%s\"", src, dots);
 
-  if (is_metadata(src, tokens)) {
-    /* metadata format */
+  if ((format = dlite_json_check(src, tokens, NULL, &flags)) < 0) goto fail;
+
+  fprintf(stderr, "*** format=%d, flags=%d, src=\n%.*s\n---\n",
+          format, flags, len, src);
+
+  switch(format) {
+
+  case dliteJsonMetaFormat:
     if (!(uri = get_uri(src, tokens)))
       FAIL2("missing uri in metadata-formatted json data: \"%.30s%s\"",
             src, dots);
     if (dlite_get_uuid(uuid, uri) < 0) goto fail;
     jstore_addn(js, uuid, DLITE_UUID_LENGTH, src, len);
-    retval = dliteJsonMetaFormat;
-  } else {
-    /* data format */
-    jsmntok_t *t = tokens + 1;
-    int i;
-    for (i=0; i < tokens->size; i++) {
-      jsmntok_t *v = t + 1;
+    format = dliteJsonMetaFormat;
+    break;
 
-      /* if `id` is not an uuid, add it as a label associated with uuid to the
-         jstore */
-      const char *id = src + t->start;
-      int len = t->end - t->start;
-      int uuidver = dlite_get_uuidn(uuid, id, len);
-      if (uuidver < 0)
-        goto fail;
-      else if (uuidver > 0)
-        jstore_set_labeln(js, uuid, id, len);
+  case dliteJsonDataFormat:
+    {
+      jsmntok_t *t = tokens + 1;
+      int i;
+      for (i=0; i < tokens->size; i++) {
+        jsmntok_t *v = t + 1;
 
-      if (jstore_addn(js, uuid, DLITE_UUID_LENGTH,
-                      src + v->start, v->end - v->start)) goto fail;
-      t += jsmn_count(v) + 2;
+        /* if `id` is not an uuid, add it as a label associated with
+           uuid to the jstore */
+        const char *id = src + t->start;
+        int len = t->end - t->start;
+        int uuidver = dlite_get_uuidn(uuid, id, len);
+        if (uuidver < 0)
+          goto fail;
+        else if (uuidver > 0)
+          jstore_set_labeln(js, uuid, id, len);
+
+        if (jstore_addn(js, uuid, DLITE_UUID_LENGTH,
+                        src + v->start, v->end - v->start)) goto fail;
+        t += jsmn_count(v) + 2;
+      }
+      format = dliteJsonDataFormat;
+      break;
     }
-    retval = dliteJsonDataFormat;
+  default:
+    abort();  /* should never be reached */
   }
+
  fail:
   if (tokens) free(tokens);
   if (uri) free(uri);
-  return retval;
+  return format;
 }
 
 /*

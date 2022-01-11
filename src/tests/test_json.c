@@ -9,6 +9,8 @@
 
 #include "minunit/minunit.h"
 
+#define THISDIR STRINGIFY(dlite_SOURCE_DIR) "/src/tests/"
+#define PREFIX  "json://" THISDIR
 
 DLiteInstance *inst=NULL;
 DLiteMeta *meta=NULL;
@@ -17,12 +19,11 @@ DLiteMeta *meta=NULL;
 MU_TEST(test_load)
 {
   char *url;
-  url="json://"STRINGIFY(dlite_SOURCE_DIR)"/src/tests/test-entity.json?mode=r";
+  url = PREFIX "test-entity.json?mode=r";
   meta = dlite_meta_load_url(url);
   mu_check(meta);
 
-  url="json://" STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-data.json?mode=r"
-    "#e076a856-e36e-5335-967e-2f2fd153c17d";
+  url = PREFIX "test-data.json?mode=r#e076a856-e36e-5335-967e-2f2fd153c17d";
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 }
@@ -95,16 +96,20 @@ MU_TEST(test_decref)
 }
 
 
-MU_TEST(test_sscan)
+MU_TEST(test_scan)
 {
   DLiteInstance *inst;
-  char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-read-data.json";
+  char *path = THISDIR "test-read-data.json";
   FILE *fp = fopen(path, "r");
   int stat;
   mu_check(fp);
   stat = dlite_storage_paths_append(path);
   mu_check(stat > 0);
+  fprintf(stderr,
+          "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
   inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b", NULL);
+  fprintf(stderr,
+          "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
   fclose(fp);
   mu_check(inst);
 
@@ -116,6 +121,67 @@ MU_TEST(test_sscan)
 }
 
 
+MU_TEST(test_check)
+{
+  DLiteJsonFormat fmt;
+  DLiteJsonFlag flags;
+
+  fmt = dlite_json_checkfile(THISDIR "alloys.json", NULL, &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonWithMeta, flags);
+
+  fmt = dlite_json_checkfile(THISDIR "coll.json", NULL, &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonWithMeta, flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-data.json", NULL, &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonWithMeta, flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-entity.json", NULL, &flags);
+  mu_assert_int_eq(dliteJsonMetaFormat, fmt);
+  mu_assert_int_eq(dliteJsonSingle | dliteJsonWithMeta | dliteJsonArrays,
+                   flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-read-data.json", NULL, &flags);
+  mu_assert_int_eq(dliteJsonMetaFormat, fmt);
+  mu_assert_int_eq(dliteJsonWithMeta | dliteJsonArrays, flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
+                             "0a75c038-1ea1-5916-bbd4-6d0298894f4c", &flags);
+  mu_assert_int_eq(dliteJsonMetaFormat, fmt);
+  mu_assert_int_eq(dliteJsonWithMeta | dliteJsonArrays, flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
+                             "dlite/1/test-c", &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta, flags);
+
+
+  fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
+                             "dlite/empty", &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta | dliteJsonArrays,
+                   flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
+                             "dbd9d597-16b4-58f5-b10f-7e49cf85084b", &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta,
+                   flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
+                             "2f4ae7b7-247a-5cc2-b6c5-5ac0ccd8cc5c", &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta,
+                   flags);
+
+  fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
+                             "invalid", &flags);
+  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta,
+                   flags);
+}
 
 
 /***********************************************************************/
@@ -126,7 +192,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_sprint);
   MU_RUN_TEST(test_append);
   MU_RUN_TEST(test_decref);
-  MU_RUN_TEST(test_sscan);
+  MU_RUN_TEST(test_scan);
+  MU_RUN_TEST(test_check);
 }
 
 
