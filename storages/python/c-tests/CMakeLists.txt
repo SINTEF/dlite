@@ -68,7 +68,7 @@ add_custom_target(
   copy-dlite-plugins-python
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:dlite-plugins-python>
-    ${dlite_BINARY_DIR}/storages/python/tests
+    ${dlite_BINARY_DIR}/storages/python/c-tests
   )
 
 # Copy metadata def. to working directory

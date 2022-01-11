@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 import uuid
+from pathlib import Path
 
 import psycopg2
 from psycopg2 import sql
@@ -13,16 +14,16 @@ import dlite
 from dlite.utils import instance_from_dict
 from run_python_tests import print_test_exception
 
+
 if __name__ in ('__main__', '<run_path>'):
     print('Running Python test <postgresql_test>...')
-    cwd = str(os.getcwd()).replace('\\', '/')
-    input_path = cwd + '/input/'
-    dlite_path = cwd[:cwd.rfind('storages')]
-    plugin_path = dlite_path + 'storages/python/python-storage-plugins/'
-    plugin = plugin_path + 'postgresql.py'
+    thisdir = Path(__file__).absolute().parent
+    input_path = thisdir / 'input'
+    dlite_path = thisdir.parent.parent.parent
+    plugin = thisdir.parent / 'python-storage-plugins/postgresql.py'
     
     # Copy the plugin to a temporary file with a unique name
-    plugin_copy = 'postgresql_' + str(uuid.uuid4()).replace('-', '_')
+    plugin_copy = 'postgresql_' + str(uuid.uuid4()).replace('-', '_') + '.py'
     with open(plugin, 'r') as orig:
         lines = orig.read().splitlines(keepends=True)
         # Alter the plugin methods open(), load(), save() and close(),
@@ -70,20 +71,21 @@ if __name__ in ('__main__', '<run_path>'):
         s = 'from postgresql_test import open_pgsql, load_pgsql, ' \
             + 'extract_exec_args\n' + str().join(lines)
         s = s.replace('DLiteStorageBase', 'object')
-        with open(cwd + '/' + plugin_copy + '.py', 'w') as cpy:
+        with open(thisdir / plugin_copy, 'w') as cpy:
             cpy.write(s)
     
     try:
-        exec('from ' + plugin_copy + ' import postgresql as dlite_postgresql')
+        exec('from ' + plugin_copy[:-3] + \
+             ' import postgresql as dlite_postgresql')
         
         # Load JSON metadata
-        with open(dlite_path + '/src/tests/test-entity.json', 'r') as f:
+        with open(dlite_path / 'src/tests/test-entity.json', 'r') as f:
             json_dict1 = json.load(f)
         json_dict1 = instance_from_dict(json_dict1).asdict()
         
         # Test loading PostgreSQL metadata
         postgresql_inst1 = dlite_postgresql()
-        postgresql_inst1.open(input_path + 'test_meta.pgsql')
+        postgresql_inst1.open(input_path / 'test_meta.pgsql')
         inst = postgresql_inst1.load('2b10c236-eb00-541a-901c-046c202e52fa')
         postgresql_dict = inst.asdict()
         if postgresql_dict == json_dict1:
@@ -92,7 +94,7 @@ if __name__ in ('__main__', '<run_path>'):
             raise ValueError('...Loading metadata failed!')
         
         # Test saving PostgreSQL metadata
-        with open(input_path + 'postgresql_test_meta_save.txt', 'r') as f:
+        with open(input_path / 'postgresql_test_meta_save.txt', 'r') as f:
             sql_dict = ast.literal_eval(f.read())
         info = postgresql_inst1.save(inst)
         if info == sql_dict:
@@ -101,7 +103,7 @@ if __name__ in ('__main__', '<run_path>'):
             raise ValueError('...Saving metadata failed!')
         
         # Load JSON data
-        with open(dlite_path + '/src/tests/test-data.json', 'r') as f:
+        with open(dlite_path / 'src/tests/test-data.json', 'r') as f:
             json_data = f.readlines()
         n = json_data.index('  "e076a856-e36e-5335-967e-2f2fd153c17d": {\n')
         json_dict1 = json.loads('{' + ''.join(json_data[2:(n - 1)]) + '}')
@@ -113,7 +115,7 @@ if __name__ in ('__main__', '<run_path>'):
         
         # Test loading PostgreSQL data
         postgresql_inst2 = dlite_postgresql()
-        postgresql_inst2.open(input_path + 'test_data.pgsql')
+        postgresql_inst2.open(input_path / 'test_data.pgsql')
         inst1 = postgresql_inst2.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
         postgresql_dict1 = inst1.asdict()
         inst2 = postgresql_inst2.load('e076a856-e36e-5335-967e-2f2fd153c17d')
@@ -124,7 +126,7 @@ if __name__ in ('__main__', '<run_path>'):
             raise ValueError('...Loading data failed!')
         
         # Test saving PostgreSQL data
-        with open(input_path + 'postgresql_test_data_save.txt', 'r') as f:
+        with open(input_path / 'postgresql_test_data_save.txt', 'r') as f:
             data = f.read()
             n = data.find('"}')
             sql_dict1 = ast.literal_eval(data[:(n + 2)])
@@ -141,10 +143,10 @@ if __name__ in ('__main__', '<run_path>'):
         print_test_exception(err)
     finally:
         # Cleanup
-        if os.path.exists(cwd + '/' + plugin_copy + '.py'):
-            os.remove(cwd + '/' + plugin_copy + '.py')
-        if os.path.isdir(cwd + '/__pycache__'):
-            shutil.rmtree(cwd + '/__pycache__')
+        if os.path.exists(thisdir / plugin_copy):
+            os.remove(thisdir / plugin_copy)
+        if os.path.isdir(thisdir / '__pycache__'):
+            shutil.rmtree(thisdir / '__pycache__')
 else:
     def open_pgsql(uri):
         with open(uri, "r") as f:
@@ -259,9 +261,10 @@ else:
         return d
     
     def extract_exec_args(d, arg0, arg1):
-        # Expected types:
-        #     d = dict,
-        #     arg0 = psycopg2.sql.SQL,
-        #     arg1 = list
+        """Expected types:
+          d: dict,
+          arg0: psycopg2.sql.SQL,
+          arg1: list.
+        """
         d['arg' + str(len(d))] = str(arg0)
         return d
