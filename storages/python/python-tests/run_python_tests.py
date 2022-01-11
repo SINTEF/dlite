@@ -23,7 +23,7 @@ if __name__ == '__main__':
         ]
     path = str(os.getcwd()).replace('\\', '/') + '/'
     for t in tests:
-        print(''.center(screen_width, '-')) 
+        print(''.center(screen_width, '-'))
         try:
             runpy.run_path(path + t)
         except Exception as err:

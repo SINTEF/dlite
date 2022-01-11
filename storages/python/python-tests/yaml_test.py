@@ -1,8 +1,6 @@
 """Script to test the DLite plugin 'yaml.py' in Python."""
 import os
 import shutil
-import sys
-import uuid
 from pathlib import Path
 
 from run_python_tests import print_test_exception
@@ -13,17 +11,11 @@ thisdir = Path(__file__).absolute().parent
 input_path = thisdir / 'input'
 plugin = thisdir.parent / 'python-storage-plugins/yaml.py'
 
-# To avoid potential module name conflicts with other YAML packages,
-# copy the plugin to a temporary file with a unique name
-plugin_copy = 'yaml_' + str(uuid.uuid4()).replace('-', '_') + '.py'
-with open(plugin, 'r') as orig:
-    s = orig.read()
-    s = s.replace('DLiteStorageBase', 'object')
-    with open(thisdir / plugin_copy, 'w') as cpy:
-        cpy.write(s)
-
 try:
-    exec('from ' + plugin_copy[:-3] + ' import yaml as dlite_yaml')
+    with open(plugin, 'r') as orig:
+        s = orig.read()
+    s = s.replace('yaml(DLiteStorageBase)', 'dlite_yaml(object)')
+    exec(s)
     
     # Test loading YAML metadata
     yaml_inst1 = dlite_yaml()
@@ -69,11 +61,12 @@ try:
     
     print('Test <yaml_test> ran successfully')
 except Exception as err:
-    print_test_exception(err)
+    if __name__ == '<run_path>':
+        print_test_exception(err)
+    else:
+        raise
 finally:
     # Cleanup
-    if os.path.exists(thisdir / plugin_copy):
-        os.remove(thisdir / plugin_copy)
     if os.path.exists(thisdir / 'yaml_test_save.yaml'):
         os.remove(thisdir / 'yaml_test_save.yaml')
     if os.path.isdir(thisdir / '__pycache__'):

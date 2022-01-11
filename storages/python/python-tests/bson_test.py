@@ -1,8 +1,6 @@
 """Script to test the DLite plugin 'bson.py' in Python."""
 import os
 import shutil
-import sys
-import uuid
 from pathlib import Path
 
 from run_python_tests import print_test_exception
@@ -13,17 +11,11 @@ thisdir = Path(__file__).absolute().parent
 input_path = thisdir / 'input'
 plugin = thisdir.parent / 'python-storage-plugins/bson.py'
 
-# To avoid potential module name conflicts with other BSON packages,
-# copy the plugin to a temporary file with a unique name
-plugin_copy = 'bson_' + str(uuid.uuid4()).replace('-', '_') + '.py'
-with open(plugin, 'r') as orig:
-    s = orig.read()
-    s = s.replace('DLiteStorageBase', 'object')
-    with open(thisdir / plugin_copy, 'w') as cpy:
-        cpy.write(s)
-
 try:
-    exec('from ' + plugin_copy[:-3] + ' import bson as dlite_bson')
+    with open(plugin, 'r') as orig:
+        s = orig.read()
+    s = s.replace('bson(DLiteStorageBase)', 'dlite_bson(object)')
+    exec(s)
     
     # Test loading BSON metadata
     bson_inst1 = dlite_bson()
@@ -69,11 +61,12 @@ try:
     
     print('Test <bson_test> ran successfully')
 except Exception as err:
-    print_test_exception(err)
+    if __name__ == '<run_path>':
+        print_test_exception(err)
+    else:
+        raise
 finally:
     # Cleanup
-    if os.path.exists(thisdir / plugin_copy):
-        os.remove(thisdir / plugin_copy)
     if os.path.exists(thisdir / 'bson_test_save.bson'):
         os.remove(thisdir / 'bson_test_save.bson')
     if os.path.isdir(thisdir / '__pycache__'):

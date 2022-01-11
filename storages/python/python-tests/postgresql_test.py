@@ -3,8 +3,6 @@ import ast
 import json
 import os
 import shutil
-import sys
-import uuid
 from pathlib import Path
 
 import psycopg2
@@ -22,61 +20,67 @@ if __name__ in ('__main__', '<run_path>'):
     dlite_path = thisdir.parent.parent.parent
     plugin = thisdir.parent / 'python-storage-plugins/postgresql.py'
     
-    # Copy the plugin to a temporary file with a unique name
-    plugin_copy = 'postgresql_' + str(uuid.uuid4()).replace('-', '_') + '.py'
-    with open(plugin, 'r') as orig:
-        lines = orig.read().splitlines(keepends=True)
-        # Alter the plugin methods open(), load(), save() and close(),
-        # to compare what is read or written with the files
-        # '/input/test_meta.pgsql' and
-        # '/input/test_data.pgsql',
-        # instead of trying to access a PostgreSQL database server.
-        # This removes the need for the server when running the test.
-        
-        open_start = lines.index('    def open(self, uri, options=None):\n')
-        close_start = lines.index('    def close(self):\n')
-        load_start = lines.index('    def load(self, uuid):\n')
-        save_start = lines.index('    def save(self, inst):\n')
-        
-        # open(): Don't connect to server in test - read 'uri' instead
-        lines[open_start + 1] = '        self.data = open_pgsql(uri)\n'
-        lines[open_start + 2] = '        self.d = {}\n'
-        
-        # close(): Don't disconnect from server - just pass
-        lines[close_start + 1] = '        pass\n'
-        
-        # load(): Don't access server - read from self.data
-        lines[load_start + 3] = '        ' \
-            + 'self.d[uuid] = load_pgsql(self.data, uuid, ["L", "M", "N"])\n'
-        lines[load_start + 4] = \
-            '        return instance_from_dict(self.d[uuid])\n'
-        
-        # save(): Don't write to database, but compare the writing
-        # commands to the commands in the database dump file
-        n = save_start + 2
-        lines[n - 1] = '        ret = {"uuid": inst.uuid}\n'
-        while not lines[n].startswith('    def table_exists'):
-            lines[n] = lines[n].replace('self.conn', '#')
-            lines[n] = lines[n].replace('self.cur.execute(', \
-                'ret = extract_exec_args(ret, ')
-            if lines[n].startswith('        if not self.table'):
-                lines[n] = '\n'
-                lines[n + 1] = '\n'
-            n = n + 1
-        lines[n - 1] = '        return ret\n'
-        
-        del lines[(load_start + 5):(save_start - 1)]
-        del lines[(close_start + 2):(load_start - 1)]
-        del lines[(open_start + 3):(close_start - 1)]
-        s = 'from postgresql_test import open_pgsql, load_pgsql, ' \
-            + 'extract_exec_args\n' + str().join(lines)
-        s = s.replace('DLiteStorageBase', 'object')
-        with open(thisdir / plugin_copy, 'w') as cpy:
-            cpy.write(s)
-    
     try:
-        exec('from ' + plugin_copy[:-3] + \
-             ' import postgresql as dlite_postgresql')
+        with open(plugin, 'r') as orig:
+            lines = orig.read().splitlines(keepends=True)
+            # Alter the plugin methods open(), load(), save() and
+            # close(), to use files for comparison, instead
+            # of databases contained in a PostgreSQL server.
+            # This removes the need for a server when running the test.
+            #
+            # The input comparisons are between JSON files and
+            # PostgreSQL database dumps:
+            # 1: 'test-entity.json' vs. '/input/test_meta.pgsql'
+            # 2: 'test-data.json' vs. '/input/test_data.pgsql'
+            #
+            # The output comparisons are between SQL commands from the
+            # save() method (that would have been executed on a server)
+            # and text files containing the desired commands:
+            # 1: '/input/postgresql_test_meta_save.txt'
+            # 2: '/input/postgresql_test_data_save.txt'
+            
+            df = '    def '
+            ind8 = '        ' # Indent of 8 spaces
+            open_start = lines.index(df + 'open(self, uri, options=None):\n')
+            close_start = lines.index(df + 'close(self):\n')
+            load_start = lines.index(df + 'load(self, uuid):\n')
+            save_start = lines.index(df + 'save(self, inst):\n')
+            
+            # open(): Don't connect to server - read 'uri' instead
+            lines[open_start + 1] = ind8 + 'self.data = open_pgsql(uri)\n'
+            lines[open_start + 2] = ind8 + 'self.d = {}\n'
+            
+            # close(): Don't disconnect from server - just pass
+            lines[close_start + 1] = ind8 + 'pass\n'
+            
+            # load(): Don't access server - read from self.data
+            lines[load_start + 3] = ind8 + 'self.d[uuid] = ' \
+                + 'load_pgsql(self.data, uuid, ["L", "M", "N"])\n'
+            lines[load_start + 4] = ind8 \
+                + 'return instance_from_dict(self.d[uuid])\n'
+            
+            # save(): Don't write to database, but compare the writing
+            # commands to the commands in the database dump file
+            n = save_start + 2
+            lines[n - 1] = ind8 + 'ret = {"uuid": inst.uuid}\n'
+            while not lines[n].startswith(df + 'table_exists'):
+                lines[n] = lines[n].replace('self.conn', '#')
+                lines[n] = lines[n].replace('self.cur.execute(', \
+                    'ret = extract_exec_args(ret, ')
+                if lines[n].startswith(ind8 + 'if not self.table'):
+                    lines[n] = '\n'
+                    lines[n + 1] = '\n'
+                n = n + 1
+            lines[n - 1] = ind8 + 'return ret\n'
+            
+            del lines[(load_start + 5):(save_start - 1)]
+            del lines[(close_start + 2):(load_start - 1)]
+            del lines[(open_start + 3):(close_start - 1)]
+            s = 'from postgresql_test import open_pgsql, load_pgsql, ' \
+                + 'extract_exec_args\n' + str().join(lines)
+            s = s.replace('postgresql(DLiteStorageBase)', \
+                          'dlite_postgresql(object)')
+        exec(s)
         
         # Load JSON metadata
         with open(dlite_path / 'src/tests/test-entity.json', 'r') as f:
@@ -140,11 +144,12 @@ if __name__ in ('__main__', '<run_path>'):
         
         print('Test <postgresql_test> ran successfully')
     except Exception as err:
-        print_test_exception(err)
+        if __name__ == '<run_path>':
+            print_test_exception(err)
+        else:
+            raise
     finally:
         # Cleanup
-        if os.path.exists(thisdir / plugin_copy):
-            os.remove(thisdir / plugin_copy)
         if os.path.isdir(thisdir / '__pycache__'):
             shutil.rmtree(thisdir / '__pycache__')
 else:
@@ -189,7 +194,7 @@ else:
         if 'properties' in d.keys():
             metadata = True
             keys = {0: 'name', 1: 'type', 2: 'dims', 3: 'unit', \
-                5: 'description'}
+                    5: 'description'}
             prop_str = d['properties']
             prop_str = prop_str.replace('"', '')
             prop_str = prop_str.replace('{{', '[["')
