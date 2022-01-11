@@ -28,9 +28,9 @@ try:
     bson_inst2.open('bson_test_save.bson', 'mode=w')
     bson_inst2.save(inst)
     bson_inst2.close()
-    with open(input_path / 'test_meta.bson', 'r') as orig:
+    with open(input_path / 'test_meta.bson', 'rb') as orig:
         orig_bson = orig.read()
-    with open('bson_test_save.bson', 'r') as cpy:
+    with open('bson_test_save.bson', 'rb') as cpy:
         cpy_bson = cpy.read()
     if cpy_bson == orig_bson:
         print('...Saving metadata ok!')
