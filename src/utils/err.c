@@ -160,13 +160,13 @@ static char *error_names[] = {
 
 
 /* Reports the error and returns `eval`.  Args:
- *  errname : name of error, e.g. "Fatal" or "Error"
- *  eval    : error value that is returned or passed exit()
- *  errnum  : error number for system errors
- *  file    : file and line number in source file where the error occured
- *  func    : name of function in which the error occured
- *  msg     : error message
- *  ap      : printf()-like argument list for error message
+ *  errlevel : error level
+ *  eval     : error value that is returned or passed exit()
+ *  errnum   : error number for system errors
+ *  file     : file and line number in source file where the error occured
+ *  func     : name of function in which the error occured
+ *  msg      : error message
+ *  ap       : printf()-like argument list for error message
  */
 int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 		 const char *func, const char *msg, va_list ap)
@@ -287,6 +287,9 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       exit(eval);
     }
   }
+
+  /* Clear errno */
+  errno = 0;
 
   return eval;
 }

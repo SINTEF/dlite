@@ -105,11 +105,7 @@ MU_TEST(test_scan)
   mu_check(fp);
   stat = dlite_storage_paths_append(path);
   mu_check(stat > 0);
-  fprintf(stderr,
-          "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
   inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b", NULL);
-  fprintf(stderr,
-          "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
   fclose(fp);
   mu_check(inst);
 
@@ -154,33 +150,30 @@ MU_TEST(test_check)
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
                              "dlite/1/test-c", &flags);
-  mu_assert_int_eq(dliteJsonDataFormat, fmt);
-  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta, flags);
+  mu_assert_int_eq(dliteJsonMetaFormat, fmt);
+  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta | dliteJsonArrays,
+                   flags);
 
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
-                             "dlite/empty", &flags);
-  mu_assert_int_eq(dliteJsonDataFormat, fmt);
+                             "dlite/1/empty", &flags);
+  mu_assert_int_eq(dliteJsonMetaFormat, fmt);
   mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta | dliteJsonArrays,
                    flags);
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
                              "dbd9d597-16b4-58f5-b10f-7e49cf85084b", &flags);
   mu_assert_int_eq(dliteJsonDataFormat, fmt);
-  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta,
-                   flags);
+  mu_assert_int_eq(dliteJsonWithMeta, flags);
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
                              "2f4ae7b7-247a-5cc2-b6c5-5ac0ccd8cc5c", &flags);
   mu_assert_int_eq(dliteJsonDataFormat, fmt);
-  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta,
-                   flags);
+  mu_assert_int_eq(dliteJsonWithMeta, flags);
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
                              "invalid", &flags);
-  mu_assert_int_eq(dliteJsonDataFormat, fmt);
-  mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta,
-                   flags);
+  mu_assert_int_eq(-1, fmt);
 }
 
 

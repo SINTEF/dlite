@@ -47,10 +47,17 @@ static int default_mode(const char *uri)
 
   fprintf(stderr, "*** stat=%d\n", stat);
 
-  if (stat)
+  if (stat) {
     mode = 'w';
-  else
+  } else {
+    //const char *v = jstore_get(js, "properties");
+    //mode = (dlite_json_scheck(v, strlen(v), NULL, NULL) ==
+    //        dliteJsonDataFormat) ? 'a' : 'r';
+    //fprintf(stderr, "*** mode=%c\n", mode);
+
     mode = (jstore_get(js, "properties")) ? 'r' : 'a';
+  }
+
   jstore_close(js);
   return mode;
 }

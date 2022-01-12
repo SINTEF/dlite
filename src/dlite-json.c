@@ -867,7 +867,8 @@ DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
   }
 
   if (!(props = jsmn_item(src, item, "properties")))
-    FAIL("missing key properties");
+    FAIL2("missing \"properties\" in json input \"%.*s\"",
+          item->end - item->start, src + item->start);
   if (props->type == JSMN_ARRAY) {
     fmt = dliteJsonMetaFormat;
     flg |= dliteJsonArrays;
@@ -1109,46 +1110,32 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
 
   if ((format = dlite_json_check(src, tokens, NULL, &flags)) < 0) goto fail;
 
-  fprintf(stderr, "*** format=%d, flags=%d, src=\n%.*s\n---\n",
-          format, flags, len, src);
-
-  switch(format) {
-
-  case dliteJsonMetaFormat:
+  if (flags & dliteJsonSingle) {
     if (!(uri = get_uri(src, tokens)))
-      FAIL2("missing uri in metadata-formatted json data: \"%.30s%s\"",
+      FAIL2("missing uri in single-entity formatted json data: \"%.30s%s\"",
             src, dots);
     if (dlite_get_uuid(uuid, uri) < 0) goto fail;
     jstore_addn(js, uuid, DLITE_UUID_LENGTH, src, len);
-    format = dliteJsonMetaFormat;
-    break;
+  } else {
+    jsmntok_t *t = tokens + 1;
+    int i;
+    for (i=0; i < tokens->size; i++) {
+      jsmntok_t *v = t + 1;
 
-  case dliteJsonDataFormat:
-    {
-      jsmntok_t *t = tokens + 1;
-      int i;
-      for (i=0; i < tokens->size; i++) {
-        jsmntok_t *v = t + 1;
+      /* if `id` is not an uuid, add it as a label associated with
+         uuid to the jstore */
+      const char *id = src + t->start;
+      int len = t->end - t->start;
+      int uuidver = dlite_get_uuidn(uuid, id, len);
+      if (uuidver < 0)
+        goto fail;
+      else if (uuidver > 0)
+        jstore_set_labeln(js, uuid, id, len);
 
-        /* if `id` is not an uuid, add it as a label associated with
-           uuid to the jstore */
-        const char *id = src + t->start;
-        int len = t->end - t->start;
-        int uuidver = dlite_get_uuidn(uuid, id, len);
-        if (uuidver < 0)
-          goto fail;
-        else if (uuidver > 0)
-          jstore_set_labeln(js, uuid, id, len);
-
-        if (jstore_addn(js, uuid, DLITE_UUID_LENGTH,
-                        src + v->start, v->end - v->start)) goto fail;
-        t += jsmn_count(v) + 2;
-      }
-      format = dliteJsonDataFormat;
-      break;
+      if (jstore_addn(js, uuid, DLITE_UUID_LENGTH,
+                      src + v->start, v->end - v->start)) goto fail;
+      t += jsmn_count(v) + 2;
     }
-  default:
-    abort();  /* should never be reached */
   }
 
  fail:
