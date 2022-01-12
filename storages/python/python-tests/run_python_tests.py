@@ -1,8 +1,6 @@
-import glob
-import os
 import runpy
 import shutil
-
+from pathlib import Path
 
 screen_width = shutil.get_terminal_size().columns - 1
 
@@ -21,10 +19,10 @@ if __name__ == '__main__':
         'postgresql_test.py',
         'yaml_test.py',
         ]
-    path = str(os.getcwd()).replace('\\', '/') + '/'
+    thisdir = Path('.')
     for t in tests:
         print(''.center(screen_width, '-'))
         try:
-            runpy.run_path(path + t)
+            runpy.run_path(thisdir / t)
         except Exception as err:
             print_test_exception(err)

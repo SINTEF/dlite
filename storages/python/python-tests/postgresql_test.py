@@ -70,7 +70,7 @@ if __name__ in ('__main__', '<run_path>'):
                 if lines[n].startswith(ind8 + 'if not self.table'):
                     lines[n] = '\n'
                     lines[n + 1] = '\n'
-                n = n + 1
+                n += 1
             lines[n - 1] = ind8 + 'return ret\n'
             
             del lines[(load_start + 5):(save_start - 1)]
@@ -78,8 +78,7 @@ if __name__ in ('__main__', '<run_path>'):
             del lines[(open_start + 3):(close_start - 1)]
             s = 'from postgresql_test import open_pgsql, load_pgsql, ' \
                 + 'extract_exec_args\n' + str().join(lines)
-            s = s.replace('postgresql(DLiteStorageBase)', \
-                          'dlite_postgresql(object)')
+            s = s.replace('class postgresql', 'class dlite_postgresql')
         exec(s)
         
         # Load JSON metadata
@@ -159,25 +158,30 @@ else:
     
     def load_pgsql(data, uuid, dims_keys=None):
         datalines = data.splitlines()
+        
+        # Look for meta value for the given uuid
         line = 'COPY public.uuidtable (uuid, meta) FROM stdin;'
         n = datalines.index(line)
-        while datalines[n] != '\.':
-            if datalines[n].startswith(uuid):
+        for dataline in datalines[n:]:
+            if dataline == '\.':
+                raise KeyError(f"UUID '{uuid}' not found")
+            elif dataline.startswith(uuid):
+                meta = dataline.split('\t')[-1]
+                line_start = 'COPY public."' + meta + '" ('
                 break
-            n = n + 1
-        meta = datalines[n].split('\t')[-1]
-        line_start = 'COPY public."' + meta + '" ('
-        for n in range(len(datalines)):
-            if datalines[n].startswith(line_start):
-                break
-        keys = datalines[n][len(line_start):-13].split(', ')
-        while datalines[n] != '\.':
-            if datalines[n].startswith(uuid):
-                break
-            n = n + 1
-        values = datalines[n].split('\t')
-        d = {keys[k]: values[k] for k in range(len(keys))}
         
+        # Look for the line that starts with line_start
+        keys = None
+        for dataline in datalines:
+            if dataline == '\.':
+                raise ValueError(f"Values for UUID '{uuid}' not found")
+            elif keys and dataline.startswith(uuid):
+                values = dataline.split('\t')
+                break
+            elif dataline.startswith(line_start):
+                keys = dataline[len(line_start):-13].split(', ')
+        
+        d = {keys[k]: values[k] for k in range(len(keys))}
         metadata = False
         if 'dimensions' in d.keys():
             metadata = True
@@ -187,9 +191,9 @@ else:
             dims_str = dims_str.replace('},{', '],["')
             dims_str = dims_str.replace(',"', '","')
             dims = ast.literal_eval(dims_str)
-            for n in range(len(dims)):
-                dims[n] = {'name': str(dims[n][0]), \
-                    'description': str(dims[n][1])}
+            for dim in dims:
+                dim = {'name': str(dim[0]), \
+                    'description': str(dim[1])}
             d['dimensions'] = dims
         if 'properties' in d.keys():
             metadata = True
@@ -227,9 +231,10 @@ else:
             line = 'CREATE TABLE public."' + meta + '" ('
             n = datalines.index(line) + 1
             type_str = '('
-            while datalines[n] != ');':
-                type_str = type_str + '"' + datalines[n].lstrip() + '"'
-                n = n + 1
+            for dataline in datalines[n:]:
+                if dataline == ');':
+                    break
+                type_str = type_str + '"' + dataline.lstrip() + '"'
             type_str = type_str + ')'
             type_str = type_str.replace(',"', '",')
             types = ast.literal_eval(type_str)

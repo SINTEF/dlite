@@ -49,14 +49,14 @@ def instance_from_dict(d):
         for p in meta['properties']:
             value = d['properties'][p.name]
             if p.type.startswith('blob'):
-                t = type(value)
-                if t == str:
+                if isinstance(value, str):
                     # Assume that the binary data string is hexadecimal
                     value = bytearray(binascii.unhexlify(value))
-                elif t == list and len(value) > 1 and type(value[1]) == str:
+                elif isinstance(value, list) and len(value) > 1 \
+                        and isinstance(value[1], str):
                     # Assume value = [binary string, encoding]
                     value = bytearray(value[0], value[1])
-            if type(inst[p.name]) in (float, int):
+            if isinstance(inst[p.name], (float, int)):
                 # Ensure correct scalar conversion by explicit cast
                 inst[p.name] = type(inst[p.name])(value)
             else:
