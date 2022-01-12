@@ -24,7 +24,7 @@ inst['a-bool-array'] = True, False
 
 # Test json
 print('--- testing json')
-myentity.save('json:myentity.json')
+myentity.save('json:myentity.json?mode=w')
 inst.save('json:inst.json')
 del inst
 inst = dlite.Instance('json:inst.json#my-data')
