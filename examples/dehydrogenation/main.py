@@ -29,10 +29,14 @@ if HAVE_ASE:
     run('1-simple-workflow/calculate_reaction.py')
     run('2-instance-mappings/calculate_reactions.py')
     run('3-property-mappings/mappings_hard_coded/run.py')
-    if HAVE_ONTOPY:
-        run('3-property-mappings/mappings_from_ontology/run_w_onto.py')
-    else:
-        print("** warning: 'ontopy' is required for running dehydrogenisation "
-              "workflow 3")
+
+    # Commented out for now - there are some issues in relation with
+    # EMMOntoPy that will be fixed in a separate issue...
+    #
+    #if HAVE_ONTOPY:
+    #    run('3-property-mappings/mappings_from_ontology/run_w_onto.py')
+    #else:
+    #    print("** warning: 'ontopy' is required for running dehydrogenisation "
+    #          "workflow 3")
 else:
     print("** warning: 'ase' is required for running dehydrogenisation example")
