@@ -74,7 +74,7 @@ The workflow now looks as follows
 
 and can be run with the script of Cyril
 
-    python 2-dlite-mappings/calculate_reactions.py
+    python 2-instance-mappings/calculate_reactions.py
 
 
 ## Workflow 3: Dynamic property-based mappings
@@ -94,6 +94,9 @@ See documentation for other possible arguments.
 
 ![Mappings](figs/dehydrogenation-mappings.png)
 
+    python 3-property-mappings/mappings_hard_coded/run.py
+
+
 * Example 2. The mappings are obtained by use of separate mapping to the same ontology.
 
 In this final example a situation in which two separate processes are mapped to the same ontology is showcased, thus enabling interoperability even though the users do not have detailed knowledge about both cases.
@@ -110,6 +113,8 @@ Mapping between data form the external repository and Bobs desired Substance(s) 
 
 Discussion on choice of ontology is not part of this dlite example, but Bob could also have used another ontology and match to something else and thus
 also have access to other data repos mapped to other ontologies.
+
+    python 3-property-mappings/mappings_from_ontology/run_w_onto.py
 
 
 
