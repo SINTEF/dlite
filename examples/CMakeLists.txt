@@ -2,9 +2,11 @@
 project(dlite-examples)
 
 # Python examples
+if(WITH_PYTHON)
 set(python_examples
   read-csv
   )
+endif()
 
 
 # CMake toolchain option
@@ -76,7 +78,8 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     test_example(ex4)
   endif()
   #test_example(ex5d)
-
+  if(WITH_PYTHON)
+  endif()
 
   # Run python examples
   foreach(name ${python_examples})
@@ -103,7 +106,7 @@ endif()
 
 
 install(
-  DIRECTORY ex1 ex2 ex3 ex4 ex5d
+  DIRECTORY ex1 ex2 ex3 ex4 ex5d read-csv dehydrogenation
   DESTINATION share/dlite/examples
   PATTERN "*~" EXCLUDE
   PATTERN build EXCLUDE

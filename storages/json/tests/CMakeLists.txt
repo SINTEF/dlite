@@ -17,13 +17,16 @@ add_custom_target(
     ${dlite_BINARY_DIR}/storages/json/tests
   )
 
-get_filename_component(Python3_LIBDIR ${Python3_LIBRARY_DIRS} DIRECTORY)
 set(dlite_PATH
   $<TARGET_FILE_DIR:dlite>
   $<TARGET_FILE_DIR:dlite-utils>
   $<TARGET_FILE_DIR:dlite-plugins-json>
-  ${Python3_LIBDIR}
   )
+if(WITH_PYTHON)
+  get_filename_component(Python3_LIBDIR ${Python3_LIBRARY_DIRS} DIRECTORY)
+  list(APPEND dlite_PATH ${Python3_LIBDIR})
+endif()
+
 set(dlite_PATH_NATIVE "")
 foreach(path ${dlite_PATH})
   list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
