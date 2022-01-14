@@ -233,35 +233,16 @@ void triple_set_default_namespace(const char *namespace);
 %feature("docstring", "\
 Returns a new instance.
 
-Instance(metaid, dims, id=None)
-    Creates a new instance of metadata `metaid`.  `dims` must be a
-    sequence with the size of each dimension. All values initialized
-    to zero.  If `id` is None, a random UUID is generated.  Otherwise
-    the UUID is derived from `id`.
-
-Instance(url, metaid=NULL)
-    Loads the instance from `url`.  The URL should be of the form
-    ``driver://location?options#id``.
-    If `metaid` is provided, the instance is tried mapped to this
-    metadata before it is returned.
-
-Instance(storage, id=None, metaid=NULL)
-    Loads the instance from `storage`. `id` is the id of the instance
-    in the storage (not required if the storage only contains more one
-    instance).
-    If `metaid` is provided, the instance is tried mapped to this
-    metadata before it is returned.
-
-Instance(driver, location, options, id=None)
-    Loads the instance from storage specified by `driver`, `location`
-    and `options`. `id` is the id of the instance in the storage (not
-    required if the storage only contains more one instance).
-
-Instance(uri, dimensions, properties, description)
-    Creates a new metadata entity (instance of entity schema) casted
-    to an instance.
-
 Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
+    Is called from one of the following class methods defined in dlite.py: 
+
+      - create_from_metaid(cls, metaid, dims, id=None)
+      - create_from_url(cls, url, metaid=None)
+      - create_from_storage(cls, storage, id=None, metaid=None)
+      - create_from_location(cls, driver, location, options=None, id=None)
+      - create_metadata(cls, uri, dimensions, properties, description)
+
+      For details, see the documentation for the class methods.
 
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};

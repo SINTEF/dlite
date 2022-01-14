@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """A module that makes it easy to add dlite functionality to existing classes.
+
 Class customisations
+--------------------
 In order to handle special cases, the following methods may be
 defined/overridden in the class that is to be extended:
     _dlite_get_<name>(self, name)
@@ -217,5 +219,6 @@ def classfactory(theclass, meta=None, url=None, storage=None, id=None):
         _theclass=theclass,
         __init__=BaseExtension.__init__
     )
+
 
     return type(meta.name, (theclass, BaseExtension), attr)
