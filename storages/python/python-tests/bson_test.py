@@ -11,14 +11,12 @@ from run_python_tests import print_test_exception
 print('Running Python test <bson_test>...')
 thisdir = Path(__file__).absolute().parent
 input_path = thisdir / 'input'
-plugin = thisdir.parent / 'python-storage-plugins/bson.py'
+sys.path.append(str(thisdir.parent))
+from python_storage_plugins.bson import bson as dlite_bson
+# Note that just 'import bson' would have imported pymongo.bson instead
+sys.path.pop()
 
 try:
-    with open(plugin, 'r') as orig:
-        s = orig.read()
-    s = s.replace('bson(DLiteStorageBase)', 'dlite_bson(object)')
-    exec(s)
-    
     # Test loading BSON metadata
     bson_inst1 = dlite_bson()
     bson_inst1.open(input_path / 'test_meta.bson')

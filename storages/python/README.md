@@ -56,7 +56,7 @@ following methods:
 ```
 
 Python storage plugins provided with DLite can be found in the
-[python-storage-plugins](python-storage-plugins/) directory.
+[python_storage_plugins](python_storage_plugins/) directory.
 
-See the [YAML plugin](python-storage-plugins/yaml_plugin.py) for a
+See the [YAML plugin](python_storage_plugins/yaml_plugin.py) for a
 simple example of a working storage plugin.

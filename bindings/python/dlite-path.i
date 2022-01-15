@@ -52,7 +52,7 @@ Creates a _Path instance of type `pathtype`.
       return dlite_storage_plugin_paths_get();
     } else if (strcmp(pathtype, "mapping-plugins") == 0) {
       return dlite_mapping_plugin_paths_get();
-    } else if (strcmp(pathtype, "python-storage-plugins") == 0) {
+    } else if (strcmp(pathtype, "python_storage_plugins") == 0) {
       return dlite_python_storage_paths();
     } else if (strcmp(pathtype, "python-mapping-plugins") == 0) {
       return dlite_python_mapping_paths();

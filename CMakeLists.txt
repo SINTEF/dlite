@@ -133,7 +133,7 @@ set(DLITE_TEMPLATE_DIRS              "share/dlite/templates")
 set(DLITE_STORAGE_PLUGIN_DIRS        "share/dlite/storage-plugins")
 set(DLITE_MAPPING_PLUGIN_DIRS        "share/dlite/mapping-plugins")
 set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS "share/dlite/python-mapping-plugins")
-set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS "share/dlite/python-storage-plugins")
+set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS "share/dlite/python_storage_plugins")
 set(DLITE_STORAGES                   "share/dlite/storages")
 
 # Install path for CMake files
@@ -517,7 +517,7 @@ list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
 
 # DLITE_PYTHON_STORAGE_PLUGIN_DIRS - search path for Python storage plugins
 set(dlite_PYTHON_STORAGE_PLUGINS
-  ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+  ${dlite_SOURCE_DIR}/storages/python/python_storage_plugins
   )
 list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
 

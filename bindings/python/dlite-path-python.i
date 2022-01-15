@@ -25,7 +25,7 @@
 storage_path = FUPath("storages")
 storage_plugin_path = FUPath("storage-plugins")
 mapping_plugin_path = FUPath("mapping-plugins")
-python_storage_plugin_path = FUPath("python-storage-plugins")
+python_storage_plugin_path = FUPath("python_storage_plugins")
 python_mapping_plugin_path = FUPath("python-mapping-plugins")
 
 %}

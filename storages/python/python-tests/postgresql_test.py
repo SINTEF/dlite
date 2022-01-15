@@ -20,7 +20,7 @@ if __name__ in ('__main__', '<run_path>'):
     thisdir = Path(__file__).absolute().parent
     input_path = thisdir / 'input'
     dlite_path = thisdir.parent.parent.parent
-    plugin = thisdir.parent / 'python-storage-plugins/postgresql.py'
+    plugin = thisdir.parent / 'python_storage_plugins/postgresql.py'
     
     try:
         with open(plugin, 'r') as orig:

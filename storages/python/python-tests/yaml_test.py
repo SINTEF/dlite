@@ -11,14 +11,12 @@ from run_python_tests import print_test_exception
 print('Running Python test <yaml_test>...')
 thisdir = Path(__file__).absolute().parent
 input_path = thisdir / 'input'
-plugin = thisdir.parent / 'python-storage-plugins/yaml.py'
+sys.path.append(str(thisdir.parent))
+from python_storage_plugins.yaml import yaml as dlite_yaml
+# Note that just 'import yaml' would have imported PyYAML.yaml instead
+sys.path.pop()
 
 try:
-    with open(plugin, 'r') as orig:
-        s = orig.read()
-    s = s.replace('yaml(DLiteStorageBase)', 'dlite_yaml(object)')
-    exec(s)
-    
     # Test loading YAML metadata
     yaml_inst1 = dlite_yaml()
     yaml_inst1.open(input_path / 'test_meta.yaml')
