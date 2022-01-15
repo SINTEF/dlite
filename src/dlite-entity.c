@@ -1018,32 +1018,15 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 {
   int retval=1;
   char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
-  //char *opts=NULL;
   DLiteStorage *s=NULL;
 
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &loc, &options, NULL)) goto fail;
-
-
-  //fprintf(stderr, "=========== %s : %s\n", url, options);
-  //
-  //if (!options) {
-  //  options = (dlite_instance_is_data(inst)) ? "mode=a" : "mode=w";
-  //} else if (!strstr(options, "mode=")) {
-  //  char *mode = (dlite_instance_is_data(inst)) ? "a" : "w";
-  //  if (!(options = opts = aprintf("mode=%s;%s", mode, options)))
-  //    FAIL("allocation error");
-  //}
-  //fprintf(stderr, "            %s : %s\n", url, options);
-  //fprintf(stderr, "            data: %d\n", dlite_instance_is_data(inst));
-
-
   if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
   retval = dlite_instance_save(s, inst);
  fail:
   if (s) dlite_storage_close(s);
   if (str) free(str);
-  //if (opts) free(opts);
   return retval;
 }
 

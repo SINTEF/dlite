@@ -45,19 +45,7 @@ static int default_mode(const char *uri)
     break;
   ErrEnd;
 
-  fprintf(stderr, "*** stat=%d\n", stat);
-
-  if (stat) {
-    mode = 'w';
-  } else {
-    //const char *v = jstore_get(js, "properties");
-    //mode = (dlite_json_scheck(v, strlen(v), NULL, NULL) ==
-    //        dliteJsonDataFormat) ? 'a' : 'r';
-    //fprintf(stderr, "*** mode=%c\n", mode);
-
-    mode = (jstore_get(js, "properties")) ? 'r' : 'a';
-  }
-
+  mode = (stat) ? 'w' : (jstore_get(js, "properties")) ? 'r' : 'a';
   jstore_close(js);
   return mode;
 }
@@ -114,8 +102,6 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   };
   int load;  // whether to load uri
 
-  fprintf(stderr, "-*- OPEN %s : %s\n", uri, options);
-
   /* parse options */
   char *optcopy = (options) ? strdup(options) : NULL;
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
@@ -126,8 +112,6 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   int withuuid = atob(opts[3].value);
   int withmeta = atob(opts[4].value);
   int arrays = atob(opts[5].value);
-
-  fprintf(stderr, "*** opts[1].value='%s', single=%d\n", opts[1].value, single);
 
   /* deprecated options */
   if (atob(opts[7].value) > 0) single = (warn("`asdata` is deprecated"), 0);
@@ -169,9 +153,6 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
           "\"w\" (write) or \"a\" (append)", mode);
   }
 
-  fprintf(stderr, "*** mode=%c, load=%d, writable=%d, options: %s : %s\n",
-          mode, load, s->writable, options, uri);
-
   s->fmt_given = (single >= 0) ? 1 : 0;
   if (single > 0) s->flags |= dliteJsonSingle;
   if (urikey) s->flags |= dliteJsonUriKey;
@@ -193,8 +174,6 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
  fail:
   if (optcopy) free(optcopy);
   if (!retval && s) dlite_storage_close((DLiteStorage *)s);
-
-  fprintf(stderr, "*** flags=%d\n", s->flags);
 
   return retval;
 }
@@ -226,8 +205,6 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   const char *buf=NULL, *scanid;
   char uuid[DLITE_UUID_LENGTH+1];
 
-  fprintf(stderr, "-*- LOAD %s : %s\n", s->location, id);
-
   if (!js->jstore)
     FAIL1("cannot load json in write mode: %s", s->location);
 
@@ -246,8 +223,6 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   }
   if (!buf && !(buf = jstore_get(js->jstore, id)))
       goto fail;
-    //FAIL2("no instance with id \"%s\" in storage \"%s\"", id, s->location);
-
   if (dlite_get_uuid(uuid, id) == 0) {
     /* the provided id is an uuid - check if a human readable id has been
        assoicated with `id` as a label */
@@ -269,11 +244,6 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   int stat=1;
 
-  fprintf(stderr, "-*- SAVE %s : %d\n",
-          s->location, dlite_instance_is_data(inst));
-  fprintf(stderr, "*** writable=%d : %s\n", s->writable, s->location);
-
-
   if (!s->writable)
     FAIL1("storage \"%s\" is not writable", s->location);
 
@@ -281,21 +251,13 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   if (!js->fmt_given && dlite_instance_is_meta(inst))
     js->flags |= dliteJsonSingle;
 
-  fprintf(stderr, "*** flags=%d\n", js->flags);
-
   if (js->flags & dliteJsonSingle) {
-
-    fprintf(stderr, "*** SINGLE\n");
-
     if (js->changed)
       FAIL1("Trying to save more than once in single-entity format: %s",
             s->location);
     int n = dlite_json_printfile(s->location, inst, js->flags);
     stat = (n > 0) ? 0 : 1;
   } else {
-
-    fprintf(stderr, "*** MULTI\n");
-
     if (!js->jstore && !(js->jstore = jstore_open())) goto fail;
     stat = dlite_jstore_add(js->jstore, inst, js->flags);
   }

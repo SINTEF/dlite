@@ -77,13 +77,6 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
   memset(in, ' ', indent);
   in[indent] = '\0';
 
-  /*
-  if ((flags & dliteJsonSingle) && (flags & dliteJsonMulti))
-    FAIL("`dliteJsonSingle` and `dliteJsonMulti` are mutually exclusive");
-  if (!(flags & (dliteJsonSingle | dliteJsonMulti)))
-    flags |= (dlite_instance_is_data(inst)) ? dliteJsonMulti : dliteJsonSingle;
-  */
-
   PRINT1("%s{\n", in);
   if (inst->uri)
     PRINT2("%s  \"uri\": \"%s\",\n", in, inst->uri);
@@ -96,9 +89,6 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
 
   if (dlite_instance_is_data(inst)) {
     /* data */
-
-    fprintf(stderr, "=== INSTANCE: flags=%d\n", flags);
-
     PRINT1("%s  \"dimensions\": {\n", in);
     for (i=0; i < inst->meta->_ndimensions; i++) {
       char *name = inst->meta->_dimensions[i].name;
@@ -127,28 +117,10 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     DLiteMeta *met = (DLiteMeta *)inst;
     char *description =
       *((char **)dlite_instance_get_property(inst, "description"));
-
-    fprintf(stderr, "=== METADATA: flags=%d\n", flags);
-    fprintf(stderr, "%.*s\n===\n", n, dest);
-
     if (description)
       PRINT2("%s  \"description\": \"%s\",\n", in, description);
 
     PRINT1("%s  \"dimensions\": [\n", in);
-
-    //printf("\n");
-    //printf("*** flags: %x\n", flags);
-    //printf("*** inst: %s\n", inst->uri);
-    //printf("*** meta: %s\n", inst->meta->uri);
-    //printf("*** metameta: %s\n", inst->meta->meta->uri);
-    //printf("*** inst->_ndimensions: %d\n", (int)met->_ndimensions);
-    //printf("*** meta->_ndimensions: %d\n", (int)inst->meta->_ndimensions);
-    //printf("*** metameta->_ndimensions: %d\n", (int)inst->meta->meta->_ndimensions);
-    //printf("*** inst->_nproperties: %d\n", (int)met->_nproperties);
-    //printf("*** meta->_nproperties: %d\n", (int)inst->meta->_nproperties);
-    //printf("*** metameta->_nproperties: %d\n", (int)inst->meta->meta->_nproperties);
-
-
     for (i=0; i < met->_ndimensions; i++) {
       char *c = (i < met->_ndimensions - 1) ? "," : "";
       DLiteDimension *d = met->_dimensions + i;
@@ -643,7 +615,6 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       if ((t = jsmn_item(src, base, p->name))) {
         strnput(&buf, &size, 0, src+t->start, t->end-t->start);
         if (dlite_property_scan(buf, ptr, p, pdims, 0) < 0) goto fail;
-      //} else {
       } else if (dlite_instance_is_meta(inst)) {
         /* -- if not given, use inferred name, version and namespace */
         if (strcmp(p->name, "name") == 0) {
