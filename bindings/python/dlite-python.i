@@ -1296,4 +1296,12 @@ PyObject *_get_DLiteError(void);
 
 %pythoncode %{
   DLiteError = _dlite._get_DLiteError()
+  
+  class DLiteStorageBase:
+      __name__ = 'DLiteStorageBase'
+      __module__ = 'dlite'
+
+  class DLiteMappingBase:
+      __name__ = 'DLiteMappingBase'
+      __module__ = 'dlite'
 %}

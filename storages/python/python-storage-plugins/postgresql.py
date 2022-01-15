@@ -9,6 +9,8 @@ from psycopg2 import sql
 import dlite
 from dlite.options import Options
 from dlite.utils import instance_from_dict
+if 'DLiteStorageBase' not in globals().keys():
+    from dlite import DLiteStorageBase as DLiteStorageBase
 
 
 # Translation table from dlite types to postgresql types

@@ -7,6 +7,8 @@ import yaml as pyyaml
 import dlite
 from dlite.options import Options
 from dlite.utils import instance_from_dict
+if 'DLiteStorageBase' not in globals().keys():
+    from dlite import DLiteStorageBase as DLiteStorageBase
 
 
 class yaml(DLiteStorageBase):

@@ -5,8 +5,7 @@ including
 
 * blob - a plugin for Binary Large OBjects (BLOBs).
 
-* bson - a plugin for BSON (binary JSON). Consists of two files:
-  "bson_plugin.py" and "save_bson.py". Requires the pymongo package.
+* bson - a plugin for BSON (binary JSON). Requires the pymongo package.
 
 * csv - a plugin for CSV files.
 
