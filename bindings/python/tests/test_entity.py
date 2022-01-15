@@ -29,7 +29,12 @@ assert not myentity.is_metameta
 myentity.save('json://xxx.json?mode=w')
 
 # Save again, but without mode
-myentity.save('json://xxx2.json')
+try:
+    myentity.save('json://xxx2.json')
+except dlite.DLiteError:
+    pass
+else:
+    assert False, 'overwriting single-entity formatted file'
 
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
@@ -131,7 +136,8 @@ del e3
 
 # Metadata schema
 schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
-schema.save('entity_schema.json')
+schema.save('entity_schema.json?mode=w')
+schema.meta.save('basic_metadata_schema.json?mode=w')
 
 inst = dlite.Instance('json://entity_schema.json')
 assert inst.uri == dlite.ENTITY_SCHEMA

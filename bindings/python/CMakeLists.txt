@@ -201,6 +201,8 @@ set(Python3_MODULE_PATH
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
   DESTINATION ${Python3_MODULE_PATH}
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
   )
 
 install(

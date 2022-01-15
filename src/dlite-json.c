@@ -96,6 +96,9 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
 
   if (dlite_instance_is_data(inst)) {
     /* data */
+
+    fprintf(stderr, "=== INSTANCE: flags=%d\n", flags);
+
     PRINT1("%s  \"dimensions\": {\n", in);
     for (i=0; i < inst->meta->_ndimensions; i++) {
       char *name = inst->meta->_dimensions[i].name;
@@ -124,6 +127,10 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     DLiteMeta *met = (DLiteMeta *)inst;
     char *description =
       *((char **)dlite_instance_get_property(inst, "description"));
+
+    fprintf(stderr, "=== METADATA: flags=%d\n", flags);
+    fprintf(stderr, "%.*s\n===\n", n, dest);
+
     if (description)
       PRINT2("%s  \"description\": \"%s\",\n", in, description);
 
@@ -177,8 +184,16 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       PRINT2("\n%s    }%s\n", in, c);
     }
     PRINT1("%s  ]\n", in);
-  }
 
+    if (dlite_instance_get_property((DLiteInstance *)inst->meta, "relations")) {
+      PRINT1("%s  \"relations\": [\n", in);
+      for (i=0; i < met->_nrelations; i++) {
+        DLiteRelation *r = met->_relations + i;
+        PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
+      }
+      PRINT1("%s  ]\n", in);
+    }
+  }
   PRINT1("%s}", in);
 
   ok = 1;
@@ -273,16 +288,13 @@ int dlite_json_printfile(const char *filename, const DLiteInstance *inst,
   int m;
   if (!(fp = fopen(filename, "wt")))
     return err(1, "cannot write json to \"%s\"", filename);
-  if (dlite_instance_is_data(inst) && (flags & dliteJsonSingle) && !inst->uri)
-    flags |= dliteJsonWithUuid;
+
   if (flags & dliteJsonSingle) {
     m = dlite_json_fprint(fp, inst, 0, flags);
   } else {
     fprintf(fp, "{\n");
-    if (flags & dliteJsonUriKey && inst->uri)
-      fprintf(fp, "  \"%s\":", inst->uri);
-    else
-      fprintf(fp, "  \"%s\":", inst->uuid);
+    fprintf(fp, "  \"%s\":",
+            (flags & dliteJsonUriKey && inst->uri) ? inst->uri : inst->uuid);
     m = dlite_json_fprint(fp, inst, 2, flags);
     fprintf(fp, "}\n");
   }

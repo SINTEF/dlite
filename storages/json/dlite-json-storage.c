@@ -127,11 +127,29 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   int withmeta = atob(opts[4].value);
   int arrays = atob(opts[5].value);
 
+  fprintf(stderr, "*** opts[1].value='%s', single=%d\n", opts[1].value, single);
+
+  /* deprecated options */
+  if (atob(opts[7].value) > 0) single = (warn("`asdata` is deprecated"), 0);
+  if (atob(opts[8].value) > 0) single = (warn("`compact` is deprecated"), 1);
+  if (atob(opts[9].value) > 0) warn("`useid` is deprecated");
+
+  /* check options */
+  if (single == -1) FAIL1("invalid boolean value for `single=%s`.",
+                        opts[1].value);
+  if (urikey < 0) FAIL1("invalid boolean value for `uri-key=%s`.",
+                        opts[2].value);
+  if (withuuid < 0) FAIL1("invalid boolean value for `with-uuid=%s`.",
+                          opts[3].value);
+  if (withmeta < 0) FAIL1("invalid boolean value for `with-meta=%s`.",
+                          opts[4].value);
+  if (arrays < 0) FAIL1("invalid boolean value for `arrays=%s`.",
+                        opts[5].value);
+
   if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL("allocation failure");
   s->api = api;
 
   if (!mode) mode = default_mode(uri);
-
   switch (mode) {
   case 'r':
     load = 1;
@@ -154,25 +172,8 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   fprintf(stderr, "*** mode=%c, load=%d, writable=%d, options: %s : %s\n",
           mode, load, s->writable, options, uri);
 
-  /* deprecated options */
-  if (atob(opts[7].value) > 0) single = (warn("`asdata` is deprecated"), 0);
-  if (atob(opts[8].value) > 0) single = (warn("`compact` is deprecated"), 1);
-  if (atob(opts[9].value) > 0) warn("`useid` is deprecated");
-
-  /* check options */
-  if (single == -1) FAIL1("invalid boolean value for `single=%s`.",
-                        opts[1].value);
-  if (urikey < 0) FAIL1("invalid boolean value for `uri-key=%s`.",
-                        opts[2].value);
-  if (withuuid < 0) FAIL1("invalid boolean value for `with-uuid=%s`.",
-                          opts[3].value);
-  if (withmeta < 0) FAIL1("invalid boolean value for `with-meta=%s`.",
-                          opts[4].value);
-  if (arrays < 0) FAIL1("invalid boolean value for `arrays=%s`.",
-                        opts[5].value);
-
   s->fmt_given = (single >= 0) ? 1 : 0;
-  if (single) s->flags |= dliteJsonSingle;
+  if (single > 0) s->flags |= dliteJsonSingle;
   if (urikey) s->flags |= dliteJsonUriKey;
   if (withuuid) s->flags |= dliteJsonWithUuid;
   if (withmeta) s->flags |= dliteJsonWithMeta;
@@ -192,6 +193,8 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
  fail:
   if (optcopy) free(optcopy);
   if (!retval && s) dlite_storage_close((DLiteStorage *)s);
+
+  fprintf(stderr, "*** flags=%d\n", s->flags);
 
   return retval;
 }
@@ -278,13 +281,21 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   if (!js->fmt_given && dlite_instance_is_meta(inst))
     js->flags |= dliteJsonSingle;
 
+  fprintf(stderr, "*** flags=%d\n", js->flags);
+
   if (js->flags & dliteJsonSingle) {
+
+    fprintf(stderr, "*** SINGLE\n");
+
     if (js->changed)
       FAIL1("Trying to save more than once in single-entity format: %s",
             s->location);
     int n = dlite_json_printfile(s->location, inst, js->flags);
     stat = (n > 0) ? 0 : 1;
   } else {
+
+    fprintf(stderr, "*** MULTI\n");
+
     if (!js->jstore && !(js->jstore = jstore_open())) goto fail;
     stat = dlite_jstore_add(js->jstore, inst, js->flags);
   }

@@ -297,6 +297,12 @@ int jstore_to_file(JStore *js, const char *filename)
   char *buf = jstore_to_string(js);
   FILE *fp;
   size_t n;
+
+  printf("\n");
+  printf("========================================= jstore ===\n");
+  printf(buf);
+  printf("========================================= jstore ===\n");
+
   if (!buf) return 1;
   if (!(fp = fopen(filename, "w"))) {
     free(buf);
