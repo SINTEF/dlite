@@ -1,8 +1,10 @@
 """Script to test the DLite plugin 'yaml.py' in Python."""
 import os
 import shutil
+import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
 from run_python_tests import print_test_exception
 
 
@@ -69,5 +71,3 @@ finally:
     # Cleanup
     if os.path.exists(thisdir / 'yaml_test_save.yaml'):
         os.remove(thisdir / 'yaml_test_save.yaml')
-    if os.path.isdir(thisdir / '__pycache__'):
-        shutil.rmtree(thisdir / '__pycache__')

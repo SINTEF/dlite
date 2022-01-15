@@ -3,8 +3,10 @@ import ast
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
 import psycopg2
 from psycopg2 import sql
 
@@ -147,10 +149,6 @@ if __name__ in ('__main__', '<run_path>'):
             print_test_exception(err)
         else:
             raise
-    finally:
-        # Cleanup
-        if os.path.isdir(thisdir / '__pycache__'):
-            shutil.rmtree(thisdir / '__pycache__')
 else:
     def open_pgsql(uri):
         with open(uri, "r") as f:
