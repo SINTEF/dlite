@@ -2,38 +2,38 @@
 #
 
 set(python-tests
-  bson_test
-  yaml_test
-  postgresql_test
+  test_bson_storage_python
+  test_postgresql_storage_python
+  test_yaml_storage_python
   )
 
 include(FindPythonModule)
 
-# Disable YAML test if PyYAML is not in installed
-find_python_module(yaml)
-if(NOT PY_YAML)
-  add_test(NAME yaml_test
-    COMMAND ${CMAKE_COMMAND} -E echo "disabled (no PyYAML)")
-  set_property(TEST yaml_test PROPERTY DISABLED True)
-  list(REMOVE_ITEM python-tests yaml_test)
-endif()
-
 # Disable BSON test if pymongo is not installed
 find_python_module(pymongo)
 if(NOT PY_PYMONGO)
-  add_test(NAME bson_test
+  add_test(NAME test_bson_storage_python
     COMMAND ${CMAKE_COMMAND} -E echo "disabled (no pymongo)")
-  set_property(TEST bson_test PROPERTY DISABLED True)
-  list(REMOVE_ITEM python-tests bson_test)
+  set_property(TEST test_bson_storage_python PROPERTY DISABLED True)
+  list(REMOVE_ITEM python-tests test_bson_storage_python)
 endif()
 
 # Disable PostgreSQL test if psycopg2 is not installed
 find_python_module(psycopg2)
 if(NOT PY_PSYCOPG2)
-  add_test(NAME postgresql_test
+  add_test(NAME test_postgresql_storage_python
     COMMAND ${CMAKE_COMMAND} -E echo "disabled (no psycopg2)")
-  set_property(TEST postgresql_test PROPERTY DISABLED True)
-  list(REMOVE_ITEM python-tests postgresql_test)
+  set_property(TEST test_postgresql_storage_python PROPERTY DISABLED True)
+  list(REMOVE_ITEM python-tests test_postgresql_storage_python)
+endif()
+
+# Disable YAML test if PyYAML is not in installed
+find_python_module(yaml)
+if(NOT PY_YAML)
+  add_test(NAME test_yaml_storage_python
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled (no PyYAML)")
+  set_property(TEST test_yaml_storage_python PROPERTY DISABLED True)
+  list(REMOVE_ITEM python-tests test_yaml_storage_python)
 endif()
 
 # Add tests

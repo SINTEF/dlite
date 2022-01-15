@@ -1,7 +1,9 @@
 import runpy
 import shutil
+import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
 screen_width = shutil.get_terminal_size().columns - 1
 
 
@@ -15,9 +17,9 @@ def print_test_exception(err: Exception):
 if __name__ == '__main__':
     # The test scripts to run
     tests = [
-        'bson_test.py',
-        'postgresql_test.py',
-        'yaml_test.py',
+        'test_bson_storage_python.py',
+        'test_postgresql_storage_python.py',
+        'test_yaml_storage_python.py',
         ]
     thisdir = Path('.')
     for t in tests:

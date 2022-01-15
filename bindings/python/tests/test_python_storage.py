@@ -43,7 +43,7 @@ del uuids
 # Test the BSON and YAML Python plugins
 
 input_dir = thisdir.replace('bindings', 'storages')
-input_dir = input_dir.replace('tests', 'python-tests/input/')
+input_dir = input_dir.replace('tests', 'tests-python/input/')
 
 # Test BSON
 print('\n\n=== Test BSON plugin ===')

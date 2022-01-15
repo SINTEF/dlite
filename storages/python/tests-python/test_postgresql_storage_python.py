@@ -12,12 +12,13 @@ from psycopg2 import sql
 
 import dlite
 from dlite.utils import instance_from_dict
-from run_python_tests import print_test_exception
+from run_python_storage_tests import print_test_exception
 
 
 if __name__ in ('__main__', '<run_path>'):
-    print('Running Python test <postgresql_test>...')
-    thisdir = Path(__file__).absolute().parent
+    thisfile = Path(__file__)
+    print(f'Running Python test <{thisfile.name}>...')
+    thisdir = thisfile.absolute().parent
     input_path = thisdir / 'input'
     dlite_path = thisdir.parent.parent.parent
     plugin = thisdir.parent / 'python_storage_plugins/postgresql.py'
@@ -78,8 +79,8 @@ if __name__ in ('__main__', '<run_path>'):
             del lines[(load_start + 5):(save_start - 1)]
             del lines[(close_start + 2):(load_start - 1)]
             del lines[(open_start + 3):(close_start - 1)]
-            s = 'from postgresql_test import open_pgsql, load_pgsql, ' \
-                + 'extract_exec_args\n' + str().join(lines)
+            s = 'from test_postgresql_storage_python import open_pgsql, ' \
+                + 'load_pgsql, extract_exec_args\n' + str().join(lines)
             s = s.replace('class postgresql', 'class dlite_postgresql')
         exec(s)
         
@@ -143,7 +144,7 @@ if __name__ in ('__main__', '<run_path>'):
         else:
             raise ValueError('...Saving data failed!')
         
-        print('Test <postgresql_test> ran successfully')
+        print(f'Test <{thisfile.name}> ran successfully')
     except Exception as err:
         if __name__ == '<run_path>':
             print_test_exception(err)

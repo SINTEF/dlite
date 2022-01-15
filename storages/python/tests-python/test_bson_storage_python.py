@@ -5,11 +5,12 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-from run_python_tests import print_test_exception
+from run_python_storage_tests import print_test_exception
 
 
-print('Running Python test <bson_test>...')
-thisdir = Path(__file__).absolute().parent
+thisfile = Path(__file__)
+print(f'Running Python test <{thisfile.name}>...')
+thisdir = thisfile.absolute().parent
 input_path = thisdir / 'input'
 sys.path.append(str(thisdir.parent))
 from python_storage_plugins.bson import bson as dlite_bson
@@ -59,7 +60,7 @@ try:
     else:
         raise ValueError('...Saving data failed!')
     
-    print('Test <bson_test> ran successfully')
+    print(f'Test <{thisfile.name}> ran successfully')
 except Exception as err:
     if __name__ == '<run_path>':
         print_test_exception(err)
