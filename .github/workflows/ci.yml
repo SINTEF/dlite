@@ -61,7 +61,7 @@ jobs:
     - name: make test
       run: |
         cd build
-        ctest || ctest --rerun-failed --output-on-failure -V
+        ctest || ctest --rerun-failed --output-on-failure
         cd -
     - name: build Linux wheel
       run: |
