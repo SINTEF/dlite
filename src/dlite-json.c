@@ -87,8 +87,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       dlite_instance_is_metameta(inst))
     PRINT2("%s  \"meta\": \"%s\",\n", in, inst->meta->uri);
 
-  if (dlite_instance_is_data(inst)) {
-    /* data */
+  if (dlite_instance_is_data(inst)) {  // data
     PRINT1("%s  \"dimensions\": {\n", in);
     for (i=0; i < inst->meta->_ndimensions; i++) {
       char *name = inst->meta->_dimensions[i].name;
@@ -112,8 +111,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     }
     PRINT1("%s  }\n", in);
 
-  } else {
-    /* metadata */
+  } else if (flags & dliteJsonArrays) {  // metadata: soft5 format
     DLiteMeta *met = (DLiteMeta *)inst;
     char *description =
       *((char **)dlite_instance_get_property(inst, "description"));
@@ -156,6 +154,54 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       PRINT2("\n%s    }%s\n", in, c);
     }
     PRINT1("%s  ]\n", in);
+
+    if (dlite_instance_get_property((DLiteInstance *)inst->meta, "relations")) {
+      PRINT1("%s  \"relations\": [\n", in);
+      for (i=0; i < met->_nrelations; i++) {
+        DLiteRelation *r = met->_relations + i;
+        PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
+      }
+      PRINT1("%s  ]\n", in);
+    }
+
+  } else {  // metadata: soft7 format
+    DLiteMeta *met = (DLiteMeta *)inst;
+    char *description =
+      *((char **)dlite_instance_get_property(inst, "description"));
+    if (description)
+      PRINT2("%s  \"description\": \"%s\",\n", in, description);
+
+    PRINT1("%s  \"dimensions\": {\n", in);
+    for (i=0; i < met->_ndimensions; i++) {
+      char *c = (i < met->_ndimensions - 1) ? "," : "";
+      DLiteDimension *d = met->_dimensions + i;
+      PRINT4("%s    \"%s\": \"%s\"%s", in, d->name, d->description, c);
+    }
+    PRINT1("%s  },\n", in);
+
+    PRINT1("%s  \"properties\": {\n", in);
+    for (i=0; i < met->_nproperties; i++) {
+      char typename[32];
+      char *c = (i < met->_nproperties - 1) ? "," : "";
+      DLiteProperty *p = met->_properties + i;
+      dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
+      PRINT2("%s    \"%s\": {\n", in, p->name);
+      PRINT2("%s      \"type\": \"%s\"", in, typename);
+      if (p->ndims) {
+        PRINT1(",\n%s      \"dims\": [", in);
+        for (j=0; j < p->ndims; j++) {
+          char *cc = (j < p->ndims - 1) ? ", " : "";
+          PRINT2("\"%s\"%s", p->dims[j], cc);
+        }
+        PRINT("]");
+      }
+      if (p->unit && *p->unit)
+        PRINT2(",\n%s      \"unit\": \"%s\"", in, p->unit);
+      if (p->description && *p->description)
+        PRINT2(",\n%s      \"description\": \"%s\"", in, p->description);
+      PRINT2("\n%s    }%s\n", in, c);
+    }
+    PRINT1("%s  }\n", in);
 
     if (dlite_instance_get_property((DLiteInstance *)inst->meta, "relations")) {
       PRINT1("%s  \"relations\": [\n", in);
