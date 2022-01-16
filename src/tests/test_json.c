@@ -34,26 +34,44 @@ MU_TEST(test_sprint)
   char buf[4096];
   int m;
 
+  /* soft7 format: dliteJsonArrays unset */
+  m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0, 0);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
+  mu_assert_int_eq(798, m);
+
+  m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
+                        dliteJsonWithUuid);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
+  mu_assert_int_eq(922, m);
+
+  m = dlite_json_sprint(buf, sizeof(buf), inst, 4, 0);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
+  mu_assert_int_eq(404, m);
+
+  m = dlite_json_sprint(buf, 80, inst, 4, 0);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
+  mu_assert_int_eq(404, m);
+
+
+
+  /* soft5 format: dliteJsonArrays set */
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0,
                         dliteJsonArrays);
-  printf("\n--------------------------------------------------------\n");
-  printf("%s\n", buf);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
   mu_assert_int_eq(1011, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
                         dliteJsonWithUuid | dliteJsonArrays);
-  printf("\n--------------------------------------------------------\n");
-  printf("%s\n", buf);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
   mu_assert_int_eq(1165, m);
 
   printf("\n========================================================\n");
-  m = dlite_json_sprint(buf, sizeof(buf), inst, 4, 0);
-  printf("%s\n", buf);
-  mu_assert_int_eq(404, m);
-  printf("\n--------------------------------------------------------\n");
-
-  m = dlite_json_sprint(buf, 80, inst, 4, 0);
-  mu_assert_int_eq(404, m);
 }
 
 

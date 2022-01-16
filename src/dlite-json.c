@@ -175,7 +175,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     for (i=0; i < met->_ndimensions; i++) {
       char *c = (i < met->_ndimensions - 1) ? "," : "";
       DLiteDimension *d = met->_dimensions + i;
-      PRINT4("%s    \"%s\": \"%s\"%s", in, d->name, d->description, c);
+      PRINT4("%s    \"%s\": \"%s\"%s\n", in, d->name, d->description, c);
     }
     PRINT1("%s  },\n", in);
 
