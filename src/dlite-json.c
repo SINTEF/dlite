@@ -865,7 +865,7 @@ DLiteInstance *dlite_json_scanfile(const char *filename, const char *id,
 DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
                                  const char *id, DLiteJsonFlag *flags)
 {
-  DLiteJsonFormat retval=-1, fmt;
+  DLiteJsonFormat retval=-1, fmt=-1;
   DLiteJsonFlag flg=0;
   const jsmntok_t *root, *key, *item, *props, *prop;
   char uuid[DLITE_UUID_LENGTH+1];
