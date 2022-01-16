@@ -19,7 +19,13 @@ class ScriptTestCase(unittest.TestCase):
         env = globals().copy()
         env.update(__file__=self.filename)
         with open(self.filename) as fd:
-            exec(compile(fd.read(), self.filename, 'exec'), env)
+            try:
+                exec(compile(fd.read(), self.filename, 'exec'), env)
+            except SystemExit as exc:
+                if exc.code == 44:
+                    self.skipTest('exit code 44')
+                else:
+                    raise exc
 
     def id(self):
         return self.filename
