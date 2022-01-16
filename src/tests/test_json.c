@@ -34,7 +34,8 @@ MU_TEST(test_sprint)
   char buf[4096];
   int m;
 
-  m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0, 0);
+  m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0,
+                        dliteJsonArrays);
   printf("\n--------------------------------------------------------\n");
   printf("%s\n", buf);
   mu_assert_int_eq(1011, m);
