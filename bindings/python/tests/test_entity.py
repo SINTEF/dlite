@@ -28,9 +28,9 @@ assert not myentity.is_metameta
 # Store the entity to a new file
 myentity.save('json://xxx.json?mode=w')
 
-# Save again, but without mode
+# Try to overwrite without mode - should fail because metadata is immutable
 try:
-    myentity.save('json://xxx2.json')
+    myentity.save('json://xxx.json')
 except dlite.DLiteError:
     pass
 else:
