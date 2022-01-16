@@ -168,6 +168,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     DLiteMeta *met = (DLiteMeta *)inst;
     char *description =
       *((char **)dlite_instance_get_property(inst, "description"));
+
     if (description)
       PRINT2("%s  \"description\": \"%s\",\n", in, description);
 

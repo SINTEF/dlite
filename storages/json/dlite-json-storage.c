@@ -114,9 +114,9 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   int arrays = atob(opts[5].value);
 
   /* deprecated options */
-  if (atob(opts[7].value) > 0) single = (warn("`asdata` is deprecated"), 0);
-  if (atob(opts[8].value) > 0) single = (warn("`compact` is deprecated"), 1);
-  if (atob(opts[9].value) > 0) warn("`useid` is deprecated");
+  if (atob(opts[6].value) > 0) single = (warn("`asdata` is deprecated"), 0);
+  if (atob(opts[7].value) > 0) single = (warn("`compact` is deprecated"), 1);
+  if (atob(opts[8].value) > 0) warn("`useid` is deprecated");
 
   /* check options */
   if (single == -1) FAIL1("invalid boolean value for `single=%s`.",
@@ -243,23 +243,24 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   int stat=1;
+  DLiteJsonFlag flags = js->flags;
 
   if (!s->writable)
     FAIL1("storage \"%s\" is not writable", s->location);
 
   /* If single/multi format is not given, infer it from `inst` */
   if (!js->fmt_given && dlite_instance_is_meta(inst))
-    js->flags |= dliteJsonSingle;
+    flags |= dliteJsonSingle;
 
-  if (js->flags & dliteJsonSingle) {
+  if (flags & dliteJsonSingle) {
     if (js->changed)
       FAIL1("Trying to save more than once in single-entity format: %s",
             s->location);
-    int n = dlite_json_printfile(s->location, inst, js->flags);
+    int n = dlite_json_printfile(s->location, inst, flags);
     stat = (n > 0) ? 0 : 1;
   } else {
     if (!js->jstore && !(js->jstore = jstore_open())) goto fail;
-    stat = dlite_jstore_add(js->jstore, inst, js->flags);
+    stat = dlite_jstore_add(js->jstore, inst, flags);
   }
   js->changed = 1;
  fail:

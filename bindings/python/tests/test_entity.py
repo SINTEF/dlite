@@ -77,7 +77,7 @@ for i in range(len(inst)):
     print('prop%d:' % i, inst[i])
 
 # String representation (as json)
-print(inst)
+#print(inst)
 
 # Check save and load
 inst.save('json://inst.json?mode=w')
@@ -136,8 +136,8 @@ del e3
 
 # Metadata schema
 schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
-schema.save('entity_schema.json?mode=w')
-schema.meta.save('basic_metadata_schema.json?mode=w')
+schema.save('entity_schema.json?mode=w;arrays=false')
+schema.meta.save('basic_metadata_schema.json?mode=w;arrays=false')
 
 inst = dlite.Instance('json://entity_schema.json')
 assert inst.uri == dlite.ENTITY_SCHEMA
