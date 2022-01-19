@@ -106,7 +106,7 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst);
 
   Returns NULL on error.
  */
-PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname);
+PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass);
 
 
 #endif /* _DLITE_PYEMBED_H */

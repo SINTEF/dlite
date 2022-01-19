@@ -5,6 +5,7 @@
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
+#include "dlite-python-singletons.h"
 #include "config-paths.h"
 
 /* Get rid of MSVS warnings */
@@ -343,40 +344,22 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
   This function loads all Python modules found in `paths` and returns
   a list of plugin objects.
 
-  A Python plugin is a subclass of `baseclassname` that implements the
+  A Python plugin is a subclass of `baseclass` that implements the
   expected functionality.
 
   Returns NULL on error.
  */
-PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
+PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
 {
-  char initcode[96];
   const char *path;
-  PyObject *baseclass=NULL, *main_module=NULL, *main_dict=NULL;
-  PyObject *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
+  PyObject *main_dict, *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
   PyObject *subclassnames=NULL;
   FUIter *iter;
   int i;
 
   dlite_errclr();
   dlite_pyembed_initialise();
-
-  /* Inject base class into the __main__ module */
-  if (snprintf(initcode, sizeof(initcode), "class %s: pass\n",
-               baseclassname) < 0)
-    FAIL("failure to create initialisation code for embedded Python "
-         "__main__ module");
-  if (PyRun_SimpleString(initcode))
-    FAIL("failure when running embedded Python __main__ module "
-         "initialisation code");
-
-  /* Extract the base class from the __main__ module */
-  if (!(main_module = PyImport_AddModule("__main__")))
-    FAIL("cannot load the embedded Python __main__ module");
-  if (!(main_dict = PyModule_GetDict(main_module)))
-    FAIL("cannot access __dict__ of the embedded Python __main__ module");
-  if (!(baseclass = PyDict_GetItemString(main_dict, baseclassname)))
-    FAIL1("cannot get base class '%s' from the main dict", baseclassname);
+  if (!(main_dict = dlite_python_maindict())) goto fail;
 
   /* Get list of initial subclasses and corresponding set subclassnames */
   if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
