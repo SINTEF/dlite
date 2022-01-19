@@ -98,7 +98,8 @@ class CMakeBuildExt(build_ext):
             env=env,
             capture_output=True,
             check=True,
-            text=True)
+            text=True,
+            encoding="ascii")
 
         subprocess.run(
             ["cmake", "--build", ".", "--config", build_type],
@@ -106,7 +107,8 @@ class CMakeBuildExt(build_ext):
             env=env,
             capture_output=True,
             check=True,
-            text=True
+            text=True,
+            encoding="ascii"
         )
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
