@@ -1,7 +1,7 @@
 """Script to test the DLite plugin 'yaml.py' in Python."""
 import os
-import shutil
 import sys
+from importlib import util
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -12,20 +12,20 @@ thisfile = Path(__file__)
 print(f'Running Python test <{thisfile.name}>...')
 thisdir = thisfile.absolute().parent
 input_path = thisdir / 'input'
-sys.path.append(str(thisdir.parent))
-from python_storage_plugins.yaml import yaml as dlite_yaml
-# Note that just 'import yaml' would have imported PyYAML.yaml instead
-sys.path.pop()
+plugin_path = thisdir.parent / 'python-storage-plugins/yaml.py'
+spec = util.spec_from_file_location('yaml.py', plugin_path)
+yaml_mod = util.module_from_spec(spec)
+spec.loader.exec_module(yaml_mod)
 
 try:
     # Test loading YAML metadata
-    yaml_inst1 = dlite_yaml()
+    yaml_inst1 = yaml_mod.yaml()
     yaml_inst1.open(input_path / 'test_meta.yaml')
     inst = yaml_inst1.load('2b10c236-eb00-541a-901c-046c202e52fa')
     print('...Loading metadata ok!')
     
     # Test saving YAML metadata
-    yaml_inst2 = dlite_yaml()
+    yaml_inst2 = yaml_mod.yaml()
     yaml_inst2.open('yaml_test_save.yaml', 'mode=w')
     yaml_inst2.save(inst)
     yaml_inst2.close()
@@ -39,14 +39,14 @@ try:
         raise ValueError('...Saving metadata failed!')
     
     # Test loading YAML data
-    yaml_inst3 = dlite_yaml()
+    yaml_inst3 = yaml_mod.yaml()
     yaml_inst3.open(input_path / 'test_data.yaml')
     inst1 = yaml_inst3.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
     inst2 = yaml_inst3.load('e076a856-e36e-5335-967e-2f2fd153c17d')
     print('...Loading data ok!')
     
     # Test saving YAML data
-    yaml_inst4 = dlite_yaml()
+    yaml_inst4 = yaml_mod.yaml()
     yaml_inst4.open('yaml_test_save.yaml', 'mode=w')
     yaml_inst4.save(inst1)
     yaml_inst4.save(inst2)

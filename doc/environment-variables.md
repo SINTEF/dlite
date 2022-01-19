@@ -138,7 +138,7 @@ The following rules apply:
 1. DLITE_ROOT is defined
 
 dlite.storage_plugin_path        %DLITE_STORAGE_PLUGIN_DIRS%;        "%DLITE_ROOT%\share\dlite\storage-plugins"
-dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; "%DLITE_ROOT%\share\dlite\python_storage_plugins"
+dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; "%DLITE_ROOT%\share\dlite\python-storage-plugins"
 dlite.python_mapping_plugin_path %DLITE_PYTHON_MAPPING_PLUGIN_DIRS%; "%DLITE_ROOT%\share\dlite\python-mapping-plugins"
 
 dlite.mapping_plugin_path        %DLITE_MAPPING_PLUGIN_DIRS%;       ".env\Lib\site-packagesshare\dlite\mapping-plugins"
@@ -148,7 +148,7 @@ dlite.storage_path               %DLITE_STORAGES%;                  ".env\Lib\si
 2. DLITE_ROOT is undefined
 
 dlite.storage_plugin_path        %DLITE_STORAGE_PLUGIN_DIRS%;        ".env\Lib\site-packages\dlite\share\dlite\storage-plugins"
-dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; ".env\Lib\site-packages\dlite\share\dlite\python_storage_plugins"
+dlite.python_storage_plugin_path %DLITE_PYTHON_STORAGE_PLUGIN_DIRS%; ".env\Lib\site-packages\dlite\share\dlite\python-storage-plugins"
 dlite.python_mapping_plugin_path %DLITE_PYTHON_MAPPING_PLUGIN_DIRS%; ".env\Lib\site-packages\dlite\share\dlite\python-mapping-plugins"
 
 dlite.mapping_plugin_path        %DLITE_MAPPING_PLUGIN_DIRS%;        ".env\Lib\site-packagesshare\dlite\mapping-plugins"

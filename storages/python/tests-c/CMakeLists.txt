@@ -109,7 +109,7 @@ foreach(test ${tests})
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   endif()
   set_property(TEST ${test} APPEND PROPERTY
-    ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json|${dlite_SOURCE_DIR}/storages/python/python_storage_plugins/*.json")
+    ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json|${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/*.json")
 
 endforeach()
 

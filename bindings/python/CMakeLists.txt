@@ -146,7 +146,7 @@ add_custom_command(
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/mapping-plugins
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python_storage_plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storages
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -162,8 +162,8 @@ add_custom_command(
     "$<TARGET_FILE:dlite-plugins-json>"
     ${pkgdir}/share/dlite/storage-plugins
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${dlite_SOURCE_DIR}/storages/python/python_storage_plugins
-    ${pkgdir}/share/dlite/python_storage_plugins
+    ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+    ${pkgdir}/share/dlite/python-storage-plugins
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
     ${pkgdir}/share/dlite/python-mapping-plugins

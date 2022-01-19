@@ -52,7 +52,7 @@ if(DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/src/utils/tests/tgen_example.c
 
     ${dlite_SOURCE_DIR}/storages/python/README.md
-    ${dlite_SOURCE_DIR}/storages/python/python_storage_plugins/README.md
+    ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/README.md
     ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
     )
 
@@ -66,8 +66,8 @@ if(DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite-entity.h html/src/dlite-entity.h
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite-type.h html/src/dlite-type.h
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png html/SOFT-metadata-structure.png
-    COMMAND ${CMAKE_COMMAND} -E make_directory html/python_storage_plugins
-    COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/storages/python/python_storage_plugins/yaml.py html/python_storage_plugins/yaml.py
+    COMMAND ${CMAKE_COMMAND} -E make_directory html/python-storage-plugins
+    COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/yaml.py html/python-storage-plugins/yaml.py
     DEPENDS ${dependencies}
     #BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

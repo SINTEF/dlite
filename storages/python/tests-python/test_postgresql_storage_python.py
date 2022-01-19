@@ -1,8 +1,6 @@
 """Script to test the DLite plugin 'postgresql.py' in Python."""
 import ast
 import json
-import os
-import shutil
 import sys
 from pathlib import Path
 
@@ -21,7 +19,7 @@ if __name__ in ('__main__', '<run_path>'):
     thisdir = thisfile.absolute().parent
     input_path = thisdir / 'input'
     dlite_path = thisdir.parent.parent.parent
-    plugin = thisdir.parent / 'python_storage_plugins/postgresql.py'
+    plugin = thisdir.parent / 'python-storage-plugins/postgresql.py'
     
     try:
         with open(plugin, 'r') as orig:

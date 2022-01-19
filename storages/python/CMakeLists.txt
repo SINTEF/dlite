@@ -47,14 +47,14 @@ install(
 )
 
 install(
-  DIRECTORY python_storage_plugins
+  DIRECTORY python-storage-plugins
   DESTINATION share/dlite
   PATTERN "*~" EXCLUDE
   )
 
 install(
   FILES
-    python_storage_plugins/blob.json
+    python-storage-plugins/blob.json
   DESTINATION share/dlite/storages
   )
 
