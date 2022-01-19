@@ -103,7 +103,8 @@ class CMakeBuildExt(build_ext):
                 encoding="utf-8")
         except subprocess.CalledProcessError as e:
             #print(e.stdout.decode("utf-8"))
-            raise
+            #raise
+            pass
         try:
             subprocess.run(
                 ["cmake", "--build", ".", "--config", build_type],
@@ -116,7 +117,8 @@ class CMakeBuildExt(build_ext):
             )
         except subprocess.CalledProcessError as e:
             #print(e.stdout.decode("utf-8"))
-            raise
+            #raise
+            pass
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         dir_util.copy_tree(
