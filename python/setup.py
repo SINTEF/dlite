@@ -92,27 +92,22 @@ class CMakeBuildExt(build_ext):
         env = os.environ.copy()
         Path(self.build_temp).mkdir(exist_ok=True)
 
-        try:
-            subprocess.run(
-                cmake_args, 
-                cwd=self.build_temp,
-                env=env,
-                capture_output=True,
-                check=True)
-        except subprocess.CalledProcessError as e:
-            print(e.stdout.decode("utf-8"))
-            raise
-        try:
-            subprocess.run(
-                ["cmake", "--build", ".", "--config", build_type],
-                cwd=self.build_temp,
-                env=env,
-                capture_output=True,
-                check=True
-            )
-        except subprocess.CalledProcessError as e:
-            print(e.stdout.decode("utf-8"))
-            raise
+        subprocess.run(
+            cmake_args, 
+            cwd=self.build_temp,
+            env=env,
+            capture_output=True,
+            check=True,
+            text=True)
+
+        subprocess.run(
+            ["cmake", "--build", ".", "--config", build_type],
+            cwd=self.build_temp,
+            env=env,
+            capture_output=True,
+            check=True,
+            text=True
+        )
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         dir_util.copy_tree(
@@ -122,7 +117,7 @@ class CMakeBuildExt(build_ext):
 
 requirements = [
     "fortran-language-server",
-    "numpy",
+    "numpy>=1.21.3",
     "PyYAML",
     "psycopg2-binary",
     "pandas",
