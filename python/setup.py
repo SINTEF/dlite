@@ -92,24 +92,31 @@ class CMakeBuildExt(build_ext):
         env = os.environ.copy()
         Path(self.build_temp).mkdir(exist_ok=True)
 
-        subprocess.run(
-            cmake_args, 
-            cwd=self.build_temp,
-            env=env,
-            capture_output=True,
-            check=True,
-            text=True,
-            encoding="ascii")
-
-        subprocess.run(
-            ["cmake", "--build", ".", "--config", build_type],
-            cwd=self.build_temp,
-            env=env,
-            capture_output=True,
-            check=True,
-            text=True,
-            encoding="ascii"
-        )
+        try:
+            subprocess.run(
+                cmake_args, 
+                cwd=self.build_temp,
+                env=env,
+                capture_output=True,
+                check=True,
+                text=True,
+                encoding="ascii")
+        except subprocess.CalledProcessError as e:
+            print(e.stdout.decode("utf-8"))
+            raise
+        try:
+            subprocess.run(
+                ["cmake", "--build", ".", "--config", build_type],
+                cwd=self.build_temp,
+                env=env,
+                capture_output=True,
+                check=True,
+                text=True,
+                encoding="ascii"
+            )
+        except subprocess.CalledProcessError as e:
+            print(e.stdout.decode("utf-8"))
+            raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         dir_util.copy_tree(
