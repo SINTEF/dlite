@@ -1,4 +1,5 @@
 #include "dlite-macros.h"
+#include "dlite-pyembed.h"
 #include "dlite-python-singletons.h"
 
 
@@ -9,6 +10,8 @@
 PyObject *dlite_python_maindict(void)
 {
   PyObject *main_module, *main_dict=NULL;
+
+  dlite_pyembed_initialise();
 
   if (!(main_module = PyImport_AddModule("__main__")))
     FAIL("cannot load the embedded Python __main__ module");
