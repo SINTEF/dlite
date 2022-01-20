@@ -15,11 +15,9 @@
 PyObject *dlite_python_maindict(void);
 
 /**
-  Creates a new class in __main__ and returns it.  If the class
-  already exists, it is returned immediately.
+  Creates a new empty singleton class and return it.
 
-  The class is created as executing the following python code in the
-  __main__ scope `class <classname>: pass`.
+  The name of the new class is `classname`.
 
   Returns NULL on error.
  */
