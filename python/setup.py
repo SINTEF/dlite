@@ -108,6 +108,8 @@ class CMakeBuildExt(build_ext):
                 check=True
             )
         except subprocess.CalledProcessError as e:
+            print(e.stdout)
+            print(e.stderr)
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
