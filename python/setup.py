@@ -97,21 +97,17 @@ class CMakeBuildExt(build_ext):
                 cmake_args, 
                 cwd=self.build_temp,
                 env=env,
-                capture_output=True,
                 check=True)
         except subprocess.CalledProcessError as e:
-            print(e.stdout.decode("utf-8"))
             raise
         try:
             subprocess.run(
                 ["cmake", "--build", ".", "--config", build_type],
                 cwd=self.build_temp,
                 env=env,
-                capture_output=True,
                 check=True
             )
         except subprocess.CalledProcessError as e:
-            print(e.stdout.decode("utf-8"))
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
