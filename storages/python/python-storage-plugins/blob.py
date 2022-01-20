@@ -5,11 +5,9 @@ The generated entity has no dimensions and one property called "content".
 """
 import numpy as np
 import dlite
-if 'DLiteStorageBase' not in globals().keys():
-    from dlite import DLiteStorageBase as DLiteStorageBase
 
 
-class blob(DLiteStorageBase):
+class blob(dlite.DLiteStorageBase):
     """DLite storage plugin for binary blobs."""
 
     def open(self, uri, options=None):

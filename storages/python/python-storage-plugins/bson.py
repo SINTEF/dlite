@@ -6,11 +6,9 @@ import bson as pybson # Must be pymongo.bson
 import dlite
 from dlite.options import Options
 from dlite.utils import instance_from_dict
-if 'DLiteStorageBase' not in globals().keys():
-    from dlite import DLiteStorageBase as DLiteStorageBase
 
 
-class bson(DLiteStorageBase):
+class bson(dlite.DLiteStorageBase):
     """DLite storage plugin for BSON."""
 
     def open(self, uri, options=None):

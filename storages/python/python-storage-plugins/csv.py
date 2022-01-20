@@ -10,11 +10,9 @@ import pandas as pd
 
 import dlite
 from dlite.options import Options
-if 'DLiteStorageBase' not in globals().keys():
-    from dlite import DLiteStorageBase as DLiteStorageBase
 
 
-class csv(DLiteStorageBase):  # noqa: F821
+class csv(dlite.DLiteStorageBase):  # noqa: F821
     """DLite storage plugin for CSV files."""
 
     def open(self, uri, options=None):
