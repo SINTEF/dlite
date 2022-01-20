@@ -2,6 +2,20 @@ import os
 
 import dlite
 
+try:
+    import bson
+except ImportError:
+    HAVE_BSON = False
+else:
+    HAVE_BSON = True
+
+try:
+    import yaml
+except ImportError:
+    HAVE_YAML = False
+else:
+    HAVE_YAML = True
+
 
 thisdir = os.path.dirname(__file__)
 
@@ -42,24 +56,10 @@ del uuids
 # =====================================================================
 # Test the BSON and YAML Python plugins
 
-def ignore_error(name):
-    print(f"Warning: Ignored error while test importing '{name}'")
-
-import pkgutil
-have_bson = False # Do we have pymongo?
-have_yaml = False # Do we have PyYAML?
-for pkg in pkgutil.walk_packages(onerror=ignore_error):
-    if not have_bson and pkg.name == 'pymongo':
-        have_bson = True
-    elif not have_yaml and pkg.name == 'yaml':
-        have_yaml = True
-    if have_bson and have_yaml:
-        break
-
 input_dir = thisdir.replace('bindings', 'storages')
 input_dir = input_dir.replace('tests', 'tests-python/input/')
 
-if have_bson:
+if HAVE_BSON:
     # Test BSON
     print('\n\n=== Test BSON plugin ===')
     meta_file = input_dir + 'test_meta.bson'
@@ -104,9 +104,9 @@ if have_bson:
     os.remove(data_test_file)
     del inst1, inst2, inst3, inst4
 else:
-    print('Skip testing BSON plugin - pymongo not installed')
+    print('Skip testing BSON plugin - bson not installed')
 
-if have_yaml:
+if HAVE_YAML:
     # Test YAML
     print('\n\n=== Test YAML plugin ===')
     meta_file = input_dir + 'test_meta.yaml'

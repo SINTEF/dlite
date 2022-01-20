@@ -5,6 +5,7 @@
   @file
   @brief Python mappings
 */
+
 #ifdef HAVE_CONFIG_H
 #undef HAVE_CONFIG_H
 #endif
