@@ -5,7 +5,7 @@ import dlite
 import dlite.mappings as dm
 
 try:
-    import pintaaa
+    import pint
 except ImportError as exc:
     import sys
     print(f"Skipped: {exc}")

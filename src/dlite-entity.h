@@ -129,10 +129,12 @@
 
 #include <stddef.h>
 #include "utils/boolean.h"
+#include "utils/jsmnx.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
 #include "dlite-storage.h"
 #include "dlite-arrays.h"
+
 
 /**
  * @name Typedefs and structs
@@ -1122,6 +1124,7 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
                           const DLiteProperty *p, const size_t *dims,
                           int width, int prec, DLiteTypeFlag flags);
 
+
 /**
   Scans property from `src` and write it to memory pointed to by `ptr`.
 
@@ -1138,6 +1141,31 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
  */
 int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
                         const size_t *dims, DLiteTypeFlag flags);
+
+
+/**
+  Scan property from  JSON data.
+
+  Arguments:
+    - src: JSON data to scan.
+    - item: Pointer into array of JSMN tokens corresponding to the item
+        to scan.
+    - key: The key corresponding to the scanned value when scanning from
+        a JSON object.  May be NULL otherwise.
+    - ptr: Pointer to memory that the scanned value will be written to.
+        For arrays, `ptr` should points to the first element and will not
+        be not dereferenced.
+    - p: DLite property describing the data to scan.
+    - dims: Evaluated shape of property to scan.
+    - flags: Format options.  If zero (default) strings are expected to be
+        quoted.
+
+  Returns:
+    - Number of characters consumed from `src` or a negative number on error.
+ */
+int dlite_property_jscan(const char *src, const jsmntok_t *item,
+                         const char *key, void *ptr, const DLiteProperty *p,
+                         const size_t *dims, DLiteTypeFlag flags);
 
 
 /** @} */
