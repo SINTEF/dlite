@@ -60,4 +60,5 @@ install(
   )
 
 # tests
-add_subdirectory(tests)
+add_subdirectory(tests-c)
+add_subdirectory(tests-python)

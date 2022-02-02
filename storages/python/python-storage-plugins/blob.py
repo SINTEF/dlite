@@ -7,7 +7,7 @@ import numpy as np
 import dlite
 
 
-class blob(DLiteStorageBase):
+class blob(dlite.DLiteStorageBase):
     """DLite storage plugin for binary blobs."""
 
     def open(self, uri, options=None):

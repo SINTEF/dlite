@@ -51,6 +51,7 @@ include_directories(
   ${Python3_INCLUDE_DIRS}
   ${Python3_NumPy_INCLUDE_DIRS}
   ${dlite-src_SOURCE_DIR}
+  ${dlite-src_SOURCE_DIR}/pyembed
   ${dlite-src_BINARY_DIR}
   ${dlite-src-utils_BINARY_DIR}
   )

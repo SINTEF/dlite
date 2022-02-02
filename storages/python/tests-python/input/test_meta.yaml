@@ -1,0 +1,38 @@
+2b10c236-eb00-541a-901c-046c202e52fa:
+  description: test entity with explicit meta
+  dimensions:
+  - description: first dim
+    name: L
+  - description: second dim
+    name: M
+  - description: third dim
+    name: N
+  meta: http://onto-ns.com/meta/0.3/EntitySchema
+  name: test-entity
+  namespace: http://onto-ns.com/meta
+  properties:
+  - name: myblob
+    type: blob3
+  - description: A double following a single character...
+    name: mydouble
+    type: float64
+    unit: m
+  - description: A fix string.
+    name: myfixstring
+    type: string3
+  - description: A string pointer.
+    name: mystring
+    type: string
+  - description: An unsigned short integer.
+    name: myshort
+    type: uint16
+  - description: An array string pointer.
+    dims:
+    - L
+    - M
+    - N
+    name: myarray
+    type: int32
+  uri: http://onto-ns.com/meta/0.1/test-entity
+  uuid: 2b10c236-eb00-541a-901c-046c202e52fa
+  version: '0.1'

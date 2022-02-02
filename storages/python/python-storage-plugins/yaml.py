@@ -9,7 +9,7 @@ from dlite.options import Options
 from dlite.utils import instance_from_dict
 
 
-class yaml(DLiteStorageBase):
+class yaml(dlite.DLiteStorageBase):
     """DLite storage plugin for YAML."""
 
     def open(self, uri, options=None):

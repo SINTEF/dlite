@@ -8,7 +8,7 @@ from dlite.options import Options
 from dlite.utils import instance_from_dict
 
 
-class bson(DLiteStorageBase):
+class bson(dlite.DLiteStorageBase):
     """DLite storage plugin for BSON."""
 
     def open(self, uri, options=None):
