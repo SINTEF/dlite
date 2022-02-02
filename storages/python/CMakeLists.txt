@@ -50,6 +50,7 @@ install(
   DIRECTORY python-storage-plugins
   DESTINATION share/dlite
   PATTERN "*~" EXCLUDE
+  PATTERN ".gitignore" EXCLUDE
   )
 
 install(

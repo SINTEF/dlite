@@ -65,7 +65,7 @@ MU_TEST(test_metamodel_create_meta)
   DLiteMeta *meta = dlite_meta_create_from_metamodel(model);
   mu_check(meta);
   //dlite_instance_print((DLiteInstance *)meta);
-  dlite_instance_save_url("json://Vehicle.json?mode=w&meta=yes",
+  dlite_instance_save_url("json://Vehicle.json?mode=w&with-uuid=yes",
                           (DLiteInstance *)meta);
 
   size_t dims[] = {0};
@@ -82,7 +82,7 @@ MU_TEST(test_metamodel_create_meta)
   DLiteMeta *meta2 = dlite_meta_create_from_metamodel(nodim);
   mu_check(meta2);
   //dlite_instance_print((DLiteInstance *)meta);
-  dlite_instance_save_url("json://NoDimension.json?mode=w&meta=yes",
+  dlite_instance_save_url("json://NoDimension.json?mode=w&with-uuid=yes",
                           (DLiteInstance *)meta2);
 
   DLiteInstance *inst = dlite_instance_create(meta2, NULL, NULL);

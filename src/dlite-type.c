@@ -771,11 +771,9 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
                         (i < prop->ndims-1) ? ", " : "");
         m += snprintf(dest+m, PDIFF(n, m), "]");
       }
-      if (prop->unit)
+      if (prop->unit && *prop->unit)
         m += snprintf(dest+m, PDIFF(n, m), ", \"unit\": \"%s\"", prop->unit);
-      if (prop->iri)
-        m += snprintf(dest+m, PDIFF(n, m), ", \"iri\": \"%s\"", prop->iri);
-      if (prop->description)
+      if (prop->description && *prop->description)
         m += snprintf(dest+m, PDIFF(n, m), ", \"description\": \"%s\"",
                       prop->description);
       m += snprintf(dest+m, PDIFF(n, m), "}");
@@ -785,22 +783,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteRelation:
     {
       DLiteRelation *r = (DLiteRelation *)p;
-      m = snprintf(dest, n, "[");
-      if (r->s)
-        m += snprintf(dest+m, PDIFF(n, m), "\"%s\"", r->s);
-      else
-        m += snprintf(dest+m, PDIFF(n, m), "null");
-      m += snprintf(dest+m, PDIFF(n, m), ", ");
-      if (r->p)
-        m += snprintf(dest+m, PDIFF(n, m), "\"%s\"", r->p);
-      else
-        m += snprintf(dest+m, PDIFF(n, m), "null");
-      m += snprintf(dest+m, PDIFF(n, m), ", ");
-      if (r->o)
-        m += snprintf(dest+m, PDIFF(n, m), "\"%s\"", r->o);
-      else
-        m += snprintf(dest+m, PDIFF(n, m), "null");
-      m += snprintf(dest+m, PDIFF(n, m), "]");
+      m = snprintf(dest, n, "[\"%s\", \"%s\", \"%s\"]", r->s, r->p, r->o);
     }
     break;
   }

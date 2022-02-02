@@ -8,8 +8,8 @@
 #include "utils/err.h"
 #include "utils/map.h"
 #include "utils/fileutils.h"
+#include "utils/strutils.h"
 #include "utils/infixcalc.h"
-#include "utils/jsmnx.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -1018,6 +1018,7 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
   int retval=1;
   char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
   DLiteStorage *s=NULL;
+
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &loc, &options, NULL)) goto fail;
   if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
@@ -2430,14 +2431,14 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
   n-dimensional arrays.
 
   Arguments:
-     d      current dimension
-     src    buffer to read from
-     pptr   pointer to pointer to memory to write to
-     p      property describing the data
-     dims   array of property dimension values
-     t      pointer to a jsmn token
+   - d      current dimension
+   - src    buffer to read from
+   - pptr   pointer to pointer to memory to write to
+   - p      property describing the data
+   - dims   array of property dimension values
+   - t      pointer to a jsmn token
 
-  Returns non-zero on error.
+  Returns zero on success and a negative number on error.
 */
 static int scandim(int d, const char *src, void **pptr,
                    const DLiteProperty *p, const size_t *dims,
@@ -2465,6 +2466,101 @@ static int scandim(int d, const char *src, void **pptr,
  fail:
   return err(-1, "failed to scan string representation of array");
 }
+
+/*
+  Help function for scanning dimensions and properties expressed as
+  JSON objects (SOFT7 format).
+
+  Arguments:
+    - src: JSON data to scan.
+    - item: Pointer into array of JSMN tokens corresponding to the item
+        to scan.
+    - key: The key corresponding to the scanned value when scanning from
+        a JSON object.  May be NULL otherwise.
+    - ptr: Pointer to memory that the scanned value will be written to.
+        For arrays, `ptr` should points to the first element and will not
+        be not dereferenced.
+    - p: DLite property describing the data to scan.
+
+  Returns:
+    - Number of characters consumed from `src` or a negative number on error.
+ */
+int scanobj(const char *src, const jsmntok_t *item, const char *key,
+            void *ptr, const DLiteProperty *p)
+{
+  const char *val = src + item->start;
+  int len = item->end - item->start;
+  int keylen = strcspn(key, "\"' \n\t");
+
+  switch (p->type) {
+
+  case dliteDimension:
+    {
+      DLiteDimension *dim = ptr;
+      if (item->type != JSMN_STRING)
+        return err(-1, "expected JSON string, got \"%.*s\"", len, val);
+
+      if (dim->name) free(dim->name);
+      if (dim->description) free(dim->description);
+      memset(dim, 0, sizeof(DLiteDimension));
+
+      dim->name = strndup(key, keylen);
+      dim->description = strndup(val, len);
+    }
+    break;
+
+  case dliteProperty:
+    {
+      DLiteProperty *prop = ptr;
+      const jsmntok_t *t, *d;
+      int i;
+
+      if (item->type != JSMN_OBJECT)
+        return err(-1, "expected JSON object, got \"%.*s\"", len, val);
+
+      if (prop->name) free(prop->name);
+      if (prop->dims) free(prop->dims);
+      if (prop->unit) free(prop->unit);
+      if (prop->description) free(prop->description);
+      memset(prop, 0, sizeof(DLiteProperty));
+
+      prop->name = strndup(key, keylen);
+
+      if (!(t = jsmn_item(src, item, "type")))
+        return errx(-1, "missing property type: '%.*s'", len, val);
+      if (dlite_type_set_dtype_and_size(val, &prop->type, &prop->size))
+        return -1;
+
+      if ((t = jsmn_item(src, item, "dims"))) {
+        if (t->type != JSMN_ARRAY)
+          return errx(-1, "property \"%.*s\": dims should be an array",
+                      keylen, key);
+        prop->ndims = t->size;
+        prop->dims = calloc(prop->ndims, sizeof(char *));
+        for (i=0; i < prop->ndims; i++) {
+          if (!(d = jsmn_element(src, t, i)))
+            return err(-1, "error parsing dimensions \"%.*s\" of property "
+                       "\"%.*s\"", t->end - t->start, src + t->start,
+                       keylen, key);
+          prop->dims[i] = strndup(src + d->start, d->end - d->start);
+        }
+      }
+
+      if ((t = jsmn_item(src, item, "unit")))
+        prop->unit = strndup(src + t->start, t->end - t->start);
+
+      if ((t = jsmn_item(src, item, "description")))
+        prop->description = strndup(src + t->start, t->end - t->start);
+    }
+    break;
+
+  default:
+    return err(-1, "object format is not supported for property type: %s",
+               dlite_type_get_dtypename(p->type));
+  }
+  return len;
+}
+
 
 /*
   Scans property from `src` and write it to memory pointed to by `ptr`.
@@ -2500,6 +2596,54 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
     return n;
   } else {
     return dlite_type_scan(src, -1, ptr, p->type, p->size, flags);
+  }
+}
+
+
+/*
+  Scan property from  JSON data.
+
+  Arguments:
+    - src: JSON data to scan.
+    - item: Pointer into array of JSMN tokens corresponding to the item
+        to scan.
+    - key: The key corresponding to the scanned value when scanning from
+        a JSON object.  May be NULL otherwise.
+    - ptr: Pointer to memory that the scanned value will be written to.
+        For arrays, `ptr` should points to the first element and will not
+        be not dereferenced.
+    - p: DLite property describing the data to scan.
+    - dims: Evaluated shape of property to scan.
+    - flags: Format options.  If zero (default) strings are expected to be
+        quoted.
+
+  Returns:
+    - Number of characters consumed from `src` or a negative number on error.
+ */
+int dlite_property_jscan(const char *src, const jsmntok_t *item,
+                         const char *key, void *ptr, const DLiteProperty *p,
+                         const size_t *dims, DLiteTypeFlag flags)
+{
+  if (p->ndims) {
+    void *q = ptr;
+    jsmntok_t *t = (jsmntok_t *)item;
+    int len = item->end - item->start;
+    switch (item->type) {
+    case JSMN_ARRAY:
+      if (scandim(0, src, &q, p, dims, flags, &t)) return -1;
+      break;
+    case JSMN_OBJECT:
+      if (scanobj(src, item, key, ptr, p)) return -1;
+      break;
+    default:
+      return errx(-1,
+                 "property \"%s\" has %d dimensions, but got a scalar %.*s",
+                  p->name, p->ndims, len, src + item->start);
+    }
+    return len;
+  } else {
+    return dlite_type_scan(src + item->start, item->end - item->start,
+                           ptr, p->type, p->size, flags);
   }
 }
 

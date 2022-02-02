@@ -1,6 +1,15 @@
 name: Cross-compile for Windows
 
-on: [push]
+# This workflow takes too long - run it on pull request, push to master and nightly
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 2 * * *'  # run at 2 AM UTC
 
 jobs:
   build:
@@ -14,7 +23,3 @@ jobs:
 
     - name: Build docker image
       run: docker build -t dlite-mingw -f Dockerfile-mingw .
-
-      # TODO:
-      #   - update the image to produce a windows installer
-      #   - copy the installer out of the image and deploy

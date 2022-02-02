@@ -23,6 +23,7 @@ typedef struct {
   DLiteStorage_HEAD
   JStore *jstore;       /* json storage */
   DLiteJsonFlag flags;  /* output flags */
+  int fmt_given;        /* whether single/multi entity format is given */
   int changed;          /* whether the storage is changed */
   map_uuid_t ids;       /* maps uuids to ids */
 } DLiteJsonStorage;
@@ -30,8 +31,8 @@ typedef struct {
 
 /** Returns default mode:
     - 'w': if we can't open `uri`
-    - 'a': if `uri` is in data format
-    - 'r': otherwise
+    - 'r': if `uri` is in single-entity format
+    - 'a': otherwise
 */
 static int default_mode(const char *uri)
 {
@@ -44,10 +45,7 @@ static int default_mode(const char *uri)
     break;
   ErrEnd;
 
-  if (stat)
-    mode = 'w';
-  else
-    mode = (jstore_get(js, "properties")) ? 'r' : 'a';
+  mode = (stat) ? 'w' : (jstore_get(js, "properties")) ? 'r' : 'a';
   jstore_close(js);
   return mode;
 }
@@ -63,9 +61,17 @@ static int default_mode(const char *uri)
       - r   Open existing file for read-only
       - w   Truncate existing file or create new file
       - a   Append to existing file or create new file (default)
+  - single : yes | no
+      Whether to write single-entity format.
+  - uri-key : yes | no
+      Whether to use URI (if it exists) as json key instead of UUID
   - with-uuid : yes | no
-      Whether to write output in compact format.
-  - as-data : yes | no
+      Whether to include uuid in output.
+  - with-meta : yes | no
+      Whether to always include meta in output (even for metadata).
+  - arrays : yes | no
+      Whether to write metadata dimensions and properties as arrays.
+  - as-data : yes | no (deprecated)
   - meta : yes | no (deprecated)
       Whether to format output as metadata. Alias for `with-uuid`
   - compact : yes | no (deprecated)
@@ -76,7 +82,7 @@ static int default_mode(const char *uri)
 DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
                         const char *options)
 {
-  DLiteJsonStorage *s;
+  DLiteJsonStorage *s=NULL;
   DLiteStorage *retval=NULL;
   char *mode_descr = "How to open storage.  Valid values are: "
     "\"r\" (read-only); "
@@ -84,10 +90,13 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
     "\"a\" (appends to existing storage or creates a new one)";
   DLiteOpt opts[] = {
     {'m', "mode",      "", mode_descr},
+    {'s', "single",    "", "Whether to write single-entity format"},
+    {'s', "uri-key",   "false", "Whether to use uri as json key"},
     {'u', "with-uuid", "false", "Whether to include uuid in output"},
-    {'d', "as-data",   "false", "Whether to write metadata as data"},
-    {'c', "compact",   "false", "Aliad for `as-data=false` (deprecated)"},
-    {'M', "meta",      "false", "Alias for `with-uuid` (deprecated)"},
+    {'M', "with-meta", "false", "Always include meta in output"},
+    {'a', "arrays",    "true",  "Serialise metadata dims and props as arrays"},
+    {'d', "as-data",   "false", "Alias for `single=false` (deprecated)"},
+    {'c', "compact",   "false", "Alias for `single` (deprecated)"},
     {'U', "useid",     "",      "Unused (deprecated)"},
     {0, NULL, NULL, NULL}
   };
@@ -98,13 +107,31 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
 
   char mode = *opts[0].value;
-  int withuuid = atob(opts[1].value);
-  int asdata = atob(opts[2].value);
+  int single = (*opts[1].value) ? atob(opts[1].value) : -2;
+  int urikey = atob(opts[2].value);
+  int withuuid = atob(opts[3].value);
+  int withmeta = atob(opts[4].value);
+  int arrays = atob(opts[5].value);
+
+  /* deprecated options */
+  if (atob(opts[6].value) > 0) single = (warn("`asdata` is deprecated"), 0);
+  if (atob(opts[7].value) > 0) single = (warn("`compact` is deprecated"), 1);
+  if (atob(opts[8].value) > 0) warn("`useid` is deprecated");
+
+  /* check options */
+  if (single == -1) FAIL1("invalid boolean value for `single=%s`.",
+                        opts[1].value);
+  if (urikey < 0) FAIL1("invalid boolean value for `uri-key=%s`.",
+                        opts[2].value);
+  if (withuuid < 0) FAIL1("invalid boolean value for `with-uuid=%s`.",
+                          opts[3].value);
+  if (withmeta < 0) FAIL1("invalid boolean value for `with-meta=%s`.",
+                          opts[4].value);
+  if (arrays < 0) FAIL1("invalid boolean value for `arrays=%s`.",
+                        opts[5].value);
 
   if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL("allocation failure");
   s->api = api;
-
-  if (!(s->jstore = jstore_open())) goto fail;
 
   if (!mode) mode = default_mode(uri);
   switch (mode) {
@@ -113,6 +140,7 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
     s->writable = 0;
     break;
   case 'a':
+    if (single > 0) FAIL("cannot append in single-entity format");
     load = 1;
     s->writable = 1;
     break;
@@ -125,22 +153,21 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
           "\"w\" (write) or \"a\" (append)", mode);
   }
 
+  s->fmt_given = (single >= 0) ? 1 : 0;
+  if (single > 0) s->flags |= dliteJsonSingle;
+  if (urikey) s->flags |= dliteJsonUriKey;
+  if (withuuid) s->flags |= dliteJsonWithUuid;
+  if (withmeta) s->flags |= dliteJsonWithMeta;
+  if (arrays) s->flags |= dliteJsonArrays;
+
+  /* Load jstore if not in write mode */
   if (load) {
+    if (!(s->jstore = jstore_open())) goto fail;
     DLiteJsonFormat fmt = dlite_jstore_loadf(s->jstore, uri);
     if (fmt < 0) goto fail;
-    if (fmt == dliteJsonMetaFormat) s->writable = 0;
+    if (fmt == dliteJsonMetaFormat && mode != 'a') s->writable = 0;
     dlite_storage_paths_append(uri);
   }
-
-  if (withuuid < 0) FAIL1("invalid boolean value for `with-uuid=%s`.",
-                          opts[1].value);
-  if (asdata < 0) FAIL1("invalid boolean value for `as-data=%s`.",
-                        opts[2].value);
-  if (atob(opts[3].value) > 0) asdata = 0;
-  if (atob(opts[4].value) > 0) withuuid = 1;
-
-  if (withuuid) s->flags |= dliteJsonWithUuid;
-  if (asdata) s->flags |= dliteJsonMetaAsData;
 
   retval = (DLiteStorage *)s;
 
@@ -159,9 +186,11 @@ int json_close(DLiteStorage *s)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   int stat=0;
-  if (js->writable && js->changed)
-    stat = jstore_to_file(js->jstore, js->location);
-  stat |= jstore_close(js->jstore);
+  if (js->jstore) {
+    if (js->writable && js->changed)
+      stat = jstore_to_file(js->jstore, js->location);
+    stat |= jstore_close(js->jstore);
+  }
   return stat;
 }
 
@@ -175,6 +204,9 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   const char *buf=NULL, *scanid;
   char uuid[DLITE_UUID_LENGTH+1];
+
+  if (!js->jstore)
+    FAIL1("cannot load json in write mode: %s", s->location);
 
   if (!id || !*id) {
     JStoreIter iter;
@@ -191,8 +223,6 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   }
   if (!buf && !(buf = jstore_get(js->jstore, id)))
       goto fail;
-    //FAIL2("no instance with id \"%s\" in storage \"%s\"", id, s->location);
-
   if (dlite_get_uuid(uuid, id) == 0) {
     /* the provided id is an uuid - check if a human readable id has been
        assoicated with `id` as a label */
@@ -200,7 +230,6 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   } else {
     scanid = id;
   }
-
   return dlite_json_sscan(buf, scanid, NULL);
  fail:
   return NULL;
@@ -213,11 +242,29 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
 int json_save(DLiteStorage *s, const DLiteInstance *inst)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
+  int stat=1;
+  DLiteJsonFlag flags = js->flags;
+
   if (!s->writable)
-    return errx(1, "storage \"%s\" is not writable", s->location);
-  if (dlite_jstore_add(js->jstore, inst, js->flags)) return 1;
+    FAIL1("storage \"%s\" is not writable", s->location);
+
+  /* If single/multi format is not given, infer it from `inst` */
+  if (!js->fmt_given && dlite_instance_is_meta(inst))
+    flags |= dliteJsonSingle;
+
+  if (flags & dliteJsonSingle) {
+    if (js->changed)
+      FAIL1("Trying to save more than once in single-entity format: %s",
+            s->location);
+    int n = dlite_json_printfile(s->location, inst, flags);
+    stat = (n > 0) ? 0 : 1;
+  } else {
+    if (!js->jstore && !(js->jstore = jstore_open())) goto fail;
+    stat = dlite_jstore_add(js->jstore, inst, flags);
+  }
   js->changed = 1;
-  return 0;
+ fail:
+  return stat;
 }
 
 
@@ -227,11 +274,15 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   If `metaid` is not NULL, dlite_json_iter_next() will only iterate over
   instances whos metadata corresponds to this id.
 
+  It is an error if this function is called in single-entity mode.
+
   Returns new iterator or NULL on error.
  */
 void *json_iter_create(const DLiteStorage *s, const char *metaid)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
+  if (!js->jstore)
+    return errx(1, "iteration not possible in write mode"), NULL;
   return dlite_jstore_iter_create(js->jstore, metaid);
 }
 

@@ -12,26 +12,22 @@
 #include "utils/jsmnx.h"
 
 
-/** Flags for serialisation */
+/** Flags for controlling serialisation */
 typedef enum {
-  dliteJsonWithUuid=1,    /*!< Whether to include uuid in output */
-  dliteJsonMetaAsData=2   /*!< Whether to write metadata as data */
+  dliteJsonSingle=1,    /*!< single-entity format */
+  dliteJsonUriKey=2,    /*!< Use uri (if it exists) as json key in multi-
+                             entity format. */
+  dliteJsonWithUuid=4,  /*!< include uuid in output */
+  dliteJsonWithMeta=8,  /*!< always include "meta" (even for metadata) */
+  dliteJsonArrays=16,   /*!< write metadata dimension and properties as
+                             json arrays (old format) */
 } DLiteJsonFlag;
 
-/** JSON formats */
+/** Enum indicating whether a JSON string is formatted as data and metadata. */
 typedef enum {
-  dliteJsonDataFormat,    /*!< Data format - single item */
-  dliteJsonMetaFormat     /*!< Metadata format - multiple items */
+  dliteJsonDataFormat,    /*!< Data format */
+  dliteJsonMetaFormat     /*!< Metadata format */
 } DLiteJsonFormat;
-
-
-///** Iterater struct */
-//typedef struct _DLiteJsonIter {
-//  JStoreIter jiter;                    /*!< jstore iterater */
-//  char metauuid[DLITE_UUID_LENGTH+1];  /*!< UUID of metadata */
-//  jsmntok_t *tokens;                   /*!< pointer to allocated tokens */
-//  unsigned int ntokens;                /*!< number of allocated tokens */
-//} DLiteJsonIter;
 
 
 /**
@@ -88,6 +84,14 @@ int dlite_json_fprint(FILE *fp, const DLiteInstance *inst, int indent,
 int dlite_json_print(const DLiteInstance *inst);
 
 /**
+  Like dlite_json_sprint(), but prints the output to file `filename`.
+
+  Returns number or bytes printed or a negative number on error.
+ */
+int dlite_json_printfile(const char *filename, const DLiteInstance *inst,
+                         DLiteJsonFlag flags);
+
+/**
   Appends json representation of `inst` to json string pointed to by `*s`.
 
   On input, `*s` should be a malloc'ed string representation of a json object.
@@ -100,6 +104,7 @@ int dlite_json_print(const DLiteInstance *inst);
  */
 int dlite_json_append(char **s, size_t *size, const DLiteInstance *inst,
                       DLiteJsonFlag flags);
+
 
 
 /** @} */
@@ -140,6 +145,57 @@ DLiteInstance *dlite_json_fscan(FILE *fp, const char *id, const char *metaid);
 DLiteInstance *dlite_json_scanfile(const char *filename, const char *id,
                                    const char *metaid);
 
+
+
+/** @} */
+/**
+ * @name Checking
+ */
+/** @{ */
+
+/**
+  Check format of a parsed JSON string.
+
+  `src` is the JSON string to check.
+
+  `tokens` should be a parsed set of JSMN tokens corresponding to `src`.
+
+  If `id` is not NULL, it is used to select what instance in a
+  multi-entity formatted JSON string that will be used to assign
+  flags.  If NULL, the first instance will be used.
+
+  If `flags` is not NULL, the formatting (of the first entry in case
+  of multi-entity format) will be investigated and `flags` set
+  accordingly.
+
+  Return the format of `src` or -1 on error.
+ */
+DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
+                                 const char *id, DLiteJsonFlag *flags);
+
+/**
+  Like dlite_json_check(), but checks string `src` with length `len`.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_scheck(const char *src, size_t len,
+                                  const char *id, DLiteJsonFlag *flags);
+
+/**
+  Like dlite_json_scheck(), but checks the content of stream `fp` instead.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_fcheck(FILE *fp, const char *id,
+                                  DLiteJsonFlag *flags);
+
+/**
+  Like dlite_json_scheck(), but checks the file `filename` instead.
+
+  Return the json format or -1 on error.
+ */
+DLiteJsonFormat dlite_json_checkfile(const char *filename,
+                                     const char *id, DLiteJsonFlag *flags);
 
 
 

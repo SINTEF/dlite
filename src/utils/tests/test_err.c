@@ -44,22 +44,19 @@ MU_TEST(test_err_functions)
 
   /* Adding prefix */
   mu_assert_string_eq("", err_set_prefix("test_err"));
-
-  msg = "test_err: Error 2: my errmsg: ";
+  msg = "test_err: Error 2: my errmsg";
   mu_assert_int_eq(2, err(2, "my errmsg"));
-  mu_check(strlen(err_getmsg()) > strlen(msg));
-  mu_assert_int_eq(0, strncmp(err_getmsg(), msg, strlen(msg)));
+  mu_assert_int_eq(0, strcmp(err_getmsg(), msg));
 
   msg = "test_err: Error 2: my errmsg2";
   mu_assert_int_eq(2, errx(2, "my errmsg2"));
   mu_assert_int_eq(2, err_geteval());
   mu_assert_string_eq(msg, err_getmsg());
 
-  msg = "test_err: Warning: my msg: ";
+  msg = "test_err: Warning: my msg";
   mu_assert_int_eq(0, warn("my msg"));
   mu_assert_int_eq(0, err_geteval());
-  mu_check(strlen(err_getmsg()) > strlen(msg));
-  mu_assert_int_eq(0, strncmp(err_getmsg(), msg, strlen(msg)));
+  mu_assert_int_eq(0, strcmp(err_getmsg(), msg));
 
   msg = "test_err: Warning: my msg2";
   mu_assert_int_eq(0, warnx("my msg2"));
