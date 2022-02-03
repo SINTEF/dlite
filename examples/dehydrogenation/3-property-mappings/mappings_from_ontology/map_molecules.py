@@ -13,13 +13,13 @@ rootdir = thisdir.parent.parent
 world = World()
 
 mapsTo_onto = world.get_ontology(f'{rootdir}/ontology/mapsTo.ttl').load(
-    EMMObased=False)
+    emmo_based=False)
 
 chemistry_onto = world.get_ontology(f'{rootdir}/ontology/chemistry.ttl').load()
 
 dlite_onto = world.get_ontology('https://raw.githubusercontent.com/'
                           'emmo-repo/datamodel-ontology/master'
-                          '/dlitemodel.ttl').load(EMMObased=False)
+                          '/dlitemodel.ttl').load(emmo_based=False)
 mapping = world.get_ontology('http://onto-ns.com/ontology/mapping#')
 mapping.set_version('0.1')
 mapping.imported_ontologies.extend([mapsTo_onto, chemistry_onto, dlite_onto])

@@ -1,7 +1,7 @@
 # from ontopy import get_ontology # will soon release on pypi the bigg
 # structure change in emmo-python
 
-from emmo import get_ontology
+from ontopy import get_ontology
 import dlite
 
 dlite.storage_path.append(f'../molecules/*.json')
