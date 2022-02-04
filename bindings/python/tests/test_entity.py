@@ -28,8 +28,13 @@ assert not myentity.is_metameta
 # Store the entity to a new file
 myentity.save('json://xxx.json?mode=w')
 
-# Save again, but without mode
-myentity.save('json://xxx2.json')
+# Try to overwrite without mode - should fail because metadata is immutable
+try:
+    myentity.save('json://xxx.json')
+except dlite.DLiteError:
+    pass
+else:
+    assert False, 'overwriting single-entity formatted file'
 
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
@@ -72,7 +77,7 @@ for i in range(len(inst)):
     print('prop%d:' % i, inst[i])
 
 # String representation (as json)
-print(inst)
+#print(inst)
 
 # Check save and load
 inst.save('json://inst.json?mode=w')
@@ -86,7 +91,6 @@ dim = Dimension('N')
 
 prop = Property("a", type='float')
 
-# FIXME - property dimensions should be strings!
 prop2 = Property("b", type='string10', dims=['I', 'J', 'K'],
                  description='something enlightening...')
 assert any(prop2.dims)
@@ -128,3 +132,12 @@ else:
 del inst
 del e2
 del e3
+
+
+# Metadata schema
+schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
+schema.save('entity_schema.json?mode=w;arrays=false')
+schema.meta.save('basic_metadata_schema.json?mode=w;arrays=false')
+
+inst = dlite.Instance('json://entity_schema.json')
+assert inst.uri == dlite.ENTITY_SCHEMA

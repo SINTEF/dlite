@@ -48,10 +48,19 @@ def instance_from_dict(d):
         inst = dlite.Instance.create_from_metaid(meta.uri, dims, arg)
         for p in meta['properties']:
             value = d['properties'][p.name]
-            if p.type.startswith('blob') and type(value) == str:
-                # If binary data is a string, assume it is hexadecimal
-                value = bytearray(binascii.unhexlify(value))
-            inst[p.name] = value
+            if p.type.startswith('blob'):
+                if isinstance(value, str):
+                    # Assume that the binary data string is hexadecimal
+                    value = bytearray(binascii.unhexlify(value))
+                elif isinstance(value, list) and len(value) > 1 \
+                        and isinstance(value[1], str):
+                    # Assume value = [binary string, encoding]
+                    value = bytearray(value[0], value[1])
+            if isinstance(inst[p.name], (float, int)):
+                # Ensure correct scalar conversion by explicit cast
+                inst[p.name] = type(inst[p.name])(value)
+            else:
+                inst[p.name] = value
     return inst
 
 

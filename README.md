@@ -6,6 +6,29 @@ DLite
 > Lightweight data-centric interoperability framework for working with scientific data
 
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/sintef/dlite)
+
+Content
+-------
+  * [About DLite](#about-dlite)
+    - [Main features](#main-features)
+    - [Example](#example)
+    - [Short vocabulary](#short-vocabulary)
+  * [Download and build](#download-and-build)
+    - [Download](#download)
+      - [From source](#from-source)
+      - [Pre-build docker container](#pre-build-docker-container)
+    - [Dependencies](#dependencies)
+      - [Runtime dependencies](#runtime-dependencies)
+      - [Build dependencies](#build-dependencies)
+    - [Compiling](#compiling)
+      - [Build and install with Python](#build-and-install-with-python)
+      - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
+      - [Build on Linux](#build-on-linux)
+  * [Using DLite](#using-dlite)
+    - [Using the docker image](#using-the-docker-image)
+  * [Licensing](#licensing)
+
 
 DLite is a lightweight cross-platform C library, for working with and
 sharing scientific data in an interoperable way.  It can be described
@@ -316,8 +339,15 @@ See [here](doc/build-with-vs.md) for instructions for building with
 Visual Studio.
 
 
-### Quick start with VS Code and Remote Container
+### Build and install with Python
+Given you have a C compiler and Python correctly installed, you should be
+able to build and install dlite via the python/setup.py script:
 
+    cd python
+    python setup.py install
+
+
+### Quick start with VS Code and Remote Container
 Using Visual Studio Code it is possible to do development on the
 system defined in Dockerfile.
 
@@ -337,7 +367,6 @@ system defined in Dockerfile.
 
 
 ### Build on Linux
-
 Install the hdf5 (does not include the parallel component) libraries
 
 On Ubuntu:

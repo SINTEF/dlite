@@ -11,11 +11,11 @@ url = 'json://' + thisdir + '/MyEntity.json'
 
 # Load metadata (i.e. an instance of meta-metadata) from url
 s = dlite.Storage(url)
-myentity = dlite.Instance.create_from_storage(s, 'http://onto-ns.com/meta/0.1/MyEntity')
+myentity = dlite.Instance(s, 'http://onto-ns.com/meta/0.1/MyEntity')
 del s
 
 with dlite.Storage(url) as s2:
-    myentity2 = dlite.Instance.create_from_storage(s2, 'http://onto-ns.com/meta/0.1/MyEntity')
+    myentity2 = dlite.Instance(s2, 'http://onto-ns.com/meta/0.1/MyEntity')
 
 # Create an instance
 inst = myentity(dims=[2, 3], id='my-data')
@@ -27,7 +27,7 @@ print('--- testing json')
 myentity.save('json://myentity.json?mode=w')
 inst.save('json://inst.json')
 del inst
-inst = dlite.Instance.create_from_url('json://inst.json#my-data')
+inst = dlite.Instance('json://inst.json#my-data')
 
 
 # Test yaml
@@ -39,7 +39,7 @@ else:
     print('--- testing yaml')
     inst.save('yaml://inst.yaml?mode=w')
     del inst
-    inst = dlite.Instance.create_from_url('yaml://inst.yaml#my-data')
+    inst = dlite.Instance('yaml://inst.yaml#my-data')
 
 
 # Test rdf
@@ -51,4 +51,4 @@ except dlite.DLiteError:
 else:
     del inst
     # FIXME: read from inst.ttl not db.xml
-    inst = dlite.Instance.create_from_url('rdf://db.xml#my-data')
+    inst = dlite.Instance('rdf://db.xml#my-data')

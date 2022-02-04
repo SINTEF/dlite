@@ -12,7 +12,7 @@ import dlite
 from dlite.options import Options
 
 
-class csv(DLiteStorageBase):  # noqa: F821
+class csv(dlite.DLiteStorageBase):  # noqa: F821
     """DLite storage plugin for CSV files."""
 
     def open(self, uri, options=None):

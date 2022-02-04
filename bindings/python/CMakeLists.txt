@@ -5,6 +5,7 @@ set(py_sources
   factory.py
   options.py
   utils.py
+  mappings.py
   )
 
 configure_file(paths.py.in paths.py)
@@ -50,6 +51,7 @@ include_directories(
   ${Python3_INCLUDE_DIRS}
   ${Python3_NumPy_INCLUDE_DIRS}
   ${dlite-src_SOURCE_DIR}
+  ${dlite-src_SOURCE_DIR}/pyembed
   ${dlite-src_BINARY_DIR}
   ${dlite-src-utils_BINARY_DIR}
   )
@@ -200,6 +202,8 @@ set(Python3_MODULE_PATH
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
   DESTINATION ${Python3_MODULE_PATH}
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
   )
 
 install(

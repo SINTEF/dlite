@@ -40,8 +40,7 @@ d = {
         "M": 3
     },
     "properties": {
-        "a-blob": bytes.fromhex("00112233445566778899aabbccddeeff"),
-        #"a-blob": "00112233445566778899aabbccddeeff",
+        "a-blob": "00112233445566778899aabbccddeeff",
         "a-blob-array": [
             [
                 b"abcd",

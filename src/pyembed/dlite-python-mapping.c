@@ -3,6 +3,7 @@
  */
 #include <Python.h>
 #include <assert.h>
+#include <stdlib.h>
 
 /* Python pulls in a lot of defines that conflicts with utils/config.h */
 #define SKIP_UTILS_CONFIG_H
@@ -15,6 +16,7 @@
 #include "dlite-misc.h"
 #include "dlite-mapping-plugins.h"
 #include "dlite-pyembed.h"
+#include "dlite-python-singletons.h"
 #include "dlite-python-mapping.h"
 
 
@@ -133,6 +135,9 @@ void *dlite_python_mapping_load(void)
   const char *path;
   const unsigned char *hash;
   sha3_context c;
+  PyObject *mappingbase;
+
+  if (!(mappingbase = dlite_python_mapping_base())) return NULL;
   if (!(paths = dlite_python_mapping_paths())) return NULL;
   if (!(iter = fu_pathsiter_init(paths, "*.py"))) return NULL;
   sha3_Init256(&c);
@@ -144,7 +149,7 @@ void *dlite_python_mapping_load(void)
              sizeof(mapping_plugin_path_hash)) != 0) {
     if (loaded_mappings) dlite_python_mapping_unload();
     loaded_mappings = dlite_pyembed_load_plugins((FUPaths *)paths,
-                                                 "DLiteMappingBase");
+                                                 mappingbase);
     memcpy(mapping_plugin_path_hash, hash, sizeof(mapping_plugin_path_hash));
   }
   return (void *)loaded_mappings;
@@ -179,6 +184,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
     FAIL("failed to create list");
   for (i=0; i<n; i++) {
     PyObject *pyinst;
+
     if (!(pyinst = dlite_pyembed_from_instance(instances[i]->uuid))) goto fail;
     PyList_SetItem(insts, i, pyinst);
   }
@@ -210,7 +216,6 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
   Py_XDECREF(insts);
   Py_XDECREF(map);
   for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
-  if (inst) dlite_meta_decref((DLiteMeta *)inst->meta);  // @todo - correct?
   return inst;
 }
 

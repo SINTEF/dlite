@@ -50,6 +50,7 @@ install(
   DIRECTORY python-storage-plugins
   DESTINATION share/dlite
   PATTERN "*~" EXCLUDE
+  PATTERN ".gitignore" EXCLUDE
   )
 
 install(
@@ -59,4 +60,5 @@ install(
   )
 
 # tests
-add_subdirectory(tests)
+add_subdirectory(tests-c)
+add_subdirectory(tests-python)

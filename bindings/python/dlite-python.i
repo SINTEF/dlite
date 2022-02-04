@@ -12,9 +12,10 @@
 #include "floats.h"
 #include "strutils.h"
 #include "dlite.h"
+#include "dlite-python-singletons.h"
 
-#define DLITE_INSTANCE_CAPSULA_NAME ((char *)"dlite.Instance")
-#define DLITE_DATA_CAPSULA_NAME ((char *)"dlite.data")
+#define DLITE_INSTANCE_CAPSULE_NAME ((char *)"dlite.Instance")
+#define DLITE_DATA_CAPSULE_NAME ((char *)"dlite.data")
 
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
 
@@ -182,17 +183,17 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
 }
 
 
-/* Decreases refcount to dlite instance referred to by capsula `cap`. */
-void dlite_swig_capsula_instance_decref(PyObject *cap)
+/* Decreases refcount to dlite instance referred to by capsule `cap`. */
+void dlite_swig_capsule_instance_decref(PyObject *cap)
 {
-  DLiteInstance *inst = PyCapsule_GetPointer(cap, DLITE_INSTANCE_CAPSULA_NAME);
+  DLiteInstance *inst = PyCapsule_GetPointer(cap, DLITE_INSTANCE_CAPSULE_NAME);
   if (inst) dlite_instance_decref(inst);
 }
 
-/* Decreases refcount to dlite instance referred to by capsula `cap`. */
-void dlite_swig_capsula_free(PyObject *cap)
+/* Decreases refcount to dlite instance referred to by capsule `cap`. */
+void dlite_swig_capsule_free(PyObject *cap)
 {
-  void *data = PyCapsule_GetPointer(cap, DLITE_DATA_CAPSULA_NAME);
+  void *data = PyCapsule_GetPointer(cap, DLITE_DATA_CAPSULE_NAME);
   if (data) free(data);
 }
 
@@ -310,10 +311,10 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
   }
 
   if (inst && type != dliteStringPtr) {
-    cap = PyCapsule_New(inst, DLITE_INSTANCE_CAPSULA_NAME,
-                        dlite_swig_capsula_instance_decref);
+    cap = PyCapsule_New(inst, DLITE_INSTANCE_CAPSULE_NAME,
+                        dlite_swig_capsule_instance_decref);
     if (!cap)
-      FAIL("error creating capsula");
+      FAIL("error creating capsule");
     if (PyArray_SetBaseObject((PyArrayObject *)obj, cap) < 0)
       FAIL("error setting numpy array base");
     dlite_instance_incref(inst);
@@ -1287,6 +1288,12 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   }
 }
 
+/* Wrap storage and mapping base */
+%rename(_get_storage_base) dlite_python_storage_base;
+%rename(_get_mapping_base) dlite_python_mapping_base;
+PyObject *dlite_python_storage_base(void);
+PyObject *dlite_python_mapping_base(void);
+
 
 /* ------------------
  * Expose generic api
@@ -1296,4 +1303,6 @@ PyObject *_get_DLiteError(void);
 
 %pythoncode %{
   DLiteError = _dlite._get_DLiteError()
+  DLiteStorageBase = _dlite._get_storage_base()
+  DLiteMappingBase = _dlite._get_mapping_base()
 %}

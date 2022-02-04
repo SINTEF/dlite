@@ -6,6 +6,7 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-pyembed.h"
+#include "dlite-python-singletons.h"
 
 
 typedef DLiteInstance *(*fun_t)(const char *id);
@@ -22,11 +23,12 @@ MU_TEST(test_load_modules)
   int i;
   FUPaths paths;
   PyObject *plugins;
+  PyObject *mappingbase = dlite_python_mapping_base();
 
   fu_paths_init(&paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS");
   fu_paths_insert(&paths, STRINGIFY(TESTDIR), 0);
 
-  plugins = dlite_pyembed_load_plugins(&paths, "DLiteMappingBase");
+  plugins = dlite_pyembed_load_plugins(&paths, mappingbase);
   mu_check(plugins);
   mu_check(PyList_Check(plugins));
 
