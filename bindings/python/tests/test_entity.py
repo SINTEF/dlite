@@ -139,5 +139,5 @@ schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
 schema.save('entity_schema.json?mode=w;arrays=false')
 schema.meta.save('basic_metadata_schema.json?mode=w;arrays=false')
 
-inst = dlite.Instance('json://entity_schema.json')
+inst = dlite.Instance.create_from_url('json://entity_schema.json')
 assert inst.uri == dlite.ENTITY_SCHEMA
