@@ -112,7 +112,7 @@ In the second step these mappings are read into the run script and combined into
 Mapping between data form the external repository and Bobs desired Substance(s) is then done automatically because of the common ontology.
 
 Discussion on choice of ontology is not part of this dlite example, but Bob could also have used another ontology and match to something else and thus
-also have access to other data repos mapped to other ontologies.
+also have access to other data repos mapped to other ontologies. Note also that in the mapsTo.ttl  ontology _mapsTo_ is defined as an _owl:AnnotationProperty_. A more semantic description would be to make it an _rdf:Property_ . However, both Protégé (one of the preferred ontology work softwares) and Owlready2 (which EMMOntoPy builds upon) are based on owl, and this will lead to problems with the interpreters. 
 
     python 3-property-mappings/mappings_from_ontology/run_w_onto.py
 
