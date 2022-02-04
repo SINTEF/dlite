@@ -70,7 +70,7 @@ storage_path.append(str(thispath / "share/dlite/storages/*.json"))
 # DLITE_TEMPLATE_DIRS: Search path for DLite templates.
 
 
-from .factory import classfactory, objectfactory, loadfactory  # noqa: F401
+from .factory import classfactory, objectfactory, instancefactory  # noqa: F401
 
 del thispath
 del sys, os, Path, is_conda, is_conda_base

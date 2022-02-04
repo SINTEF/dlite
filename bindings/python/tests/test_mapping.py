@@ -9,7 +9,7 @@ dlite.storage_path.append(f'{thisdir}/*.json')
 dlite.python_mapping_plugin_path.append(f'{thisdir}/python-mapping-plugins')
 
 # Create an instance of Person
-Person = dlite.Instance(f'json:{thisdir}/Person.json?mode=r')
+Person = dlite.Instance.create_from_url(f'json:{thisdir}/Person.json?mode=r')
 person = Person(dims=[2])
 person.name = 'Neil Armstrong'
 person.age = 39

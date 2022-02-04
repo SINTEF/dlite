@@ -22,7 +22,7 @@ thisdir = os.path.dirname(__file__)
 # Test JSON
 
 url = 'json://' + os.path.join(thisdir, 'Person.json')
-Person = dlite.Instance(url)
+Person = dlite.Instance.create_from_url(url)
 
 person = Person(dims=[2])
 person.name = 'Ada'

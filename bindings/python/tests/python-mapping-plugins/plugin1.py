@@ -9,7 +9,7 @@ class Person2SimplePerson(DLiteMappingBase):
 
     def map(self, instances):
         person = instances[0]
-        simple = dlite.Instance(self.output_uri, [])
+        simple = dlite.Instance.create_from_metaid(self.output_uri, [])
         simple.name = person.name
         simple.age = person.age
         return simple
@@ -23,7 +23,7 @@ class SimplePerson2Person(DLiteMappingBase):
 
     def map(self, instances):
         simple = instances[0]
-        person = dlite.Instance(self.output_uri, [0])
+        person = dlite.Instance.create_from_metaid(self.output_uri, [0])
         person.name = simple.name
         person.age = simple.age
         return person

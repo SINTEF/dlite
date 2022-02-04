@@ -29,7 +29,7 @@
           If `metaid` is provided, the returned instance will be
           mapped to an instance of this type (if appropriate mappings
           are available)."""
-          return Instance(self, id, metaid)
+          return Instance.create_from_storage(self, id, metaid)
 
       def save(self, inst):
           """Stores instance `inst` in this storage."""
