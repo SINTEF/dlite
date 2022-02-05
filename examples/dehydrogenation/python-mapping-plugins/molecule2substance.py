@@ -9,7 +9,7 @@ class Molecule2Substance(DLiteMappingBase):
 
     def map(self, instances):
         molecule = instances[0]
-        substance = dlite.Instance(self.output_uri, [])
+        substance = dlite.Instance.create_from_metaid(self.output_uri, [])
         substance.id = molecule.name
         substance.molecule_energy = molecule.groundstate_energy
         return substance

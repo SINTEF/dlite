@@ -19,7 +19,7 @@ products = {'C2H4': 1, 'H2': 1}
 
 coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
 
-Reaction = dlite.Instance(f'json://{entitydir}/Reaction.json')
+Reaction = dlite.Instance.create_from_url(f'json://{entitydir}/Reaction.json')
 
 reaction = Reaction(dims=[len(reactants), len(products)])
 

@@ -31,7 +31,8 @@ def readMolecule(filename):
     return inst
 
 
-Molecule = dlite.Instance(f'json://{entitydir}/Molecule.json')  # DLite Metadata
+Molecule = dlite.Instance.create_from_url(f'json://{entitydir}/Molecule.json')
+
 
 # Create a new collection and populate it with all molecule structures
 coll = dlite.Collection('molecules')

@@ -6,6 +6,7 @@ set(py_sources
   options.py
   utils.py
   mappings.py
+  datamodel.py
   )
 
 configure_file(paths.py.in paths.py)
