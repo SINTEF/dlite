@@ -247,7 +247,9 @@ def standardise(v, asdict=True):
                    )
 
     def __getitem__(self, ind):
-        if self.has_property(ind):
+        if isinstance(ind, int):
+            return self.get_property_by_index(ind)
+        elif self.has_property(ind):
             return self.get_property(ind)
         elif isinstance(ind, int):
             raise IndexError('instance property index out of range: %d' % ind)
@@ -255,7 +257,9 @@ def standardise(v, asdict=True):
             raise KeyError('no such property: %s' % ind)
 
     def __setitem__(self, ind, value):
-        if self.has_property(ind):
+        if isinstance(ind, int):
+            self.set_property_by_index(ind, value)
+        elif self.has_property(ind):
             self.set_property(ind, value)
         elif isinstance(ind, int):
             raise IndexError('instance property index out of range: %d' % ind)

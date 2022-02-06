@@ -88,30 +88,24 @@ struct _DLiteCollection {
 %feature("docstring", "\
 Returns a collection instance.
 
-Collection(id=None)
-    Creates a new empty collection with the given `id`.  The id may be any
-    string uniquely identifying this collection.
-
-Collection(storage, id, lazy)
-    Loads collection with given `id` from `storage`.  If `lazy` is zero,
-    all its instances are loaded immediately.  Otherwise, instances are
-    first loaded on demand.
-
-Collection(url, lazy)
-    Loads collection from `url`, which should be of the form
-    ``driver://location?options#id``.  The `lazy` argument has the same
-    meaning as above.
-
+Parameters
+----------
+url: Optional URL to load collection from.
+storage: Optional storage to load collection from.
+id: Optional id of created collection.  If not provided, it will ge generated.
+lazy: If non-zero, instances are loaded when needed.  Otherwise, all loaded
+    immediately.
 ") _DLiteCollection;
 %extend struct _DLiteCollection {
-  _DLiteCollection(const char *id=NULL) {
-    return dlite_collection_create(id);
-  }
-  _DLiteCollection(struct _DLiteStorage *storage, const char *id, int lazy) {
-    return dlite_collection_load(storage, id, lazy);
-  }
-  _DLiteCollection(const char *url, int lazy) {
-    return dlite_collection_load_url(url, lazy);
+  _DLiteCollection(const char *url=NULL, struct _DLiteStorage *storage=NULL,
+                   const char *id=NULL, bool lazy=0) {
+    if (url) {
+      return dlite_collection_load_url(url, lazy);
+    } else if (storage) {
+      return dlite_collection_load(storage, id, lazy);
+    } else {
+      return dlite_collection_create(id);
+    }
   }
 
   ~_DLiteCollection(void) {
@@ -119,17 +113,22 @@ Collection(url, lazy)
   }
 
   %feature("docstring", "Saves this instance to url or storage.") save;
-  void save(struct _DLiteStorage *storage) {
+  void save_to_storage(struct _DLiteStorage *storage) {
     dlite_collection_save($self, storage);
   }
-  void save(const char *url) {
+  void save_to_url(const char *url) {
     dlite_collection_save_url($self, url);
   }
-  void save(const char *driver, const char *path, const char *options=NULL) {
-    DLiteStorage *s;
-    if ((s = dlite_storage_open(driver, path, options))) {
-      dlite_collection_save($self, s);
-      dlite_storage_close(s);
+  void save(const char *driver_or_url, const char *location=NULL,
+            const char *options=NULL) {
+    if (location) {
+      DLiteStorage *s;
+      if ((s = dlite_storage_open(driver_or_url, location, options))) {
+        dlite_collection_save($self, s);
+        dlite_storage_close(s);
+      }
+    } else {
+      dlite_collection_save_url($self, driver_or_url);
     }
   }
 
@@ -139,7 +138,10 @@ Collection(url, lazy)
   void add_relation(const char *s, const char *p, const char *o) {
     dlite_collection_add_relation($self, s, p, o);
   }
-  void add_relation(const Triple *t) {
+  %feature("docstring",
+           "Adds relation as triple to the collection."
+           ) add_relation;
+  void add_relation_triple(const Triple *t) {
     triplestore_add_triples($self->rstore, t, 1);
   }
 

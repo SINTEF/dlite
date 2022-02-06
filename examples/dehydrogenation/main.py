@@ -33,10 +33,10 @@ if HAVE_ASE:
     # Commented out for now - there are some issues in relation with
     # EMMOntoPy that will be fixed in a separate issue...
     #
-    #if HAVE_ONTOPY:
-    #    run('3-property-mappings/mappings_from_ontology/run_w_onto.py')
-    #else:
-    #    print("** warning: 'ontopy' is required for running dehydrogenisation "
-    #          "workflow 3")
+    if HAVE_ONTOPY:
+        run('3-property-mappings/mappings_from_ontology/run_w_onto.py')
+    else:
+        print("** warning: 'ontopy' is required for running dehydrogenisation "
+              "workflow 3")
 else:
     print("** warning: 'ase' is required for running dehydrogenisation example")

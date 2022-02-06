@@ -35,7 +35,7 @@ Molecule = dlite.Instance.create_from_url(f'json://{entitydir}/Molecule.json')
 
 
 # Create a new collection and populate it with all molecule structures
-coll = dlite.Collection('molecules')
+coll = dlite.Collection(id='molecules')
 for filename in moldir.glob('*.xyz'):
     molname = filename.stem
     mol = readMolecule(filename)

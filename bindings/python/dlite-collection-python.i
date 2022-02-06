@@ -44,6 +44,14 @@
 
     meta = property(get_meta, doc='Reference to metadata of this collection.')
 
+    @classmethod
+    def create_from_storage(cls, storage, id=None, lazy=True):
+        return cls(storage=storage, id=id, lazy=lazy)
+
+    @classmethod
+    def create_from_url(cls, url, id=None, lazy=True):
+        return cls(url=url, id=id, lazy=lazy)
+
     def asdict(self):
         """Returns a dict representation of self."""
         return self.asinstance().asdict()

@@ -17,7 +17,7 @@ else:
     HAVE_YAML = True
 
 
-thisdir = os.path.dirname(__file__)
+thisdir = os.path.abspath(os.path.dirname(__file__))
 
 # Test JSON
 
@@ -58,6 +58,7 @@ del uuids
 
 input_dir = thisdir.replace('bindings', 'storages')
 input_dir = input_dir.replace('tests', 'tests-python/input/')
+print('*** input_dir:', input_dir)
 
 if HAVE_BSON:
     # Test BSON
