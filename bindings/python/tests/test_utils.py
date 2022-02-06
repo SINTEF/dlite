@@ -4,7 +4,9 @@ import json
 from pathlib import Path
 
 import dlite
-from dlite.utils import instance_from_dict
+from dlite.utils import (
+    instance_from_dict, to_metadata, HAVE_DATACLASSES, HAVE_PYDANTIC
+    )
 
 
 thisdir = Path(__file__).absolute().parent
@@ -113,3 +115,78 @@ d = {
 }
 inst = instance_from_dict(d)
 print(inst)
+
+
+url = 'json://' + os.path.join(thisdir, 'Person.json')
+Person = dlite.Instance.create_from_url(url)
+
+person = Person([2])
+person.name = 'Ada'
+person.age = 12.5
+person.skills = ['skiing', 'jumping']
+
+d1 = person.asdict()
+inst1 = instance_from_dict(d1)
+
+d2 = Person.asdict()
+inst2 = instance_from_dict(d2)
+
+
+if HAVE_DATACLASSES:
+    from dlite.utils import get_dataclass_entity_schema
+
+    EntitySchema = get_dataclass_entity_schema()
+    AtomsEntity = EntitySchema(
+        uri='http://onto-ns.com/meta/0.1/AtomsEntity',
+        description='A structure consisting of a set of atoms.',
+        dimensions={
+            'natoms': 'Number of atoms.',
+            'ncoords': 'Number of coordinates.  Always three.',
+        },
+        properties={
+            'symbols': {
+                'type': 'string',
+                'dims': ['natoms'],
+                'description': 'Chemical symbol of each atom.',
+            },
+            'positions': {
+                'type': 'float',
+                'dims': ['natoms', 'ncoords'],
+                'unit': 'Å',
+                'description': 'Position of each atom.',
+            },
+        },
+    )
+    Atoms = to_metadata(AtomsEntity)
+    assert Atoms.is_meta
+    assert Atoms.meta.uri == dlite.ENTITY_SCHEMA
+
+
+if HAVE_PYDANTIC:
+    from dlite.utils import get_pydantic_entity_schema
+
+    PydanticEntitySchema = get_pydantic_entity_schema()
+    AtomsEntity2 = PydanticEntitySchema(
+        uri='http://onto-ns.com/meta/0.1/AtomsEntity',
+        description='A structure consisting of a set of atoms.',
+        dimensions={
+            'natoms': 'Number of atoms.',
+            'ncoords': 'Number of coordinates.  Always three.',
+        },
+        properties={
+            'symbols': {
+                'type': 'string',
+                'dims': ['natoms'],
+                'description': 'Chemical symbol of each atom.',
+            },
+            'positions': {
+                'type': 'float',
+                'dims': ['natoms', 'ncoords'],
+                'unit': 'Å',
+                'description': 'Position of each atom.',
+            },
+        },
+    )
+    Atoms2 = to_metadata(AtomsEntity2)
+    assert Atoms2.is_meta
+    assert Atoms2.meta.uri == dlite.ENTITY_SCHEMA

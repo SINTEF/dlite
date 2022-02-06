@@ -66,18 +66,16 @@ enum _DLiteIDFlag {
 %feature("docstring", "\
 Represents a data storage.
 
-Call signatures
----------------
-Storage(driver, location, options)
-Storage(url)
-
 Parameters
 ----------
-driver : string
-    Name of driver used to connect to the storage.
+driver_or_url : string
+    Name of driver used to connect to the storage or, if `location` is not
+    given, the URL to the storage:
+
+        driver://location?options
+
 location : string
     The location to the storage.  For file storages, this is the file name.
-    For web-based storages this is the location-part of the url.
 options : string
     Additional options passed to the driver as a list of semicolon-separated
     ``key=value`` pairs.  Each driver may have their own options.  Some
@@ -86,10 +84,6 @@ options : string
         create a new one (hdf5,json).
       - compact={'yes','no'}: Whether to store in a compact format (json).
       - meta={'yes','no'}: Whether to format output as metadata (json).
-url : string
-    A combination of `driver`, `location` and `options` in the form
-
-        driver://location?options
 ") _DLiteStorage;
 %rename(Storage) _DLiteStorage;
 
@@ -102,12 +96,12 @@ struct _DLiteStorage {
 };
 
 %extend _DLiteStorage {
-  %feature("docstring", "") __init__;
-  _DLiteStorage(const char *driver, const char *location, const char *options) {
-    return dlite_storage_open(driver, location, options);
-  }
-  _DLiteStorage(const char *url) {
-    return dlite_storage_open_url(url);
+  _DLiteStorage(const char *driver_or_url, const char *location=NULL,
+                const char *options=NULL) {
+    if (!location)
+      return dlite_storage_open_url(driver_or_url);
+    else
+      return dlite_storage_open(driver_or_url, location, options);
   }
   ~_DLiteStorage(void) {
     dlite_storage_close($self);

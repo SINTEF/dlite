@@ -61,7 +61,7 @@ mapsTo = molecules_onto.mapsTo.iri
 
 # Define where the molecule data is obtained from
 # This is a dlite collection
-coll = dlite.Collection(f'json://{atomdata}?mode=r#molecules', 0)
+coll = dlite.Collection.create_from_url(f'json://{atomdata}?mode=r#molecules')
 
 
 # input from chemical engineer, e.g. what are reactants and products

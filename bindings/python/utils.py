@@ -1,16 +1,33 @@
 import binascii
 import os
+from typing import Sequence, Mapping
+import json
+from typing import Dict, List, Optional
+
+try:
+    # dataclasses is a rather new feature of Python, lets not require it...
+    from dataclasses import dataclass, is_dataclass, asdict
+except:
+    HAVE_DATACLASSES = False
+else:
+    HAVE_DATACLASSES = True
+
+try:
+    # pydantic is a third party library, lets not require it...
+    from pydantic import BaseModel, AnyUrl
+except:
+    HAVE_PYDANTIC = False
+else:
+    HAVE_PYDANTIC = True
 
 import dlite
-
-thisdir = os.path.dirname(__file__)
 
 
 def instance_from_dict(d):
     """Returns a new DLite instance created from dict `d`, which should
     be of the same form as returned by the Instance.asdict() method.
     """
-    meta = dlite.get_instance(d['meta'])
+    meta = dlite.get_instance(d.get('meta', dlite.ENTITY_SCHEMA))
     if meta.is_metameta:
 
         if 'uri' in d:
@@ -26,17 +43,39 @@ def instance_from_dict(d):
         except dlite.DLiteError:
             pass
 
-        dimensions = [dlite.Dimension(d['name'], d.get('description'))
-                      for d in d['dimensions']]
+        if isinstance(d['dimensions'], Sequence):
+            dimensions = [dlite.Dimension(d['name'], d.get('description'))
+                          for d in d['dimensions']]
+        elif isinstance(d['dimensions'], Mapping):
+            dimensions = [dlite.Dimension(k, v)
+                          for k, v in d['dimensions'].items()]
+        else:
+            raise TypeError(
+                "`dimensions` must be either a sequence or a mapping")
+
         props = []
-        for p in d['properties']:
-            props.append(dlite.Property(
-                name=p['name'],
-                type=p['type'],
-                dims=p.get('dims'),
-                unit=p.get('unit'),
-                iri=p.get('iri'),
-                description=p.get('description')))
+        if isinstance(d['properties'], Sequence):
+            for p in d['properties']:
+                props.append(dlite.Property(
+                    name=p['name'],
+                    type=p['type'],
+                    dims=p.get('dims'),
+                    unit=p.get('unit'),
+                    description=p.get('description'),
+                ))
+        elif isinstance(d['properties'], Mapping):
+            for k, v in d['properties'].items():
+                props.append(dlite.Property(
+                    name = k,
+                    type = v['type'],
+                    dims=v.get('dims'),
+                    unit=v.get('unit'),
+                    description=v.get('description'),
+                ))
+        else:
+            raise TypeError(
+                "`properties` must be either a sequence or a mapping")
+
         inst = dlite.Instance.create_metadata(uri, dimensions, props,
                               d.get('description'))
     else:
@@ -64,22 +103,74 @@ def instance_from_dict(d):
     return inst
 
 
+def to_metadata(obj):
+    """Converts `obj` to dlite Metadata."""
+    if isinstance(obj, dlite.Instance):
+        if obj.is_data:
+            raise TypeError("data instances cannot be converted to metadata")
+        return obj
+
+    if isinstance(obj, dict):
+        d = obj
+    elif isinstance(obj, str):
+        d = json.loads(obj)
+    elif HAVE_DATACLASSES and is_dataclass(obj):
+        if isinstance(obj, type):
+            raise NotImplementedError(
+                "only instances of dataclasses can be converted to metadata"
+            )
+        d = asdict(obj)
+    elif HAVE_PYDANTIC and isinstance(obj, BaseModel):
+        if isinstance(obj, type):
+            raise NotImplementedError(
+                "only pydandic model instances can be converted to metadata"
+            )
+        d = obj.dict()
+    else:
+        raise TypeError('obj can be dict, json string, dataclasses instance '
+                        f'or pydantic instance.  Got {type(obj)}')
+    return instance_from_dict(d)
+
+
+if HAVE_DATACLASSES:
+    def get_dataclass_entity_schema():
+        """Returns the datamodel for dataclasses in Python standard library."""
+
+        @dataclass
+        class Property:
+            type: str
+            dims: Optional[List[str]]
+            unit: Optional[str]
+            description: Optional[str]
+
+        @dataclass
+        class EntitySchema:
+            uri: str
+            description: Optional[str]
+            dimensions: Dict[str, str]
+            properties: Dict[str, Property]
+
+        return EntitySchema
+
+
+if HAVE_PYDANTIC:
+    def get_pydantic_entity_schema():
+        """Returns the datamodel for dataclasses in Python standard library."""
+
+        class Property(BaseModel):
+            type: str
+            dims: Optional[List[str]]
+            unit: Optional[str]
+            description: Optional[str]
+
+        class EntitySchema(BaseModel):
+            uri: AnyUrl
+            description: Optional[str]
+            dimensions: Dict[str, str]
+            properties: Dict[str, Property]
+
+        return EntitySchema
+
+
 def get_package_paths():
-    return {k:v for k,v in dlite.__dict__.items() if k.endswith('path')}
-
-
-if __name__ == '__main__':
-
-    url = 'json://' + os.path.join(thisdir, 'tests', 'Person.json')
-    Person = dlite.Instance.create_from_url(url)
-
-    person = Person([2])
-    person.name = 'Ada'
-    person.age = 12.5
-    person.skills = ['skiing', 'jumping']
-
-    d1 = person.asdict()
-    inst1 = instance_from_dict(d1)
-
-    d2 = Person.asdict()
-    inst2 = instance_from_dict(d2)
+    return {k: v for k, v in dlite.__dict__.items() if k.endswith('_path')}

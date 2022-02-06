@@ -234,7 +234,7 @@ void triple_set_default_namespace(const char *namespace);
 Returns a new instance.
 
 Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
-    Is called from one of the following class methods defined in dlite.py: 
+    Is called from one of the following class methods defined in dlite.py:
 
       - create_from_metaid(cls, metaid, dims, id=None)
       - create_from_url(cls, url, metaid=None)
@@ -263,7 +263,7 @@ struct _DLiteInstance {
 %extend _DLiteInstance {
   _DLiteInstance(const char *metaid=NULL, int *dims=NULL, int ndims=0,
 		const char *id=NULL, const char *url=NULL, struct _DLiteStorage *storage=NULL,
-    const char *driver=NULL, const char *location=NULL, const char *options=NULL, 
+    const char *driver=NULL, const char *location=NULL, const char *options=NULL,
     const char *uri=NULL,
     struct _DLiteDimension *dimensions=NULL, int ndimensions=0,
     struct _DLiteProperty *properties=NULL, int nproperties=0,
@@ -286,7 +286,7 @@ struct _DLiteInstance {
       if (inst) dlite_errclr();
       dlite_meta_decref(meta);
       return inst;
-    } 
+    }
     else if (url) {
       DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
       if (inst) {
@@ -325,68 +325,7 @@ struct _DLiteInstance {
     }
     return NULL;
   }
-  /*
-  _DLiteInstance(const char *metaid, int *dims, int ndims,
-		 const char *id=NULL) {
-    DLiteInstance *inst;
-    DLiteMeta *meta;
-    size_t i, *d, n=ndims;
-    if (!(meta = dlite_meta_get(metaid)))
-      return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
-    if (n != meta->_ndimensions) {
-      dlite_meta_decref(meta);
-      return dlite_err(1, "%s has %u dimensions",
-                       metaid, (unsigned)meta->_ndimensions), NULL;
-    }
-    d = malloc(n * sizeof(size_t));
-    for (i=0; i<n; i++) d[i] = dims[i];
-    inst = dlite_instance_create(meta, d, id);
-    free(d);
-    if (inst) dlite_errclr();
-    dlite_meta_decref(meta);
-    return inst;
-  }
-  _DLiteInstance(const char *url, const char *metaid=NULL) {
-    DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
-    if (inst) {
-      dlite_errclr();
-      if (metaid) {
-        inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
-        dlite_instance_decref(inst);
-        inst = inst2;
-      }
-    }
-    return inst;
-  }
-  _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL,
-                 const char *metaid=NULL) {
-    DLiteInstance *inst = dlite_instance_load_casted(storage, id, metaid);
-    if (inst) dlite_errclr();
-    return inst;
-  }
-  _DLiteInstance(const char *driver, const char *location, const char *options,
-                 const char *id=NULL) {
-    DLiteStorage *s;
-    DLiteInstance *inst;
-    if (!(s = dlite_storage_open(driver, location, options))) return NULL;
-    inst = dlite_instance_load(s, id);
-    dlite_storage_close(s);
-    if (inst) dlite_errclr();
-    return inst;
-  }
-  _DLiteInstance(const char *uri,
-                 int ndimensions, struct _DLiteDimension *dimensions,
-                 int nproperties, struct _DLiteProperty *properties,
-                 const char *iri=NULL,
-                 const char *description=NULL) {
-    DLiteMeta *inst = dlite_meta_create(uri, iri, description,
-                                        ndimensions, dimensions,
-                                        nproperties, properties);
-    if (inst) dlite_errclr();
-    return (DLiteInstance *)inst;
-  }
-*/
-  
+
   ~_DLiteInstance() {
     dlite_instance_decref($self);
   }
@@ -408,19 +347,34 @@ struct _DLiteInstance {
     $self->iri = (iri) ? strdup(iri) : NULL;
   }
 
-  %feature("docstring", "Saves this instance to url or storage.") save;
-  void save(const char *url) {
+  %feature("docstring", "\
+Saves this instance to url or storage.
+
+Call signatures:
+    save(url)
+    save(driver, location, options=None)
+    save(storage=storage)
+") save;
+  void save(const char *driver_or_url=NULL, const char *location=NULL,
+            const char *options=NULL, struct _DLiteStorage *storage=NULL) {
+    if (storage) {
+      dlite_instance_save(storage, $self);
+    } else if (location) {
+      if ((storage = dlite_storage_open(driver_or_url, location, options))) {
+        dlite_instance_save(storage, $self);
+        dlite_storage_close(storage);
+      }
+    } else if (driver_or_url) {
+      dlite_instance_save_url(driver_or_url, $self);
+    } else {
+      dlite_err(-1, "either `driver_or_url` or `storage` must be given");
+    }
+  }
+  void save_to_url(const char *url) {
     dlite_instance_save_url(url, $self);
   }
-  void save(struct _DLiteStorage *storage) {
+  void save_to_storage(struct _DLiteStorage *storage) {
     dlite_instance_save(storage, $self);
-  }
-  void save(const char *driver, const char *path, const char *options=NULL) {
-    DLiteStorage *s;
-    if ((s = dlite_storage_open(driver, path, options))) {
-      dlite_instance_save(s, $self);
-      dlite_storage_close(s);
-    }
   }
 
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;
@@ -438,7 +392,7 @@ struct _DLiteInstance {
   int get_dimension_size(const char *name) {
     return (int)dlite_instance_get_dimension_size($self, name);
   }
-  int get_dimension_size(int i) {
+  int get_dimension_size_by_index(int i) {
     return (int)dlite_instance_get_dimension_size_by_index($self, i);
   }
 
@@ -448,7 +402,7 @@ struct _DLiteInstance {
   obj_t *get_property(const char *name) {
     return dlite_swig_get_property($self, name);
   }
-  obj_t *get_property(int i) {
+  obj_t *get_property_by_index(int i) {
     return dlite_swig_get_property_by_index($self, i);
   }
 
@@ -457,7 +411,7 @@ struct _DLiteInstance {
   void set_property(const char *name, obj_t *obj) {
     dlite_swig_set_property($self, name, obj);
   }
-  void set_property(int i, obj_t *obj) {
+  void set_property_by_index(int i, obj_t *obj) {
     dlite_swig_set_property_by_index($self, i, obj);
   }
 
@@ -466,7 +420,7 @@ struct _DLiteInstance {
   bool has_property(const char *name) {
     return dlite_instance_has_property($self, name);
   }
-  bool has_property(int i) {
+  bool has_property_by_index(int i) {
     if (i < 0) i += (int)$self->meta->_nproperties;
     if (0 <= i && i < (int)$self->meta->_nproperties) return true;
     return false;
@@ -477,7 +431,7 @@ struct _DLiteInstance {
   bool has_dimension(const char *name) {
     return dlite_instance_has_dimension($self, name);
   }
-  bool has_dimension(int i) {
+  bool has_dimension_by_index(int i) {
     if (i < 0) i += (int)$self->meta->_ndimensions;
     if (0 <= i && i < (int)$self->meta->_ndimensions) return true;
     return false;

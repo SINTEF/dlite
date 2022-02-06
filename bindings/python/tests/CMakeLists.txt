@@ -13,6 +13,7 @@ set(tests
   test_utils
   test_global_dlite_state
   test_property_mappings
+  test_datamodel
   )
 
 foreach(test ${tests})
