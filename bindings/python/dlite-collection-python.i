@@ -45,6 +45,10 @@
     meta = property(get_meta, doc='Reference to metadata of this collection.')
 
     @classmethod
+    def create(cls, id=None, lazy=True):
+        return cls(id=id, lazy=lazy)
+
+    @classmethod
     def create_from_storage(cls, storage, id=None, lazy=True):
         return cls(storage=storage, id=id, lazy=lazy)
 

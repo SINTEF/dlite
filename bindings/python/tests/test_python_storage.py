@@ -58,7 +58,6 @@ del uuids
 
 input_dir = thisdir.replace('bindings', 'storages')
 input_dir = input_dir.replace('tests', 'tests-python/input/')
-print('*** input_dir:', input_dir)
 
 if HAVE_BSON:
     # Test BSON
