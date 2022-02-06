@@ -18,6 +18,12 @@
       def __iter__(self):
           return StorageIterator(self)
 
+      @classmethod
+      def create_from_url(cls, url):
+          """Create a new storage from `url`."""
+          return cls(url)
+
+
       def instances(self, pattern=None):
           """Returns an iterator over all instances in storage whos
           metadata URI matches `pattern`."""
@@ -33,7 +39,7 @@
 
       def save(self, inst):
           """Stores instance `inst` in this storage."""
-          inst.save(self)
+          inst.save(storage=self)
 
       driver = property(get_driver,
                         doc='Name of driver associated with this storage')

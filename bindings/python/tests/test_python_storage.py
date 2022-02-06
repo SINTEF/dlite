@@ -17,7 +17,7 @@ else:
     HAVE_YAML = True
 
 
-thisdir = os.path.dirname(__file__)
+thisdir = os.path.abspath(os.path.dirname(__file__))
 
 # Test JSON
 
