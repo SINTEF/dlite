@@ -194,16 +194,10 @@ else()
 endif()
 
 execute_process(COMMAND
-  ${RUNNER} ${Python3_EXECUTABLE} -c "import site; print(site.getusersitepackages())"
-  OUTPUT_VARIABLE _ABS_Python3_MODULE_PATH
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-get_filename_component(_ABS_Python3_MODULE_PATH
-  ${_ABS_Python3_MODULE_PATH} ABSOLUTE)
-file(RELATIVE_PATH _REL_Python3_MODULE_PATH
-  ${CMAKE_INSTALL_PREFIX} ${_ABS_Python3_MODULE_PATH})
-set(Python3_MODULE_PATH
-  ${_REL_Python3_MODULE_PATH}
-)
+  ${RUNNER} ${Python3_EXECUTABLE} -c "import site, pathlib; print(pathlib.Path(site.getusersitepackages()).relative_to(site.getuserbase()))"
+  OUTPUT_VARIABLE Python3_MODULE_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
 
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
