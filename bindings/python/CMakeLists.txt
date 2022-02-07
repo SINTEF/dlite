@@ -16,7 +16,6 @@ else()
   configure_file(__init__inbuild.py.in __init__.py)
 endif()
 
-
 # Determine size of size_t
 include(CheckTypeSize)
 check_type_size(size_t SIZEOF_SIZE_T)
