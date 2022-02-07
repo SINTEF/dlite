@@ -75,8 +75,6 @@ swig_link_libraries(dlitepy
   )
 
 
-
-
 ##
 ## Create a working Python package in binary dir
 ## ---------------------------------------------
