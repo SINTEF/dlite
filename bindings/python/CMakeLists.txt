@@ -27,25 +27,13 @@ else()
   message(FATAL "Unexpected size of size_t: ${SIZEOF_SIZE_T}")
 endif()
 
-# Add macros for use with swig
-# It seems that we cannot set policy  CMP0078 to NEW, since that would
-# create a target named "dlite" which would be in conflict with the target
-# of src/dlite.so.
-# TODO: Check if it is possible to rename the target of src/dlite.so
-# using a property
-
-# https://cmake.org/cmake/help/latest/module/UseSWIG.html
-# Changed in version 3.13: This command creates a target with the specified <name> when policy CMP0078 is set to NEW.
-# Otherwise, the legacy behavior will choose a different target name and store it in the SWIG_MODULE_<name>_REAL_NAME variable.
-
-cmake_policy(SET CMP0078 OLD)
-set(SWIG_MODULE_pydlite_REAL_NAME "_dlite")
-find_package(SWIG)
-include(UseSWIG)
 
 #
 # Create Python library
 # ---------------------
+find_package(SWIG)
+include(UseSWIG)
+
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
@@ -64,7 +52,7 @@ set_source_files_properties(dlite.i
     )
 
 #SET(CMAKE_SKIP_BUILD_RPATH TRUE)
-swig_add_library(dlite
+swig_add_library(dlitepy
   TYPE SHARED
   LANGUAGE python
   OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/dlite
@@ -74,12 +62,13 @@ swig_add_library(dlite
 
 
 # Convince _dlite.so that it may search for whatever libraries it depends on in its own directory
-set_target_properties(${SWIG_MODULE_dlite_REAL_NAME} PROPERTIES
+set_target_properties(dlitepy PROPERTIES
   BUILD_RPATH "$ORIGIN/"
   INSTALL_RPATH "$ORIGIN/"
+  OUTPUT_NAME "dlite"
   )
 
-swig_link_libraries(dlite
+swig_link_libraries(dlitepy
   dlite-utils
   dlite
   ${Python3_LIBRARIES}
@@ -112,11 +101,11 @@ if(WINDOWS OR MINGW)
 endif()
 
 add_custom_command(
-  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+  TARGET dlitepy
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    $<TARGET_FILE:${SWIG_MODULE_dlite_REAL_NAME}>
+    $<TARGET_FILE:dlitepy>
     ${dlls}
     ${pkgdir}
   BYPRODUCTS
@@ -143,7 +132,7 @@ add_custom_command(
 # This can be picked up by a setup.py script with ""python setup.py install"" (or bdist_wheel)
 #
 add_custom_command(
-  TARGET ${SWIG_MODULE_dlite_REAL_NAME}
+  TARGET dlitepy
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/mapping-plugins
@@ -189,16 +178,10 @@ else()
 endif()
 
 execute_process(COMMAND
-  ${RUNNER} ${Python3_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
-  OUTPUT_VARIABLE _ABS_Python3_MODULE_PATH
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-get_filename_component(_ABS_Python3_MODULE_PATH
-  ${_ABS_Python3_MODULE_PATH} ABSOLUTE)
-file(RELATIVE_PATH _REL_Python3_MODULE_PATH
-  ${CMAKE_INSTALL_PREFIX} ${_ABS_Python3_MODULE_PATH})
-set(Python3_MODULE_PATH
-  ${_REL_Python3_MODULE_PATH}
-)
+  ${RUNNER} ${Python3_EXECUTABLE} -c "import site, pathlib; print(pathlib.Path(site.getusersitepackages()).relative_to(site.getuserbase()).as_posix())"
+  OUTPUT_VARIABLE Python3_MODULE_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
 
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
