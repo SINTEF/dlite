@@ -199,6 +199,8 @@ def standardise(v, asdict=True):
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
         """
+        if isinstance(dims, dict):
+            dims = [dims[name] for name in self.meta.properties['dimensions']]
         return cls(metaid=metaid, dims=dims, id=id,
                    dimensions=(), properties=()  # arrays must not be None
                    )
@@ -327,6 +329,8 @@ def standardise(v, asdict=True):
         """Returns an uninitiated instance of this metadata."""
         if not self.is_meta:
             raise TypeError('data instances are not callable')
+        if isinstance(dims, dict):
+            dims = [dims[d.name] for d in self.properties['dimensions']]
         return Instance.create_from_metaid(self.uri, dims, id)
 
     def asdict(self):

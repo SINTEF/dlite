@@ -286,8 +286,7 @@ struct _DLiteInstance {
       if (inst) dlite_errclr();
       dlite_meta_decref(meta);
       return inst;
-    }
-    else if (url) {
+    } else if (url) {
       DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
       if (inst) {
         dlite_errclr();
@@ -298,13 +297,11 @@ struct _DLiteInstance {
         }
       }
       return inst;
-    }
-    else if (storage) {
+    } else if (storage) {
       DLiteInstance *inst = dlite_instance_load_casted(storage, id, metaid);
       if (inst) dlite_errclr();
       return inst;
-    }
-    else if (driver && location){
+    } else if (driver && location) {
       DLiteStorage *s;
       DLiteInstance *inst;
       if (!(s = dlite_storage_open(driver, location, options))) return NULL;
@@ -312,15 +309,13 @@ struct _DLiteInstance {
       dlite_storage_close(s);
       if (inst) dlite_errclr();
       return inst;
-    }
-    else if (uri && dimensions && properties && description){
+    } else if (uri && dimensions && properties && description){
        DLiteMeta *inst = dlite_meta_create(uri, NULL, description,
                                         ndimensions, dimensions,
                                         nproperties, properties);
       if (inst) dlite_errclr();
       return (DLiteInstance *)inst;
-    }
-    else {
+    } else {
       dlite_err(1, "invalid arguments to Instance()");
     }
     return NULL;

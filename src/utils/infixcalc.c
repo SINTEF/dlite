@@ -104,7 +104,7 @@ static const OpInfo _opinfo[] = {
   //{'?', 1, 3},  /* condition */
   {'|', 1, 2},  /* logical or */
   {'&', 2, 2},  /* logical and */
-  {'=', 3, 2},  /* equal */
+  {'=', 3, 2},  /* equal to */
   {'!', 4, 2},  /* not equal */
   {'>', 5, 2},  /* greater than */
   {'<', 5, 2},  /* smaller than */
