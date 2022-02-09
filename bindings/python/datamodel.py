@@ -113,10 +113,27 @@ class DataModel:
         dims = [len(self.dimensions), len(self.properties)]
         if 'nrelations' in self.schema:
             dims.append(len(self.relations))
-        meta = self.schema(dims, id=self.uri)
-        meta.description = self.description
-        meta['dimensions'] = list(self.dimensions.values())
-        meta['properties'] = list(self.properties.values())
-        if 'relations' in meta:
-            meta['relations'] = self.relations
-        return meta
+
+        # Hmm, there seems to be a bug when instantiating from schema.
+        # The returned metadata seems not to be initialised, i.e.
+        # dlite_meta_init() seems not be called on it...
+        #
+        # For now, lets assume that it is EntitySchema.
+        if self.schema.uri != dlite.ENTITY_SCHEMA:
+            raise NotImplementedError(
+                f'Currently only entity schema is supported')
+
+        #meta = self.schema(dims, id=self.uri)
+        #meta.description = self.description
+        #meta['dimensions'] = list(self.dimensions.values())
+        #meta['properties'] = list(self.properties.values())
+        #if 'relations' in meta:
+        #    meta['relations'] = self.relations
+        #return meta
+
+        return dlite.Instance.create_metadata(
+            uri=self.uri,
+            dimensions=list(self.dimensions.values()),
+            properties=list(self.properties.values()),
+            description=self.description,
+        )
