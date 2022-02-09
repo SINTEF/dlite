@@ -372,7 +372,8 @@ if(CPPCHECK)
   add_test(
     NAME static-code-analysis
     COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
-      --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+      --language=c -q --force --error-exitcode=2 --inline-suppr
+      -i build -i python
       -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
     )
 endif()
