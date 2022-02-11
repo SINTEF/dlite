@@ -1,0 +1,20 @@
+# FROM python:3.10-slim
+FROM quay.io/pypa/manylinux2014_x86_64
+
+WORKDIR /package
+
+# RUN apt update && apt upgrade -y --fix-missing && apt install -y cmake build-essential swig4.0 \
+#     && rm -rf /var/lib/apt/lists/*
+RUN yum update -y
+RUN yum install -y python3-pip
+RUN yum install -y redland-devel
+
+
+RUN pip3 install -U pip && pip3 install -U setuptools wheel build numpy
+
+COPY . .
+
+RUN cp LICENSE README.md CMakeLists.txt ./python/
+# RUN cd python && python -m build -n
+RUN cd python && python3.10 --version && python3.10 setup.py --verbose sdist bdist_wheel
+CMD [ "/bin/bash" ]

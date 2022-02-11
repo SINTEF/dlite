@@ -2,11 +2,9 @@ import os
 import platform
 import re
 import subprocess
-import sys
 from distutils import dir_util
 from pathlib import Path
 
-import pkg_resources
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
@@ -26,9 +24,10 @@ if platform.system() == "Linux":
         "-DWITH_HDF5=OFF",
         "-DALLOW_WARNINGS=ON",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
-        # Assume cmake version >= v3.12.4
-        #'-DPython_EXECUTABLE=%s' % sys.executable,
-        #'-DPYTHON_EXECUTABLE=%s' % sys.executable,
+        # Will always have CMake version >= 3.14 (see `CMakeLists.txt`)
+        # f"-DPython3_EXECUTABLE={sys.executable}",
+        # f"-DCMAKE_INSTALL_PREFIX={site.USER_BASE if '--user' in sys.argv else sys.prefix}",
+        # "-DPython3_FIND_VIRTUALENV=FIRST",
     ]
 
 elif platform.system() == "Windows":
@@ -100,7 +99,7 @@ class CMakeBuildExt(build_ext):
                 capture_output=True,
                 check=True)
         except subprocess.CalledProcessError as e:
-            print(e.stdout.decode("utf-8"))
+            print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:", e.stderr.decode("utf-8"))
             raise
         try:
             subprocess.run(
@@ -111,7 +110,7 @@ class CMakeBuildExt(build_ext):
                 check=True
             )
         except subprocess.CalledProcessError as e:
-            print(e.stdout.decode("utf-8"))
+            print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:", e.stderr.decode("utf-8"))
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
@@ -139,7 +138,7 @@ version = re.search(
 ).groups()[0]
 
 setup(
-    name="dlite-python",
+    name="DLite-Python",
     version=version,
     author="SINTEF",
     author_email="jesper.friis@sintef.no",
