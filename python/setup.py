@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 import re
 import subprocess
@@ -25,10 +26,19 @@ if platform.system() == "Linux":
         "-DALLOW_WARNINGS=ON",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
         # Will always have CMake version >= 3.14 (see `CMakeLists.txt`)
-        # f"-DPython3_EXECUTABLE={sys.executable}",
-        # f"-DCMAKE_INSTALL_PREFIX={site.USER_BASE if '--user' in sys.argv else sys.prefix}",
-        # "-DPython3_FIND_VIRTUALENV=FIRST",
+        f"-DPython3_EXECUTABLE={sys.executable}",
+        f"-DCMAKE_INSTALL_PREFIX={site.USER_BASE if '--user' in sys.argv else sys.prefix}",
+        "-DPython3_FIND_VIRTUALENV=ONLY",
+        "-DPython3_FIND_IMPLEMENTATIONS=CPython",
     ]
+
+    if 'Python3_LIBRARY' in os.environ:
+        CMAKE_ARGS.append(f"-DPython3_LIBRARY={os.environ['Python3_LIBRARY']}")
+    if 'Python3_INCLUDE_DIR' in os.environ:
+        CMAKE_ARGS.append(f"-DPython3_INCLUDE_DIR={os.environ['Python3_INCLUDE_DIR']}")
+    if 'Python3_NumPy_INCLUDE_DIR' in os.environ:
+        CMAKE_ARGS.append(f"-DPython3_NumPy_INCLUDE_DIR={os.environ['Python3_NumPy_INCLUDE_DIR']}")
+
 
 elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
@@ -93,7 +103,7 @@ class CMakeBuildExt(build_ext):
 
         try:
             subprocess.run(
-                cmake_args, 
+                cmake_args,
                 cwd=self.build_temp,
                 env=env,
                 capture_output=True,
@@ -103,7 +113,7 @@ class CMakeBuildExt(build_ext):
             raise
         try:
             subprocess.run(
-                ["cmake", "--build", ".", "--config", build_type],
+                ["cmake", "--build", ".", "--config", build_type, "--verbose"],
                 cwd=self.build_temp,
                 env=env,
                 capture_output=True,

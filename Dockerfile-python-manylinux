@@ -1,0 +1,44 @@
+# -*- Mode: Dockerfile -*-
+# Dockerfile for building Python pypi package
+
+#FROM quay.io/pypa/manylinux_2_24_x86_64
+FROM quay.io/pypa/manylinux2014_x86_64
+
+WORKDIR /package
+
+RUN yum update -y
+RUN yum install -y redland-devel
+RUN yum install -y cmake3-data
+
+COPY bindings bindings/
+COPY cmake cmake/
+COPY doc doc/
+COPY examples examples/
+COPY src src/
+COPY storages storages/
+COPY tools tools/
+#COPY CMakeLists.txt requirements.txt requirements_dev.txt LICENSE README.md ./
+COPY CMakeLists.txt LICENSE README.md ./
+
+
+# Python version and tag (<python tag>-<abi tag>)
+ENV PYVER=3.9
+ENV PYTAG=cp39-cp39
+
+ENV Python3_EXECUTABLE=python${PYVER}
+ENV Python3_LIBRARY=/opt/python/${PYTAG}/lib/python${PYVER}
+ENV Python3_INCLUDE_DIR=/opt/python/${PYTAG}/include/python${PYVER}
+
+
+RUN ${Python3_EXECUTABLE} -m pip install -U pip && \
+    ${Python3_EXECUTABLE} -m pip install -U setuptools wheel build numpy
+
+
+RUN mkdir -p python/dlite
+COPY python/MANIFEST.in python/pyproject.toml python/setup.py python/
+COPY python/dlite/__init__.py python/dlite/__init__.py
+RUN cp LICENSE README.md CMakeLists.txt ./python/
+
+# RUN cd python && python -m build -n
+
+RUN cd python && ${Python3_EXECUTABLE} setup.py --verbose sdist bdist_wheel
