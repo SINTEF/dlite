@@ -335,7 +335,7 @@ Dependencies
 
 Compiling
 ---------
-See [here](doc/build-with-vs.md) for instructions for building with
+See [here](doc/build_with_vs.md) for instructions for building with
 Visual Studio.
 
 
@@ -411,7 +411,7 @@ Using dlite
 If dlite is installed in a non-default location, you may need to set
 the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
 variables.  See the [documentation of environment
-variables](doc/environment-variables.md) for more details.
+variables](doc/environment_variables.md) for more details.
 
 An example of how to use dlite is shown above.  See also the examples
 in the [examples](examples) directory for how to link to dlite from C
