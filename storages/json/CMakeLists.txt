@@ -10,6 +10,7 @@ add_definitions(-DHAVE_CONFIG_H)
 add_library(dlite-plugins-json SHARED ${sources})
 target_link_libraries(dlite-plugins-json
   dlite
+  dlite-static
   dlite-utils
   )
 target_include_directories(dlite-plugins-json PUBLIC

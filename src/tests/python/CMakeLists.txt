@@ -17,7 +17,11 @@ foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
     dlite
+    dlite-static
     dlite-utils
+    m
+    pthread
+    util
     )
   target_include_directories(${test} PRIVATE
     ${dlite-src_SOURCE_DIR}

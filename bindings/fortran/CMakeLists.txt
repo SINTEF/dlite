@@ -12,6 +12,7 @@ add_library(dlite-fortran SHARED ${sources})
 
 target_link_libraries(dlite-fortran
   dlite
+  dlite-static
   dlite-utils
   )
 

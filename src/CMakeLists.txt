@@ -108,7 +108,7 @@ set(link_args
   ${CMAKE_DL_LIBS}
   ${link_libraries_extra}
   )
-target_link_libraries(dlite ${link_args})
+#target_link_libraries(dlite ${link_args})
 target_link_libraries(dlite-static ${link_args})
 
 set_target_properties(dlite PROPERTIES
