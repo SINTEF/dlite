@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-02-14T19:51:18.694Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.82 Safari/537.36" etag="vE2qLKv9veAEu5D_Vfl4" version="16.5.3" type="github" pages="17">
+<mxfile host="app.diagrams.net" modified="2022-02-14T20:02:58.221Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.82 Safari/537.36" etag="A93OY1PKHWTYq-7sgYRw" version="16.5.3" type="github" pages="17">
   <diagram id="F2RWLyCxq9ij2d-OzNsR" name="overall-workflow">
     <mxGraphModel dx="1422" dy="715" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -813,9 +813,6 @@
         </mxCell>
         <mxCell id="57CqrlgiyTyGs4aeaaVZ-21" value="&lt;font style=&quot;font-size: 12px&quot;&gt;Data conversion&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="57CqrlgiyTyGs4aeaaVZ-1">
           <mxGeometry x="242.5" y="300" width="70" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="57CqrlgiyTyGs4aeaaVZ-22" value="&lt;span style=&quot;font-size: 12px&quot;&gt;Mappings&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="57CqrlgiyTyGs4aeaaVZ-1">
-          <mxGeometry x="227.5" y="190" width="70" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
