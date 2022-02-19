@@ -2,6 +2,7 @@ import os
 import sys
 import platform
 import re
+import site
 import subprocess
 from distutils import dir_util
 from pathlib import Path
