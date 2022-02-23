@@ -27,11 +27,18 @@ if platform.system() == "Linux":
         "-DALLOW_WARNINGS=ON",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
         # Will always have CMake version >= 3.14 (see `CMakeLists.txt`)
-        f"-DPython3_EXECUTABLE={sys.executable}",
-        f"-DCMAKE_INSTALL_PREFIX={site.USER_BASE if '--user' in sys.argv else sys.prefix}",
         "-DPython3_FIND_VIRTUALENV=ONLY",
         "-DPython3_FIND_IMPLEMENTATIONS=CPython",
     ]
+    if not bool(int(os.getenv("CIBUILDWHEEL", "0"))):
+        # Not running with `cibuildwheel`
+        CMAKE_ARGS.extend(
+            [
+                f"-DPython3_EXECUTABLE={sys.executable}",
+                "-DCMAKE_INSTALL_PREFIX="
+                f"{site.USER_BASE if '--user' in sys.argv else sys.prefix}",
+            ]
+        )
 
 
 elif platform.system() == "Windows":
@@ -161,6 +168,7 @@ setup(
     ),
     url="https://github.com/SINTEF/dlite",
     license="MIT",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -169,10 +177,10 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     # download_url=['https://github.com/SINTEF/dlite/archive/v0.2.5.tar.gz'],

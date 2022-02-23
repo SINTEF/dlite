@@ -1,0 +1,36 @@
+# -*- Mode: Dockerfile -*-
+# Dockerfile for building Python pypi package with musllinux
+#
+# Usage:
+#
+# Copy this template file and replace `{{ ARCH }}` with a valid arch, e.g., x86_64 or i686.
+# Remove the `.template` suffix from the copy.
+#
+# Build:
+#
+#     docker build -t dlite-musllinux_1_1 -f .github/docker/Dockerfile-musllinux_1_1 .
+#
+# Run (for debugging):
+#
+#     docker run --rm -it \
+#        --volume $PWD:/io \
+#        --user $(id -u):$(id -g) \
+#        dlite-musllinux_1_1 \
+#        /bin/bash
+#
+FROM quay.io/pypa/musllinux_1_1_{{ ARCH }}:latest
+
+RUN apk -U \
+  redland \
+  rasqal \
+  hdf5 \
+  swig && \
+# Unpack static libraries
+# It's necessary to be in /opt/_internal because the internal libraries
+# exist here.
+  cd /opt/_internal && \
+  tar -Jxvf static-libs-for-embedding-only.tar.xz  && \
+  for minor in 7 8 9 10; do \
+  python3.${minor} -m pip install -U pip && \
+  python3.${minor} -m pip install -U setuptools wheel && \
+  python3.${minor} -m pip install -U cmake oldest-supported-numpy; done
