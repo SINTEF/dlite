@@ -1,0 +1,52 @@
+# -*- Mode: Dockerfile -*-
+# Dockerfile for building Python pypi package
+#
+# Build:
+#
+#     docker build -t dlite-manylinux -f .github/docker/Dockerfile-manylinux .
+#
+# Run (for debugging):
+#
+#     docker run --rm -it \
+#        --volume $PWD:/io \
+#        --user $(id -u):$(id -g) \
+#        dlite-manylinux \
+#        /bin/bash
+#
+
+# Reference: https://github.com/pypa/manylinux#manylinux2014-centos-7-based
+FROM quay.io/pypa/manylinux2014_x86_64
+
+RUN yum update -y && yum install -y \
+    cmake3-data \
+    redland-devel \
+    rasqal-devel \
+    hdf5-devel \
+    swig
+
+# Unpack static libraries
+# It's necessary to be in /opt/_internal because the internal libraries
+# exist here.
+WORKDIR /opt/_internal
+RUN tar -Jxvf static-libs-for-embedding-only.tar.xz
+
+# Get requirements and Python iteration script
+COPY requirements.txt /tmp/requirements.txt
+COPY .github/docker/iterate_py_vers.sh .
+
+RUN ./iterate_py_vers.sh 7 8 9 10
+
+CMD [ "/bin/bash" ]
+
+#WORKDIR /io
+#RUN mkdir -p python/dlite
+#COPY python/MANIFEST.in python/pyproject.toml python/setup.py python/
+#COPY python/dlite/__init__.py python/dlite/__init__.py
+#RUN cp LICENSE README.md ./python/
+
+#WORKDIR /io/python
+# RUN python -m build -n
+
+#RUN ${Python3_EXECUTABLE} setup.py --verbose sdist
+#RUN ${Python3_EXECUTABLE} setup.py --verbose bdist_wheel
+#RUN ${Python3_EXECUTABLE} -m pip wheel /io/python --no-deps -w wheels/
