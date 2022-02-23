@@ -33,13 +33,6 @@ if platform.system() == "Linux":
         "-DPython3_FIND_IMPLEMENTATIONS=CPython",
     ]
 
-    if 'Python3_LIBRARY' in os.environ:
-        CMAKE_ARGS.append(f"-DPython3_LIBRARY={os.environ['Python3_LIBRARY']}")
-    if 'Python3_INCLUDE_DIR' in os.environ:
-        CMAKE_ARGS.append(f"-DPython3_INCLUDE_DIR={os.environ['Python3_INCLUDE_DIR']}")
-    if 'Python3_NumPy_INCLUDE_DIR' in os.environ:
-        CMAKE_ARGS.append(f"-DPython3_NumPy_INCLUDE_DIR={os.environ['Python3_NumPy_INCLUDE_DIR']}")
-
 
 elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
@@ -84,12 +77,20 @@ class CMakeBuildExt(build_ext):
         super().__init__(*args, **kwargs)
 
     def build_extension(self, ext):
+        """Run CMAKE
+        
+        Extra CMAKE arguments can be added through the `CI_BUILD_CMAKE_ARGS` environment variable.
+        Note, the variables will be split according to the delimiter, which is a comma (`,`).
+        Example: `CI_BUILD_CMAKE_ARGS="-DWITH_STATIC_PYTHON=YES,-DWITH_HDF5=NO"`
+        """
 
         # The build_temp directory is not generated automatically on Windows, generate it now
         if not Path(self.build_temp).is_dir():
             Path(self.build_temp).mkdir(parents=True)
 
         output_dir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+
+        environment_cmake_args = os.getenv("CI_BUILD_CMAKE_ARGS", "").split(",")
 
         build_type = "Debug" if self.debug else "Release"
         cmake_args = [
@@ -98,6 +99,7 @@ class CMakeBuildExt(build_ext):
             f"-DCMAKE_CONFIGURATION_TYPES:STRING={build_type}",
         ]
         cmake_args.extend(CMAKE_ARGS)
+        cmake_args.extend(environment_cmake_args)
 
         env = os.environ.copy()
         Path(self.build_temp).mkdir(exist_ok=True)

@@ -75,3 +75,35 @@ jobs:
          python3 setup.py install --user
          cd ../bindings/python/tests
          python3 __main__.py
+
+  # Temporary placement for this job - will eventually be moved to cd.yml
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+        # os: [ubuntu-20.04, windows-2019, macOS-11]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+
+      - name: Install cibuildwheel
+        run: |
+          python -m pip install -U pip
+          python -m pip install -U setuptools wheel
+          python -m pip install -U cibuildwheel
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
+          CIBW_BUILD_FRONTEND: pip
+          CIBW_BEFORE_ALL_LINUX: yum update -y && yum install -y cmake3-data redland-devel rasqal-devel hdf5-devel swig
+          CIBW_BEFORE_BUILD: cd /opt/_internal && tar -Jxvf static-libs-for-embedding-only.tar.xz
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
