@@ -90,21 +90,58 @@ jobs:
 
       - uses: actions/setup-python@v2
 
+      - name: Build docker file
+        run: |
+          while read type arch; do
+            sed \
+              -e "s|{{ ARCH }}|${arch}|" \
+              -e "s|{{ TYPE }}|${type}|" \
+              .github/docker/Dockerfile-manylinux.template \
+              > .github/docker/Dockerfile-manylinux${type}_${arch}
+            docker build -t dlite-manylinux${type}_${arch}:latest -f .github/docker/Dockerfile-manylinux${type}_${arch} .
+          done <<EOF
+          2010 x86_64
+          2010 i686
+          2014 x86_64
+          2014 i686
+          EOF
+
+          type=1_1
+          for arch in x86_64 i686; do
+            sed \
+              -e "s|{{ ARCH }}|${arch}|" \
+              .github/docker/Dockerfile-musllinux_${type}.template \
+              > .github/docker/Dockerfile-musllinux_${type}_${arch}
+            docker build -t dlite-musllinux_${type}_${arch}:latest -f .github/docker/Dockerfile-musllinux_${type}_${arch} .
+          done
+
       - name: Install cibuildwheel
         run: |
           python -m pip install -U pip
           python -m pip install -U setuptools wheel
           python -m pip install -U cibuildwheel
 
-      - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
-        working-directory: python/
+      # See pyproject.toml (under python/) for cibuildwheel configuration
+      - name: Build wheels manylinux2010
+        run: |
+          python -m cibuildwheel --print-build-identifiers python
+          python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
-          CIBW_BUILD_FRONTEND: pip
-          CIBW_BEFORE_ALL_LINUX: yum update -y && yum install -y cmake3-data redland-devel rasqal-devel hdf5-devel swig
-          CIBW_BEFORE_BUILD: cd /opt/_internal && tar -Jxvf static-libs-for-embedding-only.tar.xz
+          CIBW_MANYLINUX_X86_64_IMAGE: dlite-manylinux2010_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: dlite-manylinux2010_i686:latest
+          CIBW_SKIP: pp* cp310-* *musl*
+
+      - name: Build wheels manylinux2014 musllinux
+        run: |
+          python -m cibuildwheel --print-build-identifiers python
+          python -m cibuildwheel --output-dir wheelhouse python
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: dlite-manylinux2014_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: dlite-manylinux2014_i686:latest
+          CIBW_MUSLLINUX_X86_64_IMAGE: dlite-musllinux_1_1_x86_64:latest
+          CIBW_MUSLLINUX_I686_IMAGE: dlite-musllinux_1_1_i686:latest
+          CIBW_SKIP: pp*
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./wheelhouse/*.whl
+          path: wheelhouse/*.whl

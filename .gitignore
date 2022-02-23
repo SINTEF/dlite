@@ -4,6 +4,7 @@ external
 build*/
 install*/
 dist/
+wheelhouse/
 local/
 jansson
 hdf5-1.10.*

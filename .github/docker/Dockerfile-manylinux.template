@@ -1,0 +1,41 @@
+# -*- Mode: Dockerfile -*-
+# Dockerfile for building Python pypi package
+#
+# Usage:
+#
+# Copy this template file and replace:
+# - `{{ TYPE }}` with a valid manylinux type, e.g., 2010 or 2014.
+# - `{{ ARCH }}` with a valid arch, e.g., x86_64 or i686.
+# Remove the `.template` suffix from the copy.
+#
+# Build:
+#
+#     docker build -t dlite-manylinux -f .github/docker/Dockerfile-manylinux .
+#
+# Run (for debugging):
+#
+#     docker run --rm -it \
+#        --volume $PWD:/io \
+#        --user $(id -u):$(id -g) \
+#        dlite-manylinux \
+#        /bin/bash
+#
+
+# Reference: https://github.com/pypa/manylinux#manylinux2014-centos-7-based
+FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
+
+RUN yum update -y && yum install -y \
+  cmake3-data \
+  redland-devel \
+  rasqal-devel \
+  hdf5-devel \
+  swig && \
+# Unpack static libraries
+# It's necessary to be in /opt/_internal because the internal libraries
+# exist here.
+  cd /opt/_internal && \
+  tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  for minor in 7 8 9 10; do; \
+  python3.${minor} -m pip install -U pip && \
+  python3.${minor} -m pip install -U setuptools wheel && \
+  python3.${minor} -m pip install -U cmake oldest-supported-numpy; done
