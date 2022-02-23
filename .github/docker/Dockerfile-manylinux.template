@@ -24,7 +24,7 @@
 # Reference: https://github.com/pypa/manylinux#manylinux2014-centos-7-based
 FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
-ENV PY_MINORS="7 8 9 10"
+ARG PY_MINORS="7 8 9 10"
 
 # Enable rpmfusion for additional packages
 RUN yum update -y && \

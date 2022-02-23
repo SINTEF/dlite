@@ -81,24 +81,40 @@ jobs:
 
   # Temporary placement for this job - will eventually be moved to cd.yml
   build_wheel_linux_dockers:
-    name: Build docker images for wheel builds in linux
+    name: Build wheel containers
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        buildplatform:
-        # Lists of [system, type, arch]
-
+        include:
         # 64-bit linux
-        - ["manylinux", "2010", "x86_64"]
-        - ["manylinux", "2014", "x86_64"]
-        - ["musllinux", "_1_1", "x86_64"]
+        - system: "manylinux"
+          type: "2010"
+          arch: "x86_64"
+          py_minors: 7 8 9
+        - system: "manylinux"
+          type: "2014"
+          arch: "x86_64"
+          py_minors: 7 8 9 10
+        - system: "musllinux"
+          type: "_1_1"
+          arch: "x86_64"
+          py_minors: 7 8 9 10
 
         # 32-bit linux
-        - ["manylinux", "2010", "i686"]
+        - system: "manylinux"
+          type: "2010"
+          arch: "i686"
+          py_minors: 7 8 9
         # Doesn't seem to be working
-        # - ["manylinux", "2014", "i686"]
-        - ["musllinux", "_1_1", "i686"]
+        # - system: "manylinux"
+        #   type: "2014"
+        #   arch: "i686"
+        #   py_minors: 7 8 9
+        - system: "musllinux"
+          type: "_1_1"
+          arch: "i686"
+          py_minors: 7 8 9 10
 
     steps:
       - uses: actions/checkout@v2
@@ -110,10 +126,10 @@ jobs:
           mkdir -p docker_build_wheel
 
           sed \
-            -e "s|{{ ARCH }}|${{ matrix.buildplatform[2] }}|" \
-            -e "s|{{ TYPE }}|${{ matrix.buildplatform[1] }}|" \
-            .github/docker/Dockerfile-${{ matrix.buildplatform[0] }}.template \
-            > docker_build_wheel/Dockerfile-${{ matrix.buildplatform[0] }}${{ matrix.buildplatform[1] }}_${{ matrix.buildplatform[2] }}
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
+            -e "s|{{ TYPE }}|${{ matrix.type }}|" \
+            .github/docker/Dockerfile-${{ matrix.system }}.template \
+            > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
@@ -126,15 +142,15 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: docker_build_wheel/Dockerfile-${{ matrix.buildplatform[0] }}${{ matrix.buildplatform[1] }}_${{ matrix.buildplatform[2] }}
-          tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.buildplatform[0] }}${{ matrix.buildplatform[1] }}_${{ matrix.buildplatform[2] }}:latest
+          file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+          tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
           push: true
+          build-args: ["PY_MINORS=${{ matrix.py_minors }}"]
 
   build_wheels:
     # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    needs: [build_wheel_linux_dockers]
     strategy:
       matrix:
         # os: [ubuntu-20.04]
@@ -144,30 +160,30 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2010"]
             arch: i686
-            py_minors: ["7", "8", "9"]
+            py_minors: 7,8,9
           ## Doesn't seem to be working - cannot build image for this
           # - os: ubuntu-20.04
           #   system_type: ["manylinux", "2014"]
           #   arch: i686
-          #   py_minors: ["7", "8", "9"]
+          #   py_minors: 7,8,9
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
-            py_minors: ["7", "8", "9", "10"]
+            py_minors: 7,8,9,10
 
           # 64-bit linux
           - os: ubuntu-20.04
             system_type: ["manylinux", "2010"]
             arch: x86_64
-            py_minors: ["7", "8", "9"]
+            py_minors: 7,8,9
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: ["7", "8", "9", "10"]
+            py_minors: 7,8,9,10
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: x86_64
-            py_minors: ["7", "8", "9", "10"]
+            py_minors: 7,8,9,10
 
     steps:
       - uses: actions/checkout@v2
@@ -188,12 +204,11 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_BUILD: cp3{${{ join(matrix.py_minors, ',') }}}-${{ matrix.system_type[0] }}-${{ matrix.arch }}
+          CIBW_BUILD: cp3{${{ matrix.py_minors }}}-${{ matrix.system_type[0] }}-${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
-          PY_MINORS: ${{ join(matrix.py_minors, ' ') }}
 
       - uses: actions/upload-artifact@v2
         with:
