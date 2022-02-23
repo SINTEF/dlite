@@ -46,10 +46,8 @@ elif platform.system() == "Windows":
     dlite_compiled_dll_suffix = "*.dll"
 
     CMAKE_ARGS = [
-        #"-G",
-        #"Visual Studio 15 2017",
-        "-A",
-        "x64",
+        #"-G", "Visual Studio 15 2017",
+        "-A", "x64",
         "-DWITH_DOC=OFF",
         "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
@@ -85,15 +83,16 @@ class CMakeBuildExt(build_ext):
 
     def build_extension(self, ext):
         """Run CMAKE
-        
+
         Extra CMAKE arguments can be added through the `CI_BUILD_CMAKE_ARGS` environment variable.
         Note, the variables will be split according to the delimiter, which is a comma (`,`).
         Example: `CI_BUILD_CMAKE_ARGS="-DWITH_STATIC_PYTHON=YES,-DWITH_HDF5=NO"`
         """
 
         # The build_temp directory is not generated automatically on Windows, generate it now
-        if not Path(self.build_temp).is_dir():
-            Path(self.build_temp).mkdir(parents=True)
+        #if not Path(self.build_temp).is_dir():
+        #    Path(self.build_temp).mkdir(parents=True)
+        Path(self.build_temp).mkdir(parents=True, exist_ok=True)
 
         output_dir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 
@@ -109,7 +108,6 @@ class CMakeBuildExt(build_ext):
         cmake_args.extend(environment_cmake_args)
 
         env = os.environ.copy()
-        Path(self.build_temp).mkdir(exist_ok=True)
 
         try:
             subprocess.run(
