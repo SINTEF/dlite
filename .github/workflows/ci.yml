@@ -96,13 +96,13 @@ jobs:
           mkdir -p docker_build_wheel
 
           sed \
-            -e "s|{{ ARCH }}|${arch}|" \
-            -e "s|{{ TYPE }}|${type}|" \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
+            -e "s|{{ TYPE }}|${{ matrix.type }}|" \
             .github/docker/Dockerfile-manylinux.template \
             > docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}
 
           sed \
-            -e "s|{{ ARCH }}|${arch}|" \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
             .github/docker/Dockerfile-musllinux_1_1.template \
             > docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
 
@@ -137,7 +137,7 @@ jobs:
           mkdir -p docker_build_wheel
 
           sed \
-            -e "s|{{ ARCH }}|${arch}|" \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
             .github/docker/Dockerfile-musllinux_1_1.template \
             > docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
 
