@@ -3,5 +3,6 @@
     "setuptools>=58",
     "wheel>=0.37",
     "oldest-supported-numpy",
+    "Cmake",
   ]
 build-backend = "setuptools.build_meta"
