@@ -81,7 +81,6 @@ jobs:
     name: Build docker images for wheel builds
     runs-on: ubuntu-20.04
     strategy:
-      fail-fast: true
       matrix:
         type: ["2010", "2014"]
         arch: [x86_64, i686]
@@ -123,7 +122,6 @@ jobs:
     name: Build docker images for wheel builds
     runs-on: ubuntu-20.04
     strategy:
-      fail-fast: true
       matrix:
         arch: [x86_64, i686]
 
@@ -155,13 +153,26 @@ jobs:
           path: docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}.tar
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     needs: [build_manylinux_wheel_dockers, build_musllinux_wheel_dockers]
     strategy:
       matrix:
-        os: [ubuntu-20.04]
         # os: [ubuntu-20.04, windows-2019, macOS-11]
+        include:
+          - os: ubuntu-20.04
+            arch: x86_64
+            image_id: manylinux2010
+          - os: ubuntu-20.04
+            arch: x86_64
+            image_id: manylinux2014
+          - os: ubuntu-20.04
+            arch: i686
+            image_id: manylinux2010
+          - os: ubuntu-20.04
+            arch: i686
+            image_id: manylinux2014
+
 
     steps:
       - uses: actions/checkout@v2
