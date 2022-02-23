@@ -127,7 +127,7 @@ jobs:
         with:
           context: .
           file: docker_build_wheel/Dockerfile-${{ matrix.buildplatform[0] }}${{ matrix.buildplatform[1] }}_${{ matrix.buildplatform[2] }}
-          tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.buildplatform[0] }}${{ matrix.buildplatform[1] }}_${{ matrix.buildplatform[2]} }}:latest
+          tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.buildplatform[0] }}${{ matrix.buildplatform[1] }}_${{ matrix.buildplatform[2] }}:latest
           push: true
 
   build_wheels:
