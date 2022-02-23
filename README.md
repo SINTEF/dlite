@@ -28,7 +28,7 @@ Content
     - [Setting up the environment](#setting-up-the-environment)
   * [Short vocabulary](#short-vocabulary)
   * [License](#license)
-  * [Acknowledgment](#acknowledgement)
+  * [Acknowledgment](#acknowledgment)
 
 
 DLite is a lightweight interoperability framework, for working with and
