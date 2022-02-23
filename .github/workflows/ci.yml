@@ -134,41 +134,47 @@ jobs:
     # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    needs: [build_manylinux_wheel_dockers, build_musllinux_wheel_dockers]
+    needs: [build_wheel_linux_dockers]
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        # os: [ubuntu-20.04]
         # os: [ubuntu-20.04, windows-2019, macOS-11]
-        # include:
-        #   - os: ubuntu-20.04
-        #     arch: x86_64
-        #     image_id: manylinux2010
-        #   - os: ubuntu-20.04
-        #     arch: x86_64
-        #     image_id: manylinux2014
-        #   - os: ubuntu-20.04
-        #     arch: i686
-        #     image_id: manylinux2010
-        #   - os: ubuntu-20.04
-        #     arch: i686
-        #     image_id: manylinux2014
+        include:
+          # 32-bit linux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: i686
+            py_minors: ["7", "8", "9"]
+          ## Doesn't seem to be working - cannot build image for this
+          # - os: ubuntu-20.04
+          #   system_type: ["manylinux", "2014"]
+          #   arch: i686
+          #   py_minors: ["7", "8", "9"]
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: i686
+            py_minors: ["7", "8", "9", "10"]
+
+          # 64-bit linux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: x86_64
+            py_minors: ["7", "8", "9"]
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: x86_64
+            py_minors: ["7", "8", "9", "10"]
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: x86_64
+            py_minors: ["7", "8", "9", "10"]
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: docker/setup-buildx-action@v1
-
-      - uses: actions/download-artifact@v2
-        with:
-          name: build-wheel-dockerfiles
-          path: ./docker_build_wheel
-
-      - name: Load dockerfiles
-        run: |
-          ls -1 docker_build_wheel/*.tar | xargs -r -L 1 docker load -i
-          docker image ls -a
-
       - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
       - name: Install cibuildwheel
         run: |
@@ -177,26 +183,17 @@ jobs:
           python -m pip install -U cibuildwheel
 
       # See pyproject.toml (under python/) for cibuildwheel configuration
-      - name: Build wheels manylinux2010
+      - name: Build wheels
         run: |
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2010_x86_64:latest
-          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2010_i686:latest
-          CIBW_SKIP: pp* cp310-* *musl*
-          PY_MINORS: 7 8 9
-
-      - name: Build wheels manylinux2014 musllinux
-        run: |
-          python -m cibuildwheel --print-build-identifiers python
-          python -m cibuildwheel --output-dir wheelhouse python
-        env:
-          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2014_x86_64:latest
-          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2014_i686:latest
+          CIBW_BUILD: cp3{${{ join(matrix.py_minors, ",") }}}-${{ matrix.system_type[0] }}-${{ matrix.arch }}
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
-          CIBW_SKIP: pp*
+          PY_MINORS: ${{ join(matrix.py_minors, " ") }}
 
       - uses: actions/upload-artifact@v2
         with:
