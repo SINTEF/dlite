@@ -71,7 +71,9 @@ if(HAVE_RAPTOR)
 endif()
 if(WITH_PYTHON)
   list(APPEND include_directories_extra ${Python3_INCLUDE_DIRS})
-  list(APPEND link_libraries_extra ${Python3_LIBRARIES})
+  if(NOT WITH_STATIC_PYTHON)
+    list(APPEND link_libraries_extra ${Python3_LIBRARIES})
+  endif()
 endif()
 
 
@@ -105,10 +107,13 @@ target_include_directories(dlite-static PUBLIC ${include_args})
 
 set(link_args
   dlite-utils
-  ${CMAKE_DL_LIBS}
   ${link_libraries_extra}
   )
-#target_link_libraries(dlite ${link_args})
+if(NOT WITH_STATIC_PYTHON)
+  list(APPEND link_args ${CMAKE_DL_LIBS})
+endif()
+
+target_link_libraries(dlite ${link_args})
 target_link_libraries(dlite-static ${link_args})
 
 set_target_properties(dlite PROPERTIES

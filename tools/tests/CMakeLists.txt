@@ -58,7 +58,7 @@ if(WITH_JSON)
 
     target_link_libraries(${test}
       dlite
-      dlite-static
+      ${Python3_STATIC_LIBS}
       )
     target_include_directories(${test} PRIVATE
       ${dlite_SOURCE_DIR}/src

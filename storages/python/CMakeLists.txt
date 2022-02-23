@@ -10,9 +10,7 @@ set(sources
 add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
   dlite
-  dlite-static
   dlite-utils
-  ${Python3_LIBRARIES}
   )
 target_include_directories(dlite-plugins-python PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}

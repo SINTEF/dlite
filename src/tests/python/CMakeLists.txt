@@ -6,7 +6,6 @@ set(tests
   test_python_mapping
   )
 
-
 add_definitions(
   -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
   -DDLITE_ROOT=${dlite_SOURCE_DIR}
@@ -17,11 +16,8 @@ foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
     dlite
-    dlite-static
     dlite-utils
-    m
-    pthread
-    util
+    ${Python3_STATIC_LIBS}
     )
   target_include_directories(${test} PRIVATE
     ${dlite-src_SOURCE_DIR}
@@ -46,8 +42,8 @@ foreach(test ${tests})
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
   endif()
   # No need to set PYTHONPATH since we are not importing the package in any test here
-  #set_property(TEST ${test} APPEND PROPERTY
-  #  ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   if (NOT WIN32)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")

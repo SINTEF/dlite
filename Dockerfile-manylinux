@@ -3,14 +3,14 @@
 #
 # Build:
 #
-#     docker build -t dlite-manylinux3.9 -f Dockerfile-manylinux .
+#     docker build -t dlite-manylinux3.10 -f Dockerfile-manylinux .
 #
 # Run:
 #
 #     docker run --rm -it \
 #        --volume $PWD:/io  \
 #        --user $(id -u):$(id -g) \
-#        dlite-manylinux3.9
+#        dlite-manylinux3.10
 #
 
 #FROM quay.io/pypa/manylinux_2_24_x86_64
@@ -19,7 +19,9 @@ FROM quay.io/pypa/manylinux2014_x86_64
 RUN yum update -y && yum install -y \
     cmake3-data \
     redland-devel \
-    rasqal-devel
+    rasqal-devel \
+    hdf5-devel \
+    swig
 
 #WORKDIR /io
 #COPY bindings bindings/
@@ -38,23 +40,27 @@ RUN tar -Jxvf static-libs-for-embedding-only.tar.xz
 
 
 # Python version and tag
-ENV PYVER=3.9
-ENV PYTAG=cp39
+ENV PYVER=3.10
+ENV PYTAG=cp310
+ENV PLAT=x86_64
+
 ENV PYABI=${PYTAG}
 ENV ABITAG=${PYTAG}-${PYABI}
+ENV BUILDDIR=/io/python/build/temp.linux-${PLAT}-${PYVER}
+ENV INSTALLDIR=/io/python/build/lib.linux-${PLAT}-${PYVER}
 
+ENV CMAKE=/opt/python/${ABITAG}/bin/cmake
 ENV Python3_EXECUTABLE=/opt/python/${ABITAG}/bin/python${PYVER}
 ENV Python3_LIBRARY=/opt/python/${ABITAG}/lib/libpython${PYVER}.a
 ENV Python3_INCLUDE_DIR=/opt/python/${ABITAG}/include/python${PYVER}
 
 
-RUN ${Python3_EXECUTABLE} -m pip install -U pip && \
-    ${Python3_EXECUTABLE} -m pip install -U setuptools wheel build numpy
+RUN ${Python3_EXECUTABLE} -m pip install -U pip
+RUN ${Python3_EXECUTABLE} -m pip install -U setuptools wheel build CMake
 
+COPY requirements.txt /tmp/requirements.txt
+RUN ${Python3_EXECUTABLE} -m pip install -r /tmp/requirements.txt
 
-# Remove existing build directory if it exists
-#ENV BUILDDIR=/io/python/build/temp.linux-${PLAT}-${PYVER}
-#RUN if [ -f {$BUILDDIR} ]; then rm -r ${BUILDDIR}; fi
 
 
 #WORKDIR /io
@@ -63,8 +69,8 @@ RUN ${Python3_EXECUTABLE} -m pip install -U pip && \
 #COPY python/dlite/__init__.py python/dlite/__init__.py
 #RUN cp LICENSE README.md ./python/
 
-COPY requirements.txt /tmp/requirements.txt
-RUN ${Python3_EXECUTABLE} -m pip install -r /tmp/requirements.txt
+
+
 
 
 #WORKDIR /io/python
