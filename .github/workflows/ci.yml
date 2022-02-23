@@ -121,7 +121,7 @@ jobs:
         with:
           context: .
           file: docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}
-          tags: ${{ env.container_registry }}/${{ github.repository_owner }}/dlite-python-manylinux${{ matrix.type }}_${{ matrix.arch }}:latest
+          tags: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.type }}_${{ matrix.arch }}:latest
           push: true
 
   build_musllinux_wheel_dockers:
@@ -158,7 +158,7 @@ jobs:
         with:
           context: .
           file: docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
-          tags: ${{ env.container_registry }}/${{ github.repository_owner }}/dlite-python-musllinux_1_1_${{ matrix.arch }}:latest
+          tags: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_${{ matrix.arch }}:latest
           push: true
 
   build_wheels:
@@ -213,8 +213,8 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2010_x86_64:latest
-          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2010_i686:latest
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2010_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2010_i686:latest
           CIBW_SKIP: pp* cp310-* *musl*
           PY_MINORS: 7 8 9
 
@@ -223,10 +223,10 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2014_x86_64:latest
-          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2014_i686:latest
-          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-musllinux_1_1_x86_64:latest
-          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-musllinux_1_1_i686:latest
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2014_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux2014_i686:latest
+          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
+          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
           CIBW_SKIP: pp*
 
       - uses: actions/upload-artifact@v2
