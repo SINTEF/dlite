@@ -6,7 +6,6 @@
 # Copy this template file and replace:
 # - `{{ TYPE }}` with a valid manylinux type, e.g., 2010 or 2014.
 # - `{{ ARCH }}` with a valid arch, e.g., x86_64 or i686.
-# - `{{ CentOS_VER }}` with a valid CentOS version, e.g., 6, 7
 # Remove the `.template` suffix from the copy.
 #
 # Build:
@@ -30,8 +29,8 @@ ENV PY_MINORS="7 8 9 10"
 # Enable rpmfusion for additional packages
 RUN yum update -y && \
     yum localinstall -y \
-      https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-{{ CentOS_VER }}.noarch.rpm \
-      https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{ CentOS_VER }}.noarch.rpm && \
+      https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
+      https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
     yum install -y \
       redland-devel \
       rasqal-devel \
