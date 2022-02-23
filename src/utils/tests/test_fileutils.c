@@ -234,6 +234,9 @@ MU_TEST(test_fu_realpath)
 #ifdef WINDOWS
   char buff[MAX_PATH];
 #else
+# ifndef PATH_MAX  /* This may occour in musl */
+#  define PATH_MAX 256
+# endif
   char buff[PATH_MAX];
 #endif
   printf("\nfu_realpath()\n");
