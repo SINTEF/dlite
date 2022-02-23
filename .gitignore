@@ -29,3 +29,6 @@ out
 /dlite_python.egg-info
 /python/dlite_python.egg-info
 /python/.eggs
+
+# Generated build docker files
+Dockerfile-*linux*[^.template]
