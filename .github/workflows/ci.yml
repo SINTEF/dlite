@@ -188,12 +188,12 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_BUILD: cp3{${{ join(matrix.py_minors, ",") }}}-${{ matrix.system_type[0] }}-${{ matrix.arch }}
+          CIBW_BUILD: cp3{${{ join(matrix.py_minors, ',') }}}-${{ matrix.system_type[0] }}-${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
-          PY_MINORS: ${{ join(matrix.py_minors, " ") }}
+          PY_MINORS: ${{ join(matrix.py_minors, ' ') }}
 
       - uses: actions/upload-artifact@v2
         with:
