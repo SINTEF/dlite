@@ -77,43 +77,121 @@ jobs:
          python3 __main__.py
 
   # Temporary placement for this job - will eventually be moved to cd.yml
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  build_manylinux_wheel_dockers:
+    name: Build docker images for wheel builds
+    runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
-        # os: [ubuntu-20.04, windows-2019, macOS-11]
+        type: ["2010", "2014"]
+        arch: [x86_64, i686]
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v2
+      - uses: docker/setup-buildx-action@v1
 
-      - name: Build docker file
+      - name: Create docker file
         run: |
-          while read type arch; do
-            sed \
-              -e "s|{{ ARCH }}|${arch}|" \
-              -e "s|{{ TYPE }}|${type}|" \
-              .github/docker/Dockerfile-manylinux.template \
-              > .github/docker/Dockerfile-manylinux${type}_${arch}
-            docker build -t dlite-manylinux${type}_${arch}:latest -f .github/docker/Dockerfile-manylinux${type}_${arch} .
-          done <<EOF
-          2010 x86_64
-          2010 i686
-          2014 x86_64
-          2014 i686
-          EOF
+          mkdir -p docker_build_wheel
 
-          type=1_1
-          for arch in x86_64 i686; do
-            sed \
-              -e "s|{{ ARCH }}|${arch}|" \
-              .github/docker/Dockerfile-musllinux_${type}.template \
-              > .github/docker/Dockerfile-musllinux_${type}_${arch}
-            docker build -t dlite-musllinux_${type}_${arch}:latest -f .github/docker/Dockerfile-musllinux_${type}_${arch} .
-          done
+          sed \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
+            -e "s|{{ TYPE }}|${{ matrix.type }}|" \
+            .github/docker/Dockerfile-manylinux.template \
+            > docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}
+
+          sed \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
+            .github/docker/Dockerfile-musllinux_1_1.template \
+            > docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
+
+      - name: Build and push dockerfile
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}
+          tags: dlite-manylinux${{ matrix.type }}_${{ matrix.arch }}:latest
+          outputs: type=docker,dest=docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}.tar
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-wheel-dockerfiles
+          path: docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}.tar
+
+  build_musllinux_wheel_dockers:
+    name: Build docker images for wheel builds
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, i686]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: docker/setup-buildx-action@v1
+
+      - name: Create docker file
+        run: |
+          mkdir -p docker_build_wheel
+
+          sed \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
+            .github/docker/Dockerfile-musllinux_1_1.template \
+            > docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
+
+      - name: Build and push dockerfile
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
+          tags: dlite-musllinux_1_1_${{ matrix.arch }}:latest
+          outputs: type=docker,dest=docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}.tar
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-wheel-dockerfiles
+          path: docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}.tar
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    needs: [build_manylinux_wheel_dockers, build_musllinux_wheel_dockers]
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+        # os: [ubuntu-20.04, windows-2019, macOS-11]
+        # include:
+        #   - os: ubuntu-20.04
+        #     arch: x86_64
+        #     image_id: manylinux2010
+        #   - os: ubuntu-20.04
+        #     arch: x86_64
+        #     image_id: manylinux2014
+        #   - os: ubuntu-20.04
+        #     arch: i686
+        #     image_id: manylinux2010
+        #   - os: ubuntu-20.04
+        #     arch: i686
+        #     image_id: manylinux2014
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: docker/setup-buildx-action@v1
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: build-wheel-dockerfiles
+          path: ./docker_build_wheel
+
+      - name: Load dockerfiles
+        run: |
+          ls -1 docker_build_wheel/*.tar | xargs -r -L 1 docker load -i
+          docker image ls -a
+
+      - uses: actions/setup-python@v2
 
       - name: Install cibuildwheel
         run: |
