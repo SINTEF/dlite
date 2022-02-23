@@ -81,6 +81,7 @@ jobs:
     name: Build docker images for wheel builds
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         type: ["2010", "2014"]
         arch: [x86_64, i686]
@@ -122,6 +123,7 @@ jobs:
     name: Build docker images for wheel builds
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         arch: [x86_64, i686]
 
@@ -158,21 +160,21 @@ jobs:
     needs: [build_manylinux_wheel_dockers, build_musllinux_wheel_dockers]
     strategy:
       matrix:
+        os: [ubuntu-20.04]
         # os: [ubuntu-20.04, windows-2019, macOS-11]
-        include:
-          - os: ubuntu-20.04
-            arch: x86_64
-            image_id: manylinux2010
-          - os: ubuntu-20.04
-            arch: x86_64
-            image_id: manylinux2014
-          - os: ubuntu-20.04
-            arch: i686
-            image_id: manylinux2010
-          - os: ubuntu-20.04
-            arch: i686
-            image_id: manylinux2014
-
+        # include:
+        #   - os: ubuntu-20.04
+        #     arch: x86_64
+        #     image_id: manylinux2010
+        #   - os: ubuntu-20.04
+        #     arch: x86_64
+        #     image_id: manylinux2014
+        #   - os: ubuntu-20.04
+        #     arch: i686
+        #     image_id: manylinux2010
+        #   - os: ubuntu-20.04
+        #     arch: i686
+        #     image_id: manylinux2014
 
     steps:
       - uses: actions/checkout@v2
