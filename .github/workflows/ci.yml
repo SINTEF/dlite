@@ -2,6 +2,9 @@ name: CI tests
 
 on: [push]
 
+env:
+  container_registry: ghcr.io
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -106,18 +109,20 @@ jobs:
             .github/docker/Dockerfile-musllinux_1_1.template \
             > docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.container_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push dockerfile
         uses: docker/build-push-action@v2
         with:
           context: .
           file: docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}
-          tags: dlite-manylinux${{ matrix.type }}_${{ matrix.arch }}:latest
-          outputs: type=docker,dest=docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}.tar
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: build-wheel-dockerfiles
-          path: docker_build_wheel/Dockerfile-manylinux${{ matrix.type }}_${{ matrix.arch }}.tar
+          tags: ${{ env.container_registry }}/${{ github.repository_owner }}/dlite-python-manylinux${{ matrix.type }}_${{ matrix.arch }}:latest
+          push: true
 
   build_musllinux_wheel_dockers:
     name: Build docker images for wheel builds
@@ -141,18 +146,20 @@ jobs:
             .github/docker/Dockerfile-musllinux_1_1.template \
             > docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.container_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push dockerfile
         uses: docker/build-push-action@v2
         with:
           context: .
           file: docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}
-          tags: dlite-musllinux_1_1_${{ matrix.arch }}:latest
-          outputs: type=docker,dest=docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}.tar
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: build-wheel-dockerfiles
-          path: docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}.tar
+          tags: ${{ env.container_registry }}/${{ github.repository_owner }}/dlite-python-musllinux_1_1_${{ matrix.arch }}:latest
+          push: true
 
   build_wheels:
     # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
@@ -206,8 +213,8 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: dlite-manylinux2010_x86_64:latest
-          CIBW_MANYLINUX_I686_IMAGE: dlite-manylinux2010_i686:latest
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2010_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2010_i686:latest
           CIBW_SKIP: pp* cp310-* *musl*
           PY_MINORS: 7 8 9
 
@@ -216,10 +223,10 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: dlite-manylinux2014_x86_64:latest
-          CIBW_MANYLINUX_I686_IMAGE: dlite-manylinux2014_i686:latest
-          CIBW_MUSLLINUX_X86_64_IMAGE: dlite-musllinux_1_1_x86_64:latest
-          CIBW_MUSLLINUX_I686_IMAGE: dlite-musllinux_1_1_i686:latest
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2014_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-manylinux2014_i686:latest
+          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-musllinux_1_1_x86_64:latest
+          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/${{ github.repotitory_owner }}/dlite-python-musllinux_1_1_i686:latest
           CIBW_SKIP: pp*
 
       - uses: actions/upload-artifact@v2
