@@ -7,32 +7,39 @@ DLite
 
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/sintef/dlite)
+[![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
 
 Content
 -------
   * [About DLite](#about-dlite)
-    - [Main features](#main-features)
     - [Example](#example)
-    - [Short vocabulary](#short-vocabulary)
-  * [Download and build](#download-and-build)
-    - [Download](#download)
-      - [From source](#from-source)
-      - [Pre-build docker container](#pre-build-docker-container)
-    - [Dependencies](#dependencies)
-      - [Runtime dependencies](#runtime-dependencies)
-      - [Build dependencies](#build-dependencies)
-    - [Compiling](#compiling)
+    - [Main features](#main-features)
+  * [Installing DLite](#installing-dlite)
+    - [Installing with pip](#installing-with-pip)
+    - [Docker image](#docker-image)
+    - [Compile from sources](#compile-from-sources)
+      - [Dependencies](#dependencies)
+        - [Runtime dependencies](#runtime-dependencies)
+        - [Build dependencies](#build-dependencies)
       - [Build and install with Python](#build-and-install-with-python)
-      - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
       - [Build on Linux](#build-on-linux)
-  * [Using DLite](#using-dlite)
-    - [Using the docker image](#using-the-docker-image)
-  * [Licensing](#licensing)
+      - [Build on Windows](#build-on-windows)
+        - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
+    - [Setting up the environment](#setting-up-the-environment)
+  * [Short vocabulary](#short-vocabulary)
+  * [License](#license)
+  * [Acknowledgment](#acknowledgement)
 
 
-DLite is a lightweight cross-platform C library, for working with and
-sharing scientific data in an interoperable way.  It can be described
-as a C implementation of [SOFT][1].
+DLite is a lightweight interoperability framework, for working with and
+sharing scientific.
+
+
+About DLite
+===========
+DLite is a C implementation of the [SINTEF Open Framework and Tools
+(SOFT)][1], which is a set of concepts and tools for how to
+efficiently describe and work with scientific data.
 
 All data in DLite is represented by an Instance, which is build on a
 simple data model.  An Instance is identified by a unique UUID and
@@ -238,8 +245,142 @@ See [doc/features.md](doc/features.md) for a more detailed list.
   - Bindings to C, Python and Fortran
 
 
+
+Installing DLite
+================
+
+Installing with pip
+-------------------
+If you are using Python, the easiest way to install DLite is with pip:
+
+    pip install DLite-Python
+
+Note, currently only Linux versions for Python 3.7, 3.8, 3.9 and 3.10
+are available.  But Windows versions will soon be available.
+
+Docker image
+------------
+A docker image is available on
+[https://github.com/SINTEF/dlite/packages][dlite-packages].
+
+
+Compile from sources
+--------------------
+The sources can be cloned from GitHub
+
+    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
+
+
+### Dependencies
+
+#### Runtime dependencies
+  - [HDF5][3], optional (needed by HDF5 storage plugin)
+  - [librdf][4], optional (needed by RDF (Redland) storage plugin)
+  - [Python 3][5], optional (needed by Python bindings and some plugins)
+    - [NumPy][6], required if Python is enabled
+    - [PyYAML][7], optional (used for generic YAML storage plugin)
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+    - [pandas][pandas], optional (used for csv storage plugin)
+
+#### Build dependencies
+  - [cmake][9], required for building
+  - hdf5 development libraries, optional (needed by HDF5 storage plugin)
+  - librdf development libraries, optional (needed by librdf storage plugin)
+  - Python 3 development libraries, optional (needed by Python bindings)
+  - NumPy development libraries, optional (needed by Python bindings)
+  - [SWIG v3][10], optional (needed by building Python bindings)
+  - [Doxygen][11], optional, used for documentation generation
+  - [valgrind][12], optional, used for memory checking (Linux only)
+  - [cppcheck][13], optional, used for static code analysis
+
+
+### Build and install with Python
+Given you have a C compiler and Python correctly installed, you should be
+able to build and install dlite via the python/setup.py script:
+
+    cd python
+    python setup.py install
+
+
+### Build on Linux
+Install the hdf5 (does not include the parallel component) libraries
+
+On Ubuntu:
+
+    sudo apt-get install libhdf5-serial-dev
+
+On Redhad-based distributions (Fedora, Centos, ...):
+
+    sudo dnf install hdf5-devel
+
+Build with:
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+Before running make, you may wish to configure some options with
+`ccmake ..`
+
+For example, you might need to change CMAKE_INSTALL_PREFIX to a
+location accessible for writing. Default is ~/.local
+
+To run the tests, do
+
+    make test        # same as running `ctest`
+    make memcheck    # runs all tests with memory checking (requires
+                     # valgrind)
+
+To generate code documentation, do
+
+    make doc         # direct your browser to build/doc/html/index.html
+
+To install dlite locally, do
+
+    make install
+
+
+### Build on Windows
+See [here](doc/build-with-vs.md) for detailed instructions for building with
+Visual Studio.
+
+
+#### Quick start with VS Code and Remote Container
+Using Visual Studio Code it is possible to do development on the
+system defined in Dockerfile.
+
+1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
+2. Install the extension __Remote Development__.
+3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
+4. Open the _dlite_ folder with VS Code.
+5. Start VS Code, run the *Remote-Containers: Open Folder in
+   Container...* command from the Command Palette (F1) or quick
+   actions Status bar item. This will build the container and restart
+   VS Code in it. This may take some time the first time as the Docker
+   image must be built. See [Quick start: Open an existing folder in a
+   container][vs-container] for more information and instructions.
+6. In the container terminal, perform the first build and tests with
+   `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
+   make test`.
+
+
+
+Setting up the environment
+--------------------------
+If dlite is installed in a non-default location, you may need to set
+the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
+variables.  See the [documentation of environment
+variables](doc/environment-variables.md) for more details.
+
+An example of how to use dlite is shown above.  See also the examples
+in the [examples](examples) directory for how to link to dlite from C
+and use of the Fortran bindings.
+
+
+
 Short vocabulary
-----------------
+================
 The following terms have a special meaning in dlite:
   - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
   - **Collection**: A specialised instance that contains references to set
@@ -290,147 +431,27 @@ The following terms have a special meaning in dlite:
     has an uri, otherwise it is randomly generated.
 
 
-Download and build
-==================
-
-Download
---------
-### From source
-DLite sources can be cloned from GitHub
-
-    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-
-To initialize the minunit submodule, you may also have to run
-
-    git submodule update --init
-
-### Pre-build docker container
-A docker image is available on
-[https://github.com/SINTEF/dlite/packages][dlite-packages].
-
-Dependencies
-------------
-
-### Runtime dependencies
-  - [HDF5][3], optional (needed by HDF5 storage plugin)
-  - [librdf][4], optional (needed by RDF (Redland) storage plugin)
-  - [Python 3][5], optional (needed by Python bindings and some plugins)
-    - [NumPy][6], required if Python is enabled
-    - [PyYAML][7], optional (used for generic YAML storage plugin)
-    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
-    - [pandas][pandas], optional (used for csv storage plugin)
-
-
-### Build dependencies
-  - [cmake][9], required for building
-  - hdf5 development libraries, optional (needed by HDF5 storage plugin)
-  - librdf development libraries, optional (needed by librdf storage plugin)
-  - Python 3 development libraries, optional (needed by Python bindings)
-  - NumPy development libraries, optional (needed by Python bindings)
-  - [SWIG v3][10], optional (needed by building Python bindings)
-  - [Doxygen][11], optional, used for documentation generation
-  - [valgrind][12], optional, used for memory checking (Linux only)
-  - [cppcheck][13], optional, used for static code analysis
-
-
-Compiling
----------
-See [here](doc/build-with-vs.md) for instructions for building with
-Visual Studio.
-
-
-### Build and install with Python
-Given you have a C compiler and Python correctly installed, you should be
-able to build and install dlite via the python/setup.py script:
-
-    cd python
-    python setup.py install
-
-
-### Quick start with VS Code and Remote Container
-Using Visual Studio Code it is possible to do development on the
-system defined in Dockerfile.
-
-1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
-2. Install the extension __Remote Development__.
-3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
-4. Open the _dlite_ folder with VS Code.
-5. Start VS Code, run the *Remote-Containers: Open Folder in
-   Container...* command from the Command Palette (F1) or quick
-   actions Status bar item. This will build the container and restart
-   VS Code in it. This may take some time the first time as the Docker
-   image must be built. See [Quick start: Open an existing folder in a
-   container][vs-container] for more information and instructions.
-6. In the container terminal, perform the first build and tests with
-   `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
-   make test`.
-
-
-### Build on Linux
-Install the hdf5 (does not include the parallel component) libraries
-
-On Ubuntu:
-
-    sudo apt-get install libhdf5-serial-dev
-
-On Redhad-based distributions (Fedora, Centos, ...):
-
-    sudo dnf install hdf5-devel
-
-Build with:
-
-    mkdir build
-    cd build
-    cmake ..
-    make
-
-Before running make, you may wish to configure some options with
-`ccmake ..`
-
-For example, you might need to change CMAKE_INSTALL_PREFIX to a
-location accessible for writing. Default is ~/.local
-
-To run the tests, do
-
-    make test        # same as running `ctest`
-    make memcheck    # runs all tests with memory checking (requires
-                     # valgrind)
-
-To generate code documentation, do
-
-    make doc         # direct your browser to build/doc/html/index.html
-
-To install dlite locally, do
-
-    make install
-
-
-
-Using dlite
-===========
-If dlite is installed in a non-default location, you may need to set
-the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
-variables.  See the [documentation of environment
-variables](doc/environment-variables.md) for more details.
-
-An example of how to use dlite is shown above.  See also the examples
-in the [examples](examples) directory for how to link to dlite from C
-and use of the Fortran bindings.
-
-
-Using the docker image
-----------------------
-The easiest way to use the docker image is via the
-[dlite-docker](tools/dlite-docker) script.
-
-
-Licensing
-=========
+License
+=======
 DLite is licensed under the [MIT license](LICENSE).  However, it
 include a few third party source files with other permissive licenses.
 All of these should allow dynamic and static linking against open and
 propritary codes.  A full list of included licenses can be found in
 [LICENSES.txt](src/utils/LICENSES.txt).
+
+
+Acknowledgment
+==============
+In addition from internal funding from SINTEF and NTNU this work has
+been supported by several projects, including:
+
+  - [AMPERE](https://www.sintef.no/en/projects/2015/ampere-aluminium-alloys-with-mechanical-properties-and-electrical-conductivity-at-elevated-temperatures/) (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
+  - FICAL (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
+  - [SFI Manufacturing](https://www.sfimanufacturing.no/) (2015-2023) funded by Forskningsrådet and Norwegian industry partners.
+  - [SFI PhysMet](https://www.ntnu.edu/physmet)(2020-2028) funded by Forskningsrådet and Norwegian industry partners.
+  - [OntoTrans](https://cordis.europa.eu/project/id/862136) (2020-2024) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 862136.
+  - [OpenModel](https://www.open-model.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953167.
+  - [VIPCOAT](https://www.vipcoat.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 952903.
 
 
 ---
