@@ -91,30 +91,30 @@ jobs:
         - system: "manylinux"
           type: "2010"
           arch: "x86_64"
-          py_minors: 7 8 9
+          py_minors: "7 8 9"
         - system: "manylinux"
           type: "2014"
           arch: "x86_64"
-          py_minors: 7 8 9 10
+          py_minors: "7 8 9 10"
         - system: "musllinux"
           type: "_1_1"
           arch: "x86_64"
-          py_minors: 7 8 9 10
+          py_minors: "7 8 9 10"
 
         # 32-bit linux
         - system: "manylinux"
           type: "2010"
           arch: "i686"
-          py_minors: 7 8 9
+          py_minors: "7 8 9"
         # Doesn't seem to be working
         # - system: "manylinux"
         #   type: "2014"
         #   arch: "i686"
-        #   py_minors: 7 8 9
+        #   py_minors: "7 8 9"
         - system: "musllinux"
           type: "_1_1"
           arch: "i686"
-          py_minors: 7 8 9 10
+          py_minors: "7 8 9 10"
 
     steps:
       - uses: actions/checkout@v2
@@ -145,7 +145,8 @@ jobs:
           file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
           tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
           push: true
-          build-args: "PY_MINORS=${{ matrix.py_minors }}"
+          build-args: |
+            PY_MINORS=${{ matrix.py_minors }}
 
   build_wheels:
     # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
