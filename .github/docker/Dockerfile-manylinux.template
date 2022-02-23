@@ -31,6 +31,9 @@ RUN yum update -y && yum install -y \
   rasqal-devel \
   hdf5-devel \
   swig && \
+  libcurl-devel && \
+  libxslt-devel && \
+  libxml2-devel %% \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
