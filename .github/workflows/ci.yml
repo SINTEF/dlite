@@ -130,6 +130,7 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: dlite-manylinux2010_x86_64:latest
           CIBW_MANYLINUX_I686_IMAGE: dlite-manylinux2010_i686:latest
           CIBW_SKIP: pp* cp310-* *musl*
+          PY_MINORS: 7 8 9
 
       - name: Build wheels manylinux2014 musllinux
         run: |

@@ -24,6 +24,8 @@
 # Reference: https://github.com/pypa/manylinux#manylinux2014-centos-7-based
 FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
+ENV PY_MINORS="7 8 9 10"
+
 RUN yum update -y && yum install -y \
   cmake3-data \
   redland-devel \
@@ -35,7 +37,7 @@ RUN yum update -y && yum install -y \
 # exist here.
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-  for minor in 7 8 9 10; do \
+  for minor in (${PY_MINORS}); do \
   python3.${minor} -m pip install -U pip && \
   python3.${minor} -m pip install -U setuptools wheel && \
   python3.${minor} -m pip install -U cmake oldest-supported-numpy; done
