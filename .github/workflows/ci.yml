@@ -155,7 +155,8 @@ jobs:
           path: docker_build_wheel/Dockerfile-musllinux_1_1_${{ matrix.arch }}.tar
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
+    # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
+    name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: [build_manylinux_wheel_dockers, build_musllinux_wheel_dockers]
     strategy:
