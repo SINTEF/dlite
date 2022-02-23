@@ -27,7 +27,6 @@ FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 ENV PY_MINORS="7 8 9 10"
 
 RUN yum update -y && yum install -y \
-  cmake3-data \
   redland-devel \
   rasqal-devel \
   hdf5-devel \
