@@ -145,7 +145,7 @@ jobs:
           file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
           tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
           push: true
-          build-args: ["PY_MINORS=${{ matrix.py_minors }}"]
+          build-args: "PY_MINORS=${{ matrix.py_minors }}"
 
   build_wheels:
     # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
