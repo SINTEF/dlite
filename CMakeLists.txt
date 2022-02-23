@@ -245,7 +245,11 @@ if(WITH_PYTHON)
   endif()
 
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
-  find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+
+  # The
+  #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+  find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
   # Link libraries when compiling against static Python (e.g. manylinux)

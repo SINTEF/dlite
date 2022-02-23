@@ -20,7 +20,7 @@
 #
 FROM quay.io/pypa/musllinux_1_1_{{ ARCH }}:latest
 
-RUN apk -U \
+RUN apk add -u \
   redland \
   rasqal \
   hdf5 \
