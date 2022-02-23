@@ -6,7 +6,7 @@ DLite
 > Lightweight data-centric interoperability framework for working with scientific data
 
 ![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/sintef/dlite)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/sintef/dlite)](https://github.com/SINTEF/dlite/releases)
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
 
 Content

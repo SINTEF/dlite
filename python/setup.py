@@ -155,6 +155,9 @@ version = re.search(
     Path(SOURCE_DIR / "CMakeLists.txt").read_text(),
 ).groups()[0]
 
+with open("../README.md", "r") as f:
+    long_description = f.read()
+
 setup(
     name="DLite-Python",
     version=version,
@@ -164,6 +167,7 @@ setup(
     description=(
         "Lightweight data-centric framework for working with " "scientific data"
     ),
+    long_description=long_description,
     url="https://github.com/SINTEF/dlite",
     license="MIT",
     python_requires=">=3.7",
