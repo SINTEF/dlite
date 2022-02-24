@@ -150,7 +150,7 @@ jobs:
 
   build_wheels:
     # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
-    name: Build wheels on ${{ matrix.os }}
+    name: Build wheels
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
