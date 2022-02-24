@@ -80,73 +80,73 @@ jobs:
          python3 __main__.py
 
   # Temporary placement for this job - will eventually be moved to cd.yml
-  build_wheel_linux_dockers:
-    name: Build wheel containers
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        # 64-bit linux
-        - system: "manylinux"
-          type: "2010"
-          arch: "x86_64"
-          py_minors: "7 8 9"
-        - system: "manylinux"
-          type: "2014"
-          arch: "x86_64"
-          py_minors: "7 8 9 10"
-        - system: "musllinux"
-          type: "_1_1"
-          arch: "x86_64"
-          py_minors: "7 8 9 10"
+  # build_wheel_linux_dockers:
+  #   name: Build wheel containers
+  #   runs-on: ubuntu-20.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #       # 64-bit linux
+  #       - system: "manylinux"
+  #         type: "2010"
+  #         arch: "x86_64"
+  #         py_minors: "7 8 9"
+  #       - system: "manylinux"
+  #         type: "2014"
+  #         arch: "x86_64"
+  #         py_minors: "7 8 9 10"
+  #       - system: "musllinux"
+  #         type: "_1_1"
+  #         arch: "x86_64"
+  #         py_minors: "7 8 9 10"
 
-        # 32-bit linux
-        - system: "manylinux"
-          type: "2010"
-          arch: "i686"
-          py_minors: "7 8 9"
-        # Doesn't seem to be working
-        # - system: "manylinux"
-        #   type: "2014"
-        #   arch: "i686"
-        #   py_minors: "7 8 9"
-        - system: "musllinux"
-          type: "_1_1"
-          arch: "i686"
-          py_minors: "7 8 9 10"
+  #       # 32-bit linux
+  #       - system: "manylinux"
+  #         type: "2010"
+  #         arch: "i686"
+  #         py_minors: "7 8 9"
+  #       # Doesn't seem to be working
+  #       # - system: "manylinux"
+  #       #   type: "2014"
+  #       #   arch: "i686"
+  #       #   py_minors: "7 8 9"
+  #       - system: "musllinux"
+  #         type: "_1_1"
+  #         arch: "i686"
+  #         py_minors: "7 8 9 10"
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - uses: docker/setup-buildx-action@v1
+  #     - uses: docker/setup-buildx-action@v1
 
-      - name: Create docker file
-        run: |
-          mkdir -p docker_build_wheel
+  #     - name: Create docker file
+  #       run: |
+  #         mkdir -p docker_build_wheel
 
-          sed \
-            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
-            -e "s|{{ TYPE }}|${{ matrix.type }}|" \
-            .github/docker/Dockerfile-${{ matrix.system }}.template \
-            > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+  #         sed \
+  #           -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
+  #           -e "s|{{ TYPE }}|${{ matrix.type }}|" \
+  #           .github/docker/Dockerfile-${{ matrix.system }}.template \
+  #           > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.container_registry }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Login to GitHub Container Registry
+  #       uses: docker/login-action@v1
+  #       with:
+  #         registry: ${{ env.container_registry }}
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push dockerfile
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
-          tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
-          push: true
-          build-args: |
-            PY_MINORS=${{ matrix.py_minors }}
+  #     - name: Build and push dockerfile
+  #       uses: docker/build-push-action@v2
+  #       with:
+  #         context: .
+  #         file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+  #         tags: ${{ env.container_registry }}/sintef/dlite-python-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
+  #         push: true
+  #         build-args: |
+  #           PY_MINORS=${{ matrix.py_minors }}
 
   build_wheels:
     # name: Build wheels on ${{ matrix.os }} for ${{ matrix.image_id }}-${{ matrix.arch }}
@@ -155,8 +155,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-20.04]
-        # os: [ubuntu-20.04, windows-2019, macOS-11]
         include:
           # 32-bit linux
           - os: ubuntu-20.04
@@ -187,6 +185,28 @@ jobs:
             arch: x86_64
             py_minors: 7,8,9,10
 
+          # 32-bit Windows
+          - os: windows-2019
+            system_type: ["win32", ""]
+            arch: ""
+            py_minors: 7,8,9,10
+
+          # 64-bit Windows
+          - os: windows-2019
+            system_type: ["win", ""]
+            arch: amd64
+            py_minors: 7,8,9,10
+          - os: windows-2019
+            system_type: ["win", ""]
+            arch: arm64
+            py_minors: 9,10
+
+          # 64-bit (Intel) macOS
+          - os: macos-10.05
+            system_type: ["macosx", ""]
+            arch: x86_64
+            py_minors: 7,8,9,10
+
     steps:
       - uses: actions/checkout@v2
 
@@ -213,7 +233,7 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
-          CIBW_BUILD: cp3{${{ matrix.py_minors }}}-${{ matrix.system_type[0] }}_${{ matrix.arch }}
+          CIBW_BUILD: cp3{${{ matrix.py_minors }}}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
