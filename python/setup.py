@@ -150,7 +150,7 @@ setup_requirements = [
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
-    Path(SOURCE_DIR / "CMakeLists.txt").read_text(),
+    (SOURCE_DIR / "CMakeLists.txt").read_text(),
 ).groups()[0]
 
 setup(
@@ -194,7 +194,7 @@ setup(
     },
     ext_modules=[
         CMakeExtension(
-            "dlite", sourcedir=SOURCE_DIR, python_package_dir=Path("bindings" / "python")
+            "dlite", sourcedir=SOURCE_DIR, python_package_dir=Path("bindings") / "python"
         )
     ],
     cmdclass={
