@@ -13,7 +13,7 @@ build-verbosity = 1
 
 [tool.cibuildwheel.windows]
 before-build = [
-  "python -c \"from pathlib import Path; manifest=Path.cwd() / 'python' / 'MANIFEST.in'; print(manifest, f'exists: {manifest.exists()}'); manifest.write_text(manifest.read_text().replace('/', '\\\'))\""
+  "python -c \"from pathlib import Path; manifest=Path.cwd() / 'python' / 'MANIFEST.in'; print(manifest, f'exists: {manifest.exists()}'); manifest.write_text(manifest.read_text().replace(r'/', '\\\\'))\""
 ]
 
 [tool.cibuildwheel.linux]
