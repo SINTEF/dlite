@@ -27,8 +27,7 @@ FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 ARG PY_MINORS="7 8 9 10"
 
 # Enable rpmfusion for additional packages
-RUN echo "Will eventually install build requirements for Python minor versions: ${PY_MINORS}" && \
-    yum update -y && \
+RUN yum update -y && \
     yum localinstall -y \
       https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
       https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
@@ -43,8 +42,10 @@ RUN echo "Will eventually install build requirements for Python minor versions: 
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
+  workdir=${PWD} && \
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  cd ${workdir} && \
   while IFS=" " read -a minor; do \
   python3.${minor} -m pip install -U pip && \
   python3.${minor} -m pip install -U setuptools wheel && \
