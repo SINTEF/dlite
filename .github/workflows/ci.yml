@@ -196,10 +196,6 @@ jobs:
             system_type: ["win", ""]
             arch: amd64
             py_minors: 7,8,9,10
-          - os: windows-2019
-            system_type: ["win", ""]
-            arch: arm64
-            py_minors: 9,10
 
           # 64-bit (Intel) macOS
           - os: macos-10.15
