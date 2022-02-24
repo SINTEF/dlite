@@ -42,10 +42,8 @@ RUN yum update -y && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
-  workdir=${PWD} && \
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-  cd ${workdir} && \
   for minor in ${PY_MINORS}; do \
   python3.${minor} -m pip install -U pip && \
   python3.${minor} -m pip install -U setuptools wheel && \
