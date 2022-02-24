@@ -46,8 +46,7 @@ RUN yum update -y && \
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
   cd ${workdir} && \
-  while IFS=" " read -a minor; do \
-  which python3.${minor} && \
+  for minor in ${PY_MINORS}; do \
   python3.${minor} -m pip install -U pip && \
   python3.${minor} -m pip install -U setuptools wheel && \
-  python3.${minor} -m pip install -U cmake oldest-supported-numpy; done <<< "${PY_MINORS}"
+  python3.${minor} -m pip install -U cmake oldest-supported-numpy; done
