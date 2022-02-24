@@ -215,6 +215,7 @@ jobs:
           python-version: '3.x'
 
       - name: Login to GitHub Container Registry
+        if: startsWith(matrix.os, 'ubuntu')
         uses: docker/login-action@v1
         with:
           registry: ${{ env.container_registry }}
