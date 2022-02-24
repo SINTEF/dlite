@@ -28,17 +28,17 @@ ARG PY_MINORS="7 8 9 10"
 
 # Enable rpmfusion for additional packages
 RUN yum update -y && \
-    yum localinstall -y \
-      https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
-      https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
-    yum install -y \
-      redland-devel \
-      rasqal-devel \
-      hdf5-devel \
-      swig \
-      libcurl-devel \
-      libxslt-devel \
-      libxml2-devel && \
+  yum localinstall -y \
+    https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
+    https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
+  yum install -y \
+    redland-devel \
+    rasqal-devel \
+    hdf5-devel \
+    swig \
+    libcurl-devel \
+    libxslt-devel \
+    libxml2-devel && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
@@ -47,6 +47,7 @@ RUN yum update -y && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
   cd ${workdir} && \
   while IFS=" " read -a minor; do \
+  which python3.${minor} && \
   python3.${minor} -m pip install -U pip && \
   python3.${minor} -m pip install -U setuptools wheel && \
   python3.${minor} -m pip install -U cmake oldest-supported-numpy; done <<< "${PY_MINORS}"
