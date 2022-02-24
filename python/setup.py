@@ -164,7 +164,7 @@ setup(
     description=(
         "Lightweight data-centric framework for working with " "scientific data"
     ),
-    long_description=(SETUP_DIR / "README.md").read_text(encoding="utf-8"),
+    long_description=(SOURCE_DIR / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
     url="https://github.com/SINTEF/dlite",
     license="MIT",
