@@ -202,7 +202,7 @@ jobs:
             py_minors: 9,10
 
           # 64-bit (Intel) macOS
-          - os: macos-10.05
+          - os: macos-10.15
             system_type: ["macosx", ""]
             arch: x86_64
             py_minors: 7,8,9,10
