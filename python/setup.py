@@ -90,8 +90,6 @@ class CMakeBuildExt(build_ext):
         """
 
         # The build_temp directory is not generated automatically on Windows, generate it now
-        #if not Path(self.build_temp).is_dir():
-        #    Path(self.build_temp).mkdir(parents=True)
         Path(self.build_temp).mkdir(parents=True, exist_ok=True)
 
         output_dir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
@@ -162,7 +160,7 @@ setup(
     author_email="jesper.friis@sintef.no",
     platforms=["Windows", "Linux"],
     description=(
-        "Lightweight data-centric framework for working with " "scientific data"
+        "Lightweight data-centric framework for working with scientific data"
     ),
     long_description=(SOURCE_DIR / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
@@ -191,12 +189,12 @@ setup(
         "dlite": [
             dlite_compiled_ext,
             dlite_compiled_dll_suffix,
-            "./share/dlite/storage-plugins/" + dlite_compiled_dll_suffix,
+            str(Path(".") / "share" / "dlite" / "storage-plugins" / dlite_compiled_dll_suffix),
         ]
     },
     ext_modules=[
         CMakeExtension(
-            "dlite", sourcedir=SOURCE_DIR, python_package_dir=Path("bindings/python")
+            "dlite", sourcedir=SOURCE_DIR, python_package_dir=Path("bindings" / "python")
         )
     ],
     cmdclass={
