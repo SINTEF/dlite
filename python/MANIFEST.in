@@ -1,2 +1,4 @@
 include ../LICENSE ../README.md ../CMakeLists.txt pyproject.toml
+include ..\LICENSE ..\README.md ..\CMakeLists.txt pyproject.toml
 recursive-include ../ **/*
+recursive-include ..\ **\*
