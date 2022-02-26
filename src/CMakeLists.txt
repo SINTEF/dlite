@@ -57,29 +57,34 @@ add_definitions(
 
 set(include_directories_extra)
 set(link_libraries_extra)
+
 if(HAVE_REDLAND)
   list(APPEND include_directories_extra ${REDLAND_INCLUDE_DIR})
   list(APPEND link_libraries_extra ${REDLAND_LIBRARY})
 endif()
+
 if(HAVE_RASQAL)
   list(APPEND include_directories_extra ${RASQAL_INCLUDE_DIR})
   list(APPEND link_libraries_extra ${RASQAL_LIBRARIES})
 endif()
+
 if(HAVE_RAPTOR)
   list(APPEND include_directories_extra ${RAPTOR_INCLUDE_DIR})
   list(APPEND link_libraries_extra ${RAPTOR_LIBRARY})
 endif()
+
 if(WITH_PYTHON)
   list(APPEND include_directories_extra ${Python3_INCLUDE_DIRS})
   if(NOT WITH_STATIC_PYTHON)
     list(APPEND link_libraries_extra ${Python3_LIBRARIES})
   endif()
+  # Python requires the intl library
+  find_library(INTL_LIBRARY intl)
+  if(INTL_LIBRARY)
+    list(APPEND link_libraries_extra ${INTL_LIBRARY})
+  endif()
 endif()
 
-find_library(INTL_LIBRARY intl)
-if(INTL_LIBRARY)
-  list(APPEND link_libraries_extra ${INTL_LIBRARY})
-endif()
 
 # We are building both shared and static libraries. User software will
 # normally link to the shared libraries.

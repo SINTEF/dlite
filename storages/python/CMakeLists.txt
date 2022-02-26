@@ -59,5 +59,9 @@ install(
   )
 
 # tests
-add_subdirectory(tests-c)
+# For now don't compile json tests if linking with static Python
+# There is an issue with library order
+if(NOT WITH_STATIC_PYTHON)
+  add_subdirectory(tests-c)
+endif()
 add_subdirectory(tests-python)
