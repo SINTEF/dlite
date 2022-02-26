@@ -52,6 +52,9 @@ static int isnegative(const void *src, DLiteType type, size_t size)
 #ifdef HAVE_FLOAT80
     case 10: return (*((float80_t *)src) < 0) ? 1 : 0;
 #endif
+#ifdef HAVE_FLOAT96
+    case 12: return (*((float96_t *)src) < 0) ? 1 : 0;
+#endif
 #ifdef HAVE_FLOAT128
     case 16: return (*((float128_t *)src) < 0) ? 1 : 0;
 #endif
@@ -115,6 +118,9 @@ static int istrue(const void *src, DLiteType type, size_t size)
     case 8: return (*((float64_t *)src))   ? 1 : 0;
 #ifdef HAVE_FLOAT80
     case 10: return (*((float80_t *)src))  ? 1 : 0;
+#endif
+#ifdef HAVE_FLOAT96
+    case 12: return (*((float96_t *)src))  ? 1 : 0;
 #endif
 #ifdef HAVE_FLOAT128
     case 16: return (*((float128_t *)src)) ? 1 : 0;
@@ -244,7 +250,10 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 #ifdef HAVE_FLOAT80
       case 10: *((bool *)dest) = (*((float80_t *)src)) ? 1 : 0;  return 0;
 #endif
- #ifdef HAVE_FLOAT128
+#ifdef HAVE_FLOAT96
+      case 12: *((bool *)dest) = (*((float96_t *)src)) ? 1 : 0;  return 0;
+#endif
+#ifdef HAVE_FLOAT128
       case 16: *((bool *)dest) = (*((float128_t *)src)) ? 1 : 0; return 0;
 #endif
       default: goto fail;
@@ -330,6 +339,16 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         case 2: *((float80_t *)dest) = *((uint16_t *)src); return 0;
         case 4: *((float80_t *)dest) = *((uint32_t *)src); return 0;
         case 8: *((float80_t *)dest) = *((uint64_t *)src); return 0;
+        default: goto fail;
+        }
+#endif
+#ifdef HAVE_FLOAT96
+      case 12:
+        switch (src_size) {
+        case 1: *((float96_t *)dest) = *((uint8_t *)src);  return 0;
+        case 2: *((float96_t *)dest) = *((uint16_t *)src); return 0;
+        case 4: *((float96_t *)dest) = *((uint32_t *)src); return 0;
+        case 8: *((float96_t *)dest) = *((uint64_t *)src); return 0;
         default: goto fail;
         }
 #endif
@@ -473,6 +492,16 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         default: goto fail;
         }
 #endif
+#ifdef HAVE_FLOAT96
+      case 12:
+        switch (src_size) {
+        case 1: *((float96_t *)dest) = *((int8_t *)src);  return 0;
+        case 2: *((float96_t *)dest) = *((int16_t *)src); return 0;
+        case 4: *((float96_t *)dest) = *((int32_t *)src); return 0;
+        case 8: *((float96_t *)dest) = *((int64_t *)src); return 0;
+        default: goto fail;
+        }
+#endif
 #ifdef HAVE_FLOAT128
       case 16:
         switch (src_size) {
@@ -517,6 +546,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 #ifdef HAVE_FLOAT80
         case 10: *((uint8_t *)dest) = *((float80_t *)src);  return 0;
 #endif
+#ifdef HAVE_FLOAT96
+        case 12: *((uint8_t *)dest) = *((float96_t *)src);  return 0;
+#endif
 #ifdef HAVE_FLOAT128
         case 16: *((uint8_t *)dest) = *((float128_t *)src); return 0;
 #endif
@@ -528,6 +560,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         case 8: *((uint16_t *)dest) = *((float64_t *)src);   return 0;
 #ifdef HAVE_FLOAT80
         case 10: *((uint16_t *)dest) = *((float80_t *)src);  return 0;
+#endif
+#ifdef HAVE_FLOAT96
+        case 12: *((uint16_t *)dest) = *((float96_t *)src);  return 0;
 #endif
 #ifdef HAVE_FLOAT128
         case 16: *((uint16_t *)dest) = *((float128_t *)src); return 0;
@@ -541,6 +576,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 #ifdef HAVE_FLOAT80
         case 10: *((uint32_t *)dest) = *((float80_t *)src);  return 0;
 #endif
+#ifdef HAVE_FLOAT96
+        case 12: *((uint32_t *)dest) = *((float96_t *)src);  return 0;
+#endif
 #ifdef HAVE_FLOAT128
         case 16: *((uint32_t *)dest) = *((float128_t *)src); return 0;
 #endif
@@ -552,6 +590,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         case 8: *((uint64_t *)dest) = *((float64_t *)src);   return 0;
 #ifdef HAVE_FLOAT80
         case 10: *((uint64_t *)dest) = *((float80_t *)src);  return 0;
+#endif
+#ifdef HAVE_FLOAT96
+        case 12: *((uint64_t *)dest) = *((float96_t *)src);  return 0;
 #endif
 #ifdef HAVE_FLOAT128
         case 16: *((uint64_t *)dest) = *((float128_t *)src); return 0;
@@ -571,6 +612,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 #ifdef HAVE_FLOAT80
         case 10: *((int8_t *)dest) = *((float80_t *)src);  return 0;
 #endif
+#ifdef HAVE_FLOAT96
+        case 12: *((int8_t *)dest) = *((float96_t *)src);  return 0;
+#endif
 #ifdef HAVE_FLOAT128
         case 16: *((int8_t *)dest) = *((float128_t *)src); return 0;
 #endif
@@ -582,6 +626,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         case 8: *((int16_t *)dest) = *((float64_t *)src);   return 0;
 #ifdef HAVE_FLOAT80
         case 10: *((int16_t *)dest) = *((float80_t *)src);  return 0;
+#endif
+#ifdef HAVE_FLOAT96
+        case 12: *((int16_t *)dest) = *((float96_t *)src);  return 0;
 #endif
 #ifdef HAVE_FLOAT128
         case 16: *((int16_t *)dest) = *((float128_t *)src); return 0;
@@ -595,6 +642,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 #ifdef HAVE_FLOAT80
         case 10: *((int32_t *)dest) = *((float80_t *)src);  return 0;
 #endif
+#ifdef HAVE_FLOAT96
+        case 12: *((int32_t *)dest) = *((float96_t *)src);  return 0;
+#endif
 #ifdef HAVE_FLOAT128
         case 16: *((int32_t *)dest) = *((float128_t *)src); return 0;
 #endif
@@ -606,6 +656,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         case 8: *((int64_t *)dest) = *((float64_t *)src);   return 0;
 #ifdef HAVE_FLOAT80
         case 10: *((int64_t *)dest) = *((float80_t *)src);  return 0;
+#endif
+#ifdef HAVE_FLOAT96
+        case 12: *((int64_t *)dest) = *((float96_t *)src);  return 0;
 #endif
 #ifdef HAVE_FLOAT128
         case 16: *((int64_t *)dest) = *((float128_t *)src); return 0;
@@ -625,6 +678,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 #ifdef HAVE_FLOAT80
         case 10: *((float32_t *)dest) = *((float80_t *)src);  return 0;
 #endif
+#ifdef HAVE_FLOAT96
+        case 12: *((float32_t *)dest) = *((float96_t *)src);  return 0;
+#endif
 #ifdef HAVE_FLOAT128
         case 16: *((float32_t *)dest) = *((float128_t *)src); return 0;
 #endif
@@ -637,6 +693,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
 #ifdef HAVE_FLOAT80
         case 10: *((float64_t *)dest) = *((float80_t *)src);  return 0;
 #endif
+#ifdef HAVE_FLOAT96
+        case 12: *((float64_t *)dest) = *((float96_t *)src);  return 0;
+#endif
 #ifdef HAVE_FLOAT128
         case 16: *((float64_t *)dest) = *((float128_t *)src); return 0;
 #endif
@@ -648,12 +707,30 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         case 4: *((float80_t *)dest) = *((float32_t *)src);   return 0;
         case 8: *((float80_t *)dest) = *((float64_t *)src);   return 0;
         case 10: *((float80_t *)dest) = *((float80_t *)src);  return 0;
+#ifdef HAVE_FLOAT96
+        case 12: *((float80_t *)dest) = *((float96_t *)src);  return 0;
+#endif
 #ifdef HAVE_FLOAT128
         case 16: *((float80_t *)dest) = *((float128_t *)src); return 0;
 #endif
         default: goto fail;
         }
+#endif  /* HAVE_FLOAT80 */
+#ifdef HAVE_FLOAT96
+      case 10:
+        switch (src_size) {
+        case 4: *((float96_t *)dest) = *((float32_t *)src);   return 0;
+        case 8: *((float96_t *)dest) = *((float64_t *)src);   return 0;
+#ifdef HAVE_FLOAT80
+        case 10: *((float96_t *)dest) = *((float80_t *)src);  return 0;
 #endif
+        case 12: *((float96_t *)dest) = *((float96_t *)src);  return 0;
+#ifdef HAVE_FLOAT128
+        case 16: *((float96_t *)dest) = *((float128_t *)src); return 0;
+#endif
+        default: goto fail;
+        }
+#endif  /* HAVE_FLOAT96 */
 #ifdef HAVE_FLOAT128
       case 16:
         switch (src_size) {
@@ -661,6 +738,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
         case 8: *((float|18_t *)dest) = *((float64_t *)src);   return 0;
 #ifdef HAVE_FLOAT80
         case 10: *((float128_t *)dest) = *((float80_t *)src);  return 0;
+#endif
+#ifdef HAVE_FLOAT96
+        case 12: *((float128_t *)dest) = *((float96_t *)src);  return 0;
 #endif
         case 16: *((float128_t *)dest) = *((float128_t *)src); return 0;
         default: goto fail;
@@ -725,6 +805,9 @@ int dlite_type_copy_cast(void *dest, DLiteType dest_type, size_t dest_size,
       case 8: *((float64_t *)dest) = vf;   return 0;
 #ifdef HAVE_FLOAT80
       case 10: *((float80_t *)dest) = vf;  return 0;
+#endif
+#ifdef HAVE_FLOAT96
+      case 12: *((float96_t *)dest) = vf;  return 0;
 #endif
 #ifdef HAVE_FLOAT128
       case 16: *((float128_t *)dest) = vf; return 0;

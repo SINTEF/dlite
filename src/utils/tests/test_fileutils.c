@@ -235,6 +235,7 @@ MU_TEST(test_fu_realpath)
   char buff[MAX_PATH];
 #else
 # ifndef PATH_MAX  /* This may occour in musl */
+#  warning PATH_MAX is not defined in libc.  Assuming 256 bytes
 #  define PATH_MAX 256
 # endif
   char buff[PATH_MAX];
