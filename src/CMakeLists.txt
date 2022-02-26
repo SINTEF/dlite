@@ -76,6 +76,10 @@ if(WITH_PYTHON)
   endif()
 endif()
 
+find_library(INTL_LIBRARY intl)
+if(INTL_LIBRARY)
+  list(APPEND link_libraries_extra ${INTL_LIBRARY})
+endif()
 
 # We are building both shared and static libraries. User software will
 # normally link to the shared libraries.
