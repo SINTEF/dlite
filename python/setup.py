@@ -48,6 +48,7 @@ if platform.system() == "Linux":
 elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
     dlite_compiled_dll_suffix = "*.dll"
+    is_64bits = sys.maxsize > 2**32
 
     CMAKE_ARGS = [
         #"-G", "Visual Studio 15 2017",
@@ -56,6 +57,7 @@ elif platform.system() == "Windows":
         "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
+        f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}"
     ]
 
 else:
