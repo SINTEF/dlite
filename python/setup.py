@@ -156,19 +156,15 @@ class CMakeBuildExt(build_ext):
             str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
 
-
-requirements = [
+extra_requirements = [
     "fortran-language-server",
-    "numpy",
     "PyYAML",
     "psycopg2-binary",
     "pandas",
     "pymongo",
 ]
 
-setup_requirements = [
-    "numpy"
-]
+requirements = ["numpy"]
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
@@ -203,9 +199,8 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    # download_url=['https://github.com/SINTEF/dlite/archive/v0.2.5.tar.gz'],
     install_requires=requirements,
-    setup_requires=setup_requirements,
+    extras_require={"all": extra_requirements},
     packages=["dlite"],
     package_data={
         "dlite": [
@@ -225,17 +220,5 @@ setup(
     cmdclass={
         "build_ext": CMakeBuildExt,
     },
-    # FIXME: according to the setuptools documentation data_files is
-    # deprecated and should be avoided since it doesn't work with weels.
-    #
-    # No alternative is mentioned in the documentation, though.  The
-    # best I can think of is to use package_data and a post-install script
-    # to move them to the right place.
-    # data_files=[
-    #    ('include/dlite', rglob('dist/include/dlite/**')),
-    #    ('lib', rglob('dist/lib/**')),
-    #    ('share/dlite', rglob('dist/share/**')),
-    #    ('bin', glob('dist/bin/*')),
-    # ],
     zip_safe=False,
 )
