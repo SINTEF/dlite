@@ -250,6 +250,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: wheels
+          path: wheelhouse
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@v1.5.0
@@ -257,4 +258,3 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
           packages_dir: wheelhouse/
-    
