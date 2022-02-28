@@ -79,7 +79,7 @@ jobs:
          cd ../bindings/python/tests
          python3 __main__.py
 
-  # Temporary placement for this job - will eventually be moved to cd.yml
+  # # Temporary placement for this job - will eventually be moved to cd.yml
   # build_wheel_linux_dockers:
   #   name: Build wheel containers
   #   runs-on: ubuntu-20.04
@@ -236,13 +236,25 @@ jobs:
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
 
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     path: wheelhouse/*.whl
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: wheelhouse/*.whl
 
-      - name: Publish package on PyPI
+  publish_wheels:
+    needs: [build_wheels]
+    name: Publish wheels
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: wheels
+
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@v1.5.0
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
           packages_dir: wheelhouse/
+    
