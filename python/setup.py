@@ -111,8 +111,8 @@ class CMakeBuildExt(build_ext):
         output_dir = os.path.abspath(os.path.dirname(
             self.get_ext_fullpath(ext.name)))
 
-        environment_cmake_args = os.getenv(
-            "CI_BUILD_CMAKE_ARGS", "").split(",")
+        environment_cmake_args = os.getenv("CI_BUILD_CMAKE_ARGS", "")
+        environment_cmake_args = environment_cmake_args.split(",") if environment_cmake_args else []
 
         build_type = "Debug" if self.debug else "Release"
         cmake_args = [
