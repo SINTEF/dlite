@@ -157,39 +157,39 @@ jobs:
       matrix:
         include:
           # 32-bit linux
-          # - os: ubuntu-20.04
-          #   system_type: ["manylinux", "2010"]
-          #   arch: i686
-          #   py_minors: 7,8,9
-          # ## Doesn't seem to be working - cannot build image for this
-          # # - os: ubuntu-20.04
-          # #   system_type: ["manylinux", "2014"]
-          # #   arch: i686
-          # #   py_minors: 7,8,9
-          # - os: ubuntu-20.04
-          #   system_type: ["musllinux", "_1_1"]
-          #   arch: i686
-          #   py_minors: 7,8,9,10
-
-          # # 64-bit linux
-          # - os: ubuntu-20.04
-          #   system_type: ["manylinux", "2010"]
-          #   arch: x86_64
-          #   py_minors: 7,8,9
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: i686
+            py_minors: 7,8,9
+          ## Doesn't seem to be working - cannot build image for this
           # - os: ubuntu-20.04
           #   system_type: ["manylinux", "2014"]
-          #   arch: x86_64
-          #   py_minors: 7,8,9,10
-          # - os: ubuntu-20.04
-          #   system_type: ["musllinux", "_1_1"]
-          #   arch: x86_64
-          #   py_minors: 7,8,9,10
-
-          # 32-bit Windows
-          - os: windows-2019
-            system_type: ["win32", ""]
-            arch: ""
+          #   arch: i686
+          #   py_minors: 7,8,9
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: i686
             py_minors: 7,8,9,10
+
+          # 64-bit linux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: x86_64
+            py_minors: 7,8,9
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: x86_64
+            py_minors: 7,8,9,10
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: x86_64
+            py_minors: 7,8,9,10
+
+          # # 32-bit Windows
+          # - os: windows-2019
+          #   system_type: ["win32", ""]
+          #   arch: ""
+          #   py_minors: 7,8,9,10
 
           # 64-bit Windows
           - os: windows-2019
