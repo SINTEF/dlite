@@ -10,7 +10,9 @@ build-backend = "setuptools.build_meta"
 [tool.cibuildwheel]
 build-frontend = "pip"
 build-verbosity = 1
-test-command = "python {package}/bindings/python/tests/test_python_bindings.py"
+
+[tool.cibuildwheel.windows]
+test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
 environment-pass = ["CI_BUILD_CMAKE_ARGS"]
@@ -19,6 +21,7 @@ before-build = [
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
+test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
 PYVER = "$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")"
