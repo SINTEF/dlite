@@ -1,0 +1,95 @@
+name: CI build wheels
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheels
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 32-bit linux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: i686
+            py_minors: 7,9
+          ## Doesn't seem to be working - cannot build image for this
+          # - os: ubuntu-20.04
+          #   system_type: ["manylinux", "2014"]
+          #   arch: i686
+          #   py_minors: 7,9
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: i686
+            py_minors: 7,10
+
+          # 64-bit linux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: x86_64
+            py_minors: 7,9
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: x86_64
+            py_minors: 7,10
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: x86_64
+            py_minors: 7,10
+
+          # # 32-bit Windows
+          # - os: windows-2019
+          #   system_type: ["win32", ""]
+          #   arch: ""
+          #   py_minors: 7,10
+
+          # 64-bit Windows
+          - os: windows-2019
+            system_type: ["win", ""]
+            arch: amd64
+            py_minors: 7,10
+
+          # # 64-bit (Intel) macOS
+          # - os: macos-10.15
+          #   system_type: ["macosx", ""]
+          #   arch: x86_64
+          #   py_minors: 7,10
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Login to GitHub Container Registry
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.container_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install cibuildwheel
+        run: |
+          python -m pip install -U pip
+          python -m pip install -U setuptools wheel
+          python -m pip install -U cibuildwheel
+
+      # See pyproject.toml (under python/) for cibuildwheel configuration
+      - name: Build wheels
+        run: |
+          python -m cibuildwheel --print-build-identifiers python
+          python -m cibuildwheel --output-dir wheelhouse python
+        env:
+          CIBW_BUILD: cp3{${{ matrix.py_minors }}}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
+          CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
+          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
+          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
