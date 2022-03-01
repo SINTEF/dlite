@@ -1,4 +1,4 @@
-name: CI weekly wheel build images
+name: Weekly wheel build images
 
 on:
   schedule:

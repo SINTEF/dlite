@@ -6,6 +6,9 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  container_registry: ghcr.io
+
 jobs:
   build_wheels:
     name: Build wheels
