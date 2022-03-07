@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #include "fileutils.h"
 #include "test_macros.h"
@@ -234,10 +235,6 @@ MU_TEST(test_fu_realpath)
 #ifdef WINDOWS
   char buff[MAX_PATH];
 #else
-# ifndef PATH_MAX  /* This may occour in musl */
-#  warning PATH_MAX is not defined in libc.  Assuming 256 bytes
-#  define PATH_MAX 256
-# endif
   char buff[PATH_MAX];
 #endif
   printf("\nfu_realpath()\n");
