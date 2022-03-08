@@ -41,7 +41,8 @@ jobs:
           type: "2010"
           arch: "i686"
           py_minors: "7 8 9"
-        # Doesn't seem to be working
+        # Doesn't seem to be working.
+        # Will keep in here though, to check if it should start working.
         - system: "manylinux"
           type: "2014"
           arch: "i686"
@@ -111,9 +112,9 @@ jobs:
           cache-from: type=local,src=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
           cache-to: type=local,dest=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}-new,mode=max
 
-        # Temporary fix from https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
+      # Temporary fix from https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
       - name: Move cache
         if: env.BUILD_NEW_IMAGE == 'true'
         run: |
