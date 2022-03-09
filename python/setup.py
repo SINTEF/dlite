@@ -200,8 +200,10 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=requirements,
-    extras_require={"all": extra_requirements},
+    install_requires=requirements + extra_requirements,
+    # For now, the extra requirements are hard requirements.
+    # See issue #222: https://github.com/SINTEF/dlite/issues/222
+    # extras_require={"all": extra_requirements},
     packages=["dlite"],
     package_data={
         "dlite": [
