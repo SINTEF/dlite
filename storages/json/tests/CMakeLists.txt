@@ -44,11 +44,6 @@ foreach(test ${tests})
     dlite-plugins-json
     ${Python3_STATIC_LIBS}
     )
-  #target_link_options(${test} PRIVATE
-  #  "SHELL:${Python3_STATIC_LIBS}"
-  #  )
-  #set_property(TARGET ${test} PROPERTY LINK_DEPENDS ${Python3_LIBRARY})
-
 
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/storages/json
