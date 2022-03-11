@@ -17,9 +17,14 @@ del s
 with dlite.Storage(url) as s2:
     myentity2 = dlite.Instance.create_from_storage(s2, 'http://onto-ns.com/meta/0.1/MyEntity')
 
+
 # Create an instance
 inst = myentity(dims=[2, 3], id='my-data')
 inst['a-bool-array'] = True, False
+
+# Test Storage.save()
+with dlite.Storage('json', 'tmp.json', 'mode=w') as s:
+    s.save(inst)
 
 
 # Test json
@@ -28,6 +33,7 @@ myentity.save('json://myentity.json?mode=w')
 inst.save('json://inst.json')
 del inst
 inst = dlite.Instance.create_from_url('json://inst.json#my-data')
+
 
 
 # Test yaml
