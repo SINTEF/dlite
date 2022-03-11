@@ -39,7 +39,7 @@
 
       def save(self, inst):
           """Stores instance `inst` in this storage."""
-          inst.save(storage=self)
+          inst.save_to_storage(self)
 
       driver = property(get_driver,
                         doc='Name of driver associated with this storage')
