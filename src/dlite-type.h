@@ -104,10 +104,10 @@ typedef enum _DLiteType {
 
 /** Some flags for printing or scanning dlite types */
 typedef enum _DLiteTypeFlag {
-  dliteFlagDefault = 0,  /*!< Default */
+  dliteFlagDefault = 0,  /*!< Default (json) */
   dliteFlagRaw=1,        /*!< Raw unquoted input/output */
   dliteFlagQuoted=2,     /*!< Quoted input/output */
-  dliteFlagStrip=4       /*!< Strip off initial and final spaces */
+  dliteFlagStrip=4       /*!< Strip initial and final spaces */
 } DLiteTypeFlag;
 
 

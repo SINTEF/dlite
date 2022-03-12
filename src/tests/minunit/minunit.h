@@ -69,6 +69,7 @@
 #define MINUNIT_MESSAGE_LEN 1024
 /*  Accuracy with which floats are compared */
 #define MINUNIT_EPSILON 1E-12
+#define MINUNIT_FLOAT_EPSILON 1E-6
 
 /*  Misc. counters */
 static int minunit_run = 0;
@@ -193,6 +194,24 @@ static void (*minunit_teardown)(void) = NULL;
 	minunit_tmp_r = (double)(result);\
 	if (fabs(minunit_tmp_e-minunit_tmp_r) > MINUNIT_EPSILON) {\
                 int minunit_significant_figures = 1 - (int)log10(MINUNIT_EPSILON); \
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %.*g expected but was %.*g", __func__, __FILE__, __LINE__, minunit_significant_figures, minunit_tmp_e, minunit_significant_figures, minunit_tmp_r);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
+#define mu_assert_float_eq(expected, result) MU__SAFE_BLOCK(\
+	float minunit_tmp_fe;\
+	float minunit_tmp_fr;\
+	minunit_assert++;\
+	minunit_tmp_fe = (float)(expected);\
+	minunit_tmp_fr = (float)(result);\
+	if (fabsf(minunit_tmp_fe-minunit_tmp_fr) > MINUNIT_FLOAT_EPSILON) {\
+                int minunit_significant_figures = 1 - (int)log10(MINUNIT_FLOAT_EPSILON); \
+                double minunit_tmp_e = minunit_tmp_fe;                  \
+                double minunit_tmp_r = minunit_tmp_fr;                  \
 		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %.*g expected but was %.*g", __func__, __FILE__, __LINE__, minunit_significant_figures, minunit_tmp_e, minunit_significant_figures, minunit_tmp_r);\
 		minunit_status = 1;\
 		return;\

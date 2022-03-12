@@ -391,30 +391,71 @@ Call signatures:
     return (int)dlite_instance_get_dimension_size_by_index($self, i);
   }
 
-  %feature("docstring", "Returns property with given name or index.")
+  %feature("docstring", "Returns property with given name.")
      get_property;
   %newobject get_property;
   obj_t *get_property(const char *name) {
     return dlite_swig_get_property($self, name);
   }
+  %feature("docstring", "Returns property with given index.")
+     get_property_by_index;
   obj_t *get_property_by_index(int i) {
     return dlite_swig_get_property_by_index($self, i);
   }
 
-  %feature("docstring", "Sets property with given name or index to `obj`.")
+  %feature("docstring", "Sets property with given name to `obj`.")
      set_property;
   void set_property(const char *name, obj_t *obj) {
     dlite_swig_set_property($self, name, obj);
   }
+  %feature("docstring", "Sets property with given index to `obj`.")
+     set_property_by_index;
   void set_property_by_index(int i, obj_t *obj) {
     dlite_swig_set_property_by_index($self, i, obj);
   }
 
+  %feature("docstring",
+           "Return property `name` as a string.\n"
+           "\n"
+           "`width`  Minimum field width. Unused if 0, auto if -1.\n"
+           "`prec`   Precision. Auto if -1, unused if -2.\n"
+           "`flags`  Or'ed sum of formatting flags:\n"
+           "    0  default (json)\n"
+           "    1  raw unquoted output\n"
+           "    2  quoted output")
+     get_property_as_string;
+  %newobject get_property_as_string;
+  char *get_property_as_string(const char *name,
+                               int width=0, int prec=-2, int flags=0) {
+    char *dest=NULL;
+    size_t n=0;
+    if (dlite_instance_aprint_property(&dest, &n, 0, $self, name, width,
+                                       prec, flags) < 0) {
+      if (dest) free(dest);
+      dest = NULL;
+    }
+    return dest;
+  }
+  %feature("docstring",
+           "Set property `name` to the value of string `s`. \n"
+           "\n"
+           "`flags` is the or'ed sum of:\n"
+           "  0  default (json)\n"
+           "  1  raw unquoted input\n"
+           "  2  quoted input\n"
+           "  4  strip initial and final spaces")
+     set_property_from_string;
+  void set_property_from_string(const char *name, const char *s, int flags=0) {
+    dlite_instance_scan_property(s, $self, name, flags);
+  }
+
   %feature("docstring", "Returns true if this instance has a property with "
-           "given name or index.") has_property;
+           "given name.") has_property;
   bool has_property(const char *name) {
     return dlite_instance_has_property($self, name);
   }
+  %feature("docstring", "Returns true if this instance has a property with "
+           "given index.") has_property_by_index;
   bool has_property_by_index(int i) {
     if (i < 0) i += (int)$self->meta->_nproperties;
     if (0 <= i && i < (int)$self->meta->_nproperties) return true;
@@ -422,10 +463,12 @@ Call signatures:
   }
 
   %feature("docstring", "Returns true if this instance has a dimension with "
-           "given name or index.") has_dimension;
+           "given name.") has_dimension;
   bool has_dimension(const char *name) {
     return dlite_instance_has_dimension($self, name);
   }
+  %feature("docstring", "Returns true if this instance has a dimension with "
+           "given index.") has_dimension_by_index;
   bool has_dimension_by_index(int i) {
     if (i < 0) i += (int)$self->meta->_ndimensions;
     if (0 <= i && i < (int)$self->meta->_ndimensions) return true;

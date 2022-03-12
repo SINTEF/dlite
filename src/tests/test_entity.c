@@ -155,6 +155,100 @@ MU_TEST(test_instance_copy)
   mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
 
+
+MU_TEST(test_instance_print_property)
+{
+  DLiteInstance *inst;
+  int n;
+  char buf[1024];
+  inst = dlite_instance_load_url("json://myentity.json?mode=r#mydata");
+  mu_check(inst);
+
+  /* test dlite_instance_print_property() */
+  n = dlite_instance_print_property(buf, sizeof(buf), inst, "a-float",
+                                    0, -2, 0);
+  mu_assert_int_eq(4, n);
+  mu_assert_string_eq("3.14", buf);
+
+  n = dlite_instance_print_property(buf, sizeof(buf), inst, "a-float",
+                                    2, -2, 0);
+  mu_assert_int_eq(4, n);
+  mu_assert_string_eq("3.14", buf);
+
+  n = dlite_instance_print_property(buf, sizeof(buf), inst, "a-float",
+                                    8, -2, 0);
+  mu_assert_int_eq(8, n);
+  mu_assert_string_eq("    3.14", buf);
+
+  n = dlite_instance_print_property(buf, 2, inst, "a-float",
+                                    0, -2, 0);
+  mu_assert_int_eq(4, n);
+  mu_assert_string_eq("3", buf);
+
+  n = dlite_instance_print_property(buf, sizeof(buf), inst, "a-float",
+                                    0, 2, 0);
+  mu_assert_int_eq(3, n);
+  mu_assert_string_eq("3.1", buf);
+
+  n = dlite_instance_print_property(buf, sizeof(buf), inst, "a-string-arr",
+                                    0, -2, 0);
+  mu_assert_int_eq(16, n);
+  mu_assert_string_eq("[\"first string\"]", buf);
+
+  n = dlite_instance_print_property(buf, sizeof(buf), inst, "a-string-arr",
+                                    0, -2, dliteFlagRaw);
+  mu_assert_int_eq(14, n);
+  mu_assert_string_eq("[first string]", buf);
+
+  n = dlite_instance_print_property(buf, sizeof(buf), inst, "a-string-arr",
+                                    0, -2, dliteFlagQuoted);
+  mu_assert_int_eq(16, n);
+  mu_assert_string_eq("[\"first string\"]", buf);
+
+  /* test dlite_instance_aprint_property() */
+  char *q=NULL;
+  size_t size=0;
+  n = dlite_instance_aprint_property(&q, &size, 0, inst, "a-string-arr",
+                                     0, -2, 0);
+  mu_assert_int_eq(16, n);
+  mu_assert_int_eq(17, size);
+  mu_assert_string_eq("[\"first string\"]", q);
+
+  n = dlite_instance_aprint_property(&q, &size, 2, inst, "a-string",
+                                     0, -2, 0);
+  mu_assert_int_eq(14, n);
+  mu_assert_int_eq(17, size);
+  mu_assert_string_eq("[\"\"string value\"", q);
+
+  free(q);
+
+  /* test dlite_instance_scan_property() */
+  void *ptr;
+
+  n = dlite_instance_scan_property("123.456", inst, "a-float", 0);
+  ptr = dlite_instance_get_property(inst, "a-float");
+  double v = *((float *)ptr);
+  mu_assert_int_eq(7, n);
+  mu_assert_float_eq(123.456, v);
+
+  n = dlite_instance_scan_property("[\"a longer string value\"]", inst,
+                                   "a-string-arr", 0);
+  ptr = dlite_instance_get_property(inst, "a-string-arr");
+  char **strarr = ptr;
+  mu_assert_int_eq(25, n);
+  mu_assert_string_eq("a longer string value", strarr[0]);
+
+  n = dlite_instance_scan_property("[[-1, 123]]", inst, "an-int-arr", 0);
+  ptr = dlite_instance_get_property(inst, "an-int-arr");
+  int *intarr = ptr;
+  mu_assert_int_eq(11, n);
+  mu_assert_int_eq(-1, intarr[0]);
+  mu_assert_int_eq(123, intarr[1]);
+
+  dlite_instance_decref(inst);
+}
+
+
 MU_TEST(test_instance_save)
 {
   DLiteStorage *s;
@@ -311,6 +405,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_get_dimension_size);
   MU_RUN_TEST(test_instance_set_dimension_sizes);
   MU_RUN_TEST(test_instance_copy);
+  MU_RUN_TEST(test_instance_print_property);
   MU_RUN_TEST(test_instance_save);
   MU_RUN_TEST(test_instance_hdf5);
   MU_RUN_TEST(test_instance_json);
