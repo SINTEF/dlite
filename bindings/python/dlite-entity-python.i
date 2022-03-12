@@ -14,6 +14,7 @@ else:
 
 import numpy as np
 
+
 class InstanceEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (bytes, bytearray)):
@@ -34,6 +35,20 @@ class InstanceEncoder(json.JSONEncoder):
             return obj.asstrings()
         else:
             return json.JSONEncoder.default(self, obj)
+
+
+class Metadata(Instance):
+    """A subclass of Instance for metadata."""
+    def __repr__(self):
+        return f"<Metadata: uri='{self.uri}'>"
+
+    def get_property_descr(self, name):
+        """Return a Property object for property `name`."""
+        assert self.is_meta
+        for p in self['properties']:
+            if p.name == name:
+                return p
+        raise ValueError(f'No property "{name}" in "{self.uri}"')
 
 
 def standardise(v, asdict=True):
@@ -176,6 +191,20 @@ def standardise(v, asdict=True):
   }
 
   %pythoncode %{
+
+    # Override default generated __init__() method
+    def __init__(self, *args, **kwargs):
+        _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
+        if self.is_meta:
+            self.__class__ = Metadata
+
+    def get_meta(self):
+        """Returns reference to metadata."""
+        meta = self._get_meta()
+        assert meta.is_meta
+        meta.__class__ = Metadata
+        return meta
+
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
     iri = property(get_iri, set_iri,
                    doc="Unique IRI to corresponding concept in an ontology.")

@@ -325,8 +325,8 @@ struct _DLiteInstance {
     dlite_instance_decref($self);
   }
 
-  %feature("docstring", "Returns reference to metadata.") get_meta;
-  const struct _DLiteInstance *get_meta() {
+  %feature("docstring", "Returns reference to metadata.") _get_meta;
+  const struct _DLiteInstance *_get_meta() {
     return (const DLiteInstance *)$self->meta;
   }
 
