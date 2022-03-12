@@ -37,10 +37,10 @@
 #elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
 
 /* Change POSIX C SOURCE version for pure c99 compilers */
-#if !defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L
-#undef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200112L
-#endif
+//#if !defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L
+//#undef _POSIX_C_SOURCE
+//#define _POSIX_C_SOURCE 200112L
+//#endif
 
 #include <unistd.h>	/* POSIX flags */
 #include <time.h>	/* clock_gettime(), time() */
@@ -288,7 +288,7 @@ static double mu_timer_real(void)
 	}
 	return (double)mach_absolute_time( ) * timeConvert;
 
-#elif defined(_POSIX_VERSION)
+#elif defined(_POSIX_VERSION) && (_POSIX_VERSION != 200809L)
 	/* POSIX. --------------------------------------------------- */
 	struct timeval tm;
 #if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
@@ -352,7 +352,8 @@ static double mu_timer_cpu(void)
 #elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
 	/* AIX, BSD, Cygwin, HP-UX, Linux, OSX, and Solaris --------- */
 
-#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
+#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0) && \
+  (!defined(_POSIX_VERSION) || _POSIX_VERSION != 200809L)
 	/* Prefer high-res POSIX timers, when available. */
 	{
 		clockid_t id;

@@ -77,7 +77,11 @@ file(COPY Person.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # Compile and add tests
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} dlite-plugins-python)
+  target_link_libraries(${test}
+    dlite-plugins-python
+    -Xlinker -export-dynamic
+    ${Python3_STATIC_LIBS}
+    )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/storages/python
     ${dlite-src_SOURCE_DIR}/tests

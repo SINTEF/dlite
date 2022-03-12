@@ -11,7 +11,6 @@ add_library(dlite-plugins-python SHARED ${sources})
 target_link_libraries(dlite-plugins-python
   dlite
   dlite-utils
-  ${Python3_LIBRARIES}
   )
 target_include_directories(dlite-plugins-python PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -60,5 +59,9 @@ install(
   )
 
 # tests
-add_subdirectory(tests-c)
+# For now don't compile json tests if linking with static Python
+# There is an issue with library order
+if(NOT WITH_STATIC_PYTHON)
+  add_subdirectory(tests-c)
+endif()
 add_subdirectory(tests-python)

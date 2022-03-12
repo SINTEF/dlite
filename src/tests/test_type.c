@@ -388,12 +388,18 @@ MU_TEST(test_get_alignment)
   mu_assert_int_eq(1,  dlite_type_get_alignment(dliteBlob, 3));
   mu_assert_int_eq(1,  dlite_type_get_alignment(dliteBlob, 4));
   mu_assert_int_eq(4,  dlite_type_get_alignment(dliteInt,  4));
-  mu_assert_int_eq(8,  dlite_type_get_alignment(dliteInt,  8));
   mu_assert_int_eq(1,  dlite_type_get_alignment(dliteFixString, 3));
+#if defined(i386) && i386
+  mu_assert_int_eq(4,  dlite_type_get_alignment(dliteInt,  8));
+  mu_assert_int_eq(4,  dlite_type_get_alignment(dliteDimension,
+                                                sizeof(DLiteDimension)));
+#else
+  mu_assert_int_eq(8,  dlite_type_get_alignment(dliteInt,  8));
   mu_assert_int_eq(8,  dlite_type_get_alignment(dliteStringPtr, 8));
   mu_assert_int_eq(8,  dlite_type_get_alignment(dliteDimension,
                                                 sizeof(DLiteDimension)));
-#if defined(HAVE_FLOAT80) || defined(HAVE_FLOAT128)
+#endif
+#if defined(HAVE_FLOAT80) || defined(HAVE_FLOAT96)|| defined(HAVE_FLOAT128)
   mu_assert_int_eq(16, dlite_type_get_alignment(dliteFloat, 16));
 #endif
 
@@ -412,14 +418,22 @@ MU_TEST(test_get_member_offset)
   mu_assert_int_eq(4, dlite_type_get_member_offset(2, 2, dliteInt, 2));
   mu_assert_int_eq(4, dlite_type_get_member_offset(2, 1, dliteInt, 2));
   mu_assert_int_eq(4, dlite_type_get_member_offset(2, 1, dliteInt, 4));
-  mu_assert_int_eq(8, dlite_type_get_member_offset(2, 1, dliteInt, 8));
   mu_assert_int_eq(3, dlite_type_get_member_offset(2, 1, dliteUInt, 1));
   mu_assert_int_eq(3, dlite_type_get_member_offset(2, 1, dliteBlob, 1));
   mu_assert_int_eq(3, dlite_type_get_member_offset(2, 1, dliteBool, 1));
+#if defined(i386) && i386
+  mu_assert_int_eq(4, dlite_type_get_member_offset(2, 1, dliteInt, 8));
+  mu_assert_int_eq(4, dlite_type_get_member_offset(2, 1, dliteStringPtr,
+                                                   sizeof(char *)));
+  mu_assert_int_eq(4, dlite_type_get_member_offset(2, 1, dliteRelation,
+                                                   sizeof(DLiteRelation)));
+#else
+  mu_assert_int_eq(8, dlite_type_get_member_offset(2, 1, dliteInt, 8));
   mu_assert_int_eq(8, dlite_type_get_member_offset(2, 1, dliteStringPtr,
                                                    sizeof(char *)));
   mu_assert_int_eq(8, dlite_type_get_member_offset(2, 1, dliteRelation,
                                                    sizeof(DLiteRelation)));
+#endif
 }
 
 MU_TEST(test_copy_cast)

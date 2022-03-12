@@ -1,0 +1,238 @@
+name: CD - Publish a new release
+
+on:
+  release:
+    types:
+    - published
+
+env:
+  PUBLISH_UPDATE_BRANCH: master
+  GIT_USER_NAME: "TEAM 4.0[bot]"
+  GIT_USER_EMAIL: "Team4.0@SINTEF.no"
+
+jobs:
+  update_version:
+    name: Update DLite version and release body
+    runs-on: ubuntu-latest
+    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up git user
+      run: |
+        git config --global user.name "${GIT_USER_NAME}"
+        git config --global user.email "${GIT_USER_EMAIL}"
+
+    - name: Update version and tag
+      run: |
+        sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+
+        git add CMakeLists.txt
+        git commit -m "Release ${GITHUB_REF#refs/tags/}"
+
+        TAG_MSG=.github/utils/release_tag_msg.txt
+        sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
+        git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
+
+    - name: Update '${{ env.PUBLISH_UPDATE_BRANCH }}'
+      uses: CasperWA/push-protected@v2
+      with:
+        token: ${{ secrets.RELEASE_PAT }}
+        branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
+        sleep: 15
+        force: true
+        tags: true
+        unprotect_reviews: true
+
+    - name: Get tagged versions
+      run: echo "PREVIOUS_VERSION=$(git tag -l --sort -version:refname | sed -n 2p)" >> $GITHUB_ENV
+
+    - name: Create release-specific changelog
+      uses: CharMixer/auto-changelog-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release_branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
+        since_tag: "${{ env.PREVIOUS_VERSION }}"
+        output: "release_changelog.md"
+
+    - name: Append changelog to release body
+      run: |
+        gh api /repos/${{ github.repository }}/releases/${{ github.event.release.id }} --jq '.body' > release_body.md
+        cat release_changelog.md >> release_body.md
+        gh api /repos/${{ github.repository }}/releases/${{ github.event.release.id }} -X PATCH -F body='@release_body.md'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build_wheels:
+    name: Build wheels
+    runs-on: ${{ matrix.os }}
+    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 32-bit linux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: i686
+            py_minors: 7,8,9
+          ## Doesn't seem to be working - cannot build container image for this
+          # - os: ubuntu-20.04
+          #   system_type: ["manylinux", "2014"]
+          #   arch: i686
+          #   py_minors: 7,8,9
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: i686
+            py_minors: 7,8,9,10
+
+          # 64-bit linux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2010"]
+            arch: x86_64
+            py_minors: 7,8,9
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: x86_64
+            py_minors: 7,8,9,10
+          # See issue #225: https://github.com/SINTEF/dlite/issues/225
+          # - os: ubuntu-20.04
+          #   system_type: ["musllinux", "_1_1"]
+          #   arch: x86_64
+          #   py_minors: 7,8,9,10
+
+          # See issue #220: https://github.com/SINTEF/dlite/issues/220
+          # # 32-bit Windows
+          # - os: windows-2019
+          #   system_type: ["win32", ""]
+          #   arch: ""
+          #   py_minors: 7,8,9,10
+
+          # 64-bit Windows
+          - os: windows-2019
+            system_type: ["win", ""]
+            arch: amd64
+            py_minors: 7,8,9,10
+
+          # See issue #221: https://github.com/SINTEF/dlite/issues/221
+          # # 64-bit (Intel) macOS
+          # - os: macos-10.15
+          #   system_type: ["macosx", ""]
+          #   arch: x86_64
+          #   py_minors: 7,8,9,10
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # This step is necessary because while this is done in the job above,
+    # this job runs with the original commit SHA and does not have this change.
+    # And to avoid checking out `master` (should someone push in-between all this),
+    # this seems like the most low-tech solution (instead of caching/using artifacts):
+    # Change the version in CMakeList.txt and build wheels
+    - name: Update version
+      run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+
+    - name: Set up Python 3
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Login to GitHub Container Registry
+      if: startsWith(matrix.os, 'ubuntu')
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ env.container_registry }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Install cibuildwheel
+      run: |
+        python -m pip install -U pip
+        python -m pip install -U setuptools wheel
+        python -m pip install -U cibuildwheel
+
+    # See pyproject.toml (under python/) for cibuildwheel configuration
+    - name: Build wheels
+      run: |
+        python -m cibuildwheel --print-build-identifiers python
+        python -m cibuildwheel --output-dir wheelhouse python
+      env:
+        CIBW_BUILD: cp3{${{ matrix.py_minors }}}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
+        CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
+        CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
+        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
+        CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
+
+    - name: Store wheels for publishing
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: wheelhouse/*.whl
+
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # This step is necessary because while this is done in the job above,
+    # this job runs with the original commit SHA and does not have this change.
+    # And to avoid checking out `master` (should someone push in-between all this),
+    # this seems like the most low-tech solution (instead of caching/using artifacts):
+    # Change the version in CMakeList.txt and build wheels
+    - name: Update version
+      run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install -U pip
+        pip install -U setuptools wheel
+
+        # Build package/tool
+        pip install -U build
+
+        # Build requirements
+        pip install -U oldest-supported-numpy cmake
+
+    - name: Build source distribution
+      run: python -m build --no-isolation --sdist python
+
+    - name: Store sdist for publishing
+      uses: actions/upload-artifact@v2
+      with:
+        name: sdist
+        path: python/dist/*
+
+  publish:
+    needs: [build_wheels,build_sdist]
+    name: Publish DLite distributions
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Retrieve wheels and sdist
+      uses: actions/download-artifact@v2
+      with:
+        path: dist
+
+    # - name: Publish package to Test PyPI
+    #   uses: pypa/gh-action-pypi-publish@v1.5.0
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.TEST_PYPI_TOKEN }}
+
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.5.0
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_TOKEN }}

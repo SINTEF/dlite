@@ -582,6 +582,9 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 #ifdef HAVE_FLOAT80_T
       case 10: value = *((float80_t *)data); break;
 #endif
+#ifdef HAVE_FLOAT96_T
+      case 12: value = *((float96_t *)data); break;
+#endif
 #ifdef HAVE_FLOAT128_T
       case 16: value = *((float128_t *)data); break;
 #endif
@@ -736,6 +739,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
     case 8:  *((float64_t *)ptr)  =  (float64_t)value; break;
 #ifdef HAVE_FLOAT80
     case 10: *((float80_t *)ptr)  =  (float80_t)value; break;
+#endif
+#ifdef HAVE_FLOAT96
+    case 12: *((float96_t *)ptr)  =  (float96_t)value; break;
 #endif
 #ifdef HAVE_FLOAT128
     case 16: *((float128_t *)ptr) = (float128_t)value; break;

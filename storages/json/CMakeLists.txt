@@ -10,7 +10,6 @@ add_definitions(-DHAVE_CONFIG_H)
 add_library(dlite-plugins-json SHARED ${sources})
 target_link_libraries(dlite-plugins-json
   dlite
-  dlite-utils
   )
 target_include_directories(dlite-plugins-json PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -40,4 +39,8 @@ install(
 )
 
 # tests
-add_subdirectory(tests)
+# For now don't compile json tests if linking with static Python
+# There is an issue with library order
+if(NOT WITH_STATIC_PYTHON)
+  add_subdirectory(tests)
+endif()
