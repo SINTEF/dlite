@@ -44,6 +44,7 @@ foreach(test ${tests})
   target_link_libraries(${test}
     dlite
     dlite-utils
+    ${Python3_STATIC_LIBS}
     )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/src

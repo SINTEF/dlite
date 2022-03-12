@@ -6,7 +6,6 @@ set(tests
   test_python_mapping
   )
 
-
 add_definitions(
   -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
   -DDLITE_ROOT=${dlite_SOURCE_DIR}
@@ -18,6 +17,7 @@ foreach(test ${tests})
   target_link_libraries(${test}
     dlite
     dlite-utils
+    ${Python3_STATIC_LIBS}
     )
   target_include_directories(${test} PRIVATE
     ${dlite-src_SOURCE_DIR}

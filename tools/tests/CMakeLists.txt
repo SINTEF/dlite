@@ -56,7 +56,10 @@ if(WITH_JSON)
 
   foreach(test ${tests})
 
-    target_link_libraries(${test} dlite)
+    target_link_libraries(${test}
+      dlite
+      ${Python3_STATIC_LIBS}
+      )
     target_include_directories(${test} PRIVATE
       ${dlite_SOURCE_DIR}/src
       ${dlite_BINARY_DIR}/src

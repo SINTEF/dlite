@@ -79,6 +79,9 @@ static struct _TypeDescr {
 #ifdef HAVE_FLOAT80
   {"float80",  dliteFloat,     10,                    alignof(float80_t)},
 #endif
+#ifdef HAVE_FLOAT96
+  {"float96",  dliteFloat,     12,                    alignof(float96_t)},
+#endif
 #ifdef HAVE_FLOAT128
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
@@ -724,6 +727,9 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
 #ifdef HAVE_FLOAT80
     case 10: m = snprintf(dest, n, "%*.*Lg", w, r, *((float80_t *)p)); break;
 #endif
+#ifdef HAVE_FLOAT96
+    case 12: m = snprintf(dest, n, "%*.*Lg", w, r, *((float96_t *)p)); break;
+#endif
 #ifdef HAVE_FLOAT128
     case 16: m = snprintf(dest, n, "%*.*Lg", w, r, *((float128_t *)p)); break;
 #endif
@@ -944,6 +950,9 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     case 8:  v = sscanf(src, "%lf%n", ((float64_t *)p), &m); break;
 #ifdef HAVE_FLOAT80
     case 10: v = sscanf(src, "%Lf%n", ((float80_t *)p), &m); break;
+#endif
+#ifdef HAVE_FLOAT96
+    case 12: v = sscanf(src, "%Lf%n", ((float96_t *)p), &m); break;
 #endif
 #ifdef HAVE_FLOAT128
     case 16: v = sscanf(src, "%Lf%n", ((float128_t *)p), &m); break;

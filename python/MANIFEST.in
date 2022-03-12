@@ -1,0 +1,2 @@
+include ../LICENSE ../README.md ../CMakeLists.txt pyproject.toml
+recursive-include ../. **/*

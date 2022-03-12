@@ -69,9 +69,9 @@ set_target_properties(dlitepy PROPERTIES
   )
 
 swig_link_libraries(dlitepy
-  dlite-utils
   dlite
-  ${Python3_LIBRARIES}
+  dlite-utils
+  #${Python3_LIBRARIES}
   )
 
 
