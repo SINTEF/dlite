@@ -120,6 +120,13 @@ e3 = Instance.create_metadata(
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
 
+# Test get_property_as_string() / set_property_from_string()
+assert inst.get_property_as_string('an-int-array') == '[1, 2, 3]'
+inst.set_property_from_string('an-int-array', '[-1, 5, 6]')
+assert inst.get_property_as_string('an-int-array') == '[-1, 5, 6]'
+
+
+# Test save
 inst.save('json://yyy.json')
 
 try:

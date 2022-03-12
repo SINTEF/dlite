@@ -1353,6 +1353,143 @@ int dlite_instance_is_metameta(const DLiteInstance *inst)
 
 
 /*
+  Write a string representation of property `name` to `dest`.
+
+  Arrays will be written with a JSON-like syntax.
+
+  No more than `n` bytes are written to `dest` (incl. the terminating
+  NUL).
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+*/
+int dlite_instance_print_property(char *dest, size_t n,
+                                  const DLiteInstance *inst, const char *name,
+                                  int width, int prec, DLiteTypeFlag flags)
+{
+  int i;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return -1;
+  return dlite_instance_print_property_by_index(dest, n, inst, i,
+                                                width, prec, flags);
+}
+
+/*
+  Lite dlite_print_property() but takes property index `i` as argument
+  instead of property name.
+*/
+int dlite_instance_print_property_by_index(char *dest, size_t n,
+                                           const DLiteInstance *inst,
+                                           size_t i,
+                                           int width, int prec,
+                                           DLiteTypeFlag flags)
+{
+  void *ptr;
+  const DLiteProperty *p;
+  size_t *dims;
+  if (i >= inst->meta->_nproperties)
+    return errx(-1, "index %d exceeds number of properties (%d) in %s",
+                (int)i, (int)inst->meta->_nproperties, inst->meta->uri);
+  if (!(ptr = dlite_instance_get_property_by_index(inst, i))) return -1;
+  if (!(p = dlite_meta_get_property_by_index(inst->meta, i))) return -1;
+  dims = DLITE_PROP_DIMS(inst, i);
+  assert(dims);
+  return dlite_property_print(dest, n, ptr, p, dims, width, prec, flags);
+}
+
+/*
+  Lite dlite_print_property() but prints to allocated buffer.
+
+  Prints to position `pos` in `*dest`, which should point to a buffer
+  of size `*n`.  `*dest` is reallocated if needed.
+
+  Returns number or bytes written or a negative number on error.
+*/
+int dlite_instance_aprint_property(char **dest, size_t *n, size_t pos,
+                                   const DLiteInstance *inst,
+                                   const char *name,
+                                   int width, int prec, DLiteTypeFlag flags)
+{
+  int i;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return -1;
+  return dlite_instance_aprint_property_by_index(dest, n, pos, inst, i,
+                                                 width, prec, flags);
+}
+
+/*
+  Lite dlite_aprint_property() but takes property index `i` as argument
+  instead of property name.
+*/
+int dlite_instance_aprint_property_by_index(char **dest, size_t *n,
+                                            size_t pos,
+                                            const DLiteInstance *inst,
+                                            size_t i,
+                                            int width, int prec,
+                                            DLiteTypeFlag flags)
+{
+  void *ptr;
+  const DLiteProperty *p;
+  size_t *dims;
+  if (i >= inst->meta->_nproperties)
+    return errx(-1, "index %d exceeds number of properties (%d) in %s",
+                (int)i, (int)inst->meta->_nproperties, inst->meta->uri);
+  if (!(ptr = dlite_instance_get_property_by_index(inst, i))) return -1;
+  if (!(p = dlite_meta_get_property_by_index(inst->meta, i))) return -1;
+  dims = DLITE_PROP_DIMS(inst, i);
+  assert(dims);
+  return dlite_property_aprint(dest, n, pos, ptr, p, dims, width, prec,
+                               flags);
+}
+
+/*
+  Scans property `name` from `src`.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
+
+  Returns number of characters consumed from `src` or a negative
+  number on error.
+ */
+int dlite_instance_scan_property(const char *src, const DLiteInstance *inst,
+                                 const char *name, DLiteTypeFlag flags)
+{
+  int i;
+  if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return -1;
+  return dlite_instance_scan_property_by_index(src, inst, i, flags);
+}
+
+/*
+  Lite dlite_scan_property() but takes property index `i` as argument
+  instead of property name.
+*/
+int dlite_instance_scan_property_by_index(const char *src,
+                                          const DLiteInstance *inst, size_t i,
+                                          DLiteTypeFlag flags)
+{
+  void *ptr;
+  const DLiteProperty *p;
+  const size_t *dims;
+  if (i >= inst->meta->_nproperties)
+    return errx(-1, "index %d exceeds number of properties (%d) in %s",
+                (int)i, (int)inst->meta->_nproperties, inst->meta->uri);
+  if (!(ptr = dlite_instance_get_property_by_index(inst, i))) return -1;
+  if (!(p = dlite_meta_get_property_by_index(inst->meta, i))) return -1;
+  dims = DLITE_PROP_DIMS(inst, i);
+  assert(dims);
+  return dlite_property_scan(src, ptr, p, dims, flags);
+}
+
+
+/*
   Updates dimension sizes from internal state by calling the getdim()
   method of extended metadata.  Does nothing, if the metadata has no
   getdim() method.

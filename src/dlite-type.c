@@ -813,7 +813,8 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
   assert(dest);
   if (!*dest) *n = 0;
   if (!n) *dest = NULL;
-  m = dlite_type_print(*dest + pos, PDIFF(*n, pos), p, dtype, size,
+  m = dlite_type_print((*dest) ? *dest + pos : NULL,
+                       PDIFF(*n, pos), p, dtype, size,
                        width, prec, flags);
   if (m < 0) return m;  /* failure */
   if (m < (int)PDIFF(*n, pos)) return m;  // success, buffer is large enough
