@@ -114,3 +114,6 @@ jobs:
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
           CI_PIP_CACHE_DIR: /tmp/pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
+
+      - name: Fix cache dir owner
+        run: sudo chown -R $USER /tmp/pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
