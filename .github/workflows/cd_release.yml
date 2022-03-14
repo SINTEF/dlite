@@ -134,6 +134,7 @@ jobs:
     # Change the version in CMakeList.txt and build wheels
     - name: Update version
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+      shell: bash  # Should also work on Windows
 
     - name: Set up Python 3
       uses: actions/setup-python@v2
