@@ -21,13 +21,7 @@ before-build = [
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
-before-test = [
-  "ls -lah {project}",
-  "ls -lah {package}",
-  "ls -lah .",
-  "echo $PWD",
-  "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then chown -R $USER \"{project}/${CI_PIP_CACHE_DIR}\" && python -m pip install --cache-dir {project}/${CI_PIP_CACHE_DIR} -r {project}/requirements.txt; fi",
-]
+before-test = "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then echo \"USER: ${USER}\" && chown -R \"${USER}\" \"{project}/${CI_PIP_CACHE_DIR}\" && python -m pip install --cache-dir {project}/${CI_PIP_CACHE_DIR} -r {project}/requirements.txt; fi"
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
