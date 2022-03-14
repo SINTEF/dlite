@@ -70,11 +70,12 @@ jobs:
       - name: Check 'latest' parent image SHA
         run: |
           IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
+          SHA_FILENAME=${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt
           docker pull ${IMAGE}
-          docker images --no-trunc --quiet ${IMAGE} > ${IMAGE}.sha.txt
+          docker images --no-trunc --quiet ${IMAGE} > ${SHA_FILENAME}
 
           CACHE_DIR=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
-          if [ -f "${CACHE_DIR}/${IMAGE}.sha.txt" ] && [ "$( cat ${IMAGE}.sha.txt )" == "$( cat ${CACHE_DIR}/${IMAGE}.sha.txt )" ]; then
+          if [ -f "${CACHE_DIR}/${SHA_FILENAME}" ] && [ "$( cat ${SHA_FILENAME} )" == "$( cat ${CACHE_DIR}/${SHA_FILENAME} )" ]; then
             echo "BUILD_NEW_IMAGE=false" >> $GITHUB_ENV
           else
             echo "BUILD_NEW_IMAGE=true" >> $GITHUB_ENV
@@ -123,4 +124,4 @@ jobs:
 
       - name: Add sha.txt to cache
         if: env.BUILD_NEW_IMAGE == 'true'
-        run: mv ${IMAGE}.sha.txt .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+        run: mv ${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
