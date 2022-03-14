@@ -134,9 +134,21 @@ jobs:
     # And to avoid checking out `master` (should someone push in-between all this),
     # this seems like the most low-tech solution (instead of caching/using artifacts):
     # Change the version in CMakeList.txt and build wheels
+    # Use a Python script to be OS-independent.
     - name: Update version
-      run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
-      shell: bash  # Should also work on Windows
+      run: |
+        import os
+        from pathlib import Path
+        import re
+
+        version_file = Path("CMakeLists.txt").resolve()
+        version = os.getenv("GITHUB_REF")[len("refs/tags/v"):]
+        lines = [
+            re.sub(r"^ +VERSION +[0-9.]+$", f"  VERSION {version}", line.rstrip())
+            for line in version_file.read_text(encoding="utf8").splitlines()
+        ]
+        version_file.write_text("\n".join(lines) + "\n", encoding="utf8")
+      shell: python
 
     - name: Set up Python 3
       uses: actions/setup-python@v2
