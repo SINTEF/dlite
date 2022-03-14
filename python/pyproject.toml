@@ -12,7 +12,7 @@ build-frontend = "pip"
 build-verbosity = 1
 
 [tool.cibuildwheel.windows]
-before-test = ["$CI ? (pip install --cache-dir $PIP_CACHE_DIR numpy) : \"Not in CI\""]
+before-test = "python -c \"import os, subproces; if os.getenv('CI', ''): cache_dir = os.getenv('PIP_CACHE_DIR'); subprocess.run(f'pip install --cache-dir {cache_dir} numpy')\""
 test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
