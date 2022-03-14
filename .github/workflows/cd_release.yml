@@ -9,6 +9,7 @@ env:
   PUBLISH_UPDATE_BRANCH: master
   GIT_USER_NAME: "TEAM 4.0[bot]"
   GIT_USER_EMAIL: "Team4.0@SINTEF.no"
+  CONTAINER_REGISTRY: ghcr.io
 
 jobs:
   update_version:
@@ -144,7 +145,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       uses: docker/login-action@v1
       with:
-        registry: ${{ env.container_registry }}
+        registry: ${{ env.CONTAINER_REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -161,10 +162,10 @@ jobs:
         python -m cibuildwheel --output-dir wheelhouse python
       env:
         CIBW_BUILD: cp3{${{ matrix.py_minors }}}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
-        CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
-        CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
-        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
-        CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
+        CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
+        CIBW_MANYLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
+        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
+        CIBW_MUSLLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_i686:latest
 
     - name: Store wheels for publishing
       uses: actions/upload-artifact@v2
