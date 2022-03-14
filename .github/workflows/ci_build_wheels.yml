@@ -5,6 +5,12 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      use_cache:
+        description: Use GH Actions cache (for `numpy`)
+        type: boolean
+        required: false
+        default: true
 
 env:
   container_registry: ghcr.io
@@ -18,10 +24,10 @@ jobs:
       matrix:
         include:
           # 32-bit linux
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2010"]
-            arch: i686
-            py_minors: 7,9
+          # - os: ubuntu-20.04
+          #   system_type: ["manylinux", "2010"]
+          #   arch: i686
+          #   py_minors: 7,9
           ## Doesn't seem to be working - cannot build image for this
           # - os: ubuntu-20.04
           #   system_type: ["manylinux", "2014"]
@@ -30,17 +36,17 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
-            py_minors: 7,10
+            py_minors: "7"
 
           # 64-bit linux
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2010"]
-            arch: x86_64
-            py_minors: 7,9
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2014"]
-            arch: x86_64
-            py_minors: 7,10
+          # - os: ubuntu-20.04
+          #   system_type: ["manylinux", "2010"]
+          #   arch: x86_64
+          #   py_minors: 7,9
+          # - os: ubuntu-20.04
+          #   system_type: ["manylinux", "2014"]
+          #   arch: x86_64
+          #   py_minors: 7,10
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
           # - os: ubuntu-20.04
           #   system_type: ["musllinux", "_1_1"]
@@ -58,7 +64,7 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: 7,10
+            py_minors: "7"
 
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
           # # 64-bit (Intel) macOS
@@ -73,6 +79,14 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.x'
+
+      - name: Setup cache
+        if: github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)
+        uses: actions/cache@v2
+        with:
+          path: .numpy-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
+          key: numpy-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-${{ github.sha }}
+          restore-keys: numpy-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
@@ -99,3 +113,4 @@ jobs:
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
+          PIP_CACHE_DIR: .numpy-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}"
