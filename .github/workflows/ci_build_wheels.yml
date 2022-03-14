@@ -80,8 +80,8 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Setup cache
-        if: github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)
+      - name: Setup cache (for linux builds)
+        if: (github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)) && caontains(matrix.system_type[0], 'linux')
         uses: actions/cache@v2
         with:
           path: .numpy-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}

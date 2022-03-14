@@ -12,7 +12,6 @@ build-frontend = "pip"
 build-verbosity = 1
 
 [tool.cibuildwheel.windows]
-before-test = "python -c \"import os, subproces; if os.getenv('CI', ''): cache_dir = os.getenv('PIP_CACHE_DIR'); subprocess.run(f'pip install --cache-dir {cache_dir} numpy')\""
 test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
@@ -22,7 +21,7 @@ before-build = [
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
-before-test = "if [ -n \"${CI}\" ]; then pip install --cache-dir ${PIP_CACHE_DIR} numpy; fi"
+before-test = "if [ -n \"${PIP_CACHE_DIR}\" ]; then pip install --cache-dir ${PIP_CACHE_DIR} oldest-supported-numpy; fi"
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
