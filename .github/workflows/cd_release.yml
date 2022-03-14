@@ -71,7 +71,7 @@ jobs:
   build_wheels:
     name: Build wheels
     runs-on: ${{ matrix.os }}
-    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+    # if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
     strategy:
       fail-fast: false
       matrix:
@@ -135,8 +135,8 @@ jobs:
     # And to avoid checking out `master` (should someone push in-between all this),
     # this seems like the most low-tech solution (instead of caching/using artifacts):
     # Change the version in CMakeList.txt and build wheels
-    - name: Update version
-      run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+    # - name: Update version
+    #   run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
     - name: Set up Python 3
       uses: actions/setup-python@v2
@@ -178,7 +178,7 @@ jobs:
   build_sdist:
     name: Build sdist
     runs-on: ubuntu-latest
-    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+    # if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
 
     steps:
     - name: Checkout repository
@@ -189,8 +189,8 @@ jobs:
     # And to avoid checking out `master` (should someone push in-between all this),
     # this seems like the most low-tech solution (instead of caching/using artifacts):
     # Change the version in CMakeList.txt and build wheels
-    - name: Update version
-      run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+    # - name: Update version
+    #   run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
