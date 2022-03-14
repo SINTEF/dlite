@@ -1,16 +1,15 @@
 name: Weekly wheel build images
 
 on:
-  # schedule:
-  #   - cron: "42 5 * * 1"
-  # workflow_dispatch:
-  #   inputs:
-  #     use_cache:
-  #       description: Use GH Actions cache
-  #       type: boolean
-  #       required: false
-  #       default: true
-  pull_request:
+  schedule:
+    - cron: "42 5 * * 1"
+  workflow_dispatch:
+    inputs:
+      use_cache:
+        description: Use GH Actions cache
+        type: boolean
+        required: false
+        default: true
 
 env:
   container_registry: ghcr.io
@@ -24,18 +23,18 @@ jobs:
       matrix:
         include:
         # 64-bit linux
-        # - system: "manylinux"
-        #   type: "2010"
-        #   arch: "x86_64"
-        #   py_minors: "7 8 9"
+        - system: "manylinux"
+          type: "2010"
+          arch: "x86_64"
+          py_minors: "7 8 9"
         - system: "manylinux"
           type: "2014"
           arch: "x86_64"
           py_minors: "7 8 9 10"
-        # - system: "musllinux"
-        #   type: "_1_1"
-        #   arch: "x86_64"
-        #   py_minors: "7 8 9 10"
+        - system: "musllinux"
+          type: "_1_1"
+          arch: "x86_64"
+          py_minors: "7 8 9 10"
 
         # 32-bit linux
         - system: "manylinux"
@@ -44,14 +43,14 @@ jobs:
           py_minors: "7 8 9"
         # Doesn't seem to be working.
         # Will keep in here though, to check if it should start working.
-        # - system: "manylinux"
-        #   type: "2014"
-        #   arch: "i686"
-        #   py_minors: "7 8 9"
-        # - system: "musllinux"
-        #   type: "_1_1"
-        #   arch: "i686"
-        #   py_minors: "7 8 9 10"
+        - system: "manylinux"
+          type: "2014"
+          arch: "i686"
+          py_minors: "7 8 9"
+        - system: "musllinux"
+          type: "_1_1"
+          arch: "i686"
+          py_minors: "7 8 9 10"
 
     steps:
       - name: Checkout repository
