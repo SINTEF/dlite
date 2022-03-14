@@ -1,9 +1,11 @@
 name: CD - Publish a new release
 
 on:
-  release:
-    types:
-    - published
+  # release:
+  #   types:
+  #   - published
+  pull_request:
+    
 
 env:
   PUBLISH_UPDATE_BRANCH: master
@@ -226,14 +228,19 @@ jobs:
       with:
         path: dist
 
+    - name: Mock publish
+      run: |
+        echo "Normally, this would publish all files at dist/"
+        ls -lah dist
+
     # - name: Publish package to Test PyPI
     #   uses: pypa/gh-action-pypi-publish@v1.5.0
     #   with:
     #     user: __token__
     #     password: ${{ secrets.TEST_PYPI_TOKEN }}
 
-    - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.5.0
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_TOKEN }}
+    # - name: Publish package to PyPI
+    #   uses: pypa/gh-action-pypi-publish@v1.5.0
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_TOKEN }}
