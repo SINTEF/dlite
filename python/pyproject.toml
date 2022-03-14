@@ -26,7 +26,7 @@ before-test = [
   "ls -lah {package}",
   "ls -lah .",
   "echo $PWD",
-  "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then python -m pip install --cache-dir {project}/${CI_PIP_CACHE_DIR} -r {project}/requirements.txt; fi",
+  "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then chown -R $USER \"{project}/${CI_PIP_CACHE_DIR}\" && python -m pip install --cache-dir {project}/${CI_PIP_CACHE_DIR} -r {project}/requirements.txt; fi",
 ]
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
