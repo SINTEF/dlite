@@ -231,6 +231,8 @@ jobs:
       run: |
         mv dist/wheels/* dist/
         mv dist/sdist/* dist/
+        rm -rf dist/wheels
+        rm -rf dist/sdist
         ls -lah dist
 
     # - name: Publish package to Test PyPI
