@@ -15,13 +15,13 @@ build-verbosity = 1
 test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
-environment-pass = "CI_BUILD_CMAKE_ARGS"
+environment-pass = ["CI_BUILD_CMAKE_ARGS", "CI_PIP_CACHE_DIR"]
 before-build = [
   "rm -rf {project}/python/build/temp*",
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
-before-test = "if [ -z \"${PIP_CACHE_DIR}\" ]; then echo \"no pip cache dir defined\" && exit 1; else echo \"pip cache dir: $PIP_CACHE_DIR\"; fi"
+before-test = "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then pip install --cache-dir ${CI_PIP_CACHE_DIR} {project}/requirements.txt; fi"
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
@@ -36,5 +36,3 @@ Python3_LIBRARY = "/opt/python/${ABITAG}/lib/libpython${PYVER}${PYABI}.a"
 Python3_INCLUDE_DIR = "/opt/python/${ABITAG}/include/python${PYVER}${PYABI}"
 
 CI_BUILD_CMAKE_ARGS = "-DCMAKE_INSTALL_PREFIX=$INSTALLDIR,-DPython3_EXECUTABLE=$Python3_EXECUTABLE,-DPython3_LIBRARY=$Python3_LIBRARY,-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR,-DWITH_STATIC_PYTHON=YES"
-
-PIP_CACHE_DIR = "$(pip cache dir)"
