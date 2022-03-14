@@ -38,10 +38,10 @@ jobs:
         #   py_minors: "7 8 9 10"
 
         # 32-bit linux
-        # - system: "manylinux"
-        #   type: "2010"
-        #   arch: "i686"
-        #   py_minors: "7 8 9"
+        - system: "manylinux"
+          type: "2010"
+          arch: "i686"
+          py_minors: "7 8 9"
         # Doesn't seem to be working.
         # Will keep in here though, to check if it should start working.
         # - system: "manylinux"
