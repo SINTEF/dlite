@@ -105,8 +105,7 @@ jobs:
       # See pyproject.toml (under python/) for cibuildwheel configuration
       - name: Build wheels
         run: |
-          ls -lah .
-          ls -lah .pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
+          mkdir -p .pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
