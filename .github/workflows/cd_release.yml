@@ -4,6 +4,7 @@ on:
   release:
     types:
     - published
+
 env:
   PUBLISH_UPDATE_BRANCH: master
   GIT_USER_NAME: "TEAM 4.0[bot]"
@@ -134,6 +135,7 @@ jobs:
     # Change the version in CMakeList.txt and build wheels
     - name: Update version
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+      shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
     - name: Set up Python 3
       uses: actions/setup-python@v2
