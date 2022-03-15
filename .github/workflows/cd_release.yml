@@ -9,6 +9,7 @@ env:
   PUBLISH_UPDATE_BRANCH: master
   GIT_USER_NAME: "TEAM 4.0[bot]"
   GIT_USER_EMAIL: "Team4.0@SINTEF.no"
+  CONTAINER_REGISTRY: ghcr.io
 
 jobs:
   update_version:
@@ -123,6 +124,9 @@ jobs:
           #   arch: x86_64
           #   py_minors: 7,8,9,10
 
+    env:
+      CI_PIP_CACHE_DIR: /tmp/pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -134,17 +138,26 @@ jobs:
     # Change the version in CMakeList.txt and build wheels
     - name: Update version
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+      shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
     - name: Set up Python 3
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
 
+    - name: Setup cache (for linux builds)
+      if: startsWith(matrix.os, 'ubuntu')
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.CI_PIP_CACHE_DIR }}
+        key: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-${{ github.sha }}
+        restore-keys: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-
+
     - name: Login to GitHub Container Registry
       if: startsWith(matrix.os, 'ubuntu')
       uses: docker/login-action@v1
       with:
-        registry: ${{ env.container_registry }}
+        registry: ${{ env.CONTAINER_REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -161,10 +174,14 @@ jobs:
         python -m cibuildwheel --output-dir wheelhouse python
       env:
         CIBW_BUILD: cp3{${{ matrix.py_minors }}}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
-        CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
-        CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
-        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
-        CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
+        CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
+        CIBW_MANYLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
+        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
+        CIBW_MUSLLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_i686:latest
+
+    - name: Fix cache dir owner
+      if: startsWith(matrix.os, 'ubuntu')
+      run: sudo chown -R $USER ${{ env.CI_PIP_CACHE_DIR }}
 
     - name: Store wheels for publishing
       uses: actions/upload-artifact@v2
@@ -224,6 +241,14 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         path: dist
+
+    - name: Move wheels and sdist files to dist/
+      run: |
+        mv dist/wheels/* dist/
+        mv dist/sdist/* dist/
+        rm -rf dist/wheels
+        rm -rf dist/sdist
+        ls -lah dist
 
     # - name: Publish package to Test PyPI
     #   uses: pypa/gh-action-pypi-publish@v1.5.0
