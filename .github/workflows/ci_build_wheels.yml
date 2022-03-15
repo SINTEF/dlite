@@ -88,7 +88,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.CI_PIP_CACHE_DIR }}
-          key: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-${{ github.sha }}
+          key: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-
 
       - name: Login to GitHub Container Registry
