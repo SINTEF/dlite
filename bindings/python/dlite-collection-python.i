@@ -78,5 +78,11 @@
         while itr.poll():
             yield itr.next()
 
+    def get_labels(self):
+        """Returns a generator over all instances in this collection."""
+        for r in self.get_relations():
+            if r.p == '_has-meta':
+                yield r.s
+
   %}
 }

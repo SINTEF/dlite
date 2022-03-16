@@ -65,6 +65,18 @@ def standardise(v, asdict=True):
     else:
         return conv(v)
 
+
+def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> "Instance":
+    inst = _dlite.get_instance(id, metaid, check_storages)
+    if inst.is_meta:
+        inst.__class__ = Metadata
+    elif inst.meta.uri == _dlite.COLLECTION_ENTITY:
+        inst.__class__ = Collection
+    return inst
+
+
+
+
 %}
 
 
