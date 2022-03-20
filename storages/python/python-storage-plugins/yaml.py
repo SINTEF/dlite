@@ -39,9 +39,9 @@ class yaml(dlite.DLiteStorageBase):
         self.writable = False if 'r' in self.mode else True
         self.uri = uri
         self.d = {}
-        if self.mode in ('r', 'r+') and os.path.exists(uri):
+        if self.mode in ('r', 'r+'):
             with open(uri, self.mode) as f:
-                d = pyyaml.load(f, Loader=pyyaml.BaseLoader)
+                d = pyyaml.safe_load(f)
             if d:
                 self.d = d
 

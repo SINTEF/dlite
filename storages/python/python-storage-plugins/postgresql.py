@@ -111,11 +111,11 @@ class postgresql(dlite.DLiteStorageBase):
             dlite.errclr()
             meta = self.load(metaid)
 
-        inst = dlite.Instance.create_from_metaid(metaid, dims, uri)
+        inst = dlite.Instance.from_metaid(metaid, dims, uri)
 
         for i, p in enumerate(inst.meta['properties']):
             inst.set_property(p.name, values[i])
-        
+
         # The uuid will be wrong for data instances, so override it
         if not inst.is_metameta:
             d = inst.asdict()
@@ -139,8 +139,8 @@ class postgresql(dlite.DLiteStorageBase):
                   inst.uri,
                   inst.meta.uri,
                   list(inst.dimensions.values()),
-        ] + [dlite.standardise(v, asdict=False)
-             for v in inst.properties.values()]
+        ] + [dlite.standardise(v, inst.get_property_descr(k), asdict=False)
+             for k, v in inst.properties.items()]
         try:
             self.cur.execute(q, values)
         except psycopg2.IntegrityError:

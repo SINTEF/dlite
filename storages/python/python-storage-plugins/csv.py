@@ -59,6 +59,8 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         data = reader(self.uri, **pdopts)
         rows, columns = data.shape
 
+        print('*** load:', rows, columns)
+
         if 'infer' not in self.options or dlite.asbool(self.options.infer):
             Meta = infer_meta(data, metaid, self.uri)
         elif metaid:
@@ -66,6 +68,8 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         else:
             raise ValueError(
                 'csv option `meta` must be provided if `infer` if false')
+
+        print('***', Meta)
 
         inst = Meta(dims=(rows, ), id=self.options.get('id'))
         for i, name in enumerate(inst.properties):
@@ -135,7 +139,8 @@ def infer_meta(data, metauri, uri):
         type = data.dtypes[i].name
         dims = ['rows']
         unit = infer_prop_unit(col)
-        props.append(dlite.Property(name, type, dims, unit, None, None))
+        props.append(dlite.Property(name=name, type=type, dims=dims,
+                                    unit=unit, description=None))
     descr = f'Inferred metadata for {uri}'
     return dlite.Instance.create_metadata(metauri, dims_, props, descr)
 

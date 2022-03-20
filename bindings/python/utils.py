@@ -28,8 +28,8 @@ def instance_from_dict(d):
     be of the same form as returned by the Instance.asdict() method.
     """
     meta = dlite.get_instance(d.get('meta', dlite.ENTITY_SCHEMA))
-    if meta.is_metameta:
 
+    if meta.is_metameta:
         if 'uri' in d:
             uri = d['uri']
         else:
@@ -79,27 +79,14 @@ def instance_from_dict(d):
         inst = dlite.Instance.create_metadata(uri, dimensions, props,
                               d.get('description'))
     else:
-        dims = list(d['dimensions'].values())
-        if 'uri' in d.keys():
-            arg = d.get('uri', d.get('uuid', None))
-        else:
-            arg = d.get('uuid', None)
-        inst = dlite.Instance.create_from_metaid(meta.uri, dims, arg)
+        dims = [d['dimensions'][dim.name]
+                for dim in meta.properties['dimensions']]
+        id = d.get('uri', d.get('uuid', None))
+        inst = dlite.Instance.from_metaid(meta.uri, dims=dims, id=id)
         for p in meta['properties']:
             value = d['properties'][p.name]
-            if p.type.startswith('blob'):
-                if isinstance(value, str):
-                    # Assume that the binary data string is hexadecimal
-                    value = bytearray(binascii.unhexlify(value))
-                elif isinstance(value, list) and len(value) > 1 \
-                        and isinstance(value[1], str):
-                    # Assume value = [binary string, encoding]
-                    value = bytearray(value[0], value[1])
-            if isinstance(inst[p.name], (float, int)):
-                # Ensure correct scalar conversion by explicit cast
-                inst[p.name] = type(inst[p.name])(value)
-            else:
-                inst[p.name] = value
+            inst[p.name] = value
+
     return inst
 
 

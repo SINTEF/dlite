@@ -5,6 +5,7 @@
 import sys
 import json
 import base64
+import warnings
 
 from uuid import UUID
 if sys.version_info >= (3, 7):
@@ -42,16 +43,8 @@ class Metadata(Instance):
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
 
-    def get_property_descr(self, name):
-        """Return a Property object for property `name`."""
-        assert self.is_meta
-        for p in self['properties']:
-            if p.name == name:
-                return p
-        raise ValueError(f'No property "{name}" in "{self.uri}"')
 
-
-def standardise(v, asdict=True):
+def standardise(v, prop, asdict=False):
     """Represent property value `v` as a standard python type.
     If `asdict` is true, dimensions, properties and relations will be
     represented with a dict, otherwise as a list of strings."""
@@ -60,7 +53,16 @@ def standardise(v, asdict=True):
     else:
         conv = lambda x: list(x.asstrings()) if hasattr(x, 'asstrings') else x
 
-    if hasattr(v, 'tolist'):
+    if prop.dtype == dlite.BlobType:
+        if prop.ndims:
+            V = np.fromiter(
+                (''.join(f'{c:02x}' for c in s.item()) for s in v.flat),
+                dtype=f'U{2*prop.size}')
+            V.shape = v.shape
+            return V.tolist()
+        else:
+            return ''.join(f'{c:02x}' for c in v)
+    elif hasattr(v, 'tolist'):
         return [conv(x) for x in v.tolist()]
     else:
         return conv(v)
@@ -68,14 +70,13 @@ def standardise(v, asdict=True):
 
 def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> "Instance":
     inst = _dlite.get_instance(id, metaid, check_storages)
-    if inst.is_meta:
+    if inst is None:
+        raise DLiteError(f"no such instance: {id}")
+    elif inst.is_meta:
         inst.__class__ = Metadata
     elif inst.meta.uri == _dlite.COLLECTION_ENTITY:
         inst.__class__ = Collection
     return inst
-
-
-
 
 %}
 
@@ -112,10 +113,10 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
     def __repr__(self):
         dims = ', dims=%r' % self.dims.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
-        iri = ', iri=%r' % self.iri if self.iri else ''
+        #iri = ', iri=%r' % self.iri if self.iri else ''
         descr = ', description=%r' %self.description if self.description else ''
-        return 'Property(%r, type=%r%s%s%s%s)' % (
-            self.name, self.type, dims, unit, iri, descr)
+        return 'Property(%r, type=%r%s%s%s)' % (
+            self.name, self.type, dims, unit, descr)
 
     def asdict(self):
         """Returns a dict representation of self."""
@@ -126,8 +127,8 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             d['dims'] = self.dims.tolist()
         if self.unit:
             d['unit'] = self.unit
-        if self.iri:
-            d['iri'] = self.iri
+        #if self.iri:
+        #    d['iri'] = self.iri
         if self.description:
             d['description'] = self.description
         return d
@@ -136,7 +137,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         """Returns a representation of self as a tuple of strings."""
         return (self.name, self.type, ','.join(str(d) for d in self.dims),
                 '' if self.unit is None else self.unit,
-                '' if self.iri is None else self.iri,
+                #'' if self.iri is None else self.iri,
                 '' if self.description is None else self.description)
 
     type = property(get_type, doc='Type name.')
@@ -209,6 +210,8 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
         if self.is_meta:
             self.__class__ = Metadata
+        elif self.meta.uri == COLLECTION_ENTITY:
+            self.__class__ = Collection
 
     def get_meta(self):
         """Returns reference to metadata."""
@@ -217,9 +220,16 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         meta.__class__ = Metadata
         return meta
 
+    def get_property_descr(self, name):
+        """Return a Property object for property `name`."""
+        for p in self.meta['properties']:
+            if p.name == name:
+                return p
+        raise ValueError(f'No property "{name}" in "{self.uri}"')
+
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
-    iri = property(get_iri, set_iri,
-                   doc="Unique IRI to corresponding concept in an ontology.")
+    #iri = property(get_iri, set_iri,
+    #               doc="Unique IRI to corresponding concept in an ontology.")
     dimensions = property(
         lambda self: OrderedDict((d.name, int(v))
                                  for d, v in zip(self.meta['dimensions'],
@@ -234,17 +244,95 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
                            doc='Whether this is a meta-metadata instance.')
 
     @classmethod
-    def create_from_metaid(cls, metaid, dims, id=None):
+    def from_metaid(cls, metaid, dims, id=None):
         """Create a new instance of metadata `metaid`.  `dims` must be a
         sequence with the size of each dimension.  All values initialized
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
         """
         if isinstance(dims, dict):
-            dims = [dims[name] for name in self.meta.properties['dimensions']]
-        return cls(metaid=metaid, dims=dims, id=id,
-                   dimensions=(), properties=()  # arrays must not be None
-                   )
+            meta = get_instance(metaid)
+            dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+        return Instance(
+            metaid=metaid, dims=dims, id=id,
+            dimensions=(), properties=()  # arrays must not be None
+        )
+
+    @classmethod
+    def from_url(cls, url, metaid=None):
+        """Load the instance from `url`.  The URL should be of the form
+        ``driver://location?options#id``.
+        If `metaid` is provided, the instance is tried mapped to this
+        metadata before it is returned.
+        """
+        return Instance(
+            url=url, metaid=metaid,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
+
+    @classmethod
+    def from_storage(cls, storage, id=None, metaid=None):
+        """Load the instance from `storage`.  `id` is the id of the instance
+        in the storage (not required if the storage only contains more one
+        instance).
+        If `metaid` is provided, the instance is tried mapped to this
+        metadata before it is returned.
+        """
+        return Instance(
+            storage=storage, id=id, metaid=metaid,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
+
+    @classmethod
+    def from_location(cls, driver, location, options=None, id=None):
+        """Load the instance from storage specified by `driver`, `location`
+        and `options`.  `id` is the id of the instance in the storage (not
+        required if the storage only contains more one instance).
+        """
+        return Instance(
+            driver=driver, location=location, options=options, id=id,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
+
+    @classmethod
+    def from_json(cls, jsoninput, id=None, metaid=None):
+        """Load the instance from storage specified by `driver`, `location`
+        and `options`.  `id` is the id of the instance in the storage (not
+        required if the storage only contains more one instance).
+        """
+        return Instance(
+            jsoninput=jsoninput, id=id, metaid=metaid,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
+
+    @classmethod
+    def create_metadata(cls, uri, dimensions, properties, description):
+        """Create a new metadata entity (instance of entity schema) casted
+        to an instance.
+        """
+        return Instance(
+            uri=uri, dimensions=dimensions, properties=properties,
+            description=description,
+            dims=()  # arrays
+        )
+
+    @classmethod
+    def create_from_metaid(cls, metaid, dims, id=None):
+        """Create a new instance of metadata `metaid`.  `dims` must be a
+        sequence with the size of each dimension.  All values initialized
+        to zero.  If `id` is None, a random UUID is generated.  Otherwise
+        the UUID is derived from `id`.
+        """
+        warnings.warn(
+            "create_from_metaid() is deprecated, use from_metaid() instead.",
+            DeprecationWarning, stacklevel=2)
+        if isinstance(dims, dict):
+            meta = get_instance(metaid)
+            dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+        return Instance(
+            metaid=metaid, dims=dims, id=id,
+            dimensions=(), properties=()  # arrays must not be None
+        )
 
     @classmethod
     def create_from_url(cls, url, metaid=None):
@@ -253,9 +341,13 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return cls(url=url, metaid=metaid,
-                   dims=(), dimensions=(), properties=()  # arrays
-                   )
+        warnings.warn(
+            "create_from_url() is deprecated, use from_url() instead.",
+            DeprecationWarning, stacklevel=2)
+        return Instance(
+            url=url, metaid=metaid,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
 
     @classmethod
     def create_from_storage(cls, storage, id=None, metaid=None):
@@ -265,9 +357,13 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return cls(storage=storage, id=id, metaid=metaid,
-                   dims=(), dimensions=(), properties=()  # arrays
-                   )
+        warnings.warn(
+            "create_from_storage() is deprecated, use from_storage() instead.",
+            DeprecationWarning, stacklevel=2)
+        return Instance(
+            storage=storage, id=id, metaid=metaid,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
 
     @classmethod
     def create_from_location(cls, driver, location, options=None, id=None):
@@ -275,19 +371,13 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         and `options`.  `id` is the id of the instance in the storage (not
         required if the storage only contains more one instance).
         """
-        return cls(driver=driver, location=location, options=options, id=id,
-                   dims=(), dimensions=(), properties=()  # arrays
-                   )
-
-    @classmethod
-    def create_metadata(cls, uri, dimensions, properties, description):
-        """Create a new metadata entity (instance of entity schema) casted
-        to an instance.
-        """
-        return cls(uri=uri, dimensions=dimensions, properties=properties,
-                   description=description,
-                   dims=()  # arrays
-                   )
+        warnings.warn(
+            "create_from_location() is deprecated, use from_location() "
+            "instead.", DeprecationWarning, stacklevel=2)
+        return Instance(
+            driver=driver, location=location, options=options, id=id,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
@@ -381,18 +471,16 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         d['meta'] = self.meta.uri
         if self.uri:
             d['uri'] = self.uri
-        if self.iri:
-            d['iri'] = self.iri
         if self.is_meta:
-            d['name'] = self['name']
-            d['version'] = self['version']
-            d['namespace'] = self['namespace']
+            #d['name'] = self['name']
+            #d['version'] = self['version']
+            #d['namespace'] = self['namespace']
             d['description'] = self['description']
             d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
             d['properties'] = [p.asdict() for p in self['properties']]
         else:
             d['dimensions'] = self.dimensions
-            d['properties'] = {k: standardise(v)
+            d['properties'] = {k: standardise(v, self.get_property_descr(k))
                                for k, v in self.properties.items()}
         if self.has_property('relations') and (
                 self.is_meta or self.meta.has_property('relations')):

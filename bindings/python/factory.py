@@ -48,7 +48,7 @@ class BaseExtension(object, metaclass=MetaExtension):
         """Initialise the underlying dlite instance.  If `id` is given,
         the id of the underlying dlite instance will be set to it."""
         dims = self._dlite_infer_dimensions()
-        self.dlite_inst = Instance.create_from_metaid(
+        self.dlite_inst = Instance.from_metaid(
             self.dlite_meta.uri, dims, instanceid)
         self._dlite_assign_properties()
 
@@ -136,8 +136,8 @@ class BaseExtension(object, metaclass=MetaExtension):
 
     def dlite_load(self, *args):
         """Loads dlite instance from storage and assign self from it.
-        The arguments `args` are passed to dlite.Instance.create_from_storage()."""
-        inst = Instance.create_from_storage(*args)
+        The arguments `args` are passed to dlite.Instance.from_storage()."""
+        inst = Instance.from_storage(*args)
         self._dlite_assign(inst)
 
 
@@ -202,12 +202,12 @@ def classfactory(theclass, meta=None, url=None, storage=None, id=None):
     """
     if meta is None:
         if url is not None:
-            meta = Instance.create_from_url(url)
+            meta = Instance.from_url(url)
         elif storage is not None:
             if isinstance(storage, Storage):
-                meta = Instance.create_from_storage(storage, id)
+                meta = Instance.from_storage(storage, id)
             else:
-                meta = Instance.create_from_driver(*storage, id=id)
+                meta = Instance.from_driver(*storage, id=id)
         else:
             raise TypeError('`meta`, `url` or `storage` must be provided')
 

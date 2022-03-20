@@ -8,8 +8,6 @@
   - description: third dim
     name: N
   meta: http://onto-ns.com/meta/0.3/EntitySchema
-  name: test-entity
-  namespace: http://onto-ns.com/meta
   properties:
   - name: myblob
     type: blob3
@@ -35,4 +33,3 @@
     type: int32
   uri: http://onto-ns.com/meta/0.1/test-entity
   uuid: 2b10c236-eb00-541a-901c-046c202e52fa
-  version: '0.1'

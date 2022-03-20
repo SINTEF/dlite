@@ -4,13 +4,13 @@ import dlite
 
 
 # Set up some paths
-thisdir = Path(__file__).parent
+thisdir = Path(__file__).resolve().parent
 csvfile = thisdir / 'faithful.csv'
 
 # Add the python-storage-plugins subdir to python storage plugin search path
-dlite.python_storage_plugin_path.append(thisdir / 'python-storage-plugins')
+#dlite.python_storage_plugin_path.append(thisdir / 'python-storage-plugins')
 
-csv = dlite.Instance.create_from_url(f'csv://{csvfile}')
+csv = dlite.Instance.from_url(f'csv://{csvfile}')
 
 print(csv.meta)
 print(csv.uuid)

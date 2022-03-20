@@ -22,7 +22,7 @@ thisdir = os.path.abspath(os.path.dirname(__file__))
 # Test JSON
 
 url = 'json://' + os.path.join(thisdir, 'Person.json')
-Person = dlite.Instance.create_from_url(url)
+Person = dlite.Instance.from_url(url)
 
 person = Person(dims=[2])
 person.name = 'Ada'
@@ -129,7 +129,7 @@ if HAVE_YAML:
     else:
         raise ValueError('...Saving metadata failed!')
     os.remove(meta_test_file)
-    del inst, inst2
+
 
     print('Test loading data...')
     with dlite.Storage('yaml', data_file, 'mode=r') as s:

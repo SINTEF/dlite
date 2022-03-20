@@ -18,13 +18,13 @@ assert len(dlite.istore_get_uuids()) == 3 + 1
 assert_exists_in_module(coll.uuid)
 
 url = 'json://' + thisdir + '/MyEntity.json' + "?mode=r"
-e = Instance.create_from_url(url) # (2)
+e = Instance.from_url(url) # (2)
 assert len(dlite.istore_get_uuids()) == 3 + 2
 
-inst1 = Instance.create_from_metaid(e.uri, [3, 2])  # (3)
+inst1 = Instance.from_metaid(e.uri, [3, 2])  # (3)
 assert len(dlite.istore_get_uuids()) == 3 + 3
 
-inst2 = Instance.create_from_metaid(e.uri, (3, 4), 'myinst')  # (4)
+inst2 = Instance.from_metaid(e.uri, (3, 4), 'myinst')  # (4)
 assert len(dlite.istore_get_uuids()) == 3 + 4
 
 del inst1

@@ -1,31 +1,137 @@
 /* -*- Python -*-  (not really, but good for syntax highlighting) */
 
-%extend struct _CollectionIter {
 
-  %pythoncode %{
+%extend struct _CollectionIter {
+%pythoncode %{
     def __iter__(self):
         return self
 
     def __next__(self):
-        next = self.next()
-        if next is None:
+        if self.rettype == 'I':
+            v = self.next()
+        elif self.rettype in 'RTspo':
+            v = self.next_relation()
+        else:
+            raise ValueError('`rettype` must one of "IRTspo"')
+
+        if v is None:
             raise StopIteration()
-        return next
-  %}
+
+        if self.rettype == 'T':
+            return (v.s, v.p, v.o)
+        elif self.rettype == 's':
+            return v.s
+        elif self.rettype == 'p':
+            return v.p
+        elif self.rettype == 'o':
+            return v.o
+        return v
+%}
+
 }
 
 
-%extend struct _DLiteCollection {
+%pythoncode %{
+from warnings import warn
 
-  %pythoncode %{
+
+class Collection(Instance):
+    """A collection of instances and relations between them.
+
+    Instances added to a collection are referred to with a label,
+    which is local to the collection.
+
+    Iteration over a collection will iterate over the instances added
+    to it.  Likewise, the len() of a collection will return the number
+    of instances.
+
+    Use the get_relations() method (or the convenience methods
+    get_subjects(), get_predicates() and get_predicates()) to iterate
+    over relations.  The number of relations is available via the `nrelations`
+    property.
+    """
+    def __new__(cls, id=None):
+        """Creates an empty collection."""
+        _coll = _Collection(id=id)
+        inst = _coll.asinstance()
+        inst.__class__ = Collection
+        return inst
+
+    def __init__(self, id=None):
+        pass  # avoid calling Instance.__init__()
+
+    @classmethod
+    def load(cls, src, location=None, options=None, id=None, lazy=True):
+        """Loads a collection from storage.
+
+        Arguments:
+            src: Storage instance | url | driver
+            location: str
+                File path to load from when `src` is a driver.
+            options: str
+                Options passed to the storage plugin when `src` is a driver.
+            id: str
+                Id of collection to load.  Needed if there are more than
+                one instance in the storage.
+            lazy: bool
+                Whether to also save all instances referred to by the
+                collection.
+        """
+        if isinstance(src, Storage):
+            _coll = _Collection(storage=src, id=id, lazy=bool(lazy))
+        elif location:
+            with Storage(src, location, options) as s:
+                _coll = _Collection(storage=s, id=id, lazy=bool(lazy))
+        else:
+            _coll = _Collection(url=src, lazy=bool(lazy))
+        inst = _coll.asinstance()
+        inst.__class__ = Collection
+        return inst
+
+    def save(self, dst, location=None, options=None, include_instances=True):
+        """Save collection.
+
+        Arguments:
+            dst: Storage instance | url | driver
+            location: str
+                File path to write to when `dst` is a driver.
+            options: str
+                Options passed to the storage plugin when `dst` is a driver.
+            include_instances: bool
+                Whether to also save all instances referred to by the
+                collection.
+        """
+        if include_instances:
+            c = self._coll
+            if isinstance(dst, Storage):
+                _collection_save(c, dst)
+            elif location:
+                with Storage(dst, location, options) as s:
+                    _collection_save(c, s)
+            else:
+                _collection_save_url(c, dst)
+        elif isinstance(dst, Storage):
+            Instance.save(self, storage=dst)
+        else:
+            Instance.save(self, dst, location, options)
+
+    _coll = property(
+        lambda self: _get_collection(id=self.uuid),
+        doc='SWIG-internal representation of this collection.')
+
+    properties = property(
+        lambda self: {'relations': list(self.get_relations())},
+        doc='Dictionary with property name-value pairs.')
+
     def __repr__(self):
-        return "Collection(%r)" % (self.uri if self.uri else self.uuid)
-
-    def __str__(self):
-        return str(self.asinstance())
+        return '<Collection: %s>' % (
+            f"uri='{self.uri}'" if self.uri else f"uuid='{self.uuid}'")
 
     def __iter__(self):
-        return self.get_iter()
+        return _CollectionIter(self, rettype='I')
+
+    def __len__(self):
+        return _collection_count(self._coll)
 
     def __getitem__(self, label):
         return self.get(label)
@@ -36,53 +142,91 @@
     def __delitem__(self, label):
         self.remove(label)
 
-    def __len__(self):
-        return self.count()
+    def __contains__(self, label):
+        return self.has(label)
 
-    def __contains__(self, item):
-        return self.has(item)
+    def add(self, label, inst):
+        """Add `inst` to collection with given label."""
+        _collection_add(self._coll, label, inst)
 
-    meta = property(get_meta, doc='Reference to metadata of this collection.')
+    def remove(self, label):
+        """Remove instance with given label from collection."""
+        if _collection_remove(self._coll, label):
+            raise DLiteError(f'No such label in collection: "{label}"')
 
-    @classmethod
-    def create(cls, id=None, lazy=True):
-        return cls(id=id, lazy=lazy)
+    def get(self, label, metaid=None):
+        """Return instance with given label."""
+        return _collection_get_new(self._coll, label, metaid)
 
-    @classmethod
-    def create_from_storage(cls, storage, id=None, lazy=True):
-        return cls(storage=storage, id=id, lazy=lazy)
+    def get_id(self, id):
+        """Return instance with given id."""
+        inst = _collection_get_id(self._coll, id)
+        inst.incref()
+        return inst
 
-    @classmethod
-    def create_from_url(cls, url, id=None, lazy=True):
-        return cls(url=url, id=id, lazy=lazy)
+    def has(self, label):
+        """Returns true if an instance has been added with the given label."""
+        b = _collection_has(self._coll, label)
+        return bool(b)
 
-    def asdict(self):
-        """Returns a dict representation of self."""
-        return self.asinstance().asdict()
+    def has_id(self, id):
+        """Returns true if an instance has been added with the given id."""
+        b = _collection_has_id(self._coll, id)
+        return bool(b)
 
-    def asjson(self, **kwargs):
-        """Returns a JSON-representation of self. Arguments are passed to
-        json.dumps()."""
-        return self.asinstance().asjson()
+    def add_relation(self, s, p, o):
+        """Add (subject, predicate, object) RDF triple to collection."""
+        if _collection_add_relation(self._coll, s, p, o) != 0:
+            raise DLiteError(f'Error adding relation ({s}, {p}, {o})')
 
-    def get_relations(self, s=None, p=None, o=None):
+    def remove_relations(self, s=None, p=None, o=None):
+        """Remove all relations matching `s`, `p` and `o`."""
+        if _collection_remove_relations(self._coll, s, p, o) < 0:
+            raise DLiteError(
+                f'Error removing relations matching ({s}, {p}, {o})')
+
+    def get_first_relation(self, s=None, p=None, o=None):
+        """Returns the first relation matching `s`, `p` and `o`.
+        None is returned if there are no matching relations."""
+        return _collection_find_first(self._coll, s, p, o)
+
+    def get_instances(self, s=None, p=None, o=None):
         """Returns a generator over all relations matching the given
         values of `s`, `p` and `o`."""
-        itr = self.get_iter()
-        while itr.poll():
-            yield itr.find(s, p, o)
-
-    def get_instances(self):
-        """Returns a generator over all instances in this collection."""
-        itr = self.get_iter()
-        while itr.poll():
-            yield itr.next()
+        return _CollectionIter(self, s=s, p=p, o=o, rettype='I')
 
     def get_labels(self):
-        """Returns a generator over all instances in this collection."""
-        for r in self.get_relations():
-            if r.p == '_has-meta':
-                yield r.s
+        return self.get_subjects(p='_is-a', o='Instance')
 
-  %}
-}
+    def get_relations(self, s=None, p=None, o=None, rettype='T'):
+        """Returns a generator over all relations matching the given
+        values of `s`, `p` and `o`."""
+        return _CollectionIter(self, s=s, p=p, o=o, rettype=rettype)
+
+    def get_subjects(self, s=None, p=None, o=None):
+        """Returns a generator over all subjects of relations matching the
+        given values of `s`, `p` and `o`."""
+        return _CollectionIter(self, s=s, p=p, o=o, rettype='s')
+
+    def get_predicates(self, s=None, p=None, o=None):
+        """Returns a generator over all subjects of relations matching the
+        given values of `s`, `p` and `o`."""
+        return _CollectionIter(self, s=s, p=p, o=o, rettype='p')
+
+    def get_objects(self, s=None, p=None, o=None):
+        """Returns a generator over all subjects of relations matching the
+        given values of `s`, `p` and `o`."""
+        return _CollectionIter(self, s=s, p=p, o=o, rettype='o')
+
+
+def get_collection(id):
+    """Returns a new reference to a collection with given id."""
+    warn("dlite.get_collection() is deprecated.  "
+         "Use dlite.get_instance() instead",
+         DeprecationWarning, stacklevel=2)
+    _coll = _get_collection(id=id)
+    inst = _coll.asinstance()
+    inst.__class__ = Collection
+    return inst
+
+%}

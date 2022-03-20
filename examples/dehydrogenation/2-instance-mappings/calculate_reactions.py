@@ -14,7 +14,7 @@ dlite.python_mapping_plugin_path.append(f'{rootdir}/python-mapping-plugins')
 
 
 # Load collection with atom scale data
-coll = dlite.Collection.create_from_url(f'json://{atomdata}?mode=r#molecules')
+coll = dlite.Collection.from_url(f'json://{atomdata}?mode=r#molecules')
 
 # Define the reaction of interest and calculate the reaction energy
 r = reaction_energy.reaction_energy(coll, reactants={'C2H6': 1},
