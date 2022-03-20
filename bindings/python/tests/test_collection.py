@@ -38,9 +38,9 @@ assert coll.has_id(inst2.uri)
 assert not coll.has_id('non-existing-id')
 
 # Save
-with dlite.Storage('json', str(outdir / 'coll0.json'), 'mode=w') as s:
+with dlite.Storage('json', outdir / 'coll0.json', 'mode=w') as s:
     coll.save(s)
-coll.save('json', str(outdir / 'coll1.json'), 'mode=w')
+coll.save('json', outdir / 'coll1.json', 'mode=w')
 coll.save(f'json://{outdir}/coll2.json?mode=w')
 coll.save(f'json://{outdir}/coll3.json?mode=w', include_instances=False)
 data = []

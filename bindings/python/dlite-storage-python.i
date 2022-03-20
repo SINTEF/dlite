@@ -1,10 +1,16 @@
-/* -*- c -*-  (not really, but good for syntax highlighting) */
+/* -*- Python -*-  (not really, but good for syntax highlighting) */
 
 /* Python-spesific extensions to dlite-storage.i */
 
 %extend _DLiteStorage {
 
   %pythoncode %{
+      # Override default __init__()
+      def __init__(self, driver_or_url, location=None, options=None):
+          loc = str(location) if location else None
+          _dlite.Instance_swiginit(self, _dlite.new_Storage(
+              driver_or_url=driver_or_url, location=loc, options=options))
+
       def __enter__(self):
           return self
 

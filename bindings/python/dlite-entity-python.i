@@ -290,7 +290,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         required if the storage only contains more one instance).
         """
         return Instance(
-            driver=driver, location=location, options=options, id=id,
+            driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
         )
 
@@ -375,9 +375,27 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             "create_from_location() is deprecated, use from_location() "
             "instead.", DeprecationWarning, stacklevel=2)
         return Instance(
-            driver=driver, location=location, options=options, id=id,
+            driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
         )
+
+    def save(self, dest, location=None, options=None):
+        """Saves this instance to url or storage.
+
+        Call signatures:
+          - save(url)
+          - save(driver, location, options=None)
+          - save(storage)
+        """
+        if isinstance(dest, Storage):
+            self.save_to_storage(storage=dest)
+        elif location:
+            with Storage(dest, str(location), options) as storage:
+                storage.save(self)
+        elif isinstance(dest, str):
+            self.save_to_url(dest)
+        else:
+            raise DLiteError('arguments does not match any call signature')
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
