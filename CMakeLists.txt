@@ -521,9 +521,7 @@ endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS "")
-if(WITH_JSON)
-  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/json)
-endif()
+build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/json)
 if(WITH_HDF5)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/hdf5)
 endif()
@@ -677,11 +675,9 @@ add_custom_target(show ${cmd})
 add_subdirectory(src)
 
 # Storage plugins
+add_subdirectory(storages/json)
 if(WITH_HDF5)
   add_subdirectory(storages/hdf5)
-endif()
-if(WITH_JSON)
-  add_subdirectory(storages/json)
 endif()
 if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)

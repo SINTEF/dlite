@@ -121,18 +121,15 @@ MU_TEST(test_instance_set_dimension_sizes)
   int newdims2[] = {2, 1};
 
   mu_check(dlite_instance_set_dimension_sizes(mydata, newdims1) == 0);
-#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", "myentity4.json", "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
-#endif
 
   mu_check(dlite_instance_set_dimension_sizes(mydata, newdims2) == 0);
-#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", "myentity5.json", "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
-#endif
+
   mu_assert_int_eq(1, mydata->_refcount);
   mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
@@ -144,11 +141,11 @@ MU_TEST(test_instance_copy)
   mu_assert_int_eq(1, mydata->_refcount);
   mu_check((inst = dlite_instance_copy(mydata, NULL)));
   mu_assert_int_eq(1, mydata->_refcount);
-#ifdef WITH_JSON
+
   mu_check((s = dlite_storage_open("json", "myentity_copy.json", "mode=w")));
   mu_check(dlite_instance_save(s, inst) == 0);
   mu_check(dlite_storage_close(s) == 0);
-#endif
+
   mu_assert_int_eq(1, mydata->_refcount);
   mu_assert_int_eq(1, inst->_refcount);
   dlite_instance_decref(inst);
@@ -257,11 +254,11 @@ MU_TEST(test_instance_save)
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 #endif
-#ifdef WITH_JSON
+
   mu_check((s = dlite_storage_open("json", jsonfile, "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
-#endif
+
   mu_assert_int_eq(1, mydata->_refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata));
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
@@ -287,7 +284,6 @@ MU_TEST(test_instance_hdf5)
 
 MU_TEST(test_instance_json)
 {
-#ifdef WITH_JSON
   DLiteStorage *s;
   mu_check((s = dlite_storage_open("json", jsonfile, "mode=r")));
   mu_check((mydata3 = dlite_instance_load(s, id)));
@@ -299,18 +295,15 @@ MU_TEST(test_instance_json)
 
   mu_assert_int_eq(1, mydata3->_refcount);
   mu_assert_int_eq(0, dlite_instance_decref(mydata3));
-#endif
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
 MU_TEST(test_instance_load_url)
 {
-#ifdef WITH_JSON
   DLiteInstance *inst;
   mu_check((inst = dlite_instance_load_url("json://myentity.json#mydata")));
   mu_check(0 == dlite_instance_save_url("json://myentity6.json?mode=w", inst));
   mu_assert_int_eq(0, dlite_instance_decref(inst));
-#endif
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
@@ -334,31 +327,26 @@ MU_TEST(test_instance_snprint)
 MU_TEST(test_meta_save)
 {
   DLiteStorage *s;
-#ifdef WITH_JSON
+
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=w")));
   mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
-#endif
 
-#ifdef WITH_JSON
   mu_check((s = dlite_storage_open("json", "MyEntity2.json",
                                    "mode=w;with-uuid=0")));
   mu_check(dlite_meta_save(s, entity) == 0);
   mu_check(dlite_storage_close(s) == 0);
-#endif
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
-
 
   DLiteInstance *schema = dlite_instance_get(DLITE_ENTITY_SCHEMA);
   dlite_instance_save_url("json://entity_schema.json", schema);
-
 }
 
 MU_TEST(test_meta_load)
 {
   DLiteStorage *s;
   DLiteMeta *e, *e2;
-#ifdef WITH_JSON
+
   mu_check((s = dlite_storage_open("json", "MyEntity.json", "mode=r")));
   mu_check((e = dlite_meta_load(s, uri)));
   mu_check(dlite_storage_close(s) == 0);
@@ -383,7 +371,7 @@ MU_TEST(test_meta_load)
 
   dlite_meta_decref(e);
   dlite_meta_decref(e2);
-#endif
+
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 }
 
