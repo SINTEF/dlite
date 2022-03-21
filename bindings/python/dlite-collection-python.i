@@ -101,19 +101,20 @@ class Collection(Instance):
                 Whether to also save all instances referred to by the
                 collection.
         """
+        loc = str(location) if location else None
         if include_instances:
             c = self._coll
             if isinstance(dst, Storage):
                 _collection_save(c, dst)
             elif location:
-                with Storage(dst, location, options) as s:
+                with Storage(dst, loc, options) as s:
                     _collection_save(c, s)
             else:
                 _collection_save_url(c, dst)
         elif isinstance(dst, Storage):
             Instance.save(self, storage=dst)
         else:
-            Instance.save(self, dst, location, options)
+            Instance.save(self, dst, loc, options)
 
     _coll = property(
         lambda self: _get_collection(id=self.uuid),
