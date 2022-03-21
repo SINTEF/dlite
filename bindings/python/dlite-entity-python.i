@@ -395,7 +395,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         elif isinstance(dest, str):
             self.save_to_url(dest)
         else:
-            raise DLiteError('arguments does not match any call signature')
+            raise DLiteError('Arguments do not match any call signature')
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
