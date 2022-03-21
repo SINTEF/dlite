@@ -23,7 +23,8 @@ try:
     yaml_inst1.open(input_path / 'test_meta.yaml')
     inst = yaml_inst1.load('2b10c236-eb00-541a-901c-046c202e52fa')
     print('...Loading metadata ok!')
-    
+
+
     # Test saving YAML metadata
     yaml_inst2 = yaml_mod.yaml()
     yaml_inst2.open('yaml_test_save.yaml', 'mode=w')
@@ -37,29 +38,29 @@ try:
         print('...Saving metadata ok!')
     else:
         raise ValueError('...Saving metadata failed!')
-    
+
     # Test loading YAML data
     yaml_inst3 = yaml_mod.yaml()
     yaml_inst3.open(input_path / 'test_data.yaml')
     inst1 = yaml_inst3.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
     inst2 = yaml_inst3.load('e076a856-e36e-5335-967e-2f2fd153c17d')
     print('...Loading data ok!')
-    
+
     # Test saving YAML data
     yaml_inst4 = yaml_mod.yaml()
-    yaml_inst4.open('yaml_test_save.yaml', 'mode=w')
+    yaml_inst4.open('yaml_test_save2.yaml', 'mode=w')
     yaml_inst4.save(inst1)
     yaml_inst4.save(inst2)
     yaml_inst4.close()
     with open(input_path / 'test_data.yaml', 'r') as orig:
         orig_yaml = orig.read()
-    with open('yaml_test_save.yaml', 'r') as cpy:
+    with open('yaml_test_save2.yaml', 'r') as cpy:
         cpy_yaml = cpy.read()
     if cpy_yaml == orig_yaml:
         print('...Saving data ok!')
     else:
         raise ValueError('...Saving data failed!')
-    
+
     print(f'Test <{thisfile.name}> ran successfully')
 except Exception as err:
     if __name__ == '<run_path>':

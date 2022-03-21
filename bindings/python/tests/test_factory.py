@@ -32,7 +32,7 @@ person2.dlite_inst.save('json', 'persons.json', 'mode=w')
 # Print json-representation of person2 using dlite
 print(person2.dlite_inst.asjson(indent=2))
 
-inst = dlite.Instance.create_from_url('json://persons.json')
+inst = dlite.Instance.from_url('json://persons.json')
 person3 = dlite.instancefactory(Person, inst)
 
 person4 = dlite.objectfactory(person1, meta=person2.dlite_meta)

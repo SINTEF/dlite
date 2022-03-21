@@ -9,11 +9,12 @@ dlite.storage_path.append(f'{thisdir}/*.json')
 dlite.python_mapping_plugin_path.append(f'{thisdir}/python-mapping-plugins')
 
 # Create an instance of Person
-Person = dlite.Instance.create_from_url(f'json:{thisdir}/Person.json?mode=r')
+Person = dlite.Instance.from_url(f'json:{thisdir}/Person.json?mode=r')
 person = Person(dims=[2])
 person.name = 'Neil Armstrong'
 person.age = 39
 person.skills = ['keping the head cold', 'famous quotes']
+#person.incref()
 
 # Map person to an instance of SimplePerson
 simple = dlite.mapping('http://onto-ns.com/meta/0.1/SimplePerson', [person])

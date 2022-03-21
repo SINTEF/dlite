@@ -128,7 +128,7 @@ Property(name, type, dims=None, unit=None, iri=None, description=None)
 
 Property(seq)
     Creates a new property from sequence of 6 strings, corresponding to
-    `name`, `type`, `dims`, `unit`, `iri` and `description`.  Valid
+    `name`, `type`, `dims`, `unit` and `description`.  Valid
     values for `dims` are:
       - '' or '[]': no dimensions
       - '<dim1>, <dim2>': list of dimension names
@@ -141,17 +141,18 @@ struct _DLiteProperty {
   size_t size;
   int ndims;
   char *unit;
-  char *iri;
+  //char *iri;
   char *description;
 };
 
 %extend _DLiteProperty {
   _DLiteProperty(const char *name, const char *type,
                  obj_t *dims=NULL, const char *unit=NULL,
-                 const char *iri=NULL,
+                 //const char *iri=NULL,
                  const char *description=NULL) {
     DLiteType dtype;
     size_t size;
+    const char *iri=NULL;
     if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
     return dlite_swig_create_property(name, dtype, size, dims, unit, iri,
                                       description);
@@ -160,7 +161,7 @@ struct _DLiteProperty {
     free($self->name);
     if ($self->dims) free_str_array($self->dims, $self->ndims);
     if ($self->unit) free($self->unit);
-    if ($self->iri) free($self->iri);
+    //if ($self->iri) free($self->iri);
     if ($self->description) free($self->description);
     free($self);
   }
@@ -240,6 +241,7 @@ Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, l
       - create_from_url(cls, url, metaid=None)
       - create_from_storage(cls, storage, id=None, metaid=None)
       - create_from_location(cls, driver, location, options=None, id=None)
+      - create_from_json(cls, jsoninput, id=None, metaid=None)
       - create_metadata(cls, uri, dimensions, properties, description)
 
       For details, see the documentation for the class methods.
@@ -262,12 +264,15 @@ struct _DLiteInstance {
 
 %extend _DLiteInstance {
   _DLiteInstance(const char *metaid=NULL, int *dims=NULL, int ndims=0,
-		const char *id=NULL, const char *url=NULL, struct _DLiteStorage *storage=NULL,
-    const char *driver=NULL, const char *location=NULL, const char *options=NULL,
-    const char *uri=NULL,
-    struct _DLiteDimension *dimensions=NULL, int ndimensions=0,
-    struct _DLiteProperty *properties=NULL, int nproperties=0,
-    const char *description=NULL) {
+                 const char *id=NULL, const char *url=NULL,
+                 struct _DLiteStorage *storage=NULL,
+                 const char *driver=NULL, const char *location=NULL,
+                 const char *options=NULL,
+                 const char *uri=NULL,
+                 const char *jsoninput=NULL,
+                 struct _DLiteDimension *dimensions=NULL, int ndimensions=0,
+                 struct _DLiteProperty *properties=NULL, int nproperties=0,
+                 const char *description=NULL) {
     if (dims && metaid) {
       DLiteInstance *inst;
       DLiteMeta *meta;
@@ -307,6 +312,10 @@ struct _DLiteInstance {
       if (!(s = dlite_storage_open(driver, location, options))) return NULL;
       inst = dlite_instance_load(s, id);
       dlite_storage_close(s);
+      if (inst) dlite_errclr();
+      return inst;
+    } else if (jsoninput) {
+      DLiteInstance *inst = dlite_json_sscan(jsoninput, id, metaid);
       if (inst) dlite_errclr();
       return inst;
     } else if (uri && dimensions && properties && description){
@@ -502,6 +511,14 @@ Call signatures:
     return dlite_instance_decref($self);
   }
 
+  %feature("docstring",
+           "") tojson;
+  %newobject tojson;
+  char *tojson(int indent=0, int flags=0) {
+    return dlite_json_aprint($self, indent, flags);
+  }
+
+
 };
 
 
@@ -509,10 +526,6 @@ Call signatures:
 /* ----------------
  * Module functions
  * ---------------- */
-//%rename(get_instance) dlite_instance_get_casted;
-//%newobject dlite_instance_get_casted;
-//struct _DLiteInstance *dlite_instance_get_casted(const char *id,
-//                                                 const char *metaid=NULL);
 
 %feature("docstring", "\
 Returns a new reference to instance with given id.
@@ -528,6 +541,7 @@ environment variable).
 It is an error message if the instance cannot be found.
 ") dlite_swig_get_instance;
 %rename(get_instance) dlite_swig_get_instance;
+%newobject dlite_swig_get_instance;
 struct _DLiteInstance *
 dlite_swig_get_instance(const char *id, const char *metaid=NULL,
                         bool check_storages=true);
@@ -557,6 +571,8 @@ obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
 void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
+
+
 
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
 #define BASIC_METADATA_SCHEMA  "http://onto-ns.com/meta/0.1/BasicMetadataSchema"

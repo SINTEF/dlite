@@ -14,7 +14,7 @@ url = 'json://' + thisdir + '/MyEntity.json'
 
 
 # Load metadata (i.e. an instance of meta-metadata) from url
-myentity = Instance.create_from_url(url)
+myentity = Instance.from_url(url)
 print(myentity.uuid)
 
 # Check some properties of the entity
@@ -39,7 +39,7 @@ else:
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
 # interchangable with its uuid
-inst = Instance.create_from_metaid(myentity.uri, [2, 3], 'myid')
+inst = Instance.from_metaid(myentity.uri, [2, 3], 'myid')
 assert inst.dimensions == {'N': 2, 'M': 3}
 assert inst.is_data
 assert not inst.is_meta
@@ -81,7 +81,7 @@ for i in range(len(inst)):
 
 # Check save and load
 inst.save('json://inst.json?mode=w')
-inst2 = Instance.create_from_url('json://inst.json')
+inst2 = Instance.from_url('json://inst.json')
 
 # Check pickling
 s = pickle.dumps(inst)
@@ -127,14 +127,14 @@ assert inst.get_property_as_string('an-int-array') == '[-1, 5, 6]'
 
 
 # Test save
-inst.save('json://yyy.json')
+inst.save('json://yyy.json?mode=w')
 
 try:
     import yaml
 except ImportError:
     pass
 else:
-    inst.save('yaml://yyy.yaml')
+    inst.save('yaml://yyy.yaml?mode=w')
 
 del inst
 del e2
@@ -146,5 +146,5 @@ schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
 schema.save('entity_schema.json?mode=w;arrays=false')
 schema.meta.save('basic_metadata_schema.json?mode=w;arrays=false')
 
-inst = dlite.Instance.create_from_url('json://entity_schema.json')
+inst = dlite.Instance.from_url('json://entity_schema.json')
 assert inst.uri == dlite.ENTITY_SCHEMA

@@ -118,7 +118,7 @@ print(inst)
 
 
 url = 'json://' + os.path.join(thisdir, 'Person.json')
-Person = dlite.Instance.create_from_url(url)
+Person = dlite.Instance.from_url(url)
 
 person = Person([2])
 person.name = 'Ada'

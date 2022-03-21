@@ -23,7 +23,7 @@ try:
     bson_inst1.open(input_path / 'test_meta.bson')
     inst = bson_inst1.load('2b10c236-eb00-541a-901c-046c202e52fa')
     print('...Loading metadata ok!')
-    
+
     # Test saving BSON metadata
     bson_inst2 = bson_mod.bson()
     bson_inst2.open('bson_test_save.bson', 'mode=w')
@@ -37,14 +37,14 @@ try:
         print('...Saving metadata ok!')
     else:
         raise ValueError('...Saving metadata failed!')
-    
+
     # Test loading BSON data
     bson_inst3 = bson_mod.bson()
     bson_inst3.open(input_path / 'test_data.bson')
     inst = bson_inst3.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
     inst2 = bson_inst3.load('e076a856-e36e-5335-967e-2f2fd153c17d')
     print('...Loading data ok!')
-    
+
     # Test saving BSON data
     bson_inst4 = bson_mod.bson()
     bson_inst4.open('bson_test_save.bson', 'mode=w')
@@ -59,7 +59,7 @@ try:
         print('...Saving data ok!')
     else:
         raise ValueError('...Saving data failed!')
-    
+
     print(f'Test <{thisfile.name}> ran successfully')
 except Exception as err:
     if __name__ == '<run_path>':

@@ -9,6 +9,7 @@ thisdir = Path(__file__).parent.absolute()
 rootdir = thisdir.parent
 atomdata = rootdir / '1-simple-workflow' / 'atomscaledata.json'
 dlite.storage_path.append(f'{rootdir}/entities/*.json')
+dlite.mapping_plugin_path.append(f'{rootdir}/python-mapping-plugins')
 
 # URI to DLite metadata
 substance_id = 'http://onto-ns.com/meta/0.1/Substance'

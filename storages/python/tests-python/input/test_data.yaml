@@ -18,9 +18,7 @@
       - - 6
         - 5
         - 4
-    myblob: !!python/object/apply:builtins.bytearray
-    - "\n\x01 "
-    - latin-1
+    myblob: 0a0120
     mydouble: 2.72
     myfixstring: Si
     myshort: 13
@@ -40,9 +38,7 @@ e076a856-e36e-5335-967e-2f2fd153c17d:
     - - - 4
         - 5
         - 6
-    myblob: !!python/object/apply:builtins.bytearray
-    - "\n\0\x10"
-    - latin-1
+    myblob: 0a0010
     mydouble: 3.14
     myfixstring: Al
     myshort: 17

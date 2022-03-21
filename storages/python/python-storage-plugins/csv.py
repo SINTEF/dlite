@@ -135,7 +135,8 @@ def infer_meta(data, metauri, uri):
         type = data.dtypes[i].name
         dims = ['rows']
         unit = infer_prop_unit(col)
-        props.append(dlite.Property(name, type, dims, unit, None, None))
+        props.append(dlite.Property(name=name, type=type, dims=dims,
+                                    unit=unit, description=None))
     descr = f'Inferred metadata for {uri}'
     return dlite.Instance.create_metadata(metauri, dims_, props, descr)
 

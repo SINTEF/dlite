@@ -211,6 +211,7 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
     FAIL1("no such instance: %s", uuid);
 
  fail:
+
   Py_XDECREF(pyuuid);
   Py_XDECREF(outinst);
   Py_XDECREF(insts);
