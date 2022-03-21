@@ -35,8 +35,8 @@ try:
         cpy_bson = cpy.read()
     if cpy_bson == orig_bson:
         print('...Saving metadata ok!')
-    #else:
-    #    raise ValueError('...Saving metadata failed!')
+    else:
+        raise ValueError('...Saving metadata failed!')
 
     # Test loading BSON data
     bson_inst3 = bson_mod.bson()
