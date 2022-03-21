@@ -59,7 +59,6 @@ DLite is released under the MIT license.
 option(WITH_PYTHON      "Whether to build Python 3 bindings"               YES)
 option(WITH_FORTRAN     "Whether to build Fortran bindings"                 NO)
 option(WITH_HDF5        "Whether to build with HDF5 support"               YES)
-option(WITH_JSON        "Whether to build with JSON support"               YES)
 option(WITH_REDLAND     "Whether to build with RDF support (using librdf)" YES)
 option(WITH_THREADS     "Whether to build with threading support"           NO)
 option(WITH_DOC         "Whether to build documentation using doxygen"     YES)
