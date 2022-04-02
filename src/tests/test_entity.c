@@ -6,6 +6,7 @@
 #include "minunit/minunit.h"
 #include "utils/integers.h"
 #include "utils/boolean.h"
+#include "utils/strutils.h"
 #include "dlite.h"
 #include "dlite-entity.h"
 #include "dlite-storage.h"
@@ -45,8 +46,8 @@ MU_TEST(test_meta_create)
     {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  NULL, "descr.."}
   };
 
-  mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, "My test entity.",
-                                                    NULL,
+  mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, NULL,
+                                                    "My test entity.",
                                                     2, dimensions,
                                                     5, properties)));
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
@@ -331,6 +332,46 @@ MU_TEST(test_instance_snprint)
 }
 
 
+/* Write hex encoded hash to string `s`, which must  be at least 65 bytes. */
+static char *gethash(char *s, DLiteInstance *inst)
+{
+  unsigned char buf[32];
+  size_t hashsize = sizeof(buf);
+  dlite_instance_get_hash(inst, buf, hashsize);
+  if (strhex_encode(s, 65, buf, hashsize) < 0) return NULL;
+  return s;
+}
+
+
+MU_TEST(test_instance_get_hash)
+{
+  char *hash;
+  char s[65];
+  DLiteInstance *inst = dlite_instance_get("mydata");
+  mu_check(inst);
+
+  hash = "685c5cf484305b7db0650730e8e9c00bbf18981ffac4e5fc2d8a73250d4b2cef";
+  mu_assert_string_eq(hash, gethash(s, inst));
+
+  // metadata
+  hash = "d4d51d72a4cd9ef7fd8a6071e28cc4309719763273c1b27f6b4cd3409f164466";
+  mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta));
+
+  // metadata schema
+  hash = "b5a9a171e5fc2a66373a5dc9515de4c92c67cd5c45ab314d4dd96c9ee7f60acf";
+  mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta));
+
+  // basic metadata schema
+  hash = "671f5ad7cf0f113c0b006af8a718d3ccf34673038e40a4c7c525871d05013eda";
+  mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta->meta));
+
+  // basic metadata schema
+  mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta->meta->meta));
+
+  dlite_instance_decref(inst);
+}
+
+
 MU_TEST(test_meta_save)
 {
   DLiteStorage *s;
@@ -411,6 +452,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_json);
   MU_RUN_TEST(test_instance_load_url);
   MU_RUN_TEST(test_instance_snprint);
+  MU_RUN_TEST(test_instance_get_hash);
 
   MU_RUN_TEST(test_meta_save);
   MU_RUN_TEST(test_meta_load);

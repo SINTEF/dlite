@@ -973,6 +973,16 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    const void *src,
                                                    DLiteTypeCast castfun);
 
+/**
+  Calculates a hash of instance `inst`.  The calculated hash is stored
+  in `hash`, where `hashsize` is the size of `hash` in bytes.  It should
+  be 32, 48 or 64.
+
+  Return non-zero on error.
+ */
+int dlite_instance_get_hash(const DLiteInstance *inst,
+                            unsigned char *hash, int hashsize);
+
 
 /** @} */
 /* ================================================================= */
