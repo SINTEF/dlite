@@ -27,8 +27,8 @@ DLiteInstance *inst, *data3;
 MU_TEST(test_get_instance_from_in_memory_store)
 {
     char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
-    DLiteStorage* s = NULL;
-    DLiteInstance* inst1, * inst0, *stat = NULL;
+    DLiteStorage *s = NULL;
+    DLiteInstance *inst1, *inst0, *stat = NULL;
     int r, i;
     char** uuids;
     printf("\n--- test_get_instance_from_in_memory_store ---\n");
@@ -60,15 +60,19 @@ MU_TEST(test_get_instance_from_in_memory_store)
     uuids = dlite_istore_get_uuids(&n);
     for (i = 0; i < n; i++) {
         printf("%d: %s\n", i, uuids[i]);
+        free(uuids[i]);
     }
+    free(uuids);
     mu_assert_int_eq(5, n);
+
+    dlite_instance_decref(inst0);
 }
 
 MU_TEST(test_remove_last_instance)
 {
-    char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
-    DLiteStorage* s = NULL;
-    DLiteInstance* inst1, * inst0;
+    char *filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+    DLiteStorage *s = NULL;
+    DLiteInstance *inst1, *inst0;
     int r, stat;
     printf("\n--- test_remove_last_instance ---\n");
 
@@ -121,6 +125,7 @@ MU_TEST(test_load2)
   mu_check(inst2);
   stat = dlite_instance_decref(inst2);
   mu_assert_int_eq(1, stat);  // store
+  dlite_instance_decref(inst2);
 }
 
 MU_TEST(test_load3)
@@ -134,6 +139,7 @@ MU_TEST(test_load3)
   mu_check(inst2);
   stat = dlite_instance_decref(inst2);
   mu_assert_int_eq(1, stat);  // store
+  dlite_instance_decref(inst2);
 }
 
 MU_TEST(test_load4)
@@ -219,7 +225,8 @@ MU_TEST(test_iter)
     DLiteInstance *inst2 = dlite_instance_load(s, uuid);
     mu_check(inst2);
     dlite_json_print(inst2);
-    //dlite_instance_decref(inst2);
+    printf("refcount=%d\n", inst2->_refcount);
+    dlite_instance_decref(inst2);
     n++;
   }
   mu_assert_int_eq(1, r);
@@ -231,6 +238,16 @@ MU_TEST(test_iter)
   mu_assert_int_eq(0, r);
 }
 
+
+MU_TEST(test_free)
+{
+  DLiteInstance *inst2 =
+    dlite_instance_get("204b05b2-4c89-43f4-93db-fd1cb70f54ef");
+  mu_check(inst2);
+  mu_assert_int_eq(2, inst2->_refcount);
+  dlite_instance_decref(inst2);
+  dlite_instance_decref(inst2);
+}
 
 
 
@@ -249,6 +266,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_write);
   MU_RUN_TEST(test_append);
   MU_RUN_TEST(test_iter);
+  MU_RUN_TEST(test_free);
 }
 
 

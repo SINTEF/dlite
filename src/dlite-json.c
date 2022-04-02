@@ -828,6 +828,7 @@ DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
   } else if (root->size) {
     item = root + 2;
   } else {
+    if (flags) *flags = 0;
     return dliteJsonDataFormat;  /* empty root object */
   }
 
@@ -1073,7 +1074,7 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   char uuid[DLITE_UUID_LENGTH+1], *uri=NULL;
   int r;
   DLiteJsonFormat format=-1;
-  DLiteJsonFlag flags;
+  DLiteJsonFlag flags=0;
   char *dots = (len > 30) ? "..." : "";
 
   jsmn_init(&parser);
