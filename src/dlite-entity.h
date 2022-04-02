@@ -196,6 +196,7 @@ typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
                                   /* entity in an ontology. May be */   \
                                   /* NULL. */
 
+
 /**
   Initial segment of all DLite metadata.  With instance we here refer
   to the dataset described by this metadata.
