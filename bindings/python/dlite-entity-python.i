@@ -113,7 +113,6 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
     def __repr__(self):
         dims = ', dims=%r' % self.dims.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
-        #iri = ', iri=%r' % self.iri if self.iri else ''
         descr = ', description=%r' %self.description if self.description else ''
         return 'Property(%r, type=%r%s%s%s)' % (
             self.name, self.type, dims, unit, descr)
@@ -127,8 +126,6 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             d['dims'] = self.dims.tolist()
         if self.unit:
             d['unit'] = self.unit
-        #if self.iri:
-        #    d['iri'] = self.iri
         if self.description:
             d['description'] = self.description
         return d
@@ -137,7 +134,6 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         """Returns a representation of self as a tuple of strings."""
         return (self.name, self.type, ','.join(str(d) for d in self.dims),
                 '' if self.unit is None else self.unit,
-                #'' if self.iri is None else self.iri,
                 '' if self.description is None else self.description)
 
     type = property(get_type, doc='Type name.')
@@ -228,8 +224,6 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         raise ValueError(f'No property "{name}" in "{self.uri}"')
 
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
-    #iri = property(get_iri, set_iri,
-    #               doc="Unique IRI to corresponding concept in an ontology.")
     dimensions = property(
         lambda self: OrderedDict((d.name, int(v))
                                  for d, v in zip(self.meta['dimensions'],

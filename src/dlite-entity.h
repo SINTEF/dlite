@@ -191,10 +191,7 @@ typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
   int _refcount;                  /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
-                                  /* bing this instance. */             \
-  const char *iri;                /* Unique IRI to corresponding */     \
-                                  /* entity in an ontology. May be */   \
-                                  /* NULL. */
+                                  /* bing this instance. */
 
 
 /**
@@ -283,8 +280,6 @@ struct _DLiteProperty {
                            data.  Zero if scalar. */
   char **dims;        /*!< Array of dimension strings.  May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
-  char *iri;          /*!< Unique IRI to corresponding entity in an
-                           ontology. */
   char *description;  /*!< Human described of the described data. */
 };
 
@@ -587,11 +582,6 @@ const char *dlite_instance_get_uuid(const DLiteInstance *inst);
   Returns a pointer to instance URI.
  */
 const char *dlite_instance_get_uri(const DLiteInstance *inst);
-
-/**
-  Returns a pointer to instance IRI.
- */
-const char *dlite_instance_get_iri(const DLiteInstance *inst);
 
 /**
   Returns a pointer to the UUID of the instance metadata.
@@ -988,8 +978,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
   given arguments.  It is an instance of DLITE_ENTITY_SCHEMA.
  */
 DLiteMeta *
-dlite_meta_create(const char *uri, const char *iri,
-                  const char *description,
+dlite_meta_create(const char *uri, const char *description,
                   size_t ndimensions, const DLiteDimension *dimensions,
                   size_t nproperties, const DLiteProperty *properties);
 
@@ -1145,13 +1134,12 @@ void dlite_dimension_free(DLiteDimension *dim);
   It is created with no dimensions.  Use dlite_property_add_dim() to
   add dimensions to the property.
 
-  The arguments `unit`, `iri` and `description` may be NULL.
+  The arguments `unit`, and `description` may be NULL.
 */
 DLiteProperty *dlite_property_create(const char *name,
                                      DLiteType type,
                                      size_t size,
                                      const char *unit,
-                                     const char *iri,
                                      const char *description);
 
 /**
@@ -1261,14 +1249,12 @@ int dlite_property_jscan(const char *src, const jsmntok_t *item,
 /** @{ */
 
 /**
-  Create and return a new empty metadata model.  `iri` is optional and
+  Create and return a new empty metadata model.
   may be NULL.
 
   Returns NULL on error.
  */
-DLiteMetaModel *dlite_metamodel_create(const char *uri,
-                                       const char *metaid,
-                                       const char *iri);
+DLiteMetaModel *dlite_metamodel_create(const char *uri, const char *metaid);
 
 /**
   Frees metadata model.
@@ -1347,7 +1333,6 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
     - name: name of new property
     - typename: type of new property, ex. "string80", "int64", "string",...
     - unit: unit of new type. May be NULL
-    - iri: iri reference to an ontology. May be NULL
     - description: description of property. May be NULL
 
   Use dlite_metamodel_add_property_dim() to add dimensions to the
@@ -1359,7 +1344,6 @@ int dlite_metamodel_add_property(DLiteMetaModel *model,
                                  const char *name,
                                  const char *typename,
                                  const char *unit,
-                                 const char *iri,
                                  const char *description);
 
 /**

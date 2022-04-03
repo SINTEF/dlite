@@ -39,7 +39,6 @@ module DLite
      procedure :: save_url => dlite_instance_save_url
      procedure :: get_uuid => dlite_instance_get_uuid
      procedure :: get_uri => dlite_instance_get_uri
-     procedure :: get_iri => dlite_instance_get_iri          
      procedure :: get_dimension_size => dlite_instance_get_dimension_size
      procedure :: get_dimension_size_by_index => dlite_instance_get_dimension_size_by_index
      procedure :: get_property => dlite_instance_get_property
@@ -176,12 +175,6 @@ module DLite
     type(c_ptr), value, intent(in)                         :: instance
   end function dlite_instance_get_uri_c
 
-  type(c_ptr) function dlite_instance_get_iri_c(instance) &
-      bind(C,name='dlite_instance_get_iri')
-    import c_ptr
-    type(c_ptr), value, intent(in)                         :: instance
-  end function dlite_instance_get_iri_c
-
   integer(c_size_t) function dlite_instance_get_dimension_size_c(instance, name) &
       bind(C,name="dlite_instance_get_dimension_size")
     import c_ptr, c_char, c_size_t
@@ -243,14 +236,12 @@ module DLite
   ! --------------------------------------------------------
   !
   ! DLiteMetaModel *dlite_metamodel_create(const char *uri,
-  !                                        const char *metaid,
-  !                                        const char *iri);
-  type(c_ptr) function dlite_metamodel_create_c(uri, metaid, iri) &
+  !                                        const char *metaid);
+  type(c_ptr) function dlite_metamodel_create_c(uri, metaid) &
     bind(C,name="dlite_metamodel_create")
     import c_char, c_ptr
     character(len=1,kind=c_char), dimension(*), intent(in) :: uri
     character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
-    character(len=1,kind=c_char), dimension(*), intent(in) :: iri
   end function dlite_metamodel_create_c
 
   ! void dlite_metamodel_free(DLiteMetaModel *model);
@@ -285,16 +276,14 @@ module DLite
   !                                  const char *name,
   !                                  const char *typename,
   !                                  const char *unit,
-  !                                  const char *iri,
   !                                  const char *description);
-  integer(c_int) function dlite_metamodel_add_property_c(model, name, typename, unit, iri, description) &
+  integer(c_int) function dlite_metamodel_add_property_c(model, name, typename, unit, description) &
     bind(C,name="dlite_metamodel_add_property")
     import c_int, c_ptr, c_char
     type(c_ptr), value, intent(in)                         :: model
     character(len=1,kind=c_char), dimension(*), intent(in) :: name
     character(len=1,kind=c_char), dimension(*), intent(in) :: typename
     character(len=1,kind=c_char), dimension(*), intent(in) :: unit
-    character(len=1,kind=c_char), dimension(*), intent(in) :: iri
     character(len=1,kind=c_char), dimension(*), intent(in) :: description
   end function dlite_metamodel_add_property_c
 
@@ -434,7 +423,6 @@ contains
     endif
     !instance%uuid =
     !instance%uri =
-    !instance%iri =
   end function dlite_instance_create_from_id
 
   function dlite_instance_load(storage, id) result(instance)
@@ -501,14 +489,6 @@ contains
     cptr = dlite_instance_get_uri_c(instance%cinst)
     call c_f_string(cptr, uri)
   end function dlite_instance_get_uri
-
-  function dlite_instance_get_iri(instance) result(iri)
-    class(DLiteInstance), intent(in) :: instance
-    character(len=256)               :: iri
-    type(c_ptr) :: cptr
-    cptr = dlite_instance_get_iri_c(instance%cinst)
-    call c_f_string(cptr, iri)
-  end function dlite_instance_get_iri
 
   function dlite_instance_get_dimension_size(instance, name) result(n)
     class(DLiteInstance), intent(in) :: instance
@@ -601,26 +581,23 @@ contains
     if (count .le. 0) then
       meta%cptr = c_null_ptr
       count = 0
-    endif    
+    endif
   end function dlite_meta_decref
 
   ! --------------------------------------------------------
   ! Fortran methods for DLiteMetaModel
   ! --------------------------------------------------------
 
-  function dlite_metamodel_create(uri, metaid, iri) result(model)
+  function dlite_metamodel_create(uri, metaid) result(model)
     character(len=*), intent(in) :: uri
     character(len=*), intent(in) :: metaid
-    character(len=*), intent(in) :: iri
     character(len=1,kind=c_char) :: uri_c(len_trim(uri)+1)
     character(len=1,kind=c_char) :: metaid_c(len_trim(metaid)+1)
-    character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
     type(DLiteMetaModel)         :: model
 
     call f_c_string(uri, uri_c)
     call f_c_string(metaid, metaid_c)
-    call f_c_string(iri, iri_c)
-    model%cptr = dlite_metamodel_create_c(uri_c, metaid_c, iri_c)
+    model%cptr = dlite_metamodel_create_c(uri_c, metaid_c)
   end function dlite_metamodel_create
 
   subroutine dlite_metamodel_free(model)
@@ -660,27 +637,24 @@ contains
   end function dlite_metamodel_add_dimension
 
   function dlite_metamodel_add_property(model, name, typename, &
-                                        unit, iri, description) result(status)
+                                        unit, description) result(status)
     class(DLiteMetaModel)        :: model
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: typename
     character(len=*), intent(in) :: unit
-    character(len=*), intent(in) :: iri
     character(len=*), intent(in) :: description
     character(len=1,kind=c_char) :: name_c(len_trim(name)+1)
     character(len=1,kind=c_char) :: typename_c(len_trim(typename)+1)
     character(len=1,kind=c_char) :: unit_c(len_trim(unit)+1)
-    character(len=1,kind=c_char) :: iri_c(len_trim(iri)+1)
     character(len=1,kind=c_char) :: description_c(len_trim(description)+1)
     integer(c_int)                  :: status_c
     integer                      :: status
     call f_c_string(name, name_c)
     call f_c_string(typename, typename_c)
     call f_c_string(unit, unit_c)
-    call f_c_string(iri, iri_c)
     call f_c_string(description, description_c)
     status_c = dlite_metamodel_add_property_c(model%cptr, name_c, typename_c, &
-                                              unit_c, iri_c, description_c)
+                                              unit_c, description_c)
     status = status_c
   end function dlite_metamodel_add_property
 

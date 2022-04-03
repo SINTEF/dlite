@@ -106,11 +106,6 @@ static DLiteProperty {name%u}_properties[] = {{
 {@else}\
     NULL,          {@40}/* unit */
 {@endif}\
-{@if:"{prop.iri}"}\
-    "{prop.iri}",  {@40}/* iri */
-{@else}\
-    NULL,          {@40}/* iri */
-{@endif}\
 {@if:"{prop.descr}"}\
     "{prop.descr}" {@40}/* description */
 {@else}\
@@ -129,11 +124,6 @@ static {basename}Struct {name%u} = {{
   "{_uri}",   {@52}/* _uri */
   1,                        {@52}/* _refcount */
   NULL,                     {@52}/* _meta */
-{@if:"{_iri}"}\
-  "{_iri}",                 {@52}/* _iri */
-{@else}\
-  NULL,                     {@52}/* _iri */
-{@endif}\
 {@if:{ismeta}=1}
   {_ndimensions},           {@52}/* _ndimensions */
   {_nproperties},           {@52}/* _nproperties */
