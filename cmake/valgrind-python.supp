@@ -6,6 +6,7 @@
    dlite-python-singleton
    Memcheck:Leak
    match-leak-kinds: reachable
+   fun:malloc
    ...
    fun:PyRun_StringFlags
    fun:PyRun_SimpleStringFlags

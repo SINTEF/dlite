@@ -509,6 +509,6 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         """Returns a JSON representation of self.  Arguments are passed to
         json.dumps()."""
         return json.dumps(self.asdict(), cls=InstanceEncoder, **kwargs)
-  %}
+%}
 
 }

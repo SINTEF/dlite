@@ -16,11 +16,10 @@ set(tests
   test_schemas
   test_arrays
   )
-if(WITH_JSON)
-  list(APPEND tests test_json_entity)
-  list(APPEND tests test_storage_lookup)
-  list(APPEND tests test_mapping)
-endif()
+
+list(APPEND tests test_json_entity)
+list(APPEND tests test_storage_lookup)
+list(APPEND tests test_mapping)
 if(WITH_HDF5)
   list(APPEND tests test_datamodel)
 endif()

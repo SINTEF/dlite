@@ -59,7 +59,6 @@ DLite is released under the MIT license.
 option(WITH_PYTHON      "Whether to build Python 3 bindings"               YES)
 option(WITH_FORTRAN     "Whether to build Fortran bindings"                 NO)
 option(WITH_HDF5        "Whether to build with HDF5 support"               YES)
-option(WITH_JSON        "Whether to build with JSON support"               YES)
 option(WITH_REDLAND     "Whether to build with RDF support (using librdf)" YES)
 option(WITH_THREADS     "Whether to build with threading support"           NO)
 option(WITH_DOC         "Whether to build documentation using doxygen"     YES)
@@ -328,7 +327,7 @@ set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
 set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
 
 # Must be assigned before including CTest
-set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
+set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite,indirect --errors-for-leak-kinds=definite --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
 
 include(CTest)
 
@@ -521,9 +520,7 @@ endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS "")
-if(WITH_JSON)
-  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/json)
-endif()
+build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/json)
 if(WITH_HDF5)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/hdf5)
 endif()
@@ -677,11 +674,9 @@ add_custom_target(show ${cmd})
 add_subdirectory(src)
 
 # Storage plugins
+add_subdirectory(storages/json)
 if(WITH_HDF5)
   add_subdirectory(storages/hdf5)
-endif()
-if(WITH_JSON)
-  add_subdirectory(storages/json)
 endif()
 if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)

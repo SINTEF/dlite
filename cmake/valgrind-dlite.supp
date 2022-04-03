@@ -26,6 +26,22 @@
 
 
 # ------------------------------------
+# plugin
+# ------------------------------------
+{
+   register-plugin
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:register_plugin
+   fun:plugin_load
+   fun:plugin_get_api
+   fun:dlite_storage_plugin_get
+   fun:dlite_storage_open
+}
+
+
+# ------------------------------------
 # dlopen
 # ------------------------------------
 

@@ -110,6 +110,20 @@ void plugin_info_free(PluginInfo *info);
 
 
 /**
+  Register a plugin `api` not associated to a dynamic loadable library.
+
+  This function may e.g. be useful for registering plugins written in
+  dynamic interpreted languages, like Python.
+ */
+int plugin_register_api(PluginInfo *info, const PluginAPI *api);
+
+
+/**
+  Returns non-zero if plugin api `name` is already registered.
+ */
+int plugin_has_api(PluginInfo *info, const char *name);
+
+/**
   Returns pointer to plugin api.
 
   If a plugin with the given name is already registered, it is returned.
@@ -133,7 +147,6 @@ const PluginAPI *plugin_get_api(PluginInfo *info, const char *name);
   Returns non-zero on error.
  */
 void plugin_load_all(PluginInfo *info);
-
 
 
 /**

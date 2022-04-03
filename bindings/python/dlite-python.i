@@ -407,9 +407,11 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     {
       char *itemptr = PyArray_DATA(arr);
       char *p = *((char **)ptr);
+      size_t len = ((size_t)PyArray_ITEMSIZE(arr) < size) ?
+        (size_t)PyArray_ITEMSIZE(arr) : size;
       memset(p, 0, n*size);
       for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
-        strncpy(p, itemptr, PyArray_ITEMSIZE(arr));
+        strncpy(p, itemptr, len);
         p[size-1] = '\0';  /* ensure NUL-termination */
       }
     }
