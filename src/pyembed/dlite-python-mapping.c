@@ -58,6 +58,9 @@ FUPaths *dlite_python_mapping_paths(void)
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
+
+    /* Be kind with memory leak software and free memory at exit... */
+    atexit(dlite_python_mapping_paths_clear);
   }
 
   return &mapping_paths;
