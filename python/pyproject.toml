@@ -22,7 +22,7 @@ before-build = [
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
 before-test = [
-  "yum update -y && yum install -y rh-postgresql96-postgresql-devel && export PATH=$PATH:/usr/pgsql-9.6/bin",
+  "yum update -y && yum install -y postgresql-devel rh-postgresql96-postgresql-devel && export PATH=$PATH:/usr/pgsql-9.6/bin && which pg_config",
   "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt || python -m pip install --no-cache-dir -U --upgrade-strategy=eager -r {project}/requirements.txt; fi",
 ]
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
