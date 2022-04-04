@@ -21,7 +21,10 @@ before-build = [
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
-before-test = "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && yum update -y && yum install -y libpg-devel && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt || python -m pip install --no-cache-dir -U --upgrade-strategy=eager -r {project}/requirements.txt; fi"
+before-test = [
+  "yum update -y && yum install -y postgresql-devel",
+  "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt || python -m pip install --no-cache-dir -U --upgrade-strategy=eager -r {project}/requirements.txt; fi",
+]
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
