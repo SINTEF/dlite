@@ -38,7 +38,7 @@ Python3_INCLUDE_DIR = "/opt/python/${ABITAG}/include/python${PYVER}${PYABI}"
 CI_BUILD_CMAKE_ARGS = "-DCMAKE_INSTALL_PREFIX=$INSTALLDIR,-DPython3_EXECUTABLE=$Python3_EXECUTABLE,-DPython3_LIBRARY=$Python3_LIBRARY,-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR,-DWITH_STATIC_PYTHON=YES"
 
 [[tool.cibuildwheel.overrides]]
-select = "*-musllinux2010*i686"
+select = "*-musllinux*i686"
 before-test = [
   "cp -f {project}/.github/docker/pgdg-91_i686.repo /etc/yum.repos.d/pgdg-91.repo",
   "yum update -y && yum install -y postgresql91-devel && export PATH=$PATH:/usr/pgsql-9.1/bin && which pg_config",
@@ -46,7 +46,7 @@ before-test = [
 ]
 
 [[tool.cibuildwheel.overrides]]
-select = "*-musllinux2010*x86_64"
+select = "*-musllinux*x86_64"
 before-test = [
   "cp -f {project}/.github/docker/pgdg-91_x86_64.repo /etc/yum.repos.d/pgdg-91.repo",
   "yum update -y && yum install -y postgresql91-devel && export PATH=$PATH:/usr/pgsql-9.1/bin && which pg_config",
