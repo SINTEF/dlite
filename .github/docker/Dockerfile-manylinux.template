@@ -26,6 +26,8 @@ FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
 ARG PY_MINORS="7 8 9 10"
 
+COPY .github/docker/pgdg-91_{{ ARCH }}_$(rpm --eval %{centos_ver})).repo /etc/yum.repos.d/pgdg-91.repo
+
 # Enable rpmfusion for additional packages
 RUN yum update -y && \
   yum localinstall -y \
@@ -38,7 +40,9 @@ RUN yum update -y && \
     swig \
     libcurl-devel \
     libxslt-devel \
-    libxml2-devel && \
+    libxml2-devel \
+    postgresql91-devel && \
+    export PATH=$PATH:/usr/pgsql-9.1/bin && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.

@@ -1,0 +1,6 @@
+[pgdg91]
+name=PostgreSQL 9.1 RPMs for RHEL/CentOS 7
+baseurl=https://yum-archive.postgresql.org/9.1/redhat/rhel-7-x86_64
+enabled=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PGDG
