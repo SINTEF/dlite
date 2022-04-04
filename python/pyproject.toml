@@ -23,7 +23,7 @@ before-build = [
 ]
 before-test = [
   "cp -f {project}/pgdg-91.repo /etc/yum.repos.d/pgdg-91.repo",
-  "yum update -y && yum install -y postgresql91-devel && which pg_config",
+  "yum update -y && yum install -y postgresql91-devel && export PATH=$PATH:/usr/pgsql-9.1/bin && which pg_config",
   "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt || python -m pip install --no-cache-dir -U --upgrade-strategy=eager -r {project}/requirements.txt; fi",
 ]
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
