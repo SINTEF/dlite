@@ -42,8 +42,8 @@ RUN yum update -y && \
     swig \
     libcurl-devel \
     libxslt-devel \
-    libxml2-devel \
-    postgresql91-devel && \
+    libxml2-devel && \
+    if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then yum install -y postgresql91-devel; fi && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
