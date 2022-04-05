@@ -32,18 +32,18 @@ COPY requirements.txt /tmp/requirements.txt
 
 # Enable rpmfusion for additional packages
 RUN yum update -y && \
-  yum localinstall -y \
+  yum localinstall -y --skip-broken \
     https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
   yum install -y \
     redland-devel \
     rasqal-devel \
-    hdf5-devel \
     swig \
     libcurl-devel \
     libxslt-devel \
     libxml2-devel && \
-    if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then yum install -y postgresql91-devel; fi && \
+  if [ "{{ TYPE }}{{ ARCH }}" != "2014i686" ]; then yum install -y hdf5-devel; fi && \
+  if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then yum install -y postgresql91-devel; fi && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
@@ -54,8 +54,8 @@ RUN yum update -y && \
   for minor in ${PY_MINORS}; do \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache -r /tmp/requirements.txt; \
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache -r /tmp/requirements.txt && \
+    python3.${minor} -m pip install -U cmake oldest-supported-numpy; \
   done
 
 {{ EXTRA_POST }}
