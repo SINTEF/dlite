@@ -10,6 +10,7 @@ on:
         type: boolean
         required: false
         default: true
+  pull_request:
 
 env:
   CONTAINER_REGISTRY: ghcr.io
