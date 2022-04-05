@@ -26,7 +26,7 @@ FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
 ARG PY_MINORS="7 8 9 10"
 
-COPY .github/docker/pgdg-91_{{ ARCH }}_$(rpm --eval %{centos_ver})).repo /etc/yum.repos.d/pgdg-91.repo
+{{ EXTRA_PRE }}
 
 # Enable rpmfusion for additional packages
 RUN yum update -y && \
@@ -53,4 +53,4 @@ RUN yum update -y && \
     python3.${minor} -m pip install -U cmake oldest-supported-numpy; \
   done
 
-ENV  PATH=$PATH:/usr/pgsql-9.1/bin
+{{ EXTRA_POST }}
