@@ -21,7 +21,7 @@ before-build = [
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
-before-test = "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt; fi"
+before-test = "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && CACHE_DIR_CI=\"--cache-dir /host${CI_PIP_CACHE_DIR}\"; fi && python -m pip install ${CACHE_DIR_CI} -r {project}/requirements.txt"
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
@@ -37,18 +37,18 @@ Python3_INCLUDE_DIR = "/opt/python/${ABITAG}/include/python${PYVER}${PYABI}"
 
 CI_BUILD_CMAKE_ARGS = "-DCMAKE_INSTALL_PREFIX=$INSTALLDIR,-DPython3_EXECUTABLE=$Python3_EXECUTABLE,-DPython3_LIBRARY=$Python3_LIBRARY,-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR,-DWITH_STATIC_PYTHON=YES"
 
-[[tool.cibuildwheel.overrides]]
-select = "*-manylinux*i686"
-before-test = [
-  "cp -f {project}/.github/docker/pgdg-91_i686_$(rpm --eval %{centos_ver}).repo /etc/yum.repos.d/pgdg-91.repo",
-  "yum update -y && yum install -y postgresql91-devel && export PATH=$PATH:/usr/pgsql-9.1/bin && which pg_config",
-  "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt; fi",
-]
+# [[tool.cibuildwheel.overrides]]
+# select = "*-manylinux*i686"
+# before-test = [
+#   "cp -f {project}/.github/docker/pgdg-91_i686_$(rpm --eval %{centos_ver}).repo /etc/yum.repos.d/pgdg-91.repo",
+#   "yum update -y && yum install -y postgresql91-devel && export PATH=$PATH:/usr/pgsql-9.1/bin && which pg_config",
+#   "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt; fi",
+# ]
 
-[[tool.cibuildwheel.overrides]]
-select = "*-manylinux*x86_64"
-before-test = [
-  "cp -f {project}/.github/docker/pgdg-91_x86_64_$(rpm --eval %{centos_ver}).repo /etc/yum.repos.d/pgdg-91.repo",
-  "yum update -y && yum install -y postgresql91-devel && export PATH=$PATH:/usr/pgsql-9.1/bin && which pg_config",
-  "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt; fi",
-]
+# [[tool.cibuildwheel.overrides]]
+# select = "*-manylinux*x86_64"
+# before-test = [
+#   "cp -f {project}/.github/docker/pgdg-91_x86_64_$(rpm --eval %{centos_ver}).repo /etc/yum.repos.d/pgdg-91.repo",
+#   "yum update -y && yum install -y postgresql91-devel && export PATH=$PATH:/usr/pgsql-9.1/bin && which pg_config",
+#   "if [ -n \"${CI_PIP_CACHE_DIR}\" ]; then mkdir -p /host${CI_PIP_CACHE_DIR} && chown -R root /host${CI_PIP_CACHE_DIR} && python -m pip install --cache-dir /host${CI_PIP_CACHE_DIR} -U --upgrade-strategy=eager -r {project}/requirements.txt; fi",
+# ]

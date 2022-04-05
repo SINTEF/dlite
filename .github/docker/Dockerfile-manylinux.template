@@ -42,7 +42,6 @@ RUN yum update -y && \
     libxslt-devel \
     libxml2-devel \
     postgresql91-devel && \
-    export PATH=$PATH:/usr/pgsql-9.1/bin && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
@@ -53,3 +52,5 @@ RUN yum update -y && \
     python3.${minor} -m pip install -U setuptools wheel && \
     python3.${minor} -m pip install -U cmake oldest-supported-numpy; \
   done
+
+ENV  PATH=$PATH:/usr/pgsql-9.1/bin
