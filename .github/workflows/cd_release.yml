@@ -79,11 +79,10 @@ jobs:
             system_type: ["manylinux", "2010"]
             arch: i686
             py_minors: 7,8,9
-          ## Doesn't seem to be working - cannot build container image for this
-          # - os: ubuntu-20.04
-          #   system_type: ["manylinux", "2014"]
-          #   arch: i686
-          #   py_minors: 7,8,9
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: i686
+            py_minors: 7,8,9
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
