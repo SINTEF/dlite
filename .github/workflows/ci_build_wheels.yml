@@ -29,7 +29,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
-            py_minors: 7,10
+            py_minors: 7,9
 
           # 64-bit linux
           - os: ubuntu-20.04
