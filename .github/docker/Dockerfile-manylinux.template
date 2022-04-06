@@ -54,7 +54,7 @@ RUN yum update -y && \
   for minor in ${PY_MINORS}; do \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache -r /tmp/requirements.txt && \
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements.txt && \
     python3.${minor} -m pip install -U cmake oldest-supported-numpy; \
   done
 
