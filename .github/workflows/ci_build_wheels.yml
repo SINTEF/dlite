@@ -41,10 +41,10 @@ jobs:
             arch: x86_64
             py_minors: 7,10
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_1"]
-            arch: x86_64
-            py_minors: 7,10
+          # - os: ubuntu-20.04
+          #   system_type: ["musllinux", "_1_1"]
+          #   arch: x86_64
+          #   py_minors: 7,10
 
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
           # # 32-bit Windows
