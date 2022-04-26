@@ -80,9 +80,15 @@ inst1b = coll.get('inst1')
 assert inst1b == inst1
 assert inst1b != inst2
 
+# Cannot add an instance with an existing label
+try:
+    coll.add('inst1', inst2)
+except dlite.DLiteError:
+    pass
+else:
+    raise RuntimeError('should not be able to replace an existing instance')
 
-#
-
+coll.add('inst1', inst2, force=True)  # forced replacement
 
 s = str(coll)
 print(coll)
