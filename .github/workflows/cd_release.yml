@@ -1,9 +1,10 @@
 name: CD - Publish a new release
 
 on:
-  release:
-    types:
-    - published
+  # release:
+  #   types:
+  #   - published
+  pull_request:
 
 env:
   PUBLISH_UPDATE_BRANCH: master
@@ -12,64 +13,64 @@ env:
   CONTAINER_REGISTRY: ghcr.io
 
 jobs:
-  update_version:
-    name: Update DLite version and release body
-    runs-on: ubuntu-latest
-    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+  # update_version:
+  #   name: Update DLite version and release body
+  #   runs-on: ubuntu-latest
+  #   if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v3
 
-    - name: Set up git user
-      run: |
-        git config --global user.name "${GIT_USER_NAME}"
-        git config --global user.email "${GIT_USER_EMAIL}"
+  #   - name: Set up git user
+  #     run: |
+  #       git config --global user.name "${GIT_USER_NAME}"
+  #       git config --global user.email "${GIT_USER_EMAIL}"
 
-    - name: Update version and tag
-      run: |
-        sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+  #   - name: Update version and tag
+  #     run: |
+  #       sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
-        git add CMakeLists.txt
-        git commit -m "Release ${GITHUB_REF#refs/tags/}"
+  #       git add CMakeLists.txt
+  #       git commit -m "Release ${GITHUB_REF#refs/tags/}"
 
-        TAG_MSG=.github/utils/release_tag_msg.txt
-        sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
-        git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
+  #       TAG_MSG=.github/utils/release_tag_msg.txt
+  #       sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
+  #       git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
 
-    - name: Update '${{ env.PUBLISH_UPDATE_BRANCH }}'
-      uses: CasperWA/push-protected@v2
-      with:
-        token: ${{ secrets.RELEASE_PAT }}
-        branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
-        sleep: 15
-        force: true
-        tags: true
-        unprotect_reviews: true
+  #   - name: Update '${{ env.PUBLISH_UPDATE_BRANCH }}'
+  #     uses: CasperWA/push-protected@v2
+  #     with:
+  #       token: ${{ secrets.RELEASE_PAT }}
+  #       branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
+  #       sleep: 15
+  #       force: true
+  #       tags: true
+  #       unprotect_reviews: true
 
-    - name: Get tagged versions
-      run: echo "PREVIOUS_VERSION=$(git tag -l --sort -version:refname | sed -n 2p)" >> $GITHUB_ENV
+  #   - name: Get tagged versions
+  #     run: echo "PREVIOUS_VERSION=$(git tag -l --sort -version:refname | sed -n 2p)" >> $GITHUB_ENV
 
-    - name: Create release-specific changelog
-      uses: CharMixer/auto-changelog-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        release_branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
-        since_tag: "${{ env.PREVIOUS_VERSION }}"
-        output: "release_changelog.md"
+  #   - name: Create release-specific changelog
+  #     uses: CharMixer/auto-changelog-action@v1
+  #     with:
+  #       token: ${{ secrets.GITHUB_TOKEN }}
+  #       release_branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
+  #       since_tag: "${{ env.PREVIOUS_VERSION }}"
+  #       output: "release_changelog.md"
 
-    - name: Append changelog to release body
-      run: |
-        gh api /repos/${{ github.repository }}/releases/${{ github.event.release.id }} --jq '.body' > release_body.md
-        cat release_changelog.md >> release_body.md
-        gh api /repos/${{ github.repository }}/releases/${{ github.event.release.id }} -X PATCH -F body='@release_body.md'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Append changelog to release body
+  #     run: |
+  #       gh api /repos/${{ github.repository }}/releases/${{ github.event.release.id }} --jq '.body' > release_body.md
+  #       cat release_changelog.md >> release_body.md
+  #       gh api /repos/${{ github.repository }}/releases/${{ github.event.release.id }} -X PATCH -F body='@release_body.md'
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_wheels:
     name: Build wheels
     runs-on: ${{ matrix.os }}
-    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+    if: github.repository == 'SINTEF/dlite' #&& startsWith(github.ref, 'refs/tags/v')
     strategy:
       fail-fast: false
       matrix:
@@ -123,34 +124,23 @@ jobs:
           #   arch: x86_64
           #   py_minors: 7,8,9,10
 
-    env:
-      CI_PIP_CACHE_DIR: /tmp/pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
-
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
     # And to avoid checking out `master` (should someone push in-between all this),
     # this seems like the most low-tech solution (instead of caching/using artifacts):
     # Change the version in CMakeList.txt and build wheels
-    - name: Update version
-      run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
-      shell: bash  # Enforce bash shell to make `sed` work also on Windows
+    # - name: Update version
+    #   run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+    #   shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
     - name: Set up Python 3
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.x'
-
-    - name: Setup cache (for linux builds)
-      if: startsWith(matrix.os, 'ubuntu')
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.CI_PIP_CACHE_DIR }}
-        key: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-
 
     - name: Login to GitHub Container Registry
       if: startsWith(matrix.os, 'ubuntu')
@@ -178,12 +168,8 @@ jobs:
         CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
         CIBW_MUSLLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_i686:latest
 
-    - name: Fix cache dir owner
-      if: startsWith(matrix.os, 'ubuntu')
-      run: sudo chown -R $USER ${{ env.CI_PIP_CACHE_DIR }}
-
     - name: Store wheels for publishing
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: wheelhouse/*.whl
@@ -191,22 +177,22 @@ jobs:
   build_sdist:
     name: Build sdist
     runs-on: ubuntu-latest
-    if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
+    if: github.repository == 'SINTEF/dlite' #&& startsWith(github.ref, 'refs/tags/v')
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
     # And to avoid checking out `master` (should someone push in-between all this),
     # this seems like the most low-tech solution (instead of caching/using artifacts):
     # Change the version in CMakeList.txt and build wheels
-    - name: Update version
-      run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
+    # - name: Update version
+    #   run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
     - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: "3.9"
 
@@ -225,7 +211,7 @@ jobs:
       run: python -m build --no-isolation --sdist python
 
     - name: Store sdist for publishing
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: sdist
         path: python/dist/*
@@ -237,7 +223,7 @@ jobs:
 
     steps:
     - name: Retrieve wheels and sdist
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         path: dist
 
@@ -255,8 +241,8 @@ jobs:
     #     user: __token__
     #     password: ${{ secrets.TEST_PYPI_TOKEN }}
 
-    - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.5.0
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_TOKEN }}
+    # - name: Publish package to PyPI
+    #   uses: pypa/gh-action-pypi-publish@v1.5.0
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_TOKEN }}
