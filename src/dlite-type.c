@@ -16,6 +16,7 @@
 #include "utils/strtob.h"
 #include "utils/strutils.h"
 #include "utils/jsmnx.h"
+#include "utils/uuid.h"
 
 #include "dlite-entity.h"
 #include "dlite-macros.h"
@@ -31,7 +32,7 @@ static char *dtype_names[] = {
   "float",
   "fixstring",
   "string",
-
+  "ref",
   "dimension",
   "property",
   "relation",
@@ -46,7 +47,7 @@ static char *dtype_enum_names[] = {
   "dliteFloat",
   "dliteFixString",
   "dliteStringPtr",
-
+  "dliteRef",
   "dliteDimension",
   "dliteProperty",
   "dliteRelation",
@@ -86,6 +87,7 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
+  {"ref",      dliteRef,       sizeof(DLiteInstance *),alignof(DLiteInstance *)},
 
   {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
   {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
@@ -94,6 +96,20 @@ static struct _TypeDescr {
   {NULL,       0,              0,                     0}
 };
 
+
+/*
+  Help function that return non-zero if `dtypename` is "ref" or
+  corresponds to an valid metadata URL or UUID.
+*/
+static int is_metaref(const char *dtypename)
+{
+  if ((strncmp(dtypename, "http://", 7) == 0 ||
+       strncmp(dtypename, "https://", 8) == 0 ||
+       strncmp(dtypename, "ftp://", 6) == 0) &&
+      dlite_split_meta_uri(dtypename, NULL, NULL, NULL) == 0) return 1;
+  if (uuid_from_string(NULL, dtypename, 0) == 0) return 1;
+  return 0;
+}
 
 
 /*
@@ -124,6 +140,10 @@ DLiteType dlite_type_get_dtype(const char *dtypename)
   int i, N=sizeof(dtype_names) / sizeof(char *);
   for (i=0; i<N; i++)
     if (strcmp(dtypename, dtype_names[i]) == 0) return i;
+
+  /* dliteRef is a special case... */
+  if (is_metaref(dtypename)) return dliteRef;
+
   return -1;
 }
 
@@ -161,6 +181,12 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
       return errx(1, "string should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(char *), (unsigned long)size);
     snprintf(typename, n, "string");
+    break;
+  case dliteRef:
+    if (size != sizeof(DLiteInstance *))
+      return errx(1, "string should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(DLiteInstance *), (unsigned long)size);
+    snprintf(typename, n, "ref");
     break;
   case dliteDimension:
     snprintf(typename, n, "dimension");
@@ -207,6 +233,9 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
     snprintf(ftype, n, "character(len=%lu)", (unsigned long)size-1);
     break;
   case dliteStringPtr:
+    snprintf(ftype, n, "character(*)");
+    break;
+  case dliteRef:
     snprintf(ftype, n, "character(*)");
     break;
   case dliteDimension:
@@ -306,6 +335,9 @@ int dlite_type_set_isoctype(DLiteType dtype, size_t size,
   case dliteStringPtr:
     snprintf(isoctype, n, "character(kind=c_char)");
     break;
+  case dliteRef:
+    snprintf(isoctype, n, "type(c_ptr)");
+    break;
   case dliteDimension:
     snprintf(isoctype, n, "type(c_ptr)");
     break;
@@ -388,6 +420,12 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
                   (unsigned long)sizeof(char *), (unsigned long)size);
     m = snprintf(pcdecl, n, "char *%s%s", ref, name);
     break;
+  case dliteRef:
+    if (size != sizeof(DLiteInstance *))
+      return errx(-1, "DLiteRef should have size %lu, but %lu was provided",
+                  (unsigned long)sizeof(DLiteInstance *), (unsigned long)size);
+    m = snprintf(pcdecl, n, "char *%s%s", ref, name);
+    break;
   case dliteDimension:
     if (size != sizeof(DLiteDimension))
       return errx(-1, "DLiteDimension must have size %lu, got %lu",
@@ -438,6 +476,13 @@ int dlite_type_set_dtype_and_size(const char *typename,
   size_t len=0, namelen, typesize;
   char *endptr;
 
+  /* Handle dliteRef especially... */
+  if (is_metaref(typename)) {
+    *dtype = dliteRef;
+    *size = sizeof(DLiteInstance *);
+    return 0;
+  }
+
   while (isalpha(typename[len])) len++;
   namelen = len;
   while (isdigit(typename[len])) len++;
@@ -486,6 +531,7 @@ int dlite_type_is_allocated(DLiteType dtype)
   case dliteUInt:
   case dliteFloat:
   case dliteFixString:
+  case dliteRef:
     return 0;
   case dliteStringPtr:
   case dliteDimension:
@@ -511,6 +557,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
   case dliteUInt:
   case dliteFloat:
   case dliteFixString:
+  case dliteRef:
     memcpy(dest, src, size);
     break;
   case dliteStringPtr:
@@ -586,6 +633,7 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
   case dliteUInt:
   case dliteFloat:
   case dliteFixString:
+  case dliteRef:
     break;
   case dliteStringPtr:
     free(*((char **)p));
@@ -750,6 +798,10 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     } else {
       m = snprintf(dest, n, "%*.*s", w, r, "null");
     }
+    break;
+
+  case dliteRef:
+    m = strnquote(dest, n, ((DLiteInstance *)p)->uuid, size, qflags);
     break;
 
   case dliteDimension:
@@ -984,6 +1036,17 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       n = strunquote(q, n+1, src, NULL, qflags);
       assert(n >= 0);
       *(char **)p = q;
+    }
+    break;
+
+  case dliteRef:
+    {
+      char buf[128];
+      switch (strnunquote(buf, sizeof(buf), src, len, &m, qflags)) {
+      case -1: return errx(-1, "expected initial double quote around string");
+      case -2: return errx(-1, "expected final double quote around string");
+      }
+      if (!(p = dlite_instance_get(buf))) return -1;
     }
     break;
 

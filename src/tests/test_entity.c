@@ -37,12 +37,12 @@ MU_TEST(test_meta_create)
     {"N", "Length of dimension N."}
   };
   DLiteProperty properties[] = {
-    /* name           type            size         ndims dims   unit descr */
-    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  "..."},
-    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", ""},
-    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", "descr.."},
-    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  "descr.."},
-    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "descr.."}
+    /* name           type            size            ref ndims dims   unit descr */
+    {"a-string",      dliteStringPtr, sizeof(char *), NULL, 0, NULL,  "",  "..."},
+    {"a-float",       dliteFloat,     sizeof(float),  NULL, 0, NULL,  "m", ""},
+    {"an-int-arr",    dliteInt,       sizeof(int),    NULL, 2, dims0, "#", "descr.."},
+    {"a-string-arr",  dliteStringPtr, sizeof(char *), NULL, 1, dims1, "",  "descr.."},
+    {"a-string3-arr", dliteFixString, 3,              NULL, 1, dims2, "",  "descr.."}
   };
 
   mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, "My test entity.",

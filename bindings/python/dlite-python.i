@@ -138,6 +138,7 @@ int npy_type(DLiteType type, size_t size)
 
        We therefore fall back to NPY_STRING, which is simple ASCII. */
     return NPY_STRING;
+  case dliteRef:
   case dliteStringPtr:
   case dliteDimension:
   case dliteProperty:
@@ -663,25 +664,6 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (n != (int)size)
         FAIL2("cannot read Python blob of size %d into buffer of size %d",
               n, (int)size);
-      // xxx
-      /*
-      size_t n;
-      PyObject *bytes = PyObject_Bytes(obj);
-      if (!bytes) {
-        //xxx
-        FAIL("cannot convert object to bytes");
-      }
-      assert(PyBytes_Check(bytes));
-      n = PyBytes_Size(bytes);
-      if (n > size) {
-        Py_DECREF(bytes);
-        FAIL2("Length of bytearray is %lu. Exceeds size of blob: %lu",
-              (unsigned long)n, (unsigned long)size);
-      }
-      memset(ptr, 0, size);
-      memcpy(ptr, PyBytes_AsString(bytes), n);
-      Py_DECREF(bytes);
-      */
     }
     break;
 
@@ -794,6 +776,10 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       Py_DECREF(str);
     }
     break;
+
+  //case dliteRef:
+  //  {
+  //  }
 
   case dliteDimension:
     {

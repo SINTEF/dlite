@@ -23,6 +23,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "name",                                    /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -32,6 +33,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "version",                                 /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -41,6 +43,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "namespace",                               /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -50,6 +53,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "description",                             /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -59,6 +63,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "dimensions",                              /* name */
    dliteDimension,                            /* type */
    sizeof(DLiteDimension),                    /* size */
+   NULL,                                      /* ref */
    1,                                         /* ndims */
    basic_metadata_schema_prop_dimensions_dims,/* dims */
    NULL,                                      /* unit */
@@ -68,6 +73,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "properties",                              /* name */
    dliteProperty,                             /* type */
    sizeof(DLiteProperty),                     /* size */
+   NULL,                                      /* ref */
    1,                                         /* ndims */
    basic_metadata_schema_prop_properties_dims,/* dims */
    NULL,                                      /* unit */
@@ -77,6 +83,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    "relations",                               /* name */
    dliteRelation,                             /* type */
    sizeof(DLiteRelation),                     /* size */
+   NULL,                                      /* ref */
    1,                                         /* ndims */
    basic_metadata_schema_prop_relations_dims, /* dims */
    NULL,                                      /* unit */
@@ -181,6 +188,7 @@ static DLiteProperty entity_schema_properties[] = {
    "name",                                    /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -190,6 +198,7 @@ static DLiteProperty entity_schema_properties[] = {
    "version",                                 /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -199,6 +208,7 @@ static DLiteProperty entity_schema_properties[] = {
    "namespace",                               /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -208,6 +218,7 @@ static DLiteProperty entity_schema_properties[] = {
    "description",                             /* name */
    dliteStringPtr,                            /* type */
    sizeof(char *),                            /* size */
+   NULL,                                      /* ref */
    0,                                         /* ndims */
    NULL,                                      /* dims */
    NULL,                                      /* unit */
@@ -217,6 +228,7 @@ static DLiteProperty entity_schema_properties[] = {
    "dimensions",                              /* name */
    dliteDimension,                            /* type */
    sizeof(DLiteDimension),                    /* size */
+   NULL,                                      /* ref */
    1,                                         /* ndims */
    entity_schema_prop_dimensions_dims,        /* dims */
    NULL,                                      /* unit */
@@ -226,6 +238,7 @@ static DLiteProperty entity_schema_properties[] = {
    "properties",                              /* name */
    dliteProperty,                             /* type */
    sizeof(DLiteProperty),                     /* size */
+   NULL,                                      /* ref */
    1,                                         /* ndims */
    entity_schema_prop_properties_dims,        /* dims */
    NULL,                                      /* unit */
@@ -321,13 +334,14 @@ static DLiteDimension collection_entity_dimensions[] = {
 static char *collection_entity_prop_relations_dims[] = {"nrelations"};
 static DLiteProperty collection_entity_properties[] = {
   {
-  "relations",                               /* name */
-  dliteRelation,                             /* type */
-  sizeof(DLiteRelation),                     /* size */
-  1,                                         /* ndims */
-  collection_entity_prop_relations_dims,     /* dims */
-  NULL,                                      /* unit */
-  "Array of relations (s-p-o triples)."      /* description */
+    "relations",                               /* name */
+    dliteRelation,                             /* type */
+    sizeof(DLiteRelation),                     /* size */
+    NULL,                                      /* ref */
+    1,                                         /* ndims */
+    collection_entity_prop_relations_dims,     /* dims */
+    NULL,                                      /* unit */
+    "Array of relations (s-p-o triples)."      /* description */
   }
 };
 static struct _CollectionEntity {

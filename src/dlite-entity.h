@@ -267,15 +267,12 @@ struct _DLiteDimension {
 
 /**
   DLite property
-
-  E.g. if we have dimensions ["M", "N"] and dims is [1, 1, 0], it
-  means that the data described by this property has dimensions
-  ["N", "N", "M"].
 */
 struct _DLiteProperty {
   char *name;         /*!< Name of this property. */
   DLiteType type;     /*!< Type of the described data. */
   size_t size;        /*!< Size of one data element. */
+  char *ref;          /*!< Reference to metadata URI for type=dliteRef. */
   int ndims;          /*!< Number of dimension of the described
                            data.  Zero if scalar. */
   char **dims;        /*!< Array of dimension strings.  May be NULL. */
@@ -501,7 +498,7 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages);
   storage plugin path (initiated from the DLITE_STORAGES environment
   variable).
 
-  It is an error message if the instance cannot be found.
+  It is an error if the instance cannot be found.
 */
 DLiteInstance *dlite_instance_get(const char *id);
 
