@@ -23,6 +23,8 @@
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
+COPY requirements.txt /tmp/requirements.txt
+
 RUN apk add -u \
   redland \
   rasqal \
@@ -32,9 +34,11 @@ RUN apk add -u \
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
   cd /opt/_internal && \
-  tar -Jxvf static-libs-for-embedding-only.tar.xz  && \
+  tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  mkdir -p /ci/pip_cache && \
   for minor in 7 8 9 10; do \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U cmake oldest-supported-numpy; \
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
+    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements.txt; \
   done

@@ -5,12 +5,6 @@ on:
     branches:
       - master
   workflow_dispatch:
-    inputs:
-      use_cache:
-        description: Use GH Actions cache (for `pip` when testing)
-        type: boolean
-        required: false
-        default: true
 
 env:
   container_registry: ghcr.io
@@ -28,15 +22,14 @@ jobs:
             system_type: ["manylinux", "2010"]
             arch: i686
             py_minors: 7,9
-          ## Doesn't seem to be working - cannot build image for this
-          # - os: ubuntu-20.04
-          #   system_type: ["manylinux", "2014"]
-          #   arch: i686
-          #   py_minors: 7,9
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: i686
+            py_minors: 7,9
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
-            py_minors: 7,10
+            py_minors: 7,9
 
           # 64-bit linux
           - os: ubuntu-20.04
@@ -73,23 +66,12 @@ jobs:
           #   arch: x86_64
           #   py_minors: 7,10
 
-    env:
-      CI_PIP_CACHE_DIR: /tmp/pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}_${{ matrix.arch }}
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: '3.x'
-
-      - name: Setup cache (for linux builds)
-        if: (github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)) && contains(matrix.system_type[0], 'linux')
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.CI_PIP_CACHE_DIR }}
-          key: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: pip-cache-${{ matrix.system_type[0] }}${{ matrix.system_type[1] }}-${{ matrix.arch }}-
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
@@ -116,7 +98,3 @@ jobs:
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
-
-      - name: Fix cache dir owner
-        if: (github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)) && contains(matrix.system_type[0], 'linux')
-        run: sudo chown -R $USER ${{ env.CI_PIP_CACHE_DIR }}

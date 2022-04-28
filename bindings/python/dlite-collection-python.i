@@ -146,8 +146,12 @@ class Collection(Instance):
     def __contains__(self, label):
         return self.has(label)
 
-    def add(self, label, inst):
-        """Add `inst` to collection with given label."""
+    def add(self, label, inst, force=False):
+        """Add `inst` to collection with given label.
+        If `force` is true, a possible existing instance will be replaced.
+        """
+        if force and self.has(label):
+            self.remove(label)
         _collection_add(self._coll, label, inst)
 
     def remove(self, label):
