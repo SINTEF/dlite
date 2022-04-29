@@ -215,9 +215,9 @@ MU_TEST(test_print)
                                        sizeof(char *), -1, -1, 0));
   mu_assert_string_eq("null", buf);
 
-  mu_assert_int_eq(38, dlite_type_print(buf, sizeof(buf), &inst, dliteRef,
+  mu_assert_int_eq(36, dlite_type_print(buf, sizeof(buf), &inst, dliteRef,
                                         sizeof(DLiteInstance *), -1, -1, 0));
-  mu_assert_string_eq("\"46a67765-3d8b-5764-9583-3aec59a17983\"", buf);
+  mu_assert_string_eq("46a67765-3d8b-5764-9583-3aec59a17983", buf);
 
   n = dlite_type_aprint(&ptr, &size, 0, &q, dliteStringPtr, sizeof(char **),
                         -1, -1, dliteFlagQuoted);
@@ -355,7 +355,8 @@ MU_TEST(test_scan)
   mu_assert_string_eq("123456789", buf);
 
   /* string */
-  n = dlite_type_scan(" \"3.14\" ", -1, &s, dliteStringPtr, sizeof(char **),0);
+  n = dlite_type_scan(" \"3.14\" ", -1, &s, dliteStringPtr, sizeof(char **),
+                      dliteFlagQuoted);
   mu_assert_int_eq(7, n);
   mu_assert_string_eq("3.14", s);
   free(s);
@@ -370,7 +371,7 @@ MU_TEST(test_scan)
   mu_assert_ptr_eq(NULL, inst2);
 
   n = dlite_type_scan("\"d04b56b9-d451-5c87-b34e-1b6fe96a9ade\"", -1, &inst2,
-                      dliteRef, sizeof(DLiteInstance **), 0);
+                      dliteRef, sizeof(DLiteInstance **), dliteFlagQuoted);
   mu_assert_int_eq(38, n);
   mu_assert_ptr_eq(inst, inst2);
 

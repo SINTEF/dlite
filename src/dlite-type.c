@@ -677,20 +677,12 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
  */
 static StrquoteFlags as_qflags(DLiteType dtype, DLiteTypeFlag flags)
 {
+  UNUSED(dtype);
   int flg=0;
-  switch (dtype) {
-  case dliteFixString:
-  case dliteStringPtr:
-  case dliteRef:
-    flg |= 0;
-    break;
-  default:
-    flg |= strquoteNoQuote;
-    break;
-  }
-  if (flags & dliteFlagRaw)    flg |= strquoteRaw | strquoteNoEscape;
-  if (flags & dliteFlagQuoted) flg &= ~strquoteNoQuote;
-  if (flags & dliteFlagStrip)  flg |= 0;
+  if (flags == dliteFlagDefault) return strquoteRaw;
+  if (flags & dliteFlagRaw)    flg |= strquoteRaw;
+  if (flags & dliteFlagQuoted) flg |= 0;
+  if (flags & dliteFlagStrip)  flg |= strquoteNoQuote | strquoteNoEscape;
   return flg;
 }
 
@@ -1068,8 +1060,8 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         m += n+4;
       } else {
         switch((n = strnunquote(NULL, 0, src, len, &m, qflags))) {
-        case -1: return errx(-1, "expected initial double quote on string");
-        case -2: return errx(-1, "expected final double quote on string");
+        case -1: return errx(-1, "expected initial double quote around ref");
+        case -2: return errx(-1, "expected final double quote around ref");
         }
         assert(n >= 0);
         if (!(q = malloc(n+1))) return err(-1, "allocation failure");
