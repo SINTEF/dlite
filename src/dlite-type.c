@@ -87,8 +87,7 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
-  {"ref",      dliteRef,       sizeof(DLiteInstance *),alignof(DLiteInstance *)},
-
+  {"ref",      dliteRef,       sizeof(DLiteInstance*),alignof(DLiteInstance*)},
   {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
   {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
   {"relation", dliteRelation,  sizeof(DLiteRelation), alignof(DLiteRelation)},
@@ -236,7 +235,7 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
     snprintf(ftype, n, "character(*)");
     break;
   case dliteRef:
-    snprintf(ftype, n, "character(*)");
+    snprintf(ftype, n, "type(DLiteInstance)");
     break;
   case dliteDimension:
     snprintf(ftype, n, "type(DLiteDimension)");
@@ -424,7 +423,7 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
     if (size != sizeof(DLiteInstance *))
       return errx(-1, "DLiteRef should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(DLiteInstance *), (unsigned long)size);
-    m = snprintf(pcdecl, n, "char *%s%s", ref, name);
+    m = snprintf(pcdecl, n, "DLiteInstance *%s%s", ref, name);
     break;
   case dliteDimension:
     if (size != sizeof(DLiteDimension))
@@ -501,8 +500,13 @@ int dlite_type_set_dtype_and_size(const char *typename,
   }
 
   /* Type is not in the type table - it must have a explicit size */
-  if (len == namelen)
-    return errx(1, "explicit length is expected for type name: %s", typename);
+  if (len == namelen) {
+    if (strncmp(typename, "blob", namelen) == 0)
+      return errx(1, "explicit length is expected for type name: %s",
+                  typename);
+    else
+      return errx(1, "unknown type: %s", typename);
+  }
 
   /* extract size from `typename` */
   typesize = strtol(typename + namelen, &endptr, 10);
@@ -633,10 +637,12 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
   case dliteUInt:
   case dliteFloat:
   case dliteFixString:
-  case dliteRef:
     break;
   case dliteStringPtr:
     free(*((char **)p));
+    break;
+  case dliteRef:
+    if (*(DLiteInstance **)p) dlite_instance_decref(*(DLiteInstance **)p);
     break;
   case dliteDimension:
     free(((DLiteDimension *)p)->name);
@@ -669,13 +675,22 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
 /*
   Return a StrquoteFlags corresponding to `flags`.
  */
-static StrquoteFlags as_qflags(DLiteTypeFlag flags)
+static StrquoteFlags as_qflags(DLiteType dtype, DLiteTypeFlag flags)
 {
   int flg=0;
-  if (flags == dliteFlagDefault) return strquoteRaw;
-  if (flags & dliteFlagRaw)    flg |= strquoteRaw;
-  if (flags & dliteFlagQuoted) flg |= 0;
-  if (flags & dliteFlagStrip)  flg |= strquoteNoQuote | strquoteNoEscape;
+  switch (dtype) {
+  case dliteFixString:
+  case dliteStringPtr:
+  case dliteRef:
+    flg |= 0;
+    break;
+  default:
+    flg |= strquoteNoQuote;
+    break;
+  }
+  if (flags & dliteFlagRaw)    flg |= strquoteRaw | strquoteNoEscape;
+  if (flags & dliteFlagQuoted) flg &= ~strquoteNoQuote;
+  if (flags & dliteFlagStrip)  flg |= 0;
   return flg;
 }
 
@@ -703,7 +718,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
 {
   int m=0, w=width, r=prec;
   size_t i;
-  StrquoteFlags qflags = as_qflags(flags);
+  StrquoteFlags qflags = as_qflags(dtype, flags);
   switch (dtype) {
 
   case dliteBlob:
@@ -801,7 +816,11 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     break;
 
   case dliteRef:
-    m = strnquote(dest, n, ((DLiteInstance *)p)->uuid, size, qflags);
+    if (*(DLiteInstance **)p)
+      m = strnquote(dest, n, (*((DLiteInstance **)p))->uuid, DLITE_UUID_LENGTH,
+                    qflags);
+    else
+      m = snprintf(dest, n, "%*.*s", w, r, "null");
     break;
 
   case dliteDimension:
@@ -892,7 +911,7 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 
 /* Maximum number of jsmn tokens in a dimension, property and relation */
 #define MAX_DIMENSION_TOKENS  5
-#define MAX_PROPERTY_TOKENS  64  // this supports up to 53 dimensions...
+#define MAX_PROPERTY_TOKENS  64  // this supports at least 52 dimensions...
 #define MAX_RELATION_TOKENS   9
 
 /*
@@ -911,7 +930,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
   size_t i;
   int m=0, v;
   char *endptr;
-  StrquoteFlags qflags = as_qflags(flags);
+  StrquoteFlags qflags = as_qflags(dtype, flags);
   switch(dtype) {
 
   case dliteBlob:
@@ -1041,12 +1060,26 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
   case dliteRef:
     {
-      char buf[128];
-      switch (strnunquote(buf, sizeof(buf), src, len, &m, qflags)) {
-      case -1: return errx(-1, "expected initial double quote around string");
-      case -2: return errx(-1, "expected final double quote around string");
+      char *q=NULL;
+      int n, n2;
+      DLiteInstance *inst=NULL;
+      n = strspn(src, " \t\n");
+      if (strncmp(src+n, "null", 4) == 0) {
+        m += n+4;
+      } else {
+        switch((n = strnunquote(NULL, 0, src, len, &m, qflags))) {
+        case -1: return errx(-1, "expected initial double quote on string");
+        case -2: return errx(-1, "expected final double quote on string");
+        }
+        assert(n >= 0);
+        if (!(q = malloc(n+1))) return err(-1, "allocation failure");
+        n2 = strunquote(q, n+1, src, NULL, qflags);
+        assert(n2 == n);
+        inst = dlite_instance_get(q);
+        free(q);
+        if (!inst) return -1;
       }
-      if (!(p = dlite_instance_get(buf))) return -1;
+      *(DLiteInstance **)p = inst;
     }
     break;
 

@@ -13,6 +13,7 @@
 #include "strutils.h"
 #include "dlite.h"
 #include "dlite-python-singletons.h"
+#include "dlite-pyembed.h"
 
 #define DLITE_INSTANCE_CAPSULE_NAME ((char *)"dlite.Instance")
 #define DLITE_DATA_CAPSULE_NAME ((char *)"dlite.data")
@@ -173,10 +174,10 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
     dtype->elsize = (int)size;
     break;
   case dliteStringPtr:
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    //assert(dtype->elsize == 0);
     assert(dtype->elsize == 0 || sizeof(void *));
     break;
   }
@@ -273,6 +274,7 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
   switch (type) {
 
   case dliteStringPtr:
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
@@ -442,6 +444,7 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     }
     break;
 
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
@@ -506,6 +509,10 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
               size);
     break;
   case dliteStringPtr:
+  case dliteRef:
+  case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
     if (dlite_swig_set_array(&ptr, ndims, dims, type, size, (obj_t *)arr))
       goto fail;
     break;
@@ -614,10 +621,9 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     }
     break;
 
-  case dliteRelation:
-    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
-                                   SWIGTYPE_p__Triple, 0)))
-      FAIL("cannot create relation");
+  case dliteRef:
+    DLiteInstance *inst = *(DLiteInstance **)data;
+    if (!(obj = dlite_pyembed_from_instance(inst->uuid))) goto fail;
     break;
 
   case dliteDimension:
@@ -630,6 +636,12 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
                                    SWIGTYPE_p__DLiteProperty, 0)))
       FAIL("cannot create property");
+    break;
+
+  case dliteRelation:
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__Triple, 0)))
+      FAIL("cannot create relation");
     break;
 
   default:
@@ -777,9 +789,13 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
     }
     break;
 
-  //case dliteRef:
-  //  {
-  //  }
+  case dliteRef:
+    {
+      DLiteInstance **q = ptr;
+      if (*q) dlite_instance_decref(*q);
+      *q = dlite_pyembed_get_instance(obj);
+    }
+    break;
 
   case dliteDimension:
     {

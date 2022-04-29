@@ -202,6 +202,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     DLiteProperty *p = m->_properties + i;
     const char *type = dlite_type_get_dtypename(p->type);
     const char *dtype = dlite_type_get_enum_name(p->type);
+    char *ref = (p->ref) ? p->ref : "NULL";
     char *unit = (p->unit) ? p->unit : "";
     char *descr = (p->description) ? p->description : "";
     size_t nref = (p->ndims > 0) ? 1 : 0;
@@ -222,6 +223,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&psubs, "prop.ftype",    ftype,    NULL);
     tgen_subs_set(&psubs, "prop.isoctype", isoctype, NULL);
     tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,   NULL);
+    tgen_subs_set(&psubs, "prop.ref",      ref,      NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
     tgen_subs_set(&psubs, "prop.descr",    descr,    NULL);
     tgen_subs_set(&psubs, "prop.dims",     NULL,     list_dims);

@@ -96,10 +96,10 @@ typedef enum _DLiteType {
   dliteFloat,            /*!< Floating point */
   dliteFixString,        /*!< Fix-sized NUL-terminated string */
   dliteStringPtr,        /*!< Pointer to NUL-terminated string */
+  dliteRef,              /*!< Reference to instance */
   dliteDimension,        /*!< Dimension, for entities */
   dliteProperty,         /*!< Property, for entities */
-  dliteRelation,         /*!< Subject-predicate-object relation */
-  dliteRef               /*!< Reference to instance */
+  dliteRelation          /*!< Subject-predicate-object relation */
 } DLiteType;
 
 
@@ -108,7 +108,7 @@ typedef enum _DLiteTypeFlag {
   dliteFlagDefault = 0,  /*!< Default (json) */
   dliteFlagRaw=1,        /*!< Raw unquoted input/output */
   dliteFlagQuoted=2,     /*!< Quoted input/output */
-  dliteFlagStrip=4       /*!< Strip initial and final spaces */
+  dliteFlagStrip=8       /*!< Strip initial and final spaces */
 } DLiteTypeFlag;
 
 

@@ -21,6 +21,7 @@ MU_TEST(test_get_dtypename)
   mu_assert_string_eq("blob", dlite_type_get_dtypename(dliteBlob));
   mu_assert_string_eq("bool", dlite_type_get_dtypename(dliteBool));
   mu_assert_string_eq("string", dlite_type_get_dtypename(dliteStringPtr));
+  mu_assert_string_eq("ref", dlite_type_get_dtypename(dliteRef));
   mu_assert_string_eq("relation", dlite_type_get_dtypename(dliteRelation));
 }
 
@@ -30,6 +31,8 @@ MU_TEST(test_get_enum_name)
   mu_assert_string_eq("dliteBool", dlite_type_get_enum_name(dliteBool));
   mu_assert_string_eq("dliteFixString",
                       dlite_type_get_enum_name(dliteFixString));
+  mu_assert_string_eq("dliteRef",
+                      dlite_type_get_enum_name(dliteRef));
   mu_assert_string_eq("dliteProperty",
                       dlite_type_get_enum_name(dliteProperty));
 }
@@ -40,6 +43,9 @@ MU_TEST(test_get_dtype)
   mu_assert_int_eq(dliteInt, dlite_type_get_dtype("int"));
   mu_assert_int_eq(dliteFloat, dlite_type_get_dtype("float"));
   mu_assert_int_eq(-1, dlite_type_get_dtype("float32"));
+  mu_assert_int_eq(dliteRef, dlite_type_get_dtype("ref"));
+  mu_assert_int_eq(dliteRef,
+                   dlite_type_get_dtype("http://onto-ns.com/meta/0.1/Entity"));
 }
 
 MU_TEST(test_set_typename)
@@ -50,6 +56,11 @@ MU_TEST(test_set_typename)
 
   mu_assert_int_eq(0, dlite_type_set_typename(dliteUInt, 8, typename, 32));
   mu_assert_string_eq("uint64", typename);
+
+  mu_assert_int_eq(0, dlite_type_set_typename(dliteRef,
+                                              sizeof(DLiteInstance *),
+                                              typename, 32));
+  mu_assert_string_eq("ref", typename);
 }
 
 MU_TEST(test_set_cdecl)
@@ -66,6 +77,11 @@ MU_TEST(test_set_cdecl)
   mu_assert_int_eq(6,
                    dlite_type_set_cdecl(dliteInt, 4, "n", 1, decl, 80, 1));
   mu_assert_string_eq("int *n", decl);
+
+  mu_assert_int_eq(17,
+                   dlite_type_set_cdecl(dliteRef, sizeof(DLiteInstance *),
+                                        "q", 1, decl, 80, 0));
+  mu_assert_string_eq("DLiteInstance **q", decl);
 }
 
 MU_TEST(test_is_type)
@@ -77,6 +93,7 @@ MU_TEST(test_is_type)
   mu_check(dlite_is_type("longdouble"));
   mu_check(dlite_is_type("blob42"));
   mu_check(dlite_is_type("string60"));
+  mu_check(dlite_is_type("ref"));
 }
 
 
@@ -96,18 +113,30 @@ MU_TEST(test_set_dtype_and_size)
   mu_assert_int_eq(dliteStringPtr, type);
   mu_assert_int_eq(sizeof(char *), size);
 
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("ref", &type, &size));
+  mu_assert_int_eq(dliteRef, type);
+  mu_assert_int_eq(sizeof(DLiteInstance *), size);
+
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("http://meta/0.1/Data",
+                                                    &type, &size));
+  mu_assert_int_eq(dliteRef, type);
+  mu_assert_int_eq(sizeof(DLiteInstance *), size);
+
+  // invalid type
+  mu_check(dlite_type_set_dtype_and_size("git://meta/0.1/Data", &type, &size));
+
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("property", &type, &size));
   mu_assert_int_eq(dliteProperty, type);
   mu_assert_int_eq(sizeof(DLiteProperty), size);
 
   // ok with comma following the type string
-  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string10,", &type, &size));
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string8,", &type, &size));
   mu_assert_int_eq(dliteFixString, type);
-  mu_assert_int_eq(11, size);
+  mu_assert_int_eq(9, size);
 
   mu_check(dlite_type_set_dtype_and_size("blob5a", &type, &size)); // fails
   mu_assert_int_eq(dliteFixString, type);
-  mu_assert_int_eq(11, size);
+  mu_assert_int_eq(9, size);  // unchanged
   err_clear();
 }
 
@@ -116,6 +145,7 @@ MU_TEST(test_is_allocated)
   mu_check(!dlite_type_is_allocated(dliteInt));
   mu_check(!dlite_type_is_allocated(dliteFixString));
   mu_check(dlite_type_is_allocated(dliteStringPtr));
+  mu_check(!dlite_type_is_allocated(dliteRef));
   mu_check(dlite_type_is_allocated(dliteDimension));
   mu_check(dlite_type_is_allocated(dliteProperty));
   mu_check(dlite_type_is_allocated(dliteRelation));
@@ -123,24 +153,32 @@ MU_TEST(test_is_allocated)
 
 MU_TEST(test_copy)
 {
-  double dest, src=3.4;
-  char sdst[32], ssrc[]="my source string";
-  mu_check(dlite_type_copy(&dest, &src, dliteFloat, sizeof(double)));
+  double dest=0.0, src=3.4;
+  char sdst[32]="", ssrc[]="my source string";
+  DLiteInstance *idst=NULL, *isrc=(DLiteInstance *)&src;
+  mu_check(dlite_type_copy(&dest, &src, dliteFloat, sizeof(src)));
   mu_assert_double_eq(src, dest);
 
   mu_check(dlite_type_copy(&sdst, &ssrc, dliteFixString, sizeof(ssrc)));
   mu_assert_string_eq(ssrc, sdst);
+
+  mu_check(dlite_type_copy(&idst, &isrc, dliteRef, sizeof(isrc)));
+  mu_assert_ptr_eq(isrc, idst);
 }
 
 MU_TEST(test_clear)
 {
   double v=3.4;
   char s[]="my source string";
-  mu_check(dlite_type_clear(&v, dliteFloat, sizeof(double)));
+  DLiteInstance *i=(DLiteInstance *)dlite_collection_create(NULL);
+  mu_check(dlite_type_clear(&v, dliteFloat, sizeof(v)));
   mu_assert_double_eq(0.0, v);
 
   mu_check(dlite_type_clear(&s, dliteFixString, sizeof(s)));
   mu_assert_string_eq("", s);
+
+  mu_check(dlite_type_clear(&i, dliteRef, sizeof(i)));
+  mu_assert_ptr_eq(NULL, i);
 }
 
 MU_TEST(test_print)
@@ -150,6 +188,7 @@ MU_TEST(test_print)
   int n;
   double v=3.141592;
   char *p=NULL, s[]="my source string", *q=s;
+  DLiteInstance *inst = (DLiteInstance *)dlite_collection_create("myid");
 
   mu_assert_int_eq(7, dlite_type_print(buf, sizeof(buf), &v, dliteFloat,
                                        sizeof(double), 0, -2, 0));
@@ -168,13 +207,17 @@ MU_TEST(test_print)
   mu_assert_string_eq("     3.14159", buf);
 
   mu_assert_int_eq(18, dlite_type_print(buf, sizeof(buf), &q, dliteStringPtr,
-                                        sizeof(char **), -1, -1,
+                                        sizeof(char *), -1, -1,
                                         dliteFlagQuoted));
   mu_assert_string_eq("\"my source string\"", buf);
 
   mu_assert_int_eq(4, dlite_type_print(buf, sizeof(buf), &p, dliteStringPtr,
-                                       sizeof(char **), -1, -1, 0));
+                                       sizeof(char *), -1, -1, 0));
   mu_assert_string_eq("null", buf);
+
+  mu_assert_int_eq(38, dlite_type_print(buf, sizeof(buf), &inst, dliteRef,
+                                        sizeof(DLiteInstance *), -1, -1, 0));
+  mu_assert_string_eq("\"46a67765-3d8b-5764-9583-3aec59a17983\"", buf);
 
   n = dlite_type_aprint(&ptr, &size, 0, &q, dliteStringPtr, sizeof(char **),
                         -1, -1, dliteFlagQuoted);
@@ -182,6 +225,7 @@ MU_TEST(test_print)
   mu_check((int)size > n);
   mu_assert_string_eq("\"my source string\"", ptr);
   free(ptr);
+  dlite_instance_decref(inst);
 }
 
 MU_TEST(test_scan)
@@ -211,6 +255,16 @@ MU_TEST(test_scan)
   mu_assert_int_eq(6, n);
   mu_assert_int_eq(1, blob[0]);
   mu_assert_int_eq(254, blob[1]);
+
+  n = dlite_type_scan("01fe", -1, blob, dliteBlob, 2, dliteFlagRaw);
+  mu_assert_int_eq(4, n);
+  mu_assert_int_eq(1, blob[0]);
+  mu_assert_int_eq(254, blob[1]);
+
+  //n = dlite_type_scan("  01fe ", -1, blob, dliteBlob, 2, dliteFlagStrip);
+  //mu_assert_int_eq(8, n);
+  //mu_assert_int_eq(1, blob[0]);
+  //mu_assert_int_eq(254, blob[1]);
 
   n = dlite_type_scan("01fx", -1, blob, dliteBlob, 2, 0);
   mu_assert_int_eq(-1, n);
@@ -301,11 +355,27 @@ MU_TEST(test_scan)
   mu_assert_string_eq("123456789", buf);
 
   /* string */
-  n = dlite_type_scan(" \"3.14\" ", -1, &s, dliteStringPtr, sizeof(char **),
-                      dliteFlagQuoted);
+  n = dlite_type_scan(" \"3.14\" ", -1, &s, dliteStringPtr, sizeof(char **),0);
   mu_assert_int_eq(7, n);
   mu_assert_string_eq("3.14", s);
   free(s);
+
+  /* ref */
+  DLiteInstance *inst=(DLiteInstance *)dlite_collection_create("instid");
+  DLiteInstance *inst2=inst;
+
+  n = dlite_type_scan(" null  ", -1, &inst2,
+                      dliteRef, sizeof(DLiteInstance **), 0);
+  mu_assert_int_eq(5, n);
+  mu_assert_ptr_eq(NULL, inst2);
+
+  n = dlite_type_scan("\"d04b56b9-d451-5c87-b34e-1b6fe96a9ade\"", -1, &inst2,
+                      dliteRef, sizeof(DLiteInstance **), 0);
+  mu_assert_int_eq(38, n);
+  mu_assert_ptr_eq(inst, inst2);
+
+  dlite_instance_decref(inst);
+  dlite_instance_decref(inst2);
 
   /* dliteDimension */
   memset(&dim, 0, sizeof(DLiteDimension));
@@ -391,11 +461,13 @@ MU_TEST(test_get_alignment)
   mu_assert_int_eq(1,  dlite_type_get_alignment(dliteFixString, 3));
 #if defined(i386) && i386
   mu_assert_int_eq(4,  dlite_type_get_alignment(dliteInt,  8));
+  mu_assert_int_eq(4,  dlite_type_get_alignment(dliteRef, 4));
   mu_assert_int_eq(4,  dlite_type_get_alignment(dliteDimension,
                                                 sizeof(DLiteDimension)));
 #else
   mu_assert_int_eq(8,  dlite_type_get_alignment(dliteInt,  8));
   mu_assert_int_eq(8,  dlite_type_get_alignment(dliteStringPtr, 8));
+  mu_assert_int_eq(8,  dlite_type_get_alignment(dliteRef, 8));
   mu_assert_int_eq(8,  dlite_type_get_alignment(dliteDimension,
                                                 sizeof(DLiteDimension)));
 #endif
