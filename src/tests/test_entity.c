@@ -350,11 +350,11 @@ MU_TEST(test_instance_get_hash)
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta));
 
   // metadata schema
-  hash = "b5a9a171e5fc2a66373a5dc9515de4c92c67cd5c45ab314d4dd96c9ee7f60acf";
+  hash = "d6d28a55e987f90e08edb553aa5ae811b7bb9459294c36c6ea8ea3899ba9b22a";
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta));
 
   // basic metadata schema
-  hash = "671f5ad7cf0f113c0b006af8a718d3ccf34673038e40a4c7c525871d05013eda";
+  hash = "a7d885be5227c2e4ac3b3686c5a603566d70e1563ee221d4cdb24f53569c1ce5";
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta->meta));
 
   // basic metadata schema
