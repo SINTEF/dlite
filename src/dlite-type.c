@@ -1146,7 +1146,8 @@ int dlite_type_update_sha3(sha3_context *c, const void *ptr,
     {
       const DLiteDimension *d = ptr;
       sha3_Update(c, d->name, strlen(d->name));
-      //if (d->description) sha3_Update(c, d->description);
+      //if (d->description)
+      //  sha3_Update(c, p->description, strlen(d->description));
     }
     break;
 
