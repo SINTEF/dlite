@@ -38,16 +38,15 @@ MU_TEST(test_meta_create)
     {"N", "Length of dimension N."}
   };
   DLiteProperty properties[] = {
-    /* name           type            size         ndims dims   unit iri   descr */
-    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  NULL, "..."},
-    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", NULL, ""},
-    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", NULL, "descr.."},
-    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  NULL, "descr.."},
-    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  NULL, "descr.."}
+    /* name           type            size         ndims dims   unit descr */
+    {"a-string",      dliteStringPtr, sizeof(char *), 0, NULL,  "",  "..."},
+    {"a-float",       dliteFloat,     sizeof(float),  0, NULL,  "m", ""},
+    {"an-int-arr",    dliteInt,       sizeof(int),    2, dims0, "#", "descr.."},
+    {"a-string-arr",  dliteStringPtr, sizeof(char *), 1, dims1, "",  "descr.."},
+    {"a-string3-arr", dliteFixString, 3,              1, dims2, "",  "descr.."}
   };
 
-  mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, NULL,
-                                                    "My test entity.",
+  mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, "My test entity.",
                                                     2, dimensions,
                                                     5, properties)));
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
@@ -66,17 +65,17 @@ MU_TEST(test_meta_create)
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
 #if (__GNUC__ && SIZEOF_VOID_P == 8)
-  mu_assert_int_eq(72, sizeof(DLiteInstance));
-  mu_assert_int_eq(72, entity->_dimoffset);
-  mu_assert_int_eq(72, entity->_headersize);
-  mu_assert_int_eq(88, entity->_propoffsets[0]);
-  mu_assert_int_eq(96, entity->_propoffsets[1]);
-  mu_assert_int_eq(104, entity->_propoffsets[2]);
-  mu_assert_int_eq(112, entity->_propoffsets[3]);
-  mu_assert_int_eq(120, entity->_propoffsets[4]);
-  mu_assert_int_eq(128, entity->_reloffset);
-  mu_assert_int_eq(128, entity->_propdimsoffset);
-  mu_assert_int_eq(160, entity->_propdimindsoffset);
+  mu_assert_int_eq(64, sizeof(DLiteInstance));
+  mu_assert_int_eq(64, entity->_dimoffset);
+  mu_assert_int_eq(64, entity->_headersize);
+  mu_assert_int_eq(80, entity->_propoffsets[0]);
+  mu_assert_int_eq(88, entity->_propoffsets[1]);
+  mu_assert_int_eq(96, entity->_propoffsets[2]);
+  mu_assert_int_eq(104, entity->_propoffsets[3]);
+  mu_assert_int_eq(112, entity->_propoffsets[4]);
+  mu_assert_int_eq(120, entity->_reloffset);
+  mu_assert_int_eq(120, entity->_propdimsoffset);
+  mu_assert_int_eq(152, entity->_propdimindsoffset);
 #endif
 }
 
@@ -358,11 +357,11 @@ MU_TEST(test_instance_get_hash)
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta));
 
   // metadata schema
-  hash = "b5a9a171e5fc2a66373a5dc9515de4c92c67cd5c45ab314d4dd96c9ee7f60acf";
+  hash = "d6d28a55e987f90e08edb553aa5ae811b7bb9459294c36c6ea8ea3899ba9b22a";
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta));
 
   // basic metadata schema
-  hash = "671f5ad7cf0f113c0b006af8a718d3ccf34673038e40a4c7c525871d05013eda";
+  hash = "a7d885be5227c2e4ac3b3686c5a603566d70e1563ee221d4cdb24f53569c1ce5";
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta->meta));
 
   // basic metadata schema
