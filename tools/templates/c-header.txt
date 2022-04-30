@@ -53,10 +53,8 @@
 #define {name%C}_NAMESPACE "{namespace}"
 #define {name%C}_URI       "{_uri}"
 #define {name%C}_UUID      "{_uuid}"
-#define {name%C}_IRI       "{_iri}"
 #define {name%C}_META_URI  "{meta.uri}"
 #define {name%C}_META_UUID "{meta.uuid}"
-#define {name%C}_META_IRI  "{meta.iri}"
 #endif
 
 /** Minimal set of needed definitions in case we don't have dlite */
@@ -73,7 +71,7 @@ typedef struct {{
   DLiteType type;
   size_t size;
   int ndims;
-  char **dims, *unit, *iri, *description;
+  char **dims, *unit, *description;
 }} DLiteProperty;
 typedef void DLiteInstance;
 #define DLiteInstance_HEAD

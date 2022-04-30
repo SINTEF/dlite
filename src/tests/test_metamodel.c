@@ -13,11 +13,11 @@ DLiteMetaModel *nodim;
 MU_TEST(test_metamodel_create)
 {
   model = dlite_metamodel_create("http://onto-ns.com/meta/0.1/Vehicle",
-                                 DLITE_ENTITY_SCHEMA, NULL);
+                                 DLITE_ENTITY_SCHEMA);
   mu_check(model);
 
   nodim = dlite_metamodel_create("http://onto-ns.com/meta/1.0/NoDimension",
-                                 DLITE_ENTITY_SCHEMA, NULL);
+                                 DLITE_ENTITY_SCHEMA);
   mu_check(nodim);
 
 }
@@ -40,20 +40,20 @@ MU_TEST(test_metamodel_add_dimension)
 MU_TEST(test_metamodel_add_property)
 {
   int stat;
-  stat = dlite_metamodel_add_property(model, "brand", "string32", NULL, NULL,
+  stat = dlite_metamodel_add_property(model, "brand", "string32", NULL,
                                       "Brand of the vehicle.");
   mu_assert_int_eq(0, stat);
 
-  stat = dlite_metamodel_add_property(model, "checks", "int32", NULL, NULL,
+  stat = dlite_metamodel_add_property(model, "checks", "int32", NULL,
                                       "Year of each check.");
   mu_assert_int_eq(0, stat);
   stat = dlite_metamodel_add_property_dim(model, "checks", "nchecks");
   mu_assert_int_eq(0, stat);
 
-  stat = dlite_metamodel_add_property(nodim, "name", "string32", NULL, NULL,
+  stat = dlite_metamodel_add_property(nodim, "name", "string32", NULL,
                                       "Name of the instance.");
   mu_assert_int_eq(0, stat);
-  stat = dlite_metamodel_add_property(nodim, "value", "float", "mm", NULL,
+  stat = dlite_metamodel_add_property(nodim, "value", "float", "mm",
                                       "Value of the instance.");
   mu_assert_int_eq(0, stat);
 }

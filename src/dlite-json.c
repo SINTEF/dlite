@@ -720,7 +720,7 @@ DLiteInstance *dlite_json_sscan(const char *src, const char *id,
     char uuid[DLITE_UUID_LENGTH + 1];
     if (dlite_get_uuid(uuid, metaid) < 0 ||
         (strcmp(metaid, uuid) != 0 && strcmp(metaid, inst->meta->uri) != 0)) {
-      if (!id) id = (inst->iri) ? inst->iri : inst->uuid;
+      if (!id) id = inst->uuid;
       err(1, "instance '%s' has meta id '%s' but '%s' is expected",
           id, inst->meta->uri, metaid);
       dlite_instance_decref(inst);

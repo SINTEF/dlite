@@ -856,8 +856,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         PyObject *type  = PySequence_GetItem(obj, 1);
         PyObject *dims  = PySequence_GetItem(obj, 2);
         PyObject *unit  = PySequence_GetItem(obj, 3);
-        PyObject *iri   = PySequence_GetItem(obj, 4);
-        PyObject *descr = PySequence_GetItem(obj, 5);
+        PyObject *descr = PySequence_GetItem(obj, 4);
         DLiteType t;
         size_t size;
         if (name && PyUnicode_Check(name) &&
@@ -867,7 +866,6 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           if (dest->name)        free(dest->name);
           if (dest->dims)        free_str_array(dest->dims, dest->ndims);
           if (dest->unit)        free(dest->unit);
-          if (dest->iri)         free(dest->iri);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
           dest->type = t;
@@ -889,8 +887,6 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           }
           dest->unit = (unit && PyUnicode_Check(unit)) ?
             strdup(PyUnicode_AsUTF8(unit)) : NULL;
-          dest->iri = (iri && PyUnicode_Check(iri)) ?
-            strdup(PyUnicode_AsUTF8(iri)) : NULL;
           dest->description = (descr && PyUnicode_Check(descr)) ?
             strdup(PyUnicode_AsUTF8(descr)) : NULL;
         } else {

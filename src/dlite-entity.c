@@ -201,7 +201,6 @@ void dlite_instance_debug(const DLiteInstance *inst)
   fprintf(fp, "  _uri: %s\n", inst->uri);
   fprintf(fp, "  _refcount: %d\n", inst->_refcount);
   fprintf(fp, "  _meta: (%p) %s\n", (void *)inst->meta, inst->meta->uri);
-  fprintf(fp, "  _iri: %s\n", inst->iri);
 
   if (dlite_instance_is_meta(inst)) {
     DLiteMeta *meta = (DLiteMeta *)inst;
@@ -562,7 +561,6 @@ static int dlite_instance_free(DLiteInstance *inst)
   /* Standard free */
   nprops = meta->_nproperties;
   if (inst->uri) free((char *)inst->uri);
-  if (inst->iri) free((char *)inst->iri);
   if (meta->_properties) {
     for (i=0; i<nprops; i++) {
       DLiteProperty *p = (DLiteProperty *)meta->_properties + i;
@@ -1033,14 +1031,6 @@ const char *dlite_instance_get_uuid(const DLiteInstance *inst)
 const char *dlite_instance_get_uri(const DLiteInstance *inst)
 {
   return inst->uri;
-}
-
-/*
-  Returns a pointer to instance IRI.
- */
-const char *dlite_instance_get_iri(const DLiteInstance *inst)
-{
-  return inst->iri;
 }
 
 /*
@@ -2001,8 +1991,7 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   given arguments.  It is an instance of DLITE_ENTITY_SCHEMA.
  */
 DLiteMeta *
-dlite_meta_create(const char *uri, const char *iri,
-                  const char *description,
+dlite_meta_create(const char *uri, const char *description,
                   size_t ndimensions, const DLiteDimension *dimensions,
                   size_t nproperties, const DLiteProperty *properties)
 {
@@ -2018,7 +2007,6 @@ dlite_meta_create(const char *uri, const char *iri,
   if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))
     goto fail;
 
-  if (iri) e->iri = strdup(iri);
   if (dlite_instance_set_property(e, "name", &name)) goto fail;
   if (dlite_instance_set_property(e, "version", &version)) goto fail;
   if (dlite_instance_set_property(e, "namespace", &namespace)) goto fail;
@@ -2431,7 +2419,6 @@ DLiteProperty *dlite_property_create(const char *name,
                                      DLiteType type,
                                      size_t size,
                                      const char *unit,
-                                     const char *iri,
                                      const char *description)
 {
   DLiteProperty *prop;
@@ -2440,7 +2427,6 @@ DLiteProperty *dlite_property_create(const char *name,
   prop->type = type;
   prop->size = size;
   if (unit && !(prop->unit = strdup(unit))) goto fail;
-  if (iri && !(prop->iri = strdup(iri))) goto fail;
   if (description && !(prop->description = strdup(description))) goto fail;
   return prop;
  fail:
@@ -2457,7 +2443,6 @@ void dlite_property_free(DLiteProperty *prop)
   if (prop->name) free(prop->name);
   for (i=0; i < prop->ndims; i++) free(prop->dims[i]);
   if (prop->unit) free(prop->unit);
-  if (prop->iri) free(prop->iri);
   if (prop->description) free(prop->description);
   free(prop);
 }
@@ -2863,18 +2848,13 @@ struct _DLiteMetaModel {
 
   Returns NULL on error.
  */
-DLiteMetaModel *dlite_metamodel_create(const char *uri,
-                                       const char *metaid,
-                                       const char *iri)
+DLiteMetaModel *dlite_metamodel_create(const char *uri, const char *metaid)
 {
   DLiteMetaModel *model;
-
-  if (iri && !*iri) iri = NULL;
 
   if (!(model = calloc(1, sizeof(DLiteMetaModel)))) goto fail;
   if (!(model->uri = strdup(uri))) goto fail;
   if (!(model->meta = dlite_meta_get(metaid))) goto fail;
-  if (iri && !(model->iri = strdup(iri))) goto fail;
   if (!(model->dimvalues = calloc(model->meta->_ndimensions, sizeof(size_t))))
     goto fail;
   return model;
@@ -2882,7 +2862,6 @@ DLiteMetaModel *dlite_metamodel_create(const char *uri,
   if (model) {
     if (model->uri) free(model->uri);
     if (model->meta) dlite_meta_decref(model->meta);
-    if (model->iri) free(model->iri);
     free(model);
   }
   return err(1, "allocation failure"), NULL;
@@ -3091,7 +3070,6 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
     - name: name of new property
     - typename: type of new property, ex. "string80", "int64", "string",...
     - unit: unit of new type. May be NULL
-    - iri: iri reference to an ontology. May be NULL
     - description: description of property. May be NULL
 
   Use dlite_metamodel_add_property_dim() to add dimensions to the
@@ -3103,7 +3081,6 @@ int dlite_metamodel_add_property(DLiteMetaModel *model,
                                  const char *name,
                                  const char *typename,
                                  const char *unit,
-                                 const char *iri,
                                  const char *description)
 {
   size_t i;
@@ -3132,7 +3109,6 @@ int dlite_metamodel_add_property(DLiteMetaModel *model,
   p->type = type;
   p->size = size;
   if (unit && !(p->unit = strdup(unit))) FAIL("allocation failure");
-  if (iri && !(p->iri = strdup(iri))) FAIL("allocation failure");
   if (description && !(p->description = strdup(description)))
     FAIL("allocation failure");
 
@@ -3245,8 +3221,6 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
   if (!(meta = (DLiteMeta *)dlite_instance_create(model->meta,
                                                   model->dimvalues,
                                                   model->uri))) goto fail;
-  if (model->iri && !(meta->iri = strdup(model->iri)))
-    FAIL("allocation failure");
 
   for (i=0; i < model->meta->_nproperties; i++) {
     const void *src;
