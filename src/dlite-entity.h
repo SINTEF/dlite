@@ -523,6 +523,18 @@ DLiteInstance *dlite_instance_get_casted(const char *id, const char *metaid);
 DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id);
 
 /**
+  A convenient function for loading an instance with given id from a
+  storage specified with the `driver`, `location` and `options`
+  arguments (see dlite_storage_open()).
+
+  The `id` argument may be NULL if the storage contains only one instance.
+
+  Returns the instance or NULL on error.
+ */
+DLiteInstance *dlite_instance_load_loc(const char *driver, const char *location,
+                                       const char *options, const char *id);
+
+/**
   A convinient function that loads an instance given an URL of the form
 
       driver://loc?options#id
@@ -558,6 +570,14 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
  */
 int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 
+/**
+  A convinient function that saves instance `inst` to the storage specified
+  by `driver`, `location` and `options`.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_save_loc(const char *driver, const char *location,
+                            const char *options, const DLiteInstance *inst);
 
 /**
   A convinient function that saves instance `inst` to the storage specified

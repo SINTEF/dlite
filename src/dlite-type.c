@@ -808,11 +808,14 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     break;
 
   case dliteRef:
-    if (*(DLiteInstance **)p)
-      m = strnquote(dest, n, (*((DLiteInstance **)p))->uuid, DLITE_UUID_LENGTH,
-                    qflags);
-    else
-      m = snprintf(dest, n, "%*.*s", w, r, "null");
+    {
+      DLiteInstance *inst = *(DLiteInstance **)p;
+      if (inst) {
+        const char *id = (inst->uri) ? inst->uri : inst->uuid;
+        m = strnquote(dest, n, id, -1, qflags);
+      } else
+        m = snprintf(dest, n, "%*.*s", w, r, "null");
+    }
     break;
 
   case dliteDimension:
@@ -1065,7 +1068,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         }
         assert(n >= 0);
         if (!(q = malloc(n+1))) return err(-1, "allocation failure");
-        n2 = strunquote(q, n+1, src, NULL, qflags);
+        n2 = strnunquote(q, n+1, src, m, NULL, qflags);
         assert(n2 == n);
         inst = dlite_instance_get(q);
         free(q);

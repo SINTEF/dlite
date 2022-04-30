@@ -215,9 +215,9 @@ MU_TEST(test_print)
                                        sizeof(char *), -1, -1, 0));
   mu_assert_string_eq("null", buf);
 
-  mu_assert_int_eq(36, dlite_type_print(buf, sizeof(buf), &inst, dliteRef,
+  mu_assert_int_eq(4, dlite_type_print(buf, sizeof(buf), &inst, dliteRef,
                                         sizeof(DLiteInstance *), -1, -1, 0));
-  mu_assert_string_eq("46a67765-3d8b-5764-9583-3aec59a17983", buf);
+  mu_assert_string_eq("myid", buf);
 
   n = dlite_type_aprint(&ptr, &size, 0, &q, dliteStringPtr, sizeof(char **),
                         -1, -1, dliteFlagQuoted);
