@@ -1051,6 +1051,7 @@ static char **strlist_copy(const char **strlist)
 {
   char **cpy;
   size_t i, n=0;
+  if (!strlist) return NULL;
   while (strlist[n]) n++;
   if (!(cpy = calloc(n+1, sizeof(char *))))
     return err(1, "allocation failure"), NULL;

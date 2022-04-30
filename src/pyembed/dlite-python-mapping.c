@@ -19,18 +19,48 @@
 #include "dlite-python-singletons.h"
 #include "dlite-python-mapping.h"
 
+#define GLOBALS_ID "dlite-python-mapping-id"
 
-/* Python mapping paths */
-static FUPaths mapping_paths;
-static int mapping_paths_initialised = 0;
-static unsigned char mapping_plugin_path_hash[32];
-
-/* A cache with all loaded plugins */
-static PyObject *loaded_mappings = NULL;
 
 /* Prototype for function converting `inst` to a Python object.
    Returns a new reference or NULL on error. */
 typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
+
+
+/* Global variables for dlite-storage-plugins */
+typedef struct {
+  /* Python mapping paths */
+  FUPaths mapping_paths;
+  int mapping_paths_initialised;
+  unsigned char mapping_plugin_path_hash[32];
+
+  PyObject *loaded_mappings;  /* A cache with all loaded plugins */
+} Globals;
+
+
+/* Frees global state for this module - called by atexit() */
+static void free_globals(void *globals)
+{
+  Globals *g = globals;
+  dlite_python_mapping_paths_clear();
+
+  /* Note that we cannot call `Py_XDECREF(g->loaded_mappings)` at this stage,
+     since that requires that GIL is held, but GIL is released during atexit().
+  */
+  free(g);
+}
+
+/* Return a pointer to global state for this module */
+static Globals *get_globals(void)
+{
+  Globals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(Globals))))
+      return dlite_err(1, "allocation failure"), NULL;
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
+  }
+  return g;
+}
 
 
 /*
@@ -38,29 +68,37 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 */
 FUPaths *dlite_python_mapping_paths(void)
 {
-  if (!mapping_paths_initialised) {
+  Globals *g;
+  if (!(g = get_globals())) return NULL;
+
+  if (!g->mapping_paths_initialised) {
     int s;
-    if (fu_paths_init(&mapping_paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS") < 0)
+    if (fu_paths_init(&g->mapping_paths,
+                      "DLITE_PYTHON_MAPPING_PLUGIN_DIRS") < 0)
       return dlite_err(1, "cannot initialise "
                        "DLITE_PYTHON_MAPPING_PLUGIN_DIRS"), NULL;
 
-    fu_paths_set_platform(&mapping_paths, dlite_get_platform());
+    fu_paths_set_platform(&g->mapping_paths, dlite_get_platform());
 
     if (dlite_use_build_root())
-      s = fu_paths_extend(&mapping_paths, dlite_PYTHON_MAPPING_PLUGINS, NULL);
+      s = fu_paths_extend(&g->mapping_paths,
+                          dlite_PYTHON_MAPPING_PLUGINS, NULL);
     else
-      s = fu_paths_extend_prefix(&mapping_paths, dlite_root_get(),
+      s = fu_paths_extend_prefix(&g->mapping_paths, dlite_root_get(),
                                  DLITE_PYTHON_MAPPING_PLUGIN_DIRS, NULL);
     if (s < 0) return dlite_err(1, "error initialising dlite python mapping "
                                 "plugin dirs"), NULL;
-    mapping_paths_initialised = 1;
-    memset(mapping_plugin_path_hash, 0, sizeof(mapping_plugin_path_hash));
+    g->mapping_paths_initialised = 1;
+    memset(g->mapping_plugin_path_hash, 0, sizeof(g->mapping_plugin_path_hash));
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
+
+    /* Be kind with memory leak software and free memory at exit... */
+    //atexit(dlite_python_mapping_paths_clear);
   }
 
-  return &mapping_paths;
+  return &g->mapping_paths;
 }
 
 /*
@@ -68,10 +106,13 @@ FUPaths *dlite_python_mapping_paths(void)
 */
 void dlite_python_mapping_paths_clear(void)
 {
-  if (mapping_paths_initialised) {
-    fu_paths_deinit(&mapping_paths);
-    memset(mapping_plugin_path_hash, 0, sizeof(mapping_plugin_path_hash));
-    mapping_paths_initialised = 0;
+  Globals *g;
+  if (!(g = get_globals())) return;
+
+  if (g->mapping_paths_initialised) {
+    fu_paths_deinit(&g->mapping_paths);
+    memset(g->mapping_plugin_path_hash, 0, sizeof(g->mapping_plugin_path_hash));
+    g->mapping_paths_initialised = 0;
   }
 }
 
@@ -136,6 +177,8 @@ void *dlite_python_mapping_load(void)
   const unsigned char *hash;
   sha3_context c;
   PyObject *mappingbase;
+  Globals *g;
+  if (!(g = get_globals())) return NULL;
 
   if (!(mappingbase = dlite_python_mapping_base())) return NULL;
   if (!(paths = dlite_python_mapping_paths())) return NULL;
@@ -145,22 +188,26 @@ void *dlite_python_mapping_load(void)
     sha3_Update(&c, path, strlen(path));
   hash = sha3_Finalize(&c);
   fu_pathsiter_deinit(iter);
-  if (memcmp(mapping_plugin_path_hash, hash,
-             sizeof(mapping_plugin_path_hash)) != 0) {
-    if (loaded_mappings) dlite_python_mapping_unload();
-    loaded_mappings = dlite_pyembed_load_plugins((FUPaths *)paths,
-                                                 mappingbase);
-    memcpy(mapping_plugin_path_hash, hash, sizeof(mapping_plugin_path_hash));
+  if (memcmp(g->mapping_plugin_path_hash, hash,
+             sizeof(g->mapping_plugin_path_hash)) != 0) {
+    if (g->loaded_mappings) dlite_python_mapping_unload();
+    g->loaded_mappings = dlite_pyembed_load_plugins((FUPaths *)paths,
+                                                    mappingbase);
+    memcpy(g->mapping_plugin_path_hash, hash,
+           sizeof(g->mapping_plugin_path_hash));
   }
-  return (void *)loaded_mappings;
+  return (void *)g->loaded_mappings;
 }
 
 /* Unloads all currently loaded mappings. */
 void dlite_python_mapping_unload(void)
 {
-  if (loaded_mappings) {
-    Py_DECREF(loaded_mappings);
-    loaded_mappings = NULL;
+  Globals *g;
+  if (!(g = get_globals())) return;
+
+  if (g->loaded_mappings) {
+    Py_DECREF(g->loaded_mappings);
+    g->loaded_mappings = NULL;
   }
 }
 
@@ -272,7 +319,8 @@ const void *dlite_python_mapping_get_api(const char *name)
 /*
   Returns API provided by mapping plugin `name` implemented in Python.
 
-  `state` should be a pointer to the global state.
+  `state` should be a pointer to the global state obtained with
+  dlite_globals_get().
 
   At the first call to this function, `*iter` should be initialised to zero.
   If there are more APIs, `*iter` will be increased by one.

@@ -118,12 +118,12 @@ void plugin_info_free(PluginInfo *info)
 
 
 /*
-  Help function for plugin_register_api().  Registers a plugin with given
+  Help function for plugin_load().  Registers a plugin with given
   `path`, `api` and dsl `handle` into `info`.
 
   Returns non-zero on error.
  */
-static int register_api(PluginInfo *info, const PluginAPI *api,
+static int register_plugin(PluginInfo *info, const PluginAPI *api,
 			   const char *path, dsl_handle handle)
 {
   char *name = api->name;
@@ -160,9 +160,11 @@ static int register_api(PluginInfo *info, const PluginAPI *api,
   return 0;
  fail:
   if (plugin) {
-    map_remove(&info->plugins, plugin->path);
     map_remove(&info->pluginpaths, name);
-    free(plugin->path);
+    if (plugin->path) {
+      map_remove(&info->plugins, plugin->path);
+      free(plugin->path);
+    }
     free(plugin);
   }
   return 1;
@@ -227,10 +229,10 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
       if (!map_get(&info->apis, api->name)) {  /* no plugin with this name */
         loaded_api = api;
         if (!name) {
-          if (!register_api(info, api, filepath, handle))
+          if (!register_plugin(info, api, filepath, handle))
             registered_api = api;
         } else if (strcmp(api->name, name) == 0) {
-          if (register_api(info, api, filepath, handle)) goto fail;
+          if (register_plugin(info, api, filepath, handle)) goto fail;
           registered_api = api;
           fu_endmatch(iter);
           return api;
@@ -261,6 +263,30 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
   if (iter) fu_endmatch(iter);
 
   return retval;
+}
+
+
+/*
+  Register a plugin `api` not associated to a dynamic loadable library.
+
+  This function may e.g. be useful for registering plugins written in
+  dynamic interpreted languages, like Python.
+ */
+int plugin_register_api(PluginInfo *info, const PluginAPI *api)
+{
+  if (map_get(&info->apis, api->name))
+    return errx(1, "api already registered: %s", api->name);
+  map_set(&info->apis, api->name, (PluginAPI *)api);
+  return 0;
+}
+
+
+/*
+  Returns non-zero if plugin api `name` is already registered.
+ */
+int plugin_has_api(PluginInfo *info, const char *name)
+{
+  return (map_get(&info->apis, name)) ? 1 : 0;
 }
 
 

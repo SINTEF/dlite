@@ -35,7 +35,6 @@
 
 
 /* built-in storage plugins */
-#cmakedefine WITH_JSON
 #cmakedefine WITH_HDF5
 
 /* use redland triplestore */
