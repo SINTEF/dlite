@@ -194,9 +194,12 @@ dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
   if ((api = (const DLiteMappingPlugin *)plugin_api_iter_next(&iter->iter)))
     return api;
 #ifdef WITH_PYTHON
+  PluginInfo *info = (PluginInfo *)iter->iter.info;
   if (!iter->stop) {
     int n = iter->n;
     api = dlite_python_mapping_next(dlite_globals_get(), &iter->n);
+    if (api && !plugin_has_api(info, api->name))
+      plugin_register_api(info, (PluginAPI *)api);
     if (iter->n == n) iter->stop = 1;
   }
 #endif

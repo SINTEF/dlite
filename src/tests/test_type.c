@@ -8,6 +8,7 @@
 #include "minunit/minunit.h"
 #include "utils/integers.h"
 #include "utils/boolean.h"
+#include "utils/strutils.h"
 #include "utils/err.h"
 #include "dlite.h"
 
@@ -451,6 +452,75 @@ MU_TEST(test_scan)
 }
 
 
+/* Write hex encoded hash to string `s`, which must  be at least 65 bytes. */
+static char *gethash(char *s, const void *ptr, DLiteType dtype, size_t size)
+{
+  sha3_context c;
+  int hashsize = 32;
+  int bitsize = 8*hashsize;
+  const unsigned char *buf;
+  sha3_Init(&c, bitsize);
+  sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
+  if (dlite_type_update_sha3(&c, ptr, dtype, size)) return NULL;
+  buf = sha3_Finalize(&c);
+  if (strhex_encode(s, 65, buf, hashsize) < 0) return NULL;
+  return s;
+}
+
+MU_TEST(test_update_sha3)
+{
+  char s[65];
+  const char *hash;
+
+  int32_t i1 = 42;
+  hash = "298c8f103b5a4112a1ab1da335986cfc363f068fcd72c0393382d02a71faa24a";
+  mu_assert_string_eq(hash, gethash(s, &i1, dliteInt, sizeof(i1)));
+
+  int32_t i2 = 43;
+  hash = "b81c9c72c6322c9aa98c64259488c6a7d27d3638aa329cf272a2c5d1c5637cd6";
+  mu_assert_string_eq(hash, gethash(s, &i2, dliteInt, sizeof(i2)));
+
+  bool b1 = 0;
+  hash = "bc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a";
+  mu_assert_string_eq(hash, gethash(s, &b1, dliteBool, sizeof(b1)));
+
+  bool b2 = 1;
+  hash = "5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2";
+  mu_assert_string_eq(hash, gethash(s, &b2, dliteBool, sizeof(b2)));
+
+  bool b3 = -1;
+  hash = "5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2";
+  mu_assert_string_eq(hash, gethash(s, &b3, dliteBool, sizeof(b3)));
+
+  char s1[] = "string1";
+  hash = "22bceddf404e46d56d0d3770553d3b88745675ea98806dd2adedbad333ff2e9c";
+  mu_assert_string_eq(hash, gethash(s, s1, dliteFixString, strlen(s1)));
+
+  char *s2 = s1;
+  hash = "22bceddf404e46d56d0d3770553d3b88745675ea98806dd2adedbad333ff2e9c";
+  mu_assert_string_eq(hash, gethash(s, &s2, dliteStringPtr, sizeof(s2)));
+
+  DLiteDimension d1 = {"dimname", "dimdescr"};
+  hash = "fc28849f70bcc72785d7f8d89ccbd9b1ffb71674bdd4d8dd327c78c7052c3bdb";
+  mu_assert_string_eq(hash, gethash(s, &d1, dliteDimension, sizeof(d1)));
+
+  DLiteDimension d2 = {"dimname", "???"};  // hash independent of description
+  mu_assert_string_eq(hash, gethash(s, &d2, dliteDimension, sizeof(d2)));
+
+  char *dims[] = {"dim1", "dim2"};
+  DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), 2, dims,
+    "m/s", NULL};
+  hash = "f52af54cb773ec8a7499ae44f3499c58fba40203d870c0c52842d10cbbcdc13a";
+  mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));
+
+  p.description = "Some description...";  // hash independent of description
+  mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));
+
+  p.unit = "m";
+  hash = "f92e79baa064d9eefc1e0790bf6332678a792a5e1cb28d94a237abee42de1505";
+  mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));
+}
+
 
 MU_TEST(test_get_alignment)
 {
@@ -625,6 +695,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_clear);
   MU_RUN_TEST(test_print);
   MU_RUN_TEST(test_scan);
+  MU_RUN_TEST(test_update_sha3);
   MU_RUN_TEST(test_get_alignment);
   MU_RUN_TEST(test_padding_at);
   MU_RUN_TEST(test_get_member_offset);

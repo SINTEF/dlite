@@ -70,6 +70,7 @@
 #include <stdlib.h>
 
 #include "utils/boolean.h"
+#include "utils/sha3.h"
 #include "triplestore.h"
 
 
@@ -265,6 +266,16 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
  */
 int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
                     size_t size, DLiteTypeFlag flags);
+
+/**
+  Update sha3 hash context `c` from data pointed to by `ptr`.
+  The data is described by `dtype` and `size`.
+
+  Returns non-zero on error.
+ */
+int dlite_type_update_sha3(sha3_context *c, const void *ptr,
+                           DLiteType dtype, size_t size);
+
 
 /**
   Returns the struct alignment of the given type or 0 on error.

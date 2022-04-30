@@ -10,6 +10,7 @@
 #include "utils/fileutils.h"
 #include "utils/strutils.h"
 #include "utils/infixcalc.h"
+#include "utils/sha3.h"
 
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -949,18 +950,6 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
         FAIL2("metadata %s loaded from %s has no name, version and namespace",
              id, s->location);
       }
-    //} else {
-    //  char **dataname;
-    //  ErrTry:
-    //    dataname = dlite_instance_get_property(inst, "dataname");
-    //    break;
-    //  ErrOther:
-    //    break;
-    //  ErrEnd;
-    //  if (dataname) {
-    //    inst->uri = strdup(*dataname);
-    //    dlite_get_uuid(inst->uuid, inst->uri);
-    //  }
     }
   }
 
@@ -2018,6 +2007,51 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                            dest, p->type, p->size, ddims, NULL,
                            src, type, size, dims, strides,
                            castfun);
+}
+
+
+/*
+  Calculates a hash of instance `inst`.  The calculated hash is stored
+  in `hash`, where `hashsize` is the size of `hash` in bytes.  It should
+  be 32, 48 or 64.
+
+  Return non-zero on error.
+ */
+int dlite_instance_get_hash(const DLiteInstance *inst,
+                            unsigned char *hash, int hashsize)
+{
+  size_t i;
+  sha3_context c;
+  const unsigned char *buf;
+  unsigned bitsize = hashsize * 8;
+  int retval = 0;
+  sha3_Init(&c, bitsize);
+  sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
+
+  sha3_Update(&c, inst->uuid, DLITE_UUID_LENGTH);
+  sha3_Update(&c, inst->meta->uri, strlen(inst->meta->uri));
+  for (i=0; i<DLITE_NDIM(inst); i++) {
+    size_t n = DLITE_DIM(inst, i);
+    sha3_Update(&c, &n, sizeof(size_t));
+  }
+  for (i=0; i<DLITE_NPROP(inst); i++) {
+    void *ptr = dlite_instance_get_property_by_index(inst, i);
+    DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
+    size_t j, len = 1;
+    for (j=0; (int)j<p->ndims; j++) len *= DLITE_PROP_DIM(inst, i, j);
+    if (dlite_type_is_allocated(p->type)) {
+      char *v = ptr;
+      for (j=0; j<len; j++, v+=p->size)
+        if ((retval = dlite_type_update_sha3(&c, v, p->type, p->size)))
+          break;
+    } else {
+      sha3_Update(&c, ptr, len*p->size);
+    }
+  }
+
+  buf = sha3_Finalize(&c);
+  memcpy(hash, buf, hashsize);
+  return retval;
 }
 
 
