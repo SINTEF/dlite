@@ -1032,7 +1032,11 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
-      if ((r = jsmn_parse(&parser, src, len, tokens, MAX_PROPERTY_TOKENS)) < 0)
+      r = jsmn_parse(&parser, src, len, tokens, MAX_PROPERTY_TOKENS);
+      if (r == JSMN_ERROR_NOMEM)
+        return err(-1, "too many dimensions.  Increase MAX_PROPERTY_TOKENS "
+                   "in dlite-type.c and recompile.");
+      else if (r < 0)
         return err(-1, "cannot parse property: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
@@ -1119,6 +1123,64 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
   return m;
 }
 
+
+/*
+  Update sha3 hash context `c` from data pointed to by `ptr`.
+  The data is described by `dtype` and `size`.
+
+  Returns non-zero on error.
+ */
+int dlite_type_update_sha3(sha3_context *c, const void *ptr,
+                           DLiteType dtype, size_t size)
+{
+  switch (dtype) {
+
+  case dliteStringPtr:
+    {
+      char *s = *((char **)ptr);
+      if (s) sha3_Update(c, s, strlen(s));
+    }
+    break;
+
+  case dliteDimension:
+    {
+      const DLiteDimension *d = ptr;
+      sha3_Update(c, d->name, strlen(d->name));
+      //if (d->description) sha3_Update(c, d->description);
+    }
+    break;
+
+  case dliteProperty:
+    {
+      int i;
+      const DLiteProperty *p = ptr;
+      sha3_Update(c, p->name, strlen(p->name));
+      sha3_Update(c, &p->type, sizeof(DLiteType));
+      sha3_Update(c, &p->size, sizeof(size_t));
+      sha3_Update(c, &p->ndims, sizeof(int));
+      for (i=0; i<p->ndims; i++)
+        sha3_Update(c, p->dims[i], strlen(p->dims[i]));
+      if (p->unit) sha3_Update(c, p->unit, strlen(p->unit));
+      //if (p->description)
+      //  sha3_Update(c, p->description, strlen(p->description));
+    }
+    break;
+
+  case dliteRelation:
+    {
+      const DLiteRelation *rel = ptr;
+      sha3_Update(c, rel->s, strlen(rel->s));
+      sha3_Update(c, rel->p, strlen(rel->p));
+      sha3_Update(c, rel->o, strlen(rel->o));
+    }
+    break;
+
+  default:
+    sha3_Update(c, ptr, size);
+    break;
+  }
+  return 0;
+}
 
 
 /*
