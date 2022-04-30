@@ -622,8 +622,10 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     break;
 
   case dliteRef:
-    DLiteInstance *inst = *(DLiteInstance **)data;
-    if (!(obj = dlite_pyembed_from_instance(inst->uuid))) goto fail;
+    {
+      DLiteInstance *inst = *(DLiteInstance **)data;
+      if (!(obj = dlite_pyembed_from_instance(inst->uuid))) goto fail;
+    }
     break;
 
   case dliteDimension:
