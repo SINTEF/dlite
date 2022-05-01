@@ -1,3 +1,15 @@
+"""Simple script that updates a html file by adding anchors to headers.
+
+Usage: python fix_index.py HTMLFILE
+
+This script replaces headers like
+
+    <h1>A history of everything </h1>
+
+with
+
+    <h1 id="a-history-of-everything">A history of everything</h1>
+"""
 import sys
 import re
 
