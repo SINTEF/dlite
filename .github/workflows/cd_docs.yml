@@ -15,7 +15,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Install doxygen
-      run: sudo apt-get install doxygen graphviz ttf-freefont
+      # Alpine needs ttf-freefont, what about ubuntu?
+      run: sudo apt-get install doxygen graphviz
 
     - name: Get cmake
       uses: lukka/get-cmake@v3.23.0
