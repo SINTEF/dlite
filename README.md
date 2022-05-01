@@ -397,10 +397,6 @@ The following terms have a special meaning in dlite:
   - **Instance**: The basic data object in DLite.  All instances are described
     by their metadata which itself are instances.  Instances are identified
     by an UUID.
-  - **iri**: An [internationalized resource identifier (IRI)][IRI] is the
-    extension of URI to international characters.  In dlite, the term "iri"
-    is used as a reference to a concept in an ontology providing a semantic
-    definition of an instance or property.
   - **Mapping**: A function that maps one or more input instances to an
     output instance.  They are an important mechanism for interoperability.
     Mappings are called translators in SOFT5.
@@ -408,7 +404,7 @@ The following terms have a special meaning in dlite:
     All metadata are immutable and has an unique URI in addition to their
     UUID.
   - **Meta-metadata**: metadata that describes metadata.
-  - **Relation**: A subject-predicate-object triplet with an id. Relations
+  - **Relation**: A subject-predicate-object triplet. Relations
     are immutable.
   - **Storage**: A generic handle encapsulating actual storage backends.
   - **Transaction**: A not yet implemented feature, that enables to
