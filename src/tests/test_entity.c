@@ -342,19 +342,19 @@ MU_TEST(test_instance_get_hash)
   DLiteInstance *inst = dlite_instance_get("mydata");
   mu_check(inst);
 
-  hash = "685c5cf484305b7db0650730e8e9c00bbf18981ffac4e5fc2d8a73250d4b2cef";
+  hash = "90fdd20131148fa0eaec9a21705dc0f8bc2a794945929796264c576a49b9e112";
   mu_assert_string_eq(hash, gethash(s, inst));
 
   // metadata
-  hash = "d4d51d72a4cd9ef7fd8a6071e28cc4309719763273c1b27f6b4cd3409f164466";
+  hash = "e0c1a877a0aaa47369fda3beacbe34a47feb297282f308befd7d6fad8748f9c3";
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta));
 
   // metadata schema
-  hash = "f362a385fc407242064eaadce973d86c1b8a45c6eac9b08355980404dfeb0db2";
+  hash = "642932d7cb62d6f6c11adce773c4fcab88b5c4b8668707db999ce3c9464c89c2";
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta));
 
   // basic metadata schema
-  hash = "ddca715584cf0243344e207c18532cddc0d4d28516c9b7e0c815a7329f86ee61";
+  hash = "fc7a634b6f98306b04bfd44f94bddb1d2a29970e8c0314e4d6cc977e8d6920da";
   mu_assert_string_eq(hash, gethash(s, (DLiteInstance *)inst->meta->meta->meta));
 
   // basic metadata schema
