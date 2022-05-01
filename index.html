@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>dlite: Main Page</title>
+<title>DLite: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -20,11 +20,12 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="logo-small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">dlite
+   <div id="projectname">DLite
    &#160;<span id="projectnumber">0.3.9</span>
    </div>
-   <div id="projectbrief">Lightweight library for working with scientific data</div>
+   <div id="projectbrief">Lightweight data-centric interoperability framework for working with scientific data</div>
   </td>
  </tr>
  </tbody>
@@ -64,16 +65,20 @@ $(function() {
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">dlite Documentation</div>  </div>
+<div class="title">DLite Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><object type="image/svg+xml" data="doc/figs/logo.svg" style="pointer-events: none;" align="right"></object></p>
-<h1>DLite </h1>
+
+<h1 id="dlite">DLite</h1>
+
 <blockquote class="doxtable">
 <p>Lightweight data-centric interoperability framework for working with scientific data </p>
 </blockquote>
 <p><object type="image/svg+xml" data="https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg" style="pointer-events: none;">CI tests</object> <a href="https://github.com/SINTEF/dlite/releases"><img src="https://img.shields.io/github/v/release/sintef/dlite" alt="GitHub release (latest by date)" class="inline"/></a> <a href="https://pypi.org/project/DLite-Python/"><object type="image/svg+xml" data="https://img.shields.io/pypi/v/dlite-python.svg" style="pointer-events: none;">PyPi</object></a></p>
-<h2>Content </h2>
+
+<h2 id="content">Content</h2>
+
 <ul>
 <li><a href="#about-dlite">About DLite</a><ul>
 <li><a href="#example">Example</a></li>
@@ -105,7 +110,9 @@ $(function() {
 <li><a href="#acknowledgment">Acknowledgment</a></li>
 </ul>
 <p>DLite is a lightweight interoperability framework, for working with and sharing scientific.</p>
-<h1>About DLite </h1>
+
+<h1 id="about-dlite">About DLite</h1>
+
 <p>DLite is a C implementation of the <a href="https://stash.code.sintef.no/projects/SOFT/repos/soft5/">SINTEF Open Framework and Tools (SOFT)</a>, which is a set of concepts and tools for how to efficiently describe and work with scientific data.</p>
 <p>All data in DLite is represented by an Instance, which is build on a simple data model. An Instance is identified by a unique UUID and have a set of named dimensions and properties. It is described by its Metadata. In the Metadata, each dimension is given a name and description (optional) and each property is given a name, type, shape (optional), unit (optional) and description (optional). The shape of a property refers to the named dimensions.</p>
 <p>When an Instance is instantiated, you must suply a value to the named dimensions. The shape of the properties will be set according to that. This ensures that the shape of the properties are internally consistent.</p>
@@ -115,7 +122,9 @@ $(function() {
 <p>DLite provides also a common and extendable API for loading/storing Instances from/to different storages. New storage plugins can be written in C or Python.</p>
 <p>See <a class="el" href="md_doc_concepts.html">Concepts</a> for more details.</p>
 <p>DLite is licensed under the MIT license.</p>
-<h2>Example </h2>
+
+<h2 id="example">Example</h2>
+
 <p>Lets say that you have the following Python class</p>
 <div class="fragment"><div class="line">class Person:</div>
 <div class="line">    def __init__(self, name, age, skills):</div>
@@ -209,7 +218,9 @@ $(function() {
 <div class="line">  - boxing</div>
 </div><!-- fragment --><p>Note that we in this case have to define the environment variable <code>DLITE_STORAGES</code> in order to let dlite find the metadata we stored in 'Person.json'. There are ways to avoid this, e.g. by hardcoding the metadata in C using <code>dlite-codegen -f c-source</code> or in the C program explicitely load 'Person.json' before 'homes.json'.</p>
 <p>This was just a brief example. There is much more to dlite. Since the documentation is still not complete, the best source is the code itself, including the tests and examples.</p>
-<h2>Main features </h2>
+
+<h2 id="main-features">Main features</h2>
+
 <p>See <a class="el" href="md_doc_features.html">Features</a> for a more detailed list.</p><ul>
 <li>Enables semantic interoperability via simple formalised metadata and data</li>
 <li>Metadata can be linked to or generated from ontologies</li>
@@ -218,16 +229,28 @@ $(function() {
 <li>Plugin API for mapping between metadata</li>
 <li>Bindings to C, Python and Fortran</li>
 </ul>
-<h1>Installing DLite </h1>
-<h2>Installing with pip </h2>
+
+<h1 id="installing-dlite">Installing DLite</h1>
+
+
+<h2 id="installing-with-pip">Installing with pip</h2>
+
 <p>If you are using Python, the easiest way to install DLite is with pip: </p><pre class="fragment">pip install DLite-Python
 </pre><p>Note, currently only Linux versions for Python 3.7, 3.8, 3.9 and 3.10 are available. But Windows versions will soon be available.</p>
-<h2>Docker image </h2>
+
+<h2 id="docker-image">Docker image</h2>
+
 <p>A docker image is available on <a href="https://github.com/SINTEF/dlite/packages">https://github.com/SINTEF/dlite/packages</a>.</p>
-<h2>Compile from sources </h2>
+
+<h2 id="compile-from-sources">Compile from sources</h2>
+
 <p>The sources can be cloned from GitHub </p><pre class="fragment">git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-</pre><h3>Dependencies</h3>
-<h4>Runtime dependencies</h4>
+</pre>
+<h3 id="dependencies">Dependencies</h3>
+
+
+<h4 id="runtime-dependencies">Runtime dependencies</h4>
+
 <ul>
 <li><a href="https://support.hdfgroup.org/HDF5/">HDF5</a>, optional (needed by HDF5 storage plugin)</li>
 <li><a href="https://librdf.org/">librdf</a>, optional (needed by RDF (Redland) storage plugin)</li>
@@ -239,7 +262,9 @@ $(function() {
 </ul>
 </li>
 </ul>
-<h4>Build dependencies</h4>
+
+<h4 id="build-dependencies">Build dependencies</h4>
+
 <ul>
 <li><a href="https://cmake.org/">cmake</a>, required for building</li>
 <li>hdf5 development libraries, optional (needed by HDF5 storage plugin)</li>
@@ -251,11 +276,17 @@ $(function() {
 <li><a href="http://valgrind.org/">valgrind</a>, optional, used for memory checking (Linux only)</li>
 <li><a href="http://cppcheck.sourceforge.net/">cppcheck</a>, optional, used for static code analysis</li>
 </ul>
-<h2>Compiling </h2>
-<h3>Build and install with Python</h3>
+
+<h2 id="compiling">Compiling</h2>
+
+
+<h3 id="build-and-install-with-python">Build and install with Python</h3>
+
 <p>Given you have a C compiler and Python correctly installed, you should be able to build and install dlite via the python/setup.py script: </p><pre class="fragment">cd python
 python setup.py install
-</pre><h3>Build on Linux</h3>
+</pre>
+<h3 id="build-on-linux">Build on Linux</h3>
+
 <p>Install the hdf5 (does not include the parallel component) libraries</p>
 <p>On Ubuntu: </p><pre class="fragment">sudo apt-get install libhdf5-serial-dev
 </pre><p>On Redhad-based distributions (Fedora, Centos, ...): </p><pre class="fragment">sudo dnf install hdf5-devel
@@ -270,9 +301,13 @@ make memcheck    # runs all tests with memory checking (requires
                  # valgrind)
 </pre><p>To generate code documentation, do </p><pre class="fragment">make doc         # direct your browser to build/doc/html/index.html
 </pre><p>To install dlite locally, do </p><pre class="fragment">make install
-</pre><h3>Build on Windows</h3>
-<p>See md_doc_build-with-vs for detailed instructions for building with Visual Studio.</p>
-<h4>Quick start with VS Code and Remote Container</h4>
+</pre>
+<h3 id="build-on-windows">Build on Windows</h3>
+
+<p>See <a class="el" href="md_doc_build_with_vs.html">Build with Visual Studio</a> for detailed instructions for building with Visual Studio.</p>
+
+<h4 id="quick-start-with-vs-code-and-remote-container">Quick start with VS Code and Remote Container</h4>
+
 <p>Using Visual Studio Code it is possible to do development on the system defined in Dockerfile.</p>
 <ol type="1">
 <li>Download and install <a href="https://code.visualstudio.com/">Visual Studio Code</a>.</li>
@@ -282,10 +317,14 @@ make memcheck    # runs all tests with memory checking (requires
 <li>Start VS Code, run the <em>Remote-Containers: Open Folder in Container...</em> command from the Command Palette (F1) or quick actions Status bar item. This will build the container and restart VS Code in it. This may take some time the first time as the Docker image must be built. See <a href="https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container">Quick start: Open an existing folder in a container</a> for more information and instructions.</li>
 <li>In the container terminal, perform the first build and tests with <code>mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &amp;&amp; make test</code>.</li>
 </ol>
-<h2>Setting up the environment </h2>
+
+<h2 id="setting-up-the-environment">Setting up the environment</h2>
+
 <p>If dlite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables. See the <a class="el" href="md_doc_environment_variables.html">Environment variables</a> for more details.</p>
 <p>An example of how to use dlite is shown above. See also the examples in the [examples](examples) directory for how to link to dlite from C and use of the Fortran bindings.</p>
-<h1>Short vocabulary </h1>
+
+<h1 id="short-vocabulary">Short vocabulary</h1>
+
 <p>The following terms have a special meaning in dlite:</p><ul>
 <li><b>Basic metadata schema</b>: Toplevel meta-metadata which describes itself.</li>
 <li><b>Collection</b>: A specialised instance that contains references to set of instances and relations between them. Within a collection instances are labeled. See also the <a href="https://confluence.code.sintef.no/display/SOFT/Nomenclature">SOFT5 nomenclauture</a>.</li>
@@ -302,9 +341,13 @@ make memcheck    # runs all tests with memory checking (requires
 <li><b>url</b>: A <a href="https://en.wikipedia.org/wiki/URL">uniform resource locator (URL)</a> is an reference to a web resource, like a file (on a given computer), database entry, web page, etc. In dlite url's refer to a storage or even an specific instance in a storage using the general syntax <code>driver://location?options#fragment</code>, where <code>options</code> and <code>fragment</code> are optional. If <code>fragment</code> is provided, it should be the uuid or uri of an instance.</li>
 <li><b>uuid</b>: A <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">universal unique identifier (UUID)</a> is commonly used to uniquely identify digital information. DLite uses the 36 character string representation of uuid's to uniquely identify instances. The uuid is generated from the uri for instances that has an uri, otherwise it is randomly generated.</li>
 </ul>
-<h1>License </h1>
+
+<h1 id="license">License</h1>
+
 <p>DLite is licensed under the [MIT license](LICENSE). However, it include a few third party source files with other permissive licenses. All of these should allow dynamic and static linking against open and propritary codes. A full list of included licenses can be found in <a href="src/utils/LICENSES.txt">LICENSES.txt</a>.</p>
-<h1>Acknowledgment </h1>
+
+<h1 id="acknowledgment">Acknowledgment</h1>
+
 <p>In addition from internal funding from SINTEF and NTNU this work has been supported by several projects, including:</p>
 <ul>
 <li><a href="https://www.sintef.no/en/projects/2015/ampere-aluminium-alloys-with-mechanical-properties-and-electrical-conductivity-at-elevated-temperatures/">AMPERE</a> (2015-2020) funded by Forskningsrådet and Norwegian industry partners.</li>
