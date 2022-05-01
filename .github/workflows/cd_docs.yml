@@ -14,11 +14,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: install doxygen
+    - name: Install doxygen
       run: apt-get install doxygen graphviz ttf-freefont
 
-    - name: Configure cmake
+    - name: Get cmake
       uses: lukka/get-cmake@v3.23.0
+
+    - name: Configure cmake
       run: |
         mkdir build
         cmake -S . -B ./build
