@@ -24,7 +24,7 @@ jobs:
     - name: Configure cmake
       run: |
         mkdir build
-        cmake -S . -B ./build
+        cmake -S . -B ./build -DWIDTH_PYTHON=NO -DWITH_HDF5=NO -DWITH_REDLAND=NO
 
     - name: Build documentation
       run: cmake --build ./build --target doc
