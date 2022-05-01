@@ -1,0 +1,33 @@
+name: Deploy doxygen documentation
+
+on:
+  push:
+    branches:
+      - master
+      - improve-documentation
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: install doxygen
+      run: apt-get install doxygen graphviz ttf-freefont
+
+    - name: Configure cmake
+      uses: lukka/get-cmake@v3.23.0
+      run: |
+        mkdir build
+        cmake -S . -B ./build
+
+    - name: Build documentation
+      run: cmake --build ./build --target doc
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/doc/html
