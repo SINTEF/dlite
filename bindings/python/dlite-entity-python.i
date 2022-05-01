@@ -196,7 +196,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
   %newobject _c_ptr;
   PyObject *_c_ptr(void) {
-    return PyCapsule_New($self, NULL, NULL);
+    return PyCapsule_New($self, NULL, NULL);  // XXX - Add name and descructor
   }
 
   %pythoncode %{
@@ -503,6 +503,6 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         """Returns a JSON representation of self.  Arguments are passed to
         json.dumps()."""
         return json.dumps(self.asdict(), cls=InstanceEncoder, **kwargs)
-  %}
+%}
 
 }

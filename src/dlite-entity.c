@@ -769,7 +769,38 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id)
 }
 
 /*
-  A convinient function that loads an instance given an URL of the form
+  A convenient function for loading an instance with given id from a
+  storage specified with the `driver`, `location` and `options`
+  arguments (see dlite_storage_open()).
+
+  The `id` argument may be NULL if the storage contains only one instance.
+
+  Returns the instance or NULL on error.
+ */
+DLiteInstance *dlite_instance_load_loc(const char *driver, const char *location,
+                                       const char *options, const char *id)
+{
+  DLiteStorage *s=NULL;
+  DLiteInstance *inst=NULL;
+ ErrTry:
+  if (id && *id) inst = _instance_store_get(id);
+ ErrOther:
+  err_clear();
+ ErrEnd;
+
+ if (inst) {
+   dlite_instance_incref(inst);
+  } else {
+    if (!(s = dlite_storage_open(driver, location, options))) goto fail;
+    if (!(inst = dlite_instance_load(s, id))) goto fail;
+  }
+ fail:
+  if (s) dlite_storage_close(s);
+  return inst;
+}
+
+/*
+  A convenient function that loads an instance given an URL of the form
 
       driver://location?options#id
 
@@ -782,12 +813,15 @@ DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id)
 DLiteInstance *dlite_instance_load_url(const char *url)
 {
   char *str=NULL, *driver=NULL, *location=NULL, *options=NULL, *id=NULL;
-  DLiteStorage *s=NULL;
   DLiteInstance *inst=NULL;
   assert(url);
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
-
+  inst = dlite_instance_load_loc(driver, location, options, id);
+ fail:
+  free(str);
+  return inst;
+  /*
  ErrTry:
   if (id && *id) inst = _instance_store_get(id);
  ErrOther:
@@ -804,6 +838,7 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   if (s) dlite_storage_close(s);
   if (str) free(str);
   return inst;
+  */
 }
 
 /*
@@ -994,6 +1029,25 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
 
 /*
   A convinient function that saves instance `inst` to the storage specified
+  by `driver`, `location` and `options`.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_save_loc(const char *driver, const char *location,
+                            const char *options, const DLiteInstance *inst)
+{
+  int retval=1;
+  DLiteStorage *s=NULL;
+
+  if (!(s = dlite_storage_open(driver, location, options))) goto fail;
+  retval = dlite_instance_save(s, inst);
+ fail:
+  if (s) dlite_storage_close(s);
+  return retval;
+}
+
+/*
+  A convinient function that saves instance `inst` to the storage specified
   by `url`, which should be of the form
 
       driver://location?options
@@ -1004,14 +1058,10 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 {
   int retval=1;
   char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
-  DLiteStorage *s=NULL;
-
   if (!(str = strdup(url))) FAIL("allocation failure");
   if (dlite_split_url(str, &driver, &loc, &options, NULL)) goto fail;
-  if (!(s = dlite_storage_open(driver, loc, options))) goto fail;
-  retval = dlite_instance_save(s, inst);
+  retval = dlite_instance_save_loc(driver, loc, options, inst);
  fail:
-  if (s) dlite_storage_close(s);
   if (str) free(str);
   return retval;
 }
@@ -1139,12 +1189,36 @@ int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
   const DLiteMeta *meta = inst->meta;
   DLiteProperty *p = meta->_properties + i;
   void *dest;
+  size_t nmemb=1;
+  int j;
 
-  if (p->ndims > 0) {
-    int j;
-    size_t n, nmemb=1;
-    dest = *((void **)DLITE_PROP(inst, i));
+  /* Count members */
+  if (p->ndims)
     for (j=0; j<p->ndims; j++) nmemb *= DLITE_PROP_DIM(inst, i, j);
+
+  /* Consistency check for dliteRef */
+  if (p->type == dliteRef && p->ref) {
+    if (p->ndims) {
+      size_t n;
+      DLiteInstance **q = (DLiteInstance **)ptr;
+      for (n=0; n<nmemb; n++, q++) {
+        const char *ref = (*q)->meta->uri;
+        if (strcmp(ref, p->ref))
+          return err(-1, "Invalid reference. Expected %s, but got %s",
+                     p->ref, ref);
+      }
+    } else {
+      const char *ref = (*(DLiteInstance **)ptr)->meta->uri;
+      if (strcmp(ref, p->ref))
+        return err(-1, "Invalid reference. Expected %s, but got %s",
+                   p->ref, ref);
+    }
+  }
+
+  /* Copy */
+  if (p->ndims > 0) {
+    size_t n;
+    dest = *((void **)DLITE_PROP(inst, i));
     if (dlite_type_is_allocated(p->type)) {
       for (n=0; n<nmemb; n++) {
         void *v = (char *)ptr + n*p->size;
@@ -2652,60 +2726,89 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
   case dliteDimension:
     {
       DLiteDimension *dim = ptr;
-      if (item->type != JSMN_STRING)
-        return err(-1, "expected JSON string, got \"%.*s\"", len, val);
-
-      if (dim->name) free(dim->name);
-      if (dim->description) free(dim->description);
-      memset(dim, 0, sizeof(DLiteDimension));
-
-      dim->name = strndup(key, keylen);
-      dim->description = strndup(val, len);
+      if (item->type == JSMN_STRING) {
+        if (dim->name) free(dim->name);
+        if (dim->description) free(dim->description);
+        memset(dim, 0, sizeof(DLiteDimension));
+        dim->name = strndup(key, keylen);
+        dim->description = strndup(val, len);
+      } else if (item->type == JSMN_OBJECT) {
+        int i;
+        for (i=0; i < item->size; i++, dim++) {
+          const jsmntok_t *k = item + 2*i + 1;
+          const jsmntok_t *v = item + 2*i + 2;
+          if (dim->name) free(dim->name);
+          if (dim->description) free(dim->description);
+          memset(dim, 0, sizeof(DLiteDimension));
+          dim->name = strndup(src + k->start, k->end - k->start);
+          dim->description = strndup(src + v->start, v->end - v->start);
+        }
+      } else
+        return err(-1,
+                   "expected JSON string or object, got \"%.*s\"", len, val);
     }
     break;
 
   case dliteProperty:
     {
       DLiteProperty *prop = ptr;
-      const jsmntok_t *t, *d;
-      int i;
-
+      const jsmntok_t *v = item + 1;
+      int i, j;
       if (item->type != JSMN_OBJECT)
         return err(-1, "expected JSON object, got \"%.*s\"", len, val);
 
-      if (prop->name) free(prop->name);
-      if (prop->dims) free(prop->dims);
-      if (prop->unit) free(prop->unit);
-      if (prop->description) free(prop->description);
-      memset(prop, 0, sizeof(DLiteProperty));
+      for (i=0; i < item->size; i++, prop++) {
+        const jsmntok_t *t, *d;
+        if (prop->name) free(prop->name);
+        if (prop->ref)  free(prop->ref);
+        if (prop->dims) free(prop->dims);
+        if (prop->unit) free(prop->unit);
+        if (prop->description) free(prop->description);
+        memset(prop, 0, sizeof(DLiteProperty));
 
-      prop->name = strndup(key, keylen);
+        assert(v->type == JSMN_STRING);  // key must be a string
+        prop->name = strndup(src + v->start, v->end - v->start);
+        v++;
 
-      if (!(t = jsmn_item(src, item, "type")))
-        return errx(-1, "missing property type: '%.*s'", len, val);
-      if (dlite_type_set_dtype_and_size(val, &prop->type, &prop->size))
-        return -1;
+        if (v->type != JSMN_OBJECT)
+          return err(-1, "expected JSON object, got \"%.*s\"",
+                     v->end - v->start, src + v->start);
 
-      if ((t = jsmn_item(src, item, "dims"))) {
-        if (t->type != JSMN_ARRAY)
-          return errx(-1, "property \"%.*s\": dims should be an array",
-                      keylen, key);
-        prop->ndims = t->size;
-        prop->dims = calloc(prop->ndims, sizeof(char *));
-        for (i=0; i < prop->ndims; i++) {
-          if (!(d = jsmn_element(src, t, i)))
-            return err(-1, "error parsing dimensions \"%.*s\" of property "
-                       "\"%.*s\"", t->end - t->start, src + t->start,
-                       keylen, key);
-          prop->dims[i] = strndup(src + d->start, d->end - d->start);
+        if (!(t = jsmn_item(src, v, "type")))
+          return errx(-1, "missing property type: '%.*s'", len, val);
+        if (dlite_type_set_dtype_and_size(src + t->start,
+                                          &prop->type, &prop->size))
+          return -1;
+
+        if ((t = jsmn_item(src, v, "$ref")))
+          prop->ref = strndup(src + t->start, t->end - t->start);
+        else if (prop->type == dliteRef && (t = jsmn_item(src, v, "type")))
+          prop->ref = strndup(src + t->start, t->end - t->start);
+
+        if ((t = jsmn_item(src, v, "dims")) ||
+            (t = jsmn_item(src, v, "shape"))) {
+          if (t->type != JSMN_ARRAY)
+            return errx(-1, "property \"%.*s\": dims should be an array",
+                        keylen, key);
+          prop->ndims = t->size;
+          prop->dims = calloc(prop->ndims, sizeof(char *));
+          for (j=0; j < prop->ndims; j++) {
+            if (!(d = jsmn_element(src, t, j)))
+              return err(-1, "error parsing dimensions \"%.*s\" of property "
+                         "\"%.*s\"", t->end - t->start, src + t->start,
+                         keylen, key);
+            prop->dims[j] = strndup(src + d->start, d->end - d->start);
+          }
         }
+
+        if ((t = jsmn_item(src, v, "unit")))
+          prop->unit = strndup(src + t->start, t->end - t->start);
+
+        if ((t = jsmn_item(src, v, "description")))
+          prop->description = strndup(src + t->start, t->end - t->start);
+
+        v += jsmn_count(v) + 1;
       }
-
-      if ((t = jsmn_item(src, item, "unit")))
-        prop->unit = strndup(src + t->start, t->end - t->start);
-
-      if ((t = jsmn_item(src, item, "description")))
-        prop->description = strndup(src + t->start, t->end - t->start);
     }
     break;
 
@@ -2788,8 +2891,7 @@ int dlite_property_jscan(const char *src, const jsmntok_t *item,
       if (scandim(0, src, &q, p, dims, flags, &t)) return -1;
       break;
     case JSMN_OBJECT:
-      if (scanobj(src, item, key, ptr, p)) return -1;
-      break;
+      return scanobj(src, item, key, ptr, p);
     default:
       return errx(-1,
                  "property \"%s\" has %d dimensions, but got a scalar %.*s",

@@ -139,6 +139,8 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       PRINT1("%s    {\n", in);
       PRINT2("%s      \"name\": \"%s\",\n", in, p->name);
       PRINT2("%s      \"type\": \"%s\"", in, typename);
+      if (p->ref)
+        PRINT2(",\n%s      \"$ref\": \"%s\"", in, p->ref);
       if (p->ndims) {
         PRINT1(",\n%s      \"dims\": [", in);
         for (j=0; j < p->ndims; j++) {
@@ -188,8 +190,10 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
       PRINT2("%s    \"%s\": {\n", in, p->name);
       PRINT2("%s      \"type\": \"%s\"", in, typename);
+      if (p->ref)
+        PRINT2(",\n%s      \"$ref\": \"%s\"", in, p->ref);
       if (p->ndims) {
-        PRINT1(",\n%s      \"dims\": [", in);
+        PRINT1(",\n%s      \"shape\": [", in);
         for (j=0; j < p->ndims; j++) {
           char *cc = (j < p->ndims - 1) ? ", " : "";
           PRINT2("\"%s\"%s", p->dims[j], cc);
@@ -499,53 +503,53 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     FAIL("allocation failure");
 
   /* Parse dimensions */
-  if (meta->_ndimensions > 0) {
-    if (!(item = jsmn_item(src, obj, "dimensions")))
-      FAIL1("no \"dimensions\" in object %s", id);
-    dimtype = item->type;
+  if (dlite_meta_is_metameta(meta)) {
+    /* For metadata, dimension sizes are inferred from the size of
+       "dimensions", "propertis" and "relations". */
+    size_t n=0;
+    if ((t = jsmn_item(src, obj, "dimensions"))) dims[n++] = t->size;
+    if ((t = jsmn_item(src, obj, "properties"))) dims[n++] = t->size;
+    if ((t = jsmn_item(src, obj, "relations")))  dims[n++] = t->size;
+    if (n != meta->_ndimensions)
+      FAIL3("expected %d dimensions, got %d: %s",
+            (int)meta->_ndimensions, (int)n, id);
 
-    if (item->type == JSMN_OBJECT) {
-      if (item->size != (int)meta->_ndimensions)
-        FAIL3("expected %d dimensions, got %d in instance %s",
-              (int)meta->_ndimensions, item->size, id);
-      for (i=0; i < meta->_ndimensions; i++) {
-        DLiteDimension *d = meta->_dimensions + i;
-        if (!(t = jsmn_item(src, item, d->name)))
-          FAIL2("missing dimension \"%s\" in %s", d->name, id);
-        if (dlite_meta_is_metameta(meta)) {
-          const jsmntok_t *tt;
-          if (t->type != JSMN_STRING)
-            FAIL1("expected dimension description, got: %.6s...",
-                  src + t->start);
-          if (d->name[0] != 'n')
-            FAIL1("meta-metadata dimension names should start with \"n\": %s",
-                  d->name);
-          if (!(tt = jsmn_item(src, obj, d->name+1)))
-            FAIL1("no metadata array named %s", d->name+1);
-          dims[i] = tt->size;
-        } else {
-          if (t->type == JSMN_PRIMITIVE)
-            dims[i] = atoi(src + t->start);
-          else
-            FAIL3("value '%.*s' of dimension should be an integer: %s",
-                  t->end-t->start, src+t->start, id);
+  } else {
+    if (meta->_ndimensions > 0) {
+      if (!(item = jsmn_item(src, obj, "dimensions")))
+        FAIL1("no \"dimensions\" in object %s", id);
+      dimtype = item->type;
+
+      if (item->type == JSMN_OBJECT) {
+        if (item->size != (int)meta->_ndimensions)
+          FAIL3("expected %d dimensions, got %d in instance %s",
+                (int)meta->_ndimensions, item->size, id);
+        for (i=0; i < meta->_ndimensions; i++) {
+          DLiteDimension *d = meta->_dimensions + i;
+          if (!(t = jsmn_item(src, item, d->name)))
+            FAIL2("missing dimension \"%s\" in %s", d->name, id);
+          if (dlite_meta_is_metameta(meta)) {
+            const jsmntok_t *tt;
+            if (t->type != JSMN_STRING)
+              FAIL1("expected dimension description, got: %.6s...",
+                    src + t->start);
+            if (d->name[0] != 'n')
+              FAIL1("meta-metadata dimension names should start with \"n\": %s",
+                    d->name);
+            if (!(tt = jsmn_item(src, obj, d->name+1)))
+              FAIL1("no metadata array named %s", d->name+1);
+            dims[i] = tt->size;
+          } else {
+            if (t->type == JSMN_PRIMITIVE)
+              dims[i] = atoi(src + t->start);
+            else
+              FAIL3("value '%.*s' of dimension should be an integer: %s",
+                    t->end-t->start, src+t->start, id);
+          }
         }
+      } else {
+        FAIL1("\"dimensions\" of data instances must be a json object: %s", id);
       }
-    } else if (item->type == JSMN_ARRAY) {
-      size_t n=0;
-      if (!dlite_meta_is_metameta(meta))
-        FAIL1("only metadata can have array dimensions: %s", id);
-      if (meta->_ndimensions > n)
-        dims[n++] = item->size;
-      if (meta->_ndimensions > n && (t = jsmn_item(src, obj, "properties")))
-        dims[n++] = t->size;
-      if (meta->_ndimensions > n && (t = jsmn_item(src, obj, "relations")))
-        dims[n++] = t->size;
-      if (n != meta->_ndimensions)
-        FAIL3("expected %d dimensions, got %d: %s",
-              (int)meta->_ndimensions, (int)n, id);
-    } else {
-      FAIL1("\"dimensions\" must be object or array: %s", id);
     }
   }
 
@@ -561,12 +565,13 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       FAIL1("\"properties\" must have same type as \"dimensions\": %s", id);
 
     /* -- `base` is the base object to read properties from */
-    if (item->type == JSMN_OBJECT)
-      base = item;
-    else if (item->type == JSMN_ARRAY)
-      base = obj;
-    else
-      FAIL1("\"properties\" must be object or array: %s", id);
+    base = (dlite_instance_is_data(inst)) ? item : obj;
+    //if (item->type == JSMN_OBJECT)
+    //  base = item;
+    //else if (item->type == JSMN_ARRAY)
+    //  base = obj;
+    //else
+    //  FAIL1("\"properties\" must be object or array: %s", id);
     assert(base->type == JSMN_OBJECT);
 
     /* -- infer name, version and namespace */
@@ -597,11 +602,11 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
           if (dlite_property_jscan(src, t, NULL, ptr, p, pdims, 0) < 0)
             goto fail;
         } else if (t->type == JSMN_OBJECT) {
-          const jsmntok_t *v;
-          if (!(v = jsmn_item(src, t, p->name)))
+          if (dlite_instance_is_meta(inst)) {
+            if (dlite_property_jscan(src, t, p->name, ptr, p, pdims, 0) < 0)
+              goto fail;
+          } else
             FAIL1("missing key \"%s\" in JSON object", p->name);
-          if (dlite_property_jscan(src, v, p->name, ptr, p, pdims, 0) < 0)
-            goto fail;
         } else {
           if (dlite_type_scan(src+t->start, t->end - t->start, ptr, p->type,
                               p->size, 0) < 0)
@@ -615,17 +620,15 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
           if (dlite_property_scan(version, ptr, p, pdims, 0) < 0) goto fail;
         } else if (strcmp(p->name, "namespace") == 0) {
           if (dlite_property_scan(namespace, ptr, p, pdims, 0) < 0) goto fail;
-        } else if (strcmp(p->name, "description") == 0) {
-          // pass
         } else
-          FAIL2("missing property \"%s\" in %s", p->name, id);
+          warnx("missing property \"%s\" in %s", p->name, id);
       } else
         FAIL2("missing property \"%s\" in %s", p->name, id);
+
       if (meta->_loadprop) meta->_loadprop(inst, i);
     }
   }
   if (dlite_instance_is_meta(inst)) dlite_meta_init((DLiteMeta *)inst);
-
   ok = 1;
  fail:
   if (name) free(name);
@@ -828,6 +831,7 @@ DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
   } else if (root->size) {
     item = root + 2;
   } else {
+    if (flags) *flags = 0;
     return dliteJsonDataFormat;  /* empty root object */
   }
 
@@ -1073,7 +1077,7 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   char uuid[DLITE_UUID_LENGTH+1], *uri=NULL;
   int r;
   DLiteJsonFormat format=-1;
-  DLiteJsonFlag flags;
+  DLiteJsonFlag flags=0;
   char *dots = (len > 30) ? "..." : "";
 
   jsmn_init(&parser);

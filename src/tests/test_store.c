@@ -41,7 +41,6 @@ int count_adds(DLiteStore *store) {
 */
 
 /* All tests depends on JSON since it is used to read data */
-#ifdef WITH_JSON
 
 MU_TEST(test_entity_load)
 {
@@ -151,14 +150,11 @@ MU_TEST(test_entity_free)
   dlite_meta_decref(entity);
 }
 
-#endif
-
 
 /***********************************************************************/
 
 MU_TEST_SUITE(test_suite)
 {
-#ifdef WITH_JSON
   MU_RUN_TEST(test_entity_load);     /* setup */
   MU_RUN_TEST(test_instance_load);
   MU_RUN_TEST(test_store_create);
@@ -169,7 +165,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_store_free);
   MU_RUN_TEST(test_instance_free);   /* tear down */
   MU_RUN_TEST(test_entity_free);
-#endif
 }
 
 

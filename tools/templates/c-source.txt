@@ -95,6 +95,7 @@ static DLiteProperty {name%u}_properties[] = {{
     "{prop.name}", {@40}/* name */
     {prop.dtype},  {@40}/* type */
     {prop.size},   {@40}/* size */
+    {prop.ref},    {@40}/* ref */
     {prop.ndims},  {@40}/* ndims */
 {@if:{prop.ndims}=0}\
     NULL,          {@40}/* dims */
