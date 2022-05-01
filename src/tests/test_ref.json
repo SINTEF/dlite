@@ -1,0 +1,61 @@
+{
+
+  "http://onto-ns.com/meta/test/0.1/Engine": {
+    "description": "Entity for an engine.",
+    "dimensions": {
+      "N": "Number of motors."
+    },
+    "properties": {
+      "motors": {
+        "type": "ref",
+        "$ref": "http://onto-ns.com/meta/test/0.1/Motor",
+        "shape": ["N"],
+        "description": "Array of motors in the engine."
+      }
+    }
+  },
+
+  "http://onto-ns.com/meta/test/0.1/Motor": {
+    "description": "Entity for an electric motor.",
+    "dimensions": {},
+    "properties": {
+      "effect": {
+        "type": "float32",
+        "unit": "W"
+      },
+      "voltage": {
+        "type": "float32",
+        "unit": "V"
+      }
+    }
+  },
+
+  "engine1": {
+    "meta": "http://onto-ns.com/meta/test/0.1/Engine",
+    "dimensions": {
+      "N": 2
+    },
+    "properties": {
+      "motors": ["motor1", "motor2"]
+    }
+  },
+
+  "motor1": {
+    "meta": "http://onto-ns.com/meta/test/0.1/Motor",
+    "dimensions": {},
+    "properties": {
+      "effect": 5.0,
+      "voltage": 9.0
+    }
+  },
+
+  "motor2": {
+    "meta": "http://onto-ns.com/meta/test/0.1/Motor",
+    "dimensions": {},
+    "properties": {
+      "effect": 2.0,
+      "voltage": 5.0
+    }
+  }
+
+}

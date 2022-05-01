@@ -13,6 +13,7 @@
 #include "strutils.h"
 #include "dlite.h"
 #include "dlite-python-singletons.h"
+#include "dlite-pyembed.h"
 
 #define DLITE_INSTANCE_CAPSULE_NAME ((char *)"dlite.Instance")
 #define DLITE_DATA_CAPSULE_NAME ((char *)"dlite.data")
@@ -138,6 +139,7 @@ int npy_type(DLiteType type, size_t size)
 
        We therefore fall back to NPY_STRING, which is simple ASCII. */
     return NPY_STRING;
+  case dliteRef:
   case dliteStringPtr:
   case dliteDimension:
   case dliteProperty:
@@ -172,10 +174,10 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
     dtype->elsize = (int)size;
     break;
   case dliteStringPtr:
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    //assert(dtype->elsize == 0);
     assert(dtype->elsize == 0 || sizeof(void *));
     break;
   }
@@ -272,6 +274,7 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
   switch (type) {
 
   case dliteStringPtr:
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
@@ -443,6 +446,7 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     }
     break;
 
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
@@ -507,6 +511,10 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
               size);
     break;
   case dliteStringPtr:
+  case dliteRef:
+  case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
     if (dlite_swig_set_array(&ptr, ndims, dims, type, size, (obj_t *)arr))
       goto fail;
     break;
@@ -615,10 +623,11 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     }
     break;
 
-  case dliteRelation:
-    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
-                                   SWIGTYPE_p__Triple, 0)))
-      FAIL("cannot create relation");
+  case dliteRef:
+    {
+      DLiteInstance *inst = *(DLiteInstance **)data;
+      if (!(obj = dlite_pyembed_from_instance(inst->uuid))) goto fail;
+    }
     break;
 
   case dliteDimension:
@@ -631,6 +640,12 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
                                    SWIGTYPE_p__DLiteProperty, 0)))
       FAIL("cannot create property");
+    break;
+
+  case dliteRelation:
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__Triple, 0)))
+      FAIL("cannot create relation");
     break;
 
   default:
@@ -665,25 +680,6 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (n != (int)size)
         FAIL2("cannot read Python blob of size %d into buffer of size %d",
               n, (int)size);
-      // xxx
-      /*
-      size_t n;
-      PyObject *bytes = PyObject_Bytes(obj);
-      if (!bytes) {
-        //xxx
-        FAIL("cannot convert object to bytes");
-      }
-      assert(PyBytes_Check(bytes));
-      n = PyBytes_Size(bytes);
-      if (n > size) {
-        Py_DECREF(bytes);
-        FAIL2("Length of bytearray is %lu. Exceeds size of blob: %lu",
-              (unsigned long)n, (unsigned long)size);
-      }
-      memset(ptr, 0, size);
-      memcpy(ptr, PyBytes_AsString(bytes), n);
-      Py_DECREF(bytes);
-      */
     }
     break;
 
@@ -794,6 +790,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       memcpy(p, s, n);
       p[n] = '\0';
       Py_DECREF(str);
+    }
+    break;
+
+  case dliteRef:
+    {
+      DLiteInstance **q = ptr;
+      if (*q) dlite_instance_decref(*q);
+      *q = dlite_pyembed_get_instance(obj);
     }
     break;
 

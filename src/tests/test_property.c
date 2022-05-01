@@ -81,7 +81,7 @@ MU_TEST(test_print)
                       "\"description\": \"number of something\"}", s);
 
   char *dims[] = {"M", "N"};
-  DLiteProperty p = {"x", dliteInt, 4, 2, dims, "m", "about x..."};
+  DLiteProperty p = {"x", dliteInt, 4, NULL, 2, dims, "m", "about x..."};
   prop.type = dliteProperty;
   prop.size = sizeof(p);
   m = dlite_property_aprint(&s, &size, n, &p, &prop, NULL, 0, -2, 0);

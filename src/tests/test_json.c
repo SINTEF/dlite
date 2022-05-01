@@ -38,13 +38,13 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 0, 0);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(798, m);
+  mu_assert_int_eq(799, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
                         dliteJsonWithUuid);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(922, m);
+  mu_assert_int_eq(923, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), inst, 4, 0);
   //printf("\n--------------------------------------------------------\n");
@@ -84,7 +84,7 @@ int append(const char *str)
   m = dlite_json_append(&s, &size, inst, 0);
   dlite_errclr();
   if (m < 0) retval=m;
-  printf("%s", s);
+  //printf("%s", s);
   free(s);
   return retval;
 }
