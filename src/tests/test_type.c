@@ -508,7 +508,7 @@ MU_TEST(test_update_sha3)
   mu_assert_string_eq(hash, gethash(s, &d2, dliteDimension, sizeof(d2)));
 
   char *dims[] = {"dim1", "dim2"};
-  DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), 2, dims,
+  DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), NULL, 2, dims,
     "m/s", NULL};
   hash = "f52af54cb773ec8a7499ae44f3499c58fba40203d870c0c52842d10cbbcdc13a";
   mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));
