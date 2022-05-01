@@ -92,7 +92,8 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     def asdict(self):
         """Returns a dict representation of self."""
-        d = OrderedDict([('name', self.name)])
+        d = OrderedDict()
+        d['name'] = self.name
         if self.description:
             d['description'] = self.description
         return d
@@ -117,13 +118,19 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         return 'Property(%r, type=%r%s%s%s)' % (
             self.name, self.type, dims, unit, descr)
 
-    def asdict(self):
-        """Returns a dict representation of self."""
-        d = OrderedDict([('name', self.name),
-                         ('type', self.get_type()),
-                         ])
+    def asdict(self, soft7=True, exclude_name=False):
+        """Returns a dict representation of self.
+
+        Args:
+            soft7: Whether to use new SOFT7 format.
+            exclude_name: Whether to exclude "name" from the returned dict.
+        """
+        d = OrderedDict()
+        if not exclude_name:
+            d['name'] = self.name
+        d['type'] = self.get_type()
         if self.ndims:
-            d['dims'] = self.dims.tolist()
+            d['shape' if soft7 else 'dims'] = self.dims.tolist()
         if self.unit:
             d['unit'] = self.unit
         if self.description:
@@ -476,20 +483,33 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             dims = [dims[d.name] for d in self.properties['dimensions']]
         return Instance.create_from_metaid(self.uri, dims, id)
 
-    def asdict(self):
-        """Returns a dict representation of self."""
+    def asdict(self, soft7=True, uuid=True):
+        """Returns a dict representation of self.
+
+        Args:
+            soft7: Whether to structure metadata as SOFT7.
+            uuid: Whether to include UUID in the dict.
+        """
         d = OrderedDict()
-        d['uuid'] = self.uuid
-        d['meta'] = self.meta.uri
+        if uuid:
+            d['uuid'] = self.uuid
         if self.uri:
             d['uri'] = self.uri
+        d['meta'] = self.meta.uri
         if self.is_meta:
             #d['name'] = self['name']
             #d['version'] = self['version']
             #d['namespace'] = self['namespace']
             d['description'] = self['description']
-            d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
-            d['properties'] = [p.asdict() for p in self['properties']]
+            if soft7:
+                d['dimensions'] = {dim.name: dim.description
+                                   for dim in self['dimensions']}
+                d['properties'] = {p.name: p.asdict(exclude_name=True)
+                                   for p in self['properties']}
+            else:
+                d['dimensions'] = [dim.asdict() for dim in self['dimensions']]
+                d['properties'] = [p.asdict(soft7=False)
+                                   for p in self['properties']]
         else:
             d['dimensions'] = self.dimensions
             d['properties'] = {k: standardise(v, self.get_property_descr(k))
@@ -499,10 +519,11 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             d['relations'] = self['relations'].tolist()
         return d
 
-    def asjson(self, **kwargs):
+    def asjson(self, soft7=True, uuid=True, **kwargs):
         """Returns a JSON representation of self.  Arguments are passed to
         json.dumps()."""
-        return json.dumps(self.asdict(), cls=InstanceEncoder, **kwargs)
+        return json.dumps(self.asdict(soft7=soft7, uuid=uuid),
+                          cls=InstanceEncoder, **kwargs)
 %}
 
 }

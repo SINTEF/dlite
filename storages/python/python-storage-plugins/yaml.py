@@ -15,26 +15,16 @@ class yaml(dlite.DLiteStorageBase):
     def open(self, uri, options=None):
         """Opens `uri`.
 
-        The `options` argument provies additional input to the driver.
-        Which options that are supported varies between the plugins.  It
-        should be a valid URL query string of the form:
-
-            key1=value1;key2=value2...
-
-        An ampersand (&) may be used instead of the semicolon (;).
-
-        Typical options supported by most drivers include:
+        Supported options:
         - mode : append | r | w
             Valid values are:
             - append   Append to existing file or create new file (default)
             - r        Open existing file for read-only
             - w        Truncate existing file or create new file
-
-        After the options are passed, this method may set attribute
-        `writable` to true if it is writable and to false otherwise.
-        If `writable` is not set, it is assumed to be true.
+        - soft7 : bool
+            Whether to save using SOFT7 format.
         """
-        self.options = Options(options, defaults='mode=append')
+        self.options = Options(options, defaults='mode=append;soft7=true')
         self.mode = dict(r='r', w='w', append='r+')[self.options.mode]
         self.writable = False if 'r' in self.mode else True
         self.uri = uri
@@ -60,7 +50,7 @@ class yaml(dlite.DLiteStorageBase):
 
     def save(self, inst):
         """Stores `inst` in current storage."""
-        self.d[inst.uuid] = inst.asdict()
+        self.d[inst.uuid] = inst.asdict(soft7=dlite.asbool(self.options.soft7))
 
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage

@@ -27,7 +27,7 @@ try:
 
     # Test saving YAML metadata
     yaml_inst2 = yaml_mod.yaml()
-    yaml_inst2.open('yaml_test_save.yaml', 'mode=w')
+    yaml_inst2.open('yaml_test_save.yaml', 'mode=w;soft7=false')
     yaml_inst2.save(inst)
     yaml_inst2.close()
     with open(input_path / 'test_meta.yaml', 'r') as orig:
