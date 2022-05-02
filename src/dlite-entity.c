@@ -2028,7 +2028,6 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   sha3_Init(&c, bitsize);
   sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
 
-  sha3_Update(&c, inst->uuid, DLITE_UUID_LENGTH);
   sha3_Update(&c, inst->meta->uri, strlen(inst->meta->uri));
   for (i=0; i<DLITE_NDIM(inst); i++) {
     size_t n = DLITE_DIM(inst, i);
