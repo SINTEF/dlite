@@ -110,11 +110,12 @@ int closer(DLiteStorage *s)
 DLiteInstance *loader(const DLiteStorage *s, const char *id)
 {
   DLitePythonStorage *sp = (DLitePythonStorage *)s;
-  PyObject *pyuuid;
+  PyObject *pyuuid = NULL;
   DLiteInstance *inst = NULL;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
 
+  if (!id) FAIL1("Missing `id` when loading from storage \"%s\"", s->location);
   pyuuid = PyUnicode_FromString(id);
 
   dlite_errclr();

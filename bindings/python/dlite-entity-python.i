@@ -203,7 +203,11 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
+        errclr()
         _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
+        if not self.this:
+            raise DLiteError("Error creating instance.  See detailed error "
+                             "message printed to stderr.")
         if self.is_meta:
             self.__class__ = Metadata
         elif self.meta.uri == COLLECTION_ENTITY:

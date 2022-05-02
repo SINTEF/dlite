@@ -53,9 +53,9 @@ class yaml(dlite.DLiteStorageBase):
             with open(self.uri, mode) as f:
                 pyyaml.dump(self.d, f)
 
-    def load(self, uuid):
-        """Loads `uuid` from current storage and return it as a new instance."""
-        uuid = dlite.get_uuid(uuid)
+    def load(self, id):
+        """Loads `id` from current storage and return it as a new instance."""
+        uuid = dlite.get_uuid(id)
         return instance_from_dict(self.d[uuid])
 
     def save(self, inst):
