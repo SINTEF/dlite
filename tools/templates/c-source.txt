@@ -121,10 +121,12 @@ static DLiteProperty {name%u}_properties[] = {{
 static {basename}Struct {name%u} = {{
 #ifdef HAVE_DLITE
   /* -- {basename}Struct_HEAD */
-  "{_uuid}",  {@52}/* _uuid */
-  "{_uri}",   {@52}/* _uri */
+  "{_uuid}",  {@52}/* uuid */
+  0,          {@52}/* _flags */
+  "{_uri}",   {@52}/* uri */
   1,                        {@52}/* _refcount */
-  NULL,                     {@52}/* _meta */
+  NULL,                     {@52}/* meta */
+  NULL,                     {@52}/* _parent */
 {@if:{ismeta}=1}
   {_ndimensions},           {@52}/* _ndimensions */
   {_nproperties},           {@52}/* _nproperties */

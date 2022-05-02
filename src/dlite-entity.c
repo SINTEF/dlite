@@ -1982,24 +1982,6 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    const void *src,
                                                    DLiteTypeCast castfun)
 {
-  //void *dest = dlite_instance_get_property_by_index(inst, i);
-  //DLiteProperty *p = inst->meta->_properties + i;
-  //int stat, j, *ddims = NULL;
-  //
-  //if (p->ndims && !dims) {
-  //  if (!(ddims = calloc(p->ndims, sizeof(int))))
-  //    return err(1, "allocation failure");
-  //  for (j=0; j < p->ndims; j++)
-  //    ddims[j] = DLITE_PROP_DIM(inst, i, j);
-  //}
-  //
-  //stat = dlite_type_ndcast(p->ndims,
-  //                         dest, p->type, p->size, ddims, NULL,
-  //                         src, type, size, dims, strides,
-  //                         castfun);
-  //if (ddims) free(ddims);
-  //return stat;
-  //
   void *dest = dlite_instance_get_property_by_index(inst, i);
   DLiteProperty *p = inst->meta->_properties + i;
   size_t *ddims = DLITE_PROP_DIMS(inst, i);
@@ -2010,6 +1992,10 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
 }
 
 
+/********************************************************************
+ *  Transactions
+ ********************************************************************/
+
 /*
   Calculates a hash of instance `inst`.  The calculated hash is stored
   in `hash`, where `hashsize` is the size of `hash` in bytes.  It should
@@ -2018,16 +2004,24 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
   Return non-zero on error.
  */
 int dlite_instance_get_hash(const DLiteInstance *inst,
-                            unsigned char *hash, int hashsize)
+                            uint8_t *hash, int hashsize)
 {
   size_t i;
   sha3_context c;
-  const unsigned char *buf;
+  const uint8_t *buf;
   unsigned bitsize = hashsize * 8;
   int retval = 0;
+  if (!(inst->_flags & dliteImmutable))
+    return err(-1, "Hash can only be calculated for immutable instances.");
   sha3_Init(&c, bitsize);
   sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
 
+  if (inst->uri)
+    sha3_Update(&c, inst->uri, strlen(inst->uri));
+  if (inst->_parent) {
+    sha3_Update(&c, inst->_parent->uuid, DLITE_UUID_LENGTH);
+    sha3_Update(&c, inst->_parent->hash, DLITE_HASH_SIZE);
+  }
   sha3_Update(&c, inst->meta->uri, strlen(inst->meta->uri));
   for (i=0; i<DLITE_NDIM(inst); i++) {
     size_t n = DLITE_DIM(inst, i);
@@ -2052,6 +2046,42 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   memcpy(hash, buf, hashsize);
   return retval;
 }
+
+/*
+  Make instance immutable.  This can never be reverted.
+ */
+void dlite_instance_freeze(DLiteInstance *inst)
+{
+  inst->_flags |= dliteImmutable;
+}
+
+/*
+  Turn instance `inst` into a transaction node with parent `parent`.
+  This require that parent is immutable (use dlite_instance_freeze()).
+
+  Returns non-zero on error.
+ */
+int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
+{
+  DLiteParent *p;
+  uint8_t hash[DLITE_HASH_SIZE];
+  if (!(parent->_flags & dliteImmutable))
+    return err(-1, "Hash can only be calculated for immutable instances.");
+  if (inst->_parent)
+    return err(-1, "Instance has already a parent transaction.");
+  if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
+    return err(-1, "Error calculating hash of instance \"%s\"",
+               (parent->uri) ? parent->uri : parent->uuid);
+
+  if (!(p = calloc(1, sizeof(DLiteParent))))
+    return err(-1, "Allocation failure");
+  p->parent = parent;
+  strncpy(p->uuid, parent->uuid, DLITE_UUID_LENGTH+1);
+  memcpy(p->hash, hash, DLITE_HASH_SIZE);
+  inst->_parent = p;
+  return 0;
+}
+
 
 
 

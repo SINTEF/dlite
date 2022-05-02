@@ -129,6 +129,7 @@
 
 #include <stddef.h>
 #include "utils/boolean.h"
+#include "utils/integers.h"
 #include "utils/jsmnx.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
@@ -180,18 +181,40 @@ typedef int (*DLiteLoadProperty)(const DLiteInstance *inst, size_t i);
 typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
 
 
+/** Flags for describing the state of an instance.  This should be as
+    minimalistic as possible, but a flag for immutability is needed. */
+typedef enum _DLiteFlag {
+  dliteImmutable=1  /*!< Whether instance is immutable. */
+} DLiteFlag;
+
+/** The size in bytes of sha3 hash used by transactions.
+    Should be 32, 48 or 64. */
+#define DLITE_HASH_SIZE 32
+
+/** Reference to parent instance.  Used by transactions. */
+typedef struct _DLiteParent {
+  const struct _DLiteInstance *parent;  /*!< Pointer to parent instance.
+                                       May be NULL, in which case the
+                                       parent must be accessed via uuid. */
+  char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID of parent instance. */
+  uint8_t hash[DLITE_HASH_SIZE];  /*!< Hash of parent instance. */
+} DLiteParent;
+
 
 /**
   Initial segment of all DLite instances.
 */
 #define DLiteInstance_HEAD                                              \
   char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
+  uint8_t _flags;                 /* OR'ed sum of DLiteFlag. */         \
   const char *uri;                /* Unique uri for this instance. */   \
                                   /* May be NULL. */                    \
   int _refcount;                  /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
-                                  /* bing this instance. */
+                                  /* bing this instance. */             \
+  DLiteParent *_parent;           /* For transactions, reference to */  \
+                                  /* parent instance. */
 
 
 /**
