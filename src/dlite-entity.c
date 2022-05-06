@@ -558,6 +558,10 @@ static int dlite_instance_free(DLiteInstance *inst)
   /* Remove from instance cache */
   stat = _instance_store_remove(inst->uuid);
 
+  /* For transactions, decrease refcount of parent */
+  if (inst->_parent && inst->_parent->parent)
+    dlite_instance_decref((DLiteInstance *)(inst->_parent->parent));
+
   /* Standard free */
   nprops = meta->_nproperties;
   if (inst->uri) free((char *)inst->uri);
@@ -1992,10 +1996,6 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
 }
 
 
-/********************************************************************
- *  Transactions
- ********************************************************************/
-
 /*
   Calculates a hash of instance `inst`.  The calculated hash is stored
   in `hash`, where `hashsize` is the size of `hash` in bytes.  It should
@@ -2011,8 +2011,7 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   const uint8_t *buf;
   unsigned bitsize = hashsize * 8;
   int retval = 0;
-  if (!(inst->_flags & dliteImmutable))
-    return err(-1, "Hash can only be calculated for immutable instances.");
+
   sha3_Init(&c, bitsize);
   sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
 
@@ -2047,6 +2046,10 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   return retval;
 }
 
+/********************************************************************
+ *  Transactions
+ ********************************************************************/
+
 /*
   Make instance immutable.  This can never be reverted.
  */
@@ -2078,6 +2081,7 @@ int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
   p->parent = parent;
   strncpy(p->uuid, parent->uuid, DLITE_UUID_LENGTH+1);
   memcpy(p->hash, hash, DLITE_HASH_SIZE);
+  dlite_instance_incref((DLiteInstance *)p->parent);
   inst->_parent = p;
   return 0;
 }

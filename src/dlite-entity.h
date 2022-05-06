@@ -1018,6 +1018,29 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
 /** @} */
 /* ================================================================= */
 /**
+ * @name Transactions
+ */
+/* ================================================================= */
+/** @{ */
+
+/**
+  Make instance immutable.  This can never be reverted.
+ */
+void dlite_instance_freeze(DLiteInstance *inst);
+
+/**
+  Turn instance `inst` into a transaction node with parent `parent`.
+  This require that parent is immutable (use dlite_instance_freeze()).
+
+  Returns non-zero on error.
+ */
+int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent);
+
+
+
+/** @} */
+/* ================================================================= */
+/**
  * @name Metadata API
  */
 /* ================================================================= */
