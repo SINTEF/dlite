@@ -138,6 +138,20 @@ if(DOXYGEN_FOUND)
 
   #add_dependencies(install doc)
 
+
+  # LaTeX documentation
+  add_custom_command(OUTPUT latex/refman.pdf
+    COMMAND make
+    DEPENDS html/index.html
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/latex
+    COMMENT "Generating LaTeX documentation"
+    VERBATIM
+    )
+
+  add_custom_target(latex
+    DEPENDS latex/refman.pdf
+    )
+
   install(
     DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
     DESTINATION share/dlite

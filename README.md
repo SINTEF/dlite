@@ -25,6 +25,7 @@ Content
       - [Build on Linux](#build-on-linux)
       - [Build on Windows](#build-on-windows)
         - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
+      - [Build documentation](#build-documentation)
     - [Setting up the environment](#setting-up-the-environment)
   * [Short vocabulary](#short-vocabulary)
   * [License](#license)
@@ -366,6 +367,29 @@ system defined in Dockerfile.
 6. In the container terminal, perform the first build and tests with
    `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
    make test`.
+
+
+### Build documentation
+If you have [doxygen][11] installed, the html documentation should be generated
+as a part of the build process.  It can be browsed by opening the following file
+in your browser:
+
+    <build>/doc/html/index.html
+
+where `<build>` is your build folder.  To only build the documentation, you can
+do:
+
+    cd build
+    cmake --build . --target doc
+
+If you have LaTeX and make installed, you can also the latex documentation with
+
+    cd build
+    cmake --build . --target latex
+
+which will produce the file
+
+    <build>/doc/latex/refman.pdf
 
 
 
