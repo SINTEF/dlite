@@ -1,7 +1,8 @@
 # CMake script that fixes markdown links in `infile` and writes it to `outfile`.
 
-
 file(READ ${infile} content)
+
+# Fix markdown links
 string(REGEX REPLACE
   "\\[([^]]*)\\]\\(doc/([^\\.]*)\\.md\\)"
   "\n@ref md_doc_\\2\n"
@@ -9,4 +10,5 @@ string(REGEX REPLACE
   replaced
   "${content}"
   )
+
 file(WRITE ${outfile} "${replaced}")
