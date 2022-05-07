@@ -559,8 +559,11 @@ static int dlite_instance_free(DLiteInstance *inst)
   stat = _instance_store_remove(inst->uuid);
 
   /* For transactions, decrease refcount of parent */
-  if (inst->_parent && inst->_parent->parent)
-    dlite_instance_decref((DLiteInstance *)(inst->_parent->parent));
+  if (inst->_parent) {
+    if (inst->_parent->parent)
+      dlite_instance_decref((DLiteInstance *)(inst->_parent->parent));
+    free(inst->_parent);
+  }
 
   /* Standard free */
   nprops = meta->_nproperties;
@@ -1196,6 +1199,10 @@ int dlite_instance_set_property_by_index(DLiteInstance *inst, size_t i,
   size_t nmemb=1;
   int j;
 
+  if (inst->_flags & dliteImmutable)
+    return err(1, "cannot set property on immutable instance: %s",
+               (inst->uri) ? inst->uri : inst->uuid);
+
   /* Count members */
   if (p->ndims)
     for (j=0; j<p->ndims; j++) nmemb *= DLITE_PROP_DIM(inst, i, j);
@@ -1644,6 +1651,10 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims)
   size_t *oldpropdims=NULL;
   int *oldmembs=NULL;
 
+  if (inst->_flags & dliteImmutable)
+    return err(1, "cannot set property on immutable instance: %s",
+               (inst->uri) ? inst->uri : inst->uuid);
+
   if (!dlite_instance_is_data(inst))
     return err(1, "it is not possible to change dimensions of metadata");
 
@@ -2034,8 +2045,11 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
     if (dlite_type_is_allocated(p->type)) {
       char *v = ptr;
       for (j=0; j<len; j++, v+=p->size)
-        if ((retval = dlite_type_update_sha3(&c, v, p->type, p->size)))
+        if ((retval = dlite_type_update_sha3(&c, v, p->type, p->size))) {
+          err(1, "error updating hash for property \"%s\" of instance \"%s\"",
+              p->name, (inst->uri) ? inst->uri : inst->uuid);
           break;
+        }
     } else {
       sha3_Update(&c, ptr, len*p->size);
     }
@@ -2051,11 +2065,28 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
  ********************************************************************/
 
 /*
-  Make instance immutable.  This can never be reverted.
+  Mark the instance as immutable.  This can never be reverted.
+
+  **Note**
+  Immutability of the underlying data cannot be enforced in
+  C as long as the someone has a pointer to the instance.  However,
+  functions like dlite_instance_set_property() and
+  dlite_instance_set_dimension_size() will refuse to change the
+  instance if it is immutable.  Furthermore, if the instance is used
+  as a parent in a transaction, any changes to the underlying data
+  will be detected by calling dlite_instance_verify().
  */
 void dlite_instance_freeze(DLiteInstance *inst)
 {
   inst->_flags |= dliteImmutable;
+}
+
+/*
+  Returns non-zero if instance is immutable (frozen).
+ */
+int dlite_instance_is_frozen(const DLiteInstance *inst)
+{
+  return inst->_flags & dliteImmutable;
 }
 
 /*
@@ -2086,6 +2117,60 @@ int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
   return 0;
 }
 
+/*
+  Returns a new reference to the parent of instance `inst` or NULL if
+  `inst` has no parent.
+ */
+const DLiteInstance *dlite_instance_get_parent(const DLiteInstance *inst)
+{
+  if (!inst->_parent) return NULL;
+  if (!inst->_parent->parent) return dlite_instance_get(inst->_parent->uuid);
+  dlite_instance_incref((DLiteInstance *)inst->_parent->parent);
+  return inst->_parent->parent;
+}
+
+/*
+  Verifies an instance.  If `recursive` is non-zero, all parents of
+  `inst` are also verified.
+
+  Returns zero if `inst` has no parent or if the parent hash stored in
+  `inst` matches the content of the parent.
+
+  Otherwise, non-zero is returned and an error message issued.
+
+  TODO:
+  If `recursive` is non-zero and `inst` is a collection or has
+  properties of type `dliteRef`, we should also verify the instances
+  that are referred to.  This is currently not implemented, because
+  we have to detect cyclic references to avoid infinite recursion.
+*/
+int dlite_instance_verify(const DLiteInstance *inst, int recursive)
+{
+  int stat=0;
+  unsigned char hash[DLITE_HASH_SIZE];
+  const DLiteInstance *parent;
+
+  if (!inst->_parent) return 0;
+
+  if (!(parent = inst->_parent->parent))
+    parent = dlite_instance_get(inst->_parent->uuid);
+
+  if (!parent)
+    stat = err(3, "cannot retrieve parent of instance \"%s\"",
+               (inst->uri) ? inst->uri : inst->uuid);
+  else if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
+    stat = 2;
+  else if (memcmp(hash, inst->_parent->hash, DLITE_HASH_SIZE))
+    stat = err(1, "invalid parent hash of instance \"%s\"",
+               (inst->uri) ? inst->uri : inst->uuid);
+  else if (recursive)
+    stat = dlite_instance_verify(parent, recursive);
+
+  if (parent && !inst->_parent->parent)
+    dlite_instance_decref((DLiteInstance *)parent);
+
+  return stat;
+}
 
 
 

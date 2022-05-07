@@ -18,7 +18,9 @@ if(DOXYGEN_FOUND)
     #${dlite_SOURCE_DIR}/README.md
     ${dlite_SOURCE_DIR}/doc/Doxyfile.in
     ${dlite_SOURCE_DIR}/doc/concepts.md
+    ${dlite_SOURCE_DIR}/doc/transactions.md
     ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
+    ${dlite_SOURCE_DIR}/doc/figs/transactions.png
 
     ${dlite_SOURCE_DIR}/src/dlite.h
     ${dlite_SOURCE_DIR}/src/dlite-misc.h
@@ -66,6 +68,8 @@ if(DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite-entity.h html/src/dlite-entity.h
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/src/dlite-type.h html/src/dlite-type.h
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png html/SOFT-metadata-structure.png
+    COMMAND ${CMAKE_COMMAND} -E make_directory html/figs
+    COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/doc/figs/transactions.png html/figs/transactions.png
     COMMAND ${CMAKE_COMMAND} -E make_directory html/python-storage-plugins
     COMMAND ${CMAKE_COMMAND} -E copy ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/yaml.py html/python-storage-plugins/yaml.py
     DEPENDS ${dependencies}

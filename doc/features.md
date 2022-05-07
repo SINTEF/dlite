@@ -28,3 +28,4 @@ Features
   - Fortran bindings
   - Python bindings
   - Embedding of Python allowing writing storage and mapping plugins in Python
+  - Full provenance in instance evolution; see [transactions](transactions.md)

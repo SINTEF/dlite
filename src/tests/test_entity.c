@@ -363,7 +363,7 @@ MU_TEST(test_instance_get_hash)
   dlite_instance_decref(inst);
 }
 
-MU_TEST(test_instance_set_parent)
+MU_TEST(test_transactions)
 {
   int stat;
   size_t dims[] = {1, 3};
@@ -379,10 +379,21 @@ MU_TEST(test_instance_set_parent)
   mu_assert_int_eq(-1, stat);
   dlite_errclr();
 
+  mu_assert_int_eq(0, dlite_instance_is_frozen(inst));
   dlite_instance_freeze(inst);
+  mu_assert_int_eq(1, dlite_instance_is_frozen(inst));
   stat = dlite_instance_set_parent(inst2, inst);
   mu_assert_int_eq(0, stat);
 
+  dlite_instance_freeze(inst2);
+  stat = dlite_instance_set_parent(inst3, inst2);
+  mu_assert_int_eq(0, stat);
+
+  mu_assert_int_eq(0, dlite_instance_verify(inst3, 1));
+
+  const DLiteInstance *parent = dlite_instance_get_parent(inst2);
+  mu_assert_ptr_eq(parent, inst);
+  dlite_instance_decref((DLiteInstance *)parent);
 
   dlite_instance_decref(inst3);
   dlite_instance_decref(inst2);
@@ -467,7 +478,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_load_url);
   MU_RUN_TEST(test_instance_snprint);
   MU_RUN_TEST(test_instance_get_hash);
-  MU_RUN_TEST(test_instance_set_parent);
+  MU_RUN_TEST(test_transactions);
 
   MU_RUN_TEST(test_meta_save);
   MU_RUN_TEST(test_meta_load);

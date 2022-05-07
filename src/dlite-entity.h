@@ -1025,8 +1025,22 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
 
 /**
   Make instance immutable.  This can never be reverted.
+
+  **Note**
+  Immutability of the underlying data cannot be enforced in
+  C as long as the someone has a pointer to the instance.  However,
+  functions like dlite_instance_set_property() and
+  dlite_instance_set_dimension_size() will refuse to change the
+  instance if it is immutable.  Furthermore, if the instance is used
+  as a parent in a transaction, any changes to the underlying data
+  will be detected by calling dlite_instance_verify().
  */
 void dlite_instance_freeze(DLiteInstance *inst);
+
+/**
+  Returns non-zero if instance is immutable (frozen).
+ */
+int dlite_instance_is_frozen(const DLiteInstance *inst);
 
 /**
   Turn instance `inst` into a transaction node with parent `parent`.
@@ -1035,6 +1049,29 @@ void dlite_instance_freeze(DLiteInstance *inst);
   Returns non-zero on error.
  */
 int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent);
+
+/**
+  Returns a pointer to the parent of instance `inst` or NULL if `inst` has
+  no parent.
+ */
+const DLiteInstance *dlite_instance_get_parent(const DLiteInstance *inst);
+
+/**
+  Verifies an instance.  If `recursive` is non-zero, all parents of
+  `inst` are also verified.
+
+  Returns zero if `inst` has no parent or if the parent hash stored in
+  `inst` matches the content of the parent.
+
+  Otherwise, non-zero is returned and an error message issued.
+
+  @todo
+  If `recursive` is non-zero and `inst` is a collection or has
+  properties of type `dliteRef`, we should also verify the instances
+  that are referred to.  This is currently not implemented, because
+  we have to detect cyclic references to avoid infinite recursion.
+*/
+int dlite_instance_verify(const DLiteInstance *inst, int recursive);
 
 
 
