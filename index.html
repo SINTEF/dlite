@@ -73,7 +73,7 @@ $(function() {
 <h1 id="dlite">DLite</h1>
 
 <blockquote class="doxtable">
-<p>Lightweight data-centric interoperability framework for working with scientific data </p>
+<p>A lightweight data-centric framework for semantic interoperability </p>
 </blockquote>
 <p><object type="image/svg+xml" data="https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg" style="pointer-events: none;">CI tests</object> <a href="https://github.com/SINTEF/dlite/releases"><img src="https://img.shields.io/github/v/release/sintef/dlite" alt="GitHub release (latest by date)" class="inline"/></a> <a href="https://pypi.org/project/DLite-Python/"><object type="image/svg+xml" data="https://img.shields.io/pypi/v/dlite-python.svg" style="pointer-events: none;">PyPi</object></a></p>
 
@@ -100,6 +100,7 @@ $(function() {
 <li><a href="#quick-start-with-vs-code-and-remote-container">Quick start with VS Code and Remote Container</a></li>
 </ul>
 </li>
+<li><a href="#build-documentation">Build documentation</a></li>
 </ul>
 </li>
 <li><a href="#setting-up-the-environment">Setting up the environment</a></li>
@@ -318,6 +319,15 @@ make memcheck    # runs all tests with memory checking (requires
 <li>In the container terminal, perform the first build and tests with <code>mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &amp;&amp; make test</code>.</li>
 </ol>
 
+<h3 id="build-documentation">Build documentation</h3>
+
+<p>If you have <a href="http://www.doxygen.org/">doxygen</a> installed, the html documentation should be generated as a part of the build process. It can be browsed by opening the following file in your browser: </p><pre class="fragment">&lt;build&gt;/doc/html/index.html
+</pre><p>where <code>&lt;build&gt;</code> is your build folder. To only build the documentation, you can do: </p><pre class="fragment">cd build
+cmake --build . --target doc
+</pre><p>If you have LaTeX and make installed, you can also the latex documentation with </p><pre class="fragment">cd build
+cmake --build . --target latex
+</pre><p>which will produce the file </p><pre class="fragment">&lt;build&gt;/doc/latex/refman.pdf
+</pre>
 <h2 id="setting-up-the-environment">Setting up the environment</h2>
 
 <p>If dlite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables. See the <a class="el" href="md_doc_environment_variables.html">Environment variables</a> for more details.</p>
