@@ -2091,7 +2091,14 @@ int dlite_instance_is_frozen(const DLiteInstance *inst)
 
 /*
   Turn instance `inst` into a transaction node with parent `parent`.
-  This require that parent is immutable (use dlite_instance_freeze()).
+
+  This require that:
+    - `inst` does not already has a parent,
+    - `inst` is mutable, and
+    - `parent` is immutable.
+
+  Use dlite_instance_freeze() and dlite_instance_is_frozen() to make
+  and check that an instance is immutable, respectively.
 
   Returns non-zero on error.
  */
@@ -2099,12 +2106,16 @@ int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
 {
   DLiteParent *p;
   uint8_t hash[DLITE_HASH_SIZE];
+  if (inst->_flags & dliteImmutable)
+    return err(-1, "Parent cannot be added to immutable instance: %s",
+               (inst->uri) ? inst->uri : inst->uuid);
   if (!(parent->_flags & dliteImmutable))
-    return err(-1, "Hash can only be calculated for immutable instances.");
+    return err(-1, "Mutable instance \"%s\" cannot be added as parent",
+               (parent->uri) ? parent->uri : parent->uuid);
   if (inst->_parent)
     return err(-1, "Instance has already a parent transaction.");
   if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
-    return err(-1, "Error calculating hash of instance \"%s\"",
+    return err(-1, "Error calculating hash of parent instance \"%s\"",
                (parent->uri) ? parent->uri : parent->uuid);
 
   if (!(p = calloc(1, sizeof(DLiteParent))))
@@ -2118,53 +2129,92 @@ int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
 }
 
 /*
-  Returns a new reference to the parent of instance `inst` or NULL if
+  Returns a new reference to the parent of instance `inst` or NULL on
+  error or if `inst` has no parent.
+
+  Call dlite_instance_has_parent() to distinguish between error or that
   `inst` has no parent.
  */
 const DLiteInstance *dlite_instance_get_parent(const DLiteInstance *inst)
 {
   if (!inst->_parent) return NULL;
-  if (!inst->_parent->parent) return dlite_instance_get(inst->_parent->uuid);
+  if (!inst->_parent->parent) {
+    DLiteInstance *parent = dlite_instance_get(inst->_parent->uuid);
+    uint8_t hash[DLITE_HASH_SIZE];
+    if (!parent) return NULL;
+
+    /* Verify the parent when it is assigned with dlite_instance_get() */
+    if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
+      goto fail;
+    if (memcmp(hash, inst->_parent->hash, DLITE_HASH_SIZE))
+      FAIL1("Invalid hash for parent of instance \"%s\"",
+            (inst->uri) ? inst->uri : inst->uuid);
+
+    inst->_parent->parent = parent;
+  }
+
   dlite_instance_incref((DLiteInstance *)inst->_parent->parent);
   return inst->_parent->parent;
+
+ fail:
+  dlite_instance_decref((DLiteInstance *)inst->_parent->parent);
+  return NULL;
 }
 
 /*
-  Verifies an instance.  If `recursive` is non-zero, all parents of
-  `inst` are also verified.
+  Returns non-zero if `inst` has a parent.
+ */
+int dlite_instance_has_parent(const DLiteInstance *inst)
+{
+  return (inst->_parent) ? 1 : 0;
+}
 
-  Returns zero if `inst` has no parent or if the parent hash stored in
-  `inst` matches the content of the parent.
+/*
+  Verify that the hash of instance `inst`.
 
-  Otherwise, non-zero is returned and an error message issued.
+  If `hash` is not NULL, this function verifies that the hash of
+  `inst` corresponds to the memory pointed to by `hash`.  The size of
+  the memory should be `DLITE_HASH_SIZE` bytes.
+
+  If `hash` is NULL and `inst` has a parent, this function will
+  instead verify that the parent hash stored in `inst` corresponds to
+  the value of the parent.
+
+  If `recursive` is non-zero, all ancestors of `inst` are also
+  included in the verification.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
 
   TODO:
   If `recursive` is non-zero and `inst` is a collection or has
   properties of type `dliteRef`, we should also verify the instances
   that are referred to.  This is currently not implemented, because
   we have to detect cyclic references to avoid infinite recursion.
-*/
-int dlite_instance_verify(const DLiteInstance *inst, int recursive)
+ */
+int dlite_instance_verify_hash(const DLiteInstance *inst, uint8_t *hash,
+                              int recursive)
 {
-  int stat=0;
-  unsigned char hash[DLITE_HASH_SIZE];
+  uint8_t calculated_hash[DLITE_HASH_SIZE];
   const DLiteInstance *parent;
+  int stat=0;
 
+  if (hash) {
+    if (dlite_instance_get_hash(inst, calculated_hash, DLITE_HASH_SIZE))
+      return 2;
+    if (memcmp(hash, calculated_hash, DLITE_HASH_SIZE))
+      return err(1, "hash does not correspond to the value of instance \"%s\"",
+                 (inst->uri) ? inst->uri : inst->uuid);
+  }
   if (!inst->_parent) return 0;
-
   if (!(parent = inst->_parent->parent))
     parent = dlite_instance_get(inst->_parent->uuid);
 
   if (!parent)
     stat = err(3, "cannot retrieve parent of instance \"%s\"",
                (inst->uri) ? inst->uri : inst->uuid);
-  else if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
-    stat = 2;
-  else if (memcmp(hash, inst->_parent->hash, DLITE_HASH_SIZE))
-    stat = err(1, "invalid parent hash of instance \"%s\"",
-               (inst->uri) ? inst->uri : inst->uuid);
-  else if (recursive)
-    stat = dlite_instance_verify(parent, recursive);
+  else if (recursive || !hash)
+    stat = dlite_instance_verify_hash(parent, inst->_parent->hash, recursive);
 
   if (parent && !inst->_parent->parent)
     dlite_instance_decref((DLiteInstance *)parent);

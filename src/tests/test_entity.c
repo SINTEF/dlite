@@ -334,7 +334,6 @@ static char *gethash(char *s, DLiteInstance *inst)
   return s;
 }
 
-
 MU_TEST(test_instance_get_hash)
 {
   char *hash;
@@ -363,6 +362,7 @@ MU_TEST(test_instance_get_hash)
   dlite_instance_decref(inst);
 }
 
+
 MU_TEST(test_transactions)
 {
   int stat;
@@ -389,7 +389,10 @@ MU_TEST(test_transactions)
   stat = dlite_instance_set_parent(inst3, inst2);
   mu_assert_int_eq(0, stat);
 
-  mu_assert_int_eq(0, dlite_instance_verify(inst3, 1));
+  mu_assert_int_eq(0, dlite_instance_verify_hash(inst3, NULL, 1));
+  mu_assert_int_eq(0, dlite_instance_verify_hash(inst2,inst3->_parent->hash,0));
+  mu_assert_int_eq(0, dlite_instance_verify_hash(inst,inst2->_parent->hash, 0));
+  mu_assert_int_eq(1, dlite_instance_verify_hash(inst,inst3->_parent->hash, 0));
 
   const DLiteInstance *parent = dlite_instance_get_parent(inst2);
   mu_assert_ptr_eq(parent, inst);
@@ -399,7 +402,6 @@ MU_TEST(test_transactions)
   dlite_instance_decref(inst2);
   dlite_instance_decref(inst);
 }
-
 
 
 MU_TEST(test_meta_save)

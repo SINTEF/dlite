@@ -1044,7 +1044,14 @@ int dlite_instance_is_frozen(const DLiteInstance *inst);
 
 /**
   Turn instance `inst` into a transaction node with parent `parent`.
-  This require that parent is immutable (use dlite_instance_freeze()).
+
+  This require that:
+    - `inst` does not already has a parent,
+    - `inst` is mutable, and
+    - `parent` is immutable.
+
+  Use dlite_instance_freeze() and dlite_instance_is_frozen() to make
+  and check that an instance is immutable, respectively.
 
   Returns non-zero on error.
  */
@@ -1053,25 +1060,42 @@ int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent);
 /**
   Returns a pointer to the parent of instance `inst` or NULL if `inst` has
   no parent.
+
+  Call dlite_instance_has_parent() to distinguish between error or that
+  `inst` has no parent.
  */
 const DLiteInstance *dlite_instance_get_parent(const DLiteInstance *inst);
 
 /**
-  Verifies an instance.  If `recursive` is non-zero, all parents of
-  `inst` are also verified.
+  Returns non-zero if `inst` has a parent.
+ */
+int dlite_instance_has_parent(const DLiteInstance *inst);
 
-  Returns zero if `inst` has no parent or if the parent hash stored in
-  `inst` matches the content of the parent.
+/**
+  Verify that the hash of instance `inst`.
 
-  Otherwise, non-zero is returned and an error message issued.
+  If `hash` is not NULL, this function verifies that the hash of
+  `inst` corresponds to the memory pointed to by `hash`.  The size of
+  the memory should be `DLITE_HASH_SIZE` bytes.
+
+  If `hash` is NULL and `inst` has a parent, this function will
+  instead verify that the parent hash stored in `inst` corresponds to
+  the value of the parent.
+
+  If `recursive` is non-zero, all ancestors of `inst` are also
+  included in the verification.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
 
   @todo
   If `recursive` is non-zero and `inst` is a collection or has
   properties of type `dliteRef`, we should also verify the instances
   that are referred to.  This is currently not implemented, because
   we have to detect cyclic references to avoid infinite recursion.
-*/
-int dlite_instance_verify(const DLiteInstance *inst, int recursive);
+ */
+int dlite_instance_verify_hash(const DLiteInstance *inst, uint8_t *hash,
+                               int recursive);
 
 
 
