@@ -5,7 +5,7 @@ DLite
 =====
 > A lightweight data-centric framework for semantic interoperability
 
-[![CI%20tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
+[![CI%20tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
 [![GitHub%20release](https://img.shields.io/github/v/release/sintef/dlite)](https://github.com/SINTEF/dlite/releases)
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
 [![Documentation](https://img.shields.io/badge/documentation--blue.svg?style=social)](https://sintef.github.io/dlite/index.html)
