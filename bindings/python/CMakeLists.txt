@@ -7,6 +7,7 @@ set(py_sources
   utils.py
   mappings.py
   datamodel.py
+  rdf.py
   )
 
 configure_file(paths.py.in paths.py)
