@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import dlite
 
@@ -16,8 +17,17 @@ except ImportError:
 else:
     HAVE_YAML = True
 
+try:
+    import rdflib
+except ImportError:
+    HAVE_RDF = False
+else:
+    HAVE_RDF = True
 
-thisdir = os.path.abspath(os.path.dirname(__file__))
+
+#thisdir = os.path.abspath(os.path.dirname(__file__))
+thisdir = Path(__file__).resolve().parent
+
 
 # Test JSON
 
@@ -56,33 +66,32 @@ del uuids
 # =====================================================================
 # Test the BSON and YAML Python plugins
 
-input_dir = thisdir.replace('bindings', 'storages')
-input_dir = input_dir.replace('tests', 'tests-python/input/')
+input_dir = thisdir.parent.parent.parent / 'storages/python/tests-python/input'
 
 if HAVE_BSON:
     # Test BSON
     print('\n\n=== Test BSON plugin ===')
-    meta_file = input_dir + 'test_meta.bson'
-    meta_test_file = meta_file.replace('.bson', '_save.bson')
-    data_file = input_dir + 'test_data.bson'
-    data_test_file = data_file.replace('.bson', '_save.bson')
+    meta_file = input_dir / 'test_meta.bson'
+    meta_test_file = meta_file.with_name(meta_file.stem + '_save.bson')
+    data_file = input_dir / 'test_data.bson'
+    data_test_file = data_file.with_name(data_file.stem + '_save.bson')
 
     print('Test loading metadata...')
     with dlite.Storage('bson', meta_file, 'mode=r') as s:
-        inst = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
+        meta = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
     print('...Loading metadata ok!')
 
     print('Test saving metadata...')
     with dlite.Storage('bson', meta_test_file, 'mode=w') as s:
-        s.save(inst)
+        s.save(meta)
     with dlite.Storage('bson', meta_test_file, 'mode=r') as s:
         inst2 = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
-    if inst == inst2:
+    if meta == inst2:
         print('...Saving metadata ok!')
     else:
         raise ValueError('...Saving metadata failed!')
     os.remove(meta_test_file)
-    del inst, inst2
+    del meta, inst2
 
     print('Test loading data...')
     with dlite.Storage('bson', data_file, 'mode=r') as s:
@@ -106,25 +115,26 @@ if HAVE_BSON:
 else:
     print('Skip testing BSON plugin - bson not installed')
 
+
 if HAVE_YAML:
     # Test YAML
     print('\n\n=== Test YAML plugin ===')
-    meta_file = input_dir + 'test_meta.yaml'
-    meta_test_file = meta_file.replace('.yaml', '_save.yaml')
-    data_file = input_dir + 'test_data.yaml'
-    data_test_file = data_file.replace('.yaml', '_save.yaml')
+    meta_file = input_dir / 'test_meta.yaml'
+    meta_test_file = meta_file.with_name(meta_file.stem + '_save.yaml')
+    data_file = input_dir / 'test_data.yaml'
+    data_test_file = data_file.with_name(data_file.stem + '_save.yaml')
 
     print('Test loading metadata...')
     with dlite.Storage('yaml', meta_file, 'mode=r') as s:
-        inst = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
+        meta = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
     print('...Loading metadata ok!')
 
     print('Test saving metadata...')
     with dlite.Storage('yaml', meta_test_file, 'mode=w') as s:
-        s.save(inst)
+        s.save(meta)
     with dlite.Storage('yaml', meta_test_file, 'mode=r') as s:
         inst2 = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
-    if inst == inst2:
+    if meta == inst2:
         print('...Saving metadata ok!')
     else:
         raise ValueError('...Saving metadata failed!')
@@ -150,5 +160,65 @@ if HAVE_YAML:
         raise ValueError('...Saving data failed!')
     os.remove(data_test_file)
     del inst1, inst2, inst3, inst4
+else:
+    print('Skip testing YAML plugin - PyYAML not installed')
+
+
+if HAVE_RDF:
+    # Test RDF
+    print('\n\n=== Test RDF plugin ===')
+    meta_file = input_dir / 'test_meta.ttl'
+    meta_test_file = meta_file.with_name(meta_file.stem + '_save.ttl')
+    data_file = input_dir / 'test_data.ttl'
+    data_test_file = data_file.with_name(data_file.stem + '_save.ttl')
+
+    #if not meta_file.exists():
+    #    meta.save('pyrdf', meta_file, 'mode=w')
+
+    print('Test loading metadata...')
+    with dlite.Storage('pyrdf', meta_file, 'mode=r') as s:
+        meta = s.load('http://onto-ns.com/meta/0.2/myentity')
+    print('...Loading metadata ok!')
+
+    print('Test saving metadata...')
+    with dlite.Storage('pyrdf', meta_test_file, 'mode=w') as s:
+        s.save(meta)
+    print('...Saving metadata ok!')
+
+    with open(meta_file, 'rt') as f:
+        buf_orig = f.read()
+    with open(meta_test_file, 'rt') as f:
+        buf_saved = f.read()
+    assert buf_orig.strip() == buf_saved.strip()
+
+
+    #with dlite.Storage('yaml', meta_test_file, 'mode=r') as s:
+    #    inst2 = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
+    #if inst == inst2:
+    #    print('...Saving metadata ok!')
+    #else:
+    #    raise ValueError('...Saving metadata failed!')
+    #os.remove(meta_test_file)
+
+
+    #print('Test loading data...')
+    #with dlite.Storage('yaml', data_file, 'mode=r') as s:
+    #    inst1 = s.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
+    #    inst2 = s.load('e076a856-e36e-5335-967e-2f2fd153c17d')
+    #print('...Loading data ok!')
+    #
+    #print('Test saving data...')
+    #with dlite.Storage('yaml', data_test_file, 'mode=w') as s:
+    #    s.save(inst1)
+    #    s.save(inst2)
+    #with dlite.Storage('yaml', data_test_file, 'mode=r') as s:
+    #    inst3 = s.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
+    #    inst4 = s.load('e076a856-e36e-5335-967e-2f2fd153c17d')
+    #if inst1 == inst3 and inst2 == inst4:
+    #    print('...Saving data ok!')
+    #else:
+    #    raise ValueError('...Saving data failed!')
+    #os.remove(data_test_file)
+    #del inst1, inst2, inst3, inst4
 else:
     print('Skip testing YAML plugin - PyYAML not installed')

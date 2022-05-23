@@ -7,6 +7,7 @@ import re
 
 import rdflib
 from rdflib import Literal, RDF, URIRef
+from rdflib.util import guess_format
 
 import dlite
 
@@ -249,7 +250,7 @@ def from_graph(graph, id=None):
 
 
 def from_rdf(source=None, location=None, file=None, data=None,
-             format="turtle", id=None, **kwargs):
+             format=None, id=None, **kwargs):
     """Instantiate DLite instance from RDF.
 
     The source is specified using one of `source`, `location`, `file` or `data`.
@@ -276,6 +277,8 @@ def from_rdf(source=None, location=None, file=None, data=None,
     graph = rdflib.Graph()
     if isinstance(source, pathlib.PurePath):
         source = str(source)
+    if format is None:
+        format = guess_format(source)
     graph.parse(source=source, location=location, file=file, data=data,
                 format=format, **kwargs)
     return from_graph(graph, id=id)
