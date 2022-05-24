@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 
+import rdflib
+from rdflib.util import guess_format
+from rdflib.compare import to_isomorphic
+
 import dlite
 
 try:
@@ -27,6 +31,20 @@ else:
 
 #thisdir = os.path.abspath(os.path.dirname(__file__))
 thisdir = Path(__file__).resolve().parent
+
+
+def equal_rdf_files(path1, path2):
+    """Help function, returning true if the rdf graphs stored in `path1`
+    and `path2` are equal."""
+    fmt1 = guess_format(path1)
+    fmt2 = guess_format(path2)
+    g1 = rdflib.Graph()
+    g2 = rdflib.Graph()
+    g1.parse(str(path1), format=fmt1)
+    g2.parse(str(path2), format=fmt2)
+    iso1 = to_isomorphic(g1)
+    iso2 = to_isomorphic(g2)
+    return iso1 == iso2
 
 
 # Test JSON
@@ -183,29 +201,25 @@ if HAVE_RDF:
     print('Test saving metadata...')
     with dlite.Storage('pyrdf', meta_test_file, 'mode=w') as s:
         s.save(meta)
+    assert equal_rdf_files(meta_file, meta_test_file)
     print('...Saving metadata ok!')
 
-    with open(meta_file, 'rt') as f:
-        buf_orig = f.read()
-    with open(meta_test_file, 'rt') as f:
-        buf_saved = f.read()
-    assert buf_orig.strip() == buf_saved.strip()
+    # with open(meta_file, 'rt') as f:
+    #     buf_orig = f.read()
+    # with open(meta_test_file, 'rt') as f:
+    #     buf_saved = f.read()
+    # assert buf_orig.strip() == buf_saved.strip()
 
+    # if not data_file.exists():
+    #     with dlite.Storage('pyrdf', data_file, 'mode=w') as s:
+    #         s.save(inst1)
+    #         s.save(inst2)
 
-    #with dlite.Storage('yaml', meta_test_file, 'mode=r') as s:
-    #    inst2 = s.load('2b10c236-eb00-541a-901c-046c202e52fa')
-    #if inst == inst2:
-    #    print('...Saving metadata ok!')
-    #else:
-    #    raise ValueError('...Saving metadata failed!')
-    #os.remove(meta_test_file)
-
-
-    #print('Test loading data...')
-    #with dlite.Storage('yaml', data_file, 'mode=r') as s:
-    #    inst1 = s.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
-    #    inst2 = s.load('e076a856-e36e-5335-967e-2f2fd153c17d')
-    #print('...Loading data ok!')
+    print('Test loading data...')
+    with dlite.Storage('pyrdf', data_file, 'mode=r') as s:
+        inst1 = s.load('inst_with_uri')
+        inst2 = s.load('67128279-c3fa-4483-8842-eb571f94a1ae')
+    print('...Loading data ok!')
     #
     #print('Test saving data...')
     #with dlite.Storage('yaml', data_test_file, 'mode=w') as s:

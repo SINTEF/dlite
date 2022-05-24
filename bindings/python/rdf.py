@@ -23,6 +23,19 @@ def _is_valid_uri(value):
     )
 
 
+def _get_uri(inst, base_uri):
+    """Returns a uri for `inst`."""
+    if inst.uri:
+        if _is_valid_uri(inst.uri) or not base_uri:
+            return inst.uri
+        else:
+            return base_uri + inst.uri
+    elif base_uri:
+        return base_uri + inst.uuid
+    else:
+        return inst.uuid
+
+
 def _ref(value):
     """Return a URIRef if value is a valid URI, else a literal."""
     return URIRef(value) if _is_valid_uri(value) else Literal(value)
@@ -55,10 +68,7 @@ def to_graph(inst, graph=None, base_uri='', base_prefix=None, include_meta=None)
             str(v) for _, v in graph.namespaces()]:
         graph.bind(base_prefix, base_uri)
 
-    this = URIRef(
-        inst.uri if _is_valid_uri(inst.uri) else base_uri + inst.uri
-        if inst.uri else f"{base_uri}{inst.uuid}"
-    )
+    this = URIRef(_get_uri(inst, base_uri))
     sep = "/" if "#" in this else "#"
 
     graph.add((this, DM.hasUUID, Literal(inst.uuid)))
