@@ -2,6 +2,7 @@
 
 It uses the datamodel ontology: https://github.com/emmo-repo/datamodel-ontology
 """
+import itertools
 import pathlib
 import re
 
@@ -11,6 +12,9 @@ from rdflib.util import guess_format
 
 import dlite
 
+
+# Logical namespace to use as document base when parsing
+PUBLIC_ID = "http://onto-ns.com/data/"
 
 # Namespaces
 DM = rdflib.Namespace("http://emmo.info/datamodel/0.0.2#")
@@ -34,6 +38,19 @@ def _get_uri(inst, base_uri):
         return base_uri + inst.uuid
     else:
         return inst.uuid
+
+
+def _value(graph, subject=None, predicate=None, object=None, **kwargs):
+    """Wrapper around rdflib.Graph.value() that raises an exception
+    if the value is missing."""
+    value = graph.value(subject=subject, predicate=predicate, object=object,
+                        **kwargs)
+    if not value:
+        raise ValueError(
+            f"missing value for subject={subject}, predicate={predicate}, "
+            f"object={object}"
+        )
+    return value
 
 
 def _ref(value):
@@ -173,13 +190,13 @@ def from_graph(graph, id=None):
     Returns new DLite instance.
     """
     if id is None:
-        g = (
-            graph.subjects(RDF.type, DM.Entity) or
-            graph.subjects(RDF.type, DM.DataInstance) or
-            graph.subjects(RDF.type, DM.Metadata) or
-            graph.subjects(RDF.type, DM.Instance)
+        g = itertools.chain(
+            graph.subjects(RDF.type, DM.Entity),
+            graph.subjects(RDF.type, DM.DataInstance),
+            graph.subjects(RDF.type, DM.Metadata),
+            graph.subjects(RDF.type, DM.Instance),
         )
-        id = g.__next__()
+        rdfid = URIRef(g.__next__())
         try:
             g.__next__()
         except StopIteration:
@@ -187,15 +204,30 @@ def from_graph(graph, id=None):
         else:
             raise ValueError(
                 "id must be given when graph has move than one entity")
+    elif _is_valid_uri(id):
+        rdfid = URIRef(id)
     else:
-        id = URIRef(id)
+        rdfid = URIRef(PUBLIC_ID + id)
 
     # Get uuid and make sure that it is consistent with id
-    uuid = str(graph.value(id, DM.hasUUID))
-    dlite_id = id
+    uuid = graph.value(rdfid, DM.hasUUID)
+    dlite_id = id if id else uuid
+    dlite_id = dlite_id.split("#", 1)[-1]
+    if not uuid:
+        v = graph.value(None, DM.hasUUID, Literal(id))
+        if v:
+            rdfid = v
+            uuid = id
+            dlite_id = (
+                rdfid.split("#", 1)[-1] if "#" in rdfid
+                else rdfid.rsplit("/", 1)[-1]
+            )
+            rdfid = URIRef(rdfid)
     if uuid:
-        if dlite.get_uuid(dlite_id) != uuid:
-            dlite_id = dlite_id.split("#", 1)[-1]
+        uuid = str(uuid)
+
+    if uuid:
+        if dlite.get_uuid(dlite_id) != str(uuid):
             if dlite.get_uuid(dlite_id) != uuid:
                 raise ValueError(f"provided id \"{id}\" does not correspond "
                                  f"to uuid \"{uuid}\"")
@@ -205,20 +237,20 @@ def from_graph(graph, id=None):
     if dlite.has_instance(uuid):
         return dlite.get_instance(uuid)
 
-    metaid = graph.value(id, DM.instanceOf)
+    metaid = _value(graph, rdfid, DM.instanceOf)
     if dlite.has_instance(metaid):
-        meta = dlite.get_instance(graph.value(id, DM.instanceOf))
+        meta = dlite.get_instance(_value(graph, rdfid, DM.instanceOf))
     else:
         meta = from_graph(graph, id=metaid)
-    dimensions = list(graph.objects(id, DM.hasDimension))
-    properties = list(graph.objects(id, DM.hasProperty))
+    dimensions = list(graph.objects(rdfid, DM.hasDimension))
+    properties = list(graph.objects(rdfid, DM.hasProperty))
 
     if meta.is_metameta:
         dims = []
         for dim in dimensions:
             dims.append(
                 dlite.Dimension(
-                    name=graph.value(dim, DM.hasLabel),
+                    name=_value(graph, dim, DM.hasLabel),
                     description=graph.value(dim, DM.hasDescription),
                 )
             )
@@ -229,12 +261,12 @@ def from_graph(graph, id=None):
             if shape:
                 next = graph.value(shape, DM.hasFirst)
                 while next:
-                    dlite_shape.append(graph.value(next, DM.hasValue))
+                    dlite_shape.append(_value(graph, next, DM.hasValue))
                     next = graph.value(next, DM.hasNext)
             props.append(
                 dlite.Property(
-                    name=graph.value(prop, DM.hasLabel),
-                    type=graph.value(prop, DM.hasType),
+                    name=_value(graph, prop, DM.hasLabel),
+                    type=_value(graph, prop, DM.hasType),
                     dims=dlite_shape,
                     unit=graph.value(prop, DM.hasUnit),
                     description=graph.value(prop, DM.hasDescription),
@@ -244,23 +276,23 @@ def from_graph(graph, id=None):
             uri=dlite_id,
             dimensions=dims,
             properties=props,
-            description=graph.value(id, DM.hasDescription),
+            description=graph.value(rdfid, DM.hasDescription),
         )
     else:
-        dims = {str(graph.value(dim, DM.hasLabel)):
-                int(graph.value(dim, DM.hasValue))
+        dims = {str(_value(graph, dim, DM.hasLabel)):
+                int(_value(graph, dim, DM.hasValue))
                 for dim in dimensions}
         inst = dlite.Instance.from_metaid(meta.uri, dims, id=dlite_id)
         for prop in properties:
-            label = graph.value(prop, DM.hasLabel)
-            value = graph.value(prop, DM.hasValue)
+            label = _value(graph, prop, DM.hasLabel)
+            value = _value(graph, prop, DM.hasValue)
             inst.set_property_from_string(label, value, flags=1)
 
     return inst
 
 
 def from_rdf(source=None, location=None, file=None, data=None,
-             format=None, id=None, **kwargs):
+             format=None, id=None, publicID=PUBLIC_ID, **kwargs):
     """Instantiate DLite instance from RDF.
 
     The source is specified using one of `source`, `location`, `file` or `data`.
@@ -278,6 +310,7 @@ def from_rdf(source=None, location=None, file=None, data=None,
             supported: "xml", "n3", "turtle", "nt" and "trix".
         id: Id of the instance to return.  May be None if the source only
             contain one instance.
+        publicID: Logical URI to use as document base.
         kwargs:
             Additional keyword arguments passed to rdflib.Graph.parse().
 
@@ -290,5 +323,5 @@ def from_rdf(source=None, location=None, file=None, data=None,
     if format is None:
         format = guess_format(source)
     graph.parse(source=source, location=location, file=file, data=data,
-                format=format, **kwargs)
+                format=format, publicID=publicID, **kwargs)
     return from_graph(graph, id=id)

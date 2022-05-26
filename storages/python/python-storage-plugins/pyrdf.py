@@ -7,7 +7,7 @@ from rdflib.util import guess_format
 
 import dlite
 from dlite.options import Options
-from dlite.rdf import DM, from_graph, to_graph
+from dlite.rdf import DM, PUBLIC_ID, from_graph, to_graph
 
 
 class pyrdf(dlite.DLiteStorageBase):
@@ -17,13 +17,14 @@ class pyrdf(dlite.DLiteStorageBase):
         """Opens `uri`.
 
         Supported options:
-        - mode : a | r | w
+        - mode : "a" | "r" | "w"
             Valid values are:
             - a   Append to existing file or create new file (default)
             - r   Open existing file for read-only
             - w   Truncate existing file or create new file
-        - format : "turtle", "xml",
-            File format.
+        - format : "turtle" | "xml" | "n3" | "nt" | "json-ld" | "nquads"...
+            File format.  For a complete list of valid formats, see
+            https://rdflib.readthedocs.io/en/stable/intro_to_parsing.html
         - base_uri : str
             Base URI that is prepended to the instance UUID or URI
             (if it is not already a valid URI).
@@ -42,7 +43,7 @@ class pyrdf(dlite.DLiteStorageBase):
         )
         self.graph = rdflib.Graph()
         if self.options.mode in 'ra':
-            self.graph.parse(uri, format=self.format)
+            self.graph.parse(uri, format=self.format, publicID=PUBLIC_ID)
 
     def close(self):
         """Closes this storage."""
