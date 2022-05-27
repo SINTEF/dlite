@@ -39,7 +39,24 @@ class InstanceEncoder(json.JSONEncoder):
 
 
 class Metadata(Instance):
-    """A subclass of Instance for metadata."""
+    """A subclass of Instance for metadata.
+
+    Arguments:
+        uri: URI of the new metadata.
+        dimensions: Sequence of Dimension instances describing each dimension.
+        properties: Sequence of Property instances describing each property.
+        description: Description of metadata.
+    """
+    def __new__(
+            cls,
+            uri: str,
+            dimensions: "Sequence[Dimension]",
+            properties: "Sequence[Property]",
+            description: str = ''
+    ):
+        return Instance.create_metadata(
+            uri, dimensions, properties, description)
+
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
 

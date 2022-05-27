@@ -162,6 +162,7 @@ extra_requirements = [
     "psycopg2-binary",
     "pandas",
     "pymongo",
+    "rdflib",
 ]
 
 requirements = ["numpy"]

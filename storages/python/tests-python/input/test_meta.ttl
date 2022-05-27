@@ -1,0 +1,72 @@
+@prefix ns1: <http://emmo.info/datamodel/0.0.2#> .
+
+<http://onto-ns.com/meta/0.2/myentity> a ns1:Entity ;
+    ns1:hasDescription "test entity with explicit meta"@en ;
+    ns1:hasDimension <http://onto-ns.com/meta/0.2/myentity#L>,
+        <http://onto-ns.com/meta/0.2/myentity#M>,
+        <http://onto-ns.com/meta/0.2/myentity#N> ;
+    ns1:hasProperty <http://onto-ns.com/meta/0.2/myentity#myarray>,
+        <http://onto-ns.com/meta/0.2/myentity#myblob>,
+        <http://onto-ns.com/meta/0.2/myentity#mydouble>,
+        <http://onto-ns.com/meta/0.2/myentity#myfixstring>,
+        <http://onto-ns.com/meta/0.2/myentity#myshort>,
+        <http://onto-ns.com/meta/0.2/myentity#mystring> ;
+    ns1:hasUUID "439e64b9-28fe-5f02-ab09-585e11310b85" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.3/EntitySchema> .
+
+<http://onto-ns.com/meta/0.2/myentity#L> a ns1:Dimension ;
+    ns1:hasDescription "first dim"@en ;
+    ns1:hasLabel "L"@en .
+
+<http://onto-ns.com/meta/0.2/myentity#M> a ns1:Dimension ;
+    ns1:hasDescription "second dim"@en ;
+    ns1:hasLabel "M"@en .
+
+<http://onto-ns.com/meta/0.2/myentity#N> a ns1:Dimension ;
+    ns1:hasDescription "third dim"@en ;
+    ns1:hasLabel "N"@en .
+
+<http://onto-ns.com/meta/0.2/myentity#myarray> a ns1:Property ;
+    ns1:hasDescription "An array string pointer." ;
+    ns1:hasLabel "myarray" ;
+    ns1:hasShape <http://onto-ns.com/meta/0.2/myentity#myarray/shape> ;
+    ns1:hasType "int32" .
+
+<http://onto-ns.com/meta/0.2/myentity#myarray/shape> a ns1:Shape ;
+    ns1:hasFirst <http://onto-ns.com/meta/0.2/myentity#myarray/shape_0> .
+
+<http://onto-ns.com/meta/0.2/myentity#myarray/shape_0> a ns1:DimensionExpression ;
+    ns1:hasNext <http://onto-ns.com/meta/0.2/myentity#myarray/shape_1> ;
+    ns1:hasValue "L" .
+
+<http://onto-ns.com/meta/0.2/myentity#myarray/shape_1> a ns1:DimensionExpression ;
+    ns1:hasNext <http://onto-ns.com/meta/0.2/myentity#myarray/shape_2> ;
+    ns1:hasValue "M" .
+
+<http://onto-ns.com/meta/0.2/myentity#myarray/shape_2> a ns1:DimensionExpression ;
+    ns1:hasValue "N" .
+
+<http://onto-ns.com/meta/0.2/myentity#myblob> a ns1:Property ;
+    ns1:hasLabel "myblob" ;
+    ns1:hasType "blob3" .
+
+<http://onto-ns.com/meta/0.2/myentity#mydouble> a ns1:Property ;
+    ns1:hasDescription "A double following a single character..." ;
+    ns1:hasLabel "mydouble" ;
+    ns1:hasType "float64" ;
+    ns1:hasUnit "m" .
+
+<http://onto-ns.com/meta/0.2/myentity#myfixstring> a ns1:Property ;
+    ns1:hasDescription "A fix string." ;
+    ns1:hasLabel "myfixstring" ;
+    ns1:hasType "string3" .
+
+<http://onto-ns.com/meta/0.2/myentity#myshort> a ns1:Property ;
+    ns1:hasDescription "An unsigned short integer." ;
+    ns1:hasLabel "myshort" ;
+    ns1:hasType "uint16" .
+
+<http://onto-ns.com/meta/0.2/myentity#mystring> a ns1:Property ;
+    ns1:hasDescription "A string pointer." ;
+    ns1:hasLabel "mystring" ;
+    ns1:hasType "string" .
