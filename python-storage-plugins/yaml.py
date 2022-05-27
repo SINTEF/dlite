@@ -23,12 +23,15 @@ class yaml(dlite.DLiteStorageBase):
 
         An ampersand (&) may be used instead of the semicolon (;).
 
-        Typical options supported by most drivers include:
-        - mode : append | r | w
+        Supported options:
+        - mode : "a" | "r" | "w"
             Valid values are:
-            - append   Append to existing file or create new file (default)
-            - r        Open existing file for read-only
-            - w        Truncate existing file or create new file
+            - a   Append to existing file or create new file (default)
+            - r   Open existing file for read-only
+            - w   Truncate existing file or create new file
+        - single : bool | "auto"
+            Whether the YAML input is in single-entity form.  If `single` is
+            "auto", it will be inferred from the input.
 
         After the options are passed, this method may set attribute
         `writable` to true if it is writable and to false otherwise.
@@ -51,12 +54,13 @@ class yaml(dlite.DLiteStorageBase):
             mode = ('w' if self.mode == 'r+' and not os.path.exists(self.uri)
                     else self.mode)
             with open(self.uri, mode) as f:
-                pyyaml.dump(self.d, f)
+                pyyaml.dump(self.d, f, default_flow_style=False, sort_keys=False)
 
-    def load(self, uuid):
+    def load(self, id):
         """Loads `uuid` from current storage and return it as a new instance."""
-        uuid = dlite.get_uuid(uuid)
-        return instance_from_dict(self.d[uuid])
+        uuid = dlite.get_uuid(id)
+        #return instance_from_dict(self.d, id, single=self.options.single)
+        return instance_from_dict(self.d, id)
 
     def save(self, inst):
         """Stores `inst` in current storage."""
