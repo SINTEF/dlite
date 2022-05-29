@@ -37,8 +37,8 @@ class yaml(dlite.DLiteStorageBase):
         `writable` to true if it is writable and to false otherwise.
         If `writable` is not set, it is assumed to be true.
         """
-        self.options = Options(options, defaults='mode=append')
-        self.mode = dict(r='r', w='w', append='r+')[self.options.mode]
+        self.options = Options(options, defaults='mode=a')
+        self.mode = dict(r='r', w='w', a='r+')[self.options.mode]
         self.writable = False if 'r' in self.mode else True
         self.uri = uri
         self.d = {}

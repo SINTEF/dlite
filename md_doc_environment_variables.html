@@ -86,6 +86,7 @@ $(function() {
 <li><p class="startli"><b>DLITE_USE_BUILD_ROOT</b>: If this is defined, use the build root instead of the installation root. This environment variable is only intended for testing.</p>
 <p class="startli"><b>note</b>: On Windows <code>DLITE_USE_BUILD_ROOT</code> affects both the library and the plugin search paths, while it only affects the plugin search paths on Linux.</p>
 </li>
+<li><b>DLITE_PYDEBUG</b>: Traceback from errors happening Python plugins are normally lost. But, if <code>DLITE_PYDEBUG</code> is defined, a Python error message will be written to standard error.</li>
 </ul>
 <h2>Specific paths</h2>
 <p>These environment variables can be used to provide additional search paths apart from the defaults, which is either in the installation root (if DLITE_USE_BUILD_ROOT is not set) or build directory (if DLITE_USE_BUILD_ROOT is set).</p>
