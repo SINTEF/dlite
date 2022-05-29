@@ -116,6 +116,18 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
     PyErr_NormalizeException(&type, &value, &tb);
     assert(type && value);
 
+    /* If the DLITE_PYDEBUG environment variable is set, print full Python
+       error message (with traceback) to sys.stderr. */
+    if (getenv("DLITE_PYDEBUG")) {
+      Py_INCREF(type);
+      Py_INCREF(value);
+      Py_INCREF(tb);
+      PyErr_Restore(type, value, tb);
+      PySys_WriteStderr("\n");
+      PyErr_Print();
+      PySys_WriteStderr("\n");
+   }
+
     /* Try to get traceback info from traceback.format_exception()... */
     if (tb) {
       PyObject *module_name=NULL, *module=NULL, *pfunc=NULL, *val=NULL,
@@ -395,11 +407,9 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
       PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
                                  main_dict);
       free(basename);
-      if (!ret) {
+      if (!ret)
         dlite_pyembed_err(1, "error parsing '%s'", path);
-      } else {
-        Py_DECREF(ret);
-      }
+      Py_XDECREF(ret);
       fclose(fp);
     }
   }

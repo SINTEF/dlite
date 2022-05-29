@@ -97,7 +97,6 @@ int closer(DLiteStorage *s)
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
     retval = 1;
   Py_XDECREF(v);
-  //Py_XDECREF(v);  // why do we have to call this twice?
   Py_DECREF(sp->obj);
   return retval;
 }
@@ -115,20 +114,26 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
 
-  pyuuid = PyUnicode_FromString(id);
+  if (id) {
+    pyuuid = PyUnicode_FromString(id);
+  } else {
+    Py_INCREF(Py_None);
+    pyuuid = Py_None;
+  }
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
   PyObject *v = PyObject_CallMethod(sp->obj, "load", "O", pyuuid);
-  if (dlite_pyembed_err_check("error calling %s.load()", classname))
-    goto fail;
-  assert(v);
-  if (!(inst = dlite_pyembed_get_instance(v))) goto fail;
- fail:
-  Py_XDECREF(pyuuid);
-  Py_XDECREF(v);
+  Py_DECREF(pyuuid);
+
+  if (v) {
+    inst = dlite_pyembed_get_instance(v);
+    Py_DECREF(v);
+  } else
+    dlite_pyembed_err(1, "error calling %s.load()", classname);
+
   return inst;
 }
 
@@ -153,7 +158,6 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
   retval = 0;
  fail:
   Py_XDECREF(pyinst);
-  //Py_XDECREF(pyinst);  // why do we have to call this twice?
   Py_XDECREF(v);
   return retval;
 }
