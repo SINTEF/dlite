@@ -482,14 +482,14 @@ Call signatures:
   }
 
   %feature("docstring",
-           "Increase reference count and return the new refcount.") incref;
-  int incref(void) {
+           "Increase reference count and return the new refcount.") _incref;
+  int _incref(void) {
     return dlite_instance_incref($self);
   }
 
   %feature("docstring",
-           "Decrease reference count and return the new refcount.") decref;
-  int decref(void) {
+           "Decrease reference count and return the new refcount.") _decref;
+  int _decref(void) {
     return dlite_instance_decref($self);
   }
 
