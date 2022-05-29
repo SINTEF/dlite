@@ -15,6 +15,7 @@ set(tests
   test_property_mappings
   test_datamodel
   test_mapping
+  test_rdf
   )
 
 foreach(test ${tests})

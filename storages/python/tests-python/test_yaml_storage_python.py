@@ -4,6 +4,9 @@ import sys
 from importlib import util
 from pathlib import Path
 
+import yaml as pyyaml
+
+
 sys.dont_write_bytecode = True
 from run_python_storage_tests import print_test_exception
 
@@ -21,7 +24,7 @@ try:
     # Test loading YAML metadata
     yaml_inst1 = yaml_mod.yaml()
     yaml_inst1.open(input_path / 'test_meta.yaml')
-    inst = yaml_inst1.load('2b10c236-eb00-541a-901c-046c202e52fa')
+    inst = yaml_inst1.load('d9910bde-6028-524c-9e0f-e8f0db734bc8')
     print('...Loading metadata ok!')
 
 
@@ -30,20 +33,18 @@ try:
     yaml_inst2.open('yaml_test_save.yaml', 'mode=w')
     yaml_inst2.save(inst)
     yaml_inst2.close()
-    with open(input_path / 'test_meta.yaml', 'r') as orig:
-        orig_yaml = orig.read()
-    with open('yaml_test_save.yaml', 'r') as cpy:
-        cpy_yaml = cpy.read()
-    if cpy_yaml == orig_yaml:
-        print('...Saving metadata ok!')
-    else:
-        raise ValueError('...Saving metadata failed!')
+    with open(input_path / 'test_meta.yaml', "r") as f:
+        d1 = pyyaml.safe_load(f)
+    with open('yaml_test_save.yaml', "r") as f:
+        d2 = pyyaml.safe_load(f)
+    assert d1 == d2
+    print('...Saving metadata ok!')
 
     # Test loading YAML data
     yaml_inst3 = yaml_mod.yaml()
     yaml_inst3.open(input_path / 'test_data.yaml')
-    inst1 = yaml_inst3.load('204b05b2-4c89-43f4-93db-fd1cb70f54ef')
-    inst2 = yaml_inst3.load('e076a856-e36e-5335-967e-2f2fd153c17d')
+    inst1 = yaml_inst3.load('52522ba5-6bfe-4a64-992d-e9ec4080fbac')
+    inst2 = yaml_inst3.load('2f8ba28c-add6-5718-a03c-ea46961d6ca7')
     print('...Loading data ok!')
 
     # Test saving YAML data
@@ -52,14 +53,12 @@ try:
     yaml_inst4.save(inst1)
     yaml_inst4.save(inst2)
     yaml_inst4.close()
-    with open(input_path / 'test_data.yaml', 'r') as orig:
-        orig_yaml = orig.read()
-    with open('yaml_test_save2.yaml', 'r') as cpy:
-        cpy_yaml = cpy.read()
-    if cpy_yaml == orig_yaml:
-        print('...Saving data ok!')
-    else:
-        raise ValueError('...Saving data failed!')
+    with open(input_path / 'test_data.yaml', "r") as f:
+        d1 = pyyaml.safe_load(f)
+    with open('yaml_test_save2.yaml', "r") as f:
+        d2 = pyyaml.safe_load(f)
+    assert d1 == d2
+    print('...Saving data ok!')
 
     print(f'Test <{thisfile.name}> ran successfully')
 except Exception as err:

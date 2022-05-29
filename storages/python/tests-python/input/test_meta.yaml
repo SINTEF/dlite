@@ -1,4 +1,7 @@
-2b10c236-eb00-541a-901c-046c202e52fa:
+d9910bde-6028-524c-9e0f-e8f0db734bc8:
+  uuid: d9910bde-6028-524c-9e0f-e8f0db734bc8
+  uri: http://onto-ns.com/meta/0.1/TestEntity
+  meta: http://onto-ns.com/meta/0.3/EntitySchema
   description: test entity with explicit meta
   dimensions:
   - description: first dim
@@ -7,29 +10,24 @@
     name: M
   - description: third dim
     name: N
-  meta: http://onto-ns.com/meta/0.3/EntitySchema
   properties:
   - name: myblob
     type: blob3
-  - description: A double following a single character...
-    name: mydouble
+  - name: mydouble
     type: float64
     unit: m
-  - description: A fix string.
-    name: myfixstring
+    description: A double following a single character...
+  - name: myfixstring
     type: string3
-  - description: A string pointer.
+    description: A fix string.
+  - name: mystring
     name: mystring
     type: string
-  - description: An unsigned short integer.
-    name: myshort
+    description: A string pointer.
+  - name: myshort
     type: uint16
-  - description: An array string pointer.
-    dims:
-    - L
-    - M
-    - N
-    name: myarray
+    description: An unsigned short integer.
+  - name: myarray
     type: int32
-  uri: http://onto-ns.com/meta/0.1/test-entity
-  uuid: 2b10c236-eb00-541a-901c-046c202e52fa
+    dims: [L, M, N]
+    description: An array string pointer.
