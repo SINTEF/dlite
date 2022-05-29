@@ -119,8 +119,20 @@ int globmatch(const char *pattern, const char *s);
 
 %feature("docstring", "\
 Clear the last error (setting its error code to zero).
-") dlite_err_set_file;
+") dlite_errclr;
 void dlite_errclr(void);
+
+%feature("docstring", "\
+Returns the error code (error value) or the last error or zero if no errors
+have occured since the last call to dlite.errclr().
+") dlite_errval;
+int dlite_errval(void);
+
+%feature("docstring", "\
+Returns the error message of the last error.  None is returned if no errors
+have occured since the last call to dlite.errclr().
+") dlite_errmsg;
+const char *dlite_errmsg(void);
 
 %feature("docstring", "\
 Get current error stream.

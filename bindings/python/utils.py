@@ -23,10 +23,52 @@ else:
 import dlite
 
 
-def instance_from_dict(d):
+def instance_from_dict(d, id=None, single=None):
     """Returns a new DLite instance created from dict `d`, which should
     be of the same form as returned by the Instance.asdict() method.
+
+    If `d` is in single-entity form with no explicit 'uuid' or 'uri',
+    it identity will be assigned by `id`.  Otherwise `id` must be consistent
+    with the 'uuid' and/or 'uri' fields of `d`.
+
+    If `d` is in multi-entity form, `id` is used to select the instance to
+    return.
+
+    if `single` is true, the dict is assumed to be in single-entity form and
+    if it is false, the dict is assumed to be in multi-entity form.
+    If `single` is None, the form is inferred.
     """
+    if single is None or single == 'auto':
+        single = True if 'properties' in d else False
+
+    if single:
+        if not id and 'uuid' not in d and 'uri' not in d:
+            if 'namespace' in d and 'version' in d and 'name' in d:
+                id = f"{d['namespace']}/{d['version']}/{d['name']}"
+            else:
+                raise ValueError('`id` required for dicts in single-entry '
+                                 'form with no explicit uuid or uri.')
+    else:
+        if not id:
+            raise ValueError('`id` required for dicts in multi-entry form.')
+        if id in d:
+            return instance_from_dict(d[id], id=id, single=True)
+        else:
+            uuid = dlite.get_uuid(id)
+            if uuid in d:
+                return instance_from_dict(d[uuid], id=id, single=True)
+            else:
+                raise ValueError(f'no such id in dict: {id}')
+
+    if 'uri' in d or 'uuid' in d:
+        if 'uri' in d and 'uuid' in d:
+            if dlite.get_uuid(d['uri']) != d['uuid']:
+                raise dlite.DLiteError('uri and uuid in dict are not consistent')
+        uuid = dlite.get_uuid(d.get('uuid', d.get('uri')))
+        if id:
+            if dlite.get_uuid(id) != uuid:
+                raise ValueError(f'`id` is not consistent with uri/uuid in dict')
+
     meta = dlite.get_instance(d.get('meta', dlite.ENTITY_SCHEMA))
 
     if meta.is_metameta:
@@ -81,8 +123,8 @@ def instance_from_dict(d):
     else:
         dims = [d['dimensions'][dim.name]
                 for dim in meta.properties['dimensions']]
-        id = d.get('uri', d.get('uuid', None))
-        inst = dlite.Instance.from_metaid(meta.uri, dims=dims, id=id)
+        inst_id = d.get('uri', d.get('uuid', id))
+        inst = dlite.Instance.from_metaid(meta.uri, dims=dims, id=inst_id)
         for p in meta['properties']:
             value = d['properties'][p.name]
             inst[p.name] = value

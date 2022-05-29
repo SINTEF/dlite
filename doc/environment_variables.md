@@ -41,6 +41,11 @@ DLite-specific environment variables
     plugin search paths, while it only affects the plugin search paths on
     Linux.
 
+  - **DLITE_PYDEBUG**: Traceback from errors happening Python plugins are normally
+    lost.  But, if `DLITE_PYDEBUG` is defined, a Python error message will be
+    written to standard error.
+
+
 ### Specific paths
 These environment variables can be used to provide additional search
 paths apart from the defaults, which is either in the installation
