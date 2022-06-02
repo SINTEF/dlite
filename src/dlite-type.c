@@ -1268,9 +1268,9 @@ int dlite_type_update_sha3(sha3_context *c, const void *ptr,
   case dliteRelation:
     {
       const DLiteRelation *rel = ptr;
-      sha3_Update(c, rel->s, strlen(rel->s));
-      sha3_Update(c, rel->p, strlen(rel->p));
-      sha3_Update(c, rel->o, strlen(rel->o));
+      if (rel->s) sha3_Update(c, rel->s, strlen(rel->s));
+      if (rel->p) sha3_Update(c, rel->p, strlen(rel->p));
+      if (rel->o) sha3_Update(c, rel->o, strlen(rel->o));
     }
     break;
 
