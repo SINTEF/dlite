@@ -32,6 +32,8 @@ char *jstore_readfp(FILE *fp)
 {
   char *q, *buf=NULL;
   size_t n, bytes_left, bytes_read=0, size=256;
+  if (feof(fp)) FAIL("stream error. Is it a regular file "
+                     "with read permissions?");
   do {
     if (ferror(fp)) FAIL("stream error");
     size *= 2;
@@ -41,8 +43,6 @@ char *jstore_readfp(FILE *fp)
     n = fread(buf+bytes_read, 1, bytes_left, fp);
     bytes_read += n;
   } while (n == bytes_left && !feof(fp));
-  if (feof(fp)) FAIL("error reading from stream. Is it a regular file "
-                     "with read permissions?");
   assert(feof(fp));  // stream should be exausted
   if (!(q = realloc(buf, bytes_read+1))) FAIL("reallocation failure");
   buf = q;
