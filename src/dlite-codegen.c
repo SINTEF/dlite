@@ -421,6 +421,7 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
                       (unsigned long)meta->_headersize);
     tgen_subs_set_fmt(subs, "_init",        NULL, "NULL");
     tgen_subs_set_fmt(subs, "_deinit",      NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_gethash",     NULL, "NULL");
     tgen_subs_set_fmt(subs, "_getdim",      NULL, "NULL");
     tgen_subs_set_fmt(subs, "_setdim",      NULL, "NULL");
     tgen_subs_set_fmt(subs, "_loadprop",    NULL, "NULL");

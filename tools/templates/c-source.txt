@@ -31,6 +31,8 @@
  *         Name of _init() function
  *     _deinit
  *         Name of _deinit() function
+ *     _gethash
+ *         Name of _gethash() function
  *     _getdim
  *         Name of _getdim() function
  *     _setdim
@@ -139,6 +141,7 @@ static {basename}Struct {name%u} = {{
   offsetof({basename}, {dim0}), {@52}/* _headersize */
   {_init},                  {@52}/* _init */
   {_deinit},                {@52}/* _deinit */
+  {_gethash},               {@52}/* _gethash */
   {_getdim},                {@52}/* _getdim */
   {_setdim},                {@52}/* _setdim */
   {_loadprop},              {@52}/* _loadprop */

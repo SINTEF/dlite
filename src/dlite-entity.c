@@ -1781,26 +1781,14 @@ int dlite_instance_set_dimension_size(DLiteInstance *inst, const char *name,
 DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
 {
   DLiteInstance *new=NULL;
-  size_t n;
-  int i;
+  size_t i;
   if (dlite_instance_sync_to_properties((DLiteInstance *)inst)) return NULL;
   if (!(new = dlite_instance_create(inst->meta, DLITE_DIMS(inst), newid)))
     return NULL;
-  for (n=0; n < inst->meta->_nproperties; n++) {
-    DLiteProperty *p = inst->meta->_properties + n;
-    void *src = dlite_instance_get_property_by_index(inst, n);
-    void *dst = dlite_instance_get_property_by_index(new, n);
-   if (p->ndims > 0) {
-      int nmembs=1;
-      for (i=0; i < p->ndims; i++)
-        nmembs *= DLITE_PROP_DIM(inst, n, i);
-      for (i=0; i < nmembs; i++)
-        if (!dlite_type_copy((char *)dst + i*p->size,
-                             (char *)src + i*p->size,
-                             p->type, p->size)) goto fail;
-    } else {
-      if (!dlite_type_copy(dst, src, p->type, p->size)) goto fail;
-    }
+  for (i=0; i < inst->meta->_nproperties; i++) {
+    void *src = dlite_instance_get_property_by_index(inst, i);
+    assert(src);
+    if (dlite_instance_set_property_by_index(new, i, src)) goto fail;
   }
   return new;
  fail:
@@ -2024,11 +2012,14 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   unsigned bitsize = hashsize * 8;
   int retval = 0;
 
+  /* If metadata defines a custom hash function, use that instead of
+     this implementation. */
+  if (inst->meta->_gethash)
+    return inst->meta->_gethash(inst, hash, hashsize);
+
   sha3_Init(&c, bitsize);
   sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
 
-  if (inst->uri)
-    sha3_Update(&c, inst->uri, strlen(inst->uri));
   if (inst->_parent) {
     sha3_Update(&c, inst->_parent->uuid, DLITE_UUID_LENGTH);
     sha3_Update(&c, inst->_parent->hash, DLITE_HASH_SIZE);
@@ -2088,6 +2079,51 @@ void dlite_instance_freeze(DLiteInstance *inst)
 int dlite_instance_is_frozen(const DLiteInstance *inst)
 {
   return inst->_flags & dliteImmutable;
+}
+
+/* Number of random characters in shapshot id (sid) */
+#define SID_LEN 12
+
+/*
+  Returns an immutable snapshop of instance `inst`.
+
+  If `inst` is frozen, a new reference to `inst` is returned,
+  otherwise an frozen copy of `inst` is returned.  If a copy
+  is made, the returned instance will have an URI of the form
+  "snapshot-XXXXXXXXXXXX" (or inst->uri#snapshot-XXXXXXXXXXXX if
+  inst->uri is not NULL) where each X is replaces with a random
+  character.
+
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_get_snapshot(const DLiteInstance *inst)
+{
+  if (dlite_instance_is_frozen(inst)) {
+    dlite_instance_incref((DLiteInstance *)inst);
+    return (DLiteInstance *)inst;
+  } else {
+    int i, c;
+    const char *id = (inst->uri) ? inst->uri : inst->uuid;
+    int len = strcspn(id, "#");
+    char *uri = NULL;
+    char sid[SID_LEN+1];
+
+    /* Create a random snapshot id of graphical ASCII characters. */
+    for (i=0; i<SID_LEN; i++) {
+      do {
+        c = (rand() % (128 - 32)) + 32;  // below c=32 is not printable
+      } while (!isgraph(c) || strchr(" \"'", c));
+      sid[i] = c;
+    }
+    sid[SID_LEN] = '\0';
+    if (asprintf(&uri, "%.*s#snapshot-%s", len, id, sid) < 0)
+        return err(-1, "error formatting uri for snapshot of %s",
+                   inst->uuid), NULL;
+    DLiteInstance *new = dlite_instance_copy(inst, uri);
+    free(uri);
+    if (new) dlite_instance_freeze(new);
+    return new;
+  }
 }
 
 /*

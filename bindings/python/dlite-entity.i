@@ -251,6 +251,7 @@ Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, l
 struct _DLiteInstance {
   %immutable;
   char uuid[DLITE_UUID_LENGTH+1];
+  unsigned char _flags;
   char *uri;
   int _refcount;
   /* const struct _DLiteMeta *meta; */
@@ -361,6 +362,30 @@ Call signatures:
   }
   void save_to_storage(struct _DLiteStorage *storage) {
     dlite_instance_save(storage, $self);
+  }
+
+  %feature("docstring", "Returns a hash of instance.") get_hash;
+  %newobject get_hash;
+  char *get_hash() {
+    uint8_t hash[DLITE_HASH_SIZE];
+    char *hex;
+    if (dlite_instance_get_hash($self, hash, DLITE_HASH_SIZE))
+      return NULL;
+    if (!(hex = malloc(2*DLITE_HASH_SIZE+1)))
+      return dlite_err(1, "allocation failure"), NULL;
+    if (strhex_encode(hex, 2*DLITE_HASH_SIZE+1, hash, DLITE_HASH_SIZE) < 0) {
+      dlite_err(1, "failed hex-encoding hash of '%s'", $self->uuid);
+      free(hex);
+      return NULL;
+    }
+    return hex;
+  }
+
+  %feature("docstring",
+           "Returns an immutable snapshot of instance.") get_snapshot;
+  %newobject get_snapshot;
+  struct _DLiteInstance *get_snapshot() {
+    return dlite_get_snapshot($self);
   }
 
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;

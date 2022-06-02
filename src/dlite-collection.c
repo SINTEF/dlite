@@ -4,6 +4,8 @@
 #include <string.h>
 
 #include "utils/err.h"
+#include "utils/sha3.h"
+#include "utils/strutils.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
 #include "dlite-mapping.h"
@@ -50,6 +52,90 @@ int dlite_collection_deinit(DLiteInstance *inst)
 
   triplestore_free(coll->rstore);
   return 0;
+}
+
+/* Help function for dlite_collection_gethash().
+   Returns 1 if a > b, 0 if a == b and -1 if a < b. */
+int _cmp_triple(const void *a, const void *b) {
+  const Triple *t1=*(Triple **)a, *t2=*(Triple **)b;
+  int v;
+  if ((v = strcmp(t1->s, t2->s))) return v;
+  if ((v = strcmp(t1->p, t2->p))) return v;
+  if ((v = strcmp(t1->o, t2->o))) return v;
+  return 0;
+}
+
+/* Help function for dlite_collection_gethash().
+   Update the the hash with content of triple `t`. */
+void _sha3_update_triple(sha3_context *c, const Triple *t)
+{
+  sha3_Update(c, t->s, strlen(t->s));
+  sha3_Update(c, t->p, strlen(t->p));
+  sha3_Update(c, t->o, strlen(t->o));
+}
+
+/* Calculate hash of a collection. */
+int dlite_collection_gethash(const DLiteInstance *inst, uint8_t *hash,
+                             int hashsize)
+{
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  sha3_context c;
+  const uint8_t *buf;
+  unsigned bitsize = hashsize * 8;
+  TripleState state;
+  const Triple *t, **triples=NULL;
+  size_t i=0, n=triplestore_length(coll->rstore);
+  int retval=1;
+
+  /* Initiate calculation of hash */
+  sha3_Init(&c, bitsize);
+  sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
+
+  if (coll->_parent) {
+    sha3_Update(&c, coll->_parent->uuid, DLITE_UUID_LENGTH);
+    sha3_Update(&c, coll->_parent->hash, DLITE_HASH_SIZE);
+  }
+  sha3_Update(&c, coll->meta->uri, strlen(coll->meta->uri));
+
+  /* Calculate the hash of a sorted copy of the relations */
+  triplestore_init_state(coll->rstore, &state);
+  if (!(triples = malloc(n * sizeof(Triple *))))
+    FAIL("allocation failure");
+  while ((t = triplestore_next(&state))) {
+    triples[i++] = t;
+  }
+  assert(i == n);
+  qsort(triples, n, sizeof(Triple *), _cmp_triple);
+  for (i=0; i<n; i++) {
+    if (strcmp(triples[i]->p, "_has-hash") == 0) continue;
+    if (strcmp(triples[i]->p, "_has-uuid") == 0) {
+      if ((t = triplestore_find_first(coll->rstore,
+                                      triples[i]->s, "_has-hash", NULL))) {
+        _sha3_update_triple(&c, t);
+      } else {
+        uint8_t hash[DLITE_HASH_SIZE];
+        DLiteInstance * inst;
+        char hex[2*DLITE_HASH_SIZE+1];
+        if (!(inst = dlite_instance_get(triples[i]->o))) goto fail;
+        if (dlite_instance_get_hash(inst, hash, DLITE_HASH_SIZE))
+          FAIL1("error calculating hash of instance '%s'", triples[i]->o);
+        if (strhex_encode(hex, sizeof(hex), hash, DLITE_HASH_SIZE) < 0)
+          FAIL1("failed hex-encoding hash of '%s'", triples[i]->o);
+        sha3_Update(&c, triples[i]->s, strlen(triples[i]->s));
+        sha3_Update(&c, "_has-hash", 9);
+        sha3_Update(&c, hex, 2*DLITE_HASH_SIZE);
+      }
+    }
+    _sha3_update_triple(&c, triples[i]);
+  }
+
+  buf = sha3_Finalize(&c);
+  memcpy(hash, buf, hashsize);
+  retval = 0;
+ fail:
+  triplestore_deinit_state(&state);
+  free(triples);
+  return retval;
 }
 
 /* Returns size of dimension number `i` or -1 on error. */

@@ -23,6 +23,7 @@
   label   | "_is-a"         | "Instance"
   label   | "_has-uuid"     | uuid
   label   | "_has-meta"     | metadata uri
+  label   | "_has-hash"     | hash of instance
   label   | "_has-dimmap"   | relation-id  -> (instdim, "_maps-to", coldim)
   instdim | "_maps-to"      | colldim
   coldim  | "_has-size"     | size
@@ -76,6 +77,14 @@ int dlite_collection_init(DLiteInstance *inst);
   Returns non-zero on error.
  */
 int dlite_collection_deinit(DLiteInstance *inst);
+
+/**
+  Calculate hash of a collection.
+
+  Returns non-zero on error.
+*/
+int dlite_collection_gethash(const DLiteInstance *inst, uint8_t *hash,
+                             int hashsize);
 
 /**
   Returns size of dimension number `i` or -1 on error.

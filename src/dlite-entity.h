@@ -153,6 +153,14 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
     Returns non-zero on error. */
 typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
 
+/** Function used by extended metadata to replace the standard hash
+    calculation in dlite_instance_get_hash().  The calculated hash is
+    stored in `hash`, where `hashsize` is the size of `hash` in bytes.
+    It should be 32, 48 or 64.
+    Returns non-zero on error. */
+typedef int (*DLiteGetHash)(const DLiteInstance *inst, unsigned char *hash,
+                            int hashsize);
+
 /** Function for accessing internal dimension sizes of extended
     metadata.  If provided it will be called by dlite_instance_save(),
     dlite_instance_get_dimension_size() and related functions.
@@ -247,6 +255,7 @@ typedef struct _DLiteParent {
                           /* sizeof(DLiteMeta). */                      \
   DLiteInit _init;        /* Function initialising an instance. */      \
   DLiteDeInit _deinit;    /* Function deinitialising an instance. */    \
+  DLiteGetHash _gethash;  /* Function calculating instance hash. */     \
   DLiteGetDimension _getdim;   /* Gets dim. size from internal state.*/ \
   DLiteSetDimension _setdim;   /* Sets dim. size of internal state. */  \
   DLiteLoadProperty _loadprop; /* Loads internal state from prop. */    \
@@ -1041,6 +1050,18 @@ void dlite_instance_freeze(DLiteInstance *inst);
   Returns non-zero if instance is immutable (frozen).
  */
 int dlite_instance_is_frozen(const DLiteInstance *inst);
+
+/**
+  Returns an immutable snapshop of instance `inst`.
+
+  If `inst` is frozen, a new reference to `inst` is returned,
+  otherwise an frozen copy of `inst` is returned.  If a copy
+  is made, the returned instance will have a new random UUID
+  and no URI.
+
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_get_snapshot(const DLiteInstance *inst);
 
 /**
   Turn instance `inst` into a transaction node with parent `parent`.
