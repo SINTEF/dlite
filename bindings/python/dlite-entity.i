@@ -382,6 +382,15 @@ Call signatures:
   }
 
   %feature("docstring",
+           "Returns an copy of instance.  If newid is given, it will be "
+           "the id of the new instance, otherwise it will be given a "
+           "random UUID.") get_copy;
+  %newobject get_copy;
+  struct _DLiteInstance *get_copy(const char *newid=NULL) {
+    return dlite_instance_copy($self, newid);
+  }
+
+  %feature("docstring",
            "Returns an immutable snapshot of instance.") get_snapshot;
   %newobject get_snapshot;
   struct _DLiteInstance *get_snapshot() {
