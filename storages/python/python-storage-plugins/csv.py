@@ -62,6 +62,8 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         if 'infer' not in self.options or dlite.asbool(self.options.infer):
             Meta = infer_meta(data, metaid, self.uri)
         elif metaid:
+            print("#"*79)
+            print("*** LOAD:", uuid)
             Meta = dlite.get_instance(metaid)
         else:
             raise ValueError(

@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -14,15 +15,18 @@ DLiteInstance *inst = NULL;
 
 MU_TEST(test_load)
 {
-  char *url = "blob://" STRINGIFY(CURRENT_SOURCE_DIR) "/test_blob_storage.c";
+  char *url = "blob://" STRINGIFY(CURRENT_SOURCE_DIR)
+    "/test_blob_storage.c?mode=r";
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 }
 
 MU_TEST(test_save)
 {
+  int stat;
   char *url = "blob://" STRINGIFY(CURRENT_BINARY_DIR) "/blob-output.c?mode=w";
-  int stat = dlite_instance_save_url(url, inst);
+  assert(inst);
+  stat = dlite_instance_save_url(url, inst);
   mu_assert_int_eq(0, stat);
 }
 

@@ -157,6 +157,7 @@ e = dlite.get_instance('http://onto-ns.com/meta/0.1/MyEntity')
 assert e == myentity
 assert e != inst
 
+print("++++++++++++++++++++++++++++++++++++++++")
 e2 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
@@ -164,6 +165,8 @@ e2 = Instance.create_metadata(
      Property('arr', type='int', dims=['N+2'], description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
+print("++++++++++++++++++++++++++++++++++++++++")
+0/0
 print("==--==")
 
 e3 = Instance.create_metadata(

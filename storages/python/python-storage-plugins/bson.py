@@ -32,9 +32,11 @@ class bson(dlite.DLiteStorageBase):
         After the options are passed, this method may set attribute
         `writable` to True if it is writable and to False otherwise.
         If `writable` is not set, it is assumed to be True.
-        
+
         The BSON data is translated to JSON.
         """
+        print(f"=============== BSON OPEN: {uri} {options} ====================")
+
         self.options = Options(options, defaults='mode=append')
         self.mode = dict(r='rb', w='wb', append='rb+')[self.options.mode]
         if self.mode == 'rb' and not os.path.exists(uri):
@@ -57,6 +59,8 @@ class bson(dlite.DLiteStorageBase):
 
         Assumes the data to store is in JSON format.
         """
+        print(f"=============== BSON CLOSE: {self.uri} ====================")
+
         if self.writable:
             if self.mode == 'rb+' and not os.path.exists(self.uri):
                 mode = 'wb'
@@ -76,6 +80,7 @@ class bson(dlite.DLiteStorageBase):
         """Load `uuid` from current storage and return it
         as a new instance.
         """
+        print(f"=============== LOAD: {uuid} ====================")
         if uuid in self.d.keys():
             return instance_from_dict(self.d[uuid])
         else:
@@ -94,4 +99,3 @@ class bson(dlite.DLiteStorageBase):
             if pattern and dlite.globmatch(pattern, d['meta']):
                 continue
             yield uuid
-

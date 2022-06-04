@@ -59,7 +59,11 @@ opener(const DLiteStoragePlugin *api, const char *location,
   s->api = api;
   s->location = strdup(location);
   s->options = (options) ? strdup(options) : NULL;
-  s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
+  if (writable && !PyObject_IsTrue(writable))
+    s->flags &= ~dliteWritable;
+  else
+    s->flags |= dliteWritable;
+  //s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
   s->obj = obj;
   s->idflag = dliteIDTranslateToUUID;
 
@@ -114,6 +118,8 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
   DLiteInstance *inst = NULL;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
+
+  printf("\n=== LOADER: %s : %s ===\n", s->location, id);
 
   pyuuid = PyUnicode_FromString(id);
 

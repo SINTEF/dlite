@@ -662,6 +662,8 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages)
 DLiteInstance *dlite_instance_get(const char *id)
 {
   DLiteInstance *inst=NULL;
+  DLiteStorageHotlistIter hiter;
+  const DLiteStorage *hs;
   DLiteStoragePathIter *iter;
   const char *url;
 
@@ -670,6 +672,36 @@ DLiteInstance *dlite_instance_get(const char *id)
     dlite_instance_incref(inst);
     return inst;
   }
+
+  printf("\n=== hotlist ===\n");
+  dlite_storage_hotlist_iter_init(&hiter);
+  while ((hs = dlite_storage_hotlist_iter_next(&hiter)))
+    printf("  - %s : %d\n", hs->location, hs->flags);
+  printf("===============\n");
+
+
+  /* ...otherwise look it up in hotlisted storages */
+  dlite_storage_hotlist_iter_init(&hiter);
+  //printf("<<< lookup in hotlist: %s\n", id);
+  while ((hs = dlite_storage_hotlist_iter_next(&hiter))) {
+
+    printf("*** hs: %s, %d\n", hs->location, hs->flags);
+
+    DLiteInstance *inst;
+    ErrTry:
+      inst = _instance_load_casted(hs, id, NULL, 0);
+      printf("    inst=%p, id=%s\n", (void *)inst, id);
+    ErrCatch(dliteStorageLoadError):  // suppressed error
+      break;  // breaks ErrCatch, not the while loop
+    ErrEnd;
+    if (inst) {
+      dlite_storage_hotlist_iter_deinit(&hiter);
+      return inst;
+    }
+  }
+  dlite_storage_hotlist_iter_deinit(&hiter);
+  //printf(">>> lookup in hotlist: %s\n", id);
+
 
   /* ...otherwise look it up in storages */
   if (!(iter = dlite_storage_paths_iter_start())) return NULL;
@@ -693,7 +725,7 @@ DLiteInstance *dlite_instance_get(const char *id)
 #endif
 
     /* If driver is not given, infer it from file extension */
-    if (!driver) driver = (char *)fu_fileext(location);
+    if (!driver || !*driver) driver = (char *)fu_fileext(location);
 
     /* Set read-only as default mode (all drivers should support this) */
     if (!options) options = "mode=r";
@@ -2073,8 +2105,18 @@ dlite_meta_create(const char *uri, const char *description,
   char *name=NULL, *version=NULL, *namespace=NULL;
   size_t dims[] = {ndimensions, nproperties};
 
-  if ((e = dlite_instance_get(uri)))
-    return (DLiteMeta *)e;
+  if ((e = dlite_instance_get(uri))) {
+    DLiteMeta *meta = (DLiteMeta *)e;
+    if (!dlite_instance_is_meta(e))
+      FAIL1("cannot create entity \"%s\" since it already exists as a "
+            "non-metadata instance", uri);
+    if (meta->_ndimensions != ndimensions ||
+        meta->_nproperties != nproperties)
+      FAIL1("cannot create entity \"%s\" since a different entity already "
+            "exists", uri);
+    // TODO: check that dimensions and properties matches
+    return meta;
+  }
 
   if (dlite_split_meta_uri(uri, &name, &version, &namespace)) goto fail;
   if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))

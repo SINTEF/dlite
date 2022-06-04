@@ -38,20 +38,20 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
       else
         FAIL2("`id` required to load from storage \"%s\" with %d instances",
               s->location, n);
-    } else if (!s->writable) {
+    } else if (!s->flags & dliteWritable) {
       FAIL1("`id` required to load from storage \"%s\"", s->location);
     }
   }
 
   if (s->idflag == dliteIDKeepID) {
-      d = s->api->dataModel(s, id);  
+      d = s->api->dataModel(s, id);
   } else if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
       s->idflag == dliteIDRequireUUID) {
     if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
       FAIL1("failed generating UUID from id \"%s\"", id);
     if (uuidver != 0 && s->idflag == dliteIDRequireUUID)
       FAIL1("id is not a valid UUID: \"%s\"", id);
-    d = s->api->dataModel(s, uuid); 
+    d = s->api->dataModel(s, uuid);
   }
 
   if (!d)
@@ -62,7 +62,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   d->s = (DLiteStorage *)s;
   memcpy(d->uuid, uuid, sizeof(d->uuid));
 
-  if (uuidver == 5 && s->writable && s->api->setDataName)
+  if (uuidver == 5 && s->flags & dliteWritable && s->api->setDataName)
     s->api->setDataName(d, id);
 
  fail:

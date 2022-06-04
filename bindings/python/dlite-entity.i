@@ -521,6 +521,11 @@ in the storage plugin path (initiated from the DLITE_STORAGES
 environment variable).
 
 It is an error message if the instance cannot be found.
+
+Note: be very careful when calling this function from a storage plugin,
+since it may easily result in an infinite recursive loop that will exhaust
+the call stack.  See the load() method of he builtin blob storage for how
+to break such a loop.
 ") dlite_swig_get_instance;
 %rename(get_instance) dlite_swig_get_instance;
 %newobject dlite_swig_get_instance;

@@ -71,7 +71,7 @@ MU_TEST(test_sprint)
   //printf("%s\n", buf);
   mu_assert_int_eq(1165, m);
 
-  printf("\n========================================================\n");
+  //printf("\n========================================================\n");
 }
 
 
@@ -80,7 +80,7 @@ int append(const char *str)
   char *s = strdup(str);
   size_t size = strlen(s) + 1;
   int m, retval=0;
-  printf("\n--- append: '%s' ---\n", str);
+  //printf("\n--- append: '%s' ---\n", str);
   m = dlite_json_append(&s, &size, inst, 0);
   dlite_errclr();
   if (m < 0) retval=m;
@@ -123,7 +123,7 @@ MU_TEST(test_scan)
   int stat;
   mu_check(fp);
   stat = dlite_storage_paths_append(path);
-  mu_check(stat > 0);
+  mu_check(stat >= 0);
   inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b", NULL);
   fclose(fp);
   mu_check(inst);
