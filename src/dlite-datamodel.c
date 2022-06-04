@@ -38,7 +38,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
       else
         FAIL2("`id` required to load from storage \"%s\" with %d instances",
               s->location, n);
-    } else if (!s->flags & dliteWritable) {
+    } else if (!s->writable) {
       FAIL1("`id` required to load from storage \"%s\"", s->location);
     }
   }
@@ -62,7 +62,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   d->s = (DLiteStorage *)s;
   memcpy(d->uuid, uuid, sizeof(d->uuid));
 
-  if (uuidver == 5 && s->flags & dliteWritable && s->api->setDataName)
+  if (uuidver == 5 && s->writable && s->api->setDataName)
     s->api->setDataName(d, id);
 
  fail:

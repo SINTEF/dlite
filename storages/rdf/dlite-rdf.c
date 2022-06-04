@@ -184,9 +184,9 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
   s->fmtflags |= (atob(opts[9].value)) ? fmtMetaVals : 0;
 
   if (strcmp(mode, "r") == 0 || strcmp(mode, "read") == 0) {
-    s->flags &= ~dliteWritable;
+    s->writable = 0;
   } else if (strcmp(mode, "w") == 0 || strcmp(mode, "write") == 0) {
-    s->flags |= dliteWritable;
+    s->writable = 1;
   } else {
     FAIL1("invalid \"mode\" value: '%s'. Must be \"w\" (writable) "
           "or \"r\" (read-only) ", mode);
@@ -197,7 +197,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
     s->base_uri = strdup(_P);
 
   /* if read-only, check that storage file exists for file-based storages */
-  if (!(s->flags & dliteWritable)) {
+  if (!s->writable) {
     if (strcmp(s->store, "file") == 0) {
       FILE *fp;
       if (!(fp = fopen(uri, "r"))) FAIL1("cannot open storage: %s", uri);
@@ -227,7 +227,7 @@ int rdf_close(DLiteStorage *storage)
 {
   RdfStorage *s = (RdfStorage *)storage;
 
-  if (s->flags & dliteWritable) {
+  if (s->writable) {
     librdf_world *world = triplestore_get_world(s->ts);
     librdf_model *model = triplestore_get_model(s->ts);
     assert(world);

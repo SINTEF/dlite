@@ -467,16 +467,16 @@ dh5_open(const DLiteStoragePlugin *api, const char *uri, const char *options)
 
   if (strcmp(*mode, "append") == 0) {  /* default */
     s->root = H5Fopen(uri, H5F_ACC_RDWR | H5F_ACC_CREAT, H5P_DEFAULT);
-    s->flags |= dliteWritable;
+    s->writable = 1;
   } else if (strcmp(*mode, "r") == 0) {
     s->root = H5Fopen(uri, H5F_ACC_RDONLY, H5P_DEFAULT);
-    s->flags &= ~dliteWritable;
+    s->writable = 0;
   } else if (strcmp(*mode, "rw") == 0) {
     s->root = H5Fopen(uri, H5F_ACC_RDWR, H5P_DEFAULT);
-    s->flags &= ~dliteWritable;
+    s->writable = 0;
   } else if (strcmp(*mode, "w") == 0) {
     s->root = H5Fcreate(uri, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    s->flags |= dliteWritable;
+    s->writable = 1;
   } else {
     FAIL1("invalid \"mode\" value: '%s'. Must be \"append\", \"r\" "
           "(read-only) or \"w\" (write)", *mode);
@@ -536,7 +536,7 @@ DLiteDataModel *dh5_datamodel(const DLiteStorage *s, const char *uuid)
 
   } else {
     /* Instance `uuid` does not exists: create new group structure */
-    if (!(s->flags & dliteWritable))
+    if (!s->writable)
       FAIL2("cannot create new instance '%s' in read-only storage %s",
             uuid, sh5->location);
     if ((d->instance = H5Gcreate(sh5->root, uuid, H5P_DEFAULT, H5P_DEFAULT,

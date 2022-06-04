@@ -137,16 +137,16 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   switch (mode) {
   case 'r':
     load = 1;
-    s->flags &= ~dliteWritable;
+    s->writable = 0;
     break;
   case 'a':
     if (single > 0) FAIL("cannot append in single-entity format");
     load = 1;
-    s->flags |= dliteWritable;
+    s->writable = 1;
     break;
   case 'w':
     load = 0;
-    s->flags |= dliteWritable;
+    s->writable = 1;
     break;
   default:
     FAIL1("invalid \"mode\" value: '%c'. Must be \"r\" (read-only), "
@@ -165,7 +165,7 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
     if (!(s->jstore = jstore_open())) goto fail;
     DLiteJsonFormat fmt = dlite_jstore_loadf(s->jstore, uri);
     if (fmt < 0) goto fail;
-    if (fmt == dliteJsonMetaFormat && mode != 'a') s->flags &= ~dliteWritable;
+    if (fmt == dliteJsonMetaFormat && mode != 'a') s->writable = 0;
     //dlite_storage_paths_append(uri);
     //printf("*** add to hotlist: %s\n", uri);
     //dlite_storage_hotlist_add((DLiteStorage *)s);
@@ -189,7 +189,7 @@ int json_close(DLiteStorage *s)
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   int stat=0;
   if (js->jstore) {
-    if (js->flags & dliteWritable && js->changed)
+    if (js->writable && js->changed)
       stat = jstore_to_file(js->jstore, js->location);
     stat |= jstore_close(js->jstore);
   }
@@ -247,7 +247,7 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   int stat=1;
   DLiteJsonFlag jflags = js->jflags;
 
-  if (!(s->flags & dliteWritable))
+  if (!s->writable)
     FAIL1("storage \"%s\" is not writable", s->location);
 
   /* If single/multi format is not given, infer it from `inst` */
