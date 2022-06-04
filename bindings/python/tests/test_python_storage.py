@@ -38,7 +38,7 @@ with dlite.Storage('json', 'test.json', 'mode=w') as s:
 print('=== loading...', person.uuid)
 with dlite.Storage('json', 'test.json', 'mode=r') as s:
     inst = s.load(id=person.uuid)
-print(inst)
+
 
 person2 = Person(dims=[3])
 person2.name = 'Berry'

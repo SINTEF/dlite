@@ -24,6 +24,20 @@
       def __iter__(self):
           return StorageIterator(self)
 
+      readable = property(
+          fget=lambda self: self._get_readable(),
+          doc="Whether the storage is readable.")
+
+      writable = property(
+          fget=lambda self: self._get_writable(),
+          doc="Whether the storage is writable.")
+
+      generic = property(
+          fget=lambda self: self._get_generic(),
+          doc="Whether the storage is generic, i.e. whether the storage can "
+          "hold multiple instances, including both data and metadata."
+      )
+
       @classmethod
       def create_from_url(cls, url):
           """Create a new storage from `url`."""

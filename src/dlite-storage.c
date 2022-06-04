@@ -82,8 +82,6 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
-  printf("*** open: %s://%s?%s\n", driver, location, options);
-
   if (!location) FAIL("missing location");
   if (!driver || !*driver) driver = fu_fileext(location);
   if (!driver || !*driver) FAIL("missing driver");
@@ -93,10 +91,8 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   if (!(storage->location = strdup(location))) FAIL(NULL);
   if (options && !(storage->options = strdup(options))) FAIL(NULL);
 
-  // FIXME - only add to hotlist if we can read from storage, i.e. if it is
-  //         not created
-  //printf("*** add to hotlist: %s\n", storage->location);
-  dlite_storage_hotlist_add(storage);
+  if (storage->flags & (dliteReadable | dliteGeneric))
+    dlite_storage_hotlist_add(storage);
 
   return storage;
  fail:
@@ -139,8 +135,9 @@ int dlite_storage_close(DLiteStorage *s)
 {
   int stat;
   assert(s);
-  //printf("*** remove from hotlist: %s\n", s->location);
-  dlite_storage_hotlist_remove(s);
+  if (s->flags & (dliteReadable | dliteGeneric))
+    dlite_storage_hotlist_remove(s);
+
   stat = s->api->close(s);
   free(s->location);
   if (s->options) free(s->options);
@@ -272,7 +269,7 @@ void dlite_storage_uuids_free(char **names)
  */
 int dlite_storage_is_writable(const DLiteStorage *s)
 {
-  return s->flags & dliteWritable;
+  return (s->flags & dliteWritable) ? 1 : 0;
 }
 
 

@@ -38,7 +38,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
       else
         FAIL2("`id` required to load from storage \"%s\" with %d instances",
               s->location, n);
-    } else if (!s->flags & dliteWritable) {
+    } else if (!(s->flags & dliteWritable)) {
       FAIL1("`id` required to load from storage \"%s\"", s->location);
     }
   }

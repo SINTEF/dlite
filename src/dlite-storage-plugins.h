@@ -47,8 +47,9 @@ typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
 
 /** Storage flags */
 typedef enum _DLiteStorageFlags {
-  dliteCreated,  /*!< Whether the storage is created */
-  dliteWritable  /*!< Whether the storage is writable */
+  dliteReadable=1,  /*!< Whether the storage is readable */
+  dliteWritable=2,  /*!< Whether the storage is writable */
+  dliteGeneric=4    /*!< Whether the storage may contain both data and metadata */
 } DLiteStorageFlags;
 
 /** Initial segment of all DLiteStorage plugin data structures. */
@@ -58,11 +59,6 @@ typedef enum _DLiteStorageFlags {
   char *options;            /*!< Options passed to dlite_storage_open() */ \
   DLiteStorageFlags flags;  /*!< Storage flags */                          \
   DLiteIDFlag idflag;       /*!< How to handle instance id's */
-
-//  int writable;             /*!< Whether storage is writable */
-//  int created;              /*!< Whether storage is created */
-
-//
 
 
 /** Initial segment of all DLiteDataModel plugin data structures. */

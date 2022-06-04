@@ -42,7 +42,9 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         """
         self.options = Options(options, defaults='mode=r')
         self.mode = dict(r='rt', w='wt')[self.options.mode]
-        self.writable = False if 'r' in self.mode else True
+        self.readable = True  if 'rt' in self.mode else False
+        self.writable = False if 'rt' == self.mode else True
+        self.generic = False
         self.uri = uri
         self.format = get_pandas_format_name(uri, self.options.get('format'))
 
@@ -50,9 +52,14 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         """Closes this storage."""
         pass
 
-    def load(self, uuid=None):
-        """Loads `uuid` from current storage and return it as a new
+    def load(self, id=None):
+        """Loads `id` from current storage and return it as a new
         instance."""
+        # This will break recursive search for metadata using this plugin
+        if id:
+            raise dlite.DLiteError('csv plugin does support loading an '
+                                   'instance with a given id')
+
         reader = getattr(pd, 'read_' + self.format)
         pdopts = optstring2keywords(self.options.get('pandas_opts', ''))
         metaid = self.options.meta if 'meta' in self.options else None
@@ -62,8 +69,6 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         if 'infer' not in self.options or dlite.asbool(self.options.infer):
             Meta = infer_meta(data, metaid, self.uri)
         elif metaid:
-            print("#"*79)
-            print("*** LOAD:", uuid)
             Meta = dlite.get_instance(metaid)
         else:
             raise ValueError(
@@ -128,7 +133,7 @@ def infer_meta(data, metauri, uri):
         metauri = f'onto-ns.com/meta/1.0/generated_from_{fmt}_{hash}'
     elif dlite.has_instance(metauri):
         warnings.warn(f'csv option infer is true, but explicit instance id '
-                      '"{metauri}" already exists')
+                      f'"{metauri}" already exists')
 
     dims_ = [dlite.Dimension('rows', 'Number of rows.')]
     props = []
@@ -153,7 +158,6 @@ def optstring2keywords(optstring):
     s = '{%s}' % (optstring, )
     try:
         return ast.literal_eval(s)
-    except:
-        exc, val, tr = sys.exc_info()
+    except Exception as e:
         raise ValueError(
-            f'invalid in option string ({exc.__name__}): {optstring!r}')
+            f'invalid in option string ({e.__name__}): {optstring!r}')

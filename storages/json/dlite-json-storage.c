@@ -134,18 +134,22 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   s->api = api;
 
   if (!mode) mode = default_mode(uri);
+  s->flags |= dliteGeneric;
   switch (mode) {
   case 'r':
     load = 1;
+    s->flags |= dliteReadable;
     s->flags &= ~dliteWritable;
     break;
   case 'a':
     if (single > 0) FAIL("cannot append in single-entity format");
     load = 1;
+    s->flags |= dliteReadable;
     s->flags |= dliteWritable;
     break;
   case 'w':
     load = 0;
+    s->flags &= ~dliteReadable;
     s->flags |= dliteWritable;
     break;
   default:

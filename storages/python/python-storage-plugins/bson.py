@@ -35,13 +35,13 @@ class bson(dlite.DLiteStorageBase):
 
         The BSON data is translated to JSON.
         """
-        print(f"=============== BSON OPEN: {uri} {options} ====================")
-
         self.options = Options(options, defaults='mode=append')
         self.mode = dict(r='rb', w='wb', append='rb+')[self.options.mode]
         if self.mode == 'rb' and not os.path.exists(uri):
             raise FileNotFoundError(f"Did not find URI '{uri}'")
-        self.writable = False if 'rb' in self.mode else True
+        self.readable = True  if 'rb' in self.mode else False
+        self.writable = False if 'rb' == self.mode else True
+        self.generic = True
         self.uri = uri
         self.d = {}
         if self.mode in ('rb', 'rb+'):
@@ -59,8 +59,6 @@ class bson(dlite.DLiteStorageBase):
 
         Assumes the data to store is in JSON format.
         """
-        print(f"=============== BSON CLOSE: {self.uri} ====================")
-
         if self.writable:
             if self.mode == 'rb+' and not os.path.exists(self.uri):
                 mode = 'wb'
@@ -80,7 +78,6 @@ class bson(dlite.DLiteStorageBase):
         """Load `uuid` from current storage and return it
         as a new instance.
         """
-        print(f"=============== LOAD: {uuid} ====================")
         if uuid in self.d.keys():
             return instance_from_dict(self.d[uuid])
         else:

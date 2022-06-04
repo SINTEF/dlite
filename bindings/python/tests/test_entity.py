@@ -113,27 +113,22 @@ del inst2
 try:
     Instance.from_location('json', '/', 'mode=r')
 except dlite.DLiteError:
-    print('=== catched error loading "/" in read mode')
+    print('*** catched error loading "/" in read mode')
 
 try:
     Instance.from_location('json', '/', 'mode=w')
 except dlite.DLiteError:
-    print('=== catched error loading "/" in write mode')
+    print('*** catched error loading "/" in write mode')
 
 try:
     Instance.from_location('json', '')
 except dlite.DLiteError:
-    print('=== catched error loading ""')
+    print('*** catched error loading ""')
 
 try:
     Instance.from_location('json', 'non-existing-path...')
 except dlite.DLiteError:
-    print('=== catched error loading "non-existing-path..."')
-
-
-
-
-
+    print('*** catched error loading "non-existing-path..."')
 
 
 # Check pickling
@@ -157,7 +152,6 @@ e = dlite.get_instance('http://onto-ns.com/meta/0.1/MyEntity')
 assert e == myentity
 assert e != inst
 
-print("++++++++++++++++++++++++++++++++++++++++")
 e2 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
@@ -165,9 +159,6 @@ e2 = Instance.create_metadata(
      Property('arr', type='int', dims=['N+2'], description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
-print("++++++++++++++++++++++++++++++++++++++++")
-0/0
-print("==--==")
 
 e3 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity2',
@@ -181,7 +172,6 @@ e3 = Instance.create_metadata(
 assert inst.get_property_as_string('an-int-array') == '[1, 2, 3]'
 inst.set_property_from_string('an-int-array', '[-1, 5, 6]')
 assert inst.get_property_as_string('an-int-array') == '[-1, 5, 6]'
-print("==--==")
 
 
 # Test save

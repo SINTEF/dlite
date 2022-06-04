@@ -673,24 +673,12 @@ DLiteInstance *dlite_instance_get(const char *id)
     return inst;
   }
 
-  printf("\n=== hotlist ===\n");
-  dlite_storage_hotlist_iter_init(&hiter);
-  while ((hs = dlite_storage_hotlist_iter_next(&hiter)))
-    printf("  - %s : %d\n", hs->location, hs->flags);
-  printf("===============\n");
-
-
   /* ...otherwise look it up in hotlisted storages */
   dlite_storage_hotlist_iter_init(&hiter);
-  //printf("<<< lookup in hotlist: %s\n", id);
   while ((hs = dlite_storage_hotlist_iter_next(&hiter))) {
-
-    printf("*** hs: %s, %d\n", hs->location, hs->flags);
-
     DLiteInstance *inst;
     ErrTry:
       inst = _instance_load_casted(hs, id, NULL, 0);
-      printf("    inst=%p, id=%s\n", (void *)inst, id);
     ErrCatch(dliteStorageLoadError):  // suppressed error
       break;  // breaks ErrCatch, not the while loop
     ErrEnd;
@@ -700,8 +688,6 @@ DLiteInstance *dlite_instance_get(const char *id)
     }
   }
   dlite_storage_hotlist_iter_deinit(&hiter);
-  //printf(">>> lookup in hotlist: %s\n", id);
-
 
   /* ...otherwise look it up in storages */
   if (!(iter = dlite_storage_paths_iter_start())) return NULL;

@@ -183,9 +183,15 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
   s->fmtflags |= (atob(opts[8].value)) ? fmtMetaAnnot : 0;
   s->fmtflags |= (atob(opts[9].value)) ? fmtMetaVals : 0;
 
+  s->flags |= dliteGeneric;
   if (strcmp(mode, "r") == 0 || strcmp(mode, "read") == 0) {
+    s->flags |= dliteReadable;
     s->flags &= ~dliteWritable;
+  } else if (strcmp(mode, "a") == 0 || strcmp(mode, "append") == 0) {
+    s->flags |= dliteReadable;
+    s->flags |= dliteWritable;
   } else if (strcmp(mode, "w") == 0 || strcmp(mode, "write") == 0) {
+    s->flags &= ~dliteReadable;
     s->flags |= dliteWritable;
   } else {
     FAIL1("invalid \"mode\" value: '%s'. Must be \"w\" (writable) "
