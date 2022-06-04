@@ -272,7 +272,7 @@ void dlite_storage_uuids_free(char **names)
  */
 int dlite_storage_is_writable(const DLiteStorage *s)
 {
-  return s->writable;
+  return s->flags & dliteWritable;
 }
 
 

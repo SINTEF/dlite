@@ -676,7 +676,7 @@ DLiteInstance *dlite_instance_get(const char *id)
   printf("\n=== hotlist ===\n");
   dlite_storage_hotlist_iter_init(&hiter);
   while ((hs = dlite_storage_hotlist_iter_next(&hiter)))
-    printf("  - %s : %d\n", hs->location, hs->writable);
+    printf("  - %s : %d\n", hs->location, hs->flags);
   printf("===============\n");
 
 
@@ -685,7 +685,7 @@ DLiteInstance *dlite_instance_get(const char *id)
   //printf("<<< lookup in hotlist: %s\n", id);
   while ((hs = dlite_storage_hotlist_iter_next(&hiter))) {
 
-    printf("*** hs: %s, %d\n", hs->location, hs->writable);
+    printf("*** hs: %s, %d\n", hs->location, hs->flags);
 
     DLiteInstance *inst;
     ErrTry:
