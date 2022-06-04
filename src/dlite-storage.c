@@ -70,6 +70,8 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   const DLiteStoragePlugin *api;
   DLiteStorage *storage=NULL;
 
+  printf("     open: %s://%s?%s\n", driver, location, options);
+
   if (!location) FAIL("missing location");
   if (!driver || !*driver) driver = fu_fileext(location);
   if (!driver || !*driver) FAIL("missing driver");
