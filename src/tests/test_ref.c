@@ -14,12 +14,26 @@ MU_TEST(test_load)
 {
   char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test_ref.json";
   DLiteInstance *inst = dlite_instance_load_loc("json", path, NULL, "engine1");
-
   mu_check(inst);
 
+  /* Note, m1 and m2 are owned by inst - we just borrow their references... */
+  DLiteInstance **motors = dlite_instance_get_property(inst, "motors");
+  DLiteInstance *m1=motors[0], *m2=motors[1];
 
-  printf("\n==========================================\n");
+  printf("\n");
+  dlite_json_print((DLiteInstance *)inst->meta);
+  printf("---\n");
+  dlite_json_print((DLiteInstance *)m1->meta);
+
+  printf("===\n");
   dlite_json_print(inst);
+
+  printf("---\n");
+  dlite_json_print(m1);
+
+  printf("---\n");
+  dlite_json_print(m2);
+
 
   dlite_instance_decref(inst);
 }

@@ -86,10 +86,10 @@ input_dir = thisdir.parent.parent.parent / 'storages/python/tests-python/input'
 if HAVE_BSON:
     # Test BSON
     print('\n\n=== Test BSON plugin ===')
-    meta_file = input_dir / 'test_meta.bson'
-    meta_test_file = meta_file.with_name(meta_file.stem + '_save.bson')
-    data_file = input_dir / 'test_data.bson'
-    data_test_file = data_file.with_name(data_file.stem + '_save.bson')
+    meta_file =      input_dir / 'test_meta.bson'
+    meta_test_file = input_dir / 'test_meta_save.bson'
+    data_file =      input_dir / 'test_data.bson'
+    data_test_file = input_dir / 'test_data_save.bson'
 
     print('Test loading metadata...')
     with dlite.Storage('bson', meta_file, 'mode=r') as s:
@@ -134,10 +134,10 @@ else:
 if HAVE_YAML:
     # Test YAML
     print('\n\n=== Test YAML plugin ===')
-    meta_file = input_dir / 'test_meta.yaml'
-    meta_test_file = meta_file.with_name(meta_file.stem + '_save.yaml')
-    data_file = input_dir / 'test_data.yaml'
-    data_test_file = data_file.with_name(data_file.stem + '_save.yaml')
+    meta_file =      input_dir / 'test_meta_soft7.yaml'
+    meta_test_file = input_dir / 'test_meta_save.yaml'
+    data_file =      input_dir / 'test_data.yaml'
+    data_test_file = input_dir / 'test_data_save.yaml'
 
     print('Test loading metadata...')
     with dlite.Storage('yaml', meta_file, 'mode=r') as s:
@@ -152,6 +152,7 @@ if HAVE_YAML:
         d1 = pyyaml.safe_load(f)
     with open(meta_test_file, "r") as f:
         d2 = pyyaml.safe_load(f)
+
     assert d1 == d2
     print('...Saving metadata ok!')
     os.remove(meta_test_file)

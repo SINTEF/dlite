@@ -535,8 +535,8 @@ int dlite_type_is_allocated(DLiteType dtype)
   case dliteUInt:
   case dliteFloat:
   case dliteFixString:
-  case dliteRef:
     return 0;
+  case dliteRef:
   case dliteStringPtr:
   case dliteDimension:
   case dliteProperty:
@@ -650,6 +650,7 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     break;
   case dliteProperty:
     free(((DLiteProperty *)p)->name);
+    if (((DLiteProperty *)p)->ref) free(((DLiteProperty *)p)->ref);
     if (((DLiteProperty *)p)->dims) {
       int i;
       for (i=0; i < ((DLiteProperty *)p)->ndims; i++)

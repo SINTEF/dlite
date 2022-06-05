@@ -50,7 +50,10 @@ def instance_from_dict(d, id=None, single=None):
                                  'form with no explicit uuid or uri.')
     else:
         if not id:
-            raise ValueError('`id` required for dicts in multi-entry form.')
+            if len(d) == 1:
+                id, = d.keys()
+            else:
+                raise ValueError('`id` required for dicts in multi-entry form.')
         if id in d:
             return instance_from_dict(d[id], id=id, single=True)
         else:
@@ -101,7 +104,7 @@ def instance_from_dict(d, id=None, single=None):
                 props.append(dlite.Property(
                     name=p['name'],
                     type=p['type'],
-                    dims=p.get('dims'),
+                    dims=p.get('shape', p.get('dims')),
                     unit=p.get('unit'),
                     description=p.get('description'),
                 ))
@@ -110,7 +113,7 @@ def instance_from_dict(d, id=None, single=None):
                 props.append(dlite.Property(
                     name = k,
                     type = v['type'],
-                    dims=v.get('dims'),
+                    dims=v.get('shape', v.get('dims')),
                     unit=v.get('unit'),
                     description=v.get('description'),
                 ))
