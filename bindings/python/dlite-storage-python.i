@@ -18,8 +18,10 @@
           del self.this
 
       def __repr__(self):
-          options = '?%s' % self.options if self.options else ''
-          return "Storage('%s://%s%s')" % (self.driver, self.uri, options)
+          return (
+              f"Storage('{self.driver}', location='{self.location}', "
+              f"options='{self.options}')"
+          )
 
       def __iter__(self):
           return StorageIterator(self)
@@ -55,7 +57,7 @@
           If `metaid` is provided, the returned instance will be
           mapped to an instance of this type (if appropriate mappings
           are available)."""
-          return Instance.create_from_storage(self, id, metaid)
+          return Instance.from_storage(self, id, metaid)
 
       def save(self, inst):
           """Stores instance `inst` in this storage."""

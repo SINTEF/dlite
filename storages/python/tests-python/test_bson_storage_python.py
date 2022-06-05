@@ -26,7 +26,7 @@ try:
 
     # Test saving BSON metadata
     bson_inst2 = bson_mod.bson()
-    bson_inst2.open('bson_test_save.bson', 'mode=w')
+    bson_inst2.open('bson_test_save.bson', 'mode=w;soft7=false')
     bson_inst2.save(inst)
     bson_inst2.close()
     with open(input_path / 'test_meta.bson', 'rb') as orig:
@@ -47,7 +47,7 @@ try:
 
     # Test saving BSON data
     bson_inst4 = bson_mod.bson()
-    bson_inst4.open('bson_test_save.bson', 'mode=w')
+    bson_inst4.open('bson_test_save.bson', 'mode=w;soft7=true')
     bson_inst4.save(inst)
     bson_inst4.save(inst2)
     bson_inst4.close()
@@ -69,4 +69,5 @@ except Exception as err:
 finally:
     # Cleanup
     if os.path.exists(thisdir / 'bson_test_save.bson'):
-        os.remove(thisdir / 'bson_test_save.bson')
+        pass
+        #os.remove(thisdir / 'bson_test_save.bson')

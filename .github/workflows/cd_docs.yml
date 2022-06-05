@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - improve-documentation
 
 jobs:
   build:
@@ -14,14 +13,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: install doxygen
-      run: apt-get install doxygen graphviz ttf-freefont
+    - name: Install doxygen
+      # Alpine needs ttf-freefont, what about ubuntu?
+      run: sudo apt-get install doxygen graphviz
+
+    - name: Get cmake
+      uses: lukka/get-cmake@v3.23.0
 
     - name: Configure cmake
-      uses: lukka/get-cmake@v3.23.0
       run: |
         mkdir build
-        cmake -S . -B ./build
+        cmake -S . -B ./build -DWITH_PYTHON=NO -DWITH_HDF5=NO -DWITH_REDLAND=NO
 
     - name: Build documentation
       run: cmake --build ./build --target doc
