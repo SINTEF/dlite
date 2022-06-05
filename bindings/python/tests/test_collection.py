@@ -51,9 +51,9 @@ assert data[1] == data[0]
 assert data[2] == data[0]
 
 # Load
-with dlite.Storage('json', str(outdir / 'coll0.json'), 'mode=r') as s:
+with dlite.Storage('json', outdir / 'coll0.json', 'mode=r') as s:
     coll0 = dlite.Collection.load(s, id='mycoll')
-coll1 = dlite.Collection.load('json', str(outdir / 'coll1.json'), 'mode=r',
+coll1 = dlite.Collection.load('json', outdir / 'coll1.json', 'mode=r',
                               id=coll.uuid)
 coll2 = dlite.Collection.load(f'json://{outdir}/coll2.json?mode=r#mycoll')
 assert coll0 == coll
