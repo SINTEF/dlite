@@ -170,9 +170,6 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
     DLiteJsonFormat fmt = dlite_jstore_loadf(s->jstore, uri);
     if (fmt < 0) goto fail;
     if (fmt == dliteJsonMetaFormat && mode != 'a') s->flags &= ~dliteWritable;
-    //dlite_storage_paths_append(uri);
-    //printf("*** add to hotlist: %s\n", uri);
-    //dlite_storage_hotlist_add((DLiteStorage *)s);
   }
 
   retval = (DLiteStorage *)s;
