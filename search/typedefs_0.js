@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['close_1483',['Close',['../dlite-storage-plugins_8h.html#a36fd64ad78aaaa9258dd31520c3ffeee',1,'dlite-storage-plugins.h']]]
+  ['close_1505',['Close',['../dlite-storage-plugins_8h.html#a36fd64ad78aaaa9258dd31520c3ffeee',1,'dlite-storage-plugins.h']]]
 ];

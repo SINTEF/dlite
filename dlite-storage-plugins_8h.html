@@ -71,7 +71,9 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">dlite-storage-plugins.h File Reference</div>  </div>
 </div><!--header-->
@@ -82,6 +84,7 @@ $(function() {
 <div class="textblock"><code>#include &quot;<a class="el" href="dsl_8h_source.html">utils/dsl.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="fileutils_8h_source.html">utils/fileutils.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="plugin_8h_source.html">utils/plugin.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="map_8h_source.html">utils/map.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="dlite-datamodel_8h_source.html">dlite-datamodel.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="dlite-storage_8h_source.html">dlite-storage.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="dlite-entity_8h_source.html">dlite-entity.h</a>&quot;</code><br />
@@ -111,6 +114,8 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a1aade9b6335bb69a6642e692a92e9168"><td class="memItemLeft" align="right" valign="top"><a id="a1aade9b6335bb69a6642e692a92e9168"></a>
 typedef struct <a class="el" href="struct__DLiteStoragePluginIter.html">_DLiteStoragePluginIter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>DLiteStoragePluginIter</b></td></tr>
 <tr class="separator:a1aade9b6335bb69a6642e692a92e9168"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a706e1a04030cc4e62fff702045028618"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="dlite-storage-plugins_8h.html#aa36974e426c76212598dc0f8de857e16">_DLiteStorageFlags</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage-plugins_8h.html#a706e1a04030cc4e62fff702045028618">DLiteStorageFlags</a></td></tr>
+<tr class="separator:a706e1a04030cc4e62fff702045028618"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Basic API</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><p>Signatures of functions that must be defined by all plugins. </p>
 </div></td></tr>
@@ -178,6 +183,19 @@ typedef struct <a class="el" href="struct__DLiteStoragePluginIter.html">_DLiteSt
 <tr class="memitem:afa1a265553f05f1fee6ca6600c03d734"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage-plugins_8h.html#afa1a265553f05f1fee6ca6600c03d734">DriverFreer</a>) (<a class="el" href="dlite-storage-plugins_8h.html#a81aa12227e12d2d16bcaa5f80325cd52">DLiteStoragePlugin</a> *api)</td></tr>
 <tr class="separator:afa1a265553f05f1fee6ca6600c03d734"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:aa36974e426c76212598dc0f8de857e16"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage-plugins_8h.html#aa36974e426c76212598dc0f8de857e16">_DLiteStorageFlags</a> { <a class="el" href="dlite-storage-plugins_8h.html#aa36974e426c76212598dc0f8de857e16aff104dd3c6e4d40c7fcff9be8de556f3">dliteReadable</a> =1, 
+<a class="el" href="dlite-storage-plugins_8h.html#aa36974e426c76212598dc0f8de857e16a691c1e546878f6767f185d1ac1716011">dliteWritable</a> =2, 
+<a class="el" href="dlite-storage-plugins_8h.html#aa36974e426c76212598dc0f8de857e16a9a7a019f3052f09cf777d6f371b59e12">dliteGeneric</a> =4
+ }</td></tr>
+<tr class="separator:aa36974e426c76212598dc0f8de857e16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ac9fb83b09e1e4c8535afc28dc973f037"><td class="memItemLeft" align="right" valign="top">typedef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage-plugins_8h.html#ac9fb83b09e1e4c8535afc28dc973f037">map_t</a> (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *) DLiteMapInstance</td></tr>
+<tr class="separator:ac9fb83b09e1e4c8535afc28dc973f037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 Plugin frontend</h2></td></tr>
 <tr class="memitem:a26fac7b12bb64a63cfeda7f51d711bc7"><td class="memItemLeft" align="right" valign="top">const typedef <a class="el" href="dlite-storage-plugins_8h.html#a81aa12227e12d2d16bcaa5f80325cd52">DLiteStoragePlugin</a> *(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage-plugins_8h.html#a26fac7b12bb64a63cfeda7f51d711bc7">GetDLiteStorageAPI</a> )(<a class="el" href="dlite-misc_8h.html#ace8d5af678e372db574494ea15812534">DLiteGlobals</a> *g, int *iter)</td></tr>
@@ -235,9 +253,10 @@ Plugin frontend</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">  <span class="keyword">const</span> <a class="code" href="struct__DLiteStoragePlugin.html">DLiteStoragePlugin</a> *api;              \</div>
-<div class="line">  char *location;            \</div>
+<div class="line">  char *location;           \</div>
 <div class="line">  char *options;             \</div>
-<div class="line">  int writable;                         \</div>
+<div class="line">  DLiteMapInstance cache;                   \</div>
+<div class="line">  DLiteStorageFlags flags;                            \</div>
 <div class="line">  DLiteIDFlag idflag;</div>
 </div><!-- fragment --><p>Initial segment of all DLiteStorage plugin data structures. How to handle instance id's </p>
 
@@ -274,6 +293,21 @@ Plugin frontend</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>A struct with function pointers to all functions provided by a plugin. </p>
+
+</div>
+</div>
+<a id="a706e1a04030cc4e62fff702045028618"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a706e1a04030cc4e62fff702045028618">&#9670;&nbsp;</a></span>DLiteStorageFlags</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="dlite-storage-plugins_8h.html#aa36974e426c76212598dc0f8de857e16">_DLiteStorageFlags</a> <a class="el" href="dlite-storage-plugins_8h.html#a706e1a04030cc4e62fff702045028618">DLiteStorageFlags</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Storage flags </p>
 
 </div>
 </div>
@@ -631,7 +665,50 @@ Plugin frontend</h2></td></tr>
 
 </div>
 </div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="aa36974e426c76212598dc0f8de857e16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa36974e426c76212598dc0f8de857e16">&#9670;&nbsp;</a></span>_DLiteStorageFlags</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="dlite-storage-plugins_8h.html#aa36974e426c76212598dc0f8de857e16">_DLiteStorageFlags</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Storage flags </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa36974e426c76212598dc0f8de857e16aff104dd3c6e4d40c7fcff9be8de556f3"></a>dliteReadable&#160;</td><td class="fielddoc"><p>Whether the storage is readable </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa36974e426c76212598dc0f8de857e16a691c1e546878f6767f185d1ac1716011"></a>dliteWritable&#160;</td><td class="fielddoc"><p>Whether the storage is writable </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa36974e426c76212598dc0f8de857e16a9a7a019f3052f09cf777d6f371b59e12"></a>dliteGeneric&#160;</td><td class="fielddoc"><p>Whether the storage may hold both data and metadata </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ac9fb83b09e1e4c8535afc28dc973f037"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac9fb83b09e1e4c8535afc28dc973f037">&#9670;&nbsp;</a></span>map_t()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef map_t </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Map to instance pointer </p>
+
+</div>
+</div>
 <a id="a6760f04e7d9faeacc00d6fc51cc6c883"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6760f04e7d9faeacc00d6fc51cc6c883">&#9670;&nbsp;</a></span>dlite_storage_plugin_get()</h2>
 
@@ -964,7 +1041,7 @@ Plugin frontend</h2></td></tr>
 </div>
 </div>
 </div><!-- contents -->
-<div class="ttc" id="astruct__DLiteStoragePlugin_html"><div class="ttname"><a href="struct__DLiteStoragePlugin.html">_DLiteStoragePlugin</a></div><div class="ttdef"><b>Definition:</b> dlite-storage-plugins.h:483</div></div>
+<div class="ttc" id="astruct__DLiteStoragePlugin_html"><div class="ttname"><a href="struct__DLiteStoragePlugin.html">_DLiteStoragePlugin</a></div><div class="ttdef"><b>Definition:</b> dlite-storage-plugins.h:495</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

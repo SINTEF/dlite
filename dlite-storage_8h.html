@@ -91,6 +91,8 @@ Typedefs</h2></td></tr>
 <tr class="separator:a4d4dc51de5d766bd65b72c21a3492b71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abae03b42c883f17dbc94818fb9c8d44d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct__DLiteStoragePathIter.html">_DLiteStoragePathIter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#abae03b42c883f17dbc94818fb9c8d44d">DLiteStoragePathIter</a></td></tr>
 <tr class="separator:abae03b42c883f17dbc94818fb9c8d44d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c4fa6eadd900d663ced5a56fe9881d8"><td class="memItemLeft" align="right" valign="top">typedef size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a></td></tr>
+<tr class="separator:a0c4fa6eadd900d663ced5a56fe9881d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace34d1a518e0222e0c349996c2bd2a18"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="dlite-storage_8h.html#a90035b12f382729f8e54692408d162a8">_DLiteIDFlag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#ace34d1a518e0222e0c349996c2bd2a18">DLiteIDFlag</a></td></tr>
 <tr class="separator:ace34d1a518e0222e0c349996c2bd2a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -114,6 +116,8 @@ Functions</h2></td></tr>
 <tr class="separator:a57a98f64c8aec625a06d851af2b7c7c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a656d71c049a5c6f78c04c5497ee29c7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a656d71c049a5c6f78c04c5497ee29c7a">dlite_storage_set_idflag</a> (<a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s, <a class="el" href="dlite-storage_8h.html#ace34d1a518e0222e0c349996c2bd2a18">DLiteIDFlag</a> idflag)</td></tr>
 <tr class="separator:a656d71c049a5c6f78c04c5497ee29c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff7e47b55ac128ae1aa26501afca9f6d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#aff7e47b55ac128ae1aa26501afca9f6d">dlite_storage_load</a> (const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s, const char *id)</td></tr>
+<tr class="separator:aff7e47b55ac128ae1aa26501afca9f6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a804d93542e027d56823ae3ae7b2ba39e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a804d93542e027d56823ae3ae7b2ba39e">dlite_storage_is_writable</a> (const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s)</td></tr>
 <tr class="separator:a804d93542e027d56823ae3ae7b2ba39e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89a2efa84e97d94280e519f8bcf8f439"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a89a2efa84e97d94280e519f8bcf8f439">dlite_storage_get_driver</a> (const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s)</td></tr>
@@ -156,6 +160,21 @@ Functions</h2></td></tr>
 <tr class="separator:a3a97f4a417c8f511c39383da3785943e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a428adf7a406e878693e763f110d59520"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a428adf7a406e878693e763f110d59520">dlite_storage_paths_iter_stop</a> (<a class="el" href="dlite-storage_8h.html#abae03b42c883f17dbc94818fb9c8d44d">DLiteStoragePathIter</a> *iter)</td></tr>
 <tr class="separator:a428adf7a406e878693e763f110d59520"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Hotlist of open storages for fast access to instances using</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>get_instance(). Mostly intended for internal use. </p>
+</div></td></tr>
+<tr class="memitem:a7328b5ead217efbbfc06b8240eda69b7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a7328b5ead217efbbfc06b8240eda69b7">dlite_storage_hotlist_clear</a> ()</td></tr>
+<tr class="separator:a7328b5ead217efbbfc06b8240eda69b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c292696ecfad8e9a0e7fa896b315678"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a6c292696ecfad8e9a0e7fa896b315678">dlite_storage_hotlist_add</a> (const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s)</td></tr>
+<tr class="separator:a6c292696ecfad8e9a0e7fa896b315678"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7643efe6ebd1e1af8fab3e6c46e26e4b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a7643efe6ebd1e1af8fab3e6c46e26e4b">dlite_storage_hotlist_remove</a> (const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s)</td></tr>
+<tr class="separator:a7643efe6ebd1e1af8fab3e6c46e26e4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86f93f45ca6e4bcdfb33561b2f48ad05"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#a86f93f45ca6e4bcdfb33561b2f48ad05">dlite_storage_hotlist_iter_init</a> (<a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a> *iter)</td></tr>
+<tr class="separator:a86f93f45ca6e4bcdfb33561b2f48ad05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1ffc418540d66c32f6ecf43aa5f90ae"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#ac1ffc418540d66c32f6ecf43aa5f90ae">dlite_storage_hotlist_iter_next</a> (<a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a> *iter)</td></tr>
+<tr class="separator:ac1ffc418540d66c32f6ecf43aa5f90ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfe47e6d7e4ee84bc9e72ff41486bce4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-storage_8h.html#adfe47e6d7e4ee84bc9e72ff41486bce4">dlite_storage_hotlist_iter_deinit</a> (<a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a> *iter)</td></tr>
+<tr class="separator:adfe47e6d7e4ee84bc9e72ff41486bce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Opens and closes storages. </p>
@@ -203,6 +222,21 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Iterator over dlite storage paths. </p>
+
+</div>
+</div>
+<a id="a0c4fa6eadd900d663ced5a56fe9881d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c4fa6eadd900d663ced5a56fe9881d8">&#9670;&nbsp;</a></span>DLiteStorageHotlistIter</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef size_t <a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Iterator over hotlisted storages </p>
 
 </div>
 </div>
@@ -370,6 +404,35 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Sets how instance IDs are handled. </p>
+
+</div>
+</div>
+<a id="aff7e47b55ac128ae1aa26501afca9f6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff7e47b55ac128ae1aa26501afca9f6d">&#9670;&nbsp;</a></span>dlite_storage_load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a>* dlite_storage_load </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Loads instance from storage <code>s</code> using the loadInstance api. Returns NULL on error or if loadInstance is not supported. </p>
 
 </div>
 </div>
@@ -829,6 +892,123 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Stops and deallocates iterator created with <a class="el" href="dlite-storage_8h.html#adc603e629961b33dafb001b69057f4af">dlite_storage_paths_iter_start()</a>. </p>
+
+</div>
+</div>
+<a id="a7328b5ead217efbbfc06b8240eda69b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7328b5ead217efbbfc06b8240eda69b7">&#9670;&nbsp;</a></span>dlite_storage_hotlist_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_storage_hotlist_clear </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Clears the storage hotlist.</p>
+<p>Returns non-zero on error. </p>
+
+</div>
+</div>
+<a id="a6c292696ecfad8e9a0e7fa896b315678"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c292696ecfad8e9a0e7fa896b315678">&#9670;&nbsp;</a></span>dlite_storage_hotlist_add()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_storage_hotlist_add </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *&#160;</td>
+          <td class="paramname"><em>s</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Adds storage <code>s</code> to list of open storages for fast lookup of instances.</p>
+<p>Returns non-zero on error. </p>
+
+</div>
+</div>
+<a id="a7643efe6ebd1e1af8fab3e6c46e26e4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7643efe6ebd1e1af8fab3e6c46e26e4b">&#9670;&nbsp;</a></span>dlite_storage_hotlist_remove()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_storage_hotlist_remove </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *&#160;</td>
+          <td class="paramname"><em>s</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Remove storage <code>s</code> from hotlist.</p>
+<p>Returns zero on success. One is returned if <code>s</code> is not in the hotlist. For other errors a negative number is returned. </p>
+
+</div>
+</div>
+<a id="a86f93f45ca6e4bcdfb33561b2f48ad05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86f93f45ca6e4bcdfb33561b2f48ad05">&#9670;&nbsp;</a></span>dlite_storage_hotlist_iter_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_storage_hotlist_iter_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a> *&#160;</td>
+          <td class="paramname"><em>iter</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Initialise hotlist iterator <code>iter</code>.</p>
+<p>Returns non-zero on error. </p>
+
+</div>
+</div>
+<a id="ac1ffc418540d66c32f6ecf43aa5f90ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1ffc418540d66c32f6ecf43aa5f90ae">&#9670;&nbsp;</a></span>dlite_storage_hotlist_iter_next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a>* dlite_storage_hotlist_iter_next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a> *&#160;</td>
+          <td class="paramname"><em>iter</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns a pointer to next hotlisted storage or NULL if the iterator is exausted (or on other errors). </p>
+
+</div>
+</div>
+<a id="adfe47e6d7e4ee84bc9e72ff41486bce4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adfe47e6d7e4ee84bc9e72ff41486bce4">&#9670;&nbsp;</a></span>dlite_storage_hotlist_iter_deinit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_storage_hotlist_iter_deinit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a0c4fa6eadd900d663ced5a56fe9881d8">DLiteStorageHotlistIter</a> *&#160;</td>
+          <td class="paramname"><em>iter</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Deinitialise hotlist iterator <code>iter</code>. Returns non-zero on error. </p>
 
 </div>
 </div>
