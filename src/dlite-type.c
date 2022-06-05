@@ -907,7 +907,7 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 
 /* Maximum number of jsmn tokens in a dimension, property and relation */
 #define MAX_DIMENSION_TOKENS  5
-#define MAX_PROPERTY_TOKENS  64  // this supports at least 52 dimensions...
+#define MAX_PROPERTY_TOKENS  64  // this supports at least 50 dimensions...
 #define MAX_RELATION_TOKENS   9
 
 /*
@@ -1117,6 +1117,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       int r, i;
 
       if (prop->name) free(prop->name);
+      if (prop->ref)  free(prop->ref);
       if (prop->dims) free(prop->dims);
       if (prop->unit) free(prop->unit);
       if (prop->description) free(prop->description);
@@ -1144,6 +1145,9 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if (dlite_type_set_dtype_and_size(src + t->start,
                                         &prop->type, &prop->size))
         return -1;
+
+      if ((t = jsmn_item(src, tokens, "$ref")))
+        prop->ref = strndup(src + t->start, t->end - t->start);
 
       if ((t = jsmn_item(src, tokens, "dims"))) {
         if (t->type != JSMN_ARRAY)

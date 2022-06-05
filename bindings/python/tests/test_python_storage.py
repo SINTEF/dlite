@@ -65,6 +65,7 @@ print('=== loading...', person.uuid)
 with dlite.Storage('json', 'test.json', 'mode=r') as s:
     inst = s.load(id=person.uuid)
 
+
 person2 = Person(dims=[3])
 person2.name = 'Berry'
 person2.age = 24.3
@@ -172,6 +173,7 @@ if HAVE_YAML:
     with open(data_test_file, "r") as f:
         d2 = pyyaml.safe_load(f)
     assert d1 == d2
+    print('...Saving data ok!')
     os.remove(data_test_file)
     del inst1, inst2
 else:
@@ -196,6 +198,7 @@ if HAVE_RDF:
         s.save(meta)
     assert equal_rdf_files(meta_file, meta_test_file)
     print('...Saving metadata ok!')
+    os.remove(meta_test_file)
 
     from dlite.rdf import DM, PUBLIC_ID, from_rdf
     import rdflib
@@ -214,6 +217,7 @@ if HAVE_RDF:
         s.save(inst2)
     assert equal_rdf_files(data_file, data_test_file)
     print('...Saving data ok!')
+    os.remove(data_test_file)
     del inst1, inst2
 else:
-    print('Skip testing YAML plugin - PyYAML not installed')
+    print('Skip testing RDF plugin - rdflib not installed')

@@ -82,6 +82,54 @@ for i in range(len(inst)):
 # Check save and load
 inst.save('json://inst.json?mode=w')
 inst2 = Instance.from_url('json://inst.json')
+blob = inst2['a-blob']
+
+del inst2
+inst2 = Instance.from_url(
+    'json://inst.json?mode=r#46a67765-3d8b-5764-9583-3aec59a17983')
+assert inst2['a-blob'] == blob
+
+del inst2
+inst2 = Instance.from_location('json', 'inst.json')
+assert inst2['a-blob'] == blob
+
+del inst2
+inst2 = Instance.from_location('json', 'inst.json',
+                               id='46a67765-3d8b-5764-9583-3aec59a17983')
+assert inst2['a-blob'] == blob
+del inst2
+
+with dlite.Storage('json', 'inst.json') as s:
+    inst2 = dlite.Instance.from_storage(s)
+assert inst2['a-blob'] == blob
+del inst2
+
+with dlite.Storage('json', 'inst.json') as s:
+    inst2 = s.load(id='46a67765-3d8b-5764-9583-3aec59a17983')
+assert inst2['a-blob'] == blob
+del inst2
+
+# Make sure we fail with an exception for pathetic cases
+try:
+    Instance.from_location('json', '/', 'mode=r')
+except dlite.DLiteError:
+    print('*** catched error loading "/" in read mode')
+
+try:
+    Instance.from_location('json', '/', 'mode=w')
+except dlite.DLiteError:
+    print('*** catched error loading "/" in write mode')
+
+try:
+    Instance.from_location('json', '')
+except dlite.DLiteError:
+    print('*** catched error loading ""')
+
+try:
+    Instance.from_location('json', 'non-existing-path...')
+except dlite.DLiteError:
+    print('*** catched error loading "non-existing-path..."')
+
 
 # Check pickling
 s = pickle.dumps(inst)
@@ -146,5 +194,5 @@ schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
 schema.save('entity_schema.json?mode=w;arrays=false')
 schema.meta.save('basic_metadata_schema.json?mode=w;arrays=false')
 
-inst = dlite.Instance.from_url('json://entity_schema.json')
-assert inst.uri == dlite.ENTITY_SCHEMA
+mm = dlite.Instance.from_url('json://entity_schema.json')
+assert mm.uri == dlite.ENTITY_SCHEMA

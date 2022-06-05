@@ -16,17 +16,22 @@ class yaml(dlite.DLiteStorageBase):
         """Opens `uri`.
 
         Supported options:
-        - mode : append | r | w
+        - mode : "a" | "r" | "w"
             Valid values are:
             - a  Append to existing file or create new file (default)
             - r  Open existing file for read-only
             - w  Truncate existing file or create new file
         - soft7 : bool
             Whether to save using SOFT7 format.
+        - single : bool | "auto"
+            Whether the input is assumed to be in single-entity form.
+            The default (auto) will try to infer it automatically.
         """
-        self.options = Options(options, defaults='mode=a;soft7=true')
+        self.options = Options(options, defaults='mode=a;soft7=true;single=auto')
         self.mode = dict(r='r', w='w', a='r+', append='r+')[self.options.mode]
-        self.writable = False if 'r' in self.mode else True
+        self.readable = True if 'r' in self.mode else False
+        self.writable = False if 'r' == self.mode else True
+        self.generic = True
         self.uri = uri
         self.d = {}
         if self.mode in ('r', 'r+'):
@@ -45,9 +50,8 @@ class yaml(dlite.DLiteStorageBase):
 
     def load(self, id):
         """Loads `uuid` from current storage and return it as a new instance."""
-        uuid = dlite.get_uuid(id)
-        #return instance_from_dict(self.d, id, single=self.options.single)
-        return instance_from_dict(self.d, id)
+        return instance_from_dict(self.d, id, single=self.options.single,
+                                  check_storages=False)
 
     def save(self, inst):
         """Stores `inst` in current storage."""
