@@ -24,19 +24,26 @@ import dlite
 
 
 def instance_from_dict(d, id=None, single=None, check_storages=True):
-    """Returns a new DLite instance created from dict `d`, which should
-    be of the same form as returned by the Instance.asdict() method.
+    """Returns a new DLite instance created from dict.
 
-    If `d` is in single-entity form with no explicit 'uuid' or 'uri',
-    it identity will be assigned by `id`.  Otherwise `id` must be consistent
-    with the 'uuid' and/or 'uri' fields of `d`.
+    Parameters
+    ----------
+    d: dict
+        Dict to parse.  It should be of the same form as returned
+        by the Instance.asdict() method.
+    id: str
+        Identity of the returned instance.
 
-    If `d` is in multi-entity form, `id` is used to select the instance to
-    return.
+        If `d` is in single-entity form with no explicit 'uuid' or
+        'uri', its identity will be assigned by `id`.  Otherwise
+        `id` must be consistent with the 'uuid' and/or 'uri'
+        fields of `d`.
 
-    if `single` is true, the dict is assumed to be in single-entity form and
-    if it is false, the dict is assumed to be in multi-entity form.
-    If `single` is None or "auto", the form is inferred.
+        If `d` is in multi-entity form, `id` is used to select the
+        instance to return.
+    single: bool | None | "auto"
+        whether the dict is assumed to be in single-entity form
+        If `single` is None or "auto", the form is inferred.
     """
     if single is None or single == 'auto':
         single = True if 'properties' in d else False

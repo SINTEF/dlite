@@ -30,7 +30,7 @@ class yaml(dlite.DLiteStorageBase):
         self.options = Options(options, defaults='mode=a;soft7=true;single=auto')
         self.mode = dict(r='r', w='w', a='r+', append='r+')[self.options.mode]
         self.readable = True if 'r' in self.mode else False
-        self.writable = True if self.mode in ('w', 'r+') else False
+        self.writable = False if 'r' == self.mode else True
         self.generic = True
         self.uri = uri
         self.d = {}

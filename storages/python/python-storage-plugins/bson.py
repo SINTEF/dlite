@@ -15,25 +15,22 @@ class bson(dlite.DLiteStorageBase):
         """Open `uri`.
 
         Supported options:
-        - mode : append (default) | r | w
+        - mode : a | r | w
             Valid values are:
-            - append   Append to existing file or create new file
-            - r        Open existing file for read-only
-            - w        Truncate existing file or create new file
+            - a   Append to existing file or create new file (default)
+            - r   Open existing file for read-only
+            - w   Truncate existing file or create new file
         - soft7 : bool
             Whether to save using SOFT7 format.
 
-<<<<<<< HEAD
         After the options are passed, this method may set attribute
         `writable` to True if it is writable and to False otherwise.
         If `writable` is not set, it is assumed to be True.
 
-=======
->>>>>>> master
         The BSON data is translated to JSON.
         """
-        self.options = Options(options, defaults='mode=append;soft7=true')
-        self.mode = dict(r='rb', w='wb', append='rb+')[self.options.mode]
+        self.options = Options(options, defaults='mode=a;soft7=true')
+        self.mode = dict(r='rb', w='wb', a='rb+', append='rb+')[self.options.mode]
         if self.mode == 'rb' and not os.path.exists(uri):
             raise FileNotFoundError(f"Did not find URI '{uri}'")
         self.readable = True  if 'rb' in self.mode else False
