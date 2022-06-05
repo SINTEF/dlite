@@ -3,11 +3,12 @@
 
 DLite
 =====
-> Lightweight data-centric interoperability framework for working with scientific data
+> A lightweight data-centric framework for semantic interoperability
 
-![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/sintef/dlite)](https://github.com/SINTEF/dlite/releases)
+[![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
+[![GitHub release](https://img.shields.io/github/v/release/sintef/dlite)](https://github.com/SINTEF/dlite/releases)
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
+[![Documentation](https://img.shields.io/badge/documentation--blue.svg?style=social)](https://sintef.github.io/dlite/index.html)
 
 Content
 -------
@@ -25,6 +26,7 @@ Content
       - [Build on Linux](#build-on-linux)
       - [Build on Windows](#build-on-windows)
         - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
+      - [Build documentation](#build-documentation)
     - [Setting up the environment](#setting-up-the-environment)
   * [Short vocabulary](#short-vocabulary)
   * [License](#license)
@@ -345,7 +347,7 @@ To install dlite locally, do
 
 
 ### Build on Windows
-See [here](doc/build-with-vs.md) for detailed instructions for building with
+See [here](doc/build_with_vs.md) for detailed instructions for building with
 Visual Studio.
 
 
@@ -366,6 +368,29 @@ system defined in Dockerfile.
 6. In the container terminal, perform the first build and tests with
    `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
    make test`.
+
+
+### Build documentation
+If you have [doxygen][11] installed, the html documentation should be generated
+as a part of the build process.  It can be browsed by opening the following file
+in your browser:
+
+    <build>/doc/html/index.html
+
+where `<build>` is your build folder.  To only build the documentation, you can
+do:
+
+    cd build
+    cmake --build . --target doc
+
+If you have LaTeX and make installed, you can also the latex documentation with
+
+    cd build
+    cmake --build . --target latex
+
+which will produce the file
+
+    <build>/doc/latex/refman.pdf
 
 
 

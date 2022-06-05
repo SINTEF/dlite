@@ -39,7 +39,24 @@ class InstanceEncoder(json.JSONEncoder):
 
 
 class Metadata(Instance):
-    """A subclass of Instance for metadata."""
+    """A subclass of Instance for metadata.
+
+    Arguments:
+        uri: URI of the new metadata.
+        dimensions: Sequence of Dimension instances describing each dimension.
+        properties: Sequence of Property instances describing each property.
+        description: Description of metadata.
+    """
+    def __new__(
+            cls,
+            uri: str,
+            dimensions: "Sequence[Dimension]",
+            properties: "Sequence[Property]",
+            description: str = ''
+    ):
+        return Instance.create_metadata(
+            uri, dimensions, properties, description)
+
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
 
@@ -69,6 +86,18 @@ def standardise(v, prop, asdict=False):
 
 
 def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> "Instance":
+    """Return instance with given id.
+
+    Arguments:
+        id: Id of instance to return.
+        metaid: If given, dlite will try to convert the instance to a new
+            instance of `metaid`.
+        check_storages: Whether to check for the instance in storages listed
+            in dlite.storage_path if the instance is not already in memory.
+
+    Returns:
+        DLite instance.
+    """
     inst = _dlite.get_instance(id, metaid, check_storages)
     if inst is None:
         raise DLiteError(f"no such instance: {id}")
@@ -210,6 +239,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
+        dlite.errclr()
         _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
         if self.is_meta:
             self.__class__ = Metadata

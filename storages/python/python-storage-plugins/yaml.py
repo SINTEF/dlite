@@ -18,14 +18,14 @@ class yaml(dlite.DLiteStorageBase):
         Supported options:
         - mode : append | r | w
             Valid values are:
-            - append   Append to existing file or create new file (default)
-            - r        Open existing file for read-only
-            - w        Truncate existing file or create new file
+            - a  Append to existing file or create new file (default)
+            - r  Open existing file for read-only
+            - w  Truncate existing file or create new file
         - soft7 : bool
             Whether to save using SOFT7 format.
         """
-        self.options = Options(options, defaults='mode=append;soft7=true')
-        self.mode = dict(r='r', w='w', append='r+')[self.options.mode]
+        self.options = Options(options, defaults='mode=a;soft7=true')
+        self.mode = dict(r='r', w='w', a='r+', append='r+')[self.options.mode]
         self.writable = False if 'r' in self.mode else True
         self.uri = uri
         self.d = {}
@@ -41,12 +41,13 @@ class yaml(dlite.DLiteStorageBase):
             mode = ('w' if self.mode == 'r+' and not os.path.exists(self.uri)
                     else self.mode)
             with open(self.uri, mode) as f:
-                pyyaml.dump(self.d, f)
+                pyyaml.dump(self.d, f, default_flow_style=False, sort_keys=False)
 
-    def load(self, uuid):
+    def load(self, id):
         """Loads `uuid` from current storage and return it as a new instance."""
-        uuid = dlite.get_uuid(uuid)
-        return instance_from_dict(self.d[uuid])
+        uuid = dlite.get_uuid(id)
+        #return instance_from_dict(self.d, id, single=self.options.single)
+        return instance_from_dict(self.d, id)
 
     def save(self, inst):
         """Stores `inst` in current storage."""
