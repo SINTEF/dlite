@@ -23,7 +23,7 @@ else:
 import dlite
 
 
-def instance_from_dict(d, id=None, single=None):
+def instance_from_dict(d, id=None, single=None, check_storages=True):
     """Returns a new DLite instance created from dict `d`, which should
     be of the same form as returned by the Instance.asdict() method.
 
@@ -55,11 +55,13 @@ def instance_from_dict(d, id=None, single=None):
             else:
                 raise ValueError('`id` required for dicts in multi-entry form.')
         if id in d:
-            return instance_from_dict(d[id], id=id, single=True)
+            return instance_from_dict(d[id], id=id, single=True,
+                                      check_storages=check_storages)
         else:
             uuid = dlite.get_uuid(id)
             if uuid in d:
-                return instance_from_dict(d[uuid], id=id, single=True)
+                return instance_from_dict(d[uuid], id=id, single=True,
+                                          check_storages=check_storages)
             else:
                 raise ValueError(f'no such id in dict: {id}')
 
@@ -80,14 +82,14 @@ def instance_from_dict(d, id=None, single=None):
         else:
             uri = dlite.join_meta_uri(d['name'], d['version'], d['namespace'])
 
-        try:
-            with dlite.silent:
-                print("*** get_instance:", uri)
-                inst = dlite.get_instance(uri)
-                if inst:
-                    return inst
-        except dlite.DLiteError:
-            pass
+        if check_storages:
+            try:
+                with dlite.silent:
+                    inst = dlite.get_instance(uri)
+                    if inst:
+                        return inst
+            except dlite.DLiteError:
+                pass
 
         if isinstance(d['dimensions'], Sequence):
             dimensions = [dlite.Dimension(d['name'], d.get('description'))

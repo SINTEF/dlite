@@ -33,6 +33,7 @@ struct _DLiteInstance *swig_mapping(const char *output_uri,
 
 
 %rename(mapping) swig_mapping;
+%newobject swig_mapping;
 %feature("docstring", "\
   Returns a new instance of metadata `output_uri` by mapping the
   input instances.

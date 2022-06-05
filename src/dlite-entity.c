@@ -890,7 +890,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 
   /* check if storage implements the instance api */
   if (s->api->loadInstance) {
-    if (!(inst = s->api->loadInstance(s, id))) goto fail;
+    if (!(inst = dlite_storage_load(s, id))) goto fail;
     if (metaid)
       return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
     else

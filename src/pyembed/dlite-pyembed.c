@@ -403,15 +403,17 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
     Py_DECREF(ppath);
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
-    if ((basename = fu_basename(path)) && (fp = fopen(path, "r"))) {
-      PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
-                                 main_dict);
+    if ((basename = fu_basename(path))) {
+      if ((fp = fopen(path, "r"))) {
+        PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
+                                   main_dict);
+        if (!ret) dlite_pyembed_err(1, "error parsing '%s'", path);
+        Py_XDECREF(ret);
+        fclose(fp);
+      }
       free(basename);
-      if (!ret)
-        dlite_pyembed_err(1, "error parsing '%s'", path);
-      Py_XDECREF(ret);
-      fclose(fp);
     }
+
   }
   if (fu_pathsiter_deinit(iter)) goto fail;
 

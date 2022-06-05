@@ -50,7 +50,8 @@ class yaml(dlite.DLiteStorageBase):
 
     def load(self, id):
         """Loads `uuid` from current storage and return it as a new instance."""
-        return instance_from_dict(self.d, id, single=self.options.single)
+        return instance_from_dict(self.d, id, single=self.options.single,
+                                  check_storages=False)
 
     def save(self, inst):
         """Stores `inst` in current storage."""

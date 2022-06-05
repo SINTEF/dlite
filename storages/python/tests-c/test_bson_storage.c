@@ -30,6 +30,7 @@ MU_TEST(test_save)
   DLiteInstance* data2
 	  = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
   mu_check(dlite_instance_is_data(data2));
+  mu_assert_int_eq(0, dlite_storage_close(s));
 
   // Save JSON data to BSON file
   mu_check(s = dlite_storage_open("bson", "test_data.bson", "mode=w"));

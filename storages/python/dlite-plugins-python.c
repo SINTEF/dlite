@@ -61,33 +61,35 @@ opener(const DLiteStoragePlugin *api, const char *location,
   if (!(s = calloc(1, sizeof(DLitePythonStorage))))
     FAIL("Allocation failure");
   s->api = api;
-  s->location = strdup(location);
-  s->options = (options) ? strdup(options) : NULL;
-  if (readable && !PyObject_IsTrue(readable))
+
+  if (readable && !PyObject_IsTrue(readable))  // default: redable
     s->flags &= ~dliteReadable;
   else
     s->flags |= dliteReadable;
-  if (writable && !PyObject_IsTrue(writable))
+
+  if (writable && !PyObject_IsTrue(writable))  // default: writable
     s->flags &= ~dliteWritable;
   else
     s->flags |= dliteWritable;
-  if (generic && !PyObject_IsTrue(generic))
-    s->flags &= ~dliteGeneric;
-  else
+
+  if (generic && PyObject_IsTrue(generic))     // default: not generic
     s->flags |= dliteGeneric;
+  else
+    s->flags &= ~dliteGeneric;
+
   s->obj = obj;
   s->idflag = dliteIDTranslateToUUID;
 
   retval = (DLiteStorage *)s;
  fail:
   if (s && !retval) {
-    free(s->location);
-    if (s->options) free(s->options);
-    Py_DECREF(s->obj);
+    Py_XDECREF(s->obj);
     free(s);
   }
   Py_XDECREF(v);
+  Py_XDECREF(readable);
   Py_XDECREF(writable);
+  Py_XDECREF(generic);
 
   return retval;
 }
@@ -128,9 +130,6 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
   DLiteInstance *inst = NULL;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
-
-  printf("*** LOADER: %s\n", s->location);
-  printf("    (%s)\n", id);
 
   if (id) {
     pyuuid = PyUnicode_FromString(id);

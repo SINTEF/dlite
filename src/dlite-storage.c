@@ -80,23 +80,25 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
                                  const char *options)
 {
   const DLiteStoragePlugin *api;
-  DLiteStorage *storage=NULL;
+  DLiteStorage *s=NULL;
 
   if (!location) FAIL("missing location");
   if (!driver || !*driver) driver = fu_fileext(location);
   if (!driver || !*driver) FAIL("missing driver");
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
-  if (!(storage = api->open(api, location, options))) goto fail;
-  storage->api = api;
-  if (!(storage->location = strdup(location))) FAIL(NULL);
-  if (options && !(storage->options = strdup(options))) FAIL(NULL);
+  if (!(s = api->open(api, location, options))) goto fail;
+  s->api = api;
+  if (!(s->location = strdup(location))) FAIL(NULL);
+  if (options && !(s->options = strdup(options))) FAIL(NULL);
 
-  if (storage->flags & (dliteReadable | dliteGeneric))
-    dlite_storage_hotlist_add(storage);
+  map_init(&s->cache);
 
-  return storage;
+  if (s->flags & dliteReadable && s->flags& dliteGeneric)
+    dlite_storage_hotlist_add(s);
+
+  return s;
  fail:
-  if (storage) free(storage);
+  if (s) free(s);
   err_update_eval(dliteStorageOpenError);
   return NULL;
 }
@@ -135,12 +137,13 @@ int dlite_storage_close(DLiteStorage *s)
 {
   int stat;
   assert(s);
-  if (s->flags & (dliteReadable | dliteGeneric))
+  if (s->flags & dliteReadable && s->flags& dliteGeneric)
     dlite_storage_hotlist_remove(s);
 
   stat = s->api->close(s);
   free(s->location);
   if (s->options) free(s->options);
+  map_deinit(&s->cache);
   free(s);
   return stat;
 }
@@ -160,6 +163,27 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s)
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
 {
   s->idflag = idflag;
+}
+
+/*
+  Loads instance from storage `s` using the loadInstance api.
+  Returns NULL on error or if loadInstance is not supported.
+ */
+DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id)
+{
+  char uuid[DLITE_UUID_LENGTH+1];
+  DLiteInstance **ptr, *inst=NULL;
+  if (getuuid(uuid, id) < 0) return NULL;
+  if ((ptr = map_get(&(((DLiteStorage *)s)->cache), uuid))) return *ptr;
+
+  if (s->api->loadInstance) {
+    /* Add NULL to cache to mark that we are about to load the instance and
+       break recursive calls */
+    map_set(&(((DLiteStorage *)s)->cache), uuid, NULL);
+    inst = s->api->loadInstance(s, id);
+    map_set(&(((DLiteStorage *)s)->cache), uuid, inst);
+  }
+  return inst;
 }
 
 

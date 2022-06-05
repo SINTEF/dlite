@@ -79,6 +79,12 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s);
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
 
 /**
+  Loads instance from storage `s` using the loadInstance api.
+  Returns NULL on error or if loadInstance is not supported.
+ */
+DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id);
+
+/**
   Returns non-zero if storage `s` is writable.
  */
 int dlite_storage_is_writable(const DLiteStorage *s);
