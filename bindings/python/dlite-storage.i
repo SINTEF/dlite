@@ -91,7 +91,7 @@ struct _DLiteStorage {
   %immutable;
   char *location;           /*!< Location passed to dlite_storage_open() */
   char *options;            /*!< Options passed to dlite_storage_open() */
-  int writable;             /*!< Whether storage is writable */
+  int flags;                /*!< Storage flags */
   int idflag;               /*!< How to handle instance id's */
 };
 
@@ -127,6 +127,48 @@ matches `pattern`.  If `pattern` is None, all UUIDs will be returned.
   //StorageIterator *instances(const char *pattern=NULL) {
   //  return StorageIterator
   //}
+
+  %feature("docstring",
+           "Returns whether the storage is readable.") _get_readable;
+  bool _get_readable(void) {
+    return ($self->flags & dliteReadable) ? 1 : 0;
+  }
+
+  %feature("docstring", "Set storage readability.") _set_readable;
+  void _set_writable(bool readable) {
+    if (readable)
+      $self->flags |= dliteReadable;
+    else
+      $self->flags &= ~dliteReadable;
+  }
+
+  %feature("docstring",
+           "Returns whether the storage is writable.") _get_writable;
+  bool _get_writable(void) {
+    return ($self->flags & dliteWritable) ? 1 : 0;
+  }
+
+  %feature("docstring", "Set storage writability.") _set_writable;
+  void _set_writable(bool writable) {
+    if (writable)
+      $self->flags |= dliteWritable;
+    else
+      $self->flags &= ~dliteWritable;
+  }
+
+  %feature("docstring", "Returns whether the storage is generic.") _get_generic;
+  bool _get_generic(void) {
+    return ($self->flags & dliteGeneric) ? 1 : 0;
+  }
+
+  %feature("docstring", "Set whether storage is generic") _set_generic;
+  void _set_generic(bool generic) {
+    if (generic)
+      $self->flags |= dliteGeneric;
+    else
+      $self->flags &= ~dliteGeneric;
+  }
+
 }
 
 

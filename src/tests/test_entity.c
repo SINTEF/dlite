@@ -8,6 +8,7 @@
 #include "utils/boolean.h"
 #include "utils/strutils.h"
 #include "dlite.h"
+#include "dlite-macros.h"
 #include "dlite-entity.h"
 #include "dlite-storage.h"
 
@@ -315,11 +316,7 @@ MU_TEST(test_instance_snprint)
   inst = dlite_instance_load_url("json://myentity.json?mode=r#mydata");
   mu_check(inst);
   n = dlite_json_sprint(buf, sizeof(buf), inst, 2, 0);
-  printf("\n=========================================================\n");
-  printf("%s\n", buf);
-  printf("=========================================================\n");
-  printf("n=%d\n", n);
-  //mu_assert_int_eq(22, n);
+  mu_assert_int_eq(346, n);
   dlite_instance_decref(inst);
 }
 
@@ -334,11 +331,40 @@ static char *gethash(char *s, DLiteInstance *inst)
   return s;
 }
 
+
+MU_TEST(test_instance_get)
+{
+  DLiteInstance *inst;
+  char *path = STRINGIFY(dlite_BINARY_DIR) "/src/tests/*.json";
+  const char **p;
+
+  printf("\nStorage paths:\n");
+  for (p=dlite_storage_paths_get(); p && *p; p++)
+    printf("  - %s\n", *p);
+  printf("\n");
+
+  inst = dlite_instance_get("mydata");
+  mu_check(!inst);
+
+  dlite_storage_paths_append(path);
+  dlite_storage_paths_append(path);
+  printf("\nStorage paths:\n");
+  for (p=dlite_storage_paths_get(); *p; p++)
+    printf("  - %s\n", *p);
+  printf("\n");
+
+  inst = dlite_instance_get("mydata");
+  mu_check(inst);
+  dlite_instance_decref(inst);
+}
+
+
 MU_TEST(test_instance_get_hash)
 {
   char *hash;
   char s[65];
-  DLiteInstance *inst = dlite_instance_get("mydata");
+  DLiteInstance *inst = dlite_instance_load_loc("json", "myentity.json",
+                                                "mode=r", "mydata");
   mu_check(inst);
 
   hash = "90fdd20131148fa0eaec9a21705dc0f8bc2a794945929796264c576a49b9e112";
@@ -423,6 +449,7 @@ MU_TEST(test_meta_save)
   mu_check(dlite_storage_close(s) == 0);
   mu_assert_int_eq(2, entity->_refcount);  /* refs: global+store */
 
+  // will fail if entity_schema.json already exists, since mode=w is not given
   DLiteInstance *schema = dlite_instance_get(DLITE_ENTITY_SCHEMA);
   dlite_instance_save_url("json://entity_schema.json", schema);
 }
@@ -484,6 +511,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_json);
   MU_RUN_TEST(test_instance_load_url);
   MU_RUN_TEST(test_instance_snprint);
+  MU_RUN_TEST(test_instance_get);
   MU_RUN_TEST(test_instance_get_hash);
   MU_RUN_TEST(test_transactions);
   MU_RUN_TEST(test_snapshot);

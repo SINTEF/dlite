@@ -18,11 +18,15 @@ class blob(dlite.DLiteStorageBase):
         """Closes this storage."""
         pass
 
-    def load(self, uuid):
+    def load(self, id):
         """Loads `uuid` from current storage and return it as a new instance."""
+        metaid = 'http://onto-ns.com/meta/0.1/Blob'
+        if id == metaid:
+            # break recursive search for metadata
+            raise dlite.DLiteError(f'no metadata in blob storage')
         with open(self.uri, 'rb') as f:
             content = f.read()
-        meta = dlite.get_instance('http://onto-ns.com/meta/0.1/Blob')
+        meta = dlite.get_instance(metaid)
         inst = meta(dims=[len(content)])
         inst.content = np.frombuffer(content, dtype='uint8')
         return inst

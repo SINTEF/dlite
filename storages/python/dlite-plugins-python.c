@@ -37,7 +37,7 @@ opener(const DLiteStoragePlugin *api, const char *location,
 {
   DLitePythonStorage *s=NULL;
   DLiteStorage *retval=NULL;
-  PyObject *obj=NULL, *v=NULL, *writable=NULL;
+  PyObject *obj=NULL, *v=NULL, *readable=NULL, *writable=NULL, *generic=NULL;
   PyObject *cls = (PyObject *)api->data;
   const char *classname;
 
@@ -51,28 +51,45 @@ opener(const DLiteStoragePlugin *api, const char *location,
   if (dlite_pyembed_err_check("error calling %s.open()", classname)) goto fail;
 
   /* Check if the open() method has set attribute `writable` */
+  if (PyObject_HasAttrString(obj, "readable"))
+    readable = PyObject_GetAttrString(obj, "readable");
   if (PyObject_HasAttrString(obj, "writable"))
     writable = PyObject_GetAttrString(obj, "writable");
+  if (PyObject_HasAttrString(obj, "generic"))
+    generic = PyObject_GetAttrString(obj, "generic");
 
   if (!(s = calloc(1, sizeof(DLitePythonStorage))))
     FAIL("Allocation failure");
   s->api = api;
-  s->location = strdup(location);
-  s->options = (options) ? strdup(options) : NULL;
-  s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
+
+  if (readable && !PyObject_IsTrue(readable))  // default: redable
+    s->flags &= ~dliteReadable;
+  else
+    s->flags |= dliteReadable;
+
+  if (writable && !PyObject_IsTrue(writable))  // default: writable
+    s->flags &= ~dliteWritable;
+  else
+    s->flags |= dliteWritable;
+
+  if (generic && PyObject_IsTrue(generic))     // default: not generic
+    s->flags |= dliteGeneric;
+  else
+    s->flags &= ~dliteGeneric;
+
   s->obj = obj;
   s->idflag = dliteIDTranslateToUUID;
 
   retval = (DLiteStorage *)s;
  fail:
   if (s && !retval) {
-    free(s->location);
-    if (s->options) free(s->options);
-    Py_DECREF(s->obj);
+    Py_XDECREF(s->obj);
     free(s);
   }
   Py_XDECREF(v);
+  Py_XDECREF(readable);
   Py_XDECREF(writable);
+  Py_XDECREF(generic);
 
   return retval;
 }

@@ -22,7 +22,7 @@ typedef map_t(uuid_t) map_uuid_t;
 typedef struct {
   DLiteStorage_HEAD
   JStore *jstore;       /* json storage */
-  DLiteJsonFlag flags;  /* output flags */
+  DLiteJsonFlag jflags; /* output flags */
   int fmt_given;        /* whether single/multi entity format is given */
   int changed;          /* whether the storage is changed */
   map_uuid_t ids;       /* maps uuids to ids */
@@ -134,19 +134,23 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   s->api = api;
 
   if (!mode) mode = default_mode(uri);
+  s->flags |= dliteGeneric;
   switch (mode) {
   case 'r':
     load = 1;
-    s->writable = 0;
+    s->flags |= dliteReadable;
+    s->flags &= ~dliteWritable;
     break;
   case 'a':
     if (single > 0) FAIL("cannot append in single-entity format");
     load = 1;
-    s->writable = 1;
+    s->flags |= dliteReadable;
+    s->flags |= dliteWritable;
     break;
   case 'w':
     load = 0;
-    s->writable = 1;
+    s->flags &= ~dliteReadable;
+    s->flags |= dliteWritable;
     break;
   default:
     FAIL1("invalid \"mode\" value: '%c'. Must be \"r\" (read-only), "
@@ -154,19 +158,18 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   }
 
   s->fmt_given = (single >= 0) ? 1 : 0;
-  if (single > 0) s->flags |= dliteJsonSingle;
-  if (urikey) s->flags |= dliteJsonUriKey;
-  if (withuuid) s->flags |= dliteJsonWithUuid;
-  if (withmeta) s->flags |= dliteJsonWithMeta;
-  if (arrays) s->flags |= dliteJsonArrays;
+  if (single > 0) s->jflags |= dliteJsonSingle;
+  if (urikey) s->jflags |= dliteJsonUriKey;
+  if (withuuid) s->jflags |= dliteJsonWithUuid;
+  if (withmeta) s->jflags |= dliteJsonWithMeta;
+  if (arrays) s->jflags |= dliteJsonArrays;
 
   /* Load jstore if not in write mode */
   if (load) {
     if (!(s->jstore = jstore_open())) goto fail;
     DLiteJsonFormat fmt = dlite_jstore_loadf(s->jstore, uri);
     if (fmt < 0) goto fail;
-    if (fmt == dliteJsonMetaFormat && mode != 'a') s->writable = 0;
-    dlite_storage_paths_append(uri);
+    if (fmt == dliteJsonMetaFormat && mode != 'a') s->flags &= ~dliteWritable;
   }
 
   retval = (DLiteStorage *)s;
@@ -187,7 +190,7 @@ int json_close(DLiteStorage *s)
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   int stat=0;
   if (js->jstore) {
-    if (js->writable && js->changed)
+    if (js->flags & dliteWritable && js->changed)
       stat = jstore_to_file(js->jstore, js->location);
     stat |= jstore_close(js->jstore);
   }
@@ -243,24 +246,24 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   int stat=1;
-  DLiteJsonFlag flags = js->flags;
+  DLiteJsonFlag jflags = js->jflags;
 
-  if (!s->writable)
+  if (!(s->flags & dliteWritable))
     FAIL1("storage \"%s\" is not writable", s->location);
 
   /* If single/multi format is not given, infer it from `inst` */
   if (!js->fmt_given && dlite_instance_is_meta(inst))
-    flags |= dliteJsonSingle;
+    jflags |= dliteJsonSingle;
 
-  if (flags & dliteJsonSingle) {
+  if (jflags & dliteJsonSingle) {
     if (js->changed)
       FAIL1("Trying to save more than once in single-entity format: %s",
             s->location);
-    int n = dlite_json_printfile(s->location, inst, flags);
+    int n = dlite_json_printfile(s->location, inst, jflags);
     stat = (n > 0) ? 0 : 1;
   } else {
     if (!js->jstore && !(js->jstore = jstore_open())) goto fail;
-    stat = dlite_jstore_add(js->jstore, inst, flags);
+    stat = dlite_jstore_add(js->jstore, inst, jflags);
   }
   js->changed = 1;
  fail:

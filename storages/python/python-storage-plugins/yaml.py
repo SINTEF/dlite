@@ -15,31 +15,23 @@ class yaml(dlite.DLiteStorageBase):
     def open(self, uri, options=None):
         """Opens `uri`.
 
-        The `options` argument provies additional input to the driver.
-        Which options that are supported varies between the plugins.  It
-        should be a valid URL query string of the form:
-
-            key1=value1;key2=value2...
-
-        An ampersand (&) may be used instead of the semicolon (;).
-
         Supported options:
         - mode : "a" | "r" | "w"
             Valid values are:
-            - a   Append to existing file or create new file (default)
-            - r   Open existing file for read-only
-            - w   Truncate existing file or create new file
+            - a  Append to existing file or create new file (default)
+            - r  Open existing file for read-only
+            - w  Truncate existing file or create new file
+        - soft7 : bool
+            Whether to save using SOFT7 format.
         - single : bool | "auto"
-            Whether the YAML input is in single-entity form.  If `single` is
-            "auto", it will be inferred from the input.
-
-        After the options are passed, this method may set attribute
-        `writable` to true if it is writable and to false otherwise.
-        If `writable` is not set, it is assumed to be true.
+            Whether the input is assumed to be in single-entity form.
+            The default (auto) will try to infer it automatically.
         """
-        self.options = Options(options, defaults='mode=a')
-        self.mode = dict(r='r', w='w', a='r+')[self.options.mode]
-        self.writable = False if 'r' in self.mode else True
+        self.options = Options(options, defaults='mode=a;soft7=true;single=auto')
+        self.mode = dict(r='r', w='w', a='r+', append='r+')[self.options.mode]
+        self.readable = True if 'r' in self.mode else False
+        self.writable = False if 'r' == self.mode else True
+        self.generic = True
         self.uri = uri
         self.d = {}
         if self.mode in ('r', 'r+'):
@@ -58,13 +50,12 @@ class yaml(dlite.DLiteStorageBase):
 
     def load(self, id):
         """Loads `uuid` from current storage and return it as a new instance."""
-        uuid = dlite.get_uuid(id)
-        #return instance_from_dict(self.d, id, single=self.options.single)
-        return instance_from_dict(self.d, id)
+        return instance_from_dict(self.d, id, single=self.options.single,
+                                  check_storages=False)
 
     def save(self, inst):
         """Stores `inst` in current storage."""
-        self.d[inst.uuid] = inst.asdict()
+        self.d[inst.uuid] = inst.asdict(soft7=dlite.asbool(self.options.soft7))
 
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage

@@ -287,7 +287,7 @@ char *fu_dirname(const char *path)
 char *fu_basename(const char *path)
 {
   char *p;
-  if ((p = fu_lastsep(path))) return strdup(p+1);
+  if ((p = fu_lastsep(path)) && *p) return strdup(p+1);
   return strdup(path);
 }
 

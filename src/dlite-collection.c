@@ -249,7 +249,7 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
     return NULL;
 
   if (lazy) {
-    dlite_storage_paths_append(s->location);
+    //dlite_storage_paths_append(s->location);
     return coll;
   }
 
@@ -441,9 +441,6 @@ const DLiteRelation *dlite_collection_find_first(const DLiteCollection *coll,
 int dlite_collection_add_new(DLiteCollection *coll, const char *label,
                              DLiteInstance *inst)
 {
-  if (!inst->meta)
-    return err(1, "instance must have associated metadata to be added "
-               "to a collection");
   if (dlite_collection_find(coll, NULL, label, "_is-a", "Instance"))
     return err(1, "instance with label '%s' is already in the collection",
                label);

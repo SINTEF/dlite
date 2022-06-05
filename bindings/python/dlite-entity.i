@@ -555,6 +555,10 @@ in the storage plugin path (initiated from the DLITE_STORAGES
 environment variable).
 
 It is an error message if the instance cannot be found.
+
+Note: seting `check_storages` to false is normally a good idea if calling
+this function from a storage plugin.  Otherwise you may easily end up in an
+infinite recursive loop that will exhaust the call stack.
 ") dlite_swig_get_instance;
 %rename(get_instance) dlite_swig_get_instance;
 %newobject dlite_swig_get_instance;

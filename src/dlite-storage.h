@@ -21,6 +21,10 @@ typedef struct _DLiteInstance DLiteInstance;
 /** Iterator over dlite storage paths. */
 typedef struct _DLiteStoragePathIter DLiteStoragePathIter;
 
+/** Iterator over hotlisted storages */
+typedef size_t DLiteStorageHotlistIter;
+
+
 /** Flags for how to handle instance IDs. */
 typedef enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
@@ -73,6 +77,12 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s);
   Sets how instance IDs are handled.
  */
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag);
+
+/**
+  Loads instance from storage `s` using the loadInstance api.
+  Returns NULL on error or if loadInstance is not supported.
+ */
+DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id);
 
 /**
   Returns non-zero if storage `s` is writable.
@@ -224,5 +234,56 @@ int dlite_storage_paths_iter_stop(DLiteStoragePathIter *iter);
 
 
 /** @} */
+
+
+
+/**
+ * @name Hotlist of open storages for fast access to instances using
+ * get_instance().  Mostly intended for internal use.
+ * @{
+ */
+
+/**
+  Clears the storage hotlist.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_hotlist_clear();
+
+/**
+  Adds storage `s` to list of open storages for fast lookup of instances.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_hotlist_add(const DLiteStorage *s);
+
+/**
+  Remove storage `s` from hotlist.
+
+  Returns zero on success.  One is returned if `s` is not in the hotlist.
+  For other errors a negative number is returned.
+*/
+int dlite_storage_hotlist_remove(const DLiteStorage *s);
+
+/**
+  Initialise hotlist iterator `iter`.
+
+  Returns non-zero on error.
+*/
+int dlite_storage_hotlist_iter_init(DLiteStorageHotlistIter *iter);
+
+/**
+  Returns a pointer to next hotlisted storage or NULL if the iterator is
+  exausted (or on other errors).
+*/
+const DLiteStorage *
+dlite_storage_hotlist_iter_next(DLiteStorageHotlistIter *iter);
+
+/**
+  Deinitialise hotlist iterator `iter`.
+  Returns non-zero on error.
+*/
+int dlite_storage_hotlist_iter_deinit(DLiteStorageHotlistIter *iter);
+
 
 #endif /* _DLITE_STORAGE_H */
