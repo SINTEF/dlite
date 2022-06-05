@@ -146,7 +146,7 @@ MU_TEST(test_is_allocated)
   mu_check(!dlite_type_is_allocated(dliteInt));
   mu_check(!dlite_type_is_allocated(dliteFixString));
   mu_check(dlite_type_is_allocated(dliteStringPtr));
-  mu_check(!dlite_type_is_allocated(dliteRef));
+  mu_check(dlite_type_is_allocated(dliteRef));
   mu_check(dlite_type_is_allocated(dliteDimension));
   mu_check(dlite_type_is_allocated(dliteProperty));
   mu_check(dlite_type_is_allocated(dliteRelation));
