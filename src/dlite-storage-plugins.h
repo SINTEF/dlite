@@ -510,6 +510,9 @@ struct _DLiteStoragePlugin {
   LoadInstance       loadInstance;     /*!< Returns new instance from storage */
   SaveInstance       saveInstance;     /*!< Stores an instance */
 
+  //Delete
+  //Flush
+
   /* DataModel API */
   DataModel          dataModel;        /*!< Creates new data model */
   DataModelFree      dataModelFree;    /*!< Frees a data model */

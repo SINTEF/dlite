@@ -222,7 +222,7 @@ typedef struct _DLiteParent {
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
                                   /* bing this instance. */             \
   DLiteParent *_parent;           /* For transactions, reference to */  \
-                                  /* parent instance. */
+                                  /* parent instance. May be NULL. */
 
 
 /**
@@ -1052,24 +1052,74 @@ void dlite_instance_freeze(DLiteInstance *inst);
 int dlite_instance_is_frozen(const DLiteInstance *inst);
 
 /**
-  Returns an immutable snapshop of instance `inst`.
+  Make a snapshop of mutable instance `inst`.
 
-  If `inst` is frozen, a new reference to `inst` is returned,
-  otherwise an frozen copy of `inst` is returned.  If a copy
-  is made, the returned instance will have a new random UUID
-  and no URI.
+  The `inst` will be a transaction whos parent is the snapshot.  If
+  `inst` already has a parent, that will now be the parent of the
+  snapshot.
+
+  The reason that `inst` must be mutable, is that its hash will change
+  due to change in its parent.
+
+  The snapshot will be assigned an URI of the form
+  "snapshot-XXXXXXXXXXXX" (or inst->uri#snapshot-XXXXXXXXXXXX if
+  inst->uri is not NULL) where each X is replaces with a random
+  character.
+
+  On error non-zero is returned and `inst` is unchanged.
+ */
+int dlite_instance_snapshot(DLiteInstance *inst);
+
+/**
+  Returns a borrowed reference to shapshot number `n` of `inst`, where
+  `n` counts backward from `inst`.  Hence, `n=0` returns `inst`, `n=1`
+  returns the parent of `inst`, etc...
+
+  Snapshots may be pulled back into memory using dlite_instance_get().
+  Use dlite_instance_pull() if you know the storage that the snapshots
+  are stored in.
 
   Returns NULL on error.
  */
-DLiteInstance *dlite_get_snapshot(const DLiteInstance *inst);
+const DLiteInstance *dlite_instance_get_snapshot(const DLiteInstance *inst,
+                                                 int n);
+
+/**
+  Like dlite_instance_get_snapshot(), except that stored snapshots are pulled
+  from `s` to memory.
+
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
+                                                  DLiteStorage *s, int n);
+
+/**
+  Push all ancestors of snapshot `n` from memory to storage `s`,
+  where `n=0` corresponds to `inst`, `n=1` to the parent of `inst`, etc...
+
+  No snapshot is pulled back from storage, so if the snapshots are
+  already in storage, this function has no effect.
+
+  This function starts pushing closest to the root to ensure that the
+  transaction is in a consistent state at all times.
+
+  Returns zero on success or the (positive) index of the snapshot that
+  fails to push.
+*/
+int dlite_instance_push_snapshot(const DLiteInstance *inst,
+                                 DLiteStorage *s, int n);
+
+/**
+  Prints transaction to stdout.  Returns non-zero on error.
+ */
+int dlite_instance_print_transaction(const DLiteInstance *inst);
 
 /**
   Turn instance `inst` into a transaction node with parent `parent`.
 
-  This require that:
-    - `inst` does not already has a parent,
-    - `inst` is mutable, and
-    - `parent` is immutable.
+  This require that `inst` is mutable, and `parent` is immutable.
+
+  If `inst` already has a parent, it will be replaced.
 
   Use dlite_instance_freeze() and dlite_instance_is_frozen() to make
   and check that an instance is immutable, respectively.
@@ -1077,15 +1127,6 @@ DLiteInstance *dlite_get_snapshot(const DLiteInstance *inst);
   Returns non-zero on error.
  */
 int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent);
-
-/**
-  Returns a pointer to the parent of instance `inst` or NULL if `inst` has
-  no parent.
-
-  Call dlite_instance_has_parent() to distinguish between error or that
-  `inst` has no parent.
- */
-const DLiteInstance *dlite_instance_get_parent(const DLiteInstance *inst);
 
 /**
   Returns non-zero if `inst` has a parent.

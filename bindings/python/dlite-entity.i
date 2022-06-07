@@ -391,10 +391,10 @@ Call signatures:
   }
 
   %feature("docstring",
-           "Returns an immutable snapshot of instance.") get_snapshot;
-  %newobject get_snapshot;
-  struct _DLiteInstance *get_snapshot() {
-    return dlite_get_snapshot($self);
+           "Make a snapshot of the current state of instance.  It can "
+           "be retrieved with get_snapshot().") snapshot;
+  void snapshot(void) {
+    dlite_instance_snapshot($self);
   }
 
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;

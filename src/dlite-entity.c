@@ -1803,6 +1803,13 @@ DLiteInstance *dlite_instance_copy(const DLiteInstance *inst, const char *newid)
   if (dlite_instance_sync_to_properties((DLiteInstance *)inst)) return NULL;
   if (!(new = dlite_instance_create(inst->meta, DLITE_DIMS(inst), newid)))
     return NULL;
+  if (inst->_parent) {
+    if (!(new->_parent = malloc(sizeof(DLiteParent))))
+      FAIL("allocation failure");
+    memcpy(new->_parent, inst->_parent, sizeof(DLiteParent));
+    if (new->_parent->parent)
+      dlite_instance_incref((DLiteInstance *)new->_parent->parent);
+  }
   for (i=0; i < inst->meta->_nproperties; i++) {
     void *src = dlite_instance_get_property_by_index(inst, i);
     assert(src);
@@ -2103,54 +2110,174 @@ int dlite_instance_is_frozen(const DLiteInstance *inst)
 #define SID_LEN 12
 
 /*
-  Returns an immutable snapshop of instance `inst`.
+  Make a snapshop of mutable instance `inst`.
 
-  If `inst` is frozen, a new reference to `inst` is returned,
-  otherwise an frozen copy of `inst` is returned.  If a copy
-  is made, the returned instance will have an URI of the form
+  The `inst` will be a transaction whos parent is the snapshot.  If
+  `inst` already has a parent, that will now be the parent of the
+  snapshot.
+
+  The reason that `inst` must be mutable, is that its hash will change
+  due to change in its parent.
+
+  The snapshot will be assigned an URI of the form
   "snapshot-XXXXXXXXXXXX" (or inst->uri#snapshot-XXXXXXXXXXXX if
   inst->uri is not NULL) where each X is replaces with a random
   character.
 
+  On error non-zero is returned and `inst` is unchanged.
+ */
+int dlite_instance_snapshot(DLiteInstance *inst)
+{
+  DLiteInstance *snapshot=NULL;
+  int retval=1, i, c;
+  const char *id = (inst->uri) ? inst->uri : inst->uuid;
+  int len = strcspn(id, "#");
+  char *uri = NULL;
+  char sid[SID_LEN+1];
+
+  if (dlite_instance_is_frozen(inst))
+    FAIL1("cannot snapshot an immutable instance: %s", id);
+
+  /* Create a random snapshot id of graphical ASCII characters. */
+  for (i=0; i<SID_LEN; i++) {
+    do {
+      c = (rand() % (128 - 32)) + 32;  // below c=32 is not printable
+    } while (!isgraph(c) || strchr(" \"'", c));
+    sid[i] = c;
+  }
+  sid[SID_LEN] = '\0';
+  if (asprintf(&uri, "%.*s#snapshot-%s", len, id, sid) < 0)
+    FAIL1("error formatting uri for snapshot of %s", id);
+
+  if (!(snapshot = dlite_instance_copy(inst, uri))) goto fail;
+  dlite_instance_freeze(snapshot);
+  if (dlite_instance_set_parent(inst, snapshot)) goto fail;
+  retval = 0;
+ fail:
+  if (uri) free(uri);
+  if (snapshot) dlite_instance_decref(snapshot);
+  return retval;
+}
+
+/*
+  Returns a borrowed reference to shapshot number `n` of `inst`, where
+  `n` counts backward from `inst`.  Hence, `n=0` returns `inst`, `n=1`
+  returns the parent of `inst`, etc...
+
+  Snapshots may be pulled back into memory using dlite_instance_get().
+  Use dlite_instance_pull() if you know the storage that the snapshots
+  are stored in.
+
   Returns NULL on error.
  */
-DLiteInstance *dlite_get_snapshot(const DLiteInstance *inst)
+const DLiteInstance *dlite_instance_get_snapshot(const DLiteInstance *inst,
+                                                 int n)
 {
-  if (dlite_instance_is_frozen(inst)) {
-    dlite_instance_incref((DLiteInstance *)inst);
-    return (DLiteInstance *)inst;
-  } else {
-    int i, c;
-    const char *id = (inst->uri) ? inst->uri : inst->uuid;
-    int len = strcspn(id, "#");
-    char *uri = NULL;
-    char sid[SID_LEN+1];
-
-    /* Create a random snapshot id of graphical ASCII characters. */
-    for (i=0; i<SID_LEN; i++) {
-      do {
-        c = (rand() % (128 - 32)) + 32;  // below c=32 is not printable
-      } while (!isgraph(c) || strchr(" \"'", c));
-      sid[i] = c;
+  int i;
+  const DLiteInstance *cur = inst;
+  if (n < 0) return err(1, "snapshot number must be positive"), NULL;
+  for (i=0; i<n; i++) {
+    DLiteParent *p = cur->_parent;
+    if (!p) return err(1, "snapshot index %d exceeds number of snapsshots: %d",
+                       n, i), NULL;
+    if (p->parent) {
+      cur = p->parent;
+    } else {
+      if (!(p->parent = dlite_instance_get(p->uuid))) return NULL;
+      cur = p->parent;
     }
-    sid[SID_LEN] = '\0';
-    if (asprintf(&uri, "%.*s#snapshot-%s", len, id, sid) < 0)
-        return err(-1, "error formatting uri for snapshot of %s",
-                   inst->uuid), NULL;
-    DLiteInstance *new = dlite_instance_copy(inst, uri);
-    free(uri);
-    if (new) dlite_instance_freeze(new);
-    return new;
   }
+  assert(cur);
+  return cur;
+}
+
+/*
+  Like dlite_instance_get_snapshot(), except that stored snapshots are pulled
+  from `s` to memory.
+
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
+                                                  DLiteStorage *s, int n)
+{
+  int i;
+  const DLiteInstance *cur = inst;
+  if (n < 0) return err(1, "snapshot number must be positive"), NULL;
+  for (i=0; i<n; i++) {
+    DLiteParent *p = cur->_parent;
+    if (!p) return err(1, "snapshot index %d exceeds number of snapsshots: %d",
+                       n, i), NULL;
+    if (p->parent) {
+      cur = p->parent;
+    } else {
+      if (!(p->parent = dlite_storage_load(s, p->uuid))) return NULL;
+      cur = p->parent;
+    }
+  }
+  assert(cur);
+  return cur;
+}
+
+/*
+  Push all ancestors of snapshot `n` from memory to storage `s`,
+  where `n=0` corresponds to `inst`, `n=1` to the parent of `inst`, etc...
+
+  No snapshot is pulled back from storage, so if the snapshots are
+  already in storage, this function has no effect.
+
+  This function starts pushing closest to the root to ensure that the
+  transaction is in a consistent state at all times.
+
+  Returns zero on success or the (positive) index of the snapshot that
+  fails to push.
+*/
+int dlite_instance_push_snapshot(const DLiteInstance *inst,
+                                 DLiteStorage *s, int n)
+{
+  int m;
+  const DLiteInstance *p = inst->_parent->parent;
+  if (!p) return 0;
+  if ((m = dlite_instance_push_snapshot(p, s, n-1))) return m+1;
+  if (n > 0) return 0;
+  if (dlite_instance_save(s, p)) return 1;
+  inst->_parent->parent = NULL;
+  dlite_instance_decref((DLiteInstance *)p);
+  return 0;
+}
+
+/*
+  Prints transaction to stdout.  Returns non-zero on error.
+ */
+int dlite_instance_print_transaction(const DLiteInstance *inst)
+{
+  char *s=NULL;
+  size_t size=0;
+  int n=0, m;
+  const DLiteInstance *p = inst;
+  m = asnpprintf(&s, &size, n, "\n");
+  n += m;
+  while (p) {
+    uint8_t hash[DLITE_HASH_SIZE];
+    char shash[DLITE_HASH_SIZE*2+1];
+    dlite_instance_get_hash(p, hash, sizeof(hash));
+    strhex_encode(shash, sizeof(shash), hash, sizeof(hash));
+    m = asnpprintf(&s, &size, n, "%s\n", (p->uri) ? p->uri : p->uuid);
+    n += m;
+    m = asnpprintf(&s, &size, n, "  - hash: %s\n", shash);
+    n += m;
+    p = (p->_parent && p->_parent->parent) ? p->_parent->parent : NULL;
+  }
+  printf("%s\n", s);
+  if(s) free(s);
+  return 0;
 }
 
 /*
   Turn instance `inst` into a transaction node with parent `parent`.
 
-  This require that:
-    - `inst` does not already has a parent,
-    - `inst` is mutable, and
-    - `parent` is immutable.
+  This require that `inst` is mutable, and `parent` is immutable.
+
+  If `inst` already has a parent, it will be replaced.
 
   Use dlite_instance_freeze() and dlite_instance_is_frozen() to make
   and check that an instance is immutable, respectively.
@@ -2159,7 +2286,7 @@ DLiteInstance *dlite_get_snapshot(const DLiteInstance *inst)
  */
 int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
 {
-  DLiteParent *p;
+  DLiteParent *p = inst->_parent;
   uint8_t hash[DLITE_HASH_SIZE];
   if (inst->_flags & dliteImmutable)
     return err(-1, "Parent cannot be added to immutable instance: %s",
@@ -2167,54 +2294,55 @@ int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
   if (!(parent->_flags & dliteImmutable))
     return err(-1, "Mutable instance \"%s\" cannot be added as parent",
                (parent->uri) ? parent->uri : parent->uuid);
-  if (inst->_parent)
-    return err(-1, "Instance has already a parent transaction.");
   if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
     return err(-1, "Error calculating hash of parent instance \"%s\"",
                (parent->uri) ? parent->uri : parent->uuid);
-
-  if (!(p = calloc(1, sizeof(DLiteParent))))
-    return err(-1, "Allocation failure");
+  if (p) {
+    if (p->parent) dlite_instance_decref((DLiteInstance *)p->parent);
+  } else {
+    if (!(p = calloc(1, sizeof(DLiteParent))))
+      return err(-1, "Allocation failure");
+    inst->_parent = p;
+  }
   p->parent = parent;
   strncpy(p->uuid, parent->uuid, DLITE_UUID_LENGTH+1);
   memcpy(p->hash, hash, DLITE_HASH_SIZE);
   dlite_instance_incref((DLiteInstance *)p->parent);
-  inst->_parent = p;
   return 0;
 }
 
-/*
-  Returns a new reference to the parent of instance `inst` or NULL on
-  error or if `inst` has no parent.
-
-  Call dlite_instance_has_parent() to distinguish between error or that
-  `inst` has no parent.
- */
-const DLiteInstance *dlite_instance_get_parent(const DLiteInstance *inst)
-{
-  if (!inst->_parent) return NULL;
-  if (!inst->_parent->parent) {
-    DLiteInstance *parent = dlite_instance_get(inst->_parent->uuid);
-    uint8_t hash[DLITE_HASH_SIZE];
-    if (!parent) return NULL;
-
-    /* Verify the parent when it is assigned with dlite_instance_get() */
-    if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
-      goto fail;
-    if (memcmp(hash, inst->_parent->hash, DLITE_HASH_SIZE))
-      FAIL1("Invalid hash for parent of instance \"%s\"",
-            (inst->uri) ? inst->uri : inst->uuid);
-
-    inst->_parent->parent = parent;
-  }
-
-  dlite_instance_incref((DLiteInstance *)inst->_parent->parent);
-  return inst->_parent->parent;
-
- fail:
-  dlite_instance_decref((DLiteInstance *)inst->_parent->parent);
-  return NULL;
-}
+///*
+//  Returns a new reference to the parent of instance `inst` or NULL on
+//  error or if `inst` has no parent.
+//
+//  Call dlite_instance_has_parent() to distinguish between error or that
+//  `inst` has no parent.
+// */
+//const DLiteInstance *dlite_instance_get_parent(const DLiteInstance *inst)
+//{
+//  if (!inst->_parent) return NULL;
+//  if (!inst->_parent->parent) {
+//    DLiteInstance *parent = dlite_instance_get(inst->_parent->uuid);
+//    uint8_t hash[DLITE_HASH_SIZE];
+//    if (!parent) return NULL;
+//
+//    /* Verify the parent when it is assigned with dlite_instance_get() */
+//    if (dlite_instance_get_hash(parent, hash, DLITE_HASH_SIZE))
+//      goto fail;
+//    if (memcmp(hash, inst->_parent->hash, DLITE_HASH_SIZE))
+//      FAIL1("Invalid hash for parent of instance \"%s\"",
+//            (inst->uri) ? inst->uri : inst->uuid);
+//
+//    inst->_parent->parent = parent;
+//  }
+//
+//  dlite_instance_incref((DLiteInstance *)inst->_parent->parent);
+//  return inst->_parent->parent;
+//
+// fail:
+//  dlite_instance_decref((DLiteInstance *)inst->_parent->parent);
+//  return NULL;
+//}
 
 /*
   Returns non-zero if `inst` has a parent.
