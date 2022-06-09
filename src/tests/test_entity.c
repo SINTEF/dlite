@@ -431,8 +431,11 @@ MU_TEST(test_transactions)
 MU_TEST(test_snapshot)
 {
   /* Create a simple transaction */
+  char *path = STRINGIFY(dlite_BINARY_DIR) "/src/tests/transaction_store.json";
   const DLiteInstance *snapshot;
   DLiteInstance *inst = dlite_instance_get("mydata");
+  DLiteStorage *s = dlite_storage_open("json", path, "mode=w");
+  mu_check(s);
   mu_check(inst);
   mu_assert_int_eq(0, dlite_instance_snapshot(inst));
   mu_assert_int_eq(0, dlite_instance_snapshot(inst));
@@ -452,6 +455,18 @@ MU_TEST(test_snapshot)
 
   mu_assert_int_eq(0, dlite_instance_verify_hash(inst, NULL, 1));
   dlite_instance_print_transaction(inst);
+
+  mu_assert_int_eq(0, dlite_instance_push_snapshot(inst, s, 1));
+  //snapshot = dlite_instance_pull_snapshot(inst, s, 1);
+  snapshot = inst->_parent->parent;
+  printf("\n");
+  printf("snapshot 1: %s (%p)\n", snapshot->uuid, (void *)inst->_parent->parent);
+  printf("snapshot 2: %s (%p)\n", snapshot->_parent->uuid,
+         (void *)snapshot->_parent->parent);
+
+
+
+  //dlite_instance_save(s, inst);
 
   //mu_assert_int_eq(0, dlite_instance_snapshot(inst));
   //mu_assert_int_eq(0, dlite_instance_snapshot(inst));
@@ -480,6 +495,7 @@ MU_TEST(test_snapshot)
   dlite_instance_decref(snapshot1);
   dlite_instance_decref(snapshot2);
   */
+  dlite_storage_close(s);
   dlite_instance_decref(inst);
 
 }

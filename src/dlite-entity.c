@@ -2192,8 +2192,8 @@ const DLiteInstance *dlite_instance_get_snapshot(const DLiteInstance *inst,
 }
 
 /*
-  Like dlite_instance_get_snapshot(), except that stored snapshots are pulled
-  from `s` to memory.
+  Like dlite_instance_get_snapshot(), except that possible stored
+  snapshots are pulled from storage `s` to memory.
 
   Returns NULL on error.
  */
@@ -2235,8 +2235,8 @@ int dlite_instance_push_snapshot(const DLiteInstance *inst,
                                  DLiteStorage *s, int n)
 {
   int m;
-  const DLiteInstance *p = inst->_parent->parent;
-  if (!p) return 0;
+  const DLiteInstance *p;
+  if (!inst->_parent || !(p = inst->_parent->parent)) return 0;
   if ((m = dlite_instance_push_snapshot(p, s, n-1))) return m+1;
   if (n > 0) return 0;
   if (dlite_instance_save(s, p)) return 1;
@@ -2256,17 +2256,18 @@ int dlite_instance_print_transaction(const DLiteInstance *inst)
   const DLiteInstance *p = inst;
   m = asnpprintf(&s, &size, n, "\n");
   n += m;
-  while (p) {
+  do {
     uint8_t hash[DLITE_HASH_SIZE];
     char shash[DLITE_HASH_SIZE*2+1];
     dlite_instance_get_hash(p, hash, sizeof(hash));
     strhex_encode(shash, sizeof(shash), hash, sizeof(hash));
     m = asnpprintf(&s, &size, n, "%s\n", (p->uri) ? p->uri : p->uuid);
     n += m;
+    m = asnpprintf(&s, &size, n, "  - uuid: %s\n", p->uuid);
+    n += m;
     m = asnpprintf(&s, &size, n, "  - hash: %s\n", shash);
     n += m;
-    p = (p->_parent && p->_parent->parent) ? p->_parent->parent : NULL;
-  }
+  } while ((p = dlite_instance_get_snapshot(p, 1)));
   printf("%s\n", s);
   if(s) free(s);
   return 0;
