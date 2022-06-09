@@ -2,12 +2,13 @@
 """
 from __future__ import annotations
 
-import types
+import bisect
 import itertools
+import types
 import warnings
 from collections import defaultdict
 from collections.abc import Sequence
-from typing import Union, Dict, List
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import dlite
 
@@ -32,6 +33,23 @@ class InconsistentTriplesError(MappingError):
     """Inconsistcy in RDF triples."""
 
 
+class Value:
+    """Represents the value of an instance property.
+
+    Arguments:
+        value: Property value.
+        unit: Property unit.
+        iri: IRI of ontological concept that this value is an instance of.
+        property_iri: IRI of datamodel property that this value is an
+            instance of.
+    """
+    def __init__(self, value, unit=None, iri=None, property_iri=None):
+        self.value = value
+        self.unit = unit
+        self.iri = iri
+        self.property_iri = property_iri
+
+
 class MappingStep:
     """A step in a mapping route from a target to one or more source properties.
 
@@ -43,69 +61,50 @@ class MappingStep:
     Subproperty relations should be resolved using the ontology before
     creating a mapping step.
 
-    Args:
-        inputs: Sequence of inputs to this mapping step.  Should either be
-          MappingStep objects for the peceeding mapping steps or the URI
-          of source property.
+    Arguments:
+        inputs: Dict mapping input names to either a mapping step or a value.
         output: IRI of the output concept.
-        predicate: Either "mapsTo", "subClassOf" or "hasInput", corresponding
-          to a mapping, inference or transformation step.
-        triples: Optional. Sequence of RDF triples for this step.  Might be
-          used for visualisation.
-        unit: The output of this step.
-        config: Configuration of a transformation step.
-
-    Attributes:
-        inputs: Sequence of inputs to this mapping step.  Should either be
-          MappingStep objects for the peceeding mapping steps or the URI
-          of source property.
-        predicate: Either "mapsTo", "subClassOf" or "hasInput", corresponding
-          to a mapping, inference or transformation step.
-        output: IRI of the output concept.
-        triples: Copy of the `triples` argument.
-        unit: The output of this step.
-        config: Configuration of a transformation step.
-        next: List with the next mapping step.
+        predicate: A relation from the ontology describing this mapping step.
+            Typically "mapsTo", "subClassOf" or "fno:Function"...
+        function: Callable that evaluates the output from the input.
+        input_units: Dict mapping input names to expected units.
+        output_unit: Output unit.
     """
-    def __init__(self,
-                 inputs: Sequence[Union[str, MappingStep]],
-                 output: str,
-                 predicate: Union['mapsTo', 'subClassOf', 'hasInput'] = 'mapsTo',
-                 triples: Sequence[(str, str, str)] = (),
-                 unit: str = None,
-                 config: dict = None,
-                 ) -> None:
-        self.inputs = []
-        self.predicate = predicate
+    def __init__(
+            self,
+            #inputs: Dict[Union[MappingStep, Value]],
+            output: str,
+            predicate: Optional[str] = None,
+            function: Optional[Callable] = None,
+            input_units: Optional[dict] = None,
+            output_unit: Optional[str] = None,
+    ):
+        #self.inputs = inputs
         self.output = output
-        self.triples = [(t[0], t[1], t[2]) for t in triples]
-        self.unit = unit
-        self.config = config
-        for input in inputs:
-            self.add_input(input)
-        self.next = []
+        self.predicate = predicate
+        self.function = function
+        self.input_units = input_units if input_units else {}
+        self.output_unit = output_unit
+        self.input_routes = []  # sorted list of input routes
 
-    def add_input(self, step: MappingStep) -> None:
-        """Adds an input mapping step."""
-        self.inputs.append(input)
-        if isinstance(input, MappingStep):
-            input.next.append(self)
+    def add_inputs(self, inputs, cost=1.0):
+        """Add input dict for an input route."""
+        bisect.insort(self.input_routes, (cost, inputs))
 
-    def get_sources(self) -> List[str]:
-        """Returns a list of URIs of all source metadata."""
-        sources = []
-        if not self.inputs:
-            warnings.warn(f'')
-        for input in self.inputs:
-            if isinstance(input, MappingStep):
-                sources.extend(input.get_sources())
+    def eval(self, routeno=0):
+        """Returns the evaluated value of given input route number."""
+        values = {}
+        _, inputs = self.input_routes[routeno]
+        for k, v in inputs.items():
+            if isinstance(v, MappingStep):
+                value, unit = v.eval(), v.output_unit
             else:
-                sources.append(input)
-        return sources
-
-    def eval(self, input_values, input_units=None, unit=None):
-        """Returns the evaluated value."""
-        pass
+                value, unit = v.value, v.unit
+            if unit and k in self.input_units:
+                values[k] = unitconvert(self.input_units[k], value, unit)
+            else:
+                values[k] = value
+        return self.function(**values)
 
 
 def match_factory(triples, match_first=False):
@@ -366,6 +365,10 @@ def unitconvert_pint(dest_unit, value, unit):
     return (value * u1).to(u2).m
 
 
+unitconvert = unitconvert_pint
+
+
+
 def assign_dimensions(dims: Dict,
                       inst: dlite.Instance,
                       propname: str):
@@ -492,3 +495,27 @@ def make_instance(meta, instances, mappings=(), strict=True,
     for k, v in props.items():
         inst[k] = v
     return inst
+
+
+# --------------------------------------------------------------------
+if __name__ == '__main__':
+    v = Value(2.3, 'm/s', 'emmo:Velocity')
+    t = Value(1.5, 's', 'emmo:Time')
+
+    step1 = MappingStep(
+        output='emmo:Length',
+        predicate=':velocityFunc',
+        function=lambda v, t: v*t,
+        output_unit='m',
+    )
+    step1.add_inputs({'v': v, 't': t})
+
+    step2 = MappingStep(
+        output=':ReducedLength',
+        predicate=':reducedLength',
+        function=lambda l: l - 1.0,
+        output_unit='m',
+    )
+    step2.add_inputs({'l': step1})
+
+    print('eval:', step2.eval())
