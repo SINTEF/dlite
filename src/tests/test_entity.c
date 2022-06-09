@@ -432,7 +432,7 @@ MU_TEST(test_snapshot)
 {
   /* Create a simple transaction */
   char *path = STRINGIFY(dlite_BINARY_DIR) "/src/tests/transaction_store.json";
-  const DLiteInstance *snapshot;
+  const DLiteInstance *snapshot, *snapshot2;
   DLiteInstance *inst = dlite_instance_get("mydata");
   DLiteStorage *s = dlite_storage_open("json", path, "mode=w");
   mu_check(s);
@@ -457,8 +457,27 @@ MU_TEST(test_snapshot)
   dlite_instance_print_transaction(inst);
 
   mu_assert_int_eq(0, dlite_instance_push_snapshot(inst, s, 1));
-  //snapshot = dlite_instance_pull_snapshot(inst, s, 1);
   snapshot = inst->_parent->parent;
+  mu_check(snapshot);
+  mu_assert_string_eq("8405895c-cc7f-5b91-aee7-0b679987394d",
+                   snapshot->_parent->uuid);
+  mu_assert_ptr_eq(NULL, snapshot->_parent->parent);
+
+  snapshot2 = dlite_instance_pull_snapshot(inst, s, 1);
+  mu_assert_ptr_eq(snapshot2, snapshot);
+  mu_assert_ptr_eq(NULL, snapshot2->_parent->parent);
+
+  // BIG ISSUE: hash and uuid of transaction parents are not described
+  // by the metadata.  Hence, is this info not serialised to the
+  // storage and is therefore not restored when the data is loaded.
+  snapshot2 = dlite_instance_pull_snapshot(inst, s, 2);
+  mu_assert_ptr_eq(snapshot2, snapshot->_parent->parent);
+  //mu_assert_ptr_eq(NULL, snapshot2->_parent->parent);
+
+
+
+
+
   printf("\n");
   printf("snapshot 1: %s (%p)\n", snapshot->uuid, (void *)inst->_parent->parent);
   printf("snapshot 2: %s (%p)\n", snapshot->_parent->uuid,
