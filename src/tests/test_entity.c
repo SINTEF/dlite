@@ -472,7 +472,7 @@ MU_TEST(test_snapshot)
   // storage and is therefore not restored when the data is loaded.
   snapshot2 = dlite_instance_pull_snapshot(inst, s, 2);
   mu_assert_ptr_eq(snapshot2, snapshot->_parent->parent);
-  //mu_assert_ptr_eq(NULL, snapshot2->_parent->parent);
+  mu_assert_ptr_eq(NULL, snapshot2->_parent->parent);
 
 
 
