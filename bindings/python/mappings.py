@@ -62,20 +62,22 @@ class MappingStep:
     creating a mapping step.
 
     Arguments:
-        inputs: Dict mapping input names to either a mapping step or a value.
         output: IRI of the output concept.
         predicate: A relation from the ontology describing this mapping step.
-            Typically "mapsTo", "subClassOf" or "fno:Function"...
+            Typically "mo:mapsTo", "rdfs:subClassOf" or "fno:returns".
         function: Callable that evaluates the output from the input.
+        cost: The cost related to this mapping step.  Should be either a
+            float or a callable taking the same arguments as `function` as
+            input returning the cost as a float.
         input_units: Dict mapping input names to expected units.
         output_unit: Output unit.
     """
     def __init__(
             self,
-            #inputs: Dict[Union[MappingStep, Value]],
             output: str,
             predicate: Optional[str] = None,
             function: Optional[Callable] = None,
+            cost: Union[float, Callable] = 1.0,
             input_units: Optional[dict] = None,
             output_unit: Optional[str] = None,
     ):
@@ -110,11 +112,7 @@ class MappingStep:
         """Returns inputs corresponding to route number `routeno`."""
         n = 0
         for inputs in self.input_routes:
-            for input in inputs.values():
-                m = 1
-                if isinstance(input, MappingStep):
-                    m *= input.number_of_routes()
-            n += m
+            n += get_nroutes(inputs)
             if routeno < n:
                 return inputs
         raise ValueError("routeno={routeno} exceeds number of routes")
@@ -123,12 +121,25 @@ class MappingStep:
         """Returns total number of routes to this mapping step."""
         n = 0
         for inputs in self.input_routes:
-            for input in inputs.values():
-                m = 1
-                if isinstance(input, MappingStep):
-                    m *= input.number_of_routes()
-            n += m
+            n += get_nroutes(inputs)
         return n
+
+    def lowest_costs(self, n=5):
+        """Returns a tuple `(costs, indices)` with up to the `n` lowest
+        costs and their corresponding route numbers."""
+        n = 0
+        for inputs in self.input_routes:
+            for input in inputs.values():
+                pass  # FIXME
+
+
+def get_nroutes(inputs):
+    """Help function returning the number of routes for an input dict."""
+    m = 1
+    for input in inputs.values():
+        if isinstance(input, MappingStep):
+            m *= input.number_of_routes()
+    return m
 
 
 def match_factory(triples, match_first=False):
@@ -529,8 +540,9 @@ if __name__ == '__main__':
 
     step1 = MappingStep(
         output='emmo:Length',
-        predicate=':velocityFunc',
+        predicate='fno:returns',
         function=lambda v, t: v*t,
+        cost=lambda v, t: 2*v*t,
         output_unit='m',
     )
     step1.add_inputs({'v': v, 't': t})
@@ -538,8 +550,9 @@ if __name__ == '__main__':
 
     step2 = MappingStep(
         output=':ReducedLength',
-        predicate=':reducedLength',
+        predicate='fno:returns',
         function=lambda l: l - 1.0,
+        cost=0.5,
         output_unit='m',
     )
     step2.add_inputs({'l': step1})
