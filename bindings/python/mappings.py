@@ -99,17 +99,16 @@ class MappingStep:
     def eval(self, routeno=0):
         """Returns the evaluated value of given input route number."""
         inputs = self.get_inputs(routeno)
-        values = {}
-        for k, v in inputs.items():
-            if isinstance(v, MappingStep):
-                value, unit = v.eval(), v.output_unit
-            else:
-                value, unit = v.value, v.unit
-            if unit and k in self.input_units:
-                values[k] = unitconvert(self.input_units[k], value, unit)
-            else:
-                values[k] = value
-        return self.function(**values)
+        values = get_values(inputs, self.input_units)
+        print("  * values:", values)
+        if self.function:
+            return self.function(**values)
+        elif len(values) == 1:
+            value, = values.values()
+            return value
+        else:
+            raise TypeError("Expected inputs to be a single argument")
+
 
     def get_inputs(self, routeno=0):
         """Returns inputs corresponding to route number `routeno`."""
@@ -142,17 +141,35 @@ def get_nroutes(inputs):
     return m
 
 
+def get_values(inputs, input_units):
+    """Help function returning a dict mapping the input names to actual value
+    of expected input unit."""
+    values = {}
+    for k, v in inputs.items():
+        if isinstance(v, MappingStep):
+            value, unit = v.eval(), v.output_unit
+        else:
+            value, unit = v.value, v.unit
+        if unit and k in input_units:
+            values[k] = unitconvert(input_units[k], value, unit)
+        else:
+            values[k] = value
+    return values
+
+
 def get_lowest_costs(mapping_step, n=5):
     """Returns a list of `(cost, routeno)` tuples with up to the `n`
     lowest costs and their corresponding route numbers."""
+    print(f"*** get_lowest_costs({mapping_step.output}")
     res = []
     no = 0
     for inputs in mapping_step.input_routes:
-        if isinstance(mapping_step.cost, float):
-            cost = mapping_step.cost
+
+        if isinstance(mapping_step.cost, Callable):
+            values = get_values(inputs, mapping_step.input_units)
+            cost = mapping_step.cost(**values)
         else:
-            print("***", inputs)
-            cost = mapping_step.cost(**inputs)
+            cost = mapping_step.cost
 
         m = 1
         for i, input in enumerate(inputs.values()):
@@ -565,6 +582,7 @@ if __name__ == '__main__':
     v = Value(2.3, 'm/s', 'emmo:Velocity')
     t = Value(1.5, 's', 'emmo:Time')
     t2 = Value(1., 's', 'emmo:Time')
+    l = Value(1., 's', 'emmo:Length')
 
     step1 = MappingStep(
         output='emmo:Length',
@@ -577,13 +595,29 @@ if __name__ == '__main__':
     step1.add_inputs({'v': v, 't': t2})
 
     step2 = MappingStep(
-        output=':ReducedLength',
-        predicate='fno:returns',
-        function=lambda l: l - 1.0,
-        cost=0.5,
+        output=':Length',
+        predicate='mo:mapsTo',
+        cost=2,
         output_unit='m',
     )
     step2.add_inputs({'l': step1})
 
-    print('eval:', step2.eval())
-    print('cost:', step2.lowest_costs())
+
+    step3 = MappingStep(
+        output=':ReducedLength',
+        predicate='fno:returns',
+        function=lambda l: l - 1.0,
+        cost=10,
+        output_unit='m',
+    )
+    step3.add_inputs({'l': step1})
+    step3.add_inputs({'l': step2})
+    step3.add_inputs({'l': l})
+
+    print('eval:', step3.eval())
+    print('eval:', step3.eval(1))
+    print('eval:', step3.eval(2))
+    print('eval:', step3.eval(3))
+    print('eval:', step3.eval(4))
+    print('eval:', step3.eval(5))
+    print('cost:', step3.lowest_costs())
