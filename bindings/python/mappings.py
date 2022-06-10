@@ -85,16 +85,16 @@ class MappingStep:
         self.function = function
         self.input_units = input_units if input_units else {}
         self.output_unit = output_unit
-        self.input_routes = []  # sorted list of input routes
+        self.input_routes = []  # list of inputs dicts
 
-    def add_inputs(self, inputs, cost=1.0):
+    def add_inputs(self, inputs):
         """Add input dict for an input route."""
-        bisect.insort(self.input_routes, (cost, inputs))
+        self.input_routes.append(inputs)
 
     def eval(self, routeno=0):
         """Returns the evaluated value of given input route number."""
+        inputs = self.get_inputs(routeno)
         values = {}
-        _, inputs = self.input_routes[routeno]
         for k, v in inputs.items():
             if isinstance(v, MappingStep):
                 value, unit = v.eval(), v.output_unit
@@ -105,6 +105,30 @@ class MappingStep:
             else:
                 values[k] = value
         return self.function(**values)
+
+    def get_inputs(self, routeno=0):
+        """Returns inputs corresponding to route number `routeno`."""
+        n = 0
+        for inputs in self.input_routes:
+            for input in inputs.values():
+                m = 1
+                if isinstance(input, MappingStep):
+                    m *= input.number_of_routes()
+            n += m
+            if routeno < n:
+                return inputs
+        raise ValueError("routeno={routeno} exceeds number of routes")
+
+    def number_of_routes(self):
+        """Returns total number of routes to this mapping step."""
+        n = 0
+        for inputs in self.input_routes:
+            for input in inputs.values():
+                m = 1
+                if isinstance(input, MappingStep):
+                    m *= input.number_of_routes()
+            n += m
+        return n
 
 
 def match_factory(triples, match_first=False):
@@ -501,6 +525,7 @@ def make_instance(meta, instances, mappings=(), strict=True,
 if __name__ == '__main__':
     v = Value(2.3, 'm/s', 'emmo:Velocity')
     t = Value(1.5, 's', 'emmo:Time')
+    t2 = Value(1., 's', 'emmo:Time')
 
     step1 = MappingStep(
         output='emmo:Length',
@@ -509,6 +534,7 @@ if __name__ == '__main__':
         output_unit='m',
     )
     step1.add_inputs({'v': v, 't': t})
+    step1.add_inputs({'v': v, 't': t2})
 
     step2 = MappingStep(
         output=':ReducedLength',
