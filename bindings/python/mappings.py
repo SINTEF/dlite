@@ -42,12 +42,14 @@ class Value:
         iri: IRI of ontological concept that this value is an instance of.
         property_iri: IRI of datamodel property that this value is an
             instance of.
+        cost: Cost of accessing this value.
     """
-    def __init__(self, value, unit=None, iri=None, property_iri=None):
+    def __init__(self, value, unit=None, iri=None, property_iri=None, cost=0.0):
         self.value = value
         self.unit = unit
         self.iri = iri
         self.property_iri = property_iri
+        self.cost = cost
 
 
 class MappingStep:
@@ -85,6 +87,7 @@ class MappingStep:
         self.output = output
         self.predicate = predicate
         self.function = function
+        self.cost = cost
         self.input_units = input_units if input_units else {}
         self.output_unit = output_unit
         self.input_routes = []  # list of inputs dicts
@@ -125,12 +128,9 @@ class MappingStep:
         return n
 
     def lowest_costs(self, n=5):
-        """Returns a tuple `(costs, indices)` with up to the `n` lowest
+        """Returns a list of `(cost, routeno)` tuples with up to the `n` lowest
         costs and their corresponding route numbers."""
-        n = 0
-        for inputs in self.input_routes:
-            for input in inputs.values():
-                pass  # FIXME
+        return get_lowest_costs(self, n)
 
 
 def get_nroutes(inputs):
@@ -140,6 +140,34 @@ def get_nroutes(inputs):
         if isinstance(input, MappingStep):
             m *= input.number_of_routes()
     return m
+
+
+def get_lowest_costs(mapping_step, n=5):
+    """Returns a list of `(cost, routeno)` tuples with up to the `n`
+    lowest costs and their corresponding route numbers."""
+    res = []
+    no = 0
+    for inputs in mapping_step.input_routes:
+        if isinstance(mapping_step.cost, float):
+            cost = mapping_step.cost
+        else:
+            print("***", inputs)
+            cost = mapping_step.cost(**inputs)
+
+        m = 1
+        for i, input in enumerate(inputs.values()):
+            if isinstance(input, MappingStep):
+                m *= input.number_of_routes()
+                res.extend([(c+cost, nn+no+i)
+                            for c, nn in get_lowest_costs(input, n)])
+            else:
+                res.append((input.cost, no+i))
+        no += m
+    return sorted(res)[:5]
+    #return [(c+mapping_step.cost, nn) for c, nn in sorted(res)[:5]]
+
+
+
 
 
 def match_factory(triples, match_first=False):
@@ -558,3 +586,4 @@ if __name__ == '__main__':
     step2.add_inputs({'l': step1})
 
     print('eval:', step2.eval())
+    print('cost:', step2.lowest_costs())
