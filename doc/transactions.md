@@ -1,64 +1,82 @@
 Transactions
 ============
-Transactions is a feature that comes from SOFT, which allows to easy manage arbitrary long series of immutable instances while ensuring provenance.  Conceptually it share many similarities with git.
+Transactions is a feature that comes from SOFT, which allows to easy manage arbitrary long series of immutable (frozen) instances while ensuring provenance.  Conceptually it share many similarities with git.
 
-The figure below shows two examples of transactions. Subfigure (a) shows a linear transaction with instance `A` being the root.  `A` is the parent of `B` and `B` is the parent of `C`.  Subfigure (b) shows a forked transaction with two leaf instances, `C` and `E`.
+A basic usage for transactions is to take snapshots of the current state of your system.  This is shown in Figure 1, where we assume that the instance `A` (which e.g. could be a collection) describes the state of your system.
 
-![Two examples of transactions.](figs/transactions.png)
+We call an instance a *transaction* after we have taken a snapshot of it, i.e. when it contains a reference to a immutable "parent" instance.
 
-**Figure**: Schematic figure of (a) a transaction consisting of a linear chain of instances and (b) a transaction with a fork.  The circles stands for instances, while arrows relate them to their parent instance.
+![transactions](figs/transactions.png)
 
+**Figure 1**: *Creating a transaction by taking snapshots.  (a) initial state of your system described by instance `A`.  (b) creating a transaction by taking a snapshot
+of `A`.  The snapshot, `A1`, stores an immutable (frozen) copy of `A` from the exact
+moment `t1` the snapshot was taken.  (c) After another snapshot was taken at time `t2`.  Blue circles represent immutable instances, red circles represent mutable instances, while arrows relate an instance to its (frozen) parent instance.*
+
+It is very simple to create such snapshots using the C API.  The steps in Figure 1 can be produced by the following code:
+```C
+DLiteInstance *A = dlite_instance_get("A");  // Initial state (Fig. 1a)
+dlite_instance_snapshot(A);                  // Make snapshot at time=t1 (Fig. 1b)
+// A is evolved...
+dlite_instance_snapshot(A);                  // Make snapshot at time=t2 (Fig. 1c)
+```
+
+The snapshots can be accessed using `dlite_instance_get_snapshot()`.  For instance, accessing snapshot `A2` and creating a new branch from it can be achieved by the following four lines of C code:
+```C
+// Access the most resent snapshot of instance A.
+// Note that A2 is a borrowed reference to the snapshot and should not be dereferred
+// with dlite_instance_decref().
+const DLiteInstance *A2 = dlite_instance_get_snapshot(A, 1);
+
+// Create a mutable copy of A2.
+// Note that B is a new reference.  You should call dlite_instance_decref() when you
+// are done with it.
+DLiteInstance *B = dlite_instance_copy(A2);
+
+// Make B a transaction with A2 as parent. Shown Fig. 2a.
+dlite_instance_set_parent(B, A2);
+
+// Make a snapshop if B. Shown Fig. 2b.
+dlite_instance_snapshot(B);
+```
+The result if these commands are shown in Figure 2.
+
+![transactions-branch](figs/transactions-branch.png)
+
+**Figure 2**: *Creating a new branch, from a snapshot of a transaction.  (a) create a copy `B` of latest snapshot of transaction `A`.  (b)  Take a snapshot of `B`.*
+
+
+### Transaction parent and immutability
 All transactions starts with a root instance with no parent instance.  All other instances in a transaction has exactly one parent instance.
 All instances in a transaction that serves as a parent are immutable (that is, all instances except the leafs).  Non-root transaction instances store a [SHA-3](https://en.wikipedia.org/wiki/SHA-3) hash of their parents together with the parent UUIDs.  This make it possible to ensure that any of the ancestors of a transaction has not been changed - providing provenance.
 
-
-### Implementation in DLite
-DLite allow all instances to be used in transactions.  Any instance can be added as a leaf in a transaction using the function `dlite_instance_set_parent()`.  The only requirements are that:
-- the instance does not already has a parent,
-- the instance is mutable, and
-- the parent is immutable.
-
-You can use `dlite_instance_freeze()` and `dlite_instance_is_frozen()` to make
-an instance immutable and check if it is immutable, respectively.
-
-All non-root instances in a transaction stores the UUID and the hash of its parent instance.  The values of these are included when calculating the hash of the child instance.  If you have a hash of a leaf instance of a transaction, it is therefore possible to verify that none of the instances in the transaction have been changed since the transaction was created. Use `dlite_instance_verify_hash()` for that.
-
-Since it is possible to use a collection to hold the state of a program, transactions can be used to track the complete evolution of the state of a program.
+A transaction can be validated with `dlite_instance_transaction_validate()`.
 
 
-#### Memory management
-This example creates the transaction shown in subfigure (b) above.
+### Memory management
+Since the number of snapshots potentially can be very large, it is important to be able to store them to disk in order to save memory.  To support this, DLite implements the functions `dlite_instance_pull_snapshot()` and dlite_instance_push_snapshot()`:
 ```C
-DLiteInstance *A = dlite_instance_get("A");
-DLiteInstance *B = dlite_instance_get("B");
-DLiteInstance *C = dlite_instance_get("C");
-DLiteInstance *D = dlite_instance_get("D");
-DLiteInstance *E = dlite_instance_get("E");
+/**
+  Like dlite_instance_get_snapshot(), except that possible stored
+  snapshots are pulled from storage `s` to memory.
 
-dlite_instance_freeze(A);
-dlite_instance_freeze(B);
-dlite_instance_freeze(C);
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
+                                                  DLiteStorage *s, int n);
 
-dlite_instance_set_parent(B, A);
-dlite_instance_set_parent(C, B);
-dlite_instance_set_parent(D, B);
-dlite_instance_set_parent(E, D);
+/**
+  Push all ancestors of snapshot number `n` from memory to storage `s`,
+  where `n=0` corresponds to `inst`, `n=1` to the parent of `inst`, etc...
 
-/* Remove references to all instances, except the leafs.  They can easily be
-   recovered with dlite_instance_get_parent(). */
-dlite_instance_decref(A);
-dlite_instance_decref(B);
-dlite_instance_decref(D);
+  No snapshot is pulled back from storage, so if the snapshots are
+  already in storage, this function has no effect.
+
+  This function starts pushing closest to the root to ensure that the
+  transaction is in a consistent state at all times.
+
+  Returns zero on success or the (positive) index of the snapshot that
+  fails to push.
+*/
+int dlite_instance_push_snapshot(const DLiteInstance *inst, DLiteStorage *s, int n);
 ```
-
-This will leave the pointers `C` and `E` as valid references in the current scope.  However, because DLite is reference counted and `C` and `E` keeps references to their parents, `A`, `B` and `D` will still be kept in memory. If we are now dereferring `E`
-```C
-dlite_instance_decref(E);
-```
-both the memory for both `E` and `D` will be free'ed, while `A` and `B` will stay in memory, since `B` is referred to by `C` and `A` is referred to by `B`.  They will first be free'ed when we derefer `C`.
-```C
-dlite_instance_decref(C);
-```
-
-#### Serialisation of transactions
-The biggest issue with the current implementation is that serialisation of transactions requires special attention by storage plugins and is currently not supported out of the box.
+Note that not all storages can be used with these functions, since whether an instance is a transactions or not, is not described by its metadata and hence requires special support by the storage plugin.

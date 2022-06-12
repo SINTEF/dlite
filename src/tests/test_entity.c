@@ -456,6 +456,7 @@ MU_TEST(test_snapshot)
   mu_assert_int_eq(0, dlite_instance_verify_hash(inst, NULL, 1));
   dlite_instance_print_transaction(inst);
 
+  /*
   mu_assert_int_eq(0, dlite_instance_push_snapshot(inst, s, 1));
   //snapshot = dlite_instance_pull_snapshot(inst, s, 1);
   snapshot = inst->_parent->parent;
@@ -463,7 +464,7 @@ MU_TEST(test_snapshot)
   printf("snapshot 1: %s (%p)\n", snapshot->uuid, (void *)inst->_parent->parent);
   printf("snapshot 2: %s (%p)\n", snapshot->_parent->uuid,
          (void *)snapshot->_parent->parent);
-
+  */
 
 
   //dlite_instance_save(s, inst);

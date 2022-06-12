@@ -2203,6 +2203,8 @@ const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
   int i;
   const DLiteInstance *cur = inst;
   if (n < 0) return err(1, "snapshot number must be positive"), NULL;
+  if (!(s->flags & dliteTransaction))
+    return err(1, "storage does not support transactions"), NULL;
   for (i=0; i<n; i++) {
     DLiteParent *p = cur->_parent;
     if (!p) return err(1, "snapshot index %d exceeds number of snapsshots: %d",
@@ -2236,6 +2238,8 @@ int dlite_instance_push_snapshot(const DLiteInstance *inst,
 {
   int m;
   const DLiteInstance *p;
+  if (!(s->flags & dliteTransaction))
+    return err(1, "storage does not support transactions");
   if (!inst->_parent || !(p = inst->_parent->parent)) return 0;
   if ((m = dlite_instance_push_snapshot(p, s, n-1))) return m+1;
   if (n > 0) return 0;
@@ -2311,6 +2315,8 @@ int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent)
   dlite_instance_incref((DLiteInstance *)p->parent);
   return 0;
 }
+
+
 
 ///*
 //  Returns a new reference to the parent of instance `inst` or NULL on
@@ -2404,6 +2410,20 @@ int dlite_instance_verify_hash(const DLiteInstance *inst, uint8_t *hash,
     dlite_instance_decref((DLiteInstance *)parent);
 
   return stat;
+}
+
+
+/*
+  Verifies a transaction.
+
+  Equivalent to calling `dlite_instance_very_hash(inst, NULL, 1)`.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
+ */
+int dlite_instance_verify_transaction(const DLiteInstance *inst)
+{
+  return dlite_instance_verify_hash(inst, NULL, 1);
 }
 
 

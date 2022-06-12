@@ -1042,7 +1042,7 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   dlite_instance_set_dimension_size() will refuse to change the
   instance if it is immutable.  Furthermore, if the instance is used
   as a parent in a transaction, any changes to the underlying data
-  will be detected by calling dlite_instance_verify().
+  will be detected by calling dlite_instance_verify_transaction().
  */
 void dlite_instance_freeze(DLiteInstance *inst);
 
@@ -1159,6 +1159,15 @@ int dlite_instance_has_parent(const DLiteInstance *inst);
 int dlite_instance_verify_hash(const DLiteInstance *inst, uint8_t *hash,
                                int recursive);
 
+/**
+  Verifies a transaction.
+
+  Equivalent to calling `dlite_instance_very_hash(inst, NULL, 1)`.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
+ */
+int dlite_instance_verify_transaction(const DLiteInstance *inst);
 
 
 /** @} */
