@@ -432,7 +432,7 @@ MU_TEST(test_snapshot)
 {
   /* Create a simple transaction */
   char *path = STRINGIFY(dlite_BINARY_DIR) "/src/tests/transaction_store.json";
-  const DLiteInstance *snapshot, *snapshot2;
+  const DLiteInstance *snapshot;
   DLiteInstance *inst = dlite_instance_get("mydata");
   DLiteStorage *s = dlite_storage_open("json", path, "mode=w");
   mu_check(s);
