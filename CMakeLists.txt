@@ -59,6 +59,7 @@ DLite is released under the MIT license.
 option(WITH_PYTHON      "Whether to build Python 3 bindings"               YES)
 option(WITH_FORTRAN     "Whether to build Fortran bindings"                 NO)
 option(WITH_HDF5        "Whether to build with HDF5 support"               YES)
+option(WITH_MONGOC      "Whether to build with MongoDB support"            YES)
 option(WITH_REDLAND     "Whether to build with RDF support (using librdf)" YES)
 option(WITH_THREADS     "Whether to build with threading support"           NO)
 option(WITH_DOC         "Whether to build documentation using doxygen"     YES)
@@ -221,6 +222,18 @@ if(WITH_REDLAND)
       set(HAVE_RAPTOR TRUE)
     endif()
 
+  endif()
+endif()
+
+#
+# MongoDB
+# =======
+if(WITH_MONGOC)
+  #find_package(mongoc-1.0 1.7 REQUIRED)
+  find_package(MONGOC)
+  find_package(BSON REQUIRED)
+  if(MONGOC_FOUND)
+    set(HAVE_MONGOC TRUE)
   endif()
 endif()
 
@@ -639,26 +652,40 @@ set(test_env
   "Python3_INCLUDE_DIRS:       ${Python3_INCLUDE_DIRS}"
   "Python3_NumPy_INCLUDE_DIRS: ${Python3_NumPy_INCLUDE_DIRS}"
   "Python3_NumPy_LIBRARY_DIRS: ${Python3_NumPy_LIBRARY_DIRS}"
-  ""
+  " "
   "========== Redland =================="
+  "HAVE_REDLAND:         ${HAVE_REDLAND}"
   "REDLAND_INCLUDE_DIRS: ${REDLAND_INCLUDE_DIRS}"
   "REDLAND_LIBRARIES:    ${REDLAND_LIBRARIES}"
   "REDLAND_LIBRARY_DIR:  ${REDLAND_LIBRARY_DIR}"
   "REDLAND_RUNTIME_DIR:  ${REDLAND_RUNTIME_DIR}"
-  ""
-  "RASQAL_INCLUDE_DIRS: ${RASQAL_INCLUDE_DIRS}"
-  "RASQAL_LIBRARIES:    ${RASQAL_LIBRARIES}"
-  "RASQAL_DEFINITIONS:  ${RASQAL_DEFINITIONS}"
-  ""
-  "RAPTOR_INCLUDE_DIRS: ${RAPTOR_INCLUDE_DIRS}"
-  "RAPTOR_LIBRARIES:    ${RAPTOR_LIBRARIES}"
-  "RAPTOR_DEFINITIONS:  ${RAPTOR_DEFINITIONS}"
-  ""
+  " "
+  "HAVE_RASQAL:          ${HAVE_RASQAL}"
+  "RASQAL_INCLUDE_DIRS:  ${RASQAL_INCLUDE_DIRS}"
+  "RASQAL_LIBRARIES:     ${RASQAL_LIBRARIES}"
+  "RASQAL_DEFINITIONS:   ${RASQAL_DEFINITIONS}"
+  " "
+  "HAVE_RAPTOR:          ${HAVE_RAPTOR}"
+  "RAPTOR_INCLUDE_DIRS:  ${RAPTOR_INCLUDE_DIRS}"
+  "RAPTOR_LIBRARIES:     ${RAPTOR_LIBRARIES}"
+  "RAPTOR_DEFINITIONS:   ${RAPTOR_DEFINITIONS}"
+  " "
   "========== HDF5 ====================="
+  #"HAVE_HDF5:            ${HAVE_HDF5}"
   "HDF5_INCLUDE_DIRS:    ${HDF5_INCLUDE_DIRS}"
   "HDF5_LIBRARIES:       ${HDF5_LIBRARIES}"
   "HDF5_LIBRARY_DIR:     ${HDF5_LIBRARY_DIR}"
   "HDF5_RUNTIME_DIR:     ${HDF5_RUNTIME_DIR}"
+  " "
+  "========== MongoDB =================="
+  "MONGOC_INCLUDE_DIRS:  ${MONGOC_INCLUDE_DIRS}"
+  "MONGOC_LIBRARIES:     ${MONGOC_LIBRARIES}"
+  "MONGOC_VERSION:       ${MONGOC_VERSION}"
+  " "
+  "BSON_INCLUDE_DIRS:    ${BSON_INCLUDE_DIRS}"
+  "BSON_LIBRARIES:       ${BSON_LIBRARIES}"
+  "BSON_VERSION:         ${BSON_VERSION}"
+  " "
   "====================================="
   )
 set(cmd "")
@@ -680,6 +707,9 @@ if(WITH_HDF5)
 endif()
 if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)
+endif()
+if(HAVE_MONGOC)
+  add_subdirectory(storages/mongoc)
 endif()
 if(WITH_PYTHON)
   add_subdirectory(bindings/python)

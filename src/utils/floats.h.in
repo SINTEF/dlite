@@ -3,6 +3,20 @@
 #ifndef _FLOATS_H
 #define _FLOATS_H
 
+
+/* Whether the C library/compiler represent floats according to the
+   IEEE 754 standard. */
+#if defined(__STDC_IEC_559__) ||                                        \
+  (defined(__DBL_DIG__)        && __DBL_DIG__        ==    15 &&        \
+   defined(__DBL_MANT_DIG__)   && __DBL_MANT_DIG__   ==    53 &&        \
+   defined(__DBL_MAX_10_EXP__) && __DBL_MAX_10_EXP__ ==   308 &&        \
+   defined(__DBL_MAX_EXP__)    && __DBL_MAX_EXP__    ==  1024 &&        \
+   defined(__DBL_MIN_10_EXP__) && __DBL_MIN_10_EXP__ ==  -307 &&        \
+   defined(__DBL_MIN_EXP__)    && __DBL_MIN_EXP__    == -1021)
+# define HAVE_IEEE754_FLOAT
+#endif
+
+
 #cmakedefine HAVE_SIZEOF_FLOAT
 #cmakedefine HAVE_SIZEOF_DOUBLE
 #cmakedefine HAVE_SIZEOF_LONG_DOUBLE
