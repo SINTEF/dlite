@@ -2195,7 +2195,7 @@ const DLiteInstance *dlite_instance_get_snapshot(const DLiteInstance *inst,
   Like dlite_instance_get_snapshot(), except that possible stored
   snapshots are pulled from storage `s` to memory.
 
-  Returns NULL on error.
+  Returns a borrowed reference to snapshot `n` or NULL on error.
  */
 const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
                                                   DLiteStorage *s, int n)
