@@ -108,10 +108,19 @@ class MappingStep:
 
     def add_inputs(self, inputs):
         """Add input dict for an input route."""
+        assert isinstance(input, dict)
         self.input_routes.append(inputs)
 
     def add_input(self, input, name=None):
-        """Add input."""
+        """Add an input (MappingStep or Value), where `name` is the name
+        assigned to the argument.
+
+        If the `join_mode` attribute is false, a new route is created with
+        only one input.
+
+        If the `join_mode` attribute is true, the input is remembered, but
+        first added when join_input() is called.
+        """
         assert isinstance(input, (MappingStep, Value))
         argname = name if name else f'arg{len(self.joined_input)+1}'
         if self.join_mode:
@@ -234,46 +243,6 @@ def get_lowest_costs(inputs, nresults=5):
     else:
         result.append((vcost, 0))
     return result
-
-
-def match_factory(triples, match_first=False):
-    """A factory function that returns a match functions for `triples`.
-
-    If `match_first` is false, the returned match function will return
-    a generator over all matching triples.  Otherwise the the returned
-    function will only return the first matching triple.
-
-    Args:
-        triples: A list of triples.
-        match_first: Whether the returned match function should return
-          only the first match.
-
-    Example:
-    >>> triples = [
-    ...     (':mamal', 'rdfs:subClassOf', ':animal'),
-    ...     (':cat', 'rdfs:subClassOf', ':mamal'),
-    ...     (':mouse', 'rdfs:subClassOf', ':mamal'),
-    ...     (':cat', ':eats', ':mouse'),
-    ... ]
-    >>> match = match_factory(triples)
-    >>> match_first = match_factory(triples, only_first=True)
-    >>> list(match(':cat'))
-    [(':cat', 'rdfs:subClassOf', ':mamal'),
-     (':cat', ':eats', ':mouse')]
-    >>> match_first(':cat', None, None)
-    (':cat', 'rdfs:subClassOf', ':mamal')
-    """
-    def match(s=None, p=None, o=None):
-        """Returns generator over all triples that matches (s, p, o)."""
-        return (t for t in triples if
-                (s is None or t[0] == s) and
-                (p is None or t[1] == p) and
-                (o is None or t[2] == o))
-    if match_first:
-        return lambda s=None, p=None, o=None: next(
-            iter(match(s, p, o) or ()), (None, None, None))
-    else:
-        return match
 
 
 def fno_mapper(triples):
@@ -498,130 +467,6 @@ def mapping_route(
     return step
 
 
-    #step.output_unit = soUnit.get(target)
-    #cls = getone(soMaps, target)
-    #if target in soInst:
-    #    target = soInst[target]
-    #    step.cost = soCost.get(target, default_cost['instanceOf'])
-    #    if step.output_unit is None:
-    #        step.output_unit = soUnit.get(target)
-    #    if not cls:
-    #        cls = getone(soMaps, target)
-    #if not cls:
-    #    raise AmbiguousMappingError(
-    #        f'no or more than one mappings defined on target: {target}')
-    #step.cost = soCost.get(target, default_cost['mapsTo'])
-    #step.steptype = 'mo:mapsTo'
-    #visited.add(target)
-    #walk(cls, visited, step)
-
-    #def walk_forward(node, visited, laststep):
-    #    """Walk forward from `entity` in the direction of mapsTo."""
-    #    if node not in visited:
-    #        walk_backward(node, visited, laststep)
-    #        for e in sRo[entity]:
-    #            walk_forward(
-    #                e, visited.union(set([entity])),
-    #                route + [(entity, mapsTo, e)])
-    #        for e in oSCs[entity]:
-    #            walk_forward(
-    #                e, visited.union(set([entity])),
-    #                route + [(e, subClassOf, entity)])
-    #
-    #def walk_backward(entity, visited, route):
-    #    """Walk backward from `entity` to a source, against the direction of
-    #    mapsTo."""
-    #    if entity not in visited:
-    #        if entity in sources:
-    #            mapped_sources.append(entity)
-    #            mapped_routes.append(route)
-    #        else:
-    #            for e in oRs[entity]:
-    #                walk_backward(
-    #                    e, visited.union(set([entity])),
-    #                    route + [(e, mapsTo, entity)])
-    #            for e in sSCo[entity]:
-    #                walk_backward(
-    #                    e, visited.union(set([entity])),
-    #                    route + [(entity, subClassOf, e)])
-    #
-    #return step
-
-
-
-#
-# def mapping_targets(source, triples, mapsTo=':mapsTo', return_routes=False):
-#     """Finds all targets that `source` maps to.
-#
-#     This implementation takes the transitivity of mapsTo into accaount.
-#
-#     Args:
-#         source: IRI of source in `triples`.
-#         triples: Sequence of (subject, predicate, object) triples.
-#         mapsTo: How the 'mapsTo' predicate is written in `triples`.
-#         return_routes: Whether to also return a list of tuples showing the
-#           mapping route.
-#
-#     Returns:
-#         list: Name of all targets that `source` maps to.
-#         list: (optional) If `return_route` is true, a list of mapping routes
-#           corresponding to the list of targets is also returned.
-#           Each route is expressed as a list of triples.  For example
-#           can the route from 'a' to 'b' be expressed as
-#
-#               [[('a', ':mapsTo', 'onto:A'), ('b', ':mapsTo', 'onto:A')]]
-#     """
-#     import itertools
-#     match = match_factory(triples)  # match function
-#
-#     # Trivial implementation
-#     #for _, _, cls in match(s=source, p=mapsTo):
-#     #    for target, _, _ in match(p=mapsTo, o=cls):
-#     #        targets.append(target)
-#     #        if return_routes:
-#     #            routes.append([(source, mapsTo, cls), (target, mapsTo, cls)])
-#
-#     # Recursive implementation taking transitivity into account
-#     targets = []
-#     routes = []
-#
-#     def add_target(target, route):
-#         targets.append(target)
-#         if return_routes:
-#             routes.append(route)
-#
-#     def find_target(cls, route, visited):
-#         """Find all targets that maps to `cls`.
-#         Returns true if cls correspond to a final target, otherwise false."""
-#         m = match(p=mapsTo, o=cls)
-#         try:
-#             s, p, o = m.__next__()
-#         except StopIteration:
-#             return True
-#
-#         # Use itertools.chain() to put (s, p, o) in what we are iterating over
-#         for s, p, o in itertools.chain(iter([(s, p, o)]), m):
-#             if s in visited:
-#                 pass
-#             else:
-#                 if find_target(s, route + [s, p, o], visited + [s]):
-#                     add_target(s, route + [s, p, o])
-#         return False
-#
-#     def find(s, route, visited):
-#         """Find all classes that `s` maps to."""
-#         for s, p, o in match(s=s, p=mapsTo):
-#             find_target(o, route + [(s, p, o)], visited + [s])
-#             find(o, route + [(s, p, o)], visited + [s])
-#
-#     find(source, [], [])
-#
-#     if return_routes:
-#         return targets, routes
-#     else:
-#         return targets
-#
-
 def unitconvert_pint(dest_unit, value, unit):
     """Returns `value` converted to `dest_unit`.
 
@@ -641,6 +486,50 @@ def unitconvert_pint(dest_unit, value, unit):
 
 
 unitconvert = unitconvert_pint
+
+
+# ------------- Old implementation -----------------
+
+def match_factory(triples, match_first=False):
+    """A factory function that returns a match functions for `triples`.
+
+    If `match_first` is false, the returned match function will return
+    a generator over all matching triples.  Otherwise the the returned
+    function will only return the first matching triple.
+
+    Args:
+        triples: A list of triples.
+        match_first: Whether the returned match function should return
+          only the first match.
+
+    Example:
+    >>> triples = [
+    ...     (':mamal', 'rdfs:subClassOf', ':animal'),
+    ...     (':cat', 'rdfs:subClassOf', ':mamal'),
+    ...     (':mouse', 'rdfs:subClassOf', ':mamal'),
+    ...     (':cat', ':eats', ':mouse'),
+    ... ]
+    >>> match = match_factory(triples)
+    >>> match_first = match_factory(triples, only_first=True)
+    >>> list(match(':cat'))
+    [(':cat', 'rdfs:subClassOf', ':mamal'),
+     (':cat', ':eats', ':mouse')]
+    >>> match_first(':cat', None, None)
+    (':cat', 'rdfs:subClassOf', ':mamal')
+    """
+    def match(s=None, p=None, o=None):
+        """Returns generator over all triples that matches (s, p, o)."""
+        return (t for t in triples if
+                (s is None or t[0] == s) and
+                (p is None or t[1] == p) and
+                (o is None or t[2] == o))
+    if match_first:
+        return lambda s=None, p=None, o=None: next(
+            iter(match(s, p, o) or ()), (None, None, None))
+    else:
+        return match
+
+
 
 
 
