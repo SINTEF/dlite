@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from pathlib import Path
 
+import numpy as np
+
 import dlite
 import dlite.mappings as dm
 
@@ -101,9 +103,70 @@ assert isclose(30.2, costs[4][0])
 
 
 
-
-
 #routes = dm.mapping_route(
 #    target='http://onto-ns.com/meta/0.1/Substance#molecule_energy',
 #    sources=['http://onto-ns.com/meta/0.1/Molecule#groundstate_energy'],
 #    triples=mappings)
+
+
+# ---------------------------------------
+r = np.array([10, 20, 30, 40, 50, 60])  # particle radius [nm]
+n = np.array([1,   3,  7,  6,  2,  1])  # particle number density [1e21 #/m^3]
+
+
+rv = dm.Value(r, 'nm', 'inst1')
+nv = dm.Value(n, '1/m^3', 'inst2')
+
+
+def average_radius(r, n):
+    return np.sum(r.value * n.value) / np.sum(n.value)
+
+
+mapsTo='http://emmo.info/domain-mappings#mapsTo'
+instanceOf='http://emmo.info/datamodel#instanceOf'
+subClassOf='http://www.w3.org/2000/01/rdf-schema#subClassOf'
+type='http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+#description='http://purl.org/dc/terms/description'
+hasName='http://www.w3.org/2000/01/rdf-schema#label'
+hasUnit='http://emmo.info/datamodel#hasUnit'
+hasCost=':hasCost'
+hasValue='http://emmo.info/datamodel#hasValue'
+RDF='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+next = RDF + 'next'
+first = RDF + 'first'
+rest = RDF + 'rest'
+nil = RDF + 'nil'
+expects = 'https://w3id.org/function/ontology#expects'
+returns = 'https://w3id.org/function/ontology#returns'
+
+
+triples = [
+    ('inst1', mapsTo, 'mo:ParticleRadius'),
+    ('inst2', mapsTo, 'mo:NumberDensity'),
+    ('inst3', mapsTo, 'mo:AverageParticleRadius'),
+
+    ('average_radius_function', type, 'fno:Function'),
+    ('average_radius_function', expects, 'parameter_list'),
+    ('average_radius_function', returns, 'output_list'),
+    ('parameter_list', first, ':r'),
+    ('parameter_list', rest,  'lst2'),
+    ('lst2', first, ':n'),
+    ('lst2', rest,  nil),
+    (':r', mapsTo, 'mo:ParticleRadius'),
+    (':n', mapsTo, 'mo:NumberDensity'),
+    ('output_list', first, ':ravg'),
+    ('output_list', rest, nil),
+    (':ravg', mapsTo, 'mo:AverageParticleRadius'),
+]
+
+
+# Check fno_mapper
+d = dm.fno_mapper(triples)
+
+
+#step = dm.mapping_route(
+#    target='inst3',
+#    sources=[rv, nv],
+#    triples=triples,
+#    function_repo={'average_radius_function': average_radius},
+#)

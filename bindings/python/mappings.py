@@ -108,7 +108,7 @@ class MappingStep:
 
     def add_inputs(self, inputs):
         """Add input dict for an input route."""
-        assert isinstance(input, dict)
+        assert isinstance(inputs, dict)
         self.input_routes.append(inputs)
 
     def add_input(self, input, name=None):
@@ -260,22 +260,26 @@ def fno_mapper(triples):
     # Temporary dicts for fast lookup
     Dexpects = defaultdict(list)
     Dreturns = defaultdict(list)
-    Dfirst = defaultdict(list)
-    Drest = defaultdict(list)
+    Dfirst = dict()
+    Drest = dict()
     for s, p, o in triples:
         if p == expects:
             Dexpects[s].append(o)
         elif p == returns:
             Dreturns[s].append(o)
         elif p == first:
-            Dfirst[s].append(o)
+            Dfirst[s] = o
         elif p == rest:
-            Drest[s].append(o)
+            Drest[s] = o
 
-    d = defaultdict(list)
+    print('*** Dfirst:', Dfirst)
+
+    d = {}
     for func, lst in Dreturns.items():
+        print('*** func:', func, lst)
         input_iris = []
         for exp in Dexpects.get(func, ()):
+            print('*** exp:', exp)
             if exp in Dfirst:
                 while exp in Dfirst:
                     input_iris.append(Dfirst[exp])
@@ -290,14 +294,14 @@ def fno_mapper(triples):
         for ret in lst:
             if ret in Dfirst:
                 while ret in Dfirst:
-                    d[Dfirst[ret]].append((func, input_iris))
+                    d[Dfirst[ret]] = (func, input_iris)
                     if ret not in Drest:
                         break
                     ret = Drest[ret]
             else:
                 # Support also misuse of FNO, where fno:returns refers
                 # directly to the returned individual
-                d[ret].append((func, input_iris))
+                d[ret] = (func, input_iris)
 
     return d
 
@@ -351,16 +355,16 @@ def mapping_route(
 
     # Create lookup tables for fast access to properties
     # This only transverse `tiples` once
-    soMaps  = defaultdict(list)  # (s, mapsTo, o)     ==> soMaps[s] -> [o, ..]
-    osMaps  = defaultdict(list)  # (o, mapsTo, s)     ==> osMaps[o] -> [s, ..]
-    #soSubcl = defaultdict(list)  # (s, subClassOf, o) ==> soSubcl[s] -> [o, ..]
+    soMaps  = defaultdict(list)  # (s, mapsTo, o)     ==> soMaps[s]  -> [o, ..]
+    osMaps  = defaultdict(list)  # (o, mapsTo, s)     ==> osMaps[o]  -> [s, ..]
+    #soSubcl= defaultdict(list)  # (s, subClassOf, o) ==> soSubcl[s] -> [o, ..]
     osSubcl = defaultdict(list)  # (o, subClassOf, s) ==> osSubcl[o] -> [s, ..]
-    soInst  = dict()             # (s, instanceOf, o) ==> soInst[s] -> o
-    osInst  = defaultdict(list)  # (o, instanceOf, s) ==> osInst[o] -> [s, ..]
-    #soType  = defaultdict(list)  # (o, type, s)       ==> soType[s] -> [o, ..]
-    soName  = list()             # (o, hasName, s)    ==> soName[s] -> o
-    soUnit  = dict()             # (s, hasUnit, o)    ==> soUnit[s] -> o
-    soCost  = dict()             # (s, hasCost, o)    ==> soCost[s] -> o
+    soInst  = dict()             # (s, instanceOf, o) ==> soInst[s]  -> o
+    osInst  = defaultdict(list)  # (o, instanceOf, s) ==> osInst[o]  -> [s, ..]
+    #soType = defaultdict(list)  # (o, type, s)       ==> soType[s]  -> [o, ..]
+    soName  = dict()             # (o, hasName, s)    ==> soName[s]  -> o
+    soUnit  = dict()             # (s, hasUnit, o)    ==> soUnit[s]  -> o
+    soCost  = dict()             # (s, hasCost, o)    ==> soCost[s]  -> o
     soValue = dict()             # (s, hasValue, o)   ==> soValue[s] -> o
     for s, p, o in triples:
         if p == mapsTo:
@@ -385,9 +389,6 @@ def mapping_route(
         elif p == hasValue:
             soValue[s] = o
 
-    # Function dicts
-    fdicts = [fmapper(triples) in function_mappers]
-
     def walk(target, visited, step):
         """Walk backward in rdf graph from `node` to sources."""
         if target in visited: return
@@ -399,49 +400,55 @@ def mapping_route(
                     f'Missing "hasValue" relation on: {target}')
             value = Value(value=soValue[target], unit=soUnit.get(target),
                           iri=target, property_iri=soInst.get(target),
-                          cost=soCost.get(target, default_cost['value']))
+                          cost=soCost.get(target, default_costs['value']))
             step.add_input(value, name=soName.get(target))
             return
 
         for node in osInst[target]:
-            step0 = MappingStep(output_iri=target,
-                                output_unit=soUnit.get(target))
-            step0.steptype = StepType.INV_INSTANCEOF
-            step0.cost = soCost.get(target, default_cost['instanceOf'])
-            step.add_input(step0, name=soName.get(target))
+            step.steptype = StepType.INV_INSTANCEOF
+            step.cost = soCost.get(target, default_costs['instanceOf'])
+            step0 = MappingStep(output_iri=node,
+                                output_unit=soUnit.get(node))
+            step.add_input(step0, name=soName.get(node))
             walk(node, visited, step0)
 
         for node in soMaps[target]:
-            step0 = MappingStep(output_iri=target,
-                                output_unit=soUnit.get(target))
-            step0.steptype = StepType.MAPSTO
-            step0.cost = soCost.get(target, default_cost['mapsTo'])
-            step.add_input(step0, name=soName.get(target))
+            print('*** target:', target)
+            step.steptype = StepType.MAPSTO
+            step.cost = soCost.get(target, default_costs['mapsTo'])
+            step0 = MappingStep(output_iri=node,
+                                output_unit=soUnit.get(node))
+            step.add_input(step0, name=soName.get(node))
+            #step0.steptype = StepType.MAPSTO
+            #step0.cost = soCost.get(target, default_costs['mapsTo'])
+            #step.add_input(step0, name=soName.get(target))
             walk(node, visited, step0)
 
         for node in osMaps[target]:
-            step0 = MappingStep(output_iri=target,
-                                output_unit=soUnit.get(target))
-            step0.steptype = StepType.INV_MAPSTO
-            step0.cost = soCost.get(target, default_cost['mapsTo'])
-            step.add_input(step0, name=soName.get(target))
+            step.steptype = StepType.INV_MAPSTO
+            step.cost = soCost.get(target, default_costs['mapsTo'])
+            step0 = MappingStep(output_iri=node,
+                                output_unit=soUnit.get(node))
+            step.add_input(step0, name=soName.get(node))
             walk(node, visited, step0)
 
         for node in osSubcl[target]:
-            step0 = MappingStep(output_iri=target,
-                                output_unit=soUnit.get(target))
-            step0.steptype = StepType.INV_SUBCLASSOF
-            step0.cost = soCost.get(target, default_cost['subClassOf'])
-            step.add_input(step0, name=soName.get(target))
+            step.steptype = StepType.INV_SUBCLASSOF
+            step.cost = soCost.get(target, default_costs['subClassOf'])
+            step0 = MappingStep(output_iri=node,
+                                output_unit=soUnit.get(node))
+            step.add_input(step0, name=soName.get(node))
             walk(node, visited, step0)
 
         for fmap in function_mappers:
-            for func, input_iris in fmap[target]:
-                step0 = MappingStep(output_iri=target,
-                                    output_unit=soUnit.get(target))
-                step0.steptype = StepType.FUNCTION
-                step0.cost = soCost.get(func, default_cost['function'])
-                step.add_input(step0, name=soName.get(target))
+            print("*** fmap:", fmap(triples))
+            for func, input_iris in fmap(triples)[target]:
+                print("*** func:", func, input_iris)
+                step.steptype = StepType.FUNCTION
+                step.cost = soCost.get(func, default_costs['function'])
+                step0 = MappingStep(output_iri=node,
+                                    output_unit=soUnit.get(node))
+                step.add_input(step0, name=soName.get(node))
                 step0.join_mode = True
                 for i, input_iri in enumerate(input_iris):
                     walk(input_iri, visited, step0)
@@ -454,14 +461,15 @@ def mapping_route(
         visited.add(target)  # do we really wan't this?
         source = soInst[target]
         step.steptype = StepType.INSTANCEOF
-        step.cost = soCost.get(source, default_cost['instanceOf'])
+        step.cost = soCost.get(source, default_costs['instanceOf'])
         step0 = MappingStep(output_iri=source, output_unit=soUnit.get(source))
         step.add_input(step0, name=soName.get(target))
+        step = step0
         target = source
     if target not in soMaps:
         raise MissingRelationError(f'Missing "mapsTo" relation on: {target}')
-    step.steptype = StepType.MAPSTO
-    step.cost = soCost.get(target, default_cost['mapsTo'])
+    #step.steptype = StepType.MAPSTO
+    #step.cost = soCost.get(target, default_costs['mapsTo'])
     walk(target, visited, step)
 
     return step
