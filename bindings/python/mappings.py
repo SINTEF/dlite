@@ -66,6 +66,18 @@ class Value:
         self.property_iri = property_iri
         self.cost = cost
 
+    def show(self, name=None, indent=0):
+        """Returns a string representation of the Value."""
+        s = []
+        ind = ' '*indent
+        s.append(ind + f'{name if name else "Value"}:')
+        s.append(ind + f'  iri: {self.iri}')
+        s.append(ind + f'  property_iri: {self.property_iri}')
+        s.append(ind + f'  unit: {self.unit}')
+        s.append(ind + f'  cost: {self.cost}')
+        s.append(ind + f'  value: {self.value}')
+        return '\n'.join(s)
+
 
 class MappingStep:
     """A step in a mapping route from a target to one or more sources.
@@ -124,7 +136,7 @@ class MappingStep:
         assert isinstance(input, (MappingStep, Value))
         argname = name if name else f'arg{len(self.joined_input)+1}'
         if self.join_mode:
-            joined_input[argname] = input
+            self.joined_input[argname] = input
         else:
             self.add_inputs({argname: input})
 
@@ -135,7 +147,7 @@ class MappingStep:
             raise MappingError('Calling join_input() when join_mode is false.')
         self.join_mode = False
         self.add_inputs(self.joined_input)
-        self.joined_input.clear()
+        self.joined_input = {}
 
     def eval(self, routeno=None):
         """Returns the evaluated value of given input route number.
@@ -152,7 +164,7 @@ class MappingStep:
             value, = values.values()
             return value
         else:
-            raise TypeError("Expected inputs to be a single argument")
+            raise TypeError(f"Expected inputs to be a single argument: {values}")
 
     def get_inputs(self, routeno):
         """Returns input and input index `(inputs, idx)` for route number
@@ -195,6 +207,23 @@ class MappingStep:
                 result.append((cost + owncost, n + idx))
             n += get_nroutes(inputs)
         return sorted(result)[:nresults]
+
+    def show(self, name=None, indent=0):
+        """Returns a string representation of the mapping routes to this step."""
+        s = []
+        ind = ' '*indent
+        s.append(ind + f'{name if name else "Step"}:')
+        s.append(ind + f'  steptype: {self.steptype.name if self.steptype else None}')
+        s.append(ind + f'  output_iri: {self.output_iri}')
+        s.append(ind + f'  output_unit: {self.output_unit}')
+        s.append(ind + f'  input_units: {self.input_units}')
+        s.append(ind + f'  cost: {self.cost}')
+        s.append(ind + f'  routes:')
+        for inputs in self.input_routes:
+            t = '\n'.join([input_.show(name_, indent+6)
+                           for name_, input_ in inputs.items()])
+            s.append(ind + '    - ' + t[indent+6:])
+        return '\n'.join(s)
 
 
 def get_nroutes(inputs):
@@ -272,14 +301,10 @@ def fno_mapper(triples):
         elif p == rest:
             Drest[s] = o
 
-    print('*** Dfirst:', Dfirst)
-
-    d = {}
+    d = defaultdict(list)
     for func, lst in Dreturns.items():
-        print('*** func:', func, lst)
         input_iris = []
         for exp in Dexpects.get(func, ()):
-            print('*** exp:', exp)
             if exp in Dfirst:
                 while exp in Dfirst:
                     input_iris.append(Dfirst[exp])
@@ -294,20 +319,22 @@ def fno_mapper(triples):
         for ret in lst:
             if ret in Dfirst:
                 while ret in Dfirst:
-                    d[Dfirst[ret]] = (func, input_iris)
+                    d[Dfirst[ret]].append((func, input_iris))
                     if ret not in Drest:
                         break
                     ret = Drest[ret]
             else:
                 # Support also misuse of FNO, where fno:returns refers
                 # directly to the returned individual
-                d[ret] = (func, input_iris)
+                d[ret].append((func, input_iris))
 
     return d
 
 
 def mapping_route(
-        target, sources, triples,
+        target,
+        sources,
+        triples,
         function_repo=None,
         function_mappers=(fno_mapper, ),
         default_costs={'function': 10.0, 'mapsTo': 2.0, 'instanceOf': 1.0,
@@ -315,7 +342,6 @@ def mapping_route(
         mapsTo='http://emmo.info/domain-mappings#mapsTo',
         instanceOf='http://emmo.info/datamodel#instanceOf',
         subClassOf='http://www.w3.org/2000/01/rdf-schema#subClassOf',
-        #type='http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         #description='http://purl.org/dc/terms/description',
         hasName='http://www.w3.org/2000/01/rdf-schema#label',
         hasUnit='http://emmo.info/datamodel#hasUnit',
@@ -328,7 +354,7 @@ def mapping_route(
 
     Arguments:
         target: IRI of the target in `triples`.
-        sources: Sequence of source IRIs in `triples`.
+        sources: Dict mapping source IRIs to source values.
         triples: Sequence of (subject, steptype, object) triples.
             It is safe to pass a generator expression too.
         mapsTo: How 'mapsTo' is written in `triples`.
@@ -341,12 +367,10 @@ def mapping_route(
             function in put parameters.  The default is to use rdfs:label.
         hasUnit: How 'hasUnit' is written in `triples`.
         hasCost: How 'hasCost' is written in `triples`.
-        hasValue: How 'hasValue' is written in `triples`.
 
     Returns:
         A nested graph of MappingStep instances.
     """
-    sources = set(sources)
 
     # We need to parse triples more than once, so create a local list
     # if it is a generator or in iterator
@@ -357,24 +381,18 @@ def mapping_route(
     # This only transverse `tiples` once
     soMaps  = defaultdict(list)  # (s, mapsTo, o)     ==> soMaps[s]  -> [o, ..]
     osMaps  = defaultdict(list)  # (o, mapsTo, s)     ==> osMaps[o]  -> [s, ..]
-    #soSubcl= defaultdict(list)  # (s, subClassOf, o) ==> soSubcl[s] -> [o, ..]
     osSubcl = defaultdict(list)  # (o, subClassOf, s) ==> osSubcl[o] -> [s, ..]
     soInst  = dict()             # (s, instanceOf, o) ==> soInst[s]  -> o
     osInst  = defaultdict(list)  # (o, instanceOf, s) ==> osInst[o]  -> [s, ..]
-    #soType = defaultdict(list)  # (o, type, s)       ==> soType[s]  -> [o, ..]
     soName  = dict()             # (o, hasName, s)    ==> soName[s]  -> o
     soUnit  = dict()             # (s, hasUnit, o)    ==> soUnit[s]  -> o
     soCost  = dict()             # (s, hasCost, o)    ==> soCost[s]  -> o
-    soValue = dict()             # (s, hasValue, o)   ==> soValue[s] -> o
     for s, p, o in triples:
         if p == mapsTo:
             soMaps[s].append(o)
             osMaps[o].append(s)
         elif p == subClassOf:
-            #soSubcl[s].append(o)
             osSubcl[o].append(s)
-        #elif p == type:
-        #    soType[s].append(o)
         elif p == instanceOf:
             if s in soInst:
                 raise InconsistentTriplesError(
@@ -382,77 +400,58 @@ def mapping_route(
                     f'property via {instanceOf} relations.')
             soInst[s] = o
             osInst[o].append(s)
+        elif p == hasName:
+            soName[s] = o
         elif p == hasUnit:
             soUnit[s] = o
         elif p == hasCost:
             soCost[s] = o
-        elif p == hasValue:
-            soValue[s] = o
 
     def walk(target, visited, step):
         """Walk backward in rdf graph from `node` to sources."""
         if target in visited: return
         visited.add(target)
 
-        if target in sources:
-            if target not in soValue:
-                raise MissingRelationError(
-                    f'Missing "hasValue" relation on: {target}')
-            value = Value(value=soValue[target], unit=soUnit.get(target),
-                          iri=target, property_iri=soInst.get(target),
-                          cost=soCost.get(target, default_costs['value']))
-            step.add_input(value, name=soName.get(target))
-            return
+        def addnode(node, steptype, stepname):
+            if node in visited:
+                return
+            step.steptype = steptype
+            step.cost = soCost.get(target, default_costs[stepname])
+            if node in sources:
+                value = Value(value=sources[node], unit=soUnit.get(node),
+                              iri=node, property_iri=soInst.get(node),
+                              cost=soCost.get(node, default_costs['value']))
+                step.add_input(value, name=soName.get(node))
+            else:
+                prevstep = MappingStep(output_iri=node,
+                                    output_unit=soUnit.get(node))
+                step.add_input(prevstep, name=soName.get(node))
+                walk(node, visited, prevstep)
 
         for node in osInst[target]:
-            step.steptype = StepType.INV_INSTANCEOF
-            step.cost = soCost.get(target, default_costs['instanceOf'])
-            step0 = MappingStep(output_iri=node,
-                                output_unit=soUnit.get(node))
-            step.add_input(step0, name=soName.get(node))
-            walk(node, visited, step0)
+            addnode(node, StepType.INV_INSTANCEOF, 'instanceOf')
 
         for node in soMaps[target]:
-            print('*** target:', target)
-            step.steptype = StepType.MAPSTO
-            step.cost = soCost.get(target, default_costs['mapsTo'])
-            step0 = MappingStep(output_iri=node,
-                                output_unit=soUnit.get(node))
-            step.add_input(step0, name=soName.get(node))
-            #step0.steptype = StepType.MAPSTO
-            #step0.cost = soCost.get(target, default_costs['mapsTo'])
-            #step.add_input(step0, name=soName.get(target))
-            walk(node, visited, step0)
+            addnode(node, StepType.MAPSTO, 'mapsTo')
 
         for node in osMaps[target]:
-            step.steptype = StepType.INV_MAPSTO
-            step.cost = soCost.get(target, default_costs['mapsTo'])
-            step0 = MappingStep(output_iri=node,
-                                output_unit=soUnit.get(node))
-            step.add_input(step0, name=soName.get(node))
-            walk(node, visited, step0)
+            addnode(node, StepType.INV_MAPSTO, "mapsTo")
 
         for node in osSubcl[target]:
-            step.steptype = StepType.INV_SUBCLASSOF
-            step.cost = soCost.get(target, default_costs['subClassOf'])
-            step0 = MappingStep(output_iri=node,
-                                output_unit=soUnit.get(node))
-            step.add_input(step0, name=soName.get(node))
-            walk(node, visited, step0)
+            addnode(node, StepType.INV_SUBCLASSOF, 'subClassOf')
 
         for fmap in function_mappers:
-            print("*** fmap:", fmap(triples))
             for func, input_iris in fmap(triples)[target]:
-                print("*** func:", func, input_iris)
                 step.steptype = StepType.FUNCTION
                 step.cost = soCost.get(func, default_costs['function'])
-                step0 = MappingStep(output_iri=node,
-                                    output_unit=soUnit.get(node))
-                step.add_input(step0, name=soName.get(node))
-                step0.join_mode = True
+                step.function = function_repo[func]
+                step.join_mode = True
                 for i, input_iri in enumerate(input_iris):
+                    step0 = MappingStep(output_iri=input_iri,
+                                        output_unit=soUnit.get(input_iri))
+                    step.add_input(step0, name=soName.get(input_iri))
                     walk(input_iri, visited, step0)
-                step0.join_inputs()
+                step.join_input()
 
     visited = set()
     step = MappingStep(output_iri=target, output_unit=soUnit.get(target))
@@ -468,8 +467,6 @@ def mapping_route(
         target = source
     if target not in soMaps:
         raise MissingRelationError(f'Missing "mapsTo" relation on: {target}')
-    #step.steptype = StepType.MAPSTO
-    #step.cost = soCost.get(target, default_costs['mapsTo'])
     walk(target, visited, step)
 
     return step

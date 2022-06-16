@@ -119,19 +119,18 @@ nv = dm.Value(n, '1/m^3', 'inst2')
 
 
 def average_radius(r, n):
-    return np.sum(r.value * n.value) / np.sum(n.value)
+    return np.sum(r * n) / np.sum(n)
 
 
-mapsTo='http://emmo.info/domain-mappings#mapsTo'
-instanceOf='http://emmo.info/datamodel#instanceOf'
-subClassOf='http://www.w3.org/2000/01/rdf-schema#subClassOf'
-type='http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-#description='http://purl.org/dc/terms/description'
-hasName='http://www.w3.org/2000/01/rdf-schema#label'
-hasUnit='http://emmo.info/datamodel#hasUnit'
-hasCost=':hasCost'
-hasValue='http://emmo.info/datamodel#hasValue'
-RDF='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+mapsTo = 'http://emmo.info/domain-mappings#mapsTo'
+instanceOf = 'http://emmo.info/datamodel#instanceOf'
+subClassOf = 'http://www.w3.org/2000/01/rdf-schema#subClassOf'
+#description = 'http://purl.org/dc/terms/description'
+hasName = 'http://www.w3.org/2000/01/rdf-schema#label'
+hasUnit = 'http://emmo.info/datamodel#hasUnit'
+hasCost = ':hasCost'
+RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+type = RDF + 'type'
 next = RDF + 'next'
 first = RDF + 'first'
 rest = RDF + 'rest'
@@ -144,6 +143,9 @@ triples = [
     ('inst1', mapsTo, 'mo:ParticleRadius'),
     ('inst2', mapsTo, 'mo:NumberDensity'),
     ('inst3', mapsTo, 'mo:AverageParticleRadius'),
+    (':r',    mapsTo, 'mo:ParticleRadius'),
+    (':n',    mapsTo, 'mo:NumberDensity'),
+    (':ravg', mapsTo, 'mo:AverageParticleRadius'),
 
     ('average_radius_function', type, 'fno:Function'),
     ('average_radius_function', expects, 'parameter_list'),
@@ -152,21 +154,24 @@ triples = [
     ('parameter_list', rest,  'lst2'),
     ('lst2', first, ':n'),
     ('lst2', rest,  nil),
-    (':r', mapsTo, 'mo:ParticleRadius'),
-    (':n', mapsTo, 'mo:NumberDensity'),
     ('output_list', first, ':ravg'),
     ('output_list', rest, nil),
-    (':ravg', mapsTo, 'mo:AverageParticleRadius'),
+    (':r', hasName, 'r'),
+    (':n', hasName, 'n'),
 ]
 
 
 # Check fno_mapper
 d = dm.fno_mapper(triples)
+assert d[':ravg'] == [('average_radius_function', [':r', ':n'])]
 
 
-#step = dm.mapping_route(
-#    target='inst3',
-#    sources=[rv, nv],
-#    triples=triples,
-#    function_repo={'average_radius_function': average_radius},
-#)
+step = dm.mapping_route(
+    target='inst3',
+    sources={'inst1': r, 'inst2': n},
+    triples=triples,
+    function_repo={'average_radius_function': average_radius},
+)
+
+print(step.show())
+print(step.eval())
