@@ -343,7 +343,7 @@ def mapping_route(
         instanceOf='http://emmo.info/datamodel#instanceOf',
         subClassOf='http://www.w3.org/2000/01/rdf-schema#subClassOf',
         #description='http://purl.org/dc/terms/description',
-        hasName='http://www.w3.org/2000/01/rdf-schema#label',
+        label='http://www.w3.org/2000/01/rdf-schema#label',
         hasUnit='http://emmo.info/datamodel#hasUnit',
         hasCost=':hasCost',
         hasValue='http://emmo.info/datamodel#hasValue',
@@ -363,7 +363,7 @@ def mapping_route(
         function_mappers: Sequence of mapping functions that takes `triples`
             as argument and return a dict mapping output IRIs to a list
             of `(function_iri, [input_iris, ...])` tuples.
-        hasName: How 'hasName' is written in `triples`.  Used for naming
+        label: How 'label' is written in `triples`.  Used for naming
             function in put parameters.  The default is to use rdfs:label.
         hasUnit: How 'hasUnit' is written in `triples`.
         hasCost: How 'hasCost' is written in `triples`.
@@ -384,7 +384,7 @@ def mapping_route(
     osSubcl = defaultdict(list)  # (o, subClassOf, s) ==> osSubcl[o] -> [s, ..]
     soInst  = dict()             # (s, instanceOf, o) ==> soInst[s]  -> o
     osInst  = defaultdict(list)  # (o, instanceOf, s) ==> osInst[o]  -> [s, ..]
-    soName  = dict()             # (o, hasName, s)    ==> soName[s]  -> o
+    soName  = dict()             # (o, label, s)      ==> soName[s]  -> o
     soUnit  = dict()             # (s, hasUnit, o)    ==> soUnit[s]  -> o
     soCost  = dict()             # (s, hasCost, o)    ==> soCost[s]  -> o
     for s, p, o in triples:
@@ -400,7 +400,7 @@ def mapping_route(
                     f'property via {instanceOf} relations.')
             soInst[s] = o
             osInst[o].append(s)
-        elif p == hasName:
+        elif p == label:
             soName[s] = o
         elif p == hasUnit:
             soUnit[s] = o

@@ -126,7 +126,7 @@ mapsTo = 'http://emmo.info/domain-mappings#mapsTo'
 instanceOf = 'http://emmo.info/datamodel#instanceOf'
 subClassOf = 'http://www.w3.org/2000/01/rdf-schema#subClassOf'
 #description = 'http://purl.org/dc/terms/description'
-hasName = 'http://www.w3.org/2000/01/rdf-schema#label'
+label = 'http://www.w3.org/2000/01/rdf-schema#label'
 hasUnit = 'http://emmo.info/datamodel#hasUnit'
 hasCost = ':hasCost'
 RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
@@ -140,9 +140,16 @@ returns = 'https://w3id.org/function/ontology#returns'
 
 
 triples = [
+    # Mappings for data models
     ('inst1', mapsTo, 'mo:ParticleRadius'),
     ('inst2', mapsTo, 'mo:NumberDensity'),
     ('inst3', mapsTo, 'mo:AverageParticleRadius'),
+
+    ('inst1', hasUnit, 'um'),
+    ('inst2', hasUnit, '1/m³'),
+    ('inst3', hasUnit, 'um'),
+
+    # Mappings for the function
     (':r',    mapsTo, 'mo:ParticleRadius'),
     (':n',    mapsTo, 'mo:NumberDensity'),
     (':ravg', mapsTo, 'mo:AverageParticleRadius'),
@@ -150,14 +157,23 @@ triples = [
     ('average_radius_function', type, 'fno:Function'),
     ('average_radius_function', expects, 'parameter_list'),
     ('average_radius_function', returns, 'output_list'),
+    ('parameter_list', type, 'rdf:List'),
     ('parameter_list', first, ':r'),
     ('parameter_list', rest,  'lst2'),
+    ('lst2', type, 'rdf:List'),
     ('lst2', first, ':n'),
     ('lst2', rest,  nil),
+    (':r', type, 'fno:Parameter'),
+    (':r', label, 'r'),
+    #(':r', hasUnit, 'um'),
+    (':n', type, 'fno:Parameter'),
+    (':n', label, 'n'),
+    #(':n', hasUnit, '1/m³'),
+    ('output_list', type, 'rdf:List'),
     ('output_list', first, ':ravg'),
     ('output_list', rest, nil),
-    (':r', hasName, 'r'),
-    (':n', hasName, 'n'),
+    (':ravg', type, 'fno:Output'),
+    #(':ravg', hasUnit, 'm'),
 ]
 
 
