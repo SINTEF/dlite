@@ -167,22 +167,36 @@ class MappingStep:
         self.add_inputs(self.joined_input)
         self.joined_input = {}
 
-    def eval(self, routeno=None, quantity=Quantity):
+    def eval(self, routeno=None, unit=None, magnitude=False, quantity=Quantity):
         """Returns the evaluated value of given input route number.
 
-        If `routeno` is None (default) the route with the lowest cost
-        is evalueated."""
+        Args:
+            routeno: The route number to evaluate.  If None (default)
+                the route with the lowest cost is evalueated.
+            unit: return the result in the given unit.
+                Implies `magnitude=True`.
+            magnitude: Whether to only return the magitude of the evaluated
+                value (with no unit).
+            quantity: Quantity class to use for evaluation.  Defaults to pint.
+        """
         if routeno is None:
             (_, routeno), = self.lowest_costs(nresults=1)
         inputs, idx = self.get_inputs(routeno)
         values = get_values(inputs, idx, quantity=quantity)
         if self.function:
-            return self.function(**values)
+            value = self.function(**values)
         elif len(values) == 1:
             value, = values.values()
-            return value
         else:
             raise TypeError(f"Expected inputs to be a single argument: {values}")
+
+        if isinstance(value, quantity) and unit:
+            return value.m_as(unit)
+        elif isinstance(value, quantity) and magnitude:
+            return value.m
+        else:
+            return value
+
 
     def get_inputs(self, routeno):
         """Returns input and input index `(inputs, idx)` for route number
@@ -277,7 +291,7 @@ def get_values(inputs, routeno, quantity=Quantity, magnitudes=False):
     values = {}
     for k, v in inputs.items():
         if isinstance(v, MappingStep):
-            value = v.eval(routeno, quantity=quantity)
+            value = v.eval(routeno=routeno, quantity=quantity)
             values[k] = (value.to(v.output_unit)
                          if v.output_unit and isinstance(v, quantity) else value)
         else:

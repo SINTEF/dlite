@@ -197,3 +197,4 @@ step = dm.mapping_route(
 
 print(step.show())
 print(step.eval())
+assert step.eval(unit='m') == 34e-6
