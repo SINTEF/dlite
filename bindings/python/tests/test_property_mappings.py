@@ -46,7 +46,7 @@ assert dm.unitconvert("s", 1, 'hour') == 3600
 v = dm.Value(3.0, 'm/s', 'emmo:Velocity', cost=1)
 t = dm.Value(1.1, 's', 'emmo:Time', cost=2)
 t2 = dm.Value(2.2, 's', 'emmo:Time', cost=4)
-l = dm.Value(4.0, 's', 'emmo:Length', cost=8)
+l = dm.Value(4.0, 'm', 'emmo:Length', cost=8)
 
 step1 = dm.MappingStep(
     output_iri='emmo:Length',
@@ -70,7 +70,7 @@ step2.add_inputs({'l': step1})
 step3 = dm.MappingStep(
     output_iri=':ReducedLength',
     steptype=dm.StepType.FUNCTION,
-    function=lambda l: l - 1.0,
+    function=lambda l: 0.7*l,
     cost=10,
     output_unit='m',
 )
@@ -85,12 +85,18 @@ def isclose(a, b, rtol=1e-3):
     return True if abs((b - a)/b) <= rtol else False
 
 
-assert isclose(3.0, step3.eval())
-assert isclose(2.3, step3.eval(0))
-assert isclose(5.6, step3.eval(1))
-assert isclose(2.3, step3.eval(2))
-assert isclose(5.6, step3.eval(3))
-assert isclose(3.0, step3.eval(4))
+assert step1.number_of_routes() == 2
+assert step2.number_of_routes() == 2
+assert step3.number_of_routes() == 5
+
+assert isclose(dm.Quantity(3*1.1, 'm'), step1.eval(0))
+assert isclose(dm.Quantity(3*2.2, 'm'), step1.eval(1))
+assert isclose(dm.Quantity(0.7*3*1.1, 'm'), step3.eval(0))
+assert isclose(dm.Quantity(0.7*3*2.2, 'm'), step3.eval(1))
+assert isclose(dm.Quantity(0.7*3*1.1, 'm'), step3.eval(2))
+assert isclose(dm.Quantity(0.7*3*2.2, 'm'), step3.eval(3))
+assert isclose(dm.Quantity(0.7*4.0, 'm'), step3.eval(4))
+assert isclose(dm.Quantity(0.7*4.0, 'm'), step3.eval())
 
 costs = step3.lowest_costs(10)
 assert len(costs) == 5

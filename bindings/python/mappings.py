@@ -1,4 +1,15 @@
 """Implements mappings between entities.
+
+Units are currently handled with pint.Quantity.  The benefit of this
+compared to explicit unit conversions, is that units will be handled
+transparently by mapping functions, without any need to specify units
+of input and output parameters.
+
+Shapes are automatically handled by expressing non-scalar quantities
+with numpy.
+
+TODO:
+- Add functionality to create a Pint unit definition file from QUDT.
 """
 from __future__ import annotations
 
@@ -9,6 +20,9 @@ from collections import defaultdict
 from collections.abc import Sequence
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Union
+
+from pint import Quantity
+import pint
 
 import dlite
 
@@ -66,8 +80,14 @@ class Value:
         self.property_iri = property_iri
         self.cost = cost
 
-    def show(self, name=None, indent=0):
-        """Returns a string representation of the Value."""
+    def show(self, routeno=None, name=None, indent=0):
+        """Returns a string representation of the Value.
+
+        Arguments:
+            routeno: Unused.
+            name: Name of value.
+            indent: Indentation.
+        """
         s = []
         ind = ' '*indent
         s.append(ind + f'{name if name else "Value"}:')
@@ -94,7 +114,6 @@ class MappingStep:
         cost: The cost related to this mapping step.  Should be either a
             float or a callable taking the same arguments as `function` as
             input returning the cost as a float.
-        input_units: Dict mapping input names to expected units.
         output_unit: Output unit.
 
     The arguments can also be assigned as attributes.
@@ -105,14 +124,12 @@ class MappingStep:
             steptype: Optional[StepType] = None,
             function: Optional[Callable] = None,
             cost: Union[Any, Callable] = 1.0,
-            input_units: Optional[dict] = None,
             output_unit: Optional[str] = None,
     ):
         self.output_iri = output_iri
         self.steptype = steptype
         self.function = function
         self.cost = cost
-        self.input_units = input_units if input_units else {}
         self.output_unit = output_unit
         self.input_routes = []  # list of inputs dicts
         self.join_mode = False  # whether to join upcoming input
@@ -149,7 +166,7 @@ class MappingStep:
         self.add_inputs(self.joined_input)
         self.joined_input = {}
 
-    def eval(self, routeno=None):
+    def eval(self, routeno=None, quantity=Quantity):
         """Returns the evaluated value of given input route number.
 
         If `routeno` is None (default) the route with the lowest cost
@@ -157,7 +174,7 @@ class MappingStep:
         if routeno is None:
             (_, routeno), = self.lowest_costs(nresults=1)
         inputs, idx = self.get_inputs(routeno)
-        values = get_values(inputs, idx, self.input_units)
+        values = get_values(inputs, idx, quantity=quantity)
         if self.function:
             return self.function(**values)
         elif len(values) == 1:
@@ -200,7 +217,7 @@ class MappingStep:
             owncost = 1
             for cost, idx in get_lowest_costs(inputs, nresults=nresults):
                 if isinstance(self.cost, Callable):
-                    values = get_values(inputs, idx, self.input_units)
+                    values = get_values(inputs, idx, magnitudes=True)
                     owncost = self.cost(**values)
                 else:
                     owncost = self.cost
@@ -208,19 +225,33 @@ class MappingStep:
             n += get_nroutes(inputs)
         return sorted(result)[:nresults]
 
-    def show(self, name=None, indent=0):
-        """Returns a string representation of the mapping routes to this step."""
+    def show(self, routeno=None, name=None, indent=0):
+        """Returns a string representation of the mapping routes to this step.
+
+        Arguments:
+            routeno: show given route.  The default is to show all routes.
+            name: Name of the last mapping step (mainly for internal use).
+            indent: How of blanks to prepend each line with (mainly for
+                internal use).
+        """
         s = []
         ind = ' '*indent
         s.append(ind + f'{name if name else "Step"}:')
-        s.append(ind + f'  steptype: {self.steptype.name if self.steptype else None}')
+        s.append(ind + f'  steptype: '
+                 f'{self.steptype.name if self.steptype else None}')
         s.append(ind + f'  output_iri: {self.output_iri}')
         s.append(ind + f'  output_unit: {self.output_unit}')
-        s.append(ind + f'  input_units: {self.input_units}')
         s.append(ind + f'  cost: {self.cost}')
-        s.append(ind + f'  routes:')
-        for inputs in self.input_routes:
-            t = '\n'.join([input_.show(name_, indent+6)
+        if routeno is None:
+            s.append(ind + f'  routes:')
+            for inputs in self.input_routes:
+                t = '\n'.join([input_.show(name=name_, indent=indent+6)
+                               for name_, input_ in inputs.items()])
+                s.append(ind + '    - ' + t[indent+6:])
+        else:
+            s.append(ind + f'  inputs:')
+            inputs, idx = self.get_inputs(routeno)
+            t = '\n'.join([input_.show(routeno=idx, name=name_, indent=indent+6)
                            for name_, input_ in inputs.items()])
             s.append(ind + '    - ' + t[indent+6:])
         return '\n'.join(s)
@@ -235,24 +266,26 @@ def get_nroutes(inputs):
     return m
 
 
-def get_values(inputs, idx, input_units):
+def get_values(inputs, routeno, quantity=Quantity, magnitudes=False):
     """Help function returning a dict mapping the input names to actual value
     of expected input unit.
 
     There exists `get_nroutes(inputs)` routes to populate `inputs`.
-    `idx` is the index of the specific route we will use to obtain the
+    `routeno` is the index of the specific route we will use to obtain the
     values."""
     values = {}
     for k, v in inputs.items():
         if isinstance(v, MappingStep):
-            value, unit = v.eval(idx), v.output_unit
+            value = v.eval(routeno, quantity=quantity)
+            values[k] = (value.to(v.output_unit)
+                         if v.output_unit and isinstance(v, quantity) else value)
         else:
-            value, unit = v.value, v.unit
+            values[k] = quantity(v.value, v.unit)
 
-        if unit and k in input_units:
-            values[k] = unitconvert(input_units[k], value, unit)
-        else:
-            values[k] = value
+        if magnitudes:
+            values = {k: v.m if isinstance(v, quantity) else v
+                      for k, v in values.items()}
+
     return values
 
 
@@ -346,7 +379,6 @@ def mapping_route(
         label='http://www.w3.org/2000/01/rdf-schema#label',
         hasUnit='http://emmo.info/datamodel#hasUnit',
         hasCost=':hasCost',
-        hasValue='http://emmo.info/datamodel#hasValue',
 ):
     """Find routes of mappings from any source in `sources` to `target`.
 
@@ -357,16 +389,19 @@ def mapping_route(
         sources: Dict mapping source IRIs to source values.
         triples: Sequence of (subject, steptype, object) triples.
             It is safe to pass a generator expression too.
-        mapsTo: How 'mapsTo' is written in `triples`.
-        subClassOf: How 'subClassOf' is written in `triples`.  Set it
-            to None if subclasses should not be considered.
+        function_repo: Dict mapping function IRIs to corresponding Python
+            function.
         function_mappers: Sequence of mapping functions that takes `triples`
             as argument and return a dict mapping output IRIs to a list
             of `(function_iri, [input_iris, ...])` tuples.
-        label: How 'label' is written in `triples`.  Used for naming
-            function in put parameters.  The default is to use rdfs:label.
-        hasUnit: How 'hasUnit' is written in `triples`.
-        hasCost: How 'hasCost' is written in `triples`.
+        mapsTo: IRI of 'mapsTo' in `triples`.
+        instanceOf: IRI of 'instanceOf' in `triples`.
+        subClassOf: IRI of 'subClassOf' in `triples`.  Set it to None if
+            subclasses should not be considered.
+        label: IRI of 'label' in `triples`.  Used for naming function
+            input parameters.  The default is to use rdfs:label.
+        hasUnit: IRI of 'hasUnit' in `triples`.
+        hasCost: IRI of 'hasCost' in `triples`.
 
     Returns:
         A nested graph of MappingStep instances.
@@ -472,6 +507,110 @@ def mapping_route(
     return step
 
 
+def instance_routes(meta, instances, triples=(), strict=True,
+                allow_incomplete=False, unitconvert=unitconvert_pint,
+                mapsTo=':mapsTo'):
+    """Create an instance of `meta` using data found in `*instances`.
+
+    Args:
+        meta: Metadata for the instance we will create.
+        instances: sequence of instances that the new intance will be
+          populated from.
+        mappings: A sequence of triples defining the mappings.
+        strict: If false, we will allow implicit mapping of properties
+          with the same name.
+        allow_incomplete: Whether to allow not populating all properties
+          of the returned instance.
+        unitconvert: A callable that converts between units.  It has
+          prototype
+
+              unitconvert(dest_unit, value, unit)
+
+          and should return `value` (in units `unit`) converted to
+          `dest_unit`.
+        mapsTo: How the 'mapsTo' predicate is written in `mappings`.
+
+    Returns:
+        New instance of `meta` populated from `*instances`.
+
+    Raises:
+        InsufficientMappingError: There are properties or dimensions in
+          the returned instance that are not mapped.
+        AmbiguousMappingError: A property in the returned instance
+          maps to more than one value.
+        InconsistentDimensionError: The size of a dimension in the
+          returned instance is assigned to more than one value.
+
+    Todo:
+    - Consider that mapsTo is a transitive relation.
+    - Use EMMOntoPy to also account for rdfs:subClassOf relations.
+    - Consider the possibility to assign values via the `mappings`
+      triples.  Do we really want that?  May be useful, but will add
+      a lot of complexity.  Should we have different relations for
+      default values and values that will overwrite what is provided
+      from a matching input instance?
+    - Add `mapsToPythonExpression` subproperty of `mapsTo` to allow
+      writing analytical Python expression for a property as a function
+      of properties defined in the ontology.
+      Use the ast module for safe evaluation to ensure that this feature
+      cannot be misused for code injection.
+    - Add a function that visualise the possible mapping paths.
+    """
+    match = match_factory(mappings)  # match function
+
+    if isinstance(instances, dlite.Instance):
+        instances = [instances]
+
+    dims = {d.name: None for d in meta['dimensions']}
+    props = {}
+
+    for prop in meta['properties']:
+        prop_uri = f'{meta.uri}#{prop.name}'
+        for _, _, o in match(prop_uri, mapsTo, None):
+            for inst in instances:
+                for prop2 in inst.meta['properties']:
+                    prop2_uri = f'{inst.meta.uri}#{prop2.name}'
+                    for _, _, o2 in match(prop2_uri, mapsTo, o):
+                        value = inst[prop2.name]
+                        if prop.name not in props:
+                            assign_dimensions(dims, inst, prop2.name)
+                            props[prop.name] = value
+                        elif props[prop.name] != value:
+                            raise AmbiguousMappingError(
+                                f'"{prop.name}" maps to both '
+                                f'"{props[prop.name]}" and "{value}"')
+
+        if prop.name not in props and not strict:
+            for inst in instances:
+                if prop.name in inst.properties:
+                    value = inst[prop.name]
+                    if prop.name not in props:
+                        assign_dimensions(dims, inst, prop.name)
+                        props[prop.name] = value
+                    elif props[prop.name] != value:
+                        raise AmbiguousMappingError(
+                            f'"{prop.name}" assigned to both '
+                            f'"{props[prop.name]}" and "{value}"')
+
+        if not allow_incomplete and prop.name not in props:
+            raise InsufficientMappingError(
+                f'no mapping for assigning property "{prop.name}" '
+                f'in {meta.uri}')
+
+    if None in dims:
+        dimname = [k for k, v in dims.items() if v is None][0]
+        raise InsufficientMappingError(
+            f'dimension "{dimname}" is not assigned')
+
+    inst = meta(list(dims.values()))
+    for k, v in props.items():
+        inst[k] = v
+    return inst
+
+
+
+# ------------- Old implementation -----------------
+
 def unitconvert_pint(dest_unit, value, unit):
     """Returns `value` converted to `dest_unit`.
 
@@ -492,8 +631,6 @@ def unitconvert_pint(dest_unit, value, unit):
 
 unitconvert = unitconvert_pint
 
-
-# ------------- Old implementation -----------------
 
 def match_factory(triples, match_first=False):
     """A factory function that returns a match functions for `triples`.
