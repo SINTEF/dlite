@@ -5,7 +5,8 @@ from pathlib import Path
 
 import dlite
 from dlite.utils import (
-    instance_from_dict, to_metadata, HAVE_DATACLASSES, HAVE_PYDANTIC
+    instance_from_dict, to_metadata, infer_dimensions,
+    HAVE_DATACLASSES, HAVE_PYDANTIC
     )
 
 
@@ -190,3 +191,26 @@ if HAVE_PYDANTIC:
     Atoms2 = to_metadata(AtomsEntity2)
     assert Atoms2.is_meta
     assert Atoms2.meta.uri == dlite.ENTITY_SCHEMA
+
+
+# Test infer_dimensions()
+dims = infer_dimensions(
+    meta=inst.meta,
+    values={'a-string-array': [('a', 'b'), ('c', 'd'), ('e', 'f')]},
+)
+assert dims == dict(N=3, M=2)
+
+dims = infer_dimensions(
+    meta=inst.meta,
+    values={'a-string-array': [('a', 'b'), ('c', 'd'), ('e', 'f')],
+            'a-fixstring-array': [
+                ('a', 'b', 'c'), ('a', 'b', 'c'), ('a', 'b', 'c')]},
+)
+assert dims == dict(N=3, M=2)
+
+dims = infer_dimensions(
+    meta=inst.meta,
+    values={'an-int-array': [1, 2, 3, 4],
+            'a-fixstring-array': [('Al', 'Mg'), ('Si', 'Cu')]},
+)
+assert dims == dict(N=2, M=4)

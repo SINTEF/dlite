@@ -25,6 +25,7 @@ from pint import Quantity
 import pint
 
 import dlite
+from dlite.utils import infer_dimensions
 
 
 class MappingError(Exception):
@@ -404,7 +405,7 @@ def mapping_route(
         hasCost: IRI of 'hasCost' in `triples`.
 
     Returns:
-        A nested graph of MappingStep instances.
+        A MappingStep instance.
     """
 
     # We need to parse triples more than once, so create a local list
@@ -507,105 +508,127 @@ def mapping_route(
     return step
 
 
-def instance_routes(meta, instances, triples=(), strict=True,
-                allow_incomplete=False, unitconvert=unitconvert_pint,
-                mapsTo=':mapsTo'):
-    """Create an instance of `meta` using data found in `*instances`.
+def instance_routes(meta, instances, triples=(), allow_incomplete=False,
+                    **kwargs):
+    """Find all mapping routes for populating an instance of `meta`.
 
-    Args:
+    Arguments:
         meta: Metadata for the instance we will create.
         instances: sequence of instances that the new intance will be
-          populated from.
-        mappings: A sequence of triples defining the mappings.
-        strict: If false, we will allow implicit mapping of properties
-          with the same name.
+            populated from.
+        triples: A sequence of triples defining the mappings.
         allow_incomplete: Whether to allow not populating all properties
-          of the returned instance.
-        unitconvert: A callable that converts between units.  It has
-          prototype
-
-              unitconvert(dest_unit, value, unit)
-
-          and should return `value` (in units `unit`) converted to
-          `dest_unit`.
-        mapsTo: How the 'mapsTo' predicate is written in `mappings`.
+            of the returned instance.
+        kwargs: Keyword arguments passed to mapping_route().
 
     Returns:
-        New instance of `meta` populated from `*instances`.
-
-    Raises:
-        InsufficientMappingError: There are properties or dimensions in
-          the returned instance that are not mapped.
-        AmbiguousMappingError: A property in the returned instance
-          maps to more than one value.
-        InconsistentDimensionError: The size of a dimension in the
-          returned instance is assigned to more than one value.
-
-    Todo:
-    - Consider that mapsTo is a transitive relation.
-    - Use EMMOntoPy to also account for rdfs:subClassOf relations.
-    - Consider the possibility to assign values via the `mappings`
-      triples.  Do we really want that?  May be useful, but will add
-      a lot of complexity.  Should we have different relations for
-      default values and values that will overwrite what is provided
-      from a matching input instance?
-    - Add `mapsToPythonExpression` subproperty of `mapsTo` to allow
-      writing analytical Python expression for a property as a function
-      of properties defined in the ontology.
-      Use the ast module for safe evaluation to ensure that this feature
-      cannot be misused for code injection.
-    - Add a function that visualise the possible mapping paths.
+        A dict mapping property names to a MappingStep instance.
     """
-    match = match_factory(mappings)  # match function
-
     if isinstance(instances, dlite.Instance):
         instances = [instances]
 
-    dims = {d.name: None for d in meta['dimensions']}
-    props = {}
+    sources = {}
+    for inst in instances:
+        for k, v in inst.properties.items():
+            sources[f'{inst.uuid}#{k}'] = v
 
+    routes = {}
     for prop in meta['properties']:
-        prop_uri = f'{meta.uri}#{prop.name}'
-        for _, _, o in match(prop_uri, mapsTo, None):
-            for inst in instances:
-                for prop2 in inst.meta['properties']:
-                    prop2_uri = f'{inst.meta.uri}#{prop2.name}'
-                    for _, _, o2 in match(prop2_uri, mapsTo, o):
-                        value = inst[prop2.name]
-                        if prop.name not in props:
-                            assign_dimensions(dims, inst, prop2.name)
-                            props[prop.name] = value
-                        elif props[prop.name] != value:
-                            raise AmbiguousMappingError(
-                                f'"{prop.name}" maps to both '
-                                f'"{props[prop.name]}" and "{value}"')
+        target = f'{meta.uri}#{prop.name}'
+        route = mapping_route(target, sources, triples, **kwargs)
+        if not allow_incomplete and not route.number_of_routes():
+            raise InsufficientMappingError(f'no mappings for {target}')
+        routes[prop.name] = route
 
-        if prop.name not in props and not strict:
-            for inst in instances:
-                if prop.name in inst.properties:
-                    value = inst[prop.name]
-                    if prop.name not in props:
-                        assign_dimensions(dims, inst, prop.name)
-                        props[prop.name] = value
-                    elif props[prop.name] != value:
-                        raise AmbiguousMappingError(
-                            f'"{prop.name}" assigned to both '
-                            f'"{props[prop.name]}" and "{value}"')
+    return routes
 
-        if not allow_incomplete and prop.name not in props:
-            raise InsufficientMappingError(
-                f'no mapping for assigning property "{prop.name}" '
-                f'in {meta.uri}')
 
-    if None in dims:
-        dimname = [k for k, v in dims.items() if v is None][0]
-        raise InsufficientMappingError(
-            f'dimension "{dimname}" is not assigned')
+def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
+    """Create a new instance of `meta` from selected mapping route returned by
+    instance_routes().
 
-    inst = meta(list(dims.values()))
-    for k, v in props.items():
+    Arguments:
+        meta: Metadata to instantiate.
+        routes: Dict returned by instance_routes().  It should map property
+            names to MappingStep instances.
+        routedict: Dict mapping property names to route number to select for
+            the given property.  The default is to select the route with lowest
+            cost.
+        id: URI of instance to create.
+        quantity: Class implementing quantities with units.  Defaults to
+            pint.Quantity.
+
+    Returns:
+        New instance.
+    """
+    if isinstance(meta, str):
+        meta = dlite.get_instance(meta)
+
+    values = {}
+    for prop in meta['properties']:
+        if prop.name in routes:
+            step = routes[prop.name]
+            values[prop.name] = step.eval(routeno=routedict.get(prop.name),
+                                          quantity=quantity)
+    dims = infer_dimensions(meta, values)
+    inst = meta(dims=dims, id=id)
+
+    for k, v in routes.items():
         inst[k] = v
+
     return inst
+
+
+def instantiate(meta, instances, triples=(), routedict=None, id=None,
+                allow_incomplete=False, quantity=Quantity, **kwargs):
+    """Create a new instance of `meta` populated with the selected mapping
+    routes.
+
+    This is a convenient function that combines instance_routes() and
+    instantiate_route().  If you want to investigate the possible routes,
+    you will probably want to call instance_routes() and
+    instantiate_route() instead.
+
+    Arguments:
+        meta: Metadata to instantiate.
+        instances: Sequence of instances with source values.
+        triples: Sequence of (subject, steptype, object) triples.
+            It is safe to pass a generator expression too.
+        routedict: Dict mapping property names to route number to select for
+            the given property.  The default is to select the route with lowest
+            cost.
+        id: URI of instance to create.
+        allow_incomplete: Whether to allow not populating all properties
+            of the returned instance.
+        quantity: Class implementing quantities with units.  Defaults to
+            pint.Quantity.
+
+    Keyword arguments (passed to instance_routes()):
+        function_repo: Dict mapping function IRIs to corresponding Python
+            function.
+        function_mappers: Sequence of mapping functions that takes `triples`
+            as argument and return a dict mapping output IRIs to a list
+            of `(function_iri, [input_iris, ...])` tuples.
+        mapsTo: IRI of 'mapsTo' in `triples`.
+        instanceOf: IRI of 'instanceOf' in `triples`.
+        subClassOf: IRI of 'subClassOf' in `triples`.  Set it to None if
+            subclasses should not be considered.
+        label: IRI of 'label' in `triples`.  Used for naming function
+            input parameters.  The default is to use rdfs:label.
+        hasUnit: IRI of 'hasUnit' in `triples`.
+        hasCost: IRI of 'hasCost' in `triples`.
+
+    Returns:
+        New instance.
+    """
+    if isinstance(meta, str):
+        meta = dlite.get_instance(meta)
+
+    routes = instance_routes(meta=meta, instances=instances, triples=triples,
+                             allow_incomplete=allow_incomplete, **kwargs)
+    return instantiate_route(meta=meta, routes=routes, routeno=routeno,
+                             id=id, quantity=quantity)
+
 
 
 

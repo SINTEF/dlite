@@ -20,7 +20,17 @@ except:
 else:
     HAVE_PYDANTIC = True
 
+import numpy as np
+
 import dlite
+
+
+class CannotInferDimensionError(dlite.DLiteError):
+    """Cannot infer instance dimensions."""
+
+
+class InvalidNumberOfDimensionsError(dlite.DLiteError):
+    """Invalid number of instance dimensions."""
 
 
 def instance_from_dict(d, id=None, single=None, check_storages=True):
@@ -215,4 +225,60 @@ if HAVE_PYDANTIC:
 
 
 def get_package_paths():
+    """Returns a dict with all the DLite builtin path variables."""
     return {k: v for k, v in dlite.__dict__.items() if k.endswith('_path')}
+
+
+def infer_dimensions(meta, values, strict=True):
+    """Infer the dimensions if we should create an instance of `meta` with
+    the given `values`.
+
+    Arguments:
+        meta: URI or metadata object.
+        values: Dict mapping property names to values.  Not all property
+            names needs to be mapped.
+        strict: Whether to require that all keys in `values` correspond
+            to a property name in `meta`.
+
+    Returns:
+        Dict mapping dimension names to dimension values.
+
+    Raises:
+        InvalidNumberOfDimensionsError: inconsistent number of dimensions
+        CannotInferDimensionError
+
+    """
+    if isinstance(meta, str):
+        meta = dlite.get_instance(meta)
+
+    if strict:
+        propnames = {propname for propname in values.keys()}
+        extra_props = propnames.difference(
+            {prop.name for prop in meta['properties']})
+        if extra_props:
+            raise CannotInferDimensionError(
+                f'invalid property names in `values`: {extra_props}')
+
+    dims = {}
+    for prop in meta['properties']:
+        if prop.name in values and prop.ndims:
+            v = np.array(values[prop.name])
+            if len(v.shape) != prop.ndims:
+                raise InvalidNumberOfDimensionsError(
+                    f'property {prop.name} has {prop.ndims} dimensions, but '
+                    f'{len(v.shape)} was provided')
+            for i, dimname in enumerate(prop.dims):
+                if dimname in dims and v.shape[i] != dims[dimname]:
+                    raise CannotInferDimensionError(
+                        f'inconsistent assignment of dimension "{dimname}" '
+                        f'when checking property "{prop.name}"')
+                dims[dimname] = v.shape[i]
+
+    dimnames = {d.name for d in meta['dimensions']}
+    if len(dims) != len(meta['dimensions']):
+        missing_dims = dimnames.difference(dims.keys())
+        raise CannotInferDimensionError(
+            f'insufficient number of properties provided to infer dimensions: '
+            f'{missing_dims}')
+
+    return dims
