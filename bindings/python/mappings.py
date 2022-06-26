@@ -9,6 +9,10 @@ Shapes are automatically handled by expressing non-scalar quantities
 with numpy.
 
 TODO:
+- Add a function for generating triples for function mappings by inspection
+  of a Python function.
+- Add an extendable class for encapsulating triplestores.  Add default
+  support for: list or triples, rdflib, owlready2, Stardog, ...
 - Add functionality to create a Pint unit definition file from QUDT.
 """
 from __future__ import annotations
@@ -523,7 +527,7 @@ def mapping_route(
 
 
 def instance_routes(meta, instances, triples=(), allow_incomplete=False,
-                    **kwargs):
+                    quantity=Quantity, **kwargs):
     """Find all mapping routes for populating an instance of `meta`.
 
     Arguments:
@@ -533,6 +537,8 @@ def instance_routes(meta, instances, triples=(), allow_incomplete=False,
         triples: A sequence of triples defining the mappings.
         allow_incomplete: Whether to allow not populating all properties
             of the returned instance.
+        quantity: Class implementing quantities with units.  Defaults to
+            pint.Quantity.
         kwargs: Keyword arguments passed to mapping_route().
 
     Returns:
@@ -543,8 +549,9 @@ def instance_routes(meta, instances, triples=(), allow_incomplete=False,
 
     sources = {}
     for inst in instances:
+        props = {p.name: p for p in inst.meta['properties']}
         for k, v in inst.properties.items():
-            sources[f'{inst.uuid}#{k}'] = v
+            sources[f'{inst.uuid}#{k}'] = quantity(v, props[k].unit)
 
     routes = {}
     for prop in meta['properties']:
@@ -583,6 +590,7 @@ def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
         if prop.name in routes:
             step = routes[prop.name]
             values[prop.name] = step.eval(routeno=routedict.get(prop.name),
+                                          unit=prop.unit,
                                           quantity=quantity)
     dims = infer_dimensions(meta, values)
     inst = meta(dims=dims, id=id)
@@ -639,7 +647,8 @@ def instantiate(meta, instances, triples=(), routedict=None, id=None,
         meta = dlite.get_instance(meta)
 
     routes = instance_routes(meta=meta, instances=instances, triples=triples,
-                             allow_incomplete=allow_incomplete, **kwargs)
+                             allow_incomplete=allow_incomplete,
+                             quantity=quantity, **kwargs)
     return instantiate_route(meta=meta, routes=routes, routeno=routeno,
                              id=id, quantity=quantity)
 
