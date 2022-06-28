@@ -135,7 +135,7 @@ matches `pattern`.  If `pattern` is None, all UUIDs will be returned.
   }
 
   %feature("docstring", "Set storage readability.") _set_readable;
-  void _set_writable(bool readable) {
+  void _set_readable(bool readable) {
     if (readable)
       $self->flags |= dliteReadable;
     else
