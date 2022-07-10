@@ -156,7 +156,7 @@ triples = [
     ('inst3', mapsTo, 'mo:AverageParticleRadius'),
 
     ('inst1', hasUnit, 'um'),
-    ('inst2', hasUnit, '1/m³'),
+    ('inst2', hasUnit, '1/m**3'),
     ('inst3', hasUnit, 'um'),
 
     # Mappings for the function
@@ -178,7 +178,7 @@ triples = [
     #(':r', hasUnit, 'um'),
     (':n', type, 'fno:Parameter'),
     (':n', label, 'n'),
-    #(':n', hasUnit, '1/m³'),
+    #(':n', hasUnit, '1/m**3'),
     ('output_list', type, 'rdf:List'),
     ('output_list', first, ':ravg'),
     ('output_list', rest, nil),
