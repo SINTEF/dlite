@@ -38,7 +38,7 @@ match_first = dm.match_factory(mappings, match_first=True)
 
 # Check unitconvert_pint
 assert dm.unitconvert("km", 34, 'm') == 0.034
-assert dm.unitconvert("Å", 34, 'um') == 34e4
+assert dm.unitconvert(u"Å", 34, 'um') == 34e4
 assert dm.unitconvert("s", 1, 'hour') == 3600
 
 
