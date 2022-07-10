@@ -80,7 +80,9 @@ class RdflibStrategy:
         s = self.graph.serialize(destination=destination, format=format,
                                  **kwargs)
         if destination is None:
-            return s.decode()
+            # Depending on the version of rdflib the return value of
+            # graph.serialize() man either be a string or a bytes object...
+            return s if isinstance(s, str) else s.decode()
 
     def query(self, query_object, **kwargs):
         """SPARQL query."""
