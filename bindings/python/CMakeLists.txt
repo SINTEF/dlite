@@ -10,6 +10,11 @@ set(py_sources
   rdf.py
   )
 
+# Python sub-packages
+set(py_packages
+  triplestore
+  )
+
 configure_file(paths.py.in paths.py)
 if(dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE)
   configure_file(__init__standalone.py.in __init__.py)
@@ -93,6 +98,12 @@ foreach(source ${py_sources})
   list(APPEND abs_targets ${pkgdir}/${source})
 endforeach()
 
+set(package_targets)
+foreach(package ${py_packages})
+  list(APPEND package_targets ${pkgdir}/${package})
+endforeach()
+
+
 # On windows, also copy all dlite DLLs to our Python package
 set(dlls)
 if(WINDOWS OR MINGW)
@@ -114,7 +125,7 @@ add_custom_command(
     ${pkgdir}/dlite.py
   )
 
-add_custom_target(python_package ALL DEPENDS ${abs_targets})
+add_custom_target(python_package ALL DEPENDS ${abs_targets} ${package_targets})
 add_custom_command(
   OUTPUT
     ${abs_targets}
@@ -126,6 +137,27 @@ add_custom_command(
     ${abs_sources}
     dlite-plugins-json
   )
+
+foreach(package ${py_packages})
+  file(
+    GLOB_RECURSE pyfiles
+    CONFIGURE_DEPENDS
+    "${package}/**.py"
+    )
+  add_custom_command(
+    OUTPUT
+      ${pkgdir}/${package}
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/${package}
+    ${pkgdir}/${package}
+  DEPENDS
+    ${pkgdir}
+    ${CMAKE_CURRENT_SOURCE_DIR}/${package}
+    ${pyfiles}
+  COMMENT
+    "Copying Python sub-packages: ${package}"
+  )
+endforeach()
 
 #
 # Add the extension-libraries (*.dll, *.so) to the package directory
