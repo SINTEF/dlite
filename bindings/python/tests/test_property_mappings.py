@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 import sys
+import importlib.util
 from pathlib import Path
 
 import numpy as np
 
 import dlite
 import dlite.mappings as dm
+from dlite.triplestore import Triplestore
 
 try:
     import pint
@@ -15,9 +17,44 @@ except ImportError as exc:
     sys.exit(44)  # exit code marking the test to be skipped
 
 
-# Configure search paths
+# Configure paths
 thisdir = Path(__file__).parent.absolute()
-dlite.storage_path.append(f'{thisdir}/*.json')
+exdir = thisdir / '../../../examples/dehydrogenation'
+
+# Import module with instances from dehydrogenation example
+module_name = 'molecular_energies'
+file_path = f'{exdir}/1-simple-workflow/molecular_energies.py'
+
+spec = importlib.util.spec_from_file_location(module_name, file_path)
+module = importlib.util.module_from_spec(spec)
+sys.modules[module_name] = module
+spec.loader.exec_module(module)
+
+
+
+
+# Load entities and instantiate a molecule
+dlite.storage_path.append(f'{exdir}/entities/*.json')
+Molecule = dlite.get_instance('http://onto-ns.com/meta/0.1/Molecule')
+Substance = dlite.get_instance('http://onto-ns.com/meta/0.1/Substance')
+
+inst = Molecule(dims={'natoms': 3, 'ncoords': 3})
+inst.name = ''
+
+
+# Create triplestore using the rdflib backend
+ts = Triplestore('rdflib')
+
+# Define some prefixed namespaces
+CHEM = ts.bind('chem', 'http://onto-ns.com/onto/chemistry#')
+
+# Add mappings
+ts.add_mapsTo(CHEM.Identifier, Molecule, 'name')
+ts.add_mapsTo(CHEM.GroundStateEnergy, Molecule, 'groundstate_energy')
+ts.add_mapsTo(CHEM.Identifier, Substance, 'id')
+ts.add_mapsTo(CHEM.GroundStateEnergy, Substance, 'molecule_energy')
+
+
 
 
 mappings = [
@@ -38,8 +75,8 @@ match_first = dm.match_factory(mappings, match_first=True)
 
 
 # Check unitconvert_pint
-assert dm.unitconvert("km", 34, 'm') == 0.034
-assert dm.unitconvert("s", 1, 'hour') == 3600
+assert dm.unitconvert('km', 34, 'm') == 0.034
+assert dm.unitconvert('s', 1, 'hour') == 3600
 # The Windows test has problems understanding the UFT-8 encoding "Å" below.
 # Skip it on Windows for now...
 if sys.platform != "win32":
@@ -156,7 +193,7 @@ triples = [
     ('inst3', mapsTo, 'mo:AverageParticleRadius'),
 
     ('inst1', hasUnit, 'um'),
-    ('inst2', hasUnit, '1/m³'),
+    ('inst2', hasUnit, '1/m**3'),
     ('inst3', hasUnit, 'um'),
 
     # Mappings for the function
