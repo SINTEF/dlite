@@ -33,7 +33,7 @@ from dlite.triplestore import Triplestore, DM, FNO, MAP, RDF, RDFS
 from dlite.utils import infer_dimensions
 
 
-class MappingError(Exception):
+class MappingError(dlite.DLiteError):
     """Base class for mapping errors."""
 
 
@@ -408,7 +408,7 @@ def mapping_route(
         instanceOf: IRI of 'instanceOf' in `triplestore`.
         subClassOf: IRI of 'subClassOf' in `triples`.  Set it to None if
             subclasses should not be considered.
-        label: IRI of 'label' in `triples`.  Used for naming function
+        label: IRI of 'label' in `triplestore`.  Used for naming function
             input parameters.  The default is to use rdfs:label.
         hasUnit: IRI of 'hasUnit' in `triples`.
         hasCost: IRI of 'hasCost' in `triples`.
