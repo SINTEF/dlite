@@ -29,7 +29,8 @@ from pint import Quantity
 import pint
 
 import dlite
-from dlite.utils import infer_dimensions
+#from dlite.triplestore import Triplestore
+#from dlite.utils import infer_dimensions
 
 
 class MappingError(Exception):

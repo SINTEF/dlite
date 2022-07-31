@@ -30,6 +30,8 @@ module = importlib.util.module_from_spec(spec)
 sys.modules[module_name] = module
 spec.loader.exec_module(module)
 
+CH4 = module.coll['CH4']
+Molecule = CH4.meta
 
 
 
