@@ -79,7 +79,8 @@ Ontology (FnO).
     ...     """Returns the mean value of `x` and `y`."""
     ...     return (x + y)/2
 
-    >>> ts.add_function(mean, expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
+    >>> ts.add_function(mean,
+    ...                 expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
     ...                 returns=ONTO.AverageArmLength)
 
 
@@ -98,6 +99,7 @@ TODO:
 '''
 from __future__ import annotations  # Support Python 3.7 (PEP 585)
 
+import hashlib
 import inspect
 import re
 import warnings
@@ -162,6 +164,7 @@ EMMO = Namespace("http://emmo.info/emmo#")
 MAP = Namespace("http://emmo.info/domain-mappings#")
 DM = Namespace("http://emmo.info/datamodel#")
 
+
 class Literal(str):
     """A literal RDF value."""
     def __new__(cls, value, lang=None, datatype=None):
@@ -173,6 +176,7 @@ class Literal(str):
             string.lang = str(lang)
             string.datatype = None
         else:
+            string.lang = None
             if datatype:
                 d = {
                     str: XSD.string,
@@ -197,12 +201,11 @@ class Literal(str):
                 string.datatype = XSD.hexBinary
             elif isinstance(value, datetime):
                 string.datatype = XSD.dateTime
-            # TODO:
-            #   - XSD.base64Binary
-            #   - XSD.byte, XSD.unsignedByte
+                # TODO:
+                #   - XSD.base64Binary
+                #   - XSD.byte, XSD.unsignedByte
             else:
                 string.datatype = None
-            string.lang = None
         return string
 
     def __repr__(self):
@@ -211,11 +214,11 @@ class Literal(str):
         return f"Literal('{self}'{lang}{datatype})"
 
     value = property(
-        fget=lambda self: self.toPython(),
+        fget=lambda self: self.to_python(),
         doc="Appropriate python datatype derived from this RDF literal.",
     )
 
-    def toPython(self):
+    def to_python(self):
         """Returns an appropriate python datatype derived from this RDF
         literal."""
         v = str(self)
@@ -302,7 +305,8 @@ class Triplestore:
         for prefix, ns in self.default_namespaces.items():
             self.bind(prefix, ns)
 
-    # --- Methods implemented by backend
+    # Methods implemented by backend
+    # ------------------------------
     def triples(self, triple: "Triple") -> "Generator":
         """Returns a generator over matching triples."""
         return self.backend.triples(triple)
@@ -315,7 +319,8 @@ class Triplestore:
         """Remove all matching triples from the backend."""
         self.backend.remove(triple)
 
-    # --- Methods optionally implemented by backend
+    # Methods optionally implemented by backend
+    # -----------------------------------------
     def parse(self, source=None, format=None, **kwargs):
         """Parse source and add the resulting triples to triplestore.
 
@@ -380,7 +385,11 @@ class Triplestore:
 
         return ns
 
-    # --- Convenient methods
+    # Convenient methods
+    # ------------------
+    # These methods are modelled after rdflib and provide some convinient
+    # interfaces to the triples(), add_triples() and remove() methods
+    # implemented by all backends.
     def _check_method(self, name):
         """Check that backend implements the given method."""
         if not hasattr(self.backend, name):
@@ -463,6 +472,8 @@ class Triplestore:
         self.remove((s, p, None))
         self.add(triple)
 
+    # Methods providing additional functionality
+    # ------------------------------------------
     def expand_iri(self, iri: str):
         """Return the full IRI if `iri` is prefixed.  Otherwise `iri` is
         returned."""
@@ -494,7 +505,7 @@ class Triplestore:
                    target: str,
                    source: "Union[str, dlite.Instance, dataclass]",
                    property_name: str = None
-    ):
+                   ):
         """Add 'mapsTo' relation to triplestore.
 
         Parameters:
@@ -513,7 +524,7 @@ class Triplestore:
         source = self.expand_iri(infer_iri(source))
         if property_name:
             source = f"{source}#{property_name}"
-        self.add((source, MAP.mapsTo, target))
+            self.add((source, MAP.mapsTo, target))
 
     def add_function(self,
                      func: callable,
@@ -521,7 +532,7 @@ class Triplestore:
                      returns: "Union[str, Sequence]" = (),
                      base_iri: str = None,
                      standard: str = 'fno',
-    ):
+                     ):
         """Inspect function and add triples describing it to the triplestore.
 
         Parameters:
@@ -546,7 +557,7 @@ class Triplestore:
 
         if base_iri is None:
             base_iri = self.base_iri if self.base_iri else ":"
-        fid = id(func)  # Function id
+        fid = function_id(func)  # Function id
         doc = inspect.getdoc(func)
         name = func.__name__
         signature = inspect.signature(func)
@@ -562,7 +573,8 @@ class Triplestore:
         if isinstance(expects, Sequence):
             items = list(zip(expects, signature.parameters))
         else:
-            items = [(expects[par], par) for par in signature.parameters.keys()]
+            items = [(expects[par], par)
+                     for par in signature.parameters.keys()]
         lst = parlist
         for i, (iri, parname) in enumerate(items):
             lst_next = f"{parlist}{i+2}" if i < len(items) - 1 else RDF.nil
@@ -606,3 +618,17 @@ def infer_iri(obj):
         if "uuid" in properties and properties["uuid"]:
             return properties["uuid"]
     raise TypeError("cannot infer IRI from object {obj!r}")
+
+
+def function_id(func, length=4):
+    """Return a checksum for function `func`.
+
+    The returned object is a string of hexadecimal digits.
+
+    `length` is the number of bytes in the returned checksum.  Since
+    the current implementation is based on the shake_128 algorithm,
+    it make no sense to set `length` larger than 32 bytes.
+    """
+    #return hex(crc32(inspect.getsource(func).encode())).lstrip('0x')
+    return hashlib.shake_128(
+        inspect.getsource(func).encode()).hexdigest(length)

@@ -1,17 +1,21 @@
 from dlite.triplestore import en, Literal, Triplestore, RDF, RDFS, XSD, OWL
+from dlite.triplestore.triplestore import function_id
 
 
 # Test namespaces
+# ---------------
 assert str(RDF) == "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 assert RDF.type == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
-# Test RDF literal
+
+# Test RDF literals
+# -----------------
 l1 = Literal("Hello world!")
 assert l1 == "Hello world!"
 assert isinstance(l1, str)
 assert l1.lang is None
 assert l1.datatype is None
-assert l1.toPython() == "Hello world!"
+assert l1.to_python() == "Hello world!"
 assert l1.value == "Hello world!"
 assert l1.n3() == '"Hello world!"'
 
@@ -36,7 +40,9 @@ assert l5.datatype == XSD.double
 assert l5.value == 42.0
 assert l5.n3() == f'"42"^^{XSD.double}'
 
+
 # Test rdflib triplestore backend
+# -------------------------------
 ts = Triplestore("rdflib")
 assert ts.expand_iri("xsd:integer") == XSD.integer
 assert ts.prefix_iri(RDF.type) == 'rdf:type'
@@ -55,7 +61,7 @@ ts.add_function(sum, expects=(EX.MyConcept, EX.AnotherConcept), returns=EX.Sum,
                 base_iri=EX)
 
 s = ts.serialize(format="turtle")
-fid = id(sum)  # sum() function id
+fid = function_id(sum)
 assert s == f"""\
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <http://example.com/onto#> .

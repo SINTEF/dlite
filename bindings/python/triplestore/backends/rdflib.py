@@ -65,6 +65,7 @@ class RdflibStrategy:
             data: String containing the data to be parsed.
             format: Needed if format can not be inferred from source.
             kwargs: Additional less used keyword arguments.
+                See https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html#rdflib.Graph.parse
         """
         self.graph.parse(source=source, location=location, data=data,
                          format=format, **kwargs)
@@ -75,7 +76,13 @@ class RdflibStrategy:
         Parameters:
             destination: File name or object to write to.  If None, the
                 serialisation is returned.
-            format:
+            format: Format to serialise as.  Supported formats, depends on
+                the backend.
+            kwargs: Passed to the rdflib.Graph.serialize() method.
+                See https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html#rdflib.Graph.serialize
+
+        Returns:
+            Serialised string if `destination` is None.
         """
         s = self.graph.serialize(destination=destination, format=format,
                                  **kwargs)
@@ -93,16 +100,22 @@ class RdflibStrategy:
         return self.graph.update(update_object=update_object, **kwargs)
 
     def bind(self, prefix: str, namespace: str):
-        """Bind prefix to namespace."""
+        """Bind prefix to namespace.
+
+        Should only be defined if the backend supports namespaces.
+        Called by triplestore.bind().
+        """
         if namespace:
             self.graph.bind(prefix, namespace, replace=True)
         else:
-            warnings.warn("rdflib does not support removing namespace prefixes")
+            warnings.warn(
+                "rdflib does not support removing namespace prefixes")
 
     def namespaces(self) -> dict:
         """Returns a dict mapping prefixes to namespaces.
 
-        Used by triplestore.parse() to get prefixes after reading triples from
-        an external source.
+        Should only be defined if the backend supports namespaces.
+        Used by triplestore.parse() to get prefixes after reading
+        triples from an external source.
         """
         return {prefix: str(ns) for prefix, ns in self.graph.namespaces()}
