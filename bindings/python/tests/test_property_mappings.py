@@ -217,7 +217,7 @@ triples = [
     #(':r', hasUnit, 'um'),
     (':n', type, 'fno:Parameter'),
     (':n', label, 'n'),
-    #(':n', hasUnit, '1/m³'),
+    #(':n', hasUnit, '1/m**3'),
     ('output_list', type, 'rdf:List'),
     ('output_list', first, ':ravg'),
     ('output_list', rest, nil),
