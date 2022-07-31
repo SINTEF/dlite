@@ -32,7 +32,7 @@ import dlite
 from dlite.utils import infer_dimensions
 
 
-class MappingError(Exception):
+class MappingError(dlite.DLiteError):
     """Base class for mapping errors."""
 
 
