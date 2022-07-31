@@ -29,8 +29,8 @@ from pint import Quantity
 import pint
 
 import dlite
-#from dlite.triplestore import Triplestore
-#from dlite.utils import infer_dimensions
+from dlite.triplestore import Triplestore, DM, FNO, MAP, RDF, RDFS
+from dlite.utils import infer_dimensions
 
 
 class MappingError(Exception):
@@ -327,32 +327,22 @@ def get_lowest_costs(inputs, nresults=5):
     return result
 
 
-def fno_mapper(triples):
-    """Finds all function definitions in `triples` based on the function
+def fno_mapper(triplestore):
+    """Finds all function definitions in `triplestore` based on the function
     ontoloby (FNO).
 
     Sweep through triples and return a dict mapping output IRIs to a list
     of `(function_iri, [input_iris, ...])` tuples.
     """
-    expects = 'https://w3id.org/function/ontology#expects'
-    returns = 'https://w3id.org/function/ontology#returns'
-    first = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'
-    rest = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'
-
     # Temporary dicts for fast lookup
+    Dfirst = {s: o for s, o in triplestore.subject_objects(RDF.first)}
+    Drest = {s: o for s, o in triplestore.subject_objects(RDF.rest)}
     Dexpects = defaultdict(list)
     Dreturns = defaultdict(list)
-    Dfirst = dict()
-    Drest = dict()
-    for s, p, o in triples:
-        if p == expects:
-            Dexpects[s].append(o)
-        elif p == returns:
-            Dreturns[s].append(o)
-        elif p == first:
-            Dfirst[s] = o
-        elif p == rest:
-            Drest[s] = o
+    for s, o in triplestore.subject_objects(FNO.expects):
+        Dexpects[s].append(o)
+    for s, o in triplestore.subject_objects(FNO.returns):
+        Dreturns[s].append(o)
 
     d = defaultdict(list)
     for func, lst in Dreturns.items():
@@ -387,17 +377,17 @@ def fno_mapper(triples):
 def mapping_route(
         target,
         sources,
-        triples,
+        triplestore,
         function_repo=None,
         function_mappers=(fno_mapper, ),
         default_costs={'function': 10.0, 'mapsTo': 2.0, 'instanceOf': 1.0,
                        'subClassOf': 1.0, 'value': 0.0},
-        mapsTo='http://emmo.info/domain-mappings#mapsTo',
-        instanceOf='http://emmo.info/datamodel#instanceOf',
-        subClassOf='http://www.w3.org/2000/01/rdf-schema#subClassOf',
-        #description='http://purl.org/dc/terms/description',
-        label='http://www.w3.org/2000/01/rdf-schema#label',
-        hasUnit='http://emmo.info/datamodel#hasUnit',
+        mapsTo=MAP.mapsTo,
+        instanceOf=DM.instanceOf,
+        subClassOf=RDFS.subClassOf,
+        #description=DCTERMS.description,
+        label=RDFS.label,
+        hasUnit=DM.hasUnit,
         hasCost=':hasCost',
 ):
     """Find routes of mappings from any source in `sources` to `target`.
@@ -405,17 +395,17 @@ def mapping_route(
     This implementation supports transitivity, subclasses.
 
     Arguments:
-        target: IRI of the target in `triples`.
+        target: IRI of the target in `triplestore`.
         sources: Dict mapping source IRIs to source values.
-        triples: Sequence of (subject, steptype, object) triples.
+        triplestore: Triplestore instance.
             It is safe to pass a generator expression too.
         function_repo: Dict mapping function IRIs to corresponding Python
             function.
-        function_mappers: Sequence of mapping functions that takes `triples`
-            as argument and return a dict mapping output IRIs to a list
-            of `(function_iri, [input_iris, ...])` tuples.
-        mapsTo: IRI of 'mapsTo' in `triples`.
-        instanceOf: IRI of 'instanceOf' in `triples`.
+        function_mappers: Sequence of mapping functions that takes
+            `triplestore` as argument and return a dict mapping output IRIs
+            to a list of `(function_iri, [input_iris, ...])` tuples.
+        mapsTo: IRI of 'mapsTo' in `triplestore`.
+        instanceOf: IRI of 'instanceOf' in `triplestore`.
         subClassOf: IRI of 'subClassOf' in `triples`.  Set it to None if
             subclasses should not be considered.
         label: IRI of 'label' in `triples`.  Used for naming function
@@ -426,12 +416,6 @@ def mapping_route(
     Returns:
         A MappingStep instance.
     """
-
-    # We need to parse triples more than once, so create a local list
-    # if it is a generator or in iterator
-    if hasattr(triples, '__next__'):
-        triples = list(triples)
-
     # Create lookup tables for fast access to properties
     # This only transverse `tiples` once
     soMaps  = defaultdict(list)  # (s, mapsTo, o)     ==> soMaps[s]  -> [o, ..]
@@ -439,28 +423,21 @@ def mapping_route(
     osSubcl = defaultdict(list)  # (o, subClassOf, s) ==> osSubcl[o] -> [s, ..]
     soInst  = dict()             # (s, instanceOf, o) ==> soInst[s]  -> o
     osInst  = defaultdict(list)  # (o, instanceOf, s) ==> osInst[o]  -> [s, ..]
-    soName  = dict()             # (o, label, s)      ==> soName[s]  -> o
-    soUnit  = dict()             # (s, hasUnit, o)    ==> soUnit[s]  -> o
-    soCost  = dict()             # (s, hasCost, o)    ==> soCost[s]  -> o
-    for s, p, o in triples:
-        if p == mapsTo:
-            soMaps[s].append(o)
-            osMaps[o].append(s)
-        elif p == subClassOf:
-            osSubcl[o].append(s)
-        elif p == instanceOf:
-            if s in soInst:
-                raise InconsistentTriplesError(
-                    f'The same individual can only relate to one datamodel '
-                    f'property via {instanceOf} relations.')
-            soInst[s] = o
-            osInst[o].append(s)
-        elif p == label:
-            soName[s] = o
-        elif p == hasUnit:
-            soUnit[s] = o
-        elif p == hasCost:
-            soCost[s] = o
+    for s, o in triplestore.subject_objects(mapsTo):
+        soMaps[s].append(o)
+        osMaps[o].append(s)
+    for s, o in triplestore.subject_objects(subClassOf):
+        osSubcl[o].append(s)
+    for s, o in triplestore.subject_objects(instanceOf):
+        if s in soInst:
+            raise InconsistentTriplesError(
+                f'The same individual can only relate to one datamodel '
+                f'property via {instanceOf} relations.')
+        soInst[s] = o
+        osInst[o].append(s)
+    soName = {s: o for s, o in triplestore.subject_objects(label)}
+    soUnit = {s: o for s, o in triplestore.subject_objects(hasUnit)}
+    soCost = {s: o for s, o in triplestore.subject_objects(hasCost)}
 
     def walk(target, visited, step):
         """Walk backward in rdf graph from `node` to sources."""
@@ -496,7 +473,7 @@ def mapping_route(
             addnode(node, StepType.INV_SUBCLASSOF, 'subClassOf')
 
         for fmap in function_mappers:
-            for func, input_iris in fmap(triples)[target]:
+            for func, input_iris in fmap(triplestore)[target]:
                 step.steptype = StepType.FUNCTION
                 step.cost = soCost.get(func, default_costs['function'])
                 step.function = function_repo[func]
@@ -527,7 +504,7 @@ def mapping_route(
     return step
 
 
-def instance_routes(meta, instances, triples=(), allow_incomplete=False,
+def instance_routes(meta, instances, triplestore, allow_incomplete=False,
                     quantity=Quantity, **kwargs):
     """Find all mapping routes for populating an instance of `meta`.
 
@@ -535,7 +512,7 @@ def instance_routes(meta, instances, triples=(), allow_incomplete=False,
         meta: Metadata for the instance we will create.
         instances: sequence of instances that the new intance will be
             populated from.
-        triples: A sequence of triples defining the mappings.
+        triplestore: Triplestore containing the mappings.
         allow_incomplete: Whether to allow not populating all properties
             of the returned instance.
         quantity: Class implementing quantities with units.  Defaults to
@@ -557,7 +534,7 @@ def instance_routes(meta, instances, triples=(), allow_incomplete=False,
     routes = {}
     for prop in meta['properties']:
         target = f'{meta.uri}#{prop.name}'
-        route = mapping_route(target, sources, triples, **kwargs)
+        route = mapping_route(target, sources, triplestore, **kwargs)
         if not allow_incomplete and not route.number_of_routes():
             raise InsufficientMappingError(f'no mappings for {target}')
         routes[prop.name] = route
@@ -602,7 +579,7 @@ def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
     return inst
 
 
-def instantiate(meta, instances, triples=(), routedict=None, id=None,
+def instantiate(meta, instances, triplestore, routedict=None, id=None,
                 allow_incomplete=False, quantity=Quantity, **kwargs):
     """Create a new instance of `meta` populated with the selected mapping
     routes.
@@ -615,11 +592,11 @@ def instantiate(meta, instances, triples=(), routedict=None, id=None,
     Arguments:
         meta: Metadata to instantiate.
         instances: Sequence of instances with source values.
-        triples: Sequence of (subject, steptype, object) triples.
+        triplestore: Triplestore instance.
             It is safe to pass a generator expression too.
         routedict: Dict mapping property names to route number to select for
-            the given property.  The default is to select the route with lowest
-            cost.
+            the given property.  The default is to select the route with
+            lowest cost.
         id: URI of instance to create.
         allow_incomplete: Whether to allow not populating all properties
             of the returned instance.
@@ -629,17 +606,17 @@ def instantiate(meta, instances, triples=(), routedict=None, id=None,
     Keyword arguments (passed to instance_routes()):
         function_repo: Dict mapping function IRIs to corresponding Python
             function.
-        function_mappers: Sequence of mapping functions that takes `triples`
-            as argument and return a dict mapping output IRIs to a list
-            of `(function_iri, [input_iris, ...])` tuples.
-        mapsTo: IRI of 'mapsTo' in `triples`.
-        instanceOf: IRI of 'instanceOf' in `triples`.
-        subClassOf: IRI of 'subClassOf' in `triples`.  Set it to None if
+        function_mappers: Sequence of mapping functions that takes
+            `triplestore` as argument and return a dict mapping output IRIs
+            to a list of `(function_iri, [input_iris, ...])` tuples.
+        mapsTo: IRI of 'mapsTo' in `triplestore`.
+        instanceOf: IRI of 'instanceOf' in `triplestore`.
+        subClassOf: IRI of 'subClassOf' in `triplestore`.  Set it to None if
             subclasses should not be considered.
-        label: IRI of 'label' in `triples`.  Used for naming function
+        label: IRI of 'label' in `triplestore`.  Used for naming function
             input parameters.  The default is to use rdfs:label.
-        hasUnit: IRI of 'hasUnit' in `triples`.
-        hasCost: IRI of 'hasCost' in `triples`.
+        hasUnit: IRI of 'hasUnit' in `triplestore`.
+        hasCost: IRI of 'hasCost' in `triplestore`.
 
     Returns:
         New instance.
@@ -647,9 +624,12 @@ def instantiate(meta, instances, triples=(), routedict=None, id=None,
     if isinstance(meta, str):
         meta = dlite.get_instance(meta)
 
-    routes = instance_routes(meta=meta, instances=instances, triples=triples,
+    routes = instance_routes(meta=meta,
+                             instances=instances,
+                             triplestore=triplestore,
                              allow_incomplete=allow_incomplete,
-                             quantity=quantity, **kwargs)
+                             quantity=quantity,
+                             **kwargs)
     return instantiate_route(meta=meta, routes=routes, routeno=routeno,
                              id=id, quantity=quantity)
 

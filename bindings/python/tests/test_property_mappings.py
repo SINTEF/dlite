@@ -225,16 +225,19 @@ triples = [
     #(':ravg', hasUnit, 'm'),
 ]
 
+ts2 = Triplestore('rdflib')
+ts2.add_triples(triples)
+
 
 # Check fno_mapper
-d = dm.fno_mapper(triples)
+d = dm.fno_mapper(ts2)
 assert d[':ravg'] == [('average_radius_function', [':r', ':n'])]
 
 
 step = dm.mapping_route(
     target='inst3',
     sources={'inst1': r, 'inst2': n},
-    triples=triples,
+    triplestore=ts2,
     function_repo={'average_radius_function': average_radius},
 )
 

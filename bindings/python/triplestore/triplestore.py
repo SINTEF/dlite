@@ -103,6 +103,7 @@ import hashlib
 import inspect
 import re
 import warnings
+from collections import defaultdict
 from collections.abc import Sequence
 from datetime import datetime
 from importlib import import_module
@@ -141,7 +142,7 @@ class Namespace:
         return self.uri + key
 
     def __repr__(self):
-        return f"Namespace({self.iri})"
+        return f"Namespace({self.uri})"
 
     def __str__(self):
         return self.uri
