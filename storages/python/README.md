@@ -60,3 +60,67 @@ Python storage plugins provided with DLite can be found in the
 
 See the [YAML plugin](python-storage-plugins/yaml_plugin.py) for a
 simple example of a working storage plugin.
+
+
+
+Plugins
+=======
+
+yaml
+----
+Generic plugin for reading and writing to file in YAML format.
+
+
+bson
+----
+Generic plugin for reading and writing to file in BSON format.
+
+
+pyrdf
+-----
+Generic plugin for reading and writing to file in RDF format.  It uses
+rdflib. The plugin is called pyrdf to not confuse with the rdf plugin
+implemented in C (using Redland librdf).
+
+
+csv
+---
+Read and write to file in tabular CSV format.  The metadata for CSV
+files should have only one dimension shared by all properties.
+
+
+blob
+----
+Specialised plugin for reading and writing a binary blob to file.  The
+content is specified using the metadata
+http://onto-ns.com/meta/0.1/Blob.
+
+
+postgresql
+----------
+Generic plugin for reading and writing to a PostgreSQL database.
+
+See https://docs.fedoraproject.org/en-US/quick-docs/postgresql/ for how to
+install and setup a postgresql server on Fedora.
+
+The test_postgresql_storage test require local configurations of the
+PostgreSQL server.  The test is only enabled if a file pgconf.h can be
+found in the source directory with the following content:
+
+    #define HOST "pg_server_host"
+    #define USER "my_username"
+    #define DATABASE "my_database"
+    #define PASSWORD "my_password"
+
+Depending on how the server is set up, or if you have a ~/.pgpass
+file, PASSWORD can be left undefined.
+
+For running the tests, you may also have to run an ident server
+running.  Install it with
+
+    sudo dnf install oidentd
+
+and start it with
+
+    sudo systemctl start oidentd.service   # start now
+    sudo systemctl enable oidentd.service  # start automatically when booting
