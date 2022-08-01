@@ -93,7 +93,10 @@ blob
 ----
 Specialised plugin for reading and writing a binary blob to file.  The
 content is specified using the metadata
-http://onto-ns.com/meta/0.1/Blob.
+http://onto-ns.com/meta/0.1/Blob (defined in the json file
+$DLITE_SOURCE_DIR/storages/python/python-storage-plugins/blob.json). 
+It will be installed in the default metadata search path and seamless
+accessible.
 
 
 postgresql
@@ -105,7 +108,7 @@ install and setup a postgresql server on Fedora.
 
 The test_postgresql_storage test require local configurations of the
 PostgreSQL server.  The test is only enabled if a file pgconf.h can be
-found in the source directory with the following content:
+found in the [test-c](test-c) sub-directory with the following content:
 
     #define HOST "pg_server_host"
     #define USER "my_username"
