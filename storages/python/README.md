@@ -108,7 +108,7 @@ install and setup a postgresql server on Fedora.
 
 The test_postgresql_storage test require local configurations of the
 PostgreSQL server.  The test is only enabled if a file pgconf.h can be
-found in the [test-c](test-c) sub-directory with the following content:
+found in the [tests-c](tests-c) sub-directory with the following content:
 
     #define HOST "pg_server_host"
     #define USER "my_username"
