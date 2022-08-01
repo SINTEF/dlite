@@ -498,7 +498,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
                    p = prop.asdict() if hasattr(prop, 'asdict') else prop
                yield i, p
         return (
-            Instance.create_from_metaid,
+            Instance.from_metaid,
             (self.meta.uri, list(self.dimensions.values()), self.uuid),
             None,
             None,
@@ -511,7 +511,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             raise TypeError('data instances are not callable')
         if isinstance(dims, dict):
             dims = [dims[d.name] for d in self.properties['dimensions']]
-        return Instance.create_from_metaid(self.uri, dims, id)
+        return Instance.from_metaid(self.uri, dims, id)
 
     def asdict(self, soft7=True, uuid=True):
         """Returns a dict representation of self.
