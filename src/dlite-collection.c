@@ -155,6 +155,14 @@ DLiteCollection *dlite_collection_from_instance(DLiteInstance *inst)
   return (DLiteCollection *)inst;
 }
 
+/*
+  Cast collection to instance - always possible.
+ */
+DLiteInstance *dlite_collection_to_instance(DLiteCollection *coll)
+{
+  return (DLiteInstance *)coll;
+}
+
 
 /*
   Loads collection with given id from storage `s`.  If `lazy` is zero,

@@ -1129,6 +1129,11 @@ bool dlite_meta_has_property(const DLiteMeta *meta, const char *name);
  */
 DLiteMeta *dlite_meta_from_instance(DLiteInstance *inst);
 
+/**
+  Type cast metadata to instance - always possible.
+ */
+DLiteInstance *dlite_meta_to_instance(DLiteMeta *meta);
+
 
 /** @} */
 /* ================================================================= */

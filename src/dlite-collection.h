@@ -121,6 +121,11 @@ void dlite_collection_decref(DLiteCollection *coll);
  */
 DLiteCollection *dlite_collection_from_instance(DLiteInstance *inst);
 
+/**
+  Cast collection to instance - always possible.
+ */
+DLiteInstance *dlite_collection_to_instance(DLiteCollection *coll);
+
 
 /**
   Loads collection with given id from storage `s`.  If `lazy` is zero,

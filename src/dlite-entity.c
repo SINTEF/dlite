@@ -2480,6 +2480,14 @@ DLiteMeta *dlite_meta_from_instance(DLiteInstance *inst)
   return (DLiteMeta *)inst;
 }
 
+/*
+  Type cast metadata to instance - always possible.
+ */
+DLiteInstance *dlite_meta_to_instance(DLiteMeta *meta)
+{
+  return (DLiteInstance *)meta;
+}
+
 
 /********************************************************************
  *  Dimension
