@@ -103,7 +103,6 @@ import hashlib
 import inspect
 import re
 import warnings
-from collections import defaultdict
 from collections.abc import Sequence
 from datetime import datetime
 from importlib import import_module
@@ -246,7 +245,9 @@ class Literal(str):
                 XSD.anyURI, XSD.language, XSD.Name, XSD.NMName,
                 XSD.normalizedString, XSD.string, XSD.token, XSD.NMTOKEN,
         ):
-            warnings.warn(f"unknown datatype: {self.datatype} - assuming string")
+            warnings.warn(
+                f"unknown datatype: {self.datatype} - assuming string"
+            )
         return v
 
     def n3(self):
@@ -294,7 +295,8 @@ class Triplestore:
             name: Module name for backend.
             base_iri: Base IRI used by the add_function() method when adding
                 new triples.
-            kwargs: Keyword arguments passed to the backend's __init__() method.
+            kwargs: Keyword arguments passed to the backend's __init__()
+                method.
         """
         module = import_module(name if "." in name
                       else "dlite.triplestore.backends." + name)
@@ -395,8 +397,8 @@ class Triplestore:
         """Check that backend implements the given method."""
         if not hasattr(self.backend, name):
             raise NotImplementedError(
-                f"Triplestore backend \"{self.backend_name}\" doesn't implement "
-                f"a \"{name}()\" method.")
+                f'Triplestore backend "{self.backend_name}" do not '
+                f'implement a "{name}()" method.')
 
     def add(self, triple: "Triple"):
         """Add `triple` to triplestore."""
