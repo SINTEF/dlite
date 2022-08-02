@@ -26,7 +26,6 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from pint import Quantity
-import pint
 
 import dlite
 from dlite.triplestore import Triplestore, DM, FNO, MAP, RDF, RDFS
