@@ -107,8 +107,30 @@ $(function() {
 <div class="line">    &quot;&quot;&quot;Generator method that iterates over all UUIDs in the storage</div>
 <div class="line">    who&#39;s metadata URI matches glob pattern `pattern`.&quot;&quot;&quot;</div>
 </div><!-- fragment --><p>Python storage plugins provided with DLite can be found in the <a href="python-storage-plugins/">python-storage-plugins</a> directory.</p>
-<p>See the <a href="python-storage-plugins/yaml_plugin.py">YAML plugin</a> for a simple example of a working storage plugin. </p>
-</div></div><!-- contents -->
+<p>See the <a href="python-storage-plugins/yaml_plugin.py">YAML plugin</a> for a simple example of a working storage plugin.</p>
+<h1>Plugins </h1>
+<h2>yaml </h2>
+<p>Generic plugin for reading and writing to file in YAML format.</p>
+<h2>bson </h2>
+<p>Generic plugin for reading and writing to file in BSON format.</p>
+<h2>pyrdf </h2>
+<p>Generic plugin for reading and writing to file in RDF format. It uses rdflib. The plugin is called pyrdf to not confuse with the rdf plugin implemented in C (using Redland librdf).</p>
+<h2>csv </h2>
+<p>Read and write to file in tabular CSV format. The metadata for CSV files should have only one dimension shared by all properties.</p>
+<h2>blob </h2>
+<p>Specialised plugin for reading and writing a binary blob to file. The content is specified using the metadata <a href="http://onto-ns.com/meta/0.1/Blob">http://onto-ns.com/meta/0.1/Blob</a> (defined in the json file <a href="https://github.com/SINTEF/dlite/blob/master/storages/python/python-storage-plugins/blob.json">$DLITE_SOURCE_DIR/storages/python/python-storage-plugins/blob.json</a>). It will be installed in the default metadata search path and seamless accessible.</p>
+<h2>postgresql </h2>
+<p>Generic plugin for reading and writing to a PostgreSQL database.</p>
+<p>See <a href="https://docs.fedoraproject.org/en-US/quick-docs/postgresql/">https://docs.fedoraproject.org/en-US/quick-docs/postgresql/</a> for how to install and setup a postgresql server on Fedora.</p>
+<p>The test_postgresql_storage test require local configurations of the PostgreSQL server. The test is only enabled if a file pgconf.h can be found in the <a href="tests-c/">tests-c/</a> sub-directory with the following content: </p><pre class="fragment">#define HOST "pg_server_host"
+#define USER "my_username"
+#define DATABASE "my_database"
+#define PASSWORD "my_password"
+</pre><p>Depending on how the server is set up, or if you have a ~/.pgpass file, PASSWORD can be left undefined.</p>
+<p>For running the tests, you may also have to run an ident server running. Install it with </p><pre class="fragment">sudo dnf install oidentd
+</pre><p>and start it with </p><pre class="fragment">sudo systemctl start oidentd.service   # start now
+sudo systemctl enable oidentd.service  # start automatically when booting
+</pre> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
