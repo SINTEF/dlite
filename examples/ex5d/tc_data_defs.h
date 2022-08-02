@@ -79,7 +79,7 @@ typedef long TC_STRING_LENGTH;
 
 /*    Example of use of the tc_elements_strings structure defined below
       Note that the C-definitions of the strings are one character
-      longer than the expected fortran strings. 
+      longer than the expected fortran strings.
 
 
   tc_elements_strings *elements;
@@ -151,7 +151,7 @@ typedef char TC_LABEL_STRING[127];
 #define TC_VARS
 /****************************************************/
 
-/*  General Definitions �*/
+/*  General Definitions */
 /****************************************************/
 #ifndef true
 #define true 1
@@ -196,4 +196,3 @@ typedef char TC_LABEL_STRING[127];
 #define     BOOL_FUNC_WIN       extern       TC_BOOL
 #define     FLOAT_FUNC_WIN      extern       TC_FLOAT
 /****************************************************/
-
