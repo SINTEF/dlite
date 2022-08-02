@@ -2470,6 +2470,23 @@ bool dlite_meta_has_property(const DLiteMeta *meta, const char *name)
   return false;
 }
 
+/*
+  Safe type casting from instance to metadata.
+ */
+DLiteMeta *dlite_meta_from_instance(DLiteInstance *inst)
+{
+  if (dlite_instance_is_data(inst))
+    return err(1, "cannot cast instance %s to metadata", inst->uuid), NULL;
+  return (DLiteMeta *)inst;
+}
+
+/*
+  Type cast metadata to instance - always possible.
+ */
+DLiteInstance *dlite_meta_to_instance(DLiteMeta *meta)
+{
+  return (DLiteInstance *)meta;
+}
 
 
 /********************************************************************
