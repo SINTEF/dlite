@@ -1124,6 +1124,17 @@ bool dlite_meta_has_dimension(const DLiteMeta *meta, const char *name);
 bool dlite_meta_has_property(const DLiteMeta *meta, const char *name);
 
 
+/**
+  Safe type casting from instance to metadata.
+ */
+DLiteMeta *dlite_meta_from_instance(DLiteInstance *inst);
+
+/**
+  Type cast metadata to instance - always possible.
+ */
+DLiteInstance *dlite_meta_to_instance(DLiteMeta *meta);
+
+
 /** @} */
 /* ================================================================= */
 /**
