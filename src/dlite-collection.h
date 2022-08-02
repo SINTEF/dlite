@@ -110,11 +110,21 @@ DLiteCollection *dlite_collection_create(const char *id);
  */
 void dlite_collection_incref(DLiteCollection *coll);
 
-
 /**
   Decreases reference count of collection `coll`.
  */
 void dlite_collection_decref(DLiteCollection *coll);
+
+
+/**
+  Safe type casting from instance to collection.
+ */
+DLiteCollection *dlite_collection_from_instance(DLiteInstance *inst);
+
+/**
+  Cast collection to instance - always possible.
+ */
+DLiteInstance *dlite_collection_to_instance(DLiteCollection *coll);
 
 
 /**
