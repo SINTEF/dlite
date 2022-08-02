@@ -166,7 +166,6 @@ class Collection(Instance):
     def get_id(self, id):
         """Return instance with given id."""
         inst = _collection_get_id(self._coll, id)
-        inst.incref()
         return inst
 
     def has(self, label):
@@ -195,12 +194,12 @@ class Collection(Instance):
         None is returned if there are no matching relations."""
         return _collection_find_first(self._coll, s, p, o)
 
-    def get_instances(self, s=None, p=None, o=None):
-        """Returns a generator over all relations matching the given
-        values of `s`, `p` and `o`."""
-        return _CollectionIter(self, s=s, p=p, o=o, rettype='I')
+    def get_instances(self):
+        """Returns a generator over all instances in collection."""
+        return _CollectionIter(self, s=None, p=None, o=None, rettype='I')
 
     def get_labels(self):
+        """Returns a generator over all labels."""
         return self.get_subjects(p='_is-a', o='Instance')
 
     def get_relations(self, s=None, p=None, o=None, rettype='T'):
@@ -208,20 +207,20 @@ class Collection(Instance):
         values of `s`, `p` and `o`."""
         return _CollectionIter(self, s=s, p=p, o=o, rettype=rettype)
 
-    def get_subjects(self, s=None, p=None, o=None):
+    def get_subjects(self, p=None, o=None):
         """Returns a generator over all subjects of relations matching the
-        given values of `s`, `p` and `o`."""
-        return _CollectionIter(self, s=s, p=p, o=o, rettype='s')
+        given values of `p` and `o`."""
+        return _CollectionIter(self, s=None, p=p, o=o, rettype='s')
 
-    def get_predicates(self, s=None, p=None, o=None):
-        """Returns a generator over all subjects of relations matching the
-        given values of `s`, `p` and `o`."""
-        return _CollectionIter(self, s=s, p=p, o=o, rettype='p')
+    def get_predicates(self, s=None, o=None):
+        """Returns a generator over all predicates of relations matching the
+        given values of `s` and `o`."""
+        return _CollectionIter(self, s=s, p=None, o=o, rettype='p')
 
-    def get_objects(self, s=None, p=None, o=None):
+    def get_objects(self, s=None, p=None):
         """Returns a generator over all subjects of relations matching the
-        given values of `s`, `p` and `o`."""
-        return _CollectionIter(self, s=s, p=p, o=o, rettype='o')
+        given values of `s` and `p`."""
+        return _CollectionIter(self, s=s, p=p, o=None, rettype='o')
 
 
 def get_collection(id):
