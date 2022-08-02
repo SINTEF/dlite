@@ -115,6 +115,10 @@ Functions</h2></td></tr>
 <tr class="separator:ae6fff80ea5625f9607a9154d916e82e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb8f3e5fc59d241d44141ba8e0f8659b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#aeb8f3e5fc59d241d44141ba8e0f8659b">dlite_collection_decref</a> (<a class="el" href="dlite-collection_8h.html#aa8920edd3aa73b56ff6db03207bebd34">DLiteCollection</a> *coll)</td></tr>
 <tr class="separator:aeb8f3e5fc59d241d44141ba8e0f8659b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7236498b151450f7f5764574b321543d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-collection_8h.html#aa8920edd3aa73b56ff6db03207bebd34">DLiteCollection</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#a7236498b151450f7f5764574b321543d">dlite_collection_from_instance</a> (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="separator:a7236498b151450f7f5764574b321543d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa366c81bc2a5134827fa3af7c077b328"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#aa366c81bc2a5134827fa3af7c077b328">dlite_collection_to_instance</a> (<a class="el" href="dlite-collection_8h.html#aa8920edd3aa73b56ff6db03207bebd34">DLiteCollection</a> *coll)</td></tr>
+<tr class="separator:aa366c81bc2a5134827fa3af7c077b328"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac923a1849a6596361d70334077029ea3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-collection_8h.html#aa8920edd3aa73b56ff6db03207bebd34">DLiteCollection</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#ac923a1849a6596361d70334077029ea3">dlite_collection_load</a> (<a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s, const char *id, int lazy)</td></tr>
 <tr class="separator:ac923a1849a6596361d70334077029ea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca67e8a2238ae905959679289955d101"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-collection_8h.html#aa8920edd3aa73b56ff6db03207bebd34">DLiteCollection</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#aca67e8a2238ae905959679289955d101">dlite_collection_load_url</a> (const char *url, int lazy)</td></tr>
@@ -395,6 +399,44 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Decreases reference count of collection <code>coll</code>. </p>
+
+</div>
+</div>
+<a id="a7236498b151450f7f5764574b321543d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7236498b151450f7f5764574b321543d">&#9670;&nbsp;</a></span>dlite_collection_from_instance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="dlite-collection_8h.html#aa8920edd3aa73b56ff6db03207bebd34">DLiteCollection</a>* dlite_collection_from_instance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Safe type casting from instance to collection. </p>
+
+</div>
+</div>
+<a id="aa366c81bc2a5134827fa3af7c077b328"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa366c81bc2a5134827fa3af7c077b328">&#9670;&nbsp;</a></span>dlite_collection_to_instance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a>* dlite_collection_to_instance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-collection_8h.html#aa8920edd3aa73b56ff6db03207bebd34">DLiteCollection</a> *&#160;</td>
+          <td class="paramname"><em>coll</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Cast collection to instance - always possible. </p>
 
 </div>
 </div>

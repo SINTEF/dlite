@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['dlitestoreiter_877',['DLiteStoreIter',['../structDLiteStoreIter.html',1,'']]]
+  ['dlitestoreiter_881',['DLiteStoreIter',['../structDLiteStoreIter.html',1,'']]]
 ];

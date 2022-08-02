@@ -301,6 +301,10 @@ Functions</h2></td></tr>
 <tr class="separator:a014c5e3091865b8a1f985292f20dc5f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8129c3554a0f2fd948ef0421023533a7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a8129c3554a0f2fd948ef0421023533a7">dlite_meta_has_property</a> (const <a class="el" href="dlite-entity_8h.html#a8838138e002ccadba20cd2c09d50081e">DLiteMeta</a> *meta, const char *name)</td></tr>
 <tr class="separator:a8129c3554a0f2fd948ef0421023533a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac80cd0a47ada382ca4686295041c87f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-entity_8h.html#a8838138e002ccadba20cd2c09d50081e">DLiteMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#ac80cd0a47ada382ca4686295041c87f0">dlite_meta_from_instance</a> (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="separator:ac80cd0a47ada382ca4686295041c87f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab83cb17fb65a19012f418e9010dd6096"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#ab83cb17fb65a19012f418e9010dd6096">dlite_meta_to_instance</a> (<a class="el" href="dlite-entity_8h.html#a8838138e002ccadba20cd2c09d50081e">DLiteMeta</a> *meta)</td></tr>
+<tr class="separator:ab83cb17fb65a19012f418e9010dd6096"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Dimensions</div></td></tr>
 <tr class="memitem:a167b4fea11badb2f1eb6b8577e49668f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__DLiteDimension.html">DLiteDimension</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a167b4fea11badb2f1eb6b8577e49668f">dlite_dimension_create</a> (const char *name, const char *description)</td></tr>
 <tr class="separator:a167b4fea11badb2f1eb6b8577e49668f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3537,6 +3541,44 @@ Typedefs and structs</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Returns true if <code>meta</code> has a property with the given name. </p>
+
+</div>
+</div>
+<a id="ac80cd0a47ada382ca4686295041c87f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac80cd0a47ada382ca4686295041c87f0">&#9670;&nbsp;</a></span>dlite_meta_from_instance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="dlite-entity_8h.html#a8838138e002ccadba20cd2c09d50081e">DLiteMeta</a>* dlite_meta_from_instance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Safe type casting from instance to metadata. </p>
+
+</div>
+</div>
+<a id="ab83cb17fb65a19012f418e9010dd6096"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab83cb17fb65a19012f418e9010dd6096">&#9670;&nbsp;</a></span>dlite_meta_to_instance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a>* dlite_meta_to_instance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-entity_8h.html#a8838138e002ccadba20cd2c09d50081e">DLiteMeta</a> *&#160;</td>
+          <td class="paramname"><em>meta</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Type cast metadata to instance - always possible. </p>
 
 </div>
 </div>
