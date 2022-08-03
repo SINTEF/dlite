@@ -16,6 +16,7 @@ set(tests
   test_datamodel
   test_mapping
   test_rdf
+  test_triplestore
   )
 
 foreach(test ${tests})
