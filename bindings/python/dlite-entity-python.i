@@ -60,6 +60,12 @@ class Metadata(Instance):
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
 
+    def getprop(self, name):
+        lst = [p for p in self.properties["properties"] if p.name == name]
+        if lst:
+            return lst[0]
+        raise DLiteError(f"Metadata {self.uri} has no such property: {name}")
+
 
 def standardise(v, prop, asdict=False):
     """Represent property value `v` as a standard python type.
