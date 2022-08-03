@@ -192,7 +192,8 @@ class MappingStep:
         elif len(values) == 1:
             value, = values.values()
         else:
-            raise TypeError(f"Expected inputs to be a single argument: {values}")
+            raise TypeError(
+                f"Expected inputs to be a single argument: {values}")
 
         if isinstance(value, quantity) and unit:
             return value.m_as(unit)
@@ -200,7 +201,6 @@ class MappingStep:
             return value.m
         else:
             return value
-
 
     def get_inputs(self, routeno):
         """Returns input and input index `(inputs, idx)` for route number
@@ -528,7 +528,7 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     for inst in instances:
         props = {p.name: p for p in inst.meta['properties']}
         for k, v in inst.properties.items():
-            sources[f'{inst.uuid}#{k}'] = quantity(v, props[k].unit)
+            sources[f'{inst.meta.uri}#{k}'] = quantity(v, props[k].unit)
 
     routes = {}
     for prop in meta['properties']:
@@ -581,7 +581,7 @@ def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
     inst = meta(dims=dims, id=id)
 
     for k, v in routes.items():
-        inst[k] = v
+        inst[k] = v.eval(magnitude=True, unit=meta.getprop(k).unit)
 
     return inst
 

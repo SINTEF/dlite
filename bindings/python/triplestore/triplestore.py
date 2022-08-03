@@ -305,6 +305,7 @@ class Triplestore:
         self.namespaces = {}
         self.backend_name = name
         self.backend = cls(**kwargs)
+        self.function_repo = {}
         for prefix, ns in self.default_namespaces.items():
             self.bind(prefix, ns)
 
@@ -548,9 +549,14 @@ class Triplestore:
             base_iri:
             standard: Name of ontology to use when describing the function.
                 Defaults to the Function Ontology (FnO).
+
+        Returns:
+            func_iri: IRI of the added function.
         """
         method = getattr(self, f"_add_function_{standard}")
-        return method(func, expects, returns, base_iri)
+        func_iri = method(func, expects, returns, base_iri)
+        self.function_repo[func_iri] = func
+        return func_iri
 
     def _add_function_fno(self, func, expects, returns, base_iri):
         """Implementing add_function() for FnO."""
@@ -600,6 +606,8 @@ class Triplestore:
             self.add((lst, RDF.first, val))
             self.add((lst, RDF.rest, lst_next))
             lst = lst_next
+
+        return func_iri
 
 
 def infer_iri(obj):
