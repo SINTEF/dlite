@@ -311,7 +311,7 @@ able to build and install dlite via the python/setup.py script:
 Install dependencies (e.g. with `apt-get install` on Ubuntu or `dnf install` on
 Fedora)
 
-Configure the with:
+Configure the build with:
 
     mkdir build
     cd build
