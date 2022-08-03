@@ -533,7 +533,12 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     routes = {}
     for prop in meta['properties']:
         target = f'{meta.uri}#{prop.name}'
-        route = mapping_route(target, sources, triplestore, **kwargs)
+        try:
+            route = mapping_route(target, sources, triplestore, **kwargs)
+        except MissingRelationError:
+            if allow_incomplete:
+                continue
+            raise
         if not allow_incomplete and not route.number_of_routes():
             raise InsufficientMappingError(f'no mappings for {target}')
         routes[prop.name] = route
@@ -561,6 +566,9 @@ def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
     """
     if isinstance(meta, str):
         meta = dlite.get_instance(meta)
+
+    if routedict is None:
+        routedict = {}
 
     values = {}
     for prop in meta['properties']:
@@ -629,7 +637,7 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
                              allow_incomplete=allow_incomplete,
                              quantity=quantity,
                              **kwargs)
-    return instantiate_route(meta=meta, routes=routes, routeno=routeno,
+    return instantiate_route(meta=meta, routes=routes, routedict=routedict,
                              id=id, quantity=quantity)
 
 
