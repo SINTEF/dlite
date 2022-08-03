@@ -96,7 +96,7 @@ $(function() {
 </li>
 <li><a href="#build-and-install-with-python">Build and install with Python</a></li>
 <li><a href="#build-on-linux">Build on Linux</a></li>
-<li><a href="#build-on-windows">Build on Windows</a><ul>
+<li><a href="#build-with-vs-code-on-windows">Build with VS Code on Windows</a><ul>
 <li><a href="#quick-start-with-vs-code-and-remote-container">Quick start with VS Code and Remote Container</a></li>
 </ul>
 </li>
@@ -288,22 +288,23 @@ python setup.py install
 </pre>
 <h3 id="build-on-linux">Build on Linux</h3>
 
-<p>Install the hdf5 (does not include the parallel component) libraries</p>
-<p>On Ubuntu: </p><pre class="fragment">sudo apt-get install libhdf5-serial-dev
-</pre><p>On Redhad-based distributions (Fedora, Centos, ...): </p><pre class="fragment">sudo dnf install hdf5-devel
-</pre><p>Build with: </p><pre class="fragment">mkdir build
+<p>Install dependencies (e.g. with <code>apt-get install</code> on Ubuntu or <code>dnf install</code> on Fedora)</p>
+<p>Configure the build with: </p><pre class="fragment">mkdir build
 cd build
 cmake ..
-make
-</pre><p>Before running make, you may wish to configure some options with <code>ccmake ..</code></p>
-<p>For example, you might need to change CMAKE_INSTALL_PREFIX to a location accessible for writing. Default is ~/.local</p>
-<p>To run the tests, do </p><pre class="fragment">make test        # same as running `ctest`
+</pre><p>Configuration options can be added to the <code>cmake</code> command. For example, you can change the installation directory by adding <code>-DCMAKE_INSTALL_PREFIX=/path/to/new/install/dir</code>. The default is <code>~/.local</code>.</p>
+<p>Alternatively, you can configure configuration options with <code>ccmake ..</code>.</p>
+<p>If you use virtual environments for Python, you should activate your environment before running <code>cmake</code> and set <code>CMAKE_INSTALL_PREFIX</code> to the directory of the virtual environment. For example: </p><pre class="fragment">VIRTUAL_ENV=/path/to/virtual/env
+$VIRTUAL_ENV/bin/activate
+cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV
+</pre><p>Build with: </p><pre class="fragment">make
+</pre><p>To run the tests, do </p><pre class="fragment">ctest            # same as running `ctest`
 make memcheck    # runs all tests with memory checking (requires
                  # valgrind)
 </pre><p>To generate code documentation, do </p><pre class="fragment">make doc         # direct your browser to build/doc/html/index.html
 </pre><p>To install dlite locally, do </p><pre class="fragment">make install
 </pre>
-<h3 id="build-on-windows">Build on Windows</h3>
+<h3 id="build-with-vs-code-on-windows">Build with VS Code on Windows</h3>
 
 <p>See <a class="el" href="md_doc_build_with_vs.html">Build with Visual Studio</a> for detailed instructions for building with Visual Studio.</p>
 
