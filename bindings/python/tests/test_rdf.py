@@ -1,13 +1,13 @@
 from pathlib import Path
 
-import dlite
-from dlite.rdf import to_rdf, from_rdf
-
 try:
     import rdflib
 except ImportError:
     import sys
     sys.exit(44)
+
+import dlite
+from dlite.rdf import to_rdf, from_rdf
 
 
 thisdir = Path(__file__).resolve().parent

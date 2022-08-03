@@ -24,7 +24,7 @@ Content
         - [Build dependencies](#build-dependencies)
       - [Build and install with Python](#build-and-install-with-python)
       - [Build on Linux](#build-on-linux)
-      - [Build on Windows](#build-on-windows)
+      - [Build with VS Code on Windows](#build-with-vs-code-on-windows)
         - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
       - [Build documentation](#build-documentation)
     - [Setting up the environment](#setting-up-the-environment)
@@ -308,32 +308,36 @@ able to build and install dlite via the python/setup.py script:
 
 
 ### Build on Linux
-Install the hdf5 (does not include the parallel component) libraries
+Install dependencies (e.g. with `apt-get install` on Ubuntu or `dnf install` on
+Fedora)
 
-On Ubuntu:
-
-    sudo apt-get install libhdf5-serial-dev
-
-On Redhad-based distributions (Fedora, Centos, ...):
-
-    sudo dnf install hdf5-devel
-
-Build with:
+Configure the build with:
 
     mkdir build
     cd build
     cmake ..
+
+Configuration options can be added to the `cmake` command.  For example, you
+can change the installation directory by adding
+`-DCMAKE_INSTALL_PREFIX=/path/to/new/install/dir`.  The default is `~/.local`.
+
+Alternatively, you can configure configuration options with `ccmake ..`.
+
+If you use virtual environments for Python, you should activate your
+environment before running `cmake` and set `CMAKE_INSTALL_PREFIX` to
+the directory of the virtual environment. For example:
+
+    VIRTUAL_ENV=/path/to/virtual/env
+    $VIRTUAL_ENV/bin/activate
+    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV
+
+Build with:
+
     make
-
-Before running make, you may wish to configure some options with
-`ccmake ..`
-
-For example, you might need to change CMAKE_INSTALL_PREFIX to a
-location accessible for writing. Default is ~/.local
 
 To run the tests, do
 
-    make test        # same as running `ctest`
+    ctest            # same as running `ctest`
     make memcheck    # runs all tests with memory checking (requires
                      # valgrind)
 
@@ -346,7 +350,7 @@ To install dlite locally, do
     make install
 
 
-### Build on Windows
+### Build with VS Code on Windows
 See [here](doc/build_with_vs.md) for detailed instructions for building with
 Visual Studio.
 

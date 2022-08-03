@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.9
+  VERSION 0.3.11
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -242,9 +242,8 @@ if(WITH_PYTHON)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
+  # Find Python package
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
-
-  # The
   #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
   find_package(NumPy REQUIRED)
@@ -600,7 +599,7 @@ if(CROSS_TARGET AND MINGW)
 endif()
 
 
-set(dlite_PATH_NATIVE1 "")
+set(dlite_PATH_NATIVE1 "${CMAKE_INSTALL_PREFIX}/bin")
 foreach(path ${dlite_PATH})
   list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
 endforeach()

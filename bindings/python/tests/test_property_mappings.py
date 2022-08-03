@@ -16,6 +16,9 @@ except ImportError as exc:
     print(f"Skipped: {exc}")
     sys.exit(44)  # exit code marking the test to be skipped
 
+import dlite
+import dlite.mappings as dm
+
 
 # Configure paths
 thisdir = Path(__file__).parent.absolute()
