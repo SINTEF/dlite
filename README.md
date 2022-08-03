@@ -29,6 +29,7 @@ Content
       - [Build documentation](#build-documentation)
     - [Setting up the environment](#setting-up-the-environment)
   * [Short vocabulary](#short-vocabulary)
+  * [Developer documentation](#developer-documentation)
   * [License](#license)
   * [Acknowledgment](#acknowledgment)
 
@@ -457,6 +458,11 @@ The following terms have a special meaning in dlite:
     character string representation of uuid's to uniquely identify
     instances.  The uuid is generated from the uri for instances that
     has an uri, otherwise it is randomly generated.
+
+
+Developer documentation
+=======================
+* [Create a new release](docs/developers/release_instructions.md)
 
 
 License
