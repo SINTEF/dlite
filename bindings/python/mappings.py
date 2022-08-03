@@ -399,7 +399,7 @@ def mapping_route(
         triplestore: Triplestore instance.
             It is safe to pass a generator expression too.
         function_repo: Dict mapping function IRIs to corresponding Python
-            function.
+            function.  Default is to use `triplestore.function_repo`.
         function_mappers: Sequence of mapping functions that takes
             `triplestore` as argument and return a dict mapping output IRIs
             to a list of `(function_iri, [input_iris, ...])` tuples.
@@ -415,6 +415,9 @@ def mapping_route(
     Returns:
         A MappingStep instance.
     """
+    if function_repo is None:
+        function_repo = triplestore.function_repo
+
     # Create lookup tables for fast access to properties
     # This only transverse `tiples` once
     soMaps  = defaultdict(list)  # (s, mapsTo, o)     ==> soMaps[s]  -> [o, ..]
@@ -612,7 +615,7 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
 
     Keyword arguments (passed to instance_routes()):
         function_repo: Dict mapping function IRIs to corresponding Python
-            function.
+            function.  Default is to use `triplestore.function_repo`.
         function_mappers: Sequence of mapping functions that takes
             `triplestore` as argument and return a dict mapping output IRIs
             to a list of `(function_iri, [input_iris, ...])` tuples.
