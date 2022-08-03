@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 from pathlib import Path
 
-import dlite
-import dlite.mappings as dm
-
 try:
     import pint
 except ImportError as exc:
     import sys
     print(f"Skipped: {exc}")
     sys.exit(44)  # exit code marking the test to be skipped
+
+import dlite
+import dlite.mappings as dm
 
 
 # Configure search paths

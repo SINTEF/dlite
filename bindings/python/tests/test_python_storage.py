@@ -1,10 +1,6 @@
 import os
 from pathlib import Path
 
-import rdflib
-from rdflib.util import guess_format
-from rdflib.compare import to_isomorphic
-
 import dlite
 
 try:
@@ -23,6 +19,8 @@ else:
 
 try:
     import rdflib
+    from rdflib.util import guess_format
+    from rdflib.compare import to_isomorphic
 except ImportError:
     HAVE_RDF = False
 else:

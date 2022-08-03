@@ -1,3 +1,10 @@
+# Skip test if rdflib is not available
+try:
+    import rdflib
+except ImportError:
+    import sys
+    sys.exit(44)
+
 from dlite.triplestore import en, Literal, Triplestore, RDF, RDFS, XSD, OWL
 from dlite.triplestore.triplestore import function_id
 
