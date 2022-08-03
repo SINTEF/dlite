@@ -17,7 +17,7 @@ chemistry_onto = world.get_ontology(f'{rootdir}/ontology/chemistry.ttl').load()
 
 dlite_onto = world.get_ontology(
     'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master'
-    '/dlitemodel.ttl').load(emmo_based=False)
+    '/metamodel.ttl').load(emmo_based=False)
 
 mapping = world.get_ontology('http://onto-ns.com/ontology/mapping#')
 mapping.set_version('0.1')

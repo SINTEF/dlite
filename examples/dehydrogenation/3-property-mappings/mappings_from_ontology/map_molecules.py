@@ -17,9 +17,10 @@ mapsTo_onto = world.get_ontology(f'{rootdir}/ontology/mapsTo.ttl').load(
 
 chemistry_onto = world.get_ontology(f'{rootdir}/ontology/chemistry.ttl').load()
 
-dlite_onto = world.get_ontology('https://raw.githubusercontent.com/'
-                          'emmo-repo/datamodel-ontology/master'
-                          '/dlitemodel.ttl').load(emmo_based=False)
+dlite_onto = world.get_ontology(
+    'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master'
+    '/metamodel.ttl').load(emmo_based=False)
+
 mapping = world.get_ontology('http://onto-ns.com/ontology/mapping#')
 mapping.set_version('0.1')
 mapping.imported_ontologies.extend([mapsTo_onto, chemistry_onto, dlite_onto])
@@ -52,11 +53,11 @@ mapping.save(f'{thisdir}/mapping_mols.ttl')
 # Since the iris are not directly findable on the www, a catalog file
 # with pointers to the imported ontologies must be made in order
 # to ensure correct loading  of mapping_mols.ttl in EMMOntopy or Protege
-catalog = {'http://emmo.info/datamodel/dlitemodel':
-           'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master/dlitemodel.ttl',
-           'http://emmo.info/datamodel/0.0.1':
+catalog = {'http://emmo.info/datamodel/metamodel':
+           'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master/metamodel.ttl',
+           'http://emmo.info/datamodel/0.0.2':
            'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master/datamodel.ttl',
-           'http://emmo.info/datamodel/0.0.1/entity':
+           'http://emmo.info/datamodel/0.0.2/entity':
            'https://raw.githubusercontent.com/emmo-repo/datamodel-ontology/master/entity.ttl',
            'http://onto-ns.com/ontology/chemistry': '../../ontology/chemistry.ttl',
            'http://onto-ns.com/ontology/mapsTo': '../../ontology/mapsTo.ttl'}
