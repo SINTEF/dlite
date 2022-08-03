@@ -103,7 +103,6 @@ import hashlib
 import inspect
 import re
 import warnings
-from collections import defaultdict
 from collections.abc import Sequence
 from datetime import datetime
 from importlib import import_module
@@ -142,7 +141,7 @@ class Namespace:
         return self.uri + key
 
     def __repr__(self):
-        return f"Namespace({self.iri})"
+        return f"Namespace({self.uri})"
 
     def __str__(self):
         return self.uri
@@ -247,7 +246,8 @@ class Literal(str):
                 XSD.normalizedString, XSD.string, XSD.token, XSD.NMTOKEN,
         ):
             warnings.warn(
-                f"unknown datatype: {self.datatype} - assuming string")
+                f"unknown datatype: {self.datatype} - assuming string"
+            )
         return v
 
     def n3(self):
@@ -398,8 +398,8 @@ class Triplestore:
         """Check that backend implements the given method."""
         if not hasattr(self.backend, name):
             raise NotImplementedError(
-                f"Triplestore backend \"{self.backend_name}\" doesn't "
-                f"implement a \"{name}()\" method.")
+                f'Triplestore backend "{self.backend_name}" do not '
+                f'implement a "{name}()" method.')
 
     def add(self, triple: "Triple"):
         """Add `triple` to triplestore."""
