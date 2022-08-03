@@ -30,10 +30,9 @@ if HAVE_ASE:
     run('2-instance-mappings/calculate_reactions.py')
     run('3-property-mappings/mappings_hard_coded/run.py')
 
-    # Commented out for now - there are some issues in relation with
-    # EMMOntoPy that will be fixed in a separate issue...
-    #
     if HAVE_ONTOPY:
+        run('3-property-mappings/mappings_from_ontology/map_molecules.py')
+        run('3-property-mappings/mappings_from_ontology/map_substance.py')
         run('3-property-mappings/mappings_from_ontology/run_w_onto.py')
     else:
         print("** warning: 'ontopy' is required for running dehydrogenisation "
