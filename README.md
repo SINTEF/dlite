@@ -462,7 +462,7 @@ The following terms have a special meaning in dlite:
 
 Developer documentation
 =======================
-* [Create a new release](docs/developers/release_instructions.md)
+* [Create a new release](doc/developers/release_instructions.md)
 
 
 License
