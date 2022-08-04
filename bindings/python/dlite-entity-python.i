@@ -60,6 +60,13 @@ class Metadata(Instance):
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
 
+    def getprop(self, name):
+        """Returns the metadata property object with the given name."""
+        lst = [p for p in self.properties["properties"] if p.name == name]
+        if lst:
+            return lst[0]
+        raise DLiteError(f"Metadata {self.uri} has no such property: {name}")
+
 
 def standardise(v, prop, asdict=False):
     """Represent property value `v` as a standard python type.
@@ -98,7 +105,10 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
     Returns:
         DLite instance.
     """
-    inst = _dlite.get_instance(id, metaid, check_storages)
+    if isinstance(id, dlite.Instance):
+        inst = id
+    else:
+        inst = _dlite.get_instance(id, metaid, check_storages)
     if inst is None:
         raise DLiteError(f"no such instance: {id}")
     elif inst.is_meta:
@@ -284,6 +294,9 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         if isinstance(dims, dict):
             meta = get_instance(metaid)
             dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+        # Allow metaid to be an Instance
+        if isinstance(metaid, dlite.Instance):
+            metaid = metaid.uri
         return Instance(
             metaid=metaid, dims=dims, id=id,
             dimensions=(), properties=()  # arrays must not be None

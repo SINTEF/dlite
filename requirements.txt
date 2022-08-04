@@ -5,3 +5,4 @@ psycopg2-binary
 pandas
 pymongo
 rdflib
+pint

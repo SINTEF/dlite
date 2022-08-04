@@ -141,7 +141,7 @@ class Namespace:
         return self.uri + key
 
     def __repr__(self):
-        return f"Namespace({self.iri})"
+        return f"Namespace({self.uri})"
 
     def __str__(self):
         return self.uri
@@ -245,7 +245,9 @@ class Literal(str):
                 XSD.anyURI, XSD.language, XSD.Name, XSD.NMName,
                 XSD.normalizedString, XSD.string, XSD.token, XSD.NMTOKEN,
         ):
-            warnings.warn(f"unknown datatype: {self.datatype} - assuming string")
+            warnings.warn(
+                f"unknown datatype: {self.datatype} - assuming string"
+            )
         return v
 
     def n3(self):
@@ -293,7 +295,8 @@ class Triplestore:
             name: Module name for backend.
             base_iri: Base IRI used by the add_function() method when adding
                 new triples.
-            kwargs: Keyword arguments passed to the backend's __init__() method.
+            kwargs: Keyword arguments passed to the backend's __init__()
+                method.
         """
         module = import_module(name if "." in name
                       else "dlite.triplestore.backends." + name)
@@ -302,6 +305,9 @@ class Triplestore:
         self.namespaces = {}
         self.backend_name = name
         self.backend = cls(**kwargs)
+        # Keep functions in the triplestore for convienence even though
+        # they usually do not belong to the triplestore per se.
+        self.function_repo = {}
         for prefix, ns in self.default_namespaces.items():
             self.bind(prefix, ns)
 
@@ -394,8 +400,8 @@ class Triplestore:
         """Check that backend implements the given method."""
         if not hasattr(self.backend, name):
             raise NotImplementedError(
-                f"Triplestore backend \"{self.backend_name}\" doesn't implement "
-                f"a \"{name}()\" method.")
+                f'Triplestore backend "{self.backend_name}" do not '
+                f'implement a "{name}()" method.')
 
     def add(self, triple: "Triple"):
         """Add `triple` to triplestore."""
@@ -545,9 +551,14 @@ class Triplestore:
             base_iri:
             standard: Name of ontology to use when describing the function.
                 Defaults to the Function Ontology (FnO).
+
+        Returns:
+            func_iri: IRI of the added function.
         """
         method = getattr(self, f"_add_function_{standard}")
-        return method(func, expects, returns, base_iri)
+        func_iri = method(func, expects, returns, base_iri)
+        self.function_repo[func_iri] = func
+        return func_iri
 
     def _add_function_fno(self, func, expects, returns, base_iri):
         """Implementing add_function() for FnO."""
@@ -597,6 +608,8 @@ class Triplestore:
             self.add((lst, RDF.first, val))
             self.add((lst, RDF.rest, lst_next))
             lst = lst_next
+
+        return func_iri
 
 
 def infer_iri(obj):
