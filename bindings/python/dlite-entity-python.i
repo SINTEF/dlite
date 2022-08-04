@@ -61,6 +61,7 @@ class Metadata(Instance):
         return f"<Metadata: uri='{self.uri}'>"
 
     def getprop(self, name):
+    """Returns the metadata property object with the given name."""
         lst = [p for p in self.properties["properties"] if p.name == name]
         if lst:
             return lst[0]

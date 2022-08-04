@@ -194,6 +194,7 @@ if HAVE_PYDANTIC:
 
 
 # Test infer_dimensions()
+# TODO - test also exceptions
 dims = infer_dimensions(
     meta=inst.meta,
     values={'a-string-array': [('a', 'b'), ('c', 'd'), ('e', 'f')]},

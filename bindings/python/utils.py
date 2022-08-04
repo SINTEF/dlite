@@ -244,9 +244,8 @@ def infer_dimensions(meta, values, strict=True):
         Dict mapping dimension names to dimension values.
 
     Raises:
-        InvalidNumberOfDimensionsError: inconsistent number of dimensions
-        CannotInferDimensionError
-
+        InvalidNumberOfDimensionsError: Inconsistent number of dimensions.
+        CannotInferDimensionError: Cannot infer instance dimensions.
     """
     if isinstance(meta, str):
         meta = dlite.get_instance(meta)

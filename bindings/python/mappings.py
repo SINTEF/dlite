@@ -8,12 +8,6 @@ of input and output parameters.
 Shapes are automatically handled by expressing non-scalar quantities
 with numpy.
 
-TODO:
-- Add a function for generating triples for function mappings by inspection
-  of a Python function.
-- Add an extendable class for encapsulating triplestores.  Add default
-  support for: list or triples, rdflib, owlready2, Stardog, ...
-- Add functionality to create a Pint unit definition file from QUDT.
 """
 from __future__ import annotations
 
@@ -89,9 +83,10 @@ class Value:
         """Returns a string representation of the Value.
 
         Arguments:
-            routeno: Unused.
+            routeno: Unused.  The argument exists for consistency with
+                the corresponding method in Step.
             name: Name of value.
-            indent: Indentation.
+            indent: Indentation level.
         """
         s = []
         ind = ' '*indent
@@ -296,8 +291,10 @@ def get_values(inputs, routeno, quantity=Quantity, magnitudes=False):
     for k, v in inputs.items():
         if isinstance(v, MappingStep):
             value = v.eval(routeno=routeno, quantity=quantity)
-            values[k] = (value.to(v.output_unit)
-                         if v.output_unit and isinstance(v, quantity) else value)
+            values[k] = (
+                value.to(v.output_unit)
+                if v.output_unit and isinstance(v, quantity) else value
+            )
         else:
             values[k] = quantity(v.value, v.unit)
 
@@ -490,7 +487,8 @@ def mapping_route(
     visited = set()
     step = MappingStep(output_iri=target, output_unit=soUnit.get(target))
     if target in soInst:
-        # It is only initially we want to follow instanceOf in forward direction.
+        # It is only initially we want to follow instanceOf in forward
+        # direction.
         visited.add(target)  # do we really wan't this?
         source = soInst[target]
         step.steptype = StepType.INSTANCEOF
@@ -558,8 +556,8 @@ def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
         routes: Dict returned by instance_routes().  It should map property
             names to MappingStep instances.
         routedict: Dict mapping property names to route number to select for
-            the given property.  The default is to select the route with lowest
-            cost.
+            the given property.  The default is to select the route with
+            lowest cost.
         id: URI of instance to create.
         quantity: Class implementing quantities with units.  Defaults to
             pint.Quantity.
@@ -788,6 +786,11 @@ def make_instance(meta, instances, mappings=(), strict=True,
       cannot be misused for code injection.
     - Add a function that visualise the possible mapping paths.
     """
+    warnings.warn(
+        "make_instance() is deprecated. Use instantiate() instead.",
+        DeprecationWarning,
+    )
+
     match = match_factory(mappings)  # match function
 
     if isinstance(instances, dlite.Instance):
