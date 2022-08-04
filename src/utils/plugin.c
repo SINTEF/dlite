@@ -253,10 +253,12 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
       handle = NULL;
     }
   }
-  if (name && emit_err)
-    errx(1, "no such api: \"%s\"", name);
-  else
+  if (name) {
+    if (emit_err) errx(1, "no such api: \"%s\"", name);
+    retval = NULL;
+  } else {
     retval = loaded_api;
+  }
  fail:
   if (!retval && handle)
     (void)dsl_close(handle);
@@ -323,7 +325,7 @@ const PluginAPI *plugin_get_api(PluginInfo *info, const char *name)
   strcpy(pattern, name);
   strcat(pattern, DSL_EXT);
   if (!(api = plugin_load(info, name, pattern, 0)) &&
-      !(api = plugin_load(info, name, "*" DSL_EXT, 1)))
+      !(api = plugin_load(info, name, "*" DSL_EXT, 0)))
     err(1, "cannot find api: '%s'", name);
 
   if (pattern) free(pattern);
