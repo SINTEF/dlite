@@ -325,7 +325,7 @@ def get_lowest_costs(inputs, nresults=5):
 
 def fno_mapper(triplestore):
     """Finds all function definitions in `triplestore` based on the function
-    ontoloby (FNO).
+    ontololy (FNO).
 
     Sweep through triples and return a dict mapping output IRIs to a list
     of `(function_iri, [input_iris, ...])` tuples.
