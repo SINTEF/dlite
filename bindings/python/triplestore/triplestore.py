@@ -305,6 +305,8 @@ class Triplestore:
         self.namespaces = {}
         self.backend_name = name
         self.backend = cls(**kwargs)
+        # Keep functions in the triplestore for convienence even though
+        # they usually do not belong to the triplestore per se.
         self.function_repo = {}
         for prefix, ns in self.default_namespaces.items():
             self.bind(prefix, ns)
