@@ -293,6 +293,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         if isinstance(dims, dict):
             meta = get_instance(metaid)
             dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+        # Allow metaid to be an Instance
         if isinstance(metaid, dlite.Instance):
             metaid = metaid.uri
         return Instance(
