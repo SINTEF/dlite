@@ -327,8 +327,11 @@ def fno_mapper(triplestore):
     """Finds all function definitions in `triplestore` based on the function
     ontololy (FNO).
 
-    Sweep through triples and return a dict mapping output IRIs to a list
-    of `(function_iri, [input_iris, ...])` tuples.
+    Return a dict mapping output IRIs to a list of
+
+        (function_iri, [input_iris, ...])
+
+    tuples.
     """
     # Temporary dicts for fast lookup
     Dfirst = {s: o for s, o in triplestore.subject_objects(RDF.first)}
