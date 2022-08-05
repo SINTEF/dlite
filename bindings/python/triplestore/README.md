@@ -40,12 +40,12 @@ it) or the add() and add_triples() methods.
 ```python
 # en(msg) is a convinient function for adding english literals.
 # It is equivalent to ``triplestore.Literal(msg, lang="en")``.
->>> from triplestore import en
->>> ts.parse("onto.ttl", format="turtle")
->>> ts.add_triples([
-...     (ONTO.MyConcept, RDFS.subClassOf, OWL.Thing),
-...     (ONTO.MyConcept, RDFS.label, en("My briliant ontological concept.")),
-... ])
+from dlite.triplestore import en
+ts.parse("onto.ttl", format="turtle")
+ts.add_triples([
+    (ONTO.MyConcept, RDFS.subClassOf, OWL.Thing),
+    (ONTO.MyConcept, RDFS.label, en("My briliant ontological concept.")),
+])
 ```
 
 For backends that support it can the triplestore be serialised using
