@@ -92,13 +92,13 @@ arguments and return value(s).  Currently it only supports the Function
 [Ontology (FnO)](https://fno.io/).
 
 ```python
->>> def mean(x, y):
-...     """Returns the mean value of `x` and `y`."""
-...     return (x + y)/2
+def mean(x, y):
+    """Returns the mean value of `x` and `y`."""
+    return (x + y)/2
 
->>> ts.add_function(mean,
-...                 expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
-...                 returns=ONTO.AverageArmLength)
+ts.add_function(mean,
+                expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
+                returns=ONTO.AverageArmLength)
 ```
 
 
