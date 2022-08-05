@@ -48,7 +48,7 @@ ts.add_triples([
 ])
 ```
 
-For backends that support it can the triplestore be serialised using
+For backends that support it the triplestore can be serialised using
 serialize():
 
 ```python
