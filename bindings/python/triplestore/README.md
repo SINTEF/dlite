@@ -27,10 +27,10 @@ New namespaces can be created using the Namespace class, but are usually
 added with the bind() method:
 
 ```python
->>> from triplestore import Triplestore
->>> ts = Triplestore(backend="rdflib")
->>> ONTO = ts.bind("onto", "http://example.com/onto#")
->>> ONTO.MyConcept
+from triplestore import Triplestore
+ts = Triplestore(backend="rdflib")
+ONTO = ts.bind("onto", "http://example.com/onto#")
+ONTO.MyConcept
 'http://example.com/onto#MyConcept'
 ```
 
