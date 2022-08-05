@@ -12,7 +12,12 @@ by rdflib.Graph, but simplified when possible to make it easy to use.  Some
 important differences:
 - all IRIs are represented by Python strings
 - blank nodes are strings starting with "_:"
-- literals are constructed with Literal()
+- literals are constructed with `Literal()`
+
+```python
+from triplestore import Triplestore
+ts = Triplestore(backend="rdflib")
+```
 
 The module already provides a set of pre-defined namespaces that simplifies
 writing IRIs. For example:
@@ -24,18 +29,16 @@ RDFS.subClassOf
 ```
 
 New namespaces can be created using the Namespace class, but are usually
-added with the bind() method:
+added with the `bind()` method:
 
 ```python
-from triplestore import Triplestore
-ts = Triplestore(backend="rdflib")
 ONTO = ts.bind("onto", "http://example.com/onto#")
 ONTO.MyConcept
 # -> 'http://example.com/onto#MyConcept'
 ```
 
-New triples can be added either with the parse() method (for backends that support
-it) or the add() and add_triples() methods.
+New triples can be added either with the `parse()` method (for backends that
+support it) or the `add()` and `add_triples()` methods:
 
 ```python
 # en(msg) is a convenient function for adding english literals.
@@ -49,7 +52,7 @@ ts.add_triples([
 ```
 
 For backends that support it the triplestore can be serialised using
-serialize():
+`serialize()`:
 
 ```python
 ts.serialize("onto2.ttl")
