@@ -68,7 +68,7 @@ It can also be used with DLite and SOFT7 data models.  Here we repeat
 the above with DLite:
 
     >>> import dlite
-    >>> meta = dlite.get_entity("http://onto-ns.com/meta/0.1/MyEntity")
+    >>> meta = dlite.get_instance("http://onto-ns.com/meta/0.1/MyEntity")
     >>> ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
 
 The add_function() describes a function and adds mappings for its
@@ -83,18 +83,6 @@ Ontology (FnO).
     ...                 expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
     ...                 returns=ONTO.AverageArmLength)
 
-
-TODO:
-* Update the query() method to return the SPARQL result in a backend-
-  independent way.
-* Add additional backends. Candidates include:
-    - list of tuples
-    - owlready2/EMMOntoPy
-    - Stardog
-    - DLite triplestore (based on Redland librdf)
-    - Redland librdf
-    - Apache Jena Fuseki
-    - Allegrograph
 
 '''
 from __future__ import annotations  # Support Python 3.7 (PEP 585)
@@ -288,22 +276,22 @@ class Triplestore:
         # "dm": DM,
     }
 
-    def __init__(self, name: str, base_iri: str = None, **kwargs):
+    def __init__(self, backend: str, base_iri: str = None, **kwargs):
         """Initialise triplestore using the backend with the given name.
 
         Parameters:
-            name: Module name for backend.
+            backend: Module name for backend.
             base_iri: Base IRI used by the add_function() method when adding
                 new triples.
             kwargs: Keyword arguments passed to the backend's __init__()
                 method.
         """
-        module = import_module(name if "." in name
-                      else "dlite.triplestore.backends." + name)
-        cls = getattr(module, name.title() + "Strategy")
+        module = import_module(backend if "." in backend
+                      else "dlite.triplestore.backends." + backend)
+        cls = getattr(module, backend.title() + "Strategy")
         self.base_iri = base_iri
         self.namespaces = {}
-        self.backend_name = name
+        self.backend_name = backend
         self.backend = cls(**kwargs)
         # Keep functions in the triplestore for convienence even though
         # they usually do not belong to the triplestore per se.

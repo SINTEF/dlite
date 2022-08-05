@@ -3,8 +3,8 @@ Triplestore
 > A Python package encapsulating different triplestores using the strategy
 > design pattern.
 
-This package has no dependencies outside the standard library, but the
-triplestore backends have.
+This package has by itself no dependencies outside the standard library,
+but the triplestore backends may have.
 
 The main class is Triplestore, who's `__init__()` method takes the name of the
 backend to encapsulate as first argument.  Its interface is strongly inspired
