@@ -89,7 +89,7 @@ the above with DLite:
 
 The add_function() describes a function and adds mappings for its
 arguments and return value(s).  Currently it only supports the Function
-Ontology (FnO).
+[Ontology (FnO)](https://fno.io/).
 
 ```python
 >>> def mean(x, y):
@@ -110,6 +110,7 @@ TODO
     - list of tuples
     - owlready2/EMMOntoPy
     - Stardog
+    - OntoFlowKB
     - DLite triplestore (based on Redland librdf)
     - Redland librdf
     - Apache Jena Fuseki
