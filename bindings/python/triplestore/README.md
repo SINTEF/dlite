@@ -56,20 +56,22 @@ ts.serialize("onto2.ttl")
 ```
 
 A set of convenient functions exists for simple queries, including
-triples(), subjects(), predicates(), objects(), subject_predicates(),
-subject_objects(), predicate_objects() and value().  Except for value(),
+`triples()`, `subjects()`, `predicates()`, `objects()`, `subject_predicates()`,
+`subject_objects()`, `predicate_objects()` and `value()`.  Except for `value()`,
 they return the result as generators. For example:
 
 ```python
+ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf)
+# -> <generator object Triplestore.objects at 0x7fa502590200>
 list(ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf))
 # -> ['http://www.w3.org/2002/07/owl#Thing']
 ```
 
-The query() and update() methods can be used to query and update the
+The `query()` and `update()` methods can be used to query and update the
 triplestore using SPARQL.
 
-Finally Triplestore has two specialised methods add_mapsTo() and
-add_function() that simplify working with mappings.  add_mapsTo() is
+Finally Triplestore has two specialised methods `add_mapsTo()` and
+`add_function()` that simplify working with mappings.  `add_mapsTo()` is
 convinient for defining new mappings:
 
 ```python
@@ -87,7 +89,7 @@ meta = dlite.get_instance("http://onto-ns.com/meta/0.1/MyEntity")
 ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
 ```
 
-The add_function() describes a function and adds mappings for its
+The `add_function()` describes a function and adds mappings for its
 arguments and return value(s).  Currently it only supports the Function
 [Ontology (FnO)](https://fno.io/).
 
@@ -96,21 +98,23 @@ def mean(x, y):
     """Returns the mean value of `x` and `y`."""
     return (x + y)/2
 
-ts.add_function(mean,
-                expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
-                returns=ONTO.AverageArmLength)
+ts.add_function(
+    mean,
+    expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
+    returns=ONTO.AverageArmLength,
+)
 ```
 
 
 Further development
 -------------------
-* Update the query() method to return the SPARQL result in a backend-
+* Update the `query()` method to return the SPARQL result in a backend-
   independent way.
 * Add additional backends. Candidates include:
     - list of tuples
     - owlready2/EMMOntoPy
+    - OntoRec/OntoFlowKB
     - Stardog
-    - OntoFlowKB
     - DLite triplestore (based on Redland librdf)
     - Redland librdf
     - Apache Jena Fuseki
