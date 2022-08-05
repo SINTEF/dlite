@@ -20,7 +20,7 @@ writing IRIs. For example:
 ```python
 from dlite.triplestore import RDFS, OWL
 RDFS.subClassOf
-'http://www.w3.org/2000/01/rdf-schema#subClassOf'
+# -> 'http://www.w3.org/2000/01/rdf-schema#subClassOf'
 ```
 
 New namespaces can be created using the Namespace class, but are usually
@@ -31,7 +31,7 @@ from triplestore import Triplestore
 ts = Triplestore(backend="rdflib")
 ONTO = ts.bind("onto", "http://example.com/onto#")
 ONTO.MyConcept
-'http://example.com/onto#MyConcept'
+# -> 'http://example.com/onto#MyConcept'
 ```
 
 New triples can be added either with the parse() method (for backends that support
@@ -62,7 +62,7 @@ they return the result as generators. For example:
 
 ```python
 list(ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf))
-['http://www.w3.org/2002/07/owl#Thing']
+# -> ['http://www.w3.org/2002/07/owl#Thing']
 ```
 
 The query() and update() methods can be used to query and update the
