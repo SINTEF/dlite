@@ -38,7 +38,7 @@ New triples can be added either with the parse() method (for backends that suppo
 it) or the add() and add_triples() methods.
 
 ```python
-# en(msg) is a convinient function for adding english literals.
+# en(msg) is a convenient function for adding english literals.
 # It is equivalent to ``triplestore.Literal(msg, lang="en")``.
 from dlite.triplestore import en
 ts.parse("onto.ttl", format="turtle")
