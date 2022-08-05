@@ -61,7 +61,7 @@ subject_objects(), predicate_objects() and value().  Except for value(),
 they return the result as generators. For example:
 
 ```python
->>> list(ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf))
+list(ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf))
 ['http://www.w3.org/2002/07/owl#Thing']
 ```
 
