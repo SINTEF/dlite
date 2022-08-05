@@ -52,7 +52,7 @@ For backends that support it can the triplestore be serialised using
 serialize():
 
 ```python
->>> ts.serialize("onto2.ttl")
+ts.serialize("onto2.ttl")
 ```
 
 A set of convenient functions exists for simple queries, including
