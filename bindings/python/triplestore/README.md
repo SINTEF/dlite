@@ -18,8 +18,8 @@ The module already provides a set of pre-defined namespaces that simplifies
 writing IRIs. For example:
 
 ```python
->>> from triplestore import RDFS, OWL
->>> RDFS.subClassOf
+from dlite.triplestore import RDFS, OWL
+RDFS.subClassOf
 'http://www.w3.org/2000/01/rdf-schema#subClassOf'
 ```
 
