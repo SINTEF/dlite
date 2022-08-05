@@ -73,9 +73,9 @@ add_function() that simplify working with mappings.  add_mapsTo() is
 convinient for defining new mappings:
 
 ```python
->>> from triplestore import Namespace
->>> META = Namespace("http://onto-ns.com/meta/0.1/MyEntity#")
->>> ts.add_mapsTo(ONTO.MyConcept, META.my_property)
+from triplestore import Namespace
+META = Namespace("http://onto-ns.com/meta/0.1/MyEntity#")
+ts.add_mapsTo(ONTO.MyConcept, META.my_property)
 ```
 
 It can also be used with DLite and SOFT7 data models.  Here we repeat
