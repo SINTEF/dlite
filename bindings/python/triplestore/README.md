@@ -7,7 +7,7 @@ This package has no dependencies outside the standard library, but the
 triplestore backends have.
 
 The main class is Triplestore, who's `__init__()` method takes the name of the
-backend to encapsulate as first argument.  It's interface is strongly inspired
+backend to encapsulate as first argument.  Its interface is strongly inspired
 by rdflib.Graph, but simplified when possible to make it easy to use.  Some
 important differences:
 - all IRIs are represented by Python strings
