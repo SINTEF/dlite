@@ -82,9 +82,9 @@ It can also be used with DLite and SOFT7 data models.  Here we repeat
 the above with DLite:
 
 ```python
->>> import dlite
->>> meta = dlite.get_entity("http://onto-ns.com/meta/0.1/MyEntity")
->>> ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
+import dlite
+meta = dlite.get_instance("http://onto-ns.com/meta/0.1/MyEntity")
+ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
 ```
 
 The add_function() describes a function and adds mappings for its
