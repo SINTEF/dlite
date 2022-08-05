@@ -93,8 +93,8 @@ ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
 ```
 
 The `add_function()` describes a function and adds mappings for its
-arguments and return value(s).  Currently it only supports the Function
-[Ontology (FnO)](https://fno.io/).
+arguments and return value(s).  Currently it only supports the [Function
+Ontology (FnO)](https://fno.io/).
 
 ```python
 def mean(x, y):
