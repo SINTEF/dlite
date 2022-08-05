@@ -102,8 +102,8 @@ arguments and return value(s).  Currently it only supports the Function
 ```
 
 
-TODO
-----
+Further development
+-------------------
 * Update the query() method to return the SPARQL result in a backend-
   independent way.
 * Add additional backends. Candidates include:
