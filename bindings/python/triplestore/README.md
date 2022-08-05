@@ -34,7 +34,7 @@ ONTO.MyConcept
 'http://example.com/onto#MyConcept'
 ```
 
-New triples can added either with the parse() method (for backends that support
+New triples can be added either with the parse() method (for backends that support
 it) or the add() and add_triples() methods.
 
 ```python
