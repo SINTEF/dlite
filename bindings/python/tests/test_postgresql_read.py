@@ -27,3 +27,9 @@ inst = dlite.Instance.from_location(
 )
 
 print(inst)
+assert inst.uuid == '51c0d700-9ab0-43ea-9183-6ea22012ebee'
+assert inst.meta.uri == 'http://onto-ns.com/meta/0.1/Person'
+assert inst.dimensions == {'N': 2}
+assert inst.name == 'Jack Daniel'
+assert inst.age == 42.0
+assert inst.skills.tolist() == ['distilling', 'tasting']
