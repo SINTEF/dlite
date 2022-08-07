@@ -157,8 +157,8 @@ class postgresql(dlite.DLiteStorageBase):
     def table_exists(self, table_name):
         """Returns true if a table named `table_name` exists."""
         self.cur.execute(
-            'select exists(select * from information_schema.tables '
-            'where table_name=%s);', (table_name, ))
+            'SELECT EXISTS(SELECT * FROM information_schema.tables '
+            'WHERE table_name=%s);', (table_name, ))
         return self.cur.fetchone()[0]
 
     def table_create(self, meta, dims=None):

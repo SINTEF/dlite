@@ -17,6 +17,8 @@ set(tests
   test_mapping
   test_rdf
   test_triplestore
+  test_postgresql_write
+  test_postgresql_read
   )
 
 foreach(test ${tests})
@@ -41,3 +43,7 @@ foreach(test ${tests})
   set_property(TEST ${name} PROPERTY SKIP_RETURN_CODE 44)
 
 endforeach()
+
+# Additional properties
+set_property(TEST test_postgresql_read-py PROPERTY
+  DEPENDS test_postgresql_write-py)
