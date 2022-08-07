@@ -109,6 +109,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         inst = id
     else:
         inst = _dlite.get_instance(id, metaid, check_storages)
+
     if inst is None:
         raise DLiteError(f"no such instance: {id}")
     elif inst.is_meta:
@@ -249,9 +250,15 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
+        if self is None:
+            raise DLiteError(f"invalid dlite.Instance")
+
         dlite.errclr()
         _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
-        if self.is_meta:
+
+        if not hasattr(self, 'this') or not getattr(self, 'this'):
+            raise DLiteError(f"cannot initiate dlite.Instance")
+        elif self.is_meta:
             self.__class__ = Metadata
         elif self.meta.uri == COLLECTION_ENTITY:
             self.__class__ = Collection

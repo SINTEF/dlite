@@ -1,5 +1,7 @@
 """A package encapsulating different triplestores using the strategy design
 pattern.
+
+See the README.md file for a description for how to use this package.
 """
 from typing import TYPE_CHECKING
 
