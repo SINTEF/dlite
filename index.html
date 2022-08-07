@@ -107,6 +107,7 @@ $(function() {
 </ul>
 </li>
 <li><a href="#short-vocabulary">Short vocabulary</a></li>
+<li><a href="#developer-documentation">Developer documentation</a></li>
 <li><a href="#license">License</a></li>
 <li><a href="#acknowledgment">Acknowledgment</a></li>
 </ul>
@@ -351,6 +352,12 @@ cmake --build . --target latex
 <li><b>uri</b>: A <a href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier">uniform resource identifier (URI)</a> is a generalisation of URL, but follows the same syntax rules. In dlite, the term "uri" is used as an human readable identifier for instances (optional for data instances) and has the form <code>namespace/version/name</code>.</li>
 <li><b>url</b>: A <a href="https://en.wikipedia.org/wiki/URL">uniform resource locator (URL)</a> is an reference to a web resource, like a file (on a given computer), database entry, web page, etc. In dlite url's refer to a storage or even an specific instance in a storage using the general syntax <code>driver://location?options#fragment</code>, where <code>options</code> and <code>fragment</code> are optional. If <code>fragment</code> is provided, it should be the uuid or uri of an instance.</li>
 <li><b>uuid</b>: A <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">universal unique identifier (UUID)</a> is commonly used to uniquely identify digital information. DLite uses the 36 character string representation of uuid's to uniquely identify instances. The uuid is generated from the uri for instances that has an uri, otherwise it is randomly generated.</li>
+</ul>
+
+<h1 id="developer-documentation">Developer documentation</h1>
+
+<ul>
+<li>md_doc_developers/release_instructions</li>
 </ul>
 
 <h1 id="license">License</h1>
