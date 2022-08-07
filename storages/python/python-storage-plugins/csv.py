@@ -23,8 +23,8 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         mode: "r" | "w"
             Whether to read or write data.  Required
         meta: URI
-            URI to metadata describing the table to read.  Required if `mode`
-            is "r"
+            URI to metadata describing the table to read.  Required if
+            `infer` is false.
         infer: bool
             Whether to infer metadata from data source.  Defaults to True
         path: directories
@@ -130,7 +130,7 @@ def infer_meta(data, metauri, uri):
         fmt = ext if ext else 'csv'
         with open(uri, 'rb') as f:
             hash = hashlib.sha256(f.read()).hexdigest()
-        metauri = f'onto-ns.com/meta/1.0/generated_from_{fmt}_{hash}'
+        metauri = f'http://onto-ns.com/meta/1.0/generated_from_{fmt}_{hash}'
     elif dlite.has_instance(metauri):
         warnings.warn(f'csv option infer is true, but explicit instance id '
                       f'"{metauri}" already exists')
@@ -140,11 +140,14 @@ def infer_meta(data, metauri, uri):
     for i, col in enumerate(data.columns):
         name = infer_prop_name(col)
         type = data.dtypes[i].name
+        if type == 'object':
+            type = 'string'
         dims = ['rows']
         unit = infer_prop_unit(col)
         props.append(dlite.Property(name=name, type=type, dims=dims,
                                     unit=unit, description=None))
     descr = f'Inferred metadata for {uri}'
+
     return dlite.Instance.create_metadata(metauri, dims_, props, descr)
 
 
