@@ -1,9 +1,101 @@
 '''A module encapsulating different triplestores using the strategy design
 pattern.
 
-This module exposes the public interface of the triplestore package.
-It has no dependencies outside the standard library.  However the
-triplestore backends may have.
+This module has no dependencies outside the standard library, but the
+triplestore backends have.
+
+The main class is Triplestore, who's __init__() method takes the name of the
+backend to encapsulate as first argument.  It's interface is strongly inspired
+by rdflib.Graph, but simplified when possible to make it easy to use.  Some
+important differences:
+- all IRIs are represented by Python strings
+- blank nodes are strings starting with "_:"
+- literals are constructed with Literal()
+
+The module already provides a set of pre-defined namespaces that simplifies
+writing IRIs. For example:
+
+    >>> from triplestore import RDFS, OWL
+    >>> RDFS.subClassOf
+    'http://www.w3.org/2000/01/rdf-schema#subClassOf'
+
+New namespaces can be created using the Namespace class, but are usually
+added with the bind() method:
+
+    >>> from triplestore import Triplestore
+    >>> ts = Triplestore(backend="rdflib")
+    >>> ONTO = ts.bind("onto", "http://example.com/onto#")
+    >>> ONTO.MyConcept
+    'http://example.com/onto#MyConcept'
+
+New triples can added either with the parse() method (for backends that support
+it) or the add() and add_triples() methods.
+
+    # en(msg) is a convinient function for adding english literals.
+    # It is equivalent to ``triplestore.Literal(msg, lang="en")``.
+    >>> from triplestore import en
+    >>> ts.parse("onto.ttl", format="turtle")
+    >>> ts.add_triples([
+    ...     (ONTO.MyConcept, RDFS.subClassOf, OWL.Thing),
+    ...     (ONTO.MyConcept, RDFS.label, en("My briliant ontological concept.")),
+    ... ])
+
+For backends that support it can the triplestore be serialised using
+serialize():
+
+    >>> ts.serialize("onto2.ttl")
+
+A set of convenient functions exists for simple queries, including
+triples(), subjects(), predicates(), objects(), subject_predicates(),
+subject_objects(), predicate_objects() and value().  Except for value(),
+they return the result as generators. For example:
+
+    >>> list(ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf))
+    ['http://www.w3.org/2002/07/owl#Thing']
+
+The query() and update() methods can be used to query and update the
+triplestore using SPARQL.
+
+Finally Triplestore has two specialised methods add_mapsTo() and
+add_function() that simplify working with mappings.  add_mapsTo() is
+convinient for defining new mappings:
+
+    >>> from triplestore import Namespace
+    >>> META = Namespace("http://onto-ns.com/meta/0.1/MyEntity#")
+    >>> ts.add_mapsTo(ONTO.MyConcept, META.my_property)
+
+It can also be used with DLite and SOFT7 data models.  Here we repeat
+the above with DLite:
+
+    >>> import dlite
+    >>> meta = dlite.get_entity("http://onto-ns.com/meta/0.1/MyEntity")
+    >>> ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
+
+The add_function() describes a function and adds mappings for its
+arguments and return value(s).  Currently it only supports the Function
+Ontology (FnO).
+
+    >>> def mean(x, y):
+    ...     """Returns the mean value of `x` and `y`."""
+    ...     return (x + y)/2
+
+    >>> ts.add_function(mean,
+    ...                 expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
+    ...                 returns=ONTO.AverageArmLength)
+
+
+TODO:
+* Update the query() method to return the SPARQL result in a backend-
+  independent way.
+* Add additional backends. Candidates include:
+    - list of tuples
+    - owlready2/EMMOntoPy
+    - Stardog
+    - DLite triplestore (based on Redland librdf)
+    - Redland librdf
+    - Apache Jena Fuseki
+    - Allegrograph
+
 '''
 from __future__ import annotations  # Support Python 3.7 (PEP 585)
 
@@ -36,23 +128,117 @@ class UniquenessError(TriplestoreError):
 class NamespaceError(TriplestoreError):
     """Namespace error."""
 
+class NoSuchIRIError(NamespaceError):
+    """Namespace has no such IRI."""
+
 
 class Namespace:
-    """Represent a namespace."""
-    def __init__(self, uri):
-        self.uri = str(uri)
+    """Represent a namespace.
+
+    Arguments:
+        iri: IRI of namespace to represent.
+        label_annotations: Sequence of label annotations. If given, check
+            the underlying ontology during attribute access if the name
+            correspond to a label. The label annotations should be ordered
+            from highest to lowest precedense.
+            Example: ``(SKOS.prefLabel, RDF.label, SKOS.altLabel)``.
+        check: Whether to check underlying ontology if the IRI exists during
+            attribute access.  If true, NoSuchIRIError will be raised if the
+            IRI does not exist in this namespace.
+        cachemode: Should be one of:
+              - Namespace.NO_CACHE: Turn off caching.
+              - Namespace.USE_CACHE: Cache attributes as they are looked up.
+              - Namespace.ONLY_CACHE: Cache all names at initialisation time.
+                Do not access the triplestore after that.
+            Default is `NO_CACHE` if neither `label_annotations` or `check`
+            is given, otherwise `USE_CACHE`.
+        triplestore: Use this triplestore for label lookup and checking.
+            If not given, and either `label_annotations` or `check` are
+            enabled, a new rdflib triplestore will be created.
+        triplestore_url: Alternative URL to use for loading the underlying
+            ontology if `triplestore` is not given.  Defaults to `iri`.
+    """
+    NO_CACHE = 0
+    USE_CACHE = 1
+    ONLY_CACHE = 2
+
+    __slots__ = (
+        "_iri", "_label_annotations", "_check", "_cache", "_triplestore",
+    )
+
+    def __init__(self, iri, label_annotations=(), check=False, cachemode=-1,
+                 triplestore=None, triplestore_url=None):
+        self._iri = str(iri)
+        self._label_annotations = tuple(label_annotations)
+        self._check = bool(check)
+        if cachemode == -1:
+            cachemode = (
+                Namespace.USE_CACHE if label_annotations or check else
+                Namespace.NO_CACHE
+            )
+        # map labels to IRI
+        self._cache = {} if cachemode != Namespace.NO_CACHE else None
+        self._triplestore = (
+            triplestore if cachemode != Namespace.ONLY_CACHE else None
+        )
+        if cachemode != Namespace.NO_CACHE:
+            self._update_cache(triplestore)
+
+    def _update_cache(self, triplestore=None):
+        """Update the internal cache from `triplestore`."""
+        if not triplestore:
+            triplestore = self._triplestore
+        if not triplestore:
+            raise NamespaceError(
+                "`triplestore` argument needed for updating the cache"
+            )
+        if self._cache is None:
+            self._cache = {}
+        # Add (label, full_iri) pairs to cache
+        for la in reversed(self._label_annotations):
+            self._cache.update(
+                (o, s) for s, o in triplestore.subject_objects(la)
+                if s.startswith(self._iri)
+            )
+        # Add (name, full_iri) pairs to cache
+        # Currently we only check concepts that defines RDFS.isDefinedBy
+        # relations.
+        # Is there an efficient way to look over all IRIs in this namespace?
+        n = len(self._iri)
+        self._cache.update(
+            (s[n:], s) for s in triplestore.subjects(
+                RDFS.isDefinedBy, self._iri)
+            if s.startswith(self._iri)
+        )
 
     def __getattr__(self, name):
-        return self.uri + name
+        if self._cache is not None and name in self._cache:
+            return self._cache[name]
+        if self._triplestore:
+            for la in self._label_annotations:
+                for s, o in triplestore.subject_object(la):
+                    if name == o:
+                        if self._cache is not None:
+                            self._cache[name]: s
+                        return s
+
+
+
+        if self._check:
+            if self._triplestore:
+
+
+
+        return self._iri + name
 
     def __getitem__(self, key):
-        return self.uri + key
+        return self.__getattr__(key)
 
     def __repr__(self):
-        return f"Namespace({self.uri})"
+        return f"Namespace({self._iri})"
 
     def __str__(self):
-        return self.uri
+        return self._iri
 
 
 # Pre-defined namespaces
@@ -196,22 +382,22 @@ class Triplestore:
         # "dm": DM,
     }
 
-    def __init__(self, backend: str, base_iri: str = None, **kwargs):
+    def __init__(self, name: str, base_iri: str = None, **kwargs):
         """Initialise triplestore using the backend with the given name.
 
         Parameters:
-            backend: Module name for backend.
+            name: Module name for backend.
             base_iri: Base IRI used by the add_function() method when adding
                 new triples.
             kwargs: Keyword arguments passed to the backend's __init__()
                 method.
         """
-        module = import_module(backend if "." in backend
-                      else "dlite.triplestore.backends." + backend)
-        cls = getattr(module, backend.title() + "Strategy")
+        module = import_module(name if "." in name
+                      else "dlite.triplestore.backends." + name)
+        cls = getattr(module, name.title() + "Strategy")
         self.base_iri = base_iri
         self.namespaces = {}
-        self.backend_name = backend
+        self.backend_name = name
         self.backend = cls(**kwargs)
         # Keep functions in the triplestore for convienence even though
         # they usually do not belong to the triplestore per se.
@@ -402,7 +588,7 @@ class Triplestore:
     def prefix_iri(self, iri: str, require_prefixed: bool = False):
         """Return prefixed IRI.
 
-        This is the referse of expand_iri().
+        This is the reverse of expand_iri().
 
         If `require_prefixed` is true, a NamespaceError exception is raised
         if no prefix can be found.
