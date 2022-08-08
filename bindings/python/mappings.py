@@ -525,6 +525,8 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     Returns:
         A dict mapping property names to a MappingStep instance.
     """
+    if isinstance(meta, str):
+        meta = dlite.get_instance(meta)
     if isinstance(instances, dlite.Instance):
         instances = [instances]
 
@@ -550,7 +552,8 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     return routes
 
 
-def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
+def instantiate_routes(meta, routes, routedict=None, id=None,
+                       quantity=Quantity):
     """Create a new instance of `meta` from selected mapping route returned by
     instance_routes().
 
@@ -614,7 +617,7 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
         quantity: Class implementing quantities with units.  Defaults to
             pint.Quantity.
 
-    Keyword arguments (passed to instance_routes()):
+    Keyword arguments (passed to mapping_route()):
         function_repo: Dict mapping function IRIs to corresponding Python
             function.  Default is to use `triplestore.function_repo`.
         function_mappers: Sequence of mapping functions that takes
@@ -641,8 +644,8 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
                              allow_incomplete=allow_incomplete,
                              quantity=quantity,
                              **kwargs)
-    return instantiate_route(meta=meta, routes=routes, routedict=routedict,
-                             id=id, quantity=quantity)
+    return instantiate_routes(meta=meta, routes=routes, routedict=routedict,
+                              id=id, quantity=quantity)
 
 
 
