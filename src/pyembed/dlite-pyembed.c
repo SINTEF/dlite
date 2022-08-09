@@ -342,6 +342,7 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
 {
   DLiteInstance *inst=NULL;
   PyObject *fcn=NULL, *cap=NULL;
+
   if (!(fcn = PyObject_GetAttrString(pyinst, "_c_ptr")))
     FAIL("Python instance has no attribute: '_c_ptr'");
   if (!(cap = PyObject_CallObject(fcn, NULL)))
