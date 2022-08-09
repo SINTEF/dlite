@@ -19,6 +19,7 @@ from collections.abc import Sequence
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Union
 
+import numpy as np
 from pint import Quantity
 
 import dlite
@@ -228,14 +229,25 @@ class MappingStep:
         result = []
         n = 0
         for inputs in self.input_routes:
-            owncost = 1
-            for cost, idx in get_lowest_costs(inputs, nresults=nresults):
-                if isinstance(self.cost, Callable):
-                    values = get_values(inputs, idx, magnitudes=True)
-                    owncost = self.cost(**values)
+            costs = np.array([0.0])
+            for input in inputs.values():
+                if isinstance(input, MappingStep):
+                    res = input.lowest_costs(nresults=nresults)
+                    costs = np.tile(costs, len(res)) + np.repeat(
+                        [c for c, _ in sorted(res, key=lambda x: x[1])],
+                        len(costs))
                 else:
-                    owncost = self.cost
-                result.append((cost + owncost, n + idx))
+                    costs += input.cost
+
+            res = sorted((c, i) for i, c in enumerate(costs))[:nresults]
+            if isinstance(self.cost, Callable):
+                for c, i in res:
+                    values = get_values(inputs, i, magnitudes=True)
+                    owncost = self.cost(**values)
+                    result.append((c+owncost, i+n))
+            else:
+                owncost = self.cost
+                result.extend((c+owncost, i+n) for c, i in res)
             n += get_nroutes(inputs)
         return sorted(result)[:nresults]
 
@@ -303,24 +315,6 @@ def get_values(inputs, routeno, quantity=Quantity, magnitudes=False):
                       for k, v in values.items()}
 
     return values
-
-
-def get_lowest_costs(inputs, nresults=5):
-    """Returns a list of `(cost, routeno)` tuples with up to the `n`
-    lowest costs and their corresponding route numbers."""
-    result = []
-    vcost = 0
-    for input in inputs.values():
-        if isinstance(input, MappingStep):
-            result.extend(input.lowest_costs(nresults=nresults))
-        else:
-            vcost += input.cost
-    if result:
-        result.sort()
-        result = [(cost + vcost, idx) for cost, idx in result[:nresults]]
-    else:
-        result.append((vcost, 0))
-    return result
 
 
 def fno_mapper(triplestore):
@@ -525,6 +519,8 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     Returns:
         A dict mapping property names to a MappingStep instance.
     """
+    if isinstance(meta, str):
+        meta = dlite.get_instance(meta)
     if isinstance(instances, dlite.Instance):
         instances = [instances]
 
@@ -550,9 +546,10 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     return routes
 
 
-def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
-    """Create a new instance of `meta` from selected mapping route returned by
-    instance_routes().
+def instantiate_from_routes(meta, routes, routedict=None, id=None,
+                            quantity=Quantity):
+    """Create a new instance of `meta` from selected mapping route returned
+    by instance_routes().
 
     Arguments:
         meta: Metadata to instantiate.
@@ -596,9 +593,9 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
     routes.
 
     This is a convenient function that combines instance_routes() and
-    instantiate_route().  If you want to investigate the possible routes,
-    you will probably want to call instance_routes() and
-    instantiate_route() instead.
+    instantiate_from_routes().  If you want to investigate the possible
+    routes, you will probably want to call instance_routes() and
+    instantiate_from_routes() instead.
 
     Arguments:
         meta: Metadata to instantiate.
@@ -614,7 +611,7 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
         quantity: Class implementing quantities with units.  Defaults to
             pint.Quantity.
 
-    Keyword arguments (passed to instance_routes()):
+    Keyword arguments (passed to mapping_route()):
         function_repo: Dict mapping function IRIs to corresponding Python
             function.  Default is to use `triplestore.function_repo`.
         function_mappers: Sequence of mapping functions that takes
@@ -635,14 +632,21 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
     if isinstance(meta, str):
         meta = dlite.get_instance(meta)
 
-    routes = instance_routes(meta=meta,
-                             instances=instances,
-                             triplestore=triplestore,
-                             allow_incomplete=allow_incomplete,
-                             quantity=quantity,
-                             **kwargs)
-    return instantiate_route(meta=meta, routes=routes, routedict=routedict,
-                             id=id, quantity=quantity)
+    routes = instance_routes(
+        meta=meta,
+        instances=instances,
+        triplestore=triplestore,
+        allow_incomplete=allow_incomplete,
+        quantity=quantity,
+        **kwargs
+    )
+    return instantiate_from_routes(
+        meta=meta,
+        routes=routes,
+        routedict=routedict,
+        id=id,
+        quantity=quantity
+    )
 
 
 
