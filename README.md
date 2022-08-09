@@ -283,6 +283,9 @@ The sources can be cloned from GitHub
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
     - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+        Note that in some cases a GSSAPI error is raised when using psycopg2
+        by pip installing psycopg2-binary.
+        This is solved by installing from source as described in their documentation.
     - [pandas][pandas], optional (used for csv storage plugin)
 
 #### Build dependencies
