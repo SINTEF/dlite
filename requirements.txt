@@ -6,3 +6,4 @@ pandas
 pymongo
 rdflib
 pint
+openpyxl
