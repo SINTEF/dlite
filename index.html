@@ -259,7 +259,8 @@ $(function() {
 <li><a href="https://www.python.org/">Python 3</a>, optional (needed by Python bindings and some plugins)<ul>
 <li><a href="https://pypi.org/project/numpy/">NumPy</a>, required if Python is enabled</li>
 <li><a href="https://pypi.org/project/PyYAML/">PyYAML</a>, optional (used for generic YAML storage plugin)</li>
-<li><a href="https://pypi.org/project/psycopg2/">psycopg2</a>, optional (used for generic PostgreSQL storage plugin)</li>
+<li><a href="https://pypi.org/project/psycopg2/">psycopg2</a>, optional (used for generic PostgreSQL storage plugin) <br  />
+ Note that in some cases a GSSAPI error is raised when using psycopg2 by pip installing psycopg2-binary. This is solved by installing from source as described in their documentation.</li>
 <li><a href="https://pandas.pydata.org/">pandas</a>, optional (used for csv storage plugin)</li>
 </ul>
 </li>
