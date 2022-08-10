@@ -228,7 +228,23 @@ class MappingStep:
         lowest costs and their corresponding route numbers."""
         result = []
         n = 0
+        # Loop over all toplevel routes leading into this mapping step
         for inputs in self.input_routes:
+
+            # For each route, loop over all input arguments of this step
+            # The number of permutations we must consider is the product
+            # of the total number of routes to each input argument.
+            #
+            # We (potentially drastic) limit the possibilities by only
+            # considering the `nresults` routes with lowest costs into
+            # each argument.  This gives at maximum
+            #
+            #     nresults * number_of_input_arguments
+            #
+            # possibilities. We calculate the costs for all of them and
+            # store them in an array with two columns: `cost` and `routeno`.
+            # The `results` list is extended with the cost array
+            # for each toplevel route leading into this step.
             costs = np.array([0.0])
             for input in inputs.values():
                 if isinstance(input, MappingStep):
@@ -240,6 +256,11 @@ class MappingStep:
                     costs += input.cost
 
             res = sorted((c, i) for i, c in enumerate(costs))[:nresults]
+
+            # Add the cost for this step to `res`.  If `self.cost` is
+            # a callable, we call it with the input for each routeno
+            # as arguments.  Otherwise `self.cost` is the cost of this
+            # mapping step.
             if isinstance(self.cost, Callable):
                 for c, i in res:
                     values = get_values(inputs, i, magnitudes=True)
@@ -248,7 +269,11 @@ class MappingStep:
             else:
                 owncost = self.cost
                 result.extend((c+owncost, i+n) for c, i in res)
+
             n += get_nroutes(inputs)
+
+        # Finally sort the results according to cost and return the
+        # `nresults` rows with lowest cost.
         return sorted(result)[:nresults]
 
     def show(self, routeno=None, name=None, indent=0):
