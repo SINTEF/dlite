@@ -247,7 +247,7 @@ class MappingStep:
             # The `results` list is extended with the cost array
             # for each toplevel route leading into this step.
             base = np.rec.fromrecords([(0.0, 0)], names='cost,routeno',
-                                      formats='f4,i4')
+                                      formats='f8,i8')
             m = 1
             for input in inputs.values():
                 if isinstance(input, MappingStep):
