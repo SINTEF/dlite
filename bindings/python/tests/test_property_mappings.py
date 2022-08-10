@@ -244,6 +244,9 @@ step = dm.mapping_route(
     function_repo={'average_radius_function': average_radius},
 )
 
-print(step.show())
-print(step.eval())
+assert step.number_of_routes() == 1
+assert step.lowest_costs() == [(22., 0)]
 assert step.eval(unit='m') == 34e-6
+
+print(step.show())
+print('*** eval:', step.eval())
