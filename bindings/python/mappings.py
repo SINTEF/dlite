@@ -227,7 +227,8 @@ class MappingStep:
         """Returns a list of `(cost, routeno)` tuples with up to the `nresult`
         lowest costs and their corresponding route numbers."""
         result = []
-        n = 0
+        n = 0  # total number of routes
+
         # Loop over all toplevel routes leading into this mapping step
         for inputs in self.input_routes:
 
@@ -245,32 +246,44 @@ class MappingStep:
             # store them in an array with two columns: `cost` and `routeno`.
             # The `results` list is extended with the cost array
             # for each toplevel route leading into this step.
-            costs = np.array([0.0])
+            base = np.rec.fromrecords([(0.0, 0)], names='cost,routeno',
+                                      formats='f8,i8')
+            m = 1
             for input in inputs.values():
                 if isinstance(input, MappingStep):
-                    res = input.lowest_costs(nresults=nresults)
-                    costs = np.tile(costs, len(res)) + np.repeat(
-                        [c for c, _ in sorted(res, key=lambda x: x[1])],
-                        len(costs))
+                    nroutes = input.number_of_routes()
+                    res = np.rec.fromrecords([row for row in sorted(
+                        input.lowest_costs(nresults=nresults),
+                        key=lambda x: x[1])], dtype=base.dtype)
+                    res1 = res.repeat(len(base))
+                    base = np.tile(base, len(res))
+                    base.cost += res1.cost
+                    base.routeno += res1.routeno * m
+                    m *= nroutes
                 else:
-                    costs += input.cost
+                    base.cost += input.cost
 
-            res = sorted((c, i) for i, c in enumerate(costs))[:nresults]
+            # Reduce the length of base (makes probably only sense in
+            # the case self.cost is a callable, but it doesn't hurt...)
+            base.sort()
+            base = base[:nresults]
+            base.routeno += n
+            n += m
 
             # Add the cost for this step to `res`.  If `self.cost` is
             # a callable, we call it with the input for each routeno
             # as arguments.  Otherwise `self.cost` is the cost of this
             # mapping step.
             if isinstance(self.cost, Callable):
-                for c, i in res:
-                    values = get_values(inputs, i, magnitudes=True)
+                for i, rno in enumerate(base.routeno):
+                    values = get_values(inputs, rno, magnitudes=True)
                     owncost = self.cost(**values)
-                    result.append((c+owncost, i+n))
+                    base.cost[i] += owncost
             else:
                 owncost = self.cost
-                result.extend((c+owncost, i+n) for c, i in res)
+                base.cost += owncost
 
-            n += get_nroutes(inputs)
+            result.extend(base.tolist())
 
         # Finally sort the results according to cost and return the
         # `nresults` rows with lowest cost.
@@ -406,33 +419,46 @@ def mapping_route(
         #description=DCTERMS.description,
         label=RDFS.label,
         hasUnit=DM.hasUnit,
-        hasCost=':hasCost',
+        hasCost=':hasCost',  # TODO - add hasCost to the DM ontology
 ):
     """Find routes of mappings from any source in `sources` to `target`.
 
-    This implementation supports transitivity, subclasses.
+    This implementation supports functions (using FnO) and subclass
+    relations.  It also correctly handles transitivity of `mapsTo` and
+    `subClassOf` relations.
 
     Arguments:
         target: IRI of the target in `triplestore`.
         sources: Dict mapping source IRIs to source values.
         triplestore: Triplestore instance.
             It is safe to pass a generator expression too.
+
+    Additional arguments for fine-grained tuning:
         function_repo: Dict mapping function IRIs to corresponding Python
             function.  Default is to use `triplestore.function_repo`.
         function_mappers: Sequence of mapping functions that takes
             `triplestore` as argument and return a dict mapping output IRIs
             to a list of `(function_iri, [input_iris, ...])` tuples.
+        default_costs: A dict providing default costs of different types
+            of mapping steps ("function", "mapsTo", "instanceOf",
+            "subclassOf", and "value").  These costs can be overridden with
+            'hasCost' relations in the ontology.
         mapsTo: IRI of 'mapsTo' in `triplestore`.
         instanceOf: IRI of 'instanceOf' in `triplestore`.
         subClassOf: IRI of 'subClassOf' in `triples`.  Set it to None if
             subclasses should not be considered.
         label: IRI of 'label' in `triplestore`.  Used for naming function
             input parameters.  The default is to use rdfs:label.
-        hasUnit: IRI of 'hasUnit' in `triples`.
-        hasCost: IRI of 'hasCost' in `triples`.
+        hasUnit: IRI of 'hasUnit' in `triples`.  Can be used to explicit
+            specify the unit of a quantity.
+        hasCost: IRI of 'hasCost' in `triples`.  Used for associating a
+            user-defined cost or cost function with instantiation of a
+            property.
 
     Returns:
-        A MappingStep instance.
+        A MappingStep instance.  This is a root of a nested tree of
+        MappingStep instances providing an (efficient) internal description
+        of all possible mapping routes from `sources` to `target`.
     """
     if function_repo is None:
         function_repo = triplestore.function_repo
@@ -477,7 +503,7 @@ def mapping_route(
                 step.add_input(value, name=soName.get(node))
             else:
                 prevstep = MappingStep(output_iri=node,
-                                    output_unit=soUnit.get(node))
+                                       output_unit=soUnit.get(node))
                 step.add_input(prevstep, name=soName.get(node))
                 walk(node, visited, prevstep)
 
