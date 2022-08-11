@@ -471,8 +471,8 @@ class Triplestore:
 
     def add_function(
             self,
-            func: callable,
-            expects: "Union[Sequence, Mapping]" = (),
+            func: Callable,
+            expects: "Union[str, Sequence, Mapping]" = (),
             returns: "Union[str, Sequence]" = (),
             base_iri: str = None,
             standard: str = 'fno',
@@ -499,19 +499,23 @@ class Triplestore:
         Returns:
             func_iri: IRI of the added function.
         """
+        if isinstance(expects, str):
+            expects = [expects]
+        if isinstance(returns, str):
+            returns = [returns]
+
         method = getattr(self, f"_add_function_{standard}")
         func_iri = method(func, expects, returns, base_iri)
         self.function_repo[func_iri] = func
 
         if cost is not None:
-            dests = [returns] if isinstance(returns, str) else returns
-            for dest in dests:
-                self._add_cost(cost, dest)
+            for dest_iri in returns:
+                self._add_cost(cost, dest_iri)
 
         return func_iri
 
-    def _add_cost(self, cost, dest):
-        """Help function that adds `cost` to destination IRI `dest`.
+    def _add_cost(self, cost, dest_iri):
+        """Help function that adds `cost` to destination IRI `dest_iri`.
 
         `cost` should be either a float or a Callable returning a float.
 
@@ -521,14 +525,14 @@ class Triplestore:
         this function is not part of the public API.  Use the add_mapsTo()
         and add_function() methods instead.
         """
-        if self.has(dest, DM.hasCost):
-            warnings.warn(f"A cost is already assigned to IRI: {dest}")
-        elif isinstance(cost, callable):
+        if self.has(dest_iri, DM.hasCost):
+            warnings.warn(f"A cost is already assigned to IRI: {dest_iri}")
+        elif callable(cost):
             cost_id = f"cost_function{function_id(cost)}"
-            self.add((dest, DM.hasCost, Literal(cost_id)))
+            self.add((dest_iri, DM.hasCost, Literal(cost_id)))
             self.function_repo[cost_id] = cost
         else:
-            self.add((dest, DM.hasCost, Literal(cost)))
+            self.add((dest_iri, DM.hasCost, Literal(cost)))
 
     def _add_function_fno(self, func, expects, returns, base_iri):
         """Implementing add_function() for FnO."""
@@ -567,8 +571,6 @@ class Triplestore:
             self.add((lst, RDF.rest, lst_next))
             lst = lst_next
 
-        if isinstance(returns, str):
-            returns = [returns]
         lst = outlist
         for i, iri in enumerate(returns):
             lst_next = f"{outlist}{i+2}" if i < len(returns) - 1 else RDF.nil

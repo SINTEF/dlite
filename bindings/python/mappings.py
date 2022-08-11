@@ -274,7 +274,7 @@ class MappingStep:
             # a callable, we call it with the input for each routeno
             # as arguments.  Otherwise `self.cost` is the cost of this
             # mapping step.
-            if isinstance(self.cost, Callable):
+            if callable(self.cost):
                 for i, rno in enumerate(base.routeno):
                     values = get_values(inputs, rno, magnitudes=True)
                     owncost = self.cost(**values)
