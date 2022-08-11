@@ -176,21 +176,25 @@ struct _DLiteProperty {
   }
   void set_dims(obj_t *arr) {
     int i, n = dlite_swig_length(arr);
+    char **new=NULL;
+    if (!(new = calloc(n, sizeof(char *))))
+      FAIL("allocation failure");
+    if (dlite_swig_set_array(&new, 1, &n, dliteStringPtr, sizeof(char *), arr))
+      FAIL("cannot set new shape");
     for (i=0; i < $self->ndims; i++) free($self->dims[i]);
     free($self->dims);
-    $self->ndims = 0;
-    if (n) {
-      if (!($self->dims = calloc(n, sizeof(char *)))) {
-        dlite_err(1, "allocation failure");
-        return;
-      }
-    }
     $self->ndims = n;
-    if (dlite_swig_set_array(&$self->dims, 1, &$self->ndims,
-                             dliteStringPtr, sizeof(char *), arr))
-      dlite_err(1, "cannot set new shape");
+    $self->dims = new;
+    return;
+  fail:
+    if (new) {
+      for (i=0; i<n; i++) if(new[i]) free(new[i]);
+      free(new);
+    }
   }
+
 }
+
 
 /* --------
  * Relation
