@@ -218,7 +218,8 @@ assert prop.unit == None
 assert prop.description == 'A blob array.'
 
 prop = dlite.Property('newprop', 'int')
-prop.set_dims(('a', 'b', 'c'))
+prop.shape = ('a', 'b', 'c')
+assert prop.ndims == 3
 if HAVE_PYTEST:
     with pytest.raises(AttributeError):
         prop.ndims = 10

@@ -170,11 +170,11 @@ struct _DLiteProperty {
   int get_dtype(void) {
     return $self->type;
   }
-  obj_t *get_dims(void) {
+  obj_t *get_shape(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
                                 dliteStringPtr, sizeof(char *), $self->dims);
   }
-  void set_dims(obj_t *arr) {
+  void set_shape(obj_t *arr) {
     int i, n = dlite_swig_length(arr);
     char **new=NULL;
     if (!(new = calloc(n, sizeof(char *))))
