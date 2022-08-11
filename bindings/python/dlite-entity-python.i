@@ -67,6 +67,14 @@ class Metadata(Instance):
             return lst[0]
         raise DLiteError(f"Metadata {self.uri} has no such property: {name}")
 
+    def dimnames(self):
+        """Returns a list of all dimension names in this metadata."""
+        return [d.name for d in self.properties['dimensions']]
+
+    def propnames(self):
+        """Returns a list of all property names in this metadata."""
+        return [p.name for p in self.properties['properties']]
+
 
 def standardise(v, prop, asdict=False):
     """Represent property value `v` as a standard python type.
@@ -152,11 +160,11 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 %extend _DLiteProperty {
   %pythoncode %{
     def __repr__(self):
-        dims = ', dims=%r' % self.dims.tolist() if self.ndims else ''
+        shape = ', shape=%r' % self.shape.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
         descr = ', description=%r' %self.description if self.description else ''
         return 'Property(%r, type=%r%s%s%s)' % (
-            self.name, self.type, dims, unit, descr)
+            self.name, self.type, shape, unit, descr)
 
     def asdict(self, soft7=True, exclude_name=False):
         """Returns a dict representation of self.
@@ -170,7 +178,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             d['name'] = self.name
         d['type'] = self.get_type()
         if self.ndims:
-            d['shape' if soft7 else 'dims'] = self.dims.tolist()
+            d['shape' if soft7 else 'dims'] = self.shape.tolist()
         if self.unit:
             d['unit'] = self.unit
         if self.description:
@@ -179,13 +187,15 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     def asstrings(self):
         """Returns a representation of self as a tuple of strings."""
-        return (self.name, self.type, ','.join(str(d) for d in self.dims),
+        return (self.name, self.type, ','.join(str(d) for d in self.shape),
                 '' if self.unit is None else self.unit,
                 '' if self.description is None else self.description)
 
     type = property(get_type, doc='Type name.')
     dtype = property(get_dtype, doc='Type number.')
-    dims = property(get_dims, doc='Array of dimension indices.')
+    dims = property(get_dims, doc='Array of dimension indices. '
+                    '`dims` is deprecated, use `shape` instead.')
+    shape = property(get_dims, doc='Array of dimension indices.')
   %}
 }
 
