@@ -148,7 +148,7 @@ prop = Property("a", type='float')
 
 prop2 = Property("b", type='string10', dims=['I', 'J', 'K'],
                  description='something enlightening...')
-assert any(prop2.dims)
+assert any(prop2.shape)
 
 props = myentity['properties']
 props[0]

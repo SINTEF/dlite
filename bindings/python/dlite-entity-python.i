@@ -193,9 +193,16 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     type = property(get_type, doc='Type name.')
     dtype = property(get_dtype, doc='Type number.')
-    dims = property(get_dims, doc='Array of dimension indices. '
-                    '`dims` is deprecated, use `shape` instead.')
-    shape = property(get_dims, doc='Array of dimension indices.')
+    shape = property(get_dims, set_dims, doc='Array of dimension indices.')
+
+    # Too be removed...
+    def get_dims_depr(self):
+        warnings.warn('Property `dims` is deprecated, use `shape` instead.',
+                      DeprecationWarning, stacklevel=2)
+        return self.get_dims()
+    dims = property(get_dims_depr, doc='Array of dimension indices. '
+                    'Property `dims` is deprecated, use `shape` instead.')
+
   %}
 }
 
