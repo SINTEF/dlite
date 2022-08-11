@@ -274,7 +274,7 @@ class MappingStep:
             # a callable, we call it with the input for each routeno
             # as arguments.  Otherwise `self.cost` is the cost of this
             # mapping step.
-            if isinstance(self.cost, Callable):
+            if callable(self.cost):
                 for i, rno in enumerate(base.routeno):
                     values = get_values(inputs, rno, magnitudes=True)
                     owncost = self.cost(**values)
@@ -419,7 +419,7 @@ def mapping_route(
         #description=DCTERMS.description,
         label=RDFS.label,
         hasUnit=DM.hasUnit,
-        hasCost=':hasCost',  # TODO - add hasCost to the DM ontology
+        hasCost=DM.hasCost,  # TODO - add hasCost to the DM ontology
 ):
     """Find routes of mappings from any source in `sources` to `target`.
 
@@ -486,6 +486,14 @@ def mapping_route(
     soUnit = {s: o for s, o in triplestore.subject_objects(hasUnit)}
     soCost = {s: o for s, o in triplestore.subject_objects(hasCost)}
 
+    def getcost(target, stepname):
+        """Returns the cost assigned to IRI `target` for a mapping step
+        of type `stepname`."""
+        cost = soCost.get(target, default_costs[stepname])
+        if cost is None:
+            return None
+        return function_repo[cost] if cost in function_repo else float(cost)
+
     def walk(target, visited, step):
         """Walk backward in rdf graph from `node` to sources."""
         if target in visited: return
@@ -495,11 +503,11 @@ def mapping_route(
             if node in visited:
                 return
             step.steptype = steptype
-            step.cost = soCost.get(target, default_costs[stepname])
+            step.cost = getcost(target, stepname)
             if node in sources:
                 value = Value(value=sources[node], unit=soUnit.get(node),
                               iri=node, property_iri=soInst.get(node),
-                              cost=soCost.get(node, default_costs['value']))
+                              cost=getcost(node, 'value'))
                 step.add_input(value, name=soName.get(node))
             else:
                 prevstep = MappingStep(output_iri=node,
@@ -522,7 +530,7 @@ def mapping_route(
         for fmap in function_mappers:
             for func, input_iris in fmap(triplestore)[target]:
                 step.steptype = StepType.FUNCTION
-                step.cost = soCost.get(func, default_costs['function'])
+                step.cost = getcost(func, 'function')
                 step.function = function_repo[func]
                 step.join_mode = True
                 for i, input_iri in enumerate(input_iris):
@@ -540,7 +548,7 @@ def mapping_route(
         visited.add(target)  # do we really wan't this?
         source = soInst[target]
         step.steptype = StepType.INSTANCEOF
-        step.cost = soCost.get(source, default_costs['instanceOf'])
+        step.cost = getcost(source, 'instanceOf')
         step0 = MappingStep(output_iri=source, output_unit=soUnit.get(source))
         step.add_input(step0, name=soName.get(target))
         step = step0
