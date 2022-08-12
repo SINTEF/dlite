@@ -14,7 +14,7 @@ def parse_pgconf():
 
         (host, user, database, password)
 
-    Exit with code 44 (skip test) if the pgconf.h file does not exists,
+    Exit with code 44 (skip test) if the pgconf.h file does not exists.
     """
     rootdir = thisdir.parent.parent.parent
     pgconf = rootdir / 'storages/python/tests-c/pgconf.h'

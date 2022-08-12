@@ -19,6 +19,7 @@ from collections.abc import Sequence
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Union
 
+import numpy as np
 from pint import Quantity
 
 import dlite
@@ -226,17 +227,66 @@ class MappingStep:
         """Returns a list of `(cost, routeno)` tuples with up to the `nresult`
         lowest costs and their corresponding route numbers."""
         result = []
-        n = 0
+        n = 0  # total number of routes
+
+        # Loop over all toplevel routes leading into this mapping step
         for inputs in self.input_routes:
-            owncost = 1
-            for cost, idx in get_lowest_costs(inputs, nresults=nresults):
-                if isinstance(self.cost, Callable):
-                    values = get_values(inputs, idx, magnitudes=True)
-                    owncost = self.cost(**values)
+
+            # For each route, loop over all input arguments of this step
+            # The number of permutations we must consider is the product
+            # of the total number of routes to each input argument.
+            #
+            # We (potentially drastic) limit the possibilities by only
+            # considering the `nresults` routes with lowest costs into
+            # each argument.  This gives at maximum
+            #
+            #     nresults * number_of_input_arguments
+            #
+            # possibilities. We calculate the costs for all of them and
+            # store them in an array with two columns: `cost` and `routeno`.
+            # The `results` list is extended with the cost array
+            # for each toplevel route leading into this step.
+            base = np.rec.fromrecords([(0.0, 0)], names='cost,routeno',
+                                      formats='f8,i8')
+            m = 1
+            for input in inputs.values():
+                if isinstance(input, MappingStep):
+                    nroutes = input.number_of_routes()
+                    res = np.rec.fromrecords([row for row in sorted(
+                        input.lowest_costs(nresults=nresults),
+                        key=lambda x: x[1])], dtype=base.dtype)
+                    res1 = res.repeat(len(base))
+                    base = np.tile(base, len(res))
+                    base.cost += res1.cost
+                    base.routeno += res1.routeno * m
+                    m *= nroutes
                 else:
-                    owncost = self.cost
-                result.append((cost + owncost, n + idx))
-            n += get_nroutes(inputs)
+                    base.cost += input.cost
+
+            # Reduce the length of base (makes probably only sense in
+            # the case self.cost is a callable, but it doesn't hurt...)
+            base.sort()
+            base = base[:nresults]
+            base.routeno += n
+            n += m
+
+            # Add the cost for this step to `res`.  If `self.cost` is
+            # a callable, we call it with the input for each routeno
+            # as arguments.  Otherwise `self.cost` is the cost of this
+            # mapping step.
+            if callable(self.cost):
+                for i, rno in enumerate(base.routeno):
+                    values = get_values(inputs, rno, magnitudes=True)
+                    owncost = self.cost(**values)
+                    base.cost[i] += owncost
+            else:
+                owncost = self.cost
+                base.cost += owncost
+
+            result.extend(base.tolist())
+
+        # Finally sort the results according to cost and return the
+        # `nresults` rows with lowest cost.
         return sorted(result)[:nresults]
 
     def show(self, routeno=None, name=None, indent=0):
@@ -305,24 +355,6 @@ def get_values(inputs, routeno, quantity=Quantity, magnitudes=False):
     return values
 
 
-def get_lowest_costs(inputs, nresults=5):
-    """Returns a list of `(cost, routeno)` tuples with up to the `n`
-    lowest costs and their corresponding route numbers."""
-    result = []
-    vcost = 0
-    for input in inputs.values():
-        if isinstance(input, MappingStep):
-            result.extend(input.lowest_costs(nresults=nresults))
-        else:
-            vcost += input.cost
-    if result:
-        result.sort()
-        result = [(cost + vcost, idx) for cost, idx in result[:nresults]]
-    else:
-        result.append((vcost, 0))
-    return result
-
-
 def fno_mapper(triplestore):
     """Finds all function definitions in `triplestore` based on the function
     ontololy (FNO).
@@ -387,33 +419,46 @@ def mapping_route(
         #description=DCTERMS.description,
         label=RDFS.label,
         hasUnit=DM.hasUnit,
-        hasCost=':hasCost',
+        hasCost=DM.hasCost,  # TODO - add hasCost to the DM ontology
 ):
     """Find routes of mappings from any source in `sources` to `target`.
 
-    This implementation supports transitivity, subclasses.
+    This implementation supports functions (using FnO) and subclass
+    relations.  It also correctly handles transitivity of `mapsTo` and
+    `subClassOf` relations.
 
     Arguments:
         target: IRI of the target in `triplestore`.
         sources: Dict mapping source IRIs to source values.
         triplestore: Triplestore instance.
             It is safe to pass a generator expression too.
+
+    Additional arguments for fine-grained tuning:
         function_repo: Dict mapping function IRIs to corresponding Python
             function.  Default is to use `triplestore.function_repo`.
         function_mappers: Sequence of mapping functions that takes
             `triplestore` as argument and return a dict mapping output IRIs
             to a list of `(function_iri, [input_iris, ...])` tuples.
+        default_costs: A dict providing default costs of different types
+            of mapping steps ("function", "mapsTo", "instanceOf",
+            "subclassOf", and "value").  These costs can be overridden with
+            'hasCost' relations in the ontology.
         mapsTo: IRI of 'mapsTo' in `triplestore`.
         instanceOf: IRI of 'instanceOf' in `triplestore`.
         subClassOf: IRI of 'subClassOf' in `triples`.  Set it to None if
             subclasses should not be considered.
         label: IRI of 'label' in `triplestore`.  Used for naming function
             input parameters.  The default is to use rdfs:label.
-        hasUnit: IRI of 'hasUnit' in `triples`.
-        hasCost: IRI of 'hasCost' in `triples`.
+        hasUnit: IRI of 'hasUnit' in `triples`.  Can be used to explicit
+            specify the unit of a quantity.
+        hasCost: IRI of 'hasCost' in `triples`.  Used for associating a
+            user-defined cost or cost function with instantiation of a
+            property.
 
     Returns:
-        A MappingStep instance.
+        A MappingStep instance.  This is a root of a nested tree of
+        MappingStep instances providing an (efficient) internal description
+        of all possible mapping routes from `sources` to `target`.
     """
     if function_repo is None:
         function_repo = triplestore.function_repo
@@ -441,6 +486,14 @@ def mapping_route(
     soUnit = {s: o for s, o in triplestore.subject_objects(hasUnit)}
     soCost = {s: o for s, o in triplestore.subject_objects(hasCost)}
 
+    def getcost(target, stepname):
+        """Returns the cost assigned to IRI `target` for a mapping step
+        of type `stepname`."""
+        cost = soCost.get(target, default_costs[stepname])
+        if cost is None:
+            return None
+        return function_repo[cost] if cost in function_repo else float(cost)
+
     def walk(target, visited, step):
         """Walk backward in rdf graph from `node` to sources."""
         if target in visited: return
@@ -450,15 +503,15 @@ def mapping_route(
             if node in visited:
                 return
             step.steptype = steptype
-            step.cost = soCost.get(target, default_costs[stepname])
+            step.cost = getcost(target, stepname)
             if node in sources:
                 value = Value(value=sources[node], unit=soUnit.get(node),
                               iri=node, property_iri=soInst.get(node),
-                              cost=soCost.get(node, default_costs['value']))
+                              cost=getcost(node, 'value'))
                 step.add_input(value, name=soName.get(node))
             else:
                 prevstep = MappingStep(output_iri=node,
-                                    output_unit=soUnit.get(node))
+                                       output_unit=soUnit.get(node))
                 step.add_input(prevstep, name=soName.get(node))
                 walk(node, visited, prevstep)
 
@@ -477,7 +530,7 @@ def mapping_route(
         for fmap in function_mappers:
             for func, input_iris in fmap(triplestore)[target]:
                 step.steptype = StepType.FUNCTION
-                step.cost = soCost.get(func, default_costs['function'])
+                step.cost = getcost(func, 'function')
                 step.function = function_repo[func]
                 step.join_mode = True
                 for i, input_iri in enumerate(input_iris):
@@ -495,7 +548,7 @@ def mapping_route(
         visited.add(target)  # do we really wan't this?
         source = soInst[target]
         step.steptype = StepType.INSTANCEOF
-        step.cost = soCost.get(source, default_costs['instanceOf'])
+        step.cost = getcost(source, 'instanceOf')
         step0 = MappingStep(output_iri=source, output_unit=soUnit.get(source))
         step.add_input(step0, name=soName.get(target))
         step = step0
@@ -525,6 +578,8 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     Returns:
         A dict mapping property names to a MappingStep instance.
     """
+    if isinstance(meta, str):
+        meta = dlite.get_instance(meta)
     if isinstance(instances, dlite.Instance):
         instances = [instances]
 
@@ -550,9 +605,10 @@ def instance_routes(meta, instances, triplestore, allow_incomplete=False,
     return routes
 
 
-def instantiate_route(meta, routes, routedict=None, id=None, quantity=Quantity):
-    """Create a new instance of `meta` from selected mapping route returned by
-    instance_routes().
+def instantiate_from_routes(meta, routes, routedict=None, id=None,
+                            quantity=Quantity):
+    """Create a new instance of `meta` from selected mapping route returned
+    by instance_routes().
 
     Arguments:
         meta: Metadata to instantiate.
@@ -596,9 +652,9 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
     routes.
 
     This is a convenient function that combines instance_routes() and
-    instantiate_route().  If you want to investigate the possible routes,
-    you will probably want to call instance_routes() and
-    instantiate_route() instead.
+    instantiate_from_routes().  If you want to investigate the possible
+    routes, you will probably want to call instance_routes() and
+    instantiate_from_routes() instead.
 
     Arguments:
         meta: Metadata to instantiate.
@@ -614,7 +670,7 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
         quantity: Class implementing quantities with units.  Defaults to
             pint.Quantity.
 
-    Keyword arguments (passed to instance_routes()):
+    Keyword arguments (passed to mapping_route()):
         function_repo: Dict mapping function IRIs to corresponding Python
             function.  Default is to use `triplestore.function_repo`.
         function_mappers: Sequence of mapping functions that takes
@@ -635,14 +691,21 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
     if isinstance(meta, str):
         meta = dlite.get_instance(meta)
 
-    routes = instance_routes(meta=meta,
-                             instances=instances,
-                             triplestore=triplestore,
-                             allow_incomplete=allow_incomplete,
-                             quantity=quantity,
-                             **kwargs)
-    return instantiate_route(meta=meta, routes=routes, routedict=routedict,
-                             id=id, quantity=quantity)
+    routes = instance_routes(
+        meta=meta,
+        instances=instances,
+        triplestore=triplestore,
+        allow_incomplete=allow_incomplete,
+        quantity=quantity,
+        **kwargs
+    )
+    return instantiate_from_routes(
+        meta=meta,
+        routes=routes,
+        routedict=routedict,
+        id=id,
+        quantity=quantity
+    )
 
 
 

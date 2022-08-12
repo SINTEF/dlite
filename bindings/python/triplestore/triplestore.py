@@ -110,7 +110,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Mapping
-    from typing import Generator, Tuple, Union
+    from typing import Callable, Generator, Tuple, Union
 
     Triple = Tuple[Union[str, None], Union[str, None], Union[str, None]]
 
@@ -252,6 +252,12 @@ DC = Namespace("http://purl.org/dc/elements/1.1/")
 DCTERMS = Namespace("http://purl.org/dc/terms/")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 DOAP = Namespace("http://usefulinc.com/ns/doap#")
+PROV = Namespace("http://www.w3.org/ns/prov#")
+DCAT = Namespace("http://www.w3.org/ns/dcat#")
+TIME = Namespace("http://www.w3.org/2006/time#")
+GEO = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
+SDO = Namespace("http://schema.org/")
+VANN = Namespace("http://purl.org/vocab/vann/")
 FNO = Namespace("https://w3id.org/function/ontology#")
 
 EMMO = Namespace("http://emmo.info/emmo#")
@@ -572,6 +578,17 @@ class Triplestore:
         self.remove((s, p, None))
         self.add(triple)
 
+    def has(self, subject=None, predicate=None, object=None):
+        """Returns true if the triplestore has any triple matching
+        the give subject, predicate and/or object."""
+        g = self.triples((subject, predicate, object))
+        try:
+            g.__next__()
+        except StopIteration:
+            return False
+        return True
+
+
     # Methods providing additional functionality
     # ------------------------------------------
     def expand_iri(self, iri: str):
@@ -601,11 +618,14 @@ class Triplestore:
                 raise NamespaceError(f"No prefix defined for IRI: {iri}")
         return iri
 
-    def add_mapsTo(self,
-                   target: str,
-                   source: "Union[str, dlite.Instance, dataclass]",
-                   property_name: str = None
-                   ):
+    def add_mapsTo(
+            self,
+            target: str,
+            source: "Union[str, dlite.Instance, dataclass]",
+            property_name: str = None,
+            cost: "Union[float, Callable]" = None,
+            target_cost: bool = True,
+    ):
         """Add 'mapsTo' relation to triplestore.
 
         Parameters:
@@ -613,6 +633,12 @@ class Triplestore:
             source: Source IRI or entity object.
             property_name: Name of property if `source` is an entity or
                 an entity IRI.
+            cost: User-defined cost of following this mapping relation
+                represented as a float.  It may be given either as a
+                float or as a callable taking the value of the mapped
+                quantity as input and returning the cost as a float.
+            target_cost: Whether the cost is assigned to mapping steps
+                that have `target` as output.
         """
         self.bind("map", MAP)
 
@@ -625,14 +651,19 @@ class Triplestore:
         if property_name:
             source = f"{source}#{property_name}"
             self.add((source, MAP.mapsTo, target))
+        if cost is not None:
+            dest = target if target_cost else source
+            self._add_cost(cost, dest)
 
-    def add_function(self,
-                     func: callable,
-                     expects: "Union[Sequence, Mapping]" = (),
-                     returns: "Union[str, Sequence]" = (),
-                     base_iri: str = None,
-                     standard: str = 'fno',
-                     ):
+    def add_function(
+            self,
+            func: Callable,
+            expects: "Union[str, Sequence, Mapping]" = (),
+            returns: "Union[str, Sequence]" = (),
+            base_iri: str = None,
+            standard: str = 'fno',
+            cost: "Union[float, Callable]" = None,
+    ):
         """Inspect function and add triples describing it to the triplestore.
 
         Parameters:
@@ -642,17 +673,52 @@ class Triplestore:
                 dict mapping argument names to corresponding ontological IRIs.
             returns: IRI of return value.  May also be given as a sequence
                 of IRIs, if multiple values are returned.
-            base_iri:
+            base_iri: Base of the IRI representing the function in the
+                knowledge base.  Defaults to the base IRI of the triplestore.
             standard: Name of ontology to use when describing the function.
                 Defaults to the Function Ontology (FnO).
+            cost: User-defined cost of following this mapping relation
+                represented as a float.  It may be given either as a
+                float or as a callable taking the same arguments as `func`
+                returning the cost as a float.
 
         Returns:
             func_iri: IRI of the added function.
         """
+        if isinstance(expects, str):
+            expects = [expects]
+        if isinstance(returns, str):
+            returns = [returns]
+
         method = getattr(self, f"_add_function_{standard}")
         func_iri = method(func, expects, returns, base_iri)
         self.function_repo[func_iri] = func
+
+        if cost is not None:
+            for dest_iri in returns:
+                self._add_cost(cost, dest_iri)
+
         return func_iri
+
+    def _add_cost(self, cost, dest_iri):
+        """Help function that adds `cost` to destination IRI `dest_iri`.
+
+        `cost` should be either a float or a Callable returning a float.
+
+        If `cost` is a callable it is just referred to with a literal
+        id and is not ontologically described as a function.  The
+        expected input arguments depends on the context, which is why
+        this function is not part of the public API.  Use the add_mapsTo()
+        and add_function() methods instead.
+        """
+        if self.has(dest_iri, DM.hasCost):
+            warnings.warn(f"A cost is already assigned to IRI: {dest_iri}")
+        elif callable(cost):
+            cost_id = f"cost_function{function_id(cost)}"
+            self.add((dest_iri, DM.hasCost, Literal(cost_id)))
+            self.function_repo[cost_id] = cost
+        else:
+            self.add((dest_iri, DM.hasCost, Literal(cost)))
 
     def _add_function_fno(self, func, expects, returns, base_iri):
         """Implementing add_function() for FnO."""
@@ -691,8 +757,6 @@ class Triplestore:
             self.add((lst, RDF.rest, lst_next))
             lst = lst_next
 
-        if isinstance(returns, str):
-            returns = [returns]
         lst = outlist
         for i, iri in enumerate(returns):
             lst_next = f"{outlist}{i+2}" if i < len(returns) - 1 else RDF.nil

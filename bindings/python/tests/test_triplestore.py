@@ -59,6 +59,10 @@ ts.add_mapsTo(EX.MyConcept, "http://onto-ns.com/meta/0.1/MyEntity", "myprop")
 ts.add((EX.MyConcept, RDFS.subClassOf, OWL.Thing))
 ts.add((EX.AnotherConcept, RDFS.subClassOf, OWL.Thing))
 ts.add((EX.Sum, RDFS.subClassOf, OWL.Thing))
+assert ts.has(EX.Sum) == True
+assert ts.has(EX.Sum, RDFS.subClassOf, OWL.Thing) == True
+assert ts.has(object=EX.NotInOntology) == False
+
 
 def sum(a, b):
     """Summarise `a` and `b`."""
@@ -108,4 +112,27 @@ ts2 = Triplestore("rdflib")
 ts2.parse(format="turtle", data=s)
 assert ts2.serialize(format="turtle") == s
 ts2.set((EX.AnotherConcept, RDFS.subClassOf, EX.MyConcept))
-# print(ts2.serialize(format="turtle"))
+
+def cost(x):
+    return 2*x
+
+ts2.add_mapsTo(EX.Sum, "http://onto-ns.com/meta/0.1/MyEntity#sum", cost=cost)
+assert list(ts2.function_repo.values())[0] == cost
+
+def func(x):
+    return x+1
+
+ts2.add_function(func, expects=EX.Sum, returns=EX.OneMore, cost=cost)
+assert list(ts2.function_repo.values())[1] == func
+assert len(ts2.function_repo) == 2  # cost is only added once
+
+def func2(x):
+    return x+2
+
+def cost2(x):
+    return 2*x+1
+
+ts2.add_function(func2, expects=EX.Sum, returns=EX.EvenMore, cost=cost2)
+assert len(ts2.function_repo) == 4
+
+#print(ts2.serialize(format="turtle"))
