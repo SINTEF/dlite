@@ -210,6 +210,9 @@ assert inst.meta.propnames() == [
     'a-relation',
     'a-relation-array',
 ]
+
+
+# Test property
 prop = inst.meta.getprop('a-blob-array')
 assert prop.name == 'a-blob-array'
 assert prop.type == 'blob4'
