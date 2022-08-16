@@ -1,101 +1,11 @@
 '''A module encapsulating different triplestores using the strategy design
 pattern.
 
+See https://github.com/SINTEF/dlite/tree/master/bindings/python/triplestore
+for an introduction.
+
 This module has no dependencies outside the standard library, but the
-triplestore backends have.
-
-The main class is Triplestore, who's __init__() method takes the name of the
-backend to encapsulate as first argument.  It's interface is strongly inspired
-by rdflib.Graph, but simplified when possible to make it easy to use.  Some
-important differences:
-- all IRIs are represented by Python strings
-- blank nodes are strings starting with "_:"
-- literals are constructed with Literal()
-
-The module already provides a set of pre-defined namespaces that simplifies
-writing IRIs. For example:
-
-    >>> from triplestore import RDFS, OWL
-    >>> RDFS.subClassOf
-    'http://www.w3.org/2000/01/rdf-schema#subClassOf'
-
-New namespaces can be created using the Namespace class, but are usually
-added with the bind() method:
-
-    >>> from triplestore import Triplestore
-    >>> ts = Triplestore(backend="rdflib")
-    >>> ONTO = ts.bind("onto", "http://example.com/onto#")
-    >>> ONTO.MyConcept
-    'http://example.com/onto#MyConcept'
-
-New triples can added either with the parse() method (for backends that support
-it) or the add() and add_triples() methods.
-
-    # en(msg) is a convinient function for adding english literals.
-    # It is equivalent to ``triplestore.Literal(msg, lang="en")``.
-    >>> from triplestore import en
-    >>> ts.parse("onto.ttl", format="turtle")
-    >>> ts.add_triples([
-    ...     (ONTO.MyConcept, RDFS.subClassOf, OWL.Thing),
-    ...     (ONTO.MyConcept, RDFS.label, en("My briliant ontological concept.")),
-    ... ])
-
-For backends that support it can the triplestore be serialised using
-serialize():
-
-    >>> ts.serialize("onto2.ttl")
-
-A set of convenient functions exists for simple queries, including
-triples(), subjects(), predicates(), objects(), subject_predicates(),
-subject_objects(), predicate_objects() and value().  Except for value(),
-they return the result as generators. For example:
-
-    >>> list(ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf))
-    ['http://www.w3.org/2002/07/owl#Thing']
-
-The query() and update() methods can be used to query and update the
-triplestore using SPARQL.
-
-Finally Triplestore has two specialised methods add_mapsTo() and
-add_function() that simplify working with mappings.  add_mapsTo() is
-convinient for defining new mappings:
-
-    >>> from triplestore import Namespace
-    >>> META = Namespace("http://onto-ns.com/meta/0.1/MyEntity#")
-    >>> ts.add_mapsTo(ONTO.MyConcept, META.my_property)
-
-It can also be used with DLite and SOFT7 data models.  Here we repeat
-the above with DLite:
-
-    >>> import dlite
-    >>> meta = dlite.get_entity("http://onto-ns.com/meta/0.1/MyEntity")
-    >>> ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
-
-The add_function() describes a function and adds mappings for its
-arguments and return value(s).  Currently it only supports the Function
-Ontology (FnO).
-
-    >>> def mean(x, y):
-    ...     """Returns the mean value of `x` and `y`."""
-    ...     return (x + y)/2
-
-    >>> ts.add_function(mean,
-    ...                 expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
-    ...                 returns=ONTO.AverageArmLength)
-
-
-TODO:
-* Update the query() method to return the SPARQL result in a backend-
-  independent way.
-* Add additional backends. Candidates include:
-    - list of tuples
-    - owlready2/EMMOntoPy
-    - Stardog
-    - DLite triplestore (based on Redland librdf)
-    - Redland librdf
-    - Apache Jena Fuseki
-    - Allegrograph
-
+triplestore backends may have.
 '''
 from __future__ import annotations  # Support Python 3.7 (PEP 585)
 
@@ -173,7 +83,7 @@ class Namespace:
         self._check = bool(check)
         if cachemode == -1:
             cachemode = (
-                Namespace.USE_CACHE if label_annotations or check else
+                Namespace.ONLY_CACHE if label_annotations or check else
                 Namespace.NO_CACHE
             )
         # map labels to IRI
@@ -203,7 +113,7 @@ class Namespace:
         # Add (name, full_iri) pairs to cache
         # Currently we only check concepts that defines RDFS.isDefinedBy
         # relations.
-        # Is there an efficient way to look over all IRIs in this namespace?
+        # Is there an efficient way to loop over all IRIs in this namespace?
         n = len(self._iri)
         self._cache.update(
             (s[n:], s) for s in triplestore.subjects(
@@ -221,15 +131,10 @@ class Namespace:
                         if self._cache is not None:
                             self._cache[name]: s
                         return s
-
-
-
         if self._check:
-            if self._triplestore:
-
-
-
-        return self._iri + name
+            raise NoSuchIRIError(self._iri + name)
+        else:
+            return self._iri + name
 
     def __getitem__(self, key):
         return self.__getattr__(key)
