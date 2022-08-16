@@ -7,3 +7,5 @@ pymongo
 rdflib
 pint
 openpyxl
+pymongo
+mongomock
