@@ -28,7 +28,6 @@ class mongodb(dlite.DLiteStorageBase):
         - user: User name.
         - password: Password.
         - mode: "r" for opening in read-only mode, "w" for read/write mode.
-        - port: Port number (default: 27017)
         - authMechanism: Authentication mechanism (default: "SCRAM-SHA-256")
         - mock: Whether to use mongomock.
         """
