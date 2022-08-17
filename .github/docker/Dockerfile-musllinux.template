@@ -25,6 +25,11 @@ FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
 COPY requirements.txt /tmp/requirements.txt
 
+# Do not use distutils distributed with setuptools
+# This is due to base changes in the distutils API, removing msvccompiler,
+# which is necessary for building the numpy wheel.
+ENV SETUPTOOLS_USE_DISTUTILS="stdlib"
+
 RUN apk add -u \
   redland \
   rasqal \
