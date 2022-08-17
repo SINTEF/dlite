@@ -42,3 +42,13 @@ del meta
 new_meta = s.load(id=uuid0)
 new_inst1 = s.load(id=uuid1)
 new_inst2 = s.load(id=uuid2)
+
+# Simple queries
+instances = list(s.instances())
+assert len(instances) == 3
+assert new_meta in instances
+assert new_inst1 in instances
+assert new_inst2 in instances
+
+uuids = s.get_uuids()
+assert len(uuids) == 3

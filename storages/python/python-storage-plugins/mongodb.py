@@ -86,9 +86,9 @@ class mongodb(dlite.DLiteStorageBase):
         document = inst.asdict(uuid=True)
         self.collection.insert_one(document)
 
-    def queue(self, pattern):
+    def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
         d = {"meta": pattern} if pattern else {}
-        for doc in self.documents.find(d):
+        for doc in self.collection.find(d):
             yield doc["uuid"]
