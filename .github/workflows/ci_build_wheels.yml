@@ -21,11 +21,11 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2010"]
             arch: i686
-            py_minors: 7,9
+            py_minors: 8,9
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 7,9
+            py_minors: 8,9
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
@@ -35,11 +35,11 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2010"]
             arch: x86_64
-            py_minors: 7,9
+            py_minors: 8,9
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: 7,10
+            py_minors: 8,10
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
           # - os: ubuntu-20.04
           #   system_type: ["musllinux", "_1_1"]
