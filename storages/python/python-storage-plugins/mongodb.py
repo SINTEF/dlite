@@ -78,8 +78,7 @@ class mongodb(dlite.DLiteStorageBase):
         """Loads `id` from current storage and return it as a new instance."""
         uuid = dlite.get_uuid(id)
         document = self.collection.find_one({'uuid': uuid})
-        inst = instance_from_dict(document)
-        return inst
+        return instance_from_dict(document)
 
     def save(self, inst):
         """Stores `inst` in current storage."""
