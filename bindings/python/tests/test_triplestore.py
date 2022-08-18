@@ -49,6 +49,7 @@ FOOD2 = Namespace(
 )
 assert FAM.Son == "http://onto-ns.com/ontologies/examples/family#Son"
 assert FAM["Son"] == "http://onto-ns.com/ontologies/examples/family#Son"
+assert FAM + "Son" == "http://onto-ns.com/ontologies/examples/family#Son"
 
 name = "FOOD_345ecde3_3cac_41d2_aad6_cb6835a27b41"
 assert FOOD[name] == FOOD + name
