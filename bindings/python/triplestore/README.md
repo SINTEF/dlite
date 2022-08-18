@@ -40,10 +40,11 @@ ONTO.MyConcept
 Namespace also support access by label and IRI checking.  Both of these features
 requires loading an ontology.  The following example shows how to create an EMMO
 namespace with IRI checking.  The keyword argument `label_annotations=True` enables
-access by skos:prefLabel, rdfs:label or skos:altLabel.  The `check=True` enables
-checking for existing IRIs.  The `triplestore_url=...` is a resolvable URL that
-can be read by the backend.  Is needed, because the 'rdflib' backend is currently
-not able to load EMMO from the "http://emmo.info/emmo#" namespace.
+access by `skos:prefLabel`, `rdfs:label` or `skos:altLabel`.  The `check=True`
+enables checking for existing IRIs.  The `triplestore_url=...` is a resolvable URL
+that can be read by the 'rdflib' backend.  It is needed, because the 'rdflib'
+backend is currently not able to load EMMO from the "http://emmo.info/emmo#"
+namespace.
 
 ```python
 EMMO = ts.bind(
