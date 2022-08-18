@@ -20,9 +20,8 @@ jobs:
       run: |
         sudo apt-get update --fix-missing
         sudo apt-get install \
-          libjansson-dev \
           libhdf5-dev \
-          swig3.0 \
+          swig4.0 \
           doxygen \
           graphviz \
           python3 \
