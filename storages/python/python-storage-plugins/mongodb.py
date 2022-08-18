@@ -67,8 +67,7 @@ class mongodb(dlite.DLiteStorageBase):
             return client
 
         self.client = get_client()
-        self.collection = self.client.get_database(
-            opts.database).get_collection(opts.collection)
+        self.collection = self.client[opts.database][opts.collection]
 
     def close(self):
         """Closes this storage."""
@@ -88,6 +87,6 @@ class mongodb(dlite.DLiteStorageBase):
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
-        d = {"meta": pattern} if pattern else {}
-        for doc in self.collection.find(d):
+        mongo_filter = {"meta": pattern} if pattern else {}
+        for doc in self.collection.find(filter=mongo_filter, projection=["uuid"]):
             yield doc["uuid"]
