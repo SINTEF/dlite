@@ -1,18 +1,48 @@
 # Skip test if rdflib is not available
+from pathlib import Path
+
 try:
     import rdflib
 except ImportError:
     import sys
     sys.exit(44)
 
-from dlite.triplestore import en, Literal, Triplestore, RDF, RDFS, XSD, OWL
+from dlite.triplestore import (
+    en, Literal, Namespace, Triplestore, RDF, RDFS, XSD, OWL
+)
 from dlite.triplestore.triplestore import function_id
+
+
+thisdir = Path(__file__).absolute().parent
+ontopath_family = thisdir / "ontologies" / "family.ttl"
+ontopath_food = thisdir / "ontologies" / "food.ttl"
 
 
 # Test namespaces
 # ---------------
 assert str(RDF) == "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 assert RDF.type == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+
+FAM = Namespace(
+    "http://onto-ns.com/ontologies/examples/familyxxx#",
+    check=True,
+    triplestore_url=ontopath_family,
+)
+#FOOD = Namespace(
+#    "http://onto-ns.com/ontologies/examples/food#",
+#    label_annotations=True,
+#    check=True,
+#    triplestore_url=ontopath_food,
+#)
+#FOOD2 = Namespace(
+#    "http://onto-ns.com/ontologies/examples/food#",
+#    label_annotations=True,
+#    check=False,
+#    triplestore_url=ontopath_food,
+#)
+
+import sys
+sys.exit(0)
 
 
 # Test RDF literals

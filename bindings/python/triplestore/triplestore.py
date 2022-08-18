@@ -51,7 +51,8 @@ class Namespace:
             the underlying ontology during attribute access if the name
             correspond to a label. The label annotations should be ordered
             from highest to lowest precedense.
-            Example: ``(SKOS.prefLabel, RDF.label, SKOS.altLabel)``.
+            If True is provided, `label_annotations` is set to
+            ``(SKOS.prefLabel, RDF.label, SKOS.altLabel)``.
         check: Whether to check underlying ontology if the IRI exists during
             attribute access.  If true, NoSuchIRIError will be raised if the
             IRI does not exist in this namespace.
@@ -78,15 +79,39 @@ class Namespace:
 
     def __init__(self, iri, label_annotations=(), check=False, cachemode=-1,
                  triplestore=None, triplestore_url=None):
+
+        print()
+        print(f"*** {iri=}")
+        print(f"    {label_annotations=}")
+        print(f"    {check=}")
+        print(f"    {cachemode=}")
+        print(f"    {triplestore=}")
+        print(f"    {triplestore_url=}")
+        print()
+
+        if label_annotations is True:
+            label_annotations = (SKOS.prefLabel, RDF.label, SKOS.altLabel)
+
         self._iri = str(iri)
         self._label_annotations = tuple(label_annotations)
         self._check = bool(check)
+
+        need_triplestore = True if check or label_annotations else False
+
+        print(f"    {need_triplestore=}")
+
         if cachemode == -1:
             cachemode = (
-                Namespace.ONLY_CACHE if label_annotations or check else
-                Namespace.NO_CACHE
+                Namespace.ONLY_CACHE if need_triplestore else Namespace.NO_CACHE
             )
-        # map labels to IRI
+
+        print(f"    {cachemode=}")
+
+        if need_triplestore and triplestore is None:
+            url = triplestore_url if triplestore_url else iri
+            triplestore = Triplestore("rdflib", base_iri=iri)
+            triplestore.parse(url)
+
         self._cache = {} if cachemode != Namespace.NO_CACHE else None
         self._triplestore = (
             triplestore if cachemode != Namespace.ONLY_CACHE else None
@@ -104,12 +129,14 @@ class Namespace:
             )
         if self._cache is None:
             self._cache = {}
+
         # Add (label, full_iri) pairs to cache
         for la in reversed(self._label_annotations):
             self._cache.update(
                 (o, s) for s, o in triplestore.subject_objects(la)
                 if s.startswith(self._iri)
             )
+
         # Add (name, full_iri) pairs to cache
         # Currently we only check concepts that defines RDFS.isDefinedBy
         # relations.
