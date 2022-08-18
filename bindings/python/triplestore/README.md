@@ -37,8 +37,29 @@ ONTO.MyConcept
 # -> 'http://example.com/onto#MyConcept'
 ```
 
-New triples can be added either with the `parse()` method (for backends that
-support it) or the `add()` and `add_triples()` methods:
+Namespace also support access by label and IRI checking.  Both of these features
+requires loading an ontology.  The following example shows how to create an EMMO
+namespace with IRI checking.  The keyword argument `label_annotations=True` enables
+access by skos:prefLabel, rdfs:label or skos:altLabel.  The `check=True` enables
+checking for existing IRIs.  The `triplestore_url=...` is a resolvable URL that
+can be read by the backend.  Is needed, because the 'rdflib' backend is currently
+not able to load EMMO from the "http://emmo.info/emmo#" namespace.
+
+```python
+EMMO = ts.bind(
+    "emmo", "http://emmo.info/emmo#",
+    label_annotations=True,
+    check=True,
+    triplestore_url="https://emmo-repo.github.io/versions/1.0.0-beta4/emmo-inferred.ttl",
+)
+EMMO.Atom
+# -> 'http://emmo.info/emmo#EMMO_eb77076b_a104_42ac_a065_798b2d2809ad'
+EMMO.invalid_name
+# -> NoSuchIRIError: http://emmo.info/emmo#invalid_name
+```
+
+New triples can be added either with the `parse()` method (for
+backends that support it) or the `add()` and `add_triples()` methods:
 
 ```python
 # en(msg) is a convenient function for adding english literals.

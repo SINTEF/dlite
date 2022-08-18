@@ -79,16 +79,6 @@ class Namespace:
 
     def __init__(self, iri, label_annotations=(), check=False, cachemode=-1,
                  triplestore=None, triplestore_url=None):
-
-        print()
-        print(f"*** {iri=}")
-        print(f"    {label_annotations=}")
-        print(f"    {check=}")
-        print(f"    {cachemode=}")
-        print(f"    {triplestore=}")
-        print(f"    {triplestore_url=}")
-        print()
-
         if label_annotations is True:
             label_annotations = (SKOS.prefLabel, RDF.label, SKOS.altLabel)
 
@@ -97,15 +87,10 @@ class Namespace:
         self._check = bool(check)
 
         need_triplestore = True if check or label_annotations else False
-
-        print(f"    {need_triplestore=}")
-
         if cachemode == -1:
             cachemode = (
                 Namespace.ONLY_CACHE if need_triplestore else Namespace.NO_CACHE
             )
-
-        print(f"    {cachemode=}")
 
         if need_triplestore and triplestore is None:
             url = triplestore_url if triplestore_url else iri
@@ -113,9 +98,17 @@ class Namespace:
             triplestore.parse(url)
 
         self._cache = {} if cachemode != Namespace.NO_CACHE else None
-        self._triplestore = (
-            triplestore if cachemode != Namespace.ONLY_CACHE else None
-        )
+        #
+        # FIXME:
+        # Change this to only assigning the triplestore if cachemode is
+        # ONLY_CACHE when we figure out a good way to pre-populate the
+        # cache with IRIs from the triplestore.
+        #
+        #self._triplestore = (
+        #    triplestore if cachemode != Namespace.ONLY_CACHE else None
+        #)
+        self._triplestore = triplestore if need_triplestore else None
+
         if cachemode != Namespace.NO_CACHE:
             self._update_cache(triplestore)
 
@@ -151,13 +144,32 @@ class Namespace:
     def __getattr__(self, name):
         if self._cache is not None and name in self._cache:
             return self._cache[name]
+
         if self._triplestore:
+
+            # Check if ``iri = self._iri + name`` is in the triplestore.
+            # If so, add it to the cache.
+            # We only need to check that generator returned by
+            # `self._triplestore.predicate_objects(iri)` is non-empty.
+            iri = self._iri + name
+            g = self._triplestore.predicate_objects(iri)
+            try:
+                g.__next__()
+            except StopIteration:
+                pass
+            else:
+                if self._cache is not None:
+                    self._cache[name] = iri
+                return iri
+
+            # Check for label annotations matching `name`.
             for la in self._label_annotations:
-                for s, o in triplestore.subject_object(la):
+                for s, o in self._triplestore.subject_objects(la):
                     if name == o:
                         if self._cache is not None:
                             self._cache[name]: s
                         return s
+
         if self._check:
             raise NoSuchIRIError(self._iri + name)
         else:
@@ -171,6 +183,9 @@ class Namespace:
 
     def __str__(self):
         return self._iri
+
+    def __add__(self, other):
+        return self._iri + str(other)
 
 
 # Pre-defined namespaces
@@ -187,9 +202,9 @@ DOAP = Namespace("http://usefulinc.com/ns/doap#")
 PROV = Namespace("http://www.w3.org/ns/prov#")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 TIME = Namespace("http://www.w3.org/2006/time#")
-GEO = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
-SDO = Namespace("http://schema.org/")
-VANN = Namespace("http://purl.org/vocab/vann/")
+#GEO = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
+#SDO = Namespace("http://schema.org/")
+#VANN = Namespace("http://purl.org/vocab/vann/")
 FNO = Namespace("https://w3id.org/function/ontology#")
 
 EMMO = Namespace("http://emmo.info/emmo#")
@@ -375,7 +390,7 @@ class Triplestore:
 
         if hasattr(self.backend, "namespaces"):
             for prefix, ns in self.backend.namespaces().items():
-                if prefix not in self.namespaces:
+                if prefix and prefix not in self.namespaces:
                     self.namespaces[prefix] = Namespace(ns)
 
     def serialize(self, destination=None, format="turtle", **kwargs):
@@ -405,8 +420,11 @@ class Triplestore:
         self._check_method("update")
         return self.backend.update(update_object=update_object, **kwargs)
 
-    def bind(self, prefix: str, namespace: str):
+    def bind(self, prefix: str, namespace: str, **kwargs):
         """Bind prefix to namespace and return the new Namespace object.
+
+        The new Namespace is created with `namespace` as IRI.
+        Keyword arguments are passed to the Namespace() constructor.
 
         If `namespace` is None, the corresponding prefix is removed.
         """
@@ -415,7 +433,7 @@ class Triplestore:
             ns = None
         else:
             ns = namespace if isinstance(namespace, Namespace) else Namespace(
-                namespace)
+                namespace, **kwargs)
             self.namespaces[prefix] = ns
 
         if hasattr(self.backend, "bind"):
