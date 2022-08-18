@@ -1,0 +1,156 @@
+@prefix : <http://onto-ns.com/ontologies/examples/family#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://onto-ns.com/ontologies/examples/family> .
+
+<http://onto-ns.com/ontologies/examples/family> rdf:type owl:Ontology ;
+                                                 owl:versionIRI <http://onto-ns.com/ontologies/examples/0.1/family> .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://onto-ns.com/ontologies/examples/family#hasAge
+:hasAge rdf:type owl:ObjectProperty ;
+        rdfs:domain :Person ;
+        rdfs:range :Age .
+
+
+###  http://onto-ns.com/ontologies/examples/family#hasChild
+:hasChild rdf:type owl:ObjectProperty ;
+          rdfs:domain :Parent ;
+          rdfs:range :Child .
+
+
+###  http://onto-ns.com/ontologies/examples/family#hasName
+:hasName rdf:type owl:ObjectProperty ;
+         rdfs:domain :Person ;
+         rdfs:range :Name .
+
+
+###  http://onto-ns.com/ontologies/examples/family#hasSkill
+:hasSkill rdf:type owl:ObjectProperty ;
+          rdfs:domain :Person ;
+          rdfs:range :Skill .
+
+
+###  http://onto-ns.com/ontologies/examples/family#hasWeight
+:hasWeight rdf:type owl:ObjectProperty ;
+           rdfs:domain :Person ;
+           rdfs:range :Weight .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://onto-ns.com/ontologies/examples/family#Age
+:Age rdf:type owl:Class ;
+     rdfs:subClassOf :Property .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Child
+:Child rdf:type owl:Class ;
+       rdfs:subClassOf :Person .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Dauther
+:Dauther rdf:type owl:Class ;
+         owl:equivalentClass [ owl:intersectionOf ( :Female
+                                                    [ rdf:type owl:Restriction ;
+                                                      owl:onProperty [ owl:inverseOf :hasChild
+                                                                     ] ;
+                                                      owl:someValuesFrom :Parent
+                                                    ]
+                                                  ) ;
+                               rdf:type owl:Class
+                             ] ;
+         rdfs:subClassOf :Person .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Father
+:Father rdf:type owl:Class ;
+        owl:equivalentClass [ owl:intersectionOf ( :Male
+                                                   [ rdf:type owl:Restriction ;
+                                                     owl:onProperty :hasChild ;
+                                                     owl:someValuesFrom :Child
+                                                   ]
+                                                 ) ;
+                              rdf:type owl:Class
+                            ] ;
+        rdfs:subClassOf :Person .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Female
+:Female rdf:type owl:Class ;
+        rdfs:subClassOf :Person .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Male
+:Male rdf:type owl:Class ;
+      rdfs:subClassOf :Person .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Mother
+:Mother rdf:type owl:Class ;
+        owl:equivalentClass [ owl:intersectionOf ( :Female
+                                                   [ rdf:type owl:Restriction ;
+                                                     owl:onProperty :hasChild ;
+                                                     owl:someValuesFrom :Child
+                                                   ]
+                                                 ) ;
+                              rdf:type owl:Class
+                            ] ;
+        rdfs:subClassOf :Person .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Name
+:Name rdf:type owl:Class ;
+      rdfs:subClassOf :Property .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Parent
+:Parent rdf:type owl:Class ;
+        rdfs:subClassOf :Person ,
+                        [ rdf:type owl:Restriction ;
+                          owl:onProperty :hasChild ;
+                          owl:someValuesFrom :Child
+                        ] .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Person
+:Person rdf:type owl:Class .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Property
+:Property rdf:type owl:Class .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Skill
+:Skill rdf:type owl:Class ;
+       rdfs:subClassOf :Property .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Son
+:Son rdf:type owl:Class ;
+     owl:equivalentClass [ owl:intersectionOf ( :Male
+                                                [ rdf:type owl:Restriction ;
+                                                  owl:onProperty [ owl:inverseOf :hasChild
+                                                                 ] ;
+                                                  owl:someValuesFrom :Parent
+                                                ]
+                                              ) ;
+                           rdf:type owl:Class
+                         ] ;
+     rdfs:subClassOf :Person .
+
+
+###  http://onto-ns.com/ontologies/examples/family#Weight
+:Weight rdf:type owl:Class ;
+        rdfs:subClassOf :Property .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
