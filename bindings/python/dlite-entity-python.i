@@ -16,6 +16,10 @@ else:
 import numpy as np
 
 
+class InvalidMetadataError:
+    """Malformed or invalid metadata."""
+
+
 class InstanceEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (bytes, bytearray)):
@@ -62,6 +66,10 @@ class Metadata(Instance):
 
     def getprop(self, name):
         """Returns the metadata property object with the given name."""
+        if "properties" not in self.properties:
+            raise InvalidMetadataError(
+                'self.properties on metadata must contain a "properties" item'
+            )
         lst = [p for p in self.properties["properties"] if p.name == name]
         if lst:
             return lst[0]
@@ -69,10 +77,16 @@ class Metadata(Instance):
 
     def dimnames(self):
         """Returns a list of all dimension names in this metadata."""
+        if "dimensions" not in self.properties:
+            return []
         return [d.name for d in self.properties['dimensions']]
 
     def propnames(self):
         """Returns a list of all property names in this metadata."""
+        if "properties" not in self.properties:
+            raise InvalidMetadataError(
+                'self.properties on metadata must contain a "properties" item'
+            )
         return [p.name for p in self.properties['properties']]
 
 
