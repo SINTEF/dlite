@@ -165,9 +165,9 @@ class Namespace:
             # Check for label annotations matching `name`.
             for la in self._label_annotations:
                 for s, o in self._triplestore.subject_objects(la):
-                    if name == o:
+                    if o == name and s.startswith(self._iri):
                         if self._cache is not None:
-                            self._cache[name]: s
+                            self._cache[name] = s
                         return s
 
         if self._check:
@@ -202,9 +202,6 @@ DOAP = Namespace("http://usefulinc.com/ns/doap#")
 PROV = Namespace("http://www.w3.org/ns/prov#")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 TIME = Namespace("http://www.w3.org/2006/time#")
-#GEO = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
-#SDO = Namespace("http://schema.org/")
-#VANN = Namespace("http://purl.org/vocab/vann/")
 FNO = Namespace("https://w3id.org/function/ontology#")
 
 EMMO = Namespace("http://emmo.info/emmo#")
