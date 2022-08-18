@@ -29,6 +29,7 @@ Content
       - [Build documentation](#build-documentation)
     - [Setting up the environment](#setting-up-the-environment)
   * [Short vocabulary](#short-vocabulary)
+  * [Developer documentation](#developer-documentation)
   * [License](#license)
   * [Acknowledgment](#acknowledgment)
 
@@ -281,7 +282,10 @@ The sources can be cloned from GitHub
   - [Python 3][5], optional (needed by Python bindings and some plugins)
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
-    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)  
+        Note that in some cases a GSSAPI error is raised when using psycopg2
+        by pip installing psycopg2-binary.
+        This is solved by installing from source as described in their documentation.
     - [pandas][pandas], optional (used for csv storage plugin)
 
 #### Build dependencies
@@ -457,6 +461,11 @@ The following terms have a special meaning in dlite:
     character string representation of uuid's to uniquely identify
     instances.  The uuid is generated from the uri for instances that
     has an uri, otherwise it is randomly generated.
+
+
+Developer documentation
+=======================
+* [Create a new release](doc/developers/release_instructions.md)
 
 
 License

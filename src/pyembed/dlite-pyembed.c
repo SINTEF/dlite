@@ -292,13 +292,18 @@ void *dlite_pyembed_get_address(const char *symbol)
 
 
 /*
-  Returns a Python representation of dlite instance with given id or NULL
-  on error.
+  Returns a Python representation of dlite instance with given id or
+  Py_None if `id` is NULL.
+
+  On error NULL is returned.
 */
 PyObject *dlite_pyembed_from_instance(const char *id)
 {
   PyObject *pyid=NULL, *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
   PyObject *get_instance=NULL, *instance=NULL;
+
+  if (!id)
+    Py_RETURN_NONE;
 
   if (!(pyid = PyUnicode_FromString(id)))
     FAIL("cannot create python string");
@@ -337,6 +342,7 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
 {
   DLiteInstance *inst=NULL;
   PyObject *fcn=NULL, *cap=NULL;
+
   if (!(fcn = PyObject_GetAttrString(pyinst, "_c_ptr")))
     FAIL("Python instance has no attribute: '_c_ptr'");
   if (!(cap = PyObject_CallObject(fcn, NULL)))

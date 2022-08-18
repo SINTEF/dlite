@@ -1,101 +1,9 @@
 '''A module encapsulating different triplestores using the strategy design
 pattern.
 
-This module has no dependencies outside the standard library, but the
-triplestore backends have.
-
-The main class is Triplestore, who's __init__() method takes the name of the
-backend to encapsulate as first argument.  It's interface is strongly inspired
-by rdflib.Graph, but simplified when possible to make it easy to use.  Some
-important differences:
-- all IRIs are represented by Python strings
-- blank nodes are strings starting with "_:"
-- literals are constructed with Literal()
-
-The module already provides a set of pre-defined namespaces that simplifies
-writing IRIs. For example:
-
-    >>> from triplestore import RDFS, OWL
-    >>> RDFS.subClassOf
-    'http://www.w3.org/2000/01/rdf-schema#subClassOf'
-
-New namespaces can be created using the Namespace class, but are usually
-added with the bind() method:
-
-    >>> from triplestore import Triplestore
-    >>> ts = Triplestore(backend="rdflib")
-    >>> ONTO = ts.bind("onto", "http://example.com/onto#")
-    >>> ONTO.MyConcept
-    'http://example.com/onto#MyConcept'
-
-New triples can added either with the parse() method (for backends that support
-it) or the add() and add_triples() methods.
-
-    # en(msg) is a convinient function for adding english literals.
-    # It is equivalent to ``triplestore.Literal(msg, lang="en")``.
-    >>> from triplestore import en
-    >>> ts.parse("onto.ttl", format="turtle")
-    >>> ts.add_triples([
-    ...     (ONTO.MyConcept, RDFS.subClassOf, OWL.Thing),
-    ...     (ONTO.MyConcept, RDFS.label, en("My briliant ontological concept.")),
-    ... ])
-
-For backends that support it can the triplestore be serialised using
-serialize():
-
-    >>> ts.serialize("onto2.ttl")
-
-A set of convenient functions exists for simple queries, including
-triples(), subjects(), predicates(), objects(), subject_predicates(),
-subject_objects(), predicate_objects() and value().  Except for value(),
-they return the result as generators. For example:
-
-    >>> list(ts.objects(subject=ONTO.MyConcept, predicate=RDFS.subClassOf))
-    ['http://www.w3.org/2002/07/owl#Thing']
-
-The query() and update() methods can be used to query and update the
-triplestore using SPARQL.
-
-Finally Triplestore has two specialised methods add_mapsTo() and
-add_function() that simplify working with mappings.  add_mapsTo() is
-convinient for defining new mappings:
-
-    >>> from triplestore import Namespace
-    >>> META = Namespace("http://onto-ns.com/meta/0.1/MyEntity#")
-    >>> ts.add_mapsTo(ONTO.MyConcept, META.my_property)
-
-It can also be used with DLite and SOFT7 data models.  Here we repeat
-the above with DLite:
-
-    >>> import dlite
-    >>> meta = dlite.get_entity("http://onto-ns.com/meta/0.1/MyEntity")
-    >>> ts.add_mapsTo(ONTO.MyConcept, meta, "my_property")
-
-The add_function() describes a function and adds mappings for its
-arguments and return value(s).  Currently it only supports the Function
-Ontology (FnO).
-
-    >>> def mean(x, y):
-    ...     """Returns the mean value of `x` and `y`."""
-    ...     return (x + y)/2
-
-    >>> ts.add_function(mean,
-    ...                 expects=(ONTO.RightArmLength, ONTO.LeftArmLength),
-    ...                 returns=ONTO.AverageArmLength)
-
-
-TODO:
-* Update the query() method to return the SPARQL result in a backend-
-  independent way.
-* Add additional backends. Candidates include:
-    - list of tuples
-    - owlready2/EMMOntoPy
-    - Stardog
-    - DLite triplestore (based on Redland librdf)
-    - Redland librdf
-    - Apache Jena Fuseki
-    - Allegrograph
-
+This module exposes the public interface of the triplestore package.
+It has no dependencies outside the standard library.  However the
+triplestore backends may have.
 '''
 from __future__ import annotations  # Support Python 3.7 (PEP 585)
 
@@ -110,7 +18,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Mapping
-    from typing import Generator, Tuple, Union
+    from typing import Callable, Generator, Tuple, Union
 
     Triple = Tuple[Union[str, None], Union[str, None], Union[str, None]]
 
@@ -141,7 +49,7 @@ class Namespace:
         return self.uri + key
 
     def __repr__(self):
-        return f"Namespace({self.iri})"
+        return f"Namespace({self.uri})"
 
     def __str__(self):
         return self.uri
@@ -158,6 +66,12 @@ DC = Namespace("http://purl.org/dc/elements/1.1/")
 DCTERMS = Namespace("http://purl.org/dc/terms/")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 DOAP = Namespace("http://usefulinc.com/ns/doap#")
+PROV = Namespace("http://www.w3.org/ns/prov#")
+DCAT = Namespace("http://www.w3.org/ns/dcat#")
+TIME = Namespace("http://www.w3.org/2006/time#")
+GEO = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
+SDO = Namespace("http://schema.org/")
+VANN = Namespace("http://purl.org/vocab/vann/")
 FNO = Namespace("https://w3id.org/function/ontology#")
 
 EMMO = Namespace("http://emmo.info/emmo#")
@@ -245,7 +159,9 @@ class Literal(str):
                 XSD.anyURI, XSD.language, XSD.Name, XSD.NMName,
                 XSD.normalizedString, XSD.string, XSD.token, XSD.NMTOKEN,
         ):
-            warnings.warn(f"unknown datatype: {self.datatype} - assuming string")
+            warnings.warn(
+                f"unknown datatype: {self.datatype} - assuming string"
+            )
         return v
 
     def n3(self):
@@ -286,22 +202,26 @@ class Triplestore:
         # "dm": DM,
     }
 
-    def __init__(self, name: str, base_iri: str = None, **kwargs):
+    def __init__(self, backend: str, base_iri: str = None, **kwargs):
         """Initialise triplestore using the backend with the given name.
 
         Parameters:
-            name: Module name for backend.
+            backend: Module name for backend.
             base_iri: Base IRI used by the add_function() method when adding
                 new triples.
-            kwargs: Keyword arguments passed to the backend's __init__() method.
+            kwargs: Keyword arguments passed to the backend's __init__()
+                method.
         """
-        module = import_module(name if "." in name
-                      else "dlite.triplestore.backends." + name)
-        cls = getattr(module, name.title() + "Strategy")
+        module = import_module(backend if "." in backend
+                      else "dlite.triplestore.backends." + backend)
+        cls = getattr(module, backend.title() + "Strategy")
         self.base_iri = base_iri
         self.namespaces = {}
-        self.backend_name = name
+        self.backend_name = backend
         self.backend = cls(**kwargs)
+        # Keep functions in the triplestore for convienence even though
+        # they usually do not belong to the triplestore per se.
+        self.function_repo = {}
         for prefix, ns in self.default_namespaces.items():
             self.bind(prefix, ns)
 
@@ -394,8 +314,8 @@ class Triplestore:
         """Check that backend implements the given method."""
         if not hasattr(self.backend, name):
             raise NotImplementedError(
-                f"Triplestore backend \"{self.backend_name}\" doesn't implement "
-                f"a \"{name}()\" method.")
+                f'Triplestore backend "{self.backend_name}" do not '
+                f'implement a "{name}()" method.')
 
     def add(self, triple: "Triple"):
         """Add `triple` to triplestore."""
@@ -472,6 +392,17 @@ class Triplestore:
         self.remove((s, p, None))
         self.add(triple)
 
+    def has(self, subject=None, predicate=None, object=None):
+        """Returns true if the triplestore has any triple matching
+        the give subject, predicate and/or object."""
+        g = self.triples((subject, predicate, object))
+        try:
+            g.__next__()
+        except StopIteration:
+            return False
+        return True
+
+
     # Methods providing additional functionality
     # ------------------------------------------
     def expand_iri(self, iri: str):
@@ -501,11 +432,14 @@ class Triplestore:
                 raise NamespaceError(f"No prefix defined for IRI: {iri}")
         return iri
 
-    def add_mapsTo(self,
-                   target: str,
-                   source: "Union[str, dlite.Instance, dataclass]",
-                   property_name: str = None
-                   ):
+    def add_mapsTo(
+            self,
+            target: str,
+            source: "Union[str, dlite.Instance, dataclass]",
+            property_name: str = None,
+            cost: "Union[float, Callable]" = None,
+            target_cost: bool = True,
+    ):
         """Add 'mapsTo' relation to triplestore.
 
         Parameters:
@@ -513,6 +447,12 @@ class Triplestore:
             source: Source IRI or entity object.
             property_name: Name of property if `source` is an entity or
                 an entity IRI.
+            cost: User-defined cost of following this mapping relation
+                represented as a float.  It may be given either as a
+                float or as a callable taking the value of the mapped
+                quantity as input and returning the cost as a float.
+            target_cost: Whether the cost is assigned to mapping steps
+                that have `target` as output.
         """
         self.bind("map", MAP)
 
@@ -525,14 +465,19 @@ class Triplestore:
         if property_name:
             source = f"{source}#{property_name}"
             self.add((source, MAP.mapsTo, target))
+        if cost is not None:
+            dest = target if target_cost else source
+            self._add_cost(cost, dest)
 
-    def add_function(self,
-                     func: callable,
-                     expects: "Union[Sequence, Mapping]" = (),
-                     returns: "Union[str, Sequence]" = (),
-                     base_iri: str = None,
-                     standard: str = 'fno',
-                     ):
+    def add_function(
+            self,
+            func: Callable,
+            expects: "Union[str, Sequence, Mapping]" = (),
+            returns: "Union[str, Sequence]" = (),
+            base_iri: str = None,
+            standard: str = 'fno',
+            cost: "Union[float, Callable]" = None,
+    ):
         """Inspect function and add triples describing it to the triplestore.
 
         Parameters:
@@ -542,12 +487,52 @@ class Triplestore:
                 dict mapping argument names to corresponding ontological IRIs.
             returns: IRI of return value.  May also be given as a sequence
                 of IRIs, if multiple values are returned.
-            base_iri:
+            base_iri: Base of the IRI representing the function in the
+                knowledge base.  Defaults to the base IRI of the triplestore.
             standard: Name of ontology to use when describing the function.
                 Defaults to the Function Ontology (FnO).
+            cost: User-defined cost of following this mapping relation
+                represented as a float.  It may be given either as a
+                float or as a callable taking the same arguments as `func`
+                returning the cost as a float.
+
+        Returns:
+            func_iri: IRI of the added function.
         """
+        if isinstance(expects, str):
+            expects = [expects]
+        if isinstance(returns, str):
+            returns = [returns]
+
         method = getattr(self, f"_add_function_{standard}")
-        return method(func, expects, returns, base_iri)
+        func_iri = method(func, expects, returns, base_iri)
+        self.function_repo[func_iri] = func
+
+        if cost is not None:
+            for dest_iri in returns:
+                self._add_cost(cost, dest_iri)
+
+        return func_iri
+
+    def _add_cost(self, cost, dest_iri):
+        """Help function that adds `cost` to destination IRI `dest_iri`.
+
+        `cost` should be either a float or a Callable returning a float.
+
+        If `cost` is a callable it is just referred to with a literal
+        id and is not ontologically described as a function.  The
+        expected input arguments depends on the context, which is why
+        this function is not part of the public API.  Use the add_mapsTo()
+        and add_function() methods instead.
+        """
+        if self.has(dest_iri, DM.hasCost):
+            warnings.warn(f"A cost is already assigned to IRI: {dest_iri}")
+        elif callable(cost):
+            cost_id = f"cost_function{function_id(cost)}"
+            self.add((dest_iri, DM.hasCost, Literal(cost_id)))
+            self.function_repo[cost_id] = cost
+        else:
+            self.add((dest_iri, DM.hasCost, Literal(cost)))
 
     def _add_function_fno(self, func, expects, returns, base_iri):
         """Implementing add_function() for FnO."""
@@ -586,8 +571,6 @@ class Triplestore:
             self.add((lst, RDF.rest, lst_next))
             lst = lst_next
 
-        if isinstance(returns, str):
-            returns = [returns]
         lst = outlist
         for i, iri in enumerate(returns):
             lst_next = f"{outlist}{i+2}" if i < len(returns) - 1 else RDF.nil
@@ -597,6 +580,8 @@ class Triplestore:
             self.add((lst, RDF.first, val))
             self.add((lst, RDF.rest, lst_next))
             lst = lst_next
+
+        return func_iri
 
 
 def infer_iri(obj):

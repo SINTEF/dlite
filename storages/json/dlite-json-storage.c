@@ -209,7 +209,7 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
 
   if (!js->jstore)
-    FAIL1("cannot load json in write mode: %s", s->location);
+    FAIL1("cannot load json file: %s", s->location);
 
   if (!id || !*id) {
     JStoreIter iter;
