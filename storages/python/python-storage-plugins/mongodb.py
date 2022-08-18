@@ -31,12 +31,11 @@ class mongodb(dlite.DLiteStorageBase):
         - authMechanism: Authentication mechanism (default: "SCRAM-SHA-256")
         - mock: Whether to use mongomock.
         """
-        self.options = Options(
+        opts = Options(
             options,
             defaults='database=dlite;collection=dlite_coll;mode=w;'
             'authMechanism=SCRAM-SHA-256;mock=no',
         )
-        opts = self.options
         opts.setdefault('password', None)
         self.writable = True if 'w' in opts.mode else False
 
@@ -68,6 +67,7 @@ class mongodb(dlite.DLiteStorageBase):
 
         self.client = get_client()
         self.collection = self.client[opts.database][opts.collection]
+        self.options = opts
 
     def close(self):
         """Closes this storage."""
@@ -87,6 +87,6 @@ class mongodb(dlite.DLiteStorageBase):
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
-        mongo_filter = {"meta": pattern} if pattern else {}
-        for doc in self.collection.find(filter=mongo_filter, projection=["uuid"]):
+        filter = {"meta": pattern} if pattern else {}
+        for doc in self.collection.find(filter=filter, projection=["uuid"]):
             yield doc["uuid"]

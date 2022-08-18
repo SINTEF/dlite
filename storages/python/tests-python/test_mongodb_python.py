@@ -51,14 +51,14 @@ assert len(instances) == 3
 assert new_meta in instances
 assert new_inst1 in instances
 assert new_inst2 in instances
-meta, = s.instances(dlite.ENTITY_SCHEMA)
+meta, = storage.instances(dlite.ENTITY_SCHEMA)
 assert meta.uuid == uuid0
-insts = s.instances(meta.uri)
+insts = storage.instances(meta.uri)
 assert set(insts) == set([new_inst1, new_inst2])
 
 uuids = storage.get_uuids()
 assert len(uuids) == 3
-meta_uuid, = s.get_uuids(dlite.ENTITY_SCHEMA)
+meta_uuid, = storage.get_uuids(dlite.ENTITY_SCHEMA)
 assert meta_uuid == uuid0
-inst_uuids = s.get_uuids(meta.uri)
+inst_uuids = storage.get_uuids(meta.uri)
 assert set(inst_uuids) == set([uuid1, uuid2])
