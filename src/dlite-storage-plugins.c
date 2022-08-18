@@ -101,6 +101,8 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   unsigned char hash[32];
   Globals *g;
 
+  printf("----- dlite_storage_plugin_get(%s)\n", name);
+
   if (!(g = get_globals())) return NULL;
   if (!(info = get_storage_plugin_info())) return NULL;
 
