@@ -188,18 +188,3 @@ ts2.add_function(func2, expects=EX.Sum, returns=EX.EvenMore, cost=cost2)
 assert len(ts2.function_repo) == 4
 
 #print(ts2.serialize(format="turtle"))
-
-
-
-EMMO2 = Namespace(
-    "http://emmo.info/emmo#",
-    label_annotations=True,
-    check=True,
-    triplestore_url="https://emmo-repo.github.io/versions/1.0.0-beta4/emmo-inferred.ttl",
-)
-EMMO = ts.bind(
-    "emmo", "http://emmo.info/emmo#",
-    label_annotations=True,
-    check=True,
-    triplestore_url="https://emmo-repo.github.io/versions/1.0.0-beta4/emmo-inferred.ttl",
-)
