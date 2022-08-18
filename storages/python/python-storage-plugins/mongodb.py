@@ -46,10 +46,10 @@ class mongodb(dlite.DLiteStorageBase):
 
         if dlite.asbool(opts.mock):
             import mongomock
-            r = urlparse(f'mongodb://{uri}')
-            port = r.port if r.port else 27017
+            mongo_url = urlparse(f'mongodb://{uri}')
+            port = mongo_url.port if mongo_url.port else 27017
 
-            @mongomock.patch(servers=((r.hostname, port), ))
+            @mongomock.patch(servers=((mongo_url.hostname, port), ))
             def get_client():
                 return open_client()
         else:
