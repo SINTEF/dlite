@@ -16,6 +16,10 @@ else:
 import numpy as np
 
 
+class InvalidMetadataError:
+    """Malformed or invalid metadata."""
+
+
 class InstanceEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (bytes, bytearray)):
@@ -60,6 +64,31 @@ class Metadata(Instance):
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
 
+    def getprop(self, name):
+        """Returns the metadata property object with the given name."""
+        if "properties" not in self.properties:
+            raise InvalidMetadataError(
+                'self.properties on metadata must contain a "properties" item'
+            )
+        lst = [p for p in self.properties["properties"] if p.name == name]
+        if lst:
+            return lst[0]
+        raise DLiteError(f"Metadata {self.uri} has no such property: {name}")
+
+    def dimnames(self):
+        """Returns a list of all dimension names in this metadata."""
+        if "dimensions" not in self.properties:
+            return []
+        return [d.name for d in self.properties['dimensions']]
+
+    def propnames(self):
+        """Returns a list of all property names in this metadata."""
+        if "properties" not in self.properties:
+            raise InvalidMetadataError(
+                'self.properties on metadata must contain a "properties" item'
+            )
+        return [p.name for p in self.properties['properties']]
+
 
 def standardise(v, prop, asdict=False):
     """Represent property value `v` as a standard python type.
@@ -98,7 +127,11 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
     Returns:
         DLite instance.
     """
-    inst = _dlite.get_instance(id, metaid, check_storages)
+    if isinstance(id, dlite.Instance):
+        inst = id
+    else:
+        inst = _dlite.get_instance(id, metaid, check_storages)
+
     if inst is None:
         raise DLiteError(f"no such instance: {id}")
     elif inst.is_meta:
@@ -141,11 +174,11 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 %extend _DLiteProperty {
   %pythoncode %{
     def __repr__(self):
-        dims = ', dims=%r' % self.dims.tolist() if self.ndims else ''
+        shape = ', shape=%r' % self.shape.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
         descr = ', description=%r' %self.description if self.description else ''
         return 'Property(%r, type=%r%s%s%s)' % (
-            self.name, self.type, dims, unit, descr)
+            self.name, self.type, shape, unit, descr)
 
     def asdict(self, soft7=True, exclude_name=False):
         """Returns a dict representation of self.
@@ -159,7 +192,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             d['name'] = self.name
         d['type'] = self.get_type()
         if self.ndims:
-            d['shape' if soft7 else 'dims'] = self.dims.tolist()
+            d['shape' if soft7 else 'dims'] = self.shape.tolist()
         if self.unit:
             d['unit'] = self.unit
         if self.description:
@@ -168,13 +201,22 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     def asstrings(self):
         """Returns a representation of self as a tuple of strings."""
-        return (self.name, self.type, ','.join(str(d) for d in self.dims),
+        return (self.name, self.type, ','.join(str(d) for d in self.shape),
                 '' if self.unit is None else self.unit,
                 '' if self.description is None else self.description)
 
     type = property(get_type, doc='Type name.')
     dtype = property(get_dtype, doc='Type number.')
-    dims = property(get_dims, doc='Array of dimension indices.')
+    shape = property(get_shape, set_shape, doc='Array of dimension indices.')
+
+    # Too be removed...
+    def _get_dims_depr(self):
+        warnings.warn('Property `dims` is deprecated, use `shape` instead.',
+                      DeprecationWarning, stacklevel=2)
+        return self.get_shape()
+    dims = property(_get_dims_depr, doc='Array of dimension indices. '
+                    'Property `dims` is deprecated, use `shape` instead.')
+
   %}
 }
 
@@ -239,9 +281,15 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
+        if self is None:
+            raise DLiteError(f"invalid dlite.Instance")
+
         dlite.errclr()
         _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
-        if self.is_meta:
+
+        if not hasattr(self, 'this') or not getattr(self, 'this'):
+            raise DLiteError(f"cannot initiate dlite.Instance")
+        elif self.is_meta:
             self.__class__ = Metadata
         elif self.meta.uri == COLLECTION_ENTITY:
             self.__class__ = Collection
@@ -284,6 +332,9 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         if isinstance(dims, dict):
             meta = get_instance(metaid)
             dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+        # Allow metaid to be an Instance
+        if isinstance(metaid, dlite.Instance):
+            metaid = metaid.uri
         return Instance(
             metaid=metaid, dims=dims, id=id,
             dimensions=(), properties=()  # arrays must not be None
@@ -498,7 +549,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
                    p = prop.asdict() if hasattr(prop, 'asdict') else prop
                yield i, p
         return (
-            Instance.create_from_metaid,
+            Instance.from_metaid,
             (self.meta.uri, list(self.dimensions.values()), self.uuid),
             None,
             None,
@@ -511,7 +562,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             raise TypeError('data instances are not callable')
         if isinstance(dims, dict):
             dims = [dims[d.name] for d in self.properties['dimensions']]
-        return Instance.create_from_metaid(self.uri, dims, id)
+        return Instance.from_metaid(self.uri, dims, id)
 
     def asdict(self, soft7=True, uuid=True):
         """Returns a dict representation of self.

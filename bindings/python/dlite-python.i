@@ -20,6 +20,11 @@
 
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
 
+  /* Set this to an exception object (e.g. PyExc_StopIteration) to raise
+     another exceptions than DLiteError.  No need to increase the reference
+     count. */
+  PyObject *dlite_swig_exception = NULL;
+
   /* forward declarations */
   static PyObject *DLiteError = NULL;
   char *strndup(const char *s, size_t n);
@@ -237,6 +242,14 @@ int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
 }
 
 
+/* Returns the length of sequence-like object.  On error, -1 is returned. */
+size_t dlite_swig_length(obj_t *obj)
+{
+  return (size_t)PyObject_Length(obj);
+}
+
+
+
 /**********************************************
  ** Python-specific implementations
  **********************************************/
@@ -350,6 +363,7 @@ static int dlite_swig_setitem(PyObject *obj, int ndims, int *dims,
       PyObject *key = PyLong_FromLong(i);
       PyObject *item = PyObject_GetItem(obj, key);
       Py_DECREF(key);
+
       if (!item) return dlite_err(1, "dimension %d had no index %d", d, i);
       stat = dlite_swig_setitem(item, ndims, dims, type, size, d+1, ptr);
       Py_DECREF(item);
@@ -385,8 +399,8 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
 
   if (typecode < 0) goto fail;
   for (i=0; i<ndims; i++) n *= dims[i];
-  if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj,typecode,0,0))) {
-
+  if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj, typecode,
+                                                         ndims, ndims))) {
     /* Clear the error and try to convert object as-is */
     void *p = *(void **)ptr;
     PyErr_Clear();
@@ -1000,10 +1014,17 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   DLiteProperty *p;
   obj_t *obj=NULL;
 
+  /* Properly raise StopIteration */
+  if (i == (int)inst->meta->_nproperties) {
+    dlite_swig_exception = PyExc_StopIteration;
+    return NULL;
+  }
+
   PyErr_Clear();
   if (n < 0) n += (int)inst->meta->_nproperties;
   if (n < 0 || n >= (int)inst->meta->_nproperties)
-    return dlite_err(-1, "Property index is out or range: %d", i), NULL;
+    return dlite_err(-1, "Property index %d is out or range: %s",
+                     i, inst->meta->uri), NULL;
   dlite_instance_sync_to_properties(inst);
   ptr = DLITE_PROP(inst, n);
   p = inst->meta->_properties + n;
@@ -1036,7 +1057,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   PyErr_Clear();
   if (n < 0) n += (int)inst->meta->_nproperties;
   if (n < 0 || n >= (int)inst->meta->_nproperties)
-    FAIL1("Property index is out or range: %d", i);
+    FAIL2("Property index %d is out or range: %s", i, inst->meta->uri);
   ptr = DLITE_PROP(inst, n);
   p = inst->meta->_properties + n;
 

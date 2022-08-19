@@ -24,11 +24,12 @@ Content
         - [Build dependencies](#build-dependencies)
       - [Build and install with Python](#build-and-install-with-python)
       - [Build on Linux](#build-on-linux)
-      - [Build on Windows](#build-on-windows)
+      - [Build with VS Code on Windows](#build-with-vs-code-on-windows)
         - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
       - [Build documentation](#build-documentation)
     - [Setting up the environment](#setting-up-the-environment)
   * [Short vocabulary](#short-vocabulary)
+  * [Developer documentation](#developer-documentation)
   * [License](#license)
   * [Acknowledgment](#acknowledgment)
 
@@ -281,7 +282,10 @@ The sources can be cloned from GitHub
   - [Python 3][5], optional (needed by Python bindings and some plugins)
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
-    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)  
+        Note that in some cases a GSSAPI error is raised when using psycopg2
+        by pip installing psycopg2-binary.
+        This is solved by installing from source as described in their documentation.
     - [pandas][pandas], optional (used for csv storage plugin)
 
 #### Build dependencies
@@ -308,32 +312,36 @@ able to build and install dlite via the python/setup.py script:
 
 
 ### Build on Linux
-Install the hdf5 (does not include the parallel component) libraries
+Install dependencies (e.g. with `apt-get install` on Ubuntu or `dnf install` on
+Fedora)
 
-On Ubuntu:
-
-    sudo apt-get install libhdf5-serial-dev
-
-On Redhad-based distributions (Fedora, Centos, ...):
-
-    sudo dnf install hdf5-devel
-
-Build with:
+Configure the build with:
 
     mkdir build
     cd build
     cmake ..
+
+Configuration options can be added to the `cmake` command.  For example, you
+can change the installation directory by adding
+`-DCMAKE_INSTALL_PREFIX=/path/to/new/install/dir`.  The default is `~/.local`.
+
+Alternatively, you can configure configuration options with `ccmake ..`.
+
+If you use virtual environments for Python, you should activate your
+environment before running `cmake` and set `CMAKE_INSTALL_PREFIX` to
+the directory of the virtual environment. For example:
+
+    VIRTUAL_ENV=/path/to/virtual/env
+    $VIRTUAL_ENV/bin/activate
+    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV
+
+Build with:
+
     make
-
-Before running make, you may wish to configure some options with
-`ccmake ..`
-
-For example, you might need to change CMAKE_INSTALL_PREFIX to a
-location accessible for writing. Default is ~/.local
 
 To run the tests, do
 
-    make test        # same as running `ctest`
+    ctest            # same as running `ctest`
     make memcheck    # runs all tests with memory checking (requires
                      # valgrind)
 
@@ -346,7 +354,7 @@ To install dlite locally, do
     make install
 
 
-### Build on Windows
+### Build with VS Code on Windows
 See [here](doc/build_with_vs.md) for detailed instructions for building with
 Visual Studio.
 
@@ -455,6 +463,11 @@ The following terms have a special meaning in dlite:
     has an uri, otherwise it is randomly generated.
 
 
+Developer documentation
+=======================
+* [Create a new release](doc/developers/release_instructions.md)
+
+
 License
 =======
 DLite is licensed under the [MIT license](LICENSE).  However, it
@@ -475,6 +488,7 @@ been supported by several projects, including:
   - [SFI PhysMet](https://www.ntnu.edu/physmet)(2020-2028) funded by Forskningsrådet and Norwegian industry partners.
   - [OntoTrans](https://cordis.europa.eu/project/id/862136) (2020-2024) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 862136.
   - [OpenModel](https://www.open-model.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953167.
+  - [DOME 4.0](https://dome40.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953163.
   - [VIPCOAT](https://www.vipcoat.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 952903.
 
 

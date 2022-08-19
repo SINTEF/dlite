@@ -34,8 +34,9 @@ instances whos metadata URI matches `pattern` are returned.
     dlite_storage_iter_free($self->s, $self->state);
     free($self);
   }
+
   %feature("docstring", "\
-Returns UUID of next instance or None if exhausted.") next;
+Returns next instance or None if exhausted.") next;
   %newobject next;
   struct _DLiteInstance *next(void) {
     char uuid[DLITE_UUID_LENGTH+1];
@@ -43,6 +44,7 @@ Returns UUID of next instance or None if exhausted.") next;
       return dlite_instance_load($self->s, uuid);
     return NULL;
   }
+
   struct StorageIterator *__iter__(void) {
     return $self;
   }
@@ -135,7 +137,7 @@ matches `pattern`.  If `pattern` is None, all UUIDs will be returned.
   }
 
   %feature("docstring", "Set storage readability.") _set_readable;
-  void _set_writable(bool readable) {
+  void _set_readable(bool readable) {
     if (readable)
       $self->flags |= dliteReadable;
     else

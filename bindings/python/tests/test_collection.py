@@ -89,6 +89,49 @@ else:
     raise RuntimeError('should not be able to replace an existing instance')
 
 coll.add('inst1', inst2, force=True)  # forced replacement
+assert coll.get('inst1') == inst2
+coll.add('inst1', inst1, force=True)  # revert
+assert coll.get('inst1') == inst1
 
+
+# Test convinience functions
+i1 = coll.get_id(inst1.uuid)
+assert i1 == inst1
+
+assert coll.has('inst1') is True
+assert coll.has('inst2') is False
+assert coll.has('animal') is False
+
+rel = coll.get_first_relation()
+assert rel.s == 'dog'
+assert rel.p == 'is-a'
+assert rel.o == 'animal'
+rel = coll.get_first_relation(p='_has-meta')
+assert rel.s == 'inst1'
+assert rel.p == '_has-meta'
+assert rel.o == 'http://onto-ns.com/meta/0.1/MyEntity'
+
+i1, = coll.get_instances()
+assert i1 == inst1
+
+label1, = coll.get_labels()
+assert label1 == 'inst1'
+
+rels = list(coll.get_relations())
+assert len(rels) == 4
+rels = list(coll.get_relations(p='_is-a'))
+assert len(rels) == 1
+rels = list(coll.get_relations(p='_xxx'))
+assert len(rels) == 0
+
+assert list(coll.get_subjects()) == ['dog', 'inst1', 'inst1', 'inst1']
+assert list(coll.get_predicates()) == [
+    'is-a', '_is-a', '_has-uuid', '_has-meta']
+assert list(coll.get_objects()) == [
+    'animal', 'Instance', inst1.uuid, inst1.meta.uri]
+
+
+
+# String representation
 s = str(coll)
-print(coll)
+print(s)

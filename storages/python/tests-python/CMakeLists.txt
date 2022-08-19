@@ -5,6 +5,7 @@ set(python-tests
   test_bson_storage_python
   test_postgresql_storage_python
   test_yaml_storage_python
+  test_mongodb_python
   )
 
 include(FindPythonModule)
@@ -61,5 +62,8 @@ foreach(test ${python-tests})
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   endif()
+
+  # Skip tests that exit with return code 44
+  set_property(TEST ${test} PROPERTY SKIP_RETURN_CODE 44)
 
 endforeach()

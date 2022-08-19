@@ -232,6 +232,25 @@ void dlite_collection_decref(DLiteCollection *coll)
 
 
 /*
+  Safe type casting from instance to collection.
+ */
+DLiteCollection *dlite_collection_from_instance(DLiteInstance *inst)
+{
+  if (strcmp(inst->meta->uuid, DLITE_COLLECTION_ENTITY) != 0)
+    return err(1, "cannot cast instance %s to a collection", inst->uuid), NULL;
+  return (DLiteCollection *)inst;
+}
+
+/*
+  Cast collection to instance - always possible.
+ */
+DLiteInstance *dlite_collection_to_instance(DLiteCollection *coll)
+{
+  return (DLiteInstance *)coll;
+}
+
+
+/*
   Loads collection with given id from storage `s`.  If `lazy` is zero,
   all its instances are also loaded.  Otherwise, instances are loaded
   on demand.

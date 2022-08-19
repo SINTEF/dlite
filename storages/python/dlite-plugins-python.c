@@ -221,7 +221,6 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
   void *retval=NULL;
   Iter *iter = NULL;
   PyObject *class = (PyObject *)s->api->data;
-  PyObject *patt = NULL;
   const char *classname;
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
@@ -235,11 +234,6 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
   if (!PyIter_Check(iter->v))
     FAIL1("method %s.queue() does not return a iterator object", classname);
 
-  if (pattern) {
-    patt = PyUnicode_FromString(pattern);
-    PyObject_SetAttrString(iter->v, "pattern", patt);
-  }
-  //iter->pattern = pattern;
   iter->classname = classname;
 
   retval = (void *)iter;
@@ -261,7 +255,8 @@ int iterNext(void *iter, char *buf)
   int retval = -1;
   Iter *i = (Iter *)iter;
   PyObject *next = PyIter_Next((PyObject *)i->v);
-  if (dlite_pyembed_err_check("error iteratine over %s.queue()",
+
+  if (dlite_pyembed_err_check("error iterating over %s.queue()",
                               i->classname)) goto fail;
   if (next) {
     if (!PyUnicode_Check(next))

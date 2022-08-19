@@ -70,6 +70,7 @@ storage_path.append(str(thispath / "share/dlite/storages/*.json"))
 # DLITE_TEMPLATE_DIRS: Search path for DLite templates.
 
 
+from .dlite import *  # noqa: F401, F403
 from .factory import classfactory, objectfactory, instancefactory  # noqa: F401
 
 del thispath
