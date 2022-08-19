@@ -8,6 +8,13 @@ import numpy as np
 import dlite
 from dlite import Instance, Dimension, Property, Relation
 
+try:
+    import pytest
+    HAVE_PYTEST = True
+except ImportError:
+    HAVE_PYTEST = False
+
+
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
 url = 'json://' + thisdir + '/MyEntity.json'
@@ -141,7 +148,7 @@ prop = Property("a", type='float')
 
 prop2 = Property("b", type='string10', dims=['I', 'J', 'K'],
                  description='something enlightening...')
-assert any(prop2.dims)
+assert any(prop2.shape)
 
 props = myentity['properties']
 props[0]
@@ -183,6 +190,42 @@ except ImportError:
     pass
 else:
     inst.save('yaml://yyy.yaml?mode=w')
+
+
+# Test metadata
+assert inst.meta.dimnames() == ['N', 'M']
+assert inst.meta.propnames() == [
+    'a-blob',
+    'a-blob-array',
+    'a-bool',
+    'a-bool-array',
+    'an-int',
+    'an-int-array',
+    'a-float',
+    'a-float64-array',
+    'a-fixstring',
+    'a-fixstring-array',
+    'a-string',
+    'a-string-array',
+    'a-relation',
+    'a-relation-array',
+]
+
+
+# Test property
+prop = inst.meta.getprop('a-blob-array')
+assert prop.name == 'a-blob-array'
+assert prop.type == 'blob4'
+assert prop.shape.tolist() == ['N', 'N']
+assert prop.unit == None
+assert prop.description == 'A blob array.'
+
+prop = dlite.Property('newprop', 'int')
+prop.shape = ('a', 'b', 'c')
+assert prop.ndims == 3
+if HAVE_PYTEST:
+    with pytest.raises(AttributeError):
+        prop.ndims = 10
 
 del inst
 del e2

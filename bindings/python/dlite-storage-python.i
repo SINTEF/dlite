@@ -45,11 +45,10 @@
           """Create a new storage from `url`."""
           return cls(url)
 
-
       def instances(self, pattern=None):
           """Returns an iterator over all instances in storage whos
           metadata URI matches `pattern`."""
-          return StorageIterator(pattern)
+          return StorageIterator(self, pattern=pattern)
 
       def load(self, id, metaid=None):
           """Loads instance `id` from this storage and return it.
