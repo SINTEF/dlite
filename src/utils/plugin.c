@@ -325,7 +325,7 @@ const PluginAPI *plugin_get_api(PluginInfo *info, const char *name)
   strcpy(pattern, name);
   strcat(pattern, DSL_EXT);
   if (!(api = plugin_load(info, name, pattern, 0)) &&
-      !(api = plugin_load(info, name, "*" DSL_EXT, 0)))
+      !(api = plugin_load(info, name, "*" DSL_EXT, 1)))
     err(1, "cannot find api: '%s'", name);
 
   if (pattern) free(pattern);
