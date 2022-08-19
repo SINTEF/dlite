@@ -137,7 +137,10 @@ Property(seq)
 struct _DLiteProperty {
   char *name;
   size_t size;
+  char *ref;
+  %immutable;
   int ndims;
+  %mutable;
   char *unit;
   char *description;
 };
@@ -167,15 +170,31 @@ struct _DLiteProperty {
   int get_dtype(void) {
     return $self->type;
   }
-  obj_t *get_dims(void) {
+  obj_t *get_shape(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
                                 dliteStringPtr, sizeof(char *), $self->dims);
   }
-  /*
-  void set_dims(obj_t *arr) {
+  void set_shape(obj_t *arr) {
+    int i, n = dlite_swig_length(arr);
+    char **new=NULL;
+    if (!(new = calloc(n, sizeof(char *))))
+      FAIL("allocation failure");
+    if (dlite_swig_set_array(&new, 1, &n, dliteStringPtr, sizeof(char *), arr))
+      FAIL("cannot set new shape");
+    for (i=0; i < $self->ndims; i++) free($self->dims[i]);
+    free($self->dims);
+    $self->ndims = n;
+    $self->dims = new;
+    return;
+  fail:
+    if (new) {
+      for (i=0; i<n; i++) if(new[i]) free(new[i]);
+      free(new);
+    }
   }
-  */
+
 }
+
 
 /* --------
  * Relation
