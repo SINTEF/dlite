@@ -481,15 +481,20 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
-            return self.get_property_by_index(ind)
+            value = self.get_property_by_index(ind)
         elif self.has_property(ind):
-            return self.get_property(ind)
+            value = self.get_property(ind)
         elif isinstance(ind, int):
             raise IndexError('instance property index out of range: %d' % ind)
         else:
             raise KeyError('no such property: %s' % ind)
+        if isinstance(value, np.ndarray) and self.is_frozen():
+            value.flags.writeable = False  # ensure immutability
+        return value
 
     def __setitem__(self, ind, value):
+        if self.is_frozen():
+            raise DLiteError('frozen instance does not support item assignment')
         if isinstance(ind, int):
             self.set_property_by_index(ind, value)
         elif self.has_property(ind):
@@ -507,17 +512,23 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             return object.__getattribute__(self, name)
         d = object.__getattribute__(self, '__dict__')
         if name in d:
-            return d[name]
+            value = d[name]
         elif self.has_property(name):
-            return _get_property(self, name)
+            value = _get_property(self, name)
         elif self.has_dimension(name):
-            return self.get_dimension_size(name)
+            value = self.get_dimension_size(name)
         else:
             raise AttributeError('Instance object has no attribute %r' % name)
+        if isinstance(value, np.ndarray) and self.is_frozen():
+            value.flags.writeable = False  # ensure immutability
+        return value
 
     def __setattr__(self, name, value):
         if name == 'this':
             object.__setattr__(self, name, value)
+        elif self.is_frozen():
+            raise DLiteError(
+                'frozen instance does not support attribute assignment')
         elif _has_property(self, name):
             _set_property(self, name, value)
         else:

@@ -1,12 +1,5 @@
 from pathlib import Path
 
-try:
-    import pytest
-except ImportError:
-    HAVE_PYTEST = False
-else:
-    HAVE_PYTEST = True
-
 import dlite
 
 
@@ -30,16 +23,14 @@ assert person.age == 30 + 6 * 5  # 60
 assert person.get_snapshot(0).age == 60
 assert person.get_snapshot(1).age == 55
 assert person.get_snapshot(6).age == 30
-if HAVE_PYTEST:
-    with pytest.raises(dlite.DLiteError):
-        person.get_snapshot(7)
+try:
+    person.get_snapshot(7)
+except dlite.DLiteError:
+    pass
 else:
-    try:
-        person.get_snapshot(7)
-    except dlite.DLiteError:
-        pass
-    else:
-        raise Exception("Should've failed test (getting non-existant snapshot), but didn't".)
+    raise Exception(
+        "Should've failed test (getting non-existant snapshot), but didn't."
+    )
 assert person._get_parent_uuid() == person.get_snapshot(1).uuid
 assert person._get_parent_hash() == person.get_snapshot(1).get_hash()
 
@@ -47,6 +38,22 @@ assert person._get_parent_hash() == person.get_snapshot(1).get_hash()
 assert person.is_frozen() == False
 assert person.get_snapshot(1).is_frozen() == True
 assert person.get_snapshot(2).is_frozen() == True
+
+frozen = person.get_snapshot(1)
+assert frozen.is_frozen() == True
+try:
+    frozen.age = 77
+except dlite.DLiteError:
+    pass
+else:
+    raise Exception("frozen instance should not accept attribute assignment")
+
+try:
+    frozen.skills[0] = "running"
+except ValueError:
+    pass
+else:
+    raise Exception("frozen property array should not accept assignment")
 
 # Create branch
 inst = person.copy()
@@ -61,18 +68,14 @@ assert inst.get_snapshot(2).age == 45
 assert inst.get_snapshot(3).age == 40
 assert inst.get_snapshot(4).age == 35
 assert inst.get_snapshot(5).age == 30
-if HAVE_PYTEST:
-    with pytest.raises(dlite.DLiteError):
-        inst.get_snapshot(6)
+try:
+    inst.get_snapshot(6)
+except dlite.DLiteError:
+    pass
 else:
-    try:
-        inst.get_snapshot(6)
-    except dlite.DLiteError:
-        pass
-    else:
-        raise Exception("Should've failed test (getting non-existant snapshot), but didn't".)
-
-#print(inst)
+    raise Exception(
+        "Should've failed test (getting non-existant snapshot), but didn't"
+    )
 
 # Push to storage
 db = thisdir / "output" / "db.json"
