@@ -40,7 +40,6 @@ set(sources
   dlite-storage-plugins.c
   dlite-mapping.c
   dlite-mapping-plugins.c
-  #dlite-transaction.c
   dlite-codegen.c
   dlite-getlicense.c
   dlite-json.c

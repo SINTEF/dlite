@@ -1,18 +1,24 @@
 Transactions
 ============
-Transactions is a feature that comes from SOFT, which allows to easy manage arbitrary long series of immutable (frozen) instances while ensuring provenance.  Conceptually it share many similarities with git.
+Transactions is a feature that comes from SOFT, which allows to easy manage arbitrary long series of immutable (frozen) instances, while ensuring provenance.
+Conceptually, it shares many similarities with [git](https://git-scm.com).
 
-A basic usage for transactions is to take snapshots of the current state of your system.  This is shown in Figure 1, where we assume that the instance `A` (which e.g. could be a collection) describes the state of your system.
+A basic usage for transactions is to take snapshots of the current state of your system.
+This is shown in Figure 1, where we assume that the instance `A` (which, e.g., could be a collection) describes the state of your system.
 
-We call an instance a *transaction* after we have taken a snapshot of it, i.e. when it contains a reference to a immutable "parent" instance.
+We call an instance a *transaction* after we have taken a snapshot of it, i.e. when it contains a reference to an immutable previous ("parent") instance.
 
 ![transactions](figs/transactions.png)
 
-**Figure 1**: *Creating a transaction by taking snapshots.  (a) initial state of your system described by instance `A`.  (b) creating a transaction by taking a snapshot
-of `A`.  The snapshot, `A1`, stores an immutable (frozen) copy of `A` from the exact
-moment `t1` the snapshot was taken.  (c) After another snapshot was taken at time `t2`.  Blue circles represent immutable instances, red circles represent mutable instances, while arrows relate an instance to its (frozen) parent instance.*
+**Figure 1**: *Creating a transaction by taking snapshots.
+(a) initial state of your system described by instance `A`.
+(b) creating a transaction by taking a snapshot of `A`.
+The snapshot, `A1`, stores an immutable (frozen) copy of `A` from the exact moment `t1` the snapshot was taken.
+(c) After another snapshot was taken at time `t2`.
+Blue circles represent immutable instances, red circles represent mutable instances, while arrows relate an instance to its (frozen) parent instance.*
 
-It is very simple to create such snapshots using the Python and C APIs.  In Python, the steps in Figure 1 can be produced by the following code:
+It is straight forward to create such snapshots using the Python and C APIs.
+In Python, the steps in Figure 1 can be produced by the following code:
 
 ```python
 A = dlite.get_instance("A")  # Initial state (Fig. 1a)
@@ -30,19 +36,20 @@ dlite_instance_snapshot(A);                  // Make snapshot at time=t1 (Fig. 1
 dlite_instance_snapshot(A);                  // Make snapshot at time=t2 (Fig. 1c)
 ```
 
-The snapshots can be accessed using `dlite_instance_get_snapshot()`.  For instance, accessing snapshot `A2` and creating a new branch from it can be achieved by the following four lines of Python C code:
+The snapshots can be accessed using `dlite_instance_get_snapshot()`.
+For instance, accessing snapshot `A2` and creating a new branch from it can be achieved by the following four lines of Python code:
 
 ```python
-A2 = A.get_snapshot()  # Access the most resent snapshot of A
+A2 = A.get_snapshot()  # Access the most recent snapshot of A
 B = A2.copy()          # Create a mutable copy of A2
-B.set_parent(A2)       # Make B a transaction with A2 as parent. Shown Fig. 2a.
-B.shapshot()           # Make a snapshop of B. Shown Fig. 2b.
+B.set_parent(A2)       # Make B a transaction with A2 as parent. Shown in Fig. 2a.
+B.shapshot()           # Make a snapshop of B. Shown in Fig. 2b.
 ```
 
 The corresponding C code is:
 
 ```C
-// Access the most resent snapshot of instance A.
+// Access the most recent snapshot of instance A.
 // Note that A2 is a borrowed reference to the snapshot and should not be dereferred
 // with dlite_instance_decref().
 const DLiteInstance *A2 = dlite_instance_get_snapshot(A, 1);
@@ -52,27 +59,33 @@ const DLiteInstance *A2 = dlite_instance_get_snapshot(A, 1);
 // are done with it.
 DLiteInstance *B = dlite_instance_copy(A2);
 
-// Make B a transaction with A2 as parent. Shown Fig. 2a.
+// Make B a transaction with A2 as parent. Shown in Fig. 2a.
 dlite_instance_set_parent(B, A2);
 
-// Make a snapshop of B. Shown Fig. 2b.
+// Make a snapshop of B. Shown in Fig. 2b.
 dlite_instance_snapshot(B);
 ```
 The result if these commands are shown in Figure 2.
 
 ![transactions-branch](figs/transactions-branch.png)
 
-**Figure 2**: *Creating a new branch, from a snapshot of a transaction.  (a) create a copy `B` of latest snapshot of transaction `A`.  (b)  Take a snapshot of `B`.*
-
+**Figure 2**: *Creating a new branch, from a snapshot of a transaction.
+(a) Create a copy (`B`) of latest snapshot of transaction `A`.
+(b) Take a snapshot of `B`.*
 
 ### Transaction parent and immutability
-All transactions starts with a root instance with no parent instance.  All other instances in a transaction has exactly one parent instance.
-All instances in a transaction that serves as a parent are immutable (that is, all instances except the leafs).  Non-root transaction instances store a [SHA-3](https://en.wikipedia.org/wiki/SHA-3) hash of their parents together with the parent UUIDs.  This make it possible to ensure that any of the ancestors of a transaction has not been changed - providing provenance.
+
+All transactions start as a root instance with no parent instance.
+All other instances in a transaction has exactly **one** parent instance.
+All instances in a transaction that serves as a parent are immutable (that is, all instances except the leaves).
+Non-root transaction instances store a [SHA-3](https://en.wikipedia.org/wiki/SHA-3) hash of their parent together with the parent UUID.
+This make it possible to ensure that any of the ancestors of a transaction has not been changed - providing provenance.
 
 A transaction can be validated with the `verify_transaction()` method in Python and `dlite_instance_verify_transaction()` in C.
 
-
 ### Memory management
-Since the number of snapshots potentially can be very large, it is important to be able to store them to disk in order to save memory.  To support this, DLite implements the `pull_snapshot()` and `push_snapshot()` methods (`dlite_instance_pull_snapshot()` and `dlite_instance_push_snapshot()` in C).
+
+The number of snapshots can potentially be very large, hence it is important to be able to store them to disk in order to save memory.
+To support this, DLite implements the `pull_snapshot()` and `push_snapshot()` methods (`dlite_instance_pull_snapshot()` and `dlite_instance_push_snapshot()` in C).
 
 Note that not all storages can be used with these functions, since whether an instance is a transactions or not, is not described by its metadata and hence requires special support by the storage plugin.

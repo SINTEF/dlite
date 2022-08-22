@@ -13,10 +13,8 @@ import dlite
 # Configure paths
 thisdir = Path(__file__).parent.absolute()
 
-#dlite.storage_path.append(thisdir / 'entities' / '*.json')
 dlite.storage_path.append(thisdir / '*.json')
 Person = dlite.get_instance('http://onto-ns.com/meta/0.1/Person')
-
 
 person = Person(dims={"N": 4})
 person.name = "Knud H. Thomsen"
@@ -28,18 +26,24 @@ for i in range(6):
     person.snapshot()
     person.age += 5
 
-assert person.age == 60
+assert person.age == 30 + 6 * 5  # 60
 assert person.get_snapshot(0).age == 60
 assert person.get_snapshot(1).age == 55
 assert person.get_snapshot(6).age == 30
 if HAVE_PYTEST:
     with pytest.raises(dlite.DLiteError):
         person.get_snapshot(7)
-
+else:
+    try:
+        person.get_snapshot(7)
+    except dlite.DLiteError:
+        pass
+    else:
+        raise Exception("Should've failed test (getting non-existant snapshot), but didn't".)
 assert person._get_parent_uuid() == person.get_snapshot(1).uuid
 assert person._get_parent_hash() == person.get_snapshot(1).get_hash()
 
-# Chech mutability
+# Check mutability
 assert person.is_frozen() == False
 assert person.get_snapshot(1).is_frozen() == True
 assert person.get_snapshot(2).is_frozen() == True
@@ -60,6 +64,13 @@ assert inst.get_snapshot(5).age == 30
 if HAVE_PYTEST:
     with pytest.raises(dlite.DLiteError):
         inst.get_snapshot(6)
+else:
+    try:
+        inst.get_snapshot(6)
+    except dlite.DLiteError:
+        pass
+    else:
+        raise Exception("Should've failed test (getting non-existant snapshot), but didn't".)
 
 #print(inst)
 
