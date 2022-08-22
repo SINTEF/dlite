@@ -65,7 +65,9 @@ if HAVE_PYTEST:
 
 # Push to storage
 db = thisdir / "output" / "db.json"
-db.unlink(missing_ok=True)  # Make sure that the db is empty
+if db.exists:
+    db.unlink()  # Make sure that the db is empty
+
 with dlite.Storage("json", db, "mode=w") as storage:
     #person.push_snapshot(storage, 1)
     storage.save(person)
