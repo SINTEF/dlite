@@ -49,7 +49,7 @@ else:
     raise Exception("frozen instance should not accept attribute assignment")
 
 try:
-    frozen.skills[0] = "running"
+    frozen.skills[0] = "skiing"
 except ValueError:
     pass
 else:

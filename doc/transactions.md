@@ -50,8 +50,8 @@ The corresponding C code is:
 
 ```C
 // Access the most recent snapshot of instance A.
-// Note that A2 is a borrowed reference to the snapshot and should not be dereferred
-// with dlite_instance_decref().
+// Note that A2 is a borrowed reference to the snapshot and should not be
+// dereferenced with dlite_instance_decref().
 const DLiteInstance *A2 = dlite_instance_get_snapshot(A, 1);
 
 // Create a mutable copy of A2.
@@ -65,7 +65,7 @@ dlite_instance_set_parent(B, A2);
 // Make a snapshop of B. Shown in Fig. 2b.
 dlite_instance_snapshot(B);
 ```
-The result if these commands are shown in Figure 2.
+The result of these commands are shown in Figure 2.
 
 ![transactions-branch](figs/transactions-branch.png)
 
