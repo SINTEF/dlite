@@ -353,6 +353,27 @@ struct _DLiteInstance {
     return (const DLiteInstance *)$self->meta;
   }
 
+  %feature("docstring", "Returns reference to parent uuid.") _get_parent_uuid;
+  const char *_get_parent_uuid() {
+    return ($self->_parent) ? $self->_parent->uuid : NULL;
+  }
+
+  %feature("docstring", "Returns reference to parent hash.") _get_parent_hash;
+  %newobject _get_parent_hash;
+  char *_get_parent_hash() {
+    char *hex;
+    size_t hexsize = DLITE_HASH_SIZE*2 + 1;
+    if (!$self->_parent) return NULL;
+    if (!(hex = malloc(hexsize)))
+      FAIL("allocation failure");
+    if (strhex_encode(hex, hexsize, $self->_parent->hash, DLITE_HASH_SIZE) < 0)
+      FAIL("cannot hex-encode instance hash");
+    return hex;
+  fail:
+    if (hex) free(hex);
+    return NULL;
+  }
+
   %feature("docstring", "\
 Saves this instance to url or storage.
 
@@ -401,19 +422,139 @@ Call signatures:
   }
 
   %feature("docstring",
-           "Returns an copy of instance.  If newid is given, it will be "
-           "the id of the new instance, otherwise it will be given a "
-           "random UUID.") get_copy;
-  %newobject get_copy;
-  struct _DLiteInstance *get_copy(const char *newid=NULL) {
+           "Verify that the hash of instance `inst`.\n"
+           "\n"
+           "If `hash` is not None, this function verifies that the hash of\n"
+           "`inst` corresponds to the memory pointed to by `hash`.  The size\n"
+           "of the memory should be `DLITE_HASH_SIZE` bytes.\n"
+           "\n"
+           "If `hash` is None and `inst` has a parent, this function will\n"
+           "instead verify that the parent hash stored in `inst` corresponds\n"
+           "to the value of the parent.\n"
+           "\n"
+           "If `recursive` is true, all ancestors of `inst` are also\n"
+           "included in the verification.\n"
+           "\n"
+           "Raises a DLiteVerifyError exception if the hash is not valid."
+           ) verify_hash;
+  void verify_hash(const char *hash=NULL, bool recursive=false) {
+    uint8_t *hashp = NULL;
+    if (hash) {
+      uint8_t data[DLITE_HASH_SIZE];
+      if (strhex_decode(data, sizeof(data), hash, strlen(hash)) < 0) {
+        dlite_err(1, "cannot decode hash: %s\n", hash);
+        return;
+      }
+      hashp = data;
+    }
+    if (dlite_instance_verify_hash($self, hashp, recursive))
+      dlite_swig_exception = DLiteVerifyError;
+  }
+
+  %feature("docstring",
+           "Returns an copy of instance.  If newid is given, it will be\n"
+           "the id of the new instance, otherwise it will be given a\n"
+           "random UUID.") copy;
+  %newobject copy;
+  struct _DLiteInstance *copy(const char *newid=NULL) {
     return dlite_instance_copy($self, newid);
   }
 
   %feature("docstring",
-           "Make a snapshot of the current state of instance.  It can "
-           "be retrieved with get_snapshot().") snapshot;
+           "Make a snapshot of the current state of the instance.  It can\n"
+           "be retrieved with get_snapshot().\n"
+           "\n"
+           "The `inst` will be a transaction whos parent is the snapshot.\n"
+           "If `inst` already has a parent, that will now be the parent of\n"
+           "the snapshot.\n"
+           "\n"
+           "The reason that `inst` must be mutable, is that its hash will\n"
+           "change due to change in its parent.\n"
+           "\n"
+           "The snapshot will be assigned an URI of the form\n"
+           "\"snapshot-XXXXXXXXXXXX\" (or inst->uri#snapshot-XXXXXXXXXXXX\n"
+           "if inst->uri is not NULL) where each X is replaces with a\n"
+           "random character."
+           ) snapshot;
   void snapshot(void) {
     dlite_instance_snapshot($self);
+  }
+
+  %feature("docstring",
+           "Returns shapshot number `n` of the current instance, where `n`\n"
+           "counts backward.  Hence, `n=0` returns the current instance,\n"
+           "`n=1` returns its parent, etc...\n"
+           "\n"
+           "This function may pull snapshots back into memory. Use\n"
+           "dlite_instance_pull() if you know the storage where the snapshots "
+           "are stored.") get_snapshot;
+  %newobject get_snapshop;
+  struct _DLiteInstance *get_snapshot(int n=1) {
+    DLiteInstance *inst =
+      (DLiteInstance *)dlite_instance_get_snapshot($self, n);
+    if (inst) dlite_instance_incref(inst);
+    return inst;
+  }
+
+  %feature("docstring",
+           "Like dlite_instance_get_snapshot(), except that possible stored\n"
+           "snapshots are pulled from a specified storage to memory.\n"
+           "\n"
+           "Returns shapshot number `n` of the current instance, where `n`\n"
+           "counts backward.  Hence, `n=0` returns the current instance,\n"
+           "`n=1` returns its parent, etc... "
+           ) pull_snapshot;
+  %newobject get_snapshop;
+  struct _DLiteInstance *pull_snapshot(struct _DLiteStorage *storage, int n) {
+    DLiteInstance *inst =
+      (DLiteInstance *)dlite_instance_pull_snapshot($self, storage, n);
+    if (inst) dlite_instance_incref(inst);
+    return inst;
+  }
+
+  %feature("docstring",
+           "Push all ancestors of snapshot `n` from memory to storage,\n"
+           "where `n=0` corresponds to `inst`, `n=1` to the parent of\n"
+           "`inst`, etc...\n"
+           "\n"
+           "No snapshot is pulled back from storage, so if the snapshots are\n"
+           "already in storage, this function has no effect.\n"
+           "\n"
+           "This function starts pushing closest to the root to ensure\n"
+           "that the transaction is in a consistent state at all times."
+           ) push_snapshot;
+  void push_snapshot(struct _DLiteStorage *storage, int n) {
+    dlite_instance_push_snapshot($self, storage, n);
+  }
+
+  %feature("docstring",
+           "Turn instance `inst` into a transaction node with parent\n"
+           "`parent`.  This require that `inst` is mutable, and `parent`\n"
+           "is immutable.  If `inst` already has a parent, it will be\n"
+           "replaced.\n"
+           "\n"
+           "Use dlite_instance_freeze() and dlite_instance_is_frozen() to\n"
+           "make and check that an instance is immutable, respectively."
+           ) set_parent;
+  void set_parent(struct _DLiteInstance *parent) {
+    dlite_instance_set_parent($self, parent);
+  }
+
+  %feature("docstring",
+           "Mark the instance as immutable.  This can never be reverted."
+           ) freeze;
+  void freeze(void) {
+    dlite_instance_freeze($self);
+  }
+
+  %feature("docstring", "Returns whether instance is immutable.") is_frozen;
+  bool is_frozen(void) {
+    return dlite_instance_is_frozen($self);
+  }
+
+  %feature("docstring", "Verifies a transaction.") verify_transaction;
+  bool verify_transaction(void) {
+    return dlite_instance_verify_transaction($self);
   }
 
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;
@@ -549,10 +690,18 @@ Call signatures:
   %feature("docstring",
            "") tojson;
   %newobject tojson;
-  char *tojson(int indent=0, int flags=0) {
+  char *tojson(int indent=0, bool single=false, bool urikey=false,
+               bool with_uuid=false, bool with_meta=false,
+               bool with_arrays=false, bool no_parent=false) {
+    DLiteJsonFlag flags=0;
+    if (single) flags |= dliteJsonSingle;
+    if (urikey) flags |= dliteJsonUriKey;
+    if (with_uuid) flags |= dliteJsonWithUuid;
+    if (with_meta) flags |= dliteJsonWithMeta;
+    if (with_arrays) flags |= dliteJsonArrays;
+    if (no_parent) flags |= dliteJsonNoParent;
     return dlite_json_aprint($self, indent, flags);
   }
-
 
 };
 

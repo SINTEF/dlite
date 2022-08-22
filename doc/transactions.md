@@ -12,7 +12,17 @@ We call an instance a *transaction* after we have taken a snapshot of it, i.e. w
 of `A`.  The snapshot, `A1`, stores an immutable (frozen) copy of `A` from the exact
 moment `t1` the snapshot was taken.  (c) After another snapshot was taken at time `t2`.  Blue circles represent immutable instances, red circles represent mutable instances, while arrows relate an instance to its (frozen) parent instance.*
 
-It is very simple to create such snapshots using the C API.  The steps in Figure 1 can be produced by the following code:
+It is very simple to create such snapshots using the Python and C APIs.  In Python, the steps in Figure 1 can be produced by the following code:
+
+```python
+A = dlite.get_instance("A")  # Initial state (Fig. 1a)
+A.snapshot()                 # Make snapshot at time=t1 (Fig. 1b)
+# A is evolved...
+A.snapshot()                 # Make snapshot at time=t2 (Fig. 1c)
+```
+
+The corresponding code in C would be:
+
 ```C
 DLiteInstance *A = dlite_instance_get("A");  // Initial state (Fig. 1a)
 dlite_instance_snapshot(A);                  // Make snapshot at time=t1 (Fig. 1b)
@@ -20,7 +30,17 @@ dlite_instance_snapshot(A);                  // Make snapshot at time=t1 (Fig. 1
 dlite_instance_snapshot(A);                  // Make snapshot at time=t2 (Fig. 1c)
 ```
 
-The snapshots can be accessed using `dlite_instance_get_snapshot()`.  For instance, accessing snapshot `A2` and creating a new branch from it can be achieved by the following four lines of C code:
+The snapshots can be accessed using `dlite_instance_get_snapshot()`.  For instance, accessing snapshot `A2` and creating a new branch from it can be achieved by the following four lines of Python C code:
+
+```python
+A2 = A.get_snapshot()  # Access the most resent snapshot of A
+B = A2.copy()          # Create a mutable copy of A2
+B.set_parent(A2)       # Make B a transaction with A2 as parent. Shown Fig. 2a.
+B.shapshot()           # Make a snapshop of B. Shown Fig. 2b.
+```
+
+The corresponding C code is:
+
 ```C
 // Access the most resent snapshot of instance A.
 // Note that A2 is a borrowed reference to the snapshot and should not be dereferred
@@ -35,7 +55,7 @@ DLiteInstance *B = dlite_instance_copy(A2);
 // Make B a transaction with A2 as parent. Shown Fig. 2a.
 dlite_instance_set_parent(B, A2);
 
-// Make a snapshop if B. Shown Fig. 2b.
+// Make a snapshop of B. Shown Fig. 2b.
 dlite_instance_snapshot(B);
 ```
 The result if these commands are shown in Figure 2.
@@ -49,34 +69,10 @@ The result if these commands are shown in Figure 2.
 All transactions starts with a root instance with no parent instance.  All other instances in a transaction has exactly one parent instance.
 All instances in a transaction that serves as a parent are immutable (that is, all instances except the leafs).  Non-root transaction instances store a [SHA-3](https://en.wikipedia.org/wiki/SHA-3) hash of their parents together with the parent UUIDs.  This make it possible to ensure that any of the ancestors of a transaction has not been changed - providing provenance.
 
-A transaction can be validated with `dlite_instance_transaction_validate()`.
+A transaction can be validated with the `verify_transaction()` method in Python and `dlite_instance_verify_transaction()` in C.
 
 
 ### Memory management
-Since the number of snapshots potentially can be very large, it is important to be able to store them to disk in order to save memory.  To support this, DLite implements the functions `dlite_instance_pull_snapshot()` and dlite_instance_push_snapshot()`:
-```C
-/**
-  Like dlite_instance_get_snapshot(), except that possible stored
-  snapshots are pulled from storage `s` to memory.
+Since the number of snapshots potentially can be very large, it is important to be able to store them to disk in order to save memory.  To support this, DLite implements the `pull_snapshot()` and `push_snapshot()` methods (`dlite_instance_pull_snapshot()` and `dlite_instance_push_snapshot()` in C).
 
-  Returns NULL on error.
- */
-const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
-                                                  DLiteStorage *s, int n);
-
-/**
-  Push all ancestors of snapshot number `n` from memory to storage `s`,
-  where `n=0` corresponds to `inst`, `n=1` to the parent of `inst`, etc...
-
-  No snapshot is pulled back from storage, so if the snapshots are
-  already in storage, this function has no effect.
-
-  This function starts pushing closest to the root to ensure that the
-  transaction is in a consistent state at all times.
-
-  Returns zero on success or the (positive) index of the snapshot that
-  fails to push.
-*/
-int dlite_instance_push_snapshot(const DLiteInstance *inst, DLiteStorage *s, int n);
-```
 Note that not all storages can be used with these functions, since whether an instance is a transactions or not, is not described by its metadata and hence requires special support by the storage plugin.

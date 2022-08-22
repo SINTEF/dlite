@@ -14,13 +14,14 @@
 
 /** Flags for controlling serialisation */
 typedef enum {
-  dliteJsonSingle=1,    /*!< single-entity format */
+  dliteJsonSingle=1,    /*!< Single-entity format */
   dliteJsonUriKey=2,    /*!< Use uri (if it exists) as json key in multi-
                              entity format. */
-  dliteJsonWithUuid=4,  /*!< include uuid in output */
-  dliteJsonWithMeta=8,  /*!< always include "meta" (even for metadata) */
-  dliteJsonArrays=16,   /*!< write metadata dimension and properties as
+  dliteJsonWithUuid=4,  /*!< Include uuid in output */
+  dliteJsonWithMeta=8,  /*!< Always include "meta" (even for metadata) */
+  dliteJsonArrays=16,   /*!< Write metadata dimension and properties as
                              json arrays (old format) */
+  dliteJsonNoParent=32, /*!< Do not write transaction parent info */
 } DLiteJsonFlag;
 
 /** Enum indicating whether a JSON string is formatted as data and metadata. */

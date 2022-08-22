@@ -601,10 +601,22 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         return d
 
     def asjson(self, soft7=True, uuid=True, **kwargs):
-        """Returns a JSON representation of self.  Arguments are passed to
-        json.dumps()."""
+        """Returns a JSON representation of self.  Keyword arguments are
+        passed to json.dumps()."""
         return json.dumps(self.asdict(soft7=soft7, uuid=uuid),
                           cls=InstanceEncoder, **kwargs)
+
+    # Deprecated methods
+    def get_copy(self):
+        """Returns a copy of self.
+
+        This method is deprecated.  Use copy() instead.
+        """
+        warnings.warn(
+            DeprecationWarning,
+            "Instance.get_copy() is deprecated.  Use Instance.copy() instead."
+        )
+        return self.copy()
 %}
 
 }
