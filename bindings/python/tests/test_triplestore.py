@@ -1,18 +1,71 @@
 # Skip test if rdflib is not available
+from pathlib import Path
+
 try:
     import rdflib
 except ImportError:
     import sys
-    sys.exit(44)
+    sys.exit(44)  # skip this test
 
-from dlite.triplestore import en, Literal, Triplestore, RDF, RDFS, XSD, OWL
-from dlite.triplestore.triplestore import function_id
+try:
+    import pytest
+except ImportError:
+    HAVE_PYTEST = False
+else:
+    HAVE_PYTEST = True
+
+from dlite.triplestore import (
+    en, Literal, Namespace, Triplestore, RDF, RDFS, XSD, OWL
+)
+from dlite.triplestore.triplestore import function_id, NoSuchIRIError
+
+
+thisdir = Path(__file__).absolute().parent
+ontopath_family = thisdir / "ontologies" / "family.ttl"
+ontopath_food = thisdir / "ontologies" / "food.ttl"
 
 
 # Test namespaces
 # ---------------
 assert str(RDF) == "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 assert RDF.type == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+
+FAM = Namespace(
+    "http://onto-ns.com/ontologies/examples/family#",
+    check=True,
+    triplestore_url=ontopath_family,
+)
+FOOD = Namespace(
+    "http://onto-ns.com/ontologies/examples/food#",
+    label_annotations=True,
+    check=True,
+    triplestore_url=ontopath_food,
+)
+FOOD2 = Namespace(
+    "http://onto-ns.com/ontologies/examples/food#",
+    label_annotations=True,
+    check=False,
+    triplestore_url=ontopath_food,
+)
+assert FAM.Son == "http://onto-ns.com/ontologies/examples/family#Son"
+assert FAM["Son"] == "http://onto-ns.com/ontologies/examples/family#Son"
+assert FAM + "Son" == "http://onto-ns.com/ontologies/examples/family#Son"
+
+name = "FOOD_345ecde3_3cac_41d2_aad6_cb6835a27b41"
+assert FOOD[name] == FOOD + name
+assert FOOD.Vegetable == FOOD + name
+
+assert FOOD2[name] == FOOD2 + name
+assert FOOD2.Vegetable == FOOD2 + name
+
+if HAVE_PYTEST:
+    with pytest.raises(NoSuchIRIError):
+        FAM.NonExisting
+
+    with pytest.raises(NoSuchIRIError):
+        FOOD.NonExisting
+
+assert FOOD2.NonExisting == FOOD2 + "NonExisting"
 
 
 # Test RDF literals
