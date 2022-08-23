@@ -20,9 +20,8 @@ for i in range(6):
     person.age += 5
 
 assert person.age == 30 + 6 * 5  # 60
-assert person.get_snapshot(0).age == 60
-assert person.get_snapshot(1).age == 55
-assert person.get_snapshot(6).age == 30
+for i in range(7):
+    assert person.get_snapshot(i).age == 30 + (6 - i) * 5
 try:
     person.get_snapshot(7)
 except dlite.DLiteError:
