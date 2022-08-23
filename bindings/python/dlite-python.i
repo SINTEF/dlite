@@ -242,6 +242,14 @@ int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
 }
 
 
+/* Returns the length of sequence-like object.  On error, -1 is returned. */
+size_t dlite_swig_length(obj_t *obj)
+{
+  return (size_t)PyObject_Length(obj);
+}
+
+
+
 /**********************************************
  ** Python-specific implementations
  **********************************************/
