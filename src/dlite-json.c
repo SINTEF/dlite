@@ -1089,7 +1089,7 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
   unsigned int ntokens=0;
   char uuid[DLITE_UUID_LENGTH+1], *uri=NULL;
   int r;
-  DLiteJsonFormat format=-1;
+  DLiteJsonFormat retval=-1, format;
   DLiteJsonFlag flags=0;
   char *dots = (len > 30) ? "..." : "";
 
@@ -1129,11 +1129,12 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
       t += jsmn_count(v) + 2;
     }
   }
+  retval = format;
 
  fail:
   if (tokens) free(tokens);
   if (uri) free(uri);
-  return format;
+  return retval;
 }
 
 /*

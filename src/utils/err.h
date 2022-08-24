@@ -621,7 +621,7 @@ ErrRecord *_err_get_record();
     }                                                \
     _ft = _fallthrough;                              \
     _fallthrough = 0;                                \
-    _last = _record.eval == errval || _ft;           \
+    _last = (_record.eval == errval) || _ft;         \
     _record.handled |= _last;                        \
     if (_last) _record.state = errTryCatch;          \
     switch (_last ? 1 : 0) {                         \
