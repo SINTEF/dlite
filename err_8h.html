@@ -343,7 +343,7 @@ ErrCatch(2):
 <div class="line">    }                                                \</div>
 <div class="line">    _ft = _fallthrough;                              \</div>
 <div class="line">    _fallthrough = 0;                                \</div>
-<div class="line">    _last = _record.eval == errval || _ft;           \</div>
+<div class="line">    _last = (_record.eval == errval) || _ft;         \</div>
 <div class="line">    _record.handled |= _last;                        \</div>
 <div class="line">    if (_last) _record.state = errTryCatch;          \</div>
 <div class="line">    switch (_last ? 1 : 0) {                         \</div>
