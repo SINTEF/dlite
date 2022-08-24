@@ -9,9 +9,9 @@ def load_qudt():
     print("Loading QUDT unit ontology.")
     
     from triplestore import Triplestore
-    ts = Triplestore(backend="rdflib")
+    ts = Triplestore(name="rdflib")
     
-    ONTO = ts.bind("unit", "http://qudt.org/vocab/unit/")
+    ONTO = ts.bind("unit", "http://qudt.org/vocab/unit/", cachemode=2, check=True)
     
     print("Successful.")
 
