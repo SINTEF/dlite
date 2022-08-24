@@ -88,8 +88,8 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
   if (!(s = api->open(api, location, options))) goto fail;
   s->api = api;
-  if (!(s->location = strdup(location))) FAIL(NULL);
-  if (options && !(s->options = strdup(options))) FAIL(NULL);
+  if (!(s->location = strdup(location))) FAIL("allocation failure");
+  if (options && !(s->options = strdup(options))) FAIL("allocation failure");
 
   map_init(&s->cache);
 

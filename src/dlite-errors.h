@@ -14,10 +14,10 @@ typedef enum {
   dliteNullReferenceError,
   dliteStorageOpenError,     /*!< cannot open storage plugin */
   dliteStorageLoadError,     /*!< cannot load storage plugin */
+  dliteStorageSaveError,     /*!< cannot save storage plugin */
 
   /* Should always be the last error */
   dliteLastError
 } DLiteErrors;
-
 
 #endif  /* _DLITE_ERRORS_H */

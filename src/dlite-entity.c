@@ -716,7 +716,13 @@ DLiteInstance *dlite_instance_get(const char *id)
 
     /* Set read-only as default mode (all drivers should support this) */
     if (!options) options = "mode=r";
-    if ((s = dlite_storage_open(driver, location, options))) {
+    ErrTry:
+      s = dlite_storage_open(driver, location, options);
+    ErrCatch(dliteStorageOpenError):  // suppressed error
+    ErrCatch(dliteStorageLoadError):  // suppressed error
+      break;
+    ErrEnd;
+    if (s) {
       /* url is a storage we can open... */
       ErrTry:
         inst = _instance_load_casted(s, id, NULL, 0);
@@ -731,7 +737,12 @@ DLiteInstance *dlite_instance_get(const char *id)
         const char *path;
         while (!inst && (path = fu_globnext(fiter))) {
 	  driver = (char *)fu_fileext(path);
-	  if ((s = dlite_storage_open(driver, path, options))) {
+          ErrTry:
+            s = dlite_storage_open(driver, path, options);
+          ErrCatch(dliteStorageOpenError):  // suppressed error
+            break;
+          ErrEnd;
+          if (s) {
             ErrTry:
               inst = _instance_load_casted(s, id, NULL, 0);
             ErrCatch(dliteStorageLoadError):  // suppressed error

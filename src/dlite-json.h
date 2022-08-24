@@ -25,8 +25,9 @@ typedef enum {
 
 /** Enum indicating whether a JSON string is formatted as data and metadata. */
 typedef enum {
-  dliteJsonDataFormat,    /*!< Data format */
-  dliteJsonMetaFormat     /*!< Metadata format */
+  dliteJsonUnknownFormat=-1,  /*!< Unknown format */
+  dliteJsonDataFormat=0,      /*!< Data format */
+  dliteJsonMetaFormat         /*!< Metadata format */
 } DLiteJsonFormat;
 
 
