@@ -81,7 +81,7 @@ All instances in a transaction that serve as a parent are immutable (that is, al
 Non-root transaction instances store a [SHA-3](https://en.wikipedia.org/wiki/SHA-3) hash of their parent together with the parent UUID.
 This makes it possible to ensure that any of the ancestors of a transaction have not been changed - providing provenance.
 
-A transaction can be validated with the `verify_transaction()` method in Python and `dlite_instance_verify_transaction()` in C.
+A transaction can be verified with the `verify_transaction()` method in Python and `dlite_instance_verify_transaction()` in C.
 
 ### Memory management
 
