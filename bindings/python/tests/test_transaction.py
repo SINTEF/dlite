@@ -60,16 +60,11 @@ inst.set_parent(person.get_snapshot(3))
 inst.age = 50
 inst.snapshot()
 inst.age = 55
-
-assert inst.get_snapshot(0).age == 55
-assert inst.get_snapshot(1).age == 50
-assert inst.get_snapshot(2).age == 45
-assert inst.get_snapshot(3).age == 40
-assert inst.get_snapshot(4).age == 35
-assert inst.get_snapshot(5).age == 30
-
 for i in range(6):
     assert inst.get_snapshot(i).age == 55 - i*5
+
+for i in range(4):
+    assert inst.get_snapshot(i + 2).age == person.get_snapshot(3 + i).age
 
 try:
     inst.get_snapshot(6)
