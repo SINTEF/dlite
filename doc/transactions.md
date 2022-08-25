@@ -1,6 +1,6 @@
 Transactions
 ============
-Transactions is a feature that comes from SOFT, which allows to easy manage arbitrary long series of immutable (frozen) instances, while ensuring provenance.
+Transactions is a concept that comes from SOFT, which allows to easy manage arbitrary long series of immutable (frozen) instances, while ensuring provenance.
 Conceptually, it shares many similarities with [git](https://git-scm.com).
 
 A basic usage for transactions is to take snapshots of the current state of your system.
@@ -12,9 +12,9 @@ We call an instance a *transaction* after we have taken a snapshot of it, i.e. w
 
 **Figure 1**: *Creating a transaction by taking snapshots.
 (a) initial state of your system described by instance `A`.
-(b) creating a transaction by taking a snapshot of `A`.
+(b) creating a transaction by taking a snapshot of `A` at time `t1`.
 The snapshot, `A1`, stores an immutable (frozen) copy of `A` from the exact moment `t1` the snapshot was taken.
-(c) After another snapshot was taken at time `t2`.
+(c) After another snapshot was taken at a later time `t2`.
 Blue circles represent immutable instances, red circles represent mutable instances, while arrows relate an instance to its (frozen) parent instance.*
 
 It is straight forward to create such snapshots using the Python and C APIs.
@@ -87,5 +87,9 @@ A transaction can be validated with the `verify_transaction()` method in Python 
 
 The number of snapshots can potentially be very large, hence it is important to be able to store them to disk in order to save memory.
 To support this, DLite implements the `pull_snapshot()` and `push_snapshot()` methods (`dlite_instance_pull_snapshot()` and `dlite_instance_push_snapshot()` in C).
+
+Calling `inst.push_snapshot(storage, n)` will push all ancestors of snapshot `n` of instance `inst` from memory to storage `storage`, where `n=0` corresponds to `inst`, `n=1` to the parent of `inst`, etc...  Hence, this will release memory.
+
+Calling `inst.pull_snapshot(storage, n)` will pull snapshot `n` of instance `inst` as well as all its descendants from storage `storage` to memory.  Hence, this is similar to `inst.get_snapshot(n)`, except that an explicit storage is used.
 
 Note that not all storages can be used with these functions, since whether an instance is a transactions or not, is not described by its metadata and hence requires special support by the storage plugin.

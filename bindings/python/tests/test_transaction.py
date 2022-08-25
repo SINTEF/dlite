@@ -67,6 +67,10 @@ assert inst.get_snapshot(2).age == 45
 assert inst.get_snapshot(3).age == 40
 assert inst.get_snapshot(4).age == 35
 assert inst.get_snapshot(5).age == 30
+
+for i in range(6):
+    assert inst.get_snapshot(i).age == 55 - i*5
+
 try:
     inst.get_snapshot(6)
 except dlite.DLiteError:
