@@ -42,8 +42,8 @@ frozen = person.get_snapshot(1)
 assert frozen.is_frozen() == True
 try:
     frozen.age = 77
-except dlite.DLiteError:
-    pass
+except dlite.DLiteError as exc:
+    assert str(exc) == "frozen instance does not support attribute assignment"
 else:
     raise Exception("frozen instance should not accept attribute assignment")
 
