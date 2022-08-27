@@ -1,23 +1,17 @@
 # Skip test if rdflib is not available
+import textwrap
 from pathlib import Path
 
-try:
-    import rdflib
-except ImportError:
-    import sys
-    sys.exit(44)  # skip this test
-
-try:
-    import pytest
-except ImportError:
-    HAVE_PYTEST = False
-else:
-    HAVE_PYTEST = True
+from check_import import check_import
 
 from dlite.triplestore import (
-    en, Literal, Namespace, Triplestore, RDF, RDFS, XSD, OWL
+    en, Literal, Namespace, Triplestore, RDF, RDFS, XSD, OWL, SKOS
 )
 from dlite.triplestore.triplestore import function_id, NoSuchIRIError
+
+rdflib = check_import("rdflib", skip=True)
+pytest = check_import("pytest")
+ontopy = check_import("ontopy")
 
 
 thisdir = Path(__file__).absolute().parent
@@ -58,7 +52,7 @@ assert FOOD.Vegetable == FOOD + name
 assert FOOD2[name] == FOOD2 + name
 assert FOOD2.Vegetable == FOOD2 + name
 
-if HAVE_PYTEST:
+if pytest:
     with pytest.raises(NoSuchIRIError):
         FAM.NonExisting
 
@@ -103,89 +97,113 @@ assert l5.n3() == f'"42"^^{XSD.double}'
 
 # Test rdflib triplestore backend
 # -------------------------------
-ts = Triplestore("rdflib")
-assert ts.expand_iri("xsd:integer") == XSD.integer
-assert ts.prefix_iri(RDF.type) == 'rdf:type'
-EX = ts.bind("ex", "http://example.com/onto#")
-assert str(EX) == "http://example.com/onto#"
-ts.add_mapsTo(EX.MyConcept, "http://onto-ns.com/meta/0.1/MyEntity", "myprop")
-ts.add((EX.MyConcept, RDFS.subClassOf, OWL.Thing))
-ts.add((EX.AnotherConcept, RDFS.subClassOf, OWL.Thing))
-ts.add((EX.Sum, RDFS.subClassOf, OWL.Thing))
-assert ts.has(EX.Sum) == True
-assert ts.has(EX.Sum, RDFS.subClassOf, OWL.Thing) == True
-assert ts.has(object=EX.NotInOntology) == False
+if rdflib:
+    ts = Triplestore("rdflib")
+    assert ts.expand_iri("xsd:integer") == XSD.integer
+    assert ts.prefix_iri(RDF.type) == 'rdf:type'
+    EX = ts.bind("ex", "http://example.com/onto#")
+    assert str(EX) == "http://example.com/onto#"
+    ts.add_mapsTo(
+        EX.MyConcept, "http://onto-ns.com/meta/0.1/MyEntity", "myprop")
+    ts.add((EX.MyConcept, RDFS.subClassOf, OWL.Thing))
+    ts.add((EX.AnotherConcept, RDFS.subClassOf, OWL.Thing))
+    ts.add((EX.Sum, RDFS.subClassOf, OWL.Thing))
+    assert ts.has(EX.Sum) == True
+    assert ts.has(EX.Sum, RDFS.subClassOf, OWL.Thing) == True
+    assert ts.has(object=EX.NotInOntology) == False
 
 
-def sum(a, b):
-    """Summarise `a` and `b`."""
-    return a + b
+    def sum(a, b):
+        """Summarise `a` and `b`."""
+        return a + b
 
-ts.add_function(sum, expects=(EX.MyConcept, EX.AnotherConcept), returns=EX.Sum,
-                base_iri=EX)
+    ts.add_function(sum, expects=(EX.MyConcept, EX.AnotherConcept),
+                    returns=EX.Sum, base_iri=EX)
 
-s = ts.serialize(format="turtle")
-fid = function_id(sum)
-assert s == f"""\
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix ex: <http://example.com/onto#> .
-@prefix fno: <https://w3id.org/function/ontology#> .
-@prefix map: <http://emmo.info/domain-mappings#> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    s = ts.serialize(format="turtle")
+    fid = function_id(sum)
+    expected = textwrap.dedent(f"""\
+    @prefix dcterms: <http://purl.org/dc/terms/> .
+    @prefix ex: <http://example.com/onto#> .
+    @prefix fno: <https://w3id.org/function/ontology#> .
+    @prefix map: <http://emmo.info/domain-mappings#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ex:sum_{fid} a fno:Function ;
-    dcterms:description "Summarise `a` and `b`."@en ;
-    fno:expects ( ex:sum_{fid}_parameter1_a ex:sum_{fid}_parameter2_b ) ;
-    fno:returns ( ex:sum_{fid}_output1 ) .
+    ex:sum_{fid} a fno:Function ;
+        dcterms:description "Summarise `a` and `b`."@en ;
+        fno:expects ( ex:sum_{fid}_parameter1_a ex:sum_{fid}_parameter2_b ) ;
+        fno:returns ( ex:sum_{fid}_output1 ) .
 
-<http://onto-ns.com/meta/0.1/MyEntity#myprop> map:mapsTo ex:MyConcept .
+    <http://onto-ns.com/meta/0.1/MyEntity#myprop> map:mapsTo ex:MyConcept .
 
-ex:AnotherConcept rdfs:subClassOf owl:Thing .
+    ex:AnotherConcept rdfs:subClassOf owl:Thing .
 
-ex:Sum rdfs:subClassOf owl:Thing .
+    ex:Sum rdfs:subClassOf owl:Thing .
 
-ex:sum_{fid}_output1 a fno:Output ;
-    map:mapsTo ex:Sum .
+    ex:sum_{fid}_output1 a fno:Output ;
+        map:mapsTo ex:Sum .
 
-ex:sum_{fid}_parameter1_a a fno:Parameter ;
-    rdfs:label "a"@en ;
-    map:mapsTo ex:MyConcept .
+    ex:sum_{fid}_parameter1_a a fno:Parameter ;
+        rdfs:label "a"@en ;
+        map:mapsTo ex:MyConcept .
 
-ex:sum_{fid}_parameter2_b a fno:Parameter ;
-    rdfs:label "b"@en ;
-    map:mapsTo ex:AnotherConcept .
+    ex:sum_{fid}_parameter2_b a fno:Parameter ;
+        rdfs:label "b"@en ;
+        map:mapsTo ex:AnotherConcept .
 
-ex:MyConcept rdfs:subClassOf owl:Thing .
+    ex:MyConcept rdfs:subClassOf owl:Thing .
 
-"""
+    """)
+    assert s == expected
 
-ts2 = Triplestore("rdflib")
-ts2.parse(format="turtle", data=s)
-assert ts2.serialize(format="turtle") == s
-ts2.set((EX.AnotherConcept, RDFS.subClassOf, EX.MyConcept))
+    ts2 = Triplestore("rdflib")
+    ts2.parse(format="turtle", data=s)
+    assert ts2.serialize(format="turtle") == s
+    ts2.set((EX.AnotherConcept, RDFS.subClassOf, EX.MyConcept))
 
-def cost(x):
-    return 2*x
+    def cost(x):
+        return 2*x
 
-ts2.add_mapsTo(EX.Sum, "http://onto-ns.com/meta/0.1/MyEntity#sum", cost=cost)
-assert list(ts2.function_repo.values())[0] == cost
+    ts2.add_mapsTo(EX.Sum, "http://onto-ns.com/meta/0.1/MyEntity#sum",
+                   cost=cost)
+    assert list(ts2.function_repo.values())[0] == cost
 
-def func(x):
-    return x+1
+    def func(x):
+        return x+1
 
-ts2.add_function(func, expects=EX.Sum, returns=EX.OneMore, cost=cost)
-assert list(ts2.function_repo.values())[1] == func
-assert len(ts2.function_repo) == 2  # cost is only added once
+    ts2.add_function(func, expects=EX.Sum, returns=EX.OneMore, cost=cost)
+    assert list(ts2.function_repo.values())[1] == func
+    assert len(ts2.function_repo) == 2  # cost is only added once
 
-def func2(x):
-    return x+2
+    def func2(x):
+        return x+2
 
-def cost2(x):
-    return 2*x+1
+    def cost2(x):
+        return 2*x+1
 
-ts2.add_function(func2, expects=EX.Sum, returns=EX.EvenMore, cost=cost2)
-assert len(ts2.function_repo) == 4
+    ts2.add_function(func2, expects=EX.Sum, returns=EX.EvenMore, cost=cost2)
+    assert len(ts2.function_repo) == 4
 
-#print(ts2.serialize(format="turtle"))
+    #print(ts2.serialize(format="turtle"))
+
+
+# Test ontopy triplestore backend
+# -------------------------------
+if ontopy:
+    ts3 = Triplestore("ontopy", base_iri="emmo", load=True)
+    onto = ts3.backend.onto
+    triples = list(ts3.triples((None, None, None)))
+
+    ts4 = Triplestore(
+        "ontopy", base_iri="http://onto-ns.com/ontologies/examples/food",
+    )
+    ts4.parse(ontopath_food)
+
+    ts5 = Triplestore(
+        "ontopy", base_iri="http://onto-ns.com/ontologies/examples/food",
+    )
+    ts5.bind('food', FOOD)
+    with open(ontopath_food, 'rt') as f:
+        ts5.parse(data=f.read())
