@@ -30,15 +30,23 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         path: directories
             Additional search directories to add to the search path for
             `meta`.  Optional
-        pandas_opts: string
-            Comma-separated string of "key"=value options sent to pandas
-            read_<format> or save_<format> function.  String values should
-            be quoted.
+        columns: dict-like | comma-separated
+            Columns to read.
+            If dict-like it should map selected column numbers/names to new
+            column names.
+            If comma-separated, it should list the column numbers/names
+            to read.
+        pandas_opts: dict-like
+            Options sent to pandas read_<format> or save_<format> function.
         format: "csv" | "excel" | "json" | "clipboard", ...
             Any format supported by pandas.  The default is inferred from
             the extension of `uri`.
         id: string
             Explicit id of returned instance if reading.  Optional
+
+        With dict-like option strings, we mean a comma-separated string of
+        ``"key":<value>`` options without enclosing braces.  String values
+        should be quoted.
         """
         self.options = Options(options, defaults='mode=r')
         self.mode = dict(r='rt', w='wt')[self.options.mode]
@@ -64,6 +72,11 @@ class csv(dlite.DLiteStorageBase):  # noqa: F821
         pdopts = optstring2keywords(self.options.get('pandas_opts', ''))
         metaid = self.options.meta if 'meta' in self.options else None
         data = reader(self.uri, **pdopts)
+
+        self.options.columns
+
+
+
         rows, columns = data.shape
 
         if 'infer' not in self.options or dlite.asbool(self.options.infer):
