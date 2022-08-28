@@ -25,7 +25,7 @@
   float     | dliteFloat     | 4, 8, {10, 16}          | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
   fixstring | dliteFixString | any                     | char *                        | fix-sized NUL-terminated string  | string20
   string    | dliteStringPtr | sizeof(char *)          | char **                       | pointer to NUL-terminated string | string
-  ref       | dliteRef       | sizeof(DLiteInstance *) | DLiteInstance **              | UUID to another instance         | http://onto-ns.com/meta/0.1/Person
+  ref       | dliteRef       | sizeof(DLiteRef)        | DLiteRef *              | pointer to instance pointer      | http://onto-ns.com/meta/0.1/Person
   dimension | dliteDimension | sizeof(DLiteDimension)  | DLiteDimension *              | only intended for metadata       | dimension
   property  | dliteProperty  | sizeof(DLiteProperty)   | DLiteProperty *               | only intended for metadata       | property
   relation  | dliteRelation  | sizeof(DLiteRelation)   | DLiteRelation *               | subject-predicate-object triple  | relation
@@ -83,9 +83,10 @@
   ((alignof(type) - ((offset) & (alignof(type) - 1))) & (alignof(type) - 1))
 
 
-typedef struct _DLiteProperty  DLiteProperty;
-typedef struct _DLiteDimension DLiteDimension;
-typedef struct _Triple         DLiteRelation;
+typedef struct _DLiteProperty   DLiteProperty;
+typedef struct _DLiteDimension  DLiteDimension;
+typedef struct _Triple          DLiteRelation;
+typedef struct _DLiteInstance*  DLiteRef;
 
 
 /** Basic data types */

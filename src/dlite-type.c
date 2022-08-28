@@ -87,7 +87,7 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
-  {"ref",      dliteRef,       sizeof(DLiteInstance*),alignof(DLiteInstance*)},
+  {"ref",      dliteRef,       sizeof(DLiteRef),      alignof(DLiteRef)},
   {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
   {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
   {"relation", dliteRelation,  sizeof(DLiteRelation), alignof(DLiteRelation)},
