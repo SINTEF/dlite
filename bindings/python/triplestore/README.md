@@ -144,4 +144,5 @@ Further development
     - Redland librdf
     - Apache Jena Fuseki
     - Allegrograph
+    - Wikidata
 * Add ontological validation of physical dimension to Triplestore.mapsTo().
