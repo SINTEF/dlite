@@ -43,6 +43,7 @@ set(sources
   dlite-codegen.c
   dlite-getlicense.c
   dlite-json.c
+  dlite-bson.c
   getuuid.c
   pathshash.c
   triple.c
