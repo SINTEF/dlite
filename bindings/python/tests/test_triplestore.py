@@ -132,7 +132,7 @@ if rdflib:
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
     ex:sum_{fid} a fno:Function ;
-        dcterms:description "Summarise `a` and `b`."@en ;
+        dcterms:description "Returns the sum of `a` and `b`."@en ;
         fno:expects ( ex:sum_{fid}_parameter1_a ex:sum_{fid}_parameter2_b ) ;
         fno:returns ( ex:sum_{fid}_output1 ) .
 
