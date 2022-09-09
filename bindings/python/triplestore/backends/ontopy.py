@@ -166,7 +166,7 @@ class OntopyStrategy:
         if destination:
             self.onto.save(destination, format=format, **kwargs)
         else:
-            # Clumsy implementation due to Windows...
+            # Clumsy implementation due to Windows file locking...
             filename = None
             try:
                 with tempfile.NamedTemporaryFile(delete=False) as f:

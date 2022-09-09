@@ -114,7 +114,7 @@ if rdflib:
 
 
     def sum(a, b):
-        """Summarise `a` and `b`."""
+        """Returns the sum of `a` and `b`."""
         return a + b
 
     ts.add_function(sum, expects=(EX.MyConcept, EX.AnotherConcept),
