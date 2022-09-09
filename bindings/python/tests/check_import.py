@@ -22,7 +22,7 @@ def check_import(module_name, package=None, skip=False, warn=None):
         module = importlib.import_module(module_name, package)
     except ImportError:
         if skip:
-            sys.exit(44)
+            sys.exit(44)  # tell CMake to skip the test
         elif warn or warn is None:
             warnings.warn(f'cannot load module: "{module_name}"',
                           stacklevel=2)
