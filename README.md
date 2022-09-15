@@ -404,11 +404,40 @@ which will produce the file
 
 Setting up the environment
 --------------------------
+As a dlite user it should be enough to do 'pip install Dlite-Python',
+or 'pip install .' from within the dlite/python directory. 
+
+As a developed it is more useful to install dlite from source.
 If dlite is installed in a non-default location, you may need to set
 the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
 variables.  See the [documentation of environment
 variables](doc/environment_variables.md) for more details.
 
+An example of how to install dlite as developer within a python environment 
+in linux is given below.  Make sure that all required dependencies
+are installed within the environment.
+	
+	source /path/to/dedicated/pythonenvironment/bin/activate
+
+	Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
+	Python3_VERSION=$(python3 -c 'import sys;
+                          print(str(sys.version_info.major)+
+                                "."+str(sys.version_info.minor))')
+	Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
+	Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so
+	Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}
+	
+	cd /path/to/dlite
+
+	mkdir build
+	cd build
+	cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
+		-DPython3_LIBRARY=$Python3_LIBRARY \
+		-DPython3_LIBRARY=$Python3_LIBRARY \
+		-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
+		-DWITH_STATIC_PYTHON=FALSE \
+		-DCMAKE_INSTALL_PREFIX=$Python3_ROOT	
+        
 An example of how to use dlite is shown above.  See also the examples
 in the [examples](examples) directory for how to link to dlite from C
 and use of the Fortran bindings.
