@@ -436,6 +436,7 @@ Go into your dlite directory:
 ```console	
 cd /path/to/dlite
 ```
+Build dlite:
 ```console
 mkdir build
 cd build
@@ -445,7 +446,17 @@ cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
 -DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
 -DWITH_STATIC_PYTHON=FALSE \
 -DCMAKE_INSTALL_PREFIX=$Python3_ROOT	
-```        
+```
+Then install dlite  
+```console
+make
+make install
+```
+Finally run tests
+```console       
+ctest
+```
+
 An example of how to use dlite is shown above.  See also the examples
 in the [examples](examples) directory for how to link to dlite from C
 and use of the Fortran bindings.
