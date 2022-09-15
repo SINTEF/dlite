@@ -427,7 +427,8 @@ print(str(sys.version_info.major)+"."\
 Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
 ```
 Note that you will need to find the correct path to the python libraries and
-include directory for your system
+include directory for your system. This might be cumbersome, but 
+running ```find . -name libpython*.so``` from /usr
 ```console	
 Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so
 Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}
