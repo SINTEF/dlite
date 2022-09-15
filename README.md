@@ -282,11 +282,12 @@ The sources can be cloned from GitHub
   - [Python 3][5], optional (needed by Python bindings and some plugins)
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
-    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)  
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
         Note that in some cases a GSSAPI error is raised when using psycopg2
         by pip installing psycopg2-binary.
         This is solved by installing from source as described in their documentation.
     - [pandas][pandas], optional (used for csv storage plugin)
+    - [pymongo][pymongo], optional, (used for mongodb storage plugin)
 
 #### Build dependencies
   - [cmake][9], required for building
@@ -298,6 +299,7 @@ The sources can be cloned from GitHub
   - [Doxygen][11], optional, used for documentation generation
   - [valgrind][12], optional, used for memory checking (Linux only)
   - [cppcheck][13], optional, used for static code analysis
+  - [mongomock][mongomock], optional, used for testing mongodb storage plugin
 
 
 Compiling
@@ -567,3 +569,5 @@ DLite is developed with the hope that it will be a delight to work with.
 [dlite-packages]: https://github.com/SINTEF/dlite/packages
 [vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
 [pandas]: https://pandas.pydata.org/
+[pymongo]: https://github.com/mongodb/mongo-python-driver
+[mongomock]: https://github.com/mongomock/mongomock
