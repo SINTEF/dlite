@@ -420,9 +420,9 @@ are installed within the environment.
 	source /path/to/dedicated/pythonenvironment/bin/activate
 
 	Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
-	Python3_VERSION=$(python3 -c 'import sys;
-                          print(str(sys.version_info.major)+
-                                "."+str(sys.version_info.minor))')
+	Python3_VERSION=$(python3 -c 'import sys;\
+            print(str(sys.version_info.major)+"."\
+            +str(sys.version_info.minor))')
 	Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
 	Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so
 	Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}
@@ -432,11 +432,11 @@ are installed within the environment.
 	mkdir build
 	cd build
 	cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
-		-DPython3_LIBRARY=$Python3_LIBRARY \
-		-DPython3_LIBRARY=$Python3_LIBRARY \
-		-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
-		-DWITH_STATIC_PYTHON=FALSE \
-		-DCMAKE_INSTALL_PREFIX=$Python3_ROOT	
+            -DPython3_LIBRARY=$Python3_LIBRARY \
+            -DPython3_LIBRARY=$Python3_LIBRARY \
+            -DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
+            -DWITH_STATIC_PYTHON=FALSE \
+            -DCMAKE_INSTALL_PREFIX=$Python3_ROOT	
         
 An example of how to use dlite is shown above.  See also the examples
 in the [examples](examples) directory for how to link to dlite from C
