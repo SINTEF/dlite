@@ -259,9 +259,9 @@ $(function() {
 <li><a href="https://www.python.org/">Python 3</a>, optional (needed by Python bindings and some plugins)<ul>
 <li><a href="https://pypi.org/project/numpy/">NumPy</a>, required if Python is enabled</li>
 <li><a href="https://pypi.org/project/PyYAML/">PyYAML</a>, optional (used for generic YAML storage plugin)</li>
-<li><a href="https://pypi.org/project/psycopg2/">psycopg2</a>, optional (used for generic PostgreSQL storage plugin) <br  />
- Note that in some cases a GSSAPI error is raised when using psycopg2 by pip installing psycopg2-binary. This is solved by installing from source as described in their documentation.</li>
+<li><a href="https://pypi.org/project/psycopg2/">psycopg2</a>, optional (used for generic PostgreSQL storage plugin) Note that in some cases a GSSAPI error is raised when using psycopg2 by pip installing psycopg2-binary. This is solved by installing from source as described in their documentation.</li>
 <li><a href="https://pandas.pydata.org/">pandas</a>, optional (used for csv storage plugin)</li>
+<li><a href="https://github.com/mongodb/mongo-python-driver">pymongo</a>, optional, (used for mongodb storage plugin)</li>
 </ul>
 </li>
 </ul>
@@ -278,6 +278,7 @@ $(function() {
 <li><a href="http://www.doxygen.org/">Doxygen</a>, optional, used for documentation generation</li>
 <li><a href="http://valgrind.org/">valgrind</a>, optional, used for memory checking (Linux only)</li>
 <li><a href="http://cppcheck.sourceforge.net/">cppcheck</a>, optional, used for static code analysis</li>
+<li><a href="https://github.com/mongomock/mongomock">mongomock</a>, optional, used for testing mongodb storage plugin</li>
 </ul>
 
 <h2 id="compiling">Compiling</h2>
@@ -333,8 +334,30 @@ cmake --build . --target latex
 </pre>
 <h2 id="setting-up-the-environment">Setting up the environment</h2>
 
-<p>If dlite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables. See the <a class="el" href="md_doc_environment_variables.html">Environment variables</a> for more details.</p>
-<p>An example of how to use dlite is shown above. See also the examples in the [examples](examples) directory for how to link to dlite from C and use of the Fortran bindings.</p>
+<p>As a dlite user it should be enough to do 'pip install Dlite-Python', or 'pip install .' from within the dlite/python directory.</p>
+<p>As a developed it is more useful to install dlite from source. If dlite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables. See the <a class="el" href="md_doc_environment_variables.html">Environment variables</a> for more details.</p>
+<p>An example of how to install dlite as developer within a python environment in linux is given below. Make sure that all required dependencies are installed within the environment. </p><div class="fragment"><div class="line">source /path/to/dedicated/pythonenvironment/bin/activate</div>
+</div><!-- fragment --><div class="fragment"><div class="line">Python3_ROOT=$(python3 -c &#39;import sys; print(sys.exec_prefix)&#39;)</div>
+<div class="line">Python3_VERSION=$(python3 -c &#39;import sys;\</div>
+<div class="line">print(str(sys.version_info.major)+&quot;.&quot;\</div>
+<div class="line">+str(sys.version_info.minor))&#39;)</div>
+<div class="line">Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}</div>
+</div><!-- fragment --><p>Note that you will need to find the correct path to the python libraries and include directory for your system. If this is cumbersome, but running <code>find . -name libpython*.so</code> from /usr might help. </p><div class="fragment"><div class="line">Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so</div>
+<div class="line">Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}</div>
+</div><!-- fragment --><p>Go into your dlite directory: </p><div class="fragment"><div class="line">cd /path/to/dlite</div>
+</div><!-- fragment --><p>Build dlite: </p><div class="fragment"><div class="line">mkdir build</div>
+<div class="line">cd build</div>
+<div class="line">cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \</div>
+<div class="line">-DPython3_LIBRARY=$Python3_LIBRARY \</div>
+<div class="line">-DPython3_LIBRARY=$Python3_LIBRARY \</div>
+<div class="line">-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \</div>
+<div class="line">-DWITH_STATIC_PYTHON=FALSE \</div>
+<div class="line">-DCMAKE_INSTALL_PREFIX=$Python3_ROOT    </div>
+</div><!-- fragment --><p>Then install dlite <br  />
+ </p><div class="fragment"><div class="line">make</div>
+<div class="line">make install</div>
+</div><!-- fragment --><p>Finally run tests </p><div class="fragment"><div class="line">ctest</div>
+</div><!-- fragment --><p>An example of how to use dlite is shown above. See also the examples in the [examples](examples) directory for how to link to dlite from C and use of the Fortran bindings.</p>
 
 <h1 id="short-vocabulary">Short vocabulary</h1>
 
