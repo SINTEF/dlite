@@ -204,7 +204,7 @@ DCAT = Namespace("http://www.w3.org/ns/dcat#")
 TIME = Namespace("http://www.w3.org/2006/time#")
 FNO = Namespace("https://w3id.org/function/ontology#")
 QUDTU = ts.bind("qudtu", "http://qudt.org/vocab/unit/")
-OM = ts.bind("qudt", "http://www.ontology-of-units-of-measure.org/resource/om-2/")
+OM = ts.bind("om", "http://www.ontology-of-units-of-measure.org/resource/om-2/")
 
 EMMO = Namespace("http://emmo.info/emmo#")
 MAP = Namespace("http://emmo.info/domain-mappings#")
