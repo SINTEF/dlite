@@ -1,6 +1,6 @@
 """Populates a pint unit registry from an ontology.
 
-Further description here.
+Creates a Generator for the lines in the Pint unit registry.
 
 """
 from pint import UnitRegistry, Quantity
@@ -68,6 +68,10 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     dimension_vector = o.split("/")[-1]
     pint_definition = pint_definition_string(parse_qudt_dimension_vector(dimension_vector))
     print(pint_definition)
+
+    # Add qudt:conversionMultiplier and qudt:conversionOffset.
+    # Decide on and add name and alias.
+    # Include qudt:symbol, qudt:label, qudt:udunitsCode.
 
 
 
