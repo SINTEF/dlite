@@ -71,7 +71,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
     # Add qudt:conversionMultiplier and qudt:conversionOffset.
     # Decide on and add name and alias.
-    # Include qudt:symbol, qudt:label, qudt:udunitsCode.
+    # Include IRI, qudt:symbol, qudt:label, qudt:udunitsCode.
 
 
 
