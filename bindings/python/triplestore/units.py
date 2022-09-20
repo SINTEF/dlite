@@ -15,9 +15,21 @@ def load_qudt():
     print("Finished.")
     return ts
 
-def parse_qudt_dimension_vector(dimension_vector) -> dict:
+def parse_qudt_dimension_vector(dimension_vector: str) -> dict:
     dimensions = re.findall(r'[AELIMHTD]-?[0-9]+', dimension_vector)
+    result = {}
+    for dimension in dimensions:
+        result[dimension[0]] = dimension[1:]
 
+    expected_keys = ["A", "E", "L", "I", "M", "H", "T", "D"]
+    for letter in expected_keys:
+        if not result.has_key(letter):
+            raise Exception("Missing dimension \"" + letter + "\" in dimension vector " dimension_vector)
+
+    return result
+
+
+def pint_definition_string(dimension_dict: dict) -> str:
     # Base units defined by:
     # https://qudt.org/schema/qudt/QuantityKindDimensionVector
     # https://qudt.org/vocab/sou/SI
