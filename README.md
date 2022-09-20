@@ -290,17 +290,17 @@ The sources can be cloned from GitHub
     - [pymongo][pymongo], optional, (used for mongodb storage plugin)
 
 #### Build dependencies
-  - [cmake][9], required for building
-  - hdf5 development libraries, optional (needed by HDF5 storage plugin)
-  - librdf development libraries, optional (needed by librdf storage plugin)
-  - Python 3 development libraries, optional (needed by Python bindings)
-  - NumPy development libraries, optional (needed by Python bindings)
-  - [SWIG v3][10], optional (needed by building Python bindings)
-  - [Doxygen][11], optional, used for documentation generation
-  - [valgrind][12], optional, used for memory checking (Linux only)
-  - [cppcheck][13], optional, used for static code analysis
-  - [mongomock][mongomock], optional, used for testing mongodb storage plugin
-
+  - [cmake][9], required for building - note that cmake isntalled from pypi does not always work.
+  - hdf5 development libraries, needed by HDF5 storage plugin.
+  - Python 3 development libraries, needed by Python bindings.
+  - NumPy development libraries, needed by Python bindings.
+  - [SWIG][10] needed by building Python bindings.
+  - [Doxygen][11] used for documentation generation.
+  - [Graphviz][graphviz] used for documentation generation.
+  - [valgrind][12], optional, used for memory checking (Linux only).
+  - [cppcheck][13], optional, used for static code analysis.
+  - [mongomock][mongomock], optional, used for testing mongodb storage plugin.
+  - librdf development libraries, optional, needed by librdf storage plugin.
 
 Compiling
 ---------
@@ -445,7 +445,6 @@ mkdir build
 cd build
 cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
 -DPython3_LIBRARY=$Python3_LIBRARY \
--DPython3_LIBRARY=$Python3_LIBRARY \
 -DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
 -DWITH_STATIC_PYTHON=FALSE \
 -DCMAKE_INSTALL_PREFIX=$Python3_ROOT	
@@ -571,3 +570,4 @@ DLite is developed with the hope that it will be a delight to work with.
 [pandas]: https://pandas.pydata.org/
 [pymongo]: https://github.com/mongodb/mongo-python-driver
 [mongomock]: https://github.com/mongomock/mongomock
+[graphviz]: https://www.graphviz.org/
