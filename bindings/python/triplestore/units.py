@@ -17,13 +17,14 @@ def load_qudt():
 
 def parse_qudt_dimension_vector(dimension_vector: str) -> dict:
     dimensions = re.findall(r'[AELIMHTD]-?[0-9]+', dimension_vector)
+    
     result = {}
     for dimension in dimensions:
         result[dimension[0]] = dimension[1:]
 
     expected_keys = ["A", "E", "L", "I", "M", "H", "T", "D"]
     for letter in expected_keys:
-        if not result.has_key(letter):
+        if letter not in result.keys():
             raise Exception("Missing dimension \"" + letter + "\" in dimension vector " + dimension_vector)
 
     return result
@@ -44,6 +45,15 @@ def pint_definition_string(dimension_dict: dict) -> str:
         "D": "1",
     }
 
+    result = ""
+    for letter in base_units:
+        exponent = dimension_dict[letter]
+        if int(dimension_dict[letter]) < 0:
+            result += "/ " + base_units[letter] + "**" + exponent[1:] + " "
+        elif int(dimension_dict[letter]) > 0:
+            result += base_units[letter] + " ** " + exponent + " "
+    return result
+
 # Test code.
 
 ts = load_qudt()
@@ -56,6 +66,8 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
     unit = s.split("/")[-1]
     dimension_vector = o.split("/")[-1]
+    pint_definition = pint_definition_string(parse_qudt_dimension_vector(dimension_vector))
+    print(pint_definition)
 
 
 
