@@ -20,4 +20,9 @@ def load_qudt():
 
 ts = load_qudt()
 
-#ONTO = ts.bind("unit", "http://qudt.org/vocab/unit/", cachemode=2, check=True)
+QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
+QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
+
+for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
+    print(s)
+
