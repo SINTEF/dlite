@@ -271,8 +271,7 @@ Compile from sources
 --------------------
 The sources can be cloned from GitHub
 
-    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-
+    git clone git@github.com:SINTEF/dlite.git
 
 ### Dependencies
 
@@ -409,7 +408,7 @@ Setting up the environment
 As a dlite user it should be enough to do 'pip install Dlite-Python',
 or 'pip install .' from within the dlite/python directory. 
 
-As a developed it is more useful to install dlite from source.
+As a developer it is more useful to install dlite from source.
 If dlite is installed in a non-default location, you may need to set
 the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
 variables.  See the [documentation of environment
@@ -418,9 +417,13 @@ variables](doc/environment_variables.md) for more details.
 An example of how to install dlite as developer within a python environment 
 in linux is given below.  Make sure that all required dependencies
 are installed within the environment.
+
+First activate the environment, e.g.:
 ```console	
 source /path/to/dedicated/pythonenvironment/bin/activate
 ```
+Set the Python variables. The followig should automatically 
+find the correct python paths
 ```console
 Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
 Python3_VERSION=$(python3 -c 'import sys;\
@@ -428,6 +431,10 @@ print(str(sys.version_info.major)+"."\
 +str(sys.version_info.minor))')
 Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
 ```
+
+Python variables for developement libraries
+are taken from the system and need to be set 
+manually.
 Note that you will need to find the correct path to the python libraries and
 include directory for your system. If this is cumbersome, but 
 running ```find . -name libpython*.so``` from /usr might help.
