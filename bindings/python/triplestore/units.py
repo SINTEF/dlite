@@ -51,7 +51,7 @@ def pint_definition_string(dimension_dict: dict) -> str:
         if int(dimension_dict[letter]) < 0:
             result += "/ " + base_units[letter] + "**" + exponent[1:] + " "
         elif int(dimension_dict[letter]) > 0:
-            result += base_units[letter] + " ** " + exponent + " "
+            result += "* " + base_units[letter] + " ** " + exponent + " "
     return result
 
 # Test code.
