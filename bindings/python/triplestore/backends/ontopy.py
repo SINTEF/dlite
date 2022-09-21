@@ -21,24 +21,29 @@ class OntopyStrategy:
 
     Arguments:
         base_iri: The base iri of the ontology.
-        onto: Ontology to initiate with.  Defaults to an new ontology with
-            `base_iri`.
+        onto: Ontology to initiate the triplestore from.  Defaults to an new
+            ontology with the given `base_iri`.
         load: Whether to load the ontology.
         kwargs: Keyword arguments passed to the ontology load() method.
+
+    Either the `base_iri` or `onto` argument must be provided.
     """
     def __init__(
             self,
-            base_iri: str,
+            base_iri: str = None,
             onto: Ontology = None,
             load: bool = False,
             kwargs: dict = {}
     ):
         if onto is None:
+            if base_iri is None:
+                raise TypeError("either `base_iri` or `onto` must be provided")
             self.onto = get_ontology(base_iri)
         elif isinstance(onto, Ontology):
             self.onto = onto
         else:
             raise TypeError("`onto` must be either an ontology or None")
+
         if load:
             self.onto.load(**kwargs)
 
