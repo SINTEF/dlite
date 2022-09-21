@@ -3,9 +3,10 @@
 Creates a Generator for the lines in the Pint unit registry.
 
 """
+from email.policy import default
 from pint import UnitRegistry, Quantity
 import re
-from triplestore import Triplestore
+from triplestore import Triplestore, RDFS
 
 def load_qudt():
     print("Loading QUDT unit ontology.")
@@ -72,6 +73,24 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     # Add qudt:conversionMultiplier and qudt:conversionOffset.
     # Decide on and add name and alias.
     # Include IRI, qudt:symbol, qudt:label, qudt:udunitsCode.
+
+    multiplier = next(ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
+    offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), "missing")
+    iri = next(ts.objects(subject=s, predicate=RDFS.isDefinedBy), "missing")
+
+    print("Multiplier: " + multiplier)
+    print("Offset: " + offset)
+    print("IRI: " + s)
+
+    # Syntax for pint unit definition with offset:
+    # degC = degK; offset: 273.15 = celsius
+
+    # General pint syntax:
+    # millennium = 1e3 * year = _ = millennia (_ can be exchanged for a symbol)
+    # Reference units and physical dimension:
+    # second = [time] = s = sec
+    # Prefixes:
+    # yocto- = 10.0**-24 = y-
 
 
 
