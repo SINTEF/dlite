@@ -246,7 +246,7 @@ $(function() {
 
 <h2 id="compile-from-sources">Compile from sources</h2>
 
-<p>The sources can be cloned from GitHub </p><pre class="fragment">git clone ssh://git@git.code.sintef.no/sidase/dlite.git
+<p>The sources can be cloned from GitHub </p><pre class="fragment">git clone git@github.com:SINTEF/dlite.git
 </pre>
 <h3 id="dependencies">Dependencies</h3>
 
@@ -269,16 +269,17 @@ $(function() {
 <h4 id="build-dependencies">Build dependencies</h4>
 
 <ul>
-<li><a href="https://cmake.org/">cmake</a>, required for building</li>
-<li>hdf5 development libraries, optional (needed by HDF5 storage plugin)</li>
-<li>librdf development libraries, optional (needed by librdf storage plugin)</li>
-<li>Python 3 development libraries, optional (needed by Python bindings)</li>
-<li>NumPy development libraries, optional (needed by Python bindings)</li>
-<li><a href="http://www.swig.org/">SWIG v3</a>, optional (needed by building Python bindings)</li>
-<li><a href="http://www.doxygen.org/">Doxygen</a>, optional, used for documentation generation</li>
-<li><a href="http://valgrind.org/">valgrind</a>, optional, used for memory checking (Linux only)</li>
-<li><a href="http://cppcheck.sourceforge.net/">cppcheck</a>, optional, used for static code analysis</li>
-<li><a href="https://github.com/mongomock/mongomock">mongomock</a>, optional, used for testing mongodb storage plugin</li>
+<li><a href="https://cmake.org/">cmake</a>, required for building - note that cmake isntalled from pypi does not always work.</li>
+<li>hdf5 development libraries, needed by HDF5 storage plugin.</li>
+<li>Python 3 development libraries, needed by Python bindings.</li>
+<li>NumPy development libraries, needed by Python bindings.</li>
+<li><a href="http://www.swig.org/">SWIG</a> needed by building Python bindings.</li>
+<li><a href="http://www.doxygen.org/">Doxygen</a> used for documentation generation.</li>
+<li><a href="https://www.graphviz.org/">Graphviz</a> used for documentation generation.</li>
+<li><a href="http://valgrind.org/">valgrind</a>, optional, used for memory checking (Linux only).</li>
+<li><a href="http://cppcheck.sourceforge.net/">cppcheck</a>, optional, used for static code analysis.</li>
+<li><a href="https://github.com/mongomock/mongomock">mongomock</a>, optional, used for testing mongodb storage plugin.</li>
+<li>librdf development libraries, optional, needed by librdf storage plugin.</li>
 </ul>
 
 <h2 id="compiling">Compiling</h2>
@@ -335,20 +336,20 @@ cmake --build . --target latex
 <h2 id="setting-up-the-environment">Setting up the environment</h2>
 
 <p>As a dlite user it should be enough to do 'pip install Dlite-Python', or 'pip install .' from within the dlite/python directory.</p>
-<p>As a developed it is more useful to install dlite from source. If dlite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables. See the <a class="el" href="md_doc_environment_variables.html">Environment variables</a> for more details.</p>
-<p>An example of how to install dlite as developer within a python environment in linux is given below. Make sure that all required dependencies are installed within the environment. </p><div class="fragment"><div class="line">source /path/to/dedicated/pythonenvironment/bin/activate</div>
-</div><!-- fragment --><div class="fragment"><div class="line">Python3_ROOT=$(python3 -c &#39;import sys; print(sys.exec_prefix)&#39;)</div>
+<p>As a developer it is more useful to install dlite from source. If dlite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables. See the <a class="el" href="md_doc_environment_variables.html">Environment variables</a> for more details.</p>
+<p>An example of how to install dlite as developer within a python environment in linux is given below. Make sure that all required dependencies are installed within the environment.</p>
+<p>First activate the environment, e.g.: </p><div class="fragment"><div class="line">source /path/to/dedicated/pythonenvironment/bin/activate</div>
+</div><!-- fragment --><p>Set the Python variables. The following should automatically find the correct python paths </p><div class="fragment"><div class="line">Python3_ROOT=$(python3 -c &#39;import sys; print(sys.exec_prefix)&#39;)</div>
 <div class="line">Python3_VERSION=$(python3 -c &#39;import sys;\</div>
 <div class="line">print(str(sys.version_info.major)+&quot;.&quot;\</div>
 <div class="line">+str(sys.version_info.minor))&#39;)</div>
 <div class="line">Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}</div>
-</div><!-- fragment --><p>Note that you will need to find the correct path to the python libraries and include directory for your system. If this is cumbersome, but running <code>find . -name libpython*.so</code> from /usr might help. </p><div class="fragment"><div class="line">Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so</div>
+</div><!-- fragment --><p>Python variables for developement libraries are taken from the system and need to be set manually. Note that you will need to find the correct path to the python libraries and include directory for your system. If this is cumbersome, but running <code>find . -name libpython*.so</code> from /usr might help. </p><div class="fragment"><div class="line">Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so</div>
 <div class="line">Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}</div>
 </div><!-- fragment --><p>Go into your dlite directory: </p><div class="fragment"><div class="line">cd /path/to/dlite</div>
 </div><!-- fragment --><p>Build dlite: </p><div class="fragment"><div class="line">mkdir build</div>
 <div class="line">cd build</div>
 <div class="line">cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \</div>
-<div class="line">-DPython3_LIBRARY=$Python3_LIBRARY \</div>
 <div class="line">-DPython3_LIBRARY=$Python3_LIBRARY \</div>
 <div class="line">-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \</div>
 <div class="line">-DWITH_STATIC_PYTHON=FALSE \</div>
