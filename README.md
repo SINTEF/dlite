@@ -422,7 +422,7 @@ First activate the environment, e.g.:
 ```console	
 source /path/to/dedicated/pythonenvironment/bin/activate
 ```
-Set the Python variables. The followig should automatically 
+Set the Python variables. The following should automatically 
 find the correct python paths
 ```console
 Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
