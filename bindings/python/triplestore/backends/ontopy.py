@@ -20,6 +20,7 @@ class OntopyStrategy:
     """Triplestore strategy for EMMOntoPy.
 
     Arguments:
+        base_iri: The base iri of the ontology.
         onto: Ontology to initiate with.  Defaults to an new ontology with
             `base_iri`.
         load: Whether to load the ontology.
