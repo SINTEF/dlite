@@ -338,15 +338,16 @@ cmake --build . --target latex
 <p>As a dlite user it should be enough to do 'pip install Dlite-Python', or 'pip install .' from within the dlite/python directory.</p>
 <p>As a developer it is more useful to install dlite from source. If dlite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables. See the <a class="el" href="md_doc_environment_variables.html">Environment variables</a> for more details.</p>
 <p>An example of how to install dlite as developer within a python environment in linux is given below. Make sure that all required dependencies are installed within the environment.</p>
-<p>First activate the environment, e.g.: </p><div class="fragment"><div class="line">source /path/to/dedicated/pythonenvironment/bin/activate</div>
+<p>First activate the environment, e.g.: </p><div class="fragment"><div class="line">source &lt;/path/to/dedicated/pythonenvironment&gt;/bin/activate</div>
 </div><!-- fragment --><p>Set the Python variables. The following should automatically find the correct python paths </p><div class="fragment"><div class="line">Python3_ROOT=$(python3 -c &#39;import sys; print(sys.exec_prefix)&#39;)</div>
 <div class="line">Python3_VERSION=$(python3 -c &#39;import sys;\</div>
 <div class="line">print(str(sys.version_info.major)+&quot;.&quot;\</div>
 <div class="line">+str(sys.version_info.minor))&#39;)</div>
 <div class="line">Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}</div>
-</div><!-- fragment --><p>Python variables for developement libraries are taken from the system and need to be set manually. Note that you will need to find the correct path to the python libraries and include directory for your system. If this is cumbersome, but running <code>find . -name libpython*.so</code> from /usr might help. </p><div class="fragment"><div class="line">Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so</div>
-<div class="line">Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}</div>
-</div><!-- fragment --><p>Go into your dlite directory: </p><div class="fragment"><div class="line">cd /path/to/dlite</div>
+</div><!-- fragment --><p>Python variables for developement libraries must be set <b>manually</b>. </p><div class="fragment"><div class="line">Python3_LIBRARY=&lt;/path/to/system&gt;/libpython${Python3_VERSION}.so</div>
+<div class="line">Python3_INCLUDE_DIR=&lt;/path/to/system&gt;/include/python${Python3_VERSION}</div>
+</div><!-- fragment --><p>You may run <code>find . -name libpython*.so</code> to help find these paths.</p>
+<p>Go into your dlite directory: </p><div class="fragment"><div class="line">cd &lt;/path/to&gt;/dlite</div>
 </div><!-- fragment --><p>Build dlite: </p><div class="fragment"><div class="line">mkdir build</div>
 <div class="line">cd build</div>
 <div class="line">cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \</div>
