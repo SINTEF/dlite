@@ -14,6 +14,7 @@
 
 #include "dlite.h"
 #include "dlite-datamodel.h"
+#include "dlite-macros.h"
 
 
 /* Macro for getting rid of unused parameter warnings... */
@@ -37,19 +38,6 @@ typedef struct {
 } DH5DataModel;
 
 
-
-/* Convinient error macros */
-#define FAIL0(msg) \
-  do {err(-1, msg); goto fail;} while (0)
-
-#define FAIL1(msg, a1) \
-  do {err(-1, msg, a1); goto fail;} while (0)
-
-#define FAIL2(msg, a1, a2) \
-  do {err(-1, msg, a1, a2); goto fail;} while (0)
-
-#define FAIL3(msg, a1, a2, a3) \
-  do {err(-1, msg, a1, a2, a3); goto fail;} while (0)
 
 
 /* Error macros for when DLiteDataModel instance d is available */
@@ -141,7 +129,7 @@ static hid_t get_space(size_t ndims, const size_t *dims)
   hsize_t *hdims=NULL;
   size_t i;
   if (!(hdims = calloc(ndims, sizeof(hsize_t))))
-    return err(-1, "allocation failure");
+    return err(dliteMemoryError, "allocation failure");
   for (i=0; i<ndims; i++) hdims[i] = (dims) ? dims[i] : 1;
   if ((space = H5Screate_simple(ndims, hdims, NULL)) < 0)
     space = errx(-1, "cannot create hdf5 data space");
@@ -220,7 +208,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   if ((dndims = H5Sget_simple_extent_ndims(dspace)) < 0)
     DFAIL1(d, "cannot get number of dimimensions of '%s'", name);
   if (!(ddims = calloc(sizeof(hsize_t), dndims)))
-    FAIL0("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   if ((stat = H5Sget_simple_extent_dims(dspace, ddims, NULL)) < 0)
     DFAIL1(d, "cannot get dims of '%s'", name);
 
@@ -251,11 +239,13 @@ static int get_data(const DLiteDataModel *d, hid_t group,
 
   /* Allocate temporary buffer for data type convertion */
   if (type == dliteStringPtr && savedtype == dliteFixString) {
-    if (!(buff = calloc(nmemb, dsize))) FAIL0("allocation failure");
+    if (!(buff = calloc(nmemb, dsize)))
+     FAILCODE(dliteMemoryError, "allocation failure");
     if (memtype > 0) H5Tclose(memtype);
     if ((memtype = get_memtype(dliteFixString, dsize)) < 0) goto fail;
   } else if (type == dliteFixString && savedtype == dliteStringPtr) {
-    if (!(buff = calloc(nmemb, sizeof(void *)))) FAIL0("allocation failure");
+    if (!(buff = calloc(nmemb, sizeof(void *))))
+     FAILCODE(dliteMemoryError, "allocation failure");
     if (memtype > 0) H5Tclose(memtype);
     if ((memtype = get_memtype(dliteStringPtr, sizeof(void *))) < 0) goto fail;
   } else if (type == dliteBool && savedtype == dliteUInt) {
@@ -278,10 +268,10 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   */
   if (savedtype == dliteStringPtr) {
     char **tmp;
-    if (!(tmp = malloc(nmemb*sizeof(char *)))) FAIL0("allocation failure");
+    if (!(tmp = malloc(nmemb*sizeof(char *)))) FAILCODE(dliteMemoryError, "allocation failure");
     for (i=0; i<nmemb; i++)
       if (!(tmp[i] = strdup(((char **)buff)[i])))
-        FAIL0("allocation failure");
+        FAILCODE(dliteMemoryError, "allocation failure");
     if (H5Dvlen_reclaim(memtype, space, H5P_DEFAULT, buff) < 0)
       DFAIL1(d, "cannot reclaim memory for dataset '%s'", name);
     for (i=0; i<nmemb; i++)
@@ -294,7 +284,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   if (type == dliteStringPtr && savedtype == dliteFixString) {
     for (i=0; i<nmemb; i++)
       if (!(((char **)ptr)[i] = strdup((char *)buff + i*dsize)))
-        FAIL0("allocation failure");
+        FAILCODE(dliteMemoryError, "allocation failure");
   } else if (type == dliteFixString && savedtype == dliteStringPtr) {
     for (i=0; i<nmemb; i++) {
       strncpy((char *)ptr + i*size, ((char **)buff)[i], size);
@@ -463,7 +453,8 @@ dh5_open(const DLiteStoragePlugin *api, const char *uri, const char *options)
 
   H5open();  /* Opens hdf5 library */
 
-  if (!(s = calloc(1, sizeof(DH5Storage)))) FAIL0("allocation failure");
+  if (!(s = calloc(1, sizeof(DH5Storage))))
+   FAILCODE(dliteMemoryError, "allocation failure");
 
   s->flags |= dliteGeneric;
   if (strcmp(*mode, "append") == 0) {  /* default */
@@ -520,7 +511,8 @@ DLiteDataModel *dh5_datamodel(const DLiteStorage *s, const char *uuid)
   DH5Storage *sh5 = (DH5Storage *)s;
   htri_t exists;
 
-  if (!(d = calloc(1, sizeof(DH5DataModel)))) FAIL0("allocation failure");
+  if (!(d = calloc(1, sizeof(DH5DataModel))))
+   FAILCODE(dliteMemoryError, "allocation failure");
 
   if ((exists = H5Lexists(sh5->root, uuid, H5P_DEFAULT)) < 0)
     FAIL2("cannot determine if '%s' exists in %s", uuid, sh5->location);
@@ -717,13 +709,15 @@ char **dh5_get_uuids(const DLiteStorage *s)
 
   if ((stat = H5Literate(sh5->root, H5_INDEX_NAME, H5_ITER_NATIVE, NULL,
                          find_entries, &entries)) < 0)
-    FAIL0("error finding instances");
+    FAIL("error finding instances");
 
   for (n=0, e=entries; e; e=e->next) n++;
-  if (!(names = calloc((n + 1), sizeof(char *)))) FAIL0("allocation failure");
+  if (!(names = calloc((n + 1), sizeof(char *))))
+   FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0, e=entries; e; i++, e=e->next) {
     size_t len = strlen(e->name) + 1;
-    if (!(names[i] = malloc(len))) FAIL0("allocation failure");
+    if (!(names[i] = malloc(len)))
+     FAILCODE(dliteMemoryError, "allocation failure");
     memcpy(names[i], e->name, len);
   }
 

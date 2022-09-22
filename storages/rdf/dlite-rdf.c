@@ -168,7 +168,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
   const char *mode, *opt;
   UNUSED(api);
 
-  if (!(s = calloc(1, sizeof(RdfStorage)))) FAIL("allocation failure");
+  if (!(s = calloc(1, sizeof(RdfStorage)))) FAILCODE(dliteMemoryError, "allocation failure");
 
   /* parse options */
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
@@ -360,7 +360,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (meta->_ndimensions) {
     const char *name, *val;
     if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
-      FAIL("allocation failure");
+      FAILCODE(dliteMemoryError, "allocation failure");
     if (triplestore_find_first(ts, pid, _P ":hasDimensionValue", NULL)) {
       /* -- read dimension values */
       n = 0;
@@ -671,7 +671,7 @@ void *rdf_iter_create(const DLiteStorage *storage, const char *pattern)
   TripleStore *ts = s->ts;
   RdfIter *iter;
   if (!(iter = calloc(1, sizeof(RdfIter))))
-    return err(1, "allocation failure"), NULL;
+    return err(dliteMemoryError, "allocation failure"), NULL;
   iter->pattern = (pattern) ? strdup(pattern) : NULL;
   triplestore_init_state(ts, &iter->state);
   return iter;
