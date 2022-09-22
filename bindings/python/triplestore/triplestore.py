@@ -378,9 +378,9 @@ class Triplestore:
             source: File-like object or file name.
             format: Needed if format can not be inferred from source.
             kwargs: Keyword arguments passed to the backend.
-                The rdflib backend supports e.g. `location` (absolute
-                or relative URL) and `data` (string containing the
-                data to be parsed) arguments.
+                The rdflib and ontopy backends support e.g. `location`
+                (absolute or relative URL) and `data` (string
+                containing the data to be parsed) arguments.
         """
         self._check_method("parse")
         self.backend.parse(source=source, format=format, **kwargs)

@@ -129,6 +129,11 @@ class OntopyStrategy:
             encoding: Encoding argument to io.open().
             kwargs: Additional keyword arguments passed to Ontology.load().
         """
+        if sum(arg is not None for arg in (source, location, data)) != 1:
+            raise ValueError(
+                "one (and only one) of `source`, `location` and `data` "
+                "should be provided")
+
         if source:
             self.onto.load(filename=source, format=format, **kwargs)
         elif location:
