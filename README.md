@@ -420,7 +420,7 @@ are installed within the environment.
 
 First activate the environment, e.g.:
 ```console	
-source /path/to/dedicated/pythonenvironment/bin/activate
+source </path/to/dedicated/pythonenvironment>/bin/activate
 ```
 Set the Python variables. The following should automatically 
 find the correct python paths
@@ -432,19 +432,17 @@ print(str(sys.version_info.major)+"."\
 Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
 ```
 
-Python variables for developement libraries
-are taken from the system and need to be set 
-manually.
-Note that you will need to find the correct path to the python libraries and
-include directory for your system. If this is cumbersome, but 
-running ```find . -name libpython*.so``` from /usr might help.
+Python variables for developement libraries must be set 
+**manually**.
 ```console	
-Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so
-Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}
+Python3_LIBRARY=</path/to/system>/libpython${Python3_VERSION}.so
+Python3_INCLUDE_DIR=</path/to/system>/include/python${Python3_VERSION}
 ```
+You may run ```find . -name libpython*.so``` to help find these paths.
+
 Go into your dlite directory:
 ```console	
-cd /path/to/dlite
+cd </path/to>/dlite
 ```
 Build dlite:
 ```console
