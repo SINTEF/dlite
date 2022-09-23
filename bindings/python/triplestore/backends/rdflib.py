@@ -33,7 +33,7 @@ def astriple(t):
 class RdflibStrategy:
     """Triplestore strategy for rdflib."""
 
-    def __init__(self):
+    def __init__(self, base_iri):
         self.graph = Graph()
 
     def triples(self, triple: "Triple") -> "Generator":
@@ -49,7 +49,7 @@ class RdflibStrategy:
             self.graph.add(astriple(t))
 
     def remove(self, triple: "Triple"):
-        """Remove triple from the backend."""
+        """Remove all matching triples from the backend."""
         self.graph.remove(astriple(triple))
 
     # Optional methods
