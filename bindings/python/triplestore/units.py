@@ -70,18 +70,18 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
     dimension_vector = o.split("/")[-1]
     pint_definition = pint_definition_string(parse_qudt_dimension_vector(dimension_vector))
-    print(pint_definition)
 
     # Add qudt:conversionMultiplier and qudt:conversionOffset.
     # Decide on and add name and alias.
     # Include IRI, qudt:symbol, qudt:label, qudt:udunitsCode.
 
     multiplier = next(ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
-    offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), "missing")
+    offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
     iri = next(ts.objects(subject=s, predicate=RDFS.isDefinedBy), "missing")
 
     print("Multiplier: " + multiplier)
-    print("Offset: " + offset)
+    if offset is not None:
+        print("Offset: " + offset)
     print("IRI: " + s)
 
     pint_definition_line = "".join([
@@ -91,6 +91,9 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
         " ",
         pint_definition
         ])
+
+    if offset is not None:
+        pint_definition_line += "".join(["; offset: ", offset])
     
     print(pint_definition_line)
 
