@@ -17,6 +17,8 @@ class ITriplestore(Protocol):
 
     ```python
 
+    def __init__(self, base_iri=None, **kwargs)
+
     def parse(self, source=None, location=None, data=None, format=None,
               **kwargs):
         """Parse source and add the resulting triples to triplestore.
