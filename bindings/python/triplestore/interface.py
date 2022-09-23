@@ -48,7 +48,15 @@ class ITriplestore(Protocol):
         """
 
     def query(self, query_object, **kwargs)
-        """SPARQL query."""
+        """SPARQL query.
+
+        Parameters:
+            query_object: String with the SPARQL query.
+            kwargs: Keyword arguments passed to rdflib.Graph.query().
+
+        Returns:
+            List of tuples of IRIs for each matching row.
+        """
 
     def update(self, update_object, **kwargs)
         """Update triplestore with SPARQL."""

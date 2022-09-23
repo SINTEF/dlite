@@ -161,6 +161,20 @@ ex:MyConcept rdfs:subClassOf owl:Thing .
 
 """
 
+
+# Test SPARQL query
+rows = ts.query("SELECT ?s ?o WHERE { ?s rdfs:subClassOf ?o }")
+assert len(rows) == 3
+rows.sort()  # ensure consistent ordering of rows
+assert rows[0] ==  ('http://example.com/onto#AnotherConcept',
+                    'http://www.w3.org/2002/07/owl#Thing')
+assert rows[1] == ('http://example.com/onto#MyConcept',
+                   'http://www.w3.org/2002/07/owl#Thing')
+assert rows[2] == ('http://example.com/onto#Sum',
+                   'http://www.w3.org/2002/07/owl#Thing')
+
+
+# Test adding mappings and functions
 ts2 = Triplestore("rdflib")
 ts2.parse(format="turtle", data=s)
 assert ts2.serialize(format="turtle") == s
