@@ -92,9 +92,17 @@ class RdflibStrategy:
             return s if isinstance(s, str) else s.decode()
 
     def query(self, query_object, **kwargs):
-        """SPARQL query."""
-        # TODO: convert to returned object
-        return self.graph.query(query_object=query_object, **kwargs)
+        """SPARQL query.
+
+        Parameters:
+            query_object: String with the SPARQL query.
+            kwargs: Keyword arguments passed to rdflib.Graph.query().
+
+        Returns:
+            List of tuples of IRIs for each matching row.
+        """
+        rows = self.graph.query(query_object=query_object, **kwargs)
+        return [tuple(str(v) for v in row) for row in rows]
 
     def update(self, update_object, **kwargs):
         """Update triplestore with SPARQL."""
