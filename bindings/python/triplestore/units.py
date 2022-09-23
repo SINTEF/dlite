@@ -52,7 +52,7 @@ def pint_definition_string(dimension_dict: dict) -> str:
         if int(dimension_dict[letter]) < 0:
             result += "/ " + base_units[letter] + "**" + exponent[1:] + " "
         elif int(dimension_dict[letter]) > 0:
-            result += "* " + base_units[letter] + " ** " + exponent + " "
+            result += "* " + base_units[letter] + "**" + exponent + " "
     return result
 
 # Test code.
@@ -66,6 +66,8 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     print(s + " " + o)
 
     unit = s.split("/")[-1]
+    unit_name = "qudt_" + unit.lower().replace("-", "_")
+
     dimension_vector = o.split("/")[-1]
     pint_definition = pint_definition_string(parse_qudt_dimension_vector(dimension_vector))
     print(pint_definition)
@@ -81,6 +83,16 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     print("Multiplier: " + multiplier)
     print("Offset: " + offset)
     print("IRI: " + s)
+
+    pint_definition_line = "".join([
+        unit_name,
+        " = ",
+        multiplier,
+        " ",
+        pint_definition
+        ])
+    
+    print(pint_definition_line)
 
     # Syntax for pint unit definition with offset:
     # degC = degK; offset: 273.15 = celsius
