@@ -7,6 +7,7 @@ from email.policy import default
 from pint import UnitRegistry, Quantity
 import re
 from triplestore import Triplestore, RDFS
+import warnings
 
 def load_qudt():
     print("Loading QUDT unit ontology.")
@@ -90,10 +91,12 @@ ts = load_qudt()
 QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
 QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
 
-pint_registry_lines = pint_SI_base_units_definition()
+#pint_registry_lines = pint_SI_base_units_definition()
+pint_registry_lines = []
+used_identifiers = []
 
 for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
-    print(s + " " + o)
+    #print(s + " " + o)
 
     # Extract unit name.
     unit = s.split("/")[-1]
@@ -111,36 +114,67 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     labels = ts.objects(subject=s, predicate=RDFS.label)
     udunits_code = next(ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
 
+    base_unit_dimensions ={
+        "M": "length",
+        "SEC": "time",
+        "A": "current",
+        "CD": "luminosity",
+        "KiloGM": "mass",
+        "MOL": "substance",
+        "K": "temperature", 
+    }
+
     # Start constructing the pint definition line.
-    pint_definition_line = "".join([
-        unit_name,
-        " = ",
-        multiplier,
-        " ",
-        pint_definition
-        ])
+    if unit_name in base_unit_dimensions.keys():
+        pint_definition_line = "".join([
+            unit_name,
+            " = [",
+            base_unit_dimensions[unit_name],
+            "] ",
+            ])
+    else:
+        pint_definition_line = "".join([
+            unit_name,
+            " = ",
+            multiplier,
+            " ",
+            pint_definition
+            ])
+    used_identifiers.append(unit_name)
 
     # Add offset.
     if offset is not None:
         pint_definition_line += "".join(["; offset: ", offset])
 
     # Add symbol.
+    if symbol not in used_identifiers:
+        used_identifiers.append(symbol)
+    else:
+        symbol = "_"
+        warnings.warn("Omitting symbol \"" + symbol + "\" from " + s)
     pint_definition_line += "".join([" = ", symbol])
 
     # Add any labels.
     for label in labels:
-        pint_definition_line += "".join([" = ", label])
+        if label not in used_identifiers:
+            pint_definition_line += "".join([" = ", label])
+            used_identifiers.append(label)
+        else:
+            warnings.warn("Omitting label \"" + label + "\" from " + s)
 
     # Add IRI.
     pint_definition_line += "".join([" = ", s])
 
     # Add udunits code.
     if udunits_code is not None:
-        pint_definition_line += "".join([" = ", udunits_code])
+        if not udunits_code in used_identifiers:
+            pint_definition_line += "".join([" = ", udunits_code])
+        else:
+            warnings.warn("Omitting UDUNITS code \"" + udunits_code + "\" from " + s)
     
-    print(pint_definition_line)
+    #print(pint_definition_line)
 
-    #pint_registry_lines.append(pint_definition_line)
+    pint_registry_lines.append(pint_definition_line)
 
 
     # Syntax for pint unit definition with offset:
@@ -164,7 +198,16 @@ with open("test_output.txt", "w") as f:
 #ureg = UnitRegistry(None)
 #for line in pint_registry_lines:
 #    ureg.define(line)
-ureg = UnitRegistry("test_output.txt")
+
+for i in range(0, 1751):
+    print("Line number: " + str(i))
+    print(pint_registry_lines[i])
+    with open("test_output.txt", "w") as f:
+        for line in pint_registry_lines[0:i]:
+            f.write(f"{line}\n")
+    ureg = UnitRegistry("test_output.txt")
+
+#ureg = UnitRegistry("test_output.txt")
 
 # Test the registry.
 test_quantity1 = 1234 * ureg.meter
