@@ -137,5 +137,5 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     # Prefixes:
     # yocto- = 10.0**-24 = y-
 
-
+print("".join(["Number of registry lines = ", str(len(pint_registry_lines))]))
 
