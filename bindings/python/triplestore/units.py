@@ -65,6 +65,21 @@ def pint_SI_base_units_definition() -> list:
     result.append("gram = [mass] = g")
     result.append("mole = [substance] = mol")
     result.append("kelvin = [temperature]; offset: 0 = K = degK = °K = degree_Kelvin = degreeK")
+    result.append("kilogram = 1000 * gram = kg")
+    result.append(
+        """@defaults
+    group = international
+    system = SI
+@end
+@system SI
+    second
+    meter
+    kilogram
+    ampere
+    kelvin
+    mole
+    candela
+@end""")
     return result
 
 
@@ -140,14 +155,15 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 print("".join(["Number of registry lines = ", str(len(pint_registry_lines))]))
 
 # Print pint registry definition to file.
-with open("test_output.txt", "a") as f:
+with open("test_output.txt", "w") as f:
     for line in pint_registry_lines:
         f.write(f"{line}\n")
 
 # Populate an empty pint registry.
-ureg = UnitRegistry(None)
-for line in pint_registry_lines:
-    ureg.define(line)
+#ureg = UnitRegistry(None)
+#for line in pint_registry_lines:
+#    ureg.define(line)
+ureg = UnitRegistry("test_output.txt")
 
 # Test the registry.
 test_quantity1 = 1234 * ureg.meter
