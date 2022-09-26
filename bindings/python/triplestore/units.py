@@ -89,7 +89,6 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     # Extract remaining info.
     multiplier = next(ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
     offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
-    iri = next(ts.objects(subject=s, predicate=RDFS.isDefinedBy), "missing")
     # Can there be more than one symbol in QUDT?
     symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
     labels = ts.objects(subject=s, predicate=RDFS.label)
