@@ -139,3 +139,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
 print("".join(["Number of registry lines = ", str(len(pint_registry_lines))]))
 
+# Print pint registry definition to file.
+with open("test_output.txt", "a") as f:
+    for line in pint_registry_lines:
+        f.write(f"{line}\n")
