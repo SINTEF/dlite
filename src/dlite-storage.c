@@ -12,6 +12,7 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
+#include "dlite-errors.h"
 #include "dlite-storage-plugins.h"
 #include "getuuid.h"
 
@@ -54,7 +55,8 @@ static Globals *get_globals(void)
 {
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
-    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+    if (!(g = calloc(1, sizeof(Globals))))
+     FAILCODE(dliteMemoryError, "allocation failure");
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
   return g;
@@ -88,8 +90,10 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
   if (!(s = api->open(api, location, options))) goto fail;
   s->api = api;
-  if (!(s->location = strdup(location))) FAIL("allocation failure");
-  if (options && !(s->options = strdup(options))) FAIL("allocation failure");
+  if (!(s->location = strdup(location)))
+   FAILCODE(dliteMemoryError, "allocation failure");
+  if (options && !(s->options = strdup(options)))
+   FAILCODE(dliteMemoryError, "allocation failure");
 
   map_init(&s->cache);
 
@@ -252,7 +256,7 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
         len += 32;
         if (!(ptr = realloc(p, len*sizeof(char *)))) {
           free(p);
-          return err(1, "allocation failure"), NULL;
+          return err(dliteMemoryError, "allocation failure"), NULL;
         }
         p = ptr;
       }
@@ -262,7 +266,7 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
     if (p) {
       if (!(ptr = realloc(p, (n+1)*sizeof(char *)))) {
         free(p);
-        return err(1, "allocation failure"), NULL;
+        return err(dliteMemoryError, "allocation failure"), NULL;
       }
       p = ptr;
       p[n] = NULL;
@@ -318,7 +322,7 @@ FUPaths *dlite_storage_paths(void)
   if (!(g = get_globals())) return NULL;
   if (!g->storage_paths) {
     if (!(g->storage_paths = calloc(1, sizeof(FUPaths))))
-      return err(1, "allocation failure"), NULL;
+      return err(dliteMemoryError, "allocation failure"), NULL;
     fu_paths_init_sep(g->storage_paths, "DLITE_STORAGES", "|");
     fu_paths_set_platform(g->storage_paths, dlite_get_platform());
 
@@ -405,7 +409,7 @@ DLiteStoragePathIter *dlite_storage_paths_iter_start()
 {
   DLiteStoragePathIter *iter=NULL;
   if (!(iter = calloc(1, sizeof(DLiteStoragePathIter))))
-    return err(1, "Allocation failure"), NULL;
+    return err(dliteMemoryError, "Allocation failure"), NULL;
   if (!(iter->pathiter = fu_pathsiter_init(dlite_storage_paths(), NULL))) {
     free(iter);
     return err(1, "Failure initiating storage path iterator"), NULL;
@@ -465,7 +469,7 @@ int dlite_storage_hotlist_add(const DLiteStorage *s)
     size_t newlength = h->length + HOTLIST_CHUNK_LENGTH;
     const DLiteStorage **storages = realloc(h->storages,
                                             newlength*sizeof(DLiteStorage *));
-    if (!storages) return err(1, "allocation failure");
+    if (!storages) return err(dliteMemoryError, "allocation failure");
     h->length = newlength;
     h->storages = storages;
   }

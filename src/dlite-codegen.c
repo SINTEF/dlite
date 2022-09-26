@@ -48,7 +48,8 @@ static Globals *get_globals(void)
 {
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
-    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+    if (!(g = calloc(1, sizeof(Globals))))
+     FAILCODE(dliteMemoryError, "allocation failure");
 
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
@@ -565,7 +566,7 @@ char *dlite_codegen_template_file(const char *template_name)
   if (!(paths = dlite_codegen_path_get())) return NULL;
 
   if (asprintf(&pattern, "%s.txt", template_name) < 0)
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   if (!(iter = fu_pathsiter_init(paths, pattern)))
     FAIL("failure creating codegen template path iterator");

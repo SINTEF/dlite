@@ -217,7 +217,7 @@ DLiteCollection *dlite_collection_load_url(const char *url, int lazy)
   char *str=NULL, *driver=NULL, *location=NULL, *options=NULL, *id=NULL;
   DLiteStorage *s=NULL;
   DLiteCollection *coll=NULL;
-  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (!(str = strdup(url))) FAILCODE(dliteMemoryError, "allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
   if (!id || !(coll = (DLiteCollection *)dlite_instance_get(id))) {
     err_clear();
@@ -263,7 +263,7 @@ int dlite_collection_save_url(DLiteCollection *coll, const char *url)
   int retval=1;
   char *str=NULL, *driver=NULL, *path=NULL, *options=NULL;
   DLiteStorage *s=NULL;
-  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (!(str = strdup(url))) FAILCODE(dliteMemoryError, "allocation failure");
   if (dlite_split_url(str, &driver, &path, &options, NULL)) goto fail;
   if (!(s = dlite_storage_open(driver, path, options))) goto fail;
   retval = dlite_collection_save(coll, s);

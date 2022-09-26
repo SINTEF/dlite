@@ -17,6 +17,7 @@
 
 #include "dlite-macros.h"
 #include "dlite-type.h"
+#include "dlite-errors.h"
 
 #ifndef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -173,7 +174,7 @@ static int istrue(const void *src, DLiteType type, size_t size)
     if ((n = dlite_type_print(NULL, 0, src, src_type, src_size,         \
                               0, -2, 0)) < 0) goto fail;                \
     if (!(p = realloc(*(char **)dest, n + 1)))                          \
-      FAIL("reallocation failure");                                     \
+      FAILCODE(dliteMemoryError, "reallocation failure");                                     \
     *(char **)dest = p;                                                 \
     m = dlite_type_print(*(char **)dest, n+1, src, src_type, src_size,  \
                          0, -2, 0);                                     \
