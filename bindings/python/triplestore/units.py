@@ -143,3 +143,18 @@ print("".join(["Number of registry lines = ", str(len(pint_registry_lines))]))
 with open("test_output.txt", "a") as f:
     for line in pint_registry_lines:
         f.write(f"{line}\n")
+
+# Populate an empty pint registry.
+ureg = UnitRegistry(None)
+for line in pint_registry_lines:
+    ureg.define(line)
+
+# Test the registry.
+test_quantity1 = 1234 * ureg.meter
+print(test_quantity1)
+
+test_quantity2 = 2345.6 * ureg.W_PER_K
+print("".join([test_quantity2, " = ", test_quantity2.to_base_units()]))
+
+test_quantity3 = test_quantity1 * test_quantity2
+print("".join([test_quantity3, " = ", test_quantity3.to_base_units()]))
