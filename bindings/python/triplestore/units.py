@@ -75,6 +75,8 @@ ts = load_qudt()
 QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
 QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
 
+pint_registry_lines = pint_SI_base_units_definition()
+
 for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     print(s + " " + o)
 
@@ -122,6 +124,8 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
         pint_definition_line += "".join([" = ", udunits_code])
     
     print(pint_definition_line)
+
+    pint_registry_lines.append(pint_definition_line)
 
     # Syntax for pint unit definition with offset:
     # degC = degK; offset: 273.15 = celsius
