@@ -55,6 +55,19 @@ def pint_definition_string(dimension_dict: dict) -> str:
             result += "* " + base_units[letter] + "**" + exponent + " "
     return result
 
+def pint_SI_base_units_definition() -> list:
+    # SI units as defined in the pint default registry: pint/default_en.txt
+    result = []
+    result.append("meter = [length] = m = metre")
+    result.append("second = [time] = s = sec")
+    result.append("ampere = [current] = A = amp")
+    result.append("candela = [luminosity] = cd = candle")
+    result.append("gram = [mass] = g")
+    result.append("mole = [substance] = mol")
+    result.append("kelvin = [temperature]; offset: 0 = K = degK = °K = degree_Kelvin = degreeK")
+    return result
+
+
 # Test code.
 
 ts = load_qudt()
@@ -65,22 +78,24 @@ QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
 for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     print(s + " " + o)
 
+    # Extract unit name.
     unit = s.split("/")[-1]
-    unit_name = "qudt_" + unit.replace("-", "_")
+    unit_name = unit.replace("-", "_")
 
+    # Extract and parse the dimension vector.
     dimension_vector = o.split("/")[-1]
     pint_definition = pint_definition_string(parse_qudt_dimension_vector(dimension_vector))
 
-    # Add qudt:conversionMultiplier and qudt:conversionOffset.
-    # Decide on and add name and alias.
-    # Include IRI, qudt:symbol, qudt:label, qudt:udunitsCode.
-
+    # Extract remaining info.
     multiplier = next(ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
     offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
     iri = next(ts.objects(subject=s, predicate=RDFS.isDefinedBy), "missing")
     # Can there be more than one symbol in QUDT?
     symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
+    labels = ts.objects(subject=s, predicate=RDFS.label)
+    udunits_code = next(ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
 
+    # Start constructing the pint definition line.
     pint_definition_line = "".join([
         unit_name,
         " = ",
@@ -89,11 +104,23 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
         pint_definition
         ])
 
+    # Add offset.
     if offset is not None:
         pint_definition_line += "".join(["; offset: ", offset])
 
+    # Add symbol.
     pint_definition_line += "".join([" = ", symbol])
+
+    # Add any labels.
+    for label in labels:
+        pint_definition_line += "".join([" = ", label])
+
+    # Add IRI.
     pint_definition_line += "".join([" = ", s])
+
+    # Add udunits code.
+    if udunits_code is not None:
+        pint_definition_line += "".join([" = ", udunits_code])
     
     print(pint_definition_line)
 
