@@ -147,11 +147,12 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
         pint_definition_line += "".join(["; offset: ", offset])
 
     # Add symbol.
-    if symbol not in used_identifiers:
-        used_identifiers.append(symbol)
-    else:
-        symbol = "_"
-        warnings.warn("Omitting symbol \"" + symbol + "\" from " + s)
+    if symbol != "_":
+        if symbol not in used_identifiers:
+            used_identifiers.append(symbol)
+        else:
+            warnings.warn("Omitting symbol \"" + symbol + "\" from " + s)
+            symbol = "_"
     pint_definition_line += "".join([" = ", symbol])
 
     # Add any labels.
@@ -199,22 +200,22 @@ with open("test_output.txt", "w") as f:
 #for line in pint_registry_lines:
 #    ureg.define(line)
 
-for i in range(0, 1751):
-    print("Line number: " + str(i))
-    print(pint_registry_lines[i])
-    with open("test_output.txt", "w") as f:
-        for line in pint_registry_lines[0:i]:
-            f.write(f"{line}\n")
-    ureg = UnitRegistry("test_output.txt")
+# for i in range(0, 1751):
+#     print("Line number: " + str(i))
+#     print(pint_registry_lines[i])
+#     with open("test_output.txt", "w") as f:
+#         for line in pint_registry_lines[0:i]:
+#             f.write(f"{line}\n")
+#     ureg = UnitRegistry("test_output.txt")
 
-#ureg = UnitRegistry("test_output.txt")
+ureg = UnitRegistry("test_output.txt")
 
 # Test the registry.
-test_quantity1 = 1234 * ureg.meter
+test_quantity1 = 1234 * ureg.M
 print(test_quantity1)
 
 test_quantity2 = 2345.6 * ureg.W_PER_K
-print("".join([test_quantity2, " = ", test_quantity2.to_base_units()]))
+print("".join([str(test_quantity2), " = ", str(test_quantity2.to_base_units())]))
 
 test_quantity3 = test_quantity1 * test_quantity2
-print("".join([test_quantity3, " = ", test_quantity3.to_base_units()]))
+print("".join([str(test_quantity3), " = ", str(test_quantity3.to_base_units()), " = ", "{:~}".format(test_quantity3.to_base_units())]))
