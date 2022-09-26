@@ -140,7 +140,8 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     
     print(pint_definition_line)
 
-    pint_registry_lines.append(pint_definition_line)
+    #pint_registry_lines.append(pint_definition_line)
+
 
     # Syntax for pint unit definition with offset:
     # degC = degK; offset: 273.15 = celsius
