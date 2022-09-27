@@ -145,8 +145,13 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             " ",
             pint_definition
             ])
-    used_identifiers.append(unit_name)
-    used_identifiers_this_unit = [unit_name]
+
+    if unit_name in used_identifiers:
+        warnings.warn("OMITTING UNIT due to name conflict: " + s)
+        continue
+    else:
+        used_identifiers.append(unit_name)
+        used_identifiers_this_unit = [unit_name]
 
     # Add offset.
     if offset is not None:
