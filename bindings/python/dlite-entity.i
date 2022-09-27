@@ -529,7 +529,7 @@ Call signatures:
 
   %feature("docstring",
            "Turn instance `inst` into a transaction node with parent\n"
-           "`parent`.  This require that `inst` is mutable, and `parent`\n"
+           "`parent`.  This requires that `inst` is mutable, and `parent`\n"
            "is immutable.  If `inst` already has a parent, it will be\n"
            "replaced.\n"
            "\n"
