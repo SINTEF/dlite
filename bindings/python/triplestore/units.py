@@ -175,6 +175,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             # No conflict.
             pint_definition_line += "".join([" = ", label])
             used_identifiers.append(label)
+            used_identifiers_this_unit.append(label)
 
     # Add IRI.
     pint_definition_line += "".join([" = ", s])
