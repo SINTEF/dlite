@@ -90,6 +90,7 @@ ts = load_qudt()
 
 QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
 QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
+DCTERMS = ts.bind("dcterms", "http://purl.org/dc/terms/")
 
 #pint_registry_lines = pint_SI_base_units_definition()
 pint_registry_lines = []
@@ -97,6 +98,10 @@ used_identifiers = []
 
 for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     #print(s + " " + o)
+
+    # Check if this unit has been replaced; then skip it.
+    if next(ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None) is not None:
+        continue
 
     # Extract unit name.
     unit = s.split("/")[-1]
