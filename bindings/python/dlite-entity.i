@@ -452,7 +452,7 @@ Call signatures:
   }
 
   %feature("docstring",
-           "Returns an copy of instance.  If newid is given, it will be\n"
+           "Returns a copy of the instance.  If `newid` is given, it will be\n"
            "the id of the new instance, otherwise it will be given a\n"
            "random UUID.") copy;
   %newobject copy;
@@ -462,14 +462,14 @@ Call signatures:
 
   %feature("docstring",
            "Make a snapshot of the current state of the instance.  It can\n"
-           "be retrieved with get_snapshot().\n"
+           "be retrieved with `get_snapshot()`.\n"
            "\n"
-           "The `inst` will be a transaction whos parent is the snapshot.\n"
+           "The instance will be a transaction whose parent is the snapshot.\n"
            "If `inst` already has a parent, that will now be the parent of\n"
            "the snapshot.\n"
            "\n"
            "The reason that `inst` must be mutable, is that its hash will\n"
-           "change due to change in its parent.\n"
+           "change due to a change in its parent.\n"
            "\n"
            "The snapshot will be assigned an URI of the form\n"
            "\"snapshot-XXXXXXXXXXXX\" (or inst->uri#snapshot-XXXXXXXXXXXX\n"
@@ -486,7 +486,7 @@ Call signatures:
            "`n=1` returns its parent, etc...\n"
            "\n"
            "This function may pull snapshots back into memory. Use\n"
-           "dlite_instance_pull() if you know the storage where the snapshots "
+           "`dlite_instance_pull()` if you know the storage where the snapshots "
            "are stored.") get_snapshot;
   %newobject get_snapshop;
   struct _DLiteInstance *get_snapshot(int n=1) {
@@ -497,7 +497,7 @@ Call signatures:
   }
 
   %feature("docstring",
-           "Like dlite_instance_get_snapshot(), except that possible stored\n"
+           "Like `dlite_instance_get_snapshot()`, except that possible stored\n"
            "snapshots are pulled from a specified storage to memory.\n"
            "\n"
            "Returns shapshot number `n` of the current instance, where `n`\n"
