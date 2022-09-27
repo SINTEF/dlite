@@ -141,6 +141,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             pint_definition
             ])
     used_identifiers.append(unit_name)
+    used_identifiers_this_unit = [unit_name]
 
     # Add offset.
     if offset is not None:
@@ -148,30 +149,47 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
     # Add symbol.
     if symbol != "_":
-        if symbol not in used_identifiers:
-            used_identifiers.append(symbol)
-        else:
+        if symbol in used_identifiers_this_unit:
+            # This is OK, but we will not add the symbol since it duplicates the name.
+            symbol = "_"
+        elif symbol in used_identifiers:
+            # This is a conflict with another unit.
             warnings.warn("Omitting symbol \"" + symbol + "\" from " + s)
             symbol = "_"
+        else:
+            # No conflict; add the symbol to this unit.
+            used_identifiers.append(symbol)
+            used_identifiers_this_unit.append(symbol)
+
     pint_definition_line += "".join([" = ", symbol])
 
     # Add any labels.
     for label in labels:
-        if label not in used_identifiers:
+        if label in used_identifiers_this_unit:
+            # Conflict within the same unit; do nothing.
+            pass
+        elif label in used_identifiers:
+            # Conflict with another unit.
+            warnings.warn("Omitting label \"" + label + "\" from " + s)
+        else:
+            # No conflict.
             pint_definition_line += "".join([" = ", label])
             used_identifiers.append(label)
-        else:
-            warnings.warn("Omitting label \"" + label + "\" from " + s)
 
     # Add IRI.
     pint_definition_line += "".join([" = ", s])
 
     # Add udunits code.
     if udunits_code is not None:
-        if not udunits_code in used_identifiers:
-            pint_definition_line += "".join([" = ", udunits_code])
-        else:
+        if udunits_code in used_identifiers_this_unit:
+            # Conflict within the same unit; do nothing.
+            pass
+        elif udunits_code in used_identifiers:
+            # Conflict with another unit.
             warnings.warn("Omitting UDUNITS code \"" + udunits_code + "\" from " + s)
+        else:
+            # No conflict.
+            pint_definition_line += "".join([" = ", udunits_code])
     
     #print(pint_definition_line)
 
