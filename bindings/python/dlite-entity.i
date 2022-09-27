@@ -533,7 +533,7 @@ Call signatures:
            "is immutable.  If `inst` already has a parent, it will be\n"
            "replaced.\n"
            "\n"
-           "Use dlite_instance_freeze() and dlite_instance_is_frozen() to\n"
+           "Use `dlite_instance_freeze()` and `dlite_instance_is_frozen()` to\n"
            "make and check that an instance is immutable, respectively."
            ) set_parent;
   void set_parent(struct _DLiteInstance *parent) {
