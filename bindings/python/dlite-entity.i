@@ -422,7 +422,7 @@ Call signatures:
   }
 
   %feature("docstring",
-           "Verify that the hash of instance `inst`.\n"
+           "Verify the hash of the instance.\n"
            "\n"
            "If `hash` is not None, this function verifies that the hash of\n"
            "`inst` corresponds to the memory pointed to by `hash`.  The size\n"
