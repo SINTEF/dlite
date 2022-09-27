@@ -402,7 +402,7 @@ MU_TEST(test_scan)
 
   n = dlite_type_scan("{\"namex\": \"ntokens\"}", -1, &dim, dliteDimension,
                       sizeof(DLiteDimension), 0);
-  mu_assert_int_eq(dliteTypeError, n);
+  mu_assert_int_eq(dliteValueError, n);
   err_clear();
 
   s = "{\"name\": \"M\", \"xxx\": \"this is an array\"}";

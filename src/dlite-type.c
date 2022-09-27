@@ -198,7 +198,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     snprintf(typename, n, "relation");
     break;
   default:
-    return errx(dliteValueError"unknown dtype number: %d", dtype);
+    return errx(dliteValueError, "unknown dtype number: %d", dtype);
   }
   return 0;
 }
