@@ -547,7 +547,7 @@ Call signatures:
     dlite_instance_freeze($self);
   }
 
-  %feature("docstring", "Returns whether instance is immutable.") is_frozen;
+  %feature("docstring", "Returns whether the instance is frozen and immutable.") is_frozen;
   bool is_frozen(void) {
     return dlite_instance_is_frozen($self);
   }
