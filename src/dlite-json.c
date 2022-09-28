@@ -513,7 +513,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
   /* Allocate dimensions */
   if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   /* Parse dimensions */
   if (dlite_meta_is_metameta(meta)) {
@@ -1013,7 +1013,7 @@ DLiteJsonIter *dlite_json_iter_create(const char *src, int length,
   DLiteJsonIter *iter=NULL;
   jsmn_parser parser;
 
-  if (!(iter = calloc(1, sizeof(DLiteJsonIter)))) FAIL("allocation failure");
+  if (!(iter = calloc(1, sizeof(DLiteJsonIter)))) FAILCODE(dliteMemoryError, "allocation failure");
 
   if (length <= 0) length = strlen(src);
   jsmn_init(&parser);
@@ -1185,7 +1185,7 @@ DLiteJStoreIter *dlite_jstore_iter_create(JStore *js, const char *metaid)
 {
   DLiteJStoreIter *iter;
   if (!(iter = calloc(1, sizeof(DLiteJStoreIter))))
-    return err(1, "allocation failure"), NULL;
+    return err(dliteMemoryError, "allocation failure"), NULL;
   if (jstore_iter_init(js, &iter->jiter)) return NULL;
   if (metaid && dlite_get_uuid(iter->metauuid, metaid) < 0) return NULL;
   return iter;

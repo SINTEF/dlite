@@ -21,6 +21,7 @@
 #include "dlite-entity.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"
+#include "dlite-errors.h"
 
 
 /* Name DLite types */
@@ -570,7 +571,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       if (s) {
         size_t len = strlen(s) + 1;
         void *p = realloc(*((void **)dest), len);
-        if (!p) return err(1, "allocation failure"), NULL;
+        if (!p) return err(dliteMemoryError, "allocation failure"), NULL;
         *((void **)dest) = p;
         memcpy(*((void **)dest), s, len);
       } else if (*((void **)dest)) {
@@ -598,7 +599,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       if (d->ndims) {
         int i;
         if (!(d->dims = malloc(d->ndims*sizeof(char *))))
-          return err(1, "allocation failure"), NULL;
+          return err(dliteMemoryError, "allocation failure"), NULL;
         for (i=0; i<d->ndims; i++)
           d->dims[i] = strdup(s->dims[i]);
       } else {
@@ -1047,7 +1048,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       }
       assert(n >= 0);
       if (!(q = realloc(*((char **)p), n+1)))
-        return err(-1, "allocation failure");
+        return err(dliteMemoryError, "allocation failure");
       n = strunquote(q, n+1, src, NULL, qflags);
       assert(n >= 0);
       *(char **)p = q;
@@ -1068,7 +1069,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         case -2: return errx(-1, "expected final double quote around ref");
         }
         assert(n >= 0);
-        if (!(q = malloc(n+1))) return err(-1, "allocation failure");
+        if (!(q = malloc(n+1))) return err(dliteMemoryError, "allocation failure");
         n2 = strnunquote(q, n+1, src, m, NULL, qflags);
         assert(n2 == n);
         inst = dlite_instance_get(q);
@@ -1405,7 +1406,7 @@ int dlite_type_ndcast(int ndims,
   /* Default source strides */
   if (!src_strides) {
     size_t size = src_size;
-    if (!(sstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(sstrides = calloc(ndims, sizeof(size_t)))) FAILCODE(dliteMemoryError, "allocation failure");
     for (i=ndims-1; i >= 0; i--) {
       sstrides[i] = size;
       size *= src_dims[i];
@@ -1416,7 +1417,7 @@ int dlite_type_ndcast(int ndims,
   /* Default dest strides */
   if (!dest_strides) {
     size_t size = dest_size;
-    if (!(dstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(dstrides = calloc(ndims, sizeof(size_t)))) FAILCODE(dliteMemoryError, "allocation failure");
     for (i=ndims-1; i >= 0; i--) {
       dstrides[i] = size;
       size *= dest_dims[i];
@@ -1460,8 +1461,10 @@ int dlite_type_ndcast(int ndims,
     size_t M=ndims-1;
     const char *sp = src;  /* pointer to current element in `src` */
     char *dp = dest;       /* pointer to current element in `dest` */
-    if (!(sidx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
-    if (!(didx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(sidx = calloc(ndims, sizeof(size_t)))) 
+      FAILCODE(dliteMemoryError, "allocation failure");
+    if (!(didx = calloc(ndims, sizeof(size_t)))) 
+      FAILCODE(dliteMemoryError, "allocation failure");
 
     n = 0;
     while (1) {

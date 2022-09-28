@@ -77,7 +77,7 @@ static instance_map_t *_instance_store(void)
   instance_map_t *istore = dlite_globals_get_state("dlite-instance-store");
   if (!istore) {
     if (!(istore = malloc(sizeof(instance_map_t))))
-      return err(1, "allocation failure"), NULL;
+      return err(dliteMemoryError, "allocation failure"), NULL;
     map_init(istore);
     _instance_store_addmeta(istore, dlite_get_basic_metadata_schema());
     _instance_store_addmeta(istore, dlite_get_entity_schema());
@@ -375,7 +375,7 @@ static int _instance_propdims_eval(DLiteInstance *inst, const size_t *dims)
   InfixCalcVariable *vars=NULL;
 
   if (!(vars = calloc(meta->_ndimensions, sizeof(InfixCalcVariable))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0; i < meta->_ndimensions; i++) {
     vars[i].name = meta->_dimensions[i].name;
     vars[i].value = dims[i];
@@ -435,7 +435,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
 
   /* Allocate instance */
   if (!(size = dlite_instance_size(meta, dims))) goto fail;
-  if (!(inst = calloc(1, size))) FAIL("allocation failure");
+  if (!(inst = calloc(1, size))) FAILCODE(dliteMemoryError, "allocation failure");
   dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
   /* Initialise header */
@@ -705,7 +705,8 @@ DLiteInstance *dlite_instance_get(const char *id)
     DLiteStorage *s;
     char *copy, *driver, *location, *options;
 
-    if (!(copy = strdup(url))) return err(1, "allocation failure"), NULL;
+    if (!(copy = strdup(url)))
+     return err(dliteMemoryError, "allocation failure"), NULL;
 #ifdef _WIN32
     /* Hack: on Window, don't interpreat the "C" in urls starting with
        "C:\" or "C:/" as a driver, but rather as a part of the location...
@@ -852,7 +853,7 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   char *str=NULL, *driver=NULL, *location=NULL, *options=NULL, *id=NULL;
   DLiteInstance *inst=NULL;
   assert(url);
-  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (!(str = strdup(url))) FAILCODE(dliteMemoryError, "allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
   inst = dlite_instance_load_loc(driver, location, options, id);
  fail:
@@ -945,7 +946,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   /* read dimensions */
   dlite_datamodel_resolve_dimensions(d, meta);
   if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0; i<meta->_ndimensions; i++)
     if ((int)(dims[i] =
          dlite_datamodel_get_dimension_size(d, meta->_dimensions[i].name)) < 0)
@@ -1095,7 +1096,7 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 {
   int retval=1;
   char *str=NULL, *driver=NULL, *loc=NULL, *options=NULL;
-  if (!(str = strdup(url))) FAIL("allocation failure");
+  if (!(str = strdup(url))) FAILCODE(dliteMemoryError, "allocation failure");
   if (dlite_split_url(str, &driver, &loc, &options, NULL)) goto fail;
   retval = dlite_instance_save_loc(driver, loc, options, inst);
  fail:
@@ -1601,7 +1602,7 @@ int dlite_instance_sync_to_dimension_sizes(DLiteInstance *inst)
   }
   if (update) {
     if (!(newdims = calloc(inst->meta->_ndimensions, sizeof(int))))
-      return err(1, "allocation failure");
+      return err(dliteMemoryError, "allocation failure");
     for (i=0; i<inst->meta->_ndimensions; i++)
       newdims[i] = inst->meta->_getdim(inst, i);
     if (dlite_instance_set_dimension_sizes(inst, newdims)) goto fail;
@@ -1693,18 +1694,18 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims)
       if (inst->meta->_setdim(inst, n, dims[n]) < 0) goto fail;
 
   if (!(xdims = calloc(inst->meta->_ndimensions, sizeof(size_t))))
-    FAIL("Allocation failure");
+    FAILCODE(dliteMemoryError, "Allocation failure");
   for (n=0; n < inst->meta->_ndimensions; n++)
     xdims[n] = (dims[n] >= 0) ? (size_t)dims[n] : DLITE_DIM(inst, n);
 
   /* save old propdims and property members (oldmembs) */
   if (!(oldpropdims = calloc(inst->meta->_npropdims, sizeof(size_t))))
-    FAIL("Allocation failure");
+    FAILCODE(dliteMemoryError, "Allocation failure");
   memcpy(oldpropdims, DLITE_PROP_DIMS(inst, 0),
          inst->meta->_npropdims * sizeof(size_t));
 
   if (!(oldmembs = calloc(inst->meta->_nproperties, sizeof(int))))
-    FAIL("Allocation failure");
+    FAILCODE(dliteMemoryError, "Allocation failure");
   for (n=0; n < inst->meta->_nproperties; n++) {
     DLiteProperty *p = inst->meta->_properties + n;
     oldmembs[n] = 1;
@@ -1948,25 +1949,6 @@ int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
                                           void *dest,
                                           DLiteTypeCast castfun)
 {
-  //void *src = dlite_instance_get_property_by_index(inst, i);
-  //DLiteProperty *p = inst->meta->_properties + i;
-  //int stat, j;
-  //size_t *sdims = NULL;
-  //
-  //if (p->ndims && !dims) {
-  //  if (!(sdims = calloc(p->ndims, sizeof(int))))
-  //    return err(1, "allocation failure");
-  //  for (j=0; j < p->ndims; j++)
-  //    sdims[j] = DLITE_PROP_DIM(inst, i, j);
-  //}
-  //
-  //stat = dlite_type_ndcast(p->ndims,
-  //                         dest, type, size, dims, strides,
-  //                         src, p->type, p->size, sdims, NULL,
-  //                         castfun);
-  //if (sdims) free(sdims);
-  //return stat;
-  //
   void *src = dlite_instance_get_property_by_index(inst, i);
   DLiteProperty *p = inst->meta->_properties + i;
   size_t *sdims = DLITE_PROP_DIMS(inst, i);
@@ -2873,7 +2855,7 @@ DLiteDimension *dlite_dimension_create(const char *name,
   return dim;
  fail:
   if (dim) dlite_dimension_free(dim);
-  return err(1, "allocation failure"), NULL;
+  return err(dliteMemoryError, "allocation failure"), NULL;
 }
 
 /*
@@ -2915,7 +2897,7 @@ DLiteProperty *dlite_property_create(const char *name,
   return prop;
  fail:
   if (prop) dlite_property_free(prop);
-  return err(1, "allocation failure"), NULL;
+  return err(dliteMemoryError, "allocation failure"), NULL;
 }
 
 /*
@@ -2942,7 +2924,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
   prop->ndims++;
   return 0;
  fail:
-  return err(1, "allocation failure");
+  return err(dliteMemoryError, "allocation failure");
 }
 
 
@@ -3376,7 +3358,7 @@ DLiteMetaModel *dlite_metamodel_create(const char *uri, const char *metaid)
     if (model->meta) dlite_meta_decref(model->meta);
     free(model);
   }
-  return err(1, "allocation failure"), NULL;
+  return err(dliteMemoryError, "allocation failure"), NULL;
 }
 
 
@@ -3469,13 +3451,13 @@ int dlite_metamodel_set_value(DLiteMetaModel *model, const char *name,
   } else {
     if (!(model->values = realloc(model->values,
                                   sizeof(Value)*(model->nvalues+1))))
-      FAIL("allocation failure");
+      FAILCODE(dliteMemoryError, "allocation failure");
     v = model->values + model->nvalues;
   }
   memset(v, 0, sizeof(Value));
 
   if (!(v->name = strdup(name)))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   v->data = (void *)value;
 
   model->nvalues++;
@@ -3514,7 +3496,7 @@ int dlite_metamodel_set_string(DLiteMetaModel *model, const char *name,
 {
   size_t i;
   char *p;
-  if (!(p = strdup(s))) return err(1, "allocation failure");
+  if (!(p = strdup(s))) return err(dliteMemoryError, "allocation failure");
   if (dlite_metamodel_set_value(model, name, NULL)) return 1;
   for (i=0; i < model->nvalues; i++)
     if (strcmp(name, model->values[i].name) == 0) {
@@ -3554,16 +3536,16 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
 
   if (!(model->dims = realloc(model->dims,
                                sizeof(DLiteDimension)*(model->ndims+1))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   memset(model->dims + model->ndims, 0, sizeof(DLiteDimension));
 
 
   if (!(model->dims[model->ndims].name = strdup(name)))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   if (description &&
       !(model->dims[model->ndims].description = strdup(description)))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   model->ndims++;
   model->dimvalues[idim]++;
@@ -3613,16 +3595,18 @@ int dlite_metamodel_add_property(DLiteMetaModel *model,
 
   if (!(model->props = realloc(model->props,
                                sizeof(DLiteProperty)*(model->nprops+1))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   p = model->props + model->nprops;
   memset(p, 0, sizeof(DLiteProperty));
 
-  if (!(p->name = strdup(name))) FAIL("allocation failure");
+  if (!(p->name = strdup(name)))
+   FAILCODE(dliteMemoryError, "allocation failure");
   p->type = type;
   p->size = size;
-  if (unit && !(p->unit = strdup(unit))) FAIL("allocation failure");
+  if (unit && !(p->unit = strdup(unit)))
+   FAILCODE(dliteMemoryError, "allocation failure");
   if (description && !(p->description = strdup(description)))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   model->nprops++;
   model->dimvalues[iprop]++;
