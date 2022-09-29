@@ -8,14 +8,14 @@ typedef enum {
   dliteUnknownError = -1,
   dliteIOError = -2,
   dliteRuntimeError = -3, /* originally -1 */
-  dliteIndexError = -4,
-  dliteTypeError = -5,
+  dliteIndexError = -4, // e.g. x = [1,2,3], x[7]
+  dliteTypeError = -5, // e.g. float / str
   dliteDivisionByZero = -6,
   dliteOverflowError = -7,
   dliteSyntaxError = -8,
-  dliteValueError = -9,
-  dliteSystemError = -10,
-  dliteAttributeError = -11,
+  dliteValueError = -9, // e.g. int('apple')
+  dliteSystemError = -10, 
+  dliteAttributeError = -11, // e.g. obj.b (if b not defined) x=10, x.append(6)
   dliteMemoryError = -12,
   dliteNullReferenceError = -13,
   dliteStorageOpenError = -14,     /*!< cannot open storage plugin */
