@@ -24,8 +24,7 @@ def parse_qudt_dimension_vector(dimension_vector: str) -> dict:
     for dimension in dimensions:
         result[dimension[0]] = dimension[1:]
 
-    expected_keys = ["A", "E", "L", "I", "M", "H", "T", "D"]
-    for letter in expected_keys:
+    for letter in "AELIMHTD":
         if letter not in result.keys():
             raise Exception("Missing dimension \"" + letter + "\" in dimension vector " + dimension_vector)
 
