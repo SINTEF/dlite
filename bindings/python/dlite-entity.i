@@ -404,7 +404,7 @@ Call signatures:
     dlite_instance_save(storage, $self);
   }
 
-  %feature("docstring", "Returns a hash of instance.") get_hash;
+  %feature("docstring", "Returns a hash of the instance.") get_hash;
   %newobject get_hash;
   char *get_hash() {
     uint8_t hash[DLITE_HASH_SIZE];
