@@ -10,7 +10,6 @@ from triplestore import Triplestore, RDFS
 import warnings
 
 def load_qudt():
-    print("Loading QUDT unit ontology.")
     ts = Triplestore(name="rdflib")
     ts.parse(source="http://qudt.org/2.1/vocab/unit")
     ts.parse(source="http://qudt.org/2.1/schema/qudt")
