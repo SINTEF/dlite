@@ -53,32 +53,6 @@ def pint_definition_string(dimension_dict: dict) -> str:
             result += "* " + base_units[letter] + "**" + exponent + " "
     return result
 
-def pint_SI_base_units_definition() -> list:
-    # SI units as defined in the pint default registry: pint/default_en.txt
-    result = []
-    result.append("meter = [length] = m = metre")
-    result.append("second = [time] = s = sec")
-    result.append("ampere = [current] = A = amp")
-    result.append("candela = [luminosity] = cd = candle")
-    result.append("gram = [mass] = g")
-    result.append("mole = [substance] = mol")
-    result.append("kelvin = [temperature]; offset: 0 = K = degK = °K = degree_Kelvin = degreeK")
-    result.append("kilogram = 1000 * gram = kg")
-    result.append(
-        """@defaults
-    group = international
-    system = SI
-@end
-@system SI
-    second
-    meter
-    kilogram
-    ampere
-    kelvin
-    mole
-    candela
-@end""")
-    return result
 
 
 # Test code.
@@ -89,7 +63,6 @@ QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
 QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
 DCTERMS = ts.bind("dcterms", "http://purl.org/dc/terms/")
 
-#pint_registry_lines = pint_SI_base_units_definition()
 pint_registry_lines = []
 used_identifiers = []
 
