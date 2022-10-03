@@ -26,7 +26,7 @@ def parse_qudt_dimension_vector(dimension_vector: str) -> dict:
 
     for letter in "AELIMHTD":
         if letter not in result.keys():
-            raise Exception("Missing dimension \"" + letter + "\" in dimension vector " + dimension_vector)
+            raise Exception(f"Missing dimension \"{letter}\" in dimension vector \"{dimension_vector}\"")
 
     return result
 
@@ -146,7 +146,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             ])
 
     if unit_name in used_identifiers:
-        warnings.warn("OMITTING UNIT due to name conflict: " + s)
+        warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
         continue
     else:
         used_identifiers.append(unit_name)
@@ -163,7 +163,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             symbol = "_"
         elif symbol in used_identifiers:
             # This is a conflict with another unit.
-            warnings.warn("Omitting symbol \"" + symbol + "\" from " + s)
+            warnings.warn(f"Omitting symbol \"{symbol}\" from {s}")
             symbol = "_"
         else:
             # No conflict; add the symbol to this unit.
@@ -179,7 +179,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             pass
         elif label in used_identifiers:
             # Conflict with another unit.
-            warnings.warn("Omitting label \"" + label + "\" from " + s)
+            warnings.warn(f"Omitting label \"{label}\" from {s}")
         else:
             # No conflict.
             pint_definition_line += "".join([" = ", label])
@@ -196,7 +196,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             pass
         elif udunits_code in used_identifiers:
             # Conflict with another unit.
-            warnings.warn("Omitting UDUNITS code \"" + udunits_code + "\" from " + s)
+            warnings.warn(f"Omitting UDUNITS code \"{udunits_code}\" from {s}")
         else:
             # No conflict.
             pint_definition_line += "".join([" = ", udunits_code])
