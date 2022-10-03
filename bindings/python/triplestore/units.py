@@ -99,7 +99,9 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     #print(s + " " + o)
 
     # Check if this unit has been replaced; then skip it.
-    if next(ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None) is not None:
+    replaced_by = next(
+        ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None)
+    if replaced_by is not None:
         continue
 
     # Extract unit name.
@@ -108,15 +110,18 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
     # Extract and parse the dimension vector.
     dimension_vector = o.split("/")[-1]
-    pint_definition = pint_definition_string(parse_qudt_dimension_vector(dimension_vector))
+    pint_definition = pint_definition_string(parse_qudt_dimension_vector(
+        dimension_vector))
 
     # Extract remaining info.
-    multiplier = next(ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
+    multiplier = next(
+        ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
     offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
     # Can there be more than one symbol in QUDT?
     symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
     labels = ts.objects(subject=s, predicate=RDFS.label)
-    udunits_code = next(ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
+    udunits_code = next(
+        ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
 
     base_unit_dimensions ={
         "M": "length",
@@ -159,7 +164,8 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     # Add symbol.
     if symbol != "_":
         if symbol in used_identifiers_this_unit:
-            # This is OK, but we will not add the symbol since it duplicates the name.
+            # This is OK, but we will not add the symbol since it duplicates
+            # the name.
             symbol = "_"
         elif symbol in used_identifiers:
             # This is a conflict with another unit.
