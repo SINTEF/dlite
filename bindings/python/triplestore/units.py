@@ -106,20 +106,10 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
     # Start constructing the pint definition line.
     if unit_name in base_unit_dimensions.keys():
-        pint_definition_line = "".join([
-            unit_name,
-            " = [",
-            base_unit_dimensions[unit_name],
-            "] ",
-            ])
+        pint_definition_line = \
+            f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
     else:
-        pint_definition_line = "".join([
-            unit_name,
-            " = ",
-            multiplier,
-            " ",
-            pint_definition
-            ])
+        pint_definition_line = f'{unit_name} = {multiplier} {pint_definition}'
 
     if unit_name in used_identifiers:
         warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
@@ -130,7 +120,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 
     # Add offset.
     if offset is not None:
-        pint_definition_line += "".join(["; offset: ", offset])
+        pint_definition_line += f'; offset: {offset}'
 
     # Add symbol.
     if symbol != "_":
@@ -147,7 +137,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             used_identifiers.append(symbol)
             used_identifiers_this_unit.append(symbol)
 
-    pint_definition_line += "".join([" = ", symbol])
+    pint_definition_line += f' = {symbol}'
 
     # Add any labels.
     for label in labels:
@@ -159,12 +149,12 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             warnings.warn(f"Omitting label \"{label}\" from {s}")
         else:
             # No conflict.
-            pint_definition_line += "".join([" = ", label])
+            pint_definition_line += f' = {label}'
             used_identifiers.append(label)
             used_identifiers_this_unit.append(label)
 
     # Add IRI.
-    pint_definition_line += "".join([" = ", s])
+    pint_definition_line += f' = {s}'
 
     # Add udunits code.
     if udunits_code is not None:
@@ -176,7 +166,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
             warnings.warn(f"Omitting UDUNITS code \"{udunits_code}\" from {s}")
         else:
             # No conflict.
-            pint_definition_line += "".join([" = ", udunits_code])
+            pint_definition_line += f' = {udunits_code}'
     
     #print(pint_definition_line)
 
@@ -193,7 +183,7 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     # Prefixes:
     # yocto- = 10.0**-24 = y-
 
-print("".join(["Number of registry lines = ", str(len(pint_registry_lines))]))
+print(f'Number of registry lines = {len(pint_registry_lines)}')
 
 # Print pint registry definition to file.
 with open("test_output.txt", "w") as f:
@@ -220,7 +210,7 @@ test_quantity1 = 1234 * ureg.M
 print(test_quantity1)
 
 test_quantity2 = 2345.6 * ureg.W_PER_K
-print("".join([str(test_quantity2), " = ", str(test_quantity2.to_base_units())]))
+print(f'{test_quantity2} = {test_quantity2.to_base_units()}')
 
 test_quantity3 = test_quantity1 * test_quantity2
 print("".join([str(test_quantity3), " = ", str(test_quantity3.to_base_units()), " = ", "{:~}".format(test_quantity3.to_base_units())]))
