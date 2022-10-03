@@ -14,7 +14,6 @@ def load_qudt():
     ts = Triplestore(name="rdflib")
     ts.parse(source="http://qudt.org/2.1/vocab/unit")
     ts.parse(source="http://qudt.org/2.1/schema/qudt")
-    print("Finished.")
     return ts
 
 def parse_qudt_dimension_vector(dimension_vector: str) -> dict:
