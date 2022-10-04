@@ -53,7 +53,7 @@ static PythonStorageGlobals *get_globals(void)
   PythonStorageGlobals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
     if (!(g = calloc(1, sizeof(PythonStorageGlobals))))
-      return dlite_err(1, "allocation failure"), NULL;
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
   return g;

@@ -59,7 +59,7 @@ opener(const DLiteStoragePlugin *api, const char *location,
     generic = PyObject_GetAttrString(obj, "generic");
 
   if (!(s = calloc(1, sizeof(DLitePythonStorage))))
-    FAIL("Allocation failure");
+    FAILCODE(dliteMemoryError, "Allocation failure");
   s->api = api;
 
   if (readable && !PyObject_IsTrue(readable))  // default: redable
@@ -227,7 +227,8 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
 
-  if (!(iter = calloc(1, sizeof(Iter)))) FAIL("allocation failure");
+  if (!(iter = calloc(1, sizeof(Iter))))
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   iter->v = PyObject_CallMethod(sp->obj, "queue", "s", pattern);
   if (dlite_pyembed_err_check("error calling %s.queue()", classname)) goto fail;
@@ -346,7 +347,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
 	  classname);
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   api->name = strdup(PyUnicode_AsUTF8(name));
   api->freeapi = freeapi;
