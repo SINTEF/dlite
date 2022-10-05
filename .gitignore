@@ -32,4 +32,3 @@ out
 
 # Generated build docker files
 Dockerfile-*linux*[^.template]
-test_output.txt
