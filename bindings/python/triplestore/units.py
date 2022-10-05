@@ -18,6 +18,7 @@ def load_qudt():
     return ts
 
 def parse_qudt_dimension_vector(dimension_vector: str) -> dict:
+    # Split the dimension vector string into separate dimensions.
     dimensions = re.findall(r'[AELIMHTD]-?[0-9]+', dimension_vector)
     
     result = {}
@@ -46,6 +47,7 @@ def pint_definition_string(dimension_dict: dict) -> str:
         "D": "1",
     }
 
+    # Build the unit definition, dimension by dimension.
     result = ""
     for letter, unit in base_units.items():
         exponent = dimension_dict[letter]
@@ -67,8 +69,7 @@ def pint_registry_lines_from_qudt():
     used_identifiers = []
 
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
-        #print(s + " " + o)
-
+        
         # Check if this unit has been replaced; then skip it.
         replaced_by = next(
             ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None)
@@ -167,8 +168,6 @@ def pint_registry_lines_from_qudt():
             else:
                 # No conflict.
                 pint_definition_line += f' = {udunits_code}'
-        
-        #print(pint_definition_line)
 
         pint_registry_lines.append(pint_definition_line)
     return pint_registry_lines
