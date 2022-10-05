@@ -173,16 +173,20 @@ def pint_registry_lines_from_qudt():
     return pint_registry_lines
 
 
+def prepare_cache_file_path(filename: str) -> str:
+    cache_directory = user_cache_dir("dlite", "SINTEF")
+    if not os.path.exists(cache_directory):
+        os.mkdir(cache_directory)
+    return os.path.join(cache_directory, filename)
+
+
 # Test code.
 pint_registry_lines = pint_registry_lines_from_qudt()
 
 print(f'Number of registry lines = {len(pint_registry_lines)}')
 
 # Print pint registry definition to file.
-cache_directory = user_cache_dir("dlite", "SINTEF")
-if not os.path.exists(cache_directory):
-    os.mkdir(cache_directory)
-registry_file_path = os.path.join(cache_directory, "pint_unit_registry.txt")
+registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
 with open(registry_file_path, "w") as f:
     for line in pint_registry_lines:
         f.write(f"{line}\n")
