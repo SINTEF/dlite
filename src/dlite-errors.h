@@ -8,7 +8,7 @@ typedef enum {
   dliteUnknownError = -1,
   dliteIOError = -2,
   dliteRuntimeError = -3, /* originally -1 */
-  dliteIndexError = -4, // e.g. x = [1,2,3], x[7]
+  dliteIndexError = -4,      /*!< Index out of range. Ex: int x[3] = {1,2,3}; x[7]; */
   dliteTypeError = -5, // e.g. float / str
   dliteDivisionByZero = -6,
   dliteOverflowError = -7,

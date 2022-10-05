@@ -1400,7 +1400,7 @@ int dlite_type_ndcast(int ndims,
     n *= dest_dims[i];
   }
   if (n != N)
-    return err(dliteIndexError, "incompatible sizes of source (%lu) and dest (%lu)",
+    return err(dliteIndexError, "incompatible sizes of dimension %d for source (%lu) and dest (%lu)", i,
                (unsigned long)N, (unsigned long)n);
 
   /* Default source strides */
