@@ -180,9 +180,9 @@ def prepare_cache_file_path(filename: str) -> str:
     return os.path.join(cache_directory, filename)
 
 
-def get_pint_registry() -> UnitRegistry:
+def get_pint_registry(force_recreate = False) -> UnitRegistry:
     registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
-    if not os.path.exists(registry_file_path):
+    if force_recreate or not os.path.exists(registry_file_path):
         pint_registry_lines = pint_registry_lines_from_qudt()
         with open(registry_file_path, "w") as f:
             for line in pint_registry_lines:

@@ -25,7 +25,7 @@ from pint import UnitRegistry, Quantity
 #     ureg = UnitRegistry("test_output.txt")
 
 #ureg = UnitRegistry(registry_file_path)
-ureg = get_pint_registry()
+ureg = get_pint_registry(force_recreate=True)
 
 # Test the registry.
 test_quantity1 = 1234 * ureg.M
