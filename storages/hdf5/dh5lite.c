@@ -40,25 +40,6 @@ typedef struct {
 
 
 
-/* Error macros for when DLiteDataModel instance d is available */
-#define DFAIL0(code, d, msg) \
-  do {err(code, "%s/%s: " msg, d->s->location, d->uuid); goto fail;} while (0)
-
-#define DFAIL1(code, d, msg, a1) \
-  do {err(code, "%s/%s: " msg, d->s->location, d->uuid, a1); goto fail;} while (0)
-
-#define DFAIL2(code, d, msg, a1, a2) \
-  do {err(code, "%s/%s: " msg, d->s->location, d->uuid, a1, a2); \
-    goto fail;} while (0)
-
-#define DFAIL3(code, d, msg, a1, a2, a3) \
-  do {err(code, "%s/%s: " msg, d->s->location, d->uuid, a1, a2, a3); \
-    goto fail;} while (0)
-
-#define DFAIL4(code, d, msg, a1, a2, a3, a4)                            \
-  do {err(code, "%s/%s: " msg, d->s->location, d->uuid, a1, a2, a3, a4); \
-    goto fail;} while (0)
-
 
 /* Returns the HDF5 type identifier corresponding to `type` and `size`.
    Returns -1 on error.

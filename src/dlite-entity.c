@@ -31,7 +31,7 @@
 #define max(x, y) (((x) >= (y)) ? (x) : (y))
 
 
-/* Forward declerations */
+/* Forward declarations */
 int dlite_meta_init(DLiteMeta *meta);
 DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
                                      const char *metaid, int lookup);
@@ -42,7 +42,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
  *  Global in-memory instance store
  *
  *  This store holds (weak) references to all instances that have been
- *  instansiated in DLite.  The current implementation treats data
+ *  instantiated in DLite.  The current implementation treats data
  *  instances and metadata different, by keeping a hard reference to
  *  metadata (by increasing its refcount) and a weak reference to data
  *  instances.  This makes metadata persistent, while allowing data
@@ -150,7 +150,7 @@ static int _instance_store_remove(const char *uuid)
   DLiteInstance *inst, **q;
   assert(istore);
   if (!(q = map_get(istore, uuid)))
-    return errx(dliteAttributeError, "cannot remove %s since it is not in store", uuid);
+    return errx(dliteMissingInstanceError, "cannot remove %s since it is not in store", uuid);
   inst = *q;
   map_remove(istore, uuid);
 
@@ -167,7 +167,7 @@ static DLiteInstance *_instance_store_get(const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
   if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
-    return errx(dliteValueError, "id '%s' is neither a valid UUID or a convertable string",
+    return errx(dliteValueError, "id '%s' is neither a valid UUID or a convertible string",
                 id), NULL;
   if (!(instp = map_get(istore, uuid))) return NULL;
   return *instp;
@@ -388,7 +388,7 @@ static int _instance_propdims_eval(DLiteInstance *inst, const size_t *dims)
     for (j=0; j < p->ndims; j++)
       propdims[n++] = infixcalc(p->dims[j], vars, meta->_ndimensions,
                                 errmsg, sizeof(errmsg));
-    if (errmsg[0]) FAILCODE1(dliteIndexError, "invalid property dimension expression: %s", errmsg);
+    if (errmsg[0]) FAILCODE1(dliteSyntaxError, "invalid property dimension expression: %s", errmsg);
   }
   assert(n == meta->_npropdims);
 
@@ -534,7 +534,7 @@ DLiteInstance *dlite_instance_create_from_id(const char *metaid,
   DLiteMeta *meta;
   DLiteInstance *inst=NULL;
   if (!(meta = (DLiteMeta *)dlite_instance_get(metaid)))
-    FAILCODE1(dliteAttributeError, "cannot find metadata '%s'", metaid);
+    FAILCODE1(dliteMissingMetadataError, "cannot find metadata '%s'", metaid);
   inst = dlite_instance_create(meta, dims, id);
  fail:
   if (meta) dlite_meta_decref(meta);
@@ -926,14 +926,14 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   }
 
   /* ...otherwise give up */
-  if (!meta) FAILCODE1(dliteStorageLoadError, "cannot load metadata: %s", uri);
+  if (!meta) FAILCODE1(dliteMissingMetadataError, "cannot load metadata: %s", uri);
 
   /* Make sure that metadata is initialised */
   if (dlite_meta_init(meta)) goto fail;
 
   /* check metadata uri */
   if (strcmp(uri, meta->uri) != 0)
-    FAILCODE3(dliteStorageLoadError, "metadata uri (%s) does not correspond to that in storage (%s): %s",
+    FAILCODE3(dliteMissingMetadataError, "metadata uri (%s) does not correspond to that in storage (%s): %s",
 	  meta->uri, uri, s->location);
 
   /* read dimensions */
@@ -978,7 +978,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
         inst->uri = dlite_join_meta_uri(*name, *version, *namespace);
         dlite_get_uuid(inst->uuid, inst->uri);
       } else {
-        FAILCODE2(dliteValueError, "metadata %s loaded from %s has no name, version and namespace",
+        FAILCODE2(dliteMissingMetadataError, "metadata %s loaded from %s has no name, version and namespace",
              id, s->location);
       }
     }
@@ -1028,7 +1028,7 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   const DLiteMeta *meta;
   size_t i, *dims;
 
-  if (!(meta = inst->meta)) return errx(dliteAttributeError, "no metadata available");
+  if (!(meta = inst->meta)) return errx(dliteMissingMetadataError, "no metadata available");
   if (dlite_instance_sync_to_properties((DLiteInstance *)inst)) goto fail;
 
   /* check if storage implements the instance api */
@@ -1149,7 +1149,7 @@ bool dlite_instance_has_dimension(DLiteInstance *inst, const char *name)
 size_t dlite_instance_get_ndimensions(const DLiteInstance *inst)
 {
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   return inst->meta->_ndimensions;
 }
 
@@ -1160,7 +1160,7 @@ size_t dlite_instance_get_ndimensions(const DLiteInstance *inst)
 size_t dlite_instance_get_nproperties(const DLiteInstance *inst)
 {
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   return inst->meta->_nproperties;
 }
 
@@ -1172,7 +1172,7 @@ size_t dlite_instance_get_dimension_size_by_index(const DLiteInstance *inst,
                                                   size_t i)
 {
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   if (i >= inst->meta->_ndimensions)
     return errx(dliteIndexError, "no dimension with index %d in %s",
                 (int)i, inst->meta->uri);
@@ -1195,7 +1195,7 @@ void *dlite_instance_get_property_by_index(const DLiteInstance *inst, size_t i)
 {
   void *ptr;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available"), NULL;
+    return errx(dliteMissingMetadataError, "no metadata available"), NULL;
   if (i >= inst->meta->_nproperties)
     return errx(dliteIndexError, "index %d exceeds number of properties (%d) in %s",
 		(int)i, (int)inst->meta->_nproperties, inst->meta->uri), NULL;
@@ -1280,7 +1280,7 @@ int dlite_instance_get_property_ndims_by_index(const DLiteInstance *inst,
 {
   const DLiteProperty *p;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
     return -1;
   return p->ndims;
@@ -1294,7 +1294,7 @@ int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
 {
   const DLiteProperty *p;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
     return -1;
   if (j >= (size_t)p->ndims)
@@ -1311,7 +1311,7 @@ size_t *dlite_instance_get_property_dims_by_index(const DLiteInstance *inst,
   size_t *dims;
   const DLiteProperty *p;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available"), NULL;
+    return errx(dliteMissingMetadataError, "no metadata available"), NULL;
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i)))
     return NULL;
   if (dlite_instance_sync_to_dimension_sizes((DLiteInstance *)inst))
@@ -1331,7 +1331,7 @@ int dlite_instance_get_dimension_size(const DLiteInstance *inst,
 {
   int i;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   if ((i = dlite_meta_get_dimension_index(inst->meta, name)) < 0) return -1;
   assert(i < (int)inst->meta->_nproperties);
   return dlite_instance_get_dimension_size_by_index(inst, i);
@@ -1344,7 +1344,7 @@ void *dlite_instance_get_property(const DLiteInstance *inst, const char *name)
 {
   int i;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available"), NULL;
+    return errx(dliteMissingMetadataError, "no metadata available"), NULL;
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return NULL;
   return dlite_instance_get_property_by_index(inst, i);
 }
@@ -1358,7 +1358,7 @@ int dlite_instance_set_property(DLiteInstance *inst, const char *name,
 {
   int i;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return 1;
   return dlite_instance_set_property_by_index(inst, i, ptr);
 }
@@ -1382,7 +1382,7 @@ int dlite_instance_get_property_ndims(const DLiteInstance *inst,
 {
   const DLiteProperty *p;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   if (!(p = dlite_meta_get_property(inst->meta, name)))
     return -1;
   return p->ndims;
@@ -1396,7 +1396,7 @@ size_t dlite_instance_get_property_dimssize(const DLiteInstance *inst,
 {
   int i;
   if (!inst->meta)
-    return errx(dliteAttributeError, "no metadata available");
+    return errx(dliteMissingMetadataError, "no metadata available");
   if ((i = dlite_meta_get_property_index(inst->meta, name)) < 0) return -1;
   return dlite_instance_get_property_dimsize_by_index(inst, i, j);
 }
@@ -2070,11 +2070,11 @@ dlite_meta_create(const char *uri, const char *description,
   if ((e = dlite_instance_get(uri))) {
     DLiteMeta *meta = (DLiteMeta *)e;
     if (!dlite_instance_is_meta(e))
-      FAILCODE1(dliteAttributeError, "cannot create entity \"%s\" since it already exists as a "
+      FAILCODE1(dliteMetadataExistError, "cannot create metadata \"%s\" since it already exists as a "
             "non-metadata instance", uri);
     if (meta->_ndimensions != ndimensions ||
         meta->_nproperties != nproperties)
-      FAILCODE1(dliteAttributeError, "cannot create entity \"%s\" since a different entity already "
+      FAILCODE1(dliteMetadataExistError, "cannot create metadata \"%s\" since a different entity already "
             "exists", uri);
     // TODO: check that dimensions and properties matches
     return meta;
@@ -2283,7 +2283,7 @@ DLiteMeta *dlite_meta_load(const DLiteStorage *s, const char *id)
   DLiteInstance *inst = dlite_instance_load(s, id);
   if (!inst) return NULL;
   if (!dlite_instance_is_meta(inst))
-    return err(dliteValueError, "not metadata: %s (%s)", s->location, id), NULL;
+    return err(dliteTypeError, "not metadata: %s (%s)", s->location, id), NULL;
   return (DLiteMeta *)inst;
 }
 
@@ -2295,7 +2295,7 @@ DLiteMeta *dlite_meta_load_url(const char *url)
 {
   DLiteInstance *inst = dlite_instance_load_url(url);
   if (!dlite_instance_is_meta(inst))
-    return err(dliteValueError, "not metadata: %s", url), NULL;
+    return err(dliteTypeError, "not metadata: %s", url), NULL;
   return (DLiteMeta *)inst;
 }
 
@@ -3048,7 +3048,7 @@ int dlite_metamodel_add_value(DLiteMetaModel *model, const char *name,
   size_t i;
   for (i=0; i < model->nvalues; i++)
     if (strcmp(name, model->values[i].name) == 0)
-      return errx(dliteAttributeError, "Meta model '%s' has already value: %s", model->uri, name);
+      return errx(dliteAttributeError, "Meta model '%s' already has value: %s", model->uri, name);
   return dlite_metamodel_set_value(model, name, value);
 }
 
@@ -3107,7 +3107,7 @@ int dlite_metamodel_add_string(DLiteMetaModel *model, const char *name,
   size_t i;
   for (i=0; i < model->nvalues; i++)
     if (strcmp(name, model->values[i].name) == 0)
-      return errx(dliteAttributeError, "Meta model '%s' has already string: %s",
+      return errx(dliteMetadataExistError, "Meta model '%s' already has string: %s",
                   model->uri, name);
   return dlite_metamodel_set_string(model, name, s);
 }

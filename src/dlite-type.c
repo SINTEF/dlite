@@ -718,18 +718,18 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteBlob:
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dliteIOError, "error printing initial quote for blob");
+        if (v < 0) return err(dliteFormatError, "error printing initial quote for blob");
         m += v;
       }
     for (i=0; i<size; i++) {
       int v = snprintf(dest+m, PDIFF(n, m), "%02x",
                        *((unsigned char *)p+i));
-      if (v < 0) return err(dliteIOError, "error printing blob");
+      if (v < 0) return err(dliteFormatError, "error printing blob");
       m += v;
     }
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dliteIOError, "error printing final quote for blob");
+        if (v < 0) return err(dliteFormatError, "error printing final quote for blob");
         m += v;
       }
     break;
@@ -1095,10 +1095,10 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
       if ((r = jsmn_parse(&parser, src, len, tokens,MAX_DIMENSION_TOKENS)) < 0)
-        return err(dliteIndexError, "cannot parse dimension: %s: '%s'",
+        return err(dliteParseError, "cannot parse dimension: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
-        return errx(dliteValueError, "dimension should be a JSON object");
+        return errx(dliteParseError, "dimension should be a JSON object");
       m = tokens->end - tokens->start;
 
       if (!(t = jsmn_item(src, tokens, "name")))
@@ -1138,11 +1138,11 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       m = tokens->end - tokens->start;
 
       if (!(t = jsmn_item(src, tokens, "name")))
-        return errx(dliteTypeError, "missing property name: '%s'", src);
+        return errx(dliteParseError, "missing property name: '%s'", src);
       prop->name = strndup(src + t->start, t->end - t->start);
 
       if (!(t = jsmn_item(src, tokens, "type")))
-        return errx(dliteTypeError, "missing property type: '%s'", src);
+        return errx(dliteParseError, "missing property type: '%s'", src);
       if (dlite_type_set_dtype_and_size(src + t->start,
                                         &prop->type, &prop->size))
         return -1;
@@ -1152,12 +1152,12 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if ((t = jsmn_item(src, tokens, "dims"))) {
         if (t->type != JSMN_ARRAY)
-          return errx(dliteTypeError, "property dims should be an array");
+          return errx(dliteParseError, "property dims should be an array");
         prop->ndims = t->size;
         prop->dims = calloc(prop->ndims, sizeof(char *));
         for (i=0; i < prop->ndims; i++) {
           if (!(d = jsmn_element(src, t, i)))
-            return err(dliteIndexError, "error parsing property dimensions: %.*s",
+            return err(dliteParseError, "error parsing property dimensions: %.*s",
                        t->end - t->start, src + t->start);
           prop->dims[i] = strndup(src + d->start, d->end - d->start);
         }
@@ -1188,7 +1188,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
       if ((r = jsmn_parse(&parser, src, len, tokens, MAX_RELATION_TOKENS)) < 0)
-        return err(dliteTypeError, "cannot parse relation: %s: '%s'",
+        return err(dliteParseError, "cannot parse relation: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->size < 3 || tokens->size > 4)
         return errx(dliteTypeError, "relation should have 3 (optionally 4) elements");
