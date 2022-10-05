@@ -206,12 +206,13 @@ class PintIdentifiers:
 
     def remove_ambiguities(self):
         #Set ambiguous identifiers to None.
-        used_identifiers = []
+        used_identifiers = {}
         for prio in list(set(self.prios)).sort():
             inds_prio = [i for i,value in enumerate(self.prios) if value==prio]
             for i in inds_prio:
-                if self.identifiers[i] in used_identifiers:
-                    warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]}")
+                if self.identifiers[i] in used_identifiers.keys():
+                    if self.URIs[i] is not used_identifiers[self.identifiers[i]]:
+                        warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]}")
                     self.identifiers[i] = None
                 else:
-                    used_identifiers.append(self.identifiers[i])
+                    used_identifiers[self.identifiers[i]] = self.URIs[i]
