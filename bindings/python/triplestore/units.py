@@ -205,12 +205,18 @@ class PintIdentifiers:
         self.identifiers.append(identifier)
 
     def remove_ambiguities(self):
-        #Set ambiguous identifiers to None.
+        # Set ambiguous identifiers to None.
+
+        # Store used identifiers along with their URI.
         used_identifiers = {}
+
+        # For each priority level, remove any ambiguities.
         for prio in list(set(self.prios)).sort():
             inds_prio = [i for i,value in enumerate(self.prios) if value==prio]
             for i in inds_prio:
+                # Check if the identifier has already been used.
                 if self.identifiers[i] in used_identifiers.keys():
+                    # Warn if this identifier belongs to another URI.
                     if self.URIs[i] is not used_identifiers[self.identifiers[i]]:
                         warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]}")
                     self.identifiers[i] = None
