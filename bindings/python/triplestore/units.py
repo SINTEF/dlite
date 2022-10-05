@@ -189,3 +189,29 @@ def get_pint_registry(force_recreate = False) -> UnitRegistry:
                 f.write(f"{line}\n")
     
     return UnitRegistry(registry_file_path)
+
+
+class PintIdentifiers:
+    def __init__(self):
+        self.URIs = []
+        self.label_names = []
+        self.prios = []
+        self.identifiers = []
+
+    def add_identifier(self, URI: str, label_name: str, prio: int, identifier:str):
+        self.URIs.append(URI)
+        self.label_names.append(label_name)
+        self.prios.append(prio)
+        self.identifiers.append(identifier)
+
+    def remove_ambiguities(self):
+        #Set ambiguous identifiers to None.
+        used_identifiers = []
+        for prio in list(set(self.prios)).sort():
+            inds_prio = [i for i,value in enumerate(self.prios) if value==prio]
+            for i in inds_prio:
+                if self.identifiers[i] in used_identifiers:
+                    warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]}")
+                    self.identifiers[i] = None
+                else:
+                    used_identifiers.append(self.identifiers[i])
