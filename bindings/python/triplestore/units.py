@@ -47,12 +47,12 @@ def pint_definition_string(dimension_dict: dict) -> str:
     }
 
     result = ""
-    for letter in base_units:
+    for letter, unit in base_units.items():
         exponent = dimension_dict[letter]
         if int(dimension_dict[letter]) < 0:
-            result += "/ " + base_units[letter] + "**" + exponent[1:] + " "
+            result += "/ " + unit + "**" + exponent[1:] + " "
         elif int(dimension_dict[letter]) > 0:
-            result += "* " + base_units[letter] + "**" + exponent + " "
+            result += "* " + unit + "**" + exponent + " "
     return result
 
 
