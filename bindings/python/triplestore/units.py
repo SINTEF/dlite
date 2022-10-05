@@ -56,124 +56,122 @@ def pint_definition_string(dimension_dict: dict) -> str:
     return result
 
 
+def pint_registry_lines_from_qudt():
+    ts = load_qudt()
 
-# Test code.
+    QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
+    QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
+    DCTERMS = ts.bind("dcterms", "http://purl.org/dc/terms/")
 
-ts = load_qudt()
+    pint_registry_lines = []
+    used_identifiers = []
 
-QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
-QUDT = ts.bind("unit", "http://qudt.org/schema/qudt/", check=True)
-DCTERMS = ts.bind("dcterms", "http://purl.org/dc/terms/")
+    for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
+        #print(s + " " + o)
 
-pint_registry_lines = []
-used_identifiers = []
+        # Check if this unit has been replaced; then skip it.
+        replaced_by = next(
+            ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None)
+        if replaced_by is not None:
+            continue
 
-for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
-    #print(s + " " + o)
+        # Extract unit name.
+        unit = s.split("/")[-1]
+        unit_name = unit.replace("-", "_")
 
-    # Check if this unit has been replaced; then skip it.
-    replaced_by = next(
-        ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None)
-    if replaced_by is not None:
-        continue
+        # Extract and parse the dimension vector.
+        dimension_vector = o.split("/")[-1]
+        pint_definition = pint_definition_string(parse_qudt_dimension_vector(
+            dimension_vector))
 
-    # Extract unit name.
-    unit = s.split("/")[-1]
-    unit_name = unit.replace("-", "_")
+        # Extract remaining info.
+        multiplier = next(
+            ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
+        offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
+        # Can there be more than one symbol in QUDT?
+        symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
+        labels = ts.objects(subject=s, predicate=RDFS.label)
+        udunits_code = next(
+            ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
 
-    # Extract and parse the dimension vector.
-    dimension_vector = o.split("/")[-1]
-    pint_definition = pint_definition_string(parse_qudt_dimension_vector(
-        dimension_vector))
+        base_unit_dimensions ={
+            "M": "length",
+            "SEC": "time",
+            "A": "current",
+            "CD": "luminosity",
+            "KiloGM": "mass",
+            "MOL": "substance",
+            "K": "temperature", 
+        }
 
-    # Extract remaining info.
-    multiplier = next(
-        ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
-    offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
-    # Can there be more than one symbol in QUDT?
-    symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
-    labels = ts.objects(subject=s, predicate=RDFS.label)
-    udunits_code = next(
-        ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
-
-    base_unit_dimensions ={
-        "M": "length",
-        "SEC": "time",
-        "A": "current",
-        "CD": "luminosity",
-        "KiloGM": "mass",
-        "MOL": "substance",
-        "K": "temperature", 
-    }
-
-    # Start constructing the pint definition line.
-    if unit_name in base_unit_dimensions.keys():
-        pint_definition_line = \
-            f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
-    else:
-        pint_definition_line = f'{unit_name} = {multiplier} {pint_definition}'
-
-    if unit_name in used_identifiers:
-        warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
-        continue
-    else:
-        used_identifiers.append(unit_name)
-        used_identifiers_this_unit = [unit_name]
-
-    # Add offset.
-    if offset is not None:
-        pint_definition_line += f'; offset: {offset}'
-
-    # Add symbol.
-    if symbol != "_":
-        if symbol in used_identifiers_this_unit:
-            # This is OK, but we will not add the symbol since it duplicates
-            # the name.
-            symbol = "_"
-        elif symbol in used_identifiers:
-            # This is a conflict with another unit.
-            warnings.warn(f"Omitting symbol \"{symbol}\" from {s}")
-            symbol = "_"
+        # Start constructing the pint definition line.
+        if unit_name in base_unit_dimensions.keys():
+            pint_definition_line = \
+                f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
         else:
-            # No conflict; add the symbol to this unit.
-            used_identifiers.append(symbol)
-            used_identifiers_this_unit.append(symbol)
+            pint_definition_line = f'{unit_name} = {multiplier} {pint_definition}'
 
-    pint_definition_line += f' = {symbol}'
-
-    # Add any labels.
-    for label in labels:
-        if label in used_identifiers_this_unit:
-            # Conflict within the same unit; do nothing.
-            pass
-        elif label in used_identifiers:
-            # Conflict with another unit.
-            warnings.warn(f"Omitting label \"{label}\" from {s}")
+        if unit_name in used_identifiers:
+            warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
+            continue
         else:
-            # No conflict.
-            pint_definition_line += f' = {label}'
-            used_identifiers.append(label)
-            used_identifiers_this_unit.append(label)
+            used_identifiers.append(unit_name)
+            used_identifiers_this_unit = [unit_name]
 
-    # Add IRI.
-    pint_definition_line += f' = {s}'
+        # Add offset.
+        if offset is not None:
+            pint_definition_line += f'; offset: {offset}'
 
-    # Add udunits code.
-    if udunits_code is not None:
-        if udunits_code in used_identifiers_this_unit:
-            # Conflict within the same unit; do nothing.
-            pass
-        elif udunits_code in used_identifiers:
-            # Conflict with another unit.
-            warnings.warn(f"Omitting UDUNITS code \"{udunits_code}\" from {s}")
-        else:
-            # No conflict.
-            pint_definition_line += f' = {udunits_code}'
-    
-    #print(pint_definition_line)
+        # Add symbol.
+        if symbol != "_":
+            if symbol in used_identifiers_this_unit:
+                # This is OK, but we will not add the symbol since it duplicates
+                # the name.
+                symbol = "_"
+            elif symbol in used_identifiers:
+                # This is a conflict with another unit.
+                warnings.warn(f"Omitting symbol \"{symbol}\" from {s}")
+                symbol = "_"
+            else:
+                # No conflict; add the symbol to this unit.
+                used_identifiers.append(symbol)
+                used_identifiers_this_unit.append(symbol)
 
-    pint_registry_lines.append(pint_definition_line)
+        pint_definition_line += f' = {symbol}'
 
+        # Add any labels.
+        for label in labels:
+            if label in used_identifiers_this_unit:
+                # Conflict within the same unit; do nothing.
+                pass
+            elif label in used_identifiers:
+                # Conflict with another unit.
+                warnings.warn(f"Omitting label \"{label}\" from {s}")
+            else:
+                # No conflict.
+                pint_definition_line += f' = {label}'
+                used_identifiers.append(label)
+                used_identifiers_this_unit.append(label)
+
+        # Add IRI.
+        pint_definition_line += f' = {s}'
+
+        # Add udunits code.
+        if udunits_code is not None:
+            if udunits_code in used_identifiers_this_unit:
+                # Conflict within the same unit; do nothing.
+                pass
+            elif udunits_code in used_identifiers:
+                # Conflict with another unit.
+                warnings.warn(f"Omitting UDUNITS code \"{udunits_code}\" from {s}")
+            else:
+                # No conflict.
+                pint_definition_line += f' = {udunits_code}'
+        
+        #print(pint_definition_line)
+
+        pint_registry_lines.append(pint_definition_line)
+    return pint_registry_lines
 
     # Syntax for pint unit definition with offset:
     # degC = degK; offset: 273.15 = celsius
@@ -184,6 +182,9 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
     # second = [time] = s = sec
     # Prefixes:
     # yocto- = 10.0**-24 = y-
+
+# Test code.
+pint_registry_lines = pint_registry_lines_from_qudt()
 
 print(f'Number of registry lines = {len(pint_registry_lines)}')
 
