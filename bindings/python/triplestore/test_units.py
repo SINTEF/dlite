@@ -1,30 +1,7 @@
 from units import pint_registry_lines_from_qudt, prepare_cache_file_path, get_pint_registry
 from pint import UnitRegistry, Quantity
 
-# pint_registry_lines = pint_registry_lines_from_qudt()
 
-# print(f'Number of registry lines = {len(pint_registry_lines)}')
-
-# Print pint registry definition to file.
-# registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
-# with open(registry_file_path, "w") as f:
-#     for line in pint_registry_lines:
-#         f.write(f"{line}\n")
-
-# Populate an empty pint registry.
-#ureg = UnitRegistry(None)
-#for line in pint_registry_lines:
-#    ureg.define(line)
-
-# for i in range(0, 1751):
-#     print("Line number: " + str(i))
-#     print(pint_registry_lines[i])
-#     with open("test_output.txt", "w") as f:
-#         for line in pint_registry_lines[0:i]:
-#             f.write(f"{line}\n")
-#     ureg = UnitRegistry("test_output.txt")
-
-#ureg = UnitRegistry(registry_file_path)
 ureg = get_pint_registry(force_recreate=True)
 
 # Test the registry.
