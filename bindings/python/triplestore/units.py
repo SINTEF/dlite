@@ -173,15 +173,6 @@ def pint_registry_lines_from_qudt():
         pint_registry_lines.append(pint_definition_line)
     return pint_registry_lines
 
-    # Syntax for pint unit definition with offset:
-    # degC = degK; offset: 273.15 = celsius
-
-    # General pint syntax:
-    # millennium = 1e3 * year = _ = millennia (_ can be exchanged for a symbol)
-    # Reference units and physical dimension:
-    # second = [time] = s = sec
-    # Prefixes:
-    # yocto- = 10.0**-24 = y-
 
 # Test code.
 pint_registry_lines = pint_registry_lines_from_qudt()
