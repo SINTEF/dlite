@@ -8,6 +8,8 @@ from pint import UnitRegistry, Quantity
 import re
 from triplestore import Triplestore, RDFS
 import warnings
+from appdirs import user_cache_dir
+import os
 
 def load_qudt():
     ts = Triplestore(name="rdflib")
@@ -186,7 +188,11 @@ for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
 print(f'Number of registry lines = {len(pint_registry_lines)}')
 
 # Print pint registry definition to file.
-with open("test_output.txt", "w") as f:
+cache_directory = user_cache_dir("dlite", "SINTEF")
+if not os.path.exists(cache_directory):
+    os.mkdir(cache_directory)
+registry_file_path = os.path.join(cache_directory, "pint_unit_registry.txt")
+with open(registry_file_path, "w") as f:
     for line in pint_registry_lines:
         f.write(f"{line}\n")
 
@@ -203,7 +209,7 @@ with open("test_output.txt", "w") as f:
 #             f.write(f"{line}\n")
 #     ureg = UnitRegistry("test_output.txt")
 
-ureg = UnitRegistry("test_output.txt")
+ureg = UnitRegistry(registry_file_path)
 
 # Test the registry.
 test_quantity1 = 1234 * ureg.M
