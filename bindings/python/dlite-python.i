@@ -27,6 +27,7 @@
 
   /* forward declarations */
   static PyObject *DLiteError = NULL;
+  static PyObject *DLiteVerifyError = NULL;
   char *strndup(const char *s, size_t n);
 %}
 
@@ -62,10 +63,18 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 %init %{
   Py_Initialize();  /* should already be called, but just in case... */
   import_array();  /* Initialize numpy */
+
   DLiteError = PyErr_NewExceptionWithDoc(
     "dlite.DLiteError",                      // name
     "Base exception for the dlite module.",  // doc
     NULL,                                    // base
+    NULL                                     // dict
+  );
+
+  DLiteVerifyError = PyErr_NewExceptionWithDoc(
+    "dlite.DLiteVerifyError",                // name
+    "Object cannot be verified.",            // doc
+    DLiteError,                              // base
     NULL                                     // dict
   );
 %}
@@ -85,6 +94,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 
 PyObject *_get_DLiteError(void) {
   return DLiteError;
+}
+PyObject *_get_DLiteVerifyError(void) {
+  return DLiteVerifyError;
 }
 
 /* Free's array of allocated strings. */
@@ -1328,10 +1340,11 @@ PyObject *dlite_python_mapping_base(void);
  * Expose generic api
  * ------------------ */
 PyObject *_get_DLiteError(void);
-
+PyObject *_get_DLiteVerifyError(void);
 
 %pythoncode %{
   DLiteError = _dlite._get_DLiteError()
+  DLiteVerifyError = _dlite._get_DLiteVerifyError()
   DLiteStorageBase = _dlite._get_storage_base()
   DLiteMappingBase = _dlite._get_mapping_base()
 %}

@@ -45,6 +45,8 @@ if(DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/doc/mappings.md
     ${dlite_SOURCE_DIR}/doc/storage_plugins.md
     ${dlite_SOURCE_DIR}/doc/tools.md
+    ${dlite_SOURCE_DIR}/doc/transactions.md
+    ${dlite_SOURCE_DIR}/doc/figs/transactions.png
 
     ${dlite_SOURCE_DIR}/src/dlite.h
     ${dlite_SOURCE_DIR}/src/dlite-arrays.h
@@ -113,6 +115,11 @@ if(DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND}
       -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
          html/SOFT-metadata-structure.png
+    COMMAND ${CMAKE_COMMAND}
+      -E make_directory html/figs
+    COMMAND ${CMAKE_COMMAND}
+      -E copy ${dlite_SOURCE_DIR}/doc/figs/transactions.png
+         html/figs/transactions.png
     COMMAND ${CMAKE_COMMAND}
       -E make_directory html/python-storage-plugins
     COMMAND ${CMAKE_COMMAND}

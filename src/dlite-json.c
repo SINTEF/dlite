@@ -74,6 +74,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
   int n=0, ok=0, m, j;
   size_t i;
   char *in = malloc(indent + 1);
+  char *prop_comma = (inst->_parent && !(flags & dliteJsonNoParent)) ? "," : "";
   memset(in, ' ', indent);
   in[indent] = '\0';
 
@@ -109,7 +110,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       n += m;
       PRINT1("%s\n", c);
     }
-    PRINT1("%s  }\n", in);
+    PRINT2("%s  }%s\n", in, prop_comma);
 
   } else if (flags & dliteJsonArrays) {  // metadata: soft5 format
     DLiteMeta *met = (DLiteMeta *)inst;
@@ -163,7 +164,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         DLiteRelation *r = met->_relations + i;
         PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
       }
-      PRINT1("%s  ]\n", in);
+      PRINT2("%s  ]%s\n", in, prop_comma);
     }
 
   } else {  // metadata: soft7 format
@@ -214,9 +215,21 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         DLiteRelation *r = met->_relations + i;
         PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
       }
-      PRINT1("%s  ]\n", in);
+      PRINT2("%s  ]%s\n", in, prop_comma);
     }
   }
+
+  if (inst->_parent && !(flags & dliteJsonNoParent)) {
+    char hex[DLITE_HASH_SIZE*2 + 1];
+    if (strhex_encode(hex, sizeof(hex),
+                      inst->_parent->hash, DLITE_HASH_SIZE) < 0)
+      FAIL1("cannot encode hash of parent: %s", inst->_parent->uuid);
+    PRINT1("%s  \"parent\": {\n", in);
+    PRINT2("%s    \"uuid\": \"%s\",\n", in, inst->_parent->uuid);
+    PRINT2("%s    \"hash\": \"%s\"\n", in, hex);
+    PRINT1("%s  }\n", in);
+  }
+
   PRINT1("%s}", in);
 
   ok = 1;
