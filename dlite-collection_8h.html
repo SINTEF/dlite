@@ -103,6 +103,8 @@ Functions</h2></td></tr>
 <tr class="separator:a56d95030d78f7fac3ae7d8643cb12838"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a380df189ebb1e5d16fc067433fde9460"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#a380df189ebb1e5d16fc067433fde9460">dlite_collection_deinit</a> (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
 <tr class="separator:a380df189ebb1e5d16fc067433fde9460"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a876fd337c3b205bfbf47a5812749e894"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#a876fd337c3b205bfbf47a5812749e894">dlite_collection_gethash</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, uint8_t *hash, int hashsize)</td></tr>
+<tr class="separator:a876fd337c3b205bfbf47a5812749e894"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f1059bdbe5537c1e02c994a635cc7e9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#a2f1059bdbe5537c1e02c994a635cc7e9">dlite_collection_getdim</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, size_t i)</td></tr>
 <tr class="separator:a2f1059bdbe5537c1e02c994a635cc7e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa165c976d3b6623153a8dc52ff797477"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-collection_8h.html#aa165c976d3b6623153a8dc52ff797477">dlite_collection_loadprop</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, size_t i)</td></tr>
@@ -176,10 +178,12 @@ Functions</h2></td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">label </td><td class="markdownTableBodyNone">"_has-meta" </td><td class="markdownTableBodyNone">metadata uri  </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">label </td><td class="markdownTableBodyNone">"_has-dimmap" </td><td class="markdownTableBodyNone">relation-id -&gt; (instdim, "_maps-to", coldim)  </td></tr>
+<td class="markdownTableBodyNone">label </td><td class="markdownTableBodyNone">"_has-hash" </td><td class="markdownTableBodyNone">hash of instance  </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">instdim </td><td class="markdownTableBodyNone">"_maps-to" </td><td class="markdownTableBodyNone">colldim  </td></tr>
+<td class="markdownTableBodyNone">label </td><td class="markdownTableBodyNone">"_has-dimmap" </td><td class="markdownTableBodyNone">relation-id -&gt; (instdim, "_maps-to", coldim)  </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">instdim </td><td class="markdownTableBodyNone">"_maps-to" </td><td class="markdownTableBodyNone">colldim  </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">coldim </td><td class="markdownTableBodyNone">"_has-size" </td><td class="markdownTableBodyNone">size  </td></tr>
 </table>
 <p>The "_has-dimmap" relations links an instance label to a "_maps-to" relation that maps a dimension in the instance (<code>instdim</code>) to a common dimension in the collection (<code>colldim</code>).</p>
@@ -252,6 +256,42 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Deinitiates a collection instance.</p>
+<p>Returns non-zero on error. </p>
+
+</div>
+</div>
+<a id="a876fd337c3b205bfbf47a5812749e894"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a876fd337c3b205bfbf47a5812749e894">&#9670;&nbsp;</a></span>dlite_collection_gethash()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_collection_gethash </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>hash</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>hashsize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Calculate hash of a collection.</p>
 <p>Returns non-zero on error. </p>
 
 </div>

@@ -79,6 +79,7 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &quot;utils/boolean.h&quot;</code><br />
+<code>#include &quot;utils/integers.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="jsmnx_8h_source.html">utils/jsmnx.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="dlite-misc_8h_source.html">dlite-misc.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="dlite-type_8h_source.html">dlite-type.h</a>&quot;</code><br />
@@ -89,6 +90,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__DLiteParent.html">_DLiteParent</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__DLiteInstance.html">_DLiteInstance</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__DLiteDimension.html">_DLiteDimension</a></td></tr>
@@ -264,6 +267,33 @@ Functions</h2></td></tr>
 <tr class="separator:a4d5476f915ea475f0197025e78539a15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d75d6f71fe48ea8a9511a8f3febd40e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a3d75d6f71fe48ea8a9511a8f3febd40e">dlite_instance_get_hash</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, unsigned char *hash, int hashsize)</td></tr>
 <tr class="separator:a3d75d6f71fe48ea8a9511a8f3febd40e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Transactions</div></td></tr>
+<tr class="memitem:a00912bf7d0b4f4b8676f311bc6e05d4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a00912bf7d0b4f4b8676f311bc6e05d4c">dlite_instance_freeze</a> (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="separator:a00912bf7d0b4f4b8676f311bc6e05d4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15d321fa3de2827c5ec9240d0f43d7a1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a15d321fa3de2827c5ec9240d0f43d7a1">dlite_instance_is_frozen</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="separator:a15d321fa3de2827c5ec9240d0f43d7a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99cf3b96dc5c6d80f72f6e8950cbd9d9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a99cf3b96dc5c6d80f72f6e8950cbd9d9">dlite_instance_snapshot</a> (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="separator:a99cf3b96dc5c6d80f72f6e8950cbd9d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8e8ca7e95e921821851ef5779a5e5fc"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#ab8e8ca7e95e921821851ef5779a5e5fc">dlite_instance_get_snapshot</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, int n)</td></tr>
+<tr class="separator:ab8e8ca7e95e921821851ef5779a5e5fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98482c62135e52010de2c8d87adc5720"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a98482c62135e52010de2c8d87adc5720">dlite_instance_pull_snapshot</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s, int n)</td></tr>
+<tr class="separator:a98482c62135e52010de2c8d87adc5720"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3ffc32afec9d82a59b237bfffbffffb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#ae3ffc32afec9d82a59b237bfffbffffb">dlite_instance_push_snapshot</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, <a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *s, int n)</td></tr>
+<tr class="separator:ae3ffc32afec9d82a59b237bfffbffffb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e9243101f2530731bbe1ced55e1b9be"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a3e9243101f2530731bbe1ced55e1b9be">dlite_instance_print_transaction</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="separator:a3e9243101f2530731bbe1ced55e1b9be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a415dffa953d659564c385e2869240826"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a415dffa953d659564c385e2869240826">dlite_instance_set_parent</a> (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *parent)</td></tr>
+<tr class="separator:a415dffa953d659564c385e2869240826"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ca23b9f595f7f8441d7f9cd38c41e4b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a0ca23b9f595f7f8441d7f9cd38c41e4b">dlite_instance_has_parent</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="memdesc:a0ca23b9f595f7f8441d7f9cd38c41e4b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><ul>
+<li></li>
+</ul>
+ <a href="dlite-entity_8h.html#a0ca23b9f595f7f8441d7f9cd38c41e4b">More...</a><br /></td></tr>
+<tr class="separator:a0ca23b9f595f7f8441d7f9cd38c41e4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27e612364a87dd86925eb6e11d33e431"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a27e612364a87dd86925eb6e11d33e431">dlite_instance_verify_hash</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, uint8_t *hash, int recursive)</td></tr>
+<tr class="separator:a27e612364a87dd86925eb6e11d33e431"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8387140531a0e137de9d43f4014407c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#ad8387140531a0e137de9d43f4014407c">dlite_instance_verify_transaction</a> (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst)</td></tr>
+<tr class="separator:ad8387140531a0e137de9d43f4014407c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Metadata API</div></td></tr>
 <tr class="memitem:abf180d9a95871d8740b3fe107a8a99d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="dlite-entity_8h.html#a8838138e002ccadba20cd2c09d50081e">DLiteMeta</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#abf180d9a95871d8740b3fe107a8a99d6">dlite_meta_create</a> (const char *uri, const char *description, size_t ndimensions, const <a class="el" href="struct__DLiteDimension.html">DLiteDimension</a> *dimensions, size_t nproperties, const <a class="el" href="struct__DLiteProperty.html">DLiteProperty</a> *properties)</td></tr>
 <tr class="separator:abf180d9a95871d8740b3fe107a8a99d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -357,14 +387,21 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 Typedefs and structs</h2></td></tr>
+<tr class="memitem:a6ee03b72f9fa65071dfd72ac869c9ca6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a6ee03b72f9fa65071dfd72ac869c9ca6">DLITE_HASH_SIZE</a>&#160;&#160;&#160;32</td></tr>
+<tr class="separator:a6ee03b72f9fa65071dfd72ac869c9ca6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaff84b8f2539b16a2b6ae5503370b2e2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#aaff84b8f2539b16a2b6ae5503370b2e2">DLiteInstance_HEAD</a></td></tr>
 <tr class="separator:aaff84b8f2539b16a2b6ae5503370b2e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0976465310ed162377a192e772cc173"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#ab0976465310ed162377a192e772cc173">DLiteMeta_HEAD</a></td></tr>
 <tr class="separator:ab0976465310ed162377a192e772cc173"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f1738f1aa953a5dc7bc237857559af3"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a1f1738f1aa953a5dc7bc237857559af3">_DLiteFlag</a> { <a class="el" href="dlite-entity_8h.html#a1f1738f1aa953a5dc7bc237857559af3a896b48ecb2a67cb97e321556d8e49ee7">dliteImmutable</a> =1
+ }</td></tr>
+<tr class="separator:a1f1738f1aa953a5dc7bc237857559af3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fd6f2bfb668a22f514ed13795cc040e"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a4fd6f2bfb668a22f514ed13795cc040e">DLiteInit</a>) (struct <a class="el" href="struct__DLiteInstance.html">_DLiteInstance</a> *inst)</td></tr>
 <tr class="separator:a4fd6f2bfb668a22f514ed13795cc040e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e60f6c0da988fbeef4f23215064ccdb"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a5e60f6c0da988fbeef4f23215064ccdb">DLiteDeInit</a>) (struct <a class="el" href="struct__DLiteInstance.html">_DLiteInstance</a> *inst)</td></tr>
 <tr class="separator:a5e60f6c0da988fbeef4f23215064ccdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6607d5a7ea6338591659c0738804ab7"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#aa6607d5a7ea6338591659c0738804ab7">DLiteGetHash</a>) (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, unsigned char *hash, int hashsize)</td></tr>
+<tr class="separator:aa6607d5a7ea6338591659c0738804ab7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1e9ed25a11638779df60fc92689418b"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#af1e9ed25a11638779df60fc92689418b">DLiteGetDimension</a>) (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, size_t i)</td></tr>
 <tr class="separator:af1e9ed25a11638779df60fc92689418b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44bed87f6d1df2978d4fbef7d2bd3e56"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a44bed87f6d1df2978d4fbef7d2bd3e56">DLiteSetDimension</a>) (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, size_t i, size_t value)</td></tr>
@@ -373,6 +410,10 @@ Typedefs and structs</h2></td></tr>
 <tr class="separator:a5c05c4acdda82af58012d9f4a99d8925"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0565f0d706c465f80e89bdcdb2598c45"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a0565f0d706c465f80e89bdcdb2598c45">DLiteSaveProperty</a>) (<a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, size_t i)</td></tr>
 <tr class="separator:a0565f0d706c465f80e89bdcdb2598c45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7c7215aac1b9a74f8688aae4dd059cb"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="dlite-entity_8h.html#a1f1738f1aa953a5dc7bc237857559af3">_DLiteFlag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#aa7c7215aac1b9a74f8688aae4dd059cb">DLiteFlag</a></td></tr>
+<tr class="separator:aa7c7215aac1b9a74f8688aae4dd059cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98d79dfff8411ddeacf427d1a7f0c6ee"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct__DLiteParent.html">_DLiteParent</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a98d79dfff8411ddeacf427d1a7f0c6ee">DLiteParent</a></td></tr>
+<tr class="separator:a98d79dfff8411ddeacf427d1a7f0c6ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8838138e002ccadba20cd2c09d50081e"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct__DLiteMeta.html">_DLiteMeta</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a8838138e002ccadba20cd2c09d50081e">DLiteMeta</a></td></tr>
 <tr class="separator:a8838138e002ccadba20cd2c09d50081e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d1f7faa9fafa8ddaceabf8c29fe9ebc"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct__DLiteMetaModel.html">_DLiteMetaModel</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-entity_8h.html#a2d1f7faa9fafa8ddaceabf8c29fe9ebc">DLiteMetaModel</a></td></tr>
@@ -435,6 +476,21 @@ Typedefs and structs</h2></td></tr>
 <p>Memory offset of each property of its instances. Don't access this array directly, use the <a class="el" href="dlite-entity_8h.html#ad3af76bea5a080ff45f5cef03253c3a9">DLITE_PROP()</a> macro instead. Note that only metadata instances has this segment.</p>
 <p>Note that the allocated size of data instances are fully defined by their metadata. However, this is not true for metadata since it depends on <code>nproperties</code> - the number of properties it defines. Use the <a class="el" href="dlite-entity_8h.html#a6cc9497ddc7433dff19c53e8540d2515">DLITE_INSTANCE_SIZE()</a> macro to get the allocated size of an instance. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a6ee03b72f9fa65071dfd72ac869c9ca6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ee03b72f9fa65071dfd72ac869c9ca6">&#9670;&nbsp;</a></span>DLITE_HASH_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DLITE_HASH_SIZE&#160;&#160;&#160;32</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The size in bytes of sha3 hash used by transactions. Should be 32, 48 or 64. </p>
+
+</div>
+</div>
 <a id="aaff84b8f2539b16a2b6ae5503370b2e2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aaff84b8f2539b16a2b6ae5503370b2e2">&#9670;&nbsp;</a></span>DLiteInstance_HEAD</h2>
 
@@ -447,12 +503,15 @@ Typedefs and structs</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">  <span class="keywordtype">char</span> uuid[<a class="code" href="dlite-misc_8h.html#ad9ad8674f748ec1caa8ffd53384d5ffd">DLITE_UUID_LENGTH</a>+1]; <span class="comment">/* UUID for this instance. */</span>         \</div>
+<div class="line">  uint8_t _flags;                 <span class="comment">/* OR&#39;ed sum of DLiteFlag. */</span>         \</div>
 <div class="line">  const <span class="keywordtype">char</span> *uri;                <span class="comment">/* Unique uri for this instance. */</span>   \</div>
 <div class="line">                                  <span class="comment">/* May be NULL. */</span>                    \</div>
 <div class="line">  int _refcount;                  <span class="comment">/* Number of references to this */</span>    \</div>
 <div class="line">                                  <span class="comment">/* instance. */</span>                       \</div>
 <div class="line">  const <span class="keyword">struct </span><a class="code" href="struct__DLiteMeta.html">_DLiteMeta</a> *meta;  <span class="comment">/* Pointer to the metadata descri- */</span> \</div>
-<div class="line">                                  <span class="comment">/* bing this instance. */</span></div>
+<div class="line">                                  <span class="comment">/* bing this instance. */</span>             \</div>
+<div class="line">  DLiteParent *_parent;           <span class="comment">/* For transactions, reference to */</span>  \</div>
+<div class="line">                                  <span class="comment">/* parent instance. May be NULL. */</span></div>
 </div><!-- fragment --><p>Initial segment of all DLite instances. </p>
 
 </div>
@@ -964,6 +1023,21 @@ Typedefs and structs</h2></td></tr>
 
 </div>
 </div>
+<a id="aa6607d5a7ea6338591659c0738804ab7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6607d5a7ea6338591659c0738804ab7">&#9670;&nbsp;</a></span>DLiteGetHash</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef int(* DLiteGetHash) (const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *inst, unsigned char *hash, int hashsize)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Function used by extended metadata to replace the standard hash calculation in <a class="el" href="dlite-entity_8h.html#a3d75d6f71fe48ea8a9511a8f3febd40e">dlite_instance_get_hash()</a>. The calculated hash is stored in <code>hash</code>, where <code>hashsize</code> is the size of <code>hash</code> in bytes. It should be 32, 48 or 64. Returns non-zero on error. </p>
+
+</div>
+</div>
 <a id="af1e9ed25a11638779df60fc92689418b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af1e9ed25a11638779df60fc92689418b">&#9670;&nbsp;</a></span>DLiteGetDimension</h2>
 
@@ -1024,6 +1098,36 @@ Typedefs and structs</h2></td></tr>
 
 </div>
 </div>
+<a id="aa7c7215aac1b9a74f8688aae4dd059cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7c7215aac1b9a74f8688aae4dd059cb">&#9670;&nbsp;</a></span>DLiteFlag</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="dlite-entity_8h.html#a1f1738f1aa953a5dc7bc237857559af3">_DLiteFlag</a> <a class="el" href="dlite-entity_8h.html#aa7c7215aac1b9a74f8688aae4dd059cb">DLiteFlag</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Flags for describing the state of an instance. This should be as minimalistic as possible, but a flag for immutability is needed. </p>
+
+</div>
+</div>
+<a id="a98d79dfff8411ddeacf427d1a7f0c6ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98d79dfff8411ddeacf427d1a7f0c6ee">&#9670;&nbsp;</a></span>DLiteParent</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct__DLiteParent.html">_DLiteParent</a> <a class="el" href="dlite-entity_8h.html#a98d79dfff8411ddeacf427d1a7f0c6ee">DLiteParent</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Reference to parent instance. Used by transactions. </p>
+
+</div>
+</div>
 <a id="a8838138e002ccadba20cd2c09d50081e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8838138e002ccadba20cd2c09d50081e">&#9670;&nbsp;</a></span>DLiteMeta</h2>
 
@@ -1052,6 +1156,26 @@ Typedefs and structs</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Opaque datatype used for metadata models. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a1f1738f1aa953a5dc7bc237857559af3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f1738f1aa953a5dc7bc237857559af3">&#9670;&nbsp;</a></span>_DLiteFlag</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="dlite-entity_8h.html#a1f1738f1aa953a5dc7bc237857559af3">_DLiteFlag</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Flags for describing the state of an instance. This should be as minimalistic as possible, but a flag for immutability is needed. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a1f1738f1aa953a5dc7bc237857559af3a896b48ecb2a67cb97e321556d8e49ee7"></a>dliteImmutable&#160;</td><td class="fielddoc"><p>Whether instance is immutable. </p>
+</td></tr>
+</table>
 
 </div>
 </div>
@@ -3053,6 +3177,310 @@ Typedefs and structs</h2></td></tr>
 
 </div>
 </div>
+<a id="a00912bf7d0b4f4b8676f311bc6e05d4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00912bf7d0b4f4b8676f311bc6e05d4c">&#9670;&nbsp;</a></span>dlite_instance_freeze()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void dlite_instance_freeze </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Make instance immutable. This can never be reverted.</p>
+<p>Note** Immutability of the underlying data cannot be enforced in C as long as the someone has a pointer to the instance. However, functions like <a class="el" href="dlite-entity_8h.html#a24345db45a5016d3544360778638444a">dlite_instance_set_property()</a> and <a class="el" href="dlite-entity_8h.html#a1cc1bdf5d74b4727b4c6740813e60505">dlite_instance_set_dimension_size()</a> will refuse to change the instance if it is immutable. Furthermore, if the instance is used as a parent in a transaction, any changes to the underlying data will be detected by calling <a class="el" href="dlite-entity_8h.html#ad8387140531a0e137de9d43f4014407c">dlite_instance_verify_transaction()</a>. </p>
+
+</div>
+</div>
+<a id="a15d321fa3de2827c5ec9240d0f43d7a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15d321fa3de2827c5ec9240d0f43d7a1">&#9670;&nbsp;</a></span>dlite_instance_is_frozen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_is_frozen </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns non-zero if instance is immutable (frozen). </p>
+
+</div>
+</div>
+<a id="a99cf3b96dc5c6d80f72f6e8950cbd9d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99cf3b96dc5c6d80f72f6e8950cbd9d9">&#9670;&nbsp;</a></span>dlite_instance_snapshot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_snapshot </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Make a snapshop of mutable instance <code>inst</code>.</p>
+<p>The <code>inst</code> will be a transaction whos parent is the snapshot. If <code>inst</code> already has a parent, that will now be the parent of the snapshot.</p>
+<p>The reason that <code>inst</code> must be mutable, is that its hash will change due to change in its parent.</p>
+<p>The snapshot will be assigned an URI of the form "snapshot-XXXXXXXXXXXX" (or inst-&gt;uri::snapshot-XXXXXXXXXXXX if inst-&gt;uri is not NULL) where each X is replaces with a random character.</p>
+<p>On error non-zero is returned and <code>inst</code> is unchanged. </p>
+
+</div>
+</div>
+<a id="ab8e8ca7e95e921821851ef5779a5e5fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8e8ca7e95e921821851ef5779a5e5fc">&#9670;&nbsp;</a></span>dlite_instance_get_snapshot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a>* dlite_instance_get_snapshot </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns a borrowed reference to shapshot number <code>n</code> of <code>inst</code>, where <code>n</code> counts backward from <code>inst</code>. Hence, <code>n=0</code> returns <code>inst</code>, <code>n=1</code> returns the parent of <code>inst</code>, etc...</p>
+<p>Snapshots may be pulled back into memory using <a class="el" href="dlite-entity_8h.html#acd671a3f990fde29c7853f08110c989c">dlite_instance_get()</a>. Use dlite_instance_pull() if you know the storage that the snapshots are stored in.</p>
+<p>Returns NULL on error. </p>
+
+</div>
+</div>
+<a id="a98482c62135e52010de2c8d87adc5720"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98482c62135e52010de2c8d87adc5720">&#9670;&nbsp;</a></span>dlite_instance_pull_snapshot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a>* dlite_instance_pull_snapshot </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Like <a class="el" href="dlite-entity_8h.html#ab8e8ca7e95e921821851ef5779a5e5fc">dlite_instance_get_snapshot()</a>, except that stored snapshots are pulled from <code>s</code> to memory.</p>
+<p>Returns a borrowed reference to snapshot <code>n</code> or NULL on error. </p>
+
+</div>
+</div>
+<a id="ae3ffc32afec9d82a59b237bfffbffffb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3ffc32afec9d82a59b237bfffbffffb">&#9670;&nbsp;</a></span>dlite_instance_push_snapshot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_push_snapshot </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a7c9b8b202fbafe0f8794f1dd3e758a32">DLiteStorage</a> *&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Push all ancestors of snapshot <code>n</code> from memory to storage <code>s</code>, where <code>n=0</code> corresponds to <code>inst</code>, <code>n=1</code> to the parent of <code>inst</code>, etc...</p>
+<p>No snapshot is pulled back from storage, so if the snapshots are already in storage, this function has no effect.</p>
+<p>This function starts pushing closest to the root to ensure that the transaction is in a consistent state at all times.</p>
+<p>Returns zero on success or the (positive) index of the snapshot that fails to push. </p>
+
+</div>
+</div>
+<a id="a3e9243101f2530731bbe1ced55e1b9be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e9243101f2530731bbe1ced55e1b9be">&#9670;&nbsp;</a></span>dlite_instance_print_transaction()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_print_transaction </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Prints transaction to stdout. Returns non-zero on error. </p>
+
+</div>
+</div>
+<a id="a415dffa953d659564c385e2869240826"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a415dffa953d659564c385e2869240826">&#9670;&nbsp;</a></span>dlite_instance_set_parent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_set_parent </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>parent</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Turn instance <code>inst</code> into a transaction node with parent <code>parent</code>.</p>
+<p>This require that <code>inst</code> is mutable, and <code>parent</code> is immutable.</p>
+<p>If <code>inst</code> already has a parent, it will be replaced.</p>
+<p>Use <a class="el" href="dlite-entity_8h.html#a00912bf7d0b4f4b8676f311bc6e05d4c">dlite_instance_freeze()</a> and <a class="el" href="dlite-entity_8h.html#a15d321fa3de2827c5ec9240d0f43d7a1">dlite_instance_is_frozen()</a> to make and check that an instance is immutable, respectively.</p>
+<p>Returns non-zero on error. </p>
+
+</div>
+</div>
+<a id="a0ca23b9f595f7f8441d7f9cd38c41e4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ca23b9f595f7f8441d7f9cd38c41e4b">&#9670;&nbsp;</a></span>dlite_instance_has_parent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_has_parent </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><ul>
+<li></li>
+</ul>
+</p>
+<p>Returns non-zero if <code>inst</code> has a parent. </p>
+
+</div>
+</div>
+<a id="a27e612364a87dd86925eb6e11d33e431"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27e612364a87dd86925eb6e11d33e431">&#9670;&nbsp;</a></span>dlite_instance_verify_hash()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_verify_hash </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>hash</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>recursive</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Verify that the hash of instance <code>inst</code>.</p>
+<p>If <code>hash</code> is not NULL, this function verifies that the hash of <code>inst</code> corresponds to the memory pointed to by <code>hash</code>. The size of the memory should be <code>DLITE_HASH_SIZE</code> bytes.</p>
+<p>If <code>hash</code> is NULL and <code>inst</code> has a parent, this function will instead verify that the parent hash stored in <code>inst</code> corresponds to the value of the parent.</p>
+<p>If <code>recursive</code> is non-zero, all ancestors of <code>inst</code> are also included in the verification.</p>
+<p>Returns zero if the hash is valid. Otherwise non-zero is returned and an error message is issued.</p>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Todo:</a></b></dt><dd>If <code>recursive</code> is non-zero and <code>inst</code> is a collection or has properties of type <code>dliteRef</code>, we should also verify the instances that are referred to. This is currently not implemented, because we have to detect cyclic references to avoid infinite recursion. </dd></dl>
+
+</div>
+</div>
+<a id="ad8387140531a0e137de9d43f4014407c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8387140531a0e137de9d43f4014407c">&#9670;&nbsp;</a></span>dlite_instance_verify_transaction()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int dlite_instance_verify_transaction </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="dlite-storage_8h.html#a4d4dc51de5d766bd65b72c21a3492b71">DLiteInstance</a> *&#160;</td>
+          <td class="paramname"><em>inst</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Verifies a transaction.</p>
+<p>Equivalent to calling <code>dlite_instance_very_hash(inst, NULL, 1)</code>.</p>
+<p>Returns zero if the hash is valid. Otherwise non-zero is returned and an error message is issued. </p>
+
+</div>
+</div>
 <a id="abf180d9a95871d8740b3fe107a8a99d6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abf180d9a95871d8740b3fe107a8a99d6">&#9670;&nbsp;</a></span>dlite_meta_create()</h2>
 
@@ -4422,10 +4850,10 @@ Typedefs and structs</h2></td></tr>
 </div>
 </div><!-- contents -->
 <div class="ttc" id="adlite-misc_8h_html_ad9ad8674f748ec1caa8ffd53384d5ffd"><div class="ttname"><a href="dlite-misc_8h.html#ad9ad8674f748ec1caa8ffd53384d5ffd">DLITE_UUID_LENGTH</a></div><div class="ttdeci">#define DLITE_UUID_LENGTH</div><div class="ttdef"><b>Definition:</b> dlite-misc.h:13</div></div>
-<div class="ttc" id="astruct__DLiteMeta_html"><div class="ttname"><a href="struct__DLiteMeta.html">_DLiteMeta</a></div><div class="ttdef"><b>Definition:</b> dlite-entity.h:291</div></div>
+<div class="ttc" id="astruct__DLiteMeta_html"><div class="ttname"><a href="struct__DLiteMeta.html">_DLiteMeta</a></div><div class="ttdef"><b>Definition:</b> dlite-entity.h:323</div></div>
 <div class="ttc" id="astruct__Triple_html"><div class="ttname"><a href="struct__Triple.html">_Triple</a></div><div class="ttdef"><b>Definition:</b> triple.h:20</div></div>
-<div class="ttc" id="astruct__DLiteInstance_html"><div class="ttname"><a href="struct__DLiteInstance.html">_DLiteInstance</a></div><div class="ttdef"><b>Definition:</b> dlite-entity.h:254</div></div>
-<div class="ttc" id="adlite-entity_8h_html_a4fd0ef55d309b383c33e452557c6f5cb"><div class="ttname"><a href="dlite-entity_8h.html#a4fd0ef55d309b383c33e452557c6f5cb">dlite_instance_is_data</a></div><div class="ttdeci">int dlite_instance_is_data(const DLiteInstance *inst)</div><div class="ttdef"><b>Definition:</b> dlite-entity.c:1407</div></div>
+<div class="ttc" id="astruct__DLiteInstance_html"><div class="ttname"><a href="struct__DLiteInstance.html">_DLiteInstance</a></div><div class="ttdef"><b>Definition:</b> dlite-entity.h:286</div></div>
+<div class="ttc" id="adlite-entity_8h_html_a4fd0ef55d309b383c33e452557c6f5cb"><div class="ttname"><a href="dlite-entity_8h.html#a4fd0ef55d309b383c33e452557c6f5cb">dlite_instance_is_data</a></div><div class="ttdeci">int dlite_instance_is_data(const DLiteInstance *inst)</div><div class="ttdef"><b>Definition:</b> dlite-entity.c:1418</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

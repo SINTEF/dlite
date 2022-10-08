@@ -125,17 +125,17 @@ $(function() {
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> SHA3_RETURN sha3_return_t;</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">/* For Init or Reset call these: */</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;sha3_return_t sha3_Init(<span class="keywordtype">void</span> *priv, <span class="keywordtype">unsigned</span> bitSize);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;sha3_return_t sha3_Init(<a class="code" href="structsha3__context__.html">sha3_context</a> *priv, <span class="keywordtype">unsigned</span> bitSize);</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">void</span> sha3_Init256(<span class="keywordtype">void</span> *priv);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">void</span> sha3_Init384(<span class="keywordtype">void</span> *priv);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keywordtype">void</span> sha3_Init512(<span class="keywordtype">void</span> *priv);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">void</span> sha3_Init256(<a class="code" href="structsha3__context__.html">sha3_context</a> *priv);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">void</span> sha3_Init384(<a class="code" href="structsha3__context__.html">sha3_context</a> *priv);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keywordtype">void</span> sha3_Init512(<a class="code" href="structsha3__context__.html">sha3_context</a> *priv);</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">enum</span> SHA3_FLAGS sha3_SetFlags(<span class="keywordtype">void</span> *priv, <span class="keyword">enum</span> SHA3_FLAGS);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">enum</span> SHA3_FLAGS sha3_SetFlags(<a class="code" href="structsha3__context__.html">sha3_context</a> *priv, <span class="keyword">enum</span> SHA3_FLAGS);</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keywordtype">void</span> sha3_Update(<span class="keywordtype">void</span> *priv, <span class="keywordtype">void</span> <span class="keyword">const</span> *bufIn, <span class="keywordtype">size_t</span> len);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keywordtype">void</span> sha3_Update(<a class="code" href="structsha3__context__.html">sha3_context</a> *priv, <span class="keywordtype">void</span> <span class="keyword">const</span> *bufIn, <span class="keywordtype">size_t</span> len);</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keywordtype">void</span> <span class="keyword">const</span> *sha3_Finalize(<span class="keywordtype">void</span> *priv);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keywordtype">void</span> <span class="keyword">const</span> *sha3_Finalize(<a class="code" href="structsha3__context__.html">sha3_context</a> *priv);</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">/* Single-call hashing */</span></div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;sha3_return_t sha3_HashBuffer(</div>
