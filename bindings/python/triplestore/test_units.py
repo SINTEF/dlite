@@ -5,7 +5,7 @@ from pint import UnitRegistry, Quantity
 ureg = get_pint_registry(force_recreate=True)
 
 # Test the registry.
-test_quantity1 = 1234 * ureg.M
+test_quantity1 = 1234 * ureg.m
 print(test_quantity1)
 
 test_quantity2 = 2345.6 * ureg.W_PER_K

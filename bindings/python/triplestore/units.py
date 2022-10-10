@@ -373,7 +373,7 @@ class PintIdentifiers:
                 identifiers["unit_name"] = identifier
             elif label_name == "symbol":
                 identifiers["symbol"] = identifier
-            elif label_name == "labels":
+            elif label_name == "label":
                 identifiers["labels"].append(identifier)
             elif label_name == "udunits_code":
                 identifiers["udunits_code"] = identifier
