@@ -203,7 +203,6 @@ def pint_registry_lines_from_qudt_experimental():
     DCTERMS = ts.bind("dcterms", "http://purl.org/dc/terms/")
 
     pint_registry_lines = []
-    used_identifiers = []
     pint_definitions = {}
     identifiers = PintIdentifiers()
 
@@ -305,6 +304,8 @@ def pint_registry_lines_from_qudt_experimental():
     return pint_registry_lines
 
 
+# Class for handling the various identifiers, with the functionality to remove
+# any ambiguous definitions.
 class PintIdentifiers:
     def __init__(self):
         self.URIs = []
@@ -318,9 +319,10 @@ class PintIdentifiers:
         self.prios.append(prio)
         self.identifiers.append(identifier)
 
+    # Set ambiguous identifiers to None.
+    # Keep the first occurence within each priority level.
     def remove_ambiguities(self):
-        # Set ambiguous identifiers to None.
-
+        
         # Store used identifiers along with their URI.
         used_identifiers = {}
 
@@ -352,6 +354,7 @@ class PintIdentifiers:
         return result
 
 
+    # Get a dict containing all identifiers for a given URI.
     def get_identifiers(self, URI:str) -> dict:
         identifiers = {}
         identifiers["labels"] = []
