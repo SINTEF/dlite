@@ -344,8 +344,9 @@ class PintIdentifiers:
                     # Check if the identifier has already been used.
                     if self.identifiers[i] in used_identifiers.keys():
                         # Warn if this identifier belongs to another URI.
-                        if self.URIs[i] is not used_identifiers[self.identifiers[i]]:
-                            warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]}")
+                        URI_of_identifier = used_identifiers[self.identifiers[i]]
+                        if self.URIs[i] is not URI_of_identifier:
+                            warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]} (the identifier is used for {URI_of_identifier})")
                         self.identifiers[i] = None
                     else:
                         used_identifiers[self.identifiers[i]] = self.URIs[i]
