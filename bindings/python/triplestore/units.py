@@ -190,7 +190,11 @@ def get_pint_registry(force_recreate = False) -> UnitRegistry:
             for line in pint_registry_lines:
                 f.write(f"{line}\n")
     
-    return UnitRegistry(registry_file_path)
+    ureg = UnitRegistry(registry_file_path)
+    #ureg.default_format = "~P" #symbols, pretty print
+    ureg.default_format = "~" #symbols, standard print
+    #ureg.default_format = "~C" #symbols, compact print
+    return ureg
 
 
 # Temporary experimental function that utilizes the PintIdentifiers class for handling
