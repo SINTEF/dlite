@@ -207,6 +207,19 @@ def pint_registry_lines_from_qudt_experimental():
     pint_definitions = {}
     identifiers = PintIdentifiers()
 
+    # Explicit definition of which QUDT units that will serve as base units for
+    # the pint unit registry. (i.e. the QUDT names for the SI units)
+    base_unit_dimensions ={
+        "M": "length",
+        "SEC": "time",
+        "A": "current",
+        "CD": "luminosity",
+        "KiloGM": "mass",
+        "MOL": "substance",
+        "K": "temperature", 
+    }
+
+    # Read info from all units.
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
         
         # Check if this unit has been replaced; then skip it.
@@ -246,16 +259,7 @@ def pint_registry_lines_from_qudt_experimental():
 
     identifiers.remove_ambiguities()
 
-    base_unit_dimensions ={
-        "M": "length",
-        "SEC": "time",
-        "A": "current",
-        "CD": "luminosity",
-        "KiloGM": "mass",
-        "MOL": "substance",
-        "K": "temperature", 
-    }
-
+    # Build the pint unit registry lines.
     for URIb, definition in pint_definitions.items():
 
         unit_identifiers = identifiers.get_identifiers(URI=URIb)
