@@ -207,7 +207,8 @@ def pint_registry_lines_from_qudt_experimental():
     identifiers = PintIdentifiers()
 
     # Explicit definition of which QUDT units that will serve as base units for
-    # the pint unit registry. (i.e. the QUDT names for the SI units)
+    # the pint unit registry. (i.e. the QUDT names for the SI units and the
+    # name of their physical dimension)
     base_unit_dimensions ={
         "M": "length",
         "SEC": "time",
@@ -246,15 +247,19 @@ def pint_registry_lines_from_qudt_experimental():
         # Extract identifiers.
         unit = s.split("/")[-1]
         unit_name = unit.replace("-", "_")
-        identifiers.add_identifier(URI=s, label_name="unit_name", prio=1, identifier=unit_name)
+        identifiers.add_identifier(
+            URI=s, label_name="unit_name", prio=1, identifier=unit_name)
         # Can there be more than one symbol in QUDT?
         symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), None)
-        identifiers.add_identifier(URI=s, label_name="symbol", prio=2, identifier=symbol)
+        identifiers.add_identifier(
+            URI=s, label_name="symbol", prio=2, identifier=symbol)
         for label in ts.objects(subject=s, predicate=RDFS.label):
-            identifiers.add_identifier(URI=s, label_name="label", prio=3, identifier=label)
+            identifiers.add_identifier(
+                URI=s, label_name="label", prio=3, identifier=label)
         udunits_code = next(
             ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
-        identifiers.add_identifier(URI=s, label_name="udunits_code", prio=4, identifier=udunits_code)
+        identifiers.add_identifier(
+            URI=s, label_name="udunits_code", prio=4, identifier=udunits_code)
 
     identifiers.remove_ambiguities()
 
@@ -269,7 +274,8 @@ def pint_registry_lines_from_qudt_experimental():
             pint_definition_line = \
                 f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
         else:
-            pint_definition_line = f'{unit_name} = {definition["multiplier"]} {definition["unit_in_SI"]}'
+            pint_definition_line = \
+                f'{unit_name} = {definition["multiplier"]} {definition["unit_in_SI"]}'
 
         # if unit_name in used_identifiers:
         #     warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
