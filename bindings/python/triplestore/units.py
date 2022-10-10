@@ -4,6 +4,7 @@ Creates a Generator for the lines in the Pint unit registry.
 
 """
 from email.policy import default
+from xmlrpc.client import Boolean
 from pint import UnitRegistry, Quantity
 import re
 from triplestore import Triplestore, RDFS
@@ -339,3 +340,16 @@ class PintIdentifiers:
                     self.identifiers[i] = None
                 else:
                     used_identifiers[self.identifiers[i]] = self.URIs[i]
+    
+
+    # Check if an identifier is valid for use as a particular label_name for a
+    # particular unit.
+    def is_valid_identifier(self, identifier:str, URI:str, label_name:str) -> Boolean:
+        result = False
+        identifier_index = self.identifiers.index(identifier)
+        if (
+            self.URIs[identifier_index] == URI and 
+            self.label_names[identifier_index] == label_name
+        ):
+            result = True
+        return result
