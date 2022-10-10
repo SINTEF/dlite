@@ -204,6 +204,7 @@ def pint_registry_lines_from_qudt_experimental():
     pint_registry_lines = []
     used_identifiers = []
     pint_definitions = {}
+    identifiers = PintIdentifiers()
 
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
         
@@ -213,16 +214,12 @@ def pint_registry_lines_from_qudt_experimental():
         if replaced_by is not None:
             continue
 
-        # Extract unit name.
-        unit = s.split("/")[-1]
-        unit_name = unit.replace("-", "_")
-
         # Extract and parse the dimension vector.
         dimension_vector = o.split("/")[-1]
         pint_definition = pint_definition_string(parse_qudt_dimension_vector(
             dimension_vector))
 
-        # Extract remaining info.
+        # Extract multiplier and offset.
         multiplier = next(
             ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
         offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
@@ -233,21 +230,32 @@ def pint_registry_lines_from_qudt_experimental():
             "offset": offset,
         }
 
+        # Extract identifiers.
+        unit = s.split("/")[-1]
+        unit_name = unit.replace("-", "_")
+        identifiers.add_identifier(URI=s, label_name="unit_name", prio=1, identifier=unit_name)
         # Can there be more than one symbol in QUDT?
         symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
-        labels = ts.objects(subject=s, predicate=RDFS.label)
+        identifiers.add_identifier(URI=s, label_name="symbol", prio=2, identifier=symbol)
+        for label in ts.objects(subject=s, predicate=RDFS.label):
+            identifiers.add_identifier(URI=s, label_name="label", prio=3, identifier=label)
         udunits_code = next(
             ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
+        identifiers.add_identifier(URI=s, label_name="udunits_code", prio=4, identifier=udunits_code)
 
-        base_unit_dimensions ={
-            "M": "length",
-            "SEC": "time",
-            "A": "current",
-            "CD": "luminosity",
-            "KiloGM": "mass",
-            "MOL": "substance",
-            "K": "temperature", 
-        }
+    identifiers.remove_ambiguities()
+
+    base_unit_dimensions ={
+        "M": "length",
+        "SEC": "time",
+        "A": "current",
+        "CD": "luminosity",
+        "KiloGM": "mass",
+        "MOL": "substance",
+        "K": "temperature", 
+    }
+
+    for URI, definition in pint_definitions.values():
 
         # Start constructing the pint definition line.
         if unit_name in base_unit_dimensions.keys():
@@ -362,3 +370,22 @@ class PintIdentifiers:
             result = True
         return result
 
+
+    def get_identifiers(self, URI:str) -> dict:
+        identifiers = {}
+        identifiers["labels"] = []
+
+        inds = [i for i,value in enumerate(self.URIs) if value==URI]
+        for i in inds:
+            label_name = self.label_names[i]
+            identifier = self.identifiers[i]
+            if label_name == "unit_name":
+                identifiers["unit_name"] = identifier
+            elif label_name == "symbol":
+                identifiers["symbol"] = identifier
+            elif label_name == "labels":
+                identifiers["labels"].append(identifier)
+            elif label_name == "udunits_code":
+                identifiers["udunits_code"] = identifier
+        
+        return identifiers
