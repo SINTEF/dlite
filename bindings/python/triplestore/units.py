@@ -203,6 +203,7 @@ def pint_registry_lines_from_qudt_experimental():
 
     pint_registry_lines = []
     used_identifiers = []
+    pint_definitions = {}
 
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
         
@@ -225,6 +226,13 @@ def pint_registry_lines_from_qudt_experimental():
         multiplier = next(
             ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
         offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
+
+        pint_definitions[s] = {
+            "unit_in_SI": pint_definition,
+            "multiplier": multiplier,
+            "offset": offset,
+        }
+
         # Can there be more than one symbol in QUDT?
         symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
         labels = ts.objects(subject=s, predicate=RDFS.label)
@@ -353,3 +361,4 @@ class PintIdentifiers:
         ):
             result = True
         return result
+
