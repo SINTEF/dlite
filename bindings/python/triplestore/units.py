@@ -184,7 +184,8 @@ def prepare_cache_file_path(filename: str) -> str:
 def get_pint_registry(force_recreate = False) -> UnitRegistry:
     registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
     if force_recreate or not os.path.exists(registry_file_path):
-        pint_registry_lines = pint_registry_lines_from_qudt()
+        #pint_registry_lines = pint_registry_lines_from_qudt()
+        pint_registry_lines = pint_registry_lines_from_qudt_experimental()
         with open(registry_file_path, "w") as f:
             for line in pint_registry_lines:
                 f.write(f"{line}\n")
@@ -235,7 +236,7 @@ def pint_registry_lines_from_qudt_experimental():
         unit_name = unit.replace("-", "_")
         identifiers.add_identifier(URI=s, label_name="unit_name", prio=1, identifier=unit_name)
         # Can there be more than one symbol in QUDT?
-        symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
+        symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), None)
         identifiers.add_identifier(URI=s, label_name="symbol", prio=2, identifier=symbol)
         for label in ts.objects(subject=s, predicate=RDFS.label):
             identifiers.add_identifier(URI=s, label_name="label", prio=3, identifier=label)
@@ -257,69 +258,43 @@ def pint_registry_lines_from_qudt_experimental():
 
     for URI, definition in pint_definitions.values():
 
+        unit_identifiers = identifiers.get_identifiers(URI=URI)
+
         # Start constructing the pint definition line.
+        unit_name = unit_identifiers.unit_name
         if unit_name in base_unit_dimensions.keys():
             pint_definition_line = \
                 f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
         else:
-            pint_definition_line = f'{unit_name} = {multiplier} {pint_definition}'
+            pint_definition_line = f'{unit_name} = {definition.multiplier} {definition.units_in_SI}'
 
-        if unit_name in used_identifiers:
-            warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
-            continue
-        else:
-            used_identifiers.append(unit_name)
-            used_identifiers_this_unit = [unit_name]
+        # if unit_name in used_identifiers:
+        #     warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
+        #     continue
+        # else:
+        #     used_identifiers.append(unit_name)
+        #     used_identifiers_this_unit = [unit_name]
 
         # Add offset.
-        if offset is not None:
-            pint_definition_line += f'; offset: {offset}'
+        if definition.offset is not None:
+            pint_definition_line += f'; offset: {definition.offset}'
 
         # Add symbol.
-        if symbol != "_":
-            if symbol in used_identifiers_this_unit:
-                # This is OK, but we will not add the symbol since it duplicates
-                # the name.
-                symbol = "_"
-            elif symbol in used_identifiers:
-                # This is a conflict with another unit.
-                warnings.warn(f"Omitting symbol \"{symbol}\" from {s}")
-                symbol = "_"
-            else:
-                # No conflict; add the symbol to this unit.
-                used_identifiers.append(symbol)
-                used_identifiers_this_unit.append(symbol)
-
+        symbol = unit_identifiers.symbol
+        if symbol is None:
+            symbol = "_"
         pint_definition_line += f' = {symbol}'
 
         # Add any labels.
-        for label in labels:
-            if label in used_identifiers_this_unit:
-                # Conflict within the same unit; do nothing.
-                pass
-            elif label in used_identifiers:
-                # Conflict with another unit.
-                warnings.warn(f"Omitting label \"{label}\" from {s}")
-            else:
-                # No conflict.
-                pint_definition_line += f' = {label}'
-                used_identifiers.append(label)
-                used_identifiers_this_unit.append(label)
+        for label in unit_identifiers.labels:
+            pint_definition_line += f' = {label}'
 
-        # Add IRI.
-        pint_definition_line += f' = {s}'
+        # Add URI.
+        pint_definition_line += f' = {URI}'
 
         # Add udunits code.
-        if udunits_code is not None:
-            if udunits_code in used_identifiers_this_unit:
-                # Conflict within the same unit; do nothing.
-                pass
-            elif udunits_code in used_identifiers:
-                # Conflict with another unit.
-                warnings.warn(f"Omitting UDUNITS code \"{udunits_code}\" from {s}")
-            else:
-                # No conflict.
-                pint_definition_line += f' = {udunits_code}'
+        if unit_identifiers.udunits_code is not None:
+            pint_definition_line += f' = {udunits_code}'
 
         pint_registry_lines.append(pint_definition_line)
     return pint_registry_lines
@@ -345,7 +320,7 @@ class PintIdentifiers:
         used_identifiers = {}
 
         # For each priority level, remove any ambiguities.
-        for prio in list(set(self.prios)).sort():
+        for prio in sorted(list(set(self.prios))):
             inds_prio = [i for i,value in enumerate(self.prios) if value==prio]
             for i in inds_prio:
                 # Check if the identifier has already been used.
