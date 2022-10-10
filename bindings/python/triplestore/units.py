@@ -256,17 +256,17 @@ def pint_registry_lines_from_qudt_experimental():
         "K": "temperature", 
     }
 
-    for URI, definition in pint_definitions.values():
+    for URIb, definition in pint_definitions.items():
 
-        unit_identifiers = identifiers.get_identifiers(URI=URI)
+        unit_identifiers = identifiers.get_identifiers(URI=URIb)
 
         # Start constructing the pint definition line.
-        unit_name = unit_identifiers.unit_name
+        unit_name = unit_identifiers["unit_name"]
         if unit_name in base_unit_dimensions.keys():
             pint_definition_line = \
                 f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
         else:
-            pint_definition_line = f'{unit_name} = {definition.multiplier} {definition.units_in_SI}'
+            pint_definition_line = f'{unit_name} = {definition["multiplier"]} {definition["unit_in_SI"]}'
 
         # if unit_name in used_identifiers:
         #     warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
@@ -276,24 +276,25 @@ def pint_registry_lines_from_qudt_experimental():
         #     used_identifiers_this_unit = [unit_name]
 
         # Add offset.
-        if definition.offset is not None:
-            pint_definition_line += f'; offset: {definition.offset}'
+        if definition["offset"] is not None:
+            pint_definition_line += f'; offset: {definition["offset"]}'
 
         # Add symbol.
-        symbol = unit_identifiers.symbol
+        symbol = unit_identifiers["symbol"]
         if symbol is None:
             symbol = "_"
         pint_definition_line += f' = {symbol}'
 
         # Add any labels.
-        for label in unit_identifiers.labels:
+        for label in unit_identifiers["labels"]:
             pint_definition_line += f' = {label}'
 
         # Add URI.
-        pint_definition_line += f' = {URI}'
+        pint_definition_line += f' = {URIb}'
 
         # Add udunits code.
-        if unit_identifiers.udunits_code is not None:
+        udunits_code = unit_identifiers["udunits_code"]
+        if  udunits_code is not None:
             pint_definition_line += f' = {udunits_code}'
 
         pint_registry_lines.append(pint_definition_line)
@@ -323,14 +324,15 @@ class PintIdentifiers:
         for prio in sorted(list(set(self.prios))):
             inds_prio = [i for i,value in enumerate(self.prios) if value==prio]
             for i in inds_prio:
-                # Check if the identifier has already been used.
-                if self.identifiers[i] in used_identifiers.keys():
-                    # Warn if this identifier belongs to another URI.
-                    if self.URIs[i] is not used_identifiers[self.identifiers[i]]:
-                        warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]}")
-                    self.identifiers[i] = None
-                else:
-                    used_identifiers[self.identifiers[i]] = self.URIs[i]
+                if self.identifiers[i] is not None:
+                    # Check if the identifier has already been used.
+                    if self.identifiers[i] in used_identifiers.keys():
+                        # Warn if this identifier belongs to another URI.
+                        if self.URIs[i] is not used_identifiers[self.identifiers[i]]:
+                            warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]}")
+                        self.identifiers[i] = None
+                    else:
+                        used_identifiers[self.identifiers[i]] = self.URIs[i]
     
 
     # Check if an identifier is valid for use as a particular label_name for a
