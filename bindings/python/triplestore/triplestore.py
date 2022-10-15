@@ -203,6 +203,8 @@ PROV = Namespace("http://www.w3.org/ns/prov#")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 TIME = Namespace("http://www.w3.org/2006/time#")
 FNO = Namespace("https://w3id.org/function/ontology#")
+QUDTU = Namespace("http://qudt.org/vocab/unit/")
+OM = Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
 
 EMMO = Namespace("http://emmo.info/emmo#")
 MAP = Namespace("http://emmo.info/domain-mappings#")
