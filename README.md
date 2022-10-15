@@ -495,10 +495,11 @@ The following terms have a special meaning in dlite:
   - **Relation**: A subject-predicate-object triplet. Relations
     are immutable.
   - **Storage**: A generic handle encapsulating actual storage backends.
-  - **Transaction**: A not yet implemented feature, that enables to
-    represent the evolution of the state of a software as a series of
-    immutable instances.  See also the
-    [SOFT5 nomenclauture][SOFT5_nomenclauture].
+  - **Transaction**: An instance that has a reference to an immutable
+    (frozen) parent instance is called a *transaction*.  Transactions are
+    very useful for ensuring data provenance and makes it easy to work
+    with time series.  Conceptually, they share many similarities with
+    git.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
   - **uri**: A [uniform resource identifier (URI)][URI] is a
     generalisation of URL, but follows the same syntax rules.  In
     dlite, the term "uri" is used as an human readable identifier for
