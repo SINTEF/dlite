@@ -254,7 +254,7 @@ $(function() {
 <h4 id="runtime-dependencies">Runtime dependencies</h4>
 
 <ul>
-<li><a href="https://support.hdfgroup.org/HDF5/">HDF5</a>, optional (needed by HDF5 storage plugin)</li>
+<li><a href="https://support.hdfgroup.org/HDF5/">HDF5</a>, optional, support v1.10+ (needed by HDF5 storage plugin)</li>
 <li><a href="https://librdf.org/">librdf</a>, optional (needed by RDF (Redland) storage plugin)</li>
 <li><a href="https://www.python.org/">Python 3</a>, optional (needed by Python bindings and some plugins)<ul>
 <li><a href="https://pypi.org/project/numpy/">NumPy</a>, required if Python is enabled</li>
@@ -354,9 +354,8 @@ cmake --build . --target latex
 <div class="line">-DPython3_LIBRARY=$Python3_LIBRARY \</div>
 <div class="line">-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \</div>
 <div class="line">-DWITH_STATIC_PYTHON=FALSE \</div>
-<div class="line">-DCMAKE_INSTALL_PREFIX=$Python3_ROOT    </div>
-</div><!-- fragment --><p>Then install dlite <br  />
- </p><div class="fragment"><div class="line">make</div>
+<div class="line">-DCMAKE_INSTALL_PREFIX=$Python3_ROOT</div>
+</div><!-- fragment --><p>Then install dlite </p><div class="fragment"><div class="line">make</div>
 <div class="line">make install</div>
 </div><!-- fragment --><p>Finally run tests </p><div class="fragment"><div class="line">ctest</div>
 </div><!-- fragment --><p>An example of how to use dlite is shown above. See also the examples in the [examples](examples) directory for how to link to dlite from C and use of the Fortran bindings.</p>
