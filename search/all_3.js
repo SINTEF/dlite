@@ -8,5 +8,6 @@ var searchData=
   ['countof_60',['countof',['../dlite-macros_8h.html#ad95c8ecaa04eb417c1ddd2e7cee88053',1,'dlite-macros.h']]],
   ['code_20generation_61',['Code generation',['../md_doc_code_generation.html',1,'']]],
   ['collections_62',['Collections',['../md_doc_collections.html',1,'']]],
-  ['concepts_63',['Concepts',['../md_doc_concepts.html',1,'']]]
+  ['concepts_63',['Concepts',['../md_doc_concepts.html',1,'']]],
+  ['creating_20a_20new_20release_64',['Creating a new release',['../md_doc_developers_release_instructions.html',1,'']]]
 ];
