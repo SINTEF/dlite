@@ -2,13 +2,20 @@
 
 file(READ ${infile} content)
 
-# Fix markdown links
+# Fix markdown links to .md files in subdirectories of doc/
 string(REGEX REPLACE
-  "\\[([^]]*)\\]\\(doc/([^\\.]*)\\.md\\)"
-  "\n@ref md_doc_\\2\n"
-  #"\n@ref md_doc_\\2 \"\\1\"\n"
-  replaced
+  "\\[([^]]*)\\]\\(doc/([^/]*)/([^\\.]*)\\.md\\)"
+  "\n@ref md_doc_\\2_\\3\n"
+  replaced1
   "${content}"
   )
 
-file(WRITE ${outfile} "${replaced}")
+# Fix markdown links to .md files in doc/
+string(REGEX REPLACE
+  "\\[([^]]*)\\]\\(doc/([^\\.]*)\\.md\\)"
+  "\n@ref md_doc_\\2\n"
+  replaced2
+  "${replaced1}"
+  )
+
+file(WRITE ${outfile} "${replaced2}")

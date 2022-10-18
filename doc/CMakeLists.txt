@@ -46,6 +46,7 @@ if(DOXYGEN_FOUND)
     ${dlite_SOURCE_DIR}/doc/storage_plugins.md
     ${dlite_SOURCE_DIR}/doc/tools.md
     ${dlite_SOURCE_DIR}/doc/transactions.md
+    ${dlite_SOURCE_DIR}/doc/developers/release_instructions.md
     ${dlite_SOURCE_DIR}/doc/figs/transactions.png
 
     ${dlite_SOURCE_DIR}/src/dlite.h
