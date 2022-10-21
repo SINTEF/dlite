@@ -118,7 +118,7 @@ static int is_metaref(const char *dtypename)
 const char *dlite_type_get_dtypename(DLiteType dtype)
 {
   if (dtype < 0 || dtype >= sizeof(dtype_names) / sizeof(char *))
-    return err(dliteTypeError, "invalid dtype number: %d", dtype), NULL;
+    return err(dliteParseError, "invalid dtype number: %d", dtype), NULL;
   return dtype_names[dtype];
 }
 
@@ -864,7 +864,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   if (m < 0) {
     char buf[32];
     dlite_type_set_typename(dtype, size, buf, sizeof(buf));
-    return errx(dliteIOError, "error printing type %s", buf);
+    return errx(dliteFormatError, "error printing type %s", buf);
   }
   return m;
 }
@@ -1131,10 +1131,10 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         return err(dliteIndexError, "too many dimensions.  Increase MAX_PROPERTY_TOKENS "
                    "in dlite-type.c and recompile.");
       else if (r < 0)
-        return err(dliteTypeError, "cannot parse property: %s: '%s'",
+        return err(dliteParseError, "cannot parse property: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
-        return errx(dliteTypeError, "property should be a JSON object");
+        return errx(dliteParseError, "property should be a JSON object");
       m = tokens->end - tokens->start;
 
       if (!(t = jsmn_item(src, tokens, "name")))
@@ -1191,7 +1191,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         return err(dliteParseError, "cannot parse relation: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->size < 3 || tokens->size > 4)
-        return errx(dliteTypeError, "relation should have 3 (optionally 4) elements");
+        return errx(dliteParseError, "relation should have 3 (optionally 4) elements");
       m = tokens->end - tokens->start;
       if (tokens->type == JSMN_ARRAY) {
         if (!(t = jsmn_element(src, tokens, 0))) return -1;
@@ -1301,7 +1301,7 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   switch (dtype) {
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
-  default:              return err(dliteTypeError, "cannot determine alignment of "
+  default:              return err(dliteParseError, "cannot determine alignment of "
                                    "dtype='%s' (%d), size=%lu",
                                    dlite_type_get_dtypename(dtype), dtype,
                                    (unsigned long)size), 0;
