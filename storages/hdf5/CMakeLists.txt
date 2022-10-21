@@ -13,6 +13,11 @@ target_link_libraries(dlite-plugins-hdf5
   dlite-utils
   ${HDF5_LIBRARIES}
   )
+target_compile_definitions(dlite-plugins-hdf5 PUBLIC
+  H5Literage_vers=1
+  H5Oget_info_by_name_vers=1
+  H5O_info_t_vers=1
+  )
 target_include_directories(dlite-plugins-hdf5 PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
   ${dlite_SOURCE_DIR}/src
