@@ -1,35 +1,36 @@
 """Populates a pint unit registry from an ontology.
-
-Creates a Generator for the lines in the Pint unit registry.
-
 """
-from email.policy import default
-from xmlrpc.client import Boolean
-from pint import UnitRegistry, Quantity
-import re
-from triplestore import Triplestore, RDFS
-import warnings
-from appdirs import user_cache_dir
 import os
+import re
+import logging
+import warnings
+from pint import UnitRegistry, Quantity
+from tripper import Triplestore, RDFS
+from appdirs import user_cache_dir
+
 
 def load_qudt():
-    ts = Triplestore(name="rdflib")
+    """Returns a Triplestore instance with QUDT pre-loaded."""
+    ts = Triplestore(backend="rdflib")
     ts.parse(source="http://qudt.org/2.1/vocab/unit")
     ts.parse(source="http://qudt.org/2.1/schema/qudt")
     return ts
 
+
 def parse_qudt_dimension_vector(dimension_vector: str) -> dict:
-    # Split the dimension vector string into separate dimensions.
+    """Split the dimension vector string into separate dimensions."""
     dimensions = re.findall(r'[AELIMHTD]-?[0-9]+', dimension_vector)
-    
+
     result = {}
     for dimension in dimensions:
         result[dimension[0]] = dimension[1:]
 
     for letter in "AELIMHTD":
         if letter not in result.keys():
-            raise Exception(f"Missing dimension \"{letter}\" in dimension vector \"{dimension_vector}\"")
-
+            raise Exception(
+                f'Missing dimension "{letter}" in dimension vector '
+                f'"{dimension_vector}"'
+            )
     return result
 
 
@@ -49,17 +50,18 @@ def pint_definition_string(dimension_dict: dict) -> str:
     }
 
     # Build the unit definition, dimension by dimension.
-    result = ""
+    result = []
     for letter, unit in base_units.items():
         exponent = dimension_dict[letter]
         if int(dimension_dict[letter]) < 0:
-            result += "/ " + unit + "**" + exponent[1:] + " "
+            result.append(f"/ {unit}**{exponent[1:]} ")
         elif int(dimension_dict[letter]) > 0:
-            result += "* " + unit + "**" + exponent + " "
-    return result
+            result.append(f"* {unit}**{exponent} ")
+    return "".join(result)
 
 
 def pint_registry_lines_from_qudt():
+    """Returns a list of lines of a Pint unit registry loaded from QUDT."""
     ts = load_qudt()
 
     QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
@@ -70,7 +72,7 @@ def pint_registry_lines_from_qudt():
     used_identifiers = []
 
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
-        
+
         # Check if this unit has been replaced; then skip it.
         replaced_by = next(
             ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None)
@@ -89,7 +91,8 @@ def pint_registry_lines_from_qudt():
         # Extract remaining info.
         multiplier = next(
             ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
-        offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
+        offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset),
+                      None)
         # Can there be more than one symbol in QUDT?
         symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), "_")
         labels = ts.objects(subject=s, predicate=RDFS.label)
@@ -103,15 +106,18 @@ def pint_registry_lines_from_qudt():
             "CD": "luminosity",
             "KiloGM": "mass",
             "MOL": "substance",
-            "K": "temperature", 
+            "K": "temperature",
         }
 
         # Start constructing the pint definition line.
-        if unit_name in base_unit_dimensions.keys():
-            pint_definition_line = \
+        if unit_name in base_unit_dimensions:
+            pint_definition_line = (
                 f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
+            )
         else:
-            pint_definition_line = f'{unit_name} = {multiplier} {pint_definition}'
+            pint_definition_line = (
+                f'{unit_name} = {multiplier} {pint_definition}'
+            )
 
         if unit_name in used_identifiers:
             warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
@@ -127,12 +133,12 @@ def pint_registry_lines_from_qudt():
         # Add symbol.
         if symbol != "_":
             if symbol in used_identifiers_this_unit:
-                # This is OK, but we will not add the symbol since it duplicates
-                # the name.
+                # This is OK, but we will not add the symbol since it
+                # duplicates the name.
                 symbol = "_"
             elif symbol in used_identifiers:
                 # This is a conflict with another unit.
-                warnings.warn(f"Omitting symbol \"{symbol}\" from {s}")
+                warnings.warn(f'Omitting symbol "{symbol}" from {s}')
                 symbol = "_"
             else:
                 # No conflict; add the symbol to this unit.
@@ -148,7 +154,7 @@ def pint_registry_lines_from_qudt():
                 pass
             elif label in used_identifiers:
                 # Conflict with another unit.
-                warnings.warn(f"Omitting label \"{label}\" from {s}")
+                warnings.warn(f'Omitting label "{label}" from {s}')
             else:
                 # No conflict.
                 pint_definition_line += f' = {label}'
@@ -165,7 +171,9 @@ def pint_registry_lines_from_qudt():
                 pass
             elif udunits_code in used_identifiers:
                 # Conflict with another unit.
-                warnings.warn(f"Omitting UDUNITS code \"{udunits_code}\" from {s}")
+                warnings.warn(
+                    f'Omitting UDUNITS code "{udunits_code}" from {s}'
+                )
             else:
                 # No conflict.
                 pint_definition_line += f' = {udunits_code}'
@@ -175,21 +183,33 @@ def pint_registry_lines_from_qudt():
 
 
 def prepare_cache_file_path(filename: str) -> str:
-    cache_directory = user_cache_dir("dlite", "SINTEF")
+    """Return cache file name."""
+    cache_directory = user_cache_dir("dlite")
     if not os.path.exists(cache_directory):
         os.mkdir(cache_directory)
     return os.path.join(cache_directory, filename)
 
 
-def get_pint_registry(force_recreate = False) -> UnitRegistry:
+def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
+    """Load units from one or more unit sources into a Pint unit registry.
+
+    Arguments:
+        sources: Sequence of unit sources to load.  The sources are loaded
+            in the provided order. In case of conflicts, the source listed
+            first has precedence.
+        force_recreate: Whether to recreate the unit registry cache.
+
+    Returns:
+        Pint unit registry.
+    """
     registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
     if force_recreate or not os.path.exists(registry_file_path):
-        #pint_registry_lines = pint_registry_lines_from_qudt()
-        pint_registry_lines = pint_registry_lines_from_qudt_experimental()
-        with open(registry_file_path, "w") as f:
-            for line in pint_registry_lines:
-                f.write(f"{line}\n")
-    
+        for source in sources:
+            #pint_registry_lines = pint_registry_lines_from_qudt()
+            pint_registry_lines = pint_registry_lines_from_qudt_experimental()
+            with open(registry_file_path, "w") as f:
+                f.write("\n".join(pint_registry_lines) + "\n")
+
     ureg = UnitRegistry(registry_file_path)
     #ureg.default_format = "~P" #symbols, pretty print
     ureg.default_format = "~" #symbols, standard print
@@ -197,8 +217,8 @@ def get_pint_registry(force_recreate = False) -> UnitRegistry:
     return ureg
 
 
-# Temporary experimental function that utilizes the PintIdentifiers class for handling
-# the ambiguities.
+# Temporary experimental function that utilizes the PintIdentifiers class for
+# handling the ambiguities.
 def pint_registry_lines_from_qudt_experimental():
     ts = load_qudt()
 
@@ -220,12 +240,12 @@ def pint_registry_lines_from_qudt_experimental():
         "CD": "luminosity",
         "KiloGM": "mass",
         "MOL": "substance",
-        "K": "temperature", 
+        "K": "temperature",
     }
 
     # Read info from all units.
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
-        
+
         # Check if this unit has been replaced; then skip it.
         replaced_by = next(
             ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None)
@@ -240,7 +260,8 @@ def pint_registry_lines_from_qudt_experimental():
         # Extract multiplier and offset.
         multiplier = next(
             ts.objects(subject=s, predicate=QUDT.conversionMultiplier), "1")
-        offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset), None)
+        offset = next(ts.objects(subject=s, predicate=QUDT.conversionOffset),
+                      None)
 
         pint_definitions[s] = {
             "unit_in_SI": pint_definition,
@@ -275,11 +296,14 @@ def pint_registry_lines_from_qudt_experimental():
         # Start constructing the pint definition line.
         unit_name = unit_identifiers["unit_name"]
         if unit_name in base_unit_dimensions.keys():
-            pint_definition_line = \
+            pint_definition_line = (
                 f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
+            )
         else:
-            pint_definition_line = \
-                f'{unit_name} = {definition["multiplier"]} {definition["unit_in_SI"]}'
+            pint_definition_line = (
+                f'{unit_name} = {definition["multiplier"]} '
+                f'{definition["unit_in_SI"]}'
+            )
 
         # if unit_name in used_identifiers:
         #     warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
@@ -314,25 +338,29 @@ def pint_registry_lines_from_qudt_experimental():
     return pint_registry_lines
 
 
-# Class for handling the various identifiers, with the functionality to remove
-# any ambiguous definitions.
 class PintIdentifiers:
+    """Class for handling the various identifiers, with the functionality
+    to remove any ambiguous definitions.
+    """
     def __init__(self):
         self.URIs = []
         self.label_names = []
         self.prios = []
         self.identifiers = []
 
-    def add_identifier(self, URI: str, label_name: str, prio: int, identifier:str):
+    def add_identifier(self, URI: str, label_name: str, prio: int,
+                       identifier:str):
         self.URIs.append(URI)
         self.label_names.append(label_name)
         self.prios.append(prio)
         self.identifiers.append(identifier)
 
-    # Set ambiguous identifiers to None.
-    # Keep the first occurence within each priority level.
     def remove_ambiguities(self):
-        
+        """Remove ambiguities.
+
+        Set ambiguous identifiers to None.
+        Keep the first occurence within each priority level.
+        """
         # Store used identifiers along with their URI.
         used_identifiers = {}
 
@@ -346,27 +374,28 @@ class PintIdentifiers:
                         # Warn if this identifier belongs to another URI.
                         URI_of_identifier = used_identifiers[self.identifiers[i]]
                         if self.URIs[i] is not URI_of_identifier:
-                            warnings.warn(f"Omitting {self.label_names[i]} \"{self.identifiers[i]}\" from {self.URIs[i]} (the identifier is used for {URI_of_identifier})")
+                            logging.warning(
+                                f'Omitting {self.label_names[i]} '
+                                f'"{self.identifiers[i]}" from {self.URIs[i]} '
+                                f'(the identifier is used for '
+                                f'{URI_of_identifier})'
+                            )
                         self.identifiers[i] = None
                     else:
                         used_identifiers[self.identifiers[i]] = self.URIs[i]
-    
 
-    # Check if an identifier is valid for use as a particular label_name for a
-    # particular unit.
-    def is_valid_identifier(self, identifier:str, URI:str, label_name:str) -> Boolean:
-        result = False
+
+    def is_valid_identifier(self, identifier: str, URI: str,
+                            label_name: str) -> bool:
+        """Check if an identifier is valid for use as a particular
+        label_name for a particular unit.
+        """
         identifier_index = self.identifiers.index(identifier)
-        if (
-            self.URIs[identifier_index] == URI and 
-            self.label_names[identifier_index] == label_name
-        ):
-            result = True
-        return result
+        return (self.URIs[identifier_index] == URI and
+                self.label_names[identifier_index] == label_name)
 
-
-    # Get a dict containing all identifiers for a given URI.
     def get_identifiers(self, URI:str) -> dict:
+        """Returns a dict containing all identifiers for a given URI."""
         identifiers = {}
         identifiers["labels"] = []
 
@@ -382,5 +411,5 @@ class PintIdentifiers:
                 identifiers["labels"].append(identifier)
             elif label_name == "udunits_code":
                 identifiers["udunits_code"] = identifier
-        
+
         return identifiers
