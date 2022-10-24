@@ -104,6 +104,18 @@ Macros</h2></td></tr>
 <tr class="separator:a3a5da16e684d13e47b799406edf5d023"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b5f105fd1b160c7026b27bc39623f0a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>FAIL5</b>(msg,  a1,  a2,  a3,  a4,  a5)</td></tr>
 <tr class="separator:a6b5f105fd1b160c7026b27bc39623f0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1a13a5793a59eb690ca44c40b9be574"><td class="memItemLeft" align="right" valign="top"><a id="ac1a13a5793a59eb690ca44c40b9be574"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>DFAIL0</b>(code,  d,  msg)&#160;&#160;&#160;do {err(code, &quot;%s/%s: &quot; msg, d-&gt;s-&gt;location, d-&gt;uuid); goto fail;} while (0)</td></tr>
+<tr class="separator:ac1a13a5793a59eb690ca44c40b9be574"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff083468ea39bb82ae50a50080668dda"><td class="memItemLeft" align="right" valign="top"><a id="aff083468ea39bb82ae50a50080668dda"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>DFAIL1</b>(code,  d,  msg,  a1)&#160;&#160;&#160;do {err(code, &quot;%s/%s: &quot; msg, d-&gt;s-&gt;location, d-&gt;uuid, a1); goto fail;} while (0)</td></tr>
+<tr class="separator:aff083468ea39bb82ae50a50080668dda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42ee35a79d6927dcc6dd2cd4dd5e6d61"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>DFAIL2</b>(code,  d,  msg,  a1,  a2)</td></tr>
+<tr class="separator:a42ee35a79d6927dcc6dd2cd4dd5e6d61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41ce70024f52d3d4c6bba7eabc5de2d0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>DFAIL3</b>(code,  d,  msg,  a1,  a2,  a3)</td></tr>
+<tr class="separator:a41ce70024f52d3d4c6bba7eabc5de2d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f6409cdbc766166bb4402aedcfd0ac5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>DFAIL4</b>(code,  d,  msg,  a1,  a2,  a3,  a4)</td></tr>
+<tr class="separator:a9f6409cdbc766166bb4402aedcfd0ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4ad9e6216c0f21d1f86a04e85fdbce7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dlite-macros_8h.html#ae4ad9e6216c0f21d1f86a04e85fdbce7">FAILCODE</a>(code,  msg)</td></tr>
 <tr class="separator:ae4ad9e6216c0f21d1f86a04e85fdbce7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac26777e67cbf8cc7063a2e470679b5a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>FAILCODE1</b>(code,  msg,  a1)</td></tr>
@@ -423,6 +435,168 @@ Macros</h2></td></tr>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {        \</div>
 <div class="line">    dlite_err(1, msg, a1, a2, a3, a4, a5); <span class="keywordflow">goto</span> fail; } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a42ee35a79d6927dcc6dd2cd4dd5e6d61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42ee35a79d6927dcc6dd2cd4dd5e6d61">&#9670;&nbsp;</a></span>DFAIL2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DFAIL2</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">code, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">d, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">msg, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a1, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a2&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {err(code, <span class="stringliteral">&quot;%s/%s: &quot;</span> msg, d-&gt;s-&gt;location, d-&gt;uuid, a1, a2); \</div>
+<div class="line">    goto fail;} <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a41ce70024f52d3d4c6bba7eabc5de2d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41ce70024f52d3d4c6bba7eabc5de2d0">&#9670;&nbsp;</a></span>DFAIL3</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DFAIL3</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">code, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">d, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">msg, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a1, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a2, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a3&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {err(code, <span class="stringliteral">&quot;%s/%s: &quot;</span> msg, d-&gt;s-&gt;location, d-&gt;uuid, a1, a2, a3); \</div>
+<div class="line">    goto fail;} <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a9f6409cdbc766166bb4402aedcfd0ac5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f6409cdbc766166bb4402aedcfd0ac5">&#9670;&nbsp;</a></span>DFAIL4</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DFAIL4</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">code, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">d, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">msg, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a1, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a2, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a3, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a4&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {err(code, <span class="stringliteral">&quot;%s/%s: &quot;</span> msg, d-&gt;s-&gt;location, d-&gt;uuid, a1, a2, a3, a4); \</div>
+<div class="line">    goto fail;} <span class="keywordflow">while</span> (0)</div>
 </div><!-- fragment -->
 </div>
 </div>
