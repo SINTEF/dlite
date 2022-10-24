@@ -1301,7 +1301,7 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   switch (dtype) {
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
-  default:              return err(dliteParseError, "cannot determine alignment of "
+  default:              return err(dliteTypeError, "cannot determine alignment of "
                                    "dtype='%s' (%d), size=%lu",
                                    dlite_type_get_dtypename(dtype), dtype,
                                    (unsigned long)size), 0;
