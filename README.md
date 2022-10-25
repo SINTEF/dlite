@@ -5,10 +5,9 @@ DLite
 =====
 > A lightweight data-centric framework for semantic interoperability
 
-[![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
-[![GitHub release](https://img.shields.io/github/v/release/sintef/dlite)](https://github.com/SINTEF/dlite/releases)
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
-[![Documentation](https://img.shields.io/badge/documentation--blue.svg?style=social)](https://sintef.github.io/dlite/index.html)
+[![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
+[![Documentation](https://img.shields.io/badge/documentation-informational?logo=githubpages)](https://sintef.github.io/dlite/index.html)
 
 Content
 -------
@@ -271,13 +270,12 @@ Compile from sources
 --------------------
 The sources can be cloned from GitHub
 
-    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-
+    git clone git@github.com:SINTEF/dlite.git
 
 ### Dependencies
 
 #### Runtime dependencies
-  - [HDF5][3], optional (needed by HDF5 storage plugin)
+  - [HDF5][3], optional, support v1.10+ (needed by HDF5 storage plugin)
   - [librdf][4], optional (needed by RDF (Redland) storage plugin)
   - [Python 3][5], optional (needed by Python bindings and some plugins)
     - [NumPy][6], required if Python is enabled
@@ -290,17 +288,17 @@ The sources can be cloned from GitHub
     - [pymongo][pymongo], optional, (used for mongodb storage plugin)
 
 #### Build dependencies
-  - [cmake][9], required for building
-  - hdf5 development libraries, optional (needed by HDF5 storage plugin)
-  - librdf development libraries, optional (needed by librdf storage plugin)
-  - Python 3 development libraries, optional (needed by Python bindings)
-  - NumPy development libraries, optional (needed by Python bindings)
-  - [SWIG v3][10], optional (needed by building Python bindings)
-  - [Doxygen][11], optional, used for documentation generation
-  - [valgrind][12], optional, used for memory checking (Linux only)
-  - [cppcheck][13], optional, used for static code analysis
-  - [mongomock][mongomock], optional, used for testing mongodb storage plugin
-
+  - [cmake][9], required for building - note that cmake isntalled from pypi does not always work.
+  - hdf5 development libraries, needed by HDF5 storage plugin.
+  - Python 3 development libraries, needed by Python bindings.
+  - NumPy development libraries, needed by Python bindings.
+  - [SWIG][10] needed by building Python bindings.
+  - [Doxygen][11] used for documentation generation.
+  - [Graphviz][graphviz] used for documentation generation.
+  - [valgrind][12], optional, used for memory checking (Linux only).
+  - [cppcheck][13], optional, used for static code analysis.
+  - [mongomock][mongomock], optional, used for testing mongodb storage plugin.
+  - librdf development libraries, optional, needed by librdf storage plugin.
 
 Compiling
 ---------
@@ -407,20 +405,24 @@ which will produce the file
 Setting up the environment
 --------------------------
 As a dlite user it should be enough to do 'pip install Dlite-Python',
-or 'pip install .' from within the dlite/python directory. 
+or 'pip install .' from within the dlite/python directory.
 
-As a developed it is more useful to install dlite from source.
+As a developer it is more useful to install dlite from source.
 If dlite is installed in a non-default location, you may need to set
 the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
 variables.  See the [documentation of environment
 variables](doc/environment_variables.md) for more details.
 
-An example of how to install dlite as developer within a python environment 
+An example of how to install dlite as developer within a python environment
 in linux is given below.  Make sure that all required dependencies
 are installed within the environment.
-```console	
-source /path/to/dedicated/pythonenvironment/bin/activate
+
+First activate the environment, e.g.:
+```console
+source </path/to/dedicated/pythonenvironment>/bin/activate
 ```
+Set the Python variables. The following should automatically
+find the correct python paths
 ```console
 Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
 Python3_VERSION=$(python3 -c 'import sys;\
@@ -428,16 +430,18 @@ print(str(sys.version_info.major)+"."\
 +str(sys.version_info.minor))')
 Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
 ```
-Note that you will need to find the correct path to the python libraries and
-include directory for your system. If this is cumbersome, but 
-running ```find . -name libpython*.so``` from /usr might help.
-```console	
-Python3_LIBRARY=/path/to/system/libpython${Python3_VERSION}.so
-Python3_INCLUDE_DIR=/path/to/system/include/python${Python3_VERSION}
+
+Python variables for developement libraries must be set
+**manually**.
+```console
+Python3_LIBRARY=</path/to/system>/libpython${Python3_VERSION}.so
+Python3_INCLUDE_DIR=</path/to/system>/include/python${Python3_VERSION}
 ```
+You may run ```find . -name libpython*.so``` to help find these paths.
+
 Go into your dlite directory:
-```console	
-cd /path/to/dlite
+```console
+cd </path/to>/dlite
 ```
 Build dlite:
 ```console
@@ -445,18 +449,17 @@ mkdir build
 cd build
 cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
 -DPython3_LIBRARY=$Python3_LIBRARY \
--DPython3_LIBRARY=$Python3_LIBRARY \
 -DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
 -DWITH_STATIC_PYTHON=FALSE \
--DCMAKE_INSTALL_PREFIX=$Python3_ROOT	
+-DCMAKE_INSTALL_PREFIX=$Python3_ROOT
 ```
-Then install dlite  
+Then install dlite
 ```console
 make
 make install
 ```
 Finally run tests
-```console       
+```console
 ctest
 ```
 
@@ -491,10 +494,11 @@ The following terms have a special meaning in dlite:
   - **Relation**: A subject-predicate-object triplet. Relations
     are immutable.
   - **Storage**: A generic handle encapsulating actual storage backends.
-  - **Transaction**: A not yet implemented feature, that enables to
-    represent the evolution of the state of a software as a series of
-    immutable instances.  See also the
-    [SOFT5 nomenclauture][SOFT5_nomenclauture].
+  - **Transaction**: An instance that has a reference to an immutable
+    (frozen) parent instance is called a *transaction*.  Transactions are
+    very useful for ensuring data provenance and makes it easy to work
+    with time series.  Conceptually, they share many similarities with
+    git.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
   - **uri**: A [uniform resource identifier (URI)][URI] is a
     generalisation of URL, but follows the same syntax rules.  In
     dlite, the term "uri" is used as an human readable identifier for
@@ -571,3 +575,4 @@ DLite is developed with the hope that it will be a delight to work with.
 [pandas]: https://pandas.pydata.org/
 [pymongo]: https://github.com/mongodb/mongo-python-driver
 [mongomock]: https://github.com/mongomock/mongomock
+[graphviz]: https://www.graphviz.org/

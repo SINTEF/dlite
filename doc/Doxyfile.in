@@ -776,8 +776,10 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = @dlite_SOURCE_DIR@/doc \
+                         @dlite_SOURCE_DIR@/doc/developers \
                          @dlite_BINARY_DIR@/doc/README.md \
                          @dlite_SOURCE_DIR@/doc/concepts.md \
+                         @dlite_SOURCE_DIR@/doc/transactions.md \
                          @dlite_SOURCE_DIR@/src \
                          @dlite_SOURCE_DIR@/src/utils \
                          @dlite_SOURCE_DIR@/storages/python/python-storage-plugins/README.md \

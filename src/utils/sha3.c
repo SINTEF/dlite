@@ -117,7 +117,7 @@ keccakf(uint64_t s[25])
 
 /* For Init or Reset call these: */
 sha3_return_t
-sha3_Init(void *priv, unsigned bitSize) {
+sha3_Init(sha3_context *priv, unsigned bitSize) {
     sha3_context *ctx = (sha3_context *) priv;
     if( bitSize != 256 && bitSize != 384 && bitSize != 512 )
         return SHA3_RETURN_BAD_PARAMS;
@@ -127,25 +127,25 @@ sha3_Init(void *priv, unsigned bitSize) {
 }
 
 void
-sha3_Init256(void *priv)
+sha3_Init256(sha3_context *priv)
 {
     sha3_Init(priv, 256);
 }
 
 void
-sha3_Init384(void *priv)
+sha3_Init384(sha3_context *priv)
 {
     sha3_Init(priv, 384);
 }
 
 void
-sha3_Init512(void *priv)
+sha3_Init512(sha3_context *priv)
 {
     sha3_Init(priv, 512);
 }
 
 enum SHA3_FLAGS
-sha3_SetFlags(void *priv, enum SHA3_FLAGS flags)
+sha3_SetFlags(sha3_context *priv, enum SHA3_FLAGS flags)
 {
     sha3_context *ctx = (sha3_context *) priv;
     flags &= SHA3_FLAGS_KECCAK;
@@ -155,7 +155,7 @@ sha3_SetFlags(void *priv, enum SHA3_FLAGS flags)
 
 
 void
-sha3_Update(void *priv, void const *bufIn, size_t len)
+sha3_Update(sha3_context *priv, void const *bufIn, size_t len)
 {
     sha3_context *ctx = (sha3_context *) priv;
 
@@ -249,7 +249,7 @@ sha3_Update(void *priv, void const *bufIn, size_t len)
  * bytes are always present, but they can be the same byte.
  */
 void const *
-sha3_Finalize(void *priv)
+sha3_Finalize(sha3_context *priv)
 {
     sha3_context *ctx = (sha3_context *) priv;
 

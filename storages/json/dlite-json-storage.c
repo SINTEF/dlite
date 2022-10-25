@@ -130,7 +130,8 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   if (arrays < 0) FAIL1("invalid boolean value for `arrays=%s`.",
                         opts[5].value);
 
-  if (!(s = calloc(1, sizeof(DLiteJsonStorage)))) FAIL("allocation failure");
+  if (!(s = calloc(1, sizeof(DLiteJsonStorage))))
+   FAILCODE(dliteMemoryError, "allocation failure");
   s->api = api;
 
   if (!mode) mode = default_mode(uri);
