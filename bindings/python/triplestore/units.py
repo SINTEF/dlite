@@ -111,15 +111,24 @@ def pint_registry_lines_from_qudt_experimental():
     # Explicit definition of which QUDT units that will serve as base units for
     # the pint unit registry. (i.e. the QUDT names for the SI units and the
     # name of their physical dimension)
+    #base_unit_dimensions ={
+    #    "M": "length",
+    #    "SEC": "time",
+    #    "A": "current",
+    #    "CD": "luminosity",
+    #    "KiloGM": "mass",
+    #   "MOL": "substance",
+    #    "K": "temperature",
+    #}
     base_unit_dimensions ={
-        "M": "length",
-        "SEC": "time",
-        "A": "current",
-        "CD": "luminosity",
-        "KiloGM": "mass",
-        "MOL": "substance",
-        "K": "temperature",
-    }
+        "Meter": "length",
+        "Second": "time",
+        "Ampere": "current",
+        "Candela": "luminosity",
+        "Kilogram": "mass",
+        "Mole": "substance",
+        "Kelvin": "temperature",
+    }    
 
     # Read info from all units.
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
@@ -151,18 +160,24 @@ def pint_registry_lines_from_qudt_experimental():
         unit = s.split("/")[-1]
         unit_name = unit.replace("-", "_")
         identifiers.add_identifier(
-            URI=s, label_name="unit_name", prio=1, identifier=unit_name)
+            URI=s, label_name="label", prio=3, identifier=unit_name)
         # Can there be more than one symbol in QUDT?
         symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), None)
         if symbol is not None:
             symbol = symbol.replace(" ", "_")
         identifiers.add_identifier(
             URI=s, label_name="symbol", prio=2, identifier=symbol)
+        pint_name_is_set = False
         for label in ts.objects(subject=s, predicate=RDFS.label):
             label = label.replace(" ", "_")
             label = label.replace("-", "_")
-            identifiers.add_identifier(
-                URI=s, label_name="label", prio=3, identifier=label)
+            if pint_name_is_set:
+                identifiers.add_identifier(
+                    URI=s, label_name="label", prio=3, identifier=label)
+            else:
+                identifiers.add_identifier(
+                    URI=s, label_name="unit_name", prio=1, identifier=label)
+                pint_name_is_set = True
         udunits_code = next(
             ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
         if udunits_code is not None:
