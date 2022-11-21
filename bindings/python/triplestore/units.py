@@ -160,6 +160,7 @@ def pint_registry_lines_from_qudt_experimental():
             URI=s, label_name="symbol", prio=2, identifier=symbol)
         for label in ts.objects(subject=s, predicate=RDFS.label):
             label = label.replace(" ", "_")
+            label = label.replace("-", "_")
             identifiers.add_identifier(
                 URI=s, label_name="label", prio=3, identifier=label)
         udunits_code = next(
