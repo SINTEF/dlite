@@ -207,7 +207,8 @@ def pint_registry_lines_from_qudt_experimental():
 
         # Add any labels.
         for label in unit_identifiers["labels"]:
-            pint_definition_line += f' = {label}'
+            if label is not None:
+                pint_definition_line += f' = {label}'
 
         # Add URI.
         pint_definition_line += f' = {URIb}'
