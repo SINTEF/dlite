@@ -212,7 +212,7 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
 
     ureg = UnitRegistry(registry_file_path)
     #ureg.default_format = "~P" #symbols, pretty print
-    ureg.default_format = "~" #symbols, standard print
+    #ureg.default_format = "~" #symbols, standard print (preferred)
     #ureg.default_format = "~C" #symbols, compact print
     return ureg
 
@@ -276,13 +276,17 @@ def pint_registry_lines_from_qudt_experimental():
             URI=s, label_name="unit_name", prio=1, identifier=unit_name)
         # Can there be more than one symbol in QUDT?
         symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), None)
+        if symbol is not None:
+            symbol = symbol.replace(" ", "_")
         identifiers.add_identifier(
             URI=s, label_name="symbol", prio=2, identifier=symbol)
         for label in ts.objects(subject=s, predicate=RDFS.label):
+            label = label.replace(" ", "_")
             identifiers.add_identifier(
                 URI=s, label_name="label", prio=3, identifier=label)
         udunits_code = next(
             ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
+        udunits_code = udunits_code.replace(" ", "_")
         identifiers.add_identifier(
             URI=s, label_name="udunits_code", prio=4, identifier=udunits_code)
 
