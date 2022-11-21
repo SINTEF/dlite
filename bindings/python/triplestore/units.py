@@ -90,7 +90,7 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
 
     ureg = UnitRegistry(registry_file_path)
     #ureg.default_format = "~P" #symbols, pretty print
-    #ureg.default_format = "~" #symbols, standard print (preferred)
+    ureg.default_format = "~" #symbols, standard print (preferred)
     #ureg.default_format = "~C" #symbols, compact print
     return ureg
 
@@ -194,6 +194,9 @@ def pint_registry_lines_from_qudt_experimental():
 
         # Start constructing the pint definition line.
         unit_name = unit_identifiers["unit_name"]
+        if unit_name is None:
+            logging.warning(f'Omitting UNIT {URIb} due to name conflict.')
+            continue
         if unit_name in base_unit_dimensions.keys():
             pint_definition_line = (
                 f'{unit_name} = [{base_unit_dimensions[unit_name]}]'
