@@ -286,7 +286,8 @@ def pint_registry_lines_from_qudt_experimental():
                 URI=s, label_name="label", prio=3, identifier=label)
         udunits_code = next(
             ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
-        udunits_code = udunits_code.replace(" ", "_")
+        if udunits_code is not None:
+            udunits_code = udunits_code.replace(" ", "_")
         identifiers.add_identifier(
             URI=s, label_name="udunits_code", prio=4, identifier=udunits_code)
 
