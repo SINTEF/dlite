@@ -1,0 +1,34 @@
+{
+  "name": "Person",
+  "version": "0.1",
+  "namespace": "http://onto-ns.com/meta",
+  "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
+  "description": "A person.",
+  "dimensions": [
+    {
+      "name": "N",
+      "description": "Number of skills."
+    }
+  ],
+  "properties": [
+    {
+      "name": "name",
+      "type": "string",
+      "description": "Full name."
+    },
+    {
+      "name": "age",
+      "type": "float",
+      "unit": "years",
+      "description": "Age of person."
+    },
+    {
+      "name": "skills",
+      "type": "string",
+      "dims": [
+        "N"
+      ],
+      "description": "List of skills."
+    }
+  ]
+}

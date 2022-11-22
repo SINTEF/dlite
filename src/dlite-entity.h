@@ -129,6 +129,7 @@
 
 #include <stddef.h>
 #include "utils/boolean.h"
+#include "utils/integers.h"
 #include "utils/jsmnx.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
@@ -151,6 +152,14 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
     dlite_instance_free().
     Returns non-zero on error. */
 typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
+
+/** Function used by extended metadata to replace the standard hash
+    calculation in dlite_instance_get_hash().  The calculated hash is
+    stored in `hash`, where `hashsize` is the size of `hash` in bytes.
+    It should be 32, 48 or 64.
+    Returns non-zero on error. */
+typedef int (*DLiteGetHash)(const DLiteInstance *inst, unsigned char *hash,
+                            int hashsize);
 
 /** Function for accessing internal dimension sizes of extended
     metadata.  If provided it will be called by dlite_instance_save(),
@@ -180,18 +189,40 @@ typedef int (*DLiteLoadProperty)(const DLiteInstance *inst, size_t i);
 typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
 
 
+/** Flags for describing the state of an instance.  This should be as
+    minimalistic as possible, but a flag for immutability is needed. */
+typedef enum _DLiteFlag {
+  dliteImmutable=1  /*!< Whether instance is immutable. */
+} DLiteFlag;
+
+/** The size in bytes of sha3 hash used by transactions.
+    Should be 32, 48 or 64. */
+#define DLITE_HASH_SIZE 32
+
+/** Reference to parent instance.  Used by transactions. */
+typedef struct _DLiteParent {
+  const struct _DLiteInstance *parent;  /*!< Pointer to parent instance.
+                                       May be NULL, in which case the
+                                       parent must be accessed via uuid. */
+  char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID of parent instance. */
+  uint8_t hash[DLITE_HASH_SIZE];  /*!< Hash of parent instance. */
+} DLiteParent;
+
 
 /**
   Initial segment of all DLite instances.
 */
 #define DLiteInstance_HEAD                                              \
   char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
+  uint8_t _flags;                 /* OR'ed sum of DLiteFlag. */         \
   const char *uri;                /* Unique uri for this instance. */   \
                                   /* May be NULL. */                    \
   int _refcount;                  /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
-                                  /* bing this instance. */
+                                  /* bing this instance. */             \
+  DLiteParent *_parent;           /* For transactions, reference to */  \
+                                  /* parent instance. May be NULL. */
 
 
 /**
@@ -224,6 +255,7 @@ typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
                           /* sizeof(DLiteMeta). */                      \
   DLiteInit _init;        /* Function initialising an instance. */      \
   DLiteDeInit _deinit;    /* Function deinitialising an instance. */    \
+  DLiteGetHash _gethash;  /* Function calculating instance hash. */     \
   DLiteGetDimension _getdim;   /* Gets dim. size from internal state.*/ \
   DLiteSetDimension _setdim;   /* Sets dim. size of internal state. */  \
   DLiteLoadProperty _loadprop; /* Loads internal state from prop. */    \
@@ -990,6 +1022,152 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
  */
 int dlite_instance_get_hash(const DLiteInstance *inst,
                             unsigned char *hash, int hashsize);
+
+
+/** @} */
+/* ================================================================= */
+/**
+ * @name Transactions
+ */
+/* ================================================================= */
+/** @{ */
+
+/**
+  Make instance immutable.  This can never be reverted.
+
+  **Note**
+  Immutability of the underlying data cannot be enforced in
+  C as long as the someone has a pointer to the instance.  However,
+  functions like dlite_instance_set_property() and
+  dlite_instance_set_dimension_size() will refuse to change the
+  instance if it is immutable.  Furthermore, if the instance is used
+  as a parent in a transaction, any changes to the underlying data
+  will be detected by calling dlite_instance_verify_transaction().
+ */
+void dlite_instance_freeze(DLiteInstance *inst);
+
+/**
+  Returns non-zero if instance is immutable (frozen).
+ */
+int dlite_instance_is_frozen(const DLiteInstance *inst);
+
+/**
+  Make a snapshop of mutable instance `inst`.
+
+  The `inst` will be a transaction whos parent is the snapshot.  If
+  `inst` already has a parent, that will now be the parent of the
+  snapshot.
+
+  The reason that `inst` must be mutable, is that its hash will change
+  due to change in its parent.
+
+  The snapshot will be assigned an URI of the form
+  "snapshot-XXXXXXXXXXXX" (or inst->uri#snapshot-XXXXXXXXXXXX if
+  inst->uri is not NULL) where each X is replaces with a random
+  character.
+
+  On error non-zero is returned and `inst` is unchanged.
+ */
+int dlite_instance_snapshot(DLiteInstance *inst);
+
+/**
+  Returns a borrowed reference to shapshot number `n` of `inst`, where
+  `n` counts backward from `inst`.  Hence, `n=0` returns `inst`, `n=1`
+  returns the parent of `inst`, etc...
+
+  Snapshots may be pulled back into memory using dlite_instance_get().
+  Use dlite_instance_pull() if you know the storage that the snapshots
+  are stored in.
+
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_instance_get_snapshot(const DLiteInstance *inst,
+                                                 int n);
+
+/**
+  Like dlite_instance_get_snapshot(), except that stored snapshots are pulled
+  from `s` to memory.
+
+  Returns a borrowed reference to snapshot `n` or NULL on error.
+ */
+const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
+                                                  DLiteStorage *s, int n);
+
+/**
+  Push all ancestors of snapshot `n` from memory to storage `s`,
+  where `n=0` corresponds to `inst`, `n=1` to the parent of `inst`, etc...
+
+  No snapshot is pulled back from storage, so if the snapshots are
+  already in storage, this function has no effect.
+
+  This function starts pushing closest to the root to ensure that the
+  transaction is in a consistent state at all times.
+
+  Returns zero on success or the (positive) index of the snapshot that
+  fails to push.
+*/
+int dlite_instance_push_snapshot(const DLiteInstance *inst,
+                                 DLiteStorage *s, int n);
+
+/**
+  Prints transaction to stdout.  Returns non-zero on error.
+ */
+int dlite_instance_print_transaction(const DLiteInstance *inst);
+
+/**
+  Turn instance `inst` into a transaction node with parent `parent`.
+
+  This require that `inst` is mutable, and `parent` is immutable.
+
+  If `inst` already has a parent, it will be replaced.
+
+  Use dlite_instance_freeze() and dlite_instance_is_frozen() to make
+  and check that an instance is immutable, respectively.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent);
+
+/**
+  Returns non-zero if `inst` has a parent.
+ */
+int dlite_instance_has_parent(const DLiteInstance *inst);
+
+/**
+  Verify that the hash of instance `inst`.
+
+  If `hash` is not NULL, this function verifies that the hash of
+  `inst` corresponds to the memory pointed to by `hash`.  The size of
+  the memory should be `DLITE_HASH_SIZE` bytes.
+
+  If `hash` is NULL and `inst` has a parent, this function will
+  instead verify that the parent hash stored in `inst` corresponds to
+  the value of the parent.
+
+  If `recursive` is non-zero, all ancestors of `inst` are also
+  included in the verification.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
+
+  @todo
+  If `recursive` is non-zero and `inst` is a collection or has
+  properties of type `dliteRef`, we should also verify the instances
+  that are referred to.  This is currently not implemented, because
+  we have to detect cyclic references to avoid infinite recursion.
+ */
+int dlite_instance_verify_hash(const DLiteInstance *inst, uint8_t *hash,
+                               int recursive);
+
+/**
+  Verifies a transaction.
+
+  Equivalent to calling `dlite_instance_very_hash(inst, NULL, 1)`.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
+ */
+int dlite_instance_verify_transaction(const DLiteInstance *inst);
 
 
 /** @} */

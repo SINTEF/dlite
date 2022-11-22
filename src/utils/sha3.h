@@ -58,17 +58,17 @@ enum SHA3_RETURN {
 typedef enum SHA3_RETURN sha3_return_t;
 
 /* For Init or Reset call these: */
-sha3_return_t sha3_Init(void *priv, unsigned bitSize);
+sha3_return_t sha3_Init(sha3_context *priv, unsigned bitSize);
 
-void sha3_Init256(void *priv);
-void sha3_Init384(void *priv);
-void sha3_Init512(void *priv);
+void sha3_Init256(sha3_context *priv);
+void sha3_Init384(sha3_context *priv);
+void sha3_Init512(sha3_context *priv);
 
-enum SHA3_FLAGS sha3_SetFlags(void *priv, enum SHA3_FLAGS);
+enum SHA3_FLAGS sha3_SetFlags(sha3_context *priv, enum SHA3_FLAGS);
 
-void sha3_Update(void *priv, void const *bufIn, size_t len);
+void sha3_Update(sha3_context *priv, void const *bufIn, size_t len);
 
-void const *sha3_Finalize(void *priv);
+void const *sha3_Finalize(sha3_context *priv);
 
 /* Single-call hashing */
 sha3_return_t sha3_HashBuffer(

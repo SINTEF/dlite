@@ -56,7 +56,7 @@ static Globals *get_globals(void)
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
     if (!(g = calloc(1, sizeof(Globals))))
-      return dlite_err(1, "allocation failure"), NULL;
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
   return g;
@@ -371,7 +371,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
     FAIL1("attribute 'input_uris' of '%s' is not a sequence", classname);
 
   if (!(input_uris = calloc(PySequence_Length(in_uris), sizeof(char *))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0; i < PySequence_Length(in_uris); i++) {
     PyObject *in_uri = PySequence_GetItem(in_uris, i);
     if (!in_uri || !PyUnicode_Check(in_uri)) {
@@ -392,7 +392,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
     cost = PyLong_AsLong(pcost);
 
   if (!(api = calloc(1, sizeof(DLiteMappingPlugin))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   apiname = strdup(PyUnicode_AsUTF8(name));
   output_uri = strdup(PyUnicode_AsUTF8(out_uri));

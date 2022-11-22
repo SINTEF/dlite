@@ -203,6 +203,8 @@ PROV = Namespace("http://www.w3.org/ns/prov#")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 TIME = Namespace("http://www.w3.org/2006/time#")
 FNO = Namespace("https://w3id.org/function/ontology#")
+QUDTU = Namespace("http://qudt.org/vocab/unit/")
+OM = Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
 
 EMMO = Namespace("http://emmo.info/emmo#")
 MAP = Namespace("http://emmo.info/domain-mappings#")
@@ -332,23 +334,23 @@ class Triplestore:
         # "dm": DM,
     }
 
-    def __init__(self, name: str, base_iri: str = None, **kwargs):
+    def __init__(self, backend: str, base_iri: str = None, **kwargs):
         """Initialise triplestore using the backend with the given name.
 
         Parameters:
-            name: Module name for backend.
+            backend: Name of the backend module.
             base_iri: Base IRI used by the add_function() method when adding
                 new triples.
             kwargs: Keyword arguments passed to the backend's __init__()
                 method.
         """
-        module = import_module(name if "." in name
-                      else "dlite.triplestore.backends." + name)
-        cls = getattr(module, name.title() + "Strategy")
+        module = import_module(backend if "." in backend
+                      else "dlite.triplestore.backends." + backend)
+        cls = getattr(module, backend.title() + "Strategy")
         self.base_iri = base_iri
         self.namespaces = {}
-        self.backend_name = name
-        self.backend = cls(**kwargs)
+        self.backend_name = backend
+        self.backend = cls(base_iri=base_iri, **kwargs)
         # Keep functions in the triplestore for convienence even though
         # they usually do not belong to the triplestore per se.
         self.function_repo = {}
@@ -378,9 +380,9 @@ class Triplestore:
             source: File-like object or file name.
             format: Needed if format can not be inferred from source.
             kwargs: Keyword arguments passed to the backend.
-                The rdflib backend supports e.g. `location` (absolute
-                or relative URL) and `data` (string containing the
-                data to be parsed) arguments.
+                The rdflib and ontopy backends support e.g. `location`
+                (absolute or relative URL) and `data` (string
+                containing the data to be parsed) arguments.
         """
         self._check_method("parse")
         self.backend.parse(source=source, format=format, **kwargs)
@@ -408,16 +410,38 @@ class Triplestore:
                                       format=format, **kwargs)
 
     def query(self, query_object, **kwargs):
-        """SPARQL query."""
+        """SPARQL query.
+
+        Parameters:
+            query_object: String with the SPARQL query.
+            kwargs: Keyword arguments passed to rdflib.Graph.query().
+
+        Returns:
+            List of tuples of IRIs for each matching row.
+
+        Note:
+            This method is intended for SELECT queries.  Use
+            the update() method for INSERT and DELETE  queries.
+
+        """
         self._check_method("query")
         return self.backend.query(query_object=query_object, **kwargs)
 
     def update(self, update_object, **kwargs):
-        """Update triplestore with SPARQL."""
+        """Update triplestore with SPARQL.
+
+        Parameters:
+            query_object: String with the SPARQL query.
+            kwargs: Keyword arguments passed to rdflib.Graph.query().
+
+        Note:
+            This method is intended for INSERT and DELETE queries.  Use
+            the query() method for SELECT queries.
+        """
         self._check_method("update")
         return self.backend.update(update_object=update_object, **kwargs)
 
-    def bind(self, prefix: str, namespace: str, **kwargs):
+    def bind(self, prefix: str, namespace: "Union[str, Namespace]", **kwargs):
         """Bind prefix to namespace and return the new Namespace object.
 
         The new Namespace is created with `namespace` as IRI.

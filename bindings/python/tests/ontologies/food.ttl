@@ -78,7 +78,7 @@
 ###  http://onto-ns.com/ontologies/examples/food#FOOD_b1eea643_efda_45d0_b857_2eb8ba8639b1
 :FOOD_b1eea643_efda_45d0_b857_2eb8ba8639b1 rdf:type owl:Class ;
                                            rdfs:subClassOf :FOOD_51f1cd73_2f85_431b_a5d1_9604a0feec4f ;
-                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Aple"@en .
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Apple"@en .
 
 
 ###  http://onto-ns.com/ontologies/examples/food#FOOD_b7507905_6a36_4d06_9ca1_422ec0aeeccc

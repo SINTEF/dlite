@@ -14,6 +14,7 @@ set(tests
   test_global_dlite_state
   test_property_mappings
   test_datamodel
+  test_transaction
   test_mapping
   test_rdf
   test_triplestore

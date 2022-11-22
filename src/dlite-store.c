@@ -6,6 +6,7 @@
 #include "utils/err.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
+#include "dlite-errors.h"
 
 /* TODO
    - Add read and write locks for tread safety they should be local to
@@ -36,7 +37,7 @@ DLiteStore *dlite_store_create()
 {
   DLiteStore *store;
   if (!(store = calloc(1, sizeof(DLiteStore))))
-    return err(1, "allocation failure"), NULL;
+    return err(dliteMemoryError, "allocation failure"), NULL;
   map_init(&store->map);
   return store;
 }
