@@ -332,8 +332,8 @@ environment before running `cmake` and set `CMAKE_INSTALL_PREFIX` to
 the directory of the virtual environment. For example:
 
     VIRTUAL_ENV=/path/to/virtual/env
-    $VIRTUAL_ENV/bin/activate
-    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV
+    source $VIRTUAL_ENV/bin/activate
+    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV ..
 
 Build with:
 
