@@ -1,6 +1,6 @@
-breathe>=4.34
+breathe==4.34.0
 docutils==0.17.1
-ipython=8.6.0
+ipython==8.6.0
 myst-parser==0.18.0
 nbsphinx==0.8.9
 Sphinx==4.5.0
