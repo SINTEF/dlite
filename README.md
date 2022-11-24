@@ -299,7 +299,6 @@ The sources can be cloned from GitHub
   - [cppcheck][13], optional, used for static code analysis.
   - [mongomock][mongomock], optional, used for testing mongodb storage plugin.
   - librdf development libraries, optional, needed by librdf storage plugin.
-  
 
 Compiling
 ---------
