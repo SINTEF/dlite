@@ -57,8 +57,9 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --fix-missing \
 
 # Install Python packages
 COPY requirements.txt .
+COPY requirements_doc.txt .
 RUN pip3 install --trusted-host files.pythonhosted.org \
-    --upgrade pip -r requirements.txt
+    --upgrade pip -r requirements.txt -r requirements_doc.txt
 
 
 ##########################################
@@ -72,6 +73,7 @@ RUN mkdir -p /home/user/sw/dlite
 COPY bindings /home/user/sw/dlite/bindings
 COPY  cmake /home/user/sw/dlite/cmake
 COPY  doc /home/user/sw/dlite/doc
+COPY  pydoc /home/user/sw/dlite/pydoc
 COPY  examples /home/user/sw/dlite/examples
 COPY  src /home/user/sw/dlite/src
 COPY  storages /home/user/sw/dlite/storages
