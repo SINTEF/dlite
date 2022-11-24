@@ -32,7 +32,8 @@ jobs:
           python3-psycopg2
     - name: Install Python dependencies
       run: |
-        pip install --upgrade pip -r requirements.txt requirements_doc.txt
+        pip install --upgrade pip -r requirements.txt
+        pip install -r requirements_doc.txt
     - name: check numpy
       run: |
         which python3
