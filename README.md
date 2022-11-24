@@ -386,8 +386,6 @@ DLite uses sphinx to generate documentation from Python source
 code. Ensure the correct virtual environment is set up and install the
 requirements `pip install -r requirements_doc.txt`
 
-
-
 #### Build C++ Documentation
 
 If you have [doxygen][11] installed, the html documentation should be generated
