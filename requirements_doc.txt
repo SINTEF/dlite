@@ -1,8 +1,10 @@
+markupsafe==2.0.1
 breathe>=4.34
 docutils==0.17.1
 ipython=8.6.0
 myst-parser==0.18.0
 nbsphinx==0.8.9
+Jinja2==3.1.2
 Sphinx==4.5.0
 sphinx-autoapi==2.0.0
 sphinx-autobuild==2021.3.14
