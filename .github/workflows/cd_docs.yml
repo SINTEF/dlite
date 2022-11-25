@@ -1,35 +1,94 @@
-name: Deploy doxygen documentation
+name: CD - Deploy documentation to GH Pages
 
 on:
   push:
-    branches:
-      - master
+    branches: ["master"]
+  pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+env:
+  ONTODOC_DIR: doc
+  BUILD_DIR: tmp
+  PUBLISH_DIR: pages
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
+      - name: Install system dependencies
+        run: |
+        sudo apt-get update --fix-missing
+        sudo apt-get install \
+          libhdf5-dev \
+          swig4.0 \
+          doxygen \
+          graphviz \
+          python3 \
+          python3-pip \
+          python3-dev \
+          python3-numpy \
+          python3-yaml \
+          python3-psycopg2
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -U setuptools wheel
+          pip install -r requirements.txt
+          pip install -r requirements_doc.txt
+
+      - name: Run CMAKE
+        run: |
+          mkdir -p build
+          cd build
+          Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
+            CFLAGS='-Wno-missing-field-initializers' \
+            cmake .. -DFORCE_EXAMPLES=ON
+
+      - name: Run MakeFile
+        run: make
+        working-directory: build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'build/pydoc/docs/sphinx/'
+
+  deploy:
+    if: github.event_name != 'pull_request'
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    needs: build
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Install doxygen
-      # Alpine needs ttf-freefont, what about ubuntu?
-      run: sudo apt-get install doxygen graphviz
-
-    - name: Get cmake
-      uses: lukka/get-cmake@v3.23.0
-
-    - name: Configure cmake
-      run: |
-        mkdir build
-        cmake -S . -B ./build -DWITH_PYTHON=NO -DWITH_HDF5=NO -DWITH_REDLAND=NO
-
-    - name: Build documentation
-      run: cmake --build ./build --target doc
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build/doc/html
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
