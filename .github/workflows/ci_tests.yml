@@ -33,6 +33,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         pip install --upgrade pip -r requirements.txt
+        pip install -r requirements_doc.txt
     - name: check numpy
       run: |
         which python3
