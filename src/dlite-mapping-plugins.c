@@ -16,6 +16,7 @@
 #include "dlite-datamodel.h"
 #include "dlite-mapping-plugins.h"
 #include "dlite-macros.h"
+#include "dlite-errors.h"
 #ifdef WITH_PYTHON
 #include "pyembed/dlite-python-mapping.h"
 #endif
@@ -46,7 +47,8 @@ static void free_globals(void *globals)
 static Globals *get_globals(void) {
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
-    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+    if (!(g = calloc(1, sizeof(Globals))))
+     FAILCODE(dliteMemoryError, "allocation failure");
 
     g->mapping_plugin_info = plugin_info_create("mapping-plugin",
                                                 "get_dlite_mapping_api",

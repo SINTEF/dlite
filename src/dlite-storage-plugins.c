@@ -15,6 +15,7 @@
 #include "dlite-misc.h"
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
+#include "dlite-errors.h"
 
 #define GLOBALS_ID "dlite-storage-plugins-id"
 
@@ -44,7 +45,7 @@ static Globals *get_globals(void)
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
     if (!(g = calloc(1, sizeof(Globals))))
-      return err(1, "allocation failure"), NULL;
+      return err(dliteMemoryError, "allocation failure"), NULL;
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
   return g;
@@ -183,7 +184,7 @@ DLiteStoragePluginIter *dlite_storage_plugin_iter_create()
   DLiteStoragePluginIter *iter;
   if (!(info = get_storage_plugin_info())) return NULL;
   if (!(iter = calloc(1, sizeof(DLiteStoragePluginIter))))
-    return err(1, "allocation failure"), NULL;
+    return err(dliteMemoryError, "allocation failure"), NULL;
   plugin_api_iter_init(&iter->iter, info);
   return iter;
 }

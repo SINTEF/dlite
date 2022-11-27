@@ -11,6 +11,7 @@
 #include "utils/strutils.h"
 #include "utils/err.h"
 #include "dlite.h"
+#include "dlite-errors.h"
 
 
 /***************************************************************
@@ -62,6 +63,11 @@ MU_TEST(test_set_typename)
                                               sizeof(DLiteInstance *),
                                               typename, 32));
   mu_assert_string_eq("ref", typename);
+
+  int n;
+  n = dlite_type_set_typename(dliteBool, 13, typename, 32);
+  mu_assert_int_eq(dliteValueError, n);
+  err_clear();
 }
 
 MU_TEST(test_set_cdecl)
@@ -327,7 +333,7 @@ MU_TEST(test_scan)
   mu_assert_int_eq((uint16_t)-35, uint16);
 
   n = dlite_type_scan("-", -1, &uint16, dliteUInt, sizeof(uint16), 0);
-  mu_assert_int_eq(-1, n);
+  mu_assert_int_eq(dliteValueError, n);
   err_clear();
 
   /* float */
@@ -396,7 +402,7 @@ MU_TEST(test_scan)
 
   n = dlite_type_scan("{\"namex\": \"ntokens\"}", -1, &dim, dliteDimension,
                       sizeof(DLiteDimension), 0);
-  mu_assert_int_eq(-1, n);
+  mu_assert_int_eq(dliteValueError, n);
   err_clear();
 
   s = "{\"name\": \"M\", \"xxx\": \"this is an array\"}";

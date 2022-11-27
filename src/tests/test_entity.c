@@ -61,22 +61,22 @@ MU_TEST(test_meta_create)
   mu_assert_int_eq(1, dlite_instance_is_meta((DLiteInstance *)entity));
   mu_assert_int_eq(0, dlite_instance_is_metameta((DLiteInstance *)entity));
 
-  dlite_instance_debug((DLiteInstance *)entity);
+  //dlite_instance_debug((DLiteInstance *)entity);
 
   /* be careful here.. the expected values are for a memory-aligned 64 bit
      system */
 #if (__GNUC__ && SIZEOF_VOID_P == 8)
-  mu_assert_int_eq(64, sizeof(DLiteInstance));
-  mu_assert_int_eq(64, entity->_dimoffset);
-  mu_assert_int_eq(64, entity->_headersize);
-  mu_assert_int_eq(80, entity->_propoffsets[0]);
-  mu_assert_int_eq(88, entity->_propoffsets[1]);
-  mu_assert_int_eq(96, entity->_propoffsets[2]);
-  mu_assert_int_eq(104, entity->_propoffsets[3]);
-  mu_assert_int_eq(112, entity->_propoffsets[4]);
-  mu_assert_int_eq(120, entity->_reloffset);
-  mu_assert_int_eq(120, entity->_propdimsoffset);
-  mu_assert_int_eq(152, entity->_propdimindsoffset);
+  mu_assert_int_eq(72, sizeof(DLiteInstance));
+  mu_assert_int_eq(72, entity->_dimoffset);
+  mu_assert_int_eq(72, entity->_headersize);
+  mu_assert_int_eq(88, entity->_propoffsets[0]);
+  mu_assert_int_eq(96, entity->_propoffsets[1]);
+  mu_assert_int_eq(104, entity->_propoffsets[2]);
+  mu_assert_int_eq(112, entity->_propoffsets[3]);
+  mu_assert_int_eq(120, entity->_propoffsets[4]);
+  mu_assert_int_eq(128, entity->_reloffset);
+  mu_assert_int_eq(128, entity->_propdimsoffset);
+  mu_assert_int_eq(160, entity->_propdimindsoffset);
 #endif
 }
 
@@ -389,6 +389,139 @@ MU_TEST(test_instance_get_hash)
 }
 
 
+MU_TEST(test_transactions)
+{
+  int stat;
+  size_t dims[] = {1, 3};
+  DLiteInstance *inst = dlite_instance_get("mydata");
+  DLiteInstance *inst2 = dlite_instance_create(entity, dims, NULL);
+  DLiteInstance *inst3 = dlite_instance_create(entity, dims, NULL);
+  mu_check(inst);
+  mu_check(inst2);
+  mu_check(inst3);
+  dlite_errclr();
+
+  stat = dlite_instance_set_parent(inst2, inst);
+  mu_assert_int_eq(-1, stat);
+  dlite_errclr();
+
+  mu_assert_int_eq(0, dlite_instance_is_frozen(inst));
+  dlite_instance_freeze(inst);
+  mu_assert_int_eq(1, dlite_instance_is_frozen(inst));
+  stat = dlite_instance_set_parent(inst2, inst);
+  mu_assert_int_eq(0, stat);
+
+  dlite_instance_freeze(inst2);
+  stat = dlite_instance_set_parent(inst3, inst2);
+  mu_assert_int_eq(0, stat);
+
+  mu_assert_int_eq(0, dlite_instance_verify_hash(inst3, NULL, 1));
+  mu_assert_int_eq(0, dlite_instance_verify_hash(inst2,inst3->_parent->hash,0));
+  mu_assert_int_eq(0, dlite_instance_verify_hash(inst,inst2->_parent->hash, 0));
+  mu_assert_int_eq(1, dlite_instance_verify_hash(inst,inst3->_parent->hash, 0));
+
+  const DLiteInstance *parent = dlite_instance_get_snapshot(inst2, 1);
+  mu_assert_ptr_eq(parent, inst);
+
+  dlite_instance_decref(inst3);
+  dlite_instance_decref(inst2);
+  dlite_instance_decref(inst);
+}
+
+MU_TEST(test_snapshot)
+{
+  /* Create a simple transaction */
+  char *path = STRINGIFY(dlite_BINARY_DIR) "/src/tests/transaction_store.json";
+  const DLiteInstance *snapshot;
+  DLiteInstance *inst = dlite_instance_get("mydata");
+  DLiteStorage *s = dlite_storage_open("json", path, "mode=w");
+  mu_check(s);
+  mu_check(inst);
+  mu_assert_int_eq(0, dlite_instance_snapshot(inst));
+  mu_assert_int_eq(0, dlite_instance_snapshot(inst));
+  mu_assert_int_eq(0, dlite_instance_snapshot(inst));
+
+  snapshot = dlite_instance_get_snapshot(inst, 0);
+  mu_assert_ptr_eq(snapshot, inst);
+
+  snapshot = dlite_instance_get_snapshot(inst, 1);
+  mu_assert_ptr_eq(snapshot, inst->_parent->parent);
+  printf("\n");
+  printf("*** snapshot: %s\n", snapshot->uri);
+
+  snapshot = dlite_instance_get_snapshot(inst, 3);
+  dlite_json_print(snapshot);
+  printf("*** snapshot: %s\n", snapshot->uri);
+
+  mu_assert_int_eq(0, dlite_instance_verify_hash(inst, NULL, 1));
+  dlite_instance_print_transaction(inst);
+
+  /*
+  mu_assert_int_eq(0, dlite_instance_push_snapshot(inst, s, 1));
+  snapshot = inst->_parent->parent;
+  mu_check(snapshot);
+  mu_assert_string_eq("8405895c-cc7f-5b91-aee7-0b679987394d",
+                   snapshot->_parent->uuid);
+  mu_assert_ptr_eq(NULL, snapshot->_parent->parent);
+
+  snapshot2 = dlite_instance_pull_snapshot(inst, s, 1);
+  mu_assert_ptr_eq(snapshot2, snapshot);
+  mu_assert_ptr_eq(NULL, snapshot2->_parent->parent);
+
+  // BIG ISSUE: hash and uuid of transaction parents are not described
+  // by the metadata.  Hence, is this info not serialised to the
+  // storage and is therefore not restored when the data is loaded.
+  snapshot2 = dlite_instance_pull_snapshot(inst, s, 2);
+  mu_assert_ptr_eq(snapshot2, snapshot->_parent->parent);
+  mu_assert_ptr_eq(NULL, snapshot2->_parent->parent);
+
+
+
+
+
+  printf("\n");
+  printf("snapshot 1: %s (%p)\n", snapshot->uuid, (void *)inst->_parent->parent);
+  printf("snapshot 2: %s (%p)\n", snapshot->_parent->uuid,
+         (void *)snapshot->_parent->parent);
+  */
+
+
+  //dlite_instance_save(s, inst);
+
+  //mu_assert_int_eq(0, dlite_instance_snapshot(inst));
+  //mu_assert_int_eq(0, dlite_instance_snapshot(inst));
+
+
+  /*
+  DLiteInstance *snapshot1 = dlite_instance_snapshot(inst);
+  DLiteInstance *snapshot2 = dlite_instance_snapshot(snapshot1);
+  uint8_t h0[DLITE_HASH_SIZE], h1[DLITE_HASH_SIZE], h2[DLITE_HASH_SIZE];
+
+  mu_assert_int_eq(0, dlite_instance_is_frozen(inst));
+  mu_assert_int_eq(1, dlite_instance_is_frozen(snapshot1));
+  mu_assert_int_eq(1, dlite_instance_is_frozen(snapshot2));
+
+  mu_check(snapshot1 != inst);
+  mu_assert_ptr_eq(snapshot1, snapshot2);
+
+  mu_assert_int_eq(0, dlite_instance_get_hash(inst, h0, DLITE_HASH_SIZE));
+  mu_assert_int_eq(0, dlite_instance_get_hash(snapshot1, h1, DLITE_HASH_SIZE));
+  mu_assert_int_eq(0, dlite_instance_get_hash(snapshot2, h2, DLITE_HASH_SIZE));
+
+  mu_assert_int_eq(1, inst->_refcount);
+  mu_assert_int_eq(2, snapshot1->_refcount);
+  mu_assert_int_eq(2, snapshot2->_refcount);
+
+  dlite_instance_decref(snapshot1);
+  dlite_instance_decref(snapshot2);
+  */
+  dlite_storage_close(s);
+  dlite_instance_decref(inst);
+
+}
+
+
+
 MU_TEST(test_meta_save)
 {
   DLiteStorage *s;
@@ -467,6 +600,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_instance_snprint);
   MU_RUN_TEST(test_instance_get);
   MU_RUN_TEST(test_instance_get_hash);
+  MU_RUN_TEST(test_transactions);
+  MU_RUN_TEST(test_snapshot);
 
   MU_RUN_TEST(test_meta_save);
   MU_RUN_TEST(test_meta_load);

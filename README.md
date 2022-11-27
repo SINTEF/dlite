@@ -5,10 +5,9 @@ DLite
 =====
 > A lightweight data-centric framework for semantic interoperability
 
-[![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
-[![GitHub release](https://img.shields.io/github/v/release/sintef/dlite)](https://github.com/SINTEF/dlite/releases)
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
-[![Documentation](https://img.shields.io/badge/documentation--blue.svg?style=social)](https://sintef.github.io/dlite/index.html)
+[![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
+[![Documentation](https://img.shields.io/badge/documentation-informational?logo=githubpages)](https://sintef.github.io/dlite/index.html)
 
 Content
 -------
@@ -271,34 +270,35 @@ Compile from sources
 --------------------
 The sources can be cloned from GitHub
 
-    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-
+    git clone git@github.com:SINTEF/dlite.git
 
 ### Dependencies
 
 #### Runtime dependencies
-  - [HDF5][3], optional (needed by HDF5 storage plugin)
+  - [HDF5][3], optional, support v1.10+ (needed by HDF5 storage plugin)
   - [librdf][4], optional (needed by RDF (Redland) storage plugin)
   - [Python 3][5], optional (needed by Python bindings and some plugins)
     - [NumPy][6], required if Python is enabled
     - [PyYAML][7], optional (used for generic YAML storage plugin)
-    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)  
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
         Note that in some cases a GSSAPI error is raised when using psycopg2
         by pip installing psycopg2-binary.
         This is solved by installing from source as described in their documentation.
     - [pandas][pandas], optional (used for csv storage plugin)
+    - [pymongo][pymongo], optional, (used for mongodb storage plugin)
 
 #### Build dependencies
-  - [cmake][9], required for building
-  - hdf5 development libraries, optional (needed by HDF5 storage plugin)
-  - librdf development libraries, optional (needed by librdf storage plugin)
-  - Python 3 development libraries, optional (needed by Python bindings)
-  - NumPy development libraries, optional (needed by Python bindings)
-  - [SWIG v3][10], optional (needed by building Python bindings)
-  - [Doxygen][11], optional, used for documentation generation
-  - [valgrind][12], optional, used for memory checking (Linux only)
-  - [cppcheck][13], optional, used for static code analysis
-
+  - [cmake][9], required for building - note that cmake isntalled from pypi does not always work.
+  - hdf5 development libraries, needed by HDF5 storage plugin.
+  - Python 3 development libraries, needed by Python bindings.
+  - NumPy development libraries, needed by Python bindings.
+  - [SWIG][10] needed by building Python bindings.
+  - [Doxygen][11] used for documentation generation.
+  - [Graphviz][graphviz] used for documentation generation.
+  - [valgrind][12], optional, used for memory checking (Linux only).
+  - [cppcheck][13], optional, used for static code analysis.
+  - [mongomock][mongomock], optional, used for testing mongodb storage plugin.
+  - librdf development libraries, optional, needed by librdf storage plugin.
 
 Compiling
 ---------
@@ -332,8 +332,8 @@ environment before running `cmake` and set `CMAKE_INSTALL_PREFIX` to
 the directory of the virtual environment. For example:
 
     VIRTUAL_ENV=/path/to/virtual/env
-    $VIRTUAL_ENV/bin/activate
-    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV
+    source $VIRTUAL_ENV/bin/activate
+    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV ..
 
 Build with:
 
@@ -379,6 +379,15 @@ system defined in Dockerfile.
 
 
 ### Build documentation
+
+#### Build Python Documentation
+
+DLite uses sphinx to generate documentation from Python source
+code. Ensure the correct virtual environment is set up and install the
+requirements `pip install -r requirements_doc.txt`
+
+#### Build C Documentation
+
 If you have [doxygen][11] installed, the html documentation should be generated
 as a part of the build process.  It can be browsed by opening the following file
 in your browser:
@@ -404,10 +413,64 @@ which will produce the file
 
 Setting up the environment
 --------------------------
+As a dlite user it should be enough to do 'pip install Dlite-Python',
+or 'pip install .' from within the dlite/python directory.
+
+As a developer it is more useful to install dlite from source.
 If dlite is installed in a non-default location, you may need to set
 the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
 variables.  See the [documentation of environment
 variables](doc/environment_variables.md) for more details.
+
+An example of how to install dlite as developer within a python environment
+in linux is given below.  Make sure that all required dependencies
+are installed within the environment.
+
+First activate the environment, e.g.:
+```console
+source </path/to/dedicated/pythonenvironment>/bin/activate
+```
+Set the Python variables. The following should automatically
+find the correct python paths
+```console
+Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
+Python3_VERSION=$(python3 -c 'import sys;\
+print(str(sys.version_info.major)+"."\
++str(sys.version_info.minor))')
+Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
+```
+
+Python variables for developement libraries must be set
+**manually**.
+```console
+Python3_LIBRARY=</path/to/system>/libpython${Python3_VERSION}.so
+Python3_INCLUDE_DIR=</path/to/system>/include/python${Python3_VERSION}
+```
+You may run ```find . -name libpython*.so``` to help find these paths.
+
+Go into your dlite directory:
+```console
+cd </path/to>/dlite
+```
+Build dlite:
+```console
+mkdir build
+cd build
+cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
+-DPython3_LIBRARY=$Python3_LIBRARY \
+-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
+-DWITH_STATIC_PYTHON=FALSE \
+-DCMAKE_INSTALL_PREFIX=$Python3_ROOT
+```
+Then install dlite
+```console
+make
+make install
+```
+Finally run tests
+```console
+ctest
+```
 
 An example of how to use dlite is shown above.  See also the examples
 in the [examples](examples) directory for how to link to dlite from C
@@ -440,10 +503,11 @@ The following terms have a special meaning in dlite:
   - **Relation**: A subject-predicate-object triplet. Relations
     are immutable.
   - **Storage**: A generic handle encapsulating actual storage backends.
-  - **Transaction**: A not yet implemented feature, that enables to
-    represent the evolution of the state of a software as a series of
-    immutable instances.  See also the
-    [SOFT5 nomenclauture][SOFT5_nomenclauture].
+  - **Transaction**: An instance that has a reference to an immutable
+    (frozen) parent instance is called a *transaction*.  Transactions are
+    very useful for ensuring data provenance and makes it easy to work
+    with time series.  Conceptually, they share many similarities with
+    git.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
   - **uri**: A [uniform resource identifier (URI)][URI] is a
     generalisation of URL, but follows the same syntax rules.  In
     dlite, the term "uri" is used as an human readable identifier for
@@ -484,6 +548,7 @@ been supported by several projects, including:
 
   - [AMPERE](https://www.sintef.no/en/projects/2015/ampere-aluminium-alloys-with-mechanical-properties-and-electrical-conductivity-at-elevated-temperatures/) (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
   - FICAL (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
+  - [Rational alloy design (ALLDESIGN)](https://www.ntnu.edu/digital-transformation/alldesign) (2018-2022) NTNU internally funded project.
   - [SFI Manufacturing](https://www.sfimanufacturing.no/) (2015-2023) funded by Forskningsrådet and Norwegian industry partners.
   - [SFI PhysMet](https://www.ntnu.edu/physmet)(2020-2028) funded by Forskningsrådet and Norwegian industry partners.
   - [OntoTrans](https://cordis.europa.eu/project/id/862136) (2020-2024) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 862136.
@@ -517,3 +582,6 @@ DLite is developed with the hope that it will be a delight to work with.
 [dlite-packages]: https://github.com/SINTEF/dlite/packages
 [vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
 [pandas]: https://pandas.pydata.org/
+[pymongo]: https://github.com/mongodb/mongo-python-driver
+[mongomock]: https://github.com/mongomock/mongomock
+[graphviz]: https://www.graphviz.org/

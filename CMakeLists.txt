@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.14
+  VERSION 0.3.15
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -701,6 +701,7 @@ endif()
 # Documentations
 if(WITH_DOC)
   add_subdirectory(doc)
+  add_subdirectory(pydoc)
 endif()
 
 #################################################################

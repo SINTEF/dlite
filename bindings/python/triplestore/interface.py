@@ -17,6 +17,8 @@ class ITriplestore(Protocol):
 
     ```python
 
+    def __init__(self, base_iri=None, **kwargs)
+
     def parse(self, source=None, location=None, data=None, format=None,
               **kwargs):
         """Parse source and add the resulting triples to triplestore.
@@ -48,10 +50,31 @@ class ITriplestore(Protocol):
         """
 
     def query(self, query_object, **kwargs)
-        """SPARQL query."""
+        """SPARQL query.
+
+        Parameters:
+            query_object: String with the SPARQL query.
+            kwargs: Keyword arguments passed to rdflib.Graph.query().
+
+        Returns:
+            List of tuples of IRIs for each matching row.
+
+        Note:
+            This method is intended for SELECT queries.  Use
+            the update() method for INSERT and DELETE  queries.
+        """
 
     def update(self, update_object, **kwargs)
-        """Update triplestore with SPARQL."""
+        """Update triplestore with SPARQL.
+
+        Parameters:
+            query_object: String with the SPARQL query.
+            kwargs: Keyword arguments passed to rdflib.Graph.query().
+
+        Note:
+            This method is intended for INSERT and DELETE queries.  Use
+            the query() method for SELECT queries.
+        """
 
     def bind(self, prefix: str, namespace: str)
         """Bind prefix to namespace.

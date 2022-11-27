@@ -253,10 +253,12 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
       handle = NULL;
     }
   }
-  if (name && emit_err)
-    errx(1, "no such api: \"%s\"", name);
-  else
+  if (name) {
+    if (emit_err) errx(1, "no such api: \"%s\"", name);
+    retval = NULL;
+  } else {
     retval = loaded_api;
+  }
  fail:
   if (!retval && handle)
     (void)dsl_close(handle);
