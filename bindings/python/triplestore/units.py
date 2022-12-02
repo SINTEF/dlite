@@ -157,33 +157,36 @@ def pint_registry_lines_from_qudt_experimental():
         }
 
         # Extract identifiers.
-        unit = s.split("/")[-1]
-        unit_name = unit.replace("-", "_")
-        identifiers.add_identifier(
-            URI=s, label_name="label", prio=3, identifier=unit_name)
-        # Can there be more than one symbol in QUDT?
-        symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), None)
-        if symbol is not None:
-            symbol = symbol.replace(" ", "_")
-        identifiers.add_identifier(
-            URI=s, label_name="symbol", prio=2, identifier=symbol)
         pint_name_is_set = False
+        prio_downgrade = 2
         for label in ts.objects(subject=s, predicate=RDFS.label):
             label = label.replace(" ", "_")
             label = label.replace("-", "_")
             if pint_name_is_set:
                 identifiers.add_identifier(
-                    URI=s, label_name="label", prio=3, identifier=label)
+                    URI=s, label_name="label", prio=5, identifier=label)
             else:
+                if label in base_unit_dimensions.keys():
+                    prio_downgrade = 0
                 identifiers.add_identifier(
-                    URI=s, label_name="unit_name", prio=1, identifier=label)
+                    URI=s, label_name="unit_name", prio=1+prio_downgrade, identifier=label)
                 pint_name_is_set = True
+        unit = s.split("/")[-1]
+        unit_name = unit.replace("-", "_")
+        identifiers.add_identifier(
+            URI=s, label_name="label", prio=6, identifier=unit_name)
+        # Can there be more than one symbol in QUDT?
+        symbol = next(ts.objects(subject=s, predicate=QUDT.symbol), None)
+        if symbol is not None:
+            symbol = symbol.replace(" ", "_")
+        identifiers.add_identifier(
+            URI=s, label_name="symbol", prio=2+prio_downgrade, identifier=symbol)
         udunits_code = next(
             ts.objects(subject=s, predicate=QUDT.udunitsCode), None)
         if udunits_code is not None:
             udunits_code = udunits_code.replace(" ", "_")
         identifiers.add_identifier(
-            URI=s, label_name="udunits_code", prio=4, identifier=udunits_code)
+            URI=s, label_name="udunits_code", prio=7, identifier=udunits_code)
 
     identifiers.remove_ambiguities()
 
