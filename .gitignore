@@ -32,3 +32,6 @@ out
 
 # Generated build docker files
 Dockerfile-*linux*[^.template]
+
+# Units (pint) files
+units.cpython-*.pyc
