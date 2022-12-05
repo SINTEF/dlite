@@ -127,6 +127,13 @@ def pint_prefix_lines():
     return prefixes
 
 
+def prefix_names():
+    lines = pint_prefix_lines()
+    for i in range(len(lines)):
+        lines[i] = lines[i].split(" ")[0].replace("-", "")
+    return lines
+
+
 # Temporary experimental function that utilizes the PintIdentifiers class for
 # handling the ambiguities.
 def pint_registry_lines_from_qudt_experimental():
@@ -171,6 +178,20 @@ def pint_registry_lines_from_qudt_experimental():
         if replaced_by is not None:
             continue
 
+        unit = s.split("/")[-1]
+        unit_name = unit.replace("-", "_")        
+
+        omit_prefixed_unit = False
+        for prefix in prefix_names():
+            if unit_name.startswith('KiloGM'):
+                pass
+            elif unit_name.lower().startswith(prefix):
+                omit_prefixed_unit = True
+                break
+
+        if omit_prefixed_unit:
+            continue
+
         # Extract and parse the dimension vector.
         dimension_vector = o.split("/")[-1]
         pint_definition = pint_definition_string(parse_qudt_dimension_vector(
@@ -203,8 +224,7 @@ def pint_registry_lines_from_qudt_experimental():
                 identifiers.add_identifier(
                     URI=s, label_name="unit_name", prio=1+prio_downgrade, identifier=label)
                 pint_name_is_set = True
-        unit = s.split("/")[-1]
-        unit_name = unit.replace("-", "_")
+
         identifiers.add_identifier(
             URI=s, label_name="label", prio=6, identifier=unit_name)
         # Can there be more than one symbol in QUDT?
