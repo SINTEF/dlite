@@ -26,3 +26,7 @@ assert str(test_quantity4) == "16 S"
 test_quantity5 = 25 * ureg.s
 print(f'{str(test_quantity5)} = {test_quantity5.to_base_units()}')
 assert str(test_quantity5) == "25 s"
+
+test_quantity6 = 36 * ureg.exaAmpere
+print(f'{str(test_quantity6)} = {test_quantity6.to_base_units()}')
+assert str(test_quantity6) == "36 EA"

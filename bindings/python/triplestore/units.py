@@ -82,10 +82,12 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
     """
     registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
     if force_recreate or not os.path.exists(registry_file_path):
+        with open(registry_file_path, "w") as f:
+            f.write("\n".join(pint_prefix_lines()) + "\n")
         for source in sources:
             #pint_registry_lines = pint_registry_lines_from_qudt()
             pint_registry_lines = pint_registry_lines_from_qudt_experimental()
-            with open(registry_file_path, "w") as f:
+            with open(registry_file_path, "a") as f:
                 f.write("\n".join(pint_registry_lines) + "\n")
 
     ureg = UnitRegistry(registry_file_path)
@@ -93,6 +95,36 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
     ureg.default_format = "~" #symbols, standard print (preferred)
     #ureg.default_format = "~C" #symbols, compact print
     return ureg
+
+
+def pint_prefix_lines():
+    # Decimal prefixes from pint's default_en.txt registry.
+    prefixes = ['quecto- = 1e-30 = q-',
+        'ronto- = 1e-27 = r-',
+        'yocto- = 1e-24 = y-',
+        'zepto- = 1e-21 = z-',
+        'atto- =  1e-18 = a-',
+        'femto- = 1e-15 = f-',
+        'pico- =  1e-12 = p-',
+        'nano- =  1e-9  = n-',
+        'micro- = 1e-6  = µ- = μ- = u-',
+        'milli- = 1e-3  = m-',
+        'centi- = 1e-2  = c-',
+        'deci- =  1e-1  = d-',
+        'deca- =  1e+1  = da- = deka-',
+        'hecto- = 1e2   = h-',
+        'kilo- =  1e3   = k-',
+        'mega- =  1e6   = M-',
+        'giga- =  1e9   = G-',
+        'tera- =  1e12  = T-',
+        'peta- =  1e15  = P-',
+        'exa- =   1e18  = E-',
+        'zetta- = 1e21  = Z-',
+        'yotta- = 1e24  = Y-',
+        'ronna- = 1e27 = R-',
+        'quetta- = 1e30 = Q-',
+    ]
+    return prefixes
 
 
 # Temporary experimental function that utilizes the PintIdentifiers class for
