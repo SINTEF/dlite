@@ -117,9 +117,9 @@ MU_TEST(test_load)
 
 MU_TEST(test_load2)
 {
-  char *url = "json://" STRINGIFY(DLITE_ROOT)
-    "/src/tests/test-read-data.json"
-    "#dlite/1/test-c";  // cppcheck-suppress unknownMacro
+  char *url = "json://"
+    STRINGIFY(DLITE_ROOT)  // cppcheck-suppress unknownMacro
+    "/src/tests/test-read-data.json#dlite/1/test-c";
   printf("\n--- test_load2: %s ---\n", url);
 
   DLiteInstance *inst2 = dlite_instance_load_url(url);
