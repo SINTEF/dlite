@@ -85,8 +85,7 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
         with open(registry_file_path, "w") as f:
             f.write("\n".join(pint_prefix_lines()) + "\n")
         for source in sources:
-            #pint_registry_lines = pint_registry_lines_from_qudt()
-            pint_registry_lines = pint_registry_lines_from_qudt_experimental()
+            pint_registry_lines = pint_registry_lines_from_qudt()
             with open(registry_file_path, "a") as f:
                 f.write("\n".join(pint_registry_lines) + "\n")
 
@@ -134,9 +133,7 @@ def prefix_names():
     return lines
 
 
-# Temporary experimental function that utilizes the PintIdentifiers class for
-# handling the ambiguities.
-def pint_registry_lines_from_qudt_experimental():
+def pint_registry_lines_from_qudt():
     ts = load_qudt()
 
     QUDTU = ts.bind("unit", "http://qudt.org/vocab/unit/", check=True)
@@ -159,6 +156,8 @@ def pint_registry_lines_from_qudt_experimental():
     #   "MOL": "substance",
     #    "K": "temperature",
     #}
+
+    # Base units defined by rdfs:label (instead of QUDT name):
     base_unit_dimensions ={
         "Meter": "length",
         "Second": "time",
@@ -261,13 +260,6 @@ def pint_registry_lines_from_qudt_experimental():
                 f'{unit_name} = {definition["multiplier"]} '
                 f'{definition["unit_in_SI"]}'
             )
-
-        # if unit_name in used_identifiers:
-        #     warnings.warn(f"OMITTING UNIT due to name conflict: {s}")
-        #     continue
-        # else:
-        #     used_identifiers.append(unit_name)
-        #     used_identifiers_this_unit = [unit_name]
 
         # Add offset.
         if definition["offset"] is not None:
