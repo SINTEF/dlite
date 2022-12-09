@@ -6,20 +6,19 @@ Setting up a virtual Python environment for building dlite
 With [virtualenvwrapper], do
 
     pip install virtualenvwrapper
+    export WORKON_HOME=$HOME/.envs  # Put this in your ~/.bash_profile
     mkvirtualenv dlite
     pip install -U pip
     pip install -r requirements.txt
     pip install -r requirements_dev.txt
     pip install -r requirements_doc.txt
 
-    VIRTUAL_ENV=/path/to/virtual/env
-    source $VIRTUAL_ENV/bin/activate
+    workon dlite  #  only needed if you are not already in your dlite virtualenv
     mkdir build
     cd build
-    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV ..
+    cmake -DCMAKE_INSTALL_PREFIX=$WORKON_HOME/dlite ..
     make
     make install
-
 
 
 Debugging tests failing inside docker on GitHub
