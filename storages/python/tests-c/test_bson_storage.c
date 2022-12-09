@@ -9,8 +9,9 @@ MU_TEST(test_save)
   DLiteStorage* s = NULL;
 
   // Load JSON metadata
-  char* url
-	  = "json://" STRINGIFY(DLITE_ROOT) "/src/tests/test-entity.json?mode=r";
+  char* url =
+    "json://" STRINGIFY(DLITE_ROOT)
+    "/src/tests/test-entity.json?mode=r";  // cppcheck-suppress unknownMacro
   DLiteInstance* meta = (DLiteInstance*)dlite_meta_load_url(url);
   mu_check(meta);
   mu_check(dlite_instance_is_meta(meta));

@@ -12,7 +12,8 @@ DLiteMeta *meta=NULL;
 MU_TEST(test_load_inst)
 {
   char *url;
-  url="json://"STRINGIFY(dlite_SOURCE_DIR)"/src/tests/test-entity.json?mode=r";
+  url = "json://" STRINGIFY(dlite_SOURCE_DIR)
+    "/src/tests/test-entity.json?mode=r";  // cppcheck-suppress unknownMacro
   meta = dlite_meta_load_url(url);
   mu_check(meta);
 

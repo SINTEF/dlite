@@ -16,7 +16,7 @@ DLiteInstance *inst = NULL;
 MU_TEST(test_load)
 {
   char *url = "blob://" STRINGIFY(CURRENT_SOURCE_DIR)
-    "/test_blob_storage.c?mode=r";
+    "/test_blob_storage.c?mode=r";  // cppcheck-suppress unknownMacro
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 }
