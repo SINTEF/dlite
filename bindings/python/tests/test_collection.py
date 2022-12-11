@@ -114,6 +114,11 @@ assert rel.o == 'http://onto-ns.com/meta/0.1/MyEntity'
 i1, = coll.get_instances()
 assert i1 == inst1
 
+assert not list(coll.get_instances(dlite.COLLECTION_ENTITY))
+
+i1, = coll.get_instances('http://onto-ns.com/meta/0.1/MyEntity')
+assert i1 == inst1
+
 label1, = coll.get_labels()
 assert label1 == 'inst1'
 

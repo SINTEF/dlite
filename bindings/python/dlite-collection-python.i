@@ -7,9 +7,9 @@
         return self
 
     def __next__(self):
-        if self.rettype == 'I':
+        if self.rettype == 'I':  # instance
             v = self.next()
-        elif self.rettype in 'RTspo':
+        elif self.rettype in 'RTspo':  # relation
             v = self.next_relation()
         else:
             raise ValueError('`rettype` must one of "IRTspo"')
@@ -17,13 +17,13 @@
         if v is None:
             raise StopIteration()
 
-        if self.rettype == 'T':
+        if self.rettype == 'T':  # return (s,p,o) tuple
             return (v.s, v.p, v.o)
-        elif self.rettype == 's':
+        elif self.rettype == 's':  # return subject
             return v.s
-        elif self.rettype == 'p':
+        elif self.rettype == 'p':  # return predicate
             return v.p
-        elif self.rettype == 'o':
+        elif self.rettype == 'o':  # return pbject
             return v.o
         return v
 %}
@@ -194,9 +194,20 @@ class Collection(Instance):
         None is returned if there are no matching relations."""
         return _collection_find_first(self._coll, s, p, o)
 
-    def get_instances(self):
-        """Returns a generator over all instances in collection."""
-        return _CollectionIter(self, s=None, p=None, o=None, rettype='I')
+    def get_instances(self, metaid=None):
+        """Returns a generator over all instances in collection.
+        If `metaid` is given, only instances of this metadata will be
+        returned.
+        """
+        iter = _CollectionIter(self, s=None, p=None, o=None, rettype='I')
+        if metaid:
+            uri = metaid.uri if hasattr(metaid, "uri") else metaid
+            for inst in iter:
+                if inst.meta.uri == uri:
+                    yield inst
+        else:
+            for inst in iter:
+                yield inst
 
     def get_labels(self):
         """Returns a generator over all labels."""
