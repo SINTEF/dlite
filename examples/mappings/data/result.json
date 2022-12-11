@@ -1,6 +1,6 @@
 {
   "f91bbdaa-0c03-4ea3-a35e-0777892ea334":   {
-    "meta": "http://onto-ns.com/meta/0.1/CalcResults",
+    "meta": "http://onto-ns.com/meta/0.1/CalcResult",
     "dimensions": {
       "natoms": 9,
       "ncoords": 3

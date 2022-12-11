@@ -1,6 +1,6 @@
 {
   "44d14f64-de9d-4131-ac39-2b6305f75e77":   {
-    "meta": "http://onto-ns.com/meta/0.1/ASEAtoms",
+    "meta": "http://onto-ns.com/meta/0.1/Structure",
     "dimensions": {
       "natoms": 9,
       "ncoords": 3
