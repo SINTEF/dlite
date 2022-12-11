@@ -21,9 +21,9 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 from pint import Quantity
+from tripper import Triplestore, DM, FNO, MAP, RDF, RDFS
 
 import dlite
-from dlite.triplestore import Triplestore, DM, FNO, MAP, RDF, RDFS
 from dlite.utils import infer_dimensions
 
 
@@ -706,6 +706,87 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
         id=id,
         quantity=quantity
     )
+
+
+def instantiate_all(meta, instances, triplestore, routedict=None,
+                allow_incomplete=False, quantity=Quantity, **kwargs):
+    """Like instantiate(), but returns a generator over all possible instances.
+
+    The number of instances iterated over is the product of the number
+    routes for each property and may potentially be very large.  Use
+    `routedict` to reduct the number.
+
+    Arguments:
+        meta: Metadata to instantiate.
+        instances: Sequence of instances with source values.
+        triplestore: Triplestore instance.
+            It is safe to pass a generator expression too.
+        routedict: Dict mapping property names to route number to select for
+            the given property.  For property names not in `routedict`, the
+            default is to iterate over all possible routes.  Set the value to
+            None to only consider the route with lowest cost.
+        allow_incomplete: Whether to allow not populating all properties
+            of the returned instance.
+        quantity: Class implementing quantities with units.  Defaults to
+            pint.Quantity.
+
+    Keyword arguments (passed to mapping_route()):
+        function_repo: Dict mapping function IRIs to corresponding Python
+            function.  Default is to use `triplestore.function_repo`.
+        function_mappers: Sequence of mapping functions that takes
+            `triplestore` as argument and return a dict mapping output IRIs
+            to a list of `(function_iri, [input_iris, ...])` tuples.
+        mapsTo: IRI of 'mapsTo' in `triplestore`.
+        instanceOf: IRI of 'instanceOf' in `triplestore`.
+        subClassOf: IRI of 'subClassOf' in `triplestore`.  Set it to None if
+            subclasses should not be considered.
+        label: IRI of 'label' in `triplestore`.  Used for naming function
+            input parameters.  The default is to use rdfs:label.
+        hasUnit: IRI of 'hasUnit' in `triplestore`.
+        hasCost: IRI of 'hasCost' in `triplestore`.
+
+    Returns:
+        Generator over new instances.
+    """
+    if isinstance(meta, str):
+        meta = dlite.get_instance(meta)
+
+    routes = instance_routes(
+        meta=meta,
+        instances=instances,
+        triplestore=triplestore,
+        allow_incomplete=allow_incomplete,
+        quantity=quantity,
+        **kwargs
+    )
+
+    property_names = [p.name for p in meta.properties['properties']]
+    nprops = len(property_names)
+
+    def routedicts(n):
+        """Recursive help function returning an iterator over all possible
+        routedicts.  `n` is the index of the current property."""
+        if n < 0:
+            yield {}
+            return
+        for outer in routedicts(n-1):
+            name = property_names[n]
+            if routedict and name in routedict:
+                outer[name] = routedict[name]
+                yield outer
+            else:
+                step = routes[name]
+                for inner in range(step.number_of_routes()):
+                    outer[name] = inner
+                    yield outer
+
+    for rd in routedicts(len(property_names) - 1):
+        yield instantiate_from_routes(
+            meta=meta,
+            routes=routes,
+            routedict=rd,
+            quantity=quantity
+        )
 
 
 
