@@ -688,8 +688,7 @@ def instantiate(meta, instances, triplestore, routedict=None, id=None,
     Returns:
         New instance.
     """
-    if isinstance(meta, str):
-        meta = dlite.get_instance(meta)
+    meta = dlite.get_instance(meta)
 
     routes = instance_routes(
         meta=meta,
@@ -748,8 +747,7 @@ def instantiate_all(meta, instances, triplestore, routedict=None,
     Returns:
         Generator over new instances.
     """
-    if isinstance(meta, str):
-        meta = dlite.get_instance(meta)
+    meta = dlite.get_instance(meta)
 
     routes = instance_routes(
         meta=meta,
