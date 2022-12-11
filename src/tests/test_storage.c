@@ -20,7 +20,7 @@ MU_TEST(test_open)
 MU_TEST(test_open_url)
 {
   char *url =
-    "json://" STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-data.json?mode=r";
+    "json://" STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-data.json?mode=r";  // cppcheck-suppress unknownMacro
   mu_assert_int_eq(0, dlite_storage_close(s));
   mu_check((s = dlite_storage_open_url(url)));
   mu_assert_int_eq(0, dlite_storage_is_writable(s));
