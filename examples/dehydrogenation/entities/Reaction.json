@@ -1,0 +1,49 @@
+{
+    "name": "Reaction",
+    "version": "0.1",
+    "namespace": "http://onto-ns.com/meta",
+    "description": "A minimal description of a chemical reaction",
+    "dimensions": [
+        {
+            "name": "nreactants",
+            "description": "Number of reactants"
+        },
+        {
+            "name": "nproducts",
+            "description": "Number of products"
+        }
+    ],
+    "properties": [
+        {
+            "name": "reactants",
+            "type": "string",
+            "dims": ["nreactants"],
+            "description": "Name of the reactant."
+        },
+        {
+            "name": "products",
+            "type": "string",
+            "dims": ["nproducts"],
+            "description": "Name of the product."
+        },
+        {
+            "name": "reactant_stoichiometric_coefficient",
+            "type": "double",
+            "dims": ["nreactants"],
+            "description": "Stoichiometric coefficient of the reactant."
+        },
+        {
+            "name": "product_stoichiometric_coefficient",
+            "type": "double",
+            "dims": ["nproducts"],
+            "description": "Stoichiometric coefficient of the product."
+        },
+	{
+            "name": "energy",
+            "type": "double",
+            "unit": "eV",
+            "description": "Reaction energy."
+        }
+
+    ]
+}

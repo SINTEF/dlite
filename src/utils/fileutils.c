@@ -287,7 +287,7 @@ char *fu_dirname(const char *path)
 char *fu_basename(const char *path)
 {
   char *p;
-  if ((p = fu_lastsep(path))) return strdup(p+1);
+  if ((p = fu_lastsep(path)) && *p) return strdup(p+1);
   return strdup(path);
 }
 
@@ -1051,6 +1051,7 @@ static char **strlist_copy(const char **strlist)
 {
   char **cpy;
   size_t i, n=0;
+  if (!strlist) return NULL;
   while (strlist[n]) n++;
   if (!(cpy = calloc(n+1, sizeof(char *))))
     return err(1, "allocation failure"), NULL;

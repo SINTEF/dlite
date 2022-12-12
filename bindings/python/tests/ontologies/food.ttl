@@ -1,0 +1,118 @@
+@prefix : <http://onto-ns.com/ontologies/examples/food#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://onto-ns.com/ontologies/examples/food> .
+
+<http://onto-ns.com/ontologies/examples/food> rdf:type owl:Ontology ;
+                                               owl:versionIRI <http://onto-ns.com/ontologies/examples/0.1/food> .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://www.w3.org/2004/02/skos/core#prefLabel
+<http://www.w3.org/2004/02/skos/core#prefLabel> rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_345ecde3_3cac_41d2_aad6_cb6835a27b41
+:FOOD_345ecde3_3cac_41d2_aad6_cb6835a27b41 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_d2741ae5_f200_4873_8f72_ac315917c41b ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Vegetable"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_39b30a33_b66a_4760_9c0f_739857c8fee7
+:FOOD_39b30a33_b66a_4760_9c0f_739857c8fee7 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_6b635023_770e_4d35_8853_b14d8241aa40 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Pork"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_3b811bb2_805e_440d_a25a_f67e87d0fac8
+:FOOD_3b811bb2_805e_440d_a25a_f67e87d0fac8 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_6b635023_770e_4d35_8853_b14d8241aa40 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Chicken"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_51f1cd73_2f85_431b_a5d1_9604a0feec4f
+:FOOD_51f1cd73_2f85_431b_a5d1_9604a0feec4f rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_d2741ae5_f200_4873_8f72_ac315917c41b ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Fruit"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_6b635023_770e_4d35_8853_b14d8241aa40
+:FOOD_6b635023_770e_4d35_8853_b14d8241aa40 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_d2741ae5_f200_4873_8f72_ac315917c41b ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Meat"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_6ebb8413_2f64_4192_9b2e_d3804229045f
+:FOOD_6ebb8413_2f64_4192_9b2e_d3804229045f rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_e69f1d79_b689_47a4_ac4e_0c356598d676 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Colour"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_7c5ebdee_a31b_4086_b999_91778455f10d
+:FOOD_7c5ebdee_a31b_4086_b999_91778455f10d rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_6b635023_770e_4d35_8853_b14d8241aa40 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Beef"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_823c01a7_a78a_48ac_8480_5adf244bd476
+:FOOD_823c01a7_a78a_48ac_8480_5adf244bd476 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_345ecde3_3cac_41d2_aad6_cb6835a27b41 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Tomato"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_92215b37_9da0_4c3a_8d96_2cd9bf1acfd9
+:FOOD_92215b37_9da0_4c3a_8d96_2cd9bf1acfd9 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_e69f1d79_b689_47a4_ac4e_0c356598d676 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Weight"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_b1eea643_efda_45d0_b857_2eb8ba8639b1
+:FOOD_b1eea643_efda_45d0_b857_2eb8ba8639b1 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_51f1cd73_2f85_431b_a5d1_9604a0feec4f ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Apple"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_b7507905_6a36_4d06_9ca1_422ec0aeeccc
+:FOOD_b7507905_6a36_4d06_9ca1_422ec0aeeccc rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_51f1cd73_2f85_431b_a5d1_9604a0feec4f ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Banana"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_c0462b27_0596_4ab5_80ca_66ea18b36829
+:FOOD_c0462b27_0596_4ab5_80ca_66ea18b36829 rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_e69f1d79_b689_47a4_ac4e_0c356598d676 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Energy"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_d2741ae5_f200_4873_8f72_ac315917c41b
+:FOOD_d2741ae5_f200_4873_8f72_ac315917c41b rdf:type owl:Class ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Food"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_e69f1d79_b689_47a4_ac4e_0c356598d676
+:FOOD_e69f1d79_b689_47a4_ac4e_0c356598d676 rdf:type owl:Class ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Property"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_e9cb271c_3be0_44e4_960f_6f6676445dbb
+:FOOD_e9cb271c_3be0_44e4_960f_6f6676445dbb rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_345ecde3_3cac_41d2_aad6_cb6835a27b41 ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Carrot"@en .
+
+
+###  http://onto-ns.com/ontologies/examples/food#FOOD_f48ced84_4b21_481b_a676_25a0405f613e
+:FOOD_f48ced84_4b21_481b_a676_25a0405f613e rdf:type owl:Class ;
+                                           rdfs:subClassOf :FOOD_51f1cd73_2f85_431b_a5d1_9604a0feec4f ;
+                                           <http://www.w3.org/2004/02/skos/core#prefLabel> "Orange"@en .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi

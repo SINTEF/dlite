@@ -17,53 +17,134 @@
 #include "compat.h"
 #include "err.h"
 
-/* Thread local storate */
-#ifdef USE_THREAD_LOCAL_STORAGE
-# ifdef __GNUC__
-# define _tls __thread
+/* Thread local storage
+ * https://stackoverflow.com/questions/18298280/how-to-declare-a-variable-as-thread-local-portab
+ */
+#if defined HAVE_THREADS && !defined thread_local
+# if __STDC_VERSION__ >= 201112 && !defined __STDC_NO_THREADS__
+#  define thread_local _Thread_local
+# elif defined _WIN32 && ( \
+       defined _MSC_VER || \
+       defined __ICL || \
+       defined __DMC__ || \
+       defined __BORLANDC__ )
+#  define thread_local __declspec(thread)
+/* note that ICC (linux) and Clang are covered by __GNUC__ */
+# elif defined __GNUC__ || \
+       defined __SUNPRO_C || \
+       defined __xlC__
+#  define thread_local __thread
 # else
-# define _tls __declspec(thread)
+#  error "Cannot define thread_local"
 # endif
 #else
-# define _tls
+# define thread_local
 #endif
 
 
-/* Prefix to append to all errors in this application.  Typically the
-   program name. */
-static const char *err_prefix = "";
+/* Global variables */
+typedef struct {
+  const char *err_prefix;  //!< Prefix to append to all errors in this
+                           //!< application.  Typically the program name.
+  FILE *err_stream;        //!< Stream for error printing. Set to NULL to silent
+  ErrHandler err_handler;  //!< Error handler
+  int err_stream_opened;   //!< Whether err_stream has been opened
+  int err_stream_atexit_called;  //!< Whether atexit() has been installed
+} Globals;
 
-/* Stream for print errors. Set to NULL to for silent. */
-static FILE *err_stream = err_default_stream;
+/* Thread local variables */
+typedef struct {
 
-/* Indicate wheter the error functions should return, exit or about.
- * If negative (default), check the environment. */
-static _tls ErrAbortMode err_abort_mode = -1;
+  /* Indicate wheter the error functions should return, exit or about.
+   * If negative (default), check the environment. */
+  ErrAbortMode err_abort_mode;
 
-/* Indicate whether warnings should be turned into errors.
- * If negative (default), check the environment. */
-static _tls ErrWarnMode err_warn_mode = -1;
+  /* Indicate whether warnings should be turned into errors.
+   * If negative (default), check the environment. */
+  ErrWarnMode err_warn_mode;
 
-/* Indicates whether error messages should include debugging info.
- * If negative (default), check the environment. */
-static _tls ErrDebugMode err_debug_mode = -1;
+  /* Indicates whether error messages should include debugging info.
+   * If negative (default), check the environment. */
+  ErrDebugMode err_debug_mode;
 
-/* How to handle overridden errors in  ErrTry clauses.
- * If negative (default), check the environment. */
-static _tls ErrOverrideMode err_override = -1;
+  /* How to handle overridden errors in  ErrTry clauses.
+   * If negative (default), check the environment. */
+  ErrOverrideMode err_override;
 
-/* Error handler */
-static ErrHandler err_handler = err_default_handler;
+  /* Pointer to the top level record. */
+  ErrRecord *err_record;
 
-/* Error records
- * Hold the latest error and message. These are thread-local to ensure
- * that errors in different threads doesn't mess up with each other. */
+  /* Root of the linked list of error records. */
+  ErrRecord err_root_record;
 
-/* Root of the linked list of error records. */
-static _tls ErrRecord err_root_record;
+  /* Pointer to global state */
+  Globals *globals;
 
-/* Pointer to the top level record. */
-static _tls ErrRecord *err_record = &err_root_record;
+} ThreadLocals;
+
+/* Global state */
+static Globals _globals = {"", err_default_stream, err_default_handler, 0, 0};
+
+/* Thread local state */
+static thread_local ThreadLocals _tls;
+
+/* Whether _cls is initialised */
+static thread_local int _tls_initialized = 0;
+
+
+/* Reset thread local state */
+static void reset_tls(void)
+{
+  memset(&_globals, 0, sizeof(_globals));
+  _globals.err_prefix = "";
+  _globals.err_stream = err_default_stream;
+  _globals.err_handler = err_default_handler;
+  _globals.err_stream_opened = 0;
+  _globals.err_stream_atexit_called = 0;
+
+  memset(&_tls, 0, sizeof(_tls));
+  _tls.err_abort_mode = -1;
+  _tls.err_warn_mode = -1;
+  _tls.err_debug_mode = -1;
+  _tls.err_override = -1;
+  _tls.err_record = &_tls.err_root_record;
+  _tls.globals = &_globals;
+}
+
+/* Returns a pointer to thread local state */
+static ThreadLocals *get_tls(void)
+{
+  if (!_tls_initialized) {
+    _tls_initialized = 1;
+    memset(&_tls, 0, sizeof(_tls));
+    _tls.err_abort_mode = -1;
+    _tls.err_warn_mode = -1;
+    _tls.err_debug_mode = -1;
+    _tls.err_override = -1;
+    _tls.err_record = &_tls.err_root_record;
+    _tls.globals = &_globals;
+  }
+  return &_tls;
+}
+
+/* Return a pointer to (thread local) state for this module */
+void *err_get_state(void)
+{
+  return (void *)get_tls();
+}
+
+/* Sets state from state returned by err_get_state().
+   If `state` is NULL, the state is initialised to default values. */
+void err_set_state(void *state)
+{
+  if (state) {
+    ThreadLocals *src = state;
+    memcpy(&_tls, src, sizeof(ThreadLocals));
+    memcpy(&_globals, src->globals, sizeof(Globals));
+  } else {
+    reset_tls();
+  }
+}
 
 /* Separator between appended errors */
 static char *err_append_sep = "\n - ";
@@ -79,21 +160,22 @@ static char *error_names[] = {
 
 
 /* Reports the error and returns `eval`.  Args:
- *  errname : name of error, e.g. "Fatal" or "Error"
- *  eval    : error value that is returned or passed exit()
- *  errnum  : error number for system errors
- *  file    : file and line number in source file where the error occured
- *  func    : name of function in which the error occured
- *  msg     : error message
- *  ap      : printf()-like argument list for error message
+ *  errlevel : error level
+ *  eval     : error value that is returned or passed exit()
+ *  errnum   : error number for system errors
+ *  file     : file and line number in source file where the error occured
+ *  func     : name of function in which the error occured
+ *  msg      : error message
+ *  ap       : printf()-like argument list for error message
  */
 int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 		 const char *func, const char *msg, va_list ap)
 {
+  ThreadLocals *tls = get_tls();
   int n=0;
   char *errname = error_names[errlevel];
-  char *errmsg = err_record->msg;
-  size_t errsize = sizeof(err_record->msg);
+  char *errmsg = tls->err_record->msg;
+  size_t errsize = sizeof(tls->err_record->msg);
   FILE *stream = err_get_stream();
   ErrDebugMode debug_mode = err_get_debug_mode();
   ErrAbortMode abort_mode = err_get_abort_mode();
@@ -101,7 +183,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   ErrOverrideMode override = err_get_override_mode();
   int ignore_new_error = 0;
   ErrHandler handler = err_get_handler();
-  int call_handler = handler && !err_record->prev;
+  int call_handler = handler && !tls->err_record->prev;
 
   /* Check warning mode */
   if (errlevel == errLevelWarn) {
@@ -120,7 +202,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   }
 
   /* Handle overridden errors */
-  if (err_record->eval) {
+  if (tls->err_record->eval) {
     switch (override) {
     case errOverrideAppend:
       n = strlen(errmsg);
@@ -128,12 +210,12 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       break;
     case errOverrideWarnOld:
       if (stream) fprintf(stream, "Warning: Overriding old error: '%s'\n",
-                          err_record->msg);
+                          tls->err_record->msg);
       break;
     case errOverrideWarnNew:
       ignore_new_error = 1;
       if (stream) fprintf(stream, "Warning: Ignoring new error %d\n",
-                          err_record->eval);
+                          tls->err_record->eval);
       break;
     case errOverrideOld:
       break;
@@ -146,15 +228,16 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   }
 
   /* Update the current error record */
-  err_record->level = errlevel;
-  err_record->eval = eval;
-  err_record->errnum = errnum;
+  tls->err_record->level = errlevel;
+  tls->err_record->eval = eval;
+  tls->err_record->errnum = errnum;
 
   /* Write error message */
   if (!ignore_new_error) {
+    Globals *g = tls->globals;
 
-    if (err_prefix && *err_prefix)
-      n += snprintf(errmsg + n, errsize - n, "%s: ", err_prefix);
+    if (g->err_prefix && *g->err_prefix)
+      n += snprintf(errmsg + n, errsize - n, "%s: ", g->err_prefix);
 
     if (debug_mode >= 1)
       n += snprintf(errmsg + n, errsize - n, "%s: ", file);
@@ -178,32 +261,35 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 
   /* If this error occured after the try clause in an ErrTry handler,
      we mark this error to be reraised after leaving the handler. */
-  if (errlevel >= errLevelError && err_record->state)
-    err_record->reraise = eval;
+  if (errlevel >= errLevelError && tls->err_record->state)
+    tls->err_record->reraise = eval;
 
   /* If we are not within a ErrTry...ErrEnd clause */
   if (call_handler) {
 
     /* ...call the error handler */
-    handler(err_record);
+    handler(tls->err_record);
 
     /* ...check err_abort_mode */
     if (errlevel >= errLevelError) {
       if (abort_mode == errAbortExit) {
-        if (!call_handler) handler(err_record);
+        if (!call_handler) handler(tls->err_record);
         exit(eval);
       } else if (abort_mode >= errAbortAbort) {
-        if (!call_handler) handler(err_record);
+        if (!call_handler) handler(tls->err_record);
         abort();
       }
     }
 
     /* ...make sure that fatal errors always exit */
     if (errlevel >= errLevelFatal) {
-      if (!call_handler) handler(err_record);
+      if (!call_handler) handler(tls->err_record);
       exit(eval);
     }
   }
+
+  /* Clear errno */
+  errno = 0;
 
   return eval;
 }
@@ -314,218 +400,247 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
 /* Associated functions */
 int err_geteval(void)
 {
-  return err_record->eval;
+  ThreadLocals *tls = get_tls();
+  return tls->err_record->eval;
 }
 
 int err_update_eval(int eval)
 {
-  if (err_record->eval) err_record->eval = eval;
-  return err_record->eval;
+  ThreadLocals *tls = get_tls();
+  if (tls->err_record->eval) tls->err_record->eval = eval;
+  return tls->err_record->eval;
 }
 
 const char *err_getmsg(void)
 {
-  return err_record->msg;
+  ThreadLocals *tls = get_tls();
+  return tls->err_record->msg;
 }
 
 void err_clear(void)
 {
+  ThreadLocals *tls = get_tls();
   errno = 0;
-  err_record->level = 0;
-  err_record->eval = 0;
-  err_record->errnum = 0;
-  err_record->msg[0] = '\0';
-  err_record->handled = 0;
-  err_record->reraise = 0;
-  err_record->state = 0;
+  tls->err_record->level = 0;
+  tls->err_record->eval = 0;
+  tls->err_record->errnum = 0;
+  tls->err_record->msg[0] = '\0';
+  tls->err_record->handled = 0;
+  tls->err_record->reraise = 0;
+  tls->err_record->state = 0;
 }
 
 const char *err_set_prefix(const char *prefix)
 {
-  const char *prev = err_prefix;
-  err_prefix = prefix;
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  const char *prev = g->err_prefix;
+  g->err_prefix = prefix;
   return prev;
 }
 
 const char *err_get_prefix(void)
 {
-  return err_prefix;
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  return g->err_prefix;
 }
 
 /* whether the error stream has been opened with fopen() */
-static int err_stream_opened = 0;
+//static int err_stream_opened = 0;
 
 /* whether `atexit(err_close_stream)` has been called */
-static int err_stream_atexit_called = 0;
+//static int err_stream_atexit_called = 0;
 
 static void err_close_stream(void)
 {
-  if (err_stream_opened) {
-    fflush(err_stream);
-    if (err_stream != stderr && err_stream != stdout)
-      fclose(err_stream);
-    err_stream_opened = 0;
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  if (g->err_stream_opened) {
+    fflush(g->err_stream);
+    if (g->err_stream != stderr && g->err_stream != stdout)
+      fclose(g->err_stream);
+    g->err_stream_opened = 0;
   }
 }
 
 FILE *err_set_stream(FILE *stream)
 {
-  FILE *prev = err_stream;
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  FILE *prev = g->err_stream;
   err_close_stream();
-  err_stream = stream;
+  g->err_stream = stream;
   return prev;
 }
 
 FILE *err_get_stream(void)
 {
-  if (err_stream == err_default_stream) {
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  if (g->err_stream == err_default_stream) {
     char *errfile = getenv("ERR_STREAM");
     if (!errfile) {
-      err_stream = stderr;
+      g->err_stream = stderr;
     } else if (!errfile[0]) {
-      err_stream = NULL;
+      g->err_stream = NULL;
     } else if (strcmp(errfile, "stderr") == 0) {
-      err_stream = stderr;
+      g->err_stream = stderr;
     } else if (strcmp(errfile, "stdout") == 0) {
-      err_stream = stdout;
+      g->err_stream = stdout;
     } else {
-      err_stream = fopen(errfile, "a");
-      if (!err_stream) { /* fallback to stderr if errfile cannot be opened */
-        err_stream = stderr;
+      g->err_stream = fopen(errfile, "a");
+      if (!g->err_stream) { /* fallback to stderr if errfile cannot be opened */
+        g->err_stream = stderr;
       } else {
-        err_stream_opened = 1;
-        if (!err_stream_atexit_called) {
+        g->err_stream_opened = 1;
+        if (!g->err_stream_atexit_called) {
           atexit(err_close_stream);
-          err_stream_atexit_called = 1;
+          g->err_stream_atexit_called = 1;
         }
       }
     }
   }
-  return err_stream;
+  return g->err_stream;
 }
 
 ErrAbortMode err_set_abort_mode(int mode)
 {
-  int prev = err_abort_mode;
-  err_abort_mode = mode;
+  ThreadLocals *tls = get_tls();
+  int prev = tls->err_abort_mode;
+  tls->err_abort_mode = mode;
   return prev;
 }
 
 ErrAbortMode err_get_abort_mode(void)
 {
-  if (err_abort_mode < 0) {
+  ThreadLocals *tls = get_tls();
+  if (tls->err_abort_mode < 0) {
     char *mode = getenv("ERR_ABORT");
     if (!mode || !mode[0])
-      err_abort_mode = errAbortNormal;
+      tls->err_abort_mode = errAbortNormal;
     else if (strcasecmp(mode, "exit") == 0)
-      err_abort_mode = errAbortExit;
+      tls->err_abort_mode = errAbortExit;
     else if (strcasecmp(mode, "abort") == 0)
-      err_abort_mode = errAbortAbort;
+      tls->err_abort_mode = errAbortAbort;
     else
-      err_abort_mode = atoi(mode);
-    if (err_abort_mode < 0) err_abort_mode = 0;
-    if (err_abort_mode > errAbortAbort) err_abort_mode = errAbortAbort;
+      tls->err_abort_mode = atoi(mode);
+    if (tls->err_abort_mode < 0) tls->err_abort_mode = 0;
+    if (tls->err_abort_mode > errAbortAbort) tls->err_abort_mode = errAbortAbort;
   }
-  return err_abort_mode;
+  return tls->err_abort_mode;
 }
 
 ErrWarnMode err_set_warn_mode(int mode)
 {
-  int prev = err_warn_mode;
-  err_warn_mode = mode;
+  ThreadLocals *tls = get_tls();
+  int prev = tls->err_warn_mode;
+  tls->err_warn_mode = mode;
   return prev;
 }
 
 ErrWarnMode err_get_warn_mode()
 {
-  if (err_warn_mode < 0) {
+  ThreadLocals *tls = get_tls();
+  if (tls->err_warn_mode < 0) {
     char *mode = getenv("ERR_WARN");
     if (!mode || !mode[0])
-      err_warn_mode = errWarnNormal;
+      tls->err_warn_mode = errWarnNormal;
     else if (strcasecmp(mode, "ignore") == 0)
-      err_warn_mode = errWarnIgnore;
+      tls->err_warn_mode = errWarnIgnore;
     else if (strcasecmp(mode, "error") == 0)
-      err_warn_mode = errWarnError;
+      tls->err_warn_mode = errWarnError;
     else
-      err_warn_mode = atoi(mode);
-    if (err_warn_mode < 0) err_warn_mode = errWarnNormal;
-    if (err_warn_mode > errWarnError) err_warn_mode = errWarnError;
+      tls->err_warn_mode = atoi(mode);
+    if (tls->err_warn_mode < 0) tls->err_warn_mode = errWarnNormal;
+    if (tls->err_warn_mode > errWarnError) tls->err_warn_mode = errWarnError;
   }
-  return err_warn_mode;
+  return tls->err_warn_mode;
 }
 
 ErrDebugMode err_set_debug_mode(int mode)
 {
-  int prev = err_debug_mode;
-  err_debug_mode = mode;
+  ThreadLocals *tls = get_tls();
+  int prev = tls->err_debug_mode;
+  tls->err_debug_mode = mode;
   return prev;
 }
 
 ErrDebugMode err_get_debug_mode()
 {
-  if (err_debug_mode < 0) {
+  ThreadLocals *tls = get_tls();
+  if (tls->err_debug_mode < 0) {
     char *mode = getenv("ERR_DEBUG");
-    err_debug_mode =
+    tls->err_debug_mode =
       (!mode || !*mode)             ? errDebugOff :
       (strcmp(mode, "debug") == 0)  ? errDebugSimple :
       (strcmp(mode, "full") == 0)   ? errDebugFull :
       atoi(mode);
-    if (err_debug_mode < 0) err_debug_mode = errDebugOff;
-    if (err_debug_mode > errDebugFull) err_debug_mode = errDebugFull;
+    if (tls->err_debug_mode < 0) tls->err_debug_mode = errDebugOff;
+    if (tls->err_debug_mode > errDebugFull) tls->err_debug_mode = errDebugFull;
   }
-  return err_debug_mode;
+  return tls->err_debug_mode;
 }
 
 ErrOverrideMode err_set_override_mode(int mode)
 {
-  int prev = err_override;
-  err_override = mode;
+  ThreadLocals *tls = get_tls();
+  int prev = tls->err_override;
+  tls->err_override = mode;
   return prev;
 }
 
 ErrOverrideMode err_get_override_mode()
 {
-  if (err_override < 0) {
+  ThreadLocals *tls = get_tls();
+  if (tls->err_override < 0) {
     char *mode = getenv("ERR_OVERRIDE");
-    err_override =
+    tls->err_override =
       (!mode || !*mode)                 ? errOverrideAppend :
       (strcmp(mode, "warn-old") == 0)   ? errOverrideWarnOld :
       (strcmp(mode, "warn-new") == 0)   ? errOverrideWarnNew :
       (strcmp(mode, "old") == 0)        ? errOverrideOld :
       (strcmp(mode, "ignore-new") == 0) ? errOverrideIgnoreNew :
       atoi(mode);
-    if (err_override < 0) err_override = errOverrideAppend;
-    if (err_override > errOverrideIgnoreNew)
-      err_override = errOverrideIgnoreNew;
+    if (tls->err_override < 0) tls->err_override = errOverrideAppend;
+    if (tls->err_override > errOverrideIgnoreNew)
+      tls->err_override = errOverrideIgnoreNew;
   }
-  return err_override;
+  return tls->err_override;
 }
 
 /* Default error handler. */
 static void _err_default_handler(const ErrRecord *record)
 {
-  if (err_stream) fprintf(err_stream, "** %s\n", record->msg);
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  if (g->err_stream) fprintf(g->err_stream, "** %s\n", record->msg);
 }
 
 ErrHandler err_set_handler(ErrHandler handler)
 {
-  ErrHandler prev = err_handler;
-  err_handler = handler;
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  ErrHandler prev = g->err_handler;
+  g->err_handler = handler;
   return prev;
 }
 
 ErrHandler err_get_handler(void)
 {
-  if (err_handler == err_default_handler)
-    err_handler = _err_default_handler;
-  return err_handler;
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  if (g->err_handler == err_default_handler)
+    g->err_handler = _err_default_handler;
+  return g->err_handler;
 }
 
 
 /* Returns a pointer to the error record */
 ErrRecord *_err_get_record()
 {
-  return err_record;
+  ThreadLocals *tls = get_tls();
+  return tls->err_record;
 }
 
 
@@ -535,33 +650,37 @@ ErrRecord *_err_get_record()
 
 void _err_link_record(ErrRecord *record)
 {
+  ThreadLocals *tls = get_tls();
   memset(record, 0, sizeof(ErrRecord));
-  record->prev = err_record;
-  err_record = record;
+  record->prev = tls->err_record;
+  tls->err_record = record;
 }
 
 void _err_unlink_record(ErrRecord *record)
 {
-  assert(record == err_record);
-  assert(err_record->prev);
-  err_record = record->prev;
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  assert(record == tls->err_record);
+  assert(tls->err_record->prev);
+
+  tls->err_record = record->prev;
   if (record->reraise || (record->eval && !record->handled)) {
     int eval = (record->reraise) ? record->reraise : record->eval;
     ErrAbortMode abort_mode = err_get_abort_mode();
     int ignore_new = 0;
     int n = 0;
 
-    if (err_record->eval) {
+    if (tls->err_record->eval) {
       switch (err_get_override_mode()) {
       case errOverrideEnv:
       case errOverrideAppend:
-        n = strlen(err_record->msg);
-        strncat(err_record->msg+n, err_append_sep, ERR_MSGSIZE-n);
+        n = strlen(tls->err_record->msg);
+        strncat(tls->err_record->msg+n, err_append_sep, ERR_MSGSIZE-n);
         n += strlen(err_append_sep);
         break;
       case errOverrideWarnOld:
         fprintf(stderr, "** Warning: overwriting old error: %s\n",
-                err_record->msg);
+                tls->err_record->msg);
         break;
       case errOverrideWarnNew:
         ignore_new = 1;
@@ -574,17 +693,17 @@ void _err_unlink_record(ErrRecord *record)
         break;
       }
     }
-    err_record->level = record->level;
-    err_record->eval = eval;
-    err_record->errnum = record->errnum;
-    if (!ignore_new) strncpy(err_record->msg+n, record->msg, ERR_MSGSIZE-n);
+    tls->err_record->level = record->level;
+    tls->err_record->eval = eval;
+    tls->err_record->errnum = record->errnum;
+    if (!ignore_new) strncpy(tls->err_record->msg+n, record->msg, ERR_MSGSIZE-n);
 
-    if (record->level == errLevelException && err_record->prev)
-      longjmp(err_record->env, eval);
+    if (record->level == errLevelException && tls->err_record->prev)
+      longjmp(tls->err_record->env, eval);
 
-    if (!err_record->prev) {
+    if (!tls->err_record->prev) {
       ErrHandler handler = err_get_handler();
-      if (handler) err_handler(err_record);
+      if (handler) g->err_handler(tls->err_record);
     }
 
     if ((abort_mode && record->level >= errLevelError) ||

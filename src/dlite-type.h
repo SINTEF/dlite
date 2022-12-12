@@ -16,18 +16,19 @@
   The properties can have most of the basic types found in C, with
   some additions, as summarised in the table below:
 
-  type      | dtype          | sizes                  | pointer                       | description                      | examples names
-  ----      | -----          | -----                  | -------                       | -----------                      | --------------
-  blob      | dliteBlob      | any                    | uint8_t *                     | binary blob, sequence of bytes   | blob32, blob128
-  bool      | dliteBool      | sizeof(bool)           | bool *                        | boolean                          | bool
-  int       | dliteInt       | 1, 2, 4, {8}           | int8_t *, int16_t *, ...      | signed integer                   | (int), int8, int16, int32, {int64}
-  uint      | dliteUInt      | 1, 2, 4, {8}           | uint8_t *, uint16_t *, ...    | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
-  float     | dliteFloat     | 4, 8, {10, 16}         | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
-  fixstring | dliteFixString | any                    | char *                        | fix-sized NUL-terminated string  | string20
-  string    | dliteStringPtr | sizeof(char *)         | char **                       | pointer to NUL-terminated string | string
-  relation  | dliteRelation  | sizeof(DLiteRelation)  | DLiteRelation *               | subject-predicate-object triple  | relation
-  dimension | dliteDimension | sizeof(DLiteDimension) | DLiteDimension *              | only intended for metadata       | dimension
-  property  | dliteProperty  | sizeof(DLiteProperty)  | DLiteProperty *               | only intended for metadata       | property
+  type      | dtype          | sizes                   | pointer                       | description                      | examples names
+  ----      | -----          | -----                   | -------                       | -----------                      | --------------
+  blob      | dliteBlob      | any                     | uint8_t *                     | binary blob, sequence of bytes   | blob32, blob128
+  bool      | dliteBool      | sizeof(bool)            | bool *                        | boolean                          | bool
+  int       | dliteInt       | 1, 2, 4, {8}            | int8_t *, int16_t *, ...      | signed integer                   | (int), int8, int16, int32, {int64}
+  uint      | dliteUInt      | 1, 2, 4, {8}            | uint8_t *, uint16_t *, ...    | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
+  float     | dliteFloat     | 4, 8, {10, 16}          | float32_t *, float64_t *, ... | floating point                   | (float), (double), float32, float64, {float80, float128}
+  fixstring | dliteFixString | any                     | char *                        | fix-sized NUL-terminated string  | string20
+  string    | dliteStringPtr | sizeof(char *)          | char **                       | pointer to NUL-terminated string | string
+  ref       | dliteRef       | sizeof(DLiteInstance *) | DLiteInstance **              | UUID to another instance         | http://onto-ns.com/meta/0.1/Person
+  dimension | dliteDimension | sizeof(DLiteDimension)  | DLiteDimension *              | only intended for metadata       | dimension
+  property  | dliteProperty  | sizeof(DLiteProperty)   | DLiteProperty *               | only intended for metadata       | property
+  relation  | dliteRelation  | sizeof(DLiteRelation)   | DLiteRelation *               | subject-predicate-object triple  | relation
 
   The column "pointer" shows the C type of the `ptr` argument for
   functions like dlite_instance_get_property() and
@@ -69,6 +70,7 @@
 #include <stdlib.h>
 
 #include "utils/boolean.h"
+#include "utils/sha3.h"
 #include "triplestore.h"
 
 
@@ -95,7 +97,7 @@ typedef enum _DLiteType {
   dliteFloat,            /*!< Floating point */
   dliteFixString,        /*!< Fix-sized NUL-terminated string */
   dliteStringPtr,        /*!< Pointer to NUL-terminated string */
-
+  dliteRef,              /*!< Reference to instance */
   dliteDimension,        /*!< Dimension, for entities */
   dliteProperty,         /*!< Property, for entities */
   dliteRelation          /*!< Subject-predicate-object relation */
@@ -104,10 +106,10 @@ typedef enum _DLiteType {
 
 /** Some flags for printing or scanning dlite types */
 typedef enum _DLiteTypeFlag {
-  dliteFlagDefault = 0,  /*!< Default */
+  dliteFlagDefault = 0,  /*!< Default (json) */
   dliteFlagRaw=1,        /*!< Raw unquoted input/output */
   dliteFlagQuoted=2,     /*!< Quoted input/output */
-  dliteFlagStrip=4       /*!< Strip off initial and final spaces */
+  dliteFlagStrip=8       /*!< Strip initial and final spaces */
 } DLiteTypeFlag;
 
 
@@ -149,16 +151,17 @@ DLiteType dlite_type_get_dtype(const char *dtypename);
 int dlite_type_set_typename(DLiteType dtype, size_t size,
                             char *typename, size_t n);
 
-/*
+/**
   Writes the fortran type name corresponding to `dtype` and `size` to
   `typename`, which must be of size `n`.  Returns non-zero on error.
 */
 int dlite_type_set_ftype(DLiteType dtype, size_t size,
                          char *ftype, size_t n);
 
-/*
+/**
   Writes the Fortran ISO_C_BINDING type name corresponding to `dtype` and
-  `size` to `isoctype`, which must be of size `n`.  Returns non-zero on error.
+  `size` to `isoctype`, which must be of size `n`.
+  Returns non-zero on error.
 */
 int dlite_type_set_isoctype(DLiteType dtype, size_t size,
                             char *isoctype, size_t n);
@@ -263,6 +266,16 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
  */
 int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
                     size_t size, DLiteTypeFlag flags);
+
+/**
+  Update sha3 hash context `c` from data pointed to by `ptr`.
+  The data is described by `dtype` and `size`.
+
+  Returns non-zero on error.
+ */
+int dlite_type_update_sha3(sha3_context *c, const void *ptr,
+                           DLiteType dtype, size_t size);
+
 
 /**
   Returns the struct alignment of the given type or 0 on error.

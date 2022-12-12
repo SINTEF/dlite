@@ -15,8 +15,14 @@ struct _DLiteInstance *swig_mapping(const char *output_uri,
                                     int ninstances)
 {
  DLiteInstance *inst=NULL;
+ int i;
+
+ /* Increate refcount to instances.
+    They are decreased again by mapper() */
+ for (i=0; i<ninstances; i++) dlite_instance_incref(instances[i]);
+
  if (!(inst = dlite_mapping(output_uri, (const DLiteInstance **)instances,
-                       ninstances)))
+                            ninstances)))
       return dlite_err(1, "mapping failed '%s'", output_uri), NULL;
   return inst;
 }
@@ -27,6 +33,7 @@ struct _DLiteInstance *swig_mapping(const char *output_uri,
 
 
 %rename(mapping) swig_mapping;
+%newobject swig_mapping;
 %feature("docstring", "\
   Returns a new instance of metadata `output_uri` by mapping the
   input instances.

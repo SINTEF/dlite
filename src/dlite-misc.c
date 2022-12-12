@@ -109,7 +109,8 @@ char *dlite_join_meta_uri(const char *name, const char *version,
   }
   if ((n == 3) && (size > 0)) {
     size += 3;
-    if (!(uri = malloc(size))) return err(1, "allocation failure"), NULL;
+    if (!(uri = malloc(size)))
+     return err(dliteMemoryError, "allocation failure"), NULL;
     snprintf(uri, size, "%s/%s/%s", namespace, version, name);
   }
   return uri;
@@ -135,19 +136,22 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
     FAIL1("invalid metadata uri: '%s'", uri);
 
   if (name) {
-    if (!(namep = strdup(p + 1))) FAIL("allocation failure");
+    if (!(namep = strdup(p + 1)))
+     FAILCODE(dliteMemoryError, "allocation failure");
   }
   if (version) {
     int size = p - q;
     assert(size > 0);
-    if (!(versionp = malloc(size))) FAIL("allocation failure");
+    if (!(versionp = malloc(size)))
+     FAILCODE(dliteMemoryError, "allocation failure");
     memcpy(versionp, q + 1, size - 1);
     versionp[size - 1] = '\0';
   }
   if (namespace) {
     int size = q - uri + 1;
     assert(size > 0);
-    if (!(namespacep = malloc(size))) FAIL("allocation failure");
+    if (!(namespacep = malloc(size)))
+     FAILCODE(dliteMemoryError, "allocation failure");
     memcpy(namespacep, uri, size - 1);
     namespacep[size - 1] = '\0';
   }
@@ -453,9 +457,12 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
-/* Sspecial state id only used to indicate whether we are in an atexit
+/* Special state id only used to indicate whether we are in an atexit
    handler or not */
 #define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
+
+#define ERR_STATE_ID "err-globals-id"
+
 
 /* A cache pointing to the current session handler */
 static DLiteGlobals *_globals_handler=NULL;
@@ -494,6 +501,7 @@ DLiteGlobals *dlite_globals_get(void)
                         &dummy_ptr, NULL);
     }
   }
+  dlite_init();
   return _globals_handler;
 }
 
@@ -503,9 +511,32 @@ DLiteGlobals *dlite_globals_get(void)
 */
 void dlite_globals_set(DLiteGlobals *globals_handler)
 {
+  void *g;
   session_set_default((Session *)globals_handler);
   _globals_handler = globals_handler;
+
+  /* Set globals in utils/err.c */
+  if ((g = dlite_globals_get_state(ERR_STATE_ID)))
+    err_set_state(g);
 }
+
+/*
+  Initialises dlite. This function may be called several times.
+ */
+void dlite_init(void)
+{
+  static int initialized = 0;
+
+  if (!initialized) {
+    initialized = 1;
+
+    /* Set up global state for utils/err.c */
+    if (!dlite_globals_get_state(ERR_STATE_ID))
+      dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
+  }
+
+}
+
 
 /*
   Add global state with given name.

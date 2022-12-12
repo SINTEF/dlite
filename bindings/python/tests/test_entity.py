@@ -3,8 +3,17 @@
 import os
 import pickle
 
+import numpy as np
+
 import dlite
 from dlite import Instance, Dimension, Property, Relation
+
+try:
+    import pytest
+    HAVE_PYTEST = True
+except ImportError:
+    HAVE_PYTEST = False
+
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
@@ -12,7 +21,7 @@ url = 'json://' + thisdir + '/MyEntity.json'
 
 
 # Load metadata (i.e. an instance of meta-metadata) from url
-myentity = Instance(url)
+myentity = Instance.from_url(url)
 print(myentity.uuid)
 
 # Check some properties of the entity
@@ -26,20 +35,30 @@ assert not myentity.is_metameta
 # Store the entity to a new file
 myentity.save('json://xxx.json?mode=w')
 
-# Save again, but without mode
-myentity.save('json://xxx2.json')
+# Try to overwrite without mode - should fail because metadata is immutable
+try:
+    myentity.save('json://xxx.json')
+except dlite.DLiteError:
+    pass
+else:
+    assert False, 'overwriting single-entity formatted file'
 
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
 # interchangable with its uuid
-inst = Instance(myentity.uri, [2, 3], 'myid')
+inst = Instance.from_metaid(myentity.uri, [2, 3], 'myid')
 assert inst.dimensions == {'N': 2, 'M': 3}
 assert inst.is_data
 assert not inst.is_meta
 assert not inst.is_metameta
 
+assert dlite.has_instance(inst.uuid)
+assert inst.uuid in dlite.istore_get_uuids()
+
 # Assign properties
 inst['a-blob'] = bytearray(b'0123456789abcdef')
+inst['a-blob'] = b'0123456789abcdef'
+inst['a-blob-array'] = [[b'abcd', '00112233'], [np.int32(42), b'xyz_']]
 inst['a-blob-array'] = [[b'0123', b'4567'], [b'89ab', b'cdef']]
 inst['a-bool'] = False
 inst['a-bool-array'] = True, False
@@ -59,16 +78,65 @@ inst['a-relation-array'] = [
     dlite.Relation('cat', 'is_a', 'mammal'),
     ]
 
+
 # Print the value of all properties
 for i in range(len(inst)):
     print('prop%d:' % i, inst[i])
 
 # String representation (as json)
-print(inst)
+#print(inst)
 
 # Check save and load
 inst.save('json://inst.json?mode=w')
-inst2 = Instance('json://inst.json')
+inst2 = Instance.from_url('json://inst.json')
+blob = inst2['a-blob']
+
+del inst2
+inst2 = Instance.from_url(
+    'json://inst.json?mode=r#46a67765-3d8b-5764-9583-3aec59a17983')
+assert inst2['a-blob'] == blob
+
+del inst2
+inst2 = Instance.from_location('json', 'inst.json')
+assert inst2['a-blob'] == blob
+
+del inst2
+inst2 = Instance.from_location('json', 'inst.json',
+                               id='46a67765-3d8b-5764-9583-3aec59a17983')
+assert inst2['a-blob'] == blob
+del inst2
+
+with dlite.Storage('json', 'inst.json') as s:
+    inst2 = dlite.Instance.from_storage(s)
+assert inst2['a-blob'] == blob
+del inst2
+
+with dlite.Storage('json', 'inst.json') as s:
+    inst2 = s.load(id='46a67765-3d8b-5764-9583-3aec59a17983')
+assert inst2['a-blob'] == blob
+del inst2
+
+# Make sure we fail with an exception for pathetic cases
+try:
+    Instance.from_location('json', '/', 'mode=r')
+except dlite.DLiteError:
+    print('*** catched error loading "/" in read mode')
+
+try:
+    Instance.from_location('json', '/', 'mode=w')
+except dlite.DLiteError:
+    print('*** catched error loading "/" in write mode')
+
+try:
+    Instance.from_location('json', '')
+except dlite.DLiteError:
+    print('*** catched error loading ""')
+
+try:
+    Instance.from_location('json', 'non-existing-path...')
+except dlite.DLiteError:
+    print('*** catched error loading "non-existing-path..."')
+
 
 # Check pickling
 s = pickle.dumps(inst)
@@ -78,10 +146,9 @@ dim = Dimension('N')
 
 prop = Property("a", type='float')
 
-# FIXME - property dimensions should be strings!
 prop2 = Property("b", type='string10', dims=['I', 'J', 'K'],
                  description='something enlightening...')
-assert any(prop2.dims)
+assert any(prop2.shape)
 
 props = myentity['properties']
 props[0]
@@ -92,7 +159,7 @@ e = dlite.get_instance('http://onto-ns.com/meta/0.1/MyEntity')
 assert e == myentity
 assert e != inst
 
-e2 = Instance(
+e2 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
     [Property('name', type='string', description='Name of something.'),
@@ -100,7 +167,7 @@ e2 = Instance(
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
 
-e3 = Instance(
+e3 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity2',
     [],
     [Property('name', type='string', description='Name of something.'),
@@ -108,15 +175,67 @@ e3 = Instance(
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
 
-inst.save('json://yyy.json')
+# Test get_property_as_string() / set_property_from_string()
+assert inst.get_property_as_string('an-int-array') == '[1, 2, 3]'
+inst.set_property_from_string('an-int-array', '[-1, 5, 6]')
+assert inst.get_property_as_string('an-int-array') == '[-1, 5, 6]'
+
+
+# Test save
+inst.save('json://yyy.json?mode=w')
 
 try:
     import yaml
 except ImportError:
     pass
 else:
-    inst.save('yaml://yyy.yaml')
+    inst.save('yaml://yyy.yaml?mode=w')
+
+
+# Test metadata
+assert inst.meta.dimnames() == ['N', 'M']
+assert inst.meta.propnames() == [
+    'a-blob',
+    'a-blob-array',
+    'a-bool',
+    'a-bool-array',
+    'an-int',
+    'an-int-array',
+    'a-float',
+    'a-float64-array',
+    'a-fixstring',
+    'a-fixstring-array',
+    'a-string',
+    'a-string-array',
+    'a-relation',
+    'a-relation-array',
+]
+
+
+# Test property
+prop = inst.meta.getprop('a-blob-array')
+assert prop.name == 'a-blob-array'
+assert prop.type == 'blob4'
+assert prop.shape.tolist() == ['N', 'N']
+assert prop.unit == None
+assert prop.description == 'A blob array.'
+
+prop = dlite.Property('newprop', 'int')
+prop.shape = ('a', 'b', 'c')
+assert prop.ndims == 3
+if HAVE_PYTEST:
+    with pytest.raises(AttributeError):
+        prop.ndims = 10
 
 del inst
 del e2
 del e3
+
+
+# Metadata schema
+schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
+schema.save('entity_schema.json?mode=w;arrays=false')
+schema.meta.save('basic_metadata_schema.json?mode=w;arrays=false')
+
+mm = dlite.Instance.from_url('json://entity_schema.json')
+assert mm.uri == dlite.ENTITY_SCHEMA

@@ -1,0 +1,134 @@
+name: Weekly wheel build images
+
+on:
+  schedule:
+    - cron: "42 5 * * 1"
+  workflow_dispatch:
+    inputs:
+      use_cache:
+        description: Use GH Actions cache
+        type: boolean
+        required: false
+        default: true
+
+env:
+  CONTAINER_REGISTRY: ghcr.io
+
+jobs:
+  build_wheel_linux_dockers:
+    name: Build wheel containers
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        # 64-bit linux
+        - system: "manylinux"
+          type: "2010"
+          arch: "x86_64"
+          py_minors: "7 8 9"
+        - system: "manylinux"
+          type: "2014"
+          arch: "x86_64"
+          py_minors: "7 8 9 10"
+        - system: "musllinux"
+          type: "_1_1"
+          arch: "x86_64"
+          py_minors: "7 8 9 10"
+
+        # 32-bit linux
+        - system: "manylinux"
+          type: "2010"
+          arch: "i686"
+          py_minors: "7 8 9"
+        - system: "manylinux"
+          type: "2014"
+          arch: "i686"
+          py_minors: "7 8 9"
+        - system: "musllinux"
+          type: "_1_1"
+          arch: "i686"
+          py_minors: "7 8 9"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Setup cache
+        if: github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)
+        uses: actions/cache@v3
+        with:
+          path: .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+          key: buildx-cache-${{ matrix.system }}${{ matrix.type }}-${{ matrix.arch }}-${{ github.sha }}
+          restore-keys: buildx-cache-${{ matrix.system }}${{ matrix.type }}-${{ matrix.arch }}-
+
+      - name: Check 'latest' parent image SHA
+        run: |
+          IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
+          SHA_FILENAME=${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt
+          docker pull ${IMAGE}
+          docker images --no-trunc --quiet ${IMAGE} > ${SHA_FILENAME}
+
+          CACHE_DIR=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+          if [ -f "${CACHE_DIR}/${SHA_FILENAME}" ] && [ "$( cat ${SHA_FILENAME} )" == "$( cat ${CACHE_DIR}/${SHA_FILENAME} )" ]; then
+            echo "BUILD_NEW_IMAGE=false" >> $GITHUB_ENV
+          else
+            echo "BUILD_NEW_IMAGE=true" >> $GITHUB_ENV
+          fi
+
+      - name: Create docker file
+        if: env.BUILD_NEW_IMAGE == 'true'
+        run: |
+          mkdir -p docker_build_wheel
+
+          EXTRA_PRE=""
+          EXTRA_POST=""
+          if [ "${{ matrix.type }}" == "2010" ]; then
+            EXTRA_PRE="COPY .github/docker/pgdg-91_${{ matrix.arch }}.repo /etc/yum.repos.d/pgdg-91.repo"
+            EXTRA_POST="ENV PATH=\$PATH:/usr/pgsql-9.1/bin"
+          fi
+
+          sed \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
+            -e "s|{{ TYPE }}|${{ matrix.type }}|" \
+            -e "s|{{ EXTRA_PRE }}|${EXTRA_PRE}|" \
+            -e "s|{{ EXTRA_POST }}|${EXTRA_POST}|" \
+            .github/docker/Dockerfile-${{ matrix.system }}.template \
+            > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+
+      - name: Login to GitHub Container Registry
+        if: env.BUILD_NEW_IMAGE == 'true'
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: env.BUILD_NEW_IMAGE == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+          tags: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
+          push: true
+          build-args: |
+            PY_MINORS=${{ matrix.py_minors }}
+          cache-from: type=local,src=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+          cache-to: type=local,dest=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}-new,mode=max
+
+      # Temporary fix from https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move cache
+        if: env.BUILD_NEW_IMAGE == 'true'
+        run: |
+          rm -rf .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+          mv .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}-new .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+
+      - name: Add sha.txt to cache
+        if: env.BUILD_NEW_IMAGE == 'true'
+        run: mv ${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}

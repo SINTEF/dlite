@@ -3,17 +3,22 @@ Python storage plugins distributed with DLite
 This directory contains additional storage plugins written in Python,
 including
 
+* blob - a plugin for Binary Large OBjects (BLOBs).
+
+* bson - a plugin for BSON (binary JSON). Requires the pymongo package.
+
+* csv - a plugin for CSV files.
+
+* postgresql - a PostgreSQL plugin that allows to serialise all types
+  of dlite instances (including data instances, metadata, collections,
+  etc) to a PostgreSQL database.  See below for how to enable the tests.
+
 * yaml - a YAML plugin that is very similar to the json plugin
   implemented in C, except that it uses YAML instead of JSON.
 
   Including documentation, this plugin is only 72 lines of Python
   code.  Compare that to the more than 2800 codelines for the JSON
   plugin implemented in C.
-
-* postgresql - a PostgreSQL plugin that allows to serialise all types
-  of dlite instances (including data instances, metadata, collections,
-  etc) to a PostgreSQL database.  See below for how to enable the tests.
-
 
 Enabling the postgresql storage tests
 -------------------------------------

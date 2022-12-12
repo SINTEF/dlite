@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 David Siñuela Pastor, siu.4coders@gmail.com
+ * Copyright (c) 2012 David Sinuela Pastor, siu.4coders@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -37,10 +37,10 @@
 #elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
 
 /* Change POSIX C SOURCE version for pure c99 compilers */
-#if !defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L
-#undef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200112L
-#endif
+//#if !defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L
+//#undef _POSIX_C_SOURCE
+//#define _POSIX_C_SOURCE 200112L
+//#endif
 
 #include <unistd.h>	/* POSIX flags */
 #include <time.h>	/* clock_gettime(), time() */
@@ -69,6 +69,7 @@
 #define MINUNIT_MESSAGE_LEN 1024
 /*  Accuracy with which floats are compared */
 #define MINUNIT_EPSILON 1E-12
+#define MINUNIT_FLOAT_EPSILON 1E-6
 
 /*  Misc. counters */
 static int minunit_run = 0;
@@ -201,9 +202,28 @@ static void (*minunit_teardown)(void) = NULL;
 	}\
 )
 
+#define mu_assert_float_eq(expected, result) MU__SAFE_BLOCK(\
+	float minunit_tmp_fe;\
+	float minunit_tmp_fr;\
+	minunit_assert++;\
+	minunit_tmp_fe = (float)(expected);\
+	minunit_tmp_fr = (float)(result);\
+	if (fabsf(minunit_tmp_fe-minunit_tmp_fr) > MINUNIT_FLOAT_EPSILON) {\
+                int minunit_significant_figures = 1 - (int)log10(MINUNIT_FLOAT_EPSILON); \
+                double minunit_tmp_e = minunit_tmp_fe;                  \
+                double minunit_tmp_r = minunit_tmp_fr;                  \
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %.*g expected but was %.*g", __func__, __FILE__, __LINE__, minunit_significant_figures, minunit_tmp_e, minunit_significant_figures, minunit_tmp_r);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
 #define mu_assert_string_eq(expected, result) MU__SAFE_BLOCK(\
-	const char* minunit_tmp_e = expected;\
-	const char* minunit_tmp_r = result;\
+	const char *minunit_tmp_e = expected;\
+	const char *minunit_tmp_r = result;\
+        int len;\
 	minunit_assert++;\
 	if (!minunit_tmp_e) {\
 		minunit_tmp_e = "<null pointer>";\
@@ -212,8 +232,8 @@ static void (*minunit_teardown)(void) = NULL;
 		minunit_tmp_r = "<null pointer>";\
 	}\
 	if(strcmp(minunit_tmp_e, minunit_tmp_r)) {\
-		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: '%s' expected but was '%s'", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_r);\
-		minunit_status = 1;\
+                len = snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: '%s' expected but was '%s'", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_r);\
+		minunit_status = (len >= 0) ? 1 : 2;\
 		return;\
 	} else {\
 		printf(".");\
@@ -221,8 +241,8 @@ static void (*minunit_teardown)(void) = NULL;
 )
 
 #define mu_assert_strn_eq(expected, result, size) MU__SAFE_BLOCK(       \
-	const char* minunit_tmp_e = expected;                           \
-	const char* minunit_tmp_r = result;                             \
+	const char *minunit_tmp_e = expected;                           \
+	const char *minunit_tmp_r = result;                             \
         int minunit_tmp_s = size;                                       \
 	minunit_assert++;                                               \
 	if (!minunit_tmp_e) {                                           \
@@ -241,6 +261,21 @@ static void (*minunit_teardown)(void) = NULL;
 	} else {                                                        \
           printf(".");                                                  \
 	}                                                               \
+)
+
+#define mu_assert_ptr_eq(expected, result) MU__SAFE_BLOCK(\
+	const void *minunit_tmp_e;\
+	const void *minunit_tmp_r;\
+	minunit_assert++;\
+	minunit_tmp_e = (expected);\
+	minunit_tmp_r = (result);\
+	if (minunit_tmp_e != minunit_tmp_r) {\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %p expected but was %p", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_r);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
 )
 
 /*
@@ -288,7 +323,7 @@ static double mu_timer_real(void)
 	}
 	return (double)mach_absolute_time( ) * timeConvert;
 
-#elif defined(_POSIX_VERSION)
+#elif defined(_POSIX_VERSION) && (_POSIX_VERSION != 200809L)
 	/* POSIX. --------------------------------------------------- */
 	struct timeval tm;
 #if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
@@ -352,7 +387,8 @@ static double mu_timer_cpu(void)
 #elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
 	/* AIX, BSD, Cygwin, HP-UX, Linux, OSX, and Solaris --------- */
 
-#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
+#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0) && \
+  (!defined(_POSIX_VERSION) || _POSIX_VERSION != 200809L)
 	/* Prefer high-res POSIX timers, when available. */
 	{
 		clockid_t id;

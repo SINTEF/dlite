@@ -20,7 +20,7 @@ const char *testsha3(int bits, void *data, size_t n, enum SHA3_FLAGS flags)
   sha3_SetFlags(&c, flags);
   sha3_Update(&c, data, n);
   hash = sha3_Finalize(&c);
-  strhex(buf, sizeof(buf), hash, bits/8);
+  strhex_encode(buf, sizeof(buf), hash, bits/8);
   return buf;
 }
 
@@ -42,7 +42,7 @@ MU_TEST(test_sha256)
   sha3_Update(&c, "a", 1);
   sha3_Update(&c, "bc", 2);
   hash = sha3_Finalize(&c);
-  strhex(buf, sizeof(buf), hash, 32);
+  strhex_encode(buf, sizeof(buf), hash, 32);
   mu_assert_string_eq(
     "3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532",
     buf);

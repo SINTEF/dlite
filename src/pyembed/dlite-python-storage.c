@@ -15,6 +15,7 @@
 #include "dlite-misc.h"
 #include "dlite-storage-plugins.h"
 #include "dlite-pyembed.h"
+#include "dlite-python-singletons.h"
 #include "dlite-python-storage.h"
 
 #define GLOBALS_ID "dlite-python-storage-globals"
@@ -52,7 +53,7 @@ static PythonStorageGlobals *get_globals(void)
   PythonStorageGlobals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
     if (!(g = calloc(1, sizeof(PythonStorageGlobals))))
-      return dlite_err(1, "allocation failure"), NULL;
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
   return g;
@@ -172,13 +173,18 @@ const char **dlite_python_storage_paths_get(void)
 */
 void *dlite_python_storage_load(void)
 {
+  PyObject *storagebase;
   PythonStorageGlobals *g = get_globals();
+
+  if (!(storagebase = dlite_python_storage_base())) return NULL;
+
   if (!g->loaded_storages || g->modified) {
     const FUPaths *paths;
     if (g->loaded_storages) dlite_python_storage_unload();
     if (!(paths = dlite_python_storage_paths())) return NULL;
+
     g->loaded_storages = dlite_pyembed_load_plugins((FUPaths *)paths,
-                                                 "DLiteStorageBase");
+                                                    storagebase);
   }
   return (void *)g->loaded_storages;
 }

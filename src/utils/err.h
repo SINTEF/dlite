@@ -324,6 +324,19 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
  * @{
  */
 
+
+
+/**
+ * Return a pointer to (thread local) state for this module
+ */
+void *err_get_state(void);
+
+/**
+ * Sets state from state returned by err_get_state().
+ * If `state` is NULL, the state is initialised to default values.
+ */
+void err_set_state(void *state);
+
 /**
  * @brief Returns the error value of the last error.
  */
@@ -608,7 +621,7 @@ ErrRecord *_err_get_record();
     }                                                \
     _ft = _fallthrough;                              \
     _fallthrough = 0;                                \
-    _last = _record.eval == errval || _ft;           \
+    _last = (_record.eval == errval) || _ft;         \
     _record.handled |= _last;                        \
     if (_last) _record.state = errTryCatch;          \
     switch (_last ? 1 : 0) {                         \

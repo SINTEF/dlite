@@ -13,6 +13,7 @@
 #include "dlite-entity.h"
 #include "dlite-mapping-plugins.h"
 #include "dlite-mapping.h"
+#include "dlite-errors.h"
 
 
 /*
@@ -109,14 +110,15 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
 
   /* create mapping */
   assert(strcmp(output_uri, api->output_uri) == 0);
-  if (!(m = calloc(1, sizeof(DLiteMapping)))) FAIL("allocation failure");
+  if (!(m = calloc(1, sizeof(DLiteMapping))))
+   FAILCODE(dliteMemoryError, "allocation failure");
   m->name = api->name;
   m->output_uri = api->output_uri;
   m->ninput = api->ninput;
   if (!(m->input_maps = calloc(m->ninput, sizeof(DLiteMapping *))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   if (!(m->input_uris = calloc(m->ninput, sizeof(char *))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0; i < api->ninput; i++) {
     if (!map_get(inputs, api->input_uris[i])) {
       DLiteMapping **p = map_get(created, api->input_uris[i]);
@@ -157,14 +159,14 @@ DLiteMapping *mapping_create_base(const char *output_uri, Instances *inputs)
   if ((map_get(inputs, output_uri))) {
     /* The trivial case - one of the input URIs equals output URI. */
     if (!(m = calloc(1, sizeof(DLiteMapping))))
-      FAIL("allocation failure");
+      FAILCODE(dliteMemoryError, "allocation failure");
     m->name = NULL;
     m->output_uri = output_uri;
     m->ninput = 1;
     if (!(m->input_maps = calloc(1, sizeof(DLiteMapping *))))
-      FAIL("allocation failure");
+      FAILCODE(dliteMemoryError, "allocation failure");
     if (!(m->input_uris = calloc(1, sizeof(char *))))
-      FAIL("allocation failure");
+      FAILCODE(dliteMemoryError, "allocation failure");
     m->input_uris[0] = output_uri;
     m->api = NULL;
     m->cost = 0;
@@ -263,7 +265,7 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
 
   /* Create `insts` array */
   if (!(insts = calloc(m->ninput, sizeof(DLiteInstance))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0; i < m->ninput; i++) {
     if (m->input_maps[i]) {
       insts[i] = mapping_map_rec(m->input_maps[i], instances);

@@ -13,7 +13,6 @@
 DLiteProperty *
 dlite_swig_create_property(const char *name, enum _DLiteType type,
                            size_t size, obj_t *dims, const char *unit,
-                           const char *iri,
                            const char *description)
 {
   DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
@@ -33,7 +32,6 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
     p->dims = NULL;
   }
   if (unit) p->unit = strdup(unit);
-  if (iri) p->iri = strdup(iri);
   if (description) p->description = strdup(description);
   return p;
 }
@@ -79,6 +77,15 @@ bool dlite_swig_has_instance(const char *id, bool check_storages)
   return (dlite_instance_has(id, check_storages)) ? 1 : 0;
 }
 
+/* Returns list of uuids from istore. */
+char** dlite_swig_istore_get_uuids()
+{
+  int n;
+  char** uuids;
+  uuids = dlite_istore_get_uuids(&n);
+  return uuids;
+}
+
 %}
 
 
@@ -114,12 +121,12 @@ struct _DLiteDimension {
 %feature("docstring", "\
 Creates a new property.
 
-Property(name, type, dims=None, unit=None, iri=None, description=None)
+Property(name, type, dims=None, unit=None, description=None)
     Creates a new property with the provided attributes.
 
 Property(seq)
     Creates a new property from sequence of 6 strings, corresponding to
-    `name`, `type`, `dims`, `unit`, `iri` and `description`.  Valid
+    `name`, `type`, `dims`, `unit` and `description`.  Valid
     values for `dims` are:
       - '' or '[]': no dimensions
       - '<dim1>, <dim2>': list of dimension names
@@ -130,28 +137,28 @@ Property(seq)
 struct _DLiteProperty {
   char *name;
   size_t size;
+  char *ref;
+  %immutable;
   int ndims;
+  %mutable;
   char *unit;
-  char *iri;
   char *description;
 };
 
 %extend _DLiteProperty {
   _DLiteProperty(const char *name, const char *type,
                  obj_t *dims=NULL, const char *unit=NULL,
-                 const char *iri=NULL,
                  const char *description=NULL) {
     DLiteType dtype;
     size_t size;
     if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
-    return dlite_swig_create_property(name, dtype, size, dims, unit, iri,
+    return dlite_swig_create_property(name, dtype, size, dims, unit,
                                       description);
   }
   ~_DLiteProperty() {
     free($self->name);
     if ($self->dims) free_str_array($self->dims, $self->ndims);
     if ($self->unit) free($self->unit);
-    if ($self->iri) free($self->iri);
     if ($self->description) free($self->description);
     free($self);
   }
@@ -163,15 +170,31 @@ struct _DLiteProperty {
   int get_dtype(void) {
     return $self->type;
   }
-  obj_t *get_dims(void) {
+  obj_t *get_shape(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
                                 dliteStringPtr, sizeof(char *), $self->dims);
   }
-  /*
-  void set_dims(obj_t *arr) {
+  void set_shape(obj_t *arr) {
+    int i, n = dlite_swig_length(arr);
+    char **new=NULL;
+    if (!(new = calloc(n, sizeof(char *))))
+      FAIL("allocation failure");
+    if (dlite_swig_set_array(&new, 1, &n, dliteStringPtr, sizeof(char *), arr))
+      FAIL("cannot set new shape");
+    for (i=0; i < $self->ndims; i++) free($self->dims[i]);
+    free($self->dims);
+    $self->ndims = n;
+    $self->dims = new;
+    return;
+  fail:
+    if (new) {
+      for (i=0; i<n; i++) if(new[i]) free(new[i]);
+      free(new);
+    }
   }
-  */
+
 }
+
 
 /* --------
  * Relation
@@ -224,145 +247,314 @@ void triple_set_default_namespace(const char *namespace);
 %feature("docstring", "\
 Returns a new instance.
 
-Instance(metaid, dims, id=None)
-    Creates a new instance of metadata `metaid`.  `dims` must be a
-    sequence with the size of each dimension. All values initialized
-    to zero.  If `id` is None, a random UUID is generated.  Otherwise
-    the UUID is derived from `id`.
+Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
+    Is called from one of the following class methods defined in dlite.py:
 
-Instance(url, metaid=NULL)
-    Loads the instance from `url`.  The URL should be of the form
-    ``driver://location?options#id``.
-    If `metaid` is provided, the instance is tried mapped to this
-    metadata before it is returned.
+      - from_metaid(cls, metaid, dims, id=None)
+      - from_url(cls, url, metaid=None)
+      - from_storage(cls, storage, id=None, metaid=None)
+      - from_location(cls, driver, location, options=None, id=None)
+      - from_json(cls, jsoninput, id=None, metaid=None)
+      - create_metadata(cls, uri, dimensions, properties, description)
 
-Instance(storage, id=None, metaid=NULL)
-    Loads the instance from `storage`. `id` is the id of the instance
-    in the storage (not required if the storage only contains more one
-    instance).
-    If `metaid` is provided, the instance is tried mapped to this
-    metadata before it is returned.
-
-Instance(driver, location, options, id=None)
-    Loads the instance from storage specified by `driver`, `location`
-    and `options`. `id` is the id of the instance in the storage (not
-    required if the storage only contains more one instance).
-
-Instance(uri, dimensions, properties, iri, description)
-    Creates a new metadata entity (instance of entity schema) casted
-    to an instance.
+      For details, see the documentation for the class methods.
 
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
-%apply(int ndimensions, struct _DLiteDimension *dimensions) {
-  (int ndimensions, struct _DLiteDimension *dimensions)};
-%apply(int nproperties, struct _DLiteProperty *properties) {
-  (int nproperties, struct _DLiteProperty *properties)};
+%apply(struct _DLiteDimension *dimensions, int ndimensions) {
+  (struct _DLiteDimension *dimensions, int ndimensions)};
+%apply(struct _DLiteProperty *properties, int nproperties) {
+  (struct _DLiteProperty *properties, int nproperties)};
 
 %rename(Instance) _DLiteInstance;
 struct _DLiteInstance {
   %immutable;
   char uuid[DLITE_UUID_LENGTH+1];
+  unsigned char _flags;
   char *uri;
   int _refcount;
   /* const struct _DLiteMeta *meta; */
 };
 
 %extend _DLiteInstance {
-  _DLiteInstance(const char *metaid, int *dims, int ndims,
-		 const char *id=NULL) {
-    DLiteInstance *inst;
-    DLiteMeta *meta;
-    size_t i, *d, n=ndims;
-    if (!(meta = dlite_meta_get(metaid)))
-      return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
-    if (n != meta->_ndimensions) {
-      dlite_meta_decref(meta);
-      return dlite_err(1, "%s has %u dimensions",
-                       metaid, (unsigned)meta->_ndimensions), NULL;
-    }
-    d = malloc(n * sizeof(size_t));
-    for (i=0; i<n; i++) d[i] = dims[i];
-    inst = dlite_instance_create(meta, d, id);
-    free(d);
-    if (inst) dlite_errclr();
-    dlite_meta_decref(meta);
-    return inst;
-  }
-  _DLiteInstance(const char *url, const char *metaid=NULL) {
-    DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
-    if (inst) {
-      dlite_errclr();
-      if (metaid) {
-        inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
-        dlite_instance_decref(inst);
-        inst = inst2;
-      }
-    }
-    return inst;
-  }
-  _DLiteInstance(struct _DLiteStorage *storage, const char *id=NULL,
-                 const char *metaid=NULL) {
-    DLiteInstance *inst = dlite_instance_load_casted(storage, id, metaid);
-    if (inst) dlite_errclr();
-    return inst;
-  }
-  _DLiteInstance(const char *driver, const char *location, const char *options,
-                 const char *id=NULL) {
-    DLiteStorage *s;
-    DLiteInstance *inst;
-    if (!(s = dlite_storage_open(driver, location, options))) return NULL;
-    inst = dlite_instance_load(s, id);
-    dlite_storage_close(s);
-    if (inst) dlite_errclr();
-    return inst;
-  }
-  _DLiteInstance(const char *uri,
-                 int ndimensions, struct _DLiteDimension *dimensions,
-                 int nproperties, struct _DLiteProperty *properties,
-                 const char *iri=NULL,
+  _DLiteInstance(const char *metaid=NULL, int *dims=NULL, int ndims=0,
+                 const char *id=NULL, const char *url=NULL,
+                 struct _DLiteStorage *storage=NULL,
+                 const char *driver=NULL, const char *location=NULL,
+                 const char *options=NULL,
+                 const char *uri=NULL,
+                 const char *jsoninput=NULL,
+                 struct _DLiteDimension *dimensions=NULL, int ndimensions=0,
+                 struct _DLiteProperty *properties=NULL, int nproperties=0,
                  const char *description=NULL) {
-    DLiteMeta *inst = dlite_meta_create(uri, iri, description,
+    if (dims && metaid) {
+      DLiteInstance *inst;
+      DLiteMeta *meta;
+      size_t i, *d, n=ndims;
+      if (!(meta = dlite_meta_get(metaid)))
+        return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
+      if (n != meta->_ndimensions) {
+        dlite_meta_decref(meta);
+        return dlite_err(1, "%s has %u dimensions",
+                          metaid, (unsigned)meta->_ndimensions), NULL;
+      }
+      d = malloc(n * sizeof(size_t));
+      for (i=0; i<n; i++) d[i] = dims[i];
+      inst = dlite_instance_create(meta, d, id);
+      free(d);
+      if (inst) dlite_errclr();
+      dlite_meta_decref(meta);
+      return inst;
+    } else if (url) {
+      DLiteInstance *inst2, *inst = dlite_instance_load_url(url);
+      if (inst) {
+        dlite_errclr();
+        if (metaid) {
+          inst2 = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+          dlite_instance_decref(inst);
+          inst = inst2;
+        }
+      }
+      return inst;
+    } else if (storage) {
+      DLiteInstance *inst = dlite_instance_load_casted(storage, id, metaid);
+      if (inst) dlite_errclr();
+      return inst;
+    } else if (driver && location) {
+      DLiteStorage *s;
+      DLiteInstance *inst;
+      if (!(s = dlite_storage_open(driver, location, options))) return NULL;
+      inst = dlite_instance_load(s, id);
+      dlite_storage_close(s);
+      if (inst) dlite_errclr();
+      return inst;
+    } else if (jsoninput) {
+      DLiteInstance *inst = dlite_json_sscan(jsoninput, id, metaid);
+      if (inst) dlite_errclr();
+      return inst;
+    } else if (uri && dimensions && properties && description){
+       DLiteMeta *inst = dlite_meta_create(uri, description,
                                         ndimensions, dimensions,
                                         nproperties, properties);
-    if (inst) dlite_errclr();
-    return (DLiteInstance *)inst;
+      if (inst) dlite_errclr();
+      return (DLiteInstance *)inst;
+    } else {
+      dlite_err(1, "invalid arguments to Instance()");
+    }
+    return NULL;
   }
 
   ~_DLiteInstance() {
     dlite_instance_decref($self);
   }
 
-  %feature("docstring", "Returns reference to metadata.") get_meta;
-  const struct _DLiteInstance *get_meta() {
+  %feature("docstring", "Returns reference to metadata.") _get_meta;
+  const struct _DLiteInstance *_get_meta() {
     return (const DLiteInstance *)$self->meta;
   }
 
-  %feature("docstring", "Returns ontology IRI reference.") get_iri;
-  const char *get_iri() {
-    return $self->iri;
+  %feature("docstring", "Returns reference to parent uuid.") _get_parent_uuid;
+  const char *_get_parent_uuid() {
+    return ($self->_parent) ? $self->_parent->uuid : NULL;
   }
 
-  %feature("docstring", "Sets ontology IRI (no argument clears the "
-           "IRI).") set_iri;
-  void set_iri(const char *iri=NULL) {
-    if ($self->iri) free((char *)self->iri);
-    $self->iri = (iri) ? strdup(iri) : NULL;
+  %feature("docstring", "Returns reference to parent hash.") _get_parent_hash;
+  %newobject _get_parent_hash;
+  char *_get_parent_hash() {
+    char *hex;
+    size_t hexsize = DLITE_HASH_SIZE*2 + 1;
+    if (!$self->_parent) return NULL;
+    if (!(hex = malloc(hexsize)))
+      FAIL("allocation failure");
+    if (strhex_encode(hex, hexsize, $self->_parent->hash, DLITE_HASH_SIZE) < 0)
+      FAIL("cannot hex-encode instance hash");
+    return hex;
+  fail:
+    if (hex) free(hex);
+    return NULL;
   }
 
-  %feature("docstring", "Saves this instance to url or storage.") save;
-  void save(const char *url) {
+  %feature("docstring", "\
+Saves this instance to url or storage.
+
+Call signatures:
+    save(url)
+    save(driver, location, options=None)
+    save(storage=storage)
+") save;
+  void save(const char *driver_or_url=NULL, const char *location=NULL,
+            const char *options=NULL, struct _DLiteStorage *storage=NULL) {
+    if (storage) {
+      dlite_instance_save(storage, $self);
+    } else if (location) {
+      if ((storage = dlite_storage_open(driver_or_url, location, options))) {
+        dlite_instance_save(storage, $self);
+        dlite_storage_close(storage);
+      }
+    } else if (driver_or_url) {
+      dlite_instance_save_url(driver_or_url, $self);
+    } else {
+      dlite_err(-1, "either `driver_or_url` or `storage` must be given");
+    }
+  }
+  void save_to_url(const char *url) {
     dlite_instance_save_url(url, $self);
   }
-  void save(struct _DLiteStorage *storage) {
+  void save_to_storage(struct _DLiteStorage *storage) {
     dlite_instance_save(storage, $self);
   }
-  void save(const char *driver, const char *path, const char *options=NULL) {
-    DLiteStorage *s;
-    if ((s = dlite_storage_open(driver, path, options))) {
-      dlite_instance_save(s, $self);
-      dlite_storage_close(s);
+
+  %feature("docstring", "Returns a hash of the instance.") get_hash;
+  %newobject get_hash;
+  char *get_hash() {
+    uint8_t hash[DLITE_HASH_SIZE];
+    char *hex;
+    if (dlite_instance_get_hash($self, hash, DLITE_HASH_SIZE))
+      return NULL;
+    if (!(hex = malloc(2*DLITE_HASH_SIZE+1)))
+      return dlite_err(1, "allocation failure"), NULL;
+    if (strhex_encode(hex, 2*DLITE_HASH_SIZE+1, hash, DLITE_HASH_SIZE) < 0) {
+      dlite_err(1, "failed hex-encoding hash of '%s'", $self->uuid);
+      free(hex);
+      return NULL;
     }
+    return hex;
+  }
+
+  %feature("docstring",
+           "Verify the hash of the instance.\n"
+           "\n"
+           "If `hash` is not None, this function verifies that the hash of\n"
+           "`inst` corresponds to the memory pointed to by `hash`.  The size\n"
+           "of the memory should be `DLITE_HASH_SIZE` bytes.\n"
+           "\n"
+           "If `hash` is None and `inst` has a parent, this function will\n"
+           "instead verify that the parent hash stored in `inst` corresponds\n"
+           "to the value of the parent.\n"
+           "\n"
+           "If `recursive` is true, all ancestors of `inst` are also\n"
+           "included in the verification.\n"
+           "\n"
+           "Raises a DLiteVerifyError exception if the hash is not valid."
+           ) verify_hash;
+  void verify_hash(const char *hash=NULL, bool recursive=false) {
+    uint8_t *hashp = NULL;
+    if (hash) {
+      uint8_t data[DLITE_HASH_SIZE];
+      if (strhex_decode(data, sizeof(data), hash, strlen(hash)) < 0) {
+        dlite_err(1, "cannot decode hash: %s\n", hash);
+        return;
+      }
+      hashp = data;
+    }
+    if (dlite_instance_verify_hash($self, hashp, recursive))
+      dlite_swig_exception = DLiteVerifyError;
+  }
+
+  %feature("docstring",
+           "Returns a copy of the instance.  If `newid` is given, it will be\n"
+           "the id of the new instance, otherwise it will be given a\n"
+           "random UUID.") copy;
+  %newobject copy;
+  struct _DLiteInstance *copy(const char *newid=NULL) {
+    return dlite_instance_copy($self, newid);
+  }
+
+  %feature("docstring",
+           "Make a snapshot of the current state of the instance.  It can\n"
+           "be retrieved with `get_snapshot()`.\n"
+           "\n"
+           "The instance will be a transaction whose parent is the snapshot.\n"
+           "If `inst` already has a parent, that will now be the parent of\n"
+           "the snapshot.\n"
+           "\n"
+           "The reason that `inst` must be mutable, is that its hash will\n"
+           "change due to a change in its parent.\n"
+           "\n"
+           "The snapshot will be assigned an URI of the form\n"
+           "\"snapshot-XXXXXXXXXXXX\" (or inst->uri#snapshot-XXXXXXXXXXXX\n"
+           "if inst->uri is not NULL) where each X is replaces with a\n"
+           "random character."
+           ) snapshot;
+  void snapshot(void) {
+    dlite_instance_snapshot($self);
+  }
+
+  %feature("docstring",
+           "Returns shapshot number `n` of the current instance, where `n`\n"
+           "counts backward.  Hence, `n=0` returns the current instance,\n"
+           "`n=1` returns its parent, etc...\n"
+           "\n"
+           "This function may pull snapshots back into memory. Use\n"
+           "`dlite_instance_pull()` if you know the storage where the snapshots "
+           "are stored.") get_snapshot;
+  %newobject get_snapshop;
+  struct _DLiteInstance *get_snapshot(int n=1) {
+    DLiteInstance *inst =
+      (DLiteInstance *)dlite_instance_get_snapshot($self, n);
+    if (inst) dlite_instance_incref(inst);
+    return inst;
+  }
+
+  %feature("docstring",
+           "Like `dlite_instance_get_snapshot()`, except that possible stored\n"
+           "snapshots are pulled from a specified storage to memory.\n"
+           "\n"
+           "Returns shapshot number `n` of the current instance, where `n`\n"
+           "counts backward.  Hence, `n=0` returns the current instance,\n"
+           "`n=1` returns its parent, etc... "
+           ) pull_snapshot;
+  %newobject get_snapshop;
+  struct _DLiteInstance *pull_snapshot(struct _DLiteStorage *storage, int n) {
+    DLiteInstance *inst =
+      (DLiteInstance *)dlite_instance_pull_snapshot($self, storage, n);
+    if (inst) dlite_instance_incref(inst);
+    return inst;
+  }
+
+  %feature("docstring",
+           "Push all ancestors of snapshot `n` from memory to storage,\n"
+           "where `n=0` corresponds to `inst`, `n=1` to the parent of\n"
+           "`inst`, etc...\n"
+           "\n"
+           "No snapshot is pulled back from storage, so if the snapshots are\n"
+           "already in storage, this function has no effect.\n"
+           "\n"
+           "This function starts pushing closest to the root to ensure\n"
+           "that the transaction is in a consistent state at all times."
+           ) push_snapshot;
+  void push_snapshot(struct _DLiteStorage *storage, int n) {
+    dlite_instance_push_snapshot($self, storage, n);
+  }
+
+  %feature("docstring",
+           "Turn instance `inst` into a transaction node with parent\n"
+           "`parent`.  This requires that `inst` is mutable, and `parent`\n"
+           "is immutable.  If `inst` already has a parent, it will be\n"
+           "replaced.\n"
+           "\n"
+           "Use `dlite_instance_freeze()` and `dlite_instance_is_frozen()` to\n"
+           "make and check that an instance is immutable, respectively."
+           ) set_parent;
+  void set_parent(struct _DLiteInstance *parent) {
+    dlite_instance_set_parent($self, parent);
+  }
+
+  %feature("docstring",
+           "Mark the instance as immutable.  This can never be reverted."
+           ) freeze;
+  void freeze(void) {
+    dlite_instance_freeze($self);
+  }
+
+  %feature("docstring", "Returns whether the instance is frozen and immutable.") is_frozen;
+  bool is_frozen(void) {
+    return dlite_instance_is_frozen($self);
+  }
+
+  %feature("docstring", "Verifies a transaction.") verify_transaction;
+  bool verify_transaction(void) {
+    return dlite_instance_verify_transaction($self);
   }
 
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;
@@ -380,46 +572,89 @@ struct _DLiteInstance {
   int get_dimension_size(const char *name) {
     return (int)dlite_instance_get_dimension_size($self, name);
   }
-  int get_dimension_size(int i) {
+  int get_dimension_size_by_index(int i) {
     return (int)dlite_instance_get_dimension_size_by_index($self, i);
   }
 
-  %feature("docstring", "Returns property with given name or index.")
+  %feature("docstring", "Returns property with given name.")
      get_property;
   %newobject get_property;
   obj_t *get_property(const char *name) {
     return dlite_swig_get_property($self, name);
   }
-  obj_t *get_property(int i) {
+  %feature("docstring", "Returns property with given index.")
+     get_property_by_index;
+  obj_t *get_property_by_index(int i) {
     return dlite_swig_get_property_by_index($self, i);
   }
 
-  %feature("docstring", "Sets property with given name or index to `obj`.")
+  %feature("docstring", "Sets property with given name to `obj`.")
      set_property;
   void set_property(const char *name, obj_t *obj) {
     dlite_swig_set_property($self, name, obj);
   }
-  void set_property(int i, obj_t *obj) {
+  %feature("docstring", "Sets property with given index to `obj`.")
+     set_property_by_index;
+  void set_property_by_index(int i, obj_t *obj) {
     dlite_swig_set_property_by_index($self, i, obj);
   }
 
+  %feature("docstring",
+           "Return property `name` as a string.\n"
+           "\n"
+           "`width`  Minimum field width. Unused if 0, auto if -1.\n"
+           "`prec`   Precision. Auto if -1, unused if -2.\n"
+           "`flags`  Or'ed sum of formatting flags:\n"
+           "    0  default (json)\n"
+           "    1  raw unquoted output\n"
+           "    2  quoted output")
+     get_property_as_string;
+  %newobject get_property_as_string;
+  char *get_property_as_string(const char *name,
+                               int width=0, int prec=-2, int flags=0) {
+    char *dest=NULL;
+    size_t n=0;
+    if (dlite_instance_aprint_property(&dest, &n, 0, $self, name, width,
+                                       prec, flags) < 0) {
+      if (dest) free(dest);
+      dest = NULL;
+    }
+    return dest;
+  }
+  %feature("docstring",
+           "Set property `name` to the value of string `s`. \n"
+           "\n"
+           "`flags` is the or'ed sum of:\n"
+           "  0  default (json)\n"
+           "  1  raw unquoted input\n"
+           "  2  quoted input\n"
+           "  4  strip initial and final spaces")
+     set_property_from_string;
+  void set_property_from_string(const char *name, const char *s, int flags=0) {
+    dlite_instance_scan_property(s, $self, name, flags);
+  }
+
   %feature("docstring", "Returns true if this instance has a property with "
-           "given name or index.") has_property;
+           "given name.") has_property;
   bool has_property(const char *name) {
     return dlite_instance_has_property($self, name);
   }
-  bool has_property(int i) {
+  %feature("docstring", "Returns true if this instance has a property with "
+           "given index.") has_property_by_index;
+  bool has_property_by_index(int i) {
     if (i < 0) i += (int)$self->meta->_nproperties;
     if (0 <= i && i < (int)$self->meta->_nproperties) return true;
     return false;
   }
 
   %feature("docstring", "Returns true if this instance has a dimension with "
-           "given name or index.") has_dimension;
+           "given name.") has_dimension;
   bool has_dimension(const char *name) {
     return dlite_instance_has_dimension($self, name);
   }
-  bool has_dimension(int i) {
+  %feature("docstring", "Returns true if this instance has a dimension with "
+           "given index.") has_dimension_by_index;
+  bool has_dimension_by_index(int i) {
     if (i < 0) i += (int)$self->meta->_ndimensions;
     if (0 <= i && i < (int)$self->meta->_ndimensions) return true;
     return false;
@@ -441,15 +676,31 @@ struct _DLiteInstance {
   }
 
   %feature("docstring",
-           "Increase reference count and return the new refcount.") incref;
-  int incref(void) {
+           "Increase reference count and return the new refcount.") _incref;
+  int _incref(void) {
     return dlite_instance_incref($self);
   }
 
   %feature("docstring",
-           "Decrease reference count and return the new refcount.") decref;
-  int decref(void) {
+           "Decrease reference count and return the new refcount.") _decref;
+  int _decref(void) {
     return dlite_instance_decref($self);
+  }
+
+  %feature("docstring",
+           "") tojson;
+  %newobject tojson;
+  char *tojson(int indent=0, bool single=false, bool urikey=false,
+               bool with_uuid=false, bool with_meta=false,
+               bool with_arrays=false, bool no_parent=false) {
+    DLiteJsonFlag flags=0;
+    if (single) flags |= dliteJsonSingle;
+    if (urikey) flags |= dliteJsonUriKey;
+    if (with_uuid) flags |= dliteJsonWithUuid;
+    if (with_meta) flags |= dliteJsonWithMeta;
+    if (with_arrays) flags |= dliteJsonArrays;
+    if (no_parent) flags |= dliteJsonNoParent;
+    return dlite_json_aprint($self, indent, flags);
   }
 
 };
@@ -459,10 +710,6 @@ struct _DLiteInstance {
 /* ----------------
  * Module functions
  * ---------------- */
-//%rename(get_instance) dlite_instance_get_casted;
-//%newobject dlite_instance_get_casted;
-//struct _DLiteInstance *dlite_instance_get_casted(const char *id,
-//                                                 const char *metaid=NULL);
 
 %feature("docstring", "\
 Returns a new reference to instance with given id.
@@ -476,8 +723,13 @@ in the storage plugin path (initiated from the DLITE_STORAGES
 environment variable).
 
 It is an error message if the instance cannot be found.
+
+Note: seting `check_storages` to false is normally a good idea if calling
+this function from a storage plugin.  Otherwise you may easily end up in an
+infinite recursive loop that will exhaust the call stack.
 ") dlite_swig_get_instance;
 %rename(get_instance) dlite_swig_get_instance;
+%newobject dlite_swig_get_instance;
 struct _DLiteInstance *
 dlite_swig_get_instance(const char *id, const char *metaid=NULL,
                         bool check_storages=true);
@@ -493,6 +745,13 @@ in the storage plugin path.
 bool dlite_swig_has_instance(const char *id, bool check_storages=true);
 
 
+%feature("docstring", "\
+Returns a list of in-memory stored ids.
+
+") dlite_swig_istore_get_uuids;
+%rename(istore_get_uuids) dlite_swig_istore_get_uuids;
+char** dlite_swig_istore_get_uuids();
+
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;
 %rename(_has_property) dlite_instance_has_property;
@@ -500,6 +759,8 @@ obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
 void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
+
+
 
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
 #define BASIC_METADATA_SCHEMA  "http://onto-ns.com/meta/0.1/BasicMetadataSchema"

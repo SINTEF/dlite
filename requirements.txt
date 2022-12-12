@@ -3,3 +3,8 @@ numpy
 PyYAML
 psycopg2-binary
 pandas
+pymongo
+rdflib
+pint
+openpyxl
+pymongo

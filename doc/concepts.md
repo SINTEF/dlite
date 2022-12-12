@@ -56,8 +56,9 @@ blob      | dliteBlob      | any                    | binary blob, sequence of b
 bool      | dliteBool      | sizeof(bool)           | boolean                          | bool
 int       | dliteInt       | 1, 2, 4, {8}           | signed integer                   | (int), int8, int16, int32, {int64}
 uint      | dliteUInt      | 1, 2, 4, {8}           | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
-float     | dliteFloat     | 4, 8, {10, 16}         | floating point                   | (float), (double), float32, float64, {float80, float128}
+float     | dliteFloat     | 4, 8, {10, 12, 16}     | floating point                   | (float), (double), float32, float64, {float80, float96, float128}
 fixstring | dliteFixString | any                    | fix-sized NUL-terminated string  | string20, string4000, ...
+ref       | dliteRef       | sizeof(DLiteInstance*) | reference to another instance    | ref, http://onto-ns.com/meta/0.1/MyEntity
 string    | dliteStringPtr | sizeof(char *)         | pointer to NUL-terminated string | string
 relation  | dliteRelation  | sizeof(DLiteRelation)  | subject-predicate-object triplet | relation
 dimension | dliteDimension | sizeof(DLiteDimension) | only intended for metadata       | dimension

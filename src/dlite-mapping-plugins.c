@@ -16,6 +16,7 @@
 #include "dlite-datamodel.h"
 #include "dlite-mapping-plugins.h"
 #include "dlite-macros.h"
+#include "dlite-errors.h"
 #ifdef WITH_PYTHON
 #include "pyembed/dlite-python-mapping.h"
 #endif
@@ -46,7 +47,8 @@ static void free_globals(void *globals)
 static Globals *get_globals(void) {
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
-    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+    if (!(g = calloc(1, sizeof(Globals))))
+     FAILCODE(dliteMemoryError, "allocation failure");
 
     g->mapping_plugin_info = plugin_info_create("mapping-plugin",
                                                 "get_dlite_mapping_api",
@@ -140,7 +142,7 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
   if ((api = dlite_python_mapping_get_api(name))) return api;
 #endif
   /* Cannot find API */
-  int i, j, m=0;
+  int i, j=2, m=0;
   char *buf=NULL;
   size_t size=0;
   const char **paths;
@@ -150,9 +152,11 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
   if ((paths = dlite_mapping_plugin_paths()))
     for (i=0; paths[i]; i++)
       m += asnpprintf(&buf, &size, m, "    %s\n", paths[i]);
+#ifdef WITH_PYTHON
   if ((paths = dlite_python_mapping_paths_get()))
     for (j=0; paths[j]; j++)
       m += asnpprintf(&buf, &size, m, "    %s\n", paths[j]);
+#endif
   if (i <= 1 || j <= 1)
     m += asnpprintf(&buf, &size, m,
                     "Are the DLITE_MAPPING_PLUGIN_DIRS and "
@@ -191,11 +195,16 @@ dlite_mapping_plugin_next(DLiteMappingPluginIter *iter)
   const DLiteMappingPlugin *api;
   if ((api = (const DLiteMappingPlugin *)plugin_api_iter_next(&iter->iter)))
     return api;
+#ifdef WITH_PYTHON
+  PluginInfo *info = (PluginInfo *)iter->iter.info;
   if (!iter->stop) {
     int n = iter->n;
     api = dlite_python_mapping_next(dlite_globals_get(), &iter->n);
+    if (api && !plugin_has_api(info, api->name))
+      plugin_register_api(info, (PluginAPI *)api);
     if (iter->n == n) iter->stop = 1;
   }
+#endif
   return api;
 }
 

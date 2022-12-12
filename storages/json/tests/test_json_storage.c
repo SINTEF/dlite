@@ -26,10 +26,11 @@ DLiteInstance *inst, *data3;
 
 MU_TEST(test_get_instance_from_in_memory_store)
 {
-    char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
-    DLiteStorage* s = NULL;
-    DLiteInstance* inst1, * inst0, *stat = NULL;
-    int r;
+    char *filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+    DLiteStorage *s = NULL;
+    DLiteInstance *inst1, *inst0, *stat = NULL;
+    int r, i;
+    char **uuids;
     printf("\n--- test_get_instance_from_in_memory_store ---\n");
 
     // Instance cannot be in store
@@ -53,13 +54,26 @@ MU_TEST(test_get_instance_from_in_memory_store)
     inst1 = dlite_instance_get(inst0->uuid);
     mu_check(inst1);
     dlite_instance_debug(inst1);
+
+    // Show all ids in istore
+    int n;
+    uuids = dlite_istore_get_uuids(&n);
+    for (i = 0; i < n; i++)
+      printf("%d: %s\n", i, uuids[i]);
+    mu_assert_int_eq(5, n);
+
+    for (i = 0; i < n; i++) free(uuids[i]);
+    free(uuids);
+
+    dlite_instance_decref(inst0);
+    dlite_instance_decref(inst1);
 }
 
 MU_TEST(test_remove_last_instance)
 {
-    char* filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
-    DLiteStorage* s = NULL;
-    DLiteInstance* inst1, * inst0;
+    char *filename = STRINGIFY(DLITE_ROOT) "/src/tests/test-data.json";
+    DLiteStorage *s = NULL;
+    DLiteInstance *inst1, *inst0;
     int r, stat;
     printf("\n--- test_remove_last_instance ---\n");
 
@@ -70,7 +84,7 @@ MU_TEST(test_remove_last_instance)
     mu_check(inst0);
     inst1 = json_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
     mu_check(inst1);
-    dlite_instance_debug(inst1);
+    //dlite_instance_debug(inst1);
 
     r = dlite_storage_close(s);
     mu_assert_int_eq(0, r);
@@ -103,28 +117,29 @@ MU_TEST(test_load)
 
 MU_TEST(test_load2)
 {
-  int stat;
-  char *url = "json://" STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json"
-    "#dlite/1/test-c";
+  char *url = "json://"
+    STRINGIFY(DLITE_ROOT)  // cppcheck-suppress unknownMacro
+    "/src/tests/test-read-data.json#dlite/1/test-c";
   printf("\n--- test_load2: %s ---\n", url);
 
   DLiteInstance *inst2 = dlite_instance_load_url(url);
   mu_check(inst2);
-  stat = dlite_instance_decref(inst2);
-  mu_assert_int_eq(1, stat);  // store
+  mu_assert_int_eq(2, inst2->_refcount);  // store + meta
+  dlite_instance_decref(inst2);
+  dlite_instance_decref(inst2);
 }
 
 MU_TEST(test_load3)
 {
-  int stat;
   char *url = "json://" STRINGIFY(DLITE_ROOT) "/src/tests/test-read-data.json"
     "#4cd9ed73-cb8d-5b98-8f3c-db5c916c53a5";
   printf("\n--- test_load3: %s ---\n", url);
 
   DLiteInstance *inst2 = dlite_instance_load_url(url);
   mu_check(inst2);
-  stat = dlite_instance_decref(inst2);
-  mu_assert_int_eq(1, stat);  // store
+  mu_assert_int_eq(2, inst2->_refcount);  // store + meta
+  dlite_instance_decref(inst2);
+  dlite_instance_decref(inst2);
 }
 
 MU_TEST(test_load4)
@@ -210,7 +225,7 @@ MU_TEST(test_iter)
     DLiteInstance *inst2 = dlite_instance_load(s, uuid);
     mu_check(inst2);
     dlite_json_print(inst2);
-    //dlite_instance_decref(inst2);
+    dlite_instance_decref(inst2);
     n++;
   }
   mu_assert_int_eq(1, r);

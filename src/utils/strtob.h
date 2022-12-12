@@ -41,7 +41,7 @@ int strtob(const char *ptr, char **endptr);
 
 
 /**
-  Converts a string to true (1) or false (0).
+  Converts a string to true (non-zero) or false (zero).
 */
 int atob(const char *ptr);
 

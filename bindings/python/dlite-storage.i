@@ -34,8 +34,9 @@ instances whos metadata URI matches `pattern` are returned.
     dlite_storage_iter_free($self->s, $self->state);
     free($self);
   }
+
   %feature("docstring", "\
-Returns UUID of next instance or None if exhausted.") next;
+Returns next instance or None if exhausted.") next;
   %newobject next;
   struct _DLiteInstance *next(void) {
     char uuid[DLITE_UUID_LENGTH+1];
@@ -43,6 +44,7 @@ Returns UUID of next instance or None if exhausted.") next;
       return dlite_instance_load($self->s, uuid);
     return NULL;
   }
+
   struct StorageIterator *__iter__(void) {
     return $self;
   }
@@ -66,18 +68,16 @@ enum _DLiteIDFlag {
 %feature("docstring", "\
 Represents a data storage.
 
-Call signatures
----------------
-Storage(driver, location, options)
-Storage(url)
-
 Parameters
 ----------
-driver : string
-    Name of driver used to connect to the storage.
+driver_or_url : string
+    Name of driver used to connect to the storage or, if `location` is not
+    given, the URL to the storage:
+
+        driver://location?options
+
 location : string
     The location to the storage.  For file storages, this is the file name.
-    For web-based storages this is the location-part of the url.
 options : string
     Additional options passed to the driver as a list of semicolon-separated
     ``key=value`` pairs.  Each driver may have their own options.  Some
@@ -86,10 +86,6 @@ options : string
         create a new one (hdf5,json).
       - compact={'yes','no'}: Whether to store in a compact format (json).
       - meta={'yes','no'}: Whether to format output as metadata (json).
-url : string
-    A combination of `driver`, `location` and `options` in the form
-
-        driver://location?options
 ") _DLiteStorage;
 %rename(Storage) _DLiteStorage;
 
@@ -97,17 +93,17 @@ struct _DLiteStorage {
   %immutable;
   char *location;           /*!< Location passed to dlite_storage_open() */
   char *options;            /*!< Options passed to dlite_storage_open() */
-  int writable;             /*!< Whether storage is writable */
+  int flags;                /*!< Storage flags */
   int idflag;               /*!< How to handle instance id's */
 };
 
 %extend _DLiteStorage {
-  %feature("docstring", "") __init__;
-  _DLiteStorage(const char *driver, const char *location, const char *options) {
-    return dlite_storage_open(driver, location, options);
-  }
-  _DLiteStorage(const char *url) {
-    return dlite_storage_open_url(url);
+  _DLiteStorage(const char *driver_or_url, const char *location=NULL,
+                const char *options=NULL) {
+    if (!location)
+      return dlite_storage_open_url(driver_or_url);
+    else
+      return dlite_storage_open(driver_or_url, location, options);
   }
   ~_DLiteStorage(void) {
     dlite_storage_close($self);
@@ -133,6 +129,48 @@ matches `pattern`.  If `pattern` is None, all UUIDs will be returned.
   //StorageIterator *instances(const char *pattern=NULL) {
   //  return StorageIterator
   //}
+
+  %feature("docstring",
+           "Returns whether the storage is readable.") _get_readable;
+  bool _get_readable(void) {
+    return ($self->flags & dliteReadable) ? 1 : 0;
+  }
+
+  %feature("docstring", "Set storage readability.") _set_readable;
+  void _set_readable(bool readable) {
+    if (readable)
+      $self->flags |= dliteReadable;
+    else
+      $self->flags &= ~dliteReadable;
+  }
+
+  %feature("docstring",
+           "Returns whether the storage is writable.") _get_writable;
+  bool _get_writable(void) {
+    return ($self->flags & dliteWritable) ? 1 : 0;
+  }
+
+  %feature("docstring", "Set storage writability.") _set_writable;
+  void _set_writable(bool writable) {
+    if (writable)
+      $self->flags |= dliteWritable;
+    else
+      $self->flags &= ~dliteWritable;
+  }
+
+  %feature("docstring", "Returns whether the storage is generic.") _get_generic;
+  bool _get_generic(void) {
+    return ($self->flags & dliteGeneric) ? 1 : 0;
+  }
+
+  %feature("docstring", "Set whether storage is generic") _set_generic;
+  void _set_generic(bool generic) {
+    if (generic)
+      $self->flags |= dliteGeneric;
+    else
+      $self->flags &= ~dliteGeneric;
+  }
+
 }
 
 

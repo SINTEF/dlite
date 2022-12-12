@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
 
     - name: Update submodules
       run: |
@@ -18,6 +18,10 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install cppcheck
+
+    - name: Show cppcheck version
+      run: |
+        cppcheck --version
 
     - name: Run static code analysis
       run: |

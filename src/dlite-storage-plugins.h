@@ -36,21 +36,19 @@
 #include "utils/dsl.h"
 #include "utils/fileutils.h"
 #include "utils/plugin.h"
+#include "utils/map.h"
 
 #include "dlite-datamodel.h"
 #include "dlite-storage.h"
 #include "dlite-entity.h"
 
-/** A struct with function pointers to all functions provided by a plugin. */
-typedef struct _DLiteStoragePlugin     DLiteStoragePlugin;
-typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
-
 /** Initial segment of all DLiteStorage plugin data structures. */
 #define DLiteStorage_HEAD                                                  \
   const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */            \
-  char *location;           /*!< Location passed to dlite_storage_open() */ \
+  char *location;           /*!< Location passed to dlite_storage_open() */\
   char *options;            /*!< Options passed to dlite_storage_open() */ \
-  int writable;             /*!< Whether storage is writable */            \
+  DLiteMapInstance cache;   /*!< Map to loaded instances */                \
+  DLiteStorageFlags flags;  /*!< Storage flags */                          \
   DLiteIDFlag idflag;       /*!< How to handle instance id's */
 
 
@@ -60,6 +58,21 @@ typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
   DLiteStorage *s;             /*!< Pointer to storage */          \
   char uuid[37];               /*!< UUID for the stored data */
 
+
+/** Map to instance pointer */
+typedef map_t(DLiteInstance *) DLiteMapInstance;
+
+/** A struct with function pointers to all functions provided by a plugin. */
+typedef struct _DLiteStoragePlugin     DLiteStoragePlugin;
+typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
+
+/** Storage flags */
+typedef enum _DLiteStorageFlags {
+  dliteReadable=1,    /*!< Whether storage is readable */
+  dliteWritable=2,    /*!< Whether storage is writable */
+  dliteGeneric=4,     /*!< Whether storage may hold both data and metadata */
+  dliteTransaction=8, /*!< Whether storage supports transactions */
+} DLiteStorageFlags;
 
 /** Base definition of a DLite storage, that all plugin storage
     objects can be cast to.  Is never actually instansiated. */
@@ -497,6 +510,9 @@ struct _DLiteStoragePlugin {
   /* Instance API */
   LoadInstance       loadInstance;     /*!< Returns new instance from storage */
   SaveInstance       saveInstance;     /*!< Stores an instance */
+
+  //Delete
+  //Flush
 
   /* DataModel API */
   DataModel          dataModel;        /*!< Creates new data model */

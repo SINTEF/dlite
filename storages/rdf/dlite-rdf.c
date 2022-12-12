@@ -47,14 +47,14 @@ typedef enum {
 /** Storage for librdf backend. */
 typedef struct {
   DLiteStorage_HEAD
-  TripleStore *ts;  /*!< Pointer to triplestore. */
-  char *store;      /*!< Name of storage. */
-  char *base_uri;   /*!< Base uri to use in serialisation. */
-  char *filename;   /*!< Name of optional input/output file. */
-  char *format;     /*!< Format of optional input/output file. */
-  char *mime_type;  /*!< Mime time of optional input/output file. */
-  char *type_uri;   /*!< Type uri of optional input/output file. */
-  FmtFlags flags;   /*!< Formatting flags. */
+  TripleStore *ts;    /*!< Pointer to triplestore. */
+  char *store;        /*!< Name of storage. */
+  char *base_uri;     /*!< Base uri to use in serialisation. */
+  char *filename;     /*!< Name of optional input/output file. */
+  char *format;       /*!< Format of optional input/output file. */
+  char *mime_type;    /*!< Mime time of optional input/output file. */
+  char *type_uri;     /*!< Type uri of optional input/output file. */
+  FmtFlags fmtflags;  /*!< Formatting flags. */
 } RdfStorage;
 
 /** Data model for librdf backend. */
@@ -168,7 +168,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
   const char *mode, *opt;
   UNUSED(api);
 
-  if (!(s = calloc(1, sizeof(RdfStorage)))) FAIL("allocation failure");
+  if (!(s = calloc(1, sizeof(RdfStorage)))) FAILCODE(dliteMemoryError, "allocation failure");
 
   /* parse options */
   if (dlite_option_parse(optcopy, opts, 1)) goto fail;
@@ -180,13 +180,19 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
   s->mime_type = (opts[5].value) ? strdup(opts[5].value) : NULL;
   s->type_uri  = (opts[6].value) ? strdup(opts[6].value) : NULL;
   opt   = (opts[7].value) ? opts[7].value : NULL;
-  s->flags |= (atob(opts[8].value)) ? fmtMetaAnnot : 0;
-  s->flags |= (atob(opts[9].value)) ? fmtMetaVals : 0;
+  s->fmtflags |= (atob(opts[8].value)) ? fmtMetaAnnot : 0;
+  s->fmtflags |= (atob(opts[9].value)) ? fmtMetaVals : 0;
 
+  s->flags |= dliteGeneric;
   if (strcmp(mode, "r") == 0 || strcmp(mode, "read") == 0) {
-    s->writable = 0;
+    s->flags |= dliteReadable;
+    s->flags &= ~dliteWritable;
+  } else if (strcmp(mode, "a") == 0 || strcmp(mode, "append") == 0) {
+    s->flags |= dliteReadable;
+    s->flags |= dliteWritable;
   } else if (strcmp(mode, "w") == 0 || strcmp(mode, "write") == 0) {
-    s->writable = 1;
+    s->flags &= ~dliteReadable;
+    s->flags |= dliteWritable;
   } else {
     FAIL1("invalid \"mode\" value: '%s'. Must be \"w\" (writable) "
           "or \"r\" (read-only) ", mode);
@@ -197,7 +203,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
     s->base_uri = strdup(_P);
 
   /* if read-only, check that storage file exists for file-based storages */
-  if (!s->writable) {
+  if (!(s->flags & dliteWritable)) {
     if (strcmp(s->store, "file") == 0) {
       FILE *fp;
       if (!(fp = fopen(uri, "r"))) FAIL1("cannot open storage: %s", uri);
@@ -227,7 +233,7 @@ int rdf_close(DLiteStorage *storage)
 {
   RdfStorage *s = (RdfStorage *)storage;
 
-  if (s->writable) {
+  if (s->flags & dliteWritable) {
     librdf_world *world = triplestore_get_world(s->ts);
     librdf_model *model = triplestore_get_model(s->ts);
     assert(world);
@@ -354,7 +360,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (meta->_ndimensions) {
     const char *name, *val;
     if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
-      FAIL("allocation failure");
+      FAILCODE(dliteMemoryError, "allocation failure");
     if (triplestore_find_first(ts, pid, _P ":hasDimensionValue", NULL)) {
       /* -- read dimension values */
       n = 0;
@@ -556,7 +562,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
     triplestore_add(ts, inst->uuid, _P ":hasURI", inst->uri);
 
   /* Describe metadata with spesialised properties */
-  if (meta && s->flags & fmtMetaAnnot) {
+  if (meta && s->fmtflags & fmtMetaAnnot) {
     const char **descr = dlite_instance_get_property(inst, "description");
     if (descr)
       triplestore_add_en(ts, inst->uuid, _P ":hasDescription", *descr);
@@ -610,7 +616,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
     }
   }
 
-  if (!meta || s->flags & fmtMetaVals) {
+  if (!meta || s->fmtflags & fmtMetaVals) {
     /* Dimension values */
     for (i=0; i < inst->meta->_ndimensions; i++) {
       const char *name = inst->meta->_dimensions[i].name;
@@ -665,7 +671,7 @@ void *rdf_iter_create(const DLiteStorage *storage, const char *pattern)
   TripleStore *ts = s->ts;
   RdfIter *iter;
   if (!(iter = calloc(1, sizeof(RdfIter))))
-    return err(1, "allocation failure"), NULL;
+    return err(dliteMemoryError, "allocation failure"), NULL;
   iter->pattern = (pattern) ? strdup(pattern) : NULL;
   triplestore_init_state(ts, &iter->state);
   return iter;

@@ -10,6 +10,16 @@ set(tests
   test_python_storage
   test_storage
   test_paths
+  test_utils
+  test_global_dlite_state
+  test_property_mappings
+  test_datamodel
+  test_transaction
+  test_mapping
+  test_rdf
+  test_triplestore
+  test_postgresql_write
+  test_postgresql_read
   )
 
 foreach(test ${tests})
@@ -30,4 +40,11 @@ foreach(test ${tests})
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
 
+  # Skip tests that exit with return code 44
+  set_property(TEST ${name} PROPERTY SKIP_RETURN_CODE 44)
+
 endforeach()
+
+# Additional properties
+set_property(TEST test_postgresql_read-py PROPERTY
+  DEPENDS test_postgresql_write-py)

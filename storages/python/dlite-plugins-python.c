@@ -37,7 +37,7 @@ opener(const DLiteStoragePlugin *api, const char *location,
 {
   DLitePythonStorage *s=NULL;
   DLiteStorage *retval=NULL;
-  PyObject *obj=NULL, *v=NULL, *writable=NULL;
+  PyObject *obj=NULL, *v=NULL, *readable=NULL, *writable=NULL, *generic=NULL;
   PyObject *cls = (PyObject *)api->data;
   const char *classname;
 
@@ -51,28 +51,45 @@ opener(const DLiteStoragePlugin *api, const char *location,
   if (dlite_pyembed_err_check("error calling %s.open()", classname)) goto fail;
 
   /* Check if the open() method has set attribute `writable` */
+  if (PyObject_HasAttrString(obj, "readable"))
+    readable = PyObject_GetAttrString(obj, "readable");
   if (PyObject_HasAttrString(obj, "writable"))
     writable = PyObject_GetAttrString(obj, "writable");
+  if (PyObject_HasAttrString(obj, "generic"))
+    generic = PyObject_GetAttrString(obj, "generic");
 
   if (!(s = calloc(1, sizeof(DLitePythonStorage))))
-    FAIL("Allocation failure");
+    FAILCODE(dliteMemoryError, "Allocation failure");
   s->api = api;
-  s->location = strdup(location);
-  s->options = (options) ? strdup(options) : NULL;
-  s->writable = (writable) ? PyObject_IsTrue(writable) : 1;
+
+  if (readable && !PyObject_IsTrue(readable))  // default: redable
+    s->flags &= ~dliteReadable;
+  else
+    s->flags |= dliteReadable;
+
+  if (writable && !PyObject_IsTrue(writable))  // default: writable
+    s->flags &= ~dliteWritable;
+  else
+    s->flags |= dliteWritable;
+
+  if (generic && PyObject_IsTrue(generic))     // default: not generic
+    s->flags |= dliteGeneric;
+  else
+    s->flags &= ~dliteGeneric;
+
   s->obj = obj;
   s->idflag = dliteIDTranslateToUUID;
 
   retval = (DLiteStorage *)s;
  fail:
   if (s && !retval) {
-    free(s->location);
-    if (s->options) free(s->options);
-    Py_DECREF(s->obj);
+    Py_XDECREF(s->obj);
     free(s);
   }
   Py_XDECREF(v);
+  Py_XDECREF(readable);
   Py_XDECREF(writable);
+  Py_XDECREF(generic);
 
   return retval;
 }
@@ -97,7 +114,6 @@ int closer(DLiteStorage *s)
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
     retval = 1;
   Py_XDECREF(v);
-  //Py_XDECREF(v);  // why do we have to call this twice?
   Py_DECREF(sp->obj);
   return retval;
 }
@@ -115,20 +131,26 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
 
-  pyuuid = PyUnicode_FromString(id);
+  if (id) {
+    pyuuid = PyUnicode_FromString(id);
+  } else {
+    Py_INCREF(Py_None);
+    pyuuid = Py_None;
+  }
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
   PyObject *v = PyObject_CallMethod(sp->obj, "load", "O", pyuuid);
-  if (dlite_pyembed_err_check("error calling %s.load()", classname))
-    goto fail;
-  assert(v);
-  if (!(inst = dlite_pyembed_get_instance(v))) goto fail;
- fail:
-  Py_XDECREF(pyuuid);
-  Py_XDECREF(v);
+  Py_DECREF(pyuuid);
+
+  if (v) {
+    inst = dlite_pyembed_get_instance(v);
+    Py_DECREF(v);
+  } else
+    dlite_pyembed_err(1, "error calling %s.load()", classname);
+
   return inst;
 }
 
@@ -153,7 +175,6 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
   retval = 0;
  fail:
   Py_XDECREF(pyinst);
-  //Py_XDECREF(pyinst);  // why do we have to call this twice?
   Py_XDECREF(v);
   return retval;
 }
@@ -200,25 +221,20 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
   void *retval=NULL;
   Iter *iter = NULL;
   PyObject *class = (PyObject *)s->api->data;
-  PyObject *patt = NULL;
   const char *classname;
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
 
-  if (!(iter = calloc(1, sizeof(Iter)))) FAIL("allocation failure");
+  if (!(iter = calloc(1, sizeof(Iter))))
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   iter->v = PyObject_CallMethod(sp->obj, "queue", "s", pattern);
   if (dlite_pyembed_err_check("error calling %s.queue()", classname)) goto fail;
   if (!PyIter_Check(iter->v))
     FAIL1("method %s.queue() does not return a iterator object", classname);
 
-  if (pattern) {
-    patt = PyUnicode_FromString(pattern);
-    PyObject_SetAttrString(iter->v, "pattern", patt);
-  }
-  //iter->pattern = pattern;
   iter->classname = classname;
 
   retval = (void *)iter;
@@ -240,7 +256,8 @@ int iterNext(void *iter, char *buf)
   int retval = -1;
   Iter *i = (Iter *)iter;
   PyObject *next = PyIter_Next((PyObject *)i->v);
-  if (dlite_pyembed_err_check("error iteratine over %s.queue()",
+
+  if (dlite_pyembed_err_check("error iterating over %s.queue()",
                               i->classname)) goto fail;
   if (next) {
     if (!PyUnicode_Check(next))
@@ -330,7 +347,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
 	  classname);
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   api->name = strdup(PyUnicode_AsUTF8(name));
   api->freeapi = freeapi;

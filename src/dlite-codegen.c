@@ -48,7 +48,8 @@ static Globals *get_globals(void)
 {
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
-    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+    if (!(g = calloc(1, sizeof(Globals))))
+     FAILCODE(dliteMemoryError, "allocation failure");
 
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
@@ -202,12 +203,12 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     DLiteProperty *p = m->_properties + i;
     const char *type = dlite_type_get_dtypename(p->type);
     const char *dtype = dlite_type_get_enum_name(p->type);
+    char *ref = (p->ref) ? p->ref : "NULL";
     char *unit = (p->unit) ? p->unit : "";
     char *descr = (p->description) ? p->description : "";
     size_t nref = (p->ndims > 0) ? 1 : 0;
     int isallocated = dlite_type_is_allocated(p->type);
     char typename[32], pcdecl[64], ftype[25], isoctype[64];
-    char *iri = (p->iri) ? p->iri : "";
     dlite_type_set_typename(p->type, p->size, typename, sizeof(typename));
     dlite_type_set_cdecl(p->type, p->size, p->name, nref, pcdecl,
 			 sizeof(pcdecl), g->use_native_typenames);
@@ -223,8 +224,8 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&psubs, "prop.ftype",    ftype,    NULL);
     tgen_subs_set(&psubs, "prop.isoctype", isoctype, NULL);
     tgen_subs_set(&psubs, "prop.cdecl",    pcdecl,   NULL);
+    tgen_subs_set(&psubs, "prop.ref",      ref,      NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
-    tgen_subs_set(&psubs, "prop.iri",      iri,      NULL);
     tgen_subs_set(&psubs, "prop.descr",    descr,    NULL);
     tgen_subs_set(&psubs, "prop.dims",     NULL,     list_dims);
     tgen_subs_set_fmt(&psubs, "prop.typeno",      NULL, "%d",  p->type);
@@ -365,7 +366,6 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   /* General (all types of instances) */
   tgen_subs_set(subs, "uuid", inst->uuid, NULL);
   tgen_subs_set(subs, "uri", (inst->uri) ? inst->uri : "", NULL);
-  tgen_subs_set(subs, "iri", (inst->iri) ? inst->iri : "", NULL);
   if (inst->uri)
     tgen_subs_set(subs, "uri",        inst->uri,  NULL);
 
@@ -374,7 +374,6 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   descr = dlite_instance_get_property((DLiteInstance *)meta, "description");
   tgen_subs_set(subs, "meta.uuid",       meta->uuid, NULL);
   tgen_subs_set(subs, "meta.uri",        meta->uri,  NULL);
-  tgen_subs_set(subs, "meta.iri",        (meta->iri) ? meta->iri : "",  NULL);
   tgen_subs_set(subs, "meta.name",       name,       NULL);
   tgen_subs_set(subs, "meta.version",    version,    NULL);
   tgen_subs_set(subs, "meta.namespace",  namespace,  NULL);
@@ -394,7 +393,6 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   /* DLiteInstance_HEAD */
   tgen_subs_set(subs, "_uuid", inst->uuid, NULL);
   tgen_subs_set(subs, "_uri", (inst->uri) ? inst->uri : "", NULL);
-  tgen_subs_set(subs, "_iri", (inst->iri) ? inst->iri : "", NULL);
 
   /* For all metadata  */
   if (dlite_meta_is_metameta(inst->meta)) {
@@ -424,6 +422,7 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
                       (unsigned long)meta->_headersize);
     tgen_subs_set_fmt(subs, "_init",        NULL, "NULL");
     tgen_subs_set_fmt(subs, "_deinit",      NULL, "NULL");
+    tgen_subs_set_fmt(subs, "_gethash",     NULL, "NULL");
     tgen_subs_set_fmt(subs, "_getdim",      NULL, "NULL");
     tgen_subs_set_fmt(subs, "_setdim",      NULL, "NULL");
     tgen_subs_set_fmt(subs, "_loadprop",    NULL, "NULL");
@@ -568,7 +567,7 @@ char *dlite_codegen_template_file(const char *template_name)
   if (!(paths = dlite_codegen_path_get())) return NULL;
 
   if (asprintf(&pattern, "%s.txt", template_name) < 0)
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   if (!(iter = fu_pathsiter_init(paths, pattern)))
     FAIL("failure creating codegen template path iterator");

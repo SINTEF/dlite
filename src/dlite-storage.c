@@ -12,10 +12,12 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
+#include "dlite-errors.h"
 #include "dlite-storage-plugins.h"
 #include "getuuid.h"
 
 #define GLOBALS_ID "dlite-storage-id"
+#define HOTLIST_CHUNK_LENGTH 8
 
 
 /* Iterator over dlite storage paths. */
@@ -23,9 +25,19 @@ struct _DLiteStoragePathIter {
   FUIter *pathiter;
 };
 
+/* Hotlist of open storages for fast lookup of instances with
+   dlite_instance_get(). */
+typedef struct _DLiteStorageHotlist {
+  size_t length;                  /* allocated length of `storages` */
+  size_t nmemb;                   /* used length of `storages` */
+  const DLiteStorage **storages;  /* array of hotlisted storages */
+} DLiteStorageHotlist;
+
+
 /* Global variables for dlite-storage */
 typedef struct {
   FUPaths *storage_paths;
+  DLiteStorageHotlist hotlist;
 } Globals;
 
 
@@ -34,6 +46,7 @@ static void free_globals(void *globals)
 {
   Globals *g = globals;
   dlite_storage_paths_free();
+  dlite_storage_hotlist_clear();
   free(g);
 }
 
@@ -42,7 +55,8 @@ static Globals *get_globals(void)
 {
   Globals *g = dlite_globals_get_state(GLOBALS_ID);
   if (!g) {
-    if (!(g = calloc(1, sizeof(Globals)))) FAIL("allocation failure");
+    if (!(g = calloc(1, sizeof(Globals))))
+     FAILCODE(dliteMemoryError, "allocation failure");
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
   return g;
@@ -68,20 +82,27 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
                                  const char *options)
 {
   const DLiteStoragePlugin *api;
-  DLiteStorage *storage=NULL;
+  DLiteStorage *s=NULL;
 
   if (!location) FAIL("missing location");
   if (!driver || !*driver) driver = fu_fileext(location);
   if (!driver || !*driver) FAIL("missing driver");
   if (!(api = dlite_storage_plugin_get(driver))) goto fail;
-  if (!(storage = api->open(api, location, options))) goto fail;
-  storage->api = api;
-  if (!(storage->location = strdup(location))) FAIL(NULL);
-  if (options && !(storage->options = strdup(options))) FAIL(NULL);
+  if (!(s = api->open(api, location, options))) goto fail;
+  s->api = api;
+  if (!(s->location = strdup(location)))
+   FAILCODE(dliteMemoryError, "allocation failure");
+  if (options && !(s->options = strdup(options)))
+   FAILCODE(dliteMemoryError, "allocation failure");
 
-  return storage;
+  map_init(&s->cache);
+
+  if (s->flags & dliteReadable && s->flags& dliteGeneric)
+    dlite_storage_hotlist_add(s);
+
+  return s;
  fail:
-  if (storage) free(storage);
+  if (s) free(s);
   err_update_eval(dliteStorageOpenError);
   return NULL;
 }
@@ -120,9 +141,13 @@ int dlite_storage_close(DLiteStorage *s)
 {
   int stat;
   assert(s);
+  if (s->flags & dliteReadable && s->flags& dliteGeneric)
+    dlite_storage_hotlist_remove(s);
+
   stat = s->api->close(s);
   free(s->location);
   if (s->options) free(s->options);
+  map_deinit(&s->cache);
   free(s);
   return stat;
 }
@@ -142,6 +167,27 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s)
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
 {
   s->idflag = idflag;
+}
+
+/*
+  Loads instance from storage `s` using the loadInstance api.
+  Returns NULL on error or if loadInstance is not supported.
+ */
+DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id)
+{
+  char uuid[DLITE_UUID_LENGTH+1];
+  DLiteInstance **ptr, *inst=NULL;
+  if (getuuid(uuid, id) < 0) return NULL;
+  if ((ptr = map_get(&(((DLiteStorage *)s)->cache), uuid))) return *ptr;
+
+  if (s->api->loadInstance) {
+    /* Add NULL to cache to mark that we are about to load the instance and
+       break recursive calls */
+    map_set(&(((DLiteStorage *)s)->cache), uuid, NULL);
+    inst = s->api->loadInstance(s, id);
+    map_set(&(((DLiteStorage *)s)->cache), uuid, inst);
+  }
+  return inst;
 }
 
 
@@ -210,7 +256,7 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
         len += 32;
         if (!(ptr = realloc(p, len*sizeof(char *)))) {
           free(p);
-          return err(1, "allocation failure"), NULL;
+          return err(dliteMemoryError, "allocation failure"), NULL;
         }
         p = ptr;
       }
@@ -220,7 +266,7 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
     if (p) {
       if (!(ptr = realloc(p, (n+1)*sizeof(char *)))) {
         free(p);
-        return err(1, "allocation failure"), NULL;
+        return err(dliteMemoryError, "allocation failure"), NULL;
       }
       p = ptr;
       p[n] = NULL;
@@ -251,7 +297,7 @@ void dlite_storage_uuids_free(char **names)
  */
 int dlite_storage_is_writable(const DLiteStorage *s)
 {
-  return s->writable;
+  return (s->flags & dliteWritable) ? 1 : 0;
 }
 
 
@@ -268,7 +314,6 @@ const char *dlite_storage_get_driver(const DLiteStorage *s)
 /*******************************************************************
  *  Storage paths and URLs
  *******************************************************************/
-//static FUPaths *_storage_paths = NULL;
 
 /* Returns referance to storage paths */
 FUPaths *dlite_storage_paths(void)
@@ -277,7 +322,7 @@ FUPaths *dlite_storage_paths(void)
   if (!(g = get_globals())) return NULL;
   if (!g->storage_paths) {
     if (!(g->storage_paths = calloc(1, sizeof(FUPaths))))
-      return err(1, "allocation failure"), NULL;
+      return err(dliteMemoryError, "allocation failure"), NULL;
     fu_paths_init_sep(g->storage_paths, "DLITE_STORAGES", "|");
     fu_paths_set_platform(g->storage_paths, dlite_get_platform());
 
@@ -364,7 +409,7 @@ DLiteStoragePathIter *dlite_storage_paths_iter_start()
 {
   DLiteStoragePathIter *iter=NULL;
   if (!(iter = calloc(1, sizeof(DLiteStoragePathIter))))
-    return err(1, "Allocation failure"), NULL;
+    return err(dliteMemoryError, "Allocation failure"), NULL;
   if (!(iter->pathiter = fu_pathsiter_init(dlite_storage_paths(), NULL))) {
     free(iter);
     return err(1, "Failure initiating storage path iterator"), NULL;
@@ -395,4 +440,103 @@ int dlite_storage_paths_iter_stop(DLiteStoragePathIter *iter)
   stat = fu_pathsiter_deinit(iter->pathiter);
   free(iter);
   return stat;
+}
+
+
+
+/* Clears the storage hotlist. Returns non-zero on error. */
+int dlite_storage_hotlist_clear()
+{
+  Globals *g;
+  DLiteStorageHotlist *h;
+  if (!(g = get_globals())) return -1;
+  h = &g->hotlist;
+  if (h->storages) free(h->storages);
+  memset(h, 0, sizeof(DLiteStorageHotlist));
+  return 0;
+}
+
+/* Adds storage `s` to list of open storages for fast lookup of instances.
+   Returns non-zero on error. */
+int dlite_storage_hotlist_add(const DLiteStorage *s)
+{
+  Globals *g;
+  DLiteStorageHotlist *h;
+  assert(s);
+  if (!(g = get_globals())) return -1;
+  h = &g->hotlist;
+  if (h->length <= h->nmemb) {
+    size_t newlength = h->length + HOTLIST_CHUNK_LENGTH;
+    const DLiteStorage **storages = realloc(h->storages,
+                                            newlength*sizeof(DLiteStorage *));
+    if (!storages) return err(dliteMemoryError, "allocation failure");
+    h->length = newlength;
+    h->storages = storages;
+  }
+  assert(h->length > h->nmemb);
+  h->storages[h->nmemb++] = s;
+  return 0;
+}
+
+/* Remove storage `s` from hotlist.
+   Returns zero on success.  One is returned if `s` is not in the hotlist.
+   For other errors a negative number is returned. */
+int dlite_storage_hotlist_remove(const DLiteStorage *s)
+{
+  Globals *g;
+  DLiteStorageHotlist *h;
+  int removed = -1;
+  size_t i, length;
+  assert(s);
+  if (!(g = get_globals())) return -1;
+  h = &g->hotlist;
+  for (i=0; i < h->nmemb; i++) {
+    if (h->storages[i] == s) {
+      removed = i;
+      if (i < h->nmemb-1) h->storages[i] = h->storages[h->nmemb-1];
+      h->nmemb--;
+      break;
+    }
+  }
+
+  /* Keep a buffer of at least one chunk length when reducing allocated memory
+     to avoid flickering. */
+  length = (h->nmemb / HOTLIST_CHUNK_LENGTH + 2)*HOTLIST_CHUNK_LENGTH;
+  assert(length > h->nmemb);
+  if (h->length > length) {
+    const DLiteStorage **storages = realloc(h->storages, length);
+    assert(storages);  // redusing allocated memory should always be successful
+    h->length = length;
+    h->storages = storages;
+  }
+  return (removed >= 0) ? 0 : 1;
+}
+
+/* Initialise hotlist iterator `iter`.
+   Returns non-zero on error. */
+int dlite_storage_hotlist_iter_init(DLiteStorageHotlistIter *iter)
+{
+  memset(iter, 0, sizeof(DLiteStorageHotlistIter));
+  return 0;
+}
+
+/* Returns a pointer to next hotlisted storage or NULL if the iterator is
+   exausted (or on other errors). */
+const DLiteStorage *
+dlite_storage_hotlist_iter_next(DLiteStorageHotlistIter *iter)
+{
+  Globals *g;
+  DLiteStorageHotlist *h;
+  if (!(g = get_globals())) return NULL;
+  h = &g->hotlist;
+  if (*(size_t *)iter >= h->nmemb) return NULL;
+  return h->storages[(*(size_t *)iter)++];
+}
+
+/* Deinitialise hotlist iterator `iter`.
+   Returns non-zero on error. */
+int dlite_storage_hotlist_iter_deinit(DLiteStorageHotlistIter *iter)
+{
+  UNUSED(iter);
+  return 0;
 }

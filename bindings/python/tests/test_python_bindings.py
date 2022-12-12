@@ -19,7 +19,13 @@ class ScriptTestCase(unittest.TestCase):
         env = globals().copy()
         env.update(__file__=self.filename)
         with open(self.filename) as fd:
-            exec(compile(fd.read(), self.filename, 'exec'), env)
+            try:
+                exec(compile(fd.read(), self.filename, 'exec'), env)
+            except SystemExit as exc:
+                if exc.code == 44:
+                    self.skipTest('exit code 44')
+                else:
+                    raise exc
 
     def id(self):
         return self.filename
@@ -32,9 +38,12 @@ class ScriptTestCase(unittest.TestCase):
 
 
 def test(verbosity=1, stream=sys.stdout):
-    tests = [test for test in glob(os.path.join(thisdir, '*.py'))
-             if not test.endswith('__.py') and
-             not test.endswith('test_python_bindings.py')]
+    tests = [test for test in sorted(glob(os.path.join(thisdir, 'test_*.py')))
+             if not test.endswith('__.py')
+             and not test.endswith('test_python_bindings.py')
+             # Exclude test_global_dlite_state.py since the global state
+             # that it is testing depends on the other tests.
+             and not test.endswith('test_global_dlite_state.py')]
     ts = unittest.TestSuite()
     for test in tests:
         ts.addTest(ScriptTestCase(filename=os.path.abspath(test)))

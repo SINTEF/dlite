@@ -129,10 +129,13 @@
 
 #include <stddef.h>
 #include "utils/boolean.h"
+#include "utils/integers.h"
+#include "utils/jsmnx.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
 #include "dlite-storage.h"
 #include "dlite-arrays.h"
+
 
 /**
  * @name Typedefs and structs
@@ -149,6 +152,14 @@ typedef int (*DLiteInit)(struct _DLiteInstance *inst);
     dlite_instance_free().
     Returns non-zero on error. */
 typedef int (*DLiteDeInit)(struct _DLiteInstance *inst);
+
+/** Function used by extended metadata to replace the standard hash
+    calculation in dlite_instance_get_hash().  The calculated hash is
+    stored in `hash`, where `hashsize` is the size of `hash` in bytes.
+    It should be 32, 48 or 64.
+    Returns non-zero on error. */
+typedef int (*DLiteGetHash)(const DLiteInstance *inst, unsigned char *hash,
+                            int hashsize);
 
 /** Function for accessing internal dimension sizes of extended
     metadata.  If provided it will be called by dlite_instance_save(),
@@ -178,21 +189,41 @@ typedef int (*DLiteLoadProperty)(const DLiteInstance *inst, size_t i);
 typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
 
 
+/** Flags for describing the state of an instance.  This should be as
+    minimalistic as possible, but a flag for immutability is needed. */
+typedef enum _DLiteFlag {
+  dliteImmutable=1  /*!< Whether instance is immutable. */
+} DLiteFlag;
+
+/** The size in bytes of sha3 hash used by transactions.
+    Should be 32, 48 or 64. */
+#define DLITE_HASH_SIZE 32
+
+/** Reference to parent instance.  Used by transactions. */
+typedef struct _DLiteParent {
+  const struct _DLiteInstance *parent;  /*!< Pointer to parent instance.
+                                       May be NULL, in which case the
+                                       parent must be accessed via uuid. */
+  char uuid[DLITE_UUID_LENGTH+1]; /*!< UUID of parent instance. */
+  uint8_t hash[DLITE_HASH_SIZE];  /*!< Hash of parent instance. */
+} DLiteParent;
+
 
 /**
   Initial segment of all DLite instances.
 */
 #define DLiteInstance_HEAD                                              \
   char uuid[DLITE_UUID_LENGTH+1]; /* UUID for this instance. */         \
+  uint8_t _flags;                 /* OR'ed sum of DLiteFlag. */         \
   const char *uri;                /* Unique uri for this instance. */   \
                                   /* May be NULL. */                    \
   int _refcount;                  /* Number of references to this */    \
                                   /* instance. */                       \
   const struct _DLiteMeta *meta;  /* Pointer to the metadata descri- */ \
                                   /* bing this instance. */             \
-  const char *iri;                /* Unique IRI to corresponding */     \
-                                  /* entity in an ontology. May be */   \
-                                  /* NULL. */
+  DLiteParent *_parent;           /* For transactions, reference to */  \
+                                  /* parent instance. May be NULL. */
+
 
 /**
   Initial segment of all DLite metadata.  With instance we here refer
@@ -224,6 +255,7 @@ typedef int (*DLiteSaveProperty)(DLiteInstance *inst, size_t i);
                           /* sizeof(DLiteMeta). */                      \
   DLiteInit _init;        /* Function initialising an instance. */      \
   DLiteDeInit _deinit;    /* Function deinitialising an instance. */    \
+  DLiteGetHash _gethash;  /* Function calculating instance hash. */     \
   DLiteGetDimension _getdim;   /* Gets dim. size from internal state.*/ \
   DLiteSetDimension _setdim;   /* Sets dim. size of internal state. */  \
   DLiteLoadProperty _loadprop; /* Loads internal state from prop. */    \
@@ -267,21 +299,16 @@ struct _DLiteDimension {
 
 /**
   DLite property
-
-  E.g. if we have dimensions ["M", "N"] and dims is [1, 1, 0], it
-  means that the data described by this property has dimensions
-  ["N", "N", "M"].
 */
 struct _DLiteProperty {
   char *name;         /*!< Name of this property. */
   DLiteType type;     /*!< Type of the described data. */
   size_t size;        /*!< Size of one data element. */
+  char *ref;          /*!< Reference to metadata URI for type=dliteRef. */
   int ndims;          /*!< Number of dimension of the described
                            data.  Zero if scalar. */
   char **dims;        /*!< Array of dimension strings.  May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
-  char *iri;          /*!< Unique IRI to corresponding entity in an
-                           ontology. */
   char *description;  /*!< Human described of the described data. */
 };
 
@@ -416,6 +443,14 @@ void dlite_instance_debug(const DLiteInstance *inst);
  */
 size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims);
 
+/**
+  Returns a newly allocated NULL-terminated array of string pointers
+  with uuids available in the internal storage (istore).
+
+  Mostly intended for internal/debugging use.
+
+*/
+char** dlite_istore_get_uuids(int* nuuids);
 
 /** @} */
 /* ================================================================= */
@@ -495,7 +530,7 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages);
   storage plugin path (initiated from the DLITE_STORAGES environment
   variable).
 
-  It is an error message if the instance cannot be found.
+  It is an error if the instance cannot be found.
 */
 DLiteInstance *dlite_instance_get(const char *id);
 
@@ -518,6 +553,18 @@ DLiteInstance *dlite_instance_get_casted(const char *id, const char *metaid);
   On error, NULL is returned.
  */
 DLiteInstance *dlite_instance_load(const DLiteStorage *s, const char *id);
+
+/**
+  A convenient function for loading an instance with given id from a
+  storage specified with the `driver`, `location` and `options`
+  arguments (see dlite_storage_open()).
+
+  The `id` argument may be NULL if the storage contains only one instance.
+
+  Returns the instance or NULL on error.
+ */
+DLiteInstance *dlite_instance_load_loc(const char *driver, const char *location,
+                                       const char *options, const char *id);
 
 /**
   A convinient function that loads an instance given an URL of the form
@@ -555,6 +602,14 @@ DLiteInstance *dlite_instance_load_casted(const DLiteStorage *s,
  */
 int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst);
 
+/**
+  A convinient function that saves instance `inst` to the storage specified
+  by `driver`, `location` and `options`.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_save_loc(const char *driver, const char *location,
+                            const char *options, const DLiteInstance *inst);
 
 /**
   A convinient function that saves instance `inst` to the storage specified
@@ -576,11 +631,6 @@ const char *dlite_instance_get_uuid(const DLiteInstance *inst);
   Returns a pointer to instance URI.
  */
 const char *dlite_instance_get_uri(const DLiteInstance *inst);
-
-/**
-  Returns a pointer to instance IRI.
- */
-const char *dlite_instance_get_iri(const DLiteInstance *inst);
 
 /**
   Returns a pointer to the UUID of the instance metadata.
@@ -703,6 +753,85 @@ int dlite_instance_is_meta(const DLiteInstance *inst);
   addition to a "dimensions" property (of type DLiteDimension).
  */
 int dlite_instance_is_metameta(const DLiteInstance *inst);
+
+
+/**
+  Write a string representation of property `name` to `dest`.
+
+  Arrays will be written with a JSON-like syntax.
+
+  No more than `n` bytes are written to `dest` (incl. the terminating
+  NUL).
+
+  The `width` and `prec` arguments corresponds to the printf() minimum
+  field width and precision/length modifier.  If you set them to -1, a
+  suitable value will selected according to `type`.  To ignore their
+  effect, set `width` to zero or `prec` to -2.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `n`, the number of bytes that would
+  have been written if `n` was large enough is returned.  On error, a
+  negative value is returned.
+*/
+int dlite_instance_print_property(char *dest, size_t n,
+                                  const DLiteInstance *inst, const char *name,
+                                  int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Lite dlite_print_property() but takes property index `i` as argument
+  instead of property name.
+*/
+int dlite_instance_print_property_by_index(char *dest, size_t n,
+                                           const DLiteInstance *inst, size_t i,
+                                           int width, int prec,
+                                           DLiteTypeFlag flags);
+
+/**
+  Lite dlite_print_property() but prints to allocated buffer.
+
+  Prints to position `pos` in `*dest`, which should point to a buffer
+  of size `*n`.  `*dest` is reallocated if needed.
+
+  Returns number or bytes written or a negative number on error.
+*/
+int dlite_instance_aprint_property(char **dest, size_t *n, size_t pos,
+                                   const DLiteInstance *inst,
+                                   const char *name,
+                                   int width, int prec, DLiteTypeFlag flags);
+
+/**
+  Lite dlite_aprint_property() but takes property index `i` as argument
+  instead of property name.
+*/
+int dlite_instance_aprint_property_by_index(char **dest, size_t *n,
+                                            size_t pos,
+                                            const DLiteInstance *inst,
+                                            size_t i,
+                                            int width, int prec,
+                                            DLiteTypeFlag flags);
+
+/**
+  Scans property `name` from `src`.
+
+  The `flags` provides some format options.  If zero (default) bools
+  and strings are expected to be quoted.
+
+  Returns number of characters consumed from `src` or a negative
+  number on error.
+ */
+int dlite_instance_scan_property(const char *src, const DLiteInstance *inst,
+                                 const char *name, DLiteTypeFlag flags);
+
+/**
+  Lite dlite_scan_property() but takes property index `i` as argument
+  instead of property name.
+*/
+int dlite_instance_scan_property_by_index(const char *src,
+                                          const DLiteInstance *inst, size_t i,
+                                          DLiteTypeFlag flags);
 
 
 /**
@@ -884,6 +1013,162 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    const void *src,
                                                    DLiteTypeCast castfun);
 
+/**
+  Calculates a hash of instance `inst`.  The calculated hash is stored
+  in `hash`, where `hashsize` is the size of `hash` in bytes.  It should
+  be 32, 48 or 64.
+
+  Return non-zero on error.
+ */
+int dlite_instance_get_hash(const DLiteInstance *inst,
+                            unsigned char *hash, int hashsize);
+
+
+/** @} */
+/* ================================================================= */
+/**
+ * @name Transactions
+ */
+/* ================================================================= */
+/** @{ */
+
+/**
+  Make instance immutable.  This can never be reverted.
+
+  **Note**
+  Immutability of the underlying data cannot be enforced in
+  C as long as the someone has a pointer to the instance.  However,
+  functions like dlite_instance_set_property() and
+  dlite_instance_set_dimension_size() will refuse to change the
+  instance if it is immutable.  Furthermore, if the instance is used
+  as a parent in a transaction, any changes to the underlying data
+  will be detected by calling dlite_instance_verify_transaction().
+ */
+void dlite_instance_freeze(DLiteInstance *inst);
+
+/**
+  Returns non-zero if instance is immutable (frozen).
+ */
+int dlite_instance_is_frozen(const DLiteInstance *inst);
+
+/**
+  Make a snapshop of mutable instance `inst`.
+
+  The `inst` will be a transaction whos parent is the snapshot.  If
+  `inst` already has a parent, that will now be the parent of the
+  snapshot.
+
+  The reason that `inst` must be mutable, is that its hash will change
+  due to change in its parent.
+
+  The snapshot will be assigned an URI of the form
+  "snapshot-XXXXXXXXXXXX" (or inst->uri#snapshot-XXXXXXXXXXXX if
+  inst->uri is not NULL) where each X is replaces with a random
+  character.
+
+  On error non-zero is returned and `inst` is unchanged.
+ */
+int dlite_instance_snapshot(DLiteInstance *inst);
+
+/**
+  Returns a borrowed reference to shapshot number `n` of `inst`, where
+  `n` counts backward from `inst`.  Hence, `n=0` returns `inst`, `n=1`
+  returns the parent of `inst`, etc...
+
+  Snapshots may be pulled back into memory using dlite_instance_get().
+  Use dlite_instance_pull() if you know the storage that the snapshots
+  are stored in.
+
+  Returns NULL on error.
+ */
+const DLiteInstance *dlite_instance_get_snapshot(const DLiteInstance *inst,
+                                                 int n);
+
+/**
+  Like dlite_instance_get_snapshot(), except that stored snapshots are pulled
+  from `s` to memory.
+
+  Returns a borrowed reference to snapshot `n` or NULL on error.
+ */
+const DLiteInstance *dlite_instance_pull_snapshot(const DLiteInstance *inst,
+                                                  DLiteStorage *s, int n);
+
+/**
+  Push all ancestors of snapshot `n` from memory to storage `s`,
+  where `n=0` corresponds to `inst`, `n=1` to the parent of `inst`, etc...
+
+  No snapshot is pulled back from storage, so if the snapshots are
+  already in storage, this function has no effect.
+
+  This function starts pushing closest to the root to ensure that the
+  transaction is in a consistent state at all times.
+
+  Returns zero on success or the (positive) index of the snapshot that
+  fails to push.
+*/
+int dlite_instance_push_snapshot(const DLiteInstance *inst,
+                                 DLiteStorage *s, int n);
+
+/**
+  Prints transaction to stdout.  Returns non-zero on error.
+ */
+int dlite_instance_print_transaction(const DLiteInstance *inst);
+
+/**
+  Turn instance `inst` into a transaction node with parent `parent`.
+
+  This require that `inst` is mutable, and `parent` is immutable.
+
+  If `inst` already has a parent, it will be replaced.
+
+  Use dlite_instance_freeze() and dlite_instance_is_frozen() to make
+  and check that an instance is immutable, respectively.
+
+  Returns non-zero on error.
+ */
+int dlite_instance_set_parent(DLiteInstance *inst, const DLiteInstance *parent);
+
+/**
+  Returns non-zero if `inst` has a parent.
+ */
+int dlite_instance_has_parent(const DLiteInstance *inst);
+
+/**
+  Verify that the hash of instance `inst`.
+
+  If `hash` is not NULL, this function verifies that the hash of
+  `inst` corresponds to the memory pointed to by `hash`.  The size of
+  the memory should be `DLITE_HASH_SIZE` bytes.
+
+  If `hash` is NULL and `inst` has a parent, this function will
+  instead verify that the parent hash stored in `inst` corresponds to
+  the value of the parent.
+
+  If `recursive` is non-zero, all ancestors of `inst` are also
+  included in the verification.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
+
+  @todo
+  If `recursive` is non-zero and `inst` is a collection or has
+  properties of type `dliteRef`, we should also verify the instances
+  that are referred to.  This is currently not implemented, because
+  we have to detect cyclic references to avoid infinite recursion.
+ */
+int dlite_instance_verify_hash(const DLiteInstance *inst, uint8_t *hash,
+                               int recursive);
+
+/**
+  Verifies a transaction.
+
+  Equivalent to calling `dlite_instance_very_hash(inst, NULL, 1)`.
+
+  Returns zero if the hash is valid.  Otherwise non-zero is returned
+  and an error message is issued.
+ */
+int dlite_instance_verify_transaction(const DLiteInstance *inst);
+
 
 /** @} */
 /* ================================================================= */
@@ -898,8 +1183,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
   given arguments.  It is an instance of DLITE_ENTITY_SCHEMA.
  */
 DLiteMeta *
-dlite_meta_create(const char *uri, const char *iri,
-                  const char *description,
+dlite_meta_create(const char *uri, const char *description,
                   size_t ndimensions, const DLiteDimension *dimensions,
                   size_t nproperties, const DLiteProperty *properties);
 
@@ -1018,6 +1302,17 @@ bool dlite_meta_has_dimension(const DLiteMeta *meta, const char *name);
 bool dlite_meta_has_property(const DLiteMeta *meta, const char *name);
 
 
+/**
+  Safe type casting from instance to metadata.
+ */
+DLiteMeta *dlite_meta_from_instance(DLiteInstance *inst);
+
+/**
+  Type cast metadata to instance - always possible.
+ */
+DLiteInstance *dlite_meta_to_instance(DLiteMeta *meta);
+
+
 /** @} */
 /* ================================================================= */
 /**
@@ -1055,13 +1350,12 @@ void dlite_dimension_free(DLiteDimension *dim);
   It is created with no dimensions.  Use dlite_property_add_dim() to
   add dimensions to the property.
 
-  The arguments `unit`, `iri` and `description` may be NULL.
+  The arguments `unit`, and `description` may be NULL.
 */
 DLiteProperty *dlite_property_create(const char *name,
                                      DLiteType type,
                                      size_t size,
                                      const char *unit,
-                                     const char *iri,
                                      const char *description);
 
 /**
@@ -1114,6 +1408,7 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
                           const DLiteProperty *p, const size_t *dims,
                           int width, int prec, DLiteTypeFlag flags);
 
+
 /**
   Scans property from `src` and write it to memory pointed to by `ptr`.
 
@@ -1132,6 +1427,31 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
                         const size_t *dims, DLiteTypeFlag flags);
 
 
+/**
+  Scan property from  JSON data.
+
+  Arguments:
+    - src: JSON data to scan.
+    - item: Pointer into array of JSMN tokens corresponding to the item
+        to scan.
+    - key: The key corresponding to the scanned value when scanning from
+        a JSON object.  May be NULL otherwise.
+    - ptr: Pointer to memory that the scanned value will be written to.
+        For arrays, `ptr` should points to the first element and will not
+        be not dereferenced.
+    - p: DLite property describing the data to scan.
+    - dims: Evaluated shape of property to scan.
+    - flags: Format options.  If zero (default) strings are expected to be
+        quoted.
+
+  Returns:
+    - Number of characters consumed from `src` or a negative number on error.
+ */
+int dlite_property_jscan(const char *src, const jsmntok_t *item,
+                         const char *key, void *ptr, const DLiteProperty *p,
+                         const size_t *dims, DLiteTypeFlag flags);
+
+
 /** @} */
 /* ================================================================= */
 /**
@@ -1145,14 +1465,12 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
 /** @{ */
 
 /**
-  Create and return a new empty metadata model.  `iri` is optional and
+  Create and return a new empty metadata model.
   may be NULL.
 
   Returns NULL on error.
  */
-DLiteMetaModel *dlite_metamodel_create(const char *uri,
-                                       const char *metaid,
-                                       const char *iri);
+DLiteMetaModel *dlite_metamodel_create(const char *uri, const char *metaid);
 
 /**
   Frees metadata model.
@@ -1231,7 +1549,6 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
     - name: name of new property
     - typename: type of new property, ex. "string80", "int64", "string",...
     - unit: unit of new type. May be NULL
-    - iri: iri reference to an ontology. May be NULL
     - description: description of property. May be NULL
 
   Use dlite_metamodel_add_property_dim() to add dimensions to the
@@ -1243,7 +1560,6 @@ int dlite_metamodel_add_property(DLiteMetaModel *model,
                                  const char *name,
                                  const char *typename,
                                  const char *unit,
-                                 const char *iri,
                                  const char *description);
 
 /**

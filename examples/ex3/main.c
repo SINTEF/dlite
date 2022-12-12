@@ -134,7 +134,7 @@ int main()
   printf("position: %d\n",iloc);
 
   /* Save instance */
-  s = dlite_storage_open("json", "example-AlMgSi.json", "mode=w");
+  s = dlite_storage_open("json", "example-AlMgSi.json", "mode=w;single=1");
   dlite_instance_save(s, (DLiteInstance *)p);
   dlite_storage_close(s);
 

@@ -1,0 +1,124 @@
+@prefix dm: <http://emmo.info/datamodel/0.0.2#> .
+@prefix onto: <http://onto-ns.com/data#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+onto:my_test_instance a dm:DataInstance ;
+    dm:hasDimension <http://onto-ns.com/data#my_test_instance/L>,
+        <http://onto-ns.com/data#my_test_instance/M>,
+        <http://onto-ns.com/data#my_test_instance/N> ;
+    dm:hasProperty <http://onto-ns.com/data#my_test_instance/myarray>,
+        <http://onto-ns.com/data#my_test_instance/myblob>,
+        <http://onto-ns.com/data#my_test_instance/mydouble>,
+        <http://onto-ns.com/data#my_test_instance/myfixstring>,
+        <http://onto-ns.com/data#my_test_instance/myshort>,
+        <http://onto-ns.com/data#my_test_instance/mystring> ;
+    dm:hasUUID "e076a856-e36e-5335-967e-2f2fd153c17d" ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity> .
+
+<http://onto-ns.com/data#my_test_instance/L> dm:hasLabel "L" ;
+    dm:hasValue 2 ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#L> .
+
+<http://onto-ns.com/data#my_test_instance/M> dm:hasLabel "M" ;
+    dm:hasValue 1 ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#M> .
+
+<http://onto-ns.com/data#my_test_instance/N> dm:hasLabel "N" ;
+    dm:hasValue 3 ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#N> .
+
+<http://onto-ns.com/data#my_test_instance/myarray> dm:hasLabel "myarray" ;
+    dm:hasValue "[[[1, 2, 3]], [[4, 5, 6]]]" ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myarray> .
+
+<http://onto-ns.com/data#my_test_instance/myblob> dm:hasLabel "myblob" ;
+    dm:hasValue "0a0010" ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myblob> .
+
+<http://onto-ns.com/data#my_test_instance/mydouble> dm:hasLabel "mydouble" ;
+    dm:hasValue "3.14" ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#mydouble> .
+
+<http://onto-ns.com/data#my_test_instance/myfixstring> dm:hasLabel "myfixstring" ;
+    dm:hasValue "Al" ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myfixstring> .
+
+<http://onto-ns.com/data#my_test_instance/myshort> dm:hasLabel "myshort" ;
+    dm:hasValue "17" ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myshort> .
+
+<http://onto-ns.com/data#my_test_instance/mystring> dm:hasLabel "mystring" ;
+    dm:hasValue "allocated string..." ;
+    dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity#mystring> .
+
+<http://onto-ns.com/meta/0.1/test-entity> a dm:Entity ;
+    dm:hasDescription "test entity with explicit meta"@en ;
+    dm:hasDimension <http://onto-ns.com/meta/0.1/test-entity#L>,
+        <http://onto-ns.com/meta/0.1/test-entity#M>,
+        <http://onto-ns.com/meta/0.1/test-entity#N> ;
+    dm:hasProperty <http://onto-ns.com/meta/0.1/test-entity#myarray>,
+        <http://onto-ns.com/meta/0.1/test-entity#myblob>,
+        <http://onto-ns.com/meta/0.1/test-entity#mydouble>,
+        <http://onto-ns.com/meta/0.1/test-entity#myfixstring>,
+        <http://onto-ns.com/meta/0.1/test-entity#myshort>,
+        <http://onto-ns.com/meta/0.1/test-entity#mystring> ;
+    dm:hasUUID "2b10c236-eb00-541a-901c-046c202e52fa" ;
+    dm:instanceOf <http://onto-ns.com/meta/0.3/EntitySchema> .
+
+<http://onto-ns.com/meta/0.1/test-entity#myarray/shape> a dm:Shape ;
+    dm:hasFirst <http://onto-ns.com/meta/0.1/test-entity#myarray/shape_0> .
+
+<http://onto-ns.com/meta/0.1/test-entity#myarray/shape_0> a dm:DimensionExpression ;
+    dm:hasNext <http://onto-ns.com/meta/0.1/test-entity#myarray/shape_1> ;
+    dm:hasValue "L" .
+
+<http://onto-ns.com/meta/0.1/test-entity#myarray/shape_1> a dm:DimensionExpression ;
+    dm:hasNext <http://onto-ns.com/meta/0.1/test-entity#myarray/shape_2> ;
+    dm:hasValue "M" .
+
+<http://onto-ns.com/meta/0.1/test-entity#myarray/shape_2> a dm:DimensionExpression ;
+    dm:hasValue "N" .
+
+<http://onto-ns.com/meta/0.1/test-entity#L> a dm:Dimension ;
+    dm:hasDescription "first dim"@en ;
+    dm:hasLabel "L"@en .
+
+<http://onto-ns.com/meta/0.1/test-entity#M> a dm:Dimension ;
+    dm:hasDescription "second dim"@en ;
+    dm:hasLabel "M"@en .
+
+<http://onto-ns.com/meta/0.1/test-entity#N> a dm:Dimension ;
+    dm:hasDescription "third dim"@en ;
+    dm:hasLabel "N"@en .
+
+<http://onto-ns.com/meta/0.1/test-entity#myarray> a dm:Property ;
+    dm:hasDescription "An array string pointer." ;
+    dm:hasLabel "myarray" ;
+    dm:hasShape <http://onto-ns.com/meta/0.1/test-entity#myarray/shape> ;
+    dm:hasType "int32" .
+
+<http://onto-ns.com/meta/0.1/test-entity#myblob> a dm:Property ;
+    dm:hasLabel "myblob" ;
+    dm:hasType "blob3" .
+
+<http://onto-ns.com/meta/0.1/test-entity#mydouble> a dm:Property ;
+    dm:hasDescription "A double following a single character..." ;
+    dm:hasLabel "mydouble" ;
+    dm:hasType "float64" ;
+    dm:hasUnit "m" .
+
+<http://onto-ns.com/meta/0.1/test-entity#myfixstring> a dm:Property ;
+    dm:hasDescription "A fix string." ;
+    dm:hasLabel "myfixstring" ;
+    dm:hasType "string3" .
+
+<http://onto-ns.com/meta/0.1/test-entity#myshort> a dm:Property ;
+    dm:hasDescription "An unsigned short integer." ;
+    dm:hasLabel "myshort" ;
+    dm:hasType "uint16" .
+
+<http://onto-ns.com/meta/0.1/test-entity#mystring> a dm:Property ;
+    dm:hasDescription "A string pointer." ;
+    dm:hasLabel "mystring" ;
+    dm:hasType "string" .
+

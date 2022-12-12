@@ -2,5 +2,15 @@
 __pycache__
 
 inst.json
-persons.json
+inst.ttl
+inst.yaml
+test.json
 test.yaml
+
+xxx.json
+xxx2.json
+yyy.json
+
+myentity.json
+
+db.xml

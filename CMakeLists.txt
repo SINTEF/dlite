@@ -3,8 +3,8 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.3
-  DESCRIPTION "Lightweight data-centric interoperability framework"
+  VERSION 0.3.15
+  DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
   )
@@ -56,15 +56,16 @@ DLite is released under the MIT license.
 ")
 
 # Options
-option(WITH_PYTHON      "Whether to build Python 3 bindings"                ON)
-option(WITH_FORTRAN     "Whether to build Fortran bindings"                OFF)
-option(WITH_HDF5        "Whether to build with HDF5 support"                ON)
-option(WITH_JSON        "Whether to build with JSON support"                ON)
-option(WITH_REDLAND     "Whether to build with RDF support (using librdf)"  ON)
-option(WITH_DOC         "Whether to build documentation using doxygen"      ON)
-option(WITH_EXAMPLES    "Whether to build/run examples during testing"      ON)
-option(FORCE_EXAMPLES   "Whether to force building/running examples"       OFF)
-option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"       ON)
+option(WITH_PYTHON      "Whether to build Python 3 bindings"               YES)
+option(WITH_FORTRAN     "Whether to build Fortran bindings"                 NO)
+option(WITH_HDF5        "Whether to build with HDF5 support"               YES)
+option(WITH_REDLAND     "Whether to build with RDF support (using librdf)" YES)
+option(WITH_THREADS     "Whether to build with threading support"           NO)
+option(WITH_DOC         "Whether to build documentation using doxygen"     YES)
+option(WITH_EXAMPLES    "Whether to build/run examples during testing"     YES)
+option(FORCE_EXAMPLES   "Whether to force building/running examples"        NO)
+option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      YES)
+option(WITH_STATIC_PYTHON "Whether to compile with static python libraries" NO)
 
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
@@ -241,15 +242,36 @@ if(WITH_PYTHON)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
+  # Find Python package
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
+  #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
   find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
+
+  # Link libraries when compiling against static Python (e.g. manylinux)
+  if(WITH_STATIC_PYTHON)
+    execute_process(
+      COMMAND ${Python3_EXECUTABLE}-config --ldflags
+      OUTPUT_VARIABLE Python3_LDFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    # TODO: find a more portable way to add the "-Xlinker -export-dynamic" options.
+    # They are needed to ensure that the linker include all symbols in
+    # the static Python library.
+    set(Python3_STATIC_LIBS
+      ${Python3_LDFLAGS}
+      -Xlinker -export-dynamic
+      ${Python3_LIBRARY}
+      )
+  endif()
 
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
   message(STATUS "Python3_NumPy_INCLUDE_DIRS = ${Python3_NumPy_INCLUDE_DIRS}")
+  message(STATUS "Python3_STATIC_LIBS = ${Python3_STATIC_LIBS}")
+
 
   if (WIN32)
     # Prepare to workaround Anaconda issues on Windows
@@ -304,7 +326,7 @@ set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
 set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
 
 # Must be assigned before including CTest
-set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
+set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite,indirect --errors-for-leak-kinds=definite --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
 
 include(CTest)
 
@@ -371,7 +393,8 @@ if(CPPCHECK)
   add_test(
     NAME static-code-analysis
     COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
-      --language=c -q --force --error-exitcode=2 --inline-suppr -i build
+      --language=c -q --force --error-exitcode=2 --inline-suppr
+      -i build -i python
       -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
     )
 endif()
@@ -496,9 +519,7 @@ endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS "")
-if(WITH_JSON)
-  build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/json)
-endif()
+build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/json)
 if(WITH_HDF5)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/hdf5)
 endif()
@@ -578,7 +599,7 @@ if(CROSS_TARGET AND MINGW)
 endif()
 
 
-set(dlite_PATH_NATIVE1 "")
+set(dlite_PATH_NATIVE1 "${CMAKE_INSTALL_PREFIX}/bin")
 foreach(path ${dlite_PATH})
   list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
 endforeach()
@@ -652,11 +673,9 @@ add_custom_target(show ${cmd})
 add_subdirectory(src)
 
 # Storage plugins
+add_subdirectory(storages/json)
 if(WITH_HDF5)
   add_subdirectory(storages/hdf5)
-endif()
-if(WITH_JSON)
-  add_subdirectory(storages/json)
 endif()
 if(HAVE_REDLAND)
   add_subdirectory(storages/rdf)
@@ -682,6 +701,7 @@ endif()
 # Documentations
 if(WITH_DOC)
   add_subdirectory(doc)
+  add_subdirectory(pydoc)
 endif()
 
 #################################################################

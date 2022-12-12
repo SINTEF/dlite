@@ -12,7 +12,7 @@ import dlite
 from dlite.options import Options
 
 
-class csv(DLiteStorageBase):  # noqa: F821
+class csv(dlite.DLiteStorageBase):  # noqa: F821
     """DLite storage plugin for CSV files."""
 
     def open(self, uri, options=None):
@@ -23,8 +23,8 @@ class csv(DLiteStorageBase):  # noqa: F821
         mode: "r" | "w"
             Whether to read or write data.  Required
         meta: URI
-            URI to metadata describing the table to read.  Required if `mode`
-            is "r"
+            URI to metadata describing the table to read.  Required if
+            `infer` is false.
         infer: bool
             Whether to infer metadata from data source.  Defaults to True
         path: directories
@@ -42,7 +42,9 @@ class csv(DLiteStorageBase):  # noqa: F821
         """
         self.options = Options(options, defaults='mode=r')
         self.mode = dict(r='rt', w='wt')[self.options.mode]
-        self.writable = False if 'r' in self.mode else True
+        self.readable = True  if 'rt' in self.mode else False
+        self.writable = False if 'rt' == self.mode else True
+        self.generic = False
         self.uri = uri
         self.format = get_pandas_format_name(uri, self.options.get('format'))
 
@@ -50,9 +52,14 @@ class csv(DLiteStorageBase):  # noqa: F821
         """Closes this storage."""
         pass
 
-    def load(self, uuid=None):
-        """Loads `uuid` from current storage and return it as a new
+    def load(self, id=None):
+        """Loads `id` from current storage and return it as a new
         instance."""
+        # This will break recursive search for metadata using this plugin
+        if id:
+            raise dlite.DLiteError('csv plugin does support loading an '
+                                   'instance with a given id')
+
         reader = getattr(pd, 'read_' + self.format)
         pdopts = optstring2keywords(self.options.get('pandas_opts', ''))
         metaid = self.options.meta if 'meta' in self.options else None
@@ -123,21 +130,25 @@ def infer_meta(data, metauri, uri):
         fmt = ext if ext else 'csv'
         with open(uri, 'rb') as f:
             hash = hashlib.sha256(f.read()).hexdigest()
-        metauri = f'onto-ns.com/meta/1.0/generated_from_{fmt}_{hash}'
+        metauri = f'http://onto-ns.com/meta/1.0/generated_from_{fmt}_{hash}'
     elif dlite.has_instance(metauri):
         warnings.warn(f'csv option infer is true, but explicit instance id '
-                      '"{metauri}" already exists')
+                      f'"{metauri}" already exists')
 
     dims_ = [dlite.Dimension('rows', 'Number of rows.')]
     props = []
     for i, col in enumerate(data.columns):
         name = infer_prop_name(col)
         type = data.dtypes[i].name
+        if type == 'object':
+            type = 'string'
         dims = ['rows']
         unit = infer_prop_unit(col)
-        props.append(dlite.Property(name, type, dims, unit, None, None))
+        props.append(dlite.Property(name=name, type=type, dims=dims,
+                                    unit=unit, description=None))
     descr = f'Inferred metadata for {uri}'
-    return dlite.Instance(metauri, dims_, props, None, descr)
+
+    return dlite.Instance.create_metadata(metauri, dims_, props, descr)
 
 
 def optstring2keywords(optstring):
@@ -150,7 +161,6 @@ def optstring2keywords(optstring):
     s = '{%s}' % (optstring, )
     try:
         return ast.literal_eval(s)
-    except:
-        exc, val, tr = sys.exc_info()
+    except Exception as e:
         raise ValueError(
-            f'invalid in option string ({exc.__name__}): {optstring!r}')
+            f'invalid in option string ({e.__name__}): {optstring!r}')

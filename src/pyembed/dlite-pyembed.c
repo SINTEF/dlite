@@ -5,6 +5,7 @@
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
+#include "dlite-python-singletons.h"
 #include "config-paths.h"
 
 /* Get rid of MSVS warnings */
@@ -114,6 +115,18 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
     PyErr_Fetch(&type, &value, &tb);
     PyErr_NormalizeException(&type, &value, &tb);
     assert(type && value);
+
+    /* If the DLITE_PYDEBUG environment variable is set, print full Python
+       error message (with traceback) to sys.stderr. */
+    if (getenv("DLITE_PYDEBUG")) {
+      Py_INCREF(type);
+      Py_INCREF(value);
+      Py_INCREF(tb);
+      PyErr_Restore(type, value, tb);
+      PySys_WriteStderr("\n");
+      PyErr_Print();
+      PySys_WriteStderr("\n");
+   }
 
     /* Try to get traceback info from traceback.format_exception()... */
     if (tb) {
@@ -252,8 +265,7 @@ void *dlite_pyembed_get_address(const char *symbol)
     FAIL1("error calling ctypes.addressof(\"%s\")", symbol);
   if (!PyLong_Check(addr))
     FAIL2("address of \"%s\" in %s is not a long", symbol, filename);
-  size_t val = PyLong_AsLong(addr);
-    ptr = (void *)val;
+  ptr = PyLong_AsVoidPtr(addr);
 
   /* Seems that ctypes.addressof() returns the address where the pointer to
      `symbol` is stored, so we need an extra dereference... */
@@ -280,13 +292,18 @@ void *dlite_pyembed_get_address(const char *symbol)
 
 
 /*
-  Returns a Python representation of dlite instance with given id or NULL
-  on error.
+  Returns a Python representation of dlite instance with given id or
+  Py_None if `id` is NULL.
+
+  On error NULL is returned.
 */
 PyObject *dlite_pyembed_from_instance(const char *id)
 {
   PyObject *pyid=NULL, *dlite_name=NULL, *dlite_module=NULL, *dlite_dict=NULL;
   PyObject *get_instance=NULL, *instance=NULL;
+
+  if (!id)
+    Py_RETURN_NONE;
 
   if (!(pyid = PyUnicode_FromString(id)))
     FAIL("cannot create python string");
@@ -325,6 +342,7 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
 {
   DLiteInstance *inst=NULL;
   PyObject *fcn=NULL, *cap=NULL;
+
   if (!(fcn = PyObject_GetAttrString(pyinst, "_c_ptr")))
     FAIL("Python instance has no attribute: '_c_ptr'");
   if (!(cap = PyObject_CallObject(fcn, NULL)))
@@ -343,40 +361,22 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
   This function loads all Python modules found in `paths` and returns
   a list of plugin objects.
 
-  A Python plugin is a subclass of `baseclassname` that implements the
+  A Python plugin is a subclass of `baseclass` that implements the
   expected functionality.
 
   Returns NULL on error.
  */
-PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
+PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
 {
-  char initcode[96];
   const char *path;
-  PyObject *baseclass=NULL, *main_module=NULL, *main_dict=NULL;
-  PyObject *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
+  PyObject *main_dict, *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
   PyObject *subclassnames=NULL;
   FUIter *iter;
   int i;
 
   dlite_errclr();
   dlite_pyembed_initialise();
-
-  /* Inject base class into the __main__ module */
-  if (snprintf(initcode, sizeof(initcode), "class %s: pass\n",
-               baseclassname) < 0)
-    FAIL("failure to create initialisation code for embedded Python "
-         "__main__ module");
-  if (PyRun_SimpleString(initcode))
-    FAIL("failure when running embedded Python __main__ module "
-         "initialisation code");
-
-  /* Extract the base class from the __main__ module */
-  if (!(main_module = PyImport_AddModule("__main__")))
-    FAIL("cannot load the embedded Python __main__ module");
-  if (!(main_dict = PyModule_GetDict(main_module)))
-    FAIL("cannot access __dict__ of the embedded Python __main__ module");
-  if (!(baseclass = PyDict_GetItemString(main_dict, baseclassname)))
-    FAIL1("cannot get base class '%s' from the main dict", baseclassname);
+  if (!(main_dict = dlite_python_maindict())) goto fail;
 
   /* Get list of initial subclasses and corresponding set subclassnames */
   if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
@@ -409,17 +409,17 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, const char *baseclassname)
     Py_DECREF(ppath);
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
-    if ((basename = fu_basename(path)) && (fp = fopen(path, "r"))) {
-      PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
-                                 main_dict);
-      free(basename);
-      if (!ret) {
-        dlite_pyembed_err(1, "error parsing '%s'", path);
-      } else {
-        Py_DECREF(ret);
+    if ((basename = fu_basename(path))) {
+      if ((fp = fopen(path, "r"))) {
+        PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
+                                   main_dict);
+        if (!ret) dlite_pyembed_err(1, "error parsing '%s'", path);
+        Py_XDECREF(ret);
+        fclose(fp);
       }
-      fclose(fp);
+      free(basename);
     }
+
   }
   if (fu_pathsiter_deinit(iter)) goto fail;
 

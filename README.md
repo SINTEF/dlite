@@ -3,13 +3,45 @@
 
 DLite
 =====
-> Lightweight data-centric interoperability framework for working with scientific data
+> A lightweight data-centric framework for semantic interoperability
 
-![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)
+[![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
+[![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
+[![Documentation](https://img.shields.io/badge/documentation-informational?logo=githubpages)](https://sintef.github.io/dlite/index.html)
 
-DLite is a lightweight cross-platform C library, for working with and
-sharing scientific data in an interoperable way.  It can be described
-as a C implementation of [SOFT][1].
+Content
+-------
+  * [About DLite](#about-dlite)
+    - [Example](#example)
+    - [Main features](#main-features)
+  * [Installing DLite](#installing-dlite)
+    - [Installing with pip](#installing-with-pip)
+    - [Docker image](#docker-image)
+    - [Compile from sources](#compile-from-sources)
+      - [Dependencies](#dependencies)
+        - [Runtime dependencies](#runtime-dependencies)
+        - [Build dependencies](#build-dependencies)
+      - [Build and install with Python](#build-and-install-with-python)
+      - [Build on Linux](#build-on-linux)
+      - [Build with VS Code on Windows](#build-with-vs-code-on-windows)
+        - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
+      - [Build documentation](#build-documentation)
+    - [Setting up the environment](#setting-up-the-environment)
+  * [Short vocabulary](#short-vocabulary)
+  * [Developer documentation](#developer-documentation)
+  * [License](#license)
+  * [Acknowledgment](#acknowledgment)
+
+
+DLite is a lightweight interoperability framework, for working with and
+sharing scientific.
+
+
+About DLite
+===========
+DLite is a C implementation of the [SINTEF Open Framework and Tools
+(SOFT)][1], which is a set of concepts and tools for how to
+efficiently describe and work with scientific data.
 
 All data in DLite is represented by an Instance, which is build on a
 simple data model.  An Instance is identified by a unique UUID and
@@ -215,8 +247,239 @@ See [doc/features.md](doc/features.md) for a more detailed list.
   - Bindings to C, Python and Fortran
 
 
+
+Installing DLite
+================
+
+Installing with pip
+-------------------
+If you are using Python, the easiest way to install DLite is with pip:
+
+    pip install DLite-Python
+
+Note, currently only Linux versions for Python 3.7, 3.8, 3.9 and 3.10
+are available.  But Windows versions will soon be available.
+
+Docker image
+------------
+A docker image is available on
+[https://github.com/SINTEF/dlite/packages][dlite-packages].
+
+
+Compile from sources
+--------------------
+The sources can be cloned from GitHub
+
+    git clone git@github.com:SINTEF/dlite.git
+
+### Dependencies
+
+#### Runtime dependencies
+  - [HDF5][3], optional, support v1.10+ (needed by HDF5 storage plugin)
+  - [librdf][4], optional (needed by RDF (Redland) storage plugin)
+  - [Python 3][5], optional (needed by Python bindings and some plugins)
+    - [NumPy][6], required if Python is enabled
+    - [PyYAML][7], optional (used for generic YAML storage plugin)
+    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+        Note that in some cases a GSSAPI error is raised when using psycopg2
+        by pip installing psycopg2-binary.
+        This is solved by installing from source as described in their documentation.
+    - [pandas][pandas], optional (used for csv storage plugin)
+    - [pymongo][pymongo], optional, (used for mongodb storage plugin)
+
+#### Build dependencies
+  - [cmake][9], required for building - note that cmake isntalled from pypi does not always work.
+  - hdf5 development libraries, needed by HDF5 storage plugin.
+  - Python 3 development libraries, needed by Python bindings.
+  - NumPy development libraries, needed by Python bindings.
+  - [SWIG][10] needed by building Python bindings.
+  - [Doxygen][11] used for documentation generation.
+  - [Graphviz][graphviz] used for documentation generation.
+  - [valgrind][12], optional, used for memory checking (Linux only).
+  - [cppcheck][13], optional, used for static code analysis.
+  - [mongomock][mongomock], optional, used for testing mongodb storage plugin.
+  - librdf development libraries, optional, needed by librdf storage plugin.
+
+Compiling
+---------
+
+### Build and install with Python
+Given you have a C compiler and Python correctly installed, you should be
+able to build and install dlite via the python/setup.py script:
+
+    cd python
+    python setup.py install
+
+
+### Build on Linux
+Install dependencies (e.g. with `apt-get install` on Ubuntu or `dnf install` on
+Fedora)
+
+Configure the build with:
+
+    mkdir build
+    cd build
+    cmake ..
+
+Configuration options can be added to the `cmake` command.  For example, you
+can change the installation directory by adding
+`-DCMAKE_INSTALL_PREFIX=/path/to/new/install/dir`.  The default is `~/.local`.
+
+Alternatively, you can configure configuration options with `ccmake ..`.
+
+If you use virtual environments for Python, you should activate your
+environment before running `cmake` and set `CMAKE_INSTALL_PREFIX` to
+the directory of the virtual environment. For example:
+
+    VIRTUAL_ENV=/path/to/virtual/env
+    source $VIRTUAL_ENV/bin/activate
+    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV ..
+
+Build with:
+
+    make
+
+To run the tests, do
+
+    ctest            # same as running `ctest`
+    make memcheck    # runs all tests with memory checking (requires
+                     # valgrind)
+
+To generate code documentation, do
+
+    make doc         # direct your browser to build/doc/html/index.html
+
+To install dlite locally, do
+
+    make install
+
+
+### Build with VS Code on Windows
+See [here](doc/build_with_vs.md) for detailed instructions for building with
+Visual Studio.
+
+
+#### Quick start with VS Code and Remote Container
+Using Visual Studio Code it is possible to do development on the
+system defined in Dockerfile.
+
+1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
+2. Install the extension __Remote Development__.
+3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
+4. Open the _dlite_ folder with VS Code.
+5. Start VS Code, run the *Remote-Containers: Open Folder in
+   Container...* command from the Command Palette (F1) or quick
+   actions Status bar item. This will build the container and restart
+   VS Code in it. This may take some time the first time as the Docker
+   image must be built. See [Quick start: Open an existing folder in a
+   container][vs-container] for more information and instructions.
+6. In the container terminal, perform the first build and tests with
+   `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
+   make test`.
+
+
+### Build documentation
+
+#### Build Python Documentation
+
+DLite uses sphinx to generate documentation from Python source
+code. Ensure the correct virtual environment is set up and install the
+requirements `pip install -r requirements_doc.txt`
+
+#### Build C Documentation
+
+If you have [doxygen][11] installed, the html documentation should be generated
+as a part of the build process.  It can be browsed by opening the following file
+in your browser:
+
+    <build>/doc/html/index.html
+
+where `<build>` is your build folder.  To only build the documentation, you can
+do:
+
+    cd build
+    cmake --build . --target doc
+
+If you have LaTeX and make installed, you can also the latex documentation with
+
+    cd build
+    cmake --build . --target latex
+
+which will produce the file
+
+    <build>/doc/latex/refman.pdf
+
+
+
+Setting up the environment
+--------------------------
+As a dlite user it should be enough to do 'pip install Dlite-Python',
+or 'pip install .' from within the dlite/python directory.
+
+As a developer it is more useful to install dlite from source.
+If dlite is installed in a non-default location, you may need to set
+the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
+variables.  See the [documentation of environment
+variables](doc/environment_variables.md) for more details.
+
+An example of how to install dlite as developer within a python environment
+in linux is given below.  Make sure that all required dependencies
+are installed within the environment.
+
+First activate the environment, e.g.:
+```console
+source </path/to/dedicated/pythonenvironment>/bin/activate
+```
+Set the Python variables. The following should automatically
+find the correct python paths
+```console
+Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
+Python3_VERSION=$(python3 -c 'import sys;\
+print(str(sys.version_info.major)+"."\
++str(sys.version_info.minor))')
+Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
+```
+
+Python variables for developement libraries must be set
+**manually**.
+```console
+Python3_LIBRARY=</path/to/system>/libpython${Python3_VERSION}.so
+Python3_INCLUDE_DIR=</path/to/system>/include/python${Python3_VERSION}
+```
+You may run ```find . -name libpython*.so``` to help find these paths.
+
+Go into your dlite directory:
+```console
+cd </path/to>/dlite
+```
+Build dlite:
+```console
+mkdir build
+cd build
+cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
+-DPython3_LIBRARY=$Python3_LIBRARY \
+-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
+-DWITH_STATIC_PYTHON=FALSE \
+-DCMAKE_INSTALL_PREFIX=$Python3_ROOT
+```
+Then install dlite
+```console
+make
+make install
+```
+Finally run tests
+```console
+ctest
+```
+
+An example of how to use dlite is shown above.  See also the examples
+in the [examples](examples) directory for how to link to dlite from C
+and use of the Fortran bindings.
+
+
+
 Short vocabulary
-----------------
+================
 The following terms have a special meaning in dlite:
   - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
   - **Collection**: A specialised instance that contains references to set
@@ -230,10 +493,6 @@ The following terms have a special meaning in dlite:
   - **Instance**: The basic data object in DLite.  All instances are described
     by their metadata which itself are instances.  Instances are identified
     by an UUID.
-  - **iri**: An [internationalized resource identifier (IRI)][IRI] is the
-    extension of URI to international characters.  In dlite, the term "iri"
-    is used as a reference to a concept in an ontology providing a semantic
-    definition of an instance or property.
   - **Mapping**: A function that maps one or more input instances to an
     output instance.  They are an important mechanism for interoperability.
     Mappings are called translators in SOFT5.
@@ -241,13 +500,14 @@ The following terms have a special meaning in dlite:
     All metadata are immutable and has an unique URI in addition to their
     UUID.
   - **Meta-metadata**: metadata that describes metadata.
-  - **Relation**: A subject-predicate-object triplet with an id. Relations
+  - **Relation**: A subject-predicate-object triplet. Relations
     are immutable.
   - **Storage**: A generic handle encapsulating actual storage backends.
-  - **Transaction**: A not yet implemented feature, that enables to
-    represent the evolution of the state of a software as a series of
-    immutable instances.  See also the
-    [SOFT5 nomenclauture][SOFT5_nomenclauture].
+  - **Transaction**: An instance that has a reference to an immutable
+    (frozen) parent instance is called a *transaction*.  Transactions are
+    very useful for ensuring data provenance and makes it easy to work
+    with time series.  Conceptually, they share many similarities with
+    git.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
   - **uri**: A [uniform resource identifier (URI)][URI] is a
     generalisation of URL, but follows the same syntax rules.  In
     dlite, the term "uri" is used as an human readable identifier for
@@ -267,141 +527,34 @@ The following terms have a special meaning in dlite:
     has an uri, otherwise it is randomly generated.
 
 
-Download and build
-==================
-
-Download
---------
-### From source
-DLite sources can be cloned from GitHub
-
-    git clone ssh://git@git.code.sintef.no/sidase/dlite.git
-
-To initialize the minunit submodule, you may also have to run
-
-    git submodule update --init
-
-### Pre-build docker container
-A docker image is available on
-[https://github.com/SINTEF/dlite/packages][dlite-packages].
-
-Dependencies
-------------
-
-### Runtime dependencies
-  - [HDF5][3], optional (needed by HDF5 storage plugin)
-  - [librdf][4], optional (needed by RDF (Redland) storage plugin)
-  - [Python 3][5], optional (needed by Python bindings and some plugins)
-    - [NumPy][6], required if Python is enabled
-    - [PyYAML][7], optional (used for generic YAML storage plugin)
-    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
-    - [pandas][pandas], optional (used for csv storage plugin)
+Developer documentation
+=======================
+* [Create a new release](doc/developers/release_instructions.md)
 
 
-### Build dependencies
-  - [cmake][9], required for building
-  - hdf5 development libraries, optional (needed by HDF5 storage plugin)
-  - librdf development libraries, optional (needed by librdf storage plugin)
-  - Python 3 development libraries, optional (needed by Python bindings)
-  - NumPy development libraries, optional (needed by Python bindings)
-  - [SWIG v3][10], optional (needed by building Python bindings)
-  - [Doxygen][11], optional, used for documentation generation
-  - [valgrind][12], optional, used for memory checking (Linux only)
-  - [cppcheck][13], optional, used for static code analysis
-
-
-Compiling
----------
-See [here](doc/build-with-vs.md) for instructions for building with
-Visual Studio.
-
-
-### Quick start with VS Code and Remote Container
-
-Using Visual Studio Code it is possible to do development on the
-system defined in Dockerfile.
-
-1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
-2. Install the extension __Remote Development__.
-3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
-4. Open the _dlite_ folder with VS Code.
-5. Start VS Code, run the *Remote-Containers: Open Folder in
-   Container...* command from the Command Palette (F1) or quick
-   actions Status bar item. This will build the container and restart
-   VS Code in it. This may take some time the first time as the Docker
-   image must be built. See [Quick start: Open an existing folder in a
-   container][vs-container] for more information and instructions.
-6. In the container terminal, perform the first build and tests with
-   `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
-   make test`.
-
-
-### Build on Linux
-
-Install the hdf5 (does not include the parallel component) libraries
-
-On Ubuntu:
-
-    sudo apt-get install libhdf5-serial-dev
-
-On Redhad-based distributions (Fedora, Centos, ...):
-
-    sudo dnf install hdf5-devel
-
-Build with:
-
-    mkdir build
-    cd build
-    cmake ..
-    make
-
-Before running make, you may wish to configure some options with
-`ccmake ..`
-
-For example, you might need to change CMAKE_INSTALL_PREFIX to a
-location accessible for writing. Default is ~/.local
-
-To run the tests, do
-
-    make test        # same as running `ctest`
-    make memcheck    # runs all tests with memory checking (requires
-                     # valgrind)
-
-To generate code documentation, do
-
-    make doc         # direct your browser to build/doc/html/index.html
-
-To install dlite locally, do
-
-    make install
-
-
-
-Using dlite
-===========
-If dlite is installed in a non-default location, you may need to set
-the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
-variables.  See the [documentation of environment
-variables](doc/environment-variables.md) for more details.
-
-An example of how to use dlite is shown above.  See also the examples
-in the [examples](examples) directory for how to link to dlite from C
-and use of the Fortran bindings.
-
-
-Using the docker image
-----------------------
-The easiest way to use the docker image is via the
-[dlite-docker](tools/dlite-docker) script.
-
-
-Licensing
-=========
+License
+=======
 DLite is licensed under the [MIT license](LICENSE).  However, it
 include a few third party source files with other permissive licenses.
 All of these should allow dynamic and static linking against open and
 propritary codes.  A full list of included licenses can be found in
 [LICENSES.txt](src/utils/LICENSES.txt).
+
+
+Acknowledgment
+==============
+In addition from internal funding from SINTEF and NTNU this work has
+been supported by several projects, including:
+
+  - [AMPERE](https://www.sintef.no/en/projects/2015/ampere-aluminium-alloys-with-mechanical-properties-and-electrical-conductivity-at-elevated-temperatures/) (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
+  - FICAL (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
+  - [Rational alloy design (ALLDESIGN)](https://www.ntnu.edu/digital-transformation/alldesign) (2018-2022) NTNU internally funded project.
+  - [SFI Manufacturing](https://www.sfimanufacturing.no/) (2015-2023) funded by Forskningsrådet and Norwegian industry partners.
+  - [SFI PhysMet](https://www.ntnu.edu/physmet)(2020-2028) funded by Forskningsrådet and Norwegian industry partners.
+  - [OntoTrans](https://cordis.europa.eu/project/id/862136) (2020-2024) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 862136.
+  - [OpenModel](https://www.open-model.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953167.
+  - [DOME 4.0](https://dome40.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953163.
+  - [VIPCOAT](https://www.vipcoat.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 952903.
 
 
 ---
@@ -429,3 +582,6 @@ DLite is developed with the hope that it will be a delight to work with.
 [dlite-packages]: https://github.com/SINTEF/dlite/packages
 [vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
 [pandas]: https://pandas.pydata.org/
+[pymongo]: https://github.com/mongodb/mongo-python-driver
+[mongomock]: https://github.com/mongomock/mongomock
+[graphviz]: https://www.graphviz.org/

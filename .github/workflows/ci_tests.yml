@@ -1,0 +1,77 @@
+name: CI tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Update submodules
+      run: |
+        git submodule init
+        git submodule update
+    - name: Get Cmake version
+      run: |
+        cmake --version
+    - name: Install dependencies
+      run: |
+        sudo apt-get update --fix-missing
+        sudo apt-get install \
+          libhdf5-dev \
+          swig4.0 \
+          doxygen \
+          graphviz \
+          python3 \
+          python3-pip \
+          python3-dev \
+          python3-numpy \
+          python3-yaml \
+          python3-psycopg2
+    - name: Install Python dependencies
+      run: |
+        pip install --upgrade pip -r requirements.txt
+        pip install -r requirements_doc.txt
+    - name: check numpy
+      run: |
+        which python3
+        python3 --version
+        pip3 --version
+        python3 -c 'import numpy as np; print(np.get_include())'
+    - name: configure
+      run: |
+        mkdir build
+        cd build
+        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
+          CFLAGS='-Wno-missing-field-initializers' \
+          cmake .. -DFORCE_EXAMPLES=ON
+        cd -
+    - name: make
+      run: |
+        cd build
+        make
+        cd -
+    - name: install
+      run: |
+        cd build
+        make install
+        cd -
+    - name: make test
+      run: |
+        cd build
+        ctest || ctest --rerun-failed --output-on-failure -V
+        cd -
+    - name: build Linux wheel
+      run: |
+        cd python
+        pip install numpy wheel
+        python3 setup.py bdist_wheel
+        cd -
+    - name: Install python package via setup.py and test the installation
+      run: |
+        cd python
+        python3 setup.py install --user
+        cd ../bindings/python/tests
+        python3 __main__.py

@@ -13,7 +13,7 @@
 
   The purpose of this session manager is to maintain global states.
   This library supports multiple sessions, but may also be used when you
-  only want to maintain a single global state.  Th this case, use
+  only want to maintain a single global state.  In this case, use
   session_get_default() instead of session_create().
  */
 
@@ -68,8 +68,8 @@ const char *session_get_id(Session *s);
 /**
   @brief Retrieve default session
 
-  A new default session will transparently be created if it does not already
-  exists.
+  A new default session will transparently be created if it does not
+  already exists.
 
   @return Pointer to default session or NULL on error.
 */

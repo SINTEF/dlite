@@ -10,15 +10,24 @@
 #include "integers.h"
 #endif
 #include "floats.h"
+#include "strutils.h"
 #include "dlite.h"
+#include "dlite-python-singletons.h"
+#include "dlite-pyembed.h"
 
-#define DLITE_INSTANCE_CAPSULA_NAME ((char *)"dlite.Instance")
-#define DLITE_DATA_CAPSULA_NAME ((char *)"dlite.data")
+#define DLITE_INSTANCE_CAPSULE_NAME ((char *)"dlite.Instance")
+#define DLITE_DATA_CAPSULE_NAME ((char *)"dlite.data")
 
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
 
+  /* Set this to an exception object (e.g. PyExc_StopIteration) to raise
+     another exceptions than DLiteError.  No need to increase the reference
+     count. */
+  PyObject *dlite_swig_exception = NULL;
+
   /* forward declarations */
   static PyObject *DLiteError = NULL;
+  static PyObject *DLiteVerifyError = NULL;
   char *strndup(const char *s, size_t n);
 %}
 
@@ -54,10 +63,18 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 %init %{
   Py_Initialize();  /* should already be called, but just in case... */
   import_array();  /* Initialize numpy */
+
   DLiteError = PyErr_NewExceptionWithDoc(
     "dlite.DLiteError",                      // name
     "Base exception for the dlite module.",  // doc
     NULL,                                    // base
+    NULL                                     // dict
+  );
+
+  DLiteVerifyError = PyErr_NewExceptionWithDoc(
+    "dlite.DLiteVerifyError",                // name
+    "Object cannot be verified.",            // doc
+    DLiteError,                              // base
     NULL                                     // dict
   );
 %}
@@ -77,6 +94,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 
 PyObject *_get_DLiteError(void) {
   return DLiteError;
+}
+PyObject *_get_DLiteVerifyError(void) {
+  return DLiteVerifyError;
 }
 
 /* Free's array of allocated strings. */
@@ -136,6 +156,7 @@ int npy_type(DLiteType type, size_t size)
 
        We therefore fall back to NPY_STRING, which is simple ASCII. */
     return NPY_STRING;
+  case dliteRef:
   case dliteStringPtr:
   case dliteDimension:
   case dliteProperty:
@@ -170,10 +191,10 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
     dtype->elsize = (int)size;
     break;
   case dliteStringPtr:
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    //assert(dtype->elsize == 0);
     assert(dtype->elsize == 0 || sizeof(void *));
     break;
   }
@@ -181,18 +202,62 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
 }
 
 
-/* Decreases refcount to dlite instance referred to by capsula `cap`. */
-void dlite_swig_capsula_instance_decref(PyObject *cap)
+/* Decreases refcount to dlite instance referred to by capsule `cap`. */
+void dlite_swig_capsule_instance_decref(PyObject *cap)
 {
-  DLiteInstance *inst = PyCapsule_GetPointer(cap, DLITE_INSTANCE_CAPSULA_NAME);
+  DLiteInstance *inst = PyCapsule_GetPointer(cap, DLITE_INSTANCE_CAPSULE_NAME);
   if (inst) dlite_instance_decref(inst);
 }
 
-/* Decreases refcount to dlite instance referred to by capsula `cap`. */
-void dlite_swig_capsula_free(PyObject *cap)
+/* Decreases refcount to dlite instance referred to by capsule `cap`. */
+void dlite_swig_capsule_free(PyObject *cap)
 {
-  void *data = PyCapsule_GetPointer(cap, DLITE_DATA_CAPSULA_NAME);
+  void *data = PyCapsule_GetPointer(cap, DLITE_DATA_CAPSULE_NAME);
   if (data) free(data);
+}
+
+
+/* Convert Python object `src` to a sequence of bytes (blob) and write
+   the result to `dest`.  At most `n` bytes are written to `dest`.
+
+   All Python types supporting the buffer protocol as well as hex-encoded
+   strings are converted.
+
+   Returns the number of bytes that are available in `src` or -1 on error.
+ */
+int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
+{
+  int retval=-1;
+  if (PyUnicode_Check(src)) {
+    long len;
+    if (PyUnicode_READY(src))
+      FAIL("failed preparing string");
+    len = (long)PyUnicode_GET_LENGTH(src);
+    if (len != (long)n*2)
+      FAIL3("cannot convert Python string of length %d (expected length %d) "
+            "to blob%d", (int)len, (int)n*2, (int)n);
+    if (strhex_decode(dest, n, (char *)PyUnicode_1BYTE_DATA(src), len) < 0)
+      FAIL("cannot convert Python string to blob");
+    retval = len/2;
+  } else if (PyObject_CheckBuffer(src)) {
+    Py_buffer view;
+    if (PyObject_GetBuffer(src, &view, PyBUF_SIMPLE)) goto fail;
+    memcpy(dest, view.buf, n);
+    retval = view.len;
+    PyBuffer_Release(&view);
+  } else {
+    FAIL("Only Python types supporting the buffer protocol "
+         "or (hex-encoded) strings can be converted to blob");
+  }
+ fail:
+  return retval;
+}
+
+
+/* Returns the length of sequence-like object.  On error, -1 is returned. */
+size_t dlite_swig_length(obj_t *obj)
+{
+  return (size_t)PyObject_Length(obj);
 }
 
 
@@ -234,6 +299,7 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
   switch (type) {
 
   case dliteStringPtr:
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
@@ -273,10 +339,10 @@ obj_t *dlite_swig_get_array(DLiteInstance *inst, int ndims, int *dims,
   }
 
   if (inst && type != dliteStringPtr) {
-    cap = PyCapsule_New(inst, DLITE_INSTANCE_CAPSULA_NAME,
-                        dlite_swig_capsula_instance_decref);
+    cap = PyCapsule_New(inst, DLITE_INSTANCE_CAPSULE_NAME,
+                        dlite_swig_capsule_instance_decref);
     if (!cap)
-      FAIL("error creating capsula");
+      FAIL("error creating capsule");
     if (PyArray_SetBaseObject((PyArrayObject *)obj, cap) < 0)
       FAIL("error setting numpy array base");
     dlite_instance_incref(inst);
@@ -303,14 +369,16 @@ static int dlite_swig_setitem(PyObject *obj, int ndims, int *dims,
   int i;
   if (d < ndims) {
     PyArrayObject *arr = (PyArrayObject *)obj;
-    assert(PyArray_Check(obj));
-    assert(PyArray_DIM(arr, d) == dims[d]);
+    assert(!PyArray_Check(obj) || PyArray_DIM(arr, d) == dims[d]);
     for (i=0; i<dims[d]; i++) {
+      int stat;
       PyObject *key = PyLong_FromLong(i);
       PyObject *item = PyObject_GetItem(obj, key);
-      int stat = dlite_swig_setitem(item, ndims, dims, type, size, d+1, ptr);
-      Py_DECREF(item);
       Py_DECREF(key);
+
+      if (!item) return dlite_err(1, "dimension %d had no index %d", d, i);
+      stat = dlite_swig_setitem(item, ndims, dims, type, size, d+1, ptr);
+      Py_DECREF(item);
       if (stat) return stat;
     }
   } else {
@@ -343,8 +411,13 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
 
   if (typecode < 0) goto fail;
   for (i=0; i<ndims; i++) n *= dims[i];
-  if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj, typecode, 0, 0)))
-    FAIL("cannot create contiguous array");
+  if (!(arr = (PyArrayObject *)PyArray_ContiguousFromAny(obj, typecode,
+                                                         ndims, ndims))) {
+    /* Clear the error and try to convert object as-is */
+    void *p = *(void **)ptr;
+    PyErr_Clear();
+    return dlite_swig_setitem((PyObject *)obj, ndims, dims, type, size, 0, &p);
+  }
 
   /* Check dimensions */
   if (PyArray_TYPE(arr) == NPY_OBJECT || PyArray_TYPE(arr) == NPY_VOID)
@@ -363,9 +436,11 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     {
       char *itemptr = PyArray_DATA(arr);
       char *p = *((char **)ptr);
+      size_t len = ((size_t)PyArray_ITEMSIZE(arr) < size) ?
+        (size_t)PyArray_ITEMSIZE(arr) : size;
       memset(p, 0, n*size);
       for (i=0; i<n; i++, itemptr+=PyArray_ITEMSIZE(arr), p+=size) {
-        strncpy(p, itemptr, PyArray_ITEMSIZE(arr));
+        strncpy(p, itemptr, len);
         p[size-1] = '\0';  /* ensure NUL-termination */
       }
     }
@@ -378,14 +453,12 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
       for (i=0; i<n; i++, itemptr+=itemsize) {
         char **p = *((char ***)ptr);
         PyObject *s = PyArray_GETITEM(arr, itemptr);
-        assert(s);
-        if (!PyUnicode_Check(s))
-          FAIL("array elements should be strings");
-        if (PyUnicode_READY(s))
-          FAIL("failed preparing string");
         if (s == Py_None) {
           if (p[i]) free(p[i]);
         } else if (PyUnicode_Check(s)) {
+          assert(s);
+          if (PyUnicode_READY(s))
+            FAIL("failed preparing string");
           long len = (long)PyUnicode_GET_LENGTH(s);
           p[i] = realloc(p[i], len+1);
           memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
@@ -399,6 +472,7 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
     }
     break;
 
+  case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
@@ -463,6 +537,10 @@ void *dlite_swig_copy_array(int ndims, int *dims, DLiteType type,
               size);
     break;
   case dliteStringPtr:
+  case dliteRef:
+  case dliteDimension:
+  case dliteProperty:
+  case dliteRelation:
     if (dlite_swig_set_array(&ptr, ndims, dims, type, size, (obj_t *)arr))
       goto fail;
     break;
@@ -540,6 +618,9 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
 #ifdef HAVE_FLOAT80_T
       case 10: value = *((float80_t *)data); break;
 #endif
+#ifdef HAVE_FLOAT96_T
+      case 12: value = *((float96_t *)data); break;
+#endif
 #ifdef HAVE_FLOAT128_T
       case 16: value = *((float128_t *)data); break;
 #endif
@@ -568,10 +649,11 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     }
     break;
 
-  case dliteRelation:
-    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
-                                   SWIGTYPE_p__Triple, 0)))
-      FAIL("cannot create relation");
+  case dliteRef:
+    {
+      DLiteInstance *inst = *(DLiteInstance **)data;
+      if (!(obj = dlite_pyembed_from_instance(inst->uuid))) goto fail;
+    }
     break;
 
   case dliteDimension:
@@ -584,6 +666,12 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
     if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
                                    SWIGTYPE_p__DLiteProperty, 0)))
       FAIL("cannot create property");
+    break;
+
+  case dliteRelation:
+    if (!(obj = SWIG_NewPointerObj(SWIG_as_voidptr(data),
+                                   SWIGTYPE_p__Triple, 0)))
+      FAIL("cannot create relation");
     break;
 
   default:
@@ -613,19 +701,11 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
   case dliteBlob:
     {
-      size_t n;
-      PyObject *bytes = PyObject_Bytes(obj);
-      if (!bytes) FAIL("cannot convert object to bytes");
-      assert(PyBytes_Check(bytes));
-      n = PyBytes_Size(bytes);
-      if (n > size) {
-        Py_DECREF(bytes);
-        FAIL2("Length of bytearray is %lu. Exceeds size of blob: %lu",
-              (unsigned long)n, (unsigned long)size);
-      }
-      memset(ptr, 0, size);
-      memcpy(ptr, PyBytes_AsString(bytes), n);
-      Py_DECREF(bytes);
+      int n = dlite_swig_read_python_blob(obj, ptr, size);
+      if (n < 0) goto fail;
+      if (n != (int)size)
+        FAIL2("cannot read Python blob of size %d into buffer of size %d",
+              n, (int)size);
     }
     break;
 
@@ -684,6 +764,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 #ifdef HAVE_FLOAT80
     case 10: *((float80_t *)ptr)  =  (float80_t)value; break;
 #endif
+#ifdef HAVE_FLOAT96
+    case 12: *((float96_t *)ptr)  =  (float96_t)value; break;
+#endif
 #ifdef HAVE_FLOAT128
     case 16: *((float128_t *)ptr) = (float128_t)value; break;
 #endif
@@ -733,6 +816,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       memcpy(p, s, n);
       p[n] = '\0';
       Py_DECREF(str);
+    }
+    break;
+
+  case dliteRef:
+    {
+      DLiteInstance **q = ptr;
+      if (*q) dlite_instance_decref(*q);
+      *q = dlite_pyembed_get_instance(obj);
     }
     break;
 
@@ -795,8 +886,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         PyObject *type  = PySequence_GetItem(obj, 1);
         PyObject *dims  = PySequence_GetItem(obj, 2);
         PyObject *unit  = PySequence_GetItem(obj, 3);
-        PyObject *iri   = PySequence_GetItem(obj, 4);
-        PyObject *descr = PySequence_GetItem(obj, 5);
+        PyObject *descr = PySequence_GetItem(obj, 4);
         DLiteType t;
         size_t size;
         if (name && PyUnicode_Check(name) &&
@@ -806,7 +896,6 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           if (dest->name)        free(dest->name);
           if (dest->dims)        free_str_array(dest->dims, dest->ndims);
           if (dest->unit)        free(dest->unit);
-          if (dest->iri)         free(dest->iri);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
           dest->type = t;
@@ -828,8 +917,6 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           }
           dest->unit = (unit && PyUnicode_Check(unit)) ?
             strdup(PyUnicode_AsUTF8(unit)) : NULL;
-          dest->iri = (iri && PyUnicode_Check(iri)) ?
-            strdup(PyUnicode_AsUTF8(iri)) : NULL;
           dest->description = (descr && PyUnicode_Check(descr)) ?
             strdup(PyUnicode_AsUTF8(descr)) : NULL;
         } else {
@@ -939,10 +1026,17 @@ obj_t *dlite_swig_get_property_by_index(DLiteInstance *inst, int i)
   DLiteProperty *p;
   obj_t *obj=NULL;
 
+  /* Properly raise StopIteration */
+  if (i == (int)inst->meta->_nproperties) {
+    dlite_swig_exception = PyExc_StopIteration;
+    return NULL;
+  }
+
   PyErr_Clear();
   if (n < 0) n += (int)inst->meta->_nproperties;
   if (n < 0 || n >= (int)inst->meta->_nproperties)
-    return dlite_err(-1, "Property index is out or range: %d", i), NULL;
+    return dlite_err(-1, "Property index %d is out or range: %s",
+                     i, inst->meta->uri), NULL;
   dlite_instance_sync_to_properties(inst);
   ptr = DLITE_PROP(inst, n);
   p = inst->meta->_properties + n;
@@ -975,7 +1069,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   PyErr_Clear();
   if (n < 0) n += (int)inst->meta->_nproperties;
   if (n < 0 || n >= (int)inst->meta->_nproperties)
-    FAIL1("Property index is out or range: %d", i);
+    FAIL2("Property index %d is out or range: %s", i, inst->meta->uri);
   ptr = DLITE_PROP(inst, n);
   p = inst->meta->_properties + n;
 
@@ -1041,78 +1135,78 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  * -------------- */
 
 /* Array of input dimensions */
-%typemap("doc") (int ndimensions, struct _DLiteDimension *dimensions)
+%typemap("doc") (struct _DLiteDimension *dimensions, int ndimensions)
   "Array of input dimensions"
-%typemap(in) (int ndimensions, struct _DLiteDimension *dimensions) {
-  $2 = NULL;
+%typemap(in) (struct _DLiteDimension *dimensions, int ndimensions) {
+  $1 = NULL;
   if (!PySequence_Check($input))
     SWIG_exception(SWIG_TypeError, "Expected a sequence");
-  $1 = (int)PySequence_Length($input);
-  if (!($2 = calloc($1, sizeof(DLiteDimension))))
+  $2 = (int)PySequence_Length($input);
+  if (!($1 = calloc($2, sizeof(DLiteDimension))))
     SWIG_exception(SWIG_MemoryError, "Allocation failure");
-  if (dlite_swig_set_array(&$2, 1, &$1, dliteDimension,
+  if (dlite_swig_set_array(&$1, 1, &$2, dliteDimension,
                            sizeof(DLiteDimension), $input)) SWIG_fail;
 }
-%typemap(freearg) (int ndimensions, struct _DLiteDimension *dimensions) {
-  if ($2) {
+%typemap(freearg) (struct _DLiteDimension *dimensions, int ndimensions) {
+  if ($1) {
     int i;
-    for (i=0; i<$1; i++) {
-      DLiteDimension *d = $2 + i;
+    for (i=0; i<$2; i++) {
+      DLiteDimension *d = $1 + i;
       free(d->name);
       if (d->description) free(d->description);
     }
-    free($2);
+    free($1);
   }
 }
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
-  (int ndimensions, struct _DLiteDimension *dimensions) {
+  (struct _DLiteDimension *dimensions, int ndimensions) {
   PyObject *item0=NULL;
   void *vptr;
-  $1 = 0;
+  $2 = 0;
   if (PySequence_Check($input) &&
       (PySequence_Length($input) == 0 ||
        ((item0 = PySequence_GetItem($input, 0)) &&
-        SWIG_IsOK(SWIG_ConvertPtr(item0, &vptr, $2_descriptor, 0)))))
-    $1 = 1;
+        SWIG_IsOK(SWIG_ConvertPtr(item0, &vptr, $1_descriptor, 0)))))
+    $2 = 1;
   Py_XDECREF(item0);
  }
 
 /* Array of input properties */
-%typemap("doc") (int nproperties, struct _DLiteProperty *properties)
+%typemap("doc") (struct _DLiteProperty *properties, int nproperties)
   "Array of input properties"
-%typemap(in) (int nproperties, struct _DLiteProperty *properties) {
-  $2 = NULL;
+%typemap(in) (struct _DLiteProperty *properties, int nproperties) {
+  $1 = NULL;
   if (!PySequence_Check($input))
     SWIG_exception(SWIG_TypeError, "Expected a sequence");
-  $1 = (int)PySequence_Length($input);
-  if (!($2 = calloc($1, sizeof(DLiteProperty))))
+  $2 = (int)PySequence_Length($input);
+  if (!($1 = calloc($2, sizeof(DLiteProperty))))
     SWIG_exception(SWIG_MemoryError, "Allocation failure");
-  if (dlite_swig_set_array(&$2, 1, &$1, dliteProperty,
+  if (dlite_swig_set_array(&$1, 1, &$2, dliteProperty,
                            sizeof(DLiteProperty), $input)) SWIG_fail;
 }
-%typemap(freearg) (int nproperties, struct _DLiteProperty *properties) {
-  if ($2) {
+%typemap(freearg) (struct _DLiteProperty *properties, int nproperties) {
+  if ($1) {
     int i;
-    for (i=0; i<$1; i++) {
-      DLiteProperty *p = $2 + i;
+    for (i=0; i<$2; i++) {
+      DLiteProperty *p = $1 + i;
       free(p->name);
       if (p->dims) free_str_array(p->dims, p->ndims);
       if (p->unit) free(p->unit);
       if (p->description) free(p->description);
     }
-    free($2);
+    free($1);
   }
 }
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
-  (int nproperties, struct _DLiteProperty *properties) {
+  (struct _DLiteProperty *properties, int nproperties) {
   PyObject *item=NULL;
   void *vptr;
-  $1 = 0;
+  $2 = 0;
   if (PySequence_Check($input) &&
       (PySequence_Length($input) == 0 ||
        ((item = PySequence_GetItem($input, 0)) &&
-        SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $2_descriptor, 0)))))
-    $1 = 1;
+        SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $1_descriptor, 0)))))
+    $2 = 1;
   Py_XDECREF(item);
 }
 
@@ -1235,13 +1329,22 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   }
 }
 
+/* Wrap storage and mapping base */
+%rename(_get_storage_base) dlite_python_storage_base;
+%rename(_get_mapping_base) dlite_python_mapping_base;
+PyObject *dlite_python_storage_base(void);
+PyObject *dlite_python_mapping_base(void);
+
 
 /* ------------------
  * Expose generic api
  * ------------------ */
 PyObject *_get_DLiteError(void);
-
+PyObject *_get_DLiteVerifyError(void);
 
 %pythoncode %{
   DLiteError = _dlite._get_DLiteError()
+  DLiteVerifyError = _dlite._get_DLiteVerifyError()
+  DLiteStorageBase = _dlite._get_storage_base()
+  DLiteMappingBase = _dlite._get_mapping_base()
 %}

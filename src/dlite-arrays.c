@@ -32,7 +32,7 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
   assert(ndims >= 0);
 
   /* allocate the array object (except the data) in one chunk */
-  if (!(arr = calloc(1, asize))) return err(1, "allocation failure"), NULL;
+  if (!(arr = calloc(1, asize))) return err(dliteMemoryError, "allocation failure"), NULL;
   arr->dims = (size_t *)((char *)arr + sizeof(DLiteArray));
   arr->strides = (int *)((char *)arr->dims + ndims*sizeof(size_t));
 
@@ -148,7 +148,7 @@ int dlite_array_iter_init(DLiteArrayIter *iter, const DLiteArray *arr)
   memset(iter, 0, sizeof(DLiteArrayIter));
   iter->arr = arr;
   if (!(iter->ind = calloc(arr->ndims, sizeof(int))))
-    return err(1, "allocation failure");
+    return err(dliteMemoryError, "allocation failure");
   iter->ind[arr->ndims-1]--;
   return 0;
 }
@@ -329,7 +329,7 @@ void *dlite_array_make_continuous(DLiteArray *arr)
   char *q;
   DLiteArrayIter iter;
   for (n=0; n < arr->ndims; n++) size *= arr->dims[n];
-  if (!(data = malloc(size))) return err(1, "allocation failure"), NULL;
+  if (!(data = malloc(size))) return err(dliteMemoryError, "allocation failure"), NULL;
   if (dlite_array_is_continuous(arr)) return memcpy(data, arr->data, size);
 
   q = data;

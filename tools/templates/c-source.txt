@@ -31,6 +31,8 @@
  *         Name of _init() function
  *     _deinit
  *         Name of _deinit() function
+ *     _gethash
+ *         Name of _gethash() function
  *     _getdim
  *         Name of _getdim() function
  *     _setdim
@@ -95,6 +97,7 @@ static DLiteProperty {name%u}_properties[] = {{
     "{prop.name}", {@40}/* name */
     {prop.dtype},  {@40}/* type */
     {prop.size},   {@40}/* size */
+    {prop.ref},    {@40}/* ref */
     {prop.ndims},  {@40}/* ndims */
 {@if:{prop.ndims}=0}\
     NULL,          {@40}/* dims */
@@ -105,11 +108,6 @@ static DLiteProperty {name%u}_properties[] = {{
     "{prop.unit}", {@40}/* unit */
 {@else}\
     NULL,          {@40}/* unit */
-{@endif}\
-{@if:"{prop.iri}"}\
-    "{prop.iri}",  {@40}/* iri */
-{@else}\
-    NULL,          {@40}/* iri */
 {@endif}\
 {@if:"{prop.descr}"}\
     "{prop.descr}" {@40}/* description */
@@ -125,15 +123,12 @@ static DLiteProperty {name%u}_properties[] = {{
 static {basename}Struct {name%u} = {{
 #ifdef HAVE_DLITE
   /* -- {basename}Struct_HEAD */
-  "{_uuid}",  {@52}/* _uuid */
-  "{_uri}",   {@52}/* _uri */
+  "{_uuid}",  {@52}/* uuid */
+  0,          {@52}/* _flags */
+  "{_uri}",   {@52}/* uri */
   1,                        {@52}/* _refcount */
-  NULL,                     {@52}/* _meta */
-{@if:"{_iri}"}\
-  "{_iri}",                 {@52}/* _iri */
-{@else}\
-  NULL,                     {@52}/* _iri */
-{@endif}\
+  NULL,                     {@52}/* meta */
+  NULL,                     {@52}/* _parent */
 {@if:{ismeta}=1}
   {_ndimensions},           {@52}/* _ndimensions */
   {_nproperties},           {@52}/* _nproperties */
@@ -146,6 +141,7 @@ static {basename}Struct {name%u} = {{
   offsetof({basename}, {dim0}), {@52}/* _headersize */
   {_init},                  {@52}/* _init */
   {_deinit},                {@52}/* _deinit */
+  {_gethash},               {@52}/* _gethash */
   {_getdim},                {@52}/* _getdim */
   {_setdim},                {@52}/* _setdim */
   {_loadprop},              {@52}/* _loadprop */

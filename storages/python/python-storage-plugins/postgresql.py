@@ -8,6 +8,7 @@ from psycopg2 import sql
 
 import dlite
 from dlite.options import Options
+from dlite.utils import instance_from_dict
 
 
 # Translation table from dlite types to postgresql types
@@ -19,6 +20,8 @@ pgtypes = {
     'int16': 'smallint',
     'int32': 'integer',
     'int64': 'bigint',
+    'uint16': 'integer',
+    'uint32': 'bigint',
     'float': 'real',
     'double': 'float8',
     'float32': 'real',
@@ -38,7 +41,7 @@ def to_pgtype(typename):
         return pgtypes[t]
 
 
-class postgresql(DLiteStorageBase):
+class postgresql(dlite.DLiteStorageBase):
     """DLite storage plugin for PostgreSQL."""
     def open(self, uri, options=None):
         """Opens `uri`.
@@ -108,10 +111,16 @@ class postgresql(DLiteStorageBase):
             dlite.errclr()
             meta = self.load(metaid)
 
-        inst = dlite.Instance(metaid, dims, uri)
+        inst = dlite.Instance.from_metaid(metaid, dims, uri)
 
         for i, p in enumerate(inst.meta['properties']):
             inst.set_property(p.name, values[i])
+
+        # The uuid will be wrong for data instances, so override it
+        if not inst.is_metameta:
+            d = inst.asdict()
+            d['uuid'] = uuid
+            inst = instance_from_dict(d)
         return inst
 
     def save(self, inst):
@@ -130,8 +139,8 @@ class postgresql(DLiteStorageBase):
                   inst.uri,
                   inst.meta.uri,
                   list(inst.dimensions.values()),
-        ] + [dlite.standardise(v, asdict=False)
-             for v in inst.properties.values()]
+        ] + [dlite.standardise(v, inst.get_property_descr(k), asdict=False)
+             for k, v in inst.properties.items()]
         try:
             self.cur.execute(q, values)
         except psycopg2.IntegrityError:
@@ -148,8 +157,8 @@ class postgresql(DLiteStorageBase):
     def table_exists(self, table_name):
         """Returns true if a table named `table_name` exists."""
         self.cur.execute(
-            'select exists(select * from information_schema.tables '
-            'where table_name=%s);', (table_name, ))
+            'SELECT EXISTS(SELECT * FROM information_schema.tables '
+            'WHERE table_name=%s);', (table_name, ))
         return self.cur.fetchone()[0]
 
     def table_create(self, meta, dims=None):
