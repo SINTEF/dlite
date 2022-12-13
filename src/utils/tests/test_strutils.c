@@ -187,6 +187,80 @@ MU_TEST(test_strhex_decode)
 }
 
 
+MU_TEST(test_strcategory)
+{
+  mu_assert_int_eq(strcatUpper, strcategory('A'));
+  mu_assert_int_eq(strcatUpper, strcategory('Z'));
+  mu_assert_int_eq(strcatLower, strcategory('a'));
+  mu_assert_int_eq(strcatLower, strcategory('z'));
+  mu_assert_int_eq(strcatDigit, strcategory('0'));
+  mu_assert_int_eq(strcatDigit, strcategory('9'));
+  mu_assert_int_eq(strcatUnreserved, strcategory('-'));
+  mu_assert_int_eq(strcatUnreserved, strcategory('.'));
+  mu_assert_int_eq(strcatUnreserved, strcategory('_'));
+  mu_assert_int_eq(strcatUnreserved, strcategory('~'));
+  mu_assert_int_eq(strcatReserved, strcategory(':'));
+  mu_assert_int_eq(strcatReserved, strcategory('/'));
+  mu_assert_int_eq(strcatReserved, strcategory('?'));
+  mu_assert_int_eq(strcatReserved, strcategory('#'));
+  mu_assert_int_eq(strcatReserved, strcategory('['));
+  mu_assert_int_eq(strcatReserved, strcategory(']'));
+  mu_assert_int_eq(strcatReserved, strcategory('@'));
+  mu_assert_int_eq(strcatSpecific, strcategory('!'));
+  mu_assert_int_eq(strcatSpecific, strcategory('$'));
+  mu_assert_int_eq(strcatSpecific, strcategory('&'));
+  mu_assert_int_eq(strcatSpecific, strcategory('\''));
+  mu_assert_int_eq(strcatSpecific, strcategory('('));
+  mu_assert_int_eq(strcatSpecific, strcategory(')'));
+  mu_assert_int_eq(strcatSpecific, strcategory('*'));
+  mu_assert_int_eq(strcatSpecific, strcategory('+'));
+  mu_assert_int_eq(strcatSpecific, strcategory(','));
+  mu_assert_int_eq(strcatSpecific, strcategory(';'));
+  mu_assert_int_eq(strcatSpecific, strcategory('='));
+  mu_assert_int_eq(strcatPercent, strcategory('%'));
+  mu_assert_int_eq(strcatNul, strcategory('\0'));
+  mu_assert_int_eq(strcatOther, strcategory('"'));
+  mu_assert_int_eq(strcatOther, strcategory('`'));
+  mu_assert_int_eq(strcatOther, strcategory('<'));
+  mu_assert_int_eq(strcatOther, strcategory('>'));
+}
+
+
+MU_TEST(test_strcatspn)
+{
+  char *s1 = "ABZabz019-.~:/!=%<>";
+  char *s2 = "<>%=!/:~.-910zbaZBA";
+
+  mu_assert_int_eq(3,  strcatspn(s1, strcatUpper));
+  mu_assert_int_eq(0,  strcatspn(s1, strcatLower));
+  mu_assert_int_eq(0,  strcatspn(s2, strcatUpper));
+  mu_assert_int_eq(2,  strcatspn(s2, strcatOther));
+
+  mu_assert_int_eq(0,  strcatcspn(s1, strcatUpper));
+  mu_assert_int_eq(3,  strcatcspn(s1, strcatLower));
+  mu_assert_int_eq(16, strcatcspn(s2, strcatUpper));
+  mu_assert_int_eq(0,  strcatcspn(s2, strcatOther));
+
+  mu_assert_int_eq(3,  strcatjspn(s1, strcatUpper));
+  mu_assert_int_eq(6,  strcatjspn(s1, strcatLower));
+  mu_assert_int_eq(9,  strcatjspn(s1, strcatDigit));
+  mu_assert_int_eq(12, strcatjspn(s1, strcatUnreserved));
+  mu_assert_int_eq(14, strcatjspn(s1, strcatReserved));
+  mu_assert_int_eq(16, strcatjspn(s1, strcatSpecific));
+  mu_assert_int_eq(17, strcatjspn(s1, strcatPercent));
+  mu_assert_int_eq(19, strcatjspn(s1, strcatOther));
+
+  mu_assert_int_eq(16, strcatcjspn(s2, strcatUpper));
+  mu_assert_int_eq(13, strcatcjspn(s2, strcatLower));
+  mu_assert_int_eq(10, strcatcjspn(s2, strcatDigit));
+  mu_assert_int_eq(7,  strcatcjspn(s2, strcatUnreserved));
+  mu_assert_int_eq(5,  strcatcjspn(s2, strcatReserved));
+  mu_assert_int_eq(3,  strcatcjspn(s2, strcatSpecific));
+  mu_assert_int_eq(2,  strcatcjspn(s2, strcatPercent));
+  mu_assert_int_eq(0,  strcatcjspn(s2, strcatOther));
+}
+
+
 
 
 /***********************************************************************/
@@ -199,6 +273,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_strunquote);
   MU_RUN_TEST(test_strhex_encode);
   MU_RUN_TEST(test_strhex_decode);
+  MU_RUN_TEST(test_strcategory);
+  MU_RUN_TEST(test_strcatspn);
 }
 
 
