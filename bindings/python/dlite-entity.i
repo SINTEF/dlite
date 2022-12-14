@@ -271,9 +271,8 @@ struct _DLiteInstance {
   %immutable;
   char uuid[DLITE_UUID_LENGTH+1];
   unsigned char _flags;
-  char *uri;
+  //char *uri;  // TODO: we probably want to re-enable this one...
   int _refcount;
-  /* const struct _DLiteMeta *meta; */
 };
 
 %extend _DLiteInstance {
@@ -351,6 +350,22 @@ struct _DLiteInstance {
   %feature("docstring", "Returns reference to metadata.") _get_meta;
   const struct _DLiteInstance *_get_meta() {
     return (const DLiteInstance *)$self->meta;
+  }
+
+  /* Hack: this method is a simple workaround, a proper solution is
+           to store the default uri in the `uri` field from the start. */
+  %feature("docstring", "Returns instance uri.") _get_uri;
+  %newobject _get_uri;
+  char *_get_uri() {
+    char *uri;
+    if ($self->uri) return strdup($self->uri);
+    int n = strlen($self->meta->uri);
+    if (!(uri = malloc(n + DLITE_UUID_LENGTH + 2)))
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
+    memcpy(uri, $self->meta->uri, n);
+    uri[n] = '/';
+    memcpy(uri+n+1, $self->uuid, DLITE_UUID_LENGTH+1);
+    return uri;
   }
 
   %feature("docstring", "Returns reference to parent uuid.") _get_parent_uuid;

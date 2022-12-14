@@ -575,6 +575,11 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
             dims = [dims[d.name] for d in self.properties['dimensions']]
         return Instance.from_metaid(self.uri, dims, id)
 
+    uri = property(
+        lambda self: self._get_uri(),
+        #self.uri if self.uri else f"{self.meta.uri}/{self.uuid}"
+    )
+
     def asdict(self, soft7=True, uuid=True):
         """Returns a dict representation of self.
 
