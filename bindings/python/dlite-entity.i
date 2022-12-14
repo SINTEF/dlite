@@ -703,6 +703,20 @@ Call signatures:
     return dlite_json_aprint($self, indent, flags);
   }
 
+  %feature("docstring", "Returns instance uri.") get_uri;
+  %newobject get_uri;
+  char *get_uri() {
+    char *uri;
+    if ($self->uri) return strdup($self->uri);
+    int n = strlen($self->meta->uri);
+    if (!(uri = malloc(n + DLITE_UUID_LENGTH + 2)))
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
+    memcpy(uri, $self->meta->uri, n);
+    uri[n] = '/';
+    memcpy(uri+n+1, $self->uuid, DLITE_UUID_LENGTH+1);
+    return uri;
+  }
+
 };
 
 
