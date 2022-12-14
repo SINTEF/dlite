@@ -163,8 +163,8 @@ extra_requirements = [
     "pandas",
     "pymongo",
     "rdflib",
-    "pint",
     "tripper",
+    "pint",
 ]
 
 requirements = ["numpy"]
