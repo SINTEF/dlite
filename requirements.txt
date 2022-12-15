@@ -8,4 +8,4 @@ rdflib
 pint
 openpyxl
 pymongo
-tripper
+tripper==0.1.2
