@@ -32,3 +32,7 @@ out
 
 # Generated build docker files
 Dockerfile-*linux*[^.template]
+
+# Units (pint) files
+units.cpython-*.pyc
+bindings/python/triplestore/__pycache__
