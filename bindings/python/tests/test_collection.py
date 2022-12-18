@@ -115,7 +115,7 @@ i1, = coll.get_instances()
 assert i1 == inst1
 
 # We have no collections in the collection
-assert not list(coll.get_instances(dlite.COLLECTION_ENTITY))
+assert not list(coll.get_instances(metaid=dlite.COLLECTION_ENTITY))
 
 i1, = coll.get_instances('http://onto-ns.com/meta/0.1/MyEntity')
 assert i1 == inst1

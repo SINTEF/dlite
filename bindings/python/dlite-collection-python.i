@@ -23,7 +23,7 @@
             return v.s
         elif self.rettype == 'p':  # return predicate
             return v.p
-        elif self.rettype == 'o':  # return pbject
+        elif self.rettype == 'o':  # return object
             return v.o
         return v
 %}
@@ -199,14 +199,15 @@ class Collection(Instance):
         If `metaid` is given, only instances of this metadata will be
         returned.
         """
+        # An iterator over all instances
         iter = _CollectionIter(self, s=None, p=None, o=None, rettype='I')
-        if metaid:
+        if metaid:  # `metaid` given - only yield instances of this type
             uri = metaid.uri if hasattr(metaid, "uri") else metaid
             for inst in iter:
                 if inst.meta.uri == uri:
                     yield inst
         else:
-            for inst in iter:
+            for inst in iter:  #  yield all instances
                 yield inst
 
     def get_labels(self):
