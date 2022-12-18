@@ -333,7 +333,7 @@ the directory of the virtual environment. For example:
 
     VIRTUAL_ENV=/path/to/virtual/env
     source $VIRTUAL_ENV/bin/activate
-    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV ..
+    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV -DWITH_DOC=YES ..
 
 Build with:
 
