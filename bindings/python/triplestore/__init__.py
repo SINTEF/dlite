@@ -3,6 +3,7 @@ pattern.
 
 See the README.md file for a description for how to use this package.
 """
+import warnings
 from typing import TYPE_CHECKING
 
 from .triplestore import (
@@ -34,4 +35,12 @@ __all__ = (
     "EMMO",
     "MAP",
     "DM",
+)
+
+
+warnings.warn(
+    "dlite.triplestore is deprecated.\n"
+    "Use tripper (https://github.com/EMMC-ASBL/tripper) instead.",
+    DeprecationWarning,
+    stacklevel=2,
 )
