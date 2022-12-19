@@ -40,7 +40,7 @@ sharing scientific.
 About DLite
 ===========
 DLite is a C implementation of the [SINTEF Open Framework and Tools
-(SOFT)][1], which is a set of concepts and tools for how to
+(SOFT)][SOFT], which is a set of concepts and tools for how to
 efficiently describe and work with scientific data.
 
 All data in DLite is represented by an Instance, which is build on a
@@ -275,29 +275,30 @@ The sources can be cloned from GitHub
 ### Dependencies
 
 #### Runtime dependencies
-  - [HDF5][3], optional, support v1.10+ (needed by HDF5 storage plugin)
-  - [librdf][4], optional (needed by RDF (Redland) storage plugin)
-  - [Python 3][5], optional (needed by Python bindings and some plugins)
-    - [NumPy][6], required if Python is enabled
-    - [PyYAML][7], optional (used for generic YAML storage plugin)
-    - [psycopg2][8], optional (used for generic PostgreSQL storage plugin)
+  - [HDF5], optional, support v1.10+ (needed by HDF5 storage plugin)
+  - [librdf], optional (needed by RDF (Redland) storage plugin)
+  - [Python 3], optional (needed by Python bindings and some plugins)
+    - [tripper], required by the Python bindings
+    - [NumPy], required if Python is enabled
+    - [PyYAML], optional (used for generic YAML storage plugin)
+    - [psycopg2], optional (used for generic PostgreSQL storage plugin)
         Note that in some cases a GSSAPI error is raised when using psycopg2
         by pip installing psycopg2-binary.
         This is solved by installing from source as described in their documentation.
-    - [pandas][pandas], optional (used for csv storage plugin)
-    - [pymongo][pymongo], optional, (used for mongodb storage plugin)
+    - [pandas], optional (used for csv storage plugin)
+    - [pymongo], optional, (used for mongodb storage plugin)
+    - [mongomock], optional, used for testing mongodb storage plugin.
 
 #### Build dependencies
-  - [cmake][9], required for building - note that cmake isntalled from pypi does not always work.
-  - hdf5 development libraries, needed by HDF5 storage plugin.
+  - [cmake], required for building - note that cmake isntalled from pypi does not always work.
+  - HDF5 development libraries, needed by HDF5 storage plugin.
   - Python 3 development libraries, needed by Python bindings.
   - NumPy development libraries, needed by Python bindings.
-  - [SWIG][10] needed by building Python bindings.
-  - [Doxygen][11] used for documentation generation.
-  - [Graphviz][graphviz] used for documentation generation.
-  - [valgrind][12], optional, used for memory checking (Linux only).
-  - [cppcheck][13], optional, used for static code analysis.
-  - [mongomock][mongomock], optional, used for testing mongodb storage plugin.
+  - [SWIG] needed by building Python bindings.
+  - [Doxygen] used for documentation generation.
+  - [Graphviz] used for documentation generation.
+  - [valgrind], optional, used for memory checking (Linux only).
+  - [cppcheck], optional, used for static code analysis.
   - librdf development libraries, optional, needed by librdf storage plugin.
 
 Compiling
@@ -484,7 +485,7 @@ The following terms have a special meaning in dlite:
   - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
   - **Collection**: A specialised instance that contains references to set
     of instances and relations between them.  Within a collection instances
-    are labeled.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
+    are labeled.  See also the [SOFT5 nomenclauture].
   - **Data instance**: A "leaf" instance that is not metadata.
   - **Entity**: May be any kind of instance, including data instances,
     metadata instances or meta-metadata instances.  However, for historical
@@ -507,7 +508,7 @@ The following terms have a special meaning in dlite:
     (frozen) parent instance is called a *transaction*.  Transactions are
     very useful for ensuring data provenance and makes it easy to work
     with time series.  Conceptually, they share many similarities with
-    git.  See also the [SOFT5 nomenclauture][SOFT5_nomenclauture].
+    git.  See also the [SOFT5 nomenclauture].
   - **uri**: A [uniform resource identifier (URI)][URI] is a
     generalisation of URL, but follows the same syntax rules.  In
     dlite, the term "uri" is used as an human readable identifier for
@@ -550,7 +551,7 @@ been supported by several projects, including:
   - FICAL (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
   - [Rational alloy design (ALLDESIGN)](https://www.ntnu.edu/digital-transformation/alldesign) (2018-2022) NTNU internally funded project.
   - [SFI Manufacturing](https://www.sfimanufacturing.no/) (2015-2023) funded by Forskningsrådet and Norwegian industry partners.
-  - [SFI PhysMet](https://www.ntnu.edu/physmet)(2020-2028) funded by Forskningsrådet and Norwegian industry partners.
+  - [SFI PhysMet](https://www.ntnu.edu/physmet) (2020-2028) funded by Forskningsrådet and Norwegian industry partners.
   - [OntoTrans](https://cordis.europa.eu/project/id/862136) (2020-2024) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 862136.
   - [OpenModel](https://www.open-model.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953167.
   - [DOME 4.0](https://dome40.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953163.
@@ -561,27 +562,27 @@ been supported by several projects, including:
 
 DLite is developed with the hope that it will be a delight to work with.
 
-[1]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
-[2]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
-[3]: https://support.hdfgroup.org/HDF5/
-[4]: https://librdf.org/
-[5]: https://www.python.org/
-[6]: https://pypi.org/project/numpy/
-[7]: https://pypi.org/project/PyYAML/
-[8]: https://pypi.org/project/psycopg2/
-[9]: https://cmake.org/
-[10]: http://www.swig.org/
-[11]: http://www.doxygen.org/
-[12]: http://valgrind.org/
-[13]: http://cppcheck.sourceforge.net/
-[SOFT5_nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
+[SOFT]: https://www.sintef.no/en/publications/publication/1553408/
+[HDF5]: https://support.hdfgroup.org/HDF5/
+[librdf]: https://librdf.org/
+[Python 3]: https://www.python.org/
+[tripper]: https://pypi.org/project/tripper/
+[NumPy]: https://pypi.org/project/numpy/
+[PyYAML]: https://pypi.org/project/PyYAML/
+[psycopg2]: https://pypi.org/project/psycopg2/
+[pandas]: https://pandas.pydata.org/
+[pymongo]: https://github.com/mongodb/mongo-python-driver
+[mongomock]: https://github.com/mongomock/mongomock
+[cmake]: https://cmake.org/
+[SWIG]: http://www.swig.org/
+[Doxygen]: http://www.doxygen.org/
+[Graphviz]: https://www.graphviz.org/
+[valgrind]: http://valgrind.org/
+[cppcheck]: http://cppcheck.sourceforge.net/
+[SOFT5 nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
 [UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
 [URL]: https://en.wikipedia.org/wiki/URL
 [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
 [IRI]: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
 [dlite-packages]: https://github.com/SINTEF/dlite/packages
 [vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
-[pandas]: https://pandas.pydata.org/
-[pymongo]: https://github.com/mongodb/mongo-python-driver
-[mongomock]: https://github.com/mongomock/mongomock
-[graphviz]: https://www.graphviz.org/

@@ -29,7 +29,7 @@
     `id` may optionally end with a final hash (#) or slash (/), which will
     be ignored.
     Return: UUID_EXTRACT
-  - Otherwise is `id` is an invalid UUID string.  A new version 5 sha1-based
+  - Otherwise is `id` an invalid UUID string.  A new version 5 sha1-based
     UUID is generated from `id` using the DNS namespace.  Any optional final
     hash (#) or slash (/) will be stripped off.
     Return: UUID_HASH

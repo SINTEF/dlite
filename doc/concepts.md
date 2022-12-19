@@ -35,14 +35,15 @@ follow it.
 The tool `dlite-getuuid` can be used to manually convert URIs to their
 corresponding UUIDs.
 
-A resent feature in DLite is that data instances with no user-defined
-URI, will be assigned a default URI of the form
+DLite also allow to refer to instances using id's of the form
 '`namespace`/`version`/`name`/`uuid`' (e.g:
 http://onto-ns.com/meta/0.1/Collection/db6e092b-20f9-44c1-831b-bd597c96daae),
 where the '`namespace`/`version`/`name`' part is the URI of the
 metadata and '`uuid`' is the UUID of the instance.  This has the
 advantage that the the URI of an instance will be a valid [RDF]
-subject or object in a knowledge base.
+subject or object in a knowledge base.  In the Python bindings, the
+`Instance.get_uri()` method and `Instance.namespace` property will return a 
+string in this format if the instance has no URI.
 
 
 Simple unified access to all data types

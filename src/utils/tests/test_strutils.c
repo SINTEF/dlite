@@ -223,6 +223,7 @@ MU_TEST(test_strcategory)
   mu_assert_int_eq(strcatOther, strcategory('`'));
   mu_assert_int_eq(strcatOther, strcategory('<'));
   mu_assert_int_eq(strcatOther, strcategory('>'));
+  mu_assert_int_eq(strcatOther, strcategory('\xf8'));  // ø
 }
 
 

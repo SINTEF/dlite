@@ -48,7 +48,7 @@ int isinstanceuri(const char *s, int len)
 /*
   Writes an UUID to `buff` based on `id`.
 
-  It follow the follow heuristics:
+  It follows from the following heuristics:
   - If `id` is NULL or empty, a new random version 4 UUID is generated.
     Return: UUID_RANDOM
   - If `id` is a valid UUID, it is copied as-is to `buff`.
@@ -57,7 +57,7 @@ int isinstanceuri(const char *s, int len)
     `id` may optionally end with a final hash (#) or slash (/), which will
     be ignored.
     Return: UUID_EXTRACT
-  - Otherwise is `id` is an invalid UUID string.  A new version 5 sha1-based
+  - Otherwise is `id` an invalid UUID string.  A new version 5 sha1-based
     UUID is generated from `id` using the DNS namespace.  Any optional final
     hash (#) or slash (/) will be stripped off.
     Return: UUID_HASH
