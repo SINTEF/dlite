@@ -326,6 +326,9 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
     is_meta = property(_is_meta, doc='Whether this is a metadata instance.')
     is_metameta = property(_is_metameta,
                            doc='Whether this is a meta-metadata instance.')
+    namespace = property(
+        lambda self: Namespace(self.get_uri() + '#'),
+        doc='A tripper.Namespace reference to this instance.')
 
     @classmethod
     def from_metaid(cls, metaid, dims, id=None):

@@ -23,7 +23,7 @@
             return v.s
         elif self.rettype == 'p':  # return predicate
             return v.p
-        elif self.rettype == 'o':  # return pbject
+        elif self.rettype == 'o':  # return object
             return v.o
         return v
 %}
