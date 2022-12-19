@@ -42,8 +42,8 @@ where the '`namespace`/`version`/`name`' part is the URI of the
 metadata and '`uuid`' is the UUID of the instance.  This has the
 advantage that the the URI of an instance will be a valid [RDF]
 subject or object in a knowledge base.  In the Python bindings, the
-method `Instance.get_uri()` will return a string in this format if the
-instance has no URI.
+`Instance.get_uri()` method and `Instance.namespace` property will return a 
+string in this format if the instance has no URI.
 
 
 Simple unified access to all data types
