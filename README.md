@@ -562,7 +562,7 @@ been supported by several projects, including:
 
 DLite is developed with the hope that it will be a delight to work with.
 
-[SOFT]: https://stash.code.sintef.no/projects/SOFT/repos/soft5/
+[SOFT]: https://www.sintef.no/en/publications/publication/1553408/
 [HDF5]: https://support.hdfgroup.org/HDF5/
 [librdf]: https://librdf.org/
 [Python 3]: https://www.python.org/
