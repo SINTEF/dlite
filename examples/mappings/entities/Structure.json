@@ -1,0 +1,27 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/Structure",
+  "description": "A basic description of an atomic structure.",
+  "dimensions": {
+    "natoms": "Number of atoms.",
+    "ncoords": "Number of coordinates. Always 3.",
+  },
+  "properties": {
+    "positions": {
+      "type": "double",
+      "shape": ["natoms", "ncoords"],
+      "unit": "Å",
+      "description": "Atomic positions in Cartesian coordinates."
+    },
+    "symbols": {
+      "type": "string",
+      "shape": ["natoms"],
+      "description": "Chemical symbols."
+    },
+    "cell": {
+      "type": "double",
+      "shape": ["ncoords", "ncoords"],
+      "unit": "Å",
+      "description": "Cartesian unit cell."
+    }
+  }
+}
