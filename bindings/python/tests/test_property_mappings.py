@@ -7,7 +7,7 @@ import numpy as np
 
 import dlite
 import dlite.mappings as dm
-from dlite.triplestore import Triplestore
+from tripper import Triplestore
 
 try:
     import pint
