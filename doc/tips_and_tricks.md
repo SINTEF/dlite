@@ -17,8 +17,8 @@ With [virtualenvwrapper], do
     mkdir build
     cd build
     cmake -DCMAKE_INSTALL_PREFIX=$WORKON_HOME/dlite ..
-    make
-    make install
+    cmake --build .
+    cmake --install .
 
 
 Debugging tests failing inside docker on GitHub
