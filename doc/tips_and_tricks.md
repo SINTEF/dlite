@@ -40,7 +40,12 @@ First, enter your virtual environment with dlite and install cibuildwheel.
 
 To list all manylinux images for Python 3.7, do
 
-    CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest CIBW_BUILD=cp37-manylinux_* python -m cibuildwheel --print-build-identifiers --platform linux python
+    CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
+    CIBW_BUILD=cp37-manylinux_* \
+    python -m cibuildwheel \
+    --print-build-identifiers \
+    --platform linux \
+    python
 
 This should write
 
@@ -49,14 +54,25 @@ This should write
 
 To run the image `cp37-manylinux_x86_64` do
 
-    CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest CIBW_BUILD=cp37-manylinux_x86* python -m cibuildwheel --output-dir wheelhouse --platform linux python
+    CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
+    CIBW_BUILD=cp37-manylinux_x86* \
+    python -m cibuildwheel \
+    --output-dir wheelhouse \
+    --platform linux \
+    python
 
 which should run the tests and hopefully fail at the same place as on
 GitHub.  If that is the case, you can run the image again, but pause
 it before running the tests by adding prepending
 `CIBW_BEFORE_TEST=cat` to the previous command:
 
-    CIBW_BEFORE_TEST=cat CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest CIBW_BUILD=cp37-manylinux_x86* python -m cibuildwheel --output-dir wheelhouse --platform linux python
+    CIBW_BEFORE_TEST=cat \
+    CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
+    CIBW_BUILD=cp37-manylinux_x86* \
+    python -m cibuildwheel \
+    --output-dir wheelhouse \
+    --platform linux \
+    python
 
 
 Now you can list all active containers with
