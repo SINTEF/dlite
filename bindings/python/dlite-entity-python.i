@@ -6,14 +6,15 @@ import sys
 import json
 import base64
 import warnings
-
 from uuid import UUID
+
 if sys.version_info >= (3, 7):
     OrderedDict = dict
 else:
     from collections import OrderedDict
 
 import numpy as np
+from tripper import Namespace
 
 
 class InvalidMetadataError:
@@ -130,6 +131,10 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
     if isinstance(id, dlite.Instance):
         inst = id
     else:
+        if isinstance(id, Namespace):
+            id = str(id).rstrip("#/")
+        if isinstance(metaid, Namespace):
+            metaid = str(metaid).rstrip("#/")
         inst = _dlite.get_instance(id, metaid, check_storages)
 
     if inst is None:

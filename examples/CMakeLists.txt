@@ -6,6 +6,7 @@ if(WITH_PYTHON)
 set(python_examples
   read-csv
   dehydrogenation
+  mappings
   )
 endif()
 

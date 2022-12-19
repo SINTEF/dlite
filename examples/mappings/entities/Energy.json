@@ -1,0 +1,12 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/Energy",
+  "description": "Represents an energy.",
+  "dimensions": {},
+  "properties": {
+    "energy": {
+      "type": "double",
+      "unit": "eV",
+      "description": "Energy."
+    }
+  }
+}

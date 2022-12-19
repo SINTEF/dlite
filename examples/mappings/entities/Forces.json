@@ -1,0 +1,16 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/Forces",
+  "description": "Represent the force on a set of particles/atoms.",
+  "dimensions": {
+    "natoms": "Number of particles/atoms.",
+    "ncoords": "Number of coordinates. Always 3.",
+  },
+  "properties": {
+    "forces": {
+      "type": "double",
+      "shape": ["natoms", "ncoords"],
+      "unit": "eV/Å",
+      "description": "The force on each particle/atom."
+    }
+  }
+}

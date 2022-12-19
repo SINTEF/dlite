@@ -34,6 +34,9 @@
 %pythoncode %{
 from warnings import warn
 
+import pint
+from tripper import Namespace, Triplestore
+
 
 class Collection(Instance):
     """A collection of instances and relations between them.
@@ -160,7 +163,12 @@ class Collection(Instance):
             raise DLiteError(f'No such label in collection: "{label}"')
 
     def get(self, label, metaid=None):
-        """Return instance with given label."""
+        """Return instance with given label.
+
+        If `metaid` is given, the instance is converted to an instance
+        of `metaid` using instance mappings.  If no such instance mapping
+        is registered, a DLiteError is raised.
+        """
         return _collection_get_new(self._coll, label, metaid)
 
     def get_id(self, id):
@@ -194,20 +202,76 @@ class Collection(Instance):
         None is returned if there are no matching relations."""
         return _collection_find_first(self._coll, s, p, o)
 
-    def get_instances(self, metaid=None):
+    def get_instances(self, metaid=None, property_mappings=False,
+                      allow_incomplete=False, ureg=None, function_repo=None,
+                      **kwargs):
         """Returns a generator over all instances in collection.
-        If `metaid` is given, only instances of this metadata will be
-        returned.
+
+        Arguments:
+            metaid: If given, only instances of this metadata will be
+                returned.
+            property_mappings: Whether to also iterate over new instances
+                of type `metaid` instantiated from property mappings.
+                Hence, if `property_mappings` is true, `metaid` is required.
+            allow_incomplete: Allow "incomplete" property mappings.
+                Properties with no mappings will be initialised to zero.
+            ureg: Optional custom Pint unit registry.  By default the builtin
+                Pint unit registry is used.
+            function_repo: Repository for mapping functions.  Should map
+                function IRIs to function implementations.
+            kwargs: Additional keyword arguments passed to mapping_route().
         """
-        # An iterator over all instances
         iter = _CollectionIter(self, s=None, p=None, o=None, rettype='I')
-        if metaid:  # `metaid` given - only yield instances of this type
-            uri = metaid.uri if hasattr(metaid, "uri") else metaid
+        if metaid:
+            if hasattr(metaid, "uri"):
+                uri = metaid.uri
+            elif isinstance(metaid, Namespace):
+                uri = str(metaid).rstrip("#/")
+            else:
+                uri = str(metaid)
+
             for inst in iter:
                 if inst.meta.uri == uri:
                     yield inst
+
+            if property_mappings:
+                # This import must be here to avoid circular imports
+                # -- consider refacturing.
+                from dlite.mappings import instantiate_all
+
+                meta = metaid if isinstance(
+                    metaid, dlite.Instance) else dlite.get_instance(
+                        str(metaid).rstrip("#/"))
+
+                if ureg is None:
+                    quantity = pint.Quantity
+                elif isinstance(ureg, pint.UnitRegistry):
+                    quantity = ureg.Quantity
+                elif isinstance(ureg, pint.Quantity):
+                    quantity = ureg
+                else:
+                    raise TypeError(
+                        '`ureg` must be a Pint unit registry or Quantity '
+                        'class')
+
+                ts = Triplestore(backend='collection', collection=self)
+                if function_repo:
+                    ts.function_repo.update(function_repo)
+
+                for inst in instantiate_all(
+                    meta=meta,
+                    instances=list(self.get_instances()),
+                    triplestore=ts,
+                    allow_incomplete=allow_incomplete,
+                    quantity=quantity,
+                    **kwargs
+                ):
+                    yield inst
+        elif property_mappings:
+            raise dlite.DLiteError(
+                '`metaid` is required when `property_mappings` is true')
         else:
-            for inst in iter:  #  yield all instances
+            for inst in iter:
                 yield inst
 
     def get_labels(self):
