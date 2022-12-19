@@ -16,6 +16,7 @@ set(tests
   test_schemas
   test_arrays
   test_ref
+  test_getuuid
   )
 
 list(APPEND tests test_json_entity)

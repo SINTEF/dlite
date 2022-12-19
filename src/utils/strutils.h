@@ -25,6 +25,20 @@ typedef enum _StrquoteFlags {
 } StrquoteFlags;
 
 
+/** Character categories, from, RFC 3986 */
+typedef enum {
+  strcatUpper,       //!<  A-Z
+  strcatLower,       //!<  a-z
+  strcatDigit,       //!<  0-9
+  strcatUnreserved,  //!<  "-._~"  (in addition to upper + lower + digit)
+  strcatReserved,    //!<  ":/?#[]@"
+  strcatSpecific,    //!<  "!$&'()*+,;="
+  strcatPercent,     //!<  "%"
+  strcatOther,       //!<  anything else, except NUL
+  strcatNul,         //!<  NUL
+} StrCategory;
+
+
 /**
   A convinient variant of asnprintf() that returns the allocated string,
   or NULL on error.
@@ -139,5 +153,36 @@ int strhex_encode(char *hex, size_t hexsize, const unsigned char *data,
 */
 int strhex_decode(unsigned char *data, size_t size, const char *hex,
                   int hexsize);
+
+
+/**
+  Returns the category of character `c`.
+ */
+StrCategory strcategory(int c);
+
+/**
+  Returns the length of initial segment of `s` which concists entirely of
+  bytes in category `cat`.
+ */
+int strcatspn(const char *s, StrCategory cat);
+
+/**
+  Returns the length of initial segment of `s` which concists entirely of
+  bytes NOT in category `cat`.
+ */
+int strcatcspn(const char *s, StrCategory cat);
+
+/**
+  Returns the length of initial segment of `s` which concists entirely of
+  bytes in all categories less or equal to `cat`.
+ */
+int strcatjspn(const char *s, StrCategory cat);
+
+/**
+  Returns the length of initial segment of `s` which concists entirely of
+  bytes NOT in all categories less or equal to `cat`.
+ */
+int strcatcjspn(const char *s, StrCategory cat);
+
 
 #endif  /* _STRUTILS_H */
