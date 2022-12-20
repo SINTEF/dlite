@@ -12,6 +12,7 @@
 #include "utils/infixcalc.h"
 #include "utils/sha3.h"
 
+#include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"
@@ -441,7 +442,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   /* Initialise header */
   if ((uuid_version = dlite_get_uuid(uuid, id)) < 0) goto fail;
   memcpy(inst->uuid, uuid, sizeof(uuid));
-  if (uuid_version == 5) inst->uri = strdup(id);
+  if (uuid_version == UUID_HASH) inst->uri = strdup(id);
   inst->meta = (DLiteMeta *)meta;
 
   /* Set dimensions */
@@ -897,7 +898,8 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   size_t i, *dims=NULL;
   const char *uri=NULL;
 
-  if (!s) FAILCODE(dliteStorageLoadError, "invalid storage, see previous errors");
+  if (!s) FAILCODE(dliteStorageLoadError,
+                   "invalid storage, see previous errors");
 
   /* check if id is already loaded */
   if (lookup && id && *id && (inst = _instance_store_get(id))) {
@@ -988,6 +990,8 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
         FAILCODE2(dliteMissingMetadataError, "metadata %s loaded from %s has no name, version and namespace",
              id, s->location);
       }
+    } else {
+      inst->uri = dlite_instance_default_uri(inst);
     }
   }
 
@@ -2013,6 +2017,24 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                            dest, p->type, p->size, ddims, NULL,
                            src, type, size, dims, strides,
                            castfun);
+}
+
+
+/*
+  Return a newly allocated default instance URI constructed from
+  the metadata URI and the UUID of the instance, as `<meta_uri>/<uuid>`.
+
+  Returns NULL on error.
+ */
+char *dlite_instance_default_uri(const DLiteInstance *inst)
+{
+  int n = strlen(inst->meta->uri);
+  char *buf = malloc(n + DLITE_UUID_LENGTH + 2);
+  memcpy(buf, inst->meta->uri, n);
+  buf[n] = '/';
+  memcpy(buf+n+1, inst->uuid, DLITE_UUID_LENGTH);
+  buf[n+DLITE_UUID_LENGTH+1] = '\0';
+  return buf;
 }
 
 
