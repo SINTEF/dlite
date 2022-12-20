@@ -109,7 +109,8 @@ char *dlite_join_meta_uri(const char *name, const char *version,
   }
   if ((n == 3) && (size > 0)) {
     size += 3;
-    if (!(uri = malloc(size))) return err(1, "allocation failure"), NULL;
+    if (!(uri = malloc(size)))
+     return err(dliteMemoryError, "allocation failure"), NULL;
     snprintf(uri, size, "%s/%s/%s", namespace, version, name);
   }
   return uri;
@@ -135,19 +136,22 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
     FAIL1("invalid metadata uri: '%s'", uri);
 
   if (name) {
-    if (!(namep = strdup(p + 1))) FAIL("allocation failure");
+    if (!(namep = strdup(p + 1)))
+     FAILCODE(dliteMemoryError, "allocation failure");
   }
   if (version) {
     int size = p - q;
     assert(size > 0);
-    if (!(versionp = malloc(size))) FAIL("allocation failure");
+    if (!(versionp = malloc(size)))
+     FAILCODE(dliteMemoryError, "allocation failure");
     memcpy(versionp, q + 1, size - 1);
     versionp[size - 1] = '\0';
   }
   if (namespace) {
     int size = q - uri + 1;
     assert(size > 0);
-    if (!(namespacep = malloc(size))) FAIL("allocation failure");
+    if (!(namespacep = malloc(size)))
+     FAILCODE(dliteMemoryError, "allocation failure");
     memcpy(namespacep, uri, size - 1);
     namespacep[size - 1] = '\0';
   }
@@ -162,7 +166,6 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
   if (namespacep) free(namespacep);
   return 1;
 }
-
 
 
 /********************************************************************

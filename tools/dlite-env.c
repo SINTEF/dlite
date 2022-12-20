@@ -191,9 +191,9 @@ int main(int argc, char *argv[])
 
     /* -- create argument list */
     if (!(args = calloc(argc - optind + 1, sizeof(char **))))
-      return err(1, "allocation failure");
+      return err(dliteMemoryError, "allocation failure");
     for (i=optind, j=0; i<argc; i++)
-      if (!(args[j++] = strdup(argv[i]))) FAIL("allocation failure");
+      if (!(args[j++] = strdup(argv[i]))) FAILCODE(dliteMemoryError, "allocation failure");
 
     /* -- execute command */
     retval = exec_process(args[0], args, env);

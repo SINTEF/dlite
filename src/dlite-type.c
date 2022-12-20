@@ -21,6 +21,7 @@
 #include "dlite-entity.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"
+#include "dlite-errors.h"
 
 
 /* Name DLite types */
@@ -117,7 +118,7 @@ static int is_metaref(const char *dtypename)
 const char *dlite_type_get_dtypename(DLiteType dtype)
 {
   if (dtype < 0 || dtype >= sizeof(dtype_names) / sizeof(char *))
-    return err(1, "invalid dtype number: %d", dtype), NULL;
+    return err(dliteParseError, "invalid dtype number: %d", dtype), NULL;
   return dtype_names[dtype];
 }
 
@@ -127,7 +128,7 @@ const char *dlite_type_get_dtypename(DLiteType dtype)
 const char *dlite_type_get_enum_name(DLiteType dtype)
 {
   if (dtype < 0 || dtype >= sizeof(dtype_names) / sizeof(char *))
-    return err(1, "invalid dtype number: %d", dtype), NULL;
+    return err(dliteTypeError, "invalid dtype number: %d", dtype), NULL;
   return dtype_enum_names[dtype];
 }
 
@@ -159,7 +160,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(1, "bool should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "bool should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(bool), (unsigned long)size);
     snprintf(typename, n, "bool");
     break;
@@ -177,13 +178,13 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return errx(1, "string should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "string should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(char *), (unsigned long)size);
     snprintf(typename, n, "string");
     break;
   case dliteRef:
     if (size != sizeof(DLiteInstance *))
-      return errx(1, "string should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "string should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(DLiteInstance *), (unsigned long)size);
     snprintf(typename, n, "ref");
     break;
@@ -197,7 +198,7 @@ int dlite_type_set_typename(DLiteType dtype, size_t size,
     snprintf(typename, n, "relation");
     break;
   default:
-    return errx(1, "unknown dtype number: %d", dtype);
+    return errx(dliteValueError, "unknown dtype number: %d", dtype);
   }
   return 0;
 }
@@ -215,7 +216,7 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(1, "bool should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "bool should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(bool), (unsigned long)size);
     snprintf(ftype, n, "logical");
     break;
@@ -247,7 +248,7 @@ int dlite_type_set_ftype(DLiteType dtype, size_t size,
     snprintf(ftype, n, "type(DLiteRelation)");
     break;
   default:
-    return errx(1, "unknown dtype number: %d", dtype);
+    return errx(dliteValueError, "unknown dtype number: %d", dtype);
   }
   return 0;
 }
@@ -315,7 +316,7 @@ int dlite_type_set_isoctype(DLiteType dtype, size_t size,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(1, "bool should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "bool should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(bool), (unsigned long)size);
     snprintf(isoctype, n, "logical(c_bool)");
     break;
@@ -347,7 +348,7 @@ int dlite_type_set_isoctype(DLiteType dtype, size_t size,
     snprintf(isoctype, n, "type(c_ptr)");
     break;
   default:
-    return errx(1, "unknown dtype number: %d", dtype);
+    return errx(dliteValueError, "unknown dtype number: %d", dtype);
   }
   return 0;
 }
@@ -385,7 +386,7 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
     break;
   case dliteBool:
     if (size != sizeof(bool))
-      return errx(-1, "bool should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "bool should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(bool), (unsigned long)size);
     m = snprintf(pcdecl, n, "bool %s%s", ref, name);
     break;
@@ -415,36 +416,36 @@ int dlite_type_set_cdecl(DLiteType dtype, size_t size, const char *name,
     break;
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return errx(-1, "string should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "string should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(char *), (unsigned long)size);
     m = snprintf(pcdecl, n, "char *%s%s", ref, name);
     break;
   case dliteRef:
     if (size != sizeof(DLiteInstance *))
-      return errx(-1, "DLiteRef should have size %lu, but %lu was provided",
+      return errx(dliteValueError, "DLiteRef should have size %lu, but %lu was provided",
                   (unsigned long)sizeof(DLiteInstance *), (unsigned long)size);
     m = snprintf(pcdecl, n, "DLiteInstance *%s%s", ref, name);
     break;
   case dliteDimension:
     if (size != sizeof(DLiteDimension))
-      return errx(-1, "DLiteDimension must have size %lu, got %lu",
+      return errx(dliteValueError, "DLiteDimension must have size %lu, got %lu",
                   (unsigned long)sizeof(DLiteDimension), (unsigned long)size);
     m = snprintf(pcdecl, n, "DLiteDimension %s%s", ref, name);
     break;
   case dliteProperty:
     if (size != sizeof(DLiteProperty))
-      return errx(-1, "DLiteProperty must have size %lu, got %lu",
+      return errx(dliteValueError, "DLiteProperty must have size %lu, got %lu",
                   (unsigned long)sizeof(DLiteProperty), (unsigned long)size);
     m = snprintf(pcdecl, n, "DLiteProperty %s%s", ref, name);
     break;
   case dliteRelation:
     if (size != sizeof(DLiteRelation))
-      return errx(-1, "DLiteRelation must have size %lu, got %lu",
+      return errx(dliteValueError, "DLiteRelation must have size %lu, got %lu",
                   (unsigned long)sizeof(DLiteRelation), (unsigned long)size);
     m = snprintf(pcdecl, n, "DLiteRelation %s%s", ref, name);
     break;
   default:
-    return errx(-1, "unknown dtype number: %d", dtype);
+    return errx(dliteValueError, "unknown dtype number: %d", dtype);
   }
   if (m < 0)
     return err(-1, "error writing C declaration for dtype %d", dtype);
@@ -518,7 +519,7 @@ int dlite_type_set_dtype_and_size(const char *typename,
     *dtype = dliteFixString;
     *size = typesize+1;
   } else {
-    return err(1, "unknown type: %s", typename);
+    return err(dliteTypeError, "unknown type: %s", typename);
   }
   return 0;
 }
@@ -570,7 +571,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       if (s) {
         size_t len = strlen(s) + 1;
         void *p = realloc(*((void **)dest), len);
-        if (!p) return err(1, "allocation failure"), NULL;
+        if (!p) return err(dliteMemoryError, "allocation failure"), NULL;
         *((void **)dest) = p;
         memcpy(*((void **)dest), s, len);
       } else if (*((void **)dest)) {
@@ -598,7 +599,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       if (d->ndims) {
         int i;
         if (!(d->dims = malloc(d->ndims*sizeof(char *))))
-          return err(1, "allocation failure"), NULL;
+          return err(dliteMemoryError, "allocation failure"), NULL;
         for (i=0; i<d->ndims; i++)
           d->dims[i] = strdup(s->dims[i]);
       } else {
@@ -717,18 +718,18 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteBlob:
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(-1, "error printing initial quote for blob");
+        if (v < 0) return err(dliteFormatError, "error printing initial quote for blob");
         m += v;
       }
     for (i=0; i<size; i++) {
       int v = snprintf(dest+m, PDIFF(n, m), "%02x",
                        *((unsigned char *)p+i));
-      if (v < 0) return err(-1, "error printing blob");
+      if (v < 0) return err(dliteFormatError, "error printing blob");
       m += v;
     }
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(-1, "error printing final quote for blob");
+        if (v < 0) return err(dliteFormatError, "error printing final quote for blob");
         m += v;
       }
     break;
@@ -752,7 +753,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     case 4: m = snprintf(dest, n, "%*.*d",   w, r, *((int32_t *)p)); break;
     case 8: m = snprintf(dest, n, "%*.*lld", w, r, *((int64_t *)p)); break;
 #endif
-    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
+    default: return err(dliteValueError, "invalid int size: %lu", (unsigned long)size);
     }
     break;
 
@@ -770,7 +771,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     case 4: m = snprintf(dest, n, "%*.*u",   w, r, *((uint32_t *)p)); break;
     case 8: m = snprintf(dest, n, "%*.*llu", w, r, *((uint64_t *)p)); break;
 #endif
-    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
+    default: return err(dliteValueError, "invalid int size: %lu", (unsigned long)size);
     }
     break;
 
@@ -789,7 +790,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
 #ifdef HAVE_FLOAT128
     case 16: m = snprintf(dest, n, "%*.*Lg", w, r, *((float128_t *)p)); break;
 #endif
-    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
+    default: return err(dliteValueError, "invalid int size: %lu", (unsigned long)size);
     }
     break;
 
@@ -863,7 +864,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   if (m < 0) {
     char buf[32];
     dlite_type_set_typename(dtype, size, buf, sizeof(buf));
-    return errx(-1, "error printing type %s", buf);
+    return errx(dliteFormatError, "error printing type %s", buf);
   }
   return m;
 }
@@ -969,9 +970,9 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
     case 4: v = sscanf(src, "%i%n",   ((int32_t *)p), &m); break;
     case 8: v = sscanf(src, "%lli%n", ((int64_t *)p), &m); break;
 #endif
-    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
+    default: return err(dliteValueError, "invalid int size: %lu", (unsigned long)size);
     }
-    if (v != 1) return err(-1, "invalid int: '%s'", src);
+    if (v != 1) return err(dliteValueError, "invalid int: '%s'", src);
     break;
 
   case dliteUInt:
@@ -990,7 +991,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       case 4: v = sscanf(src, "%x%n",   ((uint32_t *)p), &m); break;
       case 8: v = sscanf(src, "%llx%n", ((uint64_t *)p), &m); break;
 #endif
-      default: return err(-1, "invalid int size: %lu", (unsigned long)size);
+      default: return err(dliteValueError, "invalid int size: %lu", (unsigned long)size);
       }
     } else {
       switch (size) {
@@ -1005,10 +1006,10 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       case 4: v = sscanf(src, "%u%n",   ((uint32_t *)p), &m); break;
       case 8: v = sscanf(src, "%llu%n", ((uint64_t *)p), &m); break;
 #endif
-      default: return err(-1, "invalid uint size: %lu", (unsigned long)size);
+      default: return err(dliteValueError, "invalid uint size: %lu", (unsigned long)size);
       }
     }
-    if (v != 1) return err(-1, "invalid uint: '%s'", src);
+    if (v != 1) return err(dliteValueError, "invalid uint: '%s'", src);
     break;
 
   case dliteFloat:
@@ -1024,9 +1025,9 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 #ifdef HAVE_FLOAT128
     case 16: v = sscanf(src, "%Lf%n", ((float128_t *)p), &m); break;
 #endif
-    default: return err(-1, "invalid int size: %lu", (unsigned long)size);
+    default: return err(dliteValueError, "invalid int size: %lu", (unsigned long)size);
     }
-    if (v != 1) return err(-1, "invalid float: '%s'", src);
+    if (v != 1) return err(dliteValueError, "invalid float: '%s'", src);
     break;
 
   case dliteFixString:
@@ -1047,7 +1048,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       }
       assert(n >= 0);
       if (!(q = realloc(*((char **)p), n+1)))
-        return err(-1, "allocation failure");
+        return err(dliteMemoryError, "allocation failure");
       n = strunquote(q, n+1, src, NULL, qflags);
       assert(n >= 0);
       *(char **)p = q;
@@ -1068,7 +1069,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         case -2: return errx(-1, "expected final double quote around ref");
         }
         assert(n >= 0);
-        if (!(q = malloc(n+1))) return err(-1, "allocation failure");
+        if (!(q = malloc(n+1))) return err(dliteMemoryError, "allocation failure");
         n2 = strnunquote(q, n+1, src, m, NULL, qflags);
         assert(n2 == n);
         inst = dlite_instance_get(q);
@@ -1094,14 +1095,14 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
       if ((r = jsmn_parse(&parser, src, len, tokens,MAX_DIMENSION_TOKENS)) < 0)
-        return err(-1, "cannot parse dimension: %s: '%s'",
+        return err(dliteParseError, "cannot parse dimension: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
-        return errx(-1, "dimension should be a JSON object");
+        return errx(dliteParseError, "dimension should be a JSON object");
       m = tokens->end - tokens->start;
 
       if (!(t = jsmn_item(src, tokens, "name")))
-        return err(-1, "missing dimension name: '%s'", src);
+        return err(dliteValueError, "missing dimension name: '%s'", src);
       dim->name = strndup(src + t->start, t->end - t->start);
       if ((t = jsmn_item(src, tokens, "description")))
         dim->description = strndup(src + t->start, t->end - t->start);
@@ -1127,21 +1128,21 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       jsmn_init(&parser);
       r = jsmn_parse(&parser, src, len, tokens, MAX_PROPERTY_TOKENS);
       if (r == JSMN_ERROR_NOMEM)
-        return err(-1, "too many dimensions.  Increase MAX_PROPERTY_TOKENS "
+        return err(dliteIndexError, "too many dimensions.  Increase MAX_PROPERTY_TOKENS "
                    "in dlite-type.c and recompile.");
       else if (r < 0)
-        return err(-1, "cannot parse property: %s: '%s'",
+        return err(dliteParseError, "cannot parse property: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->type != JSMN_OBJECT)
-        return errx(-1, "property should be a JSON object");
+        return errx(dliteParseError, "property should be a JSON object");
       m = tokens->end - tokens->start;
 
       if (!(t = jsmn_item(src, tokens, "name")))
-        return errx(-1, "missing property name: '%s'", src);
+        return errx(dliteParseError, "missing property name: '%s'", src);
       prop->name = strndup(src + t->start, t->end - t->start);
 
       if (!(t = jsmn_item(src, tokens, "type")))
-        return errx(-1, "missing property type: '%s'", src);
+        return errx(dliteParseError, "missing property type: '%s'", src);
       if (dlite_type_set_dtype_and_size(src + t->start,
                                         &prop->type, &prop->size))
         return -1;
@@ -1151,12 +1152,12 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if ((t = jsmn_item(src, tokens, "dims"))) {
         if (t->type != JSMN_ARRAY)
-          return errx(-1, "property dims should be an array");
+          return errx(dliteParseError, "property dims should be an array");
         prop->ndims = t->size;
         prop->dims = calloc(prop->ndims, sizeof(char *));
         for (i=0; i < prop->ndims; i++) {
           if (!(d = jsmn_element(src, t, i)))
-            return err(-1, "error parsing property dimensions: %.*s",
+            return err(dliteParseError, "error parsing property dimensions: %.*s",
                        t->end - t->start, src + t->start);
           prop->dims[i] = strndup(src + d->start, d->end - d->start);
         }
@@ -1187,10 +1188,10 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
       if ((r = jsmn_parse(&parser, src, len, tokens, MAX_RELATION_TOKENS)) < 0)
-        return err(-1, "cannot parse relation: %s: '%s'",
+        return err(dliteParseError, "cannot parse relation: %s: '%s'",
                    jsmn_strerror(r), src);
       if (tokens->size < 3 || tokens->size > 4)
-        return errx(-1, "relation should have 3 (optionally 4) elements");
+        return errx(dliteParseError, "relation should have 3 (optionally 4) elements");
       m = tokens->end - tokens->start;
       if (tokens->type == JSMN_ARRAY) {
         if (!(t = jsmn_element(src, tokens, 0))) return -1;
@@ -1211,7 +1212,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         if ((t = jsmn_item(src, tokens, "id")))
           rel->id = strndup(src + t->start, t->end - t->start);
       } else {
-        return errx(-1, "relation should be a JSON array");
+        return errx(dliteValueError, "relation should be a JSON array");
       }
     }
     break;
@@ -1273,9 +1274,9 @@ int dlite_type_update_sha3(sha3_context *c, const void *ptr,
   case dliteRelation:
     {
       const DLiteRelation *rel = ptr;
-      sha3_Update(c, rel->s, strlen(rel->s));
-      sha3_Update(c, rel->p, strlen(rel->p));
-      sha3_Update(c, rel->o, strlen(rel->o));
+      if (rel->s) sha3_Update(c, rel->s, strlen(rel->s));
+      if (rel->p) sha3_Update(c, rel->p, strlen(rel->p));
+      if (rel->o) sha3_Update(c, rel->o, strlen(rel->o));
     }
     break;
 
@@ -1300,7 +1301,7 @@ size_t dlite_type_get_alignment(DLiteType dtype, size_t size)
   switch (dtype) {
   case dliteBlob:       return 1;
   case dliteFixString:  return 1;
-  default:              return err(1, "cannot determine alignment of "
+  default:              return err(dliteTypeError, "cannot determine alignment of "
                                    "dtype='%s' (%d), size=%lu",
                                    dlite_type_get_dtypename(dtype), dtype,
                                    (unsigned long)size), 0;
@@ -1399,13 +1400,13 @@ int dlite_type_ndcast(int ndims,
     n *= dest_dims[i];
   }
   if (n != N)
-    return err(1, "incompatible sizes of source (%lu) and dest (%lu)",
+    return err(dliteIndexError, "incompatible sizes of dimension %d for source (%lu) and dest (%lu)", i,
                (unsigned long)N, (unsigned long)n);
 
   /* Default source strides */
   if (!src_strides) {
     size_t size = src_size;
-    if (!(sstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(sstrides = calloc(ndims, sizeof(size_t)))) FAILCODE(dliteMemoryError, "allocation failure");
     for (i=ndims-1; i >= 0; i--) {
       sstrides[i] = size;
       size *= src_dims[i];
@@ -1416,7 +1417,7 @@ int dlite_type_ndcast(int ndims,
   /* Default dest strides */
   if (!dest_strides) {
     size_t size = dest_size;
-    if (!(dstrides = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(dstrides = calloc(ndims, sizeof(size_t)))) FAILCODE(dliteMemoryError, "allocation failure");
     for (i=ndims-1; i >= 0; i--) {
       dstrides[i] = size;
       size *= dest_dims[i];
@@ -1460,8 +1461,10 @@ int dlite_type_ndcast(int ndims,
     size_t M=ndims-1;
     const char *sp = src;  /* pointer to current element in `src` */
     char *dp = dest;       /* pointer to current element in `dest` */
-    if (!(sidx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
-    if (!(didx = calloc(ndims, sizeof(size_t)))) FAIL("allocation failure");
+    if (!(sidx = calloc(ndims, sizeof(size_t)))) 
+      FAILCODE(dliteMemoryError, "allocation failure");
+    if (!(didx = calloc(ndims, sizeof(size_t)))) 
+      FAILCODE(dliteMemoryError, "allocation failure");
 
     n = 0;
     while (1) {

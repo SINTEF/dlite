@@ -1,36 +1,56 @@
-Concepts
-========
-dlite shares the [metadata model of SOFT][1] and generic data stored
-with SOFT can be read with dlite and vice verse.  However, apart from
-dlite being much smaller and less complete, there are also a few
-notable differences in the API and even conceptual, which are detailed
-below.
+Relation to SOFT
+================
+SOFT stands for SINTEF Open Framework and Tools and is a set of
+concepts for how to achieve semantic interoperability as well as
+implementations and tooling.  At the core of SOFT are the [SOFT data
+models], which provide a by design simplistic but powerful way to
+represent scientific data.
+
+DLite is one implementation of the [SOFT data models].  Originally it
+was a simplified pure C implementation of SOFT5, but has with time
+developed into a project of its own.  This document will highlight a
+few notable differences with SOFT5.
 
 
 Named data instances
 --------------------
-In SOFT all Entity instances are referred to by their UUID.  However,
-in some cases when you have unique and immutable data, e.g. default
+In SOFT all instances are referred to by their UUID.  All metadata are
+uniquely identified by their URI, which must be of the form
+'`namespace`/`version`/`name`', like:
+http://onto-ns.com/meta/0.3/EntitySchema.  This is also valid in
+DLite, but we allow the URI to optionally end with a hash (#) or slash
+(/), which will be ignored.  Since a metadata is an instance of its
+meta-metadata, it also has an UUID, which is calculated from the URI
+(as an UUID version 5 SHA-1 hash of the URI using the DNS namespace).
+
+In some cases when you have unique and immutable data, e.g. default
 input parameters to a given version of a software model, it may be
 more convenient to refer to an unique human understandable name (URI),
-like "mymodel-1.2.3_default_input", rather than a UUID on the form
-"8290318f-258e-54e2-9838-bb187881f996".  dlite supports this.  The
-tool `dlite-getuuid` can be used to manually convert URIs to their
+like "`mymodel-1.2.3-default_input`", rather than a UUID on the form
+"`8290318f-258e-54e2-9838-bb187881f996`".  DLite supports this.
+Currently DLite does not enforce that user-defined URIs must follow the
+[RFC 3986] standard for a [valid URI], but it is recommended to
+follow it.
+
+The tool `dlite-getuuid` can be used to manually convert URIs to their
 corresponding UUIDs.
 
-If the `id` provided to dlite_datamodel() or dlite_instance_create()
-is not `NULL` or a valid UUID, it is interpreted as an unique uri
-referring to the instance.  dlite will then generate a version 5
-UUID from the `id` (from the SHA-1 hash of `id` and the DNS namespace)
-that the instance will be stored under.  The original `id` will also be
-stored and can be retrieved with dlite_datamodel_get_meta_uri().
+DLite also allow to refer to instances using id's of the form
+'`namespace`/`version`/`name`/`uuid`' (e.g:
+http://onto-ns.com/meta/0.1/Collection/db6e092b-20f9-44c1-831b-bd597c96daae),
+where the '`namespace`/`version`/`name`' part is the URI of the
+metadata and '`uuid`' is the UUID of the instance.  This has the
+advantage that the the URI of an instance will be a valid [RDF]
+subject or object in a knowledge base.  In the Python bindings, the
+`Instance.get_uri()` method and `Instance.namespace` property will return a 
+string in this format if the instance has no URI.
 
 
 Simple unified access to all data types
 ---------------------------------------
 The datamodel API for accessing properties of an instance in SOFT, has
 separate getters and setters for each type and number of dimensions.
-dlite generalize and simplifies this by describing types and
+DLite generalize and simplifies this by describing types and
 dimensionality of properties with 4 parameters:
 
   - `type`: an enum defining the type of the data item (or items if
@@ -41,13 +61,13 @@ dimensionality of properties with 4 parameters:
   - `dims`: array of length `ndims` with the length of each dimension.
 
 By taking these parameters as arguments, the functions
-dlite_datamodel_get_property() and dlite_datamodel_set_property() can handle
+DLite_datamodel_get_property() and DLite_datamodel_set_property() can handle
 all supported property types.  No storage strategy is needed.
 
-The table below summarises the different dtypes defined in dlite.  For
+The table below summarises the different dtypes defined in DLite.  For
 more details, see dlite-type.h.  Also note that this supports arbitrary
 dimensional arrays.  All arrays are assumed to be continuous in memory
-in C-order.  dlite has currently no api for working with arrays as
+in C-order.  DLite has currently no api for working with arrays as
 pointers to pointers.
 
 type      | dtype          | sizes                  | description                      | examples
@@ -91,7 +111,7 @@ a special type of *metadata*.
 
 *Collections* are a special type of instances containing references to
 a set of set of instances and relationships between them.  They are
-currently not yet implemented in dlite.
+currently not yet implemented in DLite.
 
 Instances can be subdivided into:
 
@@ -163,5 +183,8 @@ actively used in metadata, they must not be used in data instances:
 
 ---
 
-[1]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
+[SOFT data models]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
+[RFC 3986]: https://datatracker.ietf.org/doc/html/rfc3986
+[valid URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#syntax
+[RDF]: https://en.wikipedia.org/wiki/Semantic_triple
 [fig1]: SOFT-metadata-structure.png "Figure 1. Metadata structure."

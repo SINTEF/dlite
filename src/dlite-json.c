@@ -74,6 +74,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
   int n=0, ok=0, m, j;
   size_t i;
   char *in = malloc(indent + 1);
+  char *prop_comma = (inst->_parent && !(flags & dliteJsonNoParent)) ? "," : "";
   memset(in, ' ', indent);
   in[indent] = '\0';
 
@@ -109,7 +110,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       n += m;
       PRINT1("%s\n", c);
     }
-    PRINT1("%s  }\n", in);
+    PRINT2("%s  }%s\n", in, prop_comma);
 
   } else if (flags & dliteJsonArrays) {  // metadata: soft5 format
     DLiteMeta *met = (DLiteMeta *)inst;
@@ -163,7 +164,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         DLiteRelation *r = met->_relations + i;
         PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
       }
-      PRINT1("%s  ]\n", in);
+      PRINT2("%s  ]%s\n", in, prop_comma);
     }
 
   } else {  // metadata: soft7 format
@@ -214,9 +215,21 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         DLiteRelation *r = met->_relations + i;
         PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
       }
-      PRINT1("%s  ]\n", in);
+      PRINT2("%s  ]%s\n", in, prop_comma);
     }
   }
+
+  if (inst->_parent && !(flags & dliteJsonNoParent)) {
+    char hex[DLITE_HASH_SIZE*2 + 1];
+    if (strhex_encode(hex, sizeof(hex),
+                      inst->_parent->hash, DLITE_HASH_SIZE) < 0)
+      FAIL1("cannot encode hash of parent: %s", inst->_parent->uuid);
+    PRINT1("%s  \"parent\": {\n", in);
+    PRINT2("%s    \"uuid\": \"%s\",\n", in, inst->_parent->uuid);
+    PRINT2("%s    \"hash\": \"%s\"\n", in, hex);
+    PRINT1("%s  }\n", in);
+  }
+
   PRINT1("%s}", in);
 
   ok = 1;
@@ -500,7 +513,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
   /* Allocate dimensions */
   if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
 
   /* Parse dimensions */
   if (dlite_meta_is_metameta(meta)) {
@@ -1000,7 +1013,7 @@ DLiteJsonIter *dlite_json_iter_create(const char *src, int length,
   DLiteJsonIter *iter=NULL;
   jsmn_parser parser;
 
-  if (!(iter = calloc(1, sizeof(DLiteJsonIter)))) FAIL("allocation failure");
+  if (!(iter = calloc(1, sizeof(DLiteJsonIter)))) FAILCODE(dliteMemoryError, "allocation failure");
 
   if (length <= 0) length = strlen(src);
   jsmn_init(&parser);
@@ -1172,7 +1185,7 @@ DLiteJStoreIter *dlite_jstore_iter_create(JStore *js, const char *metaid)
 {
   DLiteJStoreIter *iter;
   if (!(iter = calloc(1, sizeof(DLiteJStoreIter))))
-    return err(1, "allocation failure"), NULL;
+    return err(dliteMemoryError, "allocation failure"), NULL;
   if (jstore_iter_init(js, &iter->jiter)) return NULL;
   if (metaid && dlite_get_uuid(iter->metauuid, metaid) < 0) return NULL;
   return iter;

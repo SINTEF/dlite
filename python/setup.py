@@ -163,6 +163,7 @@ extra_requirements = [
     "pandas",
     "pymongo",
     "rdflib",
+    "tripper",
     "pint",
 ]
 

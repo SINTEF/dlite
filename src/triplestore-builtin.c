@@ -28,6 +28,7 @@
 #include "utils/sha1.h"
 #include "utils/map.h"
 #include "triplestore.h"
+#include "dlite-errors.h"
 
 #define UNUSED(x) (void)(x)
 
@@ -145,7 +146,7 @@ int triplestore_add_triples(TripleStore *ts, const Triple *triples,
     void *ptr;
     assert(size >= ts->true_length + n);
     if (!(ptr = realloc(ts->triples, size * sizeof(Triple))))
-      return err(1, "allocation failure");
+      return err(dliteMemoryError, "allocation failure");
     ts->triples = ptr;
     ts->size = size;
     memset(ts->triples + ts->true_length, 0,

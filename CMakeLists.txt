@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.15
+  VERSION 0.3.16
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -61,7 +61,7 @@ option(WITH_FORTRAN     "Whether to build Fortran bindings"                 NO)
 option(WITH_HDF5        "Whether to build with HDF5 support"               YES)
 option(WITH_REDLAND     "Whether to build with RDF support (using librdf)" YES)
 option(WITH_THREADS     "Whether to build with threading support"           NO)
-option(WITH_DOC         "Whether to build documentation using doxygen"     YES)
+option(WITH_DOC         "Whether to build documentation (sphinx+doxygen)"   NO)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"     YES)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"        NO)
 option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      YES)
@@ -701,6 +701,7 @@ endif()
 # Documentations
 if(WITH_DOC)
   add_subdirectory(doc)
+  add_subdirectory(pydoc)
 endif()
 
 #################################################################

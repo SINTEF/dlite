@@ -23,7 +23,7 @@ The module already provides a set of pre-defined namespaces that simplifies
 writing IRIs. For example:
 
 ```python
-from dlite.triplestore import RDFS, OWL
+from triplestore import RDFS, OWL
 RDFS.subClassOf
 # -> 'http://www.w3.org/2000/01/rdf-schema#subClassOf'
 ```
@@ -65,7 +65,7 @@ backends that support it) or the `add()` and `add_triples()` methods:
 ```python
 # en(msg) is a convenient function for adding english literals.
 # It is equivalent to ``triplestore.Literal(msg, lang="en")``.
-from dlite.triplestore import en
+from triplestore import en
 ts.parse("onto.ttl", format="turtle")
 ts.add_triples([
     (ONTO.MyConcept, RDFS.subClassOf, OWL.Thing),

@@ -13,6 +13,7 @@
 #include "utils/session.h"
 #include "utils/sha1.h"
 #include "dlite-macros.h"
+#include "dlite-errors.h"
 #include "triplestore.h"
 
 #define TRIPLESTORE_REDLAND_GLOBALS_ID "triplestore-redland-globals-id"
@@ -75,7 +76,7 @@ static Globals *get_globals(void)
   Globals *g = session_get_state(s, TRIPLESTORE_REDLAND_GLOBALS_ID);
   if (!g) {
     if (!(g = calloc(1, sizeof(Globals))))
-      return err(1, "allocation failure"), NULL;
+      return err(dliteMemoryError, "allocation failure"), NULL;
     g->default_world = NULL;
     g->default_storage_name = "memory";
     g->nmodels = 0;

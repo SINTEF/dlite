@@ -68,9 +68,10 @@ typedef struct _DLiteStoragePluginIter DLiteStoragePluginIter;
 
 /** Storage flags */
 typedef enum _DLiteStorageFlags {
-  dliteReadable=1,  /*!< Whether the storage is readable */
-  dliteWritable=2,  /*!< Whether the storage is writable */
-  dliteGeneric=4    /*!< Whether the storage may hold both data and metadata */
+  dliteReadable=1,    /*!< Whether storage is readable */
+  dliteWritable=2,    /*!< Whether storage is writable */
+  dliteGeneric=4,     /*!< Whether storage may hold both data and metadata */
+  dliteTransaction=8, /*!< Whether storage supports transactions */
 } DLiteStorageFlags;
 
 /** Base definition of a DLite storage, that all plugin storage
@@ -509,6 +510,9 @@ struct _DLiteStoragePlugin {
   /* Instance API */
   LoadInstance       loadInstance;     /*!< Returns new instance from storage */
   SaveInstance       saveInstance;     /*!< Stores an instance */
+
+  //Delete
+  //Flush
 
   /* DataModel API */
   DataModel          dataModel;        /*!< Creates new data model */
