@@ -334,7 +334,7 @@ the directory of the virtual environment. For example:
 
     VIRTUAL_ENV=/path/to/virtual/env
     source $VIRTUAL_ENV/bin/activate
-    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV ..
+    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV -DWITH_DOC=YES ..
 
 Build with:
 
@@ -380,6 +380,11 @@ system defined in Dockerfile.
 
 
 ### Build documentation
+
+In order to reduce build dependencies for the causal user, DLite does not
+build documentation by default.  Provide the `-DWITH_DOC=YES` option to
+`cmake` to build the documentation.
+
 
 #### Build Python Documentation
 
