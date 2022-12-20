@@ -380,6 +380,11 @@ system defined in Dockerfile.
 
 ### Build documentation
 
+In order to reduce build dependencies for the causal user, DLite does not
+build documentation by default.  Provide the `-DWITH_DOC=YES` option to
+`cmake` to build the documentation.
+
+
 #### Build Python Documentation
 
 DLite uses sphinx to generate documentation from Python source
