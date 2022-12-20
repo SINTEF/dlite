@@ -1014,6 +1014,15 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    DLiteTypeCast castfun);
 
 /**
+  Return a newly allocated default instance URI constructed from
+  the metadata URI and the UUID of the instance, as `<meta_uri>/<uuid>`.
+
+  Returns NULL on error.
+ */
+char *dlite_instance_default_uri(const DLiteInstance *inst);
+
+
+/**
   Calculates a hash of instance `inst`.  The calculated hash is stored
   in `hash`, where `hashsize` is the size of `hash` in bytes.  It should
   be 32, 48 or 64.
