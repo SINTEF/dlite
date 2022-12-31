@@ -2,6 +2,7 @@
 
 %{
 #include "dlite-mapping.h"
+#include "dlite-bson.h"
 %}
 
 
@@ -255,6 +256,8 @@ Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, l
       - from_storage(cls, storage, id=None, metaid=None)
       - from_location(cls, driver, location, options=None, id=None)
       - from_json(cls, jsoninput, id=None, metaid=None)
+      - from_bson(cls, bsoninput)
+      - from_dict(cls, d, id=None, single=None, check_storages=True)
       - create_metadata(cls, uri, dimensions, properties, description)
 
       For details, see the documentation for the class methods.
@@ -265,6 +268,7 @@ Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, l
   (struct _DLiteDimension *dimensions, int ndimensions)};
 %apply(struct _DLiteProperty *properties, int nproperties) {
   (struct _DLiteProperty *properties, int nproperties)};
+%apply(unsigned char *INPUT_BYTES) {(unsigned char *bsoninput)};
 
 %rename(Instance) _DLiteInstance;
 struct _DLiteInstance {
@@ -284,6 +288,7 @@ struct _DLiteInstance {
                  const char *options=NULL,
                  const char *uri=NULL,
                  const char *jsoninput=NULL,
+                 const unsigned char *bsoninput=NULL,
                  struct _DLiteDimension *dimensions=NULL, int ndimensions=0,
                  struct _DLiteProperty *properties=NULL, int nproperties=0,
                  const char *description=NULL) {
@@ -330,6 +335,10 @@ struct _DLiteInstance {
       return inst;
     } else if (jsoninput) {
       DLiteInstance *inst = dlite_json_sscan(jsoninput, id, metaid);
+      if (inst) dlite_errclr();
+      return inst;
+    } else if (bsoninput) {
+      DLiteInstance *inst = dlite_bson_load_instance(bsoninput);
       if (inst) dlite_errclr();
       return inst;
     } else if (uri && dimensions && properties && description){
@@ -688,7 +697,7 @@ Call signatures:
   }
 
   %feature("docstring",
-           "") tojson;
+           "Returns a JSON representation of self.") tojson;
   %newobject tojson;
   char *tojson(int indent=0, bool single=false, bool urikey=false,
                bool with_uuid=false, bool with_meta=false,
@@ -701,6 +710,13 @@ Call signatures:
     if (with_arrays) flags |= dliteJsonArrays;
     if (no_parent) flags |= dliteJsonNoParent;
     return dlite_json_aprint($self, indent, flags);
+  }
+
+  %feature("docstring",
+           "Returns a BSON representation of self.") asbson;
+  %newobject asbson;
+  void asbson(unsigned char **ARGOUT_BYTES, size_t *LEN) {
+    *ARGOUT_BYTES = dlite_bson_from_instance($self, LEN);
   }
 
   %feature("docstring", "Returns instance uri.") get_uri;

@@ -718,18 +718,20 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteBlob:
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dliteFormatError, "error printing initial quote for blob");
+        if (v < 0) return err(dlitePrintError,
+                              "error printing initial quote for blob");
         m += v;
       }
     for (i=0; i<size; i++) {
       int v = snprintf(dest+m, PDIFF(n, m), "%02x",
                        *((unsigned char *)p+i));
-      if (v < 0) return err(dliteFormatError, "error printing blob");
+      if (v < 0) return err(dlitePrintError, "error printing blob");
       m += v;
     }
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dliteFormatError, "error printing final quote for blob");
+        if (v < 0) return err(dlitePrintError,
+                              "error printing final quote for blob");
         m += v;
       }
     break;
@@ -864,7 +866,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   if (m < 0) {
     char buf[32];
     dlite_type_set_typename(dtype, size, buf, sizeof(buf));
-    return errx(dliteFormatError, "error printing type %s", buf);
+    return errx(dlitePrintError, "error printing type %s", buf);
   }
   return m;
 }
@@ -1461,9 +1463,9 @@ int dlite_type_ndcast(int ndims,
     size_t M=ndims-1;
     const char *sp = src;  /* pointer to current element in `src` */
     char *dp = dest;       /* pointer to current element in `dest` */
-    if (!(sidx = calloc(ndims, sizeof(size_t)))) 
+    if (!(sidx = calloc(ndims, sizeof(size_t))))
       FAILCODE(dliteMemoryError, "allocation failure");
-    if (!(didx = calloc(ndims, sizeof(size_t)))) 
+    if (!(didx = calloc(ndims, sizeof(size_t))))
       FAILCODE(dliteMemoryError, "allocation failure");
 
     n = 0;

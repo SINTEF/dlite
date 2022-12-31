@@ -9,6 +9,7 @@ set(tests
   test_entity
   test_property
   test_json
+  test_dlitebson
   test_metamodel
   test_store
   test_triplestore

@@ -24,6 +24,12 @@
  *
  *     int64_t
  *     uint64_t
+ *
+ * On platforms that support 128 bit integers, HAVE_INT64 and/or HAVE_UINT128,
+ * will be set and the following types will provided:
+ *
+ *     int128_t
+ *     uint128_t
  */
 
 #ifndef _INTEGERS_H
@@ -39,6 +45,11 @@
 #cmakedefine HAVE_UINT16_T
 #cmakedefine HAVE_UINT32_T
 #cmakedefine HAVE_UINT64_T
+#cmakedefine HAVE_UINT128_T
+#cmakedefine HAVE___UINT128_T
+#cmakedefine HAVE_INT128_T
+#cmakedefine HAVE___INT128_T
+
 
 #cmakedefine HAVE_LONG_LONG
 
@@ -90,6 +101,9 @@ typedef unsigned long   uint32_t;
 # define HAVE_UINT32_T
 #endif
 
+#endif /* HAVE_STDINT_H */
+
+
 #ifndef HAVE_UINT64_T
 # if SIZEOF_LONG == 8
 #  define HAVE_INT64
@@ -102,7 +116,20 @@ typedef unsigned long long  uint64_t;
 # endif
 #endif
 
-#endif /* HAVE_STDINT_H */
+#ifndef HAVE_INT128_T
+# ifdef HAVE___INT128_T
+#  define HAVE_INT128
+typedef __int128_t   int128_t;
+# endif
+#endif
+#ifndef HAVE_INT128_T
+# ifdef HAVE___INT128_T
+#  define HAVE_UINT128
+typedef __uint128_t  uint128_t;
+# endif
+#endif
+
+
 
 /** @endcond */
 

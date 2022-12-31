@@ -27,6 +27,7 @@ if(WITH_PYTHON)
 endif()
 
 set(sources
+  dlite-errors.c
   dlite-misc.c
   dlite-store.c
   dlite-type.c

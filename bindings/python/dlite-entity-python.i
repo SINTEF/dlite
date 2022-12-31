@@ -386,13 +386,26 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
 
     @classmethod
     def from_json(cls, jsoninput, id=None, metaid=None):
-        """Load the instance from storage specified by `driver`, `location`
-        and `options`.  `id` is the id of the instance in the storage (not
-        required if the storage only contains more one instance).
-        """
+        """Load the instance from json input."""
         return Instance(
             jsoninput=jsoninput, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
+        )
+
+    @classmethod
+    def from_bson(cls, bsoninput):
+        """Load the instance from bson input."""
+        return Instance(
+            bsoninput=bsoninput,
+            dims=(), dimensions=(), properties=()  # arrays
+        )
+
+    @classmethod
+    def from_dict(cls, d, id=None, single=None, check_storages=True):
+        """Load the instance from bson input."""
+        from dlite.utils import instance_from_dict
+        return instance_from_dict(
+            d, id=id, single=single, check_storages=check_storages,
         )
 
     @classmethod
