@@ -320,10 +320,15 @@ endif()
 
 # Testing
 # -------
-set(logfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.log")
-set(suppfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.supp")
-set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
-set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
+if(WITH_PYTHON)
+  set(logfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.log")
+  set(suppfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind_python.supp")
+  set(dlite_supp "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
+  set(python_supp "${dlite_SOURCE_DIR}/cmake/valgrind-python.supp")
+else()
+  set(logfile "${CMAKE_CURRENT_BINARY_DIR}/valgrind.log")
+  set(suppfile "${dlite_SOURCE_DIR}/cmake/valgrind-dlite.supp")
+endif()
 
 # Must be assigned before including CTest
 set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite,indirect --errors-for-leak-kinds=definite --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
@@ -334,8 +339,6 @@ find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 
 if(MEMORYCHECK_COMMAND)
   if(WITH_PYTHON)
-    set(suppressions ${suppfile})
-
     # Generate platform-specific suppressions file for Python
     add_custom_command(
       OUTPUT ${logfile}
@@ -366,12 +369,10 @@ if(MEMORYCHECK_COMMAND)
         ${CMAKE_CURRENT_SOURCE_DIR}/cmake/valgrind-log2supp.py
       COMMENT "Convert valgrind log file to suppressions for Python"
       )
-  else()
-    set(suppressions ${dlite_supp})
   endif()
 
   set(MEMORYCHECK_SUPPRESSIONS_FILE
-    ${suppressions}
+    ${suppfile}
     CACHE FILEPATH "File that contains suppressions for the memory checker"
     )
 
@@ -382,7 +383,7 @@ if(MEMORYCHECK_COMMAND)
             --force-new-ctest-process
             --output-on-failure
             --test-action memcheck
-    DEPENDS ${suppressions}
+    DEPENDS ${suppfile}
     COMMENT "Runs memory check with valgrind"
     )
 endif()
