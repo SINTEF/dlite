@@ -495,7 +495,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     if (strcmp(uuid, uuid2) != 0)
       FAIL3("instance has id \"%s\", expected \"%s\" (%s)", uuid, uuid2, id);
   }
-  id = (uri) ? uri : uuid;
+  if (uri) id = uri;
 
   /* Get metadata */
   if ((item = jsmn_item(src, obj, "meta"))) {
@@ -523,7 +523,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     if ((t = jsmn_item(src, obj, "properties"))) dims[n++] = t->size;
     if ((t = jsmn_item(src, obj, "relations")))  dims[n++] = t->size;
     if (n != meta->_ndimensions)
-      FAIL1("metadata does not confirm to schema, check dimensions, "
+      FAIL1("metadata does not confirm to schema, please check dimensions, "
             "properties and/or relations: %s", id);
 
   } else {
