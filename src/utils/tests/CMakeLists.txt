@@ -24,6 +24,7 @@ set(tests
   test_infixcalc
   test_jsmnx
   test_jstore
+  test_bson
   test_session
 
   tgen_example

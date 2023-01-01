@@ -327,6 +327,12 @@ FILE *dlite_err_get_stream(void);
 void dlite_err_set_stream(FILE *stream);
 void dlite_err_set_file(const char *filename);
 
+int dlite_err_set_warn_mode(int mode);
+int dlite_err_get_warn_mode(void);
+int dlite_err_set_debug_mode(int mode);
+int dlite_err_get_debug_mode(void);
+int dlite_err_set_override_mode(int mode);
+int dlite_err_get_override_mode(void);
 
 
 /** @} */

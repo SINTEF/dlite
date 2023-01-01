@@ -1103,17 +1103,20 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 /*
  * Input typemaps
  * --------------
- * int, struct _DLiteDimension * -> numpy array
+ * int, struct _DLiteDimension *   <- numpy array
  *     Array of dimensions.
- * int, struct _DLiteProperty * -> numpy array
+ * int, struct _DLiteProperty *    <- numpy array
  *     Array of properties.
- * struct _DLiteInstance **, int -> numpy array
+ * struct _DLiteInstance **, int   <- numpy array
  *     Array of DLiteInstance's.
+ * unsigned char *INPUT_BYTES      <- bytes
+ *     Bytes object (without explicit size)
  *
  * Argout typemaps
  * ---------------
- * unsigned char **ARGOUT_BYTES, size_t *LEN
- *     Bytes.
+ * unsigned char **ARGOUT_BYTES, size_t *LEN  -> bytes
+ *     This assumes that the wrapped function assignes *ARGOUT_BYTES to
+ *     an malloc'ed buffer.
  *
  * Out typemaps
  * ------------
@@ -1249,22 +1252,29 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   Py_XDECREF(item);
 }
 
+/* Bytes object (without explicit length) */
+%typemap("doc") unsigned char *INPUT_BYTES "bytes"
+%typemap(in) unsigned char *INPUT_BYTES {
+  $1 = (unsigned char *)PyBytes_AsString($input);
+}
 
 /* ---------------
  * Argout typemaps
  * --------------- */
 
 /* Argout bytes */
-%typemap("doc") (unsigned char **ARGOUT_BYTES, size_t *LEN) "Bytes"
+/* We assumes that *ARGOUT_BYTES is a malloc() by the wrapped function */
+%typemap("doc") (unsigned char **ARGOUT_BYTES, size_t *LEN) "bytes"
 %typemap(in,numinputs=0) (unsigned char **ARGOUT_BYTES, size_t *LEN)
-  (unsigned char *tmp, size_t n)
-{
+  (unsigned char *tmp, size_t n) {
   $1 = &tmp;
   $2 = &n;
 }
-%typemap(argout) (unsigned char **ARGOUT_BYTES, size_t *LEN)
-{
+%typemap(argout) (unsigned char **ARGOUT_BYTES, size_t *LEN) {
   $result = PyByteArray_FromStringAndSize((char *)tmp$argnum, n$argnum);
+}
+%typemap(freearg) (unsigned char **ARGOUT_BYTES, size_t *LEN) {
+  free(*($1));
 }
 
 

@@ -63,7 +63,7 @@ Creates a _Path instance of type `pathtype`.
 
   ~_FUPaths(void) {
     (void)$self;
-    dlite_warnx("Paths objects are not destroyed...");
+    //dlite_warnx("Paths objects are not destroyed...");
   }
 
   char *__repr__(void) {

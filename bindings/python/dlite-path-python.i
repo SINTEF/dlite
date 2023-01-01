@@ -14,6 +14,21 @@
             raise IndexError(f'key out of range: {key}')
         return self.getitem(key)
 
+    def __iter__(self):
+
+        class Iter:
+            def __init__(slf):
+                slf.n = 0
+            def __next__(slf):
+                if slf.n < len(self):
+                    path = self[slf.n]
+                    slf.n += 1
+                    return path
+                else:
+                    raise StopIteration()
+
+        return Iter()
+
     def aslist(self):
         return [self[i] for i in range(len(self))]
 

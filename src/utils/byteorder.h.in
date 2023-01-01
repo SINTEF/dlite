@@ -32,17 +32,24 @@
  *     uint64_t htole64(uint64_t host_64bits);
  *     uint64_t be64toh(uint64_t big_endian_64bits);
  *     uint64_t le64toh(uint64_t little_endian_64bits);
+ *
+ * For platforms supporting 128 bit integers, the following will also
+ * be provided:
+ *
+ *     HAVE_BSWAP128
+ *     uint128_t bswap128(uint128_t x)
+ *     uint128_t htobe128(uint128_t host_128bits);
+ *     uint128_t htole128(uint128_t host_128bits);
+ *     uint128_t be128toh(uint128_t big_endian_128bits);
+ *     uint128_t le128toh(uint128_t little_endian_128bits);
  */
-
 #ifndef _BYTEORDER_H
 #define _BYTEORDER_H
 
 /** @cond SKIP */
 
 /* The following macros should be defined in CMakeLists.txt: */
-#ifndef HAVE_STDINT_H
 #cmakedefine HAVE_STDINT_H        /* Whether stdint.h exists */
-#endif
 #cmakedefine HAVE_ENDIAN_H        /* Whether endian.h exists */
 #cmakedefine HAVE_BYTESWAP_H      /* Whether byteswap.h exists */
 
@@ -51,21 +58,20 @@
 #cmakedefine HAVE_BSWAP_16        /* Whether function bswap_16 exists */
 #cmakedefine HAVE_BSWAP_32        /* Whether function bswap_32 exists */
 #cmakedefine HAVE_BSWAP_64        /* Whether function bswap_64 exists */
+#cmakedefine HAVE_BSWAP_128       /* Whether function bswap_128 exists */
 
 #cmakedefine HAVE_BYTESWAP_USHORT /* Whether function _byteswap_ushort exists */
 #cmakedefine HAVE_BYTESWAP_ULONG  /* Whether function _byteswap_ulong exists */
 #cmakedefine HAVE_BYTESWAP_UINT64 /* Whether function _byteswap_uint64 exists */
+#cmakedefine HAVE_BYTESWAP_UINT128/* Whether function _byteswap_uint128 exists*/
 
 #cmakedefine HAVE_HTOBE16         /* Whether function htobe16 exists */
 #cmakedefine HAVE_HTOBE32         /* Whether function htobe32 exists */
 #cmakedefine HAVE_HTOBE64         /* Whether function htobe64 exists */
+#cmakedefine HAVE_HTOBE128        /* Whether function htobe128 exists */
 
 
-#ifdef HAVE_STDINT_H
-# include <stdint.h>
-#else
-# include "integers.h"
-#endif
+#include "integers.h"
 
 #ifdef HAVE_ENDIAN_H
 # include <endian.h>
@@ -125,53 +131,85 @@
 # endif
 #endif
 
+#ifndef HAVE_BSWAP_128
+# ifdef HAVE__BYTESWAP_UINT128
+#  include <stdlib.h>
+#  define HAVE_BSWAP128
+#  define bswap_128(x) _byteswap_uint128(x)
+# elif defined(HAVE_UINT128)
+#  define HAVE_BSWAP128
+#  define bswap_128(value)                                                 \
+  (((uint128_t)bswap_64((uint64_t)((value) & 0xffffffffffffffff)) << 64) | \
+   (uint128_t)bswap_64((uint64_t)((value) >> 64)))
+# endif
+#endif
+
+
 
 /* Byte order conversion */
 #ifndef HAVE_HTOBE16
 # if BYTE_ORDER == LITTLE_ENDIAN
 #  define htobe16(x) bswap_16(x)
-#  define htole16(x) (x)
+#  define htole16(x) (uint16_t)(x)
 #  define be16toh(x) bswap_16(x)
-#  define le16toh(x) (x)
+#  define le16toh(x) (uint16_t)(x)
 # elif BYTE_ORDER == BIG_ENDIAN
-#  define htobe16(x) (x)
+#  define htobe16(x) (uint16_t)(x)
 #  define htole16(x) bswap_16(x)
-#  define be16toh(x) (x)
+#  define be16toh(x) (uint16_t)(x)
 #  define le16toh(x) bswap_16(x)
 # else
-#  error Byte order not supported
+#  error "Byte order not supported: " # BYTE_ORDER
 # endif
 #endif
 
 #ifndef HAVE_HTOBE32
 # if BYTE_ORDER == LITTLE_ENDIAN
 #  define htobe32(x) bswap_32(x)
-#  define htole32(x) (x)
+#  define htole32(x) (uint32_t)(x)
 #  define be32toh(x) bswap_32(x)
-#  define le32toh(x) (x)
+#  define le32toh(x) (uint32_t)(x)
 # elif BYTE_ORDER == BIG_ENDIAN
-#  define htobe32(x) (x)
+#  define htobe32(x) (uint32_t)(x)
 #  define htole32(x) bswap_32(x)
-#  define be32toh(x) (x)
+#  define be32toh(x) (uint32_t)(x)
 #  define le32toh(x) bswap_32(x)
 # else
-#  error Byte order not supported
+#  error "Byte order not supported: " # BYTE_ORDER
 # endif
 #endif
 
 #ifndef HAVE_HTOBE64
 # if BYTE_ORDER == LITTLE_ENDIAN
 #  define htobe64(x) bswap_64(x)
-#  define htole64(x) (x)
+#  define htole64(x) (uint64_t)(x)
 #  define be64toh(x) bswap_64(x)
-#  define le64toh(x) (x)
+#  define le64toh(x) (uint64_t)(x)
 # elif BYTE_ORDER == BIG_ENDIAN
-#  define htobe64(x) (x)
+#  define htobe64(x) (uint64_t)(x)
 #  define htole64(x) bswap_64(x)
-#  define be64toh(x) (x)
+#  define be64toh(x) (uint64_t)(x)
 #  define le64toh(x) bswap_64(x)
 # else
-#  error Byte order not supported
+#  error "Byte order not supported: " # BYTE_ORDER
+# endif
+#endif
+
+#ifdef bswap128
+# ifndef HAVE_HTOBE128
+#  if BYTE_ORDER == LITTLE_ENDIAN
+#   define htobe128(x) bswap_128(x)
+#   define htole128(x) (uint128_t)(x)
+#   define be128toh(x) bswap_128(x)
+#   define le128toh(x) (uint128_t)(x)
+#  elif BYTE_ORDER == BIG_ENDIAN
+#   define htobe128(x) (uint128_t)(x)
+#   define htole128(x) bswap_128(x)
+#   define be128toh(x) (uint128_t)(x)
+#   define le128toh(x) bswap_128(x)
+#  else
+#  error "Byte order not supported: " # BYTE_ORDER
+#  endif
 # endif
 #endif
 

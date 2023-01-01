@@ -17,6 +17,8 @@ check_include_file(stdint.h     HAVE_STDINT_H)
 check_include_file(stdlib.h     HAVE_STDLIB_H)
 check_include_file(float.h      HAVE_FLOAT_H)
 check_include_file(inttypes.h   HAVE_INTTYPES_H)
+check_include_file(endian.h     HAVE_ENDIAN_H)
+check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 check_include_file(windows.h    HAVE_WINDOWS_H)
 
@@ -178,21 +180,20 @@ else()
   test_big_endian(IS_BIG_ENDIAN)
 endif()
 
-#include(TestBigEndian)
-#test_big_endian(IS_BIG_ENDIAN)
-
-
 check_symbol_exists(bswap_16 byteswap.h HAVE_BSWAP_16)
 check_symbol_exists(bswap_32 byteswap.h HAVE_BSWAP_32)
 check_symbol_exists(bswap_64 byteswap.h HAVE_BSWAP_64)
+check_symbol_exists(bswap_128 byteswap.h HAVE_BSWAP_128)
 
 check_symbol_exists(_byteswap_ushort stdlib.h HAVE__BYTESWAP_USHORT)
 check_symbol_exists(_byteswap_ulong  stdlib.h HAVE__BYTESWAP_ULONG)
 check_symbol_exists(_byteswap_uint64 stdlib.h HAVE__BYTESWAP_UINT64)
+check_symbol_exists(_byteswap_uint128 stdlib.h HAVE__BYTESWAP_UINT128)
 
 check_symbol_exists(htobe16 endian.h HAVE_HTOBE16)
 check_symbol_exists(htobe32 endian.h HAVE_HTOBE32)
 check_symbol_exists(htobe64 endian.h HAVE_HTOBE64)
+check_symbol_exists(htobe128 endian.h HAVE_HTOBE128)
 
 configure_file(byteorder.h.in byteorder.h)
 
@@ -219,6 +220,10 @@ check_type_size(uint8_t                   HAVE_UINT8_T)
 check_type_size(uint16_t                  HAVE_UINT16_T)
 check_type_size(uint32_t                  HAVE_UINT32_T)
 check_type_size(uint64_t                  HAVE_UINT64_T)
+check_type_size(uint128_t                 HAVE_UINT128_T)
+check_type_size(__uint128_t               HAVE___UINT128_T)
+check_type_size(int128_t                  HAVE_INT128_T)
+check_type_size(__int128_t                HAVE___INT128_T)
 check_type_size(intmax_t                  HAVE_INTMAX_T)
 check_type_size(uintmax_t                 HAVE_UINTMAX_T)
 check_type_size(uintptr_t                 HAVE_UINTPTR_T)
@@ -275,6 +280,7 @@ set(sources
   infixcalc.c
   jsmnx.c
   jstore.c
+  bson.c
   session.c
 
   md5.c

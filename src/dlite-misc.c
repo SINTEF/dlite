@@ -659,3 +659,10 @@ void dlite_err_set_file(const char *filename)
   else
     err(1, "cannot open error file: %s", filename);
 }
+
+int dlite_err_set_warn_mode(int mode) { return err_set_warn_mode(mode); }
+int dlite_err_get_warn_mode(void) { return err_get_warn_mode(); }
+int dlite_err_set_debug_mode(int mode) { return err_set_debug_mode(mode); }
+int dlite_err_get_debug_mode(void) { return err_get_debug_mode(); }
+int dlite_err_set_override_mode(int mode) {return err_set_override_mode(mode);}
+int dlite_err_get_override_mode(void) { return err_get_override_mode(); }
