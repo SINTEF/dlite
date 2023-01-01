@@ -67,6 +67,10 @@ MU_TEST(test_load_instance)
   mu_check(inst);
   printf("\n-------------\n");
   dlite_json_print(inst);
+
+  dlite_meta_decref((DLiteMeta *)inst->meta);
+  dlite_meta_decref((DLiteMeta *)inst->meta);
+  dlite_instance_decref(inst);
 }
 
 
@@ -82,6 +86,9 @@ MU_TEST(test_load_meta)
   mu_check(inst);
   printf("\n-------------\n");
   dlite_json_print(inst);
+
+  dlite_instance_decref(inst);
+  dlite_instance_decref(inst);
 }
 
 

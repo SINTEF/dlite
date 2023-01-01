@@ -59,7 +59,6 @@ int exec_process(const char *pathname, char *const argv[], char *const env[])
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   CHAR cmdline[4096];
-  //char *p, envbuf[BUFSIZE];
   char envbuf[BUFSIZE];
   int i;
   size_t n;
@@ -72,12 +71,9 @@ int exec_process(const char *pathname, char *const argv[], char *const env[])
 
   envbuf[0] = envbuf[1] = '\0';
   if (env) {
-    //for (p=(char *)env[0], i=n=0; env[i] && n < BUFSIZE; p=(char *)env[++i]) {
     for (i=n=0; env[i] && n < BUFSIZE; i++) {
       int len = strlen(env[i]);
       strncpy(envbuf+n, env[i], BUFSIZE-n);
-      //if (FAILED(StringCchCopy(envbuf+n, BUFSIZE-n, env[i])))
-      //  return err(1, "error creating new environment");
       if (n+len < BUFSIZE-2) envbuf[n+len] = envbuf[n+len+1] = '\0';
       n += len+1;
     }
@@ -113,7 +109,8 @@ int exec_process(const char *pathname, char *const argv[], char *const env[])
     wait(&status);
   } else {
     /* child process */
-    if (execve(pathname, argv, env) < 0)
+    char *const a[2] = {(char *)pathname, NULL};
+    if (execve(pathname, (argv) ? argv : a, env) < 0)
       fatal(1, "cannot execute pathname %s", pathname);
   }
   return status;
