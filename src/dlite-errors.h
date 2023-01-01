@@ -37,4 +37,12 @@ typedef enum {
   dliteLastError=-25
 } DLiteErrors;
 
+
+/**
+  Returns the name corresponding to error code
+ */
+const char *dlite_errname(DLiteErrors code);
+
+
+
 #endif  /* _DLITE_ERRORS_H */
