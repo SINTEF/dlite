@@ -1,9 +1,9 @@
 #include "config.h"
 
-#include "string.h"
+#include <string.h>
 
 #include "err.h"
-#include "byteswap.h"
+#include "byteorder.h"
 #include "floats.h"
 #include "boolean.h"
 #include "bson.h"

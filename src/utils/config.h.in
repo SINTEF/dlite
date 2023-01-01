@@ -27,11 +27,11 @@
 /* Whether headers exists */
 #cmakedefine HAVE_STDARG_H
 #cmakedefine HAVE_STDDEF_H
-#ifndef HAVE_STDINT_H
 #cmakedefine HAVE_STDINT_H
-#endif
 #cmakedefine HAVE_STDLIB_H
 #cmakedefine HAVE_FLOAT_H
+#cmakedefine HAVE_ENDIAN_H
+#cmakedefine HAVE_BYTESWAP_H
 #cmakedefine HAVE_INTTYPES_H
 #cmakedefine HAVE_LOCALE_H
 

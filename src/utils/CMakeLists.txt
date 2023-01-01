@@ -17,6 +17,8 @@ check_include_file(stdint.h     HAVE_STDINT_H)
 check_include_file(stdlib.h     HAVE_STDLIB_H)
 check_include_file(float.h      HAVE_FLOAT_H)
 check_include_file(inttypes.h   HAVE_INTTYPES_H)
+check_include_file(endian.h     HAVE_ENDIAN_H)
+check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 check_include_file(windows.h    HAVE_WINDOWS_H)
 
@@ -177,10 +179,6 @@ else()
   include(TestBigEndian)
   test_big_endian(IS_BIG_ENDIAN)
 endif()
-
-#include(TestBigEndian)
-#test_big_endian(IS_BIG_ENDIAN)
-
 
 check_symbol_exists(bswap_16 byteswap.h HAVE_BSWAP_16)
 check_symbol_exists(bswap_32 byteswap.h HAVE_BSWAP_32)
