@@ -54,5 +54,6 @@ the [MyST Markdown extensions], like [admonitions].
 [Markdown]: https://en.wikipedia.org/wiki/Markdown
 [Basic Markdown]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [GitHub-flavored Markdown]: https://docs.github.com/en/get-started/writing-on-github
-[MyST Markdown extensions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html[online documentation]: https://sintef.github.io/dlite/
+[MyST Markdown extensions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+[online documentation]: https://sintef.github.io/dlite/
 [admonitions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#admonition-directives
