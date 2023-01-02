@@ -54,9 +54,18 @@ in the sphinx-generated [online documentation].
 Here we can make use of the [MyST Markdown extensions], like [admonitions].
 
 
+Figures
+-------
+Please place figures in the `doc/figs/` directory.  If you use [drawio], it is
+recommended that you save the figure in svg format.  Then it renders well in
+browsers and is easy to find and edit for collaborators.
+
+
+
 [Markdown]: https://en.wikipedia.org/wiki/Markdown
 [Basic Markdown]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [GitHub-flavored Markdown]: https://docs.github.com/en/get-started/writing-on-github
 [MyST Markdown extensions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
 [online documentation]: https://sintef.github.io/dlite/
 [admonitions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#admonition-directives
+[drawio]: https://app.diagrams.net/
