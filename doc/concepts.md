@@ -1,15 +1,94 @@
-Relation to SOFT
-================
-SOFT stands for SINTEF Open Framework and Tools and is a set of
-concepts for how to achieve semantic interoperability as well as
-implementations and tooling.  At the core of SOFT are the [SOFT data
-models], which provide a by design simplistic but powerful way to
-represent scientific data.
+DLite
+=====
+DLite is an implementation of [SOFT], which stands for SINTEF Open
+Framework and Tools and is a set of concepts for how to achieve
+semantic interoperability as well as implementations and corresponding
+tooling.
 
-DLite is one implementation of the [SOFT data models].  Originally it
-was a simplified pure C implementation of SOFT5, but has with time
-developed into a project of its own.  This document will highlight a
-few notable differences with SOFT5.
+The development of SOFT was motivated by many years of experience with
+developing scientific software, where it was observed that a lot of
+efforts went into developing parts that had little to do with the
+domain.
+A significant part of the development process was spent on different
+software engineering tasks, such as code design, the handling of I/O,
+correct memory handling of the program state and writing import and
+export filters in order to use data from different
+sources.
+In addition comes the code maintenance with support of legacy formats
+and the introduction of new features and changes to internal data
+state in the scientific software.
+With SOFT it is possible to utilize reusable software components that
+handle all this, or develop new reusable software components that can
+be used by others in the same framework.
+At the core of SOFT are the [SOFT data models], which provide a by
+design simplistic but powerful way to represent scientific data.
+
+Originally DLite started as a simplified pure C implementation of SOFT
+based on [SOFT5], but has with time developed into a robust framework
+with a large set of [features].
+
+The main components of DLite is shown in Figure 1, including language
+bindings, tools the plugin framework for storages and mappings.
+
+![DLite Architecture](figs/architecture.svg)
+
+_**Figure 1.** DLite Architecture._
+
+DLite contains a core library, implementing a simplistic, but powerful
+datamodel-based framework for semantic interoperability.
+On top of this, it implements a set of bindings, storages, mappings
+and tools.
+The library also comes with set of interfaces (API) to create
+extensions and custom plugins.
+
+DLite currently provide bindings with well-documented APIs to Python,
+C and Fortran.
+For C and Fortran it provide tools for code generation for easy and
+efficient integration into simulation software.
+The Python bindings are dynamic in nature and provide a simple way to
+interact with semantic data from Python.
+
+It also provide a plugin architecture for storages and mappings and
+comes with a set of generic storages.
+The plugins can be written either in C or Python and are available any
+of the bindings (including C and Fortran) due to the embedded Python
+interpreter.
+
+The main approach to developing software with DLite is to
+incrementally describe the domain of the software using data models
+(see below).
+The data models can represent different elements of the software, and
+be used in handling I/O as well as in code generation and
+documentation.
+Data models can also be used for annotating data and data sets.
+This might be useful in cases where for instance the origin of the
+data, license and ownership are of importance.
+
+Since any complex software will have many data models and often multiple
+instances of the same data model, DLite allows for creating collections of
+data models with defined relationships.
+
+One idea of SOFT is that software may be written is such way that
+business logic is handled by the codebase, while I/O, file-formats,
+version handling, data import/export and interoperability can be
+handled by reusable components in the DLite-framework, thus reducing
+risk and development time.
+
+
+SOFT data models
+----------------
+
+
+An entity can be a single thing or object that represents something physical or nonphysical, concretely or abstract. The entity contains information about the data that constitutes the state of thing it describes. The entity does not contain the actual data, but describes what the different data fields are, in terms of name, data types, units, dimensionality etc. Information about data is often called meta data. Formal meta data enables for the correct interpretation of a set of data, which otherwise would be unreadable.
+
+An example of an entity is 'Atom', which can be defined as something that has a position, an atomic number (which characterizes the chemical element), mass, charge, etc. Another example of a completely different kind of entity can be a data reference-entity with properties such as name, description, license, access-url, media-type, format, etc). The first entity is suitable as an object in a simulation code, while the latter is more suitable for a data catalog distribution description (see dcat:Distribution). Entities allows for describing many aspects of the domain. While each entity describes a single unit of information, a collection of entities can describe the complete domain. See collections below.
+
+Uniqueness
+Each published entity needs to be uniquely identified in order to avoid confusion. The entity identifier has therefore 3 separate elements: a name, a namespace and a version number. An entity named 'Particle' is unlikely to have the same meaning and the set of parameters across all domains. In particle physics, the entity 'Particle' would constitute matter and radiation, while in other fields the term 'Particle' can be a general term to describe something small. For this reason the SOFT5 entities have namespaces, similar to how vocabularies are defined in OWL. The version number is a pragmatic solution to handle how properties of an Entity might evolve during the development process. In order to handle different versions of a software, the entity version number can be used to identify the necessary transformation between two data sets.
+
+
+
+
 
 
 Named data instances
@@ -42,7 +121,7 @@ where the '`namespace`/`version`/`name`' part is the URI of the
 metadata and '`uuid`' is the UUID of the instance.  This has the
 advantage that the the URI of an instance will be a valid [RDF]
 subject or object in a knowledge base.  In the Python bindings, the
-`Instance.get_uri()` method and `Instance.namespace` property will return a 
+`Instance.get_uri()` method and `Instance.namespace` property will return a
 string in this format if the instance has no URI.
 
 
@@ -183,7 +262,10 @@ actively used in metadata, they must not be used in data instances:
 
 ---
 
+[SOFT]: https://www.sintef.no/en/publications/publication/1553408/
 [SOFT data models]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
+[SOFT5]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md
+[features]: features.md
 [RFC 3986]: https://datatracker.ietf.org/doc/html/rfc3986
 [valid URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#syntax
 [RDF]: https://en.wikipedia.org/wiki/Semantic_triple
