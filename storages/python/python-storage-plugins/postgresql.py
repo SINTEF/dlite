@@ -1,7 +1,6 @@
-import os
-import sys
-import warnings
+"""PostgreSQL storage"""
 import fnmatch
+from typing import TYPE_CHECKING
 
 import psycopg2
 from psycopg2 import sql
@@ -10,100 +9,134 @@ import dlite
 from dlite.options import Options
 from dlite.utils import instance_from_dict
 
+if TYPE_CHECKING:  # pragma: no cover
+    from typing import Generator, Optional
 
-# Translation table from dlite types to postgresql types
+
+# Mapping from DLite types to PostgreSQL types
 pgtypes = {
-    'blob': 'bytea',
-    'bool': 'bool',
-    'int': 'integer',
-    'int8': 'bytea',
-    'int16': 'smallint',
-    'int32': 'integer',
-    'int64': 'bigint',
-    'uint16': 'integer',
-    'uint32': 'bigint',
-    'float': 'real',
-    'double': 'float8',
-    'float32': 'real',
-    'float64': 'float8',
-    'string': 'varchar',
-    'dimension': 'varchar[2]',
-    'property': 'varchar[5]',
-    'relation': 'varchar[3]',
+    "blob": "bytea",
+    "bool": "bool",
+    "int": "integer",
+    "int8": "bytea",
+    "int16": "smallint",
+    "int32": "integer",
+    "int64": "bigint",
+    "uint16": "integer",
+    "uint32": "bigint",
+    "float": "real",
+    "double": "float8",
+    "float32": "real",
+    "float64": "float8",
+    "string": "varchar",
+    "dimension": "varchar[2]",
+    "property": "varchar[5]",
+    "relation": "varchar[3]",
 }
 
-def to_pgtype(typename):
-    """Returns PostGreSQL type corresponding to dlite typename."""
-    if typename in pgtypes:
-        return pgtypes[typename]
-    else:
-        t = typename.rstrip('0123456789')
-        return pgtypes[t]
+def to_pgtype(typename: str) -> str:
+    """Returns PostgreSQL type corresponding to dlite typename."""
+    return pgtypes.get(
+        typename,
+        pgtypes[typename.rstrip("0123456789")]
+    )
 
 
 class postgresql(dlite.DLiteStorageBase):
     """DLite storage plugin for PostgreSQL."""
-    def open(self, uri, options=None):
+
+    def open(self, uri: str, options: "Optional[str]" = None) -> None:
         """Opens `uri`.
 
-        The `options` argument provies additional input to the driver.
-        Which options that are supported varies between the plugins.  It
-        should be a valid URL query string of the form:
-
-            key1=value1;key2=value2...
-
-        An ampersand (&) may be used instead of the semicolon (;).
-
-        Typical options supported by most drivers include:
-        - database : Name of database to connect to (default: dlite)
-        - user : User name.
-        - password : Password.
-        - mode : append | r
-            Valid values are:
-            - append   Append to existing file or create new file (default)
-            - r        Open existing file for read-only
-
         After the options are passed, this method may set attribute
-        `writable` to true if it is writable and to false otherwise.
+        `writable` to `True` if it is writable and to `False` otherwise.
         If `writable` is not set, it is assumed to be true.
+
+        Parameters:
+            uri: A fully resolved URI to the PostgreSQL database.
+            options: This Argument provides additional input to the driver.
+                Which options that are supported varies between the plugins. It
+                should be a valid URL query string of the form:
+
+                ```python
+                options = "key1=value1;key2=value2;..."
+                ```
+
+                An ampersand (`&`) may be used instead of the semicolon (`;`) as a separator
+                between the key/value-pairs.
+
+                Typical options supported by most drivers include:
+
+                - `database`: Name of database to connect to (default: dlite).
+                - `user`: User name.
+                - `password`: User password.
+                - `mode`: Mode for opening.
+                  Valid values are:
+
+                  - `append`: Append to existing file or create new file (default).
+                  - `r`: Open existing file for read-only.
+
         """
-        self.options = Options(options, defaults='database=dlite;mode=append')
-        opts = self.options
-        opts.setdefault('password', None)
-        self.writable = False if opts.mode == 'r' else True
+        self.options = Options(options, defaults="database=dlite;mode=append")
+        self.options.setdefault("password", None)
+        self.writable = self.options.mode != "r"
 
         # Connect to existing database
-        print('  host:', uri)
-        print('  user:', opts.user)
-        print('  database:', opts.database)
-        #print('  password:', opts.password)
-        self.conn = psycopg2.connect(host=uri, database=opts.database,
-                                     user=opts.user, password=opts.password)
+        self.connection = psycopg2.connect(
+            host=uri,
+            database=self.options.database,
+            user=self.options.user,
+            password=self.options.password,
+        )
 
         # Open a cursor to perform database operations
-        self.cur = self.conn.cursor()
+        self.cursor = self.connection.cursor()
 
-    def close(self):
+    def close(self) -> None:
         """Closes this storage."""
-        self.cur.close()
-        self.conn.close()
+        self.cursor.close()
+        self.connection.close()
 
-    def load(self, uuid):
-        """Loads `uuid` from current storage and return it as a new instance."""
+    def load(self, uuid: str) -> dlite.Instance:
+        """Loads `uuid` from current storage and returns it as a new instance.
+
+        Parameters:
+            uuid: The DLite Instance UUID.
+
+        Returns:
+            The DLite Instance corresponding to the UUID given as it exists in the
+            PostgreSQL database.
+
+        """
         uuid = dlite.get_uuid(uuid)
-        q = sql.SQL('SELECT meta FROM uuidtable WHERE uuid = %s')
-        self.cur.execute(q, [uuid])
-        metaid, = self.cur.fetchone()
-        q = sql.SQL('SELECT * FROM {} WHERE uuid = %s').format(
-            sql.Identifier(metaid))
-        self.cur.execute(q, [uuid])
-        tokens = self.cur.fetchone()
+
+        sql_query = sql.SQL("SELECT meta FROM uuidtable WHERE uuid = %s")
+        self.cursor.execute(sql_query, [uuid])
+        metaid = self.cursor.fetchone()
+
+        if metaid is None or len(metaid) != 1:
+            raise RuntimeError(f"Could not retrieve meta ID for UUID {uuid}")
+
+        sql_query = sql.SQL("SELECT * FROM {} WHERE uuid = %s").format(
+            sql.Identifier(metaid[0])
+        )
+        self.cursor.execute(sql_query, [uuid])
+        tokens = self.cursor.fetchone()
         uuid_, uri, metaid_, dims = tokens[:4]
         values = tokens[4:]
-        assert uuid_ == uuid
-        assert metaid_ == metaid
 
-        # Make sure we have metadata object correcponding to metaid
+        if uuid_ != uuid:
+            raise RuntimeError(
+                f"Fetching {uuid} from PostgreSQL database results in a different "
+                f"UUID to be returned: {uuid_}"
+            )
+        if metaid_ != metaid:
+            raise RuntimeError(
+                f"Fetching {metaid} from PostgreSQL database results in a different "
+                f"meta ID to be returned: {metaid_}"
+            )
+
+        # Make sure we have a metadata object corresponding to metaid
         try:
             with dlite.err():
                 meta = dlite.get_instance(metaid)
@@ -111,103 +144,131 @@ class postgresql(dlite.DLiteStorageBase):
             dlite.errclr()
             meta = self.load(metaid)
 
-        inst = dlite.Instance.from_metaid(metaid, dims, uri)
+        inst: dlite.Instance = dlite.Instance.from_metaid(metaid, dims, uri)
 
-        for i, p in enumerate(inst.meta['properties']):
-            inst.set_property(p.name, values[i])
+        for index, meta_property in enumerate(inst.meta["properties"]):
+            inst.set_property(meta_property.name, values[index])
 
-        # The uuid will be wrong for data instances, so override it
+        # The UUID will be wrong for data instances, so override it
         if not inst.is_metameta:
-            d = inst.asdict()
-            d['uuid'] = uuid
-            inst = instance_from_dict(d)
+            inst_dict = inst.asdict()
+            inst_dict["uuid"] = uuid
+            inst = instance_from_dict(inst_dict)
+
         return inst
 
-    def save(self, inst):
-        """Stores `inst` in current storage."""
+    def save(self, inst: dlite.Instance) -> None:
+        """Stores `inst` in current storage.
 
+        Parameters:
+            inst: The DLite Instance to store in the PostgreSQL database.
+
+        """
         # Save to metadata table
-        if not self.table_exists(inst.meta.uri):
-            self.table_create(inst.meta, inst.dimensions.values())
-        colnames = ['uuid', 'uri', 'meta', 'dims'] +  [
-            p.name for p in inst.meta['properties']]
-        q = sql.SQL('INSERT INTO {0} ({1}) VALUES ({2});').format(
+        if not self._table_exists(inst.meta.uri):
+            self._table_create(inst.meta)
+        colnames = ["uuid", "uri", "meta", "dims"] + [
+            meta_property.name for meta_property in inst.meta["properties"]
+        ]
+        sql_query = sql.SQL("INSERT INTO {0} ({1}) VALUES ({2});").format(
             sql.Identifier(inst.meta.uri),
-            sql.SQL(', ').join(map(sql.Identifier, colnames)),
-            (sql.Placeholder() * len(colnames)).join(', '))
-        values = [inst.uuid,
-                  inst.uri,
-                  inst.meta.uri,
-                  list(inst.dimensions.values()),
-        ] + [dlite.standardise(v, inst.get_property_descr(k), asdict=False)
-             for k, v in inst.properties.items()]
+            sql.SQL(", ").join(map(sql.Identifier, colnames)),
+            (sql.Placeholder() * len(colnames)).join(", ")
+        )
+        values = [
+            inst.uuid,
+            inst.uri,
+            inst.meta.uri,
+            list(inst.dimensions.values()),
+        ] + [
+            dlite.standardise(value, inst.get_property_descr(key), asdict=False)
+            for key, value in inst.properties.items()
+        ]
         try:
-            self.cur.execute(q, values)
+            self.cursor.execute(sql_query, values)
         except psycopg2.IntegrityError:
-            self.conn.rollback()  # Instance already in database
+            self.connection.rollback()  # Instance already in database
             return
 
         # Save to uuidtable
-        if not self.table_exists('uuidtable'):
-            self.uuidtable_create()
-        q = sql.SQL('INSERT INTO uuidtable (uuid, meta) VALUES (%s, %s);')
-        self.cur.execute(q, [inst.uuid, inst.meta.uri])
-        self.conn.commit()
+        if not self._table_exists("uuidtable"):
+            self._uuidtable_create()
+        sql_query = sql.SQL("INSERT INTO uuidtable (uuid, meta) VALUES (%s, %s);")
+        self.cursor.execute(sql_query, [inst.uuid, inst.meta.uri])
+        self.connection.commit()
 
-    def table_exists(self, table_name):
-        """Returns true if a table named `table_name` exists."""
-        self.cur.execute(
-            'SELECT EXISTS(SELECT * FROM information_schema.tables '
-            'WHERE table_name=%s);', (table_name, ))
-        return self.cur.fetchone()[0]
-
-    def table_create(self, meta, dims=None):
-        """Creates a table for storing instances of `meta`."""
-        table_name = meta.uri
-        if self.table_exists(table_name):
-            raise ValueError('Table already exists: %r' % table_name)
-        if dims:
-            dims = list(dims)
-        cols = [
-            'uuid char(36) PRIMARY KEY',
-            'uri varchar',
-            'meta varchar',
-            'dims integer[%d]' % meta.ndimensions
-        ]
-        for p in meta['properties']:
-            decl = f'"{p.name}" {to_pgtype(p.type)}'
-            if len(p.dims):
-                decl += '[]' * len(p.dims)
-            cols.append(decl)
-        q = sql.SQL('CREATE TABLE {} (%s);' %
-                    ', '.join(cols)).format(sql.Identifier(meta.uri))
-        self.cur.execute(q)
-        self.conn.commit()
-
-    def uuidtable_create(self):
-        """Creates the uuidtable - a table mapping all uuid's to their
-        metadata uri."""
-        q = sql.SQL('CREATE TABLE uuidtable ('
-                    'uuid char(36) PRIMARY KEY, '
-                    'meta varchar'
-                    ');')
-        self.cur.execute(q)
-        self.conn.commit()
-
-    def queue(self, pattern):
+    def instances(self, pattern: str) -> "Generator[str, None, None]":
         """Generator method that iterates over all UUIDs in the storage
-        who's metadata URI matches glob pattern `pattern`."""
+        whose metadata URI matches glob pattern `pattern`.
+
+        Parameters:
+            pattern: Regular expression to identify DLite Instance UUIDs.
+
+        Yields:
+            DLite Instance UUIDs matching the regular expression UUID pattern or all
+            instance UUIDs in the storage if no pattern is given.
+
+        """
         if pattern:
             # Convert glob patter to PostgreSQL regular expression
-            regex = '^{}'.format(fnmatch.translate(globex).replace(
-                '\\Z(?ms)', '$'))
-            q = sql.SQL('SELECT uuid from uuidtable WHERE uuid ~ %s;')
-            self.cur.execute(q, (regex, ))
+            regex = "^{}".format(
+                fnmatch.translate(pattern).replace("\\Z(?ms)", "$")
+            )
+            sql_query = sql.SQL("SELECT uuid from uuidtable WHERE uuid ~ %s;")
+            self.cursor.execute(sql_query, [regex])
         else:
-            q = sql.SQL('SELECT uuid from uuidtable;')
-            self.cur.execute(q)
-        tokens = self.cur.fetchone()
+            sql_query = sql.SQL("SELECT uuid from uuidtable;")
+            self.cursor.execute(sql_query)
+
+        tokens = self.cursor.fetchone()
+
         while tokens:
             uuid, = tokens
             yield uuid
-            tokens = self.cur.fetchone()
+            tokens = self.cursor.fetchone()
+
+    def _table_exists(self, table_name: str) -> str:
+        """Returns true if a table named `table_name` exists."""
+        self.cursor.execute(
+            "SELECT EXISTS(SELECT * FROM information_schema.tables "
+            "WHERE table_name=%s);",
+            [table_name],
+        )
+        return self.cursor.fetchone()[0]
+
+    def _table_create(self, meta: dlite.Metadata) -> None:
+        """Creates a table for storing instances of `meta`.
+
+        Parameters:
+            meta: Metadata around which to create an SQL table.
+
+        """
+        table_name = meta.uri
+        if self._table_exists(table_name):
+            raise ValueError(f"Table already exists: {table_name!r}")
+        cols = [
+            "uuid char(36) PRIMARY KEY",
+            "uri varchar",
+            "meta varchar",
+            f"dims integer[{meta.ndimensions}]"
+        ]
+        for meta_property in meta["properties"]:
+            decl = f"{meta_property.name} {to_pgtype(meta_property.type)}"
+            if len(meta_property.dims):
+                decl += "[]" * len(meta_property.dims)
+            cols.append(decl)
+
+        sql_query = sql.SQL(
+            f"CREATE TABLE {{}} (%s);" %
+            ", ".join(cols)).format(sql.Identifier(meta.uri))
+        self.cursor.execute(sql_query)
+        self.connection.commit()
+
+    def _uuidtable_create(self) -> None:
+        """Creates the uuidtable - a table mapping all uuid"s to their
+        metadata uri."""
+        sql_query = sql.SQL(
+            "CREATE TABLE uuidtable (uuid char(36) PRIMARY KEY, meta varchar);"
+        )
+        self.cursor.execute(sql_query)
+        self.connection.commit()

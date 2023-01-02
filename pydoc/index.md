@@ -1,4 +1,6 @@
-<!-- markdownlint-disable MD041 -->
+# DLite
+
+<!-- Comment back in the toctrees below if ever Python files are generated in these folders. -->
 :::{toctree}
 :maxdepth: 3
 :caption: API Reference
@@ -17,23 +19,23 @@ Python <autoapi/index>
 autoapi/mappingplugins/**/index
 :::
 
-:::{toctree}
+<!-- :::{toctree}
 :maxdepth: 3
 :caption: Storage Plugins
 :glob:
 :hidden:
 
 autoapi/storageplugins/**/index
-:::
+::: -->
 
-:::{toctree}
+<!-- :::{toctree}
 :maxdepth: 3
 :caption: Python Mapping Plugins
 :glob:
 :hidden:
 
 autoapi/pythonmappingplugins/**/index
-:::
+::: -->
 
 :::{toctree}
 :maxdepth: 3
@@ -44,14 +46,14 @@ autoapi/pythonmappingplugins/**/index
 autoapi/pythonstorageplugins/**/index
 :::
 
-:::{toctree}
+<!-- :::{toctree}
 :maxdepth: 3
 :caption: Storages
 :glob:
 :hidden:
 
 autoapi/storages/**/index
-:::
+::: -->
 
 ## Indices and tables
 

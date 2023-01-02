@@ -58,9 +58,9 @@ exclude_patterns = [
 ]
 
 extensions = [
+    "autoapi.extension",
     "breathe", # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
-    "autoapi.extension",
     "sphinx.ext.graphviz",  # Graphviz
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
@@ -96,7 +96,7 @@ autoapi_options = [
     # "show-inheritance-diagram",
     # "inherited-members",
 ]
-autoapi_keep_files = False  # Should be False in production
+autoapi_keep_files = True  # Should be False in production
 autoapi_python_use_implicit_namespaces = True  # True to avoid namespace being `python.dlite`
 
 autodoc_typehints = "description"
