@@ -54,7 +54,7 @@ class postgresql(dlite.DLiteStorageBase):
 
         Parameters:
             uri: A fully resolved URI to the PostgreSQL database.
-            options: This Argument provides additional input to the driver.
+            options: This argument provides additional input to the driver.
                 Which options that are supported varies between the plugins. It
                 should be a valid URL query string of the form:
 
