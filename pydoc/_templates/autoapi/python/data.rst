@@ -1,4 +1,4 @@
-{% if obj.display %}
+{% if obj.display and obj.name not in ("__repr__",) %}
 .. py:{{ obj.type }}:: {{ obj.name }}
    {%+ if obj.value is not none or obj.annotation is not none -%}
    :annotation:
