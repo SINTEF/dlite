@@ -75,49 +75,144 @@ handled by reusable components in the DLite-framework, thus reducing
 risk and development time.
 
 
-SOFT data models
-----------------
+Datamodel hierarchy
+-------------------
+
+![Datamodel hierarchy](figs/datamodel-hierarchy.svg)
+
+_**Figure 2.** Datamodel hierarchy.  The instances colored orange are
+predefined, while the other may be defined by the user.  Data
+instances 5 and 6 are what we normally will call a collection._
+
+Figure 2 shows the datamodel hierarchy implemented in DLite.
+As a user, you will almost always deal with only entities or data
+instances, but the hierarchy gives DLite a strong and theoretically
+well-defined schema.
+
+The actual data or *Data instances* are instances of the *Entity* that
+describes them.
+*Entities* are instances of the *EntitySchema* The *EntitySchema* is
+an instance of the *BasicMetadataSchema*, is an instance of itself
+(meaning that it can be used to describe itself).
+Hence, in DLite is **everything is an instance**.
+This has a practical implication that the API for instances can be applied
+to all metadata as well.
+Since the BasicMetadataSchema can describe itself, no more abstraction
+levels are needed, making the DLite metadata schema complete and well-defined.
+
+From Figure 2, one can also see that *[collections]* are simply
+instances of the *CollectionEntity*.
+
+In DLite all instances that describe other instances (of a lower abstraction
+level) are called *metadata*.
+
+Compared to ontologies, *data instances* correspond to OWL individuals
+while *entities* correspond to OWL classes.
+OWL, which is based on first order logic, do not have concepts corresponding
+to the higher abstraction levels of EntitySchema and BasicMetadataSchema.
+
+A (so far unexplored possibility) with such a datamodel hierarchy is
+that it can enable cross-platform semantic interoperability between
+independent systems that describe their datamodel hierarchies using a
+common BasicMetadataSchema.
+Of cause, this require a common agreement of the BasicMetadataSchema.
 
 
-An entity can be a single thing or object that represents something physical or nonphysical, concretely or abstract. The entity contains information about the data that constitutes the state of thing it describes. The entity does not contain the actual data, but describes what the different data fields are, in terms of name, data types, units, dimensionality etc. Information about data is often called meta data. Formal meta data enables for the correct interpretation of a set of data, which otherwise would be unreadable.
+### Entities
+An entity can be a single thing or object that represents something
+physical or nonphysical, concretely or abstract.
+The entity contains information about the data that constitutes the
+state of thing it describes.
+The entity does not contain the actual data, but describes what the
+different data fields are, in terms of name, data types, units,
+dimensionality etc.
+Information about data is often called metadata.
+Formal meta data enables for the correct interpretation of a set of
+data, which otherwise would be unreadable.
 
-An example of an entity is 'Atom', which can be defined as something that has a position, an atomic number (which characterizes the chemical element), mass, charge, etc. Another example of a completely different kind of entity can be a data reference-entity with properties such as name, description, license, access-url, media-type, format, etc). The first entity is suitable as an object in a simulation code, while the latter is more suitable for a data catalog distribution description (see dcat:Distribution). Entities allows for describing many aspects of the domain. While each entity describes a single unit of information, a collection of entities can describe the complete domain. See collections below.
+An example of an entity is 'Atom', which can be defined as something
+that has a position, an atomic number (which characterizes the
+chemical element), mass, charge, etc.
+Another example of a completely different kind of entity can be a data
+reference-entity with properties such as name, description, license,
+access-url, media-type, format, etc). The first entity is suitable as
+an object in a simulation code, while the latter is more suitable for
+a data catalog distribution description (e.g. [dcat:Distribution]).
+Entities allows for describing many aspects of the domain.
+While each entity describes a single unit of information, a set of
+entities can describe the complete domain.
 
-Uniqueness
-Each published entity needs to be uniquely identified in order to avoid confusion. The entity identifier has therefore 3 separate elements: a name, a namespace and a version number. An entity named 'Particle' is unlikely to have the same meaning and the set of parameters across all domains. In particle physics, the entity 'Particle' would constitute matter and radiation, while in other fields the term 'Particle' can be a general term to describe something small. For this reason the SOFT5 entities have namespaces, similar to how vocabularies are defined in OWL. The version number is a pragmatic solution to handle how properties of an Entity might evolve during the development process. In order to handle different versions of a software, the entity version number can be used to identify the necessary transformation between two data sets.
+
+#### Uniqueness & immutability
+To ensure consistency, no entity (or other metadata) should never be
+changed once published.
+They are uniquely identified by their *URI*, which has 3 separate
+elements: a namespace, a version number and a name.
+An entity named 'Particle' is unlikely to have the same meaning and
+the set of parameters across all domains.
+In particle physics, the entity 'Particle' would constitute matter and
+radiation, while in other fields the term 'Particle' can be a general
+term to describe something small.
+For this reason SOFT entities have namespaces, similar to how
+vocabularies are defined in OWL.
+The version number is a pragmatic solution to handle how properties of
+an entity might evolve during the development process.
+In order to handle different versions of a software, the entity
+version number can be used to identify the necessary transformation
+between two data sets.
+
+For example, the URI for the EntitySchema is
+http://onto-ns.com/meta/0.3/EntitySchema, with
+`http://onto-ns.com/meta` being the namespace, `0.3` the version and
+`EntitySchema` the name.
+URIs do not have to be resolvable, but it is good practice that they
+resolves to their definition.
 
 
+### Instances
+Instances are identified by an [universally unique identifier (UUID)],
+which is a 128 bit label expressed as a string of the form
+`8290318f-258e-54e2-9838-bb187881f996`.
+Since a metadata are instances, they do also have an UUID (which is
+calculated as a hash of their URI).
 
-
-
-
-Named data instances
---------------------
-In SOFT all instances are referred to by their UUID.  All metadata are
-uniquely identified by their URI, which must be of the form
-'`namespace`/`version`/`name`', like:
-http://onto-ns.com/meta/0.3/EntitySchema.  This is also valid in
-DLite, but we allow the URI to optionally end with a hash (#) or slash
-(/), which will be ignored.  Since a metadata is an instance of its
-meta-metadata, it also has an UUID, which is calculated from the URI
-(as an UUID version 5 SHA-1 hash of the URI using the DNS namespace).
-
-In some cases when you have unique and immutable data, e.g. default
-input parameters to a given version of a software model, it may be
-more convenient to refer to an unique human understandable name (URI),
-like "`mymodel-1.2.3-default_input`", rather than a UUID on the form
-"`8290318f-258e-54e2-9838-bb187881f996`".  DLite supports this.
-Currently DLite does not enforce that user-defined URIs must follow the
-[RFC 3986] standard for a [valid URI], but it is recommended to
-follow it.
-
+DLite also allow the user to identify a data instance with a human
+readable URI.
+Like for metadata, the UUID will then be calculated as a hash of the
+URI.
 The tool `dlite-getuuid` can be used to manually convert URIs to their
 corresponding UUIDs.
 
-DLite also allow to refer to instances using id's of the form
-'`namespace`/`version`/`name`/`uuid`' (e.g:
-http://onto-ns.com/meta/0.1/Collection/db6e092b-20f9-44c1-831b-bd597c96daae),
-where the '`namespace`/`version`/`name`' part is the URI of the
+Currently DLite does not enforce that user-defined URIs must follow
+the [RFC 3986] standard for a [valid URI], but it is recommended to do
+so in order to allow using the URI as a valid [RDF]
+subject or object in a knowledge base.
+For this purpose, DLite also allow to refer to data instances using
+id's of the form `<metadata_uri>/<uuid>` (for example
+http://onto-ns.com/meta/0.1/Collection/db6e092b-20f9-44c1-831b-bd597c96daae).
+
+
+Metadata semantics
+------------------
+The DLite data model is defined by the [Datamodel ontology].
+
+
+The semantics used to by any type of metadata to describe its instances
+contains three elements:
+
+  - dimensions
+  - properties
+  - relations
+
+The three first properties of all metadata schemas (metadata who's
+instances are metadata) must be "dimensions", "properties" and
+"relations" in this order.  However, it is possible to omit
+"relations" if the metadata instance has no other properties.
+
+
+
+
+
 metadata and '`uuid`' is the UUID of the instance.  This has the
 advantage that the the URI of an instance will be a valid [RDF]
 subject or object in a knowledge base.  In the Python bindings, the
@@ -125,72 +220,10 @@ subject or object in a knowledge base.  In the Python bindings, the
 string in this format if the instance has no URI.
 
 
-Simple unified access to all data types
----------------------------------------
-The datamodel API for accessing properties of an instance in SOFT, has
-separate getters and setters for each type and number of dimensions.
-DLite generalize and simplifies this by describing types and
-dimensionality of properties with 4 parameters:
-
-  - `type`: an enum defining the type of the data item (or items if
-    it has dimensions), e.g. whether it is an integer, float or string...
-    The table below summarises the implemented dtype's.
-  - `size`: the size of a data item in bytes.
-  - `ndims`: number of dimensions.  Scalars has ``ndims=0``.
-  - `dims`: array of length `ndims` with the length of each dimension.
-
-By taking these parameters as arguments, the functions
-DLite_datamodel_get_property() and DLite_datamodel_set_property() can handle
-all supported property types.  No storage strategy is needed.
-
-The table below summarises the different dtypes defined in DLite.  For
-more details, see dlite-type.h.  Also note that this supports arbitrary
-dimensional arrays.  All arrays are assumed to be continuous in memory
-in C-order.  DLite has currently no api for working with arrays as
-pointers to pointers.
-
-type      | dtype          | sizes                  | description                      | examples
-----      | -----          | -----                  | -----------                      | --------
-blob      | dliteBlob      | any                    | binary blob, sequence of bytes   | blob32, blob128, ...
-bool      | dliteBool      | sizeof(bool)           | boolean                          | bool
-int       | dliteInt       | 1, 2, 4, {8}           | signed integer                   | (int), int8, int16, int32, {int64}
-uint      | dliteUInt      | 1, 2, 4, {8}           | unsigned integer                 | (uint), uint8, uint16, uint32, {uint64}
-float     | dliteFloat     | 4, 8, {10, 12, 16}     | floating point                   | (float), (double), float32, float64, {float80, float96, float128}
-fixstring | dliteFixString | any                    | fix-sized NUL-terminated string  | string20, string4000, ...
-ref       | dliteRef       | sizeof(DLiteInstance*) | reference to another instance    | ref, http://onto-ns.com/meta/0.1/MyEntity
-string    | dliteStringPtr | sizeof(char *)         | pointer to NUL-terminated string | string
-relation  | dliteRelation  | sizeof(DLiteRelation)  | subject-predicate-object triplet | relation
-dimension | dliteDimension | sizeof(DLiteDimension) | only intended for metadata       | dimension
-property  | dliteProperty  | sizeof(DLiteProperty)  | only intended for metadata       | property
-
-The examples shown in curly parenthesis may not be supported on all
-platforms.  The size int, uint, float and double are
-platform-dependent.  For portable applications you should to provide
-the number of bits, like int32, uint32, float32, float64, etc...  Note
-that the size specification of *blob* and *fixstring* are in bytes
-(not bits) and that the terminating NUL-character __is__ included in the
-specified size of the *fixstring* types.
 
 
-Instances, entities, metadata, meta-metadata, etc...
-----------------------------------------------------
-A metadata structure following the concepts of SOFT and an API to work
-with it, is implemented in dlite-entity.h / dlite-entity.c and shown
-graphically in Figure 1.
 
-![Metadata structure][fig1]
 
-The actual data or *Data instances* are instances of the *Entity*
-describing them.  *Entities* are instances of the *Entity schema*
-which describes an *Entity*.  The *Entity schema* is an instance of
-the *Basic metadata schema* describing it, which can describe itself
-(and can be considered as an instance of itself).  Hence, **everything
-is an instance**.  So in contrast to SOFT, *entities* in DLite are just
-a special type of *metadata*.
-
-*Collections* are a special type of instances containing references to
-a set of set of instances and relationships between them.  They are
-currently not yet implemented in DLite.
 
 Instances can be subdivided into:
 
@@ -224,19 +257,8 @@ Instances can be subdivided into:
     All metadata is immutable.
 
 
-Metadata semantics
-------------------
-The semantics used to by any type of metadata to describe its instances
-contains three elements:
 
-  - dimensions
-  - properties
-  - relations
 
-The three first properties of all metadata schemas (metadata who's
-instances are metadata) must be "dimensions", "properties" and
-"relations" in this order.  However, it is possible to omit
-"relations" if the metadata instance has no other properties.
 
 
 Naming dimensions and properties
@@ -248,7 +270,6 @@ one of the following keywords:
   - uuid
   - uri
   - meta
-  - iri
 
 Furthermore, while the following dimension and property names are
 actively used in metadata, they must not be used in data instances:
@@ -266,6 +287,10 @@ actively used in metadata, they must not be used in data instances:
 [SOFT data models]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
 [SOFT5]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md
 [features]: features.md
+[collections]: collections.md
+[dcat:Distribution]: https://www.w3.org/TR/vocab-dcat-3/#Class:Distribution
+[UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
+
 [RFC 3986]: https://datatracker.ietf.org/doc/html/rfc3986
 [valid URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#syntax
 [RDF]: https://en.wikipedia.org/wiki/Semantic_triple
