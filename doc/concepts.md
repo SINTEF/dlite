@@ -194,96 +194,59 @@ http://onto-ns.com/meta/0.1/Collection/db6e092b-20f9-44c1-831b-bd597c96daae).
 
 Metadata semantics
 ------------------
-The DLite data model is defined by the [Datamodel ontology].
-
-
 ![The datamodel of DLite.](figs/datamodel.svg)
 
+_**Figure 3**. The DLite data model._
+
+The DLite data model is defined by the [Datamodel ontology] and shown
+schematically in figure 3.
+To the left we have the same hierarchy as shown in Figure 2.
+Then we have *instance* and *metadata* as more general concepts.
+
+As discussed above, all instances have an UUID that is used as their
+main identifier for database lookup.
+All metadata as well as some data instances can also be identified by
+an URI (in which case the UUID is a hash of this URI).
+Instances also have a *meta* field that refer to the metadata that it
+is described by (or that it is an instance of).
+
+In general metadata describe their instances using *dimensions*,
+*properties* and *relations*.
+Properties describe data in terms of keyword-value pairs, dimensions
+enable efficient description of multi-dimensional arrays and relations
+can describe anything that can be represented in a knowledge base.
+Together they provide a general mean to describe all types of data
+that can be represented digitally.
+Note however, that not all metadata uses all of these three ways to
+describe their instances.
+For example has entities only dimensions and properties.
 
 
-The semantics used to by any type of metadata to describe its instances
-contains three elements:
-
-  - dimensions
-  - properties
-  - relations
-
-The three first properties of all metadata schemas (metadata who's
-instances are metadata) must be "dimensions", "properties" and
-"relations" in this order.  However, it is possible to omit
-"relations" if the metadata instance has no other properties.
+### Dimension
+A metadata dimension simply provide a *name* and a human *description* of a
+given dimension of an array property.
 
 
+### Property
+A property describe an element or item of an instance and has the following
+attributes:
+- *name*: a name identifying the property.
+- *type*: the type of the described property, f.ex. an integer.
+- *$ref*: formally a part of type.
+  `$ref` is used together with the "ref" type, which is a special datatype for
+  referring to other instances.
+- *shape*: The dimensions of a multi-dimensional properties.
+  This is a list of dimension names referring to the dimensions defined above.
+- *unit*: The unit of the property.
+- *description*: A human description of the property.
 
 
+### Relation
+A RDF subject-predicate-object triplet.
+Relations are currently not explored in metadata, but were included because of
+their generality.
+However, relations are heavily used in [collections].
 
-metadata and '`uuid`' is the UUID of the instance.  This has the
-advantage that the the URI of an instance will be a valid [RDF]
-subject or object in a knowledge base.  In the Python bindings, the
-`Instance.get_uri()` method and `Instance.namespace` property will return a
-string in this format if the instance has no URI.
-
-
-
-
-
-
-
-Instances can be subdivided into:
-
-  - *Data instances* containing actual data.  These are serialised with a
-    minimal header, only containing:
-      - The UUID identifying the instance.
-      - An optional reference to an URI uniquely identifying the instance.
-        If given, the UUID is derived from it.
-      - A reference (URI) to its metadata.
-
-    This header is then followed by then followed by the content,
-    i.e. the size of each dimension and the values of each property.
-
-    A basic `DLiteInstance` type is defined that all data instances
-    (including metadata) can be cast into.
-
-    In the figure above, the *Data instances* and the *Collections* are
-    both examples of *pure instances*.
-
-  - Metadata.  Entities, Entity schema, Basic metadata schema, etc are
-    all examples of metadata.  Metadata is typically identified by an
-    URI of the form `namespace/version/name`.  When storing entities
-    (as instances) an UUID will be derived from this URI.
-
-    A basic `DLiteMetadata` type is defined, that all metadata can be
-    cast into.  Since metadata also are instances, they header starts
-    with the same header as DLiteInstance, but includes more fields
-    needed to describe their instances.  Entities are a special case
-    of metadata, whos instances are the actual data.
-
-    All metadata is immutable.
-
-
-
-
-
-
-Naming dimensions and properties
---------------------------------
-The names of your dimensions and properties should be valid C identifiers,
-not starting with underscore.  Another restriction is that should not be
-one of the following keywords:
-
-  - uuid
-  - uri
-  - meta
-
-Furthermore, while the following dimension and property names are
-actively used in metadata, they must not be used in data instances:
-
-  - ndimensions
-  - nproperties
-  - nrelations
-  - dimensions
-  - properties
-  - relations
 
 ---
 

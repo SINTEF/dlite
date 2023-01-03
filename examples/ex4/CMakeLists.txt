@@ -12,7 +12,7 @@ list(APPEND CMAKE_MODULE_PATH
   ${DLITE_ROOT}/share/cmake
   ${DLITE_ROOT}/share/cmake/Modules
   )
-include(Finddlite)
+
 find_package(dlite)
 
 link_directories(${DLITE_LIBRARY_DIR})
