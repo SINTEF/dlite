@@ -32,7 +32,7 @@ to the collection.
 
 Semantics of a collection
 -------------------------
-TODO: add text when issue One can think about a collection as is concluded...
+TODO: add text when issue https://github.com/SINTEF/dlite/issues/174 is concluded...
 
 
 Example
