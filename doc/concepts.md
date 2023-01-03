@@ -197,6 +197,10 @@ Metadata semantics
 The DLite data model is defined by the [Datamodel ontology].
 
 
+![The datamodel of DLite.](figs/datamodel.svg)
+
+
+
 The semantics used to by any type of metadata to describe its instances
 contains three elements:
 
@@ -290,6 +294,7 @@ actively used in metadata, they must not be used in data instances:
 [collections]: collections.md
 [dcat:Distribution]: https://www.w3.org/TR/vocab-dcat-3/#Class:Distribution
 [UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
+[Datamodel ontology]: https://github.com/emmo-repo/datamodel
 
 [RFC 3986]: https://datatracker.ietf.org/doc/html/rfc3986
 [valid URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#syntax
