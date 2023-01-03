@@ -62,6 +62,7 @@ extensions = [
     "breathe", # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
     "sphinx.ext.graphviz",  # Graphviz
+    "sphinx.ext.intersphinx",  # Connect to external (Sphinx) API documentation
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
     "sphinxcontrib.plantuml",  # PlantUml
@@ -122,7 +123,14 @@ html_static_path = ["_static"]
 # html_css_files = ["custom.css"]
 
 intersphinx_mapping = {
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "openpyxl": ("https://openpyxl.readthedocs.io/en/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "pint": ("https://pint.readthedocs.io/en/stable/", None),
+    "pymongo": ("https://pymongo.readthedocs.io/en/stable/", None),
     "python": ("https://docs.python.org/3", None),
+    "rdflib": ("https://rdflib.readthedocs.io/en/stable/", None),
+    "tripper": ("https://emmc-asbl.github.io/tripper/latest/", None),
 }
 
 myst_heading_anchors = 5

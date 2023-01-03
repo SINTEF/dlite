@@ -150,7 +150,7 @@ void dlite_err_set_stream(FILE *);
 %feature("docstring", "\
 Set error log file. Special values includes:
 
-- ``None`` | ``""``: Turn off error output.
+- ``None`` or empty: Turn off error output.
 - ``<stderr>``: Standard error.
 - ``<stdout>``: Standard output.
 
