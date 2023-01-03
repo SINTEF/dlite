@@ -1,7 +1,7 @@
 """Mapping example using a collection - without mapping functions."""
 from pathlib import Path
 
-from tripper import EMMO, MAP, RDFS, Triplestore
+from tripper import EMMO, Triplestore
 
 import dlite
 
