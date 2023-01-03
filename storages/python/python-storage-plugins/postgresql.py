@@ -139,10 +139,10 @@ class postgresql(dlite.DLiteStorageBase):
         # Make sure we have a metadata object corresponding to metaid
         try:
             with dlite.err():
-                meta = dlite.get_instance(metaid)
+                dlite.get_instance(metaid)
         except RuntimeError:
             dlite.errclr()
-            meta = self.load(metaid)
+            self.load(metaid)
 
         inst: dlite.Instance = dlite.Instance.from_metaid(metaid, dims, uri)
 
@@ -265,7 +265,7 @@ class postgresql(dlite.DLiteStorageBase):
         self.connection.commit()
 
     def _uuidtable_create(self) -> None:
-        """Creates the uuidtable - a table mapping all uuid"s to their
+        """Creates the uuidtable - a table mapping all uuid's to their
         metadata uri."""
         sql_query = sql.SQL(
             "CREATE TABLE uuidtable (uuid char(36) PRIMARY KEY, meta varchar);"
