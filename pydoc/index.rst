@@ -6,7 +6,6 @@ DLite Python API
    :caption: Contents:
    :glob:
 
-
    autoapi/python/dlite/index
    autoapi/yaml/index
    autoapi/postgresql/index
@@ -14,7 +13,10 @@ DLite Python API
    autoapi/mongodb/index
    autoapi/pyrdf/index
    autoapi/bson/index
+   dlite
+   extras
+   utils
+ 
 
 
-* :ref:`genindex`
 
