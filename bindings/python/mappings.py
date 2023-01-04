@@ -1026,7 +1026,6 @@ def make_instance(
     mappings: "Sequence[tuple[str, str, str]]" = (),
     strict: bool = True,
     allow_incomplete: bool = False,
-    unitconvert: "Callable[[Any, Any, Any], Any]" = unitconvert_pint,
     mapsTo: str = ':mapsTo',
 ) -> dlite.Instance:
     """Create an instance of `meta` using data found in `*instances`.
@@ -1040,13 +1039,6 @@ def make_instance(
           with the same name.
         allow_incomplete: Whether to allow not populating all properties
           of the returned instance.
-        unitconvert: A callable that converts between units.  It has
-          prototype
-
-              unitconvert(dest_unit, value, unit)
-
-          and should return `value` (in units `unit`) converted to
-          `dest_unit`.
         mapsTo: How the 'mapsTo' predicate is written in `mappings`.
 
     Returns:

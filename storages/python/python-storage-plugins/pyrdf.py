@@ -19,15 +19,16 @@ class pyrdf(dlite.DLiteStorageBase):
         """Opens `uri`.
 
         Parameters:
-            uri: A fully resolve URI to the RDF.
+            uri: A fully resolved URI to the RDF.
             options: Supported options:
 
                 - `mode`: Mode for opening.
                   Valid values are:
 
-                  - `a`: Append to existing file or create new file (default)
-                  - `r`: Open existing file for read-only
-                  - `w`: Truncate existing file or create new file
+                  - `a`: Append to existing file or create new file (default).
+                  - `r`: Open existing file for read-only.
+                  - `w`: Truncate existing file or create new file.
+
                 - `format`: File format. For a complete list of valid formats, see
                   https://rdflib.readthedocs.io/en/stable/intro_to_parsing.html
                   A sample list of valid format values: "turtle", "xml", "n3", "nt",
