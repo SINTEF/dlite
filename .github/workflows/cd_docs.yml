@@ -17,7 +17,7 @@ permissions:
 # Allow one concurrent deployment
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false  # temporarily
 
 env:
   ONTODOC_DIR: doc
@@ -76,7 +76,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'build/pydoc/docs/sphinx/'
+          path: 'build/pydoc/sphinx/'
 
   deploy:
     if: github.event_name != 'pull_request'

@@ -5,6 +5,7 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-storage.h"
+#include "dlite-storage-plugins.h"
 #include "dlite-mapping.h"
 #include "dlite-mapping-plugins.h"
 

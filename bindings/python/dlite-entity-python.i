@@ -1,6 +1,6 @@
 /* -*- Python -*-  (not really, but good for syntax highlighting) */
 
-/* Python-spesific extensions to dlite-entity.i */
+/* Python-specific extensions to dlite-entity.i */
 %pythoncode %{
 import sys
 import json
@@ -115,18 +115,19 @@ def standardise(v, prop, asdict=False):
         return conv(v)
 
 
-def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> "Instance":
+def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True) -> "Instance":
     """Return instance with given id.
 
     Arguments:
-        id: Id of instance to return.
+        id: ID of instance to return.
         metaid: If given, dlite will try to convert the instance to a new
-            instance of `metaid`.
+            instance of ``metaid``.
         check_storages: Whether to check for the instance in storages listed
             in dlite.storage_path if the instance is not already in memory.
 
     Returns:
-        DLite instance.
+        DLite Instance.
+
     """
     if isinstance(id, dlite.Instance):
         inst = id
