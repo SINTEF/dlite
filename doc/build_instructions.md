@@ -14,6 +14,7 @@ xxx
 
 Build with Visual Studio
 -------------
+
 [Instructions for Visual Studio]
 
 [Instructions for Visual Studio]: build_with_vs.md
