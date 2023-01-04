@@ -3,8 +3,9 @@ Build instructions
 
 Content
 -------
-  1. [General build instructions](#general-build-instructions)
-  2. [Build with Visual Studio](#build-with-visual-studio)
+
+1. [General build instructions](#general-build-instructions)
+2. [Build with Visual Studio](#build-with-visual-studio)
 
 
 General build instructions
