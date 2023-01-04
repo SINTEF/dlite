@@ -5,7 +5,10 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
+import psycopg2
+from psycopg2 import sql
 
+import dlite
 from dlite.utils import instance_from_dict
 from run_python_storage_tests import print_test_exception
 
@@ -39,57 +42,51 @@ if __name__ in ('__main__', '<run_path>'):
             
             df = '    def '
             ind8 = '        ' # Indent of 8 spaces
-            open_start = lines.index(df + 'open(self, uri: str, options: "Optional[str]" = None) -> None:\n')
-            close_start = lines.index(df + 'close(self) -> None:\n')
-            load_start = lines.index(df + 'load(self, uuid: str) -> dlite.Instance:\n')
-            save_start = lines.index(df + 'save(self, inst: dlite.Instance) -> None:\n')
+            open_start = lines.index(df + 'open(self, uri, options=None):\n')
+            close_start = lines.index(df + 'close(self):\n')
+            load_start = lines.index(df + 'load(self, uuid):\n')
+            save_start = lines.index(df + 'save(self, inst):\n')
             
             # open(): Don't connect to server - read 'uri' instead
             lines[open_start + 1] = ind8 + 'self.data = open_pgsql(uri)\n'
             lines[open_start + 2] = ind8 + 'self.d = {}\n'
-            lines[open_start + 3] = ind8 + "return None\n"
             
             # close(): Don't disconnect from server - just pass
-            lines[close_start + 2] = ind8 + 'pass\n'
+            lines[close_start + 1] = ind8 + 'pass\n'
             
             # load(): Don't access server - read from self.data
-            lines[load_start + 11] = ind8 + 'self.d[uuid] = ' \
+            lines[load_start + 3] = ind8 + 'self.d[uuid] = ' \
                 + 'load_pgsql(self.data, uuid, ["L", "M", "N"])\n'
-            lines[load_start + 12] = ind8 \
+            lines[load_start + 4] = ind8 \
                 + 'return instance_from_dict(self.d[uuid])\n'
             
             # save(): Don't write to database, but compare the writing
             # commands to the commands in the database dump file
-            n = save_start + 8
+            n = save_start + 2
             lines[n - 1] = ind8 + 'ret = {"uuid": inst.uuid}\n'
-            while not lines[n].startswith(df + 'instances'):
-                lines[n] = lines[n].replace('self.connection', '#')
-                lines[n] = lines[n].replace(
-                    'self.cursor.execute(',
-                    'ret = extract_exec_args(ret, ',
-                )
-                if lines[n].startswith(ind8 + 'if not self._table'):
+            while not lines[n].startswith(df + 'table_exists'):
+                lines[n] = lines[n].replace('self.conn', '#')
+                lines[n] = lines[n].replace('self.cur.execute(', \
+                    'ret = extract_exec_args(ret, ')
+                if lines[n].startswith(ind8 + 'if not self.table'):
                     lines[n] = '\n'
                     lines[n + 1] = '\n'
                 n += 1
             lines[n - 1] = ind8 + 'return ret\n'
-            lines = lines[:n]
             
-            # del lines[(load_start + 5):(save_start - 1)]
+            del lines[(load_start + 5):(save_start - 1)]
             del lines[(close_start + 2):(load_start - 1)]
-            del lines[(open_start + 4):(close_start - 1)]
-            # uuidtable_create_start = lines.index(df + "_uuidtable_create(self) -> None:\n")
-            # del lines[(uuidtable_create_start + 1):(uuidtable_create_start + 3)]
+            del lines[(open_start + 3):(close_start - 1)]
             s = 'from test_postgresql_storage_python import open_pgsql, ' \
-                + 'load_pgsql, extract_exec_args\n' + "".join(lines)
+                + 'load_pgsql, extract_exec_args\n' + str().join(lines)
             s = s.replace('class postgresql', 'class dlite_postgresql')
         exec(s)
-
+        
         # Load JSON metadata
         with open(dlite_path / 'src/tests/test-entity.json', 'r') as f:
             json_dict1 = json.load(f)
         json_dict1 = instance_from_dict(json_dict1).asdict()
-
+        
         # Test loading PostgreSQL metadata
         postgresql_inst1 = dlite_postgresql()
         postgresql_inst1.open(input_path / 'test_meta.pgsql')
