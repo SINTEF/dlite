@@ -23,36 +23,36 @@ Hence, the following recommendations:
 
   For documentation, follow the style used by the original contributor.
 
-* Avoid the use of html tags.
+* Avoid the use of raw HTML.
 
 * Links become more readable if you place them at the end of the document using square brackets.
   Example:
 
-     ```
-     A link to [SOFT].
-     ...
+```markdown
+A link to [SOFT].
+...
 
-     End of document.
+End of document.
 
 
-     [SOFT]: https://www.sintef.no/en/publications/publication/1553408/
-     ```
+[SOFT]: https://www.sintef.no/en/publications/publication/1553408/
+```
 
 * Use `.md` as file extension for all Markdown files.
 
 The README files are intended to document the overall project or the content in a subdirectory.
 These should therefore render nicely on GitHub.
-Hence, use [Basic Markdown] or possible [GitHub-flavored Markdown].
+Hence, use [CommonMark] or possible [GitHub-flavored Markdown].
 For README files, keep the maximum line length at 79 characters so that the source file easily can be viewed in a 80 character wide terminal.
 
-The Markdown files in the `doc/` subdirectory are intended to be included in the sphinx-generated [online documentation].
-Here we can make use of the [MyST Markdown extensions], like [admonitions].
+The Markdown files in the `doc/` subdirectory are intended to be included in the [sphinx]-generated [online documentation].
+We make use of the [MyST-Parser extension] to convert all markdown syntax to rich structured text (RST) prior to letting Sphinx generate the HTML (or other) documentation.
 
 
 Figures
 -------
 Please place figures in the `doc/figs/` directory.
-If you use [drawio], it is recommended that you save the figure in svg format.
+If you use [draw.io], it is recommended that you save the figure in svg format.
 Then it renders well in browsers and is easy to find and edit for collaborators.
 
 
@@ -68,6 +68,7 @@ For example
         2
 
     ```
+
 This allow to check your examples by running
 
     python -m doctest <filename>
@@ -81,12 +82,12 @@ For more info, see the guide for [documentation testing].
 
 [Markdown]: https://en.wikipedia.org/wiki/Markdown
 [setext]: https://github.com/DavidAnson/markdownlint/blob/main/doc/md003.md
-[Basic Markdown]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+[CommonMark]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [GitHub-flavored Markdown]: https://docs.github.com/en/get-started/writing-on-github
 [MyST Markdown extensions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+[sphinx]: https://www.sphinx-doc.org/
 [online documentation]: https://sintef.github.io/dlite/
-[admonitions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#admonition-directives
-[drawio]: https://app.diagrams.net/
+[draw.io]: https://app.diagrams.net/
 [doctest]: https://docs.python.org/3/library/doctest.html
 [official Python documentation]: https://docs.python.org/3/tutorial/introduction.html#numbers
 [documentation testing]: documentation_testing.md
