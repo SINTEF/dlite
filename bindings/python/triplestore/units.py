@@ -3,8 +3,7 @@
 import os
 import re
 import logging
-import warnings
-from pint import UnitRegistry, Quantity
+from pint import UnitRegistry
 from tripper import Triplestore, RDFS
 from appdirs import user_cache_dir
 

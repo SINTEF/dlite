@@ -122,16 +122,23 @@ struct _DLiteDimension {
 %feature("docstring", "\
 Creates a new property.
 
+```python
 Property(name, type, dims=None, unit=None, description=None)
-    Creates a new property with the provided attributes.
+```
 
+Creates a new property with the provided attributes.
+
+```python
 Property(seq)
-    Creates a new property from sequence of 6 strings, corresponding to
-    `name`, `type`, `dims`, `unit` and `description`.  Valid
-    values for `dims` are:
-      - '' or '[]': no dimensions
-      - '<dim1>, <dim2>': list of dimension names
-      - '[<dim1>, <dim2>]': list of dimension names
+```
+
+Creates a new property from sequence of 6 strings, corresponding to
+``name``, ``type``, ``dims``, ``unit`` and ``description``.
+Valid values for ``dims`` are:
+
+- ``''`` or ``'[]'``: No dimensions.
+- ``'<dim1>, <dim2>'``: List of dimension names.
+- ``'[<dim1>, <dim2>]'``: List of dimension names.
 
 ") _DLiteProperty;
 %rename(Property) _DLiteProperty;
@@ -608,15 +615,22 @@ Call signatures:
     dlite_swig_set_property_by_index($self, i, obj);
   }
 
-  %feature("docstring",
-           "Return property `name` as a string.\n"
-           "\n"
-           "`width`  Minimum field width. Unused if 0, auto if -1.\n"
-           "`prec`   Precision. Auto if -1, unused if -2.\n"
-           "`flags`  Or'ed sum of formatting flags:\n"
-           "    0  default (json)\n"
-           "    1  raw unquoted output\n"
-           "    2  quoted output")
+  %feature("docstring", "\
+Return property ``name`` as a string.
+
+Parameters:
+    width: Minimum field width. Unused if 0, auto if -1.
+    prec: Precision. Auto if -1, unused if -2.
+    flags: Or'ed sum of formatting flags:
+
+        - ``0``: Default (json).
+        - ``1``: Raw unquoted output.
+        - ``2``: Quoted output.
+
+Returns:
+    Property as a string.
+
+")
      get_property_as_string;
   %newobject get_property_as_string;
   char *get_property_as_string(const char *name,
