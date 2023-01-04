@@ -19,10 +19,9 @@ target_link_libraries(dlite-fortran
 ## create list of modules to install from ${sources}
 set(modules "")
 foreach(source ${sources})
-  string(REPLACE ".f90" ".mod" module ${source})
-  if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${module})
-      list(APPEND modules ${CMAKE_CURRENT_BINARY_DIR}/${module})
-  endif()
+    get_filename_component(barename ${source} NAME)
+    string(REPLACE ".f90" ".mod" module ${barename})
+    list(APPEND modules ${CMAKE_CURRENT_BINARY_DIR}/${module})
 endforeach()
 set_target_properties(dlite-fortran PROPERTIES PUBLIC_HEADER "${modules}")
 
