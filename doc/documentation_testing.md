@@ -21,7 +21,7 @@ For instance, assume that you have the following example in your documentation
 
 ```shell
 **********************************************************************
-File "documentation_testing.md", line 13, in documentation_testing.md
+File "documentation_testing.md", line 15, in documentation_testing.md
 Failed example:
     1 + 1
 Expected:
