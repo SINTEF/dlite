@@ -56,6 +56,5 @@ DLite
 Indices and tables
 ------------------
 
-* `<genindex>`_
-* `<modindex>`_
-* `<py-modindex>`_
+* :ref:`genindex`
+* :ref:`modindex`

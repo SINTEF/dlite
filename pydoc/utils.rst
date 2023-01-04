@@ -11,7 +11,6 @@ A collection of utility functions used by DLite, but generic enough to be separa
 
    utils/bson
    utils/execprocess
-   .. utils/infixcalc
    utils/map
    utils/sha1
    utils/tgen
