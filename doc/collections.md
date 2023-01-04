@@ -1,19 +1,9 @@
 Collections
 ===========
-A collection is a data instance containing a set of (references to)
-instances and relationships between them.
-It is essentially a tripplestore or a local knowledge base that
-semantically describe a domain with some instances and their context.
+A collection is a data instance containing a set of (references to) instances and relationships between them and can contain (references to) other collections as well.
+It allows providing context to the instances and represent the knowledge of a domain and may e.g. describe where data can be found.
 
-A collection can contain (references to) other collections as well.
-This is useful to represent the knowledge of the domain where
-data exists, in order to find data that relates to other data, but
-also to uniquely identify a complete data set with a single
-identifier.
-
-In DLite are collections simply implemented as a list of RDF relations
-using the vocabulary defined in the [datamodel ontology] as can be seen
-from the  YAML representation of the collection entity:
+DLite collections are implemented as a list of RDF relations using the vocabulary defined in the [datamodel ontology], which can be seen from the YAML representation of the collection entity:
 ```yaml
     uri: http://onto-ns.com/meta/0.1/Collection
     description: Meta-metadata description a collection.
