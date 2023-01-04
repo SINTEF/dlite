@@ -21,7 +21,6 @@ extensions = [
     "autoapi.extension",
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.graphviz",  # Graphviz
-    "sphinxcontrib.plantuml",  # PlantUml
     "sphinx_copybutton",  # Copy button for codeblocks
     "nbsphinx",  # Jupyter
     "IPython.sphinxext.ipython_console_highlighting",  # nb syntax highlight
@@ -29,6 +28,10 @@ extensions = [
     "sphinx_panels",  # Create panels in a grid layout or as drop-downs
     "sphinx_markdown_tables",
 ]
+
+# Breathe Configuration
+breathe_projects = {"dlite": "../build/pydoc/doxygen/xml/"}
+breathe_default_project = "dlite"
 
 autoapi_dirs = ['../build/bindings/python/dlite']
 autoapi_type = 'python'
@@ -38,9 +41,6 @@ autoapi_add_toctree_entry = False
 master_doc = "index"
 
 myst_heading_anchors = 5
-
-plantuml = "java -jar lib/plantuml.jar"
-plantuml_output_format = "svg_img"
 
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 
