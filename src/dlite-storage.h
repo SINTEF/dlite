@@ -95,12 +95,6 @@ int dlite_storage_is_writable(const DLiteStorage *s);
 const char *dlite_storage_get_driver(const DLiteStorage *s);
 
 
-/* Dublicated declarations from dlite-storage-plugins.h */
-int dlite_storage_plugin_unload(const char *name);
-const char **dlite_storage_plugin_paths(void);
-int dlite_storage_plugin_path_insert(int n, const char *path);
-int dlite_storage_plugin_path_append(const char *path);
-
 /**
  * @name Querying content of a storage
  * @{

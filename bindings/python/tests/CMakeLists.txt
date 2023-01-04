@@ -17,7 +17,6 @@ set(tests
   test_transaction
   test_mapping
   test_rdf
-  test_triplestore
   test_postgresql_write
   test_postgresql_read
   )

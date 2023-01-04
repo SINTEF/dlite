@@ -1,6 +1,6 @@
 /* -*- Python -*-  (not really, but good for syntax highlighting) */
 
-/* Python-spesific extensions to dlite-entity.i */
+/* Python-specific extensions to dlite-entity.i */
 %pythoncode %{
 import sys
 import json
@@ -115,18 +115,19 @@ def standardise(v, prop, asdict=False):
         return conv(v)
 
 
-def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> "Instance":
+def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True) -> "Instance":
     """Return instance with given id.
 
     Arguments:
-        id: Id of instance to return.
+        id: ID of instance to return.
         metaid: If given, dlite will try to convert the instance to a new
-            instance of `metaid`.
+            instance of ``metaid``.
         check_storages: Whether to check for the instance in storages listed
             in dlite.storage_path if the instance is not already in memory.
 
     Returns:
-        DLite instance.
+        DLite Instance.
+
     """
     if isinstance(id, dlite.Instance):
         inst = id
@@ -589,7 +590,14 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
         )
 
     def __call__(self, dims=(), id=None):
-        """Returns an uninitiated instance of this metadata."""
+        """Returns an uninitiated instance of this metadata.
+
+        Arguments:
+            dims: Either a dict mapping dimension names to values or
+                a sequence of dimension values.
+            id: Id of the new instance.  The default is to create a
+                random UUID.
+        """
         if not self.is_meta:
             raise TypeError('data instances are not callable')
         if isinstance(dims, dict):
@@ -599,7 +607,7 @@ def get_instance(id: "str", metaid: "str"=None, check_storages: "bool"=True) -> 
     def asdict(self, soft7=True, uuid=True):
         """Returns a dict representation of self.
 
-        Args:
+        Arguments:
             soft7: Whether to structure metadata as SOFT7.
             uuid: Whether to include UUID in the dict.
         """
