@@ -19,19 +19,21 @@ For instance, assume that you have the following example in your documentation
 
 `python -m doctest documentation_testing.md` would print the following message:
 
-    **********************************************************************
-    File "documentation_testing.md", line 13, in documentation_testing.md
-    Failed example:
-        1 + 1
-    Expected:
-        3
-    Got:
-        2
-    **********************************************************************
+```shell
+**********************************************************************
+File "documentation_testing.md", line 13, in documentation_testing.md
+Failed example:
+    1 + 1
+Expected:
+    3
+Got:
+    2
+**********************************************************************
+```
 
 Now you copy the output following `Got:`, including the 4 indentation spaces, into your example.
 
-Note that the comment `#doctest: +SKIP` was added to the above example in order to not triggering a doctest failure when validating the markdown file containing this guideline.
+Note that the comment `#doctest: +SKIP` was added to the above example in order to not trigger a doctest failure when validating the markdown file containing this guideline.
 
 
 

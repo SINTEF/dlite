@@ -43,7 +43,7 @@ End of document.
 The README files are intended to document the overall project or the content in a subdirectory.
 These should therefore render nicely on GitHub.
 Hence, use [CommonMark] or possible [GitHub-flavored Markdown].
-For README files, keep the maximum line length at 79 characters so that the source file easily can be viewed in a 80 character wide terminal.
+For README files, keep the maximum line length at 79 characters for easy viewing in a 80 character wide terminal.
 
 The Markdown files in the `doc/` subdirectory are intended to be included in the [sphinx]-generated [online documentation].
 We make use of the [MyST-Parser extension] to convert all markdown syntax to rich structured text (RST) prior to letting Sphinx generate the HTML (or other) documentation.
@@ -71,7 +71,9 @@ For example
 
 This allow to check your examples by running
 
-    python -m doctest <filename>
+```shell
+python -m doctest <filename>
+```
 
 on your markdown file.
 
