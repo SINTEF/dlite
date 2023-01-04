@@ -138,6 +138,29 @@ except dlite.DLiteError:
     print('*** catched error loading "non-existing-path..."')
 
 
+# Test for issue #352 - improved error message for missing dimensions
+json_repr = """
+{
+  "uri": "http://onto-ns.com/ex/0.1/test",
+  "properties": {
+    "x": {
+      "type": "int"
+    }
+  }
+}
+"""
+try:
+    entity = dlite.Instance.from_json(json_repr)
+except dlite.DLiteError as exc:
+    assert str(exc) == (
+        "Error 1: metadata does not confirm to schema, please check "
+        "dimensions, properties and/or relations: "
+        "http://onto-ns.com/ex/0.1/test"
+    )
+else:
+    assert False  # missing dimensions should raise an exception
+
+
 # Check pickling
 s = pickle.dumps(inst)
 inst3 = pickle.loads(s)
