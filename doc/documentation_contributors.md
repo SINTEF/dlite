@@ -21,11 +21,7 @@ Hence, the following recommendations:
       --------------
       ...
 
-  For documentation the style is up to the writer.
-
-* Add two newlines before headers to make them easier to recognise.
-
-  This is especially useful for levels 3-headers and below (which are lines starting with 3 or more hashes (`#`)) to make them easier to recognise as sub-headers.
+  For documentation, follow the style used by the original contributor.
 
 * Avoid the use of html tags.
 
@@ -48,7 +44,6 @@ The README files are intended to document the overall project or the content in 
 These should therefore render nicely on GitHub.
 Hence, use [Basic Markdown] or possible [GitHub-flavored Markdown].
 For README files, keep the maximum line length at 79 characters so that the source file easily can be viewed in a 80 character wide terminal.
-
 
 The Markdown files in the `doc/` subdirectory are intended to be included in the sphinx-generated [online documentation].
 Here we can make use of the [MyST Markdown extensions], like [admonitions].
