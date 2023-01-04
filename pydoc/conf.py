@@ -76,6 +76,9 @@ root_doc = "index"
 suppress_warnings = ["myst.mathjax"]
 
 # Extension configuration
+breathe_projects = {"dlite": "../build/pydoc/doxygen/xml/"}
+breathe_default_project = "dlite"
+
 autoapi_dirs = [
     "../build/bindings/python/dlite"
 ] + [
