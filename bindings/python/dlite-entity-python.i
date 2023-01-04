@@ -590,7 +590,14 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         )
 
     def __call__(self, dims=(), id=None):
-        """Returns an uninitiated instance of this metadata."""
+        """Returns an uninitiated instance of this metadata.
+
+        Arguments:
+            dims: Either a dict mapping dimension names to values or
+                a sequence of dimension values.
+            id: Id of the new instance.  The default is to create a
+                random UUID.
+        """
         if not self.is_meta:
             raise TypeError('data instances are not callable')
         if isinstance(dims, dict):
@@ -600,7 +607,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
     def asdict(self, soft7=True, uuid=True):
         """Returns a dict representation of self.
 
-        Args:
+        Arguments:
             soft7: Whether to structure metadata as SOFT7.
             uuid: Whether to include UUID in the dict.
         """
