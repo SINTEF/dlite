@@ -2,8 +2,7 @@ DLite documentation
 ===================
 
 This is a temporary table of contents, used during the development phase.
-When completed, the table of contents will be written in pydoc/index.rst
-and built with sphinx.
+When completed, the table of contents will be written in pydoc/index.rst and built with Sphinx.
 
 Table of contents
 -----------------
