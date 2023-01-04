@@ -7,11 +7,10 @@ Content
 1. [General build instructions](#general-build-instructions)
 2. [Build with Visual Studio](#build-with-visual-studio)
 
-
 General build instructions
 -------------
-xxx
 
+xxx
 
 Build with Visual Studio
 -------------
