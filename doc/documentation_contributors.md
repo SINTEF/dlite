@@ -1,21 +1,15 @@
 Guideline for contributing documentation
 ========================================
 The DLite documentation is written in Markdown.
-This include both the README files and documentation found in the
-`doc/` subdirectory.
+This include both the README files and documentation found in the `doc/` subdirectory.
 
-Common to both is that the text should be as easy and natural as
-possible to read from the terminal.
+Common to both is that the text should be as easy and natural as possible to read from the terminal.
 Hence, the following recommendations should be followed:
 
-* Keep the maximum line length at 79 characters so that the source
-  file easily can be viewed in a 80 character wide terminal.
+* Write one sentence per line, in order to get an easier to read output from `git diff`.
 
-* Write one sentence per line (while respecting the 79 character line
-  length), in order to get an easier to read output from `git diff`.
-
-* Use the underline style format for main and sub-headers. For example,
-  start a new page with
+* For README files, use the underline style format for main and sub-headers.
+  For example, start a new page with
 
       Overview
       ========
@@ -24,16 +18,15 @@ Hence, the following recommendations should be followed:
 
       # Overview
 
+  For documentation the style is up to the writer.
+
 * Add two newlines before headers to make them easier to recognise.
 
-  This is especially useful for levels 3-headers and below (which are
-  lines starting with 3 or more hashes (`#`)) to make them easier to
-  recognise as sub-headers.
+  This is especially useful for levels 3-headers and below (which are lines starting with 3 or more hashes (`#`)) to make them easier to recognise as sub-headers.
 
 * Avoid the use of html tags.
 
-* Links become more readable if you place them at the end of the document
-  using square brackets.
+* Links become more readable if you place them at the end of the document using square brackets.
   Example:
 
      ```
@@ -48,30 +41,26 @@ Hence, the following recommendations should be followed:
 
 * Use `.md` as file extension for all Markdown files.
 
-The README files are intended to document the overall project or the
-content in a subdirectory.
+The README files are intended to document the overall project or the content in a subdirectory.
 These should therefore render nicely on GitHub.
 Hence, use [Basic Markdown] or possible [GitHub-flavored Markdown].
+Keep the maximum line length at 79 characters so that the source file easily can be viewed in a 80 character wide terminal.
 
-The Markdown files in the `doc/` subdirectory are intended to be included
-in the sphinx-generated [online documentation].
+
+The Markdown files in the `doc/` subdirectory are intended to be included in the sphinx-generated [online documentation].
 Here we can make use of the [MyST Markdown extensions], like [admonitions].
 
 
 Figures
 -------
 Please place figures in the `doc/figs/` directory.
-If you use [drawio], it is recommended that you save the figure in svg
-format.
-Then it renders well in browsers and is easy to find and edit for
-collaborators.
+If you use [drawio], it is recommended that you save the figure in svg format.
+Then it renders well in browsers and is easy to find and edit for collaborators.
 
 
 Examples
 --------
-Write your python examples in the same way as done in the [official Python
-documentation], by preceeding expressions with `>>> ` and the expected
-output on the next line below the `>>> `.
+Write your python examples in the same way as done in the [official Python documentation], by preceeding expressions with `>>> ` and the expected output on the next line below the `>>> `.
 For example
 
     ```python
@@ -97,8 +86,7 @@ For instance, if you write
 
     ```
 
-`python -m doctest documentation_contributors.md` would print the following
-message:
+`python -m doctest documentation_contributors.md` would print the following message:
 
     **********************************************************************
     File "documentation_contributors.md", line 95, in documentation_contributors.md
@@ -113,9 +101,7 @@ message:
 Now you copy the output following `Got:`, including the 4 indentation spaces,
 into your example.
 
-Note that the comment `#doctest: +SKIP` was added to the above example
-in order to not triggering a doctest failure when validating the markdown
-file containing this guideline.
+Note that the comment `#doctest: +SKIP` was added to the above example in order to not triggering a doctest failure when validating the markdown file containing this guideline.
 
 
 
