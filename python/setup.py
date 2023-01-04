@@ -209,9 +209,9 @@ setup(
     # extras_require={"all": extra_requirements},
     packages=["dlite"],
     scripts=[
-        str(Path(".") / "bin" / "dlite-getuuid"),
-        str(Path(".") / "bin" / "dlite-codegen"),
-        str(Path(".") / "bin" / "dlite-env"),
+        "/project/python/build/bin/dlite-getuuid",
+        "/project/python/build/bin/dlite-codegen",
+        "/project/python/build/bin/dlite-env",
     ],
     package_data={
         "dlite": [
