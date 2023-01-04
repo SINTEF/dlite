@@ -1,8 +1,7 @@
 Utils
 =====
 
-A collection of utility functions used by DLite, but generic enough
-to be separate.
+A collection of utility functions used by DLite, but generic enough to be separate.
 
 .. toctree::
    :caption: Modules:
@@ -12,7 +11,6 @@ to be separate.
 
    utils/bson
    utils/execprocess
-   utils/infixcalc
    utils/map
    utils/sha1
    utils/tgen

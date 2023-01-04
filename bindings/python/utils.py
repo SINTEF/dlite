@@ -1,5 +1,3 @@
-import binascii
-import os
 from typing import Sequence, Mapping
 import json
 from typing import Dict, List, Optional
