@@ -1,5 +1,4 @@
 from units import get_pint_registry
-from pint import UnitRegistry, Quantity
 
 
 ureg = get_pint_registry(force_recreate=True)
