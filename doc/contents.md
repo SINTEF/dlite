@@ -12,7 +12,9 @@ Table of contents
         * What is DLite and what is it used for?
         * [Features](features.md)
     2. Installation instructions
-    4. Tutorial
+        * [Setup instructions]
+        * [Build instructions](build_instructions.md)
+    3. Tutorial
 2. User Guide
     * [Concepts](concepts.md)
     * Data types
@@ -25,7 +27,6 @@ Table of contents
     * [Code generation](code_generation.md)
 3. API Reference
 4. Contributor's Guide
-    * [Build instructions](build_instructions.md)
     * [Writing storage plugins](storage_plugins.md)
     * Writing mapping plugins    
     * [Documentation guideline](documentation_contributors.md)
