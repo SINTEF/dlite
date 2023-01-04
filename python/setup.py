@@ -208,6 +208,11 @@ setup(
     # See issue #222: https://github.com/SINTEF/dlite/issues/222
     # extras_require={"all": extra_requirements},
     packages=["dlite"],
+    scripts=[
+        str(Path(".") / "bin" / "dlite-getuuid"),
+        str(Path(".") / "bin" / "dlite-codegen"),
+        str(Path(".") / "bin" / "dlite-env"),
+    ],
     package_data={
         "dlite": [
             dlite_compiled_ext,
