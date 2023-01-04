@@ -1,7 +1,7 @@
 DLite Core
 ==========
 
-Core DLite C-API modules
+Core DLite C-API modules.
 
 .. toctree::
    :caption: Modules:
