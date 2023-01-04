@@ -28,6 +28,7 @@ Table of contents
     * Writing mapping plugins
     * [Code generation](code_generation.md)
 8. Developer's guide
-    * [Documentation guideline]
+    * [Documentation guideline](documentation_contributors.md)
+    * [Testing examples in the documentation](documentation_testing.md)
     * [Tips and tricks](tips_and_tricks.md)
 9. Acknowledgement
