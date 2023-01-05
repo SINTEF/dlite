@@ -1,5 +1,5 @@
 Setup
------
+=====
 
 .. toctree::
    :maxdepth: 2

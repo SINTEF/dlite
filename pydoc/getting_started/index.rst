@@ -7,3 +7,4 @@ Getting started
 
    introduction/index
    installation/index
+   tutorial/index

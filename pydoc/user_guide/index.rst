@@ -7,3 +7,4 @@ User Guide
 
    concepts
    transactions
+   environment_variables

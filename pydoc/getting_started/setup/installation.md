@@ -21,7 +21,7 @@ As a DLite user it should be enough to do 'pip install Dlite-Python', or 'pip in
 
 As a developer it is more useful to install DLite from source.
 If DLite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables.
-See [](environment_variables.md) for more details.
+See [](../../user_guide/environment_variables.md) for more details.
 
 An example of how to install DLite as developer within a python environment in linux is given below.
 Make sure that all required dependencies are installed within the environment.
