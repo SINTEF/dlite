@@ -1,0 +1,54 @@
+DLite
+=====
+
+`A lightweight data-centric framework for semantic interoperability.`
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents
+   :hidden:
+   :includehidden:
+
+   getting_started/index
+   user_guide/index
+   api_reference/index
+   contributors_guide/index
+   license
+
+.. grid:: 1 2 2 2
+
+   .. grid-item-card:: Getting started
+      :link: getting_started/index.html
+
+      .. image:: _static/startup.png
+         :alt: Getting started
+         :align: center
+
+   .. grid-item-card:: User Guide
+      :link: user_guide/index.html
+
+      .. image:: _static/manual.png
+         :alt: User Guide
+         :align: center
+
+.. grid:: 1 2 2 2
+
+   .. grid-item-card:: API Reference
+      :link: api_reference/index.html
+
+      .. image:: _static/api.png
+         :alt: API Reference
+         :align: center
+
+   .. grid-item-card:: Contributor's Guide
+      :link: contributors_guide/index.html
+
+      .. image:: _static/agenda.png
+         :alt: Contributor's Guide
+         :align: center
+
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`py-modindex`
