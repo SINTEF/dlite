@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-next-line MD033 MD041 -->
-<img src="doc/figs/logo.svg" align="right" />
+<img src="doc/figs/logo.svg" align="right"/>
 
 DLite
 =====
@@ -16,19 +16,19 @@ Content
 * ~About DLite~
   * [Example](#example)
   * ~Main features~
-* [Installing DLite](#installing-dlite)
-  * [Installing with pip](#installing-with-pip)
-  * [Docker image](#docker-image)
-  * [Compile from sources](#compile-from-sources)
-    * [Dependencies](#dependencies)
-      * [Runtime dependencies](#runtime-dependencies)
-      * [Build dependencies](#build-dependencies)
-    * [Build and install with Python](#build-and-install-with-python)
-    * [Build on Linux](#build-on-linux)
-    * [Build with VS Code on Windows](#build-with-vs-code-on-windows)
-      * [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
-    * [Build documentation](#build-documentation)
-  * [Setting up the environment](#setting-up-the-environment)
+* ~Installing DLite~
+  * ~Installing with pip~
+  * ~Docker image~
+  * ~Compile from sources~
+    * ~Dependencies~
+      * ~Runtime dependencies~
+      * ~Build dependencies~
+    * ~Build and install with Python~
+    * ~Build on Linux~
+    * ~Build with VS Code on Windows~
+      * ~Quick start with VS Code and Remote Container~
+    * ~Build documentation~
+  * ~Setting up the environment~
 * [Short vocabulary](#short-vocabulary)
 * [Developer documentation](#developer-documentation)
 * [License](#license)
@@ -49,7 +49,7 @@ class Person:
 
 that you want to describe semantically.  We do that by defining the
 following metadata (using json) identifying the Python attributes with
-dlite properties.  Here we define `name` to be a string, `age` to be a
+DLite properties.  Here we define `name` to be a string, `age` to be a
 float and `skills` to be an array of `N` strings, where `N` is a name
 of a dimension.  The metadata uniquely identifies itself with the
 "name", "version" and "namespace" fields and "meta" refers the the
@@ -93,13 +93,13 @@ and its properties provide in the "description" fields.
 ```
 
 We save the metadata in file "Person.json".  Back in Python we can now
-make a dlite-aware subclass of `Person`, instantiate it and serialise
+make a DLite-aware subclass of `Person`, instantiate it and serialise
 it to a storage:
 
 ```python
 import dlite
 
-# Create a dlite-aware subclass of Person
+# Create a DLite-aware subclass of Person
 DLitePerson = dlite.classfactory(Person, url='json://Person.json')
 
 # Instantiate
@@ -113,8 +113,8 @@ person.dlite_inst.save('json://homes.json?mode=w')
 To access this new instance from C, you can first generate a header
 file from the meta data
 
-```console
-$ dlite-codegen -f c-header -o person.h Person.json
+```shell
+dlite-codegen -f c-header -o person.h Person.json
 ```
 
 and then include it in your C program:
@@ -145,20 +145,23 @@ int main()
   return 0;
 }
 ```
+
 Now run the python file and it would create a homes.json file, which contains an entity information.
 Use the UUID of the entity from the homes.json file, and update the url variable in the homes.c file.
 
 Since we are using `dlite_instance_load_url()` to load the instance,
-you must link to dlite when compiling this program.  Assuming you are
-using Linux and dlite in installed in `$HOME/.local`, compiling with
+you must link to DLite when compiling this program.  Assuming you are
+using Linux and DLite in installed in `$HOME/.local`, compiling with
 gcc would look like:
 
-```console
-$ gcc homes.c -o homes -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -ldlite-utils
+```shell
+gcc homes.c -o homes -I$HOME/.local/include/dlite -L$HOME/.local/lib -ldlite -ldlite-utils
 ```
+
 Or if you are using the development environment , you can compile using:
-```console
-$ gcc -I/tmp/dlite-install/include/dlite -L/tmp/dlite-install/lib -o homes homes.c -ldlite -ldlite-utils
+
+```shell
+gcc -I/tmp/dlite-install/include/dlite -L/tmp/dlite-install/lib -o homes homes.c -ldlite -ldlite-utils
 ```
 
 Finally you can run the program with
@@ -175,355 +178,99 @@ skills:
 ```
 
 Note that we in this case have to define the environment variable
-`DLITE_STORAGES` in order to let dlite find the metadata we stored in
+`DLITE_STORAGES` in order to let DLite find the metadata we stored in
 'Person.json'.  There are ways to avoid this, e.g. by hardcoding the
 metadata in C using `dlite-codegen -f c-source` or in the C program
 explicitely load 'Person.json' before 'homes.json'.
 
-This was just a brief example.  There is much more to dlite.  Since
+This was just a brief example.  There is much more to DLite.  Since
 the documentation is still not complete, the best source is the code
 itself, including the tests and examples.
 
-Installing DLite
-================
-
-Installing with pip
--------------------
-If you are using Python, the easiest way to install DLite is with pip:
-
-    pip install DLite-Python
-
-Note, currently only Linux versions for Python 3.7, 3.8, 3.9 and 3.10
-are available.  But Windows versions will soon be available.
-
-Docker image
-------------
-A docker image is available on
-[https://github.com/SINTEF/dlite/packages][dlite-packages].
-
-
-Compile from sources
---------------------
-The sources can be cloned from GitHub
-
-    git clone git@github.com:SINTEF/dlite.git
-
-### Dependencies
-
-#### Runtime dependencies
-  - [HDF5], optional, support v1.10+ (needed by HDF5 storage plugin)
-  - [librdf], optional (needed by RDF (Redland) storage plugin)
-  - [Python 3], optional (needed by Python bindings and some plugins)
-    - [tripper], required by the Python bindings
-    - [NumPy], required if Python is enabled
-    - [PyYAML], optional (used for generic YAML storage plugin)
-    - [psycopg2], optional (used for generic PostgreSQL storage plugin)
-        Note that in some cases a GSSAPI error is raised when using psycopg2
-        by pip installing psycopg2-binary.
-        This is solved by installing from source as described in their documentation.
-    - [pandas], optional (used for csv storage plugin)
-    - [pymongo], optional, (used for mongodb storage plugin)
-    - [mongomock], optional, used for testing mongodb storage plugin.
-
-#### Build dependencies
-  - [cmake], required for building - note that cmake isntalled from pypi does not always work.
-  - HDF5 development libraries, needed by HDF5 storage plugin.
-  - Python 3 development libraries, needed by Python bindings.
-  - NumPy development libraries, needed by Python bindings.
-  - [SWIG] needed by building Python bindings.
-  - [Doxygen] used for documentation generation.
-  - [Graphviz] used for documentation generation.
-  - [valgrind], optional, used for memory checking (Linux only).
-  - [cppcheck], optional, used for static code analysis.
-  - librdf development libraries, optional, needed by librdf storage plugin.
-
-Compiling
----------
-
-### Build and install with Python
-Given you have a C compiler and Python correctly installed, you should be
-able to build and install dlite via the python/setup.py script:
-
-    cd python
-    python setup.py install
-
-
-### Build on Linux
-Install dependencies (e.g. with `apt-get install` on Ubuntu or `dnf install` on
-Fedora)
-
-Configure the build with:
-
-    mkdir build
-    cd build
-    cmake ..
-
-Configuration options can be added to the `cmake` command.  For example, you
-can change the installation directory by adding
-`-DCMAKE_INSTALL_PREFIX=/path/to/new/install/dir`.  The default is `~/.local`.
-
-Alternatively, you can configure configuration options with `ccmake ..`.
-
-If you use virtual environments for Python, you should activate your
-environment before running `cmake` and set `CMAKE_INSTALL_PREFIX` to
-the directory of the virtual environment. For example:
-
-    VIRTUAL_ENV=/path/to/virtual/env
-    source $VIRTUAL_ENV/bin/activate
-    cmake -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV -DWITH_DOC=YES ..
-
-Build with:
-
-    make
-
-To run the tests, do
-
-    ctest            # same as running `ctest`
-    make memcheck    # runs all tests with memory checking (requires
-                     # valgrind)
-
-To generate code documentation, do
-
-    make doc         # direct your browser to build/doc/html/index.html
-
-To install dlite locally, do
-
-    make install
-
-
-### Build with VS Code on Windows
-See [here](doc/build_with_vs.md) for detailed instructions for building with
-Visual Studio.
-
-
-#### Quick start with VS Code and Remote Container
-Using Visual Studio Code it is possible to do development on the
-system defined in Dockerfile.
-
-1. Download and install [Visual Studio Code](https://code.visualstudio.com/).
-2. Install the extension __Remote Development__.
-3. Clone _dlite_ and initialize git modules: `git submodule update --init`.
-4. Open the _dlite_ folder with VS Code.
-5. Start VS Code, run the *Remote-Containers: Open Folder in
-   Container...* command from the Command Palette (F1) or quick
-   actions Status bar item. This will build the container and restart
-   VS Code in it. This may take some time the first time as the Docker
-   image must be built. See [Quick start: Open an existing folder in a
-   container][vs-container] for more information and instructions.
-6. In the container terminal, perform the first build and tests with
-   `mkdir /workspace/build; cd /workspace/build; cmake ../dlite; make &&
-   make test`.
-
-
-### Build documentation
-
-In order to reduce build dependencies for the causal user, DLite does not
-build documentation by default.  Provide the `-DWITH_DOC=YES` option to
-`cmake` to build the documentation.
-
-
-#### Build Python Documentation
-
-DLite uses sphinx to generate documentation from Python source
-code. Ensure the correct virtual environment is set up and install the
-requirements `pip install -r requirements_doc.txt`
-
-#### Build C Documentation
-
-If you have [doxygen][11] installed, the html documentation should be generated
-as a part of the build process.  It can be browsed by opening the following file
-in your browser:
-
-    <build>/doc/html/index.html
-
-where `<build>` is your build folder.  To only build the documentation, you can
-do:
-
-    cd build
-    cmake --build . --target doc
-
-If you have LaTeX and make installed, you can also the latex documentation with
-
-    cd build
-    cmake --build . --target latex
-
-which will produce the file
-
-    <build>/doc/latex/refman.pdf
-
-
-
-Setting up the environment
---------------------------
-As a dlite user it should be enough to do 'pip install Dlite-Python',
-or 'pip install .' from within the dlite/python directory.
-
-As a developer it is more useful to install dlite from source.
-If dlite is installed in a non-default location, you may need to set
-the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment
-variables.  See the [documentation of environment
-variables](doc/environment_variables.md) for more details.
-
-An example of how to install dlite as developer within a python environment
-in linux is given below.  Make sure that all required dependencies
-are installed within the environment.
-
-First activate the environment, e.g.:
-```console
-source </path/to/dedicated/pythonenvironment>/bin/activate
-```
-Set the Python variables. The following should automatically
-find the correct python paths
-```console
-Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
-Python3_VERSION=$(python3 -c 'import sys;\
-print(str(sys.version_info.major)+"."\
-+str(sys.version_info.minor))')
-Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
-```
-
-Python variables for developement libraries must be set
-**manually**.
-```console
-Python3_LIBRARY=</path/to/system>/libpython${Python3_VERSION}.so
-Python3_INCLUDE_DIR=</path/to/system>/include/python${Python3_VERSION}
-```
-You may run ```find . -name libpython*.so``` to help find these paths.
-
-Go into your dlite directory:
-```console
-cd </path/to>/dlite
-```
-Build dlite:
-```console
-mkdir build
-cd build
-cmake .. -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
--DPython3_LIBRARY=$Python3_LIBRARY \
--DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
--DWITH_STATIC_PYTHON=FALSE \
--DCMAKE_INSTALL_PREFIX=$Python3_ROOT
-```
-Then install dlite
-```console
-make
-make install
-```
-Finally run tests
-```console
-ctest
-```
-
-An example of how to use dlite is shown above.  See also the examples
-in the [examples](examples) directory for how to link to dlite from C
-and use of the Fortran bindings.
-
-
-
 Short vocabulary
 ================
-The following terms have a special meaning in dlite:
-  - **Basic metadata schema**: Toplevel meta-metadata which describes itself.
-  - **Collection**: A specialised instance that contains references to set
-    of instances and relations between them.  Within a collection instances
-    are labeled.  See also the [SOFT5 nomenclauture].
-  - **Data instance**: A "leaf" instance that is not metadata.
-  - **Entity**: May be any kind of instance, including data instances,
-    metadata instances or meta-metadata instances.  However, for historical
-    reasons it is often used for "standard" metadata that are instances of
-    meta-metadata "http://onto-ns.com/meta/0.3/EntitySchema".
-  - **Instance**: The basic data object in DLite.  All instances are described
-    by their metadata which itself are instances.  Instances are identified
-    by an UUID.
-  - **Mapping**: A function that maps one or more input instances to an
-    output instance.  They are an important mechanism for interoperability.
-    Mappings are called translators in SOFT5.
-  - **Metadata**: a special type of instances that describe other instances.
-    All metadata are immutable and has an unique URI in addition to their
-    UUID.
-  - **Meta-metadata**: metadata that describes metadata.
-  - **Relation**: A subject-predicate-object triplet. Relations
-    are immutable.
-  - **Storage**: A generic handle encapsulating actual storage backends.
-  - **Transaction**: An instance that has a reference to an immutable
-    (frozen) parent instance is called a *transaction*.  Transactions are
-    very useful for ensuring data provenance and makes it easy to work
-    with time series.  Conceptually, they share many similarities with
-    git.  See also the [SOFT5 nomenclauture].
-  - **uri**: A [uniform resource identifier (URI)][URI] is a
-    generalisation of URL, but follows the same syntax rules.  In
-    dlite, the term "uri" is used as an human readable identifier for
-    instances (optional for data instances) and has the form
-    `namespace/version/name`.
-  - **url**: A [uniform resource locator (URL)][URL] is an reference
-    to a web resource, like a file (on a given computer), database
-    entry, web page, etc.  In dlite url's refer to a storage or even
-    an specific instance in a storage using the general syntax
-    `driver://location?options#fragment`, where `options` and `fragment`
-    are optional.  If `fragment` is provided, it should be the uuid or
-    uri of an instance.
-  - **uuid**: A [universal unique identifier (UUID)][UUID] is commonly
-    used to uniquely identify digital information.  DLite uses the 36
-    character string representation of uuid's to uniquely identify
-    instances.  The uuid is generated from the uri for instances that
-    has an uri, otherwise it is randomly generated.
 
+The following terms have a special meaning in DLite:
+
+* **Basic metadata schema**: Toplevel meta-metadata which describes itself.
+* **Collection**: A specialised instance that contains references to set
+  of instances and relations between them.  Within a collection instances
+  are labeled.  See also the [SOFT5 nomenclauture].
+* **Data instance**: A "leaf" instance that is not metadata.
+* **Entity**: May be any kind of instance, including data instances,
+  metadata instances or meta-metadata instances.  However, for historical
+  reasons it is often used for "standard" metadata that are instances of
+  meta-metadata "http://onto-ns.com/meta/0.3/EntitySchema".
+* **Instance**: The basic data object in DLite.  All instances are described
+  by their metadata which itself are instances.  Instances are identified
+  by an UUID.
+* **Mapping**: A function that maps one or more input instances to an
+  output instance.  They are an important mechanism for interoperability.
+  Mappings are called translators in SOFT5.
+* **Metadata**: a special type of instances that describe other instances.
+  All metadata are immutable and has an unique URI in addition to their
+  UUID.
+* **Meta-metadata**: metadata that describes metadata.
+* **Relation**: A subject-predicate-object triplet. Relations
+  are immutable.
+* **Storage**: A generic handle encapsulating actual storage backends.
+* **Transaction**: An instance that has a reference to an immutable
+  (frozen) parent instance is called a *transaction*.  Transactions are
+  very useful for ensuring data provenance and makes it easy to work
+  with time series.  Conceptually, they share many similarities with
+  git.  See also the [SOFT5 nomenclauture].
+* **uri**: A [uniform resource identifier (URI)][URI] is a
+  generalisation of URL, but follows the same syntax rules.  In
+  DLite, the term "uri" is used as an human readable identifier for
+  instances (optional for data instances) and has the form
+  `namespace/version/name`.
+* **url**: A [uniform resource locator (URL)][URL] is an reference
+  to a web resource, like a file (on a given computer), database
+  entry, web page, etc.  In DLite url's refer to a storage or even
+  an specific instance in a storage using the general syntax
+  `driver://location?options#fragment`, where `options` and `fragment`
+  are optional.  If `fragment` is provided, it should be the uuid or
+  uri of an instance.
+* **uuid**: A [universal unique identifier (UUID)][UUID] is commonly
+  used to uniquely identify digital information.  DLite uses the 36
+  character string representation of uuid's to uniquely identify
+  instances.  The uuid is generated from the uri for instances that
+  has an uri, otherwise it is randomly generated.
 
 Developer documentation
 =======================
-* [Create a new release](doc/developers/release_instructions.md)
 
+* [Create a new release](doc/developers/release_instructions.md)
 
 License
 =======
+
 DLite is licensed under the [MIT license](LICENSE).  However, it
 include a few third party source files with other permissive licenses.
 All of these should allow dynamic and static linking against open and
 propritary codes.  A full list of included licenses can be found in
 [LICENSES.txt](src/utils/LICENSES.txt).
 
-
 Acknowledgment
 ==============
+
 In addition from internal funding from SINTEF and NTNU this work has
 been supported by several projects, including:
 
-  - [AMPERE](https://www.sintef.no/en/projects/2015/ampere-aluminium-alloys-with-mechanical-properties-and-electrical-conductivity-at-elevated-temperatures/) (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
-  - FICAL (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
-  - [Rational alloy design (ALLDESIGN)](https://www.ntnu.edu/digital-transformation/alldesign) (2018-2022) NTNU internally funded project.
-  - [SFI Manufacturing](https://www.sfimanufacturing.no/) (2015-2023) funded by Forskningsrådet and Norwegian industry partners.
-  - [SFI PhysMet](https://www.ntnu.edu/physmet) (2020-2028) funded by Forskningsrådet and Norwegian industry partners.
-  - [OntoTrans](https://cordis.europa.eu/project/id/862136) (2020-2024) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 862136.
-  - [OpenModel](https://www.open-model.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953167.
-  - [DOME 4.0](https://dome40.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953163.
-  - [VIPCOAT](https://www.vipcoat.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 952903.
-
-
----
+* [AMPERE](https://www.sintef.no/en/projects/2015/ampere-aluminium-alloys-with-mechanical-properties-and-electrical-conductivity-at-elevated-temperatures/) (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
+* FICAL (2015-2020) funded by Forskningsrådet and Norwegian industry partners.
+* [Rational alloy design (ALLDESIGN)](https://www.ntnu.edu/digital-transformation/alldesign) (2018-2022) NTNU internally funded project.
+* [SFI Manufacturing](https://www.sfimanufacturing.no/) (2015-2023) funded by Forskningsrådet and Norwegian industry partners.
+* [SFI PhysMet](https://www.ntnu.edu/physmet) (2020-2028) funded by Forskningsrådet and Norwegian industry partners.
+* [OntoTrans](https://cordis.europa.eu/project/id/862136) (2020-2024) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 862136.
+* [OpenModel](https://www.open-model.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953167.
+* [DOME 4.0](https://dome40.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953163.
+* [VIPCOAT](https://www.vipcoat.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 952903.
 
 DLite is developed with the hope that it will be a delight to work with.
 
-[SOFT]: https://www.sintef.no/en/publications/publication/1553408/
-[HDF5]: https://support.hdfgroup.org/HDF5/
-[librdf]: https://librdf.org/
-[Python 3]: https://www.python.org/
-[tripper]: https://pypi.org/project/tripper/
-[NumPy]: https://pypi.org/project/numpy/
-[PyYAML]: https://pypi.org/project/PyYAML/
-[psycopg2]: https://pypi.org/project/psycopg2/
-[pandas]: https://pandas.pydata.org/
-[pymongo]: https://github.com/mongodb/mongo-python-driver
-[mongomock]: https://github.com/mongomock/mongomock
-[cmake]: https://cmake.org/
-[SWIG]: http://www.swig.org/
-[Doxygen]: http://www.doxygen.org/
-[Graphviz]: https://www.graphviz.org/
-[valgrind]: http://valgrind.org/
-[cppcheck]: http://cppcheck.sourceforge.net/
 [SOFT5 nomenclauture]: https://confluence.code.sintef.no/display/SOFT/Nomenclature
 [UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
 [URL]: https://en.wikipedia.org/wiki/URL
 [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
-[IRI]: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
-[dlite-packages]: https://github.com/SINTEF/dlite/packages
-[vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
+<!-- [IRI]: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier -->

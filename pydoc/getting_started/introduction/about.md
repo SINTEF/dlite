@@ -1,6 +1,4 @@
-# Introduction
-
-## About DLite
+# About DLite
 
 DLite is a C implementation of [SINTEF Open Framework and Tools (SOFT)][SOFT], which is a set of concepts and tools for how to efficiently describe and work with scientific data.
 
