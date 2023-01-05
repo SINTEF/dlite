@@ -6,7 +6,7 @@ It allows providing context to the instances and represent the knowledge of a do
 DLite collections are implemented as a list of RDF relations using the vocabulary defined in the [datamodel ontology], which can be seen from the YAML representation of the collection entity:
 ```yaml
     uri: http://onto-ns.com/meta/0.1/Collection
-    description: Meta-metadata description a collection.
+    description: Metadata description a collection.
     dimensions:
       nrelations: Number of relations.
     properties:
