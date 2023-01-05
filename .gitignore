@@ -38,4 +38,5 @@ units.cpython-*.pyc
 bindings/python/triplestore/__pycache__
 
 # Documentation
-pydoc/autoapi/
+doc/autoapi/
+doc/c-api/

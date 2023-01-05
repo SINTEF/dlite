@@ -1,8 +1,9 @@
+<!-- markdownlint-disable-next-line MD033 MD041 -->
 <img src="doc/figs/logo.svg" align="right" />
-
 
 DLite
 =====
+
 > A lightweight data-centric framework for semantic interoperability
 
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
@@ -11,84 +12,32 @@ DLite
 
 Content
 -------
-  * [About DLite](#about-dlite)
-    - [Example](#example)
-    - [Main features](#main-features)
-  * [Installing DLite](#installing-dlite)
-    - [Installing with pip](#installing-with-pip)
-    - [Docker image](#docker-image)
-    - [Compile from sources](#compile-from-sources)
-      - [Dependencies](#dependencies)
-        - [Runtime dependencies](#runtime-dependencies)
-        - [Build dependencies](#build-dependencies)
-      - [Build and install with Python](#build-and-install-with-python)
-      - [Build on Linux](#build-on-linux)
-      - [Build with VS Code on Windows](#build-with-vs-code-on-windows)
-        - [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
-      - [Build documentation](#build-documentation)
-    - [Setting up the environment](#setting-up-the-environment)
-  * [Short vocabulary](#short-vocabulary)
-  * [Developer documentation](#developer-documentation)
-  * [License](#license)
-  * [Acknowledgment](#acknowledgment)
 
-
-DLite is a lightweight interoperability framework, for working with and
-sharing scientific.
-
-
-About DLite
-===========
-DLite is a C implementation of the [SINTEF Open Framework and Tools
-(SOFT)][SOFT], which is a set of concepts and tools for how to
-efficiently describe and work with scientific data.
-
-All data in DLite is represented by an Instance, which is build on a
-simple data model.  An Instance is identified by a unique UUID and
-have a set of named dimensions and properties.  It is described by its
-Metadata.  In the Metadata, each dimension is given a name and
-description (optional) and each property is given a name, type, shape
-(optional), unit (optional) and description (optional).  The shape of
-a property refers to the named dimensions.
-
-When an Instance is instantiated, you must suply a value to the named
-dimensions.  The shape of the properties will be set according to
-that.  This ensures that the shape of the properties are internally
-consistent.
-
-A Metadata is also an Instance, and hence described by its
-meta-metadata.  By default, DLite defines four levels of metadata;
-instance, metadata, metadata schema and basic metadata schema. The
-basic metadata schema describes itself, so no further meta levels are
-needed.  The idea is if two different systems describes their data
-model in terms of the basic metadata schema, they can easily be made
-semantically interoperable.
-
-![The datamodel of DLite.](doc/figs/datamodel.svg)
-
-An alternative and more flexible way to enable interoperability is to
-use a common ontology.  DLite provides a specialised Instance called
-Collection.  A collection is essentially a container holding a set of
-Instances and relations between them.  But it can also relate an
-Instance or even a dimension or property of an instance to a concept
-in an ontology.  DLite allows to transparently map an Instance whos
-Metadata corresponding to a concept in one ontology to an Instance
-whos Metadata corresponding to a concept in another ontology.  Such
-mappings can easily be registered (in C or Python) and reused,
-providing a very powerful system for achieving interoperability.
-
-DLite provides also a common and extendable API for loading/storing
-Instances from/to different storages.  New storage plugins can be
-written in C or Python.
-
-See [doc/concepts.md](doc/concepts.md) for more details.
-
-DLite is licensed under the MIT license.
-
+* ~About DLite~
+  * [Example](#example)
+  * ~Main features~
+* [Installing DLite](#installing-dlite)
+  * [Installing with pip](#installing-with-pip)
+  * [Docker image](#docker-image)
+  * [Compile from sources](#compile-from-sources)
+    * [Dependencies](#dependencies)
+      * [Runtime dependencies](#runtime-dependencies)
+      * [Build dependencies](#build-dependencies)
+    * [Build and install with Python](#build-and-install-with-python)
+    * [Build on Linux](#build-on-linux)
+    * [Build with VS Code on Windows](#build-with-vs-code-on-windows)
+      * [Quick start with VS Code and Remote Container](#quick-start-with-vs-code-and-remote-container)
+    * [Build documentation](#build-documentation)
+  * [Setting up the environment](#setting-up-the-environment)
+* [Short vocabulary](#short-vocabulary)
+* [Developer documentation](#developer-documentation)
+* [License](#license)
+* [Acknowledgment](#acknowledgment)
 
 Example
 -------
-Lets say that you have the following Python class
+
+Let's say that you have the following Python class
 
 ```python
 class Person:
@@ -234,19 +183,6 @@ explicitely load 'Person.json' before 'homes.json'.
 This was just a brief example.  There is much more to dlite.  Since
 the documentation is still not complete, the best source is the code
 itself, including the tests and examples.
-
-
-Main features
--------------
-See [doc/features.md](doc/features.md) for a more detailed list.
-  - Enables semantic interoperability via simple formalised metadata and data
-  - Metadata can be linked to or generated from ontologies
-  - Code generation for simple integration in existing code bases
-  - Plugin API for data storages (json, hdf5, rdf, yaml, postgresql, blob, csv...)
-  - Plugin API for mapping between metadata
-  - Bindings to C, Python and Fortran
-
-
 
 Installing DLite
 ================
