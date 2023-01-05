@@ -3,10 +3,9 @@ from pathlib import Path
 
 import numpy as np
 
-from tripper import DM, EMMO, RDFS, Triplestore
+from tripper import EMMO, RDFS, Triplestore
 
 import dlite
-from dlite.mappings import instantiate
 
 
 # Paths

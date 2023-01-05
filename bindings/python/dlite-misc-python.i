@@ -8,12 +8,14 @@ import dlite
 class err():
     """Context manager for temporary turning off or redirecting errors.
 
-    By default errors are skipped within the err context.  But if
-    `filename` is provided, the error messages are written to that file.
-    Special file names includes
-      - None or empty: no output is written
-      - <stderr>: write errors to stderr (default)
-      - <stdout>: write errors to stdout
+    By default errors are skipped within the err context. But if
+    ``filename`` is provided, the error messages are written to that file.
+    Special file names includes:
+
+    - ``None`` or empty: No output is written.
+    - ``<stderr>``: Write errors to stderr (default).
+    - ``<stdout>``: Write errors to stdout.
+
     """
     def __init__(self, filename=None):
         self.filename = filename

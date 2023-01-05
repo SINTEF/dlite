@@ -13,6 +13,7 @@
 #include "utils/fileutils.h"
 #include "utils/tgen.h"
 #include "dlite.h"
+#include "dlite-storage-plugins.h"
 #include "dlite-macros.h"
 #include "dlite-codegen.h"
 
