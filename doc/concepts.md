@@ -20,37 +20,38 @@ state in the scientific software.
 With SOFT it is possible to utilize reusable software components that
 handle all this, or develop new reusable software components that can
 be used by others in the same framework.
-At the core of SOFT are the [SOFT data models], which provide a by
-design simplistic but powerful way to represent scientific data.
+At the core of SOFT are the [SOFT data models], which by design provide
+a simple but powerful way to represent scientific data.
 
 Originally DLite started as a simplified pure C implementation of SOFT
 based on [SOFT5], but has with time developed into a robust framework
 with a large set of [features].
 
-The main components of DLite is shown in Figure 1, including language
-bindings, tools the plugin framework for storages and mappings.
+The main components of DLite are shown in Figure 1, including bindings
+to several programming languages, tools, the plugin framework for
+storages, and mappings.
 
 ![DLite Architecture](figs/architecture.svg)
 
 _**Figure 1.** DLite Architecture._
 
-DLite contains a core library, implementing a simplistic, but powerful
+DLite contains a core library, implementing a simple, but powerful
 datamodel-based framework for semantic interoperability.
 On top of this, it implements a set of bindings, storages, mappings
-and tools.
-The library also comes with set of interfaces (API) to create
+(using [tripper]) and tools.
+The library also comes with a set of interfaces (API) to create
 extensions and custom plugins.
 
-DLite currently provide bindings with well-documented APIs to Python,
+DLite currently provides bindings with well-documented APIs to Python,
 C and Fortran.
-For C and Fortran it provide tools for code generation for easy and
+For C and Fortran it provides tools for code generation for easy and
 efficient integration into simulation software.
 The Python bindings are dynamic in nature and provide a simple way to
 interact with semantic data from Python.
 
-It also provide a plugin architecture for storages and mappings and
+It also provides a plugin architecture for storages and mappings and
 comes with a set of generic storages.
-The plugins can be written either in C or Python and are available any
+The plugins can be written either in C or Python and are available in any
 of the bindings (including C and Fortran) due to the embedded Python
 interpreter.
 
@@ -80,9 +81,9 @@ Datamodel hierarchy
 
 ![Datamodel hierarchy](figs/datamodel-hierarchy.svg)
 
-_**Figure 2.** Datamodel hierarchy.  The instances colored orange are
-predefined, while the other may be defined by the user.  Data
-instances 5 and 6 are what we normally will call a collection._
+_**Figure 2.** Datamodel hierarchy.
+The instances colored orange are predefined, while the other may be defined by the user.
+Data instances 5 and 6 are what we normally will call a collection._
 
 Figure 2 shows the datamodel hierarchy implemented in DLite.
 As a user, you will almost always deal with only entities or data
@@ -115,7 +116,7 @@ A (so far unexplored possibility) with such a datamodel hierarchy is
 that it can enable cross-platform semantic interoperability between
 independent systems that describe their datamodel hierarchies using a
 common BasicMetadataSchema.
-Of cause, this require a common agreement of the BasicMetadataSchema.
+Of course, this requires a common agreement on the BasicMetadataSchema.
 
 
 ### Entities
@@ -263,3 +264,4 @@ However, relations are heavily used in [collections].
 [valid URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#syntax
 [RDF]: https://en.wikipedia.org/wiki/Semantic_triple
 [fig1]: SOFT-metadata-structure.png "Figure 1. Metadata structure."
+[tripper]: https://github.com/EMMC-ASBL/tripper
