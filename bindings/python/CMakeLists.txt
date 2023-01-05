@@ -215,14 +215,21 @@ install(
   DESTINATION ${Python3_MODULE_PATH}
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
-  )
-
+)
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
   DESTINATION share/dlite
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
-  )
+)
+install(
+  CODE "
+   execute_process(
+     COMMAND ${Python3_EXECUTABLE} setup.py install
+       --prefix=${CMAKE_INSTALL_PREFIX} --force
+     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+   )"
+)
 
 
 #
