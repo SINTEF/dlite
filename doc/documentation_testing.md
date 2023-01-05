@@ -1,6 +1,7 @@
 Testing Python examples in the documentation
 ============================================
-We can use the Python doctest module for testing examples in the documentation.
+
+We can use the Python [`doctest`](https://docs.python.org/3/library/doctest.html) module for testing examples in the documentation.
 Run it with
 
     python -m doctest <filename>
