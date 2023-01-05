@@ -17,10 +17,9 @@ list(APPEND CMAKE_MODULE_PATH
   ${DLITE_ROOT}/cmake/Modules
   ${DLITE_ROOT}/share/cmake
   ${DLITE_ROOT}/share/cmake/Modules
+  ${DLITE_ROOT}/share/dlite/cmake
   )
 
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake)
 link_directories(${DLITE_LIBRARY_DIR})
 
 if(WIN32)
@@ -45,6 +44,7 @@ target_link_libraries(dlite-example-4
 target_include_directories(dlite-example-4 PUBLIC
   ${DLITE_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${DLITE_ROOT}/share/dlite/fortran
   )
 
 enable_testing()
