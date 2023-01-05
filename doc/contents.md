@@ -28,7 +28,7 @@ Table of contents
 3. API Reference
 4. Contributor's Guide
     * [Writing storage plugins](storage_plugins.md)
-    * Writing mapping plugins    
+    * Writing mapping plugins
     * [Documentation guideline](documentation_contributors.md)
     * [Testing examples in the documentation](documentation_testing.md)
     * [Tips and tricks](tips_and_tricks.md)
