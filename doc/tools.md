@@ -41,7 +41,7 @@ It comes with four pre-defined templates:
 - **c-meta-header**: Generates a C header file for an entity schema.
 - **fortran-module**: Generates a hard-coded instance of an entity.
 
-For example, the following command will generate a C header for the `Person.jon` entity, run
+For example, the following command will generate a C header for the `Person.json` entity, run
 
 ```console
 dlite-codegen -f c-header -o person.h Person.json
