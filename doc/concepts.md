@@ -244,7 +244,7 @@ attributes:
 
 ### Relation
 A RDF subject-predicate-object triplet.
-Relations are currently not explored in metadata, but were included because of
+Relations are currently not explored in metadata, but are included because of
 their generality.
 However, relations are heavily used in [collections].
 
