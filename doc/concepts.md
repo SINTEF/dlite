@@ -200,7 +200,7 @@ Metadata semantics
 _**Figure 3**. The DLite data model._
 
 The DLite data model is defined by the [Datamodel ontology] and shown
-schematically in figure 3.
+schematically in Figure 3.
 To the left we have the same hierarchy as shown in Figure 2.
 Then we have *instance* and *metadata* as more general concepts.
 
