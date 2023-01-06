@@ -188,8 +188,8 @@ Currently DLite does not enforce that user-defined URIs must follow
 the [RFC 3986] standard for a [valid URI], but it is recommended to do
 so in order to allow using the URI as a valid [RDF]
 subject or object in a knowledge base.
-For this purpose, DLite also allow to refer to data instances using
-id's of the form `<metadata_uri>/<uuid>` (for example
+For this purpose, DLite also allows to refer to data instances using
+ids of the form `<metadata_uri>/<uuid>` (for example
 http://onto-ns.com/meta/0.1/Collection/db6e092b-20f9-44c1-831b-bd597c96daae).
 
 
@@ -216,27 +216,27 @@ In general metadata describe their instances using *dimensions*,
 Properties describe data in terms of keyword-value pairs, dimensions
 enable efficient description of multi-dimensional arrays and relations
 can describe anything that can be represented in a knowledge base.
-Together they provide a general mean to describe all types of data
+Together they provide a general means to describe all types of data
 that can be represented digitally.
 Note however, that not all metadata uses all of these three ways to
 describe their instances.
-For example has entities only dimensions and properties.
+For example, entities have only dimensions and properties.
 
 
 ### Dimension
-A metadata dimension simply provide a *name* and a human *description* of a
+A metadata dimension simply provides a *name* and a human *description* of a
 given dimension of an array property.
 
 
 ### Property
-A property describe an element or item of an instance and has the following
+A property describes an element or item of an instance and has the following
 attributes:
 - *name*: a name identifying the property.
 - *type*: the type of the described property, f.ex. an integer.
 - *$ref*: formally a part of type.
   `$ref` is used together with the "ref" type, which is a special datatype for
   referring to other instances.
-- *shape*: The dimensions of a multi-dimensional properties.
+- *shape*: The dimensions of multi-dimensional properties.
   This is a list of dimension names referring to the dimensions defined above.
 - *unit*: The unit of the property.
 - *description*: A human description of the property.
