@@ -209,9 +209,7 @@ setup(
     # extras_require={"all": extra_requirements},
     packages=["dlite"],
     scripts=[
-        str(Path(".") / "tools" / "dlite-getuuid"),
-        str(Path(".") / "tools" / "dlite-codegen"),
-        str(Path(".") / "tools" / "dlite-env"),
+        #str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),
     ],
     package_data={
         "dlite": [
@@ -219,6 +217,9 @@ setup(
             dlite_compiled_dll_suffix,
             str(Path(".") / "share" / "dlite" / "storage-plugins" /
                 dlite_compiled_dll_suffix),
+            str(Path(".") / "bin" / "dlite-getuuid"),
+            str(Path(".") / "bin" / "dlite-codegen"),
+            str(Path(".") / "bin" / "dlite-env"),
         ]
     },
     ext_modules=[
