@@ -208,7 +208,7 @@ Then we have *instance* and *metadata* as more general concepts.
 As discussed above, all instances have an UUID that is used as their
 main identifier for database lookup.
 All metadata as well as some data instances can also be identified by
-an URI (in which case the UUID is a hash of this URI).
+a URI (in which case the UUID is a hash of this URI).
 Instances also have a *meta* field that refer to the metadata that it
 is described by (or that it is an instance of).
 
