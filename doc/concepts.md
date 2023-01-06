@@ -92,10 +92,11 @@ well-defined schema.
 
 The actual data or *Data instances* are instances of the *Entity* that
 describes them.
-*Entities* are instances of the *EntitySchema* The *EntitySchema* is
-an instance of the *BasicMetadataSchema*, is an instance of itself
+*Entities* are instances of the *EntitySchema*. 
+The *EntitySchema* is
+an instance of the *BasicMetadataSchema* and an instance of itself
 (meaning that it can be used to describe itself).
-Hence, in DLite is **everything is an instance**.
+Hence, in DLite **everything is an instance**.
 This has a practical implication that the API for instances can be applied
 to all metadata as well.
 Since the BasicMetadataSchema can describe itself, no more abstraction
@@ -109,7 +110,7 @@ level) are called *metadata*.
 
 Compared to ontologies, *data instances* correspond to OWL individuals
 while *entities* correspond to OWL classes.
-OWL, which is based on first order logic, do not have concepts corresponding
+OWL, which is based on first order logic, does not have concepts corresponding
 to the higher abstraction levels of EntitySchema and BasicMetadataSchema.
 
 A (so far unexplored possibility) with such a datamodel hierarchy is
@@ -121,7 +122,7 @@ Of course, this requires a common agreement on the BasicMetadataSchema.
 
 ### Entities
 An entity can be a single thing or object that represents something
-physical or nonphysical, concretely or abstract.
+physical or nonphysical, concrete or abstract.
 The entity contains information about the data that constitutes the
 state of thing it describes.
 The entity does not contain the actual data, but describes what the
@@ -136,7 +137,7 @@ that has a position, an atomic number (which characterizes the
 chemical element), mass, charge, etc.
 Another example of a completely different kind of entity can be a data
 reference-entity with properties such as name, description, license,
-access-url, media-type, format, etc). The first entity is suitable as
+access-url, media-type, format, etc. The first entity is suitable as
 an object in a simulation code, while the latter is more suitable for
 a data catalog distribution description (e.g. [dcat:Distribution]).
 Entities allows for describing many aspects of the domain.
@@ -171,13 +172,13 @@ resolves to their definition.
 
 
 ### Instances
-Instances are identified by an [universally unique identifier (UUID)],
+Instances are identified by a [universally unique identifier (UUID)],
 which is a 128 bit label expressed as a string of the form
 `8290318f-258e-54e2-9838-bb187881f996`.
-Since a metadata are instances, they do also have an UUID (which is
+Since metadata are instances, they also have a UUID (which is
 calculated as a hash of their URI).
 
-DLite also allow the user to identify a data instance with a human
+DLite also allows the user to identify a data instance with a human
 readable URI.
 Like for metadata, the UUID will then be calculated as a hash of the
 URI.
