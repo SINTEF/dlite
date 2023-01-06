@@ -9,8 +9,10 @@ project(dlite-example-4
   LANGUAGES Fortran C)
 
 add_compile_options("-DDLITE_ROOT=${DLITE_ROOT}")
-#TODO: make this platform independent, need to add support for long strings
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
+endif()
+
 
 list(APPEND CMAKE_MODULE_PATH
   ${DLITE_ROOT}/cmake
@@ -56,19 +58,18 @@ add_test(
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
+if(WIN32)
+  list(APPEND dlite_PATH ${CMAKE_CURRENT_BINARY_DIR})
+else()
+  list(APPEND dlite_LD_LIBRARY_PATH ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
-# if(WIN32)
-#   list(APPEND dlite_PATH ${CMAKE_CURRENT_BINARY_DIR})
-# else()
-#   list(APPEND dlite_LD_LIBRARY_PATH ${CMAKE_CURRENT_BINARY_DIR})
-# endif()
-
-# set_property(TEST ${test} PROPERTY
-#   ENVIRONMENT "DLITE_ROOT=${DLITE_ROOT}")
-# if(UNIX)
-# set_property(TEST ${test} APPEND PROPERTY
-#   ENVIRONMENT "LD_LIBRARY_PATH=${DLITE_ROOT}/lib")
-# elseif(WIN32)
-# set_property(TEST ${test} APPEND PROPERTY
-#   ENVIRONMENT "PATH=${DLITE_ROOT/lib};${PATH}")
-# endif()
+set_property(TEST ${test} PROPERTY
+  ENVIRONMENT "DLITE_ROOT=${DLITE_ROOT}")
+if(UNIX)
+set_property(TEST ${test} APPEND PROPERTY
+  ENVIRONMENT "LD_LIBRARY_PATH=${DLITE_ROOT}/lib")
+elseif(WIN32)
+set_property(TEST ${test} APPEND PROPERTY
+  ENVIRONMENT "PATH=${DLITE_ROOT/lib};${PATH}")
+endif()
