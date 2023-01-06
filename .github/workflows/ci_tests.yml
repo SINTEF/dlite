@@ -46,7 +46,7 @@ jobs:
         cd build
         Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
           CFLAGS='-Wno-missing-field-initializers' \
-          cmake .. -DFORCE_EXAMPLES=ON
+          cmake .. -DFORCE_EXAMPLES=ON -WITH_FORTRAN=ON
         cd -
     - name: make
       run: |
