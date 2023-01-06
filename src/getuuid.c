@@ -98,6 +98,7 @@ int getuuidn(char *buff, const char *id, size_t len)
     len -= UUID_LEN;
     assert(len > 0);
     strncpy(buff, id+len, UUID_LEN);
+    buff[UUID_LEN] = '\0';
     version = UUID_EXTRACT;
   } else {
     uuid_create_sha1_from_name(&uuid, NameSpace_DNS, id, len);
