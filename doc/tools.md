@@ -31,6 +31,7 @@ b7ffeb70-5ffe-43de-91e0-941244d21d68
 dlite-codegen
 -------------
 This is a template-based code generator for C and Fortran (it is not needed for Python due to its dynamic nature).
+It makes it simple to use DLite for handling I/O in simulation software written in C or Fortran in an easy to maintain way.
 
 It comes with four pre-defined templates:
 
@@ -49,9 +50,30 @@ dlite-codegen -f c-header -o person.h Person.json
 
 Run `dlite-codegen --help` for more information about options and arguments.
 
+If you use [cmake] as a build system for your simulation software, you can run `dlite-codegen` via the `dlite_codegen` CMake macro provided with DLite.
+By including the following in your CMakeLists.txt file:
+
+```cmake
+find_package(dlite REQUIRED)
+
+dlite_codegen(
+  person.h
+  c_header
+  ${CMAKE_CURRENT_SOURCE_DIR}/Person.json
+)
+```
+
+cmake will generate the `person.h` header file in your binary directory based on the `Person.json` file found in your source directory.
+See the C or Fortran examples for a complete example.
+
+
 
 dlite-env
 ---------
 Runs a command with environment variables correctly set up for DLite.
 
 Run `dlite-env --help` for more information about options and arguments.
+
+
+
+[cmake]: https://cmake.org/
