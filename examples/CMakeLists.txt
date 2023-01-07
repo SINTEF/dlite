@@ -7,6 +7,7 @@ set(python_examples
   read-csv
   dehydrogenation
   mappings
+  storage_plugin
   )
 endif()
 

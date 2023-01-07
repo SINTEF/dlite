@@ -8,7 +8,7 @@ thisdir = Path(__file__).resolve().parent
 dlite.python_storage_plugin_path.append(thisdir  / "plugins")
 
 # Create instance from dataset
-inst = dlite.Instance.from_location("tempprofile", "dataset.txt",
+inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt",
                                     options="mode=r", id="ex:dataset")
 print(inst)
 
