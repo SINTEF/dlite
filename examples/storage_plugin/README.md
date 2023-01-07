@@ -1,0 +1,204 @@
+Storage plugin example
+======================
+This example shows how to write a user-defined Python storage plugin.
+
+Lets assume that you have an instrument that logs a temperature at certain times.
+The output file from a temperature profile measurement may look as follows:
+
+```
+measurements: 4
+time  temperature
+0     20
+10    70
+20    80
+30    85
+```
+
+The first line provides the number of measurements performed in the experiment, followed by a table of time-temperature pairs for each temperature measurement.
+
+
+Creating an entity
+------------------
+From the manual we know that the time is number of minutes since the start of the measurement and that the temperature is measured in degree Celsius.
+This allows us to make a datamodel in the form of a DLite entity for this output:
+
+```json
+{
+  "uri": "http://onto-ns.com/meta/0.1/TempProfile",
+  "description": "Measured temperature profile.",
+  "dimensions": {
+    "n": "Number temperature measurements."
+  },
+  "properties": {
+    "time": {
+      "type": "int",
+      "shape": ["n"],
+      "unit": "min",
+      "description": "Number of minutes since the start of the experiment."
+    },
+    "temperature": {
+      "type": "int",
+      "shape": ["n"],
+      "unit": "degC",
+      "description": "Measured temperature at the given times."
+    }
+  }
+}
+```
+
+This file will we place in a sub-directory called `entities/`.
+
+
+Creating a storage plugin
+-------------------------
+We will now write a Python storage plugin that can instantiate a `TempProfile` entity from the output data of the instrument.
+We will place this storage plugin in the `plugins/` sub-directory with the following content:
+
+```python
+"""Specific DLite storage plugin for time-temperature profile."""
+from pathlib import Path
+import dlite
+
+
+class tempprofile(dlite.DLiteStorageBase):
+    """DLite storage plugin for a temperature profile."""
+    TempProfile = dlite.Instance.from_location(
+        "json", Path(__file__).resolve().parent.parent /
+        "entities" / "TempProfile.json",
+    )
+
+    def open(self, location, options=None):
+        """Opens `location`."""
+        self.location = location
+
+    def close(self):
+        pass
+
+    def load(self, id=None):
+        """Reads storage into an new instance and returns the instance."""
+        with open(self.location, "rt") as f:
+            line = f.readline()
+            n = int(line.split(":")[1].strip())
+            inst = self.TempProfile([n], id=id)
+            f.readline()  # skip table header
+            for i in range(n):
+                time, temp = f.readline().split()
+                inst.time[i] = int(time)
+                inst.temperature[i] = int(temp)
+        return inst
+
+    def save(self, inst):
+        """Stores `inst` to storage."""
+        n = inst.dimensions["n"]
+        with open(self.location, "wt") as f:
+            f.write(f"measurements: {n}\n")
+            f.write(f"time  temperature\n")
+            for time, temp in zip(inst.time, inst.temperature):
+                f.write(f"{time:4} {temp:12}\n")
+```
+
+Some important points to note:
+* Python storage plugins are imported by the Python interpreter that is embedded in DLite, not the interpreter that a user may import dlite from.
+* Python storage plugins are created by subclassing `dlite.DLiteStorageBase`.
+* The name of the subclass will become the *driver*  name for this plugin.
+
+A `dlite.DLiteStorageBase` subclass may define the following methods:
+
+* **open(self, location, options=None)**: required
+
+  This method is called when a user create a storage using this plugin.
+  The `location` and `options` arguments have the same meaning as the corresponding arguments to `dlite.Storage()`.
+
+* **close(self)**: optional
+
+  This method is called when a storage is closed.
+
+* **load(self, id=None)**: optional
+
+  Loads an instance identified by `id` from storage and returns it.
+
+* **save(self, inst)**: optional
+
+  Saves instance `inst` to storage.
+
+  If this method is not defined, the storage plugin will not support saving data.
+
+* **query(self, metaid=None)**: optional
+
+  Query the storage for all instances who's metadata IRI equals `metaid`.
+  If `metaid` is None, it queries all instances in the storage.
+
+  Returns an iterator over the UUIDs of the matched instances.
+
+If an optional method is not defined, the storage plugin does not support the corresponding feature.
+
+
+Testing the new storage plugin
+------------------------------
+We are now ready to test the storage plugin.
+A simple test is included in the [main.py] script.
+
+This script first appends the `plugins/` sub-directory to the `dlite.python_storage_plugin_path` such that dlite is able to find the new plugin:
+
+```python
+>>> from pathlib import Path
+>>> import dlite
+
+>>> thisdir = Path(__file__).resolve().parent
+>>> dlite.python_storage_plugin_path.append(thisdir  / "plugins")
+
+```
+
+`dlite.python_storage_plugin_path` is a special path object, with a list-like Python interface.
+It is instantiated from the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment variable.
+
+We can now load a TempProfile instance from `dataset.txt` with
+
+```python
+>>> inst = dlite.Instance.from_location("tempprofile", "dataset.txt", "mode=r")
+>>> print(inst)
+{
+  "uuid": "e3f36e98-3285-5fd0-b129-4635ac15ccdb",
+  "uri": "ex:dataset",
+  "meta": "http://onto-ns.com/meta/0.1/TempProfile",
+  "dimensions": {
+    "n": 4
+  },
+  "properties": {
+    "time": [
+      0,
+      10,
+      20,
+      30
+    ],
+    "temperature": [
+      20,
+      70,
+      80,
+      85
+    ]
+  }
+}
+
+```
+
+Since our plugin also defined a `save()` method, we can also saving our instance to a new file called `newdata.txt`:
+
+```python
+>>> inst.save("tempprofile", "newdata.txt", "mode=w")
+
+```
+
+which will create a new file with the following content:
+
+```
+measurements: 4
+time  temperature
+   0           20
+  10           70
+  20           80
+  30           85
+```
+
+
+[main.py]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin/main.py

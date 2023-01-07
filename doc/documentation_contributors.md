@@ -59,6 +59,7 @@ Then it renders well in browsers and is easy to find and edit for collaborators.
 Examples
 --------
 Write your python examples in the same way as done in the [official Python documentation], by preceeding expressions with `>>> ` and the expected output on the next line below the `>>> `.
+Add a blank line at the end of the code listing.
 For example
 
     ```python
