@@ -123,9 +123,9 @@ A `dlite.DLiteStorageBase` subclass may define the following methods:
 
   If this method is not defined, the storage plugin will not support saving data.
 
-* **query(self, metaid=None)**: optional
+* **query(self, pattern=None)**: optional
 
-  Query the storage for all instances who's metadata IRI equals `metaid`.
+  Query the storage for all instances who's metadata IRI matches the glob pattern `pattern`.
   If `metaid` is None, it queries all instances in the storage.
 
   Returns an iterator over the UUIDs of the matched instances.
