@@ -10,28 +10,42 @@ from pathlib import Path
 import dlite
 
 
-def parse(url, driver, options=None):
-    """Parse url and return an instance."""
+def parse(url, driver=None, options=None, id=None):
+    """Loads an instance from storage.
+
+    Arguments:
+        url: URL of storage to load from.
+        driver: The name of storage plugin to use.
+        options: Options passed to the storage plugin.
+        id: ID of instance to load if the storage contains multiple instances.
+
+    Returns:
+        A new instance.
+    """
     match = re.match(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://', url)
     if match and match.groups[0].lower() != 'file':
         if driver:
-            return dlite.Instance.from_location(driver, url, options=options)
+            return dlite.Instance.from_location(
+                driver, url, options=options, id=id,
+            )
         else:
-            return dlite.Instance.from_url(url, options=options)
+            return dlite.Instance.from_url(url, options=options, id=id)
     else:
         path = url[7:] if url.lower().startswith('file://') else url
         if driver:
-            return dlite.Instance_from_location(driver, path, options=options)
+            return dlite.Instance_from_location(
+                driver, path, options=options, id=id
+            )
         fileext = Path(path).suffix.lstrip('.').lower()
 
         # For json and yaml, use the Python parser instead of dlite, since
         # they have better error reporting for invalid serialisation
         if fileext == 'json':
             with open(path, 'rt') as f:
-                return dlite.Instance.from_dict(json.load(f))
+                return dlite.Instance.from_dict(json.load(f), id=id)
         elif fileext in ('yaml', 'yml'):
             with open(path, 'rt') as f:
-                return dlite.Instance.from_dict(yaml.save_load(f))
+                return dlite.Instance.from_dict(yaml.safe_load(f), id=id)
         return dlite.Instance.from_location(fileext, path, options=options)
 
 
@@ -55,14 +69,28 @@ def main():
         help='Options parsed on to the dlite storage plugin.'
     )
     parser.add_argument(
+        '--id', '-i',
+        help='Id to instance to load if the storage contains multiple '
+        'instances.'
+    )
+    parser.add_argument(
+        '--storage-path', '-p', nargs='*', default=[],
+        help='URL or path to storage path to look up metadata. '
+        'Only needed when validating data instances. '
+        'This option can be given multiple times.'
+    )
+    parser.add_argument(
         '--show', '-s', action='store_true',
         help='Print the json-serialisation of the instance to standard output.'
     )
 
     args = parser.parse_args()
 
+    for path in args.storage_path:
+        dlite.storage_path.append(Path(path).resolve())
+
     try:
-        inst = parse(args.url, args.driver, args.options)
+        inst = parse(args.url, args.driver, args.options, args.id)
     except Exception as exc:
         print(f'{args.url}: {exc.__class__.__name__}: {exc}')
     else:
