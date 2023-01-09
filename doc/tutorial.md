@@ -57,7 +57,7 @@ Next, we want to include a human-understandable description of what the Entity r
 ```json
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
 "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-"description":
+"description": "Measurement data from one solar panel."
 ```
 
 ### Step 4: Defining the dimensions
@@ -78,7 +78,7 @@ We will give our dimension the generic name "N", and describe it as the number o
 ```
 
 ### Step 5: Defining the properties
-Now it is time to define the properties of our Entity. This is where we can describe what our data signifies. As for the dimensions we add the properties as a list of json structures, where each property should have a name, type, desciption, and if relevant, a list of dimension(s) (abbreviated to dims). "If relevant" here means that if a property has a dimensionality of zero (i.e., it is a scalar), the `dims` field can be ommited.
+Now it is time to define the properties of our Entity. This is where we can describe what our data signifies. As for the dimensions we add the properties as a list of json structures, where each property should have a name, type, desciption, and if relevant, a list of dimension(s) (abbreviated to shape). "If relevant" here means that if a property has a dimensionality of zero (i.e., it is a scalar), the `shape` field can be ommited.
 
 Inserting our properties, our Entity is complete and looks something like this:
 
@@ -86,7 +86,7 @@ Inserting our properties, our Entity is complete and looks something like this:
 {
     "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
     "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-    "description": "Measurement data from one x solar panel.",
+    "description": "Measurement data from one solar panel.",
     "dimensions": [
       {
       "name": "N",
@@ -95,56 +95,61 @@ Inserting our properties, our Entity is complete and looks something like this:
     ],
     "properties": [
         {
-            "name": "Impp [A]",
+            "name": "Impp",
             "type": "float",
-            "dims": ["N"],
-            "description": " "
+            "unit": "A",
+            "shape": ["N"],
+            "description": "Maximum power point current."
         },
         {
-            "name": "irradiance [W/m²]",
-            "type": "int",
-            "dims": ["N"],
-            "description": " "
+            "name": "isc",
+            "type": "float",
+            "unit": "A",
+            "shape": ["N"],
+            "description": "Short circuit current."
         },
         {
-            "name": "Irradiation Yield ¹ [Wh/m²]",
+            "name": "MPP",
             "type": "float",
-            "dims": ["N"],
-            "description": " "
+            "unit": "W",
+            "shape": ["N"],
+            "description": "Maximum power."
         },
         {
-            "name": "isc [A]",
+            "name": "vmpp",
             "type": "float",
-            "dims": ["N"],
-            "description": " "
+            "unit": "V",
+            "shape": ["N"],
+            "description": "Maximum power point voltage."
         },
         {
-            "name": "MPP Yield ¹ [Wh]",
+            "name": "voc",
             "type": "float",
-            "dims": ["N"],
-            "description": " "
-        },
-        {
-            "name": "MPP ¹ [W]",
-            "type": "float",
-            "dims": ["N"],
-            "description": " "
-        },
-        {
-            "name": "vmpp [V]",
-            "type": "float",
-            "dims": ["N"],
-            "description": " "
-        },
-        {
-            "name": "voc [V]",
-            "type": "float",
-            "dims": ["N"],
-            "description": " "
-        },
+            "unit": "V",
+            "shape": ["N"],
+            "description": "Open circuit voltage."
+        }
     ]
 }
 
 ```
 
 ## Instantiating an Entity with DLite
+We will now instantiate our Entity in Python. There are several ways to do this. 
+
+1. Using the json storage plugin:
+
+```python
+import dlite
+
+Entity = dlite.Instance.from_location('json', path_to_entity_file, )
+
+```
+
+2. 
+
+* Instantiate entity with DLite
+    1. (Entity =) dlite.Instance.from_location('json', path_to_entity_file, ). Here we are using the json storage plugin. Explain what a storage plugin is \ref.
+    2. Add filepath to storage path, then use dlite.get_instance() to fetch
+    entity.
+    3. there are more ways to do this ... 
