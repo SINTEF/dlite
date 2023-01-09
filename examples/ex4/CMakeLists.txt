@@ -21,6 +21,7 @@ list(APPEND CMAKE_MODULE_PATH
   ${DLITE_ROOT}/share/cmake/Modules
   )
 
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DLITE_ROOT}/share/dlite/cmake)
 link_directories(${DLITE_LIBRARY_DIR})
 
