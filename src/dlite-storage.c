@@ -251,6 +251,7 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
     char buf[DLITE_UUID_LENGTH+1];
     void *ptr, *iter = s->api->iterCreate(s, pattern);
     int n=0, len=0;
+
     if (!iter) return NULL;
     while (s->api->iterNext(iter, buf) == 0) {
       if (n >= len) {
