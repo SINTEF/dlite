@@ -14,10 +14,6 @@ class blob(dlite.DLiteStorageBase):
         """Opens `uri`."""
         self.uri = uri
 
-    def close(self):
-        """Closes this storage."""
-        pass
-
     def load(self, id):
         """Loads `uuid` from current storage and return it as a new instance."""
         metaid = 'http://onto-ns.com/meta/0.1/Blob'
