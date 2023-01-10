@@ -1,0 +1,31 @@
+
+{
+    "name": "solarPanelMeasurement",
+    "namespace": "http://www.ontotrans.eu",
+    "version": "0.1",
+    "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
+    "description": "Measurement data from one solar panel.",
+    "dimensions": [
+        {
+        "name": "N",
+        "description": "Number of rows."
+        }
+      ],
+    "properties": [
+        {
+            "name":"t",
+            "type":"float32",
+            "unit":"ns",
+            "dims": ["N"], 
+            "description": "Time"
+        },
+
+        {
+            "name":"MPP",
+            "type":"float32",
+            "unit":"W",
+            "dims": ["N"], 
+            "description": "Maximum Power" 
+        }
+    ]
+}
