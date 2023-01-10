@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validator for dlite datamodels.
 """
+import sys
 import argparse
 import json
 import re
@@ -71,11 +72,11 @@ def main():
     )
     parser.add_argument(
         '--id', '-i',
-        help='Id to instance to load if the storage contains multiple '
+        help='Id of instance to load if the storage contains multiple '
         'instances.'
     )
     parser.add_argument(
-        '--storage-path', '-p', nargs='*', default=[],
+        '--storage-path', '-p', action='append', default=[],
         help='URL or path to storage path to look up metadata. '
         'Only needed when validating data instances. '
         'This option can be given multiple times.'
@@ -94,6 +95,7 @@ def main():
         inst = parse(args.url, args.driver, args.options, args.id)
     except Exception as exc:
         print(f'{args.url}: {exc.__class__.__name__}: {exc}')
+        sys.exit(1)
     else:
         print(f'{args.url}: validated')
 
