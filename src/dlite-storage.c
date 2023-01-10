@@ -242,7 +242,7 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
   dlite_storage_uuids_free().
 
   Not all plugins may implement this function.  In that case, NULL is
-  returned.
+  returned.  NULL is also returned on error.
  */
 char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
 {
@@ -251,6 +251,8 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
     char buf[DLITE_UUID_LENGTH+1];
     void *ptr, *iter = s->api->iterCreate(s, pattern);
     int n=0, len=0;
+
+    if (!iter) return NULL;
     while (s->api->iterNext(iter, buf) == 0) {
       if (n >= len) {
         len += 32;
