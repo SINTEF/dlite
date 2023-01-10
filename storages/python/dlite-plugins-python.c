@@ -41,12 +41,15 @@ opener(const DLiteStoragePlugin *api, const char *location,
   PyObject *cls = (PyObject *)api->data;
   const char *classname;
 
+  PyErr_Clear();
+
   if (!(classname = dlite_pyembed_classname(cls)))
     dlite_warnx("cannot get class name for storage plugin %s", api->name);
 
   /* Call method: open() */
   if (!(obj = PyObject_CallObject(cls, NULL)))
     FAIL1("error instantiating %s", classname);
+
   v = PyObject_CallMethod(obj, "open", "ss", location, options);
   if (dlite_pyembed_err_check("error calling %s.open()", classname)) goto fail;
 
@@ -110,6 +113,10 @@ int closer(DLiteStorage *s)
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
+
+  /* Return if close() is not defined */
+  if (!PyObject_GetAttrString(sp->obj, "close")) return retval;
+
   v = PyObject_CallMethod(sp->obj, "close", "");
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
     retval = 1;
@@ -319,10 +326,11 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   if (!PyCallable_Check(open))
     FAIL1("attribute 'open' of '%s' is not callable", classname);
 
-  if (!(close = PyObject_GetAttrString(cls, "close")))
-    FAIL1("'%s' has no method: 'close'", classname);
-  if (!PyCallable_Check(close))
-    FAIL1("attribute 'close' of '%s' is not callable", classname);
+  if (PyObject_HasAttrString(cls, "close")) {
+    close = PyObject_GetAttrString(cls, "close");
+    if (!PyCallable_Check(close))
+      FAIL1("attribute 'close' of '%s' is not callable", classname);
+  }
 
   if (PyObject_HasAttrString(cls, "queue")) {
     queue = PyObject_GetAttrString(cls, "queue");
