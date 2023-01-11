@@ -1,168 +1,77 @@
+find_package(Sphinx REQUIRED)
 find_package(Doxygen REQUIRED)
-project(dlite-doc)
+project(dlite-pydoc)
 
-if(DOXYGEN_FOUND)
+# configured documentation tools and intermediate build results
+set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/_build")
 
-  # Fix links in README.md such that doxygen understand them.
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/README.md
-    COMMAND ${CMAKE_COMMAND}
-      -Dinfile=${dlite_SOURCE_DIR}/README.md
-      -Doutfile=${CMAKE_CURRENT_BINARY_DIR}/README.md
-      -P ${CMAKE_CURRENT_SOURCE_DIR}/fix_readme.cmake
-    MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/README.md
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fix_readme.cmake
-    )
+# Sphinx cache with pickled ReST documents
+set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
 
-  set(dependencies
-    ${CMAKE_CURRENT_BINARY_DIR}/README.md
-    ${CMAKE_CURRENT_SOURCE_DIR}/fix_index.py
+# HTML output directory
+set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
 
-    ${dlite_SOURCE_DIR}/cmake/README.md
-    ${dlite_SOURCE_DIR}/examples/ex1/README.md
-    ${dlite_SOURCE_DIR}/examples/ex2/README.md
-    ${dlite_SOURCE_DIR}/examples/read-csv/README.md
-    ${dlite_SOURCE_DIR}/examples/ex3/README.md
-    ${dlite_SOURCE_DIR}/examples/ex4/README.md
-    ${dlite_SOURCE_DIR}/examples/ex5d/README.md
-    ${dlite_SOURCE_DIR}/examples/dehydrogenation/README.md
-    ${dlite_SOURCE_DIR}/examples/mappings/README.md
-    ${dlite_SOURCE_DIR}/src/tests/minunit/README.md
-    ${dlite_SOURCE_DIR}/src/utils/README.md
-    ${dlite_SOURCE_DIR}/src/pyembed/README.md
-    ${dlite_SOURCE_DIR}/storages/python/README.md
-    ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/README.md
-    ${dlite_SOURCE_DIR}/storages/python/tests-python/README.md
+set(SPHINX_INDEX_FILE "${SPHINX_HTML_DIR}/index.html")
 
-    ${dlite_SOURCE_DIR}/doc/Doxyfile.in
-    ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
-    ${dlite_SOURCE_DIR}/doc/build_with_vs.md
-    ${dlite_SOURCE_DIR}/doc/code_generation.md
-    ${dlite_SOURCE_DIR}/doc/collections.md
-    ${dlite_SOURCE_DIR}/doc/concepts.md
-    ${dlite_SOURCE_DIR}/doc/environment_variables.md
-    ${dlite_SOURCE_DIR}/doc/features.md
-    ${dlite_SOURCE_DIR}/doc/mappings.md
-    ${dlite_SOURCE_DIR}/doc/storage_plugins.md
-    ${dlite_SOURCE_DIR}/doc/tools.md
-    ${dlite_SOURCE_DIR}/doc/transactions.md
-    ${dlite_SOURCE_DIR}/doc/developers/release_instructions.md
-    ${dlite_SOURCE_DIR}/doc/figs/transactions.png
+# Doxygen intput source directory
+set(DOXYGEN_INPUT_DIR ${dlite_SOURCE_DIR}/src)
 
-    ${dlite_SOURCE_DIR}/src/dlite.h
-    ${dlite_SOURCE_DIR}/src/dlite-arrays.h
-    ${dlite_SOURCE_DIR}/src/dlite-codegen.h
-    ${dlite_SOURCE_DIR}/src/dlite-collection.h
-    ${dlite_SOURCE_DIR}/src/dlite-datamodel.h
-    ${dlite_SOURCE_DIR}/src/dlite-entity.h
-    ${dlite_SOURCE_DIR}/src/dlite-errors.h
-    ${dlite_SOURCE_DIR}/src/dlite-getlicense.h
-    ${dlite_SOURCE_DIR}/src/dlite-json.h
-    ${dlite_SOURCE_DIR}/src/dlite-macros.h
-    ${dlite_SOURCE_DIR}/src/dlite-mapping.h
-    ${dlite_SOURCE_DIR}/src/dlite-mapping-plugins.h
-    ${dlite_SOURCE_DIR}/src/dlite-misc.h
-    ${dlite_SOURCE_DIR}/src/dlite-schemas.h
-    ${dlite_SOURCE_DIR}/src/dlite-storage.h
-    ${dlite_SOURCE_DIR}/src/dlite-storage-plugins.h
-    ${dlite_SOURCE_DIR}/src/dlite-store.h
-    ${dlite_SOURCE_DIR}/src/dlite-type-cast.h
-    ${dlite_SOURCE_DIR}/src/dlite-type.h
-    ${dlite_SOURCE_DIR}/src/getuuid.h
-    ${dlite_SOURCE_DIR}/src/pathshash.h
-    ${dlite_SOURCE_DIR}/src/triple.h
-    ${dlite_SOURCE_DIR}/src/triplestore.h
+# Doxygen output directory
+set(DOXYGEN_OUTPUT_XML_DIR "${CMAKE_CURRENT_BINARY_DIR}/xml")
 
-    ${dlite_SOURCE_DIR}/src/utils/compat.h
-    ${dlite_SOURCE_DIR}/src/utils/dsl.h
-    ${dlite_SOURCE_DIR}/src/utils/err.h
-    ${dlite_SOURCE_DIR}/src/utils/execprocess.h
-    ${dlite_SOURCE_DIR}/src/utils/fileinfo.h
-    ${dlite_SOURCE_DIR}/src/utils/fileutils.h
-    ${dlite_SOURCE_DIR}/src/utils/globmatch.h
-    ${dlite_SOURCE_DIR}/src/utils/infixcalc.h
-    ${dlite_SOURCE_DIR}/src/utils/jsmn.h
-    ${dlite_SOURCE_DIR}/src/utils/jsmnx.h
-    ${dlite_SOURCE_DIR}/src/utils/jstore.h
-    ${dlite_SOURCE_DIR}/src/utils/map.h
-    ${dlite_SOURCE_DIR}/src/utils/md5.h
-    ${dlite_SOURCE_DIR}/src/utils/plugin.h
-    ${dlite_SOURCE_DIR}/src/utils/session.h
-    ${dlite_SOURCE_DIR}/src/utils/sha1.h
-    ${dlite_SOURCE_DIR}/src/utils/sha3.h
-    ${dlite_SOURCE_DIR}/src/utils/strtob.h
-    ${dlite_SOURCE_DIR}/src/utils/strutils.h
-    ${dlite_SOURCE_DIR}/src/utils/tgen.h
-    ${dlite_SOURCE_DIR}/src/utils/tmpfileplus.h
-    ${dlite_SOURCE_DIR}/src/utils/uuid4.h
-    ${dlite_SOURCE_DIR}/src/utils/uuid.h
+set(DOXYGEN_DOXYFILE_IN "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
+set(DOXYGEN_DOXYFILE_OUT "${BINARY_BUILD_DIR}/Doxyfile")
 
-    ${dlite_SOURCE_DIR}/src/utils/tests/tgen_example.c
-    )
+set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_XML_DIR}/index.xml)
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
-    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+message (${DOXYGEN_DOXYFILE_IN})
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
+    "${BINARY_BUILD_DIR}/conf.py"
+    @ONLY)
 
-  add_custom_command(OUTPUT html/index.html
-    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-    COMMAND ${CMAKE_COMMAND}
-      -E make_directory html/src
-    COMMAND ${CMAKE_COMMAND}
-      -E copy ${dlite_SOURCE_DIR}/src/dlite-storage.h html/src/dlite-storage.h
-    COMMAND ${CMAKE_COMMAND}
-      -E copy ${dlite_SOURCE_DIR}/src/dlite-entity.h html/src/dlite-entity.h
-    COMMAND ${CMAKE_COMMAND}
-      -E copy ${dlite_SOURCE_DIR}/src/dlite-type.h html/src/dlite-type.h
-    COMMAND ${CMAKE_COMMAND}
-      -E copy ${dlite_SOURCE_DIR}/doc/SOFT-metadata-structure.png
-         html/SOFT-metadata-structure.png
-    COMMAND ${CMAKE_COMMAND}
-      -E make_directory html/figs
-    COMMAND ${CMAKE_COMMAND}
-      -E copy ${dlite_SOURCE_DIR}/doc/figs/transactions.png
-         html/figs/transactions.png
-    COMMAND ${CMAKE_COMMAND}
-      -E make_directory html/python-storage-plugins
-    COMMAND ${CMAKE_COMMAND}
-      -E copy ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/yaml.py
-         html/python-storage-plugins/yaml.py
-    COMMAND ${CMAKE_COMMAND}
-      -Dscript=${CMAKE_CURRENT_SOURCE_DIR}/fix_index.py
-      -Dhtmlfile=${CMAKE_CURRENT_BINARY_DIR}/html/index.html
-      -P ${CMAKE_CURRENT_SOURCE_DIR}/fix_index.cmake
-    DEPENDS ${dependencies}
-    #BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating API documentation with Doxygen"
-    VERBATIM
-    )
+file(COPY
+  "${CMAKE_CURRENT_SOURCE_DIR}/index.rst"
+  "${CMAKE_CURRENT_SOURCE_DIR}/respirator.py"
+  "${CMAKE_CURRENT_SOURCE_DIR}/_templates"
+  "${CMAKE_CURRENT_SOURCE_DIR}/_static"
+  "${CMAKE_CURRENT_SOURCE_DIR}/user_documentation"
+  DESTINATION
+  "${BINARY_BUILD_DIR}"
+)
 
-  # Unfortunately dependencies for build-in target "install" is not
-  # yet supported.  When that is supported, we can remove ALL from
-  # add_custom_target() and uncommend add_dependencies().
-  add_custom_target(doc ALL
-    DEPENDS html/index.html
-    )
-
-  #add_dependencies(install doc)
+configure_file(
+    ${DOXYGEN_DOXYFILE_IN}
+    ${DOXYGEN_DOXYFILE_OUT}
+    @ONLY)
 
 
-  # LaTeX documentation
-  add_custom_command(OUTPUT latex/refman.pdf
-    COMMAND make
-    DEPENDS html/index.html
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/latex
-    COMMENT "Generating LaTeX documentation"
-    VERBATIM
-    )
+# Doxygen command
+add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
+                   DEPENDS ${DLITE_PUBLIC_HEADERS}
+                   COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN} ${DOXYFILE_OUT}
+                   MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
+		   WORKING_DIRECTORY ${BINARY_BUILD_DIR}
+                   COMMENT "Generating docs"
+                   VERBATIM)
 
-  add_custom_target(latex
-    DEPENDS latex/refman.pdf
-    )
+# Named constom target
+add_custom_target(Doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
 
-  install(
-    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
-    DESTINATION share/dlite
-    )
+# Sphinx command
+add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
+  COMMAND
+  ${SPHINX_EXECUTABLE}
+        -q -b html
+        -c "${BINARY_BUILD_DIR}"
+        -d "${SPHINX_CACHE_DIR}"
+        ${BINARY_BUILD_DIR}
+        "${SPHINX_HTML_DIR}"
+  DEPENDS
+  ${DOXYGEN_INDEX_FILE}
+  ${BINARY_BUILD_DIR}/respirator.py
+  MAIN_DEPENDENCY ${BINARY_BUILD_DIR}/conf.py
+  COMMENT "Building HTML documentation with Sphinx")
 
-endif(DOXYGEN_FOUND)
+add_custom_target(Sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
+

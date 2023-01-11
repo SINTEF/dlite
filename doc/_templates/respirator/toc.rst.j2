@@ -1,0 +1,10 @@
+{% block title %}{{ title }}
+{{ "="*len(title) }}{% endblock %}
+{% block description %}{% endblock %}
+{% block toctree %}.. toctree::
+   :caption: Modules:
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+   {% for ref in refs %}
+   {{ ref }}{% endfor %}{% endblock %}

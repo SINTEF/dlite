@@ -9,9 +9,8 @@ DLite
    :hidden:
 
    Python <autoapi/index>
-   C <dlite>
-   Extras <extras>
-   Utils <utils>
+   C-API <c-api/src>
+
 
 .. toctree::
    :maxdepth: 3
@@ -52,6 +51,14 @@ DLite
 ..    :hidden:
 
 ..    autoapi/storages/**/index
+
+.. toctree::
+   :maxdepth: 3
+   :caption: User Documentation
+   :glob:
+   :hidden:
+
+   User Documentation <user_documentation/index>
 
 Indices and tables
 ------------------

@@ -14,7 +14,7 @@
 #define UUID_COPY     0  //!< copied UUID from input as-is
 #define UUID_RANDOM   4  //!< random version 4 UUID
 #define UUID_HASH     5  //!< version 5 sha1-based UUID using the DNS namespace
-#define UUID_EXTRACT 10  //!< UUID extracted input: <metadata URI>/<UUID>
+#define UUID_EXTRACT 10  //!< UUID extracted input: [metadata URI]/[UUID]
 
 
 /**
@@ -25,7 +25,7 @@
     Return: UUID_RANDOM
   - If `id` is a valid UUID, it is copied as-is to `buff`.
     Return: UUID_COPY
-  - If `id` matches `<URI>/<UUID>` then it returns the <UUID> part.
+  - If `id` matches `[URI]/[UUID]` then it returns the [UUID] part.
     `id` may optionally end with a final hash (#) or slash (/), which will
     be ignored.
     Return: UUID_EXTRACT

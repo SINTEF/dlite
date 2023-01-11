@@ -1,0 +1,7 @@
+{% block title %}{{ title }}
+{{ "="*len(title) }}{% endblock %}
+{% block description %}{% endblock %}
+{% block doxygenfile %}
+.. doxygenfile:: {{ doxyfile }}
+   :project: dlite{% endblock %}
+    
