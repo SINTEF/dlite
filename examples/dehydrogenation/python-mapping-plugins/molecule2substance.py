@@ -2,9 +2,9 @@ import dlite
 
 
 class Molecule2Substance(DLiteMappingBase):
-    name = 'Molecule2Substance'
-    input_uris = ['http://onto-ns.com/meta/0.1/Molecule']
-    output_uri = 'http://onto-ns.com/meta/0.1/Substance'
+    name = "Molecule2Substance"
+    input_uris = ["http://onto-ns.com/meta/0.1/Molecule"]
+    output_uri = "http://onto-ns.com/meta/0.1/Substance"
     cost = 25
 
     def map(self, instances):

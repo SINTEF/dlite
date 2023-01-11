@@ -31,6 +31,7 @@ if TYPE_CHECKING:  # pragma: no cover
 class FactoryError(Exception):
     """Base exception for factory errors."""
 
+
 class IncompatibleClassError(FactoryError):
     """Raised if an extended class is not compatible with its dlite
     metadata."""
@@ -66,9 +67,7 @@ class BaseExtension(metaclass=MetaExtension):
 
         """
         dims = self._dlite_infer_dimensions()
-        self.dlite_inst = Instance.from_metaid(
-            self.dlite_meta.uri, dims, instanceid
-        )
+        self.dlite_inst = Instance.from_metaid(self.dlite_meta.uri, dims, instanceid)
         self._dlite_assign_properties()
 
     def _dlite_get(self, name: str) -> "Any":
@@ -119,8 +118,7 @@ class BaseExtension(metaclass=MetaExtension):
             if prop.ndims:
                 value = getter(prop.name)
                 array = (
-                    np.array(value, copy=False)
-                    if value else np.zeros([0] * prop.ndims)
+                    np.array(value, copy=False) if value else np.zeros([0] * prop.ndims)
                 )
                 if array.ndim < prop.ndims:
                     raise ValueError(
@@ -233,12 +231,16 @@ def objectfactory(
         A new, extended copy of the Python object ``obj``.
 
     """
-    cls = cls if cls is not None else classfactory(
-        obj.__class__,
-        meta=meta,
-        url=url,
-        storage=storage,
-        id=id,
+    cls = (
+        cls
+        if cls is not None
+        else classfactory(
+            obj.__class__,
+            meta=meta,
+            url=url,
+            storage=storage,
+            id=id,
+        )
     )
     new = copy.deepcopy(obj) if deepcopy else copy.copy(obj)
     new.__class__ = cls

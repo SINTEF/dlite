@@ -2,11 +2,11 @@
 from typing import TYPE_CHECKING
 
 import rdflib
+from dlite.options import Options
+from dlite.rdf import DM, PUBLIC_ID, from_graph, to_graph
 from rdflib.util import guess_format
 
 import dlite
-from dlite.options import Options
-from dlite.rdf import DM, PUBLIC_ID, from_graph, to_graph
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Generator, Optional
@@ -44,8 +44,7 @@ class pyrdf(dlite.DLiteStorageBase):
         self.writable = "r" not in self.options.mode
         self.uri = uri
         self.format = (
-            self.options.format
-            if "format" in self.options else guess_format(uri)
+            self.options.format if "format" in self.options else guess_format(uri)
         )
         self.graph = rdflib.Graph()
         if self.options.mode in "ra":
@@ -81,8 +80,7 @@ class pyrdf(dlite.DLiteStorageBase):
             base_uri=self.options.get("base_uri"),
             base_prefix=self.options.get("base_prefix"),
             include_meta=(
-                dlite.asbool(self.options) if "include_meta" in self.options
-                else None
+                dlite.asbool(self.options) if "include_meta" in self.options else None
             ),
         )
 

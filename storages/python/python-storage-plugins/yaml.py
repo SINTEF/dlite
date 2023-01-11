@@ -3,10 +3,10 @@ import os
 from typing import TYPE_CHECKING
 
 import yaml as pyyaml  # To not clash with the current file name.
-
-import dlite
 from dlite.options import Options
 from dlite.utils import instance_from_dict
+
+import dlite
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Generator, Optional
@@ -52,9 +52,7 @@ class yaml(dlite.DLiteStorageBase):
         """Closes this storage."""
         if self.writable:
             mode = (
-                "w"
-                if self.mode == "r+" and not os.path.exists(self.uri)
-                else self.mode
+                "w" if self.mode == "r+" and not os.path.exists(self.uri) else self.mode
             )
             with open(self.uri, mode) as handle:
                 pyyaml.dump(

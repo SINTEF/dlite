@@ -30,6 +30,6 @@
         "name": "Joe Doe",
         "age": 53.0,
         "skills": ["java", "c#", "c++"],
-        "temperature": [37.4]        
-    }    
+        "temperature": [37.4]
+    }
 }

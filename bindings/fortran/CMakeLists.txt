@@ -25,7 +25,7 @@ foreach(source ${sources})
 endforeach()
 set_target_properties(dlite-fortran PROPERTIES PUBLIC_HEADER "${modules}")
 
-## Install modules in 
+## Install modules in
 install(TARGETS dlite-fortran
   PUBLIC_HEADER DESTINATION include/dlite
 )

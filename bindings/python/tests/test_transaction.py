@@ -2,12 +2,11 @@ from pathlib import Path
 
 import dlite
 
-
 # Configure paths
 thisdir = Path(__file__).parent.absolute()
 
-dlite.storage_path.append(thisdir / '*.json')
-Person = dlite.get_instance('http://onto-ns.com/meta/0.1/Person')
+dlite.storage_path.append(thisdir / "*.json")
+Person = dlite.get_instance("http://onto-ns.com/meta/0.1/Person")
 
 person = Person(dims={"N": 4})
 person.name = "Knud H. Thomsen"
@@ -61,7 +60,7 @@ inst.age = 50
 inst.snapshot()
 inst.age = 55
 for i in range(6):
-    assert inst.get_snapshot(i).age == 55 - i*5
+    assert inst.get_snapshot(i).age == 55 - i * 5
 
 for i in range(4):
     assert inst.get_snapshot(i + 2).age == person.get_snapshot(3 + i).age
@@ -71,9 +70,7 @@ try:
 except dlite.DLiteError:
     pass
 else:
-    raise Exception(
-        "Should've failed test (getting non-existant snapshot), but didn't"
-    )
+    raise Exception("Should've failed test (getting non-existant snapshot), but didn't")
 
 # Push to storage
 db = thisdir / "output" / "db.json"
@@ -81,5 +78,5 @@ if db.exists():
     db.unlink()  # Make sure that the db is empty
 
 with dlite.Storage("json", db, "mode=w") as storage:
-    #person.push_snapshot(storage, 1)
+    # person.push_snapshot(storage, 1)
     storage.save(person)

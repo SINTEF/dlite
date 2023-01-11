@@ -199,15 +199,15 @@ TCFuncExport    void        tq_ssic( TC_STRING stavar,
                                      TC_INT* iwsg,
                                      TC_INT* iwse);
 /*----------------------------------------------------------------------*/
-TCFuncExport    void        tq_dstm(TC_STRING stream, 
+TCFuncExport    void        tq_dstm(TC_STRING stream,
                                     TC_INT* iwsg,
                                     TC_INT* iwse);
 /*----------------------------------------------------------------------*/
-TCFuncExport    void        tq_nseg(TC_STRING id, 
+TCFuncExport    void        tq_nseg(TC_STRING id,
                                     TC_INT* iwsg,
                                     TC_INT* iwse);
 /*----------------------------------------------------------------------*/
-TCFuncExport    void        tq_sseg(TC_STRING id, 
+TCFuncExport    void        tq_sseg(TC_STRING id,
                                     TC_INT* iwsg,
                                     TC_INT* iwse);
 /*----------------------------------------------------------------------*/
@@ -604,30 +604,30 @@ TCFuncExport    void    tq_ips_set_optimization(TC_INT istat,
   TQ-REORDER PHASES
 */
 /*----------------------------------------------------------------------*/
-TCFuncExport    void 
+TCFuncExport    void
 tq_pacs( TC_INT index,
 	 TC_INT* iwsg,
 	 TC_INT* iwse);
 /*----------------------------------------------------------------------*/
-TCFuncExport    void 
+TCFuncExport    void
 tq_roinit( TC_INT nwsr,
 	   TC_INT* iwsr,
 	   TC_INT* iwsg,
 	   TC_INT* iwse);
 /*----------------------------------------------------------------------*/
-TCFuncExport    void 
+TCFuncExport    void
 tq_setrx( TC_STRING phase,
 	  TC_FLOAT* x,
 	  TC_INT* iwsr,
 	  TC_INT* iwsg,
 	  TC_INT* iwse);
 /*----------------------------------------------------------------------*/
-TCFuncExport    void 
+TCFuncExport    void
 tq_order( TC_INT* iwsr,
 	  TC_INT* iwsg,
 	  TC_INT* iwse);
 /*----------------------------------------------------------------------*/
-TCFuncExport    void 
+TCFuncExport    void
 tq_lrox( TC_INT* iwsr,
 	 TC_INT* iwsg,
 	 TC_INT* iwse);

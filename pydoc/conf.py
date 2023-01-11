@@ -4,8 +4,8 @@ For the full list of built-in configuration values, see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -31,7 +31,12 @@ dlite_share_plugins = [
     plugin_dir.name
     for plugin_dir in (
         Path(__file__).resolve().parent.parent
-        / "build" / "bindings" / "python" / "dlite" / "share" / "dlite"
+        / "build"
+        / "bindings"
+        / "python"
+        / "dlite"
+        / "share"
+        / "dlite"
     ).iterdir()
     if plugin_dir.is_dir()
 ]
@@ -59,7 +64,7 @@ exclude_patterns = [
 
 extensions = [
     "autoapi.extension",
-    "breathe", # Doxygen bridge
+    "breathe",  # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
     "sphinx.ext.graphviz",  # Graphviz
     "sphinx.ext.intersphinx",  # Connect to external (Sphinx) API documentation
@@ -79,9 +84,7 @@ suppress_warnings = ["myst.mathjax"]
 breathe_projects = {"dlite": "../build/pydoc/doxygen/xml/"}
 breathe_default_project = "dlite"
 
-autoapi_dirs = [
-    "../build/bindings/python/dlite"
-] + [
+autoapi_dirs = ["../build/bindings/python/dlite"] + [
     f"../build/bindings/python/dlite/share/dlite/{plugin_dir}"
     for plugin_dir in dlite_share_plugins
 ]
@@ -101,7 +104,9 @@ autoapi_options = [
     # "inherited-members",
 ]
 autoapi_keep_files = True  # Should be False in production
-autoapi_python_use_implicit_namespaces = True  # True to avoid namespace being `python.dlite`
+autoapi_python_use_implicit_namespaces = (
+    True  # True to avoid namespace being `python.dlite`
+)
 
 autodoc_typehints = "description"
 autodoc_typehints_format = "short"
@@ -159,6 +164,8 @@ def autoapi_prepare_jinja_env(jinja_env: "Environment") -> None:
 
     # Remove plugin path, removes the initial part of the module name if it is equal to
     # any of the folder names under `dlite/share/dlite`.
-    jinja_env.filters["remove_plugin_path"] = lambda name: ".".join(
-        name.split(".")[1:]
-    ) if name.split(".")[0] in dlite_share_plugins else name
+    jinja_env.filters["remove_plugin_path"] = (
+        lambda name: ".".join(name.split(".")[1:])
+        if name.split(".")[0] in dlite_share_plugins
+        else name
+    )

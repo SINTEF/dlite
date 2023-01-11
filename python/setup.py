@@ -1,12 +1,12 @@
 import os
-import sys
 import platform
 import re
 import site
 import subprocess
-from typing import TYPE_CHECKING
+import sys
 from distutils import dir_util
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
@@ -51,13 +51,14 @@ elif platform.system() == "Windows":
     is_64bits = sys.maxsize > 2**32
 
     CMAKE_ARGS = [
-        #"-G", "Visual Studio 15 2017",
-        "-A", "x64",
+        # "-G", "Visual Studio 15 2017",
+        "-A",
+        "x64",
         "-DWITH_DOC=OFF",
         "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
-        f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}"
+        f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}",
     ]
 
 else:
@@ -110,11 +111,12 @@ class CMakeBuildExt(build_ext):
         # generate it now
         Path(self.build_temp).mkdir(parents=True, exist_ok=True)
 
-        output_dir = os.path.abspath(os.path.dirname(
-            self.get_ext_fullpath(ext.name)))
+        output_dir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 
         environment_cmake_args = os.getenv("CI_BUILD_CMAKE_ARGS", "")
-        environment_cmake_args = environment_cmake_args.split(",") if environment_cmake_args else []
+        environment_cmake_args = (
+            environment_cmake_args.split(",") if environment_cmake_args else []
+        )
 
         build_type = "Debug" if self.debug else "Release"
         cmake_args = [
@@ -133,10 +135,15 @@ class CMakeBuildExt(build_ext):
                 cwd=self.build_temp,
                 env=env,
                 capture_output=True,
-                check=True)
+                check=True,
+            )
         except subprocess.CalledProcessError as e:
-            print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:",
-                  e.stderr.decode("utf-8"))
+            print(
+                "stdout:",
+                e.stdout.decode("utf-8"),
+                "\n\nstderr:",
+                e.stderr.decode("utf-8"),
+            )
             raise
         try:
             subprocess.run(
@@ -144,17 +151,22 @@ class CMakeBuildExt(build_ext):
                 cwd=self.build_temp,
                 env=env,
                 capture_output=True,
-                check=True
+                check=True,
             )
         except subprocess.CalledProcessError as e:
-            print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:",
-                  e.stderr.decode("utf-8"))
+            print(
+                "stdout:",
+                e.stdout.decode("utf-8"),
+                "\n\nstderr:",
+                e.stderr.decode("utf-8"),
+            )
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         dir_util.copy_tree(
             str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
+
 
 extra_requirements = [
     "fortran-language-server",
@@ -180,9 +192,7 @@ setup(
     author="SINTEF",
     author_email="jesper.friis@sintef.no",
     platforms=["Windows", "Linux"],
-    description=(
-        "Lightweight data-centric framework for working with scientific data"
-    ),
+    description=("Lightweight data-centric framework for working with scientific data"),
     long_description=(SOURCE_DIR / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
     url="https://github.com/SINTEF/dlite",
@@ -212,15 +222,20 @@ setup(
         "dlite": [
             dlite_compiled_ext,
             dlite_compiled_dll_suffix,
-            str(Path(".") / "share" / "dlite" / "storage-plugins" /
-                dlite_compiled_dll_suffix),
+            str(
+                Path(".")
+                / "share"
+                / "dlite"
+                / "storage-plugins"
+                / dlite_compiled_dll_suffix
+            ),
         ]
     },
     ext_modules=[
         CMakeExtension(
             "dlite",
             sourcedir=SOURCE_DIR,
-            python_package_dir=Path("bindings") / "python"
+            python_package_dir=Path("bindings") / "python",
         )
     ],
     cmdclass={

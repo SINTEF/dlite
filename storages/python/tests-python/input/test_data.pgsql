@@ -91,4 +91,3 @@ ALTER TABLE ONLY public.uuidtable
 --
 -- PostgreSQL database dump complete
 --
-

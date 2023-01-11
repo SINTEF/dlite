@@ -44,7 +44,7 @@ program ftest_person
   print *, 'name        = ', person%name
   print *, 'age         = ', person%age
   print *, 'skills      = ', person%skills
-  print *, 'temperature = ', person%temperature  
+  print *, 'temperature = ', person%temperature
 
   john = TPerson(2, 4)
   john%name = 'John Doe'

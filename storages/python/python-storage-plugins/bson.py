@@ -2,11 +2,11 @@
 import os
 from typing import TYPE_CHECKING
 
-import bson as pybson # Must be pymongo.bson
-
-import dlite
+import bson as pybson  # Must be pymongo.bson
 from dlite.options import Options
 from dlite.utils import instance_from_dict
+
+import dlite
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Generator, Optional
@@ -71,7 +71,7 @@ class bson(dlite.DLiteStorageBase):
 
             for uuid in self.queue():
                 props = self._data[uuid]["properties"]
-                if isinstance(props, dict): # Metadata props is list
+                if isinstance(props, dict):  # Metadata props is list
                     for key in props:
                         if isinstance(props[key], (bytearray, bytes)):
                             props[key] = props[key].hex()

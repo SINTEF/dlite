@@ -2,15 +2,15 @@
 import os
 from pathlib import Path
 
-import dlite
 import ase.io
 from ase.calculators.emt import EMT
 
+import dlite
 
 # Setup
 thisdir = Path(__file__).parent.absolute()
-moldir = thisdir.parent / 'molecules'  # directory with .xyz files
-entitydir = thisdir.parent / 'entities'
+moldir = thisdir.parent / "molecules"  # directory with .xyz files
+entitydir = thisdir.parent / "entities"
 
 
 def readMolecule(filename):
@@ -31,17 +31,17 @@ def readMolecule(filename):
     return inst
 
 
-Molecule = dlite.Instance.from_url(f'json://{entitydir}/Molecule.json')
+Molecule = dlite.Instance.from_url(f"json://{entitydir}/Molecule.json")
 
 
 # Create a new collection and populate it with all molecule structures
-coll = dlite.Collection(id='molecules')
-for filename in moldir.glob('*.xyz'):
+coll = dlite.Collection(id="molecules")
+for filename in moldir.glob("*.xyz"):
     molname = filename.stem
     mol = readMolecule(filename)
     coll.add(label=molname, inst=mol)
 
-coll.save('json', f'{thisdir}/atomscaledata.json', 'mode=w')
+coll.save("json", f"{thisdir}/atomscaledata.json", "mode=w")
 
 # Change this example so that the calculation is done on the entities
 # from the collection of Molecules (with only info about chemical structure)

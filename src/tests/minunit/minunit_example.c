@@ -71,7 +71,7 @@ MU_TEST_SUITE(test_suite) {
 	MU_RUN_TEST(test_assert_fail);
 	MU_RUN_TEST(test_assert_int_eq_fail);
 	MU_RUN_TEST(test_assert_double_eq_fail);
-	
+
 	MU_RUN_TEST(test_string_eq);
 	MU_RUN_TEST(test_string_eq_fail);
 
@@ -83,4 +83,3 @@ int main(int argc, char *argv[]) {
 	MU_REPORT();
 	return MU_EXIT_CODE;
 }
-

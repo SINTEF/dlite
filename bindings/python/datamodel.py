@@ -2,15 +2,18 @@
 import ast
 import warnings
 
-import dlite
 from dlite.utils import instance_from_dict
+
+import dlite
 
 
 class DataModelError(dlite.DLiteError):
     """Raised if the datamodel is inconsistent."""
 
+
 class MissingDimensionError(DataModelError):
     """Raised if a dimension referred to in a property is not defined."""
+
 
 class UnusedDimensionError(DataModelError):
     """Raised if a dimension is not referred to in any property."""
@@ -38,7 +41,7 @@ class DataModel:
     schema = property(
         lambda self: self._schema,
         lambda self, schema: self._set_schema(schema),
-        doc='Meta-metadata for the datamodel.',
+        doc="Meta-metadata for the datamodel.",
     )
 
     def _set_schema(self, schema):
@@ -49,7 +52,7 @@ class DataModel:
         elif isinstance(schema, str):
             self._schema = dlite.get_instance(schema)
         else:
-            TypeError('`schema` must be a string or a DLite metadata schema.')
+            TypeError("`schema` must be a string or a DLite metadata schema.")
 
     def add_dimension(self, name, description):
         """Add dimension with given `name` and description to data model."""
@@ -84,8 +87,9 @@ class DataModel:
             if prop.dims is not None:
                 for dim in prop.dims:
                     tree = ast.parse(dim)
-                    names.update(node.id for node in ast.walk(tree)
-                                 if isinstance(node, ast.Name))
+                    names.update(
+                        node.id for node in ast.walk(tree) if isinstance(node, ast.Name)
+                    )
         return names
 
     def get_missing_dimensions(self):
@@ -102,16 +106,16 @@ class DataModel:
         """Raises an exception if there are missing or unused dimensions."""
         missing = self.get_missing_dimensions()
         if missing:
-            raise MissingDimensionError(f'Missing dimensions: {missing}')
+            raise MissingDimensionError(f"Missing dimensions: {missing}")
         unused = self.get_unused_dimensions()
         if unused:
-            raise UnusedDimensionError(f'Unused dimensions: {unused}')
+            raise UnusedDimensionError(f"Unused dimensions: {unused}")
 
     def get(self):
         """Returns a DLite Metadata created from the datamodel."""
         self.validate()
         dims = [len(self.dimensions), len(self.properties)]
-        if 'nrelations' in self.schema:
+        if "nrelations" in self.schema:
             dims.append(len(self.relations))
 
         # Hmm, there seems to be a bug when instantiating from schema.
@@ -120,16 +124,15 @@ class DataModel:
         #
         # For now, lets assume that it is EntitySchema.
         if self.schema.uri != dlite.ENTITY_SCHEMA:
-            raise NotImplementedError(
-                f'Currently only entity schema is supported')
+            raise NotImplementedError(f"Currently only entity schema is supported")
 
-        #meta = self.schema(dims, id=self.uri)
-        #meta.description = self.description
-        #meta['dimensions'] = list(self.dimensions.values())
-        #meta['properties'] = list(self.properties.values())
-        #if 'relations' in meta:
+        # meta = self.schema(dims, id=self.uri)
+        # meta.description = self.description
+        # meta['dimensions'] = list(self.dimensions.values())
+        # meta['properties'] = list(self.properties.values())
+        # if 'relations' in meta:
         #    meta['relations'] = self.relations
-        #return meta
+        # return meta
 
         return dlite.Instance.create_metadata(
             uri=self.uri,

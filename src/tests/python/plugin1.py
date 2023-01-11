@@ -1,10 +1,11 @@
 import os
+
 import dlite
 
 # update storage search path
-#path = os.path.abspath(os.path.join(
+# path = os.path.abspath(os.path.join(
 #    os.path.dirname(__file__), '..', '..', 'tests', 'mappings'))
-#dlite.storage_plugin_path_append(path)
+# dlite.storage_plugin_path_append(path)
 
 
 class plugin1(DLiteMappingBase):

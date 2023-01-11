@@ -5,7 +5,6 @@ from tripper import EMMO, Triplestore
 
 import dlite
 
-
 # Paths
 thisdir = Path(__file__).absolute().parent
 datadir = thisdir / "data"
@@ -41,20 +40,19 @@ ts.add_mapsTo(EMMO.Force, RES.forces)
 Energy = dlite.get_instance(EN)
 energy = Energy()
 energy.energy = 2.1  # eV
-coll.add('energy', energy)
+coll.add("energy", energy)
 
 Forces = dlite.get_instance(FS)
-forces = Forces({'natoms': 2, 'ncoords': 3})
+forces = Forces({"natoms": 2, "ncoords": 3})
 forces.forces = [
     (0.0, 0.0, -1.2),
     (0.0, 0.0, +1.2),
 ]
-coll.add('forces', forces)
-
+coll.add("forces", forces)
 
 
 # Now, instantiate results from collection
-result, = coll.get_instances(
+(result,) = coll.get_instances(
     metaid=RES, property_mappings=True, function_repo=ts.function_repo
 )
 print(result)

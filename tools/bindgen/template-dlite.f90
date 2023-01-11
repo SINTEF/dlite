@@ -28,7 +28,7 @@ contains
     c_string(n + 1) = c_null_char
 
   end function f_c_string_func
-  
+
 {call_c}
 
 end module DLite

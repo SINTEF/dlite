@@ -121,4 +121,3 @@ onto:my_test_instance a dm:DataInstance ;
     dm:hasDescription "A string pointer." ;
     dm:hasLabel "mystring" ;
     dm:hasType "string" .
-

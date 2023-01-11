@@ -217,7 +217,7 @@ int dlite_copy_to_flat(void *dst, const void *src, size_t size,
   char *q=dst;
   void **p=(void **)src;
 
-  if (!(ind = calloc(ndims, sizeof(int)))) 
+  if (!(ind = calloc(ndims, sizeof(int))))
     FAILCODE(dliteMemoryError, "allocation failure");
 
   for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];

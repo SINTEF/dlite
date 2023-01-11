@@ -94,7 +94,7 @@ blob
 Specialised plugin for reading and writing a binary blob to file.  The
 content is specified using the metadata
 http://onto-ns.com/meta/0.1/Blob (defined in the json file
-[$DLITE_SOURCE_DIR/storages/python/python-storage-plugins/blob.json](https://github.com/SINTEF/dlite/blob/master/storages/python/python-storage-plugins/blob.json)). 
+[$DLITE_SOURCE_DIR/storages/python/python-storage-plugins/blob.json](https://github.com/SINTEF/dlite/blob/master/storages/python/python-storage-plugins/blob.json)).
 It will be installed in the default metadata search path and seamless
 accessible.
 

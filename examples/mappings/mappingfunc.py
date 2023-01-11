@@ -2,11 +2,9 @@
 from pathlib import Path
 
 import numpy as np
-
 from tripper import EMMO, RDFS, Triplestore
 
 import dlite
-
 
 # Paths
 thisdir = Path(__file__).absolute().parent
@@ -113,8 +111,10 @@ ts.add_function(
 
 # 4. Instantiate a molecule -- modeller
 # -------------------------------------
-molecule, = coll.get_instances(
-    metaid=MOL, property_mappings=True, function_repo=ts.function_repo,
+(molecule,) = coll.get_instances(
+    metaid=MOL,
+    property_mappings=True,
+    function_repo=ts.function_repo,
 )
 
 print("Molecule instance:")

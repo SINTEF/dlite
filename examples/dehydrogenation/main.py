@@ -24,18 +24,21 @@ def run(script):
     path = thisdir / script
     subprocess.check_call([sys.executable, path])
 
+
 if HAVE_ASE:
-    run('1-simple-workflow/molecular_energies.py')
-    run('1-simple-workflow/calculate_reaction.py')
-    run('2-instance-mappings/calculate_reactions.py')
-    run('3-property-mappings/mappings_hard_coded/run.py')
+    run("1-simple-workflow/molecular_energies.py")
+    run("1-simple-workflow/calculate_reaction.py")
+    run("2-instance-mappings/calculate_reactions.py")
+    run("3-property-mappings/mappings_hard_coded/run.py")
 
     if HAVE_ONTOPY:
-        run('3-property-mappings/mappings_from_ontology/map_molecules.py')
-        run('3-property-mappings/mappings_from_ontology/map_substance.py')
-        run('3-property-mappings/mappings_from_ontology/run_w_onto.py')
+        run("3-property-mappings/mappings_from_ontology/map_molecules.py")
+        run("3-property-mappings/mappings_from_ontology/map_substance.py")
+        run("3-property-mappings/mappings_from_ontology/run_w_onto.py")
     else:
-        print("** warning: 'ontopy' is required for running dehydrogenisation "
-              "workflow 3")
+        print(
+            "** warning: 'ontopy' is required for running dehydrogenisation "
+            "workflow 3"
+        )
 else:
     print("** warning: 'ase' is required for running dehydrogenisation example")

@@ -57,10 +57,10 @@ module c_interface
     integer                                             :: i
     if (.not. c_associated(c_string)) then
       f_string = ' '
-    else      
+    else
       call c_f_pointer(c_string, p_chars, [len(f_string) + 1])
       print *, "c_f_string_ptr: len(f_string)=", len(f_string)
-      print *, "c_f_string_ptr: p_chars      =", p_chars 
+      print *, "c_f_string_ptr: p_chars      =", p_chars
       i = 1
       do while((p_chars(i).ne.c_null_char) .and. (i.le.len(f_string)))
         f_string(i:i) = p_chars(i)

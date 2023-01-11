@@ -12,7 +12,8 @@ import numpy as np
 def to_string(byte_sequence):
     return byte_sequence.decode()
 
-s = to_string(b'abc')
+
+s = to_string(b"abc")
 b = s.encode()
 
 
@@ -23,12 +24,12 @@ C = np.linalg.solve(A, B)
 
 
 # Evaluate/execute code
-x = eval('2+2')
-exec('import sys; sys.modules.keys()')
+x = eval("2+2")
+exec("import sys; sys.modules.keys()")
 
 
 # create sequences and dicts
-t = ('a', 1, np)
+t = ("a", 1, np)
 s = set(t)
 l = list(s)
 d = dict(t=t, s=s, l=l)

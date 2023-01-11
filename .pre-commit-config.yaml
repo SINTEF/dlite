@@ -1,0 +1,85 @@
+# To install the git pre-commit hook run:
+#   pre-commit install
+# To update the pre-commit hooks run:
+#   pre-commit autoupdate
+repos:
+  # pre-commit-hooks supplies a multitude of small hooks
+  # To get an overview of them all as well as the ones used here, please see
+  # https://github.com/pre-commit/pre-commit-hooks#hooks-available
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    - id: end-of-file-fixer
+    - id: debug-statements
+    - id: check-json
+      name: Check JSON
+    - id: check-yaml
+      name: Check YAML
+    - id: trailing-whitespace
+      args: [--markdown-linebreak-ext=md]
+
+  # isort is a tool to sort and group import statements in Python files
+  # It works on files in-place
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.11.4
+    hooks:
+    - id: isort
+      args: ["--profile", "black", "--filter-files", "--skip-gitignore"]
+
+  # Black is a code style and formatter
+  # It works on files in-place
+  - repo: https://github.com/ambv/black
+    rev: 22.12.0
+    hooks:
+    - id: black
+
+  # Bandit is a security linter
+  # More information can be found in its documentation:
+  # https://bandit.readthedocs.io/en/latest/
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.4
+    hooks:
+    - id: bandit
+      args: ["-r"]
+      exclude: ^tests/.*$
+
+  # mypy is a static typing linter
+  # The main code repository can be found at:
+  # https://github.com/python/mypy
+  # The project's documentation can be found at:
+  # https://mypy.readthedocs.io/en/stable/index.html
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.991
+    hooks:
+    - id: mypy
+
+  # - repo: local
+  #   hooks:
+    # pylint is a Python linter
+    # It is run through the local environment to ensure external packages can be
+    # imported without issue.
+    # For more information about pylint see its documentation at:
+    # https://pylint.pycqa.org/en/latest/
+    # - id: pylint
+    #   name: pylint
+    #   entry: pylint
+    #   args: ["--rcfile=pyproject.toml"]
+    #   language: python
+    #   types: [python]
+    #   require_serial: true
+    #   exclude: ^tests/.*$
+    # pylint is a Python linter
+    # It is run through the local environment to ensure external packages can be
+    # imported without issue.
+    # For more information about pylint see its documentation at:
+    # https://pylint.pycqa.org/en/latest/
+    # - id: pylint-tests
+    #   name: pylint - tests
+    #   entry: pylint
+    #   args:
+    #   - "--rcfile=pyproject.toml"
+    #   - "--disable=import-outside-toplevel,redefined-outer-name"
+    #   language: python
+    #   types: [python]
+    #   require_serial: true
+    #   files: ^tests/.*$

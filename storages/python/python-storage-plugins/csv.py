@@ -1,16 +1,16 @@
 """Storage plugin that reading/writing CSV files."""
 from __future__ import annotations
 
-import warnings
-import hashlib
 import ast
+import hashlib
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pandas as pd
+from dlite.options import Options
 
 import dlite
-from dlite.options import Options
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Any, Optional
@@ -84,9 +84,7 @@ class csv(dlite.DLiteStorageBase):
         elif metaid:
             Meta = dlite.get_instance(metaid)
         else:
-            raise ValueError(
-                "csv option `meta` must be provided if `infer` if false"
-            )
+            raise ValueError("csv option `meta` must be provided if `infer` if false")
 
         inst = Meta(dims=(rows,), id=self.options.get("id"))
         for i in range(len(inst.properties)):
@@ -141,8 +139,8 @@ def infer_prop_name(name: str) -> str:
         Inferred property name.
 
     """
-    return name.strip(' "').rsplit("(", 1)[0].rsplit("[", 1)[0].strip().replace(
-        " ", "_"
+    return (
+        name.strip(' "').rsplit("(", 1)[0].rsplit("[", 1)[0].strip().replace(" ", "_")
     )
 
 

@@ -24,7 +24,7 @@
         "name": "points",
         "type": "float",
         "unit": "mm",
-        "dims": ["P", "N"],            
+        "dims": ["P", "N"],
         "description": "Point cloud."
         }
     ]
