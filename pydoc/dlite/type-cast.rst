@@ -10,4 +10,3 @@ Type Cast
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

@@ -10,4 +10,3 @@ Entity
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

@@ -10,4 +10,3 @@ Type
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

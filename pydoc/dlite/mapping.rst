@@ -10,4 +10,3 @@ Mapping
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

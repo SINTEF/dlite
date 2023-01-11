@@ -10,4 +10,3 @@ Schemas
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

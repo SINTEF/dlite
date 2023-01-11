@@ -10,4 +10,3 @@ Pathshash
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

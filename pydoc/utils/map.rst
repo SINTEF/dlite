@@ -10,4 +10,3 @@ Map
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

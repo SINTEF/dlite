@@ -10,4 +10,3 @@ Store
    :titlesonly:
    :maxdepth: 1
    :hidden:
-

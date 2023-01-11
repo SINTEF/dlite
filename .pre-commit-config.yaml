@@ -53,33 +53,33 @@ repos:
     hooks:
     - id: mypy
 
-  # - repo: local
-  #   hooks:
+  - repo: local
+    hooks:
     # pylint is a Python linter
     # It is run through the local environment to ensure external packages can be
     # imported without issue.
     # For more information about pylint see its documentation at:
     # https://pylint.pycqa.org/en/latest/
-    # - id: pylint
-    #   name: pylint
-    #   entry: pylint
-    #   args: ["--rcfile=pyproject.toml"]
-    #   language: python
-    #   types: [python]
-    #   require_serial: true
-    #   exclude: ^tests/.*$
+    - id: pylint
+      name: pylint
+      entry: pylint
+      args: ["--rcfile=.pylintrc"]
+      language: python
+      types: [python]
+      require_serial: true
+      exclude: ^test/.*$
     # pylint is a Python linter
     # It is run through the local environment to ensure external packages can be
     # imported without issue.
     # For more information about pylint see its documentation at:
     # https://pylint.pycqa.org/en/latest/
-    # - id: pylint-tests
-    #   name: pylint - tests
-    #   entry: pylint
-    #   args:
-    #   - "--rcfile=pyproject.toml"
-    #   - "--disable=import-outside-toplevel,redefined-outer-name"
-    #   language: python
-    #   types: [python]
-    #   require_serial: true
-    #   files: ^tests/.*$
+    - id: pylint-tests
+      name: pylint - tests
+      entry: pylint
+      args:
+      - "--rcfile=.pylintrc"
+      - "--disable=import-outside-toplevel,redefined-outer-name"
+      language: python
+      types: [python]
+      require_serial: true
+      files: ^test/.*$

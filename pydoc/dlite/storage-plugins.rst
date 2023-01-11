@@ -10,4 +10,3 @@ Storage Plugins
    :titlesonly:
    :maxdepth: 1
    :hidden:
-
