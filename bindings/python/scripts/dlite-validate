@@ -50,6 +50,17 @@ def parse(url, driver=None, options=None, id=None):
         return dlite.Instance.from_location(fileext, path, options=options)
 
 
+def check_dimensions(url, meta):
+    """Check wheter all dimensions in metadata are referred to in shapes."""
+    shape_dims = set()
+    for prop in meta.properties['properties']:
+        shape_dims.update(prop.shape)
+    unused = set(meta.dimnames()).difference(shape_dims)
+    if unused:
+        print(f'{url}: unused dimensions: {", ".join(unused)}')
+        sys.exit(1)
+
+
 def main():
     """Datamodel validator"""
     parser = argparse.ArgumentParser(
@@ -96,11 +107,14 @@ def main():
     except Exception as exc:
         print(f'{args.url}: {exc.__class__.__name__}: {exc}')
         sys.exit(1)
-    else:
-        print(f'{args.url}: validated')
 
-        if (args.show):
-            print(inst)
+    if inst.is_meta:
+        check_dimensions(args.url, inst)
+
+    print(f'{args.url}: validated')
+
+    if (args.show):
+        print(inst)
 
 
 if __name__ == '__main__':
