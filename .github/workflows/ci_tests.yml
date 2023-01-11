@@ -125,7 +125,7 @@ jobs:
       run: pylint --rcfile=.pylintrc --recursive=yes --disable=import-outside-toplevel,redefined-outer-name test
 
   safety:
-    name: Run `pylint` & `safety`
+    name: Run `safety`
     runs-on: ubuntu-latest
 
     steps:
