@@ -16,7 +16,7 @@ A storage is in DLite an abstraction for an external data source or sink.
 It can be a file on disk, a local database or a database accessed via a web interface.
 Loading data from a storage into an instance and saving it back again is a key mechanism for interoperability at a syntactic level.
 
-DLite provide a plugin system that make it easy to connect to new data sources via a common interface (using a [strategy design pattern]).
+DLite provides a plugin system that makes it easy to connect to new data sources via a common interface (using a [strategy design pattern]).
 Opening a storage takes three arguments, a `driver` name identifying the storage plugin to use, the `location` of the storage and `options`.
 
 Storage plugins can be categorised as either *generic* or *specific*.
