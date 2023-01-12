@@ -2,7 +2,7 @@
   "uri": "http://onto-ns.com/meta/0.1/TempProfile",
   "description": "Measured temperature profile.",
   "dimensions": {
-    "n": "Number temperature measurements."
+    "n": "Number of temperature measurements."
   },
   "properties": {
     "time": {

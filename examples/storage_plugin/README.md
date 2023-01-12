@@ -2,7 +2,7 @@ Storage plugin example
 ======================
 This example shows how to write a user-defined Python storage plugin.
 
-Lets assume that you have an instrument that logs a temperature at certain times.
+Let us assume that you have an instrument that logs a temperature at certain times.
 The output file from a temperature profile measurement may look as follows:
 
 ```
@@ -27,7 +27,7 @@ This allows us to make a datamodel in the form of a DLite entity for this output
   "uri": "http://onto-ns.com/meta/0.1/TempProfile",
   "description": "Measured temperature profile.",
   "dimensions": {
-    "n": "Number temperature measurements."
+    "n": "Number of temperature measurements."
   },
   "properties": {
     "time": {
@@ -182,7 +182,7 @@ We can now load a TempProfile instance from `dataset.txt` with
 
 ```
 
-Since our plugin also defined a `save()` method, we can also saving our instance to a new file called `newdata.txt`:
+Since our plugin also defined a `save()` method, we can also save our instance to a new file called `newdata.txt`:
 
 ```python
 >>> inst.save("tempprofile", "newdata.txt", "mode=w")

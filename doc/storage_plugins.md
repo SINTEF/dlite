@@ -99,7 +99,7 @@ Instances can be stored using the `save()` method:
 ```
 
 Note that we in the above example also store the Blob entity to the storage.
-That can be a good idea if you don't have a proper metadata storage, since DLite need the metadata in order to instantiate an instance.
+That can be a good idea if you don't have a proper metadata storage, since DLite needs the metadata in order to instantiate an instance.
 When loading an instance and the metadata is not already in memory, DLite will first look for the metadata in the current and all other open storages before checking `dlite.storage_path`.
 
 
@@ -135,9 +135,9 @@ In fact, even though `blob1` and `inst1` are different python objects, they shar
 ```
 
 
-Using storages implicitely
+Using storages implicitly
 --------------------------
-For convenience has DLite also an interface for creating storages implicitely.
+For convenience DLite also has an interface for creating storages implicitly.
 If you only want to load a single instance from a storage, you can use one of the following class methods:
 * `dlite.Instance.from_location()`: to read from a location
 * `dlite.Instance.from_url()`: to read from URL
@@ -152,7 +152,7 @@ For example
 
 ```
 
-DLite instances also have a `save()` and `save_to_url()` methods for saving to a storage without first creating a `dlite.Storage` object.
+DLite instances also have the methods `save()` and `save_to_url()` for saving to a storage without first creating a `dlite.Storage` object.
 
 Saving this instance to BSON, can be done in a one-liner:
 
@@ -171,7 +171,7 @@ See the [Python storage plugin example] for a complete example and description o
 Working with storages from C and Fortran
 ----------------------------------------
 The C API for storages is documented in the [C reference manual].
-Conceptually it is similar to the Python interface, except that everything are implemented as functions.
+Conceptually it is similar to the Python interface, except that everything is implemented as functions.
 For an example, see [ex1].
 
 The Fortran interface relies heavily on code generation.
