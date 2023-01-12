@@ -8,9 +8,8 @@ DLite
    :glob:
    :hidden:
 
-   Python <autoapi/index>
+   Python API <autoapi/index>
    C-API <c-api/src>
-
 
 .. toctree::
    :maxdepth: 3

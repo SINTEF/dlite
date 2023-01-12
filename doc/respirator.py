@@ -26,6 +26,7 @@ class DoxygenXML:
         self.index_file = index_file
         self.filename_filter = filename_filter
         self.filesmap = {}
+        self.dirsmap = {}
         self._init_dirmap()
 
     def _read_content(self, filename):
@@ -43,12 +44,19 @@ class DoxygenXML:
         """
         content = self._read_content(f"{dir_id}.xml")
         innerfiles = content.find_all("innerfile")
-        compoundname = content.find("compoundname").text
-        innerfiles_list = []
         for innerfile in innerfiles:
             if re.search(self.filename_filter, innerfile.text):
-                innerfiles_list .append(innerfile.text)
-        return innerfiles_list
+                yield innerfile.text
+
+    def _innerdirs(self, dir_id : str) -> List[str]:
+        """
+        Return list of innerdirs belonging to a component
+        """
+        content = self._read_content(f"{dir_id}.xml")
+        innerfiles = content.find_all("innerdir")
+        for innerfile in innerfiles:
+            yield innerfile.text
+
 
     def _dirname(self, dir_id : str) -> Path:
         """return component name
@@ -69,9 +77,12 @@ class DoxygenXML:
         for element in compound:
             dir_id = element["refid"]
             dirname = self._dirname(dir_id)
-            files = self._innerfiles(dir_id)
+            files = list(self._innerfiles(dir_id))
+            dirs = list(self._innerdirs(dir_id))
             if files:
-                self.filesmap[dirname] = self._innerfiles(dir_id)
+                self.filesmap[dirname] = files
+            if dirs:
+                self.dirsmap[dirname] = dirs
 
     def write_output(self):
         """
@@ -87,6 +98,10 @@ class DoxygenXML:
             toc_out = self.output_path / f"{module}.rst"
             foldername = self.output_path / module
             basename = os.path.basename(module)
+            innerdirs = []
+            if module in self.dirsmap:
+                innerdirs = [(os.path.basename(module) + '/' + os.path.basename(innerdir)) for innerdir in self.dirsmap[module]]
+
             test = [basename + "/" + os.path.basename(
                 innerfile.rsplit(".", 1)[0]) for innerfile in self.filesmap[module]]
             template = self.template_path / f"{module}.rst.j2"
@@ -94,7 +109,7 @@ class DoxygenXML:
                 toc_template = env.get_template(f'{module}.rst.j2')
             else:
                 toc_template = env.get_template(self.TOC_TEMPLATE)
-            buffer = toc_template.render(title=basename, refs=list(test))
+            buffer = toc_template.render(title=basename, refs=list(test) + innerdirs)
 
             os.makedirs(foldername, exist_ok=True)
             with toc_out.open("w") as output:
