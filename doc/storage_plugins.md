@@ -44,7 +44,7 @@ It is also possible to combine the three arguments into a URL as in
 
 ```
 
-Note that the URL form less flexible, since the scheme part identifies the driver and can therefore not be used in the location of an external storage.
+Note that the URL form is less flexible, since the scheme part identifies the driver and can therefore not be used in the location of an external storage.
 
 The options are plugin specific, but most file-based plugins take a `mode` option, with the following three values:
 - `r`: Open existing file for read-only.
