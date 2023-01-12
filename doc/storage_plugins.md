@@ -71,7 +71,7 @@ If you want to ensure a storage is closed (and possible buffered data is committ
 
 ```
 
-Alternatively you can open a storage is in a `with`-statement.
+Alternatively, you can open a storage in a `with`-statement.
 This is the preferred way, since it ensures that the storage
 
 ```python
