@@ -20,7 +20,7 @@ DLite provides a plugin system that makes it easy to connect to new data sources
 Opening a storage takes three arguments, a `driver` name identifying the storage plugin to use, the `location` of the storage and `options`.
 
 Storage plugins can be categorised as either *generic* or *specific*.
-A generic storage plugin is can store and retrieve any type of instances and metadata while specific storage plugin is typically specific instances of one type of entity.
+A generic storage plugin can store and retrieve any type of instance and metadata while a specific storage plugin typically deals with specific instances of one type of entity.
 DLite comes with a set of generic storage plugins, like json, yaml, rdf, hdf5, postgresql and mongodb.
 It also comes with a specific Blob storage plugin, that can load and save instances of a `http://onto-ns.com/meta/0.1/Blob` entity.
 Storage plugins can be written in either C or Python.
