@@ -72,7 +72,7 @@ If you want to ensure a storage is closed (and possible buffered data is committ
 ```
 
 Alternatively, you can open a storage in a `with`-statement.
-This is the preferred way, since it ensures that the storage
+This is the preferred way, since it ensures that the storage is closed after use. 
 
 ```python
     >>> with dlite.Storage("json", "newfile.json", options="mode=w") as s:
