@@ -1,3 +1,8 @@
+"""respirator is a support tool for 'breathe'. respirator will
+generate .rst files with toctrees and doxygen generated doxumentation.
+
+"""
+
 import os
 import re
 import sys
@@ -20,6 +25,9 @@ class DoxygenXML:
                  template_path: Union[str, Path],
                  index_file = 'index.xml',
                  filename_filter=".*\.h"):
+        """
+        initialize class
+        """
         self.input_path = Path(doxygen_xml_path)
         self.output_path = Path(output_path)
         self.template_path = Path(template_path)
@@ -50,16 +58,15 @@ class DoxygenXML:
 
     def _innerdirs(self, dir_id : str) -> List[str]:
         """
-        Return list of innerdirs belonging to a component
+        Yield innerdirs belonging to a component
         """
         content = self._read_content(f"{dir_id}.xml")
         innerfiles = content.find_all("innerdir")
         for innerfile in innerfiles:
             yield innerfile.text
 
-
     def _dirname(self, dir_id : str) -> Path:
-        """return component name
+        """return the name of the component given a dir_id
         """
 
         q = self.input_path / f"{dir_id}.xml"
@@ -99,19 +106,34 @@ class DoxygenXML:
             foldername = self.output_path / module
             basename = os.path.basename(module)
             innerdirs = []
-            if module in self.dirsmap:
-                innerdirs = [(os.path.basename(module) + '/' + os.path.basename(innerdir)) for innerdir in self.dirsmap[module]]
 
-            test = [basename + "/" + os.path.basename(
-                innerfile.rsplit(".", 1)[0]) for innerfile in self.filesmap[module]]
+            # Create list of submodules (innerdirs)
+            if module in self.dirsmap:
+                innerdirs = [(os.path.basename(module) +
+                              '/' + os.path.basename(innerdir))
+                             for innerdir in self.dirsmap[module]]
+
+            # Create a list of documented modules
+            # (represented by a doxygen file)
+            innerfiles = [basename + "/" + os.path.basename(
+                innerfile.rsplit(".", 1)[0])
+                    for innerfile in self.filesmap[module]]
+
+            # Set jinja2-template, base or overloaded
             template = self.template_path / f"{module}.rst.j2"
             if template.exists():
                 toc_template = env.get_template(f'{module}.rst.j2')
             else:
                 toc_template = env.get_template(self.TOC_TEMPLATE)
-            buffer = toc_template.render(title=basename, refs=list(test) + innerdirs)
 
+            # Render template into a buffer
+            buffer = toc_template.render(title=basename,
+                                         refs=list(innerfiles) + innerdirs)
+
+            # Create subdirectory on filesystem if needed
             os.makedirs(foldername, exist_ok=True)
+
+            # Write out buffer to a file
             with toc_out.open("w") as output:
                 os.makedirs(os.path.dirname(toc_out), exist_ok=True)
                 output.write(buffer)
@@ -119,18 +141,25 @@ class DoxygenXML:
             # Create doxygen ref-files
             for filename in self.filesmap[module]:
                 file = filename.rsplit(".", 1)[0]
+                # Set jinja2-template, base or overloaded
                 template = self.template_path / module / f"{file}.rst.j2"
                 if template.exists():
                     template = f"{module}/{file}.rst.j2"
                     doxygenfile_template = env.get_template(template)
                 else:
-                    doxygenfile_template = env.get_template(self.DOXYFILE_TEMPLATE)
+                    doxygenfile_template = env.get_template(
+                        self.DOXYFILE_TEMPLATE)
+
+                # Render template into buffer
                 buffer = doxygenfile_template.render(
                     title=file, doxyfile=basename + "/" + filename)
+
+                # Write out buffer to a file
                 doxyfile_out = foldername / f"{file}.rst"
                 with doxyfile_out.open("w") as output:
                     output.write(buffer)
 
+# Main
 
 if __name__ == '__main__':
     xml_path = sys.argv[1]
