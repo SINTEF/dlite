@@ -37,7 +37,7 @@ For instance, to create a new file-based JSON storage can in Python be done with
 ```
 
 where the first argument is the name of the driver to use.
-It is also possible to combine the three arguments into an URL as in
+It is also possible to combine the three arguments into a URL as in
 
 ```python
     >>> s = dlite.Storage("json://newfile.json?mode=w")
