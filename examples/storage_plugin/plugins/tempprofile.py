@@ -11,14 +11,23 @@ class tempprofile(dlite.DLiteStorageBase):
     )
 
     def open(self, location, options=None):
-        """Opens `location`."""
+        """Opens temperature profile.
+
+        Arguments:
+            location: Path to temperature profile data file.
+            options: Additional options for this driver.  Unused.
+        """
         self.location = location
 
-    def close(self):
-        pass
-
     def load(self, id=None):
-        """Reads storage into an new instance and returns the instance."""
+        """Reads storage into an new instance and returns the instance.
+
+        Arguments:
+            id: Optional URI to assign to the new instance.
+
+        Returns:
+            A new TempProfile instance with the loaded temperature profile.
+        """
         with open(self.location, "rt") as f:
             line = f.readline()
             n = int(line.split(":")[1].strip())
@@ -31,7 +40,11 @@ class tempprofile(dlite.DLiteStorageBase):
         return inst
 
     def save(self, inst):
-        """Stores `inst` to storage."""
+        """Stores `inst` to storage.
+
+        Arguments:
+            inst: A TempProfile instance to store.
+        """
         n = inst.dimensions["n"]
         with open(self.location, "wt") as f:
             f.write(f"measurements: {n}\n")

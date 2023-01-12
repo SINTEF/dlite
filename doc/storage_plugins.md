@@ -12,7 +12,7 @@ Content
 
 Introduction
 ------------
-A storage is in DLite an abstraction for an external data source or sink.
+A storage is in DLite an abstract concept that represent a generic data source or sink.
 It can be a file on disk, a local database or a database accessed via a web interface.
 Loading data from a storage into an instance and saving it back again is a key mechanism for interoperability at a syntactic level.
 
@@ -90,6 +90,8 @@ Instances can be stored using the `save()` method:
     >>> blob2 = Blob(dims={"n": 5}, id="ex:blob2")
 
     # Add the instances to the storage
+    # The option "mode=w" create a new JSON file (or overwrite it if it already exists)
+    # The option "single=no" make sure that we store in a format that can accomodate multiple instances.
     >>> with dlite.Storage("json", location="newfile.json",
     ...                    options="mode=w;single=no") as s:
     ...     s.save(blob1)
