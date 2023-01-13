@@ -769,18 +769,26 @@ static DLiteStoragePlugin h5_plugin = {
   NULL,
 
   /* basic api */
-  dh5_open,
-  dh5_close,
+  dh5_open,                            // open
+  dh5_close,                           // close
+  NULL,                                // flush
 
   /* queue api */
-  NULL,
-  NULL,
-  NULL,
-  dh5_get_uuids,
+  NULL,                                // iterCreate
+  NULL,                                // iterNext
+  NULL,                                // iterFree
 
   /* direct api */
-  NULL,
-  NULL,
+  NULL,                                // loadInstance
+  NULL,                                // saveInstance
+  NULL,                                // deleteInstance
+
+  /* In-memory api */
+  NULL,                                // memLoadInstance
+  NULL,                                // memSaveInstance
+
+  /* === API to deprecate === */
+  dh5_get_uuids,
 
   /* datamodel api */
   dh5_datamodel,

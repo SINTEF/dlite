@@ -115,7 +115,7 @@ int closer(DLiteStorage *s)
 		*((char **)s->api));
 
   /* Return if close() is not defined */
-  if (!PyObject_GetAttrString(sp->obj, "close")) return retval;
+  if (!PyObject_HasAttrString(sp->obj, "close")) return retval;
 
   v = PyObject_CallMethod(sp->obj, "close", "");
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
@@ -125,6 +125,33 @@ int closer(DLiteStorage *s)
   return retval;
 }
 
+
+/*
+  Flushes storage `s`.  Returns non-zero on error.
+ */
+int flusher(DLiteStorage *s)
+{
+  int retval=0;
+  DLitePythonStorage *sp = (DLitePythonStorage *)s;
+  PyObject *v = NULL;
+  PyObject *class = (PyObject *)s->api->data;
+  const char *classname;
+
+  dlite_errclr();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		*((char **)s->api));
+
+  /* Return if flush() is not defined */
+  if (!PyObject_HasAttrString(sp->obj, "flush")) return retval;
+
+  v = PyObject_CallMethod(sp->obj, "flush", "");
+  if (dlite_pyembed_err_check("error calling %s.flush()", classname))
+    retval = 1;
+  Py_XDECREF(v);
+  Py_DECREF(sp->obj);
+  return retval;
+}
 
 /*
   Returns a new instance from `id` in storage `s`.  NULL is returned
@@ -184,6 +211,71 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
   Py_XDECREF(pyinst);
   Py_XDECREF(v);
   return retval;
+}
+
+
+/*
+  Stores instance `inst` to storage `s`.  Returns non-zero on error.
+*/
+int deleter(DLiteStorage *s, const char *id)
+{
+  DLitePythonStorage *sp = (DLitePythonStorage *)s;
+  PyObject *v = NULL;
+  int retval = 1;
+  PyObject *class = (PyObject *)s->api->data;
+  const char *classname;
+  dlite_errclr();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		*((char **)s->api));
+  v = PyObject_CallMethod(sp->obj, "delete", "s", id);
+  if (dlite_pyembed_err_check("error calling %s.delete()", classname))
+    goto fail;
+  retval = 0;
+ fail:
+  Py_XDECREF(v);
+  return retval;
+}
+
+
+/*
+  Loads instance with given id from bytes object.
+ */
+DLiteInstance *memloader(const unsigned char *buf, size_t size, const char *id)
+{
+  UNUSED(buf);
+  UNUSED(size);
+  UNUSED(id);
+  return NULL;
+}
+
+/*
+  Saves instance to bytes object.
+ */
+int memsaver(unsigned char *buf, size_t size, const DLiteInstance *inst)
+{
+  UNUSED(buf);
+  UNUSED(size);
+  UNUSED(inst);
+  /*
+  PyObject *pyinst = dlite_pyembed_from_instance(inst->uuid);
+  PyObject *v = NULL;
+  int retval = 1;
+  PyObject *class = (PyObject *)s->api->data;
+  const char *classname;
+  dlite_errclr();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		*((char **)s->api));
+  v = PyObject_CallMethod(sp->obj, "save", "O", pyinst);
+  if (dlite_pyembed_err_check("error calling %s.save()", classname)) goto fail;
+  retval = 0;
+ fail:
+  Py_XDECREF(pyinst);
+  Py_XDECREF(v);
+  return retval;
+  */
+  return 0;
 }
 
 
@@ -361,6 +453,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   api->freeapi = freeapi;
   api->open = opener;
   api->close = closer;
+  api->flush = flusher;
   if (queue) {
     api->iterCreate = iterCreate;
     api->iterNext = iterNext;
@@ -368,6 +461,11 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   }
   api->loadInstance = loader;
   api->saveInstance = saver;
+  api->deleteInstance = deleter;
+
+  api->memLoadInstance = memloader;
+  api->memSaveInstance = memsaver;
+
   api->data = (void *)cls;
   Py_INCREF(cls);
 

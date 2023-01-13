@@ -110,8 +110,18 @@ struct _DLiteStorage {
   ~_DLiteStorage(void) {
     dlite_storage_close($self);
   }
-  %feature("docstring", "\
-Returns name of driver for this storage.") get_driver;
+
+  %feature("docstring", "Flush storage.") flush;
+  void flush(void) {
+    dlite_storage_flush($self);
+  }
+
+  %feature("docstring", "Delete instance with given `id`.") delete;
+  void delete(const char *id) {
+    dlite_storage_delete($self, id);
+  }
+
+  %feature("docstring", "Returns name of driver for this storage.") get_driver;
   const char *get_driver(void) {
     return dlite_storage_get_driver($self);
   }
@@ -120,10 +130,10 @@ Returns name of driver for this storage.") get_driver;
   //  dlite_storage_set_idflag($self, idflag);
   //}
 
-  %feature("docstring", "\
-Returns a list of UUIDs of all instances in the storage whos metadata
-matches ``pattern``. If ``pattern`` is None, all UUIDs will be returned.
-") get_uuids;
+  %feature("docstring",
+           "Returns a list of UUIDs of all instances in the storage whos "
+           "metadata matches ``pattern``. If ``pattern`` is None, all UUIDs "
+           "will be returned.") get_uuids;
   char **get_uuids(const char *pattern=NULL) {
     return dlite_storage_uuids($self, pattern);
   }

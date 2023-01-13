@@ -721,16 +721,24 @@ static DLiteStoragePlugin rdf_plugin = {
   /* basic api */
   rdf_open,                             /* open */
   rdf_close,                            /* close */
+  NULL,                                 /* flush */
 
   /* queue api */
   rdf_iter_create,                      /* iterCreate */
   rdf_iter_next,                        /* iterNext */
   rdf_iter_free,                        /* iterFree */
-  NULL,                                 /* getUUIDs */
 
   /* direct api */
   rdf_load_instance,                    /* loadInstance */
   rdf_save_instance,                    /* saveInstance */
+  NULL,                                 /* deleteInstance */
+
+  /* In-memory api */
+  NULL,                                 /* memLoadInstance */
+  NULL,                                 /* memSaveInstance */
+
+  /* === API to deprecate === */
+  NULL,                                 /* getUUIDs */
 
   /* datamodel api */
   NULL,                                 /* dataModel */

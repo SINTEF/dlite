@@ -1103,13 +1103,15 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 /*
  * Input typemaps
  * --------------
- * int, struct _DLiteDimension *   <- numpy array
+ * int, struct _DLiteDimension *             <- numpy array
  *     Array of dimensions.
- * int, struct _DLiteProperty *    <- numpy array
+ * int, struct _DLiteProperty *              <- numpy array
  *     Array of properties.
- * struct _DLiteInstance **, int   <- numpy array
+ * struct _DLiteInstance **, int             <- numpy array
  *     Array of DLiteInstance's.
- * unsigned char *INPUT_BYTES      <- bytes
+ * unsigned char *INPUT_BYTES, size_t LEN    <- bytes
+ *     Bytes object (with explicit size)
+ * unsigned char *INPUT_BYTES                <- bytes
  *     Bytes object (without explicit size)
  *
  * Argout typemaps
@@ -1250,6 +1252,16 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
         SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $1_descriptor, 0)))))
     $2 = 1;
   Py_XDECREF(item);
+}
+
+/* Bytes object (with explicit length) */
+%typemap("doc") (unsigned char *INPUT_BYTES, size_t LEN) "bytes"
+%typemap(in,numinputs=1) (unsigned char *INPUT_BYTES, size_t LEN) {
+  char *tmp=NULL;
+  Py_ssize_t n=0;
+  PyBytes_AsStringAndSize($input, &tmp, &n);
+  $1 = (unsigned char *)tmp;
+  $2 = n;
 }
 
 /* Bytes object (without explicit length) */

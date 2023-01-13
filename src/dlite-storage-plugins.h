@@ -227,7 +227,8 @@ int dlite_storage_plugin_path_remove(const char *path);
 
 /**
  * @name Basic API
- * Signatures of functions that must be defined by all plugins.
+ * Signatures of basic functions.
+ * Open() and Close() must always be defined. Flush() is optional.
  * @{
  */
 
@@ -262,7 +263,13 @@ typedef DLiteStorage *
  */
 typedef int (*Close)(DLiteStorage *s);
 
+/**
+  Flush storage `s`.  Optional.  Returns non-zero on error.
+ */
+typedef int (*Flush)(DLiteStorage *s);
+
 /** @} */
+
 
 
 /**
@@ -318,25 +325,63 @@ typedef char **(*GetUUIDs)(const DLiteStorage *s);
 
 /**
  * @name Instance API
- * New API for loading and saving instances that works direct on
+ * New API for loading, saving and deleting instances that works direct on
  * instances themselves.
  *
- * Both LoadInstance() and SaveInstance() are optional for the plugin
- * to implement.  If one is not implemented, the old datamodel API will
- * be attempted.
+ * These are all optional for the plugin to implement.  If
+ * LoadInstance() or SaveInstance() are not implemented, the old
+ * datamodel API will be attempted.
+ *
  * @{
  */
 
 /**
-  Returns a new instance from `uuid` in storage `s`.  NULL is returned
+  Returns a new instance from `id` in storage `s`.  NULL is returned
   on error.
  */
-typedef DLiteInstance *(*LoadInstance)(const DLiteStorage *s, const char *uuid);
+typedef DLiteInstance *(*LoadInstance)(const DLiteStorage *s, const char *id);
 
 /**
   Stores instance `inst` to storage `s`.  Returns non-zero on error.
+
  */
 typedef int (*SaveInstance)(DLiteStorage *s, const DLiteInstance *inst);
+
+/**
+  Delete instance `uuid` from storage `s`.  Returns non-zero on error.
+ */
+typedef int (*DeleteInstance)(DLiteStorage *s, const char *id);
+
+/** @} */
+
+
+
+
+/**
+ * @name In-memory API
+
+ * These optional functions does not operate on the storage, but
+ * rather on a pointer to a memory buffer.
+ *
+ * @{
+ */
+
+/**
+  Returns a new instance from memory buffer `buf` of size `size`.
+  NULL is returned on error.
+ */
+typedef DLiteInstance *(*MemLoadInstance)(const unsigned char *buf, size_t size,
+                                          const char *id);
+
+/**
+  Stores instance `inst` to memory buffer `buf` of size `size`.
+
+  Returns number of bytes written to `buf` (or would have been written
+  to `buf` if `buf` is not large enough).
+  Returns a negative error code on error.
+ */
+typedef int (*MemSaveInstance)(unsigned char *buf, size_t size,
+                               const DLiteInstance *inst);
 
 /** @} */
 
@@ -499,20 +544,26 @@ struct _DLiteStoragePlugin {
   /* Basic API (required) */
   Open               open;             /*!< Open storage */
   Close              close;            /*!< Close storage */
+  Flush              flush;            /*!< Flush storage */
 
   /* Queue API */
   IterCreate         iterCreate;       /*!< Creates iterator over storage */
   IterNext           iterNext;         /*!< Returns next UUID */
   IterFree           iterFree;         /*!< Free's iterator */
 
-  GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
-
   /* Instance API */
   LoadInstance       loadInstance;     /*!< Returns new instance from storage */
   SaveInstance       saveInstance;     /*!< Stores an instance */
+  DeleteInstance     deleteInstance;   /*!< Delete an instance */
 
-  //Delete
-  //Flush
+  /* In-memory API */
+  MemLoadInstance    memLoadInstance;  /*!< Load instance from memory */
+  MemSaveInstance    memSaveInstance;  /*!< Save instance to memory */
+
+
+  /* ======================== API to deprecate ========================== */
+  GetUUIDs           getUUIDs;         /*!< Returns all UUIDs in storage */
+
 
   /* DataModel API */
   DataModel          dataModel;        /*!< Creates new data model */
