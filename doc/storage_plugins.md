@@ -72,7 +72,7 @@ If you want to ensure a storage is closed (and possible buffered data is committ
 ```
 
 Alternatively, you can open a storage in a `with`-statement.
-This is the preferred way, since it ensures that the storage is closed after use. 
+This is the preferred way, since it ensures that the storage is closed after use.
 
 ```python
     >>> with dlite.Storage("json", "newfile.json", options="mode=w") as s:
@@ -164,9 +164,13 @@ Saving this instance to BSON, can be done in a one-liner:
 ```
 
 
-
 Writing Python storage plugins
 ------------------------------
+Storage plugins can be written in either C or Python.
+
+In Python the storage plugin should be a Python module defining a subclass of `dlite.DLiteStorageBase` with a set of methods for opening, closing, reading, writing and searching the storage.
+In order for DLite to find the storage plugin, it should be in the search path defined by the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment variable or from Python, in `dlite.python_storage_plugin_path`.
+
 See the [Python storage plugin example] for a complete example and description of how to write a Python storage plugin.
 
 
