@@ -1,7 +1,53 @@
 DLite
 =====
 
-.. Comment back in the toctrees below if ever Python files are generated in these folders.
+`A lightweight data-centric framework for semantic interoperability.`
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents
+   :hidden:
+   :includehidden:
+
+   getting_started/index
+   user_guide/index
+   api_reference/index
+   contributors_guide/index
+   license
+
+.. grid:: 1 2 2 2
+
+   .. grid-item-card:: Getting started
+      :link: getting_started/index.html
+
+      .. image:: _static/startup.png
+         :alt: Getting started
+         :align: center
+
+   .. grid-item-card:: User Guide
+      :link: user_guide/index.html
+
+      .. image:: _static/manual.png
+         :alt: User Guide
+         :align: center
+
+.. grid:: 1 2 2 2
+
+   .. grid-item-card:: API Reference
+      :link: api.html
+
+      .. image:: _static/api.png
+         :alt: API Reference
+         :align: center
+
+   .. grid-item-card:: Contributor's Guide
+      :link: contributors_guide/index.html
+
+      .. image:: _static/agenda.png
+         :alt: Contributor's Guide
+         :align: center
+
+
 .. toctree::
    :maxdepth: 3
    :caption: API Reference
@@ -10,57 +56,14 @@ DLite
 
    Python API <autoapi/index>
    C-API <c-api/src>
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Mapping Plugins
-   :glob:
-   :hidden:
-
-   autoapi/mappingplugins/**/index
-
-.. .. toctree::
-..    :maxdepth: 3
-..    :caption: Storage Plugins
-..    :glob:
-..    :hidden:
-
-..    autoapi/storageplugins/**/index
-
-.. .. toctree::
-..    :maxdepth: 3
-..    :caption: Python Mapping Plugins
-..    :glob:
-..    :hidden:
-
-..    autoapi/pythonmappingplugins/**/index
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Python Storage Plugins
-   :glob:
-   :hidden:
-
-   autoapi/pythonstorageplugins/**/index
-
-.. .. toctree::
-..    :maxdepth: 3
-..    :caption: Storages
-..    :glob:
-..    :hidden:
-
-..    autoapi/storages/**/index
-
-.. toctree::
-   :maxdepth: 3
-   :caption: User Documentation
-   :glob:
-   :hidden:
-
-   User Documentation <user_documentation/index>
+		 
 
 Indices and tables
 ------------------
+.. toctree::
+   :hidden:
+
+   genindex
 
 * :ref:`genindex`
-* :ref:`modindex`
+* :ref:`py-modindex`

@@ -8,7 +8,7 @@ This is shown in Figure 1, where we assume that the instance `A` (which, e.g., c
 
 We call an instance a *transaction* after we have taken a snapshot of it, i.e. when it contains a reference to an immutable previous ("parent") instance.
 
-![transactions](figs/transactions.png)
+![transactions](../_static/transactions.png)
 
 **Figure 1**: *Creating a transaction by taking snapshots.
 (a) initial state of your system described by instance `A`.
@@ -67,7 +67,7 @@ dlite_instance_snapshot(B);
 ```
 The result of these commands are shown in Figure 2.
 
-![transactions-branch](figs/transactions-branch.png)
+![transactions-branch](../_static/transactions-branch.png)
 
 **Figure 2**: *Creating a new branch, from a snapshot of a transaction.
 (a) Create a copy (`B`) of latest snapshot of transaction `A`.
