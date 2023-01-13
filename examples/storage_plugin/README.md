@@ -62,6 +62,9 @@ import dlite
 
 class tempprofile(dlite.DLiteStorageBase):
     """DLite storage plugin for a temperature profile."""
+
+    # At the time this plugin is importet, instantiate a TempProfile entity.
+    # We keep a reference to this entity as a class attribute.
     TempProfile = dlite.Instance.from_location(
         "json", Path(__file__).resolve().parent.parent /
         "entities" / "TempProfile.json",
@@ -88,7 +91,11 @@ class tempprofile(dlite.DLiteStorageBase):
         with open(self.location, "rt") as f:
             line = f.readline()
             n = int(line.split(":")[1].strip())
+
+            # Create a new TempProfile instance with dimension `n` and the
+            # provided ID.
             inst = self.TempProfile([n], id=id)
+
             f.readline()  # skip table header
             for i in range(n):
                 time, temp = f.readline().split()
