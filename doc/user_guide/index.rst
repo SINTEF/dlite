@@ -6,6 +6,10 @@ User Guide
    :caption: Contents
 
    concepts
+   mappings
+   collections
    transactions
-   environment_variables
+   tools
+   code_generation
+   features
    vocabulary

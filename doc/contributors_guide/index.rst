@@ -5,8 +5,8 @@ Contributor's Guide
    :maxdepth: 2
    :caption: Contents
 
-   documentation_contributors
-   documentation_testing   
    storage_plugins
+   documentation_contributors
+   documentation_testing
+   release_instructions
    tips_and_tricks
-   tools

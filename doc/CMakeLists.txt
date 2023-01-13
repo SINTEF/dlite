@@ -31,12 +31,13 @@ configure_file(
     @ONLY)
 
 file(COPY
+  "${CMAKE_SOURCE_DIR}/LICENSE"
+  "${CMAKE_CURRENT_SOURCE_DIR}/license.md"
   "${CMAKE_CURRENT_SOURCE_DIR}/index.rst"
   "${CMAKE_CURRENT_SOURCE_DIR}/api.rst"
   "${CMAKE_CURRENT_SOURCE_DIR}/respirator.py"
   "${CMAKE_CURRENT_SOURCE_DIR}/_templates"
   "${CMAKE_CURRENT_SOURCE_DIR}/_static"
-  "${CMAKE_CURRENT_SOURCE_DIR}/user_documentation"
   "${CMAKE_CURRENT_SOURCE_DIR}/contributors_guide"
   "${CMAKE_CURRENT_SOURCE_DIR}/getting_started"
   "${CMAKE_CURRENT_SOURCE_DIR}/user_guide"

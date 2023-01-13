@@ -6,5 +6,5 @@ Getting started
    :caption: Contents
 
    introduction/index
-   installation/index
+   setup/index
    tutorial/index

@@ -73,7 +73,8 @@ The result of these commands are shown in Figure 2.
 (a) Create a copy (`B`) of latest snapshot of transaction `A`.
 (b) Take a snapshot of `B`.*
 
-### Transaction parent and immutability
+Transaction parent and immutability
+-----------------------------------
 
 All transactions start as a root instance with no parent instance.
 All other instances in a transaction has exactly **one** parent instance.
@@ -83,7 +84,8 @@ This makes it possible to ensure that any of the ancestors of a transaction have
 
 A transaction can be verified with the `verify_transaction()` method in Python and `dlite_instance_verify_transaction()` in C.
 
-### Memory management
+Memory management
+-----------------------------------
 
 The number of snapshots can potentially be very large, hence it is important to be able to store them to disk in order to save memory.
 To support this, DLite implements the `pull_snapshot()` and `push_snapshot()` methods (`dlite_instance_pull_snapshot()` and `dlite_instance_push_snapshot()` in C).
