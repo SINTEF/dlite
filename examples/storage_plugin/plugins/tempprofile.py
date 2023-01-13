@@ -19,6 +19,9 @@ class tempprofile(dlite.DLiteStorageBase):
         """
         self.location = location
 
+    def close(self):
+        """Closes the storage.  Unused in this case."""
+
     def load(self, id=None):
         """Reads storage into an new instance and returns the instance.
 
