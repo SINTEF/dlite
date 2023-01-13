@@ -1,5 +1,22 @@
 project(dlite-bindings-python-scripts C)
 
+# Convinience functions for check for success
+# Usage: test_success(name, command...)
+function(test_success name)
+add_test(
+  NAME ${name}
+  COMMAND ${RUNNER} ${Python3_EXECUTABLE} ${ARGN}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+endfunction()
+
+# Convinience functions for check for failure
+# Usage: test_failure(name, command...)
+function(test_failure name)
+  test_success(${name} ${ARGN})
+  set_property(TEST ${name} PROPERTY WILL_FAIL true)
+endfunction()
+
 
 # Install
 install(
@@ -13,44 +30,38 @@ install(
 
 
 # Tests
-add_test(
-  NAME dlite-validate-Person
-  COMMAND ${RUNNER} ${Python3_EXECUTABLE} dlite-validate
-    ../tests/Person.json
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+test_success(
+  dlite-validate-Person
+  dlite-validate ../tests/Person.json
 )
-
-add_test(
-  NAME dlite-validate-persons
-  COMMAND ${RUNNER} ${Python3_EXECUTABLE} dlite-validate
-    -p ../tests/Person.json
-    -i 51c0d700-9ab0-43ea-9183-6ea22012ebee
+test_success(
+  dlite-validate-persons
+  dlite-validate -p ../tests/Person.json -i 51c0d700-9ab0-43ea-9183-6ea22012ebee
     ../tests/persons.json
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-add_test(
-  NAME dlite-validate-persons2
-  COMMAND ${RUNNER} ${Python3_EXECUTABLE} dlite-validate
-    --storage-path ../tests/Person.json
-    --id 13c5007b-c665-4709-a11c-255919306547
+test_success(
+  dlite-validate-persons2
+  dlite-validate
+    --storage-path=../tests/Person.json
+    --id=13c5007b-c665-4709-a11c-255919306547
     --show
     ../tests/persons.json
-
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+  )
 
 # No --id for storage with multiple instances
-add_test(
-  NAME dlite-validate-persons-fail
-  COMMAND ${RUNNER} ${Python3_EXECUTABLE} dlite-validate
-    --storage-path ../tests/Person.json
-    --show
-    ../tests/persons.json
-
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+test_failure(
+  dlite-validate-persons-fail2
+  dlite-validate --storage-path ../tests/Person.json --show ../tests/persons.json
 )
-set_property(
-  TEST dlite-validate-persons-fail
-  PROPERTY WILL_FAIL true
+
+# The "dimensions" keyword is required
+test_failure(
+  dlite-validate-no-dimensions
+  dlite-validate NoDimensions.json
+)
+
+# Ok with an empty entity as long as the "dimensions" and "properties" keys are there.
+test_success(
+  dlite-validate-empty
+  dlite-validate Empty.json
 )

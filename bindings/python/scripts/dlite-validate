@@ -79,7 +79,9 @@ def main():
     parser.add_argument(
         '--options', '-o',
         help='Semicolon-separated list of options parsed on to the dlite '
-        'storage plugin.'
+        'storage plugin.  For instance, to validate an entity in a '
+        '"mongodb" storage, you may want to provide '
+        '`--options="database=DBNAME;collection=dlite_coll;user=myname"`.'
     )
     parser.add_argument(
         '--id', '-i',
