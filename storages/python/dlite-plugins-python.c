@@ -171,14 +171,12 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
     Py_INCREF(Py_None);
     pyuuid = Py_None;
   }
-
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
   PyObject *v = PyObject_CallMethod(sp->obj, "load", "O", pyuuid);
   Py_DECREF(pyuuid);
-
   if (v) {
     inst = dlite_pyembed_get_instance(v);
     Py_DECREF(v);
@@ -227,7 +225,7 @@ int deleter(DLiteStorage *s, const char *id)
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
+		s->api->name);
   v = PyObject_CallMethod(sp->obj, "delete", "s", id);
   if (dlite_pyembed_err_check("error calling %s.delete()", classname))
     goto fail;
@@ -241,41 +239,68 @@ int deleter(DLiteStorage *s, const char *id)
 /*
   Loads instance with given id from bytes object.
  */
-DLiteInstance *memloader(const unsigned char *buf, size_t size, const char *id)
+DLiteInstance *memloader(const DLiteStoragePlugin *api,
+                         const unsigned char *buf, size_t size, const char *id)
 {
-  UNUSED(buf);
-  UNUSED(size);
-  UNUSED(id);
-  return NULL;
+  DLiteInstance *inst = NULL;
+  PyObject *v = NULL;
+  PyObject *class = (PyObject *)api->data;
+  const char *classname;
+  PyErr_Clear();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s", api->name);
+  v = PyObject_CallMethod(class, "from_bytes", "y#s",
+                          (const char *)buf, (Py_ssize_t) size, id);
+  if (dlite_pyembed_err_check("error calling %s.from_bytes()", classname)) {
+    Py_XDECREF(v);
+    return NULL;
+  }
+  if (v) {
+    inst = dlite_pyembed_get_instance(v);
+    Py_DECREF(v);
+  } else
+    dlite_pyembed_err(1, "error calling %s.from_bytes()", classname);
+  return inst;
 }
 
 /*
   Saves instance to bytes object.
  */
-int memsaver(unsigned char *buf, size_t size, const DLiteInstance *inst)
+int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
+             const DLiteInstance *inst)
 {
+  UNUSED(api);
   UNUSED(buf);
   UNUSED(size);
   UNUSED(inst);
-  /*
-  PyObject *pyinst = dlite_pyembed_from_instance(inst->uuid);
+  Py_ssize_t length = 0;
+  char *buffer = NULL;
   PyObject *v = NULL;
-  int retval = 1;
-  PyObject *class = (PyObject *)s->api->data;
+  int retval = dliteStorageSaveError;
+  PyObject *class = (PyObject *)api->data;
   const char *classname;
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
-  v = PyObject_CallMethod(sp->obj, "save", "O", pyinst);
-  if (dlite_pyembed_err_check("error calling %s.save()", classname)) goto fail;
-  retval = 0;
+    dlite_warnx("cannot get class name for storage plugin %s", api->name);
+  v = PyObject_CallMethod(class, "to_bytes", "s", inst->uuid);
+  if (dlite_pyembed_err_check("error calling %s.to_bytes()", classname))
+    goto fail;
+  if (PyBytes_Check(v)) {
+    if (PyBytes_AsStringAndSize(v, &buffer, &length)) goto fail;
+  } else if (PyByteArray_Check(v)) {
+    if ((length = PyByteArray_Size(v)) < 0) goto fail;
+    if (!(buffer = PyByteArray_AsString(v))) goto fail;
+  } else {
+    dlite_errx(dliteStorageSaveError,
+               "%s.to_bytes() must return bytes-like object", classname);
+    goto fail;
+  }
+  assert(length > 0);
+  memcpy(buf, buffer, (size > (size_t)length) ? (size_t)length : size);
+  retval = length;
  fail:
-  Py_XDECREF(pyinst);
   Py_XDECREF(v);
   return retval;
-  */
-  return 0;
 }
 
 

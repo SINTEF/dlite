@@ -1122,7 +1122,7 @@ DLiteInstance *dlite_instance_memload(const char *driver,
   if (!api->memLoadInstance)
     return err(dliteUnsupportedError, "driver does not support memload: %s",
                api->name), NULL;
-  return api->memLoadInstance(buf, size, id);
+  return api->memLoadInstance(api, buf, size, id);
 }
 
 /*
@@ -1140,7 +1140,7 @@ int dlite_instance_memsave(const char *driver, unsigned char *buf, size_t size,
   if (!api->memSaveInstance)
     return err(dliteUnsupportedError, "driver does not support memsave: %s",
                api->name);
-  return api->memSaveInstance(buf, size, inst);
+  return api->memSaveInstance(api, buf, size, inst);
 }
 
 /*
@@ -1158,10 +1158,10 @@ unsigned char *dlite_instance_to_memory(const char *driver,
     return err(dliteUnsupportedError, "driver does not support memsave: %s",
                api->name), NULL;
 
-  if ((n = api->memSaveInstance(buf, n, inst)) < 0) return NULL;
+  if ((n = api->memSaveInstance(api, buf, n, inst)) < 0) return NULL;
   if (!(buf = malloc(n)))
     return err(dliteMemoryError, "allocation failure"), NULL;
-  if ((m = api->memSaveInstance(buf, n, inst)) != n) {
+  if ((m = api->memSaveInstance(api, buf, n, inst)) != n) {
     assert(m < 0);  // On success, should `m` always be equal to `n`!
     free(buf);
     return NULL;

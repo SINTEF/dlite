@@ -370,7 +370,8 @@ typedef int (*DeleteInstance)(DLiteStorage *s, const char *id);
   Returns a new instance from memory buffer `buf` of size `size`.
   NULL is returned on error.
  */
-typedef DLiteInstance *(*MemLoadInstance)(const unsigned char *buf, size_t size,
+typedef DLiteInstance *(*MemLoadInstance)(const DLiteStoragePlugin *api,
+                                          const unsigned char *buf, size_t size,
                                           const char *id);
 
 /**
@@ -380,7 +381,8 @@ typedef DLiteInstance *(*MemLoadInstance)(const unsigned char *buf, size_t size,
   to `buf` if `buf` is not large enough).
   Returns a negative error code on error.
  */
-typedef int (*MemSaveInstance)(unsigned char *buf, size_t size,
+typedef int (*MemSaveInstance)(const DLiteStoragePlugin *api,
+                               unsigned char *buf, size_t size,
                                const DLiteInstance *inst);
 
 /** @} */
