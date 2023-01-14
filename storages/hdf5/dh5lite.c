@@ -772,6 +772,7 @@ static DLiteStoragePlugin h5_plugin = {
   dh5_open,                            // open
   dh5_close,                           // close
   NULL,                                // flush
+  NULL,                                // help
 
   /* queue api */
   NULL,                                // iterCreate

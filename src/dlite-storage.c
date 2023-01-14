@@ -256,6 +256,16 @@ int dlite_storage_delete(DLiteStorage *s, const char *id)
              s->api->name);
 }
 
+/*
+  Returns a malloc'ed string with plugin documentation or NULL on error.
+ */
+char *dlite_storage_help(DLiteStorage *s)
+{
+  if (s->api->help) return s->api->help(s);
+  return err(dliteUnsupportedError, "storage does not support help: %s",
+             s->api->name), NULL;
+}
+
 
 /*
   Returns the UUIDs off all instances in storage `s` whos metadata URI

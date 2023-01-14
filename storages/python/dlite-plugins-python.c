@@ -132,7 +132,7 @@ int closer(DLiteStorage *s)
 int flusher(DLiteStorage *s)
 {
   int retval=0;
-  DLitePythonStorage *sp = (DLitePythonStorage *)s;
+  //DLitePythonStorage *sp = (DLitePythonStorage *)s;
   PyObject *v = NULL;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
@@ -143,15 +143,81 @@ int flusher(DLiteStorage *s)
 		*((char **)s->api));
 
   /* Return if flush() is not defined */
-  if (!PyObject_HasAttrString(sp->obj, "flush")) return retval;
+  if (!PyObject_HasAttrString(class, "flush")) return retval;
 
-  v = PyObject_CallMethod(sp->obj, "flush", "");
+  v = PyObject_CallMethod(class, "flush", "");
   if (dlite_pyembed_err_check("error calling %s.flush()", classname))
     retval = 1;
   Py_XDECREF(v);
-  Py_DECREF(sp->obj);
+  //Py_DECREF(sp->obj);
   return retval;
 }
+
+
+/*
+  Returns a malloc'ed string documenting storage `s` or NULL on error.
+
+  It combines the class documentation with the documentation of the open()
+  method.
+ */
+char *helper(DLiteStorage *s)
+{
+  PyObject *v=NULL, *pyclassdoc=NULL, *open=NULL, *pyopendoc=NULL;
+  PyObject *class = (PyObject *)s->api->data;
+  const char *classname, *classdoc=NULL, *opendoc=NULL;
+  char *doc=NULL;
+  Py_ssize_t n=0, clen=0, olen=0, i, newlines=0;
+
+  dlite_errclr();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		*((char **)s->api));
+
+  if (PyObject_HasAttrString(class, "__doc__")) {
+    if (!(pyclassdoc = PyObject_GetAttrString(class, "__doc__")))
+      FAILCODE1(dliteAttributeError, "cannot access %s.__doc__", classname);
+    if (!(classdoc = PyUnicode_AsUTF8AndSize(pyclassdoc, &clen)))
+      FAILCODE1(dliteAttributeError, "cannot read %s.__doc__", classname);
+    for (i=n-1; i>0 && isspace(classdoc[i]) && newlines<2; i--) newlines++;
+  }
+
+  if (PyObject_HasAttrString(class, "open")) {
+    if (!(open = PyObject_GetAttrString(class, "open")))
+      FAILCODE1(dliteAttributeError, "cannot access %s.open()", classname);
+    if (PyObject_HasAttrString(open, "__doc__")) {
+      if (!(pyopendoc = PyObject_GetAttrString(open, "__doc__")))
+        FAILCODE1(dliteAttributeError, "cannot access %s.open.__doc__",
+                  classname);
+      if (!(opendoc = PyUnicode_AsUTF8AndSize(pyopendoc, &olen)))
+        FAILCODE1(dliteAttributeError, "cannot read %s.open.__doc__",
+                  classname);
+    }
+  }
+  assert(newlines >= 0);
+  assert(newlines <= 2);
+  if (!(doc = malloc(clen + 2 - newlines + olen + 1)))
+    FAILCODE(dliteMemoryError, "allocation failure");
+  if (clen) {
+    memcpy(doc+n, classdoc, clen);
+    n += clen;
+  }
+  if (clen && olen) {
+    memcpy(doc+n, "\n\n", 2 - newlines);
+    n += 2 - newlines;
+  }
+  if (olen) {
+    memcpy(doc+n, opendoc, olen);
+    n += olen;
+  }
+  doc[n++] = '\0';
+ fail:
+  Py_XDECREF(v);
+  Py_XDECREF(pyclassdoc);
+  Py_XDECREF(open);
+  Py_XDECREF(pyopendoc);
+  return doc;
+}
+
 
 /*
   Returns a new instance from `id` in storage `s`.  NULL is returned
@@ -503,6 +569,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   api->open = opener;
   api->close = closer;
   api->flush = flusher;
+  api->help = helper;
   if (queue) {
     api->iterCreate = iterCreate;
     api->iterNext = iterNext;

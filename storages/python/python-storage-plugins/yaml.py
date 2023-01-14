@@ -14,28 +14,27 @@ if TYPE_CHECKING:  # pragma: no cover
 
 class yaml(dlite.DLiteStorageBase):
     """DLite storage plugin for YAML."""
+    _pyyaml = pyyaml  # Keep a reference to pyyaml to have it during shutdown
 
-    def open(self, uri: str, options: "Optional[str]" = None) -> None:
+    def open(self, uri: str, options=None):
         """Opens `uri`.
 
-        Parameters:
+        Arguments:
             uri: A fully resolved URI to the PostgreSQL database.
             options: Supported options:
-
-                - `mode`: Mode for opening.
-                  Valid values are:
-
-                  - `a`: Append to existing file or create new file (default).
-                  - `r`: Open existing file for read-only.
-                  - `w`: Truncate existing file or create new file.
-
-                - `soft7`: Whether to save using SOFT7 format.
-                - `single`: Whether the input is assumed to be in single-entity form.
+            - `mode`: Mode for opening.  Valid values are:
+                - `a`: Append to existing file or create new file (default).
+                - `r`: Open existing file for read-only.
+                - `w`: Truncate existing file or create new file.
+            - `soft7`: Whether to save using SOFT7 format.
+            - `single`: Whether the input is assumed to be in single-entity form.
                   The default (`"auto"`) will try to infer it automatically.
-
         """
-        self.options = Options(options, defaults="mode=a;soft7=true;single=auto")
-        self.mode = {"r": "r", "w": "w", "a": "r+", "append": "r+"}[self.options.mode]
+        self.options = Options(
+            options, defaults="mode=a;soft7=true;single=auto"
+        )
+        self.mode = {"r": "r", "w": "w", "a": "r+", "append": "r+"}[
+            self.options.mode]
         self.readable = "r" in self.mode
         self.writable = "r" != self.mode
         self.generic = True
@@ -48,7 +47,7 @@ class yaml(dlite.DLiteStorageBase):
             if data:
                 self._data = data
 
-    def close(self) -> None:
+    def close(self):
         """Closes this storage."""
         if self.writable:
             mode = (
@@ -57,22 +56,22 @@ class yaml(dlite.DLiteStorageBase):
                 else self.mode
             )
             with open(self.uri, mode) as handle:
-                pyyaml.dump(
+                self._pyyaml.dump(
                     self._data,
                     handle,
                     default_flow_style=False,
                     sort_keys=False,
                 )
 
-    def load(self, id: str) -> dlite.Instance:
+    def load(self, id: str):
         """Loads `uuid` from current storage and return it as a new instance.
 
-        Parameters:
-            id: A UUID representing a DLite Instance to return from the RDF storage.
+        Arguments:
+            id: A UUID representing a DLite Instance to return from the
+                storage.
 
         Returns:
             A DLite Instance corresponding to the given `id` (UUID).
-
         """
         return instance_from_dict(
             self._data,
@@ -81,25 +80,27 @@ class yaml(dlite.DLiteStorageBase):
             check_storages=False,
         )
 
-    def save(self, inst: dlite.Instance) -> None:
+    def save(self, inst: dlite.Instance):
         """Stores `inst` in current storage.
 
-        Parameters:
-            inst: A DLite Instance to store in the RDF storage.
+        Arguments:
+            inst: A DLite Instance to store in the storage.
 
         """
-        self._data[inst.uuid] = inst.asdict(soft7=dlite.asbool(self.options.soft7))
+        self._data[inst.uuid] = inst.asdict(
+            soft7=dlite.asbool(self.options.soft7)
+        )
 
-    def queue(self, pattern: "Optional[str]" = None) -> "Generator[str, None, None]":
+    def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who"s metadata URI matches glob pattern `pattern`.
 
-        Parameters:
-            pattern: A regular expression to filter the yielded UUIDs.
+        Arguments:
+            pattern: A glob pattern to filter the yielded UUIDs.
 
         Yields:
-            DLite Instance UUIDs based on the `pattern` regular expression.
-            If no `pattern` is given, all UUIDs are yielded from within the RDF
+            DLite Instance UUIDs based on `pattern`.
+            If no `pattern` is given, all UUIDs are yielded from within the
             storage.
 
         """

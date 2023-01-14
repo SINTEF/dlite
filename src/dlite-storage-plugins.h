@@ -268,6 +268,12 @@ typedef int (*Close)(DLiteStorage *s);
  */
 typedef int (*Flush)(DLiteStorage *s);
 
+/**
+  Returns a malloc'ed string with plugin documentation or NULL on error.
+  Optional.
+ */
+typedef char *(*Help)(DLiteStorage *s);
+
 /** @} */
 
 
@@ -547,6 +553,7 @@ struct _DLiteStoragePlugin {
   Open               open;             /*!< Open storage */
   Close              close;            /*!< Close storage */
   Flush              flush;            /*!< Flush storage */
+  Help               help;             /*!< Returns plugin documentation */
 
   /* Queue API */
   IterCreate         iterCreate;       /*!< Creates iterator over storage */

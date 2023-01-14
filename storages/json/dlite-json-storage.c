@@ -324,6 +324,7 @@ static DLiteStoragePlugin dlite_json_plugin = {
   json_open,                /* open */
   json_close,               /* close */
   NULL,                     /* flush */
+  NULL,                     /* getdoc */
 
   /* queue api */
   json_iter_create,         /* iterCreate */

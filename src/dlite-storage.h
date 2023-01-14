@@ -135,6 +135,11 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter);
  */
 int dlite_storage_delete(DLiteStorage *s, const char *id);
 
+/**
+  Returns a malloc'ed string with plugin documentation or NULL on error.
+ */
+char *dlite_storage_help(DLiteStorage *s);
+
 
 /**
   Returns the UUIDs off all instances in storage `s` whos metadata URI

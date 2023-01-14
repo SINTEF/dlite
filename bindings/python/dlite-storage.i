@@ -126,6 +126,12 @@ struct _DLiteStorage {
     return dlite_storage_get_driver($self);
   }
 
+  %feature("docstring", "Returns documentation for storage plugin.") help;
+  %newobject help;
+  char *help(void) {
+    return dlite_storage_help($self);
+  }
+
   //void set_idflag(enum _DLiteIDFlags idflag) {
   //  dlite_storage_set_idflag($self, idflag);
   //}
