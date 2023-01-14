@@ -271,14 +271,16 @@ int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
 {
   Py_ssize_t length = 0;
   char *buffer = NULL;
+  PyObject *pyinst = dlite_pyembed_from_instance(inst->uuid);
   PyObject *v = NULL;
   int retval = dliteStorageSaveError;
   PyObject *class = (PyObject *)api->data;
   const char *classname;
   dlite_errclr();
+  if (!pyinst) goto fail;
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s", api->name);
-  v = PyObject_CallMethod(class, "to_bytes", "s", inst->uuid);
+  v = PyObject_CallMethod(class, "to_bytes", "O", pyinst);
   if (dlite_pyembed_err_check("error calling %s.to_bytes()", classname))
     goto fail;
   if (PyBytes_Check(v)) {
@@ -295,6 +297,7 @@ int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
   memcpy(buf, buffer, (size > (size_t)length) ? (size_t)length : size);
   retval = length;
  fail:
+  Py_XDECREF(pyinst);
   Py_XDECREF(v);
   return retval;
 }
