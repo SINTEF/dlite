@@ -422,9 +422,9 @@ Call signatures:
 
   %feature("docstring",
            "Save instance to string using given storage driver."
-           ) save_to_string;
-  %newobject save_to_string;
-  unsigned char *save_to_string(const char *driver) {
+           ) to_bytes;
+  %newobject to_bytes;
+  unsigned char *to_bytes(const char *driver) {
     return dlite_instance_to_memory(driver, $self);
   }
 
