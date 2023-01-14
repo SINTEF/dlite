@@ -269,10 +269,6 @@ DLiteInstance *memloader(const DLiteStoragePlugin *api,
 int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
              const DLiteInstance *inst)
 {
-  UNUSED(api);
-  UNUSED(buf);
-  UNUSED(size);
-  UNUSED(inst);
   Py_ssize_t length = 0;
   char *buffer = NULL;
   PyObject *v = NULL;
@@ -408,7 +404,8 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   int n;
   DLiteStoragePlugin *api=NULL, *retval=NULL;
   PyObject *storages=NULL, *cls=NULL, *name=NULL;
-  PyObject *open=NULL, *close=NULL, *queue=NULL, *load=NULL, *save=NULL;
+  PyObject *open=NULL, *close=NULL, *queue=NULL, *load=NULL, *save=NULL,
+    *flush=NULL, *delete=NULL, *memload=NULL, *memsave=NULL;
   const char *classname=NULL;
 
   dlite_globals_set(state);
@@ -449,10 +446,10 @@ get_dlite_storage_plugin_api(void *state, int *iter)
       FAIL1("attribute 'close' of '%s' is not callable", classname);
   }
 
-  if (PyObject_HasAttrString(cls, "queue")) {
-    queue = PyObject_GetAttrString(cls, "queue");
-    if (!PyCallable_Check(queue))
-      FAIL1("attribute 'queue' of '%s' is not callable", classname);
+  if (PyObject_HasAttrString(cls, "flush")) {
+    flush = PyObject_GetAttrString(cls, "flush");
+    if (!PyCallable_Check(flush))
+      FAIL1("attribute 'flush' of '%s' is not callable", classname);
   }
 
   if (PyObject_HasAttrString(cls, "load")) {
@@ -470,6 +467,30 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   if (!load && !save)
     FAIL1("expect either method 'load()' or 'save()' to be defined in '%s'",
 	  classname);
+
+  if (PyObject_HasAttrString(cls, "delete")) {
+    delete = PyObject_GetAttrString(cls, "delete");
+    if (!PyCallable_Check(delete))
+      FAIL1("attribute 'delete' of '%s' is not callable", classname);
+  }
+
+  if (PyObject_HasAttrString(cls, "from_bytes")) {
+    memload = PyObject_GetAttrString(cls, "from_bytes");
+    if (!PyCallable_Check(memload))
+      FAIL1("attribute 'from_bytes' of '%s' is not callable", classname);
+  }
+
+  if (PyObject_HasAttrString(cls, "to_bytes")) {
+    memsave = PyObject_GetAttrString(cls, "to_bytes");
+    if (!PyCallable_Check(memsave))
+      FAIL1("attribute 'to_bytes' of '%s' is not callable", classname);
+  }
+
+  if (PyObject_HasAttrString(cls, "queue")) {
+    queue = PyObject_GetAttrString(cls, "queue");
+    if (!PyCallable_Check(queue))
+      FAIL1("attribute 'queue' of '%s' is not callable", classname);
+  }
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
     FAILCODE(dliteMemoryError, "allocation failure");
@@ -500,8 +521,13 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   Py_XDECREF(name);
   Py_XDECREF(open);
   Py_XDECREF(close);
+  Py_XDECREF(flush);
   Py_XDECREF(load);
   Py_XDECREF(save);
+  Py_XDECREF(delete);
+  Py_XDECREF(memload);
+  Py_XDECREF(memsave);
+  Py_XDECREF(queue);
 
   return retval;
 }
