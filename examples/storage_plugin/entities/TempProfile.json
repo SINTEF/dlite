@@ -1,0 +1,21 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/TempProfile",
+  "description": "Measured temperature profile.",
+  "dimensions": {
+    "n": "Number of temperature measurements."
+  },
+  "properties": {
+    "time": {
+      "type": "int",
+      "shape": ["n"],
+      "unit": "min",
+      "description": "Number of minutes since the start of the experiment."
+    },
+    "temperature": {
+      "type": "int",
+      "shape": ["n"],
+      "unit": "degC",
+      "description": "Measured temperature at the given times."
+    }
+  }
+}
