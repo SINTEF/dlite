@@ -1,0 +1,34 @@
+{% extends "toc.rst.j2" %}
+{% block title %}
+DLite C-API
+===========
+{% endblock %}
+{% block description %}
+DLite is a C implementation of the SINTEF Open Framework and Tools
+(SOFT), which is a set of concepts and tools for how to efficiently
+describe and work with scientific data.
+
+All data in DLite is represented by an Instance, which is build on a
+simple data model.  An Instance is identified by a unique UUID and
+have a set of named dimensions and properties.  It is described by its
+Metadata.  In the Metadata, each dimension is given a name and
+description (optional) and each property is given a name, type, shape
+(optional), unit (optional) and description (optional).  The shape of
+a property refers to the named dimensions.
+
+When an Instance is instantiated, you must suply a value to the named
+dimensions.  The shape of the properties will be set according to
+that.  This ensures that the shape of the properties are internally
+consistent.
+
+A Metadata is also an Instance, and hence described by its
+meta-metadata.  By default, DLite defines four levels of metadata;
+instance, metadata, metadata schema and basic metadata schema. The
+basic metadata schema describes itself, so no further meta levels are
+needed.  The idea is if two different systems describes their data
+model in terms of the basic metadata schema, they can easily be made
+semantically interoperable.
+
+DLite is licensed under the MIT license.
+
+{% endblock %}

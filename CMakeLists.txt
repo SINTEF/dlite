@@ -702,7 +702,6 @@ endif()
 # Documentations
 if(WITH_DOC)
   add_subdirectory(doc)
-  add_subdirectory(pydoc)
 endif()
 
 #################################################################
