@@ -76,8 +76,10 @@ Opens `uri`.
 
     # Test to_bytes()/from_bytes()
     data = inst.to_bytes('yaml')
-    del inst
-    inst = dlite.Instance.from_bytes('yaml', data)
+    data2 = data.replace(b'uri: my-data', b'uri: my-data2')
+    inst2 = dlite.Instance.from_bytes('yaml', data2)
+    assert inst2.uuid != inst.uuid
+    assert inst2.get_hash() == inst.get_hash()
 
     s.flush()  # avoid calling flush() when the interpreter is teared down
 
@@ -92,4 +94,4 @@ except dlite.DLiteError:
 else:
     #del inst
     # FIXME: read from inst.ttl not db.xml
-    inst = dlite.Instance.from_url('rdf://db.xml#my-data')
+    inst3 = dlite.Instance.from_url('rdf://db.xml#my-data')
