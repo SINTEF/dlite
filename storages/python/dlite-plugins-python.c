@@ -132,7 +132,7 @@ int closer(DLiteStorage *s)
 int flusher(DLiteStorage *s)
 {
   int retval=0;
-  //DLitePythonStorage *sp = (DLitePythonStorage *)s;
+  DLitePythonStorage *sp = (DLitePythonStorage *)s;
   PyObject *v = NULL;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
@@ -143,13 +143,12 @@ int flusher(DLiteStorage *s)
 		*((char **)s->api));
 
   /* Return if flush() is not defined */
-  if (!PyObject_HasAttrString(class, "flush")) return retval;
+  if (!PyObject_HasAttrString(sp->obj, "flush")) return retval;
 
-  v = PyObject_CallMethod(class, "flush", "");
+  v = PyObject_CallMethod(sp->obj, "flush", "");
   if (dlite_pyembed_err_check("error calling %s.flush()", classname))
     retval = 1;
   Py_XDECREF(v);
-  //Py_DECREF(sp->obj);
   return retval;
 }
 
@@ -288,11 +287,13 @@ int deleter(DLiteStorage *s, const char *id)
   int retval = 1;
   PyObject *class = (PyObject *)s->api->data;
   const char *classname;
+  char uuid[DLITE_UUID_LENGTH+1];
   dlite_errclr();
+  if (dlite_get_uuid(uuid, id) < 0) goto fail;
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		s->api->name);
-  v = PyObject_CallMethod(sp->obj, "delete", "s", id);
+  v = PyObject_CallMethod(sp->obj, "delete", "s", uuid);
   if (dlite_pyembed_err_check("error calling %s.delete()", classname))
     goto fail;
   retval = 0;

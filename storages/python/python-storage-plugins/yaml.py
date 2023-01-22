@@ -39,7 +39,8 @@ class yaml(dlite.DLiteStorageBase):
         self.writable = "r" != self.mode
         self.generic = True
         self.uri = uri
-        self._data = {}
+        self.flushed = False  # whether buffered data has been written to file
+        self._data = {}  # data buffer
 
         if self.mode in ("r", "r+"):
             with open(uri, self.mode) as handle:
@@ -47,12 +48,11 @@ class yaml(dlite.DLiteStorageBase):
             if data:
                 self._data = data
 
-    def close(self):
-        """Closes this storage."""
-        if self.writable:
+    def flush(self):
+        """Flush cached data to storage."""
+        if self.writable and not self.flushed:
             mode = (
-                "w"
-                if self.mode == "r+" and not os.path.exists(self.uri)
+                "w" if self.mode == "r+" and not os.path.exists(self.uri)
                 else self.mode
             )
             with open(self.uri, mode) as handle:
@@ -62,6 +62,7 @@ class yaml(dlite.DLiteStorageBase):
                     default_flow_style=False,
                     sort_keys=False,
                 )
+            self.flushed = True
 
     def load(self, id: str):
         """Loads `uuid` from current storage and return it as a new instance.
@@ -90,6 +91,16 @@ class yaml(dlite.DLiteStorageBase):
         self._data[inst.uuid] = inst.asdict(
             soft7=dlite.asbool(self.options.soft7)
         )
+        self.flushed = False
+
+    def delete(self, uuid):
+        """Delete instance with given `uuid` from storage.
+
+        Arguments:
+            uuid: UUID of instance to delete.
+        """
+        del self._data[uuid]
+        self.flushed = False
 
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
@@ -108,3 +119,42 @@ class yaml(dlite.DLiteStorageBase):
             if pattern and dlite.globmatch(pattern, inst_as_dict["meta"]):
                 continue
             yield uuid
+
+    @classmethod
+    def from_bytes(cls, buffer, id=None, single=None):
+        """Load instance with given `id` from `buffer`.
+
+        Arguments:
+            buffer: Bytes or bytearray object to load the instance from.
+            id: ID of instance to load.  May be omitted if `buffer` only
+                holds one instance.
+            single: Whether to buffer is in single-entity form.  The default
+                is to infer it.
+
+        Returns:
+            New instance.
+        """
+        return instance_from_dict(
+            pyyaml.safe_load(buffer),
+            id,
+            single=single,
+            check_storages=False,
+        )
+
+    @classmethod
+    def to_bytes(cls, inst, soft7=True, with_uuid=False):
+        """Save instance `inst` to bytes (or bytearray) object.  Optional.
+
+        Arguments:
+            inst: Instance to save.
+            soft7: Whether to structure metadata as SOFT7.
+            with_uuid: Whether to include UUID in the output.
+
+        Returns:
+            The bytes (or bytearray) object that the instance is saved to.
+        """
+        return pyyaml.dump(
+            inst.asdict(soft7=soft7, uuid=with_uuid),
+            default_flow_style=False,
+            sort_keys=False,
+        ).encode()

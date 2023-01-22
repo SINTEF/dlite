@@ -1256,10 +1256,17 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 
 /* Bytes object (with explicit length) */
 %typemap("doc") (unsigned char *INPUT_BYTES, size_t LEN) "bytes"
-%typemap(in,numinputs=1) (unsigned char *INPUT_BYTES, size_t LEN) {
+%typemap(in) (unsigned char *INPUT_BYTES, size_t LEN) {
   char *tmp=NULL;
   Py_ssize_t n=0;
-  PyBytes_AsStringAndSize($input, &tmp, &n);
+  if (PyBytes_Check($input)) {
+    if (PyBytes_AsStringAndSize($input, &tmp, &n)) SWIG_fail;
+  } else if (PyByteArray_Check($input)) {
+    if ((n = PyByteArray_Size($input)) < 0) SWIG_fail;
+    if (!(tmp = PyByteArray_AsString($input))) SWIG_fail;
+  } else {
+    SWIG_Error(SWIG_TypeError, "argument must be bytes or bytearray");
+  }
   $1 = (unsigned char *)tmp;
   $2 = n;
 }

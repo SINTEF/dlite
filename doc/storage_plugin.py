@@ -37,11 +37,11 @@ class plugin_driver_name(dlite.DLiteStorageBase):
             inst: Instance to save.
         """
 
-    def delete(self, id):
-        """Delete instance with given `id` from storage.  Optional.
+    def delete(self, uuid):
+        """Delete instance with given `uuid` from storage.  Optional.
 
         Arguments:
-            id: URI or UUID of instance to delete.
+            uuid: UUID of instance to delete.
         """
 
     def queue(self, pattern=None):
