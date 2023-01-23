@@ -6,6 +6,10 @@
 #include <string.h>
 #include <errno.h>
 
+/* Make sure that #-formats for PyObject_CallMethod() uses Py_ssize_t for
+   Python 3.9 and older...
+   See https://docs.python.org/3/c-api/arg.html#strings-and-buffers */
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
 #include "utils/boolean.h"
