@@ -1110,6 +1110,67 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
 
 
 /*
+  Loads instance `id` from memory buffer `buf` of size `size` and return it.
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_memload(const char *driver,
+                                      const unsigned char *buf, size_t size,
+                                      const char *id)
+{
+  const DLiteStoragePlugin *api;
+  if (!(api = dlite_storage_plugin_get(driver))) return NULL;
+  if (!api->memLoadInstance)
+    return err(dliteUnsupportedError, "driver does not support memload: %s",
+               api->name), NULL;
+  return api->memLoadInstance(api, buf, size, id);
+}
+
+/*
+  Stores instance `inst` to memory buffer `buf` of size `size`.
+
+  Returns number of bytes written to `buf` (or would have been written
+  to `buf` if `buf` is not large enough).
+  Returns a negative error code on error.
+ */
+int dlite_instance_memsave(const char *driver, unsigned char *buf, size_t size,
+                           const DLiteInstance *inst)
+{
+  const DLiteStoragePlugin *api;
+  if (!(api = dlite_storage_plugin_get(driver))) return dliteStorageSaveError;
+  if (!api->memSaveInstance)
+    return err(dliteUnsupportedError, "driver does not support memsave: %s",
+               api->name);
+  return api->memSaveInstance(api, buf, size, inst);
+}
+
+/*
+  Saves instance to a newly allocated memory buffer.
+  Returns NULL on error.
+ */
+unsigned char *dlite_instance_to_memory(const char *driver,
+                                        const DLiteInstance *inst)
+{
+  const DLiteStoragePlugin *api;
+  int n=0, m;
+  unsigned char *buf=NULL;
+  if (!(api = dlite_storage_plugin_get(driver))) return NULL;
+  if (!api->memSaveInstance)
+    return err(dliteUnsupportedError, "driver does not support memsave: %s",
+               api->name), NULL;
+
+  if ((n = api->memSaveInstance(api, buf, n, inst)) < 0) return NULL;
+  if (!(buf = malloc(n)))
+    return err(dliteMemoryError, "allocation failure"), NULL;
+  if ((m = api->memSaveInstance(api, buf, n, inst)) != n) {
+    assert(m < 0);  // On success, should `m` always be equal to `n`!
+    free(buf);
+    return NULL;
+  }
+  return buf;
+}
+
+
+/*
   Returns a pointer to instance UUID.
  */
 const char *dlite_instance_get_uuid(const DLiteInstance *inst)
