@@ -12,7 +12,7 @@ This tutorial shows the steps for creating and instantiating a Dlite entity, and
 
 | time | Impp [A] | Isc [A] | MPP [W] | Vmpp [V] | Voc [V] |
 |------|----------|---------|---------|----------|---------|
-|   0  |          |         |         |          |         |
+|   0  |     5    |         |         |          |         |
 |  10  |          |         |         |          |         |
 
 ## Writing a DLite Entity
