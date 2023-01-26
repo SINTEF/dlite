@@ -354,6 +354,30 @@ To install dlite locally, do
 
     make install
 
+#### Note about VirtualEnvWrapper
+
+By default, [VirtualEnvWrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) does not set `LD_LIBRARY_PATH`. This will result in errors when running, for example, `dlite-codegen` in the example above. There are two ways of fixing this. 
+
+First, after compiling and installing `dlite`, the user needs to modify the `activate` file, located at `$WORKON_HOME/<envs_name>/bin/activate` by adding
+``` bash
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$VIRTUAL_ENV/lib"
+```
+
+
+Alternatively, and for proper a cleanup, the user may add
+``` bash
+_OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib:$LD_LIBRARY_PATH"
+```
+to the end of `$WORKON_HOME/<env_name>/bin/activate`, and
+
+
+``` bash
+export LD_LIBRARY_PATH="$_OLD_LD_LIBRARY_PATH"
+unset _OLD_LD_LIBRARY_PATH
+```
+to the end of the `deactivate` shell function in the same file.
+
 
 ### Build with VS Code on Windows
 See [here](doc/build_with_vs.md) for detailed instructions for building with
