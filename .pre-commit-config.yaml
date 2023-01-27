@@ -41,7 +41,7 @@ repos:
     hooks:
     - id: bandit
       args: ["-r"]
-      exclude: ^tests/.*$
+      exclude: tests?(?:[^/]+)*/.*$
 
   # mypy is a static typing linter
   # The main code repository can be found at:
@@ -67,7 +67,7 @@ repos:
       language: python
       types: [python]
       require_serial: true
-      exclude: ^test/.*$
+      exclude: tests?(?:[^/]+)*/.*$
     # pylint is a Python linter
     # It is run through the local environment to ensure external packages can be
     # imported without issue.
@@ -82,4 +82,4 @@ repos:
       language: python
       types: [python]
       require_serial: true
-      files: ^test/.*$
+      files: tests?(?:[^/]+)*/.*$

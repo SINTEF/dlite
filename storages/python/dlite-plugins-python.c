@@ -6,6 +6,10 @@
 #include <string.h>
 #include <errno.h>
 
+/* Make sure that #-formats for PyObject_CallMethod() uses Py_ssize_t for
+   Python 3.9 and older...
+   See https://docs.python.org/3/c-api/arg.html#strings-and-buffers */
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
 #include "utils/boolean.h"
@@ -115,7 +119,7 @@ int closer(DLiteStorage *s)
 		*((char **)s->api));
 
   /* Return if close() is not defined */
-  if (!PyObject_GetAttrString(sp->obj, "close")) return retval;
+  if (!PyObject_HasAttrString(sp->obj, "close")) return retval;
 
   v = PyObject_CallMethod(sp->obj, "close", "");
   if (dlite_pyembed_err_check("error calling %s.close()", classname))
@@ -123,6 +127,98 @@ int closer(DLiteStorage *s)
   Py_XDECREF(v);
   Py_DECREF(sp->obj);
   return retval;
+}
+
+
+/*
+  Flushes storage `s`.  Returns non-zero on error.
+ */
+int flusher(DLiteStorage *s)
+{
+  int retval=0;
+  DLitePythonStorage *sp = (DLitePythonStorage *)s;
+  PyObject *v = NULL;
+  PyObject *class = (PyObject *)s->api->data;
+  const char *classname;
+
+  dlite_errclr();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		*((char **)s->api));
+
+  /* Return if flush() is not defined */
+  if (!PyObject_HasAttrString(sp->obj, "flush")) return retval;
+
+  v = PyObject_CallMethod(sp->obj, "flush", "");
+  if (dlite_pyembed_err_check("error calling %s.flush()", classname))
+    retval = 1;
+  Py_XDECREF(v);
+  return retval;
+}
+
+
+/*
+  Returns a malloc'ed string documenting storage `s` or NULL on error.
+
+  It combines the class documentation with the documentation of the open()
+  method.
+ */
+char *helper(DLiteStorage *s)
+{
+  PyObject *v=NULL, *pyclassdoc=NULL, *open=NULL, *pyopendoc=NULL;
+  PyObject *class = (PyObject *)s->api->data;
+  const char *classname, *classdoc=NULL, *opendoc=NULL;
+  char *doc=NULL;
+  Py_ssize_t n=0, clen=0, olen=0, i, newlines=0;
+
+  dlite_errclr();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		*((char **)s->api));
+
+  if (PyObject_HasAttrString(class, "__doc__")) {
+    if (!(pyclassdoc = PyObject_GetAttrString(class, "__doc__")))
+      FAILCODE1(dliteAttributeError, "cannot access %s.__doc__", classname);
+    if (!(classdoc = PyUnicode_AsUTF8AndSize(pyclassdoc, &clen)))
+      FAILCODE1(dliteAttributeError, "cannot read %s.__doc__", classname);
+    for (i=n-1; i>0 && isspace(classdoc[i]) && newlines<2; i--) newlines++;
+  }
+
+  if (PyObject_HasAttrString(class, "open")) {
+    if (!(open = PyObject_GetAttrString(class, "open")))
+      FAILCODE1(dliteAttributeError, "cannot access %s.open()", classname);
+    if (PyObject_HasAttrString(open, "__doc__")) {
+      if (!(pyopendoc = PyObject_GetAttrString(open, "__doc__")))
+        FAILCODE1(dliteAttributeError, "cannot access %s.open.__doc__",
+                  classname);
+      if (!(opendoc = PyUnicode_AsUTF8AndSize(pyopendoc, &olen)))
+        FAILCODE1(dliteAttributeError, "cannot read %s.open.__doc__",
+                  classname);
+    }
+  }
+  assert(newlines >= 0);
+  assert(newlines <= 2);
+  if (!(doc = malloc(clen + 2 - newlines + olen + 1)))
+    FAILCODE(dliteMemoryError, "allocation failure");
+  if (clen) {
+    memcpy(doc+n, classdoc, clen);
+    n += clen;
+  }
+  if (clen && olen) {
+    memcpy(doc+n, "\n\n", 2 - newlines);
+    n += 2 - newlines;
+  }
+  if (olen) {
+    memcpy(doc+n, opendoc, olen);
+    n += olen;
+  }
+  doc[n++] = '\0';
+ fail:
+  Py_XDECREF(v);
+  Py_XDECREF(pyclassdoc);
+  Py_XDECREF(open);
+  Py_XDECREF(pyopendoc);
+  return doc;
 }
 
 
@@ -144,14 +240,12 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
     Py_INCREF(Py_None);
     pyuuid = Py_None;
   }
-
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin %s",
 		*((char **)s->api));
   PyObject *v = PyObject_CallMethod(sp->obj, "load", "O", pyuuid);
   Py_DECREF(pyuuid);
-
   if (v) {
     inst = dlite_pyembed_get_instance(v);
     Py_DECREF(v);
@@ -180,6 +274,99 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
   v = PyObject_CallMethod(sp->obj, "save", "O", pyinst);
   if (dlite_pyembed_err_check("error calling %s.save()", classname)) goto fail;
   retval = 0;
+ fail:
+  Py_XDECREF(pyinst);
+  Py_XDECREF(v);
+  return retval;
+}
+
+
+/*
+  Stores instance `inst` to storage `s`.  Returns non-zero on error.
+*/
+int deleter(DLiteStorage *s, const char *id)
+{
+  DLitePythonStorage *sp = (DLitePythonStorage *)s;
+  PyObject *v = NULL;
+  int retval = 1;
+  PyObject *class = (PyObject *)s->api->data;
+  const char *classname;
+  char uuid[DLITE_UUID_LENGTH+1];
+  dlite_errclr();
+  if (dlite_get_uuid(uuid, id) < 0) goto fail;
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s",
+		s->api->name);
+  v = PyObject_CallMethod(sp->obj, "delete", "s", uuid);
+  if (dlite_pyembed_err_check("error calling %s.delete()", classname))
+    goto fail;
+  retval = 0;
+ fail:
+  Py_XDECREF(v);
+  return retval;
+}
+
+
+/*
+  Loads instance with given id from bytes object.
+ */
+DLiteInstance *memloader(const DLiteStoragePlugin *api,
+                         const unsigned char *buf, size_t size, const char *id)
+{
+  DLiteInstance *inst = NULL;
+  PyObject *v = NULL;
+  PyObject *class = (PyObject *)api->data;
+  const char *classname;
+  PyErr_Clear();
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s", api->name);
+  v = PyObject_CallMethod(class, "from_bytes", "y#s",
+                          (const char *)buf, (Py_ssize_t) size, id);
+  if (dlite_pyembed_err_check("error calling %s.from_bytes()", classname)) {
+    Py_XDECREF(v);
+    return NULL;
+  }
+  if (v) {
+    inst = dlite_pyembed_get_instance(v);
+    Py_DECREF(v);
+  } else
+    dlite_pyembed_err(1, "error calling %s.from_bytes()", classname);
+  return inst;
+}
+
+/*
+  Saves instance to bytes object.
+ */
+int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
+             const DLiteInstance *inst)
+{
+  Py_ssize_t length = 0;
+  char *buffer = NULL;
+  PyObject *pyinst = dlite_pyembed_from_instance(inst->uuid);
+  PyObject *v = NULL;
+  int retval = dliteStorageSaveError;
+  PyObject *class = (PyObject *)api->data;
+  const char *classname;
+  dlite_errclr();
+  if (!pyinst) goto fail;
+  if (!(classname = dlite_pyembed_classname(class)))
+    dlite_warnx("cannot get class name for storage plugin %s", api->name);
+  v = PyObject_CallMethod(class, "to_bytes", "O", pyinst);
+  if (dlite_pyembed_err_check("error calling %s.to_bytes()", classname))
+    goto fail;
+  if (PyBytes_Check(v)) {
+    if (PyBytes_AsStringAndSize(v, &buffer, &length)) goto fail;
+  } else if (PyByteArray_Check(v)) {
+    if ((length = PyByteArray_Size(v)) < 0) goto fail;
+    if (!(buffer = PyByteArray_AsString(v))) goto fail;
+  } else {
+    dlite_errx(dliteStorageSaveError,
+               "%s.to_bytes() must return bytes-like object", classname);
+    goto fail;
+  }
+  assert(length > 0);
+  memcpy(buf, buffer, (size > (size_t)length) ? (size_t)length : size);
+  retval = length;
  fail:
   Py_XDECREF(pyinst);
   Py_XDECREF(v);
@@ -291,7 +478,8 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   int n;
   DLiteStoragePlugin *api=NULL, *retval=NULL;
   PyObject *storages=NULL, *cls=NULL, *name=NULL;
-  PyObject *open=NULL, *close=NULL, *queue=NULL, *load=NULL, *save=NULL;
+  PyObject *open=NULL, *close=NULL, *queue=NULL, *load=NULL, *save=NULL,
+    *flush=NULL, *delete=NULL, *memload=NULL, *memsave=NULL;
   const char *classname=NULL;
 
   dlite_globals_set(state);
@@ -332,10 +520,10 @@ get_dlite_storage_plugin_api(void *state, int *iter)
       FAIL1("attribute 'close' of '%s' is not callable", classname);
   }
 
-  if (PyObject_HasAttrString(cls, "queue")) {
-    queue = PyObject_GetAttrString(cls, "queue");
-    if (!PyCallable_Check(queue))
-      FAIL1("attribute 'queue' of '%s' is not callable", classname);
+  if (PyObject_HasAttrString(cls, "flush")) {
+    flush = PyObject_GetAttrString(cls, "flush");
+    if (!PyCallable_Check(flush))
+      FAIL1("attribute 'flush' of '%s' is not callable", classname);
   }
 
   if (PyObject_HasAttrString(cls, "load")) {
@@ -354,6 +542,30 @@ get_dlite_storage_plugin_api(void *state, int *iter)
     FAIL1("expect either method 'load()' or 'save()' to be defined in '%s'",
 	  classname);
 
+  if (PyObject_HasAttrString(cls, "delete")) {
+    delete = PyObject_GetAttrString(cls, "delete");
+    if (!PyCallable_Check(delete))
+      FAIL1("attribute 'delete' of '%s' is not callable", classname);
+  }
+
+  if (PyObject_HasAttrString(cls, "from_bytes")) {
+    memload = PyObject_GetAttrString(cls, "from_bytes");
+    if (!PyCallable_Check(memload))
+      FAIL1("attribute 'from_bytes' of '%s' is not callable", classname);
+  }
+
+  if (PyObject_HasAttrString(cls, "to_bytes")) {
+    memsave = PyObject_GetAttrString(cls, "to_bytes");
+    if (!PyCallable_Check(memsave))
+      FAIL1("attribute 'to_bytes' of '%s' is not callable", classname);
+  }
+
+  if (PyObject_HasAttrString(cls, "queue")) {
+    queue = PyObject_GetAttrString(cls, "queue");
+    if (!PyCallable_Check(queue))
+      FAIL1("attribute 'queue' of '%s' is not callable", classname);
+  }
+
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
     FAILCODE(dliteMemoryError, "allocation failure");
 
@@ -361,6 +573,8 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   api->freeapi = freeapi;
   api->open = opener;
   api->close = closer;
+  api->flush = flusher;
+  api->help = helper;
   if (queue) {
     api->iterCreate = iterCreate;
     api->iterNext = iterNext;
@@ -368,6 +582,11 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   }
   api->loadInstance = loader;
   api->saveInstance = saver;
+  api->deleteInstance = deleter;
+
+  api->memLoadInstance = memloader;
+  api->memSaveInstance = memsaver;
+
   api->data = (void *)cls;
   Py_INCREF(cls);
 
@@ -377,8 +596,13 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   Py_XDECREF(name);
   Py_XDECREF(open);
   Py_XDECREF(close);
+  Py_XDECREF(flush);
   Py_XDECREF(load);
   Py_XDECREF(save);
+  Py_XDECREF(delete);
+  Py_XDECREF(memload);
+  Py_XDECREF(memsave);
+  Py_XDECREF(queue);
 
   return retval;
 }

@@ -29,7 +29,7 @@ try:
     yaml_inst2 = yaml_mod.yaml()
     yaml_inst2.open("yaml_test_save.yaml", "mode=w;soft7=false")
     yaml_inst2.save(inst)
-    yaml_inst2.close()
+    yaml_inst2.flush()
     with open(input_path / "test_meta.yaml", "r") as f:
         d1 = pyyaml.safe_load(f)
     with open("yaml_test_save.yaml", "r") as f:
@@ -49,7 +49,7 @@ try:
     yaml_inst4.open("yaml_test_save2.yaml", "mode=w")
     yaml_inst4.save(inst1)
     yaml_inst4.save(inst2)
-    yaml_inst4.close()
+    yaml_inst4.flush()
     with open(input_path / "test_data.yaml", "r") as f:
         d1 = pyyaml.safe_load(f)
     with open("yaml_test_save2.yaml", "r") as f:

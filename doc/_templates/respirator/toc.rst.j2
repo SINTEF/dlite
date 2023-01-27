@@ -1,0 +1,11 @@
+{% block title %}{{ title }}
+{{ "="*len(title) }}{% endblock %}
+{% block description %}{% endblock %}
+.. toctree::
+   :caption: Modules:
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+   {% for ref in refs %}
+   {{ ref }}{% endfor %}
+{% block footnote %}.. Generated with with `respirator` {% endblock %}

@@ -323,16 +323,25 @@ static DLiteStoragePlugin dlite_json_plugin = {
   /* basic api */
   json_open,                /* open */
   json_close,               /* close */
+  NULL,                     /* flush */
+  NULL,                     /* getdoc */
 
   /* queue api */
   json_iter_create,         /* iterCreate */
   json_iter_next,           /* iterNext */
   json_iter_free,           /* iterFree */
-  NULL,                     /* getUUIDs */
 
   /* direct api */
   json_load,                /* loadInstance */
   json_save,                /* saveInstance */
+  NULL,                     /* deleteInstance */
+
+  /* In-memory API */
+  NULL,                     /* memLoadInstance */
+  NULL,                     /* memSaveInstance */
+
+  /* === API to deprecate === */
+  NULL,                     /* getUUIDs */
 
   /* datamodel api */
   NULL,                     /* dataModel */
