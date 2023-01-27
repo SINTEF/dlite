@@ -403,11 +403,18 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
 
     @classmethod
     def from_dict(cls, d, id=None, single=None, check_storages=True):
-        """Load the instance from bson input."""
+        """Load the instance from dictionary."""
         from dlite.utils import instance_from_dict
         return instance_from_dict(
             d, id=id, single=single, check_storages=check_storages,
         )
+
+    @classmethod
+    def from_bytes(cls, driver, buffer, id=None):
+        """Load the instance with ID `id` from bytes `buffer` using the
+        given storage driver.
+        """
+        return _from_bytes(driver, buffer, id=id)
 
     @classmethod
     def create_metadata(cls, uri, dimensions, properties, description):
