@@ -209,7 +209,7 @@ setup(
     # extras_require={"all": extra_requirements},
     packages=["dlite"],
     scripts=[
-        #str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),
+        str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),
     ],
     package_data={
         "dlite": [
