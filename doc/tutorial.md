@@ -77,6 +77,7 @@ All Instances and Entities in DLite have a defined metadata. The metadata of an 
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
 "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
 ```
+While DLite data instances are instances of entities, the entities themselves are instances of the EntitySchema. In order for DLite to "understand" that what we are creating is in fact an Entity, we need to "tell it" that the EntitySchema is the metadata of our thingy.
 
 ### **Step 3**: Adding a human-understandable description
 Next, we want to include a human-understandable description of what the Entity represents. In our example case, such a **description** field could be
@@ -165,7 +166,6 @@ Now it is time to define the properties of our Entity. This is where we can desc
         }
     ]
 }
-
 ```
 
 ## Loading an Entity with DLite
@@ -246,6 +246,7 @@ Here, we access the URI of our entity the **uri** attribute of Entity and we use
 import dlite
 
 my_Instance = dlite.Instance.from_url(f'csv://path_to_csv'+'?meta='+Entity.uri)
+# Entity.uri = http://www.ontotrans.eu/0.1/solarPanelMeasurement
 ```
 
 ### 2. Instantiating from location
