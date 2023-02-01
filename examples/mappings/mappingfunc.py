@@ -98,16 +98,19 @@ ts.add_function(
     formula,
     expects=[DON.ChemicalSymbol],
     returns=[DON.Formula],
+    standard="fno",
 )
 ts.add_function(
     norm,
     expects=[EMMO.Force],
     returns=[DON.ForceNorm],
+    standard="fno",
 )
 ts.add_function(
     max,
     expects=[DON.ForceNorm],
     returns=[DON.MaxForce],
+    standard="fno",
 )
 
 
