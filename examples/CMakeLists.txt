@@ -7,6 +7,7 @@ set(python_examples
   read-csv
   dehydrogenation
   mappings
+  storage_plugin
   )
 endif()
 
@@ -77,7 +78,9 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     test_example(ex1)
     test_example(ex2)
     test_example(ex3)
-    test_example(ex4)
+    if(WITH_FORTRAN)
+      test_example(ex4)
+    endif()
   endif()
   #test_example(ex5d)
 

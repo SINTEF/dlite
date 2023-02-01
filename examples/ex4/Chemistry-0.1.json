@@ -17,12 +17,12 @@
   "properties": [
     {
       "name": "alloy",
-      "type": "string",
+      "type": "string255",
       "description": "A human description of the alloying system and temper."
     },
     {
       "name": "elements",
-      "type": "string",
+      "type": "string4",
       "dims": [
         "nelements"
       ],
@@ -30,7 +30,7 @@
     },
     {
       "name": "phases",
-      "type": "string",
+      "type": "string255",
       "dims": [
         "nphases"
       ],
