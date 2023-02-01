@@ -354,30 +354,24 @@ To install dlite locally, do
 
     make install
 
-#### Note about VirtualEnvWrapper
+#### **Note about VirtualEnvWrapper**
 
-By default, [VirtualEnvWrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) does not set `LD_LIBRARY_PATH`. This will result in errors when running, for example, `dlite-codegen` in the example above. There are two ways of fixing this. 
-
-First, after compiling and installing `dlite`, the user needs to modify the `activate` file, located at `$WORKON_HOME/<envs_name>/bin/activate` by adding
+By default, [VirtualEnvWrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) does not set `LD_LIBRARY_PATH`. This will result in errors when running, for example, `dlite-codegen` in the example above. To fix this, after compiling and installing `dlite`, the user needs prepend/append `$VIRTUAL_ENV/lib/` to `LD_LIBRARY_PATH`. This can be done by modifying the `activate` shell file, located at `$WORKON_HOME/<envs_name>/bin/activate`. First, the user should add
 ``` bash
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$VIRTUAL_ENV/lib"
+if ! [ -z "${_OLD_LD_LIBRARY_PATH}" ] ; then
+    LD_LIBRARY_PATH="$_OLD_LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH
+    unset _OLD_LD_LIBRARY_PATH
+fi
 ```
-
-
-Alternatively, and for proper a cleanup, the user may add
+at the end of the `deactivate` function in the `activate` shell file. Next, add 
 ``` bash
-_OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
-export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib:$LD_LIBRARY_PATH"
+export _OLD_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib/:$LD_LIBRARY_PATH"
 ```
-to the end of `$WORKON_HOME/<env_name>/bin/activate`, and
+at the end of `activate`.
 
-
-``` bash
-export LD_LIBRARY_PATH="$_OLD_LD_LIBRARY_PATH"
-unset _OLD_LD_LIBRARY_PATH
-```
-to the end of the `deactivate` shell function in the same file.
-
+**Explanation** The value of `LD_LIBRARY_PATH` is exported (saved) into a new temporary environment variable, `_OLD_LD_LIBRARY_PATH`. `$VIRTUAL_ENV/lib/` is then prepended to `LD_LIBRARY_PATH`. The `if` statement within the `deactivate` function checks whether the variable `_OLD_LD_LIBRARY_PATH` has been declared. If true, then the `deactivate` function will set `LD_LIBRARY_PATH` to its original value and unset the temporary environment variable `_OLD_LD_LIBRARY_PATH`.
 
 ### Build with VS Code on Windows
 See [here](doc/build_with_vs.md) for detailed instructions for building with
