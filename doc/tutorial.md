@@ -18,7 +18,7 @@ Let us write an Entity representing our solar panel measurement. We start by cre
 Firstly, we must provide a unique identifier for our Entity. There are several ways of doing this:
 
 #### **1.  Uniform Resource Identifier (URI)**
-We can create and assign a unique Uniform Resource Identifier (URI). An URI has the form **namespace/version/nameOfEntity**, and it can be either written directly in the json file:
+We can create and assign a unique Uniform Resource Identifier (URI). A URI has the form **namespace/version/nameOfEntity**, and it can be either written directly in the json file:
 
 ```json
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
