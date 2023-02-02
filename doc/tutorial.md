@@ -23,7 +23,7 @@ We can create and assign a unique Uniform Resource Identifier (URI). An URI has 
 ```json
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
 ```
-or one can give the **namespace**, **version**, and **name** of our Entity as separate fields:
+or we can give the **namespace**, **version**, and **name** of our Entity as separate fields:
 
 ```json
 "name": "solarPanelMeasurement",
