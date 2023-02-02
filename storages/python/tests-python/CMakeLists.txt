@@ -6,6 +6,7 @@ set(python-tests
   test_postgresql_storage_python
   test_yaml_storage_python
   test_mongodb_python
+  test_mongodb-atlas_python
   )
 
 include(FindPythonModule)

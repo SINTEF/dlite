@@ -11,7 +11,7 @@ from dlite.utils import instance_from_dict
 
 class mongodb(dlite.DLiteStorageBase):
     """DLite storage plugin for PostgreSQL."""
-    def open(self, uri, options=None):
+    def open(self, uri, options=None, client_options=None):
         """Opens `uri`.
 
         The `options` argument provies additional input to the driver.
@@ -22,22 +22,30 @@ class mongodb(dlite.DLiteStorageBase):
 
         An ampersand (&) may be used instead of the semicolon (;).
 
+        The `client_options` is the same as `options` except the options
+        are passed directly to initialization of the `pymongo` client.
+
+
+
         Options:
         - database: Name of database to use (default: "dlite")
         - collection: Name of collection to use (default: "dlite_coll")
         - user: User name.
         - password: Password.
         - mode: "r" for opening in read-only mode, "w" for read/write mode.
-        - authMechanism: Authentication mechanism (default: "SCRAM-SHA-256")
+        - authMechanism: Authentication mechanism
         - mock: Whether to use mongomock.
         """
         opts = Options(
             options,
-            defaults='database=dlite;collection=dlite_coll;mode=w;'
-            'authMechanism=SCRAM-SHA-256;mock=no',
+            defaults='database=dlite;collection=dlite_coll;mode=w;mock=no',
         )
         opts.setdefault('password', None)
         self.writable = True if 'w' in opts.mode else False
+
+        client_opts = Options(
+            client_options,
+        )
 
         # Connect to existing database
         user = quote_plus(opts.user) if opts.user else None
@@ -60,8 +68,7 @@ class mongodb(dlite.DLiteStorageBase):
                 host=uri,
                 username=user,
                 password=password,
-                authSource=opts.database,
-                authMechanism=opts.authMechanism,
+                **client_opts
             )
             return client
 
