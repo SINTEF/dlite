@@ -40,7 +40,6 @@ import uuid
 # Generate a random UUID
 entity_uuid = uuid.uuid4()
 
-# Open the json file and write to it the uuid (note )
 with open("myEntity.json", "w") as entity_file:
     entity_file.write('"uuid": {}'.format(entity_uuid))
 ```
@@ -53,7 +52,7 @@ where `<uuid>` is a unique identifier for our Entity.
 
 
 ### **Step 2**: Providing a link to the metadata
-Let us assume that we have followed option 1 and provided a URI. The next step consists in adding a **meta** field that will link the Entity to its metadata. In DLite, all Entities are instances of the *EntitySchema*. The *EntitySchema* can be understood as the structure of the Entity. The **meta** field provides a URI for the EntitySchema. For a schematic overview of the DLite data structures and further detail, see [Concepts section of the DLite User Guide](https://sintef.github.io/dlite/user_guide/concepts.html). We add this information to our json file in the following manner:
+Let us assume that we have followed option 1 and provided a URI. The next step consists in adding a **meta** field that will link the Entity to its metadata. In DLite, all Entities are instances of the *EntitySchema*. The *EntitySchema* defines the structure of the Entity. In the **meta** field of our Entity, we need to provide the URI of the EntitySchema. For a schematic overview of the DLite data structures and further detail, see [Concepts section of the DLite User Guide](https://sintef.github.io/dlite/user_guide/concepts.html). We add this information to our json file in the following manner:
 ```json
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
 "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
@@ -86,7 +85,7 @@ We will give our dimension the generic name "N", and describe it as the number o
 ```
 
 ### **Step 5**: Defining the properties
-Now it is time to define the properties of our Entity. Here is where we can give semantic meaning to our data. As for the dimensions, we add the properties as a list of `json` structures, each one having a **name**, **type**, **unit**, **description**, and if relevant, a list of **dimension**(s) (here called **dims**). Inserting the properties displayed in the table above, our Entity is complete and may look like
+Now it is time to define the properties of our Entity. Here is where we can give meaning to our data. As for the dimensions, we add the properties as a list of `json` structures, each one having a **name**, **type**, **unit**, **description**, and if relevant, a list of **dimension**(s) (here called **dims**). Inserting the properties displayed in the table above, our Entity is complete and may look like
 
 ```json
 {
