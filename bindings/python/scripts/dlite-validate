@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+"""Validator for dlite datamodels.
+"""
+import sys
+import argparse
+import json
+import re
+import yaml
+from pathlib import Path
+
+import dlite
+
+
+def parse(url, driver=None, options=None, id=None):
+    """Loads an instance from storage.
+
+    Arguments:
+        url: URL of storage to load from.
+        driver: The name of storage plugin to use.
+        options: Options passed to the storage plugin.
+        id: ID of instance to load if the storage contains multiple instances.
+
+    Returns:
+        A new instance.
+    """
+    match = re.match(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://', url)
+    if match and match.groups()[0].lower() != 'file':
+        if driver:
+            return dlite.Instance.from_location(
+                driver, url, options=options, id=id,
+            )
+        else:
+            return dlite.Instance.from_url(f'{url}#{id}' if id else url)
+    else:
+        path = url[7:] if url.lower().startswith('file://') else url
+        if driver:
+            return dlite.Instance_from_location(
+                driver, path, options=options, id=id
+            )
+        fileext = Path(path).suffix.lstrip('.').lower()
+
+        # For json and yaml, use the Python parser instead of dlite, since
+        # they have better error reporting for invalid serialisation
+        if fileext == 'json':
+            with open(path, 'rt') as f:
+                return dlite.Instance.from_dict(json.load(f), id=id)
+        elif fileext in ('yaml', 'yml'):
+            with open(path, 'rt') as f:
+                return dlite.Instance.from_dict(yaml.safe_load(f), id=id)
+        return dlite.Instance.from_location(fileext, path, options=options)
+
+
+def check_dimensions(url, meta):
+    """Check wheter all dimensions in metadata are referred to in shapes."""
+    shape_dims = set()
+    for prop in meta.properties['properties']:
+        shape_dims.update(prop.shape)
+    unused = set(meta.dimnames()).difference(shape_dims)
+    if unused:
+        print(f'{url}: unused dimensions: {", ".join(unused)}')
+        sys.exit(1)
+
+
+def main():
+    """Datamodel validator"""
+    parser = argparse.ArgumentParser(
+        description='DLite datamodel validator.',
+    )
+    parser.add_argument(
+        'url',
+        help='URL to datamodel to validate.  Relative file paths are allowed.'
+    )
+    parser.add_argument(
+        '--driver', '--plugin', '-d',
+        help='Storage plugin to use when loading the instance.  If `url` '
+        'is a file path, the default is to infer the driver from the file '
+        'extension.',
+    )
+    parser.add_argument(
+        '--options', '-o',
+        help='Semicolon-separated list of options parsed on to the dlite '
+        'storage plugin.  For instance, to validate an entity in a '
+        '"mongodb" storage, you may want to provide '
+        '`--options="database=DBNAME;collection=dlite_coll;user=myname"`.'
+    )
+    parser.add_argument(
+        '--id', '-i',
+        help='Id of instance to load if the storage contains multiple '
+        'instances.'
+    )
+    parser.add_argument(
+        '--storage-path', '-p', action='append', default=[],
+        help='URL or path to storage path to look up metadata. '
+        'Only needed when validating data instances. '
+        'This option can be given multiple times.'
+    )
+    parser.add_argument(
+        '--show', '-s', action='store_true',
+        help='Print the json-serialisation of the instance to standard output.'
+    )
+
+    args = parser.parse_args()
+
+    for path in args.storage_path:
+        dlite.storage_path.append(Path(path).resolve())
+
+    try:
+        inst = parse(args.url, args.driver, args.options, args.id)
+    except Exception as exc:
+        print(f'{args.url}: {exc.__class__.__name__}: {exc}')
+        sys.exit(1)
+
+    if inst.is_meta:
+        check_dimensions(args.url, inst)
+
+    print(f'{args.url}: validated')
+
+    if (args.show):
+        print(inst)
+
+
+if __name__ == '__main__':
+    main()

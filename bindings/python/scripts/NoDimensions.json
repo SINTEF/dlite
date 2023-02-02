@@ -1,0 +1,12 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/NoDimensions",
+  "description": "Entity without dimensions.",
+  "properties": {
+    "prop1": {
+      "type": "string"
+    },
+    "prop2": {
+      "type": "int"
+    }
+  }
+}

@@ -20,14 +20,14 @@ DLite
    .. grid-item-card:: Getting started
       :link: getting_started/index.html
 
-      .. image:: _static/startup.png
+      .. image:: _static/getting-started.svg
          :alt: Getting started
          :align: center
 
    .. grid-item-card:: User Guide
       :link: user_guide/index.html
 
-      .. image:: _static/manual.png
+      .. image:: _static/user-guide.svg
          :alt: User Guide
          :align: center
 
@@ -36,14 +36,14 @@ DLite
    .. grid-item-card:: API Reference
       :link: api.html
 
-      .. image:: _static/api.png
+      .. image:: _static/api-reference.svg
          :alt: API Reference
          :align: center
 
    .. grid-item-card:: Contributor's Guide
       :link: contributors_guide/index.html
 
-      .. image:: _static/agenda.png
+      .. image:: _static/contribute.svg
          :alt: Contributor's Guide
          :align: center
 
@@ -56,7 +56,7 @@ DLite
 
    Python API <autoapi/index>
    C-API <c-api/src>
-		 
+
 
 Indices and tables
 ------------------
