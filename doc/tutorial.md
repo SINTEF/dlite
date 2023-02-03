@@ -164,17 +164,12 @@ In this method, we append the `json` file to `storage_path` and then use the [ge
 
 ``` python
 import dlite
-import json
 
-# Open the file and load its contents, so we can get the Entity later using its uri
-with open('myEntity.json') as entity_file:
-    data = json.load(entity_file)
-
-# Append filepath to storage path
+# Append the entity file path to the search path for storages
 dlite.storage_path.append('myEntity.json')
 
 # Load Entity using its uri
-SolarPanelEntity = dlite.get_instance(data['uri']) 
+SolarPanelEntity = dlite.get_instance("http://www.ontotrans.eu/0.1/solarPanelMeasurement")
 ```
 
 **Note:** The same approach applies if a UUID is used.
