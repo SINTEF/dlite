@@ -57,7 +57,7 @@ Let us assume that we have followed option 1 and provided a URI. The next step c
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
 "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
 ```
-
+**Note** The **meta** field actually defaults to "http://onto-ns.com/meta/0.3/EntitySchema". This means that the **meta** field is optional for entities.
 ### **Step 3**: Adding a human-understandable description
 Next, we want to include a human-understandable description of what the Entity represents. In our example case, such a **description** field could be
 
@@ -147,11 +147,33 @@ Now it is time to define the properties of our Entity. Here is where we can give
 }
 ```
 
+### **Note**
+Both dimensions and properties can also be provided using a `dict` with the name as key. This may look like
+``` json
+"dimensions": {"N": "Number of measurements."},
+
+
+"properties": {
+      "t": {
+            "type":"str",
+            "unit":"ns",
+            "dims": ["N"],
+            "description": "Time"
+           },
+    "MPP": {
+            "type":"float64",
+            "unit":"W",
+            "dims": ["N"],
+            "description": "Maximum Power"
+            },
+    ...
+}
+```
+DLite supports both syntaxes.
 ## Loading an Entity with DLite
 We will now load our Entity in Python. There are several ways of doing this. 
 
 ### 1. Using the json storage plugin:
-<!--[storage](link_to_storage)-->
 ```python
 import dlite
 
@@ -164,17 +186,12 @@ In this method, we append the `json` file to `storage_path` and then use the [ge
 
 ``` python
 import dlite
-import json
 
-# Open the file and load its contents, so we can get the Entity later using its uri
-with open('myEntity.json') as entity_file:
-    data = json.load(entity_file)
-
-# Append filepath to storage path
+# Append the entity file path to the search path for storages
 dlite.storage_path.append('myEntity.json')
 
 # Load Entity using its uri
-SolarPanelEntity = dlite.get_instance(data['uri']) 
+SolarPanelEntity = dlite.get_instance("http://www.ontotrans.eu/0.1/solarPanelMeasurement")
 ```
 
 **Note:** The same approach applies if a UUID is used.
