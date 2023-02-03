@@ -167,7 +167,7 @@ Both dimensions and properties can also be provided using a `dict` with the name
             "description": "Maximum Power"
             },
     ...
-}
+               }
 ```
 DLite supports both syntaxes.
 ## Loading an Entity with DLite
