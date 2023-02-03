@@ -32,7 +32,7 @@ or we can give the **namespace**, **version**, and **name** of our Entity as sep
 ```
 
 #### **2. Universally Unique Identifier (UUID)**
-Alternatively, we can generate and assign a universally unique identifier (UUID). In Python, this can be achieved by the use of the [UUID module](https://docs.python.org/3/library/uuid.html):
+Alternatively, we can generate and assign a universally unique identifier (UUID). In Python, this can be achieved by the use of the `dlite.get_uuid()` function or the [dlite-getuuid](https://github.com/SINTEF/dlite/blob/master/doc/user_guide/tools.md#dlite-getuuid) tool.
 
 ```python
 import uuid
