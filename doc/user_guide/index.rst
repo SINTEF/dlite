@@ -11,5 +11,6 @@ User Guide
    transactions
    tools
    code_generation
+   storage_plugins
    features
    vocabulary
