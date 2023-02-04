@@ -1,4 +1,4 @@
-<img src="doc/figs/logo.svg" align="right" />
+<img src="doc/_static/logo.svg" align="right" />
 
 
 DLite
