@@ -354,7 +354,6 @@ To install dlite locally, do
 
     make install
 
-
 ### Build with VS Code on Windows
 See [here](doc/build_with_vs.md) for detailed instructions for building with
 Visual Studio.
