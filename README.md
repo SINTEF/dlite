@@ -1,4 +1,4 @@
-<img src="doc/figs/logo.svg" align="right" />
+<img src="doc/_static/logo.svg" align="right" />
 
 
 DLite
@@ -64,7 +64,7 @@ needed.  The idea is if two different systems describes their data
 model in terms of the basic metadata schema, they can easily be made
 semantically interoperable.
 
-![The datamodel of DLite.](doc/figs/datamodel.svg)
+![The datamodel of DLite.](doc/_static/datamodel.svg)
 
 An alternative and more flexible way to enable interoperability is to
 use a common ontology.  DLite provides a specialised Instance called
@@ -354,6 +354,7 @@ To install dlite locally, do
 
     make install
 
+
 #### **Note about VirtualEnvWrapper**
 
 By default, [VirtualEnvWrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) does not set `LD_LIBRARY_PATH`. This will result in errors when running, for example, `dlite-codegen` in the example above. To fix this, after compiling and installing `dlite`, the user needs prepend/append `$VIRTUAL_ENV/lib/` to `LD_LIBRARY_PATH`. This can be done by modifying the `activate` shell file, located at `$WORKON_HOME/<envs_name>/bin/activate`. First, the user should add
@@ -372,6 +373,7 @@ export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib/:$LD_LIBRARY_PATH"
 at the end of `activate`.
 
 **Explanation** The value of `LD_LIBRARY_PATH` is exported (saved) into a new temporary environment variable, `_OLD_LD_LIBRARY_PATH`. `$VIRTUAL_ENV/lib/` is then prepended to `LD_LIBRARY_PATH`. The `if` statement within the `deactivate` function checks whether the variable `_OLD_LD_LIBRARY_PATH` has been declared. If true, then the `deactivate` function will set `LD_LIBRARY_PATH` to its original value and unset the temporary environment variable `_OLD_LD_LIBRARY_PATH`.
+
 
 ### Build with VS Code on Windows
 See [here](doc/build_with_vs.md) for detailed instructions for building with
