@@ -67,6 +67,12 @@ DLiteStorage *dlite_storage_open_url(const char *url);
 int dlite_storage_close(DLiteStorage *s);
 
 
+/**
+  Flush storage `s`. Returns non-zero on error.
+*/
+int dlite_storage_flush(DLiteStorage *s);
+
+
 
 /**
   Returns the current mode of how to handle instance IDs.
@@ -123,6 +129,16 @@ int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf);
  */
 void dlite_storage_iter_free(DLiteStorage *s, void *iter);
 
+/**
+  Delete instance from storage `s` using the deleteInstance api.
+  Returns non-zero on error or if deleteInstance is not supported.
+ */
+int dlite_storage_delete(DLiteStorage *s, const char *id);
+
+/**
+  Returns a malloc'ed string with plugin documentation or NULL on error.
+ */
+char *dlite_storage_help(DLiteStorage *s);
 
 
 /**

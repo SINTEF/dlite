@@ -420,6 +420,23 @@ Call signatures:
     dlite_instance_save(storage, $self);
   }
 
+  %feature("docstring",
+           "Save instance to bytes using given storage driver.") to_bytes;
+  %newobject to_bytes;
+  void to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN) {
+    unsigned char *buf=NULL;
+    int m, n = dlite_instance_memsave(driver, buf, 0, $self);
+    if (n < 0) return;
+    if (!(buf = malloc(n))) {
+      dlite_err(dliteMemoryError, "allocation failure");
+      return;
+    }
+    if ((m = dlite_instance_memsave(driver, buf, n, $self)) < 0) return;
+    assert (m == n);
+    *ARGOUT_BYTES = buf;
+    *LEN = n;
+  }
+
   %feature("docstring", "Returns a hash of the instance.") get_hash;
   %newobject get_hash;
   char *get_hash() {
@@ -804,7 +821,11 @@ void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
-
+%rename(_from_bytes) dlite_instance_memload;
+%feature("docstring", "Loads instance from string.") dlite_instance_memload;
+struct _DLiteInstance *dlite_instance_memload(const char *driver,
+                                      unsigned char *INPUT_BYTES, size_t LEN,
+                                      const char *id=NULL);
 
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
 #define BASIC_METADATA_SCHEMA  "http://onto-ns.com/meta/0.1/BasicMetadataSchema"
