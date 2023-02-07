@@ -1,7 +1,7 @@
 # Tutorial
 
 ## Introduction
-This tutorial shows the steps for creating and instantiating a Dlite entity and populating it with data. For this, we will use an example `csv` file containing data corresponding to time measurements from a solar panel. The example file has the following format:
+This tutorial shows the steps for creating and instantiating a Dlite entity, and populate it with data. For this, we will use an example `csv` file containing data corresponding to time measurements from a solar panel. The example file has the following format:
 
 
 | time                 | Impp [A] | Isc [A] | MPP [W] | Vmpp [V] | Voc [V] |
