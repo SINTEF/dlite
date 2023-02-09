@@ -1,4 +1,4 @@
-<img src="doc/figs/logo.svg" align="right" />
+<img src="doc/_static/logo.svg" align="right" />
 
 
 DLite
@@ -64,7 +64,7 @@ needed.  The idea is if two different systems describes their data
 model in terms of the basic metadata schema, they can easily be made
 semantically interoperable.
 
-![The datamodel of DLite.](doc/figs/datamodel.svg)
+![The datamodel of DLite.](doc/_static/datamodel.svg)
 
 An alternative and more flexible way to enable interoperability is to
 use a common ontology.  DLite provides a specialised Instance called
@@ -353,7 +353,6 @@ To generate code documentation, do
 To install dlite locally, do
 
     make install
-
 
 ### Build with VS Code on Windows
 See [here](doc/build_with_vs.md) for detailed instructions for building with

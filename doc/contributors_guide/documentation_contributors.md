@@ -51,7 +51,7 @@ We make use of the [MyST-Parser extension] to convert all markdown syntax to ric
 
 Figures
 -------
-Please place figures in the `doc/figs/` directory.
+Please place figures in the `doc/_static/` directory.
 If you use [draw.io], it is recommended that you save the figure in svg format.
 Then it renders well in browsers and is easy to find and edit for collaborators.
 

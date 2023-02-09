@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   version="1.1"
+   id="Uploaded to svgrepo.com"
+   width="256px"
+   height="256px"
+   viewBox="0 0 32 32"
+   xml:space="preserve"
+   sodipodi:docname="getting-started.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs9" /><sodipodi:namedview
+   id="namedview7"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1.0"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   showgrid="false"
+   inkscape:zoom="1.09125"
+   inkscape:cx="219.47308"
+   inkscape:cy="400"
+   inkscape:window-width="2560"
+   inkscape:window-height="1388"
+   inkscape:window-x="1920"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Uploaded to svgrepo.com" />
+<style
+   type="text/css"
+   id="style2">
+	.stone_een{fill:#111918;}
+	.st0{fill:#0B1719;}
+</style>
+<path
+   class="stone_een"
+   d="M17.707,17l-5-5h4.586l5,5H17.707z M4,15c-0.353,0-0.686-0.072-1-0.184V17h7.293l-3.635-3.635  C6.159,14.332,5.163,15,4,15z M27.659,8.761c0.547-0.072,0.933-0.574,0.861-1.121l-0.13-0.992c-0.057-0.436-0.214-0.832-0.432-1.184  l-2.392,3.573L27.659,8.761z M24.247,9.21l3.025-4.518c-0.516-0.409-1.161-0.655-1.853-0.655c-0.13,0-0.261,0.008-0.394,0.026  l-1.6,0.21L19.72,9.806L24.247,9.21z M28.293,17l-5-5h-4.586l5,5H28.293z M16.293,17l-5-5h-0.662H7c0,0.091-0.014,0.177-0.025,0.264  L11.707,17H16.293z M6,12c0-1.105-0.895-2-2-2s-2,0.895-2,2c0,1.105,0.895,2,2,2S6,13.105,6,12z M3,18h26v8c0,1.657-1.343,3-3,3H6  c-1.657,0-3-1.343-3-3V18z M12,22.5c0,0.276,0.224,0.5,0.5,0.5h7c0.276,0,0.5-0.224,0.5-0.5S19.776,22,19.5,22h-7  C12.224,22,12,22.224,12,22.5z M12,24.5c0,0.276,0.224,0.5,0.5,0.5h7c0.276,0,0.5-0.224,0.5-0.5S19.776,24,19.5,24h-7  C12.224,24,12,24.224,12,24.5z M28,12h-3.293L29,16.293V13C29,12.448,28.552,12,28,12z M18.401,9.98l3.706-5.535l-4.525,0.593  l-3.708,5.538L18.401,9.98z M12.555,10.75l3.709-5.539L11.74,5.803l-3.706,5.542L12.555,10.75z M6.894,11.25l3.527-5.274  L5.195,6.661c-1.417,0.186-2.468,1.334-2.593,2.7C3.021,9.138,3.492,9,4,9C5.396,9,6.559,9.958,6.894,11.25z"
+   id="path4"
+   style="fill:#00457c;fill-opacity:1" />
+</svg>
