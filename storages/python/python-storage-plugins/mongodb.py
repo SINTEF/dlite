@@ -11,7 +11,7 @@ from dlite.utils import instance_from_dict
 
 class mongodb(dlite.DLiteStorageBase):
     """DLite storage plugin for PostgreSQL."""
-    def open(self, uri, options=None, client_options=None):
+    def open(self, uri, options=None):
         """Opens `uri`.
 
         The `options` argument provies additional input to the driver.
@@ -22,8 +22,8 @@ class mongodb(dlite.DLiteStorageBase):
 
         An ampersand (&) may be used instead of the semicolon (;).
 
-        The `client_options` is the same as `options` except the options
-        are passed directly to initialization of the `pymongo` client.
+        All options that begin with MONGOCLIENT_<keyword> will be 
+        passed directly to the mongodb client.
 
 
 
@@ -43,9 +43,8 @@ class mongodb(dlite.DLiteStorageBase):
         opts.setdefault('password', None)
         self.writable = True if 'w' in opts.mode else False
 
-        client_opts = Options(
-            client_options,
-        )
+        client_options = {}
+        client_options = {k:opts[k] for k in opts if 'MONGOCLIENT_' in k}
 
         # Connect to existing database
         user = quote_plus(opts.user) if opts.user else None
@@ -68,7 +67,7 @@ class mongodb(dlite.DLiteStorageBase):
                 host=uri,
                 username=user,
                 password=password,
-                **client_opts
+                **client_options
             )
             return client
 
