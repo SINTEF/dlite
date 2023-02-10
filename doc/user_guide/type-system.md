@@ -3,9 +3,9 @@ Type system
 
 Simple unified access to all data types
 ---------------------------------------
-The datamodel API for accessing properties of an instance in SOFT, has
+The datamodel API for accessing properties of an instance in SOFT has
 separate getters and setters for each type and number of dimensions.
-DLite generalize and simplifies this by describing types and
+DLite generalizes and simplifies this by describing types and
 dimensionality of properties with 4 parameters:
 
   - `type`: an enum defining the type of the data item (or items if
@@ -39,9 +39,9 @@ relation  | dliteRelation  | sizeof(DLiteRelation)  | subject-predicate-object t
 dimension | dliteDimension | sizeof(DLiteDimension) | only intended for metadata       | dimension
 property  | dliteProperty  | sizeof(DLiteProperty)  | only intended for metadata       | property
 
-The examples shown in curly parenthesis may not be supported on all
+The examples shown in curly brackets may not be supported on all
 platforms.  The size int, uint, float and double are
-platform-dependent.  For portable applications you should to provide
+platform-dependent.  For portable applications you should provide
 the number of bits, like int32, uint32, float32, float64, etc...  Note
 that the size specification of *blob* and *fixstring* are in bytes
 (not bits) and that the terminating NUL-character __is__ included in the
