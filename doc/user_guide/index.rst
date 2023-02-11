@@ -6,6 +6,7 @@ User Guide
    :caption: Contents
 
    concepts
+   type-system
    mappings
    collections
    transactions
