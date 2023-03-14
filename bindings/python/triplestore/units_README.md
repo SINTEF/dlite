@@ -42,8 +42,8 @@ excepted from this rule.
 
 Known problems
 --------------
-* The program does not yet work on Windows, see [issue #497]
-(https://github.com/SINTEF/dlite/issues/497).
+* The program does not yet work on Windows, see 
+[issue #497](https://github.com/SINTEF/dlite/issues/497).
 
 * The program provides warnings (at registry creation time) for **omitted 
 units and/or labels**, with details about any label conflicts. This output 
