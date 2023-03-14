@@ -85,7 +85,7 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
             f.write("\n".join(pint_prefix_lines()) + "\n")
         for source in sources:
             pint_registry_lines = pint_registry_lines_from_qudt()
-            with open(registry_file_path, "a") as f:
+            with open(registry_file_path, "a", encoding="utf8") as f:
                 f.write("\n".join(pint_registry_lines) + "\n")
 
     ureg = UnitRegistry(registry_file_path)
