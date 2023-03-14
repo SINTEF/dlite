@@ -81,7 +81,7 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
     """
     registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
     if force_recreate or not os.path.exists(registry_file_path):
-        with open(registry_file_path, "w") as f:
+        with open(registry_file_path, "w", encoding="utf8") as f:
             f.write("\n".join(pint_prefix_lines()) + "\n")
         for source in sources:
             pint_registry_lines = pint_registry_lines_from_qudt()
