@@ -21,6 +21,10 @@ The usage of the get_pint_registry() is demonstrated in test_units.py.
 
 Technical details
 -----------------
+Unit registry filename: `pint_unit_registry.txt`
+Cache directory in Unix/Linux: typically `~/.cache/dlite`
+Cache directory in Windows 10: typically `C:\Users\<USER>\AppData\Local\Packages\PythonSoftwareFoundation.Python.<VERSION>\LocalCache\Local\dlite\dlite\Cache`
+Cache directory in Mac OS X: presumably `~/Library/Caches/dlite` (not tested)
 
 For the units, all identifiers, alternative labels and definitions are 
 read from QUDT. The program resolves naming conflicts by omitting the 
