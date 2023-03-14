@@ -63,7 +63,7 @@ def prepare_cache_file_path(filename: str) -> str:
     """Return cache file name."""
     cache_directory = user_cache_dir("dlite")
     if not os.path.exists(cache_directory):
-        os.mkdir(cache_directory)
+        os.makedirs(cache_directory)
     return os.path.join(cache_directory, filename)
 
 
