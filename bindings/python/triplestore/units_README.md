@@ -23,7 +23,9 @@ Technical details
 -----------------
 * Unit registry filename: `pint_unit_registry.txt`
 * Cache directory in Unix/Linux: typically `~/.cache/dlite`
-* Cache directory in Windows 10: typically `C:\Users\<USER>\AppData\Local\Packages\PythonSoftwareFoundation.Python.<VERSION>\LocalCache\Local\dlite\dlite\Cache`
+* Cache directory in Windows 10: typically `C:\Users\<USER>\AppData\Local\
+Packages\PythonSoftwareFoundation.Python.<VERSION>\LocalCache\Local\dlite\
+dlite\Cache`
 * Cache directory in Mac OS X: presumably `~/Library/Caches/dlite` (not tested)
 
 For the units, all identifiers, alternative labels and definitions are 
@@ -40,6 +42,8 @@ excepted from this rule.
 
 Known problems
 --------------
+* The program does not yet work on Windows, see [issue #497]
+(https://github.com/SINTEF/dlite/issues/497).
 
 * The program provides warnings (at registry creation time) for **omitted 
 units and/or labels**, with details about any label conflicts. This output 
