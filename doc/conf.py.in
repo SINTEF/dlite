@@ -87,7 +87,6 @@ autoapi_add_toctree_entry = True  # Toggle the most top-level index file
 autoapi_options = [
     "members",
     "undoc-members",
-    "private-members",
     "show-inheritance",
     "show-module-summary",
     "special-members",
