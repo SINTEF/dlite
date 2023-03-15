@@ -1,30 +1,20 @@
-"""Script to test the 'mongodb' DLite plugin from Python."""
 import sys
 import os
 from pathlib import Path
 import dlite
 
+# Load user and password from environment variables
+user = os.environ.get("DLITETEST_MONGODB_USER")
+password = os.environ.get("DLITETEST_MONGODB_PASSWORD")
+server = os.environ.get("DLITETEST_MONGODB_SERVER")
+inputdir = os.environ.get("DLITETEST_MONGODB_INPUTDIR")
 
-#TODO: handle the password in a way suitable for production
-user_password_file = "/home/daniel/RnD/EMMC/mongodb/mongodb_atlas/password"
-try: 
-    with open(user_password_file, 'r') as f:
-        user_password = f.readlines()
-        user_password = [x.strip() for x in user_password]
-except FileNotFoundError:
-    sys.exit(44)  # skip test
+# Check if any of the required environment variables are missing
+if not user or not password or not server or not inputdir:
+    sys.exit(44)  # skip test if any required environment variables are not provided
 
-user = user_password[0]
-password = user_password[1]
-#TODO: need to think a bit more about testing server
-server = "softcluster.4wryr.mongodb.net/test"
 uri = f"mongodb+srv://{server}"
-
-CONNECTION_STRING = "mongodb+srv://{}:{}@{}".format(user, password, server)
-
-from pathlib import Path
-
-inputdir = Path("/home/daniel/RnD/EMMC/mongodb/dlite/storages/python/tests-python/input")
+inputdir = Path(inputdir)
 
 # Load existing test data
 meta = dlite.Instance.from_location("json", inputdir / "test_meta.json")
@@ -33,7 +23,7 @@ inst1 = dlite.Instance.from_location("json", inputdir / "test_data.json",
 inst2 = dlite.Instance.from_location("json", inputdir / "test_data.json",
                                      id="2f8ba28c-add6-5718-a03c-ea46961d6ca7")
 
-
+# Create a storage instance and save test data
 storage = dlite.Storage(
     'mongodb', uri,
     options=f'user={user};password={password}'

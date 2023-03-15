@@ -9,8 +9,10 @@ from dlite.options import Options
 from dlite.utils import instance_from_dict
 
 
+
 class mongodb(dlite.DLiteStorageBase):
-    """DLite storage plugin for PostgreSQL."""
+    """DLite storage plugin for MongoDB."""
+
     def open(self, uri, options=None):
         """Opens `uri`.
 
@@ -36,26 +38,59 @@ class mongodb(dlite.DLiteStorageBase):
         - authMechanism: Authentication mechanism
         - mock: Whether to use mongomock.
         """
-        opts = Options(
+        parsed_options = self._parse_options(options)
+        self._configure(parsed_options, uri)
+
+    def _parse_options(self, options):
+        """Parse and validate input options."""
+        parsed_options = Options(
             options,
             defaults='database=dlite;collection=dlite_coll;mode=w;mock=no',
         )
-        opts.setdefault('password', None)
-        self.writable = True if 'w' in opts.mode else False
+        parsed_options.setdefault('password', None)
+        return parsed_options
 
-        client_options = {}
-        client_options = {k:opts[k] for k in opts if 'MONGOCLIENT_' in k}
 
-        # Connect to existing database
-        user = quote_plus(opts.user) if opts.user else None
-        password = quote_plus(opts.password) if opts.password else None
+    def _configure(self, parsed_options, uri):
+        """Configure and connect to the MongoDB database."""
+        self.writable = True if 'w' in parsed_options.mode else False
 
-        if dlite.asbool(opts.mock):
+        client_options = {
+            k: parsed_options[k] for k in parsed_options if 'MONGOCLIENT_' in k
+        }
+
+        user = (
+            quote_plus(parsed_options.user)
+            if parsed_options.user
+            else None
+        )
+        password = (
+            quote_plus(parsed_options.password)
+            if parsed_options.password
+            else None
+        )
+        # Determine the schema based on the presence of "localhost" or "127.0.0.1" in the URI
+        schema = parsed_options.get('schema', None)
+        if schema is None:
+            if "localhost" in uri or "127.0.0.1" in uri:
+                schema = 'mongodb'
+            else:
+                schema = 'mongodb+srv'
+                
+        # Remove any existing schema from the URI
+        if not uri.startswith(schema + "://"):
+            uri = uri.replace("mongodb+srv://", "")
+            uri = uri.replace("mongodb://", "")
+        
+        # Construct the final URI with the correct schema
+        final_uri = f"{schema}://{uri}"
+
+        if dlite.asbool(parsed_options.mock):
             import mongomock
             mongo_url = urlparse(f'mongodb://{uri}')
             port = mongo_url.port if mongo_url.port else 27017
 
-            @mongomock.patch(servers=((mongo_url.hostname, port), ))
+            @mongomock.patch(servers=((mongo_url.hostname, port),))
             def get_client():
                 return open_client()
         else:
@@ -64,7 +99,7 @@ class mongodb(dlite.DLiteStorageBase):
 
         def open_client():
             client = pymongo.MongoClient(
-                host=uri,
+                host=final_uri,
                 username=user,
                 password=password,
                 **client_options
@@ -72,11 +107,13 @@ class mongodb(dlite.DLiteStorageBase):
             return client
 
         self.client = get_client()
-        self.collection = self.client[opts.database][opts.collection]
-        self.options = opts
+        self.collection = (
+            self.client[parsed_options.database][parsed_options.collection]
+        )
+        self.options = parsed_options
 
     def close(self):
-        """Closes this storage."""
+        """Closes the MongoDB connection."""
         self.client.close()
 
     def load(self, id):

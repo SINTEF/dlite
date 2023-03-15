@@ -20,6 +20,8 @@ if __name__ == '__main__':
         'test_bson_storage_python.py',
         'test_postgresql_storage_python.py',
         'test_yaml_storage_python.py',
+        'test_mongodb-atlas_python.py',
+        'test_mongodb_python.py',
         ]
     thisdir = Path('.')
     for t in tests:
