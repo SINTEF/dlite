@@ -63,7 +63,7 @@ def prepare_cache_file_path(filename: str) -> str:
     """Return cache file name."""
     cache_directory = user_cache_dir("dlite")
     if not os.path.exists(cache_directory):
-        os.mkdir(cache_directory)
+        os.makedirs(cache_directory)
     return os.path.join(cache_directory, filename)
 
 
@@ -81,11 +81,11 @@ def get_pint_registry(sources=('qudt', ), force_recreate=False) -> UnitRegistry:
     """
     registry_file_path = prepare_cache_file_path("pint_unit_registry.txt")
     if force_recreate or not os.path.exists(registry_file_path):
-        with open(registry_file_path, "w") as f:
+        with open(registry_file_path, "w", encoding="utf8") as f:
             f.write("\n".join(pint_prefix_lines()) + "\n")
         for source in sources:
             pint_registry_lines = pint_registry_lines_from_qudt()
-            with open(registry_file_path, "a") as f:
+            with open(registry_file_path, "a", encoding="utf8") as f:
                 f.write("\n".join(pint_registry_lines) + "\n")
 
     ureg = UnitRegistry(registry_file_path)
