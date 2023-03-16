@@ -20,7 +20,6 @@ if credentials_file.exists():
         user, password, server = [line.strip() for line in f.readlines()]
 
 else:
-    raise Exception("{} not found!".format(credentials_file))
     # Load user, password, server, and inputdir from environment variables
     user = os.environ.get("DLITETEST_MONGODB_USER")
     password = os.environ.get("DLITETEST_MONGODB_PASSWORD")
