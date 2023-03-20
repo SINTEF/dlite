@@ -597,13 +597,17 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         )
 
     def __call__(self, dimensions=(), properties=None, id=None, dims=None):
-        """Returns an uninitiated instance of this metadata.
+        """Returns a new instance of this metadata.
+
+        By default the instance is uninitialised, but with the `properties`
+        argument it can be either partly or fully initialised.
 
         Arguments:
             dimensions: Either a dict mapping dimension names to values or
                 a sequence of dimension values.
             properties: Dict of property name-property value pairs.  Used
-                to initialise the instance.
+                to initialise the instance (fully or partly).  A KeyError
+                is raised if a key is not a valid property name.
             id: Id of the new instance.  The default is to create a
                 random UUID.
             dims: Deprecated alias for `dimensions`.
