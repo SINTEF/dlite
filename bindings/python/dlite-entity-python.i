@@ -596,20 +596,43 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
             iterfun(self),
         )
 
-    def __call__(self, dims=(), id=None):
-        """Returns an uninitiated instance of this metadata.
+    def __call__(self, dimensions=(), properties=None, id=None, dims=None):
+        """Returns a new instance of this metadata.
+
+        By default the instance is uninitialised, but with the `properties`
+        argument it can be either partly or fully initialised.
 
         Arguments:
-            dims: Either a dict mapping dimension names to values or
+            dimensions: Either a dict mapping dimension names to values or
                 a sequence of dimension values.
+            properties: Dict of property name-property value pairs.  Used
+                to initialise the instance (fully or partly).  A KeyError
+                is raised if a key is not a valid property name.
             id: Id of the new instance.  The default is to create a
                 random UUID.
+            dims: Deprecated alias for `dimensions`.
+
+        Returns:
+            New instance.
         """
         if not self.is_meta:
             raise TypeError('data instances are not callable')
-        if isinstance(dims, dict):
-            dims = [dims[d.name] for d in self.properties['dimensions']]
-        return Instance.from_metaid(self.uri, dims, id)
+        if dims is not None:
+            warnings.warn(
+                "`dims` argument of metadata constructor is deprecated.\n"
+                "Use `dimensions` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            dimensions = dims
+        if isinstance(dimensions, dict):
+            dimensions = [dimensions[name] for name in self.dimnames()]
+
+        inst = Instance.from_metaid(self.uri, dimensions, id)
+        if isinstance(properties, dict):
+            for k, v in properties.items():
+                inst[k] = v
+        return inst
 
     def asdict(self, soft7=True, uuid=True):
         """Returns a dict representation of self.
