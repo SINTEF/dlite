@@ -6,44 +6,34 @@ The source code can be cloned from GitHub
 git clone https://github.com/SINTEF/DLite.git
 ```
 
+## Build dependencies
+DLite uses [CMake] as its build system.
+Depending on your selection of [CMake options], you would need to have the following tools and libraries installed on your system to build DLite:
 
-## Dependencies
+  - [CMake], required for building - note that CMake isntalled from [PyPI] does not always work.
+  - C compiler, required, ex. [gcc] or Microsoft [Visual Studio]
+  - Underlying build tool, required, ex. [make] (selected with the CMake `-G` option)
+  - [SWIG] optional, used for building Python bindings.
+  - [Doxygen] optional, used for documentation generation.
+  - [Graphviz] optional, used for documentation generation.
+  - [valgrind], optional, used for memory checking (Linux only).
+  - [cppcheck], optional, used for static code analysis.
+  - [librdf] development libraries, optional, needed by librdf storage plugin.
+  - [HDF5] development libraries, optional, needed by HDF5 storage plugin.
+  - [Python 3] development libraries, optional, needed by Python bindings.
 
-### Runtime dependencies
+When DLite is build with Python support, you may also need to have the following Python packages installed:
 
-| **Name** | **Required / Optional** | **Notes** |
-|:---:|:---:|:--- |
-| [HDF5] | optional | Support v1.10+ (needed by HDF5 storage plugin). |
-| [librdf] | optional | Needed by RDF (Redland) storage plugin. |
-| [Python 3] | optional | Needed by Python bindings and some plugins. |
-| [tripper] | required | For Python bindings. |
-| [NumPy] | required | For Python bindings. |
-| [PyYAML] | optional | Used for generic YAML storage plugin. |
-| [psycopg2] | optional | Used for generic PostgreSQL storage plugin. Note that in some cases a GSSAPI error is raised when using psycopg2 by pip installing psycopg2-binary. This is solved by installing from source as described in their documentation. |
-| [pandas] | optional | Used for CSV storage plugin. |
-| [pymongo] | optional | Used for MongoDB storage plugin. |
-| [mongomock] | optional | Used for testing MongoDB storage plugin. |
-
-
-### Build dependencies
-
-| **Name** | **Required / Optional** | **Notes** |
-|:---:|:---:|:--- |
-| [cmake] | required | Note, cmake installed from PyPI does not always work. |
-| [HDF5] | optional | Development libraries are needed by HDF5 storage plugin.</br>If ``-DWITH_HDF5=YES``. |
-| [Python 3] | required | Development libraries are needed by Python bindings. |
-| [NumPy] | required | Development libraries are needed by Python bindings. |
-| [SWIG] | required | Needed for the Python bindings. |
-| [Doxygen] | required | Used for documentation generation. |
-| [Graphviz] | required | Used for documentation generation. |
-| [valgrind] | optional | Used for memory checking (Linux only). |
-| [cppcheck] | optional | Used for static code analysis. |
-| [librdf] | optional | Development libraries are needed by RDF (Redland) storage plugin. |
+  - [NumPy] development libraries, required by Python bindings.
+  - [tripper], optional, used for property mappings.
+  - [PyYAML], optional, used for generic YAML storage plugin.
+  - [psycopg2], optional, used for generic PostgreSQL storage plugin. Note that in some cases a GSSAPI error is raised when using psycopg2 by pip installing psycopg2-binary. This is solved by installing from source as described in their documentation.
+  - [pandas], optional, used for CSV storage plugin.
+  - [pymongo], optional, used for MongoDB storage plugin.
+  - [mongomock], optional, used for testing MongoDB storage plugin.
 
 
-## Compiling
-
-### Build and install with Python
+## Build and install with Python
 
 Given you have a C compiler and Python correctly installed, you should be able to build and install DLite via the python/setup.py script:
 
@@ -52,7 +42,81 @@ cd python
 python setup.py install
 ```
 
-### Build on Linux
+## Build from virtual environment
+
+As a DLite user it should be enough to do `pip install Dlite-Python`, or `pip install .` from within the `dlite/python` directory.
+
+As a developer it is more useful to install DLite from source.
+If DLite is installed in a non-default location, you may need to set the PATH, LD_LIBRARY_PATH, PYTHONPATH and DLITE_ROOT environment variables.
+See [](../../user_guide/environment_variables.md) for more details.
+
+An example of how to install DLite as developer within a python environment in linux is given below.
+Make sure that all required dependencies are installed within the environment.
+
+First activate the environment, e.g.:
+
+```shell
+source </path/to/dedicated/pythonenvironment>/bin/activate
+```
+
+Set the Python variables.
+The following should automatically find the correct python paths
+
+```shell
+Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)')
+Python3_VERSION=$(python3 -c 'import sys;\
+print(str(sys.version_info.major)+"."\
++str(sys.version_info.minor))')
+Python3_EXECUTABLE=${Python3_ROOT}/bin/python${Python3_VERSION}
+```
+
+Python variables for developement libraries must be set **manually**.
+
+```shell
+Python3_LIBRARY=</path/to/system>/libpython${Python3_VERSION}.so
+Python3_INCLUDE_DIR=</path/to/system>/include/python${Python3_VERSION}
+```
+
+To help find these paths, you may run
+
+```shell
+find . -name libpython*.so
+```
+
+Go into your DLite directory:
+
+```shell
+cd </path/to>/dlite
+```
+
+Build DLite:
+
+```shell
+mkdir build
+cd build
+cmake -DPython3_EXECUTABLE=$Python3_EXECUTABLE \
+-DPython3_LIBRARY=$Python3_LIBRARY \
+-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR \
+-DWITH_STATIC_PYTHON=FALSE \
+-DCMAKE_INSTALL_PREFIX=$Python3_ROOT ..
+```
+
+Then install DLite
+
+```shell
+make && make install
+```
+
+Finally run tests
+
+```shell
+make test
+```
+
+
+
+
+## Build on Linux
 
 Install dependencies (e.g. with `apt-get install` on Ubuntu or `dnf install` on Fedora)
 
@@ -97,13 +161,13 @@ To run all tests with memory checking (using [valgrind]), do
 make memcheck
 ```
 
-To generate code documentation, do
+To generate code documentation (requires that you have passed `-DWITH_DOC=YES` to `cmake`), do
 
 ```shell
 make Sphinx
 ```
 
-You should be able to locate the documentation locally at build/pydoc/sphinx/index.html.
+You should be able to locate the documentation locally at `build/pydoc/sphinx/index.html`.
 
 To install DLite locally, do
 
@@ -111,13 +175,41 @@ To install DLite locally, do
 make install
 ```
 
+:::{admonition} Note about VirtualEnvWrapper
+:class: note
 
-### Build with Visual Studio on Windows
+By default, [VirtualEnvWrapper] does not set `LD_LIBRARY_PATH`.
+This will result in errors when running, for example, `dlite-codegen` in the example above.
+To fix this, after compiling and installing `dlite`, the user needs prepend/append `$VIRTUAL_ENV/lib/` to `LD_LIBRARY_PATH`.
+This can be done by modifying the `activate` shell file, located at `$WORKON_HOME/<envs_name>/bin/activate`. First, the user should add
+
+``` bash
+if ! [ -z "${_OLD_LD_LIBRARY_PATH}" ] ; then
+    LD_LIBRARY_PATH="$_OLD_LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH
+    unset _OLD_LD_LIBRARY_PATH
+fi
+```
+at the end of the `deactivate` function in the `activate` shell file. Next, add
+``` bash
+export _OLD_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib/:$LD_LIBRARY_PATH"
+```
+at the end of `activate`.
+
+**Explanation:** The value of `LD_LIBRARY_PATH` is exported (saved) into a new temporary environment variable, `_OLD_LD_LIBRARY_PATH`.
+`$VIRTUAL_ENV/lib/` is then prepended to `LD_LIBRARY_PATH`.
+The `if` statement within the `deactivate` function checks whether the variable `_OLD_LD_LIBRARY_PATH` has been declared.
+If true, then the `deactivate` function will set `LD_LIBRARY_PATH` to its original value and unset the temporary environment variable `_OLD_LD_LIBRARY_PATH`.
+:::
+
+
+## Build with Visual Studio on Windows
 
 See [](build_with_vs.md) for detailed instructions for building with Visual Studio.
 
 
-#### Quick start with Visual Studio Code and Docker
+## Quick start with Visual Studio Code and Docker
 
 Using [Visual Studio Code] (VS Code) it is possible to do development on the system defined in [Dockerfile](https://github.com/SINTEF/dlite/blob/master/Dockerfile).
 
@@ -145,13 +237,13 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
    ```
 
 
-### Build documentation
+## Build documentation
 
 In order to reduce build dependencies for the causal user, DLite does not build documentation by default.
 Provide the ``-DWITH_DOC=YES`` option to ``cmake`` to build the documentation.
 
 
-#### Build Python Documentation
+### Build Python Documentation
 
 DLite uses sphinx to generate documentation from Python source code.
 Ensure the correct virtual environment is set up and install the requirements
@@ -160,7 +252,7 @@ Ensure the correct virtual environment is set up and install the requirements
 pip install -r requirements_doc.txt
 ```
 
-#### Build C Documentation
+### Build C Documentation
 
 If you have [Doxygen] installed, the HTML documentation should be generated as a part of the build process.
 It can be browsed by opening the following file in your browser:
@@ -192,7 +284,12 @@ which will produce the file
 ```
 
 
-[cmake]: https://cmake.org/
+[CMake]: https://cmake.org/
+[CMake options]: cmake_options.md
+[make]: https://www.gnu.org/software/make/
+[Visual Studio]: https://visualstudio.microsoft.com/
+[gcc]: https://gcc.gnu.org/
+[PyPI]: https://pypi.org/
 [cppcheck]: http://cppcheck.sourceforge.net/
 [Doxygen]: http://www.doxygen.org/
 [Graphviz]: https://www.graphviz.org/
@@ -210,3 +307,4 @@ which will produce the file
 [valgrind]: http://valgrind.org/
 [Visual Studio Code]: https://code.visualstudio.com/
 [vs-container]: https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container
+[VirtualEnvWrapper]: https://virtualenvwrapper.readthedocs.io/en/latest/

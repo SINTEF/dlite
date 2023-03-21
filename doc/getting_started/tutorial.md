@@ -235,3 +235,6 @@ for key in mapping:
     inst[key] = solar_panel_dataframe[mapping[key]]
 
 ```
+
+
+More examples of how to use DLite are available in the [examples](https://github.com/SINTEF/dlite/tree/master/examples) directory.

@@ -6,3 +6,4 @@ Building DLite from source
 
    build
    build_with_vs
+   cmake_options

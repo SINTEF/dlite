@@ -146,6 +146,3 @@ skills:
 
 Note that in this case it is necessary to define the environment variable `DLITE_STORAGES` in order to let DLite find the metadata stored in ``Person.json``.
 There are ways to avoid this, e.g., by hardcoding the metadata in C using `dlite-codegen -f c-source` or in the C program explicitely load ``Person.json`` before ``homes.json``.
-
-This was just a brief example.
-There is much more to DLite as will be revealed in the following parts of the tutorial.
