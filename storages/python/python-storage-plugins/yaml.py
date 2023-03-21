@@ -88,8 +88,10 @@ class yaml(dlite.DLiteStorageBase):
             inst: A DLite Instance to store in the storage.
 
         """
+        single = self.options.single
         self._data[inst.uuid] = inst.asdict(
-            soft7=dlite.asbool(self.options.soft7)
+            soft7=dlite.asbool(self.options.soft7),
+            uuid=(single != "auto" and dlite.asbool(single)),
         )
         self.flushed = False
 
