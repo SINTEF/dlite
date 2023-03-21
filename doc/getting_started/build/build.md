@@ -1,4 +1,4 @@
-## Compile from source
+# Build from source
 
 The source code can be cloned from GitHub
 
@@ -6,9 +6,10 @@ The source code can be cloned from GitHub
 git clone https://github.com/SINTEF/DLite.git
 ```
 
-### Dependencies
 
-#### Runtime dependencies
+## Dependencies
+
+### Runtime dependencies
 
 | **Name** | **Required / Optional** | **Notes** |
 |:---:|:---:|:--- |
@@ -23,7 +24,8 @@ git clone https://github.com/SINTEF/DLite.git
 | [pymongo] | optional | Used for MongoDB storage plugin. |
 | [mongomock] | optional | Used for testing MongoDB storage plugin. |
 
-#### Build dependencies
+
+### Build dependencies
 
 | **Name** | **Required / Optional** | **Notes** |
 |:---:|:---:|:--- |
@@ -37,6 +39,7 @@ git clone https://github.com/SINTEF/DLite.git
 | [valgrind] | optional | Used for memory checking (Linux only). |
 | [cppcheck] | optional | Used for static code analysis. |
 | [librdf] | optional | Development libraries are needed by RDF (Redland) storage plugin. |
+
 
 ## Compiling
 
@@ -86,10 +89,13 @@ To run the tests, do
 
 ```shell
 ctest
-make memcheck
 ```
 
-`memcheck` runs all tests with memory checking (requires [valgrind]).
+To run all tests with memory checking (using [valgrind]), do
+
+```
+make memcheck
+```
 
 To generate code documentation, do
 
@@ -105,9 +111,11 @@ To install DLite locally, do
 make install
 ```
 
+
 ### Build with Visual Studio on Windows
 
 See [](build_with_vs.md) for detailed instructions for building with Visual Studio.
+
 
 #### Quick start with Visual Studio Code and Docker
 
@@ -115,7 +123,7 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
 
 1. Download and install [Visual Studio Code].
 2. Install the extension **Remote Development**.
-3. [Clone _DLite_](#compile-from-source) and initialize git sub-modules:
+3. [Clone _DLite_](#build-from-source) and initialize git sub-modules:
 
    ```shell
    git submodule update --init
@@ -132,13 +140,16 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
    mkdir /workspace/build
    cd /workspace/build
    cmake ../DLite
-   make && make test
+   cmake --build .
+   ctest
    ```
+
 
 ### Build documentation
 
 In order to reduce build dependencies for the causal user, DLite does not build documentation by default.
 Provide the ``-DWITH_DOC=YES`` option to ``cmake`` to build the documentation.
+
 
 #### Build Python Documentation
 
@@ -179,6 +190,7 @@ which will produce the file
 ```shell
 <build>/doc/latex/refman.pdf
 ```
+
 
 [cmake]: https://cmake.org/
 [cppcheck]: http://cppcheck.sourceforge.net/

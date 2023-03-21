@@ -43,12 +43,12 @@ entity_uuid = uuid.uuid4()
 with open("myEntity.json", "w") as entity_file:
     entity_file.write('"uuid": {}'.format(entity_uuid))
 ```
-Our json file now contains the following:
 
+Our json file now contains the following:
 ```json
 "uuid": <uuid>
 ```
-where `<uuid>` is a unique identifier for our Entity. 
+where `<uuid>` is a unique identifier for our Entity.
 
 
 ### **Step 2**: Providing a link to the metadata
@@ -57,7 +57,11 @@ Let us assume that we have followed option 1 and provided a URI. The next step c
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
 "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
 ```
-**Note** The **meta** field actually defaults to "http://onto-ns.com/meta/0.3/EntitySchema". This means that the **meta** field is optional for entities.
+
+:::{note}
+The **meta** field actually defaults to `http://onto-ns.com/meta/0.3/EntitySchema`. This means that the **meta** field is optional for entities.
+:::
+
 ### **Step 3**: Adding a human-understandable description
 Next, we want to include a human-understandable description of what the Entity represents. In our example case, such a **description** field could be
 
@@ -75,7 +79,7 @@ We will give our dimension the generic name "N", and describe it as the number o
 ```json
 "uri": "http://www.ontotrans.eu/0.1/solarPanelMeasurement",
 "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-"description": 
+"description":
  "dimensions": [
       {
       "name": "N",
@@ -111,8 +115,8 @@ Now it is time to define the properties of our Entity. Here is where we can give
             "name":"MPP",
             "type":"float64",
             "unit":"W",
-            "dims": ["N"], 
-            "description": "Maximum Power" 
+            "dims": ["N"],
+            "description": "Maximum Power"
         },
         {
             "name": "impp",
@@ -147,9 +151,10 @@ Now it is time to define the properties of our Entity. Here is where we can give
 }
 ```
 
-### **Note**
+:::{note}
 Both dimensions and properties can also be provided using a `dict` with the name as key. This may look like
-``` json
+
+```json
 "dimensions": {"N": "Number of measurements."},
 
 
@@ -170,8 +175,11 @@ Both dimensions and properties can also be provided using a `dict` with the name
                }
 ```
 DLite supports both syntaxes.
+:::
+
+
 ## Loading an Entity with DLite
-We will now load our Entity in Python. There are several ways of doing this. 
+We will now load our Entity in Python. There are several ways of doing this.
 
 ### 1. Using the json storage plugin:
 ```python
@@ -219,7 +227,7 @@ mapping = {
     "vmpp":"Vmpp [V]",
     "isc" :"Isc [A]",
     "impp":"Impp [A]"
-    
+
 }
 
 # Loop through the dictionary keys and populate the instance with data

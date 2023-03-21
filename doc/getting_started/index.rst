@@ -6,6 +6,8 @@ Getting started
    :caption: Contents
 
    about
-   introduction/index
-   setup/index
-   tutorial/index
+   installation
+   build/index
+   tutorial
+   more_advanced_example
+   features
