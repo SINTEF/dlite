@@ -1,4 +1,4 @@
-# Example
+# More advanced example
 
 Let's say that you have the following Python class:
 

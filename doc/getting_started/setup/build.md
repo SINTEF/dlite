@@ -1,5 +1,3 @@
-# Build DLite
-
 ## Compile from source
 
 The source code can be cloned from GitHub

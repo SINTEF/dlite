@@ -1,5 +1,4 @@
-Build with Visual Studio
-========================
+## Build with Visual Studio
 
 1. Install "Visual Studio 14 2015", "Visual Studio 15 2017" or "Visual Studio 16 2019" with the
    C/C++ components and cmake.

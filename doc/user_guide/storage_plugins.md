@@ -5,7 +5,7 @@ Content
 -------
   1. [Introduction](#introduction)
   2. [Working with storages in Python](#working-with-storages-in-python)
-  3. [Using storages implicitely](#using-storages-implicitely)
+  3. [Using storages implicitely](#using-storages-implicitly)
   4. [Writing Python storage plugins](#writing-python-storage-plugins)
   5. [Working with storages from C and Fortran](#working-with-storages-from-c-and-fortran)
 
@@ -138,7 +138,7 @@ In fact, even though `blob1` and `inst1` are different python objects, they shar
 
 
 Using storages implicitly
---------------------------
+-------------------------
 For convenience DLite also has an interface for creating storages implicitly.
 If you only want to load a single instance from a storage, you can use one of the following class methods:
 * `dlite.Instance.from_location()`: to read from a location
