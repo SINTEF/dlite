@@ -1,5 +1,4 @@
 d9910bde-6028-524c-9e0f-e8f0db734bc8:
-  uuid: d9910bde-6028-524c-9e0f-e8f0db734bc8
   uri: http://onto-ns.com/meta/0.1/TestEntity
   meta: http://onto-ns.com/meta/0.3/EntitySchema
   description: test entity with explicit meta
@@ -25,5 +24,8 @@ d9910bde-6028-524c-9e0f-e8f0db734bc8:
       description: An unsigned short integer.
     myarray:
       type: int32
-      shape: [L, M, N]
+      shape:
+      - L
+      - M
+      - N
       description: An array string pointer.
