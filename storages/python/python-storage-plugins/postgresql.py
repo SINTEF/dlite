@@ -199,8 +199,7 @@ class postgresql(dlite.DLiteStorageBase):
         who's metadata URI matches glob pattern `pattern`."""
         if pattern:
             # Convert glob patter to PostgreSQL regular expression
-            regex = '^{}'.format(fnmatch.translate(globex).replace(
-                '\\Z(?ms)', '$'))
+            regex = fnmatch.translate(pattern)  # PCRE, supported by MongoDB
             q = sql.SQL('SELECT uuid from uuidtable WHERE uuid ~ %s;')
             self.cur.execute(q, (regex, ))
         else:

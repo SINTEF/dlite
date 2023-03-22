@@ -1,3 +1,4 @@
+import fnmatch
 import json
 import sys
 from urllib.parse import quote_plus, urlparse
@@ -87,6 +88,8 @@ class mongodb(dlite.DLiteStorageBase):
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
-        filter = {"meta": pattern} if pattern else {}
+        filter = {
+            "meta": {"$regex": fnmatch.translate(pattern)}
+        } if pattern else {}
         for doc in self.collection.find(filter=filter, projection=["uuid"]):
             yield doc["uuid"]
