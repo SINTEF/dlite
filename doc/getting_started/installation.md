@@ -1,6 +1,8 @@
-# Installing DLite
+Installing DLite
+================
 
-## Runtime dependencies
+Runtime dependencies
+--------------------
 DLite can be compiled without any external dependencies.
 But you would normally install DLite compiled with Python support.
 In that case, it has the following runtime dependencies:
@@ -20,13 +22,14 @@ In that case, it has the following runtime dependencies:
   - [librdf], optional (needed by RDF (Redland) storage plugin)
 
 
-## Installing with pip
-
+Installing with pip
+-------------------
 If you are using Python, the easiest way to install DLite is with pip:
 
 ```shell
 pip install DLite-Python
 ```
+
 
 [HDF5]: https://support.hdfgroup.org/HDF5/
 [librdf]: https://librdf.org/

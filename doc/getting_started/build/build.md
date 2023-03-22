@@ -1,4 +1,5 @@
-# Build from source
+Build from source
+=================
 
 The source code can be cloned from GitHub
 
@@ -6,7 +7,8 @@ The source code can be cloned from GitHub
 git clone https://github.com/SINTEF/DLite.git
 ```
 
-## Build dependencies
+Build dependencies
+------------------
 DLite uses [CMake] as its build system.
 Depending on your selection of [CMake options], you would need to have the following tools and libraries installed on your system to build DLite:
 
@@ -33,8 +35,8 @@ When DLite is build with Python support, you may also need to have the following
   - [mongomock], optional, used for testing MongoDB storage plugin.
 
 
-## Build and install with Python
-
+Build and install with Python
+-----------------------------
 Given you have a C compiler and Python correctly installed, you should be able to build and install DLite via the python/setup.py script:
 
 ```shell
@@ -42,8 +44,8 @@ cd python
 python setup.py install
 ```
 
-## Build from virtual environment
-
+Build from virtual environment
+------------------------------
 As a DLite user it should be enough to do `pip install Dlite-Python`, or `pip install .` from within the `dlite/python` directory.
 
 As a developer it is more useful to install DLite from source.
@@ -116,8 +118,8 @@ make test
 
 
 
-## Build on Linux
-
+Build on Linux
+--------------
 Install dependencies (e.g. with `apt-get install` on Ubuntu or `dnf install` on Fedora)
 
 Configure the build with:
@@ -204,13 +206,13 @@ If true, then the `deactivate` function will set `LD_LIBRARY_PATH` to its origin
 :::
 
 
-## Build with Visual Studio on Windows
-
+Build with Visual Studio on Windows
+-----------------------------------
 See [](build_with_vs.md) for detailed instructions for building with Visual Studio.
 
 
-## Quick start with Visual Studio Code and Docker
-
+Quick start with Visual Studio Code and Docker
+----------------------------------------------
 Using [Visual Studio Code] (VS Code) it is possible to do development on the system defined in [Dockerfile](https://github.com/SINTEF/dlite/blob/master/Dockerfile).
 
 1. Download and install [Visual Studio Code].
@@ -237,8 +239,8 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
    ```
 
 
-## Build documentation
-
+Build documentation
+-------------------
 In order to reduce build dependencies for the causal user, DLite does not build documentation by default.
 Provide the ``-DWITH_DOC=YES`` option to ``cmake`` to build the documentation.
 

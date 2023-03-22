@@ -89,7 +89,7 @@ We will give our dimension the generic name "N", and describe it as the number o
 ```
 
 ### **Step 5**: Defining the properties
-Now it is time to define the properties of our Entity. Here is where we can give meaning to our data. As for the dimensions, we add the properties as a list of `json` structures, each one having a **name**, **type**, **unit**, **description**, and if relevant, a list of **dimension**(s) (here called **dims**). Inserting the properties displayed in the table above, our Entity is complete and may look like
+Now it is time to define the properties of our Entity. Here is where we can give meaning to our data. As for the dimensions, we add the properties as a list of `json` structures, each one having a **name**, **type**, **description**, and if relevant, **unit** and **shape** (the dimensionality of the property). Inserting the properties displayed in the table above, our Entity is complete and may look like
 
 ```json
 {
@@ -97,54 +97,52 @@ Now it is time to define the properties of our Entity. Here is where we can give
     "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
     "description": "Measurement data from one solar panel.",
     "dimensions": [
-      {
-      "name": "N",
-      "description": "Number of measurements."
-      }
+        {
+            "name": "N",
+            "description": "Number of measurements."
+        }
     ],
     "properties": [
         {
             "name":"t",
             "type":"str",
             "unit":"ns",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Time"
         },
-
         {
             "name":"MPP",
             "type":"float64",
             "unit":"W",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Maximum Power"
         },
         {
             "name": "impp",
             "type": "float64",
             "unit": "A",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Maximum power point current."
         },
         {
             "name": "isc",
             "type": "float64",
             "unit": "A",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Short circuit current."
         },
-
         {
             "name": "vmpp",
             "type": "float64",
             "unit": "V",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Maximum power point voltage."
         },
         {
             "name": "voc",
             "type": "float64",
             "unit": "V",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Open circuit voltage."
         }
     ]
@@ -155,24 +153,24 @@ Now it is time to define the properties of our Entity. Here is where we can give
 Both dimensions and properties can also be provided using a `dict` with the name as key. This may look like
 
 ```json
-"dimensions": {"N": "Number of measurements."},
-
-
-"properties": {
-      "t": {
+    "dimensions": {
+        "N": "Number of measurements."
+    },
+    "properties": {
+        "t": {
             "type":"str",
             "unit":"ns",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Time"
-           },
-    "MPP": {
+        },
+        "MPP": {
             "type":"float64",
             "unit":"W",
-            "dims": ["N"],
+            "shape": ["N"],
             "description": "Maximum Power"
-            },
-    ...
-               }
+        },
+        ...
+    }
 ```
 DLite supports both syntaxes.
 :::

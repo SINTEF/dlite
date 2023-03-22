@@ -1,5 +1,5 @@
-# More advanced example
-
+More advanced example
+=====================
 Let's say that you have the following Python class:
 
 ```python
