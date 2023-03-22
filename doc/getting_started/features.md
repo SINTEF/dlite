@@ -1,5 +1,5 @@
-# Features
-
+Full feature list
+=================
 - Simple and structured way to represent data as a set of named properties within and between software.
 - Simple type system where data type are specified as a basic type and size.
   Supported basic types includes:

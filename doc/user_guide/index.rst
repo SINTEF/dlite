@@ -13,5 +13,6 @@ User Guide
    tools
    code_generation
    storage_plugins
+   environment_variables
    features
    vocabulary
