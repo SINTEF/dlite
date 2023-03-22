@@ -5,6 +5,9 @@ Getting started
    :maxdepth: 2
    :caption: Contents
 
-   introduction/index
-   setup/index
-   tutorial/index
+   about
+   installation
+   tutorial
+   more_advanced_example
+   build/index
+   features
