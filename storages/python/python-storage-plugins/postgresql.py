@@ -204,9 +204,9 @@ class postgresql(dlite.DLiteStorageBase):
             # and extended RE's
             pcre = fnmatch.translate(pattern)
             match = re.match(r"\(\?[ms]*:(.*)(\(\?[ms]*\))?", pcre)
-            pre = "(?:" + match.groups()[0] if match else pcre
+            ere = "(?:" + match.groups()[0] if match else pcre
             q = sql.SQL('SELECT uuid from uuidtable WHERE uuid ~ %s;')
-            self.cur.execute(q, (pre, ))
+            self.cur.execute(q, (ere, ))
         else:
             q = sql.SQL('SELECT uuid from uuidtable;')
             self.cur.execute(q)
