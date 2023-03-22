@@ -89,6 +89,7 @@ class mongodb(dlite.DLiteStorageBase):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
         filter = {
+            # MongoDB supports PCRE, which is created by fnmatch.translate()
             "meta": {"$regex": fnmatch.translate(pattern)}
         } if pattern else {}
         for doc in self.collection.find(filter=filter, projection=["uuid"]):

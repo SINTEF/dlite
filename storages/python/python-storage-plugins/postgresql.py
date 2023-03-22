@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import warnings
 import fnmatch
@@ -199,9 +200,13 @@ class postgresql(dlite.DLiteStorageBase):
         who's metadata URI matches glob pattern `pattern`."""
         if pattern:
             # Convert glob patter to PostgreSQL regular expression
-            regex = fnmatch.translate(pattern)  # PCRE, supported by MongoDB
+            # `regex` is a Perl PCRE, but PostgreSQL only supports basic RE's
+            # and extended RE's
+            pcre = fnmatch.translate(pattern)
+            match = re.match(r"\(\?[ms]*:(.*)(\(\?[ms]*\))?", pcre)
+            pre = match.groups()[0] if match else pcre
             q = sql.SQL('SELECT uuid from uuidtable WHERE uuid ~ %s;')
-            self.cur.execute(q, (regex, ))
+            self.cur.execute(q, (pre, ))
         else:
             q = sql.SQL('SELECT uuid from uuidtable;')
             self.cur.execute(q)
