@@ -88,9 +88,14 @@ class mongodb(dlite.DLiteStorageBase):
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
-        filter = {
+        # If a pattern is provided, convert it to a MongoDB-compatible
+        # regular expression
+        if pattern:
             # MongoDB supports PCRE, which is created by fnmatch.translate()
-            "meta": {"$regex": fnmatch.translate(pattern)}
-        } if pattern else {}
+            mongo_regex = {"$regex": fnmatch.translate(pattern)}
+            filter = {"meta": mongo_regex}
+        else:
+            filter = {}
+
         for doc in self.collection.find(filter=filter, projection=["uuid"]):
             yield doc["uuid"]
