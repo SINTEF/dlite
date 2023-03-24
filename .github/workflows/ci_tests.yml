@@ -14,7 +14,7 @@ jobs:
         sudo apt-get update --fix-missing
 
     - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
-      run |
+      run: |
         sudo apt remove cmake
         sudo apt purge --auto-remove cmake
         wget http://www.cmake.org/files/v3.25/cmake-3.25.2.tar.gz
