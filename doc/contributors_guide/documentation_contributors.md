@@ -46,7 +46,7 @@ Hence, use [CommonMark] or possible [GitHub-flavored Markdown].
 For README files, keep the maximum line length at 79 characters for easy viewing in a 80 character wide terminal.
 
 The Markdown files in the `doc/` subdirectory are intended to be included in the [Sphinx]-generated [online documentation].
-We make use of the [MyST-Parser extension] to convert all markdown syntax to rich structured text (RST) prior to letting Sphinx generate the HTML (or other) documentation.
+We make use of the [MyST Markdown extension] to convert all markdown syntax to rich structured text (RST) prior to letting Sphinx generate the HTML (or other) documentation.
 
 
 Figures
@@ -87,7 +87,7 @@ For more info, see the guide for [documentation testing].
 [setext]: https://github.com/DavidAnson/markdownlint/blob/main/doc/md003.md
 [CommonMark]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [GitHub-flavored Markdown]: https://docs.github.com/en/get-started/writing-on-github
-[MyST Markdown extensions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+[MyST Markdown extension]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
 [Sphinx]: https://www.sphinx-doc.org/
 [online documentation]: https://sintef.github.io/dlite/
 [draw.io]: https://app.diagrams.net/

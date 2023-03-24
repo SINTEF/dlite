@@ -38,4 +38,4 @@ Note that the comment `#doctest: +SKIP` was added to the above example in order 
 
 
 
-[documentation contributions]: documentation_contributions.md
+[documentation contributions]: documentation_contributors.md

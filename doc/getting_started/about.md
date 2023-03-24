@@ -18,7 +18,7 @@ By default, DLite defines four levels of metadata; instance, metadata, metadata 
 The basic metadata schema describes itself, so no further meta levels are needed.
 The core idea behind these levels is if two different systems describe their data models in terms of the basic metadata schema, they can easily be made semantically interoperable, while using different metadata schemas.
 
-![The datamodel of DLite.](../_static/datamodel.svg)
+![The datamodel of DLite.](../../_static/datamodel.svg)
 
 An alternative and more flexible way to enable interoperability is to use ontologies.
 DLite provides a specialised _Instance_ called _Collection_.
@@ -30,9 +30,9 @@ Such mappings can be registered and reused, providing a very powerful system for
 DLite provides a common and extendable API for loading and storing _Instances_ from and to different storages.
 Additional storage plugins can be written in C or Python.
 
-See [](../user_guide/concepts.md) for more details.
+See the [user guide] for more details.
 
-DLite is licensed under the [MIT license](../license.md).
+DLite is licensed under the [MIT license].
 
 ## Main features
 
@@ -46,3 +46,5 @@ See [](features.md) for a more detailed list.
 - Bindings to C, Python and Fortran.
 
 [SOFT]: https://www.sintef.no/en/publications/publication/1553408/
+[user guide]: ../../user_guide/concepts.md
+[MIT license]: ../../../license.md

@@ -5,7 +5,7 @@ Content
 -------
   1. [Introduction](#introduction)
   2. [Working with storages in Python](#working-with-storages-in-python)
-  3. [Using storages implicitely](#using-storages-implicitely)
+  3. [Using storages implicitely](#using-storages-implicitly)
   4. [Writing Python storage plugins](#writing-python-storage-plugins)
   5. [Working with storages from C and Fortran](#working-with-storages-from-c-and-fortran)
 
@@ -138,7 +138,7 @@ In fact, even though `blob1` and `inst1` are different python objects, they shar
 
 
 Using storages implicitly
---------------------------
+-------------------------
 For convenience DLite also has an interface for creating storages implicitly.
 If you only want to load a single instance from a storage, you can use one of the following class methods:
 * `dlite.Instance.from_location()`: to read from a location
@@ -171,7 +171,8 @@ Storage plugins can be written in either C or Python.
 In Python the storage plugin should be a Python module defining a subclass of `dlite.DLiteStorageBase` with a set of methods for opening, closing, reading, writing and searching the storage.
 In order for DLite to find the storage plugin, it should be in the search path defined by the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment variable or from Python, in `dlite.python_storage_plugin_path`.
 
-See the [Python storage plugin example] for a complete example and description of how to write a Python storage plugin.
+See the [Python storage plugin template] for how to write a Python storage plugin.
+A complete example can be found in the [Python storage plugin example].
 
 
 Working with storages from C and Fortran
@@ -187,6 +188,7 @@ An example is available in [ex4].
 
 [strategy design pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
 [C reference manual]: https://sintef.github.io/dlite/dlite/storage.html
-[Python storage plugin example]: https://github.com/SINTEF/dlite/tree/master/examples/storate_plugin
+[Python storage plugin template]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/storage_plugin.py
+[Python storage plugin example]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin
 [ex1]: https://github.com/SINTEF/dlite/tree/master/examples/ex1
 [ex4]: https://github.com/SINTEF/dlite/tree/master/examples/ex4
