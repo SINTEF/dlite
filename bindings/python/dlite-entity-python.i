@@ -670,22 +670,63 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
             d['relations'] = self['relations'].tolist()
         return d
 
-    def asjson(self, soft7=True, uuid=True, **kwargs):
-        """Returns a JSON representation of self.  Keyword arguments are
-        passed to json.dumps()."""
-        return json.dumps(self.asdict(soft7=soft7, uuid=uuid),
-                          cls=InstanceEncoder, **kwargs)
 
     # Deprecated methods
+    def asjson(self, indent=0, single=False,
+               urikey=False, with_uuid=False, with_meta=False,
+               with_arrays=False, no_parent=False,
+               soft7=None, uuid=None):
+        """Returns a JSON representation of self.
+
+        Arguments:
+            indent: Number of spaces to indent each line with.
+            single: Whether to return single-entity format.
+            urikey: Use uri (if it exists) as JSON key in multi-entity format.
+            with_uuid: Whether to include UUID in output.
+            with_meta: Always include "meta" field, even for metadata.
+            with_arrays: Write metadata dimensions and properties as jSON
+                arrays (old format).
+            no_parent: Do not include transaction parent info.
+            soft7: Whether to structure metadata as SOFT7. Deprecated.
+                Use `with_arrays=False` instead.
+            uuid: Alias for `with_uuid`. Deprecated.
+        """
+        if soft7 is not None:
+            warnings.warn(
+                "`soft7` argument of asjson() is deprecated, use "
+                "`with_arrays` (negated) instead.",
+                 DeprecationWarning, stacklevel=2)
+            with_arrays = not bool(soft7)
+        if uuid is not None:
+            warnings.warn(
+                "`uuid` argument of asjson() is deprecated, use "
+                "`with_uuid` instead.",
+                 DeprecationWarning, stacklevel=2)
+            with_uuid = bool(uuid)
+        return self._asjson(indent=indent, single=single, urikey=urikey,
+                            with_uuid=with_uuid, with_meta=with_meta,
+                            with_arrays=with_arrays, no_parent=no_parent)
+
+    def tojson(self, indent=0, single=False,
+               urikey=False, with_uuid=False, with_meta=False,
+               with_arrays=False, no_parent=False,
+               soft7=None, uuid=None):
+        """Deprecated alias for asjson()."""
+        warnings.warn(
+            'tojson() is deprecated, use asjson() instead.',
+             DeprecationWarning, stacklevel=2)
+        return self._asjson(indent=indent, single=single, urikey=urikey,
+                            with_uuid=with_uuid, with_meta=with_meta,
+                            with_arrays=with_arrays, no_parent=no_parent)
+
     def get_copy(self):
         """Returns a copy of self.
 
         This method is deprecated.  Use copy() instead.
         """
         warnings.warn(
-            DeprecationWarning,
-            "Instance.get_copy() is deprecated.  Use Instance.copy() instead."
-        )
+            "Instance.get_copy() is deprecated.  Use Instance.copy() instead.",
+            DeprecationWarning, stacklevel=2)
         return self.copy()
 %}
 
