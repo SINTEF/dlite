@@ -9,16 +9,29 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Update submodules
+    - name: apt-get update
+      run |
+        sudo apt-get update --fix-missing
+
+    - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
       run: |
-        git submodule init
-        git submodule update
-    - name: Get Cmake version
+        sudo apt remove cmake
+        sudo apt purge --auto-remove cmake
+        wget http://www.cmake.org/files/v3.25/cmake-3.25.2.tar.gz
+        tar xf cmake-3.25.2.tar.gz
+        cd cmake-3.25.2
+        ./configure
+        make
+        sudo make install
+        hash -r
+        cd -
+
+    - name: Show CMake version
       run: |
         cmake --version
+
     - name: Install dependencies
       run: |
-        sudo apt-get update --fix-missing
         sudo apt-get install \
           libhdf5-dev \
           swig4.0 \
@@ -30,6 +43,7 @@ jobs:
           python3-numpy \
           python3-yaml \
           python3-psycopg2
+
     - name: Install Python dependencies
       run: |
         pip install --upgrade pip -r requirements.txt
