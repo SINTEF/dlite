@@ -21,28 +21,6 @@ class InvalidMetadataError:
     """Malformed or invalid metadata."""
 
 
-class InstanceEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, (bytes, bytearray)):
-            return obj.hex()
-        elif isinstance(obj, np.ndarray):
-            if obj.dtype.kind == 'V':
-                conv = lambda e: ([conv(ele) for ele in e]
-                                  if isinstance(e, list)
-                                  else base64.b16encode(e))
-                return conv(obj.tolist())
-            else:
-                return obj.tolist()
-        elif hasattr(obj, 'aspreferred'):
-            return obj.aspreferred()
-        elif hasattr(obj, 'asdict'):
-            return obj.asdict()
-        elif hasattr(obj, 'asstrings'):
-            return obj.asstrings()
-        else:
-            return json.JSONEncoder.default(self, obj)
-
-
 class Metadata(Instance):
     """A subclass of Instance for metadata.
 
