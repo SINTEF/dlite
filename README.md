@@ -19,8 +19,8 @@ data.
 
 The core of DLite is a framework for formalised representation of data
 described by data models (called Metadata or Entity in DLite).
-On top of this, DLite has a plugin system for different representing
-the data in different formats and storages, bindings to popular
+On top of this, DLite has a plugin system for various representations of
+the data in different formats and storages, as well as bindings to popular
 languages like Python, mappings to ontological concepts for enhanced
 semantics and a set of tools.
 
