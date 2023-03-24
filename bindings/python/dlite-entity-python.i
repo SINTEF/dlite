@@ -626,9 +626,6 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
             d['uri'] = self.uri
         d['meta'] = self.meta.uri
         if self.is_meta:
-            #d['name'] = self['name']
-            #d['version'] = self['version']
-            #d['namespace'] = self['namespace']
             d['description'] = self['description']
             if soft7:
                 d['dimensions'] = {dim.name: dim.description
@@ -648,9 +645,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
             d['relations'] = self['relations'].tolist()
         return d
 
-
-    # Deprecated methods
-    def asjson(self, indent=0, single=False,
+    def asjson(self, indent=0, single=None,
                urikey=False, with_uuid=False, with_meta=False,
                with_arrays=False, no_parent=False,
                soft7=None, uuid=None):
@@ -658,10 +653,12 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
 
         Arguments:
             indent: Number of spaces to indent each line with.
-            single: Whether to return single-entity format.
+            single: Whether to return single-entity format.  Default is
+                single-entity format for metadata and multi-entity format
+                for data instances.
             urikey: Use uri (if it exists) as JSON key in multi-entity format.
             with_uuid: Whether to include UUID in output.
-            with_meta: Always include "meta" field, even for metadata.
+            with_meta: Always include "meta" field, even for entities.
             with_arrays: Write metadata dimensions and properties as jSON
                 arrays (old format).
             no_parent: Do not include transaction parent info.
@@ -669,22 +666,29 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
                 Use `with_arrays=False` instead.
             uuid: Alias for `with_uuid`. Deprecated.
         """
+        if single is None:
+            single = self.is_meta
+
         if soft7 is not None:
             warnings.warn(
                 "`soft7` argument of asjson() is deprecated, use "
                 "`with_arrays` (negated) instead.",
                  DeprecationWarning, stacklevel=2)
             with_arrays = not bool(soft7)
+
         if uuid is not None:
             warnings.warn(
                 "`uuid` argument of asjson() is deprecated, use "
                 "`with_uuid` instead.",
                  DeprecationWarning, stacklevel=2)
             with_uuid = bool(uuid)
+
         return self._asjson(indent=indent, single=single, urikey=urikey,
                             with_uuid=with_uuid, with_meta=with_meta,
                             with_arrays=with_arrays, no_parent=no_parent)
 
+
+    # Deprecated methods
     def tojson(self, indent=0, single=False,
                urikey=False, with_uuid=False, with_meta=False,
                with_arrays=False, no_parent=False,
