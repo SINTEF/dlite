@@ -315,7 +315,7 @@ MU_TEST(test_instance_snprint)
   char buf[1024];
   inst = dlite_instance_load_url("json://myentity.json?mode=r#mydata");
   mu_check(inst);
-  n = dlite_json_sprint(buf, sizeof(buf), inst, 2, 0);
+  n = dlite_json_sprint(buf, sizeof(buf), inst, 2, dliteJsonSingle);
   mu_assert_int_eq(346, n);
   dlite_instance_decref(inst);
 }
