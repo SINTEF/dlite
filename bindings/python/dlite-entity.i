@@ -730,7 +730,7 @@ Returns:
   %feature("docstring",
            "Returns a JSON representation of self.") tojson;
   %newobject tojson;
-  char *tojson(int indent=0, bool single=false, bool urikey=false,
+  char *_asjson(int indent=0, bool single=false, bool urikey=false,
                bool with_uuid=false, bool with_meta=false,
                bool with_arrays=false, bool no_parent=false) {
     DLiteJsonFlag flags=0;
