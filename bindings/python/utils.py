@@ -204,6 +204,94 @@ if HAVE_DATACLASSES:
 
 
 if HAVE_PYDANTIC:
+
+    def pydantic_to_property(
+            name: str, propdict: dict,
+            dimensions: dict = None,
+            namespace="http://onto-ns.com/meta",
+            version="0.1",
+    ):
+        """Return a dlite property from a name and a pydantic property dict.
+
+        If `dimensions` is given, new dimensions from array properties will
+        be added to it.
+        """
+        # Map simple pydantic types to corresponding dlite types
+        simple_types = dict(boolean="bool", integer="int64", number="float64",
+                            string="string")
+
+        if dimensions is None:
+            dimensions = {}
+
+        ptype = propdict.get("type", "ref")
+        unit = propdict.get("unit")
+        descr = propdict.get("description")
+
+        if ptype in simple_types:
+            return dlite.Property(
+                name, simple_types[ptype], unit=unit, description=descr
+            )
+
+        if ptype == "array":
+            subprop = pydantic_to_property("tmp", propdict["items"])
+            shape = propdict.get("shape", [f"n{name}"])
+            for dim in shape:
+                dimensions.setdefault(dim, f"Number of {dim}.")
+            return dlite.Property(
+                name, subprop.type, ref=subprop.ref, shape=shape,
+                unit=unit, description=descr,
+            )
+
+        if ptype == "ref":
+            name = propdict['$ref'].rsplit('/', 1)[-1]
+            ref = f"{namespace}/{version}/{name}"
+            print("*** REF:", name, ref)
+            prop = dlite.Property(
+                name, "ref", ref=ref, unit=unit, description=descr
+            )
+            print(prop)
+            return prop
+
+        raise ValueError(f"unsupported pydantic type: {ptype}")
+
+    def pydantic_to_metadata(
+            model,
+            uri=None,
+            default_namespace="http://onto-ns.com/meta",
+            default_version="0.1",
+            metaid=dlite.ENTITY_SCHEMA,
+    ):
+        """Create a new dlite metadata from a pydantic model.
+
+        Arguments:
+            model: A pydantic model or an instance of one to create the
+                new metadata from.
+            uri: URI of the created metadata.  If not given, it is
+                inferred from `default_namespace`, `default_version` and
+                the title of the model schema.
+            default_namespace: Default namespace used if `uri` is None.
+            default_version: Default version used if `uri` is None.
+            metaid: Metadata for the created metadata.  Defaults to
+                dlite.ENTITY_SCHEMA.
+        """
+        d = model.schema()
+        if not uri:
+            uri = f"{default_namespace}/{default_version}/{d['title']}"
+
+        dimensions = {}
+        properties = []
+        for name, descr in d["properties"].items():
+            properties.append(pydantic_to_property(
+                name, descr, dimensions, default_namespace, default_version))
+        dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
+        return dlite.Instance.create_metadata(
+            uri, dims, properties,
+            d.get("description", ""),
+        )
+
+
+
+
     def get_pydantic_entity_schema():
         """Returns the datamodel for dataclasses in Python standard library."""
 
