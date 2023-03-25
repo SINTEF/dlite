@@ -553,7 +553,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         return self.uuid == other.uuid
 
     def __str__(self):
-        return self.asjson(indent=2)
+        return self.asjson()
 
     def __reduce__(self):
         # ensures that instances can be pickled

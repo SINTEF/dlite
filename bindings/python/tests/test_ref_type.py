@@ -10,6 +10,7 @@ dlite.storage_path.append(thisdir / "test_ref_type.json")
 Top = dlite.get_instance("http://onto-ns.com/meta/0.1/Top")
 Middle = dlite.get_instance("http://onto-ns.com/meta/0.1/Middle")
 Leaf = dlite.get_instance("http://onto-ns.com/meta/0.1/Leaf")
+Linked = dlite.get_instance("http://onto-ns.com/meta/0.1/Linked")
 Tree = dlite.get_instance("http://onto-ns.com/meta/0.1/Tree")
 
 leaf1 = Leaf(properties={"a": 3, "b": True})
@@ -27,11 +28,52 @@ assert top.middles[1].name == "leaf2"
 assert top.middles[1].leaf.a == 5
 assert top.middles[1].leaf.b == False
 
+# Test unseting ref
+middle1.leaf = None
+assert middle1.leaf is None
 
+# Test assigning from uuid
+middle1.leaf = leaf1.uuid
+assert middle1.leaf == leaf1
+assert middle1.leaf.a == 3
 
+# Create a linked list
+item0 = Linked()
+item1 = Linked(properties={"next": item0})
+item2 = Linked(properties={"next": item1})
+assert item2.next == item1
+assert item2.next.next == item0
+
+# Convert to a cyclic list
+item0.next = item2
+assert item1.next.next.next == item1  # one cycle
+
+# Create from json
+inst = dlite.Instance.from_json(f"""
+{{
+  "meta": "http://onto-ns.com/meta/0.1/Linked",
+  "dimensions": {{}},
+  "properties": {{
+    "next": "{item0.uuid}"
+  }}
+}}
+""")
+assert inst.next == item0
+assert inst.next.next.next.next == item0
+
+# Create a tree structure
 tree0 = Tree(dimensions=[0])
 tree1 = Tree(dimensions=[2], properties={"subtree": [tree0, tree0]})
 tree2 = Tree(dimensions=[1], properties={"subtree": [tree1]})
+assert tree2.subtree[0].subtree[0] == tree0
+assert tree2.subtree[0].subtree[1] == tree0
 
-cyclic = Tree(dimensions=[2])
-cyclic.subtree = [tree0, cyclic]
+# Create a cyclic tree structure
+cyclic = Tree(dimensions=[1])
+cyclic.subtree = [cyclic]
+assert cyclic.subtree[0] == cyclic
+assert cyclic.subtree[0].subtree[0] == cyclic
+assert cyclic.subtree[0].subtree[0].subtree[0] == cyclic
+
+# Instantiate nested from dict
+middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})

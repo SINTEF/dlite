@@ -45,6 +45,18 @@
     }
   },
 
+  "http://onto-ns.com/meta/0.1/Linked": {
+    "description": "Linked-list.",
+    "dimensions": {},
+    "properties": {
+      "next": {
+        "type": "ref",
+        "$ref": "http://onto-ns.com/meta/0.1/Linked",
+        "description": "Reference next item in the lest."
+      }
+    }
+  },
+
   "http://onto-ns.com/meta/0.1/Tree": {
     "description": "Tree-like data structure.",
     "dimensions": {
