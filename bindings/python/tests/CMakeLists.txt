@@ -19,6 +19,7 @@ set(tests
   test_rdf
   test_postgresql_write
   test_postgresql_read
+  test_ref_type
   )
 
 foreach(test ${tests})

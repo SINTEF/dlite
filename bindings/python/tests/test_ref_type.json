@@ -1,0 +1,75 @@
+{
+  "http://onto-ns.com/meta/0.1/Top": {
+    "description": "Top-level nested data structure.",
+    "dimensions": {
+      "N": "Number of middle-level structures."
+    },
+    "properties": {
+      "middles": {
+        "type": "ref",
+        "$ref": "http://onto-ns.com/meta/0.1/Middle",
+        "shape": ["N"],
+        "description": "List of middle-level structure references."
+      }
+    }
+  },
+
+  "http://onto-ns.com/meta/0.1/Middle": {
+    "description": "Middle-level nested data structure.",
+    "dimensions": {},
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Value of this structure."
+      },
+      "leaf": {
+        "type": "ref",
+        "$ref": "http://onto-ns.com/meta/0.1/Leaf",
+        "description": "Reference to low-level structure."
+      }
+    }
+  },
+
+  "http://onto-ns.com/meta/0.1/Leaf": {
+    "description": "Un-nested data structure.",
+    "dimensions": {},
+    "properties": {
+      "a": {
+        "type": "int",
+        "description": "An integer."
+      },
+      "b": {
+        "type": "bool",
+        "description": "A bool."
+      }
+    }
+  },
+
+  "http://onto-ns.com/meta/0.1/Linked": {
+    "description": "Linked-list.",
+    "dimensions": {},
+    "properties": {
+      "next": {
+        "type": "ref",
+        "$ref": "http://onto-ns.com/meta/0.1/Linked",
+        "description": "Reference next item in the lest."
+      }
+    }
+  },
+
+  "http://onto-ns.com/meta/0.1/Tree": {
+    "description": "Tree-like data structure.",
+    "dimensions": {
+      "N": "Number of leaves structures."
+    },
+    "properties": {
+      "subtree": {
+        "type": "ref",
+        "$ref": "http://onto-ns.com/meta/0.1/Tree",
+        "shape": ["N"],
+        "description": "Reference list of sub-trees."
+      }
+    }
+  }
+
+}
