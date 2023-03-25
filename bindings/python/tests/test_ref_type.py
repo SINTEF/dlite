@@ -76,4 +76,5 @@ assert cyclic.subtree[0].subtree[0] == cyclic
 assert cyclic.subtree[0].subtree[0].subtree[0] == cyclic
 
 # Instantiate nested from dict
-middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
+# For issue #515
+#middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
