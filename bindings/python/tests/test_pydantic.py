@@ -61,7 +61,7 @@ class Bar(BaseModel):
 
 class Spam(BaseModel):
     foo: Foo
-    bars: list[Bar]
+    bars: List[Bar]
 
 m = Spam(foo={'count': 4}, bars=[{'apple': 'x1'}, {'apple': 'x2'}])
 
