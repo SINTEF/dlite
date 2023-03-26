@@ -4,7 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 import dlite
-from dlite.utils import to_metadata
+from dlite.utils import pydantic_to_metadata, pydantic_to_instance
 
 
 class TransformationStatus(BaseModel):
@@ -46,7 +46,7 @@ t = TransformationStatus(
 
 class Foo(BaseModel):
     count: int
-    size: Optional[float] = None
+    size: Optional[float] = -1
 
 
 class Bar(BaseModel):
@@ -61,3 +61,12 @@ class Spam(BaseModel):
 m = Spam(foo={'count': 4}, bars=[{'apple': 'x1'}, {'apple': 'x2'}])
 
 from dlite.utils import pydantic_to_metadata, pydantic_to_property
+
+MetaFoo = pydantic_to_metadata(Foo)
+MetaBar = pydantic_to_metadata(Bar)
+MetaSpam = pydantic_to_metadata(Spam)
+print(MetaSpam)
+print("---")
+
+spam = pydantic_to_instance(MetaSpam, m)
+print(spam)

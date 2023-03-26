@@ -31,6 +31,10 @@ class InvalidNumberOfDimensionsError(dlite.DLiteError):
     """Invalid number of instance dimensions."""
 
 
+class MetadataNotDefinedError(dlite.DLiteError):
+    """Metadata is not found in the internal instance store."""
+
+
 def instance_from_dict(d, id=None, single=None, check_storages=True):
     """Returns a new DLite instance created from dict.
 
@@ -238,18 +242,16 @@ if HAVE_PYDANTIC:
             for dim in shape:
                 dimensions.setdefault(dim, f"Number of {dim}.")
             return dlite.Property(
-                name, subprop.type, ref=subprop.ref, shape=shape,
+                name, subprop.type, ref=subprop.ref, dims=shape,
                 unit=unit, description=descr,
             )
 
         if ptype == "ref":
-            name = propdict['$ref'].rsplit('/', 1)[-1]
-            ref = f"{namespace}/{version}/{name}"
-            print("*** REF:", name, ref)
+            refname = propdict['$ref'].rsplit('/', 1)[-1]
+            ref = f"{namespace}/{version}/{refname}"
             prop = dlite.Property(
                 name, "ref", ref=ref, unit=unit, description=descr
             )
-            print(prop)
             return prop
 
         raise ValueError(f"unsupported pydantic type: {ptype}")
@@ -289,8 +291,31 @@ if HAVE_PYDANTIC:
             d.get("description", ""),
         )
 
+    def pydantic_to_instance(meta, pydinst):
+        """Return a new dlite instance from a pydantic instance `pydinst`."""
+        d = pydinst if isinstance(pydinst, dict) else pydinst.dict()
+        meta = dlite.get_instance(meta)
+        dimensions = infer_dimensions(meta, d)
+        inst = meta(dimensions)
 
+        def getval(p, v):
+            if p.type == 'ref':
+                if dlite.has_instance(p.ref):
+                    submeta = dlite.get_instance(p.ref)
+                    return pydantic_to_instance(submeta, v)
+                else:
+                    raise MetadataNotDefinedError(p.ref)
+            else:
+                return v
 
+        for k, v in d.items():
+            p = inst.get_property_descr(k)
+            if p.ndims:
+                inst[k] = [getval(p, w) for w in v]
+            else:
+                inst[k] = getval(p, v)
+
+        return inst
 
     def get_pydantic_entity_schema():
         """Returns the datamodel for dataclasses in Python standard library."""
