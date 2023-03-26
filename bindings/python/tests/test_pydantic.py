@@ -1,10 +1,15 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
-
 import dlite
 from dlite.utils import pydantic_to_metadata, pydantic_to_instance
+
+# Skip test if pydantic isn't installed
+try:
+    from pydantic import BaseModel, Field
+except ImportError:
+    import sys
+    sys.exit(44)
 
 
 class TransformationStatus(BaseModel):
