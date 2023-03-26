@@ -8,3 +8,4 @@ pint
 openpyxl
 pymongo
 tripper
+pydantic
