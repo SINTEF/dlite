@@ -5,7 +5,10 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-import psycopg2
+try:
+    import psycopg2
+except ImportError:
+    sys.exit(44)
 from psycopg2 import sql
 
 import dlite
@@ -20,7 +23,7 @@ if __name__ in ('__main__', '<run_path>'):
     input_path = thisdir / 'input'
     dlite_path = thisdir.parent.parent.parent
     plugin = thisdir.parent / 'python-storage-plugins/postgresql.py'
-    
+
     try:
         with open(plugin, 'r') as orig:
             lines = orig.read().splitlines(keepends=True)
@@ -39,27 +42,27 @@ if __name__ in ('__main__', '<run_path>'):
             # and text files containing the desired commands:
             # 1: '/input/postgresql_test_meta_save.txt'
             # 2: '/input/postgresql_test_data_save.txt'
-            
+
             df = '    def '
             ind8 = '        ' # Indent of 8 spaces
             open_start = lines.index(df + 'open(self, uri, options=None):\n')
             close_start = lines.index(df + 'close(self):\n')
             load_start = lines.index(df + 'load(self, uuid):\n')
             save_start = lines.index(df + 'save(self, inst):\n')
-            
+
             # open(): Don't connect to server - read 'uri' instead
             lines[open_start + 1] = ind8 + 'self.data = open_pgsql(uri)\n'
             lines[open_start + 2] = ind8 + 'self.d = {}\n'
-            
+
             # close(): Don't disconnect from server - just pass
             lines[close_start + 1] = ind8 + 'pass\n'
-            
+
             # load(): Don't access server - read from self.data
             lines[load_start + 3] = ind8 + 'self.d[uuid] = ' \
                 + 'load_pgsql(self.data, uuid, ["L", "M", "N"])\n'
             lines[load_start + 4] = ind8 \
                 + 'return instance_from_dict(self.d[uuid])\n'
-            
+
             # save(): Don't write to database, but compare the writing
             # commands to the commands in the database dump file
             n = save_start + 2
@@ -73,7 +76,7 @@ if __name__ in ('__main__', '<run_path>'):
                     lines[n + 1] = '\n'
                 n += 1
             lines[n - 1] = ind8 + 'return ret\n'
-            
+
             del lines[(load_start + 5):(save_start - 1)]
             del lines[(close_start + 2):(load_start - 1)]
             del lines[(open_start + 3):(close_start - 1)]
@@ -81,12 +84,12 @@ if __name__ in ('__main__', '<run_path>'):
                 + 'load_pgsql, extract_exec_args\n' + str().join(lines)
             s = s.replace('class postgresql', 'class dlite_postgresql')
         exec(s)
-        
+
         # Load JSON metadata
         with open(dlite_path / 'src/tests/test-entity.json', 'r') as f:
             json_dict1 = json.load(f)
         json_dict1 = instance_from_dict(json_dict1).asdict()
-        
+
         # Test loading PostgreSQL metadata
         postgresql_inst1 = dlite_postgresql()
         postgresql_inst1.open(input_path / 'test_meta.pgsql')
@@ -96,7 +99,7 @@ if __name__ in ('__main__', '<run_path>'):
             print('...Loading metadata ok!')
         else:
             raise ValueError('...Loading metadata failed!')
-        
+
         # Test saving PostgreSQL metadata
         with open(input_path / 'postgresql_test_meta_save.txt', 'r') as f:
             sql_dict = ast.literal_eval(f.read())
@@ -105,7 +108,7 @@ if __name__ in ('__main__', '<run_path>'):
             print('...Saving metadata ok!')
         else:
             raise ValueError('...Saving metadata failed!')
-        
+
         # Load JSON data
         with open(dlite_path / 'src/tests/test-data.json', 'r') as f:
             json_data = f.readlines()
@@ -116,7 +119,7 @@ if __name__ in ('__main__', '<run_path>'):
         json_dict2 = json.loads('{' + ''.join(json_data[(n + 1):-1]))
         json_dict2['uuid'] = 'e076a856-e36e-5335-967e-2f2fd153c17d'
         json_dict2 = instance_from_dict(json_dict2).asdict()
-        
+
         # Test loading PostgreSQL data
         postgresql_inst2 = dlite_postgresql()
         postgresql_inst2.open(input_path / 'test_data.pgsql')
@@ -128,7 +131,7 @@ if __name__ in ('__main__', '<run_path>'):
             print('...Loading data ok!')
         else:
             raise ValueError('...Loading data failed!')
-        
+
         # Test saving PostgreSQL data
         with open(input_path / 'postgresql_test_data_save.txt', 'r') as f:
             data = f.read()
@@ -141,7 +144,7 @@ if __name__ in ('__main__', '<run_path>'):
             print('...Saving data ok!')
         else:
             raise ValueError('...Saving data failed!')
-        
+
         print(f'Test <{thisfile.name}> ran successfully')
     except Exception as err:
         if __name__ == '<run_path>':
@@ -152,10 +155,10 @@ else:
     def open_pgsql(uri):
         with open(uri, "r") as f:
             return f.read()
-    
+
     def load_pgsql(data, uuid, dims_keys=None):
         datalines = data.splitlines()
-        
+
         # Look for meta value for the given uuid
         line = 'COPY public.uuidtable (uuid, meta) FROM stdin;'
         n = datalines.index(line)
@@ -166,7 +169,7 @@ else:
                 meta = dataline.split('\t')[-1]
                 line_start = 'COPY public."' + meta + '" ('
                 break
-        
+
         # Look for the line that starts with line_start
         keys = None
         for dataline in datalines:
@@ -177,7 +180,7 @@ else:
                 break
             elif dataline.startswith(line_start):
                 keys = dataline[len(line_start):-13].split(', ')
-        
+
         d = {keys[k]: values[k] for k in range(len(keys))}
         metadata = False
         if 'dimensions' in d.keys():
@@ -216,14 +219,14 @@ else:
                         d['properties'][n][keys[m]] = single_prop[m]
                     elif m == 2 and dims:
                         d['properties'][n]['dims'] = dims
-            
+
         if metadata:
             del d['dims']
         else:
             # Data instance
             if 'uri' in d.keys() and d['uri'] == '\\N':
                 del d['uri']
-            
+
             # Identify types from meta
             line = 'CREATE TABLE public."' + meta + '" ('
             n = datalines.index(line) + 1
@@ -239,7 +242,7 @@ else:
             for t in types:
                 s = t.split(' ', 1)
                 type_dict[s[0]] = s[1]
-            
+
             # Check types (only those in test-entity.json, for now)
             prop = {}
             keep = {}
@@ -262,11 +265,11 @@ else:
                     prop[key] = d[key]
                 else:
                     keep[key] = d[key]
-            d = keep 
+            d = keep
             d['properties'] = prop
-        
+
         return d
-    
+
     def extract_exec_args(d, arg0, arg1):
         """Expected types:
           d: dict,

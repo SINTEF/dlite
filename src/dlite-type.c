@@ -67,6 +67,7 @@ static struct _TypeDescr {
   {"int16",    dliteInt,       2,                     alignof(int16_t)},
   {"int32",    dliteInt,       4,                     alignof(int32_t)},
   {"int64",    dliteInt,       8,                     alignof(int64_t)},
+  {"integer",  dliteInt,       8,                     alignof(int64_t)},
   {"uint",     dliteUInt,      sizeof(unsigned int),  alignof(unsigned int)},
   {"uint8",    dliteUInt,      1,                     alignof(uint8_t)},
   {"uint16",   dliteUInt,      2,                     alignof(uint16_t)},
