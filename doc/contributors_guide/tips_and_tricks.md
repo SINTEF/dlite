@@ -87,11 +87,12 @@ Copy its id and run
 
 This should start a new shell inside the container that the test was run it.
 
+
 Activate the virtual environment that was used to build DLite
 
     source /tmp/tmp.*/venv/bin/activate
 
-and run the tests manually
+and install final requirements manually
 
     cd /project/python/build
     pip install virtualenv -c /constraints.txt
@@ -107,7 +108,7 @@ Now we can run the Python tests with
 
     python /project/bindings/python/tests/test_python_bindings.py
 
-To run the C tests, do
+
 
 
 [virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
