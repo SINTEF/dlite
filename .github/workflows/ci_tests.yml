@@ -41,8 +41,7 @@ jobs:
           python3-pip \
           python3-dev \
           python3-numpy \
-          python3-yaml \
-          python3-psycopg2
+          python3-yaml
 
     - name: Install Python dependencies
       run: |
