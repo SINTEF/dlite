@@ -1,17 +1,18 @@
-from typing import Sequence, Mapping
 import json
+import sys
+from typing import Sequence, Mapping
 from typing import Dict, List, Optional
 
+# dataclasses is a rather new feature of Python, lets not require it...
 try:
-    # dataclasses is a rather new feature of Python, lets not require it...
     from dataclasses import dataclass, is_dataclass, asdict
 except:
     HAVE_DATACLASSES = False
 else:
     HAVE_DATACLASSES = True
 
+# pydantic is a third party library, lets not require it...
 try:
-    # pydantic is a third party library, lets not require it...
     from pydantic import BaseModel, AnyUrl
 except:
     HAVE_PYDANTIC = False
@@ -21,6 +22,16 @@ else:
 import numpy as np
 
 import dlite
+
+
+class MissingDependencyError(dlite.DLiteError):
+    """The feature you request requires installing an external package.
+
+    Install it with
+
+        pip install <package>
+    """
+    exit_code = 44
 
 
 class CannotInferDimensionError(dlite.DLiteError):
@@ -33,6 +44,18 @@ class InvalidNumberOfDimensionsError(dlite.DLiteError):
 
 class MetadataNotDefinedError(dlite.DLiteError):
     """Metadata is not found in the internal instance store."""
+
+
+def uncaught_exception_hook(exetype, value, trace):
+    """A exception hook that allows exceptions to define an
+    `exit_code` attribute that will make Python exit with that code if
+    the exception is uncaught.
+    """
+    oldhook(exetype, value, trace)
+    if hasattr(value, "exit_code"):
+        sys.exit(value.exit_code)
+
+sys.excepthook, oldhook = uncaught_exception_hook, sys.excepthook
 
 
 def instance_from_dict(d, id=None, single=None, check_storages=True):
@@ -186,153 +209,164 @@ def to_metadata(obj):
     return instance_from_dict(d)
 
 
-if HAVE_DATACLASSES:
-    def get_dataclass_entity_schema():
-        """Returns the datamodel for dataclasses in Python standard library."""
+def get_dataclass_entity_schema():
+    """Returns the datamodel for dataclasses in Python standard library."""
 
-        @dataclass
-        class Property:
-            type: str
-            dims: Optional[List[str]]
-            unit: Optional[str]
-            description: Optional[str]
+    if not HAVE_DATACLASSES:
+        raise MissingDependencyError("dataclasses")
 
-        @dataclass
-        class EntitySchema:
-            uri: str
-            description: Optional[str]
-            dimensions: Dict[str, str]
-            properties: Dict[str, Property]
+    @dataclass
+    class Property:
+        type: str
+        dims: Optional[List[str]]
+        unit: Optional[str]
+        description: Optional[str]
 
-        return EntitySchema
+    @dataclass
+    class EntitySchema:
+        uri: str
+        description: Optional[str]
+        dimensions: Dict[str, str]
+        properties: Dict[str, Property]
+
+    return EntitySchema
 
 
-if HAVE_PYDANTIC:
+def pydantic_to_property(
+        name: str, propdict: dict,
+        dimensions: dict = None,
+        namespace="http://onto-ns.com/meta",
+        version="0.1",
+):
+    """Return a dlite property from a name and a pydantic property dict.
 
-    def pydantic_to_property(
-            name: str, propdict: dict,
-            dimensions: dict = None,
-            namespace="http://onto-ns.com/meta",
-            version="0.1",
-    ):
-        """Return a dlite property from a name and a pydantic property dict.
+    If `dimensions` is given, new dimensions from array properties will
+    be added to it.
+    """
+    if not HAVE_PYDANTIC:
+        raise MissingDependencyError("pydantic")
 
-        If `dimensions` is given, new dimensions from array properties will
-        be added to it.
-        """
-        # Map simple pydantic types to corresponding dlite types
-        simple_types = dict(boolean="bool", integer="int64", number="float64",
-                            string="string")
+    # Map simple pydantic types to corresponding dlite types
+    simple_types = dict(boolean="bool", integer="int64", number="float64",
+                        string="string")
 
-        if dimensions is None:
-            dimensions = {}
-
-        ptype = propdict.get("type", "ref")
-        unit = propdict.get("unit")
-        descr = propdict.get("description")
-
-        if ptype in simple_types:
-            return dlite.Property(
-                name, simple_types[ptype], unit=unit, description=descr
-            )
-
-        if ptype == "array":
-            subprop = pydantic_to_property("tmp", propdict["items"])
-            shape = propdict.get("shape", [f"n{name}"])
-            for dim in shape:
-                dimensions.setdefault(dim, f"Number of {dim}.")
-            return dlite.Property(
-                name, subprop.type, ref=subprop.ref, dims=shape,
-                unit=unit, description=descr,
-            )
-
-        if ptype == "ref":
-            refname = propdict['$ref'].rsplit('/', 1)[-1]
-            ref = f"{namespace}/{version}/{refname}"
-            prop = dlite.Property(
-                name, "ref", ref=ref, unit=unit, description=descr
-            )
-            return prop
-
-        raise ValueError(f"unsupported pydantic type: {ptype}")
-
-    def pydantic_to_metadata(
-            model,
-            uri=None,
-            default_namespace="http://onto-ns.com/meta",
-            default_version="0.1",
-            metaid=dlite.ENTITY_SCHEMA,
-    ):
-        """Create a new dlite metadata from a pydantic model.
-
-        Arguments:
-            model: A pydantic model or an instance of one to create the
-                new metadata from.
-            uri: URI of the created metadata.  If not given, it is
-                inferred from `default_namespace`, `default_version` and
-                the title of the model schema.
-            default_namespace: Default namespace used if `uri` is None.
-            default_version: Default version used if `uri` is None.
-            metaid: Metadata for the created metadata.  Defaults to
-                dlite.ENTITY_SCHEMA.
-        """
-        d = model.schema()
-        if not uri:
-            uri = f"{default_namespace}/{default_version}/{d['title']}"
-
+    if dimensions is None:
         dimensions = {}
-        properties = []
-        for name, descr in d["properties"].items():
-            properties.append(pydantic_to_property(
-                name, descr, dimensions, default_namespace, default_version))
-        dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
-        return dlite.Instance.create_metadata(
-            uri, dims, properties,
-            d.get("description", ""),
+
+    ptype = propdict.get("type", "ref")
+    unit = propdict.get("unit")
+    descr = propdict.get("description")
+
+    if ptype in simple_types:
+        return dlite.Property(
+            name, simple_types[ptype], unit=unit, description=descr
         )
 
-    def pydantic_to_instance(meta, pydinst):
-        """Return a new dlite instance from a pydantic instance `pydinst`."""
-        d = pydinst if isinstance(pydinst, dict) else pydinst.dict()
-        meta = dlite.get_instance(meta)
-        dimensions = infer_dimensions(meta, d)
-        inst = meta(dimensions)
+    if ptype == "array":
+        subprop = pydantic_to_property("tmp", propdict["items"])
+        shape = propdict.get("shape", [f"n{name}"])
+        for dim in shape:
+            dimensions.setdefault(dim, f"Number of {dim}.")
+        return dlite.Property(
+            name, subprop.type, ref=subprop.ref, dims=shape,
+            unit=unit, description=descr,
+        )
 
-        def getval(p, v):
-            if p.type == 'ref':
-                if dlite.has_instance(p.ref):
-                    submeta = dlite.get_instance(p.ref)
-                    return pydantic_to_instance(submeta, v)
-                else:
-                    raise MetadataNotDefinedError(p.ref)
+    if ptype == "ref":
+        refname = propdict['$ref'].rsplit('/', 1)[-1]
+        ref = f"{namespace}/{version}/{refname}"
+        prop = dlite.Property(
+            name, "ref", ref=ref, unit=unit, description=descr
+        )
+        return prop
+
+    raise ValueError(f"unsupported pydantic type: {ptype}")
+
+def pydantic_to_metadata(
+        model,
+        uri=None,
+        default_namespace="http://onto-ns.com/meta",
+        default_version="0.1",
+        metaid=dlite.ENTITY_SCHEMA,
+):
+    """Create a new dlite metadata from a pydantic model.
+
+    Arguments:
+        model: A pydantic model or an instance of one to create the
+            new metadata from.
+        uri: URI of the created metadata.  If not given, it is
+            inferred from `default_namespace`, `default_version` and
+            the title of the model schema.
+        default_namespace: Default namespace used if `uri` is None.
+        default_version: Default version used if `uri` is None.
+        metaid: Metadata for the created metadata.  Defaults to
+            dlite.ENTITY_SCHEMA.
+    """
+    if not HAVE_PYDANTIC:
+        raise MissingDependencyError("pydantic")
+
+    d = model.schema()
+    if not uri:
+        uri = f"{default_namespace}/{default_version}/{d['title']}"
+
+    dimensions = {}
+    properties = []
+    for name, descr in d["properties"].items():
+        properties.append(pydantic_to_property(
+            name, descr, dimensions, default_namespace, default_version))
+    dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
+    return dlite.Instance.create_metadata(
+        uri, dims, properties,
+        d.get("description", ""),
+    )
+
+def pydantic_to_instance(meta, pydinst):
+    """Return a new dlite instance from a pydantic instance `pydinst`."""
+    if not HAVE_PYDANTIC:
+        raise MissingDependencyError("pydantic")
+
+    d = pydinst if isinstance(pydinst, dict) else pydinst.dict()
+    meta = dlite.get_instance(meta)
+    dimensions = infer_dimensions(meta, d)
+    inst = meta(dimensions)
+
+    def getval(p, v):
+        if p.type == 'ref':
+            if dlite.has_instance(p.ref):
+                submeta = dlite.get_instance(p.ref)
+                return pydantic_to_instance(submeta, v)
             else:
-                return v
+                raise MetadataNotDefinedError(p.ref)
+        else:
+            return v
 
-        for k, v in d.items():
-            p = inst.get_property_descr(k)
-            if p.ndims:
-                inst[k] = [getval(p, w) for w in v]
-            else:
-                inst[k] = getval(p, v)
+    for k, v in d.items():
+        p = inst.get_property_descr(k)
+        if p.ndims:
+            inst[k] = [getval(p, w) for w in v]
+        else:
+            inst[k] = getval(p, v)
 
-        return inst
+    return inst
 
-    def get_pydantic_entity_schema():
-        """Returns the datamodel for dataclasses in Python standard library."""
+def get_pydantic_entity_schema():
+    """Returns the datamodel for dataclasses in Python standard library."""
+    if not HAVE_PYDANTIC:
+        raise MissingDependencyError("pydantic")
 
-        class Property(BaseModel):
-            type: str
-            dims: Optional[List[str]]
-            unit: Optional[str]
-            description: Optional[str]
+    class Property(BaseModel):
+        type: str
+        dims: Optional[List[str]]
+        unit: Optional[str]
+        description: Optional[str]
 
-        class EntitySchema(BaseModel):
-            uri: AnyUrl
-            description: Optional[str]
-            dimensions: Dict[str, str]
-            properties: Dict[str, Property]
+    class EntitySchema(BaseModel):
+        uri: AnyUrl
+        description: Optional[str]
+        dimensions: Dict[str, str]
+        properties: Dict[str, Property]
 
-        return EntitySchema
+    return EntitySchema
 
 
 def get_package_paths():
