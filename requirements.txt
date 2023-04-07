@@ -1,8 +1,8 @@
 fortran-language-server
 numpy
 PyYAML
-# psycopg2-binary leads to segfault - fallback to non-binary version
-psycopg2 --no-binary psycopg2
+# psycopg2-binary leads to segfault - comment it out for now...
+#psycopg2-binary
 pandas
 rdflib
 pint
