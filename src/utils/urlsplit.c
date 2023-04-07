@@ -219,7 +219,7 @@ int urljoin(char *buf, long size, UrlComponents *components)
 
   /* authority */
   if (c->host && c->host_len > 0) {
-    n += strset(buf+n, size-n, "//");
+    n += strsets(buf+n, size-n, "//");
     if (c->userinfo && c->userinfo_len > 0) {
       if ((m = pct_xencode(buf+n, size-n, c->userinfo, c->userinfo_len,
                            strcatSubDelims, ":")) < 0)
@@ -235,7 +235,7 @@ int urljoin(char *buf, long size, UrlComponents *components)
       n += strsetn(buf+n, size-n, c->port, c->port_len);
     }
   } else if (c->authority && c->authority_len) {
-    n += strset(buf+n, size-n, "//");
+    n += strsets(buf+n, size-n, "//");
     if ((m = pct_xencode(buf+n, size-n, c->authority, c->authority_len,
                          strcatSubDelims, ":@")) < 0)
       return -1;

@@ -69,7 +69,7 @@ int strsetc(char *dest, long size, int c);
   Returns number of bytes written to `dest` or the number of bytes that
   would have been written to `dest` if it had been large enough.
  */
-int strset(char *dest, long size, const char *src);
+int strsets(char *dest, long size, const char *src);
 
 /**
   Like strset(), but copies at most `len` bytes from `src`.

@@ -56,20 +56,20 @@ MU_TEST(test_strsetc)
 }
 
 
-MU_TEST(test_strset)
+MU_TEST(test_strsets)
 {
   char buf[5];
   int n;
 
-  n = strset(buf, sizeof(buf), "abcdef");
+  n = strsets(buf, sizeof(buf), "abcdef");
   mu_assert_int_eq(6, n);
   mu_assert_string_eq("abcd", buf);
 
-  n = strset(buf, sizeof(buf), "a=Å");
+  n = strsets(buf, sizeof(buf), "a=Å");
   mu_assert_int_eq(4, n);
   mu_assert_string_eq("a=Å", buf);
 
-  n = strset(buf, 4, "a=Å");
+  n = strsets(buf, 4, "a=Å");
   mu_assert_int_eq(4, n);
   mu_assert_string_eq("a=", buf);
 }
@@ -371,7 +371,7 @@ MU_TEST(test_strcatspn)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_strsetc);
-  MU_RUN_TEST(test_strset);
+  MU_RUN_TEST(test_strsets);
   MU_RUN_TEST(test_strnput);
   MU_RUN_TEST(test_strnput_escape);
   MU_RUN_TEST(test_strquote);
