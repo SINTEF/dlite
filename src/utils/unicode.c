@@ -162,7 +162,7 @@ int utf8encode(long value, char *output)
   {
     if (output)
     {
-      output[0] = value;
+      output[0] = (char)value;
       output[1] = 0;  /* NULL terminator. */
     }
     return 1;

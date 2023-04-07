@@ -38,7 +38,7 @@ static int jspn(const char *s, StrCategory cat, int pct, const char *accept)
     prev = n;
     n += strcatjspn(s+n, cat);
     if (pct) n += percent_encoded(s+n);
-    n += strspn(s+n, accept);
+    n += (int)strspn(s+n, accept);
   } while (n > prev);
   return n;
 }
@@ -95,7 +95,7 @@ int urlsplitn(const char *url, int len, UrlComponents *components)
 {
   int n=0;
   if (len == 0) return 0;
-  if (len < 0) len = strlen(url);
+  if (len < 0) len = (int)strlen(url);
   if (components) memset(components, 0, sizeof(UrlComponents));
 
   /* check scheme */
@@ -113,15 +113,16 @@ int urlsplitn(const char *url, int len, UrlComponents *components)
 
   /* check authority */
   if (url[n] == '/' && url[n+1] == '/') {
-    int k, authlen=strcspn(url+n+2, "/?#");
+    int k, authlen=(int)strcspn(url+n+2, "/?#");
     n += 2;
     if (components) components->authority = url+n;
-    if ((k = strcspn(url+n, "@")) > 0 && k > 0 && k < authlen) {
+    if ((k = (int)strcspn(url+n, "@")) > 0 && k > 0 && k < authlen) {
       /* userinfo */
       assert(url[n+k] == '@');
       if (components) components->userinfo = url+n;
       n += jspn(url+n, strcatSubDelims, 1, ":");
-      if (components) components->userinfo_len = url+n - components->userinfo;
+      if (components) components->userinfo_len =
+                        (int)(url+n - components->userinfo);
       if (url[n++] != '@') return 0;
     }
     /* host */
@@ -144,15 +145,16 @@ int urlsplitn(const char *url, int len, UrlComponents *components)
       /* host (IPv4 or name) */
       n += jspn(url+n, strcatSubDelims, 1, "");
     }
-    if (components) components->host_len = url+n - components->host;
+    if (components) components->host_len = (int)(url+n - components->host);
     if (url[n] == ':') {
       /* port */
       n++;
       if (components) components->port = url+n;
       n += strcatspn(url+n, strcatDigit);
-      if (components) components->port_len = url+n - components->port;
+      if (components) components->port_len = (int)(url+n - components->port);
     }
-    if (components) components->authority_len = url+n - components->authority;
+    if (components) components->authority_len =
+                      (int)(url+n - components->authority);
     /* RFC 3986: If a URI contains an authority component, then the
        path component must either be empty or begin with a slash ("/")
        character. */
@@ -165,7 +167,7 @@ int urlsplitn(const char *url, int len, UrlComponents *components)
   if (components) components->path = url+n;
   n += jspn(url+n, strcatSubDelims, 1, "/:@");
   if (len > 0 && n >= len) n = len;
-  if (components) components->path_len = url+n - components->path;
+  if (components) components->path_len = (int)(url+n - components->path);
   if (len > 0 && n >= len) return len;
 
   /* check query */
@@ -174,7 +176,7 @@ int urlsplitn(const char *url, int len, UrlComponents *components)
     if (components) components->query = url+n;
     n += jspn(url+n, strcatSubDelims, 1, "/?:@");
     if (len > 0 && n >= len) n = len;
-    if (components) components->query_len = url+n - components->query;
+    if (components) components->query_len = (int)(url+n - components->query);
     if (len > 0 && n >= len) return len;
   }
 
@@ -184,7 +186,8 @@ int urlsplitn(const char *url, int len, UrlComponents *components)
     if (components) components->fragment = url+n;
     n += jspn(url+n, strcatSubDelims, 1, "/?:@");
     if (len > 0 && n >= len) n = len;
-    if (components) components->fragment_len = url+n - components->fragment;
+    if (components) components->fragment_len =
+                      (int)(url+n - components->fragment);
     if (len > 0 && n >= len) return len;
   }
 
