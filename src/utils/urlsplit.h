@@ -50,12 +50,20 @@ typedef struct {
 
 
 /**
-  Returns the length of the initial segment of `url` that correspond
-  to a valid URL.
+  Returns non-zero if `url` is a valid URL.
 
-  Hence, non-zero is returned if `url` corresponds to a valid URL.
+  Note: If `url` starts with an upper case letter followed by colon
+  (e.g. "C:"), then it is interpreted as a Windows drive and not an
+  URL.
  */
 int isurl(const char *url);
+
+/**
+  Like isurl(), but only considers the first `len` bytes of `url`.
+
+  If `len` is negative, all of `url` is checked.
+ */
+int isurln(const char *url, int len);
 
 
 /**

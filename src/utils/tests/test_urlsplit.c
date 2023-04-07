@@ -8,6 +8,22 @@
 #include "minunit/minunit.h"
 
 
+MU_TEST(test_isurl)
+{
+  mu_check(isurl("http://example.com/"));
+  mu_check(isurl("http://example.com"));
+  mu_check(isurl("http://xn--fsqu00a.xn--3lr804guic/"));
+  mu_check(isurl("file:///home/user/.bashrc"));
+  mu_check(isurl(
+    "mongodb+srv://softcluster.4wryr.mongodb.net/?retryWrites=true&w=majority"
+  ));
+  mu_assert_int_eq(0, isurl("ls"));
+  mu_assert_int_eq(0, urlsplit("", NULL));
+  mu_assert_int_eq(0, urlsplitn("", 1, NULL));
+  mu_assert_int_eq(0, isurl(""));
+}
+
+
 MU_TEST(test_urlsplit)
 {
   char *url, buf[256];
@@ -227,6 +243,7 @@ MU_TEST(test_pct_decode)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_isurl);
   MU_RUN_TEST(test_urlsplit);
   MU_RUN_TEST(test_pct_encode);
   MU_RUN_TEST(test_pct_decode);

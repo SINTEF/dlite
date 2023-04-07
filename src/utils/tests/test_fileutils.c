@@ -12,6 +12,7 @@
 
 FUDir *dir;
 
+
 MU_TEST(test_fu_isabs)
 {
   mu_assert_int_eq(1, fu_isabs("/"));
@@ -21,18 +22,6 @@ MU_TEST(test_fu_isabs)
   mu_assert_int_eq(0, fu_isabs(""));
 }
 
-MU_TEST(test_fu_isurl)
-{
-  mu_assert_int_eq(1, fu_isurl("http://example.com/"));
-  mu_assert_int_eq(1, fu_isurl("http://example.com"));
-  mu_assert_int_eq(1, fu_isurl("http://xn--fsqu00a.xn--3lr804guic/"));
-  mu_assert_int_eq(1, fu_isurl("file:///home/user/.bashrc"));
-  mu_assert_int_eq(1, fu_isurl(
-    "mongodb+srv://softcluster.4wryr.mongodb.net/?retryWrites=true&w=majority"
-  ));
-  mu_assert_int_eq(0, fu_isurl("ls"));
-  mu_assert_int_eq(0, fu_isurl(""));
-}
 
 MU_TEST(test_fu_join)
 {
@@ -488,7 +477,6 @@ MU_TEST(test_fu_pathsiter)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_fu_isabs);
-  MU_RUN_TEST(test_fu_isurl);
   MU_RUN_TEST(test_fu_join);
   MU_RUN_TEST(test_fu_lastsep);
   MU_RUN_TEST(test_fu_dirname);

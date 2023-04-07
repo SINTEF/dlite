@@ -1,7 +1,7 @@
 #!/usr/bin/sh
 
 
-set -e
+set -ex
 rootdir="$(git rev-parse --show-toplevel)"
 thisdir="${rootdir}/examples/entity_service"
 servdir="${thisdir}/dlite-entities-service"

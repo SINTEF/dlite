@@ -44,14 +44,28 @@ static int jspn(const char *s, StrCategory cat, int pct, const char *accept)
 }
 
 /*
-  Returns the length of the initial segment of `url` that correspond
-  to a valid URL.
+  Returns non-zero if `url` is a valid URL.
 
-  Hence, non-zero is returned if `url` corresponds to a valid URL.
+  Note: If `url` starts with an upper case letter followed by colon
+  (e.g. "C:"), then it is interpreted as a Windows drive and not an
+  URL.
  */
 int isurl(const char *url)
 {
-  return urlsplitn(url, -1, NULL);
+  return isurln(url, -1);
+}
+
+
+/*
+  Like isurl(), but only considers the first `len` bytes of `url`.
+
+  If `len` is negative, all of `url` is checked.
+ */
+int isurln(const char *url, int len)
+{
+  int n = (len < 0) ? (int)strlen(url) : len;
+  if (n >= 2 && isupper(url[0]) && url[1] == ':') return 0;
+  return (n > 0 && urlsplitn(url, n, NULL) == n) ? 1 : 0;
 }
 
 

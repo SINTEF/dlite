@@ -173,97 +173,6 @@ int fu_isabs(const char *path)
   return 0;
 }
 
-/*
-  Returns non-zero if `path` is a valid url.
- */
-int fu_isurl(const char *path)
-{
-  return fu_isurln(path, -1);
-}
-
-/*
-  Returns non-zero if the first `len` characters of `path` is a valid url.
-  If `len` is negative, the full `path` is checked.
- */
-int fu_isurln(const char *path, int len)
-{
-  int n=0, nprev;
-
-  /* check scheme */
-  n += strcatjspn(path+n, strcatLower);
-  if (!n) return 0;
-  do {
-    nprev = n;
-    n += strcatjspn(path+n, strcatDigit);
-    n += strspn(path+n, "+.-");
-  } while (n > nprev);
-  if (path[n++] != ':') return 0;
-
-  /* check authority */
-  if (path[n] == '/' && path[n+1] == '/') {
-    n += 2;
-    if (strchr(path+n, '@')) {
-      /* userinfo */
-      n += strcatjspn(path+n, strcatUnreserved);
-      if (path[n] == ':') {
-        n++;
-        n += strcspn(path+n, "@");
-      }
-      if (path[n] != '@') return 0;
-    }
-    if (path[n] == '[') {
-      /* IPv6 host */
-      while (isxdigit(path[n]) || path[n] == ':') n++;
-      if (path[n++] != ']') return 0;
-    } else {
-      /* host (IPv4 or name) */
-      n += strcatjspn(path+n, strcatUnreserved);
-    }
-    if (path[n] == ':') {
-      /* port */
-      n++;
-      n += strcatspn(path+n, strcatDigit);
-    }
-  } else {
-    /* path must start with slash if authority is not defined */
-    if (path[n] != '/') return 0;
-  }
-
-  /* check path */
-  do {
-    nprev = n;
-    n += strcatjspn(path+n, strcatUnreserved);
-    n += strspn(path+n, "/");
-  } while (n > nprev);
-  if (len >= 0 && n >= len) return 1;
-
-  /* check query */
-  if (path[n] == '?') {
-    n++;
-    do {
-      if (path[n] == '&' || path[n] == ';') n ++;
-      n += strcatjspn(path+n, strcatUnreserved);
-      if (path[n++] != '=') return 0;
-      do {
-        nprev = n;
-        n += strcatjspn(path+n, strcatReserved);
-        n += strspn(path+n, "!$'()*+,=");
-      } while (n > nprev);
-    } while (path[n] == '&' || path[n] == ';');
-  }
-  if (len >= 0 && n >= len) return 1;
-
-  /* check fragment */
-  if (path[n] == '#') {
-    n++;
-    n += strcatjspn(path+n, strcatPercent);
-  }
-  if (len >= 0 && n >= len) return 1;
-
-  if (path[n]) return 0;
-  return 1;
-}
-
 
 /*
   Joins a set of pathname components, inserting '/' as needed.  The
@@ -554,7 +463,7 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
   }
   while ((p = fu_nextpath(path, &endptr, pathsep))) {
     int len = endptr - p;
-    if (fu_isurln(p, len)) {
+    if (isurln(p, len)) {
       strncpy(dest+n, p, len);
       n += len;
     } else {
@@ -607,7 +516,7 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
   while ((p = fu_nextpath(path, &endptr, pathsep))) {
     int len = endptr - p;
 
-    if (fu_isurln(p, len)) {
+    if (isurln(p, len)) {
       /* url */
       n += snprintf(dest+n, size-n, "%.*s", len, p);
     } else {

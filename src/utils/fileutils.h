@@ -127,16 +127,6 @@ const char *fu_linesep(FUPlatform platform);
 */
 int fu_isabs(const char *path);
 
-/**
-  Returns non-zero if `path` is a valid url.
- */
-int fu_isurl(const char *path);
-
-/**
-  Returns non-zero if the first `len` characters of `path` is a valid url.
- */
-int fu_isurln(const char *path, int len);
-
 
 /**
   Joins a set of pathname components, inserting '/' as needed.  The
