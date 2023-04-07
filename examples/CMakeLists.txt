@@ -8,6 +8,7 @@ set(python_examples
   dehydrogenation
   mappings
   storage_plugin
+  entity_service
   )
 endif()
 
@@ -92,7 +93,7 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
           ${CMAKE_CURRENT_SOURCE_DIR}/${name}/main.py
       )
     set_property(TEST ${name} PROPERTY
-      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}${PATHSEP}$ENV{PATH}")
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
     if(NOT WIN32)

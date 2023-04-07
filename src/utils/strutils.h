@@ -27,15 +27,18 @@ typedef enum _StrquoteFlags {
 
 /** Character categories, from, RFC 3986 */
 typedef enum {
-  strcatUpper,       //!<  A-Z
-  strcatLower,       //!<  a-z
-  strcatDigit,       //!<  0-9
-  strcatUnreserved,  //!<  "-._~"  (in addition to upper + lower + digit)
-  strcatReserved,    //!<  ":/?#[]@"
-  strcatSpecific,    //!<  "!$&'()*+,;="
-  strcatPercent,     //!<  "%"
-  strcatOther,       //!<  anything else, except NUL
-  strcatNul,         //!<  NUL
+  strcatUpper,       //!< A-Z
+  strcatLower,       //!< a-z
+  strcatDigit,       //!< 0-9
+  strcatUnreserved,  //!< "-._~"  (in addition to upper + lower + digit)
+  strcatSubDelims,   //!< "!$&'()*+,;="
+  strcatGenDelims,   //!< ":/?#[]@"
+  strcatReserved,    //!< strcatSubDelims | strcatGenDelims
+  strcatPercent,     //!< "%"
+  strcatCExtra,      //!< "\"\\<>^{}|" (extra characters in the C standard)
+  strcatSpace,       //!< " \f\n\r\t\v"
+  strcatOther,       //!< anything else, except NUL
+  strcatNul,         //!< NUL
 } StrCategory;
 
 
@@ -45,6 +48,33 @@ typedef enum {
  */
 char *aprintf(const char *fmt, ...)
   __attribute__ ((__malloc__, __format__ (__printf__, 1, 2)));
+
+
+/**
+  Writes character `c` to buffer `dest` of size `size`.  If there is
+  space, the buffer will always be NUL-terminated.
+
+  Returns always 1 (number of characters written to `dest`, or would
+  have been written to `dest` if it had been large enough).
+ */
+int strsetc(char *dest, long size, int c);
+
+/**
+  Copies `src` to `dest`.
+
+  At most `size` bytes will be written to `dest`.
+  If `size` is larger than zero, `dest` will always be NUL-terminated.
+  No, partly UTF-8 code point will be written to dest.
+
+  Returns number of bytes written to `dest` or the number of bytes that
+  would have been written to `dest` if it had been large enough.
+ */
+int strset(char *dest, long size, const char *src);
+
+/**
+  Like strset(), but copies at most `len` bytes from `src`.
+ */
+int strsetn(char *dest, long size, const char *src, int len);
 
 
 /**
@@ -70,6 +100,20 @@ int strput(char **destp, size_t *sizep, size_t pos, const char *src);
   If `n` is negative, all of `src` will be copited.
  */
 int strnput(char **destp, size_t *sizep, size_t pos, const char *src, int n);
+
+
+/**
+  Like strnput(), but escapes all characters in categories larger than
+  `unescaped`, which should be less than `strcatOther`.
+
+  Escaped characters are written as `escape` followed by 2-character hex
+  representation of the character (byte) value.
+
+  Returns -1 on error.
+ */
+int strnput_escape(char **destp, size_t *sizep, size_t pos,
+                   const char *src, int len,
+                   StrCategory unescaped, const char *escape);
 
 
 /**

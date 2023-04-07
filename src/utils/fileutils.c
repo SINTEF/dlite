@@ -30,7 +30,9 @@
 #include "compat.h"
 #include "err.h"
 #include "globmatch.h"
+#include "strutils.h"
 #include "fileinfo.h"
+#include "urlsplit.h"
 #include "fileutils.h"
 
 /** Convenient macros for failing */
@@ -38,6 +40,9 @@
     err(1, msg); goto fail; } while (0)
 #define FAIL1(msg, a1) do { \
     err(1, msg, a1); goto fail; } while (0)
+
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 
 /* Paths iterator */
@@ -166,6 +171,97 @@ int fu_isabs(const char *path)
       (('a' <= path[0] && path[0] <= 'z') ||
        ('A' <= path[0] && path[0] <= 'Z'))) return 1;
   return 0;
+}
+
+/*
+  Returns non-zero if `path` is a valid url.
+ */
+int fu_isurl(const char *path)
+{
+  return fu_isurln(path, -1);
+}
+
+/*
+  Returns non-zero if the first `len` characters of `path` is a valid url.
+  If `len` is negative, the full `path` is checked.
+ */
+int fu_isurln(const char *path, int len)
+{
+  int n=0, nprev;
+
+  /* check scheme */
+  n += strcatjspn(path+n, strcatLower);
+  if (!n) return 0;
+  do {
+    nprev = n;
+    n += strcatjspn(path+n, strcatDigit);
+    n += strspn(path+n, "+.-");
+  } while (n > nprev);
+  if (path[n++] != ':') return 0;
+
+  /* check authority */
+  if (path[n] == '/' && path[n+1] == '/') {
+    n += 2;
+    if (strchr(path+n, '@')) {
+      /* userinfo */
+      n += strcatjspn(path+n, strcatUnreserved);
+      if (path[n] == ':') {
+        n++;
+        n += strcspn(path+n, "@");
+      }
+      if (path[n] != '@') return 0;
+    }
+    if (path[n] == '[') {
+      /* IPv6 host */
+      while (isxdigit(path[n]) || path[n] == ':') n++;
+      if (path[n++] != ']') return 0;
+    } else {
+      /* host (IPv4 or name) */
+      n += strcatjspn(path+n, strcatUnreserved);
+    }
+    if (path[n] == ':') {
+      /* port */
+      n++;
+      n += strcatspn(path+n, strcatDigit);
+    }
+  } else {
+    /* path must start with slash if authority is not defined */
+    if (path[n] != '/') return 0;
+  }
+
+  /* check path */
+  do {
+    nprev = n;
+    n += strcatjspn(path+n, strcatUnreserved);
+    n += strspn(path+n, "/");
+  } while (n > nprev);
+  if (len >= 0 && n >= len) return 1;
+
+  /* check query */
+  if (path[n] == '?') {
+    n++;
+    do {
+      if (path[n] == '&' || path[n] == ';') n ++;
+      n += strcatjspn(path+n, strcatUnreserved);
+      if (path[n++] != '=') return 0;
+      do {
+        nprev = n;
+        n += strcatjspn(path+n, strcatReserved);
+        n += strspn(path+n, "!$'()*+,=");
+      } while (n > nprev);
+    } while (path[n] == '&' || path[n] == ';');
+  }
+  if (len >= 0 && n >= len) return 1;
+
+  /* check fragment */
+  if (path[n] == '#') {
+    n++;
+    n += strcatjspn(path+n, strcatPercent);
+  }
+  if (len >= 0 && n >= len) return 1;
+
+  if (path[n]) return 0;
+  return 1;
 }
 
 
@@ -356,7 +452,7 @@ char *fu_friendly_dirsep(char *path)
     - it is the second character in the path preceded by an alphabetic
       character and followed by forward or backward slash. Ex: C:\xxx..
     - it is preceded by only alphabetic characters and followed by
-      two foreard slashes and a alphabetic character.  Ex: http://xxx...
+      two forward slashes and a alphabetic character.  Ex: http://xxx...
 
   Repeated path separators will be treated as a single path separator.
 
@@ -458,12 +554,17 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
   }
   while ((p = fu_nextpath(path, &endptr, pathsep))) {
     int len = endptr - p;
-    if (globmatch("/[a-zA-Z]/*", p) == 0) {
-      n += snprintf(dest+n, size-n, "%c:\\%.*s", toupper(p[1]), len-3, p+3);
+    if (fu_isurln(p, len)) {
+      strncpy(dest+n, p, len);
+      n += len;
     } else {
-      n += snprintf(dest+n, size-n, "%.*s", len, p);
+      if (globmatch("/[a-zA-Z]/*", p) == 0) {
+        n += snprintf(dest+n, size-n, "%c:\\%.*s", toupper(p[1]), len-3, p+3);
+      } else {
+        n += snprintf(dest+n, size-n, "%.*s", len, p);
+      }
+      if (*endptr) n += snprintf(dest+n, size-n, ";");
     }
-    if (*endptr) n += snprintf(dest+n, size-n, ";");
   }
   for (q=dest; *q; q++) if (*q == '/') *q = '\\';
 
@@ -489,13 +590,15 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
   If `dest` is NULL, sufficient memory is allocated for performing the
   full convertion and a pointer to it is returned.
 
-  Returns NULL on error.
+  Returns a pointer to `dest` or NULL on error.
  */
 char *fu_unixpath(const char *path, char *dest, size_t size,
                   const char *pathsep)
 {
-  char *q, *d, *endptr=NULL;
+  char *endptr=NULL;
   const char *p;
+  char sep = (pathsep) ? (strchr(pathsep, ':')) ? ':' : pathsep[0] : ':';
+
   int n=0;
   if (!dest) {
     size = strlen(path) + 1;
@@ -503,24 +606,32 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
   }
   while ((p = fu_nextpath(path, &endptr, pathsep))) {
     int len = endptr - p;
-    if (len > 3 && isalpha(p[0]) && p[1] == ':' && strchr("\\/", p[2])) {
-      n += snprintf(dest+n, size-n, "/%c/%.*s", tolower(p[0]), len-3, p+3);
-    } else if (len > 2 && isalpha(p[0]) && p[1] == ':' &&
-               !strchr("\\/", p[2])) {
-      warn("relative path prefixed with drive: '%s'. Drive is ignored, "
-           "please use absolute paths in combination with drive", p);
-      n +=snprintf(dest+n, size-n, "%.*s", len-2, p+2);
-    } else {
-      n += snprintf(dest+n, size-n, "%.*s", len, p);
-    }
-    if (*endptr) n += snprintf(dest+n, size-n, ":");
-  }
-  for (q=dest; *q; q++) if (*q == '\\') *q = '/';
 
-  /* Remove repeated dirsep's */
-  for (d=q=dest; *q; d++, q++) {
-    while (*q == '/' && *(q+1) == '/') q++;
-    *d = *q;
+    if (fu_isurln(p, len)) {
+      /* url */
+      n += snprintf(dest+n, size-n, "%.*s", len, p);
+    } else {
+      /* path */
+      char *start=dest+n, *q, *d;
+      if (len > 3 && isalpha(p[0]) && p[1] == ':' && strchr("\\/", p[2])) {
+        n += snprintf(dest+n, size-n, "/%c/%.*s", tolower(p[0]), len-3, p+3);
+      } else if (len > 2 && isalpha(p[0]) && p[1] == ':' &&
+                 !strchr("\\/", p[2])) {
+        warn("relative path prefixed with drive: '%s'. Drive is ignored, "
+             "please use absolute paths in combination with drive", p);
+        n +=snprintf(dest+n, size-n, "%.*s", len-2, p+2);
+      } else {
+        n += snprintf(dest+n, size-n, "%.*s", len, p);
+      }
+      /* Convert backward to forward slashes and remove repeated dirsep's */
+      for (q=start; *q; q++) if (*q == '\\') *q = '/';
+      for (d=q=dest; *q; d++, q++) {
+        while (*q == '/' && *(q+1) == '/') q++, n--;
+        *d = *q;
+      }
+    }
+    /* add separator */
+    if (*endptr) n += snprintf(dest+n, size-n, "%c", sep);
   }
 
   return dest;
@@ -729,6 +840,7 @@ int fu_paths_init_sep(FUPaths *paths, const char *envvar, const char *pathsep)
   const char *p;
   char *endptr=NULL, *s = (envvar) ? getenv(envvar) : NULL;
   memset(paths, 0, sizeof(FUPaths));
+  if (pathsep) paths->pathsep = strdup(pathsep);
   paths->platform = fu_native_platform();
   while ((p = fu_nextpath(s, &endptr, pathsep)))
     fu_paths_appendn(paths, p, endptr - p);
@@ -751,6 +863,8 @@ FUPlatform fu_paths_set_platform(FUPaths *paths, FUPlatform platform)
   if (platform == paths->platform)
     return 0;
   paths->platform = platform;
+  if (paths->pathsep) free((void *)paths->pathsep);
+  paths->pathsep = strdup(fu_pathsep(platform));
 
   for (i=0; i < paths->n; i++) {
     const char *p = paths->paths[i];
@@ -786,6 +900,7 @@ void fu_paths_deinit(FUPaths *paths)
     for (n=0; n<paths->n; n++) free((char *)paths->paths[n]);
     free((void *)paths->paths);
   }
+  if (paths->pathsep) free((void *)(paths->pathsep));
   memset(paths, 0, sizeof(FUPaths));
 }
 
@@ -800,7 +915,8 @@ char *fu_paths_string(const FUPaths *paths)
 {
   size_t i, seplen, size=0;
   char *s, *string;
-  const char *pathsep = fu_pathsep(paths->platform);
+  const char *pathsep = (paths->pathsep) ?
+    paths->pathsep : fu_pathsep(paths->platform);
   seplen = strlen(pathsep);
   for (i=0; i<paths->n; i++) size += strlen(paths->paths[i]);
   size += (paths->n - 1) * seplen;
@@ -882,8 +998,8 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
   if (!fu_supported_platform(platform))
     FAIL1("unsupported platform: %d", platform);
   switch (platform) {
-  case fuUnix:     p = fu_unixpath(path, NULL, 0, NULL);  break;
-  case fuWindows:  p = fu_winpath(path, NULL, 0, NULL);   break;
+  case fuUnix:     p = fu_unixpath(path, NULL, 0, paths->pathsep);  break;
+  case fuWindows:  p = fu_winpath(path, NULL, 0, paths->pathsep);   break;
   default: assert(0);  // should never happen
   }
   if (!p) FAIL("allocation failure");
@@ -1113,11 +1229,29 @@ FUIter *fu_startmatch(const char *pattern, const FUPaths *paths)
 const char *fu_nextmatch(FUIter *iter)
 {
   const char *filename;
+  char *tmppath=NULL;
   char dirsep[2] = { iter->dirsep, 0 };
   if (iter->i >= iter->origlen) return NULL;
 
   while (iter->i < iter->origlen) {
+    UrlComponents comp;
     const char *path = iter->origpaths[iter->i];
+    tmppath = NULL;
+
+    if (urlsplit(path, &comp)) {
+      if (strncmp(comp.scheme, "file", comp.scheme_len) == 0) {
+        if (!(tmppath = strndup(comp.path, comp.path_len)))
+          FAIL("allocation failure");
+        path = (const char *)tmppath;
+      } else if (globmatch(iter->pattern, path) == 0) {
+        iter->i++;
+        return path;
+      } else {
+        iter->i++;
+        continue;
+      }
+    }
+
     if (!iter->dir) {
       if (iter->i >= iter->origlen) return NULL;
       if (!path[0]) path = ".";
@@ -1140,7 +1274,7 @@ const char *fu_nextmatch(FUIter *iter)
         if (n > iter->pathsize) {
           iter->pathsize = n;
           if (!(iter->path = realloc(iter->path, iter->pathsize)))
-            return err(1, "allocation failure"), NULL;
+            FAIL("allocation failure");
         }
         iter->filename = filename;
         strcpy(iter->path, path);
@@ -1157,7 +1291,11 @@ const char *fu_nextmatch(FUIter *iter)
       iter->i++;
       iter->dir = NULL;
     }
+    if (tmppath) free(tmppath);
+    tmppath = NULL;
   }
+ fail:
+  if (tmppath) free(tmppath);
   return NULL;
 }
 
@@ -1279,7 +1417,7 @@ const char *_fu_pathsiter_next(FUIter *iter)
     }
 
     /* Check if `path` is a glob pattern... */
-    if ((iter->globiter = fu_glob(path))) continue;
+    if ((iter->globiter = fu_glob(path, iter->paths->pathsep))) continue;
     assert(0);  /* this should never be reached */
   }
   return NULL;
@@ -1336,23 +1474,39 @@ int fu_pathsiter_deinit(FUIter *iter)
   Use fu_globnext() and fu_globend() to iterate over matching files
   and end iteration, respectively.
  */
-FUIter *fu_glob(const char *pattern)
+FUIter *fu_glob(const char *pattern, const char *pathsep)
 {
   FUIter *iter=NULL;
   FUPaths *paths=NULL;
   char *dirname=NULL, *basename=NULL;
+  UrlComponents comp;
+  int len = strlen(pattern);
   if (!(paths = malloc(sizeof(FUPaths)))) FAIL("allocation failure");
-  if (!(dirname = fu_dirname(pattern))) goto fail;
-  if (!(basename = fu_basename(pattern))) goto fail;
+  fu_paths_init_sep(paths, NULL, pathsep);
+  if (urlsplitn(pattern, len, &comp) == len) {
+    if (strncmp(comp.scheme, "file", comp.scheme_len) == 0) {
+      if (!(basename = fu_basename(comp.path))) goto fail;
+      if (!(dirname = fu_dirname(comp.path))) goto fail;
+    } else {
+      if (!(basename = strdup(pattern))) goto fail;
+      if (!(dirname = strdup(pattern))) goto fail;
+    }
+  } else {
+    if (!(basename = fu_basename(pattern))) goto fail;
+    if (!(dirname = fu_dirname(pattern))) goto fail;
+  }
   if (!*dirname) {
     free(dirname);
     dirname = strdup(".");
   }
-  fu_paths_init(paths, NULL);
   fu_paths_append(paths, dirname);
   iter = fu_startmatch(basename, paths);
  fail:
   if (dirname) free(dirname);
+  if (!iter) {
+    fu_paths_deinit(paths);
+    free(paths);
+  }
   return iter;
 }
 

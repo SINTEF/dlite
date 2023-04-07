@@ -74,11 +74,12 @@ typedef DIR FUDir;
 
 /** List of directory search pathes */
 typedef struct _FUPaths {
-  size_t n;             /*!< number of paths */
-  size_t size;          /*!< allocated number of paths */
+  size_t n;             /*!< Number of paths */
+  size_t size;          /*!< Allocated number of paths */
   const char **paths;   /*!< NULL-terminated array of pointers to paths */
-  FUPlatform platform;  /*!< platform that returned paths should confirm to,
+  FUPlatform platform;  /*!< Platform that returned paths should confirm to,
                              defaults to native */
+  const char *pathsep;  /*!< Path separator */
 } FUPaths;
 
 /** File matching iterator. */
@@ -125,6 +126,17 @@ const char *fu_linesep(FUPlatform platform);
   Returns non-zero if `path` is an absolute path.
 */
 int fu_isabs(const char *path);
+
+/**
+  Returns non-zero if `path` is a valid url.
+ */
+int fu_isurl(const char *path);
+
+/**
+  Returns non-zero if the first `len` characters of `path` is a valid url.
+ */
+int fu_isurln(const char *path, int len);
+
 
 /**
   Joins a set of pathname components, inserting '/' as needed.  The
@@ -202,7 +214,7 @@ char *fu_friendly_dirsep(char *path);
     - it is the second character in the path preceded by an alphabetic
       character and followed by forward or backward slash. Ex: 'C:\xxx'.
     - it is preceded by only alphabetic characters and followed by
-      two foreard slashes and a alphabetic character.  Ex: http://xxx...
+      two forward slashes and a alphabetic character.  Ex: http://xxx...
 
   Repeated path separators will be treated as a single path separator.
 
@@ -510,7 +522,7 @@ int fu_pathsiter_deinit(FUIter *iter);
   Use fu_globnext() and fu_globend() to iterate over matching files
   and end iteration, respectively.
  */
-FUIter *fu_glob(const char *pattern);
+FUIter *fu_glob(const char *pattern, const char *pathsep);
 
 /**
   Returns path to the next matching file.

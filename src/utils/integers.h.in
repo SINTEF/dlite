@@ -50,14 +50,18 @@
 #cmakedefine HAVE_INT128_T
 #cmakedefine HAVE___INT128_T
 
-
 #cmakedefine HAVE_LONG_LONG
+#cmakedefine HAVE_INTMAX_T
+#cmakedefine HAVE_UINTMAX_T
+#cmakedefine HAVE_UINTPTR_T
+#cmakedefine HAVE_PTRDIFF_T
 
 #define SIZEOF_CHAR       @SIZEOF_CHAR@
 #define SIZEOF_SHORT      @SIZEOF_SHORT@
 #define SIZEOF_INT        @SIZEOF_INT@
 #define SIZEOF_LONG       @SIZEOF_LONG@
 #define SIZEOF_LONG_LONG  @SIZEOF_LONG_LONG@
+#define SIZEOF_SIZE_T     @SIZEOF_SIZE_T@
 
 #include <stdlib.h>
 #ifdef HAVE_STDINT_H

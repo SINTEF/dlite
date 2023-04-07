@@ -21,6 +21,19 @@ MU_TEST(test_fu_isabs)
   mu_assert_int_eq(0, fu_isabs(""));
 }
 
+MU_TEST(test_fu_isurl)
+{
+  mu_assert_int_eq(1, fu_isurl("http://example.com/"));
+  mu_assert_int_eq(1, fu_isurl("http://example.com"));
+  mu_assert_int_eq(1, fu_isurl("http://xn--fsqu00a.xn--3lr804guic/"));
+  mu_assert_int_eq(1, fu_isurl("file:///home/user/.bashrc"));
+  mu_assert_int_eq(1, fu_isurl(
+    "mongodb+srv://softcluster.4wryr.mongodb.net/?retryWrites=true&w=majority"
+  ));
+  mu_assert_int_eq(0, fu_isurl("ls"));
+  mu_assert_int_eq(0, fu_isurl(""));
+}
+
 MU_TEST(test_fu_join)
 {
   char *s;
@@ -321,7 +334,7 @@ MU_TEST(test_fu_paths)
   mu_assert_int_eq(0, paths.n);
 
   mu_assert_int_eq(0, fu_paths_append(&paths, "/var/path1"));
-  mu_assert_int_eq(1, fu_paths_append(&paths, "C:\\users\\path2"));
+  mu_assert_int_eq(1, fu_paths_append(&paths, "\\c\\users\\path2"));
   mu_assert_int_eq(2, paths.n);
   mu_assert_int_eq(2, count_paths(&paths));
   mu_assert_string_eq("/var/path1", paths.paths[0]);
@@ -431,10 +444,23 @@ MU_TEST(test_fu_match)
 MU_TEST(test_fu_glob)
 {
   const char *p;
-  FUIter *iter = fu_glob("*");
+  FUIter *iter = fu_glob("*", "|");
   printf("\nFiles:\n");
   while ((p = fu_globnext(iter)))
     printf("  %s\n", p);
+  fu_globend(iter);
+
+  p = "postgresql://localhost:5432?user=guest";
+  iter = fu_glob(p, "|");
+  mu_assert_string_eq(p, fu_globnext(iter));
+  mu_assert_string_eq(NULL, fu_globnext(iter));
+  mu_assert_string_eq(NULL, fu_globnext(iter));
+  fu_globend(iter);
+
+#define DIR STRINGIFY(TESTDIR) "/../"
+  iter = fu_glob("file:" DIR "fileu*.c", "|");
+  mu_assert_string_eq(DIR "fileutils.c", fu_globnext(iter));
+  mu_assert_string_eq(NULL, fu_globnext(iter));
   fu_globend(iter);
 }
 
@@ -449,7 +475,6 @@ MU_TEST(test_fu_pathsiter)
   fu_paths_append(&paths, "tools/c*");
   fu_paths_append(&paths, "d*");
   iter = fu_pathsiter_init(&paths, "*.cmake");
-  //iter = fu_pathsiter_init(&paths, NULL);
   printf("\nCMake files:\n");
   while ((filename = fu_pathsiter_next(iter)))
     printf("  %s\n", filename);
@@ -463,6 +488,7 @@ MU_TEST(test_fu_pathsiter)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_fu_isabs);
+  MU_RUN_TEST(test_fu_isurl);
   MU_RUN_TEST(test_fu_join);
   MU_RUN_TEST(test_fu_lastsep);
   MU_RUN_TEST(test_fu_dirname);

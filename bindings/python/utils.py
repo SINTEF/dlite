@@ -50,8 +50,10 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         If `d` is in multi-entity form, `id` is used to select the
         instance to return.
     single: bool | None | "auto"
-        whether the dict is assumed to be in single-entity form
+        Whether the dict is assumed to be in single-entity form
         If `single` is None or "auto", the form is inferred.
+    check_storages: bool
+        Whether to check if the instance already exists in storages.
     """
     if single is None or single == 'auto':
         single = True if 'properties' in d else False
