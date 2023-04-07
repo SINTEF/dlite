@@ -6,7 +6,7 @@ from pathlib import Path
 
 import dlite
 
-from test_postgresql_write import parse_pgconf
+from test_postgresql1_write import parse_pgconf
 
 
 # Paths

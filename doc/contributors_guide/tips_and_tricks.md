@@ -87,7 +87,7 @@ Copy its id and run
 
 This should start a new shell inside the container that the test was run it.
 
-    cd /project/build
+    cd /project/python/build
 
 
 
