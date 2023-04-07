@@ -1,5 +1,6 @@
 import sys
 import re
+import socket
 from pathlib import Path
 
 import dlite
@@ -19,6 +20,8 @@ def parse_pgconf():
     rootdir = thisdir.parent.parent.parent
     pgconf = rootdir / 'storages/python/tests-c/pgconf.h'
     if not pgconf.exists():
+        print(f"No configuration file: {pgconf}")
+        print("For more info, see storages/python/README.md")
         sys.exit(44)
     regex = re.compile(r'^#define +(\w+) +"(\w+)"')
     with open(pgconf, 'rt') as f:
@@ -31,6 +34,22 @@ def parse_pgconf():
     keywords = 'host,user,database,password'.split(',')
     return tuple(d.get(key) for key in keywords)
 
+
+def ping_server(server="localhost", port=5432, timeout=3):
+    """Exit with code 44 if the server cannot be contacted."""
+    try:
+        socket.setdefaulttimeout(timeout)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((server, port))
+    except OSError as error:
+        print(f"Cannot contact PostgreSQL server on {localhost}:{port}")
+        sys.exit(44)
+    else:
+        s.close()
+
+
+# Check if postgresql server is running
+ping_server()
 
 # Add metadata to search path
 dlite.storage_path.append(f'{thisdir}/Person.json')

@@ -17,8 +17,8 @@ set(tests
   test_transaction
   test_mapping
   test_rdf
-  test_postgresql_write
-  test_postgresql_read
+  test_postgresql1_write
+  test_postgresql2_read
   test_ref_type
   )
 
