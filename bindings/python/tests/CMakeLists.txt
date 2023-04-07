@@ -46,5 +46,5 @@ foreach(test ${tests})
 endforeach()
 
 # Additional properties
-set_property(TEST test_postgresql_read-py PROPERTY
-  DEPENDS test_postgresql_write-py)
+set_property(TEST test_postgresql2_read-py PROPERTY
+  DEPENDS test_postgresql1_write-py)
