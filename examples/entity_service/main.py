@@ -8,6 +8,10 @@ if sys.platform.startswith("win"):
     print("Sorry, no idea of how to run services on Windows...")
     sys.exit(44)
 
+# It seems that we cannot start a docker in docker on GitHub.
+# For now, don't run this example as a test
+sys.exit(44)
+
 
 thisdir = Path(__file__).resolve().parent
 env = {var: os.environ[var] for var in ["PATH", "USER"]}
