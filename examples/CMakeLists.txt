@@ -105,7 +105,7 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
     set_property(TEST ${name} PROPERTY
-      SKIP_RETURN_CODE 77)
+      SKIP_RETURN_CODE 44)
   endforeach()
 
 endif()
