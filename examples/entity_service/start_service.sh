@@ -11,7 +11,8 @@ servdir="${thisdir}/dlite-entities-service"
 if ! [ -d "$servdir" ]; then
     echo "Clone dlite-entities-service"
     cd "$thisdir"
-    git clone git@github.com:CasperWA/dlite-entities-service.git
+    #git clone git@github.com:CasperWA/dlite-entities-service.git
+    git clone https://github.com/CasperWA/dlite-entities-service.git
 fi
 
 # Start the dlite-entity-service in a docker container

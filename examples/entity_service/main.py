@@ -4,6 +4,11 @@ import sys
 from pathlib import Path
 
 
+if sys.platform.startswith("win"):
+    print("Sorry, no idea of how to run services on Windows...")
+    sys.exit(44)
+
+
 thisdir = Path(__file__).resolve().parent
 
 subprocess.check_call(
