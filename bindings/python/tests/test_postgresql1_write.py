@@ -41,8 +41,8 @@ def ping_server(server="localhost", port=5432, timeout=3):
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((server, port))
-    except OSError as error:
-        print(f"Cannot contact PostgreSQL server on {localhost}:{port}")
+    except (OSError, ConnectionRefusedError) as exc:
+        print(f"Cannot contact PostgreSQL server on {localhost}:{port}: {exc}")
         sys.exit(44)
     else:
         s.close()
