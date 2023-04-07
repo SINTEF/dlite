@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 import dlite
-
+from check_import import check_import
 from test_postgresql1_write import parse_pgconf, ping_server
 
 
@@ -14,6 +14,7 @@ thisdir = Path(__file__).resolve().parent
 
 
 # Check if postgresql server is running
+check_import("psycopg2", skip=True)
 ping_server()
 
 # Add metadata to search path

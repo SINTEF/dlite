@@ -4,6 +4,7 @@ import socket
 from pathlib import Path
 
 import dlite
+from check_import import check_import
 
 
 # Paths
@@ -49,6 +50,7 @@ def ping_server(server="localhost", port=5432, timeout=3):
 
 
 # Check if postgresql server is running
+check_import("psycopg2", skip=True)
 ping_server()
 
 # Add metadata to search path
