@@ -53,7 +53,7 @@
 #cmakedefine HAVE_LONG_LONG
 #cmakedefine HAVE_INTMAX_T
 #cmakedefine HAVE_UINTMAX_T
-#cmakedefine HAVE_UINTPTR_T
+//#cmakedefine HAVE_UINTPTR_T  // Commented out because of conflicts on Windows
 #cmakedefine HAVE_PTRDIFF_T
 
 #define SIZEOF_CHAR       @SIZEOF_CHAR@
