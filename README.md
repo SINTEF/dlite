@@ -13,7 +13,16 @@ DLite
 DLite is a C implementation of the [SINTEF Open Framework and Tools
 (SOFT)][SOFT], which is a set of concepts and tools for using data
 models (aka Metadata) to efficiently describe and work with scientific
-data.  It is commonly used via its Python bindings.
+data.
+
+![DLite overview](doc/_static/overview.svg)
+
+The core of DLite is a framework for formalised representation of data
+described by data models (called Metadata or Entity in DLite).
+On top of this, DLite has a plugin system for various representations of
+the data in different formats and storages, as well as bindings to popular
+languages like Python, mappings to ontological concepts for enhanced
+semantics and a set of tools.
 
 
 Documentation

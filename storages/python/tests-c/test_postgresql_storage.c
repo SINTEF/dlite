@@ -30,7 +30,7 @@ MU_TEST(test_save)
   DLiteInstance *meta, *inst;
   size_t dims[] = {2};
   const char *name = "Ada";
-  float age = 42.;
+  double age = 42.;
   const char *skills[] = {"jumping", "hopping"};
   int n, i;
   char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests/*.json";

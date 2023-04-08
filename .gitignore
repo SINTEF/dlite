@@ -39,3 +39,6 @@ bindings/python/triplestore/__pycache__
 
 # Documentation
 pydoc/autoapi/
+
+# For connecting to a mongodb atlas instance
+mongodb-atlas_credentials.txt

@@ -13,6 +13,7 @@ User Guide
    tools
    code_generation
    storage_plugins
+   storage_plugins_mongodb-atlas
    environment_variables
    features
    vocabulary

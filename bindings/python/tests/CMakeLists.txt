@@ -17,8 +17,9 @@ set(tests
   test_transaction
   test_mapping
   test_rdf
-  test_postgresql_write
-  test_postgresql_read
+  test_postgresql1_write
+  test_postgresql2_read
+  test_ref_type
   )
 
 foreach(test ${tests})
@@ -45,5 +46,5 @@ foreach(test ${tests})
 endforeach()
 
 # Additional properties
-set_property(TEST test_postgresql_read-py PROPERTY
-  DEPENDS test_postgresql_write-py)
+set_property(TEST test_postgresql2_read-py PROPERTY
+  DEPENDS test_postgresql1_write-py)
