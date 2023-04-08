@@ -1,5 +1,5 @@
-## MinUnit
-
+MinUnit
+=======
 Minunit is a minimal unit testing framework for C/C++ self-contained in a
 single header file.
 
@@ -10,8 +10,9 @@ and time elapsed.
 Note that this project is based on:
 http://www.jera.com/techinfo/jtns/jtn002.html
 
-## How to use it
 
+How to use it
+-------------
 This is a minimal test suite written with minunit:
 
 ```c
@@ -54,29 +55,78 @@ gcc minunit_example.c -lrt -lm -o minunit_example
 Don't forget to add `-lrt` for the timer and `-lm` for linking the function `fabs`
 used in `mu_assert_double_eq`.
 
-## Setup and teardown functions
 
+Setup and teardown functions
+----------------------------
 One can define setup and teardown functions and configure the test suite to run
 them by using the macro `MU_SUITE_CONFIGURE` with within a `MU_TEST_SUITE`
 declaration.
 
-## Assertion types
+```c
+void setup()
+{
+  // do your setup here
+}
 
-`mu_check(condition)`: will pass if the condition is evaluated to `true`, otherwise
-it will show the condition as the error message
+void teardown()
+{
+  // do your teardown here
+}
 
-`mu_fail(message)`: will fail and show the message
+MU_TEST_SUITE(test_suite)
+{
+  MU_SUITE_CONFIGURE(setup, teardown);
+  MU_RUN_TEST(...);  // run your tests here
+}
 
-`mu_assert(condition, message)`: will pass if the condition is `true`, otherwise it
-will show the failed condition and the message
+int main(int argc, char *argv[]) {
+	MU_RUN_SUITE(test_suite);
+	MU_REPORT();
+	return MU_EXIT_CODE;
+}
+```
 
-`mu_assert_int_eq(expected, result)`: it will pass if the two numbers are
-equal or show their values as the error message
 
-`mu_assert_double_eq(expected, result)`: it will pass if the two values
-are almost equal or show their values as the error message. The value of
-`MINUNIT_EPSILON` sets the threshold to determine if the values are close enough.
+Assertions
+----------
+`mu_check(condition)`: Will pass if the condition is evaluated to
+`true`, otherwise it will show the condition as the error message.
 
-## Authors
+`mu_fail(message)`: Will fail and show the message.
 
+`mu_assert(condition, message)`: Will pass if the condition is `true`,
+otherwise it will show the failed condition and the message.
+
+`mu_assert_int_eq(expected, result)`: Will pass if the two numbers are
+equal or show their values as the error message.
+
+`mu_assert_double_eq(expected, result)`: Will pass if the two values
+are almost equal or show their values as the error message. The value
+of `MINUNIT_EPSILON` sets the threshold to determine if the values are
+close enough.
+
+`mu_assert_float_eq(expected, result)`: Like `mu_assert_double_eq()`, but
+expects that `expected` and `result` are floats instead.
+
+`mu_assert_string_eq(expected, result)`: Will pass if the two strings are equal
+or show their values as the error message.
+
+`mu_assert_strn_eq(expected, result, size)`: Will pass if the first
+`size` bytes of the two strings are equal or show their values as the
+error message.
+
+`mu_assert_ptr_eq(expected, result)`: Will pass if the two pointers are equal
+or show their values as the error message.
+
+
+
+Authors
+-------
 David Siñuela Pastor <siu.4coders@gmail.com>
+
+Modified by Jesper Friis, SINTEF
+
+
+License
+-------
+[MIT license](MIT_LICENSE.txt).

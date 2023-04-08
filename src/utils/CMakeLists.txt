@@ -237,6 +237,7 @@ check_type_size(short                     SIZEOF_SHORT)
 check_type_size(int                       SIZEOF_INT)
 check_type_size(long                      SIZEOF_LONG)
 check_type_size("long long"               SIZEOF_LONG_LONG)
+check_type_size(size_t                    SIZEOF_SIZE_T)
 
 configure_file(integers.h.in integers.h)
 
@@ -267,13 +268,16 @@ endif()
 set(sources
   compat.c
   err.c
+  unicode.c
   strutils.c
   fileinfo.c
   fileutils.c
+  urlsplit.c
   execprocess.c
   globmatch.c
   plugin.c
   map.c
+  clp2.c
   strtob.c
   tgen.c
   tmpfileplus.c

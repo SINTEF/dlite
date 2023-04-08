@@ -57,7 +57,7 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length);
 
 
 /*
-  Serialise instance `inst` to `dest`, formatted as JSON.
+  Help function for serialise instance `inst` to `dest`, formatted as JSON.
 
   No more than `size` bytes are written to `dest` (incl. the
   terminating NUL).
@@ -67,8 +67,8 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length);
   have been written if `size` was large enough is returned.  On error, a
   negative value is returned.
 */
-int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
-                      int indent, DLiteJsonFlag flags)
+int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
+                       int indent, DLiteJsonFlag flags)
 {
   DLiteTypeFlag f = dliteFlagQuoted;
   int n=0, ok=0, m, j;
@@ -240,6 +240,44 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
 
 
 /*
+  Serialise instance `inst` to `dest`, formatted as JSON.
+
+  No more than `size` bytes are written to `dest` (incl. the
+  terminating NUL).
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `size`, the number of bytes that would
+  have been written if `size` was large enough is returned.  On error, a
+  negative value is returned.
+*/
+int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
+                      int indent, DLiteJsonFlag flags)
+{
+  char *in=NULL;
+  int m, n=0;
+  if (flags & dliteJsonSingle) {
+    n = _dlite_json_sprint(dest, size, inst, indent, flags);
+  } else {
+    if (!(in = malloc(indent + 1))) FAIL("allocation failure");
+    memset(in, ' ', indent);
+    in[indent] = '\0';
+    PRINT1("%s{\n", in);
+    PRINT2("%s  \"%s\":", in,
+           (flags & dliteJsonUriKey && inst->uri) ? inst->uri : inst->uuid);
+    if ((m = _dlite_json_sprint(dest+n, PDIFF(size, n), inst, indent+2, flags)) < 0)
+      goto fail;
+    n += m;
+    PRINT1("\n%s}", in);
+    free(in);
+  }
+  return n;
+ fail:
+  if (in) free(in);
+  return -1;
+}
+
+
+/*
   Like dlite_json_sprint(), but prints to allocated buffer.
 
   Prints to position `pos` in `*dest`, which should point to a buffer
@@ -324,16 +362,7 @@ int dlite_json_printfile(const char *filename, const DLiteInstance *inst,
   int m;
   if (!(fp = fopen(filename, "wt")))
     return err(1, "cannot write json to \"%s\"", filename);
-
-  if (flags & dliteJsonSingle) {
-    m = dlite_json_fprint(fp, inst, 0, flags);
-  } else {
-    fprintf(fp, "{\n");
-    fprintf(fp, "  \"%s\":",
-            (flags & dliteJsonUriKey && inst->uri) ? inst->uri : inst->uuid);
-    m = dlite_json_fprint(fp, inst, 2, flags);
-    fprintf(fp, "}\n");
-  }
+  m = dlite_json_fprint(fp, inst, 0, flags);
   fclose(fp);
   return m;
 }
@@ -1159,7 +1188,8 @@ DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
 int dlite_jstore_add(JStore *js, const DLiteInstance *inst, DLiteJsonFlag flags)
 {
   char *buf;
-  if (!(buf = dlite_json_aprint(inst, 2, flags))) return -1;
+  if (!(buf = dlite_json_aprint(inst, 2, flags | dliteJsonSingle)))
+    return -1;
   return jstore_addstolen(js, inst->uuid, buf);
 }
 
