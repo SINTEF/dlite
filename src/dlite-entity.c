@@ -742,7 +742,7 @@ DLiteInstance *dlite_instance_get(const char *id)
     } else {
       /* ...otherwise it may be a glob pattern */
       FUIter *fiter;
-      if ((fiter = fu_glob(location))) {
+      if ((fiter = fu_glob(location, "|"))) {
         const char *path;
         while (!inst && (path = fu_globnext(fiter))) {
 	  driver = (char *)fu_fileext(path);
@@ -2524,16 +2524,19 @@ dlite_meta_create(const char *uri, const char *description,
   char *name=NULL, *version=NULL, *namespace=NULL;
   size_t dims[] = {ndimensions, nproperties};
 
-  if ((e = dlite_instance_get(uri))) {
+  if ((e = dlite_instance_has(uri, 0))) {
     DLiteMeta *meta = (DLiteMeta *)e;
     if (!dlite_instance_is_meta(e))
-      FAILCODE1(dliteMetadataExistError, "cannot create metadata \"%s\" since it already exists as a "
-            "non-metadata instance", uri);
+      FAILCODE1(dliteMetadataExistError,
+                "cannot create metadata \"%s\" since it already exists as a "
+                "non-metadata instance", uri);
     if (meta->_ndimensions != ndimensions ||
         meta->_nproperties != nproperties)
-      FAILCODE1(dliteMetadataExistError, "cannot create metadata \"%s\" since a different entity already "
-            "exists", uri);
+      FAILCODE1(dliteMetadataExistError,
+                "cannot create metadata \"%s\" since it already exists with "
+                "different number of dimensions and/or properties", uri);
     // TODO: check that dimensions and properties matches
+    dlite_meta_incref(meta);
     return meta;
   }
 

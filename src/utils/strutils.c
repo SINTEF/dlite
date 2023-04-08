@@ -4,13 +4,16 @@
  *
  * Distributed under terms of the MIT license.
  */
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 
+#include "integers.h"
 #include "compat.h"
+#include "clp2.h"
 #include "strutils.h"
 
 
@@ -28,6 +31,104 @@ char *aprintf(const char *fmt, ...)
   va_end(ap);
   return buf;
 }
+
+/*
+  Writes character `c` to buffer `dest` of size `size`.
+
+  If `c` is larger than 127 and a valid UTF-8 code point, it will only
+  be written if there is space enough to write out the code point fully.
+
+  If there is space, the buffer will always be NUL-terminated.
+
+  Returns always 1 (corresponding number of characters written to
+  `dest`, or would have been written to `dest` if it had been large
+  enough).
+ */
+int strsetc(char *dest, long size, int c)
+{
+  if (size >= 2) {
+    if (c < 0) {
+      /* This may happen if `c` is a character larger than 127 that is
+         casted to char. */
+      unsigned char v = (unsigned char)c;
+      if (v < 127)  // how did this happen?
+        dest[0] = v;
+      else if ((v & 0xc0) == 0x80)
+        dest[0] = v;
+      else if ((v & 0xe0) == 0xc0)
+        dest[0] = (size >= 3) ? v : '\0';
+      else if ((v & 0xf0) == 0xe0)
+        dest[0] = (size >= 4) ? v : '\0';
+      else if ((v & 0xf8) == 0xf0)
+        dest[0] = (size >= 5) ? v : '\0';
+      else
+        dest[0] = v;  // fallback - not utf-8 encoded
+    } else {
+      if (c <= 127)
+        dest[0] = c;
+      else if (c <= 255) {
+        if ((c & 0xc0) == 0x80)
+          dest[0] = c;
+        else if ((c & 0xe0) == 0xc0)
+          dest[0] = (size >= 3) ? c : '\0';
+        else if ((c & 0xf0) == 0xe0)
+          dest[0] = (size >= 4) ? c : '\0';
+        else if ((c & 0xf8) == 0xf0)
+          dest[0] = (size >= 5) ? c : '\0';
+        else
+          dest[0] = c;  // fallback - not utf-8 encoded
+      } else if ((c & 0xffffffc0) == 0x80)
+        ((unsigned char *)dest)[0] = c;
+      else if ((c & 0xffffe0c0) == 0xc080)
+        ((unsigned char *)dest)[0] = (size >= 3) ? (c >> 8) & 0xff : '\0';
+      else if ((c & 0xffffc0c0) == 0x8080)
+        ((unsigned char *)dest)[0] = c >> 8;
+      else if ((c & 0xfff0c0c0) == 0xe08080)
+        ((unsigned char *)dest)[0] = (size >= 4) ? (c >> 16) & 0xff : '\0';
+      else if ((c & 0xffc0c0c0) == 0x808080)
+        ((unsigned char *)dest)[0] = c >> 16;
+      else if ((c & 0xf8c0c0c0) == 0xf0808080)
+        ((unsigned char *)dest)[0] = (size >= 5) ? (c >> 24) & 0xff : '\0';
+      else
+        ((unsigned char *)dest)[0] = c;  // fallback - not utf-8 encoded
+    }
+    dest[1] = '\0';
+  } else if (size >= 1)
+    dest[0] = '\0';
+  return 1;
+}
+
+
+/*
+  Copies `src` to `dest`.
+
+  At most `size` bytes will be written to `dest`.
+  If `size` is larger than zero, `dest` will always be NUL-terminated.
+  No, partly UTF-8 code point will be written to dest.
+
+  Returns number of bytes written to `dest` or the number of bytes that
+  would have been written to `dest` if it had been large enough.
+ */
+int strsets(char *dest, long size, const char *src)
+{
+  int n=0;
+  while (*src)
+    n += strsetc(dest+n, size-n, *(src++));
+  return n;
+}
+
+/*
+  Like strset(), but copies at most `len` bytes from `src`.
+ */
+int strsetn(char *dest, long size, const char *src, int len)
+{
+  int i, n=0;
+  if (len < 0) len = strlen(src);
+  for (i=0; i<len; i++)
+    n += strsetc(dest+n, size-n, src[i]);
+  return n;
+}
+
 
 /*
   Copies `src` string to malloc'ed memory pointed to by `*destp`.
@@ -50,15 +151,15 @@ int strput(char **destp, size_t *sizep, size_t pos, const char *src)
 }
 
 /*
-  Like strput(), but at most `n` bytes from `src` will be copied.
-  If `n` is negative, all of `src` will be copited.
+  Like strput(), but at most `len` bytes from `src` will be copied.
+  If `len` is negative, all of `src` will be copited.
  */
-int strnput(char **destp, size_t *sizep, size_t pos, const char *src, int n)
+int strnput(char **destp, size_t *sizep, size_t pos, const char *src, int len)
 {
   size_t size;
   char *p = *destp;
-  if (n < 0) n = strlen(src);
-  size = pos + n + 1;
+  if (len < 0) len = strlen(src);
+  size = pos + len + 1;
 
   if (sizep) {
     size_t m = (*destp) ? *sizep : 0;
@@ -74,10 +175,53 @@ int strnput(char **destp, size_t *sizep, size_t pos, const char *src, int n)
   }
   if (!p) return -1;
 
-  strncpy(p + pos, src, n);
-  p[pos+n] = '\0';
+  strncpy(p + pos, src, len);
+  p[pos+len] = '\0';
   *destp = p;
   if (sizep) *sizep = size;
+  return len;
+}
+
+
+
+/*
+  Like strnput(), but escapes all characters in categories larger than
+  `unescaped`, which should be less than `strcatOther`.
+
+  Escaped characters are written as `escape` followed by 2-character hex
+  representation of the character (byte) value.
+
+  Returns -1 on error.
+ */
+int strnput_escape(char **destp, size_t *sizep, size_t pos,
+                   const char *src, int len,
+                   StrCategory unescaped, const char *escape)
+{
+  size_t size = (*destp) ? *sizep : 0;
+  size_t n=pos, esclen=strlen(escape);
+  char *p = *destp;
+  int m, i=0;
+  int escape_size = esclen + 3;
+  if (unescaped >= strcatOther) return -1;
+  if (len < 0) len = strlen(src);
+
+  while (i < len && src[i]) {
+    if (size < n+escape_size) {
+      size = clp2(n+escape_size + len);
+      if (!(p = realloc(p, size))) return -1;
+      *destp = p;
+      *sizep = size;
+    }
+    if (strcategory(src[i]) <= unescaped) {
+      p[n++] = src[i++];
+      p[n] = '\0';
+    } else {
+      if ((m = snprintf(p+n, size-n, "%s%02X", escape,
+                        (unsigned char)(src[i++]))) < 0) return -1;
+      n += m;
+    }
+  }
+  assert(n < size);
   return n;
 }
 
@@ -327,14 +471,6 @@ StrCategory strcategory(int c)
   case '_':
   case '~':
     return strcatUnreserved;
-  case ':':
-  case '/':
-  case '?':
-  case '#':
-  case '[':
-  case ']':
-  case '@':
-    return strcatReserved;
   case '!':
   case '$':
   case '&':
@@ -346,9 +482,33 @@ StrCategory strcategory(int c)
   case ',':
   case ';':
   case '=':
-    return strcatSpecific;
+    return strcatSubDelims;  // reserved
+  case ':':
+  case '/':
+  case '?':
+  case '#':
+  case '[':
+  case ']':
+  case '@':
+    return strcatGenDelims;  // reserved
   case '%':
     return strcatPercent;
+  case '"':
+  case '\\':
+  case '<':
+  case '>':
+  case '^':
+  case '{':
+  case '}':
+  case '|':
+    return strcatCExtra;  // characters in the C standard not listed above
+  case ' ':
+  case '\f':
+  case '\n':
+  case '\r':
+  case '\t':
+  case '\v':
+    return strcatSpace;  // confirms to isspace()
   case 0:
     return strcatNul;
   default:
@@ -363,7 +523,7 @@ StrCategory strcategory(int c)
 int strcatspn(const char *s, StrCategory cat)
 {
   int n=0;
-  while (strcategory(s[n]) == cat) n++;
+  while (s[n] && strcategory(s[n]) == cat) n++;
   return n;
 }
 
@@ -374,7 +534,7 @@ int strcatspn(const char *s, StrCategory cat)
 int strcatcspn(const char *s, StrCategory cat)
 {
   int n=0;
-  while (strcategory(s[n]) != cat) n++;
+  while (s[n] && strcategory(s[n]) != cat) n++;
   return n;
 }
 
@@ -385,7 +545,7 @@ int strcatcspn(const char *s, StrCategory cat)
 int strcatjspn(const char *s, StrCategory cat)
 {
   int n=0;
-  while (strcategory(s[n]) <= cat) n++;
+  while (s[n] && strcategory(s[n]) <= cat) n++;
   return n;
 }
 
@@ -396,6 +556,6 @@ int strcatjspn(const char *s, StrCategory cat)
 int strcatcjspn(const char *s, StrCategory cat)
 {
   int n=0;
-  while (strcategory(s[n]) > cat) n++;
+  while (s[n] && strcategory(s[n]) > cat) n++;
   return n;
 }
