@@ -333,7 +333,7 @@ int pct_xencode(char *buf, long size, const char *src, long len,
 {
   int n=0;
   long i;
-  if (len < 0) len = strlen(src);
+  if (len < 0) len = (long)strlen(src);
   for (i=0; i<len; i++) {
     if (strcategory(src[i]) <= maxcat ||
         (accepted && strchr(accepted, src[i]))) {
@@ -368,6 +368,11 @@ int pct_decode(char *buf, long size, const char *encoded)
 }
 
 
+/* Turn off warning on Windows about sscanf() being unsecure.
+ * Our use here is completely safe and legitimate. */
+#define _CRT_SECURE_NO_WARNINGS
+
+
 /*
   Like pct_decode(), but at most `len` bytes are read from `encoded`.
   If `len` is negative, all of `encoded` is read.
@@ -376,7 +381,7 @@ int pct_ndecode(char *buf, long size, const char *encoded, long len)
 {
   int n=0;
   long i=0;
-  if (len < 0) len = strlen(encoded);
+  if (len < 0) len = (long)strlen(encoded);
   while (encoded[i] && i < len) {
     if (encoded[i] == '%') {
       if (i+2 >= len || !isxdigit(encoded[i+1]) || !isxdigit(encoded[i+2]))
