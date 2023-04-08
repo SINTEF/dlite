@@ -127,6 +127,18 @@ const char *fu_linesep(FUPlatform platform);
 */
 int fu_isabs(const char *path);
 
+/**
+  Returns non-zero if `path`, of length `len`, is a Windows path.
+
+  A Windows path must start with a drive letter and colon (ex "C:"),
+  but not followed by two forward slashes (ex "c://", which is
+  interpreted as an URL).
+
+  Alternatively a Windows path can start with two backward slashes
+  indicating a network (UNC) path.
+ */
+int fu_iswinpath(const char *path, int len);
+
 
 /**
   Joins a set of pathname components, inserting '/' as needed.  The

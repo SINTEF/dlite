@@ -35,14 +35,14 @@
 #include "urlsplit.h"
 #include "fileutils.h"
 
-/** Convenient macros for failing */
+/* Convenient macros for failing */
 #define FAIL(msg) do { \
     err(1, msg); goto fail; } while (0)
 #define FAIL1(msg, a1) do { \
     err(1, msg, a1); goto fail; } while (0)
 
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+/* Expands to `a`, if `a` is positive, otherwise to zero. */
+#define POS(a) (((a) > 0) ? (a) : 0)
 
 
 /* Paths iterator */
@@ -173,6 +173,25 @@ int fu_isabs(const char *path)
   return 0;
 }
 
+/*
+  Returns non-zero if `path`, of length `len`, is a Windows path.
+
+  A Windows path must start with a drive letter and colon (ex "C:"),
+  but not followed by two forward slashes (ex "c://", which is
+  interpreted as an URL).
+
+  Alternatively a Windows path can start with two backward slashes
+  indicating a network (UNC) path.
+ */
+int fu_iswinpath(const char *path, int len)
+{
+  int n = (len >= 0) ? len : (int)strlen(path);
+  if (n > 2 && path[0] == '\\' && path[1] == '\\' && path[2] != '\\')
+    return 1;
+  if (n < 2 || !isalpha(path[0]) || path[1] != ':') return 0;
+  if (n >= 4 && path[2] == '/' && path[3] == '/') return 0;
+  return 1;
+}
 
 /*
   Joins a set of pathname components, inserting '/' as needed.  The
@@ -463,16 +482,16 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
   }
   while ((p = fu_nextpath(path, &endptr, pathsep))) {
     int len = endptr - p;
-    if (isurln(p, len)) {
-      strncpy(dest+n, p, len);
-      n += len;
+    if (!fu_iswinpath(p, len) && isurln(p, len)) {
+      n += snprintf(dest+n, POS(size-n), "%.*s", len, p);
     } else {
       if (globmatch("/[a-zA-Z]/*", p) == 0) {
-        n += snprintf(dest+n, size-n, "%c:\\%.*s", toupper(p[1]), len-3, p+3);
+        n += snprintf(dest+n, POS(size-n), "%c:\\%.*s", toupper(p[1]),
+                      len-3, p+3);
       } else {
-        n += snprintf(dest+n, size-n, "%.*s", len, p);
+        n += snprintf(dest+n, POS(size-n), "%.*s", len, p);
       }
-      if (*endptr) n += snprintf(dest+n, size-n, ";");
+      if (*endptr) n += snprintf(dest+n, POS(size-n), ";");
     }
   }
   for (q=dest; *q; q++) if (*q == '/') *q = '\\';
@@ -517,20 +536,19 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
     int len = endptr - p;
 
     if (isurln(p, len)) {
-      /* url */
-      n += snprintf(dest+n, size-n, "%.*s", len, p);
+      n += snprintf(dest+n, POS(size-n), "%.*s", len, p);
     } else {
-      /* path */
       char *start=dest+n, *q, *d;
       if (len > 3 && isalpha(p[0]) && p[1] == ':' && strchr("\\/", p[2])) {
-        n += snprintf(dest+n, size-n, "/%c/%.*s", tolower(p[0]), len-3, p+3);
+        n += snprintf(dest+n, POS(size-n), "/%c/%.*s", tolower(p[0]),
+                      len-3, p+3);
       } else if (len > 2 && isalpha(p[0]) && p[1] == ':' &&
                  !strchr("\\/", p[2])) {
         warn("relative path prefixed with drive: '%s'. Drive is ignored, "
              "please use absolute paths in combination with drive", p);
-        n +=snprintf(dest+n, size-n, "%.*s", len-2, p+2);
+        n +=snprintf(dest+n, POS(size-n), "%.*s", len-2, p+2);
       } else {
-        n += snprintf(dest+n, size-n, "%.*s", len, p);
+        n += snprintf(dest+n, POS(size-n), "%.*s", len, p);
       }
       /* Convert backward to forward slashes and remove repeated dirsep's */
       for (q=start; *q; q++) if (*q == '\\') *q = '/';
@@ -540,7 +558,7 @@ char *fu_unixpath(const char *path, char *dest, size_t size,
       }
     }
     /* add separator */
-    if (*endptr) n += snprintf(dest+n, size-n, "%c", sep);
+    if (*endptr) n += snprintf(dest+n, POS(size-n), "%c", sep);
   }
 
   return dest;
@@ -1140,6 +1158,8 @@ const char *fu_nextmatch(FUIter *iter)
   const char *filename;
   char *tmppath=NULL;
   char dirsep[2] = { iter->dirsep, 0 };
+  int iswin = iter->paths->platform == fuWindows ||
+    (iter->paths->platform == fuNative && fu_native_platform() == fuNative);
   if (iter->i >= iter->origlen) return NULL;
 
   while (iter->i < iter->origlen) {
@@ -1147,7 +1167,7 @@ const char *fu_nextmatch(FUIter *iter)
     const char *path = iter->origpaths[iter->i];
     tmppath = NULL;
 
-    if (urlsplit(path, &comp)) {
+    if (!(iswin && fu_iswinpath(path, -1)) && urlsplit(path, &comp)) {
       if (strncmp(comp.scheme, "file", comp.scheme_len) == 0) {
         if (!(tmppath = strndup(comp.path, comp.path_len)))
           FAIL("allocation failure");
@@ -1392,7 +1412,7 @@ FUIter *fu_glob(const char *pattern, const char *pathsep)
   int len = strlen(pattern);
   if (!(paths = malloc(sizeof(FUPaths)))) FAIL("allocation failure");
   fu_paths_init_sep(paths, NULL, pathsep);
-  if (urlsplitn(pattern, len, &comp) == len) {
+  if (!fu_iswinpath(pattern, len) && urlsplitn(pattern, len, &comp) == len) {
     if (strncmp(comp.scheme, "file", comp.scheme_len) == 0) {
       if (!(basename = fu_basename(comp.path))) goto fail;
       if (!(dirname = fu_dirname(comp.path))) goto fail;

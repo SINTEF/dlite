@@ -22,6 +22,22 @@ MU_TEST(test_fu_isabs)
   mu_assert_int_eq(0, fu_isabs(""));
 }
 
+MU_TEST(test_fu_iswinpath)
+{
+  mu_assert_int_eq(0, fu_iswinpath("/", -1));
+  mu_assert_int_eq(0, fu_iswinpath("/usr/bin/ls", -1));
+  mu_assert_int_eq(1, fu_iswinpath("C:\\users\\file", -1));
+  mu_assert_int_eq(0, fu_iswinpath("ls", -1));
+  mu_assert_int_eq(0, fu_iswinpath("", -1));
+  mu_assert_int_eq(0, fu_iswinpath("C://example.com/", -1));
+  mu_assert_int_eq(1, fu_iswinpath("C://example.com/", 3));
+  mu_assert_int_eq(0, fu_iswinpath("http://example.com/", -1));
+  mu_assert_int_eq(1, fu_iswinpath("c:file.txt", -1));
+  mu_assert_int_eq(1, fu_iswinpath("c:dir/file.txt", -1));
+  mu_assert_int_eq(1, fu_iswinpath("c:/dir/file.txt", -1));
+  mu_assert_int_eq(0, fu_iswinpath("c:/dir/file.txt", 1));
+  mu_assert_int_eq(1, fu_iswinpath("\\\\server\\share\\foo.txt", -1));
+}
 
 MU_TEST(test_fu_join)
 {
@@ -477,6 +493,7 @@ MU_TEST(test_fu_pathsiter)
 MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_fu_isabs);
+  MU_RUN_TEST(test_fu_iswinpath);
   MU_RUN_TEST(test_fu_join);
   MU_RUN_TEST(test_fu_lastsep);
   MU_RUN_TEST(test_fu_dirname);
