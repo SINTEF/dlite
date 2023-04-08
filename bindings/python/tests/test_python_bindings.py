@@ -45,7 +45,7 @@ def test(verbosity=1, stream=sys.stdout):
              # that it is testing depends on the other tests.
              and not test.endswith('test_global_dlite_state.py')]
     ts = unittest.TestSuite()
-    for test in tests:
+    for test in sorted(tests):
         ts.addTest(ScriptTestCase(filename=os.path.abspath(test)))
     with open(os.devnull, 'w') as devnull:
         if not verbosity:

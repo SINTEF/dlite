@@ -1,7 +1,5 @@
 {
-    "name": "Reaction",
-    "version": "0.1",
-    "namespace": "http://onto-ns.com/meta",
+    "uri": "http://onto-ns.com/meta/0.1/Reaction",
     "description": "A minimal description of a chemical reaction",
     "dimensions": [
         {

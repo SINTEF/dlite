@@ -63,8 +63,8 @@ To run the image `cp37-manylinux_x86_64` do
 
 which should run the tests and hopefully fail at the same place as on
 GitHub.  If that is the case, you can run the image again, but pause
-it before running the tests by adding prepending
-`CIBW_BEFORE_TEST=cat` to the previous command:
+it before running the tests by prepending `CIBW_BEFORE_TEST=cat` to
+the previous command:
 
     CIBW_BEFORE_TEST=cat \
     CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
@@ -77,7 +77,7 @@ it before running the tests by adding prepending
 
 Now you can list all active containers with
 
-    docker ps -a
+    docker ps
 
 the first container should have a name starting with `cibuildwheel-`.
 Copy its id and run
@@ -87,7 +87,27 @@ Copy its id and run
 
 This should start a new shell inside the container that the test was run it.
 
-    cd /project/build
+
+Activate the virtual environment that was used to build DLite
+
+    source /tmp/tmp.*/venv/bin/activate
+
+and install final requirements manually
+
+    cd /project/python/build
+    pip install virtualenv -c /constraints.txt
+    pip install --cache-dir /ci/pip_cache --prefer-binary -r /project/requirements.txt
+
+Locate and install the DLite_Python wheel
+
+    ls /tmp/cibuildwheel/repaired_wheel/DLite_Python-*.whl
+
+    pip install /tmp/cibuildwheel/repaired_wheel/DLite_Python-0.3.18-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+
+Now we can run the Python tests with
+
+    python /project/bindings/python/tests/test_python_bindings.py
+
 
 
 

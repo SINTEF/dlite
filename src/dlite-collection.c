@@ -105,7 +105,7 @@ int dlite_collection_gethash(const DLiteInstance *inst, uint8_t *hash,
     triples[i++] = t;
   }
   assert(i == n);
-  qsort(triples, n, sizeof(Triple *), _cmp_triple);
+  qsort((void *)triples, n, sizeof(Triple *), _cmp_triple);
   for (i=0; i<n; i++) {
     if (strcmp(triples[i]->p, "_has-hash") == 0) continue;
     if (strcmp(triples[i]->p, "_has-uuid") == 0) {
@@ -134,7 +134,7 @@ int dlite_collection_gethash(const DLiteInstance *inst, uint8_t *hash,
   retval = 0;
  fail:
   triplestore_deinit_state(&state);
-  free(triples);
+  free((void *)triples);
   return retval;
 }
 

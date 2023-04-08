@@ -159,7 +159,7 @@ class CMakeBuildExt(build_ext):
 extra_requirements = [
     "fortran-language-server",
     "PyYAML",
-    "psycopg2-binary",
+    #"psycopg2-binary",
     "pandas",
     "pymongo",
     "rdflib",
