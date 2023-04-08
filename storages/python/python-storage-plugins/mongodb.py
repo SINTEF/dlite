@@ -7,8 +7,6 @@ import pymongo
 
 import dlite
 from dlite.options import Options
-from dlite.utils import instance_from_dict
-
 
 
 class mongodb(dlite.DLiteStorageBase):
@@ -25,10 +23,8 @@ class mongodb(dlite.DLiteStorageBase):
 
         An ampersand (&) may be used instead of the semicolon (;).
 
-        All options that begin with MONGOCLIENT_<keyword> will be 
+        All options that begin with MONGOCLIENT_<keyword> will be
         passed directly to the mongodb client.
-
-
 
         Options:
         - database: Name of database to use (default: "dlite")
@@ -36,6 +32,8 @@ class mongodb(dlite.DLiteStorageBase):
         - user: User name.
         - password: Password.
         - mode: "r" for opening in read-only mode, "w" for read/write mode.
+        - schema: Schema to use when connecting to MongoDB server.  Defaults
+              to schema in `uri`.
         - authMechanism: Authentication mechanism
         - mock: Whether to use mongomock.
         """
@@ -46,11 +44,11 @@ class mongodb(dlite.DLiteStorageBase):
         """Parse and validate input options."""
         parsed_options = Options(
             options,
-            defaults='database=dlite;collection=dlite_coll;mode=w;mock=no',
+            defaults="database=dlite;collection=dlite_coll;mode=r;mock=no;"
+            "user=guest;password=guest",
         )
         parsed_options.setdefault('password', None)
         return parsed_options
-
 
     def _configure(self, parsed_options, uri):
         """Configure and connect to the MongoDB database."""
@@ -70,6 +68,7 @@ class mongodb(dlite.DLiteStorageBase):
             if parsed_options.password
             else None
         )
+
         # Determine the schema based on the presence of "localhost" or "127.0.0.1" in the URI
         schema = parsed_options.get('schema', None)
         if schema is None:
@@ -77,12 +76,12 @@ class mongodb(dlite.DLiteStorageBase):
                 schema = 'mongodb'
             else:
                 schema = 'mongodb+srv'
-                
+
         # Remove any existing schema from the URI
         if not uri.startswith(schema + "://"):
             uri = uri.replace("mongodb+srv://", "")
             uri = uri.replace("mongodb://", "")
-        
+
         # Construct the final URI with the correct schema
         final_uri = f"{schema}://{uri}"
 
@@ -121,7 +120,13 @@ class mongodb(dlite.DLiteStorageBase):
         """Loads `id` from current storage and return it as a new instance."""
         uuid = dlite.get_uuid(id)
         document = self.collection.find_one({'uuid': uuid})
-        return instance_from_dict(document)
+        if not document:
+            raise IOError(
+                f'No instance with {uuid=} in MongoDB database '
+                f'"{self.collection.database.name}" and collection '
+                f'"{self.collection.name}"'
+            )
+        return dlite.Instance.from_dict(document, check_storages=False)
 
     def save(self, inst):
         """Stores `inst` in current storage."""

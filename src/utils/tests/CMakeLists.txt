@@ -6,7 +6,10 @@ set(tests
   test_snprintf
   test_err
   test_map
+  test_clp2
+  test_unicode
   test_strutils
+  test_urlsplit
   test_tmpfileplus
   test_strtob
   test_fileinfo

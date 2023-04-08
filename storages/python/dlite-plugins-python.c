@@ -366,7 +366,7 @@ int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
   }
   assert(length > 0);
   memcpy(buf, buffer, (size > (size_t)length) ? (size_t)length : size);
-  retval = length;
+  retval = (int)length;
  fail:
   Py_XDECREF(pyinst);
   Py_XDECREF(v);
