@@ -8,14 +8,22 @@
 #endif
 //#include "config-paths.h"
 
+/* Macro magic to expand defined variables to 1 */
+#define DO_ISEMPTY(VAL)  VAL ## 1
+#define ISEMPTY(VAL)     DO_ISEMPTY(VAL)
+
+
 /* dlite version */
 #define dlite_VERSION "@dlite_VERSION@"
 #define dlite_VERSION_MAJOR @dlite_VERSION_MAJOR@
 #define dlite_VERSION_MINOR @dlite_VERSION_MINOR@
 #define dlite_VERSION_PATCH @dlite_VERSION_PATCH@
 
-/* Seems that latest cmake doesn't define dlite_VERSION_PATCH by default */
+/* Seems that latest cmake defines dlite_VERSION_PATCH as empty */
 #ifndef dlite_VERSION_PATCH
+# define dlite_VERSION_PATCH 0
+#elif ISEMPTY(dlite_VERSION_PATCH) == 1
+# undef dlite_VERSION_PATCH
 # define dlite_VERSION_PATCH 0
 #endif
 
