@@ -8,8 +8,9 @@
 #endif
 //#include "config-paths.h"
 
-/* Macro magic to expand defined variables to 1 */
-#define DO_ISEMPTY(VAL)  VAL ## 1
+/* Macro magic that expands a defined but empty variable to 1.
+ * `VAL` must be empty or a non-negative integer. */
+#define DO_ISEMPTY(VAL)  1 ## VAL
 #define ISEMPTY(VAL)     DO_ISEMPTY(VAL)
 
 
