@@ -14,6 +14,12 @@
 #define dlite_VERSION_MINOR @dlite_VERSION_MINOR@
 #define dlite_VERSION_PATCH @dlite_VERSION_PATCH@
 
+/* Seems that latest cmake doesn't define dlite_VERSION_PATCH by default */
+#ifndef dlite_VERSION_PATCH
+# define dlite_VERSION_PATCH 0
+#endif
+
+
 #define DLITE_CONFIG_VARS  "@DLITE_CONFIG_VARS@"
 
 /* Installation root */
