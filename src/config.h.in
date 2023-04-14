@@ -20,7 +20,7 @@
 #define dlite_VERSION_MINOR @dlite_VERSION_MINOR@
 #define dlite_VERSION_PATCH @dlite_VERSION_PATCH@
 
-/* Require major and patch version to be defined */
+/* Require patch version to be defined */
 #if !defined(dlite_VERSION_PATCH) || ISEMPTY(dlite_VERSION_PATCH) == 1
 # error "Patch version number must be defined in main CMakeLists.txt"
 #endif
