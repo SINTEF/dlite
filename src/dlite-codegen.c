@@ -351,9 +351,7 @@ int dlite_instance_subs(TGenSubs *subs, const DLiteInstance *inst)
   tgen_subs_set(subs, "dlite.version", dlite_VERSION, NULL);
   tgen_subs_set_fmt(subs, "dlite.version.major",NULL,"%d",dlite_VERSION_MAJOR);
   tgen_subs_set_fmt(subs, "dlite.version.minor",NULL,"%d",dlite_VERSION_MINOR);
-#if defined(dlite_VERSION_PATCH) && ISEMPTY(dlite_VERSION_PATCH) != 1
   tgen_subs_set_fmt(subs, "dlite.version.patch",NULL,"%d",dlite_VERSION_PATCH);
-#endif
 
   /* Determine what this data is */
   if (dlite_meta_is_metameta(meta)) {

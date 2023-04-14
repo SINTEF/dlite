@@ -20,12 +20,9 @@
 #define dlite_VERSION_MINOR @dlite_VERSION_MINOR@
 #define dlite_VERSION_PATCH @dlite_VERSION_PATCH@
 
-/* Require major and minor versions to be defined */
-#if !defined(dlite_VERSION_MAJOR) || ISEMPTY(dlite_VERSION_MAJOR) == 1
-# error "Major version number must be defined in main CMakeLists.txt"
-#endif
-#if !defined(dlite_VERSION_MINOR) || ISEMPTY(dlite_VERSION_MINOR) == 1
-# error "Minor version number must be defined in main CMakeLists.txt"
+/* Require major and patch version to be defined */
+#if !defined(dlite_VERSION_PATCH) || ISEMPTY(dlite_VERSION_PATCH) == 1
+# error "Patch version number must be defined in main CMakeLists.txt"
 #endif
 
 #define DLITE_CONFIG_VARS  "@DLITE_CONFIG_VARS@"
