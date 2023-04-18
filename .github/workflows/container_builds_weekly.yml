@@ -30,11 +30,11 @@ jobs:
         - system: "manylinux"
           type: "2014"
           arch: "x86_64"
-          py_minors: "7 8 9 10"
+          py_minors: "7 8 9 10 11"
         - system: "musllinux"
           type: "_1_1"
           arch: "x86_64"
-          py_minors: "7 8 9 10"
+          py_minors: "7 8 9 10 11"
 
         # 32-bit linux
         - system: "manylinux"
