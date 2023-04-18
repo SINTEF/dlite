@@ -1,8 +1,8 @@
 fortran-language-server
 numpy
 PyYAML
-# psycopg2-binary leads to segfault - comment it out for now...
-#psycopg2-binary
+# psycopg2-binary can lead to segfault - so far all seems good with v2.9.5
+psycopg2-binary==2.9.5
 pandas
 rdflib
 pint
