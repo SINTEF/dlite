@@ -488,7 +488,7 @@ int dlite_storage_hotlist_clear()
   DLiteStorageHotlist *h;
   if (!(g = get_globals())) return -1;
   h = &g->hotlist;
-  if (h->storages) free(h->storages);
+  if (h->storages) free((void *)h->storages);
   memset(h, 0, sizeof(DLiteStorageHotlist));
   return 0;
 }
@@ -504,7 +504,7 @@ int dlite_storage_hotlist_add(const DLiteStorage *s)
   h = &g->hotlist;
   if (h->length <= h->nmemb) {
     size_t newlength = h->length + HOTLIST_CHUNK_LENGTH;
-    const DLiteStorage **storages = realloc(h->storages,
+    const DLiteStorage **storages = realloc((DLiteStorage **)h->storages,
                                             newlength*sizeof(DLiteStorage *));
     if (!storages) return err(dliteMemoryError, "allocation failure");
     h->length = newlength;
@@ -541,7 +541,8 @@ int dlite_storage_hotlist_remove(const DLiteStorage *s)
   length = (h->nmemb / HOTLIST_CHUNK_LENGTH + 2)*HOTLIST_CHUNK_LENGTH;
   assert(length > h->nmemb);
   if (h->length > length) {
-    const DLiteStorage **storages = realloc(h->storages, length);
+    const DLiteStorage **storages = realloc((DLiteStorage **)h->storages,
+                                            length);
     assert(storages);  // redusing allocated memory should always be successful
     h->length = length;
     h->storages = storages;

@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.18
+  VERSION 0.3.19
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -439,6 +439,15 @@ macro(build_append lst)
   endforeach()
 endmacro()
 
+# Directory and path separators
+if(WIN32)
+  set(DIRSEP "\\")
+  set(PATHSEP ";")
+else()
+  set(DIRSEP "/")
+  set(PATHSEP ":")
+endif()
+
 # PATH - path to runtime directories (.exe and .dll)
 set(dlite_PATH "")
 if(WIN32)
@@ -583,7 +592,6 @@ make_platform_paths(
     dlite_PATH
     dlite_STORAGE_PLUGINS
     dlite_MAPPING_PLUGINS
-  #PATHSEP0
   )
 
 # Workaround for cross-compiling for Windows on Linux using MinGW.

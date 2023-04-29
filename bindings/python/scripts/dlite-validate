@@ -98,6 +98,10 @@ def main():
         '--show', '-s', action='store_true',
         help='Print the json-serialisation of the instance to standard output.'
     )
+    parser.add_argument(
+        '--debug', action='store_true',
+        help='Whether to print traceback on error.'
+    )
 
     args = parser.parse_args()
 
@@ -107,8 +111,11 @@ def main():
     try:
         inst = parse(args.url, args.driver, args.options, args.id)
     except Exception as exc:
-        print(f'{args.url}: {exc.__class__.__name__}: {exc}')
-        sys.exit(1)
+        if args.debug:
+            raise
+        else:
+            print(f'{args.url}: {exc.__class__.__name__}: {exc}')
+            sys.exit(1)
 
     if inst.is_meta:
         check_dimensions(args.url, inst)
