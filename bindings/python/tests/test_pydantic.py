@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
 import dlite
@@ -21,7 +21,6 @@ class TransformationStatus(BaseModel):
     )
     messages: Optional[List[str]] = Field(
         None, description="Messages related to the transformation process.",
-        shape=["N", "M"],
     )
     created: Optional[float] = Field(
         None,
@@ -37,18 +36,29 @@ class TransformationStatus(BaseModel):
         "Given as POSIX time stamp.",
     )
 
-
 now = datetime.now().timestamp()
 
 t = TransformationStatus(
     id="sim1",
-    message="success",
+    messages=["success", "timeout", "error"],
     created=now - 3600,
     startTime=now - 3000,
     finishTime=now - 600,
 )
+meta = pydantic_to_metadata(t)
+inst = pydantic_to_instance(meta, t)
+assert inst.id == "sim1"
+assert inst.messages.tolist() == ["success", "timeout", "error"]
+assert inst.created == now - 3600
+assert inst.startTime == int(now - 3000)
+utc = timezone(timedelta(hours=0))
+dt = datetime.fromtimestamp(now - 600).astimezone(utc)
+assert inst.finishTime == str(dt)
 
 
+#==============================================================
+#  Test nested pydantic model
+#==============================================================
 class Foo(BaseModel):
     count: int
     size: Optional[float] = -1
@@ -65,8 +75,6 @@ class Spam(BaseModel):
 
 m = Spam(foo={'count': 4}, bars=[{'apple': 'x1'}, {'apple': 'x2'}])
 
-from dlite.utils import pydantic_to_metadata, pydantic_to_property
-
 MetaFoo = pydantic_to_metadata(Foo)
 MetaBar = pydantic_to_metadata(Bar)
 MetaSpam = pydantic_to_metadata(Spam)
@@ -75,3 +83,11 @@ print("---")
 
 spam = pydantic_to_instance(MetaSpam, m)
 print(spam)
+
+assert isinstance(spam.foo, dlite.Instance)
+assert spam.foo.count == 4
+assert spam.foo.size == -1
+assert spam.bars[0].apple == 'x1'
+assert spam.bars[0].banana == 'y'
+assert spam.bars[1].apple == 'x2'
+assert spam.bars[1].banana == 'y'
