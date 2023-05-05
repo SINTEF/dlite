@@ -9,5 +9,4 @@ Getting started
    installation
    tutorial
    more_advanced_example
-   build/index
    features
