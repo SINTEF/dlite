@@ -244,8 +244,14 @@ if(WITH_PYTHON)
 
   # Find Python package
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
-  #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
-  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+  if (PYTHON_VERSION)
+    #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+    find_package(Python3 ${PYTHON_VERSION} EXACT
+      REQUIRED COMPONENTS Interpreter Development)
+  else()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+  endif()
+  # TODO: include NumPy in find_packages if cmake version is 3.26 or above
   find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
