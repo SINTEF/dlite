@@ -3,22 +3,7 @@ Tips and Tricks
 
 Setting up a virtual Python environment for building dlite
 ----------------------------------------------------------
-With [virtualenvwrapper], do
-
-    pip install virtualenvwrapper
-    export WORKON_HOME=$HOME/.envs  # Put this in your ~/.bash_profile
-    mkvirtualenv dlite
-    pip install -U pip
-    pip install -r requirements.txt
-    pip install -r requirements_dev.txt
-    pip install -r requirements_doc.txt
-
-    workon dlite  #  only needed if you are not already in your dlite virtualenv
-    mkdir build
-    cd build
-    cmake -DCMAKE_INSTALL_PREFIX=$WORKON_HOME/dlite ..
-    cmake --build .
-    cmake --install .
+See the [Build and install to a virtual Python environment] in the installation instructions.
 
 
 Debugging tests failing inside docker on GitHub
@@ -112,3 +97,4 @@ Now we can run the Python tests with
 
 
 [virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
+[Build and install to a virtual Python environment]: https://sintef.github.io/dlite/getting_started/installation.html#build-and-install-to-a-virtual-python-environment
