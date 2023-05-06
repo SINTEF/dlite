@@ -245,14 +245,11 @@ if(WITH_PYTHON)
   # Find Python package
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   if (PYTHON_VERSION)
-    #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
     find_package(Python3 ${PYTHON_VERSION} EXACT
-      REQUIRED COMPONENTS Interpreter Development)
+      REQUIRED COMPONENTS Interpreter Development NumPy)
   else()
-    find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
   endif()
-  # TODO: include NumPy in find_packages if cmake version is 3.26 or above
-  find_package(NumPy REQUIRED)
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
   # Link libraries when compiling against static Python (e.g. manylinux)
