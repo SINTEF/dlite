@@ -35,7 +35,7 @@ See [build against Python environment] for how to configure against a Python vir
 
 Build & install
 ---------------
-To build and install DLite, run:
+After configuring cmake, DLite can be built and installed with:
 
     cmake --build .
     cmake --install .

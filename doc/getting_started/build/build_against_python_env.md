@@ -3,27 +3,40 @@ Build against Python environment
 This is the most common case for a development installation on a Linux environment (including Ubuntu from WSL).
 
 [VirtualEnvWrapper] is a set of convenient tools for working with virtual environments in Python.
-
-Using virtualenvwrapper, compiling DLite against Python 3.10, may look like:
+Install it with
 
     pip install --user virtualenvwrapper
     export WORKON_HOME=$HOME/.envs  # Put this in your ~/.bash_profile
-    mkvirtualenv -p /usr/bin/python3.10 dlite  # The -p option allows you to select Python executable
+
+Using [VirtualEnvWrapper], you can set up a new virtual environment for compile DLite against Python 3.9, with
+
+    mkvirtualenv -p /usr/bin/python3.9 dlite39
+
+The `-p` option to [VirtualEnvWrapper] allows you to select Python interpreter you want to build against.
+
+Install Python dependencies to the new virtual environment
+
+    workon dlite39
     pip install -U pip
     pip install -r requirements.txt
     pip install -r requirements_dev.txt
 
-    workon dlite  #  only needed if you are not already in your dlite virtualenv
-    mkdir build
-    cd build
-    cmake -DCMAKE_INSTALL_PREFIX=$WORKON_HOME/dlite -DPYTHON_VERSION=3.10 ..
+Create a new build folder and build DLite against Python 3.9
+
+    mkdir build-dlite39
+    cd build-dlite39
+    cmake -DCMAKE_INSTALL_PREFIX=$WORKON_HOME/dlite -DPYTHON_VERSION=3.9 ..
     cmake --build .
     cmake --install .
     ctest
 
+If the `-DPYTHON_VERSION=3.9` option to CMake is not sufficient to get CMake to compile against the correct libraries, you can make a copy of `cmake/build-python3.7.cmake` and configure CMake with
+
+    cmake -C ../cmake/build-python3.7.cmake ..
+
 
 :::{admonition} Note about VirtualEnvWrapper
-:class: dropdown,note
+:class: note,dropdown
 
 By default, [VirtualEnvWrapper] does not set `LD_LIBRARY_PATH`.
 This will result in errors when running, for example, `dlite-codegen` in the example above.
