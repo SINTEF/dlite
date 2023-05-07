@@ -7,6 +7,7 @@ Getting started
 
    about
    installation
+   build/index
    tutorial
    more_advanced_example
    features
