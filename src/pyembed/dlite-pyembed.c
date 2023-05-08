@@ -19,18 +19,31 @@ static int python_initialized = 0;
 /* Initialises the embedded Python environment. */
 void dlite_pyembed_initialise(void)
 {
-  wchar_t *progname;
   if (!python_initialized) {
-    python_initialized = 1;
+#if PY_VERSION_HEX < 0x03080000  /* Python < 3.8 */
+    wchar_t *progname;
 
     Py_Initialize();
-
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
+#else
+    PyStatus status;
+    PyConfig config;
+
+    PyConfig_InitPythonConfig(&config);
+    if (!(config.program_name = Py_DecodeLocale("dlite", NULL))) {
+      dlite_err(1, "allocation/decoding failure");
+      return;
+    }
+    status = Py_InitializeFromConfig(&config);
+    if (PyStatus_Exception(status)) goto fail;
+    PyConfig_Clear(&config);
+ #endif
+    python_initialized = 1;
 
     if (dlite_use_build_root()) {
       PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
