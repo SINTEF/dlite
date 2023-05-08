@@ -35,13 +35,14 @@ void dlite_pyembed_initialise(void)
     PyConfig config;
 
     PyConfig_InitPythonConfig(&config);
-    if (!(config.program_name = Py_DecodeLocale("dlite", NULL))) {
-      dlite_err(1, "allocation/decoding failure");
-      return;
-    }
+    config.isolated = 0;
+    /* FIXME - uncommenting the following two lines in Python 3.10
+       will break import statements from dlite... */
+    //status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
+    //if (PyStatus_Exception(status)) return;
     status = Py_InitializeFromConfig(&config);
-    if (PyStatus_Exception(status)) goto fail;
     PyConfig_Clear(&config);
+    if (PyStatus_Exception(status)) return;
  #endif
     python_initialized = 1;
 
