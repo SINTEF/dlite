@@ -20,6 +20,8 @@ static int python_initialized = 0;
 void dlite_pyembed_initialise(void)
 {
   if (!python_initialized) {
+    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
+
     Py_Initialize();
     python_initialized = 1;
 
@@ -38,17 +40,29 @@ void dlite_pyembed_initialise(void)
 
     PyConfig_InitPythonConfig(&config);
     config.isolated = 0;
-    /* FIXME - uncommenting the following two lines in Python 3.10
-       will break import statements from dlite... */
+
+    /* If dlite is called from a python, reparse arguments to avoid
+       that they are stripped off...
+       Aren't we initialising a new interpreter? */
+    int argc=0;
+    wchar_t **argv=NULL;
+    Py_GetArgcArgv(&argc, &argv);
+    config.parse_argv = 1;
+    status = PyConfig_SetArgv(&config, argc, argv);
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed arguments");
+
     status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
-    if (PyStatus_Exception(status)) return;
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed program name");
+
     status = Py_InitializeFromConfig(&config);
     PyConfig_Clear(&config);
-    if (PyStatus_Exception(status)) return;
+    if (PyStatus_Exception(status))
+      FAIL("failed clearing pyembed config");
  #endif
 
     if (dlite_use_build_root()) {
-      PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
       if (!(sys = PyImport_ImportModule("sys")))
         FAIL("cannot import sys");
       if (!(sys_path = PyObject_GetAttrString(sys, "path")))
@@ -59,11 +73,11 @@ void dlite_pyembed_initialise(void)
         FAIL("cannot create python object for dlite_PYTHONPATH");
       if (PyList_Insert(sys_path, 0, path))
         FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
-    fail:
-      Py_XDECREF(sys);
-      Py_XDECREF(sys_path);
-      Py_XDECREF(path);
     }
+  fail:
+    Py_XDECREF(sys);
+    Py_XDECREF(sys_path);
+    Py_XDECREF(path);
   }
 }
 

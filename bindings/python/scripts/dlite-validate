@@ -34,7 +34,7 @@ def parse(url, driver=None, options=None, id=None):
     else:
         path = url[7:] if url.lower().startswith('file://') else url
         if driver:
-            return dlite.Instance_from_location(
+            return dlite.Instance.from_location(
                 driver, path, options=options, id=id
             )
         fileext = Path(path).suffix.lstrip('.').lower()
@@ -99,7 +99,7 @@ def main():
         help='Print the json-serialisation of the instance to standard output.'
     )
     parser.add_argument(
-        '--debug', action='store_true',
+        '--debug', '-D', action='store_true',
         help='Whether to print traceback on error.'
     )
 
