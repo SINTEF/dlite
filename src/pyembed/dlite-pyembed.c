@@ -20,10 +20,12 @@ static int python_initialized = 0;
 void dlite_pyembed_initialise(void)
 {
   if (!python_initialized) {
+    Py_Initialize();
+    python_initialized = 1;
+
 #if PY_VERSION_HEX < 0x03080000  /* Python < 3.8 */
     wchar_t *progname;
 
-    Py_Initialize();
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;
@@ -38,13 +40,12 @@ void dlite_pyembed_initialise(void)
     config.isolated = 0;
     /* FIXME - uncommenting the following two lines in Python 3.10
        will break import statements from dlite... */
-    //status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
-    //if (PyStatus_Exception(status)) return;
+    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
+    if (PyStatus_Exception(status)) return;
     status = Py_InitializeFromConfig(&config);
     PyConfig_Clear(&config);
     if (PyStatus_Exception(status)) return;
  #endif
-    python_initialized = 1;
 
     if (dlite_use_build_root()) {
       PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
