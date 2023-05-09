@@ -116,7 +116,13 @@ if(WINDOWS OR MINGW)
   endforeach()
 endif()
 
-set_property(TARGET dlitepy PROPERTY COMPILE_OPTIONS "-Wno-error=unused-parameter;-Wno-unused-parameter")
+# The SWIG-generated source has many unused parameters.  Don't
+# complain about them...
+include(CheckCCompilerFlag)
+check_c_compiler_flag("-Wno-unused-parameter" have_flag)
+if(have_flag)
+  set_property(TARGET dlitepy PROPERTY COMPILE_OPTIONS "-Wno-unused-parameter")
+endif()
 
 add_custom_command(
   TARGET dlitepy
