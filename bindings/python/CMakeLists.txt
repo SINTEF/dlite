@@ -40,7 +40,7 @@ endif()
 find_package(SWIG)
 include(UseSWIG)
 set(swig_flags "-Wall;-keyword;-DNPY_SIZE_T=${NPY_SIZE_T}")
-if(${SWIG_VERSION} VERSION_LESS 4.0.2)
+if(${SWIG_VERSION} VERSION_LESS 4.1)
   list(APPEND swig_flags "-py3")
 endif()
 
@@ -116,8 +116,7 @@ if(WINDOWS OR MINGW)
   endforeach()
 endif()
 
-# The SWIG-generated source has many unused parameters.  Don't
-# complain about them...
+# Don't complain about unused parameters in SWIG-generated source
 include(CheckCCompilerFlag)
 check_c_compiler_flag("-Wno-unused-parameter" have_flag)
 if(have_flag)
