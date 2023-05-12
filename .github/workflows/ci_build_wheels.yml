@@ -75,7 +75,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.container_registry }}
           username: ${{ github.actor }}
