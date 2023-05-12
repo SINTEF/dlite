@@ -38,7 +38,7 @@ DLite is available on PyPI and can be installed with pip
 pip install dlite-python
 ```
 
-For more details, see the [installation instructions].
+For alternative installation methods, see the [installation instructions].
 
 
 Usage
