@@ -856,12 +856,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
         DLiteProperty *src = (DLiteProperty *)p;
         if (dest->name)        free(dest->name);
-        if (dest->dims)       free_str_array(dest->dims, dest->ndims);
+        if (dest->ref)         free(dest->ref);
+        if (dest->dims)        free_str_array(dest->dims, dest->ndims);
         if (dest->unit)        free(dest->unit);
         if (dest->description) free(dest->description);
         dest->name  = strdup(src->name);
         dest->type  = src->type;
         dest->size  = src->size;
+        if (src->ref) dest->ref   = strdup(src->ref);
         dest->ndims = src->ndims;
         if (src->ndims > 0) {
           int j;
@@ -874,11 +876,13 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         dest->description = (src->description) ? strdup(src->description) :NULL;
 
       } else if (PySequence_Check(obj) && PySequence_Length(obj) == 6) {
+        /* We should deprecate this - either remove or change to dict... */
         PyObject *name  = PySequence_GetItem(obj, 0);
         PyObject *type  = PySequence_GetItem(obj, 1);
-        PyObject *dims  = PySequence_GetItem(obj, 2);
-        PyObject *unit  = PySequence_GetItem(obj, 3);
-        PyObject *descr = PySequence_GetItem(obj, 4);
+        PyObject *ref   = PySequence_GetItem(obj, 2);
+        PyObject *dims  = PySequence_GetItem(obj, 3);
+        PyObject *unit  = PySequence_GetItem(obj, 4);
+        PyObject *descr = PySequence_GetItem(obj, 5);
         DLiteType t;
         size_t size;
         if (name && PyUnicode_Check(name) &&
@@ -886,12 +890,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
             dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
                                           &t, &size) == 0) {
           if (dest->name)        free(dest->name);
+          if (dest->ref)         free(dest->ref);
           if (dest->dims)        free_str_array(dest->dims, dest->ndims);
           if (dest->unit)        free(dest->unit);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
           dest->type = t;
           dest->size = size;
+          if (ref != Py_None) dest->ref = strdup(PyUnicode_AsUTF8(ref));
           if (dims && PyUnicode_Check(dims)) {
             const char *s = PyUnicode_AsUTF8(dims);
             int j=0, ndims=(s && *s) ? 1 : 0;
