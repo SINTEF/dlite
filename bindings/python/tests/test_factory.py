@@ -68,3 +68,5 @@ dlite.storage_path.append(entitydir)
 
 Molecule = dlite.get_instance("http://onto-ns.com/meta/0.1/Molecule")
 molecule = dlite.objectfactory(atoms, meta=Molecule)
+
+assert molecule.dlite_inst.positions.tolist() == atoms.positions
