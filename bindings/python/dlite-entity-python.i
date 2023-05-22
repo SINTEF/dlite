@@ -14,7 +14,6 @@ else:
     from collections import OrderedDict
 
 import numpy as np
-from tripper import Namespace
 
 
 class InvalidMetadataError:
@@ -110,9 +109,8 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
     if isinstance(id, dlite.Instance):
         inst = id
     else:
-        if isinstance(id, Namespace):
-            id = str(id).rstrip("#/")
-        if isinstance(metaid, Namespace):
+        id = str(id).rstrip("#/")
+        if metaid and not isinstance(metaid, dlite.Instance):
             metaid = str(metaid).rstrip("#/")
         inst = _dlite.get_instance(id, metaid, check_storages)
 
@@ -307,7 +305,9 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
                            doc='Whether this is a meta-metadata instance.')
     namespace = property(
         lambda self: Namespace(self.get_uri() + '#'),
-        doc='A tripper.Namespace reference to this instance.')
+        doc='A tripper.Namespace reference to this instance. '
+        'Note, this requires tripper to be installed.'
+    )
 
     @classmethod
     def from_metaid(cls, metaid, dims, id=None):
