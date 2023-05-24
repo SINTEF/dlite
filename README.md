@@ -8,6 +8,8 @@ DLite
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
 [![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
 [![Documentation](https://img.shields.io/badge/documentation-informational?logo=githubpages)](https://sintef.github.io/dlite/index.html)
+[![DOI](https://zenodo.org/badge/207571283.svg)](https://zenodo.org/badge/latestdoi/207571283)
+
 
 
 DLite is a C implementation of the [SINTEF Open Framework and Tools
