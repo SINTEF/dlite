@@ -5,11 +5,8 @@ from pathlib import Path
 
 import numpy as np
 
-import dlite
-import dlite.mappings as dm
-from tripper import Triplestore
-
 try:
+    from tripper import Triplestore
     import pint
 except ImportError as exc:
     import sys
