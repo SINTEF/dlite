@@ -156,11 +156,12 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
 %extend _DLiteProperty {
   %pythoncode %{
     def __repr__(self):
+        ref = ', ref=%r' % self.ref if self.ref else ''
         shape = ', shape=%r' % self.shape.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
         descr = ', description=%r' %self.description if self.description else ''
-        return 'Property(%r, type=%r%s%s%s)' % (
-            self.name, self.type, shape, unit, descr)
+        return 'Property(%r, type=%r%s%s%s%s)' % (
+            self.name, self.type, ref, shape, unit, descr)
 
     def asdict(self, soft7=True, exclude_name=False):
         """Returns a dict representation of self.
@@ -173,6 +174,8 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         if not exclude_name:
             d['name'] = self.name
         d['type'] = self.get_type()
+        if self.ref:
+            d['ref'] = self.ref
         if self.ndims:
             d['shape' if soft7 else 'dims'] = self.shape.tolist()
         if self.unit:
