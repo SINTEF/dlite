@@ -297,7 +297,7 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
                        DLiteJsonFlag flags)
 {
   int m;
-  void *q;
+  char *q;
   size_t newsize;
 
   if (!dest || !*dest || !*size) {
@@ -326,7 +326,7 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
   /* Write */
   m = dlite_json_sprint(q + pos, PDIFF(newsize, pos), inst, indent, flags);
   if (m < 0) return m;
-  assert(m+pos < (int)newsize);
+  assert(m+pos < newsize);
 
   /* On success, update `*dest` and `*size` */
   *dest = q;
