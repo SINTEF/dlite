@@ -25,16 +25,20 @@ void dlite_pyembed_initialise(void)
     Py_Initialize();
     python_initialized = 1;
 
-#if PY_VERSION_HEX < 0x03080000  /* Python < 3.8 */
-    wchar_t *progname;
+    /*
+      Python 3.8 and later implements the new Python
+      Initialisation Configuration.
 
-    if (!(progname = Py_DecodeLocale("dlite", NULL))) {
-      dlite_err(1, "allocation/decoding failure");
-      return;
-    }
-    Py_SetProgramName(progname);
-    PyMem_RawFree(progname);
-#else
+      More features were added in the following releases,
+      like `config.safe_path`, which was added in Python 3.11
+
+      The old Py_SetProgramName() was deprecated in Python 3.11.
+
+      In DLite, we switch to the new Python Initialisation
+      Configuration from Python 3.11.
+    */
+#if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
+    /* New Python Initialisation Configuration */
     PyStatus status;
     PyConfig config;
 
@@ -47,7 +51,9 @@ void dlite_pyembed_initialise(void)
     int argc=0;
     wchar_t **argv=NULL;
     Py_GetArgcArgv(&argc, &argv);
+    config.isolated = 0;
     config.parse_argv = 1;
+    config.safe_path = 0;
     status = PyConfig_SetArgv(&config, argc, argv);
     if (PyStatus_Exception(status))
       FAIL("failed configuring pyembed arguments");
@@ -60,6 +66,16 @@ void dlite_pyembed_initialise(void)
     PyConfig_Clear(&config);
     if (PyStatus_Exception(status))
       FAIL("failed clearing pyembed config");
+#else
+    /* Old Initialisation */
+    wchar_t *progname;
+
+    if (!(progname = Py_DecodeLocale("dlite", NULL))) {
+      dlite_err(1, "allocation/decoding failure");
+      return;
+    }
+    Py_SetProgramName(progname);
+    PyMem_RawFree(progname);
  #endif
 
     if (dlite_use_build_root()) {
