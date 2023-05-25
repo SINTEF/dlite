@@ -281,9 +281,16 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
   Like dlite_json_sprint(), but prints to allocated buffer.
 
   Prints to position `pos` in `*dest`, which should point to a buffer
-  of size `*size`.  `*dest` is reallocated if needed.
+  of size `*size`. Bytes at position less than `pos` are not changed.
 
-  Returns number or bytes written or a negative number on error.
+  If `*dest` is NULL or `*size` is less than needed, `*dest` is
+  reallocated and `*size` updated to the new buffer size.
+
+  If `pos` is larger than `*size` the bytes at index `i` are
+  initialized to space ( ), where ``*size <= i < pos``.
+
+  Returns number or bytes written (not including terminating NUL) or a
+  negative number on error.
 */
 int dlite_json_asprint(char **dest, size_t *size, size_t pos,
                        const DLiteInstance *inst, int indent,
@@ -292,27 +299,38 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
   int m;
   void *q;
   size_t newsize;
-  if (!dest && !*dest) {
-    *size = 0;
+
+  if (!dest || !*dest || !*size) {
+    /* Just count number of bytes to write */
     m = dlite_json_sprint(*dest, 0, inst, indent, flags);
-    if (m > 0) m += pos;
+    if (m < 0) return m;
   } else {
+    /* Try to write to existing buffer */
     m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
+    if (m < (int)PDIFF(*size, pos)) return m;
   }
-  if (m < 0) return m;
-  if (m < (int)PDIFF(*size, pos)) return m;
 
   /* Reallocate buffer to required size. */
+
   // FIXME: newsize sould really be `newsize = m + pos + 1;`.
-  // dlite_json_sprint() seems to report one byte too little when called with size=0.
+  // If `inst` is a collection with relations, then
+  // dlite_json_sprint() seems to report one byte too little when
+  // called with size=0.
   newsize = m + pos + 2;
-  if (!(q = realloc(*dest, newsize))) return -1;
+  if (!(q = realloc(*dest, newsize)))
+    return err(dliteMemoryError, "allocation failure");
+
+  /* Fill bytes from *size to pos with space */
+  if (pos > *size) memset(q + *size, ' ', pos - *size);
+
+  /* Write */
+  m = dlite_json_sprint(q + pos, PDIFF(newsize, pos), inst, indent, flags);
+  if (m < 0) return m;
+  assert(m+pos < (int)newsize);
+
+  /* On success, update `*dest` and `*size` */
   *dest = q;
   *size = newsize;
-
-  m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
-  if (m < 0) return m;
-  assert(0 <= m && m < (int)*size);
   return m;
 }
 
