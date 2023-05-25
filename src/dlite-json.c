@@ -292,17 +292,24 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
   int m;
   void *q;
   size_t newsize;
-  if (!dest && !*dest) *size = 0;
-  m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
+  if (!dest && !*dest) {
+    *size = 0;
+    m = dlite_json_sprint(*dest, 0, inst, indent, flags);
+    if (m > 0) m += pos;
+  } else {
+    m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
+  }
   if (m < 0) return m;
   if (m < (int)PDIFF(*size, pos)) return m;
 
   /* Reallocate buffer to required size. */
-  newsize = m + pos + 1;
+  newsize = m + pos + 2;
   if (!(q = realloc(*dest, newsize))) return -1;
   *dest = q;
   *size = newsize;
+
   m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
+  if (m < 0) return m;
   assert(0 <= m && m < (int)*size);
   return m;
 }
