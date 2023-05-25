@@ -44,6 +44,9 @@ void dlite_pyembed_initialise(void)
 
     PyConfig_InitPythonConfig(&config);
     config.isolated = 0;
+    config.safe_path = 0;
+    config.use_environment = 1;
+    config.user_site_directory = 1;
 
     /* If dlite is called from a python, reparse arguments to avoid
        that they are stripped off...
@@ -51,9 +54,7 @@ void dlite_pyembed_initialise(void)
     int argc=0;
     wchar_t **argv=NULL;
     Py_GetArgcArgv(&argc, &argv);
-    config.isolated = 0;
     config.parse_argv = 1;
-    config.safe_path = 0;
     status = PyConfig_SetArgv(&config, argc, argv);
     if (PyStatus_Exception(status))
       FAIL("failed configuring pyembed arguments");
