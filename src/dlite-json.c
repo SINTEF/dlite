@@ -287,7 +287,7 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
   reallocated and `*size` updated to the new buffer size.
 
   If `pos` is larger than `*size` the bytes at index `i` are
-  initialized to space ( ), where ``*size <= i < pos``.
+  initialized to space (' '), where ``*size <= i < pos``.
 
   Returns number or bytes written (not including terminating NUL) or a
   negative number on error.
