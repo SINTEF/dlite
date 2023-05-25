@@ -13,13 +13,15 @@
 /* Returns a new property. */
 DLiteProperty *
 dlite_swig_create_property(const char *name, enum _DLiteType type,
-                           size_t size, obj_t *dims, const char *unit,
+                           size_t size, const char *ref,
+                           obj_t *dims, const char *unit,
                            const char *description)
 {
   DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
   p->name = strdup(name);
   p->type = type;
   p->size = size;
+  if (ref && *ref) p->ref = strdup(ref);
   if (dims && dims != DLiteSwigNone) {
     p->ndims = (int)PySequence_Length(dims);
     if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
@@ -120,26 +122,7 @@ struct _DLiteDimension {
  * Property
  * -------- */
 %feature("docstring", "\
-Creates a new property.
-
-```python
-Property(name, type, dims=None, unit=None, description=None)
-```
-
 Creates a new property with the provided attributes.
-
-```python
-Property(seq)
-```
-
-Creates a new property from sequence of 6 strings, corresponding to
-``name``, ``type``, ``dims``, ``unit`` and ``description``.
-Valid values for ``dims`` are:
-
-- ``''`` or ``'[]'``: No dimensions.
-- ``'<dim1>, <dim2>'``: List of dimension names.
-- ``'[<dim1>, <dim2>]'``: List of dimension names.
-
 ") _DLiteProperty;
 %rename(Property) _DLiteProperty;
 struct _DLiteProperty {
@@ -154,17 +137,18 @@ struct _DLiteProperty {
 };
 
 %extend _DLiteProperty {
-  _DLiteProperty(const char *name, const char *type,
+  _DLiteProperty(const char *name, const char *type, const char *ref=NULL,
                  obj_t *dims=NULL, const char *unit=NULL,
                  const char *description=NULL) {
     DLiteType dtype;
     size_t size;
     if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
-    return dlite_swig_create_property(name, dtype, size, dims, unit,
+    return dlite_swig_create_property(name, dtype, size, ref, dims, unit,
                                       description);
   }
   ~_DLiteProperty() {
     free($self->name);
+    if ($self->ref) free($self->ref);
     if ($self->dims) free_str_array($self->dims, $self->ndims);
     if ($self->unit) free($self->unit);
     if ($self->description) free($self->description);
