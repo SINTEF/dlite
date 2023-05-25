@@ -23,7 +23,7 @@ DLiteInstance *mapper(const DLiteMappingPlugin *api,
 
   inst1 = instances[0];
 
-  if (!(inst2 = dlite_instance_create_from_id("http://onto-ns.com/meta/0.1/ent2",
+  if (!(inst2 = dlite_instance_create_from_id("http://onto-ns.com/metas/0.1/ent2",
                                               NULL, NULL))) return NULL;
 
   p = dlite_instance_get_property(inst1, "a");

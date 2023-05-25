@@ -54,7 +54,7 @@ MU_TEST(test_create_from_id)
 {
   int b=-13, *p;
   DLiteInstance *inst;
-  inst = dlite_instance_create_from_id("http://onto-ns.com/meta/0.1/ent2",
+  inst = dlite_instance_create_from_id("http://onto-ns.com/metas/0.1/ent2",
                                        NULL, NULL);
   mu_check(inst);
 
@@ -70,7 +70,7 @@ MU_TEST(test_mapping)
   DLiteInstance *inst, *inst2, *insts[1];
   const DLiteInstance **instances = (const DLiteInstance **)insts;
   DLiteMapping *m;
-  const char *output_uri = "http://onto-ns.com/meta/0.1/ent2";
+  const char *output_uri = "http://onto-ns.com/metas/0.1/ent2";
   const char *input_uris[] = { "http://onto-ns.com/meta/0.1/ent1" };
   char *str;
 
@@ -98,7 +98,7 @@ MU_TEST(test_mapping)
 MU_TEST(test_get_casted)
 {
   DLiteInstance *inst;
-  const char *output_uri = "http://onto-ns.com/meta/0.1/ent2";
+  const char *output_uri = "http://onto-ns.com/metas/0.1/ent2";
   mu_check((inst =
             dlite_instance_get_casted("2daa6967-8ecd-4248-97b2-9ad6fefeac14",
                                       output_uri)));
