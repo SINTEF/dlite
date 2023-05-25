@@ -303,6 +303,8 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
   if (m < (int)PDIFF(*size, pos)) return m;
 
   /* Reallocate buffer to required size. */
+  // FIXME: newsize sould really be `newsize = m + pos + 1;`.
+  // dlite_json_sprint() seems to report one byte too little when called with size=0.
   newsize = m + pos + 2;
   if (!(q = realloc(*dest, newsize))) return -1;
   *dest = q;
