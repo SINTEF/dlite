@@ -53,12 +53,19 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
                       int indent, DLiteJsonFlag flags);
 
 /**
-  Like dlite_sprint(), but prints to allocated buffer.
+  Like dlite_json_sprint(), but prints to allocated buffer.
 
   Prints to position `pos` in `*dest`, which should point to a buffer
-  of size `*size`.  `*dest` is reallocated if needed.
+  of size `*size`. Bytes at position less than `pos` are not changed.
 
-  Returns number or bytes written or a negative number on error.
+  If `*dest` is NULL or `*size` is less than needed, `*dest` is
+  reallocated and `*size` updated to the new buffer size.
+
+  If `pos` is larger than `*size` the bytes at index `i` are
+  initialized to space (' '), where ``*size <= i < pos``.
+
+  Returns number or bytes written (not including terminating NUL) or a
+  negative number on error.
  */
 int dlite_json_asprint(char **dest, size_t *size, size_t pos,
                        const DLiteInstance *inst, int indent,

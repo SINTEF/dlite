@@ -39,6 +39,10 @@ endif()
 # ---------------------
 find_package(SWIG)
 include(UseSWIG)
+set(swig_flags "-Wall;-keyword;-DNPY_SIZE_T=${NPY_SIZE_T}")
+if(${SWIG_VERSION} VERSION_LESS 4.1)
+  list(APPEND swig_flags "-py3")
+endif()
 
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -53,7 +57,7 @@ include_directories(
 
 set_source_files_properties(dlite.i
   PROPERTIES
-    SWIG_FLAGS "-py3;-Wall;-keyword;-DNPY_SIZE_T=${NPY_SIZE_T}"
+    SWIG_FLAGS "${swig_flags}"
     SWIG_MODULE_NAME "dlite"
     )
 
@@ -110,6 +114,13 @@ if(WINDOWS OR MINGW)
   foreach(dll_target ${dll_targets})
     list(APPEND dlls $<TARGET_FILE:${dll_target}>)
   endforeach()
+endif()
+
+# Don't complain about unused parameters in SWIG-generated source
+include(CheckCCompilerFlag)
+check_c_compiler_flag("-Wno-unused-parameter" have_flag)
+if(have_flag)
+  set_property(TARGET dlitepy PROPERTY COMPILE_OPTIONS "-Wno-unused-parameter")
 endif()
 
 add_custom_command(
