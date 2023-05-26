@@ -133,14 +133,15 @@ We can view (a JSON representation of) the instance with
     "nskills": 4
   },
   "properties": {
-    "name": "Sherlock Homes",
-    "age": 34.0,
-    "skills": [
-      "observing",
-      "chemistry",
-      "violin",
-      "boxing"
-    ]
+    "Sherlock Homes" {
+      "age": 34.0,
+      "skills": [
+        "observing",
+        "chemistry",
+        "violin",
+        "boxing"
+      ]
+    }
   }
 }
 ```
@@ -159,13 +160,13 @@ which will produce the a YAML file with the following content
   dimensions:
     nskills: 4
   properties:
-    name: Sherlock Homes
-    age: 34.0
-    skills:
-    - observing
-    - chemistry
-    - violin
-    - boxind
+    Sherlock Homes:
+      age: 34.0
+      skills:
+      - observing
+      - chemistry
+      - violin
+      - boxind
 ```
 
 This was just a brief example.
