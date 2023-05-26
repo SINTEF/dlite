@@ -57,6 +57,11 @@ MU_TEST(test_sprint)
   //printf("%s\n", buf);
   mu_assert_int_eq(404, m);
 
+  m = dlite_json_sprint(buf, sizeof(buf), inst, 0, 0);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("<%.*s>\n", m, buf);
+  mu_assert_int_eq(415, m);
+
 
 
   /* soft5 format: dliteJsonArrays set */
@@ -73,6 +78,15 @@ MU_TEST(test_sprint)
   mu_assert_int_eq(1165, m);
 
   //printf("\n========================================================\n");
+
+
+  /* Tests for PR #541 */
+  m = dlite_json_sprint(buf, 0, inst, 4, dliteJsonSingle);
+  mu_assert_int_eq(404, m);
+
+  m = dlite_json_sprint(NULL, 0, inst, 4, dliteJsonSingle);
+  mu_assert_int_eq(404, m);
+
 }
 
 
