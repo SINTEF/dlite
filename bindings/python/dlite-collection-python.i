@@ -34,9 +34,6 @@
 %pythoncode %{
 from warnings import warn
 
-import pint
-from tripper import Namespace, Triplestore
-
 
 class Collection(Instance):
     """A collection of instances and relations between them.
@@ -225,10 +222,8 @@ class Collection(Instance):
         if metaid:
             if hasattr(metaid, "uri"):
                 uri = metaid.uri
-            elif isinstance(metaid, Namespace):
-                uri = str(metaid).rstrip("#/")
             else:
-                uri = str(metaid)
+                uri = str(metaid).rstrip("#/")
 
             for inst in iter:
                 if inst.meta.uri == uri:
@@ -238,6 +233,16 @@ class Collection(Instance):
                 # This import must be here to avoid circular imports
                 # -- consider refacturing.
                 from dlite.mappings import instantiate_all
+
+                try:
+                    import pint
+                    from tripper import Namespace, Triplestore
+                except ImportError as exc:
+                    raise ImportError(
+                        "Property mappings require tripper and pint. "
+                        "Please do:\n\n"
+                        "    pip install pint tripper\n"
+                    ) from exc
 
                 meta = metaid if isinstance(
                     metaid, dlite.Instance) else dlite.get_instance(

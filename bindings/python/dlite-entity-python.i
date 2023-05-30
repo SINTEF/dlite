@@ -14,7 +14,6 @@ else:
     from collections import OrderedDict
 
 import numpy as np
-from tripper import Namespace
 
 
 class InvalidMetadataError:
@@ -110,9 +109,8 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
     if isinstance(id, dlite.Instance):
         inst = id
     else:
-        if isinstance(id, Namespace):
-            id = str(id).rstrip("#/")
-        if isinstance(metaid, Namespace):
+        id = str(id).rstrip("#/")
+        if metaid and not isinstance(metaid, dlite.Instance):
             metaid = str(metaid).rstrip("#/")
         inst = _dlite.get_instance(id, metaid, check_storages)
 
@@ -158,11 +156,12 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
 %extend _DLiteProperty {
   %pythoncode %{
     def __repr__(self):
+        ref = ', ref=%r' % self.ref if self.ref else ''
         shape = ', shape=%r' % self.shape.tolist() if self.ndims else ''
         unit = ', unit=%r' % self.unit if self.unit else ''
         descr = ', description=%r' %self.description if self.description else ''
-        return 'Property(%r, type=%r%s%s%s)' % (
-            self.name, self.type, shape, unit, descr)
+        return 'Property(%r, type=%r%s%s%s%s)' % (
+            self.name, self.type, ref, shape, unit, descr)
 
     def asdict(self, soft7=True, exclude_name=False):
         """Returns a dict representation of self.
@@ -175,6 +174,8 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         if not exclude_name:
             d['name'] = self.name
         d['type'] = self.get_type()
+        if self.ref:
+            d['ref'] = self.ref
         if self.ndims:
             d['shape' if soft7 else 'dims'] = self.shape.tolist()
         if self.unit:
@@ -307,7 +308,9 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
                            doc='Whether this is a meta-metadata instance.')
     namespace = property(
         lambda self: Namespace(self.get_uri() + '#'),
-        doc='A tripper.Namespace reference to this instance.')
+        doc='A tripper.Namespace reference to this instance. '
+        'Note, this requires tripper to be installed.'
+    )
 
     @classmethod
     def from_metaid(cls, metaid, dims, id=None):

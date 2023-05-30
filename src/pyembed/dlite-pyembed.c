@@ -19,11 +19,57 @@ static int python_initialized = 0;
 /* Initialises the embedded Python environment. */
 void dlite_pyembed_initialise(void)
 {
-  wchar_t *progname;
   if (!python_initialized) {
-    python_initialized = 1;
+    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
 
     Py_Initialize();
+    python_initialized = 1;
+
+    /*
+      Python 3.8 and later implements the new Python
+      Initialisation Configuration.
+
+      More features were added in the following releases,
+      like `config.safe_path`, which was added in Python 3.11
+
+      The old Py_SetProgramName() was deprecated in Python 3.11.
+
+      In DLite, we switch to the new Python Initialisation
+      Configuration from Python 3.11.
+    */
+#if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
+    /* New Python Initialisation Configuration */
+    PyStatus status;
+    PyConfig config;
+
+    PyConfig_InitPythonConfig(&config);
+    config.isolated = 0;
+    config.safe_path = 0;
+    config.use_environment = 1;
+    config.user_site_directory = 1;
+
+    /* If dlite is called from a python, reparse arguments to avoid
+       that they are stripped off...
+       Aren't we initialising a new interpreter? */
+    int argc=0;
+    wchar_t **argv=NULL;
+    Py_GetArgcArgv(&argc, &argv);
+    config.parse_argv = 1;
+    status = PyConfig_SetArgv(&config, argc, argv);
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed arguments");
+
+    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed program name");
+
+    status = Py_InitializeFromConfig(&config);
+    PyConfig_Clear(&config);
+    if (PyStatus_Exception(status))
+      FAIL("failed clearing pyembed config");
+#else
+    /* Old Initialisation */
+    wchar_t *progname;
 
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
@@ -31,9 +77,9 @@ void dlite_pyembed_initialise(void)
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
+ #endif
 
     if (dlite_use_build_root()) {
-      PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
       if (!(sys = PyImport_ImportModule("sys")))
         FAIL("cannot import sys");
       if (!(sys_path = PyObject_GetAttrString(sys, "path")))
@@ -44,11 +90,11 @@ void dlite_pyembed_initialise(void)
         FAIL("cannot create python object for dlite_PYTHONPATH");
       if (PyList_Insert(sys_path, 0, path))
         FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
-    fail:
-      Py_XDECREF(sys);
-      Py_XDECREF(sys_path);
-      Py_XDECREF(path);
     }
+  fail:
+    Py_XDECREF(sys);
+    Py_XDECREF(sys_path);
+    Py_XDECREF(path);
   }
 }
 
