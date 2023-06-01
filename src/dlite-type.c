@@ -596,6 +596,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->name = strdup(s->name);
       d->type = s->type;
       d->size = s->size;
+      if (s->ref) d->ref = strdup(s->ref);
       d->ndims = s->ndims;
       if (d->ndims) {
         int i;

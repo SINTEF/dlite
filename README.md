@@ -8,6 +8,8 @@ DLite
 [![PyPi](https://img.shields.io/pypi/v/dlite-python.svg)](https://pypi.org/project/DLite-Python/)
 [![CI tests](https://github.com/sintef/dlite/workflows/CI%20tests/badge.svg)](https://github.com/SINTEF/dlite/actions)
 [![Documentation](https://img.shields.io/badge/documentation-informational?logo=githubpages)](https://sintef.github.io/dlite/index.html)
+[![DOI](https://zenodo.org/badge/207571283.svg)](https://zenodo.org/badge/latestdoi/207571283)
+
 
 
 DLite is a C implementation of the [SINTEF Open Framework and Tools
@@ -38,7 +40,7 @@ DLite is available on PyPI and can be installed with pip
 pip install dlite-python
 ```
 
-For more details, see the [installation instructions].
+For alternative installation methods, see the [installation instructions].
 
 
 Usage
@@ -131,14 +133,15 @@ We can view (a JSON representation of) the instance with
     "nskills": 4
   },
   "properties": {
-    "name": "Sherlock Homes",
-    "age": 34.0,
-    "skills": [
-      "observing",
-      "chemistry",
-      "violin",
-      "boxing"
-    ]
+    "Sherlock Holmes" {
+      "age": 34.0,
+      "skills": [
+        "observing",
+        "chemistry",
+        "violin",
+        "boxing"
+      ]
+    }
   }
 }
 ```
@@ -157,13 +160,13 @@ which will produce the a YAML file with the following content
   dimensions:
     nskills: 4
   properties:
-    name: Sherlock Homes
-    age: 34.0
-    skills:
-    - observing
-    - chemistry
-    - violin
-    - boxind
+    Sherlock Holmes:
+      age: 34.0
+      skills:
+      - observing
+      - chemistry
+      - violin
+      - boxind
 ```
 
 This was just a brief example.

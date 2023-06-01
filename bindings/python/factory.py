@@ -120,7 +120,8 @@ class BaseExtension(metaclass=MetaExtension):
                 value = getter(prop.name)
                 array = (
                     np.array(value, copy=False)
-                    if value else np.zeros([0] * prop.ndims)
+                    if value is not None
+                    else np.zeros([0] * prop.ndims)
                 )
                 if array.ndim < prop.ndims:
                     raise ValueError(

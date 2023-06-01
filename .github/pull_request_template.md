@@ -1,15 +1,16 @@
-# Description:
-<!-- Summary of change, including the issue to be addressed. -->
+ Description
+ ===========
 
-## Type of change:
-<!-- Put an `x` in the box that applies. -->
-- [ ] Bug fix.
-- [ ] New feature.
-- [ ] Documentation update.
 
-## Checklist for the reviewer:
-<!-- Put an `x` in the boxes that apply. These can be filled by reviewer after the PR is created. -->
+Type of change
+--------------
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Documentation update
+- [ ] Test update
 
+Checklist for the reviewer
+--------------------------
 This checklist should be used as a help for the reviewer.
 
 - [ ] Is the change limited to one issue?

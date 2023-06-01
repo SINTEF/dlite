@@ -20,7 +20,8 @@ set(tests
   test_postgresql1_write
   test_postgresql2_read
   test_ref_type
-  )
+  test_pydantic
+)
 
 foreach(test ${tests})
   set(name ${test}-py)
