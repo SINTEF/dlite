@@ -70,7 +70,17 @@ For example
 
     ```
 
-This facilitates checking the examples by running
+This will show up nicely highlighted in the generated documentation:
+
+```python
+    # Here is a python example
+    >>> x = 1 + 1
+    >>> x
+    2
+
+```
+
+and will facilitate checking the examples by running
 
 ```shell
 python -m doctest <filename>
@@ -78,9 +88,13 @@ python -m doctest <filename>
 
 on your markdown file.
 
-It is recommended to indent your code with 4 spaces.
+It is recommended to indent your code examples with 4 spaces.
 That makes it easy to copy the correct doctest output into your example.
 For more info, see the guide for [documentation testing].
+
+Please note that examples from [Python sources](https://sintef.github.io/dlite/autoapi/dlite/mappings/index.html#dlite.mappings.match_factory) will show up with a small `>>>` button in the top right of the code listing box.
+If you click that button, it will toggle the prompt and output on or off, making it easy to copy/paste from examples.
+
 
 
 [Markdown]: https://en.wikipedia.org/wiki/Markdown

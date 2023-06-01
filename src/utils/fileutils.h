@@ -214,7 +214,7 @@ char *fu_friendly_dirsep(char *path);
   a path separator.  NULL corresponds to ";:", except that the colon
   will not be considered as a path separator in the following two cases:
     - it is the second character in the path preceded by an alphabetic
-      character and followed by forward or backward slash. Ex: 'C:\xxx'.
+      character and followed by forward or backward slash. Ex: ``C:\xxx``.
     - it is preceded by only alphabetic characters and followed by
       two forward slashes and a alphabetic character.  Ex: http://xxx...
 
