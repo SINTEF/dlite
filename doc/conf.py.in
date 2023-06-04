@@ -58,7 +58,8 @@ extensions = [
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
     "sphinxcontrib.plantuml",  # PlantUml
-    "sphinx_copybutton",  # Copy button for codeblocks
+    "sphinx_toggleprompt",  # Add button for show/hide example prompts
+    #"sphinx_copybutton",  # Copy button for codeblocks
     "sphinx_design",  # Create panels in a grid layout or as drop-downs and more
 ]
 
