@@ -221,7 +221,6 @@ setup(
             str(Path(".") / "bin" / "dlite-getuuid"),
             str(Path(".") / "bin" / "dlite-codegen"),
             str(Path(".") / "bin" / "dlite-env"),
-            str(Path(".") / "bin" / "patch-activate.sh"),
         ]
     },
     ext_modules=[
