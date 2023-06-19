@@ -162,17 +162,20 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
     PyErr_NormalizeException(&type, &value, &tb);
     assert(type && value);
 
+    Py_INCREF(type);
+    Py_INCREF(value);
+
     /* If the DLITE_PYDEBUG environment variable is set, print full Python
        error message (with traceback) to sys.stderr. */
     if (getenv("DLITE_PYDEBUG")) {
-      Py_INCREF(type);
-      Py_INCREF(value);
       Py_INCREF(tb);
       PyErr_Restore(type, value, tb);
       PySys_WriteStderr("\n");
       PyErr_Print();
       PySys_WriteStderr("\n");
-   }
+    } else {
+      PyErr_Restore(type, value, NULL);
+    }
 
     /* Try to get traceback info from traceback.format_exception()... */
     if (tb) {

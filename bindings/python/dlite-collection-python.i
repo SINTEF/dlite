@@ -9,6 +9,8 @@
     def __next__(self):
         if self.rettype == 'I':  # instance
             v = self.next()
+            if v and v.is_meta:
+                v.__class__ = Metadata
         elif self.rettype in 'RTspo':  # relation
             v = self.next_relation()
         else:
@@ -25,6 +27,7 @@
             return v.p
         elif self.rettype == 'o':  # return object
             return v.o
+
         return v
 %}
 
@@ -245,8 +248,10 @@ class Collection(Instance):
                     ) from exc
 
                 meta = metaid if isinstance(
-                    metaid, dlite.Instance) else dlite.get_instance(
+                    metaid, Instance) else _dlite.get_instance(
                         str(metaid).rstrip("#/"))
+                if meta.is_meta:
+                    meta.__class__ = Metadata
 
                 if ureg is None:
                     quantity = pint.Quantity
@@ -273,7 +278,7 @@ class Collection(Instance):
                 ):
                     yield inst
         elif property_mappings:
-            raise dlite.DLiteError(
+            raise DLiteError(
                 '`metaid` is required when `property_mappings` is true')
         else:
             for inst in iter:

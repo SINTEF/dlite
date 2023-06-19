@@ -275,7 +275,7 @@ class MappingStep:
 
     def number_of_routes(self) -> int:
         """Total number of routes to this mapping step.
-        
+
         Returns:
             Total number of routes to this mapping step.
 
