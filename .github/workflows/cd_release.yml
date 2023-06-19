@@ -137,7 +137,7 @@ jobs:
       shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
     - name: Set up Python 3
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
 
