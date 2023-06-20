@@ -865,6 +865,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     }
     break;
   }
+
   if (m < 0) {
     char buf[32];
     dlite_type_set_typename(dtype, size, buf, sizeof(buf));
