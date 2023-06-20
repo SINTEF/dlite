@@ -79,7 +79,7 @@ class yaml(dlite.DLiteStorageBase):
             single=self.options.single,
             check_storages=False,
         )
-        # Metadata in single-entity form is always read-only
+        # Ensure metadata in single-entity form is always read-only
         if inst.is_meta and self.single:
             self.writable = False
 
