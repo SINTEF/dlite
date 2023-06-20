@@ -7,6 +7,7 @@ set(python-tests
   test_yaml_storage_python
   test_mongodb_python
   test_mongodb-atlas_python
+  test_redis
   )
 
 include(FindPythonModule)
