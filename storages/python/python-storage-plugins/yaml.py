@@ -33,29 +33,28 @@ class yaml(dlite.DLiteStorageBase):
         self.options = Options(
             options, defaults="mode=a;soft7=true;single=auto"
         )
-        self.mode = {"r": "r", "w": "w", "a": "r+", "append": "r+"}[
-            self.options.mode]
-        self.readable = "r" in self.mode
-        self.writable = "r" != self.mode
+        self.readable = "r" in self.options.mode
+        self.writable = "r" != self.options.mode
         self.generic = True
         self.uri = uri
         self.flushed = False  # whether buffered data has been written to file
         self._data = {}  # data buffer
 
-        if self.mode in ("r", "r+"):
-            with open(uri, self.mode) as handle:
+        if self.options.mode in ("r", "a", "append"):
+            with open(uri, "r") as handle:
                 data = pyyaml.safe_load(handle)
             if data:
                 self._data = data
 
+        self.single = (
+            "properties" in self._data if self.options.single == "auto"
+            else dlite.asbool(self.options.single)
+        )
+
     def flush(self):
         """Flush cached data to storage."""
         if self.writable and not self.flushed:
-            mode = (
-                "w" if self.mode == "r+" and not os.path.exists(self.uri)
-                else self.mode
-            )
-            with open(self.uri, mode) as handle:
+            with open(self.uri, "w") as handle:
                 self._pyyaml.dump(
                     self._data,
                     handle,
@@ -74,12 +73,17 @@ class yaml(dlite.DLiteStorageBase):
         Returns:
             A DLite Instance corresponding to the given `id` (UUID).
         """
-        return instance_from_dict(
+        inst = instance_from_dict(
             self._data,
             id,
             single=self.options.single,
             check_storages=False,
         )
+        # Ensure metadata in single-entity form is always read-only
+        if inst.is_meta and self.single:
+            self.writable = False
+
+        return inst
 
     def save(self, inst: dlite.Instance):
         """Stores `inst` in current storage.
@@ -89,7 +93,8 @@ class yaml(dlite.DLiteStorageBase):
 
         """
         self._data[inst.uuid] = inst.asdict(
-            soft7=dlite.asbool(self.options.soft7)
+            soft7=dlite.asbool(self.options.soft7),
+            uuid=self.single,
         )
         self.flushed = False
 
