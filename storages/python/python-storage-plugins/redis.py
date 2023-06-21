@@ -1,4 +1,4 @@
-"""A simple demonstrage of a DLite storage plugin written in Python."""
+"""DLite storage plugin for Redis written in Python."""
 from redis import Redis
 
 import dlite
@@ -6,13 +6,13 @@ from dlite.options import Options
 
 
 class redis(dlite.DLiteStorageBase):
-    """DLite storage plugin for YAML."""
+    """DLite storage plugin for Redis."""
 
     def open(self, uri: str, options=None):
         """Opens `uri`.
 
         Arguments:
-            uri: A fully resolved URI to the PostgreSQL database.
+            uri: A fully resolved URI to the Redis database.
             options: Supported options:
             - `port`: Port to connect to (default: 6379).
             - `username`: Redis user name.
