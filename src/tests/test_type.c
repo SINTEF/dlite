@@ -196,6 +196,8 @@ MU_TEST(test_print)
   double v=3.141592;
   char *p=NULL, s[]="my source string", *q=s;
   DLiteInstance *inst = (DLiteInstance *)dlite_collection_create("myid");
+  DLiteDimension d = {"name", "descr"};
+  DLiteRelation r = {"subject", "predicate", "object", "id"};
 
   mu_assert_int_eq(7, dlite_type_print(buf, sizeof(buf), &v, dliteFloat,
                                        sizeof(double), 0, -2, 0));
@@ -225,6 +227,20 @@ MU_TEST(test_print)
   mu_assert_int_eq(4, dlite_type_print(buf, sizeof(buf), &inst, dliteRef,
                                         sizeof(DLiteInstance *), -1, -1, 0));
   mu_assert_string_eq("myid", buf);
+
+  mu_assert_int_eq(40, dlite_type_print(buf, sizeof(buf), &d, dliteDimension,
+                                       sizeof(DLiteDimension *), -1, -1, 0));
+  mu_assert_string_eq("{\"name\": \"name\", \"description\": \"descr\"}", buf);
+
+
+  mu_assert_int_eq(34, dlite_type_print(buf, sizeof(buf), &r, dliteRelation,
+                                       sizeof(DLiteRelation *), -1, -1, 0));
+  mu_assert_string_eq("[\"subject\", \"predicate\", \"object\"]", buf);
+
+  buf[0] = '\0';
+  mu_assert_int_eq(34, dlite_type_print(buf, 0, &r, dliteRelation,
+                                       sizeof(DLiteRelation *), -1, -1, 0));
+  mu_assert_int_eq(0, buf[0]);
 
   n = dlite_type_aprint(&ptr, &size, 0, &q, dliteStringPtr, sizeof(char **),
                         -1, -1, dliteFlagQuoted);
