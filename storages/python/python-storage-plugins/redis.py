@@ -8,11 +8,11 @@ from dlite.options import Options
 class redis(dlite.DLiteStorageBase):
     """DLite storage plugin for Redis."""
 
-    def open(self, uri: str, options=None):
-        """Opens `uri`.
+    def open(self, location: str, options=None):
+        """Opens connection to a Redis server.
 
         Arguments:
-            uri: A fully resolved URI to the Redis database.
+            location: A fully resolved URI to the Redis database.
             options: Supported options:
             - `port`: Port to connect to (default: 6379).
             - `username`: Redis user name.
@@ -30,7 +30,6 @@ class redis(dlite.DLiteStorageBase):
               transparently encrypt all instances before sending them to Redis.
               Generate the key with `crystallography.fernet.generate_key()`.
         """
-        self.uri = uri
         opts = Options(options, defaults="port=6379;ssl=false;db=0")
 
         # Pop out options passed to redis.set()
@@ -47,7 +46,7 @@ class redis(dlite.DLiteStorageBase):
         opts.port = int(opts.port)
         opts.ssl = dlite.asbool(opts.ssl)
         opts.db = int(opts.db)
-        self.redis = Redis(host=uri, **opts)
+        self.redis = Redis(host=location, **opts)
         self.closed = False
 
     def close(self):
