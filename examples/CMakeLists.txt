@@ -9,6 +9,7 @@ set(python_examples
   mappings
   storage_plugin
   entity_service
+  minio_storage
   )
 endif()
 

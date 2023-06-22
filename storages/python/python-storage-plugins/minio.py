@@ -1,4 +1,6 @@
 """DLite storage plugin for MinIO written in Python."""
+import io
+
 from minio import Minio
 
 import dlite
@@ -8,11 +10,11 @@ from dlite.options import Options
 class minio(dlite.DLiteStorageBase):
     """DLite storage plugin for MinIO."""
 
-    def open(self, uri: str, options=None):
+    def open(self, location: str, options=None):
         """Opens `uri`.
 
         Arguments:
-            uri: Hostname of a S3 service.
+            location: Hostname of a S3 service.
             options: Supported options:
             - `bucket_name`: Name of bucket.  Defaults to "dlite".
             - `access_key`: Access key (aka user ID) of your account in S3 service.
@@ -25,26 +27,18 @@ class minio(dlite.DLiteStorageBase):
             - `http_client`: Customized HTTP client.
             - `credentials`: Credentials provider of your account in S3 service.
         """
-        self.uri = uri
-        opts = Options(options, defaults="object_lock=false;secure=true")
+        opts = Options(options, defaults="secure=true")
 
         # Pop out bucket-related options
         self.bucket_name = opts.pop("bucket_name", "dlite")
 
         # Fix option types and create MinIO connection
         opts.secure = dlite.asbool(opts.secure)
-        self.client = Minio(endpoint=uri, **opts)
+        self.client = Minio(endpoint=location, **opts)
 
-        if not self.client.bucket_exists(bucket):
+        if not self.client.bucket_exists(self.bucket_name):
             kw = {"region": opts.region} if "region" in opts else {}
             self.client.make_bucket(self.bucket_name, **kw)
-
-        self.closed = False
-
-    def close(self):
-        """Close the connection to Redis."""
-        self.client.close()
-        self.closed = True
 
     def load(self, id: str):
         """Loads `id` from current storage and return it as a new instance.
@@ -57,11 +51,11 @@ class minio(dlite.DLiteStorageBase):
         """
         uuid = dlite.get_uuid(id)
         try:
-            response = self.client(
+            response = self.client.get_object(
                 bucket_name=self.bucket_name,
                 object_name=uuid,
             )
-            # Read data from response.
+            return dlite.Instance.from_json(response.data.decode())
         finally:
             response.close()
             response.release_conn()
@@ -72,20 +66,20 @@ class minio(dlite.DLiteStorageBase):
         Arguments:
             inst: A DLite Instance to store in the storage.
         """
-        data = bytes(inst.asbson())
-        metadata = {"meta": inst.meta}
+        # Use the built-in BSON encoder for fast serialisation of instances
+        data = inst.asjson().encode()
+        metadata = {"meta": inst.meta.uri}
         if inst.uri:
             metadata["uri"] = inst.uri
 
-        result = self.client.put_object(
-            bucket_name=self.bucket,
+        self.client.put_object(
+            bucket_name=self.bucket_name,
             object_name=inst.uuid,
             data=io.BytesIO(data),
             length=len(data),
             content_type="application/bson",
             metadata=metadata,
         )
-        # some checking of the result
 
     def delete(self, id):
         """Delete instance with given `id` from storage.
@@ -108,12 +102,13 @@ class minio(dlite.DLiteStorageBase):
             DLite Instance UUIDs based on `pattern`.
             If no `pattern` is given, all UUIDs are yielded from within the
             storage.
-
-        Note:
-            This method fetch all instances in the Redis store and may
-            be slow on large databases.
         """
-        objects = self.client.list_objects(self.bucket_name, include_user_meta=True)
+        objects = self.client.list_objects(
+            self.bucket_name, include_user_meta=True
+        )
         for obj in objects:
-            print(obj)
-            #yield uuid
+            if pattern:
+                print(obj.object_name, obj.metadata)
+                if not dlite.globmatch(pattern, obj.metadata.get("meta")):
+                    continue
+            yield obj.object_name
