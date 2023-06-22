@@ -1,0 +1,24 @@
+{
+  "25a1d213-15bb-5d46-9fcc-cbb3a6e0568e":   {
+    "uri": "aa6060",
+    "meta": "http://onto-ns.com/meta/calm/0.1/Chemistry",
+    "dimensions": {
+      "nelements": 4,
+      "nphases": 3
+    },
+    "properties": {
+      "alloy": "Sample alloy...",
+      "elements": ["Al", "Mg", "Si", "Fe"],
+      "phases": ["FCC_A1", "MG2SI", "ALFESI_ALPHA"],
+      "X0": [0.9897, 0.005, 0.005, 0.0003],
+      "Xp": [
+        [0.607882, 0.29803, 0.201061, 0.108791],
+        [0, 0.666667, 0.333333, 0],
+        [0.7, 0, 0.1, 0.2]
+      ],
+      "volfrac": [0.98, 0.01, 0.01],
+      "rpart": [0, 1e-06, 1e-05],
+      "atvol": [1.6e-29, 2.4e-29, 2e-29]
+    }
+  }
+}
