@@ -14,7 +14,7 @@
     "elements": {
       "type": "string",
       "dims": ["nelements"],
-      "description": "Chemical symbol of each chemical element.  By convension the dependent element (e.g. Al) is listed first."
+      "description": "Chemical symbol of each chemical element.  By convection the dependent element (e.g. Al) is listed first."
     },
     "phases": {
       "type": "string",

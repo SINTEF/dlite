@@ -8,7 +8,7 @@ url = f"minio://play.min.io?access_key={access_key};secret_key={secret_key}"
 dlite.storage_path.append(url)
 
 
-# Get data minio
+# Get data from MinIO
 aa6060 = dlite.get_instance("aa6060")
 aa6082 = dlite.get_instance("aa6082")
 
@@ -17,7 +17,7 @@ aa6082 = dlite.get_instance("aa6082")
 print(aa6082)
 
 
-# Cleanup (be nice with minio playground)
+# Cleanup (to be nice and not leave our data laying around in the MinIO playground)
 with dlite.Storage(url) as s:
     s.delete(aa6060.meta.uuid)
     s.delete(aa6060.uuid)
