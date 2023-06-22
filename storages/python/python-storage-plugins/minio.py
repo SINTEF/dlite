@@ -66,7 +66,8 @@ class minio(dlite.DLiteStorageBase):
         Arguments:
             inst: A DLite Instance to store in the storage.
         """
-        # Consider to use the built-in BSON encoder for fast serialisation of instances
+        # Consider to use the built-in BSON encoder for fast serialisation
+        # of instances
         data = inst.asjson().encode()
         metadata = {"meta": inst.meta.uri}
         if inst.uri:
