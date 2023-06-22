@@ -12,3 +12,4 @@ except ImportError:
 thisdir = Path(__file__).resolve().parent
 
 subprocess.check_call(args=[sys.executable, f"{thisdir}/store.py"])
+subprocess.check_call(args=[sys.executable, f"{thisdir}/fetch.py"])

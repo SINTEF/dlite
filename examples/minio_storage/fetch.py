@@ -11,3 +11,11 @@ dlite.storage_path.append(url)
 # Get data minio
 aa6060 = dlite.get_instance("aa6060")
 aa6082 = dlite.get_instance("aa6082")
+
+
+
+# Cleanup (be nice with minio playground)
+with dlite.Storage(url) as s:
+    s.delete(aa6060.meta.uuid)
+    s.delete(aa6060.uuid)
+    s.delete(aa6082.uuid)
