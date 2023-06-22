@@ -9,13 +9,13 @@ MinIO is well suited for storing both data and corresponding data models (metada
 Normally, you would use separate buckets for data and metadata.
 But for simplicity, we will in this example just use the default bucket (called "dlite") for both the data and metadata.
 
-The data we will use are chemical compositions two common aluminium alloys, aa6060 and aa6082, described by the [http://onto-ns.com/meta/calm/0.1/Chemistry](../entities/Chemistry-0.1.json) entity.
+The data we will use are chemical compositions two common aluminium alloys, [aa6060] and [aa6082], described by the [http://onto-ns.com/meta/calm/0.1/Chemistry] entity.
 
 
 Storing
 -------
 First we will store our data instances to MinIO.
-That is done in the script [store.py](store.py).
+That is done in the script [store.py].
 Since we have several instances, the script use `dlite.Storage` to reduce the number of connections made to MinIO:
 
 ```python
@@ -35,7 +35,7 @@ Fetching
 --------
 To fetch data from MinIO, we will first append the URL to the MinIO playground to the dlite storage search path.
 That can either be done by appending to the `DLITE_STORAGES` environment variable (note that this variable uses the pipe (|) character to separate URLs) or the `dlite.storage_path` object in Python.
-The latter is done in the [fetch.py](fetch.py) script.
+The latter is done in the [fetch.py] script.
 After the storage path has been set, you can simply access data and metadata by UUID or UUID using `dlite.get_instance()`.
 
 You can test this script by running:
@@ -47,3 +47,11 @@ main.py
 -------
 The `main.py` script simply runs `store.py` and `fetch.py` in sequence.
 It is intended to be used by the CI/CD framework.
+
+
+
+aa6060: ../entities/aa6060.json
+aa6082: ../entities/aa6060.json
+http://onto-ns.com/meta/calm/0.1/Chemistry: ../entities/Chemistry-0.1.json
+store.py: store.py
+fetch.py: fetch.py
