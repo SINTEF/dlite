@@ -50,8 +50,8 @@ It is intended to be used by the CI/CD framework.
 
 
 
-aa6060: ../entities/aa6060.json
-aa6082: ../entities/aa6060.json
-http://onto-ns.com/meta/calm/0.1/Chemistry: ../entities/Chemistry-0.1.json
-store.py: store.py
-fetch.py: fetch.py
+[aa6060]: ../entities/aa6060.json
+[aa6082]: ../entities/aa6082.json
+[http://onto-ns.com/meta/calm/0.1/Chemistry]: ../entities/Chemistry-0.1.json
+[store.py]: store.py
+[fetch.py]: fetch.py
