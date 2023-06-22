@@ -66,7 +66,7 @@ class minio(dlite.DLiteStorageBase):
         Arguments:
             inst: A DLite Instance to store in the storage.
         """
-        # Use the built-in BSON encoder for fast serialisation of instances
+        # Consider to use the built-in BSON encoder for fast serialisation of instances
         data = inst.asjson().encode()
         metadata = {"meta": inst.meta.uri}
         if inst.uri:
@@ -88,8 +88,7 @@ class minio(dlite.DLiteStorageBase):
             id: URI or UUID of instance to delete.
         """
         uuid = dlite.get_uuid(id)
-        errors = self.client.remove_object(self.bucket_name, uuid)
-        # TODO: check errors
+        self.client.remove_object(self.bucket_name, uuid)
 
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
