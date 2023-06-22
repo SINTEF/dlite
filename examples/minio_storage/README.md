@@ -15,7 +15,7 @@ The data we will use are chemical compositions two common aluminium alloys, aa60
 Storing
 -------
 First we will store our data instances to MinIO.
-That is done in the script `store.py`.
+That is done in the script [store.py](store.py).
 Since we have several instances, the script use `dlite.Storage` to reduce the number of connections made to MinIO:
 
 ```python
@@ -35,7 +35,7 @@ Fetching
 --------
 To fetch data from MinIO, we will first append the URL to the MinIO playground to the dlite storage search path.
 That can either be done by appending to the `DLITE_STORAGES` environment variable (note that this variable uses the pipe (|) character to separate URLs) or the `dlite.storage_path` object in Python.
-The latter is done in the `fetch.py` script.
+The latter is done in the [fetch.py](fetch.py) script.
 After the storage path has been set, you can simply access data and metadata by UUID or UUID using `dlite.get_instance()`.
 
 You can test this script by running:
