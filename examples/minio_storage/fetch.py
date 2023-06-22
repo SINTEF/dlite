@@ -13,6 +13,9 @@ aa6060 = dlite.get_instance("aa6060")
 aa6082 = dlite.get_instance("aa6082")
 
 
+# Show an instance we fetched
+print(aa6082)
+
 
 # Cleanup (be nice with minio playground)
 with dlite.Storage(url) as s:
