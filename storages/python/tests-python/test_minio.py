@@ -19,7 +19,7 @@ dlite.storage_path.append(thisdir / "input/*.json")
 # Access and secret keys for free MinIO playground
 access_key = "Q3AM3UQ867SPQQA43P2F"
 secret_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-options = f"access_key={access_key};secret_key={secret_key}"
+options = f"bucket_name=dlite-test;access_key={access_key};secret_key={secret_key}"
 
 inst1 = dlite.get_instance("2f8ba28c-add6-5718-a03c-ea46961d6ca7")
 inst2 = dlite.get_instance("52522ba5-6bfe-4a64-992d-e9ec4080fbac")
