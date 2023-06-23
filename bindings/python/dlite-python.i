@@ -775,12 +775,12 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
       const char *s = PyUnicode_AsUTF8AndSize(str, &n);
-      Py_DECREF(str);
       if (!s) FAIL("cannot represent string as UTF-8");
       if (n >= (Py_ssize_t)size)
         FAIL2("Length of string is %lu. Exceeds available size: %lu",
               (unsigned long)n, (unsigned long)size);
       memcpy(ptr, s, n+1);
+      Py_DECREF(str);
     }
     break;
 
@@ -790,12 +790,12 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
       const char *s = PyUnicode_AsUTF8AndSize(str, &n);
-      Py_DECREF(str);
       if (!s) FAIL("cannot represent string as UTF-8");
       if (!(p = realloc(*(void **)ptr, n+1))) FAIL("allocation failure");
       *(char **)ptr = p;
       if (p)
         memcpy(p, s, n+1);
+      Py_DECREF(str);
     }
     break;
 
