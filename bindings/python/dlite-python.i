@@ -775,10 +775,15 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
       const char *s = PyUnicode_AsUTF8AndSize(str, &n);
-      if (!s) FAIL("cannot represent string as UTF-8");
-      if (n >= (Py_ssize_t)size)
+      if (!s) {
+        Py_DECREF(str);
+        FAIL("cannot represent string as UTF-8");
+      }
+      if (n >= (Py_ssize_t)size) {
+        Py_DECREF(str);
         FAIL2("Length of string is %lu. Exceeds available size: %lu",
               (unsigned long)n, (unsigned long)size);
+      }
       memcpy(ptr, s, n+1);
       Py_DECREF(str);
     }
@@ -790,8 +795,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
       const char *s = PyUnicode_AsUTF8AndSize(str, &n);
-      if (!s) FAIL("cannot represent string as UTF-8");
-      if (!(p = realloc(*(void **)ptr, n+1))) FAIL("allocation failure");
+      if (!s) {
+        Py_DECREF(str);
+        FAIL("cannot represent string as UTF-8");
+      }
+      if (!(p = realloc(*(void **)ptr, n+1))) {
+        Py_DECREF(str);
+        FAIL("allocation failure");
+      }
       *(char **)ptr = p;
       if (p)
         memcpy(p, s, n+1);
@@ -1237,7 +1248,9 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 %typemap(freearg) (struct _DLiteInstance **instances, int ninstances) {
   if ($1) {
     int i;
-    for (i=0; i<$2; i++) dlite_instance_decref($1[i]);
+    for (i=0; i<$2; i++)
+      if ($1[i]) dlite_instance_decref($1[i]);
+    free($1);
   }
 }
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)

@@ -107,6 +107,8 @@ MU_TEST(test_load)
   // Compare JSON and BSON data
   mu_assert_string_eq(json_str1, bson_str1);
   mu_assert_string_eq(json_str2, bson_str2);
+  free(json_str1);
+  free(json_str2);
 
   stat = dlite_storage_close(s);
   mu_assert_int_eq(0, stat);
