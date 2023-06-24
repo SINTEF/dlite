@@ -57,22 +57,32 @@ class DataModel:
             raise KeyError(f'A dimension named "{name}" already exists')
         self.dimensions[name] = dlite.Dimension(name, description)
 
-    def add_property(self, name, type, dims=None, unit=None, description=None):
+    def add_property(self, name, type, shape=None, unit=None, description=None,
+                     dims=None):
         """Add property to data model.
 
         Parameters:
             name: Property label.
             type: Property type.
-            dims: Shape of Property.  Default is scalar.
+            shape: Shape of Property.  Default is scalar.
             unit: Unit. Default is dimensionless.
             description: Human description.
+            dims: Deprecated alias for `shape`.
         """
         if name in self.properties:
             raise KeyError(f'A property named "{name}" already exists')
+
+        if dims:
+            if not shape:
+                shape = dims
+            warnings.warn(
+                "Argument `dims` is deprecated. Use `shape` instead."
+            )
+
         self.properties[name] = dlite.Property(
             name=name,
             type=type,
-            dims=dims,
+            dims=shape,
             unit=unit,
             description=description,
         )

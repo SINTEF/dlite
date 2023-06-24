@@ -275,7 +275,7 @@ class MappingStep:
 
     def number_of_routes(self) -> int:
         """Total number of routes to this mapping step.
-        
+
         Returns:
             Total number of routes to this mapping step.
 
@@ -775,7 +775,7 @@ def instantiate_from_routes(
                 quantity=quantity,
             )
     dims = infer_dimensions(meta, values)
-    inst = meta(dims=dims, id=id)
+    inst = meta(dimensions=dims, id=id)
 
     for key, value in routes.items():
         inst[key] = value.eval(magnitude=True, unit=meta.getprop(key).unit)
