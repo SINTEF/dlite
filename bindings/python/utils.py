@@ -413,7 +413,7 @@ def infer_dimensions(meta, values, strict=True):
                 raise InvalidNumberOfDimensionsError(
                     f'property {prop.name} has {prop.ndims} dimensions, but '
                     f'{len(v.shape)} was provided')
-            for i, dimname in enumerate(prop.dims):
+            for i, dimname in enumerate(prop.shape):
                 if dimname in dims and v.shape[i] != dims[dimname]:
                     raise CannotInferDimensionError(
                         f'inconsistent assignment of dimension "{dimname}" '
