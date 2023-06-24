@@ -173,7 +173,8 @@ endforeach()
 #
 # Add the extension-libraries (*.dll, *.so) to the package directory
 # effectively producing a binary distribution ready to be run.
-# This can be picked up by a setup.py script with ""python setup.py install"" (or bdist_wheel)
+# This can be picked up by a setup.py script with ``python setup.py install``
+# (or bdist_wheel)
 #
 add_custom_command(
   TARGET dlitepy
