@@ -373,26 +373,46 @@ MU_TEST(test_parse)
 }
 
 
-MU_TEST(test_scan) {
-  /* There seems to be an error in how some doubles are serialised,
-     like -1e-8 */
+
+#include <assert.h>
+
+/* Dedicated tests for issue 556 - inconsistent BSON encoding/decoding */
+
+/* Creates a BSON document containg x as its only encoded value and then
+   decode the document and return the decoded value. */
+double help_issue556(double x)
+{
   BsonError errcode;
-  unsigned char doc[1024], doc01[] =
-    "\x14\x00\x00\x00\x01value\x00\xc3\xf5(\\\x8f\xc2\x05@\x00";
+  unsigned char doc[1024];
+  int n, m, bufsize=sizeof(doc);
 
-  double value = bson_scan_double(doc01, "value", &errcode);
-  mu_assert_double_eq(2.72, value);
-
-  int i, n, m, bufsize=sizeof(doc);
-  double v = 2.72;
   n = bson_init_document(doc, bufsize);
-  m = bson_append(doc, bufsize-n, bsonDouble, "value", sizeof(double), &v);
-  mu_check(m > 0);
-  n += m;
-  mu_assert_int_eq(0x14, bson_docsize(doc));
-  mu_assert_int_eq(0x14, n);
-  for (i=0; i<n; i++)
-    mu_assert_int_eq((int)doc01[i], (int)doc[i]);
+  m = bson_append(doc, bufsize-n, bsonDouble, "value", sizeof(double), &x);
+  assert(m > 0);
+
+  double value = bson_scan_double(doc, "value", &errcode);
+  return value;
+}
+
+MU_TEST(test_issue556) {
+  double inf = 1.0/0.0;
+  double nan = 0.0/0.0;
+  double values_to_test[] = {
+    1, 0, -1, 3.14, 2.73, -2.3, 1e-6, -1e-6, 1e8, -1e8,
+    +0.0, -0.0, inf, -inf, nan
+  };
+
+  /* tests */
+  printf("\nTest double encoding/decoding:\n");
+  int i, n=sizeof(values_to_test)/sizeof(double);
+  for (i=0; i<n; i++) {
+    double x = values_to_test[i];
+    double v = help_issue556(x);
+    printf("  %8.3g..", v);
+    mu_assert_double_eq(x, v);
+    printf("  ok\n");
+  }
+  printf("\n");
 }
 
 
@@ -407,7 +427,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_subdoc);
   MU_RUN_TEST(test_append_binary);
   MU_RUN_TEST(test_parse);
-  MU_RUN_TEST(test_scan);
+  MU_RUN_TEST(test_issue556);
 }
 
 
