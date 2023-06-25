@@ -273,8 +273,10 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
 static void freeapi(PluginAPI *api)
 {
   DLiteMappingPlugin *p = (DLiteMappingPlugin *)api;
+  int i;
   free(p->name);
   free((char *)p->output_uri);
+  for (i=0; i<p->ninput; i++) free((char *)(p->input_uris[i]));
   free((char **)p->input_uris);
   Py_XDECREF(p->data);
   free(p);
@@ -379,7 +381,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
       FAIL2("item %d of attribute 'input_uris' of '%s' is not a string",
             i, classname);
     }
-    input_uris[i] = PyUnicode_AsUTF8(in_uri);
+    input_uris[i] = strdup(PyUnicode_AsUTF8(in_uri));
     Py_DECREF(in_uri);
   }
 

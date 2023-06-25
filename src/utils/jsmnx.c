@@ -35,21 +35,35 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
   (void) n_save;  // avoid unused parameter error when assert is turned off
   assert(tokens_ptr);
   assert(num_tokens_ptr);
-  if (!*tokens_ptr) *num_tokens_ptr = 0;
   if (!*num_tokens_ptr) *tokens_ptr = NULL;
+  if (!*tokens_ptr) *num_tokens_ptr = 0;
 
   saved_pos = parser->pos;
-  if ((n = jsmn_parse(parser, js, len, NULL, 0)) < 0) goto fail;
-  if (!(t = realloc(*tokens_ptr, n*sizeof(jsmntok_t)))) return JSMN_ERROR_NOMEM;
+
+  if (!*tokens_ptr) {
+    if ((n = jsmn_parse(parser, js, len, NULL, 0)) < 0) goto fail;
+    /* FIXME: there seems to be an issue with the dlite_json_check() that
+       looks post the last allocated token. Allocating `n+1` tokens is a
+       workaround to avoid memory issues. */
+    if (!(t = calloc(n+1, sizeof(jsmntok_t)))) return JSMN_ERROR_NOMEM;
+  } else {
+    n = jsmn_parse(parser, js, len, *tokens_ptr, *num_tokens_ptr);
+    if (n >= 0) return n;
+    if (n != JSMN_ERROR_NOMEM) goto fail;
+    if (!(t = realloc(*tokens_ptr, n*sizeof(jsmntok_t))))
+      return JSMN_ERROR_NOMEM;
+  }
+  *tokens_ptr = t;
+  *num_tokens_ptr = n;
   n_save = n;
+
+  /* TODO: Instead of resetting the parser, we should continue after
+     reallocation */
   parser->pos = saved_pos;
   if ((n = jsmn_parse(parser, js, len, t, n)) < 0) goto fail;
   assert(n == n_save);
-  *tokens_ptr = t;
-  *num_tokens_ptr = n;
   return n;
  fail:
-  if (t) free(t);
   switch (n) {
   case JSMN_ERROR_NOMEM: abort();  // this should never happen
   case JSMN_ERROR_INVAL: return JSMN_ERROR_INVAL;
