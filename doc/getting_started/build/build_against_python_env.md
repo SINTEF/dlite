@@ -26,7 +26,7 @@ Create a new build folder and build DLite against Python 3.9
     workon dlite39
     mkdir build-dlite39
     cd build-dlite39
-    cmake -DCMAKE_INSTALL_PREFIX=$WORKON_HOME/dlite39 -DPYTHON_VERSION=3.9 ..
+    cmake -DCMAKE_INSTALL_PREFIX=$WORKON_HOME/dlite39 -DPython3_FIND_VIRTUALENV=ONLY -DPYTHON_VERSION=3.9 ..
     cmake --build .
     cmake --install .
     ctest

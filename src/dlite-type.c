@@ -865,6 +865,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     }
     break;
   }
+
   if (m < 0) {
     char buf[32];
     dlite_type_set_typename(dtype, size, buf, sizeof(buf));
@@ -907,7 +908,6 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
   assert(0 <= m && m < (int)*n);
   return m;
 }
-
 
 
 /* Maximum number of jsmn tokens in a dimension, property and relation */
@@ -1119,14 +1119,9 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       jsmn_parser parser;
       jsmntok_t tokens[MAX_PROPERTY_TOKENS];
       const jsmntok_t *t, *d;
-      int r, i;
+      int r, i, errnum;
 
-      if (prop->name) free(prop->name);
-      if (prop->ref)  free(prop->ref);
-      if (prop->dims) free(prop->dims);
-      if (prop->unit) free(prop->unit);
-      if (prop->description) free(prop->description);
-      memset(prop, 0, sizeof(DLiteProperty));
+      dlite_property_clear(prop);
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
@@ -1146,22 +1141,25 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       prop->name = strndup(src + t->start, t->end - t->start);
 
       if (!(t = jsmn_item(src, tokens, "type")))
-        return errx(dliteParseError, "missing property type: '%s'", src);
-      if (dlite_type_set_dtype_and_size(src + t->start,
-                                        &prop->type, &prop->size))
-        return -1;
+        return dlite_property_clear(prop),
+          errx(dliteParseError, "missing property type: '%s'", src);
+      if ((errnum = dlite_type_set_dtype_and_size(src + t->start,
+                                                  &prop->type, &prop->size)))
+        return dlite_property_clear(prop), errnum;
 
       if ((t = jsmn_item(src, tokens, "$ref")))
         prop->ref = strndup(src + t->start, t->end - t->start);
 
       if ((t = jsmn_item(src, tokens, "dims"))) {
         if (t->type != JSMN_ARRAY)
-          return errx(dliteParseError, "property dims should be an array");
+          return dlite_property_clear(prop),
+            errx(dliteParseError, "property dims should be an array");
         prop->ndims = t->size;
         prop->dims = calloc(prop->ndims, sizeof(char *));
         for (i=0; i < prop->ndims; i++) {
           if (!(d = jsmn_element(src, t, i)))
-            return err(dliteParseError, "error parsing property dimensions: %.*s",
+            return dlite_property_clear(prop),
+              err(dliteParseError, "error parsing property dimensions: %.*s",
                        t->end - t->start, src + t->start);
           prop->dims[i] = strndup(src + d->start, d->end - d->start);
         }
