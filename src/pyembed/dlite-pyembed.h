@@ -18,18 +18,6 @@
 #include "utils/plugin.h"
 #include "dlite.h"
 
-/* Declarations from utils/fileutils.h - this file cannot be included because
-   of conflicts with Python.h */
-/*
-typedef struct _FUPaths FUPaths;
-typedef struct _FUIter FUIter;
-typedef struct _PluginInfo PluginInfo;
-FUIter *fu_startmatch(const char *pattern, const FUPaths *paths);
-const char *fu_nextmatch(FUIter *iter);
-int fu_endmatch(FUIter *iter);
-*/
-
-
 
 /**
   Initialises the embedded Python environment.
@@ -104,9 +92,16 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst);
   A Python plugin is a subclass of `baseclassname` that implements the
   expected functionality.
 
+  `*failed_paths` is a NULL-terminated array of pointers to paths to
+  plugins that failed to load.
+  `*failed_len` is the allocated length of `*failed_paths`.
+
   Returns NULL on error.
  */
-PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass);
+PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
+                                     const char ***failed_paths,
+                                     size_t *failed_len);
+
 
 
 #endif /* _DLITE_PYEMBED_H */

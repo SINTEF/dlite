@@ -28,7 +28,7 @@ MU_TEST(test_load_modules)
   fu_paths_init(&paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS");
   fu_paths_insert(&paths, STRINGIFY(TESTDIR), 0);
 
-  plugins = dlite_pyembed_load_plugins(&paths, mappingbase);
+  plugins = dlite_pyembed_load_plugins(&paths, mappingbase, NULL, NULL);
   mu_check(plugins);
   mu_check(PyList_Check(plugins));
 
