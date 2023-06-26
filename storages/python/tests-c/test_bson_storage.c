@@ -2,6 +2,7 @@
 
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
 
 
