@@ -14,7 +14,7 @@ int dlite_pyembed_has_module(const char *module_name)
 
   // PyImport_AddModule() returns a borrowed reference, so it is safe to
   // discard its return value.
-  if (PyImport_AddModule(module_name) == 0) return 1;
+  if (PyImport_ImportModule(module_name)) return 1;
   PyErr_Clear();
   return 0;
 }
