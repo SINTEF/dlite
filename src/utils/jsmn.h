@@ -45,10 +45,10 @@ extern "C" {
  */
 typedef enum {
   JSMN_UNDEFINED = 0,
-  JSMN_OBJECT = 1,
-  JSMN_ARRAY = 2,
-  JSMN_STRING = 3,
-  JSMN_PRIMITIVE = 4
+  JSMN_OBJECT = 1 << 0,
+  JSMN_ARRAY = 1 << 1,
+  JSMN_STRING = 1 << 2,
+  JSMN_PRIMITIVE = 1 << 3
 } jsmntype_t;
 
 enum jsmnerr {
@@ -197,9 +197,9 @@ static int jsmn_parse_string(jsmn_parser *parser, const char *js,
 
   int start = parser->pos;
 
+  /* Skip starting quote */
   parser->pos++;
 
-  /* Skip starting quote */
   for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++) {
     char c = js[parser->pos];
 
