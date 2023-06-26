@@ -5,7 +5,17 @@
 
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
+
+
+// Not really a unit test, but check that the Python package "yaml" is
+// available.  If not, exit with code 44, indicating that the test
+// should be skipped
+MU_TEST(test_for_yaml)
+{
+  if (!dlite_pyembed_has_module("yaml")) exit(44);
+}
 
 
 MU_TEST(test_save)
@@ -27,9 +37,6 @@ MU_TEST(test_load)
 {
   DLiteStorage *s;
   DLiteInstance *inst;
-
-  printf("\n***************************************************************\n");
-
   mu_check((s = dlite_storage_open("yaml", "test2.yaml", "mode=r")));
   mu_assert_int_eq(0, dlite_storage_is_writable(s));
 
@@ -55,6 +62,7 @@ MU_TEST(test_unload_plugins)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_for_yaml);
   MU_RUN_TEST(test_save);
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_unload_plugins);

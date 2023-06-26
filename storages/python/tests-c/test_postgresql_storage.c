@@ -18,6 +18,16 @@ char *options = "database=" DATABASE ";user=" USER;
 #endif
 
 
+
+// Not really a unit test, but check that the Python package "psycopg"
+// is available.  If not, exit with code 44, indicating that the test
+// should be skipped
+MU_TEST(test_for_psycopg)
+{
+  if (!dlite_pyembed_has_module("psycopg")) exit(44);
+}
+
+
 MU_TEST(test_open_db)
 {
   mu_check((db = dlite_storage_open("postgresql", HOST, options)));
@@ -105,6 +115,7 @@ MU_TEST(test_unload_plugins)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_for_psycopg);
   MU_RUN_TEST(test_open_db);
   MU_RUN_TEST(test_save);
   MU_RUN_TEST(test_load);
