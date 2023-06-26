@@ -395,12 +395,18 @@ double help_issue556(double x)
 }
 
 MU_TEST(test_issue556) {
+#ifndef WINDOWS
   double inf = 1.0/0.0;
   double nan = 0.0/0.0;
+#endif
   /* Some interesting doubles to check... */
   double values_to_test[] = {
-    1, 0, -1, 3.14, 2.73, -2.3, 1e-6, -1e-6, 1e8, -1e8,
-    +0.0, -0.0, inf, -inf, nan
+    1, -1, 3.14, 2.73, -2.3, 1e-6, -1e-6, 1e8, -1e8,
+    +0.0, -0.0,
+#ifndef WINDOWS
+    inf, -inf, nan,
+#endif
+    0
   };
 
   /* tests */
