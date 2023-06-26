@@ -106,8 +106,12 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   if (!(info = get_storage_plugin_info())) return NULL;
 
   /* Return plugin if it is loaded */
-  if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
-    return api;
+ ErrTry:  // silence errors
+  api = (const DLiteStoragePlugin *)plugin_get_api(info, name);
+ ErrOther:  // hmm, we should update plugins.c to produce more specific errors
+  break;
+ ErrEnd;
+  if (api) return api;
 
   /* ...otherwise, if any plugin path has changed, reload all plugins
      and try again */

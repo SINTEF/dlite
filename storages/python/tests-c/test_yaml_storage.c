@@ -27,6 +27,9 @@ MU_TEST(test_load)
 {
   DLiteStorage *s;
   DLiteInstance *inst;
+
+  printf("\n***************************************************************\n");
+
   mu_check((s = dlite_storage_open("yaml", "test2.yaml", "mode=r")));
   mu_assert_int_eq(0, dlite_storage_is_writable(s));
 
