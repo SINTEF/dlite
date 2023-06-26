@@ -167,11 +167,6 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
 
     errmsg[0] = '\0';
     PyErr_Fetch(&type, &value, &tb);
-    PyErr_NormalizeException(&type, &value, &tb);
-    assert(type && value);
-
-    Py_INCREF(type);
-    Py_INCREF(value);
 
     /* Try to get traceback info from traceback.format_exception()... */
     if (tb) {
