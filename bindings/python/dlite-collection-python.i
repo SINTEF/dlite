@@ -247,6 +247,10 @@ class Collection(Instance):
                 meta = metaid if isinstance(
                     metaid, dlite.Instance) else dlite.get_instance(
                         str(metaid).rstrip("#/"))
+                if not meta:
+                    raise TypeError(f"cannot instantiate metadata: {metaid}")
+                if meta.is_meta:
+                    meta.__class__ = Metadata
 
                 if ureg is None:
                     quantity = pint.Quantity
