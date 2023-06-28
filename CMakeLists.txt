@@ -354,7 +354,10 @@ if(MEMORYCHECK_COMMAND)
         --gen-suppressions=all
         --log-file=${logfile}
         ${Python3_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
-      MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
+      MAIN_DEPENDENCY ${dlite_supp}
+      DEPENDS
+        ${python_supp}
+        ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
       COMMENT "Generating valgrind suppressions log file for Python"
       )
     add_custom_command(

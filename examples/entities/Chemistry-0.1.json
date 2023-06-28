@@ -1,0 +1,54 @@
+{
+  "uri": "http://onto-ns.com/meta/calm/0.1/Chemistry",
+  "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
+  "description": "Simple entity with alloy and particle compositions.",
+  "dimensions": {
+    "nelements": "Number of different chemical elements.",
+    "nphases": "Number of phases."
+  },
+  "properties": {
+    "alloy": {
+      "type": "string",
+      "description": "A human description of the alloying system and temper."
+    },
+    "elements": {
+      "type": "string",
+      "dims": ["nelements"],
+      "description": "Chemical symbol of each chemical element.  By convection the dependent element (e.g. Al) is listed first."
+    },
+    "phases": {
+      "type": "string",
+      "dims": ["nphases"],
+      "description": "Name of each phase."
+    },
+    "X0": {
+      "type": "double",
+      "unit": "atom-fraction",
+      "dims": ["nelements"],
+      "description": "Nominal composition.  Should sum to one."
+    },
+    "Xp": {
+      "type": "double",
+      "unit": "atom-fraction",
+      "dims": ["nphases", "nelements"],
+      "description": "Average composition of each phase, excluding matrix.  Each row should sum to one."
+    },
+    "volfrac": {
+      "type": "double",
+      "dims": ["nphases"],
+      "description": "Volume fraction of each phase, excluding matrix."
+    },
+    "rpart": {
+      "type": "double",
+      "unit": "m",
+      "dims": ["nphases"],
+      "description": "Average particle radius of each phase, excluding matrix."
+    },
+    "atvol": {
+      "type": "double",
+      "unit": "m^3",
+      "dims": ["nphases"],
+      "description": "Average volume per atom for each phase."
+    }
+  }
+}

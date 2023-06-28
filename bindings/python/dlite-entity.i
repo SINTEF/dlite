@@ -712,8 +712,8 @@ Returns:
   }
 
   %feature("docstring",
-           "Returns a JSON representation of self.") tojson;
-  %newobject tojson;
+           "Returns a JSON representation of self.") _asjson;
+  %newobject _asjson;
   char *_asjson(int indent=0, bool single=false, bool urikey=false,
                bool with_uuid=false, bool with_meta=false,
                bool with_arrays=false, bool no_parent=false) {

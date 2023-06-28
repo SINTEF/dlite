@@ -312,7 +312,7 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
 
   /* Reallocate buffer to required size. */
 
-  // FIXME: newsize sould really be `newsize = m + pos + 1;`.
+  // FIXME: newsize should really be `newsize = m + pos + 1;`.
   // If `inst` is a collection with relations, then
   // dlite_json_sprint() seems to report one byte too little when
   // called with size=0.
@@ -323,14 +323,15 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
   /* Fill bytes from *size to pos with space */
   if (pos > *size) memset(q + *size, ' ', pos - *size);
 
+  /* Update `*dest` and `*size` */
+  *dest = q;
+  *size = newsize;
+
   /* Write */
   m = dlite_json_sprint(q + pos, PDIFF(newsize, pos), inst, indent, flags);
   if (m < 0) return m;
   assert(m+pos < newsize);
 
-  /* On success, update `*dest` and `*size` */
-  *dest = q;
-  *size = newsize;
   return m;
 }
 
@@ -921,6 +922,7 @@ DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
     flg |= dliteJsonArrays;
   } else if (props->type == JSMN_OBJECT) {
     prop = props + 1;
+    assert(prop);
     if (prop->type == JSMN_OBJECT)
       fmt = (jsmn_item(src, item, "type")) ?
         dliteJsonMetaFormat : dliteJsonDataFormat;
