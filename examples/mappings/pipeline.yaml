@@ -1,0 +1,28 @@
+version: 1
+
+strategies:
+  - dataresource: load_data
+    downloadUrl: http://example.com/repo/tensile.xlsx
+    mediaType: application/vnd.dlite-xlsx
+    configuration:
+      metadata: http://onto-ns.com/meta/0.1/TensileMeasurement
+      label: raw_data
+      excel_config:
+        worksheet: aa6063
+        header_row: 1
+
+  - mapping: mappings
+    mappingType: mappings
+    prefixes:
+      emmo: http://emmo.info/emmo#
+      ms: http://emmo.info/domain-microstructure#
+      map: http://emmo.info/domain-mappings#
+      tm: http://onto-ns.com/meta/0.1/TensileMeasurement#
+    },
+    triples:
+      - ["tm:crossection_area", "map:mapsTo", "ms:CrossectionArea"]
+      - ["tm:applied_force", "map:mapsTo", "ms:AppliedForce"]
+      - ["tm:specimen_length", "map:mapsTo", "ms:SpecimenLength"]
+
+pipelines:
+  tensiledata: load_data | mappings
