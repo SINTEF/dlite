@@ -14,15 +14,14 @@ strategies:
   - mapping: mappings
     mappingType: mappings
     prefixes:
-      emmo: http://emmo.info/emmo#
-      ms: http://emmo.info/domain-microstructure#
+      micro: http://emmo.info/domain-microstructure#
       map: http://emmo.info/domain-mappings#
       tm: http://onto-ns.com/meta/0.1/TensileMeasurement#
     },
     triples:
-      - ["tm:crossection_area", "map:mapsTo", "ms:CrossectionArea"]
-      - ["tm:applied_force", "map:mapsTo", "ms:AppliedForce"]
-      - ["tm:specimen_length", "map:mapsTo", "ms:SpecimenLength"]
+      - ["tm:crossection_area", "map:mapsTo", "micro:CrossectionArea"]
+      - ["tm:applied_force", "map:mapsTo", "micro:AppliedForce"]
+      - ["tm:specimen_length", "map:mapsTo", "micro:SpecimenLength"]
 
 pipelines:
-  tensiledata: load_data | mappings
+  tensiledata_pipe: load_data | mappings

@@ -1,0 +1,22 @@
+version: 1
+
+strategies:
+  - mapping: mappings
+    mappingType: mappings
+    prefixes:
+      micro: http://emmo.info/domain-microstructure#
+      map: http://emmo.info/domain-mappings#
+      sm: http://onto-ns.com/meta/0.1/StructuralModel#
+    triples:
+      - ["sm:yield_strength", "map:mapsTo", "micro:YieldStress"]
+
+  - function: generate
+    functionType: application/vnd.dlite-generate
+    configuration:
+      datamodel: http://onto-ns.com/meta/0.1/StructuralModel
+      driver: structural_input
+      location: struct.input
+      options: "mode=w"
+
+pipelines:
+  pipe: mappings | generate
