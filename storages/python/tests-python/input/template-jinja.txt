@@ -1,0 +1,9 @@
+This is a jinja template exposing the content of a TestEntity data model.
+
+myblob={{myblob}}
+mydouble={{mydouble}}
+
+Atom {{myfixstring}} might have atomic number {{myshort}}.
+
+Some array data:
+{{myarray}}
