@@ -27,7 +27,7 @@ save2 = inst2.asdict()
 
 
 # Test storing to Redis
-with dlite.Storage("redis", "localhost", "port=6379;expire=1;db=13") as s:
+with dlite.Storage("redis", "localhost", "expire=1;db=13") as s:
     try:
         s.save(inst1)
     except dlite.DLiteError as exc:
