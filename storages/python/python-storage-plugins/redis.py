@@ -17,7 +17,10 @@ class redis(dlite.DLiteStorageBase):
             - `port`: Port to connect to (default: 6379).
             - `username`: Redis user name.
             - `password`: Redis password.
-            - `ssl`: Whether to ssl-encrypt the connection (default: false).
+            - `socket_keepalive`: Whether to enable socket keepalive option.
+              Seems to protect against hanging.  Default: true
+            - `socket_timeout`: Timeout after given number of seconds.
+            - `ssl`: Whether to ssl-encrypt the connection.
             - `ssl_certfile`: Path to SSL certificate signing request (.crt).
             - `ssl_keyfile`: Path to SSL private key file (.key).
             - `ssl_ca_certs`: Path to SSL certificate container (.pem).
@@ -30,7 +33,7 @@ class redis(dlite.DLiteStorageBase):
               transparently encrypt all instances before sending them to Redis.
               Generate the key with `crystallography.fernet.generate_key()`.
         """
-        opts = Options(options, defaults="port=6379;ssl=false;db=0")
+        opts = Options(options, defaults="port=6379;socket_keepalive=true;db=0")
 
         # Pop out options passed to redis.set()
         self.setopts = {
@@ -44,7 +47,11 @@ class redis(dlite.DLiteStorageBase):
 
         # Fix option types and open Redis connection
         opts.port = int(opts.port)
-        opts.ssl = dlite.asbool(opts.ssl)
+        opts.socket_keepalive = dlite.asbool(opts.socket_keepalive)
+        if "socket_timeout" in opts:
+            opts.socket_timeout = int(opts.socket_timeout)
+        if "ssl" in opts:
+            opts.ssl = dlite.asbool(opts.ssl)
         opts.db = int(opts.db)
         self.redis = Redis(host=location, **opts)
         self.closed = False
