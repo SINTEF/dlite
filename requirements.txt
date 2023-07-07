@@ -9,5 +9,5 @@ pint>=0.15,<0.23
 openpyxl>=3.0.9,<3.2
 pymongo>=4.4.0,<5
 tripper>=0.2.5,<0.3
-pydantic>=2.0.0,<2.0.3
+pydantic>=1.10.0,<2
 
