@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
@@ -14,8 +15,10 @@ except ImportError:
 
 class TransformationStatus(BaseModel):
     """Return from transformation status."""
-
-    id: str = Field(..., description="ID for the given transformation process.")
+    id: str = Field(
+        ...,
+        description="ID for the given transformation process."
+    )
     status: Optional[str] = Field(
         None, description="Status for the transformation process."
     )
@@ -36,13 +39,14 @@ class TransformationStatus(BaseModel):
         "Given as POSIX time stamp.",
     )
 
+
 now = datetime.now().timestamp()
 
 t = TransformationStatus(
     id="sim1",
     messages=["success", "timeout", "error"],
     created=now - 3600,
-    startTime=now - 3000,
+    startTime=int(now - 3000),
     finishTime=now - 600,
 )
 meta = pydantic_to_metadata(t)
@@ -53,7 +57,13 @@ assert inst.created == now - 3600
 assert inst.startTime == int(now - 3000)
 utc = timezone(timedelta(hours=0))
 dt = datetime.fromtimestamp(now - 600).astimezone(utc)
-assert inst.finishTime == str(dt)
+match = re.match("^([^+]*)", str(dt))
+dtstr = match.groups()[0]
+
+print("=== dtstr:", dtstr)
+print("=== finishTime:", inst.finishTime)
+
+assert inst.finishTime == dtstr
 
 
 #==============================================================

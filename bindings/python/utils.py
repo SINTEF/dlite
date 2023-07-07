@@ -235,15 +235,26 @@ def get_dataclass_entity_schema():
 
 
 def pydantic_to_property(
-        name: str, propdict: dict,
+        name: str,
+        propdict: dict,
         dimensions: dict = None,
         namespace="http://onto-ns.com/meta",
         version="0.1",
-):
+) -> "dlite.Property":
     """Return a dlite property from a name and a pydantic property dict.
 
-    If `dimensions` is given, new dimensions from array properties will
-    be added to it.
+    Arguments:
+        name: Name of the property to create.
+        propdict: Pydantic property dict.
+        dimensions: If given, the dict will be updated with new dimensions
+            from array properties.
+        namespace: For a reference property use this as the namespace of
+            the property to refer to.
+        version:  For a reference property use this as the version of
+            the property to refer to.
+
+    Returns:
+        New DLite property.
     """
     if not HAVE_PYDANTIC:
         raise MissingDependencyError("pydantic")
@@ -255,9 +266,49 @@ def pydantic_to_property(
     if dimensions is None:
         dimensions = {}
 
+    isarray = False
     ptype = propdict.get("type", "ref")
     unit = propdict.get("unit")
     descr = propdict.get("description")
+
+    #if "type" in propdict:
+    #    if propdict["type"] == "array":
+    #        isarray = True
+    #    else:
+    #        ptype = propdict["type"]
+
+    if "anyOf" in propdict:
+        # Old version of pydantic
+        typedicts = [d for d in propdict["anyOf"] if d["type"] != "null"]
+        if not typedicts:
+            raise ValueError("no non-null type in `propdict`. "
+                             "Please add explicit type to `propdict`.")
+        if len(typedicts) > 1:
+            raise ValueError(f"more than one type in `propdict`: {typedicts}. "
+                             "Please add explicit type to `propdict`.")
+        typedict = typedicts[0]
+        if "type" not in typedict:
+            raise ValueError("missing type in field 'anyOf' of `propdict`")
+        ptype = typedict["type"]
+        #
+        #if typedict["type"] == "array":
+        #    isarray = True
+        #    ptype = typedict["items"]["type"]
+        #else:
+        #    ptype = typedict["type"]
+
+    if ptype is None:
+        raise ValueError("not able to derive type from `propdict`")
+
+    print()
+    print("******** propdict:")
+    for k, v in propdict.items():
+        print(f"  - {k:12} : {v}")
+    print("name: ", name)
+    print("ptype:", ptype)
+    print("unit: ", unit)
+    print("descr:", descr)
+
 
     if ptype in simple_types:
         return dlite.Property(
@@ -265,7 +316,8 @@ def pydantic_to_property(
         )
 
     if ptype == "array":
-        subprop = pydantic_to_property("tmp", propdict["items"])
+        items = propdict.get("items", typedict["items"])
+        subprop = pydantic_to_property("tmp", items)
         shape = propdict.get("shape", [f"n{name}"])
         for dim in shape:
             dimensions.setdefault(dim, f"Number of {dim}.")
@@ -303,9 +355,14 @@ def pydantic_to_metadata(
         default_version: Default version used if `uri` is None.
         metaid: Metadata for the created metadata.  Defaults to
             dlite.ENTITY_SCHEMA.
+
+    Returns:
+        New dlite metadata.
     """
     if not HAVE_PYDANTIC:
         raise MissingDependencyError("pydantic")
+
+    print("*** model:", model)
 
     d = model.schema()
     if not uri:
