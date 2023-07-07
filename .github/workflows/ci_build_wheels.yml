@@ -39,7 +39,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: 7,9 # Should be 11 , but there is an issue with numpy
+            py_minors: 7,11 # Should be 11 , but there is an issue with numpy
           #- os: ubuntu-21.04
           #  system_type: ["manylinux", ""]
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
