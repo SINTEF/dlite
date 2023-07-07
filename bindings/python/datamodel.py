@@ -57,22 +57,35 @@ class DataModel:
             raise KeyError(f'A dimension named "{name}" already exists')
         self.dimensions[name] = dlite.Dimension(name, description)
 
-    def add_property(self, name, type, dims=None, unit=None, description=None):
+
+    def add_property(self, name, type, shape=None, unit=None, description=None,
+                     dims=None):
         """Add property to data model.
 
         Parameters:
             name: Property label.
             type: Property type.
-            dims: Shape of Property.  Default is scalar.
+            shape: Shape of Property.  Default is scalar.
             unit: Unit. Default is dimensionless.
             description: Human description.
+            dims: Deprecated alias for `shape`.
         """
+        if dims:
+            if not shape:
+                shape = dims
+            warnings.warn(
+                "Argument `dims` is deprecated. Use `shape` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         if name in self.properties:
             raise KeyError(f'A property named "{name}" already exists')
+
         self.properties[name] = dlite.Property(
             name=name,
             type=type,
-            dims=dims,
+            dims=shape,
             unit=unit,
             description=description,
         )
@@ -81,8 +94,8 @@ class DataModel:
         """Returns a set of all dimension names referred to in property dims."""
         names = set()
         for prop in self.properties.values():
-            if prop.dims is not None:
-                for dim in prop.dims:
+            if prop.shape is not None:
+                for dim in prop.shape:
                     tree = ast.parse(dim)
                     names.update(node.id for node in ast.walk(tree)
                                  if isinstance(node, ast.Name))
