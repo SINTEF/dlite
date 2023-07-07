@@ -41,8 +41,8 @@ class yaml(dlite.DLiteStorageBase):
         self._data = {}  # data buffer
 
         if self.options.mode in ("r", "a", "append"):
-            with open(uri, "r") as handle:
-                data = pyyaml.safe_load(handle)
+            with open(uri, "r") as f:
+                data = pyyaml.safe_load(f)
             if data:
                 self._data = data
 
@@ -54,10 +54,10 @@ class yaml(dlite.DLiteStorageBase):
     def flush(self):
         """Flush cached data to storage."""
         if self.writable and not self.flushed:
-            with open(self.uri, "w") as handle:
-                self._pyyaml.dump(
+            with open(self.uri, "w") as f:
+                self._pyyaml.safe_dump(
                     self._data,
-                    handle,
+                    f,
                     default_flow_style=False,
                     sort_keys=False,
                 )
@@ -158,7 +158,7 @@ class yaml(dlite.DLiteStorageBase):
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
         """
-        return pyyaml.dump(
+        return pyyaml.safe_dump(
             inst.asdict(soft7=soft7, uuid=with_uuid),
             default_flow_style=False,
             sort_keys=False,
