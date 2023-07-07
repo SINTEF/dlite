@@ -5,7 +5,7 @@ PyYAML>=5.4.1,<7
 psycopg2-binary==2.9.5
 pandas>=1.2,<2.1
 rdflib>=4.2.1,<7
-pint>=0.22,<0.23
+pint>=0.20,<0.23
 openpyxl>=3.0.9,<3.2
 pymongo>=4.4.0,<5
 tripper>=0.2.5,<0.3
