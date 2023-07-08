@@ -4,7 +4,11 @@ import sys
 from importlib import util
 from pathlib import Path
 
-import yaml as pyyaml
+try:
+    import yaml as pyyaml
+except ImportError:
+    print("yaml not installed, skipping test")
+    sys.exit(44)  # skip test
 
 
 sys.dont_write_bytecode = True
