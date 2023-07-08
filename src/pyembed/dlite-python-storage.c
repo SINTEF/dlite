@@ -10,6 +10,7 @@
 
 #include "config-paths.h"
 
+#include "utils/strutils.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
@@ -31,6 +32,9 @@ typedef struct {
   int initialised;            /* Whether `paths` is initiated */
   int modified;               /* Whether `paths` is modified */
   PyObject *loaded_storages;  /* Cache with all loaded python storage plugins */
+  char **failed_paths;        /* NULL-terminated array of paths to storages
+                                 that fail to load. */
+  size_t failed_len;          /* Allocated length of `failed_paths`. */
 } PythonStorageGlobals;
 
 
@@ -41,8 +45,14 @@ static void free_globals(void *globals)
   if (g->initialised) fu_paths_deinit(&g->paths);
 
   /* Do not call Py_DECREF if we are in an atexit handler */
-  if (!dlite_globals_in_atexit()) Py_XDECREF(g->loaded_storages);
+  if (!dlite_globals_in_atexit()) {
+    Py_XDECREF(g->loaded_storages);
+    g->loaded_storages = NULL;
+  }
 
+  if (g->failed_paths) strlst_free(g->failed_paths);
+  g->failed_paths = NULL;
+  g->failed_len = 0;
   free(g);
 }
 
@@ -184,7 +194,9 @@ void *dlite_python_storage_load(void)
     if (!(paths = dlite_python_storage_paths())) return NULL;
 
     g->loaded_storages = dlite_pyembed_load_plugins((FUPaths *)paths,
-                                                    storagebase);
+                                                    storagebase,
+                                                    &g->failed_paths,
+                                                    &g->failed_len);
   }
   return (void *)g->loaded_storages;
 }
