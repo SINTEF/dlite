@@ -1,5 +1,6 @@
 #include <stdarg.h>
 
+#include "utils/strutils.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
@@ -411,15 +412,16 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
   A Python plugin is a subclass of `baseclass` that implements the
   expected functionality.
 
-  `*failed_paths` is a NULL-terminated array of pointers to paths to
-  plugins that failed to load.
-  `*failed_len` is the allocated length of `*failed_paths`.
+  `failed_paths` is a pointer to a NULL-terminated array of pointers
+  to paths to plugins that failed to load.  In case a plugin fails to
+  load, this array will be updated.
+
+  `failed_len` is a pointer to the allocated length of `*failed_paths`.
 
   Returns NULL on error.
  */
 PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
-                                     const char ***failed_paths,
-                                     size_t *failed_len)
+                                     char ***failed_paths, size_t *failed_len)
 {
   const char *path;
   PyObject *main_dict, *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
@@ -465,7 +467,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
 
     if ((basename = fu_basename(path))) {
       size_t n;
-      const char **q = (failed_paths) ? *failed_paths : NULL;
+      char **q = (failed_paths) ? *failed_paths : NULL;
       for (n=0; q && *q; n++)
         if (strcmp(*(q++), path) == 0) break;
       int in_failed = (q && *q) ? 1 : 0;  // whether loading path has failed
@@ -475,21 +477,11 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
           PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
                                      main_dict);
           if (!ret) {
-            size_t chunklen = 20;  // allocation chunk length
-            if (!*failed_paths) {
-              *failed_len = chunklen;
-              q = *failed_paths = calloc(*failed_len, sizeof(char *));
-            } else if (n >= *failed_len - 1) {
-              char **p;
-              size_t len = *failed_len;
-              *failed_len += chunklen;
-              if (!(p = realloc(*failed_paths, *failed_len*sizeof(char *))))
-                FAIL("allocation failure");
-              memset(p + len, 0, chunklen*sizeof(char *));
-              *failed_paths = (const char **)p;
+            if (failed_paths && failed_len) {
+              char **new = strlst_append(*failed_paths, failed_len, path);
+              if (!new) FAIL("allocation failure");
+              *failed_paths = new;
             }
-            *q = strdup(path);
-            (*failed_len)++;
 
             PyObject *type=NULL, *value=NULL, *tb=NULL, *name=NULL, *msg=NULL;
             PyErr_Fetch(&type, &value, &tb);

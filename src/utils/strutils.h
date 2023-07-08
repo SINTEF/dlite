@@ -1,9 +1,13 @@
 /* strutils.h -- cross-platform string utility functions
  *
- * Copyright (C) 2021 SINTEF
+ * Copyright (C) 2021-2023 SINTEF
  *
  * Distributed under terms of the MIT license.
  */
+/**
+  @file
+  @brief Cross-platform string utility functions
+*/
 #ifndef _STRUTILS_H
 #define _STRUTILS_H
 
@@ -14,6 +18,10 @@
 # define __attribute__(x)
 #endif
 
+/**
+ * @name Typedefs and structs
+ */
+/** @{ */
 
 /** Flags for strquote() */
 typedef enum _StrquoteFlags {
@@ -42,13 +50,24 @@ typedef enum {
 } StrCategory;
 
 
+/** @} */
 /**
-  A convinient variant of asnprintf() that returns the allocated string,
+ * @name Print allocated string
+ */
+/** @{ */
+
+/**
+  A convinient variant of asprintf() that returns the allocated string,
   or NULL on error.
  */
 char *aprintf(const char *fmt, ...)
   __attribute__ ((__malloc__, __format__ (__printf__, 1, 2)));
 
+/** @} */
+/**
+ * @name Functions for writing characters to a buffer
+ */
+/** @{ */
 
 /**
   Writes character `c` to buffer `dest` of size `size`.  If there is
@@ -101,7 +120,6 @@ int strput(char **destp, size_t *sizep, size_t pos, const char *src);
  */
 int strnput(char **destp, size_t *sizep, size_t pos, const char *src, int n);
 
-
 /**
   Like strnput(), but escapes all characters in categories larger than
   `unescaped`, which should be less than `strcatOther`.
@@ -115,6 +133,12 @@ int strnput_escape(char **destp, size_t *sizep, size_t pos,
                    const char *src, int len,
                    StrCategory unescaped, const char *escape);
 
+
+/** @} */
+/**
+ * @name Quoting/unquoting strings
+ */
+/** @{ */
 
 /**
   Double-quote input string `s` and write it to `dest`.
@@ -166,6 +190,12 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
                int *consumed, StrquoteFlags flags);
 
 
+/** @} */
+/**
+ * @name Hexadecimal encoding/decoding
+ */
+/** @{ */
+
 /**
   Writes binary data to hex-encoded string.
 
@@ -199,6 +229,13 @@ int strhex_decode(unsigned char *data, size_t size, const char *hex,
                   int hexsize);
 
 
+/** @} */
+/**
+ * @name Character categorisation
+ */
+/** @{ */
+
+
 /**
   Returns the category of character `c`.
  */
@@ -228,5 +265,75 @@ int strcatjspn(const char *s, StrCategory cat);
  */
 int strcatcjspn(const char *s, StrCategory cat);
 
+
+/** @} */
+/**
+ * @name Allocated string list
+ *
+ * A string list is an allocated NULL-terminated array of pointers to
+ * allocated strings.
+ */
+/** @{ */
+
+/**
+  Insert string `s` before position `i` in NULL-terminated array of
+  string pointers `strlst`.
+
+  If `i` is negative count from the end of the string, like Python.
+  Any `i` out of range correspond to appending.
+
+  `n` is the allocated length of `strlst`.  If needed `strlst` will be
+  reallocated and `n` updated.
+
+  Returns a pointer to the new string list or NULL on allocation error.
+ */
+char **strlst_insert(char **strlst, size_t *n, const char *s, int i);
+
+/**
+  Appends string `s` to NULL-terminated array of string pointers `strlst`.
+  `n` is the allocated length of `strlst`.  If needed `strlst` will be
+  reallocated and `n` updated.
+
+  Returns a pointer to the new string list or NULL on allocation error.
+ */
+char **strlst_append(char **strlst, size_t *n, const char *s);
+
+/** Return number of elements in string list. */
+size_t strlst_count(char **strlst);
+
+/** Free all memory in string list. */
+void strlst_free(char **strlst);
+
+/**
+  Returns a pointer to element `i` the string list. Like in Python,
+  negative `i` counts from the back.
+
+  The caller gets a borrowed reference to the string. Do not free it.
+
+  Returns NULL if `i` is out of range.
+*/
+const char *strlst_get(char **strlst, int i);
+
+/**
+  Remove element `i` from the string list. Like in Python, negative `i`
+  counts from the back.
+
+  Returns non-zero if `i` is out of range.
+*/
+int strlst_remove(char **strlst, int i);
+
+/**
+  Remove and return element `i` from the string list. Like in Python,
+  negative `i` counts from the back.
+
+  The caller becomes the owner of the returned string and is
+  responsible to free it.
+
+  Returns NULL if `i` is out of range.
+*/
+char *strlst_pop(char **strlst, int i);
+
+
+/** @} */
 
 #endif  /* _STRUTILS_H */
