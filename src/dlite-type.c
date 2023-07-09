@@ -89,6 +89,7 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
+  {"str",      dliteStringPtr, sizeof(char *),        alignof(char *)},
   {"ref",      dliteRef,       sizeof(DLiteRef),      alignof(DLiteRef)},
   {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
   {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
@@ -516,7 +517,8 @@ int dlite_type_set_dtype_and_size(const char *typename,
   if (strncmp(typename, "blob", namelen) == 0) {
     *dtype = dliteBlob;
     *size = typesize;
-  } else if (strncmp(typename, "string", namelen) == 0) {
+  } else if (strncmp(typename, "string", namelen) == 0 ||
+             strncmp(typename, "str", namelen)) {
     *dtype = dliteFixString;
     *size = typesize+1;
   } else {
