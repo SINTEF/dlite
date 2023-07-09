@@ -1,5 +1,6 @@
 #include <stdarg.h>
 
+#include "utils/strutils.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
@@ -172,6 +173,7 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
       PySys_WriteStderr("\n");
       PyErr_Print();
       PySys_WriteStderr("\n");
+      PyErr_Clear();
    }
 
     /* Try to get traceback info from traceback.format_exception()... */
@@ -410,15 +412,23 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
   A Python plugin is a subclass of `baseclass` that implements the
   expected functionality.
 
+  `failed_paths` is a pointer to a NULL-terminated array of pointers
+  to paths to plugins that failed to load.  In case a plugin fails to
+  load, this array will be updated.
+
+  `failed_len` is a pointer to the allocated length of `*failed_paths`.
+
   Returns NULL on error.
  */
-PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
+PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
+                                     char ***failed_paths, size_t *failed_len)
 {
   const char *path;
   PyObject *main_dict, *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
   PyObject *subclassnames=NULL;
   FUIter *iter;
-  int i;
+  int i, pos=0;
+  char errors[4098] = "";
 
   dlite_errclr();
   dlite_pyembed_initialise();
@@ -456,18 +466,57 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
     if ((basename = fu_basename(path))) {
-      if ((fp = fopen(path, "r"))) {
-        PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
-                                   main_dict);
-        if (!ret) dlite_pyembed_err(1, "error parsing '%s'", path);
-        Py_XDECREF(ret);
-        fclose(fp);
+      size_t n;
+      char **q = (failed_paths) ? *failed_paths : NULL;
+      for (n=0; q && *q; n++)
+        if (strcmp(*(q++), path) == 0) break;
+      int in_failed = (q && *q) ? 1 : 0;  // whether loading path has failed
+
+      if (!in_failed) {
+        if ((fp = fopen(path, "r"))) {
+          PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
+                                     main_dict);
+          if (!ret) {
+            if (failed_paths && failed_len) {
+              char **new = strlst_append(*failed_paths, failed_len, path);
+              if (!new) FAIL("allocation failure");
+              *failed_paths = new;
+            }
+
+            PyObject *type=NULL, *value=NULL, *tb=NULL, *name=NULL, *msg=NULL;
+            PyErr_Fetch(&type, &value, &tb);
+            int showtb = tb && tb != Py_None && getenv("DLITE_PYDEBUG");
+            name = PyObject_GetAttrString(type, "__name__");
+            msg = PyObject_Str(value);
+            int m = snprintf(errors+pos, sizeof(errors)-pos,
+                             "   - %s: %s: %s%s%s\n",
+                             path,
+                             PyUnicode_AsUTF8(name),
+                             PyUnicode_AsUTF8(msg),
+                             (showtb) ? "\n": "",
+                             (showtb) ? PyUnicode_AsUTF8(tb) : "");
+            if (m > 0) pos += m;
+            Py_XDECREF(type);
+            Py_XDECREF(value);
+            Py_XDECREF(tb);
+            Py_XDECREF(name);
+            Py_XDECREF(msg);
+            fclose(fp);
+          }
+          Py_XDECREF(ret);
+        }
       }
       free(basename);
     }
 
   }
   if (fu_pathsiter_deinit(iter)) goto fail;
+
+  if (errors[0])
+    dlite_warn("Could not load the following Python plugins:\n%s"
+               "   You might have to install corresponding python "
+               "package(s).\n",
+               errors);
 
   /* Append new subclasses to the list of Python plugins that will be
      returned */
