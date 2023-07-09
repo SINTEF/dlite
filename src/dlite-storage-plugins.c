@@ -106,8 +106,12 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   if (!(info = get_storage_plugin_info())) return NULL;
 
   /* Return plugin if it is loaded */
-  if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
-    return api;
+ ErrTry:  // silence errors
+  api = (const DLiteStoragePlugin *)plugin_get_api(info, name);
+ ErrOther:  // hmm, we should update plugins.c to produce more specific errors
+  break;
+ ErrEnd;
+  if (api) return api;
 
   /* ...otherwise, if any plugin path has changed, reload all plugins
      and try again */
@@ -117,8 +121,12 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       plugin_load_all(info);
       memcpy(g->storage_plugin_path_hash, hash, sizeof(hash));
 
-      if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
-        return api;
+     ErrTry:  // silence errors
+      api = (const DLiteStoragePlugin *)plugin_get_api(info, name);
+     ErrOther:  // update plugins.c to produce more specific errors
+      break;
+     ErrEnd;
+      if (api) return api;
     }
   }
 
@@ -137,7 +145,8 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       if (r >= 0) m += r;
     }
     if (n <= 1)
-      m += asnpprintf(&buf, &size, m, "Are the %sDLITE_STORAGE_PLUGIN_DIRS "
+      m += asnpprintf(&buf, &size, m, "Are the required Python packages "
+                      "installed or %sDLITE_STORAGE_PLUGIN_DIRS "
                       "or DLITE_PYTHON_STORAGE_PLUGIN_DIRS "
                       "environment variables set?", submsg);
     errx(1, "%s", buf);

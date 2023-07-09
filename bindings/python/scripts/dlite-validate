@@ -5,7 +5,6 @@ import sys
 import argparse
 import json
 import re
-import yaml
 from pathlib import Path
 
 import dlite
@@ -45,8 +44,12 @@ def parse(url, driver=None, options=None, id=None):
             with open(path, 'rt') as f:
                 return dlite.Instance.from_dict(json.load(f), id=id)
         elif fileext in ('yaml', 'yml'):
+            # Import yaml only if needed, to avoid creating an extra dependency
+            import yaml
+
             with open(path, 'rt') as f:
                 return dlite.Instance.from_dict(yaml.safe_load(f), id=id)
+
         return dlite.Instance.from_location(fileext, path, options=options)
 
 
