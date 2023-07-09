@@ -266,49 +266,9 @@ def pydantic_to_property(
     if dimensions is None:
         dimensions = {}
 
-    isarray = False
     ptype = propdict.get("type", "ref")
     unit = propdict.get("unit")
     descr = propdict.get("description")
-
-    #if "type" in propdict:
-    #    if propdict["type"] == "array":
-    #        isarray = True
-    #    else:
-    #        ptype = propdict["type"]
-
-    if "anyOf" in propdict:
-        # Old version of pydantic
-        typedicts = [d for d in propdict["anyOf"] if d["type"] != "null"]
-        if not typedicts:
-            raise ValueError("no non-null type in `propdict`. "
-                             "Please add explicit type to `propdict`.")
-        if len(typedicts) > 1:
-            raise ValueError(f"more than one type in `propdict`: {typedicts}. "
-                             "Please add explicit type to `propdict`.")
-        typedict = typedicts[0]
-        if "type" not in typedict:
-            raise ValueError("missing type in field 'anyOf' of `propdict`")
-        ptype = typedict["type"]
-        #
-        #if typedict["type"] == "array":
-        #    isarray = True
-        #    ptype = typedict["items"]["type"]
-        #else:
-        #    ptype = typedict["type"]
-
-    if ptype is None:
-        raise ValueError("not able to derive type from `propdict`")
-
-    print()
-    print("******** propdict:")
-    for k, v in propdict.items():
-        print(f"  - {k:12} : {v}")
-    print("name: ", name)
-    print("ptype:", ptype)
-    print("unit: ", unit)
-    print("descr:", descr)
-
 
     if ptype in simple_types:
         return dlite.Property(
@@ -316,8 +276,7 @@ def pydantic_to_property(
         )
 
     if ptype == "array":
-        items = propdict.get("items", typedict["items"])
-        subprop = pydantic_to_property("tmp", items)
+        subprop = pydantic_to_property("tmp", propdict["items"])
         shape = propdict.get("shape", [f"n{name}"])
         for dim in shape:
             dimensions.setdefault(dim, f"Number of {dim}.")
@@ -342,7 +301,7 @@ def pydantic_to_metadata(
         default_namespace="http://onto-ns.com/meta",
         default_version="0.1",
         metaid=dlite.ENTITY_SCHEMA,
-):
+) -> "dlite.Metadata":
     """Create a new dlite metadata from a pydantic model.
 
     Arguments:
@@ -361,8 +320,6 @@ def pydantic_to_metadata(
     """
     if not HAVE_PYDANTIC:
         raise MissingDependencyError("pydantic")
-
-    print("*** model:", model)
 
     d = model.schema()
     if not uri:
