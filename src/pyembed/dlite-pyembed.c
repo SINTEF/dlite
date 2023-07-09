@@ -200,7 +200,6 @@ int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
   Py_XDECREF(module);
   Py_XDECREF(module_name);
 
-
   /* ...otherwise try to report error without traceback... */
   if (!errmsg[0]) {
     PyObject *name=NULL, *sname=NULL, *svalue=NULL;

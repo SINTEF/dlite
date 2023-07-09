@@ -157,7 +157,6 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
                    "   ...the following Python plugins were also checked:\n");
     if (r >= 0) m += r;
     while ((p = fu_nextmatch(iter))) {
-      fprintf(stderr, "  - %s\n", p);
       r = asnpprintf(&buf, &size, m, "   - %s\n", p);
       if (r >= 0) m += r;
     }
