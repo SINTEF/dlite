@@ -133,15 +133,32 @@ A `dlite.DLiteStorageBase` subclass may define the following methods:
 
   This method is called when a storage is closed.
 
+* **flush(self)**: optional
+
+  Flush cached data to storage. Called by the flush() of the storage.
+
 * **load(self, id=None)**: optional
 
   Loads an instance identified by `id` from storage and returns it.
+  Called by the load() method of the storage or by dlite.Instance.from_storage().
+
+* **from_bytes(self, buffer, id=None)**: optional
+
+  Load instance with given `id` from `buffer`.
+  Plugin developers may allow omitting `id` if `buffer` only holds one instance.
 
 * **save(self, inst)**: optional
 
   Saves instance `inst` to storage.
+  Called by the save() method of the storage or instance.
 
-  If this method is not defined, the storage plugin will not support saving data.
+* **to_bytes(self, inst)**: optional
+
+  Returns instance `inst` as a bytes (or bytearray) object.
+
+* **delete(self, uuid)**: optional
+
+  Delete instance with given `uuid` from storage.
 
 * **query(self, pattern=None)**: optional
 
