@@ -49,6 +49,10 @@ t = TransformationStatus(
     startTime=int(now - 3000),
     finishTime=now - 600,
 )
+
+
+
+
 meta = pydantic_to_metadata(t)
 inst = pydantic_to_instance(meta, t)
 assert inst.id == "sim1"

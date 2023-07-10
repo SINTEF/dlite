@@ -1,7 +1,7 @@
 import json
 import sys
 from typing import Sequence, Mapping
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 # dataclasses is a rather new feature of Python, lets not require it...
 try:
@@ -18,6 +18,10 @@ except:
     HAVE_PYDANTIC = False
 else:
     HAVE_PYDANTIC = True
+    from pydantic import __version__ as PYDANTIC_VERSION
+    PYDANTIC_MAJOR, PYDANTIC_MINOR = [
+        int(v) for v in PYDANTIC_VERSION.split(".")[:2]
+    ]
 
 import numpy as np
 
@@ -236,12 +240,43 @@ def get_dataclass_entity_schema():
 
 def pydantic_to_property(
         name: str,
-        propdict: dict,
+        descr: "Any",
         dimensions: dict = None,
         namespace="http://onto-ns.com/meta",
         version="0.1",
 ) -> "dlite.Property":
     """Return a dlite property from a name and a pydantic property dict.
+
+    Arguments:
+        name: Name of the property to create.
+        descr: Description of the property.  The type depends on Pydantic
+            version.
+        dimensions: If given, the dict will be updated with new dimensions
+            from array properties.
+        namespace: For a reference property use this as the namespace of
+            the property to refer to.
+        version:  For a reference property use this as the version of
+            the property to refer to.
+
+    Returns:
+        New DLite property.
+    """
+    if PYDANTIC_MAJOR == 1:
+        return pydantic1_to_property(name, descr, dimensions, namespace, version)
+    elif PYDANTIC_MAJOR == 2:
+        return pydantic2_to_property(name, descr, dimensions, namespace, version)
+    else:
+        raise RuntimeError(f"Unsupported pydantic version: {PYDANTIC_VERSION}")
+
+
+def pydantic1_to_property(
+        name: str,
+        propdict: dict,
+        dimensions: dict = None,
+        namespace="http://onto-ns.com/meta",
+        version="0.1",
+) -> "dlite.Property":
+    """Return a dlite property from a name and a pydantic 1.x property dict.
 
     Arguments:
         name: Name of the property to create.
@@ -276,7 +311,7 @@ def pydantic_to_property(
         )
 
     if ptype == "array":
-        subprop = pydantic_to_property("tmp", propdict["items"])
+        subprop = pydantic1_to_property("tmp", propdict["items"])
         shape = propdict.get("shape", [f"n{name}"])
         for dim in shape:
             dimensions.setdefault(dim, f"Number of {dim}.")
@@ -294,6 +329,38 @@ def pydantic_to_property(
         return prop
 
     raise ValueError(f"unsupported pydantic type: {ptype}")
+
+
+def pydantic2_to_property(
+        name: str,
+        fieldinfo: dict,
+        dimensions: dict = None,
+        namespace="http://onto-ns.com/meta",
+        version="0.1",
+) -> "dlite.Property":
+    """Return a dlite property from a name and a pydantic 2.x field info
+    object.
+
+    Arguments:
+        name: Name of the property to create.
+        fieldinfo: Pydantic 2.x fieldinfo object describing the property.
+        dimensions: If given, the dict will be updated with new dimensions
+            from array properties.
+        namespace: For a reference property use this as the namespace of
+            the property to refer to.
+        version:  For a reference property use this as the version of
+            the property to refer to.
+
+    Returns:
+        New DLite property.
+    """
+    if fieldinfo.annotation.__origin__ == Union:
+
+
+
+    # xxx
+    print("***", name, fieldinfo)
+    0/0
 
 def pydantic_to_metadata(
         model,
@@ -321,20 +388,29 @@ def pydantic_to_metadata(
     if not HAVE_PYDANTIC:
         raise MissingDependencyError("pydantic")
 
-    d = model.schema()
-    if not uri:
-        uri = f"{default_namespace}/{default_version}/{d['title']}"
-
     dimensions = {}
     properties = []
-    for name, descr in d["properties"].items():
-        properties.append(pydantic_to_property(
-            name, descr, dimensions, default_namespace, default_version))
+    if PYDANTIC_MAJOR == 1:
+        d = model.schema()
+        for name, descr in d["properties"].items():
+            properties.append(pydantic1_to_property(
+                name, descr, dimensions, default_namespace, default_version))
+    elif PYDANTIC_MAJOR == 2:
+        d = model.model_json_schema()
+        for name, fieldinfo in model.model_fields.items():
+            properties.append(pydantic2_to_property(
+                name, fieldinfo, dimensions, default_namespace,
+                default_version)
+            )
+    else:
+        raise RuntimeError(f"Unsupported pydantic version: {PYDANTIC_VERSION}")
+
+    if not uri:
+        uri = f"{default_namespace}/{default_version}/{d['title']}"
+    description = d.get("description", "")
     dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
-    return dlite.Instance.create_metadata(
-        uri, dims, properties,
-        d.get("description", ""),
-    )
+    return dlite.Instance.create_metadata(uri, dims, properties, description)
+
 
 def pydantic_to_instance(meta, pydinst):
     """Return a new dlite instance from a pydantic instance `pydinst`."""
