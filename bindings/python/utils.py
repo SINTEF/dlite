@@ -1,5 +1,6 @@
 import json
 import sys
+import warnings
 from typing import Sequence, Mapping
 from typing import Dict, List, Optional
 
@@ -408,7 +409,13 @@ def infer_dimensions(meta, values, strict=True):
     dims = {}
     for prop in meta['properties']:
         if prop.name in values and prop.ndims:
-            v = np.array(values[prop.name])
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message="The unit of the quantity is stripped when "
+                    "downcasting to ndarray."
+                )
+                v = np.array(values[prop.name])
             if len(v.shape) != prop.ndims:
                 raise InvalidNumberOfDimensionsError(
                     f'property {prop.name} has {prop.ndims} dimensions, but '
