@@ -52,7 +52,7 @@ opener(const DLiteStoragePlugin *api, const char *location,
 
   /* Call method: open() */
   if (!(obj = PyObject_CallObject(cls, NULL)))
-    FAIL1("error instantiating %s", classname);
+    FAILCODE1(dliteStorageOpenError, "error instantiating %s", classname);
 
   v = PyObject_CallMethod(obj, "open", "ss", location, options);
   if (dlite_pyembed_err_check("error calling %s.open()", classname)) goto fail;
@@ -115,8 +115,7 @@ int closer(DLiteStorage *s)
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
+    dlite_warnx("cannot get class name for storage plugin %s", s->api->name);
 
   /* Return if close() is not defined */
   if (!PyObject_HasAttrString(sp->obj, "close")) return retval;
@@ -143,8 +142,7 @@ int flusher(DLiteStorage *s)
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
+    dlite_warnx("cannot get class name for storage plugin %s", s->api->name);
 
   /* Return if flush() is not defined */
   if (!PyObject_HasAttrString(sp->obj, "flush")) return retval;
@@ -173,8 +171,7 @@ char *helper(DLiteStorage *s)
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
+    dlite_warnx("cannot get class name for storage plugin %s", s->api->name);
 
   if (PyObject_HasAttrString(class, "__doc__")) {
     if (!(pyclassdoc = PyObject_GetAttrString(class, "__doc__")))
@@ -242,8 +239,7 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
   }
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
+    dlite_warnx("cannot get class name for storage plugin %s", s->api->name);
   PyObject *v = PyObject_CallMethod(sp->obj, "load", "O", pyuuid);
   Py_DECREF(pyuuid);
   if (v) {
@@ -269,8 +265,7 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
   const char *classname;
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
+    dlite_warnx("cannot get class name for storage plugin %s", s->api->name);
   v = PyObject_CallMethod(sp->obj, "save", "O", pyinst);
   if (dlite_pyembed_err_check("error calling %s.save()", classname)) goto fail;
   retval = 0;
@@ -295,8 +290,7 @@ int deleter(DLiteStorage *s, const char *id)
   dlite_errclr();
   if (dlite_get_uuid(uuid, id) < 0) goto fail;
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		s->api->name);
+    dlite_warnx("cannot get class name for storage plugin %s", s->api->name);
   v = PyObject_CallMethod(sp->obj, "delete", "s", uuid);
   if (dlite_pyembed_err_check("error calling %s.delete()", classname))
     goto fail;
@@ -418,8 +412,7 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
   const char *classname;
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin %s",
-		*((char **)s->api));
+    dlite_warnx("cannot get class name for storage plugin %s", s->api->name);
 
   if (!(iter = calloc(1, sizeof(Iter))))
     FAILCODE(dliteMemoryError, "allocation failure");
@@ -498,7 +491,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
 
   /* get classname for error messages */
   if (!(classname = dlite_pyembed_classname(cls)))
-    dlite_warnx("cannot get class name for storage plugin");
+    dlite_warnx("cannot get class name for storage plugin: %s", api->name);
 
   /* get attributes to fill into the api */
   if (PyObject_HasAttrString(cls, "name"))

@@ -77,7 +77,7 @@ def standardise(v, prop, asdict=False):
     else:
         conv = lambda x: list(x.asstrings()) if hasattr(x, 'asstrings') else x
 
-    if prop.dtype == dlite.BlobType:
+    if prop.dtype == BlobType:
         if prop.ndims:
             V = np.fromiter(
                 (''.join(f'{c:02x}' for c in s.item()) for s in v.flat),
@@ -106,11 +106,11 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         DLite Instance.
 
     """
-    if isinstance(id, dlite.Instance):
+    if isinstance(id, Instance):
         inst = id
     else:
         id = str(id).rstrip("#/")
-        if metaid and not isinstance(metaid, dlite.Instance):
+        if metaid and not isinstance(metaid, Instance):
             metaid = str(metaid).rstrip("#/")
         inst = _dlite.get_instance(id, metaid, check_storages)
 
@@ -118,7 +118,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         raise DLiteError(f"no such instance: {id}")
     elif inst.is_meta:
         inst.__class__ = Metadata
-    elif inst.meta.uri == _dlite.COLLECTION_ENTITY:
+    elif inst.meta.uri == COLLECTION_ENTITY:
         inst.__class__ = Collection
     return inst
 
@@ -269,7 +269,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         if self is None:
             raise DLiteError(f"invalid dlite.Instance")
 
-        dlite.errclr()
+        _dlite.errclr()
         _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
@@ -323,7 +323,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
             meta = get_instance(metaid)
             dims = [dims[dim.name] for dim in meta.properties['dimensions']]
         # Allow metaid to be an Instance
-        if isinstance(metaid, dlite.Instance):
+        if isinstance(metaid, Instance):
             metaid = metaid.uri
         return Instance(
             metaid=metaid, dims=dims, id=id,
@@ -607,7 +607,8 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
             )
             dimensions = dims
         if isinstance(dimensions, dict):
-            dimensions = [dimensions[name] for name in self.dimnames()]
+            dimnames = [d.name for d in self.properties['dimensions']]
+            dimensions = [dimensions[name] for name in dimnames]
 
         inst = Instance.from_metaid(self.uri, dimensions, id)
         if isinstance(properties, dict):

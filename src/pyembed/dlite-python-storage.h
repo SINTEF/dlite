@@ -65,7 +65,9 @@ void dlite_python_storage_unload(void);
 /**
   Returns the base class for storage plugins.
 */
+#ifndef NOPYTHON
 PyObject *dlite_python_storage_base(void);
+#endif
 
 
 #endif /* _DLITE_PYTHON_STORAGE_H */
