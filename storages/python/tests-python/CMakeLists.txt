@@ -9,6 +9,8 @@ set(python-tests
   test_mongodb-atlas_python
   test_redis
   test_minio
+  test_template
+  test_template-jinja
   )
 
 include(FindPythonModule)

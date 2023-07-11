@@ -34,9 +34,9 @@ typedef struct {
   int mapping_paths_initialised;
   unsigned char mapping_plugin_path_hash[32];
   PyObject *loaded_mappings;  /* A cache with all loaded plugins */
-  const char **failed_paths;  /* NULL-terminated array of paths to storages
-                                 that fail to load. */
-  size_t failed_len;          /* Allocated length of `failed_paths`. */
+  char **failed_paths;  /* NULL-terminated array of paths to storages
+                           that fail to load. */
+  size_t failed_len;    /* Allocated length of `failed_paths`. */
 } Globals;
 
 

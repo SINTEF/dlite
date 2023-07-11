@@ -17,6 +17,11 @@
 #include "dlite-storage-plugins.h"
 #include "dlite-errors.h"
 
+#ifdef WITH_PYTHON
+#define NOPYTHON
+#include "pyembed/dlite-python-storage.h"
+#endif
+
 #define GLOBALS_ID "dlite-storage-plugins-id"
 
 
@@ -141,9 +146,22 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
                    "\"%s\" in search path:\n", name);
     if (r >= 0) m += r;
     while (paths && (p = *(paths++)) && ++n) {
-      r = asnpprintf(&buf, &size, m, "    %s\n", p);
+      r = asnpprintf(&buf, &size, m, "   - %s\n", p);
       if (r >= 0) m += r;
     }
+
+#ifdef WITH_PYTHON
+    FUPaths *ppaths = dlite_python_storage_paths();
+    FUIter *iter = fu_startmatch("*.py", ppaths);
+    r = asnpprintf(&buf, &size, m,
+                   "   ...the following Python plugins were also checked:\n");
+    if (r >= 0) m += r;
+    while ((p = fu_nextmatch(iter))) {
+      r = asnpprintf(&buf, &size, m, "   - %s\n", p);
+      if (r >= 0) m += r;
+    }
+#endif
+
     if (n <= 1)
       m += asnpprintf(&buf, &size, m, "Are the required Python packages "
                       "installed or %sDLITE_STORAGE_PLUGIN_DIRS "

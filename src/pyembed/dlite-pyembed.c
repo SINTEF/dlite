@@ -153,82 +153,82 @@ int dlite_pyembed_err(int eval, const char *msg, ...)
  */
 int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
 {
+  PyObject *type, *value, *tb;
   char errmsg[4096];
+  errmsg[0] = '\0';
 
-  if (PyErr_Occurred()) {
-    PyObject *type, *value, *tb=NULL;
+  /* Check if an error has occurred.  We use PyErr_Fetch() rather than
+     PyErr_Occurred() since we don't want to mess with ensuring that
+     we hold the GIL. */
+  PyErr_Fetch(&type, &value, &tb);
+  if (!type) return dlite_verr(eval, msg, ap);  // no Python error
 
-    errmsg[0] = '\0';
+  /* If the DLITE_PYDEBUG environment variable is set, print full Python
+     error message (with traceback) to sys.stderr.
+     Before doing that, we have to temporary restore the error state. */
+  if (getenv("DLITE_PYDEBUG")) {
+    PyErr_Restore(type, value, tb);
+    PySys_WriteStderr("\n");
+    PyErr_PrintEx(0);
+    PySys_WriteStderr("\n");
     PyErr_Fetch(&type, &value, &tb);
-    PyErr_NormalizeException(&type, &value, &tb);
-    assert(type && value);
-
-    /* If the DLITE_PYDEBUG environment variable is set, print full Python
-       error message (with traceback) to sys.stderr. */
-    if (getenv("DLITE_PYDEBUG")) {
-      Py_INCREF(type);
-      Py_INCREF(value);
-      Py_INCREF(tb);
-      PyErr_Restore(type, value, tb);
-      PySys_WriteStderr("\n");
-      PyErr_Print();
-      PySys_WriteStderr("\n");
-      PyErr_Clear();
-   }
-
-    /* Try to get traceback info from traceback.format_exception()... */
-    if (tb) {
-      PyObject *module_name=NULL, *module=NULL, *pfunc=NULL, *val=NULL,
-        *sep=NULL, *str=NULL;
-      if ((module_name = PyUnicode_FromString("traceback")) &&
-          (module = PyImport_Import(module_name)) &&
-          (pfunc = PyObject_GetAttrString(module, "format_exception")) &&
-          PyCallable_Check(pfunc) &&
-          (val = PyObject_CallFunctionObjArgs(pfunc, type, value, tb, NULL)) &&
-          PySequence_Check(val) &&
-          (sep = PyUnicode_FromString("")) &&
-          (str = PyUnicode_Join(val, sep)) &&
-          PyUnicode_Check(str) &&
-          PyUnicode_GET_LENGTH(str) > 0)
-        PyOS_snprintf(errmsg, sizeof(errmsg), "%s\n%s",
-                      msg, (char *)PyUnicode_AsUTF8(str));
-      Py_XDECREF(str);
-      Py_XDECREF(sep);
-      Py_XDECREF(val);
-      Py_XDECREF(pfunc);
-      Py_XDECREF(module);
-      Py_XDECREF(module_name);
-    }
-
-    /* ...otherwise try to report error without traceback... */
-    if (!errmsg[0]) {
-      PyObject *name=NULL, *sname=NULL, *svalue=NULL;
-      if ((name = PyObject_GetAttrString(type, "__name__")) &&
-          (sname = PyObject_Str(name)) &&
-          PyUnicode_Check(sname) &&
-          (svalue = PyObject_Str(value)) &&
-          PyUnicode_Check(svalue))
-        PyOS_snprintf(errmsg, sizeof(errmsg), "%s: %s: %s",
-                      msg, (char *)PyUnicode_AsUTF8(sname),
-                      (char *)PyUnicode_AsUTF8(svalue));
-      Py_XDECREF(svalue);
-      Py_XDECREF(sname);
-      Py_XDECREF(name);
-    }
-
-    /* ...otherwise skip Python error info */
-    if (!errmsg[0])
-      PyOS_snprintf(errmsg, sizeof(errmsg), "%s: <inaccessible Python error>",
-                    msg);
-
-    if (errmsg[0]) msg = errmsg;
-
-    Py_DECREF(type);
-    Py_DECREF(value);
-    Py_XDECREF(tb);
   }
+
+  /* Normalize the fetched exception */
+  PyErr_NormalizeException(&type, &value, &tb);
+  assert(type);
+
+  /* Try to create a error message from Python using the treaceback package */
+  PyObject *module_name=NULL, *module=NULL, *pfunc=NULL, *val=NULL,
+    *sep=NULL, *str=NULL;
+  if ((module_name = PyUnicode_FromString("traceback")) &&
+      (module = PyImport_Import(module_name)) &&
+      (pfunc = PyObject_GetAttrString(module, "format_exception")) &&
+      PyCallable_Check(pfunc) &&
+      (val = PyObject_CallFunctionObjArgs(pfunc, type, value, tb, NULL)) &&
+      PySequence_Check(val) &&
+      (sep = PyUnicode_FromString("")) &&
+      (str = PyUnicode_Join(val, sep)) &&
+      PyUnicode_Check(str) &&
+      PyUnicode_GET_LENGTH(str) > 0)
+    PyOS_snprintf(errmsg, sizeof(errmsg), "%s\n%s",
+                  msg, (char *)PyUnicode_AsUTF8(str));
+  Py_XDECREF(str);
+  Py_XDECREF(sep);
+  Py_XDECREF(val);
+  Py_XDECREF(pfunc);
+  Py_XDECREF(module);
+  Py_XDECREF(module_name);
+
+  /* ...otherwise try to report error without traceback... */
+  if (!errmsg[0]) {
+    PyObject *name=NULL, *sname=NULL, *svalue=NULL;
+    if ((name = PyObject_GetAttrString(type, "__name__")) &&
+        (sname = PyObject_Str(name)) &&
+        PyUnicode_Check(sname) &&
+        (svalue = PyObject_Str(value)) &&
+        PyUnicode_Check(svalue))
+      PyOS_snprintf(errmsg, sizeof(errmsg), "%s: %s: %s",
+                    msg, (char *)PyUnicode_AsUTF8(sname),
+                    (char *)PyUnicode_AsUTF8(svalue));
+    Py_XDECREF(svalue);
+    Py_XDECREF(sname);
+    Py_XDECREF(name);
+  }
+
+  /* ...otherwise skip Python error info */
+  if (!errmsg[0])
+    PyOS_snprintf(errmsg, sizeof(errmsg), "%s: <inaccessible Python error>",
+                  msg);
+
+  if (errmsg[0]) msg = errmsg;
+
+  Py_DECREF(type);
+  Py_DECREF(value);
+  Py_XDECREF(tb);
   return dlite_verrx(eval, msg, ap);
 }
+
 
 /*
   Checks if an Python error has occured.  Returns zero if no error has
@@ -412,11 +412,12 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
   A Python plugin is a subclass of `baseclass` that implements the
   expected functionality.
 
-  `failed_paths` is a pointer to a NULL-terminated array of pointers
-  to paths to plugins that failed to load.  In case a plugin fails to
-  load, this array will be updated.
+  If `failed_paths` is given, it should be a pointer to a
+  NULL-terminated array of pointers to paths to plugins that failed to
+  load.  In case a plugin fails to load, this array will be updated.
 
-  `failed_len` is a pointer to the allocated length of `*failed_paths`.
+  If `failed_paths` is given, `failed_len` must also be given. It is a
+  pointer to the allocated length of `*failed_paths`.
 
   Returns NULL on error.
  */

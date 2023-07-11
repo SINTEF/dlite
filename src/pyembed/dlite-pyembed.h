@@ -92,9 +92,12 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst);
   A Python plugin is a subclass of `baseclassname` that implements the
   expected functionality.
 
-  `*failed_paths` is a NULL-terminated array of pointers to paths to
-  plugins that failed to load.
-  `*failed_len` is the allocated length of `*failed_paths`.
+  If `failed_paths` is given, it should be a pointer to a
+  NULL-terminated array of pointers to paths to plugins that failed to
+  load.  In case a plugin fails to load, this array will be updated.
+
+  If `failed_paths` is given, `failed_len` must also be given. It
+  should be a pointer to the allocated length of `*failed_paths`.
 
   Returns NULL on error.
  */
