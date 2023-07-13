@@ -192,7 +192,7 @@ It is instantiated from the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment varia
 We can now load a TempProfile instance from `dataset.txt` with [^footnote]:
 
 ```python
->>> inst = dlite.Instance.from_location("tempprofile", "dataset.txt", "mode=r")
+>>> inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt", options="mode=r", id="ex:dataset")
 >>> print(inst)
 {
   "uuid": "e3f36e98-3285-5fd0-b129-4635ac15ccdb",
@@ -239,9 +239,7 @@ time  temperature
 
 
 
-[^footnote]: Note that in [main.py] is `dlite.Instance.from_location()` called as `dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt", options="mode=r", id="ex:dataset")` with an absolute location and `id` as an additional argument.
-This is not needed in this simple case, but a good practice.
-The absolute location makes the example independent of the current working directory and the `id` argument allows the storage to contain multiple instances.
+[^footnote]: The `id` argument is not strictly needed to `dlite.Instance.from_location()` in this case, since our storage only contains one instance. But in general it is good practice to provide it.
 
 
 [main.py]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin/main.py
