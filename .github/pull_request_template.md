@@ -1,16 +1,13 @@
- Description
- ===========
+# Description
 
 
-Type of change
---------------
+## Type of change
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Documentation update
 - [ ] Test update
 
-Checklist for the reviewer
---------------------------
+## Checklist for the reviewer
 This checklist should be used as a help for the reviewer.
 
 - [ ] Is the change limited to one issue?
