@@ -126,15 +126,13 @@ class yaml(dlite.DLiteStorageBase):
             yield uuid
 
     @classmethod
-    def from_bytes(cls, buffer, id=None, single=None):
+    def from_bytes(cls, buffer, id=None):
         """Load instance with given `id` from `buffer`.
 
         Arguments:
             buffer: Bytes or bytearray object to load the instance from.
             id: ID of instance to load.  May be omitted if `buffer` only
                 holds one instance.
-            single: Whether to buffer is in single-entity form.  The default
-                is to infer it.
 
         Returns:
             New instance.
@@ -142,7 +140,6 @@ class yaml(dlite.DLiteStorageBase):
         return instance_from_dict(
             pyyaml.safe_load(buffer),
             id,
-            single=single,
             check_storages=False,
         )
 
