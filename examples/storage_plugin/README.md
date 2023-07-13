@@ -240,14 +240,7 @@ time  temperature
 
 ---
 
-[^footnote]: Note that in [main.py] is `dlite.Instance.from_location()` called as follows
-
-```python
-inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt",
-                                    options="mode=r", id="ex:dataset")
-```
-
-with an absolute location and `id` as an additional argument.
+[^footnote]: Note that in [main.py] is `dlite.Instance.from_location()` called as `dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt", options="mode=r", id="ex:dataset")` with an absolute location and `id` as an additional argument.
 This is not needed in this simple case, but a good practice.
 The absolute location makes the example independent of the current working directory and the `id` argument allows the storage to contain multiple instances.
 
