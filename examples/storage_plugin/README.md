@@ -239,7 +239,7 @@ time  temperature
 
 
 
-[^footnote]: The `id` argument is not strictly needed to `dlite.Instance.from_location()` in this case, since our storage only contains one instance. But in general it is good practice to provide it.
+[^footnote]: The `id` argument of `dlite.Instance.from_location()` is not strictly needed in this case, since our storage only contains one instance. But in general it is good practice to provide it.
 
 
 [main.py]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin/main.py
