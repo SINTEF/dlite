@@ -133,15 +133,32 @@ A `dlite.DLiteStorageBase` subclass may define the following methods:
 
   This method is called when a storage is closed.
 
+* **flush(self)**: optional
+
+  Flush cached data to storage. Called by the flush() of the storage.
+
 * **load(self, id=None)**: optional
 
   Loads an instance identified by `id` from storage and returns it.
+  Called by the load() method of the storage or by dlite.Instance.from_storage().
+
+* **from_bytes(self, buffer, id=None)**: optional
+
+  Load instance with given `id` from `buffer`.
+  Plugin developers may allow omitting `id` if `buffer` only holds one instance.
 
 * **save(self, inst)**: optional
 
   Saves instance `inst` to storage.
+  Called by the save() method of the storage or instance.
 
-  If this method is not defined, the storage plugin will not support saving data.
+* **to_bytes(self, inst)**: optional
+
+  Returns instance `inst` as a bytes (or bytearray) object.
+
+* **delete(self, uuid)**: optional
+
+  Delete instance with given `uuid` from storage.
 
 * **query(self, pattern=None)**: optional
 
@@ -175,7 +192,7 @@ It is instantiated from the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment varia
 We can now load a TempProfile instance from `dataset.txt` with [^footnote]:
 
 ```python
->>> inst = dlite.Instance.from_location("tempprofile", "dataset.txt", "mode=r")
+>>> inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt", options="mode=r", id="ex:dataset")
 >>> print(inst)
 {
   "uuid": "e3f36e98-3285-5fd0-b129-4635ac15ccdb",
@@ -221,18 +238,8 @@ time  temperature
 ```
 
 
----
 
-[^footnote]: Note that in [main.py] is `dlite.Instance.from_location()` called as follows
-
-```python
-inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt",
-                                    options="mode=r", id="ex:dataset")
-```
-
-with an absolute location and `id` as an additional argument.
-This is not needed in this simple case, but a good practice.
-The absolute location makes the example independent of the current working directory and the `id` argument allows the storage to contain multiple instances.
+[^footnote]: The `id` argument of `dlite.Instance.from_location()` is not strictly needed in this case, since our storage only contains one instance. But in general it is good practice to provide it.
 
 
 [main.py]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin/main.py
