@@ -172,7 +172,7 @@ This script first appends the `plugins/` sub-directory to the `dlite.python_stor
 `dlite.python_storage_plugin_path` is a special path object, with a list-like Python interface.
 It is instantiated from the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment variable.
 
-We can now load a TempProfile instance from `dataset.txt` with
+We can now load a TempProfile instance from `dataset.txt` with [^footnote]:
 
 ```python
 >>> inst = dlite.Instance.from_location("tempprofile", "dataset.txt", "mode=r")
@@ -219,6 +219,20 @@ time  temperature
   20           80
   30           85
 ```
+
+
+---
+
+[^footnote]: Note that in [main.py] is `dlite.Instance.from_location()` called as follows
+
+```python
+inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt",
+                                    options="mode=r", id="ex:dataset")
+```
+
+with an absolute location and `id` as an additional argument.
+This is not needed in this simple case, but a good practice.
+The absolute location makes the example independent of the current working directory and the `id` argument allows the storage to contain multiple instances.
 
 
 [main.py]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin/main.py
