@@ -37,6 +37,18 @@ const char *dlite_pyembed_classname(PyObject *cls);
 
 
 /**
+  Writes Python error message to `errmsg` (of length `len`) if an
+  Python error has occured.
+
+  On return the The Python error indicator is reset.
+
+  Returns 0 if no error has occured, otherwise return the number of
+  bytes written to `errmsg`. On error -1 is returned.
+*/
+int dlite_pyembed_errmsg(char *errmsg, size_t errlen);
+
+
+/**
   Reports and restes Python error.
 
   If an Python error has occured, an error message is appended to `msg`,

@@ -131,6 +131,83 @@ const char *dlite_pyembed_classname(PyObject *cls)
 
 
 /*
+  Writes Python error message to `errmsg` (of length `len`) if an
+  Python error has occured.
+
+  On return the The Python error indicator is reset.
+
+  Returns 0 if no error has occured.  Otherwise return the number of
+  bytes written to, or would have been written to `errmsg` if it had
+  been large enough.  On error -1 is returned.
+*/
+int dlite_pyembed_errmsg(char *errmsg, size_t errlen)
+{
+  PyObject *type, *value, *tb;
+  int n=-1;
+
+  PyErr_Fetch(&type, &value, &tb);
+  if (!type) return 0;
+  PyErr_NormalizeException(&type, &value, &tb);
+
+  /* Try to create a error message from Python using the treaceback package */
+  if (errmsg) {
+    PyObject *module_name=NULL, *module=NULL, *pfunc=NULL, *val=NULL,
+      *sep=NULL, *str=NULL;
+    errmsg[0] = '\0';
+    if ((module_name = PyUnicode_FromString("traceback")) &&
+        (module = PyImport_Import(module_name)) &&
+        (pfunc = PyObject_GetAttrString(module, "format_exception")) &&
+        PyCallable_Check(pfunc) &&
+        (val = PyObject_CallFunctionObjArgs(pfunc, type, value, tb, NULL)) &&
+        PySequence_Check(val) &&
+        (sep = PyUnicode_FromString("")) &&
+        (str = PyUnicode_Join(val, sep)) &&
+        PyUnicode_Check(str) &&
+        PyUnicode_GET_LENGTH(str) > 0)
+      n = PyOS_snprintf(errmsg, errlen, "%s", (char *)PyUnicode_AsUTF8(str));
+    Py_XDECREF(str);
+    Py_XDECREF(sep);
+    Py_XDECREF(val);
+    Py_XDECREF(pfunc);
+    Py_XDECREF(module);
+    Py_XDECREF(module_name);
+  }
+
+  /* ...otherwise try to report error without traceback... */
+  if (errmsg && n < 0) {
+    PyObject *name=NULL, *sname=NULL, *svalue=NULL;
+    if ((name = PyObject_GetAttrString(type, "__name__")) &&
+        (sname = PyObject_Str(name)) &&
+        PyUnicode_Check(sname) &&
+        (svalue = PyObject_Str(value)) &&
+        PyUnicode_Check(svalue))
+      n = PyOS_snprintf(errmsg, errlen, "%s: %s",
+                        (char *)PyUnicode_AsUTF8(sname),
+                        (char *)PyUnicode_AsUTF8(svalue));
+
+    Py_XDECREF(svalue);
+    Py_XDECREF(sname);
+    Py_XDECREF(name);
+  }
+
+  /* ...otherwise fallback to write to sys.stderr.
+     We also do this if the DLITE_PYDEBUG environment variable is set. */
+  if ((errmsg && n < 0) || getenv("DLITE_PYDEBUG")) {
+    PyErr_Restore(type, value, tb);
+    PySys_WriteStderr("\n");
+    PyErr_PrintEx(0);
+    PySys_WriteStderr("\n");
+  } else {
+    Py_DECREF(type);
+    Py_DECREF(value);
+    Py_XDECREF(tb);
+  }
+
+  return (errmsg) ? n : 0;
+}
+
+
+/*
   Reports and resets Python error.
 
   If an Python error has occured, an error message is appended to `msg`,
@@ -153,80 +230,20 @@ int dlite_pyembed_err(int eval, const char *msg, ...)
  */
 int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
 {
-  PyObject *type, *value, *tb;
-  char errmsg[4096];
-  errmsg[0] = '\0';
-
-  /* Check if an error has occurred.  We use PyErr_Fetch() rather than
-     PyErr_Occurred() since we don't want to mess with ensuring that
-     we hold the GIL. */
-  PyErr_Fetch(&type, &value, &tb);
-  if (!type) return dlite_verr(eval, msg, ap);  // no Python error
-
-  /* If the DLITE_PYDEBUG environment variable is set, print full Python
-     error message (with traceback) to sys.stderr.
-     Before doing that, we have to temporary restore the error state. */
-  if (getenv("DLITE_PYDEBUG")) {
-    PyErr_Restore(type, value, tb);
-    PySys_WriteStderr("\n");
-    PyErr_PrintEx(0);
-    PySys_WriteStderr("\n");
-    PyErr_Fetch(&type, &value, &tb);
+  char errmsg[4096], *p=errmsg;
+  int m = sizeof(errmsg);
+  int n = vsnprintf(errmsg, sizeof(errmsg), msg, ap);
+  if (n > 0) {
+    p += n;
+    m -= n;
+    n = snprintf(p, m, ": ");
+    if (n > 0) {
+      p += n;
+      m -= n;
+    }
   }
-
-  /* Normalize the fetched exception */
-  PyErr_NormalizeException(&type, &value, &tb);
-  assert(type);
-
-  /* Try to create a error message from Python using the treaceback package */
-  PyObject *module_name=NULL, *module=NULL, *pfunc=NULL, *val=NULL,
-    *sep=NULL, *str=NULL;
-  if ((module_name = PyUnicode_FromString("traceback")) &&
-      (module = PyImport_Import(module_name)) &&
-      (pfunc = PyObject_GetAttrString(module, "format_exception")) &&
-      PyCallable_Check(pfunc) &&
-      (val = PyObject_CallFunctionObjArgs(pfunc, type, value, tb, NULL)) &&
-      PySequence_Check(val) &&
-      (sep = PyUnicode_FromString("")) &&
-      (str = PyUnicode_Join(val, sep)) &&
-      PyUnicode_Check(str) &&
-      PyUnicode_GET_LENGTH(str) > 0)
-    PyOS_snprintf(errmsg, sizeof(errmsg), "%s\n%s",
-                  msg, (char *)PyUnicode_AsUTF8(str));
-  Py_XDECREF(str);
-  Py_XDECREF(sep);
-  Py_XDECREF(val);
-  Py_XDECREF(pfunc);
-  Py_XDECREF(module);
-  Py_XDECREF(module_name);
-
-  /* ...otherwise try to report error without traceback... */
-  if (!errmsg[0]) {
-    PyObject *name=NULL, *sname=NULL, *svalue=NULL;
-    if ((name = PyObject_GetAttrString(type, "__name__")) &&
-        (sname = PyObject_Str(name)) &&
-        PyUnicode_Check(sname) &&
-        (svalue = PyObject_Str(value)) &&
-        PyUnicode_Check(svalue))
-      PyOS_snprintf(errmsg, sizeof(errmsg), "%s: %s: %s",
-                    msg, (char *)PyUnicode_AsUTF8(sname),
-                    (char *)PyUnicode_AsUTF8(svalue));
-    Py_XDECREF(svalue);
-    Py_XDECREF(sname);
-    Py_XDECREF(name);
-  }
-
-  /* ...otherwise skip Python error info */
-  if (!errmsg[0])
-    PyOS_snprintf(errmsg, sizeof(errmsg), "%s: <inaccessible Python error>",
-                  msg);
-
-  if (errmsg[0]) msg = errmsg;
-
-  Py_DECREF(type);
-  Py_DECREF(value);
-  Py_XDECREF(tb);
-  return dlite_verrx(eval, msg, ap);
+  dlite_pyembed_errmsg(p, m);
+  return dlite_errx(eval, "%s", errmsg);
 }
 
 
@@ -428,7 +445,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   PyObject *main_dict, *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
   PyObject *subclassnames=NULL;
   FUIter *iter;
-  int i, pos=0;
+  int i;
   char errors[4098] = "";
 
   dlite_errclr();
@@ -478,30 +495,14 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
           PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
                                      main_dict);
           if (!ret) {
+
             if (failed_paths && failed_len) {
               char **new = strlst_append(*failed_paths, failed_len, path);
               if (!new) FAIL("allocation failure");
               *failed_paths = new;
             }
 
-            PyObject *type=NULL, *value=NULL, *tb=NULL, *name=NULL, *msg=NULL;
-            PyErr_Fetch(&type, &value, &tb);
-            int showtb = tb && tb != Py_None && getenv("DLITE_PYDEBUG");
-            name = PyObject_GetAttrString(type, "__name__");
-            msg = PyObject_Str(value);
-            int m = snprintf(errors+pos, sizeof(errors)-pos,
-                             "   - %s: %s: %s%s%s\n",
-                             path,
-                             PyUnicode_AsUTF8(name),
-                             PyUnicode_AsUTF8(msg),
-                             (showtb) ? "\n": "",
-                             (showtb) ? PyUnicode_AsUTF8(tb) : "");
-            if (m > 0) pos += m;
-            Py_XDECREF(type);
-            Py_XDECREF(value);
-            Py_XDECREF(tb);
-            Py_XDECREF(name);
-            Py_XDECREF(msg);
+            dlite_pyembed_errmsg(NULL, 0);
             fclose(fp);
           }
           Py_XDECREF(ret);

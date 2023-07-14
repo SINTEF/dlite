@@ -56,7 +56,6 @@ static void free_globals(void *globals)
   free(g);
 }
 
-
 /* Return a pointer to global state for this module */
 static PythonStorageGlobals *get_globals(void)
 {
@@ -67,6 +66,17 @@ static PythonStorageGlobals *get_globals(void)
     dlite_globals_add_state(GLOBALS_ID, g, free_globals);
   }
   return g;
+}
+
+
+/*
+  Returns a static pointer to a NULL-terminated list of pointers to
+  storages that failed to load.
+*/
+const char **dlite_python_storage_failed_paths()
+{
+  PythonStorageGlobals *g = get_globals();
+  return (const char **)g->failed_paths;
 }
 
 
