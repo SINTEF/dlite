@@ -7,35 +7,35 @@
 const char *dlite_errname(DLiteErrors code)
 {
   switch (code) {
-  case dliteSuccess:                return "Sussess";
-  case dliteUnknownError:           return "UnknownError";
-  case dliteIOError:                return "IOError";
-  case dliteRuntimeError:           return "RuntimeError";
-  case dliteIndexError:             return "IndexError";
-  case dliteTypeError:              return "TypeError";
-  case dliteDivisionByZero:         return "DivisionByZero";
-  case dliteOverflowError:          return "OverflowError";
-  case dliteSyntaxError:            return "SyntaxError";
-  case dliteValueError:             return "ValueError";
-  case dliteSystemError:            return "SystemError";
-  case dliteAttributeError:         return "AttributeError";
-  case dliteMemoryError:            return "MemoryError";
-  case dliteNullReferenceError:     return "NullReferenceError";
+  case dliteSuccess:                return "DLiteSussess";
+  case dliteUnknownError:           return "DLiteUnknown";
+  case dliteIOError:                return "DLiteIO";
+  case dliteRuntimeError:           return "DLiteRuntime";
+  case dliteIndexError:             return "DLiteIndex";
+  case dliteTypeError:              return "DLiteType";
+  case dliteDivisionByZero:         return "DLiteDivisionByZero";
+  case dliteOverflowError:          return "DLiteOverflow";
+  case dliteSyntaxError:            return "DLiteSyntax";
+  case dliteValueError:             return "DLiteValue";
+  case dliteSystemError:            return "DLiteSystem";
+  case dliteAttributeError:         return "DLiteAttribute";
+  case dliteMemoryError:            return "DLiteMemory";
+  case dliteNullReferenceError:     return "DLiteNullReference";
 
-  case dliteKeyError:               return "KeyError";
-  case dliteParseError:             return "ParseError";
-  case dlitePrintError:             return "PrintError";
-  case dliteUnsupportedError:       return "UnsupportedError";
-  case dliteInconsistentDataError:  return "InconsistentDataError";
-  case dliteStorageOpenError:       return "StorageOpenError";
-  case dliteStorageLoadError:       return "StorageLoadError";
-  case dliteStorageSaveError:       return "StorageSaveError";
-  case dliteMissingInstanceError:   return "MissingInstanceError";
-  case dliteMissingMetadataError:   return "MissingMetadataError";
-  case dliteMetadataExistError:     return "MetadataExistError";
+  case dliteKeyError:               return "DLiteKey";
+  case dliteParseError:             return "DLiteParse";
+  case dlitePrintError:             return "DLitePrint";
+  case dliteUnsupportedError:       return "DLiteUnsupported";
+  case dliteInconsistentDataError:  return "DLiteInconsistentData";
+  case dliteStorageOpenError:       return "DLiteStorageOpen";
+  case dliteStorageLoadError:       return "DLiteStorageLoad";
+  case dliteStorageSaveError:       return "DLiteStorageSave";
+  case dliteMissingInstanceError:   return "DLiteMissingInstance";
+  case dliteMissingMetadataError:   return "DLiteMissingMetadata";
+  case dliteMetadataExistError:     return "DLiteMetadataExist";
 
-  case dliteLastError:              return "LastError";
+  case dliteLastError:              return "DLiteLast";
   }
-  if (code < 0) return "UndefinedError";
-  return "Successful";
+  if (code < 0) return "DLiteUndefined";
+  return "DLiteOther";
 }

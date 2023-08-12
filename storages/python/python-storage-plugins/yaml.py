@@ -39,7 +39,6 @@ class yaml(dlite.DLiteStorageBase):
         self.uri = uri
         self.flushed = False  # whether buffered data has been written to file
         self._data = {}  # data buffer
-
         if self.options.mode in ("r", "a", "append"):
             with open(uri, "r") as f:
                 data = pyyaml.safe_load(f)
