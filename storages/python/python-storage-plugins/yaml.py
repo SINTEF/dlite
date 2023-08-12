@@ -61,7 +61,6 @@ class yaml(dlite.DLiteStorageBase):
                     sort_keys=False,
                 )
             self.flushed = True
-        raise TypeError("abc")
 
     def load(self, id: str):
         """Loads `uuid` from current storage and return it as a new instance.
