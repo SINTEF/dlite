@@ -9,6 +9,8 @@
 #include "dlite-python-singletons.h"
 #include "config-paths.h"
 
+#define GLOBALS_ID "dlite-pyembed-globals"
+
 /* Get rid of MSVS warnings */
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
 # pragma warning(disable: 4273 4996)
@@ -16,6 +18,67 @@
 
 
 static int python_initialized = 0;
+
+
+/* Struct correlating Python exceptions with DLite errors */
+typedef struct {
+  PyObject *exc;        /* Python exception */
+  DLiteErrors errcode;  /* DLite error */
+} ErrorCorrelation;
+
+/* Global state for this module */
+typedef struct {
+  ErrorCorrelation *errcorr;  /* NULL-terminated array */
+} PyembedGlobals;
+
+
+/* Free global state for this module */
+static void free_globals(void *globals)
+{
+  PyembedGlobals *g = (PyembedGlobals *)globals;;
+  if (g->errcorr) free(g->errcorr);
+  free(g);
+}
+
+/* Return a pointer to global state for this module */
+static PyembedGlobals *get_globals(void)
+{
+  PyembedGlobals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(PyembedGlobals))))
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
+  }
+  return g;
+}
+
+/* Help function returning a constant pointer to a NULL-terminated
+   array of ErrorCorrelation records. */
+static const ErrorCorrelation *error_correlations(void)
+{
+  PyembedGlobals *g = get_globals();
+  if (!g->errcorr) {
+    ErrorCorrelation corr[] = {
+      {PyExc_KeyError, dliteKeyError},
+      {PyExc_MemoryError, dliteMemoryError},
+      {PyExc_AttributeError, dliteAttributeError},
+      {PyExc_SystemError, dliteSystemError},
+      {PyExc_ValueError, dliteValueError},
+      {PyExc_SyntaxError, dliteSyntaxError},
+      {PyExc_OverflowError, dliteOverflowError},
+      {PyExc_ZeroDivisionError, dliteDivisionByZero},
+      {PyExc_TypeError, dliteTypeError},
+      {PyExc_IndexError, dliteIndexError},
+      {PyExc_RuntimeError, dliteRuntimeError},
+      {PyExc_IOError, dliteIOError},
+      {NULL, 0}
+    };
+    if (!(g->errcorr = malloc(sizeof(corr))))
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
+    memcpy(g->errcorr, corr, sizeof(corr));
+  }
+  return g->errcorr;
+}
 
 /* Initialises the embedded Python environment. */
 void dlite_pyembed_initialise(void)
@@ -112,7 +175,6 @@ int dlite_pyembed_finalise(void)
   return status;
 }
 
-
 /*
   Returns a static pointer to the class name of python object cls or
   NULL on error.
@@ -127,6 +189,37 @@ const char *dlite_pyembed_classname(PyObject *cls)
   Py_XDECREF(name);
   Py_XDECREF(sname);
   return classname;
+}
+
+
+/*
+  Return DLite error code given Python exception type.
+ */
+DLiteErrors dlite_pyembed_errcode(PyObject *type)
+{
+  const ErrorCorrelation *corr = error_correlations();
+  if (!type) return dliteSuccess;
+  while (corr->exc) {
+    if (PyErr_GivenExceptionMatches(type, corr->exc))
+      return corr->errcode;
+    corr++;
+  }
+  return dliteUnknownError;
+}
+
+/*
+  Return Python exception class corresponding to given DLite error code.
+  Returns NULL if `code` is zero.
+ */
+PyObject *dlite_pyembed_exception(DLiteErrors code)
+{
+  const ErrorCorrelation *corr = error_correlations();
+  if (!code) return NULL;
+  while (corr->exc) {
+    if (code == corr->errcode) return corr->exc;
+    corr++;
+  }
+  return PyExc_Exception;
 }
 
 
@@ -267,9 +360,14 @@ int dlite_pyembed_err_check(const char *msg, ...)
  */
 int dlite_pyembed_verr_check(const char *msg, va_list ap)
 {
-  /* TODO: can we correlate the return value to Python error type? */
-  if (PyErr_Occurred())
-    return dlite_pyembed_verr(1, msg, ap);
+  PyObject *err;
+  //PyGILState_STATE state = PyGILState_STATE();
+  err = PyErr_Occurred();
+  //PyGILState_Release(state);
+  if (err) {
+    int eval = dlite_pyembed_errcode(err);
+    return dlite_pyembed_verr(eval, msg, ap);
+  }
   return 0;
 }
 

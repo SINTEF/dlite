@@ -67,3 +67,18 @@ PyObject *dlite_python_mapping_base(void)
 {
   return dlite_python_mainclass("DLiteMappingBase");
 }
+
+
+/*
+  Returns a singleton Python exception object for the given DLite error code.
+
+  The singleton object is created the first time this function is called
+  with a given `code`.  All following calles with the same `code` will return
+  a reference to the same object.
+
+  Returns NULL if `code` is out of range.
+*/
+//PyObject *dlite_python_error(DLiteErrors code)
+//{
+//
+//}

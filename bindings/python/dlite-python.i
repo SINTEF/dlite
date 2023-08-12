@@ -25,9 +25,11 @@
      count. */
   PyObject *dlite_swig_exception = NULL;
 
-  /* forward declarations */
+  /* Global DLite exceptions - they will be initialised in %init */
   static PyObject *DLiteError = NULL;
   static PyObject *DLiteVerifyError = NULL;
+
+  /* forward declarations */
   char *strndup(const char *s, size_t n);
 %}
 
