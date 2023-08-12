@@ -39,7 +39,6 @@ class yaml(dlite.DLiteStorageBase):
         self.uri = uri
         self.flushed = False  # whether buffered data has been written to file
         self._data = {}  # data buffer
-
         if self.options.mode in ("r", "a", "append"):
             with open(uri, "r") as f:
                 data = pyyaml.safe_load(f)
@@ -62,6 +61,7 @@ class yaml(dlite.DLiteStorageBase):
                     sort_keys=False,
                 )
             self.flushed = True
+        raise TypeError("abc")
 
     def load(self, id: str):
         """Loads `uuid` from current storage and return it as a new instance.

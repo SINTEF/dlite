@@ -67,3 +67,9 @@ PyObject *dlite_python_mapping_base(void)
 {
   return dlite_python_mainclass("DLiteMappingBase");
 }
+
+
+//PyObject *dlite_python_error(void)
+//{
+//
+//}
