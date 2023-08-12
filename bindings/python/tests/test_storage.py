@@ -105,7 +105,7 @@ else:
 
 # Tests for issue #587
 bytearr = inst.to_bytes("yaml")
-print(bytes(bytearr).decode())
+#print(bytes(bytearr).decode())
 if HAVE_PYTEST:
     with pytest.raises(dlite.DLiteError):
         inst.to_bytes("json")
