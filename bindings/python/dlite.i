@@ -65,16 +65,18 @@
   dlite_swig_errclr();
   $action
 #ifdef SWIGPYTHON
+  int errval = dlite_errval();
   if (dlite_swig_exception) {
     PyErr_SetString(dlite_swig_exception, dlite_errmsg());
     dlite_swig_exception = NULL;
     SWIG_fail;
-  } else if (dlite_errval()) {
-    PyErr_SetString(DLiteError, dlite_errmsg());
+  } else if (errval) {
+    PyObject *exc = dlite_python_module_error(errval);
+    PyErr_SetString(exc, dlite_errmsg());
     SWIG_fail;
   }
 #else
-  if (dlite_errval())
+  if (errval)
     SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
 #endif
 }

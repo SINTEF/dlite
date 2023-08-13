@@ -11,7 +11,7 @@ from dlite import Instance, Dimension, Property, Relation
 try:
     import pytest
     HAVE_PYTEST = True
-except ImportError:
+except ModuleNotFoundError:
     HAVE_PYTEST = False
 
 
@@ -153,7 +153,7 @@ try:
     entity = dlite.Instance.from_json(json_repr)
 except dlite.DLiteError as exc:
     assert str(exc) == (
-        "Error 1: metadata does not confirm to schema, please check "
+        "DLiteOtherError: metadata does not confirm to schema, please check "
         "dimensions, properties and/or relations: "
         "http://onto-ns.com/ex/0.1/test"
     )

@@ -4,6 +4,13 @@ import os
 
 import dlite
 
+try:
+    import pytest
+    HAVE_PYTEST = True
+except ModuleNotFoundError:
+    HAVE_PYTEST = False
+
+
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
 url = 'json://' + thisdir + '/MyEntity.json'
@@ -35,7 +42,6 @@ myentity.save('json://myentity.json?mode=w')
 inst.save('json://inst.json?mode=w')
 del inst
 inst = dlite.Instance.from_url(f'json://{thisdir}/inst.json#my-data')
-
 
 
 # Test yaml
@@ -95,3 +101,11 @@ else:
     #del inst
     # FIXME: read from inst.ttl not db.xml
     inst3 = dlite.Instance.from_url('rdf://db.xml#my-data')
+
+
+# Tests for issue #587
+bytearr = inst.to_bytes("yaml")
+#print(bytes(bytearr).decode())
+if HAVE_PYTEST:
+    with pytest.raises(dlite.DLiteError):
+        inst.to_bytes("json")

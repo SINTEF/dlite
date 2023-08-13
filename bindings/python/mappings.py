@@ -74,7 +74,6 @@ class Value:
         property_iri: IRI of datamodel property that this value is an
             instance of.
         cost: Cost of accessing this value.
-
     """
     def __init__(
         self,
@@ -106,17 +105,16 @@ class Value:
 
         Returns:
             String representation of the value.
-
         """
-        res = []
         ind = " " * indent
-        res.append(ind + f"{name if name else 'Value'}:")
-        res.append(ind + f"  iri: {self.iri}")
-        res.append(ind + f"  property_iri: {self.property_iri}")
-        res.append(ind + f"  unit: {self.unit}")
-        res.append(ind + f"  cost: {self.cost}")
-        res.append(ind + f"  value: {self.value}")
-        return "\n".join(res)
+        result = []
+        result.append(ind + f"{name if name else 'Value'}:")
+        result.append(ind + f"  iri: {self.iri}")
+        result.append(ind + f"  property_iri: {self.property_iri}")
+        result.append(ind + f"  unit: {self.unit}")
+        result.append(ind + f"  cost: {self.cost}")
+        result.append(ind + f"  value: {self.value}")
+        return "\n".join(result)
 
 
 class MappingStep:
@@ -132,7 +130,7 @@ class MappingStep:
         steptype: One of the step types from the StepType enum.
         function: Callable that evaluates the output from the input.
         cost: The cost related to this mapping step. Should be either a
-            float or a callable taking the same arguments as ``function`` as
+            float or a callable taking the same arguments as `function` as
             input returning the cost as a float.
         output_unit: Output unit.
 
@@ -164,14 +162,14 @@ class MappingStep:
     def add_input(
         self, input: "MappingStep | Value", name: "Optional[str]" = None
     ) -> None:
-        """Add an input (MappingStep or Value), where ``name`` is the name
+        """Add an input (MappingStep or Value), where `name` is the name
         assigned to the argument.
 
-        If the ``join_mode`` attribute is ``False``, a new route is created with
+        If the `join_mode` attribute is `False`, a new route is created with
         only one input.
 
-        If the ``join_mode`` attribute is ``True``, the input is remembered, but
-        first added when ``join_input()`` is called.
+        If the `join_mode` attribute is `True`, the input is remembered, but
+        first added when `join_input()` is called.
 
         Arguments:
             input: A mapping step or a value.
@@ -206,7 +204,7 @@ class MappingStep:
         """Returns the evaluated value of given input route number.
 
         Arguments:
-            routeno: The route number to evaluate. If ``None`` (default)
+            routeno: The route number to evaluate. If `None` (default)
                 the route with the lowest cost is evalueated.
             unit: return the result in the given unit. Implies `magnitude=True`.
             magnitude: Whether to only return the magnitude of the evaluated
@@ -238,7 +236,7 @@ class MappingStep:
 
     def get_inputs(self, routeno: int) -> tuple[dict, int]:
         """Returns input and input index ``(inputs, idx)`` for route number
-        ``routeno``.
+        `routeno`.
 
         Arguments:
             routeno: The route number to return inputs for.
@@ -286,8 +284,8 @@ class MappingStep:
         return n
 
     def lowest_costs(self, nresults: int = 5) -> list:
-        """Returns a list of ``(cost, routeno)`` tuples with up to the ``nresults``
-        lowest costs and their corresponding route numbers.
+        """Returns a list of ``(cost, routeno)`` tuples with up to the
+        `nresults` lowest costs and their corresponding route numbers.
 
         Arguments:
             nresults: Number of results to return.
@@ -413,7 +411,7 @@ def get_nroutes(inputs: "dict[str, Any]") -> int:
         inputs: Input dictionary.
 
     Returns:
-        Number of routes in the ``inputs`` input dictionary.
+        Number of routes in the `inputs` input dictionary.
 
     """
     nroutes = 1
@@ -432,8 +430,8 @@ def get_values(
     """Help function returning a dict mapping the input names to actual value
     of expected input unit.
 
-    There exists ``get_nroutes(inputs)`` routes to populate ``inputs``.
-    ``routeno`` is the index of the specific route we will use to obtain the
+    There exists ``get_nroutes(inputs)`` routes to populate `inputs`.
+    `routeno` is the index of the specific route we will use to obtain the
     values.
 
     Arguments:
@@ -479,7 +477,10 @@ def fno_mapper(triplestore: "Triplestore") -> defaultdict:
         triplestore: The triplestore to investigate.
 
     Returns:
-        A mapping of output IRIs to a list of ``(function_iri, [input_iris, ...])``
+        A mapping of output IRIs to a list of
+
+            (function_iri, [input_iris, ...])
+
         tuples.
 
     """
@@ -1095,8 +1096,8 @@ def make_instance(
                             props[prop.name] = value
                         elif props[prop.name] != value:
                             raise AmbiguousMappingError(
-                                f"{prop.name!r} maps to both "
-                                f"{props[prop.name]!r} and {value!r}"
+                                f"'{prop.name}' maps to both "
+                                f"'{props[prop.name]}' and '{value}'"
                             )
 
         if prop.name not in props and not strict:
@@ -1108,20 +1109,20 @@ def make_instance(
                         props[prop.name] = value
                     elif props[prop.name] != value:
                         raise AmbiguousMappingError(
-                            f"{prop.name!r} assigned to both "
-                            f"{props[prop.name]!r} and {value!r}"
+                            f"'{prop.name}' assigned to both "
+                            f"'{props[prop.name]}' and '{value}'"
                         )
 
         if not allow_incomplete and prop.name not in props:
             raise InsufficientMappingError(
-                f"no mapping for assigning property {prop.name!r} "
+                f"no mapping for assigning property '{prop.name}' "
                 f"in {meta.uri}"
             )
 
     if None in dims:
         dimname = [name for name, dim in dims.items() if dim is None][0]
         raise InsufficientMappingError(
-            f"dimension {dimname!r} is not assigned"
+            f"dimension '{dimname}' is not assigned"
         )
 
     inst = meta(list(dims.values()))
