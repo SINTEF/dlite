@@ -51,7 +51,8 @@ class Metadata(Instance):
         lst = [p for p in self.properties["properties"] if p.name == name]
         if lst:
             return lst[0]
-        raise DLiteError(f"Metadata {self.uri} has no such property: {name}")
+        raise _dlite.DLiteError(
+            f"Metadata {self.uri} has no such property: {name}")
 
     def dimnames(self):
         """Returns a list of all dimension names in this metadata."""
@@ -92,7 +93,7 @@ def standardise(v, prop, asdict=False):
         return conv(v)
 
 
-def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True) -> "Instance":
+def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "Instance":
     """Return instance with given id.
 
     Arguments:
@@ -104,7 +105,6 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
 
     Returns:
         DLite Instance.
-
     """
     if isinstance(id, Instance):
         inst = id
@@ -115,7 +115,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         inst = _dlite.get_instance(id, metaid, check_storages)
 
     if inst is None:
-        raise DLiteError(f"no such instance: {id}")
+        raise _dlite.DLiteError(f"no such instance: {id}")
     elif inst.is_meta:
         inst.__class__ = Metadata
     elif inst.meta.uri == COLLECTION_ENTITY:
@@ -267,13 +267,13 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
         if self is None:
-            raise DLiteError(f"invalid dlite.Instance")
+            raise _dlite.DLiteError(f"invalid dlite.Instance")
 
         _dlite.errclr()
         _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
-            raise DLiteError(f"cannot initiate dlite.Instance")
+            raise _dlite.DLiteError(f"cannot initiate dlite.Instance")
         elif self.is_meta:
             self.__class__ = Metadata
         elif self.meta.uri == COLLECTION_ENTITY:
@@ -487,7 +487,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         elif isinstance(dest, str):
             self.save_to_url(dest)
         else:
-            raise DLiteError('Arguments do not match any call signature')
+            raise _dlite.DLiteError('Arguments do not match any call signature')
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
@@ -504,7 +504,8 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
 
     def __setitem__(self, ind, value):
         if self.is_frozen():
-            raise DLiteError('frozen instance does not support item assignment')
+            raise _dlite.DLiteError(
+                'frozen instance does not support item assignment')
         if isinstance(ind, int):
             self.set_property_by_index(ind, value)
         elif self.has_property(ind):
@@ -537,7 +538,7 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
         if name == 'this':
             object.__setattr__(self, name, value)
         elif self.is_frozen():
-            raise DLiteError(
+            raise _dlite.DLiteError(
                 'frozen instance does not support attribute assignment')
         elif _has_property(self, name):
             _set_property(self, name, value)
