@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """A module that makes it easy to add dlite functionality to existing classes.
 
-## Class customisations
-
-In order to handle special cases, the following methods may be defined/overridden in
-the class that is to be extended:
+Class customisations
+--------------------
+In order to handle special cases, the following methods may be
+defined/overridden in the class that is to be extended:
 
 ```python
 _dlite_get_<name>(self, name)
@@ -46,10 +46,11 @@ class MetaExtension(type):
 class BaseExtension(metaclass=MetaExtension):
     """Base class for extension.
 
-    Except for ``dlite_id``, all arguments are passed further to the ``__init__()``
-    function of the class we are inheriting from. If ``instanceid`` is given, the id of
-    the underlying dlite instance will be set to it.
+    Except for `dlite_id`, all arguments are passed further to the `__init__()`
+    function of the class we are inheriting from.
 
+    If `instanceid` is given, the id of the underlying dlite instance
+    will be set to it.
     """
 
     def __init__(self, *args, instanceid: str = None, **kwargs) -> None:
@@ -59,11 +60,12 @@ class BaseExtension(metaclass=MetaExtension):
     def _dlite_init(self, instanceid: str = None) -> None:
         """Initialise the underlying DLite Instance.
 
-        If ``id`` is given, the id of the underlying DLite Instance will be set to it.
+        If `id` is given, the id of the underlying DLite Instance will be
+        set to it.
 
-        Parameters:
-            instanceid: A DLite ID (UUID) to use for the underlying DLite Instance.
-
+        Arguments:
+            instanceid: A DLite ID (UUID) to use for the underlying DLite
+                Instance.
         """
         dims = self._dlite_infer_dimensions()
         self.dlite_inst = Instance.from_metaid(
@@ -74,12 +76,11 @@ class BaseExtension(metaclass=MetaExtension):
     def _dlite_get(self, name: str) -> "Any":
         """Returns the value of property `name` from the wrapped object.
 
-        Parameters:
+        Arguments:
             name: The property to retrieve.
 
         Returns:
             The property value.
-
         """
         if hasattr(self, f"_dlite_get_{name}"):
             return getattr(self, f"_dlite_get_{name}")()
@@ -92,10 +93,9 @@ class BaseExtension(metaclass=MetaExtension):
     def _dlite_set(self, name: str, value: "Any") -> None:
         """Sets value of property ``name`` in the wrapped object.
 
-        Parameters:
+        Arguments:
             name: The property to set a value for.
             value: The value to set for the property.
-
         """
         if hasattr(self, f"_dlite_set_{name}"):
             getattr(self, f"_dlite_set_{name}")(value)
@@ -154,9 +154,11 @@ class BaseExtension(metaclass=MetaExtension):
     def _dlite__new__(cls, inst=None):
         """Class method returning a new uninitialised instance of the class
         that is extended.
-        This method simply returns ``cls.__new__(cls)``. Override
-        this method if the extended class already defines a __new__()
-        method.
+
+        This method simply returns `cls.__new__(cls)`.
+
+        Override this method if the extended class already defines a
+        `__new__()` method.
         """
         return cls.__new__(cls)
 
@@ -179,15 +181,16 @@ class BaseExtension(metaclass=MetaExtension):
 
 
 def instancefactory(theclass: type, inst: Instance) -> "Any":
-    """Returns an extended instance of ``theclass`` initiated from dlite
+    """Returns an extended instance of `theclass` initiated from dlite
     instance ``inst``.
 
-    Parameters:
-        theclass: The class to instantiate an object from using ``inst``.
-        inst: A DLite Instance to use as source for a ``theclass`` instance object.
+    Arguments:
+        theclass: The class to instantiate an object from using `inst`.
+        inst: A DLite Instance to use as source for a `theclass` instance
+            object.
 
     Returns:
-        A ``theclass`` instance object based on the DLite Instance ``inst``.
+        A `theclass` instance object based on the DLite Instance `inst`.
 
     """
     cls = classfactory(theclass, meta=inst.meta)
@@ -208,30 +211,26 @@ def objectfactory(
     id: "Optional[str]" = None,
     instanceid: "Optional[str]" = None,
 ) -> "Any":
-    """Returns an extended copy of ``obj``.
+    """Returns an extended copy of `obj`.
 
-    If ``deepcopy`` is ``True``, a deep copy is returned, otherwise a shallow copy is
-    returned. By default, the returned object will have the same class as ``obj``.
-    If ``cls`` is provided, the class of the returned object will be set to ``cls``
-    (typically a subclass of ``obj.__class__``).
+    The `url`, `storage`, and `id` arguments are passed to `classfactory()`.
 
-    The ``url``, ``storage``, and ``id`` arguments are passed to ``classfactory()``.
-
-    Parameters:
+    Arguments:
         obj: A Python object.
         meta: A DLite Metadata Instance.
-        deepcopy: Whether or not to perform a deep or shallow copy of ``obj``.
-        cls: A class to use for the new object. If this is not supplied, the new object
-            will be the same class as the original.
-        url: URL referring to the metadata. Should be of the form
-            ``driver://location?options#id``. Only used if ``cls`` is not specified.
-        storage: Storage from which to load meta data. Only used if ``cls`` is not
-            specified.
-        id: A unique ID referring to the meta data if ``storage`` is provided.
+        deepcopy: Whether to perform a deep copy.  Otherwise a shallow copy
+            is performed.
+        cls: A class to use for the new object. If this is not supplied,
+            the new object will be of the same class as the original.
+        url: If given and `meta` is not given, load metadata from this URL.
+            It should be of the form `driver://location?options#id`.
+        storage: If given and `meta` and `url` are not given, load metadata
+            from this storage.
+        id: A unique ID referring to the metadata if `storage` is provided.
         instanceid: A DLite ID (UUID) to use for the underlying DLite Instance.
 
     Returns:
-        A new, extended copy of the Python object ``obj``.
+        A new, extended copy of the Python object `obj`.
 
     """
     cls = cls if cls is not None else classfactory(
@@ -255,18 +254,19 @@ def classfactory(
     id: "Optional[str]" = None,
 ) -> type:
     """Factory function that returns a new class that inherits from both
-    ``theclass`` and ``BaseExtension``.
+    `theclass` and `BaseExtension`.
 
-    Parameters:
+    Arguments:
         theclass: The class to extend.
         meta: Metadata instance.
-        url: URL referring to the metadata. Should be of the form
-            ``driver://location?options#id``.
-        storage: Storage to load meta from.
-        id: A unique ID referring to the metadata if ``storage`` is provided.
+        url: If given and `meta` is not given, load metadata from this URL.
+            It should be of the form `driver://location?options#id`.
+        storage: If given and `meta` and `url` are not given, load metadata
+            from this storage.
+        id: A unique ID referring to the metadata if `storage` is provided.
 
     Returns:
-        A new class based on ``theclass`` and ``BaseExtensions``.
+        A new class based on `theclass` and `BaseExtensions`.
 
     """
     if meta is None:

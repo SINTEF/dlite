@@ -92,7 +92,7 @@ def standardise(v, prop, asdict=False):
         return conv(v)
 
 
-def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True) -> "Instance":
+def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "Instance":
     """Return instance with given id.
 
     Arguments:
@@ -104,7 +104,6 @@ def get_instance(id: "str", metaid: "str" = None, check_storages: "bool" = True)
 
     Returns:
         DLite Instance.
-
     """
     if isinstance(id, Instance):
         inst = id

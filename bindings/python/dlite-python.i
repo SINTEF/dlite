@@ -613,6 +613,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       case 4: value = *((float32_t *)data); break;
       case 8: value = *((float64_t *)data); break;
 #ifdef HAVE_FLOAT80_T
+      // TODO: check for overflow
       case 10: value = *((float80_t *)data); break;
 #endif
 #ifdef HAVE_FLOAT96_T
