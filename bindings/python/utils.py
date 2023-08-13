@@ -1,12 +1,11 @@
 import json
 import sys
 import warnings
-from typing import Sequence, Mapping
-from typing import Dict, List, Optional
+from typing import Dict, List, Mapping, Optional, Sequence
 
 # dataclasses is a rather new feature of Python, lets not require it...
 try:
-    from dataclasses import dataclass, is_dataclass, asdict
+    from dataclasses import asdict, dataclass, is_dataclass
 except:
     HAVE_DATACLASSES = False
 else:
@@ -14,7 +13,7 @@ else:
 
 # pydantic is a third party library, lets not require it...
 try:
-    from pydantic import BaseModel, AnyUrl
+    from pydantic import AnyUrl, BaseModel, Field
 except:
     HAVE_PYDANTIC = False
 else:
@@ -114,7 +113,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         if 'uri' in d and 'uuid' in d:
             if dlite.get_uuid(d['uri']) != d['uuid']:
                 raise dlite.DLiteError('uri and uuid in dict are not consistent')
-        uuid = dlite.get_uuid(d.get('uuid', d.get('uri')))
+        uuid = dlite.get_uuid(str(d.get('uuid', d.get('uri'))))
         if id:
             if dlite.get_uuid(id) != uuid:
                 raise ValueError(f'`id` is not consistent with uri/uuid in dict')
@@ -221,7 +220,8 @@ def get_dataclass_entity_schema():
     @dataclass
     class Property:
         type: str
-        dims: Optional[List[str]]
+        #ref: Optional[str]  # Hmm, how to create field name "@ref"?
+        shape: Optional[List[str]]
         unit: Optional[str]
         description: Optional[str]
 
@@ -236,15 +236,26 @@ def get_dataclass_entity_schema():
 
 
 def pydantic_to_property(
-        name: str, propdict: dict,
-        dimensions: dict = None,
-        namespace="http://onto-ns.com/meta",
-        version="0.1",
+        name: str,
+        propdict: dict,
+        dimensions: "Optional[dict]" = None,
+        namespace: str = "http://onto-ns.com/meta",
+        version: str = "0.1",
 ):
     """Return a dlite property from a name and a pydantic property dict.
 
-    If `dimensions` is given, new dimensions from array properties will
-    be added to it.
+    Arguments:
+        name: Name of the property to create.
+        propdict: Pydantic property dict.
+        dimensions: If given, the dict will be updated with new dimensions
+            from array properties.
+        namespace: For a reference property use this as the namespace of
+            the property to refer to.
+        version:  For a reference property use this as the version of
+            the property to refer to.
+
+    Returns:
+        New DLite property.
     """
     if not HAVE_PYDANTIC:
         raise MissingDependencyError("pydantic")
@@ -256,7 +267,31 @@ def pydantic_to_property(
     if dimensions is None:
         dimensions = {}
 
-    ptype = propdict.get("type", "ref")
+    # Infer property type
+    if "type" in propdict:
+        ptype = propdict["type"]
+    elif "anyOf" in propdict:
+        # 'anyOf' was introduced in Pydantic 2
+        typedicts = [d for d in propdict["anyOf"] if d["type"] != "null"]
+        if not typedicts:
+            raise dlite.DliteValueError(
+                "no non-null type in `propdict`. "
+                "Please add explicit type to `propdict`."
+            )
+        if len(typedicts) > 1:
+            raise dlite.DliteValueError(
+                f"more than one type in `propdict`: {typedicts}. "
+                "Please add explicit type to `propdict`."
+            )
+        typedict = typedicts[0]
+        if "type" not in typedict:
+            raise dlite.DliteValueError(
+                "missing type in field 'anyOf' of `propdict`"
+            )
+        ptype = typedict["type"]
+    else:
+        ptype = "ref"
+
     unit = propdict.get("unit")
     descr = propdict.get("description")
 
@@ -266,7 +301,14 @@ def pydantic_to_property(
         )
 
     if ptype == "array":
-        subprop = pydantic_to_property("tmp", propdict["items"])
+        if "type" in propdict:
+            subprop = pydantic_to_property("tmp", propdict["items"])
+        elif "anyOf" in propdict:
+            subprop = pydantic_to_property("tmp", typedict["items"])
+        else:
+            raise dlite.DliteSystemError(
+                f'`propdict` for arrays must have key "type" or "anyOf"'
+            )
         shape = propdict.get("shape", [f"n{name}"])
         for dim in shape:
             dimensions.setdefault(dim, f"Number of {dim}.")
@@ -284,6 +326,7 @@ def pydantic_to_property(
         return prop
 
     raise ValueError(f"unsupported pydantic type: {ptype}")
+
 
 def pydantic_to_metadata(
         model,
@@ -358,16 +401,17 @@ def get_pydantic_entity_schema():
         raise MissingDependencyError("pydantic")
 
     class Property(BaseModel):
-        type: str
-        dims: Optional[List[str]]
-        unit: Optional[str]
-        description: Optional[str]
+        type: str = Field(...)
+        shape: Optional[Sequence[str]] = Field(None, alias="dims")
+        ref: Optional[str] = Field(None, alias="$ref")
+        unit: Optional[str] = Field(None)
+        description: Optional[str] = Field(None)
 
     class EntitySchema(BaseModel):
-        uri: AnyUrl
-        description: Optional[str]
-        dimensions: Dict[str, str]
-        properties: Dict[str, Property]
+        uri: AnyUrl = Field(...)
+        description: Optional[str] = Field("")
+        dimensions: Optional[Dict[str, str]] = Field({})
+        properties: Dict[str, Property] = Field(...)
 
     return EntitySchema
 
