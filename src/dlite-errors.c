@@ -1,8 +1,11 @@
+#include <stdlib.h>
+
 #include "dlite-errors.h"
 
 
 /*
-  Returns the name corresponding to error code
+  Returns the name corresponding to error code (with the final "Error" stripped
+  off).
  */
 const char *dlite_errname(DLiteErrors code)
 {
@@ -22,10 +25,12 @@ const char *dlite_errname(DLiteErrors code)
   case dliteMemoryError:            return "DLiteMemory";
   case dliteNullReferenceError:     return "DLiteNullReference";
 
+  case dliteOSError:                return "DLiteOS";
   case dliteKeyError:               return "DLiteKey";
   case dliteParseError:             return "DLiteParse";
-  case dlitePrintError:             return "DLitePrint";
+  case dliteSerialiseError:         return "DLiteSerialise";
   case dliteUnsupportedError:       return "DLiteUnsupported";
+  case dliteVerifyError:            return "DLiteVerify";
   case dliteInconsistentDataError:  return "DLiteInconsistentData";
   case dliteStorageOpenError:       return "DLiteStorageOpen";
   case dliteStorageLoadError:       return "DLiteStorageLoad";
@@ -33,9 +38,51 @@ const char *dlite_errname(DLiteErrors code)
   case dliteMissingInstanceError:   return "DLiteMissingInstance";
   case dliteMissingMetadataError:   return "DLiteMissingMetadata";
   case dliteMetadataExistError:     return "DLiteMetadataExist";
+  case dlitePythonError:            return "DLitePython";
 
   case dliteLastError:              return "DLiteLast";
   }
   if (code < 0) return "DLiteUndefined";
   return "DLiteOther";
+}
+
+
+/*
+  Returns a description of the corresponding to error code
+ */
+const char *dlite_errdescr(DLiteErrors code)
+{
+  switch (code) {
+  case dliteSuccess:                return "Sussess";
+  case dliteUnknownError:           return "Generic unknown error";
+  case dliteIOError:                return "I/O related error";
+  case dliteRuntimeError:           return "Unspecified run-time error";
+  case dliteIndexError:             return "Index out of range";
+  case dliteTypeError:              return "Inappropriate argument type";
+  case dliteDivisionByZero:         return "Division by zero";
+  case dliteOverflowError:          return "Result too large to be represented";
+  case dliteSyntaxError:            return "Invalid syntax";
+  case dliteValueError:             return "Inappropriate argument value (of correct type)";
+  case dliteSystemError:            return "Internal error in DLite.  Please report this";
+  case dliteAttributeError:         return "Cannot refer to or assign attribute or variable";
+  case dliteMemoryError:            return "Out of memory";
+  case dliteNullReferenceError:     return "Unexpected NULL pointer when converting bindings";
+
+  case dliteOSError:                return "Error calling a system function";
+  case dliteKeyError:               return "Mapping key is not found";
+  case dliteParseError:             return "Cannot parse input";
+  case dliteSerialiseError:         return "Cannot serialise output";
+  case dliteUnsupportedError:       return "Feature is not implemented/supported";
+  case dliteVerifyError:            return "Object cannot be verified";
+  case dliteInconsistentDataError:  return "Inconsistent data";
+  case dliteStorageOpenError:       return "Cannot open storage plugin";
+  case dliteStorageLoadError:       return "Cannot load storage plugin";
+  case dliteStorageSaveError:       return "Cannot save storage plugin";
+  case dliteMissingInstanceError:   return "No instance with given id";
+  case dliteMissingMetadataError:   return "No metadata with given id";
+  case dliteMetadataExistError:     return "Metadata with given id already exists";
+  case dlitePythonError:            return "Error calling Python API";
+  case dliteLastError:              return NULL;
+  }
+  return NULL;
 }

@@ -3,6 +3,7 @@
 %{
 #include "dlite-mapping.h"
 #include "dlite-bson.h"
+#include "dlite-errors.h"
 %}
 
 
@@ -465,7 +466,7 @@ Call signatures:
       hashp = data;
     }
     if (dlite_instance_verify_hash($self, hashp, recursive))
-      dlite_swig_exception = DLiteVerifyError;
+      dlite_swig_exception = dlite_python_module_error(dliteVerifyError);
   }
 
   %feature("docstring",
