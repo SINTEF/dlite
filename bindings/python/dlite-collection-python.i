@@ -160,7 +160,7 @@ class Collection(Instance):
     def remove(self, label):
         """Remove instance with given label from collection."""
         if _collection_remove(self._coll, label):
-            raise DLiteError(f'No such label in collection: "{label}"')
+            raise _dlite.DLiteError(f'No such label in collection: "{label}"')
 
     def get(self, label, metaid=None):
         """Return instance with given label.
@@ -189,12 +189,12 @@ class Collection(Instance):
     def add_relation(self, s, p, o):
         """Add (subject, predicate, object) RDF triple to collection."""
         if _collection_add_relation(self._coll, s, p, o) != 0:
-            raise DLiteError(f'Error adding relation ({s}, {p}, {o})')
+            raise _dlite.DLiteError(f'Error adding relation ({s}, {p}, {o})')
 
     def remove_relations(self, s=None, p=None, o=None):
         """Remove all relations matching `s`, `p` and `o`."""
         if _collection_remove_relations(self._coll, s, p, o) < 0:
-            raise DLiteError(
+            raise _dlite.DLiteError(
                 f'Error removing relations matching ({s}, {p}, {o})')
 
     def get_first_relation(self, s=None, p=None, o=None):
@@ -280,7 +280,7 @@ class Collection(Instance):
                 ):
                     yield inst
         elif property_mappings:
-            raise DLiteError(
+            raise _dlite.DLiteError(
                 '`metaid` is required when `property_mappings` is true')
         else:
             for inst in iter:
