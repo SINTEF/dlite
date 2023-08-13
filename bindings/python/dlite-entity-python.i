@@ -384,7 +384,29 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     @classmethod
     def from_dict(cls, d, id=None, single=None, check_storages=True):
-        """Load the instance from dictionary."""
+        """Load the instance from dictionary.
+
+        Arguments:
+            d: Dict to parse.  It should be of the same form as returned
+                by the Instance.asdict() method.
+            id: Identity of the returned instance.
+
+                If `d` is in single-entity form with no explicit 'uuid' or
+                'uri', its identity will be assigned by `id`.  Otherwise
+                `id` must be consistent with the 'uuid' and/or 'uri'
+                fields of `d`.
+
+                If `d` is in multi-entity form, `id` is used to select the
+                instance to return.
+            single: A boolean, None or "auto".  Determines whether to
+                assume that the dict is in single-entity form.
+                If `single` is None or "auto", the form is inferred.
+            check_storages: Whether to check if the instance already exists
+                in storages specified in `dlite.storage_path`.
+
+        Returns:
+            New instance.
+        """
         from dlite.utils import instance_from_dict
         return instance_from_dict(
             d, id=id, single=single, check_storages=check_storages,

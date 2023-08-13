@@ -81,7 +81,8 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         Whether the dict is assumed to be in single-entity form
         If `single` is None or "auto", the form is inferred.
     check_storages: bool
-        Whether to check if the instance already exists in storages.
+        Whether to check if the instance already exists in storages
+        specified in `dlite.storage_path`.
     """
     if single is None or single == 'auto':
         single = True if 'properties' in d else False
