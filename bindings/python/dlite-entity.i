@@ -622,22 +622,21 @@ Call signatures:
   }
 
   %feature("docstring", "\
-Return property ``name`` as a string.
+Return property `name` as a string.
 
-Parameters:
+Arguments:
     width: Minimum field width. Unused if 0, auto if -1.
     prec: Precision. Auto if -1, unused if -2.
     flags: Or'ed sum of formatting flags:
 
-        - ``0``: Default (json).
-        - ``1``: Raw unquoted output.
-        - ``2``: Quoted output.
+        - `0`: Default (json).
+        - `1`: Raw unquoted output.
+        - `2`: Quoted output.
 
 Returns:
     Property as a string.
 
-")
-     get_property_as_string;
+") get_property_as_string;
   %newobject get_property_as_string;
   char *get_property_as_string(const char *name,
                                int width=0, int prec=-2, int flags=0) {
