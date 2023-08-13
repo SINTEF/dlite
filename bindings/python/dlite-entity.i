@@ -411,7 +411,11 @@ Call signatures:
   void to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN) {
     unsigned char *buf=NULL;
     int m, n = dlite_instance_memsave(driver, buf, 0, $self);
-    if (n < 0) return;
+    if (n < 0) {
+      *ARGOUT_BYTES = NULL;
+      *LEN = 0;
+      return;
+    }
     if (!(buf = malloc(n))) {
       dlite_err(dliteMemoryError, "allocation failure");
       return;
