@@ -160,7 +160,7 @@ requirements = ["numpy"]
 
 with open(SOURCE_DIR / "requirements_full.txt", "r") as f:
     extra_requirements = [
-        line for line in f.readlines() if line not startswith("#")
+        line for line in f.readlines() if not line.startswith("#")
     ]
 
 version = re.search(
