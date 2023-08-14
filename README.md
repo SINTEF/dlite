@@ -37,9 +37,11 @@ Installation
 DLite is available on PyPI and can be installed with pip
 
 ```shell
-pip install dlite-python
+pip install dlite-python[full]
 ```
 
+The bracket `[full]` is optional, but ensures that you install all optional
+dependencies together with DLite.
 For alternative installation methods, see the [installation instructions].
 
 
