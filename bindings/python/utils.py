@@ -220,7 +220,7 @@ def get_dataclass_entity_schema():
     @dataclass
     class Property:
         type: str
-        #ref: Optional[str]  # Hmm, how to create field name "@ref"?
+        #@ref: Optional[str]  # Should we rename this to "ref"? See issue #595
         shape: Optional[List[str]]
         unit: Optional[str]
         description: Optional[str]
