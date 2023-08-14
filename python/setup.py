@@ -156,18 +156,12 @@ class CMakeBuildExt(build_ext):
             str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
 
-extra_requirements = [
-    "fortran-language-server",
-    "PyYAML",
-    "psycopg2-binary==2.9.5",
-    "pandas",
-    "pymongo",
-    "rdflib",
-    "tripper",
-    "pint",
-]
-
 requirements = ["numpy"]
+
+with open(SOURCE_DIR / "requirements_full.txt", "r") as f:
+    extra_requirements = [
+        line for line in f.readlines() if line not startswith("#")
+    ]
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
