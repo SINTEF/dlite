@@ -208,7 +208,7 @@ PyObject *dlite_python_module_error(DLiteErrors code)
 
   /* Create exception */
   count = snprintf(excname, sizeof(excname), "dlite.%s", errname);
-  assert(count > 0 && count < sizeof(excname));
+  assert(count > 0 && count < (int)sizeof(excname));
   errdescr = dlite_errdescr(code);
 
   if (!(exc = PyErr_NewExceptionWithDoc(excname, errdescr, base, NULL)))
