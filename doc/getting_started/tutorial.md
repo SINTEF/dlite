@@ -146,7 +146,7 @@ Both dimensions and properties can also be provided as arrays using a `dict` wit
 
 ```json
     "dimensions": [
-        {"name": "N", description": "Number of measurements."}
+        {"name": "N", "description": "Number of measurements."}
     ]
     "properties": [
         {
