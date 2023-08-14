@@ -9,9 +9,9 @@ from dlite.rdf import from_rdf, to_rdf
 from dlite.utils import pydantic_to_instance, pydantic_to_metadata
 
 
-# Require Pydantic V1
+# Require Pydantic v1
 if int(pydantic_version.split(".")[0]) != 1:
-    print("This example requires pydantic V1")
+    print("This example requires pydantic v1")
     raise SystemExit(44)
 
 
