@@ -89,7 +89,7 @@ jobs:
 
       - name: Install rust, cargo and poetry (needed by Pydantic v2)
         run: |
-          sudo apt-get install rust cargo
+          python -c 'import subprocess; subprocess.check_call(["apt-get", "--help"])' && sudo apt-get install rust cargo
           python -m pip install -U poetry
 
       - name: Install cibuildwheel
