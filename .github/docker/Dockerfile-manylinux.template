@@ -27,6 +27,7 @@ FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 ARG PY_MINORS="7 8 9 10"
 
 COPY requirements.txt /tmp/requirements.txt
+COPY requirements_full.txt /tmp/requirements_full.txt
 
 {{ EXTRA_PRE }}
 
@@ -55,7 +56,8 @@ RUN yum update -y && \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
-    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements.txt; \
+    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements.txt && \
+    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements_full.txt; \
   done
 
 {{ EXTRA_POST }}
