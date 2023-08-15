@@ -23,7 +23,7 @@
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
-COPY requirements.txt /tmp/requirements.txt
+#COPY requirements.txt /tmp/requirements.txt
 COPY requirements_full.txt /tmp/requirements_full.txt
 
 # Do not use distutils distributed with setuptools
@@ -48,6 +48,5 @@ RUN apk add -u \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy poetry && \
-    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements.txt && \
     python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements_full.txt; \
   done
