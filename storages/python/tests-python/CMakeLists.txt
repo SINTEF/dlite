@@ -11,6 +11,7 @@ set(python-tests
   test_minio
   test_template
   test_template-jinja
+  test_http
   )
 
 include(FindPythonModule)
