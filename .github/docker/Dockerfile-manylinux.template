@@ -42,7 +42,9 @@ RUN yum update -y && \
     swig \
     libcurl-devel \
     libxslt-devel \
-    libxml2-devel && \
+    libxml2-devel \
+    rust \
+    cargo && \
   if [ "{{ TYPE }}{{ ARCH }}" != "2014i686" ]; then yum install -y hdf5-devel; fi && \
   if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then yum install -y postgresql91-devel; fi && \
 # Unpack static libraries
@@ -55,7 +57,7 @@ RUN yum update -y && \
   for minor in ${PY_MINORS}; do \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy poetry && \
     python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements.txt && \
     python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements_full.txt; \
   done

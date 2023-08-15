@@ -35,7 +35,9 @@ RUN apk add -u \
   redland \
   rasqal \
   hdf5 \
-  swig && \
+  swig \
+  rust\
+  cargo && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
@@ -45,7 +47,7 @@ RUN apk add -u \
   for minor in 7 8 9 10; do \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy poetry && \
     python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements.txt && \
     python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements_full.txt; \
   done
