@@ -83,16 +83,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install rust and cargo (needed by Pydantic v2)
+      - name: Update pip
+        run: |
+          python -m pip install -U pip
+
+      - name: Install rust, cargo and poetry (needed by Pydantic v2)
         run: |
           apt install rust cargo
+          python -m pip install -U poetry
 
       - name: Install cibuildwheel
         run: |
-          python -m pip install -U pip
           python -m pip install -U setuptools wheel
           python -m pip install -U cibuildwheel
-          python -m pip install -U poetry
 
       # See pyproject.toml (under python/) for cibuildwheel configuration
       - name: Build wheels
