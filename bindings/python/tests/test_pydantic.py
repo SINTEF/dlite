@@ -42,7 +42,7 @@ t = TransformationStatus(
     id="sim1",
     messages=["success", "timeout", "error"],
     created=now - 3600,
-    startTime=now - 3000,
+    startTime=int(now - 3000),
     finishTime=now - 600,
 )
 meta = pydantic_to_metadata(t)
@@ -65,8 +65,8 @@ class Foo(BaseModel):
 
 
 class Bar(BaseModel):
-    apple = 'x'
-    banana = 'y'
+    apple: str = 'x'
+    banana: str = 'y'
 
 
 class Spam(BaseModel):
