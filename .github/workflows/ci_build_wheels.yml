@@ -97,7 +97,7 @@ jobs:
         #      python -m pip install -U poetry
         #  ", check=True, shell=True)'
         run: >
-          python -c 'import sys, subprocess; if sys.platform.startswith("linux"):
+          python -c 'import sys, subprocess; sys.platform.startswith("linux") and
             subprocess.call(
                 "sudo apt install rustc && python -m pip install -U poetry",
                 check=True,
