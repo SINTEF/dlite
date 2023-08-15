@@ -1,4 +1,4 @@
-"""A simple demonstrage of a DLite storage plugin written in Python."""
+"""DLite YAML storage plugin written in Python."""
 import os
 from typing import TYPE_CHECKING
 
@@ -16,11 +16,11 @@ class yaml(dlite.DLiteStorageBase):
     """DLite storage plugin for YAML."""
     _pyyaml = pyyaml  # Keep a reference to pyyaml to have it during shutdown
 
-    def open(self, uri: str, options=None):
-        """Opens `uri`.
+    def open(self, location: str, options=None):
+        """Opens `location`.
 
         Arguments:
-            uri: A fully resolved URI to the PostgreSQL database.
+            location: Path to YAML file.
             options: Supported options:
             - `mode`: Mode for opening.  Valid values are:
                 - `a`: Append to existing file or create new file (default).
@@ -28,7 +28,7 @@ class yaml(dlite.DLiteStorageBase):
                 - `w`: Truncate existing file or create new file.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
-                  The default (`"auto"`) will try to infer it automatically.
+                If "auto" (default) the form will be inferred automatically.
         """
         self.options = Options(
             options, defaults="mode=a;soft7=true;single=auto"
@@ -36,11 +36,11 @@ class yaml(dlite.DLiteStorageBase):
         self.readable = "r" in self.options.mode
         self.writable = "r" != self.options.mode
         self.generic = True
-        self.uri = uri
+        self.location = location
         self.flushed = False  # whether buffered data has been written to file
         self._data = {}  # data buffer
         if self.options.mode in ("r", "a", "append"):
-            with open(uri, "r") as f:
+            with open(location, "r") as f:
                 data = pyyaml.safe_load(f)
             if data:
                 self._data = data
@@ -53,7 +53,7 @@ class yaml(dlite.DLiteStorageBase):
     def flush(self):
         """Flush cached data to storage."""
         if self.writable and not self.flushed:
-            with open(self.uri, "w") as f:
+            with open(self.location, "w") as f:
                 self._pyyaml.safe_dump(
                     self._data,
                     f,

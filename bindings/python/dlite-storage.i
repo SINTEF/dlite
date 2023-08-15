@@ -9,8 +9,8 @@
 
 /* Storage iterator */
 %feature("docstring", "\
-Iterates over instances in storage ``s``.  If ``pattern`` is given, only
-instances whos metadata URI matches ``pattern`` are returned.
+Iterates over instances in storage `s`.  If `pattern` is given, only
+instances whos metadata URI matches `pattern` are returned.
 ") StorageIterator;
 %inline %{
   struct StorageIterator {
@@ -57,7 +57,7 @@ Returns next instance or None if exhausted.") next;
 enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
                                  a (version 5) UUID (default). */
-  dliteIDRequireUUID=1,     /*!< Require that ``id`` is a valid UUID. */
+  dliteIDRequireUUID=1,     /*!< Require that `id` is a valid UUID. */
   dliteIDKeepID=2           /*!< Store data under the given id, even if it
                                  is not a valid UUID.  Not SOFT compatible,
                                  but may be useful for input files. */
@@ -71,7 +71,7 @@ Represents a data storage.
 Parameters
 ----------
 driver_or_url : string
-    Name of driver used to connect to the storage or, if ``location`` is not
+    Name of driver used to connect to the storage or, if `location` is not
     given, the URL to the storage:
 
         driver://location?options
@@ -80,14 +80,8 @@ location : string
     The location to the storage. For file storages, this is the file name.
 options : string
     Additional options passed to the driver as a list of semicolon-separated
-    ``key=value`` pairs. Each driver may have their own options. Some
-    common options are:
-
-    - ``mode={'append','r','w'}``:
-      - 'append': Append to existing storage or create a new one (hdf5,json).
-    - ``compact={'yes','no'}``: Whether to store in a compact format (json).
-    - ``meta={'yes','no'}``: Whether to format output as metadata (json).
-
+    ``key=value`` pairs. See the documentation of the individual drivers to
+    see which options they support.
 ") _DLiteStorage;
 %rename(Storage) _DLiteStorage;
 
@@ -138,7 +132,7 @@ struct _DLiteStorage {
 
   %feature("docstring",
            "Returns a list of UUIDs of all instances in the storage whos "
-           "metadata matches ``pattern``. If ``pattern`` is None, all UUIDs "
+           "metadata matches `pattern`. If `pattern` is None, all UUIDs "
            "will be returned.") get_uuids;
   char **get_uuids(const char *pattern=NULL) {
     return dlite_storage_uuids($self, pattern);
