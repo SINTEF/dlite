@@ -95,10 +95,8 @@ jobs:
         #      source $HOME/.cargo/env &&
         #      python -m pip install -U poetry
         #  ", check=True, shell=True)'
-        run: >
-          python -c 'import sys, subprocess; sys.platform.startswith("linux") and subprocess.run(
-              "sudo apt install rustc && python -m pip install -U poetry",
-              check=True, shell=True)'
+        run: |
+          python -c 'import sys, subprocess; sys.platform.startswith("linux") and subprocess.run("sudo apt install -y rustc && python -m pip install -U poetry", check=True, shell=True)'
       - name: Install cibuildwheel
         run: |
           python -m pip install -U setuptools wheel
