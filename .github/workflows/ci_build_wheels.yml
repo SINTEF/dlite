@@ -10,7 +10,7 @@ env:
   container_registry: ghcr.io
 
 jobs:
-  build_wheels:
+  ci_build_wheels:
     name: Build wheels
     runs-on: ${{ matrix.os }}
     strategy:

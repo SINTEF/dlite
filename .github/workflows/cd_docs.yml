@@ -25,7 +25,7 @@ env:
   PUBLISH_DIR: pages
 
 jobs:
-  build:
+  cd_docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

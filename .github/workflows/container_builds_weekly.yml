@@ -15,7 +15,7 @@ env:
   CONTAINER_REGISTRY: ghcr.io
 
 jobs:
-  build_wheel_linux_dockers:
+  container_builds:
     name: Build wheel containers
     runs-on: ubuntu-20.04
     strategy:

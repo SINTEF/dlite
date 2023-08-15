@@ -5,7 +5,7 @@ on:
     branches: [ci/dependabot-updates]
 
 jobs:
-  update-dependabot-branch:
+  ci_automerge_dependabot:
     name: External
     uses: SINTEF/ci-cd/.github/workflows/ci_automerge_prs.yml@v2.4.0
     if: github.repository_owner == 'sintef' && startsWith(github.event.pull_request.head.ref, 'dependabot/') && github.actor == 'dependabot[bot]'
