@@ -88,18 +88,7 @@ jobs:
           python -m pip install -U pip
 
       - name: Install rust, cargo and poetry (needed by Pydantic v2)
-        #run: >
-        #  python -c 'import sys, subprocess; if sys.platform.startswith("linux"): subprocess.run("
-        #      sudo apt-get install curl &&
-        #      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
-        #      source $HOME/.cargo/env &&
-        #      python -m pip install -U poetry
-        #  ", check=True, shell=True)'
-        #run: |
-        #  python -c "import sys, subprocess; sys.platform.startswith(\"linux\") and subprocess.run(\"sudo apt install -y rustc cargo && python -m pip install -U poetry\", check=True, shell=True)"
         run: |
-          pwd
-          ls
           python .github/install_rust.py
       - name: Install cibuildwheel
         run: |
