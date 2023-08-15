@@ -2,10 +2,17 @@
 from typing import Optional
 
 from pydantic import AnyUrl, BaseModel, Field, root_validator
+from pydantic import __version__ as pydantic_version
 
 import dlite
 from dlite.rdf import from_rdf, to_rdf
 from dlite.utils import pydantic_to_instance, pydantic_to_metadata
+
+
+# Require Pydantic v1
+if int(pydantic_version.split(".")[0]) != 1:
+    print("This example requires pydantic v1")
+    raise SystemExit(44)
 
 
 class HostlessAnyUrl(AnyUrl):
@@ -85,7 +92,7 @@ class ResourceConfig(BaseModel):
         ),
     )
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def ensure_unique_url_pairs(cls, values: "Dict[str, Any]") -> "Dict[str, Any]":
         """Ensure either downloadUrl/mediaType or accessUrl/accessService are
         defined.

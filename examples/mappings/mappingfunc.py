@@ -90,7 +90,7 @@ def norm(array, axis=-1):
 
 def max(vector):
     """Returns the largest element."""
-    return np.max(vector)
+    return vector.max()
 
 
 # Add mappings for conversion functions -- ontologist
