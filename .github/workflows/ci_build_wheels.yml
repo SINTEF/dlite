@@ -89,8 +89,6 @@ jobs:
 
       - name: Install rust, cargo and poetry (needed by Pydantic v2)
         run: |
-          pwd
-          ls
           python .github/install_rust.py
       - name: Install cibuildwheel
         run: |
