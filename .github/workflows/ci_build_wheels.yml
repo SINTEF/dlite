@@ -10,7 +10,7 @@ env:
   container_registry: ghcr.io
 
 jobs:
-  ci_build_wheels:
+  build_wheels:
     name: Build wheels
     runs-on: ${{ matrix.os }}
     strategy:
@@ -83,9 +83,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update pip
-        run: |
-          python -m pip install -U pip
+      #- name: Update pip
+      #  run: |
+      #    python -m pip install -U pip
 
       #- name: Install rust, cargo and poetry (needed by Pydantic v2)
       #  run: |
@@ -93,6 +93,7 @@ jobs:
 
       - name: Install cibuildwheel
         run: |
+          python -m pip install -U pip
           python -m pip install -U setuptools wheel
           python -m pip install -U cibuildwheel
 

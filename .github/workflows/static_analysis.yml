@@ -1,9 +1,9 @@
-name: CI Static code analysis
+name: Static code analysis
 
 on: [push]
 
 jobs:
-  ci_static_analysis:
+  static-analysis:
 
     runs-on: ubuntu-latest
 

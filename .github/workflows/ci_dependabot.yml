@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  ci_dependabot_pr:
+  create-collected-pr:
     name: External
     uses: SINTEF/ci-cd/.github/workflows/ci_update_dependencies.yml@v2.4.0
     if: github.repository_owner == 'sintef'

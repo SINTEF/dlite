@@ -173,10 +173,11 @@ extra_requirements = [
     "openpyxl>=3.0.9,<3.2",
     "pymongo>=4.4.0,<5",
     "tripper>=0.2.5,<0.3",
-    "pydantic>=1.10.0,<3",
-    "typing_extensions>=4.1,<5",
     "requests>=2.10,<3",
-    "jsonschema>=4.0,<4.18",
+    #"pydantic>=1.10.0,<2",
+    #"pydantic>=1.10.0,<3",
+    #"typing_extensions>=4.1,<5",
+    #"jsonschema>=4.0,<4.18",
 ]
 
 

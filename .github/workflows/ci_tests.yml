@@ -1,9 +1,9 @@
-name: CI build and test
+name: CI tests
 
 on: [push]
 
 jobs:
-  ci_build_and_test:
+  build:
     runs-on: ubuntu-20.04
 
     steps:
