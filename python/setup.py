@@ -176,6 +176,7 @@ extra_requirements = [
     "pydantic>=1.10.0,<3",
     "typing_extensions>=4.1,<5",
     "requests>=2.10,<3",
+    "jsonschema>=4.0,<4.18",
 ]
 
 
