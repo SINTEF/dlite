@@ -159,10 +159,26 @@ class CMakeBuildExt(build_ext):
 requirements = ["numpy"]
 
 # Read extra_requirements from requirements_full.txt
-with open(SOURCE_DIR / "requirements_full.txt", "r") as f:
-    extra_requirements = [
-        line.strip() for line in f.readlines() if not line.startswith("#")
-    ]
+#with open(SOURCE_DIR / "requirements_full.txt", "r") as f:
+#    extra_requirements = [
+#        line.strip() for line in f.readlines() if not line.startswith("#")
+#    ]
+extra_requirements = [  # TO BE REPLACED WITH THE ABOVE
+    "fortran-language-server>=1.12.0,<1.13",
+    "PyYAML>=5.4.1,<7",
+    "psycopg2-binary==2.9.5",
+    "pandas>=1.2,<2.1",
+    "rdflib>=4.2.1,<7",
+    "pint>=0.15,<1",
+    "openpyxl>=3.0.9,<3.2",
+    "pymongo>=4.4.0,<5",
+    "tripper>=0.2.5,<0.3",
+    "requests>=2.10,<3",
+    "pydantic>=1.10.0,<2",
+    #"pydantic>=1.10.0,<3",
+    #"typing_extensions>=4.1,<5",
+    #"jsonschema>=4.0,<4.18",
+]
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
