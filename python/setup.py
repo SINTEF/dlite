@@ -163,7 +163,7 @@ requirements = ["numpy"]
 #    extra_requirements = [
 #        line.strip() for line in f.readlines() if not line.startswith("#")
 #    ]
-extra_requirements = [  # TO BE REPLACED WITH THE ABOVE
+extra_requirements = [  # TO BE REPLACED WITH THE ABOVE, SEE ISSUE #601
     "fortran-language-server>=1.12.0,<1.13",
     "PyYAML>=5.4.1,<7",
     "psycopg2-binary==2.9.5",
