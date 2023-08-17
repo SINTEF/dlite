@@ -1,3 +1,4 @@
+# Optional requirements - used by various plugins, features or tests
 fortran-language-server>=1.12.0,<1.13
 PyYAML>=5.4.1,<7
 # psycopg2-binary can lead to segfault - so far all seems good with v2.9.5
@@ -9,7 +10,8 @@ openpyxl>=3.0.9,<3.2
 pymongo>=4.4.0,<5
 tripper>=0.2.5,<0.3
 requests>=2.10,<3
-pydantic>=1.10.0,<2
-#pydantic>=1.10.0,<3
-#typing_extensions>=4.1,<5
+jinja2>=3.0,<4
+#pydantic>=1.10.0,<2
+pydantic>=1.10.0,<3
+typing_extensions>=4.1,<5
 #jsonschema>=4.0,<4.18
