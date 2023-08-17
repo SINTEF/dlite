@@ -601,12 +601,12 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->ndims = s->ndims;
       if (d->ndims) {
         int i;
-        if (!(d->dims = malloc(d->ndims*sizeof(char *))))
+        if (!(d->shape = malloc(d->ndims*sizeof(char *))))
           return err(dliteMemoryError, "allocation failure"), NULL;
         for (i=0; i<d->ndims; i++)
-          d->dims[i] = strdup(s->dims[i]);
+          d->shape[i] = strdup(s->shape[i]);
       } else {
-        d->dims = NULL;
+        d->shape = NULL;
       }
       d->unit = (s->unit) ? strdup(s->unit) : NULL;
       d->description = (s->description) ? strdup(s->description) : NULL;
@@ -655,12 +655,12 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
   case dliteProperty:
     free(((DLiteProperty *)p)->name);
     if (((DLiteProperty *)p)->ref) free(((DLiteProperty *)p)->ref);
-    if (((DLiteProperty *)p)->dims) {
+    if (((DLiteProperty *)p)->shape) {
       int i;
       for (i=0; i < ((DLiteProperty *)p)->ndims; i++)
-        if (((DLiteProperty *)p)->dims[i])
-          free(((DLiteProperty *)p)->dims[i]);
-      free(((DLiteProperty *)p)->dims);
+        if (((DLiteProperty *)p)->shape[i])
+          free(((DLiteProperty *)p)->shape[i]);
+      free(((DLiteProperty *)p)->shape);
     }
     if (((DLiteProperty *)p)->unit) free(((DLiteProperty *)p)->unit);
     if (((DLiteProperty *)p)->description)
@@ -844,9 +844,9 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
                    "\"ndims\": %d",
                    prop->name, typename, prop->ndims);
       if (prop->ndims) {
-        m += snprintf(dest+m, PDIFF(n, m), ", \"dims\": [");
+        m += snprintf(dest+m, PDIFF(n, m), ", \"shape\": [");
         for (i=0; i < prop->ndims; i++)
-          m += snprintf(dest+m, PDIFF(n, m), "\"%s\"%s", prop->dims[i],
+          m += snprintf(dest+m, PDIFF(n, m), "\"%s\"%s", prop->shape[i],
                         (i < prop->ndims-1) ? ", " : "");
         m += snprintf(dest+m, PDIFF(n, m), "]");
       }
@@ -1137,7 +1137,12 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       const jsmntok_t *t, *d;
       int r, i, errnum;
 
-      dlite_property_clear(prop);
+      if (prop->name) free(prop->name);
+      if (prop->ref)  free(prop->ref);
+      if (prop->shape) free(prop->shape);
+      if (prop->unit) free(prop->unit);
+      if (prop->description) free(prop->description);
+      memset(prop, 0, sizeof(DLiteProperty));
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
@@ -1166,18 +1171,17 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if ((t = jsmn_item(src, tokens, "$ref")))
         prop->ref = strndup(src + t->start, t->end - t->start);
 
-      if ((t = jsmn_item(src, tokens, "dims"))) {
+      if ((t = jsmn_item(src, tokens, "shape"))) {
         if (t->type != JSMN_ARRAY)
-          return dlite_property_clear(prop),
-            errx(dliteParseError, "property dims should be an array");
+          return errx(dliteParseError, "property shape should be an array");
         prop->ndims = t->size;
-        prop->dims = calloc(prop->ndims, sizeof(char *));
+        prop->shape = calloc(prop->ndims, sizeof(char *));
         for (i=0; i < prop->ndims; i++) {
           if (!(d = jsmn_element(src, t, i)))
             return dlite_property_clear(prop),
               err(dliteParseError, "error parsing property dimensions: %.*s",
                        t->end - t->start, src + t->start);
-          prop->dims[i] = strndup(src + d->start, d->end - d->start);
+          prop->shape[i] = strndup(src + d->start, d->end - d->start);
         }
       }
 
@@ -1288,7 +1292,7 @@ int dlite_type_update_sha3(sha3_context *c, const void *ptr,
       sha3_Update(c, &p->size, sizeof(size_t));
       sha3_Update(c, &p->ndims, sizeof(int));
       for (i=0; i<p->ndims; i++)
-        sha3_Update(c, p->dims[i], strlen(p->dims[i]));
+        sha3_Update(c, p->shape[i], strlen(p->shape[i]));
       if (p->unit) sha3_Update(c, p->unit, strlen(p->unit));
       //if (p->description)
       //  sha3_Update(c, p->description, strlen(p->description));

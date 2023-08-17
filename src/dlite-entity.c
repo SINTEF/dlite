@@ -257,7 +257,7 @@ void dlite_instance_debug(const DLiteInstance *inst)
             dlite_type_get_dtypename(p->type),
             (unsigned long)p->size);
     for (j=0, sep=""; j < p->ndims; j++, sep=", ")
-      fprintf(fp, "%s%s=%lu", sep, p->dims[j],
+      fprintf(fp, "%s%s=%lu", sep, p->shape[j],
               (unsigned long)DLITE_PROP_DIM(inst, i, j));
     fprintf(fp, "]\n");
   }
@@ -313,7 +313,7 @@ void dlite_instance_debug(const DLiteInstance *inst)
 
   Returns zero on error.
  */
-size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims)
+size_t dlite_instance_size(const DLiteMeta *meta, const size_t *shape)
 {
   int j;
   size_t size = meta->_propdimindsoffset;
@@ -321,7 +321,7 @@ size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims)
     size_t nproperties;
     if ((j = dlite_meta_get_dimension_index(meta, "nproperties")) < 0)
       return 0;
-    nproperties = dims[j];
+    nproperties = shape[j];
     size += 2*nproperties*sizeof(size_t);
   }
   size += padding_at(DLiteInstance, size);  /* add final padding */
@@ -368,7 +368,7 @@ char** dlite_istore_get_uuids(int* nuuids)
 
   Returns non-zero in error.
  */
-static int _instance_propdims_eval(DLiteInstance *inst, const size_t *dims)
+static int _instance_propdims_eval(DLiteInstance *inst, const size_t *shape)
 {
   int retval = 1;
   const DLiteMeta *meta = inst->meta;
@@ -380,7 +380,7 @@ static int _instance_propdims_eval(DLiteInstance *inst, const size_t *dims)
     FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0; i < meta->_ndimensions; i++) {
     vars[i].name = meta->_dimensions[i].name;
-    vars[i].value = dims[i];
+    vars[i].value = shape[i];
   }
 
   for (i=0; i < meta->_nproperties; i++) {
@@ -388,7 +388,7 @@ static int _instance_propdims_eval(DLiteInstance *inst, const size_t *dims)
     int j;
     char errmsg[256] = "";
     for (j=0; j < p->ndims; j++)
-      propdims[n++] = infixcalc(p->dims[j], vars, meta->_ndimensions,
+      propdims[n++] = infixcalc(p->shape[j], vars, meta->_ndimensions,
                                 errmsg, sizeof(errmsg));
     if (errmsg[0]) FAILCODE1(dliteSyntaxError, "invalid property dimension expression: %s", errmsg);
   }
@@ -406,7 +406,7 @@ static int _instance_propdims_eval(DLiteInstance *inst, const size_t *dims)
   a check will be done to see if the instance already exists.
  */
 static DLiteInstance *_instance_create(const DLiteMeta *meta,
-                                       const size_t *dims,
+                                       const size_t *shape,
                                        const char *id, int lookup)
 {
   char uuid[DLITE_UUID_LENGTH+1];
@@ -421,11 +421,11 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->_refcount);
 
-    /* Check that `dims` corresponds to the dims of the existing instance. */
+    /* Check that `dims` corresponds to the shape of the existing instance. */
     for (i=0; i < meta->_ndimensions; i++) {
-      if (dims[i] != dlite_instance_get_dimension_size_by_index(inst, i))
+      if (shape[i] != dlite_instance_get_dimension_size_by_index(inst, i))
         FAILCODE3(dliteIndexError, "mismatch of dimension %d. Trying to create with size %d "
-              "but existing instance has size %d", (int)i, (int)dims[i],
+              "but existing instance has size %d", (int)i, (int)shape[i],
               (int)dlite_instance_get_dimension_size_by_index(inst, i));
     }
     return inst;
@@ -436,7 +436,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   if (_instance_store_add((DLiteInstance *)meta) < 0) goto fail;
 
   /* Allocate instance */
-  if (!(size = dlite_instance_size(meta, dims))) goto fail;
+  if (!(size = dlite_instance_size(meta, shape))) goto fail;
   if (!(inst = calloc(1, size))) FAILCODE(dliteMemoryError, "allocation failure");
   dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
@@ -449,17 +449,17 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   /* Set dimensions */
   if (meta->_ndimensions) {
     size_t *dimensions = DLITE_DIMS(inst);
-    memcpy(dimensions, dims, meta->_ndimensions*sizeof(size_t));
+    memcpy(dimensions, shape, meta->_ndimensions*sizeof(size_t));
   }
 
   /* Evaluate property dimensions */
-  if (_instance_propdims_eval(inst, dims)) goto fail;
+  if (_instance_propdims_eval(inst, shape)) goto fail;
 
   /* Allocate arrays for dimensional properties */
   for (i=0; i<meta->_nproperties; i++) {
     DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
     void **ptr = DLITE_PROP(inst, i);
-    if (p->ndims > 0 && p->dims) {
+    if (p->ndims > 0 && p->shape) {
       size_t nmemb=1, size=p->size;
       for (j=0; j<p->ndims; j++)
         nmemb *= DLITE_PROP_DIM(inst, i, j);
@@ -515,10 +515,10 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   On error, NULL is returned.
 */
 DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
-                                     const size_t *dims,
+                                     const size_t *shape,
                                      const char *id)
 {
-  return _instance_create(meta, dims, id, 1);
+  return _instance_create(meta, shape, id, 1);
 }
 
 
@@ -530,14 +530,14 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
   On error, NULL is returned.
 */
 DLiteInstance *dlite_instance_create_from_id(const char *metaid,
-                                             const size_t *dims,
+                                             const size_t *shape,
                                              const char *id)
 {
   DLiteMeta *meta;
   DLiteInstance *inst=NULL;
   if (!(meta = (DLiteMeta *)dlite_instance_get(metaid)))
     FAILCODE1(dliteMissingMetadataError, "cannot find metadata '%s'", metaid);
-  inst = dlite_instance_create(meta, dims, id);
+  inst = dlite_instance_create(meta, shape, id);
  fail:
   if (meta) dlite_meta_decref(meta);
   return inst;
@@ -574,7 +574,7 @@ static int dlite_instance_free(DLiteInstance *inst)
     for (i=0; i<nprops; i++) {
       DLiteProperty *p = (DLiteProperty *)meta->_properties + i;
       void *ptr = DLITE_PROP(inst, i);
-      if (p->ndims > 0 && p->dims) {
+      if (p->ndims > 0 && p->shape) {
         if (dlite_type_is_allocated(p->type)) {
           int j;
           size_t n, nmemb=1;
@@ -898,7 +898,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   DLiteMeta *meta;
   DLiteInstance *inst=NULL, *instance=NULL;
   DLiteDataModel *d=NULL;
-  size_t i, *dims=NULL;
+  size_t i, *shape=NULL;
   const char *uri=NULL;
 
   if (!s) FAILCODE(dliteStorageLoadError,
@@ -950,10 +950,10 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
 
   /* read dimensions */
   dlite_datamodel_resolve_dimensions(d, meta);
-  if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
+  if (!(shape = calloc(meta->_ndimensions, sizeof(size_t))))
     FAILCODE(dliteMemoryError, "allocation failure");
   for (i=0; i<meta->_ndimensions; i++)
-    if ((int)(dims[i] =
+    if ((int)(shape[i] =
          dlite_datamodel_get_dimension_size(d, meta->_dimensions[i].name)) < 0)
       goto fail;
 
@@ -962,7 +962,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
      to meta that we want to hand over to `inst`.  Therefore, decrease
      the additional refcount after calling dlite_instance_create()...
    */
-  if (!(inst = _instance_create(meta, dims, id, lookup))) goto fail;
+  if (!(inst = _instance_create(meta, shape, id, lookup))) goto fail;
   dlite_meta_decref(meta);
 
   /* assign properties */
@@ -1010,7 +1010,7 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   if (!instance && inst) dlite_instance_decref(inst);
   if (d) dlite_datamodel_free(d);
   if (uri) free((char *)uri);
-  if (dims) free(dims);
+  if (shape) free(shape);
   err_update_eval(dliteStorageLoadError);
   return instance;
 }
@@ -1040,7 +1040,7 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   int retval=1;
   DLiteDataModel *d=NULL;
   const DLiteMeta *meta;
-  size_t i, *dims;
+  size_t i, *shape;
 
   if (!(meta = inst->meta)) return errx(dliteMissingMetadataError, "no metadata available");
   if (dlite_instance_sync_to_properties((DLiteInstance *)inst)) goto fail;
@@ -1053,10 +1053,10 @@ int dlite_instance_save(DLiteStorage *s, const DLiteInstance *inst)
   if (!(d = dlite_datamodel(s, inst->uuid))) goto fail;
   if (dlite_datamodel_set_meta_uri(d, meta->uri)) goto fail;
 
-  dims = DLITE_DIMS(inst);
+  shape = DLITE_DIMS(inst);
   for (i=0; i<meta->_ndimensions; i++) {
     char *dimname = inst->meta->_dimensions[i].name;
-    if (dlite_datamodel_set_dimension_size(d, dimname, dims[i])) goto fail;
+    if (dlite_datamodel_set_dimension_size(d, dimname, shape[i])) goto fail;
   }
 
   for (i=0; i<meta->_nproperties; i++) {
@@ -1387,7 +1387,7 @@ int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
 size_t *dlite_instance_get_property_dims_by_index(const DLiteInstance *inst,
                                                   size_t i)
 {
-  size_t *dims;
+  size_t *shape;
   const DLiteProperty *p;
   if (!inst->meta)
     return errx(dliteMissingMetadataError, "no metadata available"), NULL;
@@ -1395,10 +1395,10 @@ size_t *dlite_instance_get_property_dims_by_index(const DLiteInstance *inst,
     return NULL;
   if (dlite_instance_sync_to_dimension_sizes((DLiteInstance *)inst))
     return NULL;
-  if (!(dims = malloc(p->ndims * sizeof(size_t))))
+  if (!(shape = malloc(p->ndims * sizeof(size_t))))
     return NULL;
-  memcpy(dims, DLITE_PROP_DIMS(inst, i), p->ndims*sizeof(size_t));
-  return dims;
+  memcpy(shape, DLITE_PROP_DIMS(inst, i), p->ndims*sizeof(size_t));
+  return shape;
 }
 
 
@@ -1558,15 +1558,15 @@ int dlite_instance_print_property_by_index(char *dest, size_t n,
 {
   void *ptr;
   const DLiteProperty *p;
-  size_t *dims;
+  size_t *shape;
   if (i >= inst->meta->_nproperties)
     return errx(dliteIndexError, "index %d exceeds number of properties (%d) in %s",
                 (int)i, (int)inst->meta->_nproperties, inst->meta->uri);
   if (!(ptr = dlite_instance_get_property_by_index(inst, i))) return -1;
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i))) return -1;
-  dims = DLITE_PROP_DIMS(inst, i);
-  assert(dims);
-  return dlite_property_print(dest, n, ptr, p, dims, width, prec, flags);
+  shape = DLITE_PROP_DIMS(inst, i);
+  assert(shape);
+  return dlite_property_print(dest, n, ptr, p, shape, width, prec, flags);
 }
 
 /*
@@ -1601,15 +1601,15 @@ int dlite_instance_aprint_property_by_index(char **dest, size_t *n,
 {
   void *ptr;
   const DLiteProperty *p;
-  size_t *dims;
+  size_t *shape;
   if (i >= inst->meta->_nproperties)
     return errx(dliteIndexError, "index %d exceeds number of properties (%d) in %s",
                 (int)i, (int)inst->meta->_nproperties, inst->meta->uri);
   if (!(ptr = dlite_instance_get_property_by_index(inst, i))) return -1;
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i))) return -1;
-  dims = DLITE_PROP_DIMS(inst, i);
-  assert(dims);
-  return dlite_property_aprint(dest, n, pos, ptr, p, dims, width, prec,
+  shape = DLITE_PROP_DIMS(inst, i);
+  assert(shape);
+  return dlite_property_aprint(dest, n, pos, ptr, p, shape, width, prec,
                                flags);
 }
 
@@ -1640,15 +1640,15 @@ int dlite_instance_scan_property_by_index(const char *src,
 {
   void *ptr;
   const DLiteProperty *p;
-  const size_t *dims;
+  const size_t *shape;
   if (i >= inst->meta->_nproperties)
     return errx(dliteIndexError, "index %d exceeds number of properties (%d) in %s",
                 (int)i, (int)inst->meta->_nproperties, inst->meta->uri);
   if (!(ptr = dlite_instance_get_property_by_index(inst, i))) return -1;
   if (!(p = dlite_meta_get_property_by_index(inst->meta, i))) return -1;
-  dims = DLITE_PROP_DIMS(inst, i);
-  assert(dims);
-  return dlite_property_scan(src, ptr, p, dims, flags);
+  shape = DLITE_PROP_DIMS(inst, i);
+  assert(shape);
+  return dlite_property_scan(src, ptr, p, shape, flags);
 }
 
 
@@ -1662,11 +1662,11 @@ int dlite_instance_scan_property_by_index(const char *src,
 int dlite_instance_sync_to_dimension_sizes(DLiteInstance *inst)
 {
   int n, retval=1, update=0, *newdims=NULL;
-  size_t i, *dims=DLITE_DIMS(inst);
+  size_t i, *shape=DLITE_DIMS(inst);
   if (!inst->meta->_getdim) return 0;
   for (i=0; i<inst->meta->_ndimensions; i++) {
     if ((n = inst->meta->_getdim(inst, i)) < 0) goto fail;
-    if (n != (int)dims[i]) update=1;
+    if (n != (int)shape[i]) update=1;
   }
   if (update) {
     if (!(newdims = calloc(inst->meta->_ndimensions, sizeof(int))))
@@ -1742,7 +1742,7 @@ int dlite_instance_sync_from_properties(DLiteInstance *inst)
 
   Returns non-zero on error.
  */
-int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims)
+int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *shape)
 {
   int retval=1, i;
   size_t n;
@@ -1759,12 +1759,12 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims)
 
   if (inst->meta->_setdim)
     for (n=0; n < inst->meta->_ndimensions; n++)
-      if (inst->meta->_setdim(inst, n, dims[n]) < 0) goto fail;
+      if (inst->meta->_setdim(inst, n, shape[n]) < 0) goto fail;
 
   if (!(xdims = calloc(inst->meta->_ndimensions, sizeof(size_t))))
     FAILCODE(dliteMemoryError, "Allocation failure");
   for (n=0; n < inst->meta->_ndimensions; n++)
-    xdims[n] = (dims[n] >= 0) ? (size_t)dims[n] : DLITE_DIM(inst, n);
+    xdims[n] = (shape[n] >= 0) ? (size_t)shape[n] : DLITE_DIM(inst, n);
 
   /* save old propdims and property members (oldmembs) */
   if (!(oldpropdims = calloc(inst->meta->_npropdims, sizeof(size_t))))
@@ -1822,7 +1822,7 @@ int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims)
 
   /* update dimensions */
   for (n=0; n < inst->meta->_ndimensions; n++)
-    if (dims[n] >= 0) DLITE_DIM(inst, n) = dims[n];
+    if (shape[n] >= 0) DLITE_DIM(inst, n) = shape[n];
 
   if (dlite_instance_sync_from_dimension_sizes(inst)) goto fail;
 
@@ -1846,11 +1846,11 @@ int dlite_instance_set_dimension_size_by_index(DLiteInstance *inst,
 {
   size_t j;
   int retval;
-  int *dims = malloc(inst->meta->_ndimensions * sizeof(int));
-  for (j=0; j < inst->meta->_ndimensions; j++) dims[j] = -1;
-  dims[i] = size;
-  retval = dlite_instance_set_dimension_sizes(inst, dims);
-  free(dims);
+  int *shape = malloc(inst->meta->_ndimensions * sizeof(int));
+  for (j=0; j < inst->meta->_ndimensions; j++) shape[j] = -1;
+  shape[i] = size;
+  retval = dlite_instance_set_dimension_sizes(inst, shape);
+  free(shape);
   return retval;
 }
 
@@ -1923,20 +1923,20 @@ dlite_instance_get_property_array_by_index(const DLiteInstance *inst,
 {
   void *ptr;
   int ndims=1;
-  size_t dim=1, *dims=&dim;
+  size_t dim=1, *shape=&dim;
   DLiteProperty *p = DLITE_PROP_DESCR(inst, i);
   DLiteArray *arr = NULL;
   if (!(ptr = dlite_instance_get_property_by_index(inst, i))) goto fail;
   if (p->ndims > 0) {
     int j;
-    if (!(dims = malloc(p->ndims*sizeof(size_t)))) goto fail;
+    if (!(shape = malloc(p->ndims*sizeof(size_t)))) goto fail;
     ndims = p->ndims;
     for (j=0; j < p->ndims; j++)
-      dims[j] = DLITE_PROP_DIM(inst, i, j);
+      shape[j] = DLITE_PROP_DIM(inst, i, j);
   }
-  arr = dlite_array_create_order(ptr, p->type, p->size, ndims, dims, order);
+  arr = dlite_array_create_order(ptr, p->type, p->size, ndims, shape, order);
  fail:
-  if (dims && dims != &dim) free(dims);
+  if (shape && shape != &dim) free(shape);
   return arr;
 }
 
@@ -1993,7 +1993,7 @@ int dlite_instance_copy_property_by_index(const DLiteInstance *inst, int i,
   DLiteArray *arr = dlite_instance_get_property_array(inst, p->name, order);
   if (!arr) return 1;
   retval = dlite_instance_cast_property_by_index(inst, i, p->type, p->size,
-                                                 arr->dims, arr->strides,
+                                                 arr->shape, arr->strides,
                                                  dest, NULL);
   dlite_array_free(arr);
   return retval;
@@ -2014,7 +2014,7 @@ int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
                                           int i,
                                           DLiteType type,
                                           size_t size,
-                                          const size_t *dims,
+                                          const size_t *shape,
                                           const int *strides,
                                           void *dest,
                                           DLiteTypeCast castfun)
@@ -2023,7 +2023,7 @@ int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
   DLiteProperty *p = inst->meta->_properties + i;
   size_t *sdims = DLITE_PROP_DIMS(inst, i);
   return dlite_type_ndcast(p->ndims,
-                           dest, type, size, dims, strides,
+                           dest, type, size, shape, strides,
                            src, p->type, p->size, sdims, NULL,
                            castfun);
 }
@@ -2049,7 +2049,7 @@ int dlite_instance_assign_property(const DLiteInstance *inst, const char *name,
     return 1;
   retval =
     dlite_instance_assign_casted_property_by_index(inst, i, p->type, p->size,
-                                                   arr->dims, arr->strides,
+                                                   arr->shape, arr->strides,
                                                    src, NULL);
   dlite_array_free(arr);
   return retval;
@@ -2069,7 +2069,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    int i,
                                                    DLiteType type,
                                                    size_t size,
-                                                   const size_t *dims,
+                                                   const size_t *shape,
                                                    const int *strides,
                                                    const void *src,
                                                    DLiteTypeCast castfun)
@@ -2079,7 +2079,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
   size_t *ddims = DLITE_PROP_DIMS(inst, i);
   return dlite_type_ndcast(p->ndims,
                            dest, p->type, p->size, ddims, NULL,
-                           src, type, size, dims, strides,
+                           src, type, size, shape, strides,
                            castfun);
 }
 
@@ -2527,7 +2527,7 @@ dlite_meta_create(const char *uri, const char *description,
   DLiteMeta *entity=NULL;
   DLiteInstance *e=NULL;
   char *name=NULL, *version=NULL, *namespace=NULL;
-  size_t dims[] = {ndimensions, nproperties};
+  size_t shape[] = {ndimensions, nproperties};
 
   if ((e = dlite_instance_has(uri, 0))) {
     DLiteMeta *meta = (DLiteMeta *)e;
@@ -2546,7 +2546,7 @@ dlite_meta_create(const char *uri, const char *description,
   }
 
   if (dlite_split_meta_uri(uri, &name, &version, &namespace)) goto fail;
-  if (!(e=dlite_instance_create(dlite_get_entity_schema(), dims, uri)))
+  if (!(e=dlite_instance_create(dlite_get_entity_schema(), shape, uri)))
     goto fail;
 
   if (dlite_instance_set_property(e, "name", &name)) goto fail;
@@ -3002,10 +3002,8 @@ DLiteProperty *dlite_property_create(const char *name,
 void dlite_property_clear(DLiteProperty *prop)
 {
   int i;
-  for (i=0; i < prop->ndims; i++) free(prop->dims[i]);
   if (prop->name) free(prop->name);
-  if (prop->ref)  free(prop->ref);
-  if (prop->dims) free(prop->dims);
+  for (i=0; i < prop->ndims; i++) free(prop->shape[i]);
   if (prop->unit) free(prop->unit);
   if (prop->description) free(prop->description);
   memset(prop, 0, sizeof(DLiteProperty));
@@ -3025,9 +3023,9 @@ void dlite_property_free(DLiteProperty *prop)
  */
 int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
 {
-  if (!(prop->dims = realloc(prop->dims, sizeof(char *)*(prop->ndims+1))))
+  if (!(prop->shape = realloc(prop->shape, sizeof(char *)*(prop->ndims+1))))
     goto fail;
-  if (!(prop->dims[prop->ndims] = strdup(expr))) goto fail;
+  if (!(prop->shape[prop->ndims] = strdup(expr))) goto fail;
   prop->ndims++;
   return 0;
  fail:
@@ -3048,7 +3046,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
      n      size of `dest`
      pptr   pointer to pointer to memory with the data to be written
      p      property describing the data
-     dims   array of property dimension values
+     shape   array of property dimension values
      width  printf() field width
      prec   printf() precision
 
@@ -3056,7 +3054,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr)
   to `dest` if it is not big enough.  Returns -1 on error.
 */
 static int writedim(int d, char *dest, size_t n, const void **pptr,
-                    const DLiteProperty *p, const size_t *dims,
+                    const DLiteProperty *p, const size_t *shape,
                     int width, int prec, DLiteTypeFlag flags)
 {
   int N=0, m;
@@ -3068,12 +3066,12 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
   if (d < p->ndims) {
     if ((m = snprintf(dest+N, PDIFF(n, N), "%s", start)) < 0) goto fail;
     N += m;
-    for (i=0; i < dims[d]; i++) {
-      if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, dims,
+    for (i=0; i < shape[d]; i++) {
+      if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, shape,
                         width, prec, flags)) < 0) return -1;
       N += m;
-      if (i < dims[d]-1) {
-        if ((m = snprintf(dest+N, PDIFF(n, N), "%s", sep)) < 0) goto fail;
+      if (i < shape[d]-1) {
+        if ((m = snprintf(dest+N, PDIFF(n, N), ", ")) < 0) goto fail;
         N += m;
       }
     }
@@ -3116,12 +3114,12 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
   negative value is returned.
  */
 int dlite_property_print(char *dest, size_t n, const void *ptr,
-                         const DLiteProperty *p, const size_t *dims,
+                         const DLiteProperty *p, const size_t *shape,
                          int width, int prec, DLiteTypeFlag flags)
 {
   if (flags == dliteFlagDefault) flags = dliteFlagQuoted;
   if (p->ndims)
-    return writedim(0, dest, n, &ptr, p, dims, width, prec, flags);
+    return writedim(0, dest, n, &ptr, p, shape, width, prec, flags);
   else
     return dlite_type_print(dest, n, ptr, p->type, p->size, width, prec, flags);
 }
@@ -3135,14 +3133,14 @@ int dlite_property_print(char *dest, size_t n, const void *ptr,
   Returns number or bytes written or a negative number on error.
  */
 int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
-                          const DLiteProperty *p, const size_t *dims,
+                          const DLiteProperty *p, const size_t *shape,
                           int width, int prec, DLiteTypeFlag flags)
 {
   int m;
   void *q;
   size_t newsize;
   if (!dest && !*dest) *n = 0;
-  m = dlite_property_print(*dest + pos, PDIFF(*n, pos), ptr, p, dims,
+  m = dlite_property_print(*dest + pos, PDIFF(*n, pos), ptr, p, shape,
                            width, prec, flags);
   if (m < 0) return m;  /* failure */
   if (m < (int)PDIFF(*n, pos)) return m;  // success, buffer is large enough
@@ -3152,7 +3150,7 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
   if (!(q = realloc(*dest, newsize))) return -1;
   *dest = q;
   *n = newsize;
-  m = dlite_property_print(*dest + pos, PDIFF(*n, pos), ptr, p, dims,
+  m = dlite_property_print(*dest + pos, PDIFF(*n, pos), ptr, p, shape,
                            width, prec, flags);
   assert(0 <= m && m < (int)*n);
   return m;
@@ -3168,13 +3166,13 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
    - src    buffer to read from
    - pptr   pointer to pointer to memory to write to
    - p      property describing the data
-   - dims   array of property dimension values
+   - shape   array of property dimension values
    - t      pointer to a jsmn token
 
   Returns zero on success and a negative number on error.
 */
 static int scandim(int d, const char *src, void **pptr,
-                   const DLiteProperty *p, const size_t *dims,
+                   const DLiteProperty *p, const size_t *shape,
                    DLiteTypeFlag flags, jsmntok_t **t)
 {
   int m;
@@ -3182,12 +3180,12 @@ static int scandim(int d, const char *src, void **pptr,
   if (d < p->ndims) {
     if ((*t)->type != JSMN_ARRAY)
       return err(dliteValueError, "expected JSON array");
-    if ((*t)->size != (int)dims[d])
+    if ((*t)->size != (int)shape[d])
       return err(dliteIndexError, "for dimension %d, expected %d elements, got %d",
-                 d, (int)dims[d], (*t)->size);
-    for (i=0; i < dims[d]; i++) {
+                 d, (int)shape[d], (*t)->size);
+    for (i=0; i < shape[d]; i++) {
       (*t)++;
-      if (scandim(d+1, src, pptr, p, dims, flags, t)) goto fail;
+      if (scandim(d+1, src, pptr, p, shape, flags, t)) goto fail;
     }
   } else {
     if ((m = dlite_type_scan(src+(*t)->start, (*t)->end-(*t)->start, *pptr,
@@ -3264,8 +3262,12 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
 
       for (i=0; i < item->size; i++, prop++) {
         const jsmntok_t *t, *d;
-
-        dlite_property_clear(prop);
+        if (prop->name) free(prop->name);
+        if (prop->ref)  free(prop->ref);
+        if (prop->shape) free(prop->shape);
+        if (prop->unit) free(prop->unit);
+        if (prop->description) free(prop->description);
+        memset(prop, 0, sizeof(DLiteProperty));
 
         assert(v->type == JSMN_STRING);  // key must be a string
         prop->name = strndup(src + v->start, v->end - v->start);
@@ -3295,14 +3297,12 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
 
         if ((t = jsmn_item(src, v, "dims")) ||
             (t = jsmn_item(src, v, "shape"))) {
-          if (t->type != JSMN_ARRAY) {
-            dlite_property_clear(prop);
-            return errx(dliteIndexError,
-                        "property \"%.*s\": dims should be an array",
+          if (t->type != JSMN_ARRAY)
+            return errx(dliteIndexError, "property \"%.*s\": shape should be an array",
                         keylen, key);
           }
           prop->ndims = t->size;
-          prop->dims = calloc(prop->ndims, sizeof(char *));
+          prop->shape = calloc(prop->ndims, sizeof(char *));
           for (j=0; j < prop->ndims; j++) {
             if (!(d = jsmn_element(src, t, j))) {
               dlite_property_clear(prop);
@@ -3310,8 +3310,7 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
                          "error parsing dimensions \"%.*s\" of property "
                          "\"%.*s\"", t->end - t->start, src + t->start,
                          keylen, key);
-            }
-            prop->dims[j] = strndup(src + d->start, d->end - d->start);
+            prop->shape[j] = strndup(src + d->start, d->end - d->start);
           }
         }
 
@@ -3350,7 +3349,7 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
   number on error.
  */
 int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
-                        const size_t *dims, DLiteTypeFlag flags)
+                        const size_t *shape, DLiteTypeFlag flags)
 {
   if (p->ndims) {
     int r, n;
@@ -3362,7 +3361,7 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
     r = jsmn_parse_alloc(&parser, src, strlen(src), &tokens, &ntokens);
     if (r < 0) return err(dliteValueError, "error parsing input: %s", jsmn_strerror(r));
     t = tokens;
-    r = scandim(0, src, &q, p, dims, flags, &t);
+    r = scandim(0, src, &q, p, shape, flags, &t);
     n = tokens[0].end;
     free(tokens);
     if (r < 0) return r;
@@ -3386,7 +3385,7 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
         For arrays, `ptr` should points to the first element and will not
         be not dereferenced.
     - p: DLite property describing the data to scan.
-    - dims: Evaluated shape of property to scan.
+    - shape: Evaluated shape of property to scan.
     - flags: Format options.  If zero (default) strings are expected to be
         quoted.
 
@@ -3395,7 +3394,7 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
  */
 int dlite_property_jscan(const char *src, const jsmntok_t *item,
                          const char *key, void *ptr, const DLiteProperty *p,
-                         const size_t *dims, DLiteTypeFlag flags)
+                         const size_t *shape, DLiteTypeFlag flags)
 {
   if (p->ndims) {
     void *q = ptr;
@@ -3403,7 +3402,7 @@ int dlite_property_jscan(const char *src, const jsmntok_t *item,
     int len = item->end - item->start;
     switch (item->type) {
     case JSMN_ARRAY:
-      if (scandim(0, src, &q, p, dims, flags, &t)) return -1;
+      if (scandim(0, src, &q, p, shape, flags, &t)) return -1;
       break;
     case JSMN_OBJECT:
       return scanobj(src, item, key, ptr, p);
@@ -3452,7 +3451,7 @@ struct _DLiteMetaModel {
   size_t ndims;
   size_t nprops;
   size_t nrels;
-  DLiteDimension *dims;
+  DLiteDimension *shape;
   DLiteProperty *props;
   DLiteRelation *rels;
 };
@@ -3502,7 +3501,7 @@ void dlite_metamodel_free(DLiteMetaModel *model)
     }
   }
   if (model->values) free(model->values);
-  if (model->dims) free(model->dims);
+  if (model->shape) free(model->shape);
   if (model->props) free(model->props);
   if (model->rels) free(model->rels);
   free(model);
@@ -3652,21 +3651,21 @@ int dlite_metamodel_add_dimension(DLiteMetaModel *model,
     FAILCODE1(dliteIndexError, "Metadata for '%s' must have dimension \"ndimensions\"", model->uri);
 
   for (i=0; i < model->ndims; i++)
-    if (strcmp(name, model->dims[i].name) == 0) break;
+    if (strcmp(name, model->shape[i].name) == 0) break;
   if (i < model->ndims)
     FAILCODE1(dliteIndexError, "A dimension named \"%s\" is already in model", name);
 
-  if (!(model->dims = realloc(model->dims,
+  if (!(model->shape = realloc(model->shape,
                                sizeof(DLiteDimension)*(model->ndims+1))))
     FAILCODE(dliteMemoryError, "allocation failure");
-  memset(model->dims + model->ndims, 0, sizeof(DLiteDimension));
+  memset(model->shape + model->ndims, 0, sizeof(DLiteDimension));
 
 
-  if (!(model->dims[model->ndims].name = strdup(name)))
+  if (!(model->shape[model->ndims].name = strdup(name)))
     FAILCODE(dliteMemoryError, "allocation failure");
 
   if (description &&
-      !(model->dims[model->ndims].description = strdup(description)))
+      !(model->shape[model->ndims].description = strdup(description)))
     FAILCODE(dliteMemoryError, "allocation failure");
 
   model->ndims++;
@@ -3794,7 +3793,7 @@ const void *dlite_metamodel_get_property(const DLiteMetaModel *model,
 {
   size_t i;
   if (strcmp(name, "dimensions") == 0)
-    return model->dims;
+    return model->shape;
   if (strcmp(name, "properties") == 0)
     return model->props;
   if (strcmp(name, "relations") == 0)
@@ -3844,7 +3843,7 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
     const void *src;
     void *dest;
     DLiteProperty *p = model->meta->_properties + i;
-    size_t *dims = (p->ndims) ? DLITE_PROP_DIMS(meta, i) : NULL;
+    size_t *shape = (p->ndims) ? DLITE_PROP_DIMS(meta, i) : NULL;
 
     src = dlite_metamodel_get_property(model, p->name);
     dest = dlite_instance_get_property_by_index((DLiteInstance *)meta, i);
@@ -3853,8 +3852,8 @@ DLiteMeta *dlite_meta_create_from_metamodel(DLiteMetaModel *model)
     }
     else if ((src != NULL) && (dest != NULL)) {
       if (dlite_type_ndcast(p->ndims,
-                            dest, p->type, p->size, dims, NULL,
-                            src, p->type, p->size, dims, NULL,
+                            dest, p->type, p->size, shape, NULL,
+                            src, p->type, p->size, shape, NULL,
                             NULL)) goto fail;
     } else {
       goto fail;

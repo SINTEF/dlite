@@ -104,9 +104,9 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       char *c = (i < inst->meta->_nproperties - 1) ? "," : "";
       DLiteProperty *p = inst->meta->_properties + i;
       void *ptr = dlite_instance_get_property_by_index(inst, i);
-      size_t *dims = DLITE_PROP_DIMS(inst, i);
+      size_t *shape = DLITE_PROP_DIMS(inst, i);
       PRINT2("%s    \"%s\": ", in, p->name);
-      m = dlite_property_print(dest+n, PDIFF(size, n), ptr, p, dims, 0, -2, f);
+      m = dlite_property_print(dest+n, PDIFF(size, n), ptr, p, shape, 0, -2, f);
       if (m < 0) return -1;
       n += m;
       PRINT1("%s\n", c);
@@ -147,7 +147,7 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         PRINT1(",\n%s      \"dims\": [", in);
         for (j=0; j < p->ndims; j++) {
           char *cc = (j < p->ndims - 1) ? ", " : "";
-          PRINT2("\"%s\"%s", p->dims[j], cc);
+          PRINT2("\"%s\"%s", p->shape[j], cc);
         }
         PRINT("]");
       }
@@ -212,7 +212,7 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         PRINT1(",\n%s      \"shape\": [", in);
         for (j=0; j < p->ndims; j++) {
           char *cc = (j < p->ndims - 1) ? ", " : "";
-          PRINT2("\"%s\"%s", p->dims[j], cc);
+          PRINT2("\"%s\"%s", p->shape[j], cc);
         }
         PRINT("]");
       }
