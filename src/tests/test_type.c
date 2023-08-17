@@ -436,7 +436,7 @@ MU_TEST(test_scan)
   s = "{"
     "\"name\": \"field\", "
     "\"type\": \"blob3\", "
-    "\"dims\": [\"N+1\", \"M\"], "
+    "\"shape\": [\"N+1\", \"M\"], "
     "\"unit\": \"m\""
     "}";
   n = dlite_type_scan(s, -1, &prop, dliteProperty, sizeof(DLiteProperty), 0);
@@ -445,14 +445,14 @@ MU_TEST(test_scan)
   mu_assert_int_eq(dliteBlob, prop.type);
   mu_assert_int_eq(3, prop.size);
   mu_assert_int_eq(2, prop.ndims);
-  mu_assert_string_eq("N+1", prop.dims[0]);
-  mu_assert_string_eq("M", prop.dims[1]);
+  mu_assert_string_eq("N+1", prop.shape[0]);
+  mu_assert_string_eq("M", prop.shape[1]);
   mu_assert_string_eq("m", prop.unit);
   mu_assert_string_eq(NULL, prop.description);
 
   if (prop.name) free(prop.name);
-  for (n=0; n < prop.ndims; n++) free(prop.dims[n]);
-  if (prop.dims) free(prop.dims);
+  for (n=0; n < prop.ndims; n++) free(prop.shape[n]);
+  if (prop.shape) free(prop.shape);
   if (prop.unit) free(prop.unit);
   if (prop.description) free(prop.description);
 
@@ -529,8 +529,8 @@ MU_TEST(test_update_sha3)
   DLiteDimension d2 = {"dimname", "???"};  // hash independent of description
   mu_assert_string_eq(hash, gethash(s, &d2, dliteDimension, sizeof(d2)));
 
-  char *dims[] = {"dim1", "dim2"};
-  DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), NULL, 2, dims,
+  char *shape[] = {"dim1", "dim2"};
+  DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), NULL, 2, shape,
     "m/s", NULL};
   hash = "f52af54cb773ec8a7499ae44f3499c58fba40203d870c0c52842d10cbbcdc13a";
   mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));

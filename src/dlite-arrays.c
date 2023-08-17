@@ -20,12 +20,12 @@
   `type` is the type of each element.
   `size` is the size of each element.
   `ndims` is the number of dimensions.
-  `dims` is the size of each dimensions.  Length: `ndims`.
+  `shape` is the size of each dimensions.  Length: `ndims`.
 
   Returns the new array or NULL on error.
  */
 DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
-                               int ndims, const size_t *dims)
+                               int ndims, const size_t *shape)
 {
   DLiteArray *arr;
   int i, asize = sizeof(DLiteArray) + ndims*sizeof(size_t) + ndims*sizeof(int);
@@ -33,17 +33,17 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
 
   /* allocate the array object (except the data) in one chunk */
   if (!(arr = calloc(1, asize))) return err(dliteMemoryError, "allocation failure"), NULL;
-  arr->dims = (size_t *)((char *)arr + sizeof(DLiteArray));
-  arr->strides = (int *)((char *)arr->dims + ndims*sizeof(size_t));
+  arr->shape = (size_t *)((char *)arr + sizeof(DLiteArray));
+  arr->strides = (int *)((char *)arr->shape + ndims*sizeof(size_t));
 
   arr->data = data;
   arr->type = type;
   arr->size = size;
   arr->ndims = ndims;
-  memcpy(arr->dims, dims, ndims*sizeof(size_t));
+  memcpy(arr->shape, shape, ndims*sizeof(size_t));
   for (i=ndims-1; i>=0; i--) {
     arr->strides[i] = size;
-    size *= dims[i];
+    size *= shape[i];
   }
   return arr;
 }
@@ -55,9 +55,9 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
     'F':  coloumn-major (Fortran-style) order, transposed order.
 */
 DLiteArray *dlite_array_create_order(void *data, DLiteType type, size_t size,
-                                     int ndims, const size_t *dims, int order)
+                                     int ndims, const size_t *shape, int order)
 {
-  DLiteArray *arr2, *arr = dlite_array_create(data, type, size, ndims, dims);
+  DLiteArray *arr2, *arr = dlite_array_create(data, type, size, ndims, shape);
   if (!arr) return NULL;
   switch (order) {
   case 'C':
@@ -92,7 +92,7 @@ size_t dlite_array_size(const DLiteArray *arr)
 {
   int n, size, maxsize=0;
   for (n=0; n < arr->ndims; n++)
-    if ((size = arr->strides[n]*arr->dims[n]) > maxsize) maxsize = size;
+    if ((size = arr->strides[n]*arr->shape[n]) > maxsize) maxsize = size;
   return maxsize;
 }
 
@@ -104,7 +104,7 @@ int dlite_array_is_continuous(const DLiteArray *arr)
   int n, size = arr->size;
   for (n=arr->ndims-1; n >= 0; n--) {
     if (arr->strides[n] != size) return 0;
-    size *= arr->dims[n];
+    size *= arr->shape[n];
   }
   return 1;
 }
@@ -171,10 +171,10 @@ void *dlite_array_iter_next(DLiteArrayIter *iter)
   DLiteArray *arr = (DLiteArray *)iter->arr;
   if (iter->ind[0] < 0) return NULL;  /* check stop indicator */
   for (n=arr->ndims-1; n>=0; n--)
-    if (arr->dims[n] <= 0) return NULL;  /* check that all dimensions has
+    if (arr->shape[n] <= 0) return NULL;  /* check that all dimensions has
 					    positive length */
   for (n=arr->ndims-1; n>=0; n--) {
-    if (++iter->ind[n] < (int)arr->dims[n]) break;
+    if (++iter->ind[n] < (int)arr->shape[n]) break;
     iter->ind[n] = 0;
   }
   if (n < 0) {
@@ -196,7 +196,7 @@ int dlite_array_compare(const DLiteArray *a, const DLiteArray *b)
   if (a->size != b->size) return 0;
   if (a->ndims != b->ndims) return 0;
   for (i=0; i < a->ndims; i++) {
-    if (a->dims[i] != b->dims[i]) return 0;
+    if (a->shape[i] != b->shape[i]) return 0;
     if (a->strides[i] != b->strides[i]) return 0;
   }
   /* check whether the array data are equal */
@@ -221,13 +221,13 @@ int dlite_array_compare(const DLiteArray *a, const DLiteArray *b)
       start[n]-1, start[n]-2, ... stop[n]+1, stop[n]
 
   Like Python, negative values of `start` or `stop` from the back.
-  Hence index `-k` is equivalent to `arr->dims[n]-k`.
+  Hence index `-k` is equivalent to `arr->shape[n]-k`.
 
   If `start` is NULL, it will default to zero for dimensions `n` with
-  positive `step` and `arr->dims[n]` for dimensions with negative
+  positive `step` and `arr->shape[n]` for dimensions with negative
   `step`.
 
-  If `stop` is NULL, it will default to `arr->dims[n]` for dimensions `n`
+  If `stop` is NULL, it will default to `arr->shape[n]` for dimensions `n`
   with positive `step` and zero for dimensions with negative `step`.
 
   If `step` is NULL, it defaults to one.
@@ -251,22 +251,22 @@ DLiteArray *dlite_array_slice(const DLiteArray *arr,
   int n, offset=0;
   DLiteArray *new;
   if (!(new = dlite_array_create(arr->data, arr->type, arr->size,
-				 arr->ndims, arr->dims))) return NULL;
+				 arr->ndims, arr->shape))) return NULL;
   for (n = arr->ndims-1; n >= 0; n--) {
     int s1, s2;
     int d = (step) ? step[n] : 1;
     if (d == 0) return err(1, "dim %d: slice step cannot be zero", n), NULL;
     if (d > 0) {
-      s1 = (start) ? start[n] % arr->dims[n] : 0;
-      s2 = (stop) ? stop[n] % arr->dims[n] - 1 : arr->dims[n] - 1;
+      s1 = (start) ? start[n] % arr->shape[n] : 0;
+      s2 = (stop) ? stop[n] % arr->shape[n] - 1 : arr->shape[n] - 1;
     } else {
-      s1 = (start) ? start[n] % arr->dims[n] - 1 : arr->dims[n] - 1;
-      s2 = (stop) ? stop[n] % arr->dims[n] : 0;
+      s1 = (start) ? start[n] % arr->shape[n] - 1 : arr->shape[n] - 1;
+      s2 = (stop) ? stop[n] % arr->shape[n] : 0;
     }
-    if (s1 < 0) s1 += arr->dims[n];
-    if (s2 < 0) s2 += arr->dims[n];
+    if (s1 < 0) s1 += arr->shape[n];
+    if (s2 < 0) s2 += arr->shape[n];
     offset += s1 * arr->strides[n];
-    new->dims[n] = (abs(s2 - s1) + 1 + d/2) / abs(d);
+    new->shape[n] = (abs(s2 - s1) + 1 + d/2) / abs(d);
     new->strides[n] *= d;
   }
   new->data = ((char *)arr->data) + offset;
@@ -276,22 +276,22 @@ DLiteArray *dlite_array_slice(const DLiteArray *arr,
 
 /*
   Returns a new array object representing `arr` with a new shape specified
-  with `ndims` and `dims`.  `dims` should be compatible with the old shape.
+  with `ndims` and `shape`.  `shape` should be compatible with the old shape.
   The current implementation also requires that `arr` is C-continuous.
 
   Returns NULL on error.
  */
 DLiteArray *dlite_array_reshape(const DLiteArray *arr,
-                                int ndims, const size_t *dims)
+                                int ndims, const size_t *shape)
 {
   int i, prod1=1, prod2=1;;
   if (!dlite_array_is_continuous(arr))
     return err(1, "can only reshape C-continuous arrays"), NULL;
-  for (i=0; i < arr->ndims; i++) prod1 *= arr->dims[i];
-  for (i=0; i < ndims; i++) prod2 *= dims[i];
+  for (i=0; i < arr->ndims; i++) prod1 *= arr->shape[i];
+  for (i=0; i < ndims; i++) prod2 *= shape[i];
   if (prod1 != prod2)
     return err(1, "cannot reshape to an incompatible shape"), NULL;
-  return dlite_array_create(arr->data, arr->type, arr->size, ndims, dims);
+  return dlite_array_create(arr->data, arr->type, arr->size, ndims, shape);
 }
 
 
@@ -306,10 +306,10 @@ DLiteArray *dlite_array_transpose(DLiteArray *arr)
   int i;
   DLiteArray *new;
   if (!(new = dlite_array_create(arr->data, arr->type, arr->size,
-				 arr->ndims, arr->dims))) return NULL;
+				 arr->ndims, arr->shape))) return NULL;
   for (i=0; i < arr->ndims; i++) {
     int j = arr->ndims - 1 - i;
-    new->dims[i] = arr->dims[j];
+    new->shape[i] = arr->shape[j];
     new->strides[i] = arr->strides[j];
   }
   return new;
@@ -328,7 +328,7 @@ void *dlite_array_make_continuous(DLiteArray *arr)
   void *data, *p;
   char *q;
   DLiteArrayIter iter;
-  for (n=0; n < arr->ndims; n++) size *= arr->dims[n];
+  for (n=0; n < arr->ndims; n++) size *= arr->shape[n];
   if (!(data = malloc(size))) return err(dliteMemoryError, "allocation failure"), NULL;
   if (dlite_array_is_continuous(arr)) return memcpy(data, arr->data, size);
 
@@ -345,7 +345,7 @@ void *dlite_array_make_continuous(DLiteArray *arr)
   size = arr->size;
   for (n=arr->ndims-1; n>=0; n--) {
     arr->strides[n] = size;
-    size *= arr->dims[n];
+    size *= arr->shape[n];
   }
   return data;
 }
@@ -364,7 +364,7 @@ void *dlite_array_make_continuous(DLiteArray *arr)
 int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec)
 {
   void *p;
-  int i, N=arr->ndims-1, NN=arr->dims[N]-1;
+  int i, N=arr->ndims-1, NN=arr->shape[N]-1;
   DLiteArrayIter iter;
   char buf[80];
   dlite_array_iter_init(&iter, arr);
@@ -377,7 +377,7 @@ int dlite_array_printf(FILE *fp, const DLiteArray *arr, int width, int prec)
     for (i=0; i<m; i++) fprintf(fp, "[");
     dlite_type_print(buf, sizeof(buf), p, arr->type, arr->size, width, prec, 0);
     fprintf(fp, "%s%s", buf, sep);
-    for (i=N; i >= 0 && iter.ind[i] == (int)arr->dims[i]-1; i--)
+    for (i=N; i >= 0 && iter.ind[i] == (int)arr->shape[i]-1; i--)
       fprintf(fp, "]");
     if (iter.ind[N] == NN) fprintf(fp, "\n");
   }

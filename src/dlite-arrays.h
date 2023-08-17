@@ -32,7 +32,7 @@ typedef struct _DLiteArray {
   DLiteType type;  /*!< data type of elements */
   size_t size;     /*!< size of each element in bytes */
   int ndims;       /*!< number of dimensions */
-  size_t *dims;    /*!< dimension sizes [ndims] */
+  size_t *shape;    /*!< dimension sizes [ndims] */
   int *strides;    /*!< strides, that is number of bytes between two following
                         elements along each dimension [ndims]
                         Note: strides can be negative, so we must use
@@ -54,12 +54,12 @@ typedef struct _DLiteArrayIter {
   `type` is the type of each element.
   `size` is the size of each element.
   `ndims` is the number of dimensions.
-  `dims` is the size of each dimensions.  Length: `ndims`.
+  `shape` is the size of each dimensions.  Length: `ndims`.
 
   Returns the new array or NULL on error.
  */
 DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
-                               int ndims, const size_t *dims);
+                               int ndims, const size_t *shape);
 
 /**
   Like dlite_array_create(), but with argument `order`, which can have
@@ -68,7 +68,7 @@ DLiteArray *dlite_array_create(void *data, DLiteType type, size_t size,
     'F':  coloumn-major (Fortran-style) order, transposed order.
 */
 DLiteArray *dlite_array_create_order(void *data, DLiteType type, size_t size,
-                                     int ndims, const size_t *dims, int order);
+                                     int ndims, const size_t *shape, int order);
 
 /**
   Free an array object, but not the associated data.
@@ -142,13 +142,13 @@ int dlite_array_compare(const DLiteArray *a, const DLiteArray *b);
       start[n]-1, start[n]-2, ... stop[n]+1, stop[n]
 
   Like Python, negative values of `start` or `stop` counts from the back.
-  Hence index `-k` is equivalent to `arr->dims[n]-|k|`.
+  Hence index `-k` is equivalent to `arr->shape[n]-|k|`.
 
   If `start` is NULL, it will default to zero for dimensions `n` with
-  positive `step` and `arr->dims[n]` for dimensions with negative
+  positive `step` and `arr->shape[n]` for dimensions with negative
   `step`.
 
-  If `stop` is NULL, it will default to `arr->dims[n]` for dimensions `n`
+  If `stop` is NULL, it will default to `arr->shape[n]` for dimensions `n`
   with positive `step` and zero for dimensions with negative `step`.
 
   If `step` is NULL, it defaults to one.
@@ -172,13 +172,13 @@ DLiteArray *dlite_array_slice(const DLiteArray *arr,
 
 /**
   Returns a new array object representing `arr` with a new shape specified
-  with `ndims` and `dims`.  `dims` should be compatible with the old shape.
+  with `ndims` and `shape`.  `shape` should be compatible with the old shape.
   The current implementation also requires that `arr` is C-continuous.
 
   Returns NULL on error.
  */
 DLiteArray *dlite_array_reshape(const DLiteArray *arr,
-                                int ndims, const size_t *dims);
+                                int ndims, const size_t *shape);
 
 
 /**

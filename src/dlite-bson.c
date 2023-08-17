@@ -107,7 +107,7 @@ static int append_property(unsigned char *buf, int bufsize,
   float128_t f128;
 #endif
 
-  if (p->dims) {
+  if (p->shape) {
 
     /* Array - treated as binary using host byte order */
     int i, nmemb=1;
@@ -350,7 +350,7 @@ int dlite_bson_append_instance(unsigned char *buf, int bufsize,
         for (j=0; j < p->ndims; j++) {
           char index[20];
           snprintf(index, sizeof(index), "%d", j);
-          APPEND(arr, bsonString, index, -1, p->dims[j]);
+          APPEND(arr, bsonString, index, -1, p->shape[j]);
         }
         END_SUBDOC(prop, bsonArray);
       }
@@ -504,9 +504,9 @@ static int set_meta_dimensions(DLiteMeta *meta, unsigned char *subdoc)
         int ndims, i=0;
         TYPECHECK("shape", bsonArray);
         if ((ndims = bson_nelements(b)) < 0) return ndims;
-        p->dims = calloc(ndims, sizeof(char *));
+        p->shape = calloc(ndims, sizeof(char *));
         while ((type = bson_parse(b, NULL, (void **)&v, NULL, &ep)))
-          p->dims[i++] = strdup(v);
+          p->shape[i++] = strdup(v);
         p->ndims = ndims;
       } else if (strcmp(ename, "unit") == 0) {
         TYPECHECK("unit", bsonString);
