@@ -10,6 +10,12 @@ try:
 except ModuleNotFoundError:
     HAVE_PYTEST = False
 
+try:
+    import yaml
+    HAVE_YAML = True
+except ModuleNotFoundError:
+    HAVE_YAML = False
+
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
@@ -45,11 +51,7 @@ inst = dlite.Instance.from_url(f'json://{thisdir}/inst.json#my-data')
 
 
 # Test yaml
-try:
-    import yaml
-except ImportError:
-    pass
-else:
+if HAVE_YAML:
     print('--- testing yaml')
     inst.save('yaml://inst.yaml?mode=w')
     del inst
@@ -104,7 +106,8 @@ else:
 
 
 # Tests for issue #587
-bytearr = inst.to_bytes("yaml")
+if HAVE_YAML:
+    bytearr = inst.to_bytes("yaml")
 #print(bytes(bytearr).decode())
 if HAVE_PYTEST:
     with pytest.raises(dlite.DLiteError):
