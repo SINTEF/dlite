@@ -158,27 +158,23 @@ class CMakeBuildExt(build_ext):
 
 requirements = ["numpy"]
 
-# Read extra_requirements from requirements_full.txt
-#with open(SOURCE_DIR / "requirements_full.txt", "r") as f:
-#    extra_requirements = [
-#        line.strip() for line in f.readlines() if not line.startswith("#")
-#    ]
-extra_requirements = [  # TO BE REPLACED WITH THE ABOVE, SEE ISSUE #601
-    "fortran-language-server>=1.12.0,<1.13",
-    "PyYAML>=5.4.1,<7",
-    "psycopg2-binary==2.9.5",
-    "pandas>=1.2,<2.1",
-    "rdflib>=4.2.1,<7",
-    "pint>=0.15,<1",
-    "openpyxl>=3.0.9,<3.2",
-    "pymongo>=4.4.0,<5",
-    "tripper>=0.2.5,<0.3",
-    "requests>=2.10,<3",
-    "pydantic>=1.10.0,<2",
-    #"pydantic>=1.10.0,<3",
-    #"typing_extensions>=4.1,<5",
-    #"jsonschema>=4.0,<4.18",
-]
+# Populate extra_requirements from requirements_*.txt
+extra_requirements = {}
+for name in "full", "dev", "doc":
+    with open(SOURCE_DIR / f"requirements_{name}.txt", "r") as f:
+        extra_requirements[name] = [
+            line.strip() for line in f.readlines() if not line.startswith("#")
+        ]
+
+# Temporary workaround!
+# Require pydantic <2. Needed before we have managed to install rust in
+# the docker image for wheels
+extras = extra_requirements["full"]
+for i, pkg in enumerate(extras):
+    match = re.match("^(pydantic>.*<)", pkg)
+    if match:
+        extras[i] = f"{match.groups()[0]}2"
+
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
@@ -215,10 +211,8 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=requirements + extra_requirements,
-    # For now, the extra requirements are hard requirements.
-    # See issue #222: https://github.com/SINTEF/dlite/issues/222
-    # extras_require={"all": extra_requirements},
+    install_requires=requirements,
+    extras_require=extra_requirements,
     packages=["dlite"],
     scripts=[
         str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),

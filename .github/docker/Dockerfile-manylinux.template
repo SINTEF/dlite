@@ -28,6 +28,7 @@ ARG PY_MINORS="7 8 9 10 11"
 
 #COPY requirements.txt /tmp/requirements.txt
 COPY requirements_full.txt /tmp/requirements_full.txt
+COPY requirements_full.txt /tmp/requirements_dev.txt
 
 {{ EXTRA_PRE }}
 
@@ -50,6 +51,9 @@ RUN yum update -y && \
 # exist here.
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+# Change required version of pydantic to be <2
+  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt && \
+# Install required Python packages
   mkdir -p /ci/pip_cache && \
   if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then export PATH="$PATH:/usr/pgsql-9.1/bin"; fi && \
   for minor in ${PY_MINORS}; do \
@@ -57,6 +61,7 @@ RUN yum update -y && \
     python3.${minor} -m pip install -U setuptools wheel && \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
     python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements_full.txt; \
+    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements_dev.txt; \
   done
 
 {{ EXTRA_POST }}
