@@ -36,7 +36,7 @@ RUN apk add -u \
   redland \
   rasqal \
   hdf5 \
-  swig &&
+  swig && \
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
