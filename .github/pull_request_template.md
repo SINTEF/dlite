@@ -2,7 +2,7 @@
 
 
 ## Type of change
-- [ ] Bug fix
+- [ ] Bug fix & code cleanup
 - [ ] New feature
 - [ ] Documentation update
 - [ ] Test update

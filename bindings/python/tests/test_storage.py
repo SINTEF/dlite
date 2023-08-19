@@ -59,10 +59,10 @@ else:
     expected = """\
 DLite storage plugin for YAML.
 
-Opens `uri`.
+Opens `location`.
 
         Arguments:
-            uri: A fully resolved URI to the PostgreSQL database.
+            location: Path to YAML file.
             options: Supported options:
             - `mode`: Mode for opening.  Valid values are:
                 - `a`: Append to existing file or create new file (default).
@@ -70,7 +70,7 @@ Opens `uri`.
                 - `w`: Truncate existing file or create new file.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
-                  The default (`"auto"`) will try to infer it automatically.
+                If "auto" (default) the form will be inferred automatically.
 """
     s = dlite.Storage('yaml', 'inst.yaml', options='mode=a')
     assert s.help().strip() == expected.strip()
