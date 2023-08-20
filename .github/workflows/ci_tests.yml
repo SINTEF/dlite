@@ -13,23 +13,6 @@ jobs:
       run: |
         sudo apt-get update --fix-missing
 
-    - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
-      run: |
-        sudo apt remove cmake
-        sudo apt purge --auto-remove cmake
-        wget http://www.cmake.org/files/v3.25/cmake-3.25.2.tar.gz
-        tar xf cmake-3.25.2.tar.gz
-        cd cmake-3.25.2
-        ./configure
-        make
-        sudo make install
-        hash -r
-        cd -
-
-    - name: Show CMake version
-      run: |
-        cmake --version
-
     - name: Install dependencies
       run: |
         sudo apt-get install \
@@ -45,15 +28,36 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        pip install --upgrade pip -r requirements.txt
-        pip install -r requirements_dev.txt
-        pip install -r requirements_doc.txt
+        python3 -m pip install --upgrade pip -r requirements.txt
+        python3 -m pip install -r requirements_dev.txt
+        python3 -m pip install -r requirements_doc.txt
+
     - name: check numpy
       run: |
         which python3
         python3 --version
-        pip3 --version
+        python3 -m pip --version
         python3 -c 'import numpy as np; print(np.get_include())'
+
+    - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
+      run: |
+        python3 -m pip install cmake==3.25.2
+      #run: |
+      #  sudo apt remove cmake
+      #  sudo apt purge --auto-remove cmake
+      #  wget http://www.cmake.org/files/v3.25/cmake-3.25.2.tar.gz
+      #  tar xf cmake-3.25.2.tar.gz
+      #  cd cmake-3.25.2
+      #  ./configure
+      #  make
+      #  sudo make install
+      #  hash -r
+      #  cd -
+
+    - name: Show CMake version
+      run: |
+        cmake --version
+
     - name: configure
       run: |
         mkdir build
@@ -62,27 +66,32 @@ jobs:
           CFLAGS='-Wno-missing-field-initializers' \
           cmake .. -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES
         cd -
+
     - name: make
       run: |
         cd build
-        make
+        cmake --build .
         cd -
+
     - name: install
       run: |
         cd build
-        make install
+        cmake --install .
         cd -
+
     - name: make test
       run: |
         cd build
         ctest || ctest --rerun-failed --output-on-failure -V
         cd -
+
     - name: build Linux wheel
       run: |
         cd python
-        pip install numpy wheel
+        python3 -m pip install numpy wheel
         python3 setup.py bdist_wheel
         cd -
+
     - name: Install python package via setup.py and test the installation
       run: |
         cd python
