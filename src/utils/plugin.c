@@ -80,14 +80,6 @@ PluginInfo *plugin_info_create(const char *kind, const char *symbol,
   map_init(&info->pluginpaths);
   map_init(&info->apis);
 
-  printf("\n");
-  const char *key;
-  map_iter_t iter = map_iter(&info->apis);
-  printf("*** iter:\n");
-  while ((key = map_next(&info->apis, &iter)))
-    printf("*** key='%s'\n", key);
-  printf("*** iterdone:\n");
-
   return info;
 }
 
@@ -422,7 +414,6 @@ char **plugin_names(const PluginInfo *info)
 */
 void plugin_api_iter_init(PluginIter *iter, const PluginInfo *info)
 {
-  printf("*** init iter...\n");
   memset(iter, 0, sizeof(PluginIter));
   iter->info = info;
   iter->miter = map_iter(&info->apis);
@@ -440,7 +431,6 @@ const PluginAPI *plugin_api_iter_next(PluginIter *iter)
   PluginAPI **p, *api=NULL;
   PluginInfo *info = (PluginInfo *)iter->info;
   const char *name = map_next(&info->apis, &iter->miter);
-  printf("  -- '%s'\n", name);
   if (!name) return NULL;
   if (!(p = map_get(&info->apis, name)) || !(api = *p))
     fatal(1, "failed to get api: %s", name);
