@@ -3,13 +3,19 @@ __pycache__
 
 inst.ttl
 inst.yaml
+
 test.json
 test.yaml
 
+basic_metadata_schema.json
+entity_schema.json
+myentity.json
+tmp.json
 xxx.json
 xxx2.json
 yyy.json
 
-myentity.json
+yyy.yaml
+
 
 db.xml

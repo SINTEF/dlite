@@ -2,7 +2,6 @@
 #
 
 set(tests
-  test_python_bindings
   test_collection
   test_entity
   test_factory
