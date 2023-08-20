@@ -119,4 +119,10 @@ assert len(list(s.instances())) == 5
 assert len(list(s.instances("xxx"))) == 0
 #assert len(list(s.instances("http://onto-ns.com/meta/0.1/Person"))) == 3
 #assert len(list(s.instances("http://onto-ns.com/meta/0.1/SimplePerson"))) == 2
-print(list(s.instances("http://onto-ns.com/meta/0.1/Person")))
+#print(list(s.instances("http://onto-ns.com/meta/0.1/Person")))
+
+#for inst in s.instances("http://onto-ns.com/meta/0.1/SimplePerson"):
+print("a")
+for inst in s.instances():
+    print("---")
+    print(inst)
