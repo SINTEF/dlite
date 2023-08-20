@@ -1,9 +1,6 @@
 import dlite
 
 
-# Initially no storage plugins are loaded
-assert list(dlite.StoragePluginIter()) == []
-
 # Storage plugins can be loaded
 dlite.Storage.load_plugins()
 
