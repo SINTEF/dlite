@@ -272,7 +272,7 @@ typedef int (*Flush)(DLiteStorage *s);
   Returns a malloc'ed string with plugin documentation or NULL on error.
   Optional.
  */
-typedef char *(*Help)(DLiteStorage *s);
+typedef char *(*Help)(const DLiteStoragePlugin *api);
 
 /** @} */
 

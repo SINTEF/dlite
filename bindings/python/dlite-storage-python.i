@@ -8,7 +8,7 @@
       # Override default __init__()
       def __init__(self, driver_or_url, location=None, options=None):
           loc = str(location) if location else None
-          _dlite.Instance_swiginit(self, _dlite.new_Storage(
+          _dlite.Storage_swiginit(self, _dlite.new_Storage(
               driver_or_url=driver_or_url, location=loc, options=options))
 
       def __enter__(self):
@@ -40,6 +40,21 @@
           "hold multiple instances, including both data and metadata."
       )
 
+      @classmethod
+      def load_plugins(cls):
+          """Load all storage plugins."""
+          _dlite._load_all_storage_plugins()
+
+      @classmethod
+      def unload_plugin(cls, name):
+          """Unload storage plugin with this name."""
+          _dlite._unload_storage_plugin(str(name))
+
+      @classmethod
+      def plugin_help(cls, name):
+          """Return documentation of storage plogin with this name."""
+          return _dlite._storage_plugin_help(name)
+
       def instances(self, pattern=None):
           """Returns an iterator over all instances in storage whos
           metadata URI matches `pattern`."""
@@ -59,6 +74,7 @@
 
       driver = property(get_driver,
                         doc='Name of driver associated with this storage')
+
   %}
 }
 
@@ -72,12 +88,24 @@
   %}
 }
 
-
 %extend StoragePluginIter {
   %pythoncode %{
+      # Override default __init__()
+      def __init__(self):
+          """Iterates over loaded storage plugins."""
+          _dlite.StoragePluginIter_swiginit(
+              self, _dlite.new_StoragePluginIter())
+          # Keep a reference to self, such that it is not garbage-collected
+          # before end of iterations
+          if not hasattr(_dlite, "_storage_plugin_iters"):
+              _dlite._storage_plugin_iters = {}
+          _dlite._storage_plugin_iters[id(self.iter)] = self
+
       def __next__(self):
           name = self.next()
           if not name:
+              # Delete reference to iterator object stored away in __init__()
+              del _dlite._storage_plugin_iters[id(self.this)]
               raise StopIteration()
           return name
   %}

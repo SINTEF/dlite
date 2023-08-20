@@ -2,8 +2,17 @@
 
 %{
 #include "dlite.h"
+#include "dlite-errors.h"
 #include "dlite-storage.h"
 #include "dlite-storage-plugins.h"
+
+char *_storage_plugin_help(const char *name) {
+  const DLiteStoragePlugin *api = dlite_storage_plugin_get(name);
+  if (api->help) return api->help(api);
+  return dlite_err(dliteUnsupportedError,
+                   "\"%s\" storage does not support help", name), NULL;
+}
+
 %}
 
 
@@ -71,8 +80,8 @@ enum _DLiteIDFlag {
 %feature("docstring", "\
 Represents a data storage.
 
-Parameters
-----------
+Arguments
+---------
 driver_or_url : string
     Name of driver used to connect to the storage or, if `location` is not
     given, the URL to the storage:
@@ -198,9 +207,9 @@ Iterates over loaded storage plugins.
     DLiteStoragePluginIter *iter;
   };
 %}
-%feature("docstring", "") new_StoragePluginIter;
 %extend StoragePluginIter {
   StoragePluginIter(void) {
+    //dlite_storage_plugin_load_all();
     DLiteStoragePluginIter *iter = dlite_storage_plugin_iter_create();
     return (struct StoragePluginIter *)iter;
   }
@@ -221,8 +230,13 @@ Iterates over loaded storage plugins.
 }
 
 
-%rename(storage_unload) dlite_storage_plugin_unload;
+%rename(_load_all_storage_plugins) dlite_storage_plugin_load_all;
+int dlite_storage_plugin_load_all();
+
+%rename(_unload_storage_plugin) dlite_storage_plugin_unload;
 int dlite_storage_plugin_unload(const char *name);
+
+char *_storage_plugin_help(const char *name);
 
 
 /* -----------------------------------

@@ -9,6 +9,7 @@ set(tests
   test_misc
   test_python_storage
   test_storage
+  test_storage_plugins
   test_paths
   test_utils
   test_global_dlite_state
