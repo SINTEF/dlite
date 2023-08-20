@@ -60,7 +60,7 @@ dlite.storage_path.append(f'{thisdir}/Person.json')
 host, user, database, password = parse_pgconf()
 inst = dlite.Instance.from_location(
     'json', f'{thisdir}/persons.json',
-    id='51c0d700-9ab0-43ea-9183-6ea22012ebee',
+    id='a1d8d35f-723c-5ea1-abaf-8fc8f1d0982f',
 )
 
 

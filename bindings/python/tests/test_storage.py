@@ -35,6 +35,8 @@ inst['a-bool-array'] = True, False
 with dlite.Storage('json', 'tmp.json', 'mode=w') as s:
     s.save(inst)
 
+# Test query
+
 
 # Test json
 print('--- testing json')
@@ -109,3 +111,12 @@ bytearr = inst.to_bytes("yaml")
 if HAVE_PYTEST:
     with pytest.raises(dlite.DLiteError):
         inst.to_bytes("json")
+
+
+dlite.storage_path.append(thisdir)
+s = dlite.Storage("json", f"{thisdir}/persons.json", "mode=r")
+assert len(list(s.instances())) == 5
+assert len(list(s.instances("xxx"))) == 0
+#assert len(list(s.instances("http://onto-ns.com/meta/0.1/Person"))) == 3
+#assert len(list(s.instances("http://onto-ns.com/meta/0.1/SimplePerson"))) == 2
+print(list(s.instances("http://onto-ns.com/meta/0.1/Person")))

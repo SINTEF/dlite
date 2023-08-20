@@ -1274,6 +1274,12 @@ const char *dlite_jstore_iter_next(DLiteJStoreIter *iter)
     if (iter->metauuid[0]) {
       char metauuid[DLITE_UUID_LENGTH+1];
       const char *val = jstore_get(js, iid);
+
+      printf("\n=====================================================\n");
+      printf("uuid: %s\n", iid);
+      printf("%s\n", val);
+      printf("\n");
+
       if (jsmn_parse_alloc(&parser, val, strlen(val),
                            &iter->tokens, &iter->ntokens) < 0) {
         err(-1, "invalid json input: \"%s\"", val);

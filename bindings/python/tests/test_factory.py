@@ -29,12 +29,12 @@ person1 = Person('Jack Daniel', 42, ['distilling', 'tasting'])
 
 print('-- create: person2')
 person2 = ExPerson('Jack Daniel', 42, ['distilling', 'tasting'])
-person2.dlite_inst.save('json', 'persons.json', 'mode=w')
+person2.dlite_inst.save('json', 'persons2.json', 'mode=w')
 
 # Print json-representation of person2 using dlite
 print(person2.dlite_inst.asjson(indent=2))
 
-inst = dlite.Instance.from_url('json://persons.json')
+inst = dlite.Instance.from_url('json://persons2.json')
 person3 = dlite.instancefactory(Person, inst)
 
 person4 = dlite.objectfactory(person1, meta=person2.dlite_meta)

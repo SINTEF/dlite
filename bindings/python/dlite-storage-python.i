@@ -40,11 +40,6 @@
           "hold multiple instances, including both data and metadata."
       )
 
-      @classmethod
-      def create_from_url(cls, url):
-          """Create a new storage from `url`."""
-          return cls(url)
-
       def instances(self, pattern=None):
           """Returns an iterator over all instances in storage whos
           metadata URI matches `pattern`."""
