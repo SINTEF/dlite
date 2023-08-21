@@ -261,7 +261,7 @@ int dlite_storage_delete(DLiteStorage *s, const char *id)
  */
 char *dlite_storage_help(DLiteStorage *s)
 {
-  if (s->api->help) return s->api->help(s);
+  if (s->api->help) return s->api->help(s->api);
   return err(dliteUnsupportedError, "storage does not support help: %s",
              s->api->name), NULL;
 }
