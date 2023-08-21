@@ -1,4 +1,4 @@
-<img src="doc/_static/logo.svg" align="right" />
+<img src="https://raw.githubusercontent.com/SINTEF/dlite/master/doc/_static/logo.svg" align="right" />
 
 
 DLite
@@ -17,7 +17,7 @@ DLite is a C implementation of the [SINTEF Open Framework and Tools
 models (aka Metadata) to efficiently describe and work with scientific
 data.
 
-![DLite overview](doc/_static/overview.svg)
+![DLite overview](https://raw.githubusercontent.com/SINTEF/dlite/master/doc/_static/overview.svg)
 
 The core of DLite is a framework for formalised representation of data
 described by data models (called Metadata or Entity in DLite).
