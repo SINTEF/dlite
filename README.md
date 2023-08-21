@@ -42,6 +42,8 @@ pip install dlite-python[full]
 
 The bracket `[full]` is optional, but ensures that you install all optional
 dependencies together with DLite.
+Without `[full]` you get a minimal DLite installation that only depends on
+NumPy.
 For alternative installation methods, see the [installation instructions].
 
 
