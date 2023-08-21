@@ -16,25 +16,26 @@ class Options(dict):
 
     Options may also be accessed as attributes.
     """
+
     def __init__(self, options, defaults=None):
         dict.__init__(self)
         if options is None:
-            options = ''
-        options = options.split('#')[0]  # strip hash and everything following
+            options = ""
+        options = options.split("#")[0]  # strip hash and everything following
         if isinstance(defaults, str):
             defaults = Options(defaults)
         if defaults:
             self.update(defaults)
 
-        if ';' in options:
-            tokens = options.split(';')
-        elif '&' in options:
-            tokens = options.split('&')
+        if ";" in options:
+            tokens = options.split(";")
+        elif "&" in options:
+            tokens = options.split("&")
         else:
             tokens = [options]
 
-        if tokens and tokens != ['']:
-            self.update([t.split('=', 1) for t in tokens])
+        if tokens and tokens != [""]:
+            self.update([t.split("=", 1) for t in tokens])
 
     def __getattr__(self, name):
         if name in self:

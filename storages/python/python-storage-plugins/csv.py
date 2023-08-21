@@ -141,8 +141,12 @@ def infer_prop_name(name: str) -> str:
         Inferred property name.
 
     """
-    return name.strip(' "').rsplit("(", 1)[0].rsplit("[", 1)[0].strip().replace(
-        " ", "_"
+    return (
+        name.strip(' "')
+        .rsplit("(", 1)[0]
+        .rsplit("[", 1)[0]
+        .strip()
+        .replace(" ", "_")
     )
 
 
