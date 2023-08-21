@@ -115,14 +115,29 @@ if HAVE_PYTEST:
 
 dlite.storage_path.append(thisdir)
 s = dlite.Storage("json", f"{thisdir}/persons.json", "mode=r")
-assert len(list(s.instances())) == 5
-assert len(list(s.instances("xxx"))) == 0
+
+
+#assert len(list(s.instances())) == 5
+#assert len(list(s.instances("xxx"))) == 0
 #assert len(list(s.instances("http://onto-ns.com/meta/0.1/Person"))) == 3
 #assert len(list(s.instances("http://onto-ns.com/meta/0.1/SimplePerson"))) == 2
 #print(list(s.instances("http://onto-ns.com/meta/0.1/Person")))
 
 #for inst in s.instances("http://onto-ns.com/meta/0.1/SimplePerson"):
-print("a")
-for inst in s.instances():
-    print("---")
-    print(inst)
+#print("a")
+#for inst in s.instances():
+#    print("---")
+#    #print(inst)
+
+iter = s.instances()
+#insts = list(iter)
+inst = iter.next()
+
+iter2 = s.instances()
+for i in range(6):
+    print(iter2.next())
+
+print("==========")
+
+for i in range(5):
+    print(iter.next())

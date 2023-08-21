@@ -80,9 +80,26 @@
 
 %extend StorageIterator {
   %pythoncode %{
+      # Override default __init__()
+      def __init__(self, s, pattern=None):
+          """Iterates over instances in storage `s`.
+
+          If `pattern` is given, only instances whos metadata URI
+          matches glob pattern `pattern` are returned.
+          """
+          _dlite.StorageIterator_swiginit(
+              self, _dlite.new_StorageIterator(s, pattern))
+          # Keep a reference to self, such that it is not garbage-collected
+          # before end of iterations
+          if not hasattr(_dlite, "_storage_iters"):
+              _dlite._storage_iters = {}
+          _dlite._storage_iters[id(self.state)] = self
+
       def __next__(self):
           inst = self.next()
           if not inst:
+              # Delete reference to iterator object stored away in __init__()
+              del _dlite._storage_iters[id(self.this)]
               raise StopIteration()
           return inst
   %}
@@ -92,20 +109,20 @@
   %pythoncode %{
       # Override default __init__()
       def __init__(self):
-          """Iterates over loaded storage plugins."""
+          """Iterator over loaded storage plugins."""
           _dlite.StoragePluginIter_swiginit(
               self, _dlite.new_StoragePluginIter())
           # Keep a reference to self, such that it is not garbage-collected
           # before end of iterations
-          if not hasattr(_dlite, "_storage_plugin_iters"):
-              _dlite._storage_plugin_iters = {}
-          _dlite._storage_plugin_iters[id(self.iter)] = self
+          if not hasattr(_dlite, "_storage_iters"):
+              _dlite._storage_iters = {}
+          _dlite._storage_iters[id(self.iter)] = self
 
       def __next__(self):
           name = self.next()
           if not name:
               # Delete reference to iterator object stored away in __init__()
-              del _dlite._storage_plugin_iters[id(self.this)]
+              del _dlite._storage_iters[id(self.this)]
               raise StopIteration()
           return name
   %}

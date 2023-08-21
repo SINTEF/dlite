@@ -33,7 +33,7 @@ instances whos metadata URI matches `pattern` are returned.
     if (!(iter = calloc(1, sizeof(struct StorageIterator))))
       return dlite_err(1, "allocation failure"), NULL;
     iter->s = s;
-    printf("*** StorageIterator: iter=%p, s=%p\n", (void *)iter, (void *)s);
+    printf("*** StorageIterator: %p\n", (void *)iter);
     if (!(iter->state = dlite_storage_iter_create(s, pattern))) {
       free(iter);
       return NULL;
@@ -41,7 +41,7 @@ instances whos metadata URI matches `pattern` are returned.
     return iter;
   }
   ~StorageIterator(void) {
-    printf("*** free: self=%p, s=%p\n", (void *)$self, (void *)$self->s);
+    printf("*** free StorageIterator: %p\n", (void *)$self);
     dlite_storage_iter_free($self->s, $self->state);
     free($self);
   }
@@ -51,9 +51,12 @@ Returns next instance or None if exhausted.") next;
   %newobject next;
   struct _DLiteInstance *next(void) {
     char uuid[DLITE_UUID_LENGTH+1];
-    printf("*** next: self=%p, s=%p\n", (void *)$self, (void *)$self->s);
-    if (dlite_storage_iter_next($self->s, $self->state, uuid) == 0)
-      return dlite_instance_load($self->s, uuid);
+    if (dlite_storage_iter_next($self->s, $self->state, uuid) == 0) {
+      DLiteInstance *inst = dlite_instance_load($self->s, uuid);
+      // Why isn't the refcount already increased?
+      dlite_instance_incref(inst);
+      return inst;
+    }
     return NULL;
   }
 
