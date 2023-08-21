@@ -17,6 +17,7 @@ class template(dlite.DLiteStorageBase):
                specifications.  This is the default.
              - "jinja": Use jinja.  See https://jinja.palletsprojects.com/
     """
+
     def open(self, location, options=None):
         """Opens `location`."""
         self.options = Options(options, defaults="engine=format")
@@ -37,8 +38,9 @@ class template(dlite.DLiteStorageBase):
             j2_template = Template(template)
             data = j2_template.render(inst.properties)
         else:
-            raise ValueError("The 'engine' option must be either \"format\" "
-                             "or \"jinja\"")
+            raise ValueError(
+                "The 'engine' option must be either \"format\" " 'or "jinja"'
+            )
 
         with open(self.location, "w", encoding="utf8") as f:
             f.write(data)

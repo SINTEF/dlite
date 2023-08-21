@@ -18,22 +18,22 @@ check_import("psycopg2", skip=True)
 ping_server()
 
 # Add metadata to search path
-dlite.storage_path.append(f'{thisdir}/Person.json')
+dlite.storage_path.append(f"{thisdir}/Person.json")
 
 
 # Read from postgresql DB
 host, user, database, password = parse_pgconf()
 inst = dlite.Instance.from_location(
-    driver='postgresql',
+    driver="postgresql",
     location=host,
-    options=f'user={user};database={database};password={password}',
-    id='51c0d700-9ab0-43ea-9183-6ea22012ebee',
+    options=f"user={user};database={database};password={password}",
+    id="51c0d700-9ab0-43ea-9183-6ea22012ebee",
 )
 
 print(inst)
-assert inst.uuid == '51c0d700-9ab0-43ea-9183-6ea22012ebee'
-assert inst.meta.uri == 'http://onto-ns.com/meta/0.1/Person'
-assert inst.dimensions == {'N': 2}
-assert inst.name == 'Jack Daniel'
+assert inst.uuid == "51c0d700-9ab0-43ea-9183-6ea22012ebee"
+assert inst.meta.uri == "http://onto-ns.com/meta/0.1/Person"
+assert inst.dimensions == {"N": 2}
+assert inst.name == "Jack Daniel"
 assert inst.age == 42.0
-assert inst.skills.tolist() == ['distilling', 'tasting']
+assert inst.skills.tolist() == ["distilling", "tasting"]

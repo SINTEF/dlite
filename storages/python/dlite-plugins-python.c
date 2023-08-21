@@ -164,17 +164,17 @@ int flusher(DLiteStorage *s)
   It combines the class documentation with the documentation of the open()
   method.
  */
-char *helper(DLiteStorage *s)
+char *helper(const DLiteStoragePlugin *api)
 {
   PyObject *v=NULL, *pyclassdoc=NULL, *open=NULL, *pyopendoc=NULL;
-  PyObject *class = (PyObject *)s->api->data;
+  PyObject *class = (PyObject *)api->data;
   const char *classname, *classdoc=NULL, *opendoc=NULL;
   char *doc=NULL;
   Py_ssize_t n=0, clen=0, olen=0, i, newlines=0;
 
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
-    dlite_warnx("cannot get class name for storage plugin '%s'", s->api->name);
+    dlite_warnx("cannot get class name for storage plugin '%s'", api->name);
 
   if (PyObject_HasAttrString(class, "__doc__")) {
     if (!(pyclassdoc = PyObject_GetAttrString(class, "__doc__")))

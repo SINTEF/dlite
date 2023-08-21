@@ -49,7 +49,8 @@ item0.next = item2
 assert item1.next.next.next == item1  # one cycle
 
 # Create from json
-inst = dlite.Instance.from_json(f"""
+inst = dlite.Instance.from_json(
+    f"""
 {{
   "meta": "http://onto-ns.com/meta/0.1/Linked",
   "dimensions": {{}},
@@ -57,7 +58,8 @@ inst = dlite.Instance.from_json(f"""
     "next": "{item0.uuid}"
   }}
 }}
-""")
+"""
+)
 assert inst.next == item0
 assert inst.next.next.next.next == item0
 
@@ -77,4 +79,4 @@ assert cyclic.subtree[0].subtree[0].subtree[0] == cyclic
 
 # Instantiate nested from dict
 # For issue #515
-#middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
+# middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
