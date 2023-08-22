@@ -1,0 +1,6 @@
+dlite-python
+requests
+matplotlib
+scikit-image
+ncempy
+#hyperspy

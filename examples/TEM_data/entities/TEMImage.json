@@ -1,0 +1,36 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/TEMImage",
+  "description": "Metadata for a TEM image.",
+  "dimensions": {
+    "ndim": "Number of dimensions. This is always 4.",
+    "zSize2": "Number of pixels along the 4th dimension for a 4D file (e.g. SPED)."
+    "zSize": "Number of pixels along the 3rd dimension for a 3D file.",
+    "ySize": "Number of pixels along the 2nd dimension (y-axis).",
+    "xSize": "Number of pixels along the 1st dimension (x-axis).",
+  },
+  "properties": {
+    "filename": {
+      "type": "string",
+      "description": "File name."
+    },
+    "data": {
+      "type": "string",
+      "shape": ["zSize2", "zSize", "ySize", "xSize"],
+      "description": "Image data. Noth that the indexing starts with the 4th dimension. For a 2D image, zSize2 and zSize will be one."
+    },
+    "pixelUnit": {
+      "type": "string",
+      "shape": ["ndim"],
+      "description": "The unit name as a string for each dimension of each dataset."
+    },
+    "pixelSize": {
+      "type": "float64",
+      "shape": ["ndim"],
+      "description": "The real size of the pixel. Real and reciprical space are supported."
+    },
+    "metadata": {
+      "type": "string",
+      "description": "A json dump of relevant metadata tags."
+    }
+  }
+}
