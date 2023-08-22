@@ -1,4 +1,7 @@
 dlite-python
+oteapi-dlite
+oteapi-services
+otelib
 requests
 matplotlib
 scikit-image
