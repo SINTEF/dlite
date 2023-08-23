@@ -236,7 +236,7 @@ def from_graph(graph, id=None):
         if dlite.get_uuid(dlite_id) != str(uuid):
             if dlite.get_uuid(dlite_id) != uuid:
                 raise ValueError(
-                    f'provided id "{id}" does not correspond ' f'to uuid "{uuid}"'
+                    f'provided id "{id}" does not correspond to uuid "{uuid}"'
                 )
     else:
         uuid = dlite.get_uuid(dlite_id)

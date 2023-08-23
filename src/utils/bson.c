@@ -730,21 +730,21 @@ bool bson_scan_bool(const unsigned char *doc, const char *ename,
   int type;
   if ((type = bson_scan(doc, ename, &data, NULL)) < 0) {
     if (errcode) *errcode = type;
-    return NULL;
+    return 0;
   } else if (type == 0) {
     if (errcode) {
       if (*errcode)
         errx(bsonKeyError, "no such element: '%s'", ename);
       *errcode = bsonKeyError;
     }
-    return NULL;
+    return 0;
   } else if (type != bsonString) {
     errx(bsonTypeError,
          "expected element '%s' to be boolean, got %s",
          ename, bson_typename(type));
     if (errcode) *errcode = bsonTypeError;
-    return NULL;
+    return 0;
   }
   if (errcode) *errcode = 0;
-  return (bool *)data;
+  return *((bool *)data);
 }

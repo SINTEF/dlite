@@ -116,7 +116,15 @@ MU_TEST(test_set_dtype_and_size)
   mu_assert_int_eq(dliteFixString, type);
   mu_assert_int_eq(11, size);
 
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("str5", &type, &size));
+  mu_assert_int_eq(dliteFixString, type);
+  mu_assert_int_eq(6, size);
+
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string", &type, &size));
+  mu_assert_int_eq(dliteStringPtr, type);
+  mu_assert_int_eq(sizeof(char *), size);
+
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("str", &type, &size));
   mu_assert_int_eq(dliteStringPtr, type);
   mu_assert_int_eq(sizeof(char *), size);
 
@@ -136,14 +144,18 @@ MU_TEST(test_set_dtype_and_size)
   mu_assert_int_eq(dliteProperty, type);
   mu_assert_int_eq(sizeof(DLiteProperty), size);
 
-  // ok with comma following the type string
+  // ok with comma or space following the type string
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string8,", &type, &size));
   mu_assert_int_eq(dliteFixString, type);
   mu_assert_int_eq(9, size);
 
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string6 abc", &type, &size));
+  mu_assert_int_eq(dliteFixString, type);
+  mu_assert_int_eq(7, size);
+
   mu_check(dlite_type_set_dtype_and_size("blob5a", &type, &size)); // fails
   mu_assert_int_eq(dliteFixString, type);
-  mu_assert_int_eq(9, size);  // unchanged
+  mu_assert_int_eq(7, size);  // unchanged
   err_clear();
 }
 
@@ -196,6 +208,8 @@ MU_TEST(test_print)
   double v=3.141592;
   char *p=NULL, s[]="my source string", *q=s;
   DLiteInstance *inst = (DLiteInstance *)dlite_collection_create("myid");
+  DLiteDimension d = {"name", "descr"};
+  DLiteRelation r = {"subject", "predicate", "object", "id"};
 
   mu_assert_int_eq(7, dlite_type_print(buf, sizeof(buf), &v, dliteFloat,
                                        sizeof(double), 0, -2, 0));
@@ -225,6 +239,20 @@ MU_TEST(test_print)
   mu_assert_int_eq(4, dlite_type_print(buf, sizeof(buf), &inst, dliteRef,
                                         sizeof(DLiteInstance *), -1, -1, 0));
   mu_assert_string_eq("myid", buf);
+
+  mu_assert_int_eq(40, dlite_type_print(buf, sizeof(buf), &d, dliteDimension,
+                                       sizeof(DLiteDimension *), -1, -1, 0));
+  mu_assert_string_eq("{\"name\": \"name\", \"description\": \"descr\"}", buf);
+
+
+  mu_assert_int_eq(34, dlite_type_print(buf, sizeof(buf), &r, dliteRelation,
+                                       sizeof(DLiteRelation *), -1, -1, 0));
+  mu_assert_string_eq("[\"subject\", \"predicate\", \"object\"]", buf);
+
+  buf[0] = '\0';
+  mu_assert_int_eq(34, dlite_type_print(buf, 0, &r, dliteRelation,
+                                       sizeof(DLiteRelation *), -1, -1, 0));
+  mu_assert_int_eq(0, buf[0]);
 
   n = dlite_type_aprint(&ptr, &size, 0, &q, dliteStringPtr, sizeof(char **),
                         -1, -1, dliteFlagQuoted);

@@ -1,15 +1,9 @@
-"""A simple demonstrage of a DLite storage plugin written in Python."""
-import os
-from typing import TYPE_CHECKING
-
+"""DLite YAML storage plugin written in Python."""
 import yaml as pyyaml  # To not clash with the current file name.
 from dlite.options import Options
 from dlite.utils import instance_from_dict
 
 import dlite
-
-if TYPE_CHECKING:  # pragma: no cover
-    from typing import Generator, Optional
 
 
 class yaml(dlite.DLiteStorageBase):
@@ -17,11 +11,11 @@ class yaml(dlite.DLiteStorageBase):
 
     _pyyaml = pyyaml  # Keep a reference to pyyaml to have it during shutdown
 
-    def open(self, uri: str, options=None):
-        """Opens `uri`.
+    def open(self, location: str, options=None):
+        """Opens `location`.
 
         Arguments:
-            uri: A fully resolved URI to the PostgreSQL database.
+            location: Path to YAML file.
             options: Supported options:
             - `mode`: Mode for opening.  Valid values are:
                 - `a`: Append to existing file or create new file (default).
@@ -29,33 +23,34 @@ class yaml(dlite.DLiteStorageBase):
                 - `w`: Truncate existing file or create new file.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
-                  The default (`"auto"`) will try to infer it automatically.
+                If "auto" (default) the form will be inferred automatically.
         """
         self.options = Options(options, defaults="mode=a;soft7=true;single=auto")
-        self.mode = {"r": "r", "w": "w", "a": "r+", "append": "r+"}[self.options.mode]
-        self.readable = "r" in self.mode
-        self.writable = "r" != self.mode
+        self.readable = "r" in self.options.mode
+        self.writable = "r" != self.options.mode
         self.generic = True
-        self.uri = uri
+        self.location = location
         self.flushed = False  # whether buffered data has been written to file
         self._data = {}  # data buffer
-
-        if self.mode in ("r", "r+"):
-            with open(uri, self.mode) as handle:
-                data = pyyaml.safe_load(handle)
+        if self.options.mode in ("r", "a", "append"):
+            with open(location, "r") as f:
+                data = pyyaml.safe_load(f)
             if data:
                 self._data = data
+
+        self.single = (
+            "properties" in self._data
+            if self.options.single == "auto"
+            else dlite.asbool(self.options.single)
+        )
 
     def flush(self):
         """Flush cached data to storage."""
         if self.writable and not self.flushed:
-            mode = (
-                "w" if self.mode == "r+" and not os.path.exists(self.uri) else self.mode
-            )
-            with open(self.uri, mode) as handle:
-                self._pyyaml.dump(
+            with open(self.location, "w") as f:
+                self._pyyaml.safe_dump(
                     self._data,
-                    handle,
+                    f,
                     default_flow_style=False,
                     sort_keys=False,
                 )
@@ -71,12 +66,17 @@ class yaml(dlite.DLiteStorageBase):
         Returns:
             A DLite Instance corresponding to the given `id` (UUID).
         """
-        return instance_from_dict(
+        inst = instance_from_dict(
             self._data,
             id,
             single=self.options.single,
             check_storages=False,
         )
+        # Ensure metadata in single-entity form is always read-only
+        if inst.is_meta and self.single:
+            self.writable = False
+
+        return inst
 
     def save(self, inst: dlite.Instance):
         """Stores `inst` in current storage.
@@ -85,7 +85,10 @@ class yaml(dlite.DLiteStorageBase):
             inst: A DLite Instance to store in the storage.
 
         """
-        self._data[inst.uuid] = inst.asdict(soft7=dlite.asbool(self.options.soft7))
+        self._data[inst.uuid] = inst.asdict(
+            soft7=dlite.asbool(self.options.soft7),
+            uuid=self.single,
+        )
         self.flushed = False
 
     def delete(self, uuid):
@@ -116,15 +119,13 @@ class yaml(dlite.DLiteStorageBase):
             yield uuid
 
     @classmethod
-    def from_bytes(cls, buffer, id=None, single=None):
+    def from_bytes(cls, buffer, id=None):
         """Load instance with given `id` from `buffer`.
 
         Arguments:
             buffer: Bytes or bytearray object to load the instance from.
             id: ID of instance to load.  May be omitted if `buffer` only
                 holds one instance.
-            single: Whether to buffer is in single-entity form.  The default
-                is to infer it.
 
         Returns:
             New instance.
@@ -132,7 +133,6 @@ class yaml(dlite.DLiteStorageBase):
         return instance_from_dict(
             pyyaml.safe_load(buffer),
             id,
-            single=single,
             check_storages=False,
         )
 
@@ -148,7 +148,7 @@ class yaml(dlite.DLiteStorageBase):
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
         """
-        return pyyaml.dump(
+        return pyyaml.safe_dump(
             inst.asdict(soft7=soft7, uuid=with_uuid),
             default_flow_style=False,
             sort_keys=False,

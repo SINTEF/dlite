@@ -46,12 +46,12 @@ Hence, use [CommonMark] or possible [GitHub-flavored Markdown].
 For README files, keep the maximum line length at 79 characters for easy viewing in a 80 character wide terminal.
 
 The Markdown files in the `doc/` subdirectory are intended to be included in the [Sphinx]-generated [online documentation].
-We make use of the [MyST-Parser extension] to convert all markdown syntax to rich structured text (RST) prior to letting Sphinx generate the HTML (or other) documentation.
+We make use of the [MyST Markdown extension] to convert all markdown syntax to rich structured text (RST) prior to letting Sphinx generate the HTML (or other) documentation.
 
 
 Figures
 -------
-Please place figures in the `doc/figs/` directory.
+Please place figures in the `doc/_static/` directory.
 If you use [draw.io], it is recommended that you save the figure in svg format.
 Then it renders well in browsers and is easy to find and edit for collaborators.
 
@@ -70,7 +70,17 @@ For example
 
     ```
 
-This facilitates checking the examples by running
+This will show up nicely highlighted in the generated documentation:
+
+```python
+    # Here is a python example
+    >>> x = 1 + 1
+    >>> x
+    2
+
+```
+
+and will facilitate checking the examples by running
 
 ```shell
 python -m doctest <filename>
@@ -78,16 +88,20 @@ python -m doctest <filename>
 
 on your markdown file.
 
-It is recommended to indent your code with 4 spaces.
+It is recommended to indent your code examples with 4 spaces.
 That makes it easy to copy the correct doctest output into your example.
 For more info, see the guide for [documentation testing].
+
+Please note that examples from [Python sources](https://sintef.github.io/dlite/autoapi/dlite/mappings/index.html#dlite.mappings.match_factory) will show up with a small `>>>` button in the top right of the code listing box.
+If you click that button, it will toggle the prompt and output on or off, making it easy to copy/paste from examples.
+
 
 
 [Markdown]: https://en.wikipedia.org/wiki/Markdown
 [setext]: https://github.com/DavidAnson/markdownlint/blob/main/doc/md003.md
 [CommonMark]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [GitHub-flavored Markdown]: https://docs.github.com/en/get-started/writing-on-github
-[MyST Markdown extensions]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+[MyST Markdown extension]: https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
 [Sphinx]: https://www.sphinx-doc.org/
 [online documentation]: https://sintef.github.io/dlite/
 [draw.io]: https://app.diagrams.net/

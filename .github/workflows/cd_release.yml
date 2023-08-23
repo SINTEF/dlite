@@ -96,7 +96,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: 7,8,9,10
+            py_minors: 7,8,9,10,11
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
           # - os: ubuntu-20.04
           #   system_type: ["musllinux", "_1_1"]
@@ -114,7 +114,7 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: 7,8,9,10
+            py_minors: 7,8,9,10,11
 
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
           # # 64-bit (Intel) macOS
@@ -143,7 +143,7 @@ jobs:
 
     - name: Login to GitHub Container Registry
       if: startsWith(matrix.os, 'ubuntu')
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         registry: ${{ env.CONTAINER_REGISTRY }}
         username: ${{ github.actor }}
@@ -191,7 +191,7 @@ jobs:
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
     - name: Set up Python 3.9
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: "3.9"
 
@@ -235,13 +235,13 @@ jobs:
         ls -lah dist
 
     # - name: Publish package to Test PyPI
-    #   uses: pypa/gh-action-pypi-publish@v1.5.0
+    #   uses: pypa/gh-action-pypi-publish@v1.8.7
     #   with:
     #     user: __token__
     #     password: ${{ secrets.TEST_PYPI_TOKEN }}
 
     - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.5.0
+      uses: pypa/gh-action-pypi-publish@v1.8.7
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}

@@ -3,6 +3,6 @@ try:
 except ImportError:
     import sys
 
-    sys.exit(77)  # skip this test if pandas is not available
+    sys.exit(44)  # skip this test if pandas is not available
 
 import readcsv  # noqa: F401

@@ -4,6 +4,14 @@ import os
 
 import dlite
 
+try:
+    import pytest
+
+    HAVE_PYTEST = True
+except ModuleNotFoundError:
+    HAVE_PYTEST = False
+
+
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
 url = "json://" + thisdir + "/MyEntity.json"
@@ -32,7 +40,7 @@ print("--- testing json")
 myentity.save("json://myentity.json?mode=w")
 inst.save("json://inst.json?mode=w")
 del inst
-inst = dlite.Instance.from_url("json://inst.json#my-data")
+inst = dlite.Instance.from_url(f"json://{thisdir}/inst.json#my-data")
 
 
 # Test yaml
@@ -50,10 +58,10 @@ else:
     expected = """\
 DLite storage plugin for YAML.
 
-Opens `uri`.
+Opens `location`.
 
         Arguments:
-            uri: A fully resolved URI to the PostgreSQL database.
+            location: Path to YAML file.
             options: Supported options:
             - `mode`: Mode for opening.  Valid values are:
                 - `a`: Append to existing file or create new file (default).
@@ -61,7 +69,7 @@ Opens `uri`.
                 - `w`: Truncate existing file or create new file.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
-                  The default (`"auto"`) will try to infer it automatically.
+                If "auto" (default) the form will be inferred automatically.
 """
     s = dlite.Storage("yaml", "inst.yaml", options="mode=a")
     assert s.help().strip() == expected.strip()
@@ -90,4 +98,12 @@ except dlite.DLiteError:
 else:
     # del inst
     # FIXME: read from inst.ttl not db.xml
-    inst2 = dlite.Instance.from_url("rdf://db.xml#my-data")
+    inst3 = dlite.Instance.from_url("rdf://db.xml#my-data")
+
+
+# Tests for issue #587
+bytearr = inst.to_bytes("yaml")
+# print(bytes(bytearr).decode())
+if HAVE_PYTEST:
+    with pytest.raises(dlite.DLiteError):
+        inst.to_bytes("json")

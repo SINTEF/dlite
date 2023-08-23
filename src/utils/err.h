@@ -327,7 +327,7 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
 
 
 /**
- * Return a pointer to (thread local) state for this module
+ * Return a pointer to (thread local) state for this module.
  */
 void *err_get_state(void);
 
@@ -336,6 +336,11 @@ void *err_get_state(void);
  * If `state` is NULL, the state is initialised to default values.
  */
 void err_set_state(void *state);
+
+/**
+ * @brief Returns the error level of the last error.
+ */
+int err_getlevel(void);
 
 /**
  * @brief Returns the error value of the last error.
@@ -369,7 +374,7 @@ void err_clear(void);
  * @brief Set prefix to prepend to all errors in this application.
  * Typically this is the program name.
  *
- *  Returns the current prefix.
+ * Returns the current prefix.
  */
 const char *err_set_prefix(const char *prefix);
 
@@ -515,6 +520,42 @@ ErrHandler err_set_handler(ErrHandler handler);
  * @brief Returns the current error handler.
  */
 ErrHandler err_get_handler(void);
+
+/**
+ * @brief Prototype for function that converts error codes to names.
+ *
+ * It should return a static pointer to the name corresponding to
+ * error level `errlevel` and error code `eval`.  May return NULL, if
+ * the error code is unknown.
+ */
+typedef const char *(*ErrNameConv)(int eval);
+
+/**
+ * @brief Register a function that converts error code to name.
+ *
+ * Returns the current error name function.  By default it is NULL.
+ */
+ErrNameConv err_set_nameconv(ErrNameConv nameconv);
+
+/**
+ * @brief Returns the current error name converter.
+ */
+ErrNameConv err_get_nameconv(void);
+
+/**
+ * @brief Return const pointer to name corresponding to error code `eval`.
+ *
+ * Returns NULL if no error name converter has been registered or if the
+ * error code is unknown.
+ */
+const char *err_getname(int eval);
+
+/**
+ * @brief Return const pointer to name corresponding to error level `errlevel`.
+ *
+ * Returns NULL if `errlevel` does not correspond to a valid error level.
+ */
+const char *err_getlevelname(int errlevel);
 
 /** @} */
 

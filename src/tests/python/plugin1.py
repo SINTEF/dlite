@@ -8,7 +8,7 @@ import dlite
 # dlite.storage_plugin_path_append(path)
 
 
-class plugin1(DLiteMappingBase):
+class plugin1(dlite.DLiteMappingBase):
     name = "plugin1"
     output_uri = "http://onto-ns.com/meta/0.1/ent3"
     input_uris = ["http://onto-ns.com/meta/0.1/ent1"]
@@ -21,7 +21,7 @@ class plugin1(DLiteMappingBase):
         return inst3
 
 
-class plugin2(DLiteMappingBase):
+class plugin2(dlite.DLiteMappingBase):
     name = "plugin2"
     output_uri = "http://onto-ns.com/meta/0.1/ent1"
     input_uris = ["http://onto-ns.com/meta/0.1/ent3"]

@@ -1,7 +1,11 @@
 """Mapping example using a collection - without mapping functions."""
 from pathlib import Path
 
-from tripper import EMMO, Triplestore
+try:
+    from tripper import EMMO, Triplestore
+except ImportError:
+    import sys
+    sys.exit(44)  # Exit code 44 -> skip test because of missing dependencies
 
 import dlite
 

@@ -6,13 +6,13 @@ import pickle
 import numpy as np
 
 import dlite
-from dlite import Dimension, Instance, Property, Relation
+from dlite import Dimension, Instance, Property
 
 try:
     import pytest
 
     HAVE_PYTEST = True
-except ImportError:
+except ModuleNotFoundError:
     HAVE_PYTEST = False
 
 
@@ -156,7 +156,7 @@ try:
     entity = dlite.Instance.from_json(json_repr)
 except dlite.DLiteError as exc:
     assert str(exc) == (
-        "Error 1: metadata does not confirm to schema, please check "
+        "DLiteOtherError: metadata does not confirm to schema, please check "
         "dimensions, properties and/or relations: "
         "http://onto-ns.com/ex/0.1/test"
     )
@@ -212,6 +212,26 @@ e3 = Instance.create_metadata(
 assert inst.get_property_as_string("an-int-array") == "[1, 2, 3]"
 inst.set_property_from_string("an-int-array", "[-1, 5, 6]")
 assert inst.get_property_as_string("an-int-array") == "[-1, 5, 6]"
+
+
+# Test for issue #502
+newinst = e(
+    dimensions={"N": 2, "M": 3},
+    properties={
+        "a-float": 314,
+        "a-string-array": [["a", "b", "c"], ["d", "e", "f"]],
+    },
+    id="newinst",
+)
+assert newinst["a-float"] == 314
+assert newinst["a-string-array"].tolist() == [["a", "b", "c"], ["d", "e", "f"]]
+assert newinst["an-int"] == 0
+
+# Create a new reference
+assert newinst._refcount == 1
+newref = dlite.get_instance("newinst")
+assert newref.uuid == newinst.uuid
+assert newinst._refcount == 2
 
 
 # Test save

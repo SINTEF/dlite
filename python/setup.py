@@ -171,7 +171,7 @@ class CMakeBuildExt(build_ext):
 extra_requirements = [
     "fortran-language-server",
     "PyYAML",
-    "psycopg2-binary",
+    "psycopg2-binary==2.9.5",
     "pandas",
     "pymongo",
     "rdflib",
@@ -211,6 +211,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=requirements + extra_requirements,
@@ -218,17 +219,19 @@ setup(
     # See issue #222: https://github.com/SINTEF/dlite/issues/222
     # extras_require={"all": extra_requirements},
     packages=["dlite"],
+    scripts=[
+        str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),
+    ],
     package_data={
         "dlite": [
             dlite_compiled_ext,
             dlite_compiled_dll_suffix,
-            str(
-                Path(".")
-                / "share"
-                / "dlite"
-                / "storage-plugins"
-                / dlite_compiled_dll_suffix
-            ),
+            str(Path(".") / "share" / "dlite" / "storage-plugins" /
+                dlite_compiled_dll_suffix),
+            str(Path(".") / "bin" / "dlite-getuuid"),
+            str(Path(".") / "bin" / "dlite-codegen"),
+            str(Path(".") / "bin" / "dlite-env"),
+            str(Path(".") / "bin" / "patch-activate.sh"),
         ]
     },
     ext_modules=[

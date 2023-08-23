@@ -6,10 +6,14 @@ User Guide
    :caption: Contents
 
    concepts
+   type-system
    mappings
    collections
    transactions
    tools
    code_generation
+   storage_plugins
+   storage_plugins_mongodb-atlas
+   environment_variables
    features
    vocabulary

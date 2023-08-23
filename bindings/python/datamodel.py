@@ -2,8 +2,6 @@
 import ast
 import warnings
 
-from dlite.utils import instance_from_dict
-
 import dlite
 
 
@@ -60,32 +58,46 @@ class DataModel:
             raise KeyError(f'A dimension named "{name}" already exists')
         self.dimensions[name] = dlite.Dimension(name, description)
 
-    def add_property(self, name, type, dims=None, unit=None, description=None):
+    def add_property(
+        self, name, type, shape=None, unit=None, description=None, dims=None
+    ):
         """Add property to data model.
 
         Parameters:
             name: Property label.
             type: Property type.
-            dims: Shape of Property.  Default is scalar.
+            shape: Shape of Property.  Default is scalar.
             unit: Unit. Default is dimensionless.
             description: Human description.
+            dims: Deprecated alias for `shape`.
         """
+        if dims:
+            if not shape:
+                shape = dims
+            warnings.warn(
+                "Argument `dims` is deprecated. Use `shape` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         if name in self.properties:
             raise KeyError(f'A property named "{name}" already exists')
+
         self.properties[name] = dlite.Property(
             name=name,
             type=type,
-            dims=dims,
+            dims=shape,
             unit=unit,
             description=description,
         )
 
     def _get_dims_variables(self):
-        """Returns a set of all dimension names referred to in property dims."""
+        """Returns a set of all dimension names referred to in property shapes.
+        """
         names = set()
         for prop in self.properties.values():
-            if prop.dims is not None:
-                for dim in prop.dims:
+            if prop.shape is not None:
+                for dim in prop.shape:
                     tree = ast.parse(dim)
                     names.update(
                         node.id for node in ast.walk(tree) if isinstance(node, ast.Name)
@@ -99,7 +111,8 @@ class DataModel:
         return self._get_dims_variables().difference(self.dimensions)
 
     def get_unused_dimensions(self):
-        """Returns a set of dimensions not referred to in any property shapes."""
+        """Returns a set of dimensions not referred to in any property shapes.
+        """
         return set(self.dimensions).difference(self._get_dims_variables())
 
     def validate(self):
@@ -124,7 +137,7 @@ class DataModel:
         #
         # For now, lets assume that it is EntitySchema.
         if self.schema.uri != dlite.ENTITY_SCHEMA:
-            raise NotImplementedError(f"Currently only entity schema is supported")
+            raise NotImplementedError("Currently only entity schema is supported")
 
         # meta = self.schema(dims, id=self.uri)
         # meta.description = self.description

@@ -42,3 +42,6 @@ class Options(dict):
             return self[name]
         else:
             raise KeyError(name)
+
+    def __setattr__(self, name, value):
+        self[name] = value

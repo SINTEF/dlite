@@ -8,11 +8,24 @@
 #endif
 //#include "config-paths.h"
 
+/* Macro magic that expands a defined but empty variable to 1.
+ * `VAL` must be empty or a non-negative integer. */
+#define DO_ISEMPTY(VAL)  1 ## VAL
+#define ISEMPTY(VAL)     DO_ISEMPTY(VAL)
+
+
 /* dlite version */
 #define dlite_VERSION "@dlite_VERSION@"
 #define dlite_VERSION_MAJOR @dlite_VERSION_MAJOR@
 #define dlite_VERSION_MINOR @dlite_VERSION_MINOR@
 #define dlite_VERSION_PATCH @dlite_VERSION_PATCH@
+
+/* Require all version components to be defined */
+#if !defined(dlite_VERSION_MAJOR) || ISEMPTY(dlite_VERSION_MAJOR) == 1 || \
+    !defined(dlite_VERSION_MINOR) || ISEMPTY(dlite_VERSION_MINOR) == 1 || \
+    !defined(dlite_VERSION_PATCH) || ISEMPTY(dlite_VERSION_PATCH) == 1
+# error "All version components must be defined in main CMakeLists.txt"
+#endif
 
 #define DLITE_CONFIG_VARS  "@DLITE_CONFIG_VARS@"
 

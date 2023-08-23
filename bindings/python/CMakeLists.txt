@@ -39,6 +39,10 @@ endif()
 # ---------------------
 find_package(SWIG)
 include(UseSWIG)
+set(swig_flags "-Wall;-keyword;-DNPY_SIZE_T=${NPY_SIZE_T}")
+if(${SWIG_VERSION} VERSION_LESS 4.1)
+  list(APPEND swig_flags "-py3")
+endif()
 
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -53,7 +57,7 @@ include_directories(
 
 set_source_files_properties(dlite.i
   PROPERTIES
-    SWIG_FLAGS "-py3;-Wall;-keyword;-DNPY_SIZE_T=${NPY_SIZE_T}"
+    SWIG_FLAGS "${swig_flags}"
     SWIG_MODULE_NAME "dlite"
     )
 
@@ -112,6 +116,13 @@ if(WINDOWS OR MINGW)
   endforeach()
 endif()
 
+# Don't complain about unused parameters in SWIG-generated source
+include(CheckCCompilerFlag)
+check_c_compiler_flag("-Wno-unused-parameter" have_flag)
+if(have_flag)
+  set_property(TARGET dlitepy PROPERTY COMPILE_OPTIONS "-Wno-unused-parameter")
+endif()
+
 add_custom_command(
   TARGET dlitepy
   POST_BUILD
@@ -162,7 +173,8 @@ endforeach()
 #
 # Add the extension-libraries (*.dll, *.so) to the package directory
 # effectively producing a binary distribution ready to be run.
-# This can be picked up by a setup.py script with ""python setup.py install"" (or bdist_wheel)
+# This can be picked up by a setup.py script with ``python setup.py install``
+# (or bdist_wheel)
 #
 add_custom_command(
   TARGET dlitepy
@@ -215,14 +227,26 @@ install(
   DESTINATION ${Python3_MODULE_PATH}
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
-  )
-
+)
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
   DESTINATION share/dlite
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
+)
+if(DEFINED ENV{VIRTUAL_ENV})
+  find_program(BASH bash)
+  find_program(PATCH patch)
+  install(
+    CODE "execute_process(COMMAND ${BASH} ${dlite_SOURCE_DIR}/cmake/patch-activate.sh)"
   )
+  install(
+    PROGRAMS ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
+    TYPE BIN
+  )
+endif()
+
+add_subdirectory(scripts)
 
 
 #

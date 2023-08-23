@@ -473,7 +473,9 @@ class Doxy2SWIG:
         normal documentation.
         """
         if len(memberdef_nodes) == 1 or not self.with_overloaded_functions:
-            self.handle_typical_memberdefs_no_overload(signature, memberdef_nodes)
+            self.handle_typical_memberdefs_no_overload(
+                signature, memberdef_nodes
+            )
             return
 
         self.add_text(["\n", '%feature("docstring") ', signature, ' "', "\n"])
@@ -699,7 +701,9 @@ class Doxy2SWIG:
                         ):
                             constructor_nodes.append(n)
                 for n in constructor_nodes:
-                    self.add_line_with_subsequent_indent(self.get_function_signature(n))
+                    self.add_line_with_subsequent_indent(
+                        self.get_function_signature(n)
+                    )
 
             names = ("briefdescription", "detaileddescription")
             sub_dict = self.get_specific_nodes(node, names)
@@ -741,7 +745,6 @@ class Doxy2SWIG:
         Do these even exist???
         """
         prot = node.attributes["prot"].value
-        id = node.attributes["id"].value
         kind = node.attributes["kind"].value
         tmp = node.parentNode.parentNode.parentNode
         compdef = tmp.getElementsByTagName("compounddef")[0]

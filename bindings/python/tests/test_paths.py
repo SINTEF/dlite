@@ -23,6 +23,6 @@ for path in dlite.storage_path:
 
 print()
 print("Predefined paths:")
-for (k, v) in dlite.__dict__.items():
+for k, v in dlite.__dict__.items():
     if k.endswith("path"):
         print(f"dlite.{k}='{v}'")

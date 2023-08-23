@@ -57,7 +57,8 @@ extensions = [
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
     "sphinxcontrib.plantuml",  # PlantUml
-    "sphinx_copybutton",  # Copy button for codeblocks
+    "sphinx_toggleprompt",  # Add button for show/hide example prompts
+    #"sphinx_copybutton",  # Copy button for codeblocks
     "sphinx_design",  # Create panels in a grid layout or as drop-downs and more
 ]
 
@@ -86,7 +87,6 @@ autoapi_add_toctree_entry = True  # Toggle the most top-level index file
 autoapi_options = [
     "members",
     "undoc-members",
-    "private-members",
     "show-inheritance",
     "show-module-summary",
     "special-members",
@@ -158,8 +158,6 @@ def autoapi_prepare_jinja_env(jinja_env: "Environment") -> None:
 
     # Remove plugin path, removes the initial part of the module name if it is equal to
     # any of the folder names under `dlite/share/dlite`.
-    jinja_env.filters["remove_plugin_path"] = (
-        lambda name: ".".join(name.split(".")[1:])
-        if name.split(".")[0] in dlite_share_plugins
-        else name
-    )
+    jinja_env.filters["remove_plugin_path"] = lambda name: ".".join(
+        name.split(".")[1:]
+    ) if name.split(".")[0] in dlite_share_plugins else name

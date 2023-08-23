@@ -133,15 +133,32 @@ A `dlite.DLiteStorageBase` subclass may define the following methods:
 
   This method is called when a storage is closed.
 
+* **flush(self)**: optional
+
+  Flush cached data to storage. Called by the flush() of the storage.
+
 * **load(self, id=None)**: optional
 
   Loads an instance identified by `id` from storage and returns it.
+  Called by the load() method of the storage or by dlite.Instance.from_storage().
+
+* **from_bytes(self, buffer, id=None)**: optional
+
+  Load instance with given `id` from `buffer`.
+  Plugin developers may allow omitting `id` if `buffer` only holds one instance.
 
 * **save(self, inst)**: optional
 
   Saves instance `inst` to storage.
+  Called by the save() method of the storage or instance.
 
-  If this method is not defined, the storage plugin will not support saving data.
+* **to_bytes(self, inst)**: optional
+
+  Returns instance `inst` as a bytes (or bytearray) object.
+
+* **delete(self, uuid)**: optional
+
+  Delete instance with given `uuid` from storage.
 
 * **query(self, pattern=None)**: optional
 
@@ -172,10 +189,10 @@ This script first appends the `plugins/` sub-directory to the `dlite.python_stor
 `dlite.python_storage_plugin_path` is a special path object, with a list-like Python interface.
 It is instantiated from the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment variable.
 
-We can now load a TempProfile instance from `dataset.txt` with
+We can now load a TempProfile instance from `dataset.txt` with [^footnote]:
 
 ```python
->>> inst = dlite.Instance.from_location("tempprofile", "dataset.txt", "mode=r")
+>>> inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt", options="mode=r", id="ex:dataset")
 >>> print(inst)
 {
   "uuid": "e3f36e98-3285-5fd0-b129-4635ac15ccdb",
@@ -219,6 +236,10 @@ time  temperature
   20           80
   30           85
 ```
+
+
+
+[^footnote]: The `id` argument of `dlite.Instance.from_location()` is not strictly needed in this case, since our storage only contains one instance. But in general it is good practice to provide it.
 
 
 [main.py]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin/main.py

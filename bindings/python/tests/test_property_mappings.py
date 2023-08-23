@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import importlib.util
 import sys
 from pathlib import Path
 
@@ -7,10 +6,8 @@ import dlite.mappings as dm
 import numpy as np
 from tripper import Triplestore
 
-import dlite
-
 try:
-    import pint
+    from tripper import Triplestore
 except ImportError as exc:
     import sys
 
@@ -18,8 +15,6 @@ except ImportError as exc:
     sys.exit(44)  # exit code marking the test to be skipped
 
 import dlite.mappings as dm
-
-import dlite
 
 # Configure paths
 thisdir = Path(__file__).parent.absolute()

@@ -9,6 +9,7 @@ set(tests
   test_misc
   test_python_storage
   test_storage
+  test_storage_plugins
   test_paths
   test_utils
   test_global_dlite_state
@@ -17,9 +18,11 @@ set(tests
   test_transaction
   test_mapping
   test_rdf
-  test_postgresql_write
-  test_postgresql_read
-  )
+  test_postgresql1_write
+  test_postgresql2_read
+  test_ref_type
+  test_pydantic
+)
 
 foreach(test ${tests})
   set(name ${test}-py)
@@ -45,5 +48,5 @@ foreach(test ${tests})
 endforeach()
 
 # Additional properties
-set_property(TEST test_postgresql_read-py PROPERTY
-  DEPENDS test_postgresql_write-py)
+set_property(TEST test_postgresql2_read-py PROPERTY
+  DEPENDS test_postgresql1_write-py)

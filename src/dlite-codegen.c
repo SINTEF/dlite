@@ -7,6 +7,7 @@
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
 
+#include "config.h"
 #include "config-paths.h"
 
 #include "dlite.h"

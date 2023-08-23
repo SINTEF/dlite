@@ -1,5 +1,6 @@
 import fnmatch
 import os
+import re
 import sys
 import warnings
 
@@ -197,7 +198,7 @@ class postgresql(dlite.DLiteStorageBase):
         """Creates the uuidtable - a table mapping all uuid's to their
         metadata uri."""
         q = sql.SQL(
-            "CREATE TABLE uuidtable (" "uuid char(36) PRIMARY KEY, " "meta varchar" ");"
+            "CREATE TABLE uuidtable (uuid char(36) PRIMARY KEY, meta varchar);"
         )
         self.cur.execute(q)
         self.conn.commit()
@@ -205,14 +206,24 @@ class postgresql(dlite.DLiteStorageBase):
     def queue(self, pattern):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
+
         if pattern:
-            # Convert glob patter to PostgreSQL regular expression
-            regex = "^{}".format(fnmatch.translate(globex).replace("\\Z(?ms)", "$"))
+            # Convert glob pattern to Perl-compatible regular expression (PCRE)
+            pcre = fnmatch.translate(pattern)
+
+            # Remove any flags like `(?ms)` from the PCRE and convert
+            # it to an extended regular expression (ERE) understood by
+            # PostgreSQL
+            match = re.match(r"\(\?[ms]*:(.*)(\(\?[ms]*\))?", pcre)
+            ere = "(?:" + match.groups()[0] if match else pcre
+
+            # Use the ERE for pattern matching in the PostgreSQL query
             q = sql.SQL("SELECT uuid from uuidtable WHERE uuid ~ %s;")
-            self.cur.execute(q, (regex,))
+            self.cur.execute(q, (ere,))
         else:
             q = sql.SQL("SELECT uuid from uuidtable;")
             self.cur.execute(q)
+
         tokens = self.cur.fetchone()
         while tokens:
             (uuid,) = tokens

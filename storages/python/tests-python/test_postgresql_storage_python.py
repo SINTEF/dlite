@@ -5,12 +5,14 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-import psycopg2
+try:
+    import psycopg2
+except ImportError:
+    sys.exit(44)
+
 from dlite.utils import instance_from_dict
 from psycopg2 import sql
 from run_python_storage_tests import print_test_exception
-
-import dlite
 
 if __name__ in ("__main__", "<run_path>"):
     thisfile = Path(__file__)
@@ -18,7 +20,7 @@ if __name__ in ("__main__", "<run_path>"):
     thisdir = thisfile.absolute().parent
     input_path = thisdir / "input"
     dlite_path = thisdir.parent.parent.parent
-    plugin = thisdir.parent / "python-storage-plugins/postgresql.py"
+    plugin = thisdir.parent / "python-storage-plugins" / "postgresql.py"
 
     try:
         with open(plugin, "r") as orig:
