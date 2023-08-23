@@ -20,7 +20,6 @@ d9910bde-6028-524c-9e0f-e8f0db734bc8:
     type: string3
     description: A fix string.
   - name: mystring
-    name: mystring
     type: string
     description: A string pointer.
   - name: myshort

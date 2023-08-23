@@ -3,7 +3,7 @@
   "description": "Calculation results.",
   "dimensions": {
     "natoms": "Number of atoms.",
-    "ncoords": "Number of coordinates. Always 3.",
+    "ncoords": "Number of coordinates. Always 3."
   },
   "properties": {
     "potential_energy": {

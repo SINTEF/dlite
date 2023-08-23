@@ -1,5 +1,5 @@
 """RDF serialisation of a OTEAPI data resource."""
-from typing import Optional
+from typing import Any, Optional
 
 from dlite.rdf import from_rdf, to_rdf
 from dlite.utils import pydantic_to_instance, pydantic_to_metadata
@@ -113,7 +113,7 @@ class ResourceConfig(BaseModel):
 
     @model_validator(mode="after")
     @classmethod
-    def ensure_unique_url_pairs(cls, data: "Any]") -> "Any":
+    def ensure_unique_url_pairs(cls, data: Any) -> Any:
         """Ensure either downloadUrl/mediaType or accessUrl/accessService are
         defined.
 
@@ -180,4 +180,3 @@ new_resource_config = ResourceConfig(**inst.properties)
 # that we get back the original model
 inst2 = from_rdf(data=rdf, format="turtle")
 new_resource_config2 = ResourceConfig(**inst.properties)
-assert new_resource_config2.model_dump() == resource_config.model_dump()

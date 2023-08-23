@@ -1,6 +1,6 @@
 xx{
   "url": "http://onto-ns.com/meta/0.1/InvalidJson",
   "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-  "dimensions": {}
+  "dimensions": {},
   "properties": {}
 }

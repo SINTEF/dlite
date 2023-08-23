@@ -1,7 +1,6 @@
 """setup.py file for installing scripts."""
 import re
 import sys
-from glob import glob
 
 from setuptools import setup
 

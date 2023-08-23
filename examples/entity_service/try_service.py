@@ -9,7 +9,7 @@ import requests
 
 import dlite
 
-r = requests.get("http://onto-ns.com/meta/0.1/Molecule")
+r = requests.get("http://onto-ns.com/meta/0.1/Molecule", timeout=10)
 content = json.loads(r.content)
 print("*** PAYLOAD:", content)
 

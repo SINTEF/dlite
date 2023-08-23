@@ -102,8 +102,10 @@ class postgresql(dlite.DLiteStorageBase):
         tokens = self.cur.fetchone()
         uuid_, uri, metaid_, dims = tokens[:4]
         values = tokens[4:]
-        assert uuid_ == uuid
-        assert metaid_ == metaid
+        if uuid_ != uuid:
+            raise RuntimeError("uuid mismatch: %s != %s" % (uuid_, uuid))
+        if metaid_ != metaid:
+            raise RuntimeError("metaid mismatch: %s != %s" % (metaid_, metaid))
 
         # Make sure we have metadata object correcponding to metaid
         try:

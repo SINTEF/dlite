@@ -60,9 +60,7 @@ class mongodb(dlite.DLiteStorageBase):
 
         user = quote_plus(parsed_options.user) if parsed_options.user else None
         password = (
-            quote_plus(parsed_options.password)
-            if parsed_options.password
-            else None
+            quote_plus(parsed_options.password) if parsed_options.password else None
         )
 
         # Determine the schema based on the presence of "localhost" or "127.0.0.1" in the URI
@@ -121,7 +119,7 @@ class mongodb(dlite.DLiteStorageBase):
         document = self.collection.find_one({"uuid": uuid})
         if not document:
             raise IOError(
-                f"No instance with {uuid=} in MongoDB database "
+                f"No instance with {uuid} in MongoDB database "
                 f'"{self.collection.database.name}" and collection '
                 f'"{self.collection.name}"'
             )

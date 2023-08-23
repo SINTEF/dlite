@@ -22,4 +22,4 @@ Scripts
 
 
 
-[dlite-entities-service]: https://github.com/CasperWA/dlite-entities-service
+[dlite-entities-service]: https://github.com/SINTEF/dlite-entities-service

@@ -2,6 +2,6 @@
   "name": "Missing version",
   "namespace": "http://onto-ns.com/meta",
   "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
-  "dimensions": {}
+  "dimensions": {},
   "properties": {}
 }

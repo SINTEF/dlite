@@ -26,7 +26,7 @@ class http(dlite.DLiteStorageBase):
         """
         self.options = Options("single=auto")
 
-        r = requests.get(location)
+        r = requests.get(location, timeout=10)
         self.content = json.loads(r.content)
         if "detail" in self.content:
             raise dlite.DLiteStorageOpenError(content["detail"])

@@ -9,7 +9,7 @@ dlite.storage_path.append(entitydir)
 
 # URL for free MinIO playground
 access_key = "Q3AM3UQ867SPQQA43P2F"
-secret_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+secret_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"  # nosec
 url = f"minio://play.min.io?access_key={access_key};secret_key={secret_key}"
 
 
