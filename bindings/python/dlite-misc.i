@@ -132,8 +132,8 @@ have occured since the last call to dlite.errclr().
 int dlite_errval(void);
 
 %feature("docstring", "\
-Returns the error message of the last error.  None is returned if no errors
-have occured since the last call to dlite.errclr().
+Returns the error message of the last error.  An empty string is returned if
+no errors have occured since the last call to dlite.errclr().
 ") dlite_errmsg;
 const char *dlite_errmsg(void);
 
