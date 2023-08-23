@@ -4,10 +4,11 @@ This simple plugin was initially added to support the entity service (see
 https://github.com/SINTEF/dlite-entities-service), but may have other uses.
 """
 import json
+
 import requests
+from dlite.options import Options
 
 import dlite
-from dlite.options import Options
 
 
 class http(dlite.DLiteStorageBase):

@@ -197,9 +197,7 @@ class postgresql(dlite.DLiteStorageBase):
     def uuidtable_create(self):
         """Creates the uuidtable - a table mapping all uuid's to their
         metadata uri."""
-        q = sql.SQL(
-            "CREATE TABLE uuidtable (uuid char(36) PRIMARY KEY, meta varchar);"
-        )
+        q = sql.SQL("CREATE TABLE uuidtable (uuid char(36) PRIMARY KEY, meta varchar);")
         self.cur.execute(q)
         self.conn.commit()
 

@@ -5,7 +5,6 @@ import os
 
 import dlite
 
-
 user = os.environ["USER"]
 options = f"database=dlite;collection=entities;user={user};password={user}"
 ns = "http://onto-ns.com/meta"

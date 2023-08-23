@@ -1,10 +1,10 @@
 """DLite storage plugin for MinIO written in Python."""
 import io
 
+from dlite.options import Options
 from minio import Minio
 
 import dlite
-from dlite.options import Options
 
 
 class minio(dlite.DLiteStorageBase):
@@ -105,9 +105,7 @@ class minio(dlite.DLiteStorageBase):
             If no `pattern` is given, all UUIDs are yielded from within the
             storage.
         """
-        objects = self.client.list_objects(
-            self.bucket_name, include_user_meta=True
-        )
+        objects = self.client.list_objects(self.bucket_name, include_user_meta=True)
         for obj in objects:
             if pattern:
                 print(obj.object_name, obj.metadata)

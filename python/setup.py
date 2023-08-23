@@ -226,8 +226,13 @@ setup(
         "dlite": [
             dlite_compiled_ext,
             dlite_compiled_dll_suffix,
-            str(Path(".") / "share" / "dlite" / "storage-plugins" /
-                dlite_compiled_dll_suffix),
+            str(
+                Path(".")
+                / "share"
+                / "dlite"
+                / "storage-plugins"
+                / dlite_compiled_dll_suffix
+            ),
             str(Path(".") / "bin" / "dlite-getuuid"),
             str(Path(".") / "bin" / "dlite-codegen"),
             str(Path(".") / "bin" / "dlite-env"),

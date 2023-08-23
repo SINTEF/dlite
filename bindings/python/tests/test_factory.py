@@ -4,7 +4,6 @@ from pathlib import Path
 
 import dlite
 
-
 thisdir = Path(__file__).resolve().parent
 rootdir = thisdir.parent.parent.parent
 

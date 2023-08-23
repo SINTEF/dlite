@@ -2,7 +2,6 @@ from pathlib import Path
 
 import dlite
 
-
 thisdir = Path(__file__).resolve().parent
 
 dlite.storage_path.append(thisdir / "test_ref_type.json")

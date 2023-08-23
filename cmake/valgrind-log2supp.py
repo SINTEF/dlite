@@ -101,7 +101,6 @@ def parse_input(args):
                 sec.append("   ...")
 
         elif re.match(r"\s*}", line):
-
             # skip final "obj:" or "..." matches
             m = len(sec)
             for s in sec[::-1]:

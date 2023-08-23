@@ -1,6 +1,5 @@
 """Script to test the 'redis' DLite plugin from Python."""
 import sys
-
 from pathlib import Path
 
 import dlite
@@ -80,7 +79,10 @@ with dlite.Storage("minio", "play.min.io", options=options) as s:
 
 del newinst2
 inst = dlite.Instance.from_location(
-    "minio", "play.min.io", options=options, id=uuid2,
+    "minio",
+    "play.min.io",
+    options=options,
+    id=uuid2,
 )
 assert inst.asdict() == save2
 

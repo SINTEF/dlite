@@ -4,11 +4,11 @@ import os
 from pathlib import Path
 
 from dlite.utils import (
-    instance_from_dict,
-    to_metadata,
-    infer_dimensions,
     HAVE_DATACLASSES,
     HAVE_PYDANTIC,
+    infer_dimensions,
+    instance_from_dict,
+    to_metadata,
 )
 
 import dlite

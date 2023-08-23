@@ -298,9 +298,7 @@ def pydantic_to_property(
             )
         typedict = typedicts[0]
         if "type" not in typedict:
-            raise dlite.DliteValueError(
-                "missing type in field 'anyOf' of `propdict`"
-            )
+            raise dlite.DliteValueError("missing type in field 'anyOf' of `propdict`")
         ptype = typedict["type"]
     else:
         ptype = "ref"
@@ -309,9 +307,7 @@ def pydantic_to_property(
     descr = propdict.get("description")
 
     if ptype in simple_types:
-        return dlite.Property(
-            name, simple_types[ptype], unit=unit, description=descr
-        )
+        return dlite.Property(name, simple_types[ptype], unit=unit, description=descr)
 
     if ptype == "array":
         if "type" in propdict:
@@ -337,9 +333,7 @@ def pydantic_to_property(
     if ptype == "ref":
         refname = propdict["$ref"].rsplit("/", 1)[-1]
         ref = f"{namespace}/{version}/{refname}"
-        prop = dlite.Property(
-            name, "ref", ref=ref, unit=unit, description=descr
-        )
+        prop = dlite.Property(name, "ref", ref=ref, unit=unit, description=descr)
         return prop
 
     raise ValueError(f"unsupported pydantic type: {ptype}")

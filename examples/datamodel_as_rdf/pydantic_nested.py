@@ -1,11 +1,11 @@
 """RDF serialisation of instance of nested Pydantic data model."""
 from typing import List, Optional
 
+from dlite.rdf import to_rdf
+from dlite.utils import pydantic_to_instance, pydantic_to_metadata
 from pydantic import BaseModel, Field
 
 import dlite
-from dlite.rdf import to_rdf
-from dlite.utils import pydantic_to_instance, pydantic_to_metadata
 
 
 # Some toy nested Pydantic data models
@@ -16,7 +16,7 @@ class Foo(BaseModel):
 
 class Bar(BaseModel):
     apple: str = Field(..., description="An apple")
-    banana: str = Field('European banana', description="A banana")
+    banana: str = Field("European banana", description="A banana")
 
 
 class Spam(BaseModel):
@@ -25,7 +25,7 @@ class Spam(BaseModel):
 
 
 # Create an instance of Spam that we want to serialise as RDF
-m = Spam(foo={'count': 4}, bars=[{'apple': 'x1'}, {'apple': 'x2'}])
+m = Spam(foo={"count": 4}, bars=[{"apple": "x1"}, {"apple": "x2"}])
 
 # Create DLite instance (data models must be created first)
 MetaFoo = pydantic_to_metadata(Foo)

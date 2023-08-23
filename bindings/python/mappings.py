@@ -268,9 +268,7 @@ class MappingStep:
         """
         inputs, _ = self.get_inputs(routeno)
         return {
-            key: value.output_iri
-            if isinstance(value, MappingStep)
-            else value.iri
+            key: value.output_iri if isinstance(value, MappingStep) else value.iri
             for key, value in inputs.items()
         }
 
@@ -385,10 +383,7 @@ class MappingStep:
         res = []
         ind = " " * indent
         res.append(ind + f"{name if name else 'Step'}:")
-        res.append(
-            ind
-            + f"  steptype: {self.steptype.name if self.steptype else None}"
-        )
+        res.append(ind + f"  steptype: {self.steptype.name if self.steptype else None}")
         res.append(ind + f"  output_iri: {self.output_iri}")
         res.append(ind + f"  output_unit: {self.output_unit}")
         res.append(ind + f"  cost: {self.cost}")

@@ -2,7 +2,6 @@ from pathlib import Path
 
 import dlite
 
-
 # Add existing entities to storage path
 thisdir = Path(__file__).resolve().parent
 entitydir = thisdir / ".." / "entities"

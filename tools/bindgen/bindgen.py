@@ -362,7 +362,6 @@ class Headers(object):
 
 
 if __name__ == "__main__":
-
     dlite = Headers()
     dlite.parse("../../src/dlite-entity.h")
     dlite.parse("../../src/dlite-storage.h")

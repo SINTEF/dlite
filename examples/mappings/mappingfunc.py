@@ -70,6 +70,7 @@ ts.add_mapsTo(DON.Formula, MOL.formula)
 # 3. Add mapping functions -- ontologist
 # --------------------------------------
 
+
 # TODO: make these globally available as an installable package
 def formula(symbols):
     """Convert a list of atomic symbols to a chemical formula."""

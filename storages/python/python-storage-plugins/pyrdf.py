@@ -3,12 +3,10 @@ from typing import TYPE_CHECKING
 
 import rdflib
 from dlite.options import Options
-from dlite.rdf import DM, PUBLIC_ID, from_graph, to_graph
+from dlite.rdf import DM, PUBLIC_ID, from_graph, from_rdf, to_graph, to_rdf
 from rdflib.util import guess_format
 
 import dlite
-from dlite.options import Options
-from dlite.rdf import DM, PUBLIC_ID, from_graph, from_rdf, to_graph, to_rdf
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Generator, Optional
@@ -48,9 +46,7 @@ class pyrdf(dlite.DLiteStorageBase):
         self.writable = "r" not in self.options.mode
         self.location = location
         self.format = (
-            self.options.format
-            if "format" in self.options
-            else guess_format(location)
+            self.options.format if "format" in self.options else guess_format(location)
         )
         self.graph = rdflib.Graph()
         if self.options.mode in "ra":

@@ -4,7 +4,6 @@ from pathlib import Path
 
 import dlite
 
-
 user = os.environ["USER"]
 options = f"database=dlite;collection=entities;user={user};password={user}"
 thisdir = Path(__file__).resolve().parent
@@ -13,8 +12,10 @@ thisdir = Path(__file__).resolve().parent
 try:
     with dlite.silent:
         Energy = dlite.Instance.from_location(
-            "mongodb", "localhost:27017", options=f"{options};mode=r",
-            id="http://onto-ns.com/meta/0.1/Energy"
+            "mongodb",
+            "localhost:27017",
+            options=f"{options};mode=r",
+            id="http://onto-ns.com/meta/0.1/Energy",
         )
 except dlite.DLiteError:
     pass

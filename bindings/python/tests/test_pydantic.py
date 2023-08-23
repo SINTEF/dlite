@@ -1,8 +1,9 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
+from dlite.utils import pydantic_to_instance, pydantic_to_metadata
+
 import dlite
-from dlite.utils import pydantic_to_metadata, pydantic_to_instance
 
 # Skip test if pydantic isn't installed
 try:
@@ -16,9 +17,7 @@ except ImportError:
 class TransformationStatus(BaseModel):
     """Return from transformation status."""
 
-    id: str = Field(
-        ..., description="ID for the given transformation process."
-    )
+    id: str = Field(..., description="ID for the given transformation process.")
     status: Optional[str] = Field(
         None, description="Status for the transformation process."
     )

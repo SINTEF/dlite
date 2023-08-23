@@ -1,6 +1,5 @@
 import dlite
 
-
 # Storage plugins can be loaded
 dlite.Storage.load_plugins()
 

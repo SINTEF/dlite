@@ -1,11 +1,12 @@
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 try:
     import minio  # noqa: F401
 except ImportError:
     import sys
+
     sys.exit(44)  # skip this test if minio is not available
 
 

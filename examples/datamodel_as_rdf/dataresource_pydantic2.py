@@ -1,15 +1,14 @@
 """RDF serialisation of a OTEAPI data resource."""
 from typing import Optional
 
-from typing_extensions import Annotated
-
-from pydantic import AnyUrl, BaseModel, Field, UrlConstraints, model_validator
-from pydantic import __version__ as pydantic_version
-
-import dlite
 from dlite.rdf import from_rdf, to_rdf
 from dlite.utils import pydantic_to_instance, pydantic_to_metadata
+from pydantic import AnyUrl, BaseModel, Field, UrlConstraints
+from pydantic import __version__ as pydantic_version
+from pydantic import model_validator
+from typing_extensions import Annotated
 
+import dlite
 
 # Require Pydantic v2
 if int(pydantic_version.split(".")[0]) != 2:
@@ -89,8 +88,7 @@ class ResourceConfig(BaseModel):
         Field(
             None,
             description=(
-                "A legal document under which the distribution is made "
-                "available."
+                "A legal document under which the distribution is made " "available."
             ),
         ),
     ]
@@ -99,8 +97,7 @@ class ResourceConfig(BaseModel):
         Field(
             None,
             description=(
-                "A rights statement that concerns how the distribution is "
-                "accessed."
+                "A rights statement that concerns how the distribution is " "accessed."
             ),
         ),
     ]

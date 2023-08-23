@@ -1,11 +1,11 @@
-import sys
 import re
 import socket
+import sys
 from pathlib import Path
 
-import dlite
 from check_import import check_import
 
+import dlite
 
 # Paths
 thisdir = Path(__file__).resolve().parent
@@ -66,6 +66,4 @@ inst = dlite.Instance.from_location(
 
 
 # Save to postgresql DB
-inst.save(
-    f"postgresql://{host}?user={user};database={database};password={password}"
-)
+inst.save(f"postgresql://{host}?user={user};database={database};password={password}")

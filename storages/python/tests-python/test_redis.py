@@ -1,8 +1,7 @@
 """Script to test the 'redis' DLite plugin from Python."""
 import sys
-from time import sleep
-
 from pathlib import Path
+from time import sleep
 
 import dlite
 
@@ -84,5 +83,8 @@ else:
 
     del newinst2
     inst2 = dlite.Instance.from_location(
-        "redis", "localhost", options, id=save2["uuid"],
+        "redis",
+        "localhost",
+        options,
+        id=save2["uuid"],
     )

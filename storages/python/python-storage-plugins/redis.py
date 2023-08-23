@@ -1,8 +1,8 @@
 """DLite storage plugin for Redis written in Python."""
+from dlite.options import Options
 from redis import Redis
 
 import dlite
-from dlite.options import Options
 
 
 class redis(dlite.DLiteStorageBase):
@@ -33,9 +33,7 @@ class redis(dlite.DLiteStorageBase):
               transparently encrypt all instances before sending them to Redis.
               Generate the key with `crystallography.fernet.generate_key()`.
         """
-        opts = Options(
-            options, defaults="port=6379;socket_keepalive=true;db=0"
-        )
+        opts = Options(options, defaults="port=6379;socket_keepalive=true;db=0")
 
         # Pop out options passed to redis.set()
         self.setopts = {

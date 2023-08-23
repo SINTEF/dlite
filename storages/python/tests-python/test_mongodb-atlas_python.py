@@ -1,13 +1,16 @@
-import sys
 import os
+import sys
 from pathlib import Path
+
 import dlite
 
 # Get the current file path
 current_file = Path(__file__).resolve()
 
 # Define the credentials file path in the root directory
-credentials_file = current_file.parent.parent.parent.parent / "mongodb-atlas_credentials.txt"
+credentials_file = (
+    current_file.parent.parent.parent.parent / "mongodb-atlas_credentials.txt"
+)
 
 
 # If the credentials file exists, load user and password from the file
@@ -39,14 +42,13 @@ inputdir = Path(inputdir)
 
 # Load existing test data
 meta = dlite.Instance.from_location("json", inputdir / "test_meta.json")
-inst1 = dlite.Instance.from_location("json", inputdir / "test_data.json",
-                                     id="52522ba5-6bfe-4a64-992d-e9ec4080fbac")
-inst2 = dlite.Instance.from_location("json", inputdir / "test_data.json",
-                                     id="2f8ba28c-add6-5718-a03c-ea46961d6ca7")
+inst1 = dlite.Instance.from_location(
+    "json", inputdir / "test_data.json", id="52522ba5-6bfe-4a64-992d-e9ec4080fbac"
+)
+inst2 = dlite.Instance.from_location(
+    "json", inputdir / "test_data.json", id="2f8ba28c-add6-5718-a03c-ea46961d6ca7"
+)
 
 # Create a storage instance and save test data
-storage = dlite.Storage(
-    'mongodb', uri,
-    options=f'user={user};password={password}'
-)
+storage = dlite.Storage("mongodb", uri, options=f"user={user};password={password}")
 storage.save(inst1)

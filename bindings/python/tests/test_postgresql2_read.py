@@ -1,13 +1,13 @@
 """This test must be run after test_postgresql_write
 """
-import sys
 import re
+import sys
 from pathlib import Path
 
-import dlite
 from check_import import check_import
 from test_postgresql1_write import parse_pgconf, ping_server
 
+import dlite
 
 # Paths
 thisdir = Path(__file__).resolve().parent

@@ -1,6 +1,5 @@
 import dlite
 
-
 # Add free MinIO playground to storage path
 access_key = "Q3AM3UQ867SPQQA43P2F"
 secret_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"

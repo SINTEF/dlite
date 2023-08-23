@@ -1,13 +1,13 @@
 """RDF serialisation of a OTEAPI data resource."""
 from typing import Optional
 
-from pydantic import AnyUrl, BaseModel, Field, root_validator
-from pydantic import __version__ as pydantic_version
-
-import dlite
 from dlite.rdf import from_rdf, to_rdf
 from dlite.utils import pydantic_to_instance, pydantic_to_metadata
+from pydantic import AnyUrl, BaseModel, Field
+from pydantic import __version__ as pydantic_version
+from pydantic import root_validator
 
+import dlite
 
 # Require Pydantic v1
 if int(pydantic_version.split(".")[0]) != 1:
@@ -17,6 +17,7 @@ if int(pydantic_version.split(".")[0]) != 1:
 
 class HostlessAnyUrl(AnyUrl):
     """AnyUrl, but allow not having a host."""
+
     host_required = False
 
 
@@ -87,9 +88,7 @@ class ResourceConfig(BaseModel):
     )
     publisher: Optional[str] = Field(
         None,
-        description=(
-            "The entity responsible for making the resource/item available."
-        ),
+        description=("The entity responsible for making the resource/item available."),
     )
 
     @root_validator(skip_on_failure=True)

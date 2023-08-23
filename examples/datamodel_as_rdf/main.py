@@ -1,7 +1,6 @@
 """Main script running all tests in this repo."""
 import pydantic
 
-
 pydantic_major = int(pydantic.__version__.split(".")[0])
 
 # Run examples

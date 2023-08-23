@@ -92,8 +92,7 @@ class DataModel:
         )
 
     def _get_dims_variables(self):
-        """Returns a set of all dimension names referred to in property shapes.
-        """
+        """Returns a set of all dimension names referred to in property shapes."""
         names = set()
         for prop in self.properties.values():
             if prop.shape is not None:
@@ -111,8 +110,7 @@ class DataModel:
         return self._get_dims_variables().difference(self.dimensions)
 
     def get_unused_dimensions(self):
-        """Returns a set of dimensions not referred to in any property shapes.
-        """
+        """Returns a set of dimensions not referred to in any property shapes."""
         return set(self.dimensions).difference(self._get_dims_variables())
 
     def validate(self):

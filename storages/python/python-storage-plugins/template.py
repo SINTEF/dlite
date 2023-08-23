@@ -1,7 +1,8 @@
 """DLite storage plugin for creating a file based on a template.
 """
-import dlite
 from dlite.options import Options
+
+import dlite
 
 
 class template(dlite.DLiteStorageBase):

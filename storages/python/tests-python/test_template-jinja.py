@@ -17,5 +17,8 @@ dlite.storage_path.append(indir / "*.json")
 
 
 inst = dlite.get_instance("my_test_instance_1")
-inst.save("template", "test_template-jinja.out",
-          options=f"template={indir}/template-jinja.txt;engine=jinja")
+inst.save(
+    "template",
+    "test_template-jinja.out",
+    options=f"template={indir}/template-jinja.txt;engine=jinja",
+)

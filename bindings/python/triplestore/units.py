@@ -171,7 +171,6 @@ def pint_registry_lines_from_qudt():
 
     # Read info from all units.
     for s, p, o in ts.triples([None, QUDT.hasDimensionVector, None]):
-
         # Check if this unit has been replaced; then skip it.
         replaced_by = next(ts.objects(subject=s, predicate=DCTERMS.isReplacedBy), None)
         if replaced_by is not None:
@@ -251,7 +250,6 @@ def pint_registry_lines_from_qudt():
 
     # Build the pint unit registry lines.
     for URIb, definition in pint_definitions.items():
-
         unit_identifiers = identifiers.get_identifiers(URI=URIb)
 
         # Start constructing the pint definition line.

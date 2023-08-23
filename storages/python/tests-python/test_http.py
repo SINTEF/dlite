@@ -6,12 +6,13 @@ except ModuleNotFoundError:
 
 import dlite
 
-
 url = "https://raw.githubusercontent.com/SINTEF/dlite/master/storages/python/tests-python/input/test_meta.json"
 
 meta = dlite.Instance.from_location("http", url)
 
-assert str(meta) == """
+assert (
+    str(meta)
+    == """
 {
   "uri": "http://onto-ns.com/meta/0.1/TestEntity",
   "description": "test entity with explicit meta",
@@ -49,3 +50,4 @@ assert str(meta) == """
   }
 }
 """.strip()
+)
