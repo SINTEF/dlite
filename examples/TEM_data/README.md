@@ -4,8 +4,8 @@ TEM data Example
 Content
 -------
 - [Background](#background)
-- [The case](#the-case)
 - [Datasets](#datasets)
+- [Example workflow](#example-workflow)
 - [Setup](#setup)
 - [Running the example](#running-the-example)
 
@@ -71,21 +71,32 @@ Vickers hardness measurements was performed at each of the two
 conditions.
 
 
-The case
---------
-
-
-
 Datasets
 --------
-- Raw images.  The images [BF_100-at-m5-and-2_001], [040] and [6c8cm_008] are in Gatan DM3 format and are very large.  They can be downloaded from
+The datasets can be divided into two types, *primary datasets* with
+initial knowledge or raw data obtained directly from experiments and
+*secondary datasets* that are derived from the primary datasets.
+
+**Primary datasets**
+- Raw images.  The images [BF_100-at-m5-and-2_001], [040] and [6c8cm_008]
+  are in Gatan DM3 format and are very large.  They can be downloaded from
   https://folk.ntnu.no/friisj/temdata/.  They can be parsed using the
   [dm3 plugin].
-- Alloy composition.  Stored in [data/composition.csv].
-  Numbers are in weight-percent.
-- Precipitate statistics.  Stored in [data/precipitate_statistics.csv].
-- Hardness measurements.  Stored in [data/hardness.csv].
+- Alloy composition.  Obtained from a chemical analysis of the alloy and
+  stored in [data/composition.csv].  Numbers are in weight-percent.
+- Hardness measurements.  Obtained from hardness measurements and stored
+  in [data/hardness.csv].
 
+**Derived datasets**
+- Microscope settings. These are obtained from the metadata of the DM3 files
+  and stored in json format in [data/BF_100-at-m5-and-2_001.json], [data/040.json]
+  and [data/6c8cm_008.json].
+- Precipitate statistics.  Obtained from analysing the TEM image at the two
+  conditions and stored in [data/precipitate_statistics.csv].
+
+
+Example workflow
+----------------
 
 
 Setup
