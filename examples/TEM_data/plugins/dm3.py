@@ -1,4 +1,5 @@
 """DLite storage plugin for Gatan DM3 files."""
+import sys
 import json
 
 import numpy as np
@@ -18,11 +19,11 @@ class dm3(dlite.DLiteStorageBase):
     def load(self, id=None):
         """Returns TEMImage instance."""
         # Load data and metadata
-        d = nio.read(location)
-        dm = nio.dm.fileDM(location)
+        d = nio.read(self.location)
+        dm = nio.dm.fileDM(self.location)
 
         # Infer dimensions
-        data = d[data]
+        data = d["data"]
         shape = fill4(data.shape, 1)
         dimnames = "zSize2", "zSize", "ySize", "xSize"
         dimensions = dict([("ndim", 4)] + list(zip(dimnames, shape)))
@@ -31,10 +32,10 @@ class dm3(dlite.DLiteStorageBase):
         TEMImage = dlite.get_instance(self.meta)
         temimage = TEMImage(dimensions=dimensions)
         temimage.filename = self.location
-        temimage.data = np.array(d[data], ndmin=4)
+        temimage.data = np.array(data, ndmin=4)
         temimage.pixelUnit = fill4(d["pixelUnit"], "")
-        temimage.pixelSize = fill4(d["pixelSize"], "")
-        temimage.metadata = json.dumps(dm.metadata, cls=Encoder)
+        temimage.pixelSize = fill4(d["pixelSize"], 0.0)
+        temimage.metadata = json.dumps(dm.getMetadata(0), cls=Encoder)
 
         return temimage
 
