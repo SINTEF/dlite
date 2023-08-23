@@ -139,17 +139,29 @@ DLiteStorage *dlite_storage_open_url(const char *url)
 */
 int dlite_storage_close(DLiteStorage *s)
 {
-  int stat;
+  int stat=0;
   assert(s);
-  if (s->flags & dliteReadable && s->flags& dliteGeneric)
+  if (s->flags & dliteReadable && s->flags & dliteGeneric)
     dlite_storage_hotlist_remove(s);
 
-  stat = s->api->close(s);
+  if (s->api->flush) stat = s->api->flush(s);
+  stat |= s->api->close(s);
   free(s->location);
   if (s->options) free(s->options);
   map_deinit(&s->cache);
   free(s);
   return stat;
+}
+
+/*
+   Flush storage `s`. Returns non-zero on error.
+*/
+int dlite_storage_flush(DLiteStorage *s)
+{
+  assert(s);
+  if (s->api->flush) return s->api->flush(s);
+  return err(dliteUnsupportedError, "storage does not support flush: %s",
+             s->api->name);
 }
 
 
@@ -167,27 +179,6 @@ DLiteIDFlag dlite_storage_get_idflag(const DLiteStorage *s)
 void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
 {
   s->idflag = idflag;
-}
-
-/*
-  Loads instance from storage `s` using the loadInstance api.
-  Returns NULL on error or if loadInstance is not supported.
- */
-DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id)
-{
-  char uuid[DLITE_UUID_LENGTH+1];
-  DLiteInstance **ptr, *inst=NULL;
-  if (getuuid(uuid, id) < 0) return NULL;
-  if ((ptr = map_get(&(((DLiteStorage *)s)->cache), uuid))) return *ptr;
-
-  if (s->api->loadInstance) {
-    /* Add NULL to cache to mark that we are about to load the instance and
-       break recursive calls */
-    map_set(&(((DLiteStorage *)s)->cache), uuid, NULL);
-    inst = s->api->loadInstance(s, id);
-    map_set(&(((DLiteStorage *)s)->cache), uuid, inst);
-  }
-  return inst;
 }
 
 
@@ -233,6 +224,50 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 
 
 /*
+  Loads instance from storage `s` using the loadInstance api.
+  Returns NULL on error or if loadInstance is not supported.
+ */
+DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id)
+{
+  char uuid[DLITE_UUID_LENGTH+1];
+  DLiteInstance **ptr, *inst=NULL;
+  if (getuuid(uuid, id) < 0) return NULL;
+  if ((ptr = map_get(&(((DLiteStorage *)s)->cache), uuid))) return *ptr;
+
+  if (s->api->loadInstance) {
+    /* Add NULL to cache to mark that we are about to load the instance and
+       break recursive calls */
+    map_set(&(((DLiteStorage *)s)->cache), uuid, NULL);
+    inst = s->api->loadInstance(s, id);
+    map_set(&(((DLiteStorage *)s)->cache), uuid, inst);
+  }
+  return inst;
+}
+
+
+/*
+  Delete instance from storage `s` using the deleteInstance api.
+  Returns non-zero on error or if deleteInstance is not supported.
+ */
+int dlite_storage_delete(DLiteStorage *s, const char *id)
+{
+  if (s->api->deleteInstance) return s->api->deleteInstance(s, id);
+  return err(dliteUnsupportedError, "storage does not support delete: %s",
+             s->api->name);
+}
+
+/*
+  Returns a malloc'ed string with plugin documentation or NULL on error.
+ */
+char *dlite_storage_help(DLiteStorage *s)
+{
+  if (s->api->help) return s->api->help(s->api);
+  return err(dliteUnsupportedError, "storage does not support help: %s",
+             s->api->name), NULL;
+}
+
+
+/*
   Returns the UUIDs off all instances in storage `s` whos metadata URI
   matches the glob pattern `pattern`.  If `pattern` is NULL, it matches
   all instances.
@@ -242,7 +277,7 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
   dlite_storage_uuids_free().
 
   Not all plugins may implement this function.  In that case, NULL is
-  returned.
+  returned.  NULL is also returned on error.
  */
 char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
 {
@@ -251,6 +286,8 @@ char **dlite_storage_uuids(const DLiteStorage *s, const char *pattern)
     char buf[DLITE_UUID_LENGTH+1];
     void *ptr, *iter = s->api->iterCreate(s, pattern);
     int n=0, len=0;
+
+    if (!iter) return NULL;
     while (s->api->iterNext(iter, buf) == 0) {
       if (n >= len) {
         len += 32;
@@ -451,7 +488,7 @@ int dlite_storage_hotlist_clear()
   DLiteStorageHotlist *h;
   if (!(g = get_globals())) return -1;
   h = &g->hotlist;
-  if (h->storages) free(h->storages);
+  if (h->storages) free((void *)h->storages);
   memset(h, 0, sizeof(DLiteStorageHotlist));
   return 0;
 }
@@ -467,7 +504,7 @@ int dlite_storage_hotlist_add(const DLiteStorage *s)
   h = &g->hotlist;
   if (h->length <= h->nmemb) {
     size_t newlength = h->length + HOTLIST_CHUNK_LENGTH;
-    const DLiteStorage **storages = realloc(h->storages,
+    const DLiteStorage **storages = realloc((DLiteStorage **)h->storages,
                                             newlength*sizeof(DLiteStorage *));
     if (!storages) return err(dliteMemoryError, "allocation failure");
     h->length = newlength;
@@ -504,7 +541,8 @@ int dlite_storage_hotlist_remove(const DLiteStorage *s)
   length = (h->nmemb / HOTLIST_CHUNK_LENGTH + 2)*HOTLIST_CHUNK_LENGTH;
   assert(length > h->nmemb);
   if (h->length > length) {
-    const DLiteStorage **storages = realloc(h->storages, length);
+    const DLiteStorage **storages = realloc((DLiteStorage **)h->storages,
+                                            length);
     assert(storages);  // redusing allocated memory should always be successful
     h->length = length;
     h->storages = storages;

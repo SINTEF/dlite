@@ -11,7 +11,7 @@ thisdir = os.path.dirname(__file__)
 # Wrap tests into a unittest TestCase
 # This way, we can run the individual tests interactively
 class ScriptTestCase(unittest.TestCase):
-    def __init__(self, methodname='testfile', filename=None):
+    def __init__(self, methodname="testfile", filename=None):
         unittest.TestCase.__init__(self, methodname)
         self.filename = filename
 
@@ -20,10 +20,10 @@ class ScriptTestCase(unittest.TestCase):
         env.update(__file__=self.filename)
         with open(self.filename) as fd:
             try:
-                exec(compile(fd.read(), self.filename, 'exec'), env)
+                exec(compile(fd.read(), self.filename, "exec"), env)
             except SystemExit as exc:
                 if exc.code == 44:
-                    self.skipTest('exit code 44')
+                    self.skipTest("exit code 44")
                 else:
                     raise exc
 
@@ -31,23 +31,26 @@ class ScriptTestCase(unittest.TestCase):
         return self.filename
 
     def __str__(self):
-        return self.filename.split('tests/')[-1]
+        return self.filename.split("tests/")[-1]
 
     def __repr__(self):
         return "ScriptTestCase(filename='%s')" % self.filename
 
 
 def test(verbosity=1, stream=sys.stdout):
-    tests = [test for test in sorted(glob(os.path.join(thisdir, 'test_*.py')))
-             if not test.endswith('__.py')
-             and not test.endswith('test_python_bindings.py')
-             # Exclude test_global_dlite_state.py since the global state
-             # that it is testing depends on the other tests.
-             and not test.endswith('test_global_dlite_state.py')]
+    tests = [
+        test
+        for test in sorted(glob(os.path.join(thisdir, "test_*.py")))
+        if not test.endswith("__.py")
+        and not test.endswith("test_python_bindings.py")
+        # Exclude test_global_dlite_state.py since the global state
+        # that it is testing depends on the other tests.
+        and not test.endswith("test_global_dlite_state.py")
+    ]
     ts = unittest.TestSuite()
-    for test in tests:
+    for test in sorted(tests):
         ts.addTest(ScriptTestCase(filename=os.path.abspath(test)))
-    with open(os.devnull, 'w') as devnull:
+    with open(os.devnull, "w") as devnull:
         if not verbosity:
             stream = devnull
         ttr = unittest.TextTestRunner(verbosity=verbosity, stream=stream)
@@ -60,7 +63,7 @@ def test(verbosity=1, stream=sys.stdout):
         # copy stderr_fd before it is overwritten
         # NOTE: `copied` is inheritable on Windows when duplicating a
         # standard stream
-        with os.fdopen(os.dup(stderr_fd), 'wb') as copied:
+        with os.fdopen(os.dup(stderr_fd), "wb") as copied:
             sys.stdout.flush()
             sys.stderr.flush()
             try:
@@ -77,7 +80,7 @@ def test(verbosity=1, stream=sys.stdout):
 
 if __name__ == "__main__":
     for k in sorted(os.environ.keys()):
-        for s in 'dlite', 'path', 'python':
+        for s in "dlite", "path", "python":
             if s in k.lower():
                 print("%35s : %-s" % (k, os.environ[k]))
     results = test(verbosity=2)

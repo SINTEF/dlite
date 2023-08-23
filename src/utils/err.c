@@ -48,6 +48,7 @@ typedef struct {
                            //!< application.  Typically the program name.
   FILE *err_stream;        //!< Stream for error printing. Set to NULL to silent
   ErrHandler err_handler;  //!< Error handler
+  ErrNameConv err_nameconv;//!< Error name converter function
   int err_stream_opened;   //!< Whether err_stream has been opened
   int err_stream_atexit_called;  //!< Whether atexit() has been installed
 } Globals;
@@ -83,7 +84,8 @@ typedef struct {
 } ThreadLocals;
 
 /* Global state */
-static Globals _globals = {"", err_default_stream, err_default_handler, 0, 0};
+static Globals _globals = {"", err_default_stream, err_default_handler,
+                           NULL, 0, 0};
 
 /* Thread local state */
 static thread_local ThreadLocals _tls;
@@ -99,6 +101,7 @@ static void reset_tls(void)
   _globals.err_prefix = "";
   _globals.err_stream = err_default_stream;
   _globals.err_handler = err_default_handler;
+  _globals.err_nameconv = NULL;
   _globals.err_stream_opened = 0;
   _globals.err_stream_atexit_called = 0;
 
@@ -150,7 +153,7 @@ void err_set_state(void *state)
 static char *err_append_sep = "\n - ";
 
 /* Error names */
-static char *error_names[] = {
+static char *errlevel_names[] = {
   "Success",
   "Warning",
   "Error",
@@ -173,7 +176,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 {
   ThreadLocals *tls = get_tls();
   int n=0;
-  char *errname = error_names[errlevel];
+  const char *errlevel_name = err_getlevelname(errlevel);
   char *errmsg = tls->err_record->msg;
   size_t errsize = sizeof(tls->err_record->msg);
   FILE *stream = err_get_stream();
@@ -183,6 +186,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   ErrOverrideMode override = err_get_override_mode();
   int ignore_new_error = 0;
   ErrHandler handler = err_get_handler();
+  ErrNameConv nameconv = err_get_nameconv();
   int call_handler = handler && !tls->err_record->prev;
 
   /* Check warning mode */
@@ -194,7 +198,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       return 0;
     case errWarnError:
       errlevel = errLevelError;
-      errname = error_names[errlevel];
+      errlevel_name = errlevel_names[errlevel];
       break;
     default:  // should never be reached
       assert(0);
@@ -245,10 +249,16 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       n += snprintf(errmsg + n, errsize - n, "in %s(): ", func);
 
     if (eval) {
-      n += snprintf(errmsg + n, errsize - n, "%s %d: ",
-                    (errname && *errname) ? errname : "Errval", eval);
-    } else if (errname && *errname) {
-      n += snprintf(errmsg + n, errsize - n, "%s: ", errname);
+      if (nameconv)
+        n += snprintf(errmsg + n, errsize - n, "%s%s: ", nameconv(eval),
+                      (errlevel_name && *errlevel_name) ?
+                      errlevel_name : "");
+      else
+        n += snprintf(errmsg + n, errsize - n, "%s %d: ",
+                      (errlevel_name && *errlevel_name) ?
+                      errlevel_name : "Errval", eval);
+    } else if (errlevel_name && *errlevel_name) {
+      n += snprintf(errmsg + n, errsize - n, "%s: ", errlevel_name);
     }
     if (msg && *msg)
       n += vsnprintf(errmsg + n, errsize - n, msg, ap);
@@ -398,6 +408,12 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
 
 
 /* Associated functions */
+int err_getlevel(void)
+{
+  ThreadLocals *tls = get_tls();
+  return tls->err_record->level;
+}
+
 int err_geteval(void)
 {
   ThreadLocals *tls = get_tls();
@@ -445,12 +461,6 @@ const char *err_get_prefix(void)
   Globals *g = tls->globals;
   return g->err_prefix;
 }
-
-/* whether the error stream has been opened with fopen() */
-//static int err_stream_opened = 0;
-
-/* whether `atexit(err_close_stream)` has been called */
-//static int err_stream_atexit_called = 0;
 
 static void err_close_stream(void)
 {
@@ -612,9 +622,8 @@ ErrOverrideMode err_get_override_mode()
 /* Default error handler. */
 static void _err_default_handler(const ErrRecord *record)
 {
-  ThreadLocals *tls = get_tls();
-  Globals *g = tls->globals;
-  if (g->err_stream) fprintf(g->err_stream, "** %s\n", record->msg);
+  FILE *stream = err_get_stream();
+  if (stream) fprintf(stream, "** %s\n", record->msg);
 }
 
 ErrHandler err_set_handler(ErrHandler handler)
@@ -633,6 +642,37 @@ ErrHandler err_get_handler(void)
   if (g->err_handler == err_default_handler)
     g->err_handler = _err_default_handler;
   return g->err_handler;
+}
+
+ErrNameConv err_set_nameconv(ErrNameConv nameconv)
+{
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  ErrNameConv prev = g->err_nameconv;
+  g->err_nameconv = nameconv;
+  return prev;
+}
+
+ErrNameConv err_get_nameconv(void)
+{
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  return g->err_nameconv;
+}
+
+const char *err_getname(int eval)
+{
+  ThreadLocals *tls = get_tls();
+  Globals *g = tls->globals;
+  if (g->err_nameconv) return g->err_nameconv(eval);
+  return NULL;
+}
+
+const char *err_getlevelname(int errlevel)
+{
+  int n = sizeof(errlevel_names) / sizeof(char *);
+  if (0 <= errlevel && errlevel < n) return errlevel_names[errlevel];
+  return NULL;
 }
 
 

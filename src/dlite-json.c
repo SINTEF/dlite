@@ -57,7 +57,7 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length);
 
 
 /*
-  Serialise instance `inst` to `dest`, formatted as JSON.
+  Help function for serialise instance `inst` to `dest`, formatted as JSON.
 
   No more than `size` bytes are written to `dest` (incl. the
   terminating NUL).
@@ -67,8 +67,8 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length);
   have been written if `size` was large enough is returned.  On error, a
   negative value is returned.
 */
-int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
-                      int indent, DLiteJsonFlag flags)
+int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
+                       int indent, DLiteJsonFlag flags)
 {
   DLiteTypeFlag f = dliteFlagQuoted;
   int n=0, ok=0, m, j;
@@ -240,32 +240,98 @@ int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
 
 
 /*
+  Serialise instance `inst` to `dest`, formatted as JSON.
+
+  No more than `size` bytes are written to `dest` (incl. the
+  terminating NUL).
+
+  Returns number of bytes written to `dest`.  If the output is
+  truncated because it exceeds `size`, the number of bytes that would
+  have been written if `size` was large enough is returned.  On error, a
+  negative value is returned.
+*/
+int dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
+                      int indent, DLiteJsonFlag flags)
+{
+  char *in=NULL;
+  int m, n=0;
+  if (flags & dliteJsonSingle) {
+    n = _dlite_json_sprint(dest, size, inst, indent, flags);
+  } else {
+    if (!(in = malloc(indent + 1))) FAIL("allocation failure");
+    memset(in, ' ', indent);
+    in[indent] = '\0';
+    PRINT1("%s{\n", in);
+    PRINT2("%s  \"%s\":", in,
+           (flags & dliteJsonUriKey && inst->uri) ? inst->uri : inst->uuid);
+    if ((m = _dlite_json_sprint(dest+n, PDIFF(size, n), inst, indent+2, flags)) < 0)
+      goto fail;
+    n += m;
+    PRINT1("\n%s}", in);
+    free(in);
+  }
+  return n;
+ fail:
+  if (in) free(in);
+  return -1;
+}
+
+
+/*
   Like dlite_json_sprint(), but prints to allocated buffer.
 
   Prints to position `pos` in `*dest`, which should point to a buffer
-  of size `*size`.  `*dest` is reallocated if needed.
+  of size `*size`. Bytes at position less than `pos` are not changed.
 
-  Returns number or bytes written or a negative number on error.
+  If `*dest` is NULL or `*size` is less than needed, `*dest` is
+  reallocated and `*size` updated to the new buffer size.
+
+  If `pos` is larger than `*size` the bytes at index `i` are
+  initialized to space (' '), where ``*size <= i < pos``.
+
+  Returns number or bytes written (not including terminating NUL) or a
+  negative number on error.
 */
 int dlite_json_asprint(char **dest, size_t *size, size_t pos,
                        const DLiteInstance *inst, int indent,
                        DLiteJsonFlag flags)
 {
   int m;
-  void *q;
+  char *q;
   size_t newsize;
-  if (!dest && !*dest) *size = 0;
-  m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
-  if (m < 0) return m;
-  if (m < (int)PDIFF(*size, pos)) return m;
+
+  if (!dest || !*dest || !*size) {
+    /* Just count number of bytes to write */
+    m = dlite_json_sprint(*dest, 0, inst, indent, flags);
+    if (m < 0) return m;
+  } else {
+    /* Try to write to existing buffer */
+    m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
+    if (m < (int)PDIFF(*size, pos)) return m;
+  }
 
   /* Reallocate buffer to required size. */
-  newsize = m + pos + 1;
-  if (!(q = realloc(*dest, newsize))) return -1;
+
+  // FIXME: newsize should really be `newsize = m + pos + 1;`.
+  // If `inst` is a collection with relations, then
+  // dlite_json_sprint() seems to report one byte too little when
+  // called with size=0.
+  newsize = m + pos + 2;
+  if (!(q = realloc(*dest, newsize)))
+    return err(dliteMemoryError, "allocation failure");
+
+  /* Fill bytes from *size to pos with space */
+  if (pos > *size) memset(q + *size, ' ', pos - *size);
+
+  /* Update `*dest` and `*size` */
   *dest = q;
   *size = newsize;
-  m = dlite_json_sprint(*dest + pos, PDIFF(*size, pos), inst, indent, flags);
-  assert(0 <= m && m < (int)*size);
+
+  /* Write */
+  m = dlite_json_sprint(q + pos, PDIFF(newsize, pos), inst, indent, flags);
+  if (m < 0) return m;
+  assert(m+pos < newsize);
+
   return m;
 }
 
@@ -324,16 +390,7 @@ int dlite_json_printfile(const char *filename, const DLiteInstance *inst,
   int m;
   if (!(fp = fopen(filename, "wt")))
     return err(1, "cannot write json to \"%s\"", filename);
-
-  if (flags & dliteJsonSingle) {
-    m = dlite_json_fprint(fp, inst, 0, flags);
-  } else {
-    fprintf(fp, "{\n");
-    fprintf(fp, "  \"%s\":",
-            (flags & dliteJsonUriKey && inst->uri) ? inst->uri : inst->uuid);
-    m = dlite_json_fprint(fp, inst, 2, flags);
-    fprintf(fp, "}\n");
-  }
+  m = dlite_json_fprint(fp, inst, 0, flags);
   fclose(fp);
   return m;
 }
@@ -865,6 +922,7 @@ DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
     flg |= dliteJsonArrays;
   } else if (props->type == JSMN_OBJECT) {
     prop = props + 1;
+    assert(prop);
     if (prop->type == JSMN_OBJECT)
       fmt = (jsmn_item(src, item, "type")) ?
         dliteJsonMetaFormat : dliteJsonDataFormat;
@@ -1159,7 +1217,8 @@ DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
 int dlite_jstore_add(JStore *js, const DLiteInstance *inst, DLiteJsonFlag flags)
 {
   char *buf;
-  if (!(buf = dlite_json_aprint(inst, 2, flags))) return -1;
+  if (!(buf = dlite_json_aprint(inst, 2, flags | dliteJsonSingle)))
+    return -1;
   return jstore_addstolen(js, inst->uuid, buf);
 }
 

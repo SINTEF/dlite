@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.16
+  VERSION 0.3.22
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -244,9 +244,12 @@ if(WITH_PYTHON)
 
   # Find Python package
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
-  #find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
-  find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-  find_package(NumPy REQUIRED)
+  if (PYTHON_VERSION)
+    find_package(Python3 ${PYTHON_VERSION} EXACT
+      REQUIRED COMPONENTS Interpreter Development NumPy)
+  else()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+  endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
   # Link libraries when compiling against static Python (e.g. manylinux)
@@ -351,7 +354,10 @@ if(MEMORYCHECK_COMMAND)
         --gen-suppressions=all
         --log-file=${logfile}
         ${Python3_EXECUTABLE} ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
-      MAIN_DEPENDENCY ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
+      MAIN_DEPENDENCY ${dlite_supp}
+      DEPENDS
+        ${python_supp}
+        ${dlite_SOURCE_DIR}/cmake/valgrind_python.py
       COMMENT "Generating valgrind suppressions log file for Python"
       )
     add_custom_command(
@@ -438,6 +444,15 @@ macro(build_append lst)
     endif()
   endforeach()
 endmacro()
+
+# Directory and path separators
+if(WIN32)
+  set(DIRSEP "\\")
+  set(PATHSEP ";")
+else()
+  set(DIRSEP "/")
+  set(PATHSEP ":")
+endif()
 
 # PATH - path to runtime directories (.exe and .dll)
 set(dlite_PATH "")
@@ -583,7 +598,6 @@ make_platform_paths(
     dlite_PATH
     dlite_STORAGE_PLUGINS
     dlite_MAPPING_PLUGINS
-  #PATHSEP0
   )
 
 # Workaround for cross-compiling for Windows on Linux using MinGW.
@@ -702,7 +716,6 @@ endif()
 # Documentations
 if(WITH_DOC)
   add_subdirectory(doc)
-  add_subdirectory(pydoc)
 endif()
 
 #################################################################

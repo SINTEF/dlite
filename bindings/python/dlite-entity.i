@@ -3,6 +3,7 @@
 %{
 #include "dlite-mapping.h"
 #include "dlite-bson.h"
+#include "dlite-errors.h"
 %}
 
 
@@ -13,13 +14,15 @@
 /* Returns a new property. */
 DLiteProperty *
 dlite_swig_create_property(const char *name, enum _DLiteType type,
-                           size_t size, obj_t *dims, const char *unit,
+                           size_t size, const char *ref,
+                           obj_t *dims, const char *unit,
                            const char *description)
 {
   DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
   p->name = strdup(name);
   p->type = type;
   p->size = size;
+  if (ref && *ref) p->ref = strdup(ref);
   if (dims && dims != DLiteSwigNone) {
     p->ndims = (int)PySequence_Length(dims);
     if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
@@ -120,26 +123,7 @@ struct _DLiteDimension {
  * Property
  * -------- */
 %feature("docstring", "\
-Creates a new property.
-
-```python
-Property(name, type, dims=None, unit=None, description=None)
-```
-
 Creates a new property with the provided attributes.
-
-```python
-Property(seq)
-```
-
-Creates a new property from sequence of 6 strings, corresponding to
-``name``, ``type``, ``dims``, ``unit`` and ``description``.
-Valid values for ``dims`` are:
-
-- ``''`` or ``'[]'``: No dimensions.
-- ``'<dim1>, <dim2>'``: List of dimension names.
-- ``'[<dim1>, <dim2>]'``: List of dimension names.
-
 ") _DLiteProperty;
 %rename(Property) _DLiteProperty;
 struct _DLiteProperty {
@@ -154,17 +138,18 @@ struct _DLiteProperty {
 };
 
 %extend _DLiteProperty {
-  _DLiteProperty(const char *name, const char *type,
+  _DLiteProperty(const char *name, const char *type, const char *ref=NULL,
                  obj_t *dims=NULL, const char *unit=NULL,
                  const char *description=NULL) {
     DLiteType dtype;
     size_t size;
     if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
-    return dlite_swig_create_property(name, dtype, size, dims, unit,
+    return dlite_swig_create_property(name, dtype, size, ref, dims, unit,
                                       description);
   }
   ~_DLiteProperty() {
     free($self->name);
+    if ($self->ref) free($self->ref);
     if ($self->dims) free_str_array($self->dims, $self->ndims);
     if ($self->unit) free($self->unit);
     if ($self->description) free($self->description);
@@ -420,6 +405,27 @@ Call signatures:
     dlite_instance_save(storage, $self);
   }
 
+  %feature("docstring",
+           "Save instance to bytes using given storage driver.") to_bytes;
+  %newobject to_bytes;
+  void to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN) {
+    unsigned char *buf=NULL;
+    int m, n = dlite_instance_memsave(driver, buf, 0, $self);
+    if (n < 0) {
+      *ARGOUT_BYTES = NULL;
+      *LEN = 0;
+      return;
+    }
+    if (!(buf = malloc(n))) {
+      dlite_err(dliteMemoryError, "allocation failure");
+      return;
+    }
+    if ((m = dlite_instance_memsave(driver, buf, n, $self)) < 0) return;
+    assert (m == n);
+    *ARGOUT_BYTES = buf;
+    *LEN = n;
+  }
+
   %feature("docstring", "Returns a hash of the instance.") get_hash;
   %newobject get_hash;
   char *get_hash() {
@@ -464,7 +470,7 @@ Call signatures:
       hashp = data;
     }
     if (dlite_instance_verify_hash($self, hashp, recursive))
-      dlite_swig_exception = DLiteVerifyError;
+      dlite_swig_exception = dlite_python_module_error(dliteVerifyError);
   }
 
   %feature("docstring",
@@ -616,22 +622,21 @@ Call signatures:
   }
 
   %feature("docstring", "\
-Return property ``name`` as a string.
+Return property `name` as a string.
 
-Parameters:
+Arguments:
     width: Minimum field width. Unused if 0, auto if -1.
     prec: Precision. Auto if -1, unused if -2.
     flags: Or'ed sum of formatting flags:
 
-        - ``0``: Default (json).
-        - ``1``: Raw unquoted output.
-        - ``2``: Quoted output.
+        - `0`: Default (json).
+        - `1`: Raw unquoted output.
+        - `2`: Quoted output.
 
 Returns:
     Property as a string.
 
-")
-     get_property_as_string;
+") get_property_as_string;
   %newobject get_property_as_string;
   char *get_property_as_string(const char *name,
                                int width=0, int prec=-2, int flags=0) {
@@ -711,9 +716,9 @@ Returns:
   }
 
   %feature("docstring",
-           "Returns a JSON representation of self.") tojson;
-  %newobject tojson;
-  char *tojson(int indent=0, bool single=false, bool urikey=false,
+           "Returns a JSON representation of self.") _asjson;
+  %newobject _asjson;
+  char *_asjson(int indent=0, bool single=false, bool urikey=false,
                bool with_uuid=false, bool with_meta=false,
                bool with_arrays=false, bool no_parent=false) {
     DLiteJsonFlag flags=0;
@@ -804,7 +809,11 @@ void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
-
+%rename(_from_bytes) dlite_instance_memload;
+%feature("docstring", "Loads instance from string.") dlite_instance_memload;
+struct _DLiteInstance *dlite_instance_memload(const char *driver,
+                                      unsigned char *INPUT_BYTES, size_t LEN,
+                                      const char *id=NULL);
 
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
 #define BASIC_METADATA_SCHEMA  "http://onto-ns.com/meta/0.1/BasicMetadataSchema"

@@ -115,6 +115,9 @@ foreach(test ${tests})
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGES=${CMAKE_CURRENT_SOURCE_DIR}/*.json|${dlite_SOURCE_DIR}/storages/python/python-storage-plugins/*.json")
 
+  # Skip tests that exit with return code 44
+  set_property(TEST ${test} PROPERTY SKIP_RETURN_CODE 44)
+
 endforeach()
 
 

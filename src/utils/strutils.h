@@ -1,9 +1,13 @@
 /* strutils.h -- cross-platform string utility functions
  *
- * Copyright (C) 2021 SINTEF
+ * Copyright (C) 2021-2023 SINTEF
  *
  * Distributed under terms of the MIT license.
  */
+/**
+  @file
+  @brief Cross-platform string utility functions
+*/
 #ifndef _STRUTILS_H
 #define _STRUTILS_H
 
@@ -14,6 +18,10 @@
 # define __attribute__(x)
 #endif
 
+/**
+ * @name Typedefs and structs
+ */
+/** @{ */
 
 /** Flags for strquote() */
 typedef enum _StrquoteFlags {
@@ -27,24 +35,65 @@ typedef enum _StrquoteFlags {
 
 /** Character categories, from, RFC 3986 */
 typedef enum {
-  strcatUpper,       //!<  A-Z
-  strcatLower,       //!<  a-z
-  strcatDigit,       //!<  0-9
-  strcatUnreserved,  //!<  "-._~"  (in addition to upper + lower + digit)
-  strcatReserved,    //!<  ":/?#[]@"
-  strcatSpecific,    //!<  "!$&'()*+,;="
-  strcatPercent,     //!<  "%"
-  strcatOther,       //!<  anything else, except NUL
-  strcatNul,         //!<  NUL
+  strcatUpper,       //!< A-Z
+  strcatLower,       //!< a-z
+  strcatDigit,       //!< 0-9
+  strcatUnreserved,  //!< "-._~"  (in addition to upper + lower + digit)
+  strcatSubDelims,   //!< "!$&'()*+,;="
+  strcatGenDelims,   //!< ":/?#[]@"
+  strcatReserved,    //!< strcatSubDelims | strcatGenDelims
+  strcatPercent,     //!< "%"
+  strcatCExtra,      //!< "\"\\<>^{}|" (extra characters in the C standard)
+  strcatSpace,       //!< " \f\n\r\t\v"
+  strcatOther,       //!< anything else, except NUL
+  strcatNul,         //!< NUL
 } StrCategory;
 
 
+/** @} */
 /**
-  A convinient variant of asnprintf() that returns the allocated string,
+ * @name Print allocated string
+ */
+/** @{ */
+
+/**
+  A convinient variant of asprintf() that returns the allocated string,
   or NULL on error.
  */
 char *aprintf(const char *fmt, ...)
   __attribute__ ((__malloc__, __format__ (__printf__, 1, 2)));
+
+/** @} */
+/**
+ * @name Functions for writing characters to a buffer
+ */
+/** @{ */
+
+/**
+  Writes character `c` to buffer `dest` of size `size`.  If there is
+  space, the buffer will always be NUL-terminated.
+
+  Returns always 1 (number of characters written to `dest`, or would
+  have been written to `dest` if it had been large enough).
+ */
+int strsetc(char *dest, long size, int c);
+
+/**
+  Copies `src` to `dest`.
+
+  At most `size` bytes will be written to `dest`.
+  If `size` is larger than zero, `dest` will always be NUL-terminated.
+  No, partly UTF-8 code point will be written to dest.
+
+  Returns number of bytes written to `dest` or the number of bytes that
+  would have been written to `dest` if it had been large enough.
+ */
+int strsets(char *dest, long size, const char *src);
+
+/**
+  Like strset(), but copies at most `len` bytes from `src`.
+ */
+int strsetn(char *dest, long size, const char *src, int len);
 
 
 /**
@@ -71,6 +120,25 @@ int strput(char **destp, size_t *sizep, size_t pos, const char *src);
  */
 int strnput(char **destp, size_t *sizep, size_t pos, const char *src, int n);
 
+/**
+  Like strnput(), but escapes all characters in categories larger than
+  `unescaped`, which should be less than `strcatOther`.
+
+  Escaped characters are written as `escape` followed by 2-character hex
+  representation of the character (byte) value.
+
+  Returns -1 on error.
+ */
+int strnput_escape(char **destp, size_t *sizep, size_t pos,
+                   const char *src, int len,
+                   StrCategory unescaped, const char *escape);
+
+
+/** @} */
+/**
+ * @name Quoting/unquoting strings
+ */
+/** @{ */
 
 /**
   Double-quote input string `s` and write it to `dest`.
@@ -122,6 +190,12 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
                int *consumed, StrquoteFlags flags);
 
 
+/** @} */
+/**
+ * @name Hexadecimal encoding/decoding
+ */
+/** @{ */
+
 /**
   Writes binary data to hex-encoded string.
 
@@ -155,6 +229,13 @@ int strhex_decode(unsigned char *data, size_t size, const char *hex,
                   int hexsize);
 
 
+/** @} */
+/**
+ * @name Character categorisation
+ */
+/** @{ */
+
+
 /**
   Returns the category of character `c`.
  */
@@ -184,5 +265,75 @@ int strcatjspn(const char *s, StrCategory cat);
  */
 int strcatcjspn(const char *s, StrCategory cat);
 
+
+/** @} */
+/**
+ * @name Allocated string list
+ *
+ * A string list is an allocated NULL-terminated array of pointers to
+ * allocated strings.
+ */
+/** @{ */
+
+/**
+  Insert string `s` before position `i` in NULL-terminated array of
+  string pointers `strlst`.
+
+  If `i` is negative count from the end of the string, like Python.
+  Any `i` out of range correspond to appending.
+
+  `n` is the allocated length of `strlst`.  If needed `strlst` will be
+  reallocated and `n` updated.
+
+  Returns a pointer to the new string list or NULL on allocation error.
+ */
+char **strlst_insert(char **strlst, size_t *n, const char *s, int i);
+
+/**
+  Appends string `s` to NULL-terminated array of string pointers `strlst`.
+  `n` is the allocated length of `strlst`.  If needed `strlst` will be
+  reallocated and `n` updated.
+
+  Returns a pointer to the new string list or NULL on allocation error.
+ */
+char **strlst_append(char **strlst, size_t *n, const char *s);
+
+/** Return number of elements in string list. */
+size_t strlst_count(char **strlst);
+
+/** Free all memory in string list. */
+void strlst_free(char **strlst);
+
+/**
+  Returns a pointer to element `i` the string list. Like in Python,
+  negative `i` counts from the back.
+
+  The caller gets a borrowed reference to the string. Do not free it.
+
+  Returns NULL if `i` is out of range.
+*/
+const char *strlst_get(char **strlst, int i);
+
+/**
+  Remove element `i` from the string list. Like in Python, negative `i`
+  counts from the back.
+
+  Returns non-zero if `i` is out of range.
+*/
+int strlst_remove(char **strlst, int i);
+
+/**
+  Remove and return element `i` from the string list. Like in Python,
+  negative `i` counts from the back.
+
+  The caller becomes the owner of the returned string and is
+  responsible to free it.
+
+  Returns NULL if `i` is out of range.
+*/
+char *strlst_pop(char **strlst, int i);
+
+
+/** @} */
 
 #endif  /* _STRUTILS_H */

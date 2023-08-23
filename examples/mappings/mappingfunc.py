@@ -90,7 +90,7 @@ def norm(array, axis=-1):
 
 def max(vector):
     """Returns the largest element."""
-    return np.max(vector)
+    return vector.max()
 
 
 # Add mappings for conversion functions -- ontologist
@@ -98,16 +98,19 @@ ts.add_function(
     formula,
     expects=[DON.ChemicalSymbol],
     returns=[DON.Formula],
+    standard="fno",
 )
 ts.add_function(
     norm,
     expects=[EMMO.Force],
     returns=[DON.ForceNorm],
+    standard="fno",
 )
 ts.add_function(
     max,
     expects=[DON.ForceNorm],
     returns=[DON.MaxForce],
+    standard="fno",
 )
 
 

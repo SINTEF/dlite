@@ -623,6 +623,31 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
 
 
 /**
+  Loads instance `id` from memory buffer `buf` of size `size` and return it.
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_memload(const char *driver,
+                                      const unsigned char *buf, size_t size,
+                                      const char *id);
+
+/**
+  Stores instance `inst` to memory buffer `buf` of size `size`.
+
+  Returns number of bytes written to `buf` (or would have been written
+  to `buf` if `buf` is not large enough).
+  Returns a negative error code on error.
+ */
+int dlite_instance_memsave(const char *driver, unsigned char *buf, size_t size,
+                           const DLiteInstance *inst);
+
+/**
+  Saves instance to a newly allocated memory buffer.
+  Returns NULL on error.
+ */
+unsigned char *dlite_instance_to_memory(const char *driver,
+                                        const DLiteInstance *inst);
+
+/**
   Returns a pointer to instance UUID.
  */
 const char *dlite_instance_get_uuid(const DLiteInstance *inst);
@@ -1366,6 +1391,13 @@ DLiteProperty *dlite_property_create(const char *name,
                                      size_t size,
                                      const char *unit,
                                      const char *description);
+
+/**
+  Clear DLiteProperty.
+
+  Free all memory referred to by the property and it, but free `prop` itself.
+ */
+void dlite_property_clear(DLiteProperty *prop);
 
 /**
   Frees a DLiteProperty.

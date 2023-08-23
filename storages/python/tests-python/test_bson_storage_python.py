@@ -7,6 +7,12 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 from run_python_storage_tests import print_test_exception
 
+try:
+    import bson
+except ImportError:
+    print("bson not installed, skipping test")
+    sys.exit(44)  # skip test
+
 
 thisfile = Path(__file__)
 print(f'Running Python test <{thisfile.name}>...')

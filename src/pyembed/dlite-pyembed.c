@@ -1,5 +1,6 @@
 #include <stdarg.h>
 
+#include "utils/strutils.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
 #include "dlite-pyembed.h"
@@ -7,6 +8,8 @@
 #include "dlite-python-mapping.h"
 #include "dlite-python-singletons.h"
 #include "config-paths.h"
+
+#define GLOBALS_ID "dlite-pyembed-globals"
 
 /* Get rid of MSVS warnings */
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
@@ -16,14 +19,121 @@
 
 static int python_initialized = 0;
 
+
+/* Struct correlating Python exceptions with DLite errors */
+typedef struct {
+  PyObject *exc;        /* Python exception */
+  DLiteErrors errcode;  /* DLite error */
+} ErrorCorrelation;
+
+/* Global state for this module */
+typedef struct {
+  ErrorCorrelation *errcorr;  /* NULL-terminated array */
+} PyembedGlobals;
+
+
+/* Free global state for this module */
+static void free_globals(void *globals)
+{
+  PyembedGlobals *g = (PyembedGlobals *)globals;;
+  if (g->errcorr) free(g->errcorr);
+  free(g);
+}
+
+/* Return a pointer to global state for this module */
+static PyembedGlobals *get_globals(void)
+{
+  PyembedGlobals *g = dlite_globals_get_state(GLOBALS_ID);
+  if (!g) {
+    if (!(g = calloc(1, sizeof(PyembedGlobals))))
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
+    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
+  }
+  return g;
+}
+
+/* Help function returning a constant pointer to a NULL-terminated
+   array of ErrorCorrelation records. */
+static const ErrorCorrelation *error_correlations(void)
+{
+  PyembedGlobals *g = get_globals();
+  if (!g->errcorr) {
+    ErrorCorrelation corr[] = {
+      {PyExc_KeyError, dliteKeyError},
+      {PyExc_MemoryError, dliteMemoryError},
+      {PyExc_AttributeError, dliteAttributeError},
+      {PyExc_SystemError, dliteSystemError},
+      {PyExc_ValueError, dliteValueError},
+      {PyExc_SyntaxError, dliteSyntaxError},
+      {PyExc_OverflowError, dliteOverflowError},
+      {PyExc_ZeroDivisionError, dliteDivisionByZero},
+      {PyExc_TypeError, dliteTypeError},
+      {PyExc_IndexError, dliteIndexError},
+      {PyExc_RuntimeError, dliteRuntimeError},
+      {PyExc_IOError, dliteIOError},
+      {NULL, 0}
+    };
+    if (!(g->errcorr = malloc(sizeof(corr))))
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
+    memcpy(g->errcorr, corr, sizeof(corr));
+  }
+  return g->errcorr;
+}
+
 /* Initialises the embedded Python environment. */
 void dlite_pyembed_initialise(void)
 {
-  wchar_t *progname;
   if (!python_initialized) {
-    python_initialized = 1;
+    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
 
     Py_Initialize();
+    python_initialized = 1;
+
+    /*
+      Python 3.8 and later implements the new Python
+      Initialisation Configuration.
+
+      More features were added in the following releases,
+      like `config.safe_path`, which was added in Python 3.11
+
+      The old Py_SetProgramName() was deprecated in Python 3.11.
+
+      In DLite, we switch to the new Python Initialisation
+      Configuration from Python 3.11.
+    */
+#if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
+    /* New Python Initialisation Configuration */
+    PyStatus status;
+    PyConfig config;
+
+    PyConfig_InitPythonConfig(&config);
+    config.isolated = 0;
+    config.safe_path = 0;
+    config.use_environment = 1;
+    config.user_site_directory = 1;
+
+    /* If dlite is called from a python, reparse arguments to avoid
+       that they are stripped off...
+       Aren't we initialising a new interpreter? */
+    int argc=0;
+    wchar_t **argv=NULL;
+    Py_GetArgcArgv(&argc, &argv);
+    config.parse_argv = 1;
+    status = PyConfig_SetArgv(&config, argc, argv);
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed arguments");
+
+    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed program name");
+
+    status = Py_InitializeFromConfig(&config);
+    PyConfig_Clear(&config);
+    if (PyStatus_Exception(status))
+      FAIL("failed clearing pyembed config");
+#else
+    /* Old Initialisation */
+    wchar_t *progname;
 
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
@@ -31,9 +141,9 @@ void dlite_pyembed_initialise(void)
     }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
+ #endif
 
     if (dlite_use_build_root()) {
-      PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
       if (!(sys = PyImport_ImportModule("sys")))
         FAIL("cannot import sys");
       if (!(sys_path = PyObject_GetAttrString(sys, "path")))
@@ -44,11 +154,11 @@ void dlite_pyembed_initialise(void)
         FAIL("cannot create python object for dlite_PYTHONPATH");
       if (PyList_Insert(sys_path, 0, path))
         FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
-    fail:
-      Py_XDECREF(sys);
-      Py_XDECREF(sys_path);
-      Py_XDECREF(path);
     }
+  fail:
+    Py_XDECREF(sys);
+    Py_XDECREF(sys_path);
+    Py_XDECREF(path);
   }
 }
 
@@ -65,7 +175,6 @@ int dlite_pyembed_finalise(void)
   return status;
 }
 
-
 /*
   Returns a static pointer to the class name of python object cls or
   NULL on error.
@@ -80,6 +189,114 @@ const char *dlite_pyembed_classname(PyObject *cls)
   Py_XDECREF(name);
   Py_XDECREF(sname);
   return classname;
+}
+
+
+/*
+  Return DLite error code given Python exception type.
+ */
+DLiteErrors dlite_pyembed_errcode(PyObject *type)
+{
+  const ErrorCorrelation *corr = error_correlations();
+  if (!type) return dliteSuccess;
+  while (corr->exc) {
+    if (PyErr_GivenExceptionMatches(type, corr->exc))
+      return corr->errcode;
+    corr++;
+  }
+  return dliteUnknownError;
+}
+
+/*
+  Return Python exception class corresponding to given DLite error code.
+  Returns NULL if `code` is zero.
+ */
+PyObject *dlite_pyembed_exception(DLiteErrors code)
+{
+  const ErrorCorrelation *corr = error_correlations();
+  if (!code) return NULL;
+  while (corr->exc) {
+    if (code == corr->errcode) return corr->exc;
+    corr++;
+  }
+  return PyExc_Exception;
+}
+
+
+/*
+  Writes Python error message to `errmsg` (of length `len`) if an
+  Python error has occured.
+
+  On return the The Python error indicator is reset.
+
+  Returns 0 if no error has occured.  Otherwise return the number of
+  bytes written to, or would have been written to `errmsg` if it had
+  been large enough.  On error -1 is returned.
+*/
+int dlite_pyembed_errmsg(char *errmsg, size_t errlen)
+{
+  PyObject *type, *value, *tb;
+  int n=-1;
+
+  PyErr_Fetch(&type, &value, &tb);
+  if (!type) return 0;
+  PyErr_NormalizeException(&type, &value, &tb);
+
+  /* Try to create a error message from Python using the treaceback package */
+  if (errmsg) {
+    PyObject *module_name=NULL, *module=NULL, *pfunc=NULL, *val=NULL,
+      *sep=NULL, *str=NULL;
+    errmsg[0] = '\0';
+    if ((module_name = PyUnicode_FromString("traceback")) &&
+        (module = PyImport_Import(module_name)) &&
+        (pfunc = PyObject_GetAttrString(module, "format_exception")) &&
+        PyCallable_Check(pfunc) &&
+        (val = PyObject_CallFunctionObjArgs(pfunc, type, value, tb, NULL)) &&
+        PySequence_Check(val) &&
+        (sep = PyUnicode_FromString("")) &&
+        (str = PyUnicode_Join(val, sep)) &&
+        PyUnicode_Check(str) &&
+        PyUnicode_GET_LENGTH(str) > 0)
+      n = PyOS_snprintf(errmsg, errlen, "%s", (char *)PyUnicode_AsUTF8(str));
+    Py_XDECREF(str);
+    Py_XDECREF(sep);
+    Py_XDECREF(val);
+    Py_XDECREF(pfunc);
+    Py_XDECREF(module);
+    Py_XDECREF(module_name);
+  }
+
+  /* ...otherwise try to report error without traceback... */
+  if (errmsg && n < 0) {
+    PyObject *name=NULL, *sname=NULL, *svalue=NULL;
+    if ((name = PyObject_GetAttrString(type, "__name__")) &&
+        (sname = PyObject_Str(name)) &&
+        PyUnicode_Check(sname) &&
+        (svalue = PyObject_Str(value)) &&
+        PyUnicode_Check(svalue))
+      n = PyOS_snprintf(errmsg, errlen, "%s: %s",
+                        (char *)PyUnicode_AsUTF8(sname),
+                        (char *)PyUnicode_AsUTF8(svalue));
+
+    Py_XDECREF(svalue);
+    Py_XDECREF(sname);
+    Py_XDECREF(name);
+  }
+
+  /* ...otherwise fallback to write to sys.stderr.
+     We also do this if the DLITE_PYDEBUG environment variable is set. */
+  if ((errmsg && n < 0) || getenv("DLITE_PYDEBUG")) {
+    PyErr_Restore(type, value, tb);
+    PySys_WriteStderr("\n");
+    PyErr_PrintEx(0);
+    PySys_WriteStderr("\n");
+  } else {
+    Py_DECREF(type);
+    Py_DECREF(value);
+    Py_XDECREF(tb);
+  }
+
+  return (errmsg) ? n : 0;
 }
 
 
@@ -106,81 +323,22 @@ int dlite_pyembed_err(int eval, const char *msg, ...)
  */
 int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
 {
-  char errmsg[4096];
-
-  if (PyErr_Occurred()) {
-    PyObject *type, *value, *tb=NULL;
-
-    errmsg[0] = '\0';
-    PyErr_Fetch(&type, &value, &tb);
-    PyErr_NormalizeException(&type, &value, &tb);
-    assert(type && value);
-
-    /* If the DLITE_PYDEBUG environment variable is set, print full Python
-       error message (with traceback) to sys.stderr. */
-    if (getenv("DLITE_PYDEBUG")) {
-      Py_INCREF(type);
-      Py_INCREF(value);
-      Py_INCREF(tb);
-      PyErr_Restore(type, value, tb);
-      PySys_WriteStderr("\n");
-      PyErr_Print();
-      PySys_WriteStderr("\n");
-   }
-
-    /* Try to get traceback info from traceback.format_exception()... */
-    if (tb) {
-      PyObject *module_name=NULL, *module=NULL, *pfunc=NULL, *val=NULL,
-        *sep=NULL, *str=NULL;
-      if ((module_name = PyUnicode_FromString("traceback")) &&
-          (module = PyImport_Import(module_name)) &&
-          (pfunc = PyObject_GetAttrString(module, "format_exception")) &&
-          PyCallable_Check(pfunc) &&
-          (val = PyObject_CallFunctionObjArgs(pfunc, type, value, tb, NULL)) &&
-          PySequence_Check(val) &&
-          (sep = PyUnicode_FromString("")) &&
-          (str = PyUnicode_Join(val, sep)) &&
-          PyUnicode_Check(str) &&
-          PyUnicode_GET_LENGTH(str) > 0)
-        PyOS_snprintf(errmsg, sizeof(errmsg), "%s\n%s",
-                      msg, (char *)PyUnicode_AsUTF8(str));
-      Py_XDECREF(str);
-      Py_XDECREF(sep);
-      Py_XDECREF(val);
-      Py_XDECREF(pfunc);
-      Py_XDECREF(module);
-      Py_XDECREF(module_name);
+  char errmsg[4096], *p=errmsg;
+  int m = sizeof(errmsg);
+  int n = vsnprintf(errmsg, sizeof(errmsg), msg, ap);
+  if (n > 0) {
+    p += n;
+    m -= n;
+    n = snprintf(p, m, ": ");
+    if (n > 0) {
+      p += n;
+      m -= n;
     }
-
-    /* ...otherwise try to report error without traceback... */
-    if (!errmsg[0]) {
-      PyObject *name=NULL, *sname=NULL, *svalue=NULL;
-      if ((name = PyObject_GetAttrString(type, "__name__")) &&
-          (sname = PyObject_Str(name)) &&
-          PyUnicode_Check(sname) &&
-          (svalue = PyObject_Str(value)) &&
-          PyUnicode_Check(svalue))
-        PyOS_snprintf(errmsg, sizeof(errmsg), "%s: %s: %s",
-                      msg, (char *)PyUnicode_AsUTF8(sname),
-                      (char *)PyUnicode_AsUTF8(svalue));
-      Py_XDECREF(svalue);
-      Py_XDECREF(sname);
-      Py_XDECREF(name);
-    }
-
-    /* ...otherwise skip Python error info */
-    if (!errmsg[0])
-      PyOS_snprintf(errmsg, sizeof(errmsg), "%s: <inaccessible Python error>",
-                    msg);
-
-    if (errmsg[0]) msg = errmsg;
-
-    Py_DECREF(type);
-    Py_DECREF(value);
-    Py_XDECREF(tb);
   }
-  return dlite_verrx(eval, msg, ap);
+  dlite_pyembed_errmsg(p, m);
+  return dlite_errx(eval, "%s", errmsg);
 }
+
 
 /*
   Checks if an Python error has occured.  Returns zero if no error has
@@ -202,9 +360,14 @@ int dlite_pyembed_err_check(const char *msg, ...)
  */
 int dlite_pyembed_verr_check(const char *msg, va_list ap)
 {
-  /* TODO: can we correlate the return value to Python error type? */
-  if (PyErr_Occurred())
-    return dlite_pyembed_verr(1, msg, ap);
+  PyObject *err;
+  //PyGILState_STATE state = PyGILState_STATE();
+  err = PyErr_Occurred();
+  //PyGILState_Release(state);
+  if (err) {
+    int eval = dlite_pyembed_errcode(err);
+    return dlite_pyembed_verr(eval, msg, ap);
+  }
   return 0;
 }
 
@@ -364,15 +527,24 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst)
   A Python plugin is a subclass of `baseclass` that implements the
   expected functionality.
 
+  If `failed_paths` is given, it should be a pointer to a
+  NULL-terminated array of pointers to paths to plugins that failed to
+  load.  In case a plugin fails to load, this array will be updated.
+
+  If `failed_paths` is given, `failed_len` must also be given. It is a
+  pointer to the allocated length of `*failed_paths`.
+
   Returns NULL on error.
  */
-PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
+PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
+                                     char ***failed_paths, size_t *failed_len)
 {
   const char *path;
   PyObject *main_dict, *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
   PyObject *subclassnames=NULL;
   FUIter *iter;
   int i;
+  char errors[4098] = "";
 
   dlite_errclr();
   dlite_pyembed_initialise();
@@ -410,18 +582,41 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass)
     if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
 
     if ((basename = fu_basename(path))) {
-      if ((fp = fopen(path, "r"))) {
-        PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
-                                   main_dict);
-        if (!ret) dlite_pyembed_err(1, "error parsing '%s'", path);
-        Py_XDECREF(ret);
-        fclose(fp);
+      size_t n;
+      char **q = (failed_paths) ? *failed_paths : NULL;
+      for (n=0; q && *q; n++)
+        if (strcmp(*(q++), path) == 0) break;
+      int in_failed = (q && *q) ? 1 : 0;  // whether loading path has failed
+
+      if (!in_failed) {
+        if ((fp = fopen(path, "r"))) {
+          PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
+                                     main_dict);
+          if (!ret) {
+
+            if (failed_paths && failed_len) {
+              char **new = strlst_append(*failed_paths, failed_len, path);
+              if (!new) FAIL("allocation failure");
+              *failed_paths = new;
+            }
+
+            dlite_pyembed_errmsg(NULL, 0);
+            fclose(fp);
+          }
+          Py_XDECREF(ret);
+        }
       }
       free(basename);
     }
 
   }
   if (fu_pathsiter_deinit(iter)) goto fail;
+
+  if (errors[0])
+    dlite_warn("Could not load the following Python plugins:\n%s"
+               "   You might have to install corresponding python "
+               "package(s).\n",
+               errors);
 
   /* Append new subclasses to the list of Python plugins that will be
      returned */

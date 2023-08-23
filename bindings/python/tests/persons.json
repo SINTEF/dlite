@@ -1,5 +1,5 @@
 {
-  "51c0d700-9ab0-43ea-9183-6ea22012ebee":   {
+  "51c0d700-9ab0-43ea-9183-6ea22012ebee": {
     "meta": "http://onto-ns.com/meta/0.1/Person",
     "dimensions": {
       "N": 2
@@ -8,6 +8,17 @@
       "name": "Jack Daniel",
       "age": 42,
       "skills": ["distilling", "tasting"]
+    }
+  },
+  "13c5007b-c665-4709-a11c-255919306547": {
+    "meta": "http://onto-ns.com/meta/0.1/Person",
+    "dimensions": {
+      "N": 3
+    },
+    "properties": {
+      "name": "Jon Doe",
+      "age": 32,
+      "skills": ["reading", "talking", "sleeping"]
     }
   }
 }

@@ -39,7 +39,9 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: 7,10
+            py_minors: 7,11
+          #- os: ubuntu-21.04
+          #  system_type: ["manylinux", ""]
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
           # - os: ubuntu-20.04
           #   system_type: ["musllinux", "_1_1"]
@@ -57,7 +59,7 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: 7,10
+            py_minors: 7,11
 
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
           # # 64-bit (Intel) macOS
@@ -75,7 +77,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.container_registry }}
           username: ${{ github.actor }}

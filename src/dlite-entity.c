@@ -742,7 +742,7 @@ DLiteInstance *dlite_instance_get(const char *id)
     } else {
       /* ...otherwise it may be a glob pattern */
       FUIter *fiter;
-      if ((fiter = fu_glob(location))) {
+      if ((fiter = fu_glob(location, "|"))) {
         const char *path;
         while (!inst && (path = fu_globnext(fiter))) {
 	  driver = (char *)fu_fileext(path);
@@ -1106,6 +1106,67 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
  fail:
   if (str) free(str);
   return retval;
+}
+
+
+/*
+  Loads instance `id` from memory buffer `buf` of size `size` and return it.
+  Returns NULL on error.
+ */
+DLiteInstance *dlite_instance_memload(const char *driver,
+                                      const unsigned char *buf, size_t size,
+                                      const char *id)
+{
+  const DLiteStoragePlugin *api;
+  if (!(api = dlite_storage_plugin_get(driver))) return NULL;
+  if (!api->memLoadInstance)
+    return err(dliteUnsupportedError, "driver does not support memload: %s",
+               api->name), NULL;
+  return api->memLoadInstance(api, buf, size, id);
+}
+
+/*
+  Stores instance `inst` to memory buffer `buf` of size `size`.
+
+  Returns number of bytes written to `buf` (or would have been written
+  to `buf` if `buf` is not large enough).
+  Returns a negative error code on error.
+ */
+int dlite_instance_memsave(const char *driver, unsigned char *buf, size_t size,
+                           const DLiteInstance *inst)
+{
+  const DLiteStoragePlugin *api;
+  if (!(api = dlite_storage_plugin_get(driver))) return dliteStorageSaveError;
+  if (!api->memSaveInstance)
+    return err(dliteUnsupportedError, "driver does not support memsave: %s",
+               api->name);
+  return api->memSaveInstance(api, buf, size, inst);
+}
+
+/*
+  Saves instance to a newly allocated memory buffer.
+  Returns NULL on error.
+ */
+unsigned char *dlite_instance_to_memory(const char *driver,
+                                        const DLiteInstance *inst)
+{
+  const DLiteStoragePlugin *api;
+  int n=0, m;
+  unsigned char *buf=NULL;
+  if (!(api = dlite_storage_plugin_get(driver))) return NULL;
+  if (!api->memSaveInstance)
+    return err(dliteUnsupportedError, "driver does not support memsave: %s",
+               api->name), NULL;
+
+  if ((n = api->memSaveInstance(api, buf, n, inst)) < 0) return NULL;
+  if (!(buf = malloc(n)))
+    return err(dliteMemoryError, "allocation failure"), NULL;
+  if ((m = api->memSaveInstance(api, buf, n, inst)) != n) {
+    assert(m < 0);  // On success, should `m` always be equal to `n`!
+    free(buf);
+    return NULL;
+  }
+  return buf;
 }
 
 
@@ -2463,16 +2524,19 @@ dlite_meta_create(const char *uri, const char *description,
   char *name=NULL, *version=NULL, *namespace=NULL;
   size_t dims[] = {ndimensions, nproperties};
 
-  if ((e = dlite_instance_get(uri))) {
+  if ((e = dlite_instance_has(uri, 0))) {
     DLiteMeta *meta = (DLiteMeta *)e;
     if (!dlite_instance_is_meta(e))
-      FAILCODE1(dliteMetadataExistError, "cannot create metadata \"%s\" since it already exists as a "
-            "non-metadata instance", uri);
+      FAILCODE1(dliteMetadataExistError,
+                "cannot create metadata \"%s\" since it already exists as a "
+                "non-metadata instance", uri);
     if (meta->_ndimensions != ndimensions ||
         meta->_nproperties != nproperties)
-      FAILCODE1(dliteMetadataExistError, "cannot create metadata \"%s\" since a different entity already "
-            "exists", uri);
+      FAILCODE1(dliteMetadataExistError,
+                "cannot create metadata \"%s\" since it already exists with "
+                "different number of dimensions and/or properties", uri);
     // TODO: check that dimensions and properties matches
+    dlite_meta_incref(meta);
     return meta;
   }
 
@@ -2924,16 +2988,30 @@ DLiteProperty *dlite_property_create(const char *name,
   return err(dliteMemoryError, "allocation failure"), NULL;
 }
 
+
+/*
+  Clear DLiteProperty.
+
+  Free all memory referred to by the property and it, but free `prop` itself.
+ */
+void dlite_property_clear(DLiteProperty *prop)
+{
+  int i;
+  for (i=0; i < prop->ndims; i++) free(prop->dims[i]);
+  if (prop->name) free(prop->name);
+  if (prop->ref)  free(prop->ref);
+  if (prop->dims) free(prop->dims);
+  if (prop->unit) free(prop->unit);
+  if (prop->description) free(prop->description);
+  memset(prop, 0, sizeof(DLiteProperty));
+}
+
 /*
   Frees a DLiteProperty.
 */
 void dlite_property_free(DLiteProperty *prop)
 {
-  int i;
-  if (prop->name) free(prop->name);
-  for (i=0; i < prop->ndims; i++) free(prop->dims[i]);
-  if (prop->unit) free(prop->unit);
-  if (prop->description) free(prop->description);
+  dlite_property_clear(prop);
   free(prop);
 }
 
@@ -3172,30 +3250,34 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
       const jsmntok_t *v = item + 1;
       int i, j;
       if (item->type != JSMN_OBJECT)
-        return err(dliteValueError, "expected JSON object, got \"%.*s\"", len, val);
+        return err(dliteValueError,
+                   "expected JSON object, got \"%.*s\"", len, val);
 
       for (i=0; i < item->size; i++, prop++) {
         const jsmntok_t *t, *d;
-        if (prop->name) free(prop->name);
-        if (prop->ref)  free(prop->ref);
-        if (prop->dims) free(prop->dims);
-        if (prop->unit) free(prop->unit);
-        if (prop->description) free(prop->description);
-        memset(prop, 0, sizeof(DLiteProperty));
+
+        dlite_property_clear(prop);
 
         assert(v->type == JSMN_STRING);  // key must be a string
         prop->name = strndup(src + v->start, v->end - v->start);
         v++;
 
-        if (v->type != JSMN_OBJECT)
+        if (v->type != JSMN_OBJECT) {
+          dlite_property_clear(prop);
           return err(dliteValueError, "expected JSON object, got \"%.*s\"",
                      v->end - v->start, src + v->start);
+        }
 
-        if (!(t = jsmn_item(src, v, "type")))
-          return errx(dliteValueError, "missing property type: '%.*s'", len, val);
+        if (!(t = jsmn_item(src, v, "type"))) {
+          dlite_property_clear(prop);
+          return errx(dliteValueError,
+                      "missing property type: '%.*s'", len, val);
+        }
         if (dlite_type_set_dtype_and_size(src + t->start,
-                                          &prop->type, &prop->size))
+                                          &prop->type, &prop->size)) {
+          dlite_property_clear(prop);
           return -1;
+        }
 
         if ((t = jsmn_item(src, v, "$ref")))
           prop->ref = strndup(src + t->start, t->end - t->start);
@@ -3204,16 +3286,22 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
 
         if ((t = jsmn_item(src, v, "dims")) ||
             (t = jsmn_item(src, v, "shape"))) {
-          if (t->type != JSMN_ARRAY)
-            return errx(dliteIndexError, "property \"%.*s\": dims should be an array",
+          if (t->type != JSMN_ARRAY) {
+            dlite_property_clear(prop);
+            return errx(dliteIndexError,
+                        "property \"%.*s\": dims should be an array",
                         keylen, key);
+          }
           prop->ndims = t->size;
           prop->dims = calloc(prop->ndims, sizeof(char *));
           for (j=0; j < prop->ndims; j++) {
-            if (!(d = jsmn_element(src, t, j)))
-              return err(dliteIndexError, "error parsing dimensions \"%.*s\" of property "
+            if (!(d = jsmn_element(src, t, j))) {
+              dlite_property_clear(prop);
+              return err(dliteIndexError,
+                         "error parsing dimensions \"%.*s\" of property "
                          "\"%.*s\"", t->end - t->start, src + t->start,
                          keylen, key);
+            }
             prop->dims[j] = strndup(src + d->start, d->end - d->start);
           }
         }
@@ -3230,7 +3318,8 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
     break;
 
   default:
-    return err(dliteValueError, "object format is not supported for property type: %s",
+    return err(dliteValueError,
+               "object format is not supported for property type: %s",
                dlite_type_get_dtypename(p->type));
   }
   return len;

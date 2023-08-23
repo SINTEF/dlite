@@ -7,6 +7,10 @@ set(python_examples
   read-csv
   dehydrogenation
   mappings
+  storage_plugin
+  entity_service
+  minio_storage
+  datamodel_as_rdf
   )
 endif()
 
@@ -77,7 +81,9 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     test_example(ex1)
     test_example(ex2)
     test_example(ex3)
-    test_example(ex4)
+    if(WITH_FORTRAN)
+      test_example(ex4)
+    endif()
   endif()
   #test_example(ex5d)
 
@@ -89,9 +95,11 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
           ${CMAKE_CURRENT_SOURCE_DIR}/${name}/main.py
       )
     set_property(TEST ${name} PROPERTY
-      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}${PATHSEP}$ENV{PATH}")
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+    set_property(TEST ${name} APPEND PROPERTY
+      ENVIRONMENT "USER=$ENV{USER}")
     if(NOT WIN32)
       set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
@@ -99,7 +107,7 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
     set_property(TEST ${name} PROPERTY
-      SKIP_RETURN_CODE 77)
+      SKIP_RETURN_CODE 44)
   endforeach()
 
 endif()

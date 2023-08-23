@@ -142,7 +142,7 @@ RUN pip install --upgrade pip \
     --trusted-host files.pythonhosted.org \
     numpy \
     PyYAML \
-    psycopg2-binary
+    psycopg2-binary==2.9.5
 
 WORKDIR /home/user
 ENV LD_LIBRARY_PATH=/usr/local/lib

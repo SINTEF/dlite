@@ -26,8 +26,6 @@
   PyObject *dlite_swig_exception = NULL;
 
   /* forward declarations */
-  static PyObject *DLiteError = NULL;
-  static PyObject *DLiteVerifyError = NULL;
   char *strndup(const char *s, size_t n);
 %}
 
@@ -62,21 +60,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 
 %init %{
   Py_Initialize();  /* should already be called, but just in case... */
-  import_array();  /* Initialize numpy */
-
-  DLiteError = PyErr_NewExceptionWithDoc(
-    "dlite.DLiteError",                      // name
-    "Base exception for the dlite module.",  // doc
-    NULL,                                    // base
-    NULL                                     // dict
-  );
-
-  DLiteVerifyError = PyErr_NewExceptionWithDoc(
-    "dlite.DLiteVerifyError",                // name
-    "Object cannot be verified.",            // doc
-    DLiteError,                              // base
-    NULL                                     // dict
-  );
+  import_array();   /* Initialize numpy */
 %}
 
 %numpy_typemaps(unsigned char, NPY_UBYTE,  size_t)
@@ -92,11 +76,8 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
  **********************************************/
 %{
 
-PyObject *_get_DLiteError(void) {
-  return DLiteError;
-}
-PyObject *_get_DLiteVerifyError(void) {
-  return DLiteVerifyError;
+int _get_number_of_errors(void) {
+  return -dliteLastError;
 }
 
 /* Free's array of allocated strings. */
@@ -229,14 +210,10 @@ int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
 {
   int retval=-1;
   if (PyUnicode_Check(src)) {
-    long len;
-    if (PyUnicode_READY(src))
-      FAIL("failed preparing string");
-    len = (long)PyUnicode_GET_LENGTH(src);
-    if (len != (long)n*2)
-      FAIL3("cannot convert Python string of length %d (expected length %d) "
-            "to blob%d", (int)len, (int)n*2, (int)n);
-    if (strhex_decode(dest, n, (char *)PyUnicode_1BYTE_DATA(src), len) < 0)
+    Py_ssize_t len;
+    const char *s = PyUnicode_AsUTF8AndSize(src, &len);
+    if (!s) FAIL("failed representing string as UTF-8");
+    if (strhex_decode(dest, n, s, len) < 0)
       FAIL("cannot convert Python string to blob");
     retval = len/2;
   } else if (PyObject_CheckBuffer(src)) {
@@ -457,12 +434,11 @@ int dlite_swig_set_array(void *ptr, int ndims, int *dims,
           if (p[i]) free(p[i]);
         } else if (PyUnicode_Check(s)) {
           assert(s);
-          if (PyUnicode_READY(s))
-            FAIL("failed preparing string");
-          long len = (long)PyUnicode_GET_LENGTH(s);
+          Py_ssize_t len;
+          const char *str = PyUnicode_AsUTF8AndSize(s, &len);
+          if (!str) FAIL("failed representing string as UTF-8");
           p[i] = realloc(p[i], len+1);
-          memcpy(p[i], PyUnicode_1BYTE_DATA(s), len);
-          p[i][len] = '\0';
+          memcpy(p[i], str, len+1);
         } else {
           FAIL("expected None or unicode elements");
           Py_DECREF(s);
@@ -616,6 +592,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       case 4: value = *((float32_t *)data); break;
       case 8: value = *((float64_t *)data); break;
 #ifdef HAVE_FLOAT80_T
+      // TODO: check for overflow
       case 10: value = *((float80_t *)data); break;
 #endif
 #ifdef HAVE_FLOAT96_T
@@ -777,53 +754,61 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
 
   case dliteFixString:
     {
-      size_t n;
-      Py_UCS1 *s;
+      Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
-      if (!str) FAIL("cannot convert to string");
-      if (PyUnicode_READY(str)) {
+      const char *s = PyUnicode_AsUTF8AndSize(str, &n);
+      if (!s) {
         Py_DECREF(str);
-        FAIL("failed preparing string");
+        FAIL("cannot represent string as UTF-8");
       }
-      n = PyUnicode_GET_LENGTH(str);
-      if (n > size) {
+      if (n >= (Py_ssize_t)size) {
         Py_DECREF(str);
         FAIL2("Length of string is %lu. Exceeds available size: %lu",
               (unsigned long)n, (unsigned long)size);
       }
-      s = PyUnicode_1BYTE_DATA(str);
-      memset(ptr, 0, size);
-      memcpy(ptr, s, n);
+      memcpy(ptr, s, n+1);
       Py_DECREF(str);
     }
     break;
 
   case dliteStringPtr:
     {
-      size_t n;
-      unsigned char *s;
       char *p;
+      Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
-      if (!str) FAIL("cannot convert to string");
-      if (PyUnicode_READY(str)) {
+      const char *s = PyUnicode_AsUTF8AndSize(str, &n);
+      if (!s) {
         Py_DECREF(str);
-        FAIL("failed preparing string");
+        FAIL("cannot represent string as UTF-8");
       }
-      n = PyUnicode_GET_LENGTH(str);
-      s = PyUnicode_1BYTE_DATA(str);
-      *(void **)ptr = realloc(*(void **)ptr, n+1);
-      p = *((char **)ptr);
-      memcpy(p, s, n);
-      p[n] = '\0';
+      if (!(p = realloc(*(void **)ptr, n+1))) {
+        Py_DECREF(str);
+        FAIL("allocation failure");
+      }
+      *(char **)ptr = p;
+      if (p)
+        memcpy(p, s, n+1);
       Py_DECREF(str);
     }
     break;
 
   case dliteRef:
     {
-      DLiteInstance **q = ptr;
-      if (*q) dlite_instance_decref(*q);
-      *q = dlite_pyembed_get_instance(obj);
+      DLiteInstance *inst=NULL;
+      if (obj == Py_None) {
+        // do nothing here, handled below...
+      } else if (PyUnicode_Check(obj)) {
+        const char *s = PyUnicode_AsUTF8(obj);
+        if (!s) FAIL("cannot represent string as UTF-8");
+        inst = dlite_instance_get(s);
+      } else {
+        inst = dlite_pyembed_get_instance(obj);
+      }
+      if (inst || obj == Py_None) {
+        DLiteInstance **q = ptr;
+        if (*q) dlite_instance_decref(*q);
+        *q = inst;
+      }
     }
     break;
 
@@ -864,12 +849,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__DLiteProperty, 0))) {
         DLiteProperty *src = (DLiteProperty *)p;
         if (dest->name)        free(dest->name);
-        if (dest->dims)       free_str_array(dest->dims, dest->ndims);
+        if (dest->ref)         free(dest->ref);
+        if (dest->dims)        free_str_array(dest->dims, dest->ndims);
         if (dest->unit)        free(dest->unit);
         if (dest->description) free(dest->description);
         dest->name  = strdup(src->name);
         dest->type  = src->type;
         dest->size  = src->size;
+        if (src->ref) dest->ref   = strdup(src->ref);
         dest->ndims = src->ndims;
         if (src->ndims > 0) {
           int j;
@@ -882,11 +869,13 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         dest->description = (src->description) ? strdup(src->description) :NULL;
 
       } else if (PySequence_Check(obj) && PySequence_Length(obj) == 6) {
+        /* We should deprecate this - either remove or change to dict... */
         PyObject *name  = PySequence_GetItem(obj, 0);
         PyObject *type  = PySequence_GetItem(obj, 1);
-        PyObject *dims  = PySequence_GetItem(obj, 2);
-        PyObject *unit  = PySequence_GetItem(obj, 3);
-        PyObject *descr = PySequence_GetItem(obj, 4);
+        PyObject *ref   = PySequence_GetItem(obj, 2);
+        PyObject *dims  = PySequence_GetItem(obj, 3);
+        PyObject *unit  = PySequence_GetItem(obj, 4);
+        PyObject *descr = PySequence_GetItem(obj, 5);
         DLiteType t;
         size_t size;
         if (name && PyUnicode_Check(name) &&
@@ -894,12 +883,14 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
             dlite_type_set_dtype_and_size(PyUnicode_AsUTF8(type),
                                           &t, &size) == 0) {
           if (dest->name)        free(dest->name);
+          if (dest->ref)         free(dest->ref);
           if (dest->dims)        free_str_array(dest->dims, dest->ndims);
           if (dest->unit)        free(dest->unit);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
           dest->type = t;
           dest->size = size;
+          if (ref != Py_None) dest->ref = strdup(PyUnicode_AsUTF8(ref));
           if (dims && PyUnicode_Check(dims)) {
             const char *s = PyUnicode_AsUTF8(dims);
             int j=0, ndims=(s && *s) ? 1 : 0;
@@ -971,8 +962,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         for (i=0; i<n; i++) {
           PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
           assert(PyUnicode_Check(item));
-          PyUnicode_READY(item);
-          s[i] = strdup(PyUnicode_DATA(item));
+          const char *q = PyUnicode_AsUTF8(item);
+          if (!q) FAIL("failed representing string as UTF-8");
+          s[i] = strdup(q);
         }
 
         /* Assign id if not already provided */
@@ -983,21 +975,21 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       } else if (PyMapping_Check(obj)) {
         char *msg=NULL;
         PyObject *s=NULL, *p=NULL, *o=NULL, *id=NULL;
+        const char *ss, *sp, *so, *sid;
         if (!(s = PyMapping_GetItemString(obj, "s")) ||
             !(p = PyMapping_GetItemString(obj, "p")) ||
             !(o = PyMapping_GetItemString(obj, "o")))
           msg = "Relations must have 's', 'p' and 'o' items";
-        if (!msg && !(PyUnicode_Check(s) && PyUnicode_READY(s) == 0 &&
-                      PyUnicode_Check(p) && PyUnicode_READY(p) == 0 &&
-                      PyUnicode_Check(o) && PyUnicode_READY(o) == 0))
+        if (!msg && !(PyUnicode_Check(s) && (ss = PyUnicode_AsUTF8(s)) &&
+                      PyUnicode_Check(p) && (sp = PyUnicode_AsUTF8(p)) &&
+                      PyUnicode_Check(o) && (so = PyUnicode_AsUTF8(o))))
           msg = "Relation 's', 'p', 'o' items must be strings";
         if (!msg && PyMapping_HasKeyString(obj, "id") &&
             (!(id = PyMapping_GetItemString(obj, "id")) ||
-             !PyUnicode_Check(id) || PyUnicode_READY(id)))
+             !PyUnicode_Check(id) || !(sid = PyUnicode_AsUTF8(id))))
           msg = "If given, relation id must be a string";
         if (!msg)
-          triple_reset(ptr, PyUnicode_DATA(s), PyUnicode_DATA(p),
-                        PyUnicode_DATA(o), (id) ? PyUnicode_DATA(id) : NULL);
+          triple_reset(ptr, ss, sp, so, (id) ? sid : NULL);
         Py_XDECREF(s);
         Py_XDECREF(p);
         Py_XDECREF(o);
@@ -1103,13 +1095,15 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 /*
  * Input typemaps
  * --------------
- * int, struct _DLiteDimension *   <- numpy array
+ * int, struct _DLiteDimension *             <- numpy array
  *     Array of dimensions.
- * int, struct _DLiteProperty *    <- numpy array
+ * int, struct _DLiteProperty *              <- numpy array
  *     Array of properties.
- * struct _DLiteInstance **, int   <- numpy array
+ * struct _DLiteInstance **, int             <- numpy array
  *     Array of DLiteInstance's.
- * unsigned char *INPUT_BYTES      <- bytes
+ * unsigned char *INPUT_BYTES, size_t LEN    <- bytes
+ *     Bytes object (with explicit size)
+ * unsigned char *INPUT_BYTES                <- bytes
  *     Bytes object (without explicit size)
  *
  * Argout typemaps
@@ -1236,7 +1230,9 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 %typemap(freearg) (struct _DLiteInstance **instances, int ninstances) {
   if ($1) {
     int i;
-    for (i=0; i<$2; i++) dlite_instance_decref($1[i]);
+    for (i=0; i<$2; i++)
+      if ($1[i]) dlite_instance_decref($1[i]);
+    free($1);
   }
 }
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
@@ -1250,6 +1246,23 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
         SWIG_IsOK(SWIG_ConvertPtr(item, &vptr, $1_descriptor, 0)))))
     $2 = 1;
   Py_XDECREF(item);
+}
+
+/* Bytes object (with explicit length) */
+%typemap("doc") (unsigned char *INPUT_BYTES, size_t LEN) "bytes"
+%typemap(in) (unsigned char *INPUT_BYTES, size_t LEN) {
+  char *tmp=NULL;
+  Py_ssize_t n=0;
+  if (PyBytes_Check($input)) {
+    if (PyBytes_AsStringAndSize($input, &tmp, &n)) SWIG_fail;
+  } else if (PyByteArray_Check($input)) {
+    if ((n = PyByteArray_Size($input)) < 0) SWIG_fail;
+    if (!(tmp = PyByteArray_AsString($input))) SWIG_fail;
+  } else {
+    SWIG_Error(SWIG_TypeError, "argument must be bytes or bytearray");
+  }
+  $1 = (unsigned char *)tmp;
+  $2 = n;
 }
 
 /* Bytes object (without explicit length) */
@@ -1349,12 +1362,14 @@ PyObject *dlite_python_mapping_base(void);
 /* ------------------
  * Expose generic api
  * ------------------ */
-PyObject *_get_DLiteError(void);
-PyObject *_get_DLiteVerifyError(void);
+%rename(_get_dlite_error) dlite_python_module_error;
+PyObject *dlite_python_module_error(int code);
+int _get_number_of_errors(void);
 
 %pythoncode %{
-  DLiteError = _dlite._get_DLiteError()
-  DLiteVerifyError = _dlite._get_DLiteVerifyError()
+  for n in range(_dlite._get_number_of_errors()):
+      exc = _get_dlite_error(-n)
+      setattr(_dlite, exc.__name__, exc)
   DLiteStorageBase = _dlite._get_storage_base()
   DLiteMappingBase = _dlite._get_mapping_base()
 %}

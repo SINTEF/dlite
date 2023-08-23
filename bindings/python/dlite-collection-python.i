@@ -9,6 +9,8 @@
     def __next__(self):
         if self.rettype == 'I':  # instance
             v = self.next()
+            if v and v.is_meta:
+                v.__class__ = Metadata
         elif self.rettype in 'RTspo':  # relation
             v = self.next_relation()
         else:
@@ -25,6 +27,7 @@
             return v.p
         elif self.rettype == 'o':  # return object
             return v.o
+
         return v
 %}
 
@@ -33,9 +36,6 @@
 
 %pythoncode %{
 from warnings import warn
-
-import pint
-from tripper import Namespace, Triplestore
 
 
 class Collection(Instance):
@@ -160,7 +160,7 @@ class Collection(Instance):
     def remove(self, label):
         """Remove instance with given label from collection."""
         if _collection_remove(self._coll, label):
-            raise DLiteError(f'No such label in collection: "{label}"')
+            raise _dlite.DLiteError(f'No such label in collection: "{label}"')
 
     def get(self, label, metaid=None):
         """Return instance with given label.
@@ -189,12 +189,12 @@ class Collection(Instance):
     def add_relation(self, s, p, o):
         """Add (subject, predicate, object) RDF triple to collection."""
         if _collection_add_relation(self._coll, s, p, o) != 0:
-            raise DLiteError(f'Error adding relation ({s}, {p}, {o})')
+            raise _dlite.DLiteError(f'Error adding relation ({s}, {p}, {o})')
 
     def remove_relations(self, s=None, p=None, o=None):
         """Remove all relations matching `s`, `p` and `o`."""
         if _collection_remove_relations(self._coll, s, p, o) < 0:
-            raise DLiteError(
+            raise _dlite.DLiteError(
                 f'Error removing relations matching ({s}, {p}, {o})')
 
     def get_first_relation(self, s=None, p=None, o=None):
@@ -225,10 +225,8 @@ class Collection(Instance):
         if metaid:
             if hasattr(metaid, "uri"):
                 uri = metaid.uri
-            elif isinstance(metaid, Namespace):
-                uri = str(metaid).rstrip("#/")
             else:
-                uri = str(metaid)
+                uri = str(metaid).rstrip("#/")
 
             for inst in iter:
                 if inst.meta.uri == uri:
@@ -239,9 +237,23 @@ class Collection(Instance):
                 # -- consider refacturing.
                 from dlite.mappings import instantiate_all
 
+                try:
+                    import pint
+                    from tripper import Namespace, Triplestore
+                except ImportError as exc:
+                    raise ImportError(
+                        "Property mappings require tripper and pint. "
+                        "Please do:\n\n"
+                        "    pip install pint tripper\n"
+                    ) from exc
+
                 meta = metaid if isinstance(
-                    metaid, dlite.Instance) else dlite.get_instance(
+                    metaid, Instance) else _dlite.get_instance(
                         str(metaid).rstrip("#/"))
+                if not meta:
+                    raise TypeError(f"cannot instantiate metadata: {metaid}")
+                if meta.is_meta:
+                    meta.__class__ = Metadata
 
                 if ureg is None:
                     quantity = pint.Quantity
@@ -268,7 +280,7 @@ class Collection(Instance):
                 ):
                     yield inst
         elif property_mappings:
-            raise dlite.DLiteError(
+            raise _dlite.DLiteError(
                 '`metaid` is required when `property_mappings` is true')
         else:
             for inst in iter:

@@ -519,6 +519,15 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
     err_set_state(g);
 }
 
+
+/* Error handler for DLite. */
+static void dlite_err_handler(const ErrRecord *record)
+{
+  FILE *stream = err_get_stream();
+  if (stream) fprintf(stream, "** %s\n", record->msg);
+}
+
+
 /*
   Initialises dlite. This function may be called several times.
  */
@@ -532,8 +541,11 @@ void dlite_init(void)
     /* Set up global state for utils/err.c */
     if (!dlite_globals_get_state(ERR_STATE_ID))
       dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
-  }
 
+    /* Set up error handling */
+    err_set_handler(dlite_err_handler);
+    err_set_nameconv(dlite_errname);
+  }
 }
 
 

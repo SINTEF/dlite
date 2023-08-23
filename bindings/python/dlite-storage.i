@@ -2,15 +2,24 @@
 
 %{
 #include "dlite.h"
+#include "dlite-errors.h"
 #include "dlite-storage.h"
 #include "dlite-storage-plugins.h"
+
+char *_storage_plugin_help(const char *name) {
+  const DLiteStoragePlugin *api = dlite_storage_plugin_get(name);
+  if (api->help) return api->help(api);
+  return dlite_err(dliteUnsupportedError,
+                   "\"%s\" storage does not support help", name), NULL;
+}
+
 %}
 
 
 /* Storage iterator */
 %feature("docstring", "\
-Iterates over instances in storage ``s``.  If ``pattern`` is given, only
-instances whos metadata URI matches ``pattern`` are returned.
+Iterates over instances in storage `s`.  If `pattern` is given, only
+instances whos metadata URI matches `pattern` are returned.
 ") StorageIterator;
 %inline %{
   struct StorageIterator {
@@ -57,7 +66,7 @@ Returns next instance or None if exhausted.") next;
 enum _DLiteIDFlag {
   dliteIDTranslateToUUID=0, /*!< Translate id's that are not a valid UUID to
                                  a (version 5) UUID (default). */
-  dliteIDRequireUUID=1,     /*!< Require that ``id`` is a valid UUID. */
+  dliteIDRequireUUID=1,     /*!< Require that `id` is a valid UUID. */
   dliteIDKeepID=2           /*!< Store data under the given id, even if it
                                  is not a valid UUID.  Not SOFT compatible,
                                  but may be useful for input files. */
@@ -68,10 +77,10 @@ enum _DLiteIDFlag {
 %feature("docstring", "\
 Represents a data storage.
 
-Parameters
-----------
+Arguments
+---------
 driver_or_url : string
-    Name of driver used to connect to the storage or, if ``location`` is not
+    Name of driver used to connect to the storage or, if `location` is not
     given, the URL to the storage:
 
         driver://location?options
@@ -80,14 +89,8 @@ location : string
     The location to the storage. For file storages, this is the file name.
 options : string
     Additional options passed to the driver as a list of semicolon-separated
-    ``key=value`` pairs. Each driver may have their own options. Some
-    common options are:
-
-    - ``mode={'append','r','w'}``:
-      - 'append': Append to existing storage or create a new one (hdf5,json).
-    - ``compact={'yes','no'}``: Whether to store in a compact format (json).
-    - ``meta={'yes','no'}``: Whether to format output as metadata (json).
-
+    ``key=value`` pairs. See the documentation of the individual drivers to
+    see which options they support.
 ") _DLiteStorage;
 %rename(Storage) _DLiteStorage;
 
@@ -110,20 +113,36 @@ struct _DLiteStorage {
   ~_DLiteStorage(void) {
     dlite_storage_close($self);
   }
-  %feature("docstring", "\
-Returns name of driver for this storage.") get_driver;
+
+  %feature("docstring", "Flush storage.") flush;
+  void flush(void) {
+    dlite_storage_flush($self);
+  }
+
+  %feature("docstring", "Delete instance with given `id`.") delete;
+  void delete(const char *id) {
+    dlite_storage_delete($self, id);
+  }
+
+  %feature("docstring", "Returns name of driver for this storage.") get_driver;
   const char *get_driver(void) {
     return dlite_storage_get_driver($self);
+  }
+
+  %feature("docstring", "Returns documentation for storage plugin.") help;
+  %newobject help;
+  char *help(void) {
+    return dlite_storage_help($self);
   }
 
   //void set_idflag(enum _DLiteIDFlags idflag) {
   //  dlite_storage_set_idflag($self, idflag);
   //}
 
-  %feature("docstring", "\
-Returns a list of UUIDs of all instances in the storage whos metadata
-matches ``pattern``. If ``pattern`` is None, all UUIDs will be returned.
-") get_uuids;
+  %feature("docstring",
+           "Returns a list of UUIDs of all instances in the storage whos "
+           "metadata matches `pattern`. If `pattern` is None, all UUIDs "
+           "will be returned.") get_uuids;
   char **get_uuids(const char *pattern=NULL) {
     return dlite_storage_uuids($self, pattern);
   }
@@ -185,9 +204,9 @@ Iterates over loaded storage plugins.
     DLiteStoragePluginIter *iter;
   };
 %}
-%feature("docstring", "") new_StoragePluginIter;
 %extend StoragePluginIter {
   StoragePluginIter(void) {
+    //dlite_storage_plugin_load_all();
     DLiteStoragePluginIter *iter = dlite_storage_plugin_iter_create();
     return (struct StoragePluginIter *)iter;
   }
@@ -208,8 +227,13 @@ Iterates over loaded storage plugins.
 }
 
 
-%rename(storage_unload) dlite_storage_plugin_unload;
+%rename(_load_all_storage_plugins) dlite_storage_plugin_load_all;
+int dlite_storage_plugin_load_all();
+
+%rename(_unload_storage_plugin) dlite_storage_plugin_unload;
 int dlite_storage_plugin_unload(const char *name);
+
+char *_storage_plugin_help(const char *name);
 
 
 /* -----------------------------------

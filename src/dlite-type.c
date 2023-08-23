@@ -62,17 +62,18 @@ static struct _TypeDescr {
   size_t alignment;
 } type_table[] = {
   {"bool",     dliteBool,      sizeof(bool),          alignof(bool)},
-  {"int",      dliteInt,       sizeof(int),           alignof(int)},
+  {"int",      dliteInt,       8,                     alignof(int64_t)},
+  {"integer",  dliteInt,       8,                     alignof(int64_t)},
   {"int8",     dliteInt,       1,                     alignof(int8_t)},
   {"int16",    dliteInt,       2,                     alignof(int16_t)},
   {"int32",    dliteInt,       4,                     alignof(int32_t)},
   {"int64",    dliteInt,       8,                     alignof(int64_t)},
-  {"uint",     dliteUInt,      sizeof(unsigned int),  alignof(unsigned int)},
+  {"uint",     dliteUInt,      8,                     alignof(uint64_t)},
   {"uint8",    dliteUInt,      1,                     alignof(uint8_t)},
   {"uint16",   dliteUInt,      2,                     alignof(uint16_t)},
   {"uint32",   dliteUInt,      4,                     alignof(uint32_t)},
   {"uint64",   dliteUInt,      8,                     alignof(uint64_t)},
-  {"float",    dliteFloat,     sizeof(float),         alignof(float)},
+  {"float",    dliteFloat,     sizeof(double),        alignof(double)},
   {"single",   dliteFloat,     sizeof(float),         alignof(float)},
   {"double",   dliteFloat,     sizeof(double),        alignof(double)},
   {"longdouble",dliteFloat,    sizeof(long double),   alignof(long double)},
@@ -88,6 +89,7 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
+  {"str",      dliteStringPtr, sizeof(char *),        alignof(char *)},
   {"ref",      dliteRef,       sizeof(DLiteRef),      alignof(DLiteRef)},
   {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
   {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
@@ -515,7 +517,8 @@ int dlite_type_set_dtype_and_size(const char *typename,
   if (strncmp(typename, "blob", namelen) == 0) {
     *dtype = dliteBlob;
     *size = typesize;
-  } else if (strncmp(typename, "string", namelen) == 0) {
+  } else if (strncmp(typename, "string", namelen) == 0 ||
+             strncmp(typename, "str", namelen)) {
     *dtype = dliteFixString;
     *size = typesize+1;
   } else {
@@ -595,6 +598,7 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->name = strdup(s->name);
       d->type = s->type;
       d->size = s->size;
+      if (s->ref) d->ref = strdup(s->ref);
       d->ndims = s->ndims;
       if (d->ndims) {
         int i;
@@ -718,19 +722,19 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteBlob:
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dlitePrintError,
+        if (v < 0) return err(dliteSerialiseError,
                               "error printing initial quote for blob");
         m += v;
       }
     for (i=0; i<size; i++) {
       int v = snprintf(dest+m, PDIFF(n, m), "%02x",
                        *((unsigned char *)p+i));
-      if (v < 0) return err(dlitePrintError, "error printing blob");
+      if (v < 0) return err(dliteSerialiseError, "error printing blob");
       m += v;
     }
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dlitePrintError,
+        if (v < 0) return err(dliteSerialiseError,
                               "error printing final quote for blob");
         m += v;
       }
@@ -863,10 +867,11 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
     }
     break;
   }
+
   if (m < 0) {
     char buf[32];
     dlite_type_set_typename(dtype, size, buf, sizeof(buf));
-    return errx(dlitePrintError, "error printing type %s", buf);
+    return errx(dliteSerialiseError, "error printing type %s", buf);
   }
   return m;
 }
@@ -905,7 +910,6 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
   assert(0 <= m && m < (int)*n);
   return m;
 }
-
 
 
 /* Maximum number of jsmn tokens in a dimension, property and relation */
@@ -1117,14 +1121,9 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       jsmn_parser parser;
       jsmntok_t tokens[MAX_PROPERTY_TOKENS];
       const jsmntok_t *t, *d;
-      int r, i;
+      int r, i, errnum;
 
-      if (prop->name) free(prop->name);
-      if (prop->ref)  free(prop->ref);
-      if (prop->dims) free(prop->dims);
-      if (prop->unit) free(prop->unit);
-      if (prop->description) free(prop->description);
-      memset(prop, 0, sizeof(DLiteProperty));
+      dlite_property_clear(prop);
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
@@ -1144,22 +1143,25 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       prop->name = strndup(src + t->start, t->end - t->start);
 
       if (!(t = jsmn_item(src, tokens, "type")))
-        return errx(dliteParseError, "missing property type: '%s'", src);
-      if (dlite_type_set_dtype_and_size(src + t->start,
-                                        &prop->type, &prop->size))
-        return -1;
+        return dlite_property_clear(prop),
+          errx(dliteParseError, "missing property type: '%s'", src);
+      if ((errnum = dlite_type_set_dtype_and_size(src + t->start,
+                                                  &prop->type, &prop->size)))
+        return dlite_property_clear(prop), errnum;
 
       if ((t = jsmn_item(src, tokens, "$ref")))
         prop->ref = strndup(src + t->start, t->end - t->start);
 
       if ((t = jsmn_item(src, tokens, "dims"))) {
         if (t->type != JSMN_ARRAY)
-          return errx(dliteParseError, "property dims should be an array");
+          return dlite_property_clear(prop),
+            errx(dliteParseError, "property dims should be an array");
         prop->ndims = t->size;
         prop->dims = calloc(prop->ndims, sizeof(char *));
         for (i=0; i < prop->ndims; i++) {
           if (!(d = jsmn_element(src, t, i)))
-            return err(dliteParseError, "error parsing property dimensions: %.*s",
+            return dlite_property_clear(prop),
+              err(dliteParseError, "error parsing property dimensions: %.*s",
                        t->end - t->start, src + t->start);
           prop->dims[i] = strndup(src + d->start, d->end - d->start);
         }
