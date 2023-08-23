@@ -12,7 +12,7 @@
       "description": "File name."
     },
     "data": {
-      "type": "float64",
+      "type": "float32",
       "shape": ["channels", "height", "width"],
       "description": "Image data."
     }

@@ -5,6 +5,7 @@ from skimage.io import imread, imsave
 from skimage.exposure import equalize_hist
 
 import dlite
+from dlite.options import Options
 
 
 class image(dlite.DLiteStorageBase):
@@ -32,11 +33,10 @@ class image(dlite.DLiteStorageBase):
         """Returns TEMImage instance."""
         as_gray = dlite.asbool(self.options.as_gray)
         data = imread(
-            self.location, as_gray=as_gray, plugin=self.options.plugin
+            self.location, as_gray=as_gray, plugin=self.options.get("plugin"),
         )
 
         # Infer dimensions
-        data = d[data]
         shape = [1]*3
         shape[3 - len(data.shape):] = data.shape
         dimnames = "channels", "height", "width"
@@ -46,7 +46,7 @@ class image(dlite.DLiteStorageBase):
         Image = dlite.get_instance(self.meta)
         image = Image(dimensions=dimensions)
         image.filename = self.location
-        image.data = np.array(d[data], ndmin=3)
+        image.data = np.array(data, ndmin=3)
 
         return image
 
@@ -60,4 +60,8 @@ class image(dlite.DLiteStorageBase):
         if data.shape[0] == 1:
             data = data[0,:,:]
 
-        imsave(self.location, data, plugin=self.options.plugin)
+        hi, lo = data.max(), data.min()
+        scaled = np.uint8((data - lo)/(hi - lo + 1e-3)*256)
+        imsave(
+            self.location, scaled, plugin=self.options.get("plugin")
+        )
