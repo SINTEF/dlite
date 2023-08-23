@@ -128,3 +128,6 @@ Now you are ready to run the pipeline
 [data/composition.csv]: data/composition.csv
 [data/precipitate_statistics.csv]: data/precipitate_statistics.csv
 [data/hardness.csv]: data/hardness.csv
+[data/BF_100-at-m5-and-2_001.json]: data/BF_100-at-m5-and-2_001.json
+[data/040.json]: data/040.json
+[data/6c8cm_008.json]: data/6c8cm_008.json
