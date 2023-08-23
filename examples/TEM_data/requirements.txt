@@ -1,4 +1,5 @@
 dlite-python
+tripper
 oteapi-dlite
 oteapi-services
 otelib

@@ -1,0 +1,20 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/Image",
+  "description": "Metadata for an image.",
+  "dimensions": {
+    "channels": "Number of channels (1 for gray-scale, 3 for RGB and 4 for RGBA).",
+    "height": "Image hight",
+    "width": "Image width."
+  },
+  "properties": {
+    "filename": {
+      "type": "string",
+      "description": "File name."
+    },
+    "data": {
+      "type": "float64",
+      "shape": ["channels", "height", "width"],
+      "description": "Image data."
+    }
+  }
+}

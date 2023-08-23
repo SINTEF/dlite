@@ -14,9 +14,9 @@
       "description": "File name."
     },
     "data": {
-      "type": "string",
+      "type": "float64",
       "shape": ["zSize2", "zSize", "ySize", "xSize"],
-      "description": "Image data. Noth that the indexing starts with the 4th dimension. For a 2D image, zSize2 and zSize will be one."
+      "description": "Image data. Note that the indexing starts with the 4th dimension. For a 2D image, zSize2 and zSize will be one."
     },
     "pixelUnit": {
       "type": "string",
