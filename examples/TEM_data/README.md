@@ -28,7 +28,7 @@ room temperature (RT) and then directly aged for 5 hours at 185C.
 
 ![profile-DA](figs/profile-DA.svg)
 
-*Figure: Heat treatment profile, direct aging.*
+*Figure: Heat treatment profile for condition A.  Direct aging.*
 
 Two bright-field TEM images were acquired from a sample prepared after
 aging (marked with A in the profile above).  The first is a
@@ -52,7 +52,7 @@ aging.  It was also pre-baked for 24h at 90C.
 
 ![profile-NA](figs/profile-NA.svg)
 
-*Figure: Heat treatment profile, natural aging.*
+*Figure: Heat treatment profile for condition B.  Natural aging.*
 
 An atomic-resolution high angle annular dark-field (HAADF) TEM image
 was acquired from a prepared after aging (marked with B in the profile
@@ -78,11 +78,14 @@ The case
 
 Datasets
 --------
-- Raw images.  These images are in Gatan DM3 format and are very large.  They can be downloaded from
-  https://folk.ntnu.no/friisj/temdata/.  They can be parsed using the dm3 plugin.
-- Alloy composition
-- Precipitate statistics
-- Hardness curve
+- Raw images.  The images [BF_100-at-m5-and-2_001], [040] and [6c8cm_008] are in Gatan DM3 format and are very large.  They can be downloaded from
+  https://folk.ntnu.no/friisj/temdata/.  They can be parsed using the
+  [dm3 plugin].
+- Alloy composition.  Stored in [data/composition.csv].
+  Numbers are in weight-percent.
+- Precipitate statistics.  Stored in [data/precipitate_statistics.csv].
+- Hardness measurements.  Stored in [data/hardness.csv].
+
 
 
 Setup
@@ -100,7 +103,7 @@ Then start the OTEAPI-services with docker-compose:
 
 Running the example
 -------------------
-Now you are
+Now you are ready to run the pipeline
 
    python pipeline.py
 
@@ -109,3 +112,8 @@ Now you are
 [040]: https://folk.ntnu.no/friisj/temdata/040.dm3
 [6c8cm_008]: https://folk.ntnu.no/friisj/temdata/6c8cm_008.dm3
 [oteapi-services]: https://github.com/EMMC-ASBL/oteapi-services
+
+[dm3 plugin]: plugins/dm3.py
+[data/composition.csv]: data/composition.csv
+[data/precipitate_statistics.csv]: data/precipitate_statistics.csv
+[data/hardness.csv]: data/hardness.csv

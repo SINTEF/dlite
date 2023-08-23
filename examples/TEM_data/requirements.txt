@@ -1,10 +1,10 @@
 dlite-python
 tripper
 oteapi-dlite
-oteapi-services
 otelib
 requests
 matplotlib
 scikit-image
 ncempy
+h5py
 #hyperspy
