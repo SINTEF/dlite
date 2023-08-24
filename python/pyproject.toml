@@ -13,7 +13,7 @@ build-verbosity = 1
 
 [tool.cibuildwheel.windows]
 test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
-environment = { CI_BUILD_CMAKE_ARGS="-DPython3_FIND_STRATEGY=LOCATION,-DPython3_ROOT_DIR=$env:Python3_ROOT_DIR,-DPython3_EXECUTABLE=$env:pythonLocation\\python$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\").exe" }
+# environment = { CI_BUILD_CMAKE_ARGS="-DPython3_FIND_STRATEGY=LOCATION,-DPython3_ROOT_DIR=$env:Python3_ROOT_DIR,-DPython3_EXECUTABLE=$env:pythonLocation\\python$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\").exe" }
 
 [tool.cibuildwheel.linux]
 environment-pass = ["CI_BUILD_CMAKE_ARGS", "CI_PIP_CACHE_DIR"]
