@@ -10,48 +10,46 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install Python
-      uses: actions/setup-python@v4
-      with:
-        # Using minimum supported Python version
-        python-version: '3.7'
-        update-environment: true
-
-    - name: apt-get update
-      run: sudo apt-get update --fix-missing
-
     - name: Install dependencies
       run: |
+        sudo apt-get update --fix-missing && \
         sudo apt-get install \
           libhdf5-dev \
           swig4.0 \
           doxygen \
           graphviz \
+          python3 \
+          python3-pip \
+          python3-dev \
           python3-numpy \
           python3-yaml
 
     - name: Install Python dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt -r requirements_dev.txt -r requirements_doc.txt
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -U setuptools wheel
+        python3 -m pip install -r requirements.txt -r requirements_dev.txt -r requirements_doc.txt
 
-    - name: check numpy
+    - name: Check numpy
       run: |
-        which python
-        python --version
-        python -m pip --version
-        python -c 'import numpy as np; print(np.get_include())'
+        which python3
+        python3 --version
+        python3 -m pip --version
+        python3 -c 'import numpy as np; print(np.get_include())'
 
     - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
       # Normally we would install cmake with the package manager, but
       # ubuntu 20.04 doesn't seems to keep older versions of cmake around...
       # Fortunately, there exists a pip package
       run: |
-        pip install cmake==3.25.2
+        python3 -m pip install cmake==3.25.2
         cmake --version
 
     - name: configure
-      run: cmake -B build -Wno-missing-field-initializers . -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES -DPython3_ROOT_DIR=${Python3_ROOT_DIR} -DpythonLocation=${pythonLocation} -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH} -DPython_ROOT_DIR=${Python_ROOT_DIR} -DLD_LIBRARY_PATH=${LD_LIBRARY_PATH} -DPython3_FIND_STRATEGY=LOCATION
+      run: |
+        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
+        CFLAGS='-Wno-missing-field-initializers' \
+        cmake -B build . -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES
 
     - name: make
       run: cmake --build .
@@ -67,12 +65,11 @@ jobs:
 
     - name: build Linux wheel
       run: |
-        pip install -U numpy setuptools wheel build
-        python -m build --outdir dist python
+        python3 -m pip install build
+        python3 -m build --outdir dist .
+      working-directory: python
 
-    - name: Install newly built wheel
-      run: pip install --user dist/*.whl
-
-    - name: test the installation
-      run: python __main__.py
-      working-directory: bindings/python/tests
+    - name: Install python package and test the installation
+      run: |
+        python3 -m pip install --user dist/*.whl
+        python3 bindings/python/tests/__main__.py
