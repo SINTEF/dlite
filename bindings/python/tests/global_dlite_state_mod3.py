@@ -6,7 +6,5 @@ import dlite
 
 assert len(dlite.istore_get_uuids()) == 3 + 4
 
-coll=dlite.Collection()
+coll = dlite.Collection()
 assert len(dlite.istore_get_uuids()) == 3 + 5
-
-

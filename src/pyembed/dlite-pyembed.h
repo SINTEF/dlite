@@ -18,6 +18,11 @@
 #include "utils/plugin.h"
 #include "dlite.h"
 
+/* Remove __attribute__ when we are not compiling with gcc */
+#ifndef __GNUC__
+# define __attribute__(x)
+#endif
+
 
 /**
   Initialises the embedded Python environment.
@@ -35,6 +40,28 @@ int dlite_pyembed_finalise(void);
 */
 const char *dlite_pyembed_classname(PyObject *cls);
 
+/**
+  Return DLite error code given Python exception type.
+ */
+DLiteErrors dlite_pyembed_errcode(PyObject *type);
+
+/**
+  Return Python exception class corresponding to given DLite error code.
+  Returns NULL if `code` is zero.
+ */
+PyObject *dlite_pyembed_exception(DLiteErrors code);
+
+/**
+  Writes Python error message to `errmsg` (of length `len`) if an
+  Python error has occured.
+
+  On return the The Python error indicator is reset.
+
+  Returns 0 if no error has occured, otherwise return the number of
+  bytes written to `errmsg`. On error -1 is returned.
+*/
+int dlite_pyembed_errmsg(char *errmsg, size_t errlen);
+
 
 /**
   Reports and restes Python error.
@@ -44,24 +71,28 @@ const char *dlite_pyembed_classname(PyObject *cls);
 
   Returns `eval`.
  */
-int dlite_pyembed_err(int eval, const char *msg, ...);
+int dlite_pyembed_err(int eval, const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 2, 3)));
 
 /**
   Like dlite_pyembed_err() but takes a `va_list` as input.
  */
-int dlite_pyembed_verr(int eval, const char *msg, va_list ap);
+int dlite_pyembed_verr(int eval, const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 2, 0)));
 
 /**
   Checks if an Python error has occured.  Returns zero if no error has
   occured.  Otherwise dlite_pyembed_err() is called and non-zero is
   returned.
  */
-int dlite_pyembed_err_check(const char *msg, ...);
+int dlite_pyembed_err_check(const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
 
 /**
   Like dlite_pyembed_err_check() but takes a `va_list` as input.
  */
-int dlite_pyembed_verr_check(const char *msg, va_list ap);
+int dlite_pyembed_verr_check(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
 
 
 /**

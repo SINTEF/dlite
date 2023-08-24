@@ -143,7 +143,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     size_t size=0, m=0;
     char *buf=NULL;
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
-                   "\"%s\" in search path:\n", name);
+                   "\"%s\" in\n   search path:\n", name);
     if (r >= 0) m += r;
     while (paths && (p = *(paths++)) && ++n) {
       r = asnpprintf(&buf, &size, m, "   - %s\n", p);
@@ -153,20 +153,39 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 #ifdef WITH_PYTHON
     FUPaths *ppaths = dlite_python_storage_paths();
     FUIter *iter = fu_startmatch("*.py", ppaths);
+    const char **failed_paths;
     r = asnpprintf(&buf, &size, m,
-                   "   ...the following Python plugins were also checked:\n");
+                   "   The following Python plugins were also checked:\n");
     if (r >= 0) m += r;
     while ((p = fu_nextmatch(iter))) {
       r = asnpprintf(&buf, &size, m, "   - %s\n", p);
       if (r >= 0) m += r;
     }
-#endif
 
+    if ((failed_paths = dlite_python_storage_failed_paths())) {
+      r = asnpprintf(&buf, &size, m,
+                     "   The following Python plugins failed to load:\n");
+      if (r >= 0) m += r;
+      while ((failed_paths && *failed_paths)) {
+        r = asnpprintf(&buf, &size, m, "   - %s\n", *(failed_paths++));
+        if (r >= 0) m += r;
+      }
+      if (!getenv("DLITE_PYDEBUG")) {
+        r = asnpprintf(&buf, &size, m,
+                       "   To see error messages from Python storages, please "
+                       "rerun with the\n"
+                       "   DLITE_PYDEBUG environment variable set.\n");
+        if (r >= 0) m += r;
+      }
+    }
+
+#endif
     if (n <= 1)
-      m += asnpprintf(&buf, &size, m, "Are the required Python packages "
-                      "installed or %sDLITE_STORAGE_PLUGIN_DIRS "
-                      "or DLITE_PYTHON_STORAGE_PLUGIN_DIRS "
-                      "environment variables set?", submsg);
+      m += asnpprintf(&buf, &size, m,
+                      "   Are the required Python packages installed or %s\n"
+                      "   DLITE_STORAGE_PLUGIN_DIRS or "
+                      "DLITE_PYTHON_STORAGE_PLUGIN_DIRS\n"
+                      "   environment variables set?", submsg);
     errx(1, "%s", buf);
     free(buf);
   }

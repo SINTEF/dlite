@@ -89,6 +89,7 @@ static struct _TypeDescr {
   {"float128", dliteFloat,     16,                    alignof(float128_t)},
 #endif
   {"string",   dliteStringPtr, sizeof(char *),        alignof(char *)},
+  {"str",      dliteStringPtr, sizeof(char *),        alignof(char *)},
   {"ref",      dliteRef,       sizeof(DLiteRef),      alignof(DLiteRef)},
   {"dimension",dliteDimension, sizeof(DLiteDimension),alignof(DLiteDimension)},
   {"property", dliteProperty,  sizeof(DLiteProperty), alignof(DLiteProperty)},
@@ -516,7 +517,8 @@ int dlite_type_set_dtype_and_size(const char *typename,
   if (strncmp(typename, "blob", namelen) == 0) {
     *dtype = dliteBlob;
     *size = typesize;
-  } else if (strncmp(typename, "string", namelen) == 0) {
+  } else if (strncmp(typename, "string", namelen) == 0 ||
+             strncmp(typename, "str", namelen)) {
     *dtype = dliteFixString;
     *size = typesize+1;
   } else {
@@ -720,19 +722,19 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteBlob:
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dlitePrintError,
+        if (v < 0) return err(dliteSerialiseError,
                               "error printing initial quote for blob");
         m += v;
       }
     for (i=0; i<size; i++) {
       int v = snprintf(dest+m, PDIFF(n, m), "%02x",
                        *((unsigned char *)p+i));
-      if (v < 0) return err(dlitePrintError, "error printing blob");
+      if (v < 0) return err(dliteSerialiseError, "error printing blob");
       m += v;
     }
     if (!(qflags & strquoteNoQuote)) {
         int v = snprintf(dest+m, PDIFF(n, m), "\"");
-        if (v < 0) return err(dlitePrintError,
+        if (v < 0) return err(dliteSerialiseError,
                               "error printing final quote for blob");
         m += v;
       }
@@ -869,7 +871,7 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   if (m < 0) {
     char buf[32];
     dlite_type_set_typename(dtype, size, buf, sizeof(buf));
-    return errx(dlitePrintError, "error printing type %s", buf);
+    return errx(dliteSerialiseError, "error printing type %s", buf);
   }
   return m;
 }

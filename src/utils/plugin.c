@@ -56,7 +56,7 @@ int plugin_decref(Plugin *plugin)
 /*
   Creates a new plugin type and returns a pointer to information about it.
 
-  `name` is the name of the new plugin type.
+  `kind` is the name of the new plugin kind.
   `symbol` is the name of the function that plugins should define
   `envvar` is the name of environment variable with plugin search path
   `state` pointer to global state passed to the plugin function.

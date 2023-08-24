@@ -2,7 +2,7 @@
 import os
 from typing import TYPE_CHECKING
 
-import bson as pybson # Must be pymongo.bson
+import bson as pybson  # Must be pymongo.bson
 
 import dlite
 from dlite.options import Options
@@ -38,7 +38,9 @@ class bson(dlite.DLiteStorageBase):
         The BSON data is translated to JSON.
         """
         self.options = Options(options, defaults="mode=a;soft7=true")
-        self.mode = dict(r="rb", w="wb", a="rb+", append="rb+")[self.options.mode]
+        self.mode = dict(r="rb", w="wb", a="rb+", append="rb+")[
+            self.options.mode
+        ]
         if self.mode == "rb" and not os.path.exists(uri):
             raise FileNotFoundError(f"Did not find URI {uri!r}")
 
@@ -71,7 +73,7 @@ class bson(dlite.DLiteStorageBase):
 
             for uuid in self.queue():
                 props = self._data[uuid]["properties"]
-                if isinstance(props, dict): # Metadata props is list
+                if isinstance(props, dict):  # Metadata props is list
                     for key in props:
                         if isinstance(props[key], (bytearray, bytes)):
                             props[key] = props[key].hex()
@@ -101,9 +103,13 @@ class bson(dlite.DLiteStorageBase):
             inst: A DLite Instance to store in the BSON storage.
 
         """
-        self._data[inst.uuid] = inst.asdict(soft7=dlite.asbool(self.options.soft7))
+        self._data[inst.uuid] = inst.asdict(
+            soft7=dlite.asbool(self.options.soft7)
+        )
 
-    def queue(self, pattern: "Optional[str]" = None) -> "Generator[str, None, None]":
+    def queue(
+        self, pattern: "Optional[str]" = None
+    ) -> "Generator[str, None, None]":
         """Generator method that iterates over all UUIDs in the storage whose metadata
         URI matches global pattern.
 

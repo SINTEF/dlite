@@ -43,8 +43,9 @@ def _get_uri(inst, base_uri):
 def _value(graph, subject=None, predicate=None, object=None, **kwargs):
     """Wrapper around rdflib.Graph.value() that raises an exception
     if the value is missing."""
-    value = graph.value(subject=subject, predicate=predicate, object=object,
-                        **kwargs)
+    value = graph.value(
+        subject=subject, predicate=predicate, object=object, **kwargs
+    )
     if not value:
         raise ValueError(
             f"missing value for subject={subject}, predicate={predicate}, "
@@ -58,7 +59,9 @@ def _ref(value):
     return URIRef(value) if _is_valid_uri(value) else Literal(value)
 
 
-def to_graph(inst, graph=None, base_uri='', base_prefix=None, include_meta=None):
+def to_graph(
+    inst, graph=None, base_uri="", base_prefix=None, include_meta=None
+):
     """Serialise DLite instance to a rdflib Graph object.
 
     Arguments:
@@ -82,7 +85,8 @@ def to_graph(inst, graph=None, base_uri='', base_prefix=None, include_meta=None)
     if base_uri and base_uri[-1] not in "#/":
         base_uri += "/"
     if base_prefix is not None and base_uri not in [
-            str(v) for _, v in graph.namespaces()]:
+        str(v) for _, v in graph.namespaces()
+    ]:
         graph.bind(base_prefix, base_uri)
 
     this = URIRef(_get_uri(inst, base_uri))
@@ -105,23 +109,35 @@ def to_graph(inst, graph=None, base_uri='', base_prefix=None, include_meta=None)
             # Add type (PropertyInstance)?
             graph.add((prop, DM.instanceOf, URIRef(f"{inst.meta.uri}#{k}")))
             graph.add((prop, DM.hasLabel, Literal(k)))
-            graph.add((prop, DM.hasValue,
-                       Literal(inst.get_property_as_string(k, flags=1))))
+            graph.add(
+                (
+                    prop,
+                    DM.hasValue,
+                    Literal(inst.get_property_as_string(k, flags=1)),
+                )
+            )
     else:
-        graph.add((this, RDF.type,
-                   DM.Entity if inst.meta.uri == dlite.ENTITY_SCHEMA
-                   else DM.Metadata))
+        graph.add(
+            (
+                this,
+                RDF.type,
+                DM.Entity
+                if inst.meta.uri == dlite.ENTITY_SCHEMA
+                else DM.Metadata,
+            )
+        )
         if inst.description:
-            graph.add((this, DM.hasDescription,
-                       Literal(inst.description, lang="en")))
+            graph.add(
+                (this, DM.hasDescription, Literal(inst.description, lang="en"))
+            )
         for d in inst.properties["dimensions"]:
             dim = URIRef(this + sep + d.name)
             graph.add((this, DM.hasDimension, dim))
             graph.add((dim, RDF.type, DM.Dimension))
-            graph.add((dim, DM.hasDescription,
-                       Literal(d.description, lang="en")))
-            graph.add((dim, DM.hasLabel,
-                       Literal(d.name, lang="en")))
+            graph.add(
+                (dim, DM.hasDescription, Literal(d.description, lang="en"))
+            )
+            graph.add((dim, DM.hasLabel, Literal(d.name, lang="en")))
         for p in inst.properties["properties"]:
             prop = URIRef(this + sep + p.name)
             graph.add((this, DM.hasProperty, prop))
@@ -147,8 +163,16 @@ def to_graph(inst, graph=None, base_uri='', base_prefix=None, include_meta=None)
     return graph
 
 
-def to_rdf(inst, destination=None, format="turtle", base_uri='',
-           base_prefix=None, include_meta=None, decode=True, **kwargs):
+def to_rdf(
+    inst,
+    destination=None,
+    format="turtle",
+    base_uri="",
+    base_prefix=None,
+    include_meta=None,
+    decode=True,
+    **kwargs,
+):
     """Serialise DLite instance to string.
 
     Arguments:
@@ -170,8 +194,12 @@ def to_rdf(inst, destination=None, format="turtle", base_uri='',
         The serialised instance if `destination is not None.
         If `decode` is true, a string is returned, otherwise a bytes object.
     """
-    graph = to_graph(inst, base_uri=base_uri, base_prefix=base_prefix,
-                     include_meta=include_meta)
+    graph = to_graph(
+        inst,
+        base_uri=base_uri,
+        base_prefix=base_prefix,
+        include_meta=include_meta,
+    )
     if isinstance(destination, pathlib.PurePath):
         destination = str(destination)
     s = graph.serialize(destination=destination, format=format, **kwargs)
@@ -203,7 +231,8 @@ def from_graph(graph, id=None):
             pass
         else:
             raise ValueError(
-                "id must be given when graph has move than one entity")
+                "id must be given when graph has move than one entity"
+            )
     elif _is_valid_uri(id):
         rdfid = URIRef(id)
     else:
@@ -219,7 +248,8 @@ def from_graph(graph, id=None):
             rdfid = v
             uuid = id
             dlite_id = (
-                rdfid.split("#", 1)[-1] if "#" in rdfid
+                rdfid.split("#", 1)[-1]
+                if "#" in rdfid
                 else rdfid.rsplit("/", 1)[-1]
             )
             rdfid = URIRef(rdfid)
@@ -229,8 +259,10 @@ def from_graph(graph, id=None):
     if uuid:
         if dlite.get_uuid(dlite_id) != str(uuid):
             if dlite.get_uuid(dlite_id) != uuid:
-                raise ValueError(f"provided id \"{id}\" does not correspond "
-                                 f"to uuid \"{uuid}\"")
+                raise ValueError(
+                    f'provided id "{id}" does not correspond '
+                    f'to uuid "{uuid}"'
+                )
     else:
         uuid = dlite.get_uuid(dlite_id)
 
@@ -279,9 +311,12 @@ def from_graph(graph, id=None):
             description=graph.value(rdfid, DM.hasDescription),
         )
     else:
-        dims = {str(_value(graph, dim, DM.hasLabel)):
-                int(_value(graph, dim, DM.hasValue))
-                for dim in dimensions}
+        dims = {
+            str(_value(graph, dim, DM.hasLabel)): int(
+                _value(graph, dim, DM.hasValue)
+            )
+            for dim in dimensions
+        }
         inst = dlite.Instance.from_metaid(meta.uri, dims, id=dlite_id)
         for prop in properties:
             label = _value(graph, prop, DM.hasLabel)
@@ -291,8 +326,16 @@ def from_graph(graph, id=None):
     return inst
 
 
-def from_rdf(source=None, location=None, file=None, data=None,
-             format=None, id=None, publicID=PUBLIC_ID, **kwargs):
+def from_rdf(
+    source=None,
+    location=None,
+    file=None,
+    data=None,
+    format=None,
+    id=None,
+    publicID=PUBLIC_ID,
+    **kwargs,
+):
     """Instantiate DLite instance from RDF.
 
     The source is specified using one of `source`, `location`, `file` or `data`.
@@ -322,6 +365,13 @@ def from_rdf(source=None, location=None, file=None, data=None,
         source = str(source)
     if format is None:
         format = guess_format(source)
-    graph.parse(source=source, location=location, file=file, data=data,
-                format=format, publicID=publicID, **kwargs)
+    graph.parse(
+        source=source,
+        location=location,
+        file=file,
+        data=data,
+        format=format,
+        publicID=publicID,
+        **kwargs,
+    )
     return from_graph(graph, id=id)

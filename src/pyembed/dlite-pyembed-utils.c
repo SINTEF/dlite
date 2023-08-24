@@ -1,5 +1,6 @@
-#include <Python.h>
+#include "dlite-misc.h"
 #include "dlite-pyembed.h"
+#include "dlite-pyembed-utils.h"
 
 
 /*

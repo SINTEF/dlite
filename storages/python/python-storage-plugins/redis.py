@@ -33,7 +33,9 @@ class redis(dlite.DLiteStorageBase):
               transparently encrypt all instances before sending them to Redis.
               Generate the key with `crystallography.fernet.generate_key()`.
         """
-        opts = Options(options, defaults="port=6379;socket_keepalive=true;db=0")
+        opts = Options(
+            options, defaults="port=6379;socket_keepalive=true;db=0"
+        )
 
         # Pop out options passed to redis.set()
         self.setopts = {
@@ -76,6 +78,7 @@ class redis(dlite.DLiteStorageBase):
             raise dlite.DLiteError(f"No such instance redis storage: {uuid}")
         if self.fernet_key:
             from cryptography.fernet import Fernet
+
             f = Fernet(self.fernet_key.encode())
             data = f.decrypt(data)
         return dlite.Instance.from_bson(data)
@@ -89,6 +92,7 @@ class redis(dlite.DLiteStorageBase):
         data = bytes(inst.asbson())
         if self.fernet_key:
             from cryptography.fernet import Fernet
+
             key = self.fernet_key.encode()
             f = Fernet(self.fernet_key)
             data = f.encrypt(data)
