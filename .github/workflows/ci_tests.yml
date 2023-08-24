@@ -13,7 +13,9 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.7"  # Using minimum supported Python version
+        # Using minimum supported Python version
+        python-version: '3.7'
+        update-environment: true
 
     - name: apt-get update
       run: sudo apt-get update --fix-missing
@@ -50,6 +52,7 @@ jobs:
 
     - name: configure
       run: |
+        echo "Python3_ROOT_DIR=${Python3_ROOT_DIR}"
         mkdir build
         cd build
         CFLAGS='-Wno-missing-field-initializers' \
