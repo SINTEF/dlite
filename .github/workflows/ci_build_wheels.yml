@@ -77,8 +77,8 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.${{ contains(matrix.py_minors, ',') && '11' || matrix.py_minors }}"
-          architecture: ${{ contains(fromJSON('["x86_64", "amd64"]'), matrix.arch) && 'x64' || 'x86' }}
+          python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
+          architecture: ${{ matrix.arch == '' && 'x86' || 'x64' }}
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
