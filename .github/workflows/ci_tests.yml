@@ -64,10 +64,7 @@ jobs:
       working-directory: build
 
     - name: build Linux wheel
-      run: |
-        python3 -m pip install build
-        python3 -m build --outdir dist .
-      working-directory: python
+      run: python3 -m pip wheel -w dist ./python
 
     - name: Install python package and test the installation
       run: |
