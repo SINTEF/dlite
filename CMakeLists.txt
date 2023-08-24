@@ -231,6 +231,7 @@ endif()
 if(WITH_PYTHON)
   message(STATUS "Looking for Python3")
   if(CROSS_TARGET AND MINGW)
+    message(STATUS "Cross-compiling for Windows on Linux using MinGW")
     set(Python3_FIND_REGISTRY NEVER)
     set(Python3_FIND_STRATEGY LOCATION)
     set(Python3_ROOT_DIR /usr/${TOOLCHAIN_PREFIX})
@@ -243,6 +244,7 @@ if(WITH_PYTHON)
   endif()
 
   # Find Python package
+  message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   if (PYTHON_VERSION)
     find_package(Python3 ${PYTHON_VERSION} EXACT
