@@ -26,6 +26,21 @@ typedef struct {
 } DLitePythonStorage;
 
 
+/* Standard addition to error message for errors occuring within a plugin */
+static char *failmsg()
+{
+  if (!getenv("DLITE_PYDEBUG"))
+    return
+      "\n"
+      "   To see error messages from Python storages, please rerun with the\n"
+      "   DLITE_PYDEBUG environment variable set.\n"
+      "   For example: `export DLITE_PYDEBUG=`\n"
+      "\n";
+  else
+    return "";
+}
+
+
 /*
   Opens `location` and returns a newly created storage for it.
 
@@ -55,7 +70,8 @@ opener(const DLiteStoragePlugin *api, const char *location,
               classname);
 
   v = PyObject_CallMethod(obj, "open", "ss", location, options);
-  if (dlite_pyembed_err_check("calling open() in Python plugin '%s'", classname))
+  if (dlite_pyembed_err_check("calling open() in Python plugin '%s'%s",
+                              classname, failmsg()))
     goto fail;
 
   /* Check if the open() method has set attribute `writable` */
@@ -122,8 +138,8 @@ int closer(DLiteStorage *s)
   if (!PyObject_HasAttrString(sp->obj, "close")) return retval;
 
   v = PyObject_CallMethod(sp->obj, "close", "");
-  if (dlite_pyembed_err_check("calling close() in Python plugin '%s'",
-                              classname))
+  if (dlite_pyembed_err_check("calling close() in Python plugin '%s'%s",
+                              classname, failmsg()))
     retval = 1;
   Py_XDECREF(v);
   Py_DECREF(sp->obj);
@@ -150,8 +166,8 @@ int flusher(DLiteStorage *s)
   if (!PyObject_HasAttrString(sp->obj, "flush")) return retval;
 
   v = PyObject_CallMethod(sp->obj, "flush", "");
-  if (dlite_pyembed_err_check("calling flush() in Python plugin '%s'",
-                              classname))
+  if (dlite_pyembed_err_check("calling flush() in Python plugin '%s'%s",
+                              classname, failmsg()))
     retval = 1;
   Py_XDECREF(v);
   return retval;
@@ -249,7 +265,8 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
     inst = dlite_pyembed_get_instance(v);
     Py_DECREF(v);
   } else
-    dlite_pyembed_err(1, "calling load() in Python plugin '%s'", classname);
+    dlite_pyembed_err(1, "calling load() in Python plugin '%s'%s",
+                      classname, failmsg());
 
   return inst;
 }
@@ -270,8 +287,8 @@ int saver(DLiteStorage *s, const DLiteInstance *inst)
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", s->api->name);
   v = PyObject_CallMethod(sp->obj, "save", "O", pyinst);
-  if (dlite_pyembed_err_check("calling save() in Python plugin '%s'",
-                              classname))
+  if (dlite_pyembed_err_check("calling save() in Python plugin '%s'%s",
+                              classname, failmsg()))
     goto fail;
   retval = 0;
  fail:
@@ -297,8 +314,8 @@ int deleter(DLiteStorage *s, const char *id)
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", s->api->name);
   v = PyObject_CallMethod(sp->obj, "delete", "s", uuid);
-  if (dlite_pyembed_err_check("calling delete() in Python plugin '%s'",
-                              classname))
+  if (dlite_pyembed_err_check("calling delete() in Python plugin '%s'%s",
+                              classname, failmsg()))
     goto fail;
   retval = 0;
  fail:
@@ -331,8 +348,8 @@ DLiteInstance *memloader(const DLiteStoragePlugin *api,
     inst = dlite_pyembed_get_instance(v);
     Py_DECREF(v);
   } else
-    dlite_pyembed_err(1, "calling from_bytes() in Python plugin '%s'",
-                      classname);
+    dlite_pyembed_err(1, "calling from_bytes() in Python plugin '%s'%s",
+                      classname, failmsg());
   return inst;
 }
 
@@ -354,8 +371,8 @@ int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", api->name);
   v = PyObject_CallMethod(class, "to_bytes", "O", pyinst);
-  if (dlite_pyembed_err_check("calling to_bytes() in Python plugin '%s'",
-                              classname))
+  if (dlite_pyembed_err_check("calling to_bytes() in Python plugin '%s'%s",
+                              classname, failmsg()))
     goto fail;
   if (PyBytes_Check(v)) {
     if (PyBytes_AsStringAndSize(v, &buffer, &length)) goto fail;
@@ -427,8 +444,8 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
     FAILCODE(dliteMemoryError, "allocation failure");
 
   iter->v = PyObject_CallMethod(sp->obj, "queue", "s", pattern);
-  if (dlite_pyembed_err_check("calling queue() in Python plugin '%s'",
-                              classname))
+  if (dlite_pyembed_err_check("calling queue() in Python plugin '%s'%s",
+                              classname, failmsg()))
     goto fail;
   if (!PyIter_Check(iter->v))
     FAIL1("method %s.queue() does not return a iterator object", classname);
