@@ -31,6 +31,7 @@ if TYPE_CHECKING:  # pragma: no cover
 class FactoryError(Exception):
     """Base exception for factory errors."""
 
+
 class IncompatibleClassError(FactoryError):
     """Raised if an extended class is not compatible with its dlite
     metadata."""
@@ -233,12 +234,16 @@ def objectfactory(
         A new, extended copy of the Python object `obj`.
 
     """
-    cls = cls if cls is not None else classfactory(
-        obj.__class__,
-        meta=meta,
-        url=url,
-        storage=storage,
-        id=id,
+    cls = (
+        cls
+        if cls is not None
+        else classfactory(
+            obj.__class__,
+            meta=meta,
+            url=url,
+            storage=storage,
+            id=id,
+        )
     )
     new = copy.deepcopy(obj) if deepcopy else copy.copy(obj)
     new.__class__ = cls
