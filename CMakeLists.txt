@@ -68,6 +68,8 @@ option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      YES)
 option(WITH_STATIC_PYTHON "Whether to compile with static python libraries" NO)
 
 
+message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
+
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 
@@ -76,6 +78,9 @@ set(CMAKE_C_STANDARD 99)
 
 # Set default cmake configurations
 include(SetDefaults)
+
+
+message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
 
 # Get number of CPUs
 include(ProcessorCount)
@@ -254,6 +259,7 @@ if(WITH_PYTHON)
       REQUIRED COMPONENTS Interpreter Development NumPy)
   else()
     message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
+    message(STATUS "Set Python_ROOT_DIR = ${Python_ROOT_DIR}")
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
   endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
