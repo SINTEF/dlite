@@ -67,9 +67,6 @@ option(FORCE_EXAMPLES   "Whether to force building/running examples"        NO)
 option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      YES)
 option(WITH_STATIC_PYTHON "Whether to compile with static python libraries" NO)
 
-execute_process(
-    COMMAND ${CMAKE_COMMAND} -E environment
-)
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
@@ -160,6 +157,7 @@ set(DLITE_CONFIG_VARS
 if(WITH_HDF5)
   list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
 endif()
+message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
 if(WITH_PYTHON)
   #FIME: Python3_LIBRARIES is undefined here
   list(APPEND DLITE_CONFIG_VARS
@@ -168,6 +166,7 @@ if(WITH_PYTHON)
     DLITE_PYTHON_MAPPING_PLUGIN_DIRS
     )
 endif()
+message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
 
 # ------------------------
 # Installation environment
@@ -231,6 +230,7 @@ endif()
 #
 # Python
 # ======
+message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
 if(WITH_PYTHON)
   message(STATUS "Looking for Python3")
   if(CROSS_TARGET AND MINGW)
