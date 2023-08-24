@@ -1,2 +1,3 @@
-Precipitate,number_density(#/um3),avg_length(nm),avg_crossection(nm2),volum_fraction(%)
-"beta""",30000,50,11,2
+Alloy, Condition,Precipitate,number_density(#/um3),avg_length(nm),avg_crossection(nm2),volum_fraction(%)
+Al-Mg-Si,A,"beta""",30000,50,11,2
+Al-Mg-Si,B,"beta""",35000,45,8,3
