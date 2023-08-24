@@ -14,6 +14,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 class yaml(dlite.DLiteStorageBase):
     """DLite storage plugin for YAML."""
+
     _pyyaml = pyyaml  # Keep a reference to pyyaml to have it during shutdown
 
     def open(self, location: str, options=None):
@@ -46,7 +47,8 @@ class yaml(dlite.DLiteStorageBase):
                 self._data = data
 
         self.single = (
-            "properties" in self._data if self.options.single == "auto"
+            "properties" in self._data
+            if self.options.single == "auto"
             else dlite.asbool(self.options.single)
         )
 
