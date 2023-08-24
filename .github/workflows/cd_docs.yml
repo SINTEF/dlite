@@ -75,7 +75,7 @@ jobs:
         working-directory: build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v2
         with:
           path: 'build/doc/html/'
 
