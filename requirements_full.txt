@@ -1,7 +1,4 @@
 # Optional requirements - used by various plugins or additional features like mappings
-#
-# Note: Some important indirect dependencies are not listed here.
-#
 fortran-language-server>=1.12.0,<1.13
 PyYAML>=5.4.1,<7
 # psycopg2-binary can lead to segfault - so far all seems good with v2.9.5
