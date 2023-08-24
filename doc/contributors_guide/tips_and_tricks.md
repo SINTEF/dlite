@@ -9,7 +9,7 @@ See the [Build and install to a virtual Python environment] in the installation 
 Debugging tests failing inside docker on GitHub
 -----------------------------------------------
 1. Set up a local virtual environment with the same version of Python as in the failing test.
-   See [Build and install to a virtual Python environment].
+   See [Build against Python environment].
 2. Enter your virtual environment with dlite and install cibuildwheel.
 
         workon dlite
@@ -89,4 +89,4 @@ Debugging tests failing inside docker on GitHub
 
 
 [virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
-[Build and install to a virtual Python environment]: https://sintef.github.io/dlite/getting_started/installation.html#build-and-install-to-a-virtual-python-environment
+[Build against Python environment]: https://sintef.github.io/dlite/getting_started/build/build_against_python_env.html#build-against-python-environment

@@ -29,6 +29,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install --upgrade pip -r requirements.txt
+        python3 -m pip install -r requirements_full.txt
         python3 -m pip install -r requirements_dev.txt
         python3 -m pip install -r requirements_doc.txt
 
