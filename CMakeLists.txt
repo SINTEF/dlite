@@ -248,6 +248,7 @@ if(WITH_PYTHON)
     find_package(Python3 ${PYTHON_VERSION} EXACT
       REQUIRED COMPONENTS Interpreter Development NumPy)
   else()
+    message(STATUS "Set Python3_ROOT_DIR = ${Python3_ROOT_DIR}")
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
   endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
