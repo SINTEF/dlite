@@ -51,7 +51,7 @@ jobs:
         cmake --version
 
     - name: configure
-      run: cmake -B build -Wno-missing-field-initializers . -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES -DPython3_ROOT_DIR=${Python3_ROOT_DIR}
+      run: cmake -B build -Wno-missing-field-initializers . -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES -DPython3_ROOT_DIR=${Python3_ROOT_DIR} -DpythonLocation=${pythonLocation} -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH} -DPython_ROOT_DIR=${Python_ROOT_DIR} -DLD_LIBRARY_PATH=${LD_LIBRARY_PATH}
 
     - name: make
       run: cmake --build .
