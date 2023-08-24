@@ -34,7 +34,7 @@ static char *failmsg()
       "\n"
       "   To see error messages from Python storages, please rerun with the\n"
       "   DLITE_PYDEBUG environment variable set.\n"
-      "   Ex: `export DLITE_PYDEBUG=`\n"
+      "   For example: `export DLITE_PYDEBUG=`\n"
       "\n";
   else
     return "";
