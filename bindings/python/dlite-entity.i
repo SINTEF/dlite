@@ -342,7 +342,7 @@ struct _DLiteInstance {
     } else {
       dlite_err(1, "invalid arguments to Instance()");
     }
-    return NULL;
+    abort();  // should never be reached
   }
 
   ~_DLiteInstance() {

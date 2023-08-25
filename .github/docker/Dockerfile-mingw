@@ -46,6 +46,8 @@ RUN dnf install -y \
         cppcheck \
         doxygen \
         ccache \
+        rust \
+        cargo \
         wine-core \
         wine-filesystem \
         mingw-filesystem-base \

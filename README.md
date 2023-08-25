@@ -37,9 +37,15 @@ Installation
 DLite is available on PyPI and can be installed with pip
 
 ```shell
-pip install dlite-python
+pip install dlite-python[full]
 ```
 
+The bracket `[full]` is optional, but ensures that you install all optional
+dependencies together with DLite.
+Without `[full]` you get a minimal DLite installation that only depends on
+NumPy.
+This would disable most storage plugins, except for the built-in
+"json", "bson" and "rdf" (when compiled against Redland librdf).
 For alternative installation methods, see the [installation instructions].
 
 
