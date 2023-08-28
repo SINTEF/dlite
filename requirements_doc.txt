@@ -16,5 +16,5 @@ sphinxcontrib-plantuml~=0.24
 
 
 
-nbclient<0.6,>=0.2
+nbclient>=0.2,<0.9
 docutils>=0.14,<0.21
