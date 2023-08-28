@@ -12,7 +12,7 @@ sphinx-book-theme~=1.0.1
 sphinx-toggleprompt~=0.4.0
 # sphinx-copybutton~=0.5.1  # does not work well with toggleprompt
 sphinx-design~=0.3.0
-sphinxcontrib-plantuml~=0.24
+sphinxcontrib-plantuml~=0.26
 
 
 
