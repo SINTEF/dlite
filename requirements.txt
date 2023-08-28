@@ -4,7 +4,7 @@ PyYAML>=5.4.1,<7
 # psycopg2-binary can lead to segfault - so far all seems good with v2.9.5
 psycopg2-binary==2.9.7
 pandas>=1.2,<2.1
-rdflib>=4.2.1,<7
+rdflib>=4.2.1,<8
 pint>=0.15,<0.23
 openpyxl>=3.0.9,<3.2
 pymongo>=4.4.0,<5
