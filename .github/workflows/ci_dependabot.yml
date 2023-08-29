@@ -16,11 +16,7 @@ jobs:
       git_email: "Team4.0@SINTEF.no"
       permanent_dependencies_branch: ci/dependabot-updates
       default_repo_branch: master
-      pr_labels: dependencies,github_actions
+      pr_labels: "CI/CD"
       extra_to_dos: "- [ ] Make sure that the PR is **squash** merged, with a sensible commit message."
-      update_pre-commit: true
-      python_version: "3.8"
-      install_extras: "[full,dev,docs]"
-      skip_pre-commit_hooks: pylint
     secrets:
       PAT: ${{ secrets.RELEASE_PAT }}

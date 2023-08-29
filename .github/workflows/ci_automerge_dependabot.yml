@@ -8,6 +8,6 @@ jobs:
   update-dependabot-branch:
     name: External
     uses: SINTEF/ci-cd/.github/workflows/ci_automerge_prs.yml@v2.4.0
-    if: github.repository_owner == 'sintef' && startsWith(github.event.pull_request.head.ref, 'dependabot/') && github.actor == 'dependabot[bot]'
+    if: github.repository_owner == 'SINTEF' && startsWith(github.event.pull_request.head.ref, 'dependabot/') && github.actor == 'dependabot[bot]'
     secrets:
       PAT: ${{ secrets.RELEASE_PAT }}
