@@ -101,7 +101,28 @@ initial knowledge or raw data obtained directly from experiments and
 
 Workflow
 --------
+The overall workflow in this example is as follows:
 
+![workflow](figs/workflow.svg)
+
+*Figure: Overall workflow in this example.*
+
+On the left we have the input datasets; a raw TEM image and the alloy
+composition.  Three different transformations are applied to the TEM
+image, providing a thumbnail of the image, the microscope settings and
+precipitate statistics.  Finally, using mappings, we can combine the
+alloy composition with the precipitate statistics to produce an input
+file for a precipitation model.
+
+
+
+![pipeline](figs/pipeline.svg)
+
+*Figure: Pipeline representation of the full workflow.*
+
+![partial_pipeline](figs/temimage-partial-pipeline.svg)
+
+*Figure: The above workflow represented as a pipeline.*
 
 
 Setup
