@@ -101,28 +101,39 @@ initial knowledge or raw data obtained directly from experiments and
 
 Workflow
 --------
-The overall workflow in this example is as follows:
+The overall workflow for this example is as follows:
 
 ![workflow](figs/workflow.svg)
 
-*Figure: Overall workflow in this example.*
+*Figure: Schematics of the overall workflow for this example.*
 
 On the left we have the input datasets; a raw TEM image and the alloy
-composition.  Three different transformations are applied to the TEM
-image, providing a thumbnail of the image, the microscope settings and
-precipitate statistics.  Finally, using mappings, we can combine the
-alloy composition with the precipitate statistics to produce an input
-file for a precipitation model.
+composition.  Three different types of post-processing are applied to
+the TEM image: (i) property mappings for converting to a png thumbnail
+image, (ii) a generator that writes the microscope settings and (iii)
+a pre-processor that calculates the precipitate statistics.  Finally,
+using property mappings, we can combine the alloy composition with the
+precipitate statistics to produce an input file for a precipitation
+model.
 
+The workflow in the schematic figure above can be implemented as a
+OTEAPI pipeline.  Note that implementing the workflow as a single
+pipeline, as we do here, only works well if the conversion are fast.
 
 
 ![pipeline](figs/pipeline.svg)
 
-*Figure: Pipeline representation of the full workflow.*
+*Figure: The above workflow represented as a pipeline.*
+
+The figure below zooms in on the first partial pipeline, that
+downloads the TEM image, parses it into an instance of the TEMImage
+datamodel and maps the data model properties to corresponding
+ontological concepts.  This partial pipeline provides a full
+documentation of the [BF_100-at-m5-and-2_001] TEM image.
 
 ![partial_pipeline](figs/temimage-partial-pipeline.svg)
 
-*Figure: The above workflow represented as a pipeline.*
+*Figure: First partial pipeline documenting a TEM image.*
 
 
 Setup

@@ -3,6 +3,7 @@ import numpy as np
 
 from skimage.io import imread, imsave
 from skimage.exposure import equalize_hist
+from skimage.transform import resize
 
 import dlite
 from dlite.options import Options
@@ -19,6 +20,8 @@ class image(dlite.DLiteStorageBase):
               when loading.  Default is false.
             - `equalize`: Whether to equalize histogram before saving.
               Default is false.
+            - `resize`: Required image size when saving.  Should be given
+              as `HEIGHTxWIDTH` (ex: "256x128").
     """
     meta = "http://onto-ns.com/meta/0.1/Image"
 
@@ -59,6 +62,12 @@ class image(dlite.DLiteStorageBase):
 
         if data.shape[0] == 1:
             data = data[0,:,:]
+
+        if self.options.get("resize"):
+            size = [int(s) for s in self.options.resize.split("x", 1)]
+            shape = list(data.shape)
+            shape[data.ndim-2:] = size
+            data = resize(data, output_shape=shape, order=3)
 
         hi, lo = data.max(), data.min()
         scaled = np.uint8((data - lo)/(hi - lo + 1e-3)*256)
