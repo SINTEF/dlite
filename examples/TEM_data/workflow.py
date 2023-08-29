@@ -17,7 +17,8 @@ IMAGE = Namespace("http://onto-ns.com/meta/0.1/Image#")
 
 client = OTEClient("python")
 
-# Partial pipeline 1
+
+# Partial pipeline 1: Parse raw TEM image
 tem_resource = client.create_dataresource(
     downloadUrl=f"{temdata}/{temimage}.dm3",
     mediaType="application/vnd.dlite-parse",
@@ -44,7 +45,8 @@ tem_mapping = client.create_mapping(
     ],
 )
 
-# Partial pipeline 2
+
+# Partial pipeline 2: Generate image thumbnail
 image_mapping = client.create_mapping(
     mappingType="mappings",
     prefixes={
@@ -70,31 +72,16 @@ image_generate = client.create_function(
 )
 
 
+# Partial pipeline 3: Generate microscope settings
+settings_generate = client.create_function(
+    functionType="application/vnd.dlite-generate",
+    configuration={
+        "driver": "temsettings",
+        "location": str(outdir / "temsettings.json"),
+        "label": f"{temimage}",
+    },
+)
 
-#forces_resource = client.create_dataresource(
-#    downloadUrl=(inputdir / "forces.yaml").as_uri(),
-#    mediaType="application/vnd.dlite-parse",
-#    configuration={
-#        "driver", "yaml",
-#        "options": "mode=r",
-#        "label": "forces",
-#    },
-#)
-#
-#convert = client.create_function(
-#    functionType="application/vnd.dlite-convert",
-#    configuration={
-#        "module_name": "test_package.convert_module",
-#        "function_name": "converter",
-#        "inputs": [
-#            {"label": "energy"},
-#            {"label": "forces"},
-#        ],
-#        "outputs": [
-#            {"label": "result"},
-#        ],
-#    },
-#)
 
 
 
@@ -103,6 +90,7 @@ image_generate = client.create_function(
 # Run pipeline
 pipeline = (
     tem_resource >> tem_mapping >>
-    image_mapping >> image_generate
+    image_mapping >> image_generate >>
+    settings_generate
 )
 pipeline.get()
