@@ -25,6 +25,7 @@ def image_analyser(temimage):
         ps.avg_length = [50]
         ps.avg_crossection = [11]
         ps.volume_fraction = [2]
+        ps.avg_atomic_volume = [0.019]
     else:
         ps.alloy = ["Al-Mg-Si"]
         ps.condition = ["B"]
@@ -33,5 +34,6 @@ def image_analyser(temimage):
         ps.avg_length = [45]
         ps.avg_crossection = [8]
         ps.volume_fraction = [3]
+        ps.avg_atomic_volume = [0.019]
 
     return ps

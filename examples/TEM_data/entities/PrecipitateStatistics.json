@@ -23,7 +23,7 @@
     "number_density": {
       "type": "float64",
       "shape": ["nconditions"],
-      "unit": "#/um3",
+      "unit": "um^-3",
       "description": "Precipitate number density."
     },
     "avg_length": {
@@ -35,7 +35,7 @@
     "avg_crossection": {
       "type": "float64",
       "shape": ["nconditions"],
-      "unit": "nm2",
+      "unit": "nm^2",
       "description": "Average precipitate cross-section."
     },
     "volume_fraction": {
@@ -43,6 +43,12 @@
       "shape": ["nconditions"],
       "unit": "%",
       "description": "Precipitate volume fraction."
+    },
+    "avg_atomic_volume": {
+      "type": "float64",
+      "shape": ["nconditions"],
+      "unit": "nm^3",
+      "description": "Average volume per atom."
     }
   }
 }

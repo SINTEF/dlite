@@ -15,7 +15,8 @@ OTEIO = Namespace("http://emmo.info/oteio#")
 TEMIMAGE = Namespace("http://onto-ns.com/meta/0.1/TEMImage#")
 IMAGE = Namespace("http://onto-ns.com/meta/0.1/Image#")
 PS = Namespace("http://onto-ns.com/meta/0.1/PrecipitateStatistics#")
-
+COMP = Namespace("http://onto-ns.com/meta/0.1/Composition#")
+CHEM = Namespace("http://onto-ns.com/meta/0.3/Chemistry#")
 
 client = OTEClient("python")
 
@@ -110,13 +111,14 @@ stat_mapping = client.create_mapping(
         "oteio": str(OTEIO),
     },
     triples=[
-        (PS.alloy,           MAP.mapsTo, MO.alloy),
-        (PS.condition,       MAP.mapsTo, EMMO.StateOfMatter),  # not really...
-        (PS.precipitate,     MAP.mapsTo, MO.Precipitate),
-        (PS.number_density,  MAP.mapsTo, EMMO.ParticleNumberDensity),
-        (PS.avg_length,      MAP.mapsTo, EMMO.Length),
-        (PS.avg_crossection, MAP.mapsTo, EMMO.Area),
-        (PS.volume_fraction, MAP.mapsTo, EMMO.VolumeFraction),
+        (PS.alloy,             MAP.mapsTo, MO.Alloy),
+        (PS.condition,         MAP.mapsTo, MO.AlloyCondition),
+        (PS.precipitate,       MAP.mapsTo, MO.Precipitate),
+        (PS.number_density,    MAP.mapsTo, EMMO.ParticleNumberDensity),
+        (PS.avg_length,        MAP.mapsTo, MO.PrecipitateLength),
+        (PS.avg_crossection,   MAP.mapsTo, MO.PrecipitateCrossection),
+        (PS.volume_fraction,   MAP.mapsTo, EMMO.VolumeFraction),
+        (PS.avg_atomic_volume, MAP.mapsTo, MO.AtomicVolume),
     ],
 )
 
@@ -134,9 +136,9 @@ stat_generate = client.create_function(
 # Partial pipeline 5: Parse alloy composition
 comp_resource = client.create_dataresource(
     downloadUrl=(indir / "composition.csv").as_uri(),
-    mediaType="text/csv",
+    mediaType="application/vnd.dlite-parse",
     configuration={
-        "driver": "csv",
+        "driver": "composition",
         "label": "composition",
     },
 )
@@ -144,25 +146,52 @@ comp_resource = client.create_dataresource(
 comp_mapping = client.create_mapping(
     mappingType="mappings",
     prefixes={
-        "temimage": str(TEMIMAGE),
+        "comp": str(COMP),
         "mo": str(MO),
         "map": str(MAP),
         "emmo": str(EMMO),
-        "oteio": str(OTEIO),
     },
     triples=[
-        (TEMIMAGE.filename,  MAP.mapsTo, OTEIO.FileName),
-        (TEMIMAGE.data,      MAP.mapsTo, EMMO.Array),
-        (TEMIMAGE.pixelUnit, MAP.mapsTo, EMMO.Unit),
-        (TEMIMAGE.pixelSize, MAP.mapsTo, EMMO.Length),
-        (TEMIMAGE.metadata,  MAP.mapsTo, OTEIO.Dictionary),
+        (COMP.alloy,               MAP.mapsTo, MO.Alloy),
+        (COMP.elements,            MAP.mapsTo, EMMO.ChemicalElement),
+        (COMP.phases,              MAP.mapsTo, MO.Phase),
+        (COMP.nominal_composition, MAP.mapsTo, MO.NominalComposition),
+        (COMP.phase_compositions,  MAP.mapsTo, MO.PhaseComposition),
     ],
 )
 
 
-
 # Partial pipeline 6: Precipitate model input
+chem_mapping = client.create_mapping(
+    mappingType="mappings",
+    prefixes={
+        "chem": str(CHEM),
+        "mo": str(MO),
+        "map": str(MAP),
+        "emmo": str(EMMO),
+    },
+    triples=[
+        (CHEM.alloy,       MAP.mapsTo, MO.Alloy),
+        (CHEM.elements,    MAP.mapsTo, EMMO.ChemicalElement),
+        (CHEM.phases,      MAP.mapsTo, MO.Phase),
+        (CHEM.X0,          MAP.mapsTo, MO.NominalComposition),
+        (CHEM.Xp,          MAP.mapsTo, MO.PhaseComposition),
+        (CHEM.volfrac,     MAP.mapsTo, EMMO.VolumeFraction),
+        #(CHEM.rpart,       MAP.mapsTo, MO.ParticleSize),
+        (CHEM.rpart,       MAP.mapsTo, MO.PrecipitateLength),  # XXX FIXME
+        (CHEM.atvol,       MAP.mapsTo, MO.AtomicVolume),
+    ],
+)
 
+chem_generate = client.create_function(
+    functionType="application/vnd.dlite-generate",
+    configuration={
+        "driver": "template",
+        "location": str(outdir / "precip.txt"),
+        "options": f"template={indir / 'precip-template.txt'}",
+        "datamodel": "http://onto-ns.com/meta/0.3/Chemistry",
+    },
+)
 
 
 # Run pipeline
@@ -170,6 +199,8 @@ pipeline = (
     tem_resource >> tem_mapping >>
     image_mapping >> image_generate >>
     settings_generate >>
-    stat_convert >> stat_mapping >> stat_generate
+    stat_convert >> stat_mapping >> stat_generate >>
+    comp_resource >> comp_mapping >>
+    chem_mapping >> chem_generate
 )
 pipeline.get()
