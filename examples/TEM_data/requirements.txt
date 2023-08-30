@@ -1,4 +1,4 @@
-dlite-python
+dlite-python<0.4
 tripper
 oteapi-dlite
 otelib
@@ -7,4 +7,5 @@ matplotlib
 scikit-image
 ncempy
 h5py
+pydantic<2
 #hyperspy
