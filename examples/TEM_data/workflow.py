@@ -3,7 +3,7 @@ from otelib import OTEClient
 
 from tripper import EMMO, MAP, Namespace
 
-from paths import outdir, temdata
+from paths import indir, outdir, temdata
 
 
 temimage = "6c8cm_008"
@@ -132,6 +132,32 @@ stat_generate = client.create_function(
 
 
 # Partial pipeline 5: Parse alloy composition
+comp_resource = client.create_dataresource(
+    downloadUrl=(indir / "composition.csv").as_uri(),
+    mediaType="text/csv",
+    configuration={
+        "driver": "csv",
+        "label": "composition",
+    },
+)
+
+comp_mapping = client.create_mapping(
+    mappingType="mappings",
+    prefixes={
+        "temimage": str(TEMIMAGE),
+        "mo": str(MO),
+        "map": str(MAP),
+        "emmo": str(EMMO),
+        "oteio": str(OTEIO),
+    },
+    triples=[
+        (TEMIMAGE.filename,  MAP.mapsTo, OTEIO.FileName),
+        (TEMIMAGE.data,      MAP.mapsTo, EMMO.Array),
+        (TEMIMAGE.pixelUnit, MAP.mapsTo, EMMO.Unit),
+        (TEMIMAGE.pixelSize, MAP.mapsTo, EMMO.Length),
+        (TEMIMAGE.metadata,  MAP.mapsTo, OTEIO.Dictionary),
+    ],
+)
 
 
 

@@ -8,6 +8,7 @@ thisdir = Path(__file__).resolve().parent
 exampledir = thisdir
 plugindir = exampledir / "plugins"
 entitydir = exampledir / "entities"
+indir = exampledir / "data"
 outdir = exampledir / "output"
 
 filenames = "040.dm3", "6c8cm_008.dm3",  "BF_100-at-m5-and-2_001.dm3"
