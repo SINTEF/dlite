@@ -208,7 +208,7 @@ def infer_meta(data: pd.DataFrame, metauri: str, uri: str) -> dlite.Metadata:
             dlite.Property(
                 name=name,
                 type=type,
-                shape=col_shape,
+                dims=col_shape,
                 unit=unit,
                 description=None,
             )
