@@ -1,0 +1,134 @@
+version: 1
+
+data_documentation:
+
+  # 1. Documentation of existing TEM image
+  tem_resource:
+    dataresource:
+      downloadUrl: https://folk.ntnu.no/friisj/temdata/6c8cm_008.dm3
+      mediaType: application/vnd.dlite-parse
+      configuration:
+        driver: dm3
+        label: temimage
+    mapping:
+      mappingType: mappings
+      prefixes:
+        temimage: http://onto-ns.com/meta/0.1/TEMImage#
+        map: http://emmo.info/domain-mappings#
+        emmo: http://emmo.info/emmo#
+        oteio: http://emmo.info/oteio#
+      triples:
+        - [temimage:filename,   map:mapsTo,  oteio.FileName]
+        - [temimage:data,       map:mapsTo,  emmo.Array]
+        - [temimage:pixelUnit,  map:mapsTo,  emmo.Unit]
+        - [temimage:pixelSize,  map:mapsTo,  emmo.Length]
+        - [temimage:metadata,   map:mapsTo,  oteio.Dictionary]
+
+  # 2. Documentation thumbnail image to create
+  generate_image:
+    mapping:
+      mappingType: mappings
+      prefixes:
+        image: http://onto-ns.com/meta/0.1/Image#
+        map: http://emmo.info/domain-mappings#
+        emmo: http://emmo.info/emmo#
+        oteio: http://emmo.info/oteio#
+      triples:
+        - [image:filename,   map:mapsTo,  oteio.FileName]
+        - [image:data,       map:mapsTo,  emmo.Array]
+
+    function:
+      functionType: application/vnd.dlite-generate
+      configuration:
+        driver: temsettings
+        location: output/temsettings.json
+        label: temimage
+
+  # 3. Document microscope settings to create
+  generate_settings:
+    function:
+      functionType: application/vnd.dlite-generate
+      configuration:
+        driver: temsettings
+        location: output/temsettings.json
+        label: temimage
+
+  # 4. Document precipitate statistics to create
+  calculate_precipitate_statistics:
+    function:
+      functionType: application/vnd.dlite-convert
+      configuration:
+        module_name: temdata.image_analyser
+        function_name: image_analyser
+        inputs:
+          - label: temimage
+        outputs:
+          - label: precipitate_statistics
+
+    mapping:
+      mappingType: mappings
+      prefixes:
+        ps: http://onto-ns.com/meta/0.1/PrecipitateStatistics#
+        mo: http://emmo.info/microstructure#
+        map: http://emmo.info/domain-mappings#
+        emmo: http://emmo.info/emmo#
+        oteio: http://emmo.info/oteio#
+      triples:
+        - [ps:alloy,             map:mapsTo, mo:Alloy]
+        - [ps:condition,         map:mapsTo, mo:AlloyCondition]
+        - [ps:precipitate,       map:mapsTo, mo:Precipitate]
+        - [ps:number_density,    map:mapsTo, emmo:ParticleNumberDensity]
+        - [ps:avg_length,        map:mapsTo, mo:PrecipitateLength]
+        - [ps:avg_crossection,   map:mapsTo, mo:PrecipitateCrossection]
+        - [ps:volume_fraction,   map:mapsTo, emmo:VolumeFraction]
+        - [ps:avg_atomic_volume, map:mapsTo, mo:AtomicVolume]
+
+  # 5. Document reading alloy composition
+  composition_resource:
+    dataresource:
+      downloadUrl: file://data/composition.csv
+      mediaType: application/vnd.dlite-parse
+      configuration:
+        driver: composition
+        label: composition
+
+    mapping:
+      mappingType: mappings
+      prefixes:
+        comp: http://onto-ns.com/meta/0.1/Composition#
+        mo: http://emmo.info/microstructure#
+        map: http://emmo.info/domain-mappings#
+        emmo: http://emmo.info/emmo#
+      triples:
+        - [comp:alloy,               map:mapsTo, mo:Alloy]
+        - [comp:elements,            map:mapsTo, emmo:ChemicalElement]
+        - [comp:phases,              map:mapsTo, mo:Phase]
+        - [comp:nominal_composition, map:mapsTo, mo:NominalComposition]
+        - [comp:phase_composition,   map:mapsTo, mo:PhaseComposition]
+
+  # 6. Document precipitation model input to create
+  generate_precip_input:
+    mapping:
+      mappingType: mappings
+      prefixes:
+        chem: http://onto-ns.com/meta/0.1/Chemistry#
+        mo: http://emmo.info/microstructure#
+        map: http://emmo.info/domain-mappings#
+        emmo: http://emmo.info/emmo#
+      triples:
+        - [chem:alloy,     map:mapsTo, mo:Alloy]
+        - [chem:elements,  map:mapsTo, emmo:ChemicalElement]
+        - [chem:phases,    map:mapsTo, mo:Phase]
+        - [chem:X0,        map:mapsTo, mo:NominalComposition]
+        - [chem:Xp,        map:mapsTo, mo:PhaseComposition]
+        - [chem:volfrac,   map:mapsTo, emmo:VolumeFraction]
+        - [chem:rpart,     map:mapsTo, mo:PrecipitateLength]
+        - [chem:atvol,     map:mapsTo, mo:AtomicVolume]
+
+    function:
+      functionType: application/vnd.dlite-generate
+      configuration:
+        driver: template
+        location: output/precip.txt
+        options: template=data/precip-template.txt
+        datamodel: http://onto-ns.com/meta/0.3/Chemistry
