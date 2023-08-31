@@ -67,7 +67,6 @@ option(FORCE_EXAMPLES   "Whether to force building/running examples"        NO)
 option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      YES)
 option(WITH_STATIC_PYTHON "Whether to compile with static python libraries" NO)
 
-
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 

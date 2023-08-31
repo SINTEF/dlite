@@ -73,7 +73,8 @@ jobs:
           #   py_minors: 7,10
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - uses: actions/setup-python@v4
         with:
