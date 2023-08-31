@@ -95,8 +95,10 @@ initial knowledge or raw data obtained directly from experiments and
   [data/040.json] and [data/6c8cm_008.json].
 - Precipitate statistics.  Obtained from analysing the TEM image at the two
   conditions and stored in [data/precipitate_statistics.csv].
-- Precipitation model input.  This will be the final dataset obtained when
-  running the workflow.
+- Precipitation model input file in a custom text-based format.  This will be
+  the final dataset obtained when running the workflow.  Obtained via
+  property mappings from the alloy composition and precipitate
+  statistics.  Stored in [data/precip.txt].
 
 
 Workflow
@@ -119,7 +121,6 @@ model.
 The workflow in the schematic figure above can be implemented as a
 OTEAPI pipeline.  Note that implementing the workflow as a single
 pipeline, as we do here, only works well if the conversion are fast.
-
 
 ![pipeline](figs/pipeline.svg)
 
@@ -173,6 +174,7 @@ some background information.
 [data/composition.csv]: data/composition.csv
 [data/precipitate_statistics.csv]: data/precipitate_statistics.csv
 [data/hardness.csv]: data/hardness.csv
+[data/precip.txt]: data/precip.txt
 [data/BF_100-at-m5-and-2_001.json]: data/BF_100-at-m5-and-2_001.json
 [data/040.json]: data/040.json
 [data/6c8cm_008.json]: data/6c8cm_008.json
