@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.3.22
+  VERSION 0.4.0
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -66,7 +66,6 @@ option(WITH_EXAMPLES    "Whether to build/run examples during testing"     YES)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"        NO)
 option(ALLOW_WARNINGS   "Whether to not fail on compilation warnings"      YES)
 option(WITH_STATIC_PYTHON "Whether to compile with static python libraries" NO)
-
 
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
