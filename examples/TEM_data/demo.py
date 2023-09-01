@@ -20,3 +20,14 @@ ts.serialize(outdir / "resources.ttl")
 
 # Get a thumbnail of TEM image 6c8cm_008
 get_data(ts, steps=(PHYSMET.TEM_6c8cm_008, PHYSMET.generate_image))
+
+get_data(ts, steps=(PHYSMET.TEM_040, PHYSMET.calculate_precipitate_statistics))
+get_data(ts, steps=(PHYSMET.TEM_6c8cm_008, PHYSMET.calculate_precipitate_statistics))
+
+#get_data(
+#    ts,
+#    steps=(
+#        PHYSMET.TEM_6c8cm_008, PHYSMET.alloy_composition,
+#        PHYSMET.calculate_precipitate_statistics, PHYSMET.generate_precip_input
+#    )
+#)

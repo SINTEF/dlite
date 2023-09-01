@@ -19,8 +19,10 @@ class dm3(dlite.DLiteStorageBase):
     def load(self, id=None):
         """Returns TEMImage instance."""
         # Load data and metadata
-        d = nio.read(self.location)
-        dm = nio.dm.fileDM(self.location)
+        #d = nio.read(self.location)
+        #dm = nio.dm.fileDM(self.location)
+        d = nio.read("/home/jesperf/prosjekter/software/dlite/examples/TEM_data/output/6c8cm_008.dm3")
+        dm = nio.dm.fileDM("/home/jesperf/prosjekter/software/dlite/examples/TEM_data/output/6c8cm_008.dm3")
 
         # Infer dimensions
         data = d["data"]

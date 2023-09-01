@@ -126,7 +126,7 @@ data_documentation:
         - [ps:avg_atomic_volume, map:mapsTo, mo:AtomicVolume]
 
   # 5. Document reading alloy composition
-  https://www.ntnu.edu/physmet/data#composition_resource:
+  https://www.ntnu.edu/physmet/data#alloy_composition:
     dataresource:
       downloadUrl: file://data/composition.csv
       mediaType: application/vnd.dlite-parse
