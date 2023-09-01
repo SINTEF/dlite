@@ -19,4 +19,4 @@ dlite.python_storage_plugin_path.append(plugindir)
 
 
 # Hack - add lib64 to sys.path
-sys.path.insert(0, "/home/friisj/.envs/temdata/lib64/python3.11/site-packages")
+#sys.path.insert(0, "/home/friisj/.envs/temdata/lib64/python3.11/site-packages")

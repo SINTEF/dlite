@@ -1,5 +1,6 @@
-dlite-python<0.4
+#dlite-python<0.4
 tripper
+rdflib
 oteapi-dlite
 otelib
 requests

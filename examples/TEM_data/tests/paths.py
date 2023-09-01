@@ -17,9 +17,10 @@ temdata = "https://folk.ntnu.no/friisj/temdata/"
 dlite.storage_path.append(entitydir)
 dlite.python_storage_plugin_path.append(plugindir)
 
+sys.path.append(str(exampledir))
 
 # Hack - add lib64 to sys.path
-sys.path.insert(0, "/home/friisj/.envs/temdata/lib64/python3.11/site-packages")
+#sys.path.insert(0, "/home/friisj/.envs/temdata/lib64/python3.11/site-packages")
 
 
 # Download TEM files from temdata website
