@@ -863,7 +863,13 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteRelation:
     {
       DLiteRelation *r = (DLiteRelation *)p;
-      m = snprintf(dest, n, "[\"%s\", \"%s\", \"%s\"]", r->s, r->p, r->o);
+      m = snprintf(dest, n, "[");
+      m += strquote(dest+m, PDIFF(n, m), r->s);
+      m += snprintf(dest+m, PDIFF(n, m), ", ");
+      m += strquote(dest+m, PDIFF(n, m), r->p);
+      m += snprintf(dest+m, PDIFF(n, m), ", ");
+      m += strquote(dest+m, PDIFF(n, m), r->o);
+      m += snprintf(dest+m, PDIFF(n, m), "]");
     }
     break;
   }
@@ -1198,23 +1204,50 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         return errx(dliteParseError, "relation should have 3 (optionally 4) elements");
       m = tokens->end - tokens->start;
       if (tokens->type == JSMN_ARRAY) {
+        size_t bufsize=0;
+        char *buf=NULL;
         if (!(t = jsmn_element(src, tokens, 0))) return -1;
-        rel->s = strndup(src + t->start, t->end - t->start);
+        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
+                            t->end - t->start, NULL, strquoteNoQuote) < 0)
+          return -1;
+        rel->s = strndup(buf, t->end - t->start);
+
         if (!(t = jsmn_element(src, tokens, 1))) return -1;
-        rel->p = strndup(src + t->start, t->end - t->start);
+        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
+                            t->end - t->start, NULL, strquoteNoQuote) < 0)
+          return -1;
+        rel->p = strndup(buf, t->end - t->start);
+
         if (!(t = jsmn_element(src, tokens, 2))) return -1;
-        rel->o = strndup(src + t->start, t->end - t->start);
+        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
+                            t->end - t->start, NULL, strquoteNoQuote) < 0)
+          return -1;
+        rel->o = strndup(buf, t->end - t->start);
+
         if (tokens->size > 3 && (t = jsmn_element(src, tokens, 3)))
           rel->id = strndup(src + t->start, t->end - t->start);
+        free(buf);
       } else if (tokens->type == JSMN_OBJECT) {
+        size_t bufsize=0;
+        char *buf=NULL;
         if (!(t = jsmn_item(src, tokens, "s"))) return -1;
-        rel->s = strndup(src + t->start, t->end - t->start);
+        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
+                            t->end - t->start, NULL, strquoteNoQuote) < 0)
+          return -1;
+        rel->s = strndup(buf, t->end - t->start);
         if (!(t = jsmn_item(src, tokens, "p"))) return -1;
-        rel->p = strndup(src + t->start, t->end - t->start);
+        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
+                            t->end - t->start, NULL, strquoteNoQuote) < 0)
+          return -1;
+        rel->p = strndup(buf, t->end - t->start);
         if (!(t = jsmn_item(src, tokens, "o"))) return -1;
-        rel->o = strndup(src + t->start, t->end - t->start);
+        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
+                            t->end - t->start, NULL, strquoteNoQuote) < 0)
+          return -1;
+        rel->o = strndup(buf, t->end - t->start);
         if ((t = jsmn_item(src, tokens, "id")))
           rel->id = strndup(src + t->start, t->end - t->start);
+        free(buf);
       } else {
         return errx(dliteValueError, "relation should be a JSON array");
       }
