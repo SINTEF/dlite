@@ -61,8 +61,6 @@ def get_data(
     client = OTEClient(client_iri)
     pipeline = None
 
-    lst = None  ##
-
     for step in steps:
         strategies = load_container(ts, step, recognised_keys="basic")
         for filtertype, config in strategies.items():
@@ -70,9 +68,4 @@ def get_data(
             pipe = creator(**config)
             pipeline = pipeline >> pipe if pipeline else pipe
 
-            s = f"{step.split('#')[-1]}:{filtertype} : "
-            lst = lst + s if lst else s
-
-    print(lst)
-    print("---")
     pipeline.get()

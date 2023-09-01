@@ -186,7 +186,7 @@ data_resources:
         - [comp:elements,            map:mapsTo, emmo:ChemicalElement]
         - [comp:phases,              map:mapsTo, mo:Phase]
         - [comp:nominal_composition, map:mapsTo, mo:NominalComposition]
-        - [comp:phase_composition,   map:mapsTo, mo:PhaseComposition]
+        - [comp:phase_compositions,  map:mapsTo, mo:PhaseComposition]
 
 
   # 7. Document creation of precipitation model input
