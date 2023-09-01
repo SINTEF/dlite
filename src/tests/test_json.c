@@ -91,9 +91,12 @@ MU_TEST(test_sprint)
   DLiteCollection *coll = dlite_collection_create(NULL);
   dlite_collection_add_relation(coll, "s", "p", "\"o\"");
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)coll, 2, 0);
-  printf("\n--------------------------------------------------------\n");
-  printf("%s\n", buf);
-  printf("\n--------------------------------------------------------\n");
+  const DLiteRelation *rel = dlite_collection_find_first(coll, "s", "p", NULL);
+  mu_assert_string_eq("\"o\"", rel->o);
+  dlite_instance_decref((DLiteInstance *)coll);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
+
 
   //printf("\n========================================================\n");
 }
