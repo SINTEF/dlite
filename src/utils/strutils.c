@@ -245,6 +245,9 @@ int strnput_escape(char **destp, size_t *sizep, size_t pos,
   Embedded double-quotes are escaped with backslash. At most `size`
   characters are written to `dest` (including terminating NUL).
 
+  If `s` is NULL, this function will behave similar to snprintf(),
+  except for the added quoting.
+
   Returns number of characters written to `dest` (excluding
   terminating NUL).  If the output is truncated, the number of
   characters which should have been written is returned.
@@ -268,14 +271,19 @@ int strnquote(char *dest, size_t size, const char *s, int n,
     if (size > i) dest[i] = '"';
     i++;
   }
-  while (s[j] && (n < 0 || (int)j < n)) {
-    if (s[j] == '"' && !(flags & strquoteNoEscape)) {
-      if (size > i) dest[i] = '\\';
+  if (s) {
+    while (s[j] && (n < 0 || (int)j < n)) {
+      if (s[j] == '"' && !(flags & strquoteNoEscape)) {
+        if (size > i) dest[i] = '\\';
+        i++;
+      }
+      if (size > i) dest[i] = s[j];
       i++;
+      j++;
     }
-    if (size > i) dest[i] = s[j];
-    i++;
-    j++;
+  } else {
+    int m = snprintf(dest+i, PDIFF(size, i), "%s", s);
+    if (m >= 0) i += j;
   }
   if (!(flags & strquoteNoQuote)) {
     if (dest && size > i) dest[i] = '"';
@@ -313,7 +321,7 @@ int strunquote(char *dest, size_t size, const char *s,
 
 
 /*
-  Like strunquote, but if `n` is non-negative, at most `n` bytes are
+  Like strunquote(), but if `n` is non-negative, at most `n` bytes are
   read from `s`.
 
   This mostly make sense in combination when `flags & strquoteNoEscape`
@@ -339,6 +347,42 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
   if (!(flags & strquoteNoQuote) && s[j++] != '"') return -2;
   if (consumed) *consumed = (n >= 0 && (int)j >= n) ? n : (int)j;
   return i;
+}
+
+
+/*
+  Like strnunquote(), but reallocates the destination and writes to
+  position `pos`.
+
+  On allocation error, -3 is returned.
+ */
+int strnput_unquote(char **destp, size_t *sizep, size_t pos, const char *s,
+                    int n, int *consumed, StrquoteFlags flags)
+{
+  int m;
+  if (!*destp) *sizep = 0;
+  if (!*sizep) *destp = NULL;
+  if (!destp || *sizep <= pos) {
+    char *q;
+    size_t size = pos + 1;
+    if (!(q = realloc(*destp, size))) return -3;
+    *destp = q;
+    *sizep = size;
+  }
+
+  m = strnunquote(*destp+pos, PDIFF(*sizep, pos), s, n, consumed, flags);
+  if (m < 0) return m;
+  if (m + pos >= *sizep) {
+    char *q;
+    size_t size = m + pos + 1;
+    if (!(q = realloc(*destp, size))) return -3;
+    *destp = q;
+    *sizep = size;
+  }
+  m = strnunquote(*destp+pos, PDIFF(*sizep, pos), s, n, consumed, flags);
+  if (m < 0) return m;
+  assert(m + pos < *sizep);
+  return m;
 }
 
 
