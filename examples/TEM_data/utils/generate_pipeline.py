@@ -1,10 +1,42 @@
 """
 """
-from typing import Mapping
+from typing import Mapping, Sequence
 
-from tripper import Triplestore
+import yaml
+
+from tripper import RDF, Namespace, Triplestore
 from tripper.convert import save_container, load_container
 from otelib import OTEClient
+
+
+OTEIO = Namespace("http://emmo.info/oteio#")
+
+
+def populate_triplestore(
+    ts: Triplestore,
+    yamlfile: str,
+) -> None:
+    """Populate the triplestore with data documentation from a
+    standardised yaml file.
+
+    Arguments:
+        ts: Tripper triplestore documenting data sources and sinks.
+        yamlfile: Standardised YAML file to load the data documentation
+            from.
+    """
+    with open(yamlfile) as f:
+        document = yaml.safe_load(f)
+
+    datadoc = document["data_documentation"]
+    for iri, resource in datadoc.items():
+        save_container(ts, resource, iri, recognised_keys="basic")
+
+        # Some heuristics to categorise partial pipelines as either
+        # data sources or data sinks
+        #if "dataresource" in resource:
+        #    ts.add((iri, RDF.type, OTEIO.DataSource))
+        #else:
+        #    ts.add((iri, RDF.type, OTEIO.DataSink))
 
 
 def get_data(
@@ -24,14 +56,14 @@ def get_data(
     pipeline = None
 
     for step in steps:
-        strategies = load_container(ts, step)
+        strategies = load_container(ts, step, recognised_keys="basic")
         for filtertype, config in strategies.items():
-        creator = getattr(client, f"create_{filtertype}")
-        pipe = creator(**config)
-        if pipeline:
-            pipeline = pipeline >> pipe
-        else:
-            pipeline = pipe
+            creator = getattr(client, f"create_{filtertype}")
+            pipe = creator(**config)
+            if pipeline:
+                pipeline = pipeline >> pipe
+            else:
+                pipeline = pipe
 
     pipeline.get()
 

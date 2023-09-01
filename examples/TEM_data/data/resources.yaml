@@ -2,10 +2,52 @@ version: 1
 
 data_documentation:
 
-  # 1. Documentation of existing TEM image
-  tem_resource:
+  # 1. Document three TEM images: TEM_BF_100-at-m5-and-2_001, TEM_040 and TEM_6c8cm_008
+  https://www.ntnu.edu/physmet/data#TEM_BF_100-at-m5-and-2_001:
     dataresource:
-      downloadUrl: https://folk.ntnu.no/friisj/temdata/6c8cm_008.dm3
+      downloadUrl: https://folk.ntnu.no/friisj/temdata/BF_100-at-m5-and-2_001.dm3
+      mediaType: application/vnd.dlite-parse
+      configuration:
+        driver: dm3
+        label: temimage
+    mapping:
+      mappingType: mappings
+      prefixes:
+        temimage: http://onto-ns.com/meta/0.1/TEMImage#
+        map: http://emmo.info/domain-mappings#
+        emmo: http://emmo.info/emmo#
+        oteio: http://emmo.info/oteio#
+      triples:
+        - [temimage:filename,   map:mapsTo,  oteio.FileName]
+        - [temimage:data,       map:mapsTo,  emmo.Array]
+        - [temimage:pixelUnit,  map:mapsTo,  emmo.Unit]
+        - [temimage:pixelSize,  map:mapsTo,  emmo.Length]
+        - [temimage:metadata,   map:mapsTo,  oteio.Dictionary]
+
+  https://www.ntnu.edu/physmet/data#TEM_040:
+    dataresource:
+      downloadUrl: https://folk.ntnu.no/friisj/temdata/TEM_040.dm3
+      mediaType: application/vnd.dlite-parse
+      configuration:
+        driver: dm3
+        label: temimage
+    mapping:
+      mappingType: mappings
+      prefixes:
+        temimage: http://onto-ns.com/meta/0.1/TEMImage#
+        map: http://emmo.info/domain-mappings#
+        emmo: http://emmo.info/emmo#
+        oteio: http://emmo.info/oteio#
+      triples:
+        - [temimage:filename,   map:mapsTo,  oteio.FileName]
+        - [temimage:data,       map:mapsTo,  emmo.Array]
+        - [temimage:pixelUnit,  map:mapsTo,  emmo.Unit]
+        - [temimage:pixelSize,  map:mapsTo,  emmo.Length]
+        - [temimage:metadata,   map:mapsTo,  oteio.Dictionary]
+
+  https://www.ntnu.edu/physmet/data#TEM_6c8cm_008:
+    dataresource:
+      downloadUrl: https://folk.ntnu.no/friisj/temdata/TEM_6c8cm_008.dm3
       mediaType: application/vnd.dlite-parse
       configuration:
         driver: dm3
@@ -25,7 +67,7 @@ data_documentation:
         - [temimage:metadata,   map:mapsTo,  oteio.Dictionary]
 
   # 2. Documentation thumbnail image to create
-  generate_image:
+  https://www.ntnu.edu/physmet/data#generate_image:
     mapping:
       mappingType: mappings
       prefixes:
@@ -45,7 +87,7 @@ data_documentation:
         label: temimage
 
   # 3. Document microscope settings to create
-  generate_settings:
+  https://www.ntnu.edu/physmet/data#generate_settings:
     function:
       functionType: application/vnd.dlite-generate
       configuration:
@@ -54,7 +96,7 @@ data_documentation:
         label: temimage
 
   # 4. Document precipitate statistics to create
-  calculate_precipitate_statistics:
+  https://www.ntnu.edu/physmet/data#calculate_precipitate_statistics:
     function:
       functionType: application/vnd.dlite-convert
       configuration:
@@ -84,7 +126,7 @@ data_documentation:
         - [ps:avg_atomic_volume, map:mapsTo, mo:AtomicVolume]
 
   # 5. Document reading alloy composition
-  composition_resource:
+  https://www.ntnu.edu/physmet/data#composition_resource:
     dataresource:
       downloadUrl: file://data/composition.csv
       mediaType: application/vnd.dlite-parse
@@ -107,7 +149,7 @@ data_documentation:
         - [comp:phase_composition,   map:mapsTo, mo:PhaseComposition]
 
   # 6. Document precipitation model input to create
-  generate_precip_input:
+  https://www.ntnu.edu/physmet/data#generate_precip_input:
     mapping:
       mappingType: mappings
       prefixes:

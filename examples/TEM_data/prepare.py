@@ -16,12 +16,13 @@ from utils.generate_pipeline import generate_partial_pipeline
 
 ts = Triplestore(backend="rdflib")
 RS = ts.bind("ex", "http://example.com/resources#")
+PHYSMET = ts.bind("physmet": "https://www.ntnu.edu/physmet/data#")
 
 with open(indir / "resources.yaml") as f:
     document = yaml.safe_load(f)
 
 datadoc = document["data_documentation"]
 for name, config in datadoc.items():
-    save_container(ts, config, RS[name])
+    save_container(ts, config, name)
 
 ts.serialize(outdir / "resources.ttl")
