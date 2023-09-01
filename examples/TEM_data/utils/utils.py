@@ -1,5 +1,6 @@
 """
 """
+import warnings
 from typing import Mapping, Sequence
 
 import yaml
@@ -9,7 +10,12 @@ from tripper.convert import save_container, load_container
 from otelib import OTEClient
 
 
+# Namespaces
 OTEIO = Namespace("http://emmo.info/oteio#")
+PHYSMET = Namespace("https://www.ntnu.edu/physmet/data#")
+
+# Get rid of FutureWarning from csv.py
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 def populate_triplestore(
@@ -27,7 +33,7 @@ def populate_triplestore(
     with open(yamlfile) as f:
         document = yaml.safe_load(f)
 
-    datadoc = document["data_documentation"]
+    datadoc = document["data_resources"]
     for iri, resource in datadoc.items():
         save_container(ts, resource, iri, recognised_keys="basic")
 
@@ -55,72 +61,18 @@ def get_data(
     client = OTEClient(client_iri)
     pipeline = None
 
+    lst = None  ##
+
     for step in steps:
         strategies = load_container(ts, step, recognised_keys="basic")
         for filtertype, config in strategies.items():
             creator = getattr(client, f"create_{filtertype}")
             pipe = creator(**config)
-            if pipeline:
-                pipeline = pipeline >> pipe
-            else:
-                pipeline = pipe
+            pipeline = pipeline >> pipe if pipeline else pipe
 
+            s = f"{step.split('#')[-1]}:{filtertype} : "
+            lst = lst + s if lst else s
+
+    print(lst)
+    print("---")
     pipeline.get()
-
-
-def generate_partial_pipeline(
-    client: OTEClient,
-    ts: Triplestore,
-    iri: str,
-):
-    """Create a OTEAPI partial pipeline from data documentation.
-
-    Arguments:
-        client: OTELib client.
-        ts: Tripper triplestore.
-        iri: IRI of the partial pipeline to generate.
-
-    Returns:
-        OTEAPI pipeline.
-    """
-    strategies = load_container(ts, iri)
-
-    pipeline = None
-    for filtertype, config in strategies.items():
-        creator = getattr(client, f"create_{filtertype}")
-        pipe = creator(**config)
-        if pipeline:
-            pipeline = pipeline >> pipe
-        else:
-            pipeline = pipe
-    return pipeline
-
-
-def save_partial_pipeline(
-    ts: Triplestore,
-    strategies: Mapping[str, dict],
-    iri: str,
-) -> None:
-    """Save partial pipeline to triplestore.
-
-    Arguments:
-        ts: Tripper triplestore.
-        strategies: Maps OTEAPI stratepy types name to configurations
-            (i.e. to data documentation).
-        iri: IRI of individual standing for the partial pipeline to save.
-    """
-    save_container(ts, strategies, iri, recognised_keys="basic")
-
-
-
-def load_partial_pipeline(
-    ts: Triplestore,
-    iri: str,
-) -> None:
-    """Save partial pipeline to triplestore.
-
-    Arguments:
-        ts: Tripper triplestore.
-        iri: IRI of individual standing for the partial pipeline to load.
-    """
-    return load_container(ts, iri, recognised_keys="basic")

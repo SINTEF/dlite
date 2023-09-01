@@ -195,12 +195,22 @@ chem_generate = client.create_function(
 
 
 # Run pipeline
-pipeline = (
-    tem_resource >> tem_mapping >>
-    image_mapping >> image_generate >>
-    settings_generate >>
-    stat_convert >> stat_mapping >> stat_generate >>
-    comp_resource >> comp_mapping >>
-    chem_mapping >> chem_generate
-)
-pipeline.get()
+if False:
+    pipeline = (
+        tem_resource >> tem_mapping >>
+        image_mapping >> image_generate >>
+        settings_generate >>
+        stat_convert >> stat_mapping >> stat_generate >>
+        comp_resource >> comp_mapping >>
+        chem_mapping >> chem_generate
+    )
+    pipeline.get()
+else:
+    pipe1 = tem_resource >> tem_mapping
+    pipe2 = image_mapping >> image_generate
+    pipe3 = settings_generate
+    pipe4 = stat_convert >> stat_mapping >> stat_generate
+    pipe5 = comp_resource >> comp_mapping
+    pipe6 = chem_mapping >> chem_generate
+    pipeline = pipe1 >> pipe2 >> pipe3 >> pipe4 >> pipe5 >> pipe6
+    pipeline.get()

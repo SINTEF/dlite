@@ -1,8 +1,12 @@
 version: 1
 
-data_documentation:
+data_resources:
 
-  # 1. Document three TEM images: TEM_BF_100-at-m5-and-2_001, TEM_040 and TEM_6c8cm_008
+
+  # 1. Document some TEM image data sources
+  # ---------------------------------------
+
+  # 1a. TEM_BF_100-at-m5-and-2_001
   https://www.ntnu.edu/physmet/data#TEM_BF_100-at-m5-and-2_001:
     dataresource:
       downloadUrl: https://folk.ntnu.no/friisj/temdata/BF_100-at-m5-and-2_001.dm3
@@ -10,6 +14,7 @@ data_documentation:
       configuration:
         driver: dm3
         label: temimage
+
     mapping:
       mappingType: mappings
       prefixes:
@@ -24,13 +29,15 @@ data_documentation:
         - [temimage:pixelSize,  map:mapsTo,  emmo.Length]
         - [temimage:metadata,   map:mapsTo,  oteio.Dictionary]
 
+  # 1b. TEM_040
   https://www.ntnu.edu/physmet/data#TEM_040:
     dataresource:
-      downloadUrl: https://folk.ntnu.no/friisj/temdata/TEM_040.dm3
+      downloadUrl: https://folk.ntnu.no/friisj/temdata/040.dm3
       mediaType: application/vnd.dlite-parse
       configuration:
         driver: dm3
         label: temimage
+
     mapping:
       mappingType: mappings
       prefixes:
@@ -45,13 +52,15 @@ data_documentation:
         - [temimage:pixelSize,  map:mapsTo,  emmo.Length]
         - [temimage:metadata,   map:mapsTo,  oteio.Dictionary]
 
+  # 1c. TEM_6c8cm_008
   https://www.ntnu.edu/physmet/data#TEM_6c8cm_008:
     dataresource:
-      downloadUrl: https://folk.ntnu.no/friisj/temdata/TEM_6c8cm_008.dm3
+      downloadUrl: https://folk.ntnu.no/friisj/temdata/6c8cm_008.dm3
       mediaType: application/vnd.dlite-parse
       configuration:
         driver: dm3
         label: temimage
+
     mapping:
       mappingType: mappings
       prefixes:
@@ -66,8 +75,10 @@ data_documentation:
         - [temimage:pixelSize,  map:mapsTo,  emmo.Length]
         - [temimage:metadata,   map:mapsTo,  oteio.Dictionary]
 
-  # 2. Documentation thumbnail image to create
-  https://www.ntnu.edu/physmet/data#generate_image:
+
+  # 2. Documentation thumbnail image creation
+  # -----------------------------------------
+  https://www.ntnu.edu/physmet/data#thumbnail_image:
     mapping:
       mappingType: mappings
       prefixes:
@@ -82,12 +93,15 @@ data_documentation:
     function:
       functionType: application/vnd.dlite-generate
       configuration:
-        driver: temsettings
-        location: output/temsettings.json
+        driver: image
+        location: output/thumbnail.png
+        options: "equalize=true;as_gray=true;resize=256x256"
         label: temimage
 
-  # 3. Document microscope settings to create
-  https://www.ntnu.edu/physmet/data#generate_settings:
+
+  # 3. Document microscope settings creation
+  # ----------------------------------------
+  https://www.ntnu.edu/physmet/data#microscope_settings:
     function:
       functionType: application/vnd.dlite-generate
       configuration:
@@ -95,8 +109,10 @@ data_documentation:
         location: output/temsettings.json
         label: temimage
 
-  # 4. Document precipitate statistics to create
-  https://www.ntnu.edu/physmet/data#calculate_precipitate_statistics:
+
+  # 4. Document precipitate statistics creation
+  # -------------------------------------------
+  https://www.ntnu.edu/physmet/data#precipitate_statistics:
     function:
       functionType: application/vnd.dlite-convert
       configuration:
@@ -125,10 +141,34 @@ data_documentation:
         - [ps:volume_fraction,   map:mapsTo, emmo:VolumeFraction]
         - [ps:avg_atomic_volume, map:mapsTo, mo:AtomicVolume]
 
-  # 5. Document reading alloy composition
+    #function:
+    #  functionType: application/vnd.dlite-generate
+    #  configuration:
+    #    driver: bson
+    #    location: output/precipitate_statistics.bson
+    #    options: mode=w
+    #    label: temimage
+
+
+
+  # 5. Document alloy composition data source
+  # -----------------------------------------
+  https://www.ntnu.edu/physmet/data#precip_stat_table:
+    function:
+      functionType: application/vnd.dlite-generate
+      configuration:
+        driver: csv
+        location: output/precipitate_statistics.csv
+        options: mode=w
+        label: precipitate_statistics
+
+
+
+  # 6. Document alloy composition data source
+  # -----------------------------------------
   https://www.ntnu.edu/physmet/data#alloy_composition:
     dataresource:
-      downloadUrl: file://data/composition.csv
+      downloadUrl: file:///home/jesperf/prosjekter/software/dlite/examples/TEM_data/data/composition.csv
       mediaType: application/vnd.dlite-parse
       configuration:
         driver: composition
@@ -148,12 +188,14 @@ data_documentation:
         - [comp:nominal_composition, map:mapsTo, mo:NominalComposition]
         - [comp:phase_composition,   map:mapsTo, mo:PhaseComposition]
 
-  # 6. Document precipitation model input to create
-  https://www.ntnu.edu/physmet/data#generate_precip_input:
+
+  # 7. Document creation of precipitation model input
+  # -------------------------------------------------
+  https://www.ntnu.edu/physmet/data#precipitation_model_input:
     mapping:
       mappingType: mappings
       prefixes:
-        chem: http://onto-ns.com/meta/0.1/Chemistry#
+        chem: http://onto-ns.com/meta/0.3/Chemistry#
         mo: http://emmo.info/microstructure#
         map: http://emmo.info/domain-mappings#
         emmo: http://emmo.info/emmo#

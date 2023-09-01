@@ -17,7 +17,7 @@ RS = ts.bind("rs", "http://example.com/resources#")
 with open(indir / "resources.yaml") as f:
     document = yaml.safe_load(f)
 
-datadoc = document["data_documentation"]
+datadoc = document["data_resources"]
 for name, config in datadoc.items():
     save_container(ts, config, RS[name])
 

@@ -21,7 +21,7 @@ PHYSMET = ts.bind("physmet": "https://www.ntnu.edu/physmet/data#")
 with open(indir / "resources.yaml") as f:
     document = yaml.safe_load(f)
 
-datadoc = document["data_documentation"]
+datadoc = document["data_resources"]
 for name, config in datadoc.items():
     save_container(ts, config, name)
 

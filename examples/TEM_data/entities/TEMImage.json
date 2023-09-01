@@ -6,7 +6,7 @@
     "zSize2": "Number of pixels along the 4th dimension for a 4D file (e.g. SPED).",
     "zSize": "Number of pixels along the 3rd dimension for a 3D file.",
     "ySize": "Number of pixels along the 2nd dimension (y-axis).",
-    "xSize": "Number of pixels along the 1st dimension (x-axis).",
+    "xSize": "Number of pixels along the 1st dimension (x-axis)."
   },
   "properties": {
     "filename": {
