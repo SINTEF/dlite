@@ -1,3 +1,5 @@
+---
+
 version: 1
 
 data_resources:
@@ -110,9 +112,9 @@ data_resources:
         label: temimage
 
 
-  # 4. Document precipitate statistics creation
-  # -------------------------------------------
-  https://www.ntnu.edu/physmet/data#precipitate_statistics:
+  # 4. Document image analyser
+  # --------------------------
+  https://www.ntnu.edu/physmet/data#image_analyser:
     function:
       functionType: application/vnd.dlite-convert
       configuration:
@@ -141,19 +143,10 @@ data_resources:
         - [ps:volume_fraction,   map:mapsTo, emmo:VolumeFraction]
         - [ps:avg_atomic_volume, map:mapsTo, mo:AtomicVolume]
 
-    #function:
-    #  functionType: application/vnd.dlite-generate
-    #  configuration:
-    #    driver: bson
-    #    location: output/precipitate_statistics.bson
-    #    options: mode=w
-    #    label: temimage
 
-
-
-  # 5. Document alloy composition data source
-  # -----------------------------------------
-  https://www.ntnu.edu/physmet/data#precip_stat_table:
+  # 5. Document csv-representation of the precipitation statistics
+  # --------------------------------------------------------------
+  https://www.ntnu.edu/physmet/data#precipitate_statistics:
     function:
       functionType: application/vnd.dlite-generate
       configuration:
@@ -163,12 +156,11 @@ data_resources:
         label: precipitate_statistics
 
 
-
   # 6. Document alloy composition data source
   # -----------------------------------------
   https://www.ntnu.edu/physmet/data#alloy_composition:
     dataresource:
-      downloadUrl: file:///home/jesperf/prosjekter/software/dlite/examples/TEM_data/data/composition.csv
+      downloadUrl: file://data/composition.csv
       mediaType: application/vnd.dlite-parse
       configuration:
         driver: composition

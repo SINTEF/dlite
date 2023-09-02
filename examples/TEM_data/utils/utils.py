@@ -12,7 +12,6 @@ from otelib import OTEClient
 
 # Namespaces
 OTEIO = Namespace("http://emmo.info/oteio#")
-PHYSMET = Namespace("https://www.ntnu.edu/physmet/data#")
 
 # Get rid of FutureWarning from csv.py
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -39,10 +38,10 @@ def populate_triplestore(
 
         # Some heuristics to categorise partial pipelines as either
         # data sources or data sinks
-        #if "dataresource" in resource:
-        #    ts.add((iri, RDF.type, OTEIO.DataSource))
-        #else:
-        #    ts.add((iri, RDF.type, OTEIO.DataSink))
+        if "dataresource" in resource:
+            ts.add((iri, RDF.type, OTEIO.DataSource))
+        else:
+            ts.add((iri, RDF.type, OTEIO.DataSink))
 
 
 def get_data(

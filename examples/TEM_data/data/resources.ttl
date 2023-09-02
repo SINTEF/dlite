@@ -1,13 +1,15 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix emmo: <http://emmo.info/emmo#> .
 @prefix oteio: <http://emmo.info/oteio#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rs: <http://example.com/resources#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-rs:calculate_precipitate_statistics a oteio:Dictionary ;
+<https://www.ntnu.edu/physmet/data#TEM_040> a oteio:DataSource,
+        oteio:Dictionary ;
     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                    emmo:hasStringValue "function"@en ] ;
+                    emmo:hasStringValue "dataresource"@en ] ;
             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                     emmo:hasValue [ a oteio:Dictionary ;
                             oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
@@ -15,46 +17,289 @@ rs:calculate_precipitate_statistics a oteio:Dictionary ;
                                             emmo:hasStringValue "configuration"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                             emmo:hasValue [ a oteio:Dictionary ;
+                                                    rdfs:label "temimage"^^xsd:string ;
                                                     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "inputs"@en ] ;
+                                                                    emmo:hasStringValue "driver"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue [ a rdf:List ;
-                                                                            rdf:first [ a oteio:Dictionary ;
-                                                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                                                    emmo:hasStringValue "label"@en ] ;
-                                                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                                                    emmo:hasValue "temimage"^^xsd:string ] ] ] ;
-                                                                            rdf:rest () ] ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "module_name"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "temdata.image_analyser"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "function_name"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "image_analyser"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "outputs"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue [ a rdf:List ;
-                                                                            rdf:first [ a oteio:Dictionary ;
-                                                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                                                    emmo:hasStringValue "label"@en ] ;
-                                                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                                                    emmo:hasValue "precipitate_statistics"^^xsd:string ] ] ] ;
-                                                                            rdf:rest () ] ] ] ] ] ],
+                                                                    emmo:hasValue "dm3"^^xsd:string ] ] ] ] ] ;
+                            dcat:downloadUrl "https://folk.ntnu.no/friisj/temdata/040.dm3"^^xsd:string ;
+                            dcat:mediaType "application/vnd.dlite-parse"^^xsd:string ] ] ],
+        [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "mapping"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "mappingType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "mappings"^^xsd:string ] ],
                                 [ a oteio:KeyValuePair ;
                                     oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "functionType"@en ] ;
+                                            emmo:hasStringValue "triples"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "application/vnd.dlite-convert"^^xsd:string ] ] ] ] ],
+                                            emmo:hasValue [ a rdf:List ;
+                                                    rdf:first [ a rdf:List ;
+                                                            rdf:first "temimage:filename"^^xsd:string ;
+                                                            rdf:rest ( "map:mapsTo"^^xsd:string "oteio.FileName"^^xsd:string ) ] ;
+                                                    rdf:rest ( [ a rdf:List ;
+                                                                rdf:first "temimage:data"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Array"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:pixelUnit"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Unit"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:pixelSize"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Length"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:metadata"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "oteio.Dictionary"^^xsd:string ) ] ) ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "prefixes"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "emmo"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "map"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "temimage"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/TEMImage#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "oteio"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ] ] ] ] ] ] ] .
+
+<https://www.ntnu.edu/physmet/data#TEM_6c8cm_008> a oteio:DataSource,
+        oteio:Dictionary ;
+    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "dataresource"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "configuration"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    rdfs:label "temimage"^^xsd:string ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "driver"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "dm3"^^xsd:string ] ] ] ] ] ;
+                            dcat:downloadUrl "https://folk.ntnu.no/friisj/temdata/6c8cm_008.dm3"^^xsd:string ;
+                            dcat:mediaType "application/vnd.dlite-parse"^^xsd:string ] ] ],
         [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "mapping"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "mappingType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "mappings"^^xsd:string ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "prefixes"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "temimage"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/TEMImage#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "oteio"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "emmo"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "map"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ] ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "triples"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a rdf:List ;
+                                                    rdf:first [ a rdf:List ;
+                                                            rdf:first "temimage:filename"^^xsd:string ;
+                                                            rdf:rest ( "map:mapsTo"^^xsd:string "oteio.FileName"^^xsd:string ) ] ;
+                                                    rdf:rest ( [ a rdf:List ;
+                                                                rdf:first "temimage:data"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Array"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:pixelUnit"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Unit"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:pixelSize"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Length"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:metadata"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "oteio.Dictionary"^^xsd:string ) ] ) ] ] ] ] ] ] .
+
+<https://www.ntnu.edu/physmet/data#TEM_BF_100-at-m5-and-2_001> a oteio:DataSource,
+        oteio:Dictionary ;
+    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "mapping"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "triples"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a rdf:List ;
+                                                    rdf:first [ a rdf:List ;
+                                                            rdf:first "temimage:filename"^^xsd:string ;
+                                                            rdf:rest ( "map:mapsTo"^^xsd:string "oteio.FileName"^^xsd:string ) ] ;
+                                                    rdf:rest ( [ a rdf:List ;
+                                                                rdf:first "temimage:data"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Array"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:pixelUnit"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Unit"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:pixelSize"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Length"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "temimage:metadata"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "oteio.Dictionary"^^xsd:string ) ] ) ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "prefixes"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "temimage"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/TEMImage#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "oteio"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "emmo"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "map"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ] ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "mappingType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "mappings"^^xsd:string ] ] ] ] ],
+        [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "dataresource"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "configuration"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    rdfs:label "temimage"^^xsd:string ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "driver"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "dm3"^^xsd:string ] ] ] ] ] ;
+                            dcat:downloadUrl "https://folk.ntnu.no/friisj/temdata/BF_100-at-m5-and-2_001.dm3"^^xsd:string ;
+                            dcat:mediaType "application/vnd.dlite-parse"^^xsd:string ] ] ] .
+
+<https://www.ntnu.edu/physmet/data#alloy_composition> a oteio:DataSource,
+        oteio:Dictionary ;
+    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "mapping"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "mappingType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "mappings"^^xsd:string ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "prefixes"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "mo"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/microstructure#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "comp"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/Composition#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "emmo"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "map"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ] ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "triples"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a rdf:List ;
+                                                    rdf:first [ a rdf:List ;
+                                                            rdf:first "comp:alloy"^^xsd:string ;
+                                                            rdf:rest ( "map:mapsTo"^^xsd:string "mo:Alloy"^^xsd:string ) ] ;
+                                                    rdf:rest ( [ a rdf:List ;
+                                                                rdf:first "comp:elements"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo:ChemicalElement"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "comp:phases"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:Phase"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "comp:nominal_composition"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:NominalComposition"^^xsd:string ) ] [ a rdf:List ;
+                                                                rdf:first "comp:phase_compositions"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:PhaseComposition"^^xsd:string ) ] ) ] ] ] ] ] ],
+        [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "dataresource"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "configuration"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    rdfs:label "composition"^^xsd:string ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "driver"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "composition"^^xsd:string ] ] ] ] ] ;
+                            dcat:downloadUrl "file://data/composition.csv"^^xsd:string ;
+                            dcat:mediaType "application/vnd.dlite-parse"^^xsd:string ] ] ] .
+
+<https://www.ntnu.edu/physmet/data#image_analyser> a oteio:DataSink,
+        oteio:Dictionary ;
+    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                     emmo:hasStringValue "mapping"@en ] ;
             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
@@ -99,9 +344,14 @@ rs:calculate_precipitate_statistics a oteio:Dictionary ;
                                                                     emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "mo"@en ] ;
+                                                                    emmo:hasStringValue "oteio"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/microstructure#"^^xsd:string ] ],
+                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "map"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "ps"@en ] ;
@@ -109,147 +359,54 @@ rs:calculate_precipitate_statistics a oteio:Dictionary ;
                                                                     emmo:hasValue "http://onto-ns.com/meta/0.1/PrecipitateStatistics#"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "map"@en ] ;
+                                                                    emmo:hasStringValue "mo"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "oteio"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ] ] ] ] ] ] ] .
-
-rs:composition_resource a oteio:Dictionary ;
-    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                                    emmo:hasValue "http://emmo.info/microstructure#"^^xsd:string ] ] ] ] ] ] ] ],
+        [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                    emmo:hasStringValue "dataresource"@en ] ;
+                    emmo:hasStringValue "function"@en ] ;
             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                     emmo:hasValue [ a oteio:Dictionary ;
                             oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "functionType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "application/vnd.dlite-convert"^^xsd:string ] ],
+                                [ a oteio:KeyValuePair ;
                                     oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                             emmo:hasStringValue "configuration"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                             emmo:hasValue [ a oteio:Dictionary ;
                                                     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "driver"@en ] ;
+                                                                    emmo:hasStringValue "inputs"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "composition"^^xsd:string ] ],
+                                                                    emmo:hasValue [ a rdf:List ;
+                                                                            rdf:first [ a oteio:Dictionary ;
+                                                                                    rdfs:label "temimage"^^xsd:string ] ;
+                                                                            rdf:rest () ] ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "label"@en ] ;
+                                                                    emmo:hasStringValue "function_name"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "composition"^^xsd:string ] ] ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "mediaType"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "application/vnd.dlite-parse"^^xsd:string ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "downloadUrl"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "file://data/composition.csv"^^xsd:string ] ] ] ] ],
-        [ a oteio:KeyValuePair ;
-            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                    emmo:hasStringValue "mapping"@en ] ;
-            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                    emmo:hasValue [ a oteio:Dictionary ;
-                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "prefixes"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue [ a oteio:Dictionary ;
-                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "map"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
+                                                                    emmo:hasValue "image_analyser"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "mo"@en ] ;
+                                                                    emmo:hasStringValue "module_name"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/microstructure#"^^xsd:string ] ],
+                                                                    emmo:hasValue "temdata.image_analyser"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "comp"@en ] ;
+                                                                    emmo:hasStringValue "outputs"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/Composition#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "emmo"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ] ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "triples"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue [ a rdf:List ;
-                                                    rdf:first [ a rdf:List ;
-                                                            rdf:first "comp:alloy"^^xsd:string ;
-                                                            rdf:rest ( "map:mapsTo"^^xsd:string "mo:Alloy"^^xsd:string ) ] ;
-                                                    rdf:rest ( [ a rdf:List ;
-                                                                rdf:first "comp:elements"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo:ChemicalElement"^^xsd:string ) ] [ a rdf:List ;
-                                                                rdf:first "comp:phases"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:Phase"^^xsd:string ) ] [ a rdf:List ;
-                                                                rdf:first "comp:nominal_composition"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:NominalComposition"^^xsd:string ) ] [ a rdf:List ;
-                                                                rdf:first "comp:phase_composition"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:PhaseComposition"^^xsd:string ) ] ) ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "mappingType"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "mappings"^^xsd:string ] ] ] ] ] .
+                                                                    emmo:hasValue [ a rdf:List ;
+                                                                            rdf:first [ a oteio:Dictionary ;
+                                                                                    rdfs:label "precipitate_statistics"^^xsd:string ] ;
+                                                                            rdf:rest () ] ] ] ] ] ] ] ] ] .
 
-rs:generate_image a oteio:Dictionary ;
+<https://www.ntnu.edu/physmet/data#microscope_settings> a oteio:DataSink,
+        oteio:Dictionary ;
     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                    emmo:hasStringValue "mapping"@en ] ;
-            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                    emmo:hasValue [ a oteio:Dictionary ;
-                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "prefixes"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue [ a oteio:Dictionary ;
-                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "emmo"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "map"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "image"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/Image#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "oteio"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ] ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "triples"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue [ a rdf:List ;
-                                                    rdf:first [ a rdf:List ;
-                                                            rdf:first "image:filename"^^xsd:string ;
-                                                            rdf:rest ( "map:mapsTo"^^xsd:string "oteio.FileName"^^xsd:string ) ] ;
-                                                    rdf:rest ( [ a rdf:List ;
-                                                                rdf:first "image:data"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Array"^^xsd:string ) ] ) ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "mappingType"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "mappings"^^xsd:string ] ] ] ] ],
-        [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                     emmo:hasStringValue "function"@en ] ;
             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
@@ -259,16 +416,12 @@ rs:generate_image a oteio:Dictionary ;
                                             emmo:hasStringValue "configuration"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                             emmo:hasValue [ a oteio:Dictionary ;
+                                                    rdfs:label "temimage"^^xsd:string ;
                                                     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "driver"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                                                     emmo:hasValue "temsettings"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "label"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "temimage"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "location"@en ] ;
@@ -280,13 +433,78 @@ rs:generate_image a oteio:Dictionary ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                             emmo:hasValue "application/vnd.dlite-generate"^^xsd:string ] ] ] ] ] .
 
-rs:generate_precip_input a oteio:Dictionary ;
+<https://www.ntnu.edu/physmet/data#precipitate_statistics> a oteio:DataSink,
+        oteio:Dictionary ;
+    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                    emmo:hasStringValue "function"@en ] ;
+            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                    emmo:hasValue [ a oteio:Dictionary ;
+                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "configuration"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    rdfs:label "precipitate_statistics"^^xsd:string ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "location"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "output/precipitate_statistics.csv"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "driver"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "csv"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "options"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "mode=w"^^xsd:string ] ] ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "functionType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "application/vnd.dlite-generate"^^xsd:string ] ] ] ] ] .
+
+<https://www.ntnu.edu/physmet/data#precipitation_model_input> a oteio:DataSink,
+        oteio:Dictionary ;
     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                     emmo:hasStringValue "mapping"@en ] ;
             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                     emmo:hasValue [ a oteio:Dictionary ;
                             oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "prefixes"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue [ a oteio:Dictionary ;
+                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "map"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "mo"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/microstructure#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "chem"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://onto-ns.com/meta/0.3/Chemistry#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "emmo"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ] ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "mappingType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "mappings"^^xsd:string ] ],
+                                [ a oteio:KeyValuePair ;
                                     oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                             emmo:hasStringValue "triples"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
@@ -308,48 +526,13 @@ rs:generate_precip_input a oteio:Dictionary ;
                                                                 rdf:first "chem:rpart"^^xsd:string ;
                                                                 rdf:rest ( "map:mapsTo"^^xsd:string "mo:PrecipitateLength"^^xsd:string ) ] [ a rdf:List ;
                                                                 rdf:first "chem:atvol"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:AtomicVolume"^^xsd:string ) ] ) ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "prefixes"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue [ a oteio:Dictionary ;
-                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "chem"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/Chemistry#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "map"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "mo"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/microstructure#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "emmo"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ] ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "mappingType"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "mappings"^^xsd:string ] ] ] ] ],
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "mo:AtomicVolume"^^xsd:string ) ] ) ] ] ] ] ] ],
         [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                     emmo:hasStringValue "function"@en ] ;
             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                     emmo:hasValue [ a oteio:Dictionary ;
                             oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "functionType"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "application/vnd.dlite-generate"^^xsd:string ] ],
-                                [ a oteio:KeyValuePair ;
                                     oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                             emmo:hasStringValue "configuration"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
@@ -361,11 +544,6 @@ rs:generate_precip_input a oteio:Dictionary ;
                                                                     emmo:hasValue "template=data/precip-template.txt"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "location"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "output/precip.txt"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "datamodel"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                                                     emmo:hasValue "http://onto-ns.com/meta/0.3/Chemistry"^^xsd:string ] ],
@@ -373,9 +551,20 @@ rs:generate_precip_input a oteio:Dictionary ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "driver"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "template"^^xsd:string ] ] ] ] ] ] ] ] .
+                                                                    emmo:hasValue "template"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "location"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "output/precip.txt"^^xsd:string ] ] ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "functionType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "application/vnd.dlite-generate"^^xsd:string ] ] ] ] ] .
 
-rs:generate_settings a oteio:Dictionary ;
+<https://www.ntnu.edu/physmet/data#thumbnail_image> a oteio:DataSink,
+        oteio:Dictionary ;
     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                     emmo:hasStringValue "function"@en ] ;
@@ -391,53 +580,22 @@ rs:generate_settings a oteio:Dictionary ;
                                             emmo:hasStringValue "configuration"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                             emmo:hasValue [ a oteio:Dictionary ;
+                                                    rdfs:label "temimage"^^xsd:string ;
                                                     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "driver"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "temsettings"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "label"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "temimage"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "location"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "output/temsettings.json"^^xsd:string ] ] ] ] ] ] ] ] .
-
-rs:tem_resource a oteio:Dictionary ;
-    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                    emmo:hasStringValue "dataresource"@en ] ;
-            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                    emmo:hasValue [ a oteio:Dictionary ;
-                            oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "downloadUrl"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "https://folk.ntnu.no/friisj/temdata/6c8cm_008.dm3"^^xsd:string ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "configuration"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue [ a oteio:Dictionary ;
-                                                    oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
+                                                                    emmo:hasValue "output/thumbnail.png"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "label"@en ] ;
+                                                                    emmo:hasStringValue "options"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "temimage"^^xsd:string ] ],
+                                                                    emmo:hasValue "equalize=true;as_gray=true;resize=256x256"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "driver"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "dm3"^^xsd:string ] ] ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "mediaType"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "application/vnd.dlite-parse"^^xsd:string ] ] ] ] ],
+                                                                    emmo:hasValue "image"^^xsd:string ] ] ] ] ] ] ] ],
         [ a oteio:KeyValuePair ;
             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                     emmo:hasStringValue "mapping"@en ] ;
@@ -450,16 +608,6 @@ rs:tem_resource a oteio:Dictionary ;
                                             emmo:hasValue [ a oteio:Dictionary ;
                                                     oteio:hasKeyValuePair [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "temimage"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/TEMImage#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                                                    emmo:hasStringValue "map"@en ] ;
-                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
-                                                        [ a oteio:KeyValuePair ;
-                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "emmo"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                                                     emmo:hasValue "http://emmo.info/emmo#"^^xsd:string ] ],
@@ -467,27 +615,31 @@ rs:tem_resource a oteio:Dictionary ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "oteio"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ] ] ] ],
-                                [ a oteio:KeyValuePair ;
-                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
-                                            emmo:hasStringValue "mappingType"@en ] ;
-                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                            emmo:hasValue "mappings"^^xsd:string ] ],
+                                                                    emmo:hasValue "http://emmo.info/oteio#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "map"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://emmo.info/domain-mappings#"^^xsd:string ] ],
+                                                        [ a oteio:KeyValuePair ;
+                                                            oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                                                    emmo:hasStringValue "image"@en ] ;
+                                                            oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/Image#"^^xsd:string ] ] ] ] ],
                                 [ a oteio:KeyValuePair ;
                                     oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                             emmo:hasStringValue "triples"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                             emmo:hasValue [ a rdf:List ;
                                                     rdf:first [ a rdf:List ;
-                                                            rdf:first "temimage:filename"^^xsd:string ;
+                                                            rdf:first "image:filename"^^xsd:string ;
                                                             rdf:rest ( "map:mapsTo"^^xsd:string "oteio.FileName"^^xsd:string ) ] ;
                                                     rdf:rest ( [ a rdf:List ;
-                                                                rdf:first "temimage:data"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Array"^^xsd:string ) ] [ a rdf:List ;
-                                                                rdf:first "temimage:pixelUnit"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Unit"^^xsd:string ) ] [ a rdf:List ;
-                                                                rdf:first "temimage:pixelSize"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Length"^^xsd:string ) ] [ a rdf:List ;
-                                                                rdf:first "temimage:metadata"^^xsd:string ;
-                                                                rdf:rest ( "map:mapsTo"^^xsd:string "oteio.Dictionary"^^xsd:string ) ] ) ] ] ] ] ] ] .
+                                                                rdf:first "image:data"^^xsd:string ;
+                                                                rdf:rest ( "map:mapsTo"^^xsd:string "emmo.Array"^^xsd:string ) ] ) ] ] ],
+                                [ a oteio:KeyValuePair ;
+                                    oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
+                                            emmo:hasStringValue "mappingType"@en ] ;
+                                    oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
+                                            emmo:hasValue "mappings"^^xsd:string ] ] ] ] ] .
 
