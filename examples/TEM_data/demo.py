@@ -1,5 +1,4 @@
-"""This runs the
-"""
+"""Demo: access and use TEM data"""
 from tripper import RDF, Namespace, Triplestore
 
 from paths import indir, outdir
