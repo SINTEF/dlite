@@ -244,6 +244,9 @@ for an example of how data in a knowledge base can be explored.)
 ### Accessing data
 
 #### Get thumbnail image
+
+![resource-thumbnail](figs/resource-thumbnail.svg)
+
 Let's now use the system to get a thumbnail image for the TEM image
 [pm:TEM_6c8cm_008] (with "pm:" being the namespace prefix we defined
 above).  This can be achieved calling the `get_data()` function:
@@ -271,6 +274,9 @@ the IRIs for the data source and sink we want to connect.
 
 
 #### Get microscope settings
+
+![resource-settings](figs/resource-settings.svg)
+
 Similarly we can get microscope settings for TEM image [pm:TEM_040]:
 ```python
 # Get microscope setting for pm:TEM_040
@@ -284,6 +290,9 @@ from a TEM image.*
 
 
 #### Get precipitation statistics
+
+![resource-statistics](figs/resource-statistics.svg)
+
 To get the precipitation statistics, we also have to specify that we want
 to calculate it using the image analyser.  Hence, we need to provide
 three IRIs in this case:
@@ -304,6 +313,9 @@ statistics from a TEM image.*
 
 
 #### Get input to presipitation model
+
+![resource-precip](figs/resource-precip.svg)
+
 To generate an input file to a (thought) precipitation model, we need
 to combine two data sources, the alloy composition and the analysed
 precipitate statistics for a TEM image.  This can be done by simply
