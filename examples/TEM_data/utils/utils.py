@@ -49,7 +49,10 @@ def get_data(
     steps: Sequence[str],
     client_iri: str = "python",
 ):
-    """Get data.
+    """Get the data specified by the user.
+
+    From the sequence of IRIs provided in the `steps` argument, this
+    function ensembles an OTEAPI pipeline and calls its `get()` method.
 
     Arguments:
         ts: Tripper triplestore documenting data sources and sinks.

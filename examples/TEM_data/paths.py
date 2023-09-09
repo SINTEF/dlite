@@ -10,6 +10,7 @@ plugindir = exampledir / "plugins"
 entitydir = exampledir / "entities"
 indir = exampledir / "data"
 outdir = exampledir / "output"
+testdir = exampledir / "tests"
 
 temdata = "https://folk.ntnu.no/friisj/temdata"
 

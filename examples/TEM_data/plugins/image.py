@@ -42,7 +42,7 @@ class image(dlite.DLiteStorageBase):
         # Infer dimensions
         shape = [1]*3
         shape[3 - len(data.shape):] = data.shape
-        dimnames = "channels", "height", "width"
+        dimnames = "height", "width", "channels"
         dimensions = dict(zip(dimnames, shape))
 
         # Create and populate DLite instance

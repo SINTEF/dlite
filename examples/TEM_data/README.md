@@ -1,14 +1,10 @@
 TEM data Example
 ================
-This example demonstrates how a user can access and combine different
-datasets and represent them in the form he or she needs.
+This example demonstrates how a user can access and combine different datasets and represent them in the form he or she needs.
 
-The basic idea is to semantically document both the datasets and the
-different ways one want to represent them as.
+By semantically documenting both the data sources (datasets, like TEM images and alloy composition) and data sinks (different ways to represent the data like thumbnail image, microscope settings, precipitate statistics, etc), the user can mix and match the data sources and sinks as wished.
 
-The example uses DLite as the underlying interoperability framework,
-but also introduces a set of other tools for working with semantically
-documented data.
+The example uses DLite as the underlying interoperability framework, but also introduces a set of other tools for working with semantically documented data.
 
 
 Content
@@ -27,12 +23,9 @@ Content
 
 Background
 ----------
-This example is about studying an Al-Mg-Si aluminium alloy using
-transition electron microscopy (TEM).  The aim of such studies is to
-understand how the alloy composition and heat treatment influences the
-microstructure and how the microstructure in turn influences the alloy
-properties.  Based such understanding, new alloys with improved or
-tailored properties can be developed.
+This example is about studying an Al-Mg-Si aluminium alloy using transition electron microscopy (TEM).
+The aim of such studies is to understand how the alloy composition and heat treatment influences the microstructure and how the microstructure in turn influences the alloy properties.
+Based on such understanding, new alloys with improved or tailored properties can be developed.
 
 In this very simple example, we will look at a single Al-Mg-Si alloy
 at two conditions, after exposing it for two different heat treatments.
@@ -45,62 +38,48 @@ room temperature (RT) and then immediately aged for 5 hours at 185C.
 
 *Figure: Heat treatment profile for condition A.  Direct aging.*
 
-Two bright-field TEM images were acquired from a sample prepared after
-the aging (marked with A in the profile above).  The first is a
-low-magnification images showing a dense distribution of needle-shaped
-beta" precipitates.
+Two bright-field TEM images were acquired from a sample prepared after the aging (marked with A in the profile above).
+The first is a low-magnification image showing a dense distribution of needle-shaped beta" precipitates.
 
 ![Overview, direct aging](figs/BF_100-at-m5-and-2_001.png)
 
-*Figure: Low-magnification TEM bright-field image;
-[pm:TEM_BF_100-at-m5-and-2_001]*
+*Figure: Low-magnification TEM bright-field image.
+Good for measuring the average precipitate length; [pm:TEM_BF_100-at-m5-and-2_001]*
 
-The second image zooms in to a smaller region.  The dark dots are
-beta" precipitates viewed along the needle-direction.
+The second image zooms in on a smaller region.
+The dark dots are beta" precipitates viewed along the needle-direction.
 
 ![zoom, direct aging](figs/040.png)
 
-*Figure: Zoom-in of the above TEM bright-field image; [pm:TEM_040]*
+*Figure: The same condition as the above TEM bright-field image, but at a higher magnification.
+This is good for measuring the average precipitate cross-section; [pm:TEM_040]*
 
-The second heat treatment we denote NA (for natural aged), where the
-alloy after solution heat treatment was kept at RT for 1 month before
-aging.  It was also pre-baked for 24h at 90C.
+The second heat treatment we denote NA (for natural aged), where the alloy after solution heat treatment was kept at RT for 1 month before aging.
+It was also pre-baked for 24h at 90C.
 
 ![profile-NA](figs/profile-NA.svg)
 
 *Figure: Heat treatment profile for condition B.  Natural aging.*
 
-An atomic-resolution high angle annular dark-field (HAADF) TEM image
-was acquired from a sample prepared after aging (marked with B in the
-profile above).  It shows three beta" precipitates viewed along the
-needle direction.
+An atomic-resolution high angle annular dark-field (HAADF) TEM image was acquired from a sample prepared after aging (marked with B in the profile above).
+It shows three beta" precipitates viewed along the needle direction.
 
 ![pre-baked](figs/6c8cm_008.png)
 
 *Figure: High angle annular dark field TEM image; [pm:TEM_6c8cm_008]*
 
-By analysing a set of such TEM images as showed above, one can
-characterise the alloy microstructure in terms of precipitates types
-and size distributions.
+By analysing a set of such TEM images as showed above, one can characterise the alloy microstructure in terms of precipitate types and size distributions.
 
-To relate the microstructure to mechanical properties of the alloy,
-Vickers hardness measurements was performed at each of the two
-conditions.
+To relate the microstructure to mechanical properties of the alloy, Vickers hardness measurements were performed at each of the two conditions.
 
 
 Data resources
 --------------
-The data resources can be divided into two types, *data sources*
-with our initial knowledge or raw data obtained directly from
-experiments and *data sinks* that correspond to different derived
-representations of the primary data sources.
+The data resources can be divided into two types, *data sources* with our initial knowledge or raw data obtained directly from experiments and *data sinks* that correspond to different derived representations of the primary data sources.
 
-All data resources are uniquely identified with an IRI, where we are using
-the prefix [pm:] as a common namespace.
+All data resources are uniquely identified with an IRI, where we are using the prefix [pm:] as a common namespace.
 
-All data resources used in this example are documented in the
-[data/resources.yaml] file, which will be used to populate the
-knowledge base in this demo.
+All data resources used in this example are documented in the [data/resources.yaml] file, which will be used to populate the knowledge base in this demo.
 
 **Data sources**
 - **Raw TEM images** stored in the Gatan DM3 format.  These images are large
@@ -124,7 +103,7 @@ knowledge base in this demo.
 
 **Transformations**
 - **Image analyser**. This resource is a (hypothetical) *TEM image analyser*
-  software that function both as a sink (takes a DM3 file as input)
+  software that functions both as a sink (takes a DM3 file as input)
   and a source (calculates precipitation statistics).  It is implemented as a
   Python function. *IRI:* [pm:image_analyser].
 
@@ -140,9 +119,7 @@ After the documentation is done, the user can mix and match data
 sources and sinks in a very flexible way.*
 
 All the data resources are associated with a data model (DLite Metadata).
-The microscope settings is associated with the [TEMImage] datamodel and
-the TEM image analyser takes a [TEMImage] instance as input and returns a
-[PrecipitateStatistics] instance.
+The microscope settings is associated with the [TEMImage] datamodel and the TEM image analyser takes a [TEMImage] instance as input and returns a [PrecipitateStatistics] instance.
 
 The workflow includes three different ways to connect a data sink to a
 data source:
@@ -162,9 +139,9 @@ data source:
   combining a [PrecipitateStatistics] and [Composition] data model.
 
 * **Convert** is a transformation that takes one or more data models
-  as input and return one or more data models as output. It is implemented
+  as input and returns one or more data models as output. It is implemented
   as a Python function.  Conversions are similar to property mappings,
-  but operates on instances instead of individual properties.
+  but operate on instances instead of individual properties.
   The *TEM image analyser* is implemented as a converter.  It takes
   an instance of a [TEMImage] data model and returns an instance of
   a [PrecipitateStatistics] data model.
@@ -183,8 +160,7 @@ The main example can be found in the [demo.py] script. We will here go
 through it step by step.
 
 ### Initialisation
-In addition to define the input and output data directories to use in this
-example, the line
+In addition to defining the input and output data directories to use in this example, the line
 
 ```python
 from paths import indir, outdir
@@ -208,6 +184,12 @@ from utils.utils import get_data, populate_triplestore
 
 imports the two main functions that we will use in this example.
 
+The `populate_triplestore()` function, populates the triplestore with our a priori knowledge about the data sources and sinks.
+
+The `get_data()` function allows a user to get the data in the form he or she wants, by combining and connecting the data sources to the sinks.
+It only takes three arguments, a reference to the triplestore, a sequence of IRIs to the data sources and sinks to combine and connect and the OTELib client to use (defaults to the local "python" client).
+Under the hood, this function ensembles a full OTEAPI pipeline and calls it `get()` method.
+
 
 ### Accessing the knowledge base
 To be independent of the underlying triplestore implementation, we use
@@ -221,7 +203,7 @@ ts = Triplestore(backend="rdflib")
 populate_triplestore(ts, indir / "resources.yaml")
 ```
 
-Lets also define some handy tripper namespaces
+Let's also define some handy tripper namespaces:
 
 ```python
 OTEIO = Namespace("http://emmo.info/oteio#")
@@ -230,7 +212,7 @@ PM = ts.bind("pm", "https://www.ntnu.edu/physmet/data#")
 
 
 ### Listing the data resources in the knowledge base
-Lets see the data sources and sinks that we have documented.
+Let's see the data sources and sinks that we have documented.
 
 ```python
 # List all data sources and sinks
@@ -256,13 +238,13 @@ Data sinks:
 ```
 
 (See the OntoTrans [Exploratory Search System (ESS)] by TU Wien
-for an example of how to data in a knowledge base can be explored.)
+for an example of how data in a knowledge base can be explored.)
 
 
 ### Accessing data
 
 #### Get thumbnail image
-Lets now use the system to get a thumbnail image for the TEM image
+Let's now use the system to get a thumbnail image for the TEM image
 [pm:TEM_6c8cm_008] (with "pm:" being the namespace prefix we defined
 above).  This can be achieved calling the `get_data()` function:
 

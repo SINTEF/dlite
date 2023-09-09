@@ -1,8 +1,6 @@
-# Ignore everything in this folder
 *.dm3
-*.json
 *.png
+*.json
 *.csv
-*.txt
-*.yaml
-*.ttl
+resources.ttl
+precip.txt
