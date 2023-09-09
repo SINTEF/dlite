@@ -245,8 +245,8 @@ int strnput_escape(char **destp, size_t *sizep, size_t pos,
   Embedded double-quotes are escaped with backslash. At most `size`
   characters are written to `dest` (including terminating NUL).
 
-  If `s` is NULL, this function will behave similar to snprintf(),
-  except for the added quoting.
+  If `s` is NULL, this function will behave similarly to snprintf(),
+  except for the added quoting marks.
 
   Returns number of characters written to `dest` (excluding
   terminating NUL).  If the output is truncated, the number of
@@ -267,12 +267,21 @@ int strnquote(char *dest, size_t size, const char *s, int n,
 {
   size_t i=0, j=0;
   if (!size) dest = NULL;
+
+  /* Write initial quote sign to `dest`. */
   if (!(flags & strquoteNoQuote)) {
     if (size > i) dest[i] = '"';
     i++;
   }
+
   if (s) {
+
+    /* Loop over each character in source `s` and copy it to `dest`.
+       If `n` is positive, consume at most `n` characters from `s`. */
     while (s[j] && (n < 0 || (int)j < n)) {
+
+      /* Add backslash (escape) in front of double-quote characters
+         when copying to `dest` */
       if (s[j] == '"' && !(flags & strquoteNoEscape)) {
         if (size > i) dest[i] = '\\';
         i++;
@@ -281,15 +290,24 @@ int strnquote(char *dest, size_t size, const char *s, int n,
       i++;
       j++;
     }
+
   } else {
+
+    /* If `s` is NULL, use system snprintf() to represent it in a standard
+       way. */
     int m = snprintf(dest+i, PDIFF(size, i), "%s", s);
     if (m >= 0) i += j;
   }
+
+  /* Write final quote sign to `dest`. */
   if (!(flags & strquoteNoQuote)) {
     if (dest && size > i) dest[i] = '"';
     i++;
   }
+
+  /* Ensure that `dest` is NUL-terminated. */
   if (dest) dest[(size > i) ? i : size-1] = '\0';
+
   return i;
 }
 
@@ -360,18 +378,16 @@ int strnput_unquote(char **destp, size_t *sizep, size_t pos, const char *s,
                     int n, int *consumed, StrquoteFlags flags)
 {
   int m;
+  /* Ensure consistency */
   if (!*destp) *sizep = 0;
   if (!*sizep) *destp = NULL;
-  if (!destp || *sizep <= pos) {
-    char *q;
-    size_t size = pos + 1;
-    if (!(q = realloc(*destp, size))) return -3;
-    *destp = q;
-    *sizep = size;
-  }
 
-  m = strnunquote(*destp+pos, PDIFF(*sizep, pos), s, n, consumed, flags);
-  if (m < 0) return m;
+  /* Use strnunquote() to get now much memory we need. */
+  m = strnunquote(NULL, 0, s, n, consumed, flags);
+  if (m < 0) return m;  // On error, pass it on...
+
+  /* If the allocated size is not large enough, reallocate `*destp` to the
+     needed size. */
   if (m + pos >= *sizep) {
     char *q;
     size_t size = m + pos + 1;
@@ -379,9 +395,11 @@ int strnput_unquote(char **destp, size_t *sizep, size_t pos, const char *s,
     *destp = q;
     *sizep = size;
   }
+
+  /* Use strnunquote() again to write the allocated buffer. */
   m = strnunquote(*destp+pos, PDIFF(*sizep, pos), s, n, consumed, flags);
-  if (m < 0) return m;
-  assert(m + pos < *sizep);
+  assert(m >= 0);            // we don't expect any errors now
+  assert(m + pos < *sizep);  // the buffer should be large enough
   return m;
 }
 
