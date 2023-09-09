@@ -237,51 +237,52 @@ Data sinks:
   - https://www.ntnu.edu/physmet/data#precipitation_model_input
 ```
 
-(See the OntoTrans [Exploratory Search System (ESS)] by TU Wien
-for an example of how data in a knowledge base can be explored.)
+(See the OntoTrans [Exploratory Search System (ESS)] by TU Wien for an example of how data in a knowledge base can be explored.)
 
 
 ### Accessing data
 
 #### Get thumbnail image
-
-![resource-thumbnail](figs/resource-thumbnail.svg)
-
-Let's now use the system to get a thumbnail image for the TEM image
-[pm:TEM_6c8cm_008] (with "pm:" being the namespace prefix we defined
-above).  This can be achieved calling the `get_data()` function:
+Let's now use the system to get a thumbnail image for the TEM image [pm:TEM_6c8cm_008] (with "pm:" being the namespace prefix we defined above).
+This can be achieved calling the `get_data()` function:
 
 ```python
 # Get a thumbnail of pm:TEM_6c8cm_008
 get_data(ts, steps=(PM.TEM_6c8cm_008, PM.thumbnail_image))
 ```
 
-This function will under the hood query the triplestore for the data
-documentation of the two data resources passed as arguments and create
-partial OTEAPI pipelines for them.  It will then connect the two
-partial pipelines into a full pipeline and execute it as shown in the
-figure below.
+This will connect the TEM image data source ([pm:TEM_6c8cm_008]) to the thumbnail generator data sink ([pm:thumbnail_image]) as shown below.
+
+![resource-thumbnail](figs/resource-thumbnail.svg)
+
+*Figure: Connecting a TEM image to the thumbnail generator.*
+
+Under the hood, this will query the triplestore for the data documentation of the two data resources passed as arguments and create partial OTEAPI pipelines for them.
+It will then connect the two partial pipelines into a full pipeline and execute it as shown in the figure below.
 
 ![pipe-thumbnail](figs/pipe-thumbnail.svg)
 
 *Figure: Underlying OTEAPI pipeline for creating a thumbnail from a TEM image.*
 
-The result will be that the file `output/thumbnail.png` as location in
-the documentation of the thumbnail image will be created.
+The result will be that the file `output/thumbnail.png` as location in the documentation of the thumbnail image will be created.
 
-**Note**, as arguments to `get_data()` we only provide the triplestore and
-the IRIs for the data source and sink we want to connect.
+**Note**, as arguments to `get_data()` we only provide the triplestore and the IRIs for the data source and sink we want to connect.
 
 
 #### Get microscope settings
-
-![resource-settings](figs/resource-settings.svg)
-
 Similarly we can get microscope settings for TEM image [pm:TEM_040]:
 ```python
 # Get microscope setting for pm:TEM_040
 get_data(ts, steps=(PM.TEM_040, PM.microscope_settings))
 ```
+
+The figure below shows schematically how this connects the [pm:TEM_040] TEM image data source to the [pm:microscope_settings] data sink.
+
+![resource-settings](figs/resource-settings.svg)
+
+*Figure: Connecting a TEM image to the microscope settings generator.*
+
+Under the hood, the following OTEAPI pipeline is created and executed:
 
 ![pipe-settings](figs/pipe-settings.svg)
 
@@ -290,12 +291,8 @@ from a TEM image.*
 
 
 #### Get precipitation statistics
-
-![resource-statistics](figs/resource-statistics.svg)
-
-To get the precipitation statistics, we also have to specify that we want
-to calculate it using the image analyser.  Hence, we need to provide
-three IRIs in this case:
+To get the precipitation statistics, we also have to specify that we want to calculate it using the image analyser.
+Hence, we need to provide three IRIs in this case:
 
 ```python
 # Get precipitation statistics for pm:TEM_BF_100-at-m5-and-2_001
@@ -306,20 +303,20 @@ get_data(ts, steps=(
 ))
 ```
 
+The following two figures shows first schematically the process and then the underlying OTEAPI pipeline:
+
+![resource-statistics](figs/resource-statistics.svg)
+
+*Figure: Connecting a TEM image to the [pm:image_analyser] and writing the result to a csv file using the [pm:precipitate_statistics] generator.*
+
 ![pipe-statistics](figs/pipe-statistics.svg)
 
-*Figure: Underlying OTEAPI pipeline for calculating precipitate
-statistics from a TEM image.*
+*Figure: Underlying OTEAPI pipeline for calculating precipitate statistics from a TEM image.*
 
 
 #### Get input to presipitation model
-
-![resource-precip](figs/resource-precip.svg)
-
-To generate an input file to a (thought) precipitation model, we need
-to combine two data sources, the alloy composition and the analysed
-precipitate statistics for a TEM image.  This can be done by simply
-include the IRI of the extra data source before it is needed:
+To generate an input file to a (thought) precipitation model, we need to combine two data sources, the alloy composition and the analysed precipitate statistics for a TEM image.
+This can be done by simply include the IRI of the extra data source before it is needed:
 
 ```python
 # Get input to presipitation model based on the combination of the
@@ -333,6 +330,12 @@ get_data(ts, steps=(
 ))
 ```
 
+The following two figures shows first schematically the process and then the underlying OTEAPI pipeline:
+
+![resource-precip](figs/resource-precip.svg)
+
+*Figure: Combining precipitation statistics (calculated by the image analyser) with the alloy composition to produce an input file for a precipitation model.*
+
 ![pipe-precip](figs/pipe-precip.svg)
 
 *Figure: Underlying OTEAPI pipeline for creating a precipitation model input file
@@ -343,8 +346,7 @@ from the alloy composition and a TEM image.*
 
 Acknowledgments
 ---------------
-We kindly acknowledge Calin Marioara for providing the TEM images and
-some background information.
+We kindly acknowledge Calin Marioara for providing the TEM images and some background information.
 
 
 [pm:]: https://www.ntnu.edu/physmet/data#
