@@ -923,6 +923,15 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 #define MAX_PROPERTY_TOKENS  64  // this supports at least 50 dimensions...
 #define MAX_RELATION_TOKENS   9
 
+/* Macro used by dlite_type_scan() to asign `target` when scanning a
+   relation. */
+#define SET_RELATION(target, buf, bufsize, t, src)                      \
+  if (strnput_unquote(&buf, &bufsize, 0, src + t->start,                \
+                      t->end - t->start, NULL, strquoteNoQuote) < 0)    \
+    return -1;                                                          \
+  target = strndup(buf, t->end - t->start);
+
+
 /*
   Scans a value from `src` and write it to memory pointed to by `p`.
 
@@ -1207,23 +1216,11 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         size_t bufsize=0;
         char *buf=NULL;
         if (!(t = jsmn_element(src, tokens, 0))) return -1;
-        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
-                            t->end - t->start, NULL, strquoteNoQuote) < 0)
-          return -1;
-        rel->s = strndup(buf, t->end - t->start);
-
+        SET_RELATION(rel->s, buf, bufsize, t, src);
         if (!(t = jsmn_element(src, tokens, 1))) return -1;
-        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
-                            t->end - t->start, NULL, strquoteNoQuote) < 0)
-          return -1;
-        rel->p = strndup(buf, t->end - t->start);
-
+        SET_RELATION(rel->p, buf, bufsize, t, src);
         if (!(t = jsmn_element(src, tokens, 2))) return -1;
-        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
-                            t->end - t->start, NULL, strquoteNoQuote) < 0)
-          return -1;
-        rel->o = strndup(buf, t->end - t->start);
-
+        SET_RELATION(rel->o, buf, bufsize, t, src);
         if (tokens->size > 3 && (t = jsmn_element(src, tokens, 3)))
           rel->id = strndup(src + t->start, t->end - t->start);
         free(buf);
@@ -1231,20 +1228,11 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         size_t bufsize=0;
         char *buf=NULL;
         if (!(t = jsmn_item(src, tokens, "s"))) return -1;
-        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
-                            t->end - t->start, NULL, strquoteNoQuote) < 0)
-          return -1;
-        rel->s = strndup(buf, t->end - t->start);
+        SET_RELATION(rel->s, buf, bufsize, t, src);
         if (!(t = jsmn_item(src, tokens, "p"))) return -1;
-        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
-                            t->end - t->start, NULL, strquoteNoQuote) < 0)
-          return -1;
-        rel->p = strndup(buf, t->end - t->start);
+        SET_RELATION(rel->p, buf, bufsize, t, src);
         if (!(t = jsmn_item(src, tokens, "o"))) return -1;
-        if (strnput_unquote(&buf, &bufsize, 0, src + t->start,
-                            t->end - t->start, NULL, strquoteNoQuote) < 0)
-          return -1;
-        rel->o = strndup(buf, t->end - t->start);
+        SET_RELATION(rel->o, buf, bufsize, t, src);
         if ((t = jsmn_item(src, tokens, "id")))
           rel->id = strndup(src + t->start, t->end - t->start);
         free(buf);
