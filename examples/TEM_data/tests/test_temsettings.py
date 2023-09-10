@@ -1,9 +1,6 @@
-import sys
-import json
+from paths import filenames, indir, outdir
 
 import dlite
-
-from paths import filenames, indir, outdir
 
 
 temfile = outdir / filenames[0]

@@ -1,9 +1,6 @@
-import sys
-import json
+from paths import filenames, exampledir, outdir
 
 import dlite
-
-from paths import filenames, exampledir, outdir
 
 
 Image = dlite.get_instance("http://onto-ns.com/meta/0.1/Image")

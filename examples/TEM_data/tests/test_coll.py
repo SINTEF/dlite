@@ -1,6 +1,6 @@
-import dlite
-
 from paths import outdir
+
+import dlite
 
 
 coll = dlite.Collection()

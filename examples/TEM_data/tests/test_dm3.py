@@ -1,10 +1,10 @@
 import json
 
-import dlite
+from paths import filenames, outdir
 
 from numpy import allclose
 
-from paths import filenames, outdir
+import dlite
 
 
 temfile = outdir / filenames[0]

@@ -7,6 +7,15 @@ from subprocess import PIPE, call
 
 from paths import exampledir, outdir, testdir
 
+# Dependency checks
+try:
+    import pint
+    import tripper
+    import otelib
+    import oteapi_dlite
+except ModuleNotFoundError:
+    sys.exit(44)
+
 
 # The error code of each test
 status = {}
@@ -14,7 +23,9 @@ status = {}
 # Run all tests
 for test in testdir.glob("test_*.py"):
     print(test.name)
-    status[test.stem] = call([sys.executable, test], stdout=PIPE)
+    status[test.stem] = call(
+        [sys.executable, test], stdout=PIPE, cwd=testdir,
+    )
 
 
 # Remove files created by the demo from output directory
@@ -32,7 +43,9 @@ for name in created_files:
         path.unlink()
 
 # Run demo
-status["demo"] = call([sys.executable, exampledir / "demo.py"], stdout=PIPE)
+status["demo"] = call(
+    [sys.executable, exampledir / "demo.py"], stdout=PIPE, cwd=exampledir,
+)
 
 # Check that expected output files have been created with a size larger
 # than zero

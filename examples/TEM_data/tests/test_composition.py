@@ -1,6 +1,6 @@
-import dlite
-
 from paths import indir
+
+import dlite
 
 
 compfile = indir / "composition.csv"

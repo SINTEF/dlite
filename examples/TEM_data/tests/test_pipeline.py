@@ -1,9 +1,9 @@
-"""TEM example workflow - implemented as a OTEAPI pipeline."""
+"""TEM example pipeline."""
+from paths import indir, outdir, temdata
+
 from otelib import OTEClient
 
 from tripper import EMMO, MAP, Namespace
-
-from paths import indir, outdir, temdata
 
 
 temimage = "6c8cm_008"
