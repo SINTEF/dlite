@@ -39,6 +39,9 @@ class Metadata(Instance):
         return Instance.create_metadata(
             uri, dimensions, properties, description)
 
+    def __init__(self, *args, **kwargs):
+        pass  # do nothing, just avoid calling Instance.__init__()
+
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
 
