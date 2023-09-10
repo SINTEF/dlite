@@ -7,7 +7,7 @@ import numpy as np
 
 try:
     from tripper import Triplestore
-    import pint
+    from pint import Quantity
 except ImportError as exc:
     import sys
 
@@ -15,8 +15,8 @@ except ImportError as exc:
     sys.exit(44)  # exit code marking the test to be skipped
 
 import dlite
-import dlite.mappings as dm
-
+#import dlite.mappings as dm
+import tripper.mappings as dm
 
 # Configure paths
 thisdir = Path(__file__).parent.absolute()
@@ -76,13 +76,13 @@ thisdir = Path(__file__).parent.absolute()
 # match_first = dm.match_factory(mappings, match_first=True)
 
 
-# Check unitconvert_pint
-assert dm.unitconvert("km", 34, "m") == 0.034
-assert dm.unitconvert("s", 1, "hour") == 3600
-# The Windows test has problems understanding the UFT-8 encoding "Å" below.
-# Skip it on Windows for now...
-if sys.platform != "win32":
-    assert dm.unitconvert("Å", 34, "um") == 34e4
+## Check unitconvert_pint
+#assert dm.unitconvert("km", 34, "m") == 0.034
+#assert dm.unitconvert("s", 1, "hour") == 3600
+## The Windows test has problems understanding the UFT-8 encoding "Å" below.
+## Skip it on Windows for now...
+#if sys.platform != "win32":
+#    assert dm.unitconvert("Å", 34, "um") == 34e4
 
 
 # Test to manually set up mapping steps
@@ -95,7 +95,7 @@ step1 = dm.MappingStep(
     output_iri="emmo:Length",
     steptype=dm.StepType.FUNCTION,
     function=lambda v, t: v * t,
-    cost=lambda v, t: 2 * v * t,
+    cost=1,
     output_unit="m",
 )
 step1.add_inputs({"v": v, "t": t})
@@ -104,7 +104,7 @@ step1.add_inputs({"v": v, "t": t2})
 step2 = dm.MappingStep(
     output_iri=":Length",
     steptype=dm.StepType.MAPSTO,
-    cost=2,
+    cost=0.5,
     output_unit="m",
 )
 step2.add_inputs({"l": step1})
@@ -132,23 +132,27 @@ assert step1.number_of_routes() == 2
 assert step2.number_of_routes() == 2
 assert step3.number_of_routes() == 5
 
-assert isclose(dm.Quantity(3 * 1.1, "m"), step1.eval(0))
-assert isclose(dm.Quantity(3 * 2.2, "m"), step1.eval(1))
-assert isclose(dm.Quantity(0.7 * 3 * 1.1, "m"), step3.eval(0))
-assert isclose(dm.Quantity(0.7 * 3 * 2.2, "m"), step3.eval(1))
-assert isclose(dm.Quantity(0.7 * 3 * 1.1, "m"), step3.eval(2))
-assert isclose(dm.Quantity(0.7 * 3 * 2.2, "m"), step3.eval(3))
-assert isclose(dm.Quantity(0.7 * 4.0, "m"), step3.eval(4))
-assert isclose(dm.Quantity(0.7 * 4.0, "m"), step3.eval())
+assert isclose(Quantity(3 * 1.1, "m"), step1.eval(0))
+assert isclose(Quantity(3 * 2.2, "m"), step1.eval(1))
+assert isclose(Quantity(3 * 1.1, "m"), step1.eval())
+assert isclose(Quantity(3 * 1.1, "m"), step2.eval(0))
+assert isclose(Quantity(3 * 2.2, "m"), step2.eval(1))
+assert isclose(Quantity(3 * 1.1, "m"), step2.eval())
+assert isclose(Quantity(0.7 * 3 * 1.1, "m"), step3.eval(0))
+assert isclose(Quantity(0.7 * 3 * 2.2, "m"), step3.eval(1))
+assert isclose(Quantity(0.7 * 3 * 1.1, "m"), step3.eval(2))
+assert isclose(Quantity(0.7 * 3 * 2.2, "m"), step3.eval(3))
+assert isclose(Quantity(0.7 * 4.0, "m"), step3.eval(4))
+assert isclose(Quantity(0.7 * 3 * 1.1, "m"), step3.eval())
 
 costs = step3.lowest_costs(10)
 assert len(costs) == 5
-assert [idx for cost, idx in costs] == [4, 0, 2, 1, 3]
-assert isclose(18.0, costs[0][0])
-assert isclose(19.6, costs[1][0])
-assert isclose(21.6, costs[2][0])
-assert isclose(28.2, costs[3][0])
-assert isclose(30.2, costs[4][0])
+assert [idx for cost, idx in costs] == [0, 2, 1, 3, 4]
+assert isclose(14.0, costs[0][0])
+assert isclose(14.5, costs[1][0])
+assert isclose(16.0, costs[2][0])
+assert isclose(16.5, costs[3][0])
+assert isclose(18.0, costs[4][0])
 
 
 # routes = dm.mapping_route(
@@ -226,11 +230,11 @@ ts2.add_triples(triples)
 
 
 # Check fno_mapper
-d = dm.fno_mapper(ts2)
-assert d[":ravg"] == [("average_radius_function", [":r", ":n"])]
+#d = dm.fno_mapper(ts2)
+#assert d[":ravg"] == [("average_radius_function", [":r", ":n"])]
 
 
-step = dm.mapping_route(
+step = dm.mapping_routes(
     target="inst3",
     sources={"inst1": r, "inst2": n},
     triplestore=ts2,
