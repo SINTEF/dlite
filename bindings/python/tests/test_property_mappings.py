@@ -9,91 +9,25 @@ try:
     from tripper import Triplestore
     from pint import Quantity
 except ImportError as exc:
-    import sys
-
-    print(f"Skipped: {exc}")
     sys.exit(44)  # exit code marking the test to be skipped
 
 import dlite
-#import dlite.mappings as dm
-import tripper.mappings as dm
+import tripper.mappings as tm
+
 
 # Configure paths
 thisdir = Path(__file__).parent.absolute()
-# exdir = thisdir / '../../../examples/dehydrogenation'
-#
-## Import module with instances from dehydrogenation example
-# module_name = 'molecular_energies'
-# file_path = f'{exdir}/1-simple-workflow/molecular_energies.py'
-#
-# spec = importlib.util.spec_from_file_location(module_name, file_path)
-# module = importlib.util.module_from_spec(spec)
-# sys.modules[module_name] = module
-# spec.loader.exec_module(module)
-#
-# CH4 = module.coll['CH4']
-# Molecule = CH4.meta
-#
-#
-#
-## Load entities and instantiate a molecule
-# dlite.storage_path.append(f'{exdir}/entities/*.json')
-# Molecule = dlite.get_instance('http://onto-ns.com/meta/0.1/Molecule')
-# Substance = dlite.get_instance('http://onto-ns.com/meta/0.1/Substance')
-#
-# inst = Molecule(dims={'natoms': 3, 'ncoords': 3})
-# inst.name = ''
-#
-#
-## Create triplestore using the rdflib backend
-# ts = Triplestore('rdflib')
-#
-## Define some prefixed namespaces
-# CHEM = ts.bind('chem', 'http://onto-ns.com/onto/chemistry#')
-#
-## Add mappings
-# ts.add_mapsTo(CHEM.Identifier, Molecule, 'name')
-# ts.add_mapsTo(CHEM.GroundStateEnergy, Molecule, 'groundstate_energy')
-# ts.add_mapsTo(CHEM.Identifier, Substance, 'id')
-# ts.add_mapsTo(CHEM.GroundStateEnergy, Substance, 'molecule_energy')
-#
-#
-#
-#
-# mappings = [
-#    ('http://onto-ns.com/meta/0.1/Molecule#name', ':mapsTo',
-#     'chem:Identifier'),
-#    ('http://onto-ns.com/meta/0.1/Molecule#groundstate_energy', ':mapsTo',
-#     'chem:GroundStateEnergy'),
-#    ('http://onto-ns.com/meta/0.1/Substance#id', ':mapsTo',
-#     'chem:Identifier'),
-#    ('http://onto-ns.com/meta/0.1/Substance#molecule_energy', ':mapsTo',
-#     'chem:GroundStateEnergy'),
-# ]
-#
-#
-# match = dm.match_factory(mappings)
-# match_first = dm.match_factory(mappings, match_first=True)
-
-
-## Check unitconvert_pint
-#assert dm.unitconvert("km", 34, "m") == 0.034
-#assert dm.unitconvert("s", 1, "hour") == 3600
-## The Windows test has problems understanding the UFT-8 encoding "Å" below.
-## Skip it on Windows for now...
-#if sys.platform != "win32":
-#    assert dm.unitconvert("Å", 34, "um") == 34e4
 
 
 # Test to manually set up mapping steps
-v = dm.Value(3.0, "m/s", "emmo:Velocity", cost=1)
-t = dm.Value(1.1, "s", "emmo:Time", cost=2)
-t2 = dm.Value(2.2, "s", "emmo:Time", cost=4)
-l = dm.Value(4.0, "m", "emmo:Length", cost=8)
+v = tm.Value(3.0, "m/s", "emmo:Velocity", cost=1)
+t = tm.Value(1.1, "s", "emmo:Time", cost=2)
+t2 = tm.Value(2.2, "s", "emmo:Time", cost=4)
+l = tm.Value(4.0, "m", "emmo:Length", cost=8)
 
-step1 = dm.MappingStep(
+step1 = tm.MappingStep(
     output_iri="emmo:Length",
-    steptype=dm.StepType.FUNCTION,
+    steptype=tm.StepType.FUNCTION,
     function=lambda v, t: v * t,
     cost=1,
     output_unit="m",
@@ -101,18 +35,18 @@ step1 = dm.MappingStep(
 step1.add_inputs({"v": v, "t": t})
 step1.add_inputs({"v": v, "t": t2})
 
-step2 = dm.MappingStep(
+step2 = tm.MappingStep(
     output_iri=":Length",
-    steptype=dm.StepType.MAPSTO,
+    steptype=tm.StepType.MAPSTO,
     cost=0.5,
     output_unit="m",
 )
 step2.add_inputs({"l": step1})
 
 
-step3 = dm.MappingStep(
+step3 = tm.MappingStep(
     output_iri=":ReducedLength",
-    steptype=dm.StepType.FUNCTION,
+    steptype=tm.StepType.FUNCTION,
     function=lambda l: 0.7 * l,
     cost=10,
     output_unit="m",
@@ -155,19 +89,12 @@ assert isclose(16.5, costs[3][0])
 assert isclose(18.0, costs[4][0])
 
 
-# routes = dm.mapping_route(
-#    target='http://onto-ns.com/meta/0.1/Substance#molecule_energy',
-#    sources=['http://onto-ns.com/meta/0.1/Molecule#groundstate_energy'],
-#    triples=mappings)
-
-
 # ---------------------------------------
 r = np.array([10, 20, 30, 40, 50, 60])  # particle radius [nm]
 n = np.array([1, 3, 7, 6, 2, 1])  # particle number density [1e21 #/m^3]
 
-
-rv = dm.Value(r, "nm", "inst1")
-nv = dm.Value(n, "1/m^3", "inst2")
+rv = tm.Value(r, "nm", "inst1")
+nv = tm.Value(n, "1/m^3", "inst2")
 
 
 def average_radius(r, n):
@@ -229,12 +156,7 @@ ts2 = Triplestore("rdflib")
 ts2.add_triples(triples)
 
 
-# Check fno_mapper
-#d = dm.fno_mapper(ts2)
-#assert d[":ravg"] == [("average_radius_function", [":r", ":n"])]
-
-
-step = dm.mapping_routes(
+step = tm.mapping_routes(
     target="inst3",
     sources={"inst1": r, "inst2": n},
     triplestore=ts2,
