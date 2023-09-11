@@ -13,7 +13,6 @@
 #include "dlite-entity.h"
 #include "dlite-mapping-plugins.h"
 #include "dlite-mapping.h"
-#include "dlite-errors.h"
 
 
 /*
