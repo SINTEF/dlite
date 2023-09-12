@@ -47,22 +47,18 @@ class mongodb(dlite.DLiteStorageBase):
             defaults="database=dlite;collection=dlite_coll;mode=r;mock=no;"
             "user=guest;password=guest",
         )
-        parsed_options.setdefault('password', None)
+        parsed_options.setdefault("password", None)
         return parsed_options
 
     def _configure(self, parsed_options, uri):
         """Configure and connect to the MongoDB database."""
-        self.writable = True if 'w' in parsed_options.mode else False
+        self.writable = True if "w" in parsed_options.mode else False
 
         client_options = {
-            k: parsed_options[k] for k in parsed_options if 'MONGOCLIENT_' in k
+            k: parsed_options[k] for k in parsed_options if "MONGOCLIENT_" in k
         }
 
-        user = (
-            quote_plus(parsed_options.user)
-            if parsed_options.user
-            else None
-        )
+        user = quote_plus(parsed_options.user) if parsed_options.user else None
         password = (
             quote_plus(parsed_options.password)
             if parsed_options.password
@@ -70,12 +66,12 @@ class mongodb(dlite.DLiteStorageBase):
         )
 
         # Determine the schema based on the presence of "localhost" or "127.0.0.1" in the URI
-        schema = parsed_options.get('schema', None)
+        schema = parsed_options.get("schema", None)
         if schema is None:
             if "localhost" in uri or "127.0.0.1" in uri:
-                schema = 'mongodb'
+                schema = "mongodb"
             else:
-                schema = 'mongodb+srv'
+                schema = "mongodb+srv"
 
         # Remove any existing schema from the URI
         if not uri.startswith(schema + "://"):
@@ -87,13 +83,16 @@ class mongodb(dlite.DLiteStorageBase):
 
         if dlite.asbool(parsed_options.mock):
             import mongomock
-            mongo_url = urlparse(f'mongodb://{uri}')
+
+            mongo_url = urlparse(f"mongodb://{uri}")
             port = mongo_url.port if mongo_url.port else 27017
 
             @mongomock.patch(servers=((mongo_url.hostname, port),))
             def get_client():
                 return open_client()
+
         else:
+
             def get_client():
                 return open_client()
 
@@ -102,14 +101,14 @@ class mongodb(dlite.DLiteStorageBase):
                 host=final_uri,
                 username=user,
                 password=password,
-                **client_options
+                **client_options,
             )
             return client
 
         self.client = get_client()
-        self.collection = (
-            self.client[parsed_options.database][parsed_options.collection]
-        )
+        self.collection = self.client[parsed_options.database][
+            parsed_options.collection
+        ]
         self.options = parsed_options
 
     def close(self):
@@ -119,10 +118,10 @@ class mongodb(dlite.DLiteStorageBase):
     def load(self, id):
         """Loads `id` from current storage and return it as a new instance."""
         uuid = dlite.get_uuid(id)
-        document = self.collection.find_one({'uuid': uuid})
+        document = self.collection.find_one({"uuid": uuid})
         if not document:
             raise IOError(
-                f'No instance with {uuid=} in MongoDB database '
+                f"No instance with {uuid=} in MongoDB database "
                 f'"{self.collection.database.name}" and collection '
                 f'"{self.collection.name}"'
             )

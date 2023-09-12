@@ -47,7 +47,8 @@ class pyrdf(dlite.DLiteStorageBase):
         self.location = location
         self.format = (
             self.options.format
-            if "format" in self.options else guess_format(location)
+            if "format" in self.options
+            else guess_format(location)
         )
         self.graph = rdflib.Graph()
         if self.options.mode in "ra":
@@ -82,7 +83,8 @@ class pyrdf(dlite.DLiteStorageBase):
             base_uri=self.options.get("base_uri"),
             base_prefix=self.options.get("base_prefix"),
             include_meta=(
-                dlite.asbool(self.options) if "include_meta" in self.options
+                dlite.asbool(self.options)
+                if "include_meta" in self.options
                 else None
             ),
         )

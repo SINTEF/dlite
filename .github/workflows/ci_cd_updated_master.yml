@@ -1,0 +1,21 @@
+name: CI/CD - New updates to 'master' branch
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  updates-to-master:
+    name: External
+    uses: SINTEF/ci-cd/.github/workflows/ci_cd_updated_default_branch.yml@v2.4.0
+    if: github.repository_owner == 'SINTEF'
+    with:
+      # General
+      git_username: DLite Developers
+      git_email: "Team4.0@SINTEF.no"
+      default_repo_branch: master
+
+      # Update permanent dependencies branch
+      permanent_dependencies_branch: "ci/dependabot-updates"
+    secrets:
+      PAT: ${{ secrets.RELEASE_PAT }}

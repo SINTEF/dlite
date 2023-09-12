@@ -6,56 +6,61 @@ import dlite
 
 try:
     import pytest
+
     HAVE_PYTEST = True
 except ModuleNotFoundError:
     HAVE_PYTEST = False
 
+try:
+    import yaml
+    HAVE_YAML = True
+except ModuleNotFoundError:
+    HAVE_YAML = False
+
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
 
-url = 'json://' + thisdir + '/MyEntity.json'
+url = "json://" + thisdir + "/MyEntity.json"
 
 
 # Load metadata (i.e. an instance of meta-metadata) from url
 s = dlite.Storage(url)
 myentity = dlite.Instance.from_storage(
-    s, 'http://onto-ns.com/meta/0.1/MyEntity')
+    s, "http://onto-ns.com/meta/0.1/MyEntity"
+)
 del s
 
 with dlite.Storage(url) as s2:
     myentity2 = dlite.Instance.from_storage(
-        s2, 'http://onto-ns.com/meta/0.1/MyEntity')
+        s2, "http://onto-ns.com/meta/0.1/MyEntity"
+    )
 
 
 # Create an instance
-inst = myentity(dimensions=[2, 3], id='my-data')
-inst['a-bool-array'] = True, False
+inst = myentity(dimensions=[2, 3], id="my-data")
+inst["a-bool-array"] = True, False
 
 # Test Storage.save()
-with dlite.Storage('json', 'tmp.json', 'mode=w') as s:
+with dlite.Storage("json", "tmp.json", "mode=w") as s:
     s.save(inst)
 
 # Test query
 
 
 # Test json
-print('--- testing json')
-myentity.save('json://myentity.json?mode=w')
-inst.save('json://inst.json?mode=w')
+print("--- testing json")
+myentity.save("json://myentity.json?mode=w")
+inst.save("json://inst.json?mode=w")
 del inst
-inst = dlite.Instance.from_url(f'json://{thisdir}/inst.json#my-data')
+inst = dlite.Instance.from_url(f"json://{thisdir}/inst.json#my-data")
 
 
 # Test yaml
-try:
-    import yaml
-except ImportError:
-    pass
-else:
+if HAVE_YAML:
     print('--- testing yaml')
     inst.save('yaml://inst.yaml?mode=w')
     del inst
-    inst = dlite.Instance.from_url('yaml://inst.yaml#my-data')
+    inst = dlite.Instance.from_url("yaml://inst.yaml#my-data")
 
     # test help()
     expected = """\
@@ -74,7 +79,7 @@ Opens `location`.
             - `single`: Whether the input is assumed to be in single-entity form.
                 If "auto" (default) the form will be inferred automatically.
 """
-    s = dlite.Storage('yaml', 'inst.yaml', options='mode=a')
+    s = dlite.Storage("yaml", "inst.yaml", options="mode=a")
     assert s.help().strip() == expected.strip()
 
     # Test delete()
@@ -83,31 +88,31 @@ Opens `location`.
     assert len(s.get_uuids()) == 0
 
     # Test to_bytes()/from_bytes()
-    data = inst.to_bytes('yaml')
-    data2 = data.replace(b'uri: my-data', b'uri: my-data2')
-    inst2 = dlite.Instance.from_bytes('yaml', data2)
+    data = inst.to_bytes("yaml")
+    data2 = data.replace(b"uri: my-data", b"uri: my-data2")
+    inst2 = dlite.Instance.from_bytes("yaml", data2)
     assert inst2.uuid != inst.uuid
     assert inst2.get_hash() == inst.get_hash()
 
     s.flush()  # avoid calling flush() when the interpreter is teared down
 
 
-
 # Test rdf
 try:
-    print('--- testing rdf')
-    inst.save('rdf:db.xml?mode=w;store=file;filename=inst.ttl;format=turtle')
+    print("--- testing rdf")
+    inst.save("rdf:db.xml?mode=w;store=file;filename=inst.ttl;format=turtle")
 except dlite.DLiteError:
-    print('    skipping rdf test')
+    print("    skipping rdf test")
 else:
-    #del inst
+    # del inst
     # FIXME: read from inst.ttl not db.xml
-    inst3 = dlite.Instance.from_url('rdf://db.xml#my-data')
+    inst3 = dlite.Instance.from_url("rdf://db.xml#my-data")
 
 
 # Tests for issue #587
-bytearr = inst.to_bytes("yaml")
-#print(bytes(bytearr).decode())
+if HAVE_YAML:
+    bytearr = inst.to_bytes("yaml")
+    #print(bytes(bytearr).decode())
 if HAVE_PYTEST:
     with pytest.raises(dlite.DLiteError):
         inst.to_bytes("json")

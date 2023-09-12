@@ -5,20 +5,22 @@ from dlite.options import Options
 
 
 class template(dlite.DLiteStorageBase):
-    """DLite storage plugin for file-generation using a template.
+    """DLite storage plugin for file-generation using a template."""
 
-    Arguments:
-        location: Path to file to generate.
-        options: Supported options:
-        - `template`: Path to template file.
-        - `engine`: Template engine to use.  One of:
-             - "format": Use format() function from the standard library.  See
-               https://docs.python.org/3/library/string.html#formatspec for
-               specifications.  This is the default.
-             - "jinja": Use jinja.  See https://jinja.palletsprojects.com/
-    """
     def open(self, location, options=None):
-        """Opens `location`."""
+        """Opens `location`.
+
+        Arguments:
+            location: Path to file to generate.
+            options: Supported options:
+            - `template`: Path to template file.
+            - `engine`: Template engine to use.  One of:
+                 - "format": Use format() function from the standard library.
+                   See https://docs.python.org/3/library/string.html#formatspec
+                   for specifications.  This is the default.
+                 - "jinja": Use jinja.  See https://jinja.palletsprojects.com/
+
+        """
         self.options = Options(options, defaults="engine=format")
         if "template" not in options:
             raise ValueError(f"missing 'template' option")
@@ -37,8 +39,9 @@ class template(dlite.DLiteStorageBase):
             j2_template = Template(template)
             data = j2_template.render(inst.properties)
         else:
-            raise ValueError("The 'engine' option must be either \"format\" "
-                             "or \"jinja\"")
+            raise ValueError(
+                "The 'engine' option must be either \"format\" " 'or "jinja"'
+            )
 
         with open(self.location, "w", encoding="utf8") as f:
             f.write(data)

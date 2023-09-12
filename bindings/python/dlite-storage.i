@@ -33,7 +33,6 @@ instances whos metadata URI matches `pattern` are returned.
     if (!(iter = calloc(1, sizeof(struct StorageIterator))))
       return dlite_err(1, "allocation failure"), NULL;
     iter->s = s;
-    printf("*** StorageIterator: %p\n", (void *)iter);
     if (!(iter->state = dlite_storage_iter_create(s, pattern))) {
       free(iter);
       return NULL;
@@ -41,7 +40,6 @@ instances whos metadata URI matches `pattern` are returned.
     return iter;
   }
   ~StorageIterator(void) {
-    printf("*** free StorageIterator: %p\n", (void *)$self);
     dlite_storage_iter_free($self->s, $self->state);
     free($self);
   }

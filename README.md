@@ -1,4 +1,4 @@
-<img src="doc/_static/logo.svg" align="right" />
+<img src="https://raw.githubusercontent.com/SINTEF/dlite/master/doc/_static/logo.svg" align="right" />
 
 
 DLite
@@ -17,7 +17,7 @@ DLite is a C implementation of the [SINTEF Open Framework and Tools
 models (aka Metadata) to efficiently describe and work with scientific
 data.
 
-![DLite overview](doc/_static/overview.svg)
+![DLite overview](https://raw.githubusercontent.com/SINTEF/dlite/master/doc/_static/overview.svg)
 
 The core of DLite is a framework for formalised representation of data
 described by data models (called Metadata or Entity in DLite).
@@ -37,9 +37,15 @@ Installation
 DLite is available on PyPI and can be installed with pip
 
 ```shell
-pip install dlite-python
+pip install dlite-python[full]
 ```
 
+The bracket `[full]` is optional, but ensures that you install all optional
+dependencies together with DLite.
+Without `[full]` you get a minimal DLite installation that only depends on
+NumPy.
+This would disable most storage plugins, except for the built-in
+"json", "bson" and "rdf" (when compiled against Redland librdf).
 For alternative installation methods, see the [installation instructions].
 
 
@@ -196,7 +202,8 @@ been supported by several projects, including:
   - [OpenModel](https://www.open-model.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953167.
   - [DOME 4.0](https://dome40.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 953163.
   - [VIPCOAT](https://www.vipcoat.eu/) (2021-2025) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 952903.
-
+  - MEDIATE (2022-2025) that receives funding from the RCN, Norway; FNR, Luxenburg; SMWK Germany via the M-era.net programme, project9557,
+  - [MatCHMaker](https://he-matchmaker.eu/) (2022-2026) that receives funding from the European Union’s Horizon 2020 Research and Innovation Programme, under Grant Agreement n. 101091687.
 
 ---
 
