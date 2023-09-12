@@ -124,7 +124,7 @@
           name = self.next()
           if not name:
               # Delete reference to iterator object stored away in __init__()
-              del _dlite._storage_iters[id(self.this)]
+              _dlite._storage_iters.pop(id(self.this), None)
               raise StopIteration()
           return name
   %}
