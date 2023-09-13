@@ -10,7 +10,6 @@
 #define HAVE_DLITE
 #endif
 
-#include "dlite-errors.h"
 #include "dlite-misc.h"
 #include "dlite-type.h"
 #include "dlite-schemas.h"

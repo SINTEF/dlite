@@ -16,7 +16,6 @@
 #include "dlite-datamodel.h"
 #include "dlite-mapping-plugins.h"
 #include "dlite-macros.h"
-#include "dlite-errors.h"
 #ifdef WITH_PYTHON
 #include "pyembed/dlite-python-mapping.h"
 #endif

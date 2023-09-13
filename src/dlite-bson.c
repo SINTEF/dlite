@@ -10,7 +10,6 @@
 
 #include "dlite-entity.h"
 #include "dlite-macros.h"
-#include "dlite-errors.h"
 #include "dlite-type.h"
 #include "dlite-bson.h"
 
@@ -518,6 +517,8 @@ static int set_meta_dimensions(DLiteMeta *meta, unsigned char *subdoc)
     }
     p++;
   }
+  dlite_meta_init(meta);
+
   if (nprops != meta->_nproperties)
     return err(dliteIndexError, "too few properties in bson, got  %d, "
                "expected %d", (int)nprops, (int)meta->_nproperties);

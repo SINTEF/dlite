@@ -43,13 +43,13 @@ const char *dlite_pyembed_classname(PyObject *cls);
 /**
   Return DLite error code given Python exception type.
  */
-DLiteErrors dlite_pyembed_errcode(PyObject *type);
+DLiteErrCode dlite_pyembed_errcode(PyObject *type);
 
 /**
   Return Python exception class corresponding to given DLite error code.
   Returns NULL if `code` is zero.
  */
-PyObject *dlite_pyembed_exception(DLiteErrors code);
+PyObject *dlite_pyembed_exception(DLiteErrCode code);
 
 /**
   Writes Python error message to `errmsg` (of length `len`) if an
