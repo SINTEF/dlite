@@ -101,7 +101,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         if: env.BUILD_NEW_IMAGE == 'true'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.CONTAINER_REGISTRY }}
           username: ${{ github.actor }}
