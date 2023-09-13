@@ -54,7 +54,8 @@ check_import("psycopg2", skip=True)
 ping_server()
 
 # Add metadata to search path
-dlite.storage_path.append(f"{thisdir}/*Person.json")
+dlite.storage_path.append(f"{thisdir}/Person.json")
+dlite.storage_path.append(f"{thisdir}/SimplePerson.json")
 
 # Load dataset
 host, user, database, password = parse_pgconf()
