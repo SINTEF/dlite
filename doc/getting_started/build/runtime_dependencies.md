@@ -12,7 +12,7 @@ When DLite is compiled with Python bindings, additional runtime features may be 
 - [pint], used for units conversion in property mappings
 - [pydantic], used for testing support for pydantic models
 - [typing_extensions], needed by pydantic v2
-- [rdflib], used by `rdf` storage plugin
+- [rdflib], used by `pyrdf` storage plugin.  Is also used as default tripper backend for property mappings
 - [PyYAML], used by `yaml` storage plugin
 - [psycopg2], used by `postgresql` storage plugin
     Note that in some cases a GSSAPI error is raised when using psycopg2
@@ -22,12 +22,18 @@ When DLite is compiled with Python bindings, additional runtime features may be 
 - [requests], used by `http` storage plugin
 - [jinja2], used by `template` storage plugin
 - [pymongo], used by the `mongodb` storage plugin
+- [redis], used by the `redis` storage plugin
+- [minio], used by the `minio` storage plugin
 
 These optional dependencies can be installed with
 
     pip install -r requirements_full.txt
 
-Separate requirements can also be installed for development
+Separate requirements can also be installed for just property mappings
+
+    pip install -r requirements_mappings.txt
+
+for development
 
     pip install -r requirements_dev.txt
 
