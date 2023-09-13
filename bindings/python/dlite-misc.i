@@ -27,7 +27,13 @@
     return atob(str);
   }
 
+  int64_t _err_mask_get(void) {
+    return *_dlite_err_mask_get();
+  }
+
 %}
+
+%include <stdint.i>
 
 %feature("docstring", "\
 Returns the current version of DLite.
@@ -158,6 +164,29 @@ All other values are treated as a filename that will be opened in append mode.
 ") dlite_err_set_file;
 void dlite_err_set_file(const char *filename);
 
+%feature("docstring", "\
+Return DLite error code corresponding to `name`.  Unknown names will return
+`dliteUnknownError`.
+") dlite_errcode;
+%rename(_err_getcode) dlite_errcode;
+int dlite_errcode(const char *name);
+
+/* Private help functions */
+%feature("docstring", "\
+Set whether to ignore printing given error code.
+") dlite_err_ignored_set;
+%rename(_err_ignore_set) dlite_err_ignored_set;
+void dlite_err_ignored_set(int code, int value);
+
+%feature("docstring", "\
+Return whether printing is ignored for given error code.
+") dlite_err_ignored_get;
+%rename(_err_ignore_get) dlite_err_ignored_get;
+int dlite_err_ignored_get(int code);
+
+int64_t _err_mask_get(void);
+%rename(_err_mask_set) _dlite_err_mask_set;
+void _dlite_err_mask_set(int64_t mask);
 
 
 /* ------------------------------

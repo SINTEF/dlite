@@ -16,6 +16,7 @@
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "dlite-errors.h"
 
 /* Global variables */
 static int use_build_root = -1;   /* whether to use build root */
@@ -457,6 +458,7 @@ int dlite_add_dll_path(void)
  ********************************************************************/
 
 #define ERR_STATE_ID "err-globals-id"
+#define ERR_MASK_ID "err-ignored-id"
 
 
 /* A cache pointing to the current session handler */
@@ -519,8 +521,10 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 /* Error handler for DLite. */
 static void dlite_err_handler(const ErrRecord *record)
 {
-  FILE *stream = err_get_stream();
-  if (stream) fprintf(stream, "** %s\n", record->msg);
+  if (!dlite_err_ignored_get(record->eval)) {
+    FILE *stream = err_get_stream();
+    if (stream) fprintf(stream, "** %s\n", record->msg);
+  }
 }
 
 
@@ -591,6 +595,53 @@ int dlite_globals_in_atexit(void)
 /********************************************************************
  * Wrappers around error functions
  ********************************************************************/
+
+
+/* Returns pointer to bit flags for error codes to not print or NULL
+   on error. */
+DLiteErrMask *_dlite_err_mask_get(void)
+{
+  DLiteErrMask *mask = dlite_globals_get_state(ERR_MASK_ID);
+  if (!mask) {
+    // Check that if we have fewer error codes than bits in DLiteErrMask
+    assert(8*sizeof(DLiteErrMask) > -dliteLastError);
+
+    if (!(mask = calloc(1, sizeof(DLiteErrMask))))
+      return fprintf(stderr, "** allocation failure"), NULL;
+    dlite_globals_add_state(ERR_MASK_ID, mask, free);
+  }
+  return mask;
+}
+
+/* Set mask for error to not print. */
+void _dlite_err_mask_set(DLiteErrMask mask)
+{
+  DLiteErrMask *errmask = _dlite_err_mask_get();
+  if (errmask) *errmask = mask;
+}
+
+
+/* Set whether to ignore printing given error code. */
+void dlite_err_ignored_set(DLiteErrCode code, int value)
+{
+  DLiteErrMask *mask = _dlite_err_mask_get();
+  int bit = DLITE_ERRBIT(code);
+  if (mask) {
+    if (value)
+      *mask |= bit;
+    else
+      *mask &= ~bit;
+  }
+}
+
+/* Return whether printing is ignored for given error code. */
+int dlite_err_ignored_get(DLiteErrCode code)
+{
+  DLiteErrMask *mask = _dlite_err_mask_get();
+  if (!mask) return 0;
+  return *mask & DLITE_ERRBIT(code);
+}
+
 
 /* ----------------------------------------------------------- */
 /* TODO:

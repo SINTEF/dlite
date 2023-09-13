@@ -12,7 +12,6 @@
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
-#include "dlite-errors.h"
 #include "dlite-storage-plugins.h"
 #include "getuuid.h"
 

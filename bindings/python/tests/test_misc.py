@@ -40,3 +40,26 @@ assert dlite.split_url("driver://loc#fragment") == [
     "fragment",
 ]
 assert dlite.split_url("loc#fragment") == ["", "loc", "", "fragment"]
+
+
+# Test errctl context manager
+print("No DLite error message is printed to screen:")
+try:
+    with dlite.errctl(hide=(dlite.DLiteStorageOpenError, dlite.DLiteError)):
+        dlite.Instance.from_location("-", "__non-existing__")
+except dlite.DLiteStorageOpenError:
+    pass
+
+print("No DLite error message is printed to screen:")
+try:
+    with dlite.errctl(hide="DLiteError"):
+        dlite.Instance.from_location("-", "__non-existing__")
+except dlite.DLiteStorageOpenError:
+    pass
+
+print("DLite error message is printed to screen:")
+try:
+    with dlite.errctl(hide=dlite.DLiteTypeError):
+        dlite.Instance.from_location("-", "__non-existing__")
+except dlite.DLiteStorageOpenError:
+    pass
