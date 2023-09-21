@@ -142,9 +142,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         if check_storages:
             try:
                 with dlite.silent:
-                    inst = dlite.get_instance(uri)
-                    if inst:
-                        return inst
+                    return dlite.get_instance(uri)
             except dlite.DLiteError:
                 pass
 

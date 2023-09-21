@@ -21,7 +21,6 @@
 #include "dlite-entity.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"
-#include "dlite-errors.h"
 
 
 /* Name DLite types */
