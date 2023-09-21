@@ -1,21 +1,17 @@
 {
-  "name": "SimplePerson",
-  "version": "0.1",
-  "namespace": "http://onto-ns.com/meta",
+  "uri": "http://onto-ns.com/meta/0.1/SimplePerson",
   "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
   "description": "A simple person representation.",
-  "dimensions": [],
-  "properties": [
-    {
-      "name": "name",
+  "dimensions": {},
+  "properties": {
+    "name": {
       "type": "string",
       "description": "Full name."
     },
-    {
-      "name": "age",
+    "age": {
       "type": "float",
       "unit": "years",
       "description": "Age of person."
     }
-  ]
+  }
 }

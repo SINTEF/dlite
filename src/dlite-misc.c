@@ -457,10 +457,6 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
-/* Special state id only used to indicate whether we are in an atexit
-   handler or not */
-#define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
-
 #define ERR_STATE_ID "err-globals-id"
 #define ERR_MASK_ID "err-ignored-id"
 
