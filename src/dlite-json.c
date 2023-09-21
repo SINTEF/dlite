@@ -161,8 +161,22 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     if (dlite_instance_get_property((DLiteInstance *)inst->meta, "relations")) {
       PRINT1("%s  \"relations\": [\n", in);
       for (i=0; i < met->_nrelations; i++) {
+        int m;
         DLiteRelation *r = met->_relations + i;
-        PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
+        PRINT1("%s    [", in);
+        m = strquote(dest+n, PDIFF(size, n), r->s);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->p);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->o);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT("]\n");
+
       }
       PRINT2("%s  ]%s\n", in, prop_comma);
     }
@@ -212,8 +226,21 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     if (dlite_instance_get_property((DLiteInstance *)inst->meta, "relations")) {
       PRINT1("%s  \"relations\": [\n", in);
       for (i=0; i < met->_nrelations; i++) {
+        int m;
         DLiteRelation *r = met->_relations + i;
-        PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
+        PRINT1("%s    [", in);
+        m = strquote(dest+n, PDIFF(size, n), r->s);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->p);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->o);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT("]\n");
       }
       PRINT2("%s  ]%s\n", in, prop_comma);
     }

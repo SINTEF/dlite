@@ -189,6 +189,15 @@ int strunquote(char *dest, size_t size, const char *s,
 int strnunquote(char *dest, size_t size, const char *s, int n,
                int *consumed, StrquoteFlags flags);
 
+/**
+  Like strnunquote(), but reallocates the destination and writes to
+  position `pos`.
+
+  On allocation error, -3 is returned.
+ */
+int strnput_unquote(char **destp, size_t *sizep, size_t pos, const char *s,
+                    int n, int *consumed, StrquoteFlags flags);
+
 
 /** @} */
 /**
