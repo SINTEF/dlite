@@ -191,7 +191,7 @@ class postgresql(dlite.DLiteStorageBase):
         for p in meta["properties"]:
             decl = f'"{p.name}" {to_pgtype(p.type)}'
             if len(p.shape):
-                decl += "[]" * len(p.dims)
+                decl += "[]" * len(p.shape)
             cols.append(decl)
         q = sql.SQL("CREATE TABLE {} (%s);" % ", ".join(cols)).format(
             sql.Identifier(meta.uri)
