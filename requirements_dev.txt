@@ -6,10 +6,10 @@ ipython_genutils~=0.2.0
 # Special requirements for testing
 mongomock>=4.1.2,<5
 openpyxl>=3.0.9,<3.2
-oteapi-core>=0.5,<1
-oteapi-dlite>=0.1.4,<1
-matplotlib>=3.7.2,<4
-scikit-image>=0.21,<1
-ncempy>=1.10,<2
-h5py==3.9.0
-pydantic>=1.10.0,<2
+#oteapi-core>=0.5,<1
+#oteapi-dlite>=0.1.4,<1
+#matplotlib>=3.7.2,<4
+#scikit-image>=0.21,<1
+#ncempy>=1.10,<2
+#h5py==3.9.0
+#pydantic>=1.10.0,<2
