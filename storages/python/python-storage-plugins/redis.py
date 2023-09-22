@@ -1,4 +1,6 @@
 """DLite storage plugin for Redis written in Python."""
+import re
+
 from redis import Redis
 
 import dlite
@@ -81,7 +83,15 @@ class redis(dlite.DLiteStorageBase):
 
             f = Fernet(self.fernet_key.encode())
             data = f.decrypt(data)
-        return dlite.Instance.from_bson(data)
+        try:
+            with dlite.errctl(hide=dlite.DLiteMissingMetadataError):
+                return dlite.Instance.from_bson(data)
+        except dlite.DLiteMissingMetadataError as exc:
+            # If metadata cannot be found, load it from redis and try again
+            match = re.match(f".*cannot find metadata '([^']*)'", str(exc))
+            metaid, = match.groups()
+            meta = self.load(metaid)
+            return dlite.Instance.from_bson(data)
 
     def save(self, inst: dlite.Instance):
         """Stores `inst` in current storage.
@@ -105,7 +115,7 @@ class redis(dlite.DLiteStorageBase):
             id: URI or UUID of instance to delete.
         """
         uuid = dlite.get_uuid(id)
-        self.redis.delete(uuid)
+        self.redis.delete(f"dlite:{uuid}")
 
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
@@ -123,7 +133,8 @@ class redis(dlite.DLiteStorageBase):
             This method fetch all instances in the Redis store and may
             be slow on large databases.
         """
-        for uuid in self.redis.keys("dlite:*"):
+        for uuid_bytes in self.redis.keys("dlite:*"):
+            uuid = uuid_bytes.decode()[6:]
             if pattern:
                 # Consider to make pattern more efficient by storing
                 # `uuid -> meta` mappings in redis as well...
