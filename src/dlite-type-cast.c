@@ -17,7 +17,6 @@
 
 #include "dlite-macros.h"
 #include "dlite-type.h"
-#include "dlite-errors.h"
 
 #ifndef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))

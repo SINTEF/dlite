@@ -8,9 +8,15 @@
 #include <stdio.h>
 
 #include "utils/fileutils.h"
+#include "dlite-errors.h"
 #include "dlite-type.h"
 
 #define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
+
+
+/** Special state id only used to indicate whether we are in an atexit
+    handler or not */
+#define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
 
 
 /**
@@ -288,8 +294,47 @@ int dlite_globals_in_atexit(void);
 
 /**
   @name Wrappers around error functions
+  The `DLITE_NOERR()` and `DLITE_NOERR_END` macros are intended to
+  mark a code block in which the specified errors will not be printed.
+  Use them as follows:
+
+  ```c
+  DLITE_NOERR(DLITE_ERRBIT(DLiteIOError) | DLITE_ERRBIT(DLiteRuntimeError));
+    // code block where IO and runtime errors are ignored
+    ...
+  DLITE_NOERR_END;
+  ```
   @{
 */
+
+/* Bit mask of error codes to not print*/
+typedef int64_t DLiteErrMask;
+
+/* Get ans set global mask for error codes to not print. */
+DLiteErrMask *_dlite_err_mask_get(void);
+void _dlite_err_mask_set(DLiteErrMask mask);
+
+#define DLITE_ERRBIT(code)                                              \
+  (1<<((code >= 0) ? 0 : (code <= dliteLastError) ? -dliteLastError : -code))
+
+#define DLITE_NOERR(mask)                                       \
+  do {                                                          \
+    DLiteErrMask *_errmaskptr = _dlite_err_mask_get();          \
+    DLiteErrMask _errmask = (_errmaskptr) ? *_errmaskptr : 0;   \
+    dlite_err_mask_set(mask)
+
+#define DLITE_NOERR_END                                         \
+    dlite_err_mask_set(_errmask);                               \
+  } while (0)
+
+
+/** Set whether to ignore printing given error code. */
+void dlite_err_ignored_set(DLiteErrCode code, int value);
+
+/** Return whether printing is ignored for given error code. */
+int dlite_err_ignored_get(DLiteErrCode code);
+
+
 #ifndef __GNUC__
 #define __attribute__(x)
 #endif
