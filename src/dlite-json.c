@@ -161,8 +161,22 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     if (dlite_instance_get_property((DLiteInstance *)inst->meta, "relations")) {
       PRINT1("%s  \"relations\": [\n", in);
       for (i=0; i < met->_nrelations; i++) {
+        int m;
         DLiteRelation *r = met->_relations + i;
-        PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
+        PRINT1("%s    [", in);
+        m = strquote(dest+n, PDIFF(size, n), r->s);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->p);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->o);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT("]\n");
+
       }
       PRINT2("%s  ]%s\n", in, prop_comma);
     }
@@ -212,8 +226,21 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     if (dlite_instance_get_property((DLiteInstance *)inst->meta, "relations")) {
       PRINT1("%s  \"relations\": [\n", in);
       for (i=0; i < met->_nrelations; i++) {
+        int m;
         DLiteRelation *r = met->_relations + i;
-        PRINT4("%s    [\"%s\", \"%s\", \"%s\"]\n", in, r->s, r->p, r->o);
+        PRINT1("%s    [", in);
+        m = strquote(dest+n, PDIFF(size, n), r->s);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->p);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT(", ");
+        m = strquote(dest+n, PDIFF(size, n), r->o);
+        if (m < 0) goto fail;
+        n += m;
+        PRINT("]\n");
       }
       PRINT2("%s  ]%s\n", in, prop_comma);
     }
@@ -1269,18 +1296,20 @@ const char *dlite_jstore_iter_next(DLiteJStoreIter *iter)
   const char *iid;
   JStore *js = iter->jiter.js;
   jsmn_parser parser;
-  jsmn_init(&parser);
   while ((iid = jstore_iter_next(&iter->jiter))) {
     if (iter->metauuid[0]) {
       char metauuid[DLITE_UUID_LENGTH+1];
       const char *val = jstore_get(js, iid);
+
+      jsmn_init(&parser);
       if (jsmn_parse_alloc(&parser, val, strlen(val),
                            &iter->tokens, &iter->ntokens) < 0) {
-        err(-1, "invalid json input: \"%s\"", val);
+        err(dliteParseError, "invalid json input: \"%s\"", val);
         continue;
       }
       if (get_meta_uuid(metauuid, val, iter->tokens)) {
-        err(-1, "json input has no meta uri: \"%s\"", val);
+        err(dliteMissingMetadataError,
+            "json input has no meta uri: \"%s\"", val);
         continue;
       }
       if (strcmp(metauuid, iter->metauuid)) continue;
