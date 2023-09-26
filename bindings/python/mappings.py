@@ -17,11 +17,19 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 import numpy as np
-from pint import Quantity
-from tripper import DM, FNO, MAP, RDF, RDFS
 
 import dlite
 from dlite.utils import infer_dimensions
+
+try:
+    from pint import Quantity
+    from tripper import DM, FNO, MAP, RDF, RDFS
+except ModuleNotFoundError:
+    print(
+        "Mappings has extra dependencies.  Please install them with "
+        "`pip install -r requirements_mappings.txt`."
+    )
+    raise
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Any, Callable, Generator, Optional, Sequence, Type
