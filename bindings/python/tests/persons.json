@@ -1,5 +1,16 @@
 {
-  "51c0d700-9ab0-43ea-9183-6ea22012ebee": {
+  "028217b9-2f64-581d-9712-a5b67251bfec": {
+    "meta": "http://onto-ns.com/meta/0.1/Person",
+    "dimensions": {
+      "N": 3
+    },
+    "properties": {
+      "name": "Jon Doe",
+      "age": 32,
+      "skills": ["reading", "talking", "sleeping"]
+    }
+  },
+  "a1d8d35f-723c-5ea1-abaf-8fc8f1d0982f": {
     "meta": "http://onto-ns.com/meta/0.1/Person",
     "dimensions": {
       "N": 2
@@ -10,15 +21,29 @@
       "skills": ["distilling", "tasting"]
     }
   },
-  "13c5007b-c665-4709-a11c-255919306547": {
+  "6e42dfa6-772b-5d0d-8bbf-05ded28d3339": {
     "meta": "http://onto-ns.com/meta/0.1/Person",
     "dimensions": {
-      "N": 3
+      "N": 2
     },
     "properties": {
-      "name": "Jon Doe",
-      "age": 32,
-      "skills": ["reading", "talking", "sleeping"]
+      "name": "Lucky Luke",
+      "age": 33,
+      "skills": ["shooting", "riding"]
+    }
+  },
+  "Ada": {
+    "meta": "http://onto-ns.com/meta/0.1/SimplePerson",
+    "properties": {
+      "name": "Ada Bolton",
+      "age": 23
+    }
+  },
+  "Cleopatra": {
+    "meta": "http://onto-ns.com/meta/0.1/SimplePerson",
+    "properties": {
+      "name": "Cleopatra",
+      "age": 2092
     }
   }
 }

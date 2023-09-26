@@ -81,9 +81,6 @@ MU_TEST(test_sprint)
   //printf("%s\n", buf);
   mu_assert_int_eq(1165, m);
 
-  //printf("\n========================================================\n");
-
-
   /* Tests for PR #541 */
   m = dlite_json_sprint(buf, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);
@@ -91,6 +88,7 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(NULL, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);
 
+  
   /* More tests for issue #543 */
   m = dlite_json_sprint(NULL, 0, coll, 0, 0);
   mu_assert_int_eq(406, m);
@@ -98,6 +96,19 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(buf, sizeof(buf), coll, 0, 0);
   mu_assert_int_eq(406, m);
 
+  
+  /* Tests for proper quoting */
+  DLiteCollection *coll = dlite_collection_create(NULL);
+  dlite_collection_add_relation(coll, "s", "p", "\"o\"");
+  m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)coll, 2, 0);
+  const DLiteRelation *rel = dlite_collection_find_first(coll, "s", "p", NULL);
+  mu_assert_string_eq("\"o\"", rel->o);
+  dlite_instance_decref((DLiteInstance *)coll);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
+
+
+  //printf("\n========================================================\n");
 }
 
 
