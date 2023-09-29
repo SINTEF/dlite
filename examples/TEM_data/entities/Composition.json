@@ -1,0 +1,36 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/Composition",
+  "description": "Metadata for an alloy composition.",
+  "dimensions": {
+    "nphases": "Number of phases.",
+    "nelements": "Number of elements."
+  },
+  "properties": {
+    "alloy": {
+      "type": "string",
+      "description": "A string identifying each alloy."
+    },
+    "elements": {
+      "type": "string",
+      "shape": ["nelements"],
+      "description": "Chemical symbol for each element.  By convention is the base element typically listed first."
+    },
+    "phases": {
+      "type": "string",
+      "shape": ["nphases"],
+      "description": "Name of each phase.  By convention is the matrix phase typically listed first."
+    },
+    "nominal_composition": {
+      "type": "float64",
+      "shape": ["nelements"],
+      "unit": "%",
+      "description": "The nominal composition of the alloy.  Should sum to 100%."
+    },
+    "phase_compositions": {
+      "type": "float64",
+      "shape": ["nphases", "nelements"],
+      "unit": "%",
+      "description": "The composition of each phase.  Each row should sum to 100%."
+    }
+  }
+}
