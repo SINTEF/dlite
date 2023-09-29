@@ -1,0 +1,23 @@
+# Precipitation model input for: Al-Mg-Si
+
+# Elements
+['Al' 'Mg' 'Si' 'Mn' 'Fe']
+
+# Phases
+['beta"']
+
+# Nominal composition, wt%
+[9.788e+01 8.000e-01 8.000e-01 5.000e-01 2.000e-02]
+
+# Phase compositions, wt%
+[[0.1818 0.4545 0.3637 0.     0.    ]]
+
+# Volume fraction of each phase
+[3.]
+
+# Average particle radius, m
+[4.5e-08]
+
+
+# Average atomic volume, m^3
+[4.5e-08]
