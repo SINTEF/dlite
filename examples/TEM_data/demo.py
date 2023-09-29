@@ -1,7 +1,7 @@
 """Demo: access and use TEM data"""
 from tripper import RDF, Namespace, Triplestore
 
-from paths import indir, outdir
+from tem_paths import indir, outdir
 from utils.utils import get_data, populate_triplestore
 
 

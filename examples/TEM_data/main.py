@@ -5,7 +5,7 @@ Runs all tests as well as the demo itself.
 import sys
 from subprocess import PIPE, call
 
-from paths import exampledir, outdir, testdir
+from tem_paths import exampledir, outdir, testdir
 
 # Dependency checks
 try:

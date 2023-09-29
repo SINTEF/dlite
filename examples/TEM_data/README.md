@@ -163,11 +163,11 @@ through it step by step.
 In addition to defining the input and output data directories to use in this example, the line
 
 ```python
-from paths import indir, outdir
+from tem_paths import indir, outdir
 ```
 
 also sets up search paths for DLite and include this example directory in
-the Python module search path (see [paths.py]):
+the Python module search path (see [tem_paths.py]):
 
 ```python
 dlite.storage_path.append(entitydir)
@@ -371,7 +371,7 @@ We kindly acknowledge Calin Marioara for providing the TEM images and some backg
 [dm3 plugin]: plugins/dm3.py
 [mappings example]: https://github.com/SINTEF/dlite/tree/master/examples/mappings/
 [demo.py]: demo.py
-[paths.py]: paths.py
+[tem_paths.py]: tem_paths.py
 [data/resources.yaml]: data/resources.yaml
 
 [Exploratory Search System (ESS)]: http://alloy.semantic-systems.cc/explore/with/search?q=Precipitation
