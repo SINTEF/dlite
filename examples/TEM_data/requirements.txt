@@ -1,11 +1,14 @@
-dlite-python
+dlite-python>=0.4.0,<1
 tripper>=0.2.7,<1
 rdflib>=6,<8
-oteapi-dlite>=0.1.5,<1
+#oteapi-dlite>=0.1.5,<1
+-e git+ssh://git@github.com/EMMC-ASBL/oteapi-dlite.git@fa1b820383eb54a1c37f32f7b8ac9406b556dace#egg=oteapi_dlite
 otelib>=0.3.2,<1
 requests>=2,<3
 matplotlib>=3,<4
 scikit-image>=0.21,<1
 ncempy>=1.10,<2
 h5py>=3.9,<4
-pydantic<2
+pydantic>=1.1,<2
+pyyaml>=6.0.1,<7
+pandas>=2.1.1,<3
