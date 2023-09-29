@@ -1,4 +1,4 @@
-dlite-python>=0.4.0,<1
+dlite-python>=0.4.1,<1
 tripper>=0.2.7,<1
 rdflib>=6,<8
 #oteapi-dlite>=0.1.5,<1
