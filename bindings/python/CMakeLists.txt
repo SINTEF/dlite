@@ -8,6 +8,7 @@ set(py_sources
   mappings.py
   datamodel.py
   rdf.py
+  rdf2.py
   )
 
 # Python sub-packages
