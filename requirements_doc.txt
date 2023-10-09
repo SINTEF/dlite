@@ -6,7 +6,7 @@ myst-nb~=0.17.2
 
 Sphinx>=4.5.0,<8
 
-sphinx-autoapi~=2.1
+sphinx-autoapi~=3.0
 sphinx-autobuild~=2021.3.14
 sphinx-book-theme~=1.0.1
 sphinx-toggleprompt~=0.4.0
