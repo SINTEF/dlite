@@ -1,0 +1,6 @@
+*.dm3
+*.png
+*.json
+*.csv
+resources.ttl
+precip.txt
