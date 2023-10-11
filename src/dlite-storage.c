@@ -220,7 +220,7 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 
   if (!s->api->iterFree)
     errx(1, "driver '%s' does not support iterFree()", s->api->name);
-  else if (!dlite_globals_in_atexit() || setenv("DLITE_ATEXIT_FREE"))
+  else if (!dlite_globals_in_atexit() || getenv("DLITE_ATEXIT_FREE"))
     s->api->iterFree(iter);
 }
 
