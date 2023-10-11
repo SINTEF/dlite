@@ -6,7 +6,6 @@
 #include "utils/err.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
-#include "dlite-errors.h"
 
 /* TODO
    - Add read and write locks for tread safety they should be local to

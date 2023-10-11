@@ -1,0 +1,22 @@
+# Precipitation model input for: {alloy}
+
+# Elements
+{elements}
+
+# Phases
+{phases}
+
+# Nominal composition, wt%
+{X0}
+
+# Phase compositions, wt%
+{Xp}
+
+# Volume fraction of each phase
+{volfrac}
+
+# Average particle radius, m
+{rpart}
+
+# Average atomic volume, m^3
+{rpart}

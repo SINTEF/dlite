@@ -1,0 +1,54 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/PrecipitateStatistics",
+  "description": "Metadata for precipitate statistics.",
+  "dimensions": {
+    "nconditions": "Number of conditions."
+  },
+  "properties": {
+    "alloy": {
+      "type": "string",
+      "shape": ["nconditions"],
+      "description": "Alloy destination."
+    },
+    "condition": {
+      "type": "string",
+      "shape": ["nconditions"],
+      "description": "Condition identifier."
+    },
+    "precipitate": {
+      "type": "string",
+      "shape": ["nconditions"],
+      "description": "Precipitate identifier."
+    },
+    "number_density": {
+      "type": "float64",
+      "shape": ["nconditions"],
+      "unit": "um^-3",
+      "description": "Precipitate number density."
+    },
+    "avg_length": {
+      "type": "float64",
+      "shape": ["nconditions"],
+      "unit": "nm",
+      "description": "Average precipitate length."
+    },
+    "avg_crossection": {
+      "type": "float64",
+      "shape": ["nconditions"],
+      "unit": "nm^2",
+      "description": "Average precipitate cross-section."
+    },
+    "volume_fraction": {
+      "type": "float64",
+      "shape": ["nconditions"],
+      "unit": "%",
+      "description": "Precipitate volume fraction."
+    },
+    "avg_atomic_volume": {
+      "type": "float64",
+      "shape": ["nconditions"],
+      "unit": "nm^3",
+      "description": "Average volume per atom."
+    }
+  }
+}

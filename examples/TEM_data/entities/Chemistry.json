@@ -1,0 +1,53 @@
+{
+  "uri": "http://onto-ns.com/meta/0.3/Chemistry",
+  "description": "Simple entity with alloy and particle compositions.",
+  "dimensions": {
+    "nelements": "Number of different chemical elements.",
+    "nphases": "Number of phases."
+  },
+  "properties": {
+    "alloy": {
+      "type": "string",
+      "description": "A human description of the alloying system and temper."
+    },
+    "elements": {
+      "type": "string",
+      "shape": ["nelements"],
+      "description": "Chemical symbol of each chemical element.  By convension the dependent element (e.g. Al) is listed first."
+    },
+    "phases": {
+      "type": "string",
+      "shape": ["nphases"],
+      "description": "Name of each phase."
+    },
+    "X0": {
+      "type": "double",
+      "shape": ["nelements"],
+      "unit": "",
+      "description": "Nominal composition.  Should sum to one."
+    },
+    "Xp": {
+      "type": "double",
+      "shape": ["nphases", "nelements"],
+      "unit": "",
+      "description": "Average composition of each phase, excluding matrix.  Each row should sum to one."
+    },
+    "volfrac": {
+      "type": "double",
+      "shape": ["nphases"],
+      "description": "Volume fraction of each phase, excluding matrix."
+    },
+    "rpart": {
+      "type": "double",
+      "shape": ["nphases"],
+      "unit": "m",
+      "description": "Average particle radius of each phase, excluding matrix."
+    },
+    "atvol": {
+      "type": "double",
+      "shape": ["nphases"],
+      "unit": "m^3",
+      "description": "Average volume per atom for each phase."
+    }
+  }
+}

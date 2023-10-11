@@ -55,13 +55,14 @@ ping_server()
 
 # Add metadata to search path
 dlite.storage_path.append(f"{thisdir}/Person.json")
+dlite.storage_path.append(f"{thisdir}/SimplePerson.json")
 
 # Load dataset
 host, user, database, password = parse_pgconf()
 inst = dlite.Instance.from_location(
     "json",
     f"{thisdir}/persons.json",
-    id="51c0d700-9ab0-43ea-9183-6ea22012ebee",
+    id="Cleopatra",
 )
 
 
