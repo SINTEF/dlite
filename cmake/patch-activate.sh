@@ -58,6 +58,8 @@ done
 
 cd $VIRTUAL_ENV/bin
 
+# We try two variants of the second hunk, corresponding to Python 3.9 and 3.11
+# Hence, at least one hunk will always fail
 patch -u -f -F 1 <<EOF
 --- activate    2023-06-18 20:37:58.486341271 +0200
 +++ activate.diff       2023-06-18 21:51:48.895940777 +0200
@@ -84,6 +86,17 @@ patch -u -f -F 1 <<EOF
  # unset PYTHONHOME if set
  if ! [ -z "\${PYTHONHOME+_}" ] ; then
      _OLD_VIRTUAL_PYTHONHOME="\$PYTHONHOME"
+@@ -60,6 +60,10 @@ _OLD_VIRTUAL_PATH="$PATH"
+ PATH="$VIRTUAL_ENV/bin:$PATH"
+ export PATH
+
++_OLD_VIRTUAL_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
++LD_LIBRARY_PATH="$libdirs:\$LD_LIBRARY_PATH"
++export LD_LIBRARY_PATH
++
+ if [ "x" != x ] ; then
+     VIRTUAL_ENV_PROMPT=""
+ else
 EOF
 
 exit $?
