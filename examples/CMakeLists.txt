@@ -11,6 +11,7 @@ set(python_examples
   entity_service
   minio_storage
   datamodel_as_rdf
+  TEM_data
   )
 endif()
 

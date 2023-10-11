@@ -343,6 +343,9 @@ int dlite_json_asprint(char **dest, size_t *size, size_t pos,
   // If `inst` is a collection with relations, then
   // dlite_json_sprint() seems to report one byte too little when
   // called with size=0.
+  //
+  // Update: Added dedicated test for collection to test_json.c.
+  // That test is not able to reproduce this error.
   newsize = m + pos + 2;
   if (!(q = realloc(*dest, newsize)))
     return err(dliteMemoryError, "allocation failure");

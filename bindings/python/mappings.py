@@ -471,7 +471,10 @@ def get_values(
                 else value
             )
         elif isinstance(input_value, Value):
-            values[key] = quantity(input_value.value, input_value.unit)
+            if isinstance(input_value.value, str):
+                values[key] = input_value.value
+            else:
+                values[key] = quantity(input_value.value, input_value.unit)
         else:
             raise TypeError(
                 "Expected values in inputs to be either MappingStep or Value objects."
@@ -742,9 +745,12 @@ def instance_routes(
     for inst in instances:
         props = {prop.name: prop for prop in inst.meta["properties"]}
         for key, value in inst.properties.items():
-            sources[f"{inst.meta.uri}#{key}"] = quantity(
-                value, props[key].unit
-            )
+            if isinstance(value, str):
+                sources[f"{inst.meta.uri}#{key}"] = value
+            else:
+                sources[f"{inst.meta.uri}#{key}"] = quantity(
+                    value, props[key].unit
+                )
 
     routes = {}
     for prop in meta["properties"]:
