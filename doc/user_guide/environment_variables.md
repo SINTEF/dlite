@@ -45,6 +45,9 @@ DLite-specific environment variables
     lost.  But, if `DLITE_PYDEBUG` is defined, a Python error message will be
     written to standard error.
 
+  - **DLITE_ATEXIT_FREE**: Free memory at exit.  This might be useful to avoid
+    getting false positive when tracking down memory leaks with tools like valgrind.
+
 
 ### Specific paths
 These environment variables can be used to provide additional search

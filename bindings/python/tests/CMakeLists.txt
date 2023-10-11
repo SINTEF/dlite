@@ -41,6 +41,8 @@ foreach(test ${tests})
   endif()
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+  set_property(TEST ${name} APPEND PROPERTY
+    ENVIRONMENT "DLITE_PYDEBUG=1")
 
   # Skip tests that exit with return code 44
   set_property(TEST ${name} PROPERTY SKIP_RETURN_CODE 44)

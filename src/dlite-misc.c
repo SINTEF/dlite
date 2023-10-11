@@ -459,6 +459,7 @@ int dlite_add_dll_path(void)
 
 #define ERR_STATE_ID "err-globals-id"
 #define ERR_MASK_ID "err-ignored-id"
+#define ATEXIT_REG_ID "atexit-reg-id"  // whether atexit is registered
 
 
 /* A cache pointing to the current session handler */
@@ -468,13 +469,15 @@ static DLiteGlobals *_globals_handler=NULL;
 /* Called by atexit().  Should be ok to call this multiple times... */
 static void _free_globals(void) {
   Session *s = session_get_default();
+  static void **dummy_ptr=NULL;
 
-  /* Remove the atexit marker state to indicate that we now are in a
-     atexit handler */
-  if (session_get_state(s, ATEXIT_MARKER_ID))
-    session_remove_state(s, ATEXIT_MARKER_ID);
-
-  session_free(s);
+  /* Set atexit marker to indicate we are inside an atexit() call.
+     Used by dlite_globals_in_atexit(). */
+  if (!session_get_state(s, ATEXIT_MARKER_ID)) {
+      session_add_state((Session *)_globals_handler, ATEXIT_MARKER_ID,
+                        &dummy_ptr, NULL);
+      if (getenv("DLITE_ATEXIT_FREE")) session_free(s);
+  }
 }
 
 /*
@@ -485,16 +488,16 @@ DLiteGlobals *dlite_globals_get(void)
   if (!_globals_handler) {
     _globals_handler = session_get_default();
 
-    if (!session_get_state(_globals_handler, ATEXIT_MARKER_ID)) {
+    if (!session_get_state(_globals_handler, ATEXIT_REG_ID)) {
       static void **dummy_ptr=NULL;
 
       /* Make valgrind and other memory leak detectors happy by freeing
          up all globals at exit. */
       atexit(_free_globals);
 
-      /* Add an atexit marker used by dlite_blobals_in_atexit().
+      /* Add an atexit marker used by dlite_globals_in_atexit().
          The value of the state is not used. */
-      session_add_state((Session *)_globals_handler, ATEXIT_MARKER_ID,
+      session_add_state((Session *)_globals_handler, ATEXIT_REG_ID,
                         &dummy_ptr, NULL);
     }
   }

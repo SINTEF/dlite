@@ -1,26 +1,26 @@
 {
-  "ce592ff9-a7dc-548a-bbe5-3c53800afaf3":   {
-    "uri": "my-data",
+  "46a67765-3d8b-5764-9583-3aec59a17983":   {
+    "uri": "myid",
     "meta": "http://onto-ns.com/meta/0.1/MyEntity",
     "dimensions": {
       "N": 2,
       "M": 3
     },
     "properties": {
-      "a-blob": "000102030405060708090a0b0c0d0e0f",
-      "a-blob-array": [["00aa00ff", "00bb00dd"], ["001100aa", "0000cc00"]],
+      "a-blob": "30313233343536373839616263646566",
+      "a-blob-array": [["30313233", "34353637"], ["38396162", "63646566"]],
       "a-bool": false,
       "a-bool-array": [true, false],
       "an-int": 42,
-      "an-int-array": [0, 1, -1],
-      "a-float": 0,
-      "a-float64-array": [0, 3.14, -1e-6],
-      "a-fixstring": "",
-      "a-fixstring-array": [["abc", "def"], ["ghi", "jkl"]],
-      "a-string": "en af dem der red med fane",
-      "a-string-array": [[null, "a", "b"], ["abc", "a longer string", "and one that is not shorter..."]],
-      "a-relation": ["Cat", "isA", "Mammal"],
-      "a-relation-array": [["Shark", "isA", "Fish"], ["Fish", "isA", "Animal"]]
+      "an-int-array": [1, 2, 3],
+      "a-float": 42.3,
+      "a-float64-array": [3.14, 5, 42.3],
+      "a-fixstring": "something",
+      "a-fixstring-array": [["Al", "X"], ["Mg", "Si"]],
+      "a-string": "Hello!",
+      "a-string-array": [["a", "b", "c"], ["dd", "eee", "ffff"]],
+      "a-relation": ["dog", "is_a", "mammal"],
+      "a-relation-array": [["cheep", "is_a", "mammal"], ["cat", "is_a", "mammal"]]
     }
   }
 }
