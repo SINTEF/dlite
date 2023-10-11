@@ -270,10 +270,11 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             raise _dlite.DLiteError(f"invalid dlite.Instance")
 
         _dlite.errclr()
-        _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
+        obj = _dlite.new_Instance(*args, **kwargs)
+        _dlite.Instance_swiginit(self, obj)
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
-            raise _dlite.DLiteError(f"cannot initiate dlite.Instance")
+            raise _dlite.DLitePythonError(f"cannot initiate dlite.Instance")
         elif self.is_meta:
             self.__class__ = Metadata
         elif self.meta.uri == COLLECTION_ENTITY:
