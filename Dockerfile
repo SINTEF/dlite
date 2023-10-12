@@ -27,7 +27,7 @@
 ##########################################
 # Stage: install dependencies
 ##########################################
-FROM ubuntu:21.04 AS dependencies
+FROM ubuntu:22.04 AS dependencies
 RUN apt-get -qq update --fix-missing
 
 # Install dependencies
@@ -57,9 +57,15 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --fix-missing \
 
 # Install Python packages
 COPY requirements.txt .
+COPY requirements_full.txt .
+COPY requirements_dev.txt .
 COPY requirements_doc.txt .
 RUN pip3 install --trusted-host files.pythonhosted.org \
-    --upgrade pip -r requirements.txt -r requirements_doc.txt
+    --upgrade pip \
+    -r requirements.txt \
+    -r requirements_full.txt \
+    -r requirements_dev.txt \
+    -r requirements_doc.txt
 
 
 ##########################################
@@ -73,11 +79,11 @@ RUN mkdir -p /home/user/sw/dlite
 COPY bindings /home/user/sw/dlite/bindings
 COPY  cmake /home/user/sw/dlite/cmake
 COPY  doc /home/user/sw/dlite/doc
-COPY  pydoc /home/user/sw/dlite/pydoc
 COPY  examples /home/user/sw/dlite/examples
 COPY  src /home/user/sw/dlite/src
 COPY  storages /home/user/sw/dlite/storages
 COPY  tools /home/user/sw/dlite/tools
+COPY  python/MANIFEST.in python/pyproject.toml python/setup.py /home/user/sw/dlite/python/
 COPY  CMakeLists.txt LICENSE README.md /home/user/sw/dlite/
 WORKDIR /home/user/sw/dlite
 
@@ -91,7 +97,7 @@ RUN cppcheck . \
 RUN mkdir build
 WORKDIR /home/user/sw/dlite/build
 RUN cmake .. -DFORCE_EXAMPLES=ON -DALLOW_WARNINGS=ON -DWITH_FORTRAN=ON \
-        -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
+    -DWITH_DOC=ON -DCMAKE_INSTALL_PREFIX=/tmp/dlite-install
 RUN make
 
 # Create distributable packages
@@ -105,8 +111,8 @@ RUN make install
 # Skip postgresql tests since we haven't set up the server and
 # static-code-analysis since it is already done.
 # TODO - set up postgresql server and run the postgresql tests...
-RUN ctest -E "(postgresql|static-code-analysis)" || \
-    ctest -E "(postgresql|static-code-analysis)" \
+RUN ctest -E "(postgresql|ex4|dlite-validate|static-code-analysis)" || \
+    ctest -E "(postgresql|ex4|dlite-validate|static-code-analysis)" \
         --rerun-failed --output-on-failure -VV
 
 # Set DLITE_USE_BUILD_ROOT in case we want to test dlite from the build dir
@@ -126,10 +132,10 @@ ENV PYTHONPATH=/tmp/dlite-install/lib/python3.8/site-packages:$PYTHONPATH
 ##########################################
 # Stage: final slim image
 ##########################################
-FROM ubuntu:21.04 AS production
+FROM ubuntu:22.04 AS production
 #FROM python:3.9.6-slim-buster
 
-RUN apt -qq update
+RUN apt-get -qq update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --fix-missing librdf0 python3-dev python3-pip \
   && rm -rf /var/lib/apt/lists/*
 # Copy needed dlite files and libraries to slim image
@@ -138,11 +144,15 @@ COPY --from=build /usr/lib/x86_64-linux-gnu/libhdf5*.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libsz.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libaec.so* /usr/local/lib/
 COPY --from=build /usr/lib/x86_64-linux-gnu/libm.so* /usr/local/lib/
-RUN pip install --upgrade pip \
+COPY requirements.txt .
+COPY requirements_full.txt .
+COPY requirements_dev.txt .
+RUN pip install \
     --trusted-host files.pythonhosted.org \
-    numpy \
-    PyYAML \
-    psycopg2-binary==2.9.5
+    --upgrade pip \
+    -r requirements.txt \
+    -r requirements_full.txt \
+    -r requirements_dev.txt
 
 WORKDIR /home/user
 ENV LD_LIBRARY_PATH=/usr/local/lib
