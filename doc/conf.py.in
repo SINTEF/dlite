@@ -4,6 +4,7 @@ For the full list of built-in configuration values, see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 import os
+import sys
 from pathlib import Path
 import re
 from typing import TYPE_CHECKING
@@ -31,7 +32,7 @@ breathe_projects = {"dlite": "./xml/"}
 breathe_default_project = "dlite"
 
 
-call(['python',
+call([sys.executable,
       'respirator.py',
       breathe_projects[breathe_default_project],
       './c-api',
