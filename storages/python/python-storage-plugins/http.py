@@ -28,7 +28,7 @@ class http(dlite.DLiteStorageBase):
         r = requests.get(location)
         self.content = json.loads(r.content)
         if "detail" in self.content:
-            raise dlite.DLiteStorageOpenError(content["detail"])
+            raise dlite.DLiteStorageOpenError(self.content["detail"])
 
     def load(self, id=None):
         """Returns instance retrieved from HTTP GET."""

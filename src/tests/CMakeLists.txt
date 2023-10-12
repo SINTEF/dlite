@@ -4,6 +4,7 @@ project(dlite-src-tests C)
 
 set(tests
   test_misc
+  test_errors
   test_type
   test_storage
   test_entity

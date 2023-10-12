@@ -15,7 +15,6 @@
 #include "dlite-misc.h"
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
-#include "dlite-errors.h"
 
 #ifdef WITH_PYTHON
 #define NOPYTHON

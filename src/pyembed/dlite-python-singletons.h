@@ -59,7 +59,7 @@ PyObject *dlite_python_module_class(const char *classname);
 
   Returns NULL if `code` is out of range.
 */
-PyObject *dlite_python_module_error(DLiteErrors code);
+PyObject *dlite_python_module_error(DLiteErrCode code);
 
 
 

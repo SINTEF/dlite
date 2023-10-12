@@ -23,7 +23,7 @@ static int python_initialized = 0;
 /* Struct correlating Python exceptions with DLite errors */
 typedef struct {
   PyObject *exc;        /* Python exception */
-  DLiteErrors errcode;  /* DLite error */
+  DLiteErrCode errcode;  /* DLite error */
 } ErrorCorrelation;
 
 /* Global state for this module */
@@ -195,7 +195,7 @@ const char *dlite_pyembed_classname(PyObject *cls)
 /*
   Return DLite error code given Python exception type.
  */
-DLiteErrors dlite_pyembed_errcode(PyObject *type)
+DLiteErrCode dlite_pyembed_errcode(PyObject *type)
 {
   const ErrorCorrelation *corr = error_correlations();
   if (!type) return dliteSuccess;
@@ -211,7 +211,7 @@ DLiteErrors dlite_pyembed_errcode(PyObject *type)
   Return Python exception class corresponding to given DLite error code.
   Returns NULL if `code` is zero.
  */
-PyObject *dlite_pyembed_exception(DLiteErrors code)
+PyObject *dlite_pyembed_exception(DLiteErrCode code)
 {
   const ErrorCorrelation *corr = error_correlations();
   if (!code) return NULL;
