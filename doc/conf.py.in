@@ -51,7 +51,15 @@ exclude_patterns = [
 ]
 
 extensions = [
-    "autoapi.extension",
+    # Temporary disable autoapi since it leads to the following error during
+    # build of HTML documentation
+    #
+    # Extension error (autoapi.extension):
+    # Handler <function run_autoapi at 0x7f1ac734be50> for event
+    # 'builder-inited' threw an exception (exception: 'Module' object has no
+    # attribute 'doc')
+    #
+    #"autoapi.extension",
     "breathe", # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
     "sphinx.ext.graphviz",  # Graphviz
@@ -156,8 +164,9 @@ plantuml_output_format = "svg_img"
 def autoapi_prepare_jinja_env(jinja_env: "Environment") -> None:
     """Add custom Jinja2 filters for use with AutoAPI templates."""
 
-    # Remove plugin path, removes the initial part of the module name if it is equal to
-    # any of the folder names under `dlite/share/dlite`.
+    # Remove plugin path, removes the initial part of the module name
+    # if it is equal to any of the folder names under
+    # `dlite/share/dlite`.
     jinja_env.filters["remove_plugin_path"] = lambda name: ".".join(
         name.split(".")[1:]
     ) if name.split(".")[0] in dlite_share_plugins else name
