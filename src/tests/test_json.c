@@ -12,7 +12,7 @@
 #define THISDIR STRINGIFY(dlite_SOURCE_DIR) "/src/tests/"
 #define PREFIX  "json://" THISDIR
 
-DLiteInstance *inst=NULL;
+DLiteInstance *inst=NULL, *coll=NULL;
 DLiteMeta *meta=NULL;
 
 
@@ -26,6 +26,10 @@ MU_TEST(test_load)
   url = PREFIX "test-data.json?mode=r#e076a856-e36e-5335-967e-2f2fd153c17d";
   inst = dlite_instance_load_url(url);
   mu_check(inst);
+
+  url = PREFIX "test-collection.json?mode=r#58432e52-ee57-43b0-9daf-ef37e696da25";
+  coll = dlite_instance_load_url(url);
+  mu_check(coll);
 }
 
 
@@ -77,9 +81,6 @@ MU_TEST(test_sprint)
   //printf("%s\n", buf);
   mu_assert_int_eq(1165, m);
 
-  //printf("\n========================================================\n");
-
-
   /* Tests for PR #541 */
   m = dlite_json_sprint(buf, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);
@@ -87,6 +88,27 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(NULL, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);
 
+  
+  /* More tests for issue #543 */
+  m = dlite_json_sprint(NULL, 0, coll, 0, 0);
+  mu_assert_int_eq(406, m);
+
+  m = dlite_json_sprint(buf, sizeof(buf), coll, 0, 0);
+  mu_assert_int_eq(406, m);
+
+  
+  /* Tests for proper quoting */
+  DLiteCollection *coll = dlite_collection_create(NULL);
+  dlite_collection_add_relation(coll, "s", "p", "\"o\"");
+  m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)coll, 2, 0);
+  const DLiteRelation *rel = dlite_collection_find_first(coll, "s", "p", NULL);
+  mu_assert_string_eq("\"o\"", rel->o);
+  dlite_instance_decref((DLiteInstance *)coll);
+  //printf("\n--------------------------------------------------------\n");
+  //printf("%s\n", buf);
+
+
+  //printf("\n========================================================\n");
 }
 
 
@@ -123,8 +145,10 @@ MU_TEST(test_append)
 
 MU_TEST(test_decref)
 {
+  dlite_instance_decref(coll);
   dlite_instance_decref(inst);
   dlite_meta_decref(meta);
+  coll = NULL;
   inst = NULL;
   meta = NULL;
 }

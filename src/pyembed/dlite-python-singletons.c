@@ -126,7 +126,7 @@ PyObject *dlite_python_module_class(const char *classname)
   Help function returning builtin Python exception corresponding to
   error code or NULL, if no such built-in exception exists in Python.
  */
-static PyObject *_python_exc(DLiteErrors code)
+static PyObject *_python_exc(DLiteErrCode code)
 {
   switch (code) {
   case dliteIOError:                return PyExc_IOError;
@@ -164,7 +164,7 @@ static PyObject *_python_exc(DLiteErrors code)
 
   Returns NULL if `code` is equal or smaller than `dliteLastError`.
 */
-PyObject *dlite_python_module_error(DLiteErrors code)
+PyObject *dlite_python_module_error(DLiteErrCode code)
 {
   PyObject *dict, *exc, *pyexc, *dliteError, *base;
   const char *errdescr;

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "dlite-errors.h"
 
@@ -7,10 +8,10 @@
   Returns the name corresponding to error code (with the final "Error" stripped
   off).
  */
-const char *dlite_errname(DLiteErrors code)
+const char *dlite_errname(DLiteErrCode code)
 {
   switch (code) {
-  case dliteSuccess:                return "DLiteSussess";
+  case dliteSuccess:                return "DLiteSuccess";
   case dliteUnknownError:           return "DLiteUnknown";
   case dliteIOError:                return "DLiteIO";
   case dliteRuntimeError:           return "DLiteRuntime";
@@ -40,7 +41,7 @@ const char *dlite_errname(DLiteErrors code)
   case dliteMetadataExistError:     return "DLiteMetadataExist";
   case dlitePythonError:            return "DLitePython";
 
-  case dliteLastError:              return "DLiteLast";
+  case dliteLastError:              return "DLiteUndefined";
   }
   if (code < 0) return "DLiteUndefined";
   return "DLiteOther";
@@ -50,10 +51,10 @@ const char *dlite_errname(DLiteErrors code)
 /*
   Returns a description of the corresponding to error code
  */
-const char *dlite_errdescr(DLiteErrors code)
+const char *dlite_errdescr(DLiteErrCode code)
 {
   switch (code) {
-  case dliteSuccess:                return "Sussess";
+  case dliteSuccess:                return "Success";
   case dliteUnknownError:           return "Generic unknown error";
   case dliteIOError:                return "I/O related error";
   case dliteRuntimeError:           return "Unspecified run-time error";
@@ -85,4 +86,24 @@ const char *dlite_errdescr(DLiteErrors code)
   case dliteLastError:              return NULL;
   }
   return NULL;
+}
+
+
+/*
+  Return DLite error code corresponding to `name`.
+
+  Special cases:
+    - Unknown names will return `dliteUnknownError`.
+    - "DLiteError" will return zero.
+ */
+DLiteErrCode dlite_errcode(const char *name)
+{
+  DLiteErrCode code;
+  if (strncmp("DLiteError", name, 10) == 0) return 0;
+  for (code=0; code>dliteLastError; code--) {
+    const char *errname = dlite_errname(code);
+    if (strncmp(errname, name, strlen(errname)) == 0)
+      return code;
+  }
+  return dliteUnknownError;
 }

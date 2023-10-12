@@ -38,19 +38,26 @@ typedef enum {
 
   /* Should always be the last error */
   dliteLastError=-28
-} DLiteErrors;
+} DLiteErrCode;
 
 
 /**
   Returns the name corresponding to error code
  */
-const char *dlite_errname(DLiteErrors code);
+const char *dlite_errname(DLiteErrCode code);
 
 
 /**
   Returns a description of the corresponding to error code
  */
-const char *dlite_errdescr(DLiteErrors code);
+const char *dlite_errdescr(DLiteErrCode code);
+
+
+/**
+  Return DLite error code corresponding to `name`.  Unknown names will
+  return `dliteUnknownError`.
+ */
+DLiteErrCode dlite_errcode(const char *name);
 
 
 #endif  /* _DLITE_ERRORS_H */
