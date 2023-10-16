@@ -215,6 +215,11 @@ class MappingStep:
             quantity: Quantity class to use for evaluation. Defaults to pint.
 
         """
+        if not self.number_of_routes():
+            raise MissingRelationError(
+                f"no route to evaluate '{self.output_iri}'"
+                f"\n{self.show()}"
+            )
         if routeno is None:
             ((_, routeno),) = self.lowest_costs(nresults=1)
         inputs, idx = self.get_inputs(routeno)
@@ -745,7 +750,9 @@ def instance_routes(
     for inst in instances:
         props = {prop.name: prop for prop in inst.meta["properties"]}
         for key, value in inst.properties.items():
-            if isinstance(value, str):
+            if value is None:
+                pass
+            elif isinstance(value, str):
                 sources[f"{inst.meta.uri}#{key}"] = value
             else:
                 sources[f"{inst.meta.uri}#{key}"] = quantity(
