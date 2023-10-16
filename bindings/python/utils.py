@@ -539,7 +539,7 @@ def get_referred_instances(inst, include_meta=False):
     -------
     If you have a collection 'coll' with three instances 'inst1',
     'inst2' and 'inst3' and 'inst2' has a 'ref' property, which is
-    an array of 'inst4' and 'inst5', then
+    an array `[inst4, inst5]`, then
 
         get_referred_instances(coll)
 
