@@ -526,7 +526,27 @@ def get_referred_instances(inst, include_meta=False):
     """Return a set with all instances that are directly or indirectly
     referred to by `inst`.
 
+    This function follows instances referred to by collections and via
+    properties of type 'ref'.  Transaction parents are not included,
+    hence the returned set only includes instances in the current
+    snapshot.
+
+    Cyclic references are handled correctly.
+
     If `include_meta` is true, also return metadata.
+
+    Example
+    -------
+    If you have a collection 'coll' with three instances 'inst1',
+    'inst2' and 'inst3' and 'inst2' has a 'ref' property, which is
+    an array of 'inst4' and 'inst5', then
+
+        get_referred_instances(coll)
+
+    would return the set `{coll, inst1, inst2, inst3, inst4, inst5}`.
+
+    It same set would be returned even if one of the instances would
+    have a 'ref' property referring back to 'coll'.
     """
     references = set()
     _get_referred_instances(inst, include_meta, references)
