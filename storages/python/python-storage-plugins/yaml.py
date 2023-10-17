@@ -33,28 +33,32 @@ class yaml(dlite.DLiteStorageBase):
         self.options = Options(
             options, defaults="mode=a;soft7=true;single=auto"
         )
-        self.readable = "r" in self.options.mode
-        self.writable = "r" != self.options.mode
+        if self.options.mode not in "arw":
+            raise ValueError(
+                f"`mode` must be 'r', 'w' or 'a', got '{self.options.mode}'"
+            )
+        self.readable = self.options.mode == "r"
+        self.writable = self.options.mode in "aw"
         self.generic = True
         self.uri = uri
         self.flushed = False  # whether buffered data has been written to file
         self._data = {}  # data buffer
 
-        if self.options.mode in ("r", "a", "append"):
-            with open(uri, "r") as handle:
+        if self.options.mode in "ra":
+            with open(uri, "r", encoding="utf-8") as handle:
                 data = pyyaml.safe_load(handle)
             if data:
                 self._data = data
 
         self.single = (
             "properties" in self._data if self.options.single == "auto"
-            else dlite.asbool(self.options.single)
+            else dlite.asbool(self.options.single
         )
 
     def flush(self):
         """Flush cached data to storage."""
         if self.writable and not self.flushed:
-            with open(self.uri, "w") as handle:
+            with open(self.uri, "w", encoding="utf-8") as handle:
                 self._pyyaml.dump(
                     self._data,
                     handle,
