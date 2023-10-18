@@ -40,7 +40,12 @@ class Metadata(Instance):
             uri, dimensions, properties, description)
 
     def __init__(self, *args, **kwargs):
-        pass  # do nothing, just avoid calling Instance.__init__()
+        # Do nothing, just avoid calling Instance.__init__()
+        #
+        # The reason for this is that Instance.__init__() requires that the
+        # first argument is a dlite.Instance object ().  All needed
+        # instantiation is already done in __new__().
+        pass
 
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
