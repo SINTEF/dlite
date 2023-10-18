@@ -1,7 +1,7 @@
 import dlite
 
 
-# Create two entities with ref properties that cyclic refer to each other...
+# Create two entities (with ref properties) that cyclically refer to each other.
 prop_a = dlite.Property("a", "ref", "http://onto-ns.com/meta/0.1/A")
 B = dlite.Metadata(
     "http://onto-ns.com/meta/0.1/B", dimensions=[], properties=[prop_a],
@@ -14,11 +14,11 @@ A = dlite.Metadata(
 )
 
 # Create instances
-b = B()
-a = A(properties={"v": 3, "b": b})
-b.a = a
+inst_b = B()
+inst_a = A(properties={"v": 3, "b": inst_b})
+inst_b.a = inst_a
 
 
-assert a.v == 3
-assert a.b == b
-assert b.a == a
+assert inst_a.v == 3
+assert inst_a.b == inst_b
+assert inst_b.a == inst_a
