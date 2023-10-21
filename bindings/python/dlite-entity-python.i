@@ -274,8 +274,12 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
+
+        # Errors in SWIG-generated __new__() method bypass the standard error
+        # checking of wrapped function. Therefore we add some additional error
+        # checking here.
         if self is None:
-            raise _dlite.DLiteError(f"invalid dlite.Instance")
+            raise _dlite.DLitePythonError(f"cannot create dlite.Instance")
 
         _dlite.errclr()
         obj = _dlite.new_Instance(*args, **kwargs)
