@@ -750,14 +750,12 @@ def instance_routes(
     for inst in instances:
         props = {prop.name: prop for prop in inst.meta["properties"]}
         for key, value in inst.properties.items():
-            if value is None:
-                pass
-            elif isinstance(value, str):
-                sources[f"{inst.meta.uri}#{key}"] = value
-            else:
+            if props.get("unit"):
                 sources[f"{inst.meta.uri}#{key}"] = quantity(
                     value, props[key].unit
                 )
+            else:
+                sources[f"{inst.meta.uri}#{key}"] = value
 
     routes = {}
     for prop in meta["properties"]:
