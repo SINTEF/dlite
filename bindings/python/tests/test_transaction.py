@@ -2,8 +2,6 @@ from pathlib import Path
 
 import dlite
 
-import pytest
-
 
 # Configure paths
 thisdir = Path(__file__).parent.absolute()
