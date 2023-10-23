@@ -1,5 +1,11 @@
 """Main script running all tests in this repo."""
-import pydantic
+import sys
+
+try:
+    import pydantic
+    import rdflib
+except ModuleNotFoundError:
+    sys.exit(44)
 
 
 pydantic_major = int(pydantic.__version__.split(".")[0])
