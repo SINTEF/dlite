@@ -283,9 +283,10 @@ if HAVE_PYTEST:
     with pytest.raises(AttributeError):
         prop.ndims = 10
 
-del inst
-del e2
-del e3
+
+# Test that metadata is callable, but not instances
+assert callable(inst.meta)
+assert not callable(inst)
 
 
 # Metadata schema
