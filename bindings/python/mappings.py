@@ -33,7 +33,6 @@ from tripper.mappings.mappings import (
     MissingRelationError,
 )
 
-
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Any, Callable, Generator, Optional, Sequence, Type
 
@@ -74,12 +73,12 @@ def instance_routes(
     for inst in instances:
         props = {prop.name: prop for prop in inst.meta["properties"]}
         for key, value in inst.properties.items():
-            if isinstance(value, str):
-                sources[f"{inst.meta.uri}#{key}"] = value
-            else:
+            if props[key].unit:
                 sources[f"{inst.meta.uri}#{key}"] = quantity(
                     value, props[key].unit
                 )
+            else:
+                sources[f"{inst.meta.uri}#{key}"] = value
 
     routes = {}
     for prop in meta["properties"]:
