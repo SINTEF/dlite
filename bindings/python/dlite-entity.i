@@ -90,11 +90,6 @@ char** dlite_swig_istore_get_uuids()
   return uuids;
 }
 
-/* Initiate an instance by calling SWIG_Python_InitShadowInstance() */
-PyObject *dlite_swig_instance_init(PyObject *args) {
-  return SWIG_Python_InitShadowInstance(args);
-}
-
 %}
 
 
@@ -806,11 +801,9 @@ Returns a list of in-memory stored ids.
 %rename(istore_get_uuids) dlite_swig_istore_get_uuids;
 char** dlite_swig_istore_get_uuids();
 
-%rename(_instance_init) dlite_swig_instance_init;
 %rename(_get_property) dlite_swig_get_property;
 %rename(_set_property) dlite_swig_set_property;
 %rename(_has_property) dlite_instance_has_property;
-PyObject *dlite_swig_instance_init(PyObject *args);
 obj_t *dlite_swig_get_property(struct _DLiteInstance *inst, const char *name);
 void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
                              obj_t *obj);
