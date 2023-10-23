@@ -3,6 +3,7 @@ from pathlib import Path
 
 import dlite
 
+
 # Configure search paths
 thisdir = Path(__file__).parent.absolute()
 dlite.storage_path.append(f"{thisdir}/*.json")
