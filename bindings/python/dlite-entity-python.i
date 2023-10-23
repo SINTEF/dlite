@@ -275,15 +275,21 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
 
-        # Errors in SWIG-generated __new__() method bypass the standard error
-        # checking of wrapped function. Therefore we add some additional error
-        # checking here.
+        # The swig-generated __new__() method is not a standard wrapper
+        # function and therefore bypass the standard error checking.
+        # Check manually that we are not in an error state.
+        _dlite.errcheck()
+
         if self is None:
             raise _dlite.DLitePythonError(f"cannot create dlite.Instance")
 
-        _dlite.errclr()
         obj = _dlite.new_Instance(*args, **kwargs)
+
+        # The swig-internal Instance_swiginit() function is not a standard
+        # wrapper function and therefore bypass the standard error checking.
+        # Therefore, check manually that it doesn't produce an error.
         _dlite.Instance_swiginit(self, obj)
+        _dlite.errcheck()
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
             raise _dlite.DLitePythonError(f"cannot initiate dlite.Instance")

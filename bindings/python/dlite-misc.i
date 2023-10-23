@@ -31,6 +31,9 @@
     return *_dlite_err_mask_get();
   }
 
+  /* Just check for errors, do nothing else. */
+  void errcheck(void) {}
+
 %}
 
 %include <stdint.i>
@@ -187,6 +190,9 @@ int dlite_err_ignored_get(int code);
 int64_t _err_mask_get(void);
 %rename(_err_mask_set) _dlite_err_mask_set;
 void _dlite_err_mask_set(int64_t mask);
+
+%feature("docstring", "Just check for errors, do nothing else.") errcheck;
+void errcheck(void);
 
 
 /* ------------------------------
