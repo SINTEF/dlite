@@ -7,6 +7,7 @@ User Guide
 
    concepts
    type-system
+   exceptions
    mappings
    collections
    transactions
