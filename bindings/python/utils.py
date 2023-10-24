@@ -510,7 +510,6 @@ def infer_dimensions(meta, values, strict=True):
                         with all values replaced with None."""
                         result = []
                         for item in arr:
-                            print("  - ITEM:", item)
                             result.append(
                                 like(item) if isinstance(item, Sequence)
                                 else None
