@@ -497,7 +497,20 @@ def infer_dimensions(meta, values, strict=True):
                     message="The unit of the quantity is stripped when "
                     "downcasting to ndarray.",
                 )
-                v = np.array(values[prop.name])
+
+                # Convert `values[prop.name]` to NumPy array.
+                # Properties of ref-type must be handled separately, since
+                # NumPy interpreat a list of instances as having inhomogenous
+                # shape.
+                val = values[prop.name]
+                if prop.type == "ref":
+                    # FIXME: This only works for 1D list of ref-type properties
+                    v = np.array([None] * len(val))
+                    for i, vv in enumerate(val):
+                        v[i] = vv
+                else:
+                    v = np.array(val)
+
             if len(v.shape) != prop.ndims:
                 raise InvalidNumberOfDimensionsError(
                     f"property {prop.name} has {prop.ndims} dimensions, but "
