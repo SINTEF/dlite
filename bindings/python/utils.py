@@ -517,6 +517,8 @@ def infer_dimensions(meta, values, strict=True):
                             )
                         return result
 
+                    # Use like() to create a NumPy array filled with None's,
+                    # but of the right shape. Thereafter assign it
                     v = np.array(like(val), dtype=object)
                     v[:] = val
                 else:
