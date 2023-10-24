@@ -512,7 +512,7 @@ def infer_dimensions(meta, values, strict=True):
                         for item in arr:
                             result.append(
                                 None if isinstance(item, dlite.Instance)
-                                else rec(item)
+                                else mkempty(item)
                             )
                         return result
 
