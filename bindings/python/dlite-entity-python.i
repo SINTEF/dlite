@@ -313,14 +313,25 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
-        if self is None:
-            raise _dlite.DLiteError(f"invalid dlite.Instance")
 
-        _dlite.errclr()
-        _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
+        # The swig-generated __new__() method is not a standard wrapper
+        # function and therefore bypass the standard error checking.
+        # Check manually that we are not in an error state.
+        _dlite.errcheck()
+
+        if self is None:
+            raise _dlite.DLitePythonError(f"cannot create dlite.Instance")
+
+        obj = _dlite.new_Instance(*args, **kwargs)
+
+        # The swig-internal Instance_swiginit() function is not a standard
+        # wrapper function and therefore bypass the standard error checking.
+        # Therefore, check manually that it doesn't produce an error.
+        _dlite.Instance_swiginit(self, obj)
+        _dlite.errcheck()
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
-            raise _dlite.DLiteError(f"cannot initiate dlite.Instance")
+            raise _dlite.DLitePythonError(f"cannot initiate dlite.Instance")
         elif self.is_meta:
             self.__class__ = Metadata
         elif self.meta.uri == COLLECTION_ENTITY:

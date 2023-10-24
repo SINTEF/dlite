@@ -28,6 +28,7 @@ for name in dlite.StoragePluginIter():
     try:
         doc = dlite.Storage.plugin_help(name)
     except dlite.DLiteUnsupportedError:
+        dlite.errclr()
         undoc.append(name)
     else:
         lst = doc.split("\n")
@@ -37,7 +38,6 @@ for name in dlite.StoragePluginIter():
         print()
         print(name)
         print("-" * len(name))
-        print("*** i:", i)
         print("\n".join(lst[:i]) + "\n" + textwrap.dedent("\n".join(lst[i:])))
 
 print()
