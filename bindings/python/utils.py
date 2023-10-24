@@ -504,10 +504,21 @@ def infer_dimensions(meta, values, strict=True):
                 # shape.
                 val = values[prop.name]
                 if prop.type == "ref":
-                    # FIXME: This only works for 1D list of ref-type properties
-                    v = np.array([None] * len(val))
-                    for i, vv in enumerate(val):
-                        v[i] = vv
+
+                    def mkempty(arr):
+                        """Return a nested list of same shape as `arr`, but
+                        with all values replaced with None."""
+                        result = []
+                        for item in arr:
+                            result.append(
+                                None if isinstance(item, dlite.Instance)
+                                else rec(item)
+                            )
+                        return result
+
+                    empty = mkempty(val)
+                    v = np.array(empty, dtype=object)
+                    v[:] = val
                 else:
                     v = np.array(val)
 
