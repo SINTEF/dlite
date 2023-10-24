@@ -505,19 +505,19 @@ def infer_dimensions(meta, values, strict=True):
                 val = values[prop.name]
                 if prop.type == "ref":
 
-                    def mkempty(arr):
+                    def like(arr):
                         """Return a nested list of same shape as `arr`, but
                         with all values replaced with None."""
                         result = []
                         for item in arr:
+                            print("  - ITEM:", item)
                             result.append(
-                                None if isinstance(item, dlite.Instance)
-                                else mkempty(item)
+                                like(item) if isinstance(item, Sequence)
+                                else None
                             )
                         return result
 
-                    empty = mkempty(val)
-                    v = np.array(empty, dtype=object)
+                    v = np.array(like(val), dtype=object)
                     v[:] = val
                 else:
                     v = np.array(val)
