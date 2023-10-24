@@ -18,15 +18,16 @@ The only exception to this rule are the functions `dlite.errval()`, `dlite.errms
 You can use `dlite.errclr()` to clear the error state.
 
 
-Hiding errors
--------------
-When an error occur in the C-code or  DLite, an error message starting with `** ` is printed to screen. For example:
+### Hiding error messages
+When an error occur in the C-code or  DLite, an error message starting with `** ` is printed to standard error.
+For example, if you call `dlite.Instance.from_location` with invalid *driver* (and *location*), you get:
 
 ```python
 >>> dlite.Instance.from_location("", "")
 ** DLiteOtherError: missing driver
 ...
 DLiteStorageOpenError: DLiteOtherError: missing driver
+
 ```
 
 Sometimes these error messages are annoying.
@@ -37,22 +38,7 @@ For example:
 >>> with dlite.errctl(hide=dlite.DLiteStorageOpenError):
 ...     dlite.Instance.from_location("", "")
 DLiteStorageOpenError: DLiteOtherError: missing driver
-```
 
-
-
-### Catching a DLite exception
-DLite maintains its own error state.  Therefore, if you catch a DLite exception, you should call `dlite.errclr()` when it is handled.  Otherwise the error will be re-raised the next time you call a DLite function.
-
-For example:
-
-```python
-try:
-    with dlite.Storage("mydriver", "somefile") as s:
-        ...
-except dlite.DLiteStorageOpenError:
-    print("Skipping opening 'somefile'.  Cannot find driver: 'mydriver'")
-    dlite.errclr()
 ```
 
 
