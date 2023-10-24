@@ -12,7 +12,7 @@ When DLite is compiled with Python bindings, additional runtime features may be 
 - [pint], used for units conversion in property mappings
 - [pydantic], used for testing support for pydantic models
 - [typing_extensions], needed by pydantic v2
-- [rdflib], used by `pyrdf` storage plugin.  Is also used as default tripper backend for property mappings
+- [rdflib], used by `pyrdf` storage plugin. 
 - [PyYAML], used by `yaml` storage plugin
 - [psycopg2], used by `postgresql` storage plugin
     Note that in some cases a GSSAPI error is raised when using psycopg2
