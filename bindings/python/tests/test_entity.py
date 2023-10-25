@@ -40,7 +40,7 @@ myentity.save("json://xxx.json?mode=w")
 try:
     myentity.save("json://xxx.json")
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     assert False, "overwriting single-entity formatted file"
 
@@ -124,21 +124,25 @@ try:
     Instance.from_location("json", "/", "mode=r")
 except dlite.DLiteError:
     print('*** catched error loading "/" in read mode')
+    dlite.errclr()
 
 try:
     Instance.from_location("json", "/", "mode=w")
 except dlite.DLiteError:
     print('*** catched error loading "/" in write mode')
+    dlite.errclr()
 
 try:
     Instance.from_location("json", "")
 except dlite.DLiteError:
     print('*** catched error loading ""')
+    dlite.errclr()
 
 try:
     Instance.from_location("json", "non-existing-path...")
 except dlite.DLiteError:
     print('*** catched error loading "non-existing-path..."')
+    dlite.errclr()
 
 
 # Test for issue #352 - improved error message for missing dimensions
@@ -160,6 +164,7 @@ except dlite.DLiteError as exc:
         "dimensions, properties and/or relations: "
         "http://onto-ns.com/ex/0.1/test"
     )
+    dlite.errclr()
 else:
     assert False  # missing dimensions should raise an exception
 
@@ -283,9 +288,10 @@ if HAVE_PYTEST:
     with pytest.raises(AttributeError):
         prop.ndims = 10
 
-del inst
-del e2
-del e3
+
+# Test that metadata is callable, but not instances
+assert callable(inst.meta)
+assert not callable(inst)
 
 
 # Metadata schema

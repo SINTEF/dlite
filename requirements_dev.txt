@@ -5,3 +5,4 @@ openpyxl>=3.0.9,<3.2
 # Requirements for building wheel
 oldest-supported-numpy>=2023.8.3
 cmake>=1.21.6
+pytest>=7,<8

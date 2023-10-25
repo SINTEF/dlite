@@ -160,7 +160,7 @@ requirements = ["oldest-supported-numpy"]
 
 # Populate extra_requirements from requirements_*.txt
 extra_requirements = {}
-for name in "full", "dev", "doc":
+for name in "mappings", "full", "dev", "doc":
     with open(SOURCE_DIR / f"requirements_{name}.txt", "r") as f:
         extra_requirements[name] = [
             line.strip() for line in f.readlines() if not line.startswith("#")
