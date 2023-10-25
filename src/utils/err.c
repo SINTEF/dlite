@@ -505,7 +505,7 @@ FILE *err_get_stream(void)
       } else {
         g->err_stream_opened = 1;
         if (!g->err_stream_atexit_called) {
-          atexit(err_close_stream);
+          //atexit(err_close_stream);
           g->err_stream_atexit_called = 1;
         }
       }
