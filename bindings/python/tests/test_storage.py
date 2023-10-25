@@ -117,6 +117,7 @@ if HAVE_YAML:
 if HAVE_PYTEST:
     with pytest.raises(dlite.DLiteError):
         inst.to_bytes("json")
+    dlite.errclr()
 
 
 dlite.storage_path.append(thisdir)
