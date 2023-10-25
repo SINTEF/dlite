@@ -3,6 +3,7 @@
 %{
   #include "utils/strtob.h"
   #include "utils/globmatch.h"
+  //#include "dlite-misc.h"
 
   posstatus_t get_uuid_version(const char *id) {
     char buff[DLITE_UUID_LENGTH+1];
@@ -33,8 +34,8 @@
 
   /* Just check for errors, do nothing else. */
   void errcheck(void) {}
-
 %}
+
 
 %include <stdint.i>
 
@@ -128,6 +129,9 @@ Understands the following patterns:
 ") globmatch;
 int globmatch(const char *pattern, const char *s);
 
+%feature("docstring", "Tell DLite that we are in a Python atexit handler.")
+         dlite_globals_mark_python_atexit;
+void dlite_globals_mark_python_atexit(void);
 
 %feature("docstring", "\
 Clear the last error (setting its error code to zero).
