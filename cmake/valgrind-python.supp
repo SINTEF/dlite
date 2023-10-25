@@ -594,6 +594,21 @@
    fun:_PyEval_EvalFrameDefault
 }
 
+{
+   Ignore conditional jump depends on uninitialised variable
+   Memcheck:Cond
+   fun:__wcsncpy_avx2
+   ...
+   fun:_PyPathConfig_Calculate
+   ...
+   fun:_PyPathConfig_Init
+   ...
+   fun:_PyCoreConfig_Read
+   ...
+   fun:_Py_UnixMain
+}
+
+
 # ------------------------------------
 # Python plugins
 # ------------------------------------
@@ -965,7 +980,6 @@
    ...
    fun:dlite_pyembed_get_instance
 }
-
 
 
 # ------------------------------------------

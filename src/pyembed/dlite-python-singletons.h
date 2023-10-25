@@ -50,8 +50,8 @@ PyObject *dlite_python_module_dict(void);
 PyObject *dlite_python_module_class(const char *classname);
 
 /**
-  Returns a borrowed reference to singleton Python exception object
-  for the given DLite error code.
+  Returns a new Python singleton exception object for the given DLite
+  error code.
 
   The singleton object is created the first time this function is called
   with a given `code`.  All following calles with the same `code` will return

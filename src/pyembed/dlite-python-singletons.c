@@ -152,8 +152,8 @@ static PyObject *_python_exc(DLiteErrCode code)
 
 
 /*
-  Returns a borrowed reference to singleton Python exception object
-  for the given DLite error code.
+  Returns a new Python singleton exception object for the given DLite
+  error code.
 
   The singleton object is created the first time this function is called
   with a given `code`.  All following calles with the same `code` will return
@@ -214,7 +214,6 @@ PyObject *dlite_python_module_error(DLiteErrCode code)
   if (!(exc = PyErr_NewExceptionWithDoc(excname, errdescr, base, NULL)))
     FAILCODE1(dlitePythonError, "failure creating dlite.%s exception", errname);
   stat = PyDict_SetItemString(dict, errname, exc);
-  Py_DECREF(exc);
   if (stat)
     FAILCODE1(dlitePythonError, "cannot assign %s to module dict", errname);
 

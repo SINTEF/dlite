@@ -333,6 +333,7 @@ else()
 endif()
 
 # Must be assigned before including CTest
+#set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=no --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
 set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-leak-kinds=definite,indirect --errors-for-leak-kinds=definite --num-callers=200 --keep-debuginfo=yes --suppressions=${suppfile} --gen-suppressions=all")
 
 include(CTest)
