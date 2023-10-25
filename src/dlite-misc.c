@@ -457,13 +457,51 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
-#define ERR_STATE_ID "err-globals-id"
-#define ERR_MASK_ID "err-ignored-id"
-#define ATEXIT_REG_ID "atexit-reg-id"  // whether atexit is registered
+#define ERR_STATE_ID "dlite-err-state-id"
+#define SHARED_STATE_ID "dlite-shared-state-id"
+#define ERR_MASK_ID "dlite-err-ignored-id"
+#define ATEXIT_REG_ID "dlite-atexit-reg-id"  // whether atexit is registered
 
+/* Shared global variables */
+typedef struct {
+  int atexit_reg;     /*!< Whether atexit handler is registered */
+  int atexit_called;  /*!< Whether an atexit handler has been called */
+
+} SharedState;
 
 /* A cache pointing to the current session handler */
 static DLiteGlobals *_globals_handler=NULL;
+
+
+/* Error handler for DLite. */
+static void dlite_err_handler(const ErrRecord *record)
+{
+  if (!dlite_err_ignored_get(record->eval)) {
+    FILE *stream = err_get_stream();
+    if (stream) fprintf(stream, "** %s\n", record->msg);
+  }
+}
+
+
+/*
+  Initialises dlite. This function may be called several times.
+ */
+void dlite_init(void)
+{
+  static int initialized = 0;
+
+  if (!initialized) {
+    initialized = 1;
+
+    /* Set up global state for utils/err.c */
+    if (!dlite_globals_get_state(ERR_STATE_ID))
+      dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
+
+    /* Set up error handling */
+    err_set_handler(dlite_err_handler);
+    err_set_nameconv(dlite_errname);
+  }
+}
 
 
 /* Called by atexit().  Should be ok to call this multiple times... */
@@ -485,6 +523,9 @@ static void _free_globals(void) {
 */
 DLiteGlobals *dlite_globals_get(void)
 {
+  //DLiteGlobals *s = session_get_default();
+
+
   if (!_globals_handler) {
     _globals_handler = session_get_default();
 
@@ -518,37 +559,6 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
   /* Set globals in utils/err.c */
   if ((g = dlite_globals_get_state(ERR_STATE_ID)))
     err_set_state(g);
-}
-
-
-/* Error handler for DLite. */
-static void dlite_err_handler(const ErrRecord *record)
-{
-  if (!dlite_err_ignored_get(record->eval)) {
-    FILE *stream = err_get_stream();
-    if (stream) fprintf(stream, "** %s\n", record->msg);
-  }
-}
-
-
-/*
-  Initialises dlite. This function may be called several times.
- */
-void dlite_init(void)
-{
-  static int initialized = 0;
-
-  if (!initialized) {
-    initialized = 1;
-
-    /* Set up global state for utils/err.c */
-    if (!dlite_globals_get_state(ERR_STATE_ID))
-      dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
-
-    /* Set up error handling */
-    err_set_handler(dlite_err_handler);
-    err_set_nameconv(dlite_errname);
-  }
 }
 
 
@@ -615,6 +625,7 @@ DLiteErrMask *_dlite_err_mask_get(void)
   }
   return mask;
 }
+
 
 /* Set mask for error to not print. */
 void _dlite_err_mask_set(DLiteErrMask mask)
