@@ -639,6 +639,17 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     def __str__(self):
         return self.asjson()
 
+    def copy(self, newid=None):
+        """Returns a copy of this instance.  If `newid` is given, it
+        will be the id of the new instance, otherwise it will be given
+        a random UUID."""
+        newinst = self._copy(newid=newid)
+        if newinst.is_meta:
+            newinst.__class__ = Metadata
+        elif newinst.meta.uri == COLLECTION_ENTITY:
+            newinst.__class__ = Collection
+        return newinst
+
     def __reduce__(self):
         # ensures that instances can be pickled
         def iterfun(inst):
