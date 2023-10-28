@@ -23,7 +23,7 @@
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
-ARG PY_MINORS="7 8 9 10 11"
+ARG PY_MINORS="7 8 9 10 11 12"
 
 #COPY requirements.txt /tmp/requirements.txt
 COPY requirements_full.txt requirements_dev.txt /tmp/
