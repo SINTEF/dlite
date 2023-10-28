@@ -115,6 +115,11 @@ assert rel.o == "http://onto-ns.com/meta/0.1/MyEntity"
 (i1,) = coll.get_instances()
 assert i1 == inst1
 
+
+# Test that coll.copy() is a collection
+newcoll = coll.copy()
+assert isinstance(newcoll, dlite.Collection)
+
 # We have no collections in the collection
 assert not list(coll.get_instances(metaid=dlite.COLLECTION_ENTITY))
 
