@@ -6,8 +6,9 @@ from pathlib import Path
 import numpy as np
 
 try:
-    from tripper import Triplestore
+    import rdflib
     from pint import Quantity
+    from tripper import Triplestore
 except ImportError as exc:
     sys.exit(44)  # exit code marking the test to be skipped
 
