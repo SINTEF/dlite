@@ -13,6 +13,9 @@ try:
     import tripper
     import otelib
     import oteapi_dlite
+    import skimage
+    import ncempy
+    import pandas
 except ModuleNotFoundError:
     sys.exit(44)
 
