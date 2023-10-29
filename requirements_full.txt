@@ -14,3 +14,9 @@ pydantic>=1.10.0,<3
 typing_extensions>=4.1,<5
 redis>=5.0,<6
 minio>=6.0,<8
+
+# For TEM demo
+matplotlib>=3,<4
+scikit-image>=0.21,<1
+ncempy>=1.10,<2
+h5py>=3.9,<4
