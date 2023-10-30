@@ -12,9 +12,13 @@ class errctl():
         hide: Sequence of DLiteException subclasses or exception names
             corresponding to error messages to hide.  A single class or
             name is also allowed.
+            May also be a boolean, in which case error messages will be
+            hidden/shown.
         show: Sequence of DLiteException subclasses or exception names
             corresponding to error messages to show.  A single class or
             name is also allowed.
+            May also be a boolean, in which case error messages will be
+            shown/hidden.
         filename: Filename to redirect errors to.  The following values
             are handled specially:
               - "None" or empty: No output is written.
