@@ -312,3 +312,15 @@ schema.meta.save("basic_metadata_schema.json?mode=w;arrays=false")
 
 mm = dlite.Instance.from_url("json://entity_schema.json")
 assert mm.uri == dlite.ENTITY_SCHEMA
+
+
+# Test loading invalid json input
+with dlite.errctl(hide=True):
+    Invalid1 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid1")
+with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
+    invalid1 = Invalid1([2], properties={"name": "a", "f": [3.14, 2.72]})
+
+# For issue #686
+Invalid2 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid2")
+with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
+    invalid2 = Invalid2([2])
