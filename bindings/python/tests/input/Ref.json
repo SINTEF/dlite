@@ -3,7 +3,7 @@
   "description": "A datamodel with ref-types...",
   "dimensions": {
     "nitems": "Number of items.",
-      "nref": "Number of references to Ref datamodels."
+    "nrefs": "Number of references to Ref datamodels."
   },
   "properties": {
     "item": {
@@ -17,11 +17,11 @@
       "shape": ["nitems"],
       "description": "List of items."
     },
-    "selfs": {
+    "refs": {
       "type": "ref",
       "$ref": "http://onto-ns.com/meta/0.1/Ref",
-      "shape": ["nref"],
-      "description": "List of references to Ref datamodels.  This is allows testing for cyclicity..."
+      "shape": ["nrefs"],
+      "description": "List of references to Ref datamodels.  This may become very cyclic, but DLite should cope with it..."
     }
   }
 }

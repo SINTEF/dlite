@@ -183,9 +183,9 @@ dims = infer_dimensions(meta=Item, values=item1.asdict()["properties"])
 assert dims == {"nf": 2}
 
 Ref = dlite.get_instance("http://onto-ns.com/meta/0.1/Ref")
-ref = Ref(dimensions={"nitems": 2, "nref": 1})
+ref = Ref(dimensions={"nitems": 2, "nrefs": 1})
 ref.item = item1
 ref.items = item1, item2
-ref.selfs = [ref]
+ref.refs = [ref]
 dims = infer_dimensions(meta=Ref, values=ref.asdict()["properties"])
-assert dims == {"nitems": 2, "nref": 1}
+assert dims == {"nitems": 2, "nrefs": 1}
