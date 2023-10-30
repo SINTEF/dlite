@@ -639,6 +639,17 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     def __str__(self):
         return self.asjson()
 
+    def copy(self, newid=None):
+        """Returns a copy of this instance.  If `newid` is given, it
+        will be the id of the new instance, otherwise it will be given
+        a random UUID."""
+        newinst = self._copy(newid=newid)
+        if newinst.is_meta:
+            newinst.__class__ = Metadata
+        elif newinst.meta.uri == COLLECTION_ENTITY:
+            newinst.__class__ = Collection
+        return newinst
+
     def __reduce__(self):
         # ensures that instances can be pickled
         def iterfun(inst):
@@ -658,14 +669,25 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             iterfun(self),
         )
 
-    def asdict(self, soft7=True, uuid=True):
+
+    def asdict(self, soft7=True, uuid=True, single=True):
         """Returns a dict representation of self.
 
         Arguments:
             soft7: Whether to structure metadata as SOFT7.
             uuid: Whether to include UUID in the dict.
+            single: Whether to return in single-entity format.
+                If None, single-entity format is used for metadata and
+                multi-entity format for data instances.
         """
-        d = OrderedDict()
+        dct = d = OrderedDict()
+        if single is None:
+            single = self.is_meta
+
+        if not single:
+            d = {}
+            dct[self.uuid] = d
+
         if uuid:
             d['uuid'] = self.uuid
         if self.uri:
@@ -689,7 +711,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if self.has_property('relations') and (
                 self.is_meta or self.meta.has_property('relations')):
             d['relations'] = self['relations'].tolist()
-        return d
+        return dct
 
     def asjson(self, indent=0, single=None,
                urikey=False, with_uuid=False, with_meta=False,
