@@ -142,9 +142,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         if check_storages:
             try:
                 with dlite.silent:
-                    inst = dlite.get_instance(uri)
-                    if inst:
-                        return inst
+                    return dlite.get_instance(uri)
             except dlite.DLiteError:
                 pass
 
@@ -518,7 +516,62 @@ def infer_dimensions(meta, values, strict=True):
         missing_dims = dimnames.difference(dims.keys())
         raise CannotInferDimensionError(
             f"insufficient number of properties provided to infer dimensions: "
-            f"{missing_dims}"
+            f"{missing_dims} for metadata: {meta.uri}"
         )
 
     return dims
+
+
+def get_referred_instances(inst, include_meta=False):
+    """Return a set with all instances that are directly or indirectly
+    referred to by `inst`.
+
+    This function follows instances referred to by collections and via
+    properties of type 'ref'.  Transaction parents are not included,
+    hence the returned set only includes instances in the current
+    snapshot.
+
+    Cyclic references are handled correctly.
+
+    If `include_meta` is true, also return metadata.
+
+    Example
+    -------
+    If you have a collection 'coll' with three instances 'inst1',
+    'inst2' and 'inst3' and 'inst2' has a 'ref' property, which is
+    an array `[inst4, inst5]`, then
+
+        get_referred_instances(coll)
+
+    would return the set `{coll, inst1, inst2, inst3, inst4, inst5}`.
+
+    The same set would be returned even if one of the instances would
+    have a 'ref' property referring back to 'coll'.
+    """
+    references = set()
+    _get_referred_instances(inst, include_meta, references)
+    return references
+
+
+def _get_referred_instances(inst, include_meta, references):
+    """Recursive help function for get_referred_instances()."""
+    if inst is None or inst in references:
+        return
+    references.add(inst)
+    if isinstance(inst, dlite.Collection):
+        for i in inst.get_instances():
+            _get_referred_instances(i, include_meta, references)
+    else:
+        for prop in inst.meta.properties["properties"]:
+            if prop.type == "ref":
+                if prop.ndims:
+                    for i in inst[prop.name]:
+                        _get_referred_instances(
+                            i, include_meta, references
+                        )
+                else:
+                        _get_referred_instances(
+                            inst[prop.name], include_meta, references
+                        )
+    if include_meta:
+        _get_referred_instances(inst.meta, include_meta, references)
