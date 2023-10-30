@@ -43,6 +43,7 @@ RUN yum localinstall -y --skip-broken \
     libcurl-devel \
     libxslt-devel \
     libxml2-devel
+# Rust and cargo are needed by pydantic2, but may not be available
 RUN yum install -y rust cargo || true
 RUN if [ "{{ TYPE }}{{ ARCH }}" != "2014i686" ]; then yum install -y hdf5-devel; fi
 RUN if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then yum install -y postgresql91-devel; fi
