@@ -531,6 +531,10 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
   const DLiteRelation *r;
   if ((r = dlite_collection_find(coll, NULL, label, "_has-uuid", NULL))) {
     DLiteInstance *inst = dlite_instance_get(r->o);
+    if (!inst) FAILCODE2(dliteKeyError,
+                         "no such instance '%s' in collection '%s'",
+                         r->o, coll->uuid);
+
     //assert(inst->_refcount >= 2);
     //dlite_instance_decref(inst);
 
@@ -539,6 +543,7 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
     return inst;
   }
   errx(1, "cannot load instance '%s' from collection", label);
+ fail:
   return NULL;
 }
 
