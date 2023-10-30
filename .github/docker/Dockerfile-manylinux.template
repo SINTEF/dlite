@@ -47,6 +47,7 @@ RUN yum localinstall -y --skip-broken \
 # Rust and cargo are needed by pydantic2, but may not be available
 RUN yum install -y rust cargo || true
 
+# hdf5-devel is needed for building the hdf5 plugin
 RUN if [ "{{ TYPE }}{{ ARCH }}" != "2014i686" ]; then yum install -y hdf5-devel; fi
 
 # Unpack static libraries
