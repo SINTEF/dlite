@@ -577,12 +577,12 @@ static int dlite_instance_free(DLiteInstance *inst)
         if (dlite_type_is_allocated(p->type)) {
           int j;
           size_t n, nmemb=1;
+          char *memptr = *(char **)ptr;
           for (j=0; j<p->ndims; j++)
             nmemb *= DLITE_PROP_DIM(inst, i, j);
-          for (n=0; n<nmemb; n++) {
-            void *memptr = *(char **)ptr;
-            if (memptr) dlite_type_clear(memptr + n*p->size, p->type, p->size);
-          }
+          if (memptr)
+            for (n=0; n<nmemb; n++)
+              dlite_type_clear(memptr + n*p->size, p->type, p->size);
         }
         free(*(void **)ptr);
       } else {
