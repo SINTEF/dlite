@@ -326,4 +326,5 @@ def get_collection(id):
     inst.__class__ = Collection
     return inst
 
+del warn
 %}

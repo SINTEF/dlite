@@ -1,0 +1,19 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/Invalid1",
+  "description": "An invalid datamodel for an item.",
+  "dimensions": {
+      "nf": "Number of eigen-frequencies."
+  },
+  "properties": {
+    "name": {
+      "type": "str",
+      "description": "Name of the item."
+    },
+    "f": {
+      "type": "float64",
+      "shape": ["nf_MISPELLED"],
+      "unit": "Hz",
+      "description": "The magic eigen-frequencies of the item."
+    }
+  }
+}

@@ -14,7 +14,7 @@ from dlite.utils import (
 
 
 thisdir = Path(__file__).absolute().parent
-dlite.storage_path.append(thisdir / "input/*.json")
+dlite.storage_path.append(thisdir / "input" / "*.json")
 
 with open(thisdir / "Person.json", "rt") as f:
     d = json.load(f)
