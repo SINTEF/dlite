@@ -23,8 +23,18 @@ class errctl():
 
     """
     def __init__(self, hide=(), show=(), filename="<stderr>"):
-        self.hide = self._as_codes(hide)
-        self.show = self._as_codes(show)
+        allcodes = [-i for i in range(1, _dlite._get_number_of_errors())]
+
+        if hide is True or show is False:
+            self.hide = allcodes
+        elif hide is not False:
+            self.hide = self._as_codes(hide)
+
+        if show is True or hide is False:
+            self.show = allcodes
+        elif show is not False:
+            self.show = self._as_codes(show)
+
         self.filename = filename
 
     def __enter__(self):
