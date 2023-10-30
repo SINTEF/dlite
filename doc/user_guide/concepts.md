@@ -205,8 +205,8 @@ _**Figure 3**. The DLite data model._
 
 The DLite data model is defined by the [Datamodel ontology] and shown
 schematically in Figure 3.
-To the left we have the same hierarchy as shown in Figure 2.
-Then we have *instance* and *metadata* as more general concepts.
+In orange we have the same hierarchy as shown in Figure 2 with *instance*
+as the most general concepts.
 
 As discussed above, all instances have an UUID that is used as their
 main identifier for database lookup.
@@ -225,6 +225,8 @@ that can be represented digitally.
 Note however, that not all metadata uses all of these three ways to
 describe their instances.
 For example, entities have only dimensions and properties.
+Also note that dimensions and properties cannot have the same name, since
+they are accessed from the same namespace.
 
 
 ### Dimension
