@@ -14,9 +14,10 @@ from dlite.utils import (
 
 
 thisdir = Path(__file__).absolute().parent
+dlite.storage_path.append(thisdir / "input/*.json")
+
 with open(thisdir / "Person.json", "rt") as f:
     d = json.load(f)
-
 Person = dlite.utils.instance_from_dict(d)
 
 person = Person([2])
@@ -170,3 +171,21 @@ dims = infer_dimensions(
     },
 )
 assert dims == dict(N=2, M=4)
+
+
+# PR #677: test that infer_dimensions() correctly handles ref types
+Item = dlite.get_instance("http://onto-ns.com/meta/0.1/Item")
+item1 = Item([2], properties={"name": "a", "f": [3.14, 2.72]})
+item2 = Item([3], properties={
+    "name": "b", "f": [float("-inf"), 0, float("inf")]
+})
+dims = infer_dimensions(meta=Item, values=item1.asdict()["properties"])
+assert dims == {"nf": 2}
+
+Ref = dlite.get_instance("http://onto-ns.com/meta/0.1/Ref")
+ref = Ref(dimensions={"nitems": 2, "nref": 1})
+ref.item = item1
+ref.items = item1, item2
+ref.selfs = [ref]
+dims = infer_dimensions(meta=Ref, values=ref.asdict()["properties"])
+assert dims == {"nitems": 2, "nref": 1}
