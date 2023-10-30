@@ -23,7 +23,7 @@
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
-ARG PY_MINORS="7 8 9 10 11"
+ARG PY_MINORS="7 8 9 10 11 12"
 
 #COPY requirements.txt /tmp/requirements.txt
 COPY requirements_full.txt requirements_dev.txt /tmp/
@@ -37,16 +37,20 @@ RUN apk add -u \
   redland \
   rasqal \
   hdf5 \
-  swig && \
+  swig
+
+# Rust and cargo are needed by pydantic2, but may not be available on musllinux
+RUN apk add -u rust cargo || true
+
 # Unpack static libraries
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
-  cd /opt/_internal && \
+RUN cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
 # Change required version of pydantic to be <2
-  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt && \
+  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt
 # Install required Python packages
-  mkdir -p /ci/pip_cache && \
+RUN mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
