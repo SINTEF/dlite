@@ -476,9 +476,9 @@ Call signatures:
   %feature("docstring",
            "Returns a copy of the instance.  If `newid` is given, it will be\n"
            "the id of the new instance, otherwise it will be given a\n"
-           "random UUID.") copy;
-  %newobject copy;
-  struct _DLiteInstance *copy(const char *newid=NULL) {
+           "random UUID.") _copy;
+  %newobject _copy;
+  struct _DLiteInstance *_copy(const char *newid=NULL) {
     return dlite_instance_copy($self, newid);
   }
 

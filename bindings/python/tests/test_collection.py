@@ -115,6 +115,7 @@ assert rel.o == "http://onto-ns.com/meta/0.1/MyEntity"
 (i1,) = coll.get_instances()
 assert i1 == inst1
 
+
 # We have no collections in the collection
 assert not list(coll.get_instances(metaid=dlite.COLLECTION_ENTITY))
 
@@ -144,6 +145,18 @@ assert list(coll.get_objects()) == [
     inst1.uuid,
     inst1.meta.uri,
 ]
+
+
+# Test that coll.copy() is a collection
+newcoll = coll.copy()
+assert isinstance(newcoll, dlite.Collection)
+
+# Test Collection.get() returns the right Instance subclass
+coll.add("newcoll", newcoll)
+coll.add("meta", newcoll.meta)
+assert isinstance(coll["inst1"], dlite.Instance)
+assert isinstance(coll["newcoll"], dlite.Collection)
+assert isinstance(coll["meta"], dlite.Metadata)
 
 
 # String representation

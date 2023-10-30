@@ -169,6 +169,17 @@ else:
     assert False  # missing dimensions should raise an exception
 
 
+# Test copy
+newinst = inst.copy()
+assert isinstance(newinst, dlite.Instance)
+assert newinst.dimensions == inst.dimensions
+for newprop, prop in zip(newinst.properties, inst.properties):
+    assert np.all(newprop == prop)
+
+newmeta = inst.meta.copy()
+assert isinstance(newmeta, dlite.Metadata)
+
+
 # Check pickling
 s = pickle.dumps(inst)
 inst3 = pickle.loads(s)
