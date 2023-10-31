@@ -1,6 +1,6 @@
 {
   "uri": "http://onto-ns.com/meta/0.1/Invalid2",
-  "description": "A invalid datamodel with ref-types...",
+  "description": "A datamodel with ref-types with invalid shape name...",
   "dimensions": {
     "nrefs": "Number of references to Ref datamodels."
   },
