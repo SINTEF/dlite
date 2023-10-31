@@ -2,4 +2,6 @@
 cmake>=1.21.6
 mongomock>=4.1.2,<5
 openpyxl>=3.0.9,<3.2
-pytest>=7,<8
+
+# Requirements for building wheel
+cmake>=1.21.6

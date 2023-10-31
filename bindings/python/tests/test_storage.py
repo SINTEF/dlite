@@ -3,13 +3,7 @@
 import os
 
 import dlite
-
-try:
-    import pytest
-
-    HAVE_PYTEST = True
-except ModuleNotFoundError:
-    HAVE_PYTEST = False
+from dlite.testutils import raises
 
 try:
     import yaml
@@ -113,10 +107,9 @@ else:
 if HAVE_YAML:
     bytearr = inst.to_bytes("yaml")
     #print(bytes(bytearr).decode())
-if HAVE_PYTEST:
-    with pytest.raises(dlite.DLiteError):
-        inst.to_bytes("json")
-    dlite.errclr()
+
+with raises(dlite.DLiteError):
+    inst.to_bytes("json")
 
 
 dlite.storage_path.append(thisdir)

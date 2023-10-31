@@ -1374,4 +1374,5 @@ int _get_number_of_errors(void);
       setattr(_dlite, exc.__name__, exc)
   DLiteStorageBase = _dlite._get_storage_base()
   DLiteMappingBase = _dlite._get_mapping_base()
+  del n, exc
 %}

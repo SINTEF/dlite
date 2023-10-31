@@ -8,6 +8,7 @@ set(py_sources
   mappings.py
   datamodel.py
   rdf.py
+  testutils.py
   )
 
 # Python sub-packages
