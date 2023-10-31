@@ -1,5 +1,4 @@
 """Test dlite.testutils"""
-import dlite
 from dlite.testutils import (
     raises, UnexpectedSuccessError, UnexpectedExceptionError
 )
@@ -15,7 +14,7 @@ try:
 except UnexpectedSuccessError:
     pass
 else:
-    assert False  # An UnexpectedSuccessError was not produced!
+    assert False, "An UnexpectedSuccessError was not produced!"
 
 
 try:
@@ -24,4 +23,4 @@ try:
 except UnexpectedExceptionError:
     pass
 else:
-    assert False  # An UnexpectedExceptionError was not produced!
+    assert False,  "An UnexpectedExceptionError was not produced!"
