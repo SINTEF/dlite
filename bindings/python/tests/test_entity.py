@@ -314,7 +314,8 @@ with dlite.errctl(hide=True):
 with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
     invalid1 = Invalid1([2], properties={"name": "a", "f": [3.14, 2.72]})
 
-# For issue #686. Uncommenting the two last lines will result in segfault
+
+# For issue #686
 Invalid2 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid2")
-#with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
-#    invalid2 = Invalid2([2])
+with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
+    invalid2 = Invalid2([2])
