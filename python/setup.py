@@ -156,7 +156,7 @@ class CMakeBuildExt(build_ext):
             str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
 
-requirements = ["oldest-supported-numpy"]
+requirements = ["numpy"]
 
 # Populate extra_requirements from requirements_*.txt
 extra_requirements = {}
