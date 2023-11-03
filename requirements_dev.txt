@@ -1,7 +1,7 @@
-# Requirements for some tests...
+# Requirements building wheel and testing
+cmake>=1.21.6
 mongomock>=4.1.2,<5
 openpyxl>=3.0.9,<3.2
 
 # Requirements for building wheel
-oldest-supported-numpy>=2023.8.3
 cmake>=1.21.6

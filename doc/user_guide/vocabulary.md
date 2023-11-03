@@ -6,9 +6,10 @@ The following terms have a special meaning in DLite:
 * **Collection**: A specialised instance that contains references to set of instances and relations between them.
   Within a collection instances are labeled.
   See also the [SOFT5 nomenclauture].
-* **Data instance**: A "leaf" instance that is not metadata.
-* **Entity**: May be any kind of instance, including data instances, metadata instances or meta-metadata instances.
-  However, for historical reasons it is often used for "standard" metadata that are instances of meta-metadata "http://onto-ns.com/meta/0.3/EntitySchema".
+* **Data instance**: A "leaf" whose properties contain the actual data.
+  It is disjoint from metadata.
+* **Data model**: Synonym for *metadata*.
+* **Entity**: In principle, it is a synonym for *instance* (which is a general term that may refer to data instances, metadata, meta-metadata, etc...), but for historical reasons *entity* is used in DLite to refer to "standard" metadata that is described by the entity schema, http://onto-ns.com/meta/0.3/EntitySchema.
 * **Instance**: The basic data object in DLite.
   All instances are described by their metadata which itself are instances.
   Instances are identified by an UUID.

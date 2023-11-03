@@ -18,6 +18,16 @@ together with all optional dependencies needed for additional features
 and storage plugins. (see also [runtime dependencies]).
 
 
+### Extra requirements
+The complete list of extra requirements is as follows:
+
+- [mappings]: Extra requirements needed for property mappings.
+- [full]: All extra runtime requirements, needed by the various storage plugins or features like property mappings.
+- [dev]: Extra requirements needed for development and testing.
+- [doc]: Extra requirements needed for generating documentation.
+
+
+
 Development installation
 ------------------------
 If you to contribute or develop DLite, you should [build from source].

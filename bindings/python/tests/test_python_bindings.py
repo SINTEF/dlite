@@ -5,6 +5,9 @@ import sys
 from glob import glob
 import unittest
 
+import dlite
+
+
 thisdir = os.path.dirname(__file__)
 
 
@@ -20,6 +23,7 @@ class ScriptTestCase(unittest.TestCase):
         env.update(__file__=self.filename)
         with open(self.filename) as fd:
             try:
+                dlite.errclr()
                 exec(compile(fd.read(), self.filename, "exec"), env)
             except SystemExit as exc:
                 if exc.code == 44:

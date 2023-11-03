@@ -1362,14 +1362,17 @@ PyObject *dlite_python_mapping_base(void);
 /* ------------------
  * Expose generic api
  * ------------------ */
-%rename(_get_dlite_error) dlite_python_module_error;
+
+%rename(errgetexc) dlite_python_module_error;
+%feature("docstring", "Returns DLite exception corresponding to error code.") dlite_python_module_error;
 PyObject *dlite_python_module_error(int code);
 int _get_number_of_errors(void);
 
 %pythoncode %{
   for n in range(_dlite._get_number_of_errors()):
-      exc = _get_dlite_error(-n)
+      exc = errgetexc(-n)
       setattr(_dlite, exc.__name__, exc)
   DLiteStorageBase = _dlite._get_storage_base()
   DLiteMappingBase = _dlite._get_mapping_base()
+  del n, exc
 %}
