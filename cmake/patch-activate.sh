@@ -59,9 +59,10 @@ done
 cd $VIRTUAL_ENV/bin
 
 # We try two variants of the first hunk and three of the second hunk,
-# corresponding to mkvirtualenvwrapper and venv from the standard Python
-# library for Python 3.7, 3.9 and 3.11.
-# Hence, at least tree hunks will always fail
+# corresponding to the different versions of the activate script created
+# with mkvirtualenvwrapper and venv from the standard Python library for
+# Python 3.7, 3.9 and 3.11.
+# Hence, at least tree hunks will always fail.
 patch -u -f -F 1 <<EOF
 --- activate    2023-06-18 20:37:58.486341271 +0200
 +++ activate.diff       2023-06-18 21:51:48.895940777 +0200
