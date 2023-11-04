@@ -75,6 +75,18 @@ patch -u -f -F 1 <<EOF
      if ! [ -z "\${_OLD_VIRTUAL_PYTHONHOME+_}" ] ; then
          PYTHONHOME="\$_OLD_VIRTUAL_PYTHONHOME"
          export PYTHONHOME
+@@ -8,6 +8,11 @@
+         export PATH
+         unset _OLD_VIRTUAL_PATH
+     fi
++    if [ -n "\${_OLD_VIRTUAL_LD_LIBRARY_PATH:-}" ] ; then
++        LD_LIBRARY_PATH="\${_OLD_VIRTUAL_LD_LIBRARY_PATH:-}"
++        export LD_LIBRARY_PATH
++        unset _OLD_VIRTUAL_LD_LIBRARY_PATH
++    fi
+     if [ -n "\${_OLD_VIRTUAL_PYTHONHOME:-}" ] ; then
+         PYTHONHOME="\${_OLD_VIRTUAL_PYTHONHOME:-}"
+         export PYTHONHOME
 @@ -54,6 +59,10 @@
  PATH="\$VIRTUAL_ENV/bin:\$PATH"
  export PATH
@@ -86,6 +98,17 @@ patch -u -f -F 1 <<EOF
  # unset PYTHONHOME if set
  if ! [ -z "\${PYTHONHOME+_}" ] ; then
      _OLD_VIRTUAL_PYTHONHOME="\$PYTHONHOME"
+@@ -45,6 +50,10 @@
+ PATH="$VIRTUAL_ENV/bin:$PATH"
+ export PATH
+
++_OLD_VIRTUAL_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
++LD_LIBRARY_PATH="$libdirs:$LD_LIBRARY_PATH"
++export LD_LIBRARY_PATH
++
+ # unset PYTHONHOME if set
+ # this will fail if PYTHONHOME is set to the empty string (which is bad anyway)
+ # could use `if (set -u; : $PYTHONHOME) ;` in bash
 @@ -60,6 +60,10 @@ _OLD_VIRTUAL_PATH="$PATH"
  PATH="$VIRTUAL_ENV/bin:$PATH"
  export PATH
