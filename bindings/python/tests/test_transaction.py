@@ -9,7 +9,7 @@ thisdir = Path(__file__).parent.absolute()
 dlite.storage_path.append(thisdir / "*.json")
 Person = dlite.get_instance("http://onto-ns.com/meta/0.1/Person")
 
-person = Person(dims={"N": 4})
+person = Person(dimensions={"N": 4})
 person.name = "Knud H. Thomsen"
 person.age = 30
 person.skills = ["writing", "humor", "history", "human knowledge"]
@@ -25,10 +25,10 @@ for i in range(7):
 try:
     person.get_snapshot(7)
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     raise Exception(
-        "Should've failed test (getting non-existant snapshot), but didn't."
+        "Test should have failed (getting non-existant snapshot), but didn't."
     )
 assert person._get_parent_uuid() == person.get_snapshot(1).uuid
 assert person._get_parent_hash() == person.get_snapshot(1).get_hash()
@@ -69,10 +69,10 @@ for i in range(4):
 try:
     inst.get_snapshot(6)
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     raise Exception(
-        "Should've failed test (getting non-existant snapshot), but didn't"
+        "Test should have failed (getting non-existant snapshot), but didn't"
     )
 
 # Push to storage

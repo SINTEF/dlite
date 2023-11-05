@@ -521,10 +521,8 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 /* Error handler for DLite. */
 static void dlite_err_handler(const ErrRecord *record)
 {
-  if (!dlite_err_ignored_get(record->eval)) {
-    FILE *stream = err_get_stream();
-    if (stream) fprintf(stream, "** %s\n", record->msg);
-  }
+  if (!dlite_err_ignored_get(record->eval))
+    err_default_handler(record);
 }
 
 

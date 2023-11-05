@@ -169,7 +169,12 @@ class Collection(Instance):
         of `metaid` using instance mappings.  If no such instance mapping
         is registered, a DLiteError is raised.
         """
-        return _collection_get_new(self._coll, label, metaid)
+        inst = _collection_get_new(self._coll, label, metaid)
+        if inst.is_meta:
+            inst.__class__ = Metadata
+        elif inst.meta.uri == COLLECTION_ENTITY:
+            inst.__class__ = Collection
+        return inst
 
     def get_id(self, id):
         """Return instance with given id."""
@@ -321,4 +326,5 @@ def get_collection(id):
     inst.__class__ = Collection
     return inst
 
+del warn
 %}
