@@ -98,8 +98,6 @@ static int logger(void *user_data, librdf_log_message *message)
   //librdf_log_facility level = librdf_log_message_facility(message);
   UNUSED(user_data);
 
-  fprintf(stderr, "\n*** logger: %s\n", msg);  // XXX
-
   switch (level) {
   case LIBRDF_LOG_NONE: return 0;
   case LIBRDF_LOG_DEBUG: warnx("DEBUG: %s", msg); break;
@@ -116,7 +114,7 @@ static void finalize_check()
 {
   Globals *g = get_globals();
   if (g->finalize_pending && g->nmodels == 0 && g->default_world) {
-    librdf_free_world(g->default_world);
+    if (!dlite_globals_in_atexit()) librdf_free_world(g->default_world);
     g->default_world = NULL;
     g->finalize_pending = 0;
   }
