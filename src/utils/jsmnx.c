@@ -114,12 +114,16 @@ const jsmntok_t *jsmn_item(const char *js, const jsmntok_t *t, const char *key)
 {
   int i, n, nitems;
   int len, keylen=strlen(key);
-  if (t->type != JSMN_OBJECT) return errx(1, "expected JSMN OBJECT"), NULL;
+  if (t->type != JSMN_OBJECT)
+    return errx(1, "expected JSON object in string starting with:\n%.200s\n",
+                js + t->start), NULL;
   nitems = t->size;
   for (i=0; i<nitems; i++) {
     t++;
-    assert(t->type == JSMN_STRING);
     len = t->end - t->start;
+    if (t->type != JSMN_STRING)
+      return errx(1, "invalid JSON, object key must be a string, got '%.*s'",
+                  len, js + t->start), NULL;
     if (len == keylen && strncmp(key, js + t->start, len) == 0) return t+1;
     t++;
     if ((n = jsmn_count(t)) < 0) return NULL;
@@ -139,9 +143,9 @@ const jsmntok_t *jsmn_item(const char *js, const jsmntok_t *t, const char *key)
 const jsmntok_t *jsmn_element(const char *js, const jsmntok_t *t, int i)
 {
   int j, n;
-  (void)js;  // unused
+  int len = t->end - t->start;
   if (t->type != JSMN_ARRAY)
-    return errx(1, "expected JSMN ARRAY"), NULL;
+    return errx(1, "expected JSON array, got '%.*s", len, js + t->start), NULL;
   if (i < 0 || i >= t->size)
     return errx(1, "element i=%d is out of range [0:%d]", i, t->size-1), NULL;
   for (j=0; j<i; j++) {
