@@ -46,8 +46,8 @@
  *       - otherwise            : no debugging info
  *
  *   * `ERR_OVERRIDE`: How to handle error messages when there already is a
- *      message in the error message buffer.  Note that these options will
- *      only affect the error message, not the error value.
+ *     message in the error message buffer.  Note that these options will
+ *     only affect the error message, not the error value.
  *       - unset | empty       : append new error message to the old one
  *       - "0" | "append"      : append new error message
  *       - "1" | "warn-old"    : overwrite old error message and write warning
@@ -55,6 +55,9 @@
  *       - "3" | "old"         : overwrite old error message
  *       - "4" | "ignore-new"  : ignore new error message
  *       - otherwise           : append new error message to the old one
+ *
+ *   * `ERR_COLOR`: If defined, error messages to stdout and stderr will be
+ *     written in colour.
  */
 
 /** @cond private */
@@ -157,9 +160,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 
 /** @brief Default error stream (checks the ERR_STREAM environment variable) */
 #define err_default_stream ((FILE *)1)
-
-/** @brief Default error handle */
-#define err_default_handler ((ErrHandler)1)
 
 
 /**
@@ -496,6 +496,16 @@ typedef struct ErrRecord {
  * err_get_stream().
  */
 typedef void (*ErrHandler)(const ErrRecord *record);
+
+/**
+ * @brief Default error handler.
+ *
+ * Writes error message to the error stream.
+ *
+ * If the ERR_COLOR environment variable is set and the error stream
+ * is stdout or stderr, the message will be written with colours.
+ */
+void err_default_handler(const ErrRecord *record);
 
 /**
  * @brief Sets a new error handler.
