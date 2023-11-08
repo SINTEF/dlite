@@ -1,24 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
 import pickle
+from pathlib import Path
 
 import numpy as np
 
 import dlite
 from dlite import Instance, Dimension, Property, Relation
-
-try:
-    import pytest
-
-    HAVE_PYTEST = True
-except ModuleNotFoundError:
-    HAVE_PYTEST = False
+from dlite.testutils import raises
 
 
-thisdir = os.path.abspath(os.path.dirname(__file__))
+thisdir = Path(__file__).absolute().parent
+indir = thisdir / "input"
+dlite.storage_path.append(indir / "*.json")
 
-url = "json://" + thisdir + "/MyEntity.json"
+url = f"json://{thisdir}/MyEntity.json"
 
 
 # Load metadata (i.e. an instance of meta-metadata) from url
@@ -40,7 +36,7 @@ myentity.save("json://xxx.json?mode=w")
 try:
     myentity.save("json://xxx.json")
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     assert False, "overwriting single-entity formatted file"
 
@@ -124,21 +120,25 @@ try:
     Instance.from_location("json", "/", "mode=r")
 except dlite.DLiteError:
     print('*** catched error loading "/" in read mode')
+    dlite.errclr()
 
 try:
     Instance.from_location("json", "/", "mode=w")
 except dlite.DLiteError:
     print('*** catched error loading "/" in write mode')
+    dlite.errclr()
 
 try:
     Instance.from_location("json", "")
 except dlite.DLiteError:
     print('*** catched error loading ""')
+    dlite.errclr()
 
 try:
     Instance.from_location("json", "non-existing-path...")
 except dlite.DLiteError:
     print('*** catched error loading "non-existing-path..."')
+    dlite.errclr()
 
 
 # Test for issue #352 - improved error message for missing dimensions
@@ -160,8 +160,20 @@ except dlite.DLiteError as exc:
         "dimensions, properties and/or relations: "
         "http://onto-ns.com/ex/0.1/test"
     )
+    dlite.errclr()
 else:
     assert False  # missing dimensions should raise an exception
+
+
+# Test copy
+newinst = inst.copy()
+assert isinstance(newinst, dlite.Instance)
+assert newinst.dimensions == inst.dimensions
+for newprop, prop in zip(newinst.properties, inst.properties):
+    assert np.all(newprop == prop)
+
+newmeta = inst.meta.copy()
+assert isinstance(newmeta, dlite.Metadata)
 
 
 # Check pickling
@@ -279,13 +291,13 @@ assert prop.description == "A blob array."
 prop = dlite.Property("newprop", "int")
 prop.shape = ("a", "b", "c")
 assert prop.ndims == 3
-if HAVE_PYTEST:
-    with pytest.raises(AttributeError):
-        prop.ndims = 10
+with raises(AttributeError):
+    prop.ndims = 10
 
-del inst
-del e2
-del e3
+
+# Test that metadata is callable, but not instances
+assert callable(inst.meta)
+assert not callable(inst)
 
 
 # Metadata schema
@@ -295,3 +307,21 @@ schema.meta.save("basic_metadata_schema.json?mode=w;arrays=false")
 
 mm = dlite.Instance.from_url("json://entity_schema.json")
 assert mm.uri == dlite.ENTITY_SCHEMA
+
+
+# Test loading invalid json input
+with dlite.errctl(hide=True):
+    Invalid1 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid1")
+with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
+    invalid1 = Invalid1([2], properties={"name": "a", "f": [3.14, 2.72]})
+
+
+# For issue #686
+Invalid2 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid2")
+with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
+    invalid2 = Invalid2([2])
+
+
+# For issue #691
+with raises(dlite.DLiteStorageOpenError):
+    Invalid3 = dlite.Instance.from_location("json", indir / "Invalid3.json")
