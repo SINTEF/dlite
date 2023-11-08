@@ -620,10 +620,18 @@ ErrOverrideMode err_get_override_mode()
 }
 
 /* Default error handler. */
-static void _err_default_handler(const ErrRecord *record)
+void err_default_handler(const ErrRecord *record)
 {
   FILE *stream = err_get_stream();
-  if (stream) fprintf(stream, "** %s\n", record->msg);
+  if ((stream == stderr || stream == stdout) && getenv("ERR_COLOR")) {
+    /* Output the first word of the error message in red and the remaining
+       of it in magenta. */
+    int n = strcspn(record->msg, ": ");
+    fprintf(stream, "\033[31m%.*s\033[35m%s\033[0m\n", n, record->msg,
+            record->msg+n);
+  } else if (stream) {
+    fprintf(stream, "** %s\n", record->msg);
+  }
 }
 
 ErrHandler err_set_handler(ErrHandler handler)
@@ -639,8 +647,6 @@ ErrHandler err_get_handler(void)
 {
   ThreadLocals *tls = get_tls();
   Globals *g = tls->globals;
-  if (g->err_handler == err_default_handler)
-    g->err_handler = _err_default_handler;
   return g->err_handler;
 }
 
