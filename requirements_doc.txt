@@ -6,15 +6,15 @@ myst-nb~=0.17.1
 
 Sphinx>=4.5.0,<5
 
-sphinx-autoapi~=2.1
+sphinx-autoapi~=2.0
 sphinx-autobuild~=2021.3.14
 sphinx-book-theme~=0.3.3
 sphinx-toggleprompt~=0.4.0
 # sphinx-copybutton~=0.5.1  # does not work well with toggleprompt
-sphinx-design~=0.5.0
-sphinxcontrib-plantuml~=0.27
+sphinx-design~=0.3.0
+sphinxcontrib-plantuml~=0.24
 
 
 
-nbclient>=0.2,<0.9
-docutils>=0.14,<0.21
+nbclient<0.6,>=0.2
+docutils<0.18,>=0.14
