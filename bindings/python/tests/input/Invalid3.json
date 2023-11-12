@@ -1,0 +1,19 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/Invalid3",
+  "description": "Invalid JSON (square bracket for dimensions instead of braces).",
+  "dimensions": [
+    "nfrequencies": "Number of eigen-frequencies."
+  ],
+  "properties": {
+    "name": {
+      "type": "str",
+      "description": "Name of the item."
+    },
+    "f": {
+      "type": "float64",
+      "shape": ["nf"],
+      "unit": "Hz",
+      "description": "The magic eigen-frequencies of the item."
+    }
+  }
+}

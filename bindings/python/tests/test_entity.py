@@ -11,7 +11,8 @@ from dlite.testutils import raises
 
 
 thisdir = Path(__file__).absolute().parent
-dlite.storage_path.append(thisdir / "input" / "*.json")
+indir = thisdir / "input"
+dlite.storage_path.append(indir / "*.json")
 
 url = f"json://{thisdir}/MyEntity.json"
 
@@ -319,3 +320,8 @@ with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
 Invalid2 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid2")
 with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
     invalid2 = Invalid2([2])
+
+
+# For issue #691
+with raises(dlite.DLiteStorageOpenError):
+    Invalid3 = dlite.Instance.from_location("json", indir / "Invalid3.json")
