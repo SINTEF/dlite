@@ -37,7 +37,9 @@ RUN apk add -u \
   redland \
   rasqal \
   hdf5 \
-  swig
+  swig \
+  blas \
+  blas-dev
 
 # Rust and cargo are needed by pydantic2, but may not be available on musllinux
 RUN apk add -u rust cargo || true
