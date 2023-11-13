@@ -31,6 +31,7 @@ from tripper.mappings.mappings import (
     InconsistentDimensionError,
     InconsistentTriplesError,
     MissingRelationError,
+    UnknownUnitError,
 )
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -72,14 +73,35 @@ def instance_routes(
     if isinstance(instances, dlite.Instance):
         instances = [instances]
 
+    # FIXME: Bad workaround for adding missing units to the registry.
+    # Too be fixed ASAP.
+    ureg = quantity(1.0, "m").units._REGISTRY
+    unit_definitions = [
+        ("atom_fraction", "atom_fraction = 1"),
+    ]
+    for uname, udef in unit_definitions:
+        if uname not in ureg:
+            ureg.define(udef)
+
+
     sources = {}
     for inst in instances:
         props = {prop.name: prop for prop in inst.meta["properties"]}
         for key, value in inst.properties.items():
             if props[key].unit:
+
+                try:
+                    q = quantity(1.0, props[key].unit)
+                except TypeError:
+                    raise UnknownUnitError(
+                        f"unknown unit '{props[key].unit}' in datamodel: "
+                        f"{inst.meta.uri}"
+                    )
+
                 sources[f"{inst.meta.uri}#{key}"] = quantity(
                     value, props[key].unit
                 )
+
             else:
                 sources[f"{inst.meta.uri}#{key}"] = value
 
