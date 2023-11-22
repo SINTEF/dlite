@@ -35,7 +35,7 @@ If the `-DPYTHON_VERSION=3.9` option to CMake is not sufficient to get CMake to 
     cmake -C ../cmake/build-python3.7.cmake ..
 
 By default, [virtualenv] does not set `LD_LIBRARY_PATH`.
-This will result in errors when running, for example, `dlite-codegen` in the example above.
+This will result in errors when running, for example, `dlite-codegen`.
 To address this, DLite patches the virtualenv activate script to set `LD_LIBRARY_PATH` when running `cmake --install .` (see [patch activate] for details).
 
 To update `LD_LIBRARY_PATH` in your current shell, please do
