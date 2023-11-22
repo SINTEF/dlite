@@ -73,17 +73,6 @@ def instance_routes(
     if isinstance(instances, dlite.Instance):
         instances = [instances]
 
-    # FIXME: Bad workaround for adding missing units to the registry.
-    # Too be fixed ASAP.
-    ureg = quantity(1.0, "m").units._REGISTRY
-    unit_definitions = [
-        ("atom_fraction", "atom_fraction = 1"),
-    ]
-    for uname, udef in unit_definitions:
-        if uname not in ureg:
-            ureg.define(udef)
-
-
     sources = {}
     for inst in instances:
         props = {prop.name: prop for prop in inst.meta["properties"]}
