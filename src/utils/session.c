@@ -15,17 +15,17 @@
 
 
 typedef struct _State {
-  void *ptr;
-  void (*free_fun)(void *ptr);
+  void *ptr;                    // pointer to state
+  void (*free_fun)(void *ptr);  // function for free'ing the state
 } State;
 
 typedef map_t(State) map_state_t;
 
 
 struct _Session {
-  const char *session_id;
-  int freeing;
-  map_state_t states;
+  const char *session_id;  // unique id identifying a session
+  int freeing;             // whether we are freeing this session
+  map_state_t states;      // map state names to states
 };
 
 typedef map_t(Session) map_session_t;

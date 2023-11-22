@@ -511,9 +511,6 @@ DLiteGlobals *dlite_globals_get(void)
   if (!_globals_handler) {
     _globals_handler = session_get_default();
 
-    /* */
-    UNUSED(get_locals());
-
     /* Make valgrind and other memory leak detectors happy by freeing
        up all globals at exit. */
     atexit(_free_globals);
@@ -556,6 +553,9 @@ void dlite_init(void)
 
   if (!initialized) {
     initialized = 1;
+
+    /* Call get_locals() to ensure that the local state is initialised. */
+    get_locals();
 
     /* Set up global state for utils/err.c */
     if (!dlite_globals_get_state(ERR_STATE_ID))
