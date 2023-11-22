@@ -241,6 +241,38 @@ if(WITH_PYTHON)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
+  #
+  if(DEFINED ENV{VIRTUAL_ENV})
+    message(STATUS "Detected virtual environment $ENV{VIRTUAL_ENV}")
+
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+      message(STATUS "Setting CMAKE_INSTALL_PREFIX=$ENV{VIRTUAL_ENV}")
+      set(CMAKE_INSTALL_PREFIX "$ENV{VIRTUAL_ENV}" CACHE
+        PATH "Install path prefix, prepended onto install directories." FORCE)
+    endif()
+
+    if(NOT Python3_FIND_VIRTUALENV)
+      message(STATUS "Setting Python3_FIND_VIRTUALENV=ONLY")
+      set(Python3_FIND_VIRTUALENV=ONLY)
+    endif()
+
+    if(NOT PYTHON_VERSION)
+      find_program(
+        python_exe
+        python
+        PATHS $ENV{VIRTUAL_ENV}/bin
+        REQUIRED
+        NO_DEFAULT_PATH
+      )
+      execute_process(
+        COMMAND ${python_exe} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}', end='')"
+        OUTPUT_VARIABLE pyversion
+      )
+      message(STATUS "Setting PYTHON_VERSION=${pyversion}")
+      set(PYTHON_VERSION "${pyversion}")
+    endif()
+  endif()
+
   # Find Python package
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   if (PYTHON_VERSION)
