@@ -4,6 +4,11 @@
 
 %pythoncode %{
 
+import atexit
+
+atexit.register(_mark_python_atexit)
+
+
 class errctl():
     """Context manager for temporary disabling specific DLite error
     messages or redirecting them.
