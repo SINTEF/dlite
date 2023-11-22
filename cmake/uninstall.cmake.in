@@ -25,3 +25,16 @@ foreach(file ${files})
     message(STATUS "File $ENV{DESTDIR}${file} does not exist.")
   endif()
 endforeach()
+
+
+# Also uninstall empty directories
+foreach(file ${files})
+  get_filename_component(dir ${file} DIRECTORY)
+  if(EXISTS ${dir})
+    file(GLOB_RECURSE content LIST_DIRECTORIES false "${dir}/*")
+    if("${content}" STREQUAL "")
+      file(REMOVE_RECURSE ${dir})
+      message(STATUS "Removing empty directory ${dir}")
+    endif()
+  endif()
+endforeach()
