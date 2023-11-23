@@ -111,7 +111,7 @@ patch -u -f -F 1 <<EOF
 +
  # unset PYTHONHOME if set
  # this will fail if PYTHONHOME is set to the empty string (which is bad anyway)
- # could use `if (set -u; : $PYTHONHOME) ;` in bash
+ # could use \`if (set -u; : $PYTHONHOME) ;\` in bash
 @@ -60,6 +60,10 @@ _OLD_VIRTUAL_PATH="$PATH"
  PATH="$VIRTUAL_ENV/bin:$PATH"
  export PATH
