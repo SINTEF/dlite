@@ -1,7 +1,9 @@
 By default, [virtualenv] does not set `LD_LIBRARY_PATH`.
 This will result in errors when running applications that links to libdlite, like for example, `dlite-codegen`.
-To fix this, after compiling and installing `dlite`, the user needs prepend/append `$VIRTUAL_ENV/lib/` to `LD_LIBRARY_PATH`.
-This can be done by modifying the `activate` shell file, located at `$WORKON_HOME/<envs_name>/bin/activate`. First, the user should add
+To fix this, `$VIRTUAL_ENV/lib/` needs to be appended/prepended to `LD_LIBRARY_PATH`.
+This is attempted done with the script patch_activate.sh which is run as a part of the installation.
+
+If not successful, this can be done manually by modifying the `activate` shell file, located at `$WORKON_HOME/<envs_name>/bin/activate`. First, the user should add
 
 ``` bash
 if ! [ -z "${_OLD_LD_LIBRARY_PATH}" ] ; then
