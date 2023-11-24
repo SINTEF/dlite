@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up git user
       run: |
@@ -141,7 +141,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
@@ -160,7 +160,7 @@ jobs:
 
     - name: Login to GitHub Container Registry
       if: startsWith(matrix.os, 'ubuntu')
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
         registry: ${{ env.CONTAINER_REGISTRY }}
         username: ${{ github.actor }}
@@ -197,7 +197,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
@@ -252,13 +252,14 @@ jobs:
         ls -lah dist
 
     # - name: Publish package to Test PyPI
-    #   uses: pypa/gh-action-pypi-publish@v1.8.7
+    #   uses: pypa/gh-action-pypi-publish@release/v1
     #   with:
     #     user: __token__
     #     password: ${{ secrets.TEST_PYPI_TOKEN }}
+    #     repository-url: https://test.pypi.org/legacy/
 
     - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.7
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
