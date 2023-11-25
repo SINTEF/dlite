@@ -216,7 +216,7 @@ int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf)
 void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 {
   // Do not call iterFree() during atexit(), since it may lead to segfault
-  if (dlite_globals_get_state(ATEXIT_MARKER_ID)) return;
+  if (dlite_globals_in_atexit()) return;
 
   if (!s->api->iterFree)
     errx(1, "driver '%s' does not support iterFree()", s->api->name);
