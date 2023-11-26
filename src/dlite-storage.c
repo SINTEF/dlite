@@ -190,7 +190,8 @@ void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
 void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern)
 {
   if (!s->api->iterCreate)
-    return errx(1, "driver '%s' does not support iterCreate()",
+    return errx(dliteUnsupportedError,
+                "driver '%s' does not support iterCreate()",
                 s->api->name), NULL;
   return s->api->iterCreate(s, pattern);
 }
@@ -206,7 +207,8 @@ void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern)
 int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf)
 {
   if (!s->api->iterNext)
-    return errx(-1, "driver '%s' does not support iterNext()", s->api->name);
+    return errx(dliteUnsupportedError,
+                "driver '%s' does not support iterNext()", s->api->name);
   return s->api->iterNext(iter, buf);
 }
 
@@ -219,7 +221,8 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
   if (dlite_globals_in_atexit()) return;
 
   if (!s->api->iterFree)
-    errx(1, "driver '%s' does not support iterFree()", s->api->name);
+    errx(dliteUnsupportedError,
+         "driver '%s' does not support iterFree()", s->api->name);
   else
     s->api->iterFree(iter);
 }
