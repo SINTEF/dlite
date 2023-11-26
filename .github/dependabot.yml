@@ -10,7 +10,7 @@ updates:
   open-pull-requests-limit: 30
   target-branch: ci/dependabot-updates
   labels:
-    - dependencies
+    - "CI/CD"
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
@@ -18,4 +18,4 @@ updates:
     time: "05:24"
   target-branch: ci/dependabot-updates
   labels:
-    - github_actions
+    - "CI/CD"

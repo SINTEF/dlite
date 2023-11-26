@@ -579,6 +579,35 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 }
 
 
+/* Error handler for DLite. */
+static void dlite_err_handler(const ErrRecord *record)
+{
+  if (!dlite_err_ignored_get(record->eval))
+    err_default_handler(record);
+}
+
+
+/*
+  Initialises dlite. This function may be called several times.
+ */
+void dlite_init(void)
+{
+  static int initialized = 0;
+
+  if (!initialized) {
+    initialized = 1;
+
+    /* Set up global state for utils/err.c */
+    if (!dlite_globals_get_state(ERR_STATE_ID))
+      dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
+
+    /* Set up error handling */
+    err_set_handler(dlite_err_handler);
+    err_set_nameconv(dlite_errname);
+  }
+}
+
+
 /*
   Add global state with given name.
 

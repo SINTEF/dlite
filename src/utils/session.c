@@ -15,16 +15,17 @@
 
 
 typedef struct _State {
-  void *ptr;
-  void (*free_fun)(void *ptr);
+  void *ptr;                    // pointer to state
+  void (*free_fun)(void *ptr);  // function for free'ing the state
 } State;
 
 typedef map_t(State) map_state_t;
 
 
 struct _Session {
-  const char *session_id;
-  map_state_t states;
+  const char *session_id;  // unique id identifying a session
+  int freeing;             // whether we are freeing this session
+  map_state_t states;      // map state names to states
 };
 
 typedef map_t(Session) map_session_t;
@@ -56,12 +57,12 @@ Session *session_create(const char *session_id)
   Session s, *sp;
   memset(&s, 0, sizeof(s));
   if (map_get(sessions, session_id))
-    return errx(1, "cannot create new session with existing session id: %s",
+    return errx(-15, "cannot create new session with existing session id: %s",
                 session_id), NULL;
   if (!(s.session_id = strdup(session_id)))
-    return err(1, "allocation failure"), NULL;
+    return err(-12, "allocation failure"), NULL;
   if (map_set(sessions, session_id, s))
-    return errx(1, "failed to create new session with id: %s", session_id), NULL;
+    return errx(-15, "failed to create new session with id: %s", session_id), NULL;
   map_init(&s.states);
 
   sp = map_get(sessions, session_id);
@@ -73,7 +74,7 @@ Session *session_create(const char *session_id)
 }
 
 /*
-  Free all memory associated with `session`.
+  Free all memory associated with session `s`.
 */
 void session_free(Session *s)
 {
@@ -81,10 +82,15 @@ void session_free(Session *s)
   map_iter_t iter = map_iter(&s->states);
   const char *name, *id=s->session_id;
 
+  /* Indicate that we are freeing this session. This will avoid crashes in
+     case that free_fun() calls session_add_state().  */
+  s->freeing = 1;
+
   while ((name = map_next(&s->states, &iter))) {
     State *st = map_get(&s->states, name);
     if (st->free_fun) st->free_fun(st->ptr);
   }
+  s->freeing = 0;
   map_deinit(&s->states);
 
   if (id) {
@@ -97,6 +103,7 @@ void session_free(Session *s)
     map_deinit(sessions);
 }
 
+
 /*
   Retrieve session from `session_id`.
 
@@ -106,7 +113,7 @@ Session *session_get(const char *session_id)
 {
   map_session_t *sessions = get_sessions();
   Session *s = map_get(sessions, session_id);
-  if (!s) return errx(1, "no session with id: %s", session_id), NULL;
+  if (!s) return errx(-15, "no session with id: %s", session_id), NULL;
   return s;
 }
 
@@ -120,7 +127,6 @@ const char *session_get_id(Session *s)
 {
   return s->session_id;
 }
-
 
 
 
@@ -153,7 +159,7 @@ int session_set_default(Session *s)
   map_session_t *sessions = get_sessions();
   Session *s2 = map_get(sessions, DEFAULT_SESSION_ID);
   if (s2 && s2 != s)
-    return errx(1, "a default session has already been set");
+    return errx(-3, "a default session has already been set");
   map_set(sessions, DEFAULT_SESSION_ID, *s);
   return 0;
 }
@@ -173,8 +179,11 @@ int session_add_state(Session *s, const char *name, void *ptr,
                            void (*free_fun)(void *ptr))
 {
   State st, *sp;
-  memset(&st, 0, sizeof(st));
 
+  if (s->freeing)
+    return errx(-3, "cannot add state while freeing session");
+
+  memset(&st, 0, sizeof(st));
   st.ptr = ptr;
   st.free_fun = free_fun;
   if (map_get(&s->states, name))
@@ -196,7 +205,7 @@ int session_add_state(Session *s, const char *name, void *ptr,
 int session_remove_state(Session *s, const char *name)
 {
   State *st = map_get(&s->states, name);
-  if (!st) return errx(1, "no such global state: %s", name);
+  if (!st) return errx(-15, "no such global state: %s", name);
   if (st->free_fun) st->free_fun(st->ptr);
   map_remove(&s->states, name);
   return 0;

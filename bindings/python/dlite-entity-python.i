@@ -2,16 +2,8 @@
 
 /* Python-specific extensions to dlite-entity.i */
 %pythoncode %{
-import sys
-import json
-import base64
 import warnings
 from uuid import UUID
-
-if sys.version_info >= (3, 7):
-    OrderedDict = dict
-else:
-    from collections import OrderedDict
 
 import numpy as np
 
@@ -183,7 +175,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     def asdict(self):
         """Returns a dict representation of self."""
-        d = OrderedDict()
+        d = {}
         d['name'] = self.name
         if self.description:
             d['description'] = self.description
@@ -217,7 +209,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             soft7: Whether to use new SOFT7 format.
             exclude_name: Whether to exclude "name" from the returned dict.
         """
-        d = OrderedDict()
+        d = {}
         if not exclude_name:
             d['name'] = self.name
         d['type'] = self.get_type()
@@ -268,10 +260,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     def asdict(self):
         """Returns a dict representation of self."""
+        d = dict(s=self.s, p=self.p, o=self.o)
         if self.id:
-            d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
-        else:
-            d = OrderedDict(s=self.s, p=self.p, o=self.o)
+            d[id] = self.id
+
         return d
 
     def asstrings(self):
@@ -353,9 +345,9 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
     dimensions = property(
-        lambda self: OrderedDict((d.name, int(v))
-                                 for d, v in zip(self.meta['dimensions'],
-                                                 self.get_dimensions())),
+        lambda self: dict((d.name, int(v))
+                          for d, v in zip(self.meta['dimensions'],
+                                          self.get_dimensions())),
         doc='Dictionary with dimensions name-value pairs.')
     properties = property(lambda self:
         {p.name: self[p.name] for p in self.meta['properties']},
@@ -639,6 +631,17 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     def __str__(self):
         return self.asjson()
 
+    def copy(self, newid=None):
+        """Returns a copy of this instance.  If `newid` is given, it
+        will be the id of the new instance, otherwise it will be given
+        a random UUID."""
+        newinst = self._copy(newid=newid)
+        if newinst.is_meta:
+            newinst.__class__ = Metadata
+        elif newinst.meta.uri == COLLECTION_ENTITY:
+            newinst.__class__ = Collection
+        return newinst
+
     def __reduce__(self):
         # ensures that instances can be pickled
         def iterfun(inst):
@@ -658,14 +661,25 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             iterfun(self),
         )
 
-    def asdict(self, soft7=True, uuid=True):
+
+    def asdict(self, soft7=True, uuid=True, single=True):
         """Returns a dict representation of self.
 
         Arguments:
             soft7: Whether to structure metadata as SOFT7.
             uuid: Whether to include UUID in the dict.
+            single: Whether to return in single-entity format.
+                If None, single-entity format is used for metadata and
+                multi-entity format for data instances.
         """
-        d = OrderedDict()
+        dct = d = {}
+        if single is None:
+            single = self.is_meta
+
+        if not single:
+            d = {}
+            dct[self.uuid] = d
+
         if uuid:
             d['uuid'] = self.uuid
         if self.uri:
@@ -689,7 +703,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if self.has_property('relations') and (
                 self.is_meta or self.meta.has_property('relations')):
             d['relations'] = self['relations'].tolist()
-        return d
+        return dct
 
     def asjson(self, indent=0, single=None,
                urikey=False, with_uuid=False, with_meta=False,
@@ -756,6 +770,8 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             "Instance.get_copy() is deprecated.  Use Instance.copy() instead.",
             DeprecationWarning, stacklevel=2)
         return self.copy()
+
 %}
+
 
 }

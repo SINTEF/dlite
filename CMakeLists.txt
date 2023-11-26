@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.4.2
+  VERSION 0.4.5
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -239,6 +239,38 @@ if(WITH_PYTHON)
     set(Python3_FIND_REGISTRY NEVER)
     set(Python3_FIND_STRATEGY LOCATION)
     set(Python3_USE_STATIC_LIBS TRUE)
+  endif()
+
+  #
+  if(DEFINED ENV{VIRTUAL_ENV})
+    message(STATUS "Detected virtual environment $ENV{VIRTUAL_ENV}")
+
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+      message(STATUS "Setting CMAKE_INSTALL_PREFIX=$ENV{VIRTUAL_ENV}")
+      set(CMAKE_INSTALL_PREFIX "$ENV{VIRTUAL_ENV}" CACHE
+        PATH "Install path prefix, prepended onto install directories." FORCE)
+    endif()
+
+    if(NOT Python3_FIND_VIRTUALENV)
+      message(STATUS "Setting Python3_FIND_VIRTUALENV=ONLY")
+      set(Python3_FIND_VIRTUALENV=ONLY)
+    endif()
+
+    if(NOT PYTHON_VERSION)
+      find_program(
+        python_exe
+        python
+        PATHS $ENV{VIRTUAL_ENV}/bin
+        REQUIRED
+        NO_DEFAULT_PATH
+      )
+      execute_process(
+        COMMAND ${python_exe} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}', end='')"
+        OUTPUT_VARIABLE pyversion
+      )
+      message(STATUS "Setting PYTHON_VERSION=${pyversion}")
+      set(PYTHON_VERSION "${pyversion}")
+    endif()
   endif()
 
   # Find Python package
@@ -829,4 +861,16 @@ if(CROSS_TARGET)
     DIRECTORY ${TOOLCHAIN_LIBDIR}/python${pyver}
     DESTINATION "lib"
     )
+endif()
+
+
+# Uninstall
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/uninstall.cmake)
 endif()

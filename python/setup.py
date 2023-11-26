@@ -156,7 +156,11 @@ class CMakeBuildExt(build_ext):
             str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
 
-requirements = ["oldest-supported-numpy"]
+# Read requirements from requireemtns.txt
+with open(SOURCE_DIR / "requirements.txt", "r") as f:
+    requirements = [
+        line.strip() for line in f.readlines() if not line.startswith("#")
+    ]
 
 # Populate extra_requirements from requirements_*.txt
 extra_requirements = {}
