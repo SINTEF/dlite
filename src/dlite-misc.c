@@ -457,7 +457,6 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
-#define ATEXIT_MARKER_ID "atexit-marker-id"
 #define ERR_STATE_ID "err-globals-id"
 #define ERR_MASK_ID "err-ignored-id"
 
@@ -589,18 +588,6 @@ int dlite_globals_in_atexit(void)
   return (dlite_globals_get_state(ATEXIT_MARKER_ID)) ? 0 : 1;
 }
 
-/*
-  Mark that we are in an atexit handler.
- */
-void dlite_globals_set_atexit(void)
-{
-  static void **dummy_ptr=NULL;
-
-  /* Add an atexit marker used by dlite_blobals_in_atexit().
-     The value of the state is not used. */
-  session_add_state((Session *)_globals_handler, ATEXIT_MARKER_ID,
-                    &dummy_ptr, NULL);
-}
 
 
 /********************************************************************

@@ -14,6 +14,11 @@
 #define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
 
 
+/** Special state id only used to indicate whether we are in an atexit
+    handler or not */
+#define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
+
+
 /**
   @name General dlite utility functions
   @{
@@ -283,11 +288,6 @@ void *dlite_globals_get_state(const char *name);
   Returns non-zero if we are in an atexit handler.
  */
 int dlite_globals_in_atexit(void);
-
-/**
-  Mark that we are in an atexit handler.
- */
-void dlite_globals_set_atexit(void);
 
 /** @} */
 

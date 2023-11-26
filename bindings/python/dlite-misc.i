@@ -130,13 +130,6 @@ int globmatch(const char *pattern, const char *s);
 
 
 %feature("docstring", "\
-Tell DLite that we are in a Python atexit handler.
-") _mark_python_atexit;
-%rename(_mark_python_atexit) dlite_globals_set_atexit;
-void dlite_globals_set_atexit(void);
-
-
-%feature("docstring", "\
 Clear the last error (setting its error code to zero).
 ") dlite_errclr;
 void dlite_errclr(void);
