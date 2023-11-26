@@ -495,8 +495,7 @@ DLiteGlobals *dlite_globals_get(void)
 
       /* Add an atexit marker used by dlite_blobals_in_atexit().
          The value of the state is not used. */
-      session_add_state((Session *)_globals_handler, ATEXIT_MARKER_ID,
-                        &dummy_ptr, NULL);
+      session_add_state(_globals_handler, ATEXIT_MARKER_ID, &dummy_ptr, NULL);
     }
   }
   dlite_init();
@@ -594,12 +593,14 @@ int dlite_globals_in_atexit(void)
  */
 void dlite_globals_set_atexit(void)
 {
-  static void **dummy_ptr=NULL;
+  if (!dlite_globals_in_atexit()) {
+    Session *s = (Session *)dlite_globals_get();
 
-  /* Add an atexit marker used by dlite_blobals_in_atexit().
-     The value of the state is not used. */
-  session_add_state((Session *)_globals_handler, ATEXIT_MARKER_ID,
-                    &dummy_ptr, NULL);
+    /* Remove the atexit marker state to indicate that we now are in a
+       atexit handler */
+    if (session_get_state(s, ATEXIT_MARKER_ID))
+      session_remove_state(s, ATEXIT_MARKER_ID);
+  }
 }
 
 

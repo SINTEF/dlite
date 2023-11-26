@@ -99,6 +99,7 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
   if (s->flags & dliteReadable && s->flags& dliteGeneric)
     dlite_storage_hotlist_add(s);
 
+  s->refcount = 1;
   return s;
  fail:
   if (s) free(s);
@@ -140,10 +141,14 @@ int dlite_storage_close(DLiteStorage *s)
 {
   int stat=0;
   assert(s);
+  if (s->api->flush) stat = s->api->flush(s);
+
+  /* Only free the storage when there are no more references to it. */
+  if (--s->refcount > 0) return 0;
+
   if (s->flags & dliteReadable && s->flags & dliteGeneric)
     dlite_storage_hotlist_remove(s);
 
-  if (s->api->flush) stat = s->api->flush(s);
   stat |= s->api->close(s);
   free(s->location);
   if (s->options) free(s->options);
@@ -189,10 +194,13 @@ void dlite_storage_set_idflag(DLiteStorage *s, DLiteIDFlag idflag)
  */
 void *dlite_storage_iter_create(DLiteStorage *s, const char *pattern)
 {
+  void *iter;
   if (!s->api->iterCreate)
     return errx(1, "driver '%s' does not support iterCreate()",
                 s->api->name), NULL;
-  return s->api->iterCreate(s, pattern);
+  if ((iter = s->api->iterCreate(s, pattern)))
+    s->refcount++;  // increase refcount on storage
+  return iter;
 }
 
 /*
@@ -222,6 +230,10 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
     errx(1, "driver '%s' does not support iterFree()", s->api->name);
   else
     s->api->iterFree(iter);
+
+  /* Call dlite_storage_close().  This will decrease the refcount on
+     `s` which was increased by dlite_storage_iter_create(). */
+  dlite_storage_close(s);
 }
 
 
