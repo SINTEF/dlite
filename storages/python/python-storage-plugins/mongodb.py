@@ -121,7 +121,7 @@ class mongodb(dlite.DLiteStorageBase):
         document = self.collection.find_one({"uuid": uuid})
         if not document:
             raise IOError(
-                f"No instance with {uuid=} in MongoDB database "
+                f"No instance with uuid={uuid} in MongoDB database "
                 f'"{self.collection.database.name}" and collection '
                 f'"{self.collection.name}"'
             )
