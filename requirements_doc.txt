@@ -8,7 +8,7 @@ Sphinx>=4.5.0,<5
 
 sphinx-autoapi~=2.0
 sphinx-autobuild~=2021.3.14
-sphinx-book-theme~=0.3.3
+sphinx-book-theme~=1.0.1
 sphinx-toggleprompt~=0.4.0
 # sphinx-copybutton~=0.5.1  # does not work well with toggleprompt
 sphinx-design~=0.3.0
