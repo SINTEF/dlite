@@ -1,10 +1,9 @@
 # Optional requirements - used by various plugins or additional features like mappings
 fortran-language-server>=1.12.0,<1.13
 PyYAML>=5.4.1,<7
-# psycopg2-binary can lead to segfault - so far all seems good with v2.9.5
 psycopg2>=2,<3
-pandas>=1.2,<2.1
-rdflib>=4.2.1,<7
+pandas>=1.2,<2.3
+rdflib>=4.2.1,<8
 pint>=0.15,<1
 pymongo>=4.4.0,<5
 tripper>=0.2.13,<0.3
