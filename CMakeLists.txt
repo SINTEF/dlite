@@ -245,12 +245,6 @@ if(WITH_PYTHON)
   if(DEFINED ENV{VIRTUAL_ENV})
     message(STATUS "Detected virtual environment $ENV{VIRTUAL_ENV}")
 
-    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-      message(STATUS "Setting CMAKE_INSTALL_PREFIX=$ENV{VIRTUAL_ENV}")
-      set(CMAKE_INSTALL_PREFIX "$ENV{VIRTUAL_ENV}" CACHE
-        PATH "Install path prefix, prepended onto install directories." FORCE)
-    endif()
-
     if(NOT Python3_FIND_VIRTUALENV)
       message(STATUS "Setting Python3_FIND_VIRTUALENV=ONLY")
       set(Python3_FIND_VIRTUALENV=ONLY)
