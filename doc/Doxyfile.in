@@ -2026,7 +2026,17 @@ INCLUDE_FILE_PATTERNS  = config.h
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 PREDEFINED             = __declspec(x)= \
-                         __attribute__(x)=
+                         __attribute__(x)= \
+                         STRINGIFY(s)="s" \
+                         UNUSED(x)= \
+                         JSMN_API= \
+                         DSL_EXPORT= \
+                         DLLEXTERN= \
+                         DLiteInstance_HEAD= \
+                         DLiteMeta_HEAD= \
+                         PluginAPI_HEAD= \
+                         DLiteStorage_HEAD= \
+                         DLiteDataModel_HEAD=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
@@ -2035,7 +2045,15 @@ PREDEFINED             = __declspec(x)= \
 # definition found in the source code.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-EXPAND_AS_DEFINED      =
+EXPAND_AS_DEFINED      = map_t
+
+# These should ideally be expanded, but it seems that doxygen isn't able to do that
+# properly. Instead we remove them using PREDEFINED.
+#                         DLiteInstance_HEAD \
+#                         DLiteMeta_HEAD \
+#                         PluginAPI_HEAD \
+#                         DLiteStorage_HEAD \
+#                         DLiteDataModel_HEAD
 
 # If the SKIP_FUNCTION_MACROS tag is set to YES then doxygen's preprocessor will
 # remove all references to function-like macros that are alone on a line, have
