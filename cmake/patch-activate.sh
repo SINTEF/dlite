@@ -58,6 +58,11 @@ done
 
 cd $VIRTUAL_ENV/bin
 
+# We try two variants of the first hunk and three of the second hunk,
+# corresponding to the different versions of the activate script created
+# with mkvirtualenvwrapper and venv from the standard Python library for
+# Python 3.7, 3.9 and 3.11.
+# Hence, at least tree hunks will always fail.
 patch -u -f -F 1 <<EOF
 --- activate    2023-06-18 20:37:58.486341271 +0200
 +++ activate.diff       2023-06-18 21:51:48.895940777 +0200
@@ -73,6 +78,18 @@ patch -u -f -F 1 <<EOF
      if ! [ -z "\${_OLD_VIRTUAL_PYTHONHOME+_}" ] ; then
          PYTHONHOME="\$_OLD_VIRTUAL_PYTHONHOME"
          export PYTHONHOME
+@@ -8,6 +8,11 @@
+         export PATH
+         unset _OLD_VIRTUAL_PATH
+     fi
++    if [ -n "\${_OLD_VIRTUAL_LD_LIBRARY_PATH:-}" ] ; then
++        LD_LIBRARY_PATH="\${_OLD_VIRTUAL_LD_LIBRARY_PATH:-}"
++        export LD_LIBRARY_PATH
++        unset _OLD_VIRTUAL_LD_LIBRARY_PATH
++    fi
+     if [ -n "\${_OLD_VIRTUAL_PYTHONHOME:-}" ] ; then
+         PYTHONHOME="\${_OLD_VIRTUAL_PYTHONHOME:-}"
+         export PYTHONHOME
 @@ -54,6 +59,10 @@
  PATH="\$VIRTUAL_ENV/bin:\$PATH"
  export PATH
@@ -84,6 +101,28 @@ patch -u -f -F 1 <<EOF
  # unset PYTHONHOME if set
  if ! [ -z "\${PYTHONHOME+_}" ] ; then
      _OLD_VIRTUAL_PYTHONHOME="\$PYTHONHOME"
+@@ -45,6 +50,10 @@
+ PATH="$VIRTUAL_ENV/bin:$PATH"
+ export PATH
+
++_OLD_VIRTUAL_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
++LD_LIBRARY_PATH="$libdirs:$LD_LIBRARY_PATH"
++export LD_LIBRARY_PATH
++
+ # unset PYTHONHOME if set
+ # this will fail if PYTHONHOME is set to the empty string (which is bad anyway)
+ # could use \`if (set -u; : $PYTHONHOME) ;\` in bash
+@@ -60,6 +60,10 @@ _OLD_VIRTUAL_PATH="$PATH"
+ PATH="$VIRTUAL_ENV/bin:$PATH"
+ export PATH
+
++_OLD_VIRTUAL_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
++LD_LIBRARY_PATH="$libdirs:\$LD_LIBRARY_PATH"
++export LD_LIBRARY_PATH
++
+ if [ "x" != x ] ; then
+     VIRTUAL_ENV_PROMPT=""
+ else
 EOF
 
 exit $?
