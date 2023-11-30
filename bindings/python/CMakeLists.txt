@@ -239,7 +239,10 @@ if(DEFINED ENV{VIRTUAL_ENV})
   find_program(BASH bash)
   find_program(PATCH patch)
   install(
-    CODE "execute_process(COMMAND ${BASH} ${dlite_SOURCE_DIR}/cmake/patch-activate.sh)"
+    CODE "execute_process(
+              COMMAND ${BASH} ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
+              OUTPUT_QUIET
+         )"
   )
   install(
     PROGRAMS ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
