@@ -12,7 +12,9 @@ from dlite.testutils import raises
 
 thisdir = Path(__file__).absolute().parent
 indir = thisdir / "input"
+entitydir = thisdir / "entities"
 dlite.storage_path.append(indir / "*.json")
+dlite.storage_path.append(entitydir / "*.json")
 
 url = f"json://{thisdir}/MyEntity.json"
 
