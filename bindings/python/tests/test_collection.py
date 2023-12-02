@@ -6,6 +6,8 @@ import dlite
 
 thisdir = Path(__file__).resolve().parent
 outdir = thisdir / "output"
+indir = thisdir / "input"
+entitydir = thisdir / "entities"
 
 # Create collection
 coll = dlite.Collection("mycoll")
@@ -22,7 +24,7 @@ rel = coll.get_first_relation(s="no-such-subject")
 assert rel is None
 
 # Create instances
-url = f"json://{thisdir}/MyEntity.json?mode=r"
+url = f"json://{entitydir}/MyEntity.json?mode=r"
 e = dlite.Instance.from_url(url)
 inst1 = dlite.Instance.from_metaid(e.uri, [3, 2])
 inst2 = dlite.Instance.from_metaid(e.uri, (3, 4), "myinst")

@@ -669,6 +669,7 @@ int dlite_err_ignored_get(DLiteErrCode code)
 {
   DLiteErrMask *mask = _dlite_err_mask_get();
   if (!mask) return 0;
+  if (code > 0 && (*mask & DLITE_ERRBIT(dliteUnknownError))) return 1;
   return *mask & DLITE_ERRBIT(code);
 }
 
