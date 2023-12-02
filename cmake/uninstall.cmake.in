@@ -13,6 +13,10 @@ file(READ "@CMAKE_BINARY_DIR@/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 # Append files installed by setup.py to list of files to uninstall
+#
+# Ideally this should be obtained from the install manifest of setup.py,
+# but setup.py seems not to produce such a manifest, or at least I cannot
+# find it. For now we just manually append additional files to uninstall.
 list(APPEND files "@CMAKE_INSTALL_PREFIX@/bin/dlite-validate")
 
 # Uninstall
