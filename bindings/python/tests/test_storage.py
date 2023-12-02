@@ -105,12 +105,22 @@ try:
         f"filename={outdir}/test_storage_inst.ttl;"
         "format=turtle"
     )
+
+    with raises(dlite.DLiteIOError):
+        inst.save(
+            f"rdf://{outdir}/db.xml?mode=w;"
+            "store=file;"
+            f"filename={outdir}/non-existing/test_storage_inst.ttl;"
+            "format=turtle"
+        )
 except dlite.DLiteUnsupportedError:
     print("    skipping rdf test")
 else:
     # del inst
     # FIXME: read from inst.ttl not db.xml
     inst3 = dlite.Instance.from_url("rdf://{outdir}/db.xml#my-data")
+
+
 
 
 # Tests for issue #587
