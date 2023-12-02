@@ -30,11 +30,11 @@ assert myentity.is_meta
 assert not myentity.is_metameta
 
 # Store the entity to a new file
-myentity.save(f"json://{outdir}/xxx.json?mode=w")
+myentity.save(f"json://{outdir}/test_entity.json?mode=w")
 
 # Try to overwrite without mode - should fail because metadata is immutable
 with raises(dlite.DLiteUnknownError):
-    myentity.save(f"json://{outdir}/xxx.json")
+    myentity.save(f"json://{outdir}/test_entity.json")
 
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
@@ -80,33 +80,35 @@ for i in range(len(inst)):
 # print(inst)
 
 # Check save and load
-inst.save(f"json://{outdir}/inst.json?mode=w")
-inst2 = Instance.from_url(f"json://{outdir}/inst.json")
+inst.save(f"json://{outdir}/test_entity_inst.json?mode=w")
+inst2 = Instance.from_url(f"json://{outdir}/test_entity_inst.json")
 blob = inst2["a-blob"]
 
 del inst2
 inst2 = Instance.from_url(
-    f"json://{outdir}/inst.json?mode=r#46a67765-3d8b-5764-9583-3aec59a17983"
+    f"json://{outdir}/test_entity_inst.json?"
+    "mode=r#46a67765-3d8b-5764-9583-3aec59a17983"
 )
 assert inst2["a-blob"] == blob
 
 del inst2
-inst2 = Instance.from_location("json", outdir / "inst.json")
+inst2 = Instance.from_location("json", outdir / "test_entity_inst.json")
 assert inst2["a-blob"] == blob
 
 del inst2
 inst2 = Instance.from_location(
-    "json", outdir / "inst.json", id="46a67765-3d8b-5764-9583-3aec59a17983"
+    "json", outdir / "test_entity_inst.json",
+    id="46a67765-3d8b-5764-9583-3aec59a17983"
 )
 assert inst2["a-blob"] == blob
 del inst2
 
-with dlite.Storage("json", outdir / "inst.json") as s:
+with dlite.Storage("json", outdir / "test_entity_inst.json") as s:
     inst2 = dlite.Instance.from_storage(s)
 assert inst2["a-blob"] == blob
 del inst2
 
-with dlite.Storage("json", outdir / "inst.json") as s:
+with dlite.Storage("json", outdir / "test_entity_inst.json") as s:
     inst2 = s.load(id="46a67765-3d8b-5764-9583-3aec59a17983")
 assert inst2["a-blob"] == blob
 del inst2
@@ -225,14 +227,14 @@ assert newinst._refcount == 2
 
 
 # Test save
-inst.save(f"json://{outdir}/yyy.json?mode=w")
+inst.save(f"json://{outdir}/test_entity2.json?mode=w")
 
 try:
     import yaml
 except ImportError:
     pass
 else:
-    inst.save(f"yaml://{outdir}/yyy.yaml?mode=w")
+    inst.save(f"yaml://{outdir}/test_entity.yaml?mode=w")
 
 
 # Test metadata

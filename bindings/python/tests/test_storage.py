@@ -38,7 +38,7 @@ inst = myentity(dimensions=[2, 3], id="my-data")
 inst["a-bool-array"] = True, False
 
 # Test Storage.save()
-with dlite.Storage("json", outdir / "tmp.json", "mode=w") as s:
+with dlite.Storage("json", outdir / "test_storage_tmp.json", "mode=w") as s:
     s.save(inst)
 
 # Test query
@@ -46,18 +46,18 @@ with dlite.Storage("json", outdir / "tmp.json", "mode=w") as s:
 
 # Test json
 print("--- testing json")
-myentity.save(f"json://{outdir}/myentity.json?mode=w")
-inst.save(f"json://{outdir}/inst.json?mode=w")
+myentity.save(f"json://{outdir}/test_storage_myentity.json?mode=w")
+inst.save(f"json://{outdir}/test_storage_inst.json?mode=w")
 del inst
-inst = dlite.Instance.from_url(f"json://{outdir}/inst.json#my-data")
+inst = dlite.Instance.from_url(f"json://{outdir}/test_storage_inst.json#my-data")
 
 
 # Test yaml
 if HAVE_YAML:
     print('--- testing yaml')
-    inst.save(f"yaml://{outdir}/inst.yaml?mode=w")
+    inst.save(f"yaml://{outdir}/test_storage_inst.yaml?mode=w")
     del inst
-    inst = dlite.Instance.from_url(f"yaml://{outdir}/inst.yaml#my-data")
+    inst = dlite.Instance.from_url(f"yaml://{outdir}/test_storage_inst.yaml#my-data")
 
     # test help()
     expected = """\
@@ -76,7 +76,9 @@ Opens `location`.
             - `single`: Whether the input is assumed to be in single-entity form.
                 If "auto" (default) the form will be inferred automatically.
 """
-    s = dlite.Storage("yaml", outdir / "inst.yaml", options="mode=a")
+    s = dlite.Storage(
+        "yaml", outdir / "test_storage_inst.yaml", options="mode=a"
+    )
     assert s.help().strip() == expected.strip()
 
     # Test delete()
@@ -98,10 +100,12 @@ Opens `location`.
 try:
     print("--- testing rdf")
     inst.save(
-        f"rdf:{outdir}/db.xml?mode=w;store=file;filename={outdir}/inst.ttl;"
+        f"rdf:{outdir}/db.xml?mode=w;"
+        "store=file;"
+        f"filename={outdir}/test_storage_inst.ttl;"
         "format=turtle"
     )
-except dlite.DLiteError:
+except dlite.DLiteUnsupportedError:
     print("    skipping rdf test")
 else:
     # del inst

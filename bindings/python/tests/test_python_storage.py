@@ -55,11 +55,11 @@ person.age = 12.5
 person.skills = ["skiing", "jumping"]
 
 print("=== saving...")
-with dlite.Storage("json", outdir / "test.json", "mode=w") as s:
+with dlite.Storage("json", outdir / "test_python_storage.json", "mode=w") as s:
     s.save(person)
 
 print("=== loading...", person.uuid)
-with dlite.Storage("json", outdir / "test.json", "mode=r") as s:
+with dlite.Storage("json", outdir / "test_python_storage.json", "mode=r") as s:
     inst = s.load(id=person.uuid)
 
 
@@ -67,11 +67,11 @@ person2 = Person(dims=[3])
 person2.name = "Berry"
 person2.age = 24.3
 person2.skills = ["eating", "sleeping", "reading"]
-with dlite.Storage(f"json://{outdir}/test.json") as s:
+with dlite.Storage(f"json://{outdir}/test_python_storage.json") as s:
     s.save(person2)
 
 
-s = dlite.Storage(f"json://{outdir}/test.json")
+s = dlite.Storage(f"json://{outdir}/test_python_storage.json")
 uuids = s.get_uuids()
 del s
 del uuids
