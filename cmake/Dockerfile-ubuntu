@@ -1,0 +1,46 @@
+# -*- Mode: Dockerfile -*-
+# Dockerfile for testing with ubuntu
+#
+# Build:
+#
+#     docker build -t dlite-ubuntu -f cmake/Dockerfile-ubuntu .
+#
+# Run:
+#
+#     docker run --rm -it --volume $PWD:/io dlite-ubuntu /bin/bash
+#
+
+FROM ubuntu:latest AS dependencies
+
+WORKDIR /io
+
+RUN apt update --fix-missing
+RUN apt install -y \
+    python3-pip \
+    python3-venv \
+    cmake \
+    swig
+
+RUN mkdir ~/.envs
+RUN python3 -m venv ~/.envs/dlite
+RUN . ~/.envs/dlite/bin/activate
+
+RUN pip3 install -U pip
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+
+COPY CMakeLists.txt LICENSE README.md .
+COPY python/MANIFEST.in python/pyproject.toml python/setup.py python/.
+COPY bindings bindings
+COPY cmake cmake
+COPY doc doc
+COPY examples examples
+COPY src src
+COPY storages storages
+COPY tools tools
+
+FROM dependencies AS build
+WORKDIR /tmp/build-ubuntu
+RUN cmake -DWITH_HDF5=NO /io
+RUN make install
+RUN ctest
