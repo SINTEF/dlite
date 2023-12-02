@@ -31,6 +31,7 @@ from tripper.mappings.mappings import (
     InconsistentDimensionError,
     InconsistentTriplesError,
     MissingRelationError,
+    UnknownUnitError,
 )
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -77,9 +78,19 @@ def instance_routes(
         props = {prop.name: prop for prop in inst.meta["properties"]}
         for key, value in inst.properties.items():
             if props[key].unit:
+
+                try:
+                    q = quantity(1.0, props[key].unit)
+                except TypeError:
+                    raise UnknownUnitError(
+                        f"unknown unit '{props[key].unit}' in datamodel: "
+                        f"{inst.meta.uri}"
+                    )
+
                 sources[f"{inst.meta.uri}#{key}"] = quantity(
                     value, props[key].unit
                 )
+
             else:
                 sources[f"{inst.meta.uri}#{key}"] = value
 

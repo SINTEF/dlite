@@ -9,4 +9,5 @@ Build from source
    runtime_dependencies
    build_against_python_env
    build_with_vs
+   patch_activate
    cmake_variables
