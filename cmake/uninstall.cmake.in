@@ -8,8 +8,14 @@ if(NOT EXISTS "@CMAKE_BINARY_DIR@/install_manifest.txt")
   )
 endif()
 
+# Load install manifest
 file(READ "@CMAKE_BINARY_DIR@/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
+
+# Append files installed by setup.py to list of files to uninstall
+list(APPEND files "@CMAKE_INSTALL_PREFIX@/bin/dlite-validate")
+
+# Uninstall
 foreach(file ${files})
   message(STATUS "Uninstalling $ENV{DESTDIR}${file}")
   if(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
