@@ -71,6 +71,8 @@ foreach(test ${python-tests})
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_STORAGES=${plugindir}/*.json")
   set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_PYDEBUG=")
+  set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
   if (NOT WIN32)
   set_property(TEST ${test} APPEND PROPERTY

@@ -1,3 +1,9 @@
-*.yaml
 *.json
+*.yaml
+*.bson
+*.csv
+*.xlsx
+*.rdf
+*.ttl
+*.txt
 *.png
