@@ -81,7 +81,9 @@ class image(dlite.DLiteStorageBase):
 
         crop = self.options.get("crop")
         if crop:
-            data = data[*toindex(crop)]
+            # We call __getitem__() explicitly, since the preferred syntax
+            # `data[*toindex(crop)]` is not supported by Python 3.7
+            data = data.__getitem__(*toindex(crop))
 
         if self.options.get("resize"):
             size = [int(s) for s in self.options.resize.split("x")]
