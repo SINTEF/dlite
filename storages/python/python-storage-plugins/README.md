@@ -1,24 +1,58 @@
 Python storage plugins distributed with DLite
 =============================================
-This directory contains additional storage plugins written in Python,
-including
+This directory contains additional storage plugins written in Python.
 
-* blob - a plugin for Binary Large OBjects (BLOBs).
 
-* bson - a plugin for BSON (binary JSON). Requires the pymongo package.
+Generic plugins
+---------------
+Generic plugins supports all types of DLite instances (including data
+instances, metadata, collections, etc).
 
-* csv - a plugin for CSV files.
+- **bson**: Plugin for BSON (binary JSON). Requires the pymongo package.
+  Require: bson
 
-* postgresql - a PostgreSQL plugin that allows to serialise all types
-  of dlite instances (including data instances, metadata, collections,
-  etc) to a PostgreSQL database.  See below for how to enable the tests.
+- **csv**: Plugin for CSV and Excel files.
+  Require: pandas
 
-* yaml - a YAML plugin that is very similar to the json plugin
-  implemented in C, except that it uses YAML instead of JSON.
+- **http**: Plugin for fetching instances with HTTP GET requests.
+  Require: requests
 
-  Including documentation, this plugin is only 72 lines of Python
-  code.  Compare that to the more than 2800 codelines for the JSON
-  plugin implemented in C.
+- **minio**: Plugin for storing/retrieving instances from high-performance
+  MinIO and Amazon S3 object storages.
+  Require: minio
+
+- **mongodb**: Plugin for storing/retrieving instances from a MongoDB database.
+  Require: pymongo
+
+- **postgresql**: A generic PostgreSQL plugin.  See below for how to enable the
+  tests.
+  Require: psycopg2
+
+- **pyrdf**: Plugin for serialising to/deserialising from RDF using rdflib.
+  Require: rdflib
+
+- **redis**: Plugin for storing/retrieving instances from a Redis database.
+  Require: redis
+
+- **template**: Plugin for serialising instances using a template.
+
+- **yaml**: Plugin for serialising/deserialising YAML.  This is very similar to
+  the built-in json plugin implemented in C, except that it uses YAML
+  instead of JSON.  Require: PyYAML
+
+
+Specialised plugins
+-------------------
+Specialised plugins supports storing/retrieving instances of a specific data model.
+
+- **blob**: Plugin for storing blob (binary large object) instances described by
+  the http://onto-ns.com/meta/0.1/Blob data model.
+
+- **image**: Plugin for loading/saving images to/from instances of the
+  http://onto-ns.com/meta/0.1/Image data model.  It supports additional operations
+  like resizing, cropping, equalising the histogram, etc. when loading and/or saving
+  an image.  Require: Scikit Image (skimage)
+
 
 Enabling the postgresql storage tests
 -------------------------------------
