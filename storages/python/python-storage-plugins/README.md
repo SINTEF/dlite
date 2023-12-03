@@ -51,7 +51,7 @@ Specialised plugins supports storing/retrieving instances of a specific data mod
 - **image**: Plugin for loading/saving images to/from instances of the
   http://onto-ns.com/meta/0.1/Image data model.  It supports additional operations
   like resizing, cropping, equalising the histogram, etc. when loading and/or saving
-  an image.  Require: Scikit Image (skimage)
+  an image.  Require: scikit-image
 
 
 Enabling the postgresql storage tests
