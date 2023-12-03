@@ -279,8 +279,10 @@ assert not callable(inst)
 
 # Metadata schema
 schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
-schema.save(f"{outdir}/entity_schema.json?mode=w;arrays=false")
-schema.meta.save(f"{outdir}/basic_metadata_schema.json?mode=w;arrays=false")
+schema.save(f"json://{outdir}/entity_schema.json?mode=w;arrays=false")
+schema.meta.save(
+    f"json://{outdir}/basic_metadata_schema.json?mode=w;arrays=false"
+)
 
 mm = dlite.Instance.from_url(f"json://{outdir}/entity_schema.json")
 assert mm.uri == dlite.ENTITY_SCHEMA
