@@ -369,9 +369,9 @@ static DLiteStoragePlugin dlite_json_plugin = {
 
 
 DSL_EXPORT const DLiteStoragePlugin *
-get_dlite_storage_plugin_api(void *state, int *iter)
+get_dlite_storage_plugin_api(void *globals, int *iter)
 {
   UNUSED(iter);
-  dlite_globals_set(state);
+  dlite_globals_set(globals);
   return &dlite_json_plugin;
 }
