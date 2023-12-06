@@ -70,11 +70,12 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length);
 int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
                        int indent, DLiteJsonFlag flags)
 {
-  DLiteTypeFlag f = dliteFlagQuoted;
   int n=0, ok=0, m, j;
   size_t i;
   char *in = malloc(indent + 1);
   char *prop_comma = (inst->_parent && !(flags & dliteJsonNoParent)) ? "," : "";
+  DLiteTypeFlag f = dliteFlagQuoted;
+  if (flags & dliteJsonCompactRel) f |= dliteFlagCompactRel;
   memset(in, ' ', indent);
   in[indent] = '\0';
 

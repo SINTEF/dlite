@@ -3058,19 +3058,23 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
 {
   int N=0, m;
   size_t i;
+  int compact = (p->type != dliteRelation) || (flags & dliteFlagCompactRel);
+  char *start = (compact) ? "["  : "[\n        ";
+  char *sep   = (compact) ? ", " : ",\n        ";
+  char *end   = (compact) ? "]"  : "\n      ]";
   if (d < p->ndims) {
-    if ((m = snprintf(dest+N, PDIFF(n, N), "[")) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), start)) < 0) goto fail;
     N += m;
     for (i=0; i < dims[d]; i++) {
       if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, dims,
                         width, prec, flags)) < 0) return -1;
       N += m;
       if (i < dims[d]-1) {
-        if ((m = snprintf(dest+N, PDIFF(n, N), ", ")) < 0) goto fail;
+        if ((m = snprintf(dest+N, PDIFF(n, N), sep)) < 0) goto fail;
         N += m;
       }
     }
-    if ((m = snprintf(dest+N, PDIFF(n, N), "]")) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), end)) < 0) goto fail;
     N += m;
   } else {
     if ((m = dlite_type_print(dest+N, PDIFF(n, N), *pptr, p->type, p->size,
