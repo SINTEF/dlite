@@ -9,7 +9,7 @@ Generic plugins supports all types of DLite instances (including data
 instances, metadata, collections, etc).
 
 - **bson**: Plugin for BSON (binary JSON). Requires the pymongo package.
-  Require: bson
+  Requires: bson
 
 - **csv**: Plugin for CSV and Excel files.
   Require: pandas
@@ -34,7 +34,8 @@ instances, metadata, collections, etc).
 - **redis**: Plugin for storing/retrieving instances from a Redis database.
   Require: redis
 
-- **template**: Plugin for serialising instances using a template.
+- **template**: Plugin for serialising instances using a template. Both the
+  built-in [format specification mini-language] and [Jinja] are supported.
 
 - **yaml**: Plugin for serialising/deserialising YAML.  This is very similar to
   the built-in json plugin implemented in C, except that it uses YAML
@@ -70,3 +71,8 @@ Hence, to enable the postgresql storage tests, you should add the file
 
 Depending on how the server is set up, or if you have a ~/.pgpass
 file, PASSWORD can be left undefined.
+
+
+
+[format specification mini-language]: https://docs.python.org/3/library/string.html#formatspec
+[Jinja]: https://jinja.palletsprojects.com/en/3.1.x/
