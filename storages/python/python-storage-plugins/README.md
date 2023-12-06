@@ -39,7 +39,7 @@ instances, metadata, collections, etc).
 
 - **yaml**: Plugin for serialising/deserialising YAML.  This is very similar to
   the built-in json plugin implemented in C, except that it uses YAML
-  instead of JSON.  
+  instead of JSON.
   Requires: PyYAML
 
 
@@ -53,13 +53,13 @@ Specialised plugins supports storing/retrieving instances of a specific data mod
 - **image**: Plugin for loading/saving images to/from instances of the
   http://onto-ns.com/meta/0.1/Image data model.  It supports additional operations
   like resizing, cropping, equalising the histogram, etc. when loading and/or saving
-  an image.  
+  an image.
   Requires: scikit-image
 
 
 Enabling the postgresql storage tests
 -------------------------------------
-The test_postgresql_storage test require local configurations of the
+The test_postgresql_storage test requires local configurations of the
 PostgreSQL server.  The tests are only enabled if a file pgconf.h can
 be found in the [storage/python/tests](../tests) source directory.
 
