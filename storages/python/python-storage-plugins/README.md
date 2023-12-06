@@ -12,33 +12,34 @@ instances, metadata, collections, etc).
   Require: bson
 
 - **csv**: Plugin for CSV and Excel files.
-  Require: pandas
+  Requires: pandas
 
 - **http**: Plugin for fetching instances with HTTP GET requests.
-  Require: requests
+  Requires: requests
 
 - **minio**: Plugin for storing/retrieving instances from high-performance
   MinIO and Amazon S3 object storages.
-  Require: minio
+  Requires: minio
 
 - **mongodb**: Plugin for storing/retrieving instances from a MongoDB database.
-  Require: pymongo
+  Requires: pymongo
 
 - **postgresql**: A generic PostgreSQL plugin.  See below for how to enable the
   tests.
-  Require: psycopg2
+  Requires: psycopg2
 
 - **pyrdf**: Plugin for serialising to/deserialising from RDF using rdflib.
-  Require: rdflib
+  Requires: rdflib
 
 - **redis**: Plugin for storing/retrieving instances from a Redis database.
-  Require: redis
+  Requires: redis
 
 - **template**: Plugin for serialising instances using a template.
 
 - **yaml**: Plugin for serialising/deserialising YAML.  This is very similar to
   the built-in json plugin implemented in C, except that it uses YAML
-  instead of JSON.  Require: PyYAML
+  instead of JSON.  
+  Requires: PyYAML
 
 
 Specialised plugins
@@ -51,7 +52,8 @@ Specialised plugins supports storing/retrieving instances of a specific data mod
 - **image**: Plugin for loading/saving images to/from instances of the
   http://onto-ns.com/meta/0.1/Image data model.  It supports additional operations
   like resizing, cropping, equalising the histogram, etc. when loading and/or saving
-  an image.  Require: scikit-image
+  an image.  
+  Requires: scikit-image
 
 
 Enabling the postgresql storage tests
