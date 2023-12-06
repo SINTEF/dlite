@@ -35,7 +35,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2010"]
             arch: x86_64
-            py_minors: 7,9
+            py_minors: 7,10
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
