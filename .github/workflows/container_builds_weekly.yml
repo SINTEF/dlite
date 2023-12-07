@@ -78,7 +78,8 @@ jobs:
 
       - name: Check 'latest' parent image SHA
         run: |
-          IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
+          if [ "${{ matrix.template }}" != "manylinux_x_y" ]; then TAG=":latest"; fi
+          IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}$TAG
           SHA_FILENAME=${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt
           docker pull ${IMAGE}
           docker images --no-trunc --quiet ${IMAGE} > ${SHA_FILENAME}
