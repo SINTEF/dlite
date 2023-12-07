@@ -55,8 +55,11 @@ RUN if [ "{{ TYPE }}{{ ARCH }}" != "2014i686" ]; then yum install -y hdf5-devel;
 # exist here.
 RUN  cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-# Change required version of pydantic to be <2
-  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt
+# Change required version of pydantic to be <2 and remove psycopg
+  sed -e 's/^\(pydantic>.*<\).*$/\12/' \
+      -e '/^psycopg/d' \
+      -i /tmp/requirements_full.txt
+
 # Install required Python packages
 RUN mkdir -p /ci/pip_cache && \
   if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then export PATH="$PATH:/usr/pgsql-9.1/bin"; fi && \
