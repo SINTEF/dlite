@@ -76,7 +76,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
           architecture: ${{ matrix.arch == '' && 'x86' || 'x64' }}
