@@ -88,15 +88,18 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(NULL, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);
 
-  
+
   /* More tests for issue #543 */
-  m = dlite_json_sprint(NULL, 0, coll, 0, 0);
+  m = dlite_json_sprint(NULL, 0, coll, 0, dliteJsonCompactRel);
+  mu_assert_int_eq(406, m);
+
+  m = dlite_json_sprint(buf, sizeof(buf), coll, 0, dliteJsonCompactRel);
   mu_assert_int_eq(406, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), coll, 0, 0);
-  mu_assert_int_eq(406, m);
+  mu_assert_int_eq(446, m);
 
-  
+
   /* Tests for proper quoting */
   DLiteCollection *coll = dlite_collection_create(NULL);
   dlite_collection_add_relation(coll, "s", "p", "\"o\"");

@@ -13,6 +13,7 @@ except ModuleNotFoundError:
 
 
 thisdir = os.path.abspath(os.path.dirname(__file__))
+outdir = f"{thisdir}/output"
 
 url = "json://" + thisdir + "/MyEntity.json"
 
@@ -35,7 +36,7 @@ inst = myentity(dimensions=[2, 3], id="my-data")
 inst["a-bool-array"] = True, False
 
 # Test Storage.save()
-with dlite.Storage("json", "tmp.json", "mode=w") as s:
+with dlite.Storage("json", f"{outdir}/tmp.json", "mode=w") as s:
     s.save(inst)
 
 # Test query
@@ -43,18 +44,18 @@ with dlite.Storage("json", "tmp.json", "mode=w") as s:
 
 # Test json
 print("--- testing json")
-myentity.save("json://myentity.json?mode=w")
-inst.save("json://inst.json?mode=w")
+myentity.save(f"json://{outdir}/myentity.json?mode=w")
+inst.save(f"json://{outdir}/inst.json?mode=w")
 del inst
-inst = dlite.Instance.from_url(f"json://{thisdir}/inst.json#my-data")
+inst = dlite.Instance.from_url(f"json://{outdir}/inst.json#my-data")
 
 
 # Test yaml
 if HAVE_YAML:
     print('--- testing yaml')
-    inst.save('yaml://inst.yaml?mode=w')
+    inst.save(f"yaml://{outdir}/inst.yaml?mode=w")
     del inst
-    inst = dlite.Instance.from_url("yaml://inst.yaml#my-data")
+    inst = dlite.Instance.from_url(f"yaml://{outdir}/inst.yaml#my-data")
 
     # test help()
     expected = """\
@@ -73,7 +74,7 @@ Opens `location`.
             - `single`: Whether the input is assumed to be in single-entity form.
                 If "auto" (default) the form will be inferred automatically.
 """
-    s = dlite.Storage("yaml", "inst.yaml", options="mode=a")
+    s = dlite.Storage("yaml", f"{outdir}/inst.yaml", options="mode=a")
     assert s.help().strip() == expected.strip()
 
     # Test delete()
