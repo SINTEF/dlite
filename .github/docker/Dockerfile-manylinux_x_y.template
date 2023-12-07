@@ -53,9 +53,14 @@ RUN dnf localinstall -y --skip-broken \
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
 RUN  cd /opt/_internal && \
-  tar -Jxvf static-libs-for-embedding-only.tar.xz
+    tar -Jxvf static-libs-for-embedding-only.tar.xz
+
 # Change required version of pydantic to be <2
 #RUN  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt
+
+# Remove psycopg from requirements
+RUN  sed '/^psycopg/d' -i /tmp/requirements_full.txt
+
 # Install required Python packages
 RUN mkdir -p /ci/pip_cache && \
     if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then export PATH="$PATH:/usr/pgsql-9.1/bin"; fi
