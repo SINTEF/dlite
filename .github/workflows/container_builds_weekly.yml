@@ -35,7 +35,7 @@ jobs:
           py_minors: "7 8 9 10 11"
         - system: "manylinux"
           template: "manylinux_x_y"
-          type: "_2_38"
+          type: "_2_28"
           arch: "x86_64"
           py_minors: "7 8 9 10 11 12"
         - system: "musllinux"
@@ -78,8 +78,7 @@ jobs:
 
       - name: Check 'latest' parent image SHA
         run: |
-          if [ "${{ matrix.template }}" != "manylinux_x_y" ]; then TAG=":latest"; fi
-          IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}$TAG
+          IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
           SHA_FILENAME=${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt
           docker pull ${IMAGE}
           docker images --no-trunc --quiet ${IMAGE} > ${SHA_FILENAME}
