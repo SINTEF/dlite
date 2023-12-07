@@ -865,5 +865,8 @@ if(NOT TARGET uninstall)
     IMMEDIATE @ONLY)
 
   add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/uninstall.cmake)
+    COMMAND ${CMAKE_COMMAND}
+      -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+      -P ${CMAKE_CURRENT_BINARY_DIR}/uninstall.cmake
+    )
 endif()
