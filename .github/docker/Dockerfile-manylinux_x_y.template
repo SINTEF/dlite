@@ -53,13 +53,14 @@ RUN dnf localinstall -y --skip-broken \
 # It's necessary to be in /opt/_internal because the internal libraries
 # exist here.
 RUN  cd /opt/_internal && \
-  tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  tar -Jxvf static-libs-for-embedding-only.tar.xz
 # Change required version of pydantic to be <2
-#  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt
+#RUN  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt
 # Install required Python packages
 RUN mkdir -p /ci/pip_cache && \
-  if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then export PATH="$PATH:/usr/pgsql-9.1/bin"; fi && \
-  for minor in ${PY_MINORS}; do \
+    if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then export PATH="$PATH:/usr/pgsql-9.1/bin"; fi
+
+RUN for minor in ${PY_MINORS}; do \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
