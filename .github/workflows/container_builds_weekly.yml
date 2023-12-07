@@ -35,7 +35,7 @@ jobs:
           py_minors: "7 8 9 10 11"
         - system: "manylinux"
           template: "manylinux_x_y"
-          type: "2_38"
+          type: "_2_38"
           arch: "x86_64"
           py_minors: "7 8 9 10 11 12"
         - system: "musllinux"
