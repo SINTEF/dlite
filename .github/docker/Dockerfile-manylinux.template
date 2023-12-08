@@ -55,7 +55,7 @@ RUN if [ "{{ TYPE }}{{ ARCH }}" != "2014i686" ]; then yum install -y hdf5-devel;
 # exist here.
 RUN  cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-# Change required version of pydantic to be <2 and remove psycopg
+# Change required version of pydantic to be <2 and remove challenging packages
   sed -e 's/^\(pydantic>.*<\).*$/\12/' \
       -e '/^psycopg/d' \
       -e '/^matplotlib/d' \
