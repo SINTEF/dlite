@@ -594,6 +594,47 @@
    fun:_PyEval_EvalFrameDefault
 }
 
+{
+   Ignore conditional jump depends on uninitialised variable
+   Memcheck:Cond
+   fun:__wcsncpy_avx2
+   ...
+   fun:_PyPathConfig_Calculate
+   ...
+   fun:_PyPathConfig_Init
+   ...
+   fun:_PyCoreConfig_Read
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   Invalid read in main (py39)
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   fun:_PyPathConfig_Calculate
+   fun:_PyPathConfig_Init
+   fun:_PyCoreConfig_Read
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   Invalid read in main (py311)
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   ...
+   fun:_PyObject_MakeTpCall
+   fun:_PyEval_EvalFrameDefault
+   ...
+   fun:PyEval_EvalCode
+   ...
+   fun:Py_InitializeFromConfig
+   ...
+   fun:Py_BytesMain
+}
+
+
 # ------------------------------------
 # Python plugins
 # ------------------------------------
@@ -965,7 +1006,6 @@
    ...
    fun:dlite_pyembed_get_instance
 }
-
 
 
 # ------------------------------------------

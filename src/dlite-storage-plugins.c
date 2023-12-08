@@ -160,6 +160,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       r = asnpprintf(&buf, &size, m, "   - %s\n", p);
       if (r >= 0) m += r;
     }
+    fu_endmatch(iter);
 
     if ((failed_paths = dlite_python_storage_failed_paths())) {
       r = asnpprintf(&buf, &size, m,
@@ -178,7 +179,6 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       }
     }
 
-#endif
     if (n <= 1)
       m += asnpprintf(&buf, &size, m,
                       "   Are the required Python packages installed or %s\n"
@@ -186,7 +186,9 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
                       "DLITE_PYTHON_STORAGE_PLUGIN_DIRS\n"
                       "   environment variables set?", submsg);
     errx(1, "%s", buf);
+#endif
     free(buf);
+
   }
   return NULL;
 }
