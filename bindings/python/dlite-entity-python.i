@@ -85,7 +85,7 @@ class Metadata(Instance):
     props = property(
         fget=lambda self: {p.name: p for p in self.properties["properties"]},
         doc="A dict mapping property name to the `Property` object for the "
-        "described instance.",
+        "described metadata.",
     )
 
     def getprop(self, name):
