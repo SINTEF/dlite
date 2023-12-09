@@ -119,6 +119,8 @@ MU_TEST(test_load)
   mu_assert_string_eq(json_str2, bson_str2);
   free(json_str1);
   free(json_str2);
+  free(bson_str1);
+  free(bson_str2);
 
   stat = dlite_storage_close(s);
   mu_assert_int_eq(0, stat);

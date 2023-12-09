@@ -114,7 +114,8 @@ static void finalize_check()
 {
   Globals *g = get_globals();
   if (g->finalize_pending && g->nmodels == 0 && g->default_world) {
-    if (!dlite_globals_in_atexit()) librdf_free_world(g->default_world);
+    if (!dlite_globals_in_atexit() || getenv("DLITE_ATEXIT_FREE"))
+      librdf_free_world(g->default_world);
     g->default_world = NULL;
     g->finalize_pending = 0;
   }
