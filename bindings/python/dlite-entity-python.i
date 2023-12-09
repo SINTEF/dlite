@@ -168,6 +168,18 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         inst.__class__ = Collection
     return inst
 
+
+class _QuantityProperty:
+    """A help class for providing access to properties as Pint quantites."""
+    def __init__(self, inst):
+        self._inst = inst
+
+    def __getattr__(self, name):
+        return self._inst.get_property(name, as_quantity=True)
+
+    def __getitem__(self, name):
+        return self._inst.get_property(name, as_quantity=True)
+
 %}
 
 
@@ -291,7 +303,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 /* --------
  * Instance
  * -------- */
-
 %extend _DLiteInstance {
 
   int __len__(void) {
@@ -371,6 +382,65 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     is_meta = property(_is_meta, doc='Whether this is a metadata instance.')
     is_metameta = property(_is_metameta,
                            doc='Whether this is a meta-metadata instance.')
+    q = property(lambda self: _QuantityProperty(self),
+                 doc='Provide property access as pint Quantity.')
+
+    def set_property(self, name, value, unit=None):
+        """Set the value of property `name`.
+
+        If you have pint installed, you can use the `unit` argument to
+        specify the unit of `value` (which should be convertable to the
+        unit of the property).  Alternatively, you can provide `value`
+        as a `pint.Quantity`.
+        """
+        propunit = self.get_property_descr(name).unit
+        if unit and not propunit:
+            raise DLiteTypeError(
+                f"cannot set dimensionless property '{name}' with a unit"
+            )
+        if propunit and unit and unit != propunit:
+            try:
+                import pint
+            except ModuleNotFoundError as exc:
+                raise DLiteUnsupportedError(
+                    f"Cannot set property '{name}' with specified unit. "
+                    "Please install pint."
+                ) from exc
+            else:
+                value = pint.Quantity(value, unit)
+        if hasattr(value, "m_as"):
+            value = value.to(propunit).m
+        _set_property(self, name, value)
+
+    def get_property(self, name, unit=None, as_quantity=False):
+        """Returns the value of property `name`.
+
+        If you have pint installed, you can use the `unit` argument to
+        specify the unit to return `value` in (which should be
+        convertable to the unit of the property).  If `as_quantity` is
+        true, `value` will be returned as a `pint.Quantity`.
+        """
+        propunit = self.get_property_descr(name).unit
+        if unit and not propunit:
+            raise DLiteTypeError(
+                f"cannot get dimensionless property '{name}' with a unit"
+            )
+        value = _get_property(self, name)
+        if (propunit and unit and unit != propunit) or as_quantity:
+            try:
+                import pint
+            except ModuleNotFoundError as exc:
+                raise DLiteUnsupportedError(
+                    f"Cannot get property '{name}' with specified unit. "
+                    "Please install pint."
+                ) from exc
+            else:
+                value = pint.Quantity(value, propunit if propunit else "")
+                if unit:
+                    value.to(unit)
+                if not as_quantity:
+                    value = value.m
+        return value
 
     @classmethod
     def from_metaid(cls, metaid, dims, id=None):
@@ -575,7 +645,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if isinstance(ind, int):
             value = self.get_property_by_index(ind)
         elif self.has_property(ind):
-            value = self.get_property(ind)
+            value = _get_property(self, ind)
         elif isinstance(ind, int):
             raise IndexError('instance property index out of range: %d' % ind)
         else:
@@ -623,7 +693,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             raise _dlite.DLiteError(
                 'frozen instance does not support attribute assignment')
         elif _has_property(self, name):
-            _set_property(self, name, value)
+            self.set_property(name, value)
         else:
             object.__setattr__(self, name, value)
 
@@ -670,7 +740,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             None,
             iterfun(self),
         )
-
 
     def asdict(self, soft7=True, uuid=True, single=True):
         """Returns a dict representation of self.

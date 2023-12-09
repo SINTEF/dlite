@@ -334,3 +334,20 @@ PersonOld = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonOld")
 PersonNew = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonNew")
 assert PersonOld.props == PersonNew.props
 assert PersonOld.dimnames() == PersonNew.dimnames()
+
+
+# For issue #743
+Item = dlite.get_instance("http://onto-ns.com/meta/0.1/Item")
+item = Item(dimensions={"nf": 3}, properties={"name": "A", "f": [1, 2, 3]})
+try:
+    import pint
+except ModuleNotFoundError:
+    pass
+else:
+    item.f = pint.Quantity([0.1, 0.2, 0.3], "kHz")
+    assert item.f.tolist() == [100., 200., 300.]
+
+    item.set_property("f", [0, 3600, 3.6], "hour**-1")
+    assert item.f.tolist() == [0., 1., 0.001]
+    assert item.q.f.m.tolist() == [0., 1., 0.001]
+    assert item.q.f.to("1/hour").m.tolist() == [0, 3600, 3.6]
