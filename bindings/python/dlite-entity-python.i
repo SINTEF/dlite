@@ -180,6 +180,14 @@ class _QuantityProperty:
     def __getitem__(self, name):
         return self._inst.get_property(name, as_quantity=True)
 
+    def __setattr__(self, name, value):
+        raise DLiteUnsupportedError(
+            "Property assignment is not supported with _QuantityProperty. "
+            "Please assign directly to the instance."
+        )
+
+    def __setitem__(self, name, value):
+        self.__setattr__(name, value)
 %}
 
 
