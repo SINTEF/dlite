@@ -1,5 +1,9 @@
 # -*- Mode: Dockerfile -*-
-# Dockerfile for testing with ubuntu
+# Dockerfile for test building with minimal requirements on Ubuntu.
+#
+# This file was added for reproducing DLite issue #711.  It is
+# currently not used by the test system, but it is kept here for easy
+# checking future Ubuntu-related build issues.
 #
 # Build:
 #
