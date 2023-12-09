@@ -97,7 +97,7 @@ class Metadata(Instance):
         lst = [p for p in self.properties["properties"] if p.name == name]
         if lst:
             return lst[0]
-        raise _dlite.DLiteError(
+        raise _dlite.DLiteKeyError(
             f"Metadata {self.uri} has no such property: {name}")
 
     def dimnames(self):
@@ -161,7 +161,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         inst = _dlite.get_instance(id, metaid, check_storages)
 
     if inst is None:
-        raise _dlite.DLiteError(f"no such instance: {id}")
+        raise _dlite.DLiteMissingInstanceError(f"no such instance: {id}")
     elif inst.is_meta:
         inst.__class__ = Metadata
     elif inst.meta.uri == COLLECTION_ENTITY:
@@ -172,7 +172,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 class _QuantityProperty:
     """A help class for providing access to properties as Pint quantites."""
     def __init__(self, inst):
-        self._inst = inst
+        object.__setattr__(self, "_inst", inst)
 
     def __getattr__(self, name):
         return self._inst.get_property(name, as_quantity=True)
@@ -181,9 +181,9 @@ class _QuantityProperty:
         return self._inst.get_property(name, as_quantity=True)
 
     def __setattr__(self, name, value):
-        raise DLiteUnsupportedError(
-            "Property assignment is not supported with _QuantityProperty. "
-            "Please assign directly to the instance."
+        raise _dlite.DLiteUnsupportedError(
+            f"Assignment of proprety '{name}' is not supported with "
+            "_QuantityProperty. Please assign directly to the instance."
         )
 
     def __setitem__(self, name, value):
@@ -401,16 +401,21 @@ class _QuantityProperty:
         unit of the property).  Alternatively, you can provide `value`
         as a `pint.Quantity`.
         """
+        if self.is_frozen():
+            raise _dlite.DLiteUnsupportedError(
+                'frozen instance does not support assignment of property '
+                f'{name}'
+            )
         propunit = self.get_property_descr(name).unit
         if unit and not propunit:
-            raise DLiteTypeError(
+            raise _dlite.DLiteTypeError(
                 f"cannot set dimensionless property '{name}' with a unit"
             )
         if propunit and unit and unit != propunit:
             try:
                 import pint
             except ModuleNotFoundError as exc:
-                raise DLiteUnsupportedError(
+                raise _dlite.DLiteUnsupportedError(
                     f"Cannot set property '{name}' with specified unit. "
                     "Please install pint."
                 ) from exc
@@ -430,7 +435,7 @@ class _QuantityProperty:
         """
         propunit = self.get_property_descr(name).unit
         if unit and not propunit:
-            raise DLiteTypeError(
+            raise _dlite.DLiteTypeError(
                 f"cannot get dimensionless property '{name}' with a unit"
             )
         value = _get_property(self, name)
@@ -438,7 +443,7 @@ class _QuantityProperty:
             try:
                 import pint
             except ModuleNotFoundError as exc:
-                raise DLiteUnsupportedError(
+                raise _dlite.DLiteUnsupportedError(
                     f"Cannot get property '{name}' with specified unit. "
                     "Please install pint."
                 ) from exc
@@ -647,7 +652,9 @@ class _QuantityProperty:
         elif isinstance(dest, str):
             self.save_to_url(dest)
         else:
-            raise _dlite.DLiteError('Arguments do not match any call signature')
+            raise _dlite.DLiteTypeError(
+                'Arguments to save() do not match any of the call signatures'
+            )
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
@@ -655,25 +662,30 @@ class _QuantityProperty:
         elif self.has_property(ind):
             value = _get_property(self, ind)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
 
     def __setitem__(self, ind, value):
         if self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support item assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f'frozen instance does not support assignment of property '
+                f'{ind}')
         if isinstance(ind, int):
             self.set_property_by_index(ind, value)
         elif self.has_property(ind):
             self.set_property(ind, value)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
 
     def __contains__(self, item):
         return item in self.properties.keys()
@@ -689,7 +701,9 @@ class _QuantityProperty:
         elif self.has_dimension(name):
             value = self.get_dimension_size(name)
         else:
-            raise AttributeError('Instance object has no attribute %r' % name)
+            raise _dlite.DLiteAttributeError(
+                'Instance object has no attribute %r' % name
+            )
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
@@ -698,8 +712,10 @@ class _QuantityProperty:
         if name == 'this':
             object.__setattr__(self, name, value)
         elif self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support attribute assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f"frozen instance does not support assignment of property "
+                f"'{name}'"
+            )
         elif _has_property(self, name):
             self.set_property(name, value)
         else:

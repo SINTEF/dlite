@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import dlite
+from dlite.testutils import raises
 
 
 # Configure paths
@@ -40,19 +41,12 @@ assert person.get_snapshot(2).is_frozen() == True
 
 frozen = person.get_snapshot(1)
 assert frozen.is_frozen() == True
-try:
-    frozen.age = 77
-except dlite.DLiteError as exc:
-    assert str(exc) == "frozen instance does not support attribute assignment"
-else:
-    raise Exception("frozen instance should not accept attribute assignment")
 
-try:
+with raises(dlite.DLiteUnsupportedError):
+    frozen.age = 77
+
+with raises(ValueError):
     frozen.skills[0] = "skiing"
-except ValueError:
-    pass
-else:
-    raise Exception("frozen property array should not accept assignment")
 
 # Create branch
 inst = person.copy()
