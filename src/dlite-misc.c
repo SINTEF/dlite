@@ -13,6 +13,7 @@
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
 #include "utils/session.h"
+#include "utils/rng.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -556,6 +557,10 @@ void dlite_init(void)
 
     /* Call get_locals() to ensure that the local state is initialised. */
     get_locals();
+
+    /* Seed random number generator */
+    srand_msws32(0);
+    srand_msws64(0);
 
     /* Set up global state for utils/err.c */
     if (!dlite_globals_get_state(ERR_STATE_ID))
