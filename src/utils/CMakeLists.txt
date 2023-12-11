@@ -93,6 +93,13 @@ check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
 check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
 
+
+# -- typedefs
+include(CheckTypeSize)
+list(APPEND CMAKE_EXTRA_INCLUDE_FILES time.h)
+check_type_size(clock_t                  HAVE_CLOCK_T)
+list(POP_BACK CMAKE_EXTRA_INCLUDE_FILES)
+
 set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS_saved})
 
 
@@ -218,8 +225,6 @@ configure_file(boolean.h.in boolean.h)
 
 # Generate integers.h
 # -------------------
-include(CheckTypeSize)
-
 check_type_size("long double"             HAVE_LONG_DOUBLE)
 check_type_size("long long int"           HAVE_LONG_LONG_INT)
 check_type_size("unsigned long long int"  HAVE_UNSIGNED_LONG_LONG_INT)

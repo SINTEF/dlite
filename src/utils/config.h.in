@@ -87,6 +87,8 @@
 // #cmakedefine HAVE___VA_COPY
 
 /* Whether types exists */
+#cmakedefine HAVE_CLOCK_T
+
 #cmakedefine HAVE_LONG_DOUBLE
 #cmakedefine HAVE_LONG_LONG_INT
 #cmakedefine HAVE_UNSIGNED_LONG_LONG_INT

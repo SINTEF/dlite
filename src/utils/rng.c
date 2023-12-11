@@ -9,11 +9,11 @@
 #include <string.h>
 #include <stdio.h>
 
-#if defined HAVE_BCryptGenRandom
+#if defined(HAVE_BCryptGenRandom)
 # include <bcrypt.h>
-#elif defined HAVE_GetSystemTime
+#elif defined(HAVE_GetSystemTime)
 # include <windows.h>
-#elif defined HAVE_CLOCK
+#elif defined(HAVE_CLOCK) && defined(HAVE_CLOCK_T)
 # include <time.h>
 #endif
 
@@ -65,6 +65,7 @@ int random_seed(void *buf, size_t size)
     FILE *fp = fopen("/dev/urandom", "rb");
     if (fp) {
       if (fread(buf, size, 1, fp) == 1) success = 1;
+      fclose(fp);
     }
   }
 
@@ -89,7 +90,7 @@ int random_seed(void *buf, size_t size)
   }
 #endif
 
-#ifdef HAVE_CLOCK
+#if defined(HAVE_CLOCK) && defined(HAVE_CLOCK_T)
   if (!success && sizeof(clock_t) >= sizeof(uint32_t)) {
     clock_t ticks = clock();
     random_bytes(buf, size, ticks);
