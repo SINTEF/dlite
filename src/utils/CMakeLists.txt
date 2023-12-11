@@ -20,6 +20,7 @@ check_include_file(inttypes.h   HAVE_INTTYPES_H)
 check_include_file(endian.h     HAVE_ENDIAN_H)
 check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
+check_include_file(time.h       HAVE_TIME_H)
 check_include_file(windows.h    HAVE_WINDOWS_H)
 
 # -- check for symbols
@@ -45,6 +46,7 @@ check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 check_symbol_exists(realpath            stdlib.h     HAVE_REALPATH)
 check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
 check_symbol_exists(exec                unistd.h     HAVE_EXEC)
+check_symbol_exists(clock               time.h       HAVE_CLOCK)
 check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
 
 if(HAVE_WINDOWS_H)
@@ -53,11 +55,16 @@ check_symbol_exists(GetFullPathName     windows.h    HAVE_GetFullPathName)
 check_symbol_exists(GetFileAttributesW  windows.h    HAVE_GetFileAttributesW)
 check_symbol_exists(GetFileAttributes   windows.h    HAVE_GetFileAttributes)
 endif()
+
 list(APPEND CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
 check_symbol_exists(PathFileExistsW     shlwapi.h    HAVE_PathFileExistsW)
 check_symbol_exists(PathFileExists      shlwapi.h    HAVE_PathFileExists)
 list(REMOVE_ITEM CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
+
 check_symbol_exists(CreateProcessA      processthreadsapi.h HAVE_CreateProcessA)
+check_symbol_exists(GetSystemTime       windows.h    HAVE_GetSystemTime)
+check_symbol_exists(BCryptGenRandom     bcrypt.h     HAVE_BCryptGenRandom)
+
 check_symbol_exists(mbstowcs            stdlib.h     HAVE_MBSTOWCS)
 check_symbol_exists(wcstombs            stdlib.h     HAVE_WCSTOMBS)
 check_symbol_exists(mbstowcs_s          stdlib.h     HAVE_MBSTOWCS_S)
@@ -286,6 +293,7 @@ set(sources
   jstore.c
   bson.c
   session.c
+  rng.c
 
   md5.c
   sha1.c

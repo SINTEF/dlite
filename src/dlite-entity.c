@@ -11,6 +11,7 @@
 #include "utils/strutils.h"
 #include "utils/infixcalc.h"
 #include "utils/sha3.h"
+#include "utils/rng.h"
 
 #include "getuuid.h"
 #include "dlite.h"
@@ -2209,21 +2210,20 @@ int dlite_instance_is_frozen(const DLiteInstance *inst)
 int dlite_instance_snapshot(DLiteInstance *inst)
 {
   DLiteInstance *snapshot=NULL;
-  int retval=1, i, c;
+  int retval=1, i;
   const char *id = (inst->uri) ? inst->uri : inst->uuid;
   int len = strcspn(id, "#");
   char *uri = NULL;
   char sid[SID_LEN+1];
+  char randchars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   if (dlite_instance_is_frozen(inst))
     FAIL1("cannot snapshot an immutable instance: %s", id);
 
-  /* Create a random snapshot id of graphical ASCII characters. */
+  /* Create a random snapshot id of alphanumerical characters. */
   for (i=0; i<SID_LEN; i++) {
-    do {
-      c = (rand() % (128 - 32)) + 32;  // below c=32 is not printable
-    } while (!isgraph(c) || strchr(" \"'", c));
-    sid[i] = c;
+    uint32_t n = rand_msws32() % (sizeof(randchars)-1);
+    sid[i] = randchars[n];
   }
   sid[SID_LEN] = '\0';
   if (asprintf(&uri, "%.*s#snapshot-%s", len, id, sid) < 0)
