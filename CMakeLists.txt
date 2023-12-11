@@ -433,7 +433,11 @@ if(CPPCHECK)
       ${dlite_SOURCE_DIR}/tools
       ${dlite_SOURCE_DIR}/bindings
       ${dlite_SOURCE_DIR}/examples
-      ${dlite_BINARY_DIR}
+      ${dlite_BINARY_DIR}/src
+      ${dlite_BINARY_DIR}/storates
+      ${dlite_BINARY_DIR}/tools
+      ${dlite_BINARY_DIR}/bindings
+      #${dlite_BINARY_DIR}/examples
     )
 endif()
 
