@@ -4,7 +4,9 @@
  *
  * Distributed under terms of the MIT license.
  */
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include <string.h>
 #include <stdio.h>
@@ -17,8 +19,8 @@
 # include <time.h>
 #endif
 
-#include "err.h"
 #include "rng.h"
+
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -90,7 +92,7 @@ int random_seed(void *buf, size_t size)
   }
 #endif
 
-#if defined(HAVE_CLOCK) && defined(HAVE_CLOCK_T)
+#if defined(HAVE_CLOCK) && defined(HAVE_CLOCK_T) && !defined(_WIN32)
   if (!success && sizeof(clock_t) >= sizeof(uint32_t)) {
     clock_t ticks = clock();
     random_bytes(buf, size, ticks);
@@ -100,10 +102,8 @@ int random_seed(void *buf, size_t size)
 
 #endif /* RNG_ONLY_HIGH_QUALITY_SEED */
 
-  if (success) return 0;
-  return err(-1, "cannot generate random seed");
+  return (success) ? 0 : 1;
 }
-
 
 
 
@@ -114,11 +114,12 @@ int random_seed(void *buf, size_t size)
 static uint32_t mwc_upper = 362436069, mwc_lower = 521288629;
 
 
-void srand_mwc(uint32_t seed)
+int srand_mwc(uint32_t seed)
 {
-  if (seed == 0) random_seed(&seed, sizeof(seed));
+  if (seed == 0) return random_seed(&seed, sizeof(seed));
   mwc_lower = seed | 521288629;   /* Can't seed with 0 */
   mwc_upper = seed | 362436069;
+  return 0;
 }
 
 uint32_t rand_mwc(void)
@@ -129,11 +130,12 @@ uint32_t rand_mwc(void)
 }
 
 
-void srand_mwc_r(MWCState *state, uint32_t seed)
+int srand_mwc_r(MWCState *state, uint32_t seed)
 {
-  if (seed == 0) random_seed(&seed, sizeof(seed));
+  if (seed == 0) return random_seed(&seed, sizeof(seed));
   state->mwc_lower = seed | 521288629;   /* Can't seed with 0 */
   state->mwc_upper = seed | 362436069;
+  return 0;
 }
 
 uint32_t rand_mwc_r(MWCState *state)
@@ -213,10 +215,11 @@ double drand_msws32_r(MSWS32State *s)
   return rand_msws32_r(s) / 4294967296.;
 }
 
-void srand_msws32_r(MSWS32State *s, uint64_t seed)
+int srand_msws32_r(MSWS32State *s, uint64_t seed)
 {
-  if (seed == 0) random_seed(&seed, sizeof(seed));
+  if (seed == 0) return random_seed(&seed, sizeof(seed));
   s->x = s->w = s->s = rand_digits(seed);
+  return 0;
 }
 
 
@@ -237,17 +240,19 @@ double drand_msws64_r(MSWS64State *s)
   return (rand_msws64_r(s)>>11) / 9007199254740992.;
 }
 
-void srand_msws64_r(MSWS64State *s, uint64_t seed)
+int srand_msws64_r(MSWS64State *s, uint64_t seed)
 {
+  int stat=0;
   if (seed == 0) {
-    random_seed(&seed, sizeof(seed));
+    stat |= random_seed(&seed, sizeof(seed));
     s->x1 = s->w1 = s->s1 = rand_digits(seed);
-    random_seed(&seed, sizeof(seed));
+    stat |= random_seed(&seed, sizeof(seed));
     s->x2 = s->w2 = s->s2 = rand_digits(seed);
   } else {
     s->x1 = s->w1 = s->s1 = rand_digits(seed);
     s->x2 = s->w2 = s->s2 = rand_digits(seed+2);
   }
+  return stat;
 }
 
 
@@ -266,9 +271,9 @@ double drand_msws32(void)
   return drand_msws32_r(&msws32state);
 }
 
-void srand_msws32(uint64_t seed)
+int srand_msws32(uint64_t seed)
 {
-  srand_msws32_r(&msws32state, seed);
+  return srand_msws32_r(&msws32state, seed);
 }
 
 uint64_t rand_msws64(void)
@@ -281,7 +286,7 @@ double drand_msws64(void)
   return drand_msws64_r(&msws64state);
 }
 
-void srand_msws64(uint64_t seed)
+int srand_msws64(uint64_t seed)
 {
-  srand_msws64_r(&msws64state, seed);
+  return srand_msws64_r(&msws64state, seed);
 }

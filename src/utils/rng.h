@@ -65,7 +65,7 @@ uint32_t rand_mwc();
 
 /** Seed the rand_mws() RNG.
     If `seed` is zero, it is seeded with random_seed(). */
-void srand_mwc(uint32_t seed);
+int srand_mwc(uint32_t seed);
 
 
 /** Reentrant version of rand_mwc().
@@ -74,7 +74,7 @@ uint32_t rand_mwc_r(MWCState *state);
 
 /** Reentrant version of srand_mwc().
     If `seed` is zero, it is seeded with random_seed(). */
-void srand_mwc_r(MWCState *state, uint32_t seed);
+int srand_mwc_r(MWCState *state, uint32_t seed);
 
 
 
@@ -98,7 +98,7 @@ double drand_msws32(void);
 
 /** Seed the rand_msws32() RNG.
     If `seed` is zero, it is seeded with random_seed(). */
-void srand_msws32(uint64_t seed);
+int srand_msws32(uint64_t seed);
 
 
 /** Reentrant version of rand_msws32(). Should always be seeded before use. */
@@ -109,7 +109,7 @@ double drand_msws32_r(MSWS32State *s);
 
 /** Reentrant version of srand_msws32()
     If `seed` is zero, it is seeded with random_seed(). */
-void srand_msws32_r(MSWS32State *s, uint64_t seed);
+int srand_msws32_r(MSWS32State *s, uint64_t seed);
 
 
 
@@ -126,7 +126,7 @@ double drand_msws64(void);
 
 /** Seed the rand_msws64() RNG.
     If `seed` is zero, it is seeded with random_seed(). */
-void srand_msws64(uint64_t seed);
+int srand_msws64(uint64_t seed);
 
 
 /** Reentrant version of rand_msws64(). Should always be seeded before use. */
@@ -137,7 +137,7 @@ double drand_msws64_r(MSWS64State *s);
 
 /** Reentrant version of srand_msws64()
     If `seed` is zero, it is seeded with random_seed(). */
-void srand_msws64_r(MSWS64State *s, uint64_t seed);
+int srand_msws64_r(MSWS64State *s, uint64_t seed);
 
 /** @} */
 
