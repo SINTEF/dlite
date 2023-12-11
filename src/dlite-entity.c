@@ -2220,6 +2220,9 @@ int dlite_instance_snapshot(DLiteInstance *inst)
   if (dlite_instance_is_frozen(inst))
     FAIL1("cannot snapshot an immutable instance: %s", id);
 
+  /* Make sure that the random number generator is seeded */
+  dlite_init();
+
   /* Create a random snapshot id of alphanumerical characters. */
   for (i=0; i<SID_LEN; i++) {
     uint32_t n = rand_msws32() % (sizeof(randchars)-1);
