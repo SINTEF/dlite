@@ -424,10 +424,20 @@ find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
   add_test(
     NAME static-code-analysis
-    COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${CPPCHECK}
       --language=c -q --force --error-exitcode=2 --inline-suppr
       -i build -i python
       -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
+      ${dlite_SOURCE_DIR}/src
+      ${dlite_SOURCE_DIR}/storages
+      ${dlite_SOURCE_DIR}/tools
+      ${dlite_SOURCE_DIR}/bindings
+      ${dlite_SOURCE_DIR}/examples
+      ${dlite_BINARY_DIR}/src
+      ${dlite_BINARY_DIR}/storates
+      ${dlite_BINARY_DIR}/tools
+      ${dlite_BINARY_DIR}/bindings
+      #${dlite_BINARY_DIR}/examples
     )
 endif()
 
