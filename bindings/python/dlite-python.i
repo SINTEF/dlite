@@ -59,6 +59,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 %include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
 
 %init %{
+  dlite_init();     /* make sure that dlite is initialised */
   Py_Initialize();  /* should already be called, but just in case... */
   import_array();   /* Initialize numpy */
 %}
