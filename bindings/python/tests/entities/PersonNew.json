@@ -1,0 +1,23 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/PersonNew",
+  "description": "A person.",
+  "dimensions": {
+    "N": "Number of skills."
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Full name."
+    },
+    "age": {
+      "type": "float",
+      "unit": "years",
+      "description": "Age of person."
+    },
+    "skills": {
+      "type": "string",
+      "shape": ["N"],
+      "description": "List of skills."
+    }
+  }
+}
