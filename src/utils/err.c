@@ -641,10 +641,9 @@ int err_get_color_coded()
   if (tls->err_color_mode < 0) {
     char *mode = getenv("ERR_COLOR");
     tls->err_color_mode =
-      (!mode || !*mode)                 ? errColorAuto :
-      (strcmp(mode, "auto") == 0)       ? errColorAuto :
-      (strcmp(mode, "always") == 0)     ? errColorAlways :
-      (strcmp(mode, "never") == 0)      ? errColorNever :
+      (!mode || !*mode)                                      ? errColorAuto :
+      (strcmp(mode, "never") == 0 || strcmp(mode, "0") == 0) ? errColorNever :
+      (strcmp(mode, "always") == 0 || strcmp(mode,"1") == 0) ? errColorAlways :
       errColorAuto;
   }
 
