@@ -162,7 +162,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     if inst is None:
         raise _dlite.DLiteError(f"no such instance: {id}")
-    return convert_instance(inst)
+    return instance_cast(inst)
 
 %}
 
@@ -335,7 +335,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
             raise _dlite.DLitePythonError(f"cannot initiate dlite.Instance")
-        convert_instance(self)
+        instance_cast(self)
 
     def get_meta(self):
         """Returns reference to metadata."""
@@ -639,7 +639,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         will be the id of the new instance, otherwise it will be given
         a random UUID."""
         newinst = self._copy(newid=newid)
-        return convert_instance(newinst)
+        return instance_cast(newinst)
 
     def __reduce__(self):
         # ensures that instances can be pickled

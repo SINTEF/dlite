@@ -103,7 +103,7 @@
               # Delete reference to iterator object stored away in __init__()
               _dlite._storage_iters.pop(id(self.this), None)
               raise StopIteration()
-          return convert_instance(inst)
+          return instance_cast(inst)
   %}
 }
 

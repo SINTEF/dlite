@@ -336,9 +336,9 @@ assert PersonOld.props == PersonNew.props
 assert PersonOld.dimnames() == PersonNew.dimnames()
 
 
-# For issue #750 - test convert_instance()
+# For issue #750 - test instance_cast()
 with raises(dlite.DLiteTypeError):
-    dlite.convert_instance(inst, dlite.Metadata)
-castinst = dlite.convert_instance(inst.meta, dlite.Instance)
+    dlite.instance_cast(inst, dlite.Metadata)
+castinst = dlite.instance_cast(inst.meta, dlite.Instance)
 assert type(castinst) == dlite.Instance
-assert type(dlite.convert_instance(castinst)) == dlite.Metadata
+assert type(dlite.instance_cast(castinst)) == dlite.Metadata
