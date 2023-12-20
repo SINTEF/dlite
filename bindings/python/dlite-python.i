@@ -1378,20 +1378,21 @@ DLiteMappingBase = _dlite._get_mapping_base()
 del n, exc
 
 def convert_instance(inst, newtype=None):
-    """Return instance converted to another DLite type.
+    """Return instance converted to a new instance subclass.
 
-    By default the convertion is based on the metadata URI. Valid
-    types for explicit convertions are `dlite.Instance`, `dlite.Metadata`
-    and `dlite.Collection`.
+    By default the convertion is done to the type of the underlying
+    instance object.
 
-    Only downcasting is permitted unless `inst` is already of the new type.
+    Any subclass of `dlite.Instance` can be provided as `newtype`.
+    Only downcasting to subclasses of `inst` are permitted.  For
+    casting to other types, `dlite.DLiteTypeError` is raised.
     """
     if newtype:
         subclasses = getattr(newtype, "__subclasses__")
         if type(inst) in subclasses():
             inst.__class__ = newtype
         else:
-            raise _dlite.DLiteValueError(
+            raise _dlite.DLiteTypeError(
                 f"cannot upcast {type(inst)} to {newtype}"
             )
     elif inst.meta.uri == COLLECTION_ENTITY:
