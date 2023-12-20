@@ -1384,14 +1384,16 @@ def convert_instance(inst, newtype=None):
     types for explicit convertions are `dlite.Instance`, `dlite.Metadata`
     and `dlite.Collection`.
 
-    Only downcasting is permitted unless allowed by the metadata URI.
+    Only downcasting is permitted unless `inst` is already of the new type.
     """
     if newtype:
         subclasses = getattr(newtype, "__subclasses__")
         if type(inst) in subclasses():
             inst.__class__ = newtype
         else:
-            raise DLiteValueError(f"cannot upcast {type(inst)} to {newtype}")
+            raise _dlite.DLiteValueError(
+                f"cannot upcast {type(inst)} to {newtype}"
+            )
     elif inst.meta.uri == COLLECTION_ENTITY:
         inst.__class__ = Collection
     elif inst.is_meta:
