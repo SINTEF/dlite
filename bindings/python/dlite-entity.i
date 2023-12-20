@@ -291,9 +291,9 @@ struct _DLiteInstance {
       if (!(meta = dlite_meta_get(metaid)))
         return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
       if (n != meta->_ndimensions) {
-        dlite_meta_decref(meta);
         dlite_err(dliteValueError, "ndims=%d, but %s has %u dimension(s)",
                   ndims, metaid, (unsigned)meta->_ndimensions);
+        dlite_meta_decref(meta);
         return NULL;
       }
       d = malloc(n * sizeof(size_t));

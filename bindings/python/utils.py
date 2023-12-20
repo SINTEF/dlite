@@ -199,7 +199,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         inst = dlite.Instance.from_metaid(meta.uri, dims=dims, id=inst_id)
         for p in meta["properties"]:
             value = d["properties"][p.name]
-            inst[p.name] = value
+            inst.set_property(p.name, value)
 
     return inst
 
