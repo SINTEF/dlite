@@ -1,6 +1,12 @@
+import sys
 from pathlib import Path
 
 import dlite
+
+try:
+    import skimage
+except ImportError:
+    sys.exit(44)  # skip test
 
 
 thisdir = Path(__file__).absolute().parent
