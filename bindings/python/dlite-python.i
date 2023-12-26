@@ -997,7 +997,8 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
              !PyUnicode_Check(id) || !(sid = PyUnicode_AsUTF8(id))))
           msg = "If given, relation id must be a string";
         if (!msg)
-          triple_reset(ptr, ss, sp, so, sd, (id) ? sid : NULL);
+          triple_reset(ptr, ss, sp, so,
+                       (d) ? sd : NULL, (id) ? sid : NULL);
         Py_XDECREF(s);
         Py_XDECREF(p);
         Py_XDECREF(o);

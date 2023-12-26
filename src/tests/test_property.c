@@ -90,7 +90,7 @@ MU_TEST(test_print)
                       "\"dims\": [\"M\", \"N\"], \"unit\": \"m\", "
                       "\"description\": \"about x...\"}", s);
 
-  DLiteRelation rel = {"subject", "predicate", "object", "id"};
+  DLiteRelation rel = {"subject", "predicate", "object", "datatype", "id"};
   prop.type = dliteRelation;
   prop.size = sizeof(rel);
   m = dlite_property_aprint(&s, &size, n, &rel, &prop, NULL, 0, -2, 0);
