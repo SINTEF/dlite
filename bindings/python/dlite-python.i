@@ -931,33 +931,33 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       void *p;
       if (SWIG_IsOK(SWIG_ConvertPtr(obj, &p, SWIGTYPE_p__Triple, 0))) {
         DLiteRelation *src = (DLiteRelation *)p;
-        triple_reset(ptr, src->s, src->p, src->o, src->id);
+        triple_reset(ptr, src->s, src->p, src->o, src->d, src->id);
 
       } else if (PySequence_Check(obj) || PyIter_Check(obj)) {
         int i;
         Py_ssize_t n;
         PyObject *lst;
         char **s = ptr;  /* cast DLiteRelation to 4 string pointers */
-        assert(sizeof(DLiteRelation) == 4*sizeof(char *));
+        assert(sizeof(DLiteRelation) == 5*sizeof(char *));
 
-        /* Check that `obj` is a sequence of 3 or 4 strings */
+        /* Check that `obj` is a sequence of 3 to 5 strings */
         if (!(lst = PySequence_Fast(obj, "not a sequence or iterable")))
           FAIL("expected relation to be represented by a sequence or iterable");
 
-        if ((n = PySequence_Fast_GET_SIZE(lst)) < 3 || n > 4) {
+        if ((n = PySequence_Fast_GET_SIZE(lst)) < 3 || n > 5) {
           Py_DECREF(lst);
-          FAIL1("relations must be 3 or 4 strings, got %ld", (long)n);
+          FAIL1("relations must be 3 to 5 strings, got %ld", (long)n);
         }
         for (i=0; i<n; i++) {
           PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
           if (!PyUnicode_Check(item)) {
             Py_DECREF(lst);
-            FAIL("relation subject, predicate and object must be strings");
+            FAIL("relation s,p,o,d,id items must be strings");
           }
         }
 
         /* Free old values stored in the relation */
-        for (i=0; i<4; i++) if (s[i]) free(s[i]);
+        for (i=0; i<5; i++) if (s[i]) free(s[i]);
 
         /* Assign new values */
         for (i=0; i<n; i++) {
@@ -968,15 +968,18 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           s[i] = strdup(q);
         }
 
+        /* Assign datatype */
+        if (n < 4) s[3] = NULL;
+
         /* Assign id if not already provided */
-        if (n < 4)
-          s[3] = triple_get_id(NULL, s[0], s[1], s[2]);
+        if (n < 5)
+          s[4] = triple_get_id(NULL, s[0], s[1], s[2]);
         Py_DECREF(lst);
 
       } else if (PyMapping_Check(obj)) {
         char *msg=NULL;
-        PyObject *s=NULL, *p=NULL, *o=NULL, *id=NULL;
-        const char *ss, *sp, *so, *sid;
+        PyObject *s=NULL, *p=NULL, *o=NULL, *d=NULL, *id=NULL;
+        const char *ss, *sp, *so, *sd, *sid;
         if (!(s = PyMapping_GetItemString(obj, "s")) ||
             !(p = PyMapping_GetItemString(obj, "p")) ||
             !(o = PyMapping_GetItemString(obj, "o")))
@@ -985,15 +988,20 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
                       PyUnicode_Check(p) && (sp = PyUnicode_AsUTF8(p)) &&
                       PyUnicode_Check(o) && (so = PyUnicode_AsUTF8(o))))
           msg = "Relation 's', 'p', 'o' items must be strings";
+        if (!msg && PyMapping_HasKeyString(obj, "d") &&
+            (!(d = PyMapping_GetItemString(obj, "d")) ||
+             !PyUnicode_Check(d) || !(sd = PyUnicode_AsUTF8(d))))
+          msg = "If given, relation d (datatype) must be a string";
         if (!msg && PyMapping_HasKeyString(obj, "id") &&
             (!(id = PyMapping_GetItemString(obj, "id")) ||
              !PyUnicode_Check(id) || !(sid = PyUnicode_AsUTF8(id))))
           msg = "If given, relation id must be a string";
         if (!msg)
-          triple_reset(ptr, ss, sp, so, (id) ? sid : NULL);
+          triple_reset(ptr, ss, sp, so, sd, (id) ? sid : NULL);
         Py_XDECREF(s);
         Py_XDECREF(p);
         Py_XDECREF(o);
+        Py_XDECREF(d);
         Py_XDECREF(id);
         if (msg) FAIL1("%s", msg);
 

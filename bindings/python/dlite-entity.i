@@ -197,14 +197,16 @@ struct _Triple {
   char *s;     /*!< subject */
   char *p;     /*!< predicate */
   char *o;     /*!< object */
+  char *d;     /*!< datatype */
   char *id;    /*!< unique ID identifying this triple */
 };
 
 %extend _Triple {
-  _Triple(const char *s, const char *p, const char *o, const char *id=NULL) {
+  _Triple(const char *s, const char *p, const char *o,
+          const char *d=NULL, const char *id=NULL) {
     Triple *t;
     if (!(t =  calloc(1, sizeof(Triple)))) FAIL("allocation failure");
-    if (triple_set(t, s, p, o, id)) FAIL("cannot set relation");
+    if (triple_set(t, s, p, o, d, id)) FAIL("cannot set relation");
     return t;
   fail:
     if (t) {

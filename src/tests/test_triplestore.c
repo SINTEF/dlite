@@ -20,7 +20,7 @@ MU_TEST(test_triple)
 {
   Triple t;
   char *id;
-  triple_set(&t, "book", "is-a", "thing", NULL);
+  triple_set(&t, "book", "is-a", "thing", NULL, NULL);
   id = triple_get_id(NULL, t.s, t.p, t.o);
   mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", id);
   triple_clean(&t);
@@ -30,12 +30,12 @@ MU_TEST(test_triple)
 MU_TEST(test_add)
 {
   Triple t[] = {
-    {"book", "is-a", "thing", NULL},
-    {"table", "is-a", "thing", NULL},
-    {"book", "is-ontop-of", "table", NULL},
-    {"write", "is-a", "action", NULL},
-    {"walk", "is-a", "action", NULL},
-    {"write", "is-a", "action", NULL}  /* dublicate */
+    {"book", "is-a", "thing", NULL, NULL},
+    {"table", "is-a", "thing", NULL, NULL},
+    {"book", "is-ontop-of", "table", NULL, NULL},
+    {"write", "is-a", "action", NULL, NULL},
+    {"walk", "is-a", "action", NULL, NULL},
+    {"write", "is-a", "action", NULL, NULL}  /* dublicate */
   };
   size_t n = sizeof(t) / sizeof(t[0]);
 

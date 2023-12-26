@@ -61,6 +61,7 @@ void triple_clean(Triple *t)
   free(t->s);
   free(t->p);
   free(t->o);
+  if (t->d) free(t->d);
   if (t->id) free(t->id);
   memset(t, 0, sizeof(Triple));
 }
@@ -71,11 +72,12 @@ void triple_clean(Triple *t)
   NULL, a new id will be generated bases on `s`, `p` and `o`.
  */
 int triple_set(Triple *t, const char *s, const char *p, const char *o,
-                const char *id)
+               const char *d, const char *id)
 {
   t->s = strdup((s) ? s : "");
   t->p = strdup((p) ? p : "");
   t->o = strdup((o) ? o : "");
+  t->d = (d) ? strdup(d) : NULL;
   t->id = (id) ? strdup(id) : triple_get_id(NULL, s, p, o);
   return 0;
 }
@@ -85,13 +87,14 @@ int triple_set(Triple *t, const char *s, const char *p, const char *o,
   it.  Don't use this function if `t` has not been initiated.
  */
 int triple_reset(Triple *t, const char *s, const char *p, const char *o,
-                const char *id)
+                 const char *d, const char *id)
 {
   if (t->s)  free(t->s);
   if (t->p)  free(t->p);
   if (t->o)  free(t->o);
+  if (t->d)  free(t->d);
   if (t->id) free(t->id);
-  return triple_set(t, s, p, o, id);
+  return triple_set(t, s, p, o, d, id);
 }
 
 /*
