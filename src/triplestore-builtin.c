@@ -120,13 +120,13 @@ size_t triplestore_length(TripleStore *ts)
   Adds a single triple to store.  Returns non-zero on error.
  */
 int triplestore_add(TripleStore *ts, const char *s, const char *p,
-                    const char *o, const char *d)
+                    const char *o)
 {
   Triple t;
   t.s = (char *)s;
   t.p = (char *)p;
   t.o = (char *)o;
-  t.d = (char *)d;
+  t.d = NULL;
   t.id = NULL;
   return triplestore_add_triples(ts, &t, 1);
 }
