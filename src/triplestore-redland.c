@@ -194,7 +194,7 @@ static int assign_triple_from_statement(Triple *t,
                                          librdf_statement *statement)
 {
   librdf_node *node;
-  unsigned char *s=NULL, *p=NULL, *o=NULL;
+  unsigned char *s=NULL, *p=NULL, *o=NULL, *d=NULL;
   errno = 0;
   s = librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_subject(statement)));
   p = librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_predicate(statement)));
@@ -208,6 +208,10 @@ static int assign_triple_from_statement(Triple *t,
   case LIBRDF_NODE_TYPE_LITERAL:
     o = librdf_node_get_literal_value(node);
     if (o) o = (unsigned char *)strdup((char *)o);
+
+    librdf_uri *datatype = librdf_node_get_literal_value_datatype_uri(node);
+    if (datatype)
+      d = librdf_uri_to_string(datatype);
     break;
   case LIBRDF_NODE_TYPE_BLANK:
     o = librdf_node_get_blank_identifier(node);
@@ -215,12 +219,16 @@ static int assign_triple_from_statement(Triple *t,
     break;
   }
   if (s && p && o) {
+    //return triple_reset(s, p, o, d, NULL);
     if (t->s) free(t->s);
     if (t->p) free(t->p);
     if (t->o) free(t->o);
+    if (t->d) free(t->d);
+    if (t->id) free(t->id);
     t->s = (char *)s;
     t->p = (char *)p;
     t->o = (char *)o;
+    t->d = (d) ? (char *)d : NULL;
     return 0;
   }
   return err(1, "error in assign_triple_from_statement");
