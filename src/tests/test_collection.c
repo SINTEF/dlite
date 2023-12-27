@@ -41,37 +41,13 @@ MU_TEST(test_collection_add_relation)
                                           NULL));
   mu_assert_int_eq(3, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
-
-  const DLiteRelation *r;
-  DLiteCollectionState state;
-  dlite_collection_init_state(coll, &state);
-  printf("\n--Animals:\n");
-  while ((r = dlite_collection_find(coll, &state, NULL, "is_a", "animal",
-                                    NULL)))
-    printf("  %s\n", r->s);
-  dlite_collection_deinit_state(&state);
 }
 
 
 MU_TEST(test_collection_remove_relations)
 {
-  //mu_assert_int_eq(2, dlite_collection_remove_relations(coll, NULL, "is_a",
-  //                                                      "animal", NULL));
-
-  int n = dlite_collection_remove_relations(coll, NULL, "is_a", "animal",
-                                            NULL);
-  printf("\n   n=%d\n", n);
-
-  const DLiteRelation *r;
-  DLiteCollectionState state;
-  dlite_collection_init_state(coll, &state);
-  printf("\n==Animals:\n");
-  while ((r = dlite_collection_find(coll, &state, NULL, "is_a", "animal",
-                                    NULL)))
-    printf("  %s\n", r->s);
-  dlite_collection_deinit_state(&state);
-
-
+  mu_assert_int_eq(2, dlite_collection_remove_relations(coll, NULL, "is_a",
+                                                        "animal", NULL));
   mu_assert_int_eq(1, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 }

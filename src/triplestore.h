@@ -110,25 +110,6 @@ const char *triplestore_get_namespace(TripleStore *ts);
 size_t triplestore_length(TripleStore *ts);
 
 
-///**
-//  Adds a single (s,p,o) triple to store.
-//
-//  If `literal` is non-zero the object will be considered to be a
-//  literal, otherwise it is considered to be an URI.
-//
-//  If `lang` is not NULL, it must be a valid XML language abbreviation,
-//  like "en". Only used if `literal` is non-zero.
-//
-//  If `datatype_uri` is not NULL, it should be an uri for the literal
-//  datatype. Ex: "xsd:integer".
-//
-//  Returns non-zero on error.
-// */
-//int triplestore_add2(TripleStore *ts, const char *s, const char *p,
-//                     const char *o, int literal, const char *lang,
-//                     const char *datatype_uri);
-
-
 /**
   Adds triple to store.
 
@@ -249,21 +230,5 @@ const Triple *triplestore_find(TripleState *state,
                                const char *s, const char *p, const char *o,
                                const char *d);
 
-
-///**
-//  Like triplestore_find(), but has two additional arguments.
-//
-//  If `literal` is non-zero the object will be considered to be a
-//  literal, otherwise it is considered to be an URI.
-//
-//  If `lang` is not NULL, it must be a valid XML language abbreviation,
-//  like "en". Only used if `literal` is non-zero.
-//
-//  If redland is not available, it is equivalent to triplestore_find().
-// */
-//const Triple *triplestore_find2(TripleState *state,
-//                                const char *s, const char *p, const char *o,
-//                                int literal, const char *lang);
-//
 
 #endif /* _TRIPLESTORE_H */
