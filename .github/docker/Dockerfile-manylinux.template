@@ -1,5 +1,6 @@
 # -*- Mode: Dockerfile -*-
-# Dockerfile for building Python pypi package
+# Dockerfile for building Python pypi package.  Going to be superseeded by
+# Dockerfile-manylinux_x_y.template
 #
 # Usage:
 #
