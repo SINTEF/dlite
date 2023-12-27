@@ -161,8 +161,9 @@ int triplestore_add_triples(TripleStore *ts, const Triple *triples,
     if (triples[i].id) {
       if (!(id = strdup(triples[i].id))) return err(1, "allocation error");
     } else {
-      if (!(id = triple_get_id(NULL, triples[i].s,
-                                triples[i].p, triples[i].o)))
+      if (!(id = triple_get_id(NULL, triples[i].s, triples[i].p,
+                               triples[i].o, triples[i].d)))
+
         return 1;
     }
     if (!map_get(&ts->map, id)) {
@@ -227,8 +228,8 @@ int triplestore_remove_by_id(TripleStore *ts, const char *id)
   be NULL, allowing for multiple matches.  Returns the number of
   triples removed.
 */
-int triplestore_remove(TripleStore *ts, const char *s,
-                       const char *p, const char *o)
+int triplestore_remove(TripleStore *ts, const char *s, const char *p,
+                       const char *o, const char *d)
 {
   int i=ts->true_length, n=0;
   while (--i >= 0) {
@@ -236,7 +237,8 @@ int triplestore_remove(TripleStore *ts, const char *s,
     if (!t->id) continue;
     if ((!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
-        (!o || strcmp(o, t->o) == 0)) {
+        (!o || strcmp(o, t->o) == 0) &&
+        (!d || (t->d && strcmp(d, t->d) == 0))) {
       if (_remove_by_index(ts, i) == 0) n++;
     }
   }
@@ -280,7 +282,8 @@ const Triple *triplestore_get(const TripleStore *ts, const char *id)
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
 const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
-                                      const char *p, const char *o)
+                                     const char *p, const char *o,
+                                     const char *d)
 {
   size_t i;
   for (i=0; i<ts->true_length; i++) {
@@ -288,7 +291,8 @@ const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
     if (t->id &&
         (!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
-        (!o || strcmp(o, t->o) == 0))
+        (!o || strcmp(o, t->o) == 0) &&
+        (!d || (t->d && strcmp(d, t->d) == 0)))
       return t;
   }
   return NULL;
@@ -392,7 +396,8 @@ const Triple *triplestore_poll(TripleState *state)
   can be found, NULL is returned.
  */
 const Triple *triplestore_find(TripleState *state,
-                                const char *s, const char *p, const char *o)
+                               const char *s, const char *p, const char *o,
+                               const char *d)
 {
   TripleStore *ts = state->ts;
   while (state->pos < ts->true_length) {
@@ -400,20 +405,9 @@ const Triple *triplestore_find(TripleState *state,
     if (t->id &&
         (!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
-        (!o || strcmp(o, t->o) == 0))
+        (!o || strcmp(o, t->o) == 0) &&
+        (!d || (t->d && strcmp(d, t->d) == 0)))
       return t;
   }
   return NULL;
-}
-
-/*
-  Default implementation...
- */
-const Triple *triplestore_find2(TripleState *state,
-                                const char *s, const char *p, const char *o,
-                                int literal, const char *lang)
-{
-  UNUSED(literal);
-  UNUSED(lang);
-  return triplestore_find(state, s, p, o);
 }
