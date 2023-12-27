@@ -266,11 +266,12 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 %extend _Triple {
   %pythoncode %{
     def __repr__(self):
-        args = [f"s={self.s}, p={self.p}, o={self.o}"]
+        args = [f"s='{self.s}', p='{self.p}', o='{self.o}'"]
         if self.d:
-            args.append(f"d={self.d}")
-        args.append(f"id={self.id}")
-        return "Relation(" + ", ".join(args) + ")"
+            args.append(f"d='{self.d}'")
+        if self.id:
+            args.append(f"id='{self.id}'")
+        return f"Relation({', '.join(args)})"
 
     def aspreferred(self):
         """Returns preferred Python representation."""

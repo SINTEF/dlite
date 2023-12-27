@@ -26,13 +26,15 @@ int dlite_collection_save(struct _DLiteCollection *coll,
                           struct _DLiteStorage *s);
 int dlite_collection_save_url(struct _DLiteCollection *coll, const char *url);
 int dlite_collection_add_relation(struct _DLiteCollection *coll, const char *s,
-                                  const char *p, const char *o);
+                                  const char *p, const char *o,
+                                  const char *d=NULL);
 int dlite_collection_remove_relations(struct _DLiteCollection *coll,
-                                      const char *s,
-                                      const char *p, const char *o);
+                                      const char *s, const char *p,
+                                      const char *o, const char *d=NULL);
 const struct _Triple *
   dlite_collection_find_first(const struct _DLiteCollection *coll,
-                              const char *s, const char *p, const char *o);
+                              const char *s, const char *p, const char *o,
+                              const char *d=NULL);
 int dlite_collection_add(struct _DLiteCollection *coll, const char *label,
                          struct _DLiteInstance *inst);
 int dlite_collection_remove(struct _DLiteCollection *coll, const char *label);
@@ -97,8 +99,8 @@ struct _DLiteCollection {
   struct _CollectionIter {
     DLiteCollection *coll;
     DLiteCollectionState state;
-    char *s, *p, *o;  /* search pattern */
-    char rettype;     /* return type: I=Instance, R=Relation, T=tuple */
+    char *s, *p, *o, *d;  /* search pattern */
+    char rettype;         /* return type: I=Instance, R=Relation, T=tuple */
   };
 %}
 
@@ -108,7 +110,7 @@ struct _DLiteCollection {
 %extend struct _CollectionIter {
   _CollectionIter(struct _DLiteInstance *inst,
                   const char *s=NULL, const char *p=NULL, const char *o=NULL,
-                  const char rettype='T') {
+                  const char *d=NULL, const char rettype='T') {
     if (strcmp(inst->meta->uri, DLITE_COLLECTION_ENTITY) != 0)
       return dlite_err(1, "not a collection: %s", inst->uuid), NULL;
     struct _CollectionIter *iter = calloc(1, sizeof(struct _CollectionIter));
@@ -117,6 +119,7 @@ struct _DLiteCollection {
     iter->s = (s) ? strdup(s) : NULL;
     iter->p = (p) ? strdup(p) : NULL;
     iter->o = (o) ? strdup(o) : NULL;
+    iter->d = (d) ? strdup(d) : NULL;
     iter->rettype = rettype;
     dlite_collection_init_state(coll, &iter->state);
     return iter;
@@ -127,6 +130,7 @@ struct _DLiteCollection {
     if ($self->s) free($self->s);
     if ($self->p) free($self->p);
     if ($self->o) free($self->o);
+    if ($self->d) free($self->d);
     free($self);
   }
 
@@ -142,7 +146,7 @@ struct _DLiteCollection {
            ) next;
   const struct _Triple *next_relation(void) {
     return dlite_collection_find($self->coll, &$self->state,
-                                 $self->s, $self->p, $self->o);
+                                 $self->s, $self->p, $self->o, $self->d);
   }
 
   %feature("docstring",

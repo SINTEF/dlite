@@ -78,7 +78,7 @@ int triple_set(Triple *t, const char *s, const char *p, const char *o,
   t->p = strdup((p) ? p : "");
   t->o = strdup((o) ? o : "");
   t->d = (d) ? strdup(d) : NULL;
-  t->id = (id) ? strdup(id) : triple_get_id(NULL, s, p, o);
+  t->id = (id) ? strdup(id) : triple_get_id(NULL, s, p, o, d);
   return 0;
 }
 
@@ -102,7 +102,7 @@ int triple_reset(Triple *t, const char *s, const char *p, const char *o,
   Returns NULL on error, for instance if any of `s`, `p` or `o` are NULL.
 */
 char *triple_get_id(const char *namespace, const char *s, const char *p,
-                      const char *o)
+                    const char *o, const char *d)
 {
   SHA1_CTX context;
   unsigned char digest[20];
@@ -114,6 +114,7 @@ char *triple_get_id(const char *namespace, const char *s, const char *p,
   SHA1Update(&context, (unsigned char *)s, strlen(s));
   SHA1Update(&context, (unsigned char *)p, strlen(p));
   SHA1Update(&context, (unsigned char *)o, strlen(o));
+  if (d) SHA1Update(&context, (unsigned char *)d, strlen(d));
   SHA1Final(digest, &context);
   if (!namespace) namespace = triple_get_default_namespace();
   if (namespace) size += strlen(namespace);

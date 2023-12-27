@@ -222,17 +222,18 @@ struct _Triple {
   }
 }
 
+/*
 %{
 char *triple_get_id2(const char *s, const char *p, const char *o,
                       const char *namespace) {
   return triple_get_id(namespace, s, p, o);
 }
 %}
- %rename(triple_get_id) triple_get_id2;
+%rename(triple_get_id) triple_get_id2;
 %newobject triple_get_id;
 char *triple_get_id(const char *s, const char *p, const char *o,
-                     const char *namespace=NULL);
-
+                    const char *namespace=NULL);
+*/
 void triple_set_default_namespace(const char *namespace);
 
 

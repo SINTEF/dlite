@@ -295,20 +295,20 @@ class Collection(Instance):
         """Returns a generator over all labels."""
         return self.get_subjects(p='_is-a', o='Instance')
 
-    def get_relations(self, s=None, p=None, o=None, rettype='T'):
+    def get_relations(self, s=None, p=None, o=None, d=None, rettype='T'):
         """Returns a generator over all relations matching the given
         values of `s`, `p` and `o`."""
-        return _CollectionIter(self, s=s, p=p, o=o, rettype=rettype)
+        return _CollectionIter(self, s=s, p=p, o=o, d=d, rettype=rettype)
 
-    def get_subjects(self, p=None, o=None):
+    def get_subjects(self, p=None, o=None, d=None):
         """Returns a generator over all subjects of relations matching the
         given values of `p` and `o`."""
-        return _CollectionIter(self, s=None, p=p, o=o, rettype='s')
+        return _CollectionIter(self, s=None, p=p, o=o, d=d, rettype='s')
 
-    def get_predicates(self, s=None, o=None):
+    def get_predicates(self, s=None, o=None, d=None):
         """Returns a generator over all predicates of relations matching the
         given values of `s` and `o`."""
-        return _CollectionIter(self, s=s, p=None, o=o, rettype='p')
+        return _CollectionIter(self, s=s, p=None, o=o, d=d, rettype='p')
 
     def get_objects(self, s=None, p=None):
         """Returns a generator over all subjects of relations matching the

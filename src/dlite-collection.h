@@ -168,11 +168,12 @@ int dlite_collection_save_url(DLiteCollection *coll, const char *url);
 
 
 /**
-  Adds subject-predicate-object relation to collection.  Returns non-zero
-  on error.
+  Adds subject-predicate-object relation to collection.  `d` is the
+  datatype of literal object. Returns non-zero on error.
  */
 int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
-                                  const char *p, const char *o);
+                                  const char *p, const char *o,
+                                  const char *d);
 
 
 /**
@@ -180,7 +181,8 @@ int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
   multiple matches.  Returns the number of relations removed, or -1 on error.
  */
 int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
-                                      const char *p, const char *o);
+                                      const char *p, const char *o,
+                                      const char *d);
 
 
 /**
@@ -215,7 +217,7 @@ void dlite_collection_deinit_state(DLiteCollectionState *state);
 const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
 					   DLiteCollectionState *state,
 					   const char *s, const char *p,
-					   const char *o);
+					   const char *o, const char *d);
 
 /**
   Like dlite_collection_find(), but returns only a pointer to the
@@ -223,7 +225,7 @@ const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
  */
 const DLiteRelation *dlite_collection_find_first(const DLiteCollection *coll,
                                                  const char *s, const char *p,
-                                                 const char *o);
+                                                 const char *o, const char *d);
 
 
 /**

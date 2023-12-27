@@ -126,18 +126,17 @@ static void finalize_check()
   Returns a new librdf stream with all triples matching `s`, `p` and
   `o`.  Any of these may be NULL, allowing for multiple matches.
 
-  If `literal` is non-zero the object will be considered to be a
-  literal, otherwise it is considered to be an URI.
-
-  If `lang` is not NULL, it must be a valid XML language abbreviation,
-  like "en". Only used if `literal` is non-zero.
+  If `o` is non-NULL and `d` is NULL, the object is first assumed to
+  be an IRI. If there are no matches, the object is assumed to be a
+  literal with no specified language or type.
 
   Returns NULL on error.
 */
 static librdf_stream *find(TripleStore *ts, const char *s, const char *p,
-                           const char *o, int literal, const char *lang)
+                           const char *o, const char *d)
 {
   librdf_node *ns=NULL, *np=NULL, *no=NULL;
+  librdf_uri *dt=NULL;
   librdf_statement *statement=NULL;
   librdf_stream *stream=NULL;
   int failed = 1;
@@ -147,25 +146,54 @@ static librdf_stream *find(TripleStore *ts, const char *s, const char *p,
   if (p && !(np = librdf_new_node_from_uri_string(ts->world,
                                                   (const unsigned char *)p)))
     FAIL1("error creating node for predicate: '%s'", p);
-  if (literal) {
-    if (o && !(no = librdf_new_node_from_literal(ts->world,
-                                                 (const unsigned char *)o,
-                                                 lang, 0)))
-      FAIL1("error creating node for literal object: '%s'", o);
-  } else {
-    if (o && !(no = librdf_new_node_from_uri_string(ts->world,
-                                                    (const unsigned char *)o)))
-      FAIL1("error creating node for object: '%s'", o);
+  if (o) {
+    const char *lang=NULL;
+    if (d) {
+      if (d[0] == '@')
+        lang = d+1;
+      else if (!(dt = librdf_new_uri(ts->world, (const unsigned char *)d)))
+        FAIL2("error datatype node '%s' for object '%s'", d, o);
+      if (!(no = librdf_new_node_from_typed_literal(ts->world,
+                                                    (const unsigned char *)o,
+                                                    lang, dt)))
+        FAIL1("error creating node for literal object: '%s'", o);
+    } else {
+      if (!(no = librdf_new_node_from_uri_string(ts->world,
+                                                 (const unsigned char *)o)))
+        FAIL1("error creating uri node for object: '%s'", o);
+      if ((statement = librdf_new_statement_from_nodes(
+            ts->world,
+            (ns) ? librdf_new_node_from_node(ns) : NULL,
+            (np) ? librdf_new_node_from_node(np) : NULL,
+            no)) &&
+          (stream = librdf_model_find_statements(ts->model, statement)) &&
+          librdf_stream_end(stream)) {
+        librdf_free_stream(stream);
+        librdf_free_statement(statement);
+        stream = NULL;
+        statement = NULL;
+        if (!(no = librdf_new_node_from_typed_literal(ts->world,
+                                                      (const unsigned char *)o,
+                                                      NULL, NULL)))
+          FAIL1("error creating literal node for object: '%s'", o);
+      }
+    }
   }
-  if (!(statement = librdf_new_statement_from_nodes(ts->world, ns, np, no))) {
-    ns = np = no = NULL;
-    FAIL3("error creating statement: (%s, %s, %s)", s, p, o);
+  if (!statement &&
+      !(statement = librdf_new_statement_from_nodes(ts->world, ns, np, no))) {
+    ns = np = no = NULL;  // now owned by statement
+    FAIL4("error creating statement: (%s, %s, %s) (d=%s)", s, p, o, d);
   }
-  if (!(stream = librdf_model_find_statements(ts->model, statement)))
-    FAIL3("error finding statements matching (%s, %s, %s)", s, p, o);
+  if (!stream &&
+      !(stream = librdf_model_find_statements(ts->model, statement)))
+    FAIL4("error finding statements matching (%s, %s, %s) (d=%s)", s, p, o, d);
 
   failed = 0;
  fail:
+  if (failed) {
+    if (stream) librdf_free_stream(stream);
+    stream = NULL;
+  }
   if (statement) {
     librdf_free_statement(statement);
   } else if (failed) {
@@ -173,10 +201,7 @@ static librdf_stream *find(TripleStore *ts, const char *s, const char *p,
     if (np) librdf_free_node(np);
     if (no) librdf_free_node(no);
   }
-  if (failed) {
-    if (stream) librdf_free_stream(stream);
-    stream = NULL;
-  }
+  if (dt) librdf_free_uri(dt);
   return stream;
 }
 
@@ -508,9 +533,13 @@ int triplestore_add2(TripleStore *ts, const char *s, const char *p,
   Returns non-zero on error.
  */
 int triplestore_add(TripleStore *ts, const char *s, const char *p,
-                    const char *o)
+                    const char *o, const char *d)
 {
-  return triplestore_add2(ts, s, p, o, 1, NULL, NULL);
+  if (d) {
+    if (d[0] == '@') return triplestore_add2(ts, s, p, o, 1, d+1, NULL);
+    return triplestore_add2(ts, s, p, o, 1, NULL, d);
+  }
+  return triplestore_add2(ts, s, p, o, 0, NULL, NULL);
 }
 
 /*
@@ -542,30 +571,54 @@ int triplestore_add_triples(TripleStore *ts, const Triple *triples, size_t n)
   size_t i;
   for (i=0; i<n; i++) {
     const Triple *t = triples + i;
-    if (triplestore_add(ts, t->s, t->p, t->o)) return 1;
+    if (triplestore_add(ts, t->s, t->p, t->o, t->d)) return 1;
   }
   return 0;
 }
 
 
+///*
+//  Removes a triple identified by `s`, `p` and `o`.  Any of these may
+//  be NULL, allowing for multiple matches.
+//
+//  If `literal` is non-zero the object will be considered to be a
+//  literal, otherwise it is considered to be an URI.
+//
+//  If `lang` is not NULL, it must be a valid XML language abbreviation,
+//  like "en". Only used if `literal` is non-zero.
+//
+//  Returns the number of triples removed or -1 on error.
+//*/
+//int triplestore_remove2(TripleStore *ts, const char *s, const char *p,
+//                        const char *o, int literal, const char *lang)
+//{
+//  librdf_stream *stream;
+//  int failed=0, removed=0;
+//  if (!(stream = find(ts, s, p, o, literal, lang))) return -1;
+//  do {
+//    librdf_statement *statement;
+//    if (!(statement = librdf_stream_get_object(stream))) break;
+//    if (librdf_model_remove_statement(ts->model, statement)) failed=1;
+//    removed++;
+//  } while (!failed && !librdf_stream_next(stream));
+//  librdf_free_stream(stream);
+//  return (failed) ? -1 : removed;
+//}
+
+
 /*
   Removes a triple identified by `s`, `p` and `o`.  Any of these may
-  be NULL, allowing for multiple matches.
-
-  If `literal` is non-zero the object will be considered to be a
-  literal, otherwise it is considered to be an URI.
-
-  If `lang` is not NULL, it must be a valid XML language abbreviation,
-  like "en". Only used if `literal` is non-zero.
+  be NULL, allowing for multiple matches.  The object is assumed to
+  be a literal with no language.
 
   Returns the number of triples removed or -1 on error.
 */
-int triplestore_remove2(TripleStore *ts, const char *s, const char *p,
-                        const char *o, int literal, const char *lang)
+int triplestore_remove(TripleStore *ts, const char *s,
+                       const char *p, const char *o, const char *d)
 {
   librdf_stream *stream;
   int failed=0, removed=0;
-  if (!(stream = find(ts, s, p, o, literal, lang))) return -1;
+  if (!(stream = find(ts, s, p, o, d))) return -1;
   do {
     librdf_statement *statement;
     if (!(statement = librdf_stream_get_object(stream))) break;
@@ -578,26 +631,12 @@ int triplestore_remove2(TripleStore *ts, const char *s, const char *p,
 
 
 /*
-  Removes a triple identified by `s`, `p` and `o`.  Any of these may
-  be NULL, allowing for multiple matches.  The object is assumed to
-  be a literal with no language.
-
-  Returns the number of triples removed or -1 on error.
-*/
-int triplestore_remove(TripleStore *ts, const char *s,
-                       const char *p, const char *o)
-{
-  return triplestore_remove2(ts, s, p, o, 1, NULL);
-}
-
-
-/*
   Removes all relations in triplestore and releases all references to
   external memory.
  */
 void triplestore_clear(TripleStore *ts)
 {
-  triplestore_remove(ts, NULL, NULL, NULL);
+  triplestore_remove(ts, NULL, NULL, NULL, NULL);
 }
 
 
@@ -684,31 +723,67 @@ const Triple *triplestore_poll(TripleState *state)
 }
 
 
+///*
+//  This function should be called iteratively.  Before the first call
+//  it should be provided a `state` initialised with triplestore_init_state().
+//
+//  If `literal` is non-zero the object will be considered to be a
+//  literal, otherwise it is considered to be an URI.
+//
+//  If `lang` is not NULL, it must be a valid XML language abbreviation,
+//  like "en". Only used if `literal` is non-zero.
+//
+//  For each call it will return a pointer to triple matching `s`, `p`
+//  and `o`.  Any of `s`, `p` or `o` may be NULL.  When no more matches
+//  can be found, NULL is returned.
+//
+//  NULL is also returned on error.
+// */
+//const Triple *triplestore_find2(TripleState *state,
+//                                 const char *s, const char *p, const char *o,
+//                                 int literal, const char *lang)
+//{
+//  librdf_stream *stream;
+//  librdf_statement *statement;
+//  Triple *t = &state->ts->triple;
+//  assert(t);
+//  if (!state->data && !(state->data = find(state->ts, s, p, o, literal, lang)))
+//    return err(1, "cannot create model stream"), NULL;
+//  stream = (librdf_stream *)state->data;
+//  if (!(statement = librdf_stream_get_object(stream))) return NULL;
+//  if (assign_triple_from_statement(t, statement)) return NULL;
+//  librdf_stream_next(stream);
+//  return t;
+//}
+
+
 /*
+  Return next triple matching s-p-o triple, where `d` is the datatype
+  of the object. Any of `s`, `p`, `o` or `d` may be NULL, in which case
+  they will match anything.
+
+  If `d` starts with '@', it will match language-tagged plain text
+  literal objects whos XML language abbreviation matches the string
+  following the '@'-sign.
+
+  Any other non-NULL `d` will match literal objects whos datatype are `d`.
+
+  When no more matches can be found, NULL is returned.  NULL is also
+  returned on error.
+
   This function should be called iteratively.  Before the first call
-  it should be provided a `state` initialised with triplestore_init_state().
-
-  If `literal` is non-zero the object will be considered to be a
-  literal, otherwise it is considered to be an URI.
-
-  If `lang` is not NULL, it must be a valid XML language abbreviation,
-  like "en". Only used if `literal` is non-zero.
-
-  For each call it will return a pointer to triple matching `s`, `p`
-  and `o`.  Any of `s`, `p` or `o` may be NULL.  When no more matches
-  can be found, NULL is returned.
-
-  NULL is also returned on error.
- */
-const Triple *triplestore_find2(TripleState *state,
-                                 const char *s, const char *p, const char *o,
-                                 int literal, const char *lang)
+  it should be provided a `state` initialised with triplestore_init_state()
+  and deinitialised with triplestore_deinit_state().
+*/
+const Triple *triplestore_find(TripleState *state,
+                               const char *s, const char *p, const char *o,
+                               const char *d)
 {
   librdf_stream *stream;
   librdf_statement *statement;
   Triple *t = &state->ts->triple;
   assert(t);
-  if (!state->data && !(state->data = find(state->ts, s, p, o, literal, lang)))
+  if (!state->data && !(state->data = find(state->ts, s, p, o, d)))
     return err(1, "cannot create model stream"), NULL;
   stream = (librdf_stream *)state->data;
   if (!(statement = librdf_stream_get_object(stream))) return NULL;
@@ -718,31 +793,21 @@ const Triple *triplestore_find2(TripleState *state,
 }
 
 
-/*
-   Equivalent to `triplestore_find2(state, s, p, o, 1, NULL)`.
-*/
-const Triple *triplestore_find(TripleState *state,
-                                const char *s, const char *p, const char *o)
-{
-  return triplestore_find2(state, s, p, o, 1, NULL);
-}
-
-
-/*
-  Returns a pointer to first triple matching `s`, `p` and `o` or NULL
-  if no match can be found.  Any of `s`, `p` or `o` may be NULL.
- */
-const Triple *triplestore_find_first2(const TripleStore *ts, const char *s,
-                                       const char *p, const char *o,
-                                       int literal, const char *lang)
-{
-  TripleState state;
-  const Triple *t;
-  triplestore_init_state((TripleStore *)ts, &state);
-  t = triplestore_find2(&state, s, p, o, literal, lang);
-  triplestore_deinit_state(&state);
-  return t;
-}
+///*
+//  Returns a pointer to first triple matching `s`, `p` and `o` or NULL
+//  if no match can be found.  Any of `s`, `p` or `o` may be NULL.
+// */
+//const Triple *triplestore_find_first2(const TripleStore *ts, const char *s,
+//                                       const char *p, const char *o,
+//                                       int literal, const char *lang)
+//{
+//  TripleState state;
+//  const Triple *t;
+//  triplestore_init_state((TripleStore *)ts, &state);
+//  t = triplestore_find2(&state, s, p, o, literal, lang);
+//  triplestore_deinit_state(&state);
+//  return t;
+//}
 
 
 /*
@@ -750,9 +815,15 @@ const Triple *triplestore_find_first2(const TripleStore *ts, const char *s,
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
 const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
-                                      const char *p, const char *o)
+                                     const char *p, const char *o,
+                                     const char *d)
 {
-  return triplestore_find_first2(ts, s, p, o, 1, NULL);
+  TripleState state;
+  const Triple *t;
+  triplestore_init_state((TripleStore *)ts, &state);
+  t = triplestore_find(&state, s, p, o, d);
+  triplestore_deinit_state(&state);
+  return t;
 }
 
 

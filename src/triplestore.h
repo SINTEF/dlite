@@ -130,11 +130,19 @@ int triplestore_add2(TripleStore *ts, const char *s, const char *p,
 
 
 /**
-  Adds a single triple to store.  The object is considered to be a
-  literal with no language.  Returns non-zero on error.
+  Adds triple to store.
+
+  If `d` is NULL, the object is considered to be an IRI.
+
+  If `d` starts with '@', the object is considered to be a
+  language-tagged plain text literal.  The language code should follow
+  directly after the '@' sign.  Ex: "@en".
+
+  Otherwise, the object is considered to be a literal with datatype
+  specified by `d`.  Ex: "xsd:integer".
  */
 int triplestore_add(TripleStore *ts, const char *s, const char *p,
-                    const char *o);
+                    const char *o, const char *d);
 
 
 /**
@@ -172,7 +180,7 @@ int triplestore_remove_by_id(TripleStore *ts, const char *id);
   triples removed.
 */
 int triplestore_remove(TripleStore *ts, const char *s,
-                       const char *p, const char *o);
+                       const char *p, const char *o, const char *d);
 
 
 /**
@@ -192,7 +200,8 @@ const Triple *triplestore_get(const TripleStore *ts, const char *id);
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
 const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
-                             const char *p, const char *o);
+                                     const char *p, const char *o,
+                                     const char *d);
 
 
 /**
@@ -237,23 +246,24 @@ const Triple *triplestore_poll(TripleState *state);
   NULL is also returned on error.
  */
 const Triple *triplestore_find(TripleState *state,
-                                const char *s, const char *p, const char *o);
+                               const char *s, const char *p, const char *o,
+                               const char *d);
 
 
-/**
-  Like triplestore_find(), but has two additional arguments.
-
-  If `literal` is non-zero the object will be considered to be a
-  literal, otherwise it is considered to be an URI.
-
-  If `lang` is not NULL, it must be a valid XML language abbreviation,
-  like "en". Only used if `literal` is non-zero.
-
-  If redland is not available, it is equivalent to triplestore_find().
- */
-const Triple *triplestore_find2(TripleState *state,
-                                const char *s, const char *p, const char *o,
-                                int literal, const char *lang);
-
+///**
+//  Like triplestore_find(), but has two additional arguments.
+//
+//  If `literal` is non-zero the object will be considered to be a
+//  literal, otherwise it is considered to be an URI.
+//
+//  If `lang` is not NULL, it must be a valid XML language abbreviation,
+//  like "en". Only used if `literal` is non-zero.
+//
+//  If redland is not available, it is equivalent to triplestore_find().
+// */
+//const Triple *triplestore_find2(TripleState *state,
+//                                const char *s, const char *p, const char *o,
+//                                int literal, const char *lang);
+//
 
 #endif /* _TRIPLESTORE_H */

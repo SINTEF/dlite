@@ -21,7 +21,13 @@ MU_TEST(test_triple)
   Triple t;
   char *id;
   triple_set(&t, "book", "is-a", "thing", NULL, NULL);
-  id = triple_get_id(NULL, t.s, t.p, t.o);
+  mu_assert_string_eq("book", t.s);
+  mu_assert_string_eq("is-a", t.p);
+  mu_assert_string_eq("thing", t.o);
+  mu_assert_string_eq(NULL, t.d);
+  mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", t.id);
+
+  id = triple_get_id(NULL, t.s, t.p, t.o, t.d);
   mu_assert_string_eq("e86ddacd5fd2f3f8f46543fc8096eab96a12c440", id);
   triple_clean(&t);
   free(id);
@@ -43,7 +49,7 @@ MU_TEST(test_add)
   mu_assert_int_eq(0, triplestore_add_triples(ts, t, n));
   mu_check(5 == triplestore_length(ts));
 
-  mu_assert_int_eq(0, triplestore_add(ts, "read", "is-a", "action"));
+  mu_assert_int_eq(0, triplestore_add(ts, "read", "is-a", "action", NULL));
   mu_check(6 == triplestore_length(ts));
 
 }
@@ -69,10 +75,10 @@ MU_TEST(test_find)
   const Triple *t;
   TripleState state;
 
-  t = triplestore_find_first(ts, NULL, "is-a", "table");
+  t = triplestore_find_first(ts, NULL, "is-a", "table", NULL);
   mu_check(t == NULL);
 
-  t = triplestore_find_first(ts, NULL, "is-ontop-of", "table");
+  t = triplestore_find_first(ts, NULL, "is-ontop-of", "table", NULL);
   mu_check(t);
   mu_assert_string_eq("book", t->s);
   mu_assert_string_eq("is-ontop-of", t->p);
@@ -80,13 +86,13 @@ MU_TEST(test_find)
 
   triplestore_init_state(ts, &state);
   n = 0;
-  while (triplestore_find(&state, NULL, "is-a", "thing")) n++;
+  while (triplestore_find(&state, NULL, "is-a", "thing", NULL)) n++;
   mu_assert_int_eq(2, n);
   triplestore_deinit_state(&state);
 
   triplestore_init_state(ts, &state);
   n = 0;
-  while (triplestore_find(&state, NULL, "is-a", NULL)) n++;
+  while (triplestore_find(&state, NULL, "is-a", NULL, NULL)) n++;
   mu_assert_int_eq(5, n);
   triplestore_deinit_state(&state);
 }
@@ -96,10 +102,10 @@ MU_TEST(test_remove)
 {
   mu_check(6 == triplestore_length(ts));
 
-  mu_check(!triplestore_remove(ts, NULL, "is-something", NULL));
+  mu_check(!triplestore_remove(ts, NULL, "is-something", NULL, NULL));
   mu_check(6 == triplestore_length(ts));
 
-  mu_assert_int_eq(2, triplestore_remove(ts, "book", NULL, NULL));
+  mu_assert_int_eq(2, triplestore_remove(ts, "book", NULL, NULL, NULL));
   mu_check(4 == triplestore_length(ts));
 }
 
@@ -108,8 +114,8 @@ MU_TEST(test_free)
 {
   triplestore_free(ts);
 
-  Session *s = session_get_default();
-  session_free(s);
+  //Session *s = session_get_default();
+  //session_free(s);
 }
 
 

@@ -937,7 +937,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         int i;
         Py_ssize_t n;
         PyObject *lst;
-        char **s = ptr;  /* cast DLiteRelation to 4 string pointers */
+        char **s = ptr;  /* cast DLiteRelation to 5 string pointers */
         assert(sizeof(DLiteRelation) == 5*sizeof(char *));
 
         /* Check that `obj` is a sequence of 3 to 5 strings */
@@ -957,7 +957,11 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         }
 
         /* Free old values stored in the relation */
-        for (i=0; i<5; i++) if (s[i]) free(s[i]);
+        for (i=0; i<5; i++)
+          if (s[i]) {
+            free(s[i]);
+            s[i] = NULL;
+          }
 
         /* Assign new values */
         for (i=0; i<n; i++) {
@@ -968,12 +972,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           s[i] = strdup(q);
         }
 
-        /* Assign datatype */
-        if (n < 4) s[3] = NULL;
-
         /* Assign id if not already provided */
         if (n < 5)
-          s[4] = triple_get_id(NULL, s[0], s[1], s[2]);
+          s[4] = triple_get_id(NULL, s[0], s[1], s[2], s[3]);
         Py_DECREF(lst);
 
       } else if (PyMapping_Check(obj)) {

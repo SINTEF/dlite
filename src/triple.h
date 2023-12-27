@@ -68,7 +68,7 @@ int triple_reset(Triple *t, const char *s, const char *p, const char *o,
   Returns NULL on error.
 */
 char *triple_get_id(const char *namespace, const char *s, const char *p,
-                      const char *o);
+                    const char *o, const char *d);
 
 /**
   Copies triple `src` to `dest` and returns a pointer to `dest`.

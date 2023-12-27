@@ -26,15 +26,19 @@ MU_TEST(test_collection_add_relation)
   mu_assert_int_eq(0, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 
-  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
+  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog",
+                                          NULL));
   mu_assert_int_eq(3, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
   mu_assert_int_eq(3, coll->nrelations);
 
   /* dublicate... */
-  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
+  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog",
+                                          NULL));
   mu_assert_int_eq(3, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 }
@@ -42,8 +46,8 @@ MU_TEST(test_collection_add_relation)
 
 MU_TEST(test_collection_remove_relations)
 {
-  mu_assert_int_eq(2, dlite_collection_remove_relations(coll, NULL,
-							"is_a", "animal"));
+  mu_assert_int_eq(2, dlite_collection_remove_relations(coll, NULL, "is_a",
+                                                        "animal", NULL));
   mu_assert_int_eq(1, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 }
@@ -55,16 +59,21 @@ MU_TEST(test_collection_find)
   DLiteCollectionState state;
   int nanimals=0;
 
-  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
-  mu_check(!dlite_collection_add_relation(coll, "car", "is_a", "vehicle"));
+  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "car", "is_a", "vehicle",
+                                          NULL));
   mu_assert_int_eq(4, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 
   dlite_collection_init_state(coll, &state);
   printf("\nAnimals:\n");
-  while ((r = dlite_collection_find(coll, &state, NULL, "is_a", "animal"))) {
+  while ((r = dlite_collection_find(coll, &state, NULL, "is_a", "animal",
+                                    NULL))) {
     printf("  %s\n", r->s);
     nanimals++;
   }

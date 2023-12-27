@@ -209,7 +209,7 @@ MU_TEST(test_print)
   char *p=NULL, s[]="my source string", *q=s;
   DLiteInstance *inst = (DLiteInstance *)dlite_collection_create("myid");
   DLiteDimension d = {"name", "descr"};
-  DLiteRelation r = {"subject", "predicate", "object", "id"};
+  DLiteRelation r = {"subject", "predicate", "object", "datatype", "id"};
 
   mu_assert_int_eq(7, dlite_type_print(buf, sizeof(buf), &v, dliteFloat,
                                        sizeof(double), 0, -2, 0));
