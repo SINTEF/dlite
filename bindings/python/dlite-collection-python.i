@@ -11,15 +11,21 @@
             v = self.next()
             if v and v.is_meta:
                 v.__class__ = Metadata
-        elif self.rettype in 'RTspo':  # relation
+        elif self.rettype in 'RTtspod':  # relation
             v = self.next_relation()
         else:
-            raise ValueError('`rettype` must one of "IRTspo"')
+            raise ValueError('`rettype` must one of "IRTtspod"')
 
         if v is None:
             raise StopIteration()
 
-        if self.rettype == 'T':  # return (s,p,o) tuple
+        if self.rettype == 'I':  # return instance
+            return v
+        if self.rettype == 'R':  # return relation object
+            return v.copy()
+        if self.rettype == 'T':  # return (s,p,o,d) tuple
+            return (v.s, v.p, v.o, v.d)
+        if self.rettype == 't':  # return (s,p,o) tuple
             return (v.s, v.p, v.o)
         elif self.rettype == 's':  # return subject
             return v.s
@@ -27,8 +33,10 @@
             return v.p
         elif self.rettype == 'o':  # return object
             return v.o
+        elif self.rettype == 'd':  # return datatype
+            return v.d
 
-        return v
+        raise _dlite.DLiteRuntimeError()  # should never be reached
 %}
 
 }
@@ -191,21 +199,22 @@ class Collection(Instance):
         b = _collection_has_id(self._coll, id)
         return bool(b)
 
-    def add_relation(self, s, p, o):
+    def add_relation(self, s, p, o, d=None):
         """Add (subject, predicate, object) RDF triple to collection."""
-        if _collection_add_relation(self._coll, s, p, o) != 0:
-            raise _dlite.DLiteError(f'Error adding relation ({s}, {p}, {o})')
+        if _collection_add_relation(self._coll, s, p, o, d) != 0:
+            raise _dlite.DLiteError(
+                f'Error adding relation ({s}, {p}, {o}, {d})')
 
-    def remove_relations(self, s=None, p=None, o=None):
+    def remove_relations(self, s=None, p=None, o=None, d=None):
         """Remove all relations matching `s`, `p` and `o`."""
-        if _collection_remove_relations(self._coll, s, p, o) < 0:
+        if _collection_remove_relations(self._coll, s, p, o, d) < 0:
             raise _dlite.DLiteError(
                 f'Error removing relations matching ({s}, {p}, {o})')
 
-    def get_first_relation(self, s=None, p=None, o=None):
+    def get_first_relation(self, s=None, p=None, o=None, d=None):
         """Returns the first relation matching `s`, `p` and `o`.
         None is returned if there are no matching relations."""
-        return _collection_find_first(self._coll, s, p, o)
+        return _collection_find_first(self._coll, s, p, o, d)
 
     def get_instances(self, metaid=None, property_mappings=False,
                       allow_incomplete=False, ureg=None, function_repo=None,
@@ -295,9 +304,20 @@ class Collection(Instance):
         """Returns a generator over all labels."""
         return self.get_subjects(p='_is-a', o='Instance')
 
-    def get_relations(self, s=None, p=None, o=None, d=None, rettype='T'):
+    def get_relations(self, s=None, p=None, o=None, d=None, rettype='t'):
         """Returns a generator over all relations matching the given
-        values of `s`, `p` and `o`."""
+        values of `s`, `p`, `o` and `d`.
+
+        The following values for `rettype` are supported:
+        - 'I': Iterate over instances.
+        - 'R': Iterate over relation objects.
+        - 'T': Iterate over (s,p,o,d) tuples.
+        - 't': Iterate over (s,p,o) tuples.
+        - 's': Iterate over subjects.
+        - 'p': Iterate over predicates.
+        - 'o': Iterate over objects.
+        - 'd': Iterate over datatypes.
+        """
         return _CollectionIter(self, s=s, p=p, o=o, d=d, rettype=rettype)
 
     def get_subjects(self, p=None, o=None, d=None):
@@ -310,10 +330,10 @@ class Collection(Instance):
         given values of `s` and `o`."""
         return _CollectionIter(self, s=s, p=None, o=o, d=d, rettype='p')
 
-    def get_objects(self, s=None, p=None):
+    def get_objects(self, s=None, p=None, d=None):
         """Returns a generator over all subjects of relations matching the
         given values of `s` and `p`."""
-        return _CollectionIter(self, s=s, p=p, o=None, rettype='o')
+        return _CollectionIter(self, s=s, p=p, o=None, d=d, rettype='o')
 
 
 def get_collection(id):

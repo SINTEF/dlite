@@ -273,6 +273,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             args.append(f"id='{self.id}'")
         return f"Relation({', '.join(args)})"
 
+    def copy(self):
+        """Returns a copy of self."""
+        return Relation(s=self.s, p=self.p, o=self.o, d=self.d, id=self.id)
+
     def aspreferred(self):
         """Returns preferred Python representation."""
         return self.asstrings()

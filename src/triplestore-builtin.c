@@ -169,6 +169,7 @@ int triplestore_add_triples(TripleStore *ts, const Triple *triples,
       if (!(t->s = strdup(triples[i].s))) return err(1, "allocation error");
       if (!(t->p = strdup(triples[i].p))) return err(1, "allocation error");
       if (!(t->o = strdup(triples[i].o))) return err(1, "allocation error");
+      t->d = (triples[i].d) ? strdup(triples[i].d) : NULL;
       t->id = id;
       ts->length++;
       ts->true_length++;

@@ -122,6 +122,65 @@ static void finalize_check()
 }
 
 
+/* Create context for stream filter. */
+typedef struct { const char *o, *d; } StreamContext;
+
+static void *stream_get_context(const char *o, const char *d)
+{
+  StreamContext *c;
+  if (!(c = calloc(1, sizeof(StreamContext))))
+    return err(dliteMemoryError, "allocation failure"), NULL;
+  c->o = o;
+  c->d = d;
+  return (void *)c;
+}
+
+/* Free context for stream filter. */
+static void stream_free(void *context)
+{
+  free(context);
+}
+
+/* Filter for the stream returned by find. Used to handle object and
+   datatype. */
+static librdf_statement *stream_map(librdf_stream *stream, void *context,
+                                    librdf_statement *item)
+{
+  UNUSED(stream);
+  librdf_node *no = librdf_statement_get_object(item);
+  StreamContext *c = (StreamContext *)context;
+
+  //printf("--- filter: %s\n", librdf_statement_to_string(item));
+  //printf("    is_literal: %d\n", librdf_node_is_literal(no));
+
+  if (librdf_node_is_literal(no)) {
+    if (c->o) {
+      char *value = (char *)librdf_node_get_literal_value(no);
+      if (strcmp(value, c->o) != 0) return NULL;
+    }
+    if (c->d) {
+      char *lang = librdf_node_get_literal_value_language(no);
+      librdf_uri *uri = librdf_node_get_literal_value_datatype_uri(no);
+      if (lang) {
+        if ((c->d[0] != '@') || (strcmp(c->d+1, lang) != 0)) return NULL;
+      }
+      if (uri) {
+        if (strcmp(c->d, (char *)librdf_uri_as_string(uri)) != 0) return NULL;
+      }
+    }
+  } else {
+    librdf_uri *iri = librdf_node_get_uri(no);
+    if (c->o && iri && strcmp(c->o, (char *)librdf_uri_as_string(iri)) != 0)
+      return NULL;
+  }
+
+  //printf("    --> item\n");
+
+  return item;
+}
+
+
+
 /*
   Returns a new librdf stream with all triples matching `s`, `p` and
   `o`.  Any of these may be NULL, allowing for multiple matches.
@@ -140,53 +199,78 @@ static librdf_stream *find(TripleStore *ts, const char *s, const char *p,
   librdf_statement *statement=NULL;
   librdf_stream *stream=NULL;
   int failed = 1;
+
+  //printf("*** find(%s, %s, %s, %s)\n", s, p, o, d);
+
   if (s &&!(ns = librdf_new_node_from_uri_string(ts->world,
                                                  (const unsigned char *)s)))
     FAIL1("error creating node for subject: '%s'", s);
   if (p && !(np = librdf_new_node_from_uri_string(ts->world,
                                                   (const unsigned char *)p)))
     FAIL1("error creating node for predicate: '%s'", p);
-  if (o) {
+
+  if (o && d) {
     const char *lang=NULL;
-    if (d) {
-      if (d[0] == '@')
-        lang = d+1;
-      else if (!(dt = librdf_new_uri(ts->world, (const unsigned char *)d)))
-        FAIL2("error datatype node '%s' for object '%s'", d, o);
-      if (!(no = librdf_new_node_from_typed_literal(ts->world,
-                                                    (const unsigned char *)o,
-                                                    lang, dt)))
-        FAIL1("error creating node for literal object: '%s'", o);
-    } else {
-      if (!(no = librdf_new_node_from_uri_string(ts->world,
-                                                 (const unsigned char *)o)))
-        FAIL1("error creating uri node for object: '%s'", o);
-      if ((statement = librdf_new_statement_from_nodes(
-            ts->world,
-            (ns) ? librdf_new_node_from_node(ns) : NULL,
-            (np) ? librdf_new_node_from_node(np) : NULL,
-            no)) &&
-          (stream = librdf_model_find_statements(ts->model, statement)) &&
-          librdf_stream_end(stream)) {
-        librdf_free_stream(stream);
-        librdf_free_statement(statement);
-        stream = NULL;
-        statement = NULL;
-        if (!(no = librdf_new_node_from_typed_literal(ts->world,
-                                                      (const unsigned char *)o,
-                                                      NULL, NULL)))
-          FAIL1("error creating literal node for object: '%s'", o);
-      }
-    }
+    if (d[0] == '@')
+      lang = d+1;
+    else if (!(dt = librdf_new_uri(ts->world, (const unsigned char *)d)))
+      FAIL1("error datatype '%s'", d);
+    if (!(no = librdf_new_node_from_typed_literal(ts->world,
+                                                  (const unsigned char *)o,
+                                                  lang, dt)))
+      FAIL2("error creating node for literal object: '%s' of type '%s'", o, d);
   }
-  if (!statement &&
-      !(statement = librdf_new_statement_from_nodes(ts->world, ns, np, no))) {
+
+  //if (o) {
+  //  const char *lang=NULL;
+  //  if (d) {
+  //    if (d[0] == '@')
+  //      lang = d+1;
+  //    else if (!(dt = librdf_new_uri(ts->world, (const unsigned char *)d)))
+  //      FAIL2("error datatype node '%s' for object '%s'", d, o);
+  //    if (!(no = librdf_new_node_from_typed_literal(ts->world,
+  //                                                  (const unsigned char *)o,
+  //                                                  lang, dt)))
+  //      FAIL1("error creating node for literal object: '%s'", o);
+  //  } else {
+  //    if (!(no = librdf_new_node_from_uri_string(ts->world,
+  //                                               (const unsigned char *)o)))
+  //      FAIL1("error creating uri node for object: '%s'", o);
+  //    if ((statement = librdf_new_statement_from_nodes(
+  //          ts->world,
+  //          (ns) ? librdf_new_node_from_node(ns) : NULL,
+  //          (np) ? librdf_new_node_from_node(np) : NULL,
+  //          no)) &&
+  //        (stream = librdf_model_find_statements(ts->model, statement)) &&
+  //        librdf_stream_end(stream)) {
+  //      librdf_free_stream(stream);
+  //      librdf_free_statement(statement);
+  //      stream = NULL;
+  //      statement = NULL;
+  //      if (!(no = librdf_new_node_from_typed_literal(ts->world,
+  //                                                    (const unsigned char *)o,
+  //                                                    NULL, NULL)))
+  //        FAIL1("error creating literal node for object: '%s'", o);
+  //    }
+  //  }
+  //}
+
+  //if (o && !(no = librdf_new_node_from_uri_string(ts->world,
+  //                                                (const unsigned char *)0)))
+  //  FAIL1("error creating node for object: '%s'", o);
+
+  if (!(statement = librdf_new_statement_from_nodes(ts->world, ns, np, no))) {
     ns = np = no = NULL;  // now owned by statement
     FAIL4("error creating statement: (%s, %s, %s) (d=%s)", s, p, o, d);
   }
-  if (!stream &&
-      !(stream = librdf_model_find_statements(ts->model, statement)))
+  if (!(stream = librdf_model_find_statements(ts->model, statement)))
     FAIL4("error finding statements matching (%s, %s, %s) (d=%s)", s, p, o, d);
+
+  if ((o || d) && !(o && d)) {
+    void *context = stream_get_context(o, d);
+    if (librdf_stream_add_map(stream, stream_map, stream_free, context))
+      FAIL("error adding mapping function to stream");
+  }
 
   failed = 0;
  fail:
@@ -478,23 +562,62 @@ static librdf_node *new_uri_node(TripleStore *ts, const char *uri)
   return node;
 }
 
+///*
+//  Adds a single (s,p,o) triple to store.
+//
+//  If `literal` is non-zero the object will be considered to be a
+//  literal, otherwise it is considered to be an URI.
+//
+//  If `lang` is not NULL, it must be a valid XML language abbreviation,
+//  like "en". Only used if `literal` is non-zero.
+//
+//  If `datatype_uri` is not NULL, it should be an uri for the literal
+//  datatype. Ex: "xsd:integer".
+//
+//  Returns non-zero on error.
+// */
+//int triplestore_add2(TripleStore *ts, const char *s, const char *p,
+//                     const char *o, int literal, const char *lang,
+//                     const char *datatype_uri)
+//{
+//  librdf_node *ns=NULL, *np=NULL, *no=NULL;
+//  librdf_uri *uri=NULL;
+//  if (!(ns = new_uri_node(ts, s)))
+//    FAIL1("error creating node for subject: '%s'", s);
+//  if (!(np = new_uri_node(ts, p)))
+//    FAIL1("error creating node for predicate: '%s'", p);
+//  if (literal) {
+//    if (datatype_uri &&
+//        !(uri = librdf_new_uri(ts->world, (unsigned char *)datatype_uri)))
+//      FAIL1("error creating uri from '%s'", datatype_uri);
+//    if (!(no = librdf_new_node_from_typed_literal(ts->world, (unsigned char *)o,
+//                                                  lang, uri)))
+//      FAIL1("error creating node for object: '%s'", o);
+//  } else {
+//    if (!(no = new_uri_node(ts, o)))
+//      FAIL1("error creating node for object: '%s'", o);
+//  }
+//  if (librdf_model_add(ts->model, ns, np, no))
+//    FAIL("error adding triple");
+//  if (uri) librdf_free_uri(uri);
+//  return 0;
+// fail:
+//  if (uri) librdf_free_uri(uri);
+//  if (ns) librdf_free_node(ns);
+//  if (np) librdf_free_node(np);
+//  if (no) librdf_free_node(no);
+//  return 1;
+//}
+
+
 /*
-  Adds a single (s,p,o) triple to store.
-
-  If `literal` is non-zero the object will be considered to be a
-  literal, otherwise it is considered to be an URI.
-
-  If `lang` is not NULL, it must be a valid XML language abbreviation,
-  like "en". Only used if `literal` is non-zero.
-
-  If `datatype_uri` is not NULL, it should be an uri for the literal
-  datatype. Ex: "xsd:integer".
+  Adds a single (s,p,o,d) triple (of URIs) to store.  If datatype `d` is NULL,
+  is the object is considered to be an IRI. Otherwise it is a literal.
 
   Returns non-zero on error.
  */
-int triplestore_add2(TripleStore *ts, const char *s, const char *p,
-                     const char *o, int literal, const char *lang,
-                     const char *datatype_uri)
+int triplestore_add(TripleStore *ts, const char *s, const char *p,
+                    const char *o, const char *d)
 {
   librdf_node *ns=NULL, *np=NULL, *no=NULL;
   librdf_uri *uri=NULL;
@@ -502,45 +625,33 @@ int triplestore_add2(TripleStore *ts, const char *s, const char *p,
     FAIL1("error creating node for subject: '%s'", s);
   if (!(np = new_uri_node(ts, p)))
     FAIL1("error creating node for predicate: '%s'", p);
-  if (literal) {
-    if (datatype_uri &&
-        !(uri = librdf_new_uri(ts->world, (unsigned char *)datatype_uri)))
-      FAIL1("error creating uri from '%s'", datatype_uri);
+
+  if (d && d[0] == '@') {
     if (!(no = librdf_new_node_from_typed_literal(ts->world, (unsigned char *)o,
-                                                  lang, uri)))
-      FAIL1("error creating node for object: '%s'", o);
+                                                  d+1, NULL)))
+      FAIL2("error creating language-tagged (%s) node for object: '%s'", d, o);
+  } else if (d) {
+    if (!(uri = librdf_new_uri(ts->world, (unsigned char *)d)))
+      FAIL1("error creating datatype URI from: '%s'", d);
+    if (!(no = librdf_new_node_from_typed_literal(ts->world, (unsigned char *)o,
+                                                  NULL, uri)))
+      FAIL2("error creating typed (%s) literal node for object: '%s'", d, o);
   } else {
     if (!(no = new_uri_node(ts, o)))
-      FAIL1("error creating node for object: '%s'", o);
+      FAIL1("error creating IRI node for object: '%s'", o);
   }
   if (librdf_model_add(ts->model, ns, np, no))
-    FAIL("error adding triple");
+    FAIL4("error adding triple (%s, %s, %s, %s)", s, p, o, d);
   if (uri) librdf_free_uri(uri);
   return 0;
  fail:
-  if (uri) librdf_free_uri(uri);
   if (ns) librdf_free_node(ns);
   if (np) librdf_free_node(np);
   if (no) librdf_free_node(no);
+  if (uri) librdf_free_uri(uri);
   return 1;
 }
 
-
-/*
-  Adds a single (s,p,o) triple (of URIs) to store.  The object is
-  considered to be a literal with no language.
-
-  Returns non-zero on error.
- */
-int triplestore_add(TripleStore *ts, const char *s, const char *p,
-                    const char *o, const char *d)
-{
-  if (d) {
-    if (d[0] == '@') return triplestore_add2(ts, s, p, o, 1, d+1, NULL);
-    return triplestore_add2(ts, s, p, o, 1, NULL, d);
-  }
-  return triplestore_add2(ts, s, p, o, 0, NULL, NULL);
-}
 
 /*
   Adds a single triple to store.  The object is considered to be an
@@ -549,7 +660,7 @@ int triplestore_add(TripleStore *ts, const char *s, const char *p,
 int triplestore_add_en(TripleStore *ts, const char *s, const char *p,
                     const char *o)
 {
-  return triplestore_add2(ts, s, p, o, 1, "en", NULL);
+  return triplestore_add(ts, s, p, o, "@en");
 }
 
 /*
@@ -559,7 +670,7 @@ int triplestore_add_en(TripleStore *ts, const char *s, const char *p,
 int triplestore_add_uri(TripleStore *ts, const char *s, const char *p,
                         const char *o)
 {
-  return triplestore_add2(ts, s, p, o, 0, NULL, NULL);
+  return triplestore_add(ts, s, p, o, NULL);
 }
 
 
@@ -702,6 +813,7 @@ const Triple *triplestore_next(TripleState *state)
   const Triple *t;
   if (!(t = triplestore_poll(state))) return NULL;
   librdf_stream_next((librdf_stream *)state->data);
+  //printf("--* triplestore_next: (%s, %s, %s, %s)\n", t->s, t->p, t->o, t->d);
   return t;
 }
 

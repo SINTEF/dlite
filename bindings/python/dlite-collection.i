@@ -100,7 +100,7 @@ struct _DLiteCollection {
     DLiteCollection *coll;
     DLiteCollectionState state;
     char *s, *p, *o, *d;  /* search pattern */
-    char rettype;         /* return type: I=Instance, R=Relation, T=tuple */
+    char rettype;         /* return type: I,R,T,t,s,p,o,d */
   };
 %}
 
@@ -110,7 +110,7 @@ struct _DLiteCollection {
 %extend struct _CollectionIter {
   _CollectionIter(struct _DLiteInstance *inst,
                   const char *s=NULL, const char *p=NULL, const char *o=NULL,
-                  const char *d=NULL, const char rettype='T') {
+                  const char *d=NULL, const char rettype='t') {
     if (strcmp(inst->meta->uri, DLITE_COLLECTION_ENTITY) != 0)
       return dlite_err(1, "not a collection: %s", inst->uuid), NULL;
     struct _CollectionIter *iter = calloc(1, sizeof(struct _CollectionIter));

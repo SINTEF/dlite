@@ -632,8 +632,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
                 (int)dlite_instance_get_dimension_size_by_index(inst, i));
       triplestore_add_uri(ts, inst->uuid, _P ":hasDimensionValue", b1);
       triplestore_add(ts, b1, _P ":hasLabel", name, "xsd:Name");
-      triplestore_add2(ts, b1, _P ":hasDimensionSize", buf,
-                       1, NULL, "xsd:integer");
+      triplestore_add(ts, b1, _P ":hasDimensionSize", buf, "xsd:integer");
       free(b1);
     }
 
@@ -651,8 +650,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
       triplestore_add(ts, b1, _P ":hasLabel", name, "xsd:Name");
       dlite_property_aprint(&buf, &bufsize, 0, ptr, p, dims, 0, -2,
                             dliteFlagRaw | dliteFlagStrip);
-      triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL,
-                       "rdf:PlainLiteral");
+      triplestore_add(ts, b1, _P ":hasValue", buf, "rdf:PlainLiteral");
       free(b1);
     }
   }
