@@ -8,7 +8,6 @@
 /*
  * TODO: Consider to reuse good ideas from https://github.com/rxi/log.c
  */
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -16,6 +15,10 @@
 
 #include "compat.h"
 #include "err.h"
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 /* Thread local storage
  * https://stackoverflow.com/questions/18298280/how-to-declare-a-variable-as-thread-local-portab
@@ -68,6 +71,9 @@ typedef struct {
    * If negative (default), check the environment. */
   ErrDebugMode err_debug_mode;
 
+  /* Whether to */
+  ErrColorMode err_color_mode;
+
   /* How to handle overridden errors in  ErrTry clauses.
    * If negative (default), check the environment. */
   ErrOverrideMode err_override;
@@ -109,6 +115,7 @@ static void reset_tls(void)
   _tls.err_abort_mode = -1;
   _tls.err_warn_mode = -1;
   _tls.err_debug_mode = -1;
+  _tls.err_color_mode = -1;
   _tls.err_override = -1;
   _tls.err_record = &_tls.err_root_record;
   _tls.globals = &_globals;
@@ -123,6 +130,7 @@ static ThreadLocals *get_tls(void)
     _tls.err_abort_mode = -1;
     _tls.err_warn_mode = -1;
     _tls.err_debug_mode = -1;
+    _tls.err_color_mode = -1;
     _tls.err_override = -1;
     _tls.err_record = &_tls.err_root_record;
     _tls.globals = &_globals;
@@ -619,11 +627,54 @@ ErrOverrideMode err_get_override_mode()
   return tls->err_override;
 }
 
+ErrColorMode err_set_color_mode(ErrColorMode mode)
+{
+  ThreadLocals *tls = get_tls();
+  ErrColorMode prev = tls->err_color_mode;
+  tls->err_color_mode = mode;
+  return prev;
+}
+
+int err_get_color_coded()
+{
+  ThreadLocals *tls = get_tls();
+  if (tls->err_color_mode < 0) {
+    char *mode = getenv("ERR_COLOR");
+    tls->err_color_mode =
+      (!mode || !*mode)                                      ? errColorAuto :
+      (strcmp(mode, "never") == 0 || strcmp(mode, "0") == 0) ? errColorNever :
+      (strcmp(mode, "always") == 0 || strcmp(mode,"1") == 0) ? errColorAlways :
+      errColorAuto;
+  }
+
+  switch (tls->err_color_mode) {
+  case errColorAuto:
+    {
+      int terminal = 0;
+#if defined(HAVE_UNISTD_H) && defined(HAVE_ISATTY)
+      int fno = (tls->globals->err_stream) ?
+        fileno(tls->globals->err_stream) : -1;
+      if (fno >= 0) terminal = (isatty(fno) == 1);
+#elif defined(HAVE__FILENO) && defined(HAVE__ISATTY)
+      int fno = (tls->globals->err_stream) ?
+        _fileno(tls->globals->err_stream) : -1;
+      if (fno >= 0) terminal = _isatty(fno);
+#endif
+      return (terminal) ? 1 : 0;
+    }
+  case errColorAlways:
+    return 1;
+  default:
+    return 0;
+  }
+}
+
 /* Default error handler. */
 void err_default_handler(const ErrRecord *record)
 {
   FILE *stream = err_get_stream();
-  if ((stream == stderr || stream == stdout) && getenv("ERR_COLOR")) {
+  if (err_get_color_coded()) {
+    //if ((stream == stderr || stream == stdout) && getenv("ERR_COLOR")) {
     /* Output the first word of the error message in red and the remaining
        of it in magenta. */
     int n = strcspn(record->msg, ": ");
