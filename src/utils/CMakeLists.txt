@@ -21,6 +21,7 @@ check_include_file(endian.h     HAVE_ENDIAN_H)
 check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 check_include_file(time.h       HAVE_TIME_H)
+check_include_file(unistd.h     HAVE_UNISTD_H)
 check_include_file(windows.h    HAVE_WINDOWS_H)
 
 # -- check for symbols
@@ -48,6 +49,9 @@ check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
 check_symbol_exists(exec                unistd.h     HAVE_EXEC)
 check_symbol_exists(clock               time.h       HAVE_CLOCK)
 check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
+check_symbol_exists(_fileno             stdio.h      HAVE__FILENO)
+check_symbol_exists(isatty              unistd.h     HAVE_ISATTY)
+check_symbol_exists(_isatty             io.h         HAVE__ISATTY)
 
 if(HAVE_WINDOWS_H)
 check_symbol_exists(GetFullPathNameW    windows.h    HAVE_GetFullPathNameW)
