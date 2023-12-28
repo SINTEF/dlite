@@ -192,6 +192,23 @@ struct _DLiteProperty {
 /* --------
  * Relation
  * -------- */
+%feature("docstring", "\
+Relations in DLite corresponds to RDF-triples, but are internally 4 fields:
+  - s: subject
+  - p: predicate
+  - o: object
+  - d: datatype
+
+The datatype is the datatype for literal objects. It may have three forms:
+  - None: object is an IRI (rdfs:Resource).
+  - Starts with '@': object is a language-tagged plain literal
+    (rdf:langString). The language identifier follows the '@'-sign.
+    Ex: '@en' for english.
+  - Otherwise: object is a literal with datatype `d`. Ex: 'xsd:int'.
+
+As an internal implementation detail, relations also have an `id` field.
+It may change in the future, so please don't rely on it.
+") _Triple;
 %rename(Relation) _Triple;
 struct _Triple {
   char *s;     /*!< subject */
@@ -222,18 +239,7 @@ struct _Triple {
   }
 }
 
-/*
-%{
-char *triple_get_id2(const char *s, const char *p, const char *o,
-                      const char *namespace) {
-  return triple_get_id(namespace, s, p, o);
-}
-%}
-%rename(triple_get_id) triple_get_id2;
-%newobject triple_get_id;
-char *triple_get_id(const char *s, const char *p, const char *o,
-                    const char *namespace=NULL);
-*/
+%rename(_set_default_namespace) triple_set_default_namespace;
 void triple_set_default_namespace(const char *namespace);
 
 

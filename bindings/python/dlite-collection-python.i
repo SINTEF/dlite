@@ -57,9 +57,17 @@ class Collection(Instance):
     of instances.
 
     Use the get_relations() method (or the convenience methods
-    get_subjects(), get_predicates() and get_predicates()) to iterate
-    over relations.  The number of relations is available via the `nrelations`
-    property.
+    get_subjects(), get_predicates() and get_objects()) to iterate
+    over relations.  The number of relations is available via the
+    `nrelations` property.
+
+    Relations are (s, p, o, d=None)-triples with an optional fourth field
+    `d`, specifying the datatype of the object.  It may have the following
+    values:
+      - None: object is an IRI.
+      - Starts with '@': object is a language-tagged plain literal.
+        The language identifier follows the '@'-sign.
+      - Otherwise: object is a literal with datatype `d`.
     """
     def __new__(cls, id=None):
         """Creates an empty collection."""

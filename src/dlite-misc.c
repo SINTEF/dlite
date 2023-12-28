@@ -463,35 +463,38 @@ int dlite_add_dll_path(void)
 #define LOCALS_ID "dlite-misc-locals-id"
 
 
-/* A cache pointing to the current session handler */
-static DLiteGlobals *_globals_handler=NULL;
-
 /* Local state for this module. */
 typedef struct {
   int in_atexit;
 } Locals;
 
 
+/* A cache pointing to the current session handler */
+static DLiteGlobals *_globals_handler=NULL;
+
+/* Pointer to local state */
+Locals *_locals=NULL;
+
 /* Free variables in local state. */
-static void free_locals(void *locals)
+static void free_locals(Locals *locals)
 {
   UNUSED(locals);
+  _locals = NULL;
 }
 
 /* Return a pointer to local state. */
 static Locals *get_locals(void)
 {
-  static Locals *locals=NULL;
-  if (!locals) {
-    locals = dlite_globals_get_state(LOCALS_ID);
-    if (!locals) {
-      static Locals _locals;
-      locals = &_locals;
-      memset(locals, 0, sizeof(Locals));
-      dlite_globals_add_state(LOCALS_ID, locals, free_locals);
+  if (!_locals) {
+    _locals = dlite_globals_get_state(LOCALS_ID);
+    if (!_locals) {
+      static Locals locals;
+      _locals = &locals;
+      memset(_locals, 0, sizeof(Locals));
+      dlite_globals_add_state(LOCALS_ID, _locals, free_locals);
     }
   }
-  return locals;
+  return _locals;
 }
 
 
@@ -581,15 +584,17 @@ void dlite_init(void)
 void dlite_finalize(void)
 {
   Session *s = session_get_default();
+  Locals *locals = get_locals();
 
   /* Don't free anything if we are in an atexit handler */
-  if (dlite_globals_in_atexit() || !getenv("DLITE_ATEXIT_FREE")) return;
+  if (dlite_globals_in_atexit() && !getenv("DLITE_ATEXIT_FREE")) return;
 
   /* Reset error handling */
   err_set_handler(NULL);
   err_set_nameconv(NULL);
 
   session_free(s);
+  _globals_handler = NULL;
 }
 
 

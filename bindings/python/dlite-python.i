@@ -952,7 +952,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
           PyObject *item = PySequence_Fast_GET_ITEM(lst, i);
           if (!PyUnicode_Check(item)) {
             Py_DECREF(lst);
-            FAIL("relation s,p,o,d,id items must be strings");
+            FAIL("relation (s,p,o[,d[,id]]) items must be strings");
           }
         }
 
