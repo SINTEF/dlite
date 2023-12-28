@@ -58,9 +58,9 @@ const char *triple_get_default_namespace(void)
 */
 void triple_clean(Triple *t)
 {
-  free(t->s);
-  free(t->p);
-  free(t->o);
+  if (t->s) free(t->s);
+  if (t->p) free(t->p);
+  if (t->o) free(t->o);
   if (t->d) free(t->d);
   if (t->id) free(t->id);
   memset(t, 0, sizeof(Triple));
@@ -89,11 +89,7 @@ int triple_set(Triple *t, const char *s, const char *p, const char *o,
 int triple_reset(Triple *t, const char *s, const char *p, const char *o,
                  const char *d, const char *id)
 {
-  if (t->s)  free(t->s);
-  if (t->p)  free(t->p);
-  if (t->o)  free(t->o);
-  if (t->d)  free(t->d);
-  if (t->id) free(t->id);
+  triple_clean(t);
   return triple_set(t, s, p, o, d, id);
 }
 
@@ -127,19 +123,20 @@ char *triple_get_id(const char *namespace, const char *s, const char *p,
 
 /*
   Copies triple `src` to `dest` and returns a pointer to `dest`.
+
+  Existing memory hold by `dest` is not free'ed.  So if `dest` may
+  hold some memory, call `triple_clean()` before calling this
+  function.
  */
 Triple *triple_copy(Triple *dest, const Triple *src)
 {
   assert(src);
   assert(dest);
-  if (dest->s) free(dest->s);
-  if (dest->p) free(dest->p);
-  if (dest->o) free(dest->o);
-  if (dest->id) free(dest->id);
   memset(dest, 0, sizeof(Triple));
   if (src->s  && !(dest->s = strdup(src->s)))   goto fail;
   if (src->p  && !(dest->p = strdup(src->p)))   goto fail;
   if (src->o  && !(dest->o = strdup(src->o)))   goto fail;
+  if (src->d  && !(dest->d = strdup(src->d)))   goto fail;
   if (src->id && !(dest->id = strdup(src->id))) goto fail;
   return dest;
  fail:

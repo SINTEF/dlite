@@ -55,8 +55,24 @@ librdf_world *triplestore_get_world(TripleStore *ts);
 /** Returns the internal librdf model. */
 librdf_model *triplestore_get_model(TripleStore *ts);
 
-#endif
+/** Like triplestore_create_with_storage(), but also takes a librdf world
+    as argument. */
+TripleStore *triplestore_create_with_world(librdf_world *world,
+                                           const char *storage_name,
+                                           const char *name,
+                                           const char *options);
 
+
+/* ================================== */
+/* Builtin-specific functions         */
+/* ================================== */
+#else  /* !HAVE_REDLAND */
+
+/** Removes a triple identified by it's `id`.  Returns non-zero if no
+  such triple can be found. */
+int triplestore_remove_by_id(TripleStore *ts, const char *id);
+
+#endif
 
 
 /* ================================== */
@@ -70,6 +86,8 @@ TripleStore *triplestore_create();
 
 /**
   Returns a new empty triplestore.
+
+  Without librdf, this behaves like triplestore_create().
 
   Arguments:
     storage_name: Name of storage module. If NULL, the default storage will
@@ -93,7 +111,7 @@ void triplestore_free(TripleStore *ts);
 
 
 /**
-  Set default namespace
+  Set default namespace.
 */
 void triplestore_set_namespace(TripleStore *ts, const char *ns);
 
@@ -146,13 +164,6 @@ int triplestore_add_uri(TripleStore *ts, const char *s, const char *p,
   Adds `n` triples to store.  Returns non-zero on error.
  */
 int triplestore_add_triples(TripleStore *ts, const Triple *triples, size_t n);
-
-
-/**
-  Removes a triple identified by it's `id`.  Returns non-zero if no such
-  triple can be found.
-*/
-int triplestore_remove_by_id(TripleStore *ts, const char *id);
 
 
 /**
@@ -214,17 +225,24 @@ const Triple *triplestore_next(TripleState *state);
 const Triple *triplestore_poll(TripleState *state);
 
 /**
+  Return next triple matching s-p-o triple, where `d` is the datatype
+  of the object. Any of `s`, `p`, `o` or `d` may be NULL, in which case
+  they will match anything.
+
+  If `d` starts with '@', it will match language-tagged plain text
+  literal objects whos XML language abbreviation matches the string
+  following the '@'-sign.
+
+  if `d` is NUL (empty string), it will match non-literal objects.
+
+  Any other non-NULL `d` will match literal objects whos datatype are `d`.
+
+  When no more matches can be found, NULL is returned.  NULL is also
+  returned on error.
+
   This function should be called iteratively.  Before the first call
-  it should be provided a `state` initialised with triplestore_init_state().
-
-  For each call it will return a pointer to triple matching `s`, `p`
-  and `o`.  Any of `s`, `p` or `o` may be NULL.  When no more matches
-  can be found, NULL is returned.
-
-  No other calls to triplestore_add() or triplestore_find() should be
-  done while searching.
-
-  NULL is also returned on error.
+  it should be provided a `state` initialised with triplestore_init_state()
+  and deinitialised with triplestore_deinit_state().
  */
 const Triple *triplestore_find(TripleState *state,
                                const char *s, const char *p, const char *o,

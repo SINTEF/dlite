@@ -72,7 +72,11 @@ char *triple_get_id(const char *namespace, const char *s, const char *p,
 
 /**
   Copies triple `src` to `dest` and returns a pointer to `dest`.
- */
+
+  Existing memory hold by `dest` is not free'ed.  So if `dest` may
+  hold some memory, call `triple_clean()` before calling this
+  function.
+*/
 Triple *triple_copy(Triple *dest, const Triple *src);
 
 

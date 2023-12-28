@@ -57,7 +57,7 @@ MU_TEST(test_collection_find)
 {
   const DLiteRelation *r;
   DLiteCollectionState state;
-  int nanimals=0;
+  int nanimals=0, n=0;
 
   mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal",
                                           NULL));
@@ -67,7 +67,11 @@ MU_TEST(test_collection_find)
                                           NULL));
   mu_check(!dlite_collection_add_relation(coll, "car", "is_a", "vehicle",
                                           NULL));
-  mu_assert_int_eq(4, dlite_instance_get_dimension_size((DLiteInstance *)coll,
+  mu_check(!dlite_collection_add_relation(coll, "cat", "has_color", "black",
+                                          "xsd:string"));
+  mu_check(!dlite_collection_add_relation(coll, "car", "has_color", "black",
+                                          "xsd:string"));
+  mu_assert_int_eq(6, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 
   dlite_collection_init_state(coll, &state);
@@ -78,6 +82,42 @@ MU_TEST(test_collection_find)
     nanimals++;
   }
   mu_assert_int_eq(2, nanimals);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, NULL, "xsd:int")) n++;
+  mu_assert_int_eq(0, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, NULL, "xsd:string"))
+    n++;
+  mu_assert_int_eq(2, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, "black", "xsd:string"))
+    n++;
+  mu_assert_int_eq(2, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, "red", "xsd:string"))
+    n++;
+  mu_assert_int_eq(0, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, "car", NULL, NULL, "xsd:string"))
+    n++;
+  mu_assert_int_eq(1, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, "car", NULL, NULL, ""))
+    n++;
+  mu_assert_int_eq(1, n);
+
   dlite_collection_deinit_state(&state);
 }
 
@@ -206,6 +246,8 @@ MU_TEST(test_collection_load)
 MU_TEST(test_collection_free)
 {
   dlite_collection_decref(coll);
+
+  dlite_finalize();  // for checking memory leaks
 }
 
 

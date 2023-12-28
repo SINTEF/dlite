@@ -63,6 +63,9 @@ int _cmp_triple(const void *a, const void *b) {
   if ((v = strcmp(t1->s, t2->s))) return v;
   if ((v = strcmp(t1->p, t2->p))) return v;
   if ((v = strcmp(t1->o, t2->o))) return v;
+  if (t1->d && !t2->d) return 1;
+  if (!t1->d && t2->d) return -1;
+  if (t1->d && t2->d && (v = strcmp(t1->d, t2->d))) return v;
   return 0;
 }
 
@@ -73,6 +76,7 @@ void _sha3_update_triple(sha3_context *c, const Triple *t)
   sha3_Update(c, t->s, strlen(t->s));
   sha3_Update(c, t->p, strlen(t->p));
   sha3_Update(c, t->o, strlen(t->o));
+  if (t->d) sha3_Update(c, t->d, strlen(t->d));
 }
 
 /* Calculate hash of a collection. */
@@ -189,6 +193,7 @@ int dlite_collection_saveprop(DLiteInstance *inst, size_t i)
   triplestore_init_state(coll->rstore, &state);
   while ((t = triplestore_next(&state))) {
     assert(j < (int)coll->nrelations);
+    triple_clean(coll->relations + j);
     triple_copy(coll->relations + j, t);
     j++;
   }
@@ -410,6 +415,15 @@ void dlite_collection_init_state(const DLiteCollection *coll,
 void dlite_collection_deinit_state(DLiteCollectionState *state)
 {
   triplestore_deinit_state((TripleState *)state);
+}
+
+
+/*
+  Resets `state` already initialised with dlite_collection_init_state().
+*/
+void dlite_collection_reset_state(DLiteCollectionState *state)
+{
+  triplestore_reset_state((TripleState *)state);
 }
 
 

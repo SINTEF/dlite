@@ -670,6 +670,7 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     if (((DLiteRelation *)p)->s)  free(((DLiteRelation *)p)->s);
     if (((DLiteRelation *)p)->p)  free(((DLiteRelation *)p)->p);
     if (((DLiteRelation *)p)->o)  free(((DLiteRelation *)p)->o);
+    if (((DLiteRelation *)p)->d)  free(((DLiteRelation *)p)->d);
     if (((DLiteRelation *)p)->id) free(((DLiteRelation *)p)->id);
     break;
   }

@@ -149,6 +149,7 @@ static librdf_statement *stream_map(librdf_stream *stream, void *context,
   UNUSED(stream);
   librdf_node *no = librdf_statement_get_object(item);
   StreamContext *c = (StreamContext *)context;
+
   if (librdf_node_is_literal(no)) {
     if (c->o) {
       char *value = (char *)librdf_node_get_literal_value(no);
@@ -163,9 +164,11 @@ static librdf_statement *stream_map(librdf_stream *stream, void *context,
       if (uri) {
         if (strcmp(c->d, (char *)librdf_uri_as_string(uri)) != 0) return NULL;
       }
+      if (c->d[0] == '\0' && (lang || uri)) return NULL;
     }
   } else {
     librdf_uri *iri = librdf_node_get_uri(no);
+    if (c->d && c->d[0]) return NULL;
     if (c->o && iri && strcmp(c->o, (char *)librdf_uri_as_string(iri)) != 0)
       return NULL;
   }
@@ -200,7 +203,7 @@ static librdf_stream *find(TripleStore *ts, const char *s, const char *p,
                                                   (const unsigned char *)p)))
     FAIL1("error creating node for predicate: '%s'", p);
 
-  if (o && d) {
+  if (o && d && *d) {
     const char *lang=NULL;
     if (d[0] == '@')
       lang = d+1;
@@ -219,7 +222,7 @@ static librdf_stream *find(TripleStore *ts, const char *s, const char *p,
   if (!(stream = librdf_model_find_statements(ts->model, statement)))
     FAIL4("error finding statements matching (%s, %s, %s) (d=%s)", s, p, o, d);
 
-  if ((o || d) && !(o && d)) {
+  if ((o || d) && !(o && d && *d)) {
     void *context = stream_get_context(o, d);
     if (librdf_stream_add_map(stream, stream_map, stream_free, context))
       FAIL("error adding mapping function to stream");
@@ -257,13 +260,15 @@ static int assign_triple_from_statement(Triple *t,
 {
   librdf_node *node;
   unsigned char *s=NULL, *p=NULL, *o=NULL, *d=NULL;
+  char *lang;
+  librdf_uri *datatype;
   errno = 0;
   s = librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_subject(statement)));
   p = librdf_uri_to_string(librdf_node_get_uri(librdf_statement_get_predicate(statement)));
   node = librdf_statement_get_object(statement);
   switch (librdf_node_get_type(node)) {
   case LIBRDF_NODE_TYPE_UNKNOWN:
-    return err(1, "unknown node type");
+    FAIL("unknown node type");
   case LIBRDF_NODE_TYPE_RESOURCE:
     o = librdf_uri_to_string(librdf_node_get_uri(node));
     break;
@@ -271,9 +276,16 @@ static int assign_triple_from_statement(Triple *t,
     o = librdf_node_get_literal_value(node);
     if (o) o = (unsigned char *)strdup((char *)o);
 
-    librdf_uri *datatype = librdf_node_get_literal_value_datatype_uri(node);
-    if (datatype)
-      d = librdf_uri_to_string(datatype);
+    if ((datatype = librdf_node_get_literal_value_datatype_uri(node))) {
+      if (!(d = librdf_uri_to_string(datatype)))
+        FAIL("cannot convert datatype URI to string");
+    } else if ((lang = librdf_node_get_literal_value_language(node))) {
+      size_t n = strlen(lang);
+      if (!(d = calloc(1, n+2)))
+        FAILCODE(dliteMemoryError, "allocation failure");
+      d[0] = '@';
+      strncpy((char *)d+1, lang, n+1);
+    }
     break;
   case LIBRDF_NODE_TYPE_BLANK:
     o = librdf_node_get_blank_identifier(node);
@@ -281,19 +293,21 @@ static int assign_triple_from_statement(Triple *t,
     break;
   }
   if (s && p && o) {
-    //return triple_reset(s, p, o, d, NULL);
-    if (t->s) free(t->s);
-    if (t->p) free(t->p);
-    if (t->o) free(t->o);
-    if (t->d) free(t->d);
-    if (t->id) free(t->id);
+    triple_clean(t);
     t->s = (char *)s;
     t->p = (char *)p;
     t->o = (char *)o;
-    t->d = (d) ? (char *)d : NULL;
+    t->d = (char *)d;
+    t->id = NULL;
     return 0;
   }
-  return err(1, "error in assign_triple_from_statement");
+  FAIL("error in assign_triple_from_statement");
+ fail:
+  if (s) free(s);
+  if (p) free(p);
+  if (o) free(o);
+  if (d) free(d);
+  return 1;
 }
 
 
@@ -369,20 +383,6 @@ int triplestore_set_default_storage(const char *name)
     }
   }
   return err(1, "no such triplestore storage: %s", name);
-}
-
-/* Set default namespace */
-void triplestore_set_namespace(TripleStore *ts, const char *ns)
-{
-  if (ts->ns) free((char *)ts->ns);
-  ts->ns = (ns) ? strdup(ns) : NULL;
-}
-
-/* Returns a pointer to default namespace.
-   It may be NULL if it hasn't been set */
-const char *triplestore_get_namespace(TripleStore *ts)
-{
-  return ts->ns;
 }
 
 /* Returns a pointer to the name of default storage or NULL on error. */
@@ -474,9 +474,7 @@ void triplestore_free(TripleStore *ts)
   if (ts->name)          free((char *)ts->name);
   if (ts->options)       free((char *)ts->options);
   if (ts->ns)            free((char *)ts->ns);
-  if (ts->triple.s)      free(ts->triple.s);
-  if (ts->triple.p)      free(ts->triple.p);
-  if (ts->triple.o)      free(ts->triple.o);
+  triple_clean(&ts->triple);
   free(ts);
   finalize_check();
 }
@@ -556,27 +554,6 @@ int triplestore_add(TripleStore *ts, const char *s, const char *p,
   if (no) librdf_free_node(no);
   if (uri) librdf_free_uri(uri);
   return 1;
-}
-
-
-/*
-  Adds a single triple to store.  The object is considered to be an
-  english literal.  Returns non-zero on error.
- */
-int triplestore_add_en(TripleStore *ts, const char *s, const char *p,
-                    const char *o)
-{
-  return triplestore_add(ts, s, p, o, "@en");
-}
-
-/*
-  Adds a single triple to store.  The object is considered to be an URI.
-  Returns non-zero on error.
- */
-int triplestore_add_uri(TripleStore *ts, const char *s, const char *p,
-                        const char *o)
-{
-  return triplestore_add(ts, s, p, o, NULL);
 }
 
 
@@ -720,6 +697,8 @@ const Triple *triplestore_poll(TripleState *state)
   literal objects whos XML language abbreviation matches the string
   following the '@'-sign.
 
+  if `d` is NUL (empty string), it will match non-literal objects.
+
   Any other non-NULL `d` will match literal objects whos datatype are `d`.
 
   When no more matches can be found, NULL is returned.  NULL is also
@@ -762,39 +741,3 @@ const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
   triplestore_deinit_state(&state);
   return t;
 }
-
-
-#if 0
-
-
-/*
-  Removes a triple identified by it's `id`.  Returns non-zero on
-  error or if no such triple can be found.
-*/
-int triplestore_remove_by_id(TripleStore *ts, const char *id)
-{
-  int *n;
-  if (!(n = map_get(&ts->map, id)))
-    return err(1, "no such triple id: \"%s\"", id);
-  return _remove_by_index(ts, *n);
-}
-
-
-
-/*
-  Returns a pointer to triple with given id or NULL if no match can be found.
-*/
-const Triple *triplestore_get(const TripleStore *ts, const char *id)
-{
-  int *n = map_get(&((TripleStore *)ts)->map, id);
-  if (!n)
-    return errx(1, "no triple with id \"%s\"", id), NULL;
-  if (!ts->triples[*n].id)
-    return errx(1, "triple \"%s\" has been removed", id), NULL;
-  return ts->triples + *n;
-}
-
-
-
-
-#endif

@@ -460,7 +460,6 @@ int dlite_add_dll_path(void)
 
 #define ERR_STATE_ID "err-globals-id"
 #define ERR_MASK_ID "err-ignored-id"
-#define LOCALS_ID "dlite-misc-locals-id"
 
 
 /* Local state for this module. */
@@ -476,9 +475,8 @@ static DLiteGlobals *_globals_handler=NULL;
 Locals *_locals=NULL;
 
 /* Free variables in local state. */
-static void free_locals(Locals *locals)
+static void free_locals()
 {
-  UNUSED(locals);
   _locals = NULL;
 }
 
@@ -486,13 +484,9 @@ static void free_locals(Locals *locals)
 static Locals *get_locals(void)
 {
   if (!_locals) {
-    _locals = dlite_globals_get_state(LOCALS_ID);
-    if (!_locals) {
-      static Locals locals;
-      _locals = &locals;
-      memset(_locals, 0, sizeof(Locals));
-      dlite_globals_add_state(LOCALS_ID, _locals, free_locals);
-    }
+    static Locals locals;
+    _locals = &locals;
+    memset(_locals, 0, sizeof(Locals));
   }
   return _locals;
 }
@@ -500,6 +494,9 @@ static Locals *get_locals(void)
 
 /* Called by atexit(). */
 static void _handle_atexit(void) {
+
+  /* No extra finalisation is needed if we already are in an atexit handler */
+  if (dlite_globals_in_atexit()) return;
 
   /* Mark that we are in an atexit handler */
   dlite_globals_set_atexit();
@@ -515,11 +512,12 @@ DLiteGlobals *dlite_globals_get(void)
   if (!_globals_handler) {
     _globals_handler = session_get_default();
 
+    dlite_init();
+
     /* Make valgrind and other memory leak detectors happy by freeing
        up all globals at exit. */
-    atexit(_handle_atexit);
-
-    dlite_init();
+    if (!dlite_globals_in_atexit())
+      atexit(_handle_atexit);
   }
   return _globals_handler;
 }
@@ -584,7 +582,6 @@ void dlite_init(void)
 void dlite_finalize(void)
 {
   Session *s = session_get_default();
-  Locals *locals = get_locals();
 
   /* Don't free anything if we are in an atexit handler */
   if (dlite_globals_in_atexit() && !getenv("DLITE_ATEXIT_FREE")) return;
@@ -595,6 +592,8 @@ void dlite_finalize(void)
 
   session_free(s);
   _globals_handler = NULL;
+
+  free_locals();
 }
 
 

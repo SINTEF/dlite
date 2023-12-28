@@ -79,6 +79,11 @@ int dlite_collection_init(DLiteInstance *inst);
 int dlite_collection_deinit(DLiteInstance *inst);
 
 /**
+  Resets `state` already initialised with dlite_collection_init_state().
+*/
+void dlite_collection_reset_state(DLiteCollectionState *state);
+
+/**
   Calculate hash of a collection.
 
   Returns non-zero on error.
