@@ -314,7 +314,8 @@ class Collection(Instance):
 
     def get_relations(self, s=None, p=None, o=None, d=None, rettype='t'):
         """Returns a generator over all relations matching the given
-        values of `s`, `p`, `o` and `d`.
+        values of `s` (subject), `p` (predicate), `o` (object) and `d`
+        (datatype). See docstring for dlite.Collection for more info.
 
         The following values for `rettype` are supported:
         - 'I': Iterate over instances.
@@ -330,19 +331,35 @@ class Collection(Instance):
 
     def get_subjects(self, p=None, o=None, d=None):
         """Returns a generator over all subjects of relations matching the
-        given values of `p` and `o`."""
+        given values of `p`, `o` and `d`."""
         return _CollectionIter(self, s=None, p=p, o=o, d=d, rettype='s')
 
     def get_predicates(self, s=None, o=None, d=None):
         """Returns a generator over all predicates of relations matching the
-        given values of `s` and `o`."""
+        given values of `s`, `o` and `d`."""
         return _CollectionIter(self, s=s, p=None, o=o, d=d, rettype='p')
 
     def get_objects(self, s=None, p=None, d=None):
         """Returns a generator over all subjects of relations matching the
-        given values of `s` and `p`."""
+        given values of `s`, `p` and `d`."""
         return _CollectionIter(self, s=s, p=p, o=None, d=d, rettype='o')
 
+    def value(self, s=None, p=None, o=None, d=None, default=None, any=False):
+        """Return pointer to the value for a pair of two criteria.
+
+        Useful if one knows that there may only be one value.
+
+        Parameters:
+            s, p, o: Criteria to match. Two of these must be non-NULL.
+            d: If not NULL, the required datatype of literal objects.
+            default: Value to return if no matches are found.
+            any: If non-zero, return first matching value.
+
+        Returns:
+            A pointer to the value of the `s`, `p` or `o` that is NULL.
+            On error NULL is returned.
+        """
+        return _dlite._collection_value(self, s, p, o, d, default, any)
 
 def get_collection(id):
     """Returns a new reference to a collection with given id."""

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "minunit/minunit.h"
+#include "utils/err.h"
 #include "dlite.h"
 #include "dlite-collection.h"
 #include "dlite-macros.h"
@@ -75,6 +76,11 @@ MU_TEST(test_collection_find)
 							"nrelations"));
 
   dlite_collection_init_state(coll, &state);
+  printf("\nRelations:\n");
+  while ((r = dlite_collection_find(coll, &state, NULL, NULL, NULL, NULL)))
+    printf("  %-10s %-10s %-10s %s\n", r->s, r->p, r->o, r->d);
+
+  dlite_collection_reset_state(&state);
   printf("\nAnimals:\n");
   while ((r = dlite_collection_find(coll, &state, NULL, "is_a", "animal",
                                     NULL))) {
@@ -119,6 +125,24 @@ MU_TEST(test_collection_find)
   mu_assert_int_eq(1, n);
 
   dlite_collection_deinit_state(&state);
+}
+
+
+MU_TEST(test_collection_value)
+{
+  mu_assert_string_eq("terrier", dlite_collection_value(coll, NULL, "is_a",
+                                                        "dog", NULL, NULL, 0));
+  mu_assert_string_eq("dog", dlite_collection_value(coll, NULL, "is_a",
+                                                    "animal", NULL, NULL, 1));
+
+ ErrTry:
+  mu_assert_string_eq(NULL, dlite_collection_value(coll, NULL, "is_a",
+                                                   "animal", NULL, NULL, 0));
+  mu_assert_string_eq(NULL, dlite_collection_value(coll, NULL, "is_a",
+                                                   "mammal", NULL, NULL, 0));
+ ErrCatch(dliteSearchError):
+  break;
+ ErrEnd;
 }
 
 
@@ -214,29 +238,30 @@ MU_TEST(test_collection_load)
 {
   DLiteCollection *coll2;
   char *collpath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/coll.json";
-  DLiteStoragePathIter *iter;
-  const char *path;
+  //DLiteStoragePathIter *iter;
+  //const char *path;
 
   dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
 
-  printf("\n\nStorage paths:\n");
-  iter = dlite_storage_paths_iter_start();
-  while ((path = dlite_storage_paths_iter_next(iter)))
-    printf("  - %s\n", path);
-  printf("\n");
-  dlite_storage_paths_iter_stop(iter);
+  //printf("\n\nStorage paths:\n");
+  //iter = dlite_storage_paths_iter_start();
+  //while ((path = dlite_storage_paths_iter_next(iter)))
+  //  printf("  - %s\n", path);
+  //printf("\n");
+  //dlite_storage_paths_iter_stop(iter);
 
   FILE *fp = fopen(collpath, "r");
   coll2 = (DLiteCollection *)
     dlite_json_fscan(fp, NULL, "http://onto-ns.com/meta/0.1/Collection");
   fclose(fp);
-  printf("\n\n--- coll2: %p ---\n", (void *)coll2);
-  dlite_json_print((DLiteInstance *)coll2);
-  printf("----------------------\n");
+  //printf("\n\n--- coll2: %p ---\n", (void *)coll2);
+  //dlite_json_print((DLiteInstance *)coll2);
+  //printf("----------------------\n");
+
   const DLiteInstance *inst = dlite_collection_get(coll2, "inst");
-  printf("\n--- inst: %p ---\n", (void *)inst);
-  dlite_json_print((DLiteInstance *)inst);
-  printf("----------------------\n");
+  //printf("\n--- inst: %p ---\n", (void *)inst);
+  //dlite_json_print((DLiteInstance *)inst);
+  //printf("----------------------\n");
 
   dlite_instance_decref((DLiteInstance *)inst);
   dlite_collection_decref(coll2);
@@ -263,8 +288,8 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_collection_add_relation);
   MU_RUN_TEST(test_collection_remove_relations);
-
   MU_RUN_TEST(test_collection_find);
+  MU_RUN_TEST(test_collection_value);
 
   MU_RUN_TEST(test_collection_add);
   MU_RUN_TEST(test_collection_get);

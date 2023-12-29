@@ -22,11 +22,11 @@ class Metadata(Instance):
         description: Description of metadata.
     """
     def __new__(
-            cls,
-            uri: str,
-            dimensions: "Sequence[Dimension]",
-            properties: "Sequence[Property]",
-            description: str = ''
+        cls,
+        uri: str,
+        dimensions: "Sequence[Dimension]",
+        properties: "Sequence[Property]",
+        description: str = ''
     ):
         return Instance.create_metadata(
             uri, dimensions, properties, description)
@@ -286,7 +286,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         d = dict(s=self.s, p=self.p, o=self.o)
         if self.id:
             d[id] = self.id
-
         return d
 
     def asstrings(self):
@@ -790,6 +789,4 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         return self.copy()
 
 %}
-
-
 }

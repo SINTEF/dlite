@@ -9,11 +9,26 @@
 struct _DLiteCollection *_get_collection(const char *id)
 {
   struct _DLiteInstance *inst = dlite_instance_get(id);
-  if (!inst) return dlite_err(1, "no instance with this id: %s", id), NULL;
+  if (!inst) return dlite_err(dliteTypeError,
+                              "no instance with this id: %s", id), NULL;
   if (strcmp(inst->meta->uri, DLITE_COLLECTION_ENTITY) != 0)
     return dlite_err(1, "not a collection: %s", id), NULL;
   return (DLiteCollection *)inst;
 }
+
+char *_collection_value(DLiteInstance *inst,
+                        const char *s, const char *p,
+                        const char *o, const char *d,
+                        const char *fallback, int any) {
+  if (!inst) return dlite_err(dliteTypeError,
+                              "first argument must be provided"), NULL;
+  if (strcmp(inst->meta->uri, DLITE_COLLECTION_ENTITY) != 0)
+    return dlite_err(dliteTypeError,
+                     "first argument must be a collection"), NULL;
+  DLiteCollection *coll = (DLiteCollection *)inst;
+  const char *v = triplestore_value(coll->rstore, s, p, o, d, fallback, any);
+  return (v) ? strdup(v) : NULL;
+ }
 
 %}
 
@@ -35,6 +50,10 @@ const struct _Triple *
   dlite_collection_find_first(const struct _DLiteCollection *coll,
                               const char *s, const char *p, const char *o,
                               const char *d=NULL);
+//const char *dlite_collection_value(struct _DLiteCollection *coll,
+//                                   const char *s=NULL, const char *p=NULL,
+//                                   const char *o=NULL, const char *d=NULL,
+//                                   const char *fallback=NULL, int any=0);
 int dlite_collection_add(struct _DLiteCollection *coll, const char *label,
                          struct _DLiteInstance *inst);
 int dlite_collection_remove(struct _DLiteCollection *coll, const char *label);
@@ -88,6 +107,30 @@ struct _DLiteCollection {
     dlite_instance_incref(inst);
     return inst;
   }
+
+  //%newobject value;
+  //%feature("docstring",
+  //  "Return the value for a pair of two criteria.
+  //
+  //  Useful if one knows that there may only be one value.
+  //
+  //  Parameters:
+  //      s, p, o: Criteria to match. Two of these must not be None.
+  //      d: If not None, the required datatype of literal objects.
+  //      fallback: Value to return if no matches are found.
+  //      any: If non-zero, return first matching value.
+  //
+  //  Returns:
+  //      The value of the `s`, `p` or `o` that is None.
+  //  ") value;
+  //const char *value(struct _DLiteCollection *coll,
+  //                  const char *s=NULL, const char *p=NULL,
+  //                  const char *o=NULL, const char *d=NULL,
+  //                  const char *fallback=NULL, int any=0) {
+  //  const char *v = triplestore_value(coll->rstore, s, p, o, d, fallback, any);
+  //  return (v) ? strdup(v) : NULL;
+  //}
+
 }
 
 
@@ -174,6 +217,13 @@ struct _DLiteCollection {
          ) _get_collection;
 %newobject _get_collection;
 struct _DLiteCollection *_get_collection(const char *id);
+
+%feature("docstring", "Return the value for a pair of two criteria.") _value;
+%newobject _value;
+char *_collection_value(struct _DLiteInstance *inst,
+                        const char *s=NULL, const char *p=NULL,
+                        const char *o=NULL, const char *d=NULL,
+                        const char *fallback=NULL, int any=0);
 
 
 /* -----------------------------------

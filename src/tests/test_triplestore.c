@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "utils/err.h"
 #include "utils/session.h"
 #include "minunit/minunit.h"
 #include "dlite-misc.h"
@@ -23,6 +24,7 @@ MU_TEST(test_add)
   Triple t[] = {
     {"book", "is-a", "thing", NULL, NULL},
     {"table", "is-a", "thing", NULL, NULL},
+    {"table", "is-a", "furniture", NULL, NULL},
     {"book", "is-ontop-of", "table", NULL, NULL},
     {"write", "is-a", "action", NULL, NULL},
     {"walk", "is-a", "action", NULL, NULL},
@@ -30,9 +32,9 @@ MU_TEST(test_add)
   };
   size_t n = sizeof(t) / sizeof(t[0]);
 
-  mu_check(0 == triplestore_length(ts));
+  mu_assert_int_eq(0, triplestore_length(ts));
   mu_assert_int_eq(0, triplestore_add_triples(ts, t, n));
-  mu_check(5 == triplestore_length(ts));
+  mu_assert_int_eq(6, triplestore_length(ts));
 
   mu_assert_int_eq(0, triplestore_add_en(ts, "book", "has-title",
                                          "The Infinite Book"));
@@ -42,7 +44,7 @@ MU_TEST(test_add)
                                       "0.6", "xsd:double"));
   mu_assert_int_eq(0, triplestore_add(ts, "book-weight", "has-unit",
                                       "kg", "xsd:string"));
-  mu_assert_int_eq(9, triplestore_length(ts));
+  mu_assert_int_eq(10, triplestore_length(ts));
 }
 
 
@@ -101,13 +103,13 @@ MU_TEST(test_find)
   triplestore_init_state(ts, &state);
   n = 0;
   while (triplestore_find(&state, NULL, NULL, NULL, NULL)) n++;
-  mu_assert_int_eq(9, n);
+  mu_assert_int_eq(10, n);
   triplestore_deinit_state(&state);
 
   triplestore_init_state(ts, &state);
   n = 0;
   while (triplestore_find(&state, NULL, "is-a", NULL, NULL)) n++;
-  mu_assert_int_eq(4, n);
+  mu_assert_int_eq(5, n);
   triplestore_deinit_state(&state);
 
   triplestore_init_state(ts, &state);
@@ -120,7 +122,7 @@ MU_TEST(test_find)
   triplestore_init_state(ts, &state);
   n = 0;
   while (triplestore_find(&state, NULL, NULL, NULL, "")) n++;
-  mu_assert_int_eq(6, n);
+  mu_assert_int_eq(7, n);
   triplestore_deinit_state(&state);
 
   triplestore_init_state(ts, &state);
@@ -138,21 +140,59 @@ MU_TEST(test_find)
 }
 
 
+MU_TEST(test_value)
+{
+  mu_assert_string_eq("action", triplestore_value(ts, "write", "is-a", NULL,
+                                                  NULL, NULL, 0));
+  mu_assert_string_eq("thing", triplestore_value(ts, "table", "is-a", NULL,
+                                                  NULL, NULL, 1));
+  mu_assert_string_eq("kg", triplestore_value(ts, "book-weight", "has-unit",
+                                              NULL, NULL, NULL, 0));
+  mu_assert_string_eq("book-weight", triplestore_value(ts, NULL, "has-unit",
+                                              "kg", NULL, NULL, 0));
+  mu_assert_string_eq("some-weight", triplestore_value(ts, NULL, "has-unit",
+                                              "µg", NULL, "some-weight", 0));
+
+
+  /* Check some failures */
+ ErrTry:
+  // more than one match
+  mu_assert_string_eq(NULL, triplestore_value(ts, "table", "is-a", NULL,
+                                              NULL, NULL, 0));
+  // no match (datatype does not match)
+  mu_assert_string_eq(NULL, triplestore_value(ts, "book-weight", "has-unit",
+                                              NULL, "xsd:float", NULL, 0));
+ ErrCatch(dliteSearchError):  // suppress errors
+  break;
+ ErrEnd;
+
+ ErrTry:
+  // at least 2 of s,p,o must be given
+  mu_assert_string_eq(NULL, triplestore_value(ts, NULL, "is-a",
+                                              NULL, NULL, NULL, 0));
+  mu_assert_string_eq(NULL, triplestore_value(ts, "book", "is-a",
+                                              "thing", NULL, NULL, 0));
+ ErrCatch(dliteTypeError):  // suppress errors
+  break;
+ ErrEnd;
+}
+
+
 MU_TEST(test_remove)
 {
-  mu_assert_int_eq(9, triplestore_length(ts));
+  mu_assert_int_eq(10, triplestore_length(ts));
 
   mu_check(!triplestore_remove(ts, NULL, "is-something", NULL, NULL));
-  mu_assert_int_eq(9, triplestore_length(ts));
+  mu_assert_int_eq(10, triplestore_length(ts));
 
   mu_assert_int_eq(4, triplestore_remove(ts, "book", NULL, NULL, NULL));
-  mu_assert_int_eq(5, triplestore_length(ts));
+  mu_assert_int_eq(6, triplestore_length(ts));
 }
 
 
 MU_TEST(test_clear)
 {
-  mu_assert_int_eq(5, triplestore_length(ts));
+  mu_assert_int_eq(6, triplestore_length(ts));
   triplestore_clear(ts);
   mu_assert_int_eq(0, triplestore_length(ts));
 }
@@ -176,6 +216,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_next);
   MU_RUN_TEST(test_poll);
   MU_RUN_TEST(test_find);
+  MU_RUN_TEST(test_value);
   MU_RUN_TEST(test_remove);
   MU_RUN_TEST(test_clear);
   MU_RUN_TEST(test_free);

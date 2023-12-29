@@ -673,7 +673,7 @@ int err_get_color_coded()
 void err_default_handler(const ErrRecord *record)
 {
   FILE *stream = err_get_stream();
-  if (err_get_color_coded()) {
+  if (stream && err_get_color_coded()) {
     //if ((stream == stderr || stream == stdout) && getenv("ERR_COLOR")) {
     /* Output the first word of the error message in red and the remaining
        of it in magenta. */

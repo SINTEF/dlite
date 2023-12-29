@@ -316,4 +316,24 @@ DLiteInstance *dlite_collection_next_new(DLiteCollection *coll,
 int dlite_collection_count(DLiteCollection *coll);
 
 
+/**
+  Return pointer to the value for a pair of two criteria.
+
+  Useful if one knows that there may only be one value.  The returned
+  value is held by the collection and should be copied by the user
+  since it may be overwritten by later calls to the collection.
+
+  Parameters:
+      s, p, o: Criteria to match. Two of these must be non-NULL.
+      d: If not NULL, the required datatype of literal objects.
+      fallback: Value to return if no matches are found.
+      any: If non-zero, return first matching value.
+
+  Returns a pointer to the value of the `s`, `p` or `o` that is NULL.
+  On error NULL is returned.
+ */
+const char *dlite_collection_value(DLiteCollection *coll, const char *s,
+                                   const char *p, const char *o, const char *d,
+                                   const char *fallback, int any);
+
 #endif /* _DLITE_COLLECTION_H */
