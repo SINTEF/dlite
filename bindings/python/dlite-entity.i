@@ -239,9 +239,6 @@ struct _Triple {
   }
 }
 
-%rename(_set_default_namespace) triple_set_default_namespace;
-void triple_set_default_namespace(const char *namespace);
-
 
 /* --------
  * Instance

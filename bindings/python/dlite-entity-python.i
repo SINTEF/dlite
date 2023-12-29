@@ -292,11 +292,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     def asstrings(self):
         """Returns a representation of self as a tuple of strings."""
         return (self.s, self.p, self.o)
-
-    @staticmethod
-    def set_default_namespace(namespace):
-        """Set default namespace for triples."""
-        _dlite._set_default_namespace(namespace)
   %}
 }
 
