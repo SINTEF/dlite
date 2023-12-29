@@ -217,6 +217,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
     switch (override) {
     case errOverrideAppend:
       n = strlen(errmsg);
+      tls->err_record->pos = n;
       n += snprintf(errmsg + n, errsize - n, "%s", err_append_sep);
       break;
     case errOverrideWarnOld:
@@ -448,6 +449,7 @@ void err_clear(void)
   tls->err_record->eval = 0;
   tls->err_record->errnum = 0;
   tls->err_record->msg[0] = '\0';
+  tls->err_record->pos = 0;
   tls->err_record->handled = 0;
   tls->err_record->reraise = 0;
   tls->err_record->state = 0;
@@ -672,15 +674,42 @@ int err_get_color_coded()
 void err_default_handler(const ErrRecord *record)
 {
   FILE *stream = err_get_stream();
+  const char *msg = record->msg + record->pos;
+  char *errmark = (record->pos) ? "" : "** ";
+  if (record->pos >= ERR_MSGSIZE) return;
+  if (record->pos) {
+    int m = strspn(msg, "\n");
+    int n = strlen(err_append_sep) - m;
+    fprintf(stream, "%.*s", n, msg+m);
+    msg += m+n;
+  }
   if (stream && err_get_color_coded()) {
-    //if ((stream == stderr || stream == stdout) && getenv("ERR_COLOR")) {
-    /* Output the first word of the error message in red and the remaining
-       of it in magenta. */
-    int n = strcspn(record->msg, ": ");
-    fprintf(stream, "\033[31m%.*s\033[35m%s\033[0m\n", n, record->msg,
-            record->msg+n);
+    /* Print error message in colour. */
+    int n;
+    ThreadLocals *tls = get_tls();
+    Globals *g = tls->globals;
+    ErrDebugMode debug_mode = err_get_debug_mode();
+    if (g->err_prefix && *g->err_prefix) {
+      n = strlen(g->err_prefix) + 2;
+      if (!record->pos) fprintf(stream, "\033[02;31m%.*s", n, msg);
+      msg += n;
+    }
+    if (debug_mode >= 1) {
+      n = strcspn(msg, ":") + 1;
+      n += (msg[0] == '(') ? 1 : strcspn(msg+n, ":") + 2;
+      fprintf(stream, "\033[00;34m%.*s", n, msg);
+      msg += n;
+    }
+    if (debug_mode >= 2) {
+      n = strcspn(msg, ":") + 2;
+      fprintf(stream, "\033[02;32m%.*s", n, msg);
+      msg += n;
+    }
+    n = strcspn(msg, ": ");
+    fprintf(stream, "\033[00;31m%.*s\033[02;35m%s\033[0m\n", n, msg, msg+n);
   } else if (stream) {
-    fprintf(stream, "** %s\n", record->msg);
+    /* Print error message with error marker prepended. */
+    fprintf(stream, "%s%s\n", errmark, msg);
   }
 }
 
