@@ -195,7 +195,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   int ignore_new_error = 0;
   ErrHandler handler = err_get_handler();
   ErrNameConv nameconv = err_get_nameconv();
-  int call_handler = handler && !tls->err_record->prev;
 
   /* Check warning mode */
   if (errlevel == errLevelWarn) {
@@ -283,25 +282,25 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
     tls->err_record->reraise = eval;
 
   /* If we are not within a ErrTry...ErrEnd clause */
-  if (call_handler) {
+  if (!tls->err_record->prev) {
 
     /* ...call the error handler */
-    handler(tls->err_record);
+    if (handler) handler(tls->err_record);
 
     /* ...check err_abort_mode */
     if (errlevel >= errLevelError) {
       if (abort_mode == errAbortExit) {
-        if (!call_handler) handler(tls->err_record);
+        if (!handler) err_default_handler(tls->err_record);
         exit(eval);
       } else if (abort_mode >= errAbortAbort) {
-        if (!call_handler) handler(tls->err_record);
+        if (!handler) err_default_handler(tls->err_record);
         abort();
       }
     }
 
     /* ...make sure that fatal errors always exit */
     if (errlevel >= errLevelFatal) {
-      if (!call_handler) handler(tls->err_record);
+      if (!handler) err_default_handler(tls->err_record);
       exit(eval);
     }
   }
@@ -673,7 +672,7 @@ int err_get_color_coded()
 void err_default_handler(const ErrRecord *record)
 {
   FILE *stream = err_get_stream();
-  if (err_get_color_coded()) {
+  if (stream && err_get_color_coded()) {
     //if ((stream == stderr || stream == stdout) && getenv("ERR_COLOR")) {
     /* Output the first word of the error message in red and the remaining
        of it in magenta. */
@@ -756,7 +755,6 @@ void _err_link_record(ErrRecord *record)
 void _err_unlink_record(ErrRecord *record)
 {
   ThreadLocals *tls = get_tls();
-  Globals *g = tls->globals;
   assert(record == tls->err_record);
   assert(tls->err_record->prev);
 
@@ -800,7 +798,7 @@ void _err_unlink_record(ErrRecord *record)
 
     if (!tls->err_record->prev) {
       ErrHandler handler = err_get_handler();
-      if (handler) g->err_handler(tls->err_record);
+      if (handler) handler(tls->err_record);
     }
 
     if ((abort_mode && record->level >= errLevelError) ||
