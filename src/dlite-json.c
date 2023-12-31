@@ -251,7 +251,8 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     char hex[DLITE_HASH_SIZE*2 + 1];
     if (strhex_encode(hex, sizeof(hex),
                       inst->_parent->hash, DLITE_HASH_SIZE) < 0)
-      FAIL1("cannot encode hash of parent: %s", inst->_parent->uuid);
+      FAILCODE1(dliteValueError,
+                "cannot encode hash of parent: %s", inst->_parent->uuid);
     PRINT1("%s  \"parent\": {\n", in);
     PRINT2("%s    \"uuid\": \"%s\",\n", in, inst->_parent->uuid);
     PRINT2("%s    \"hash\": \"%s\"\n", in, hex);
@@ -1234,7 +1235,8 @@ DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
 {
   char *buf = jstore_readfile(filename);
   int fmt;
-  if (!buf) return err(1, "cannot load json file \"%s\"", filename);
+  if (!buf) return err(dliteStorageLoadError, "cannot load json file \"%s\"",
+                       filename);
   fmt = dlite_jstore_loads(js, buf, strlen(buf));
   free(buf);
   return fmt;

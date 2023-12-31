@@ -3,6 +3,31 @@ Errors and exceptions
 All errors in DLite are defined in the header file [src/dlite-errors.h].
 
 
+Reading error messages
+----------------------
+By default are error occurring in the C-code written to standard error as they happen.
+An error happening deep inside in a nested function may be appended to by the calling functions.
+For instance, if you try to read json input from path "/", you may see the following error message printed to stderr:
+
+```
+DLiteOtherError: cannot read from stream. Is it a regular file with read permissions?: Is a directory
+ - DLiteOtherError: error reading from file "/"
+ - DLiteStorageLoadError: cannot load json file "/"
+```
+
+<code>
+  <span class="ansi31">DLiteOtherError</span><span class="ansi2 ansi35">: cannot read from stream. Is it a regular file with read permissions?: Is a directory</span>
+ - <span class="ansi31">DLiteOtherError</span><span class="ansi2 ansi35">: error reading from file "/"</span>
+ - <span class="ansi31">DLiteStorageLoadError</span><span class="ansi2 ansi35">: cannot load json file "/"</span>
+</code>
+
+The initial **DLiteOtherError** means that the inner nested function *cannot read from stream*. As a hint, it also ask you whether *it is a regular file with read permissions?*
+The colon (:) followed by *Is a directory* is a system message that DLite appends.
+The next line is appended by the calling function.
+It tells that the file (or a directory in this case) that can't be read is "/".
+The last line assigns the type **DLiteStorageLoadError** to the error and tells us that it is a JSON file that can't be loaded.
+
+
 Python exceptions
 -----------------
 If an error occur in the C-code of DLite, a DLite exception will be raised.
@@ -17,6 +42,9 @@ The only exception to this rule are the functions `dlite.errval()`, `dlite.errms
 
 You can use `dlite.errclr()` to clear the error state.
 
+
+Controlling C-level errors
+--------------------------
 
 ### Hiding error messages
 When an error occur in the C-code or  DLite, an error message starting with `** ` is printed to standard error.
@@ -42,8 +70,8 @@ DLiteStorageOpenError: DLiteOtherError: missing driver
 ```
 
 
-C-level errors
---------------
+Accessing errors at C-level
+---------------------------
 DLite functions normally indicate failures by returning NULL or a non-zero error code.
 On failure, the error state can be accessed and cleared via the functions
 

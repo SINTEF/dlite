@@ -39,6 +39,7 @@ const char *dlite_errname(DLiteErrCode code)
   case dliteMissingInstanceError:   return "DLiteMissingInstance";
   case dliteMissingMetadataError:   return "DLiteMissingMetadata";
   case dliteMetadataExistError:     return "DLiteMetadataExist";
+  case dliteMappingError:           return "DLiteMapping";
   case dlitePythonError:            return "DLitePython";
 
   case dliteLastError:              return "DLiteUndefined";
@@ -82,6 +83,7 @@ const char *dlite_errdescr(DLiteErrCode code)
   case dliteMissingInstanceError:   return "No instance with given id";
   case dliteMissingMetadataError:   return "No metadata with given id";
   case dliteMetadataExistError:     return "Metadata with given id already exists";
+  case dliteMappingError:           return "Error in instance mappings";
   case dlitePythonError:            return "Error calling Python API";
   case dliteLastError:              return NULL;
   }
