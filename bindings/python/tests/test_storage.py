@@ -34,6 +34,11 @@ with dlite.Storage(url) as s2:
 # Create an instance
 inst = myentity(dimensions=[2, 3], id="my-data")
 inst["a-bool-array"] = True, False
+inst["a-relation"] = "subj", "pred", "obj"
+inst["a-relation-array"] = [
+    ("s1", "p1", "o1"),
+    ("s2", "p2", "o2"),
+]
 
 # Test Storage.save()
 with dlite.Storage("json", f"{outdir}/tmp.json", "mode=w") as s:
@@ -48,7 +53,6 @@ myentity.save(f"json://{outdir}/myentity.json?mode=w")
 inst.save(f"json://{outdir}/inst.json?mode=w")
 del inst
 inst = dlite.Instance.from_url(f"json://{outdir}/inst.json#my-data")
-
 
 # Test yaml
 if HAVE_YAML:

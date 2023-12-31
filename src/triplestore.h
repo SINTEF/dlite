@@ -55,8 +55,24 @@ librdf_world *triplestore_get_world(TripleStore *ts);
 /** Returns the internal librdf model. */
 librdf_model *triplestore_get_model(TripleStore *ts);
 
-#endif
+/** Like triplestore_create_with_storage(), but also takes a librdf world
+    as argument. */
+TripleStore *triplestore_create_with_world(librdf_world *world,
+                                           const char *storage_name,
+                                           const char *name,
+                                           const char *options);
 
+
+/* ================================== */
+/* Builtin-specific functions         */
+/* ================================== */
+#else  /* !HAVE_REDLAND */
+
+/** Removes a triple identified by it's `id`.  Returns non-zero if no
+  such triple can be found. */
+int triplestore_remove_by_id(TripleStore *ts, const char *id);
+
+#endif
 
 
 /* ================================== */
@@ -70,6 +86,8 @@ TripleStore *triplestore_create();
 
 /**
   Returns a new empty triplestore.
+
+  Without librdf, this behaves like triplestore_create().
 
   Arguments:
     storage_name: Name of storage module. If NULL, the default storage will
@@ -93,7 +111,7 @@ void triplestore_free(TripleStore *ts);
 
 
 /**
-  Set default namespace
+  Set default namespace.
 */
 void triplestore_set_namespace(TripleStore *ts, const char *ns);
 
@@ -111,30 +129,19 @@ size_t triplestore_length(TripleStore *ts);
 
 
 /**
-  Adds a single (s,p,o) triple to store.
+  Adds triple to store.
 
-  If `literal` is non-zero the object will be considered to be a
-  literal, otherwise it is considered to be an URI.
+  If `d` is NULL, the object is considered to be an IRI.
 
-  If `lang` is not NULL, it must be a valid XML language abbreviation,
-  like "en". Only used if `literal` is non-zero.
+  If `d` starts with '@', the object is considered to be a
+  language-tagged plain text literal.  The language code should follow
+  directly after the '@' sign.  Ex: "@en".
 
-  If `datatype_uri` is not NULL, it should be an uri for the literal
-  datatype. Ex: "xsd:integer".
-
-  Returns non-zero on error.
- */
-int triplestore_add2(TripleStore *ts, const char *s, const char *p,
-                     const char *o, int literal, const char *lang,
-                     const char *datatype_uri);
-
-
-/**
-  Adds a single triple to store.  The object is considered to be a
-  literal with no language.  Returns non-zero on error.
+  Otherwise, the object is considered to be a literal with datatype
+  specified by `d`.  Ex: "xsd:integer".
  */
 int triplestore_add(TripleStore *ts, const char *s, const char *p,
-                    const char *o);
+                    const char *o, const char *d);
 
 
 /**
@@ -160,19 +167,12 @@ int triplestore_add_triples(TripleStore *ts, const Triple *triples, size_t n);
 
 
 /**
-  Removes a triple identified by it's `id`.  Returns non-zero if no such
-  triple can be found.
-*/
-int triplestore_remove_by_id(TripleStore *ts, const char *id);
-
-
-/**
   Removes a triple identified by `s`, `p` and `o`.  Any of these may
   be NULL, allowing for multiple matches.  Returns the number of
   triples removed.
 */
 int triplestore_remove(TripleStore *ts, const char *s,
-                       const char *p, const char *o);
+                       const char *p, const char *o, const char *d);
 
 
 /**
@@ -192,7 +192,8 @@ const Triple *triplestore_get(const TripleStore *ts, const char *id);
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
 const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
-                             const char *p, const char *o);
+                                     const char *p, const char *o,
+                                     const char *d);
 
 
 /**
@@ -224,36 +225,49 @@ const Triple *triplestore_next(TripleState *state);
 const Triple *triplestore_poll(TripleState *state);
 
 /**
+  Return next triple matching s-p-o triple, where `d` is the datatype
+  of the object. Any of `s`, `p`, `o` or `d` may be NULL, in which case
+  they will match anything.
+
+  If `d` starts with '@', it will match language-tagged plain text
+  literal objects whos XML language abbreviation matches the string
+  following the '@'-sign.
+
+  if `d` is NUL (empty string), it will match non-literal objects.
+
+  Any other non-NULL `d` will match literal objects whos datatype are `d`.
+
+  When no more matches can be found, NULL is returned.  NULL is also
+  returned on error.
+
   This function should be called iteratively.  Before the first call
-  it should be provided a `state` initialised with triplestore_init_state().
-
-  For each call it will return a pointer to triple matching `s`, `p`
-  and `o`.  Any of `s`, `p` or `o` may be NULL.  When no more matches
-  can be found, NULL is returned.
-
-  No other calls to triplestore_add() or triplestore_find() should be
-  done while searching.
-
-  NULL is also returned on error.
+  it should be provided a `state` initialised with triplestore_init_state()
+  and deinitialised with triplestore_deinit_state().
  */
 const Triple *triplestore_find(TripleState *state,
-                                const char *s, const char *p, const char *o);
+                               const char *s, const char *p, const char *o,
+                               const char *d);
 
 
 /**
-  Like triplestore_find(), but has two additional arguments.
+  Return pointer to the value for a pair of two criteria.
 
-  If `literal` is non-zero the object will be considered to be a
-  literal, otherwise it is considered to be an URI.
+  Useful if one knows that there may only be one value.  The returned
+  value is held by the triplestore and should be copied by the user
+  since it may be overwritten by later calls to the triplestore.
 
-  If `lang` is not NULL, it must be a valid XML language abbreviation,
-  like "en". Only used if `literal` is non-zero.
+  Parameters:
+      s, p, o: Criteria to match. Two of these must be non-NULL.
+      d: If not NULL, the required datatype of literal objects.
+      fallback: Value to return if no matches are found.
+      any: If non-zero, return first matching value.
 
-  If redland is not available, it is equivalent to triplestore_find().
+  Returns a pointer to the value of the `s`, `p` or `o` that is NULL.
+  On error NULL is returned.
  */
-const Triple *triplestore_find2(TripleState *state,
-                                const char *s, const char *p, const char *o,
-                                int literal, const char *lang);
+const char *triplestore_value(TripleStore *ts, const char *s, const char *p,
+                              const char *o, const char *d,
+                              const char *fallback, int any);
 
 
 #endif /* _TRIPLESTORE_H */

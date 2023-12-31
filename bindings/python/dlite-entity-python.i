@@ -22,11 +22,11 @@ class Metadata(Instance):
         description: Description of metadata.
     """
     def __new__(
-            cls,
-            uri: str,
-            dimensions: "Sequence[Dimension]",
-            properties: "Sequence[Property]",
-            description: str = ''
+        cls,
+        uri: str,
+        dimensions: "Sequence[Dimension]",
+        properties: "Sequence[Property]",
+        description: str = ''
     ):
         return Instance.create_metadata(
             uri, dimensions, properties, description)
@@ -266,8 +266,16 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 %extend _Triple {
   %pythoncode %{
     def __repr__(self):
-        return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
-            self.s, self.p, self.o, self.id)
+        args = [f"s='{self.s}', p='{self.p}', o='{self.o}'"]
+        if self.d:
+            args.append(f"d='{self.d}'")
+        if self.id:
+            args.append(f"id='{self.id}'")
+        return f"Relation({', '.join(args)})"
+
+    def copy(self):
+        """Returns a copy of self."""
+        return Relation(s=self.s, p=self.p, o=self.o, d=self.d, id=self.id)
 
     def aspreferred(self):
         """Returns preferred Python representation."""
@@ -278,7 +286,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         d = dict(s=self.s, p=self.p, o=self.o)
         if self.id:
             d[id] = self.id
-
         return d
 
     def asstrings(self):
@@ -782,6 +789,4 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         return self.copy()
 
 %}
-
-
 }

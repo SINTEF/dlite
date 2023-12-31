@@ -192,19 +192,38 @@ struct _DLiteProperty {
 /* --------
  * Relation
  * -------- */
+%feature("docstring", "\
+Relations in DLite corresponds to RDF-triples, but are internally 4 fields:
+  - s: subject
+  - p: predicate
+  - o: object
+  - d: datatype
+
+The datatype is the datatype for literal objects. It may have three forms:
+  - None: object is an IRI (rdfs:Resource).
+  - Starts with '@': object is a language-tagged plain literal
+    (rdf:langString). The language identifier follows the '@'-sign.
+    Ex: '@en' for english.
+  - Otherwise: object is a literal with datatype `d`. Ex: 'xsd:int'.
+
+As an internal implementation detail, relations also have an `id` field.
+It may change in the future, so please don't rely on it.
+") _Triple;
 %rename(Relation) _Triple;
 struct _Triple {
   char *s;     /*!< subject */
   char *p;     /*!< predicate */
   char *o;     /*!< object */
+  char *d;     /*!< datatype */
   char *id;    /*!< unique ID identifying this triple */
 };
 
 %extend _Triple {
-  _Triple(const char *s, const char *p, const char *o, const char *id=NULL) {
+  _Triple(const char *s, const char *p, const char *o,
+          const char *d=NULL, const char *id=NULL) {
     Triple *t;
     if (!(t =  calloc(1, sizeof(Triple)))) FAIL("allocation failure");
-    if (triple_set(t, s, p, o, id)) FAIL("cannot set relation");
+    if (triple_set(t, s, p, o, d, id)) FAIL("cannot set relation");
     return t;
   fail:
     if (t) {
@@ -219,19 +238,6 @@ struct _Triple {
     free($self);
   }
 }
-
-%{
-char *triple_get_id2(const char *s, const char *p, const char *o,
-                      const char *namespace) {
-  return triple_get_id(namespace, s, p, o);
-}
-%}
- %rename(triple_get_id) triple_get_id2;
-%newobject triple_get_id;
-char *triple_get_id(const char *s, const char *p, const char *o,
-                     const char *namespace=NULL);
-
-void triple_set_default_namespace(const char *namespace);
 
 
 /* --------
@@ -289,11 +295,13 @@ struct _DLiteInstance {
       DLiteMeta *meta;
       size_t i, *d, n=ndims;
       if (!(meta = dlite_meta_get(metaid)))
-        return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
+        return dlite_err(dliteMissingMetadataError,
+                         "cannot find metadata '%s'", metaid), NULL;
       if (n != meta->_ndimensions) {
         dlite_meta_decref(meta);
-        return dlite_err(1, "%s has %u dimensions",
-                          metaid, (unsigned)meta->_ndimensions), NULL;
+        return dlite_err(dliteParseError, "%s has %u dimensions (%u given)",
+                         metaid, (unsigned)meta->_ndimensions,
+                         (unsigned)n), NULL;
       }
       d = malloc(n * sizeof(size_t));
       for (i=0; i<n; i++) d[i] = dims[i];
