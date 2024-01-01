@@ -9,7 +9,11 @@ By default are error occurring in the C-code written to standard error as they h
 An error happening deep inside in a nested function may be appended to by the calling functions.
 For instance, if you try to read json input from an invalid path like "/", you may see the following error message printed to stderr:
 
+> **Figure included for reviewer:** Shows the figure before merged to master. Should be removed...
 ![Error message example](https://github.com/SINTEF/dlite/blob/error-documentation/doc/_static/dlite-error.png)
+
+
+![Error message example](https://github.com/SINTEF/dlite/blob/master/doc/_static/dlite-error.png)
 
 _**Figure.** Example of a colourised nested error message printed to standard error._
 
