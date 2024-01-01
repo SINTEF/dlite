@@ -10,6 +10,7 @@ An error happening deep inside in a nested function may be appended to by the ca
 For instance, if you try to read json input from an invalid path like "/", you may see the following error message printed to stderr:
 
 > **Figure included for reviewer:** Shows the figure before merged to master. Should be removed...
+>
 ![Error message example](https://github.com/SINTEF/dlite/blob/error-documentation/doc/_static/dlite-error.png)
 
 
@@ -43,10 +44,12 @@ Controlling error messages
 --------------------------
 
 ### Hiding error messages
-Sometimes you don't want to show error messages, either from a specific code block or in general (e.g. to not clutter stderr). There are several ways errors can be hidden:
+Sometimes you don't want to show error messages, either from a specific code block or in general (e.g. to not clutter stderr).
+A typical use case for is when you handle an error in a specific code block.
+There are several ways errors can be hidden:
 
 #### Hiding error messages with environment variables
-Error messages can be ignored or redirected to file with the **[ERR_STREAM]** environment variable.
+General error messages can be ignored or redirected to file with the **[ERR_STREAM]** environment variable.
 If empty, nothing will written, otherwise **[ERR_STREAM]** is a file name to which the error messages are appended.
 The special values "stderr" (default) and "stdout" means write to standard error or standard output, respectively.
 
@@ -54,18 +57,21 @@ Whether to show warnings can be controlled with the **[ERR_WARN]** environment v
 
 
 #### Hiding error messages from Python
-In Python you can use `dlite.errctl()` to hide or redirect errors to file.
+In Python you can use `dlite.errctl()` to hide or redirect errors to a file.
 `dlite.errctl()` can also be used as a context manager.
-For example:
+For example will:
 
 ```python
->>> with dlite.errctl(hide=dlite.DLiteStorageOpenError):
+>>> with dlite.errctl(hide=dlite.DLiteStorageLoadError):
+...     # Raises a dlite.DLiteStorageLoadError
 ...     dlite.Instance.from_location("json", "/")
-DLiteStorageLoadError: DLiteStorageLoadError: cannot load JSOM file: "/"
 ```
 
-#### Hiding error messages from C
-In C-code you can hide DLite error messages either by ignoring/redirecting them with `err_set_stream()` or with a `ErrTry` block.
+hide the `DLiteStorageLoadError` that is raised when calling `Instance.from_location()` with an invalid path.
+
+
+#### Hiding error messages in C
+In C-code you can hide DLite error messages either by ignoring/redirecting them with `err_set_stream()` or with the `ErrTry` macro.
 An `ErrTry` block for ignoring a `dliteValueError` may e.g. look like this:
 
 ```c
@@ -76,12 +82,12 @@ ErrCatch(dliteValueError):
 ErrEnd;
 ```
 
-These error functions and macros can be found in `$DLITE_ROOT/include/dlite/utils/err.h`.
+These error functions and macros can be found in the header file installed in `[include/dlite/utils/err.h]`.
 
 
 ### Colorised errors
 By default errors are colorised (using [ANSI escape codes]) when printed to a terminal and not otherwise.
-Uncolorised error messages are instead pre-pended with `** ` to make them easier to spot.
+Uncolorised error messages are instead pre-pended with "** " to make them easier to spot.
 Whether to colorise errors can be controlled with the **[ERR_COLOR]** environment variable.
 
 
@@ -108,12 +114,14 @@ const char *dlite_errmsg(void);
 void dlite_errclr(void);
 ```
 
-defined in `src/dlite-mish.h`.
+which are defined in the header file installed in `[include/dlite/dlite-misc.h]`.
 
 
 
 [ANSI escape codes]: https://en.wikipedia.org/wiki/ANSI_escape_code
 [src/dlite-errors.h]: https://github.com/SINTEF/dlite/blob/master/src/dlite-errors.h
+[include/dlite/utils/err.h]: https://github.com/SINTEF/dlite/blob/master/src/utils/err.h
+[include/dlite/dlite-misc.h]: https://github.com/SINTEF/dlite/blob/master/src/dlite-misc.h
 [ERR_STREAM]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/environment_variables.md
 [ERR_WARN]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/environment_variables.md
 [ERR_COLOR]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/environment_variables.md
