@@ -1,6 +1,7 @@
 # -*- Mode: cmake -*-
 #
 cmake_minimum_required(VERSION 3.14)
+cmake_policy(SET CMP0144 OLD)
 
 project(dlite-example-1
   VERSION 0.1
