@@ -9,6 +9,7 @@ By default are error occurring in the C-code written to standard error as they h
 An error happening deep inside in a nested function may be appended to by the calling functions.
 For instance, if you try to read json input from path "/", you may see the following error message printed to stderr:
 
+
 ```
 DLiteOtherError: cannot read from stream. Is it a regular file with read permissions?: Is a directory
  - DLiteOtherError: error reading from file "/"
@@ -20,6 +21,11 @@ DLiteOtherError: cannot read from stream. Is it a regular file with read permiss
  - <span class="ansi31">DLiteOtherError</span><span class="ansi2 ansi35">: error reading from file "/"</span>
  - <span class="ansi31">DLiteStorageLoadError</span><span class="ansi2 ansi35">: cannot load json file "/"</span>
 </code>
+
+![Error message example](https://github.com/SINTEF/dlite/blob/error-documentation/doc/_static/dlite-error.png)
+
+_**Figure** Example of an error message._
+
 
 The initial **DLiteOtherError** means that the inner nested function *cannot read from stream*. As a hint, it also ask you whether *it is a regular file with read permissions?*
 The colon (:) followed by *Is a directory* is a system message that DLite appends.
