@@ -1,6 +1,9 @@
 # -*- Mode: cmake -*-
 #
 cmake_minimum_required(VERSION 3.14)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+  cmake_policy(SET CMP0144 OLD)
+endif()
 
 project(dlite-example-1
   VERSION 0.1

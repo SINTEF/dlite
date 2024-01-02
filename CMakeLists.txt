@@ -849,8 +849,25 @@ install(
   DESTINATION "share/cmake/Modules"
   )
 
-if(CROSS_TARGET)
-  # When cross-compiling, include the python in the distribution
+# Patch virtualenv activate.sh script
+if(DEFINED ENV{VIRTUAL_ENV})
+  find_program(BASH bash)
+  find_program(PATCH patch)
+  install(
+    CODE "execute_process(
+              COMMAND ${BASH} ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
+              OUTPUT_QUIET
+         )"
+  )
+  install(
+    PROGRAMS ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
+    TYPE BIN
+  )
+endif()
+
+
+# When cross-compiling, include Python binaries in the distribution
+if(CROSS_TARGET AND HAVE_PYTHON)
   set(pyver "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
   install(
     FILES

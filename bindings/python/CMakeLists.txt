@@ -235,20 +235,6 @@ install(
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
-if(DEFINED ENV{VIRTUAL_ENV})
-  find_program(BASH bash)
-  find_program(PATCH patch)
-  install(
-    CODE "execute_process(
-              COMMAND ${BASH} ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
-              OUTPUT_QUIET
-         )"
-  )
-  install(
-    PROGRAMS ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
-    TYPE BIN
-  )
-endif()
 
 add_subdirectory(scripts)
 
