@@ -217,7 +217,7 @@ class Collection(Instance):
         """Remove all relations matching `s`, `p` and `o`."""
         if _collection_remove_relations(self._coll, s, p, o, d) < 0:
             raise _dlite.DLiteError(
-                f'Error removing relations matching ({s}, {p}, {o})')
+                f'Error removing relations matching ({s}, {p}, {o}, {d})')
 
     def get_first_relation(self, s=None, p=None, o=None, d=None):
         """Returns the first relation matching `s`, `p` and `o`.
