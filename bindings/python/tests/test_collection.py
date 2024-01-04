@@ -165,6 +165,9 @@ assert isinstance(coll["meta"], dlite.Metadata)
 assert coll.value(s="dog", p="is-a") == "animal"
 assert coll.value(p="_is-a", o="Instance", any=1) == "inst1"
 assert coll.value(p="is-a", o="x", default="y", any=1) == "y"
+assert coll.value(s="meta", p="_has-uuid", d="xsd:anyURI") == (
+    "96f31fc3-3838-5cb8-8d90-eddee6ff59ca"
+)
 
 with raises(dlite.DLiteTypeError):
     coll.value(s="dog", p="is-a", o="animal")
@@ -177,6 +180,9 @@ with raises(dlite.DLiteSearchError):
 
 with raises(dlite.DLiteSearchError):
     coll.value(p="_is-a", o="Instance")
+
+with raises(dlite.DLiteSearchError):
+    coll.value(s="meta", p="_has-uuid", d="xsd:int")
 
 
 # String representation
