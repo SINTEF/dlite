@@ -130,13 +130,13 @@ MU_TEST(test_bool_vec_property)
 MU_TEST(test_int_arr_property)
 {
   int v[2][3] = {{-4, 5, 7}, {42, 0, -13}}, w[2][3];
-  size_t i, j, dims[] = {2, 3};
+  size_t i, j, shape[] = {2, 3};
   mu_check(dlite_datamodel_set_property(d, "myint", v, dliteInt,
-                                        sizeof(int), 2, dims) == 0);
+                                        sizeof(int), 2, shape) == 0);
   mu_check(dlite_datamodel_get_property(d, "myint", w, dliteInt,
-                                        sizeof(int), 2, dims) == 0);
-  for (i=0; i<dims[0]; i++)
-    for (j=0; j<dims[1]; j++)
+                                        sizeof(int), 2, shape) == 0);
+  for (i=0; i<shape[0]; i++)
+    for (j=0; j<shape[1]; j++)
       mu_check(v[i][j] == w[i][j]);
 }
 
@@ -205,48 +205,48 @@ MU_TEST(test_stringptr_property)
 MU_TEST(test_stringptr_vec_property)
 {
   char *v[]={"Another test string", "next"}, *w[2], u[2][256];
-  size_t i, dims[]={2};
+  size_t i, shape[]={2};
   mu_check(dlite_datamodel_set_property(d, "mystringptr_vec", v, dliteStringPtr,
-                                        sizeof(char *), 1, dims) == 0);
+                                        sizeof(char *), 1, shape) == 0);
   mu_check(dlite_datamodel_get_property(d, "mystringptr_vec", w, dliteStringPtr,
-                                        sizeof(char *), 1, dims) == 0);
-  for (i=0; i<dims[0]; i++) {
+                                        sizeof(char *), 1, shape) == 0);
+  for (i=0; i<shape[0]; i++) {
     mu_assert_string_eq(v[i], w[i]);
     free(w[i]);
   }
   /*
    * Also test implicit DTStringPtr to DTString */
   mu_check(dlite_datamodel_get_property(d, "mystringptr_vec", u, dliteFixString,
-                                        256, 1, dims) == 0);
-  for (i=0; i<dims[0]; i++)
+                                        256, 1, shape) == 0);
+  for (i=0; i<shape[0]; i++)
     mu_assert_string_eq(v[i], u[i]);
 }
 
 MU_TEST(test_string_arr_property)
 {
-  size_t i, j, dims[] = {2, 2};
+  size_t i, j, shape[] = {2, 2};
   char v[2][2][6]={{"this", "is"}, {"some", "words"}}, w[2][2][6];
   mu_check(dlite_datamodel_set_property(d, "mystring_arr", v, dliteFixString,
-                                        6, 2, dims) == 0);
+                                        6, 2, shape) == 0);
   mu_check(dlite_datamodel_get_property(d, "mystring_arr", w, dliteFixString,
-                                        6, 2, dims) == 0);
-  for (i=0; i<dims[0]; i++)
-    for (j=0; j<dims[1]; j++)
+                                        6, 2, shape) == 0);
+  for (i=0; i<shape[0]; i++)
+    for (j=0; j<shape[1]; j++)
       mu_assert_string_eq(v[i][j], w[i][j]);
 }
 
 MU_TEST(test_uint64_arr_property)
 {
-  size_t i, j, k, dims[] = {1, 2, 3};
+  size_t i, j, k, shape[] = {1, 2, 3};
   uint64_t v[1][2][3]={{{10, 12, 9}, {3, 0, 100}}}, w[6];
   mu_check(dlite_datamodel_set_property(d, "myuint64", v, dliteUInt,
-                                        sizeof(uint64_t), 3, dims) == 0);
+                                        sizeof(uint64_t), 3, shape) == 0);
   mu_check(dlite_datamodel_get_property(d, "myuint64", w, dliteUInt,
-                                        sizeof(uint64_t), 3, dims) == 0);
-  for (i=0; i<dims[0]; i++)
-    for (j=0; j<dims[1]; j++)
-      for (k=0; k<dims[2]; k++)
-        mu_check(v[i][j][k] == w[k + dims[2]*(j + dims[1]*i)]);
+                                        sizeof(uint64_t), 3, shape) == 0);
+  for (i=0; i<shape[0]; i++)
+    for (j=0; j<shape[1]; j++)
+      for (k=0; k<shape[2]; k++)
+        mu_check(v[i][j][k] == w[k + shape[2]*(j + shape[1]*i)]);
 }
 
 MU_TEST(test_has_dimension)

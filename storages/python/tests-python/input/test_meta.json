@@ -44,7 +44,7 @@
     {
       "name": "myarray",
       "type": "int32",
-      "dims": ["L", "M", "N"],
+      "shape": ["L", "M", "N"],
       "description": "An array string pointer."
     }
   ]

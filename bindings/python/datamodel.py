@@ -59,9 +59,7 @@ class DataModel:
             raise KeyError(f'A dimension named "{name}" already exists')
         self.dimensions[name] = dlite.Dimension(name, description)
 
-    def add_property(
-        self, name, type, shape=None, unit=None, description=None, dims=None
-    ):
+    def add_property(self, name, type, shape=None, unit=None, description=None):
         """Add property to data model.
 
         Parameters:
@@ -87,16 +85,17 @@ class DataModel:
         self.properties[name] = dlite.Property(
             name=name,
             type=type,
-            dims=shape,
+            shape=shape,
             unit=unit,
             description=description,
         )
 
     def _get_dims_variables(self):
-        """Returns a set of all dimension names referred to in property shapes.
-        """
+        """Returns a set of all dimension names referred to in property shape."""
         names = set()
         for prop in self.properties.values():
+            if prop.shape is not None:
+                for dim in prop.shape:
             if prop.shape is not None:
                 for dim in prop.shape:
                     tree = ast.parse(dim)
@@ -130,9 +129,9 @@ class DataModel:
     def get(self):
         """Returns a DLite Metadata created from the datamodel."""
         self.validate()
-        dims = [len(self.dimensions), len(self.properties)]
-        if "nrelations" in self.schema:
-            dims.append(len(self.relations))
+        shape = [len(self.dimensions), len(self.properties)]
+        if 'nrelations' in self.schema:
+            shape.append(len(self.relations))
 
         # Hmm, there seems to be a bug when instantiating from schema.
         # The returned metadata seems not to be initialised, i.e.
@@ -144,11 +143,11 @@ class DataModel:
                 f"Currently only entity schema is supported"
             )
 
-        # meta = self.schema(dims, id=self.uri)
-        # meta.description = self.description
-        # meta['dimensions'] = list(self.dimensions.values())
-        # meta['properties'] = list(self.properties.values())
-        # if 'relations' in meta:
+        #meta = self.schema(shape, id=self.uri)
+        #meta.description = self.description
+        #meta['dimensions'] = list(self.dimensions.values())
+        #meta['properties'] = list(self.properties.values())
+        #if 'relations' in meta:
         #    meta['relations'] = self.relations
         # return meta
 

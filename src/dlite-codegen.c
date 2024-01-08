@@ -228,7 +228,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&psubs, "prop.ref",      ref,      NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
     tgen_subs_set(&psubs, "prop.descr",    descr,    NULL);
-    tgen_subs_set(&psubs, "prop.dims",     NULL,     list_dims);
+    tgen_subs_set(&psubs, "prop.shape",     NULL,     list_dims);
     tgen_subs_set_fmt(&psubs, "prop.typeno",      NULL, "%d",  p->type);
     tgen_subs_set_fmt(&psubs, "prop.size",        NULL, "%u",(unsigned)p->size);
     tgen_subs_set_fmt(&psubs, "prop.ndims",       NULL, "%d",  p->ndims);

@@ -25,5 +25,10 @@ datamodel.add_property(
 Atoms = datamodel.get()
 
 
+<<<<<<< HEAD
 # atoms = Atoms(dims=[2, 3, 3])
 atoms = Atoms(dims=dict(nvecs=3, ncoords=3, natoms=2))
+=======
+#atoms = Atoms(shape=[2, 3, 3])
+atoms = Atoms(shape=dict(nvecs=3, ncoords=3, natoms=2))
+>>>>>>> b72f56be (11 tests fail)

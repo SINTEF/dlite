@@ -16,7 +16,13 @@
     },
     "skills": {
       "type": "string",
+<<<<<<< HEAD
       "shape": ["N"],
+=======
+      "shape": [
+        "N"
+      ],
+>>>>>>> b72f56be (11 tests fail)
       "description": "List of skills."
     }
   }

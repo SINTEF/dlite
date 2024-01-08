@@ -28,7 +28,7 @@ CREATE TABLE public."http://onto-ns.com/meta/0.1/test-entity" (
     uuid character(36) NOT NULL,
     uri character varying,
     meta character varying,
-    dims integer[],
+    shape integer[],
     myblob bytea,
     mydouble double precision,
     myfixstring character varying,
@@ -56,7 +56,7 @@ ALTER TABLE public.uuidtable OWNER TO dlite_test;
 -- Data for Name: http://onto-ns.com/meta/0.1/test-entity; Type: TABLE DATA; Schema: public; Owner: dlite_test
 --
 
-COPY public."http://onto-ns.com/meta/0.1/test-entity" (uuid, uri, meta, dims, myblob, mydouble, myfixstring, mystring, myshort, myarray) FROM stdin;
+COPY public."http://onto-ns.com/meta/0.1/test-entity" (uuid, uri, meta, shape, myblob, mydouble, myfixstring, mystring, myshort, myarray) FROM stdin;
 204b05b2-4c89-43f4-93db-fd1cb70f54ef	\N	http://onto-ns.com/meta/0.1/test-entity	{2,2,3}	\\x0a0120	2.72	Si	...	13	{{{1,2,3},{3,2,1}},{{4,5,6},{6,5,4}}}
 e076a856-e36e-5335-967e-2f2fd153c17d	my_test_instance	http://onto-ns.com/meta/0.1/test-entity	{2,1,3}	\\x0a0010	3.14	Al	allocated string...	17	{{{1,2,3}},{{4,5,6}}}
 \.

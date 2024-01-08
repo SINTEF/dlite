@@ -88,7 +88,7 @@ static DLiteDimension {name%u}_dimensions[] = {{
 {list_properties:\
 {@if:{prop.ndims}!0}\
 static char *{name%u}_prop_{prop.name}_dims[] = {{\
-{prop.dims:"{dim.name}"{, }\.}\
+{prop.shape:"{dim.name}"{, }\.}\
 }};
 {@endif}\.}\
 

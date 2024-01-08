@@ -94,6 +94,7 @@ if HAVE_DATACLASSES:
             "ncoords": "Number of coordinates.  Always three.",
         },
         properties={
+<<<<<<< HEAD
             "symbols": {
                 "type": "string",
                 "dims": ["natoms"],
@@ -104,6 +105,18 @@ if HAVE_DATACLASSES:
                 "dims": ["natoms", "ncoords"],
                 "unit": "Å",
                 "description": "Position of each atom.",
+=======
+            'symbols': {
+                'type': 'string',
+                'shape': ['natoms'],
+                'description': 'Chemical symbol of each atom.',
+            },
+            'positions': {
+                'type': 'float',
+                'shape': ['natoms', 'ncoords'],
+                'unit': 'Å',
+                'description': 'Position of each atom.',
+>>>>>>> b72f56be (11 tests fail)
             },
         },
     )
@@ -124,6 +137,7 @@ if HAVE_PYDANTIC:
             "ncoords": "Number of coordinates.  Always three.",
         },
         properties={
+<<<<<<< HEAD
             "symbols": {
                 "type": "string",
                 "dims": ["natoms"],
@@ -134,6 +148,18 @@ if HAVE_PYDANTIC:
                 "dims": ["natoms", "ncoords"],
                 "unit": "Å",
                 "description": "Position of each atom.",
+=======
+            'symbols': {
+                'type': 'string',
+                'shape': ['natoms'],
+                'description': 'Chemical symbol of each atom.',
+            },
+            'positions': {
+                'type': 'float',
+                'shape': ['natoms', 'ncoords'],
+                'unit': 'Å',
+                'description': 'Position of each atom.',
+>>>>>>> b72f56be (11 tests fail)
             },
         },
     )
@@ -144,13 +170,13 @@ if HAVE_PYDANTIC:
 
 # Test infer_dimensions()
 # TODO - test also exceptions
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={"a-string-array": [("a", "b"), ("c", "d"), ("e", "f")]},
 )
-assert dims == dict(N=3, M=2)
+assert shape == dict(N=3, M=2)
 
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={
         "a-string-array": [("a", "b"), ("c", "d"), ("e", "f")],
@@ -161,15 +187,16 @@ dims = infer_dimensions(
         ],
     },
 )
-assert dims == dict(N=3, M=2)
+assert shape == dict(N=3, M=2)
 
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={
         "an-int-array": [1, 2, 3, 4],
         "a-fixstring-array": [("Al", "Mg"), ("Si", "Cu")],
     },
 )
+<<<<<<< HEAD
 assert dims == dict(N=2, M=4)
 
 
@@ -189,3 +216,6 @@ ref.items = item1, item2
 ref.refs = [ref]
 dims = infer_dimensions(meta=Ref, values=ref.asdict()["properties"])
 assert dims == {"nitems": 2, "nrefs": 1}
+=======
+assert shape == dict(N=2, M=4)
+>>>>>>> b72f56be (11 tests fail)

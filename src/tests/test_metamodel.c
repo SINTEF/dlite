@@ -68,8 +68,8 @@ MU_TEST(test_metamodel_create_meta)
   dlite_instance_save_url("json://Vehicle.json?mode=w&with-uuid=yes",
                           (DLiteInstance *)meta);
 
-  size_t dims[] = {0};
-  DLiteInstance *vehicle = dlite_instance_create(meta, dims, NULL);
+  size_t shape[] = {0};
+  DLiteInstance *vehicle = dlite_instance_create(meta, shape, NULL);
   mu_check(vehicle);
   char *brand = "Ford";
   stat = dlite_instance_set_property(vehicle, "brand", brand);

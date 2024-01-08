@@ -308,7 +308,7 @@ void dlite_instance_debug(const DLiteInstance *inst)
 
 /*
   Returns the allocated size of an instance with metadata `meta` and
-  dimensions `dims`.  The length of `dims` is given by
+  dimensions `shape`.  The length of `shape` is given by
   ``meta->_ndimensions``.  Mostly intended for internal use.
 
   Returns zero on error.
@@ -363,7 +363,7 @@ char** dlite_istore_get_uuids(int* nuuids)
 
 /*
   Help function that evaluates array of instance property dimension
-  values, where `dims` is the instance dimensions.  It assigns the
+  values, where `shape` is the instance dimensions.  It assigns the
   `propdims` memory section of `inst`.
 
   Returns non-zero in error.
@@ -421,7 +421,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
     warn("trying to create new instance with id '%s' - creates a new "
         "reference instead (refcount=%d)", id, inst->_refcount);
 
-    /* Check that `dims` corresponds to the shape of the existing instance. */
+    /* Check that `shape` corresponds to the shape of the existing instance. */
     for (i=0; i < meta->_ndimensions; i++) {
       if (shape[i] != dlite_instance_get_dimension_size_by_index(inst, i))
         FAILCODE3(dliteIndexError, "mismatch of dimension %d. Trying to create with size %d "
@@ -500,7 +500,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
 
 /*
   Returns a new dlite instance from Entiry `meta` and dimensions
-  `dims`.  The lengths of `dims` is found in `meta->ndims`.
+  `shape`.  The lengths of `shape` is found in `meta->ndims`.
 
   The `id` argment may be NULL, a valid UUID or an unique identifier
   to this instance (e.g. an uri).  In the first case, a random UUID
@@ -524,7 +524,7 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
 
 /*
   Like dlite_instance_create() but takes the uri or uuid if the
-  metadata as the first argument.  `dims`.  The lengths of `dims` is
+  metadata as the first argument.  `shape`.  The lengths of `shape` is
   found in `meta->ndims`.
 
   On error, NULL is returned.
@@ -1731,9 +1731,9 @@ int dlite_instance_sync_from_properties(DLiteInstance *inst)
 
 /*
   Updates the size of all dimensions in `inst`.  The new dimension
-  sizes are provided in `dims`, which must be of length
+  sizes are provided in `shape`, which must be of length
   `inst->_ndimensions`.  Dimensions corresponding to negative elements
-  in `dims` will remain unchanged.
+  in `shape` will remain unchanged.
 
   All properties whos dimension are changed will be reallocated and
   new memory will be zeroed.  The values of properties with two or
@@ -2003,7 +2003,7 @@ int dlite_instance_copy_property_by_index(const DLiteInstance *inst, int i,
 /*
   Copies and possible type-cast value of property number `i` to memory
   pointed to by `dest` using `castfun`.  The destination memory is
-  described by arguments `type`, `size` `dims` and `strides`.  It must
+  described by arguments `type`, `size` `shape` and `strides`.  It must
   be large enough to hole all the data.
 
   If `castfun` is NULL, it defaults to dlite_type_copy_cast().
@@ -2059,7 +2059,7 @@ int dlite_instance_assign_property(const DLiteInstance *inst, const char *name,
 /*
   Assigns property `i` by copying and possible type-cast memory
   pointed to by `src` using `castfun`.  The memory pointed to by `src`
-  is described by arguments `type`, `size` `dims` and `strides`.
+  is described by arguments `type`, `size` `shape` and `strides`.
 
   If `castfun` is NULL, it defaults to dlite_type_copy_cast().
 
@@ -3093,9 +3093,9 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
 
   The pointer `ptr` should point to the memory where the data is stored.
   The meaning and layout of the data is described by property `p`.
-  The actual sizes of the property dimension is provided by `dims`.  Use
+  The actual sizes of the property dimension is provided by `shape`.  Use
   dlite_instance_get_property_dims_by_index() or the DLITE_PROP_DIMS macro
-  for accessing `dims`.
+  for accessing `shape`.
 
   No more than `n` bytes are written to `dest` (incl. the terminating
   NUL).  Arrays will be written with a JSON-like syntax.
@@ -3295,7 +3295,7 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
         else if (prop->type == dliteRef && (t = jsmn_item(src, v, "type")))
           prop->ref = strndup(src + t->start, t->end - t->start);
 
-        if ((t = jsmn_item(src, v, "dims")) ||
+        if ((t = jsmn_item(src, v, "shape")) ||
             (t = jsmn_item(src, v, "shape"))) {
           if (t->type != JSMN_ARRAY)
             return errx(dliteIndexError, "property \"%.*s\": shape should be an array",
@@ -3340,7 +3340,7 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
   The property is described by `p`.
 
   For arrays, `ptr` should points to the first element and will not be
-  not dereferenced.  Evaluated dimension sizes are given by `dims`.
+  not dereferenced.  Evaluated dimension sizes are given by `shape`.
 
   The `flags` provides some format options.  If zero (default)
   strings are expected to be quoted.

@@ -22,9 +22,9 @@
     n += m;                                                             \
   } while (0)
 
-#define APPEND_PROPERTY(buf, p, dims, ptr)                              \
+#define APPEND_PROPERTY(buf, p, shape, ptr)                              \
   do {                                                                  \
-    int m = append_property(buf, bufsize-n, p, dims, ptr);              \
+    int m = append_property(buf, bufsize-n, p, shape, ptr);              \
     if (m < 0) return m;                                                \
     n += m;                                                             \
   } while (0)
@@ -87,7 +87,7 @@ static BsonType bsontype(DLiteType dtype, size_t size)
     - bufsize: Size of memory segment pointed to by `buf`.  No more than
         `bufsize` bytes will be written.
     - p: Property to append.
-    - dims: Values of property dimensions.
+    - shape: Values of property dimensions.
     - ptr: Pointer to data to serialise.
 
   Returns:
@@ -95,7 +95,7 @@ static BsonType bsontype(DLiteType dtype, size_t size)
     A negative error code is returned on error.
  */
 static int append_property(unsigned char *buf, int bufsize,
-                           DLiteProperty *p, size_t *dims, void *ptr)
+                           DLiteProperty *p, size_t *shape, void *ptr)
 {
   int n=0;
   int32_t i32;
@@ -110,7 +110,7 @@ static int append_property(unsigned char *buf, int bufsize,
 
     /* Array - treated as binary using host byte order */
     int i, nmemb=1;
-    for (i=0; i < p->ndims; i++) nmemb *= dims[i];
+    for (i=0; i < p->ndims; i++) nmemb *= shape[i];
     switch (p->type) {
     case dliteBlob:
     case dliteBool:
@@ -373,9 +373,9 @@ int dlite_bson_append_instance(unsigned char *buf, int bufsize,
     BEGIN_SUBDOC(buf, "properties", &subdoc);
     for (i=0; i < inst->meta->_nproperties; i++) {
       DLiteProperty *p = inst->meta->_properties + i;
-      size_t *dims = DLITE_PROP_DIMS(inst, i);
+      size_t *shape = DLITE_PROP_DIMS(inst, i);
       void *ptr = dlite_instance_get_property_by_index(inst, i);
-      APPEND_PROPERTY(subdoc, p, dims, ptr);
+      APPEND_PROPERTY(subdoc, p, shape, ptr);
     }
     END_SUBDOC(buf, bsonDocument);
   }
@@ -711,7 +711,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
   unsigned char *subdoc, *endptr;
   char *ename;
   void *data;
-  size_t *dims=NULL;
+  size_t *shape=NULL;
   DLiteInstance *inst=NULL;
   if (!(metaid = bson_scan_string(doc, "meta", NULL))) goto fail;
   uuid = bson_scan_string(doc, "uuid", NULL);
@@ -737,7 +737,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
     FAILCODE1(dliteKeyError, "expected dimension values to be a bson "
               "document, got %s", bson_typename(type));
   if ((ndims = bson_nelements(subdoc)) < 0) goto fail;
-  if (!(dims = calloc(ndims, sizeof(size_t))))
+  if (!(shape = calloc(ndims, sizeof(size_t))))
     FAILCODE(dliteMemoryError, "allocation failure");
   endptr = NULL;
   i = 0;
@@ -745,7 +745,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
     if (type != bsonInt32)
       FAILCODE1(dliteTypeError, "expected dimension values to be bsonInt32, "
                 "got %s", bson_typename(type));
-    dims[i++] = *((int32_t *)data);
+    shape[i++] = *((int32_t *)data);
   }
   if (i != ndims)
     FAILCODE2(dliteInconsistentDataError, "expected %d dimensions, got %d",
@@ -754,7 +754,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
   /* Create instance */
   if (!(id = (uri) ? uri : (uuid) ? uuid : NULL))
     FAILCODE(dliteKeyError, "bson data is missing uri and/or uuid");
-  if (!(inst = dlite_instance_create_from_id(metaid, dims, id))) goto fail;
+  if (!(inst = dlite_instance_create_from_id(metaid, shape, id))) goto fail;
 
   if (dlite_instance_is_meta(inst)) {
     /* Metadata */
@@ -789,10 +789,10 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
     }
   }
 
-  if (dims) free(dims);
+  if (shape) free(shape);
   return inst;
  fail:
   if (inst) dlite_instance_decref(inst);
-  if (dims) free(dims);
+  if (shape) free(shape);
   return NULL;
 }

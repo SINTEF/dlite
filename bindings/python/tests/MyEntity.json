@@ -23,7 +23,7 @@
     {
       "name": "a-blob-array",
       "type": "blob4",
-      "dims": [
+      "shape": [
         "N",
         "N"
       ],
@@ -37,7 +37,7 @@
     {
       "name": "a-bool-array",
       "type": "bool",
-      "dims": [
+      "shape": [
         "N"
       ],
       "description": "A bool array."
@@ -50,7 +50,7 @@
     {
       "name": "an-int-array",
       "type": "int",
-      "dims": [
+      "shape": [
         "M"
       ],
       "description": "An int array."
@@ -65,7 +65,7 @@
       "name": "a-float64-array",
       "type": "float64",
       "unit": "K",
-      "dims": [
+      "shape": [
         "M"
       ],
       "description": "The temperature."
@@ -78,7 +78,7 @@
     {
       "name": "a-fixstring-array",
       "type": "string3",
-      "dims": [
+      "shape": [
         "N",
         "N"
       ],
@@ -92,7 +92,7 @@
     {
       "name": "a-string-array",
       "type": "string",
-      "dims": [
+      "shape": [
         "N",
         "M"
       ],
@@ -106,7 +106,7 @@
     {
       "name": "a-relation-array",
       "type": "relation",
-      "dims": [
+      "shape": [
         "N"
       ],
       "description": "A relation array"

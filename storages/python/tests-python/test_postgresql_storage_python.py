@@ -190,14 +190,14 @@ else:
             dims_str = dims_str.replace('}}', ']]')
             dims_str = dims_str.replace('},{', '],["')
             dims_str = dims_str.replace(',"', '","')
-            dims = ast.literal_eval(dims_str)
-            for dim in dims:
+            shape = ast.literal_eval(dims_str)
+            for dim in shape:
                 dim = {'name': str(dim[0]), \
                     'description': str(dim[1])}
-            d['dimensions'] = dims
+            d['dimensions'] = shape
         if 'properties' in d.keys():
             metadata = True
-            keys = {0: 'name', 1: 'type', 2: 'dims', 3: 'unit', \
+            keys = {0: 'name', 1: 'type', 2: 'shape', 3: 'unit', \
                     5: 'description'}
             prop_str = d['properties']
             prop_str = prop_str.replace('"', '')
@@ -210,18 +210,18 @@ else:
             for n in range(len(prop)):
                 d['properties'].append({})
                 single_prop = prop[n]
-                dims = None
+                shape = None
                 if single_prop[2] != '':
-                    dims = single_prop[2:-3]
+                    shape = single_prop[2:-3]
                     single_prop[2:-3] = ['']
                 for m in range(len(single_prop)):
                     if single_prop[m] != '':
                         d['properties'][n][keys[m]] = single_prop[m]
-                    elif m == 2 and dims:
-                        d['properties'][n]['dims'] = dims
+                    elif m == 2 and shape:
+                        d['properties'][n]['shape'] = shape
 
         if metadata:
-            del d['dims']
+            del d['shape']
         else:
             # Data instance
             if 'uri' in d.keys() and d['uri'] == '\\N':
@@ -248,7 +248,7 @@ else:
             keep = {}
             for key in d:
                 d[key] = d[key].replace('{', '[').replace('}', ']')
-                if key == 'dims':
+                if key == 'shape':
                     dims_vals = ast.literal_eval(d[key])
                     keep['dimensions'] = {dims_keys[k]: dims_vals[k] \
                         for k in range(len(dims_keys))}

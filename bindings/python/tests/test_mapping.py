@@ -10,9 +10,15 @@ dlite.storage_path.append(f"{thisdir}/*.json")
 dlite.python_mapping_plugin_path.append(f"{thisdir}/python-mapping-plugins")
 
 # Create an instance of Person
+<<<<<<< HEAD
 Person = dlite.Instance.from_url(f"json:{thisdir}/Person.json?mode=r")
 person = Person(dimensions=[2])
 person.name = "Neil Armstrong"
+=======
+Person = dlite.Instance.from_url(f'json:{thisdir}/Person.json?mode=r')
+person = Person(shape=[2])
+person.name = 'Neil Armstrong'
+>>>>>>> b72f56be (11 tests fail)
 person.age = 39
 person.skills = ["keping the head cold", "famous quotes"]
 # person.incref()
