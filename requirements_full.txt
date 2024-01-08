@@ -16,7 +16,7 @@ minio>=6.0,<8
 
 # For TEM demo
 matplotlib>=3,<4
-scikit-image>=0.21,<1
+scikit-image>=0.19,<1
 ncempy>=1.10,<2
 h5py>=3.9,<4
 #oteapi-dlite>=0.1.5,<1
