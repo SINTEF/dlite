@@ -5,8 +5,8 @@ All errors in DLite are defined in the header file [src/dlite-errors.h].
 
 Reading error messages
 ----------------------
-By default are error occurring in the C-code written to standard error as they happen.
-An error happening deep inside in a nested function may be appended to by the calling functions.
+Errors occuring in the C-code are written to standard errors as they happen, by default.
+An error happening deep inside a nested function may be appended to by the calling functions.
 For instance, if you try to read json input from an invalid path like "/", you may see the following error message printed to stderr:
 
 > **Figure included for reviewer:** Shows the figure before merged to master. Should be removed...
@@ -18,7 +18,7 @@ For instance, if you try to read json input from an invalid path like "/", you m
 
 _**Figure.** Example of a colourised nested error message printed to standard error._
 
-The initial **DLiteOtherError** means that the inner nested function *cannot read from stream*. As a hint, it also ask you whether *it is a regular file with read permissions?*
+The initial **DLiteOtherError** means that the inner nested function *cannot read from stream*. As a hint, it also asks whether *it is a regular file with read permissions?*
 The colon (:) followed by *Is a directory* is a system message that DLite appends.
 The next line is appended by the calling function.
 It tells that the file (or a directory in this case) that can't be read is "/".
@@ -27,7 +27,7 @@ The last line assigns the type **DLiteStorageLoadError** to the error and tells 
 
 Python exceptions
 -----------------
-If an error occur in the C-code of DLite, a DLite exception will be raised.
+If an error occurs in the C-code of DLite, a DLite exception will be raised.
 All error codes defined in [src/dlite-errors.h] are exposed as DLite exceptions in the Python interface and all DLite exceptions inherits from `dlite.DLiteError`.
 
 DLite maintains its own error state, which is cleared before calling a function or method in the DLite Python API.
@@ -45,12 +45,12 @@ Controlling error messages
 
 ### Hiding error messages
 Sometimes you don't want to show error messages, either from a specific code block or in general (e.g. to not clutter stderr).
-A typical use case for is when you handle an error in a specific code block.
+A typical use case for this is when you handle an error in a specific code block.
 There are several ways errors can be hidden:
 
 #### Hiding error messages with environment variables
 General error messages can be ignored or redirected to file with the **[ERR_STREAM]** environment variable.
-If empty, nothing will written, otherwise **[ERR_STREAM]** is a file name to which the error messages are appended.
+If empty, nothing will be written, otherwise **[ERR_STREAM]** is the file name to which the error messages are appended.
 The special values "stderr" (default) and "stdout" means write to standard error or standard output, respectively.
 
 Whether to show warnings can be controlled with the **[ERR_WARN]** environment variable.
