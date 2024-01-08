@@ -50,10 +50,6 @@ const struct _Triple *
   dlite_collection_find_first(const struct _DLiteCollection *coll,
                               const char *s, const char *p, const char *o,
                               const char *d=NULL);
-//const char *dlite_collection_value(struct _DLiteCollection *coll,
-//                                   const char *s=NULL, const char *p=NULL,
-//                                   const char *o=NULL, const char *d=NULL,
-//                                   const char *fallback=NULL, int any=0);
 int dlite_collection_add(struct _DLiteCollection *coll, const char *label,
                          struct _DLiteInstance *inst);
 int dlite_collection_remove(struct _DLiteCollection *coll, const char *label);
@@ -108,29 +104,6 @@ struct _DLiteCollection {
     return inst;
   }
 
-  //%newobject value;
-  //%feature("docstring",
-  //  "Return the value for a pair of two criteria.
-  //
-  //  Useful if one knows that there may only be one value.
-  //
-  //  Parameters:
-  //      s, p, o: Criteria to match. Two of these must not be None.
-  //      d: If not None, the required datatype of literal objects.
-  //      fallback: Value to return if no matches are found.
-  //      any: If non-zero, return first matching value.
-  //
-  //  Returns:
-  //      The value of the `s`, `p` or `o` that is None.
-  //  ") value;
-  //const char *value(struct _DLiteCollection *coll,
-  //                  const char *s=NULL, const char *p=NULL,
-  //                  const char *o=NULL, const char *d=NULL,
-  //                  const char *fallback=NULL, int any=0) {
-  //  const char *v = triplestore_value(coll->rstore, s, p, o, d, fallback, any);
-  //  return (v) ? strdup(v) : NULL;
-  //}
-
 }
 
 
@@ -143,7 +116,10 @@ struct _DLiteCollection {
     DLiteCollection *coll;
     DLiteCollectionState state;
     char *s, *p, *o, *d;  /* search pattern */
-    char rettype;         /* return type: I,R,T,t,s,p,o,d */
+    char rettype;         /* return type: I=Instance; R=Relation;
+                             T=(s,p,o,d)-tuple; t=(s,p,o)-tuple;
+                             s=subject; p=predicate; o=object; d=datatype */
+
   };
 %}
 

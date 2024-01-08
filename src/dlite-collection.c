@@ -463,12 +463,6 @@ const DLiteRelation *dlite_collection_find_first(const DLiteCollection *coll,
                                                  const char *o, const char *d)
 {
   return dlite_collection_find(coll, NULL, s, p, o, d);
-  //DLiteCollectionState state;
-  //const DLiteRelation *r;
-  //dlite_collection_init_state(coll, &state);
-  //r = dlite_collection_find(coll, &state, s, p, o, d);
-  //dlite_collection_deinit_state(&state);
-  //return r;
 }
 
 /*

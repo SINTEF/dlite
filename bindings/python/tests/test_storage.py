@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 
+import numpy as np
+
 import dlite
 from dlite.testutils import raises
 
@@ -39,6 +41,12 @@ inst["a-relation-array"] = [
     ("s1", "p1", "o1"),
     ("s2", "p2", "o2"),
 ]
+assert np.all(inst["a-bool-array"] == [True, False])
+assert inst["a-relation"] == dlite.Relation("subj", "pred", "obj")
+assert np.all(inst["a-relation-array"] == [
+    dlite.Relation("s1", "p1", "o1"),
+    dlite.Relation("s2", "p2", "o2"),
+])
 
 # Test Storage.save()
 with dlite.Storage("json", f"{outdir}/tmp.json", "mode=w") as s:
