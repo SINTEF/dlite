@@ -244,6 +244,13 @@ int dlite_add_dll_path(void);
  */
 void dlite_init(void);
 
+/*
+  Finalises DLite. Will be called by atexit().
+
+  This function may be called several times.
+ */
+void dlite_finalize(void);
+
 /**
   Globals handle.
  */

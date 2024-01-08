@@ -13,6 +13,7 @@
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
 #include "utils/session.h"
+#include "utils/rng.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -457,7 +458,6 @@ int dlite_add_dll_path(void)
  * Managing global state
  ********************************************************************/
 
-#define ATEXIT_MARKER_ID "atexit-marker-id"
 #define ERR_STATE_ID "err-globals-id"
 #define ERR_MASK_ID "err-ignored-id"
 #define LOCALS_ID "dlite-misc-locals-id"
@@ -495,14 +495,13 @@ static Locals *get_locals(void)
 }
 
 
-/* Called by atexit().  Should be ok to call this multiple times... */
-static void _free_globals(void) {
-  Session *s = session_get_default();
+/* Called by atexit(). */
+static void _handle_atexit(void) {
 
   /* Mark that we are in an atexit handler */
   dlite_globals_set_atexit();
 
-  session_free(s);
+  dlite_finalize();
 }
 
 /*
@@ -515,7 +514,7 @@ DLiteGlobals *dlite_globals_get(void)
 
     /* Make valgrind and other memory leak detectors happy by freeing
        up all globals at exit. */
-    atexit(_free_globals);
+    atexit(_handle_atexit);
 
     dlite_init();
   }
@@ -559,6 +558,10 @@ void dlite_init(void)
     /* Call get_locals() to ensure that the local state is initialised. */
     get_locals();
 
+    /* Seed random number generator */
+    srand_msws32(0);
+    srand_msws64(0);
+
     /* Set up global state for utils/err.c */
     if (!dlite_globals_get_state(ERR_STATE_ID))
       dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
@@ -568,6 +571,27 @@ void dlite_init(void)
     err_set_nameconv(dlite_errname);
   }
 }
+
+
+/*
+  Finalises DLite. Will be called by atexit().
+
+  This function may be called several times.
+ */
+void dlite_finalize(void)
+{
+  Session *s = session_get_default();
+
+  /* Don't free anything if we are in an atexit handler */
+  if (dlite_globals_in_atexit() || !getenv("DLITE_ATEXIT_FREE")) return;
+
+  /* Reset error handling */
+  err_set_handler(NULL);
+  err_set_nameconv(NULL);
+
+  session_free(s);
+}
+
 
 
 /*

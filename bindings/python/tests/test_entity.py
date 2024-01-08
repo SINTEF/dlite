@@ -14,6 +14,7 @@ thisdir = Path(__file__).absolute().parent
 outdir = thisdir / "output"
 indir = thisdir / "input"
 entitydir = thisdir / "entities"
+dlite.storage_path.append(indir / "*.json")
 dlite.storage_path.append(entitydir / "*.json")
 
 
@@ -315,3 +316,10 @@ with raises(dlite.DLiteStorageOpenError, dlite.DLiteUnknownError):
 
 with raises(dlite.DLiteStorageOpenError, dlite.DLiteUnknownError):
     dlite.Instance.from_location("json", entitydir / "Invalid7.json")
+
+
+# For issue #702
+PersonOld = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonOld")
+PersonNew = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonNew")
+assert PersonOld.props == PersonNew.props
+assert PersonOld.dimnames() == PersonNew.dimnames()

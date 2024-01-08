@@ -56,8 +56,11 @@
  *       - "4" | "ignore-new"  : ignore new error message
  *       - otherwise           : append new error message to the old one
  *
- *   * `ERR_COLOR`: If defined, error messages to stdout and stderr will be
- *     written in colour.
+ *   * `ERR_COLOR`: Whether to write error messages colour-coded.
+ *       - unset | "auto"   : colour-coded only if connected to a terminal
+ *       - "no"  | "never"  : not colour-coded
+ *       - "yes" | "always" : colour-coded
+ *
  */
 
 /** @cond private */
@@ -130,6 +133,14 @@ typedef enum {
   errDebugSimple,          /*!< add file and line number to error messages */
   errDebugFull             /*!< add also function name to error messages */
 } ErrDebugMode;
+
+/** Error color mode */
+typedef enum {
+  errColorEnv=-1,       /*!< set from ERR_COLOR environment variable */
+  errColorAuto=0,       /*!< only color-coded if connected to terminal */
+  errColorAlways,       /*!< always color-coded */
+  errColorNever,        /*!< never color-coded */
+} ErrColorMode;
 
 /** Error override mode */
 typedef enum {
@@ -465,6 +476,18 @@ ErrOverrideMode err_set_override_mode(int mode);
  */
 ErrOverrideMode err_get_override_mode(void);
 
+
+/**
+ * @brief Sets whether to print error messages color-coded.
+ */
+ErrColorMode err_set_color_mode(ErrColorMode mode);
+
+/**
+ * @brief Returns whether error messages are printed color-coded.
+ */
+int err_get_color_coded();
+
+
 /* Where in an ErrTry.. ErrEnd clause we are */
 typedef enum {
   errTryNormal,
@@ -481,6 +504,7 @@ typedef struct ErrRecord {
   int eval;               /*!< @brief Error value. */
   int errnum;             /*!< @brief System error number. */
   char msg[ERR_MSGSIZE];  /*!< @brief Error message. */
+  int pos;                /*!< @brief Position of new appended error message. */
   int handled;            /*!< @brief Whether the error has been handled. */
   int reraise;            /*!< @brief Error value to reraise. */
   ErrTryState state;      /*!< @brief Where we are in ErrTry.. ErrEnd. */

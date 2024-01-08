@@ -226,16 +226,14 @@ int dlite_storage_iter_next(DLiteStorage *s, void *iter, char *buf)
 void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 {
   // Do not call iterFree() during atexit(), since it may lead to segfault
-  if (dlite_globals_in_atexit()) return;
-
   if (!s->api->iterFree)
     errx(dliteUnsupportedError,
          "driver '%s' does not support iterFree()", s->api->name);
-  else
+  else if (!dlite_globals_in_atexit() || getenv("DLITE_ATEXIT_FREE"))
     s->api->iterFree(iter);
 
-  /* Call dlite_storage_close().  This will decrease the refcount on
-     `s` which was increased by dlite_storage_iter_create(). */
+  /* dlite_storage_close() decreases the refcount on `s` which was
+     increased by dlite_storage_iter_create(). */
   dlite_storage_close(s);
 }
 
