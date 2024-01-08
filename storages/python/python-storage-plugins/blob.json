@@ -13,7 +13,7 @@
     {
       "name": "content",
       "type": "uint8",
-      "dims": ["n"],
+      "shape": ["n"],
       "unit": "bytes",
       "description": "Content of the binary blob."
     }

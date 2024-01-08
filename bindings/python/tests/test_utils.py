@@ -147,12 +147,12 @@ if HAVE_DATACLASSES:
         properties={
             'symbols': {
                 'type': 'string',
-                'dims': ['natoms'],
+                'shape': ['natoms'],
                 'description': 'Chemical symbol of each atom.',
             },
             'positions': {
                 'type': 'float',
-                'dims': ['natoms', 'ncoords'],
+                'shape': ['natoms', 'ncoords'],
                 'unit': 'Å',
                 'description': 'Position of each atom.',
             },
@@ -177,12 +177,12 @@ if HAVE_PYDANTIC:
         properties={
             'symbols': {
                 'type': 'string',
-                'dims': ['natoms'],
+                'shape': ['natoms'],
                 'description': 'Chemical symbol of each atom.',
             },
             'positions': {
                 'type': 'float',
-                'dims': ['natoms', 'ncoords'],
+                'shape': ['natoms', 'ncoords'],
                 'unit': 'Å',
                 'description': 'Position of each atom.',
             },
@@ -195,23 +195,23 @@ if HAVE_PYDANTIC:
 
 # Test infer_dimensions()
 # TODO - test also exceptions
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={'a-string-array': [('a', 'b'), ('c', 'd'), ('e', 'f')]},
 )
-assert dims == dict(N=3, M=2)
+assert shape == dict(N=3, M=2)
 
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={'a-string-array': [('a', 'b'), ('c', 'd'), ('e', 'f')],
             'a-fixstring-array': [
                 ('a', 'b', 'c'), ('a', 'b', 'c'), ('a', 'b', 'c')]},
 )
-assert dims == dict(N=3, M=2)
+assert shape == dict(N=3, M=2)
 
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={'an-int-array': [1, 2, 3, 4],
             'a-fixstring-array': [('Al', 'Mg'), ('Si', 'Cu')]},
 )
-assert dims == dict(N=2, M=4)
+assert shape == dict(N=2, M=4)

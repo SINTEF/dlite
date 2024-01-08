@@ -28,7 +28,7 @@ MU_TEST(test_open_db)
 MU_TEST(test_save)
 {
   DLiteInstance *meta, *inst;
-  size_t dims[] = {2};
+  size_t shape[] = {2};
   const char *name = "Ada";
   double age = 42.;
   const char *skills[] = {"jumping", "hopping"};
@@ -37,7 +37,7 @@ MU_TEST(test_save)
 
   mu_check(dlite_storage_plugin_path_append(paths) >= 0);
   mu_check((meta = dlite_instance_load_url("json://Person.json?mode=r")));
-  mu_check((inst = dlite_instance_create((DLiteMeta *)meta, dims, "ada")));
+  mu_check((inst = dlite_instance_create((DLiteMeta *)meta, shape, "ada")));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "name", &name));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "age", &age));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "skills", skills));

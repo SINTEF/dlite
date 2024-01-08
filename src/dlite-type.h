@@ -10,7 +10,7 @@
   data point).
 
   Note that the type (`dtype` and `size`) concerns a single data
-  point.  The dimensionality (`ndims` and `dims`) of a property comes
+  point.  The dimensionality (`ndims` and `shape`) of a property comes
   in addition and is not treated by the functions in this file.
 
   The properties can have most of the basic types found in C, with

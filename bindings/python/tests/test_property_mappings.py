@@ -40,7 +40,7 @@ thisdir = Path(__file__).parent.absolute()
 #Molecule = dlite.get_instance('http://onto-ns.com/meta/0.1/Molecule')
 #Substance = dlite.get_instance('http://onto-ns.com/meta/0.1/Substance')
 #
-#inst = Molecule(dims={'natoms': 3, 'ncoords': 3})
+#inst = Molecule(shape={'natoms': 3, 'ncoords': 3})
 #inst.name = ''
 #
 #

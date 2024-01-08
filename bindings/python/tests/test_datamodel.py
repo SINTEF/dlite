@@ -19,5 +19,5 @@ datamodel.add_property('unitcell', 'float', ['nvecs', 'ncoords'],
 Atoms = datamodel.get()
 
 
-#atoms = Atoms(dims=[2, 3, 3])
-atoms = Atoms(dims=dict(nvecs=3, ncoords=3, natoms=2))
+#atoms = Atoms(shape=[2, 3, 3])
+atoms = Atoms(shape=dict(nvecs=3, ncoords=3, natoms=2))

@@ -9,7 +9,7 @@ thisdir = Path(__file__).parent.absolute()
 dlite.storage_path.append(thisdir / '*.json')
 Person = dlite.get_instance('http://onto-ns.com/meta/0.1/Person')
 
-person = Person(dims={"N": 4})
+person = Person(shape={"N": 4})
 person.name = "Knud H. Thomsen"
 person.age = 30
 person.skills = ["writing", "humor", "history", "human knowledge"]

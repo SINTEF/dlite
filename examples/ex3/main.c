@@ -72,7 +72,7 @@ int main()
   char *elements[] = {"Al", "Mg", "Si"};
   char *phases[] = {"FCC_A1", "MG2SI"};
   size_t i, j, ielt;
-  size_t dims[] =
+  size_t shape[] =
     {nelements, nphases, nvars, nbounds , nconds , ncalc, npoints};
 
 
@@ -95,7 +95,7 @@ int main()
   dlite_storage_close(s);
 
   /* Create instance */
-  p = (PhilibTable *)dlite_instance_create(table, dims, "example-AlMgSi");
+  p = (PhilibTable *)dlite_instance_create(table, shape, "example-AlMgSi");
 
   for (i=0; i<nelements; i++)
     p->elements[i] = strdup(elements[i]);

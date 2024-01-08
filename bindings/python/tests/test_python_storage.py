@@ -50,7 +50,7 @@ def equal_rdf_files(path1, path2):
 url = 'json://' + os.path.join(thisdir, 'Person.json')
 Person = dlite.Instance.from_url(url)
 
-person = Person(dims=[2])
+person = Person(shape=[2])
 person.name = 'Ada'
 person.age = 12.5
 person.skills = ['skiing', 'jumping']
@@ -64,7 +64,7 @@ with dlite.Storage('json', 'test.json', 'mode=r') as s:
     inst = s.load(id=person.uuid)
 
 
-person2 = Person(dims=[3])
+person2 = Person(shape=[3])
 person2.name = 'Berry'
 person2.age = 24.3
 person2.skills = ['eating', 'sleeping', 'reading']

@@ -151,7 +151,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                 props.append(dlite.Property(
                     name=p['name'],
                     type=p['type'],
-                    dims=p.get('shape', p.get('dims')),
+                    shape=p.get('shape', p.get('shape')),
                     unit=p.get('unit'),
                     description=p.get('description'),
                 ))
@@ -160,7 +160,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                 props.append(dlite.Property(
                     name = k,
                     type = v['type'],
-                    dims=v.get('shape', v.get('dims')),
+                    shape=v.get('shape', v.get('shape')),
                     unit=v.get('unit'),
                     description=v.get('description'),
                 ))
@@ -171,10 +171,10 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         inst = dlite.Instance.create_metadata(uri, dimensions, props,
                               d.get('description'))
     else:
-        dims = [d['dimensions'][dim.name]
+        shape = [d['dimensions'][dim.name]
                 for dim in meta.properties['dimensions']]
         inst_id = d.get('uri', d.get('uuid', id))
-        inst = dlite.Instance.from_metaid(meta.uri, dims=dims, id=inst_id)
+        inst = dlite.Instance.from_metaid(meta.uri, shape=shape, id=inst_id)
         for p in meta['properties']:
             value = d['properties'][p.name]
             inst[p.name] = value
@@ -220,7 +220,7 @@ def get_dataclass_entity_schema():
     @dataclass
     class Property:
         type: str
-        dims: Optional[List[str]]
+        shape: Optional[List[str]]
         unit: Optional[str]
         description: Optional[str]
 
@@ -270,7 +270,7 @@ def pydantic_to_property(
         for dim in shape:
             dimensions.setdefault(dim, f"Number of {dim}.")
         return dlite.Property(
-            name, subprop.type, ref=subprop.ref, dims=shape,
+            name, subprop.type, ref=subprop.ref, shape=shape,
             unit=unit, description=descr,
         )
 
@@ -316,9 +316,9 @@ def pydantic_to_metadata(
     for name, descr in d["properties"].items():
         properties.append(pydantic_to_property(
             name, descr, dimensions, default_namespace, default_version))
-    dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
+    shape = [dlite.Dimension(k, v) for k, v in dimensions.items()]
     return dlite.Instance.create_metadata(
-        uri, dims, properties,
+        uri, shape, properties,
         d.get("description", ""),
     )
 
@@ -358,7 +358,7 @@ def get_pydantic_entity_schema():
 
     class Property(BaseModel):
         type: str
-        dims: Optional[List[str]]
+        shape: Optional[List[str]]
         unit: Optional[str]
         description: Optional[str]
 
@@ -405,7 +405,7 @@ def infer_dimensions(meta, values, strict=True):
             raise CannotInferDimensionError(
                 f'invalid property names in `values`: {extra_props}')
 
-    dims = {}
+    shape = {}
     for prop in meta['properties']:
         if prop.name in values and prop.ndims:
             v = np.array(values[prop.name])
@@ -413,18 +413,18 @@ def infer_dimensions(meta, values, strict=True):
                 raise InvalidNumberOfDimensionsError(
                     f'property {prop.name} has {prop.ndims} dimensions, but '
                     f'{len(v.shape)} was provided')
-            for i, dimname in enumerate(prop.dims):
-                if dimname in dims and v.shape[i] != dims[dimname]:
+            for i, dimname in enumerate(prop.shape):
+                if dimname in shape and v.shape[i] != shape[dimname]:
                     raise CannotInferDimensionError(
                         f'inconsistent assignment of dimension "{dimname}" '
                         f'when checking property "{prop.name}"')
-                dims[dimname] = v.shape[i]
+                shape[dimname] = v.shape[i]
 
     dimnames = {d.name for d in meta['dimensions']}
-    if len(dims) != len(meta['dimensions']):
-        missing_dims = dimnames.difference(dims.keys())
+    if len(shape) != len(meta['dimensions']):
+        missing_dims = dimnames.difference(shape.keys())
         raise CannotInferDimensionError(
             f'insufficient number of properties provided to infer dimensions: '
             f'{missing_dims}')
 
-    return dims
+    return shape

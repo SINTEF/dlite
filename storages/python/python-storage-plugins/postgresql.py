@@ -99,7 +99,7 @@ class postgresql(dlite.DLiteStorageBase):
             sql.Identifier(metaid))
         self.cur.execute(q, [uuid])
         tokens = self.cur.fetchone()
-        uuid_, uri, metaid_, dims = tokens[:4]
+        uuid_, uri, metaid_, shape = tokens[:4]
         values = tokens[4:]
         assert uuid_ == uuid
         assert metaid_ == metaid
@@ -112,7 +112,7 @@ class postgresql(dlite.DLiteStorageBase):
             dlite.errclr()
             meta = self.load(metaid)
 
-        inst = dlite.Instance.from_metaid(metaid, dims, uri)
+        inst = dlite.Instance.from_metaid(metaid, shape, uri)
 
         for i, p in enumerate(inst.meta['properties']):
             inst.set_property(p.name, values[i])
@@ -130,7 +130,7 @@ class postgresql(dlite.DLiteStorageBase):
         # Save to metadata table
         if not self.table_exists(inst.meta.uri):
             self.table_create(inst.meta, inst.dimensions.values())
-        colnames = ['uuid', 'uri', 'meta', 'dims'] +  [
+        colnames = ['uuid', 'uri', 'meta', 'shape'] +  [
             p.name for p in inst.meta['properties']]
         q = sql.SQL('INSERT INTO {0} ({1}) VALUES ({2});').format(
             sql.Identifier(inst.meta.uri),
@@ -162,23 +162,23 @@ class postgresql(dlite.DLiteStorageBase):
             'WHERE table_name=%s);', (table_name, ))
         return self.cur.fetchone()[0]
 
-    def table_create(self, meta, dims=None):
+    def table_create(self, meta, shape=None):
         """Creates a table for storing instances of `meta`."""
         table_name = meta.uri
         if self.table_exists(table_name):
             raise ValueError('Table already exists: %r' % table_name)
-        if dims:
-            dims = list(dims)
+        if shape:
+            shape = list(shape)
         cols = [
             'uuid char(36) PRIMARY KEY',
             'uri varchar',
             'meta varchar',
-            'dims integer[%d]' % meta.ndimensions
+            'shape integer[%d]' % meta.ndimensions
         ]
         for p in meta['properties']:
             decl = f'"{p.name}" {to_pgtype(p.type)}'
-            if len(p.dims):
-                decl += '[]' * len(p.dims)
+            if len(p.shape):
+                decl += '[]' * len(p.shape)
             cols.append(decl)
         q = sql.SQL('CREATE TABLE {} (%s);' %
                     ', '.join(cols)).format(sql.Identifier(meta.uri))

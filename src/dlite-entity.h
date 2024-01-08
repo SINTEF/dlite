@@ -112,7 +112,7 @@
   values.
 
   ### propdiminds
-  Array with indices into `propshape` for the first dimension of each
+  Array with indices into `propdims` for the first dimension of each
   property.  Note that only metadata has this segment.
 
   ### propoffsets
@@ -265,7 +265,7 @@ typedef struct _DLiteParent {
   /* Automatically assigned by dlite_meta_init() */                     \
   size_t _npropdims;      /* Total number of property dimensions. */    \
   size_t *_propdiminds;   /* Pointer to array (within this metadata) */ \
-                          /* of `propshape` indices to first property */ \
+                          /* of `propdims` indices to first property */ \
                           /* dimension. Length: nproperties */          \
                                                                         \
   /* Memory layout of instances */                                      \
@@ -274,7 +274,7 @@ typedef struct _DLiteParent {
   size_t *_propoffsets;   /* Pointer to array (in this metadata) of */  \
                           /* offsets to property values in instance. */ \
   size_t _reloffset;      /* Offset of first relation value. */         \
-  size_t _propdimsoffset; /* Offset to `propshape` array. */             \
+  size_t _propdimsoffset; /* Offset to `propdims` array. */             \
   size_t _propdimindsoffset; /* Offset of `propdiminds` array. */
 
 
@@ -462,7 +462,7 @@ char** dlite_istore_get_uuids(int* nuuids);
 
 /**
   Returns a new dlite instance from Entiry `meta` and dimensions
-  `shape`.  The lengths of `shape` is found in `meta->nshape`.
+  `shape`.  The lengths of `shape` is found in `meta->ndims`.
 
   The `id` argment may be NULL, a valid UUID or an unique identifier
   to this instance (e.g. an uri).  In the first case, a random UUID
@@ -1226,7 +1226,7 @@ dlite_meta_create(const char *uri, const char *description,
 
   Note, even though this function is called internally in
   dlite_instance_create(), it has to be called again after properties
-  has been assigned to the metadata.  This because `_npropshape` and
+  has been assigned to the metadata.  This because `_npropdims` and
   `__propdiminds` depends on the property dimensions.
 
   Returns non-zero on error.
@@ -1474,7 +1474,7 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
         For arrays, `ptr` should points to the first element and will not
         be not dereferenced.
     - p: DLite property describing the data to scan.
-    - dims: Evaluated shape of property to scan.
+    - shape: Evaluated shape of property to scan.
     - flags: Format options.  If zero (default) strings are expected to be
         quoted.
 

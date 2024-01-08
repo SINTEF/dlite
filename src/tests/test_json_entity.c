@@ -55,7 +55,7 @@ MU_TEST(test_entity_property)
 
 MU_TEST(test_instance_create)
 {
-  size_t dims[] = {3, 2};
+  size_t shape[] = {3, 2};
 
   char *alloy = "6063";
   char *elements[] = {"Al", "Mg", "Si"};
@@ -71,7 +71,7 @@ MU_TEST(test_instance_create)
 
   DLiteStorage *s;
 
-  inst = dlite_instance_create(entity, dims, "myinst");
+  inst = dlite_instance_create(entity, shape, "myinst");
 
   mu_check(!dlite_instance_set_property(inst, "alloy", &alloy));
   mu_check(!dlite_instance_set_property(inst, "elements", elements));
@@ -96,7 +96,7 @@ MU_TEST(test_instance_load)
   DLiteInstance *inst2, *e=(DLiteInstance *)entity;
   int ndims = dlite_instance_get_dimension_size(e, "ndimensions");
   int nprops = dlite_instance_get_dimension_size(e, "nproperties");
-  int *dims = calloc(ndims, sizeof(int));
+  int *shape = calloc(ndims, sizeof(int));
   char *id = "8411a72c-c7a3-5a6a-b126-1e90b8a55ae2";
   //char *id = "http://sintef.no/calm/0.1/Chemistry";
 
@@ -109,8 +109,8 @@ MU_TEST(test_instance_load)
 
   for (i=0; i<ndims; i++) {
     int len = dlite_instance_get_dimension_size_by_index(inst, i);
-    dims[i] = dlite_instance_get_dimension_size_by_index(inst2, i);
-    mu_assert_int_eq(len, dims[i]);
+    shape[i] = dlite_instance_get_dimension_size_by_index(inst2, i);
+    mu_assert_int_eq(len, shape[i]);
   }
 
   for (i=0; i<nprops; i++) {
@@ -125,7 +125,7 @@ MU_TEST(test_instance_load)
   mu_check(!dlite_storage_close(s));
 
   dlite_instance_decref(inst2);
-  free(dims);
+  free(shape);
 }
 
 

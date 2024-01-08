@@ -774,8 +774,8 @@ def instantiate_from_routes(
                 unit=prop.unit,
                 quantity=quantity,
             )
-    dims = infer_dimensions(meta, values)
-    inst = meta(dims=dims, id=id)
+    shape = infer_dimensions(meta, values)
+    inst = meta(shape=shape, id=id)
 
     for key, value in routes.items():
         inst[key] = value.eval(magnitude=True, unit=meta.getprop(key).unit)
@@ -988,35 +988,35 @@ def match_factory(
 
 
 def assign_dimensions(
-    dims: dict[str, int],
+    shape: dict[str, int],
     inst: dlite.Instance,
     propname: str,
 ) -> None:
     """Assign dimensions from property assignment.
 
     Args:
-        dims: A dict with (dimension name, dimension value) pairs that
+        shape: A dict with (dimension name, dimension value) pairs that
           should be assigned.  Only values that are None will be assigned.
         inst: Source instance.
         propname: Source property name.
 
     """
-    lst = [prop.dims for prop in inst.meta['properties'] if prop.name == propname]
+    lst = [prop.shape for prop in inst.meta['properties'] if prop.name == propname]
     if not lst:
         raise MappingError(f"Unexpected property name: {propname}")
 
     src_dims, = lst
     for dim in src_dims:
-        if dim not in dims:
+        if dim not in shape:
             raise InconsistentDimensionError(f"Unexpected dimension: {dim}")
 
-        if dims[dim] is None:
-            dims[dim] = inst.dimensions[dim]
-        elif dims[dim] != inst.dimensions[dim]:
+        if shape[dim] is None:
+            shape[dim] = inst.dimensions[dim]
+        elif shape[dim] != inst.dimensions[dim]:
             raise InconsistentDimensionError(
                 f"Trying to assign dimension {dim} of {inst.meta.uri} "
                 f"to {inst.dimensions[dim]}, but it is already assigned "
-                f"to {dims[dim]}"
+                f"to {shape[dim]}"
             )
 
 
@@ -1079,7 +1079,7 @@ def make_instance(
     if isinstance(instances, dlite.Instance):
         instances = [instances]
 
-    dims = {dim.name: None for dim in meta['dimensions']}
+    shape = {dim.name: None for dim in meta['dimensions']}
     props = {}
 
     for prop in meta['properties']:
@@ -1091,7 +1091,7 @@ def make_instance(
                     for _ in match(prop2_uri, mapsTo, o):
                         value = inst[prop2.name]
                         if prop.name not in props:
-                            assign_dimensions(dims, inst, prop2.name)
+                            assign_dimensions(shape, inst, prop2.name)
                             props[prop.name] = value
                         elif props[prop.name] != value:
                             raise AmbiguousMappingError(
@@ -1104,7 +1104,7 @@ def make_instance(
                 if prop.name in inst.properties:
                     value = inst[prop.name]
                     if prop.name not in props:
-                        assign_dimensions(dims, inst, prop.name)
+                        assign_dimensions(shape, inst, prop.name)
                         props[prop.name] = value
                     elif props[prop.name] != value:
                         raise AmbiguousMappingError(
@@ -1118,13 +1118,13 @@ def make_instance(
                 f"in {meta.uri}"
             )
 
-    if None in dims:
-        dimname = [name for name, dim in dims.items() if dim is None][0]
+    if None in shape:
+        dimname = [name for name, dim in shape.items() if dim is None][0]
         raise InsufficientMappingError(
             f"dimension {dimname!r} is not assigned"
         )
 
-    inst = meta(list(dims.values()))
+    inst = meta(list(shape.values()))
     for key, value in props.items():
         inst[key] = value
     return inst

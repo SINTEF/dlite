@@ -65,9 +65,9 @@ class BaseExtension(metaclass=MetaExtension):
             instanceid: A DLite ID (UUID) to use for the underlying DLite Instance.
 
         """
-        dims = self._dlite_infer_dimensions()
+        shape = self._dlite_infer_dimensions()
         self.dlite_inst = Instance.from_metaid(
-            self.dlite_meta.uri, dims, instanceid
+            self.dlite_meta.uri, shape, instanceid
         )
         self._dlite_assign_properties()
 
@@ -113,7 +113,7 @@ class BaseExtension(metaclass=MetaExtension):
         meta = meta if meta is not None else self.dlite_meta
         getter = getter if getter is not None else self._dlite_get
 
-        dims = [-1] * len(meta.properties["dimensions"])
+        shape = [-1] * len(meta.properties["dimensions"])
         dimnames = [dim.name for dim in meta.properties["dimensions"]]
         for prop in meta.properties["properties"]:
             if prop.ndims:
@@ -128,21 +128,21 @@ class BaseExtension(metaclass=MetaExtension):
                         f"Expected {prop.ndims} dimensions for array property "
                         f"{prop.name!r}; got {array.ndim}"
                     )
-                for i, pdim in enumerate(prop.dims):
+                for i, pdim in enumerate(prop.shape):
                     if pdim in dimnames:
                         n = dimnames.index(pdim)
-                        if dims[n] == -1:
-                            dims[n] = array.shape[i]
-                        elif array.shape[i] and dims[n] != array.shape[i]:
+                        if shape[n] == -1:
+                            shape[n] = array.shape[i]
+                        elif array.shape[i] and shape[n] != array.shape[i]:
                             raise ValueError(
                                 "Inconsistent length of dimension "
                                 f"{meta.properties['dimensions'][n].name!r}; was "
-                                f"{dims[n]} but got {array.shape[i]} for property "
+                                f"{shape[n]} but got {array.shape[i]} for property "
                                 f"{prop.name!r}"
                             )
-        if min(dims) < 0:
+        if min(shape) < 0:
             raise ValueError("Cannot infer all dimensions")
-        return dims
+        return shape
 
     def _dlite_assign_properties(self) -> None:
         """Assigns all dlite properties from extended object."""

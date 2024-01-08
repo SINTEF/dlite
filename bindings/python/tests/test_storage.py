@@ -21,7 +21,7 @@ with dlite.Storage(url) as s2:
 
 
 # Create an instance
-inst = myentity(dims=[2, 3], id='my-data')
+inst = myentity(shape=[2, 3], id='my-data')
 inst['a-bool-array'] = True, False
 
 # Test Storage.save()

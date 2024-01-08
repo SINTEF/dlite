@@ -23,7 +23,7 @@ class blob(dlite.DLiteStorageBase):
         with open(self.uri, 'rb') as f:
             content = f.read()
         meta = dlite.get_instance(metaid)
-        inst = meta(dims=[len(content)])
+        inst = meta(shape=[len(content)])
         inst.content = np.frombuffer(content, dtype='uint8')
         return inst
 

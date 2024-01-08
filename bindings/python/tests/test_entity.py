@@ -169,7 +169,7 @@ dim = Dimension('N')
 
 prop = Property("a", type='float')
 
-prop2 = Property("b", type='string10', dims=['I', 'J', 'K'],
+prop2 = Property("b", type='string10', shape=['I', 'J', 'K'],
                  description='something enlightening...')
 assert any(prop2.shape)
 
@@ -186,7 +186,7 @@ e2 = Instance.create_metadata(
     'http://onto-ns.com/meta/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
     [Property('name', type='string', description='Name of something.'),
-     Property('arr', type='int', dims=['N+2'], description='An array.'),
+     Property('arr', type='int', shape=['N+2'], description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
 
