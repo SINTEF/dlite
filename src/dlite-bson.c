@@ -10,7 +10,6 @@
 
 #include "dlite-entity.h"
 #include "dlite-macros.h"
-#include "dlite-errors.h"
 #include "dlite-type.h"
 #include "dlite-bson.h"
 
@@ -518,6 +517,8 @@ static int set_meta_dimensions(DLiteMeta *meta, unsigned char *subdoc)
     }
     p++;
   }
+  dlite_meta_init(meta);
+
   if (nprops != meta->_nproperties)
     return err(dliteIndexError, "too few properties in bson, got  %d, "
                "expected %d", (int)nprops, (int)meta->_nproperties);
@@ -654,9 +655,14 @@ static int set_scalar_property(DLiteInstance *inst, int idx, void *data)
     if (btype == bsonDouble)
       f64 = le64toh(*((float64_t *)data));
 #ifdef HAVE_FLOAT128
-    else
-      u64 = le64toh(*((uint64_t *)data));
+    else if (btype == bsonDecimal128)
+      f128 = le128toh(*((float128_t *)data));
 #endif
+    else
+      return errx(dliteUnsupportedError,
+                  "cannot read property '%s' of '%s' from bson, %d bytes "
+                  "float is not supported", p->name,
+                  (inst->uri) ? inst->uri : inst->uuid, (int)p->size);
     switch (p->size) {
     case 4: *((float32_t *)ptr)   = f64; break;
     case 8: *((float64_t *)ptr)   = f64; break;
@@ -669,6 +675,11 @@ static int set_scalar_property(DLiteInstance *inst, int idx, void *data)
 #endif
     case 16: *((float128_t *)ptr) = f128; break;
 #endif  /* HAVE_FLOAT128 */
+    default:
+      return errx(dliteUnsupportedError,
+                  "cannot read property '%s' of '%s' from bson, %d bytes "
+                  "float is not supported", p->name,
+                  (inst->uri) ? inst->uri : inst->uuid, (int)p->size);
     }
     break;
 

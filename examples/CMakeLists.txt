@@ -10,6 +10,8 @@ set(python_examples
   storage_plugin
   entity_service
   minio_storage
+  datamodel_as_rdf
+  TEM_data
   )
 endif()
 

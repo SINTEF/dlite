@@ -2,7 +2,6 @@
 import re
 import sys
 from setuptools import setup
-from glob import glob
 
 
 with open('../../../CMakeLists.txt', 'rt') as f:

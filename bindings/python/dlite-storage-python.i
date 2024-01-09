@@ -8,7 +8,7 @@
       # Override default __init__()
       def __init__(self, driver_or_url, location=None, options=None):
           loc = str(location) if location else None
-          _dlite.Instance_swiginit(self, _dlite.new_Storage(
+          _dlite.Storage_swiginit(self, _dlite.new_Storage(
               driver_or_url=driver_or_url, location=loc, options=options))
 
       def __enter__(self):
@@ -41,9 +41,19 @@
       )
 
       @classmethod
-      def create_from_url(cls, url):
-          """Create a new storage from `url`."""
-          return cls(url)
+      def load_plugins(cls):
+          """Load all storage plugins."""
+          _dlite._load_all_storage_plugins()
+
+      @classmethod
+      def unload_plugin(cls, name):
+          """Unload storage plugin with this name."""
+          _dlite._unload_storage_plugin(str(name))
+
+      @classmethod
+      def plugin_help(cls, name):
+          """Return documentation of storage plogin with this name."""
+          return _dlite._storage_plugin_help(name)
 
       def instances(self, pattern=None):
           """Returns an iterator over all instances in storage whos
@@ -64,25 +74,57 @@
 
       driver = property(get_driver,
                         doc='Name of driver associated with this storage')
+
   %}
 }
 
 %extend StorageIterator {
   %pythoncode %{
+
+      # Override default __init__()
+      def __init__(self, s, pattern=None):
+          """Iterates over instances in storage `s`.
+
+          If `pattern` is given, only instances whos metadata URI
+          matches glob pattern `pattern` are returned.
+          """
+          _dlite.StorageIterator_swiginit(
+              self, _dlite.new_StorageIterator(s, pattern))
+
+          # Keep a reference to self, such that it is not garbage-collected
+          # before end of iterations
+          if not hasattr(_dlite, "_storage_iters"):
+              _dlite._storage_iters = {}
+          _dlite._storage_iters[id(self.state)] = self
+
       def __next__(self):
           inst = self.next()
           if not inst:
+              # Delete reference to iterator object stored away in __init__()
+              _dlite._storage_iters.pop(id(self.this), None)
               raise StopIteration()
           return inst
   %}
 }
 
-
 %extend StoragePluginIter {
   %pythoncode %{
+      # Override default __init__()
+      def __init__(self):
+          """Iterator over loaded storage plugins."""
+          _dlite.StoragePluginIter_swiginit(
+              self, _dlite.new_StoragePluginIter())
+          # Keep a reference to self, such that it is not garbage-collected
+          # before end of iterations
+          if not hasattr(_dlite, "_storage_iters"):
+              _dlite._storage_iters = {}
+          _dlite._storage_iters[id(self.iter)] = self
+
       def __next__(self):
           name = self.next()
           if not name:
+              # Delete reference to iterator object stored away in __init__()
+              _dlite._storage_iters.pop(id(self.this), None)
               raise StopIteration()
           return name
   %}

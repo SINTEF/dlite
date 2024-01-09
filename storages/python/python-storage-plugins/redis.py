@@ -1,4 +1,6 @@
-"""A simple demonstrage of a DLite storage plugin written in Python."""
+"""DLite storage plugin for Redis written in Python."""
+import re
+
 from redis import Redis
 
 import dlite
@@ -6,18 +8,21 @@ from dlite.options import Options
 
 
 class redis(dlite.DLiteStorageBase):
-    """DLite storage plugin for YAML."""
+    """DLite storage plugin for Redis."""
 
-    def open(self, uri: str, options=None):
-        """Opens `uri`.
+    def open(self, location: str, options=None):
+        """Opens connection to a Redis server.
 
         Arguments:
-            uri: A fully resolved URI to the PostgreSQL database.
+            location: A fully resolved URI to the Redis database.
             options: Supported options:
             - `port`: Port to connect to (default: 6379).
             - `username`: Redis user name.
             - `password`: Redis password.
-            - `ssl`: Whether to ssl-encrypt the connection (default: false).
+            - `socket_keepalive`: Whether to enable socket keepalive option.
+              Seems to protect against hanging.  Default: true
+            - `socket_timeout`: Timeout after given number of seconds.
+            - `ssl`: Whether to ssl-encrypt the connection.
             - `ssl_certfile`: Path to SSL certificate signing request (.crt).
             - `ssl_keyfile`: Path to SSL private key file (.key).
             - `ssl_ca_certs`: Path to SSL certificate container (.pem).
@@ -30,8 +35,9 @@ class redis(dlite.DLiteStorageBase):
               transparently encrypt all instances before sending them to Redis.
               Generate the key with `crystallography.fernet.generate_key()`.
         """
-        self.uri = uri
-        opts = Options(options, defaults="port=6379;ssl=false;db=0")
+        opts = Options(
+            options, defaults="port=6379;socket_keepalive=true;db=0"
+        )
 
         # Pop out options passed to redis.set()
         self.setopts = {
@@ -45,9 +51,13 @@ class redis(dlite.DLiteStorageBase):
 
         # Fix option types and open Redis connection
         opts.port = int(opts.port)
-        opts.ssl = dlite.asbool(opts.ssl)
+        opts.socket_keepalive = dlite.asbool(opts.socket_keepalive)
+        if "socket_timeout" in opts:
+            opts.socket_timeout = int(opts.socket_timeout)
+        if "ssl" in opts:
+            opts.ssl = dlite.asbool(opts.ssl)
         opts.db = int(opts.db)
-        self.redis = Redis(host=uri, **opts)
+        self.redis = Redis(host=location, **opts)
         self.closed = False
 
     def close(self):
@@ -70,9 +80,18 @@ class redis(dlite.DLiteStorageBase):
             raise dlite.DLiteError(f"No such instance redis storage: {uuid}")
         if self.fernet_key:
             from cryptography.fernet import Fernet
+
             f = Fernet(self.fernet_key.encode())
             data = f.decrypt(data)
-        return dlite.Instance.from_bson(data)
+        try:
+            with dlite.errctl(hide=dlite.DLiteMissingMetadataError):
+                return dlite.Instance.from_bson(data)
+        except dlite.DLiteMissingMetadataError as exc:
+            # If metadata cannot be found, load it from redis and try again
+            match = re.match(f".*cannot find metadata '([^']*)'", str(exc))
+            metaid, = match.groups()
+            meta = self.load(metaid)
+            return dlite.Instance.from_bson(data)
 
     def save(self, inst: dlite.Instance):
         """Stores `inst` in current storage.
@@ -83,6 +102,7 @@ class redis(dlite.DLiteStorageBase):
         data = bytes(inst.asbson())
         if self.fernet_key:
             from cryptography.fernet import Fernet
+
             key = self.fernet_key.encode()
             f = Fernet(self.fernet_key)
             data = f.encrypt(data)
@@ -95,7 +115,7 @@ class redis(dlite.DLiteStorageBase):
             id: URI or UUID of instance to delete.
         """
         uuid = dlite.get_uuid(id)
-        self.redis.delete(uuid)
+        self.redis.delete(f"dlite:{uuid}")
 
     def queue(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
@@ -113,7 +133,8 @@ class redis(dlite.DLiteStorageBase):
             This method fetch all instances in the Redis store and may
             be slow on large databases.
         """
-        for uuid in self.redis.keys("dlite:*"):
+        for uuid_bytes in self.redis.keys("dlite:*"):
+            uuid = uuid_bytes.decode()[6:]
             if pattern:
                 # Consider to make pattern more efficient by storing
                 # `uuid -> meta` mappings in redis as well...

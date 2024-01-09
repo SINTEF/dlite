@@ -1,4 +1,6 @@
-build
-dist
-DLite_Python.egg-info
-wheels
+*~
+
+dist/
+wheelhouse/
+dlite_python.egg-info
+.eggs

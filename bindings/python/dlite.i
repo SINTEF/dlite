@@ -62,21 +62,32 @@
  **********************************************/
 %include <exception.i>
 %exception {
-  dlite_swig_errclr();
-  $action
+  /* Special handling of errval() and errmsg().  We don't want these
+     functions to raise an exception or clear the error indicator. */
+  if (strcmp("$name", "dlite_errval") == 0 ||
+      strcmp("$name", "dlite_errmsg") == 0) {
+    $action
+  } else {
+    /* Clear the error indicator (except for errcheck()). */
+    if (strcmp("$name", "errcheck") != 0) dlite_swig_errclr();
+    $action
 #ifdef SWIGPYTHON
-  if (dlite_swig_exception) {
-    PyErr_SetString(dlite_swig_exception, dlite_errmsg());
-    dlite_swig_exception = NULL;
-    SWIG_fail;
-  } else if (dlite_errval()) {
-    PyErr_SetString(DLiteError, dlite_errmsg());
-    SWIG_fail;
-  }
+    int errval = dlite_errval();
+    if (dlite_swig_exception) {
+      PyErr_SetString(dlite_swig_exception, dlite_errmsg());
+      dlite_swig_exception = NULL;
+      SWIG_fail;
+    } else if (errval) {
+      PyObject *exc = dlite_python_module_error(errval);
+      PyErr_SetString(exc, dlite_errmsg());
+      SWIG_fail;
+    }
 #else
-  if (dlite_errval())
-    SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
+    if (errval)
+      SWIG_exception_fail(SWIG_RuntimeError, dlite_errmsg());
 #endif
+    dlite_swig_errclr();
+  }
 }
 
 

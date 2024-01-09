@@ -6,10 +6,10 @@ import dlite
 # Configure paths
 thisdir = Path(__file__).parent.absolute()
 
-dlite.storage_path.append(thisdir / '*.json')
-Person = dlite.get_instance('http://onto-ns.com/meta/0.1/Person')
+dlite.storage_path.append(thisdir / "*.json")
+Person = dlite.get_instance("http://onto-ns.com/meta/0.1/Person")
 
-person = Person(shape={"N": 4})
+person = Person(dimensions={"N": 4})
 person.name = "Knud H. Thomsen"
 person.age = 30
 person.skills = ["writing", "humor", "history", "human knowledge"]
@@ -25,10 +25,10 @@ for i in range(7):
 try:
     person.get_snapshot(7)
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     raise Exception(
-        "Should've failed test (getting non-existant snapshot), but didn't."
+        "Test should have failed (getting non-existant snapshot), but didn't."
     )
 assert person._get_parent_uuid() == person.get_snapshot(1).uuid
 assert person._get_parent_hash() == person.get_snapshot(1).get_hash()
@@ -61,7 +61,7 @@ inst.age = 50
 inst.snapshot()
 inst.age = 55
 for i in range(6):
-    assert inst.get_snapshot(i).age == 55 - i*5
+    assert inst.get_snapshot(i).age == 55 - i * 5
 
 for i in range(4):
     assert inst.get_snapshot(i + 2).age == person.get_snapshot(3 + i).age
@@ -69,10 +69,10 @@ for i in range(4):
 try:
     inst.get_snapshot(6)
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     raise Exception(
-        "Should've failed test (getting non-existant snapshot), but didn't"
+        "Test should have failed (getting non-existant snapshot), but didn't"
     )
 
 # Push to storage
@@ -81,5 +81,5 @@ if db.exists():
     db.unlink()  # Make sure that the db is empty
 
 with dlite.Storage("json", db, "mode=w") as storage:
-    #person.push_snapshot(storage, 1)
+    # person.push_snapshot(storage, 1)
     storage.save(person)

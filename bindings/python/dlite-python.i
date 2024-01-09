@@ -26,8 +26,6 @@
   PyObject *dlite_swig_exception = NULL;
 
   /* forward declarations */
-  static PyObject *DLiteError = NULL;
-  static PyObject *DLiteVerifyError = NULL;
   char *strndup(const char *s, size_t n);
 %}
 
@@ -61,22 +59,9 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
 %include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
 
 %init %{
+  dlite_init();     /* make sure that dlite is initialised */
   Py_Initialize();  /* should already be called, but just in case... */
-  import_array();  /* Initialize numpy */
-
-  DLiteError = PyErr_NewExceptionWithDoc(
-    "dlite.DLiteError",                      // name
-    "Base exception for the dlite module.",  // doc
-    NULL,                                    // base
-    NULL                                     // dict
-  );
-
-  DLiteVerifyError = PyErr_NewExceptionWithDoc(
-    "dlite.DLiteVerifyError",                // name
-    "Object cannot be verified.",            // doc
-    DLiteError,                              // base
-    NULL                                     // dict
-  );
+  import_array();   /* Initialize numpy */
 %}
 
 %numpy_typemaps(unsigned char, NPY_UBYTE,  size_t)
@@ -92,11 +77,8 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
  **********************************************/
 %{
 
-PyObject *_get_DLiteError(void) {
-  return DLiteError;
-}
-PyObject *_get_DLiteVerifyError(void) {
-  return DLiteVerifyError;
+int _get_number_of_errors(void) {
+  return -dliteLastError;
 }
 
 /* Free's array of allocated strings. */
@@ -611,6 +593,7 @@ obj_t *dlite_swig_get_scalar(DLiteType type, size_t size, void *data)
       case 4: value = *((float32_t *)data); break;
       case 8: value = *((float64_t *)data); break;
 #ifdef HAVE_FLOAT80_T
+      // TODO: check for overflow
       case 10: value = *((float80_t *)data); break;
 #endif
 #ifdef HAVE_FLOAT96_T
@@ -775,12 +758,17 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
       const char *s = PyUnicode_AsUTF8AndSize(str, &n);
-      Py_DECREF(str);
-      if (!s) FAIL("cannot represent string as UTF-8");
-      if (n >= (Py_ssize_t)size)
+      if (!s) {
+        Py_DECREF(str);
+        FAIL("cannot represent string as UTF-8");
+      }
+      if (n >= (Py_ssize_t)size) {
+        Py_DECREF(str);
         FAIL2("Length of string is %lu. Exceeds available size: %lu",
               (unsigned long)n, (unsigned long)size);
+      }
       memcpy(ptr, s, n+1);
+      Py_DECREF(str);
     }
     break;
 
@@ -790,12 +778,18 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
       Py_ssize_t n;
       PyObject *str = PyObject_Str(obj);
       const char *s = PyUnicode_AsUTF8AndSize(str, &n);
-      Py_DECREF(str);
-      if (!s) FAIL("cannot represent string as UTF-8");
-      if (!(p = realloc(*(void **)ptr, n+1))) FAIL("allocation failure");
+      if (!s) {
+        Py_DECREF(str);
+        FAIL("cannot represent string as UTF-8");
+      }
+      if (!(p = realloc(*(void **)ptr, n+1))) {
+        Py_DECREF(str);
+        FAIL("allocation failure");
+      }
       *(char **)ptr = p;
       if (p)
         memcpy(p, s, n+1);
+      Py_DECREF(str);
     }
     break;
 
@@ -1237,7 +1231,9 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 %typemap(freearg) (struct _DLiteInstance **instances, int ninstances) {
   if ($1) {
     int i;
-    for (i=0; i<$2; i++) dlite_instance_decref($1[i]);
+    for (i=0; i<$2; i++)
+      if ($1[i]) dlite_instance_decref($1[i]);
+    free($1);
   }
 }
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING_ARRAY)
@@ -1367,12 +1363,17 @@ PyObject *dlite_python_mapping_base(void);
 /* ------------------
  * Expose generic api
  * ------------------ */
-PyObject *_get_DLiteError(void);
-PyObject *_get_DLiteVerifyError(void);
+
+%rename(errgetexc) dlite_python_module_error;
+%feature("docstring", "Returns DLite exception corresponding to error code.") dlite_python_module_error;
+PyObject *dlite_python_module_error(int code);
+int _get_number_of_errors(void);
 
 %pythoncode %{
-  DLiteError = _dlite._get_DLiteError()
-  DLiteVerifyError = _dlite._get_DLiteVerifyError()
+  for n in range(_dlite._get_number_of_errors()):
+      exc = errgetexc(-n)
+      setattr(_dlite, exc.__name__, exc)
   DLiteStorageBase = _dlite._get_storage_base()
   DLiteMappingBase = _dlite._get_mapping_base()
+  del n, exc
 %}

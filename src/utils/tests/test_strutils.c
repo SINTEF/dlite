@@ -219,6 +219,34 @@ MU_TEST(test_strunquote)
 }
 
 
+MU_TEST(test_strput_unquote)
+{
+  char *buf=NULL;
+  size_t size=0;
+  int n, consumed;
+
+  n = strnput_unquote(&buf, &size, 0, "\"123\"", 4, &consumed, 0);
+  mu_assert_int_eq(3, n);
+  mu_assert_int_eq(4, consumed);
+  mu_assert_int_eq(4, size);
+  mu_assert_string_eq("123", buf);
+
+  n = strnput_unquote(&buf, &size, 2, "\"abc\"", 4, &consumed, 0);
+  mu_assert_int_eq(3, n);
+  mu_assert_int_eq(4, consumed);
+  mu_assert_int_eq(6, size);
+  mu_assert_string_eq("12abc", buf);
+
+  n = strnput_unquote(&buf, &size, 0, "  \"123\" + 4 ", -1, &consumed, 0);
+  mu_assert_int_eq(3, n);
+  mu_assert_int_eq(7, consumed);
+  mu_assert_int_eq(6, size);
+  mu_assert_string_eq("123", buf);
+
+  free(buf);
+}
+
+
 MU_TEST(test_strhex_encode)
 {
   unsigned char data[4] = {0x61, 0x62, 0x63, 0x64};
@@ -364,6 +392,57 @@ MU_TEST(test_strcatspn)
 }
 
 
+MU_TEST(test_strlst)
+{
+  char **strlst=NULL;
+  size_t n=0;
+
+  mu_assert_int_eq(0, strlst_count(strlst));
+
+  strlst = strlst_append(strlst, &n, "first");
+  mu_assert_int_eq(1, strlst_count(strlst));
+
+  strlst = strlst_insert(strlst, &n, "second", 1);
+  mu_assert_int_eq(2, strlst_count(strlst));
+
+  strlst = strlst_insert(strlst, &n, "insert1", 1);
+  mu_assert_int_eq(3, strlst_count(strlst));
+
+  strlst = strlst_insert(strlst, &n, "insert2", -1);
+  mu_assert_int_eq(4, strlst_count(strlst));
+
+  mu_assert_string_eq("first",   strlst[0]);
+  mu_assert_string_eq("insert1", strlst[1]);
+  mu_assert_string_eq("insert2", strlst[2]);
+  mu_assert_string_eq("second",  strlst[3]);
+  mu_assert_string_eq(NULL,      strlst[4]);
+
+  mu_assert_string_eq(strlst[0], strlst_get(strlst, 0));
+  mu_assert_string_eq(strlst[3], strlst_get(strlst, 3));
+  mu_assert_string_eq(strlst[3], strlst_get(strlst, -1));
+  mu_assert_string_eq(NULL,      strlst_get(strlst, 4));
+  mu_assert_string_eq(strlst[0], strlst_get(strlst, -4));
+  mu_assert_string_eq(NULL,      strlst_get(strlst, -5));
+
+  char *s = strlst_pop(strlst, -2);
+  mu_assert_string_eq("insert2", s);
+  mu_assert_int_eq(3, strlst_count(strlst));
+  free(s);
+
+  mu_assert_string_eq(NULL, strlst_pop(strlst, -4));
+  mu_assert_int_eq(3, strlst_count(strlst));
+
+  mu_assert_int_eq(0, strlst_remove(strlst, -2));
+  mu_assert_int_eq(2, strlst_count(strlst));
+
+  mu_check(strlst_remove(strlst, 3));
+
+  mu_assert_string_eq("first",   strlst[0]);
+  mu_assert_string_eq("second",  strlst[1]);
+  mu_assert_string_eq(NULL,      strlst[2]);
+
+  strlst_free(strlst);
+}
 
 
 /***********************************************************************/
@@ -377,10 +456,12 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_strquote);
   MU_RUN_TEST(test_strnquote);
   MU_RUN_TEST(test_strunquote);
+  MU_RUN_TEST(test_strput_unquote);
   MU_RUN_TEST(test_strhex_encode);
   MU_RUN_TEST(test_strhex_decode);
   MU_RUN_TEST(test_strcategory);
   MU_RUN_TEST(test_strcatspn);
+  MU_RUN_TEST(test_strlst);
 }
 
 

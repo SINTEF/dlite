@@ -3,6 +3,7 @@
 %{
 #include "dlite-mapping.h"
 #include "dlite-bson.h"
+#include "dlite-errors.h"
 %}
 
 
@@ -341,7 +342,7 @@ struct _DLiteInstance {
     } else {
       dlite_err(1, "invalid arguments to Instance()");
     }
-    return NULL;
+    abort();  // should never be reached
   }
 
   ~_DLiteInstance() {
@@ -410,7 +411,11 @@ Call signatures:
   void to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN) {
     unsigned char *buf=NULL;
     int m, n = dlite_instance_memsave(driver, buf, 0, $self);
-    if (n < 0) return;
+    if (n < 0) {
+      *ARGOUT_BYTES = NULL;
+      *LEN = 0;
+      return;
+    }
     if (!(buf = malloc(n))) {
       dlite_err(dliteMemoryError, "allocation failure");
       return;
@@ -465,15 +470,15 @@ Call signatures:
       hashp = data;
     }
     if (dlite_instance_verify_hash($self, hashp, recursive))
-      dlite_swig_exception = DLiteVerifyError;
+      dlite_swig_exception = dlite_python_module_error(dliteVerifyError);
   }
 
   %feature("docstring",
            "Returns a copy of the instance.  If `newid` is given, it will be\n"
            "the id of the new instance, otherwise it will be given a\n"
-           "random UUID.") copy;
-  %newobject copy;
-  struct _DLiteInstance *copy(const char *newid=NULL) {
+           "random UUID.") _copy;
+  %newobject _copy;
+  struct _DLiteInstance *_copy(const char *newid=NULL) {
     return dlite_instance_copy($self, newid);
   }
 
@@ -617,22 +622,21 @@ Call signatures:
   }
 
   %feature("docstring", "\
-Return property ``name`` as a string.
+Return property `name` as a string.
 
-Parameters:
+Arguments:
     width: Minimum field width. Unused if 0, auto if -1.
     prec: Precision. Auto if -1, unused if -2.
     flags: Or'ed sum of formatting flags:
 
-        - ``0``: Default (json).
-        - ``1``: Raw unquoted output.
-        - ``2``: Quoted output.
+        - `0`: Default (json).
+        - `1`: Raw unquoted output.
+        - `2`: Quoted output.
 
 Returns:
     Property as a string.
 
-")
-     get_property_as_string;
+") get_property_as_string;
   %newobject get_property_as_string;
   char *get_property_as_string(const char *name,
                                int width=0, int prec=-2, int flags=0) {
@@ -712,11 +716,22 @@ Returns:
   }
 
   %feature("docstring",
-           "Returns a JSON representation of self.") tojson;
-  %newobject tojson;
+           "Returns a JSON representation of self.\n"
+           "\n"
+           "Arguments:\n"
+           "    single: Write instances with single-entity format.\n"
+           "    urikey: Use uri (if it exists) as json key in multi-entity format.\n"
+           "    with_uuid: Include uuid in output.\n"
+           "    with_meta: Always include 'meta' (even for metadata).\n"
+           "    with_arrays: Write metadata dimension and properties as json arrays (old format).\n"
+           "    no_parent: Do not write transaction parent info.\n"
+           "    compact_rel: Write relations with no newlines.\n"
+           ) _asjson;
+  %newobject _asjson;
   char *_asjson(int indent=0, bool single=false, bool urikey=false,
-               bool with_uuid=false, bool with_meta=false,
-               bool with_arrays=false, bool no_parent=false) {
+                bool with_uuid=false, bool with_meta=false,
+                bool with_arrays=false, bool no_parent=false,
+                bool compact_rel=false) {
     DLiteJsonFlag flags=0;
     if (single) flags |= dliteJsonSingle;
     if (urikey) flags |= dliteJsonUriKey;
@@ -724,6 +739,7 @@ Returns:
     if (with_meta) flags |= dliteJsonWithMeta;
     if (with_arrays) flags |= dliteJsonArrays;
     if (no_parent) flags |= dliteJsonNoParent;
+    if (compact_rel) flags |= dliteJsonCompactRel;
     return dlite_json_aprint($self, indent, flags);
   }
 

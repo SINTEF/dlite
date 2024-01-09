@@ -39,7 +39,7 @@ MU_TEST(test_default)
 
   Session *s3 = session_create("new-session");
   stat = session_set_default(s3);
-  mu_assert_int_eq(1, stat);
+  mu_assert_int_eq(-3, stat);
 
   session_free(s1);
   session_free(s3);

@@ -49,7 +49,8 @@
   char *options;            /*!< Options passed to dlite_storage_open() */ \
   DLiteMapInstance cache;   /*!< Map to loaded instances */                \
   DLiteStorageFlags flags;  /*!< Storage flags */                          \
-  DLiteIDFlag idflag;       /*!< How to handle instance id's */
+  DLiteIDFlag idflag;       /*!< How to handle instance id's */            \
+  int refcount;             /*!< Number of references to this storage */
 
 
 /** Initial segment of all DLiteDataModel plugin data structures. */
@@ -272,7 +273,7 @@ typedef int (*Flush)(DLiteStorage *s);
   Returns a malloc'ed string with plugin documentation or NULL on error.
   Optional.
  */
-typedef char *(*Help)(DLiteStorage *s);
+typedef char *(*Help)(const DLiteStoragePlugin *api);
 
 /** @} */
 

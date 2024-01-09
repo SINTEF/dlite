@@ -7,32 +7,15 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v3
-
-    - name: apt-get update
-      run: |
-        sudo apt-get update --fix-missing
-
-    - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
-      run: |
-        sudo apt remove cmake
-        sudo apt purge --auto-remove cmake
-        wget http://www.cmake.org/files/v3.25/cmake-3.25.2.tar.gz
-        tar xf cmake-3.25.2.tar.gz
-        cd cmake-3.25.2
-        ./configure
-        make
-        sudo make install
-        hash -r
-        cd -
-
-    - name: Show CMake version
-      run: |
-        cmake --version
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
+        sudo apt-get update --fix-missing && \
         sudo apt-get install \
+          libxml2-dev \
+          libxslt-dev \
           libhdf5-dev \
           swig4.0 \
           doxygen \
@@ -45,47 +28,47 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        pip install --upgrade pip -r requirements.txt
-        pip install -r requirements_dev.txt
-        pip install -r requirements_doc.txt
-    - name: check numpy
-      run: |
         which python3
         python3 --version
-        pip3 --version
+        python3 -m pip --version
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -U setuptools wheel
+        python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt -r requirements_doc.txt
+
+    - name: Check numpy
+      run: |
         python3 -c 'import numpy as np; print(np.get_include())'
+
+    - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
+      # Normally we would install cmake with the package manager, but
+      # ubuntu 20.04 doesn't seems to keep older versions of cmake around...
+      # Fortunately, there exists a pip package
+      run: |
+        python3 -m pip install cmake==3.25.2
+        cmake --version
+
     - name: configure
       run: |
-        mkdir build
-        cd build
         Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
-          CFLAGS='-Wno-missing-field-initializers' \
-          cmake .. -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES
-        cd -
+        CFLAGS='-Wno-missing-field-initializers' \
+        cmake -B build . -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES
+
     - name: make
-      run: |
-        cd build
-        make
-        cd -
+      run: cmake --build .
+      working-directory: build
+
     - name: install
-      run: |
-        cd build
-        make install
-        cd -
+      run: cmake --install .
+      working-directory: build
+
     - name: make test
-      run: |
-        cd build
-        ctest || ctest --rerun-failed --output-on-failure -V
-        cd -
+      run: ctest || ctest --rerun-failed --output-on-failure -V
+      working-directory: build
+
     - name: build Linux wheel
+      run: python3 -m pip wheel -w dist ./python
+
+    - name: Install python package and test the installation
       run: |
-        cd python
-        pip install numpy wheel
-        python3 setup.py bdist_wheel
-        cd -
-    - name: Install python package via setup.py and test the installation
-      run: |
-        cd python
-        python3 setup.py install --user
-        cd ../bindings/python/tests
-        python3 __main__.py
+        python3 -m pip install --user dist/*.whl
+        python3 bindings/python/tests/__main__.py

@@ -1,0 +1,24 @@
+# Optional requirements - used by various plugins or additional features like mappings
+fortran-language-server>=1.12.0,<1.13
+PyYAML>=5.4.1,<7
+psycopg2>=2,<3
+pandas>=1.2,<2.3
+rdflib>=4.2.1,<8
+pint>=0.15,<1
+pymongo>=4.4.0,<5
+tripper>=0.2.13,<0.3
+requests>=2.10,<3
+jinja2>=3.0,<4
+pydantic>=1.10.0,<3
+typing_extensions>=4.1,<5
+redis>=5.0,<6
+minio>=6.0,<8
+
+# For TEM demo
+matplotlib>=3,<4
+scikit-image>=0.19,<1
+ncempy>=1.10,<2
+h5py>=3.9,<4
+#oteapi-dlite>=0.1.5,<1
+#git+https://github.com/EMMC-ASBL/oteapi-dlite.git@fa1b820383eb54a1c37f32f7b8ac9406b556dace#egg=oteapi_dlite
+#otelib>=0.3.2,<1

@@ -88,7 +88,7 @@ class csv(dlite.DLiteStorageBase):
                 "csv option `meta` must be provided if `infer` if false"
             )
 
-        inst = Meta(shape=(rows,), id=self.options.get("id"))
+        inst = Meta(dimensions=(rows,), id=self.options.get("id"))
         for i in range(len(inst.properties)):
             inst[i] = data.iloc[:, i]
 
@@ -141,8 +141,12 @@ def infer_prop_name(name: str) -> str:
         Inferred property name.
 
     """
-    return name.strip(' "').rsplit("(", 1)[0].rsplit("[", 1)[0].strip().replace(
-        " ", "_"
+    return (
+        name.strip(' "')
+        .rsplit("(", 1)[0]
+        .rsplit("[", 1)[0]
+        .strip()
+        .replace(" ", "_")
     )
 
 
@@ -198,13 +202,13 @@ def infer_meta(data: pd.DataFrame, metauri: str, uri: str) -> dlite.Metadata:
         type = data.dtypes[i].name
         if type == "object":
             type = "string"
-        col_dims = ["rows"]
+        col_shape = ["rows"]
         unit = infer_prop_unit(col)
         props.append(
             dlite.Property(
                 name=name,
                 type=type,
-                shape=col_dims,
+                shape=col_shape,
                 unit=unit,
                 description=None,
             )

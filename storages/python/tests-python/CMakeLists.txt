@@ -9,7 +9,15 @@ set(python-tests
   test_mongodb-atlas_python
   test_redis
   test_minio
+  test_template
+  test_template-jinja
+  test_http
+  test_image
   )
+
+# Paths
+set(plugindir "${CMAKE_CURRENT_SOURCE_DIR}/../python-storage-plugins")
+
 
 include(FindPythonModule)
 
@@ -40,6 +48,7 @@ if(NOT PY_YAML)
   list(REMOVE_ITEM python-tests test_yaml_storage_python)
 endif()
 
+
 # Add tests
 foreach(test ${python-tests})
   add_test(
@@ -59,6 +68,10 @@ foreach(test ${python-tests})
   endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES=${plugindir}/*.json")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "DLITE_PYDEBUG=")
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
   if (NOT WIN32)

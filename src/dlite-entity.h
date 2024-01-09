@@ -1393,6 +1393,13 @@ DLiteProperty *dlite_property_create(const char *name,
                                      const char *description);
 
 /**
+  Clear DLiteProperty.
+
+  Free all memory referred to by the property and it, but free `prop` itself.
+ */
+void dlite_property_clear(DLiteProperty *prop);
+
+/**
   Frees a DLiteProperty.
 */
 void dlite_property_free(DLiteProperty *prop);

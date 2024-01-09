@@ -9,6 +9,8 @@
     def __next__(self):
         if self.rettype == 'I':  # instance
             v = self.next()
+            if v and v.is_meta:
+                v.__class__ = Metadata
         elif self.rettype in 'RTspo':  # relation
             v = self.next_relation()
         else:
@@ -25,6 +27,7 @@
             return v.p
         elif self.rettype == 'o':  # return object
             return v.o
+
         return v
 %}
 
@@ -157,7 +160,7 @@ class Collection(Instance):
     def remove(self, label):
         """Remove instance with given label from collection."""
         if _collection_remove(self._coll, label):
-            raise DLiteError(f'No such label in collection: "{label}"')
+            raise _dlite.DLiteError(f'No such label in collection: "{label}"')
 
     def get(self, label, metaid=None):
         """Return instance with given label.
@@ -166,7 +169,12 @@ class Collection(Instance):
         of `metaid` using instance mappings.  If no such instance mapping
         is registered, a DLiteError is raised.
         """
-        return _collection_get_new(self._coll, label, metaid)
+        inst = _collection_get_new(self._coll, label, metaid)
+        if inst.is_meta:
+            inst.__class__ = Metadata
+        elif inst.meta.uri == COLLECTION_ENTITY:
+            inst.__class__ = Collection
+        return inst
 
     def get_id(self, id):
         """Return instance with given id."""
@@ -186,12 +194,12 @@ class Collection(Instance):
     def add_relation(self, s, p, o):
         """Add (subject, predicate, object) RDF triple to collection."""
         if _collection_add_relation(self._coll, s, p, o) != 0:
-            raise DLiteError(f'Error adding relation ({s}, {p}, {o})')
+            raise _dlite.DLiteError(f'Error adding relation ({s}, {p}, {o})')
 
     def remove_relations(self, s=None, p=None, o=None):
         """Remove all relations matching `s`, `p` and `o`."""
         if _collection_remove_relations(self._coll, s, p, o) < 0:
-            raise DLiteError(
+            raise _dlite.DLiteError(
                 f'Error removing relations matching ({s}, {p}, {o})')
 
     def get_first_relation(self, s=None, p=None, o=None):
@@ -245,8 +253,12 @@ class Collection(Instance):
                     ) from exc
 
                 meta = metaid if isinstance(
-                    metaid, dlite.Instance) else dlite.get_instance(
+                    metaid, Instance) else _dlite.get_instance(
                         str(metaid).rstrip("#/"))
+                if not meta:
+                    raise TypeError(f"cannot instantiate metadata: {metaid}")
+                if meta.is_meta:
+                    meta.__class__ = Metadata
 
                 if ureg is None:
                     quantity = pint.Quantity
@@ -273,7 +285,7 @@ class Collection(Instance):
                 ):
                     yield inst
         elif property_mappings:
-            raise dlite.DLiteError(
+            raise _dlite.DLiteError(
                 '`metaid` is required when `property_mappings` is true')
         else:
             for inst in iter:
@@ -314,4 +326,5 @@ def get_collection(id):
     inst.__class__ = Collection
     return inst
 
+del warn
 %}

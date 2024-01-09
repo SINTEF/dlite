@@ -27,7 +27,7 @@ save2 = inst2.asdict()
 
 
 # Test storing to Redis
-with dlite.Storage("redis", "localhost", "port=6379;expire=1;db=13") as s:
+with dlite.Storage("redis", "localhost", "expire=1;db=13") as s:
     try:
         s.save(inst1)
     except dlite.DLiteError as exc:
@@ -55,20 +55,19 @@ newinst2 = dlite.Instance.from_location(
 )
 
 
+# Test deleting from Redis
+with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
+    uuid = save1["uuid"]
+    assert uuid in s.get_uuids()
+    s.delete(save1["uuid"])
+    assert uuid not in s.get_uuids()
+
+
 # Test instance expiration
 print("Wait for instances in redis storage has expired...")
 sleep(1.1)
-
-del newinst1
-try:
-    with dlite.silent:
-        newinst1 = dlite.Instance.from_location(
-            "redis", "localhost", "port=6379;db=13", id=save1["uuid"]
-        )
-except dlite.DLiteError:
-    pass
-else:
-    raise RuntimeError("expected redis storage to have expired")
+with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
+    assert not s.get_uuids()
 
 
 # Test encryption

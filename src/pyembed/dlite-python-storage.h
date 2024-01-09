@@ -8,8 +8,13 @@
 #ifdef HAVE_CONFIG_H
 #undef HAVE_CONFIG_H
 #endif
-//#include "utils/fileutils.h"
 
+
+/**
+  Returns a static pointer to a NULL-terminated list of pointers to
+  storages that failed to load.
+*/
+const char **dlite_python_storage_failed_paths();
 
 /**
   Returns a pointer to internal Python storage search paths.
@@ -65,7 +70,9 @@ void dlite_python_storage_unload(void);
 /**
   Returns the base class for storage plugins.
 */
+#ifndef NOPYTHON
 PyObject *dlite_python_storage_base(void);
+#endif
 
 
 #endif /* _DLITE_PYTHON_STORAGE_H */

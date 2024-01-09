@@ -116,7 +116,15 @@ MU_TEST(test_set_dtype_and_size)
   mu_assert_int_eq(dliteFixString, type);
   mu_assert_int_eq(11, size);
 
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("str5", &type, &size));
+  mu_assert_int_eq(dliteFixString, type);
+  mu_assert_int_eq(6, size);
+
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string", &type, &size));
+  mu_assert_int_eq(dliteStringPtr, type);
+  mu_assert_int_eq(sizeof(char *), size);
+
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("str", &type, &size));
   mu_assert_int_eq(dliteStringPtr, type);
   mu_assert_int_eq(sizeof(char *), size);
 
@@ -136,14 +144,18 @@ MU_TEST(test_set_dtype_and_size)
   mu_assert_int_eq(dliteProperty, type);
   mu_assert_int_eq(sizeof(DLiteProperty), size);
 
-  // ok with comma following the type string
+  // ok with comma or space following the type string
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string8,", &type, &size));
   mu_assert_int_eq(dliteFixString, type);
   mu_assert_int_eq(9, size);
 
+  mu_assert_int_eq(0, dlite_type_set_dtype_and_size("string6 abc", &type, &size));
+  mu_assert_int_eq(dliteFixString, type);
+  mu_assert_int_eq(7, size);
+
   mu_check(dlite_type_set_dtype_and_size("blob5a", &type, &size)); // fails
   mu_assert_int_eq(dliteFixString, type);
-  mu_assert_int_eq(9, size);  // unchanged
+  mu_assert_int_eq(7, size);  // unchanged
   err_clear();
 }
 

@@ -8,10 +8,9 @@ class tempprofile(dlite.DLiteStorageBase):
 
     # At the time this plugin is importet, instantiate a TempProfile entity.
     # We keep a reference to this entity as a class attribute.
-    TempProfile = dlite.Instance.from_location(
-        "json", Path(__file__).resolve().parent.parent /
-        "entities" / "TempProfile.json",
-    )
+    with open(Path(__file__).resolve().parent.parent / "entities" /
+              "TempProfile.json", "r") as f:
+        TempProfile = dlite.Instance.from_json(f.read())
 
     def open(self, location, options=None):
         """Opens temperature profile.

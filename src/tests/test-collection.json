@@ -1,0 +1,33 @@
+{
+  "e076a856-e36e-5335-967e-2f2fd153c17d":   {
+    "uri": "my_test_instance",
+    "meta": "http://onto-ns.com/meta/0.1/test-entity",
+    "dimensions": {
+      "L": 2,
+      "M": 1,
+      "N": 3
+    },
+    "properties": {
+      "myblob": "0a0010",
+      "mydouble": 3.14,
+      "myfixstring": "Al",
+      "mystring": "allocated string...",
+      "myshort": 17,
+      "myarray": [[[1, 2, 3]], [[4, 5, 6]]]
+    }
+  },
+  "58432e52-ee57-43b0-9daf-ef37e696da25":   {
+    "meta": "http://onto-ns.com/meta/0.1/Collection",
+    "dimensions": {
+      "nrelations": 4
+    },
+    "properties": {
+      "relations": [
+        ["inst", "_is-a", "Instance"],
+        ["inst", "_has-uuid", "e076a856-e36e-5335-967e-2f2fd153c17d"],
+        ["inst", "_has-meta", "http://onto-ns.com/meta/0.1/test-entity"],
+        ["inst", "rdfs:subClassOf", "dcat:Dataset"]
+      ]
+    }
+  }
+}

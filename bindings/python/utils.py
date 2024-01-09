@@ -1,11 +1,11 @@
 import json
 import sys
-from typing import Sequence, Mapping
-from typing import Dict, List, Optional
+import warnings
+from typing import Dict, List, Mapping, Optional, Sequence
 
 # dataclasses is a rather new feature of Python, lets not require it...
 try:
-    from dataclasses import dataclass, is_dataclass, asdict
+    from dataclasses import asdict, dataclass, is_dataclass
 except:
     HAVE_DATACLASSES = False
 else:
@@ -13,7 +13,7 @@ else:
 
 # pydantic is a third party library, lets not require it...
 try:
-    from pydantic import BaseModel, AnyUrl
+    from pydantic import AnyUrl, BaseModel, Field
 except:
     HAVE_PYDANTIC = False
 else:
@@ -31,6 +31,7 @@ class MissingDependencyError(dlite.DLiteError):
 
         pip install <package>
     """
+
     exit_code = 44
 
 
@@ -54,6 +55,7 @@ def uncaught_exception_hook(exetype, value, trace):
     oldhook(exetype, value, trace)
     if hasattr(value, "exit_code"):
         sys.exit(value.exit_code)
+
 
 sys.excepthook, oldhook = uncaught_exception_hook, sys.excepthook
 
@@ -80,103 +82,123 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
         Whether the dict is assumed to be in single-entity form
         If `single` is None or "auto", the form is inferred.
     check_storages: bool
-        Whether to check if the instance already exists in storages.
+        Whether to check if the instance already exists in storages
+        specified in `dlite.storage_path`.
     """
-    if single is None or single == 'auto':
-        single = True if 'properties' in d else False
+    if single is None or single == "auto":
+        single = True if "properties" in d else False
 
     if single:
-        if not id and 'uuid' not in d and 'uri' not in d:
-            if 'namespace' in d and 'version' in d and 'name' in d:
+        if not id and "uuid" not in d and "uri" not in d:
+            if "namespace" in d and "version" in d and "name" in d:
                 id = f"{d['namespace']}/{d['version']}/{d['name']}"
             else:
-                raise ValueError('`id` required for dicts in single-entry '
-                                 'form with no explicit uuid or uri.')
+                raise ValueError(
+                    "`id` required for dicts in single-entry "
+                    "form with no explicit uuid or uri."
+                )
     else:
         if not id:
             if len(d) == 1:
-                id, = d.keys()
+                (id,) = d.keys()
             else:
-                raise ValueError('`id` required for dicts in multi-entry form.')
+                raise ValueError(
+                    "`id` required for dicts in multi-entry form."
+                )
         if id in d:
-            return instance_from_dict(d[id], id=id, single=True,
-                                      check_storages=check_storages)
+            return instance_from_dict(
+                d[id], id=id, single=True, check_storages=check_storages
+            )
         else:
             uuid = dlite.get_uuid(id)
             if uuid in d:
-                return instance_from_dict(d[uuid], id=id, single=True,
-                                          check_storages=check_storages)
+                return instance_from_dict(
+                    d[uuid], id=id, single=True, check_storages=check_storages
+                )
             else:
-                raise ValueError(f'no such id in dict: {id}')
+                raise ValueError(f"no such id in dict: {id}")
 
-    if 'uri' in d or 'uuid' in d:
-        if 'uri' in d and 'uuid' in d:
-            if dlite.get_uuid(d['uri']) != d['uuid']:
-                raise dlite.DLiteError('uri and uuid in dict are not consistent')
-        uuid = dlite.get_uuid(d.get('uuid', d.get('uri')))
+    if "uri" in d or "uuid" in d:
+        if "uri" in d and "uuid" in d:
+            if dlite.get_uuid(d["uri"]) != d["uuid"]:
+                raise dlite.DLiteError(
+                    "uri and uuid in dict are not consistent"
+                )
+        uuid = dlite.get_uuid(str(d.get("uuid", d.get("uri"))))
         if id:
             if dlite.get_uuid(id) != uuid:
-                raise ValueError(f'`id` is not consistent with uri/uuid in dict')
+                raise ValueError(
+                    f"`id` is not consistent with uri/uuid in dict"
+                )
 
-    meta = dlite.get_instance(d.get('meta', dlite.ENTITY_SCHEMA))
+    meta = dlite.get_instance(d.get("meta", dlite.ENTITY_SCHEMA))
 
     if meta.is_metameta:
-        if 'uri' in d:
-            uri = d['uri']
+        if "uri" in d:
+            uri = d["uri"]
         else:
-            uri = dlite.join_meta_uri(d['name'], d['version'], d['namespace'])
+            uri = dlite.join_meta_uri(d["name"], d["version"], d["namespace"])
 
         if check_storages:
             try:
                 with dlite.silent:
-                    inst = dlite.get_instance(uri)
-                    if inst:
-                        return inst
+                    return dlite.get_instance(uri)
             except dlite.DLiteError:
                 pass
 
-        if isinstance(d['dimensions'], Sequence):
-            dimensions = [dlite.Dimension(d['name'], d.get('description'))
-                          for d in d['dimensions']]
-        elif isinstance(d['dimensions'], Mapping):
-            dimensions = [dlite.Dimension(k, v)
-                          for k, v in d['dimensions'].items()]
+        if isinstance(d["dimensions"], Sequence):
+            dimensions = [
+                dlite.Dimension(d["name"], d.get("description"))
+                for d in d["dimensions"]
+            ]
+        elif isinstance(d["dimensions"], Mapping):
+            dimensions = [
+                dlite.Dimension(k, v) for k, v in d["dimensions"].items()
+            ]
         else:
             raise TypeError(
-                "`dimensions` must be either a sequence or a mapping")
+                "`dimensions` must be either a sequence or a mapping"
+            )
 
         props = []
-        if isinstance(d['properties'], Sequence):
-            for p in d['properties']:
-                props.append(dlite.Property(
-                    name=p['name'],
-                    type=p['type'],
-                    shape=p.get('shape', p.get('shape')),
-                    unit=p.get('unit'),
-                    description=p.get('description'),
-                ))
-        elif isinstance(d['properties'], Mapping):
-            for k, v in d['properties'].items():
-                props.append(dlite.Property(
-                    name = k,
-                    type = v['type'],
-                    shape=v.get('shape', v.get('shape')),
-                    unit=v.get('unit'),
-                    description=v.get('description'),
-                ))
+        if isinstance(d["properties"], Sequence):
+            for p in d["properties"]:
+                props.append(
+                    dlite.Property(
+                        name=p["name"],
+                        type=p["type"],
+                        shape=p.get("shape", p.get("dims")),
+                        unit=p.get("unit"),
+                        description=p.get("description"),
+                    )
+                )
+        elif isinstance(d["properties"], Mapping):
+            for k, v in d["properties"].items():
+                props.append(
+                    dlite.Property(
+                        name=k,
+                        type=v["type"],
+                        shape=v.get("shape", v.get("dims")),
+                        unit=v.get("unit"),
+                        description=v.get("description"),
+                    )
+                )
         else:
             raise TypeError(
-                "`properties` must be either a sequence or a mapping")
+                "`properties` must be either a sequence or a mapping"
+            )
 
-        inst = dlite.Instance.create_metadata(uri, dimensions, props,
-                              d.get('description'))
+        inst = dlite.Instance.create_metadata(
+            uri, dimensions, props, d.get("description")
+        )
     else:
-        shape = [d['dimensions'][dim.name]
-                for dim in meta.properties['dimensions']]
-        inst_id = d.get('uri', d.get('uuid', id))
-        inst = dlite.Instance.from_metaid(meta.uri, shape=shape, id=inst_id)
-        for p in meta['properties']:
-            value = d['properties'][p.name]
+        dims = [
+            d["dimensions"][dim.name] for dim in meta.properties["dimensions"]
+        ]
+        inst_id = d.get("uri", d.get("uuid", id))
+        inst = dlite.Instance.from_metaid(meta.uri, dimensions=dims, id=inst_id)
+        for p in meta["properties"]:
+            value = d["properties"][p.name]
             inst[p.name] = value
 
     return inst
@@ -206,8 +228,10 @@ def to_metadata(obj):
             )
         d = obj.dict()
     else:
-        raise TypeError('obj can be dict, json string, dataclasses instance '
-                        f'or pydantic instance.  Got {type(obj)}')
+        raise TypeError(
+            "obj can be dict, json string, dataclasses instance "
+            f"or pydantic instance.  Got {type(obj)}"
+        )
     return instance_from_dict(d)
 
 
@@ -220,6 +244,7 @@ def get_dataclass_entity_schema():
     @dataclass
     class Property:
         type: str
+        # @ref: Optional[str]  # Should we rename this to "ref"? See issue #595
         shape: Optional[List[str]]
         unit: Optional[str]
         description: Optional[str]
@@ -235,27 +260,63 @@ def get_dataclass_entity_schema():
 
 
 def pydantic_to_property(
-        name: str, propdict: dict,
-        dimensions: dict = None,
-        namespace="http://onto-ns.com/meta",
-        version="0.1",
+    name: str,
+    propdict: dict,
+    dimensions: "Optional[dict]" = None,
+    namespace: str = "http://onto-ns.com/meta",
+    version: str = "0.1",
 ):
     """Return a dlite property from a name and a pydantic property dict.
 
-    If `dimensions` is given, new dimensions from array properties will
-    be added to it.
+    Arguments:
+        name: Name of the property to create.
+        propdict: Pydantic property dict.
+        dimensions: If given, the dict will be updated with new dimensions
+            from array properties.
+        namespace: For a reference property use this as the namespace of
+            the property to refer to.
+        version:  For a reference property use this as the version of
+            the property to refer to.
+
+    Returns:
+        New DLite property.
     """
     if not HAVE_PYDANTIC:
         raise MissingDependencyError("pydantic")
 
     # Map simple pydantic types to corresponding dlite types
-    simple_types = dict(boolean="bool", integer="int64", number="float64",
-                        string="string")
+    simple_types = dict(
+        boolean="bool", integer="int64", number="float64", string="string"
+    )
 
     if dimensions is None:
         dimensions = {}
 
-    ptype = propdict.get("type", "ref")
+    # Infer property type
+    if "type" in propdict:
+        ptype = propdict["type"]
+    elif "anyOf" in propdict:
+        # 'anyOf' was introduced in Pydantic 2
+        typedicts = [d for d in propdict["anyOf"] if d["type"] != "null"]
+        if not typedicts:
+            raise dlite.DliteValueError(
+                "no non-null type in `propdict`. "
+                "Please add explicit type to `propdict`."
+            )
+        if len(typedicts) > 1:
+            raise dlite.DliteValueError(
+                f"more than one type in `propdict`: {typedicts}. "
+                "Please add explicit type to `propdict`."
+            )
+        typedict = typedicts[0]
+        if "type" not in typedict:
+            raise dlite.DliteValueError(
+                "missing type in field 'anyOf' of `propdict`"
+            )
+        ptype = typedict["type"]
+    else:
+        ptype = "ref"
+
     unit = propdict.get("unit")
     descr = propdict.get("description")
 
@@ -265,17 +326,28 @@ def pydantic_to_property(
         )
 
     if ptype == "array":
-        subprop = pydantic_to_property("tmp", propdict["items"])
+        if "type" in propdict:
+            subprop = pydantic_to_property("tmp", propdict["items"])
+        elif "anyOf" in propdict:
+            subprop = pydantic_to_property("tmp", typedict["items"])
+        else:
+            raise dlite.DliteSystemError(
+                f'`propdict` for arrays must have key "type" or "anyOf"'
+            )
         shape = propdict.get("shape", [f"n{name}"])
         for dim in shape:
             dimensions.setdefault(dim, f"Number of {dim}.")
         return dlite.Property(
-            name, subprop.type, ref=subprop.ref, shape=shape,
-            unit=unit, description=descr,
+            name,
+            subprop.type,
+            ref=subprop.ref,
+            shape=shape,
+            unit=unit,
+            description=descr,
         )
 
     if ptype == "ref":
-        refname = propdict['$ref'].rsplit('/', 1)[-1]
+        refname = propdict["$ref"].rsplit("/", 1)[-1]
         ref = f"{namespace}/{version}/{refname}"
         prop = dlite.Property(
             name, "ref", ref=ref, unit=unit, description=descr
@@ -284,12 +356,13 @@ def pydantic_to_property(
 
     raise ValueError(f"unsupported pydantic type: {ptype}")
 
+
 def pydantic_to_metadata(
-        model,
-        uri=None,
-        default_namespace="http://onto-ns.com/meta",
-        default_version="0.1",
-        metaid=dlite.ENTITY_SCHEMA,
+    model,
+    uri=None,
+    default_namespace="http://onto-ns.com/meta",
+    default_version="0.1",
+    metaid=dlite.ENTITY_SCHEMA,
 ):
     """Create a new dlite metadata from a pydantic model.
 
@@ -314,13 +387,19 @@ def pydantic_to_metadata(
     dimensions = {}
     properties = []
     for name, descr in d["properties"].items():
-        properties.append(pydantic_to_property(
-            name, descr, dimensions, default_namespace, default_version))
-    shape = [dlite.Dimension(k, v) for k, v in dimensions.items()]
+        properties.append(
+            pydantic_to_property(
+                name, descr, dimensions, default_namespace, default_version
+            )
+        )
+    dimensions = [dlite.Dimension(k, v) for k, v in dimensions.items()]
     return dlite.Instance.create_metadata(
-        uri, shape, properties,
+        uri,
+        dimensions,
+        properties,
         d.get("description", ""),
     )
+
 
 def pydantic_to_instance(meta, pydinst):
     """Return a new dlite instance from a pydantic instance `pydinst`."""
@@ -333,7 +412,7 @@ def pydantic_to_instance(meta, pydinst):
     inst = meta(dimensions)
 
     def getval(p, v):
-        if p.type == 'ref':
+        if p.type == "ref":
             if dlite.has_instance(p.ref):
                 submeta = dlite.get_instance(p.ref)
                 return pydantic_to_instance(submeta, v)
@@ -351,29 +430,31 @@ def pydantic_to_instance(meta, pydinst):
 
     return inst
 
+
 def get_pydantic_entity_schema():
     """Returns the datamodel for dataclasses in Python standard library."""
     if not HAVE_PYDANTIC:
         raise MissingDependencyError("pydantic")
 
     class Property(BaseModel):
-        type: str
-        shape: Optional[List[str]]
-        unit: Optional[str]
-        description: Optional[str]
+        type: str = Field(...)
+        shape: Optional[Sequence[str]] = Field(None, alias="dims")
+        ref: Optional[str] = Field(None, alias="$ref")
+        unit: Optional[str] = Field(None)
+        description: Optional[str] = Field(None)
 
     class EntitySchema(BaseModel):
-        uri: AnyUrl
-        description: Optional[str]
-        dimensions: Dict[str, str]
-        properties: Dict[str, Property]
+        uri: AnyUrl = Field(...)
+        description: Optional[str] = Field("")
+        dimensions: Optional[Dict[str, str]] = Field({})
+        properties: Dict[str, Property] = Field(...)
 
     return EntitySchema
 
 
 def get_package_paths():
     """Returns a dict with all the DLite builtin path variables."""
-    return {k: v for k, v in dlite.__dict__.items() if k.endswith('_path')}
+    return {k: v for k, v in dlite.__dict__.items() if k.endswith("_path")}
 
 
 def infer_dimensions(meta, values, strict=True):
@@ -400,31 +481,122 @@ def infer_dimensions(meta, values, strict=True):
     if strict:
         propnames = {propname for propname in values.keys()}
         extra_props = propnames.difference(
-            {prop.name for prop in meta['properties']})
+            {prop.name for prop in meta["properties"]}
+        )
         if extra_props:
             raise CannotInferDimensionError(
-                f'invalid property names in `values`: {extra_props}')
+                f"invalid property names in `values`: {extra_props}"
+            )
 
-    shape = {}
-    for prop in meta['properties']:
+    dims = {}
+    for prop in meta["properties"]:
         if prop.name in values and prop.ndims:
-            v = np.array(values[prop.name])
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message="The unit of the quantity is stripped when "
+                    "downcasting to ndarray.",
+                )
+
+                # Convert `values[prop.name]` to NumPy array.
+                # Properties of ref-type must be handled separately, since
+                # NumPy interpreat a list of instances as having inhomogenous
+                # shape.
+                val = values[prop.name]
+                if prop.type == "ref":
+
+                    def like(arr):
+                        """Return a nested list of same shape as `arr`, but
+                        with all values replaced with None."""
+                        result = []
+                        for item in arr:
+                            result.append(
+                                like(item) if isinstance(item, Sequence)
+                                else None
+                            )
+                        return result
+
+                    # Use like() to create a NumPy array filled with None's,
+                    # but of the right shape. Thereafter assign it
+                    v = np.array(like(val), dtype=object)
+                    v[:] = val
+                else:
+                    v = np.array(val)
+
             if len(v.shape) != prop.ndims:
                 raise InvalidNumberOfDimensionsError(
-                    f'property {prop.name} has {prop.ndims} dimensions, but '
-                    f'{len(v.shape)} was provided')
+                    f"property {prop.name} has {prop.ndims} dimensions, but "
+                    f"{len(v.shape)} was provided"
+                )
             for i, dimname in enumerate(prop.shape):
-                if dimname in shape and v.shape[i] != shape[dimname]:
+                if dimname in dims and v.shape[i] != dims[dimname]:
                     raise CannotInferDimensionError(
                         f'inconsistent assignment of dimension "{dimname}" '
-                        f'when checking property "{prop.name}"')
-                shape[dimname] = v.shape[i]
+                        f'when checking property "{prop.name}"'
+                    )
+                dims[dimname] = v.shape[i]
 
-    dimnames = {d.name for d in meta['dimensions']}
-    if len(shape) != len(meta['dimensions']):
-        missing_dims = dimnames.difference(shape.keys())
+    dimnames = {d.name for d in meta["dimensions"]}
+    if len(dims) != len(meta["dimensions"]):
+        missing_dims = dimnames.difference(dims.keys())
         raise CannotInferDimensionError(
-            f'insufficient number of properties provided to infer dimensions: '
-            f'{missing_dims}')
+            f"insufficient number of properties provided to infer dimensions: "
+            f"{missing_dims} for metadata: {meta.uri}"
+        )
 
-    return shape
+    return dims
+
+
+def get_referred_instances(inst, include_meta=False):
+    """Return a set with all instances that are directly or indirectly
+    referred to by `inst`.
+
+    This function follows instances referred to by collections and via
+    properties of type 'ref'.  Transaction parents are not included,
+    hence the returned set only includes instances in the current
+    snapshot.
+
+    Cyclic references are handled correctly.
+
+    If `include_meta` is true, also return metadata.
+
+    Example
+    -------
+    If you have a collection 'coll' with three instances 'inst1',
+    'inst2' and 'inst3' and 'inst2' has a 'ref' property, which is
+    an array `[inst4, inst5]`, then
+
+        get_referred_instances(coll)
+
+    would return the set `{coll, inst1, inst2, inst3, inst4, inst5}`.
+
+    The same set would be returned even if one of the instances would
+    have a 'ref' property referring back to 'coll'.
+    """
+    references = set()
+    _get_referred_instances(inst, include_meta, references)
+    return references
+
+
+def _get_referred_instances(inst, include_meta, references):
+    """Recursive help function for get_referred_instances()."""
+    if inst is None or inst in references:
+        return
+    references.add(inst)
+    if isinstance(inst, dlite.Collection):
+        for i in inst.get_instances():
+            _get_referred_instances(i, include_meta, references)
+    else:
+        for prop in inst.meta.properties["properties"]:
+            if prop.type == "ref":
+                if prop.ndims:
+                    for i in inst[prop.name]:
+                        _get_referred_instances(
+                            i, include_meta, references
+                        )
+                else:
+                        _get_referred_instances(
+                            inst[prop.name], include_meta, references
+                        )
+    if include_meta:
+        _get_referred_instances(inst.meta, include_meta, references)

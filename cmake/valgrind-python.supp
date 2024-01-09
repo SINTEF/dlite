@@ -594,6 +594,47 @@
    fun:_PyEval_EvalFrameDefault
 }
 
+{
+   Ignore conditional jump depends on uninitialised variable
+   Memcheck:Cond
+   fun:__wcsncpy_avx2
+   ...
+   fun:_PyPathConfig_Calculate
+   ...
+   fun:_PyPathConfig_Init
+   ...
+   fun:_PyCoreConfig_Read
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   Invalid read in main (py39)
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   fun:_PyPathConfig_Calculate
+   fun:_PyPathConfig_Init
+   fun:_PyCoreConfig_Read
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   Invalid read in main (py311)
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   ...
+   fun:_PyObject_MakeTpCall
+   fun:_PyEval_EvalFrameDefault
+   ...
+   fun:PyEval_EvalCode
+   ...
+   fun:Py_InitializeFromConfig
+   ...
+   fun:Py_BytesMain
+}
+
+
 # ------------------------------------
 # Python plugins
 # ------------------------------------
@@ -965,7 +1006,6 @@
    ...
    fun:dlite_pyembed_get_instance
 }
-
 
 
 # ------------------------------------------
@@ -4186,4 +4226,124 @@
    fun:Py_FinalizeEx
    fun:Py_RunMain
    fun:Py_BytesMain
+}
+#---------------------------------------
+# Suppressions added for Python 3.11
+#---------------------------------------
+{
+   When running `python -c 'print("Hello World!")'`
+   Memcheck:Cond
+   ...
+   fun:PyImport_ImportModuleLevelObject
+   ...
+   fun:builtin___import__
+   fun:cfunction_vectorcall_FASTCALL_KEYWORDS
+   fun:UnknownInlinedFun
+   fun:_PyObject_CallFunctionVa
+}
+{
+   When running `python -c 'print("Hello World!")'`
+   Memcheck:Value8
+   ...
+   fun:PyImport_ImportModuleLevelObject
+   ...
+   fun:builtin___import__
+   fun:cfunction_vectorcall_FASTCALL_KEYWORDS
+   fun:UnknownInlinedFun
+   fun:_PyObject_CallFunctionVa
+}
+{
+   Run Python script
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   fun:UnknownInlinedFun
+   fun:_Py_wrealpath
+   fun:_PyPathConfig_ComputeSysPath0.constprop.0
+   fun:UnknownInlinedFun
+   fun:Py_RunMain
+}
+{
+   Run Python script
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyTuple_Resize
+   fun:PySequence_Tuple
+}
+{
+   Run Python script
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyTuple_Resize
+   fun:PySequence_Tuple
+}
+{
+   Ignore Py_InitializeFromConfig()
+   Memcheck:Cond
+   ...
+   fun:Py_InitializeFromConfig
+}
+{
+   Ignore Py_InitializeFromConfig()
+   Memcheck:Value8
+   ...
+   fun:Py_InitializeFromConfig
+}
+{
+   Ignore Py_Initialize()
+   Memcheck:Cond
+   ...
+   fun:Py_InitializeEx
+   fun:dlite_pyembed_initialise
+}
+{
+   Ignore Py_Initialize()
+   Memcheck:Value8
+   ...
+   fun:Py_InitializeEx
+   fun:dlite_pyembed_initialise
+}
+{
+   Ignore Py_Initialize()
+   Memcheck:Addr32
+   ...
+   fun:Py_InitializeEx
+   fun:dlite_pyembed_initialise
+}
+{
+   Ignore PyStatus_Exception()
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   fun:UnknownInlinedFun
+   fun:_Py_wgetcwd
+   fun:_Py_abspath
+   fun:UnknownInlinedFun
+   fun:config_run_filename_abspath
+   fun:UnknownInlinedFun
+   fun:_PyConfig_Read
+   fun:pyinit_core.constprop.0
+   fun:Py_InitializeFromConfig
+}
+{
+   Ignore Py_RunMain
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   fun:_Py_wrealpath
+   ...
+   fun:Py_RunMain
+}
+{
+   Ignore Py_RunMain
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   ...
+   fun:PyInit__rust
+   ...
+   fun:_PyRun_SimpleFileObject
+   fun:_PyRun_AnyFileObject
+   fun:Py_RunMain
 }

@@ -2,7 +2,17 @@
 
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
+
+
+// Not really a unit test, but check that the Python package "bson" is
+// available.  If not, exit with code 44, indicating that the test
+// should be skipped
+MU_TEST(test_for_bson)
+{
+  if (!dlite_pyembed_has_module("bson")) exit(44);
+}
 
 MU_TEST(test_save)
 {
@@ -107,6 +117,10 @@ MU_TEST(test_load)
   // Compare JSON and BSON data
   mu_assert_string_eq(json_str1, bson_str1);
   mu_assert_string_eq(json_str2, bson_str2);
+  free(json_str1);
+  free(json_str2);
+  free(bson_str1);
+  free(bson_str2);
 
   stat = dlite_storage_close(s);
   mu_assert_int_eq(0, stat);
@@ -122,6 +136,7 @@ MU_TEST(test_unload_plugins)
 
 MU_TEST_SUITE(test_suite)
 {
+  MU_RUN_TEST(test_for_bson);
   MU_RUN_TEST(test_save);
   MU_RUN_TEST(test_load);
   MU_RUN_TEST(test_unload_plugins);

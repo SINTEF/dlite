@@ -1,41 +1,109 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "dlite-errors.h"
 
 
 /*
-  Returns the name corresponding to error code
+  Returns the name corresponding to error code (with the final "Error" stripped
+  off).
  */
-const char *dlite_errname(DLiteErrors code)
+const char *dlite_errname(DLiteErrCode code)
 {
   switch (code) {
-  case dliteSuccess:                return "Sussess";
-  case dliteUnknownError:           return "UnknownError";
-  case dliteIOError:                return "IOError";
-  case dliteRuntimeError:           return "RuntimeError";
-  case dliteIndexError:             return "IndexError";
-  case dliteTypeError:              return "TypeError";
-  case dliteDivisionByZero:         return "DivisionByZero";
-  case dliteOverflowError:          return "OverflowError";
-  case dliteSyntaxError:            return "SyntaxError";
-  case dliteValueError:             return "ValueError";
-  case dliteSystemError:            return "SystemError";
-  case dliteAttributeError:         return "AttributeError";
-  case dliteMemoryError:            return "MemoryError";
-  case dliteNullReferenceError:     return "NullReferenceError";
+  case dliteSuccess:                return "DLiteSuccess";
+  case dliteUnknownError:           return "DLiteUnknown";
+  case dliteIOError:                return "DLiteIO";
+  case dliteRuntimeError:           return "DLiteRuntime";
+  case dliteIndexError:             return "DLiteIndex";
+  case dliteTypeError:              return "DLiteType";
+  case dliteDivisionByZero:         return "DLiteDivisionByZero";
+  case dliteOverflowError:          return "DLiteOverflow";
+  case dliteSyntaxError:            return "DLiteSyntax";
+  case dliteValueError:             return "DLiteValue";
+  case dliteSystemError:            return "DLiteSystem";
+  case dliteAttributeError:         return "DLiteAttribute";
+  case dliteMemoryError:            return "DLiteMemory";
+  case dliteNullReferenceError:     return "DLiteNullReference";
 
-  case dliteKeyError:               return "KeyError";
-  case dliteParseError:             return "ParseError";
-  case dlitePrintError:             return "PrintError";
-  case dliteUnsupportedError:       return "UnsupportedError";
-  case dliteInconsistentDataError:  return "InconsistentDataError";
-  case dliteStorageOpenError:       return "StorageOpenError";
-  case dliteStorageLoadError:       return "StorageLoadError";
-  case dliteStorageSaveError:       return "StorageSaveError";
-  case dliteMissingInstanceError:   return "MissingInstanceError";
-  case dliteMissingMetadataError:   return "MissingMetadataError";
-  case dliteMetadataExistError:     return "MetadataExistError";
+  case dliteOSError:                return "DLiteOS";
+  case dliteKeyError:               return "DLiteKey";
+  case dliteParseError:             return "DLiteParse";
+  case dliteSerialiseError:         return "DLiteSerialise";
+  case dliteUnsupportedError:       return "DLiteUnsupported";
+  case dliteVerifyError:            return "DLiteVerify";
+  case dliteInconsistentDataError:  return "DLiteInconsistentData";
+  case dliteStorageOpenError:       return "DLiteStorageOpen";
+  case dliteStorageLoadError:       return "DLiteStorageLoad";
+  case dliteStorageSaveError:       return "DLiteStorageSave";
+  case dliteMissingInstanceError:   return "DLiteMissingInstance";
+  case dliteMissingMetadataError:   return "DLiteMissingMetadata";
+  case dliteMetadataExistError:     return "DLiteMetadataExist";
+  case dlitePythonError:            return "DLitePython";
 
-  case dliteLastError:              return "LastError";
+  case dliteLastError:              return "DLiteUndefined";
   }
-  if (code < 0) return "UndefinedError";
-  return "Successful";
+  if (code < 0) return "DLiteUndefined";
+  return "DLiteOther";
+}
+
+
+/*
+  Returns a description of the corresponding to error code
+ */
+const char *dlite_errdescr(DLiteErrCode code)
+{
+  switch (code) {
+  case dliteSuccess:                return "Success";
+  case dliteUnknownError:           return "Generic unknown error";
+  case dliteIOError:                return "I/O related error";
+  case dliteRuntimeError:           return "Unspecified run-time error";
+  case dliteIndexError:             return "Index out of range";
+  case dliteTypeError:              return "Inappropriate argument type";
+  case dliteDivisionByZero:         return "Division by zero";
+  case dliteOverflowError:          return "Result too large to be represented";
+  case dliteSyntaxError:            return "Invalid syntax";
+  case dliteValueError:             return "Inappropriate argument value (of correct type)";
+  case dliteSystemError:            return "Internal error in DLite.  Please report this";
+  case dliteAttributeError:         return "Cannot refer to or assign attribute or variable";
+  case dliteMemoryError:            return "Out of memory";
+  case dliteNullReferenceError:     return "Unexpected NULL pointer when converting bindings";
+
+  case dliteOSError:                return "Error calling a system function";
+  case dliteKeyError:               return "Mapping key is not found";
+  case dliteParseError:             return "Cannot parse input";
+  case dliteSerialiseError:         return "Cannot serialise output";
+  case dliteUnsupportedError:       return "Feature is not implemented/supported";
+  case dliteVerifyError:            return "Object cannot be verified";
+  case dliteInconsistentDataError:  return "Inconsistent data";
+  case dliteStorageOpenError:       return "Cannot open storage plugin";
+  case dliteStorageLoadError:       return "Cannot load storage plugin";
+  case dliteStorageSaveError:       return "Cannot save storage plugin";
+  case dliteMissingInstanceError:   return "No instance with given id";
+  case dliteMissingMetadataError:   return "No metadata with given id";
+  case dliteMetadataExistError:     return "Metadata with given id already exists";
+  case dlitePythonError:            return "Error calling Python API";
+  case dliteLastError:              return NULL;
+  }
+  return NULL;
+}
+
+
+/*
+  Return DLite error code corresponding to `name`.
+
+  Special cases:
+    - Unknown names will return `dliteUnknownError`.
+    - "DLiteError" will return zero.
+ */
+DLiteErrCode dlite_errcode(const char *name)
+{
+  DLiteErrCode code;
+  if (strncmp("DLiteError", name, 10) == 0) return 0;
+  for (code=0; code>dliteLastError; code--) {
+    const char *errname = dlite_errname(code);
+    if (strncmp(errname, name, strlen(errname)) == 0)
+      return code;
+  }
+  return dliteUnknownError;
 }

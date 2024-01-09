@@ -15,7 +15,11 @@
 #include "dlite-misc.h"
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
-#include "dlite-errors.h"
+
+#ifdef WITH_PYTHON
+#define NOPYTHON
+#include "pyembed/dlite-python-storage.h"
+#endif
 
 #define GLOBALS_ID "dlite-storage-plugins-id"
 
@@ -106,8 +110,12 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   if (!(info = get_storage_plugin_info())) return NULL;
 
   /* Return plugin if it is loaded */
-  if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
-    return api;
+ ErrTry:  // silence errors
+  api = (const DLiteStoragePlugin *)plugin_get_api(info, name);
+ ErrOther:  // hmm, we should update plugins.c to produce more specific errors
+  break;
+ ErrEnd;
+  if (api) return api;
 
   /* ...otherwise, if any plugin path has changed, reload all plugins
      and try again */
@@ -117,8 +125,12 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       plugin_load_all(info);
       memcpy(g->storage_plugin_path_hash, hash, sizeof(hash));
 
-      if ((api = (const DLiteStoragePlugin *)plugin_get_api(info, name)))
-        return api;
+     ErrTry:  // silence errors
+      api = (const DLiteStoragePlugin *)plugin_get_api(info, name);
+     ErrOther:  // update plugins.c to produce more specific errors
+      break;
+     ErrEnd;
+      if (api) return api;
     }
   }
 
@@ -126,22 +138,57 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   {
     int n=0, r;
     const char *p, **paths = dlite_storage_plugin_paths();
-    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT, ";
     size_t size=0, m=0;
     char *buf=NULL;
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
-                   "\"%s\" in search path:\n", name);
+                   "\"%s\" in\n   search path:\n", name);
     if (r >= 0) m += r;
     while (paths && (p = *(paths++)) && ++n) {
-      r = asnpprintf(&buf, &size, m, "    %s\n", p);
+      r = asnpprintf(&buf, &size, m, "   - %s\n", p);
       if (r >= 0) m += r;
     }
+
+#ifdef WITH_PYTHON
+    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT, ";
+    FUPaths *ppaths = dlite_python_storage_paths();
+    FUIter *iter = fu_startmatch("*.py", ppaths);
+    const char **failed_paths;
+    r = asnpprintf(&buf, &size, m,
+                   "   The following Python plugins were also checked:\n");
+    if (r >= 0) m += r;
+    while ((p = fu_nextmatch(iter))) {
+      r = asnpprintf(&buf, &size, m, "   - %s\n", p);
+      if (r >= 0) m += r;
+    }
+    fu_endmatch(iter);
+
+    if ((failed_paths = dlite_python_storage_failed_paths())) {
+      r = asnpprintf(&buf, &size, m,
+                     "   The following Python plugins failed to load:\n");
+      if (r >= 0) m += r;
+      while ((failed_paths && *failed_paths)) {
+        r = asnpprintf(&buf, &size, m, "   - %s\n", *(failed_paths++));
+        if (r >= 0) m += r;
+      }
+      if (!getenv("DLITE_PYDEBUG")) {
+        r = asnpprintf(&buf, &size, m,
+                       "   To see error messages from Python storages, please "
+                       "rerun with the\n"
+                       "   DLITE_PYDEBUG environment variable set.\n");
+        if (r >= 0) m += r;
+      }
+    }
+
     if (n <= 1)
-      m += asnpprintf(&buf, &size, m, "Are the %sDLITE_STORAGE_PLUGIN_DIRS "
-                      "or DLITE_PYTHON_STORAGE_PLUGIN_DIRS "
-                      "environment variables set?", submsg);
+      m += asnpprintf(&buf, &size, m,
+                      "   Are the required Python packages installed or %s\n"
+                      "   DLITE_STORAGE_PLUGIN_DIRS or "
+                      "DLITE_PYTHON_STORAGE_PLUGIN_DIRS\n"
+                      "   environment variables set?", submsg);
     errx(1, "%s", buf);
+#endif
     free(buf);
+
   }
   return NULL;
 }

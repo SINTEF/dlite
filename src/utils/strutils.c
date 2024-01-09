@@ -32,6 +32,11 @@ char *aprintf(const char *fmt, ...)
   return buf;
 }
 
+
+/********************************************************************
+ *  Functions for writing characters to a buffer
+ ********************************************************************/
+
 /*
   Writes character `c` to buffer `dest` of size `size`.
 
@@ -226,6 +231,10 @@ int strnput_escape(char **destp, size_t *sizep, size_t pos,
 }
 
 
+/********************************************************************
+ *  Quoting/unquoting strings
+ ********************************************************************/
+
 /* Expands to `a - b` if `a > b` else to `0`. */
 #define PDIFF(a, b) (((size_t)(a) > (size_t)(b)) ? (a) - (b) : 0)
 
@@ -235,6 +244,9 @@ int strnput_escape(char **destp, size_t *sizep, size_t pos,
 
   Embedded double-quotes are escaped with backslash. At most `size`
   characters are written to `dest` (including terminating NUL).
+
+  If `s` is NULL, this function will behave similarly to snprintf(),
+  except for the added quoting marks.
 
   Returns number of characters written to `dest` (excluding
   terminating NUL).  If the output is truncated, the number of
@@ -255,24 +267,47 @@ int strnquote(char *dest, size_t size, const char *s, int n,
 {
   size_t i=0, j=0;
   if (!size) dest = NULL;
+
+  /* Write initial quote sign to `dest`. */
   if (!(flags & strquoteNoQuote)) {
     if (size > i) dest[i] = '"';
     i++;
   }
-  while (s[j] && (n < 0 || (int)j < n)) {
-    if (s[j] == '"' && !(flags & strquoteNoEscape)) {
-      if (size > i) dest[i] = '\\';
+
+  if (s) {
+
+    /* Loop over each character in source `s` and copy it to `dest`.
+       If `n` is positive, consume at most `n` characters from `s`. */
+    while (s[j] && (n < 0 || (int)j < n)) {
+
+      /* Add backslash (escape) in front of double-quote characters
+         when copying to `dest` */
+      if (s[j] == '"' && !(flags & strquoteNoEscape)) {
+        if (size > i) dest[i] = '\\';
+        i++;
+      }
+      if (size > i) dest[i] = s[j];
       i++;
+      j++;
     }
-    if (size > i) dest[i] = s[j];
-    i++;
-    j++;
+
+  } else {
+
+    /* If `s` is NULL, use system snprintf() to represent it in a standard
+       way. */
+    int m = snprintf(dest+i, PDIFF(size, i), "%s", s);
+    if (m >= 0) i += j;
   }
+
+  /* Write final quote sign to `dest`. */
   if (!(flags & strquoteNoQuote)) {
     if (dest && size > i) dest[i] = '"';
     i++;
   }
+
+  /* Ensure that `dest` is NUL-terminated. */
   if (dest) dest[(size > i) ? i : size-1] = '\0';
+
   return i;
 }
 
@@ -304,7 +339,7 @@ int strunquote(char *dest, size_t size, const char *s,
 
 
 /*
-  Like strunquote, but if `n` is non-negative, at most `n` bytes are
+  Like strunquote(), but if `n` is non-negative, at most `n` bytes are
   read from `s`.
 
   This mostly make sense in combination when `flags & strquoteNoEscape`
@@ -332,6 +367,46 @@ int strnunquote(char *dest, size_t size, const char *s, int n,
   return i;
 }
 
+
+/*
+  Like strnunquote(), but reallocates the destination and writes to
+  position `pos`.
+
+  On allocation error, -3 is returned.
+ */
+int strnput_unquote(char **destp, size_t *sizep, size_t pos, const char *s,
+                    int n, int *consumed, StrquoteFlags flags)
+{
+  int m;
+  /* Ensure consistency */
+  if (!*destp) *sizep = 0;
+  if (!*sizep) *destp = NULL;
+
+  /* Use strnunquote() to get now much memory we need. */
+  m = strnunquote(NULL, 0, s, n, consumed, flags);
+  if (m < 0) return m;  // On error, pass it on...
+
+  /* If the allocated size is not large enough, reallocate `*destp` to the
+     needed size. */
+  if (m + pos >= *sizep) {
+    char *q;
+    size_t size = m + pos + 1;
+    if (!(q = realloc(*destp, size))) return -3;
+    *destp = q;
+    *sizep = size;
+  }
+
+  /* Use strnunquote() again to write the allocated buffer. */
+  m = strnunquote(*destp+pos, PDIFF(*sizep, pos), s, n, consumed, flags);
+  assert(m >= 0);            // we don't expect any errors now
+  assert(m + pos < *sizep);  // the buffer should be large enough
+  return m;
+}
+
+
+/********************************************************************
+ *  Hexadecimal encoding/decoding
+ ********************************************************************/
 
 /*
   Writes binary data to hex-encoded string.
@@ -394,6 +469,10 @@ int strhex_decode(unsigned char *data, size_t size, const char *hex,
   return hexsize / 2;
 }
 
+
+/********************************************************************
+ *  Character categorisation
+ ********************************************************************/
 
 /*
   Returns the category (from RFC 3986) of character `c`.
@@ -558,4 +637,153 @@ int strcatcjspn(const char *s, StrCategory cat)
   int n=0;
   while (s[n] && strcategory(s[n]) > cat) n++;
   return n;
+}
+
+
+/********************************************************************
+ * Allocated string lists
+ *
+ * A string list is an allocated NULL-terminated array of pointers to
+ * allocated strings.
+ ********************************************************************/
+
+#define CHUNK_SIZE 32
+
+
+/* Help function. Like strlst_insert(), but takes `len`, the number of
+   elements in the list as an additional argument. */
+static char **_strlst_insert(char **strlst, size_t *n, const char *s, int i,
+                             size_t len)
+{
+  char *str, **q=strlst;
+  size_t m = (strlst) ? *n : 0;
+  int j;
+
+  if (!(str = strdup(s))) return NULL;
+
+  if (!strlst || !*n) {
+    m = CHUNK_SIZE;
+    if (!(q = calloc(m, sizeof(char *)))) goto fail;
+  } else if (m < len+1) {
+    m += CHUNK_SIZE;
+    if (!(q = realloc(strlst, m*sizeof(char *)))) goto fail;
+  }
+  assert(m > len+1);
+
+  if (i < 0) i += len;
+  if (i < 0 || i > (int)len) i = len;
+  for (j=len; j>i; j--) q[j] = q[j-1];
+  q[i] = str;
+  q[++len] = NULL;
+
+  *n = m;
+  return q;
+ fail:
+  free(str);
+  return NULL;
+}
+
+
+/*
+  Insert string `s` before position `i` in NULL-terminated array of
+  string pointers `strlst`.
+
+  If `i` is negative count from the end of the string, like Python.
+  Any `i` out of range correspond to appending.
+
+  `n` is the allocated length of `strlst`.  If needed `strlst` will be
+  reallocated and `n` updated.
+
+  Returns a pointer to the new string list or NULL on allocation error.
+ */
+char **strlst_insert(char **strlst, size_t *n, const char *s, int i)
+{
+  return _strlst_insert(strlst, n, s, i, strlst_count(strlst));
+}
+
+/*
+  Appends string `s` to NULL-terminated array of string pointers `strlst`.
+  `n` is the allocated length of `strlst`.  If needed `strlst` will be
+  reallocated and `n` updated.
+
+  Returns a pointer to the new string list or NULL on allocation error.
+ */
+char **strlst_append(char **strlst, size_t *n, const char *s)
+{
+  size_t len = strlst_count(strlst);
+    return _strlst_insert(strlst, n, s, len, len);
+}
+
+/* Return number of elements in string list. */
+size_t strlst_count(char **strlst)
+{
+  char **p=strlst;
+  size_t n;
+  if (!p) return 0;
+  for (n=0; *p; n++) p++;
+  return n;
+}
+
+/* Free all memory in string list. */
+void strlst_free(char **strlst)
+{
+  char **p=strlst;
+  if (!strlst) return;
+  while (*p) free(*(p++));
+  free(strlst);
+}
+
+/*
+  Returns a pointer to element `i` the string list. Like in Python,
+  negative `i` counts from the back.
+
+  The caller gets a borrowed reference to the string. Do not free it.
+
+  Returns NULL if `i` is out of range.
+*/
+const char *strlst_get(char **strlst, int i)
+{
+  int j;
+  if (i < 0) i += strlst_count(strlst);
+  if (i < 0) return NULL;
+  for (j=0; j<i; j++) if (!strlst[j]) return NULL;
+  return strlst[i];
+}
+
+/*
+  Remove element `i` from the string list. Like in Python, negative `i`
+  counts from the back.
+
+  Returns non-zero if `i` is out of range.
+*/
+int strlst_remove(char **strlst, int i)
+{
+  int j;
+  if (i < 0) i += strlst_count(strlst);
+  if (i < 0) return 1;
+  for (j=0; j<=i; j++) if (!strlst[j]) return 1;
+  free(strlst[i]);
+  for (j=i; strlst[j]; j++) strlst[j] = strlst[j+1];
+  return 0;
+}
+
+/*
+  Remove and return element `i` from the string list. Like in Python,
+  negative `i` counts from the back.
+
+  The caller becomes the owner of the returned string and is
+  responsible to free it.
+
+  Returns NULL if `i` is out of range.
+*/
+char *strlst_pop(char **strlst, int i)
+{
+  int j;
+  char *p;
+  if (i < 0) i += strlst_count(strlst);
+  if (i < 0) return NULL;
+  for (j=0; j<=i; j++) if (!strlst[j]) return NULL;
+  p = strlst[i];
+  for (j=i; strlst[j]; j++) strlst[j] = strlst[j+1];
+  return p;
 }

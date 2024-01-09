@@ -46,8 +46,8 @@
  *       - otherwise            : no debugging info
  *
  *   * `ERR_OVERRIDE`: How to handle error messages when there already is a
- *      message in the error message buffer.  Note that these options will
- *      only affect the error message, not the error value.
+ *     message in the error message buffer.  Note that these options will
+ *     only affect the error message, not the error value.
  *       - unset | empty       : append new error message to the old one
  *       - "0" | "append"      : append new error message
  *       - "1" | "warn-old"    : overwrite old error message and write warning
@@ -55,6 +55,12 @@
  *       - "3" | "old"         : overwrite old error message
  *       - "4" | "ignore-new"  : ignore new error message
  *       - otherwise           : append new error message to the old one
+ *
+ *   * `ERR_COLOR`: Whether to write error messages colour-coded.
+ *       - unset | "auto"   : colour-coded only if connected to a terminal
+ *       - "no"  | "never"  : not colour-coded
+ *       - "yes" | "always" : colour-coded
+ *
  */
 
 /** @cond private */
@@ -128,6 +134,14 @@ typedef enum {
   errDebugFull             /*!< add also function name to error messages */
 } ErrDebugMode;
 
+/** Error color mode */
+typedef enum {
+  errColorEnv=-1,       /*!< set from ERR_COLOR environment variable */
+  errColorAuto=0,       /*!< only color-coded if connected to terminal */
+  errColorAlways,       /*!< always color-coded */
+  errColorNever,        /*!< never color-coded */
+} ErrColorMode;
+
 /** Error override mode */
 typedef enum {
   errOverrideEnv=-1,       /*!< set from ERR_OVERRIDE environment variable */
@@ -157,9 +171,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
 
 /** @brief Default error stream (checks the ERR_STREAM environment variable) */
 #define err_default_stream ((FILE *)1)
-
-/** @brief Default error handle */
-#define err_default_handler ((ErrHandler)1)
 
 
 /**
@@ -327,7 +338,7 @@ int verr_generic(int errlevel, int eval, int errnum, const char *msg, va_list ap
 
 
 /**
- * Return a pointer to (thread local) state for this module
+ * Return a pointer to (thread local) state for this module.
  */
 void *err_get_state(void);
 
@@ -336,6 +347,11 @@ void *err_get_state(void);
  * If `state` is NULL, the state is initialised to default values.
  */
 void err_set_state(void *state);
+
+/**
+ * @brief Returns the error level of the last error.
+ */
+int err_getlevel(void);
 
 /**
  * @brief Returns the error value of the last error.
@@ -369,7 +385,7 @@ void err_clear(void);
  * @brief Set prefix to prepend to all errors in this application.
  * Typically this is the program name.
  *
- *  Returns the current prefix.
+ * Returns the current prefix.
  */
 const char *err_set_prefix(const char *prefix);
 
@@ -460,6 +476,18 @@ ErrOverrideMode err_set_override_mode(int mode);
  */
 ErrOverrideMode err_get_override_mode(void);
 
+
+/**
+ * @brief Sets whether to print error messages color-coded.
+ */
+ErrColorMode err_set_color_mode(ErrColorMode mode);
+
+/**
+ * @brief Returns whether error messages are printed color-coded.
+ */
+int err_get_color_coded();
+
+
 /* Where in an ErrTry.. ErrEnd clause we are */
 typedef enum {
   errTryNormal,
@@ -476,6 +504,7 @@ typedef struct ErrRecord {
   int eval;               /*!< @brief Error value. */
   int errnum;             /*!< @brief System error number. */
   char msg[ERR_MSGSIZE];  /*!< @brief Error message. */
+  int pos;                /*!< @brief Position of new appended error message. */
   int handled;            /*!< @brief Whether the error has been handled. */
   int reraise;            /*!< @brief Error value to reraise. */
   ErrTryState state;      /*!< @brief Where we are in ErrTry.. ErrEnd. */
@@ -491,6 +520,16 @@ typedef struct ErrRecord {
  * err_get_stream().
  */
 typedef void (*ErrHandler)(const ErrRecord *record);
+
+/**
+ * @brief Default error handler.
+ *
+ * Writes error message to the error stream.
+ *
+ * If the ERR_COLOR environment variable is set and the error stream
+ * is stdout or stderr, the message will be written with colours.
+ */
+void err_default_handler(const ErrRecord *record);
 
 /**
  * @brief Sets a new error handler.
@@ -515,6 +554,42 @@ ErrHandler err_set_handler(ErrHandler handler);
  * @brief Returns the current error handler.
  */
 ErrHandler err_get_handler(void);
+
+/**
+ * @brief Prototype for function that converts error codes to names.
+ *
+ * It should return a static pointer to the name corresponding to
+ * error level `errlevel` and error code `eval`.  May return NULL, if
+ * the error code is unknown.
+ */
+typedef const char *(*ErrNameConv)(int eval);
+
+/**
+ * @brief Register a function that converts error code to name.
+ *
+ * Returns the current error name function.  By default it is NULL.
+ */
+ErrNameConv err_set_nameconv(ErrNameConv nameconv);
+
+/**
+ * @brief Returns the current error name converter.
+ */
+ErrNameConv err_get_nameconv(void);
+
+/**
+ * @brief Return const pointer to name corresponding to error code `eval`.
+ *
+ * Returns NULL if no error name converter has been registered or if the
+ * error code is unknown.
+ */
+const char *err_getname(int eval);
+
+/**
+ * @brief Return const pointer to name corresponding to error level `errlevel`.
+ *
+ * Returns NULL if `errlevel` does not correspond to a valid error level.
+ */
+const char *err_getlevelname(int errlevel);
 
 /** @} */
 

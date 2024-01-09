@@ -11,6 +11,7 @@
 #include "utils/strutils.h"
 #include "utils/infixcalc.h"
 #include "utils/sha3.h"
+#include "utils/rng.h"
 
 #include "getuuid.h"
 #include "dlite.h"
@@ -577,10 +578,12 @@ static int dlite_instance_free(DLiteInstance *inst)
         if (dlite_type_is_allocated(p->type)) {
           int j;
           size_t n, nmemb=1;
+          char *memptr = *(char **)ptr;
           for (j=0; j<p->ndims; j++)
             nmemb *= DLITE_PROP_DIM(inst, i, j);
-          for (n=0; n<nmemb; n++)
-            dlite_type_clear(*(char **)ptr + n*p->size, p->type, p->size);
+          if (memptr)
+            for (n=0; n<nmemb; n++)
+              dlite_type_clear(memptr + n*p->size, p->type, p->size);
         }
         free(*(void **)ptr);
       } else {
@@ -2207,21 +2210,23 @@ int dlite_instance_is_frozen(const DLiteInstance *inst)
 int dlite_instance_snapshot(DLiteInstance *inst)
 {
   DLiteInstance *snapshot=NULL;
-  int retval=1, i, c;
+  int retval=1, i;
   const char *id = (inst->uri) ? inst->uri : inst->uuid;
   int len = strcspn(id, "#");
   char *uri = NULL;
   char sid[SID_LEN+1];
+  char randchars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   if (dlite_instance_is_frozen(inst))
     FAIL1("cannot snapshot an immutable instance: %s", id);
 
-  /* Create a random snapshot id of graphical ASCII characters. */
+  /* Make sure that the random number generator is seeded */
+  dlite_init();
+
+  /* Create a random snapshot id of alphanumerical characters. */
   for (i=0; i<SID_LEN; i++) {
-    do {
-      c = (rand() % (128 - 32)) + 32;  // below c=32 is not printable
-    } while (!isgraph(c) || strchr(" \"'", c));
-    sid[i] = c;
+    uint32_t n = rand_msws32() % (sizeof(randchars)-1);
+    sid[i] = randchars[n];
   }
   sid[SID_LEN] = '\0';
   if (asprintf(&uri, "%.*s#snapshot-%s", len, id, sid) < 0)
@@ -2988,16 +2993,30 @@ DLiteProperty *dlite_property_create(const char *name,
   return err(dliteMemoryError, "allocation failure"), NULL;
 }
 
+
+/*
+  Clear DLiteProperty.
+
+  Free all memory referred to by the property and it, but free `prop` itself.
+ */
+void dlite_property_clear(DLiteProperty *prop)
+{
+  int i;
+  for (i=0; i < prop->ndims; i++) free(prop->dims[i]);
+  if (prop->name) free(prop->name);
+  if (prop->ref)  free(prop->ref);
+  if (prop->dims) free(prop->dims);
+  if (prop->unit) free(prop->unit);
+  if (prop->description) free(prop->description);
+  memset(prop, 0, sizeof(DLiteProperty));
+}
+
 /*
   Frees a DLiteProperty.
 */
 void dlite_property_free(DLiteProperty *prop)
 {
-  int i;
-  if (prop->name) free(prop->name);
-  for (i=0; i < prop->ndims; i++) free(prop->shape[i]);
-  if (prop->unit) free(prop->unit);
-  if (prop->description) free(prop->description);
+  dlite_property_clear(prop);
   free(prop);
 }
 
@@ -3042,19 +3061,23 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
 {
   int N=0, m;
   size_t i;
+  int compact = (p->type != dliteRelation) || (flags & dliteFlagCompactRel);
+  char *start = (compact) ? "["  : "[\n        ";
+  char *sep   = (compact) ? ", " : ",\n        ";
+  char *end   = (compact) ? "]"  : "\n      ]";
   if (d < p->ndims) {
-    if ((m = snprintf(dest+N, PDIFF(n, N), "[")) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), "%s", start)) < 0) goto fail;
     N += m;
     for (i=0; i < shape[d]; i++) {
       if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, shape,
                         width, prec, flags)) < 0) return -1;
       N += m;
-      if (i < shape[d]-1) {
-        if ((m = snprintf(dest+N, PDIFF(n, N), ", ")) < 0) goto fail;
+      if (i < dims[d]-1) {
+        if ((m = snprintf(dest+N, PDIFF(n, N), "%s", sep)) < 0) goto fail;
         N += m;
       }
     }
-    if ((m = snprintf(dest+N, PDIFF(n, N), "]")) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), "%s", end)) < 0) goto fail;
     N += m;
   } else {
     if ((m = dlite_type_print(dest+N, PDIFF(n, N), *pptr, p->type, p->size,
@@ -3236,30 +3259,34 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
       const jsmntok_t *v = item + 1;
       int i, j;
       if (item->type != JSMN_OBJECT)
-        return err(dliteValueError, "expected JSON object, got \"%.*s\"", len, val);
+        return err(dliteValueError,
+                   "expected JSON object, got \"%.*s\"", len, val);
 
       for (i=0; i < item->size; i++, prop++) {
         const jsmntok_t *t, *d;
-        if (prop->name) free(prop->name);
-        if (prop->ref)  free(prop->ref);
-        if (prop->shape) free(prop->shape);
-        if (prop->unit) free(prop->unit);
-        if (prop->description) free(prop->description);
-        memset(prop, 0, sizeof(DLiteProperty));
+
+        dlite_property_clear(prop);
 
         assert(v->type == JSMN_STRING);  // key must be a string
         prop->name = strndup(src + v->start, v->end - v->start);
         v++;
 
-        if (v->type != JSMN_OBJECT)
+        if (v->type != JSMN_OBJECT) {
+          dlite_property_clear(prop);
           return err(dliteValueError, "expected JSON object, got \"%.*s\"",
                      v->end - v->start, src + v->start);
+        }
 
-        if (!(t = jsmn_item(src, v, "type")))
-          return errx(dliteValueError, "missing property type: '%.*s'", len, val);
+        if (!(t = jsmn_item(src, v, "type"))) {
+          dlite_property_clear(prop);
+          return errx(dliteValueError,
+                      "missing property type: '%.*s'", len, val);
+        }
         if (dlite_type_set_dtype_and_size(src + t->start,
-                                          &prop->type, &prop->size))
+                                          &prop->type, &prop->size)) {
+          dlite_property_clear(prop);
           return -1;
+        }
 
         if ((t = jsmn_item(src, v, "$ref")))
           prop->ref = strndup(src + t->start, t->end - t->start);
@@ -3268,16 +3295,22 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
 
         if ((t = jsmn_item(src, v, "shape")) ||
             (t = jsmn_item(src, v, "shape"))) {
-          if (t->type != JSMN_ARRAY)
-            return errx(dliteIndexError, "property \"%.*s\": shape should be an array",
+          if (t->type != JSMN_ARRAY) {
+            dlite_property_clear(prop);
+            return errx(dliteIndexError,
+                        "property \"%.*s\": shape should be an array",
                         keylen, key);
+          }
           prop->ndims = t->size;
           prop->shape = calloc(prop->ndims, sizeof(char *));
           for (j=0; j < prop->ndims; j++) {
-            if (!(d = jsmn_element(src, t, j)))
-              return err(dliteIndexError, "error parsing dimensions \"%.*s\" of property "
+            if (!(d = jsmn_element(src, t, j))) {
+              dlite_property_clear(prop);
+              return err(dliteIndexError,
+                         "error parsing dimensions \"%.*s\" of property "
                          "\"%.*s\"", t->end - t->start, src + t->start,
                          keylen, key);
+            }
             prop->shape[j] = strndup(src + d->start, d->end - d->start);
           }
         }
@@ -3294,7 +3327,8 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
     break;
 
   default:
-    return err(dliteValueError, "object format is not supported for property type: %s",
+    return err(dliteValueError,
+               "object format is not supported for property type: %s",
                dlite_type_get_dtypename(p->type));
   }
   return len;

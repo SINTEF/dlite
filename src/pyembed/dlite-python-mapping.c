@@ -33,8 +33,10 @@ typedef struct {
   FUPaths mapping_paths;
   int mapping_paths_initialised;
   unsigned char mapping_plugin_path_hash[32];
-
   PyObject *loaded_mappings;  /* A cache with all loaded plugins */
+  char **failed_paths;  /* NULL-terminated array of paths to storages
+                           that fail to load. */
+  size_t failed_len;    /* Allocated length of `failed_paths`. */
 } Globals;
 
 
@@ -192,7 +194,9 @@ void *dlite_python_mapping_load(void)
              sizeof(g->mapping_plugin_path_hash)) != 0) {
     if (g->loaded_mappings) dlite_python_mapping_unload();
     g->loaded_mappings = dlite_pyembed_load_plugins((FUPaths *)paths,
-                                                    mappingbase);
+                                                    mappingbase,
+                                                    &g->failed_paths,
+                                                    &g->failed_len);
     memcpy(g->mapping_plugin_path_hash, hash,
            sizeof(g->mapping_plugin_path_hash));
   }
@@ -273,8 +277,10 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
 static void freeapi(PluginAPI *api)
 {
   DLiteMappingPlugin *p = (DLiteMappingPlugin *)api;
+  int i;
   free(p->name);
   free((char *)p->output_uri);
+  for (i=0; i<p->ninput; i++) free((char *)(p->input_uris[i]));
   free((char **)p->input_uris);
   Py_XDECREF(p->data);
   free(p);
@@ -379,7 +385,7 @@ const DLiteMappingPlugin *get_dlite_mapping_api(void *state, int *iter)
       FAIL2("item %d of attribute 'input_uris' of '%s' is not a string",
             i, classname);
     }
-    input_uris[i] = PyUnicode_AsUTF8(in_uri);
+    input_uris[i] = strdup(PyUnicode_AsUTF8(in_uri));
     Py_DECREF(in_uri);
   }
 
