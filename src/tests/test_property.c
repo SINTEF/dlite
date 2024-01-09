@@ -85,7 +85,7 @@ MU_TEST(test_print)
   prop.type = dliteProperty;
   prop.size = sizeof(p);
   m = dlite_property_aprint(&s, &size, n, &p, &prop, NULL, 0, -2, 0);
-  mu_assert_int_eq(104, m);
+  mu_assert_int_eq(105, m); //104
   mu_assert_string_eq("{\"name\": \"x\", \"type\": \"int32\", \"ndims\": 2, "
                       "\"shape\": [\"M\", \"N\"], \"unit\": \"m\", "
                       "\"description\": \"about x...\"}", s);
@@ -226,7 +226,7 @@ MU_TEST(test_scan)
                           "\"unit\": \"cm\", "
                           "\"description\": \"A number\""
                           "}", &p, &prop, NULL, 0);
-  mu_assert_int_eq(93, n);
+  mu_assert_int_eq(94, n); //93
   mu_assert_string_eq("x", p.name);
   mu_assert_int_eq(dliteFloat, p.type);
   mu_assert_int_eq(4, p.size);

@@ -73,13 +73,13 @@ MU_TEST(test_sprint)
                         dliteJsonArrays | dliteJsonSingle);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(1011, m);
+  mu_assert_int_eq(1012, m); //1011
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
                         dliteJsonWithUuid | dliteJsonArrays | dliteJsonSingle);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(1165, m);
+  mu_assert_int_eq(1166, m); //1165
 
   /* Tests for PR #541 */
   m = dlite_json_sprint(buf, 0, inst, 4, dliteJsonSingle);

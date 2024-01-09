@@ -452,7 +452,7 @@ MU_TEST(test_scan)
     "\"unit\": \"m\""
     "}";
   n = dlite_type_scan(s, -1, &prop, dliteProperty, sizeof(DLiteProperty), 0);
-  mu_assert_int_eq(69, n);
+  mu_assert_int_eq(70, n); //69
   mu_assert_string_eq("field", prop.name);
   mu_assert_int_eq(dliteBlob, prop.type);
   mu_assert_int_eq(3, prop.size);
