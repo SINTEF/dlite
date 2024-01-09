@@ -188,7 +188,7 @@ prop = Property("a", type='float')
 
 prop2 = Property("b", type='string10', shape=['I', 'J', 'K'],
                  description='something enlightening...')
->>>>>>> b72f56be (11 tests fail)
+
 assert any(prop2.shape)
 
 props = myentity["properties"]
@@ -201,24 +201,12 @@ assert e == myentity
 assert e != inst
 
 e2 = Instance.create_metadata(
-<<<<<<< HEAD
-    "http://onto-ns.com/meta/0.1/NewEntity",
-    [Dimension("N", "Number of something")],
-    [
-        Property("name", type="string", description="Name of something."),
-        Property("arr", type="int", dims=["N+2"], description="An array."),
-        Property("v", type="double", unit="m/s", description="Velocity"),
-    ],
-    "Something new...",
-)
-=======
     'http://onto-ns.com/meta/0.1/NewEntity',
     [Dimension('N', 'Number of something')],
     [Property('name', type='string', description='Name of something.'),
      Property('arr', type='int', shape=['N+2'], description='An array.'),
      Property('v', type='double', unit='m/s', description='Velocity')],
     'Something new...')
->>>>>>> b72f56be (11 tests fail)
 
 e3 = Instance.create_metadata(
     "http://onto-ns.com/meta/0.1/NewEntity2",

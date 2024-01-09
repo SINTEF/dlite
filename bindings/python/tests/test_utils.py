@@ -94,18 +94,6 @@ if HAVE_DATACLASSES:
             "ncoords": "Number of coordinates.  Always three.",
         },
         properties={
-<<<<<<< HEAD
-            "symbols": {
-                "type": "string",
-                "dims": ["natoms"],
-                "description": "Chemical symbol of each atom.",
-            },
-            "positions": {
-                "type": "float",
-                "dims": ["natoms", "ncoords"],
-                "unit": "Å",
-                "description": "Position of each atom.",
-=======
             'symbols': {
                 'type': 'string',
                 'shape': ['natoms'],
@@ -116,7 +104,6 @@ if HAVE_DATACLASSES:
                 'shape': ['natoms', 'ncoords'],
                 'unit': 'Å',
                 'description': 'Position of each atom.',
->>>>>>> b72f56be (11 tests fail)
             },
         },
     )
@@ -137,18 +124,6 @@ if HAVE_PYDANTIC:
             "ncoords": "Number of coordinates.  Always three.",
         },
         properties={
-<<<<<<< HEAD
-            "symbols": {
-                "type": "string",
-                "dims": ["natoms"],
-                "description": "Chemical symbol of each atom.",
-            },
-            "positions": {
-                "type": "float",
-                "dims": ["natoms", "ncoords"],
-                "unit": "Å",
-                "description": "Position of each atom.",
-=======
             'symbols': {
                 'type': 'string',
                 'shape': ['natoms'],
@@ -159,7 +134,6 @@ if HAVE_PYDANTIC:
                 'shape': ['natoms', 'ncoords'],
                 'unit': 'Å',
                 'description': 'Position of each atom.',
->>>>>>> b72f56be (11 tests fail)
             },
         },
     )

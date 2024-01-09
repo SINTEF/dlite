@@ -9,7 +9,6 @@ thisdir = Path(__file__).resolve().parent
 rootdir = thisdir.parent.parent.parent
 outdir = thisdir / "output"
 
-
 class Person:
     def __init__(self, name, age, skills):
         self.name = name

@@ -59,8 +59,7 @@ class DataModel:
             raise KeyError(f'A dimension named "{name}" already exists')
         self.dimensions[name] = dlite.Dimension(name, description)
 
-    def add_property(self, name, type, shape=None, unit=None, description=None):
-    def add_property(self, name, type, shape=None, unit=None, description=None):
+    def add_property(self, name, type, shape=None, unit=None, description=None, dims=None):
         """Add property to data model.
 
         Parameters:
@@ -88,7 +87,6 @@ class DataModel:
             name=name,
             type=type,
             shape=shape,
-            shape=shape,
             unit=unit,
             description=description,
         )
@@ -98,8 +96,6 @@ class DataModel:
         """Returns a set of all dimension names referred to in property shape."""
         names = set()
         for prop in self.properties.values():
-            if prop.shape is not None:
-                for dim in prop.shape:
             if prop.shape is not None:
                 for dim in prop.shape:
                     tree = ast.parse(dim)

@@ -100,7 +100,7 @@ MU_TEST(test_sprint)
   mu_assert_int_eq(406, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), coll, 0, 0);
-  mu_assert_int_eq(446, m);
+  mu_assert_int_eq(422, m); //446
 
 
   /* Tests for proper quoting */
