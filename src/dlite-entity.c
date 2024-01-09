@@ -3002,11 +3002,11 @@ DLiteProperty *dlite_property_create(const char *name,
 void dlite_property_clear(DLiteProperty *prop)
 {
   int i;
-  for (i=0; i < prop->ndims; i++) free(prop->dims[i]);
-  if (prop->name) free(prop->name);
-  if (prop->ref)  free(prop->ref);
-  if (prop->dims) free(prop->dims);
-  if (prop->unit) free(prop->unit);
+  for (i=0; i < prop->ndims; i++) free(prop->shape[i]);
+  if (prop->name)  free(prop->name);
+  if (prop->ref)   free(prop->ref);
+  if (prop->shape) free(prop->shape);
+  if (prop->unit)  free(prop->unit);
   if (prop->description) free(prop->description);
   memset(prop, 0, sizeof(DLiteProperty));
 }
@@ -3072,7 +3072,7 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
       if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, shape,
                         width, prec, flags)) < 0) return -1;
       N += m;
-      if (i < dims[d]-1) {
+      if (i < shape[d]-1) {
         if ((m = snprintf(dest+N, PDIFF(n, N), "%s", sep)) < 0) goto fail;
         N += m;
       }
