@@ -32,10 +32,6 @@ with dlite.Storage(url) as s2:
 
 
 # Create an instance
-<<<<<<< HEAD
-inst = myentity(dimensions=[2, 3], id="my-data")
-inst["a-bool-array"] = True, False
-=======
 inst = myentity(shape=[2, 3], id='my-data')
 inst['a-bool-array'] = True, False
 >>>>>>> b72f56be (11 tests fail)

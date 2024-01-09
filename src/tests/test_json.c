@@ -81,6 +81,9 @@ MU_TEST(test_sprint)
   //printf("%s\n", buf);
   mu_assert_int_eq(1166, m); //1165
 
+  //printf("\n========================================================\n");
+
+
   /* Tests for PR #541 */
   m = dlite_json_sprint(buf, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);

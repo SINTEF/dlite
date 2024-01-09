@@ -184,16 +184,8 @@ inst3 = pickle.loads(s)
 
 dim = Dimension("N")
 
-prop = Property("a", type="float")
+prop = Property("a", type='float')
 
-<<<<<<< HEAD
-prop2 = Property(
-    "b",
-    type="string10",
-    dims=["I", "J", "K"],
-    description="something enlightening...",
-)
-=======
 prop2 = Property("b", type='string10', shape=['I', 'J', 'K'],
                  description='something enlightening...')
 >>>>>>> b72f56be (11 tests fail)

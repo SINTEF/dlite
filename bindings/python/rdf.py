@@ -149,7 +149,7 @@ def to_graph(
                 graph.add((prop, DM.hasShape, shape))
                 graph.add((shape, RDF.type, DM.Shape))
                 prev, rel = shape, DM.hasFirst
-                for i, expr in enumerate(p.shape):
+                for i, expr in enumerate(p.dims):
                     dimexpr = URIRef(f"{shape}_{i}")
                     graph.add((prev, rel, dimexpr))
                     graph.add((dimexpr, RDF.type, DM.DimensionExpression))
@@ -299,14 +299,14 @@ def from_graph(graph, id=None):
                 dlite.Property(
                     name=_value(graph, prop, DM.hasLabel),
                     type=_value(graph, prop, DM.hasType),
-                    shape=dlite_shape,
+                    dims=dlite_shape,
                     unit=graph.value(prop, DM.hasUnit),
                     description=graph.value(prop, DM.hasDescription),
                 )
             )
         inst = dlite.Metadata(
             uri=dlite_id,
-            dimensions=shape,
+            dimensions=dims,
             properties=props,
             description=graph.value(rdfid, DM.hasDescription),
         )
