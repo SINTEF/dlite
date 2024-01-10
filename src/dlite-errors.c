@@ -36,9 +36,11 @@ const char *dlite_errname(DLiteErrCode code)
   case dliteStorageOpenError:       return "DLiteStorageOpen";
   case dliteStorageLoadError:       return "DLiteStorageLoad";
   case dliteStorageSaveError:       return "DLiteStorageSave";
+  case dliteOptionError:            return "DLiteOption";
   case dliteMissingInstanceError:   return "DLiteMissingInstance";
   case dliteMissingMetadataError:   return "DLiteMissingMetadata";
   case dliteMetadataExistError:     return "DLiteMetadataExist";
+  case dliteMappingError:           return "DLiteMapping";
   case dlitePythonError:            return "DLitePython";
 
   case dliteLastError:              return "DLiteUndefined";
@@ -79,9 +81,11 @@ const char *dlite_errdescr(DLiteErrCode code)
   case dliteStorageOpenError:       return "Cannot open storage plugin";
   case dliteStorageLoadError:       return "Cannot load storage plugin";
   case dliteStorageSaveError:       return "Cannot save storage plugin";
+  case dliteOptionError:            return "Invalid storage plugin option";
   case dliteMissingInstanceError:   return "No instance with given id";
   case dliteMissingMetadataError:   return "No metadata with given id";
   case dliteMetadataExistError:     return "Metadata with given id already exists";
+  case dliteMappingError:           return "Error in instance mappings";
   case dlitePythonError:            return "Error calling Python API";
   case dliteLastError:              return NULL;
   }

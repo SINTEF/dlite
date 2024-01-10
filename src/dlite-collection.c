@@ -25,7 +25,8 @@
 int dlite_collection_init(DLiteInstance *inst)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
-  if (coll->rstore) return errx(1, "triplestore already initialised");
+  if (coll->rstore) return errx(dliteSystemError,
+                                "triplestore already initialised");
   if (!(coll->rstore = triplestore_create())) return 1;
   return 0;
 }
@@ -100,7 +101,7 @@ int dlite_collection_gethash(const DLiteInstance *inst, uint8_t *hash,
   /* Calculate the hash of a sorted copy of the relations */
   triplestore_init_state(coll->rstore, &state);
   if (!(triples = malloc(n * sizeof(Triple *))))
-    FAIL("allocation failure");
+    FAILCODE(dliteMemoryError, "allocation failure");
   while ((t = triplestore_next(&state))) {
     triples[i++] = t;
   }
@@ -118,9 +119,11 @@ int dlite_collection_gethash(const DLiteInstance *inst, uint8_t *hash,
         char hex[2*DLITE_HASH_SIZE+1];
         if (!(inst = dlite_instance_get(triples[i]->o))) goto fail;
         if (dlite_instance_get_hash(inst, hash, DLITE_HASH_SIZE))
-          FAIL1("error calculating hash of instance '%s'", triples[i]->o);
+          FAILCODE1(dliteValueError,
+                    "error calculating hash of instance '%s'", triples[i]->o);
         if (strhex_encode(hex, sizeof(hex), hash, DLITE_HASH_SIZE) < 0)
-          FAIL1("failed hex-encoding hash of '%s'", triples[i]->o);
+          FAILCODE1(dliteValueError,
+                    "failed hex-encoding hash of '%s'", triples[i]->o);
         sha3_Update(&c, triples[i]->s, strlen(triples[i]->s));
         sha3_Update(&c, "_has-hash", 9);
         sha3_Update(&c, hex, 2*DLITE_HASH_SIZE);
@@ -142,7 +145,8 @@ int dlite_collection_gethash(const DLiteInstance *inst, uint8_t *hash,
 int dlite_collection_getdim(const DLiteInstance *inst, size_t i)
 {
   DLiteCollection *coll = (DLiteCollection *)inst;
-  if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
+  if (i != 0) return errx(dliteIndexError,
+                         "index out of range: %lu", (unsigned long)i);
   return triplestore_length(coll->rstore);
 }
 
@@ -153,7 +157,8 @@ int dlite_collection_loadprop(const DLiteInstance *inst, size_t i)
   DLiteCollection *coll = (DLiteCollection *)inst;
   TripleState state;
   const Triple *t;
-  if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
+  if (i != 0) return errx(dliteIndexError,
+                         "index out of range: %lu", (unsigned long)i);
   triplestore_clear(coll->rstore);
   if (triplestore_add_triples(coll->rstore, coll->relations, coll->nrelations))
     return -1;
@@ -163,7 +168,8 @@ int dlite_collection_loadprop(const DLiteInstance *inst, size_t i)
   triplestore_init_state(coll->rstore, &state);
   while ((t = triplestore_find(&state, NULL, "_has-uuid", NULL))) {
     DLiteInstance *inst2 = dlite_instance_get(t->o);
-    if (!inst2) retval = errx(1, "cannot get instance \"%s\" labeled \"%s\" "
+    if (!inst2) retval = errx(dliteStorageLoadError,
+                              "cannot get instance \"%s\" labeled \"%s\" "
                               "from collection \"%s\".  "
                               "Is DLITE_STORAGES properly set?",
                               t->o, t->s, coll->uuid);
@@ -182,7 +188,8 @@ int dlite_collection_saveprop(DLiteInstance *inst, size_t i)
   int n, j=0;
 
   if ((n = dlite_instance_get_dimension_size_by_index(inst, i)) < 0) return -1;
-  if (i != 0) return err(-1, "index out of range: %lu", (unsigned long)i);
+  if (i != 0) return errx(dliteIndexError,
+                          "index out of range: %lu", (unsigned long)i);
 
   triplestore_init_state(coll->rstore, &state);
   while ((t = triplestore_next(&state))) {
@@ -237,7 +244,8 @@ void dlite_collection_decref(DLiteCollection *coll)
 DLiteCollection *dlite_collection_from_instance(DLiteInstance *inst)
 {
   if (strcmp(inst->meta->uuid, DLITE_COLLECTION_ENTITY) != 0)
-    return err(1, "cannot cast instance %s to a collection", inst->uuid), NULL;
+    return errx(dliteTypeError,
+                "cannot cast instance %s to a collection", inst->uuid), NULL;
   return (DLiteCollection *)inst;
 }
 
@@ -275,8 +283,9 @@ DLiteCollection *dlite_collection_load(DLiteStorage *s, const char *id,
   dlite_collection_init_state(coll, &state);
   while ((t = dlite_collection_find(coll, &state, NULL, "_has-uuid", NULL))) {
     if (!(t2 = dlite_collection_find_first(coll, t->s, "_has-meta", NULL)))
-      FAIL1("collection inconsistency - no \"_has-meta\" relation for "
-           "instance: %s", t->s);
+      FAILCODE1(dliteInconsistentDataError,
+                "collection inconsistency - no \"_has-meta\" relation for "
+                "instance: %s", t->s);
     if (strcmp(t2->o, DLITE_COLLECTION_ENTITY) == 0) {
       if (!dlite_collection_load(s, t->o, 0)) goto fail;
     } else {
@@ -461,8 +470,9 @@ int dlite_collection_add_new(DLiteCollection *coll, const char *label,
                              DLiteInstance *inst)
 {
   if (dlite_collection_find(coll, NULL, label, "_is-a", "Instance"))
-    return err(1, "instance with label '%s' is already in the collection",
-               label);
+    return errx(dliteValueError,
+                "instance with label '%s' is already in the collection",
+                label);
 
   dlite_collection_add_relation(coll, label, "_is-a", "Instance");
   dlite_collection_add_relation(coll, label, "_has-uuid", inst->uuid);
@@ -542,7 +552,7 @@ const DLiteInstance *dlite_collection_get(const DLiteCollection *coll,
     if (inst->_refcount >= 2) dlite_instance_decref(inst);
     return inst;
   }
-  errx(1, "cannot load instance '%s' from collection", label);
+  errx(dliteValueError, "cannot load instance '%s' from collection", label);
  fail:
   return NULL;
 }
@@ -575,7 +585,8 @@ DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
   if (!inst) return NULL;
   if (metaid) {
     if (!(inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1)))
-      errx(1, "cannot map instance labeled '%s' to '%s'", label, metaid);
+      errx(dliteMappingError,
+           "cannot map instance labeled '%s' to '%s'", label, metaid);
   } else
     dlite_instance_incref(inst);
   return inst;
