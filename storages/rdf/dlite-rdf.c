@@ -323,32 +323,39 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   int ok=0, n, j;
   char uuid[DLITE_UUID_LENGTH+1], muuid[DLITE_UUID_LENGTH+1];
   char *pid=NULL, *mid=NULL, *propiri=NULL;
+  const char *value;
 
   errno = 0;
-  dlite_get_uuid(uuid, id);
-  pid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, uuid) : NULL;
 
   /* find instance and metadata UUIDs */
-  triplestore_init_state(ts, &state);
-  while ((t2 = triplestore_find(&state, pid, _P ":hasMeta", NULL, NULL))) {
-    if (t) FAIL1("ID must be provided if storage holds "
-                 "more than one instance: %s", s->location);
-    t = t2;
-  }
-  triplestore_deinit_state(&state);
-  if (t) {
-    dlite_get_uuid(muuid, t->o);
+  if (id) {
+    dlite_get_uuid(uuid, id);
+    pid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, uuid) : NULL;
+    if (!(value = triplestore_value(ts, pid, _P ":hasMeta", NULL, NULL,
+                                  NULL, 0)))
+      FAILCODE2(dliteSearchError,
+                "cannot find instance '%s' in RDF storage: %s",
+                pid, s->location);
+    dlite_get_uuid(muuid, value);
   } else {
     triplestore_init_state(ts, &state);
-    while ((t2 = triplestore_find(&state, pid, _P ":hasURI", NULL, NULL))) {
-      if (t) FAIL1("ID must be provided if storage holds "
-                   "more than one instance: %s", s->location);
-      t = t2;
+    if ((t = triplestore_find(&state, NULL, _P ":hasMeta", NULL, NULL))) {
+      pid = strdup(t->s);
+      dlite_get_uuid(muuid, t->o);
     }
+    t2 = triplestore_find(&state, NULL, _P ":hasMeta", NULL, NULL);
     triplestore_deinit_state(&state);
-    dlite_get_uuid(muuid, DLITE_ENTITY_SCHEMA);
+    if (!t) FAILCODE1(dliteSearchError,
+                      "no instances in RDF storage: %s", s->location);
+
+    if (t2) FAILCODE1(dliteSearchError, "ID must be provided if storage "
+                      "holds more than one instance: %s", s->location);
+    if (!(value = triplestore_value(ts, pid, _P ":hasUUID", NULL, NULL,
+                                    NULL, 0)))
+      FAILCODE2(dliteInconsistentDataError, "instance '%s' has no "
+                _P ":hasUUID relation in RDF storage: %s", pid, s->location);
+    dlite_get_uuid(uuid, value);
   }
-  if (!t) FAIL2("no instance with id '%s' in store: %s", id, s->location);
 
   /* get/load metadata */
   mid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, muuid) : NULL;
@@ -399,6 +406,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (dlite_instance_is_meta(inst)) dlite_meta_init((DLiteMeta *)inst);
 
   n = 0;
+  triplestore_init_state(ts, &state);
   while ((t = triplestore_find(&state, pid, _P ":hasPropertyValue", NULL,
                                NULL))) {
     /* -- read property values */
@@ -521,7 +529,6 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (propiri) free(propiri);
   if (dims) free(dims);
   if (!ok && inst) dlite_instance_decref(inst);
-  triplestore_deinit_state(&state);
   return (ok) ? inst : NULL;
 }
 

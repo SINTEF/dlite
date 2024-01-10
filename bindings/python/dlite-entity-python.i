@@ -273,6 +273,12 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             args.append(f"id='{self.id}'")
         return f"Relation({', '.join(args)})"
 
+    def __eq__(self, other):
+        if isinstance(other, Relation):
+            return (self.s == other.s and self.p == other.p and
+                    self.o == other.o and self.d == other.d)
+        return NotImplemented
+
     def copy(self):
         """Returns a copy of self."""
         return Relation(s=self.s, p=self.p, o=self.o, d=self.d, id=self.id)

@@ -62,8 +62,8 @@ class Collection(Instance):
     `nrelations` property.
 
     Relations are (s, p, o, d=None)-triples with an optional fourth field
-    `d`, specifying the datatype of the object.  It may have the following
-    values:
+    `d`, specifying the datatype of the object.  The datatype may have the
+    following values:
       - None: object is an IRI.
       - Starts with '@': object is a language-tagged plain literal.
         The language identifier follows the '@'-sign.
@@ -217,7 +217,7 @@ class Collection(Instance):
         """Remove all relations matching `s`, `p` and `o`."""
         if _collection_remove_relations(self._coll, s, p, o, d) < 0:
             raise _dlite.DLiteError(
-                f'Error removing relations matching ({s}, {p}, {o})')
+                f'Error removing relations matching ({s}, {p}, {o}, {d})')
 
     def get_first_relation(self, s=None, p=None, o=None, d=None):
         """Returns the first relation matching `s`, `p` and `o`.
@@ -350,14 +350,18 @@ class Collection(Instance):
         Useful if one knows that there may only be one value.
 
         Parameters:
-            s, p, o: Criteria to match. Two of these must be non-NULL.
-            d: If not NULL, the required datatype of literal objects.
+            s, p, o: Criteria to match. Two of these must not be None.
+            d: If not None, the required datatype of literal objects.
             default: Value to return if no matches are found.
-            any: If non-zero, return first matching value.
+            any: If true, return first matching value.
 
         Returns:
-            A pointer to the value of the `s`, `p` or `o` that is NULL.
-            On error NULL is returned.
+            A pointer to the value of the `s`, `p` or `o` that is None.
+
+        Raises:
+            DLiteTypeError: Not exactly two of `s`, `p` and `o` are None.
+            DLiteSearchError: No match can be found or more that one match
+                if `any` is true.
         """
         return _dlite._collection_value(self, s, p, o, d, default, any)
 
