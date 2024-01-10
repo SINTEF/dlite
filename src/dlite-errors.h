@@ -32,13 +32,15 @@ typedef enum {
   dliteStorageOpenError=-22,     /*!< Cannot open storage plugin */
   dliteStorageLoadError=-23,     /*!< Cannot load storage plugin */
   dliteStorageSaveError=-24,     /*!< Cannot save storage plugin */
-  dliteMissingInstanceError=-25, /*!< No instance with given id can be found */
-  dliteMissingMetadataError=-26, /*!< No metadata with given id can be found */
-  dliteMetadataExistError=-27,   /*!< Metadata with given id already exists */
-  dlitePythonError=-28,          /*!< Error calling Python API */
+  dliteOptionError=-25,          /*!< Invalid storage plugin option */
+  dliteMissingInstanceError=-26, /*!< No instance with given id can be found */
+  dliteMissingMetadataError=-27, /*!< No metadata with given id can be found */
+  dliteMetadataExistError=-28,   /*!< Metadata with given id already exists */
+  dliteMappingError=-29,         /*!< Error in instance mappings */
+  dlitePythonError=-30,          /*!< Error calling Python API */
 
   /* Should always be the last error */
-  dliteLastError=-29
+  dliteLastError=-31
 } DLiteErrCode;
 
 

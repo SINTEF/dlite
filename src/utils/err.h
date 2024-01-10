@@ -504,6 +504,7 @@ typedef struct ErrRecord {
   int eval;               /*!< @brief Error value. */
   int errnum;             /*!< @brief System error number. */
   char msg[ERR_MSGSIZE];  /*!< @brief Error message. */
+  int pos;                /*!< @brief Position of new appended error message. */
   int handled;            /*!< @brief Whether the error has been handled. */
   int reraise;            /*!< @brief Error value to reraise. */
   ErrTryState state;      /*!< @brief Where we are in ErrTry.. ErrEnd. */
