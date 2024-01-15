@@ -13,7 +13,7 @@ sphinx-toggleprompt~=0.4.0
 sphinx-copybutton~=0.5.2  # does not work well with toggleprompt
 sphinx-design~=0.3.0
 sphinxcontrib-plantuml~=0.27
-pydata-sphinx-theme~=0.8.1
+pydata-sphinx-theme~=0.15.1
 
 nbclient>=0.2,<0.10
 docutils~=0.17.1
