@@ -375,7 +375,10 @@ class _QuantityProperty:
         for p in self.meta['properties']:
             if p.name == name:
                 return p
-        raise ValueError(f'No property "{name}" in "{self.uri}"')
+        raise ValueError(
+            f'No property "{name}" in '
+            f'"{self.uri if self.uri else self.meta.uri}"'
+        )
 
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
     dimensions = property(
@@ -873,6 +876,14 @@ class _QuantityProperty:
             "Instance.get_copy() is deprecated.  Use Instance.copy() instead.",
             DeprecationWarning, stacklevel=2)
         return self.copy()
+
+    q = property(quantity.get_quantity_helper, doc=r"""quantities""")
+
+    def get_quantity(self, name):
+        return self.q[name]
+
+    def set_quantity(self, name, value, unit):
+        self.q[name] = (value, unit)
 
 %}
 

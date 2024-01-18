@@ -5,6 +5,7 @@
 %pythoncode %{
 
 import atexit
+from . import quantity
 
 atexit.register(_mark_python_atexit)
 
