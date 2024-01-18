@@ -1,3 +1,12 @@
+import os
+import subprocess
+
+
+
+
+current_branch = '192-rename-dims-to-shape-throughout-dlite' 
+# TODO: Revert back to master once the feature is merged.
+
 try:
     import requests
 except ModuleNotFoundError:
@@ -7,9 +16,10 @@ except ModuleNotFoundError:
 import dlite
 
 
-url = "https://raw.githubusercontent.com/SINTEF/dlite/master/storages/python/tests-python/input/test_meta.json"
+url = f"https://raw.githubusercontent.com/SINTEF/dlite/{current_branch}/storages/python/tests-python/input/test_meta.json"
 
 meta = dlite.Instance.from_location("http", url)
+
 
 assert str(meta) == """
 {
