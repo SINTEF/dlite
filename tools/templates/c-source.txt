@@ -100,9 +100,9 @@ static DLiteProperty {name%u}_properties[] = {{
     {prop.ref},    {@40}/* ref */
     {prop.ndims},  {@40}/* ndims */
 {@if:{prop.ndims}=0}\
-    NULL,          {@40}/* dims */
+    NULL,          {@40}/* shape */
 {@else}\
-    {name%u}_prop_{prop.name}_dims, {@40}/* dims */
+    {name%u}_prop_{prop.name}_dims, {@40}/* shape */
 {@endif}\
 {@if:"{prop.unit}"}\
     "{prop.unit}", {@40}/* unit */

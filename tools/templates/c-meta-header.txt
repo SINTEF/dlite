@@ -85,7 +85,7 @@ typedef struct {{
   DLiteType type;
   size_t size;
   int ndims;
-  char **dims, *unit, *description;
+  char **shape, *unit, *description;
 }} DLiteProperty;
 typedef void DLiteInstance;
 #define DLiteInstance_HEAD
