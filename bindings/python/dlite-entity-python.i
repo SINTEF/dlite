@@ -877,7 +877,11 @@ class _QuantityProperty:
             DeprecationWarning, stacklevel=2)
         return self.copy()
 
-    q = property(quantity.get_quantity_helper, doc=r"""quantities""")
+    @property
+    def q(self):
+        """ to work with quantities """
+        from dlite.quantity import get_quantity_helper
+        return get_quantity_helper(self)
 
     def get_quantity(self, name):
         return self.q[name]
