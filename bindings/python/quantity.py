@@ -89,6 +89,15 @@ class QuantityHelper:
         values = [self[name] for name in names]
         return zip(names, values)
 
+    def get(self, *names):
+        """ Return the quantity of each given property name """
+        if names:
+            if len(names) == 1:
+                return self[names[0]]
+            else:
+                return [self[name] for name in names]
+        return None
+
     @property
     def unit_registry(self) -> pint.UnitRegistry:
         """ Returns the current pint UnitRegistry object """
