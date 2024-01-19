@@ -119,16 +119,21 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   if (atob(opts[8].value) > 0) warn("`useid` is deprecated");
 
   /* check options */
-  if (single == -1) FAIL1("invalid boolean value for `single=%s`.",
-                        opts[1].value);
-  if (urikey < 0) FAIL1("invalid boolean value for `uri-key=%s`.",
-                        opts[2].value);
-  if (withuuid < 0) FAIL1("invalid boolean value for `with-uuid=%s`.",
-                          opts[3].value);
-  if (withmeta < 0) FAIL1("invalid boolean value for `with-meta=%s`.",
-                          opts[4].value);
-  if (arrays < 0) FAIL1("invalid boolean value for `arrays=%s`.",
-                        opts[5].value);
+  if (single == -1) FAILCODE1(dliteOptionError,
+                              "invalid boolean value for `single=%s`.",
+                              opts[1].value);
+  if (urikey < 0) FAILCODE1(dliteOptionError,
+                            "invalid boolean value for `uri-key=%s`.",
+                            opts[2].value);
+  if (withuuid < 0) FAILCODE1(dliteOptionError,
+                              "invalid boolean value for `with-uuid=%s`.",
+                              opts[3].value);
+  if (withmeta < 0) FAILCODE1(dliteOptionError,
+                              "invalid boolean value for `with-meta=%s`.",
+                              opts[4].value);
+  if (arrays < 0) FAILCODE1(dliteOptionError,
+                            "invalid boolean value for `arrays=%s`.",
+                            opts[5].value);
 
   if (!(s = calloc(1, sizeof(DLiteJsonStorage))))
    FAILCODE(dliteMemoryError, "allocation failure");
@@ -143,7 +148,8 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
     s->flags &= ~dliteWritable;
     break;
   case 'a':
-    if (single > 0) FAIL("cannot append in single-entity format");
+    if (single > 0) FAILCODE(dliteStorageSaveError,
+                             "cannot append in single-entity format");
     load = 1;
     s->flags |= dliteReadable;
     s->flags |= dliteWritable;
@@ -154,7 +160,8 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
     s->flags |= dliteWritable;
     break;
   default:
-    FAIL1("invalid \"mode\" value: '%c'. Must be \"r\" (read-only), "
+    FAILCODE1(dliteOptionError,
+          "invalid \"mode\" value: '%c'. Must be \"r\" (read-only), "
           "\"w\" (write) or \"a\" (append)", mode);
   }
 
@@ -210,15 +217,18 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
 
   if (!js->jstore)
-    FAIL1("cannot load json file: %s", s->location);
+    FAILCODE1(dliteStorageLoadError,
+              "cannot load JSON file: \"%s\"", s->location);
 
   if (!id || !*id) {
     JStoreIter iter;
     if (jstore_iter_init(js->jstore, &iter)) goto fail;
     if (!(id = jstore_iter_next(&iter)))
-      FAIL1("cannot load instance from empty storage \"%s\"", s->location);
+      FAILCODE1(dliteStorageLoadError,
+            "cannot load instance from empty storage \"%s\"", s->location);
     if (jstore_iter_next(&iter)) {
-      FAIL1("id is required when loading from storage with more "
+      FAILCODE1(dliteStorageLoadError,
+            "id is required when loading from storage with more "
             "than one instance: %s", s->location);
     }
     if (jstore_iter_deinit(&iter)) goto fail;
@@ -250,7 +260,8 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   DLiteJsonFlag jflags = js->jflags;
 
   if (!(s->flags & dliteWritable))
-    FAIL1("storage \"%s\" is not writable", s->location);
+    FAILCODE1(dliteStorageSaveError,
+              "storage \"%s\" is not writable", s->location);
 
   /* If single/multi format is not given, infer it from `inst` */
   if (!js->fmt_given && dlite_instance_is_meta(inst))
@@ -258,8 +269,9 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
 
   if (jflags & dliteJsonSingle) {
     if (js->changed)
-      FAIL1("Trying to save more than once in single-entity format: %s",
-            s->location);
+      FAILCODE1(dliteStorageSaveError,
+                "Trying to save more than once in single-entity format: %s",
+                s->location);
     int n = dlite_json_printfile(s->location, inst, jflags);
     stat = (n > 0) ? 0 : 1;
   } else {
@@ -286,7 +298,8 @@ void *json_iter_create(const DLiteStorage *s, const char *metaid)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   if (!js->jstore)
-    return errx(1, "iteration not possible in write mode"), NULL;
+    return errx(dliteStorageLoadError,
+                "iteration not possible in write mode"), NULL;
   return dlite_jstore_iter_create(js->jstore, metaid);
 }
 
