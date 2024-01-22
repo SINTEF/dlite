@@ -144,7 +144,7 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       if (p->ref)
         PRINT2(",\n%s      \"$ref\": \"%s\"", in, p->ref);
       if (p->ndims) {
-        PRINT1(",\n%s      \"shape\": [", in);
+        PRINT1(",\n%s      \"dims\": [", in);
         for (j=0; j < p->ndims; j++) {
           char *cc = (j < p->ndims - 1) ? ", " : "";
           PRINT2("\"%s\"%s", p->shape[j], cc);
@@ -251,7 +251,8 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     char hex[DLITE_HASH_SIZE*2 + 1];
     if (strhex_encode(hex, sizeof(hex),
                       inst->_parent->hash, DLITE_HASH_SIZE) < 0)
-      FAIL1("cannot encode hash of parent: %s", inst->_parent->uuid);
+      FAILCODE1(dliteValueError,
+                "cannot encode hash of parent: %s", inst->_parent->uuid);
     PRINT1("%s  \"parent\": {\n", in);
     PRINT2("%s    \"uuid\": \"%s\",\n", in, inst->_parent->uuid);
     PRINT2("%s    \"hash\": \"%s\"\n", in, hex);
@@ -555,7 +556,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   int ok=0;
   const jsmntok_t *item, *t;
   char *buf=NULL, *uri=NULL, *metauri=NULL, uuid[DLITE_UUID_LENGTH+1];
-  size_t i, *shape=NULL;
+  size_t i, *dims=NULL;
   DLiteInstance *inst=NULL;
   const DLiteMeta *meta=NULL;
   jsmntype_t dimtype = 0;
@@ -599,7 +600,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   assert(meta);
 
   /* Allocate dimensions */
-  if (!(shape= calloc(meta->_ndimensions, sizeof(size_t))))
+  if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
     FAILCODE(dliteMemoryError, "allocation failure");
 
   /* Parse dimensions */
@@ -607,9 +608,9 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     /* For metadata, dimension sizes are inferred from the size of
        "dimensions", "propertis" and "relations". */
     size_t n=0;
-    if ((t = jsmn_item(src, obj, "dimensions"))) shape[n++] = t->size;
-    if ((t = jsmn_item(src, obj, "properties"))) shape[n++] = t->size;
-    if ((t = jsmn_item(src, obj, "relations")))  shape[n++] = t->size;
+    if ((t = jsmn_item(src, obj, "dimensions"))) dims[n++] = t->size;
+    if ((t = jsmn_item(src, obj, "properties"))) dims[n++] = t->size;
+    if ((t = jsmn_item(src, obj, "relations")))  dims[n++] = t->size;
     if (n != meta->_ndimensions)
       FAIL1("metadata does not confirm to schema, please check dimensions, "
             "properties and/or relations: %s", id);
@@ -638,10 +639,10 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
                     d->name);
             if (!(tt = jsmn_item(src, obj, d->name+1)))
               FAIL1("no metadata array named %s", d->name+1);
-            shape[i] = tt->size;
+            dims[i] = tt->size;
           } else {
             if (t->type == JSMN_PRIMITIVE)
-              shape[i] = atoi(src + t->start);
+              dims[i] = atoi(src + t->start);
             else
               FAIL3("value '%.*s' of dimension should be an integer: %s",
                     t->end-t->start, src+t->start, id);
@@ -654,7 +655,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   }
 
   /* Create instance */
-  if (!(inst = dlite_instance_create(meta, shape, id))) goto fail;
+  if (!(inst = dlite_instance_create(meta, dims, id))) goto fail;
 
   /* Parse properties */
   if (meta->_nproperties > 0) {
@@ -734,7 +735,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   if (name) free(name);
   if (version) free(version);
   if (namespace) free(namespace);
-  if (shape) free(shape);
+  if (dims) free(dims);
   if (buf) free(buf);
   if (uri) free(uri);
   if (metauri) free(metauri);
@@ -1234,7 +1235,8 @@ DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
 {
   char *buf = jstore_readfile(filename);
   int fmt;
-  if (!buf) return err(1, "cannot load json file \"%s\"", filename);
+  if (!buf) return err(dliteStorageLoadError,
+                       "cannot load json file \"%s\"", filename);
   fmt = dlite_jstore_loads(js, buf, strlen(buf));
   free(buf);
   return fmt;

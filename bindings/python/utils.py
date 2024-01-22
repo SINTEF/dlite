@@ -392,12 +392,12 @@ def pydantic_to_metadata(
                 name, descr, dimensions, default_namespace, default_version
             )
         )
-    dimensions = [dlite.Dimension(k, v) for k, v in dimensions.items()]
+    dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
     return dlite.Instance.create_metadata(
-        uri,
-        dimensions,
-        properties,
-        d.get("description", ""),
+        uri=uri,
+        dimensions=dims,
+        properties=properties,
+        description=d.get("description", ""),
     )
 
 
