@@ -240,10 +240,10 @@ void triple_set_default_namespace(const char *namespace);
 %feature("docstring", "\
 Returns a new instance.
 
-Instance(metaid=None, shape=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
+Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
     Is called from one of the following class methods defined in dlite.py:
 
-      - from_metaid(cls, metaid, shape, id=None)
+      - from_metaid(cls, metaid, dims, id=None)
       - from_url(cls, url, metaid=None)
       - from_storage(cls, storage, id=None, metaid=None)
       - from_location(cls, driver, location, options=None, id=None)
@@ -255,7 +255,7 @@ Instance(metaid=None, shape=None, id=None, url=None, storage=None, driver=None, 
       For details, see the documentation for the class methods.
 
 ") _DLiteInstance;
-%apply(int *IN_ARRAY1, int DIM1) {(int *shape, int ndims)};
+%apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
 %apply(struct _DLiteDimension *dimensions, int ndimensions) {
   (struct _DLiteDimension *dimensions, int ndimensions)};
 %apply(struct _DLiteProperty *properties, int nproperties) {
@@ -273,7 +273,7 @@ struct _DLiteInstance {
 };
 
 %extend _DLiteInstance {
-  _DLiteInstance(const char *metaid=NULL, int *shape=NULL, int ndims=0,
+  _DLiteInstance(const char *metaid=NULL, int *dims=NULL, int ndims=0,
                  const char *id=NULL, const char *url=NULL,
                  struct _DLiteStorage *storage=NULL,
                  const char *driver=NULL, const char *location=NULL,
@@ -284,7 +284,7 @@ struct _DLiteInstance {
                  struct _DLiteDimension *dimensions=NULL, int ndimensions=0,
                  struct _DLiteProperty *properties=NULL, int nproperties=0,
                  const char *description=NULL) {
-    if (shape && metaid) {
+    if (dims && metaid) {
       DLiteInstance *inst;
       DLiteMeta *meta;
       size_t i, *d, n=ndims;
@@ -296,7 +296,7 @@ struct _DLiteInstance {
                           metaid, (unsigned)meta->_ndimensions), NULL;
       }
       d = malloc(n * sizeof(size_t));
-      for (i=0; i<n; i++) d[i] = shape[i];
+      for (i=0; i<n; i++) d[i] = dims[i];
       inst = dlite_instance_create(meta, d, id);
       free(d);
       if (inst) dlite_errclr();
@@ -582,9 +582,9 @@ Call signatures:
   %feature("docstring", "Returns array with dimension sizes.") get_dimensions;
   %newobject get_dimensions;
   obj_t *get_dimensions() {
-    int shape[1] = { (int)DLITE_NDIM($self) };
+    int dims[1] = { (int)DLITE_NDIM($self) };
     dlite_instance_sync_to_dimension_sizes($self);
-    return dlite_swig_get_array($self, 1, shape, dliteUInt, sizeof(size_t),
+    return dlite_swig_get_array($self, 1, dims, dliteUInt, sizeof(size_t),
                                 DLITE_DIMS($self));
   }
 

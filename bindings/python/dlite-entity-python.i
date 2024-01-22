@@ -231,7 +231,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if self.ref:
             d['ref'] = self.ref
         if self.ndims:
-            d['shape' if soft7 else 'shape'] = self.shape.tolist()
+            d['shape' if soft7 else 'dims'] = self.shape.tolist()
         if self.unit:
             d['unit'] = self.unit
         if self.description:
@@ -250,11 +250,11 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     # Too be removed...
     def _get_dims_depr(self):
-        warnings.warn('Property `shape` is deprecated, use `shape` instead.',
+        warnings.warn('Property `dims` is deprecated, use `shape` instead.',
                       DeprecationWarning, stacklevel=2)
         return self.get_shape()
-    shape = property(_get_dims_depr, doc='Array of dimension indices. '
-                    'Property `shape` is deprecated, use `shape` instead.')
+    dims = property(_get_dims_depr, doc='Array of dimension indices. '
+                    'Property `dims` is deprecated, use `shape` instead.')
 
   %}
 }
@@ -373,20 +373,21 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
                            doc='Whether this is a meta-metadata instance.')
 
     @classmethod
-    def from_metaid(cls, metaid, shape, id=None):
-        """Create a new instance of metadata `metaid`.  `shape` must be a
+    def from_metaid(cls, metaid, dimensions, id=None):
+        """Create a new instance of metadata `metaid`.  `dimensions` must be a
         sequence with the size of each dimension.  All values initialized
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
         """
-        if isinstance(shape, dict):
+        if isinstance(dimensions, dict):
             meta = get_instance(metaid)
-            shape = [shape[dim.name] for dim in meta.properties['dimensions']]
+            dimensions = [dimensions[dim.name]
+                          for dim in meta.properties['dimensions']]
         # Allow metaid to be an Instance
         if isinstance(metaid, Instance):
             metaid = metaid.uri
         return Instance(
-            metaid=metaid, shape=shape, id=id,
+            metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
 
@@ -399,7 +400,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         """
         return Instance(
             url=url, metaid=metaid,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     @classmethod
@@ -412,7 +413,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         """
         return Instance(
             storage=storage, id=id, metaid=metaid,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     @classmethod
@@ -423,7 +424,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         """
         return Instance(
             driver=driver, location=str(location), options=options, id=id,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     @classmethod
@@ -431,7 +432,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         """Load the instance from json input."""
         return Instance(
             jsoninput=jsoninput, id=id, metaid=metaid,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     @classmethod
@@ -439,7 +440,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         """Load the instance from bson input."""
         return Instance(
             bsoninput=bsoninput,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     @classmethod
@@ -487,12 +488,12 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         return Instance(
             uri=uri, dimensions=dimensions, properties=properties,
             description=description,
-            shape=()  # arrays
+            dims=()  # arrays
         )
 
     @classmethod
-    def create_from_metaid(cls, metaid, shape, id=None):
-        """Create a new instance of metadata `metaid`.  `shape` must be a
+    def create_from_metaid(cls, metaid, dimensions, id=None):
+        """Create a new instance of metadata `metaid`.  `dimensions` must be a
         sequence with the size of each dimension.  All values initialized
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
@@ -500,11 +501,12 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         warnings.warn(
             "create_from_metaid() is deprecated, use from_metaid() instead.",
             DeprecationWarning, stacklevel=2)
-        if isinstance(shape, dict):
+        if isinstance(dimensions, dict):
             meta = get_instance(metaid)
-            shape = [shape[dim.name] for dim in meta.properties['dimensions']]
+            dimensions = [dimensions[dim.name]
+                          for dim in meta.properties['dimensions']]
         return Instance(
-            metaid=metaid, shape=shape, id=id,
+            metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
 
@@ -520,7 +522,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             DeprecationWarning, stacklevel=2)
         return Instance(
             url=url, metaid=metaid,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     @classmethod
@@ -550,7 +552,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             "instead.", DeprecationWarning, stacklevel=2)
         return Instance(
             driver=driver, location=str(location), options=options, id=id,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     def save(self, dest, location=None, options=None):
