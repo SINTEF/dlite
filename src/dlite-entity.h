@@ -712,10 +712,10 @@ int dlite_instance_get_property_ndims_by_index(const DLiteInstance *inst,
                                                size_t i);
 
 /**
-  Returns size of dimension `j` in property `i` or -1 on error.
+  Returns size of shape `j` in property `i` or -1 on error.
  */
-int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
-                                                 size_t i, size_t j);
+int dlite_instance_get_property_shape_by_index(const DLiteInstance *inst,
+                                               size_t i, size_t j);
 
 /**
   Returns a malloc'ed array of dimensions of property `i` or NULL on error.
