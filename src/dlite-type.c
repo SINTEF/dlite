@@ -1166,7 +1166,8 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if ((t = jsmn_item(src, tokens, "$ref")))
         prop->ref = strndup(src + t->start, t->end - t->start);
 
-      if ((t = jsmn_item(src, tokens, "shape"))) {
+      if ((t = jsmn_item(src, tokens, "shape")) ||
+          (t = jsmn_item(src, tokens, "dims"))) {
         if (t->type != JSMN_ARRAY)
           return dlite_property_clear(prop),
             errx(dliteParseError, "property shape should be an array");

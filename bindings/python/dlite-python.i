@@ -257,7 +257,7 @@ void dlite_swig_errclr(void)
    `inst` : The DLite instance that own the data. If NULL, the returned
             array takes over the ownership.
    `ndims`: Number of dimensions.
-   `shape` : Length of each dimension.
+   `shape`: Length of each dimension.
    `type` : Type of the data.
    `size` : Size of each data element.
    `data` : Pointer to data, which should be C-ordered and continuous.

@@ -538,7 +538,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             DeprecationWarning, stacklevel=2)
         return Instance(
             storage=storage, id=id, metaid=metaid,
-            shape=(), dimensions=(), properties=()  # arrays
+            dims=(), dimensions=(), properties=()  # arrays
         )
 
     @classmethod

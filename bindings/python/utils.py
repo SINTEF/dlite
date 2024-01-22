@@ -132,7 +132,6 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                 )
 
     meta = dlite.get_instance(d.get("meta", dlite.ENTITY_SCHEMA))
-    print(meta)
 
     if meta.is_metameta:
         if "uri" in d:

@@ -240,10 +240,13 @@ void triple_set_default_namespace(const char *namespace);
 %feature("docstring", "\
 Returns a new instance.
 
-Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
+Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None,
+         location=None, options=None, dimensions=None, properties=None,
+         description=None)
+
     Is called from one of the following class methods defined in dlite.py:
 
-      - from_metaid(cls, metaid, dims, id=None)
+      - from_metaid(cls, metaid, dimensions, id=None)
       - from_url(cls, url, metaid=None)
       - from_storage(cls, storage, id=None, metaid=None)
       - from_location(cls, driver, location, options=None, id=None)
