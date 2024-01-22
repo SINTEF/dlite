@@ -851,13 +851,13 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         DLiteProperty *src = (DLiteProperty *)p;
         if (dest->name)        free(dest->name);
         if (dest->ref)         free(dest->ref);
-        if (dest->shape)        free_str_array(dest->shape, dest->ndims);
+        if (dest->shape)       free_str_array(dest->shape, dest->ndims);
         if (dest->unit)        free(dest->unit);
         if (dest->description) free(dest->description);
         dest->name  = strdup(src->name);
         dest->type  = src->type;
         dest->size  = src->size;
-        if (src->ref) dest->ref   = strdup(src->ref);
+        if (src->ref) dest->ref = strdup(src->ref);
         dest->ndims = src->ndims;
         if (src->ndims > 0) {
           int j;
@@ -874,7 +874,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
         PyObject *name  = PySequence_GetItem(obj, 0);
         PyObject *type  = PySequence_GetItem(obj, 1);
         PyObject *ref   = PySequence_GetItem(obj, 2);
-        PyObject *shape  = PySequence_GetItem(obj, 3);
+        PyObject *shape = PySequence_GetItem(obj, 3);
         PyObject *unit  = PySequence_GetItem(obj, 4);
         PyObject *descr = PySequence_GetItem(obj, 5);
         DLiteType t;
@@ -885,7 +885,7 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj)
                                           &t, &size) == 0) {
           if (dest->name)        free(dest->name);
           if (dest->ref)         free(dest->ref);
-          if (dest->shape)        free_str_array(dest->shape, dest->ndims);
+          if (dest->shape)       free_str_array(dest->shape, dest->ndims);
           if (dest->unit)        free(dest->unit);
           if (dest->description) free(dest->description);
           dest->name = strdup(PyUnicode_AsUTF8(name));
