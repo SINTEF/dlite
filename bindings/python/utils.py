@@ -161,24 +161,28 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
             )
 
         props = []
-        if isinstance(d['properties'], Sequence):
-            for p in d['properties']:
-                props.append(dlite.Property(
-                    name=p['name'],
-                    type=p['type'],
-                    shape=p.get('shape', p.get('shape')),
-                    unit=p.get('unit'),
-                    description=p.get('description'),
-                ))
-        elif isinstance(d['properties'], Mapping):
-            for k, v in d['properties'].items():
-                props.append(dlite.Property(
-                    name = k,
-                    type = v['type'],
-                    shape=v.get('shape', v.get('shape')),
-                    unit=v.get('unit'),
-                    description=v.get('description'),
-                ))
+        if isinstance(d["properties"], Sequence):
+            for p in d["properties"]:
+                props.append(
+                    dlite.Property(
+                        name=p["name"],
+                        type=p["type"],
+                        shape=p.get("shape", p.get("dims")),
+                        unit=p.get("unit"),
+                        description=p.get("description"),
+                    )
+                )
+        elif isinstance(d["properties"], Mapping):
+            for k, v in d["properties"].items():
+                props.append(
+                    dlite.Property(
+                        name=k,
+                        type=v["type"],
+                        shape=v.get("shape", v.get("dims")),
+                        unit=v.get("unit"),
+                        description=v.get("description"),
+                    )
+                )
         else:
             raise TypeError(
                 "`properties` must be either a sequence or a mapping"
@@ -188,12 +192,13 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
             uri, dimensions, props, d.get("description")
         )
     else:
-        shape = [d['dimensions'][dim.name]
-                for dim in meta.properties['dimensions']]
-        inst_id = d.get('uri', d.get('uuid', id))
-        inst = dlite.Instance.from_metaid(meta.uri, shape=shape, id=inst_id)
-        for p in meta['properties']:
-            value = d['properties'][p.name]
+        dims = [
+            d["dimensions"][dim.name] for dim in meta.properties["dimensions"]
+        ]
+        inst_id = d.get("uri", d.get("uuid", id))
+        inst = dlite.Instance.from_metaid(meta.uri, dimensions=dims, id=inst_id)
+        for p in meta["properties"]:
+            value = d["properties"][p.name]
             inst[p.name] = value
 
     return inst
@@ -239,6 +244,7 @@ def get_dataclass_entity_schema():
     @dataclass
     class Property:
         type: str
+        # @ref: Optional[str]  # Should we rename this to "ref"? See issue #595
         shape: Optional[List[str]]
         unit: Optional[str]
         description: Optional[str]
@@ -332,8 +338,12 @@ def pydantic_to_property(
         for dim in shape:
             dimensions.setdefault(dim, f"Number of {dim}.")
         return dlite.Property(
-            name, subprop.type, ref=subprop.ref, shape=shape,
-            unit=unit, description=descr,
+            name,
+            subprop.type,
+            ref=subprop.ref,
+            shape=shape,
+            unit=unit,
+            description=descr,
         )
 
     if ptype == "ref":
@@ -377,11 +387,16 @@ def pydantic_to_metadata(
     dimensions = {}
     properties = []
     for name, descr in d["properties"].items():
-        properties.append(pydantic_to_property(
-            name, descr, dimensions, default_namespace, default_version))
-    shape = [dlite.Dimension(k, v) for k, v in dimensions.items()]
+        properties.append(
+            pydantic_to_property(
+                name, descr, dimensions, default_namespace, default_version
+            )
+        )
+    dimensions = [dlite.Dimension(k, v) for k, v in dimensions.items()]
     return dlite.Instance.create_metadata(
-        uri, shape, properties,
+        uri,
+        dimensions,
+        properties,
         d.get("description", ""),
     )
 
@@ -422,10 +437,11 @@ def get_pydantic_entity_schema():
         raise MissingDependencyError("pydantic")
 
     class Property(BaseModel):
-        type: str
-        shape: Optional[List[str]]
-        unit: Optional[str]
-        description: Optional[str]
+        type: str = Field(...)
+        shape: Optional[Sequence[str]] = Field(None, alias="dims")
+        ref: Optional[str] = Field(None, alias="$ref")
+        unit: Optional[str] = Field(None)
+        description: Optional[str] = Field(None)
 
     class EntitySchema(BaseModel):
         uri: AnyUrl = Field(...)
@@ -472,8 +488,8 @@ def infer_dimensions(meta, values, strict=True):
                 f"invalid property names in `values`: {extra_props}"
             )
 
-    shape = {}
-    for prop in meta['properties']:
+    dims = {}
+    for prop in meta["properties"]:
         if prop.name in values and prop.ndims:
             with warnings.catch_warnings():
                 warnings.filterwarnings(
@@ -509,21 +525,78 @@ def infer_dimensions(meta, values, strict=True):
 
             if len(v.shape) != prop.ndims:
                 raise InvalidNumberOfDimensionsError(
-                    f'property {prop.name} has {prop.ndims} dimensions, but '
-                    f'{len(v.shape)} was provided')
+                    f"property {prop.name} has {prop.ndims} dimensions, but "
+                    f"{len(v.shape)} was provided"
+                )
             for i, dimname in enumerate(prop.shape):
-                if dimname in shape and v.shape[i] != shape[dimname]:
+                if dimname in dims and v.shape[i] != dims[dimname]:
                     raise CannotInferDimensionError(
                         f'inconsistent assignment of dimension "{dimname}" '
-                        f'when checking property "{prop.name}"')
-                shape[dimname] = v.shape[i]
+                        f'when checking property "{prop.name}"'
+                    )
+                dims[dimname] = v.shape[i]
 
-    dimnames = {d.name for d in meta['dimensions']}
-    if len(shape) != len(meta['dimensions']):
-        missing_dims = dimnames.difference(shape.keys())
+    dimnames = {d.name for d in meta["dimensions"]}
+    if len(dims) != len(meta["dimensions"]):
+        missing_dims = dimnames.difference(dims.keys())
         raise CannotInferDimensionError(
             f"insufficient number of properties provided to infer dimensions: "
             f"{missing_dims} for metadata: {meta.uri}"
         )
 
-    return shape
+    return dims
+
+
+def get_referred_instances(inst, include_meta=False):
+    """Return a set with all instances that are directly or indirectly
+    referred to by `inst`.
+
+    This function follows instances referred to by collections and via
+    properties of type 'ref'.  Transaction parents are not included,
+    hence the returned set only includes instances in the current
+    snapshot.
+
+    Cyclic references are handled correctly.
+
+    If `include_meta` is true, also return metadata.
+
+    Example
+    -------
+    If you have a collection 'coll' with three instances 'inst1',
+    'inst2' and 'inst3' and 'inst2' has a 'ref' property, which is
+    an array `[inst4, inst5]`, then
+
+        get_referred_instances(coll)
+
+    would return the set `{coll, inst1, inst2, inst3, inst4, inst5}`.
+
+    The same set would be returned even if one of the instances would
+    have a 'ref' property referring back to 'coll'.
+    """
+    references = set()
+    _get_referred_instances(inst, include_meta, references)
+    return references
+
+
+def _get_referred_instances(inst, include_meta, references):
+    """Recursive help function for get_referred_instances()."""
+    if inst is None or inst in references:
+        return
+    references.add(inst)
+    if isinstance(inst, dlite.Collection):
+        for i in inst.get_instances():
+            _get_referred_instances(i, include_meta, references)
+    else:
+        for prop in inst.meta.properties["properties"]:
+            if prop.type == "ref":
+                if prop.ndims:
+                    for i in inst[prop.name]:
+                        _get_referred_instances(
+                            i, include_meta, references
+                        )
+                else:
+                        _get_referred_instances(
+                            inst[prop.name], include_meta, references
+                        )
+    if include_meta:
+        _get_referred_instances(inst.meta, include_meta, references)

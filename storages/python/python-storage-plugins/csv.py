@@ -88,7 +88,7 @@ class csv(dlite.DLiteStorageBase):
                 "csv option `meta` must be provided if `infer` if false"
             )
 
-        inst = Meta(shape=(rows,), id=self.options.get("id"))
+        inst = Meta(dimensions=(rows,), id=self.options.get("id"))
         for i in range(len(inst.properties)):
             inst[i] = data.iloc[:, i]
 
@@ -208,7 +208,7 @@ def infer_meta(data: pd.DataFrame, metauri: str, uri: str) -> dlite.Metadata:
             dlite.Property(
                 name=name,
                 type=type,
-                shape=col_dims,
+                shape=col_shape,
                 unit=unit,
                 description=None,
             )

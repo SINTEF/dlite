@@ -59,7 +59,9 @@ class DataModel:
             raise KeyError(f'A dimension named "{name}" already exists')
         self.dimensions[name] = dlite.Dimension(name, description)
 
-    def add_property(self, name, type, shape=None, unit=None, description=None, dims=None):
+    def add_property(
+        self, name, type, shape=None, unit=None, description=None, dims=None
+    ):
         """Add property to data model.
 
         Parameters:
@@ -92,8 +94,8 @@ class DataModel:
         )
 
     def _get_dims_variables(self):
-        """Returns a set of all dimension names referred to in property shape."""
-        """Returns a set of all dimension names referred to in property shape."""
+        """Returns a set of all dimension names referred to in property shapes.
+        """
         names = set()
         for prop in self.properties.values():
             if prop.shape is not None:
@@ -130,9 +132,7 @@ class DataModel:
         """Returns a DLite Metadata created from the datamodel."""
         self.validate()
         shape = [len(self.dimensions), len(self.properties)]
-        shape = [len(self.dimensions), len(self.properties)]
         if 'nrelations' in self.schema:
-            shape.append(len(self.relations))
             shape.append(len(self.relations))
 
         # Hmm, there seems to be a bug when instantiating from schema.

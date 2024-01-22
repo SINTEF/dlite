@@ -3002,9 +3002,11 @@ DLiteProperty *dlite_property_create(const char *name,
 void dlite_property_clear(DLiteProperty *prop)
 {
   int i;
-  if (prop->name) free(prop->name);
   for (i=0; i < prop->ndims; i++) free(prop->shape[i]);
-  if (prop->unit) free(prop->unit);
+  if (prop->name)  free(prop->name);
+  if (prop->ref)   free(prop->ref);
+  if (prop->shape) free(prop->shape);
+  if (prop->unit)  free(prop->unit);
   if (prop->description) free(prop->description);
   memset(prop, 0, sizeof(DLiteProperty));
 }
@@ -3071,7 +3073,7 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
                         width, prec, flags)) < 0) return -1;
       N += m;
       if (i < shape[d]-1) {
-        if ((m = snprintf(dest+N, PDIFF(n, N), ", ")) < 0) goto fail;
+        if ((m = snprintf(dest+N, PDIFF(n, N), "%s", sep)) < 0) goto fail;
         N += m;
       }
     }
@@ -3262,12 +3264,8 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
 
       for (i=0; i < item->size; i++, prop++) {
         const jsmntok_t *t, *d;
-        if (prop->name) free(prop->name);
-        if (prop->ref)  free(prop->ref);
-        if (prop->shape) free(prop->shape);
-        if (prop->unit) free(prop->unit);
-        if (prop->description) free(prop->description);
-        memset(prop, 0, sizeof(DLiteProperty));
+
+        dlite_property_clear(prop);
 
         assert(v->type == JSMN_STRING);  // key must be a string
         prop->name = strndup(src + v->start, v->end - v->start);
@@ -3297,8 +3295,10 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
 
         if ((t = jsmn_item(src, v, "shape")) ||
             (t = jsmn_item(src, v, "shape"))) {
-          if (t->type != JSMN_ARRAY)
-            return errx(dliteIndexError, "property \"%.*s\": shape should be an array",
+          if (t->type != JSMN_ARRAY) {
+            dlite_property_clear(prop);
+            return errx(dliteIndexError,
+                        "property \"%.*s\": shape should be an array",
                         keylen, key);
           }
           prop->ndims = t->size;
@@ -3310,6 +3310,7 @@ int scanobj(const char *src, const jsmntok_t *item, const char *key,
                          "error parsing dimensions \"%.*s\" of property "
                          "\"%.*s\"", t->end - t->start, src + t->start,
                          keylen, key);
+            }
             prop->shape[j] = strndup(src + d->start, d->end - d->start);
           }
         }

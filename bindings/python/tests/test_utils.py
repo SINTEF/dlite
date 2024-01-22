@@ -94,16 +94,16 @@ if HAVE_DATACLASSES:
             "ncoords": "Number of coordinates.  Always three.",
         },
         properties={
-            'symbols': {
-                'type': 'string',
-                'shape': ['natoms'],
-                'description': 'Chemical symbol of each atom.',
+            "symbols": {
+                "type": "string",
+                "shape": ["natoms"],
+                "description": "Chemical symbol of each atom.",
             },
-            'positions': {
-                'type': 'float',
-                'shape': ['natoms', 'ncoords'],
-                'unit': 'Å',
-                'description': 'Position of each atom.',
+            "positions": {
+                "type": "float",
+                "shape": ["natoms", "ncoords"],
+                "unit": "Å",
+                "description": "Position of each atom.",
             },
         },
     )
@@ -124,16 +124,16 @@ if HAVE_PYDANTIC:
             "ncoords": "Number of coordinates.  Always three.",
         },
         properties={
-            'symbols': {
-                'type': 'string',
-                'shape': ['natoms'],
-                'description': 'Chemical symbol of each atom.',
+            "symbols": {
+                "type": "string",
+                "shape": ["natoms"],
+                "description": "Chemical symbol of each atom.",
             },
-            'positions': {
-                'type': 'float',
-                'shape': ['natoms', 'ncoords'],
-                'unit': 'Å',
-                'description': 'Position of each atom.',
+            "positions": {
+                "type": "float",
+                "shape": ["natoms", "ncoords"],
+                "unit": "Å",
+                "description": "Position of each atom.",
             },
         },
     )
@@ -171,3 +171,21 @@ shape = infer_dimensions(
     },
 )
 assert shape == dict(N=2, M=4)
+
+
+# PR #677: test that infer_dimensions() correctly handles ref types
+Item = dlite.get_instance("http://onto-ns.com/meta/0.1/Item")
+item1 = Item([2], properties={"name": "a", "f": [3.14, 2.72]})
+item2 = Item([3], properties={
+    "name": "b", "f": [float("-inf"), 0, float("inf")]
+})
+dims = infer_dimensions(meta=Item, values=item1.asdict()["properties"])
+assert dims == {"nf": 2}
+
+Ref = dlite.get_instance("http://onto-ns.com/meta/0.1/Ref")
+ref = Ref(dimensions={"nitems": 2, "nrefs": 1})
+ref.item = item1
+ref.items = item1, item2
+ref.refs = [ref]
+dims = infer_dimensions(meta=Ref, values=ref.asdict()["properties"])
+assert dims == {"nitems": 2, "nrefs": 1}

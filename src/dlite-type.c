@@ -1137,12 +1137,7 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       const jsmntok_t *t, *d;
       int r, i, errnum;
 
-      if (prop->name) free(prop->name);
-      if (prop->ref)  free(prop->ref);
-      if (prop->shape) free(prop->shape);
-      if (prop->unit) free(prop->unit);
-      if (prop->description) free(prop->description);
-      memset(prop, 0, sizeof(DLiteProperty));
+      dlite_property_clear(prop);
 
       if (len < 0) len = strlen(src);
       jsmn_init(&parser);
@@ -1173,7 +1168,8 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
 
       if ((t = jsmn_item(src, tokens, "shape"))) {
         if (t->type != JSMN_ARRAY)
-          return errx(dliteParseError, "property shape should be an array");
+          return dlite_property_clear(prop),
+            errx(dliteParseError, "property shape should be an array");
         prop->ndims = t->size;
         prop->shape = calloc(prop->ndims, sizeof(char *));
         for (i=0; i < prop->ndims; i++) {

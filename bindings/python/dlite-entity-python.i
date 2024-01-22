@@ -671,6 +671,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             iterfun(self),
         )
 
+<<<<<<< HEAD
     def __call__(self, dimensions=(), properties=None, id=None, shape=None):
         """Returns a new instance of this metadata.
 
@@ -710,6 +711,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         return inst
 
     def asdict(self, soft7=True, uuid=True):
+=======
+
+    def asdict(self, soft7=True, uuid=True, single=True):
+>>>>>>> 192-resolved_some_conflicts
         """Returns a dict representation of self.
 
         Arguments:

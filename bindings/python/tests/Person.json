@@ -16,9 +16,7 @@
     },
     "skills": {
       "type": "string",
-      "shape": [
-        "N"
-      ],
+      "shape": ["N"],
       "description": "List of skills."
     }
   }

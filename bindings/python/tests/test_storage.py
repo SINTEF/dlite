@@ -32,9 +32,8 @@ with dlite.Storage(url) as s2:
 
 
 # Create an instance
-inst = myentity(dimensions=[2, 3], id='my-data')
-inst['a-bool-array'] = True, False
-
+inst = myentity(dimensions=[2, 3], id="my-data")
+inst["a-bool-array"] = True, False
 
 # Test Storage.save()
 with dlite.Storage("json", f"{outdir}/tmp.json", "mode=w") as s:
