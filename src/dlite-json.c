@@ -1235,8 +1235,8 @@ DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
 {
   char *buf = jstore_readfile(filename);
   int fmt;
-  if (!buf) return err(dliteStorageLoadError,
-                       "cannot load json file \"%s\"", filename);
+  if (!buf) return err(dliteStorageLoadError, "cannot load JSON file \"%s\"",
+                       filename);
   fmt = dlite_jstore_loads(js, buf, strlen(buf));
   free(buf);
   return fmt;

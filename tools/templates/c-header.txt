@@ -70,6 +70,7 @@ typedef struct {{
   char *name;
   DLiteType type;
   size_t size;
+  char *ref;
   int ndims;
   char **shape, *unit, *description;
 }} DLiteProperty;
