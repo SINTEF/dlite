@@ -671,50 +671,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             iterfun(self),
         )
 
-<<<<<<< HEAD
-    def __call__(self, dimensions=(), properties=None, id=None, shape=None):
-        """Returns a new instance of this metadata.
-
-        By default the instance is uninitialised, but with the `properties`
-        argument it can be either partly or fully initialised.
-
-        Arguments:
-            dimensions: Either a dict mapping dimension names to values or
-                a sequence of dimension values.
-            properties: Dict of property name-property value pairs.  Used
-                to initialise the instance (fully or partly).  A KeyError
-                is raised if a key is not a valid property name.
-            id: Id of the new instance.  The default is to create a
-                random UUID.
-            shape: Deprecated alias for `dimensions`.
-
-        Returns:
-            New instance.
-        """
-        if not self.is_meta:
-            raise TypeError('data instances are not callable')
-        if shape is not None:
-            warnings.warn(
-                "`shape` argument of metadata constructor is deprecated.\n"
-                "Use `dimensions` instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            dimensions = shape
-        if isinstance(dimensions, dict):
-            dimensions = [dimensions[name] for name in self.dimnames()]
-
-        inst = Instance.from_metaid(self.uri, dimensions, id)
-        if isinstance(properties, dict):
-            for k, v in properties.items():
-                inst[k] = v
-        return inst
-
-    def asdict(self, soft7=True, uuid=True):
-=======
-
     def asdict(self, soft7=True, uuid=True, single=True):
->>>>>>> 192-resolved_some_conflicts
         """Returns a dict representation of self.
 
         Arguments:
