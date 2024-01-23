@@ -61,7 +61,7 @@ jobs:
           python --version
           swig -version
           doxygen --version
-          dot --version
+          dot -V
 
       - name: Install Python dependencies
         run: |
