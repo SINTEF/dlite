@@ -60,7 +60,7 @@ extensions = [
     # attribute 'doc')
     #
     #"autoapi.extension",
-    "breathe", # Doxygen bridge
+    "breathe",  # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
     "sphinx.ext.graphviz",  # Graphviz
     "sphinx.ext.intersphinx",  # Connect to external (Sphinx) API documentation
