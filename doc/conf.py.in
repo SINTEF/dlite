@@ -22,7 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
 root_doc = "index"
 templates_path = ['_templates']
 project = "DLite"
-copyright = "© SINTEF 2022"
+copyright = "© SINTEF 2024"
 author = "SINTEF"
 version ="@dlite_VERSION@"
 
