@@ -23,23 +23,24 @@ typedef enum {
   /* Additional DLite-specific errors */
   dliteOSError=-14,              /*!< Error calling a system function */
   dliteKeyError=-15,             /*!< Mapping key not found */
-  dliteParseError=-16,           /*!< Cannot parse input */
-  dliteSerialiseError=-17,       /*!< Cannot serialise output */
-  dliteUnsupportedError=-18,     /*!< Feature is not implemented/supported  */
-  dliteVerifyError=-19,          /*!< Object cannot be verified */
-  dliteInconsistentDataError=-20,/*!< Inconsistent data */
-  dliteStorageOpenError=-21,     /*!< Cannot open storage plugin */
-  dliteStorageLoadError=-22,     /*!< Cannot load storage plugin */
-  dliteStorageSaveError=-23,     /*!< Cannot save storage plugin */
-  dliteOptionError=-24,          /*!< Invalid storage plugin option */
-  dliteMissingInstanceError=-25, /*!< No instance with given id can be found */
-  dliteMissingMetadataError=-26, /*!< No metadata with given id can be found */
-  dliteMetadataExistError=-27,   /*!< Metadata with given id already exists */
-  dliteMappingError=-28,         /*!< Error in instance mappings */
-  dlitePythonError=-29,          /*!< Error calling Python API */
+  dliteSearchError=-16,          /*!< Error in search */
+  dliteParseError=-17,           /*!< Cannot parse input */
+  dliteSerialiseError=-18,       /*!< Cannot serialise output */
+  dliteUnsupportedError=-19,     /*!< Feature is not implemented/supported  */
+  dliteVerifyError=-20,          /*!< Object cannot be verified */
+  dliteInconsistentDataError=-21,/*!< Inconsistent data */
+  dliteStorageOpenError=-22,     /*!< Cannot open storage plugin */
+  dliteStorageLoadError=-23,     /*!< Cannot load storage plugin */
+  dliteStorageSaveError=-24,     /*!< Cannot save storage plugin */
+  dliteOptionError=-25,          /*!< Invalid storage plugin option */
+  dliteMissingInstanceError=-26, /*!< No instance with given id can be found */
+  dliteMissingMetadataError=-27, /*!< No metadata with given id can be found */
+  dliteMetadataExistError=-28,   /*!< Metadata with given id already exists */
+  dliteMappingError=-29,         /*!< Error in instance mappings */
+  dlitePythonError=-30,          /*!< Error calling Python API */
 
   /* Should always be the last error */
-  dliteLastError=-30
+  dliteLastError=-31
 } DLiteErrCode;
 
 

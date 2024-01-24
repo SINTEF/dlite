@@ -34,8 +34,8 @@
 
 
 
-/* Allocate triplestore memory in chunks of TRIPLESTORE_BUFFSIZE */
-#define TRIPLESTORE_BUFFSIZE 1024
+/* Allocate triplestore memory in chunks of TRIPLESTORE_CHUNKSIZE */
+#define TRIPLESTORE_CHUNKSIZE 1024
 
 
 /* Prototype for cleanup-function */
@@ -43,7 +43,7 @@ typedef void (*Freer)(void *ptr);
 
 /* Triple store. */
 struct _TripleStore {
-  Triple *triples;  /*!< array of triples */
+  Triple *triples;    /*!< array of triples */
   size_t length;      /*!< logically number of triples (excluding pending
                            removes */
   size_t true_length; /*!< number of triples (including pending removes) */
@@ -54,6 +54,7 @@ struct _TripleStore {
   size_t niter;       /*!< counter for number of running iterators */
   int freed;          /*!< set to non-zero when this store is supposed to
                            be freed, but kept alive due to existing iterators */
+  const char *ns;     /*!< Namespace */
 };
 
 
@@ -104,28 +105,17 @@ size_t triplestore_length(TripleStore *ts)
 }
 
 
-///* Compare triples (in s-o-p order) */
-//static int compar(const void *p1, const void *p2)
-//{
-//  int v;
-//  Triple *t1 = (Triple *)p1;
-//  Triple *t2 = (Triple *)p2;
-//  if ((v = strcmp(t1->s, t2->s))) return v;
-//  if ((v = strcmp(t1->o, t2->o))) return v;
-//  return strcmp(t1->p, t2->p);
-//}
-
-
 /*
   Adds a single triple to store.  Returns non-zero on error.
  */
 int triplestore_add(TripleStore *ts, const char *s, const char *p,
-                    const char *o)
+                    const char *o, const char *d)
 {
   Triple t;
   t.s = (char *)s;
   t.p = (char *)p;
   t.o = (char *)o;
+  t.d = (char *)d;
   t.id = NULL;
   return triplestore_add_triples(ts, &t, 1);
 }
@@ -141,8 +131,8 @@ int triplestore_add_triples(TripleStore *ts, const Triple *triples,
 
   /* make space for new triples */
   if (ts->size < ts->true_length + n) {
-    size_t m = (ts->true_length + n - ts->size) / TRIPLESTORE_BUFFSIZE;
-    size_t size = ts->size + (m + 1) * TRIPLESTORE_BUFFSIZE;
+    size_t m = (ts->true_length + n - ts->size) / TRIPLESTORE_CHUNKSIZE;
+    size_t size = ts->size + (m + 1) * TRIPLESTORE_CHUNKSIZE;
     void *ptr;
     assert(size >= ts->true_length + n);
     if (!(ptr = realloc(ts->triples, size * sizeof(Triple))))
@@ -160,14 +150,16 @@ int triplestore_add_triples(TripleStore *ts, const Triple *triples,
     if (triples[i].id) {
       if (!(id = strdup(triples[i].id))) return err(1, "allocation error");
     } else {
-      if (!(id = triple_get_id(NULL, triples[i].s,
-                                triples[i].p, triples[i].o)))
+      if (!(id = triple_get_id(NULL, triples[i].s, triples[i].p,
+                               triples[i].o, triples[i].d)))
+
         return 1;
     }
     if (!map_get(&ts->map, id)) {
       if (!(t->s = strdup(triples[i].s))) return err(1, "allocation error");
       if (!(t->p = strdup(triples[i].p))) return err(1, "allocation error");
       if (!(t->o = strdup(triples[i].o))) return err(1, "allocation error");
+      t->d = (triples[i].d) ? strdup(triples[i].d) : NULL;
       t->id = id;
       ts->length++;
       ts->true_length++;
@@ -208,6 +200,7 @@ static int _remove_by_index(TripleStore *ts, size_t n)
   return 0;
 }
 
+
 /*
   Removes a triple identified by it's `id`.  Returns non-zero on
   error or if no such triple can be found.
@@ -225,8 +218,8 @@ int triplestore_remove_by_id(TripleStore *ts, const char *id)
   be NULL, allowing for multiple matches.  Returns the number of
   triples removed.
 */
-int triplestore_remove(TripleStore *ts, const char *s,
-                       const char *p, const char *o)
+int triplestore_remove(TripleStore *ts, const char *s, const char *p,
+                       const char *o, const char *d)
 {
   int i=ts->true_length, n=0;
   while (--i >= 0) {
@@ -234,7 +227,8 @@ int triplestore_remove(TripleStore *ts, const char *s,
     if (!t->id) continue;
     if ((!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
-        (!o || strcmp(o, t->o) == 0)) {
+        (!o || strcmp(o, t->o) == 0) &&
+        (!d || (t->d && strcmp(d, t->d) == 0))) {
       if (_remove_by_index(ts, i) == 0) n++;
     }
   }
@@ -256,6 +250,7 @@ void triplestore_clear(TripleStore *ts)
   map_deinit(&ts->map);
   memset(ts, 0, sizeof(TripleStore));
   ts->niter = niter;
+  if (ts->ns) free((char *)ts->ns);
 }
 
 
@@ -278,7 +273,8 @@ const Triple *triplestore_get(const TripleStore *ts, const char *id)
   if no match can be found.  Any of `s`, `p` or `o` may be NULL.
  */
 const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
-                                      const char *p, const char *o)
+                                     const char *p, const char *o,
+                                     const char *d)
 {
   size_t i;
   for (i=0; i<ts->true_length; i++) {
@@ -286,7 +282,8 @@ const Triple *triplestore_find_first(const TripleStore *ts, const char *s,
     if (t->id &&
         (!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
-        (!o || strcmp(o, t->o) == 0))
+        (!o || strcmp(o, t->o) == 0) &&
+        (!d || (t->d && strcmp(d, t->d) == 0)))
       return t;
   }
   return NULL;
@@ -334,8 +331,8 @@ void triplestore_deinit_state(TripleState *state)
       }
     }
     assert(ts->true_length == ts->length);
-    if (ts->size > ts->length + TRIPLESTORE_BUFFSIZE) {
-      ts->size = ts->length + ts->length % TRIPLESTORE_BUFFSIZE;
+    if (ts->size > ts->length + TRIPLESTORE_CHUNKSIZE) {
+      ts->size = ts->length + ts->length % TRIPLESTORE_CHUNKSIZE;
       ts->triples = realloc(ts->triples, ts->size*sizeof(Triple));
     }
   }
@@ -382,15 +379,28 @@ const Triple *triplestore_poll(TripleState *state)
 
 
 /*
-  This function should be called iteratively.  Before the first call
-  it should be provided a `state` initialised with triplestore_init_state().
+  Return next triple matching s-p-o triple, where `d` is the datatype
+  of the object. Any of `s`, `p`, `o` or `d` may be NULL, in which case
+  they will match anything.
 
-  For each call it will return a pointer to triple matching `s`, `p`
-  and `o`.  Any of `s`, `p` or `o` may be NULL.  When no more matches
-  can be found, NULL is returned.
+  If `d` starts with '@', it will match language-tagged plain text
+  literal objects whos XML language abbreviation matches the string
+  following the '@'-sign.
+
+  if `d` is NUL (empty string), it will match non-literal objects.
+
+  Any other non-NULL `d` will match literal objects whos datatype are `d`.
+
+  When no more matches can be found, NULL is returned.  NULL is also
+  returned on error.
+
+  This function should be called iteratively.  Before the first call
+  it should be provided a `state` initialised with triplestore_init_state()
+  and deinitialised with triplestore_deinit_state().
  */
 const Triple *triplestore_find(TripleState *state,
-                                const char *s, const char *p, const char *o)
+                               const char *s, const char *p, const char *o,
+                               const char *d)
 {
   TripleStore *ts = state->ts;
   while (state->pos < ts->true_length) {
@@ -398,20 +408,9 @@ const Triple *triplestore_find(TripleState *state,
     if (t->id &&
         (!s || strcmp(s, t->s) == 0) &&
         (!p || strcmp(p, t->p) == 0) &&
-        (!o || strcmp(o, t->o) == 0))
+        (!o || strcmp(o, t->o) == 0) &&
+        (!d || (!d[0] && !t->d) || (t->d && strcmp(d, t->d) == 0)))
       return t;
   }
   return NULL;
-}
-
-/*
-  Default implementation...
- */
-const Triple *triplestore_find2(TripleState *state,
-                                const char *s, const char *p, const char *o,
-                                int literal, const char *lang)
-{
-  UNUSED(literal);
-  UNUSED(lang);
-  return triplestore_find(state, s, p, o);
 }
