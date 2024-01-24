@@ -4,7 +4,7 @@ beautifulsoup4>=4.11.1
 lxml>=4.7.1
 myst-nb~=0.17.1
 
-Sphinx~=4.5.0
+Sphinx~=7.2.6
 
 sphinx-autoapi~=2.0.0
 sphinx-autobuild~=2021.3.14
