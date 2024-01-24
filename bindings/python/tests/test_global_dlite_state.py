@@ -1,11 +1,16 @@
-import os
+from pathlib import Path
 import importlib
 import dlite
 from dlite import Instance
 
 from global_dlite_state_mod1 import assert_exists_in_module
 
-thisdir = os.path.abspath(os.path.dirname(__file__))
+
+thisdir = Path(__file__).absolute().parent
+outdir = thisdir / "output"
+indir = thisdir / "input"
+entitydir = thisdir / "entities"
+#dlite.storage_path.append(entitydir / "*.json")
 
 assert len(dlite.istore_get_uuids()) == 3  # 3 Hardcoded dlite instances
 
@@ -17,7 +22,7 @@ assert len(dlite.istore_get_uuids()) == 3 + 1
 # Must exist in imported dlite in different module (mod1)
 assert_exists_in_module(coll.uuid)
 
-url = "json://" + thisdir + "/MyEntity.json" + "?mode=r"
+url = f"json://{entitydir}/MyEntity.json" + "?mode=r"
 e = Instance.from_url(url)  # (2)
 assert len(dlite.istore_get_uuids()) == 3 + 2
 
@@ -32,7 +37,7 @@ assert len(dlite.istore_get_uuids()) == 3 + 3
 
 # Use compile and exec with dlite defined in globals
 env = globals().copy()
-filename = os.path.join(thisdir, "global_dlite_state_mod2.py")
+filename = thisdir / "global_dlite_state_mod2.py"
 
 with open(filename) as fd:
     exec(compile(fd.read(), filename, "exec"), env)

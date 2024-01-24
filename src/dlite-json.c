@@ -612,8 +612,9 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     if ((t = jsmn_item(src, obj, "properties"))) dims[n++] = t->size;
     if ((t = jsmn_item(src, obj, "relations")))  dims[n++] = t->size;
     if (n != meta->_ndimensions)
-      FAIL1("metadata does not confirm to schema, please check dimensions, "
-            "properties and/or relations: %s", id);
+      FAILCODE1(dliteParseError, "metadata does not confirm to schema, "
+                "please check dimensions, properties and/or relations: %s",
+                id);
 
   } else {
     if (meta->_ndimensions > 0) {

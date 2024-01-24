@@ -49,6 +49,7 @@ class raises():
         # was raised
         for exc in self.exceptions:
             if issubclass(exc_type, exc):
+                dlite.errclr()
                 return True
 
         raise UnexpectedExceptionError(

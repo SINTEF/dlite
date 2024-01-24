@@ -4,6 +4,7 @@
 set(tests
   test_python_bindings
   test_collection
+  test_collection_load
   test_entity
   test_factory
   test_misc
@@ -22,6 +23,7 @@ set(tests
   test_postgresql2_read
   test_ref_type
   test_pydantic
+  test_iri
 )
 
 foreach(test ${tests})
@@ -50,3 +52,5 @@ endforeach()
 # Additional properties
 set_property(TEST test_postgresql2_read-py PROPERTY
   DEPENDS test_postgresql1_write-py)
+set_property(TEST test_collection_load-py APPEND PROPERTY
+  DEPENDS test_collection-py)
