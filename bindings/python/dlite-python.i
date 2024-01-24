@@ -1370,10 +1370,35 @@ PyObject *dlite_python_module_error(int code);
 int _get_number_of_errors(void);
 
 %pythoncode %{
-  for n in range(_dlite._get_number_of_errors()):
-      exc = errgetexc(-n)
-      setattr(_dlite, exc.__name__, exc)
-  DLiteStorageBase = _dlite._get_storage_base()
-  DLiteMappingBase = _dlite._get_mapping_base()
-  del n, exc
+for n in range(_dlite._get_number_of_errors()):
+    exc = errgetexc(-n)
+    setattr(_dlite, exc.__name__, exc)
+DLiteStorageBase = _dlite._get_storage_base()
+DLiteMappingBase = _dlite._get_mapping_base()
+del n, exc
+
+def instance_cast(inst, newtype=None):
+    """Return instance converted to a new instance subclass.
+
+    By default the convertion is done to the type of the underlying
+    instance object.
+
+    Any subclass of `dlite.Instance` can be provided as `newtype`.
+    Only downcasting to subclasses of `inst` are permitted.  For
+    casting to other types, `dlite.DLiteTypeError` is raised.
+    """
+    if newtype:
+        subclasses = getattr(newtype, "__subclasses__")
+        if type(inst) in subclasses():
+            inst.__class__ = newtype
+        else:
+            raise _dlite.DLiteTypeError(
+                f"cannot upcast {type(inst)} to {newtype}"
+            )
+    elif inst.meta.uri == COLLECTION_ENTITY:
+        inst.__class__ = Collection
+    elif inst.is_meta:
+        inst.__class__ = Metadata
+    return inst
+
 %}

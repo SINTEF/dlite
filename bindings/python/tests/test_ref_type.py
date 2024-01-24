@@ -4,8 +4,9 @@ import dlite
 
 
 thisdir = Path(__file__).resolve().parent
+indir = thisdir / "input"
 
-dlite.storage_path.append(thisdir / "test_ref_type.json")
+dlite.storage_path.append(indir / "test_ref_type.json")
 
 Top = dlite.get_instance("http://onto-ns.com/meta/0.1/Top")
 Middle = dlite.get_instance("http://onto-ns.com/meta/0.1/Middle")

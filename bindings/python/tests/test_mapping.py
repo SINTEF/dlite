@@ -6,11 +6,12 @@ import dlite
 
 # Configure search paths
 thisdir = Path(__file__).parent.absolute()
-dlite.storage_path.append(f"{thisdir}/*.json")
+entitydir = thisdir / "entities"
+dlite.storage_path.append(f"{entitydir}/*.json")
 dlite.python_mapping_plugin_path.append(f"{thisdir}/python-mapping-plugins")
 
 # Create an instance of Person
-Person = dlite.Instance.from_url(f"json:{thisdir}/Person.json?mode=r")
+Person = dlite.Instance.from_url(f"json:{entitydir}/Person.json?mode=r")
 person = Person(dimensions=[2])
 person.name = "Neil Armstrong"
 person.age = 39
