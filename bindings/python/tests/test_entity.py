@@ -34,7 +34,7 @@ assert not myentity.is_metameta
 myentity.save(f"json://{outdir}/test_entity.json?mode=w")
 
 # Try to overwrite without mode - should fail because metadata is immutable
-with raises(dlite.DLiteUnknownError):
+with raises(dlite.DLiteStorageSaveError):
     myentity.save(f"json://{outdir}/test_entity.json")
 
 # Create an instance of `myentity` with dimensions 2, 3
@@ -115,16 +115,16 @@ assert inst2["a-blob"] == blob
 del inst2
 
 # Make sure we fail with an exception for pathetic cases
-with raises(dlite.DLiteStorageLoadError, dlite.DLiteUnknownError):
+with raises(dlite.DLiteStorageOpenError):
     Instance.from_location("json", "/", "mode=r")
 
-with raises(dlite.DLiteStorageLoadError, dlite.DLiteUnknownError):
+with raises(dlite.DLiteStorageLoadError):
     Instance.from_location("json", "/", "mode=w")
 
-with raises(dlite.DLiteStorageLoadError, dlite.DLiteUnknownError):
+with raises(dlite.DLiteStorageLoadError):
     Instance.from_location("json", "")
 
-with raises(dlite.DLiteStorageLoadError, dlite.DLiteUnknownError):
+with raises(dlite.DLiteStorageLoadError):
     Instance.from_location("json", "non-existing-path...")
 
 
