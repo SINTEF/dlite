@@ -1,0 +1,37 @@
+{
+  "90ba2cb5-d242-4fd4-978f-e0e1c80006cf":   {
+    "meta": "http://onto-ns.com/meta/0.1/Collection",
+    "dimensions": {
+      "nrelations": 6
+    },
+    "properties": {
+      "relations": [
+        [
+          "http://onto-ns.com/meta/0.1/TypeOne#dpOne",
+          "http://emmo.info/domain-mappings#mapsTo",
+          "http://www.osp-core.com/ex#dpOne"
+        ], [
+          "http://onto-ns.com/meta/0.1/TypeOne#dpTwo",
+          "http://emmo.info/domain-mappings#mapsTo",
+          "http://www.osp-core.com/ex#dpTwo"
+        ], [
+          "http://onto-ns.com/meta/0.1/TypeTwo#dpOne",
+          "http://emmo.info/domain-mappings#mapsTo",
+          "http://www.osp-core.com/ex#dpOne"
+        ], [
+          "http://onto-ns.com/meta/0.1/TypeTwo#dpTwo",
+          "http://emmo.info/domain-mappings#mapsTo",
+          "http://www.osp-core.com/ex#dpTwo"
+        ], [
+          "http://onto-ns.com/meta/0.1/TypeTwo#dpThree",
+          "http://emmo.info/domain-mappings#mapsTo",
+          "http://www.osp-core.com/ex#dpThree"
+        ], [
+          "http://onto-ns.com/meta/0.1/TypeThree#dpTwo",
+          "http://emmo.info/domain-mappings#mapsTo",
+          "http://www.osp-core.com/ex#dpTwo"
+        ]
+      ]
+    }
+  }
+}
