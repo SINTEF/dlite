@@ -24,6 +24,7 @@ set(tests
   test_ref_type
   test_pydantic
   test_relation
+  test_iri
 )
 
 foreach(test ${tests})
