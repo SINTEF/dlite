@@ -291,9 +291,10 @@ struct _DLiteInstance {
       if (!(meta = dlite_meta_get(metaid)))
         return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
       if (n != meta->_ndimensions) {
+        dlite_err(dliteValueError, "ndims=%d, but %s has %u dimension(s)",
+                  ndims, metaid, (unsigned)meta->_ndimensions);
         dlite_meta_decref(meta);
-        return dlite_err(1, "%s has %u dimensions",
-                          metaid, (unsigned)meta->_ndimensions), NULL;
+        return NULL;
       }
       d = malloc(n * sizeof(size_t));
       for (i=0; i<n; i++) d[i] = dims[i];
@@ -716,11 +717,22 @@ Returns:
   }
 
   %feature("docstring",
-           "Returns a JSON representation of self.") _asjson;
+           "Returns a JSON representation of self.\n"
+           "\n"
+           "Arguments:\n"
+           "    single: Write instances with single-entity format.\n"
+           "    urikey: Use uri (if it exists) as json key in multi-entity format.\n"
+           "    with_uuid: Include uuid in output.\n"
+           "    with_meta: Always include 'meta' (even for metadata).\n"
+           "    with_arrays: Write metadata dimension and properties as json arrays (old format).\n"
+           "    no_parent: Do not write transaction parent info.\n"
+           "    compact_rel: Write relations with no newlines.\n"
+           ) _asjson;
   %newobject _asjson;
   char *_asjson(int indent=0, bool single=false, bool urikey=false,
-               bool with_uuid=false, bool with_meta=false,
-               bool with_arrays=false, bool no_parent=false) {
+                bool with_uuid=false, bool with_meta=false,
+                bool with_arrays=false, bool no_parent=false,
+                bool compact_rel=false) {
     DLiteJsonFlag flags=0;
     if (single) flags |= dliteJsonSingle;
     if (urikey) flags |= dliteJsonUriKey;
@@ -728,6 +740,7 @@ Returns:
     if (with_meta) flags |= dliteJsonWithMeta;
     if (with_arrays) flags |= dliteJsonArrays;
     if (no_parent) flags |= dliteJsonNoParent;
+    if (compact_rel) flags |= dliteJsonCompactRel;
     return dlite_json_aprint($self, indent, flags);
   }
 

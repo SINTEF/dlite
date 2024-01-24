@@ -11,6 +11,7 @@
 #include "utils/strutils.h"
 #include "utils/infixcalc.h"
 #include "utils/sha3.h"
+#include "utils/rng.h"
 
 #include "getuuid.h"
 #include "dlite.h"
@@ -168,7 +169,8 @@ static DLiteInstance *_instance_store_get(const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
   if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
-    return errx(dliteValueError, "id '%s' is neither a valid UUID or a convertible string",
+    return errx(dliteValueError,
+                "id '%s' is neither a valid UUID or a convertable string",
                 id), NULL;
   if (!(instp = map_get(istore, uuid))) return NULL;
   return *instp;
@@ -708,8 +710,10 @@ DLiteInstance *dlite_instance_get(const char *id)
     DLiteStorage *s;
     char *copy, *driver, *location, *options;
 
-    if (!(copy = strdup(url)))
-     return err(dliteMemoryError, "allocation failure"), NULL;
+    if (!(copy = strdup(url))) {
+      err(dliteMemoryError, "allocation failure");
+      break;
+    }
 #ifdef _WIN32
     /* Hack: on Window, don't interpreat the "C" in urls starting with
        "C:\" or "C:/" as a driver, but rather as a part of the location...
@@ -2209,21 +2213,23 @@ int dlite_instance_is_frozen(const DLiteInstance *inst)
 int dlite_instance_snapshot(DLiteInstance *inst)
 {
   DLiteInstance *snapshot=NULL;
-  int retval=1, i, c;
+  int retval=1, i;
   const char *id = (inst->uri) ? inst->uri : inst->uuid;
   int len = strcspn(id, "#");
   char *uri = NULL;
   char sid[SID_LEN+1];
+  char randchars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   if (dlite_instance_is_frozen(inst))
     FAIL1("cannot snapshot an immutable instance: %s", id);
 
-  /* Create a random snapshot id of graphical ASCII characters. */
+  /* Make sure that the random number generator is seeded */
+  dlite_init();
+
+  /* Create a random snapshot id of alphanumerical characters. */
   for (i=0; i<SID_LEN; i++) {
-    do {
-      c = (rand() % (128 - 32)) + 32;  // below c=32 is not printable
-    } while (!isgraph(c) || strchr(" \"'", c));
-    sid[i] = c;
+    uint32_t n = rand_msws32() % (sizeof(randchars)-1);
+    sid[i] = randchars[n];
   }
   sid[SID_LEN] = '\0';
   if (asprintf(&uri, "%.*s#snapshot-%s", len, id, sid) < 0)
@@ -3058,19 +3064,23 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
 {
   int N=0, m;
   size_t i;
+  int compact = (p->type != dliteRelation) || (flags & dliteFlagCompactRel);
+  char *start = (compact) ? "["  : "[\n        ";
+  char *sep   = (compact) ? ", " : ",\n        ";
+  char *end   = (compact) ? "]"  : "\n      ]";
   if (d < p->ndims) {
-    if ((m = snprintf(dest+N, PDIFF(n, N), "[")) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), "%s", start)) < 0) goto fail;
     N += m;
     for (i=0; i < dims[d]; i++) {
       if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, dims,
                         width, prec, flags)) < 0) return -1;
       N += m;
       if (i < dims[d]-1) {
-        if ((m = snprintf(dest+N, PDIFF(n, N), ", ")) < 0) goto fail;
+        if ((m = snprintf(dest+N, PDIFF(n, N), "%s", sep)) < 0) goto fail;
         N += m;
       }
     }
-    if ((m = snprintf(dest+N, PDIFF(n, N), "]")) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), "%s", end)) < 0) goto fail;
     N += m;
   } else {
     if ((m = dlite_type_print(dest+N, PDIFF(n, N), *pptr, p->type, p->size,

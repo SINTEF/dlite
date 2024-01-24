@@ -5,6 +5,7 @@ from pathlib import Path
 import dlite
 
 try:
+    import pymongo
     import mongomock
 except ImportError:
     sys.exit(44)  # skip test

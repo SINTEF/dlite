@@ -22,7 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
 root_doc = "index"
 templates_path = ['_templates']
 project = "DLite"
-copyright = "© SINTEF 2022"
+copyright = "© SINTEF 2024"
 author = "SINTEF"
 version ="@dlite_VERSION@"
 
@@ -60,15 +60,15 @@ extensions = [
     # attribute 'doc')
     #
     #"autoapi.extension",
-    "breathe", # Doxygen bridge
+    "breathe",  # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
     "sphinx.ext.graphviz",  # Graphviz
     "sphinx.ext.intersphinx",  # Connect to external (Sphinx) API documentation
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
     "sphinxcontrib.plantuml",  # PlantUml
-    "sphinx_toggleprompt",  # Add button for show/hide example prompts
-    #"sphinx_copybutton",  # Copy button for codeblocks
+    #"sphinx_toggleprompt",  # Add button for show/hide example prompts
+    "sphinx_copybutton",  # Copy button for codeblocks
     "sphinx_design",  # Create panels in a grid layout or as drop-downs and more
 ]
 
@@ -108,6 +108,11 @@ autoapi_python_use_implicit_namespaces = True  # True to avoid namespace being `
 autodoc_typehints = "description"
 autodoc_typehints_format = "short"
 autodoc_inherit_docstrings = True
+
+# Ask copybutton to skip prompts from being copied
+#copybutton_exclude = '.linenos, .gp, .go'
+copybutton_prompt_text = r" *>>> | *\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
 
 
 ####

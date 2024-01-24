@@ -60,7 +60,10 @@ assert inst.created == now - 3600
 assert inst.startTime == int(now - 3000)
 utc = timezone(timedelta(hours=0))
 dt = datetime.fromtimestamp(now - 600).astimezone(utc)
-assert inst.finishTime == str(dt)
+
+# Timezone may is printed differently depending on Python version.
+# Strip it off when testing finishTime
+assert inst.finishTime.split("+")[0] == str(dt).split("+")[0]
 
 
 # ==============================================================

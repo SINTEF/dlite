@@ -81,6 +81,13 @@ class Metadata(Instance):
                 inst[k] = v
         return inst
 
+    # For convenience. Easier to use than self.properties["properties"]
+    props = property(
+        fget=lambda self: {p.name: p for p in self.properties["properties"]},
+        doc="A dict mapping property name to the `Property` object for the "
+        "described metadata.",
+    )
+
     def getprop(self, name):
         """Returns the metadata property object with the given name."""
         if "properties" not in self.properties:
@@ -155,11 +162,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     if inst is None:
         raise _dlite.DLiteError(f"no such instance: {id}")
-    elif inst.is_meta:
-        inst.__class__ = Metadata
-    elif inst.meta.uri == COLLECTION_ENTITY:
-        inst.__class__ = Collection
-    return inst
+    return instance_cast(inst)
 
 %}
 
@@ -172,6 +175,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     def __repr__(self):
         return 'Dimension(name=%r, description=%r)' % (
             self.name, self.description)
+
+    def __eq__(self, other):
+        """Returns true if `other` equals self."""
+        return self.asdict() == other.asdict()
 
     def asdict(self):
         """Returns a dict representation of self."""
@@ -201,6 +208,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         descr = ', description=%r' %self.description if self.description else ''
         return 'Property(%r, type=%r%s%s%s%s)' % (
             self.name, self.type, ref, shape, unit, descr)
+
+    def __eq__(self, other):
+        """Returns true if `other` equals self."""
+        return self.asdict() == other.asdict()
 
     def asdict(self, soft7=True, exclude_name=False):
         """Returns a dict representation of self.
@@ -324,10 +335,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
             raise _dlite.DLitePythonError(f"cannot initiate dlite.Instance")
-        elif self.is_meta:
-            self.__class__ = Metadata
-        elif self.meta.uri == COLLECTION_ENTITY:
-            self.__class__ = Collection
+        instance_cast(self)
 
     def get_meta(self):
         """Returns reference to metadata."""
@@ -356,11 +364,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     is_meta = property(_is_meta, doc='Whether this is a metadata instance.')
     is_metameta = property(_is_metameta,
                            doc='Whether this is a meta-metadata instance.')
-    namespace = property(
-        lambda self: Namespace(self.get_uri() + '#'),
-        doc='A tripper.Namespace reference to this instance. '
-        'Note, this requires tripper to be installed.'
-    )
 
     @classmethod
     def from_metaid(cls, metaid, dims, id=None):
@@ -636,11 +639,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         will be the id of the new instance, otherwise it will be given
         a random UUID."""
         newinst = self._copy(newid=newid)
-        if newinst.is_meta:
-            newinst.__class__ = Metadata
-        elif newinst.meta.uri == COLLECTION_ENTITY:
-            newinst.__class__ = Collection
-        return newinst
+        return instance_cast(newinst)
 
     def __reduce__(self):
         # ensures that instances can be pickled

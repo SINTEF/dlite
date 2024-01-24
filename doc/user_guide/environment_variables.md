@@ -45,6 +45,9 @@ DLite-specific environment variables
     lost.  But, if `DLITE_PYDEBUG` is defined, a Python error message will be
     written to standard error.
 
+  - **DLITE_ATEXIT_FREE**: Free memory at exit.  This might be useful to avoid
+    getting false positive when tracking down memory leaks with tools like valgrind.
+
 
 ### Specific paths
 These environment variables can be used to provide additional search
@@ -118,8 +121,11 @@ Environment variables for controlling error handling
       - "4" | "ignore-new"  : ignore new error message
       - otherwise           : append new error message to the old one
 
-  - **ERR_COLOR**: If defined, error messages to stdout and stderr will be
-    written in colour.
+  - **ERR_COLOR**: Whether to print error messages in colour. May be:
+      - "0" | "never"       : print errors colour-coded
+      - "1" | "always"      : print errors not colour-coded
+      - otherwise           : only print errors colour-coded if the error
+                              stream is a terminal
 
 
 Path handling when using the pre-packaged wheel (Linux, Windows)
