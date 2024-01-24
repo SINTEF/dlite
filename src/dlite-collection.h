@@ -79,6 +79,11 @@ int dlite_collection_init(DLiteInstance *inst);
 int dlite_collection_deinit(DLiteInstance *inst);
 
 /**
+  Resets `state` already initialised with dlite_collection_init_state().
+*/
+void dlite_collection_reset_state(DLiteCollectionState *state);
+
+/**
   Calculate hash of a collection.
 
   Returns non-zero on error.
@@ -168,11 +173,12 @@ int dlite_collection_save_url(DLiteCollection *coll, const char *url);
 
 
 /**
-  Adds subject-predicate-object relation to collection.  Returns non-zero
-  on error.
+  Adds subject-predicate-object relation to collection.  `d` is the
+  datatype of literal object. Returns non-zero on error.
  */
 int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
-                                  const char *p, const char *o);
+                                  const char *p, const char *o,
+                                  const char *d);
 
 
 /**
@@ -180,7 +186,8 @@ int dlite_collection_add_relation(DLiteCollection *coll, const char *s,
   multiple matches.  Returns the number of relations removed, or -1 on error.
  */
 int dlite_collection_remove_relations(DLiteCollection *coll, const char *s,
-                                      const char *p, const char *o);
+                                      const char *p, const char *o,
+                                      const char *d);
 
 
 /**
@@ -215,7 +222,7 @@ void dlite_collection_deinit_state(DLiteCollectionState *state);
 const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
 					   DLiteCollectionState *state,
 					   const char *s, const char *p,
-					   const char *o);
+					   const char *o, const char *d);
 
 /**
   Like dlite_collection_find(), but returns only a pointer to the
@@ -223,7 +230,7 @@ const DLiteRelation *dlite_collection_find(const DLiteCollection *coll,
  */
 const DLiteRelation *dlite_collection_find_first(const DLiteCollection *coll,
                                                  const char *s, const char *p,
-                                                 const char *o);
+                                                 const char *o, const char *d);
 
 
 /**
@@ -308,5 +315,25 @@ DLiteInstance *dlite_collection_next_new(DLiteCollection *coll,
 */
 int dlite_collection_count(DLiteCollection *coll);
 
+
+/**
+  Return pointer to the value for a pair of two criteria.
+
+  Useful if one knows that there may only be one value.  The returned
+  value is held by the collection and should be copied by the user
+  since it may be overwritten by later calls to the collection.
+
+  Parameters:
+      s, p, o: Criteria to match. Two of these must be non-NULL.
+      d: If not NULL, the required datatype of literal objects.
+      fallback: Value to return if no matches are found.
+      any: If non-zero, return first matching value.
+
+  Returns a pointer to the value of the `s`, `p` or `o` that is NULL.
+  On error NULL is returned.
+ */
+const char *dlite_collection_value(DLiteCollection *coll, const char *s,
+                                   const char *p, const char *o, const char *d,
+                                   const char *fallback, int any);
 
 #endif /* _DLITE_COLLECTION_H */

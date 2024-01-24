@@ -102,9 +102,10 @@ MU_TEST(test_sprint)
 
   /* Tests for proper quoting */
   DLiteCollection *coll = dlite_collection_create(NULL);
-  dlite_collection_add_relation(coll, "s", "p", "\"o\"");
+  dlite_collection_add_relation(coll, "s", "p", "\"o\"", NULL);
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)coll, 2, 0);
-  const DLiteRelation *rel = dlite_collection_find_first(coll, "s", "p", NULL);
+  const DLiteRelation *rel = dlite_collection_find_first(coll, "s", "p", NULL,
+                                                         NULL);
   mu_assert_string_eq("\"o\"", rel->o);
   dlite_instance_decref((DLiteInstance *)coll);
   //printf("\n--------------------------------------------------------\n");
