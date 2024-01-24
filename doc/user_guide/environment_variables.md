@@ -121,8 +121,11 @@ Environment variables for controlling error handling
       - "4" | "ignore-new"  : ignore new error message
       - otherwise           : append new error message to the old one
 
-  - **ERR_COLOR**: If defined, error messages to stdout and stderr will be
-    written in colour.
+  - **ERR_COLOR**: Whether to print error messages in colour. May be:
+      - "0" | "never"       : print errors colour-coded
+      - "1" | "always"      : print errors not colour-coded
+      - otherwise           : only print errors colour-coded if the error
+                              stream is a terminal
 
 
 Path handling when using the pre-packaged wheel (Linux, Windows)

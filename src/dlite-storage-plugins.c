@@ -138,7 +138,6 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   {
     int n=0, r;
     const char *p, **paths = dlite_storage_plugin_paths();
-    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT, ";
     size_t size=0, m=0;
     char *buf=NULL;
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
@@ -150,6 +149,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     }
 
 #ifdef WITH_PYTHON
+    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT, ";
     FUPaths *ppaths = dlite_python_storage_paths();
     FUIter *iter = fu_startmatch("*.py", ppaths);
     const char **failed_paths;

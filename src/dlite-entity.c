@@ -11,6 +11,7 @@
 #include "utils/strutils.h"
 #include "utils/infixcalc.h"
 #include "utils/sha3.h"
+#include "utils/rng.h"
 
 #include "getuuid.h"
 #include "dlite.h"
@@ -2209,21 +2210,23 @@ int dlite_instance_is_frozen(const DLiteInstance *inst)
 int dlite_instance_snapshot(DLiteInstance *inst)
 {
   DLiteInstance *snapshot=NULL;
-  int retval=1, i, c;
+  int retval=1, i;
   const char *id = (inst->uri) ? inst->uri : inst->uuid;
   int len = strcspn(id, "#");
   char *uri = NULL;
   char sid[SID_LEN+1];
+  char randchars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   if (dlite_instance_is_frozen(inst))
     FAIL1("cannot snapshot an immutable instance: %s", id);
 
-  /* Create a random snapshot id of graphical ASCII characters. */
+  /* Make sure that the random number generator is seeded */
+  dlite_init();
+
+  /* Create a random snapshot id of alphanumerical characters. */
   for (i=0; i<SID_LEN; i++) {
-    do {
-      c = (rand() % (128 - 32)) + 32;  // below c=32 is not printable
-    } while (!isgraph(c) || strchr(" \"'", c));
-    sid[i] = c;
+    uint32_t n = rand_msws32() % (sizeof(randchars)-1);
+    sid[i] = randchars[n];
   }
   sid[SID_LEN] = '\0';
   if (asprintf(&uri, "%.*s#snapshot-%s", len, id, sid) < 0)
@@ -3063,18 +3066,18 @@ static int writedim(int d, char *dest, size_t n, const void **pptr,
   char *sep   = (compact) ? ", " : ",\n        ";
   char *end   = (compact) ? "]"  : "\n      ]";
   if (d < p->ndims) {
-    if ((m = snprintf(dest+N, PDIFF(n, N), start)) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), "%s", start)) < 0) goto fail;
     N += m;
     for (i=0; i < dims[d]; i++) {
       if ((m = writedim(d+1, dest+N, PDIFF(n, N), pptr, p, dims,
                         width, prec, flags)) < 0) return -1;
       N += m;
       if (i < dims[d]-1) {
-        if ((m = snprintf(dest+N, PDIFF(n, N), sep)) < 0) goto fail;
+        if ((m = snprintf(dest+N, PDIFF(n, N), "%s", sep)) < 0) goto fail;
         N += m;
       }
     }
-    if ((m = snprintf(dest+N, PDIFF(n, N), end)) < 0) goto fail;
+    if ((m = snprintf(dest+N, PDIFF(n, N), "%s", end)) < 0) goto fail;
     N += m;
   } else {
     if ((m = dlite_type_print(dest+N, PDIFF(n, N), *pptr, p->type, p->size,
