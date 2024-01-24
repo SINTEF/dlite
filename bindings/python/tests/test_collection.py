@@ -9,6 +9,7 @@ outdir = thisdir / "output"
 indir = thisdir / "input"
 entitydir = thisdir / "entities"
 
+
 # Create collection
 coll = dlite.Collection("mycoll")
 
