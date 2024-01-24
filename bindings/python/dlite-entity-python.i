@@ -22,11 +22,11 @@ class Metadata(Instance):
         description: Description of metadata.
     """
     def __new__(
-            cls,
-            uri: str,
-            dimensions: "Sequence[Dimension]",
-            properties: "Sequence[Property]",
-            description: str = ''
+        cls,
+        uri: str,
+        dimensions: "Sequence[Dimension]",
+        properties: "Sequence[Property]",
+        description: str = ''
     ):
         return Instance.create_metadata(
             uri, dimensions, properties, description)
@@ -282,8 +282,22 @@ class _QuantityProperty:
 %extend _Triple {
   %pythoncode %{
     def __repr__(self):
-        return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
-            self.s, self.p, self.o, self.id)
+        args = [f"s='{self.s}', p='{self.p}', o='{self.o}'"]
+        if self.d:
+            args.append(f"d='{self.d}'")
+        if self.id:
+            args.append(f"id='{self.id}'")
+        return f"Relation({', '.join(args)})"
+
+    def __eq__(self, other):
+        if isinstance(other, Relation):
+            return (self.s == other.s and self.p == other.p and
+                    self.o == other.o and self.d == other.d)
+        return NotImplemented
+
+    def copy(self):
+        """Returns a copy of self."""
+        return Relation(s=self.s, p=self.p, o=self.o, d=self.d, id=self.id)
 
     def aspreferred(self):
         """Returns preferred Python representation."""
@@ -294,7 +308,6 @@ class _QuantityProperty:
         d = dict(s=self.s, p=self.p, o=self.o)
         if self.id:
             d[id] = self.id
-
         return d
 
     def asstrings(self):
@@ -879,6 +892,4 @@ class _QuantityProperty:
         self.q[name] = (value, unit)
 
 %}
-
-
 }

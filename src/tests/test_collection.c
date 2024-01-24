@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "minunit/minunit.h"
+#include "utils/err.h"
 #include "dlite.h"
 #include "dlite-collection.h"
 #include "dlite-macros.h"
@@ -26,15 +27,19 @@ MU_TEST(test_collection_add_relation)
   mu_assert_int_eq(0, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 
-  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
+  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog",
+                                          NULL));
   mu_assert_int_eq(3, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
   mu_assert_int_eq(3, coll->nrelations);
 
   /* dublicate... */
-  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
+  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog",
+                                          NULL));
   mu_assert_int_eq(3, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 }
@@ -42,8 +47,8 @@ MU_TEST(test_collection_add_relation)
 
 MU_TEST(test_collection_remove_relations)
 {
-  mu_assert_int_eq(2, dlite_collection_remove_relations(coll, NULL,
-							"is_a", "animal"));
+  mu_assert_int_eq(2, dlite_collection_remove_relations(coll, NULL, "is_a",
+                                                        "animal", NULL));
   mu_assert_int_eq(1, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 }
@@ -53,23 +58,91 @@ MU_TEST(test_collection_find)
 {
   const DLiteRelation *r;
   DLiteCollectionState state;
-  int nanimals=0;
+  int nanimals=0, n=0;
 
-  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal"));
-  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog"));
-  mu_check(!dlite_collection_add_relation(coll, "car", "is_a", "vehicle"));
-  mu_assert_int_eq(4, dlite_instance_get_dimension_size((DLiteInstance *)coll,
+  mu_check(!dlite_collection_add_relation(coll, "dog", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "cat", "is_a", "animal",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "terrier", "is_a", "dog",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "car", "is_a", "vehicle",
+                                          NULL));
+  mu_check(!dlite_collection_add_relation(coll, "cat", "has_color", "black",
+                                          "xsd:string"));
+  mu_check(!dlite_collection_add_relation(coll, "car", "has_color", "black",
+                                          "xsd:string"));
+  mu_assert_int_eq(6, dlite_instance_get_dimension_size((DLiteInstance *)coll,
 							"nrelations"));
 
   dlite_collection_init_state(coll, &state);
+  printf("\nRelations:\n");
+  while ((r = dlite_collection_find(coll, &state, NULL, NULL, NULL, NULL)))
+    printf("  %-10s %-10s %-10s %s\n", r->s, r->p, r->o, r->d);
+
+  dlite_collection_reset_state(&state);
   printf("\nAnimals:\n");
-  while ((r = dlite_collection_find(coll, &state, NULL, "is_a", "animal"))) {
+  while ((r = dlite_collection_find(coll, &state, NULL, "is_a", "animal",
+                                    NULL))) {
     printf("  %s\n", r->s);
     nanimals++;
   }
   mu_assert_int_eq(2, nanimals);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, NULL, "xsd:int")) n++;
+  mu_assert_int_eq(0, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, NULL, "xsd:string"))
+    n++;
+  mu_assert_int_eq(2, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, "black", "xsd:string"))
+    n++;
+  mu_assert_int_eq(2, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, NULL, NULL, "red", "xsd:string"))
+    n++;
+  mu_assert_int_eq(0, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, "car", NULL, NULL, "xsd:string"))
+    n++;
+  mu_assert_int_eq(1, n);
+
+  dlite_collection_reset_state(&state);
+  n = 0;
+  while (dlite_collection_find(coll, &state, "car", NULL, NULL, ""))
+    n++;
+  mu_assert_int_eq(1, n);
+
   dlite_collection_deinit_state(&state);
+}
+
+
+MU_TEST(test_collection_value)
+{
+  mu_assert_string_eq("terrier", dlite_collection_value(coll, NULL, "is_a",
+                                                        "dog", NULL, NULL, 0));
+  mu_assert_string_eq("dog", dlite_collection_value(coll, NULL, "is_a",
+                                                    "animal", NULL, NULL, 1));
+
+ ErrTry:
+  mu_assert_string_eq(NULL, dlite_collection_value(coll, NULL, "is_a",
+                                                   "animal", NULL, NULL, 0));
+  mu_assert_string_eq(NULL, dlite_collection_value(coll, NULL, "is_a",
+                                                   "mammal", NULL, NULL, 0));
+ ErrCatch(dliteSearchError):
+  break;
+ ErrEnd;
 }
 
 
@@ -165,29 +238,30 @@ MU_TEST(test_collection_load)
 {
   DLiteCollection *coll2;
   char *collpath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/coll.json";
-  DLiteStoragePathIter *iter;
-  const char *path;
+  //DLiteStoragePathIter *iter;
+  //const char *path;
 
   dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
 
-  printf("\n\nStorage paths:\n");
-  iter = dlite_storage_paths_iter_start();
-  while ((path = dlite_storage_paths_iter_next(iter)))
-    printf("  - %s\n", path);
-  printf("\n");
-  dlite_storage_paths_iter_stop(iter);
+  //printf("\n\nStorage paths:\n");
+  //iter = dlite_storage_paths_iter_start();
+  //while ((path = dlite_storage_paths_iter_next(iter)))
+  //  printf("  - %s\n", path);
+  //printf("\n");
+  //dlite_storage_paths_iter_stop(iter);
 
   FILE *fp = fopen(collpath, "r");
   coll2 = (DLiteCollection *)
     dlite_json_fscan(fp, NULL, "http://onto-ns.com/meta/0.1/Collection");
   fclose(fp);
-  printf("\n\n--- coll2: %p ---\n", (void *)coll2);
-  dlite_json_print((DLiteInstance *)coll2);
-  printf("----------------------\n");
+  //printf("\n\n--- coll2: %p ---\n", (void *)coll2);
+  //dlite_json_print((DLiteInstance *)coll2);
+  //printf("----------------------\n");
+
   const DLiteInstance *inst = dlite_collection_get(coll2, "inst");
-  printf("\n--- inst: %p ---\n", (void *)inst);
-  dlite_json_print((DLiteInstance *)inst);
-  printf("----------------------\n");
+  //printf("\n--- inst: %p ---\n", (void *)inst);
+  //dlite_json_print((DLiteInstance *)inst);
+  //printf("----------------------\n");
 
   dlite_instance_decref((DLiteInstance *)inst);
   dlite_collection_decref(coll2);
@@ -197,6 +271,8 @@ MU_TEST(test_collection_load)
 MU_TEST(test_collection_free)
 {
   dlite_collection_decref(coll);
+
+  dlite_finalize();  // for checking memory leaks
 }
 
 
@@ -212,8 +288,8 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_collection_add_relation);
   MU_RUN_TEST(test_collection_remove_relations);
-
   MU_RUN_TEST(test_collection_find);
+  MU_RUN_TEST(test_collection_value);
 
   MU_RUN_TEST(test_collection_add);
   MU_RUN_TEST(test_collection_get);
