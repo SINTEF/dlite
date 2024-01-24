@@ -28,6 +28,7 @@ const char *dlite_errname(DLiteErrCode code)
 
   case dliteOSError:                return "DLiteOS";
   case dliteKeyError:               return "DLiteKey";
+  case dliteSearchError:            return "DLiteSearch";
   case dliteParseError:             return "DLiteParse";
   case dliteSerialiseError:         return "DLiteSerialise";
   case dliteUnsupportedError:       return "DLiteUnsupported";
@@ -73,6 +74,7 @@ const char *dlite_errdescr(DLiteErrCode code)
 
   case dliteOSError:                return "Error calling a system function";
   case dliteKeyError:               return "Mapping key is not found";
+  case dliteSearchError:            return "Error in search";
   case dliteParseError:             return "Cannot parse input";
   case dliteSerialiseError:         return "Cannot serialise output";
   case dliteUnsupportedError:       return "Feature is not implemented/supported";

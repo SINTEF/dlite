@@ -21,6 +21,7 @@ typedef struct _Triple {
   char *s;     /*!< subject */
   char *p;     /*!< predicate */
   char *o;     /*!< object */
+  char *d;     /*!< datatype */
   char *id;    /*!< unique ID identifying this triple */
 } Triple;
 
@@ -46,16 +47,17 @@ void triple_clean(Triple *t);
   Convinient function to assign a triple. This allocates new memory
   for the internal s, p, o and id pointers.  If `id` is
   NULL, a new id will be generated bases on `s`, `p` and `o`.
+  For literals, the datatype can be provided with `d`.
  */
 int triple_set(Triple *t, const char *s, const char *p, const char *o,
-                const char *id);
+               const char *d, const char *id);
 
 /**
   Like triple_set(), but free's allocated memory in `t` before re-assigning
   it.  Don't use this function if `t` has not been initiated.
  */
 int triple_reset(Triple *t, const char *s, const char *p, const char *o,
-                  const char *id);
+                 const char *d, const char *id);
 
 /**
   Returns an newly malloc'ed unique id calculated from triple.
@@ -66,11 +68,15 @@ int triple_reset(Triple *t, const char *s, const char *p, const char *o,
   Returns NULL on error.
 */
 char *triple_get_id(const char *namespace, const char *s, const char *p,
-                      const char *o);
+                    const char *o, const char *d);
 
 /**
   Copies triple `src` to `dest` and returns a pointer to `dest`.
- */
+
+  Existing memory hold by `dest` is not free'ed.  So if `dest` may
+  hold some memory, call `triple_clean()` before calling this
+  function.
+*/
 Triple *triple_copy(Triple *dest, const Triple *src);
 
 
