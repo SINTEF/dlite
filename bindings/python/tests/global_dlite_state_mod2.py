@@ -1,15 +1,16 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import os
+from pathlib import Path
 
 import dlite
 from dlite import Instance, Dimension, Property, Relation
 
 assert len(dlite.istore_get_uuids()) == 3 + 3
 
-thisdir = os.path.abspath(os.path.dirname(__file__))
 
-url = "json://" + thisdir + "/MyEntity.json"
+thisdir = Path(__file__).absolute().parent
+entitydir = thisdir / "entities"
+
+url = f"json://{entitydir}/MyEntity.json"
 
 # myentity is already defined via test_global_dlite_state, no new instance is added to istore
 myentity = Instance.from_url(url)

@@ -23,6 +23,7 @@ set(tests
   test_postgresql2_read
   test_ref_type
   test_pydantic
+  test_iri
 )
 
 foreach(test ${tests})
