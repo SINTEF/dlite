@@ -334,3 +334,11 @@ PersonOld = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonOld")
 PersonNew = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonNew")
 assert PersonOld.props == PersonNew.props
 assert PersonOld.dimnames() == PersonNew.dimnames()
+
+
+# For issue #750 - test instance_cast()
+with raises(dlite.DLiteTypeError):
+    dlite.instance_cast(inst, dlite.Metadata)
+castinst = dlite.instance_cast(inst.meta, dlite.Instance)
+assert type(castinst) == dlite.Instance
+assert type(dlite.instance_cast(castinst)) == dlite.Metadata

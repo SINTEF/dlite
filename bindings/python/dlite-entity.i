@@ -298,6 +298,8 @@ struct _DLiteInstance {
         return dlite_err(dliteMissingMetadataError,
                          "cannot find metadata '%s'", metaid), NULL;
       if (n != meta->_ndimensions) {
+        dlite_err(dliteValueError, "ndims=%d, but %s has %u dimension(s)",
+                  ndims, metaid, (unsigned)meta->_ndimensions);
         dlite_meta_decref(meta);
         return dlite_err(dliteParseError, "%s has %u dimensions (%u given)",
                          metaid, (unsigned)meta->_ndimensions,

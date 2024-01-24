@@ -9,6 +9,7 @@ from dlite.testutils import raises
 thisdir = Path(__file__).resolve().parent
 outdir = thisdir / "output"
 
+
 # Create collection
 coll = dlite.Collection("mycoll")
 

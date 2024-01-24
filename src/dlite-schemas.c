@@ -451,7 +451,7 @@ const DLiteMeta *dlite_get_entity_schema()
 const DLiteMeta *dlite_get_collection_entity()
 {
   dlite_get_uuid(collection_entity.uuid, DLITE_COLLECTION_ENTITY);
-  if (!collection_entity._headersize)
+  if (!collection_entity._npropdims)
     dlite_meta_init((DLiteMeta *)&collection_entity);
   return (DLiteMeta *)&collection_entity;
 }
