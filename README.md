@@ -128,7 +128,7 @@ In this case we didn't initialised the age
 >>> homes.age = 34  # Assign the age
 ```
 
-If you have [Pint] installed, you can also specifying or accessing the age
+If you have [Pint] installed, you can also specify or access the age
 as a quantity with unit
 ```python
 >>> homes.age = pint.Quantity(34, "year")
