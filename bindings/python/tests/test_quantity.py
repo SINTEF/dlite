@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Unit Tests on the quantity module """
+try:
+    import pint
+except ImportError:
+    exit(44)  # skip test
 
 from pathlib import Path
 import numpy as np
 import dlite
 from dlite.testutils import raises
 from dlite.quantity import get_quantity_helper
-try:
-    import pint
-except ImportError:
-    exit(44)  # skip test
 
 thisdir = Path(__file__).absolute().parent
 entitydir = thisdir / "entities"
