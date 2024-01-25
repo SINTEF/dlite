@@ -300,6 +300,8 @@ assert person.weight == 63.0
 # compute the BMI
 person.q.bmi = person.q.weight.to("kg") / person.q.height.to("m") ** 2
 assert np.round(person.get_quantity("bmi").magnitude) == 21.0
+# the following line will give the same result as the line above
+person.q.bmi = person.q.weight / person.q.height ** 2
 # the following line will raise a TypeError exception, because the property
 # "category" with the type "string" cannot be converted into a quantity.
 category = person.q.category
@@ -311,7 +313,7 @@ elif person.bmi >= 25.0:
     person.category = "overweight"
 ```
 
-> If you need in your program to use a specific units, use the function
+> If you need in your program to use a specific units registry, use the function
 > [pint.set_application_registry](https://pint.readthedocs.io/en/0.10.1/tutorial.html#using-pint-in-your-projects)
 
 The Python property ```q``` of the dlite.Instance objects as some other methods:
@@ -343,4 +345,4 @@ w1, h1 = person1.q.get("weight", "height")
 w2, h2, a2 = person2.q.get("weight", "height", "age")
 ```
 
-The first line of the code above prepare the [singleton](https://www.geeksforgeeks.org/singleton-pattern-in-python-a-complete-guide/) dlite.quantity.QuanityHelper for the person1 and return the singleton. The second line do the same as the first line, so the variable ```p2``` is the singleton and is prepared to work on ```person2```.
+The first line of the code above prepare the [singleton](https://www.geeksforgeeks.org/singleton-pattern-in-python-a-complete-guide/) dlite.quantity.QuantityHelper for the person1 and return the singleton. The second line do the same as the first line, so the variable ```p2``` is the singleton and is prepared to work on ```person2```.

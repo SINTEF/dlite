@@ -1,3 +1,8 @@
+
+""" Define the singleton QuantityHelper to work with pint Quantity and dlite 
+    instance properties.
+"""
+
 from typing import Any
 import numpy as np
 HAS_PINT = True
@@ -32,7 +37,7 @@ class QuantityHelper:
                 ' a number, cannot convert the property value to a quantity.'
             )
 
-    def _fix_unit(self, unit: Any) -> str:
+    def _get_unit_as_string(self, unit: Any) -> str:
         """ Returns the given unit as a string """
         unit_string = ''
         if isinstance(unit, str):
@@ -43,7 +48,8 @@ class QuantityHelper:
 
     def __getitem__(self, name: str) -> pint.Quantity:
         p = self._get_property(name)
-        return self.quantity(self._instance[name], self._fix_unit(p.unit))
+        u = self._get_unit_as_string(p.unit)
+        return self.quantity(self._instance[name], u)
 
     def __setitem__(self, name: str, value: Any):
         p = self._get_property(name)
@@ -127,7 +133,8 @@ class QuantityHelper:
         """ Parse an expression (str) and return a pint.Quantity object """
         result = None
         if value:
-            ph = pint.util.ParserHelper.from_string(self._fix_unit(value))
+            value_str = self._get_unit_as_string(value)
+            ph = pint.util.ParserHelper.from_string(value_str)
             if len(ph._d) > 0:
                 un = '*'.join([f'({k}**{v})' for k, v in ph._d.items()])
                 try:

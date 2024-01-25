@@ -164,26 +164,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         raise _dlite.DLiteMissingInstanceError(f"no such instance: {id}")
     return instance_cast(inst)
 
-
-class _QuantityProperty:
-    """A help class for providing access to properties as Pint quantites."""
-    def __init__(self, inst):
-        object.__setattr__(self, "_inst", inst)
-
-    def __getattr__(self, name):
-        return self._inst.get_property(name, as_quantity=True)
-
-    def __getitem__(self, name):
-        return self._inst.get_property(name, as_quantity=True)
-
-    def __setattr__(self, name, value):
-        raise _dlite.DLiteUnsupportedError(
-            f"Assignment of proprety '{name}' is not supported with "
-            "_QuantityProperty. Please assign directly to the instance."
-        )
-
-    def __setitem__(self, name, value):
-        self.__setattr__(name, value)
 %}
 
 
@@ -399,70 +379,6 @@ class _QuantityProperty:
     is_meta = property(_is_meta, doc='Whether this is a metadata instance.')
     is_metameta = property(_is_metameta,
                            doc='Whether this is a meta-metadata instance.')
-    q = property(lambda self: _QuantityProperty(self),
-                 doc='Provide property access as pint Quantity.')
-
-    def set_property(self, name, value, unit=None):
-        """Set the value of property `name`.
-
-        If you have pint installed, you can use the `unit` argument to
-        specify the unit of `value` (which should be convertable to the
-        unit of the property).  Alternatively, you can provide `value`
-        as a `pint.Quantity`.
-        """
-        if self.is_frozen():
-            raise _dlite.DLiteUnsupportedError(
-                'frozen instance does not support assignment of property '
-                f'{name}'
-            )
-        propunit = self.get_property_descr(name).unit
-        if unit and not propunit:
-            raise _dlite.DLiteTypeError(
-                f"cannot set dimensionless property '{name}' with a unit"
-            )
-        if propunit and unit and unit != propunit:
-            try:
-                import pint
-            except ModuleNotFoundError as exc:
-                raise _dlite.DLiteUnsupportedError(
-                    f"Cannot set property '{name}' with specified unit. "
-                    "Please install pint."
-                ) from exc
-            else:
-                value = pint.Quantity(value, unit)
-        if hasattr(value, "m_as"):
-            value = value.to(propunit).m
-        _set_property(self, name, value)
-
-    def get_property(self, name, unit=None, as_quantity=False):
-        """Returns the value of property `name`.
-
-        If you have pint installed, you can use the `unit` argument to
-        specify the unit to return `value` in (which should be
-        convertable to the unit of the property).  If `as_quantity` is
-        true, `value` will be returned as a `pint.Quantity`.
-        """
-        propunit = self.get_property_descr(name).unit
-        if unit and not propunit:
-            raise _dlite.DLiteTypeError(
-                f"cannot get dimensionless property '{name}' with a unit"
-            )
-        value = _get_property(self, name)
-        if (propunit and unit and unit != propunit) or as_quantity:
-            try:
-                import pint
-            except ModuleNotFoundError as exc:
-                raise _dlite.DLiteUnsupportedError(
-                    f"Cannot get property '{name}' with specified unit. "
-                    "Please install pint."
-                ) from exc
-            else:
-                value = pint.Quantity(value, propunit if propunit else "")
-                if unit:
-                    value.to(unit)
-                if not as_quantity:
-                    value = value.m
-        return value
 
     @classmethod
     def from_metaid(cls, metaid, dims, id=None):
@@ -688,7 +604,7 @@ class _QuantityProperty:
         if isinstance(ind, int):
             self.set_property_by_index(ind, value)
         elif self.has_property(ind):
-            self.set_property(ind, value)
+            _set_property(self, ind, value)
         elif isinstance(ind, int):
             raise _dlite.DLiteIndexError(
                 'instance property index out of range: %d' % ind
@@ -726,7 +642,7 @@ class _QuantityProperty:
                 f"'{name}'"
             )
         elif _has_property(self, name):
-            self.set_property(name, value)
+            _set_property(self, name, value)
         else:
             object.__setattr__(self, name, value)
 

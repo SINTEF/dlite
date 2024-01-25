@@ -131,14 +131,12 @@ In this case we didn't initialised the age
 If you have [Pint] installed, you can also specify or access the age
 as a quantity with unit
 ```python
->>> homes.age = pint.Quantity(34, "year")
+>>> homes.q.age = "34year"
 >>> homes.q.age
-34.0 <Unit('year')>
+<Quantity(34, 'year')>
 >>> homes.q.age.to("century").m
 0.34
-
 ```
-
 
 We can view (a JSON representation of) the instance with
 
