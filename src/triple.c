@@ -58,9 +58,10 @@ const char *triple_get_default_namespace(void)
 */
 void triple_clean(Triple *t)
 {
-  free(t->s);
-  free(t->p);
-  free(t->o);
+  if (t->s) free(t->s);
+  if (t->p) free(t->p);
+  if (t->o) free(t->o);
+  if (t->d) free(t->d);
   if (t->id) free(t->id);
   memset(t, 0, sizeof(Triple));
 }
@@ -71,12 +72,13 @@ void triple_clean(Triple *t)
   NULL, a new id will be generated bases on `s`, `p` and `o`.
  */
 int triple_set(Triple *t, const char *s, const char *p, const char *o,
-                const char *id)
+               const char *d, const char *id)
 {
   t->s = strdup((s) ? s : "");
   t->p = strdup((p) ? p : "");
   t->o = strdup((o) ? o : "");
-  t->id = (id) ? strdup(id) : triple_get_id(NULL, s, p, o);
+  t->d = (d) ? strdup(d) : NULL;
+  t->id = (id) ? strdup(id) : triple_get_id(NULL, s, p, o, d);
   return 0;
 }
 
@@ -85,13 +87,10 @@ int triple_set(Triple *t, const char *s, const char *p, const char *o,
   it.  Don't use this function if `t` has not been initiated.
  */
 int triple_reset(Triple *t, const char *s, const char *p, const char *o,
-                const char *id)
+                 const char *d, const char *id)
 {
-  if (t->s)  free(t->s);
-  if (t->p)  free(t->p);
-  if (t->o)  free(t->o);
-  if (t->id) free(t->id);
-  return triple_set(t, s, p, o, id);
+  triple_clean(t);
+  return triple_set(t, s, p, o, d, id);
 }
 
 /*
@@ -99,7 +98,7 @@ int triple_reset(Triple *t, const char *s, const char *p, const char *o,
   Returns NULL on error, for instance if any of `s`, `p` or `o` are NULL.
 */
 char *triple_get_id(const char *namespace, const char *s, const char *p,
-                      const char *o)
+                    const char *o, const char *d)
 {
   SHA1_CTX context;
   unsigned char digest[20];
@@ -111,6 +110,7 @@ char *triple_get_id(const char *namespace, const char *s, const char *p,
   SHA1Update(&context, (unsigned char *)s, strlen(s));
   SHA1Update(&context, (unsigned char *)p, strlen(p));
   SHA1Update(&context, (unsigned char *)o, strlen(o));
+  if (d) SHA1Update(&context, (unsigned char *)d, strlen(d));
   SHA1Final(digest, &context);
   if (!namespace) namespace = triple_get_default_namespace();
   if (namespace) size += strlen(namespace);
@@ -123,19 +123,20 @@ char *triple_get_id(const char *namespace, const char *s, const char *p,
 
 /*
   Copies triple `src` to `dest` and returns a pointer to `dest`.
+
+  Existing memory hold by `dest` is not free'ed.  So if `dest` may
+  hold some memory, call `triple_clean()` before calling this
+  function.
  */
 Triple *triple_copy(Triple *dest, const Triple *src)
 {
   assert(src);
   assert(dest);
-  if (dest->s) free(dest->s);
-  if (dest->p) free(dest->p);
-  if (dest->o) free(dest->o);
-  if (dest->id) free(dest->id);
   memset(dest, 0, sizeof(Triple));
   if (src->s  && !(dest->s = strdup(src->s)))   goto fail;
   if (src->p  && !(dest->p = strdup(src->p)))   goto fail;
   if (src->o  && !(dest->o = strdup(src->o)))   goto fail;
+  if (src->d  && !(dest->d = strdup(src->d)))   goto fail;
   if (src->id && !(dest->id = strdup(src->id))) goto fail;
   return dest;
  fail:

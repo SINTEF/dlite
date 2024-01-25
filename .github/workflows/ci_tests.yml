@@ -10,6 +10,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+      # We do not install rdflib0-dev here, since we want to test
+      # DLite both with and without rdflib (Redland) support and the
+      # case with rdflib is already covered by the ci_build_wheel
+      # workflow for Linux systems.
     - name: Install dependencies
       run: |
         sudo apt-get update --fix-missing && \

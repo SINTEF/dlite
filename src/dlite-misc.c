@@ -460,11 +460,7 @@ int dlite_add_dll_path(void)
 
 #define ERR_STATE_ID "err-globals-id"
 #define ERR_MASK_ID "err-ignored-id"
-#define LOCALS_ID "dlite-misc-locals-id"
 
-
-/* A cache pointing to the current session handler */
-static DLiteGlobals *_globals_handler=NULL;
 
 /* Local state for this module. */
 typedef struct {
@@ -472,31 +468,35 @@ typedef struct {
 } Locals;
 
 
+/* A cache pointing to the current session handler */
+static DLiteGlobals *_globals_handler=NULL;
+
+/* Pointer to local state */
+Locals *_locals=NULL;
+
 /* Free variables in local state. */
-static void free_locals(void *locals)
+static void free_locals()
 {
-  UNUSED(locals);
+  _locals = NULL;
 }
 
 /* Return a pointer to local state. */
 static Locals *get_locals(void)
 {
-  static Locals *locals=NULL;
-  if (!locals) {
-    locals = dlite_globals_get_state(LOCALS_ID);
-    if (!locals) {
-      static Locals _locals;
-      locals = &_locals;
-      memset(locals, 0, sizeof(Locals));
-      dlite_globals_add_state(LOCALS_ID, locals, free_locals);
-    }
+  if (!_locals) {
+    static Locals locals;
+    _locals = &locals;
+    memset(_locals, 0, sizeof(Locals));
   }
-  return locals;
+  return _locals;
 }
 
 
 /* Called by atexit(). */
 static void _handle_atexit(void) {
+
+  /* No extra finalisation is needed if we already are in an atexit handler */
+  if (dlite_globals_in_atexit()) return;
 
   /* Mark that we are in an atexit handler */
   dlite_globals_set_atexit();
@@ -512,11 +512,12 @@ DLiteGlobals *dlite_globals_get(void)
   if (!_globals_handler) {
     _globals_handler = session_get_default();
 
+    dlite_init();
+
     /* Make valgrind and other memory leak detectors happy by freeing
        up all globals at exit. */
-    atexit(_handle_atexit);
-
-    dlite_init();
+    if (!dlite_globals_in_atexit())
+      atexit(_handle_atexit);
   }
   return _globals_handler;
 }
@@ -583,13 +584,16 @@ void dlite_finalize(void)
   Session *s = session_get_default();
 
   /* Don't free anything if we are in an atexit handler */
-  if (dlite_globals_in_atexit() || !getenv("DLITE_ATEXIT_FREE")) return;
+  if (dlite_globals_in_atexit() && !getenv("DLITE_ATEXIT_FREE")) return;
 
   /* Reset error handling */
   err_set_handler(NULL);
   err_set_nameconv(NULL);
 
   session_free(s);
+  _globals_handler = NULL;
+
+  free_locals();
 }
 
 

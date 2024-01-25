@@ -90,12 +90,13 @@ MU_TEST(test_print)
                       "\"dims\": [\"M\", \"N\"], \"unit\": \"m\", "
                       "\"description\": \"about x...\"}", s);
 
-  DLiteRelation rel = {"subject", "predicate", "object", "id"};
+  DLiteRelation rel = {"subject", "predicate", "object", "datatype", NULL};
   prop.type = dliteRelation;
   prop.size = sizeof(rel);
   m = dlite_property_aprint(&s, &size, n, &rel, &prop, NULL, 0, -2, 0);
-  mu_assert_int_eq(34, m);
-  mu_assert_string_eq("[\"subject\", \"predicate\", \"object\"]", s);
+  mu_assert_int_eq(46, m);
+  mu_assert_string_eq("[\"subject\", \"predicate\", \"object\", \"datatype\"]",
+                      s);
 
   free(s);
 }
