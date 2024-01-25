@@ -232,6 +232,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
 int rdf_close(DLiteStorage *storage)
 {
   RdfStorage *s = (RdfStorage *)storage;
+  int retval = 0;
 
   if (s->flags & dliteWritable) {
     librdf_world *world = triplestore_get_world(s->ts);
@@ -247,6 +248,7 @@ int rdf_close(DLiteStorage *storage)
     if (s->filename) {
       unsigned char *buf;
       librdf_uri *base_uri=NULL, *type_uri=NULL;
+      FILE *fp;
       if (s->base_uri)
         base_uri = librdf_new_uri(world, (unsigned char *)s->base_uri);
       if (s->type_uri)
@@ -257,10 +259,11 @@ int rdf_close(DLiteStorage *storage)
 
       if (strcmp(s->filename, "-") == 0) {
         fprintf(stdout, "%s", buf);
-      } else {
-        FILE *fp = fopen(s->filename, "w");
+      } else if ((fp = fopen(s->filename, "w"))) {
         fprintf(fp, "%s", buf);
         fclose(fp);
+      } else {
+        retval = err(dliteIOError, "cannot write rdf file: %s", s->filename);
       }
 
       if (base_uri) librdf_free_uri(base_uri);
@@ -276,7 +279,7 @@ int rdf_close(DLiteStorage *storage)
   if (s->format) free(s->format);
   if (s->mime_type) free(s->mime_type);
   if (s->type_uri) free(s->type_uri);
-  return 0;
+  return retval;
 }
 
 
