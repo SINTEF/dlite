@@ -165,6 +165,21 @@ plantuml_output_format = "svg_img"
 
 ####
 
+# Options for the C domain
+c_extra_keywords = [
+    'alignas',
+    #'alignof',  # defined in dlite-type.h
+    'bool',
+    'complex',
+    'imaginary',
+    'noreturn',
+    'static_assert',
+    'thread_local',
+]
+
+
+####
+
 # Jinja2 custom filters
 def autoapi_prepare_jinja_env(jinja_env: "Environment") -> None:
     """Add custom Jinja2 filters for use with AutoAPI templates."""
