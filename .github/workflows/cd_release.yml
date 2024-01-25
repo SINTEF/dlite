@@ -185,7 +185,7 @@ jobs:
         CIBW_MUSLLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_i686:latest
 
     - name: Store wheels for publishing
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: wheelhouse/*.whl
@@ -227,7 +227,7 @@ jobs:
       run: python -m build --no-isolation --sdist python
 
     - name: Store sdist for publishing
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: sdist
         path: python/dist/*
@@ -239,7 +239,7 @@ jobs:
 
     steps:
     - name: Retrieve wheels and sdist
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         path: dist
 
