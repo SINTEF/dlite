@@ -97,7 +97,7 @@ class Metadata(Instance):
         lst = [p for p in self.properties["properties"] if p.name == name]
         if lst:
             return lst[0]
-        raise _dlite.DLiteError(
+        raise _dlite.DLiteKeyError(
             f"Metadata {self.uri} has no such property: {name}")
 
     def dimnames(self):
@@ -161,7 +161,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         inst = _dlite.get_instance(id, metaid, check_storages)
 
     if inst is None:
-        raise _dlite.DLiteError(f"no such instance: {id}")
+        raise _dlite.DLiteMissingInstanceError(f"no such instance: {id}")
     return instance_cast(inst)
 
 %}
@@ -300,7 +300,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 /* --------
  * Instance
  * -------- */
-
 %extend _DLiteInstance {
 
   int __len__(void) {
@@ -362,7 +361,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         for p in self.meta['properties']:
             if p.name == name:
                 return p
-        raise ValueError(f'No property "{name}" in "{self.uri}"')
+        raise ValueError(
+            f'No property "{name}" in '
+            f'"{self.uri if self.uri else self.meta.uri}"'
+        )
 
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
     dimensions = property(
@@ -575,33 +577,40 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         elif isinstance(dest, str):
             self.save_to_url(dest)
         else:
-            raise _dlite.DLiteError('Arguments do not match any call signature')
+            raise _dlite.DLiteTypeError(
+                'Arguments to save() do not match any of the call signatures'
+            )
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
             value = self.get_property_by_index(ind)
         elif self.has_property(ind):
-            value = self.get_property(ind)
+            value = _get_property(self, ind)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
 
     def __setitem__(self, ind, value):
         if self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support item assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f'frozen instance does not support assignment of property '
+                f'{ind}')
         if isinstance(ind, int):
             self.set_property_by_index(ind, value)
         elif self.has_property(ind):
-            self.set_property(ind, value)
+            _set_property(self, ind, value)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
 
     def __contains__(self, item):
         return item in self.properties.keys()
@@ -617,7 +626,9 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         elif self.has_dimension(name):
             value = self.get_dimension_size(name)
         else:
-            raise AttributeError('Instance object has no attribute %r' % name)
+            raise _dlite.DLiteAttributeError(
+                'Instance object has no attribute %r' % name
+            )
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
@@ -626,8 +637,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if name == 'this':
             object.__setattr__(self, name, value)
         elif self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support attribute assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f"frozen instance does not support assignment of property "
+                f"'{name}'"
+            )
         elif _has_property(self, name):
             _set_property(self, name, value)
         else:
@@ -672,7 +685,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             None,
             iterfun(self),
         )
-
 
     def asdict(self, soft7=True, uuid=True, single=True):
         """Returns a dict representation of self.
@@ -782,6 +794,18 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             "Instance.get_copy() is deprecated.  Use Instance.copy() instead.",
             DeprecationWarning, stacklevel=2)
         return self.copy()
+
+    @property
+    def q(self):
+        """ to work with quantities """
+        from dlite.quantity import get_quantity_helper
+        return get_quantity_helper(self)
+
+    def get_quantity(self, name):
+        return self.q[name]
+
+    def set_quantity(self, name, value, unit):
+        self.q[name] = (value, unit)
 
 %}
 }
