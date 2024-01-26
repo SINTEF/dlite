@@ -30,6 +30,10 @@ jobs:
             system_type: ["musllinux", "_1_1"]
             arch: i686
             py_minors: 7,9
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_2"]
+            arch: i686
+            py_minors: 10,12
 
           # 64-bit linux
           - os: ubuntu-20.04
@@ -39,18 +43,21 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: 7,11
-          #- os: ubuntu-21.04
-          #  system_type: ["manylinux", ""]
+            #py_minors: 7,11
+            py_minors: 7,12
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "_2_28"]
+            arch: x86_64
+            py_minors: 7,12
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
           # - os: ubuntu-20.04
           #   system_type: ["musllinux", "_1_1"]
           #   arch: x86_64
           #   py_minors: 7,10
           - os: ubuntu-20.04
-            system_type: ["manylinux", "_2_28"]
+            system_type: ["musllinux", "_1_2"]
             arch: x86_64
-            py_minors: 7,12
+            py_minors: 10,12
 
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
           # # 32-bit Windows
