@@ -25,22 +25,20 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 7,9
+            #py_minors: 7,9
+            py_minors: 7,12
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
             #py_minors: 7,9  # ok, old
             #py_minors: 7,10  # ok
-            py_minors: 7,12
-          # This fails, with cannot import distutils
+            py_minors: 7,11
+            #py_minors: 7,12  # fail
+          # Fails with cannot import distutils
           #- os: ubuntu-20.04
           #  system_type: ["musllinux", "_1_2"]
           #  arch: i686
           #  py_minors: 10,12
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_2"]
-            arch: i686
-            py_minors: 12
 
           # 64-bit linux
           - os: ubuntu-20.04
@@ -69,11 +67,13 @@ jobs:
             system_type: ["musllinux", "_1_1"]
             arch: x86_64
             #py_minors: 10  # ok
-            py_minors: 12
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_2"]
-            arch: x86_64
-            py_minors: 12
+            py_minors: 11
+            #py_minors: 12  # fail
+          # Fails with cannot import distutils
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_2"]
+          #  arch: x86_64
+          #  py_minors: 7,12
 
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
           # # 32-bit Windows
