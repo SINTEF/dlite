@@ -64,7 +64,7 @@ jobs:
           #  arch: x86_64
           #  py_minors: 7,12
 
-          # May work...
+          # May work after weekly container build...
           #- os: ubuntu-20.04
           #  system_type: ["musllinux", "_1_2"]
           #  arch: x86_64
