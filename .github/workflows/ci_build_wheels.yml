@@ -25,15 +25,11 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            #py_minors: 7,9
             py_minors: 7,12
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
-            #py_minors: 7,9  # ok, old
-            #py_minors: 7,10  # ok
-            py_minors: 7,11
-            #py_minors: 7,12  # fail
+            py_minors: 7,11  # Python 3.12 fails
           # Fails with cannot import distutils
           #- os: ubuntu-20.04
           #  system_type: ["musllinux", "_1_2"]
@@ -61,14 +57,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: x86_64
-            #py_minors: 9  # ok
-            py_minors: 7
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_1"]
-            arch: x86_64
-            #py_minors: 10  # ok
-            py_minors: 11
-            #py_minors: 12  # fail
+            py_minors: 7,11  # Fails for Python-3.12
           # Fails with cannot import distutils
           #- os: ubuntu-20.04
           #  system_type: ["musllinux", "_1_2"]
