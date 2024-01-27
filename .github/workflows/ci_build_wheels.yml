@@ -63,6 +63,18 @@ jobs:
           #  system_type: ["musllinux", "_1_2"]
           #  arch: x86_64
           #  py_minors: 7,12
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_2"]
+            arch: x86_64
+            py_minors: 10
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_2"]
+            arch: x86_64
+            py_minors: 11
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_2"]
+            arch: x86_64
+            py_minors: 12
 
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
           # # 32-bit Windows
@@ -120,5 +132,5 @@ jobs:
           CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
-          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
-          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
+          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux{{ matrix.system_type[1] }}_x86_64:latest
+          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux{{ matrix.system_type[1] }}_i686:latest
