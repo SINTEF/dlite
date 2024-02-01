@@ -28,7 +28,7 @@ int main()
   size_t i, j;
   double tmp, atvol0;
 
-  size_t shape[] = {nelements, nphases};
+  size_t dims[] = {nelements, nphases};
   char *path = STRINGIFY(DLITE_ROOT) "/tools/tests/Chemistry-0.1.json";
   DLiteStorage *s;
   DLiteMeta *chem;
@@ -42,7 +42,7 @@ int main()
   DLITE_UPDATE_EXTENEDE_META(chem, Chemistry, nelements);
 
   /* Create instance */
-  p = (Chemistry *)dlite_instance_create(chem, shape, "example-6xxx");
+  p = (Chemistry *)dlite_instance_create(chem, dims, "example-6xxx");
 
   p->id = "myid";
   p->x = 42;
