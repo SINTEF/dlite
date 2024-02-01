@@ -27,7 +27,7 @@ MU_TEST(test_save)
 
   inst = dlite_instance_get(DLITE_ENTITY_SCHEMA);
   mu_check(inst);
-  mu_assert_int_eq(1, dlite_instance_save(s, inst)); //0
+  mu_assert_int_eq(0, dlite_instance_save(s, inst));
   dlite_instance_decref(inst);
 
   mu_assert_int_eq(0, dlite_storage_close(s));
