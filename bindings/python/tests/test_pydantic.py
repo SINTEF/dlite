@@ -67,9 +67,13 @@ dt = datetime.fromtimestamp(now - 600).astimezone(utc)
 # Strip it off when testing finishTime
 
 #testing whether removing the timezone fixes the problem
-dt_no_tz = dt.replace(tzinfo=None)
-print(inst.finishTime)
-assert inst.finishTime.split("+")[0] == str(dt_no_tz)#.split("+")[0]
+# dt_no_tz = dt.replace(tzinfo=None)
+print(f'>>>>>>>>>>> inst.finishTime --- {inst.finishTime}')
+print(f'>>>>>>>>>>> str(dt) --- {str(dt)}')
+
+
+pdb.set_trace()
+assert inst.finishTime.split(".")[0] == str(dt).split(".")[0]
 
 
 # ==============================================================
