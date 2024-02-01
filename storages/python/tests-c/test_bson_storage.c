@@ -29,7 +29,7 @@ MU_TEST(test_save)
   // Save JSON metadata to BSON file
   mu_check(s = dlite_storage_open("bson", "test_meta.bson", "mode=w"));
   mu_assert_int_eq(1, dlite_storage_is_writable(s));
-  mu_assert_int_eq(1, dlite_instance_save(s, meta)); //0 
+  mu_assert_int_eq(0, dlite_instance_save(s, meta));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
   // Load JSON data (corresponding to the metadata above)
@@ -46,8 +46,8 @@ MU_TEST(test_save)
   // Save JSON data to BSON file
   mu_check(s = dlite_storage_open("bson", "test_data.bson", "mode=w"));
   mu_assert_int_eq(1, dlite_storage_is_writable(s));
-  mu_assert_int_eq(1, dlite_instance_save(s, data1)); //0
-  mu_assert_int_eq(1, dlite_instance_save(s, data2)); //0
+  mu_assert_int_eq(0, dlite_instance_save(s, data1));
+  mu_assert_int_eq(0, dlite_instance_save(s, data2));
   mu_assert_int_eq(0, dlite_storage_close(s));
   while (dlite_instance_decref(data1)); // Remove all references to data1
   while (dlite_instance_decref(data2)); // Remove all references to data2
