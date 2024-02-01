@@ -12,6 +12,7 @@ except ImportError:
 
     sys.exit(44)
 
+import pdb
 
 class TransformationStatus(BaseModel):
     """Return from transformation status."""
@@ -61,9 +62,13 @@ assert inst.startTime == int(now - 3000)
 utc = timezone(timedelta(hours=0))
 dt = datetime.fromtimestamp(now - 600).astimezone(utc)
 
+
 # Timezone may is printed differently depending on Python version.
 # Strip it off when testing finishTime
-assert inst.finishTime.split("+")[0] == str(dt).split("+")[0]
+
+#testing whether removing the timezone fixes the problem
+dt_no_tz = dt.replace(tzinfo=None)
+assert inst.finishTime.split("+")[0] == str(dt_no_tz)#.split("+")[0]
 
 
 # ==============================================================
