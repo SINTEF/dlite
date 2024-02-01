@@ -68,6 +68,7 @@ dt = datetime.fromtimestamp(now - 600).astimezone(utc)
 
 #testing whether removing the timezone fixes the problem
 dt_no_tz = dt.replace(tzinfo=None)
+print(inst.finishTime)
 assert inst.finishTime.split("+")[0] == str(dt_no_tz)#.split("+")[0]
 
 
