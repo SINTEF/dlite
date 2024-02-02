@@ -730,9 +730,9 @@ contains
     integer(8)                             :: i
 
     call dlite_instance_get_property_dims_by_index(inst, index, shape)
-    allocate(dims2(2))
-    dims2(1) = len(prop(1))+1
-    dims2(2) = shape(1)
+    allocate(shape2(2))
+    shape2(1) = len(prop(1))+1
+    shape2(2) = shape(1)
     cptr = inst%get_property_by_index(index)
     call c_f_pointer(cptr, prop_p, dims2)
     do i = 1, shape(1)
