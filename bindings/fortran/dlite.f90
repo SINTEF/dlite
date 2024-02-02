@@ -734,7 +734,7 @@ contains
     shape2(1) = len(prop(1))+1
     shape2(2) = shape(1)
     cptr = inst%get_property_by_index(index)
-    call c_f_pointer(cptr, prop_p, dims2)
+    call c_f_pointer(cptr, prop_p, shape2)
     do i = 1, shape(1)
       call f_c_string(prop(i), prop_p(:,i))
     end do
