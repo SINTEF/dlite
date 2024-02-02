@@ -68,7 +68,6 @@ class DataModel:
             name: Property label.
             type: Property type.
             shape: Shape of Property.  Default is scalar.
-            shape: Shape of Property.  Default is scalar.
             unit: Unit. Default is dimensionless.
             description: Human description.
             dims: Deprecated alias for `shape`.

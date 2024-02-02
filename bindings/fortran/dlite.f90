@@ -120,11 +120,11 @@ module DLite
   ! --------------------------------------------------------
   ! C interface for DLiteInstance
   ! --------------------------------------------------------
-  type(c_ptr) function dlite_instance_create_from_id_c(metaid, shape, id) &
+  type(c_ptr) function dlite_instance_create_from_id_c(metaid, dims, id) &
       bind(C,name="dlite_instance_create_from_id")
     import c_ptr, c_size_t, c_char
     character(len=1,kind=c_char), dimension(*), intent(in) :: metaid
-    integer(c_size_t), dimension(*), intent(in)            :: shape
+    integer(c_size_t), dimension(*), intent(in)            :: dims
     character(len=1,kind=c_char), dimension(*), intent(in) :: id
   end function dlite_instance_create_from_id_c
 
@@ -389,9 +389,9 @@ contains
   ! Fortran methods for DLiteInstance
   ! --------------------------------------------------------
 
-  function dlite_instance_create_from_id(metaid, ndim, shape, id) result(instance)
+  function dlite_instance_create_from_id(metaid, ndim, dims, id) result(instance)
     character(len=*), intent(in)          :: metaid
-    integer(8), dimension(*), intent(in)  :: shape
+    integer(8), dimension(*), intent(in)  :: dims
     integer, intent(in)                   :: ndim
     character(len=*), intent(in)          :: id
     character(len=1,kind=c_char)          :: metaid_c(len_trim(metaid)+1)
@@ -408,7 +408,7 @@ contains
     ! copy shape in a C pointer (size_t*)
     allocate(dims1(ndim))
     do i=1, ndim
-       dims1(i) = shape(i)
+       dims1(i) = dims(i)
     end do
     dims1_p => dims1
     cptr = c_loc(dims1_p)
@@ -726,7 +726,7 @@ contains
     character(*), dimension(*), intent(in) :: prop(:)
     type(c_ptr)                            :: cptr
     character(kind=c_char), pointer        :: prop_p(:,:)
-    integer(8), dimension(*), allocatable  :: shape(:), dims2(:)
+    integer(8), dimension(*), allocatable  :: shape(:), shape2(:)
     integer(8)                             :: i
 
     call dlite_instance_get_property_dims_by_index(inst, index, shape)
