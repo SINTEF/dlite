@@ -248,7 +248,7 @@ else:
             keep = {}
             for key in d:
                 d[key] = d[key].replace('{', '[').replace('}', ']')
-                if key == 'shape':
+                if key == 'dims':
                     dims_vals = ast.literal_eval(d[key])
                     keep['dimensions'] = {dims_keys[k]: dims_vals[k] \
                         for k in range(len(dims_keys))}
