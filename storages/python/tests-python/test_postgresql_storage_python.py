@@ -197,7 +197,7 @@ else:
             d['dimensions'] = dims
         if 'properties' in d.keys():
             metadata = True
-            keys = {0: 'name', 1: 'type', 2: 'shape', 3: 'unit', \
+            keys = {0: 'name', 1: 'type', 2: 'dims', 3: 'unit', \
                     5: 'description'}
             prop_str = d['properties']
             prop_str = prop_str.replace('"', '')
@@ -221,7 +221,7 @@ else:
                         d['properties'][n]['shape'] = shape
 
         if metadata:
-            del d['shape']
+            del d['dims']
         else:
             # Data instance
             if 'uri' in d.keys() and d['uri'] == '\\N':
