@@ -537,9 +537,9 @@
     if (array_is_fortran(ary)) return success;
     int n_non_one = 0;
     /* Set the Fortran ordered flag */
-    const npy_intp *shape = array_dimensions(ary);
+    const npy_intp *dims = array_dimensions(ary);
     for (i=0; i < nd; ++i)
-      n_non_one += (shape[i] != 1) ? 1 : 0;
+      n_non_one += (dims[i] != 1) ? 1 : 0;
     if (n_non_one > 1)
       array_clearflags(ary,NPY_ARRAY_CARRAY);
     array_enableflags(ary,NPY_ARRAY_FARRAY);
@@ -1983,8 +1983,8 @@
   (DATA_TYPE ARGOUT_ARRAY1[ANY])
   (PyObject* array = NULL)
 {
-  npy_intp shape[1] = { $1_dim0 };
-  array = PyArray_SimpleNew(1, shape,DATA_TYPECODE);
+  npy_intp dims[1] = { $1_dim0 };
+  array = PyArray_SimpleNew(1, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2001,7 +2001,7 @@
   (DATA_TYPE* ARGOUT_ARRAY1, DIM_TYPE DIM1)
   (PyObject* array = NULL)
 {
-  npy_intp shape[1];
+  npy_intp dims[1];
   if (!PyLong_Check($input))
   {
     const char* typestring = pytype_string($input);
@@ -2012,8 +2012,8 @@
   }
   $2 = (DIM_TYPE) PyLong_AsSsize_t($input);
   if ($2 == -1 && PyErr_Occurred()) SWIG_fail;
-  shape[0] = (npy_intp) $2;
-  array = PyArray_SimpleNew(1, shape,DATA_TYPECODE);
+  dims[0] = (npy_intp) $2;
+  array = PyArray_SimpleNew(1, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
 }
@@ -2030,7 +2030,7 @@
   (DIM_TYPE DIM1, DATA_TYPE* ARGOUT_ARRAY1)
   (PyObject* array = NULL)
 {
-  npy_intp shape[1];
+  npy_intp dims[1];
   if (!PyLong_Check($input))
   {
     const char* typestring = pytype_string($input);
@@ -2041,8 +2041,8 @@
   }
   $1 = (DIM_TYPE) PyLong_AsSsize_t($input);
   if ($1 == -1 && PyErr_Occurred()) SWIG_fail;
-  shape[0] = (npy_intp) $1;
-  array = PyArray_SimpleNew(1, shape,DATA_TYPECODE);
+  dims[0] = (npy_intp) $1;
+  array = PyArray_SimpleNew(1, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $2 = (DATA_TYPE*) array_data(array);
 }
@@ -2059,8 +2059,8 @@
   (DATA_TYPE ARGOUT_ARRAY2[ANY][ANY])
   (PyObject* array = NULL)
 {
-  npy_intp shape[2] = { $1_dim0, $1_dim1 };
-  array = PyArray_SimpleNew(2, shape,DATA_TYPECODE);
+  npy_intp dims[2] = { $1_dim0, $1_dim1 };
+  array = PyArray_SimpleNew(2, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2077,8 +2077,8 @@
   (DATA_TYPE ARGOUT_ARRAY3[ANY][ANY][ANY])
   (PyObject* array = NULL)
 {
-  npy_intp shape[3] = { $1_dim0, $1_dim1, $1_dim2 };
-  array = PyArray_SimpleNew(3, shape,DATA_TYPECODE);
+  npy_intp dims[3] = { $1_dim0, $1_dim1, $1_dim2 };
+  array = PyArray_SimpleNew(3, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2095,8 +2095,8 @@
   (DATA_TYPE ARGOUT_ARRAY4[ANY][ANY][ANY][ANY])
   (PyObject* array = NULL)
 {
-  npy_intp shape[4] = { $1_dim0, $1_dim1, $1_dim2, $1_dim3 };
-  array = PyArray_SimpleNew(4, shape,DATA_TYPECODE);
+  npy_intp dims[4] = { $1_dim0, $1_dim1, $1_dim2, $1_dim3 };
+  array = PyArray_SimpleNew(4, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2123,8 +2123,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DATA_TYPE** ARGOUTVIEW_ARRAY1, DIM_TYPE* DIM1)
 {
-  npy_intp shape[1] = { *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[1] = { *$2 };
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2144,8 +2144,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DIM_TYPE* DIM1, DATA_TYPE** ARGOUTVIEW_ARRAY1)
 {
-  npy_intp shape[1] = { *$1 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, shape,DATA_TYPECODE, (void*)(*$2));
+  npy_intp dims[1] = { *$1 };
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$2));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2166,8 +2166,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DATA_TYPE** ARGOUTVIEW_ARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
-  npy_intp shape[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[2] = { *$2, *$3 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2188,8 +2188,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEW_ARRAY2)
 {
-  npy_intp shape[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$3));
+  npy_intp dims[2] = { *$1, *$2 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2210,8 +2210,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements")
   (DATA_TYPE** ARGOUTVIEW_FARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
-  npy_intp shape[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[2] = { *$2, *$3 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2232,8 +2232,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEW_FARRAY2)
 {
-  npy_intp shape[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$3));
+  npy_intp dims[2] = { *$1, *$2 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2256,8 +2256,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DATA_TYPE** ARGOUTVIEW_ARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
-  npy_intp shape[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[3] = { *$2, *$3, *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2280,8 +2280,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEW_ARRAY3)
 {
-  npy_intp shape[3] = { *$1, *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$4));
+  npy_intp dims[3] = { *$1, *$2, *$3 };
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2304,8 +2304,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements")
   (DATA_TYPE** ARGOUTVIEW_FARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
-  npy_intp shape[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[3] = { *$2, *$3, *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2328,8 +2328,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEW_FARRAY3)
 {
-  npy_intp shape[3] = { *$1, *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$4));
+  npy_intp dims[3] = { *$1, *$2, *$3 };
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2353,8 +2353,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DATA_TYPE** ARGOUTVIEW_ARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
-  npy_intp shape[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2378,8 +2378,8 @@
          fragment="NumPy_Backward_Compatibility")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEW_ARRAY4)
 {
-  npy_intp shape[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$5));
+  npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2403,8 +2403,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements")
   (DATA_TYPE** ARGOUTVIEW_FARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
-  npy_intp shape[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2428,8 +2428,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEW_FARRAY4)
 {
-  npy_intp shape[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$5));
+  npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2453,8 +2453,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DATA_TYPE** ARGOUTVIEWM_ARRAY1, DIM_TYPE* DIM1)
 {
-  npy_intp shape[1] = { *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[1] = { *$2 };
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2487,8 +2487,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DIM_TYPE* DIM1, DATA_TYPE** ARGOUTVIEWM_ARRAY1)
 {
-  npy_intp shape[1] = { *$1 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, shape,DATA_TYPECODE, (void*)(*$2));
+  npy_intp dims[1] = { *$1 };
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$2));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2522,8 +2522,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DATA_TYPE** ARGOUTVIEWM_ARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
-  npy_intp shape[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[2] = { *$2, *$3 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2557,8 +2557,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEWM_ARRAY2)
 {
-  npy_intp shape[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$3));
+  npy_intp dims[2] = { *$1, *$2 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2592,8 +2592,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements,NumPy_Utilities")
   (DATA_TYPE** ARGOUTVIEWM_FARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
-  npy_intp shape[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[2] = { *$2, *$3 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2627,8 +2627,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements,NumPy_Utilities")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEWM_FARRAY2)
 {
-  npy_intp shape[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, shape,DATA_TYPECODE, (void*)(*$3));
+  npy_intp dims[2] = { *$1, *$2 };
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2664,8 +2664,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DATA_TYPE** ARGOUTVIEWM_ARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
-  npy_intp shape[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[3] = { *$2, *$3, *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2701,8 +2701,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEWM_ARRAY3)
 {
-  npy_intp shape[3] = { *$1, *$2, *$3 };
-  PyObject* obj= PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$4));
+  npy_intp dims[3] = { *$1, *$2, *$3 };
+  PyObject* obj= PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2738,8 +2738,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements,NumPy_Utilities")
   (DATA_TYPE** ARGOUTVIEWM_FARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
-  npy_intp shape[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[3] = { *$2, *$3, *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2775,8 +2775,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements,NumPy_Utilities")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEWM_FARRAY3)
 {
-  npy_intp shape[3] = { *$1, *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, shape,DATA_TYPECODE, (void*)(*$4));
+  npy_intp dims[3] = { *$1, *$2, *$3 };
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2813,8 +2813,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DATA_TYPE** ARGOUTVIEWM_ARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
-  npy_intp shape[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2851,8 +2851,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Utilities")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEWM_ARRAY4)
 {
-  npy_intp shape[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$5));
+  npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2889,8 +2889,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements,NumPy_Utilities")
   (DATA_TYPE** ARGOUTVIEWM_FARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
-  npy_intp shape[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$1));
+  npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2927,8 +2927,8 @@
          fragment="NumPy_Backward_Compatibility,NumPy_Array_Requirements,NumPy_Utilities")
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEWM_FARRAY4)
 {
-  npy_intp shape[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, shape,DATA_TYPECODE, (void*)(*$5));
+  npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
