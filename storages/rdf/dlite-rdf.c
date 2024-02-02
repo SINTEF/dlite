@@ -319,7 +319,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   const Triple *t=NULL, *t2;
   DLiteInstance *inst=NULL;
   DLiteMeta *meta;
-  size_t i, *shape=NULL;
+  size_t i, *dims=NULL;
   int ok=0, n, j;
   char uuid[DLITE_UUID_LENGTH+1], muuid[DLITE_UUID_LENGTH+1];
   char *pid=NULL, *mid=NULL, *propiri=NULL;
@@ -359,7 +359,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   /* allocate and read dimension values */
   if (meta->_ndimensions) {
     const char *name, *val;
-    if (!(shape = calloc(meta->_ndimensions, sizeof(size_t))))
+    if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
       FAILCODE(dliteMemoryError, "allocation failure");
     if (triplestore_find_first(ts, pid, _P ":hasDimensionValue", NULL)) {
       /* -- read dimension values */
@@ -371,7 +371,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
         if (!(name = getobj(s, dimval, _P ":hasLabel", 1))) goto fail;
         j = dlite_meta_get_dimension_index(meta, name);
         if (!(val = getobj(s, dimval, _P ":hasDimensionSize", 1))) goto fail;
-        shape[j] = atoi(val);
+        dims[j] = atoi(val);
         n++;
         free(dimval);
       }
@@ -382,8 +382,8 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     } else if (strcmp(meta->uri, DLITE_ENTITY_SCHEMA) == 0) {
       /* -- infer dimension values */
       assert(meta->_ndimensions == 2);
-      shape[0] = count(ts, pid, _P ":hasDimension", NULL);
-      shape[1] = count(ts, pid, _P ":hasProperty", NULL);
+      dims[0] = count(ts, pid, _P ":hasDimension", NULL);
+      dims[1] = count(ts, pid, _P ":hasProperty", NULL);
     } else {
       FAIL2("missing dimension values for instance '%s' in storage '%s'",
             id, s->location);
@@ -515,7 +515,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (pid) free(pid);
   if (mid) free(mid);
   if (propiri) free(propiri);
-  if (shape) free(shape);
+  if (dims) free(dims);
   if (!ok && inst) dlite_instance_decref(inst);
   triplestore_deinit_state(&state);
   return (ok) ? inst : NULL;
