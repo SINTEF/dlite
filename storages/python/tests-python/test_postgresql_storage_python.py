@@ -190,11 +190,11 @@ else:
             dims_str = dims_str.replace('}}', ']]')
             dims_str = dims_str.replace('},{', '],["')
             dims_str = dims_str.replace(',"', '","')
-            shape = ast.literal_eval(dims_str)
-            for dim in shape:
+            dims = ast.literal_eval(dims_str)
+            for dim in dims:
                 dim = {'name': str(dim[0]), \
                     'description': str(dim[1])}
-            d['dimensions'] = shape
+            d['dimensions'] = dims
         if 'properties' in d.keys():
             metadata = True
             keys = {0: 'name', 1: 'type', 2: 'shape', 3: 'unit', \
