@@ -106,7 +106,7 @@ class postgresql(dlite.DLiteStorageBase):
         )
         self.cur.execute(q, [uuid])
         tokens = self.cur.fetchone()
-        uuid_, uri, metaid_, shape = tokens[:4]
+        uuid_, uri, metaid_, dims = tokens[:4]
         values = tokens[4:]
         assert uuid_ == uuid
         assert metaid_ == metaid
@@ -118,7 +118,7 @@ class postgresql(dlite.DLiteStorageBase):
         except RuntimeError:
             meta = self.load(metaid)
 
-        inst = dlite.Instance.from_metaid(metaid, shape, uri)
+        inst = dlite.Instance.from_metaid(metaid, dims, uri)
 
         for i, p in enumerate(inst.meta["properties"]):
             inst.set_property(p.name, values[i])
