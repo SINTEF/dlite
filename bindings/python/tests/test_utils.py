@@ -144,11 +144,11 @@ if HAVE_PYDANTIC:
 
 # Test infer_dimensions()
 # TODO - test also exceptions
-shape = infer_dimensions(
+dims = infer_dimensions(
     meta=inst.meta,
     values={"a-string-array": [("a", "b"), ("c", "d"), ("e", "f")]},
 )
-assert shape == dict(N=3, M=2)
+assert dims == dict(N=3, M=2)
 
 shape = infer_dimensions(
     meta=inst.meta,

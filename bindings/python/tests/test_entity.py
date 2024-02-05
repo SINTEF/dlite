@@ -184,7 +184,7 @@ inst3 = pickle.loads(s)
 
 dim = Dimension("N")
 
-prop = Property("a", type='float')
+prop = Property("a", type="float")
 
 prop2 = Property(
     "b",
