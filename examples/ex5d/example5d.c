@@ -96,7 +96,7 @@ void get_fv(TC_INT iph, TC_INT icomp, TC_INT* iwsg, TC_INT* iwse, double fv[] , 
 
 main(int argc, char *argv)
 {
-	size_t shape[7];
+	size_t dims[7];
 
 	char *path = "PhilibTable.json";
 	DLiteStorage *s;
@@ -182,21 +182,21 @@ main(int argc, char *argv)
   /*                                                           */
   /* ----------------------------------------------------------*/
 
-  shape[0] = ncomp;
-  shape[1] = iph;
+  dims[0] = ncomp;
+  dims[1] = iph;
   size_t nvars = 2;
-  shape[2] = nvars;		// nvars, the temperature and composition of Si will vary
-  shape[3] = 2 ; //nbounds
-  shape[4] = 1; // nconds
+  dims[2] = nvars;		// nvars, the temperature and composition of Si will vary
+  dims[3] = 2 ; //nbounds
+  dims[4] = 1; // nconds
   size_t ncalc = 9;
   size_t ticks[] = { 50,40 } ;
   size_t npoints;
   npoints = ticks[0]*ticks[1]; // this variable is related to ticks so strange to define it before
-  shape[5] = ncalc;
-  shape[6] = npoints;
+  dims[5] = ncalc;
+  dims[6] = npoints;
 
   /* Create instance */
-  p = (PhilibTable *)dlite_instance_create(table, shape, "example-AlMgSi");
+  p = (PhilibTable *)dlite_instance_create(table, dims, "example-AlMgSi");
 
   /* */
   p->database = "TTAL7";
