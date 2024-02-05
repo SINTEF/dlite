@@ -22,7 +22,7 @@ def readMolecule(filename):
     atoms = ase.io.read(filename)  # ASE Atoms object
     atoms.calc = EMT()
     molname = Path(filename).stem
-    inst = Molecule(shape=[len(atoms), 3], id=molname)  # DLite instance
+    inst = Molecule(dimensions=[len(atoms), 3], id=molname)  # DLite instance
     inst.name = molname
     inst.positions = atoms.positions
     inst.symbols = atoms.get_chemical_symbols()

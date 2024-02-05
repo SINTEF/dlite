@@ -21,7 +21,7 @@ coll = dlite.Collection.from_url(f'json://{atomdata}?mode=r#molecules')
 
 Reaction = dlite.Instance.from_url(f'json://{entitydir}/Reaction.json')
 
-reaction = Reaction(shape=[len(reactants), len(products)])
+reaction = Reaction(dimensions=[len(reactants), len(products)])
 
 reaction.reactants = list(reactants.keys())
 reaction.products = list(products.keys())

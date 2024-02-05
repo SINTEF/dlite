@@ -39,7 +39,7 @@ def reaction_energy(coll, reactants, products):
 
     # Instantiate a new Reaction instance
     Reaction = dlite.get_instance(reaction_id)
-    reaction = Reaction(shape=[len(reactants), len(products)])
+    reaction = Reaction(dimensions=[len(reactants), len(products)])
     reaction.reactants = list(reactants.keys())
     reaction.products = list(products.keys())
     reaction.reactant_stoichiometric_coefficient = list(reactants.values())
