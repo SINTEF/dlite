@@ -15,7 +15,7 @@ int main()
   size_t i, j;
   double tmp, atvol0;
 
-  size_t shape[] = {nelements, nphases};
+  size_t dims[] = {nelements, nphases};
   char *path = STRINGIFY(DLITE_ROOT)
     "/share/dlite/examples/ex2/Chemistry-0.1.json";
   DLiteStorage *s;
@@ -33,7 +33,7 @@ int main()
   dlite_storage_close(s);
 
   /* Create instance */
-  p = (Chemistry *)dlite_instance_create(chem, shape, "example-6xxx");
+  p = (Chemistry *)dlite_instance_create(chem, dims, "example-6xxx");
 
   p->alloy = strdup("Sample alloy...");
 
