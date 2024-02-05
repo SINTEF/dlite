@@ -436,7 +436,7 @@ void dlite_instance_debug(const DLiteInstance *inst);
 
 /**
   Returns the allocated size of an instance with metadata `meta` and
-  dimensions `shape`.  The length of `shape` is given by
+  dimensions `dims`.  The length of `dims` is given by
   ``meta->_ndimensions``.  Mostly intended for internal use.
 
   Returns -1 on error.
@@ -462,7 +462,7 @@ char** dlite_istore_get_uuids(int* nuuids);
 
 /**
   Returns a new dlite instance from Entiry `meta` and dimensions
-  `shape`.  The lengths of `shape` is found in `meta->ndims`.
+  `dims`.  The lengths of `dims` is found in `meta->_ndimensions`.
 
   The `id` argment may be NULL, a valid UUID or an unique identifier
   to this instance (e.g. an uri).  In the first case, a random UUID
@@ -477,7 +477,7 @@ char** dlite_istore_get_uuids(int* nuuids);
   On error, NULL is returned.
  */
 DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
-                                     const size_t *shape,
+                                     const size_t *dims,
                                      const char *id);
 
 /**
@@ -487,7 +487,7 @@ DLiteInstance *dlite_instance_create(const DLiteMeta *meta,
   Returns NULL on error.
 */
 DLiteInstance *dlite_instance_create_from_id(const char *metaid,
-                                             const size_t *shape,
+                                             const size_t *dims,
                                              const char *id);
 
 /**
@@ -906,7 +906,7 @@ int dlite_instance_sync_from_properties(DLiteInstance *inst);
 
   Returns non-zero on error.
  */
-int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *shape);
+int dlite_instance_set_dimension_sizes(DLiteInstance *inst, const int *dims);
 
 /**
   Like dlite_instance_set_dimension_sizes(), but only updates the size of

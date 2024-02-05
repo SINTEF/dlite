@@ -711,7 +711,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
   unsigned char *subdoc, *endptr;
   char *ename;
   void *data;
-  size_t *shape=NULL;
+  size_t *dims=NULL;
   DLiteInstance *inst=NULL;
   if (!(metaid = bson_scan_string(doc, "meta", NULL))) goto fail;
   uuid = bson_scan_string(doc, "uuid", NULL);
@@ -737,7 +737,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
     FAILCODE1(dliteKeyError, "expected dimension values to be a bson "
               "document, got %s", bson_typename(type));
   if ((ndims = bson_nelements(subdoc)) < 0) goto fail;
-  if (!(shape = calloc(ndims, sizeof(size_t))))
+  if (!(dims = calloc(ndims, sizeof(size_t))))
     FAILCODE(dliteMemoryError, "allocation failure");
   endptr = NULL;
   i = 0;
@@ -745,7 +745,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
     if (type != bsonInt32)
       FAILCODE1(dliteTypeError, "expected dimension values to be bsonInt32, "
                 "got %s", bson_typename(type));
-    shape[i++] = *((int32_t *)data);
+    dims[i++] = *((int32_t *)data);
   }
   if (i != ndims)
     FAILCODE2(dliteInconsistentDataError, "expected %d dimensions, got %d",
@@ -754,7 +754,7 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
   /* Create instance */
   if (!(id = (uri) ? uri : (uuid) ? uuid : NULL))
     FAILCODE(dliteKeyError, "bson data is missing uri and/or uuid");
-  if (!(inst = dlite_instance_create_from_id(metaid, shape, id))) goto fail;
+  if (!(inst = dlite_instance_create_from_id(metaid, dims, id))) goto fail;
 
   if (dlite_instance_is_meta(inst)) {
     /* Metadata */
@@ -789,10 +789,10 @@ DLiteInstance *dlite_bson_load_instance(const unsigned char *doc)
     }
   }
 
-  if (shape) free(shape);
+  if (dims) free(dims);
   return inst;
  fail:
   if (inst) dlite_instance_decref(inst);
-  if (shape) free(shape);
+  if (dims) free(dims);
   return NULL;
 }
