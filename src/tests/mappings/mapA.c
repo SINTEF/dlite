@@ -5,7 +5,7 @@
 #include "dlite-mapping-plugins.h"
 
 typedef DLiteInstance *
-(*Creater)(const char *metaid, const size_t *shape, const char *id);
+(*Creater)(const char *metaid, const size_t *dims, const char *id);
 
 
 DLiteInstance *mapper(const DLiteMappingPlugin *api,
