@@ -82,8 +82,8 @@ MU_TEST(test_meta_create)
 
 MU_TEST(test_instance_create)
 {
-  size_t shape[]={3, 2};
-  mu_check((mydata = dlite_instance_create(entity, shape, id)));
+  size_t dims[]={3, 2};
+  mu_check((mydata = dlite_instance_create(entity, dims, id)));
   mu_assert_int_eq(1, mydata->_refcount);
   mu_assert_int_eq(3, entity->_refcount);  /* refs: global+store+mydata */
 }
