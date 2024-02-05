@@ -39,8 +39,8 @@ module {name}
       ! -- property values
 {list_properties:\
 {@6}{prop.ftype}{@if:{prop.ndims}!0}, allocatable{@endif}\
-{@40}:: {prop.name}{@if:{prop.ndims}!0}({prop.shape::{,}\.}){@endif}\
- ! {prop.descr} {@if:{prop.ndims}!0} [{prop.shape:{dim.name}{,}\.}]{@endif}\n}
+{@40}:: {prop.name}{@if:{prop.ndims}!0}({prop.dims::{,}\.}){@endif}\
+ ! {prop.descr} {@if:{prop.ndims}!0} [{prop.dims:{dim.name}{,}\.}]{@endif}\n}
     contains
       procedure :: check => check
       procedure :: writeToURL => writeToURL
@@ -76,7 +76,7 @@ module {name}
       i = model%add_string('description', '{descr}')
 {list_dimensions:{@6}i = model%add_dimension('{dim.name}', '{dim.descr}')\n}
 {list_properties:{@6}i = model%add_property('{prop.name}', '{prop.typename}', '{prop.unit}', '{prop.descr}')\
-{@if:{prop.ndims}!0}\n{prop.shape:{@6}i = model%add_property_dim('{prop.name}', '{dim.name}')\n}{@endif}\n}
+{@if:{prop.ndims}!0}\n{prop.dims:{@6}i = model%add_property_dim('{prop.name}', '{dim.name}')\n}{@endif}\n}
       meta_{name%c} = DLiteMeta(model)
       call model%destroy()
     endif
@@ -90,7 +90,7 @@ module {name}
     {name%c}%instance%cinst = c_null_ptr
     {name%c}%uuid(:) = ' '
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
-{list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.shape:{dim.name}{,}\.}))\n{@endif}\ }
+{list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
   end function create32
 {@if:{_ndimensions}>0}
   function create64({list_dimensions:{dim.name}{, }\.}) result({name%c})
@@ -101,14 +101,14 @@ module {name}
     {name%c}%instance%cinst = c_null_ptr
     {name%c}%uuid(:) = ' '
 {list_dimensions:{@4}{name%c}%{dim.name} = {dim.name}\n}
-{list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.shape:{dim.name}{,}\.}))\n{@endif}\ }
+{list_properties:{@4}! {prop.name}\n{@if:{prop.ndims}!0}{@4}allocate({name%c}%{prop.name}({prop.dims:{dim.name}{,}\.}))\n{@endif}\ }
   end function create64
 {@endif}
   subroutine readFromInstance({name%c}, instance)
     class(T{name})                        :: {name%c}
     type(DLiteInstance), intent(in)       :: instance
     {@if:{_ndimensions}>0}{@3}type(c_ptr){@42}:: cptr{@endif}
-    {@if:{_ndimensions}>0}{@3}integer(8), dimension(*), allocatable :: shape(:){@endif}
+    {@if:{_ndimensions}>0}{@3}integer(8), dimension(*), allocatable :: dims(:){@endif}
 {@if:{have_fixstring_arr}\.}\
     integer(8)                            :: strlen, nstring, i
 {@endif}\
@@ -119,7 +119,7 @@ module {name}
 {@elif:({prop.typeno}=5)&({prop.ndims}=1)}\
 {@4}character(kind=c_char), pointer {@42}:: {prop.name}_p(:,:)\n\
 {@elif:{prop.ndims}!0}\
-{@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p({prop.shape::{,}\.})\n\
+{@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p({prop.dims::{,}\.})\n\
 {@else}\
 {@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p\n\
 {@endif}\ }
@@ -134,8 +134,8 @@ module {name}
 {@6}call c_f_string(instance%get_property_by_index({prop.i}), {name%c}%{prop.name})\n\
 {@elif:({prop.typeno}=5)&({prop.ndims}=1)}\
 {@6}cptr = instance%get_property_by_index({prop.i})\n\
-{@6}call instance%get_property_shape_by_index({prop.i}, shape)\n\
-{@6}nstring = shape(1)\n\
+{@6}call instance%get_property_dims_by_index({prop.i}, dims)\n\
+{@6}nstring = dims(1)\n\
 {@6}strlen = {prop.size}\n\
 {@6}call c_f_pointer(cptr, {prop.name}_p, [strlen, nstring])\n\
 {@6}allocate({name%c}%{prop.name}(nstring))\n\
@@ -144,8 +144,8 @@ module {name}
 {@6}end do
 {@elif:{prop.ndims}!0}\
 {@6}cptr = instance%get_property_by_index({prop.i})\n\
-{@6}call instance%get_property_shape_by_index({prop.i}, shape, .true.)\n\
-{@6}call c_f_pointer(cptr, {prop.name}_p, shape)\n\
+{@6}call instance%get_property_dims_by_index({prop.i}, dims, .true.)\n\
+{@6}call c_f_pointer(cptr, {prop.name}_p, dims)\n\
 {@else}\
 {@6}cptr = instance%get_property_by_index({prop.i})\n\
 {@6}call c_f_pointer(cptr, {prop.name}_p)\n\
@@ -165,13 +165,13 @@ module {name}
     class(T{name})                        :: {name%c}
     type(DLiteInstance)                   :: instance
     {@if:{_ndimensions}>0}{@3}type(c_ptr){@42}:: cptr{@endif}
-    {@if:{_ndimensions}>0}{@3}integer(8), dimension(*), allocatable :: shape(:){@endif}
+    {@if:{_ndimensions}>0}{@3}integer(8), dimension(*), allocatable :: dims(:){@endif}
     integer(8), dimension({_ndimensions}) :: dimensions
 {list_properties:\
 {@if:{prop.typeno}=5}\
 {@4}! {prop.isoctype} {@42}:: {prop.name}\n\
 {@elif:{prop.ndims}!0}\
-{@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p({prop.shape::{,}\.})\n\
+{@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p({prop.dims::{,}\.})\n\
 {@else}\
 {@4}{prop.isoctype}, pointer {@42}:: {prop.name}_p\n\
 {@endif}\ }
@@ -192,8 +192,8 @@ module {name}
 {@4}call dlite_instance_set_property_value(instance, {prop.i}, {name%c}%{prop.name})\n\
 {@elif:{prop.ndims}!0}\
 {@4}cptr = instance%get_property_by_index({prop.i})\n\
-{@4}call instance%get_property_shape_by_index({prop.i}, shape, .true.)\n\
-{@4}call c_f_pointer(cptr, {prop.name}_p, shape)\n\
+{@4}call instance%get_property_dims_by_index({prop.i}, dims, .true.)\n\
+{@4}call c_f_pointer(cptr, {prop.name}_p, dims)\n\
 {@else}\
 {@4}cptr = instance%get_property_by_index({prop.i})\n\
 {@4}call c_f_pointer(cptr, {prop.name}_p)\n\
