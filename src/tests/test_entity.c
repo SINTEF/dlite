@@ -118,15 +118,15 @@ MU_TEST(test_instance_get_dimension_size)
 MU_TEST(test_instance_set_dimension_sizes)
 {
   DLiteStorage *s;
-  int newshape1[] = {-1, 4};
-  int newshape2[] = {2, 1};
+  int newdims1[] = {-1, 4};
+  int newdims2[] = {2, 1};
 
-  mu_check(dlite_instance_set_dimension_sizes(mydata, newshape1) == 0);
+  mu_check(dlite_instance_set_dimension_sizes(mydata, newdims1) == 0);
   mu_check((s = dlite_storage_open("json", "myentity4.json", "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
 
-  mu_check(dlite_instance_set_dimension_sizes(mydata, newshape2) == 0);
+  mu_check(dlite_instance_set_dimension_sizes(mydata, newdims2) == 0);
   mu_check((s = dlite_storage_open("json", "myentity5.json", "mode=w")));
   mu_check(dlite_instance_save(s, mydata) == 0);
   mu_check(dlite_storage_close(s) == 0);
@@ -392,10 +392,10 @@ MU_TEST(test_instance_get_hash)
 MU_TEST(test_transactions)
 {
   int stat;
-  size_t shape[] = {1, 3};
+  size_t dims[] = {1, 3};
   DLiteInstance *inst = dlite_instance_get("mydata");
-  DLiteInstance *inst2 = dlite_instance_create(entity, shape, NULL);
-  DLiteInstance *inst3 = dlite_instance_create(entity, shape, NULL);
+  DLiteInstance *inst2 = dlite_instance_create(entity, dims, NULL);
+  DLiteInstance *inst3 = dlite_instance_create(entity, dims, NULL);
   mu_check(inst);
   mu_check(inst2);
   mu_check(inst3);
