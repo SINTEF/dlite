@@ -195,7 +195,7 @@ def infer_meta(data: pd.DataFrame, metauri: str, uri: str) -> dlite.Metadata:
             "exists"
         )
 
-    shape = [dlite.Dimension("rows", "Number of rows.")]
+    dims = [dlite.Dimension("rows", "Number of rows.")]
     props = []
     for i, col in enumerate(data.columns):
         name = infer_prop_name(col)
@@ -215,7 +215,7 @@ def infer_meta(data: pd.DataFrame, metauri: str, uri: str) -> dlite.Metadata:
         )
 
     return dlite.Instance.create_metadata(
-        metauri, shape, props, f"Inferred metadata for {uri}"
+        metauri, dims, props, f"Inferred metadata for {uri}"
     )
 
 
