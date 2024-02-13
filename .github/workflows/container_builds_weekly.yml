@@ -44,6 +44,18 @@ jobs:
           arch: "x86_64"
           py_minors: "7 8 9 10 11"
 
+          # tests...
+        - system: "musllinux"
+          template: "musllinux"
+          type: "_1_2"
+          arch: "x86_64"
+          py_minors: "7 8 9"
+        - system: "musllinux"
+          template: "musllinux"
+          type: "_1_2"
+          arch: "x86_64"
+          py_minors: "10 11 12"
+
         # 32-bit linux
         - system: "manylinux"
           template: "manylinux"
@@ -60,6 +72,18 @@ jobs:
           type: "_1_1"
           arch: "i686"
           py_minors: "7 8 9"
+
+          # tests
+        - system: "musllinux"
+          template: "musllinux"
+          type: "_1_2"
+          arch: "i686"
+          py_minors: "7 8 9"
+        - system: "musllinux"
+          template: "musllinux"
+          type: "_1_2"
+          arch: "i686"
+          py_minors: "10 11 12"
 
     steps:
       - name: Checkout repository
