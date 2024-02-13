@@ -29,6 +29,8 @@ else:
 
 # thisdir = os.path.abspath(os.path.dirname(__file__))
 thisdir = Path(__file__).resolve().parent
+outdir = thisdir / "output"
+entitydir = thisdir / "entities"
 
 
 def equal_rdf_files(path1, path2):
@@ -46,21 +48,18 @@ def equal_rdf_files(path1, path2):
 
 
 # Test JSON
-
-url = "json://" + os.path.join(thisdir, "Person.json")
-Person = dlite.Instance.from_url(url)
-
-person = Person(dimensions=[2])
+Person = dlite.Instance.from_url(f"json://{entitydir}/Person.json")
+person = Person(dims=[2])
 person.name = "Ada"
 person.age = 12.5
 person.skills = ["skiing", "jumping"]
 
 print("=== saving...")
-with dlite.Storage("json", "test.json", "mode=w") as s:
+with dlite.Storage("json", outdir / "test_python_storage.json", "mode=w") as s:
     s.save(person)
 
 print("=== loading...", person.uuid)
-with dlite.Storage("json", "test.json", "mode=r") as s:
+with dlite.Storage("json", outdir / "test_python_storage.json", "mode=r") as s:
     inst = s.load(id=person.uuid)
 
 
@@ -68,11 +67,11 @@ person2 = Person(dimensions=[3])
 person2.name = "Berry"
 person2.age = 24.3
 person2.skills = ["eating", "sleeping", "reading"]
-with dlite.Storage("json://test.json") as s:
+with dlite.Storage(f"json://{outdir}/test_python_storage.json") as s:
     s.save(person2)
 
 
-s = dlite.Storage("json://test.json")
+s = dlite.Storage(f"json://{outdir}/test_python_storage.json")
 uuids = s.get_uuids()
 del s
 del uuids

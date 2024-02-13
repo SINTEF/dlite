@@ -128,6 +128,16 @@ In this case we didn't initialised the age
 >>> homes.age = 34  # Assign the age
 ```
 
+If you have [Pint] installed, you can also specify or access the age
+as a quantity with unit
+```python
+>>> homes.q.age = "34year"
+>>> homes.q.age
+<Quantity(34, 'year')>
+>>> homes.q.age.to("century").m
+0.34
+```
+
 We can view (a JSON representation of) the instance with
 
 ```python
@@ -213,3 +223,4 @@ DLite is developed with the hope that it will be a delight to work with.
 [documentation]: https://sintef.github.io/dlite/index.html
 [SOFT]: https://www.sintef.no/en/publications/publication/1553408/
 [UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
+[Pint]: https://pint.readthedocs.io/

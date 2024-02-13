@@ -1,10 +1,9 @@
+
+"""DLite storage plugin for MongoDB."""
+
 import fnmatch
 import json
-import sys
-from urllib.parse import quote_plus, urlparse
-
 import pymongo
-
 import dlite
 from dlite.options import Options
 
@@ -13,7 +12,12 @@ class mongodb(dlite.DLiteStorageBase):
     """DLite storage plugin for MongoDB."""
 
     def open(self, uri, options=None):
-        """Opens `uri`.
+        """Opens `uri`, connection string of the MongoDB
+
+        uri = mongodb://{account}:{password}@{account}.{hostname}:{port}/
+
+        see more details of the connection string:
+        https://www.mongodb.com/docs/manual/reference/connection-string/#connection-string-formats
 
         The `options` argument provies additional input to the driver.
         Which options that are supported varies between the plugins.  It
@@ -23,93 +27,32 @@ class mongodb(dlite.DLiteStorageBase):
 
         An ampersand (&) may be used instead of the semicolon (;).
 
-        All options that begin with MONGOCLIENT_<keyword> will be
-        passed directly to the mongodb client.
-
         Options:
-        - database: Name of database to use (default: "dlite")
-        - collection: Name of collection to use (default: "dlite_coll")
-        - user: User name.
-        - password: Password.
         - mode: "r" for opening in read-only mode, "w" for read/write mode.
-        - schema: Schema to use when connecting to MongoDB server.  Defaults
-              to schema in `uri`.
-        - authMechanism: Authentication mechanism
-        - mock: Whether to use mongomock.
+        - database: Name of database to use (default: "test")
+        - collection: Name of collection to use (default: "test_coll")
+        - options for the constructor of the pymongo.MongoClient could pass by
+          using the dlite.Options object, for example:
+
+            opt = Options("mode=r;database=test;collection=testc")
+            opt.update(directConnection=False, maxPoolSize=200)
+            storage = dlite.Storage("mongodb", "localhost", str(opt))
+
+        see more details of the pymongo.MongoClient options
+        https://pymongo.readthedocs.io/en/stable/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient:
+
         """
-        parsed_options = self._parse_options(options)
-        self._configure(parsed_options, uri)
-
-    def _parse_options(self, options):
-        """Parse and validate input options."""
-        parsed_options = Options(
+        opt = Options(
             options,
-            defaults="database=dlite;collection=dlite_coll;mode=r;mock=no;"
-            "user=guest;password=guest",
+            defaults="mode=r;database=test;collection=test_coll"
         )
-        parsed_options.setdefault("password", None)
-        return parsed_options
-
-    def _configure(self, parsed_options, uri):
-        """Configure and connect to the MongoDB database."""
-        self.writable = True if "w" in parsed_options.mode else False
-
-        client_options = {
-            k: parsed_options[k] for k in parsed_options if "MONGOCLIENT_" in k
-        }
-
-        user = quote_plus(parsed_options.user) if parsed_options.user else None
-        password = (
-            quote_plus(parsed_options.password)
-            if parsed_options.password
-            else None
-        )
-
-        # Determine the schema based on the presence of "localhost" or "127.0.0.1" in the URI
-        schema = parsed_options.get("schema", None)
-        if schema is None:
-            if "localhost" in uri or "127.0.0.1" in uri:
-                schema = "mongodb"
-            else:
-                schema = "mongodb+srv"
-
-        # Remove any existing schema from the URI
-        if not uri.startswith(schema + "://"):
-            uri = uri.replace("mongodb+srv://", "")
-            uri = uri.replace("mongodb://", "")
-
-        # Construct the final URI with the correct schema
-        final_uri = f"{schema}://{uri}"
-
-        if dlite.asbool(parsed_options.mock):
-            import mongomock
-
-            mongo_url = urlparse(f"mongodb://{uri}")
-            port = mongo_url.port if mongo_url.port else 27017
-
-            @mongomock.patch(servers=((mongo_url.hostname, port),))
-            def get_client():
-                return open_client()
-
-        else:
-
-            def get_client():
-                return open_client()
-
-        def open_client():
-            client = pymongo.MongoClient(
-                host=final_uri,
-                username=user,
-                password=password,
-                **client_options,
-            )
-            return client
-
-        self.client = get_client()
-        self.collection = self.client[parsed_options.database][
-            parsed_options.collection
-        ]
-        self.options = parsed_options
+        keys = ["mode", "database", "collection"]
+        client_options = {k: v for k, v in opt.items() if k not in keys}
+        self.client = pymongo.MongoClient(uri, **client_options)
+        self.collection = self.client[opt.database][opt.collection]
+        self.options = opt
+        self.readable = ("r" in opt.mode) | ("w" in opt.mode)
+        self.writable = "w" in opt.mode
 
     def close(self):
         """Closes the MongoDB connection."""
@@ -121,7 +64,7 @@ class mongodb(dlite.DLiteStorageBase):
         document = self.collection.find_one({"uuid": uuid})
         if not document:
             raise IOError(
-                f"No instance with uuid={uuid} in MongoDB database "
+                f"No instance with {uuid} in MongoDB database "
                 f'"{self.collection.database.name}" and collection '
                 f'"{self.collection.name}"'
             )
@@ -140,9 +83,17 @@ class mongodb(dlite.DLiteStorageBase):
         if pattern:
             # MongoDB supports PCRE, which is created by fnmatch.translate()
             mongo_regex = {"$regex": fnmatch.translate(pattern)}
-            filter = {"meta": mongo_regex}
+            filters = {"meta": mongo_regex}
         else:
-            filter = {}
-
-        for doc in self.collection.find(filter=filter, projection=["uuid"]):
+            filters = {}
+        for doc in self.collection.find(filter=filters, projection=["uuid"]):
             yield doc["uuid"]
+
+    def delete(self, uid):
+        """Delete instance with given `uid` from storage.
+
+        Arguments:
+            id: UUID of instance to delete.
+        """
+        result = self.collection.delete_one({"uuid": uid})
+        return result.deleted_count == 1

@@ -169,7 +169,8 @@ static DLiteInstance *_instance_store_get(const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
   if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
-    return errx(dliteValueError, "id '%s' is neither a valid UUID or a convertible string",
+    return errx(dliteValueError,
+                "id '%s' is neither a valid UUID or a convertable string",
                 id), NULL;
   if (!(instp = map_get(istore, uuid))) return NULL;
   return *instp;
@@ -709,8 +710,10 @@ DLiteInstance *dlite_instance_get(const char *id)
     DLiteStorage *s;
     char *copy, *driver, *location, *options;
 
-    if (!(copy = strdup(url)))
-     return err(dliteMemoryError, "allocation failure"), NULL;
+    if (!(copy = strdup(url))) {
+      err(dliteMemoryError, "allocation failure");
+      break;
+    }
 #ifdef _WIN32
     /* Hack: on Window, don't interpreat the "C" in urls starting with
        "C:\" or "C:/" as a driver, but rather as a part of the location...
