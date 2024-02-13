@@ -230,3 +230,119 @@ for key in mapping:
 
 
 More examples of how to use DLite are available in the [examples](https://github.com/SINTEF/dlite/tree/master/examples) directory.
+
+
+## Working with physical quantities
+
+As you can read in the previous sections, a property of a dlite entity can be
+defined with a **unit** (a unit of measurement). The dlite.Instance object can
+set (or get) their properties from (or to) physical quanities (the product of a
+numerical value and a unit of measurement). The dlite library uses the physical
+quantities defined and implemented by the Python package
+[pint](https://pint.readthedocs.io/en/stable/getting/overview.html).
+
+> You must install pint if you want to to work with physical quantities,
+> try to run the command ```pip install pint```, see the page
+> [pint installation](https://pint.readthedocs.io/en/stable/getting/index.html#installation).
+
+This section illustrates how to work with physical quantities when manipulating
+the dlite **instance** objects. The code example will use the following data model:
+
+```yaml
+uri: http://onto-ns.com/meta/0.1/BodyMassIndex
+description: The body mass index of a person.
+properties:
+  name:
+    type: string
+    description: Name of the person.
+  age:
+    type: float32
+    unit: year
+    description: Age of the person.
+  height:
+    type: float
+    unit: cm
+    description: Height of the person.
+  weight:
+    type: float
+    unit: kg
+    description: Weight of the person.
+  bmi:
+    type: float
+    unit: kg/m^2
+    description: Body mass index.
+  category:
+    type: string
+    description: Underweight, normal, or overweight.
+```
+
+The code below will create one BodyMassIndex instance object (variable ```person```) and assign the properties of the ```person``` using physical quantities. You can use the method ```person.set_quantity``` to set a property with a quantity or you can use the shortcut ```person.q``` like shown below:
+
+```python
+BodyMassIndex = dlite.get_instance("http://onto-ns.com/meta/0.1/BodyMassIndex")
+# create a BodyMassIndex instance
+person = BodyMassIndex()
+# assign the name of the person
+person.name = "John Doe"
+# assign the age of the person without a physical quantity
+person.age = 5
+assert person.age == 5.0
+# assign the age of the person with a physical quantity
+person.set_quantity("age", 3.0, "years")
+assert person.age == 3.0
+person.q.age = (1461, "days")
+assert person.age == 4.0
+# assign the height and the weight
+person.q.height = "1.72m"
+person.q.weight = "63kg"
+assert person.height == 172.0
+assert person.weight == 63.0
+# compute the BMI
+person.q.bmi = person.q.weight.to("kg") / person.q.height.to("m") ** 2
+assert np.round(person.get_quantity("bmi").magnitude) == 21.0
+# the following line will give the same result as the line above
+person.q.bmi = person.q.weight / person.q.height ** 2
+# the following line will raise a TypeError exception, because the property
+# "category" with the type "string" cannot be converted into a quantity.
+category = person.q.category
+# assign the category
+person.category = "normal"
+if person.bmi < 18.5:
+    person.category = = "underweight"
+elif person.bmi >= 25.0:
+    person.category = "overweight"
+```
+
+> If you need in your program to use a specific units registry, use the function
+> [pint.set_application_registry](https://pint.readthedocs.io/en/0.10.1/tutorial.html#using-pint-in-your-projects)
+
+The Python property ```q``` of the dlite.Instance objects as some other methods:
+
+```python
+assert person.q.names() == ["age", "height", "weight", "bmi"]
+assert person.q.units() == ["year", "cm", "kg", "kg/m^2"]
+for name, quantity in persion.q.items():
+    quantity.defaut_format = "~"  # format the unit with a compact format
+    print(f"{name} = {quantity}")
+```
+
+> see [quantity formatting](https://pint.readthedocs.io/en/stable/user/formatting.html)
+
+You should not keep the Python property ```q``` as a local variable, it will result with wrong assigment if you work with several instances.
+
+```python
+# >>> don't do that
+p1 = person1.q  
+p2 = person2.q
+# this will assign the weight to person2, and not to person1
+p1.weight = "34kg"  
+# <<< 
+# you must write this code
+person1.q.weight = "34kg"
+person2.q.weight = "32kg"
+# for more complex formula, you can get the quantities in local variables
+w1, h1 = person1.q.get("weight", "height")
+w2, h2, a2 = person2.q.get("weight", "height", "age")
+```
+
+The first line of the code above prepare the [singleton](https://www.geeksforgeeks.org/singleton-pattern-in-python-a-complete-guide/) dlite.quantity.QuantityHelper for the person1 and return the singleton. The second line do the same as the first line, so the variable ```p2``` is the singleton and is prepared to work on ```person2```.

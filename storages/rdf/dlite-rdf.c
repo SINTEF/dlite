@@ -232,6 +232,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
 int rdf_close(DLiteStorage *storage)
 {
   RdfStorage *s = (RdfStorage *)storage;
+  int retval = 0;
 
   if (s->flags & dliteWritable) {
     librdf_world *world = triplestore_get_world(s->ts);
@@ -247,6 +248,7 @@ int rdf_close(DLiteStorage *storage)
     if (s->filename) {
       unsigned char *buf;
       librdf_uri *base_uri=NULL, *type_uri=NULL;
+      FILE *fp;
       if (s->base_uri)
         base_uri = librdf_new_uri(world, (unsigned char *)s->base_uri);
       if (s->type_uri)
@@ -257,10 +259,11 @@ int rdf_close(DLiteStorage *storage)
 
       if (strcmp(s->filename, "-") == 0) {
         fprintf(stdout, "%s", buf);
-      } else {
-        FILE *fp = fopen(s->filename, "w");
+      } else if ((fp = fopen(s->filename, "w"))) {
         fprintf(fp, "%s", buf);
         fclose(fp);
+      } else {
+        retval = err(dliteIOError, "cannot write rdf file: %s", s->filename);
       }
 
       if (base_uri) librdf_free_uri(base_uri);
@@ -276,7 +279,7 @@ int rdf_close(DLiteStorage *storage)
   if (s->format) free(s->format);
   if (s->mime_type) free(s->mime_type);
   if (s->type_uri) free(s->type_uri);
-  return 0;
+  return retval;
 }
 
 
@@ -289,7 +292,7 @@ static const char *getobj(RdfStorage *rdf, const char *s, const char *p,
 {
   TripleStore *ts = rdf->ts;
   const Triple *t;
-  if (!(t = triplestore_find_first(ts, s, p, NULL))) {
+  if (!(t = triplestore_find_first(ts, s, p, NULL, NULL))) {
     if (verbose) err(1, "missing s='%s' p='%s': %s", s, p, rdf->location);
     return NULL;
   }
@@ -302,7 +305,7 @@ static int count(TripleStore *ts, const char *s, const char *p, const char *o)
   TripleState state;
   int n=0;
   triplestore_init_state(ts, &state);
-  while (triplestore_find(&state, s, p, o)) n++;
+  while (triplestore_find(&state, s, p, o, NULL)) n++;
   triplestore_deinit_state(&state);
   return n;
 }
@@ -323,32 +326,39 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   int ok=0, n, j;
   char uuid[DLITE_UUID_LENGTH+1], muuid[DLITE_UUID_LENGTH+1];
   char *pid=NULL, *mid=NULL, *propiri=NULL;
+  const char *value;
 
   errno = 0;
-  dlite_get_uuid(uuid, id);
-  pid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, uuid) : NULL;
 
   /* find instance and metadata UUIDs */
-  triplestore_init_state(ts, &state);
-  while ((t2 = triplestore_find(&state, pid, _P ":hasMeta", NULL))) {
-    if (t) FAIL1("ID must be provided if storage holds "
-                 "more than one instance: %s", s->location);
-    t = t2;
-  }
-  triplestore_deinit_state(&state);
-  if (t) {
-    dlite_get_uuid(muuid, t->o);
+  if (id) {
+    dlite_get_uuid(uuid, id);
+    pid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, uuid) : NULL;
+    if (!(value = triplestore_value(ts, pid, _P ":hasMeta", NULL, NULL,
+                                  NULL, 0)))
+      FAILCODE2(dliteSearchError,
+                "cannot find instance '%s' in RDF storage: %s",
+                pid, s->location);
+    dlite_get_uuid(muuid, value);
   } else {
     triplestore_init_state(ts, &state);
-    while ((t2 = triplestore_find(&state, pid, _P ":hasURI", NULL))) {
-      if (t) FAIL1("ID must be provided if storage holds "
-                   "more than one instance: %s", s->location);
-      t = t2;
+    if ((t = triplestore_find(&state, NULL, _P ":hasMeta", NULL, NULL))) {
+      pid = strdup(t->s);
+      dlite_get_uuid(muuid, t->o);
     }
+    t2 = triplestore_find(&state, NULL, _P ":hasMeta", NULL, NULL);
     triplestore_deinit_state(&state);
-    dlite_get_uuid(muuid, DLITE_ENTITY_SCHEMA);
+    if (!t) FAILCODE1(dliteSearchError,
+                      "no instances in RDF storage: %s", s->location);
+
+    if (t2) FAILCODE1(dliteSearchError, "ID must be provided if storage "
+                      "holds more than one instance: %s", s->location);
+    if (!(value = triplestore_value(ts, pid, _P ":hasUUID", NULL, NULL,
+                                    NULL, 0)))
+      FAILCODE2(dliteInconsistentDataError, "instance '%s' has no "
+                _P ":hasUUID relation in RDF storage: %s", pid, s->location);
+    dlite_get_uuid(uuid, value);
   }
-  if (!t) FAIL2("no instance with id '%s' in store: %s", id, s->location);
 
   /* get/load metadata */
   mid = (s->base_uri) ? aprintf("%s:%s", s->base_uri, muuid) : NULL;
@@ -361,12 +371,12 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     const char *name, *val;
     if (!(dims = calloc(meta->_ndimensions, sizeof(size_t))))
       FAILCODE(dliteMemoryError, "allocation failure");
-    if (triplestore_find_first(ts, pid, _P ":hasDimensionValue", NULL)) {
+    if (triplestore_find_first(ts, pid, _P ":hasDimensionValue", NULL, NULL)) {
       /* -- read dimension values */
       n = 0;
       triplestore_init_state(ts, &state);
       while ((t = triplestore_find(&state, pid, _P ":hasDimensionValue",
-                                   NULL))) {
+                                   NULL, NULL))) {
         char *dimval = strdup(t->o);
         if (!(name = getobj(s, dimval, _P ":hasLabel", 1))) goto fail;
         j = dlite_meta_get_dimension_index(meta, name);
@@ -390,15 +400,18 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     }
   }
 
-  if (!(inst = dlite_instance_create(meta, shape, (id) ? id : uuid))) goto fail;
-  if (!inst->uri && (t = triplestore_find_first(ts, pid, _P ":hasURI", NULL)))
+  if (!(inst = dlite_instance_create(meta, dims, (id) ? id : uuid))) goto fail;
+  if (!inst->uri && (t = triplestore_find_first(ts, pid, _P ":hasURI", NULL,
+                                                NULL)))
     inst->uri = strdup(t->o);
 
   /* FIXME - should have been called by dlite_instance_create() */
   if (dlite_instance_is_meta(inst)) dlite_meta_init((DLiteMeta *)inst);
 
   n = 0;
-  while ((t = triplestore_find(&state, pid, _P ":hasPropertyValue", NULL))) {
+  triplestore_init_state(ts, &state);
+  while ((t = triplestore_find(&state, pid, _P ":hasPropertyValue", NULL,
+                               NULL))) {
     /* -- read property values */
     DLiteProperty *p;
     const char *name, *val;
@@ -444,7 +457,8 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     /* -- read dimensions */
     d = dlite_instance_get_property(inst, "dimensions");
     triplestore_init_state(ts, &state);
-    while ((t = triplestore_find(&state, pid, _P ":hasDimension", NULL))) {
+    while ((t = triplestore_find(&state, pid, _P ":hasDimension", NULL,
+                                 NULL))) {
       propiri = strdup(t->o);
       if (!(str = getobj(s, propiri, _P ":hasLabel", 1))) goto fail;
       d->name = strdup(str);
@@ -460,7 +474,8 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     /* -- read properties */
     p = dlite_instance_get_property(inst, "properties");
     triplestore_init_state(ts, &state);
-    while ((t = triplestore_find(&state, pid, _P ":hasProperty", NULL))) {
+    while ((t = triplestore_find(&state, pid, _P ":hasProperty", NULL,
+                                 NULL))) {
       const char *name, *typename, *shape, *unit, *descr;
 
       /* save propiri so it is not overwritten by getobj() */
@@ -517,7 +532,6 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
   if (propiri) free(propiri);
   if (dims) free(dims);
   if (!ok && inst) dlite_instance_decref(inst);
-  triplestore_deinit_state(&state);
   return (ok) ? inst : NULL;
 }
 
@@ -556,10 +570,10 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
     triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Entity");
   else
     triplestore_add_uri(ts, inst->uuid, "rdf:type", _P ":Object");
-  triplestore_add(ts, inst->uuid, _P ":hasUUID", inst->uuid);
-  triplestore_add(ts, inst->uuid, _P ":hasMeta", inst->meta->uri);
+  triplestore_add(ts, inst->uuid, _P ":hasUUID", inst->uuid, "xsd:anyURI");
+  triplestore_add(ts, inst->uuid, _P ":hasMeta", inst->meta->uri, NULL);
   if (inst->uri)
-    triplestore_add(ts, inst->uuid, _P ":hasURI", inst->uri);
+    triplestore_add(ts, inst->uuid, _P ":hasURI", inst->uri, NULL);
 
   /* Describe metadata with spesialised properties */
   if (meta && s->fmtflags & fmtMetaAnnot) {
@@ -573,7 +587,7 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
       if (!(b1 = get_blank_node(ts, buf))) goto fail;
       triplestore_add_uri(ts, inst->uuid, _P ":hasDimension", b1);
       triplestore_add_uri(ts, b1, "rdf:type", _P ":Dimension");
-      triplestore_add(ts, b1, _P ":hasLabel", d->name);
+      triplestore_add(ts, b1, _P ":hasLabel", d->name, "xsd:Name");
       triplestore_add_en(ts, b1, _P ":hasDescription", d->description);
       free(b1);
     }
@@ -588,18 +602,19 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
       if (!(b2 = get_blank_node(ts, buf2))) goto fail;
       triplestore_add_uri(ts, inst->uuid, _P ":hasProperty", b1);
       triplestore_add_uri(ts, b1, "rdf:type", _P ":Property");
-      triplestore_add(ts, b1, _P ":hasLabel", p->name);
-      triplestore_add(ts, b1, _P ":hasType", typename);
+      triplestore_add(ts, b1, _P ":hasLabel", p->name, "xsd:Name");
+      triplestore_add(ts, b1, _P ":hasType", typename, "xsd:Name");
       if (p->ndims)
         triplestore_add_uri(ts, b1, _P ":hasFirstShape", b2);
       if (p->unit)
-        triplestore_add(ts, b1, _P ":hasUnit", p->unit);
+        triplestore_add(ts, b1, _P ":hasUnit", p->unit, "xsd:Name");
       if (p->description)
         triplestore_add_en(ts, b1, _P ":hasDescription", p->description);
 
       if (p->shape) {
         triplestore_add_uri(ts, b2, "rdf:type", _P ":Shape");
-        triplestore_add(ts, b2, _P ":hasDimensionExpression", p->shape[0]);
+        triplestore_add(ts, b2, _P ":hasDimensionExpression", p->shape[0],
+                        "xsd:string");
       }
       for (j=1; j < p->ndims; j++) {
         char *b;
@@ -607,7 +622,8 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
         if (!(b = get_blank_node(ts, buf2))) goto fail;
         triplestore_add_uri(ts, b2, _P ":hasNextShape", b);
         triplestore_add_uri(ts, b, "rdf:type", _P ":Shape");
-        triplestore_add(ts, b, _P ":hasDimensionExpression", p->shape[j]);
+        triplestore_add(ts, b, _P ":hasDimensionExpression", p->shape[j],
+                        "xsd:string");
         free(b2);
         b2 = b;
       }
@@ -625,9 +641,8 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
       asnprintf(&buf, &bufsize, "%d",
                 (int)dlite_instance_get_dimension_size_by_index(inst, i));
       triplestore_add_uri(ts, inst->uuid, _P ":hasDimensionValue", b1);
-      triplestore_add(ts, b1, _P ":hasLabel", name);
-      triplestore_add2(ts, b1, _P ":hasDimensionSize", buf,
-                       1, NULL, "xsd:integer");
+      triplestore_add(ts, b1, _P ":hasLabel", name, "xsd:Name");
+      triplestore_add(ts, b1, _P ":hasDimensionSize", buf, "xsd:integer");
       free(b1);
     }
 
@@ -642,11 +657,10 @@ int rdf_save_instance(DLiteStorage *storage, const DLiteInstance *inst)
       triplestore_add_uri(ts, inst->uuid, _P ":hasPropertyValue", b1);
       triplestore_add_uri(ts, b1, "rdf:type", "owl:NamedIndividual");
       triplestore_add_uri(ts, b1, "rdf:type", _P ":PropertyValue");
-      triplestore_add(ts, b1, _P ":hasLabel", name);
+      triplestore_add(ts, b1, _P ":hasLabel", name, "xsd:Name");
       dlite_property_aprint(&buf, &bufsize, 0, ptr, p, shape, 0, -2,
                             dliteFlagRaw | dliteFlagStrip);
-      triplestore_add2(ts, b1, _P ":hasValue", buf, 1, NULL,
-                       "rdf:PlainLiteral");
+      triplestore_add(ts, b1, _P ":hasValue", buf, "rdf:PlainLiteral");
       free(b1);
     }
   }
@@ -700,7 +714,7 @@ int rdf_iter_next(void *iter, char *buf)
   RdfIter *riter = iter;
   const Triple *t;
   while (1) {
-    t = triplestore_find(&riter->state, NULL, _P ":hasMeta", NULL);
+    t = triplestore_find(&riter->state, NULL, _P ":hasMeta", NULL, NULL);
     if (!t) return 1;
     if (!riter->pattern) break;
     if (globmatch(riter->pattern, t->o) == 0) break;

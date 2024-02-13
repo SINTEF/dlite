@@ -22,11 +22,11 @@ class Metadata(Instance):
         description: Description of metadata.
     """
     def __new__(
-            cls,
-            uri: str,
-            dimensions: "Sequence[Dimension]",
-            properties: "Sequence[Property]",
-            description: str = ''
+        cls,
+        uri: str,
+        dimensions: "Sequence[Dimension]",
+        properties: "Sequence[Property]",
+        description: str = ''
     ):
         return Instance.create_metadata(
             uri, dimensions, properties, description)
@@ -97,7 +97,7 @@ class Metadata(Instance):
         lst = [p for p in self.properties["properties"] if p.name == name]
         if lst:
             return lst[0]
-        raise _dlite.DLiteError(
+        raise _dlite.DLiteKeyError(
             f"Metadata {self.uri} has no such property: {name}")
 
     def dimnames(self):
@@ -161,12 +161,8 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         inst = _dlite.get_instance(id, metaid, check_storages)
 
     if inst is None:
-        raise _dlite.DLiteError(f"no such instance: {id}")
-    elif inst.is_meta:
-        inst.__class__ = Metadata
-    elif inst.meta.uri == COLLECTION_ENTITY:
-        inst.__class__ = Collection
-    return inst
+        raise _dlite.DLiteMissingInstanceError(f"no such instance: {id}")
+    return instance_cast(inst)
 
 %}
 
@@ -266,8 +262,22 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 %extend _Triple {
   %pythoncode %{
     def __repr__(self):
-        return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
-            self.s, self.p, self.o, self.id)
+        args = [f"s='{self.s}', p='{self.p}', o='{self.o}'"]
+        if self.d:
+            args.append(f"d='{self.d}'")
+        if self.id:
+            args.append(f"id='{self.id}'")
+        return f"Relation({', '.join(args)})"
+
+    def __eq__(self, other):
+        if isinstance(other, Relation):
+            return (self.s == other.s and self.p == other.p and
+                    self.o == other.o and self.d == other.d)
+        return NotImplemented
+
+    def copy(self):
+        """Returns a copy of self."""
+        return Relation(s=self.s, p=self.p, o=self.o, d=self.d, id=self.id)
 
     def aspreferred(self):
         """Returns preferred Python representation."""
@@ -278,7 +288,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         d = dict(s=self.s, p=self.p, o=self.o)
         if self.id:
             d[id] = self.id
-
         return d
 
     def asstrings(self):
@@ -291,7 +300,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 /* --------
  * Instance
  * -------- */
-
 %extend _DLiteInstance {
 
   int __len__(void) {
@@ -339,10 +347,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
             raise _dlite.DLitePythonError(f"cannot initiate dlite.Instance")
-        elif self.is_meta:
-            self.__class__ = Metadata
-        elif self.meta.uri == COLLECTION_ENTITY:
-            self.__class__ = Collection
+        instance_cast(self)
 
     def get_meta(self):
         """Returns reference to metadata."""
@@ -356,7 +361,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         for p in self.meta['properties']:
             if p.name == name:
                 return p
-        raise ValueError(f'No property "{name}" in "{self.uri}"')
+        raise ValueError(
+            f'No property "{name}" in '
+            f'"{self.uri if self.uri else self.meta.uri}"'
+        )
 
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
     dimensions = property(
@@ -571,33 +579,40 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         elif isinstance(dest, str):
             self.save_to_url(dest)
         else:
-            raise _dlite.DLiteError('Arguments do not match any call signature')
+            raise _dlite.DLiteTypeError(
+                'Arguments to save() do not match any of the call signatures'
+            )
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
             value = self.get_property_by_index(ind)
         elif self.has_property(ind):
-            value = self.get_property(ind)
+            value = _get_property(self, ind)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
 
     def __setitem__(self, ind, value):
         if self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support item assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f'frozen instance does not support assignment of property '
+                f'{ind}')
         if isinstance(ind, int):
             self.set_property_by_index(ind, value)
         elif self.has_property(ind):
-            self.set_property(ind, value)
+            _set_property(self, ind, value)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
 
     def __contains__(self, item):
         return item in self.properties.keys()
@@ -613,7 +628,9 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         elif self.has_dimension(name):
             value = self.get_dimension_size(name)
         else:
-            raise AttributeError('Instance object has no attribute %r' % name)
+            raise _dlite.DLiteAttributeError(
+                'Instance object has no attribute %r' % name
+            )
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
@@ -622,8 +639,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if name == 'this':
             object.__setattr__(self, name, value)
         elif self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support attribute assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f"frozen instance does not support assignment of property "
+                f"'{name}'"
+            )
         elif _has_property(self, name):
             _set_property(self, name, value)
         else:
@@ -648,11 +667,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         will be the id of the new instance, otherwise it will be given
         a random UUID."""
         newinst = self._copy(newid=newid)
-        if newinst.is_meta:
-            newinst.__class__ = Metadata
-        elif newinst.meta.uri == COLLECTION_ENTITY:
-            newinst.__class__ = Collection
-        return newinst
+        return instance_cast(newinst)
 
     def __reduce__(self):
         # ensures that instances can be pickled
@@ -782,7 +797,17 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             DeprecationWarning, stacklevel=2)
         return self.copy()
 
+    @property
+    def q(self):
+        """ to work with quantities """
+        from dlite.quantity import get_quantity_helper
+        return get_quantity_helper(self)
+
+    def get_quantity(self, name):
+        return self.q[name]
+
+    def set_quantity(self, name, value, unit):
+        self.q[name] = (value, unit)
+
 %}
-
-
 }

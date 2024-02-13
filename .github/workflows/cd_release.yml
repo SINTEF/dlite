@@ -153,7 +153,7 @@ jobs:
       shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
     - name: Set up Python 3
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
         architecture: ${{ matrix.arch == '' && 'x86' || 'x64' }}
@@ -208,7 +208,7 @@ jobs:
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
     - name: Set up Python 3.9
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.9"
 

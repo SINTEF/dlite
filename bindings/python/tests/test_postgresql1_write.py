@@ -9,6 +9,9 @@ from check_import import check_import
 
 # Paths
 thisdir = Path(__file__).resolve().parent
+indir = thisdir / "input"
+outdir = thisdir / "output"
+entitydir = thisdir / "entities"
 
 
 def parse_pgconf():
@@ -54,14 +57,14 @@ check_import("psycopg2", skip=True)
 ping_server()
 
 # Add metadata to search path
-dlite.storage_path.append(f"{thisdir}/Person.json")
-dlite.storage_path.append(f"{thisdir}/SimplePerson.json")
+dlite.storage_path.append(f"{entitydir}/Person.json")
+dlite.storage_path.append(f"{entitydir}/SimplePerson.json")
 
 # Load dataset
 host, user, database, password = parse_pgconf()
 inst = dlite.Instance.from_location(
     "json",
-    f"{thisdir}/persons.json",
+    f"{indir}/persons.json",
     id="Cleopatra",
 )
 

@@ -14,9 +14,10 @@ from dlite.utils import (
 
 
 thisdir = Path(__file__).absolute().parent
-dlite.storage_path.append(thisdir / "input" / "*.json")
+entitydir = thisdir / "entities"
+dlite.storage_path.append(entitydir / "*.json")
 
-with open(thisdir / "Person.json", "rt") as f:
+with open(entitydir / "Person.json", "rt") as f:
     d = json.load(f)
 Person = dlite.utils.instance_from_dict(d)
 
@@ -67,9 +68,7 @@ inst = instance_from_dict(d)
 print(inst)
 
 
-url = "json://" + os.path.join(thisdir, "Person.json")
-Person = dlite.Instance.from_url(url)
-
+Person = dlite.Instance.from_url(f"json://{entitydir}/Person.json")
 person = Person([2])
 person.name = "Ada"
 person.age = 12.5
