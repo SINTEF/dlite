@@ -390,7 +390,7 @@ DLiteInstance *rdf_load_instance(const DLiteStorage *storage, const char *id)
     }
   }
 
-  if (!(inst = dlite_instance_create(meta, shape, (id) ? id : uuid))) goto fail;
+  if (!(inst = dlite_instance_create(meta, dims, (id) ? id : uuid))) goto fail;
   if (!inst->uri && (t = triplestore_find_first(ts, pid, _P ":hasURI", NULL)))
     inst->uri = strdup(t->o);
 
