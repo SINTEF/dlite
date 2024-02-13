@@ -25,9 +25,14 @@ foreach(source ${sources})
 endforeach()
 set_target_properties(dlite-fortran PROPERTIES PUBLIC_HEADER "${modules}")
 
-## Install modules in 
+## Install modules in
 install(TARGETS dlite-fortran
+  EXPORT  dliteTargets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
   PUBLIC_HEADER DESTINATION include/dlite
+  INCLUDES DESTINATION include/dlite
 )
 
 
