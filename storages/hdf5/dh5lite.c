@@ -99,19 +99,19 @@ static hid_t get_memtype(DLiteType type, size_t size)
 }
 
 
-/* Returns the HDF5 data space identifier corresponding to `ndims` and `dims`.
-   If `dims` is NULL, length of all dimensions are assumed to be one.
+/* Returns the HDF5 data space identifier corresponding to `ndims` and `shape`.
+   If ` shape` is NULL, length of all dimensions are assumed to be one.
    Returns -1 on error.
 
    On success, the returned identifier should be closed with H5Sclose(). */
-static hid_t get_space(size_t ndims, const size_t *dims)
+static hid_t get_space(size_t ndims, const size_t *shape)
 {
   hid_t space=-1;
   hsize_t *hdims=NULL;
   size_t i;
   if (!(hdims = calloc(ndims, sizeof(hsize_t))))
     return err(dliteMemoryError, "allocation failure");
-  for (i=0; i<ndims; i++) hdims[i] = (dims) ? dims[i] : 1;
+  for (i=0; i<ndims; i++) hdims[i] = (shape) ? shape[i] : 1;
   if ((space = H5Screate_simple(ndims, hdims, NULL)) < 0)
     space = errx(dliteIOError, "cannot create hdf5 data space");
  /* fail: */
@@ -154,7 +154,7 @@ static DLiteType get_type(hid_t dtype)
 /* Copied hdf5  dataset `name` in `group` to memory pointed to by `ptr`.
 
    Multi-dimensional arrays are supported.  `size` is the size of each
-   data element, `ndims` is the number of dimensions and `dims` is an
+   data element, `ndims` is the number of dimensions and ` shape` is an
    array of dimension sizes.
 
    Returns non-zero on error.
@@ -162,7 +162,7 @@ static DLiteType get_type(hid_t dtype)
 static int get_data(const DLiteDataModel *d, hid_t group,
                     const char *name, void *ptr,
                     DLiteType type, size_t size,
-                    size_t ndims, const size_t *dims)
+                    size_t ndims, const size_t *shape)
 {
   hid_t memtype=0, space=0, dspace=0, dset=0, dtype=0;
   htri_t isvariable;
@@ -175,7 +175,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
 
   errno=0;
   if ((memtype = get_memtype(type, size)) < 0) goto fail;
-  if ((space = get_space(ndims, dims)) < 0) goto fail;
+  if ((space = get_space(ndims, shape)) < 0) goto fail;
 
   /* Get: dset, dtype, dsize, dspace, dndims, ddims, */
   if ((dset = H5Dopen2(group, name, H5P_DEFAULT)) < 0)
@@ -191,7 +191,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   if (!(ddims = calloc(sizeof(hsize_t), dndims)))
     FAILCODE(dliteMemoryError, "allocation failure");
   if ((stat = H5Sget_simple_extent_dims(dspace, ddims, NULL)) < 0)
-    DFAIL1(dliteStorageLoadError, d, "cannot get dims of '%s'", name);
+    DFAIL1(dliteStorageLoadError, d, "cannot get shape of '%s'", name);
 
   /* Check that dimensions matches */
   if (dndims == 0 && ndims == 1)
@@ -200,11 +200,11 @@ static int get_data(const DLiteDataModel *d, hid_t group,
     DFAIL3(dliteIndexError, d, "trying to read '%s' with ndims=%lu, but ndims=%d",
            name, ndims, dndims);
     for (i=0; i<ndims; i++)
-      if (ddims[i] != (hsize_t)((dims) ? dims[i] : 1))
+      if (ddims[i] != (hsize_t)((shape) ? shape[i] : 1))
         DFAIL4(dliteIndexError, d, "dimension %lu of '%s': expected %lu, got %d",
-               i, name, (dims) ? dims[i] : 1, (int)ddims[i]);
+               i, name, (shape) ? shape[i] : 1, (int)ddims[i]);
   }
-  for (i=0; i<ndims; i++) nmemb *= (dims) ? dims[i] : 1;
+  for (i=0; i<ndims; i++) nmemb *= (shape) ? shape[i] : 1;
 
   /* Get type of data saved in the hdf5 file */
   if ((savedtype = get_type(dtype)) < 0)
@@ -289,7 +289,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
 /* Copies memory pointed to by `ptr` to hdf5 dataset `name` in `group`.
 
    Multi-dimensional arrays are supported.  `size` is the size of each
-   data element, `ndims` is the number of dimensions and `dims` is an
+   data element, `ndims` is the number of dimensions and ` shape` is an
    array of dimension sizes.
 
    Returns non-zero on error.
@@ -297,7 +297,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
 static int set_data(DLiteDataModel *d, hid_t group,
                     const char *name, const void *ptr,
                     DLiteType type, size_t size,
-                    size_t ndims, const size_t *dims)
+                    size_t ndims, const size_t *shape)
 {
   hid_t memtype=0, space=0, dset=0;
   herr_t stat;
@@ -313,7 +313,7 @@ static int set_data(DLiteDataModel *d, hid_t group,
     DFAIL1(dliteIOError, d, "cannot delete dataset '%s' for overwrite", name);
 
   if ((memtype = get_memtype(type, size)) < 0) goto fail;
-  if ((space = get_space(ndims, dims)) < 0) goto fail;
+  if ((space = get_space(ndims, shape)) < 0) goto fail;
 
   if ((dset = H5Dcreate(group, name, memtype, space,
                         H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT)) < 0)
@@ -610,10 +610,10 @@ int dh5_get_dimension_size(const DLiteDataModel *d, const char *name)
  */
 int dh5_get_property(const DLiteDataModel *d, const char *name, void *ptr,
                      DLiteType type, size_t size,
-                     size_t ndims, const size_t *dims)
+                     size_t ndims, const size_t *shape)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
-  return get_data(d, dh5->properties, name, ptr, type, size, ndims, dims);
+  return get_data(d, dh5->properties, name, ptr, type, size, ndims, shape);
 }
 
 
@@ -627,18 +627,18 @@ int dh5_get_property(const DLiteDataModel *d, const char *name, void *ptr,
 int dh5_set_meta_uri(DLiteDataModel *d, const char *uri)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
-  size_t dims[1]={1};
+  size_t shape[1]={1};
   char *name, *version, *namespace;
 
   if (dlite_split_meta_uri(uri, &name, &version, &namespace))
     return 1;
 
   set_data(d, dh5->meta, "name", name, dliteFixString,
-           strlen(name), 1, dims);
+           strlen(name), 1, shape);
   set_data(d, dh5->meta, "version", version, dliteFixString,
-           strlen(version), 1, dims);
+           strlen(version), 1, shape);
   set_data(d, dh5->meta, "namespace", namespace, dliteFixString,
-           strlen(namespace), 1, dims);
+           strlen(namespace), 1, shape);
 
   free(name);
   free(version);
@@ -653,11 +653,11 @@ int dh5_set_meta_uri(DLiteDataModel *d, const char *uri)
 int dh5_set_dimension_size(DLiteDataModel *d, const char *name, size_t size)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
-  size_t dims[1]={1};
+  size_t shape[1]={1};
   int64_t dsize=size;
 
   return set_data(d, dh5->dimensions, name, &dsize, dliteInt,
-                  sizeof(int64_t), 1, dims);
+                  sizeof(int64_t), 1, shape);
 }
 
 
@@ -667,10 +667,10 @@ int dh5_set_dimension_size(DLiteDataModel *d, const char *name, size_t size)
 */
 int dh5_set_property(DLiteDataModel *d, const char *name, const void *ptr,
                      DLiteType type, size_t size,
-                     size_t ndims, const size_t *dims)
+                     size_t ndims, const size_t *shape)
 {
   DH5DataModel *dh5 = (DH5DataModel *)d;
-  return set_data(d, dh5->properties, name, ptr, type, size, ndims, dims);
+  return set_data(d, dh5->properties, name, ptr, type, size, ndims, shape);
 }
 
 

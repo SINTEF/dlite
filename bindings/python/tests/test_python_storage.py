@@ -63,7 +63,7 @@ with dlite.Storage("json", outdir / "test_python_storage.json", "mode=r") as s:
     inst = s.load(id=person.uuid)
 
 
-person2 = Person(dims=[3])
+person2 = Person(dimensions=[3])
 person2.name = "Berry"
 person2.age = 24.3
 person2.skills = ["eating", "sleeping", "reading"]

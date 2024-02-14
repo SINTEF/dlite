@@ -80,14 +80,14 @@ MU_TEST(test_print)
   mu_assert_string_eq("{\"name\": \"N\", "
                       "\"description\": \"number of something\"}", s);
 
-  char *dims[] = {"M", "N"};
-  DLiteProperty p = {"x", dliteInt, 4, NULL, 2, dims, "m", "about x..."};
+  char *shape[] = {"M", "N"};
+  DLiteProperty p = {"x", dliteInt, 4, NULL, 2, shape, "m", "about x..."};
   prop.type = dliteProperty;
   prop.size = sizeof(p);
   m = dlite_property_aprint(&s, &size, n, &p, &prop, NULL, 0, -2, 0);
-  mu_assert_int_eq(104, m);
+  mu_assert_int_eq(105, m); //104
   mu_assert_string_eq("{\"name\": \"x\", \"type\": \"int32\", \"ndims\": 2, "
-                      "\"dims\": [\"M\", \"N\"], \"unit\": \"m\", "
+                      "\"shape\": [\"M\", \"N\"], \"unit\": \"m\", "
                       "\"description\": \"about x...\"}", s);
 
   DLiteRelation rel = {"subject", "predicate", "object", "datatype", NULL};
@@ -110,12 +110,12 @@ MU_TEST(test_print_arr)
   int m, n=0;
   memset(&prop, 0, sizeof(prop));
 
-  size_t dims[] = {2, 3};
+  size_t shape[] = {2, 3};
   bool b[2][3] = {{1, 0, 1}, {0, 0, 1}};
   prop.type = dliteBool;
   prop.size = sizeof(bool);
   prop.ndims = 2;
-  m = dlite_property_aprint(&s, &size, n, b, &prop, dims, 0, -2, 0);
+  m = dlite_property_aprint(&s, &size, n, b, &prop, shape, 0, -2, 0);
   mu_assert_int_eq(43, m);
   mu_assert_string_eq("[[true, false, true], [false, false, true]]", s);
 
@@ -223,20 +223,20 @@ MU_TEST(test_scan)
   n = dlite_property_scan("{"
                           "\"name\": \"x\", "
                           "\"type\": \"float32\", "
-                          "\"dims\": [\"N\", \"M\"], "
+                          "\"shape\": [\"N\", \"M\"], "
                           "\"unit\": \"cm\", "
                           "\"description\": \"A number\""
                           "}", &p, &prop, NULL, 0);
-  mu_assert_int_eq(93, n);
+  mu_assert_int_eq(94, n); //93
   mu_assert_string_eq("x", p.name);
   mu_assert_int_eq(dliteFloat, p.type);
   mu_assert_int_eq(4, p.size);
   mu_assert_string_eq("cm", p.unit);
   mu_assert_string_eq("A number", p.description);
   free(p.name);
-  free(p.dims[0]);
-  free(p.dims[1]);
-  free(p.dims);
+  free(p.shape[0]);
+  free(p.shape[1]);
+  free(p.shape);
   free(p.unit);
   free(p.description);
 
@@ -263,16 +263,16 @@ MU_TEST(test_scan_arr) {
   memset(&prop, 0, sizeof(prop));
 
   int arr[2][3][2];
-  size_t dims[] = {2, 3, 2};
+  size_t shape[] = {2, 3, 2};
   char *dimexpr[] = {"H", "K", "L"};
   prop.type = dliteInt;
   prop.size = sizeof(int);
   prop.ndims = 3;
-  prop.dims = dimexpr;
+  prop.shape = dimexpr;
   memset(arr, -1, 12*sizeof(int));
   n = dlite_property_scan("[[[0, 1], [2, 3], [4, 5]], "
                           " [[6, 7], [8, 9], [10, 11]]]",
-                          arr, &prop, dims, 0);
+                          arr, &prop, shape, 0);
   mu_assert_int_eq(55, n);
   mu_assert_int_eq(0,  arr[0][0][0]);
   mu_assert_int_eq(1,  arr[0][0][1]);

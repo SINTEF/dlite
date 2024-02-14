@@ -11,7 +11,7 @@ MU_TEST(test_jsmn)
   char *js = "{"
     "\"name\": \"field\", "
     "\"type\": \"blob3\", "
-    "\"dims\": [\"N+1\", \"M\"], "
+    "\"shape\": [\"N+1\", \"M\"], "
     "\"unit\": \"m\""
     "}";
 
@@ -26,7 +26,7 @@ MU_TEST(test_jsmn)
   mu_assert_int_eq(JSMN_OBJECT, tokens->type);
   mu_assert_int_eq(4, tokens->size);
 
-  t = jsmn_item(js, tokens, "dims");
+  t = jsmn_item(js, tokens, "shape");
   mu_assert_int_eq(JSMN_ARRAY, t->type);
   mu_assert_int_eq(2, t->size);
 

@@ -31,20 +31,20 @@ DLiteInstance *mydata=NULL, *mydata2=NULL, *mydata3=NULL;
 
 MU_TEST(test_meta_create)
 {
-  char *dims0[] = {"N", "M"};
-  char *dims1[] = {"N"};
-  char *dims2[] = {"M"};
+  char *shape0[] = {"N", "M"};
+  char *shape1[] = {"N"};
+  char *shape2[] = {"M"};
   DLiteDimension dimensions[] = {
     {"M", "Length of dimension M."},
     {"N", "Length of dimension N."}
   };
   DLiteProperty properties[] = {
-    /* name          type            size           ref ndims dims  unit descr*/
+    /* name          type            size           ref ndims shape  unit descr*/
     {"a-string",     dliteStringPtr, sizeof(char *),NULL, 0, NULL,  "",  "..."},
     {"a-float",      dliteFloat,     sizeof(float), NULL, 0, NULL,  "m", ""},
-    {"an-int-arr",   dliteInt,       sizeof(int),   NULL, 2, dims0, "#", "..."},
-    {"a-string-arr", dliteStringPtr, sizeof(char *),NULL, 1, dims1, "",  "..."},
-    {"a-string3-arr",dliteFixString, 3,             NULL, 1, dims2, "",  "..."}
+    {"an-int-arr",   dliteInt,       sizeof(int),   NULL, 2, shape0, "#", "..."},
+    {"a-string-arr", dliteStringPtr, sizeof(char *),NULL, 1, shape1, "",  "..."},
+    {"a-string3-arr",dliteFixString, 3,             NULL, 1, shape2, "",  "..."}
   };
 
   mu_check((entity = (DLiteMeta *)dlite_meta_create(uri, "My test entity.",

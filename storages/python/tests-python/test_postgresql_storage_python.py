@@ -210,15 +210,15 @@ else:
             for n in range(len(prop)):
                 d['properties'].append({})
                 single_prop = prop[n]
-                dims = None
+                shape = None
                 if single_prop[2] != '':
-                    dims = single_prop[2:-3]
+                    shape = single_prop[2:-3]
                     single_prop[2:-3] = ['']
                 for m in range(len(single_prop)):
                     if single_prop[m] != '':
                         d['properties'][n][keys[m]] = single_prop[m]
-                    elif m == 2 and dims:
-                        d['properties'][n]['dims'] = dims
+                    elif m == 2 and shape:
+                        d['properties'][n]['shape'] = shape
 
         if metadata:
             del d['dims']

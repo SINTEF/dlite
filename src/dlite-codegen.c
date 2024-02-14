@@ -161,7 +161,7 @@ static int list_dims(TGenBuf *s, const char *template, int len,
   if (tgen_subs_copy(&psubs, subs)) goto fail;
   psubs.parent = subs;
   for (i=0; i < p->ndims; i++) {
-    tgen_subs_set(&psubs, "dim.name",  p->dims[i] , NULL);
+    tgen_subs_set(&psubs, "dim.name",  p->shape[i] , NULL);
     tgen_subs_set_fmt(&psubs, "dim.i",     NULL, "%d",  i);
     tgen_subs_set(&psubs, ",",  (i < p->ndims-1) ? ","  : "", NULL);
     tgen_subs_set(&psubs, ", ", (i < p->ndims-1) ? ", " : "", NULL);
@@ -228,7 +228,7 @@ static int list_properties_helper(TGenBuf *s, const char *template, int len,
     tgen_subs_set(&psubs, "prop.ref",      ref,      NULL);
     tgen_subs_set(&psubs, "prop.unit",     unit,     NULL);
     tgen_subs_set(&psubs, "prop.descr",    descr,    NULL);
-    tgen_subs_set(&psubs, "prop.dims",     NULL,     list_dims);
+    tgen_subs_set(&psubs, "prop.shape",     NULL,     list_dims);
     tgen_subs_set_fmt(&psubs, "prop.typeno",      NULL, "%d",  p->type);
     tgen_subs_set_fmt(&psubs, "prop.size",        NULL, "%u",(unsigned)p->size);
     tgen_subs_set_fmt(&psubs, "prop.ndims",       NULL, "%d",  p->ndims);

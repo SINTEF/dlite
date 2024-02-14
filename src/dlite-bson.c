@@ -22,9 +22,9 @@
     n += m;                                                             \
   } while (0)
 
-#define APPEND_PROPERTY(buf, p, dims, ptr)                              \
+#define APPEND_PROPERTY(buf, p, shape, ptr)                              \
   do {                                                                  \
-    int m = append_property(buf, bufsize-n, p, dims, ptr);              \
+    int m = append_property(buf, bufsize-n, p, shape, ptr);              \
     if (m < 0) return m;                                                \
     n += m;                                                             \
   } while (0)
@@ -87,7 +87,7 @@ static BsonType bsontype(DLiteType dtype, size_t size)
     - bufsize: Size of memory segment pointed to by `buf`.  No more than
         `bufsize` bytes will be written.
     - p: Property to append.
-    - dims: Values of property dimensions.
+    - shape: Values of property dimensions.
     - ptr: Pointer to data to serialise.
 
   Returns:
@@ -95,7 +95,7 @@ static BsonType bsontype(DLiteType dtype, size_t size)
     A negative error code is returned on error.
  */
 static int append_property(unsigned char *buf, int bufsize,
-                           DLiteProperty *p, size_t *dims, void *ptr)
+                           DLiteProperty *p, size_t *shape, void *ptr)
 {
   int n=0;
   int32_t i32;
@@ -106,11 +106,11 @@ static int append_property(unsigned char *buf, int bufsize,
   float128_t f128;
 #endif
 
-  if (p->dims) {
+  if (p->shape) {
 
     /* Array - treated as binary using host byte order */
     int i, nmemb=1;
-    for (i=0; i < p->ndims; i++) nmemb *= dims[i];
+    for (i=0; i < p->ndims; i++) nmemb *= shape[i];
     switch (p->type) {
     case dliteBlob:
     case dliteBool:
@@ -349,7 +349,7 @@ int dlite_bson_append_instance(unsigned char *buf, int bufsize,
         for (j=0; j < p->ndims; j++) {
           char index[20];
           snprintf(index, sizeof(index), "%d", j);
-          APPEND(arr, bsonString, index, -1, p->dims[j]);
+          APPEND(arr, bsonString, index, -1, p->shape[j]);
         }
         END_SUBDOC(prop, bsonArray);
       }
@@ -373,9 +373,9 @@ int dlite_bson_append_instance(unsigned char *buf, int bufsize,
     BEGIN_SUBDOC(buf, "properties", &subdoc);
     for (i=0; i < inst->meta->_nproperties; i++) {
       DLiteProperty *p = inst->meta->_properties + i;
-      size_t *dims = DLITE_PROP_DIMS(inst, i);
+      size_t *shape = DLITE_PROP_DIMS(inst, i);
       void *ptr = dlite_instance_get_property_by_index(inst, i);
-      APPEND_PROPERTY(subdoc, p, dims, ptr);
+      APPEND_PROPERTY(subdoc, p, shape, ptr);
     }
     END_SUBDOC(buf, bsonDocument);
   }
@@ -503,9 +503,9 @@ static int set_meta_dimensions(DLiteMeta *meta, unsigned char *subdoc)
         int ndims, i=0;
         TYPECHECK("shape", bsonArray);
         if ((ndims = bson_nelements(b)) < 0) return ndims;
-        p->dims = calloc(ndims, sizeof(char *));
+        p->shape = calloc(ndims, sizeof(char *));
         while ((type = bson_parse(b, NULL, (void **)&v, NULL, &ep)))
-          p->dims[i++] = strdup(v);
+          p->shape[i++] = strdup(v);
         p->ndims = ndims;
       } else if (strcmp(ename, "unit") == 0) {
         TYPECHECK("unit", bsonString);

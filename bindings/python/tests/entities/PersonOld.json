@@ -24,7 +24,7 @@
     {
       "name": "skills",
       "type": "string",
-      "dims": ["N"],
+      "shape": ["N"],
       "description": "List of skills."
     }
   ]

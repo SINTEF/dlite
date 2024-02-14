@@ -381,20 +381,21 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
                            doc='Whether this is a meta-metadata instance.')
 
     @classmethod
-    def from_metaid(cls, metaid, dims, id=None):
-        """Create a new instance of metadata `metaid`.  `dims` must be a
+    def from_metaid(cls, metaid, dimensions, id=None):
+        """Create a new instance of metadata `metaid`.  `dimensions` must be a
         sequence with the size of each dimension.  All values initialized
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
         """
-        if isinstance(dims, dict):
+        if isinstance(dimensions, dict):
             meta = get_instance(metaid)
-            dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+            dimensions = [dimensions[dim.name]
+                          for dim in meta.properties['dimensions']]
         # Allow metaid to be an Instance
         if isinstance(metaid, Instance):
             metaid = metaid.uri
         return Instance(
-            metaid=metaid, dims=dims, id=id,
+            metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
 
@@ -499,8 +500,8 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         )
 
     @classmethod
-    def create_from_metaid(cls, metaid, dims, id=None):
-        """Create a new instance of metadata `metaid`.  `dims` must be a
+    def create_from_metaid(cls, metaid, dimensions, id=None):
+        """Create a new instance of metadata `metaid`.  `dimensions` must be a
         sequence with the size of each dimension.  All values initialized
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
@@ -508,11 +509,12 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         warnings.warn(
             "create_from_metaid() is deprecated, use from_metaid() instead.",
             DeprecationWarning, stacklevel=2)
-        if isinstance(dims, dict):
+        if isinstance(dimensions, dict):
             meta = get_instance(metaid)
-            dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+            dimensions = [dimensions[dim.name]
+                          for dim in meta.properties['dimensions']]
         return Instance(
-            metaid=metaid, dims=dims, id=id,
+            metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
 

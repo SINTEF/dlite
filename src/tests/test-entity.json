@@ -47,7 +47,7 @@
     {
       "name": "myarray",
       "type": "int",
-      "dims": [
+      "shape": [
         "L",
         "M",
         "N"
