@@ -11,6 +11,7 @@ indir = thisdir / "input"
 outdir = thisdir / "output"
 entitydir = thisdir / "entities"
 
+
 class Person:
     def __init__(self, name, age, skills):
         self.name = name
