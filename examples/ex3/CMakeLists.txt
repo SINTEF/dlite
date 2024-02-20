@@ -15,17 +15,19 @@ set(CMAKE_MODULE_PATH
   ${DLITE_ROOT}/cmake/Modules
   ${DLITE_ROOT}/share/cmake
   ${DLITE_ROOT}/share/cmake/Modules
-  )
+)
 find_package(dlite)
 
 include(dliteCodeGen)
+
+configure_file(PhilibTable.json PhilibTable.json)
 
 dlite_codegen(
   philibtable.h
   c-header
   json:${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json?mode=r
   --storage-plugins=${DLITE_STORAGE_PLUGINS}
-  )
+)
 
 link_directories(${DLITE_LIBRARY_DIR})
 

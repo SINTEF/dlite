@@ -136,6 +136,5 @@
       ],
       "description": "The values of the free variables for which the calculated variables are calculated."
     }
-  ],
-  "dataname": "http://onto-ns.com/meta/philib/0.1/PhilibTable"
+  ]
 }
