@@ -63,15 +63,15 @@
 
   The following table summarises the memory layout of an instance:
 
-  | segment         | nmemb             | size                  | offset                  |
-  | --------------- | ----------------- | --------------------- | ----------------------- |
-  | header          | 1                 | meta->headersize      | 0                       |
-  | dimensions      | meta->ndimensions | sizeof(size_t)        | meta->dimoffset         |
-  | properties      | meta->nproperties | [a]                   | meta->propoffsets       |
-  | relations       | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset         |
-  | propdims        | meta->npropdims   | sizeof(size_t)        | meta->propdimsoffset    |
-  | propdiminds [b] | nproperties       | sizeof(size_t)        | meta->propdimindsoffset |
-  | propoffsets [b] | nproperties       | sizeof(size_t)        | PROPOFFSETSOFFSET(meta) |
+  | segment         | nmemb             | size                  | offset                        |
+  | --------------- | ----------------- | --------------------- | ----------------------------- |
+  | header          | 1                 | meta->headersize      | 0                             |
+  | dimensions      | meta->ndimensions | sizeof(size_t)        | meta->dimoffset               |
+  | properties      | meta->nproperties | [a]                   | meta->propoffsets             |
+  | relations       | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset               |
+  | propdims        | meta->npropdims   | sizeof(size_t)        | meta->propdimsoffset          |
+  | propdiminds [b] | nproperties       | sizeof(size_t)        | meta->propdimindsoffset       |
+  | propoffsets [b] | nproperties       | sizeof(size_t)        | DLITE_PROPOFFSETSOFFSET(meta) |
 
     [a]: The size of properties depends on their `size` and whether
          they are dimensional or not.
