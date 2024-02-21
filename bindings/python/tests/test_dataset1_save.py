@@ -3,7 +3,11 @@ from pathlib import Path
 import dlite
 from dlite.dataset import metadata_to_rdf, add_dataset, get_dataset
 
-from tripper import Triplestore
+try:
+    from tripper import Triplestore
+except ModuleNotFoundError:
+    import sys
+    sys.exit(44)
 
 
 thisdir = Path(__file__).absolute().parent
