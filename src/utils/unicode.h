@@ -4,7 +4,9 @@
 @brief Provides various unicode helper functions.
 
 Currently only supports UTF-8, but that might change in the future.
+*/
 
+/*
 Copyright (C) 2013-2014 Thomas Glyn Dennis.
 
 Permission is hereby granted, free of charge, to any person
