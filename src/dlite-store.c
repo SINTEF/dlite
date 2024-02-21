@@ -142,7 +142,7 @@ DLiteInstance *dlite_store_pop(DLiteStore *store, const char *id)
   DLiteInstance *inst;
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == 4)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&store->map, uuid)))
     FAIL1("id '%s' is not in store", id);
@@ -164,7 +164,7 @@ DLiteInstance *dlite_store_pop_all(DLiteStore *store, const char *id)
   DLiteInstance *inst;
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == 4)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&store->map, uuid)))
     FAIL1("id '%s' is not in store", id);
@@ -191,7 +191,7 @@ int dlite_store_remove(DLiteStore *store, const char *id)
   item_t *item;
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == 4)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&store->map, uuid))) return 1;
 
@@ -213,7 +213,7 @@ DLiteInstance *dlite_store_get(const DLiteStore *store, const char *id)
   item_t *item;
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == 4)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&((DLiteStore *)store)->map, uuid)))
     FAIL1("id '%s' not in store", id);
