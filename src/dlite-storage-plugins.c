@@ -185,7 +185,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
                       "   DLITE_STORAGE_PLUGIN_DIRS or "
                       "DLITE_PYTHON_STORAGE_PLUGIN_DIRS\n"
                       "   environment variables set?", submsg);
-    errx(1, "%s", buf);
+    errx(dliteStorageOpenError, "%s", buf);
 #endif
     free(buf);
 

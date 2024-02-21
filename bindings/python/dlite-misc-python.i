@@ -67,12 +67,13 @@ class errctl():
         """Return sequence of exceptions/exception names as a sequence of
         DLite error coces.  `seq` may also be a single exception or name."""
         sequence = [seq] if isinstance(seq, (str, type)) else seq
-        return [
-            _dlite._err_getcode(
-                exc.__name__ if isinstance(exc, type) else str(exc)
-            )
+        errnames = [
+            exc.__name__ if isinstance(exc, type) else str(exc)
             for exc in sequence
         ]
+        if "DLiteError" in errnames:
+            return [-i for i in range(1, _dlite._get_number_of_errors())]
+        return [_dlite._err_getcode(errname) for errname in errnames]
 
 
 silent = errctl(filename="None")
