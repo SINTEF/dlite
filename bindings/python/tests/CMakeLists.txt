@@ -25,6 +25,8 @@ set(tests
   test_pydantic
   test_relation
   test_iri
+  test_dataset1_save
+  #test_dataset2_load
 )
 
 foreach(test ${tests})
