@@ -43,12 +43,21 @@ int getuuid(char *buff, const char *id);
 
 
 /**
- * Like getuuid(), but takes the the length of `id` as an additional parameter.
+  Like getuuid(), but takes the the length of `id` as an additional parameter.
  */
 int getuuidn(char *buff, const char *id, size_t len);
 
 
+/**
+  Returns non-zero if `s` is a valid UUID.
+ */
 int isuuid(const char *s);
+
+
+/**
+  Returns non-zero if `s` matches <URI>/<UUID>. `len` is the length of `s`.
+  An optional final hash or slash will be ignored.
+*/
 int isinstanceuri(const char *s, int len);
 
 #endif /* _GETUUID_H */
