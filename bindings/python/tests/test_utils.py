@@ -14,9 +14,11 @@ from dlite.utils import (
 
 
 thisdir = Path(__file__).absolute().parent
-with open(thisdir / "Person.json", "rt") as f:
-    d = json.load(f)
+entitydir = thisdir / "entities"
+dlite.storage_path.append(entitydir / "*.json")
 
+with open(entitydir / "Person.json", "rt") as f:
+    d = json.load(f)
 Person = dlite.utils.instance_from_dict(d)
 
 person = Person([2])
@@ -66,9 +68,7 @@ inst = instance_from_dict(d)
 print(inst)
 
 
-url = "json://" + os.path.join(thisdir, "Person.json")
-Person = dlite.Instance.from_url(url)
-
+Person = dlite.Instance.from_url(f"json://{entitydir}/Person.json")
 person = Person([2])
 person.name = "Ada"
 person.age = 12.5
@@ -95,12 +95,12 @@ if HAVE_DATACLASSES:
         properties={
             "symbols": {
                 "type": "string",
-                "dims": ["natoms"],
+                "shape": ["natoms"],
                 "description": "Chemical symbol of each atom.",
             },
             "positions": {
                 "type": "float",
-                "dims": ["natoms", "ncoords"],
+                "shape": ["natoms", "ncoords"],
                 "unit": "Å",
                 "description": "Position of each atom.",
             },
@@ -125,12 +125,12 @@ if HAVE_PYDANTIC:
         properties={
             "symbols": {
                 "type": "string",
-                "dims": ["natoms"],
+                "shape": ["natoms"],
                 "description": "Chemical symbol of each atom.",
             },
             "positions": {
                 "type": "float",
-                "dims": ["natoms", "ncoords"],
+                "shape": ["natoms", "ncoords"],
                 "unit": "Å",
                 "description": "Position of each atom.",
             },
@@ -149,7 +149,7 @@ dims = infer_dimensions(
 )
 assert dims == dict(N=3, M=2)
 
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={
         "a-string-array": [("a", "b"), ("c", "d"), ("e", "f")],
@@ -160,13 +160,31 @@ dims = infer_dimensions(
         ],
     },
 )
-assert dims == dict(N=3, M=2)
+assert shape == dict(N=3, M=2)
 
-dims = infer_dimensions(
+shape = infer_dimensions(
     meta=inst.meta,
     values={
         "an-int-array": [1, 2, 3, 4],
         "a-fixstring-array": [("Al", "Mg"), ("Si", "Cu")],
     },
 )
-assert dims == dict(N=2, M=4)
+assert shape == dict(N=2, M=4)
+
+
+# PR #677: test that infer_dimensions() correctly handles ref types
+Item = dlite.get_instance("http://onto-ns.com/meta/0.1/Item")
+item1 = Item([2], properties={"name": "a", "f": [3.14, 2.72]})
+item2 = Item([3], properties={
+    "name": "b", "f": [float("-inf"), 0, float("inf")]
+})
+dims = infer_dimensions(meta=Item, values=item1.asdict()["properties"])
+assert dims == {"nf": 2}
+
+Ref = dlite.get_instance("http://onto-ns.com/meta/0.1/Ref")
+ref = Ref(dimensions={"nitems": 2, "nrefs": 1})
+ref.item = item1
+ref.items = item1, item2
+ref.refs = [ref]
+dims = infer_dimensions(meta=Ref, values=ref.asdict()["properties"])
+assert dims == {"nitems": 2, "nrefs": 1}

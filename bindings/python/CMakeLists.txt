@@ -8,7 +8,9 @@ set(py_sources
   mappings.py
   datamodel.py
   rdf.py
-  rdf2.py
+  dataset.py
+  quantity.py
+  testutils.py
   )
 
 # Python sub-packages
@@ -235,17 +237,6 @@ install(
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
-if(DEFINED ENV{VIRTUAL_ENV})
-  find_program(BASH bash)
-  find_program(PATCH patch)
-  install(
-    CODE "execute_process(COMMAND ${BASH} ${dlite_SOURCE_DIR}/cmake/patch-activate.sh)"
-  )
-  install(
-    PROGRAMS ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
-    TYPE BIN
-  )
-endif()
 
 add_subdirectory(scripts)
 

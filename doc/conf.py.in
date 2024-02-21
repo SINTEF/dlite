@@ -4,6 +4,7 @@ For the full list of built-in configuration values, see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 import os
+import sys
 from pathlib import Path
 import re
 from typing import TYPE_CHECKING
@@ -21,7 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
 root_doc = "index"
 templates_path = ['_templates']
 project = "DLite"
-copyright = "© SINTEF 2022"
+copyright = "© SINTEF 2024"
 author = "SINTEF"
 version ="@dlite_VERSION@"
 
@@ -31,7 +32,7 @@ breathe_projects = {"dlite": "./xml/"}
 breathe_default_project = "dlite"
 
 
-call(['python',
+call([sys.executable,
       'respirator.py',
       breathe_projects[breathe_default_project],
       './c-api',
@@ -50,16 +51,24 @@ exclude_patterns = [
 ]
 
 extensions = [
-    "autoapi.extension",
-    "breathe", # Doxygen bridge
+    # Temporary disable autoapi since it leads to the following error during
+    # build of HTML documentation
+    #
+    # Extension error (autoapi.extension):
+    # Handler <function run_autoapi at 0x7f1ac734be50> for event
+    # 'builder-inited' threw an exception (exception: 'Module' object has no
+    # attribute 'doc')
+    #
+    #"autoapi.extension",
+    "breathe",  # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
     "sphinx.ext.graphviz",  # Graphviz
     "sphinx.ext.intersphinx",  # Connect to external (Sphinx) API documentation
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
     "sphinxcontrib.plantuml",  # PlantUml
-    "sphinx_toggleprompt",  # Add button for show/hide example prompts
-    #"sphinx_copybutton",  # Copy button for codeblocks
+    #"sphinx_toggleprompt",  # Add button for show/hide example prompts
+    "sphinx_copybutton",  # Copy button for codeblocks
     "sphinx_design",  # Create panels in a grid layout or as drop-downs and more
 ]
 
@@ -99,6 +108,11 @@ autoapi_python_use_implicit_namespaces = True  # True to avoid namespace being `
 autodoc_typehints = "description"
 autodoc_typehints_format = "short"
 autodoc_inherit_docstrings = True
+
+# Ask copybutton to skip prompts from being copied
+#copybutton_exclude = '.linenos, .gp, .go'
+copybutton_prompt_text = r" *>>> | *\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
 
 
 ####
@@ -151,12 +165,28 @@ plantuml_output_format = "svg_img"
 
 ####
 
+# Options for the C domain
+c_extra_keywords = [
+    'alignas',
+    #'alignof',  # defined in dlite-type.h
+    'bool',
+    'complex',
+    'imaginary',
+    'noreturn',
+    'static_assert',
+    'thread_local',
+]
+
+
+####
+
 # Jinja2 custom filters
 def autoapi_prepare_jinja_env(jinja_env: "Environment") -> None:
     """Add custom Jinja2 filters for use with AutoAPI templates."""
 
-    # Remove plugin path, removes the initial part of the module name if it is equal to
-    # any of the folder names under `dlite/share/dlite`.
+    # Remove plugin path, removes the initial part of the module name
+    # if it is equal to any of the folder names under
+    # `dlite/share/dlite`.
     jinja_env.filters["remove_plugin_path"] = lambda name: ".".join(
         name.split(".")[1:]
     ) if name.split(".")[0] in dlite_share_plugins else name

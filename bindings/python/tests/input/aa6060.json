@@ -1,0 +1,19 @@
+{
+  "http://onto-ns.com/meta/calm/0.1/Chemistry/aa6060":   {
+    "meta": "http://onto-ns.com/meta/calm/0.1/Chemistry",
+    "dimensions": {
+      "nelements": 3,
+      "nphases": 2
+    },
+    "properties": {
+      "alloy": "aa6060",
+      "elements": ["Al", "Mg", "Si"],
+      "phases": ["beta''", "Mg2Si"],
+      "X0": [0.99, 0.05, 0.05],
+      "Xp": [[0.181818, 0.454545, 0.363636], [0, 0.666667, 0.333333]],
+      "volfrac": [0.005, 0.001],
+      "rpart": [2e-08, 2e-07],
+      "atvol": [6.6e-29, 7e-29]
+    }
+  }
+}

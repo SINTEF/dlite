@@ -13,6 +13,7 @@ set(tests
   test_dlitebson
   test_metamodel
   test_store
+  test_triple
   test_triplestore
   test_collection
   test_schemas

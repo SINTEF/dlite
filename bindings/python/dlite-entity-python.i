@@ -2,16 +2,8 @@
 
 /* Python-specific extensions to dlite-entity.i */
 %pythoncode %{
-import sys
-import json
-import base64
 import warnings
 from uuid import UUID
-
-if sys.version_info >= (3, 7):
-    OrderedDict = dict
-else:
-    from collections import OrderedDict
 
 import numpy as np
 
@@ -30,17 +22,71 @@ class Metadata(Instance):
         description: Description of metadata.
     """
     def __new__(
-            cls,
-            uri: str,
-            dimensions: "Sequence[Dimension]",
-            properties: "Sequence[Property]",
-            description: str = ''
+        cls,
+        uri: str,
+        dimensions: "Sequence[Dimension]",
+        properties: "Sequence[Property]",
+        description: str = ''
     ):
         return Instance.create_metadata(
             uri, dimensions, properties, description)
 
+    def __init__(self, *args, **kwargs):
+        # Do nothing, just avoid calling Instance.__init__()
+        #
+        # The reason for this is that Instance.__init__() requires that the
+        # first argument is a dlite.Instance object ().  All needed
+        # instantiation is already done in __new__().
+        pass
+
     def __repr__(self):
         return f"<Metadata: uri='{self.uri}'>"
+
+    def __call__(self, dimensions=(), properties=None, id=None, dims=None):
+        """Returns a new instance of this metadata.
+
+        By default the instance is uninitialised, but with the `properties`
+        argument it can be either partly or fully initialised.
+
+        Arguments:
+            dimensions: Either a dict mapping dimension names to values or
+                a sequence of dimension values.
+            properties: Dict of property name-property value pairs.  Used
+                to initialise the instance (fully or partly).  A KeyError
+                is raised if a key is not a valid property name.
+            id: Id of the new instance.  The default is to create a
+                random UUID.
+            dims: Deprecated alias for `dimensions`.
+
+        Returns:
+            New instance.
+        """
+        if not self.is_meta:
+            raise TypeError('data instances are not callable')
+        if dims is not None:
+            warnings.warn(
+                "`dims` argument of metadata constructor is deprecated.\n"
+                "Use `dimensions` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            dimensions = dims
+        if isinstance(dimensions, dict):
+            dimnames = [d.name for d in self.properties['dimensions']]
+            dimensions = [dimensions[name] for name in dimnames]
+
+        inst = Instance.from_metaid(self.uri, dimensions, id)
+        if isinstance(properties, dict):
+            for k, v in properties.items():
+                inst[k] = v
+        return inst
+
+    # For convenience. Easier to use than self.properties["properties"]
+    props = property(
+        fget=lambda self: {p.name: p for p in self.properties["properties"]},
+        doc="A dict mapping property name to the `Property` object for the "
+        "described metadata.",
+    )
 
     def getprop(self, name):
         """Returns the metadata property object with the given name."""
@@ -51,7 +97,7 @@ class Metadata(Instance):
         lst = [p for p in self.properties["properties"] if p.name == name]
         if lst:
             return lst[0]
-        raise _dlite.DLiteError(
+        raise _dlite.DLiteKeyError(
             f"Metadata {self.uri} has no such property: {name}")
 
     def dimnames(self):
@@ -115,12 +161,8 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         inst = _dlite.get_instance(id, metaid, check_storages)
 
     if inst is None:
-        raise _dlite.DLiteError(f"no such instance: {id}")
-    elif inst.is_meta:
-        inst.__class__ = Metadata
-    elif inst.meta.uri == COLLECTION_ENTITY:
-        inst.__class__ = Collection
-    return inst
+        raise _dlite.DLiteMissingInstanceError(f"no such instance: {id}")
+    return instance_cast(inst)
 
 %}
 
@@ -134,9 +176,13 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         return 'Dimension(name=%r, description=%r)' % (
             self.name, self.description)
 
+    def __eq__(self, other):
+        """Returns true if `other` equals self."""
+        return self.asdict() == other.asdict()
+
     def asdict(self):
         """Returns a dict representation of self."""
-        d = OrderedDict()
+        d = {}
         d['name'] = self.name
         if self.description:
             d['description'] = self.description
@@ -163,6 +209,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         return 'Property(%r, type=%r%s%s%s%s)' % (
             self.name, self.type, ref, shape, unit, descr)
 
+    def __eq__(self, other):
+        """Returns true if `other` equals self."""
+        return self.asdict() == other.asdict()
+
     def asdict(self, soft7=True, exclude_name=False):
         """Returns a dict representation of self.
 
@@ -170,7 +220,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             soft7: Whether to use new SOFT7 format.
             exclude_name: Whether to exclude "name" from the returned dict.
         """
-        d = OrderedDict()
+        d = {}
         if not exclude_name:
             d['name'] = self.name
         d['type'] = self.get_type()
@@ -212,8 +262,22 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 %extend _Triple {
   %pythoncode %{
     def __repr__(self):
-        return 'Relation(s=%r, p=%r, o=%r, id=%r)' % (
-            self.s, self.p, self.o, self.id)
+        args = [f"s='{self.s}', p='{self.p}', o='{self.o}'"]
+        if self.d:
+            args.append(f"d='{self.d}'")
+        if self.id:
+            args.append(f"id='{self.id}'")
+        return f"Relation({', '.join(args)})"
+
+    def __eq__(self, other):
+        if isinstance(other, Relation):
+            return (self.s == other.s and self.p == other.p and
+                    self.o == other.o and self.d == other.d)
+        return NotImplemented
+
+    def copy(self):
+        """Returns a copy of self."""
+        return Relation(s=self.s, p=self.p, o=self.o, d=self.d, id=self.id)
 
     def aspreferred(self):
         """Returns preferred Python representation."""
@@ -221,10 +285,9 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     def asdict(self):
         """Returns a dict representation of self."""
+        d = dict(s=self.s, p=self.p, o=self.o)
         if self.id:
-            d = OrderedDict(s=self.s, p=self.p, o=self.o, id=self.id)
-        else:
-            d = OrderedDict(s=self.s, p=self.p, o=self.o)
+            d[id] = self.id
         return d
 
     def asstrings(self):
@@ -237,7 +300,6 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 /* --------
  * Instance
  * -------- */
-
 %extend _DLiteInstance {
 
   int __len__(void) {
@@ -266,18 +328,26 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
-        if self is None:
-            raise _dlite.DLiteError(f"invalid dlite.Instance")
 
-        _dlite.errclr()
-        _dlite.Instance_swiginit(self, _dlite.new_Instance(*args, **kwargs))
+        # The swig-generated __new__() method is not a standard wrapper
+        # function and therefore bypass the standard error checking.
+        # Check manually that we are not in an error state.
+        _dlite.errcheck()
+
+        if self is None:
+            raise _dlite.DLitePythonError(f"cannot create dlite.Instance")
+
+        obj = _dlite.new_Instance(*args, **kwargs)
+
+        # The swig-internal Instance_swiginit() function is not a standard
+        # wrapper function and therefore bypass the standard error checking.
+        # Therefore, check manually that it doesn't produce an error.
+        _dlite.Instance_swiginit(self, obj)
+        _dlite.errcheck()
 
         if not hasattr(self, 'this') or not getattr(self, 'this'):
-            raise _dlite.DLiteError(f"cannot initiate dlite.Instance")
-        elif self.is_meta:
-            self.__class__ = Metadata
-        elif self.meta.uri == COLLECTION_ENTITY:
-            self.__class__ = Collection
+            raise _dlite.DLitePythonError(f"cannot initiate dlite.Instance")
+        instance_cast(self)
 
     def get_meta(self):
         """Returns reference to metadata."""
@@ -291,13 +361,16 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         for p in self.meta['properties']:
             if p.name == name:
                 return p
-        raise ValueError(f'No property "{name}" in "{self.uri}"')
+        raise ValueError(
+            f'No property "{name}" in '
+            f'"{self.uri if self.uri else self.meta.uri}"'
+        )
 
     meta = property(get_meta, doc="Reference to the metadata of this instance.")
     dimensions = property(
-        lambda self: OrderedDict((d.name, int(v))
-                                 for d, v in zip(self.meta['dimensions'],
-                                                 self.get_dimensions())),
+        lambda self: dict((d.name, int(v))
+                          for d, v in zip(self.meta['dimensions'],
+                                          self.get_dimensions())),
         doc='Dictionary with dimensions name-value pairs.')
     properties = property(lambda self:
         {p.name: self[p.name] for p in self.meta['properties']},
@@ -306,27 +379,23 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
     is_meta = property(_is_meta, doc='Whether this is a metadata instance.')
     is_metameta = property(_is_metameta,
                            doc='Whether this is a meta-metadata instance.')
-    namespace = property(
-        lambda self: Namespace(self.get_uri() + '#'),
-        doc='A tripper.Namespace reference to this instance. '
-        'Note, this requires tripper to be installed.'
-    )
 
     @classmethod
-    def from_metaid(cls, metaid, dims, id=None):
-        """Create a new instance of metadata `metaid`.  `dims` must be a
+    def from_metaid(cls, metaid, dimensions, id=None):
+        """Create a new instance of metadata `metaid`.  `dimensions` must be a
         sequence with the size of each dimension.  All values initialized
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
         """
-        if isinstance(dims, dict):
+        if isinstance(dimensions, dict):
             meta = get_instance(metaid)
-            dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+            dimensions = [dimensions[dim.name]
+                          for dim in meta.properties['dimensions']]
         # Allow metaid to be an Instance
         if isinstance(metaid, Instance):
             metaid = metaid.uri
         return Instance(
-            metaid=metaid, dims=dims, id=id,
+            metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
 
@@ -431,8 +500,8 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         )
 
     @classmethod
-    def create_from_metaid(cls, metaid, dims, id=None):
-        """Create a new instance of metadata `metaid`.  `dims` must be a
+    def create_from_metaid(cls, metaid, dimensions, id=None):
+        """Create a new instance of metadata `metaid`.  `dimensions` must be a
         sequence with the size of each dimension.  All values initialized
         to zero.  If `id` is None, a random UUID is generated.  Otherwise
         the UUID is derived from `id`.
@@ -440,11 +509,12 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         warnings.warn(
             "create_from_metaid() is deprecated, use from_metaid() instead.",
             DeprecationWarning, stacklevel=2)
-        if isinstance(dims, dict):
+        if isinstance(dimensions, dict):
             meta = get_instance(metaid)
-            dims = [dims[dim.name] for dim in meta.properties['dimensions']]
+            dimensions = [dimensions[dim.name]
+                          for dim in meta.properties['dimensions']]
         return Instance(
-            metaid=metaid, dims=dims, id=id,
+            metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
 
@@ -509,33 +579,40 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         elif isinstance(dest, str):
             self.save_to_url(dest)
         else:
-            raise _dlite.DLiteError('Arguments do not match any call signature')
+            raise _dlite.DLiteTypeError(
+                'Arguments to save() do not match any of the call signatures'
+            )
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
             value = self.get_property_by_index(ind)
         elif self.has_property(ind):
-            value = self.get_property(ind)
+            value = _get_property(self, ind)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
 
     def __setitem__(self, ind, value):
         if self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support item assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f'frozen instance does not support assignment of property '
+                f'{ind}')
         if isinstance(ind, int):
             self.set_property_by_index(ind, value)
         elif self.has_property(ind):
-            self.set_property(ind, value)
+            _set_property(self, ind, value)
         elif isinstance(ind, int):
-            raise IndexError('instance property index out of range: %d' % ind)
+            raise _dlite.DLiteIndexError(
+                'instance property index out of range: %d' % ind
+            )
         else:
-            raise KeyError('no such property: %s' % ind)
+            raise _dlite.DLiteKeyError('no such property: %s' % ind)
 
     def __contains__(self, item):
         return item in self.properties.keys()
@@ -551,7 +628,9 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         elif self.has_dimension(name):
             value = self.get_dimension_size(name)
         else:
-            raise AttributeError('Instance object has no attribute %r' % name)
+            raise _dlite.DLiteAttributeError(
+                'Instance object has no attribute %r' % name
+            )
         if isinstance(value, np.ndarray) and self.is_frozen():
             value.flags.writeable = False  # ensure immutability
         return value
@@ -560,8 +639,10 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if name == 'this':
             object.__setattr__(self, name, value)
         elif self.is_frozen():
-            raise _dlite.DLiteError(
-                'frozen instance does not support attribute assignment')
+            raise _dlite.DLiteUnsupportedError(
+                f"frozen instance does not support assignment of property "
+                f"'{name}'"
+            )
         elif _has_property(self, name):
             _set_property(self, name, value)
         else:
@@ -580,6 +661,13 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
 
     def __str__(self):
         return self.asjson()
+
+    def copy(self, newid=None):
+        """Returns a copy of this instance.  If `newid` is given, it
+        will be the id of the new instance, otherwise it will be given
+        a random UUID."""
+        newinst = self._copy(newid=newid)
+        return instance_cast(newinst)
 
     def __reduce__(self):
         # ensures that instances can be pickled
@@ -600,53 +688,24 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             iterfun(self),
         )
 
-    def __call__(self, dimensions=(), properties=None, id=None, dims=None):
-        """Returns a new instance of this metadata.
-
-        By default the instance is uninitialised, but with the `properties`
-        argument it can be either partly or fully initialised.
-
-        Arguments:
-            dimensions: Either a dict mapping dimension names to values or
-                a sequence of dimension values.
-            properties: Dict of property name-property value pairs.  Used
-                to initialise the instance (fully or partly).  A KeyError
-                is raised if a key is not a valid property name.
-            id: Id of the new instance.  The default is to create a
-                random UUID.
-            dims: Deprecated alias for `dimensions`.
-
-        Returns:
-            New instance.
-        """
-        if not self.is_meta:
-            raise TypeError('data instances are not callable')
-        if dims is not None:
-            warnings.warn(
-                "`dims` argument of metadata constructor is deprecated.\n"
-                "Use `dimensions` instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            dimensions = dims
-        if isinstance(dimensions, dict):
-            dimnames = [d.name for d in self.properties['dimensions']]
-            dimensions = [dimensions[name] for name in dimnames]
-
-        inst = Instance.from_metaid(self.uri, dimensions, id)
-        if isinstance(properties, dict):
-            for k, v in properties.items():
-                inst[k] = v
-        return inst
-
-    def asdict(self, soft7=True, uuid=True):
+    def asdict(self, soft7=True, uuid=True, single=True):
         """Returns a dict representation of self.
 
         Arguments:
             soft7: Whether to structure metadata as SOFT7.
             uuid: Whether to include UUID in the dict.
+            single: Whether to return in single-entity format.
+                If None, single-entity format is used for metadata and
+                multi-entity format for data instances.
         """
-        d = OrderedDict()
+        dct = d = {}
+        if single is None:
+            single = self.is_meta
+
+        if not single:
+            d = {}
+            dct[self.uuid] = d
+
         if uuid:
             d['uuid'] = self.uuid
         if self.uri:
@@ -670,7 +729,7 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
         if self.has_property('relations') and (
                 self.is_meta or self.meta.has_property('relations')):
             d['relations'] = self['relations'].tolist()
-        return d
+        return dct
 
     def asjson(self, indent=0, single=None,
                urikey=False, with_uuid=False, with_meta=False,
@@ -737,6 +796,18 @@ def get_instance(id: str, metaid: str = None, check_storages: bool = True) -> "I
             "Instance.get_copy() is deprecated.  Use Instance.copy() instead.",
             DeprecationWarning, stacklevel=2)
         return self.copy()
-%}
 
+    @property
+    def q(self):
+        """ to work with quantities """
+        from dlite.quantity import get_quantity_helper
+        return get_quantity_helper(self)
+
+    def get_quantity(self, name):
+        return self.q[name]
+
+    def set_quantity(self, name, value, unit):
+        self.q[name] = (value, unit)
+
+%}
 }

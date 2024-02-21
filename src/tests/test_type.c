@@ -209,7 +209,8 @@ MU_TEST(test_print)
   char *p=NULL, s[]="my source string", *q=s;
   DLiteInstance *inst = (DLiteInstance *)dlite_collection_create("myid");
   DLiteDimension d = {"name", "descr"};
-  DLiteRelation r = {"subject", "predicate", "object", "id"};
+  DLiteRelation r1 = {"subject", "predicate", "object", NULL,       NULL};
+  DLiteRelation r2 = {"subject", "predicate", "object", "datatype", NULL};
 
   mu_assert_int_eq(7, dlite_type_print(buf, sizeof(buf), &v, dliteFloat,
                                        sizeof(double), 0, -2, 0));
@@ -245,12 +246,17 @@ MU_TEST(test_print)
   mu_assert_string_eq("{\"name\": \"name\", \"description\": \"descr\"}", buf);
 
 
-  mu_assert_int_eq(34, dlite_type_print(buf, sizeof(buf), &r, dliteRelation,
+  mu_assert_int_eq(34, dlite_type_print(buf, sizeof(buf), &r1, dliteRelation,
                                        sizeof(DLiteRelation *), -1, -1, 0));
   mu_assert_string_eq("[\"subject\", \"predicate\", \"object\"]", buf);
 
+  mu_assert_int_eq(46, dlite_type_print(buf, sizeof(buf), &r2, dliteRelation,
+                                       sizeof(DLiteRelation *), -1, -1, 0));
+  mu_assert_string_eq("[\"subject\", \"predicate\", \"object\", \"datatype\"]",
+                      buf);
+
   buf[0] = '\0';
-  mu_assert_int_eq(34, dlite_type_print(buf, 0, &r, dliteRelation,
+  mu_assert_int_eq(34, dlite_type_print(buf, 0, &r1, dliteRelation,
                                        sizeof(DLiteRelation *), -1, -1, 0));
   mu_assert_int_eq(0, buf[0]);
 
@@ -448,41 +454,119 @@ MU_TEST(test_scan)
   s = "{"
     "\"name\": \"field\", "
     "\"type\": \"blob3\", "
-    "\"dims\": [\"N+1\", \"M\"], "
+    "\"shape\": [\"N+1\", \"M\"], "
     "\"unit\": \"m\""
     "}";
   n = dlite_type_scan(s, -1, &prop, dliteProperty, sizeof(DLiteProperty), 0);
-  mu_assert_int_eq(69, n);
+  mu_assert_int_eq(70, n); //69
   mu_assert_string_eq("field", prop.name);
   mu_assert_int_eq(dliteBlob, prop.type);
   mu_assert_int_eq(3, prop.size);
   mu_assert_int_eq(2, prop.ndims);
-  mu_assert_string_eq("N+1", prop.dims[0]);
-  mu_assert_string_eq("M", prop.dims[1]);
+  mu_assert_string_eq("N+1", prop.shape[0]);
+  mu_assert_string_eq("M", prop.shape[1]);
   mu_assert_string_eq("m", prop.unit);
   mu_assert_string_eq(NULL, prop.description);
 
   if (prop.name) free(prop.name);
-  for (n=0; n < prop.ndims; n++) free(prop.dims[n]);
-  if (prop.dims) free(prop.dims);
+  for (n=0; n < prop.ndims; n++) free(prop.shape[n]);
+  if (prop.shape) free(prop.shape);
   if (prop.unit) free(prop.unit);
   if (prop.description) free(prop.description);
 
   /* dliteRelation */
   memset(&rel, 0, sizeof(DLiteRelation));
-
   s = "[\"subject\", \"predicate\", \"object\"]";
   n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
   mu_assert_int_eq(34, n);
   mu_assert_string_eq("subject",   rel.s);
   mu_assert_string_eq("predicate", rel.p);
   mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq(NULL,        rel.d);
   mu_assert_string_eq(NULL,        rel.id);
+  triple_clean(&rel);
 
-  if (rel.s) free(rel.s);
-  if (rel.p) free(rel.p);
-  if (rel.o) free(rel.o);
-  if (rel.id) free(rel.id);
+  s = "[\"subject\", \"predicate\", \"object\", \"datatype\"]";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(46, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq("datatype",  rel.d);
+  mu_assert_string_eq(NULL,        rel.id);
+  triple_clean(&rel);
+
+  s = "[\"subject\", \"predicate\", \"object\", \"datatype\", \"id\"]";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(52, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq("datatype",  rel.d);
+  mu_assert_string_eq("id",        rel.id);
+  triple_clean(&rel);
+
+  s = "[\"subject\", \"predicate\", \"object\", \"\"]";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(38, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq(NULL,        rel.d);
+  mu_assert_string_eq(NULL,        rel.id);
+  triple_clean(&rel);
+
+  s = "[\"subject\", \"predicate\", \"object\", \"\", \"\"]";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(42, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq(NULL,        rel.d);
+  mu_assert_string_eq(NULL,        rel.id);
+  triple_clean(&rel);
+
+  s = "[\"subject\", \"predicate\", \"object\", \"\", \"id\"]";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(44, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq(NULL,        rel.d);
+  mu_assert_string_eq("id",        rel.id);
+  triple_clean(&rel);
+
+  s = "{\"s\": \"subject\", \"p\": \"predicate\", \"o\": \"object\"}";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(49, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq(NULL,        rel.d);
+  mu_assert_string_eq(NULL,        rel.id);
+  triple_clean(&rel);
+
+  s = "{\"s\": \"subject\", \"p\": \"predicate\", \"o\": \"object\", "
+    "\"d\": \"datatype\"}";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(66, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq("datatype",  rel.d);
+  mu_assert_string_eq(NULL,        rel.id);
+  triple_clean(&rel);
+
+  s = "{\"s\": \"subject\", \"p\": \"predicate\", \"o\": \"object\", "
+    "\"d\": \"datatype\", \"id\": \"id\"}";
+  n = dlite_type_scan(s, -1, &rel, dliteRelation, sizeof(DLiteRelation), 0);
+  mu_assert_int_eq(78, n);
+  mu_assert_string_eq("subject",   rel.s);
+  mu_assert_string_eq("predicate", rel.p);
+  mu_assert_string_eq("object",    rel.o);
+  mu_assert_string_eq("datatype",  rel.d);
+  mu_assert_string_eq("id",        rel.id);
+  triple_clean(&rel);
 }
 
 
@@ -541,8 +625,8 @@ MU_TEST(test_update_sha3)
   DLiteDimension d2 = {"dimname", "???"};  // hash independent of description
   mu_assert_string_eq(hash, gethash(s, &d2, dliteDimension, sizeof(d2)));
 
-  char *dims[] = {"dim1", "dim2"};
-  DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), NULL, 2, dims,
+  char *shape[] = {"dim1", "dim2"};
+  DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), NULL, 2, shape,
     "m/s", NULL};
   hash = "f52af54cb773ec8a7499ae44f3499c58fba40203d870c0c52842d10cbbcdc13a";
   mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));

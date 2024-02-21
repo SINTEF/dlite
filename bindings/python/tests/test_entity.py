@@ -1,28 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
 import pickle
+from pathlib import Path
 
 import numpy as np
 
 import dlite
 from dlite import Instance, Dimension, Property, Relation
-
-try:
-    import pytest
-
-    HAVE_PYTEST = True
-except ModuleNotFoundError:
-    HAVE_PYTEST = False
+from dlite.testutils import raises
 
 
-thisdir = os.path.abspath(os.path.dirname(__file__))
-
-url = "json://" + thisdir + "/MyEntity.json"
+thisdir = Path(__file__).absolute().parent
+outdir = thisdir / "output"
+indir = thisdir / "input"
+entitydir = thisdir / "entities"
+dlite.storage_path.append(indir / "*.json")
+dlite.storage_path.append(entitydir / "*.json")
 
 
 # Load metadata (i.e. an instance of meta-metadata) from url
-myentity = Instance.from_url(url)
+myentity = Instance.from_url(f"json://{entitydir}/MyEntity.json")
 print(myentity.uuid)
 
 # Check some properties of the entity
@@ -34,15 +31,11 @@ assert myentity.is_meta
 assert not myentity.is_metameta
 
 # Store the entity to a new file
-myentity.save("json://xxx.json?mode=w")
+myentity.save(f"json://{outdir}/test_entity.json?mode=w")
 
 # Try to overwrite without mode - should fail because metadata is immutable
-try:
-    myentity.save("json://xxx.json")
-except dlite.DLiteError:
-    pass
-else:
-    assert False, "overwriting single-entity formatted file"
+with raises(dlite.DLiteStorageSaveError):
+    myentity.save(f"json://{outdir}/test_entity.json")
 
 # Create an instance of `myentity` with dimensions 2, 3
 # For convinience, we give it an unique label "myid" that can be used
@@ -88,57 +81,51 @@ for i in range(len(inst)):
 # print(inst)
 
 # Check save and load
-inst.save("json://inst.json?mode=w")
-inst2 = Instance.from_url("json://inst.json")
+inst.save(f"json://{outdir}/test_entity_inst.json?mode=w")
+inst2 = Instance.from_url(f"json://{outdir}/test_entity_inst.json")
 blob = inst2["a-blob"]
 
 del inst2
 inst2 = Instance.from_url(
-    "json://inst.json?mode=r#46a67765-3d8b-5764-9583-3aec59a17983"
+    f"json://{outdir}/test_entity_inst.json?"
+    "mode=r#46a67765-3d8b-5764-9583-3aec59a17983"
 )
 assert inst2["a-blob"] == blob
 
 del inst2
-inst2 = Instance.from_location("json", "inst.json")
+inst2 = Instance.from_location("json", outdir / "test_entity_inst.json")
 assert inst2["a-blob"] == blob
 
 del inst2
 inst2 = Instance.from_location(
-    "json", "inst.json", id="46a67765-3d8b-5764-9583-3aec59a17983"
+    "json", outdir / "test_entity_inst.json",
+    id="46a67765-3d8b-5764-9583-3aec59a17983"
 )
 assert inst2["a-blob"] == blob
 del inst2
 
-with dlite.Storage("json", "inst.json") as s:
+with dlite.Storage("json", outdir / "test_entity_inst.json") as s:
     inst2 = dlite.Instance.from_storage(s)
 assert inst2["a-blob"] == blob
 del inst2
 
-with dlite.Storage("json", "inst.json") as s:
+with dlite.Storage("json", outdir / "test_entity_inst.json") as s:
     inst2 = s.load(id="46a67765-3d8b-5764-9583-3aec59a17983")
 assert inst2["a-blob"] == blob
 del inst2
 
 # Make sure we fail with an exception for pathetic cases
-try:
+with raises(dlite.DLiteStorageOpenError):
     Instance.from_location("json", "/", "mode=r")
-except dlite.DLiteError:
-    print('*** catched error loading "/" in read mode')
 
-try:
+with raises(dlite.DLiteStorageLoadError):
     Instance.from_location("json", "/", "mode=w")
-except dlite.DLiteError:
-    print('*** catched error loading "/" in write mode')
 
-try:
+with raises(dlite.DLiteStorageLoadError):
     Instance.from_location("json", "")
-except dlite.DLiteError:
-    print('*** catched error loading ""')
 
-try:
+with raises(dlite.DLiteStorageLoadError):
     Instance.from_location("json", "non-existing-path...")
-except dlite.DLiteError:
-    print('*** catched error loading "non-existing-path..."')
 
 
 # Test for issue #352 - improved error message for missing dimensions
@@ -152,16 +139,19 @@ json_repr = """
   }
 }
 """
-try:
-    entity = dlite.Instance.from_json(json_repr)
-except dlite.DLiteError as exc:
-    assert str(exc) == (
-        "DLiteOtherError: metadata does not confirm to schema, please check "
-        "dimensions, properties and/or relations: "
-        "http://onto-ns.com/ex/0.1/test"
-    )
-else:
-    assert False  # missing dimensions should raise an exception
+with raises(dlite.DLiteParseError):
+    dlite.Instance.from_json(json_repr)
+
+
+# Test copy
+newinst = inst.copy()
+assert isinstance(newinst, dlite.Instance)
+assert newinst.dimensions == inst.dimensions
+for newprop, prop in zip(newinst.properties, inst.properties):
+    assert np.all(newprop == prop)
+
+newmeta = inst.meta.copy()
+assert isinstance(newmeta, dlite.Metadata)
 
 
 # Check pickling
@@ -175,7 +165,7 @@ prop = Property("a", type="float")
 prop2 = Property(
     "b",
     type="string10",
-    dims=["I", "J", "K"],
+    shape=["I", "J", "K"],
     description="something enlightening...",
 )
 assert any(prop2.shape)
@@ -194,7 +184,7 @@ e2 = Instance.create_metadata(
     [Dimension("N", "Number of something")],
     [
         Property("name", type="string", description="Name of something."),
-        Property("arr", type="int", dims=["N+2"], description="An array."),
+        Property("arr", type="int", shape=["N+2"], description="An array."),
         Property("v", type="double", unit="m/s", description="Velocity"),
     ],
     "Something new...",
@@ -238,14 +228,14 @@ assert newinst._refcount == 2
 
 
 # Test save
-inst.save("json://yyy.json?mode=w")
+inst.save(f"json://{outdir}/test_entity2.json?mode=w")
 
 try:
     import yaml
 except ImportError:
     pass
 else:
-    inst.save("yaml://yyy.yaml?mode=w")
+    inst.save(f"yaml://{outdir}/test_entity.yaml?mode=w")
 
 
 # Test metadata
@@ -279,19 +269,84 @@ assert prop.description == "A blob array."
 prop = dlite.Property("newprop", "int")
 prop.shape = ("a", "b", "c")
 assert prop.ndims == 3
-if HAVE_PYTEST:
-    with pytest.raises(AttributeError):
-        prop.ndims = 10
+with raises(AttributeError):
+    prop.ndims = 10
 
-del inst
-del e2
-del e3
+
+# Test that metadata is callable, but not instances
+assert callable(inst.meta)
+assert not callable(inst)
 
 
 # Metadata schema
 schema = dlite.get_instance(dlite.ENTITY_SCHEMA)
-schema.save("entity_schema.json?mode=w;arrays=false")
-schema.meta.save("basic_metadata_schema.json?mode=w;arrays=false")
+schema.save(f"json://{outdir}/entity_schema.json?mode=w;arrays=false")
+schema.meta.save(
+    f"json://{outdir}/basic_metadata_schema.json?mode=w;arrays=false"
+)
 
-mm = dlite.Instance.from_url("json://entity_schema.json")
+mm = dlite.Instance.from_url(f"json://{outdir}/entity_schema.json")
 assert mm.uri == dlite.ENTITY_SCHEMA
+
+
+# Test loading invalid json input
+with dlite.errctl(hide=True):
+    Invalid1 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid1")
+with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
+    invalid1 = Invalid1([2], properties={"name": "a", "f": [3.14, 2.72]})
+
+# For issue #686
+Invalid2 = dlite.get_instance("http://onto-ns.com/meta/0.1/Invalid2")
+with raises(dlite.DLiteMissingInstanceError, dlite.DLiteSyntaxError):
+    invalid2 = Invalid2([2])
+
+
+# For issue #691
+with raises(dlite.DLiteStorageOpenError, dlite.DLiteUnknownError):
+    dlite.Instance.from_location("json", entitydir / "Invalid3.json")
+
+with raises(dlite.DLiteStorageOpenError, dlite.DLiteUnknownError):
+    dlite.Instance.from_location("json", entitydir / "Invalid4.json")
+
+with raises(dlite.DLiteStorageOpenError, dlite.DLiteUnknownError):
+    dlite.Instance.from_location("json", entitydir / "Invalid5.json")
+
+with raises(dlite.DLiteStorageOpenError, dlite.DLiteUnknownError):
+    dlite.Instance.from_location("json", entitydir / "Invalid6.json")
+
+with raises(dlite.DLiteStorageOpenError, dlite.DLiteUnknownError):
+    dlite.Instance.from_location("json", entitydir / "Invalid7.json")
+
+
+# For issue #702
+PersonOld = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonOld")
+PersonNew = dlite.get_instance("http://onto-ns.com/meta/0.1/PersonNew")
+assert PersonOld.props == PersonNew.props
+assert PersonOld.dimnames() == PersonNew.dimnames()
+
+
+# For issue #743
+Item = dlite.get_instance("http://onto-ns.com/meta/0.1/Item")
+item = Item(dimensions={"nf": 3}, properties={"name": "A", "f": [1, 2, 3]})
+try:
+    import pint
+except ModuleNotFoundError:
+    pass
+else:
+    item.q.f = pint.Quantity([0.1, 0.2, 0.3], "kHz")
+    assert item.f.tolist() == [100., 200., 300.]
+    item.q.f = ([0.5, 0.2, 0.3], "kHz")
+    assert item.f.tolist() == [500., 200., 300.]
+
+    item.set_quantity("f", [0, 3600, 3.6], "hour**-1")
+    assert item.f.tolist() == [0., 1., 0.001]
+    assert item.q.f.m.tolist() == [0., 1., 0.001]
+    assert item.q.f.to("1/hour").m.tolist() == [0, 3600, 3.6]
+
+    
+# For issue #750 - test instance_cast()
+with raises(dlite.DLiteTypeError):
+    dlite.instance_cast(inst, dlite.Metadata)
+castinst = dlite.instance_cast(inst.meta, dlite.Instance)
+assert type(castinst) == dlite.Instance
+assert type(dlite.instance_cast(castinst)) == dlite.Metadata

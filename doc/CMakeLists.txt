@@ -24,7 +24,6 @@ set(DOXYGEN_DOXYFILE_OUT "${BINARY_BUILD_DIR}/Doxyfile")
 
 set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_XML_DIR}/index.xml)
 
-message (${DOXYGEN_DOXYFILE_IN})
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
     "${BINARY_BUILD_DIR}/conf.py"
@@ -79,4 +78,3 @@ add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
   COMMENT "Building HTML documentation with Sphinx")
 
 add_custom_target(Sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
-

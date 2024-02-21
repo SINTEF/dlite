@@ -8,7 +8,6 @@
 /*
  * TODO: Consider to reuse good ideas from https://github.com/rxi/log.c
  */
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -16,6 +15,10 @@
 
 #include "compat.h"
 #include "err.h"
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 /* Thread local storage
  * https://stackoverflow.com/questions/18298280/how-to-declare-a-variable-as-thread-local-portab
@@ -68,6 +71,9 @@ typedef struct {
    * If negative (default), check the environment. */
   ErrDebugMode err_debug_mode;
 
+  /* Whether to */
+  ErrColorMode err_color_mode;
+
   /* How to handle overridden errors in  ErrTry clauses.
    * If negative (default), check the environment. */
   ErrOverrideMode err_override;
@@ -109,6 +115,7 @@ static void reset_tls(void)
   _tls.err_abort_mode = -1;
   _tls.err_warn_mode = -1;
   _tls.err_debug_mode = -1;
+  _tls.err_color_mode = -1;
   _tls.err_override = -1;
   _tls.err_record = &_tls.err_root_record;
   _tls.globals = &_globals;
@@ -123,6 +130,7 @@ static ThreadLocals *get_tls(void)
     _tls.err_abort_mode = -1;
     _tls.err_warn_mode = -1;
     _tls.err_debug_mode = -1;
+    _tls.err_color_mode = -1;
     _tls.err_override = -1;
     _tls.err_record = &_tls.err_root_record;
     _tls.globals = &_globals;
@@ -187,7 +195,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   int ignore_new_error = 0;
   ErrHandler handler = err_get_handler();
   ErrNameConv nameconv = err_get_nameconv();
-  int call_handler = handler && !tls->err_record->prev;
 
   /* Check warning mode */
   if (errlevel == errLevelWarn) {
@@ -210,6 +217,7 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
     switch (override) {
     case errOverrideAppend:
       n = strlen(errmsg);
+      tls->err_record->pos = n;
       n += snprintf(errmsg + n, errsize - n, "%s", err_append_sep);
       break;
     case errOverrideWarnOld:
@@ -275,25 +283,25 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
     tls->err_record->reraise = eval;
 
   /* If we are not within a ErrTry...ErrEnd clause */
-  if (call_handler) {
+  if (!tls->err_record->prev) {
 
     /* ...call the error handler */
-    handler(tls->err_record);
+    if (handler) handler(tls->err_record);
 
     /* ...check err_abort_mode */
     if (errlevel >= errLevelError) {
       if (abort_mode == errAbortExit) {
-        if (!call_handler) handler(tls->err_record);
+        if (!handler) err_default_handler(tls->err_record);
         exit(eval);
       } else if (abort_mode >= errAbortAbort) {
-        if (!call_handler) handler(tls->err_record);
+        if (!handler) err_default_handler(tls->err_record);
         abort();
       }
     }
 
     /* ...make sure that fatal errors always exit */
     if (errlevel >= errLevelFatal) {
-      if (!call_handler) handler(tls->err_record);
+      if (!handler) err_default_handler(tls->err_record);
       exit(eval);
     }
   }
@@ -441,6 +449,7 @@ void err_clear(void)
   tls->err_record->eval = 0;
   tls->err_record->errnum = 0;
   tls->err_record->msg[0] = '\0';
+  tls->err_record->pos = 0;
   tls->err_record->handled = 0;
   tls->err_record->reraise = 0;
   tls->err_record->state = 0;
@@ -619,11 +628,89 @@ ErrOverrideMode err_get_override_mode()
   return tls->err_override;
 }
 
+ErrColorMode err_set_color_mode(ErrColorMode mode)
+{
+  ThreadLocals *tls = get_tls();
+  ErrColorMode prev = tls->err_color_mode;
+  tls->err_color_mode = mode;
+  return prev;
+}
+
+int err_get_color_coded()
+{
+  ThreadLocals *tls = get_tls();
+  if (tls->err_color_mode < 0) {
+    char *mode = getenv("ERR_COLOR");
+    tls->err_color_mode =
+      (!mode || !*mode)                                      ? errColorAuto :
+      (strcmp(mode, "never") == 0 || strcmp(mode, "0") == 0) ? errColorNever :
+      (strcmp(mode, "always") == 0 || strcmp(mode,"1") == 0) ? errColorAlways :
+      errColorAuto;
+  }
+
+  switch (tls->err_color_mode) {
+  case errColorAuto:
+    {
+      int terminal = 0;
+#if defined(HAVE_UNISTD_H) && defined(HAVE_ISATTY)
+      int fno = (tls->globals->err_stream) ?
+        fileno(tls->globals->err_stream) : -1;
+      if (fno >= 0) terminal = (isatty(fno) == 1);
+#elif defined(HAVE__FILENO) && defined(HAVE__ISATTY)
+      int fno = (tls->globals->err_stream) ?
+        _fileno(tls->globals->err_stream) : -1;
+      if (fno >= 0) terminal = _isatty(fno);
+#endif
+      return (terminal) ? 1 : 0;
+    }
+  case errColorAlways:
+    return 1;
+  default:
+    return 0;
+  }
+}
+
 /* Default error handler. */
-static void _err_default_handler(const ErrRecord *record)
+void err_default_handler(const ErrRecord *record)
 {
   FILE *stream = err_get_stream();
-  if (stream) fprintf(stream, "** %s\n", record->msg);
+  const char *msg = record->msg + record->pos;
+  char *errmark = (record->pos) ? "" : "** ";
+  if (record->pos >= ERR_MSGSIZE) return;
+  if (record->pos) {
+    int m = strspn(msg, "\n");
+    int n = strlen(err_append_sep) - m;
+    fprintf(stream, "%.*s", n, msg+m);
+    msg += m+n;
+  }
+  if (stream && err_get_color_coded()) {
+    /* Print error message in colour. */
+    int n;
+    ThreadLocals *tls = get_tls();
+    Globals *g = tls->globals;
+    ErrDebugMode debug_mode = err_get_debug_mode();
+    if (g->err_prefix && *g->err_prefix) {
+      n = strlen(g->err_prefix) + 2;
+      if (!record->pos) fprintf(stream, "\033[02;31m%.*s", n, msg);
+      msg += n;
+    }
+    if (debug_mode >= 1) {
+      n = strcspn(msg, ":") + 1;
+      n += (msg[0] == '(') ? 1 : strcspn(msg+n, ":") + 2;
+      fprintf(stream, "\033[00;34m%.*s", n, msg);
+      msg += n;
+    }
+    if (debug_mode >= 2) {
+      n = strcspn(msg, ":") + 2;
+      fprintf(stream, "\033[02;32m%.*s", n, msg);
+      msg += n;
+    }
+    n = strcspn(msg, ": ");
+    fprintf(stream, "\033[00;31m%.*s\033[02;35m%s\033[0m\n", n, msg, msg+n);
+  } else if (stream) {
+    /* Print error message with error marker prepended. */
+    fprintf(stream, "%s%s\n", errmark, msg);
+  }
 }
 
 ErrHandler err_set_handler(ErrHandler handler)
@@ -639,8 +726,6 @@ ErrHandler err_get_handler(void)
 {
   ThreadLocals *tls = get_tls();
   Globals *g = tls->globals;
-  if (g->err_handler == err_default_handler)
-    g->err_handler = _err_default_handler;
   return g->err_handler;
 }
 
@@ -699,7 +784,6 @@ void _err_link_record(ErrRecord *record)
 void _err_unlink_record(ErrRecord *record)
 {
   ThreadLocals *tls = get_tls();
-  Globals *g = tls->globals;
   assert(record == tls->err_record);
   assert(tls->err_record->prev);
 
@@ -743,7 +827,7 @@ void _err_unlink_record(ErrRecord *record)
 
     if (!tls->err_record->prev) {
       ErrHandler handler = err_get_handler();
-      if (handler) g->err_handler(tls->err_record);
+      if (handler) handler(tls->err_record);
     }
 
     if ((abort_mode && record->level >= errLevelError) ||

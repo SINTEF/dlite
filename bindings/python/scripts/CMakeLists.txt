@@ -23,7 +23,7 @@ install(
   CODE "
    execute_process(
      COMMAND ${Python3_EXECUTABLE} -m pip install
-       --prefix=${CMAKE_INSTALL_PREFIX} --force
+       --prefix=${CMAKE_INSTALL_PREFIX} --force .
      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
    )"
 )
@@ -32,26 +32,30 @@ install(
 # Tests
 test_success(
   dlite-validate-Person
-  dlite-validate ../tests/Person.json
+  dlite-validate ../tests/entities/Person.json
 )
 test_success(
   dlite-validate-persons
-  dlite-validate -p ../tests/Person.json -i a1d8d35f-723c-5ea1-abaf-8fc8f1d0982f
-    ../tests/persons.json
+  dlite-validate
+    -p ../tests/entities/Person.json
+    -i a1d8d35f-723c-5ea1-abaf-8fc8f1d0982f
+    ../tests/input/persons.json
 )
 test_success(
   dlite-validate-persons2
   dlite-validate
-    --storage-path=../tests
+    --storage-path=../tests/entities
     --id=Ada
     --show
-    ../tests/persons.json
+    ../tests/input/persons.json
   )
 
 # No --id for storage with multiple instances
 test_failure(
   dlite-validate-persons-fail2
-  dlite-validate --storage-path ../tests/Person.json --show ../tests/persons.json
+  dlite-validate
+    --storage-path ../tests/entities/Person.json
+    --show ../tests/input/persons.json
 )
 
 # The "dimensions" keyword is required

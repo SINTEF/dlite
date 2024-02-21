@@ -14,11 +14,6 @@
 #define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
 
 
-/** Special state id only used to indicate whether we are in an atexit
-    handler or not */
-#define ATEXIT_MARKER_ID "dlite-atexit-marker-id"
-
-
 /**
   @name General dlite utility functions
   @{
@@ -123,23 +118,25 @@ typedef struct _DLiteOpt {
   is probably the most convinient.  However, if it contains many elements,
   switch might be a better option using the following pattern:
 
-      int i;
-      DLiteOpt opts[] = {
-        {'1', "key1", "default1", "description of key1..."},
-        {'b', "key2", "default2", "description of key2..."},
-        {NULL, NULL}
-      };
-      dlite_getopt(options, opts, 0);
-      for (i=0; opts[i].key; i++) {
-        switch (opts[i].c) {
-        case '1':
-          // process option key1
-          break;
-        case 'b':
-          // process option key2
-          break;
-        }
-      }
+  ```c
+  int i;
+  DLiteOpt opts[] = {
+    {'1', "key1", "default1", "description of key1..."},
+    {'b', "key2", "default2", "description of key2..."},
+    {NULL, NULL}
+  };
+  dlite_getopt(options, opts, 0);
+  for (i=0; opts[i].key; i++) {
+    switch (opts[i].c) {
+    case '1':
+      // process option key1
+      break;
+    case 'b':
+      // process option key2
+      break;
+    }
+  }
+  ```
  */
 int dlite_option_parse(char *options, DLiteOpt *opts, int modify);
 
@@ -249,6 +246,13 @@ int dlite_add_dll_path(void);
  */
 void dlite_init(void);
 
+/*
+  Finalises DLite. Will be called by atexit().
+
+  This function may be called several times.
+ */
+void dlite_finalize(void);
+
 /**
   Globals handle.
  */
@@ -288,6 +292,11 @@ void *dlite_globals_get_state(const char *name);
   Returns non-zero if we are in an atexit handler.
  */
 int dlite_globals_in_atexit(void);
+
+/**
+  Mark that we are in an atexit handler.
+ */
+void dlite_globals_set_atexit(void);
 
 /** @} */
 

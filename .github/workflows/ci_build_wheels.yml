@@ -25,11 +25,16 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 7,9
+            py_minors: 7,12
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
-            py_minors: 7,9
+            py_minors: 7,11  # Python 3.12 fails
+          # Fails with cannot import distutils
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_2"]
+          #  arch: i686
+          #  py_minors: 10,12
 
           # 64-bit linux
           - os: ubuntu-20.04
@@ -39,14 +44,43 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: 7,11
-          #- os: ubuntu-21.04
-          #  system_type: ["manylinux", ""]
+            py_minors: 7,12
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "_2_28"]
+            arch: x86_64
+            py_minors: 7,12
           # See issue #225: https://github.com/SINTEF/dlite/issues/225
           # - os: ubuntu-20.04
           #   system_type: ["musllinux", "_1_1"]
           #   arch: x86_64
           #   py_minors: 7,10
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: x86_64
+            py_minors: 7,11  # Fails for Python-3.12
+          # Fails with cannot import distutils
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_2"]
+          #  arch: x86_64
+          #  py_minors: 7,12
+
+          # May work after weekly container build...
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_2"]
+          #  arch: x86_64
+          #  py_minors: 7
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_2"]
+          #  arch: x86_64
+          #  py_minors: 10
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_2"]
+          #  arch: x86_64
+          #  py_minors: 11
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_2"]
+          #  arch: x86_64
+          #  py_minors: 12
 
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
           # # 32-bit Windows
@@ -63,7 +97,7 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: '11'
+            py_minors: '12'
 
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
           # # 64-bit (Intel) macOS
@@ -74,16 +108,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
           architecture: ${{ matrix.arch == '' && 'x86' || 'x64' }}
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.container_registry }}
           username: ${{ github.actor }}
@@ -104,5 +138,5 @@ jobs:
           CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
-          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
-          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux_1_1_i686:latest
+          CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
+          CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest

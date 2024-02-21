@@ -23,7 +23,7 @@
     {
       "name": "elements",
       "type": "string4",
-      "dims": [
+      "shape": [
         "nelements"
       ],
       "description": "Chemical symbol of each chemical element.  By convension the dependent element (e.g. Al) is listed first."
@@ -31,7 +31,7 @@
     {
       "name": "phases",
       "type": "string255",
-      "dims": [
+      "shape": [
         "nphases"
       ],
       "description": "Name of each phase."
@@ -40,7 +40,7 @@
       "name": "X0",
       "type": "double",
       "unit": "atom-fraction",
-      "dims": [
+      "shape": [
         "nelements"
       ],
       "description": "Nominal composition.  Should sum to one."
@@ -49,7 +49,7 @@
       "name": "Xp",
       "type": "double",
       "unit": "atom-fraction",
-      "dims": [
+      "shape": [
         "nphases",
         "nelements"
       ],
@@ -58,7 +58,7 @@
     {
       "name": "volfrac",
       "type": "double",
-      "dims": [
+      "shape": [
         "nphases"
       ],
       "description": "Volume fraction of each phase, excluding matrix."
@@ -67,7 +67,7 @@
       "name": "rpart",
       "type": "double",
       "unit": "m",
-      "dims": [
+      "shape": [
         "nphases"
       ],
       "description": "Average particle radius of each phase, excluding matrix."
@@ -76,7 +76,7 @@
       "name": "atvol",
       "type": "double",
       "unit": "m^3",
-      "dims": [
+      "shape": [
         "nphases"
       ],
       "description": "Average volume per atom for each phase."

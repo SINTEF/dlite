@@ -167,7 +167,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                     dlite.Property(
                         name=p["name"],
                         type=p["type"],
-                        dims=p.get("shape", p.get("dims")),
+                        shape=p.get("shape", p.get("dims")),
                         unit=p.get("unit"),
                         description=p.get("description"),
                     )
@@ -178,7 +178,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                     dlite.Property(
                         name=k,
                         type=v["type"],
-                        dims=v.get("shape", v.get("dims")),
+                        shape=v.get("shape", v.get("dims")),
                         unit=v.get("unit"),
                         description=v.get("description"),
                     )
@@ -196,10 +196,10 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
             d["dimensions"][dim.name] for dim in meta.properties["dimensions"]
         ]
         inst_id = d.get("uri", d.get("uuid", id))
-        inst = dlite.Instance.from_metaid(meta.uri, dims=dims, id=inst_id)
+        inst = dlite.Instance.from_metaid(meta.uri, dimensions=dims, id=inst_id)
         for p in meta["properties"]:
             value = d["properties"][p.name]
-            inst[p.name] = value
+            inst.set_property(p.name, value)
 
     return inst
 
@@ -341,7 +341,7 @@ def pydantic_to_property(
             name,
             subprop.type,
             ref=subprop.ref,
-            dims=shape,
+            shape=shape,
             unit=unit,
             description=descr,
         )
@@ -394,10 +394,10 @@ def pydantic_to_metadata(
         )
     dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
     return dlite.Instance.create_metadata(
-        uri,
-        dims,
-        properties,
-        d.get("description", ""),
+        uri=uri,
+        dimensions=dims,
+        properties=properties,
+        description=d.get("description", ""),
     )
 
 
@@ -497,7 +497,32 @@ def infer_dimensions(meta, values, strict=True):
                     message="The unit of the quantity is stripped when "
                     "downcasting to ndarray.",
                 )
-                v = np.array(values[prop.name])
+
+                # Convert `values[prop.name]` to NumPy array.
+                # Properties of ref-type must be handled separately, since
+                # NumPy interpreat a list of instances as having inhomogenous
+                # shape.
+                val = values[prop.name]
+                if prop.type == "ref":
+
+                    def like(arr):
+                        """Return a nested list of same shape as `arr`, but
+                        with all values replaced with None."""
+                        result = []
+                        for item in arr:
+                            result.append(
+                                like(item) if isinstance(item, Sequence)
+                                else None
+                            )
+                        return result
+
+                    # Use like() to create a NumPy array filled with None's,
+                    # but of the right shape. Thereafter assign it
+                    v = np.array(like(val), dtype=object)
+                    v[:] = val
+                else:
+                    v = np.array(val)
+
             if len(v.shape) != prop.ndims:
                 raise InvalidNumberOfDimensionsError(
                     f"property {prop.name} has {prop.ndims} dimensions, but "
@@ -516,7 +541,62 @@ def infer_dimensions(meta, values, strict=True):
         missing_dims = dimnames.difference(dims.keys())
         raise CannotInferDimensionError(
             f"insufficient number of properties provided to infer dimensions: "
-            f"{missing_dims}"
+            f"{missing_dims} for metadata: {meta.uri}"
         )
 
     return dims
+
+
+def get_referred_instances(inst, include_meta=False):
+    """Return a set with all instances that are directly or indirectly
+    referred to by `inst`.
+
+    This function follows instances referred to by collections and via
+    properties of type 'ref'.  Transaction parents are not included,
+    hence the returned set only includes instances in the current
+    snapshot.
+
+    Cyclic references are handled correctly.
+
+    If `include_meta` is true, also return metadata.
+
+    Example
+    -------
+    If you have a collection 'coll' with three instances 'inst1',
+    'inst2' and 'inst3' and 'inst2' has a 'ref' property, which is
+    an array `[inst4, inst5]`, then
+
+        get_referred_instances(coll)
+
+    would return the set `{coll, inst1, inst2, inst3, inst4, inst5}`.
+
+    The same set would be returned even if one of the instances would
+    have a 'ref' property referring back to 'coll'.
+    """
+    references = set()
+    _get_referred_instances(inst, include_meta, references)
+    return references
+
+
+def _get_referred_instances(inst, include_meta, references):
+    """Recursive help function for get_referred_instances()."""
+    if inst is None or inst in references:
+        return
+    references.add(inst)
+    if isinstance(inst, dlite.Collection):
+        for i in inst.get_instances():
+            _get_referred_instances(i, include_meta, references)
+    else:
+        for prop in inst.meta.properties["properties"]:
+            if prop.type == "ref":
+                if prop.ndims:
+                    for i in inst[prop.name]:
+                        _get_referred_instances(
+                            i, include_meta, references
+                        )
+                else:
+                        _get_referred_instances(
+                            inst[prop.name], include_meta, references
+                        )
+    if include_meta:
+        _get_referred_instances(inst.meta, include_meta, references)

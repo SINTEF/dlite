@@ -13,6 +13,7 @@
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
 #include "utils/session.h"
+#include "utils/rng.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -461,20 +462,46 @@ int dlite_add_dll_path(void)
 #define ERR_MASK_ID "err-ignored-id"
 
 
+/* Local state for this module. */
+typedef struct {
+  int in_atexit;
+} Locals;
+
+
 /* A cache pointing to the current session handler */
 static DLiteGlobals *_globals_handler=NULL;
 
+/* Pointer to local state */
+Locals *_locals=NULL;
 
-/* Called by atexit().  Should be ok to call this multiple times... */
-static void _free_globals(void) {
-  Session *s = session_get_default();
+/* Free variables in local state. */
+static void free_locals()
+{
+  _locals = NULL;
+}
 
-  /* Remove the atexit marker state to indicate that we now are in a
-     atexit handler */
-  if (session_get_state(s, ATEXIT_MARKER_ID))
-    session_remove_state(s, ATEXIT_MARKER_ID);
+/* Return a pointer to local state. */
+static Locals *get_locals(void)
+{
+  if (!_locals) {
+    static Locals locals;
+    _locals = &locals;
+    memset(_locals, 0, sizeof(Locals));
+  }
+  return _locals;
+}
 
-  session_free(s);
+
+/* Called by atexit(). */
+static void _handle_atexit(void) {
+
+  /* No extra finalisation is needed if we already are in an atexit handler */
+  if (dlite_globals_in_atexit()) return;
+
+  /* Mark that we are in an atexit handler */
+  dlite_globals_set_atexit();
+
+  dlite_finalize();
 }
 
 /*
@@ -485,20 +512,13 @@ DLiteGlobals *dlite_globals_get(void)
   if (!_globals_handler) {
     _globals_handler = session_get_default();
 
-    if (!session_get_state(_globals_handler, ATEXIT_MARKER_ID)) {
-      static void **dummy_ptr=NULL;
+    dlite_init();
 
-      /* Make valgrind and other memory leak detectors happy by freeing
-         up all globals at exit. */
-      atexit(_free_globals);
-
-      /* Add an atexit marker used by dlite_blobals_in_atexit().
-         The value of the state is not used. */
-      session_add_state((Session *)_globals_handler, ATEXIT_MARKER_ID,
-                        &dummy_ptr, NULL);
-    }
+    /* Make valgrind and other memory leak detectors happy by freeing
+       up all globals at exit. */
+    if (!dlite_globals_in_atexit())
+      atexit(_handle_atexit);
   }
-  dlite_init();
   return _globals_handler;
 }
 
@@ -521,10 +541,8 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 /* Error handler for DLite. */
 static void dlite_err_handler(const ErrRecord *record)
 {
-  if (!dlite_err_ignored_get(record->eval)) {
-    FILE *stream = err_get_stream();
-    if (stream) fprintf(stream, "** %s\n", record->msg);
-  }
+  if (!dlite_err_ignored_get(record->eval))
+    err_default_handler(record);
 }
 
 
@@ -538,6 +556,13 @@ void dlite_init(void)
   if (!initialized) {
     initialized = 1;
 
+    /* Call get_locals() to ensure that the local state is initialised. */
+    get_locals();
+
+    /* Seed random number generator */
+    srand_msws32(0);
+    srand_msws64(0);
+
     /* Set up global state for utils/err.c */
     if (!dlite_globals_get_state(ERR_STATE_ID))
       dlite_globals_add_state(ERR_STATE_ID, err_get_state(), NULL);
@@ -547,6 +572,30 @@ void dlite_init(void)
     err_set_nameconv(dlite_errname);
   }
 }
+
+
+/*
+  Finalises DLite. Will be called by atexit().
+
+  This function may be called several times.
+ */
+void dlite_finalize(void)
+{
+  Session *s = session_get_default();
+
+  /* Don't free anything if we are in an atexit handler */
+  if (dlite_globals_in_atexit() && !getenv("DLITE_ATEXIT_FREE")) return;
+
+  /* Reset error handling */
+  err_set_handler(NULL);
+  err_set_nameconv(NULL);
+
+  session_free(s);
+  _globals_handler = NULL;
+
+  free_locals();
+}
+
 
 
 /*
@@ -587,9 +636,18 @@ void *dlite_globals_get_state(const char *name)
  */
 int dlite_globals_in_atexit(void)
 {
-  return (dlite_globals_get_state(ATEXIT_MARKER_ID)) ? 0 : 1;
+  Locals *locals = get_locals();
+  return locals->in_atexit;
 }
 
+/*
+  Mark that we are in an atexit handler.
+ */
+void dlite_globals_set_atexit(void)
+{
+  Locals *locals = get_locals();
+  locals->in_atexit = 1;
+}
 
 
 /********************************************************************
@@ -639,6 +697,7 @@ int dlite_err_ignored_get(DLiteErrCode code)
 {
   DLiteErrMask *mask = _dlite_err_mask_get();
   if (!mask) return 0;
+  if (code > 0 && (*mask & DLITE_ERRBIT(dliteUnknownError))) return 1;
   return *mask & DLITE_ERRBIT(code);
 }
 

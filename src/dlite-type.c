@@ -601,12 +601,12 @@ void *dlite_type_copy(void *dest, const void *src, DLiteType dtype, size_t size)
       d->ndims = s->ndims;
       if (d->ndims) {
         int i;
-        if (!(d->dims = malloc(d->ndims*sizeof(char *))))
+        if (!(d->shape = malloc(d->ndims*sizeof(char *))))
           return err(dliteMemoryError, "allocation failure"), NULL;
         for (i=0; i<d->ndims; i++)
-          d->dims[i] = strdup(s->dims[i]);
+          d->shape[i] = strdup(s->shape[i]);
       } else {
-        d->dims = NULL;
+        d->shape = NULL;
       }
       d->unit = (s->unit) ? strdup(s->unit) : NULL;
       d->description = (s->description) ? strdup(s->description) : NULL;
@@ -655,12 +655,12 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
   case dliteProperty:
     free(((DLiteProperty *)p)->name);
     if (((DLiteProperty *)p)->ref) free(((DLiteProperty *)p)->ref);
-    if (((DLiteProperty *)p)->dims) {
+    if (((DLiteProperty *)p)->shape) {
       int i;
       for (i=0; i < ((DLiteProperty *)p)->ndims; i++)
-        if (((DLiteProperty *)p)->dims[i])
-          free(((DLiteProperty *)p)->dims[i]);
-      free(((DLiteProperty *)p)->dims);
+        if (((DLiteProperty *)p)->shape[i])
+          free(((DLiteProperty *)p)->shape[i]);
+      free(((DLiteProperty *)p)->shape);
     }
     if (((DLiteProperty *)p)->unit) free(((DLiteProperty *)p)->unit);
     if (((DLiteProperty *)p)->description)
@@ -670,6 +670,7 @@ void *dlite_type_clear(void *p, DLiteType dtype, size_t size)
     if (((DLiteRelation *)p)->s)  free(((DLiteRelation *)p)->s);
     if (((DLiteRelation *)p)->p)  free(((DLiteRelation *)p)->p);
     if (((DLiteRelation *)p)->o)  free(((DLiteRelation *)p)->o);
+    if (((DLiteRelation *)p)->d)  free(((DLiteRelation *)p)->d);
     if (((DLiteRelation *)p)->id) free(((DLiteRelation *)p)->id);
     break;
   }
@@ -844,9 +845,9 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
                    "\"ndims\": %d",
                    prop->name, typename, prop->ndims);
       if (prop->ndims) {
-        m += snprintf(dest+m, PDIFF(n, m), ", \"dims\": [");
+        m += snprintf(dest+m, PDIFF(n, m), ", \"shape\": [");
         for (i=0; i < prop->ndims; i++)
-          m += snprintf(dest+m, PDIFF(n, m), "\"%s\"%s", prop->dims[i],
+          m += snprintf(dest+m, PDIFF(n, m), "\"%s\"%s", prop->shape[i],
                         (i < prop->ndims-1) ? ", " : "");
         m += snprintf(dest+m, PDIFF(n, m), "]");
       }
@@ -868,6 +869,10 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
       m += strquote(dest+m, PDIFF(n, m), r->p);
       m += snprintf(dest+m, PDIFF(n, m), ", ");
       m += strquote(dest+m, PDIFF(n, m), r->o);
+      if (r->d) {
+        m += snprintf(dest+m, PDIFF(n, m), ", ");
+        m += strquote(dest+m, PDIFF(n, m), r->d);
+      }
       m += snprintf(dest+m, PDIFF(n, m), "]");
     }
     break;
@@ -920,7 +925,7 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
 /* Maximum number of jsmn tokens in a dimension, property and relation */
 #define MAX_DIMENSION_TOKENS  5
 #define MAX_PROPERTY_TOKENS  64  // this supports at least 50 dimensions...
-#define MAX_RELATION_TOKENS   9
+#define MAX_RELATION_TOKENS  11
 
 /* Macro used by dlite_type_scan() to asign `target` when scanning a
    relation. */
@@ -928,7 +933,7 @@ int dlite_type_aprint(char **dest, size_t *n, size_t pos, const void *p,
   if (strnput_unquote(&buf, &bufsize, 0, src + t->start,                \
                       t->end - t->start, NULL, strquoteNoQuote) < 0)    \
     return -1;                                                          \
-  target = strndup(buf, t->end - t->start);
+  target = (buf[0]) ? strndup(buf, t->end - t->start) : NULL;
 
 
 /*
@@ -1166,18 +1171,19 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if ((t = jsmn_item(src, tokens, "$ref")))
         prop->ref = strndup(src + t->start, t->end - t->start);
 
-      if ((t = jsmn_item(src, tokens, "dims"))) {
+      if ((t = jsmn_item(src, tokens, "shape")) ||
+          (t = jsmn_item(src, tokens, "dims"))) {
         if (t->type != JSMN_ARRAY)
           return dlite_property_clear(prop),
-            errx(dliteParseError, "property dims should be an array");
+            errx(dliteParseError, "property shape should be an array");
         prop->ndims = t->size;
-        prop->dims = calloc(prop->ndims, sizeof(char *));
+        prop->shape = calloc(prop->ndims, sizeof(char *));
         for (i=0; i < prop->ndims; i++) {
           if (!(d = jsmn_element(src, t, i)))
             return dlite_property_clear(prop),
               err(dliteParseError, "error parsing property dimensions: %.*s",
                        t->end - t->start, src + t->start);
-          prop->dims[i] = strndup(src + d->start, d->end - d->start);
+          prop->shape[i] = strndup(src + d->start, d->end - d->start);
         }
       }
 
@@ -1208,8 +1214,8 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
       if ((r = jsmn_parse(&parser, src, len, tokens, MAX_RELATION_TOKENS)) < 0)
         return err(dliteParseError, "cannot parse relation: %s: '%s'",
                    jsmn_strerror(r), src);
-      if (tokens->size < 3 || tokens->size > 4)
-        return errx(dliteParseError, "relation should have 3 (optionally 4) elements");
+      if (tokens->size < 3 || tokens->size > 5)
+        return errx(dliteParseError, "relation should have 3 (optionally 5) elements");
       m = tokens->end - tokens->start;
       if (tokens->type == JSMN_ARRAY) {
         size_t bufsize=0;
@@ -1220,8 +1226,13 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         SET_RELATION(rel->p, buf, bufsize, t, src);
         if (!(t = jsmn_element(src, tokens, 2))) return -1;
         SET_RELATION(rel->o, buf, bufsize, t, src);
-        if (tokens->size > 3 && (t = jsmn_element(src, tokens, 3)))
-          rel->id = strndup(src + t->start, t->end - t->start);
+        if (tokens->size > 3 && (t = jsmn_element(src, tokens, 3))) {
+          SET_RELATION(rel->d, buf, bufsize, t, src);
+        }
+        if (tokens->size > 4 && (t = jsmn_element(src, tokens, 4))) {
+          rel->id = (t->end > t->start) ?
+            strndup(src + t->start, t->end - t->start) : NULL;
+        }
         free(buf);
       } else if (tokens->type == JSMN_OBJECT) {
         size_t bufsize=0;
@@ -1232,8 +1243,12 @@ int dlite_type_scan(const char *src, int len, void *p, DLiteType dtype,
         SET_RELATION(rel->p, buf, bufsize, t, src);
         if (!(t = jsmn_item(src, tokens, "o"))) return -1;
         SET_RELATION(rel->o, buf, bufsize, t, src);
+        if ((t = jsmn_item(src, tokens, "d"))) {
+          SET_RELATION(rel->d, buf, bufsize, t, src);
+        }
         if ((t = jsmn_item(src, tokens, "id")))
-          rel->id = strndup(src + t->start, t->end - t->start);
+          rel->id = (t->end > t->start) ?
+            strndup(src + t->start, t->end - t->start) : NULL;
         free(buf);
       } else {
         return errx(dliteValueError, "relation should be a JSON array");
@@ -1288,7 +1303,7 @@ int dlite_type_update_sha3(sha3_context *c, const void *ptr,
       sha3_Update(c, &p->size, sizeof(size_t));
       sha3_Update(c, &p->ndims, sizeof(int));
       for (i=0; i<p->ndims; i++)
-        sha3_Update(c, p->dims[i], strlen(p->dims[i]));
+        sha3_Update(c, p->shape[i], strlen(p->shape[i]));
       if (p->unit) sha3_Update(c, p->unit, strlen(p->unit));
       //if (p->description)
       //  sha3_Update(c, p->description, strlen(p->description));

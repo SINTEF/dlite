@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import dlite
+from dlite.testutils import raises
 
 
 # Configure paths
@@ -9,7 +10,7 @@ thisdir = Path(__file__).parent.absolute()
 dlite.storage_path.append(thisdir / "*.json")
 Person = dlite.get_instance("http://onto-ns.com/meta/0.1/Person")
 
-person = Person(dims={"N": 4})
+person = Person(dimensions={"N": 4})
 person.name = "Knud H. Thomsen"
 person.age = 30
 person.skills = ["writing", "humor", "history", "human knowledge"]
@@ -25,10 +26,10 @@ for i in range(7):
 try:
     person.get_snapshot(7)
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     raise Exception(
-        "Should've failed test (getting non-existant snapshot), but didn't."
+        "Test should have failed (getting non-existant snapshot), but didn't."
     )
 assert person._get_parent_uuid() == person.get_snapshot(1).uuid
 assert person._get_parent_hash() == person.get_snapshot(1).get_hash()
@@ -40,19 +41,12 @@ assert person.get_snapshot(2).is_frozen() == True
 
 frozen = person.get_snapshot(1)
 assert frozen.is_frozen() == True
-try:
-    frozen.age = 77
-except dlite.DLiteError as exc:
-    assert str(exc) == "frozen instance does not support attribute assignment"
-else:
-    raise Exception("frozen instance should not accept attribute assignment")
 
-try:
+with raises(dlite.DLiteUnsupportedError):
+    frozen.age = 77
+
+with raises(ValueError):
     frozen.skills[0] = "skiing"
-except ValueError:
-    pass
-else:
-    raise Exception("frozen property array should not accept assignment")
 
 # Create branch
 inst = person.copy()
@@ -69,10 +63,10 @@ for i in range(4):
 try:
     inst.get_snapshot(6)
 except dlite.DLiteError:
-    pass
+    dlite.errclr()
 else:
     raise Exception(
-        "Should've failed test (getting non-existant snapshot), but didn't"
+        "Test should have failed (getting non-existant snapshot), but didn't"
     )
 
 # Push to storage

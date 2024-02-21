@@ -7,13 +7,14 @@ User Guide
 
    concepts
    type-system
+   exceptions
    mappings
    collections
    transactions
    tools
    code_generation
    storage_plugins
-   storage_plugins_mongodb-atlas
+   storage_plugins_mongodb
    environment_variables
    features
    vocabulary

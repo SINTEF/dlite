@@ -49,7 +49,8 @@
   char *options;            /*!< Options passed to dlite_storage_open() */ \
   DLiteMapInstance cache;   /*!< Map to loaded instances */                \
   DLiteStorageFlags flags;  /*!< Storage flags */                          \
-  DLiteIDFlag idflag;       /*!< How to handle instance id's */
+  DLiteIDFlag idflag;       /*!< How to handle instance id's */            \
+  int refcount;             /*!< Number of references to this storage */
 
 
 /** Initial segment of all DLiteDataModel plugin data structures. */
@@ -451,13 +452,13 @@ typedef int (*GetDimensionSize)(const DLiteDataModel *d, const char *name);
 
   The expected type, size, number of dimensions and size of each
   dimension of the memory is described by `type`, `size`, `ndims` and
-  `dims`, respectively.
+  `shape`, respectively.
 
   Returns non-zero on error.
  */
 typedef int (*GetProperty)(const DLiteDataModel *d, const char *name,
                            void *ptr, DLiteType type, size_t size,
-                           size_t ndims, const size_t *dims);
+                           size_t ndims, const size_t *shape);
 
 
 /** @} */
@@ -487,13 +488,13 @@ typedef int (*SetDimensionSize)(DLiteDataModel *d, const char *name,
 
   The expected type, size, number of dimensions and size of each
   dimension of the memory is described by `type`, `size`, `ndims` and
-  `dims`, respectively.
+  `shape`, respectively.
 
   Returns non-zero on error.
  */
 typedef int (*SetProperty)(DLiteDataModel *d, const char *name,
                            const void *ptr, DLiteType type, size_t size,
-                           size_t ndims, const size_t *dims);
+                           size_t ndims, const size_t *shape);
 
 
 /**

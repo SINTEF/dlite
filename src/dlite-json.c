@@ -70,11 +70,12 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length);
 int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
                        int indent, DLiteJsonFlag flags)
 {
-  DLiteTypeFlag f = dliteFlagQuoted;
   int n=0, ok=0, m, j;
   size_t i;
   char *in = malloc(indent + 1);
   char *prop_comma = (inst->_parent && !(flags & dliteJsonNoParent)) ? "," : "";
+  DLiteTypeFlag f = dliteFlagQuoted;
+  if (flags & dliteJsonCompactRel) f |= dliteFlagCompactRel;
   memset(in, ' ', indent);
   in[indent] = '\0';
 
@@ -103,9 +104,9 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
       char *c = (i < inst->meta->_nproperties - 1) ? "," : "";
       DLiteProperty *p = inst->meta->_properties + i;
       void *ptr = dlite_instance_get_property_by_index(inst, i);
-      size_t *dims = DLITE_PROP_DIMS(inst, i);
+      size_t *shape= DLITE_PROP_DIMS(inst, i);
       PRINT2("%s    \"%s\": ", in, p->name);
-      m = dlite_property_print(dest+n, PDIFF(size, n), ptr, p, dims, 0, -2, f);
+      m = dlite_property_print(dest+n, PDIFF(size, n), ptr, p, shape, 0, -2, f);
       if (m < 0) return -1;
       n += m;
       PRINT1("%s\n", c);
@@ -146,7 +147,7 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         PRINT1(",\n%s      \"dims\": [", in);
         for (j=0; j < p->ndims; j++) {
           char *cc = (j < p->ndims - 1) ? ", " : "";
-          PRINT2("\"%s\"%s", p->dims[j], cc);
+          PRINT2("\"%s\"%s", p->shape[j], cc);
         }
         PRINT("]");
       }
@@ -211,7 +212,7 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
         PRINT1(",\n%s      \"shape\": [", in);
         for (j=0; j < p->ndims; j++) {
           char *cc = (j < p->ndims - 1) ? ", " : "";
-          PRINT2("\"%s\"%s", p->dims[j], cc);
+          PRINT2("\"%s\"%s", p->shape[j], cc);
         }
         PRINT("]");
       }
@@ -250,7 +251,8 @@ int _dlite_json_sprint(char *dest, size_t size, const DLiteInstance *inst,
     char hex[DLITE_HASH_SIZE*2 + 1];
     if (strhex_encode(hex, sizeof(hex),
                       inst->_parent->hash, DLITE_HASH_SIZE) < 0)
-      FAIL1("cannot encode hash of parent: %s", inst->_parent->uuid);
+      FAILCODE1(dliteValueError,
+                "cannot encode hash of parent: %s", inst->_parent->uuid);
     PRINT1("%s  \"parent\": {\n", in);
     PRINT2("%s    \"uuid\": \"%s\",\n", in, inst->_parent->uuid);
     PRINT2("%s    \"hash\": \"%s\"\n", in, hex);
@@ -610,8 +612,9 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
     if ((t = jsmn_item(src, obj, "properties"))) dims[n++] = t->size;
     if ((t = jsmn_item(src, obj, "relations")))  dims[n++] = t->size;
     if (n != meta->_ndimensions)
-      FAIL1("metadata does not confirm to schema, please check dimensions, "
-            "properties and/or relations: %s", id);
+      FAILCODE1(dliteParseError, "metadata does not confirm to schema, "
+                "please check dimensions, properties and/or relations: %s",
+                id);
 
   } else {
     if (meta->_ndimensions > 0) {
@@ -1233,7 +1236,8 @@ DLiteJsonFormat dlite_jstore_loadf(JStore *js, const char *filename)
 {
   char *buf = jstore_readfile(filename);
   int fmt;
-  if (!buf) return err(1, "cannot load json file \"%s\"", filename);
+  if (!buf) return err(dliteStorageLoadError, "cannot load JSON file \"%s\"",
+                       filename);
   fmt = dlite_jstore_loads(js, buf, strlen(buf));
   free(buf);
   return fmt;

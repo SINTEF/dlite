@@ -15,7 +15,7 @@
 DLiteProperty *
 dlite_swig_create_property(const char *name, enum _DLiteType type,
                            size_t size, const char *ref,
-                           obj_t *dims, const char *unit,
+                           obj_t *shape, const char *unit,
                            const char *description)
 {
   DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
@@ -23,17 +23,17 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
   p->type = type;
   p->size = size;
   if (ref && *ref) p->ref = strdup(ref);
-  if (dims && dims != DLiteSwigNone) {
-    p->ndims = (int)PySequence_Length(dims);
-    if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
-                                           sizeof(char *), dims))) {
+  if (shape && shape != DLiteSwigNone) {
+    p->ndims = (int)PySequence_Length(shape);
+    if (!(p->shape = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
+                                           sizeof(char *), shape))) {
       free(p->name);
       free(p);
       return NULL;
     }
   } else {
     p->ndims = 0;
-    p->dims = NULL;
+    p->shape = NULL;
   }
   if (unit) p->unit = strdup(unit);
   if (description) p->description = strdup(description);
@@ -139,18 +139,18 @@ struct _DLiteProperty {
 
 %extend _DLiteProperty {
   _DLiteProperty(const char *name, const char *type, const char *ref=NULL,
-                 obj_t *dims=NULL, const char *unit=NULL,
+                 obj_t *shape=NULL, const char *unit=NULL,
                  const char *description=NULL) {
     DLiteType dtype;
     size_t size;
     if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
-    return dlite_swig_create_property(name, dtype, size, ref, dims, unit,
+    return dlite_swig_create_property(name, dtype, size, ref, shape, unit,
                                       description);
   }
   ~_DLiteProperty() {
     free($self->name);
     if ($self->ref) free($self->ref);
-    if ($self->dims) free_str_array($self->dims, $self->ndims);
+    if ($self->shape) free_str_array($self->shape, $self->ndims);
     if ($self->unit) free($self->unit);
     if ($self->description) free($self->description);
     free($self);
@@ -165,7 +165,7 @@ struct _DLiteProperty {
   }
   obj_t *get_shape(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
-                                dliteStringPtr, sizeof(char *), $self->dims);
+                                dliteStringPtr, sizeof(char *), $self->shape);
   }
   void set_shape(obj_t *arr) {
     int i, n = dlite_swig_length(arr);
@@ -174,10 +174,10 @@ struct _DLiteProperty {
       FAIL("allocation failure");
     if (dlite_swig_set_array(&new, 1, &n, dliteStringPtr, sizeof(char *), arr))
       FAIL("cannot set new shape");
-    for (i=0; i < $self->ndims; i++) free($self->dims[i]);
-    free($self->dims);
+    for (i=0; i < $self->ndims; i++) free($self->shape[i]);
+    free($self->shape);
     $self->ndims = n;
-    $self->dims = new;
+    $self->shape = new;
     return;
   fail:
     if (new) {
@@ -192,19 +192,38 @@ struct _DLiteProperty {
 /* --------
  * Relation
  * -------- */
+%feature("docstring", "\
+Relations in DLite corresponds to RDF-triples, but are internally 4 fields:
+  - s: subject
+  - p: predicate
+  - o: object
+  - d: datatype
+
+The datatype is the datatype for literal objects. It may have three forms:
+  - None: object is an IRI (rdfs:Resource).
+  - Starts with '@': object is a language-tagged plain literal
+    (rdf:langString). The language identifier follows the '@'-sign.
+    Ex: '@en' for english.
+  - Otherwise: object is a literal with datatype `d`. Ex: 'xsd:int'.
+
+As an internal implementation detail, relations also have an `id` field.
+It may change in the future, so please don't rely on it.
+") _Triple;
 %rename(Relation) _Triple;
 struct _Triple {
   char *s;     /*!< subject */
   char *p;     /*!< predicate */
   char *o;     /*!< object */
+  char *d;     /*!< datatype */
   char *id;    /*!< unique ID identifying this triple */
 };
 
 %extend _Triple {
-  _Triple(const char *s, const char *p, const char *o, const char *id=NULL) {
+  _Triple(const char *s, const char *p, const char *o,
+          const char *d=NULL, const char *id=NULL) {
     Triple *t;
     if (!(t =  calloc(1, sizeof(Triple)))) FAIL("allocation failure");
-    if (triple_set(t, s, p, o, id)) FAIL("cannot set relation");
+    if (triple_set(t, s, p, o, d, id)) FAIL("cannot set relation");
     return t;
   fail:
     if (t) {
@@ -220,19 +239,6 @@ struct _Triple {
   }
 }
 
-%{
-char *triple_get_id2(const char *s, const char *p, const char *o,
-                      const char *namespace) {
-  return triple_get_id(namespace, s, p, o);
-}
-%}
- %rename(triple_get_id) triple_get_id2;
-%newobject triple_get_id;
-char *triple_get_id(const char *s, const char *p, const char *o,
-                     const char *namespace=NULL);
-
-void triple_set_default_namespace(const char *namespace);
-
 
 /* --------
  * Instance
@@ -240,10 +246,13 @@ void triple_set_default_namespace(const char *namespace);
 %feature("docstring", "\
 Returns a new instance.
 
-Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
+Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None,
+         location=None, options=None, dimensions=None, properties=None,
+         description=None)
+
     Is called from one of the following class methods defined in dlite.py:
 
-      - from_metaid(cls, metaid, dims, id=None)
+      - from_metaid(cls, metaid, dimensions, id=None)
       - from_url(cls, url, metaid=None)
       - from_storage(cls, storage, id=None, metaid=None)
       - from_location(cls, driver, location, options=None, id=None)
@@ -289,11 +298,15 @@ struct _DLiteInstance {
       DLiteMeta *meta;
       size_t i, *d, n=ndims;
       if (!(meta = dlite_meta_get(metaid)))
-        return dlite_err(1, "cannot find metadata '%s'", metaid), NULL;
+        return dlite_err(dliteMissingMetadataError,
+                         "cannot find metadata '%s'", metaid), NULL;
       if (n != meta->_ndimensions) {
+        dlite_err(dliteValueError, "ndims=%d, but %s has %u dimension(s)",
+                  ndims, metaid, (unsigned)meta->_ndimensions);
         dlite_meta_decref(meta);
-        return dlite_err(1, "%s has %u dimensions",
-                          metaid, (unsigned)meta->_ndimensions), NULL;
+        return dlite_err(dliteParseError, "%s has %u dimensions (%u given)",
+                         metaid, (unsigned)meta->_ndimensions,
+                         (unsigned)n), NULL;
       }
       d = malloc(n * sizeof(size_t));
       for (i=0; i<n; i++) d[i] = dims[i];
@@ -476,9 +489,9 @@ Call signatures:
   %feature("docstring",
            "Returns a copy of the instance.  If `newid` is given, it will be\n"
            "the id of the new instance, otherwise it will be given a\n"
-           "random UUID.") copy;
-  %newobject copy;
-  struct _DLiteInstance *copy(const char *newid=NULL) {
+           "random UUID.") _copy;
+  %newobject _copy;
+  struct _DLiteInstance *_copy(const char *newid=NULL) {
     return dlite_instance_copy($self, newid);
   }
 
@@ -716,11 +729,22 @@ Returns:
   }
 
   %feature("docstring",
-           "Returns a JSON representation of self.") _asjson;
+           "Returns a JSON representation of self.\n"
+           "\n"
+           "Arguments:\n"
+           "    single: Write instances with single-entity format.\n"
+           "    urikey: Use uri (if it exists) as json key in multi-entity format.\n"
+           "    with_uuid: Include uuid in output.\n"
+           "    with_meta: Always include 'meta' (even for metadata).\n"
+           "    with_arrays: Write metadata dimension and properties as json arrays (old format).\n"
+           "    no_parent: Do not write transaction parent info.\n"
+           "    compact_rel: Write relations with no newlines.\n"
+           ) _asjson;
   %newobject _asjson;
   char *_asjson(int indent=0, bool single=false, bool urikey=false,
-               bool with_uuid=false, bool with_meta=false,
-               bool with_arrays=false, bool no_parent=false) {
+                bool with_uuid=false, bool with_meta=false,
+                bool with_arrays=false, bool no_parent=false,
+                bool compact_rel=false) {
     DLiteJsonFlag flags=0;
     if (single) flags |= dliteJsonSingle;
     if (urikey) flags |= dliteJsonUriKey;
@@ -728,6 +752,7 @@ Returns:
     if (with_meta) flags |= dliteJsonWithMeta;
     if (with_arrays) flags |= dliteJsonArrays;
     if (no_parent) flags |= dliteJsonNoParent;
+    if (compact_rel) flags |= dliteJsonCompactRel;
     return dlite_json_aprint($self, indent, flags);
   }
 

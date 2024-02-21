@@ -117,9 +117,9 @@ int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
  */
 int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
                                  void *ptr, DLiteType type, size_t size,
-                                 size_t ndims, const size_t *dims)
+                                 size_t ndims, const size_t *shape)
 {
-  return d->api->getProperty(d, name, ptr, type, size, ndims, dims);
+  return d->api->getProperty(d, name, ptr, type, size, ndims, shape);
 }
 
 
@@ -133,11 +133,11 @@ int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
 */
 int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,
                                  const void *ptr, DLiteType type, size_t size,
-                                 size_t ndims, const size_t *dims)
+                                 size_t ndims, const size_t *shape)
 {
   if (!d->api->setProperty)
     return errx(1, "driver '%s' does not support set_property", d->api->name);
-  return d->api->setProperty(d, name, ptr, type, size, ndims, dims);
+  return d->api->setProperty(d, name, ptr, type, size, ndims, shape);
 }
 
 
@@ -211,7 +211,7 @@ char *dlite_datamodel_get_dataname(DLiteDataModel *d)
    flat continuous C-ordered array \a dst. The size of dest must be
    sufficient large.  Returns non-zero on error. */
 int dlite_copy_to_flat(void *dst, const void *src, size_t size,
-                       size_t ndims, const size_t *dims)
+                       size_t ndims, const size_t *shape)
 {
   int i, n=0, ntot=1, retval=1, *ind=NULL;
   char *q=dst;
@@ -221,16 +221,16 @@ int dlite_copy_to_flat(void *dst, const void *src, size_t size,
     FAILCODE(dliteMemoryError, "allocation failure");
 
   for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];
-  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? (int)dims[i] : 1;
+  for (i=0; i<(int)ndims; i++) ntot *= (shape) ? (int)shape[i] : 1;
 
   while (n++ < ntot) {
     memcpy(q, *p, size);
     p++;
     q += size;
-    if (++ind[ndims-1] >= ((dims) ? (int)dims[ndims-1] : 1)) {
+    if (++ind[ndims-1] >= ((shape) ? (int)shape[ndims-1] : 1)) {
       ind[ndims-1] = 0;
       for (i=ndims-2; i>=0; i--) {
-        if (++ind[i] < ((dims) ? (int)dims[i] : i))
+        if (++ind[i] < ((shape) ? (int)shape[i] : i))
           break;
         else
           ind[i] = 0;
@@ -249,7 +249,7 @@ int dlite_copy_to_flat(void *dst, const void *src, size_t size,
    pointer to pointers array \a src. The size of dest must be
    sufficient large.  Returns non-zero on error. */
 int dlite_copy_to_nested(void *dst, const void *src, size_t size,
-                         size_t ndims, const size_t *dims)
+                         size_t ndims, const size_t *shape)
 {
   int i, n=0, ntot=1, *ind=NULL, retval=1;
   const char *q=src;
@@ -259,16 +259,16 @@ int dlite_copy_to_nested(void *dst, const void *src, size_t size,
    FAILCODE(dliteMemoryError, "allocation failure");
 
   for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];
-  for (i=0; i<(int)ndims; i++) ntot *= (dims) ? (int)dims[i] : 1;
+  for (i=0; i<(int)ndims; i++) ntot *= (shape) ? (int)shape[i] : 1;
 
   while (n++ < ntot) {
     memcpy(*p, q, size);
     p++;
     q += size;
-    if (++ind[ndims-1] >= ((dims) ? (int)dims[ndims-1] : 1)) {
+    if (++ind[ndims-1] >= ((shape) ? (int)shape[ndims-1] : 1)) {
       ind[ndims-1] = 0;
       for (i=ndims-2; i>=0; i--) {
-        if (++ind[i] < ((dims) ? (int)dims[i] : i))
+        if (++ind[i] < ((shape) ? (int)shape[i] : i))
           break;
         else
           ind[i] = 0;

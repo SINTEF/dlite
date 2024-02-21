@@ -73,13 +73,16 @@ MU_TEST(test_sprint)
                         dliteJsonArrays | dliteJsonSingle);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(1011, m);
+  mu_assert_int_eq(1011, m); 
 
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)meta, 2,
                         dliteJsonWithUuid | dliteJsonArrays | dliteJsonSingle);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(1165, m);
+  mu_assert_int_eq(1165, m); 
+
+  //printf("\n========================================================\n");
+
 
   /* Tests for PR #541 */
   m = dlite_json_sprint(buf, 0, inst, 4, dliteJsonSingle);
@@ -88,20 +91,24 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(NULL, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);
 
-  
+
   /* More tests for issue #543 */
-  m = dlite_json_sprint(NULL, 0, coll, 0, 0);
+  m = dlite_json_sprint(NULL, 0, coll, 0, dliteJsonCompactRel);
+  mu_assert_int_eq(406, m);
+
+  m = dlite_json_sprint(buf, sizeof(buf), coll, 0, dliteJsonCompactRel);
   mu_assert_int_eq(406, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), coll, 0, 0);
-  mu_assert_int_eq(406, m);
+  mu_assert_int_eq(446, m); //422
 
-  
+
   /* Tests for proper quoting */
   DLiteCollection *coll = dlite_collection_create(NULL);
-  dlite_collection_add_relation(coll, "s", "p", "\"o\"");
+  dlite_collection_add_relation(coll, "s", "p", "\"o\"", NULL);
   m = dlite_json_sprint(buf, sizeof(buf), (DLiteInstance *)coll, 2, 0);
-  const DLiteRelation *rel = dlite_collection_find_first(coll, "s", "p", NULL);
+  const DLiteRelation *rel = dlite_collection_find_first(coll, "s", "p", NULL,
+                                                         NULL);
   mu_assert_string_eq("\"o\"", rel->o);
   dlite_instance_decref((DLiteInstance *)coll);
   //printf("\n--------------------------------------------------------\n");

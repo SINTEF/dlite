@@ -20,6 +20,8 @@ check_include_file(inttypes.h   HAVE_INTTYPES_H)
 check_include_file(endian.h     HAVE_ENDIAN_H)
 check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
+check_include_file(time.h       HAVE_TIME_H)
+check_include_file(unistd.h     HAVE_UNISTD_H)
 check_include_file(windows.h    HAVE_WINDOWS_H)
 
 # -- check for symbols
@@ -45,7 +47,11 @@ check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 check_symbol_exists(realpath            stdlib.h     HAVE_REALPATH)
 check_symbol_exists(stat                sys/stat.h   HAVE_STAT)
 check_symbol_exists(exec                unistd.h     HAVE_EXEC)
+check_symbol_exists(clock               time.h       HAVE_CLOCK)
 check_symbol_exists(P_tmpdir            stdio.h      HAVE_P_TMPDIR)
+check_symbol_exists(_fileno             stdio.h      HAVE__FILENO)
+check_symbol_exists(isatty              unistd.h     HAVE_ISATTY)
+check_symbol_exists(_isatty             io.h         HAVE__ISATTY)
 
 if(HAVE_WINDOWS_H)
 check_symbol_exists(GetFullPathNameW    windows.h    HAVE_GetFullPathNameW)
@@ -53,11 +59,16 @@ check_symbol_exists(GetFullPathName     windows.h    HAVE_GetFullPathName)
 check_symbol_exists(GetFileAttributesW  windows.h    HAVE_GetFileAttributesW)
 check_symbol_exists(GetFileAttributes   windows.h    HAVE_GetFileAttributes)
 endif()
+
 list(APPEND CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
 check_symbol_exists(PathFileExistsW     shlwapi.h    HAVE_PathFileExistsW)
 check_symbol_exists(PathFileExists      shlwapi.h    HAVE_PathFileExists)
 list(REMOVE_ITEM CMAKE_REQUIRED_LIBRARIES shlwapi.lib)
+
 check_symbol_exists(CreateProcessA      processthreadsapi.h HAVE_CreateProcessA)
+check_symbol_exists(GetSystemTime       windows.h    HAVE_GetSystemTime)
+check_symbol_exists(BCryptGenRandom     bcrypt.h     HAVE_BCryptGenRandom)
+
 check_symbol_exists(mbstowcs            stdlib.h     HAVE_MBSTOWCS)
 check_symbol_exists(wcstombs            stdlib.h     HAVE_WCSTOMBS)
 check_symbol_exists(mbstowcs_s          stdlib.h     HAVE_MBSTOWCS_S)
@@ -85,6 +96,13 @@ endif()
 check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
 check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
+
+
+# -- typedefs
+include(CheckTypeSize)
+list(APPEND CMAKE_EXTRA_INCLUDE_FILES time.h)
+check_type_size(clock_t                  HAVE_CLOCK_T)
+list(POP_BACK CMAKE_EXTRA_INCLUDE_FILES)
 
 set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS_saved})
 
@@ -211,8 +229,6 @@ configure_file(boolean.h.in boolean.h)
 
 # Generate integers.h
 # -------------------
-include(CheckTypeSize)
-
 check_type_size("long double"             HAVE_LONG_DOUBLE)
 check_type_size("long long int"           HAVE_LONG_LONG_INT)
 check_type_size("unsigned long long int"  HAVE_UNSIGNED_LONG_LONG_INT)
@@ -286,6 +302,7 @@ set(sources
   jstore.c
   bson.c
   session.c
+  rng.c
 
   md5.c
   sha1.c

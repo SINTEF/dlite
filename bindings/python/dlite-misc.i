@@ -31,6 +31,9 @@
     return *_dlite_err_mask_get();
   }
 
+  /* Just check for errors, do nothing else. */
+  void errcheck(void) {}
+
 %}
 
 %include <stdint.i>
@@ -127,6 +130,13 @@ int globmatch(const char *pattern, const char *s);
 
 
 %feature("docstring", "\
+Tell DLite that we are in a Python atexit handler.
+") _mark_python_atexit;
+%rename(_mark_python_atexit) dlite_globals_set_atexit;
+void dlite_globals_set_atexit(void);
+
+
+%feature("docstring", "\
 Clear the last error (setting its error code to zero).
 ") dlite_errclr;
 void dlite_errclr(void);
@@ -187,6 +197,9 @@ int dlite_err_ignored_get(int code);
 int64_t _err_mask_get(void);
 %rename(_err_mask_set) _dlite_err_mask_set;
 void _dlite_err_mask_set(int64_t mask);
+
+%feature("docstring", "Just check for errors, do nothing else.") errcheck;
+void errcheck(void);
 
 
 /* ------------------------------
