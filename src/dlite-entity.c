@@ -168,7 +168,7 @@ static DLiteInstance *_instance_store_get(const char *id)
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
-  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == 4)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == UUID_RANDOM)
     return errx(dliteValueError,
                 "id '%s' is neither a valid UUID or a convertable string",
                 id), NULL;

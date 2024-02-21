@@ -11,6 +11,7 @@
 #include "utils/strtob.h"
 #include "utils/jstore.h"
 #include "utils/map.h"
+#include "getuuid.h"
 #include "dlite.h"
 #include "dlite-storage-plugins.h"
 #include "dlite-macros.h"
@@ -233,7 +234,7 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
             "than one instance: %s", s->location);
     }
     if (jstore_iter_deinit(&iter)) goto fail;
-  } else if ((uuidver = dlite_get_uuid(uuid, id)) >= 0 && uuidver != 4) {
+  } else if ((uuidver = dlite_get_uuid(uuid, id)) >= 0 && uuidver != UUID_RANDOM) {
     buf = jstore_get(js->jstore, uuid);
   }
   if (!buf && !(buf = jstore_get(js->jstore, id)))
