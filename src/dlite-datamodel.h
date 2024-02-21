@@ -71,14 +71,14 @@ int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
   \param  type   Type of data elements.
   \param  size   Size of each data element.
   \param  ndims  Number of dimensions.
-  \param  dims   Array of dimension sizes of length \p ndims.
+  \param  shape   Array of dimension sizes of length \p ndims.
 
   Returns non-zero on error.
 
   @note
   The memory pointed to by \a ptr must be at least of size
 
-      size * dims[0] * ... * dims[ndim-1]
+      size * shape[0] * ... * shape[ndim-1]
 
   In contrast to the other data types, getting data of DTStringPtr
   type only writes (char *) pointers to the actual strings in memory
@@ -88,7 +88,7 @@ int dlite_datamodel_get_dimension_size(const DLiteDataModel *d,
  */
 int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
                                  void *ptr, DLiteType type, size_t size,
-                                 size_t ndims, const size_t *dims);
+                                 size_t ndims, const size_t *shape);
 
 /** @} */
 
@@ -116,7 +116,7 @@ int dlite_datamodel_get_property(const DLiteDataModel *d, const char *name,
 */
 int dlite_datamodel_set_property(DLiteDataModel *d, const char *name,
                                  const void *ptr, DLiteType type, size_t size,
-                                 size_t ndims, const size_t *dims);
+                                 size_t ndims, const size_t *shape);
 
 
 /**
@@ -168,7 +168,7 @@ char *dlite_datamodel_get_dataname(DLiteDataModel *d);
    sufficient large.  Returns non-zero on error.
 */
 int dlite_copy_to_flat(void *dst, const void *src, size_t size,
-                       size_t ndims, const size_t *dims);
+                       size_t ndims, const size_t *shape);
 
 /**
    Copies data from flat continuous C-ordered array `src` to nested
@@ -176,7 +176,7 @@ int dlite_copy_to_flat(void *dst, const void *src, size_t size,
    sufficient large.  Returns non-zero on error.
 */
 int dlite_copy_to_nested(void *dst, const void *src, size_t size,
-                         size_t ndims, const size_t *dims);
+                         size_t ndims, const size_t *shape);
 
 /** @} */
 

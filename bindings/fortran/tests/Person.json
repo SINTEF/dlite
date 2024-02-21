@@ -29,7 +29,7 @@
     {
       "name": "skills",
       "type": "string10",
-      "dims": [
+      "shape": [
         "N"
       ],
       "description": "List of skills."
@@ -38,7 +38,7 @@
       "name": "temperature",
       "type": "float",
       "unit": "degC",
-      "dims": [
+      "shape": [
         "M"
       ],
       "description": "Temperature on the body."

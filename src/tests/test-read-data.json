@@ -14,7 +14,7 @@
       {
         "name": "P2",
         "type": "float",
-        "dims": ["N"],
+        "shape": ["N"],
         "description": "array"
       }
     ]

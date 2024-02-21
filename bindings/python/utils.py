@@ -167,7 +167,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                     dlite.Property(
                         name=p["name"],
                         type=p["type"],
-                        dims=p.get("shape", p.get("dims")),
+                        shape=p.get("shape", p.get("dims")),
                         unit=p.get("unit"),
                         description=p.get("description"),
                     )
@@ -178,7 +178,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                     dlite.Property(
                         name=k,
                         type=v["type"],
-                        dims=v.get("shape", v.get("dims")),
+                        shape=v.get("shape", v.get("dims")),
                         unit=v.get("unit"),
                         description=v.get("description"),
                     )
@@ -196,7 +196,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
             d["dimensions"][dim.name] for dim in meta.properties["dimensions"]
         ]
         inst_id = d.get("uri", d.get("uuid", id))
-        inst = dlite.Instance.from_metaid(meta.uri, dims=dims, id=inst_id)
+        inst = dlite.Instance.from_metaid(meta.uri, dimensions=dims, id=inst_id)
         for p in meta["properties"]:
             value = d["properties"][p.name]
             inst.set_property(p.name, value)
@@ -341,7 +341,7 @@ def pydantic_to_property(
             name,
             subprop.type,
             ref=subprop.ref,
-            dims=shape,
+            shape=shape,
             unit=unit,
             description=descr,
         )
@@ -394,10 +394,10 @@ def pydantic_to_metadata(
         )
     dims = [dlite.Dimension(k, v) for k, v in dimensions.items()]
     return dlite.Instance.create_metadata(
-        uri,
-        dims,
-        properties,
-        d.get("description", ""),
+        uri=uri,
+        dimensions=dims,
+        properties=properties,
+        description=d.get("description", ""),
     )
 
 

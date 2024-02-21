@@ -151,8 +151,8 @@ def instantiate_from_routes(
                 unit=prop.unit,
                 quantity=quantity,
             )
-    dims = infer_dimensions(meta, values)
-    inst = meta(dimensions=dims, id=id)
+    dimensions = infer_dimensions(meta, values)
+    inst = meta(dimensions=dimensions, id=id)
 
     for key, value in routes.items():
         inst[key] = value.eval(magnitude=True, unit=meta.getprop(key).unit)

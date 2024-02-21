@@ -222,8 +222,8 @@ int dlite_collection_saveprop(DLiteInstance *inst, size_t i)
 DLiteCollection *dlite_collection_create(const char *id)
 {
   DLiteMeta *meta = dlite_meta_get(DLITE_COLLECTION_ENTITY);
-  size_t dims[] = {0};
-  return (DLiteCollection *)dlite_instance_create(meta, dims, id);
+  size_t  dims[] = {0};
+  return (DLiteCollection *)dlite_instance_create(meta,  dims, id);
 }
 
 

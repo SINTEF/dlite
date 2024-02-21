@@ -87,7 +87,7 @@ class DataModel:
         self.properties[name] = dlite.Property(
             name=name,
             type=type,
-            dims=shape,
+            shape=shape,
             unit=unit,
             description=description,
         )
@@ -130,9 +130,9 @@ class DataModel:
     def get(self):
         """Returns a DLite Metadata created from the datamodel."""
         self.validate()
-        dims = [len(self.dimensions), len(self.properties)]
-        if "nrelations" in self.schema:
-            dims.append(len(self.relations))
+        shape = [len(self.dimensions), len(self.properties)]
+        if 'nrelations' in self.schema:
+            shape.append(len(self.relations))
 
         # Hmm, there seems to be a bug when instantiating from schema.
         # The returned metadata seems not to be initialised, i.e.
@@ -144,11 +144,11 @@ class DataModel:
                 f"Currently only entity schema is supported"
             )
 
-        # meta = self.schema(dims, id=self.uri)
-        # meta.description = self.description
-        # meta['dimensions'] = list(self.dimensions.values())
-        # meta['properties'] = list(self.properties.values())
-        # if 'relations' in meta:
+        #meta = self.schema(shape, id=self.uri)
+        #meta.description = self.description
+        #meta['dimensions'] = list(self.dimensions.values())
+        #meta['properties'] = list(self.properties.values())
+        #if 'relations' in meta:
         #    meta['relations'] = self.relations
         # return meta
 

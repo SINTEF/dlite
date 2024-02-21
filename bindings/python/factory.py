@@ -129,7 +129,7 @@ class BaseExtension(metaclass=MetaExtension):
                         f"Expected {prop.ndims} dimensions for array property "
                         f"{prop.name!r}; got {array.ndim}"
                     )
-                for i, pdim in enumerate(prop.dims):
+                for i, pdim in enumerate(prop.shape):
                     if pdim in dimnames:
                         n = dimnames.index(pdim)
                         if dims[n] == -1:

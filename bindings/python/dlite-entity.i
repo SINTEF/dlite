@@ -15,7 +15,7 @@
 DLiteProperty *
 dlite_swig_create_property(const char *name, enum _DLiteType type,
                            size_t size, const char *ref,
-                           obj_t *dims, const char *unit,
+                           obj_t *shape, const char *unit,
                            const char *description)
 {
   DLiteProperty *p = calloc(1, sizeof(DLiteProperty));
@@ -23,17 +23,17 @@ dlite_swig_create_property(const char *name, enum _DLiteType type,
   p->type = type;
   p->size = size;
   if (ref && *ref) p->ref = strdup(ref);
-  if (dims && dims != DLiteSwigNone) {
-    p->ndims = (int)PySequence_Length(dims);
-    if (!(p->dims = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
-                                           sizeof(char *), dims))) {
+  if (shape && shape != DLiteSwigNone) {
+    p->ndims = (int)PySequence_Length(shape);
+    if (!(p->shape = dlite_swig_copy_array(1, &p->ndims, dliteStringPtr,
+                                           sizeof(char *), shape))) {
       free(p->name);
       free(p);
       return NULL;
     }
   } else {
     p->ndims = 0;
-    p->dims = NULL;
+    p->shape = NULL;
   }
   if (unit) p->unit = strdup(unit);
   if (description) p->description = strdup(description);
@@ -139,18 +139,18 @@ struct _DLiteProperty {
 
 %extend _DLiteProperty {
   _DLiteProperty(const char *name, const char *type, const char *ref=NULL,
-                 obj_t *dims=NULL, const char *unit=NULL,
+                 obj_t *shape=NULL, const char *unit=NULL,
                  const char *description=NULL) {
     DLiteType dtype;
     size_t size;
     if (dlite_type_set_dtype_and_size(type, &dtype, &size)) return NULL;
-    return dlite_swig_create_property(name, dtype, size, ref, dims, unit,
+    return dlite_swig_create_property(name, dtype, size, ref, shape, unit,
                                       description);
   }
   ~_DLiteProperty() {
     free($self->name);
     if ($self->ref) free($self->ref);
-    if ($self->dims) free_str_array($self->dims, $self->ndims);
+    if ($self->shape) free_str_array($self->shape, $self->ndims);
     if ($self->unit) free($self->unit);
     if ($self->description) free($self->description);
     free($self);
@@ -165,7 +165,7 @@ struct _DLiteProperty {
   }
   obj_t *get_shape(void) {
     return dlite_swig_get_array(NULL, 1, &$self->ndims,
-                                dliteStringPtr, sizeof(char *), $self->dims);
+                                dliteStringPtr, sizeof(char *), $self->shape);
   }
   void set_shape(obj_t *arr) {
     int i, n = dlite_swig_length(arr);
@@ -174,10 +174,10 @@ struct _DLiteProperty {
       FAIL("allocation failure");
     if (dlite_swig_set_array(&new, 1, &n, dliteStringPtr, sizeof(char *), arr))
       FAIL("cannot set new shape");
-    for (i=0; i < $self->ndims; i++) free($self->dims[i]);
-    free($self->dims);
+    for (i=0; i < $self->ndims; i++) free($self->shape[i]);
+    free($self->shape);
     $self->ndims = n;
-    $self->dims = new;
+    $self->shape = new;
     return;
   fail:
     if (new) {
@@ -246,10 +246,13 @@ struct _Triple {
 %feature("docstring", "\
 Returns a new instance.
 
-Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None, location=None, options=None, dimensions=None, properties=None, description=None)
+Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None,
+         location=None, options=None, dimensions=None, properties=None,
+         description=None)
+
     Is called from one of the following class methods defined in dlite.py:
 
-      - from_metaid(cls, metaid, dims, id=None)
+      - from_metaid(cls, metaid, dimensions, id=None)
       - from_url(cls, url, metaid=None)
       - from_storage(cls, storage, id=None, metaid=None)
       - from_location(cls, driver, location, options=None, id=None)
