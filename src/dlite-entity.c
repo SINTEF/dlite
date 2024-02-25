@@ -168,7 +168,7 @@ static DLiteInstance *_instance_store_get(const char *id)
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
-  if ((uuidver = dlite_get_uuid(uuid, id)) != 0 && uuidver != 5)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == UUID_RANDOM)
     return errx(dliteValueError,
                 "id '%s' is neither a valid UUID or a convertable string",
                 id), NULL;
@@ -738,12 +738,14 @@ DLiteInstance *dlite_instance_get(const char *id)
       break;
     ErrEnd;
     if (s) {
+
       /* url is a storage we can open... */
       ErrTry:
         inst = _instance_load_casted(s, id, NULL, 0);
       ErrCatch(dliteStorageLoadError):  // suppressed error
         break;
       ErrEnd;
+
       dlite_storage_close(s);
     } else {
       /* ...otherwise it may be a glob pattern */
@@ -941,15 +943,18 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   }
 
   /* ...otherwise give up */
-  if (!meta) FAILCODE1(dliteMissingMetadataError, "cannot load metadata: %s", uri);
+  if (!meta) FAILCODE1(dliteMissingMetadataError,
+                       "cannot load metadata: %s", uri);
 
   /* Make sure that metadata is initialised */
   if (dlite_meta_init(meta)) goto fail;
 
   /* check metadata uri */
   if (strcmp(uri, meta->uri) != 0)
-    FAILCODE3(dliteMissingMetadataError, "metadata uri (%s) does not correspond to that in storage (%s): %s",
-	  meta->uri, uri, s->location);
+    FAILCODE3(dliteMissingMetadataError,
+              "metadata uri (%s) does not correspond to that in storage "
+              "(%s): %s",
+              meta->uri, uri, s->location);
 
   /* read dimensions */
   dlite_datamodel_resolve_dimensions(d, meta);
