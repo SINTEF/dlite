@@ -2,6 +2,7 @@ from pathlib import Path
 
 import dlite
 from dlite.dataset import metadata_to_rdf, add_dataset, get_dataset
+from dlite.dataset import EMMO
 
 try:
     from tripper import Triplestore

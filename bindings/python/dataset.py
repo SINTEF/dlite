@@ -117,7 +117,7 @@ def metadata_to_rdf(
             (restriction_iri, OWL.onProperty, EMMO.hasDatum),
             (restriction_iri, OWL.onClass, prop_iri),
             (restriction_iri, OWL.qualifiedCardinality,
-             Literal(1, datatype="xsd:nonNegativeInteger")),
+             Literal(1, datatype=XSD.nonNegativeInteger)),
             (prop_iri, RDF.type, OWL.Class),
             (prop_iri, RDFS.subClassOf, EMMO.Datum),
             (prop_iri, SKOS.prefLabel, en(prop_name)),
@@ -128,21 +128,21 @@ def metadata_to_rdf(
             triples.append((prop_iri, RDFS.subClassOf, EMMO[emmotype]))
         if prop.shape.size:
             restriction_iri = f"_:restriction_shape_{prop_iri}"
-            shape_iri = f"_:shape_{prop_iri}"
+            shape_iri = f"{prop_iri}Shape"
             triples.extend([
-                (prop_iri, RDF.type, EMMO.Array),
+                (prop_iri, RDFS.subClassOf, EMMO.Array),
                 (prop_iri, RDFS.subClassOf, restriction_iri),
                 (restriction_iri, RDF.type, OWL.Restriction),
                 (restriction_iri, OWL.onProperty, EMMO.hasShape),
                 (restriction_iri, OWL.onClass, shape_iri),
                 (restriction_iri, OWL.qualifiedCardinality,
-                 Literal(1, datatype="xsd:nonNegativeInteger")),
+                 Literal(1, datatype=XSD.nonNegativeInteger)),
                 (shape_iri, RDF.type, OWL.Class),
                 (shape_iri, RDFS.subclassOf, EMMO.Shape),
                 (shape_iri, SKOS.prefLabel, en(f"{prop_name}Shape")),
             ])
             for i, dim in enumerate(prop.shape):
-                dim_iri = f"_:dimension{i}_{prop_iri}"
+                dim_iri = f"{prop_iri}_dimension{i}"
                 triples.extend([
                     (dim_iri, RDF.type, EMMO.Dimension),
                     (dim_iri, EMMO.hasSymbolValue,
