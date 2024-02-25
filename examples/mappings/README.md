@@ -35,9 +35,8 @@ Example case
    of a **Structure** data model. Note that this is a datmodel describing an
    atomistic structure with symbols and positions of the atoms as well as the unit cell vectors.
 
-2. Calculating the potential energy and the forces on all atoms using
-   the EMT calculator and storing them in an instance of a
-   **CalcResults** data model.
+2. Load potential energy and the forces as an instance of a
+   **CalcResult** data model. 
 
 3. Mapping properties of the data models and input/output of mapping
    functions to ontological concepts.
