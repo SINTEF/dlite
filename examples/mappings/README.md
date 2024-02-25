@@ -7,11 +7,14 @@ models.
 The example is provided at three levels:
 
 1. **simple.py**: Run a simplified example without mapping functions.
-                           
-Note that this does not return an instance of the **Molecule** (see description of example below),  
-but rather an instance of **CalcResult**, which contains both information about the potential energy
-and forces. Also, this example does involve any molecular structure as starting point. 
-The **CalcResult** instance is populated through mappings from a **Forces** instance and an **Energy** instance.
+
+   Note that this does not return an instance of the **Molecule** (see
+   description of example below), but rather an instance of **CalcResult**,
+   which contains both information about the potential energy and forces.
+
+   Also, this example does involve any molecular structure as starting point.
+   The **CalcResult** instance is populated through mappings from a
+   **Forces** instance and an **Energy** instance.
 
 2. **mappingfunc.py** Utilise mapping functions as illustrated in the figure below.
 
@@ -42,4 +45,4 @@ Example case
    **Molecule** data model from the mappings.
 
 The process is shown in the figure below.  Red arrows indicate mappings.
-![asedemo](asedemo.svg)
+![mappingdemo](mappingdemo.svg)
