@@ -5,7 +5,7 @@ import numpy as np
 def formula(symbols):
     """Convert a list of atomic symbols to a chemical formula."""
     lst = symbols.tolist()
-    return "".join(f"{c}{lst.count(c)}" for c in set(lst))
+    return "".join(f"{c}{lst.count(c)}" for c in sorted(set(lst)))
 
 
 def norm(array, axis=-1):

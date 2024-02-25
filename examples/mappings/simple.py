@@ -25,12 +25,10 @@ coll = dlite.Collection()
 ts = Triplestore(backend="collection", collection=coll)
 
 # Namespaces
-AT = ts.bind("at", "http://onto-ns.com/meta/0.1/Structure#")
-MOL = ts.bind("mol", "http://onto-ns.com/meta/0.1/Molecule#")
 RES = ts.bind("res", "http://onto-ns.com/meta/0.1/CalcResult#")
 EN = ts.bind("en", "http://onto-ns.com/meta/0.1/Energy#")
 FS = ts.bind("fs", "http://onto-ns.com/meta/0.1/Forces#")
-EX = ts.bind("ex", "http://onto-ns.com/meta/0.1/example-ontology#")
+
 
 # Add mappings
 ts.add_mapsTo(EMMO.Force, FS.forces)
@@ -58,7 +56,5 @@ coll.add('forces', forces)
 
 
 # Now, instantiate results from collection
-result, = coll.get_instances(
-    metaid=RES, property_mappings=True, function_repo=ts.function_repo
-)
+result, = coll.get_instances(metaid=RES, property_mappings=True)
 print(result)
