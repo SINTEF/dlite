@@ -3,11 +3,13 @@
 DLite data models are represented as EMMO datasets.
 """
 import json
+import warnings
 from typing import TYPE_CHECKING
 
 from tripper import Literal, Namespace, Triplestore
 from tripper import MAP, OWL, RDF, RDFS, SKOS, XSD
 from tripper.utils import en
+from tripper.errors import NoSuchIRIError
 
 import dlite
 
@@ -22,16 +24,17 @@ OTEIO = Namespace("http://emmo.info/oteio.pipeline#")
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
 EMMO = Namespace(
-    iri="http://emmo.info/emmo#",
+    #iri="http://emmo.info/emmo#",
+    iri="https://w3id.org/emmo#",
     label_annotations=True,
-    #check=True,
-    check=False,  # TODO, change to true when EMMO has dataShape and dataDimension
-    #triplestore=ts_emmo,  # XXX
-    triplestore_url="https://emmo-repo.github.io/versions/1.0.0-beta5/emmo-inferred.ttl",
+    #cachemode=Namespace.ONLY_CACHE,
+    check=True,
+    triplestore_url=(
+        "https://raw.githubusercontent.com/emmo-repo/emmo-repo.github.io/"
+        "master/versions/1.0.0-beta7/emmo-dataset.ttl"
+    ),
 )
 description_iri = EMMO.elucidation  # TODO: deside what annotation to use
-#dataDimension = EMMO.dataDimension  # New annotation property
-#dataShape = EMMO.dataShape  # New annotation property
 
 
 EMMO_TYPES = {
@@ -53,9 +56,16 @@ def _string(s):
     """Return `s` as a literal string."""
     return Literal(s, datatype="xsd:string")
 
+
 def title(s):
     """Capitalise first letter in `s`."""
     return s[0].upper() + s[1:]
+
+
+def get_unit_iri(unit):
+    """Returns the IRI for the given unit."""
+    ts = EMMO._triplestore
+    XXX - IMPLEMENT
 
 
 def metadata_to_rdf(
@@ -80,6 +90,7 @@ def metadata_to_rdf(
     triples = []
     mapsto = {s: o for s, p, o in mappings if p == MAP.mapsTo}
 
+    # Add datamodel (emmo:DataSet)
     if base_iri:
         uuid = meta.uuid.replace('-', '_')
         iri = f"{base_iri.rstrip('#/')}#{uuid_prefix}{uuid}"
@@ -100,7 +111,7 @@ def metadata_to_rdf(
 
     dim_descr = {d.name: d.description for d in meta.properties['dimensions']}
 
-    # Add properties
+    # Add properties (emmo:Datum)
     for prop in meta.properties["properties"]:
         prop_id = f"{meta.uri}#{prop.name}"
         if base_iri:
@@ -126,9 +137,29 @@ def metadata_to_rdf(
             triples.append((prop_iri, RDFS.subClassOf, mapsto[prop_iri]))
         if emmotype:
             triples.append((prop_iri, RDFS.subClassOf, EMMO[emmotype]))
+        if prop.unit:
+            try:
+                unit_iri = EMMO[prop.unit]
+            except NoSuchIRIError:
+                warnings.warn(f"unit '{prop.unit}' not found in EMMO")
+                unit_iri = f":{prop.unit}"
+            restriction_iri = f"_:restriction_{prop_iri}_unit"
+            triples.extend([
+                (prop_iri, RDFS.subclass, restriction_iri),
+                (restriction_iri, RDF.type, OWL.Restriction),
+                (restriction_iri, OWL.onProperty, EMMO.hasMeasurementUnit),
+                (restriction_iri, OWL.onClass, unit_iri),
+                (restriction_iri, OWL.qualifiedCardinality,
+                 Literal(1, datatype=XSD.nonNegativeInteger)),
+            ])
         if prop.shape.size:
-            restriction_iri = f"_:restriction_shape_{prop_iri}"
-            shape_iri = f"{prop_iri}Shape"
+            shape_id = f"{meta.uri}#{prop.name}Shape"
+            if base_iri:
+                uuid = dlite.get_uuid(shape_id).replace("-", "_")
+                shape_iri = (f"{base_iri.rstrip('#/')}#{uuid_prefix}{uuid}")
+            else:
+                shape_iri = shape_id
+            restriction_iri = f"_:restriction_{shape_iri}"
             triples.extend([
                 (prop_iri, RDFS.subClassOf, EMMO.Array),
                 (prop_iri, RDFS.subClassOf, restriction_iri),
@@ -140,21 +171,29 @@ def metadata_to_rdf(
                 (shape_iri, RDF.type, OWL.Class),
                 (shape_iri, RDFS.subclassOf, EMMO.Shape),
                 (shape_iri, SKOS.prefLabel, en(f"{prop_name}Shape")),
+                (shape_iri, description_iri,
+                 en(f"Shape of datum '{prop_name}' of dataset '{meta.name}'.")),
             ])
             for i, dim in enumerate(prop.shape):
-                dim_iri = f"{prop_iri}_dimension{i}"
+                dim_id = f"{meta.uri}#{prop.name}_dimension{i}"
+                if base_iri:
+                    uuid = dlite.get_uuid(dim_id).replace("-", "_")
+                    dim_iri = (f"{base_iri.rstrip('#/')}#{uuid_prefix}{uuid}")
+                else:
+                    dim_iri = shape_id
                 triples.extend([
                     (dim_iri, RDF.type, EMMO.Dimension),
                     (dim_iri, EMMO.hasSymbolValue,
                      Literal(dim, datatype=XSD.string)),
                     (dim_iri, description_iri, en(dim_descr[dim])),
+                    (dim_iri, SKOS.prefLabel, en(f"{prop.name}_dimension{i}")),
                 ])
                 if i == 0:
                     restriction_iri = f"_:restriction_dimension{i}_{prop_iri}"
                     triples.extend([
                         (shape_iri, RDFS.subClassOf, restriction_iri),
                         (restriction_iri, RDF.type, OWL.Restriction),
-                        (restriction_iri, OWL.onProperty, EMMO.hasShape),
+                        (restriction_iri, OWL.onProperty, EMMO.hasBeginTile),
                         (restriction_iri, OWL.hasValue, dim_iri),
                     ])
                 else:
