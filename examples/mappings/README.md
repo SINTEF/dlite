@@ -29,7 +29,8 @@ Example case
 **Molecule** is the wanted data model.  It is instantiated by:
 
 1. Loading a given atom structure from a data source into an instance
-   of a **ASEAtoms** data model.
+   of a **Structure** data model. Note that this is a datmodel describing an
+   atomistic structure with symbols and positions of the atoms as well as the unit cell vectors.
 
 2. Calculating the potential energy and the forces on all atoms using
    the EMT calculator and storing them in an instance of a
