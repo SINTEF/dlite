@@ -23,20 +23,21 @@ The example is provided at three levels:
 3. **oteexample.py** Utilise mapping functions as illustrated in the figure below
    using OTEAPI.
 
-   Install extra dependencies with `pip install -r requirements.txt`
-
-
 
 Example case
 ------------
 **Molecule** is the wanted data model.  It is instantiated by:
 
 1. Loading a given atom structure from a data source into an instance
-   of a **Structure** data model. Note that this is a datmodel describing an
-   atomistic structure with symbols and positions of the atoms as well as the unit cell vectors.
+   of a **Structure** data model. Note that this is a datamodel
+   describing an atomistic structure with symbols and positions of the
+   atoms as well as the unit cell vectors.
 
 2. Load potential energy and the forces as an instance of a
-   **CalcResult** data model. 
+   **CalcResult** data model.
+
+   The **CalcResult** datamodel contains the calculated energies and forces
+   from a force field calculation of a **Structure** instance.
 
 3. Mapping properties of the data models and input/output of mapping
    functions to ontological concepts.
@@ -46,3 +47,14 @@ Example case
 
 The process is shown in the figure below.  Red arrows indicate mappings.
 ![mappingdemo](mappingdemo.svg)
+
+
+Running the examples
+--------------------
+Install dependencies with
+
+    pip install -r requirements.txt
+
+and run the three examples as Python scripts, e.g. `python simple.py`.
+
+`python main.py` will run all three examples.
