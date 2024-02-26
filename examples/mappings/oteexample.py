@@ -4,6 +4,7 @@ from pathlib import Path
 try:
     from tripper import EMMO, MAP, Triplestore
     from otelib import OTEClient
+    import oteapi_dlite  # To check that it is installed
 except ModuleNotFoundError as exc:
     print(f"Skipping OTE example because of missing module: {exc}")
     import sys
