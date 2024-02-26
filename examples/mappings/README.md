@@ -58,3 +58,23 @@ Install dependencies with
 and run the three examples as Python scripts, e.g. `python simple.py`.
 
 `python main.py` will run all three examples.
+
+
+### Run the example with DLite built from source
+Please note that the `requirements.txt` file will install DLite from
+PyPI (as DLite-Python).  If you want do run this example with DLite
+build from source, you can do the following:
+
+    # Setup & install
+    mkdir <BUILD/DIRECTORY>
+    cmake [OPTIONS] -B <BUILD/DIRECTORY>
+    cd examples/mappings
+    pip install -r requirements.txt
+    pip uninstall DLite-Python
+    cmake --build <BUILD/DIRECTORY>
+    cmake --install <BUILD/DIRECTORY>
+
+    # Run tests
+    python simple.py
+    python mappingfunc.py
+    python oteexample.py
