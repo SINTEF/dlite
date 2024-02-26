@@ -71,7 +71,7 @@ ts.add_mapsTo(DON.Formula, MOL.formula)
 
 # 3. Add mapping functions -- ontologist
 # --------------------------------------
-from mappingfunc_module import formula, max, norm
+from mappingfunc_module import formula, maximum, norm
 
 
 # Add mappings for conversion functions -- ontologist
@@ -88,7 +88,7 @@ ts.add_function(
     standard="fno",
 )
 ts.add_function(
-    max,
+    maximum,
     expects=[DON.ForceNorm],
     returns=[DON.MaxForce],
     standard="fno",

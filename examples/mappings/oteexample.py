@@ -110,7 +110,7 @@ mol_generate = client.create_function(
 # Document mapping functions
 
 # Import the mapping functions
-from mappingfunc_module import formula, max, norm
+from mappingfunc_module import formula, maximum, norm
 
 # Use tripper to document the mapping functions
 ts.add_function(
@@ -124,7 +124,7 @@ ts.add_function(
     returns=[DON.ForceNorm],
 )
 ts.add_function(
-    max,
+    maximum,
     expects=[DON.ForceNorm],
     returns=[DON.MaxForce],
 )

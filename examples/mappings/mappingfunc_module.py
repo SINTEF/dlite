@@ -17,6 +17,6 @@ def norm(array, axis=-1):
     return np.sqrt(np.sum(array**2, axis=axis))
 
 
-def max(vector):
+def maximum(vector):
     """Returns the largest element."""
     return vector.max()
