@@ -26,13 +26,24 @@ OTEIO = Namespace("http://emmo.info/oteio.pipeline#")
 EMMO = Namespace(
     #iri="http://emmo.info/emmo#",
     iri="https://w3id.org/emmo#",
-    label_annotations=True,
+    #label_annotations=True,
+    label_annotations=(
+        SKOS.prefLabel,
+        RDF.label,
+        SKOS.altLabel,
+        # unitSymbol, ucumCode, uneceCommonCode
+        "https://w3id.org/emmo#EMMO_7f1dec83_d85e_4e1b_b7bd_c9442d4f5a64",
+        "https://w3id.org/emmo#EMMO_33ae2d07_5526_4555_a0b4_8f4c031b5652",
+        "https://w3id.org/emmo#EMMO_0b1cbe60_d380_4787_b92e_be26bdacf2c2",
+    ),
     #cachemode=Namespace.ONLY_CACHE,
     check=True,
-    triplestore_url=(
-        "https://raw.githubusercontent.com/emmo-repo/emmo-repo.github.io/"
-        "master/versions/1.0.0-beta7/emmo-dataset.ttl"
-    ),
+    triplestore_url="https://w3id.org/emmo/1.0.0-beta7/inferred",
+    #(
+    #    "https://raw.githubusercontent.com/emmo-repo/emmo-repo.github.io/"
+    #    "master/versions/1.0.0-beta7/emmo-inferred.ttl"
+    #    #"master/versions/1.0.0-beta7/emmo-dataset.ttl"
+    #),
 )
 description_iri = EMMO.elucidation  # TODO: deside what annotation to use
 
@@ -64,8 +75,36 @@ def title(s):
 
 def get_unit_iri(unit):
     """Returns the IRI for the given unit."""
+    # Unit name
+    #try:
+    #    return EMMO[unit]
+    #except NoSuchIRIError:
+    #    pass
+    query = f"""
+    PREFIX emmo: <{EMMO}>
+
+    SELECT ?unit_iri
+    WHERE {{
+      ?unit_iri {RDFS.subClassOf} {EMMO.MeasurementUnit} .
+      {{
+        ?unit_iri {EMMO.unitSymbol} {unit}
+      }} UNION {{
+        ?unit_iri {SKOS.prefLabel} {unit}
+      }} UNION {{
+        ?unit_iri {EMMO.ucumCode} {unit}
+      }} UNION {{
+        ?unit_iri {EMMO.uneceCommonCode} {unit}
+      }}
+    }}
+    """
     ts = EMMO._triplestore
-    XXX - IMPLEMENT
+    for unit_iri in ts.query(query):
+        print(f"*** {unit_iri=}")
+
+
+    warnings.warn(f"unit '{unit}' not found in EMMO")
+
+
 
 
 def metadata_to_rdf(
@@ -138,20 +177,18 @@ def metadata_to_rdf(
         if emmotype:
             triples.append((prop_iri, RDFS.subClassOf, EMMO[emmotype]))
         if prop.unit:
-            try:
-                unit_iri = EMMO[prop.unit]
-            except NoSuchIRIError:
-                warnings.warn(f"unit '{prop.unit}' not found in EMMO")
-                unit_iri = f":{prop.unit}"
-            restriction_iri = f"_:restriction_{prop_iri}_unit"
-            triples.extend([
-                (prop_iri, RDFS.subclass, restriction_iri),
-                (restriction_iri, RDF.type, OWL.Restriction),
-                (restriction_iri, OWL.onProperty, EMMO.hasMeasurementUnit),
-                (restriction_iri, OWL.onClass, unit_iri),
-                (restriction_iri, OWL.qualifiedCardinality,
-                 Literal(1, datatype=XSD.nonNegativeInteger)),
-            ])
+            unit_iri = get_unit_iri(prop.unit)
+            if unit_iri:
+                print("*** unit_iri:", unit_iri)
+                restriction_iri = f"_:restriction_{prop_iri}_unit"
+                triples.extend([
+                    (prop_iri, RDFS.subClassOf, restriction_iri),
+                    (restriction_iri, RDF.type, OWL.Restriction),
+                    (restriction_iri, OWL.onProperty, EMMO.hasMeasurementUnit),
+                    (restriction_iri, OWL.onClass, unit_iri),
+                    (restriction_iri, OWL.qualifiedCardinality,
+                     Literal(1, datatype=XSD.nonNegativeInteger)),
+                ])
         if prop.shape.size:
             shape_id = f"{meta.uri}#{prop.name}Shape"
             if base_iri:
