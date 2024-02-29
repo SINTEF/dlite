@@ -71,26 +71,7 @@ ts.add_mapsTo(DON.Formula, MOL.formula)
 
 # 3. Add mapping functions -- ontologist
 # --------------------------------------
-
-# TODO: make these globally available as an installable package
-def formula(symbols):
-    """Convert a list of atomic symbols to a chemical formula."""
-    lst = symbols.tolist()
-    return "".join(f"{c}{lst.count(c)}" for c in set(lst))
-
-
-def norm(array, axis=-1):
-    """Returns the norm array along the given axis (default the last)."""
-    # Note that `array` is a Quantity object.  The returned value
-    # will also be a Quantity object with the same unit.  Hence, the
-    # unit is always handled explicitly.  This makes it possible for
-    # conversion function to change unit as well.
-    return np.sqrt(np.sum(array**2, axis=axis))
-
-
-def max(vector):
-    """Returns the largest element."""
-    return vector.max()
+from mappingfunc_module import formula, maximum, norm
 
 
 # Add mappings for conversion functions -- ontologist
@@ -107,7 +88,7 @@ ts.add_function(
     standard="fno",
 )
 ts.add_function(
-    max,
+    maximum,
     expects=[DON.ForceNorm],
     returns=[DON.MaxForce],
     standard="fno",
@@ -116,9 +97,7 @@ ts.add_function(
 
 # 4. Instantiate a molecule -- modeller
 # -------------------------------------
-molecule, = coll.get_instances(
-    metaid=MOL, property_mappings=True, function_repo=ts.function_repo,
-)
+molecule, = coll.get_instances(metaid=MOL, property_mappings=True)
 
 print("Molecule instance:")
 print(molecule)
