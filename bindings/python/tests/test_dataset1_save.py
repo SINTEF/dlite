@@ -51,25 +51,3 @@ triples = metadata_to_rdf(chem.meta)
 meta = chem.meta
 
 from dlite.dataset import get_unit_iri
-
-
-unit = "V"
-query = f"""
-PREFIX  emmo: <{EMMO}>
-PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
-
-SELECT ?unit
-WHERE {{
-  ?unit rdfs:subClassOf <{EMMO.UnitSymbol}>
-}}
-"""
-#  ?unit <{EMMO.ucumCode}> ?symbol .
-#  FILTER (?symbol="{unit}"^^xsd:string)
-
-print(query)
-
-t = EMMO._triplestore
-r = t.query(query)
-print(r)

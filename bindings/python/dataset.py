@@ -38,7 +38,8 @@ EMMO = Namespace(
     ),
     #cachemode=Namespace.ONLY_CACHE,
     check=True,
-    triplestore_url="https://w3id.org/emmo/1.0.0-beta7/inferred",
+    triplestore_url="https://emmo-repo.github.io/versions/1.0.0-beta7/emmo-dataset.ttl",
+    #triplestore_url="https://w3id.org/emmo/1.0.0-beta7/inferred",
     #(
     #    "https://raw.githubusercontent.com/emmo-repo/emmo-repo.github.io/"
     #    "master/versions/1.0.0-beta7/emmo-inferred.ttl"
@@ -62,6 +63,13 @@ EMMO_TYPES = {
     #"relation": NotImplemented,
 }
 
+# Maps unit names to IRIs
+unit_cache = {}
+
+
+class MissingUnitError(ValueError):
+    "Unit not found in ontology."
+
 
 def _string(s):
     """Return `s` as a literal string."""
@@ -75,36 +83,25 @@ def title(s):
 
 def get_unit_iri(unit):
     """Returns the IRI for the given unit."""
-    # Unit name
-    #try:
-    #    return EMMO[unit]
-    #except NoSuchIRIError:
-    #    pass
-    query = f"""
-    PREFIX emmo: <{EMMO}>
+    if not unit_cache:
+        ts = EMMO._triplestore
+        for predicate in (EMMO.unitSymbol, EMMO.ucumCode, EMMO.uneceCommonCode):
+            for s, _, o in ts.triples(predicate=predicate):
+                if o.value in unit_cache:
+                    warnings.warn(f"more than one unit with symbol '{o.value}': "
+                                  f"{unit_cache[o.value]}, {o.value}")
+                else:
+                    unit_cache[o.value] = s
+                for o in ts.objects(s, SKOS.prefLabel):
+                    unit_cache[o.value] = s
+                for o in ts.objects(s, SKOS.altLabel):
+                    if o.value not in unit_cache:
+                        unit_cache[o.value] = s
 
-    SELECT ?unit_iri
-    WHERE {{
-      ?unit_iri {RDFS.subClassOf} {EMMO.MeasurementUnit} .
-      {{
-        ?unit_iri {EMMO.unitSymbol} {unit}
-      }} UNION {{
-        ?unit_iri {SKOS.prefLabel} {unit}
-      }} UNION {{
-        ?unit_iri {EMMO.ucumCode} {unit}
-      }} UNION {{
-        ?unit_iri {EMMO.uneceCommonCode} {unit}
-      }}
-    }}
-    """
-    ts = EMMO._triplestore
-    for unit_iri in ts.query(query):
-        print(f"*** {unit_iri=}")
+    if unit in unit_cache:
+        return unit_cache[unit]
 
-
-    warnings.warn(f"unit '{unit}' not found in EMMO")
-
-
+    raise MissingUnitError(unit)
 
 
 def metadata_to_rdf(
@@ -179,7 +176,6 @@ def metadata_to_rdf(
         if prop.unit:
             unit_iri = get_unit_iri(prop.unit)
             if unit_iri:
-                print("*** unit_iri:", unit_iri)
                 restriction_iri = f"_:restriction_{prop_iri}_unit"
                 triples.extend([
                     (prop_iri, RDFS.subClassOf, restriction_iri),

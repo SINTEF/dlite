@@ -45,7 +45,7 @@
     },
     "atvol": {
       "type": "double",
-      "unit": "m^3",
+      "unit": "m3",
       "shape": ["nphases"],
       "description": "Average volume per atom for each phase."
     }
