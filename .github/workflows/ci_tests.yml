@@ -51,8 +51,11 @@ jobs:
         python3 -m pip install cmake==3.25.2
         cmake --version
 
-    - name: List installed packages
-      run: pip freeze
+    - name: List installed Python packages
+      run: |
+        uname -a
+        python --version
+        pip freeze
 
     - name: configure
       run: |

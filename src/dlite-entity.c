@@ -786,7 +786,11 @@ DLiteInstance *dlite_instance_get(const char *id)
       /* FIXME: There is a small chance for a race-condition when used
          in a multi-threaded environment. Add thread synchronisation here! */
       saved_id = id;
-      inst = dlite_instance_load_loc("http", id, NULL, NULL);
+      ErrTry:
+        inst = dlite_instance_load_loc("http", id, NULL, NULL);
+      ErrCatch(dliteStorageOpenError):  // suppressed error
+        break;
+      ErrEnd;
       saved_id = NULL;
       if (inst) return inst;
     }
