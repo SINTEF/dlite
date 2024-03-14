@@ -781,7 +781,7 @@ DLiteInstance *dlite_instance_get(const char *id)
 
   /* Try to fetch the instance from http://onto-ns.com/ */
   if (strncmp(id, "http://", 7) == 0 || strncmp(id, "https://", 8) == 0) {
-    static char *saved_id = NULL;
+    static const char *saved_id = NULL;
     if (!(saved_id && strcmp(saved_id, id) == 0)) {
       /* FIXME: There is a small chance for a race-condition when used
          in a multi-threaded environment. Add thread synchronisation here! */
