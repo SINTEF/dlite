@@ -24,6 +24,6 @@ h5py>=3.9,<4
 #git+https://github.com/EMMC-ASBL/oteapi-dlite.git@fa1b820383eb54a1c37f32f7b8ac9406b556dace#egg=oteapi_dlite
 #otelib>=0.3.2,<1
 
-# Entities-service
+# Entities-service, doesn't install properly
 #git+https://github.com/SINTEF/entities-service.git#egg=project[cli]
-git+https://github.com/SINTEF/entities-service.git
+#git+https://github.com/SINTEF/entities-service.git
