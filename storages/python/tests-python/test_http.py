@@ -55,3 +55,11 @@ assert str(meta) == """
   }
 }
 """.strip()
+
+
+# Test fetching datamodel from http://onto-ns.com/
+#url = "http://onto-ns.com/meta/0.4/HallPetch"
+url = "http://onto-ns.com/meta/0.3/Chemistry"
+#meta = dlite.Instance.from_location("http", url)
+meta = dlite.get_instance(url)
+print(meta)
