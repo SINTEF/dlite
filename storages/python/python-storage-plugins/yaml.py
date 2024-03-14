@@ -97,7 +97,7 @@ class yaml(dlite.DLiteStorageBase):
         """
         self._data[inst.uuid] = inst.asdict(
             soft7=dlite.asbool(self.options.soft7),
-            single=self.single,
+            single=True,
             uuid=self.with_uuid,
         )
         self.flushed = False
