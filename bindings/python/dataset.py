@@ -4,6 +4,7 @@ DLite data models are represented as EMMO datasets.
 """
 import json
 import warnings
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from tripper import Literal, Namespace, Triplestore
@@ -26,27 +27,13 @@ OTEIO = Namespace("http://emmo.info/oteio.pipeline#")
 EMMO = Namespace(
     #iri="http://emmo.info/emmo#",
     iri="https://w3id.org/emmo#",
-    #label_annotations=True,
-    label_annotations=(
-        SKOS.prefLabel,
-        RDF.label,
-        SKOS.altLabel,
-        # unitSymbol, ucumCode, uneceCommonCode
-        "https://w3id.org/emmo#EMMO_7f1dec83_d85e_4e1b_b7bd_c9442d4f5a64",
-        "https://w3id.org/emmo#EMMO_33ae2d07_5526_4555_a0b4_8f4c031b5652",
-        "https://w3id.org/emmo#EMMO_0b1cbe60_d380_4787_b92e_be26bdacf2c2",
-    ),
+    label_annotations=True,
     #cachemode=Namespace.ONLY_CACHE,
     check=True,
-    triplestore_url="https://emmo-repo.github.io/versions/1.0.0-beta7/emmo-dataset.ttl",
-    #triplestore_url="https://w3id.org/emmo/1.0.0-beta7/inferred",
-    #(
-    #    "https://raw.githubusercontent.com/emmo-repo/emmo-repo.github.io/"
-    #    "master/versions/1.0.0-beta7/emmo-inferred.ttl"
-    #    #"master/versions/1.0.0-beta7/emmo-dataset.ttl"
-    #),
+    triplestore=(
+        "https://emmo-repo.github.io/versions/1.0.0-beta7/emmo-dataset.ttl"
+    ),
 )
-description_iri = EMMO.elucidation  # TODO: deside what annotation to use
 
 
 EMMO_TYPES = {
@@ -81,15 +68,25 @@ def title(s):
     return s[0].upper() + s[1:]
 
 
+def dimensional_string(unit_iri):
+    """Return the inferred dimensional string of the given unit IRI.  Returns
+    None if no dimensional string can be inferred."""
+    ts = EMMO._triplestore
+
+
+    for parent in ts.objects(iri, RDFS.subClassOf):
+        pass
+
+
 def get_unit_iri(unit):
     """Returns the IRI for the given unit."""
     if not unit_cache:
         ts = EMMO._triplestore
         for predicate in (EMMO.unitSymbol, EMMO.ucumCode, EMMO.uneceCommonCode):
             for s, _, o in ts.triples(predicate=predicate):
-                if o.value in unit_cache:
+                if o.value in unit_cache and predicate == EMMO.unitSymbol:
                     warnings.warn(f"more than one unit with symbol '{o.value}': "
-                                  f"{unit_cache[o.value]}, {o.value}")
+                                  f"{unit_cache[o.value]}")
                 else:
                     unit_cache[o.value] = s
                 for o in ts.objects(s, SKOS.prefLabel):
@@ -97,6 +94,14 @@ def get_unit_iri(unit):
                 for o in ts.objects(s, SKOS.altLabel):
                     if o.value not in unit_cache:
                         unit_cache[o.value] = s
+
+        for r, _, o in ts.triples(predicate=OWL.hasValue):
+            if (
+                    ts.has(r, RDF.type, OWL.Restriction) and
+                    ts.has(r, OWL.onProperty, EMMO.hasSymbolValue)
+            ):
+                s = ts.value(predicate=RDFS.subClassOf, object=r)
+                unit_cache[o.value] = s
 
     if unit in unit_cache:
         return unit_cache[unit]
@@ -122,9 +127,14 @@ def metadata_to_rdf(
     Returns:
         A list of RDF triples.  Literal objects are encoded in n3 notation.
     """
+    # Create lookup table for mappings
     dct = meta.asdict()
-    triples = []
-    mapsto = {s: o for s, p, o in mappings if p == MAP.mapsTo}
+
+    maps = defaultdict(list)
+    for s, p, o in mappings:
+        maps[s].append((RDFS.subClassOf if p == MAP.mapsTo else p, o))
+
+    #mapsto = {s: o for s, p, o in mappings if p == MAP.mapsTo}
 
     # Add datamodel (emmo:DataSet)
     if base_iri:
@@ -133,17 +143,23 @@ def metadata_to_rdf(
     else:
         iri = meta.uri
 
+    # Start populating triples
+    triples = []
     triples.extend([
         (iri, RDF.type, OWL.Class),
         (iri, RDFS.subClassOf, EMMO.DataSet),
         (iri, SKOS.prefLabel, en(title(meta.name))),
     ])
 
-    if meta.uri in mapsto:
-        triples.append((iri, RDFS.subClassOf, mapsto[meta.uri]))
+    #if meta.uri in mapsto:
+    #    triples.append((iri, RDFS.subClassOf, mapsto[meta.uri]))
+
+    # Add additional relations from mappings
+    for p, o in maps[meta.uri]:
+        triples.append((iri, p, o))
 
     if "description" in dct:
-        triples.append((iri, description_iri, en(dct["description"])))
+        triples.append((iri, EMMO.elucidation, en(dct["description"])))
 
     dim_descr = {d.name: d.description for d in meta.properties['dimensions']}
 
@@ -169,22 +185,17 @@ def metadata_to_rdf(
             (prop_iri, RDFS.subClassOf, EMMO.Datum),
             (prop_iri, SKOS.prefLabel, en(prop_name)),
         ])
-        if prop_iri in mapsto:
-            triples.append((prop_iri, RDFS.subClassOf, mapsto[prop_iri]))
+
+        # Add additional relations from mappings
+        for p, o in maps[prop_id]:
+            triples.append((prop_iri, p, o))
+
+        #if prop_iri in mapsto:
+        #    triples.append((prop_iri, RDFS.subClassOf, mapsto[prop_iri]))
+
         if emmotype:
             triples.append((prop_iri, RDFS.subClassOf, EMMO[emmotype]))
-        if prop.unit:
-            unit_iri = get_unit_iri(prop.unit)
-            if unit_iri:
-                restriction_iri = f"_:restriction_{prop_iri}_unit"
-                triples.extend([
-                    (prop_iri, RDFS.subClassOf, restriction_iri),
-                    (restriction_iri, RDF.type, OWL.Restriction),
-                    (restriction_iri, OWL.onProperty, EMMO.hasMeasurementUnit),
-                    (restriction_iri, OWL.onClass, unit_iri),
-                    (restriction_iri, OWL.qualifiedCardinality,
-                     Literal(1, datatype=XSD.nonNegativeInteger)),
-                ])
+
         if prop.shape.size:
             shape_id = f"{meta.uri}#{prop.name}Shape"
             if base_iri:
@@ -204,7 +215,7 @@ def metadata_to_rdf(
                 (shape_iri, RDF.type, OWL.Class),
                 (shape_iri, RDFS.subclassOf, EMMO.Shape),
                 (shape_iri, SKOS.prefLabel, en(f"{prop_name}Shape")),
-                (shape_iri, description_iri,
+                (shape_iri, EMMO.elucidation,
                  en(f"Shape of datum '{prop_name}' of dataset '{meta.name}'.")),
             ])
             for i, dim in enumerate(prop.shape):
@@ -218,7 +229,7 @@ def metadata_to_rdf(
                     (dim_iri, RDF.type, EMMO.Dimension),
                     (dim_iri, EMMO.hasSymbolValue,
                      Literal(dim, datatype=XSD.string)),
-                    (dim_iri, description_iri, en(dim_descr[dim])),
+                    (dim_iri, EMMO.elucidation, en(dim_descr[dim])),
                     (dim_iri, SKOS.prefLabel, en(f"{prop.name}_dimension{i}")),
                 ])
                 if i == 0:
@@ -233,42 +244,21 @@ def metadata_to_rdf(
                     triples.append((source_iri, EMMO.hasNext, dim_iri))
                 source_iri = dim_iri
 
+        if prop.unit:
+            unit_iri = get_unit_iri(prop.unit)
+            if unit_iri:
+                restriction_iri = f"_:restriction_{prop_iri}_unit"
+                triples.extend([
+                    (prop_iri, RDFS.subClassOf, restriction_iri),
+                    (restriction_iri, RDF.type, OWL.Restriction),
+                    (restriction_iri, OWL.onProperty, EMMO.hasMeasurementUnit),
+                    (restriction_iri, OWL.onClass, unit_iri),
+                    (restriction_iri, OWL.qualifiedCardinality,
+                     Literal(1, datatype=XSD.nonNegativeInteger)),
+                ])
 
-
-        #if prop.shape.size:
-        #    shape_iri = f"_:shape_{prop_iri}"
-        #    triples.extend([
-        #        (prop_iri, RDF.type, EMMO.Array),
-        #        (prop_iri, EMMO.hasShape, shape_iri),
-        #        (shape_iri, RDF.type, EMMO.Shape),
-        #        (shape_iri, RDF.type, RDF.List),
-        #    ])
-        #    source_iri = shape_iri
-        #    for i, dim in enumerate(prop.shape):
-        #        list_iri = f"_:shape{i}_{prop_iri}"
-        #        dim_iri = f"_:dimension{i}_{prop_iri}"
-        #        triples.extend([
-        #            (source_iri, RDF.fir, RDF.List),
-        #            (list_iri, RDF.type, RDF.List),
-        #            (prop_iri, EMMO.hasShape, shape_iri),
-        #            (shape_iri, RDF.type, EMMO.Shape),
-        #            (shape_iri, RDF.type, RDF.List),
-        #        ])
-        #        source_iri = list_iri
-        #    triples.append((source_iri, RDF.rest, RDF.nil))
-        #
-        #if prop.unit:
-        #    restriction_iri = f"_:restriction_{prop_iri}_unit"
-        #    triples.extend([
-        #        (iri, RDFS.subClassOf, restriction_iri),
-        #        (restriction_iri, RDF.type, OWL.Restriction),
-        #        (restriction_iri, OWL.onProperty, EMMO.hasMeasurementUnit),
-        #        (restriction_iri, OWL.onClass, EMMO[prop.unit]),
-        #        (restriction_iri, OWL.qualifiedCardinality,
-        #         Literal(1, datatype="xsd:nonNegativeInteger")),
-        #    ])
         if prop.description:
-            triples.append((prop_iri, description_iri, en(prop.description)))
+            triples.append((prop_iri, EMMO.elucidation, en(prop.description)))
 
     return triples
 
@@ -395,7 +385,7 @@ def to_rdf_as_emmo(
         ])
         if "description" in dct:
             triples.append(
-                (inst.uri, description_iri, en(dct["description"]))
+                (inst.uri, EMMO.elucidation, en(dct["description"]))
            )
         for prop in inst.properties["properties"]:
             iri = f"{inst.uri}#{prop.name}"
@@ -415,7 +405,7 @@ def to_rdf_as_emmo(
             if prop.shape.size:
                 triples.append((iri, OTEIO.hasShape, Literal(shape)))
             if prop.description:
-                triples.append((iri, description_iri, en(prop.description)))
+                triples.append((iri, EMMO.elucidation, en(prop.description)))
 
             typeno, size = dlite.from_typename(prop.type)
             typename = dlite.to_typename(typeno, size)
