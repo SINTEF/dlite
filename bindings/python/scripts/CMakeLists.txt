@@ -58,8 +58,8 @@ test_failure(
     --show ../tests/input/persons.json
 )
 
-# The "dimensions" keyword is optional (when using utils.instance_from_dict())
-test_success(
+# The "dimensions" keyword is required
+test_failure(
   dlite-validate-no-dimensions
   dlite-validate NoDimensions.json
 )
