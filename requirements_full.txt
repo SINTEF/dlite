@@ -25,4 +25,4 @@ h5py>=3.9,<4
 #otelib>=0.3.2,<1
 
 # Entities-service
-git+https://github.com/SINTEF/entities-service.git#egg=project[extra]
+git+https://github.com/SINTEF/entities-service.git#egg=project[cli]
