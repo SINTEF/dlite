@@ -44,7 +44,7 @@ class http(dlite.DLiteStorageBase):
 
         This requires that you have entities-service installed.
 
-            pip install "git+https://github.com/SINTEF/entities-service.git"
+            pip install "git+https://github.com/SINTEF/entities-service.git#egg=project[cli]"
 
         """
         try:
