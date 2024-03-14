@@ -7,7 +7,7 @@ import json
 import os
 import requests
 import subprocess
-from tempfile import tempfile.NamedTemporaryFile
+from tempfile import NamedTemporaryFile
 
 import dlite
 from dlite.options import Options
