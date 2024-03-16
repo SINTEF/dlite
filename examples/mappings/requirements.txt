@@ -1,4 +1,4 @@
-tripper>=0.2.14,<1
+tripper==0.2.14
 pint>=0.15,<1
 
 oteapi-core>=0.6.1,<1

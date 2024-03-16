@@ -51,6 +51,12 @@ jobs:
         python3 -m pip install cmake==3.25.2
         cmake --version
 
+    - name: List installed Python packages
+      run: |
+        uname -a
+        python --version
+        pip freeze
+
     - name: configure
       run: |
         Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
@@ -66,6 +72,8 @@ jobs:
       working-directory: build
 
     - name: make test
+      env:
+        DLITE_PYDEBUG: ""
       run: ctest || ctest --rerun-failed --output-on-failure -V
       working-directory: build
 
