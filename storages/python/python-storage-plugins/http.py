@@ -39,6 +39,7 @@ class http(dlite.DLiteStorageBase):
         single = s if s == "auto" else dlite.asbool(s)
         return dlite.Instance.from_dict(self.content, id=id, single=single)
 
+    # Note: untested method
     def save(self, inst):
         """Save instance to entity service.
 
@@ -47,6 +48,8 @@ class http(dlite.DLiteStorageBase):
             pip install "git+https://github.com/SINTEF/entities-service.git#egg=project[cli]"
 
         """
+        # We explicitly remove `tmpfile` in the finally statement to
+        # avoid problems with file locking on Windows...
         try:
             tmpfile = tempfile.NamedTemporaryFile(
                 mode="wt", delete=False, prefix=".json"

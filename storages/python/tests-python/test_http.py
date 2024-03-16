@@ -58,6 +58,9 @@ assert str(meta) == """
 
 
 # Test fetching datamodel from http://onto-ns.com/
+#
+# TODO: Replace the entities below with a dedicated test entity that
+#       will not be cleaned up.
 uri = "http://onto-ns.com/meta/0.4/HallPetch"
 HallPetch = dlite.get_instance(uri)
 assert HallPetch.uri == uri
