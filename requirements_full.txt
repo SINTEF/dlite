@@ -1,12 +1,17 @@
 # Optional requirements - used by various plugins or additional features like mappings
 fortran-language-server>=1.12.0,<1.13
 PyYAML>=5.4.1,<7
-psycopg2>=2,<3
+#psycopg2>=2,<3
 pandas>=1.2,<2.3
+pyarrow>=14.0,<16.0
 rdflib>=4.2.1,<8
 pint>=0.15,<1
 pymongo>=4.4.0,<5
-tripper>=0.2.13,<0.3
+
+# There seems to be an issue with tripper 0.2.15
+#tripper>=0.2.13,<0.3
+tripper==0.2.14
+
 requests>=2.10,<3
 jinja2>=3.0,<4
 pydantic>=1.10.0,<3
@@ -22,3 +27,7 @@ h5py>=3.9,<4
 #oteapi-dlite>=0.1.5,<1
 #git+https://github.com/EMMC-ASBL/oteapi-dlite.git@fa1b820383eb54a1c37f32f7b8ac9406b556dace#egg=oteapi_dlite
 #otelib>=0.3.2,<1
+
+# Entities-service, doesn't install properly
+#git+https://github.com/SINTEF/entities-service.git#egg=project[cli]
+#git+https://github.com/SINTEF/entities-service.git

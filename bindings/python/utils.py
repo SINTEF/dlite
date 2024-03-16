@@ -146,7 +146,9 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
             except dlite.DLiteError:
                 pass
 
-        if isinstance(d["dimensions"], Sequence):
+        if "dimensions" not in d:
+            dimensions = []
+        elif isinstance(d["dimensions"], Sequence):
             dimensions = [
                 dlite.Dimension(d["name"], d.get("description"))
                 for d in d["dimensions"]

@@ -169,3 +169,4 @@
     ns1:hasDescription "A string pointer." ;
     ns1:hasLabel "mystring" ;
     ns1:hasType "string" .
+
