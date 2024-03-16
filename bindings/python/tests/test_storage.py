@@ -61,8 +61,12 @@ with dlite.Storage("json", outdir / "test_storage_tmp.json", "mode=w") as s:
 print("--- testing json")
 myentity.save(f"json://{outdir}/test_storage_myentity.json?mode=w")
 inst.save(f"json://{outdir}/test_storage_inst.json?mode=w")
+rel1 = inst["a-relation"].aspreferred()
 del inst
 inst = dlite.Instance.from_url(f"json://{outdir}/test_storage_inst.json#my-data")
+rel2 = inst["a-relation"].aspreferred()
+assert rel1 == rel2
+
 
 # Test yaml
 if HAVE_YAML:
@@ -86,7 +90,8 @@ Opens `location`.
                 - `w`: Truncate existing file or create new file.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
-                If "auto" (default) the form will be inferred automatically.
+              If "auto" (default) the form will be inferred automatically.
+            - `with_uuid`: Whether to include UUID when saving.
 """
     s = dlite.Storage(
         "yaml", outdir / "test_storage_inst.yaml", options="mode=a"
