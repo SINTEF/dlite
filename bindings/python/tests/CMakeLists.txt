@@ -19,12 +19,15 @@ set(tests
   test_transaction
   test_mapping
   test_rdf
+  test_rdf2
   test_postgresql1_write
   test_postgresql2_read
   test_ref_type
   test_pydantic
   test_relation
   test_iri
+  test_dataset1_save
+  #test_dataset2_load
 )
 
 foreach(test ${tests})
