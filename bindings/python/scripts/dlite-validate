@@ -22,35 +22,29 @@ def parse(url, driver=None, options=None, id=None):
     Returns:
         A new instance.
     """
+    loc = url.split("#", 1)[0].split("?",1)[0]
+    if driver is None:
+        driver = Path(loc).suffix.lstrip('.').lower()
+
     match = re.match(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://', url)
     if match and match.groups()[0].lower() != 'file':
-        if driver:
-            return dlite.Instance.from_location(
-                driver, url, options=options, id=id,
-            )
-        else:
-            return dlite.Instance.from_url(f'{url}#{id}' if id else url)
+        if options:
+            url += f"?{options}"
+        if id:
+            url += f"#{id}"
+        return dlite.Instance.from_url(url)
     else:
-        path = url[7:] if url.lower().startswith('file://') else url
-        if driver:
-            return dlite.Instance.from_location(
-                driver, path, options=options, id=id
-            )
-        fileext = Path(path).suffix.lstrip('.').lower()
+        path = Path(loc.split(":", 1)[1] if match else loc).resolve()
 
-        # For json and yaml, use the Python parser instead of dlite, since
-        # they have better error reporting for invalid serialisation
-        if fileext == 'json':
+        # For json, check syntax with the json module since it has better
+        # error reporting
+        if driver == "json":
             with open(path, 'rt') as f:
-                return dlite.Instance.from_dict(json.load(f), id=id)
-        elif fileext in ('yaml', 'yml'):
-            # Import yaml only if needed, to avoid creating an extra dependency
-            import yaml
+                json.load(f)
 
-            with open(path, 'rt') as f:
-                return dlite.Instance.from_dict(yaml.safe_load(f), id=id)
-
-        return dlite.Instance.from_location(fileext, path, options=options)
+        return dlite.Instance.from_location(
+            driver, path, options=options, id=id,
+        )
 
 
 def check_dimensions(url, meta):
