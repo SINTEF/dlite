@@ -12,12 +12,17 @@ try:
 except ImportError as exc:
     sys.exit(44)  # exit code marking the test to be skipped
 
-import dlite
 import tripper.mappings as tm
+
+import dlite
+from dlite.mappings import (
+    InsufficientMappingError, MissingRelationError, instantiate
+)
+from dlite.testutils import raises
 
 
 # Configure paths
-thisdir = Path(__file__).parent.absolute()
+thisdir = Path(__file__).resolve().parent
 
 
 # Test to manually set up mapping steps
@@ -168,5 +173,48 @@ assert step.number_of_routes() == 1
 assert step.lowest_costs() == [(22.0, 0)]
 assert step.eval(unit="m") == 34e-6
 
-print(step.show())
+#print(step.show())
 print("*** eval:", step.eval())
+
+
+# Test instantiate
+ts3 = Triplestore("rdflib")
+
+ONTO = ts3.bind("onto", "http://example.com/onto#")
+SP = ts3.bind("sp", "http://onto-ns.com/meta/0.1/SimplePerson#")
+P = ts3.bind("p", "http://onto-ns.com/meta/0.1/Person#")
+
+ts3.map(SP.name, ONTO.Name)
+ts3.map(SP.age, ONTO.Age)
+ts3.map(P.name, ONTO.Name)
+ts3.map(P.age, ONTO.Age)
+ts3.map(P.skills, ONTO.Skills)
+
+dlite.storage_path.append(thisdir / "entities")
+person = dlite.Instance.from_location(
+    driver="json",
+    location=thisdir / "input" / "persons.json",
+    id="a1d8d35f-723c-5ea1-abaf-8fc8f1d0982f",
+)
+ada = dlite.Instance.from_location(
+    driver="json",
+    location=thisdir / "input" / "persons.json",
+    id="Ada",
+)
+
+sp = instantiate(SP, instances=person, triplestore=ts3)
+assert sp.meta.uri == "http://onto-ns.com/meta/0.1/SimplePerson"
+assert sp.name == "Jack Daniel"
+assert sp.age == 42
+
+p = instantiate(P, instances=ada, triplestore=ts3, default=person)
+assert p.meta.uri == "http://onto-ns.com/meta/0.1/Person"
+assert p.name == "Ada Bolton"
+assert p.age == 23
+assert p.skills.tolist() == ["distilling", "tasting"]
+
+with raises(InsufficientMappingError):
+    instantiate(P, instances=ada, triplestore=ts3)
+
+with raises(MissingRelationError):
+    instantiate(P, instances=ada, triplestore=ts3, allow_incomplete=True)
