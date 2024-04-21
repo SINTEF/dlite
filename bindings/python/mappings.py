@@ -283,6 +283,9 @@ def instantiate_all(
     elif isinstance(meta, Namespace):
         meta = dlite.get_instance(str(meta).rstrip("/#"))
 
+    if default:
+        allow_incomplete = True
+
     routes = instance_routes(
         meta=meta,
         instances=instances,
@@ -305,11 +308,17 @@ def instantiate_all(
             if routedict and name in routedict:
                 outer[name] = routedict[name]
                 yield outer
-            else:
+            elif name in routes:
                 step = routes[name]
-                for inner in range(step.number_of_routes()):
-                    outer[name] = inner
+                nroutes = step.number_of_routes()
+                if nroutes:
+                    for inner in range(nroutes):
+                        outer[name] = inner
+                        yield outer
+                elif allow_incomplete:
                     yield outer
+            elif allow_incomplete:
+                yield outer
 
     for route_dict in routedicts(len(property_names) - 1):
         yield instantiate_from_routes(
