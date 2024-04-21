@@ -47,9 +47,9 @@ ts.add_triples(
 )
 
 # Add mappings for the input data models -- data provider
-ts.add_mapsTo(DON.ChemicalSymbol, AT.symbols)
-ts.add_mapsTo(EMMO.PotentialEnergy, RES.potential_energy)
-ts.add_mapsTo(EMMO.Force, RES.forces)
+ts.map(AT.symbols, DON.ChemicalSymbol)
+ts.map(RES.potential_energy, EMMO.PotentialEnergy)
+ts.map(RES.forces, EMMO.Force)
 
 
 # 2. Map output datamodels -- modeller + ontologist
@@ -64,9 +64,12 @@ ts.add_triples(
 )
 
 # Add mappings for the output data model -- modeller
-ts.add_mapsTo(EMMO.PotentialEnergy, MOL.energy)
-ts.add_mapsTo(DON.MaxForce, MOL.maxforce)
-ts.add_mapsTo(DON.Formula, MOL.formula)
+ts.map(MOL.energy, EMMO.PotentialEnergy)
+ts.map(MOL.maxforce, DON.MaxForce)
+ts.map(MOL.formula, DON.Formula)
+
+
+
 
 
 # 3. Add mapping functions -- ontologist
@@ -79,19 +82,16 @@ ts.add_function(
     formula,
     expects=[DON.ChemicalSymbol],
     returns=[DON.Formula],
-    standard="fno",
 )
 ts.add_function(
     norm,
     expects=[EMMO.Force],
     returns=[DON.ForceNorm],
-    standard="fno",
 )
 ts.add_function(
     maximum,
     expects=[DON.ForceNorm],
     returns=[DON.MaxForce],
-    standard="fno",
 )
 
 
