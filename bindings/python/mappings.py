@@ -113,7 +113,7 @@ def instance_routes(
 def instantiate_from_routes(
     meta: str | dlite.Metadata | Namespace,
     routes: dict[str, MappingStep],
-    routedict: dict[str, int] = None,
+    routedict: "Optional[dict[str, int]]" = None,
     id: "Optional[str]" = None,
     default: "Optional[dlite.Instance]" = None,
     quantity: "Type[Quantity]" = Quantity,
@@ -146,7 +146,8 @@ def instantiate_from_routes(
     if default and default.meta.uri != meta.uri:
         raise f"`default` must be an instance of {meta.uri}"
 
-    routedict = routedict or {}
+    if routedict is None:
+        routedict = {}
 
     values = {}
     for prop in meta["properties"]:
@@ -170,14 +171,8 @@ def instantiate_from_routes(
     dimensions = infer_dimensions(meta, values)
     inst = meta(dimensions=dimensions, id=id)
 
-    for key, value in routes.items():
-        try:
-            val = value.eval(magnitude=True, unit=meta.getprop(key).unit)
-        except MissingRelationError:
-            if not default:
-                raise
-            val = default[key]
-        inst[key] = val
+    for key, value in values.items():
+        inst[key] = value
 
     return inst
 
