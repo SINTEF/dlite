@@ -42,7 +42,7 @@ jobs:
       with:
         token: ${{ secrets.RELEASE_PAT }}
         branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
-        pre_sleep: 15
+        sleep: 15
         force: true
         tags: true
         unprotect_reviews: true
