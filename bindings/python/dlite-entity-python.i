@@ -692,12 +692,13 @@ def get_instance(
             iterfun(self),
         )
 
-    def asdict(self, soft7=True, uuid=True, single=True):
+    def asdict(self, soft7=True, uuid=None, single=None):
         """Returns a dict representation of self.
 
         Arguments:
             soft7: Whether to structure metadata as SOFT7.
-            uuid: Whether to include UUID in the dict.
+            uuid: Whether to include UUID in the dict.  The default is true
+                if `single=True` and URI is None, otherwise it is false.
             single: Whether to return in single-entity format.
                 If None, single-entity format is used for metadata and
                 multi-entity format for data instances.
@@ -705,6 +706,9 @@ def get_instance(
         dct = d = {}
         if single is None:
             single = self.is_meta
+
+        if uuid is None:
+            uuid = single and self.uri
 
         if not single:
             d = {}
