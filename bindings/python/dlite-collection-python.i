@@ -301,6 +301,7 @@ class Collection(Instance):
                     **kwargs
                 ):
                     yield inst
+
         elif property_mappings:
             raise _dlite.DLiteError(
                 '`metaid` is required when `property_mappings` is true')
