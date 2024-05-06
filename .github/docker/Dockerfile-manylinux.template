@@ -65,6 +65,7 @@ RUN  cd /opt/_internal && \
       -e '/^h5py/d' \
       -e '/oteapi/d' \
       -e '/^otelib/d' \
+      -e '/^pyarrow/d' \
       -i /tmp/requirements_full.txt
 
 # Install required Python packages
