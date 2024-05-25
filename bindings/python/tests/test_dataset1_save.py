@@ -6,7 +6,7 @@ from dlite.dataset import EMMO, EMMO_VERSIONIRI
 from dlite.testutils import raises
 
 try:
-    from tripper import OWL, RDF, RDFS, XSD, Triplestore
+    from tripper import MAP, OWL, RDF, RDFS, XSD, Triplestore
 except ModuleNotFoundError:
     import sys
     sys.exit(44)
@@ -43,14 +43,24 @@ chem = dlite.get_instance("http://onto-ns.com/meta/calm/0.1/Chemistry/aa6060")
 fluid = dlite.get_instance("http://onto-ns.org/meta/dlite/0.1/FluidData")
 
 
-base_iri = "http://emmo.info/domain/ex#"
-
-#mappings = [
+base_iri = "https://w3id.org/emmo/application/ex#"
 
 ts = Triplestore(backend="rdflib")
 EX = ts.bind("", base_iri)
+FLUID = ts.bind("fluid", "http://onto-ns.org/meta/dlite/0.1/FluidData#")
+
+mappings = [
+    (FLUID,                  EMMO.isDescriptionFor, EMMO.Fluid),
+    (FLUID.LJPotential,      MAP.mapsTo, EMMO.String),
+    (FLUID.LJPotential,      EMMO.isDescriptionFor, EMMO.MolecularEntity),
+    (FLUID.TemperatureField, MAP.mapsTo, EMMO.ThermodynamicTemperature),
+    (FLUID.ntimes,           MAP.mapsTo, EMMO.Time),
+    (FLUID.npositions,       MAP.mapsTo, EMMO.Position),
+]
 #add_dataset(ts, chem.meta, base_iri=base_iri)
-add_dataset(ts, fluid, base_iri=base_iri)
+add_dataset(ts, fluid, base_iri=base_iri, mappings=mappings)
+
+
 
 # Add ontology
 iri = base_iri.rstrip("/#")

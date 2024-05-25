@@ -6,6 +6,7 @@ import json
 import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 from tripper import Literal, Namespace, Triplestore
 from tripper import MAP, OTEIO, OWL, RDF, RDFS, SKOS, XSD
@@ -131,14 +132,33 @@ def metadata_to_rdf(
     Returns:
         A list of RDF triples.  Literal objects are encoded in n3 notation.
     """
-    # Create lookup table for mappings
+    # Create lookup table
     dct = meta.asdict()
 
+    # For adding mappings
     maps = defaultdict(list)
     for s, p, o in mappings:
-        maps[s].append((RDFS.subClassOf if p == MAP.mapsTo else p, o))
+        uri = str(s).rstrip("/#")
+        if p == MAP.mapsTo:
+            name = str(s).split("#", 1)[-1]
+            prep = RDF.type if name in meta.dimnames() else RDFS.subClassOf
+        else:
+            prep = p
+        maps[uri].append((prep, o))
 
-    #mapsto = {s: o for s, p, o in mappings if p == MAP.mapsTo}
+    def addmap(uri, iri):
+        """Add mapping relation to triples."""
+        for p, o in maps[uri.rstrip("/#")]:
+            if p in (RDF.type, RDFS.subClassOf):
+                triples.append((iri, p, o))
+            else:
+                restriction_iri = f"_:restriction_map_{iri}_{uuid4()}"
+                triples.extend([
+                    (iri, RDFS.subClassOf, restriction_iri),
+                    (restriction_iri, RDF.type, OWL.Restriction),
+                    (restriction_iri, OWL.onProperty, p),
+                    (restriction_iri, OWL.someValuesFrom, o),
+                ])
 
     # Add datamodel (emmo:DataSet)
     if base_iri:
@@ -154,13 +174,7 @@ def metadata_to_rdf(
         (iri, RDFS.subClassOf, EMMO.DataSet),
         (iri, SKOS.prefLabel, en(title(meta.name))),
     ])
-
-    #if meta.uri in mapsto:
-    #    triples.append((iri, RDFS.subClassOf, mapsto[meta.uri]))
-
-    # Add additional relations from mappings
-    for p, o in maps[meta.uri]:
-        triples.append((iri, p, o))
+    addmap(meta.uri, iri)
 
     if "description" in dct:
         triples.append((iri, EMMO.elucidation, en(dct["description"])))
@@ -175,6 +189,7 @@ def metadata_to_rdf(
             prop_iri = (f"{base_iri.rstrip('#/')}#{uuid_prefix}{uuid}")
         else:
             prop_iri = prop_id
+        addmap(prop_id, prop_iri)
         restriction_iri = f"_:restriction_{prop_iri}"
         emmotype = EMMO_TYPES.get(prop.type.rstrip("0123456789"))
         prop_name = f"{prop.name[0].upper()}{prop.name[1:]}"
@@ -189,13 +204,6 @@ def metadata_to_rdf(
             (prop_iri, RDFS.subClassOf, EMMO.Datum),
             (prop_iri, SKOS.prefLabel, en(prop_name)),
         ])
-
-        # Add additional relations from mappings
-        for p, o in maps[prop_id]:
-            triples.append((prop_iri, p, o))
-
-        #if prop_iri in mapsto:
-        #    triples.append((prop_iri, RDFS.subClassOf, mapsto[prop_iri]))
 
         if emmotype:
             triples.append((prop_iri, RDFS.subClassOf, EMMO[emmotype]))
@@ -215,6 +223,7 @@ def metadata_to_rdf(
                     dim_iri = (f"{base_iri.rstrip('#/')}#{uuid_prefix}{uuid}")
                 else:
                     dim_iri = f"{meta.uri}#{prop.name}_dimension"
+                addmap(f"{meta.uri}#{dim}", dim_iri)
                 triples.extend([
                     (dim_iri, RDF.type, EMMO.Dimension),
                     (dim_iri, EMMO.hasSymbolValue,
