@@ -1,51 +1,36 @@
 {
   "uri": "http://onto-ns.com/meta/0.1/TestEntity",
   "description": "test entity with explicit meta",
-  "dimensions": [
-    {
-      "name": "L",
-      "description": "first dim"
-    },
-    {
-      "name": "M",
-      "description": "second dim"
-    },
-    {
-      "name": "N",
-      "description": "third dim"
-    }
-  ],
-  "properties": [
-    {
-      "name": "myblob",
+  "dimensions": {
+    "L": "first dim",
+    "M": "second dim",
+    "N": "third dim"
+  },
+  "properties": {
+    "myblob": {
       "type": "blob3"
     },
-    {
-      "name": "mydouble",
+    "mydouble": {
       "type": "float64",
       "unit": "m",
       "description": "A double following a single character..."
     },
-    {
-      "name": "myfixstring",
+    "myfixstring": {
       "type": "string3",
       "description": "A fix string."
     },
-    {
-      "name": "mystring",
+    "mystring": {
       "type": "string",
       "description": "A string pointer."
     },
-    {
-      "name": "myshort",
+    "myshort": {
       "type": "uint16",
       "description": "An unsigned short integer."
     },
-    {
-      "name": "myarray",
+    "myarray": {
       "type": "int32",
       "shape": ["L", "M", "N"],
       "description": "An array string pointer."
     }
-  ]
+  }
 }
