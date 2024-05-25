@@ -1,5 +1,5 @@
 """Demo: access and use TEM data"""
-from tripper import RDF, Namespace, Triplestore
+from tripper import OTEIO, RDF, Namespace, Triplestore
 
 from tem_paths import indir, outdir
 from utils.utils import get_data, populate_triplestore
@@ -11,7 +11,6 @@ populate_triplestore(ts, indir / "resources.yaml")
 ts.serialize(outdir / "resources.ttl")
 
 # Namespace used for the data resources
-OTEIO = Namespace("http://emmo.info/oteio#")
 PM = ts.bind("pm", "https://www.ntnu.edu/physmet/data#")
 
 
