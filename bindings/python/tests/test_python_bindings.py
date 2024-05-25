@@ -4,6 +4,7 @@ import os
 import sys
 from glob import glob
 import unittest
+from contextlib import redirect_stdout, redirect_stderr
 
 import dlite
 
@@ -42,6 +43,7 @@ class ScriptTestCase(unittest.TestCase):
 
 
 def test(verbosity=1, stream=sys.stdout):
+    """Run tests with given verbosity level."""
     tests = [
         test
         for test in sorted(glob(os.path.join(thisdir, "test_*.py")))
@@ -54,32 +56,16 @@ def test(verbosity=1, stream=sys.stdout):
     ts = unittest.TestSuite()
     for test in sorted(tests):
         ts.addTest(ScriptTestCase(filename=os.path.abspath(test)))
-    with open(os.devnull, "w") as devnull:
-        if not verbosity:
-            stream = devnull
-        ttr = unittest.TextTestRunner(verbosity=verbosity, stream=stream)
 
-        # Redirect stdout and stderr to devnull
-        # stderr is redicred at file-descriptor level to get rid of
-        # C-level output
-        dest_fd = devnull.fileno()
-        stderr_fd = sys.stderr.fileno()
-        # copy stderr_fd before it is overwritten
-        # NOTE: `copied` is inheritable on Windows when duplicating a
-        # standard stream
-        with os.fdopen(os.dup(stderr_fd), "wb") as copied:
-            sys.stdout.flush()
-            sys.stderr.flush()
-            try:
-                sys.stdout = devnull
-                os.dup2(dest_fd, stderr_fd)  # $ exec >&dest
-                results = ttr.run(ts)
-            finally:
-                sys.stdout.flush()
-                sys.stderr.flush()
-                sys.stdout = sys.__stdout__
-                os.dup2(copied.fileno(), stderr_fd)  # $ exec >&copied
-    return results
+    ttr = unittest.TextTestRunner(verbosity=verbosity, stream=stream)
+
+    if verbosity < 3:
+        with open(os.devnull, "w") as devnull:
+            with redirect_stderr(devnull):
+                with redirect_stdout(devnull):
+                    return ttr.run(ts)
+    else:
+        return ttr.run(ts)
 
 
 if __name__ == "__main__":
