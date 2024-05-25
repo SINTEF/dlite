@@ -8,7 +8,7 @@ import numpy as np
 try:
     import rdflib
     from pint import Quantity
-    from tripper import Triplestore
+    from tripper import DCTERMS, DM, FNO, MAP, RDF, RDFS, Triplestore
 except ImportError as exc:
     sys.exit(44)  # exit code marking the test to be skipped
 
@@ -96,32 +96,33 @@ assert isclose(18.0, costs[4][0])
 
 
 # ---------------------------------------
-r = np.array([10, 20, 30, 40, 50, 60])  # particle radius [nm]
-n = np.array([1, 3, 7, 6, 2, 1])  # particle number density [1e21 #/m^3]
+r = np.array([10., 20, 30, 40, 50, 60])  # particle radius [nm]
+n = np.array([1., 3, 7, 6, 2, 1])  # particle number density [1e21 #/m^3]
 
 rv = tm.Value(r, "nm", "inst1")
 nv = tm.Value(n, "1/m^3", "inst2")
 
 
 def average_radius(r, n):
+    """Calculates average particle radius from arrays of particle radii
+    and number densities."""
     return np.sum(r * n) / np.sum(n)
 
 
-mapsTo = "http://emmo.info/domain-mappings#mapsTo"
-instanceOf = "http://emmo.info/datamodel#instanceOf"
-subClassOf = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-# description = 'http://purl.org/dc/terms/description'
-label = "http://www.w3.org/2000/01/rdf-schema#label"
-hasUnit = "http://emmo.info/datamodel#hasUnit"
+mapsTo = MAP.mapsTo
+instanceOf = DM.instanceOf
+subClassOf = RDFS.subClassOf
+# description = DCTERMS.description
+label = RDFS.label
+hasUnit = DM.hasUnit
 hasCost = ":hasCost"
-RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-type = RDF + "type"
-next = RDF + "next"
-first = RDF + "first"
-rest = RDF + "rest"
-nil = RDF + "nil"
-expects = "https://w3id.org/function/ontology#expects"
-returns = "https://w3id.org/function/ontology#returns"
+type = RDF.type
+next = RDF.next
+first = RDF.first
+rest = RDF.rest
+nil = RDF.nil
+expects = FNO.expects
+returns = FNO.returns
 
 
 triples = [
