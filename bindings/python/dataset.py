@@ -24,15 +24,20 @@ if TYPE_CHECKING:  # pragma: no cover
 OTEIO = Namespace("http://emmo.info/oteio.pipeline#")
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
+
+TS_EMMO = Triplestore("rdflib")
+TS_EMMO.parse("https://w3id.org/emmo/1.0.0-rc1")
+
+
 EMMO = Namespace(
     #iri="http://emmo.info/emmo#",
     iri="https://w3id.org/emmo#",
     label_annotations=True,
-    #cachemode=Namespace.ONLY_CACHE,
     check=True,
-    triplestore=(
-        "https://emmo-repo.github.io/versions/1.0.0-beta7/emmo-dataset.ttl"
-    ),
+    triplestore=TS_EMMO,
+    #triplestore=(
+    #    "https://emmo-repo.github.io/versions/1.0.0-beta7/emmo-dataset.ttl"
+    #),
 )
 
 
@@ -71,7 +76,7 @@ def title(s):
 def dimensional_string(unit_iri):
     """Return the inferred dimensional string of the given unit IRI.  Returns
     None if no dimensional string can be inferred."""
-    ts = EMMO._triplestore
+    ts = TS_EMMO
 
 
     for parent in ts.objects(iri, RDFS.subClassOf):
@@ -81,7 +86,7 @@ def dimensional_string(unit_iri):
 def get_unit_iri(unit):
     """Returns the IRI for the given unit."""
     if not unit_cache:
-        ts = EMMO._triplestore
+        ts = TS_EMMO
         for predicate in (EMMO.unitSymbol, EMMO.ucumCode, EMMO.uneceCommonCode):
             for s, _, o in ts.triples(predicate=predicate):
                 if o.value in unit_cache and predicate == EMMO.unitSymbol:
@@ -208,15 +213,15 @@ def metadata_to_rdf(
                 (prop_iri, RDFS.subClassOf, EMMO.Array),
                 (prop_iri, RDFS.subClassOf, restriction_iri),
                 (restriction_iri, RDF.type, OWL.Restriction),
-                (restriction_iri, OWL.onProperty, EMMO.hasShape),
+                #(restriction_iri, OWL.onProperty, EMMO.hasShape),
                 (restriction_iri, OWL.onClass, shape_iri),
                 (restriction_iri, OWL.qualifiedCardinality,
                  Literal(1, datatype=XSD.nonNegativeInteger)),
-                (shape_iri, RDF.type, OWL.Class),
-                (shape_iri, RDFS.subclassOf, EMMO.Shape),
-                (shape_iri, SKOS.prefLabel, en(f"{prop_name}Shape")),
-                (shape_iri, EMMO.elucidation,
-                 en(f"Shape of datum '{prop_name}' of dataset '{meta.name}'.")),
+                #(shape_iri, RDF.type, OWL.Class),
+                #(shape_iri, RDFS.subclassOf, EMMO.Shape),
+                #(shape_iri, SKOS.prefLabel, en(f"{prop_name}Shape")),
+                #(shape_iri, EMMO.elucidation,
+                # en(f"Shape of datum '{prop_name}' of dataset '{meta.name}'.")),
             ])
             for i, dim in enumerate(prop.shape):
                 dim_id = f"{meta.uri}#{prop.name}_dimension{i}"
