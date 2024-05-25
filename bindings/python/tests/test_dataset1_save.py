@@ -2,7 +2,7 @@ from pathlib import Path
 
 import dlite
 from dlite.dataset import metadata_to_rdf, add_dataset, get_dataset
-from dlite.dataset import EMMO
+from dlite.dataset import EMMO, EMMO_VERSIONIRI
 from dlite.testutils import raises
 
 try:
@@ -26,6 +26,7 @@ from dlite.dataset import MissingUnitError, get_unit_iri
 
 assert get_unit_iri("Kelvin") == "https://w3id.org/emmo#Kelvin"
 assert get_unit_iri("K") == "https://w3id.org/emmo#Kelvin"
+assert get_unit_iri("°C") == "https://w3id.org/emmo#DegreeCelsius"
 assert get_unit_iri("m/s") == "https://w3id.org/emmo#MetrePerSecond"
 
 with raises(MissingUnitError):
@@ -39,7 +40,7 @@ with raises(MissingUnitError):
 # Test serialising Metadata as an EMMO dataset
 # ============================================
 chem = dlite.get_instance("http://onto-ns.com/meta/calm/0.1/Chemistry/aa6060")
-#chem = dlite.get_instance("http://onto-ns.com/meta/calm/0.1/Chemistry/c1eb2ab7-3fac-538b-b6f0-db2bf6530c92")
+fluid = dlite.get_instance("http://onto-ns.org/meta/dlite/0.1/FluidData")
 
 
 base_iri = "http://emmo.info/domain/ex#"
@@ -48,21 +49,15 @@ base_iri = "http://emmo.info/domain/ex#"
 
 ts = Triplestore(backend="rdflib")
 EX = ts.bind("", base_iri)
-add_dataset(ts, chem.meta, base_iri=base_iri)
+#add_dataset(ts, chem.meta, base_iri=base_iri)
+add_dataset(ts, fluid, base_iri=base_iri)
 
 # Add ontology
 iri = base_iri.rstrip("/#")
 ts.add_triples([
     (iri, RDF.type, OWL.Ontology),
-    (iri, OWL.imports, EMMO._triplestore.backend.triplestore_url),
+    (iri, OWL.imports, EMMO_VERSIONIRI),
 ])
 
 
 ts.serialize(outdir / "dataset.ttl")
-
-
-
-# testing...
-from tripper import Literal
-
-t = EMMO._triplestore
