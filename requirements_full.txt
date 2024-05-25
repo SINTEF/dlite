@@ -8,10 +8,7 @@ tables>=3.8,<5.0
 rdflib>=4.2.1,<8
 pint>=0.15,<1
 pymongo>=4.4.0,<5
-
-# There seems to be an issue with tripper 0.2.15
-#tripper>=0.2.13,<0.3
-tripper==0.2.15
+tripper==0.2.16
 
 requests>=2.10,<3
 jinja2>=3.0,<4
