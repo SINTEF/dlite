@@ -2,7 +2,7 @@ importlib-metadata==4.13.0; python_version<'3.8'
 beautifulsoup4>=4.11.1
 lxml>=4.7.1
 
-Sphinx>5.0,<6
+Sphinx>5.0,<8
 sphinx-autoapi~=2.1.1
 sphinx-autobuild~=2021.3.14
 sphinx-book-theme~=1.0.1
