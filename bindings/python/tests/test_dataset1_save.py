@@ -47,7 +47,6 @@ assert fluid.get_hash() == (
     '4739a3820ced457d07447c8916112021a0fbda9cbc97758e40b67369e34c00b4'
 )
 
-
 ts = Triplestore(backend="rdflib")
 EX = ts.bind("ex", "https://w3id.org/emmo/application/ex/")
 FLUID = ts.bind("fluid", "http://onto-ns.org/meta/dlite/0.1/FluidData#")
@@ -61,7 +60,6 @@ mappings = [
     (FLUID.npositions,       MAP.mapsTo, EMMO.Position),
 ]
 #add_dataset(ts, chem.meta, base_iri=base_iri)
-#add_dataset(ts, fluid, base_iri=base_iri, mappings=mappings)
 add_dataset(ts, fluid, iri=EX.FluidData, mappings=mappings)
 
 
