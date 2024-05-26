@@ -270,7 +270,6 @@ def metadata_to_rdf(
         prop_iri = f"{iri}#{prop.name}"
         addmap(prop_id, prop_iri)
         restriction_iri = f"_:restriction_{prop_iri}"
-        emmotype, size = dlite2emmotype(prop.type)
         prop_name = f"{prop.name[0].upper()}{prop.name[1:]}"
         triples.extend([
             (iri, RDFS.subClassOf, restriction_iri),
@@ -282,8 +281,19 @@ def metadata_to_rdf(
             (prop_iri, RDF.type, OWL.Class),
             (prop_iri, RDFS.subClassOf, EMMO.Datum),
             (prop_iri, SKOS.prefLabel, en(prop_name)),
-            (prop_iri, RDFS.subClassOf, EMMO[emmotype]),
         ])
+
+        emmotype, size = dlite2emmotype(prop.type)
+        if prop.ndims:
+            restriction_iri = f"_:restriction_type_{prop_iri}"
+            triples.extend([
+                (prop_iri, RDFS.subClassOf, restriction_iri),
+                (restriction_iri, RDF.type, OWL.Restriction),
+                (restriction_iri, OWL.onProperty, EMMO.hasScalarData),
+                (restriction_iri, OWL.someValuesFrom, EMMO[emmotype]),
+            ])
+        else:
+            triples.append((prop_iri, RDFS.subClassOf, EMMO[emmotype]))
         if size:
             sizeval = Literal(size, datatype=XSD.nonNegativeInteger)
             triples.append((prop_iri, OTEIO.datasize, sizeval))
@@ -429,6 +439,8 @@ def get_dataset(
                         someval = po.get(OWL.someValuesFrom)
                         if onprop == EMMO.hasMeasurementUnit:
                             unit = get_unit_symbol(oncls)
+                        elif onprop == EMMO.hasScalarData:
+                            emmotype = emmotypes[someval]
                         elif onprop == EMMO.hasDimension:
                             shape = get_shape(
                                 ts, onval, dimensions, mappings, uri
