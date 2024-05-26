@@ -1,0 +1,20 @@
+{
+  "uri": "http://onto-ns.org/meta/dlite/0.1/FluidData",
+  "description": "A dataset describing a fluid.",
+  "dimensions": {
+    "ntimes": "The number of times the measurements are performed.",
+    "npositions": "The number of positions the measurements are performed.",
+  },
+  "properties": {
+    "LJPotential": {
+      "type": "string",
+      "description": "Reference to Lennart-Jones potential."
+    },
+    "TemperatureField": {
+      "type": "float64",
+      "shape": ["ntimes", "npositions"],
+      "unit": "°C",
+      "description": "Array of measured temperatures."
+    }
+  }
+}

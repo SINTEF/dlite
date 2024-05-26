@@ -59,5 +59,13 @@ status_t from_typename(const char *typename, int *type, int *size);
 ) to_typename;
 char *to_typename(int type, int size=-1);
 
+%feature(
+  "docstring",
+  "Returns DLite type number corresponding to `dtypename`."
+) dlite_type_get_dtype;
+%rename(to_typenumber) dlite_type_get_dtype;
+int dlite_type_get_dtype(const char *dtypename);
+
+
 %rename(get_alignment) dlite_type_get_alignment;
 size_t dlite_type_get_alignment(int type, size_t size);
