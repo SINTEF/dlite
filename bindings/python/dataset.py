@@ -257,7 +257,7 @@ def metadata_to_rdf(
         (iri, RDF.type, OWL.Class),
         (iri, RDFS.subClassOf, EMMO.DataSet),
         (iri, SKOS.prefLabel, en(title(meta.name))),
-        (iri, OTEIO.hasURI, meta.uri),
+        (iri, OTEIO.hasURI, Literal(meta.uri, datatype=XSD.anyURI)),
     ])
     addmap(meta.uri, iri)
 
@@ -358,13 +358,21 @@ def add_dataset(
     Returns:
         IRI of the saved dataset.
     """
+    if not meta.is_meta:
+        raise TypeError(
+            "Expected data model, got instance: {meta.uri or meta.uuid}"
+        )
+
     if iri is None:
         iri = meta.uri
     iri = str(iri).rstrip("#/")
 
     ts.add_triples(metadata_to_rdf(meta, iri=iri, mappings=mappings))
-    if "emmo" not in ts.namespaces:
-        ts.bind("emmo", EMMO)
+
+    used_namespaces = {"emmo": EMMO, "oteio": OTEIO}
+    for prefix, ns in used_namespaces.items():
+        if prefix not in ts.namespaces:
+            ts.bind(prefix, ns)
 
     return iri
 
@@ -379,14 +387,15 @@ def get_dataset(
     Arguments:
         ts: Triplestore to load from.
         iri: IRI of the dataset to load.
-        uri: URI of datamodel to load. Defaults to `iri`.
+        uri: URI of the DLite datamodel to load. The defaults is inferred
+            from `iri`.
 
     Returns:
         A `(meta, mappings)` tuple, where `meta` is a DLite metadata and
         `mappings` is a list of triples.
     """
     if uri is None:
-        uri = ts.value(iri, OTEIO.hasURI, default=str(iri).rstrip("/#"))
+        uri = str(ts.value(iri, OTEIO.hasURI, default=str(iri).rstrip("/#")))
 
     emmotypes = {EMMO[v]: v for v in EMMO_TYPES.values()}
 
@@ -466,125 +475,107 @@ def get_dataset(
     return meta, mappings
 
 
-#def to_rdf(
-#    inst: dlite.Instance,
-#    standard: str = "emmo",
-#    base_uri: str = "",
-#    include_meta: "Optional[bool]" = None,
-#) -> "List[Triple]":
-#    """Serialise DLite instance to RDF.
-#
-#    Arguments:
-#        inst: Instance to serialise.
-#        standard: What standard to use when serialising `inst`.  Valid
-#            values are
-#              - "emmo": Serialise as EMMO DataSet.
-#              - "datamodel": According to the datamodel ontology.
-#        base_uri: Base URI that is prepended to the instance URI or UUID
-#            (if it is not already a valid URI).
-#        include_meta: Whether to also serialise metadata.  The default
-#            is to only include metadata if `inst` is a data object.
-#
-#    Returns:
-#        A list of RDF triples.  Literal objects are encoded in n3 notation.
-#    """
-#    if standard == "emmo":
-#        return to_rdf_as_emmo(
-#            inst, base_uri=base_uri, include_meta=include_meta
-#        )
-#    elif standard == "datamodel":
-#        print("????????????????????????????????????????")
-#        from dlite.rdf import to_graph
-#        graph = to_graph(
-#            inst, base_uri=base_uri, include_meta=include_meta
-#        )
-#        return graph.serialize(format="n3")
-#    else:
-#        raise ValueError('`standard` must be either "emmo" or "datamodel".')
-#
-#
-#def to_rdf_as_emmo(
-#    inst: dlite.Instance,
-#    base_uri: str = "",
-#    include_meta: "Optional[bool]" = None,
-#) -> "List[Triple]":
-#    """Serialise DLite instance as an EMMO dataset.
-#
-#    Arguments:
-#        inst: Instance to serialise.
-#        base_uri: Base URI that is prepended to the instance URI or UUID
-#            (if it is not already a valid URI).
-#        include_meta: Whether to also serialise metadata.  The default
-#            is to only include metadata if `inst` is a data object.
-#
-#    Returns:
-#        A list of RDF triples.  Literal objects are encoded in n3 notation.
-#    """
-#    triples = []
-#
-#    if include_meta is None:
-#        include_meta = not inst.is_meta
-#    if include_meta:
-#        # EMMO cannot represent metadata schema - use "datamodel" for that
-#        standard = "datamodel" if inst.is_meta else "emmo"
-#        triples.extend(
-#            to_rdf(
-#                inst=inst.meta,
-#                standard=standard,
-#                base_uri=base_uri,
-#                include_meta=False
-#            )
-#        )
-#
-#    if inst.is_meta:
-#        dct = inst.asdict()
-#        dims = json.dumps(inst.asdict()["dimensions"])
-#        triples.extend([
-#            (inst.uri, RDF.type, OWL.Class),
-#            (inst.uri, RDFS.subClassOf, EMMO.DataSet),
-#            (inst.uri, OTEIO.hasDimension, Literal(dims)),
-#        ])
-#        if "description" in dct:
-#            triples.append(
-#                (inst.uri, EMMO.elucidation, en(dct["description"]))
-#           )
-#        for prop in inst.properties["properties"]:
-#            iri = f"{inst.uri}#{prop.name}"
-#            restriction_iri = f"_:restriction_{prop.name}_{inst.uuid}"
-#            shape = json.dumps(prop.asdict().get("shape", []))
-#
-#            triples.extend([
-#                (inst.uri, RDFS.subClassOf, restriction_iri),
-#                (restriction_iri, RDF.type, OWL.Restriction),
-#                (restriction_iri, OWL.onProperty, EMMO.hasDatum),
-#                (restriction_iri, OWL.onClass, iri),
-#                (restriction_iri, OWL.qualifiedCardinality,
-#                 Literal(1, datatype="xsd:nonNegativeInteger")),
-#                (iri, RDF.type, OWL.Class),
-#                (iri, RDFS.subClassOf, EMMO.Datum),
-#            ])
-#            if prop.shape.size:
-#                triples.append((iri, OTEIO.hasShape, Literal(shape)))
-#            if prop.description:
-#                triples.append((iri, EMMO.elucidation, en(prop.description)))
-#
-#            typeno, size = dlite.from_typename(prop.type)
-#            typename = dlite.to_typename(typeno, size)
-#            stripname = typename.rstrip("0123456789")
-#            emmo_type = "Array" if prop.ndims else EMMO_TYPE[stripname]
-#            if emmo_type is not NotImplemented:
-#                triples.append((iri, RDFS.subClassOf, EMMO[emmo_type]))
-#
-#            if prop.unit:
-#                restriction_iri = f"_:restriction_{prop.name}_unit_{inst.uuid}"
-#                triples.extend([
-#                    (iri, RDFS.subClassOf, restriction_iri),
-#                    (restriction_iri, RDF.type, OWL.Restriction),
-#                    (restriction_iri, OWL.onProperty, EMMO.hasMeasurementUnit),
-#                    (restriction_iri, OWL.onClass, EMMO[prop.unit]),  # XXX
-#                    (restriction_iri, OWL.qualifiedCardinality,
-#                     Literal(1, datatype="xsd:nonNegativeInteger")),
-#                ])
-#
-#    return triples
-#
+def add_data(
+    ts: Triplestore,
+    inst: dlite.Instance,
+    iri: "Optional[str]" = None,
+    mappings: "Sequence[Triple]" = (),
+) -> str:
+    """Save DLite instance as an EMMO dataset to a triplestore.
+
+    Data instances are represented as individuals of the corresponding
+    EMMO DataSet. The corresponding metadata is also stored if it not
+    already exists in the triplestore.
+
+    Arguments:
+        ts: Triplestore to save to.
+        inst: DLite instance to save.
+        iri: IRI of the dataset in the triplestore. The default is the
+            metadata IRI prepended with a slash and the UUID.
+        mappings: Sequence of mappings of properties to ontological concepts.
+
+    Returns:
+        IRI of the saved dataset.
+    """
+    if inst.is_meta:
+        return add_dataset(ts, inst, iri, mappings)
+
+    metairi = ts.value(
+        predicate=OTEIO.hasURI,
+        object=Literal(inst.meta.uri, datatype=XSD.anyURI),
+    )
+    if not metairi:
+        metairi = add_dataset(ts, inst.meta)
+
+    if not iri:
+        iri = f"{metairi}/{inst.uri or inst.uuid}"
+
+    triples = []
+    triples.extend([
+        (iri, RDF.type, metairi),
+        (iri, OTEIO.hasUUID, inst.uuid),
+        (iri, RDF.value, Literal(inst.asjson(), datatype=RDF.JSON)),
+    ])
+    if inst.uri:
+        triples.append((iri, OTEIO.hasURI, inst.uri))
+
+    # Add mappings to triples
+    #for s, p, o in mappings:
+
+
+
+    ts.add_triples(triples)
+
+    used_namespaces = {"oteio": OTEIO}
+    for prefix, ns in used_namespaces.items():
+        if prefix not in ts.namespaces:
+            ts.bind(prefix, ns)
+
+    return iri
+
+
+def get_data(
+    ts: Triplestore,
+    iri: str,
+) -> "Tuple[dlite.Metadata, List[Triple]]":
+    """Load dataset from triplestore.
+
+    Arguments:
+        ts: Triplestore to load from.
+        iri: IRI of the dataset to load.
+
+    Returns:
+        A `(meta, mappings)` tuple, where `meta` is a DLite metadata and
+        `mappings` is a list of triples.
+    """
+    mappings = []
+
+    # Bypass the triplestore if the instance is already in cache
+    try:
+        return dlite.get_instance(iri, check_storages=False), mappings
+    except dlite.DLiteMissingInstanceError:
+        pass
+
+    metairi = ts.value(iri, RDF.type, default=None)
+
+    if not metairi:
+        # `iri` does not correspond to a data instance, check for metadata
+        if ts.has(iri, RDFS.subClassOf, EMMO.DataSet):
+            return get_dataset(ts, iri), mappings
+        raise KBError(
+            f"Cannot find neither a data instance nor metadata with IRI: {iri}"
+        )
+
+    if not dlite.has_instance(metairi, check_storages=False):
+        meta, maps = get_dataset(ts, metairi)
+        mappings.extend(maps)
+    else:
+        meta = dlite.get_instance(metairi, check_storages=False)
+
+    json = ts.value(iri, RDF.value)
+    if not json:
+        raise KBError(f"cannot find JSON value for IRI: {iri}")
+
+    inst = dlite.Instance.from_json(str(json))
+
+    return inst, mappings
