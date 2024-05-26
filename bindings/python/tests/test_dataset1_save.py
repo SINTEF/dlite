@@ -1,16 +1,16 @@
 from pathlib import Path
 
-import dlite
-from dlite.dataset import add_dataset
-from dlite.dataset import EMMO, EMMO_VERSIONIRI
-from dlite.testutils import raises
-
 try:
     from tripper import DCTERMS, MAP, OWL, RDF, RDFS, XSD, Triplestore
     from tripper.utils import en
 except ModuleNotFoundError:
     import sys
     sys.exit(44)
+
+import dlite
+from dlite.dataset import add_dataset
+from dlite.dataset import EMMO, EMMO_VERSIONIRI
+from dlite.testutils import raises
 
 
 thisdir = Path(__file__).absolute().parent

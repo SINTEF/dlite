@@ -1,6 +1,8 @@
 """Module for representing DLite data models and instances with rdflib.
 
 DLite data models are represented as EMMO datasets.
+
+NOTE: This module depends on Tripper.
 """
 import json
 import re
