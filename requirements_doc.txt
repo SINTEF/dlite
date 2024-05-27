@@ -6,7 +6,7 @@ Sphinx>5.0,<8
 sphinx-autoapi~=2.1.1
 sphinx-autobuild~=2021.3.14
 sphinx-book-theme~=1.0.1
-sphinx-design~=0.3.0
+sphinx-design~=0.6.0
 sphinxcontrib-plantuml~=0.30
 #sphinx-toggleprompt~=0.5.2
 sphinx-copybutton~=0.5.2  # does not work well with toggleprompt
