@@ -37,7 +37,6 @@ with raises(MissingUnitError):
 
 # Test serialising Metadata as an EMMO dataset
 # ============================================
-Chem = dlite.get_instance("http://onto-ns.com/meta/calm/0.1/Chemistry/aa6060")
 Fluid = dlite.get_instance("http://onto-ns.org/meta/dlite/0.1/FluidData")
 
 assert Fluid.get_hash() == (
