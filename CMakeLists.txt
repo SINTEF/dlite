@@ -246,8 +246,10 @@ if(WITH_PYTHON)
     message(STATUS "Detected virtual environment $ENV{VIRTUAL_ENV}")
 
     if(NOT Python3_FIND_VIRTUALENV)
-      message(STATUS "Setting Python3_FIND_VIRTUALENV=ONLY")
-      set(Python3_FIND_VIRTUALENV=ONLY)
+      if(NOT WIN32)
+        message(STATUS "Setting Python3_FIND_VIRTUALENV=ONLY")
+        set(Python3_FIND_VIRTUALENV=ONLY)
+      endif()
     endif()
 
     if(NOT PYTHON_VERSION)
