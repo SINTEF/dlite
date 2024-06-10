@@ -38,6 +38,7 @@ RUN apk add -u \
   rasqal \
   hdf5 \
   swig \
+  openssl \
   rust \
   cargo && \
   # Unpack static libraries
