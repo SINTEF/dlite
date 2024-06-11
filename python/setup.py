@@ -156,30 +156,6 @@ class CMakeBuildExt(build_ext):
             str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
 
-# Read requirements from requireemtns.txt
-with open(SOURCE_DIR / "requirements.txt", "r") as f:
-    requirements = [
-        line.strip() for line in f.readlines() if not line.startswith("#")
-    ]
-
-# Populate extra_requirements from requirements_*.txt
-extra_requirements = {}
-for name in "mappings", "full", "dev", "doc":
-    with open(SOURCE_DIR / f"requirements_{name}.txt", "r") as f:
-        extra_requirements[name] = [
-            line.strip() for line in f.readlines() if not line.startswith("#")
-        ]
-
-# Temporary workaround!
-# Require pydantic <2. Needed before we have managed to install rust in
-# the docker image for wheels
-extras = extra_requirements["full"]
-for i, pkg in enumerate(extras):
-    match = re.match("^(pydantic>.*<)", pkg)
-    if match:
-        extras[i] = f"{match.groups()[0]}2"
-
-
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
     (SOURCE_DIR / "CMakeLists.txt").read_text(),
@@ -213,10 +189,12 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=requirements,
-    extras_require=extra_requirements,
+    install_requires="numpy",
+    #install_requires=requirements,
+    #extras_require=extra_requirements,
     packages=["dlite"],
     scripts=[
         str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),

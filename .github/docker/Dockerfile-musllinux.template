@@ -4,9 +4,8 @@
 # Usage:
 #
 # Copy this template file and replace:
-# - `{{ TYPE }}` with a valid musllinux type.
-#   For now only '_1_1' is allowed.
-# - `{{ ARCH }}` with a valid arch, e.g., x86_64 or i686.
+# - `{{ TYPE }}` with a valid musllinux type, e.g. '_1_1' or '_1_2'
+# - `{{ ARCH }}` with a valid arch, e.g., x86_64 or i686
 # Remove the `.template` suffix from the copy.
 #
 # Build:
@@ -25,9 +24,6 @@ FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
 ARG PY_MINORS="7 8 9 10 11 12"
 
-#COPY requirements.txt /tmp/requirements.txt
-COPY requirements_full.txt requirements_dev.txt /tmp/
-
 # Do not use distutils distributed with setuptools
 # This is due to base changes in the distutils API, removing msvccompiler,
 # which is necessary for building the numpy wheel.
@@ -36,36 +32,21 @@ ENV SETUPTOOLS_USE_DISTUTILS="stdlib"
 RUN apk add -u \
   redland \
   rasqal \
-  hdf5 \
-  swig \
-  rust \
-  cargo && \
+  hdf5-dev \
+  swig && \
   # Unpack static libraries
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-  # Change required version of pydantic to be <2 and remove challenging packages
-  sed -e 's/^\(pydantic>.*<\).*$/\12/' \
-      -e '/^psycopg/d' \
-      -e '/^matplotlib/d' \
-      -e '/^scikit-image/d' \
-      -e '/^ncempy/d' \
-      -e '/^h5py/d' \
-      -e '/oteapi/d' \
-      -e '/^otelib/d' \
-      -e '/^pyarrow/d' \
-      -i /tmp/requirements_full.txt && \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
-    # musllinux_1_1 only support Python up to 3.11
-    [ "{{ TYPE }}" = "_1_1" ] && [ $minor -gt 11 ] && continue || \
+    which python3.${minor} 2>/dev/null || continue && \
+    echo "==================== python3.${minor} ====================" && \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \
-      cmake oldest-supported-numpy && \
-    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary \
-      -r /tmp/requirements_full.txt -r /tmp/requirements_dev.txt; \
+      oldest-supported-numpy; \
   done && \
-  rm -rf /ci/pip_cache /tmp/requirements*.txt
+  rm -rf /ci/pip_cache
