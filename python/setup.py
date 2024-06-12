@@ -27,7 +27,6 @@ if platform.system() == "Linux":
 
     CMAKE_ARGS = [
         "-DWITH_DOC=OFF",
-        "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
         "-DALLOW_WARNINGS=ON",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
@@ -50,13 +49,11 @@ elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
     dlite_compiled_dll_suffix = "*.dll"
     is_64bits = sys.maxsize > 2**32
-
     v = sys.version_info
     CMAKE_ARGS = [
         #"-G", "Visual Studio 15 2017",
         "-A", "x64",
         "-DWITH_DOC=OFF",
-        "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
         f"-DPYTHON_VERSION={v.major}.{v.minor}",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
