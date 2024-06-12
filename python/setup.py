@@ -14,6 +14,7 @@ from setuptools.command.build_ext import build_ext
 if TYPE_CHECKING:
     from typing import Union
 
+
 # Based on
 # https://github.com/galois-advertising/cmake_setup/blob/master/cmake_setup/cmake/__init__.py
 
