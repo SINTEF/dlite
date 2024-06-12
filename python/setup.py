@@ -51,12 +51,14 @@ elif platform.system() == "Windows":
     dlite_compiled_dll_suffix = "*.dll"
     is_64bits = sys.maxsize > 2**32
 
+    v = sys.version_info
     CMAKE_ARGS = [
         #"-G", "Visual Studio 15 2017",
         "-A", "x64",
         "-DWITH_DOC=OFF",
         "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
+        f"-DPYTHON_VERSION={v.major}.{v.minor}",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
         f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}",
         "-DPython3_FIND_VIRTUALENV=STANDARD",
