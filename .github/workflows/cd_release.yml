@@ -177,9 +177,9 @@ jobs:
       env:
         CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
         CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
-        CIBW_MANYLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
-        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_x86_64:latest
-        CIBW_MUSLLINUX_I686_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux_1_1_i686:latest
+        CIBW_MANYLINUX_I686_IMAGE:   ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
+        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
+        CIBW_MUSLLINUX_I686_IMAGE:   ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest
 
     - name: Store wheels for publishing
       uses: actions/upload-artifact@v4
