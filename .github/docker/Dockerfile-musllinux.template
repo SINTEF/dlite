@@ -40,13 +40,18 @@ RUN apk add -u \
   # exist here.
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  # Filter minor versions
+  minors=$( for n in $PY_MINORS; do \
+    if [ $(uname -m) == "i686" -o $n -lt 12 ]; then echo $n; fi; \
+  done ) && \
+  echo "*** Minors: $minors" && \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
-  for minor in ${PY_MINORS}; do \
+  for minor in ${minors}; do \
     which python3.${minor} 2>/dev/null || continue && \
     echo "==================== python3.${minor} ====================" && \
     python3.${minor} -m pip install -U pip && \
-    python3.${minor} -m pip install -U setuptools wheel && \
+    python3.${minor} -m pip install -U setuptools wheel; \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \
       oldest-supported-numpy; \
   done && \
