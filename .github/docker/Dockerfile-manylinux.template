@@ -43,7 +43,7 @@ RUN \
     libxslt-devel \
     libxml2-devel && \
   # hdf5-devel is needed for building the hdf5 plugin
-  RUN yum install -y hdf5-devel || true && \
+  yum install -y hdf5-devel || true && \
   # Unpack static libraries
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
