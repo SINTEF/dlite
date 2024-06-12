@@ -58,6 +58,7 @@ elif platform.system() == "Windows":
         "-DWITH_HDF5=OFF",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
         f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}"
+        "-DPython3_FIND_VIRTUALENV=STANDARD",
     ]
 
 else:
