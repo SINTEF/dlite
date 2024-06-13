@@ -43,8 +43,6 @@ jobs:
           type: "_1_1"
           arch: "x86_64"
           py_minors: "7 8 9 10 11"
-
-          # tests...
         - system: "musllinux"
           template: "musllinux"
           type: "_1_2"
@@ -72,8 +70,6 @@ jobs:
           type: "_1_1"
           arch: "i686"
           py_minors: "7 8 9"
-
-          # tests
         - system: "musllinux"
           template: "musllinux"
           type: "_1_2"
@@ -83,7 +79,9 @@ jobs:
           template: "musllinux"
           type: "_1_2"
           arch: "i686"
-          py_minors: "10 11 12"
+          # Python 3.12 fails while building numpy: missing distutils
+          #py_minors: "10 11 12"
+          py_minors: "10 11"
 
     steps:
       - name: Checkout repository
