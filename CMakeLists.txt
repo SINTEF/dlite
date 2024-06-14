@@ -253,7 +253,7 @@ if(WITH_PYTHON)
     if(NOT PYTHON_VERSION)
       find_program(
         python_exe
-        python
+        NAMES python python3
         PATHS $ENV{VIRTUAL_ENV}/bin
         REQUIRED
         NO_DEFAULT_PATH

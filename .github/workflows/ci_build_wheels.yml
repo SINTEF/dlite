@@ -34,7 +34,7 @@ jobs:
           #- os: ubuntu-20.04
           #  system_type: ["musllinux", "_1_2"]
           #  arch: i686
-          #  py_minors: 10,12
+          #  py_minors: 10,11
 
           # 64-bit linux
           - os: ubuntu-20.04
@@ -130,7 +130,7 @@ jobs:
           python -m pip install -U cibuildwheel
 
       # See pyproject.toml (under python/) for cibuildwheel configuration
-      - name: Build wheels
+      - name: Build wheels with cibuildwheel
         run: |
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
