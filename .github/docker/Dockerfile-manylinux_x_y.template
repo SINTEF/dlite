@@ -27,15 +27,12 @@ FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}
 
 ARG PY_MINORS="7 8 9 10 11 12"
 
-#COPY requirements.txt /tmp/requirements.txt
-COPY requirements_full.txt requirements_dev.txt /tmp/
-
 {{ EXTRA_PRE }}
 
 # Enable rpmfusion for additional packages
-# Rust and cargo are needed by pydantic2
-RUN dnf update -y
-RUN dnf localinstall -y --skip-broken \
+RUN \
+  dnf update -y && \
+  dnf localinstall -y --skip-broken \
     https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
   dnf install -y \
@@ -45,31 +42,21 @@ RUN dnf localinstall -y --skip-broken \
     libcurl-devel \
     libxslt-devel \
     libxml2-devel \
-    hdf5-devel \
-    rust \
-    cargo
-
-# Unpack static libraries
-# It's necessary to be in /opt/_internal because the internal libraries
-# exist here.
-RUN  cd /opt/_internal && \
-    tar -Jxvf static-libs-for-embedding-only.tar.xz
-
-# Change required version of pydantic to be <2
-#RUN  sed 's/^\(pydantic>.*<\).*$/\12/' -i /tmp/requirements_full.txt
-
-# Remove psycopg from requirements
-RUN  sed '/^psycopg/d' -i /tmp/requirements_full.txt
-
-# Install required Python packages
-RUN mkdir -p /ci/pip_cache && \
-    if [ -f "/etc/yum.repos.d/pgdg-91.repo" ]; then export PATH="$PATH:/usr/pgsql-9.1/bin"; fi
-
-RUN for minor in ${PY_MINORS}; do \
+    hdf5-devel && \
+  # Unpack static libraries
+  # It's necessary to be in /opt/_internal because the internal libraries
+  # exist here.
+  cd /opt/_internal && \
+    tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  # Install required Python packages
+  mkdir -p /ci/pip_cache && \
+  for minor in ${PY_MINORS}; do \
+    which python3.${minor} || continue && \
+    echo "==================== python3.${minor} ====================" && \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy && \
-    python3.${minor} -m pip install --cache-dir /ci/pip_cache --prefer-binary -r /tmp/requirements_full.txt -r /tmp/requirements_dev.txt; \
-  done
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy; \
+  done && \
+  rm -rf /ci/pip_cache
 
 {{ EXTRA_POST }}
