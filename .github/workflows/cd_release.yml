@@ -98,7 +98,8 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: x86_64
-            py_minors: 7,8,9,10,11,12
+            #py_minors: 7,8,9,10,11,12
+            py_minors: 8,9,10,11,12  # Try to see if this results in another artefact name
           - os: ubuntu-20.04
             system_type: ["manylinux", "_2_28"]
             arch: x86_64
