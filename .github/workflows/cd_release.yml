@@ -184,7 +184,7 @@ jobs:
     - name: Store wheels for publishing
       uses: actions/upload-artifact@v4
       with:
-        name: wheels_${{ matrix.os }}_${{ matrix.system_type }}_${{ matrix.arch }}_${{ matrix.py_minors }}
+        name: wheels_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
         path: wheelhouse/*.whl
 
   build_sdist:
@@ -226,7 +226,7 @@ jobs:
     - name: Store sdist for publishing
       uses: actions/upload-artifact@v4
       with:
-        name: sdist_${{ matrix.os }}_${{ matrix.system_type }}_${{ matrix.arch }}_${{ matrix.py_minors }}
+        name: sdist_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
         path: python/dist/*
 
   publish:
