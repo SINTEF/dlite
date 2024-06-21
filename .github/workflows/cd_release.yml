@@ -242,6 +242,7 @@ jobs:
 
     - name: Move wheels and sdist files to dist/
       run: |
+        ls -lah dist
         mv dist/wheelhouse/* dist/
         mv dist/sdist/* dist/
         rm -rf dist/wheelhouse
