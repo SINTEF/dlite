@@ -246,7 +246,9 @@ jobs:
         ls -lah dist
         mv dist/sdist_____/* dist/
         mv dist/wheels*/* dist/
+        cd dist
         find . -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+        cd ..
         ls -lah dist
 
     # - name: Publish package to Test PyPI
