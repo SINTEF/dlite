@@ -226,6 +226,7 @@ jobs:
     - name: Store sdist for publishing
       uses: actions/upload-artifact@v4
       with:
+        # Note that they are moved to a common directory sdist_____ (5 underscores, as in the name below)
         name: sdist_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
         path: python/dist/*
 
@@ -240,13 +241,11 @@ jobs:
       with:
         path: dist
 
-    - name: Move wheels and sdist files to dist/
+    - name: Move sdist files to dist/m wheel files already there
       run: |
         ls -lah dist
-        mv dist/wheelhouse/* dist/
-        mv dist/sdist/* dist/
-        rm -rf dist/wheelhouse
-        rm -rf dist/sdist
+        mv dist/sdist_____/* dist/
+        rm -rf dist/sdist_____
         ls -lah dist
 
     # - name: Publish package to Test PyPI
