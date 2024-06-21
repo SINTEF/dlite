@@ -241,11 +241,12 @@ jobs:
       with:
         path: dist
 
-    - name: Move sdist files to dist/m wheel files already there
+    - name: Move sdists and wheels to dist and remove all directories
       run: |
         ls -lah dist
         mv dist/sdist_____/* dist/
-        rm -rf dist/sdist_____
+        mv dist/wheels*/* dist/
+        find . -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
         ls -lah dist
 
     # - name: Publish package to Test PyPI
