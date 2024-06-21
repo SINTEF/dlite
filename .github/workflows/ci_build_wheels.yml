@@ -25,7 +25,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 7,11
+            py_minors: 7,12
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
@@ -97,7 +97,7 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: '12' # Fails with numpy import from dlite.
+            py_minors: '12'
 
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
           # # 64-bit (Intel) macOS
