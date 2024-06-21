@@ -94,10 +94,10 @@ jobs:
             system_type: ["win", ""]
             arch: amd64
             py_minors: '7'
-          #- os: windows-2019
-          #  system_type: ["win", ""]
-          #  arch: amd64
-          #  py_minors: '12'
+          - os: windows-2019
+            system_type: ["win", ""]
+            arch: amd64
+            py_minors: '11'
 
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
           # # 64-bit (Intel) macOS
