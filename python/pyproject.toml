@@ -12,6 +12,7 @@ build-frontend = "pip"
 build-verbosity = 1
 
 [tool.cibuildwheel.windows]
+before-test = "python -m pip install -r {project}\\requirements.txt"
 test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
