@@ -42,7 +42,7 @@ wheels are shown in the following two tables.
 | [manylinux2010]  |  x  |  x  |      |      |      |
 | [manylinux2014]  |  x  |  x  |  x   |  x   |  x   |
 | [manylinux_2_28] |     |     |      |      |      |
-| windows          |     |     |      |      |      |
+| windows          |  x  |  x  |  x   |  x   |  x   |
 
 #### 64-bit
 
