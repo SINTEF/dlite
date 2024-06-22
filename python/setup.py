@@ -154,7 +154,9 @@ class CMakeBuildExt(build_ext):
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         copytree(
-            str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
+            str(cmake_bdist_dir / ext.name),
+            str(Path(output_dir) / ext.name),
+            dirs_exists_ok=True,
         )
 
 version = re.search(
