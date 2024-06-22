@@ -184,7 +184,7 @@ jobs:
     - name: Store wheels for publishing
       uses: actions/upload-artifact@v4
       with:
-        name: wheels_${{ matrix.os }}_${{ matrix.system_type }}_${{ matrix.arch }}_${{ matrix.py_minors }}
+        name: wheels_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
         path: wheelhouse/*.whl
 
   build_sdist:
@@ -226,7 +226,8 @@ jobs:
     - name: Store sdist for publishing
       uses: actions/upload-artifact@v4
       with:
-        name: sdist_${{ matrix.os }}_${{ matrix.system_type }}_${{ matrix.arch }}_${{ matrix.py_minors }}
+        # Note that they are moved to a common directory sdist_____ (5 underscores, as in the name below)
+        name: sdist_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
         path: python/dist/*
 
   publish:
@@ -240,12 +241,14 @@ jobs:
       with:
         path: dist
 
-    - name: Move wheels and sdist files to dist/
+    - name: Move sdists and wheels to dist and remove all directories
       run: |
-        mv dist/wheels/* dist/
-        mv dist/sdist/* dist/
-        rm -rf dist/wheels
-        rm -rf dist/sdist
+        ls -lah dist
+        mv dist/sdist_____/* dist/
+        mv dist/wheels*/* dist/
+        cd dist
+        find . -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+        cd ..
         ls -lah dist
 
     # - name: Publish package to Test PyPI
