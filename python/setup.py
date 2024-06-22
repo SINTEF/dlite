@@ -156,7 +156,7 @@ class CMakeBuildExt(build_ext):
         copytree(
             str(cmake_bdist_dir / ext.name),
             str(Path(output_dir) / ext.name),
-            dirs_exists_ok=True,
+            dirs_exist_ok=True,
         )
 
 version = re.search(
