@@ -4,7 +4,7 @@ import platform
 import re
 import site
 import subprocess
-from shutils import copytree
+from shutil import copytree
 from typing import TYPE_CHECKING
 from pathlib import Path
 
