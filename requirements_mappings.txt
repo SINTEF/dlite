@@ -1,5 +1,5 @@
 # Requirements for property mappings
-tripper>=0.2.14,<1
+tripper>=0.2.16,<1
 pint>=0.15,<1
 
 

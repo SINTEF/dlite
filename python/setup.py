@@ -4,8 +4,8 @@ import platform
 import re
 import site
 import subprocess
-from shutil import copytree
 from typing import TYPE_CHECKING
+from distutils import dir_util
 from pathlib import Path
 
 from setuptools import Extension, setup
@@ -153,10 +153,8 @@ class CMakeBuildExt(build_ext):
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
-        copytree(
-            str(cmake_bdist_dir / ext.name),
-            str(Path(output_dir) / ext.name),
-            dirs_exist_ok=True,
+        dir_util.copy_tree(
+            str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
         )
 
 version = re.search(
@@ -195,7 +193,7 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires="numpy>=1.14.5,<2.0.0",
+    install_requires="numpy",
     #install_requires=requirements,
     #extras_require=extra_requirements,
     packages=["dlite"],
