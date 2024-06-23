@@ -6,7 +6,6 @@ import site
 import subprocess
 from shutil import copytree
 from typing import TYPE_CHECKING
-#from distutils import dir_util
 from pathlib import Path
 
 from setuptools import Extension, setup
