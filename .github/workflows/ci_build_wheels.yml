@@ -66,10 +66,10 @@ jobs:
             py_minors: 8,11
 
           # 32-bit Windows
-          #- os: windows-2019
-          #  system_type: ["win32", ""]
-          #  arch: ""
-          #  py_minors: 8,12
+          - os: windows-2019
+            system_type: ["win32", ""]
+            arch: ""
+            py_minors: 8,12
 
           # 64-bit Windows
           - os: windows-2019
