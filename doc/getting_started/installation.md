@@ -38,7 +38,7 @@ wheels are shown in the following two tables.
 | Python version   | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 |
 | ---------------- | --- | --- | ---- | ---- | ---- |
 | [musllinux_1_1]  |  x  |  x  |  x   |  x   |      |
-| [musllinux_1_2]  |     |     |      |      |      |
+| [musllinux_1_2]  |  x  |  x  |  x   |  x   |      |
 | [manylinux2010]  |  x  |  x  |      |      |      |
 | [manylinux2014]  |  x  |  x  |  x   |  x   |  x   |
 | [manylinux_2_28] |     |     |      |      |      |
@@ -49,7 +49,7 @@ wheels are shown in the following two tables.
 | Python version   | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 |
 | ---------------- | --- | --- | ---- | ---- | ---- |
 | [musllinux_1_1]  |  x  |  x  |  x   |  x   |      |
-| [musllinux_1_2]  |     |     |      |      |      |
+| [musllinux_1_2]  |  x  |  x  |  x   |  x   |      |
 | [manylinux2010]  |  x  |  x  |      |      |      |
 | [manylinux2014]  |  x  |  x  |  x   |  x   |  x   |
 | [manylinux_2_28] |  x  |  x  |  x   |  x   |  x   |
