@@ -27,27 +27,27 @@ jobs:
           template: "manylinux"
           type: "2010"
           arch: "x86_64"
-          py_minors: "7 8 9"
+          py_minors: "8 9"
         - system: "manylinux"
           template: "manylinux"
           type: "2014"
           arch: "x86_64"
-          py_minors: "7 8 9 10 11"
+          py_minors: "8 9 10 11"
         - system: "manylinux"
           template: "manylinux_x_y"
           type: "_2_28"
           arch: "x86_64"
-          py_minors: "7 8 9 10 11 12"
+          py_minors: "8 9 10 11 12"
         - system: "musllinux"
           template: "musllinux"
           type: "_1_1"
           arch: "x86_64"
-          py_minors: "7 8 9 10 11"
+          py_minors: "8 9 10 11"
         - system: "musllinux"
           template: "musllinux"
           type: "_1_2"
           arch: "x86_64"
-          py_minors: "7 8 9"
+          py_minors: "8 9"
         - system: "musllinux"
           template: "musllinux"
           type: "_1_2"
@@ -59,29 +59,27 @@ jobs:
           template: "manylinux"
           type: "2010"
           arch: "i686"
-          py_minors: "7 8 9"
+          py_minors: "8 9"
         - system: "manylinux"
           template: "manylinux"
           type: "2014"
           arch: "i686"
-          py_minors: "7 8 9"
+          py_minors: "8 9"
         - system: "musllinux"
           template: "musllinux"
           type: "_1_1"
           arch: "i686"
-          py_minors: "7 8 9"
+          py_minors: "8 9"
         - system: "musllinux"
           template: "musllinux"
           type: "_1_2"
           arch: "i686"
-          py_minors: "7 8 9"
+          py_minors: "8 9"
         - system: "musllinux"
           template: "musllinux"
           type: "_1_2"
           arch: "i686"
-          # Python 3.12 fails while building numpy: missing distutils
-          #py_minors: "10 11 12"
-          py_minors: "10 11"
+          py_minors: "10 11 12"
 
     steps:
       - name: Checkout repository
@@ -142,7 +140,7 @@ jobs:
 
       - name: Build and push Docker image
         if: env.BUILD_NEW_IMAGE == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
