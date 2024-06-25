@@ -175,6 +175,16 @@ See the [Python storage plugin template] for how to write a Python storage plugi
 A complete example can be found in the [Python storage plugin example].
 
 
+:::{danger}
+**When writing a Python storage plugin, do not define any variables or functions outside the `DLiteStorageBase` subclass!**
+
+The reason for this requirement is that all plugins will be loaded into the same shared scope within the built-in interpreter.
+Hence, variables or functions outside the plugin class may interfere with other plugins, resulting in confusing and hard-to-find bugs.
+:::
+
+
+
+
 Working with storages from C and Fortran
 ----------------------------------------
 The C API for storages is documented in the [C reference manual].
