@@ -4,8 +4,8 @@ import platform
 import re
 import site
 import subprocess
+from shutil import copytree
 from typing import TYPE_CHECKING
-from distutils import dir_util
 from pathlib import Path
 
 from setuptools import Extension, setup
@@ -153,8 +153,10 @@ class CMakeBuildExt(build_ext):
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
-        dir_util.copy_tree(
-            str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
+        copytree(
+            str(cmake_bdist_dir / ext.name),
+            str(Path(output_dir) / ext.name),
+            dirs_exist_ok=True,
         )
 
 version = re.search(
@@ -175,7 +177,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/SINTEF/dlite",
     license="MIT",
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
