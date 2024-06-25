@@ -178,7 +178,9 @@ item1 = Item([2], properties={"name": "a", "f": [3.14, 2.72]})
 item2 = Item([3], properties={
     "name": "b", "f": [float("-inf"), 0, float("inf")]
 })
-dims = infer_dimensions(meta=Item, values=item1.asdict()["properties"])
+dims = infer_dimensions(
+    meta=Item, values=item1.asdict(single=True)["properties"]
+)
 assert dims == {"nf": 2}
 
 Ref = dlite.get_instance("http://onto-ns.com/meta/0.1/Ref")
@@ -186,5 +188,5 @@ ref = Ref(dimensions={"nitems": 2, "nrefs": 1})
 ref.item = item1
 ref.items = item1, item2
 ref.refs = [ref]
-dims = infer_dimensions(meta=Ref, values=ref.asdict()["properties"])
+dims = infer_dimensions(meta=Ref, values=ref.asdict(single=True)["properties"])
 assert dims == {"nitems": 2, "nrefs": 1}

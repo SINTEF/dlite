@@ -160,7 +160,7 @@ class yaml(dlite.DLiteStorageBase):
             The bytes (or bytearray) object that the instance is saved to.
         """
         return pyyaml.safe_dump(
-            inst.asdict(soft7=soft7, uuid=with_uuid),
+            inst.asdict(soft7=soft7, uuid=with_uuid, single=True),
             default_flow_style=False,
             sort_keys=False,
         ).encode()
