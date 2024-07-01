@@ -4,11 +4,17 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Setup Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
 
       # We do not install rdflib0-dev here, since we want to test
       # DLite both with and without rdflib (Redland) support and the
