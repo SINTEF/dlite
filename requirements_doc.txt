@@ -12,6 +12,6 @@ sphinxcontrib-plantuml~=0.30
 sphinx-copybutton~=0.5.2  # does not work well with toggleprompt
 
 breathe>=4.34.0
-myst-nb~=0.17.1
+myst-nb~=1.1.1
 nbclient>=0.2,<0.11
 docutils~=0.17.1
