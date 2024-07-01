@@ -1,5 +1,14 @@
 """Template for Python storage plugins."""
 
+# NOTE:
+# Please, do not define any variables or functions outside the scope
+# of the plugin class.
+#
+# The reason for this requirement is that all plugins will be loaded
+# into the same shared scope within the built-in interpreter.
+# Hence, variables or functions outside the plugin class may interfere
+# with other plugins, resulting in hard-to-find bugs.
+
 
 class plugin_driver_name(dlite.DLiteStorageBase):
     """General description of the Python storage plugin."""
