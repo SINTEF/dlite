@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.5.6
+  VERSION 0.5.16
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -253,7 +253,7 @@ if(WITH_PYTHON)
     if(NOT PYTHON_VERSION)
       find_program(
         python_exe
-        python
+        NAMES python python3
         PATHS $ENV{VIRTUAL_ENV}/bin
         REQUIRED
         NO_DEFAULT_PATH

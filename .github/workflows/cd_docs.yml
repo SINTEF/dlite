@@ -16,8 +16,8 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "pages"
-  cancel-in-progress: false  # temporarily
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   ONTODOC_DIR: doc
