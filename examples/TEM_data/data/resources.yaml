@@ -21,9 +21,9 @@ data_resources:
       mappingType: mappings
       prefixes:
         temimage: http://onto-ns.com/meta/0.1/TEMImage#
-        map: http://emmo.info/domain-mappings#
-        emmo: http://emmo.info/emmo#
-        oteio: http://emmo.info/oteio#
+        map: https://w3id.org/emmo/domain/mappings#
+        emmo: https://w3id.org/emmo#
+        oteio: https://w3id.org/emmo/domain/oteio#
       triples:
         - [temimage:filename,   map:mapsTo,  oteio.FileName]
         - [temimage:data,       map:mapsTo,  emmo.Array]
@@ -44,9 +44,9 @@ data_resources:
       mappingType: mappings
       prefixes:
         temimage: http://onto-ns.com/meta/0.1/TEMImage#
-        map: http://emmo.info/domain-mappings#
-        emmo: http://emmo.info/emmo#
-        oteio: http://emmo.info/oteio#
+        map: https://w3id.org/emmo/domain/mappings#
+        emmo: https://w3id.org/emmo#
+        oteio: https://w3id.org/emmo/domain/oteio#
       triples:
         - [temimage:filename,   map:mapsTo,  oteio.FileName]
         - [temimage:data,       map:mapsTo,  emmo.Array]
@@ -67,9 +67,9 @@ data_resources:
       mappingType: mappings
       prefixes:
         temimage: http://onto-ns.com/meta/0.1/TEMImage#
-        map: http://emmo.info/domain-mappings#
-        emmo: http://emmo.info/emmo#
-        oteio: http://emmo.info/oteio#
+        map: https://w3id.org/emmo/domain/mappings#
+        emmo: https://w3id.org/emmo#
+        oteio: https://w3id.org/emmo/domain/oteio#
       triples:
         - [temimage:filename,   map:mapsTo,  oteio.FileName]
         - [temimage:data,       map:mapsTo,  emmo.Array]
@@ -85,9 +85,9 @@ data_resources:
       mappingType: mappings
       prefixes:
         image: http://onto-ns.com/meta/0.1/Image#
-        map: http://emmo.info/domain-mappings#
-        emmo: http://emmo.info/emmo#
-        oteio: http://emmo.info/oteio#
+        map: https://w3id.org/emmo/domain/mappings#
+        emmo: https://w3id.org/emmo#
+        oteio: https://w3id.org/emmo/domain/oteio#
       triples:
         - [image:filename,   map:mapsTo,  oteio.FileName]
         - [image:data,       map:mapsTo,  emmo.Array]
@@ -129,10 +129,10 @@ data_resources:
       mappingType: mappings
       prefixes:
         ps: http://onto-ns.com/meta/0.1/PrecipitateStatistics#
-        mo: http://emmo.info/microstructure#
-        map: http://emmo.info/domain-mappings#
-        emmo: http://emmo.info/emmo#
-        oteio: http://emmo.info/oteio#
+        mo: https://w3id.org/emmo/domain/microstructure#
+        map: https://w3id.org/emmo/domain/mappings#
+        emmo: https://w3id.org/emmo#
+        oteio: https://w3id.org/emmo/domain/oteio#
       triples:
         - [ps:alloy,             map:mapsTo, mo:Alloy]
         - [ps:condition,         map:mapsTo, mo:AlloyCondition]
@@ -170,9 +170,9 @@ data_resources:
       mappingType: mappings
       prefixes:
         comp: http://onto-ns.com/meta/0.1/Composition#
-        mo: http://emmo.info/microstructure#
-        map: http://emmo.info/domain-mappings#
-        emmo: http://emmo.info/emmo#
+        mo: https://w3id.org/emmo/domain/microstructure#
+        map: https://w3id.org/emmo/domain/mappings#
+        emmo: https://w3id.org/emmo#
       triples:
         - [comp:alloy,               map:mapsTo, mo:Alloy]
         - [comp:elements,            map:mapsTo, emmo:ChemicalElement]
@@ -188,9 +188,9 @@ data_resources:
       mappingType: mappings
       prefixes:
         chem: http://onto-ns.com/meta/0.3/Chemistry#
-        mo: http://emmo.info/microstructure#
-        map: http://emmo.info/domain-mappings#
-        emmo: http://emmo.info/emmo#
+        mo: https://w3id.org/emmo/domain/microstructure#
+        map: https://w3id.org/emmo/domain/mappings#
+        emmo: https://w3id.org/emmo#
       triples:
         - [chem:alloy,     map:mapsTo, mo:Alloy]
         - [chem:elements,  map:mapsTo, emmo:ChemicalElement]
