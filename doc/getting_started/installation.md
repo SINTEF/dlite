@@ -35,25 +35,25 @@ wheels are shown in the following two tables.
 
 #### 32-bit
 
-| Python version   | 3.7 | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 |
-| ---------------- | --- | --- | --- | ---- | ---- | ---- |
-| [musllinux_1_1]  |  x  |  x  |  x  |  x   |  x   |      |
-| [musllinux_1_2]  |     |     |     |      |      |      |
-| [manylinux2010]  |  x  |  x  |  x  |      |      |      |
-| [manylinux2014]  |  x  |  x  |  x  |  x   |  x   |  x   |
-| [manylinux_2_28] |     |     |     |      |      |      |
-| windows          |     |     |     |      |      |      |
+| Python version   | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 |
+| ---------------- | --- | --- | ---- | ---- | ---- |
+| [musllinux_1_1]  |  x  |  x  |  x   |  x   |      |
+| [musllinux_1_2]  |  x  |  x  |  x   |  x   |      |
+| [manylinux2010]  |  x  |  x  |      |      |      |
+| [manylinux2014]  |  x  |  x  |  x   |  x   |  x   |
+| [manylinux_2_28] |     |     |      |      |      |
+| windows          |     |     |      |      |      |
 
 #### 64-bit
 
-| Python version   | 3.7 | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 |
-| ---------------- | --- | --- | --- | ---- | ---- | ---- |
-| [musllinux_1_1]  |  x  |  x  |  x  |  x   |  x   |      |
-| [musllinux_1_2]  |     |     |     |      |      |      |
-| [manylinux2010]  |  x  |  x  |  x  |      |      |      |
-| [manylinux2014]  |  x  |  x  |  x  |  x   |  x   |  x   |
-| [manylinux_2_28] |  x  |  x  |  x  |  x   |  x   |  x   |
-| windows          |  x  |  x  |  x  |  x   |  x   |  x   |
+| Python version   | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 |
+| ---------------- | --- | --- | ---- | ---- | ---- |
+| [musllinux_1_1]  |  x  |  x  |  x   |  x   |      |
+| [musllinux_1_2]  |  x  |  x  |  x   |  x   |      |
+| [manylinux2010]  |  x  |  x  |      |      |      |
+| [manylinux2014]  |  x  |  x  |  x   |  x   |  x   |
+| [manylinux_2_28] |  x  |  x  |  x   |  x   |  x   |
+| windows          |  x  |  x  |  x   |  x   |  x   |
 
 
 Development installation

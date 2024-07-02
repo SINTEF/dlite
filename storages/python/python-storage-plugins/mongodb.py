@@ -72,7 +72,7 @@ class mongodb(dlite.DLiteStorageBase):
 
     def save(self, inst):
         """Stores `inst` in current storage."""
-        document = inst.asdict(uuid=True)
+        document = inst.asdict(uuid=True, single=True)
         self.collection.insert_one(document)
 
     def queue(self, pattern=None):

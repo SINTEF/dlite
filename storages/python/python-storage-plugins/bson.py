@@ -104,7 +104,7 @@ class bson(dlite.DLiteStorageBase):
 
         """
         self._data[inst.uuid] = inst.asdict(
-            soft7=dlite.asbool(self.options.soft7)
+            soft7=dlite.asbool(self.options.soft7), uuid=True, single=True
         )
 
     def queue(
