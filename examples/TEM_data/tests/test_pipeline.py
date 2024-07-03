@@ -3,15 +3,14 @@ from paths import indir, outdir, temdata
 
 from otelib import OTEClient
 
-from tripper import EMMO, MAP, Namespace
+from tripper import EMMO, MAP, OTEIO, Namespace
 
 
 temimage = "6c8cm_008"
 thumbnail = outdir / f"{temimage}.png"
 
 # Namespaces
-MO = Namespace("http://emmo.info/microstructure#")
-OTEIO = Namespace("http://emmo.info/oteio#")
+MO = Namespace("https://w3id.org/emmo/domain/microstructure#")
 TEMIMAGE = Namespace("http://onto-ns.com/meta/0.1/TEMImage#")
 IMAGE = Namespace("http://onto-ns.com/meta/0.1/Image#")
 PS = Namespace("http://onto-ns.com/meta/0.1/PrecipitateStatistics#")
