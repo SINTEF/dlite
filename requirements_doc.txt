@@ -1,17 +1,17 @@
 importlib-metadata==7.0.1; python_version<'3.8'
-beautifulsoup4==4.12.2
-lxml==5.1.0
+beautifulsoup4==4.12.3
+lxml==5.2.2
 
-Sphinx==4.5.0
-sphinx-autoapi==2.0.1
+Sphinx==7.3.7
+sphinx-autoapi==2.1.1
 sphinx-autobuild==2021.3.14
-sphinx-book-theme==0.3.3
+sphinx-book-theme==1.0.1
 sphinx-design==0.3.0
-sphinxcontrib-plantuml==0.27
-sphinx-toggleprompt==0.4.0
+sphinxcontrib-plantuml==0.30
+#sphinx-toggleprompt==0.4.0
 sphinx-copybutton==0.5.2  # does not work well with toggleprompt
 
 breathe==4.35.0
-myst-nb==0.17.2
-nbclient==0.7.4
+myst-nb==0.17.1
+nbclient==0.10.0
 docutils==0.17.1
