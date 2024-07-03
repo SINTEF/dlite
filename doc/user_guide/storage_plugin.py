@@ -90,8 +90,7 @@ class plugin_driver_name(dlite.DLiteStorageBase):
             The bytes (or bytearray) object that the instance is saved to.
         """
 
-    @staticmethod
-    def _example_help_method(*args):
+    def _example_help_method(self, *args):
         """Example help method.
 
         If you need a help function, please make it a class method to
