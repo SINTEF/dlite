@@ -161,7 +161,7 @@ def get_unit_symbol(iri):
     if symbol:
         return str(symbol)
     for r in TS_EMMO.restrictions(iri, EMMO.hasSymbolValue, type="value"):
-        symbol = TS_EMMO.value(r, OWL.hasValue)
+        symbol = r["value"]
         if symbol:
             return str(symbol)
     raise KBError("No symbol value is defined for unit:", iri)
@@ -518,11 +518,6 @@ def add_data(
     ])
     if inst.uri:
         triples.append((iri, OTEIO.hasURI, inst.uri))
-
-    # Add mappings to triples
-    #for s, p, o in mappings:
-
-
 
     ts.add_triples(triples)
 

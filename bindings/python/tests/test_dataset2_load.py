@@ -27,8 +27,6 @@ FLUID = ts.bind("fluid", "http://onto-ns.org/meta/dlite/0.1/FluidData#")
 
 Fluid, mappings = get_dataset(ts, iri=EX.FluidData)
 
-print(Fluid)
-
 # Check that the loaded datamodel looks as expected
 assert Fluid.uri == str(FLUID).rstrip("#")
 assert Fluid.dimnames() == ["ntimes", "npositions"]

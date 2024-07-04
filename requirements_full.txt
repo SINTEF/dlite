@@ -10,7 +10,7 @@ pint>=0.15,<1
 pymongo>=4.4.0,<5
 
 #tripper>=0.2.16,<0.3.1
-tripper @ git+https://github.com/EMMC-ASBL/tripper.git@fix-for-rdflib-literals
+tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
 
 requests>=2.10,<3
 jinja2>=3.0,<4
