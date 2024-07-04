@@ -195,7 +195,7 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires="numpy",
+    install_requires="numpy>=1.14.5,<1.27.0",
     #install_requires=requirements,
     #extras_require=extra_requirements,
     packages=["dlite"],
