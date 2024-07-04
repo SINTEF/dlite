@@ -31,7 +31,7 @@ struct _DLiteStoragePluginIter {
 /* Global variables for dlite-storage-plugins */
 typedef struct {
   PluginInfo *storage_plugin_info;  /* reference to storage plugin info */
-  unsigned char storage_plugin_path_hash[32];  /* Sha256 hash of plugin paths */
+  unsigned char storage_plugin_path_hash[32];  /* Sha3 hash of plugin paths */
 } Globals;
 
 
@@ -119,7 +119,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 
   /* ...otherwise, if any plugin path has changed, reload all plugins
      and try again */
-  if (pathshash(hash, sizeof(hash), &info->paths) == 0) {
+  if (pathshash(hash, sizeof(hash), &info->paths, DSL_EXT) == 0) {
 
     if (memcmp(g->storage_plugin_path_hash, hash, sizeof(hash)) != 0) {
       plugin_load_all(info);
