@@ -1,5 +1,5 @@
 # Requirements for property mappings
-#tripper>=0.2.16,<1
+#tripper>=0.2.16,<0.3.1
 tripper @ git+https://github.com/EMMC-ASBL/tripper.git@fix-for-rdflib-literals
 pint>=0.15,<1
 

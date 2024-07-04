@@ -9,8 +9,7 @@ rdflib>=4.2.1,<8
 pint>=0.15,<1
 pymongo>=4.4.0,<5
 
-# There seems to be an issue with tripper 0.2.15
-#tripper>=0.2.16,<1
+#tripper>=0.2.16,<0.3.1
 tripper @ git+https://github.com/EMMC-ASBL/tripper.git@fix-for-rdflib-literals
 
 requests>=2.10,<3
