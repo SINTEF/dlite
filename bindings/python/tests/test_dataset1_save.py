@@ -45,7 +45,6 @@ with raises(MissingUnitError):
 #assert get_unit_iri("mm") == "https://w3id.org/emmo#MilliMetre"
 
 
-
 # Test serialising Metadata as an EMMO dataset
 # ============================================
 Fluid = dlite.get_instance("http://onto-ns.org/meta/dlite/0.1/FluidData")
