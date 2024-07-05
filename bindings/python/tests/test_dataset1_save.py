@@ -31,7 +31,18 @@ assert get_unit_iri("°C") == "https://w3id.org/emmo#DegreeCelsius"
 assert get_unit_iri("m/s") == "https://w3id.org/emmo#MetrePerSecond"
 
 with raises(MissingUnitError):
+    get_unit_iri("Atom")
+
+with raises(MissingUnitError):
+    # Because prefixed units are not in EMMO by default
+    # They can be including by importing https://w3id.org/emmo/1.0.0-rc1/disciplines/units/prefixedunits
     get_unit_iri("cm")
+
+
+# To be fixed in issue https://github.com/SINTEF/dlite/issues/878
+#from dlite.dataset import TS_EMMO
+#TS_EMMO.parse("https://w3id.org/emmo/1.0.0-rc1/disciplines/units/prefixedunits", format="turtle")
+#assert get_unit_iri("mm") == "https://w3id.org/emmo#MilliMetre"
 
 
 
@@ -87,7 +98,7 @@ add_data(ts, fluid2)
 # Add ontology and save to file
 # =============================
 
-# Add ontology
+# Make our ex: namespace an EMMO application ontology in the triplestore
 iri = str(EX).rstrip("/#")
 ts.add_triples([
     (iri, RDF.type, OWL.Ontology),
