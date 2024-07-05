@@ -74,6 +74,7 @@ class plugin_driver_name(dlite.DLiteStorageBase):
             buffer: Bytes or bytearray object to load the instance from.
             id: ID of instance to load.  May be omitted if `buffer` only
                 holds one instance.
+            options: Options string for this storage driver.
 
         Returns:
             New instance.
@@ -85,6 +86,7 @@ class plugin_driver_name(dlite.DLiteStorageBase):
 
         Arguments:
             inst: Instance to save.
+            options: Options string for this storage driver.
 
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
