@@ -328,7 +328,8 @@ int deleter(DLiteStorage *s, const char *id)
   Loads instance with given id from bytes object.
  */
 DLiteInstance *memloader(const DLiteStoragePlugin *api,
-                         const unsigned char *buf, size_t size, const char *id)
+                         const unsigned char *buf, size_t size,
+                         const char *options, const char *id)
 {
   DLiteInstance *inst = NULL;
   PyObject *v = NULL;
@@ -337,8 +338,16 @@ DLiteInstance *memloader(const DLiteStoragePlugin *api,
   PyErr_Clear();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", api->name);
-  v = PyObject_CallMethod(class, "from_bytes", "y#s",
-                          (const char *)buf, (Py_ssize_t) size, id);
+
+  /* Keep backward compatibility with Python plugins that doesn't have an
+     `options` argument in their `from_bytes()` method. */
+  if (options)
+    v = PyObject_CallMethod(class, "from_bytes", "y#ss",
+                            (const char *)buf, (Py_ssize_t) size, id, options);
+  else
+    v = PyObject_CallMethod(class, "from_bytes", "y#s",
+                            (const char *)buf, (Py_ssize_t) size, id);
+
   if (dlite_pyembed_err_check("calling from_bytes() in Python plugin '%s'",
                               classname)) {
     Py_XDECREF(v);
@@ -357,7 +366,7 @@ DLiteInstance *memloader(const DLiteStoragePlugin *api,
   Saves instance to bytes object.
  */
 int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
-             const DLiteInstance *inst)
+             const DLiteInstance *inst, const char *options)
 {
   Py_ssize_t length = 0;
   char *buffer = NULL;
@@ -370,7 +379,14 @@ int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
   if (!pyinst) goto fail;
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", api->name);
-  v = PyObject_CallMethod(class, "to_bytes", "O", pyinst);
+
+  /* Keep backward compatibility with Python plugins that doesn't have an
+     `options` argument in their `to_bytes()` method. */
+  if (options)
+    v = PyObject_CallMethod(class, "to_bytes", "Os", pyinst, options);
+  else
+    v = PyObject_CallMethod(class, "to_bytes", "O", pyinst);
+
   if (dlite_pyembed_err_check("calling to_bytes() in Python plugin '%s'%s",
                               classname, failmsg()))
     goto fail;

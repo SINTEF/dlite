@@ -486,11 +486,11 @@ def get_instance(
         )
 
     @classmethod
-    def from_bytes(cls, driver, buffer, id=None):
+    def from_bytes(cls, driver, buffer, id=None, options=None):
         """Load the instance with ID `id` from bytes `buffer` using the
         given storage driver.
         """
-        return _from_bytes(driver, buffer, id=id)
+        return _from_bytes(driver, buffer, id=id, options=options)
 
     @classmethod
     def create_metadata(cls, uri, dimensions, properties, description):
