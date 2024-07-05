@@ -329,7 +329,7 @@ int deleter(DLiteStorage *s, const char *id)
  */
 DLiteInstance *memloader(const DLiteStoragePlugin *api,
                          const unsigned char *buf, size_t size,
-                         const char *options, const char *id)
+                         const char *id, const char *options)
 {
   DLiteInstance *inst = NULL;
   PyObject *v = NULL;
