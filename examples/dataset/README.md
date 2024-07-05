@@ -27,6 +27,9 @@ properties:
     description: Array of measured temperatures.
 ```
 
+A DLite datamodel is represented with an emmo:DataSet, and its properties are represented with emmo:Datum as illustrated in the figure above.
+It shows how a simple [`FluidData`] datamodel is represented.
+
 The datamodel is semantically enhanced using the following mappings
   ```python
   mappings = [
@@ -43,7 +46,6 @@ Some comments:
 - Note the use of `emmo:isDescriptionFor` relations in the mappings. They are stored as-is in the triplestore.
 
 - The `map:mapsTo` are translated to `rdfs:subClassOf` when serialised to the triplestore.
-
 
 
 [`FluidData`]: https://github.com/SINTEF/dlite/blob/652-serialise-data-models-to-tbox/examples/dataset/datamodels/FluidData.json

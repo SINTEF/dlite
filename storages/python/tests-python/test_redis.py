@@ -22,8 +22,8 @@ inst2 = dlite.get_instance("52522ba5-6bfe-4a64-992d-e9ec4080fbac")
 meta = inst1.meta
 
 save0 = meta.asdict()
-save1 = inst1.asdict()
-save2 = inst2.asdict()
+save1 = inst1.asdict(single=True, uuid=True)
+save2 = inst2.asdict(single=True, uuid=True)
 
 
 # Test storing to Redis

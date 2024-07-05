@@ -339,7 +339,7 @@ DLiteInstance *memloader(const DLiteStoragePlugin *api,
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", api->name);
 
-  /* Keep backward compatibility with Python plugins that doesn't have an
+  /* Keep backward compatibility with Python plugins that do not have an
      `options` argument in their `from_bytes()` method. */
   if (options)
     v = PyObject_CallMethod(class, "from_bytes", "y#ss",
@@ -380,7 +380,7 @@ int memsaver(const DLiteStoragePlugin *api, unsigned char *buf, size_t size,
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", api->name);
 
-  /* Keep backward compatibility with Python plugins that doesn't have an
+  /* Keep backward compatibility with Python plugins that do not have an
      `options` argument in their `to_bytes()` method. */
   if (options)
     v = PyObject_CallMethod(class, "to_bytes", "Os", pyinst, options);
