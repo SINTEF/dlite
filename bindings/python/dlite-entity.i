@@ -430,11 +430,11 @@ Call signatures:
       *LEN = 0;
       return;
     }
-    if (!(buf = malloc(n))) {
+    if (!(buf = malloc(n+1))) {
       dlite_err(dliteMemoryError, "allocation failure");
       return;
     }
-    if ((m = dlite_instance_memsave(driver, buf, n, $self, options)) < 0)
+    if ((m = dlite_instance_memsave(driver, buf, n+1, $self, options)) < 0)
       return;
     assert (m == n);
     *ARGOUT_BYTES = buf;
