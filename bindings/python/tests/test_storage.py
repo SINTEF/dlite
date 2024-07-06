@@ -70,6 +70,13 @@ mturk_bytes = '''{"9b256962-8c81-45f0-949c-c9d10b44050b": {
 mturk = dlite.Instance.from_bytes("json", mturk_bytes)
 assert mturk.name == "Mechanical Turk"
 
+# ...also test with options even though they will have not effect
+mturk2 = dlite.Instance.from_bytes("json", mturk_bytes, options="mode=r")
+assert mturk2.name == "Mechanical Turk"
+
+
+
+
 # Test to_bytes()
 assert inst.to_bytes("json").decode() == str(inst)
 assert inst.to_bytes("json", options="").decode() == str(inst)
