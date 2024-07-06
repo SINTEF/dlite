@@ -154,7 +154,7 @@ if HAVE_YAML:
     #print(bytes(bytearr).decode())
 
 with raises(dlite.DLiteError):
-    inst.to_bytes("json")
+    inst.to_bytes("hdf5")
 
 
 s = dlite.Storage("json", f"{indir}/persons.json", "mode=r")
