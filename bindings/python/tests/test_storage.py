@@ -57,6 +57,47 @@ with dlite.Storage("json", outdir / "test_storage_tmp.json", "mode=w") as s:
 # Test query
 
 
+# Test from_bytes()
+mturk_bytes = '''{"9b256962-8c81-45f0-949c-c9d10b44050b": {
+  "meta": "http://onto-ns.com/meta/0.1/Person",
+  "dimensions": {"N": 2},
+  "properties": {
+    "name": "Mechanical Turk",
+    "age": 83,
+    "skills": ["chess", "cheating"]
+  }
+}}'''.encode()
+mturk = dlite.Instance.from_bytes("json", mturk_bytes)
+assert mturk.name == "Mechanical Turk"
+
+# ...also test with options even though they will have not effect
+mturk2 = dlite.Instance.from_bytes("json", mturk_bytes, options="mode=r")
+assert mturk2.name == "Mechanical Turk"
+
+
+
+
+# Test to_bytes()
+assert inst.to_bytes("json").decode() == str(inst)
+assert inst.to_bytes("json", options="").decode() == str(inst)
+s0 = inst.to_bytes("json", options="").decode()
+assert s0.startswith("{\n  \"ce592ff9-")
+s1 = inst.to_bytes("json", options="indent=2").decode()
+assert s1.startswith("  {\n    \"ce592ff9-")
+s2 = inst.to_bytes("json", options="single=true").decode()
+assert s2.startswith("{\n  \"uri\":")
+s3 = inst.to_bytes("json", options="uri-key=true").decode()
+assert s3.startswith("{\n  \"my-data\":")
+s4 = inst.to_bytes("json", options="single=true;with-uuid=true").decode()
+assert s4.startswith("{\n  \"uri\": \"my-data\",\n  \"uuid\":")
+
+# FIXME: Add test for the `arrays`, `no-parent` and `compact` options.
+# Should we rename `arrays` to `soft7` for consistency with the Python API?
+
+with raises(dlite.DLiteValueError):
+    inst.to_bytes("json", options="invalid-opt=").decode()
+
+
 # Test json
 print("--- testing json")
 myentity.save(f"json://{outdir}/test_storage_myentity.json?mode=w")
