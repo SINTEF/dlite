@@ -217,7 +217,7 @@ int dlite_option_parse(char *options, DLiteOpt *opts, int modify)
     }
     if (!opts[i].key) {
       int len = strcspn(p, "=;&#");
-      return errx(1, "unknown option key: '%.*s'", len, p);
+      return errx(dliteValueError, "unknown option key: '%.*s'", len, p);
     }
   }
   return 0;

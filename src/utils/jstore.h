@@ -102,8 +102,12 @@ int jstore_update(JStore *js, JStore *other);
     be an object. Return non-zero on error. */
 int jstore_update_from_jsmn(JStore *js, const char *src, jsmntok_t *tok);
 
+/** Update JSON store with values from string `buf`.
+    Return non-zero on error. */
+int jstore_update_from_string(JStore *js, const char *buf, int len);
+
 /** Update JSON store with values from file `filename`.
-   Return non-zero on error. */
+    Return non-zero on error. */
 int jstore_update_from_file(JStore *js, const char *filename);
 
 /** Update `filename` from JSON store.
