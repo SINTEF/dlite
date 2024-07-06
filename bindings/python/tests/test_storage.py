@@ -84,6 +84,9 @@ assert s3.startswith("{\n  \"my-data\":")
 s4 = inst.to_bytes("json", options="single=true;with-uuid=true").decode()
 assert s4.startswith("{\n  \"uri\": \"my-data\",\n  \"uuid\":")
 
+# FIXME: Add test for the `arrays`, `no-parent` and `compact` options.
+# Should we rename `arrays` to `soft7` for consistency with the Python API?
+
 with raises(dlite.DLiteValueError):
     inst.to_bytes("json", options="invalid-opt=").decode()
 
