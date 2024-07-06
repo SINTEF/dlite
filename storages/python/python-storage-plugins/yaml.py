@@ -130,7 +130,7 @@ class yaml(dlite.DLiteStorageBase):
             yield uuid
 
     @classmethod
-    def from_bytes(cls, buffer, id=None):
+    def from_bytes(cls, buffer, id=None, options=None):
         """Load instance with given `id` from `buffer`.
 
         Arguments:
@@ -148,19 +148,28 @@ class yaml(dlite.DLiteStorageBase):
         )
 
     @classmethod
-    def to_bytes(cls, inst, soft7=True, with_uuid=False):
+    def to_bytes(cls, inst, options=None):
         """Save instance `inst` to bytes (or bytearray) object.  Optional.
 
         Arguments:
             inst: Instance to save.
-            soft7: Whether to structure metadata as SOFT7.
-            with_uuid: Whether to include UUID in the output.
+            options: Supported options:
+            - `soft7`: Whether to structure metadata as SOFT7.
+            - `with_uuid`: Whether to include UUID in the output.
+            - `single`: Whether to include UUID in the output.
 
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
         """
+        opts = Options(
+            options, defaults="soft7=true;with_uuid=false;single=true"
+        )
         return pyyaml.safe_dump(
-            inst.asdict(soft7=soft7, uuid=with_uuid, single=True),
+            inst.asdict(
+                soft7=dlite.asbool(opts.soft7),
+                uuid=dlite.asbool(opts.with_uuid),
+                single=dlite.asbool(opts.single),
+            ),
             default_flow_style=False,
             sort_keys=False,
         ).encode()

@@ -1144,14 +1144,14 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
  */
 DLiteInstance *dlite_instance_memload(const char *driver,
                                       const unsigned char *buf, size_t size,
-                                      const char *id)
+                                      const char *id, const char *options)
 {
   const DLiteStoragePlugin *api;
   if (!(api = dlite_storage_plugin_get(driver))) return NULL;
   if (!api->memLoadInstance)
     return err(dliteUnsupportedError, "driver does not support memload: %s",
                api->name), NULL;
-  return api->memLoadInstance(api, buf, size, id);
+  return api->memLoadInstance(api, buf, size, id, options);
 }
 
 /*
@@ -1162,14 +1162,14 @@ DLiteInstance *dlite_instance_memload(const char *driver,
   Returns a negative error code on error.
  */
 int dlite_instance_memsave(const char *driver, unsigned char *buf, size_t size,
-                           const DLiteInstance *inst)
+                           const DLiteInstance *inst, const char *options)
 {
   const DLiteStoragePlugin *api;
   if (!(api = dlite_storage_plugin_get(driver))) return dliteStorageSaveError;
   if (!api->memSaveInstance)
     return err(dliteUnsupportedError, "driver does not support memsave: %s",
                api->name);
-  return api->memSaveInstance(api, buf, size, inst);
+  return api->memSaveInstance(api, buf, size, inst, options);
 }
 
 /*
@@ -1177,7 +1177,8 @@ int dlite_instance_memsave(const char *driver, unsigned char *buf, size_t size,
   Returns NULL on error.
  */
 unsigned char *dlite_instance_to_memory(const char *driver,
-                                        const DLiteInstance *inst)
+                                        const DLiteInstance *inst,
+                                        const char *options)
 {
   const DLiteStoragePlugin *api;
   int n=0, m;
@@ -1187,10 +1188,10 @@ unsigned char *dlite_instance_to_memory(const char *driver,
     return err(dliteUnsupportedError, "driver does not support memsave: %s",
                api->name), NULL;
 
-  if ((n = api->memSaveInstance(api, buf, n, inst)) < 0) return NULL;
+  if ((n = api->memSaveInstance(api, buf, n, inst, options)) < 0) return NULL;
   if (!(buf = malloc(n)))
     return err(dliteMemoryError, "allocation failure"), NULL;
-  if ((m = api->memSaveInstance(api, buf, n, inst)) != n) {
+  if ((m = api->memSaveInstance(api, buf, n, inst, options)) != n) {
     assert(m < 0);  // On success, should `m` always be equal to `n`!
     free(buf);
     return NULL;

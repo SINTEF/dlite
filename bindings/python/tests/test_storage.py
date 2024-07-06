@@ -105,10 +105,19 @@ Opens `location`.
 
     # Test to_bytes()/from_bytes()
     data = inst.to_bytes("yaml")
-    data2 = data.replace(b"uri: my-data", b"uri: my-data2")
+    data2 = data.replace(b"uri: my-data", b"uri: my-data2").replace(
+        dlite.get_uuid("my-data").encode(),
+        dlite.get_uuid("my-data2").encode()
+    )
+    assert data2.startswith(b"uri: my-data2")
+
     inst2 = dlite.Instance.from_bytes("yaml", data2)
     assert inst2.uuid != inst.uuid
     assert inst2.get_hash() == inst.get_hash()
+
+    # Test to_bytes() with options
+    data3 = inst.to_bytes("yaml", options="single=false")
+    assert data3.startswith(b"ce592ff9-a7dc-548a-bbe5-3c53800afaf3")
 
     s.flush()  # avoid calling flush() when the interpreter is teared down
 

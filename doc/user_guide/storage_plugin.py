@@ -67,24 +67,26 @@ class plugin_driver_name(dlite.DLiteStorageBase):
         """
 
     @classmethod
-    def from_bytes(cls, buffer, id=None):
+    def from_bytes(cls, buffer, id=None, options=None):
         """Load instance with given `id` from `buffer`.
 
         Arguments:
             buffer: Bytes or bytearray object to load the instance from.
             id: ID of instance to load.  May be omitted if `buffer` only
                 holds one instance.
+            options: Options string for this storage driver.
 
         Returns:
             New instance.
         """
 
     @classmethod
-    def to_bytes(cls, inst):
+    def to_bytes(cls, inst, options=None):
         """Save instance `inst` to bytes (or bytearray) object.  Optional.
 
         Arguments:
             inst: Instance to save.
+            options: Options string for this storage driver.
 
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
