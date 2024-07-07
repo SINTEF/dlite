@@ -226,26 +226,34 @@ int jstore_update_from_jsmn(JStore *js, const char *src, jsmntok_t *tok)
   return 0;
 }
 
-/* Update JSON store with values from file `filename`.
+/* Update JSON store with values from string `buf`.
    Return non-zero on error. */
-int jstore_update_from_file(JStore *js, const char *filename)
+int jstore_update_from_string(JStore *js, const char *buf, int len)
 {
   jsmn_parser parser;
   jsmntok_t *tokens=NULL;
   unsigned int ntokens=0;
   int r, stat;
-  char *buf;
-  if (!(buf = jstore_readfile(filename)))
-    return err(1, "error reading JSON file \"%s\"", filename);
   jsmn_init(&parser);
-  r = jsmn_parse_alloc(&parser, buf, strlen(buf), &tokens, &ntokens);
+  r = jsmn_parse_alloc(&parser, buf, len, &tokens, &ntokens);
   if (r < 0) {
-    free(buf);
-    return err(1, "error parsing JSON file \"%s\": %s",
-               filename, jsmn_strerror(r));
+    return err(1, "error parsing JSON buffer \"%.70s\": %s",
+               buf, jsmn_strerror(r));
   }
   stat = jstore_update_from_jsmn(js, buf, tokens);
   free(tokens);
+  return stat;
+}
+
+/* Update JSON store with values from file `filename`.
+   Return non-zero on error. */
+int jstore_update_from_file(JStore *js, const char *filename)
+{
+  int stat;
+  char *buf;
+  if (!(buf = jstore_readfile(filename)))
+    return err(1, "error reading JSON file \"%s\"", filename);
+  stat = jstore_update_from_string(js, buf, strlen(buf));
   free(buf);
   return stat;
 }

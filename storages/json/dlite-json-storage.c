@@ -35,13 +35,16 @@ typedef struct {
     - 'r': if `uri` is in single-entity format
     - 'a': otherwise
 */
-static int default_mode(const char *uri)
+static int default_mode(const char *uri, const unsigned char *buf, size_t size)
 {
   int mode, stat;
   JStore *js = jstore_open();
 
   ErrTry:
-    stat = jstore_update_from_file(js, uri);
+    if (uri)
+      stat = jstore_update_from_file(js, uri);
+    else
+      stat = jstore_update_from_string(js, (const char *)buf, size);
   ErrCatch(1):
     break;
   ErrEnd;
@@ -52,36 +55,12 @@ static int default_mode(const char *uri)
 }
 
 
-/**
-  Returns an url to the metadata.
-
-  Valid `options` are:
-
-  - mode : r | w | a
-      Valid values are:
-      - r   Open existing file for read-only
-      - w   Truncate existing file or create new file
-      - a   Append to existing file or create new file (default)
-  - single : yes | no
-      Whether to write single-entity format.
-  - uri-key : yes | no
-      Whether to use URI (if it exists) as json key instead of UUID
-  - with-uuid : yes | no
-      Whether to include uuid in output.
-  - with-meta : yes | no
-      Whether to always include meta in output (even for metadata).
-  - arrays : yes | no
-      Whether to write metadata dimensions and properties as arrays.
-  - as-data : yes | no (deprecated)
-  - meta : yes | no (deprecated)
-      Whether to format output as metadata. Alias for `with-uuid`
-  - compact : yes | no (deprecated)
-      Whether to write output in compact format. Alias for `as-data`
-  - useid: translate | require | keep (deprecated)
-      How to use the ID.
+/*
+  Help function for loading json data. Either `uri` or `buf` should be given.
  */
-DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
-                        const char *options)
+DLiteStorage *json_loader(const DLiteStoragePlugin *api, const char *uri,
+                          const unsigned char *buf, size_t size,
+                          const char *options)
 {
   DLiteJsonStorage *s=NULL;
   DLiteStorage *retval=NULL;
@@ -92,10 +71,10 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   DLiteOpt opts[] = {
     {'m', "mode",      "", mode_descr},
     {'s', "single",    "", "Whether to write single-entity format"},
-    {'s', "uri-key",   "false", "Whether to use uri as json key"},
+    {'k', "uri-key",   "false", "Whether to use uri as json key"},
     {'u', "with-uuid", "false", "Whether to include uuid in output"},
     {'M', "with-meta", "false", "Always include meta in output"},
-    {'a', "arrays",    "true",  "Serialise metadata dimensions and properties as arrays"},
+    {'a', "arrays",    "false", "Serialise metadata dimensions and properties as arrays"},
     {'d', "as-data",   "false", "Alias for `single=false` (deprecated)"},
     {'c', "compact",   "false", "Alias for `single` (deprecated)"},
     {'U', "useid",     "",      "Unused (deprecated)"},
@@ -140,7 +119,8 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
    FAILCODE(dliteMemoryError, "allocation failure");
   s->api = api;
 
-  if (!mode) mode = default_mode(uri);
+  if (!mode)
+    mode = default_mode(uri, buf, size);
   s->flags |= dliteGeneric;
   switch (mode) {
   case 'r':
@@ -175,8 +155,12 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
 
   /* Load jstore if not in write mode */
   if (load) {
+    DLiteJsonFormat fmt;
     if (!(s->jstore = jstore_open())) goto fail;
-    DLiteJsonFormat fmt = dlite_jstore_loadf(s->jstore, uri);
+    if (uri)
+      fmt = dlite_jstore_loadf(s->jstore, uri);
+    else
+      fmt = dlite_jstore_loads(s->jstore, (const char *)buf, size);
     if (fmt < 0) goto fail;
     if (fmt == dliteJsonMetaFormat && mode != 'a') s->flags &= ~dliteWritable;
   }
@@ -188,6 +172,42 @@ DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
   if (!retval && s) dlite_storage_close((DLiteStorage *)s);
 
   return retval;
+}
+
+
+
+/**
+  Returns an url to the metadata.
+
+  Valid `options` are:
+
+  - mode : r | w | a
+      Valid values are:
+      - r   Open existing file for read-only
+      - w   Truncate existing file or create new file
+      - a   Append to existing file or create new file (default)
+  - single : yes | no
+      Whether to write single-entity format.
+  - uri-key : yes | no
+      Whether to use URI (if it exists) as json key instead of UUID
+  - with-uuid : yes | no
+      Whether to include uuid in output.
+  - with-meta : yes | no
+      Whether to always include meta in output (even for metadata).
+  - arrays : yes | no
+      Whether to write metadata dimensions and properties as arrays.
+  - as-data : yes | no (deprecated)
+  - meta : yes | no (deprecated)
+      Whether to format output as metadata. Alias for `with-uuid`
+  - compact : yes | no (deprecated)
+      Whether to write output in compact format. Alias for `as-data`
+  - useid: translate | require | keep (deprecated)
+      How to use the ID.
+ */
+DLiteStorage *json_open(const DLiteStoragePlugin *api, const char *uri,
+                        const char *options)
+{
+  return json_loader(api, uri, NULL, 0, options);
 }
 
 
@@ -218,9 +238,13 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   char uuid[DLITE_UUID_LENGTH+1];
   int uuidver;
 
-  if (!js->jstore)
-    FAILCODE1(dliteStorageLoadError,
-              "cannot load JSON file: \"%s\"", s->location);
+  if (!js->jstore) {
+    if (s->location)
+      FAILCODE1(dliteStorageLoadError,
+                "cannot load JSON file: \"%s\"", s->location);
+    else
+      FAILCODE(dliteStorageLoadError, "cannot load JSON buffer");
+  }
 
   if (!id || !*id) {
     JStoreIter iter;
@@ -283,6 +307,65 @@ int json_save(DLiteStorage *s, const DLiteInstance *inst)
   js->changed = 1;
  fail:
   return stat;
+}
+
+
+/**
+  Load instance `id` from buffer `buf` of size `size`.
+  Returns NULL on error.
+ */
+DLiteInstance *json_memload(const DLiteStoragePlugin *api,
+                            const unsigned char *buf, size_t size,
+                            const char *id, const char *options)
+{
+  DLiteStorage *s = json_loader(api, NULL, buf, size, options);
+  DLiteInstance *inst = json_load(s, id);
+  json_close(s);
+  return inst;
+}
+
+
+/**
+  Save instance `inst` to buffer `buf` of size `size`.
+
+  Returns number of bytes written to `buf` (or would have been written
+  to `buf` if `buf` is not large enough).
+  Returns a negative error code on error.
+ */
+int json_memsave(const DLiteStoragePlugin *api,
+                 unsigned char *buf, size_t size,
+                 const DLiteInstance *inst, const char *options)
+{
+  int retval=-1, indent;
+  DLiteJsonFlag flags=0;
+  DLiteOpt opts[] = {
+    {'i', "indent",    "0",     "Indentation."},
+    {'s', "single",    "",      "Whether to write in single-entity format."},
+    {'k', "uri-key",   "false", "Whether to use uri as json key."},
+    {'u', "with-uuid", "false", "Whether to include uuid in output."},
+    {'M', "with-meta", "false", "Always include meta in output."},
+    {'a', "arrays",    "false", "Serialise metadata dims and props as arrays."},
+    {'n', "no-parent", "false", "Do not write transaction parent info."},
+    {'c', "compact",   "false", "Write relations with no newline."},
+    {0, NULL, NULL, NULL}
+  };
+  char *optcopy = (options) ? strdup(options) : NULL;
+  UNUSED(api);
+  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
+  indent = atoi(opts[0].value);
+  if ((*opts[1].value) ? atob(opts[1].value) : dlite_instance_is_meta(inst))
+    flags |= dliteJsonSingle;
+  if (atob(opts[2].value)) flags |= dliteJsonUriKey;
+  if (atob(opts[3].value)) flags |= dliteJsonWithUuid;
+  if (atob(opts[4].value)) flags |= dliteJsonWithMeta;
+  if (atob(opts[5].value)) flags |= dliteJsonArrays;
+  if (atob(opts[6].value)) flags |= dliteJsonNoParent;
+  if (atob(opts[7].value)) flags |= dliteJsonCompactRel;
+  retval = dlite_json_sprint((char *)buf, size, inst, indent, flags);
+ fail:
+  if (optcopy) free(optcopy);
+  return retval;
+
 }
 
 
@@ -352,8 +435,8 @@ static DLiteStoragePlugin dlite_json_plugin = {
   NULL,                     /* deleteInstance */
 
   /* In-memory API */
-  NULL,                     /* memLoadInstance */
-  NULL,                     /* memSaveInstance */
+  json_memload,             /* memLoadInstance */
+  json_memsave,             /* memSaveInstance */
 
   /* === API to deprecate === */
   NULL,                     /* getUUIDs */
