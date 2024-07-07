@@ -220,3 +220,20 @@
    fun:expand_dynamic_string_token
    fun:_dl_map_object
 }
+
+# Allowed leaks
+
+{
+   Allow leak in global sesson
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:map_resize
+   fun:map_set_
+   fun:session_create
+   fun:session_get_default
+   fun:dlite_globals_get
+   fun:dlite_globals_get_state
+   fun:dlite_init
+   fun:PyInit__dlite
+}
