@@ -1,5 +1,5 @@
 importlib-metadata==6.8.0; python_version<'3.8'
-beautifulsoup4==4.12.2
+beautifulsoup4==4.12.3
 lxml==5.2.2
 
 Sphinx==7.3.7
