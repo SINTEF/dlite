@@ -371,7 +371,8 @@ if(MEMORYCHECK_COMMAND)
     add_custom_command(
       OUTPUT ${logfile}
       COMMAND ${CMAKE_COMMAND}
-        -E env PYTHONMALLOC=malloc ${MEMORYCHECK_COMMAND}
+        -E env PYTHONMALLOC=malloc DLITE_ATEXIT_FREE=
+        -- ${MEMORYCHECK_COMMAND}
         --leak-check=yes
         --show-leak-kinds=all
         --keep-debuginfo=yes

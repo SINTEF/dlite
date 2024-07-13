@@ -635,6 +635,21 @@
 }
 
 
+{
+   Leak in numpy random_bit_generator (py311, alvis)
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   fun:call_init
+   fun:call_init
+   fun:_dl_init
+   fun:_dl_catch_exception
+}
+
+
 # ------------------------------------
 # Python plugins
 # ------------------------------------
