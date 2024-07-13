@@ -3,7 +3,19 @@ Tips and Tricks
 
 Setting up a virtual Python environment for building dlite
 ----------------------------------------------------------
-See the [Build and install to a virtual Python environment] in the installation instructions.
+See [Build against Python environment] in the installation instructions.
+
+
+Debugging Python storage plugins
+--------------------------------
+Exceptions occurring inside Python storage plugins are not propagated to the calling interpreter, and will therefor not be shown.
+However, it is possible to write them to stderr by setting the `DLITE_PYDEBUG` environment variable.
+
+For example, run:
+
+    DLITE_PYDEBUG= python bindings/python/tests/test_storage.py 1>/dev/null
+
+to see tracebacks of exceptions occurring inside any of the tested storage plugins.
 
 
 Debugging tests failing inside docker on GitHub
@@ -88,6 +100,76 @@ Debugging tests failing inside docker on GitHub
 
 
 
+Memory debugging
+----------------
+On Linux systems, one can use [valgrind] to check for and debug memory issues.
+
+
+### Finding memory issues
+To check for any memory issue, you can run valgrind on all tests with
+
+    make memcheck
+
+However, this usually takes a while. If you have localised an issue, and want
+to rerun valgrind on that issue, you can run
+
+    CTEST_ARGS="-R <test_name>" make memcheck
+
+Both of the above commands will write the output to `<BUILD_DIR>/Testing/Temporary/MemoryChecker.<#>.log`, where `<#>` is the test number.
+
+---
+
+Alternatively, you can run valgrind manually, with
+
+    valgrind <path/to/test-executable>
+
+if the test is written in C, or with
+
+    valgrind python <path/to/test_file.py>
+
+if the test is written in Python.
+This will write the output from valgrind to stderr.
+
+
+### Debugging segmentation faults
+If a test results in a segmentation fault, you can debug it with [gdb].
+See the [GDB Tutorial] for how to use `gdb`.
+
+Tests written in C can be debugged with
+
+    $ gdb <path/to/test-executable>
+    (gdb) run
+
+Test written in Python can be debugged with
+
+    $ gdb python
+    (gdb) run <path/to/test_file.py>
+
+Some useful gdb commands:
+- `where`: show the call stack when the test fails.
+- `up`, `down`: navigated up and down the call stack.
+- `print <expression>`: print the value of a variable or expression.
+
+
+### Debugging memory issues
+To debug other memory issues, invoke `gdb` as shown above, but set a breakpoint
+at the function before issuing the `run` command.  For example:
+
+    $ gdb python
+    (gdb) break <c_function_name>
+    (gdb) run <path/to/test_file.py>
+
+More useful gdb commands:
+- `break <function_name>`: set a break point at given function.
+- `break <file:lineno>`: set a break point at given source file position.
+- `continue`: continue to run the program after a break point.
+- `next`: execute next source line.
+- `step`: steps into the outermost subroutine on the next source line.
+  Behaves like `next` if the next source line has no subroutines.
+
 
 [virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
 [Build against Python environment]: https://sintef.github.io/dlite/getting_started/build/build_against_python_env.html#build-against-python-environment
+[valgrind]: http://valgrind.org/
+[gdb]: https://sourceware.org/gdb/
+[GDB Tutorial]: https://www.gdbtutorial.com/

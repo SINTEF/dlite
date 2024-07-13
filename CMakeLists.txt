@@ -406,11 +406,24 @@ if(MEMORYCHECK_COMMAND)
   set(MEMORYCHECK_SUPPRESSIONS_FILE
     ${suppfile}
     CACHE FILEPATH "File that contains suppressions for the memory checker"
-    )
+  )
+
+  # Generate a wrapper for ctest that allows to passing arguments from the
+  # environment to ctest.  Useful for running a single test, like
+  #
+  #     CTEST_ARGS="-R test_compat" make memcheck
+  #
+  configure_file(
+    ${dlite_SOURCE_DIR}/cmake/ctest.sh
+    ${dlite_BINARY_DIR}/ctest.sh
+    @ONLY
+    #USE_SOURCE_PERMISSIONS  # available from cmake 3.20
+  )
 
   add_custom_target(memcheck
     COMMAND ${CMAKE_COMMAND}
-        -E env PYTHONMALLOC=malloc ${CMAKE_CTEST_COMMAND}
+        -E env PYTHONMALLOC=malloc DLITE_ATEXIT_FREE=
+            -- ${dlite_BINARY_DIR}/ctest.sh
             --exclude-regex static-code-analysis
             --force-new-ctest-process
             --output-on-failure
