@@ -111,8 +111,6 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
     if (!cheapest || cost < lowest_cost) {
       cheapest = api;
       lowest_cost = cost;
-    } else {
-      //dlite_mapping_plugin_free(api);
     }
   }
   if (!(api = cheapest)) goto fail;
