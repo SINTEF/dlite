@@ -30,8 +30,8 @@ Debugging tests failing inside docker on GitHub
 3. To list all manylinux images for Python 3.7, do
 
         cd dlite  # Root of DLite source directory
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
-        CIBW_BUILD=cp37-manylinux_* \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_BUILD=cp312-manylinux_* \
         python -m cibuildwheel \
         --print-build-identifiers \
         --platform linux \
@@ -39,13 +39,14 @@ Debugging tests failing inside docker on GitHub
 
    This should write
 
-        cp37-manylinux_x86_64
-        cp37-manylinux_i686
+        cp312-manylinux_x86_64
+        cp312-manylinux_i686
 
-4. Run image.  For example, to run the image `cp37-manylinux_x86_64` do
+4. Run image.  For example, to run the image `cp312-manylinux_x86_64` do
 
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
-        CIBW_BUILD=cp37-manylinux_x86* \
+        docker network create -d bridge dlitenet  # Create network called dlitenet
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_BUILD=cp312-manylinux_x86* \
         python -m cibuildwheel \
         --output-dir wheelhouse \
         --platform linux \
@@ -57,8 +58,8 @@ Debugging tests failing inside docker on GitHub
    the previous command:
 
         CIBW_BEFORE_TEST=cat \
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
-        CIBW_BUILD=cp37-manylinux_x86* \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_BUILD=cp312-manylinux_x86* \
         python -m cibuildwheel \
         --output-dir wheelhouse \
         --platform linux \
@@ -92,7 +93,7 @@ Debugging tests failing inside docker on GitHub
 
         ls /tmp/cibuildwheel/repaired_wheel/DLite_Python-*.whl
 
-        pip install /tmp/cibuildwheel/repaired_wheel/DLite_Python-0.3.18-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+        pip install /tmp/cibuildwheel/repaired_wheel/DLite_Python-0.3.18-cp312-cp312m-manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
 
 8. Now we can run the Python tests with
 
