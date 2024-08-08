@@ -224,6 +224,13 @@ if(WITH_REDLAND)
 endif()
 
 
+
+# On static 32-bit systems we have to link with -lutil
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  list(APPEND extra_link_libraries util)
+endif()
+
+
 #
 # Python
 # ======
@@ -283,7 +290,8 @@ if(WITH_PYTHON)
       COMMAND ${Python3_EXECUTABLE}-config --ldflags
       OUTPUT_VARIABLE Python3_LDFLAGS
       OUTPUT_STRIP_TRAILING_WHITESPACE
-      )
+    )
+
     # TODO: find a more portable way to add the "-Xlinker -export-dynamic" options.
     # They are needed to ensure that the linker include all symbols in
     # the static Python library.
@@ -291,8 +299,11 @@ if(WITH_PYTHON)
       ${Python3_LDFLAGS}
       -Xlinker -export-dynamic
       ${Python3_LIBRARY}
-      )
+    )
+
+    list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
   endif()
+
 
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
@@ -329,6 +340,8 @@ if(WITH_PYTHON)
 else()
   set(Python3_LIBRARIES "")
 endif()
+
+message(STATUS "extra_link_libraries = ${extra_link_libraries}")
 
 
 #
