@@ -497,7 +497,6 @@ static Locals *get_locals(void)
 static void _handle_atexit(void) {
 
   /* No extra finalisation is needed if we already are in an atexit handler */
-  //if (dlite_globals_in_atexit()) return;
   if (dlite_globals_in_atexit() && !getenv("DLITE_ATEXIT_FREE")) return;
 
   /* Mark that we are in an atexit handler */
