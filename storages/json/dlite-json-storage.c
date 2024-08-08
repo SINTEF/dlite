@@ -318,9 +318,12 @@ DLiteInstance *json_memload(const DLiteStoragePlugin *api,
                             const unsigned char *buf, size_t size,
                             const char *id, const char *options)
 {
+  DLiteInstance *inst;
   DLiteStorage *s = json_loader(api, NULL, buf, size, options);
-  DLiteInstance *inst = json_load(s, id);
+  if (!s) return NULL;
+  inst = json_load(s, id);
   json_close(s);
+  free(s);
   return inst;
 }
 

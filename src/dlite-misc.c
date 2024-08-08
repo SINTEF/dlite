@@ -465,6 +465,7 @@ int dlite_add_dll_path(void)
 /* Local state for this module. */
 typedef struct {
   int in_atexit;
+  int finalizing;
 } Locals;
 
 
@@ -496,7 +497,7 @@ static Locals *get_locals(void)
 static void _handle_atexit(void) {
 
   /* No extra finalisation is needed if we already are in an atexit handler */
-  if (dlite_globals_in_atexit()) return;
+  if (dlite_globals_in_atexit() && !getenv("DLITE_ATEXIT_FREE")) return;
 
   /* Mark that we are in an atexit handler */
   dlite_globals_set_atexit();
@@ -582,6 +583,11 @@ void dlite_init(void)
 void dlite_finalize(void)
 {
   Session *s = session_get_default();
+  Locals *locals = get_locals();
+
+  /* Ensure that we only finalize once. */
+  if (locals->finalizing) return;
+  locals->finalizing = 1;
 
   /* Don't free anything if we are in an atexit handler */
   if (dlite_globals_in_atexit() && !getenv("DLITE_ATEXIT_FREE")) return;
