@@ -70,7 +70,7 @@ def importskip(module_name, exitcode=44):
     try:
         return importlib.import_module(module_name)
     except ModuleNotFoundError as exc:
-        print(f"{exc}: skipping test", file=sys.stdout)
+        print(f"{exc}: skipping test", file=sys.stderr)
         sys.exit(exitcode)
 
 
@@ -83,7 +83,7 @@ def serverskip(server, port, timeout=2, exitcode=44):
         s.connect((server, port))
     except OSError as exc:
         print(
-            f"Server {server}:{port} seems to be down: {exc}", file=sys.stdout
+            f"Server {server}:{port} seems to be down: {exc}", file=sys.stderr
         )
         sys.exit(exitcode)
     else:
