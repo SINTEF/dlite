@@ -51,6 +51,8 @@ If you have [valgrind] installed, you can run the tests with memory checking tur
 
     cmake --build . --target memcheck
 
+For more info about checking and debugging memory issues, see [Memory debugging].
+
 
 Build documentation
 -------------------
@@ -138,3 +140,4 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
 [configuration variables]: https://sintef.github.io/dlite/getting_started/build/cmake_variables.html
 [build against Python environment]: https://sintef.github.io/dlite/getting_started/build/build_against_python_env.html
 [build with Visual Studio]: https://sintef.github.io/dlite/getting_started/build/build_with_vs.html
+[Memory debugging]: https://sintef.github.io/dlite/contributors_guide/tips_and_tricks.html#memory-debugging

@@ -34,9 +34,9 @@ with raises(MissingUnitError):
     get_unit_iri("Atom")
 
 with raises(MissingUnitError):
-    # Because prefixed units are not in EMMO by default
-    # They can be including by importing https://w3id.org/emmo/1.0.0-rc1/disciplines/units/prefixedunits
-    get_unit_iri("cm")
+    # Ångström is not included in EMMO by default. It can be including by
+    # importing https://w3id.org/emmo/1.0.0-rc1/disciplines/units/specialunits
+    get_unit_iri("Å")
 
 
 # To be fixed in issue https://github.com/SINTEF/dlite/issues/878
