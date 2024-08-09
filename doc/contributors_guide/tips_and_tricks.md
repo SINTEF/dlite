@@ -3,7 +3,19 @@ Tips and Tricks
 
 Setting up a virtual Python environment for building dlite
 ----------------------------------------------------------
-See the [Build and install to a virtual Python environment] in the installation instructions.
+See [Build against Python environment] in the installation instructions.
+
+
+Debugging Python storage plugins
+--------------------------------
+Exceptions occurring inside Python storage plugins are not propagated to the calling interpreter, and will therefor not be shown.
+However, it is possible to write them to stderr by setting the `DLITE_PYDEBUG` environment variable.
+
+For example, run:
+
+    DLITE_PYDEBUG= python bindings/python/tests/test_storage.py 1>/dev/null
+
+to see tracebacks of exceptions occurring inside any of the tested storage plugins.
 
 
 Debugging tests failing inside docker on GitHub
@@ -15,11 +27,11 @@ Debugging tests failing inside docker on GitHub
         workon dlite
         pip install cibuildwheel
 
-3. To list all manylinux images for Python 3.7, do
+3. To list all manylinux images for Python 3.12, do
 
         cd dlite  # Root of DLite source directory
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
-        CIBW_BUILD=cp37-manylinux_* \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_BUILD=cp312-manylinux_* \
         python -m cibuildwheel \
         --print-build-identifiers \
         --platform linux \
@@ -27,26 +39,46 @@ Debugging tests failing inside docker on GitHub
 
    This should write
 
-        cp37-manylinux_x86_64
-        cp37-manylinux_i686
+        cp312-manylinux_x86_64
+        cp312-manylinux_i686
 
-4. Run image.  For example, to run the image `cp37-manylinux_x86_64` do
+4. Run image.  For example, to run the image `cp312-manylinux_x86_64` do
 
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
-        CIBW_BUILD=cp37-manylinux_x86* \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_BUILD=cp312-manylinux_x86* \
         python -m cibuildwheel \
         --output-dir wheelhouse \
         --platform linux \
         python
 
    which should run the tests and hopefully fail at the same place as on
-   GitHub.  If that is the case, you can run the image again, but pause
+   GitHub.
+
+   If `pip wheel` fails with network errors, like `[Errno 101] Network is unreachable`, you may have create a network
+
+        docker network create -d bridge dlitenet  # Create network called dlitenet
+
+   and gets its IP with
+
+        ip=$(docker network inspect dlitenet | sed -n 's/ *"Gateway": "\(.*\)"$/\1/p')
+
+   you can then rerun `cibuildwheel` with the
+
+        CIBW_BUILD_FRONTEND="pip; args: --index-url http://$ip:3141/root/pypi/" \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_BUILD=cp312-manylinux_x86* \
+        python -m cibuildwheel \
+        --output-dir wheelhouse \
+        --platform linux \
+        python
+
+   If that is the case, you can run the image again, but pause
    it before running the tests by prepending `CIBW_BEFORE_TEST=cat` to
    the previous command:
 
         CIBW_BEFORE_TEST=cat \
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux2014_x86_64:latest \
-        CIBW_BUILD=cp37-manylinux_x86* \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_BUILD=cp312-manylinux_x86* \
         python -m cibuildwheel \
         --output-dir wheelhouse \
         --platform linux \
@@ -80,7 +112,7 @@ Debugging tests failing inside docker on GitHub
 
         ls /tmp/cibuildwheel/repaired_wheel/DLite_Python-*.whl
 
-        pip install /tmp/cibuildwheel/repaired_wheel/DLite_Python-0.3.18-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+        pip install /tmp/cibuildwheel/repaired_wheel/DLite_Python-0.3.18-cp312-cp312m-manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
 
 8. Now we can run the Python tests with
 
@@ -88,6 +120,76 @@ Debugging tests failing inside docker on GitHub
 
 
 
+Memory debugging
+----------------
+On Linux systems, one can use [valgrind] to check for and debug memory issues.
+
+
+### Finding memory issues
+To check for any memory issue, you can run valgrind on all tests with
+
+    make memcheck
+
+However, this usually takes a while. If you have localised an issue, and want
+to rerun valgrind on that issue, you can run
+
+    CTEST_ARGS="-R <test_name>" make memcheck
+
+Both of the above commands will write the output to `<BUILD_DIR>/Testing/Temporary/MemoryChecker.<#>.log`, where `<#>` is the test number.
+
+---
+
+Alternatively, you can run valgrind manually, with
+
+    valgrind <path/to/test-executable>
+
+if the test is written in C, or with
+
+    valgrind python <path/to/test_file.py>
+
+if the test is written in Python.
+This will write the output from valgrind to stderr.
+
+
+### Debugging segmentation faults
+If a test results in a segmentation fault, you can debug it with [gdb].
+See the [GDB Tutorial] for how to use `gdb`.
+
+Tests written in C can be debugged with
+
+    $ gdb <path/to/test-executable>
+    (gdb) run
+
+Test written in Python can be debugged with
+
+    $ gdb python
+    (gdb) run <path/to/test_file.py>
+
+Some useful gdb commands:
+- `where`: show the call stack when the test fails.
+- `up`, `down`: navigated up and down the call stack.
+- `print <expression>`: print the value of a variable or expression.
+
+
+### Debugging memory issues
+To debug other memory issues, invoke `gdb` as shown above, but set a breakpoint
+at the function before issuing the `run` command.  For example:
+
+    $ gdb python
+    (gdb) break <c_function_name>
+    (gdb) run <path/to/test_file.py>
+
+More useful gdb commands:
+- `break <function_name>`: set a break point at given function.
+- `break <file:lineno>`: set a break point at given source file position.
+- `continue`: continue to run the program after a break point.
+- `next`: execute next source line.
+- `step`: steps into the outermost subroutine on the next source line.
+  Behaves like `next` if the next source line has no subroutines.
+
 
 [virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
 [Build against Python environment]: https://sintef.github.io/dlite/getting_started/build/build_against_python_env.html#build-against-python-environment
+[valgrind]: http://valgrind.org/
+[gdb]: https://sourceware.org/gdb/
+[GDB Tutorial]: https://www.gdbtutorial.com/
