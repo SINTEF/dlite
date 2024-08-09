@@ -85,7 +85,7 @@ typedef struct {{
   DLiteType type;
   size_t size;
   int ndims;
-  char **dims, *unit, *description;
+  char **shape, *unit, *description;
 }} DLiteProperty;
 typedef void DLiteInstance;
 #define DLiteInstance_HEAD
@@ -116,7 +116,7 @@ typedef struct _{struct_name} {{
   /* -- dimension values */
 {list_meta_dimensions:  size_t {dim.name};{@30}/*!< {dim.descr} */\n}
   /* -- property values */
-{list_meta_properties:  {prop.cdecl};{@30}/*!< {prop.descr} {@if:{prop.ndims}!0}; [{prop.dims:{dim.name}{,}\.}]{@endif} */\n} \
+{list_meta_properties:  {prop.cdecl};{@30}/*!< {prop.descr} {@if:{prop.ndims}!0}; [{prop.shape:{dim.name}{,}\.}]{@endif} */\n} \
 {@if:{_nrelations}!0}
   /* -- relation values */
   DLiteRelation __relations[{_nrelations}];

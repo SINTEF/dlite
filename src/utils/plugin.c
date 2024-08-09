@@ -249,7 +249,8 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
            info->symbol, filepath, dsl_error());
 
     if (!registered_api && handle) {
-      if (handle) (void)dsl_close(handle);
+      if (handle && dsl_close(handle))
+        err(1, "error closing \"%s\": %s", filepath, dsl_error());
       handle = NULL;
     }
   }

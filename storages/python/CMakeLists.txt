@@ -55,6 +55,7 @@ install(
 install(
   FILES
     python-storage-plugins/blob.json
+    python-storage-plugins/Image.json
   DESTINATION share/dlite/storages
   )
 

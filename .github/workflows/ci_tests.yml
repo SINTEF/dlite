@@ -4,16 +4,28 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
+    - name: Setup Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+
+      # We do not install rdflib0-dev here, since we want to test
+      # DLite both with and without rdflib (Redland) support and the
+      # case with rdflib is already covered by the ci_build_wheel
+      # workflow for Linux systems.
     - name: Install dependencies
       run: |
         sudo apt-get update --fix-missing && \
         sudo apt-get install \
+          libxml2-dev \
+          libxslt-dev \
           libhdf5-dev \
           swig4.0 \
           doxygen \
@@ -31,7 +43,7 @@ jobs:
         python3 -m pip --version
         python3 -m pip install --upgrade pip
         python3 -m pip install -U setuptools wheel
-        python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt -r requirements_doc.txt
+        python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
 
     - name: Check numpy
       run: |
@@ -44,6 +56,12 @@ jobs:
       run: |
         python3 -m pip install cmake==3.25.2
         cmake --version
+
+    - name: List installed Python packages
+      run: |
+        uname -a
+        python --version
+        pip freeze
 
     - name: configure
       run: |
@@ -60,6 +78,8 @@ jobs:
       working-directory: build
 
     - name: make test
+      env:
+        DLITE_PYDEBUG: ""
       run: ctest || ctest --rerun-failed --output-on-failure -V
       working-directory: build
 

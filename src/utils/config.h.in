@@ -34,6 +34,9 @@
 #cmakedefine HAVE_BYTESWAP_H
 #cmakedefine HAVE_INTTYPES_H
 #cmakedefine HAVE_LOCALE_H
+#cmakedefine HAVE_TIME_H
+#cmakedefine HAVE_UNISTD_H
+#cmakedefine HAVE_WINDOWS_H
 
 /* Whether symbols exists. If not, they are defined in compat.c or compat/ */
 #cmakedefine HAVE_STRDUP
@@ -50,7 +53,12 @@
 
 #cmakedefine HAVE_REALPATH
 #cmakedefine HAVE_STAT
+#cmakedefine HAVE_EXEC
+#cmakedefine HAVE_CLOCK
 #cmakedefine HAVE_P_TMPDIR
+#cmakedefine HAVE__FILENO
+#cmakedefine HAVE_ISATTY
+#cmakedefine HAVE__ISATTY
 
 #cmakedefine HAVE_GetFullPathNameW
 #cmakedefine HAVE_GetFullPathName
@@ -60,6 +68,10 @@
 #cmakedefine HAVE_PathFileExistsW
 #cmakedefine HAVE_PathFileExists
 #cmakedefine HAVE_CreateProcessA
+#cmakedefine HAVE_GetSystemTime
+#cmakedefine HAVE_BCryptGenRandom
+// #cmakedefine HAVE_GetConsoleMode
+// #cmakedefine HAVE_GetStdHandle
 #cmakedefine HAVE_MBSTOWCS
 #cmakedefine HAVE_WCSTOMBS
 #cmakedefine HAVE_MBSTOWCS_S
@@ -81,6 +93,8 @@
 // #cmakedefine HAVE___VA_COPY
 
 /* Whether types exists */
+#cmakedefine HAVE_CLOCK_T
+
 #cmakedefine HAVE_LONG_DOUBLE
 #cmakedefine HAVE_LONG_LONG_INT
 #cmakedefine HAVE_UNSIGNED_LONG_LONG_INT

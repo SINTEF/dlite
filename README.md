@@ -106,10 +106,10 @@ True
 We can create an instance of `Person` with
 
 ```python
-homes = Person(
+holmes = Person(
     dimensions={"nskills": 4},
     properties={
-      "name": "Sherlock Homes",
+      "name": "Sherlock Holmes",
       "skills": ["observing", "chemistry", "violin", "boxing"],
     }
 )
@@ -123,15 +123,25 @@ By specifying it, we initialise the properties to the provided values
 
 In this case we didn't initialised the age
 ```python
->>> homes.age
+>>> holmes.age
 0.0
->>> homes.age = 34  # Assign the age
+>>> holmes.age = 34  # Assign the age
+```
+
+If you have [Pint] installed, you can also specify or access the age
+as a quantity with unit
+```python
+>>> holmes.q.age = "34year"
+>>> holmes.q.age
+<Quantity(34, 'year')>
+>>> holmes.q.age.to("century").m
+0.34
 ```
 
 We can view (a JSON representation of) the instance with
 
 ```python
->>> print(homes)
+>>> print(holmes)
 {
   "uuid": "314ac1ad-4a7e-477b-a56c-939121355112",
   "meta": "http://onto-ns.com/meta/0.1/Person",
@@ -155,7 +165,7 @@ We can view (a JSON representation of) the instance with
 The instance can also be stored using the `save()` method
 
 ```python
-homes.save("yaml", "homes.yaml", "mode=w")
+holmes.save("yaml", "holmes.yaml", "mode=w")
 ```
 
 which will produce the a YAML file with the following content
@@ -213,3 +223,4 @@ DLite is developed with the hope that it will be a delight to work with.
 [documentation]: https://sintef.github.io/dlite/index.html
 [SOFT]: https://www.sintef.no/en/publications/publication/1553408/
 [UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
+[Pint]: https://pint.readthedocs.io/

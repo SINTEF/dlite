@@ -1,0 +1,62 @@
+# -*- Mode: Dockerfile -*-
+# Dockerfile for building Python pypi package with manylinux_x_y based on
+# glibc>=x.y.  See https://github.com/mayeut/pep600_compliance
+#
+# Usage:
+#
+# Copy this template file and replace:
+# - `{{ TYPE }}` major glibc version, ex: 2_28, 2_35, 2_38
+# - `{{ ARCH }}` with a valid arch, ex:  x86_64, i686
+# Remove the `.template` suffix from the copy.
+#
+# Build:
+#
+#     docker build -t dlite-manylinux -f .github/docker/Dockerfile-manylinux_x_y .
+#
+# Run (for debugging):
+#
+#     docker run --rm -it \
+#        --volume $PWD:/io \
+#        --user $(id -u):$(id -g) \
+#        dlite-manylinux \
+#        /bin/bash
+#
+
+# Reference: https://github.com/pypa/manylinux
+FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}
+
+ARG PY_MINORS="8 9 10 11 12"
+
+{{ EXTRA_PRE }}
+
+# Enable rpmfusion for additional packages
+RUN \
+  dnf update -y && \
+  dnf localinstall -y --skip-broken \
+    https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
+    https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
+  dnf install -y \
+    redland-devel \
+    rasqal-devel \
+    swig \
+    libcurl-devel \
+    libxslt-devel \
+    libxml2-devel \
+    hdf5-devel && \
+  # Unpack static libraries
+  # It's necessary to be in /opt/_internal because the internal libraries
+  # exist here.
+  cd /opt/_internal && \
+    tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  # Install required Python packages
+  mkdir -p /ci/pip_cache && \
+  for minor in ${PY_MINORS}; do \
+    which python3.${minor} || continue && \
+    echo "==================== python3.${minor} ====================" && \
+    python3.${minor} -m pip install -U pip && \
+    python3.${minor} -m pip install -U setuptools wheel && \
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy; \
+  done && \
+  rm -rf /ci/pip_cache
+
+{{ EXTRA_POST }}

@@ -43,7 +43,7 @@
     {
       "name": "elements",
       "type": "string",
-      "dims": [
+      "shape": [
         "nelements"
       ],
       "description": "Chemical symbol of each element."
@@ -51,7 +51,7 @@
     {
       "name": "phases",
       "type": "string",
-      "dims": [
+      "shape": [
         "nphases"
       ],
       "description": "Name of each phase."
@@ -59,7 +59,7 @@
     {
       "name": "phaseselementdep",
       "type": "int32",
-      "dims": [
+      "shape": [
         "nphases"
       ],
       "description": "Indicia of the dependent element of each phase."
@@ -67,7 +67,7 @@
     {
       "name": "varnames",
       "type": "string",
-      "dims": [
+      "shape": [
         "nvars"
       ],
       "description": "Name of each free variable."
@@ -75,7 +75,7 @@
     {
       "name": "varranges",
       "type": "float64",
-      "dims": [
+      "shape": [
         "nvars",
         "nbounds"
       ],
@@ -84,7 +84,7 @@
     {
       "name": "condnames",
       "type": "string",
-      "dims": [
+      "shape": [
         "nconds"
       ],
       "description": "Name/expression for each condition."
@@ -92,7 +92,7 @@
     {
       "name": "condvalues",
       "type": "float64",
-      "dims": [
+      "shape": [
         "nconds"
       ],
       "description": "Value of each condition."
@@ -100,7 +100,7 @@
     {
       "name": "calcnames",
       "type": "string",
-      "dims": [
+      "shape": [
         "ncalc"
       ],
       "description": "Name of each calculated variable."
@@ -108,7 +108,7 @@
     {
       "name": "calcvalues",
       "type": "float64",
-      "dims": [
+      "shape": [
         "npoints",
         "ncalc"
       ],
@@ -122,7 +122,7 @@
     {
       "name": "ticks",
       "type": "int32",
-      "dims": [
+      "shape": [
         "nvars"
       ],
       "description": "For a regular grid, the number of tabulated points along each free variable.  Unused if iregular grid."
@@ -130,7 +130,7 @@
     {
       "name": "points",
       "type": "float64",
-      "dims": [
+      "shape": [
         "npoints",
         "nvars"
       ],

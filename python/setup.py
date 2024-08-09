@@ -4,8 +4,8 @@ import platform
 import re
 import site
 import subprocess
+from shutil import copytree
 from typing import TYPE_CHECKING
-from distutils import dir_util
 from pathlib import Path
 
 from setuptools import Extension, setup
@@ -13,6 +13,7 @@ from setuptools.command.build_ext import build_ext
 
 if TYPE_CHECKING:
     from typing import Union
+
 
 # Based on
 # https://github.com/galois-advertising/cmake_setup/blob/master/cmake_setup/cmake/__init__.py
@@ -26,7 +27,6 @@ if platform.system() == "Linux":
 
     CMAKE_ARGS = [
         "-DWITH_DOC=OFF",
-        "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
         "-DALLOW_WARNINGS=ON",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
@@ -49,15 +49,16 @@ elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
     dlite_compiled_dll_suffix = "*.dll"
     is_64bits = sys.maxsize > 2**32
-
+    v = sys.version_info
     CMAKE_ARGS = [
         #"-G", "Visual Studio 15 2017",
         "-A", "x64",
         "-DWITH_DOC=OFF",
-        "-DWITH_JSON=ON",
         "-DWITH_HDF5=OFF",
+        f"-DPYTHON_VERSION={v.major}.{v.minor}",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
-        f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}"
+        f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}",
+        "-DPython3_FIND_VIRTUALENV=STANDARD",
     ]
 
 else:
@@ -152,29 +153,11 @@ class CMakeBuildExt(build_ext):
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
-        dir_util.copy_tree(
-            str(cmake_bdist_dir / ext.name), str(Path(output_dir) / ext.name)
+        copytree(
+            str(cmake_bdist_dir / ext.name),
+            str(Path(output_dir) / ext.name),
+            dirs_exist_ok=True,
         )
-
-requirements = ["numpy"]
-
-# Populate extra_requirements from requirements_*.txt
-extra_requirements = {}
-for name in "mappings", "full", "dev", "doc":
-    with open(SOURCE_DIR / f"requirements_{name}.txt", "r") as f:
-        extra_requirements[name] = [
-            line.strip() for line in f.readlines() if not line.startswith("#")
-        ]
-
-# Temporary workaround!
-# Require pydantic <2. Needed before we have managed to install rust in
-# the docker image for wheels
-extras = extra_requirements["full"]
-for i, pkg in enumerate(extras):
-    match = re.match("^(pydantic>.*<)", pkg)
-    if match:
-        extras[i] = f"{match.groups()[0]}2"
-
 
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
@@ -194,7 +177,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/SINTEF/dlite",
     license="MIT",
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -209,10 +192,12 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=requirements,
-    extras_require=extra_requirements,
+    install_requires="numpy>=1.14.5,<1.27.0",
+    #install_requires=requirements,
+    #extras_require=extra_requirements,
     packages=["dlite"],
     scripts=[
         str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),

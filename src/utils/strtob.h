@@ -22,7 +22,7 @@
 
   are considered true and will return 1, while the following values:
 
-      NULL, "", "0", "false", ".false.", "no" and "off"
+      "0", "false", ".false.", "no", "off", NULL, and ""
 
   are considered false and will return zero.  Initial blanks (except
   in front of the empty string "") will be stripped off.  Any other

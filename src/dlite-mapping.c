@@ -100,6 +100,14 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
     }
     if (ignore) continue;
 
+    /*
+      FIXME: avoid memory leak
+      Implement dlite_mapping_plugin_free() and call it here.
+
+      Even better, implement caching in dlite_mapping_plugin_next()
+      such that it returns borrowed references to the api. Add a function
+      to clear the cache.
+    */
     if (!cheapest || cost < lowest_cost) {
       cheapest = api;
       lowest_cost = cost;

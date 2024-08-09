@@ -31,7 +31,7 @@ struct _DLiteStoragePluginIter {
 /* Global variables for dlite-storage-plugins */
 typedef struct {
   PluginInfo *storage_plugin_info;  /* reference to storage plugin info */
-  unsigned char storage_plugin_path_hash[32];  /* Sha256 hash of plugin paths */
+  unsigned char storage_plugin_path_hash[32];  /* Sha3 hash of plugin paths */
 } Globals;
 
 
@@ -119,7 +119,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
 
   /* ...otherwise, if any plugin path has changed, reload all plugins
      and try again */
-  if (pathshash(hash, sizeof(hash), &info->paths) == 0) {
+  if (pathshash(hash, sizeof(hash), &info->paths, DSL_EXT) == 0) {
 
     if (memcmp(g->storage_plugin_path_hash, hash, sizeof(hash)) != 0) {
       plugin_load_all(info);
@@ -138,7 +138,6 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   {
     int n=0, r;
     const char *p, **paths = dlite_storage_plugin_paths();
-    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT, ";
     size_t size=0, m=0;
     char *buf=NULL;
     r = asnpprintf(&buf, &size, m, "cannot find storage plugin for driver "
@@ -150,6 +149,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
     }
 
 #ifdef WITH_PYTHON
+    char *submsg = (dlite_use_build_root()) ? "" : "DLITE_ROOT, ";
     FUPaths *ppaths = dlite_python_storage_paths();
     FUIter *iter = fu_startmatch("*.py", ppaths);
     const char **failed_paths;
@@ -160,6 +160,7 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       r = asnpprintf(&buf, &size, m, "   - %s\n", p);
       if (r >= 0) m += r;
     }
+    fu_endmatch(iter);
 
     if ((failed_paths = dlite_python_storage_failed_paths())) {
       r = asnpprintf(&buf, &size, m,
@@ -178,15 +179,16 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       }
     }
 
-#endif
     if (n <= 1)
       m += asnpprintf(&buf, &size, m,
                       "   Are the required Python packages installed or %s\n"
                       "   DLITE_STORAGE_PLUGIN_DIRS or "
                       "DLITE_PYTHON_STORAGE_PLUGIN_DIRS\n"
                       "   environment variables set?", submsg);
-    errx(1, "%s", buf);
+    errx(dliteStorageOpenError, "%s", buf);
+#endif
     free(buf);
+
   }
   return NULL;
 }

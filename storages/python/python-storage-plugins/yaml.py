@@ -29,10 +29,11 @@ class yaml(dlite.DLiteStorageBase):
                 - `w`: Truncate existing file or create new file.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
-                If "auto" (default) the form will be inferred automatically.
+              If "auto" (default) the form will be inferred automatically.
+            - `with_uuid`: Whether to include UUID when saving.
         """
         self.options = Options(
-            options, defaults="mode=a;soft7=true;single=auto"
+            options, defaults="mode=a;soft7=true;single=auto;with_uuid=false"
         )
         self.readable = "r" in self.options.mode
         self.writable = "r" != self.options.mode
@@ -51,6 +52,7 @@ class yaml(dlite.DLiteStorageBase):
             if self.options.single == "auto"
             else dlite.asbool(self.options.single)
         )
+        self.with_uuid = dlite.asbool(self.options.with_uuid)
 
     def flush(self):
         """Flush cached data to storage."""
@@ -95,7 +97,8 @@ class yaml(dlite.DLiteStorageBase):
         """
         self._data[inst.uuid] = inst.asdict(
             soft7=dlite.asbool(self.options.soft7),
-            uuid=self.single,
+            single=True,
+            uuid=self.with_uuid,
         )
         self.flushed = False
 
@@ -127,7 +130,7 @@ class yaml(dlite.DLiteStorageBase):
             yield uuid
 
     @classmethod
-    def from_bytes(cls, buffer, id=None):
+    def from_bytes(cls, buffer, id=None, options=None):
         """Load instance with given `id` from `buffer`.
 
         Arguments:
@@ -145,19 +148,28 @@ class yaml(dlite.DLiteStorageBase):
         )
 
     @classmethod
-    def to_bytes(cls, inst, soft7=True, with_uuid=False):
+    def to_bytes(cls, inst, options=None):
         """Save instance `inst` to bytes (or bytearray) object.  Optional.
 
         Arguments:
             inst: Instance to save.
-            soft7: Whether to structure metadata as SOFT7.
-            with_uuid: Whether to include UUID in the output.
+            options: Supported options:
+            - `soft7`: Whether to structure metadata as SOFT7.
+            - `with_uuid`: Whether to include UUID in the output.
+            - `single`: Whether to include UUID in the output.
 
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
         """
+        opts = Options(
+            options, defaults="soft7=true;with_uuid=false;single=true"
+        )
         return pyyaml.safe_dump(
-            inst.asdict(soft7=soft7, uuid=with_uuid),
+            inst.asdict(
+                soft7=dlite.asbool(opts.soft7),
+                uuid=dlite.asbool(opts.with_uuid),
+                single=dlite.asbool(opts.single),
+            ),
             default_flow_style=False,
             sort_keys=False,
         ).encode()

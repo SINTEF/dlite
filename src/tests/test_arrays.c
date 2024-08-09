@@ -15,14 +15,14 @@ DLiteArray *arr;
 MU_TEST(test_array_create)
 {
   size_t i;
-  size_t ndims=2, dims[]={3, 4};
+  size_t ndims=2, shape[]={3, 4};
   for (i=0; i<countof(data); i++) data[i] = i;
   mu_check((arr = dlite_array_create(data, dliteInt, sizeof(int),
-				     ndims, dims)));
+				     ndims, shape)));
   printf("\n");
   dlite_array_printf(stdout, arr, 2, 0);
   printf("ndims:   %d\n", arr->ndims);
-  printf("dims:    [%2d, %2d]\n", (int)arr->dims[0], (int)arr->dims[1]);
+  printf("shape:    [%2d, %2d]\n", (int)arr->shape[0], (int)arr->shape[1]);
   printf("strides: [%2d, %2d]\n", arr->strides[0], arr->strides[1]);
   printf("\n");
 }
@@ -85,8 +85,8 @@ MU_TEST(test_array_slice)
 
   printf("\n");
   a = dlite_array_slice(arr, start, stop, NULL);
-  mu_assert_int_eq(3, a->dims[0]);
-  mu_assert_int_eq(2, a->dims[1]);
+  mu_assert_int_eq(3, a->shape[0]);
+  mu_assert_int_eq(2, a->shape[1]);
   mu_assert_int_eq(16, a->strides[0]);
   mu_assert_int_eq(4, a->strides[1]);
   mu_assert_int_eq(1, *((int *)dlite_array_vindex(a, 0, 0)));
@@ -95,8 +95,8 @@ MU_TEST(test_array_slice)
 
   printf("\n");
   a = dlite_array_slice(arr, NULL, NULL, step);
-  mu_assert_int_eq(3, a->dims[0]);
-  mu_assert_int_eq(2, a->dims[1]);
+  mu_assert_int_eq(3, a->shape[0]);
+  mu_assert_int_eq(2, a->shape[1]);
   mu_assert_int_eq(16, a->strides[0]);
   mu_assert_int_eq(8, a->strides[1]);
   mu_assert_int_eq(0, *((int *)dlite_array_vindex(a, 0, 0)));
@@ -105,8 +105,8 @@ MU_TEST(test_array_slice)
 
   printf("\n");
   a = dlite_array_slice(arr, start, NULL, step);
-  mu_assert_int_eq(3, a->dims[0]);
-  mu_assert_int_eq(2, a->dims[1]);
+  mu_assert_int_eq(3, a->shape[0]);
+  mu_assert_int_eq(2, a->shape[1]);
   mu_assert_int_eq(16, a->strides[0]);
   mu_assert_int_eq(8, a->strides[1]);
   mu_assert_int_eq(1, *((int *)dlite_array_vindex(a, 0, 0)));
@@ -115,8 +115,8 @@ MU_TEST(test_array_slice)
 
   printf("\n");
   a = dlite_array_slice(arr, NULL, stop, step);
-  mu_assert_int_eq(3, a->dims[0]);
-  mu_assert_int_eq(2, a->dims[1]);
+  mu_assert_int_eq(3, a->shape[0]);
+  mu_assert_int_eq(2, a->shape[1]);
   mu_assert_int_eq(16, a->strides[0]);
   mu_assert_int_eq(8, a->strides[1]);
   mu_assert_int_eq(0, *((int *)dlite_array_vindex(a, 0, 0)));
@@ -127,8 +127,8 @@ MU_TEST(test_array_slice)
 
   printf("\n");
   a = dlite_array_slice(arr, NULL, NULL, step);
-  mu_assert_int_eq(3, a->dims[0]);
-  mu_assert_int_eq(4, a->dims[1]);
+  mu_assert_int_eq(3, a->shape[0]);
+  mu_assert_int_eq(4, a->shape[1]);
   mu_assert_int_eq(16, a->strides[0]);
   mu_assert_int_eq(-4, a->strides[1]);
   mu_assert_int_eq(3, *((int *)dlite_array_vindex(a, 0, 0)));
@@ -139,8 +139,8 @@ MU_TEST(test_array_slice)
 
   printf("\n");
   a = dlite_array_slice(arr, start, NULL, step);
-  mu_assert_int_eq(3, a->dims[0]);
-  mu_assert_int_eq(4, a->dims[1]);
+  mu_assert_int_eq(3, a->shape[0]);
+  mu_assert_int_eq(4, a->shape[1]);
   mu_assert_int_eq(16, a->strides[0]);
   mu_assert_int_eq(-4, a->strides[1]);
   mu_assert_int_eq(3, *((int *)dlite_array_vindex(a, 0, 0)));
@@ -160,13 +160,13 @@ MU_TEST(test_array_slice)
 
   dlite_array_printf(stdout, a, 2, 0);
   printf("ndims:   %d\n", a->ndims);
-  printf("dims:    [%2d, %2d]\n", (int)a->dims[0], (int)a->dims[1]);
+  printf("shape:    [%2d, %2d]\n", (int)a->shape[0], (int)a->shape[1]);
   printf("strides: [%2d, %2d]\n", a->strides[0], a->strides[1]);
   printf("\n");
 
 
-  mu_assert_int_eq(2, a->dims[0]);
-  mu_assert_int_eq(3, a->dims[1]);
+  mu_assert_int_eq(2, a->shape[0]);
+  mu_assert_int_eq(3, a->shape[1]);
   mu_assert_int_eq(32, a->strides[0]);
   mu_assert_int_eq(-4, a->strides[1]);
   mu_assert_int_eq(2, *((int *)dlite_array_vindex(a, 0, 0)));
@@ -178,9 +178,9 @@ MU_TEST(test_array_slice)
 MU_TEST(test_array_reshape)
 {
   int ndims = 4;
-  size_t dims[] = {2, 1, 3, 2};
+  size_t shape[] = {2, 1, 3, 2};
   DLiteArray *a;
-  mu_check((a = dlite_array_reshape(arr, ndims, dims)));
+  mu_check((a = dlite_array_reshape(arr, ndims, shape)));
   mu_check(0 != dlite_array_is_continuous(a));
   //printf("\nreshaped:\n");
   //dlite_array_printf(stdout, a, -1, -1);

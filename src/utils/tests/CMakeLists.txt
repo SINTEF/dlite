@@ -29,6 +29,7 @@ set(tests
   test_jstore
   test_bson
   test_session
+  test_rng
 
   tgen_example
   )

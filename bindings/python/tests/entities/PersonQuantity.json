@@ -1,0 +1,36 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/PersonQuantity",
+  "description": "A example to work with quantity.",
+  "dimensions": {
+    "N": "Number of points."
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name."
+    },
+    "age": {
+      "type": "float",
+      "unit": "years",
+      "description": "Age of person."
+    },
+    "length": {
+      "type": "float",
+      "unit": "cm",
+      "description": "Length."
+    },
+    "temperature": {
+      "type": "float",
+      "unit": "degC",
+      "description": "Temperature."
+    },
+    "stress": {
+      "type": "float",
+      "unit": "MPa",
+      "shape": [
+        "N"
+      ],
+      "description": "Stress curve."
+    }
+  }
+}

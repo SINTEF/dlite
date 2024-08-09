@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.4.5
+  VERSION 0.5.16
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -241,6 +241,32 @@ if(WITH_PYTHON)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
+  #
+  if(DEFINED ENV{VIRTUAL_ENV})
+    message(STATUS "Detected virtual environment $ENV{VIRTUAL_ENV}")
+
+    if(NOT Python3_FIND_VIRTUALENV)
+      message(STATUS "Setting Python3_FIND_VIRTUALENV=ONLY")
+      set(Python3_FIND_VIRTUALENV=ONLY)
+    endif()
+
+    if(NOT PYTHON_VERSION)
+      find_program(
+        python_exe
+        NAMES python python3
+        PATHS $ENV{VIRTUAL_ENV}/bin
+        REQUIRED
+        NO_DEFAULT_PATH
+      )
+      execute_process(
+        COMMAND ${python_exe} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}', end='')"
+        OUTPUT_VARIABLE pyversion
+      )
+      message(STATUS "Setting PYTHON_VERSION=${pyversion}")
+      set(PYTHON_VERSION "${pyversion}")
+    endif()
+  endif()
+
   # Find Python package
   set(CMAKE_CROSSCOMPILING_EMULATOR ${RUNNER})
   if (PYTHON_VERSION)
@@ -345,7 +371,8 @@ if(MEMORYCHECK_COMMAND)
     add_custom_command(
       OUTPUT ${logfile}
       COMMAND ${CMAKE_COMMAND}
-        -E env PYTHONMALLOC=malloc ${MEMORYCHECK_COMMAND}
+        -E env PYTHONMALLOC=malloc DLITE_ATEXIT_FREE=
+        -- ${MEMORYCHECK_COMMAND}
         --leak-check=yes
         --show-leak-kinds=all
         --keep-debuginfo=yes
@@ -398,10 +425,20 @@ find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
   add_test(
     NAME static-code-analysis
-    COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${CPPCHECK}
       --language=c -q --force --error-exitcode=2 --inline-suppr
       -i build -i python
       -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
+      ${dlite_SOURCE_DIR}/src
+      ${dlite_SOURCE_DIR}/storages
+      ${dlite_SOURCE_DIR}/tools
+      ${dlite_SOURCE_DIR}/bindings
+      ${dlite_SOURCE_DIR}/examples
+      ${dlite_BINARY_DIR}/src
+      ${dlite_BINARY_DIR}/storates
+      ${dlite_BINARY_DIR}/tools
+      ${dlite_BINARY_DIR}/bindings
+      #${dlite_BINARY_DIR}/examples
     )
 endif()
 
@@ -813,8 +850,25 @@ install(
   DESTINATION "share/cmake/Modules"
   )
 
-if(CROSS_TARGET)
-  # When cross-compiling, include the python in the distribution
+# Patch virtualenv activate.sh script
+if(DEFINED ENV{VIRTUAL_ENV})
+  find_program(BASH bash)
+  find_program(PATCH patch)
+  install(
+    CODE "execute_process(
+              COMMAND ${BASH} ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
+              OUTPUT_QUIET
+         )"
+  )
+  install(
+    PROGRAMS ${dlite_SOURCE_DIR}/cmake/patch-activate.sh
+    TYPE BIN
+  )
+endif()
+
+
+# When cross-compiling, include Python binaries in the distribution
+if(CROSS_TARGET AND HAVE_PYTHON)
   set(pyver "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
   install(
     FILES
@@ -827,5 +881,20 @@ if(CROSS_TARGET)
   install(
     DIRECTORY ${TOOLCHAIN_LIBDIR}/python${pyver}
     DESTINATION "lib"
+    )
+endif()
+
+
+# Uninstall
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND}
+      -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+      -P ${CMAKE_CURRENT_BINARY_DIR}/uninstall.cmake
     )
 endif()

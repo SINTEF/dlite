@@ -10,7 +10,7 @@
   data point).
 
   Note that the type (`dtype` and `size`) concerns a single data
-  point.  The dimensionality (`ndims` and `dims`) of a property comes
+  point.  The dimensionality (`ndims` and `shape`) of a property comes
   in addition and is not treated by the functions in this file.
 
   The properties can have most of the basic types found in C, with
@@ -107,10 +107,11 @@ typedef enum _DLiteType {
 
 /** Some flags for printing or scanning dlite types */
 typedef enum _DLiteTypeFlag {
-  dliteFlagDefault = 0,  /*!< Default (json) */
+  dliteFlagDefault=0,    /*!< Default (json) */
   dliteFlagRaw=1,        /*!< Raw unquoted input/output */
   dliteFlagQuoted=2,     /*!< Quoted input/output */
-  dliteFlagStrip=8       /*!< Strip initial and final spaces */
+  dliteFlagStrip=4,      /*!< Strip initial and final spaces */
+  dliteFlagCompactRel=8  /*!< Write relations with no newlines */
 } DLiteTypeFlag;
 
 

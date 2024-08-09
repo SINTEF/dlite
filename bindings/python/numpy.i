@@ -1984,7 +1984,7 @@
   (PyObject* array = NULL)
 {
   npy_intp dims[1] = { $1_dim0 };
-  array = PyArray_SimpleNew(1, dims, DATA_TYPECODE);
+  array = PyArray_SimpleNew(1, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2013,7 +2013,7 @@
   $2 = (DIM_TYPE) PyLong_AsSsize_t($input);
   if ($2 == -1 && PyErr_Occurred()) SWIG_fail;
   dims[0] = (npy_intp) $2;
-  array = PyArray_SimpleNew(1, dims, DATA_TYPECODE);
+  array = PyArray_SimpleNew(1, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
 }
@@ -2042,7 +2042,7 @@
   $1 = (DIM_TYPE) PyLong_AsSsize_t($input);
   if ($1 == -1 && PyErr_Occurred()) SWIG_fail;
   dims[0] = (npy_intp) $1;
-  array = PyArray_SimpleNew(1, dims, DATA_TYPECODE);
+  array = PyArray_SimpleNew(1, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $2 = (DATA_TYPE*) array_data(array);
 }
@@ -2060,7 +2060,7 @@
   (PyObject* array = NULL)
 {
   npy_intp dims[2] = { $1_dim0, $1_dim1 };
-  array = PyArray_SimpleNew(2, dims, DATA_TYPECODE);
+  array = PyArray_SimpleNew(2, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2078,7 +2078,7 @@
   (PyObject* array = NULL)
 {
   npy_intp dims[3] = { $1_dim0, $1_dim1, $1_dim2 };
-  array = PyArray_SimpleNew(3, dims, DATA_TYPECODE);
+  array = PyArray_SimpleNew(3, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2096,7 +2096,7 @@
   (PyObject* array = NULL)
 {
   npy_intp dims[4] = { $1_dim0, $1_dim1, $1_dim2, $1_dim3 };
-  array = PyArray_SimpleNew(4, dims, DATA_TYPECODE);
+  array = PyArray_SimpleNew(4, dims,DATA_TYPECODE);
   if (!array) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -2124,7 +2124,7 @@
   (DATA_TYPE** ARGOUTVIEW_ARRAY1, DIM_TYPE* DIM1)
 {
   npy_intp dims[1] = { *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2145,7 +2145,7 @@
   (DIM_TYPE* DIM1, DATA_TYPE** ARGOUTVIEW_ARRAY1)
 {
   npy_intp dims[1] = { *$1 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, dims, DATA_TYPECODE, (void*)(*$2));
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$2));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2167,7 +2167,7 @@
   (DATA_TYPE** ARGOUTVIEW_ARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
   npy_intp dims[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2189,7 +2189,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEW_ARRAY2)
 {
   npy_intp dims[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$3));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2211,7 +2211,7 @@
   (DATA_TYPE** ARGOUTVIEW_FARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
   npy_intp dims[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2233,7 +2233,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEW_FARRAY2)
 {
   npy_intp dims[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$3));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2257,7 +2257,7 @@
   (DATA_TYPE** ARGOUTVIEW_ARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
   npy_intp dims[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2281,7 +2281,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEW_ARRAY3)
 {
   npy_intp dims[3] = { *$1, *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$4));
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2305,7 +2305,7 @@
   (DATA_TYPE** ARGOUTVIEW_FARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
   npy_intp dims[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2329,7 +2329,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEW_FARRAY3)
 {
   npy_intp dims[3] = { *$1, *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$4));
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2354,7 +2354,7 @@
   (DATA_TYPE** ARGOUTVIEW_ARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
   npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2379,7 +2379,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEW_ARRAY4)
 {
   npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$5));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2404,7 +2404,7 @@
   (DATA_TYPE** ARGOUTVIEW_FARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
   npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2429,7 +2429,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEW_FARRAY4)
 {
   npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$5));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2454,7 +2454,7 @@
   (DATA_TYPE** ARGOUTVIEWM_ARRAY1, DIM_TYPE* DIM1)
 {
   npy_intp dims[1] = { *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2488,7 +2488,7 @@
   (DIM_TYPE* DIM1, DATA_TYPE** ARGOUTVIEWM_ARRAY1)
 {
   npy_intp dims[1] = { *$1 };
-  PyObject* obj = PyArray_SimpleNewFromData(1, dims, DATA_TYPECODE, (void*)(*$2));
+  PyObject* obj = PyArray_SimpleNewFromData(1, dims,DATA_TYPECODE, (void*)(*$2));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2523,7 +2523,7 @@
   (DATA_TYPE** ARGOUTVIEWM_ARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
   npy_intp dims[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2558,7 +2558,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEWM_ARRAY2)
 {
   npy_intp dims[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$3));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2593,7 +2593,7 @@
   (DATA_TYPE** ARGOUTVIEWM_FARRAY2, DIM_TYPE* DIM1, DIM_TYPE* DIM2)
 {
   npy_intp dims[2] = { *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2628,7 +2628,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DATA_TYPE** ARGOUTVIEWM_FARRAY2)
 {
   npy_intp dims[2] = { *$1, *$2 };
-  PyObject* obj = PyArray_SimpleNewFromData(2, dims, DATA_TYPECODE, (void*)(*$3));
+  PyObject* obj = PyArray_SimpleNewFromData(2, dims,DATA_TYPECODE, (void*)(*$3));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2665,7 +2665,7 @@
   (DATA_TYPE** ARGOUTVIEWM_ARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
   npy_intp dims[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2702,7 +2702,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEWM_ARRAY3)
 {
   npy_intp dims[3] = { *$1, *$2, *$3 };
-  PyObject* obj= PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$4));
+  PyObject* obj= PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2739,7 +2739,7 @@
   (DATA_TYPE** ARGOUTVIEWM_FARRAY3, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3)
 {
   npy_intp dims[3] = { *$2, *$3, *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2776,7 +2776,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DATA_TYPE** ARGOUTVIEWM_FARRAY3)
 {
   npy_intp dims[3] = { *$1, *$2, *$3 };
-  PyObject* obj = PyArray_SimpleNewFromData(3, dims, DATA_TYPECODE, (void*)(*$4));
+  PyObject* obj = PyArray_SimpleNewFromData(3, dims,DATA_TYPECODE, (void*)(*$4));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2814,7 +2814,7 @@
   (DATA_TYPE** ARGOUTVIEWM_ARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
   npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2852,7 +2852,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEWM_ARRAY4)
 {
   npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$5));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array) SWIG_fail;
@@ -2890,7 +2890,7 @@
   (DATA_TYPE** ARGOUTVIEWM_FARRAY4, DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4)
 {
   npy_intp dims[4] = { *$2, *$3, *$4 , *$5 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$1));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$1));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;
@@ -2928,7 +2928,7 @@
   (DIM_TYPE* DIM1, DIM_TYPE* DIM2, DIM_TYPE* DIM3, DIM_TYPE* DIM4, DATA_TYPE** ARGOUTVIEWM_FARRAY4)
 {
   npy_intp dims[4] = { *$1, *$2, *$3 , *$4 };
-  PyObject* obj = PyArray_SimpleNewFromData(4, dims, DATA_TYPECODE, (void*)(*$5));
+  PyObject* obj = PyArray_SimpleNewFromData(4, dims,DATA_TYPECODE, (void*)(*$5));
   PyArrayObject* array = (PyArrayObject*) obj;
 
   if (!array || !require_fortran(array)) SWIG_fail;

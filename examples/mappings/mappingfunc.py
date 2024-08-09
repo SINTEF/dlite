@@ -47,9 +47,9 @@ ts.add_triples(
 )
 
 # Add mappings for the input data models -- data provider
-ts.add_mapsTo(DON.ChemicalSymbol, AT.symbols)
-ts.add_mapsTo(EMMO.PotentialEnergy, RES.potential_energy)
-ts.add_mapsTo(EMMO.Force, RES.forces)
+ts.map(AT.symbols, DON.ChemicalSymbol)
+ts.map(RES.potential_energy, EMMO.PotentialEnergy)
+ts.map(RES.forces, EMMO.Force)
 
 
 # 2. Map output datamodels -- modeller + ontologist
@@ -64,33 +64,17 @@ ts.add_triples(
 )
 
 # Add mappings for the output data model -- modeller
-ts.add_mapsTo(EMMO.PotentialEnergy, MOL.energy)
-ts.add_mapsTo(DON.MaxForce, MOL.maxforce)
-ts.add_mapsTo(DON.Formula, MOL.formula)
+ts.map(MOL.energy, EMMO.PotentialEnergy)
+ts.map(MOL.maxforce, DON.MaxForce)
+ts.map(MOL.formula, DON.Formula)
+
+
+
 
 
 # 3. Add mapping functions -- ontologist
 # --------------------------------------
-
-# TODO: make these globally available as an installable package
-def formula(symbols):
-    """Convert a list of atomic symbols to a chemical formula."""
-    lst = symbols.tolist()
-    return "".join(f"{c}{lst.count(c)}" for c in set(lst))
-
-
-def norm(array, axis=-1):
-    """Returns the norm array along the given axis (default the last)."""
-    # Note that `array` is a Quantity object.  The returned value
-    # will also be a Quantity object with the same unit.  Hence, the
-    # unit is always handled explicitly.  This makes it possible for
-    # conversion function to change unit as well.
-    return np.sqrt(np.sum(array**2, axis=axis))
-
-
-def max(vector):
-    """Returns the largest element."""
-    return vector.max()
+from mappingfunc_module import formula, maximum, norm
 
 
 # Add mappings for conversion functions -- ontologist
@@ -98,27 +82,22 @@ ts.add_function(
     formula,
     expects=[DON.ChemicalSymbol],
     returns=[DON.Formula],
-    standard="fno",
 )
 ts.add_function(
     norm,
     expects=[EMMO.Force],
     returns=[DON.ForceNorm],
-    standard="fno",
 )
 ts.add_function(
-    max,
+    maximum,
     expects=[DON.ForceNorm],
     returns=[DON.MaxForce],
-    standard="fno",
 )
 
 
 # 4. Instantiate a molecule -- modeller
 # -------------------------------------
-molecule, = coll.get_instances(
-    metaid=MOL, property_mappings=True, function_repo=ts.function_repo,
-)
+molecule, = coll.get_instances(metaid=MOL, property_mappings=True)
 
 print("Molecule instance:")
 print(molecule)

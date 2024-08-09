@@ -15,25 +15,25 @@
         {
             "name": "reactants",
             "type": "string",
-            "dims": ["nreactants"],
+            "shape": ["nreactants"],
             "description": "Name of the reactant."
         },
         {
             "name": "products",
             "type": "string",
-            "dims": ["nproducts"],
+            "shape": ["nproducts"],
             "description": "Name of the product."
         },
         {
             "name": "reactant_stoichiometric_coefficient",
             "type": "double",
-            "dims": ["nreactants"],
+            "shape": ["nreactants"],
             "description": "Stoichiometric coefficient of the reactant."
         },
         {
             "name": "product_stoichiometric_coefficient",
             "type": "double",
-            "dims": ["nproducts"],
+            "shape": ["nproducts"],
             "description": "Stoichiometric coefficient of the product."
         },
 	{

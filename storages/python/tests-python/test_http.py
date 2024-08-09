@@ -1,3 +1,8 @@
+import os
+import subprocess
+
+current_branch = 'master'
+
 try:
     import requests
 except ModuleNotFoundError:
@@ -7,9 +12,10 @@ except ModuleNotFoundError:
 import dlite
 
 
-url = "https://raw.githubusercontent.com/SINTEF/dlite/master/storages/python/tests-python/input/test_meta.json"
+url = f"https://raw.githubusercontent.com/SINTEF/dlite/{current_branch}/storages/python/tests-python/input/test_meta.json"
 
 meta = dlite.Instance.from_location("http", url)
+
 
 assert str(meta) == """
 {
@@ -49,3 +55,16 @@ assert str(meta) == """
   }
 }
 """.strip()
+
+
+# Test fetching datamodel from http://onto-ns.com/
+#
+# TODO: Replace the entities below with a dedicated test entity that
+#       will not be cleaned up.
+uri = "http://onto-ns.com/meta/0.4/HallPetch"
+HallPetch = dlite.get_instance(uri)
+assert HallPetch.uri == uri
+
+uri = "http://onto-ns.com/meta/0.3/Chemistry"
+Chemistry = dlite.get_instance(uri)
+assert Chemistry.uri == uri

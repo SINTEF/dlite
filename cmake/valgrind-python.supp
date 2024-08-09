@@ -594,6 +594,70 @@
    fun:_PyEval_EvalFrameDefault
 }
 
+{
+   Ignore conditional jump depends on uninitialised variable
+   Memcheck:Cond
+   fun:__wcsncpy_avx2
+   ...
+   fun:_PyPathConfig_Calculate
+   ...
+   fun:_PyPathConfig_Init
+   ...
+   fun:_PyCoreConfig_Read
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   Invalid read in main (py39)
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   fun:_PyPathConfig_Calculate
+   fun:_PyPathConfig_Init
+   fun:_PyCoreConfig_Read
+   ...
+   fun:_Py_UnixMain
+}
+
+{
+   Invalid read in main (py311)
+   Memcheck:Addr32
+   fun:__wcsncpy_avx2
+   ...
+   fun:_PyObject_MakeTpCall
+   fun:_PyEval_EvalFrameDefault
+   ...
+   fun:PyEval_EvalCode
+   ...
+   fun:Py_InitializeFromConfig
+   ...
+   fun:Py_BytesMain
+}
+
+{
+   Leak in numpy random_bit_generator (py311, alvis)
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   fun:call_init
+   fun:call_init
+   fun:_dl_init
+   fun:_dl_catch_exception
+}
+
+{
+   Leak in pydantic initialisation (py311)
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   ...
+   fun:PyInit__pydantic_core
+}
+
+
 # ------------------------------------
 # Python plugins
 # ------------------------------------
@@ -965,7 +1029,6 @@
    ...
    fun:dlite_pyembed_get_instance
 }
-
 
 
 # ------------------------------------------

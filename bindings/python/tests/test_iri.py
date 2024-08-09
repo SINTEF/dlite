@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import os
+from pathlib import Path
 
 import dlite
 
-thisdir = os.path.abspath(os.path.dirname(__file__))
 
-url = "json://" + thisdir + "/MyEntity.json" + "?mode=r"
+thisdir = Path(__file__).parent.absolute()
+entitydir = thisdir / "entities"
+dlite.storage_path.append(f"{entitydir}/*.json")
 
-E = dlite.Instance.from_url(url)
+E = dlite.Instance.from_url(url=f"json://{entitydir}/MyEntity.json?mode=r")
 E.iri = "http://emmo.info/emmo/EMMO_Physical"
 E.iri = None
 E.iri = "http://emmo.info/emmo/EMMO_Physical"

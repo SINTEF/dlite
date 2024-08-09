@@ -63,15 +63,15 @@
 
   The following table summarises the memory layout of an instance:
 
-  | segment         | nmemb             | size                  | offset                  |
-  | --------------- | ----------------- | --------------------- | ----------------------- |
-  | header          | 1                 | meta->headersize      | 0                       |
-  | dimensions      | meta->ndimensions | sizeof(size_t)        | meta->dimoffset         |
-  | properties      | meta->nproperties | [a]                   | meta->propoffsets       |
-  | relations       | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset         |
-  | propdims        | meta->npropdims   | sizeof(size_t)        | meta->propdimsoffset    |
-  | propdiminds [b] | nproperties       | sizeof(size_t)        | meta->propdimindsoffset |
-  | propoffsets [b] | nproperties       | sizeof(size_t)        | PROPOFFSETSOFFSET(meta) |
+  | segment         | nmemb             | size                  | offset                        |
+  | --------------- | ----------------- | --------------------- | ----------------------------- |
+  | header          | 1                 | meta->headersize      | 0                             |
+  | dimensions      | meta->ndimensions | sizeof(size_t)        | meta->dimoffset               |
+  | properties      | meta->nproperties | [a]                   | meta->propoffsets             |
+  | relations       | meta->nrelations  | sizeof(DLiteRelation) | meta->reloffset               |
+  | propdims        | meta->npropdims   | sizeof(size_t)        | meta->propdimsoffset          |
+  | propdiminds [b] | nproperties       | sizeof(size_t)        | meta->propdimindsoffset       |
+  | propoffsets [b] | nproperties       | sizeof(size_t)        | DLITE_PROPOFFSETSOFFSET(meta) |
 
     [a]: The size of properties depends on their `size` and whether
          they are dimensional or not.
@@ -307,7 +307,7 @@ struct _DLiteProperty {
   char *ref;          /*!< Reference to metadata URI for type=dliteRef. */
   int ndims;          /*!< Number of dimension of the described
                            data.  Zero if scalar. */
-  char **dims;        /*!< Array of dimension strings.  May be NULL. */
+  char **shape;        /*!< Array of dimension strings.  May be NULL. */
   char *unit;         /*!< Unit of the described data. May be NULL. */
   char *description;  /*!< Human described of the described data. */
 };
@@ -441,7 +441,7 @@ void dlite_instance_debug(const DLiteInstance *inst);
 
   Returns -1 on error.
  */
-size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims);
+size_t dlite_instance_size(const DLiteMeta *meta, const size_t *shape);
 
 /**
   Returns a newly allocated NULL-terminated array of string pointers
@@ -462,7 +462,7 @@ char** dlite_istore_get_uuids(int* nuuids);
 
 /**
   Returns a new dlite instance from Entiry `meta` and dimensions
-  `dims`.  The lengths of `dims` is found in `meta->ndims`.
+  `dims`.  The lengths of `dims` is found in `meta->_ndimensions`.
 
   The `id` argment may be NULL, a valid UUID or an unique identifier
   to this instance (e.g. an uri).  In the first case, a random UUID
@@ -628,7 +628,7 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
  */
 DLiteInstance *dlite_instance_memload(const char *driver,
                                       const unsigned char *buf, size_t size,
-                                      const char *id);
+                                      const char *id, const char *options);
 
 /**
   Stores instance `inst` to memory buffer `buf` of size `size`.
@@ -638,14 +638,15 @@ DLiteInstance *dlite_instance_memload(const char *driver,
   Returns a negative error code on error.
  */
 int dlite_instance_memsave(const char *driver, unsigned char *buf, size_t size,
-                           const DLiteInstance *inst);
+                           const DLiteInstance *inst, const char *options);
 
 /**
   Saves instance to a newly allocated memory buffer.
   Returns NULL on error.
  */
 unsigned char *dlite_instance_to_memory(const char *driver,
-                                        const DLiteInstance *inst);
+                                        const DLiteInstance *inst,
+                                        const char *options);
 
 /**
   Returns a pointer to instance UUID.
@@ -712,10 +713,10 @@ int dlite_instance_get_property_ndims_by_index(const DLiteInstance *inst,
                                                size_t i);
 
 /**
-  Returns size of dimension `j` in property `i` or -1 on error.
+  Returns size of shape `j` in property `i` or -1 on error.
  */
-int dlite_instance_get_property_dimsize_by_index(const DLiteInstance *inst,
-                                                 size_t i, size_t j);
+int dlite_instance_get_property_shape_by_index(const DLiteInstance *inst,
+                                               size_t i, size_t j);
 
 /**
   Returns a malloc'ed array of dimensions of property `i` or NULL on error.
@@ -895,9 +896,9 @@ int dlite_instance_sync_from_properties(DLiteInstance *inst);
 
 /**
   Updates the size of all dimensions in `inst`.  The new dimension
-  sizes are provided in `dims`, which must be of length
+  sizes are provided in `shape`, which must be of length
   `inst->ndimensions`.  Dimensions corresponding to negative elements
-  in `dims` will remain unchanged.
+  in `shape` will remain unchanged.
 
   All properties whos dimension are changed will be reallocated and
   new memory will be zeroed.  The values of properties with two or
@@ -991,7 +992,7 @@ int dlite_instance_copy_property_by_index(const DLiteInstance *inst, int i,
 /**
   Copies and possible type-cast value of property number `i` to memory
   pointed to by `dest` using `castfun`.  The destination memory is
-  described by arguments `type`, `size` `dims` and `strides`.  It must
+  described by arguments `type`, `size` `shape` and `strides`.  It must
   be large enough to hole all the data.
 
   If `castfun` is NULL, it defaults to dlite_type_copy_cast().
@@ -1002,7 +1003,7 @@ int dlite_instance_cast_property_by_index(const DLiteInstance *inst,
                                           int i,
                                           DLiteType type,
                                           size_t size,
-                                          const size_t *dims,
+                                          const size_t *shape,
                                           const int *strides,
                                           void *dest,
                                           DLiteTypeCast castfun);
@@ -1023,7 +1024,7 @@ int dlite_instance_assign_property(const DLiteInstance *inst, const char *name,
 /**
   Assigns property `i` by copying and possible type-cast memory
   pointed to by `src` using `castfun`.  The memory pointed to by `src`
-  is described by arguments `type`, `size` `dims` and `strides`.
+  is described by arguments `type`, `size` `shape` and `strides`.
 
   If `castfun` is NULL, it defaults to dlite_type_copy_cast().
 
@@ -1033,7 +1034,7 @@ int dlite_instance_assign_casted_property_by_index(const DLiteInstance *inst,
                                                    int i,
                                                    DLiteType type,
                                                    size_t size,
-                                                   const size_t *dims,
+                                                   const size_t *shape,
                                                    const int *strides,
                                                    const void *src,
                                                    DLiteTypeCast castfun);
@@ -1416,9 +1417,9 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr);
 
   The pointer `ptr` should point to the memory where the data is stored.
   The meaning and layout of the data is described by property `p`.
-  The actual sizes of the property dimension is provided by `dims`.  Use
+  The actual sizes of the property dimension is provided by `shape`.  Use
   dlite_instance_get_property_dims_by_index() or the DLITE_PROP_DIMS macro
-  for accessing `dims`.
+  for accessing `shape`.
 
   No more than `n` bytes are written to `dest` (incl. the terminating
   NUL).  Arrays will be written with a JSON-like syntax.
@@ -1434,7 +1435,7 @@ int dlite_property_add_dim(DLiteProperty *prop, const char *expr);
   negative value is returned.
  */
 int dlite_property_print(char *dest, size_t n, const void *ptr,
-                         const DLiteProperty *p, const size_t *dims,
+                         const DLiteProperty *p, const size_t *shape,
                          int width, int prec, DLiteTypeFlag flags);
 
 /**
@@ -1446,7 +1447,7 @@ int dlite_property_print(char *dest, size_t n, const void *ptr,
   Returns number or bytes written or a negative number on error.
  */
 int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
-                          const DLiteProperty *p, const size_t *dims,
+                          const DLiteProperty *p, const size_t *shape,
                           int width, int prec, DLiteTypeFlag flags);
 
 
@@ -1456,7 +1457,7 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
   The property is described by `p`.
 
   For arrays, `ptr` should points to the first element and will not be
-  not dereferenced.  Evaluated dimension sizes are given by `dims`.
+  not dereferenced.  Evaluated dimension sizes are given by `shape`.
 
   The `flags` provides some format options.  If zero (default) bools
   and strings are expected to be quoted.
@@ -1465,7 +1466,7 @@ int dlite_property_aprint(char **dest, size_t *n, size_t pos, const void *ptr,
   number on error.
  */
 int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
-                        const size_t *dims, DLiteTypeFlag flags);
+                        const size_t *shape, DLiteTypeFlag flags);
 
 
 /**
@@ -1481,7 +1482,7 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
         For arrays, `ptr` should points to the first element and will not
         be not dereferenced.
     - p: DLite property describing the data to scan.
-    - dims: Evaluated shape of property to scan.
+    - shape: Evaluated shape of property to scan.
     - flags: Format options.  If zero (default) strings are expected to be
         quoted.
 
@@ -1490,7 +1491,7 @@ int dlite_property_scan(const char *src, void *ptr, const DLiteProperty *p,
  */
 int dlite_property_jscan(const char *src, const jsmntok_t *item,
                          const char *key, void *ptr, const DLiteProperty *p,
-                         const size_t *dims, DLiteTypeFlag flags);
+                         const size_t *shape, DLiteTypeFlag flags);
 
 
 /** @} */

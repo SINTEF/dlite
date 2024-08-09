@@ -405,7 +405,7 @@ contains
     ! copy metaid in a C string
     call f_c_string(metaid, metaid_c)
 
-    ! copy dims in a C pointer (size_t*)
+    ! copy shape in a C pointer (size_t*)
     allocate(dims1(ndim))
     do i=1, ndim
        dims1(i) = dims(i)
@@ -530,7 +530,7 @@ contains
     ptr = dlite_instance_get_property_by_index_c(instance%cinst, i_c)
   end function dlite_instance_get_property_by_index
 
-  subroutine dlite_instance_get_property_dims_by_index(instance, i, dims, reverse)
+  subroutine dlite_instance_get_property_dims_by_index(instance, i, shape, reverse)
     class(DLiteInstance), intent(in)     :: instance
     integer, intent(in)                  :: i
     integer(kind=c_size_t)               :: i_c
@@ -538,24 +538,24 @@ contains
     integer(c_size_t), pointer           :: dims_p(:)
     integer(c_int)                       :: ndim_c
     integer(8)                           :: ndim, j
-    integer(8), allocatable, intent(out) :: dims(:)
+    integer(8), allocatable, intent(out) :: shape(:)
     logical, optional                    :: reverse
     i_c = i
     ndim_c = dlite_instance_get_property_ndims_by_index_c(instance%cinst, i_c)
     ndim = ndim_c
     ptr = dlite_instance_get_property_dims_by_index_c(instance%cinst, i_c)
     call c_f_pointer(ptr, dims_p, [ndim])
-    allocate(dims(ndim))
+    allocate( shape(ndim))
     if (present(reverse)) then
       if (reverse .and. (ndim .gt. 1)) then
         do j = 1, ndim
-          dims(j) = dims_p(ndim - j + 1)
+          shape(j) = dims_p(ndim - j + 1)
         end do
       else
-        dims = dims_p
+        shape = dims_p
       endif
     else
-      dims = dims_p
+      shape = dims_p
     endif
     call free_c(ptr)
   end subroutine dlite_instance_get_property_dims_by_index
@@ -726,16 +726,16 @@ contains
     character(*), dimension(*), intent(in) :: prop(:)
     type(c_ptr)                            :: cptr
     character(kind=c_char), pointer        :: prop_p(:,:)
-    integer(8), dimension(*), allocatable  :: dims(:), dims2(:)
+    integer(8), dimension(*), allocatable  :: shape(:), shape2(:)
     integer(8)                             :: i
 
-    call dlite_instance_get_property_dims_by_index(inst, index, dims)
-    allocate(dims2(2))
-    dims2(1) = len(prop(1))+1
-    dims2(2) = dims(1)
+    call dlite_instance_get_property_dims_by_index(inst, index, shape)
+    allocate(shape2(2))
+    shape2(1) = len(prop(1))+1
+    shape2(2) = shape(1)
     cptr = inst%get_property_by_index(index)
-    call c_f_pointer(cptr, prop_p, dims2)
-    do i = 1, dims(1)
+    call c_f_pointer(cptr, prop_p, shape2)
+    do i = 1, shape(1)
       call f_c_string(prop(i), prop_p(:,i))
     end do
 

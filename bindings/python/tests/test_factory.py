@@ -7,6 +7,9 @@ import dlite
 
 thisdir = Path(__file__).resolve().parent
 rootdir = thisdir.parent.parent.parent
+indir = thisdir / "input"
+outdir = thisdir / "output"
+entitydir = thisdir / "entities"
 
 
 class Person:
@@ -19,22 +22,20 @@ class Person:
         return "Person(%r, %r, %r)" % (self.name, self.age, list(self.skills))
 
 
-url = f"json://{thisdir}/Person.json"
-
 print("-- create: ExPerson")
-ExPerson = dlite.classfactory(Person, url=url)
+ExPerson = dlite.classfactory(Person, url=f"json://{entitydir}/Person.json")
 
 print("-- create: person1")
 person1 = Person("Jack Daniel", 42, ["distilling", "tasting"])
 
 print("-- create: person2")
 person2 = ExPerson("Jack Daniel", 42, ["distilling", "tasting"])
-person2.dlite_inst.save("json", "persons.json", "mode=w")
+person2.dlite_inst.save("json", outdir / "persons.json", "mode=w")
 
 # Print json-representation of person2 using dlite
 print(person2.dlite_inst.asjson(indent=2))
 
-inst = dlite.Instance.from_url("json://persons.json")
+inst = dlite.Instance.from_url(f"json://{outdir}/persons.json")
 person3 = dlite.instancefactory(Person, inst)
 
 person4 = dlite.objectfactory(person1, meta=person2.dlite_meta)

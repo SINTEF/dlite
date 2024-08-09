@@ -1,44 +1,6 @@
 *~
 
-external
-build*/
-install*/
 dist/
 wheelhouse/
-local/
-jansson
-hdf5-1.10.*
-.vscode/
-.gdb_history
-dlite.egg-info
-
-# Ignore personal modified bootstrap files
-bootstrap-win-*.sh
-
-# For Visual Studio
-.vs
-CMakeSettings.json
-
-# For qtcreator
-CMakeLists.txt.user
-
-# A convenient directory to place temporary stuff
-old
-
-out
-/dlite_python.egg-info
-/python/dlite_python.egg-info
-/python/.eggs
-
-# Generated build docker files
-Dockerfile-*linux*[^.template]
-
-# Units (pint) files
-units.cpython-*.pyc
-bindings/python/triplestore/__pycache__
-
-# Documentation
-pydoc/autoapi/
-
-# For connecting to a mongodb atlas instance
-mongodb-atlas_credentials.txt
+dlite_python.egg-info
+.eggs

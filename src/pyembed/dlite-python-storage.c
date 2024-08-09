@@ -11,6 +11,7 @@
 #include "config-paths.h"
 
 #include "utils/strutils.h"
+#include "pathshash.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
@@ -28,13 +29,13 @@ typedef PyObject *(*InstanceConverter)(DLiteInstance *inst);
 
 /* Global state for this module */
 typedef struct {
-  FUPaths paths;              /* Python storage paths */
-  int initialised;            /* Whether `paths` is initiated */
-  int modified;               /* Whether `paths` is modified */
-  PyObject *loaded_storages;  /* Cache with all loaded python storage plugins */
-  char **failed_paths;        /* NULL-terminated array of paths to storages
-                                 that fail to load. */
-  size_t failed_len;          /* Allocated length of `failed_paths`. */
+  FUPaths paths;                 /* Python storage paths */
+  int initialised;               /* Whether `paths` is initiated */
+  unsigned char paths_hash[32];  /* Sha3 hash of plugin paths */
+  PyObject *loaded_storages;     /* Cache with all loaded python storage plugins */
+  char **failed_paths;           /* NULL-terminated array of paths to storages
+                                    that fail to load. */
+  size_t failed_len;             /* Allocated length of `failed_paths`. */
 } PythonStorageGlobals;
 
 
@@ -102,7 +103,6 @@ FUPaths *dlite_python_storage_paths(void)
     if (s < 0) return dlite_err(1, "error initialising dlite python storage "
                                 "plugin dirs"), NULL;
     g->initialised = 1;
-    g->modified = 0;
 
     /* Make sure that dlite DLLs are added to the library search path */
     dlite_add_dll_path();
@@ -119,7 +119,6 @@ void dlite_python_storage_paths_clear(void)
   if (g->initialised) {
     fu_paths_deinit(&g->paths);
     g->initialised = 0;
-    g->modified = 0;
   }
 }
 
@@ -131,14 +130,9 @@ void dlite_python_storage_paths_clear(void)
 */
 int dlite_python_storage_paths_insert(const char *path, int n)
 {
-  int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_storage_paths())) return -1;
-  if ((stat = fu_paths_insert((FUPaths *)paths, path, n))) {
-    PythonStorageGlobals *g = get_globals();
-    g->modified = 1;
-  }
-  return stat;
+  return fu_paths_insert((FUPaths *)paths, path, n);
 }
 
 /*
@@ -147,14 +141,9 @@ int dlite_python_storage_paths_insert(const char *path, int n)
 */
 int dlite_python_storage_paths_append(const char *path)
 {
-  int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_storage_paths())) return -1;
-  if ((stat = fu_paths_append((FUPaths *)paths, path))) {
-    PythonStorageGlobals *g = get_globals();
-    g->modified = 1;
-  }
-  return stat;
+  return fu_paths_append((FUPaths *)paths, path);
 }
 
 /*
@@ -163,14 +152,9 @@ int dlite_python_storage_paths_append(const char *path)
 */
 int dlite_python_storage_paths_remove_index(int index)
 {
-  int stat;
   const FUPaths *paths;
   if (!(paths = dlite_python_storage_paths())) return -1;
-  if ((stat = fu_paths_remove_index((FUPaths *)paths, index))) {
-    PythonStorageGlobals *g = get_globals();
-    g->modified = 1;
-  }
-  return stat;
+  return fu_paths_remove_index((FUPaths *)paths, index);
 }
 
 /*
@@ -194,15 +178,17 @@ const char **dlite_python_storage_paths_get(void)
 void *dlite_python_storage_load(void)
 {
   PyObject *storagebase;
+  unsigned char hash[32];
+  const FUPaths *paths;
   PythonStorageGlobals *g = get_globals();
 
   if (!(storagebase = dlite_python_storage_base())) return NULL;
+  if (!(paths = dlite_python_storage_paths())) return NULL;
+  if (pathshash(hash, sizeof(hash), paths, "*.py")) return NULL;
 
-  if (!g->loaded_storages || g->modified) {
-    const FUPaths *paths;
+  if (!g->loaded_storages || memcmp(g->paths_hash, hash, sizeof(hash)) != 0) {
+    memcpy(g->paths_hash, hash, sizeof(hash));
     if (g->loaded_storages) dlite_python_storage_unload();
-    if (!(paths = dlite_python_storage_paths())) return NULL;
-
     g->loaded_storages = dlite_pyembed_load_plugins((FUPaths *)paths,
                                                     storagebase,
                                                     &g->failed_paths,

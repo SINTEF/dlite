@@ -25,7 +25,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Schema name."                             /* description */
   },
@@ -35,7 +35,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Schema version."                          /* description */
   },
@@ -45,7 +45,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Schema namespace."                        /* description */
   },
@@ -55,7 +55,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Description of schema."                   /* description */
   },
@@ -65,7 +65,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    sizeof(DLiteDimension),                    /* size */
    NULL,                                      /* ref */
    1,                                         /* ndims */
-   basic_metadata_schema_prop_dimensions_dims,/* dims */
+   basic_metadata_schema_prop_dimensions_dims,/* shape */
    NULL,                                      /* unit */
    "Schema dimensions."                       /* description */
   },
@@ -75,7 +75,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    sizeof(DLiteProperty),                     /* size */
    NULL,                                      /* ref */
    1,                                         /* ndims */
-   basic_metadata_schema_prop_properties_dims,/* dims */
+   basic_metadata_schema_prop_properties_dims,/* shape */
    NULL,                                      /* unit */
    "Schema properties."                       /* description */
   },
@@ -85,7 +85,7 @@ static DLiteProperty basic_metadata_schema_properties[] = {
    sizeof(DLiteRelation),                     /* size */
    NULL,                                      /* ref */
    1,                                         /* ndims */
-   basic_metadata_schema_prop_relations_dims, /* dims */
+   basic_metadata_schema_prop_relations_dims, /* shape */
    NULL,                                      /* unit */
    "Schema relations."                        /* description */
   }
@@ -193,7 +193,7 @@ static DLiteProperty entity_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Entity name."                             /* description */
   },
@@ -203,7 +203,7 @@ static DLiteProperty entity_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Entity version."                          /* description */
   },
@@ -213,7 +213,7 @@ static DLiteProperty entity_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Entity namespace."                        /* description */
   },
@@ -223,7 +223,7 @@ static DLiteProperty entity_schema_properties[] = {
    sizeof(char *),                            /* size */
    NULL,                                      /* ref */
    0,                                         /* ndims */
-   NULL,                                      /* dims */
+   NULL,                                      /* shape */
    NULL,                                      /* unit */
    "Description of entity."                   /* description */
   },
@@ -233,7 +233,7 @@ static DLiteProperty entity_schema_properties[] = {
    sizeof(DLiteDimension),                    /* size */
    NULL,                                      /* ref */
    1,                                         /* ndims */
-   entity_schema_prop_dimensions_dims,        /* dims */
+   entity_schema_prop_dimensions_dims,        /* shape */
    NULL,                                      /* unit */
    "Entity dimensions."                       /* description */
   },
@@ -243,7 +243,7 @@ static DLiteProperty entity_schema_properties[] = {
    sizeof(DLiteProperty),                     /* size */
    NULL,                                      /* ref */
    1,                                         /* ndims */
-   entity_schema_prop_properties_dims,        /* dims */
+   entity_schema_prop_properties_dims,        /* shape */
    NULL,                                      /* unit */
    "Entity properties."                       /* description */
   }
@@ -345,7 +345,7 @@ static DLiteProperty collection_entity_properties[] = {
     sizeof(DLiteRelation),                     /* size */
     NULL,                                      /* ref */
     1,                                         /* ndims */
-    collection_entity_prop_relations_dims,     /* dims */
+    collection_entity_prop_relations_dims,     /* shape */
     NULL,                                      /* unit */
     "Array of relations (s-p-o triples)."      /* description */
   }
@@ -451,7 +451,7 @@ const DLiteMeta *dlite_get_entity_schema()
 const DLiteMeta *dlite_get_collection_entity()
 {
   dlite_get_uuid(collection_entity.uuid, DLITE_COLLECTION_ENTITY);
-  if (!collection_entity._headersize)
+  if (!collection_entity._npropdims)
     dlite_meta_init((DLiteMeta *)&collection_entity);
   return (DLiteMeta *)&collection_entity;
 }

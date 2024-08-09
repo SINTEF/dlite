@@ -99,13 +99,11 @@ MU_TEST(test_iter)
 
 MU_TEST(test_freedata)
 {
-  int nref;
-
-  nref = inst->_refcount;
-  while (nref--) dlite_instance_decref(inst);
-
-  nref = meta->_refcount;
-  while (nref--) dlite_meta_decref(meta);
+  if (meta) {
+    dlite_meta_decref(meta);
+    dlite_meta_decref(meta);
+  }
+  if (inst) dlite_instance_decref(inst);
 }
 
 

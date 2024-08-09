@@ -16,7 +16,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "pages"
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -29,20 +29,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Python 3.9
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
 
       - name: Install system dependencies
         run: |
           sudo apt-get update --fix-missing
           sudo apt-get install \
+            libxml2-dev \
+            libxslt-dev \
             libhdf5-dev \
             swig4.0 \
             doxygen \
@@ -52,15 +54,20 @@ jobs:
             python3-dev \
             python3-numpy \
             python3-yaml
-            # python3-psycopg2
-          python3 -m pip install psycopg2-binary==2.9.5
+          #python3 -m pip install psycopg2-binary==2.9.5
+
+      - name: Available version of installed programs
+        run: |
+          python --version
+          swig -version
+          doxygen --version
+          dot -V
 
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
           pip install -U setuptools wheel
-          pip install -r requirements.txt
-          pip install -r requirements_doc.txt
+          pip install -r requirements.txt -r requirements_doc.txt
 
       - name: Run CMAKE
         run: |
@@ -75,7 +82,7 @@ jobs:
         working-directory: build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/doc/html/'
 
@@ -92,4 +99,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4

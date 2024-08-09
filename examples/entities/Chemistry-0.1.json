@@ -13,41 +13,41 @@
     },
     "elements": {
       "type": "string",
-      "dims": ["nelements"],
+      "shape": ["nelements"],
       "description": "Chemical symbol of each chemical element.  By convection the dependent element (e.g. Al) is listed first."
     },
     "phases": {
       "type": "string",
-      "dims": ["nphases"],
+      "shape": ["nphases"],
       "description": "Name of each phase."
     },
     "X0": {
       "type": "double",
       "unit": "atom-fraction",
-      "dims": ["nelements"],
+      "shape": ["nelements"],
       "description": "Nominal composition.  Should sum to one."
     },
     "Xp": {
       "type": "double",
       "unit": "atom-fraction",
-      "dims": ["nphases", "nelements"],
+      "shape": ["nphases", "nelements"],
       "description": "Average composition of each phase, excluding matrix.  Each row should sum to one."
     },
     "volfrac": {
       "type": "double",
-      "dims": ["nphases"],
+      "shape": ["nphases"],
       "description": "Volume fraction of each phase, excluding matrix."
     },
     "rpart": {
       "type": "double",
       "unit": "m",
-      "dims": ["nphases"],
+      "shape": ["nphases"],
       "description": "Average particle radius of each phase, excluding matrix."
     },
     "atvol": {
       "type": "double",
       "unit": "m^3",
-      "dims": ["nphases"],
+      "shape": ["nphases"],
       "description": "Average volume per atom for each phase."
     }
   }

@@ -31,6 +31,7 @@ from tripper.mappings.mappings import (
     InconsistentDimensionError,
     InconsistentTriplesError,
     MissingRelationError,
+    UnknownUnitError,
 )
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -77,9 +78,19 @@ def instance_routes(
         props = {prop.name: prop for prop in inst.meta["properties"]}
         for key, value in inst.properties.items():
             if props[key].unit:
+
+                try:
+                    q = quantity(1.0, props[key].unit)
+                except TypeError:
+                    raise UnknownUnitError(
+                        f"unknown unit '{props[key].unit}' in datamodel: "
+                        f"{inst.meta.uri}"
+                    )
+
                 sources[f"{inst.meta.uri}#{key}"] = quantity(
                     value, props[key].unit
                 )
+
             else:
                 sources[f"{inst.meta.uri}#{key}"] = value
 
@@ -102,8 +113,9 @@ def instance_routes(
 def instantiate_from_routes(
     meta: str | dlite.Metadata | Namespace,
     routes: dict[str, MappingStep],
-    routedict: dict[str, int] = None,
+    routedict: "Optional[dict[str, int]]" = None,
     id: "Optional[str]" = None,
+    default: "Optional[dlite.Instance]" = None,
     quantity: "Type[Quantity]" = Quantity,
 ) -> dlite.Instance:
     """Create a new instance of `meta` from selected mapping route returned
@@ -117,6 +129,8 @@ def instantiate_from_routes(
             the given property.  The default is to select the route with
             lowest cost.
         id: URI of instance to create.
+        default: A dlite instance with default values for unassigned
+            properties.
         quantity: Class implementing quantities with units.  Defaults to
             pint.Quantity.
 
@@ -129,22 +143,36 @@ def instantiate_from_routes(
     elif isinstance(meta, Namespace):
         meta = dlite.get_instance(str(meta).rstrip("/#"))
 
-    routedict = routedict or {}
+    if default and default.meta.uri != meta.uri:
+        raise f"`default` must be an instance of {meta.uri}"
+
+    if routedict is None:
+        routedict = {}
 
     values = {}
     for prop in meta["properties"]:
         if prop.name in routes:
             step = routes[prop.name]
-            values[prop.name] = step.eval(
-                routeno=routedict.get(prop.name),
-                unit=prop.unit,
-                quantity=quantity,
-            )
-    dims = infer_dimensions(meta, values)
-    inst = meta(dimensions=dims, id=id)
+            try:
+                value = step.eval(
+                    routeno=routedict.get(prop.name),
+                    unit=prop.unit,
+                    quantity=quantity,
+                )
+            except MissingRelationError:
+                if not default:
+                    raise
+                value = default[prop.name]
+        elif default:
+            value = default[prop.name]
 
-    for key, value in routes.items():
-        inst[key] = value.eval(magnitude=True, unit=meta.getprop(key).unit)
+        values[prop.name] = value
+
+    dimensions = infer_dimensions(meta, values)
+    inst = meta(dimensions=dimensions, id=id)
+
+    for key, value in values.items():
+        inst[key] = value
 
     return inst
 
@@ -156,6 +184,7 @@ def instantiate(
     routedict: "Optional[dict[str, int]]" = None,
     id: "Optional[str]" = None,
     allow_incomplete: bool = False,
+    default: "Optional[dlite.Instance]" = None,
     quantity: "Type[Quantity]" = Quantity,
     **kwargs,
 ) -> dlite.Instance:
@@ -178,6 +207,8 @@ def instantiate(
         id: URI of instance to create.
         allow_incomplete: Whether to allow not populating all properties
             of the returned instance.
+        default: A dlite instance with default values for unassigned
+            properties.  Implies `allow_incomplete=True`.
         quantity: Class implementing quantities with units.  Defaults to
             pint.Quantity.
 
@@ -185,6 +216,9 @@ def instantiate(
         New instance.
 
     """
+    if default:
+        allow_incomplete = True
+
     routes = instance_routes(
         meta=meta,
         instances=instances,
@@ -198,6 +232,7 @@ def instantiate(
         routes=routes,
         routedict=routedict,
         id=id,
+        default=default,
         quantity=quantity,
     )
 
@@ -208,6 +243,7 @@ def instantiate_all(
     triplestore: "Triplestore",
     routedict: "Optional[dict[str, int]]" = None,
     allow_incomplete: bool = False,
+    default: "Optional[dlite.Instance]" = None,
     quantity: "Type[Quantity]" = Quantity,
     **kwargs,
 ) -> "Generator[dlite.Instance, None, None]":
@@ -228,6 +264,8 @@ def instantiate_all(
             None to only consider the route with lowest cost.
         allow_incomplete: Whether to allow not populating all properties
             of the returned instance.
+        default: A dlite instance with default values for unassigned
+            properties.  Implies `allow_incomplete=True`.
         quantity: Class implementing quantities with units.  Defaults to
             pint.Quantity.
 
@@ -239,6 +277,9 @@ def instantiate_all(
         meta = dlite.get_instance(meta)
     elif isinstance(meta, Namespace):
         meta = dlite.get_instance(str(meta).rstrip("/#"))
+
+    if default:
+        allow_incomplete = True
 
     routes = instance_routes(
         meta=meta,
@@ -262,13 +303,23 @@ def instantiate_all(
             if routedict and name in routedict:
                 outer[name] = routedict[name]
                 yield outer
-            else:
+            elif name in routes:
                 step = routes[name]
-                for inner in range(step.number_of_routes()):
-                    outer[name] = inner
+                nroutes = step.number_of_routes()
+                if nroutes:
+                    for inner in range(nroutes):
+                        outer[name] = inner
+                        yield outer
+                elif allow_incomplete:
                     yield outer
+            elif allow_incomplete:
+                yield outer
 
     for route_dict in routedicts(len(property_names) - 1):
         yield instantiate_from_routes(
-            meta=meta, routes=routes, routedict=route_dict, quantity=quantity
+            meta=meta,
+            routes=routes,
+            routedict=route_dict,
+            default=default,
+            quantity=quantity,
         )
