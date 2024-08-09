@@ -50,6 +50,15 @@ On Ubuntu they can be installed with
     sudo apt install cppcheck valgrind
 
 
+Debugging (optional)
+--------------------
+Use [gdb] for debugging errors in the C code.  On Ubuntu it can be installed with
+
+    sudo apt install gdb
+
+See the [GDB Tutorial] for more information on how to use GDB.  Some DLite-specific tips can also be found in [Memory debugging].
+
+
 Building documentation (optional)
 ---------------------------------
 DLite uses [Sphinx] and [Doxygen] to generate documentation.
@@ -69,3 +78,6 @@ Ubuntu they can be installed with
 [Doxygen]: http://www.doxygen.org/
 [Sphinx]: https://www.sphinx-doc.org/
 [valgrind]: http://valgrind.org/
+[gdb]: https://sourceware.org/gdb/
+[GDB Tutorial]: https://www.gdbtutorial.com/
+[Memory debugging]: https://sintef.github.io/dlite/contributors_guidetips_and_tricks.html#memory-debugging

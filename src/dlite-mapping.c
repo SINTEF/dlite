@@ -109,8 +109,11 @@ DLiteMapping *mapping_create_rec(const char *output_uri, Instances *inputs,
       to clear the cache.
     */
     if (!cheapest || cost < lowest_cost) {
+      //dlite_mapping_plugin_free(cheapest);
       cheapest = api;
       lowest_cost = cost;
+    } else {
+      //dlite_mapping_plugin_free(api);
     }
   }
   if (!(api = cheapest)) goto fail;

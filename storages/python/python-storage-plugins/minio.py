@@ -18,9 +18,9 @@ class minio(dlite.DLiteStorageBase):
             options: Supported options:
             - `bucket_name`: Name of bucket.  Defaults to "dlite".
             - `access_key`: Access key (aka user ID) of your account in S3
-               service.
+              service.
             - `secret_key`: Secret Key (aka password) of your account in S3
-               service.
+              service.
             - `session_token`: Session token of your account in S3 service.
             - `secure`: Whether to use secure (TLS) connection to S3 service.
             - `region`: Region name of buckets in S3 service.
