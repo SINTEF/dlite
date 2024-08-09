@@ -27,7 +27,7 @@ Debugging tests failing inside docker on GitHub
         workon dlite
         pip install cibuildwheel
 
-3. To list all manylinux images for Python 3.7, do
+3. To list all manylinux images for Python 3.12, do
 
         cd dlite  # Root of DLite source directory
         CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
