@@ -46,7 +46,7 @@ static void free_globals(void *globals)
   if (g->initialised) fu_paths_deinit(&g->paths);
 
   /* Do not call Py_DECREF if we are in an atexit handler */
-  if (!dlite_globals_in_atexit() || getenv("DLITE_ATEXIT_FREE")) {
+  if (!dlite_globals_in_atexit()) {
     Py_XDECREF(g->loaded_storages);
     g->loaded_storages = NULL;
   }

@@ -118,7 +118,8 @@ MU_TEST(test_option_parse)
   free(options);
 
   old = err_set_stream(NULL);
-  mu_assert_int_eq(1, dlite_option_parse("name=C;mode=append", opts, 0));
+  mu_assert_int_eq(dliteValueError,
+                   dlite_option_parse("name=C;mode=append", opts, 0));
   err_set_stream(old);
 }
 

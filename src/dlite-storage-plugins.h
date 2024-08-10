@@ -379,7 +379,7 @@ typedef int (*DeleteInstance)(DLiteStorage *s, const char *id);
  */
 typedef DLiteInstance *(*MemLoadInstance)(const DLiteStoragePlugin *api,
                                           const unsigned char *buf, size_t size,
-                                          const char *id);
+                                          const char *id, const char *options);
 
 /**
   Stores instance `inst` to memory buffer `buf` of size `size`.
@@ -390,7 +390,8 @@ typedef DLiteInstance *(*MemLoadInstance)(const DLiteStoragePlugin *api,
  */
 typedef int (*MemSaveInstance)(const DLiteStoragePlugin *api,
                                unsigned char *buf, size_t size,
-                               const DLiteInstance *inst);
+                               const DLiteInstance *inst,
+                               const char *options);
 
 /** @} */
 

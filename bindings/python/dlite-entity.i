@@ -421,19 +421,21 @@ Call signatures:
   %feature("docstring",
            "Save instance to bytes using given storage driver.") to_bytes;
   %newobject to_bytes;
-  void to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN) {
+  void to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN,
+                const char *options=NULL) {
     unsigned char *buf=NULL;
-    int m, n = dlite_instance_memsave(driver, buf, 0, $self);
+    int m, n = dlite_instance_memsave(driver, buf, 0, $self, options);
     if (n < 0) {
       *ARGOUT_BYTES = NULL;
       *LEN = 0;
       return;
     }
-    if (!(buf = malloc(n))) {
+    if (!(buf = malloc(n+1))) {
       dlite_err(dliteMemoryError, "allocation failure");
       return;
     }
-    if ((m = dlite_instance_memsave(driver, buf, n, $self)) < 0) return;
+    if ((m = dlite_instance_memsave(driver, buf, n+1, $self, options)) < 0)
+      return;
     assert (m == n);
     *ARGOUT_BYTES = buf;
     *LEN = n;
@@ -836,9 +838,11 @@ bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
 %rename(_from_bytes) dlite_instance_memload;
 %feature("docstring", "Loads instance from string.") dlite_instance_memload;
-struct _DLiteInstance *dlite_instance_memload(const char *driver,
-                                      unsigned char *INPUT_BYTES, size_t LEN,
-                                      const char *id=NULL);
+struct _DLiteInstance *
+         dlite_instance_memload(const char *driver,
+                                unsigned char *INPUT_BYTES, size_t LEN,
+                                const char *id=NULL, const char *options=NULL);
+
 
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */
 #define BASIC_METADATA_SCHEMA  "http://onto-ns.com/meta/0.1/BasicMetadataSchema"

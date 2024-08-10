@@ -1289,7 +1289,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  * --------------- */
 
 /* Argout bytes */
-/* We assumes that *ARGOUT_BYTES is a malloc() by the wrapped function */
+/* Assumes that *ARGOUT_BYTES is malloc()'ed by the wrapped function */
 %typemap("doc") (unsigned char **ARGOUT_BYTES, size_t *LEN) "bytes"
 %typemap(in,numinputs=0) (unsigned char **ARGOUT_BYTES, size_t *LEN)
   (unsigned char *tmp, size_t n) {
