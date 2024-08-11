@@ -2159,8 +2159,8 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   }
   sha3_Update(&c, inst->meta->uri, strlen(inst->meta->uri));
   for (i=0; i<DLITE_NDIM(inst); i++) {
-    size_t n = DLITE_DIM(inst, i);
-    sha3_Update(&c, &n, sizeof(size_t));
+    uint64_t n = DLITE_DIM(inst, i);
+    sha3_Update(&c, &n, sizeof(uint64_t));
   }
   for (i=0; i<DLITE_NPROP(inst); i++) {
     void *ptr = dlite_instance_get_property_by_index(inst, i);

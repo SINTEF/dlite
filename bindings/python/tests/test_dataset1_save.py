@@ -3,6 +3,7 @@ from pathlib import Path
 try:
     from tripper import DCTERMS, MAP, OWL, RDF, RDFS, XSD, Triplestore
     from tripper.utils import en
+    import rdflib
 except ModuleNotFoundError:
     import sys
     sys.exit(44)
@@ -50,7 +51,7 @@ with raises(MissingUnitError):
 Fluid = dlite.get_instance("http://onto-ns.org/meta/dlite/0.1/FluidData")
 
 assert Fluid.get_hash() == (
-    '4739a3820ced457d07447c8916112021a0fbda9cbc97758e40b67369e34c00b4'
+    '9559cf53acd9f248d713e351ec432b515032f1fbaa345b03a104035c68d34f36'
 )
 
 ts = Triplestore(backend="rdflib")

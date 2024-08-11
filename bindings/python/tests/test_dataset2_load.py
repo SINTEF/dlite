@@ -35,7 +35,7 @@ assert Fluid.props["TemperatureField"].unit == "°C"
 
 # Check that we get the exact same hash as in test_dataset1_save.py
 assert Fluid.get_hash() == (
-    '4739a3820ced457d07447c8916112021a0fbda9cbc97758e40b67369e34c00b4'
+    '9559cf53acd9f248d713e351ec432b515032f1fbaa345b03a104035c68d34f36'
 )
 
 # Check that we get the exact same mappings as provided

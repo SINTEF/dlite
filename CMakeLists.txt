@@ -165,9 +165,10 @@ if(WITH_PYTHON)
     )
 endif()
 
-# On static 32-bit systems we have to link with -lutil
+# On some 32-bit systems (like manylinux2014_i686) we have to manually
+# link against -lutil -lm
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-  list(APPEND extra_link_libraries util)
+  list(APPEND extra_link_libraries util m)
 endif()
 
 
