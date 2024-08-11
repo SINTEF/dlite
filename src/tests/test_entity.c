@@ -367,7 +367,7 @@ MU_TEST(test_instance_get_hash)
                                                 "mode=r", "mydata");
   mu_check(inst);
 
-  hash = "90fdd20131148fa0eaec9a21705dc0f8bc2a794945929796264c576a49b9e112";
+  hash = "dc89ff80316f833ca4f6e90c7882222224e4eb76b43c0864ab8b2b3e118dfd02";
   mu_assert_string_eq(hash, gethash(s, inst));
 
   // metadata

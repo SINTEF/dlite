@@ -60,7 +60,7 @@ option(WITH_PYTHON      "Whether to build Python 3 bindings"               YES)
 option(WITH_FORTRAN     "Whether to build Fortran bindings"                 NO)
 option(WITH_HDF5        "Whether to build with HDF5 support"               YES)
 option(WITH_REDLAND     "Whether to build with RDF support (using librdf)" YES)
-option(WITH_THREADS     "Whether to build with threading support"           NO)
+option(WITH_THREADS     "Whether to build with threading support"          YES)
 option(WITH_DOC         "Whether to build documentation (sphinx+doxygen)"   NO)
 option(WITH_EXAMPLES    "Whether to build/run examples during testing"     YES)
 option(FORCE_EXAMPLES   "Whether to force building/running examples"        NO)
@@ -165,6 +165,12 @@ if(WITH_PYTHON)
     )
 endif()
 
+# On static 32-bit systems we have to link with -lutil
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  list(APPEND extra_link_libraries util)
+endif()
+
+
 # ------------------------
 # Installation environment
 # ------------------------
@@ -221,13 +227,6 @@ if(WITH_REDLAND)
     endif()
 
   endif()
-endif()
-
-
-
-# On static 32-bit systems we have to link with -lutil
-if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-  list(APPEND extra_link_libraries util)
 endif()
 
 
