@@ -202,6 +202,7 @@ if(WITH_HDF5)
   endif()
 endif()
 
+
 #
 # Redland
 # =======
@@ -436,19 +437,31 @@ endif()
 
 find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
+
+  # Create cppcheck-build-dir
+  file(MAKE_DIRECTORY ${dlite_BINARY_DIR}/cppcheck)
+
+  # Ignore all directories matching "build-*"
+  file(GLOB builddirs build-*)
+  foreach(dir ${builddirs})
+    set(cppcheck_ignore_options "${cppcheck_ignore_options} -i ${dir}")
+  endforeach()
+
   add_test(
     NAME static-code-analysis
     COMMAND ${CPPCHECK}
       --language=c -q --force --error-exitcode=2 --inline-suppr
-      -i build -i python
-      -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
+      --cppcheck-build-dir=${dlite_BINARY_DIR}/cppcheck
+      -i build -i python ${cppcheck_ignore_options}
+      -I${dlite_SOURCE_DIR}/src -I${dlite_BINARY_DIR}/src
+      ${NUMBER_OF_CPUS_OPTION}
       ${dlite_SOURCE_DIR}/src
       ${dlite_SOURCE_DIR}/storages
       ${dlite_SOURCE_DIR}/tools
       ${dlite_SOURCE_DIR}/bindings
       ${dlite_SOURCE_DIR}/examples
       ${dlite_BINARY_DIR}/src
-      ${dlite_BINARY_DIR}/storates
+      ${dlite_BINARY_DIR}/storages
       ${dlite_BINARY_DIR}/tools
       ${dlite_BINARY_DIR}/bindings
       #${dlite_BINARY_DIR}/examples
