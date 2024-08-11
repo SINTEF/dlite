@@ -47,29 +47,6 @@ for identifier in $(CIBW_BUILD=${CIBW_BUILD} ${BUILD_IDS_CMD}); do
     bash ${SCRIPT_DIR}/gen_dockerfile.sh $SYSTEM $SYSTEM_TYPE $ARCH \
          >/tmp/docker_build_wheel/Dockerfile-${SYSTEM}${SYSTEM_TYPE}_${ARCH}
 
-    #if [ $SYSTEM = "manylinux" -a ${SYSTEM_TYPE:0:1} = "_" ]; then
-    #    template=${SCRIPT_DIR}/Dockerfile-${SYSTEM}_x_y.template
-    #else
-    #    template=${SCRIPT_DIR}/Dockerfile-${SYSTEM}.template
-    #fi
-    #
-    #EXTRA_PRE=""
-    #EXTRA_POST=""
-    #if [ ${SYSTEM_TYPE} == "2010" ]; then
-    #    EXTRA_PRE="COPY ${SCRIPT_DIR}/pgdg-91_${ARCH}.repo /etc/yum.repos.d/pgdg-91.repo"
-    #    EXTRA_POST="ENV PATH=\$PATH:/usr/pgsql-9.1/bin"
-    #fi
-    #
-    ##echo "Using template: $template"
-    #
-    #sed \
-    #    -e "s|{{ ARCH }}|${ARCH}|" \
-    #    -e "s|{{ TYPE }}|${SYSTEM_TYPE}|" \
-    #    -e "s|{{ EXTRA_PRE }}|${EXTRA_PRE}|" \
-    #    -e "s|{{ EXTRA_POST }}|${EXTRA_POST}|" \
-    #    $template \
-    #    > /tmp/docker_build_wheel/Dockerfile-${SYSTEM}${SYSTEM_TYPE}_${ARCH}
-
     echo "Build Docker image for ${SYSTEM}${SYSTEM_TYPE}_${ARCH}"
 
     docker build \
