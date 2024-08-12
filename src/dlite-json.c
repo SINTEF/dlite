@@ -1275,11 +1275,12 @@ int dlite_jstore_remove(JStore *js, const char *id)
  */
 DLiteJStoreIter *dlite_jstore_iter_create(JStore *js, const char *metaid)
 {
-  DLiteJStoreIter *iter;
+  DLiteJStoreIter *iter=NULL;
   if (!(iter = calloc(1, sizeof(DLiteJStoreIter))))
-    return err(dliteMemoryError, "allocation failure"), NULL;
-  if (jstore_iter_init(js, &iter->jiter)) return NULL;
-  if (metaid && dlite_get_uuid(iter->metauuid, metaid) < 0) return NULL;
+    FAILCODE(dliteMemoryError, "allocation failure");
+  if (jstore_iter_init(js, &iter->jiter)) goto fail;
+  if (metaid && dlite_get_uuid(iter->metauuid, metaid) < 0) goto fail;
+ fail:
   return iter;
 }
 
