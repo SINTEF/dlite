@@ -48,8 +48,6 @@ RUN apk add -u \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${minors}; do \
-    which python3.${minor} 2>/dev/null || continue && \
-    echo "==================== python3.${minor} ====================" && \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel; \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \
