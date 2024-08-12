@@ -84,7 +84,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 8,9,10,11,12
+            py_minors: 8,9,10,11
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
