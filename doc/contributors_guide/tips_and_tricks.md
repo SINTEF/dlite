@@ -106,11 +106,11 @@ If `pip wheel` fails with network errors, like `[Errno 101] Network is unreachab
 
      docker network create -d bridge dlitenet  # Create network called dlitenet
 
-and gets its IP with
+and get its IP with
 
      ip=$(docker network inspect dlitenet | sed -n 's/ *"Gateway": "\(.*\)"$/\1/p')
 
-you can then rerun `cibuildwheel` with the
+You can then rerun `cibuildwheel` with the
 
      CIBW_BUILD_FRONTEND="pip; args: --index-url http://$ip:3141/root/pypi/" \
      CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
