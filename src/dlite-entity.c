@@ -3645,18 +3645,24 @@ int dlite_metamodel_set_string(DLiteMetaModel *model, const char *name,
 {
   size_t i;
   char *p;
-  if (!(p = strdup(s))) return err(dliteMemoryError, "allocation failure");
-  if (dlite_metamodel_set_value(model, name, NULL)) return 1;
+  if (!(p = strdup(s)))
+    FAILCODE(dliteMemoryError, "allocation failure");
+  if (dlite_metamodel_set_value(model, name, NULL))
+    goto fail;
   for (i=0; i < model->nvalues; i++)
     if (strcmp(name, model->values[i].name) == 0) {
       Value *v = model->values + i;
       assert(v->data == NULL);
-      if (!(v->strp = malloc(sizeof(char **)))) return 1;
+      if (!(v->strp = malloc(sizeof(char **))))
+        FAILCODE(dliteMemoryError, "allocation failure");
       *(v->strp) = p;
       v->data = v->strp;
       return 0;
     }
   abort();  /* should never be reached */
+ fail:
+  if (p) free(p);
+  return 1;
 }
 
 
