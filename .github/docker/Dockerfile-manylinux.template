@@ -52,7 +52,6 @@ RUN \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
-    which python3.${minor} || continue && \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \

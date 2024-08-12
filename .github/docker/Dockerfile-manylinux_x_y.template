@@ -5,7 +5,7 @@
 # Usage:
 #
 # Copy this template file and replace:
-# - `{{ TYPE }}` major glibc version, ex: 2_28, 2_35, 2_38
+# - `{{ TYPE }}` major glibc version, ex: _2_24, _2_28
 # - `{{ ARCH }}` with a valid arch, ex:  x86_64, i686
 # Remove the `.template` suffix from the copy.
 #
@@ -23,7 +23,7 @@
 #
 
 # Reference: https://github.com/pypa/manylinux
-FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}
+FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
 ARG PY_MINORS="8 9 10 11 12"
 
@@ -47,15 +47,14 @@ RUN \
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
   cd /opt/_internal && \
-    tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  tar -Jxvf static-libs-for-embedding-only.tar.xz && \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
-    which python3.${minor} || continue && \
-    echo "==================== python3.${minor} ====================" && \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache cmake oldest-supported-numpy; \
+    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \
+      cmake oldest-supported-numpy; \
   done && \
   rm -rf /ci/pip_cache
 
