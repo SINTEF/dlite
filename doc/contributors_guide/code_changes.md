@@ -37,7 +37,7 @@ How to handle different types of code changes
 ### Backward-compatible API changes
 The easiest API changes are those that only adds new functions or classes without changing the existing code, apart from adding deprecation warnings hinting about how to use the new API.
 
-Adding new arguments to an existing function or new methods to existing classes falls also into this category.  It is possible to
+Adding new arguments to an existing function or new methods to existing classes falls also into this category.
 **Note**, new (positional) arguments should be added to the end of the argument list, such that existing code using positional arguments will be unaffected by the change.
 
 ### New behavior
