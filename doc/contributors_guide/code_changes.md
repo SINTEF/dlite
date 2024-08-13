@@ -12,6 +12,7 @@ Before reaching v 1.0.0, DLite follows the following versioning rules that are w
 
 * **minor release**: Backward-incompatible changes.
   Removal of deprecated features.
+  Addition of new features.
 
 After version 1.0.0, DLite should strictly follow the [semantic versioning] rules.
 
