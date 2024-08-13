@@ -54,24 +54,6 @@ Debugging tests failing inside docker on GitHub
    which should run the tests and hopefully fail at the same place as on
    GitHub.
 
-   If `pip wheel` fails with network errors, like `[Errno 101] Network is unreachable`, you may have create a network
-
-        docker network create -d bridge dlitenet  # Create network called dlitenet
-
-   and gets its IP with
-
-        ip=$(docker network inspect dlitenet | sed -n 's/ *"Gateway": "\(.*\)"$/\1/p')
-
-   you can then rerun `cibuildwheel` with the
-
-        CIBW_BUILD_FRONTEND="pip; args: --index-url http://$ip:3141/root/pypi/" \
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
-        CIBW_BUILD=cp312-manylinux_x86* \
-        python -m cibuildwheel \
-        --output-dir wheelhouse \
-        --platform linux \
-        python
-
    If that is the case, you can run the image again, but pause
    it before running the tests by prepending `CIBW_BEFORE_TEST=cat` to
    the previous command:
@@ -117,6 +99,26 @@ Debugging tests failing inside docker on GitHub
 8. Now we can run the Python tests with
 
         python /project/bindings/python/tests/test_python_bindings.py
+
+
+### Docker network
+If `pip wheel` fails with network errors, like `[Errno 101] Network is unreachable`, you may have to create a network
+
+     docker network create -d bridge dlitenet  # Create network called dlitenet
+
+and get its IP with
+
+     ip=$(docker network inspect dlitenet | sed -n 's/ *"Gateway": "\(.*\)"$/\1/p')
+
+You can then rerun `cibuildwheel` with the
+
+     CIBW_BUILD_FRONTEND="pip; args: --index-url http://$ip:3141/root/pypi/" \
+     CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+     CIBW_BUILD=cp312-manylinux_x86* \
+     python -m cibuildwheel \
+     --output-dir wheelhouse \
+     --platform linux \
+     python
 
 
 
