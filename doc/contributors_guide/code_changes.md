@@ -8,11 +8,13 @@ Versioning
 Before reaching v 1.0.0, DLite follows the following versioning rules that are well-known from Python:
 
 * **patch release**: Only backward-compatible changes.
-  New deprecation warnings can be added.
+  - Addition of new backward-compatible features.
+  - New deprecation warnings can be added.
 
 * **minor release**: Backward-incompatible changes.
-  Removal of deprecated features.
-  Addition of new features.
+  - Addition of new backward-incompatible features.
+  - Removal of deprecated features.
+  - Changing default behavior.
 
 After version 1.0.0, DLite should strictly follow the [semantic versioning] rules.
 
@@ -69,8 +71,7 @@ Behavior can be selected in several ways:
 
       export DLITE_BEHAVIOR_<NAME>
 
-A deprecation warning will automatically be issued if a behavior is not selected
-explicitly.
+A warning will automatically be issued if a behavior is not selected explicitly.
 
 
 [semantic versioning]: https://semver.org/
