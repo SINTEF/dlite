@@ -21,11 +21,10 @@ After version 1.0.0, DLite should strictly follow the [semantic versioning] rule
 
 Feature deprecation
 -------------------
-In Python, use `dlite.deprecation_warning()` (function to be added) to mark deprecation warnings.
+In Python, use `dlite.deprecation_warning()` to mark deprecation warnings.
 This function is a simple wrapper around `warnings.warn(msg, DeprecationWarning, stacklevel=2)` with the release version when the feature is planned to be removed as an additional argument.
 
-In C, use the `deprecation_warning()` function (to be added) to mark a
-deprecation warning.
+In C, use the `dlite_deprecation_warning()` function to mark a deprecation warning.
 
 The idea with these functions is to make it easy to grep for deprecation warnings that should be remove in a new backward-incompatible release.
 The following command can e.g. be used to find all deprecation warnings:
@@ -65,7 +64,7 @@ Behavior can be selected in several ways:
 
 - **programmatically from C**:
 
-      dlite_behavior("<NAME>", 1);
+      dlite_behavior_set("<NAME>", 1);
 
 - **via environment variables**:
 
