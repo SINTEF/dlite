@@ -235,7 +235,6 @@ jobs:
     - name: Retrieve wheels and sdist
       uses: actions/download-artifact@v4
       with:
-        name: python-package-distributions
         path: dist/
 
     - name: Move sdists and wheels to dist and remove all directories
