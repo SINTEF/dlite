@@ -186,7 +186,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   int n=0;
   const char *errlevel_name = err_getlevelname(errlevel);
   char *errmsg = tls->err_record->msg;
-  //char warnbuf[128];
   size_t errsize = sizeof(tls->err_record->msg);
   FILE *stream = err_get_stream();
   ErrDebugMode debug_mode = err_get_debug_mode();
@@ -201,7 +200,6 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   if (errlevel == errLevelWarn) {
     switch (warn_mode) {
     case errWarnNormal:
-      //errmsg = warnbuf;  // use serarate buffer for warnings
       break;
     case errWarnIgnore:
       return 0;

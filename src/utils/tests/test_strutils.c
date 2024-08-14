@@ -447,6 +447,9 @@ MU_TEST(test_strlst)
 
 MU_TEST(test_natoi)
 {
+  mu_assert_int_eq(1,  natoi("1", 10));
+  mu_assert_int_eq(2,  natoi("2 ", 10));
+  mu_assert_int_eq(3,  natoi(" 3", 10));
   mu_assert_int_eq(1,  natoi("+1", 10));
   mu_assert_int_eq(-2, natoi("-2", 10));
   mu_assert_int_eq(0,  natoi("*2", 10));
@@ -459,6 +462,8 @@ MU_TEST(test_natoi)
 MU_TEST(test_strchk_semver)
 {
   mu_assert_int_eq(5,  strchk_semver("1.0.0"));
+  mu_assert_int_eq(-1, strchk_semver(" 1.0.0"));
+  mu_assert_int_eq(-1, strchk_semver("1.0.0 "));
   mu_assert_int_eq(-1, strchk_semver("1"));
   mu_assert_int_eq(-1, strchk_semver("1."));
   mu_assert_int_eq(-1, strchk_semver("1.0"));
@@ -481,9 +486,12 @@ MU_TEST(test_strchk_semver)
 MU_TEST(test_strnchk_semver)
 {
   mu_assert_int_eq(5,  strnchk_semver("1.0.0", 10));
+  mu_assert_int_eq(5,  strnchk_semver("1.0.0", 10));
   mu_assert_int_eq(5,  strnchk_semver("1.0.0", 5));
   mu_assert_int_eq(-1, strnchk_semver("1.0.0", 4));
-  mu_assert_int_eq(5,  strnchk_semver("1.0.0x", 5));
+  mu_assert_int_eq(5,  strnchk_semver("1.0.0 ", 5));
+  mu_assert_int_eq(-1, strnchk_semver("1.0.0 ", 6));
+  mu_assert_int_eq(-1, strnchk_semver(" 1.0.0", 6));
   mu_assert_int_eq(15, strnchk_semver("5.12.17-rc1+001", 20));
   mu_assert_int_eq(6,  strnchk_semver("5.12.17-rc1+001 ", 6));
   mu_assert_int_eq(7,  strnchk_semver("5.12.17-rc1+001 ", 7));

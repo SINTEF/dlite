@@ -801,9 +801,10 @@ char *strlst_pop(char **strlst, int i)
 int natoi(const char *s, int n)
 {
   int x=0, sign=1;
+  while (isspace(*s)) s++, n--;
   if (*s == '-') {
     sign = -1;
-    s++;
+    s++, n--;
   }
   if (*s == '+') s++;
   while(isdigit(*s) && n-- > 0) {
