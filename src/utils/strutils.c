@@ -947,8 +947,7 @@ int strncmp_semver(const char *v1, const char *v2, size_t n)
         d = strncmp(v1+m, v2+m, MIN(n1, n2)-m);
         if (d == 0) d = n1 - n2;
       }
-      if (d < 0) return -1;
-      if (d > 0) return 1;
+      if (d) return (d < 0) ? -1 : 1;
       assert(n1 == n2);
       m = n1;
     } while (v1[n1] == '.' && v2[n2] == '.');
