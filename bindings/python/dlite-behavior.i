@@ -3,7 +3,7 @@
 #include "dlite-behavior.h"
 %}
 
-%rename(_Behavior) _DLiteBehavior;
+%rename(_BehaviorRecord) _DLiteBehavior;
 struct _DLiteBehavior {
   %immutable;
   char *name;

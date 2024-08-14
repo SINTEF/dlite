@@ -904,7 +904,7 @@ int strcmp_semver(const char *v1, const char *v2)
 */
 int strncmp_semver(const char *v1, const char *v2, size_t n)
 {
-  int d, diff, pr1=0, pr2=0;
+  int d, pr1=0, pr2=0;
   size_t m, n1=0, n2=0;
   /* Compare major number */
   d = natoi(v1, n) - natoi(v2, n);
