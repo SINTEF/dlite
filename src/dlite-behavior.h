@@ -20,7 +20,6 @@ typedef struct _DLiteBehavior {
 } DLiteBehavior;
 
 
-
 /**
   Return the number of registered behaviors.
 */
@@ -35,22 +34,19 @@ const DLiteBehavior *dlite_behavior_recordno(size_t n);
 /**
   Return a pointer to the given behavior record, or NULL if `name` is
   not in the behavior table.
+
+  Note: Please use dlite_behavior_get() to access the record value,
+  since it not be fully initialised by this function.
  */
 const DLiteBehavior *dlite_behavior_record(const char *name);
 
 /**
-  Get value of given behavior.
-
-  If the behavior is unset, the environment variable `DLITE_BEHAVIOR_<name>`
-  is checked.  If it is set with no value means on.
-
-  Returns 1 if the behavior is on, 0 if it is off and a negative
-  value on error.
+  Return the value of given behavior or a netative error code on error.
  */
 int dlite_behavior_get(const char *name);
 
 /**
-  Assign value of given behavior: 1=on, 0=off, -1=unset.
+  Assign value of given behavior: 1=on, 0=off.
 
   Returns non-zero on error.
 */

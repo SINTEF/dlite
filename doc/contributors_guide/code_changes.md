@@ -5,7 +5,7 @@ Although that DLite haven't reached version 1.0.0, it strives to be stable and n
 
 Versioning
 ----------
-Before reaching v 1.0.0, DLite follows the following versioning rules that are well-known from Python:
+Before reaching version 1.0.0, DLite follows the following versioning rules that are well-known from Python:
 
 * **patch release**: Only backward-compatible changes.
   - Addition of new backward-compatible features.
@@ -52,15 +52,15 @@ Each optional new behavior should have a:
 - release number for when the behavior was introduced (keeping old behavior as default)
 - release number for when the new behavior should be the default (managed automatically)
 - expected release number for when the old behavior should be removed (require developer effort)
+- value: True means that the behavior is enabled.
 
 All behaviors are described in a single source file `src/dlite-behavior.c`.
 
-Behavior can be selected in several ways:
+Whether to enable a behavior can be configured in several ways:
 
 - **programmatically from Python**:
 
-      >>> from dlite.behavior import Behavior
-      >>> Behavior.<NAME> = True  # true means use the new behavior
+      >>> dlite.Behavior.<NAME> = True
 
 - **programmatically from C**:
 
@@ -68,7 +68,13 @@ Behavior can be selected in several ways:
 
 - **via environment variables**:
 
-      export DLITE_BEHAVIOR_<NAME>
+      export DLITE_BEHAVIOR_<NAME>=1
+
+  The empty string or any of the following values will enable the behavior:
+  "true", ".true.", "on", "yes", 1
+
+  Any of the following values will disable the behavior:
+  "false", ".false.", "off", "no", 0
 
 A warning will automatically be issued if a behavior is not selected explicitly.
 

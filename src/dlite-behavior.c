@@ -1,10 +1,22 @@
+#include <assert.h>
+
 #include "utils/strtob.h"
 #include "utils/strutils.h"
 #include "dlite.h"
 #include "dlite-behavior.h"
 
 
-/* Table listing all defined behaviors. The name should be max 48 characters. */
+/* Table listing all defined behaviors.
+
+   name: Name of behavior.  Should be a unique and valid Python identifier
+       of at most 48 characters length.
+   v_added: Version number when the behavior was added.
+   v_new: Version number when the new behavior will be the default.
+   v_removed: Expected version number when the behavior is removed.
+   description: Full description of the new feature.
+   value: Just set it to zero. It will be initialised the first time the table
+       is accessed.
+*/
 
 //  name                           v_added    v_new      v_removed
 //  description
@@ -16,37 +28,45 @@ static DLiteBehavior behavior_table[] = {
 };
 
 
-//#define GLOBALS_ID "dlite-behavior-id"
-//
-///* Global variables for dlite-storage */
-//typedef struct {
-//  map_int_t behavior_values;  /* Maps behavior names to their values. */
-//} Globals;
-//
-///* Frees global state for this module - called by atexit() */
-//static void free_globals(void *globals)
-//{
-//  Globals *g = globals;
-//  map_deinit(&g->behavior_values);
-//  free(g);
-//}
-//
-///* Return a pointer to global state for this module */
-//static Globals *get_globals(void)
-//{
-//  Globals *g = dlite_globals_get_state(GLOBALS_ID);
-//  if (!g) {
-//    if (!(g = calloc(1, sizeof(Globals))))
-//     FAILCODE(dliteMemoryError, "allocation failure");
-//    map_init(&g->behavior_values);
-//    dlite_globals_add_state(GLOBALS_ID, g, free_globals);
-//  }
-//  return g;
-// fail:
-//  if (g) free(g);
-//  return NULL;
-//}
 
+/*
+  Initialise the behavior table. Will be called automatically, so no need
+  to call it explicitly.  It a noop after the first call.
+
+  Default values can currently only be configured via environment
+  variables.  If the environment variable `DLITE_BEHAVIOR_<name>` is
+  defined, the behavior whos name is `<name>` is assigned.  An
+  environment variable with no value is interpreted as true.
+
+  If no default is given, the behavior will be disabled (value=0) if
+  the current DLite version is less than `version_new` and enabled
+  (value=1) otherwise.
+*/
+void dlite_behavior_table_init(void)
+{
+  static int initialised=0;
+
+  if (!initialised) {
+    DLiteBehavior *b = (DLiteBehavior *)behavior_table;
+    while (b->name) {
+      b->value = -1;
+
+      /* Check environment */
+      char buf[64];
+      snprintf(buf, sizeof(buf), "DLITE_BEHAVIOR_%s", b->name);
+      const char *env = getenv(buf);
+      if (env) b->value = (*env) ? atob(env) : 1;
+
+      /* Warn if behavior is expected to be removed. */
+      if (strcmp_semver(dlite_get_version(), b->version_remove) >= 0)
+        dlite_warn("Behavior `%s` was scheduled for removal since version %s",
+                   b->name, b->version_remove);
+
+      b++;
+    }
+    initialised = 1;
+  }
+}
 
 
 /*
@@ -73,16 +93,16 @@ const DLiteBehavior *dlite_behavior_recordno(size_t n)
 /*
   Return a pointer to the given behavior record, or NULL if `name` is
   not in the behavior table.
+
+  Note: Please use dlite_behavior_get() to access the record value,
+  since it may not be fully initialised by this function.
  */
 const DLiteBehavior *dlite_behavior_record(const char *name)
 {
   const DLiteBehavior *b = behavior_table;
+  dlite_behavior_table_init();
   while (b->name) {
-    if (strcmp(b->name, name) == 0) {
-      // Update from environment
-      //dlite_behavior_get
-      return b;
-    }
+    if (strcmp(b->name, name) == 0) return b;
     b++;
   }
   return NULL;
@@ -90,48 +110,38 @@ const DLiteBehavior *dlite_behavior_record(const char *name)
 
 
 /*
-  Get value of given behavior.
-
-  If the behavior is unset, the environment variable `DLITE_BEHAVIOR_<name>`
-  is checked.  If it is set with no value means on.
-
-  Returns 1 if the behavior is on, 0 if it is off and a negative
-  value on error.
+  Return the value of given behavior or a netative error code on error.
  */
 int dlite_behavior_get(const char *name)
 {
-  char buf[64];
-  //Globals *g = get_globals();
-  //int *value = map_get(&g->behavior_values, name);
-  //return (value) ? *value : -1;
-  const DLiteBehavior *b = dlite_behavior_record(name);
+  DLiteBehavior *b = (DLiteBehavior *)dlite_behavior_record(name);
   if (!b) return dlite_err(dliteKeyError, "No behavior with name: %s", name);
-  if (b->value >= 0) return b->value;
 
-  snprintf(buf, sizeof(buf), "DLITE_BEHAVIOR_%s", name);
-  const char *env = getenv(buf);
-  if (env) return (*env) ? atob(env) : 1;
+  /* If value is unset, enable behavior if DLite version > version_new */
+  if (b->value < 0) {
+    const char *ver = dlite_get_version();  // current version
+    b->value = (strcmp_semver(ver, b->version_new) >= 0) ? 1 : 0;
 
-  if (strcmp_semver(dlite_get_version(), b->version_new) < 0) return 0;
-  return 1;
+    dlite_warn("Behavior `%s` is not configured. "
+               "It will be enabled by default from v%s. "
+               "The old behavior is scheduled for removal in v%s.",
+               b->name, b->version_new, b->version_remove);
+  }
+
+  assert(b->value >= 0);
+  return b->value;
 }
 
 
 /*
-  Assign value of given behavior: 1=on, 0=off, -1=unset.
+  Assign value of given behavior: 1=on, 0=off.
 
   Returns non-zero on error.
 */
 int dlite_behavior_set(const char *name, int value)
 {
-  //Globals *g = get_globals();
-  //if (value < 0)
-  //  map_remove(&g->behavior_values, name);
-  //else if (value == 0)
-  //  map_set(
-  //int *value = map_get(&g->behavior_values, name);
   DLiteBehavior *b = (DLiteBehavior *)dlite_behavior_record(name);
   if (!b) return dlite_err(dliteKeyError, "No behavior with name: %s", name);
-  b->value = (value > 0) ? 1 : (value == 0) ? 0 : -1;
+  b->value = value;
   return 0;
 }

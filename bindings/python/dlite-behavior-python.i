@@ -6,10 +6,9 @@
 %extend _DLiteBehavior {
   %pythoncode %{
     def asdict(self):
-        v = self.value
         return {
             "name": self.name,
-            "value": None if v < 0 else True if v > 0 else False,
+            "value": bool(self.value),
             "version_added": self.version_added,
             "version_new": self.version_new,
             "version_remove": self.version_remove,
@@ -25,7 +24,6 @@
 
 %pythoncode %{
 
-
 class _Behavior():
     """A class that provides easy access for setting and getting behavior
     settings.
@@ -36,17 +34,10 @@ class _Behavior():
 
     """
     def __getattr__(self, name):
-        v = _dlite._behavior_get(name)
-        return None if v < 0 else True if v > 0 else False
+        return bool(_dlite._behavior_get(name))
 
     def __setattr__(self, name, value):
-        if value is None:
-            v = -1
-        elif isinstance(value, bool):
-            v = 1 if value else 0
-        else:
-            v = -1 if value < 0 else 1 if value > 0 else 0
-        _dlite._behavior_set(name, v)
+        _dlite._behavior_set(name, 1 if value else 0)
 
     def __dir__(self):
         return object.__dir__(self) + list(self.get_names())
