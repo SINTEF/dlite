@@ -230,6 +230,8 @@ jobs:
     needs: [cd_build_wheels,build_sdist]
     name: Publish DLite distributions
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
     - name: Retrieve wheels and sdist
