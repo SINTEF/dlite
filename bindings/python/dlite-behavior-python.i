@@ -36,18 +36,17 @@ class _Behavior():
 
     """
     def __getattr__(self, name):
-        v = self.get_record(name).value
+        v = _dlite._behavior_get(name)
         return None if v < 0 else True if v > 0 else False
 
     def __setattr__(self, name, value):
         if value is None:
-            self.get_record(name).value = -1
+            v = -1
         elif isinstance(value, bool):
-            self.get_record(name).value = 1 if value else 0
+            v = 1 if value else 0
         else:
-            self.get_record(name).value = (
-                -1 if value < 0 else 1 if value > 0 else 0
-            )
+            v = -1 if value < 0 else 1 if value > 0 else 0
+        _dlite._behavior_set(name, v)
 
     def __dir__(self):
         return object.__dir__(self) + list(self.get_names())

@@ -78,7 +78,11 @@ const DLiteBehavior *dlite_behavior_record(const char *name)
 {
   const DLiteBehavior *b = behavior_table;
   while (b->name) {
-    if (strcmp(b->name, name) == 0) return b;
+    if (strcmp(b->name, name) == 0) {
+      // Update from environment
+      //dlite_behavior_get
+      return b;
+    }
     b++;
   }
   return NULL;
