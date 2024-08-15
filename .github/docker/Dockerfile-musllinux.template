@@ -8,17 +8,27 @@
 # - `{{ ARCH }}` with a valid arch, e.g., x86_64 or i686
 # Remove the `.template` suffix from the copy.
 #
+# Examples
+# --------
+#
+# Generate dockerfile:
+#
+#     .github/docker/gen_dockerfile.sh musllinux _1_2 x86_64 > \
+#         .github/docker/dockerfiles/Dockerfile-musllinux_1_2_x86_64
+#
 # Build:
 #
-#     docker build -t dlite-musllinux -f .github/docker/Dockerfile-musllinux .
+#     cd dlite  # cd to DLite root directory
+#     docker build -t dlite-musllinux_1_2_x86_64 \
+#         -f .github/docker/Dockerfile-musllinux_1_2_x86_64 .
 #
 # Run (for debugging):
 #
 #     docker run --rm -it \
-#        --volume $PWD:/io \
-#        --user $(id -u):$(id -g) \
-#        dlite-musllinux \
-#        /bin/bash
+#         --volume $PWD:/io \
+#         --user $(id -u):$(id -g) \
+#         dlite-musllinux_1_2_x86_64 \
+#         /bin/bash
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
@@ -48,8 +58,6 @@ RUN apk add -u \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${minors}; do \
-    which python3.${minor} 2>/dev/null || continue && \
-    echo "==================== python3.${minor} ====================" && \
     python3.${minor} -m pip install -U pip && \
     python3.${minor} -m pip install -U setuptools wheel; \
     python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \

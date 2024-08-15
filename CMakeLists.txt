@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.5.17
+  VERSION 0.5.22
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -142,28 +142,6 @@ else()
   set(DLITE_INSTALL_CMAKE_DIR "share/dlite/cmake")
 endif()
 
-# Variables to include in dliteConfig.cmake
-set(DLITE_CONFIG_VARS
-  dlite_VERSION
-  DLITE_ROOT
-  DLITE_INCLUDE_DIRS
-  DLITE_LIBRARY_DIR
-  DLITE_RUNTIME_DIR
-  DLITE_TEMPLATE_DIRS
-  DLITE_STORAGE_PLUGIN_DIRS
-  DLITE_MAPPING_PLUGIN_DIRS
-  )
-if(WITH_HDF5)
-  list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
-endif()
-if(WITH_PYTHON)
-  #FIME: Python3_LIBRARIES is undefined here
-  list(APPEND DLITE_CONFIG_VARS
-    Python3_LIBRARIES
-    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-    )
-endif()
 
 # On some 32-bit systems (like manylinux2014_i686) we have to manually
 # link against -lutil -lm
@@ -201,13 +179,18 @@ make_platform_paths(
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 1.8.20 COMPONENTS C REQUIRED)
-  if(WIN32)
-    list(APPEND HDF5_LIBRARIES Kernel32)
+  find_package(HDF5 1.8.20 COMPONENTS C)
+  if(HDF5_FOUND)
+    if(WIN32)
+      list(APPEND HDF5_LIBRARIES Kernel32)
+    else()
+      list(APPEND HDF5_LIBRARIES m dl)
+    endif()
   else()
-    list(APPEND HDF5_LIBRARIES m dl)
+    set(WITH_HDF5 OFF)
   endif()
 endif()
+
 
 #
 # Redland
@@ -359,6 +342,32 @@ if(WITH_FORTRAN)
 endif()
 
 
+
+# Variables to include in dliteConfig.cmake
+# -----------------------------------------
+set(DLITE_CONFIG_VARS
+  dlite_VERSION
+  DLITE_ROOT
+  DLITE_INCLUDE_DIRS
+  DLITE_LIBRARY_DIR
+  DLITE_RUNTIME_DIR
+  DLITE_TEMPLATE_DIRS
+  DLITE_STORAGE_PLUGIN_DIRS
+  DLITE_MAPPING_PLUGIN_DIRS
+  )
+if(WITH_HDF5)
+  list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
+endif()
+if(WITH_PYTHON)
+  #FIME: Python3_LIBRARIES is undefined here
+  list(APPEND DLITE_CONFIG_VARS
+    Python3_LIBRARIES
+    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+    )
+endif()
+
+
 # Testing
 # -------
 if(WITH_PYTHON)
@@ -449,25 +458,36 @@ endif()
 
 find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
+
+  # Create cppcheck-build-dir
+  file(MAKE_DIRECTORY ${dlite_BINARY_DIR}/cppcheck)
+
+  # Ignore all directories matching "build-*"
+  file(GLOB builddirs build-*)
+  foreach(dir ${builddirs})
+    set(cppcheck_ignore_options "${cppcheck_ignore_options} -i ${dir}")
+  endforeach()
+
   add_test(
     NAME static-code-analysis
     COMMAND ${CPPCHECK}
       --language=c -q --force --error-exitcode=2 --inline-suppr
-      -i build -i python
-      -I${dlite_SOURCE_DIR}/src ${NUMBER_OF_CPUS_OPTION}
+      --cppcheck-build-dir=${dlite_BINARY_DIR}/cppcheck
+      -i build -i python ${cppcheck_ignore_options}
+      -I${dlite_SOURCE_DIR}/src -I${dlite_BINARY_DIR}/src
+      ${NUMBER_OF_CPUS_OPTION}
       ${dlite_SOURCE_DIR}/src
       ${dlite_SOURCE_DIR}/storages
       ${dlite_SOURCE_DIR}/tools
       ${dlite_SOURCE_DIR}/bindings
       ${dlite_SOURCE_DIR}/examples
       ${dlite_BINARY_DIR}/src
-      ${dlite_BINARY_DIR}/storates
+      ${dlite_BINARY_DIR}/storages
       ${dlite_BINARY_DIR}/tools
       ${dlite_BINARY_DIR}/bindings
       #${dlite_BINARY_DIR}/examples
     )
 endif()
-
 
 
 # -------------------------------------------
@@ -779,6 +799,7 @@ endif()
 if(WITH_DOC)
   add_subdirectory(doc)
 endif()
+
 
 #################################################################
 

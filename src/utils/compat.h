@@ -31,6 +31,7 @@
 #ifdef HAVE_STDLIB_H
 # include <stdlib.h>
 #elif !defined HAVE_SIZE_T
+// cppcheck-suppress preprocessorErrorDirective
 #error "system is missing definition of size_t"
 #endif
 

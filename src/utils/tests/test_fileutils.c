@@ -80,7 +80,7 @@ MU_TEST(test_fu_dirname)
   mu_assert_string_eq("a/bb", s);
   free(s);
 
-  s = fu_dirname("a" DIRSEP "bb" DIRSEP "ccc.txt");
+  s = fu_dirname("a" DIRSEP "bb" DIRSEP "ccc.txt");  // cppcheck-suppress unknownMacro
   mu_assert_string_eq("a" DIRSEP "bb", s);
   free(s);
 
