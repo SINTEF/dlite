@@ -20,6 +20,7 @@ typedef int (*Sum)(int x, int y);
 
 MU_TEST(test_dsl_open)
 {
+  // cppcheck-suppress unknownMacro
   char *path = STRINGIFY(BINDIR) "/" DSL_PREFIX "test_dsl_lib" DSL_EXT;
   const char *msg;
   printf("\n*** path='%s'\n", path);
