@@ -38,16 +38,13 @@ const struct _DLiteBehavior *dlite_behavior_record(const char *name);
 %feature("docstring", "\
 Get value of given behavior.
 
-If the behavior is unset, the environment variable `DLITE_BEHAVIOR_<name>`
-is checked.  If it is set with no value means on.
-
 Returns 1 if the behavior is on, 0 if it is off and a negative
 value on error.
 ") dlite_behavior_get;
 int dlite_behavior_get(const char *name);
 
 %feature("docstring", "\
-Assign value of given behavior: 1=on, 0=off, -1=unset.
+Enable given behavior if `value` is non-zero.  Disable if `value` is zero.
 
 Returns non-zero on error.
 ") dlite_behavior_set;
