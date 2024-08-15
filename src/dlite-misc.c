@@ -542,7 +542,7 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 /* Error handler for DLite. */
 static void dlite_err_handler(const ErrRecord *record)
 {
-  if (!dlite_err_ignored_get(record->eval))
+  if (!dlite_err_ignored_get(record->eval) && getenv("DLITE_PYDEBUG"))
     err_default_handler(record);
 }
 
