@@ -610,6 +610,7 @@ list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
   ${dlite_BINARY_DIR}/bindings/python
+  $ENV{PYTHONPATH}
   )
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
