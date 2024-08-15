@@ -1,14 +1,12 @@
 from pathlib import Path
 
-try:
-    from tripper import MAP, Triplestore
-except ModuleNotFoundError:
-    import sys
-    sys.exit(44)
-
 import dlite
+from dlite.testutils import raises, importskip
+importskip("tripper")
+
+from tripper import MAP, Triplestore
+
 from dlite.dataset import EMMO, get_dataset, get_data
-from dlite.testutils import raises
 
 
 thisdir = Path(__file__).absolute().parent

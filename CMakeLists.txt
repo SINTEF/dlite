@@ -142,28 +142,6 @@ else()
   set(DLITE_INSTALL_CMAKE_DIR "share/dlite/cmake")
 endif()
 
-# Variables to include in dliteConfig.cmake
-set(DLITE_CONFIG_VARS
-  dlite_VERSION
-  DLITE_ROOT
-  DLITE_INCLUDE_DIRS
-  DLITE_LIBRARY_DIR
-  DLITE_RUNTIME_DIR
-  DLITE_TEMPLATE_DIRS
-  DLITE_STORAGE_PLUGIN_DIRS
-  DLITE_MAPPING_PLUGIN_DIRS
-  )
-if(WITH_HDF5)
-  list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
-endif()
-if(WITH_PYTHON)
-  #FIME: Python3_LIBRARIES is undefined here
-  list(APPEND DLITE_CONFIG_VARS
-    Python3_LIBRARIES
-    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-    )
-endif()
 
 # ------------------------
 # Installation environment
@@ -194,11 +172,15 @@ make_platform_paths(
 # hdf5
 # ====
 if(WITH_HDF5)
-  find_package(HDF5 1.8.20 COMPONENTS C REQUIRED)
-  if(WIN32)
-    list(APPEND HDF5_LIBRARIES Kernel32)
+  find_package(HDF5 1.8.20 COMPONENTS C)
+  if(HDF5_FOUND)
+    if(WIN32)
+      list(APPEND HDF5_LIBRARIES Kernel32)
+    else()
+      list(APPEND HDF5_LIBRARIES m dl)
+    endif()
   else()
-    list(APPEND HDF5_LIBRARIES m dl)
+    set(WITH_HDF5 OFF)
   endif()
 endif()
 
@@ -360,6 +342,32 @@ if(WITH_FORTRAN)
 endif()
 
 
+
+# Variables to include in dliteConfig.cmake
+# -----------------------------------------
+set(DLITE_CONFIG_VARS
+  dlite_VERSION
+  DLITE_ROOT
+  DLITE_INCLUDE_DIRS
+  DLITE_LIBRARY_DIR
+  DLITE_RUNTIME_DIR
+  DLITE_TEMPLATE_DIRS
+  DLITE_STORAGE_PLUGIN_DIRS
+  DLITE_MAPPING_PLUGIN_DIRS
+  )
+if(WITH_HDF5)
+  list(APPEND DLITE_CONFIG_VARS HDF5_LIBRARIES)
+endif()
+if(WITH_PYTHON)
+  #FIME: Python3_LIBRARIES is undefined here
+  list(APPEND DLITE_CONFIG_VARS
+    Python3_LIBRARIES
+    DLITE_PYTHON_STORAGE_PLUGIN_DIRS
+    DLITE_PYTHON_MAPPING_PLUGIN_DIRS
+    )
+endif()
+
+
 # Testing
 # -------
 if(WITH_PYTHON)
@@ -480,7 +488,6 @@ if(CPPCHECK)
       #${dlite_BINARY_DIR}/examples
     )
 endif()
-
 
 
 # -------------------------------------------
@@ -792,6 +799,7 @@ endif()
 if(WITH_DOC)
   add_subdirectory(doc)
 endif()
+
 
 #################################################################
 
