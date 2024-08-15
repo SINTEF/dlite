@@ -44,9 +44,9 @@ DLite-specific environment variables
   - **DLITE_PYDEBUG**: If defined, it will turn on printing error
     messages from C to standard error.
 
-    It will also enable tracebacks from exceptions happening in Python
-    plugins.  Traceback from exceptions happening in Python plugins
-    are normally lost.  But, with `DLITE_PYDEBUG` defined, the full error
+    It will also enable traceback from exceptions occuring in Python
+    plugins.  Traceback from exceptions occurring in Python plugins
+    are normally lost.  With `DLITE_PYDEBUG` defined the full error
     message, including traceback, will be written to standard error.
 
   - **DLITE_ATEXIT_FREE**: Free memory at exit.  This might be useful to avoid
