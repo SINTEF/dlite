@@ -9,7 +9,8 @@ rdflib>=4.2.1,<8
 pint>=0.15,<1
 pymongo>=4.4.0,<5
 
-tripper>=0.3.1,<0.3.2
+#tripper>=0.3.1,<0.3.2
+tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
 
 requests>=2.10,<3
 jinja2>=3.0,<4
