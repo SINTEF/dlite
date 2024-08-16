@@ -1,6 +1,5 @@
 # Requirements for property mappings
-#tripper>=0.2.16,<0.3.1
-tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
+tripper>=0.3.1,<0.3.2
 pint>=0.15,<1
 
 
