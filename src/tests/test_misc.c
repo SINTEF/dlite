@@ -158,18 +158,45 @@ MU_TEST(test_split_url)
   mu_assert_string_eq(NULL, options);
 }
 
+int _deprecated_call(void) {
+  err_clear();
+  printf("\n");
+  return dlite_deprecation_warning("100.0.1", "my old feature");
+}
+
+MU_TEST(test_deprecation_warning)
+{
+  /* Warning message should only be shown once */
+  mu_assert_int_eq(0, _deprecated_call());
+  mu_assert_int_eq(0, _deprecated_call());
+  mu_assert_int_eq(0, _deprecated_call());
+
+  err_clear();
+  printf("\n");
+  mu_assert_int_eq(dliteSystemError,
+                   dlite_deprecation_warning("0.0.1", "my old feature 2"));
+
+  err_clear();
+  printf("\n");
+  mu_assert_int_eq(dliteSystemError,
+                   dlite_deprecation_warning("0.1.x", "my old feature 3"));
+}
+
 
 /***********************************************************************/
 
 
 MU_TEST_SUITE(test_suite)
 {
+  dlite_init();
+
   MU_RUN_TEST(test_get_uuid);
   MU_RUN_TEST(test_get_uuidn);
   MU_RUN_TEST(test_join_split_metadata);
   MU_RUN_TEST(test_option_parse);
   MU_RUN_TEST(test_join_url);
   MU_RUN_TEST(test_split_url);
+  MU_RUN_TEST(test_deprecation_warning);
 }
 
 int main()

@@ -112,3 +112,4 @@
 %include "dlite-collection.i"
 %include "dlite-path.i"
 %include "dlite-mapping.i"
+%include "dlite-behavior.i"

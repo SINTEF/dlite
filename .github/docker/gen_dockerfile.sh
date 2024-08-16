@@ -13,6 +13,7 @@ set -eu
 
 if [[ $# -ne 3 ]]; then
     echo "Usage: gen_dockerfile.sh SYSTEM SYSTEM_TYPE ARCH"
+    exit 1
 fi
 SYSTEM=$1
 SYSTEM_TYPE=$2

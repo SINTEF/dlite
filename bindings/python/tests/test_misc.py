@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dlite
+from dlite.testutils import raises
 
 
 assert dlite.get_uuid_version() == 4
@@ -63,3 +64,32 @@ try:
         dlite.Instance.from_location("-", "__non-existing__")
 except dlite.DLiteStorageOpenError:
     pass
+
+
+# Test checking and comparing semantic version numbers
+assert dlite.chk_semver(dlite.__version__) > 0
+assert dlite.chk_semver("1.12.2-rc1.alpha+34") == 19
+assert dlite.chk_semver("1.12.2-rc1.alpha+34 ") < 0
+assert dlite.chk_semver("1.12.2-rc1.alpha+34 ", 6) == 6
+assert dlite.chk_semver("1.12.2-rc1.alpha+34 ", 19) == 19
+
+assert dlite.cmp_semver("1.3.11", "1.3.3") > 0
+assert dlite.cmp_semver("1.3.11", "1.3.13") < 0
+assert dlite.cmp_semver("1.3.11", "1.3.13", 5) == 0
+
+
+# Test deprecation warnings
+dlite.deprecation_warning("100.3.2", "My deprecated feature...")
+dlite.deprecation_warning("100.3.2", "My deprecated feature...")
+dlite.deprecation_warning("100.3.2", "My deprecated feature...")
+
+with raises(SystemError):
+    dlite.deprecation_warning("0.0.1", "My deprecated feature 2...")
+
+# Issuing the same deprecation warning a second or third time should not
+# raise an exception
+dlite.deprecation_warning("0.0.1", "My deprecated feature 2...")
+dlite.deprecation_warning("0.0.1", "My deprecated feature 2...")
+
+with raises(SystemError):
+    dlite.deprecation_warning("0.0.x", "My deprecated feature 3...")
