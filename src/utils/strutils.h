@@ -342,6 +342,45 @@ int strlst_remove(char **strlst, int i);
 */
 char *strlst_pop(char **strlst, int i);
 
+/**
+  A version of atoi() that reads at most `n` bytes.
+ */
+int natoi(const char *s, int n);
+
+/**
+  Checks if `v` points to a valid semantic version 2.0.0 number.
+
+  Returns -1 if `v` is not a valid semantic version number.
+  Otherwise, the length of the version number is returned.
+ */
+int strchk_semver(const char *v);
+
+/**
+  Check if the initial part of `v` is a valid semantic version 2.0.0 number.
+
+  Only the first `n` bytes of `v` are checked.
+
+  Returns the length of the semantic version number or -1 if `v` is
+  not a valid semantic version number.
+*/
+int strnchk_semver(const char *v, size_t n);
+
+/**
+  Compare strings `v1` and `v2` using semantic versioning 2.0.0 order.
+
+  Returns -1 if v1 < v2
+           0 if v1 == v2
+           1 if v1 > v2
+
+  See also: https://semver.org/
+ */
+int strcmp_semver(const char *v1, const char *v2);
+
+/**
+  Like strcmp_version(), but compares only the first `n` bytes of `v1` and `v2`.
+*/
+int strncmp_semver(const char *v1, const char *v2, size_t n);
+
 
 /** @} */
 
