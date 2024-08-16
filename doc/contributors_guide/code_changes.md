@@ -55,7 +55,7 @@ Each optional new behavior should have a:
 - expected release number for when the old behavior should be removed (require developer effort)
 - value: True means that the behavior is enabled.
 
-All behaviors are described in a single source file `src/dlite-behavior.c`.
+All behavior changes will be described in a single source file `src/dlite-behavior.c`.
 
 Whether to enable a behavior can be configured in several ways:
 
