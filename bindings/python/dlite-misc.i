@@ -233,7 +233,7 @@ not a valid semantic number.
 int chk_semver(const char *version, int n=-1);
 
 %feature("docstring", "\
-Compare semantiv version strings `v1` and `v2`.
+Compare semantic version strings `v1` and `v2`.
 
 Returns -1 if `v1 < v2`, 0 if `v1 == v2` and 1 if `v1 > v2`.
 

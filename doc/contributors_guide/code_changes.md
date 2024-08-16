@@ -1,6 +1,6 @@
 Code changes
 ============
-Although that DLite haven't reached version 1.0.0, it strives to be stable and not introduce unnecessary backward-incompatible changes.
+Although that DLite has not reached version 1.0.0, the intention is for it to be stable and not introduce unnecessary backward-incompatible changes.
 
 
 Versioning
@@ -10,6 +10,7 @@ Before reaching version 1.0.0, DLite follows the following versioning rules that
 * **patch release**: Only backward-compatible changes.
   - Addition of new backward-compatible features.
   - New deprecation warnings can be added.
+  - Bug fixes.
 
 * **minor release**: Backward-incompatible changes.
   - Addition of new backward-incompatible features.
