@@ -43,7 +43,7 @@ Adding new arguments to an existing function or new methods to existing classes 
 **Note**, new (positional) arguments should be added to the end of the argument list, such that existing code using positional arguments will be unaffected by the change.
 
 ### New behavior
-All changes in behavior should be considered backward-incompatible.
+All changes in behavior in existing code should be considered backward-incompatible.
 
 Where it make sense, DLite will try to optionally keep the new/old behaviour over some releases in order for users to adapt to the new behavior.
 
