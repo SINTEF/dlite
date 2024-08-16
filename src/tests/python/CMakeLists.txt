@@ -17,14 +17,14 @@ foreach(test ${tests})
   target_link_libraries(${test}
     dlite
     dlite-utils
-    ${Python3_STATIC_LIBS}
-    )
+    ${extra_link_libraries}
+  )
   target_include_directories(${test} PRIVATE
     ${dlite-src_SOURCE_DIR}
     ${dlite-src_BINARY_DIR}
     ${dlite-src_SOURCE_DIR}/pyembed
     ${dlite-src_SOURCE_DIR}/tests
-    )
+  )
 
   add_test(
     NAME ${test}

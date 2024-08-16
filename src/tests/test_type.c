@@ -618,24 +618,27 @@ MU_TEST(test_update_sha3)
   hash = "22bceddf404e46d56d0d3770553d3b88745675ea98806dd2adedbad333ff2e9c";
   mu_assert_string_eq(hash, gethash(s, &s2, dliteStringPtr, sizeof(s2)));
 
-  DLiteDimension d1 = {"dimname", "dimdescr"};
-  hash = "fc28849f70bcc72785d7f8d89ccbd9b1ffb71674bdd4d8dd327c78c7052c3bdb";
-  mu_assert_string_eq(hash, gethash(s, &d1, dliteDimension, sizeof(d1)));
+  DLiteDimension d = {"dimname", "dimdescr"};
+  hash = "5aff904f6bed85011648cc1ab16025e3c4900364efdf404005e89bf32b814fc4";
+  mu_assert_string_eq(hash, gethash(s, &d, dliteDimension, sizeof(d)));
 
-  DLiteDimension d2 = {"dimname", "???"};  // hash independent of description
-  mu_assert_string_eq(hash, gethash(s, &d2, dliteDimension, sizeof(d2)));
+  d.description = NULL;  // hash depends on description
+  hash = "fc28849f70bcc72785d7f8d89ccbd9b1ffb71674bdd4d8dd327c78c7052c3bdb";
+  mu_assert_string_eq(hash, gethash(s, &d, dliteDimension, sizeof(d)));
 
   char *shape[] = {"dim1", "dim2"};
   DLiteProperty p = {"propname", dliteStringPtr, sizeof(char *), NULL, 2, shape,
     "m/s", NULL};
-  hash = "f52af54cb773ec8a7499ae44f3499c58fba40203d870c0c52842d10cbbcdc13a";
+  //hash = "f52af54cb773ec8a7499ae44f3499c58fba40203d870c0c52842d10cbbcdc13a";
+  hash = "5d2b98da4531f9a5b519cdebcc5ef181a46a25372d0774869bb98c631b68dce6";
   mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));
 
-  p.description = "Some description...";  // hash independent of description
+  p.description = "Some description...";  // hash depends on description
+  hash = "ba830a4ffc8cf9472363c892a5346565dd05fa9f7aad03b317609e32295939a7";
   mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));
 
-  p.unit = "m";
-  hash = "f92e79baa064d9eefc1e0790bf6332678a792a5e1cb28d94a237abee42de1505";
+  p.unit = "m";  // hash depends on unit
+  hash = "ab378fe9afa100e56e4eed2c564460db18ec8872d5aedfa6d1d0a10a31c8ccff";
   mu_assert_string_eq(hash, gethash(s, &p, dliteProperty, sizeof(p)));
 }
 
