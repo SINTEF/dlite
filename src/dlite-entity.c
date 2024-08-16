@@ -2159,8 +2159,8 @@ int dlite_instance_get_hash(const DLiteInstance *inst,
   }
   sha3_Update(&c, inst->meta->uri, strlen(inst->meta->uri));
   for (i=0; i<DLITE_NDIM(inst); i++) {
-    size_t n = DLITE_DIM(inst, i);
-    sha3_Update(&c, &n, sizeof(size_t));
+    uint64_t n = DLITE_DIM(inst, i);
+    sha3_Update(&c, &n, sizeof(uint64_t));
   }
   for (i=0; i<DLITE_NPROP(inst); i++) {
     void *ptr = dlite_instance_get_property_by_index(inst, i);
@@ -3645,18 +3645,24 @@ int dlite_metamodel_set_string(DLiteMetaModel *model, const char *name,
 {
   size_t i;
   char *p;
-  if (!(p = strdup(s))) return err(dliteMemoryError, "allocation failure");
-  if (dlite_metamodel_set_value(model, name, NULL)) return 1;
+  if (!(p = strdup(s)))
+    FAILCODE(dliteMemoryError, "allocation failure");
+  if (dlite_metamodel_set_value(model, name, NULL))
+    goto fail;
   for (i=0; i < model->nvalues; i++)
     if (strcmp(name, model->values[i].name) == 0) {
       Value *v = model->values + i;
       assert(v->data == NULL);
-      if (!(v->strp = malloc(sizeof(char **)))) return 1;
+      if (!(v->strp = malloc(sizeof(char **))))
+        FAILCODE(dliteMemoryError, "allocation failure");
       *(v->strp) = p;
       v->data = v->strp;
       return 0;
     }
   abort();  /* should never be reached */
+ fail:
+  if (p) free(p);
+  return 1;
 }
 
 
