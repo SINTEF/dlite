@@ -18,9 +18,6 @@
 #endif
 
 
-static int python_initialized = 0;
-
-
 /* Struct correlating Python exceptions with DLite errors */
 typedef struct {
   PyObject *exc;        /* Python exception */
@@ -152,6 +149,7 @@ void dlite_pyembed_initialise(void)
       In DLite, we switch to the new Python Initialisation
       Configuration from Python 3.11.
     */
+    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
 #if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
     /* New Python Initialisation Configuration */
     PyStatus status;
@@ -218,9 +216,8 @@ void dlite_pyembed_initialise(void)
 int dlite_pyembed_finalise(void)
 {
   int status=0;
-  if (python_initialized) {
+  if (Py_IsInitialized()) {
     status = Py_FinalizeEx();
-    python_initialized = 0;
   } else {
     return dlite_errx(1, "cannot finalize Python before it is initialized");
   }
