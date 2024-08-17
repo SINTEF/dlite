@@ -9,6 +9,10 @@
 # and SYSTEM_TYPE is the specific linux system type, e.g., 2010 or 2014 for manylinux
 # and _1_1 or _1_2 for musllinux
 # More information: https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip
+#
+# Example:
+#
+#     run_cibuildwheel.sh cp38-musllinux_x86_64 _1_1
 set -eu
 
 if [[ $# -eq 0 ]]; then
