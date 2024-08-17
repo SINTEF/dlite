@@ -513,12 +513,13 @@ def add_data(
     triples = []
     triples.extend([
         (iri, RDF.type, metairi),
-        (iri, OTEIO.hasUUID, inst.uuid),
+        (iri, OTEIO.hasUUID, Literal(inst.uuid, datatype=XSD.string)),
         (iri, RDF.value, Literal(inst.asjson(), datatype=RDF.JSON)),
     ])
     if inst.uri:
-        triples.append((iri, OTEIO.hasURI, inst.uri))
-
+        triples.append(
+            (iri, OTEIO.hasURI, Literal(inst.uri, datatype=XSD.string))
+        )
     ts.add_triples(triples)
 
     used_namespaces = {"oteio": OTEIO}
