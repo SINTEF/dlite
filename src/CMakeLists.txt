@@ -45,6 +45,7 @@ set(sources
   dlite-getlicense.c
   dlite-json.c
   dlite-bson.c
+  dlite-behavior.c
   getuuid.c
   pathshash.c
   triple.c
