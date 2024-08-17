@@ -540,11 +540,22 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 }
 
 
-/* Error handler for DLite. */
+/* Error handler for DLite.
+
+   Since errors
+   Print warnings, but not errors unless DLITE_PYDEBUG is set.
+ */
 static void dlite_err_handler(const ErrRecord *record)
 {
-  if (!dlite_err_ignored_get(record->eval) && getenv("DLITE_PYDEBUG"))
+#ifdef WITH_PYTHON
+  if (record->level != errLevelError ||
+      !getenv("DLITE_PYDEBUG") ||
+      !dlite_err_ignored_get(record->eval))
     err_default_handler(record);
+#else  /* WITH_PYTHON */
+  if (!dlite_err_ignored_get(record->eval))
+    err_default_handler(record);
+#endif
 }
 
 

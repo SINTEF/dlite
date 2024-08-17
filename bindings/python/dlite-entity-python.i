@@ -8,8 +8,8 @@ from uuid import UUID
 import numpy as np
 
 
-class InvalidMetadataError:
-    """Malformed or invalid metadata."""
+#class InvalidMetadataError:
+#    """Malformed or invalid metadata."""
 
 
 class Metadata(Instance):
@@ -91,7 +91,7 @@ class Metadata(Instance):
     def getprop(self, name):
         """Returns the metadata property object with the given name."""
         if "properties" not in self.properties:
-            raise InvalidMetadataError(
+            raise _dlite.DLiteInvalidMetadataError(
                 'self.properties on metadata must contain a "properties" item'
             )
         lst = [p for p in self.properties["properties"] if p.name == name]
@@ -109,7 +109,7 @@ class Metadata(Instance):
     def propnames(self):
         """Returns a list of all property names in this metadata."""
         if "properties" not in self.properties:
-            raise InvalidMetadataError(
+            raise _dlite.DLiteInvalidMetadataError(
                 'self.properties on metadata must contain a "properties" item'
             )
         return [p.name for p in self.properties['properties']]
