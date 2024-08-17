@@ -162,7 +162,7 @@ MU_TEST(test_value)
   // no match (datatype does not match)
   mu_assert_string_eq(NULL, triplestore_value(ts, "book-weight", "has-unit",
                                               NULL, "xsd:float", NULL, 0));
- ErrCatch(dliteSearchError):  // suppress errors
+ ErrCatch(dliteLookupError):  // suppress errors
   break;
  ErrEnd;
 

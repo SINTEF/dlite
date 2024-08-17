@@ -1413,4 +1413,14 @@ def instance_cast(inst, newtype=None):
         inst.__class__ = Metadata
     return inst
 
+
+# Deprecated exceptions
+class DLiteSearchError(_dlite.DLiteLookupError):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        deprecation_warning(
+            "0.7.0",
+            "DLiteSearchError has been renamed to DLiteLookupError."
+        )
+
 %}
