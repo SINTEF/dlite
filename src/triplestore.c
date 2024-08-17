@@ -78,7 +78,7 @@ const char *triplestore_value(TripleStore *ts, const char *s, const char *p,
   assert(i >= 0);
   if (!(t = triplestore_find(&state, s, p, o, d))) {
     if (!fallback)
-      FAILCODE4(dliteSearchError, "no values matching the criteria: "
+      FAILCODE4(dliteLookupError, "no values matching the criteria: "
                 "s='%s', p='%s', o='%s', d='%s'", s, p, o, d);
     value = fallback;
   } else {
@@ -89,7 +89,7 @@ const char *triplestore_value(TripleStore *ts, const char *s, const char *p,
     }
   }
   if (!any && triplestore_find(&state, s, p, o, d))
-    FAILCODE4(dliteSearchError, "more than one value matching the criteria: "
+    FAILCODE4(dliteLookupError, "more than one value matching the criteria: "
               "s='%s', p='%s', o='%s', d='%s'.  Maybe you want to set `any` "
               "to true?", s, p, o, d);
   triplestore_deinit_state(&state);
