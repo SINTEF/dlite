@@ -97,7 +97,11 @@ def deprecation_warning(version_removed, descr):
         return
     _deprecation_warning_record.add(descr)
 
-    warnings.warn(descr, DeprecationWarning, stacklevel=2)
+    warnings.warn(
+        f"{descr}\nIt will be removed in v{version_removed}",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     dlite_version = get_version()
     if chk_semver(version_removed) < 0:
