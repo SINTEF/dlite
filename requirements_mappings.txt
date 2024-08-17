@@ -1,15 +1,18 @@
 # Requirements for property mappings
-#tripper>=0.2.16,<0.3.1
+rdflib>=4.2.1,<8
+#tripper>=0.3.1,<0.3.2
 tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
 pint>=0.15,<1
 
 
-# oteexample.py in the mappings example also require OTEAPI (including oteapi-dlite).
-# We don't include that requirement here, since it depends on the DLite-Python
-# PyPI package, which can interfere with installation from source.
+# oteexample.py in the mappings example also require OTEAPI (including
+# oteapi-dlite).  We don't include that requirement here, since it
+# depends on the DLite-Python PyPI package, which can interfere with
+# installation from source.
 #
-# If you uncomment the lines below and want to use DLite built from source, please
-# `pip uninstall DLite-Python` before installing DLite from source.
+# If you uncomment the lines below and want to use DLite built from
+# source, please `pip uninstall DLite-Python` before installing DLite
+# from source.
 #
 #oteapi-core>=0.6.1,<1
 ##oteapi-dlite>0.1.6,<1  # update once after migrating to pydantic v2
