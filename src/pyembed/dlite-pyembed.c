@@ -52,30 +52,77 @@ static PyembedGlobals *get_globals(void)
   return g;
 }
 
+
+/*
+  Return Python exception class corresponding to given DLite error code.
+  Returns NULL if `code` is zero.
+ */
+PyObject *dlite_pyembed_exception(DLiteErrCode code)
+{
+  switch (code) {
+  case dliteSuccess:               return NULL;
+  case dliteUnknownError:          break;
+  case dliteIOError:               return PyExc_IOError;
+  case dliteRuntimeError:          return PyExc_RuntimeError;
+  case dliteIndexError:            return PyExc_IndexError;
+  case dliteTypeError:             return PyExc_TypeError;
+  case dliteDivisionByZeroError:   return PyExc_ZeroDivisionError;
+  case dliteOverflowError:         return PyExc_OverflowError;
+  case dliteSyntaxError:           return PyExc_SyntaxError;
+  case dliteValueError:            return PyExc_ValueError;
+  case dliteSystemError:           return PyExc_SystemError;
+  case dliteAttributeError:        return PyExc_AttributeError;
+  case dliteMemoryError:           return PyExc_MemoryError;
+  case dliteNullReferenceError:    break;
+
+  case dliteOSError:               return PyExc_OSError;
+  case dliteKeyError:              return PyExc_KeyError;
+  case dliteNameError:             return PyExc_NameError;
+  case dliteLookupError:           return PyExc_LookupError;
+  case dliteParseError:            return PyExc_IOError;     // dup
+  case dlitePermissionError:       return PyExc_PermissionError;
+  case dliteSerialiseError:        return PyExc_IOError;     // dup
+  case dliteUnsupportedError:      break;
+  case dliteVerifyError:           break;
+  case dliteInconsistentDataError: return PyExc_ValueError;  // dup
+  case dliteInvalidMetadataError:  return PyExc_ValueError;  // dup
+  case dliteStorageOpenError:      return PyExc_IOError;     // dup
+  case dliteStorageLoadError:      return PyExc_IOError;     // dup
+  case dliteStorageSaveError:      return PyExc_IOError;     // dup
+  case dliteOptionError:           return PyExc_ValueError;  // dup
+  case dliteMissingInstanceError:  return PyExc_LookupError; // dup
+  case dliteMissingMetadataError:  return PyExc_LookupError; // dup
+  case dliteMetadataExistError:    break;
+  case dliteMappingError:          break;
+  case dlitePythonError:           break;
+  case dliteLastError:             break;
+  }
+  return PyExc_Exception;
+}
+
+
 /* Help function returning a constant pointer to a NULL-terminated
    array of ErrorCorrelation records. */
 static const ErrorCorrelation *error_correlations(void)
 {
   PyembedGlobals *g = get_globals();
   if (!g->errcorr) {
-    ErrorCorrelation corr[] = {
-      {PyExc_KeyError, dliteKeyError},
-      {PyExc_MemoryError, dliteMemoryError},
-      {PyExc_AttributeError, dliteAttributeError},
-      {PyExc_SystemError, dliteSystemError},
-      {PyExc_ValueError, dliteValueError},
-      {PyExc_SyntaxError, dliteSyntaxError},
-      {PyExc_OverflowError, dliteOverflowError},
-      {PyExc_ZeroDivisionError, dliteDivisionByZero},
-      {PyExc_TypeError, dliteTypeError},
-      {PyExc_IndexError, dliteIndexError},
-      {PyExc_RuntimeError, dliteRuntimeError},
-      {PyExc_IOError, dliteIOError},
-      {NULL, 0}
-    };
-    if (!(g->errcorr = malloc(sizeof(corr))))
+    int i, code, n=1;
+    for (code=-1; code>dliteLastError; code--)
+      if (dlite_pyembed_exception(code) != PyExc_Exception) n++;
+
+    if (!(g->errcorr = calloc(n, sizeof(ErrorCorrelation))))
       return dlite_err(dliteMemoryError, "allocation failure"), NULL;
-    memcpy(g->errcorr, corr, sizeof(corr));
+
+    for (code=-1, i=0; code>dliteLastError; code--) {
+      PyObject *exc;
+      if ((exc = dlite_pyembed_exception(code)) != PyExc_Exception) {
+        g->errcorr[i].exc = exc;
+        g->errcorr[i].errcode = code;
+        i++;
+      }
+    }
+    assert(i == n-1);
   }
   return g->errcorr;
 }
@@ -206,22 +253,6 @@ DLiteErrCode dlite_pyembed_errcode(PyObject *type)
   }
   return dliteUnknownError;
 }
-
-/*
-  Return Python exception class corresponding to given DLite error code.
-  Returns NULL if `code` is zero.
- */
-PyObject *dlite_pyembed_exception(DLiteErrCode code)
-{
-  const ErrorCorrelation *corr = error_correlations();
-  if (!code) return NULL;
-  while (corr->exc) {
-    if (code == corr->errcode) return corr->exc;
-    corr++;
-  }
-  return PyExc_Exception;
-}
-
 
 /*
   Writes Python error message to `errmsg` (of length `len`) if an

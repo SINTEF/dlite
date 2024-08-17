@@ -178,13 +178,13 @@ with raises(dlite.DLiteTypeError):
 with raises(dlite.DLiteTypeError):
     coll.value()
 
-with raises(dlite.DLiteSearchError):
+with raises(dlite.DLiteLookupError):
     coll.value(s="dog", p="x")
 
-with raises(dlite.DLiteSearchError):
+with raises(dlite.DLiteLookupError):
     coll.value(p="_is-a", o="Instance")
 
-with raises(dlite.DLiteSearchError):
+with raises(dlite.DLiteLookupError):
     coll.value(s="meta", p="_has-uuid", d="xsd:int")
 
 
