@@ -1,23 +1,28 @@
 # Optional requirements - used by various plugins or additional features like mappings
-fortran-language-server>=1.12.0,<1.13
+
+# RDF
+rdflib>=4.2.1,<8
+#tripper>=0.2.16,<0.3.1
+tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
+pint>=0.15,<1
+
+# Plugins
 PyYAML>=5.4.1,<7
-#psycopg2>=2,<3
 pandas>=1.2,<2.3
 pyarrow>=14.0,<18.0
 tables>=3.8,<5.0
-rdflib>=4.2.1,<8
-pint>=0.15,<1
-pymongo>=4.4.0,<5
-
-#tripper>=0.2.16,<0.3.1
-tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
-
-requests>=2.10,<3
+openpyxl>=3.0.9,<3.2
 jinja2>=3.0,<4
-pydantic>=1.10.0,<3
-typing_extensions>=4.1,<5
+requests>=2.10,<3
 redis>=5.0,<6
 minio>=6.0,<8
+pymongo>=4.4.0,<5
+#psycopg2>=2,<3
+
+# Utilities
+pydantic>=1.10.0,<3
+typing_extensions>=4.1,<5
+fortran-language-server>=1.12.0,<1.13
 
 # For TEM demo
 matplotlib>=3,<4

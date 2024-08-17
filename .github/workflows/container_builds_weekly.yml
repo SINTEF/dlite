@@ -24,49 +24,40 @@ jobs:
         include:
         # 64-bit linux
         - system: "manylinux"
-          template: "manylinux"
           type: "2010"
           arch: "x86_64"
           py_minors: "8 9"
         - system: "manylinux"
-          template: "manylinux"
           type: "2014"
           arch: "x86_64"
           py_minors: "8 9 10 11 12"
         - system: "manylinux"
-          template: "manylinux_x_y"
           type: "_2_28"
           arch: "x86_64"
           py_minors: "8 9 10 11 12"
         - system: "musllinux"
-          template: "musllinux"
           type: "_1_1"
           arch: "x86_64"
           py_minors: "8 9 10 11"
         - system: "musllinux"
-          template: "musllinux"
           type: "_1_2"
           arch: "x86_64"
           py_minors: "8 9 10 11"
 
         # 32-bit linux
         - system: "manylinux"
-          template: "manylinux"
           type: "2010"
           arch: "i686"
           py_minors: "8 9"
         - system: "manylinux"
-          template: "manylinux"
           type: "2014"
           arch: "i686"
           py_minors: "8 9 10 11 12"
         - system: "musllinux"
-          template: "musllinux"
           type: "_1_1"
           arch: "i686"
           py_minors: "8 9 10 11"
         - system: "musllinux"
-          template: "musllinux"
           type: "_1_2"
           arch: "i686"
           py_minors: "8 9 10 11"
@@ -104,20 +95,7 @@ jobs:
         if: env.BUILD_NEW_IMAGE == 'true'
         run: |
           mkdir -p docker_build_wheel
-
-          EXTRA_PRE=""
-          EXTRA_POST=""
-          if [ "${{ matrix.type }}" == "2010" ]; then
-            EXTRA_PRE="COPY .github/docker/pgdg-91_${{ matrix.arch }}.repo /etc/yum.repos.d/pgdg-91.repo"
-            EXTRA_POST="ENV PATH=\$PATH:/usr/pgsql-9.1/bin"
-          fi
-
-          sed \
-            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
-            -e "s|{{ TYPE }}|${{ matrix.type }}|" \
-            -e "s|{{ EXTRA_PRE }}|${EXTRA_PRE}|" \
-            -e "s|{{ EXTRA_POST }}|${EXTRA_POST}|" \
-            .github/docker/Dockerfile-${{ matrix.template }}.template \
+          sh .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} \
             > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
 
       - name: Login to GitHub Container Registry

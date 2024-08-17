@@ -101,7 +101,7 @@ class csv(dlite.DLiteStorageBase):
             inst: A DLite Instance to store in the CSV storage.
 
         """
-        inst_as_dict = inst.asdict()
+        inst_as_dict = inst.asdict(single=True)
         data = pd.DataFrame(inst_as_dict["properties"])
 
         writer = getattr(data, f"to_{self.format}")

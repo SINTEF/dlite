@@ -141,7 +141,7 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
   if ((api = dlite_python_mapping_get_api(name))) return api;
 #endif
   /* Cannot find API */
-  int i, j=2, m=0;
+  int i=0, j=2, m=0;
   char *buf=NULL;
   size_t size=0;
   const char **paths;

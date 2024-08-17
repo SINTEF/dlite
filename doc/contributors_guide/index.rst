@@ -9,4 +9,5 @@ Contributor's Guide
    documentation_contributors
    documentation_testing
    release_instructions
+   code_changes
    tips_and_tricks

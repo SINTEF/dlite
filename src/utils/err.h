@@ -98,7 +98,7 @@
 #elif defined HAVE___FUNCTION__
 # define _err_func __FUNCTION__
 #else
-# define _err_func
+# define _err_func ""
 #endif
 
 /** Error levels */

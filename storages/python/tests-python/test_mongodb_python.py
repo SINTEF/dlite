@@ -5,12 +5,10 @@ from pathlib import Path
 
 import dlite
 from dlite.options import Options
+from dlite.testutils import importskip
 
-try:
-    import pymongo
-    import mongomock
-except ImportError:
-    sys.exit(44)  # skip test
+importskip("pymongo")
+mongomock = importskip("mongomock")
 
 
 @mongomock.patch(servers=(('localhost', 27017),))

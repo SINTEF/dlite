@@ -3,11 +3,19 @@ project(dlite-bindings-python-scripts C)
 # Convinience functions for check for success
 # Usage: test_success(name, command...)
 function(test_success name)
-add_test(
-  NAME ${name}
-  COMMAND ${RUNNER} ${Python3_EXECUTABLE} ${ARGN}
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+  add_test(
+    NAME ${name}
+    COMMAND ${RUNNER} ${Python3_EXECUTABLE} ${ARGN}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+  set_property(TEST ${name} PROPERTY
+    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+  set_property(TEST ${name} APPEND PROPERTY
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH}")
+  if (NOT WIN32)
+    set_property(TEST ${name} APPEND PROPERTY
+      ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
+  endif()
 endfunction()
 
 # Convinience functions for check for failure

@@ -8,8 +8,8 @@ from uuid import UUID
 import numpy as np
 
 
-class InvalidMetadataError:
-    """Malformed or invalid metadata."""
+#class InvalidMetadataError:
+#    """Malformed or invalid metadata."""
 
 
 class Metadata(Instance):
@@ -91,7 +91,7 @@ class Metadata(Instance):
     def getprop(self, name):
         """Returns the metadata property object with the given name."""
         if "properties" not in self.properties:
-            raise InvalidMetadataError(
+            raise _dlite.DLiteInvalidMetadataError(
                 'self.properties on metadata must contain a "properties" item'
             )
         lst = [p for p in self.properties["properties"] if p.name == name]
@@ -109,7 +109,7 @@ class Metadata(Instance):
     def propnames(self):
         """Returns a list of all property names in this metadata."""
         if "properties" not in self.properties:
-            raise InvalidMetadataError(
+            raise _dlite.DLiteInvalidMetadataError(
                 'self.properties on metadata must contain a "properties" item'
             )
         return [p.name for p in self.properties['properties']]
@@ -333,10 +333,12 @@ def get_instance(
     # Override default generated __init__() method
     def __init__(self, *args, **kwargs):
 
-        # The swig-generated __new__() method is not a standard wrapper
-        # function and therefore bypass the standard error checking.
-        # Check manually that we are not in an error state.
-        _dlite.errcheck()
+        # Some versions of SWIG may generate a __new__() method that
+        # is not a standard wrapper function and will therefore bypass
+        # the standard error checking.  Check manually that we are not
+        # in an error state.
+        if hasattr(self, "__new__"):
+            _dlite.errcheck()
 
         if self is None:
             raise _dlite.DLitePythonError(f"cannot create dlite.Instance")

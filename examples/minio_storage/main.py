@@ -2,12 +2,11 @@ import sys
 import subprocess
 from pathlib import Path
 
-try:
-    import minio  # noqa: F401
-except ImportError:
-    import sys
-    sys.exit(44)  # skip this test if minio is not available
+from dlite.testutils import importskip, serverskip
 
+
+importskip("minio")  # skip this test if minio is not available
+#serverskip("play.min.io", 9000)  # skip test if minio is down
 
 thisdir = Path(__file__).resolve().parent
 

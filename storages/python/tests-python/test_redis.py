@@ -5,12 +5,10 @@ from time import sleep
 from pathlib import Path
 
 import dlite
+from dlite.testutils import importskip, serverskip
 
-try:
-    import redis
-except ImportError:
-    print("redis-py not installed, skipping test")
-    sys.exit(44)  # skip test
+importskip("redis")  # skip this test if redis is not available
+serverskip("localhost", 6379)  # skip test if redis is down
 
 
 thisdir = Path(__file__).resolve().parent

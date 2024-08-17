@@ -1,14 +1,12 @@
 from pathlib import Path
 
-try:
-    from tripper import MAP, Triplestore
-except ModuleNotFoundError:
-    import sys
-    sys.exit(44)
-
 import dlite
+from dlite.testutils import raises, importskip
+importskip("tripper")
+
+from tripper import MAP, Triplestore
+
 from dlite.dataset import EMMO, get_dataset, get_data
-from dlite.testutils import raises
 
 
 thisdir = Path(__file__).absolute().parent
@@ -35,7 +33,7 @@ assert Fluid.props["TemperatureField"].unit == "°C"
 
 # Check that we get the exact same hash as in test_dataset1_save.py
 assert Fluid.get_hash() == (
-    '4739a3820ced457d07447c8916112021a0fbda9cbc97758e40b67369e34c00b4'
+    '9559cf53acd9f248d713e351ec432b515032f1fbaa345b03a104035c68d34f36'
 )
 
 # Check that we get the exact same mappings as provided

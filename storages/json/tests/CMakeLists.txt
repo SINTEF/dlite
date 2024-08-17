@@ -42,8 +42,8 @@ foreach(test ${tests})
   target_link_libraries(${test}
     dlite
     dlite-plugins-json
-    ${Python3_STATIC_LIBS}
-    )
+    ${extra_link_libraries}
+  )
 
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/storages/json

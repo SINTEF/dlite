@@ -1,4 +1,8 @@
 """Some utilities for testing."""
+import importlib
+import socket
+import sys
+
 import dlite
 
 
@@ -56,3 +60,31 @@ class raises():
             f"Expected one of the following exceptions: {excnames}, "
             f"but got: '{exc_type.__name__}'"
         ) from exc_value
+
+
+def importskip(module_name, exitcode=44):
+    """Import and return the requested module.
+
+    Calls `sys.exit()` with given exitcode if the module cannot be imported.
+    """
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        print(f"{exc}: skipping test", file=sys.stderr)
+        sys.exit(exitcode)
+
+
+def serverskip(server, port, timeout=2, exitcode=44):
+    """Ping a remote server and calls `sys.exit()` with given exitcode if it
+    doesn't respond within the timeout."""
+    try:
+        socket.setdefaulttimeout(timeout)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((server, port))
+    except OSError as exc:
+        print(
+            f"Server {server}:{port} seems to be down: {exc}", file=sys.stderr
+        )
+        sys.exit(exitcode)
+    else:
+        s.close()

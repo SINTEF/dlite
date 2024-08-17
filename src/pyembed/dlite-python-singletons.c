@@ -123,35 +123,6 @@ PyObject *dlite_python_module_class(const char *classname)
 
 
 /*
-  Help function returning builtin Python exception corresponding to
-  error code or NULL, if no such built-in exception exists in Python.
- */
-static PyObject *_python_exc(DLiteErrCode code)
-{
-  switch (code) {
-  case dliteIOError:                return PyExc_IOError;
-  case dliteRuntimeError:           return PyExc_RuntimeError;
-  case dliteIndexError:             return PyExc_IndexError;
-  case dliteTypeError:              return PyExc_TypeError;
-  case dliteDivisionByZero:         return PyExc_ZeroDivisionError;
-  case dliteOverflowError:          return PyExc_OverflowError;
-  case dliteSyntaxError:            return PyExc_SyntaxError;
-  case dliteValueError:             return PyExc_ValueError;
-  case dliteSystemError:            return PyExc_SystemError;
-  case dliteAttributeError:         return PyExc_AttributeError;
-  case dliteMemoryError:            return PyExc_MemoryError;
-
-  case dliteOSError:                return PyExc_OSError;
-  case dliteKeyError:               return PyExc_KeyError;
-  case dliteUnsupportedError:       return PyExc_NotImplementedError;
-  case dliteStorageOpenError:       return PyExc_ConnectionError;
-
-  default:                          return NULL;
-  }
-}
-
-
-/*
   Returns a borrowed reference to singleton Python exception object
   for the given DLite error code.
 
@@ -199,7 +170,7 @@ PyObject *dlite_python_module_error(DLiteErrCode code)
   if ((exc = PyDict_GetItemString(dict, errname))) return exc;
 
   /* Base exceptions */
-  if ((pyexc = _python_exc(code))) {
+  if ((pyexc = dlite_pyembed_exception(code)) && pyexc != PyExc_Exception) {
     if (!(base = Py_BuildValue("(O,O)", dliteError, pyexc)))
       FAILCODE(dlitePythonError, "cannot build dlite exception base");
   } else {

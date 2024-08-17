@@ -26,7 +26,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   DLiteDataModel *d=NULL;
   char **uuids=NULL;
   char uuid[DLITE_UUID_LENGTH+1];
-  int uuidver=4;
+  int uuidver;
 
   /* allow id to be NULL if the storage only contains one instance */
   if (!id || !*id) {
@@ -43,12 +43,13 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
     }
   }
 
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
+    FAIL1("failed generating UUID from id \"%s\"", id);
+
   if (s->idflag == dliteIDKeepID) {
       d = s->api->dataModel(s, id);
   } else if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
       s->idflag == dliteIDRequireUUID) {
-    if ((uuidver = dlite_get_uuid(uuid, id)) < 0)
-      FAIL1("failed generating UUID from id \"%s\"", id);
     if (uuidver != 0 && s->idflag == dliteIDRequireUUID)
       FAIL1("id is not a valid UUID: \"%s\"", id);
     d = s->api->dataModel(s, uuid);
@@ -217,7 +218,7 @@ int dlite_copy_to_flat(void *dst, const void *src, size_t size,
   char *q=dst;
   void **p=(void **)src;
 
-  if (!(ind = calloc(ndims, sizeof(int)))) 
+  if (!(ind = calloc(ndims, sizeof(int))))
     FAILCODE(dliteMemoryError, "allocation failure");
 
   for (i=0; i<(int)ndims-1; i++) p = p[ind[i]];

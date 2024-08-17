@@ -18,13 +18,13 @@ set(tests
   test_bson_storage
   test_postgresql_storage
   test_postgresql_storage2
-  )
+)
 
 add_definitions(
   -DDLITE_ROOT=${dlite_SOURCE_DIR}
   -DCURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
   -DCURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
-  )
+)
 
 include(FindPythonModule)
 
@@ -79,19 +79,18 @@ foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
     dlite-plugins-python
-    -Xlinker -export-dynamic
-    ${Python3_STATIC_LIBS}
-    )
+    ${extra_link_libraries}
+  )
   target_include_directories(${test} PRIVATE
     ${dlite_SOURCE_DIR}/storages/python
     ${dlite-src_SOURCE_DIR}/tests
-    )
+  )
   add_dependencies(${test} copy-dlite-plugins-python)
 
   add_test(
     NAME ${test}
     COMMAND ${RUNNER} ${test}
-    )
+  )
 
 
   set_property(TEST ${test} PROPERTY

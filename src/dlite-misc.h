@@ -389,6 +389,24 @@ int dlite_err_set_override_mode(int mode);
 int dlite_err_get_override_mode(void);
 
 
+/*
+  Issues a deprecation warning.
+
+  `version_removed` is the version the deprecated feature is expected
+  to be finally removed.
+  expected to be finally removed.
+  `descr` is a description of the deprecated feature.
+
+  Returns non-zero if `version_removed` has passed.
+ */
+#define dlite_deprecation_warning(version_removed, descr) \
+  _dlite_deprecation_warning(version_removed, ERR_FILEPOS, _err_func, descr)
+
+int _dlite_deprecation_warning(const char *version_removed,
+                               const char *filepos, const char *func,
+                               const char *descr);
+
+
 /** @} */
 
 

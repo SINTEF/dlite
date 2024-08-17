@@ -17,6 +17,10 @@
 #include "strutils.h"
 
 
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
+
 /*
   A convinient variant of asnprintf() that returns the allocated string,
   or NULL on error.
@@ -786,4 +790,168 @@ char *strlst_pop(char **strlst, int i)
   p = strlst[i];
   for (j=i; strlst[j]; j++) strlst[j] = strlst[j+1];
   return p;
+}
+
+
+/*
+  A version of atoi() that reads at most `n` bytes.
+
+  Returns zero if `n` is negative.
+ */
+int natoi(const char *s, int n)
+{
+  int x=0, sign=1;
+  while (isspace(*s)) s++, n--;
+  if (*s == '-') {
+    sign = -1;
+    s++, n--;
+  }
+  if (*s == '+') s++;
+  while(isdigit(*s) && n-- > 0) {
+    x = 10*x + (*s - '0');
+    s++;
+  }
+  return sign*x;
+}
+
+
+/*
+  Checks if `v` points to a valid semantic version 2.0.0 number.
+
+  Returns -1 if `v` is not a valid semantic version number.
+  Otherwise, the length of `v` is returned.
+ */
+int strchk_semver(const char *v)
+{
+  int n = strlen(v);
+  int m = strnchk_semver(v, n);
+  if (m != n) return -1;
+  return m;
+}
+
+/*
+  Check if the initial part of `v` is a valid semantic version 2.0.0 number.
+
+  Only the first `n` bytes of `v` are checked.
+
+  Returns the length of the semantic version number or -1 if `v` is
+  not a valid semantic version number.
+*/
+int strnchk_semver(const char *v, size_t n)
+{
+  size_t m=0;
+  /* Major number */
+  if (n < 5) return -1;
+  if (!isdigit(v[m])) return -1;
+  if (v[0] == '0' && isdigit(v[1])) return -1;
+  while (isdigit(v[m]) && m < n) m++;
+  /* Minor number */
+  if (v[m] != '.') return -1;
+  if (m < n) m++;
+  if (!isdigit(v[m])) return -1;
+  if (n >= m+2 && v[m] == '0' && isdigit(v[m+1])) return -1;
+  while (isdigit(v[m]) && m < n) m++;
+  /* Patch number */
+  if (v[m] != '.') return -1;
+  if (m < n) m++;
+  if (!isdigit(v[m])) return -1;
+  if (n >= m+2 && v[m] == '0' && isdigit(v[m+1])) return -1;
+  while (isdigit(v[m]) && m < n) m++;
+  /* Pre-release */
+  if (m == n) return m;
+  if (v[m] == '-') {
+    do {
+      if (n <= ++m) return -1;
+      if (!isalnum(v[m]) && v[m] != '-') return -1;
+      while ((isalnum(v[m]) || v[m] == '-') && m < n) m++;
+    } while (v[m] == '.');
+  }
+  /* Build */
+  if (m == n) return m;
+  if (v[m] == '+') {
+    do {
+      if (n <= ++m ) return -1;
+      if (!isalnum(v[m]) && v[m] != '-') return -1;
+      while ((isalnum(v[m]) || v[m] == '-') && m < n) m++;
+    } while (v[m] == '.');
+  }
+  if (m < n && v[m]) return -1;
+  return m;
+}
+
+
+/*
+  Compare strings `v1` and `v2` using semantic versioning 2.0.0 order.
+
+  Returns
+      -1 if v1 < v2
+       0 if v1 == v2
+       1 if v1 > v2
+  If `v1` or `v2` are not valid semantic version numbers, the return value
+  is undefined.
+
+  See also: https://semver.org/
+ */
+int strcmp_semver(const char *v1, const char *v2)
+{
+  int n1 = strlen(v1);
+  int n2 = strlen(v2);
+  return strncmp_semver(v1, v2, MAX(n1, n2));
+}
+
+
+/*
+  Like strcmp_semver(), but compares only the first `n` bytes of `v1` and `v2`.
+*/
+int strncmp_semver(const char *v1, const char *v2, size_t n)
+{
+  int d, pr1=0, pr2=0;
+  size_t m, n1=0, n2=0;
+  /* Compare major number */
+  d = natoi(v1, n) - natoi(v2, n);
+  if (d) return (d < 0) ? -1 : 1;
+  while (isdigit(v1[n1]) && n1 < n) n1++;
+  while (isdigit(v2[n2]) && n2 < n) n2++;
+  /* Compare minor number */
+  if (n1 < n) n1++;
+  if (n2 < n) n2++;
+  d = natoi(v1+n1, n-n1) - natoi(v2+n2, n-n2);
+  if (d) return (d < 0) ? -1 : 1;
+  while (isdigit(v1[n1]) && n1 < n) n1++;
+  while (isdigit(v2[n2]) && n2 < n) n2++;
+  /* Compare patch number */
+  if (n1 < n) n1++;
+  if (n2 < n) n2++;
+  d = natoi(v1+n1, n-n1) - natoi(v2+n2, n-n2);
+  if (d) return (d < 0) ? -1 : 1;
+  while (isdigit(v1[n1]) && n1 < n) n1++;
+  while (isdigit(v2[n2]) && n2 < n) n2++;
+  assert(n1 == n2);
+  m = n1;
+  /* Compare pre-release */
+  if (m > n) return 0;
+  if (v1[m] == '-') pr1 = 1;
+  if (v2[m] == '-') pr2 = 1;
+  if (!pr1 && pr2) return -1;
+  if (pr1 && !pr2) return 1;
+  if (pr1 && pr2) {
+    do {
+      size_t d1, d2;
+      if (m < n) m++;
+      for (n1=m; (isalnum(v1[n1]) || v1[n1] == '-') && n1 < n; n1++);
+      for (n2=m; (isalnum(v2[n2]) || v2[n2] == '-') && n2 < n; n2++);
+      for (d1=m; (isdigit(v1[d1])) && d1 < n; d1++);
+      for (d2=m; (isdigit(v2[d2])) && d2 < n; d2++);
+      if (d1 == n1 && d2 == n2) {
+        d = natoi(v1+m, n-m) - natoi(v2+m, n-m);
+      } else {
+        d = strncmp(v1+m, v2+m, MIN(n1, n2)-m);
+        if (d == 0) d = n1 - n2;
+      }
+      if (d) return (d < 0) ? -1 : 1;
+      assert(n1 == n2);
+      m = n1;
+    } while (v1[n1] == '.' && v2[n2] == '.');
+  }
+  return 0;
 }
